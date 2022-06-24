@@ -57,11 +57,32 @@ attribute [runBuiltinParserAttributeHooks]
 @[runBuiltinParserAttributeHooks, inline] def manyIndent (p : Parser) : Parser :=
   withPosition $ many (checkColGe "irrelevant" >> p)
 
-@[runBuiltinParserAttributeHooks, inline] def sepByIndent (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTrailingSep : Bool := false) : Parser :=
+@[inline] def sepByIndent (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTrailingSep : Bool := false) : Parser :=
+  let p := withAntiquotSpliceAndSuffix `sepBy p (symbol "*")
   withPosition $ sepBy (checkColGe "irrelevant" >> p) sep (psep <|> checkLinebreakBefore >> pushNone) allowTrailingSep
 
-@[runBuiltinParserAttributeHooks, inline] def sepBy1Indent (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTrailingSep : Bool := false) : Parser :=
+@[inline] def sepBy1Indent (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTrailingSep : Bool := false) : Parser :=
+  let p := withAntiquotSpliceAndSuffix `sepBy p (symbol "*")
   withPosition $ sepBy1 (checkColGe "irrelevant" >> p) sep (psep <|> checkLinebreakBefore >> pushNone) allowTrailingSep
+
+open PrettyPrinter Syntax.MonadTraverser Formatter in
+@[combinatorFormatter Lean.Parser.sepByIndent]
+def sepByIndent.formatter (p : Formatter) (_sep : String) (pSep : Formatter) : Formatter := do
+  let stx ← getCur
+  let hasNewlineSep := stx.getArgs.mapIdx (fun ⟨i, _⟩ n => i % 2 == 1 && n.matchesNull 0) |>.any id
+  visitArgs do
+    for i in (List.range stx.getArgs.size).reverse do
+      if i % 2 == 0 then p else pSep <|> (pushWhitespace "\n" *> goLeft)
+  -- If there is any newline separator, then we need to force a newline at the
+  -- start so that `withPosition` will pick up the right column.
+  if hasNewlineSep then
+    pushWhitespace "\n"
+    -- HACK: allow formatter to put initial brace on previous line in structure instances
+    modify ({ · with mustBeGrouped := false })
+
+@[combinatorFormatter Lean.Parser.sepBy1Indent] def sepBy1Indent.formatter := sepByIndent.formatter
+
+attribute [runBuiltinParserAttributeHooks] sepByIndent sepBy1Indent
 
 @[runBuiltinParserAttributeHooks] abbrev notSymbol (s : String) : Parser :=
   notFollowedBy (symbol s) s
@@ -148,9 +169,11 @@ attribute [runBuiltinParserAttributeHooks]
   ppHardSpace ppSpace ppLine ppGroup ppRealGroup ppRealFill ppIndent ppDedent
   ppAllowUngrouped ppDedentIfGrouped ppHardLineUnlessUngrouped
 
-macro "register_parser_alias" aliasName?:optional(strLit) declName:ident : term =>
+macro "register_parser_alias" kind?:group("(" &"kind" " := " term ")")? aliasName?:optional(strLit) declName:ident : term => do
+  let [(fullDeclName, [])] ← Macro.resolveGlobalName declName.getId |
+    Macro.throwError "expected non-overloaded constant name"
   let aliasName := aliasName?.getD (Syntax.mkStrLit declName.getId.toString)
-  `(do Parser.registerAlias $aliasName $declName
+  `(do Parser.registerAlias $aliasName $declName (kind? := some $(kind?.map (·[3]) |>.getD (quote fullDeclName)))
        PrettyPrinter.Formatter.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `formatter))
        PrettyPrinter.Parenthesizer.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `parenthesizer)))
 

@@ -17,7 +17,7 @@ private partial def antiquote (vars : Array Syntax) : Syntax → Syntax
   | stx => match stx with
   | `($id:ident) =>
     if (vars.findIdx? (fun var => var.getId == id.getId)).isSome then
-      mkAntiquotNode id
+      mkAntiquotNode id (kind := `term) (isPseudoKind := true)
     else
       stx
   | _ => match stx with
@@ -38,7 +38,7 @@ def expandNotationItemIntoSyntaxItem (stx : Syntax) : MacroM Syntax :=
 def expandNotationItemIntoPattern (stx : Syntax) : MacroM Syntax :=
   let k := stx.getKind
   if k == `Lean.Parser.Command.identPrec then
-    return mkAntiquotNode stx[0]
+    return mkAntiquotNode stx[0] (kind := `term) (isPseudoKind := true)
   else if k == strLitKind then
     strLitToPattern stx
   else

@@ -434,11 +434,11 @@ def mkSep (a : Array Syntax) (sep : Syntax) : Syntax :=
   mkNullNode <| mkSepArray a sep
 
 def SepArray.ofElems {sep} (elems : Array Syntax) : SepArray sep :=
-⟨mkSepArray elems (mkAtom sep)⟩
+⟨mkSepArray elems (if sep.isEmpty then mkNullNode else mkAtom sep)⟩
 
 def SepArray.ofElemsUsingRef [Monad m] [MonadRef m] {sep} (elems : Array Syntax) : m (SepArray sep) := do
   let ref ← getRef;
-  return ⟨mkSepArray elems (mkAtomFrom ref sep)⟩
+  return ⟨mkSepArray elems (if sep.isEmpty then mkNullNode else mkAtomFrom ref sep)⟩
 
 instance (sep) : Coe (Array Syntax) (SepArray sep) where
   coe := SepArray.ofElems
@@ -783,7 +783,7 @@ instance : Quote Substring := ⟨fun s => Syntax.mkCApp `String.toSubstring #[qu
 
 -- in contrast to `Name.toString`, we can, and want to be, precise here
 private def getEscapedNameParts? (acc : List String) : Name → Option (List String)
-  | Name.anonymous => return acc
+  | Name.anonymous => if acc.isEmpty then none else some acc
   | Name.str n s _ => do
     let s ← Name.escapePart s
     getEscapedNameParts? (s::acc) n

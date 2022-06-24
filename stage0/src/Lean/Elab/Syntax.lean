@@ -57,6 +57,27 @@ def checkLeftRec (stx : Syntax) : ToParserDescrM Bool := do
   markAsTrailingParser (prec?.getD 0)
   return true
 
+/-- Resolve the given parser name and return a list of candidates.
+    Each candidate is a pair `(resolvedParserName, isDescr)`.
+    `isDescr == true` if the type of `resolvedParserName` is a `ParserDescr`. -/
+def resolveParserName [Monad m] [MonadInfoTree m] [MonadResolveName m] [MonadEnv m] [MonadError m] (parserName : Syntax) : m (List (Name × Bool)) := do
+  try
+    let candidates ← resolveGlobalConstWithInfos parserName
+    /- Convert `candidates` in a list of pairs `(c, isDescr)`, where `c` is the parser name,
+        and `isDescr` is true iff `c` has type `Lean.ParserDescr` or `Lean.TrailingParser` -/
+    let env ← getEnv
+    return candidates.filterMap fun c =>
+        match env.find? c with
+        | none      => none
+        | some info =>
+          match info.type with
+        | Expr.const ``Lean.Parser.TrailingParser _ _ => (c, false)
+        | Expr.const ``Lean.Parser.Parser _ _         => (c, false)
+        | Expr.const ``Lean.ParserDescr _ _           => (c, true)
+        | Expr.const ``Lean.TrailingParserDescr _ _   => (c, true)
+        | _                                           => none
+  catch _ => return []
+
 /--
   Given a `stx` of category `syntax`, return a pair `(newStx, lhsPrec?)`,
   where `newStx` is of category `term`. After elaboration, `newStx` should have type
@@ -105,27 +126,6 @@ where
     else
       let args ← args.mapIdxM fun i arg => withReader (fun ctx => { ctx with first := ctx.first && i.val == 0 }) do process arg
       mkParserSeq args
-
-  /- Resolve the given parser name and return a list of candidates.
-     Each candidate is a pair `(resolvedParserName, isDescr)`.
-     `isDescr == true` if the type of `resolvedParserName` is a `ParserDescr`. -/
-  resolveParserName (parserName : Syntax) : ToParserDescrM (List (Name × Bool)) := do
-    try
-      let candidates ← resolveGlobalConstWithInfos parserName
-      /- Convert `candidates` in a list of pairs `(c, isDescr)`, where `c` is the parser name,
-         and `isDescr` is true iff `c` has type `Lean.ParserDescr` or `Lean.TrailingParser` -/
-      let env ← getEnv
-      return candidates.filterMap fun c =>
-         match env.find? c with
-         | none      => none
-         | some info =>
-           match info.type with
-          | Expr.const ``Lean.Parser.TrailingParser _ _ => (c, false)
-          | Expr.const ``Lean.Parser.Parser _ _         => (c, false)
-          | Expr.const ``Lean.ParserDescr _ _           => (c, true)
-          | Expr.const ``Lean.TrailingParserDescr _ _   => (c, true)
-          | _                                           => none
-    catch _ => return []
 
   ensureNoPrec (stx : Syntax) :=
     unless stx[1].isNone do
@@ -219,15 +219,14 @@ private def declareSyntaxCatQuotParser (catName : Name) : CommandElabM Unit := d
   if let Name.str _ suffix _ := catName then
     let quotSymbol := "`(" ++ suffix ++ "|"
     let name := catName ++ `quot
-    -- TODO(Sebastian): this might confuse the pretty printer, but it lets us reuse the elaborator
-    let kind := ``Lean.Parser.Term.quot
     let cmd ← `(
       @[termParser] def $(mkIdent name) : Lean.ParserDescr :=
-        Lean.ParserDescr.node $(quote kind) $(quote Lean.Parser.maxPrec)
-          (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.symbol $(quote quotSymbol))
-            (Lean.ParserDescr.binary `andthen
-              (Lean.ParserDescr.cat $(quote catName) 0)
-              (Lean.ParserDescr.symbol ")"))))
+        Lean.ParserDescr.node `Lean.Parser.Term.quot $(quote Lean.Parser.maxPrec)
+          (Lean.ParserDescr.node $(quote name) $(quote Lean.Parser.maxPrec)
+            (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.symbol $(quote quotSymbol))
+              (Lean.ParserDescr.binary `andthen
+                (Lean.ParserDescr.cat $(quote catName) 0)
+                (Lean.ParserDescr.symbol ")")))))
     elabCommand cmd
 
 @[builtinCommandElab syntaxCat] def elabDeclareSyntaxCat : CommandElab := fun stx => do

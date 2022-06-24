@@ -36,7 +36,7 @@ def tacticSeq1Indented : Parser :=
 def tacticSeqBracketed : Parser :=
   leading_parser "{" >> many (group (ppLine >> tacticParser >> optional ";")) >> ppDedent (ppLine >> "}")
 def tacticSeq :=
-  leading_parser (withAnonymousAntiquot := false) tacticSeqBracketed <|> tacticSeq1Indented
+  leading_parser tacticSeqBracketed <|> tacticSeq1Indented
 
 /- Raw sequence for quotation and grouping -/
 def seq1 :=
@@ -111,7 +111,7 @@ def strictImplicitLeftBracket := atomic (group (symbol "{" >> "{")) <|> "⦃"
 def strictImplicitRightBracket := atomic (group (symbol "}" >> "}")) <|> "⦄"
 def strictImplicitBinder (requireType := false) := ppGroup $ leading_parser strictImplicitLeftBracket >> many1 binderIdent >> binderType requireType >> strictImplicitRightBracket
 def instBinder := ppGroup $ leading_parser "[" >> optIdent >> termParser >> "]"
-def bracketedBinder (requireType := false) := withAntiquot (mkAntiquot "bracketedBinder" none (anonymous := false)) <|
+def bracketedBinder (requireType := false) := withAntiquot (mkAntiquot "bracketedBinder" `Lean.Parser.Term.bracketedBinder (anonymous := false) (isPseudoKind := true)) <|
   explicitBinder requireType <|> strictImplicitBinder requireType <|> implicitBinder requireType <|> instBinder
 
 /-
@@ -224,7 +224,7 @@ def letRecDecls      := leading_parser sepBy1 letRecDecl ", "
 def «letrec» := leading_parser:leadPrec withPosition (group ("let " >> nonReservedSymbol "rec ") >> letRecDecls) >> optSemicolon termParser
 
 @[runBuiltinParserAttributeHooks]
-def whereDecls := leading_parser " where" >> sepBy1Indent (ppLine >> ppGroup letRecDecl) "; " (allowTrailingSep := true)
+def whereDecls := leading_parser " where" >> sepBy1Indent (ppGroup letRecDecl) "; " (allowTrailingSep := true)
 
 @[runBuiltinParserAttributeHooks]
 def matchAltsWhereDecls := leading_parser matchAlts >> optional whereDecls
@@ -252,8 +252,8 @@ def matchAltsWhereDecls := leading_parser matchAlts >> optional whereDecls
 
 @[builtinTermParser] def defaultOrOfNonempty   := leading_parser "default_or_ofNonempty% " >> optional "unsafe"
 
-def namedArgument  := leading_parser atomic ("(" >> ident >> " := ") >> termParser >> ")"
-def ellipsis       := leading_parser ".."
+def namedArgument  := leading_parser (withAnonymousAntiquot := false) atomic ("(" >> ident >> " := ") >> termParser >> ")"
+def ellipsis       := leading_parser (withAnonymousAntiquot := false) ".."
 def argument       :=
   checkWsBefore "expected space" >>
   checkColGt "expected to be indented" >>

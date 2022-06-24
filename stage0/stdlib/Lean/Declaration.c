@@ -2836,9 +2836,13 @@ return x_9;
 }
 default: 
 {
-lean_object* x_10; 
-x_10 = lean_box(0);
-return x_10;
+lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_10 = l_Lean_ConstantInfo_name(x_1);
+x_11 = lean_box(0);
+x_12 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_12, 0, x_10);
+lean_ctor_set(x_12, 1, x_11);
+return x_12;
 }
 }
 }

@@ -65,7 +65,8 @@ def whereStructInst  := leading_parser " where" >> sepBy1Indent (ppGroup whereSt
   Remark: we should not use `Term.whereDecls` at `declVal` because `Term.whereDecls` is defined using `Term.letRecDecl` which may contain attributes.
   Issue #753 showns an example that fails to be parsed when we used `Term.whereDecls`.
 -/
-def declVal          := declValSimple <|> declValEqns <|> whereStructInst
+def declVal          := withAntiquot (mkAntiquot "declVal" `Lean.Parser.Command.declVal (isPseudoKind := true)) <|
+  declValSimple <|> declValEqns <|> whereStructInst
 def «abbrev»         := leading_parser "abbrev " >> declId >> ppIndent optDeclSig >> declVal
 def optDefDeriving   := optional (atomic ("deriving " >> notSymbol "instance") >> sepBy1 ident ", ")
 def «def»            := leading_parser "def " >> declId >> ppIndent optDeclSig >> declVal >> optDefDeriving >> terminationSuffix

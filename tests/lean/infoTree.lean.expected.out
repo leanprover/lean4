@@ -390,9 +390,9 @@ infoTree.lean:44:0: error: expected stx
     Macro expansion
     («term_=_» `x "=" `x)
     ===>
-    (Term.binrel "binrel%" `Eq._@.infoTree._hyg.177 `x `x)
+    (Term.binrel "binrel%" `Eq._@.infoTree._hyg.176 `x `x)
       Eq.{1} Nat _uniq.854 _uniq.854 : Prop @ ⟨45, 21⟩†-⟨45, 26⟩ @ Lean.Elab.Term.BinOp.elabBinRel
-        [.] `Eq._@.infoTree._hyg.177 : none @ ⟨45, 21⟩†-⟨45, 26⟩†
+        [.] `Eq._@.infoTree._hyg.176 : none @ ⟨45, 21⟩†-⟨45, 26⟩†
         _uniq.854 : Nat @ ⟨45, 21⟩-⟨45, 22⟩ @ Lean.Elab.Term.elabIdent
           [.] `x : none @ ⟨45, 21⟩-⟨45, 22⟩
           _uniq.854 : Nat @ ⟨45, 21⟩-⟨45, 22⟩
@@ -415,9 +415,9 @@ infoTree.lean:44:0: error: expected stx
       Macro expansion
       («term_=_» `x "=" `x)
       ===>
-      (Term.binrel "binrel%" `Eq._@.infoTree._hyg.185 `x `x)
+      (Term.binrel "binrel%" `Eq._@.infoTree._hyg.184 `x `x)
         Eq.{1} Nat _uniq.864 _uniq.864 : Prop @ ⟨46, 27⟩†-⟨46, 32⟩ @ Lean.Elab.Term.BinOp.elabBinRel
-          [.] `Eq._@.infoTree._hyg.185 : none @ ⟨46, 27⟩†-⟨46, 32⟩†
+          [.] `Eq._@.infoTree._hyg.184 : none @ ⟨46, 27⟩†-⟨46, 32⟩†
           _uniq.864 : Nat @ ⟨46, 27⟩-⟨46, 28⟩ @ Lean.Elab.Term.elabIdent
             [.] `x : none @ ⟨46, 27⟩-⟨46, 28⟩
             _uniq.864 : Nat @ ⟨46, 27⟩-⟨46, 28⟩

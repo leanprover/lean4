@@ -1,5 +1,5 @@
 macro "mk_m " id:ident v:str n:num c:char : command =>
-  let tk : Lean.Syntax := Lean.Syntax.mkStrLit id.getId.toString
+  let tk := Lean.Syntax.mkStrLit id.getId.toString
   `(macro $tk:str : term => `(fun (x : String) => x ++ $v ++ toString $n ++ toString $c))
 
 #print " ---- "

@@ -226,11 +226,11 @@
                 [.] `Prod.mk._@.infoTree._hyg.102 : some Prod.{0 0} Nat Nat @ ⟨23, 4⟩†-⟨25, 10⟩†
                 [.] `z : some [mdata _patWithRef: ?_uniq.634] @ ⟨23, 9⟩-⟨23, 10⟩
                 [.] `w : some [mdata _patWithRef: ?_uniq.635] @ ⟨23, 12⟩-⟨23, 13⟩
-                Nat : Type @ ⟨23, 4⟩†-⟨23, 13⟩†
-                Nat : Type @ ⟨23, 4⟩†-⟨23, 13⟩†
-                z (isBinder := true) : Nat @ ⟨23, 9⟩-⟨23, 10⟩
-                w (isBinder := true) : Nat @ ⟨23, 12⟩-⟨23, 13⟩
                 (z, w) : Nat × Nat @ ⟨23, 4⟩†-⟨23, 13⟩
+                  Nat : Type @ ⟨23, 4⟩†-⟨23, 13⟩†
+                  Nat : Type @ ⟨23, 4⟩†-⟨23, 13⟩†
+                  z (isBinder := true) : Nat @ ⟨23, 9⟩-⟨23, 10⟩
+                  w (isBinder := true) : Nat @ ⟨23, 12⟩-⟨23, 13⟩
                 let z1 := z + w;
                 z + z1 : Nat @ ⟨24, 4⟩-⟨25, 10⟩ @ Lean.Elab.Term.elabLetDecl
                   Nat : Type @ ⟨24, 8⟩†-⟨24, 10⟩† @ Lean.Elab.Term.elabHole

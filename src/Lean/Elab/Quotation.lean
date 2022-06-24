@@ -135,7 +135,9 @@ private partial def quoteSyntax : Syntax → TermElabM (TSyntax `term)
               | some x => Array.empty.push x
               | none   => Array.empty)
             | `many     => `(@TSyntaxArray.raw $(quote ks) $val)
-            | `sepBy    => `(@TSepArray.elemsAndSeps $(quote ks) $(quote <| getSepFromSplice arg) $val)
+            | `sepBy    =>
+              let sep := quote <| getSepFromSplice arg
+              `(@TSepArray.elemsAndSeps $(quote ks) $sep $val)
             | k         => throwErrorAt arg "invalid antiquotation suffix splice kind '{k}'"
         else if k == nullKind && isAntiquotSplice arg then
           let k := antiquotSpliceKind? arg

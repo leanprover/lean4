@@ -16,34 +16,47 @@ topological-based build of an initial key's dependencies).
 
 namespace Lake
 
-/-- The type of the Lake build store. -/
-abbrev BuildStore :=
-  DRBMap BuildKey BuildData BuildKey.quickCmp
-
-@[inline] def BuildStore.empty : BuildStore := DRBMap.empty
+/-! ## Abstract Monad -/
 
 /-- A monad equipped with a Lake build store. -/
 abbrev MonadBuildStore (m) := MonadDStore BuildKey BuildData m
-
-instance (k : ModuleBuildKey f)
-[t : DynamicType ModuleData f α] : DynamicType BuildData k α where
-  eq_dynamic_type := by
-    unfold BuildData
-    simp [k.is_module_key, k.facet_eq_fixed, t.eq_dynamic_type]
 
 @[inline] instance [MonadBuildStore m]
 [DynamicType ModuleData f α] : MonadStore (ModuleBuildKey f) α m where
   fetch? k := fetch? k.toBuildKey
   store k a := store k.toBuildKey a
 
-instance (k : PackageBuildKey f)
-[t : DynamicType PackageData f α] : DynamicType BuildData k α where
-  eq_dynamic_type := by
-    unfold BuildData, BuildKey.isModuleKey
-    have has_pkg := of_decide_eq_true (of_decide_eq_true k.is_package_key |>.1)
-    simp [has_pkg, k.is_package_key, k.facet_eq_fixed, t.eq_dynamic_type]
-
 @[inline] instance [MonadBuildStore m]
 [DynamicType PackageData f α] : MonadStore (PackageBuildKey f) α m where
   fetch? k := fetch? k.toBuildKey
   store k a := store k.toBuildKey a
+
+/-! ## Concrete Type -/
+
+/-- The type of the Lake build store. -/
+abbrev BuildStore :=
+  DRBMap BuildKey BuildData BuildKey.quickCmp
+
+@[inline] def BuildStore.empty : BuildStore := DRBMap.empty
+
+namespace BuildStore
+
+/-- Derive an array of module names to built facets from the store. -/
+def collectModuleFacetArray (self : BuildStore)
+(facet : WfName) [DynamicType ModuleData facet α] : Array α := Id.run do
+  let mut res : Array α := #[]
+  for ⟨k, v⟩ in self do
+    if h : k.isModuleKey ∧ k.facet = facet then
+      let of_data := by unfold BuildData; simp [h, eq_dynamic_type]
+      res := res.push <| cast of_data v
+  return res
+
+/-- Derive a map of module names to built facets from the store. -/
+def collectModuleFacetMap (self : BuildStore)
+(facet : WfName) [DynamicType ModuleData facet α] : NameMap α := Id.run do
+  let mut res := Lean.mkNameMap α
+  for ⟨k, v⟩ in self do
+    if h : k.isModuleKey ∧ k.facet = facet then
+      let of_data := by unfold BuildData; simp [h, eq_dynamic_type]
+      res := res.insert (k.module h.1) <| cast of_data v
+  return res

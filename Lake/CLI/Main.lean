@@ -18,7 +18,7 @@ import Lake.CLI.Build
 import Lake.CLI.Error
 
 open System
-open Lean (Name Json toJson fromJson?)
+open Lean (Json toJson fromJson?)
 
 namespace Lake
 
@@ -213,8 +213,8 @@ def printPaths (config : LakeConfig) (imports : List String := []) : MainM PUnit
       exit 1
     let ws ← loadWorkspace config
     let ctx ← mkBuildContext ws config.leanInstall config.lakeInstall
-    ws.root.buildImportsAndDeps imports |>.run MonadLog.eio ctx
-    IO.println <| Json.compress <| toJson ws.leanPaths
+    let dynlibs ← ws.root.buildImportsAndDeps imports |>.run MonadLog.eio ctx
+    IO.println <| Json.compress <| toJson {ws.leanPaths with loadDynlibPaths := dynlibs}
   else
     exit noConfigFileCode
 

@@ -8,16 +8,9 @@ import Lake.Build.Info
 import Lake.Build.Store
 import Lake.Build.Targets
 
-open Std System
-open Lean hiding SearchPath
+open System
 
 namespace Lake
-
-abbrev ModuleSet := RBTree Module (·.name.quickCmp ·.name)
-@[inline] def ModuleSet.empty : ModuleSet := RBTree.empty
-
-abbrev ModuleMap (α) := RBMap Module α (·.name.quickCmp ·.name)
-@[inline] def ModuleMap.empty : ModuleMap α := RBMap.empty
 
 -- # Solo Module Targets
 
@@ -106,7 +99,7 @@ building an `Array` product of its direct and transitive local imports.
 : IndexT m (Array Module × Array Module) := do
   have : MonadLift BuildM m := ⟨liftM⟩
   let contents ← IO.FS.readFile mod.leanFile
-  let (imports, _, _) ← Elab.parseImports contents mod.leanFile.toString
+  let (imports, _, _) ← Lean.Elab.parseImports contents mod.leanFile.toString
   let importSet ← imports.foldlM (init := ModuleSet.empty) fun a imp => do
     if let some mod ← findModule? imp.module then return a.insert mod else return a
   let mut imports := #[]

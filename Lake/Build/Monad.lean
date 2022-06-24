@@ -7,7 +7,6 @@ import Lake.Config.Monad
 import Lake.Build.Context
 
 open System
-open Lean (Name)
 
 namespace Lake
 

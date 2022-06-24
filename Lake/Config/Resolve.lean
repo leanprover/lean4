@@ -12,7 +12,6 @@ import Lake.Config.Workspace
 import Lake.Build.Topological
 
 open Std System
-open Lean (Name NameMap)
 
 namespace Lake
 
@@ -122,7 +121,7 @@ def resolveDeps (ws : Workspace) (pkg : Package)
     let pkg ← resolveDep ws pkg dep shouldUpdate
     pkg.dependencies.forM fun dep => discard <| resolve dep
     return pkg
-  let (res, map) ← EStateT.run (mkRBMap _ _ Name.quickCmp) <|
+  let (res, map) ← EStateT.run (mkRBMap _ _ Lean.Name.quickCmp) <|
     pkg.dependencies.forM fun dep => discard <| buildTop Dependency.name resolve dep
   match res with
   | Except.ok _ => return map

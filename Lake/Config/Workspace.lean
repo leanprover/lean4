@@ -10,7 +10,7 @@ import Lake.Config.Package
 import Lake.Config.Module
 
 open System
-open Lean (Name NameMap LeanPaths)
+open Lean (LeanPaths)
 
 namespace Lake
 

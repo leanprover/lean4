@@ -10,6 +10,8 @@ open Lean
 
 namespace Lake
 
+export Lean (Name NameMap)
+
 -- # Name Helpers
 
 namespace Name

@@ -10,7 +10,6 @@ import Lake.Config.Load
 
 namespace Lake
 open Git System
-open Lean (Name)
 
 /-- `elan` toolchain file name -/
 def toolchainFileName : FilePath :=

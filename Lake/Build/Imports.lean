@@ -10,6 +10,7 @@ import Lake.Config.Workspace
 Definitions to support `lake print-paths` builds.
 -/
 
+open System
 namespace Lake
 
 /--
@@ -25,22 +26,38 @@ def Workspace.processImportList
   return localImports
 
 /--
-Build the workspace-local modules of list of imports.
-
-Build only module `.olean` and `.ilean` files if
-the default package build does not include any binary targets
-Otherwise, also build `.c` files.
+Whether the package is "lean-only".
+That is, whether it has no need to build native files (e.g. `.c`).
+A package is considered lean-only if the package does not include any executable
+targets and is not precompiled.
 -/
-def Package.buildImportsAndDeps (imports : List String) (self : Package) : BuildM PUnit := do
+def Package.isLeanOnly (self : Package): Bool :=
+  self.leanExes.isEmpty && self.defaultFacet matches .none | .leanLib | .oleans
+
+/--
+Builds the workspace-local modules of list of imports.
+Used by `lake print-paths` to build modules for the Lean server.
+Returns the set of module dynlibs built (so they can be loaded by the server).
+
+Builds only module `.olean` and `.ilean` files if the package is "lean-only"
+(see `isLeanOnly`). Otherwise, also build `.c` files.
+-/
+def Package.buildImportsAndDeps (imports : List String) (self : Package) : BuildM (Array FilePath) := do
   if imports.isEmpty then
     -- build the package's (and its dependencies') `extraDepTarget`
     buildPackageFacet self &`extraDep >>= (·.buildOpaque)
+    return #[]
   else
     -- build local imports from list
     let mods := (← getWorkspace).processImportList imports
-    if self.leanExes.isEmpty && self.defaultFacet matches .none | .leanLib | .oleans then
-      let targets ← buildModuleFacetArray mods &`lean
-      targets.forM (·.buildOpaque)
-    else
-      let targets ← buildModuleFacetArray mods &`lean.c
-      targets.forM (·.buildOpaque)
+    let (res, bStore) ← EStateT.run BuildStore.empty <| mods.mapM fun mod =>
+      if mod.shouldPrecompile then
+        buildModuleTop mod &`lean.dynlib <&> (·.withoutInfo)
+      else if self.isLeanOnly then
+        buildModuleTop mod &`lean.c <&> (·.withoutInfo)
+      else
+        buildModuleTop mod &`lean
+    let importTargets ← failOnBuildCycle res
+    let dynlibTargets := bStore.collectModuleFacetArray &`lean.dynlib
+    importTargets.forM (·.buildOpaque)
+    dynlibTargets.mapM (·.build)

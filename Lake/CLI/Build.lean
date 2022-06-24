@@ -6,8 +6,6 @@ Authors: Mac Malone
 import Lake.Build
 import Lake.CLI.Error
 
-open Lean (Name)
-
 namespace Lake
 
 def Package.defaultTarget (self : Package) : OpaqueTarget :=

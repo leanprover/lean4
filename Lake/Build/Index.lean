@@ -111,12 +111,8 @@ the initial set of Lake package facets (e.g., `extraDep`).
 ## Topologically-based Recursive Build Using the Index
 -/
 
-/-- The type of a recursive build function for the Lake build index. -/
-abbrev RecIndexBuildFn (m) :=
-  DRecBuildFn BuildInfo (BuildData ·.key) m
-
 /-- Recursive build function for anything in the Lake build index. -/
-@[specialize] def recBuildIndex : RecIndexBuildFn m := fun info => do
+@[specialize] def recBuildIndex (info : BuildInfo) : IndexT m (BuildData info.key) := do
   have : MonadLift BuildM m := ⟨liftM⟩
   match info with
   | .module mod facet =>

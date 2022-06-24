@@ -8,13 +8,19 @@ import Lake.Config.Package
 import Lake.Util.Name
 
 namespace Lake
-open System Lean
+open Std System
 
 /-- A buildable Lean module of a `Package`. -/
 structure Module where
   pkg : Package
   name : WfName
   deriving Inhabited
+
+abbrev ModuleSet := RBTree Module (·.name.quickCmp ·.name)
+@[inline] def ModuleSet.empty : ModuleSet := RBTree.empty
+
+abbrev ModuleMap (α) := RBMap Module α (·.name.quickCmp ·.name)
+@[inline] def ModuleMap.empty : ModuleMap α := RBMap.empty
 
 /-- Locate the named module in the package (if it is local to it). -/
 def Package.findModule? (mod : Name) (self : Package) : Option Module :=

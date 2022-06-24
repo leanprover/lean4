@@ -65,14 +65,7 @@ def buildModuleFacetMap
   let (x, bStore) ← EStateT.run BuildStore.empty <| mods.forM fun mod =>
     buildModuleTop' mod facet
   failOnBuildCycle x
-  let mut res : NameMap α := RBMap.empty
-  for ⟨k, v⟩ in bStore do
-    if h : k.isModuleKey ∧ k.facet = facet then
-      let of_data := by
-        unfold BuildData
-        simp [h, eq_dynamic_type]
-      res := res.insert (k.module h.1) <| cast of_data v
-  return res
+  return bStore.collectModuleFacetMap facet
 
 -- # Module Facet Targets
 

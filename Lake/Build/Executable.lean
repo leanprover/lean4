@@ -5,9 +5,6 @@ Authors: Mac Malone
 -/
 import Lake.Build.Library
 
-open Std System
-open Lean (Name NameMap)
-
 namespace Lake
 
 -- # Build Package Executable

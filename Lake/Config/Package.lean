@@ -14,7 +14,6 @@ import Lake.Config.Dependency
 import Lake.Config.Script
 
 open Std System
-open Lean (Name NameMap)
 
 namespace Lake
 

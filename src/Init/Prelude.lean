@@ -1847,6 +1847,12 @@ inductive Syntax where
 
 def SyntaxNodeKinds := List SyntaxNodeKind
 
+/--
+  A `Syntax` value of one of the given syntax kinds.
+  Note that while syntax quotations produce/expect `TSyntax` values of the correct kinds,
+  this is not otherwise enforced and can easily be circumvented by direct use of the constructor.
+  The namespace `TSyntax.Compat` can be opened to expose a general coercion from `Syntax` to any
+  `TSyntax ks` for porting older code. -/
 structure TSyntax (ks : SyntaxNodeKinds) where
   raw : Syntax
 
@@ -1989,6 +1995,7 @@ partial def getTailPos? (stx : Syntax) (originalOnly := false) : Option String.P
 structure SepArray (sep : String) where
   elemsAndSeps : Array Syntax
 
+/-- A typed version of `SepArray`. -/
 structure TSepArray (ks : SyntaxNodeKinds) (sep : String) where
   elemsAndSeps : Array Syntax
 

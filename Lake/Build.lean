@@ -5,8 +5,7 @@ Authors: Mac Malone
 -/
 import Lake.Build.Monad
 import Lake.Build.Actions
-import Lake.Build.TargetTypes
-import Lake.Build.Targets
 import Lake.Build.Module
-import Lake.Build.Package
-import Lake.Build.Binary
+import Lake.Build.Library
+import Lake.Build.Executable
+import Lake.Build.Imports

@@ -1,15 +1,39 @@
 /-
-Copyright (c) 2021 Mac Malone. All rights reserved.
+Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Build.Package
-import Lake.Build.Targets
+import Lake.Build.Module
 
 open Std System
-open Lean (Name NameMap)
+open Lean hiding SearchPath
 
 namespace Lake
+
+-- # Build Package Lean Lib
+
+def Package.getLibModuleArray (lib : LeanLibConfig) (self : Package) : IO (Array Module) := do
+  return (← lib.getModuleArray self.srcDir).map (⟨self, WfName.ofName ·⟩)
+
+/--
+Build the `extraDepTarget` of a package and its (transitive) dependencies
+and then build the target `facet` of library's modules recursively, constructing
+a single opaque target for the whole build.
+-/
+def Package.buildLibModules
+(self : Package) (lib : LeanLibConfig) (facet : WfName)
+[DynamicType ModuleData facet (ActiveBuildTarget α)] : SchedulerM Job := do
+  let buildMods : BuildM _ := do
+    let mods ← self.getLibModuleArray lib
+    let modTargets ← buildModuleFacetArray mods facet
+    (·.task) <$> ActiveTarget.collectOpaqueArray modTargets
+  buildMods.catchFailure fun _ => pure <| failure
+
+def Package.mkLibTarget (self : Package) (lib : LeanLibConfig) : OpaqueTarget :=
+  Target.opaque <| self.buildLibModules lib &`lean
+
+def Package.libTarget (self : Package) : OpaqueTarget :=
+  self.mkLibTarget self.builtinLibConfig
 
 -- # Build Package Static Lib
 
@@ -52,24 +76,3 @@ def Package.mkSharedLibTarget (self : Package) (lib : LeanLibConfig) : FileTarge
 
 protected def Package.sharedLibTarget (self : Package) : FileTarget :=
   self.mkSharedLibTarget self.builtinLibConfig
-
--- # Build Package Bin
-
-def Package.mkExeTarget (self : Package) (exe : LeanExeConfig) : FileTarget :=
-  let exeFile := self.binDir / exe.fileName
-  BuildTarget.mk' exeFile do
-    let root : Module := ⟨self, WfName.ofName exe.root⟩
-    let cTargetMap ← buildModuleFacetMap #[root] &`lean.c
-    let pkgLinkTargets ← self.linkTargetsOf cTargetMap
-    let linkTargets :=
-      if self.isLocalModule exe.root then
-        pkgLinkTargets
-      else
-        let rootTarget := cTargetMap.find? root.name |>.get!
-        let rootLinkTarget := root.mkOTarget <| Target.active rootTarget
-        #[rootLinkTarget] ++ pkgLinkTargets
-    let target := leanExeTarget exeFile linkTargets exe.linkArgs
-    target.materializeAsync
-
-protected def Package.exeTarget (self : Package) : FileTarget :=
-  self.mkExeTarget self.builtinExeConfig

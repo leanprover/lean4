@@ -5,10 +5,11 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Lake.Util.Git
 import Lake.Util.EStateT
+import Lake.Util.StoreInsts
 import Lake.Config.Load
 import Lake.Config.Manifest
 import Lake.Config.Workspace
-import Lake.Build.Recursive
+import Lake.Build.Topological
 
 open Std System
 open Lean (Name NameMap)

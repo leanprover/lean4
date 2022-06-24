@@ -203,10 +203,13 @@ def getBinaryAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) : I
 abbrev ParserAliasValue := AliasValue Parser
 
 builtin_initialize parserAliasesRef : IO.Ref (NameMap ParserAliasValue) ← IO.mkRef {}
+builtin_initialize parserAlias2kindRef : IO.Ref (NameMap SyntaxNodeKind) ← IO.mkRef {}
 
--- Later, we define macro registerParserAlias! which registers a parser, formatter and parenthesizer
-def registerAlias (aliasName : Name) (p : ParserAliasValue) : IO Unit := do
+-- Later, we define macro `register_parser_alias` which registers a parser, formatter and parenthesizer
+def registerAlias (aliasName : Name) (p : ParserAliasValue) (kind? : Option SyntaxNodeKind := none) : IO Unit := do
   registerAliasCore parserAliasesRef aliasName p
+  if let some kind := kind? then
+    parserAlias2kindRef.modify (·.insert aliasName kind)
 
 instance : Coe Parser ParserAliasValue := { coe := AliasValue.const }
 instance : Coe (Parser → Parser) ParserAliasValue := { coe := AliasValue.unary }
@@ -216,6 +219,9 @@ def isParserAlias (aliasName : Name) : IO Bool := do
   match (← getAlias parserAliasesRef aliasName) with
   | some _ => pure true
   | _      => pure false
+
+def getSyntaxKindOfParserAlias? (aliasName : Name) : IO (Option SyntaxNodeKind) :=
+  return (← parserAlias2kindRef.get).find? aliasName
 
 def ensureUnaryParserAlias (aliasName : Name) : IO Unit :=
   discard $ getUnaryAlias parserAliasesRef aliasName
@@ -376,7 +382,7 @@ def addBuiltinTrailingParser (catName : Name) (declName : Name) (p : TrailingPar
   addBuiltinParser catName declName false p prio
 
 def mkCategoryAntiquotParser (kind : Name) : Parser :=
-  mkAntiquot kind.toString none
+  mkAntiquot kind.toString kind (isPseudoKind := true)
 
 -- helper decl to work around inlining issue https://github.com/leanprover/lean4/commit/3f6de2af06dd9a25f62294129f64bc05a29ea912#r41340377
 @[inline] private def mkCategoryAntiquotParserFn (kind : Name) : ParserFn :=

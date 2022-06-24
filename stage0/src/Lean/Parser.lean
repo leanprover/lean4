@@ -22,12 +22,12 @@ builtin_initialize
   register_parser_alias "ws" checkWsBefore
   register_parser_alias "noWs" checkNoWsBefore
   register_parser_alias "linebreak" checkLinebreakBefore
-  register_parser_alias "num" numLit
-  register_parser_alias "str" strLit
-  register_parser_alias "char" charLit
-  register_parser_alias "name" nameLit
-  register_parser_alias "scientific" scientificLit
-  register_parser_alias ident
+  register_parser_alias (kind := numLitKind) "num" numLit
+  register_parser_alias (kind := strLitKind) "str" strLit
+  register_parser_alias (kind := charLitKind) "char" charLit
+  register_parser_alias (kind := nameLitKind) "name" nameLit
+  register_parser_alias (kind := scientificLitKind) "scientific" scientificLit
+  register_parser_alias (kind := identKind) "ident" ident
   register_parser_alias "colGt" checkColGt
   register_parser_alias "colGe" checkColGe
   register_parser_alias lookahead
@@ -38,7 +38,7 @@ builtin_initialize
   register_parser_alias many1Indent
   register_parser_alias optional
   register_parser_alias withPosition
-  register_parser_alias interpolatedStr
+  register_parser_alias (kind := interpolatedStrKind) interpolatedStr
   register_parser_alias orelse
   register_parser_alias andthen
 
@@ -53,8 +53,8 @@ namespace Parenthesizer
 
 -- Close the mutual recursion loop; see corresponding `[extern]` in the parenthesizer.
 @[export lean_mk_antiquot_parenthesizer]
-def mkAntiquot.parenthesizer (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Parenthesizer :=
-  Parser.mkAntiquot.parenthesizer name kind anonymous
+def mkAntiquot.parenthesizer (name : String) (kind : SyntaxNodeKind) (anonymous := true) (isPseudoKind := true) : Parenthesizer :=
+  Parser.mkAntiquot.parenthesizer name kind anonymous isPseudoKind
 
 -- The parenthesizer auto-generated these instances correctly, but tagged them with the wrong kind, since the actual kind
 -- (e.g. `ident`) is not equal to the parser name `Lean.Parser.Term.ident`.
@@ -86,8 +86,8 @@ end Parenthesizer
 namespace Formatter
 
 @[export lean_mk_antiquot_formatter]
-def mkAntiquot.formatter (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Formatter :=
-  Parser.mkAntiquot.formatter name kind anonymous
+def mkAntiquot.formatter (name : String) (kind : SyntaxNodeKind) (anonymous := true) (isPseudoKind := true) : Formatter :=
+  Parser.mkAntiquot.formatter name kind anonymous isPseudoKind
 
 @[builtinFormatter ident] def ident.formatter : Formatter := Parser.Term.ident.formatter
 @[builtinFormatter num] def numLit.formatter : Formatter := Parser.Term.num.formatter

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Notation
-// Imports: Init.Prelude
+// Imports: Init.Prelude Init.Coe
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -391,6 +391,7 @@ static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x24_x3e_
 static lean_object* l___aux__Init__Notation______macroRules__term___x3e_x3e____1___closed__1;
 LEAN_EXPORT lean_object* l_term___x3e__;
 LEAN_EXPORT lean_object* l_termMax__prec;
+LEAN_EXPORT lean_object* l_Lean_instCoeTSyntaxSyntax___boxed(lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__term___x3d_x3d____1___closed__7;
 static lean_object* l___aux__Init__Notation______macroRules__term___u2218____1___closed__2;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__Not__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -497,6 +498,7 @@ static lean_object* l___aux__Init__Notation______macroRules__stx___x3c_x7c_x3e__
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x24_x3e____1___closed__1;
 static lean_object* l_term___x3c_x7c_____closed__5;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___x3d_x3d____1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instCoeTSyntaxSyntax___rarg(lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__HAnd__hAnd__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Syntax_addPrec___closed__3;
 static lean_object* l_stx___x2c_x2a___closed__4;
@@ -1010,6 +1012,7 @@ static lean_object* l_term___x24_______closed__11;
 static lean_object* l_term___u2227_____closed__2;
 static lean_object* l_precMin___closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__4;
+LEAN_EXPORT lean_object* l_Lean_instCoeTSyntaxSyntax(lean_object*);
 LEAN_EXPORT lean_object* l_termIfLet___x3a_x3d__Then__Else__;
 static lean_object* l_stx___x2b___closed__1;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3e_x3e____1___closed__2;
@@ -1332,6 +1335,7 @@ LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__prio_x28___x29
 static lean_object* l___aux__Init__Notation______macroRules__term___x2b_x2b____1___closed__7;
 static lean_object* l_Lean_termThis___closed__2;
 LEAN_EXPORT lean_object* l_term___x5c_x2f__;
+LEAN_EXPORT lean_object* l_Lean_instCoeTSyntaxSyntax___rarg___boxed(lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__term___x2f____1___closed__9;
 static lean_object* l_Lean_Parser_Syntax_addPrec___closed__8;
 static lean_object* l_term___x3d_____closed__5;
@@ -1752,6 +1756,39 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Parser_Syntax_subPrio___closed__4;
 return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_instCoeTSyntaxSyntax___rarg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_instCoeTSyntaxSyntax(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_instCoeTSyntaxSyntax___rarg___boxed), 1, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_instCoeTSyntaxSyntax___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_instCoeTSyntaxSyntax___rarg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_instCoeTSyntaxSyntax___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_instCoeTSyntaxSyntax(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_precMax___closed__1() {
@@ -30887,12 +30924,16 @@ return x_1;
 }
 }
 lean_object* initialize_Init_Prelude(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Coe(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Notation(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Prelude(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Coe(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Parser_Syntax_addPrec___closed__1 = _init_l_Lean_Parser_Syntax_addPrec___closed__1();

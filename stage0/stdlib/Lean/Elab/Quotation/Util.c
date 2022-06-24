@@ -960,7 +960,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_getAntiquotationIds(lean_obj
 _start:
 {
 uint8_t x_9; lean_object* x_10; lean_object* x_11; 
-x_9 = 0;
+x_9 = 1;
 x_10 = l_Lean_Elab_Term_Quotation_getAntiquotationIds___closed__1;
 x_11 = l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Term_Quotation_getAntiquotationIds___spec__2(x_9, x_1, x_10, x_10, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_11) == 0)

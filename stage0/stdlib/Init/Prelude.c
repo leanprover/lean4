@@ -181,6 +181,7 @@ LEAN_EXPORT lean_object* l_namedPattern___rarg___boxed(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_instInhabitedForAll___rarg___boxed(lean_object*, lean_object*);
 lean_object* lean_uint64_to_nat(uint64_t);
 LEAN_EXPORT lean_object* l_instInhabitedForAll__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_TSyntaxArray_rawImpl___rarg___boxed(lean_object*);
 static lean_object* l_Applicative_seqRight___default___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Macro_instMonadQuotationMacroM;
 LEAN_EXPORT lean_object* l_instTransEq__1(lean_object*, lean_object*, lean_object*);
@@ -292,6 +293,7 @@ static lean_object* l_Lean_choiceKind___closed__1;
 LEAN_EXPORT lean_object* l_not___boxed(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_instAppendName;
+LEAN_EXPORT lean_object* l_Lean_TSyntaxArray_mkImpl___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Macro_instInhabitedMethodsRef;
 static lean_object* l_Lean_choiceKind___closed__2;
 LEAN_EXPORT lean_object* l_ReaderT_read___at_Lean_PrettyPrinter_instMonadQuotationUnexpandM___spec__1(lean_object*, lean_object*);
@@ -402,6 +404,7 @@ static lean_object* l_Lean_numLitKind___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Syntax_isMissing___boxed(lean_object*);
 static lean_object* l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__2;
 LEAN_EXPORT lean_object* l_Unit_unit;
+LEAN_EXPORT lean_object* l_Lean_TSyntaxArray_mkImpl___rarg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Prelude_0__Lean_simpMacroScopesAux(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_pow___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Macro_instInhabitedMethods___lambda__4___boxed(lean_object*, lean_object*, lean_object*);
@@ -510,6 +513,7 @@ LEAN_EXPORT lean_object* l_ReaderT_read(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHShiftRight(lean_object*);
 LEAN_EXPORT lean_object* l_Eq_ndrec___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkAtomFrom(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_TSyntaxArray_mkImpl___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_and___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Syntax_isNodeOf(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadReaderOf(lean_object*, lean_object*, lean_object*);
@@ -560,6 +564,7 @@ lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_tryCatchThe(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_list_to_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_decLe___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_TSyntaxArray_rawImpl___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_adapt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_getHeadInfo_x3f___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_lengthTR___rarg(lean_object*);
@@ -680,6 +685,7 @@ LEAN_EXPORT lean_object* l_Fin_decLe___rarg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Macro_instMonadQuotationMacroM___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Macro_trace(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_modifyGetThe(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_TSyntaxArray_rawImpl___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_instMonadLiftT(lean_object*, lean_object*, lean_object*);
 static lean_object* l_EStateM_instMonadExceptOfEStateM___rarg___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Prelude_0__Lean_eraseMacroScopesAux___boxed(lean_object*);
@@ -770,6 +776,7 @@ uint32_t lean_uint32_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_instInhabitedSort;
 LEAN_EXPORT lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Monad_seq___default___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_TSyntaxArray_rawImpl(lean_object*);
 static lean_object* l_EStateM_instMonadEStateM___closed__7;
 LEAN_EXPORT uint8_t l_Lean_Syntax_matchesIdent(lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__5;
@@ -787,6 +794,7 @@ LEAN_EXPORT lean_object* l_instHPow___rarg(lean_object*, lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_Lean_defaultMaxRecDepth;
 LEAN_EXPORT lean_object* l_Applicative_seqLeft___default___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MonadRef_mkInfoFromRefPos___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_TSyntaxArray_mkImpl(lean_object*);
 static lean_object* l___private_Init_Prelude_0__Lean_eraseMacroScopesAux___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Syntax_getOp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mk___boxed(lean_object*, lean_object*);
@@ -8325,6 +8333,72 @@ x_3 = lean_unbox(x_2);
 lean_dec(x_2);
 x_4 = l_Lean_Syntax_getTailPos_x3f(x_1, x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_TSyntaxArray_rawImpl___rarg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_TSyntaxArray_rawImpl(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_TSyntaxArray_rawImpl___rarg___boxed), 1, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_TSyntaxArray_rawImpl___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_TSyntaxArray_rawImpl___rarg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_TSyntaxArray_rawImpl___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_TSyntaxArray_rawImpl(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_TSyntaxArray_mkImpl___rarg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_TSyntaxArray_mkImpl(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_TSyntaxArray_mkImpl___rarg___boxed), 1, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_TSyntaxArray_mkImpl___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_TSyntaxArray_mkImpl___rarg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_TSyntaxArray_mkImpl___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_TSyntaxArray_mkImpl(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_SourceInfo_fromRef(lean_object* x_1) {

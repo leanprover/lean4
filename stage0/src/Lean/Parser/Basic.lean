@@ -485,20 +485,30 @@ def mergeOrElseErrors (s : ParserState) (error1 : Error) (iniPos : String.Pos) (
     else s
   | other => other
 
-def orelseFnCore (p q : ParserFn) (mergeErrors : Bool) : ParserFn := fun c s =>
+def orelseFnCore (p q : ParserFn) (mergeAntiquots : Bool) : ParserFn := fun c s => Id.run do
+  let s0     := s
   let iniSz  := s.stackSize
   let iniPos := s.pos
-  let s      := p c s
+  let mut s  := p c s
   match s.errorMsg with
   | some errorMsg =>
     if s.pos == iniPos then
-      mergeOrElseErrors (q c (s.restore iniSz iniPos)) errorMsg iniPos mergeErrors
+      mergeOrElseErrors (q c (s.restore iniSz iniPos)) errorMsg iniPos true
     else
       s
-  | none => s
+  | none =>
+    let back := s.stxStack.back
+    if mergeAntiquots && back.isAntiquots then
+      let s' := q c s0
+      if !s'.hasError && s'.stxStack.back.isAntiquot then
+        if back.isOfKind choiceKind then
+          s := { s with stxStack := s.stxStack.pop ++ back.getArgs }
+        s := s.pushSyntax s'.stxStack.back
+        s := s.mkNode choiceKind iniSz
+    s
 
 @[inline] def orelseFn (p q : ParserFn) : ParserFn :=
-  orelseFnCore p q true
+  orelseFnCore (mergeAntiquots := true) p q
 
 @[noinline] def orelseInfo (p q : ParserInfo) : ParserInfo := {
   collectTokens := p.collectTokens ∘ q.collectTokens,
@@ -1620,9 +1630,13 @@ def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState
       | none    => find identKind
     | LeadingIdentBehavior.both =>
       match map.find? val with
-      | some as => match map.find? identKind with
-        | some as' => (s, as ++ as')
-        | _        => (s, as)
+      | some as =>
+        if val == identKind then
+          (s, as)  -- avoid running the same parsers twice
+        else
+          match map.find? identKind with
+          | some as' => (s, as ++ as')
+          | _        => (s, as)
       | none    => find identKind
   | Except.ok (Syntax.node _ k _)      => find k
   | Except.ok _                        => (s, [])
@@ -1712,13 +1726,11 @@ instance : Coe String Parser := ⟨fun s => symbol s ⟩
   tokenWithAntiquot (unicodeSymbolNoAntiquot sym asciiSym)
 
 /--
-  Define parser for `$e` (if anonymous == true) and `$e:name`. Both
-  forms can also be used with an appended `*` to turn them into an
-  antiquotation "splice". If `kind` is given, it will additionally be checked
-  when evaluating `match_syntax`. Antiquotations can be escaped as in `$$e`, which
-  produces the syntax tree for `$e`. -/
-def mkAntiquot (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Parser :=
-  let kind := (kind.getD Name.anonymous) ++ `antiquot
+  Define parser for `$e` (if anonymous == true) and `$e:name`.
+  `kind` is embedded in the antiquotation's kind, and checked at syntax `match` unless `isPseudoKind` is false.
+  Antiquotations can be escaped as in `$$e`, which produces the syntax tree for `$e`. -/
+def mkAntiquot (name : String) (kind : SyntaxNodeKind) (anonymous := true) (isPseudoKind := false) : Parser :=
+  let kind := kind ++ (if isPseudoKind then `pseudo else Name.anonymous) ++ `antiquot
   let nameP := node `antiquotName $ checkNoWsBefore ("no space before ':" ++ name ++ "'") >> symbol ":" >> nonReservedSymbol name
   -- if parsing the kind fails and `anonymous` is true, check that we're not ignoring a different
   -- antiquotation kind via `noImmediateColon`
@@ -1733,7 +1745,7 @@ def mkAntiquot (name : String) (kind : Option SyntaxNodeKind) (anonymous := true
 @[inline] def withAntiquotFn (antiquotP p : ParserFn) : ParserFn := fun c s =>
   -- fast check that is false in most cases
   if c.input.get s.pos == '$' then
-    orelseFn antiquotP p c s
+    orelseFnCore (mergeAntiquots := false) antiquotP p c s
   else
     p c s
 
@@ -1769,7 +1781,7 @@ private def withAntiquotSuffixSpliceFn (kind : SyntaxNodeKind) (suffix : ParserF
   fn c s :=
     let s := p.fn c s
     -- fast check that is false in most cases
-    if !s.hasError && s.stxStack.back.isAntiquot then
+    if !s.hasError && s.stxStack.back.isAntiquots then
       withAntiquotSuffixSpliceFn kind suffix.fn c s
     else
       s

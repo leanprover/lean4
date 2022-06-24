@@ -76,20 +76,20 @@ def elabElabRulesAux (doc? : Option Syntax) (attrKind : Syntax) (k : SyntaxNodeK
     do elabElabRulesAux doc? attrKind (← resolveSyntaxKind kind.getId) cat? expty? alts
   | _  => throwUnsupportedSyntax
 
-@[builtinMacro Lean.Parser.Command.elab]
-def expandElab : Macro
+@[builtinCommandElab Lean.Parser.Command.elab]
+def elabElab : CommandElab
   | `($[$doc?:docComment]? $attrKind:attrKind
     elab$[:$prec?]? $[(name := $name?)]? $[(priority := $prio?)]? $args:macroArg* :
       $cat $[<= $expectedType?]? => $rhs) => do
-    let prio    ← evalOptPrio prio?
+    let prio    ← liftMacroM <| evalOptPrio prio?
     let (stxParts, patArgs) := (← args.mapM expandMacroArg).unzip
     -- name
     let name ← match name? with
       | some name => pure name.getId
-      | none => mkNameFromParserSyntax cat.getId (mkNullNode stxParts)
-    let pat := mkNode ((← Macro.getCurrNamespace) ++ name) patArgs
+      | none => liftMacroM <| mkNameFromParserSyntax cat.getId (mkNullNode stxParts)
+    let pat := mkNode ((← getCurrNamespace) ++ name) patArgs
     `($[$doc?:docComment]? $attrKind:attrKind syntax$[:$prec?]? (name := $(← mkIdentFromRef name)) (priority := $(quote prio)) $[$stxParts]* : $cat
-      $[$doc?:docComment]? elab_rules : $cat $[<= $expectedType?]? | `($pat) => $rhs)
-  | _ => Macro.throwUnsupported
+      $[$doc?:docComment]? elab_rules : $cat $[<= $expectedType?]? | `($pat) => $rhs) >>= elabCommand
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Command

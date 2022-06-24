@@ -11,28 +11,57 @@ open Lean.Parser.Term hiding macroArg
 open Lean.Parser.Command
 
 /- Convert `macro` arg into a `syntax` command item and a pattern element -/
-def expandMacroArg (stx : Syntax) : MacroM (Syntax × Syntax) := do
-  let (id?, id, stx) ← match (← expandMacros stx) with
+partial def expandMacroArg (stx : Syntax) : CommandElabM (Syntax × Syntax) := do
+  let (id?, id, stx) ← match (← liftMacroM <| expandMacros stx) with
     | `(macroArg| $id:ident:$stx) => pure (some id, id, stx)
     | `(macroArg| $stx:stx)       => pure (none, (← `(x)), stx)
-    | _                           => Macro.throwUnsupported
-  let pat ← match stx with
-    | `(stx| $s:str)      => pure <| mkNode `token_antiquot #[← strLitToPattern s, mkAtom "%", mkAtom "$", id]
-    | `(stx| &$s:str)     => pure <| mkNode `token_antiquot #[← strLitToPattern s, mkAtom "%", mkAtom "$", id]
-    | `(stx| optional($_)) => pure <| mkSplicePat `optional id "?"
-    | `(stx| many($_))     => pure <| mkSplicePat `many id "*"
-    | `(stx| many1($_))    => pure <| mkSplicePat `many id "*"
-    | `(stx| sepBy($_, $sep:str $[, $stxsep]? $[, allowTrailingSep]?)) =>
-      pure <| mkSplicePat `sepBy id ((isStrLit? sep).get! ++ "*")
-    | `(stx| sepBy1($_, $sep:str $[, $stxsep]? $[, allowTrailingSep]?)) =>
-      pure <| mkSplicePat `sepBy id ((isStrLit? sep).get! ++ "*")
+    | _                           => throwUnsupportedSyntax
+  mkSyntaxAndPat id? id stx
+where
+  mkSyntaxAndPat id? id stx := do
+    let pat ← match stx with
+    | `(stx| $s:str)         => pure <| mkNode `token_antiquot #[← liftMacroM <| strLitToPattern s, mkAtom "%", mkAtom "$", id]
+    | `(stx| &$s:str)        => pure <| mkNode `token_antiquot #[← liftMacroM <| strLitToPattern s, mkAtom "%", mkAtom "$", id]
+    | `(stx| optional($stx)) => mkSplicePat `optional stx id "?"
+    | `(stx| many($stx))     => mkSplicePat `many stx id "*"
+    | `(stx| many1($stx))    => mkSplicePat `many stx id "*"
+    | `(stx| sepBy($stx, $sep:str $[, $stxsep]? $[, allowTrailingSep]?)) =>
+      mkSplicePat `sepBy stx id ((isStrLit? sep).get! ++ "*")
+    | `(stx| sepBy1($stx, $sep:str $[, $stxsep]? $[, allowTrailingSep]?)) =>
+      mkSplicePat `sepBy stx id ((isStrLit? sep).get! ++ "*")
+    -- NOTE: all `interpolatedStr(·)` reuse the same node kind
+    | `(stx| interpolatedStr(term)) => pure <| Syntax.mkAntiquotNode interpolatedStrKind id
+    -- bind through withPosition
+    | `(stx| withPosition($stx)) =>
+      return (← mkSyntaxAndPat id? id stx)
     | _ => match id? with
       -- if there is a binding, we assume the user knows what they are doing
-      | some id => pure <| mkAntiquotNode id
+      | some id => mkAntiquotNode stx id
       -- otherwise `group` the syntax to enforce arity 1, e.g. for `noWs`
-      | none    => return (← `(stx| group($stx)), mkAntiquotNode id)
-  pure (stx, pat)
-where mkSplicePat kind id suffix :=
-  mkNullNode #[mkAntiquotSuffixSpliceNode kind (mkAntiquotNode id) suffix]
+      | none    => return (← `(stx| group($stx)), (← mkAntiquotNode stx id))
+    pure (stx, pat)
+  mkSplicePat kind stx id suffix :=
+    return mkNullNode #[mkAntiquotSuffixSpliceNode kind (← mkAntiquotNode stx id) suffix]
+  mkAntiquotNode
+    | `(stx| ($stx)), term => mkAntiquotNode stx term
+    | `(stx| $id:ident$[:$p:prec]?), term => do
+      let kind ← match (← Elab.Term.resolveParserName id) with
+        | [(`Lean.Parser.ident, _)] => pure identKind
+        | [(`Lean.Parser.Term.ident, _)] => pure identKind
+        | [(`Lean.Parser.strLit, _)] => pure strLitKind
+        -- a syntax abbrev, assume kind == decl name
+        | [(c, _)]      => pure c
+        | cs@(_ :: _ :: _) => throwError "ambiguous parser declaration {cs.map (·.1)}"
+        | [] =>
+          let id := id.getId.eraseMacroScopes
+          if Parser.isParserCategory (← getEnv) id then
+            return Syntax.mkAntiquotNode id term (isPseudoKind := true)
+          else if (← Parser.isParserAlias id) then
+            pure <| (← Parser.getSyntaxKindOfParserAlias? id).getD Name.anonymous
+          else
+            throwError "unknown parser declaration/category/alias '{id}'"
+      pure <| Syntax.mkAntiquotNode kind term
+    | stx, term =>
+      pure <| Syntax.mkAntiquotNode Name.anonymous term (isPseudoKind := true)
 
 end Lean.Elab.Command

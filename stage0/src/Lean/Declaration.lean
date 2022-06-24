@@ -417,7 +417,7 @@ def all : ConstantInfo → List Name
   | defnInfo val   => val.all
   | thmInfo val    => val.all
   | opaqueInfo val => val.all
-  | _              => []
+  | info           => [info.name]
 
 @[extern "lean_instantiate_type_lparams"]
 opaque instantiateTypeLevelParams (c : @& ConstantInfo) (ls : @& List Level) : Expr

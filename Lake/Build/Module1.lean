@@ -58,6 +58,15 @@ def Module.mkDynlibTarget (linkTargets : Array FileTarget) (self : Module) : Fil
 section
 variable [Monad m] [MonadLiftT BuildM m] [MonadBuildStore m]
 
+/-- Build the dynlibs of the imports that want precompilation. -/
+def recBuildPrecompileDynlibs (imports : Array Module)
+(recurse : IndexBuildFn m) : m (Array ActiveFileTarget) := do
+  imports.filterMapM fun imp => do
+    if imp.shouldPrecompile then
+      return some <| ← imp.recBuildFacet &`lean.dynlib recurse
+    else
+      return none
+
 /--
 Recursively build a module and its (transitive, local) imports,
 optionally outputting a `.c` file as well if `c` is set to `true`.
@@ -67,12 +76,8 @@ optionally outputting a `.c` file as well if `c` is set to `true`.
   have : MonadLift BuildM m := ⟨liftM⟩
   let extraDepTarget ← mod.pkg.recBuildFacet &`extraDep recurse
   let (imports, transImports) ← mod.recBuildFacet &`lean.imports recurse
-  let dynlibsTarget ←
-    if mod.shouldPrecompile then
-      ActiveTarget.collectArray
-        <| ← transImports.mapM (·.recBuildFacet &`lean.dynlib recurse)
-    else
-      pure <| ActiveTarget.nil.withInfo #[]
+  let dynlibsTarget ← ActiveTarget.collectArray
+    <| ← recBuildPrecompileDynlibs transImports recurse
   let importTarget ←
     if c then
       ActiveTarget.collectOpaqueArray
@@ -121,12 +126,8 @@ Recursively build the shared library of a module (e.g., for `--load-dynlib`).
 (recurse : IndexBuildFn m) : m ActiveFileTarget := do
   have : MonadLift BuildM m := ⟨liftM⟩
   let oTarget ← mod.recBuildFacet &`lean.o recurse
-  let dynlibTargets ←
-    if mod.shouldPrecompile then
-      let (_, transImports) ← mod.recBuildFacet &`lean.imports recurse
-      transImports.mapM fun mod => mod.recBuildFacet &`lean.dynlib recurse
-    else
-      pure #[]
+  let (_, transImports) ← mod.recBuildFacet &`lean.imports recurse
+  let dynlibTargets ← recBuildPrecompileDynlibs transImports recurse
   -- TODO: Link in external libraries
   -- let externLibTargets ← mod.pkg.externLibTargets.mapM (·.activate)
   -- let linkTargets := #[oTarget] ++ sharedLibTargets ++ externLibTargets |>.map Target.active

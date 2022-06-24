@@ -148,6 +148,18 @@ macro "calc " steps:withPosition(calcStep+) : tactic => `(exact calc $steps*)
   | `($(_) fun $x:ident => $p)            => `({ $x // $p })
   | _                                     => throw ()
 
+@[appUnexpander TSyntax] def unexpandTSyntax : Lean.PrettyPrinter.Unexpander
+  | `($f [$k])  => `($f $k)
+  | _           => throw ()
+
+@[appUnexpander TSyntaxArray] def unexpandTSyntaxArray : Lean.PrettyPrinter.Unexpander
+  | `($f [$k])  => `($f $k)
+  | _           => throw ()
+
+@[appUnexpander Syntax.TSepArray] def unexpandTSepArray : Lean.PrettyPrinter.Unexpander
+  | `($f [$k] $sep)  => `($f $k $sep)
+  | _                => throw ()
+
 /--
 Apply function extensionality and introduce new hypotheses.
 The tactic `funext` will keep applying new the `funext` lemma until the goal target is not reducible to

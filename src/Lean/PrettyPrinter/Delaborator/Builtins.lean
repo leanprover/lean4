@@ -166,7 +166,7 @@ def delabAppExplicit : Delab := do
   let (fnStx, _, argStxs) ← withAppFnArgs
     (do
       let stx ← withOptionAtCurrPos `pp.tagAppFns tagAppFn delabAppFn
-      let needsExplicit := stx.getKind != ``Lean.Parser.Term.explicit
+      let needsExplicit := stx.raw.getKind != ``Lean.Parser.Term.explicit
       let stx ← if needsExplicit then `(@$stx) else pure stx
       pure (stx, paramKinds.toList, #[]))
     (fun ⟨fnStx, paramKinds, argStxs⟩ => do
@@ -705,7 +705,7 @@ def delabNamedPattern : Delab := do
   let p ← withAppFn $ withAppArg delab
   -- TODO: we should hide `h` if it has an inaccessible name and is not used in the rhs
   let h ← withAppArg delab
-  guard x.isIdent
+  guard x.raw.isIdent
   `($x:ident@$h:ident:$p:term)
 
 -- Sigma and PSigma delaborators

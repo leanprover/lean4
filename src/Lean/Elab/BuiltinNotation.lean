@@ -108,7 +108,7 @@ private def elabParserMacroAux (prec e : TSyntax `term) (withAnonymousAntiquot :
 @[builtinTermElab «leading_parser»] def elabLeadingParserMacro : TermElab :=
   adaptExpander fun stx => match stx with
   | `(leading_parser $[: $prec?]? $[(withAnonymousAntiquot := $anon?)]? $e) =>
-    elabParserMacroAux (prec?.getD (quote Parser.maxPrec)) e (anon?.all (·.isOfKind ``Parser.Term.trueVal))
+    elabParserMacroAux (prec?.getD (quote Parser.maxPrec)) e (anon?.all (·.raw.isOfKind ``Parser.Term.trueVal))
   | _ => throwUnsupportedSyntax
 
 private def elabTParserMacroAux (prec lhsPrec e : TSyntax `term) : TermElabM Syntax := do

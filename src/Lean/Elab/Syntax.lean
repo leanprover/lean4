@@ -343,7 +343,7 @@ def checkRuleKind (given expected : SyntaxNodeKind) : Bool :=
 
 def inferMacroRulesAltKind : TSyntax ``matchAlt → CommandElabM SyntaxNodeKind
   | `(matchAltExpr| | $pat:term => $_) => do
-    if !pat.isQuot then
+    if !pat.raw.isQuot then
       throwUnsupportedSyntax
     let quoted := getQuotContent pat
     pure quoted.getKind

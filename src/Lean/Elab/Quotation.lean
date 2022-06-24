@@ -545,8 +545,8 @@ def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
   match stx with
   | `(match $[$discrs:term],* with $[| $[$patss],* => $rhss]*) => do
     if !patss.any (·.any (fun
-      | `($_@$pat) => pat.isQuot
-      | pat         => pat.isQuot)) then
+      | `($_@$pat) => pat.raw.isQuot
+      | pat        => pat.raw.isQuot)) then
       -- no quotations => fall back to regular `match`
       throwUnsupportedSyntax
     let stx ← compileStxMatch discrs.toList (patss.map (·.toList) |>.zip rhss).toList

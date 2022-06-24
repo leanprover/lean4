@@ -76,36 +76,32 @@ partial def hasDuplicateAntiquot (stxs : Array Syntax) : Bool := Id.run do
     where `c` is a declaration in the current scope and `body` any syntax
     that contains each variable from the LHS at most once. -/
 def mkSimpleDelab (attrKind : TSyntax ``attrKind) (pat qrhs : TSyntax `term) : OptionT MacroM Syntax := do
-  match qrhs with
-  | `($c:ident $args*) =>
-    let [(c, [])] ← Macro.resolveGlobalName c.getId | failure
-    /-
-    Try to remove all non semantic parenthesis. Since the parenthesizer
-    runs after appUnexpanders we should not match on parenthesis that the user
-    syntax inserted here for example the right hand side of:
-    notation "{" x "|" p "}" => setOf (fun x => p)
-    Should be matched as: setOf fun x => p
-    -/
-    let args ← args.mapM (liftM ∘ removeParentheses)
-    /-
-    The user could mention the same antiquotation from the lhs multiple
-    times on the rhs, this heuristic does not support this.
-    -/
-    let dup := hasDuplicateAntiquot args
-    guard !dup
-    -- replace head constant with (unused) antiquotation so we're not dependent on the exact pretty printing of the head
-    -- The reference is attached to the syntactic representation of the called function itself, not the entire function application
-    `(@[$attrKind:attrKind appUnexpander $(mkIdent c):ident]
-      aux_def unexpand $(mkIdent c) : Lean.PrettyPrinter.Unexpander := fun
-       | `($$f:ident $args*) => withRef f `($pat)
-       | _                   => throw ())
-  | `($c:ident)        =>
-    let [(c, [])] ← Macro.resolveGlobalName c.getId | failure
-    `(@[$attrKind:attrKind appUnexpander $(mkIdent c):ident]
-      aux_def unexpand $(mkIdent c) : Lean.PrettyPrinter.Unexpander := fun
-       | `($$f:ident) => withRef f `($pat)
-       | _            => throw ())
-  | _                  => failure
+  let (c, args) ← match qrhs with
+    | `($c:ident $args*) => pure (c, args)
+    | `($c:ident)        => pure (c, #[])
+    | _                  => failure
+  let [(c, [])] ← Macro.resolveGlobalName c.getId | failure
+  /-
+  Try to remove all non semantic parenthesis. Since the parenthesizer
+  runs after appUnexpanders we should not match on parenthesis that the user
+  syntax inserted here for example the right hand side of:
+  notation "{" x "|" p "}" => setOf (fun x => p)
+  Should be matched as: setOf fun x => p
+  -/
+  let args ← liftM <| args.mapM removeParentheses
+  /-
+  The user could mention the same antiquotation from the lhs multiple
+  times on the rhs, this heuristic does not support this.
+  -/
+  guard !hasDuplicateAntiquot args
+  -- replace head constant with antiquotation so we're not dependent on the exact pretty printing of the head
+  -- The reference is attached to the syntactic representation of the called function itself, not the entire function application
+  let lhs ← `($$f:ident)
+  let lhs := Syntax.mkApp lhs (.mk args)
+  `(@[$attrKind:attrKind appUnexpander $(mkIdent c):ident]
+    aux_def unexpand $(mkIdent c) : Lean.PrettyPrinter.Unexpander := fun
+      | `($lhs) => withRef f `($pat)
+      | _       => throw ())
 
 private def isLocalAttrKind (attrKind : Syntax) : Bool :=
   match attrKind with

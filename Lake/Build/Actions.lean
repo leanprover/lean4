@@ -12,7 +12,8 @@ def createParentDirs (path : FilePath) : IO PUnit := do
   if let some dir := path.parent then IO.FS.createDirAll dir
 
 def proc (args : IO.Process.SpawnArgs) : BuildM PUnit := do
-  let envStr := String.join <| args.env.toList.map fun (k, v) => s!"{k}={v.getD ""} "
+  let envStr := String.join <| args.env.toList.filterMap fun (k, v) =>
+    if k == "PATH" then none else some s!"{k}={v.getD ""} " -- PATH too big
   let cmdStr := " ".intercalate (args.cmd :: args.args.toList)
   logInfo <| "> " ++ envStr ++
     match args.cwd with
@@ -31,11 +32,16 @@ def proc (args : IO.Process.SpawnArgs) : BuildM PUnit := do
     logError s!"external command {args.cmd} exited with status {out.exitCode}"
     failure
 
+def getSearchPath (envVar : String) : IO SearchPath := do
+  match (← IO.getEnv envVar) with
+  | some path => pure <| SearchPath.parse path
+  | none => pure []
+
 def compileLeanModule (leanFile : FilePath)
 (oleanFile? ileanFile? cFile? : Option FilePath)
 (oleanPath : SearchPath := []) (rootDir : FilePath := ".")
-(dynlibs : Array FilePath := #[]) (leanArgs : Array String := #[])
-(lean : FilePath := "lean")
+(dynlibs : Array FilePath := #[]) (dynlibPath : SearchPath := {})
+(leanArgs : Array String := #[]) (lean : FilePath := "lean")
 : BuildM PUnit := do
   let mut args := leanArgs ++
     #[leanFile.toString, "-R", rootDir.toString]
@@ -53,7 +59,11 @@ def compileLeanModule (leanFile : FilePath)
   proc {
     args
     cmd := lean.toString
-    env := #[("LEAN_PATH", oleanPath.toString)]
+    env := #[
+      ("LEAN_PATH", oleanPath.toString),
+      ("PATH", (← getSearchPath "PATH") ++ dynlibPath |>.toString), -- Windows
+      ("LD_LIBRARY_PATH", (← getSearchPath "LD_LIBRARY_PATH") ++ dynlibPath |>.toString) -- Unix
+    ]
   }
 
 def compileO (oFile srcFile : FilePath)

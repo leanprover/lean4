@@ -23,5 +23,5 @@ def ffiOTarget : FileTarget :=
     compileO oFile srcFile #["-I", (← getLeanIncludeDir).toString] "c++"
 
 extern_lib cLib :=
-  let libFile := cBuildDir / s!"libffi.a"
+  let libFile := cBuildDir / s!"libleanffi.a"
   staticLibTarget libFile #[ffiOTarget]

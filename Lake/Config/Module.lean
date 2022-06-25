@@ -29,29 +29,33 @@ def Package.findModule? (mod : Name) (self : Package) : Option Module :=
 
 namespace Module
 
-def leanFile (self : Module) : FilePath :=
+@[inline] def leanFile (self : Module) : FilePath :=
   Lean.modToFilePath self.pkg.srcDir self.name "lean"
 
-def oleanFile (self : Module) : FilePath :=
+@[inline] def oleanFile (self : Module) : FilePath :=
   Lean.modToFilePath self.pkg.oleanDir self.name "olean"
 
-def ileanFile (self : Module) : FilePath :=
+@[inline] def ileanFile (self : Module) : FilePath :=
   Lean.modToFilePath self.pkg.oleanDir self.name "ilean"
 
-def traceFile (self : Module) : FilePath :=
+@[inline] def traceFile (self : Module) : FilePath :=
   Lean.modToFilePath self.pkg.oleanDir self.name "trace"
 
-def cFile (self : Module) : FilePath :=
+@[inline] def cFile (self : Module) : FilePath :=
   Lean.modToFilePath self.pkg.irDir self.name "c"
 
-def cTraceFile (self : Module) : FilePath :=
+@[inline] def cTraceFile (self : Module) : FilePath :=
   Lean.modToFilePath self.pkg.irDir self.name "c.trace"
 
-def oFile (self : Module) : FilePath :=
+@[inline] def oFile (self : Module) : FilePath :=
   Lean.modToFilePath self.pkg.irDir self.name "o"
 
-def dynlib (self : Module) : FilePath :=
-  Lean.modToFilePath self.pkg.oleanDir self.name sharedLibExt
+@[inline] def dynlib (self : Module) : FilePath :=
+  -- NOTE: file name MUST be unique on Windows
+  s!"{self.name}.{sharedLibExt}"
+
+@[inline] def dynlibFile (self : Module) : FilePath :=
+  self.pkg.libDir / self.dynlib
 
 @[inline] def leanArgs (self : Module) : Array String :=
   self.pkg.moreLeanArgs

@@ -14,8 +14,8 @@ namespace Lake
 
 -- # Solo Module Targets
 
-def Module.soloTarget (mod : Module)
-(dynlibs : Array FilePath) (depTarget : BuildTarget x) (c := true) : OpaqueTarget :=
+def Module.soloTarget (mod : Module) (dynlibs : Array FilePath)
+(dynlibPath : SearchPath) (depTarget : BuildTarget x) (c := true) : OpaqueTarget :=
   Target.opaque <| depTarget.bindOpaqueSync fun depTrace => do
     let argTrace : BuildTrace := pureHash mod.leanArgs
     let srcTrace : BuildTrace ← computeTrace mod.leanFile
@@ -25,12 +25,12 @@ def Module.soloTarget (mod : Module)
       let cUpToDate ← modTrace.checkAgainstFile mod.cFile mod.cTraceFile
       unless modUpToDate && cUpToDate do
         compileLeanModule mod.leanFile mod.oleanFile mod.ileanFile mod.cFile
-          (← getOleanPath) mod.pkg.rootDir dynlibs mod.leanArgs (← getLean)
+          (← getOleanPath) mod.pkg.rootDir dynlibs dynlibPath mod.leanArgs (← getLean)
       modTrace.writeToFile mod.cTraceFile
     else
       unless modUpToDate do
         compileLeanModule mod.leanFile mod.oleanFile mod.ileanFile none
-          (← getOleanPath) mod.pkg.rootDir dynlibs mod.leanArgs (← getLean)
+          (← getOleanPath) mod.pkg.rootDir dynlibs dynlibPath mod.leanArgs (← getLean)
     modTrace.writeToFile mod.traceFile
     return depTrace
 
@@ -43,8 +43,15 @@ def Module.mkOTarget (cTarget : FileTarget) (self : Module) : FileTarget :=
   leanOFileTarget self.oFile cTarget self.leancArgs
 
 @[inline]
-def Module.mkDynlibTarget (linkTargets : Array FileTarget) (self : Module) : FileTarget :=
-  leanSharedLibTarget self.dynlib linkTargets self.linkArgs
+def Module.mkDynlibTarget (self : Module) (oTarget : FileTarget)
+(libDirs : Array FilePath) (libTargets : Array FileTarget) : FileTarget :=
+  let libsTarget : BuildTarget _ := Target.collectArray libTargets
+  Target.mk self.dynlib do
+    oTarget.bindAsync fun oFile oTrace => do
+    libsTarget.bindSync fun libFiles libTrace => do
+      buildFileUnlessUpToDate self.dynlibFile (oTrace.mix libTrace) do
+        let args := #[oFile.toString] ++ libDirs.map (s!"-L{·}") ++ libFiles.map (s!"-l:{·}")
+        compileSharedLib self.dynlibFile args (← getLeanc)
 
 -- # Recursive Building
 
@@ -53,9 +60,11 @@ variable [Monad m] [MonadLiftT BuildM m] [MonadBuildStore m]
 
 /-- Build the dynlibs of the imports that want precompilation. -/
 @[specialize] def recBuildPrecompileDynlibs (pkg : Package) (imports : Array Module)
-: IndexT m (Array ActiveFileTarget × Array ActiveFileTarget) := do
+: IndexT m (Array ActiveFileTarget × Array ActiveFileTarget × Array FilePath) := do
+  have : MonadLift BuildM m := ⟨liftM⟩
+  -- Build and collect precompiled imports
   let mut pkgs := #[]
-  let mut pkgSet := PackageSet.empty
+  let mut pkgSet := PackageSet.empty.insert pkg
   let mut modTargets := #[]
   for imp in imports do
     if imp.shouldPrecompile then
@@ -63,11 +72,21 @@ variable [Monad m] [MonadLiftT BuildM m] [MonadBuildStore m]
         pkgSet := pkgSet.insert imp.pkg
         pkgs := pkgs.push imp.pkg
       modTargets := modTargets.push <| ← imp.recBuildFacet &`lean.dynlib
+  pkgs := pkgs.push pkg
+  -- Compute library directories and external library targets
+  let mut libDirs := #[]
   let mut pkgTargets := #[]
   for pkg in pkgs do
-    pkgTargets := pkgTargets.append <| ← pkg.recBuildFacet &`externSharedLibs
-  pkgTargets := pkgTargets.append <| ← pkg.recBuildFacet &`externSharedLibs
-  return (modTargets, pkgTargets)
+    libDirs := libDirs.push pkg.libDir
+    let externLibTargets ← pkg.recBuildFacet &`externSharedLibs
+    for target in externLibTargets do
+      if let some parent := target.info.parent then
+        libDirs := libDirs.push parent
+      if let some fileName := target.info.fileName then
+        pkgTargets := pkgTargets.push <| target.withInfo fileName
+      else
+        logWarning s!"external library `{target.info}` was skipped because it has no file name"
+  return (modTargets, pkgTargets, libDirs)
 
 /--
 Recursively build a module and its (transitive, local) imports,
@@ -78,7 +97,7 @@ optionally outputting a `.c` file as well if `c` is set to `true`.
   have : MonadLift BuildM m := ⟨liftM⟩
   let extraDepTarget ← mod.pkg.recBuildFacet &`extraDep
   let (imports, transImports) ← mod.recBuildFacet &`lean.imports
-  let (modTargets, pkgTargets) ← recBuildPrecompileDynlibs mod.pkg transImports
+  let (modTargets, pkgTargets, libDirs) ← recBuildPrecompileDynlibs mod.pkg transImports
    -- Note: Lean wants the external library symbols before module symbols
   let dynlibsTarget ← ActiveTarget.collectArray <| pkgTargets ++ modTargets
   let importTarget ←
@@ -90,7 +109,7 @@ optionally outputting a `.c` file as well if `c` is set to `true`.
         <| ← imports.mapM (·.recBuildFacet &`lean)
   let depTarget := Target.active <| ← extraDepTarget.mixOpaqueAsync
     <| ← dynlibsTarget.mixOpaqueAsync importTarget
-  let modTarget ← mod.soloTarget dynlibsTarget.info depTarget c |>.activate
+  let modTarget ← mod.soloTarget dynlibsTarget.info libDirs.toList depTarget c |>.activate
   store (mod.mkBuildKey &`lean) modTarget
   store (mod.mkBuildKey &`olean) <| modTarget.withInfo mod.oleanFile
   store (mod.mkBuildKey &`ilean) <| modTarget.withInfo mod.ileanFile
@@ -132,9 +151,8 @@ Recursively build the shared library of a module (e.g., for `--load-dynlib`).
 @[specialize] def Module.recBuildDynLib (mod : Module)
 : IndexT m ActiveFileTarget := do
   have : MonadLift BuildM m := ⟨liftM⟩
-  let oTarget ← mod.recBuildFacet &`lean.o
+  let oTarget := Target.active <| ← mod.recBuildFacet &`lean.o
   let (_, transImports) ← mod.recBuildFacet &`lean.imports
-  let (modTargets, pkgTargets) ← recBuildPrecompileDynlibs mod.pkg transImports
-  let linkTargets := #[oTarget] ++ modTargets ++ pkgTargets
-  let linkTargets := linkTargets.map Target.active
-  mod.mkDynlibTarget linkTargets |>.activate
+  let (modTargets, pkgTargets, libDirs) ← recBuildPrecompileDynlibs mod.pkg transImports
+  let libTargets := modTargets ++ pkgTargets |>.map Target.active
+  mod.mkDynlibTarget oTarget libDirs libTargets |>.activate

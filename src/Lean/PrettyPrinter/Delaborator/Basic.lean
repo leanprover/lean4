@@ -61,7 +61,7 @@ structure State where
 builtin_initialize delabFailureId : InternalExceptionId ← registerInternalExceptionId `delabFailure
 
 abbrev DelabM := ReaderT Context (StateRefT State MetaM)
-abbrev Delab := DelabM (TSyntax `term)
+abbrev Delab := DelabM Term
 
 instance : Inhabited (DelabM α) where
   default := throw default
@@ -166,10 +166,10 @@ def withOptionAtCurrPos (k : Name) (v : DataValue) (x : DelabM α) : DelabM α :
       { ctx with optionsPerPos := ctx.optionsPerPos.insert pos opts' })
     x
 
-def annotatePos (pos : Pos) (stx : TSyntax `term) : TSyntax `term :=
+def annotatePos (pos : Pos) (stx : Term) : Term :=
   ⟨stx.raw.setInfo (SourceInfo.synthetic ⟨pos⟩ ⟨pos⟩)⟩
 
-def annotateCurPos (stx : TSyntax `term) : Delab :=
+def annotateCurPos (stx : Term) : Delab :=
   return annotatePos (← getPos) stx
 
 def getUnusedName (suggestion : Name) (body : Expr) : DelabM Name := do
@@ -274,7 +274,7 @@ end Delaborator
 open SubExpr (Pos)
 open Delaborator (OptionsPerPos topDownAnalyze)
 
-def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab := Delaborator.delab) : MetaM (TSyntax `term × Std.RBMap Pos Elab.Info compare) := do
+def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab := Delaborator.delab) : MetaM (Term × Std.RBMap Pos Elab.Info compare) := do
   /- Using `erasePatternAnnotations` here is a bit hackish, but we do it
      `Expr.mdata` affects the delaborator. TODO: should we fix that? -/
   let e ← Meta.erasePatternRefAnnotations e
@@ -302,7 +302,7 @@ def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab := Delabor
   return (stx, infos)
 
 /-- "Delaborate" the given term into surface-level syntax using the default and given subterm-specific options. -/
-def delab (e : Expr) (optionsPerPos : OptionsPerPos := {}) : MetaM (TSyntax `term) := do
+def delab (e : Expr) (optionsPerPos : OptionsPerPos := {}) : MetaM Term := do
   let (stx, _) ← delabCore e optionsPerPos
   return stx
 

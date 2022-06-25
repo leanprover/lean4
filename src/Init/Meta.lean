@@ -235,6 +235,23 @@ instance monadNameGeneratorLift (m n : Type → Type) [MonadLift m n] [MonadName
   setNGen := fun ngen => liftM (setNGen ngen : m _)
 }
 
+namespace Syntax
+
+abbrev Term := TSyntax `term
+abbrev Command := TSyntax `command
+protected abbrev Level := TSyntax `level
+abbrev Prec := TSyntax `prec
+abbrev Prio := TSyntax `prio
+abbrev Ident := TSyntax identKind
+abbrev StrLit := TSyntax strLitKind
+abbrev CharLit := TSyntax charLitKind
+abbrev NameLit := TSyntax nameLitKind
+abbrev NumLit := TSyntax numLitKind
+
+end Syntax
+
+export Syntax (Term Command Prec Prio Ident StrLit CharLit NameLit NumLit)
+
 namespace TSyntax
 
 instance : Coe (TSyntax [k]) (TSyntax (k :: ks)) where
@@ -243,25 +260,25 @@ instance : Coe (TSyntax [k]) (TSyntax (k :: ks)) where
 instance [Coe (TSyntax [k]) (TSyntax ks)] : Coe (TSyntax [k]) (TSyntax (k' :: ks)) where
   coe stx := ⟨stx⟩
 
-instance : Coe (TSyntax identKind) (TSyntax `term) where
+instance : Coe Ident Term where
   coe s := ⟨s.raw⟩
 
-instance : CoeDep (TSyntax `term) ⟨Syntax.ident info ss n res⟩ (TSyntax `ident) where
+instance : CoeDep Term ⟨Syntax.ident info ss n res⟩ Ident where
   coe := ⟨Syntax.ident info ss n res⟩
 
-instance : Coe (TSyntax strLitKind) (TSyntax `term) where
+instance : Coe StrLit Term where
   coe s := ⟨s.raw⟩
 
-instance : Coe (TSyntax nameLitKind) (TSyntax `term) where
+instance : Coe NameLit Term where
   coe s := ⟨s.raw⟩
 
-instance : Coe (TSyntax numLitKind) (TSyntax `term) where
+instance : Coe NumLit Term where
   coe s := ⟨s.raw⟩
 
-instance : Coe (TSyntax charLitKind) (TSyntax `term) where
+instance : Coe CharLit Term where
   coe s := ⟨s.raw⟩
 
-instance : Coe (TSyntax numLitKind) (TSyntax `prec) where
+instance : Coe NumLit Prec where
   coe s := ⟨s.raw⟩
 
 namespace Compat
@@ -421,17 +438,17 @@ partial def expandMacros : Syntax → MacroM Syntax
 /--
   Create an identifier copying the position from `src`.
   To refer to a specific constant, use `mkCIdentFrom` instead. -/
-def mkIdentFrom (src : Syntax) (val : Name) : TSyntax identKind :=
+def mkIdentFrom (src : Syntax) (val : Name) : Ident :=
   ⟨Syntax.ident (SourceInfo.fromRef src) (toString val).toSubstring val []⟩
 
-def mkIdentFromRef [Monad m] [MonadRef m] (val : Name) : m (TSyntax identKind) := do
+def mkIdentFromRef [Monad m] [MonadRef m] (val : Name) : m Ident := do
   return mkIdentFrom (← getRef) val
 
 /--
   Create an identifier referring to a constant `c` copying the position from `src`.
   This variant of `mkIdentFrom` makes sure that the identifier cannot accidentally
   be captured. -/
-def mkCIdentFrom (src : Syntax) (c : Name) : TSyntax identKind :=
+def mkCIdentFrom (src : Syntax) (c : Name) : Ident :=
   -- Remark: We use the reserved macro scope to make sure there are no accidental collision with our frontend
   let id   := addMacroScope `_internal c reservedMacroScope
   ⟨Syntax.ident (SourceInfo.fromRef src) (toString id).toSubstring id [(c, [])]⟩
@@ -439,11 +456,11 @@ def mkCIdentFrom (src : Syntax) (c : Name) : TSyntax identKind :=
 def mkCIdentFromRef [Monad m] [MonadRef m] (c : Name) : m Syntax := do
   return mkCIdentFrom (← getRef) c
 
-def mkCIdent (c : Name) : TSyntax identKind :=
+def mkCIdent (c : Name) : Ident :=
   mkCIdentFrom Syntax.missing c
 
 @[export lean_mk_syntax_ident]
-def mkIdent (val : Name) : TSyntax identKind :=
+def mkIdent (val : Name) : Ident :=
   ⟨Syntax.ident SourceInfo.none (toString val).toSubstring val []⟩
 
 @[inline] def mkNullNode (args : Array Syntax := #[]) : Syntax :=
@@ -490,27 +507,27 @@ instance : Coe (TSyntaxArray k) (TSepArray k sep) where
   coe a := ⟨mkSepArray a.raw (mkAtom sep)⟩
 
 /-- Create syntax representing a Lean term application, but avoid degenerate empty applications. -/
-def mkApp (fn : TSyntax `term) : (args : TSyntaxArray `term) → TSyntax `term
+def mkApp (fn : Term) : (args : TSyntaxArray `term) → Term
   | #[]  => fn
   | args => ⟨mkNode `Lean.Parser.Term.app #[fn, mkNullNode args.raw]⟩
 
-def mkCApp (fn : Name) (args : TSyntaxArray `term) : TSyntax `term :=
+def mkCApp (fn : Name) (args : TSyntaxArray `term) : Term :=
   mkApp (mkCIdent fn) args
 
 def mkLit (kind : SyntaxNodeKind) (val : String) (info := SourceInfo.none) : TSyntax kind :=
   let atom : Syntax := Syntax.atom info val
   mkNode kind #[atom]
 
-def mkStrLit (val : String) (info := SourceInfo.none) : TSyntax strLitKind :=
+def mkStrLit (val : String) (info := SourceInfo.none) : StrLit :=
   mkLit strLitKind (String.quote val) info
 
-def mkNumLit (val : String) (info := SourceInfo.none) : TSyntax numLitKind :=
+def mkNumLit (val : String) (info := SourceInfo.none) : NumLit :=
   mkLit numLitKind val info
 
 def mkScientificLit (val : String) (info := SourceInfo.none) : TSyntax scientificLitKind :=
   mkLit scientificLitKind val info
 
-def mkNameLit (val : String) (info := SourceInfo.none) : TSyntax nameLitKind :=
+def mkNameLit (val : String) (info := SourceInfo.none) : NameLit :=
   mkLit nameLitKind val info
 
 /- Recall that we don't have special Syntax constructors for storing numeric and string atoms.
@@ -815,7 +832,7 @@ namespace TSyntax
 def getNat (s : TSyntax numLitKind) : Nat :=
   s.raw.isNatLit?.get!
 
-def getId (s : TSyntax identKind) : Name :=
+def getId (s : Ident) : Name :=
   s.raw.getId
 
 def getString (s : TSyntax strLitKind) : String :=
@@ -838,7 +855,7 @@ export Quote (quote)
 
 instance [Quote α k] [CoeHTCT (TSyntax k) (TSyntax [k'])]: Quote α k' := ⟨fun a => quote (k := k) a⟩
 
-instance : Quote (TSyntax `term) := ⟨id⟩
+instance : Quote Term := ⟨id⟩
 instance : Quote Bool := ⟨fun | true => mkCIdent `Bool.true | false => mkCIdent `Bool.false⟩
 instance : Quote String strLitKind := ⟨Syntax.mkStrLit⟩
 instance : Quote Nat numLitKind := ⟨fun n => Syntax.mkNumLit <| toString n⟩
@@ -852,7 +869,7 @@ private def getEscapedNameParts? (acc : List String) : Name → Option (List Str
     getEscapedNameParts? (s::acc) n
   | Name.num _ _ _ => none
 
-def quoteNameMk : Name → TSyntax `term
+def quoteNameMk : Name → Term
   | Name.anonymous => mkCIdent ``Name.anonymous
   | Name.str n s _ => Syntax.mkCApp ``Name.mkStr #[quoteNameMk n, quote s]
   | Name.num n i _ => Syntax.mkCApp ``Name.mkNum #[quoteNameMk n, quote i]
@@ -866,7 +883,7 @@ instance [Quote α `term] [Quote β `term] : Quote (α × β) `term where
   quote
     | ⟨a, b⟩ => Syntax.mkCApp ``Prod.mk #[quote a, quote b]
 
-private def quoteList [Quote α `term] : List α → TSyntax `term
+private def quoteList [Quote α `term] : List α → Term
   | []      => mkCIdent ``List.nil
   | (x::xs) => Syntax.mkCApp ``List.cons #[quote x, quoteList xs]
 
@@ -993,10 +1010,10 @@ instance [Coe (TSyntax k) (TSyntax k')] : Coe (TSyntaxArray k) (TSyntaxArray k')
 instance : Coe (TSyntaxArray k) (Array Syntax) where
   coe a := a.raw
 
-instance : Coe (TSyntax identKind) (TSyntax `Lean.Parser.Command.declId) where
+instance : Coe Ident (TSyntax `Lean.Parser.Command.declId) where
   coe id := mkNode _ #[id, mkNullNode #[]]
 
-instance : Coe (Lean.TSyntax `term) (Lean.TSyntax `Lean.Parser.Term.funBinder) where
+instance : Coe (Lean.Term) (Lean.TSyntax `Lean.Parser.Term.funBinder) where
   coe stx := ⟨stx⟩
 
 end Lean.Syntax
@@ -1063,7 +1080,7 @@ def expandInterpolatedStrChunks (chunks : Array Syntax) (mkAppend : Syntax → S
   return result
 
 open TSyntax.Compat in
-def expandInterpolatedStr (interpStr : TSyntax interpolatedStrKind) (type : TSyntax `term) (toTypeFn : TSyntax `term) : MacroM (TSyntax `term) := do
+def expandInterpolatedStr (interpStr : TSyntax interpolatedStrKind) (type : Term) (toTypeFn : Term) : MacroM Term := do
   let r ← expandInterpolatedStrChunks interpStr.raw.getArgs (fun a b => `($a ++ $b)) (fun a => `($toTypeFn $a))
   `(($r : $type))
 

@@ -14,7 +14,7 @@ open Meta
 def mkBEqHeader (indVal : InductiveVal) : TermElabM Header := do
   mkHeader `BEq 2 indVal
 
-def mkMatch (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM (TSyntax `term) := do
+def mkMatch (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Term := do
   let discrs ← mkDiscrs header indVal
   let alts ← mkAlts
   `(match $[$discrs],* with $alts:matchAlt*)
@@ -68,7 +68,7 @@ where
     alts := alts.push (← mkElseAlt)
     return alts
 
-def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM (TSyntax `command) := do
+def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
   let auxFunName := ctx.auxFunNames[i]
   let indVal     := ctx.typeInfos[i]
   let header     ← mkBEqHeader indVal

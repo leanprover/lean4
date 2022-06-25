@@ -26,7 +26,7 @@ def mkInductArgNames (indVal : InductiveVal) : TermElabM (Array Name) := do
     pure argNames
 
 /-- Return the inductive declaration's type applied to the arguments in `argNames`. -/
-def mkInductiveApp (indVal : InductiveVal) (argNames : Array Name) : TermElabM (TSyntax `term) :=
+def mkInductiveApp (indVal : InductiveVal) (argNames : Array Name) : TermElabM Term :=
   let f    := mkIdent indVal.name
   let args := argNames.map mkIdent
   `(@$f $args*)
@@ -101,12 +101,12 @@ def mkLocalInstanceLetDecls (ctx : Context) (className : Name) (argNames : Array
     letDecls := letDecls.push letDecl
   return letDecls
 
-def mkLet (letDecls : Array (TSyntax ``Parser.Term.letDecl)) (body : TSyntax `term) : TermElabM (TSyntax `term) :=
+def mkLet (letDecls : Array (TSyntax ``Parser.Term.letDecl)) (body : Term) : TermElabM Term :=
   letDecls.foldrM (init := body) fun letDecl body =>
     `(let $letDecl:letDecl; $body)
 
 open TSyntax.Compat in
-def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) (useAnonCtor := true) : TermElabM (Array (TSyntax `command)) := do
+def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) (useAnonCtor := true) : TermElabM (Array Command) := do
   let mut instances := #[]
   for i in [:ctx.typeInfos.size] do
     let indVal       := ctx.typeInfos[i]
@@ -129,7 +129,7 @@ structure Header where
   binders     : Array (TSyntax ``Parser.Term.bracketedBinder)
   argNames    : Array Name
   targetNames : Array Name
-  targetType  : TSyntax `term
+  targetType  : Term
 
 open TSyntax.Compat in
 def mkHeader (className : Name) (arity : Nat) (indVal : InductiveVal) : TermElabM Header := do

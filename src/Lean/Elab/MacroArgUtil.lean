@@ -11,9 +11,9 @@ open Lean.Parser.Term hiding macroArg
 open Lean.Parser.Command
 
 /- Convert `macro` arg into a `syntax` command item and a pattern element -/
-partial def expandMacroArg (stx : TSyntax ``macroArg) : CommandElabM (TSyntax `stx × TSyntax `term) := do
+partial def expandMacroArg (stx : TSyntax ``macroArg) : CommandElabM (TSyntax `stx × Term) := do
   let (id?, id, stx) ← match (← liftMacroM <| expandMacros stx) with
-    | `(macroArg| $id:ident:$stx) => pure (some id, (id : TSyntax `term), stx)
+    | `(macroArg| $id:ident:$stx) => pure (some id, (id : Term), stx)
     | `(macroArg| $stx:stx)       => pure (none, (← `(x)), stx)
     | _                           => throwUnsupportedSyntax
   mkSyntaxAndPat id? id stx
@@ -40,9 +40,9 @@ where
       -- otherwise `group` the syntax to enforce arity 1, e.g. for `noWs`
       | none    => return (← `(stx| group($stx)), (← mkAntiquotNode stx id))
     pure (stx, pat)
-  mkSplicePat kind stx id suffix : CommandElabM (TSyntax `term) :=
+  mkSplicePat kind stx id suffix : CommandElabM Term :=
     return ⟨mkNullNode #[mkAntiquotSuffixSpliceNode kind (← mkAntiquotNode stx id) suffix]⟩
-  mkAntiquotNode : TSyntax `stx → TSyntax `term → CommandElabM (TSyntax `term)
+  mkAntiquotNode : TSyntax `stx → Term → CommandElabM Term
     | `(stx| ($stx)), term => mkAntiquotNode stx term
     | `(stx| $id:ident$[:$p:prec]?), term => do
       let kind ← match (← Elab.Term.resolveParserName id) with

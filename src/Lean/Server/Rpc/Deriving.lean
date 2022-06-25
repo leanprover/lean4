@@ -88,7 +88,7 @@ end
 def isOptField (n : Name) : Bool :=
   n.toString.endsWith "?"
 
-private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr) : TermElabM (TSyntax `command) :=
+private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr) : TermElabM Command :=
   withFields indVal params fun fields => do
     trace[Elab.Deriving.RpcEncoding] "for structure {indVal.name} with params {params}"
     -- Postulate that every field have a rpc encoding, storing the encoding type ident
@@ -96,9 +96,9 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
     -- as otherwise typeclass synthesis fails.
     let mut binders := #[]
     let mut fieldIds := #[]
-    let mut fieldEncIds : Array (TSyntax `term) := #[]
-    let mut uniqFieldEncIds : Array (TSyntax identKind) := #[]
-    let mut fieldEncIds' : DiscrTree (TSyntax identKind) := {}
+    let mut fieldEncIds : Array Term := #[]
+    let mut uniqFieldEncIds : Array Ident := #[]
+    let mut fieldEncIds' : DiscrTree Ident := {}
     for (fieldName, fieldTp) in fields do
       let mut fieldTp := fieldTp
       if isOptField fieldName then
@@ -108,7 +108,7 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
 
       -- postulate that the field has an encoding and remember the encoding's binder name
       fieldIds := fieldIds.push <| mkIdent fieldName
-      let mut fieldEncId : TSyntax identKind := ⟨Syntax.missing⟩
+      let mut fieldEncId : Ident := ⟨Syntax.missing⟩
       match (← fieldEncIds'.getMatch fieldTp).back? with
       | none =>
         fieldEncId ← mkIdent <$> mkFreshUserName fieldName
@@ -167,7 +167,7 @@ private structure CtorState where
   deriving Inhabited
 
 private def matchF := Lean.Parser.Term.matchAlt (rhsParser := Lean.Parser.termParser)
-private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr) : TermElabM (TSyntax `command) := do
+private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr) : TermElabM Command := do
   trace[Elab.Deriving.RpcEncoding] "for inductive {indVal.name} with params {params}"
 
   -- produce all encoding types and binders for them
@@ -214,7 +214,7 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
         -- create encoder and decoder match arms
         let nms ← argVars.mapM fun _ => mkIdent <$> mkFreshBinderName
         let mkPattern (src : Name) := Syntax.mkApp (mkIdent <| Name.mkStr src ctor.getString!) nms
-        let mkBody (tgt : Name) (func : Name) : TermElabM (TSyntax `term) := do
+        let mkBody (tgt : Name) (func : Name) : TermElabM Term := do
           let items ← nms.mapM fun nm => `(← $(mkIdent func) $nm)
           let tm := Syntax.mkApp (mkIdent <| Name.mkStr tgt ctor.getString!) items
           `(return $tm:term)

@@ -15,12 +15,12 @@ open Meta
 def mkDecEqHeader (indVal : InductiveVal) : TermElabM Header := do
   mkHeader `DecidableEq 2 indVal
 
-def mkMatch (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM (TSyntax `term) := do
+def mkMatch (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Term := do
   let discrs ← mkDiscrs header indVal
   let alts ← mkAlts
   `(match $[$discrs],* with $alts:matchAlt*)
 where
-  mkSameCtorRhs : List (TSyntax identKind × TSyntax identKind × Bool × Bool) → TermElabM (TSyntax `term)
+  mkSameCtorRhs : List (Ident × Ident × Bool × Bool) → TermElabM Term
     | [] => ``(isTrue rfl)
     | (a, b, recField, isProof) :: todo => withFreshMacroScope do
       let rhs ← if isProof then

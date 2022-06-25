@@ -95,7 +95,7 @@ are turned into a new anonymous constructor application. For example,
   | _                                                           => Macro.throwUnsupported
 
 open Lean.Parser in
-private def elabParserMacroAux (prec e : TSyntax `term) (withAnonymousAntiquot : Bool) : TermElabM Syntax := do
+private def elabParserMacroAux (prec e : Term) (withAnonymousAntiquot : Bool) : TermElabM Syntax := do
   let (some declName) ← getDeclName?
     | throwError "invalid `leading_parser` macro, it must be used in definitions"
   match extractMacroScopes declName with
@@ -111,7 +111,7 @@ private def elabParserMacroAux (prec e : TSyntax `term) (withAnonymousAntiquot :
     elabParserMacroAux (prec?.getD (quote Parser.maxPrec)) e (anon?.all (·.raw.isOfKind ``Parser.Term.trueVal))
   | _ => throwUnsupportedSyntax
 
-private def elabTParserMacroAux (prec lhsPrec e : TSyntax `term) : TermElabM Syntax := do
+private def elabTParserMacroAux (prec lhsPrec e : Term) : TermElabM Syntax := do
   let declName? ← getDeclName?
   match declName? with
   | some declName => let kind := quote declName; ``(Lean.Parser.trailingNode $kind $prec $lhsPrec $e)
@@ -168,8 +168,8 @@ interpolated string literal) to stderr. It should only be used for debugging. -/
   withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
 
 /-- Return syntax `Prod.mk elems[0] (Prod.mk elems[1] ... (Prod.mk elems[elems.size - 2] elems[elems.size - 1])))` -/
-partial def mkPairs (elems : Array (TSyntax `term)) : MacroM (TSyntax `term) :=
-  let rec loop (i : Nat) (acc : TSyntax `term) := do
+partial def mkPairs (elems : Array Term) : MacroM Term :=
+  let rec loop (i : Nat) (acc : Term) := do
     if i > 0 then
       let i    := i - 1
       let elem := elems[i]
@@ -192,7 +192,7 @@ private partial def hasCDot : Syntax → Bool
   Examples:
   - `· + 1` => `fun _a_1 => _a_1 + 1`
   - `f · · b` => `fun _a_1 _a_2 => f _a_1 _a_2 b` -/
-partial def expandCDot? (stx : TSyntax `term) : MacroM (Option (TSyntax `term)) := do
+partial def expandCDot? (stx : Term) : MacroM (Option Term) := do
   if hasCDot stx then
     let (newStx, binders) ← (go stx).run #[]
     `(fun $binders* => $(⟨newStx⟩))
@@ -204,10 +204,10 @@ where
     The extra state `Array Syntax` contains the new binder names.
     If `stx` is a `·`, we create a fresh identifier, store in the
     extra state, and return it. Otherwise, we just return `stx`. -/
-  go : Syntax → StateT (Array (TSyntax identKind)) MacroM Syntax
+  go : Syntax → StateT (Array Ident) MacroM Syntax
     | stx@`(($(_))) => pure stx
     | stx@`(·) => withFreshMacroScope do
-      let id : TSyntax `ident ← `(a)
+      let id : Ident ← `(a)
       modify fun s => s.push id
       pure id
     | stx => match stx with
@@ -220,7 +220,7 @@ where
   Helper method for elaborating terms such as `(.+.)` where a constant name is expected.
   This method is usually used to implement tactics that function names as arguments (e.g., `simp`).
 -/
-def elabCDotFunctionAlias? (stx : TSyntax `term) : TermElabM (Option Expr) := do
+def elabCDotFunctionAlias? (stx : Term) : TermElabM (Option Expr) := do
   let some stx ← liftMacroM <| expandCDotArg? stx | pure none
   let stx ← liftMacroM <| expandMacros stx
   match stx with
@@ -236,7 +236,7 @@ def elabCDotFunctionAlias? (stx : TSyntax `term) : TermElabM (Option Expr) := do
       return none
   | _ => return none
 where
-  expandCDotArg? (stx : TSyntax `term) : MacroM (Option (TSyntax `term)) :=
+  expandCDotArg? (stx : Term) : MacroM (Option Term) :=
     match stx with
     | `(($e)) => Term.expandCDot? e
     | _ => Term.expandCDot? stx
@@ -286,7 +286,7 @@ private def isSubstCandidate (lhs rhs : Expr) : MetaM Bool :=
   Given an expression `e` that is the elaboration of `stx`, if `e` is a free variable, then return `k stx`.
   Otherwise, return `(fun x => k x) e`
 -/
-private def withLocalIdentFor (stx : TSyntax `term) (e : Expr) (k : TSyntax `term → TermElabM Expr) : TermElabM Expr := do
+private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Expr) : TermElabM Expr := do
   if e.isFVar then
     k stx
   else

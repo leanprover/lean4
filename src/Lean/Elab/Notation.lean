@@ -71,7 +71,7 @@ partial def hasDuplicateAntiquot (stxs : Array Syntax) : Bool := Id.run do
     The notation must be of the form `notation ... => c body`
     where `c` is a declaration in the current scope and `body` any syntax
     that contains each variable from the LHS at most once. -/
-def mkSimpleDelab (attrKind : TSyntax ``attrKind) (pat qrhs : TSyntax `term) : OptionT MacroM Syntax := do
+def mkSimpleDelab (attrKind : TSyntax ``attrKind) (pat qrhs : Term) : OptionT MacroM Syntax := do
   let (c, args) ← match qrhs with
     | `($c:ident $args*) => pure (c, args)
     | `($c:ident)        => pure (c, #[])
@@ -105,7 +105,7 @@ private def isLocalAttrKind (attrKind : Syntax) : Bool :=
   | _ => false
 
 private def expandNotationAux (ref : Syntax)
-    (currNamespace : Name) (attrKind : TSyntax ``attrKind) (prec? : Option (TSyntax `prec)) (name? : Option (TSyntax identKind)) (prio? : Option (TSyntax `prio)) (items : Array (TSyntax ``notationItem)) (rhs : TSyntax `term) : MacroM Syntax := do
+    (currNamespace : Name) (attrKind : TSyntax ``attrKind) (prec? : Option Prec) (name? : Option Ident) (prio? : Option Prio) (items : Array (TSyntax ``notationItem)) (rhs : Term) : MacroM Syntax := do
   let prio ← evalOptPrio prio?
   -- build parser
   let syntaxParts ← items.mapM expandNotationItemIntoSyntaxItem
@@ -122,7 +122,7 @@ private def expandNotationAux (ref : Syntax)
   /- The command `syntax [<kind>] ...` adds the current namespace to the syntax node kind.
      So, we must include current namespace when we create a pattern for the following `macro_rules` commands. -/
   let fullName := currNamespace ++ name
-  let pat : TSyntax `term := ⟨mkNode fullName patArgs⟩
+  let pat : Term := ⟨mkNode fullName patArgs⟩
   let stxDecl ← `($attrKind:attrKind syntax $[: $prec?]? (name := $(mkIdent name)) (priority := $(quote prio):num) $[$syntaxParts]* : $cat)
   let macroDecl ← `(macro_rules | `($pat) => ``($qrhs))
   let macroDecls ←

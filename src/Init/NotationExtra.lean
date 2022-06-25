@@ -71,7 +71,7 @@ macro_rules
     let mut body ← `($t₁ = $t₂)
     for (c₁, c₂) in cs₁.zip cs₂ |>.reverse do
       body ← `($c₁ = $c₂ → $body)
-    let hint : TSyntax `ident ← `(hint)
+    let hint : Ident ← `(hint)
     `(@[$kind:attrKind unificationHint] def $(n.getD hint):ident $bs:bracketedBinder* : Sort _ := $body)
 end Lean
 
@@ -182,7 +182,7 @@ macro_rules
 macro_rules
   | `(%[ $[$x],* | $k ]) =>
     if x.size < 8 then
-      x.foldrM (β := TSyntax `term) (init := k) fun x k =>
+      x.foldrM (β := Term) (init := k) fun x k =>
         `(List.cons $x $k)
     else
       let m := x.size / 2

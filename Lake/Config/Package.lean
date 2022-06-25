@@ -291,7 +291,7 @@ structure Package where
   leanLibs : NameMap LeanLibConfig := {}
   /-- Lean binary executable targets for the package. -/
   leanExes : NameMap LeanExeConfig := {}
-   /-- External library targets for the package. -/
+  /-- External library targets for the package. -/
   externLibs : NameMap ExternLibConfig := {}
   /--
   The names of the package's targets to build by default
@@ -299,6 +299,9 @@ structure Package where
   -/
   defaultTargets : Array Name := #[]
   deriving Inhabited
+
+abbrev PackageSet := RBTree Package (·.name.quickCmp ·.name)
+@[inline] def PackageSet.empty : PackageSet := RBTree.empty
 
 namespace OpaquePackage
 

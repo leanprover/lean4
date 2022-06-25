@@ -50,6 +50,8 @@ abbrev IndexT (m : Type → Type v) := EquipT (IndexBuildFn m) m
 
 -- # Data Types of Build Results
 
+-- ## For Module Facets
+
 /-- Lean binary build (`olean`, `ilean` files) -/
 module_data lean : ActiveOpaqueTarget
 
@@ -71,5 +73,13 @@ module_data lean.dynlib : ActiveFileTarget
 /-- The direct × transitive imports of the Lean module. -/
 module_data lean.imports : Array Module × Array Module
 
+-- ## For Package Facets
+
+/-- The package's complete array of transitive dependencies. -/
+package_data deps : Array Package
+
 /-- The package's `extraDepTarget`. -/
 package_data extraDep : ActiveOpaqueTarget
+
+/-- The package's `extern_lib` targets compiled into shared libraries. -/
+package_data externSharedLibs : Array ActiveFileTarget

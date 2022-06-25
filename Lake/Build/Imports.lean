@@ -50,5 +50,9 @@ def Package.buildImportsAndDeps (imports : List String) (self : Package) : Build
         buildModuleTop mod &`lean.o <&> (·.withoutInfo)
     let importTargets ← failOnBuildCycle res
     let dynlibTargets := bStore.collectModuleFacetArray &`lean.dynlib
+    let externLibTargets := bStore.collectPackageFacetArray &`externSharedLibs
     importTargets.forM (·.buildOpaque)
-    dynlibTargets.mapM (·.build)
+    let dynlibs ← dynlibTargets.mapM (·.build)
+    let externLibs ← externLibTargets.concatMapM (·.mapM (·.build))
+    -- Note: Lean wants the external library symbols before module symbols
+    return  externLibs ++ dynlibs

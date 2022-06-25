@@ -3,6 +3,7 @@ open System Lake DSL
 
 package ffi {
   srcDir := "lean"
+  precompileModules := true
 }
 
 lean_lib FFI
@@ -22,5 +23,5 @@ def ffiOTarget : FileTarget :=
     compileO oFile srcFile #["-I", (← getLeanIncludeDir).toString] "c++"
 
 extern_lib cLib :=
-  let libFile := cBuildDir / "libffi.a"
+  let libFile := cBuildDir / s!"libffi.a"
   staticLibTarget libFile #[ffiOTarget]

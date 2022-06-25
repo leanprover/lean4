@@ -168,7 +168,7 @@ lean_exe «target-name» {
 
 ### External Libraries
 
-A external library target is a non-Lean binary library that will be linked to the binaries of the package and its dependents (e.g., their shared libraries and executables).
+A external library target is a non-Lean **static** library that will be linked to the binaries of the package and its dependents (e.g., their shared libraries and executables).
 
 **Syntax**
 

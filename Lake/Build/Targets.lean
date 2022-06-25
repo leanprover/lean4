@@ -59,18 +59,34 @@ def staticLibTarget (libFile : FilePath)
   fileTargetWithDepArray libFile oFileTargets fun oFiles => do
     compileStaticLib libFile oFiles (ar.getD (← getLeanAr))
 
-def leanSharedLibTarget (binFile : FilePath)
+def cSharedLibTarget (libFile : FilePath)
+(linkTargets : Array FileTarget) (linkArgs : Array String := #[])
+(linker : FilePath := "cc"): FileTarget :=
+  fileTargetWithDepArray libFile linkTargets fun links => do
+    compileSharedLib libFile (links.map toString ++ linkArgs) linker
+
+def leanSharedLibTarget (libFile : FilePath)
 (linkTargets : Array FileTarget) (linkArgs : Array String := #[]) : FileTarget :=
-  fileTargetWithDepArray binFile linkTargets fun links => do
-    compileSharedLib binFile links linkArgs (← getLeanc)
+  fileTargetWithDepArray libFile linkTargets fun links => do
+    compileSharedLib libFile (links.map toString ++ linkArgs) (← getLeanc)
 
 def cExeTarget (binFile : FilePath) (linkTargets : Array FileTarget)
 (linkArgs : Array String := #[]) (linker : FilePath := "cc") : FileTarget :=
    fileTargetWithDepArray binFile linkTargets (extraDepTrace := computeHash linkArgs) fun links => do
-    compileBin binFile links linkArgs linker
+    compileExe binFile links linkArgs linker
 
 def leanExeTarget (binFile : FilePath)
 (linkTargets : Array FileTarget) (linkArgs : Array String := #[]) : FileTarget :=
   fileTargetWithDepArray binFile linkTargets
   (extraDepTrace := getLeanTrace <&> (·.mix <| pureHash linkArgs)) fun links => do
-    compileBin binFile links linkArgs (← getLeanc)
+    compileExe binFile links linkArgs (← getLeanc)
+
+def staticToLeanDynlibTarget (staticLibTarget : FileTarget) : FileTarget :=
+  let dynlib := staticLibTarget.info.withExtension sharedLibExt
+  fileTargetWithDep dynlib staticLibTarget fun lib => do
+    let args :=
+      if System.Platform.isOSX then
+        #[s!"-Wl,-force_load,{lib}"]
+      else
+        #["-Wl,--whole-archive", lib.toString, "-Wl,--no-whole-archive"]
+    compileSharedLib dynlib args (← getLeanc)

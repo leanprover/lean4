@@ -41,7 +41,7 @@ abbrev BuildStore :=
 
 namespace BuildStore
 
-/-- Derive an array of module names to built facets from the store. -/
+/-- Derive an array of built module facets from the store. -/
 def collectModuleFacetArray (self : BuildStore)
 (facet : WfName) [DynamicType ModuleData facet α] : Array α := Id.run do
   let mut res : Array α := #[]
@@ -57,6 +57,16 @@ def collectModuleFacetMap (self : BuildStore)
   let mut res := Lean.mkNameMap α
   for ⟨k, v⟩ in self do
     if h : k.isModuleKey ∧ k.facet = facet then
-      let of_data := by unfold BuildData; simp [h, eq_dynamic_type]
+      let of_data := by simp [isModuleKey_data h.1, h.2, eq_dynamic_type]
       res := res.insert (k.module h.1) <| cast of_data v
+  return res
+
+/-- Derive an array of built module facets from the store. -/
+def collectPackageFacetArray (self : BuildStore)
+(facet : WfName) [DynamicType PackageData facet α] : Array α := Id.run do
+  let mut res : Array α := #[]
+  for ⟨k, v⟩ in self do
+    if h : k.isPackageKey ∧ k.facet = facet then
+      let of_data := by simp [isPackageKey_data h.1, h.2, eq_dynamic_type]
+      res := res.push <| cast of_data v
   return res

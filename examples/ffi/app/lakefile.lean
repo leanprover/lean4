@@ -9,3 +9,5 @@ require ffi from ".."/"lib"
 lean_exe app {
   root := `Main
 }
+
+lean_lib Test

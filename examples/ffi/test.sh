@@ -5,4 +5,5 @@ set -e
 ./app/build/bin/app
 ./lib/build/bin/test
 
-${LAKE:-../../build/bin/lake} -d app build Test
+cd app # Library loading needs this; TODO: fix this
+${LAKE:-../../../build/bin/lake} build Test

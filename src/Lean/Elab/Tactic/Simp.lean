@@ -175,7 +175,7 @@ private def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Bool)
           throwUnsupportedSyntax
       return { ctx := { ctx with simpTheorems := thmsArray.set! 0 thms }, starArg }
 where
-  resolveSimpIdTheorem? (simpArgTerm : TSyntax `term) : TacticM ResolveSimpIdResult := do
+  resolveSimpIdTheorem? (simpArgTerm : Term) : TacticM ResolveSimpIdResult := do
     let resolveExt (n : Name) : TacticM ResolveSimpIdResult := do
       if let some ext ← getSimpExtension? n then
         return .ext ext

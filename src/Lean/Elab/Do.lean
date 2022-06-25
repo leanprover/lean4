@@ -123,7 +123,7 @@ private partial def extractBind (expectedType? : Option Expr) : TermElabM Extrac
 
 namespace Do
 
-abbrev Var := Syntax  -- TODO: should be `TSyntax identKind`
+abbrev Var := Syntax  -- TODO: should be `Ident`
 
 /- A `doMatch` alternative. `vars` is the array of variables declared by `patterns`. -/
 structure Alt (σ : Type) where

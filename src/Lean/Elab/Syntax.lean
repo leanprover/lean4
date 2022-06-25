@@ -17,7 +17,7 @@ def expandOptPrecedence (stx : Syntax) : MacroM (Option Nat) :=
   else
     return some (← evalPrec stx[0][1])
 
-private def mkParserSeq (ds : Array (TSyntax `term)) : TermElabM Syntax := do
+private def mkParserSeq (ds : Array Term) : TermElabM Syntax := do
   if ds.size == 0 then
     throwUnsupportedSyntax
   else if ds.size == 1 then
@@ -83,12 +83,12 @@ open TSyntax.Compat in
   Given a `stx` of category `syntax`, return a pair `(newStx, lhsPrec?)`,
   where `newStx` is of category `term`. After elaboration, `newStx` should have type
   `TrailingParserDescr` if `lhsPrec?.isSome`, and `ParserDescr` otherwise. -/
-partial def toParserDescr (stx : Syntax) (catName : Name) : TermElabM (TSyntax `term × Option Nat) := do
+partial def toParserDescr (stx : Syntax) (catName : Name) : TermElabM (Term × Option Nat) := do
   let env ← getEnv
   let behavior := Parser.leadingIdentBehavior env catName
   (process stx { catName := catName, first := true, leftRec := true, behavior := behavior }).run none
 where
-  process (stx : Syntax) : ToParserDescrM (TSyntax `term) := withRef stx do
+  process (stx : Syntax) : ToParserDescrM Term := withRef stx do
     let kind := stx.getKind
     if kind == nullKind then
       processSeq stx
@@ -352,7 +352,7 @@ def inferMacroRulesAltKind : TSyntax ``matchAlt → CommandElabM SyntaxNodeKind
 /--
 Infer syntax kind `k` from first pattern, put alternatives of same kind into new `macro/elab_rules (kind := k)` via `mkCmd (some k)`,
 leave remaining alternatives (via `mkCmd none`) to be recursively expanded. -/
-def expandNoKindMacroRulesAux (alts : Array (TSyntax ``matchAlt)) (cmdName : String) (mkCmd : Option Name → Array (TSyntax ``matchAlt) → CommandElabM (TSyntax `command)) : CommandElabM (TSyntax `command) := do
+def expandNoKindMacroRulesAux (alts : Array (TSyntax ``matchAlt)) (cmdName : String) (mkCmd : Option Name → Array (TSyntax ``matchAlt) → CommandElabM Command) : CommandElabM Command := do
   let mut k ← inferMacroRulesAltKind alts[0]
   if k.isStr && k.getString! == "antiquot" then
     k := k.getPrefix

@@ -294,17 +294,17 @@ structure AppMatchState where
   info        : MatcherInfo
   matcherTy   : Expr
   params      : Array Expr := #[]
-  motive      : Option (TSyntax `term × Expr) := none
+  motive      : Option (Term × Expr) := none
   motiveNamed : Bool := false
-  discrs      : Array (TSyntax `term) := #[]
+  discrs      : Array Term := #[]
   varNames    : Array (Array Name) := #[]
-  rhss        : Array (TSyntax `term) := #[]
+  rhss        : Array Term := #[]
   -- additional arguments applied to the result of the `match` expression
-  moreArgs    : Array (TSyntax `term) := #[]
+  moreArgs    : Array Term := #[]
 /--
   Extract arguments of motive applications from the matcher type.
   For the example below: `#[#[`([])], #[`(a::as)]]` -/
-private partial def delabPatterns (st : AppMatchState) : DelabM (Array (Array (TSyntax `term))) :=
+private partial def delabPatterns (st : AppMatchState) : DelabM (Array (Array Term)) :=
   withReader (fun ctx => { ctx with inPattern := true, optionsPerPos := {} }) do
     let ty ← instantiateForall st.matcherTy st.params
     -- need to reduce `let`s that are lifted into the matcher type

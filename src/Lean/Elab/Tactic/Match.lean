@@ -13,7 +13,7 @@ open Meta
 
 open TSyntax.Compat in
 open Parser.Tactic in
-private def mkAuxiliaryMatchTerm (parentTag : Name) (matchTac : Syntax) : MacroM (TSyntax `term × Array Syntax) := do
+private def mkAuxiliaryMatchTerm (parentTag : Name) (matchTac : Syntax) : MacroM (Term × Array Syntax) := do
   let matchAlts := matchTac[5]
   let alts      := matchAlts[0].getArgs
   let mut newAlts := #[]

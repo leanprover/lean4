@@ -70,13 +70,13 @@ def resolveSectionVariable (sectionVars : NameMap Name) (id : Name) : List (Name
   loop extractionResult.name []
 
 /-- Transform sequence of pushes and appends into acceptable code -/
-def ArrayStxBuilder := Sum (Array (TSyntax `term)) (TSyntax `term)
+def ArrayStxBuilder := Sum (Array Term) Term
 
 namespace ArrayStxBuilder
 
 def empty : ArrayStxBuilder := Sum.inl #[]
 
-def build : ArrayStxBuilder → TSyntax `term
+def build : ArrayStxBuilder → Term
   | Sum.inl elems => quote elems
   | Sum.inr arr   => arr
 
@@ -91,7 +91,7 @@ def append (b : ArrayStxBuilder) (arr : Syntax) (appendName := ``Array.append) :
 end ArrayStxBuilder
 
 -- Elaborate the content of a syntax quotation term
-private partial def quoteSyntax : Syntax → TermElabM (TSyntax `term)
+private partial def quoteSyntax : Syntax → TermElabM Term
   | Syntax.ident _ rawVal val preresolved => do
     if !hygiene.get (← getOptions) then
       return ← `(Syntax.ident info $(quote rawVal) $(quote val) $(quote preresolved))
@@ -237,7 +237,7 @@ elab_stx_quot Parser.Command.quot
 /- match -/
 
 -- an "alternative" of patterns plus right-hand side
-private abbrev Alt := List (TSyntax `term) × TSyntax `term
+private abbrev Alt := List Term × Term
 
 /--
   In a single match step, we match the first discriminant against the "head" of the first pattern of the first
@@ -283,7 +283,7 @@ structure HeadInfo where
   -- compute compatibility of pattern with given head check
   onMatch (taken : HeadCheck) : MatchResult
   -- actually run the specified head check, with the discriminant bound to `discr`
-  doMatch (yes : (newDiscrs : List (TSyntax `term)) → TermElabM (TSyntax `term)) (no : TermElabM (TSyntax `term)) : TermElabM (TSyntax `term)
+  doMatch (yes : (newDiscrs : List Term) → TermElabM Term) (no : TermElabM Term) : TermElabM Term
 
 /-- Adapt alternatives that do not introduce new discriminants in `doMatch`, but are covered by those that do so. -/
 private def noOpMatchAdaptPats : HeadCheck → Alt → Alt
@@ -291,7 +291,7 @@ private def noOpMatchAdaptPats : HeadCheck → Alt → Alt
   | slice p s,         (pats, rhs) => (List.replicate (p + 1 + s) (Unhygienic.run `(_)) ++ pats, rhs)
   | _,                 alt         => alt
 
-private def adaptRhs (fn : TSyntax `term → TermElabM (TSyntax `term)) : Alt → TermElabM Alt
+private def adaptRhs (fn : Term → TermElabM Term) : Alt → TermElabM Alt
   | (pats, rhs) => return (pats, ← fn rhs)
 
 private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
@@ -492,7 +492,7 @@ private def deduplicate (floatedLetDecls : Array Syntax) : Alt → TermElabM (Ar
         let rhs' ← `(rhs $vars*)
         pure (floatedLetDecls.push (← `(letDecl|rhs $vars:ident* := $rhs)), (pats, rhs'))
 
-private partial def compileStxMatch (discrs : List (TSyntax `term)) (alts : List Alt) : TermElabM Syntax := do
+private partial def compileStxMatch (discrs : List Term) (alts : List Alt) : TermElabM Syntax := do
   trace[Elab.match_syntax] "match {discrs} with {alts}"
   match discrs, alts with
   | [],            ([], rhs)::_ => pure rhs  -- nothing left to match

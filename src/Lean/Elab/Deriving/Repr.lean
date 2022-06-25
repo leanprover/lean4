@@ -19,7 +19,7 @@ def mkReprHeader (indVal : InductiveVal) : TermElabM Header := do
     binders := header.binders.push (← `(bracketedBinder| (prec : Nat)))
   }
 
-def mkBodyForStruct (header : Header) (indVal : InductiveVal) : TermElabM (TSyntax `term) := do
+def mkBodyForStruct (header : Header) (indVal : InductiveVal) : TermElabM Term := do
   let ctorVal ← getConstInfoCtor indVal.ctors.head!
   let fieldNames := getStructureFields (← getEnv) indVal.name
   let numParams  := indVal.numParams
@@ -43,7 +43,7 @@ def mkBodyForStruct (header : Header) (indVal : InductiveVal) : TermElabM (TSynt
         fields ← `($fields ++ $fieldNameLit ++ " := " ++ repr ($target.$(mkIdent fieldName):ident))
     `(Format.bracket "{ " $fields:term " }")
 
-def mkBodyForInduct (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM (TSyntax `term) := do
+def mkBodyForInduct (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Term := do
   let discrs ← mkDiscrs header indVal
   let alts ← mkAlts
   `(match $[$discrs],* with $alts:matchAlt*)
@@ -58,7 +58,7 @@ where
         for _ in [:indVal.numIndices] do
           patterns := patterns.push (← `(_))
         let mut ctorArgs := #[]
-        let mut rhs : TSyntax `term := Syntax.mkStrLit (toString ctorInfo.name)
+        let mut rhs : Term := Syntax.mkStrLit (toString ctorInfo.name)
         rhs ← `(Format.text $rhs)
         -- add `_` for inductive parameters, they are inaccessible
         for _ in [:indVal.numParams] do
@@ -78,13 +78,13 @@ where
       alts := alts.push alt
     return alts
 
-def mkBody (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM (TSyntax `term) := do
+def mkBody (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Term := do
   if isStructure (← getEnv) indVal.name then
     mkBodyForStruct header indVal
   else
     mkBodyForInduct header indVal auxFunName
 
-def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM (TSyntax `command) := do
+def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
   let auxFunName := ctx.auxFunNames[i]
   let indVal     := ctx.typeInfos[i]
   let header     ← mkReprHeader indVal

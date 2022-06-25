@@ -17,7 +17,7 @@ def withExpectedType (expectedType? : Option Expr) (x : Expr → TermElabM Expr)
     | throwError "expected type must be known"
   x expectedType
 
-def elabElabRulesAux (doc? : Option (TSyntax ``docComment)) (attrKind : TSyntax ``attrKind) (k : SyntaxNodeKind) (cat? expty? : Option (TSyntax `ident)) (alts : Array (TSyntax ``matchAlt)) : CommandElabM Syntax := do
+def elabElabRulesAux (doc? : Option (TSyntax ``docComment)) (attrKind : TSyntax ``attrKind) (k : SyntaxNodeKind) (cat? expty? : Option (Ident)) (alts : Array (TSyntax ``matchAlt)) : CommandElabM Syntax := do
   let alts ← alts.mapM fun (alt : TSyntax ``matchAlt) => match alt with
     | `(matchAltExpr| | $pats,* => $rhs) => do
       let pat := pats.elemsAndSeps[0]

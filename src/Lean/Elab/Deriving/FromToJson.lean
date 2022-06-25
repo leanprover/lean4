@@ -14,7 +14,7 @@ open Lean.Json
 open Lean.Parser.Term
 open Lean.Meta
 
-def mkJsonField (n : Name) : Bool × TSyntax `term :=
+def mkJsonField (n : Name) : Bool × Term :=
   let s  := n.toString
   let s₁ := s.dropRightWhile (· == '?')
   (s != s₁, Syntax.mkStrLit s₁)
@@ -42,7 +42,7 @@ def mkToJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
         let toJsonFuncId := mkIdent ctx.auxFunNames[0]
         -- Return syntax to JSONify `id`, either via `ToJson` or recursively
         -- if `id`'s type is the type we're deriving for.
-        let mkToJson (id : TSyntax identKind) (type : Expr) : TermElabM (TSyntax `term) := do
+        let mkToJson (id : Ident) (type : Expr) : TermElabM Term := do
           if type.isAppOf indVal.name then `($toJsonFuncId:ident $id:ident)
           else ``(toJson $id:ident)
         let header ← mkHeader ``ToJson 1 ctx.typeInfos[0]
@@ -74,7 +74,7 @@ def mkToJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
 where
   mkAlts
     (indVal : InductiveVal)
-    (rhs : ConstructorVal → Array (TSyntax identKind × Expr) → Option (Array Name) → TermElabM (TSyntax `term)) : TermElabM (Array (TSyntax ``matchAlt)) := do
+    (rhs : ConstructorVal → Array (Ident × Expr) → Option (Array Name) → TermElabM Term) : TermElabM (Array (TSyntax ``matchAlt)) := do
   indVal.ctors.toArray.mapM fun ctor => do
     let ctorInfo ← getConstInfoCtor ctor
     forallTelescopeReducing ctorInfo.type fun xs _ => do
@@ -145,7 +145,7 @@ def mkFromJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   else
     return false
 where
-  mkAlts (indVal : InductiveVal) (fromJsonFuncId : TSyntax identKind) : TermElabM (Array (TSyntax `term)) := do
+  mkAlts (indVal : InductiveVal) (fromJsonFuncId : Ident) : TermElabM (Array Term) := do
   let alts ←
     indVal.ctors.toArray.mapM fun ctor => do
       let ctorInfo ← getConstInfoCtor ctor

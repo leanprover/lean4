@@ -19,7 +19,7 @@ namespace Lean.Elab.Term
 open Meta
 open Lean.Parser.Term
 
-private def expandSimpleMatch (stx : Syntax) (discr : TSyntax `term) (lhsVar : TSyntax identKind) (rhs : TSyntax `term) (expectedType? : Option Expr) : TermElabM Expr := do
+private def expandSimpleMatch (stx : Syntax) (discr : Term) (lhsVar : Ident) (rhs : Term) (expectedType? : Option Expr) : TermElabM Expr := do
   let newStx ← `(let $lhsVar := $discr; $rhs)
   withMacroExpansion stx newStx <| elabTerm newStx expectedType?
 

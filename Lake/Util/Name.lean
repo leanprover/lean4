@@ -43,7 +43,7 @@ def WellFormed.elimNum : WellFormed (Name.num p v h) → WellFormed p
 | numWff w rfl => w
 
 theorem eq_of_wf_quickCmpAux
-(n : Name) (w : Name.WellFormed n) (n' : Name) (w' : Name.WellFormed n')
+(n : Name) (w : WellFormed n) (n' : Name) (w' : WellFormed n')
 : Name.quickCmpAux n n' = Ordering.eq → n = n' := by
   revert n'
   induction w with
@@ -83,6 +83,20 @@ theorem eq_of_wf_quickCmpAux
         rw [v_eq, p_eq]
       next =>
         contradiction
+
+theorem wf_of_append {n n' : Name}
+(w : WellFormed n) (w' : WellFormed n') : WellFormed (n.append n') :=  by
+  induction w' with
+  | anonymousWff =>
+    simp [w, Name.append]
+  | @strWff n' p s w' h' ih =>
+    unfold Name.mkStr at h'
+    simp only [Name.append, h']
+    exact WellFormed.strWff ih rfl
+  | @numWff n' p v w' h' ih =>
+    unfold Name.mkNum at h'
+    simp only [Name.append, h']
+    exact WellFormed.numWff ih rfl
 
 end Name
 
@@ -144,6 +158,11 @@ def ofName : Name → WfName
 | .str p s _ => mkStr (ofName p) s
 | .num p v _ => mkNum (ofName p) v
 
+def ofString (str : String) : WfName :=
+  str.splitOn "." |>.foldl (fun n p => mkStr n p.trim) anonymous
+
+instance : Coe String WfName := ⟨ofString⟩
+
 @[inline] protected def toString (escape := true) : WfName → String
 | ⟨n, _⟩ => n.toString escape
 
@@ -151,6 +170,14 @@ def ofName : Name → WfName
 | ⟨n, _⟩ => n.toStringWithSep sep escape
 
 instance : ToString WfName := ⟨(·.toString)⟩
+
+def isPrefixOf : WfName → WfName → Bool
+| ⟨n, _⟩, ⟨n', _⟩ => n.isPrefixOf n'
+
+def append : WfName → WfName → WfName
+| ⟨n, w⟩, ⟨n', w'⟩ => ⟨n.append n', Name.wf_of_append w w'⟩
+
+instance : Append WfName := ⟨append⟩
 
 @[inline] protected def hash : WfName → UInt64
 | ⟨n, _⟩ => n.hash

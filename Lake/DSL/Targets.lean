@@ -5,7 +5,9 @@ Authors: Mac Malone
 -/
 import Lake.DSL.DeclUtil
 import Lake.DSL.Attributes
-import Lake.Config.Targets
+import Lake.Config.LeanExeConfig
+import Lake.Config.LeanLibConfig
+import Lake.Config.ExternLibConfig
 
 namespace Lake.DSL
 open Lean Parser Command

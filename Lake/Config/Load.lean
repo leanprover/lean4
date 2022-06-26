@@ -107,22 +107,24 @@ unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
       let config := {config with dependencies := depsExt.getState env ++ config.dependencies}
       let scripts ← scriptAttr.ext.getState env |>.foldM (init := {})
         fun m d => return m.insert d <| ← evalScriptDecl env d leanOpts
-      let leanLibs ← leanLibAttr.ext.getState env |>.foldM (init := {}) fun m d =>
+      let leanLibConfigs ← leanLibAttr.ext.getState env |>.foldM (init := {}) fun m d =>
         let eval := env.evalConstCheck LeanLibConfig leanOpts ``LeanLibConfig d
         return m.insert d <| ← IO.ofExcept eval.run.run
-      let leanExes ← leanExeAttr.ext.getState env |>.foldM (init := {}) fun m d =>
+      let leanExeConfigs ← leanExeAttr.ext.getState env |>.foldM (init := {}) fun m d =>
         let eval := env.evalConstCheck LeanExeConfig leanOpts ``LeanExeConfig d
         return m.insert d <| ← IO.ofExcept eval.run.run
-      let externLibs ← externLibAttr.ext.getState env |>.foldM (init := {}) fun m d =>
+      let externLibConfigs ← externLibAttr.ext.getState env |>.foldM (init := {}) fun m d =>
         let eval := env.evalConstCheck ExternLibConfig leanOpts ``ExternLibConfig d
         return m.insert d <| ← IO.ofExcept eval.run.run
-
-
-      if leanLibs.isEmpty && leanExes.isEmpty && config.defaultFacet ≠ .none then
+      if leanLibConfigs.isEmpty && leanExeConfigs.isEmpty && config.defaultFacet ≠ .none then
         logWarning <| "Package targets are deprecated. " ++
           "Add a `lean_exe` and/or `lean_lib` default target to the package instead."
       let defaultTargets := defaultTargetAttr.ext.getState env |>.toArray
-      return {dir, config, scripts, leanLibs, leanExes, externLibs, defaultTargets}
+      return {
+        dir, config, scripts,
+        leanLibConfigs, leanExeConfigs, externLibConfigs,
+        defaultTargets
+      }
     | _ => error s!"configuration file has multiple `package` declarations"
   else
     error s!"package configuration `{configFile}` has errors"

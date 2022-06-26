@@ -4,8 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Build.Trace
-import Lake.Config.Package
-import Lake.Util.Name
+import Lake.Config.LeanLib
 
 namespace Lake
 open Std System
@@ -22,7 +21,19 @@ abbrev ModuleSet := RBTree Module (·.name.quickCmp ·.name)
 abbrev ModuleMap (α) := RBMap Module α (·.name.quickCmp ·.name)
 @[inline] def ModuleMap.empty : ModuleMap α := RBMap.empty
 
-/-- Locate the named module in the package (if it is local to it). -/
+/-- Locate the named module in the library (if it is buildable and local to it). -/
+def LeanLib.findModule? (mod : Name) (self : LeanLib) : Option Module :=
+  let mod := WfName.ofName mod
+  if self.isBuildableModule mod then some ⟨self.pkg, mod⟩ else none
+
+/-- Get an `Array` of the library's modules. -/
+def LeanLib.getModuleArray (self : LeanLib) : IO (Array Module) :=
+  (·.2) <$> StateT.run (s := #[]) do
+    self.config.globs.forM fun glob => do
+      glob.forEachModuleIn self.srcDir fun mod => do
+        modify (·.push ⟨self.pkg, mod⟩)
+
+/-- Locate the named module in the package (if it is buildable and local to it). -/
 def Package.findModule? (mod : Name) (self : Package) : Option Module :=
   let mod := WfName.ofName mod
   if self.isBuildableModule mod then some ⟨self, mod⟩ else none

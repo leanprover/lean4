@@ -40,32 +40,32 @@ def resolveModuleTarget (mod : Module) (facet : String) : Except CliError Opaque
   else
     throw <| CliError.unknownFacet "module" facet
 
-def resolveLibTarget (pkg : Package) (lib : LeanLibConfig) (facet : String) : Except CliError OpaqueTarget :=
+def resolveLibTarget (lib : LeanLib) (facet : String) : Except CliError OpaqueTarget :=
   if facet.isEmpty || facet == "lean" || facet == "oleans" then
-    return pkg.mkLibTarget lib
+    return lib.leanTarget
   else if facet == "static" then
-    return pkg.mkStaticLibTarget lib |>.withoutInfo
+    return lib.staticLibTarget |>.withoutInfo
   else if facet == "shared" then
-    return pkg.mkSharedLibTarget lib |>.withoutInfo
+    return lib.sharedLibTarget |>.withoutInfo
   else
     throw <| CliError.unknownFacet "library" facet
 
-def resolveExeTarget (pkg : Package) (exe : LeanExeConfig) (facet : String) : Except CliError OpaqueTarget :=
+def resolveExeTarget (exe : LeanExe) (facet : String) : Except CliError OpaqueTarget :=
   if facet.isEmpty || facet == "exe" then
-    return pkg.mkExeTarget exe |>.withoutInfo
+    return exe.target |>.withoutInfo
   else
     throw <| CliError.unknownFacet "executable" facet
 
 def resolveTargetInPackage (pkg : Package) (target : Name) (facet : String) : Except CliError OpaqueTarget :=
   if let some exe := pkg.findLeanExe? target then
-    resolveExeTarget pkg exe facet
+    resolveExeTarget exe facet
   else if let some lib := pkg.findExternLib? target then
     if facet.isEmpty then
       return lib.target.withoutInfo
     else
       throw <| CliError.invalidFacet target facet
   else if let some lib := pkg.findLeanLib? target then
-    resolveLibTarget pkg lib facet
+    resolveLibTarget lib facet
   else if let some mod := pkg.findModule? target then
     resolveModuleTarget mod facet
   else
@@ -93,15 +93,15 @@ def resolvePackageTarget (pkg : Package) (facet : String) : Except CliError Opaq
     throw <| CliError.unknownFacet "package" facet
 
 def resolveTargetInWorkspace (ws : Workspace) (spec : String) (facet : String) : Except CliError OpaqueTarget :=
-  if let some (pkg, exe) := ws.findLeanExe? spec.toName then
-    resolveExeTarget pkg exe facet
-  else if let some (_, lib) := ws.findExternLib? spec.toName then
+  if let some exe := ws.findLeanExe? spec.toName then
+    resolveExeTarget exe facet
+  else if let some lib := ws.findExternLib? spec.toName then
     if facet.isEmpty then
       return lib.target.withoutInfo
     else
       throw <| CliError.invalidFacet spec facet
-  else if let some (pkg, lib) := ws.findLeanLib? spec.toName then
-    resolveLibTarget pkg lib facet
+  else if let some lib := ws.findLeanLib? spec.toName then
+    resolveLibTarget lib facet
   else if let some pkg := ws.findPackage? spec.toName then
     resolvePackageTarget pkg facet
   else if let some mod := ws.findModule? spec.toName then

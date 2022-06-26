@@ -3,13 +3,11 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
-import Lake.Util.Name
-import Lake.Util.String
-import Lake.Build.TargetTypes
-import Lake.Config.Glob
 import Lake.Config.Opaque
+import Lake.Config.LeanLibConfig
+import Lake.Config.LeanExeConfig
+import Lake.Config.ExternLibConfig
 import Lake.Config.WorkspaceConfig
-import Lake.Config.Targets
 import Lake.Config.Dependency
 import Lake.Config.Script
 
@@ -31,7 +29,7 @@ def defaultBinDir : FilePath := "bin"
 def defaultLibDir : FilePath := "lib"
 
 /-- The default setting for a `PackageConfig`'s `oleanDir` option. -/
-def defaultOleanDir : FilePath := "lib"
+def defaultOleanDir : FilePath := defaultLibDir
 
 /-- The default setting for a `PackageConfig`'s `irDir` option. -/
 def defaultIrDir : FilePath := "ir"
@@ -281,18 +279,18 @@ end PackageConfig
 structure Package where
   /-- The path to the package's directory. -/
   dir : FilePath
-  /-- The package's configuration. -/
+  /-- The package's user-defined configuration. -/
   config : PackageConfig
   /-- The package's well-formed name. -/
   name : WfName := WfName.ofName config.name
   /-- Scripts for the package. -/
   scripts : NameMap Script := {}
-  /-- Lean library targets for the package. -/
-  leanLibs : NameMap LeanLibConfig := {}
-  /-- Lean binary executable targets for the package. -/
-  leanExes : NameMap LeanExeConfig := {}
+  /-- Lean library configurations for the package. -/
+  leanLibConfigs : NameMap LeanLibConfig := {}
+  /-- Lean binary executable configurations for the package. -/
+  leanExeConfigs : NameMap LeanExeConfig := {}
   /-- External library targets for the package. -/
-  externLibs : NameMap ExternLibConfig := {}
+  externLibConfigs : NameMap ExternLibConfig := {}
   /--
   The names of the package's targets to build by default
   (i.e., on a bare `lake build` of the package).
@@ -350,21 +348,9 @@ namespace Package
 @[inline] def defaultFacet (self : Package) : PackageFacet :=
    self.config.defaultFacet
 
-/-- Get the package's library configuration with the given name. -/
-@[inline] def findLeanLib? (name : Name) (self : Package) : Option LeanLibConfig :=
-  self.leanLibs.find? name
-
-/-- Get the package's executable configuration with the given name. -/
-@[inline] def findLeanExe? (name : Name) (self : Package) : Option LeanExeConfig :=
-  self.leanExes.find? name
-
-/-- Get the package's external library target with the given name. -/
-@[inline] def findExternLib? (name : Name) (self : Package) : Option ExternLibConfig :=
-  self.externLibs.find? name
-
 /-- Get an `Array` of the package's external library targets. -/
 def externLibTargets (self : Package) : Array FileTarget :=
-  self.externLibs.fold (fun xs _ x => xs.push x.target) #[] ++
+  self.externLibConfigs.fold (fun xs _ x => xs.push x.target) #[] ++
   self.config.moreLibTargets
 
 /-- The package's `precompileModules` configuration. -/
@@ -403,6 +389,10 @@ def externLibTargets (self : Package) : Array FileTarget :=
 @[inline] def moreLeancArgs (self : Package) : Array String :=
   #["-O3", "-DNDEBUG"] ++ self.config.moreLeancArgs
 
+/-- The package's `moreLinkArgs` configuration. -/
+@[inline] def moreLinkArgs (self : Package) : Array String :=
+  self.config.moreLinkArgs
+
 /-- The package's `buildDir` joined with its `irDir` configuration. -/
 @[inline] def irDir (self : Package) : FilePath :=
   self.buildDir / self.config.irDir
@@ -423,18 +413,14 @@ def externLibTargets (self : Package) : Array FileTarget :=
 @[inline] def builtinExeConfig (self : Package) : LeanExeConfig :=
   self.config.toLeanExeConfig
 
-/-- Get an `Array` of the package's modules. -/
-@[inline] def getModuleArray (self : Package) : IO (Array Name) :=
-  self.builtinLibConfig.getModuleArray self.srcDir
-
 /-- Whether the given module is considered local to the package. -/
 def isLocalModule (mod : Name) (self : Package) : Bool :=
-  self.leanLibs.any (fun _ lib => lib.isLocalModule mod) ||
+  self.leanLibConfigs.any (fun _ lib => lib.isLocalModule mod) ||
   self.builtinLibConfig.isLocalModule mod
 
 /-- Whether the given module is in the package (i.e., can build it). -/
 def isBuildableModule (mod : Name) (self : Package) : Bool :=
-  self.leanLibs.any (fun _ lib => lib.isBuildableModule mod) ||
-  self.leanExes.any (fun _ exe => exe.root == mod) ||
+  self.leanLibConfigs.any (fun _ lib => lib.isBuildableModule mod) ||
+  self.leanExeConfigs.any (fun _ exe => exe.root == mod) ||
   self.builtinLibConfig.isBuildableModule mod ||
   self.config.binRoot == mod

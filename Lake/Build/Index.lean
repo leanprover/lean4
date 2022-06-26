@@ -130,7 +130,7 @@ the initial set of Lake package facets (e.g., `extraDep`).
   -- Build the `extern_lib` targets of the package
   |>.insert &`externSharedLibs (mkPackageFacetBuild <| fun pkg => do
     let mut targets := #[]
-    for (_, config) in pkg.externLibs.toList do
+    for (_, config) in pkg.externLibConfigs.toList do
       let target := staticToLeanDynlibTarget config.target
       targets := targets.push <| ← target.activate
     return targets

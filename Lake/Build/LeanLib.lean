@@ -10,47 +10,45 @@ open Lean hiding SearchPath
 
 namespace Lake
 
--- # Build Package Lean Lib
-
-def Package.getLibModuleArray (lib : LeanLibConfig) (self : Package) : IO (Array Module) := do
-  return (← lib.getModuleArray self.srcDir).map (⟨self, WfName.ofName ·⟩)
+-- # Build Lean Lib
 
 /--
 Build the `extraDepTarget` of a package and its (transitive) dependencies
 and then build the target `facet` of library's modules recursively, constructing
 a single opaque target for the whole build.
 -/
-def Package.buildLibModules
-(self : Package) (lib : LeanLibConfig) (facet : WfName)
+def LeanLib.buildModules (self : LeanLib) (facet : WfName)
 [DynamicType ModuleData facet (ActiveBuildTarget α)] : SchedulerM Job := do
   let buildMods : BuildM _ := do
-    let mods ← self.getLibModuleArray lib
+    let mods ← self.getModuleArray
     let modTargets ← buildModuleFacetArray mods facet
     (·.task) <$> ActiveTarget.collectOpaqueArray modTargets
   buildMods.catchFailure fun _ => pure <| failure
 
-def Package.mkLibTarget (self : Package) (lib : LeanLibConfig) : OpaqueTarget :=
-  Target.opaque <| self.buildLibModules lib &`lean
+def LeanLib.leanTarget (self : LeanLib) : OpaqueTarget :=
+  Target.opaque <| self.buildModules &`lean
 
 def Package.libTarget (self : Package) : OpaqueTarget :=
-  self.mkLibTarget self.builtinLibConfig
+  self.builtinLib.leanTarget
 
--- # Build Package Static Lib
+-- # Build Static Lib
+
+def LeanLib.localTargetsOf (map : NameMap (ActiveBuildTarget α)) (self : LeanLib) : Array (BuildTarget α) :=
+  map.fold (fun a n v => if self.isLocalModule n then a.push (Target.active v) else a) #[]
+
+protected def LeanLib.staticLibTarget (self : LeanLib) : FileTarget :=
+  BuildTarget.mk' self.staticLibFile do
+    let mods ← self.getModuleArray
+    let oFileTargets := self.localTargetsOf <| ← buildModuleFacetMap mods &`lean.o
+    staticLibTarget self.staticLibFile oFileTargets |>.materializeAsync
+
+protected def Package.staticLibTarget (self : Package) : FileTarget :=
+  self.builtinLib.staticLibTarget
+
+-- # Build Shared Lib
 
 def Package.localTargetsOf (map : NameMap (ActiveBuildTarget α)) (self : Package) : Array (BuildTarget α) :=
   map.fold (fun a n v => if self.isLocalModule n then a.push (Target.active v) else a) #[]
-
-def Package.mkStaticLibTarget (lib : LeanLibConfig) (self : Package) : FileTarget :=
-  let libFile := self.libDir / lib.staticLibFileName
-  BuildTarget.mk' libFile do
-    let mods ← self.getLibModuleArray lib
-    let oFileTargets := self.localTargetsOf <| ← buildModuleFacetMap mods &`lean.o
-    staticLibTarget libFile oFileTargets |>.materializeAsync
-
-protected def Package.staticLibTarget (self : Package) : FileTarget :=
-  self.mkStaticLibTarget self.builtinLibConfig
-
--- # Build Package Shared Lib
 
 def Package.linkTargetsOf
 (targetMap : NameMap ActiveFileTarget) (self : Package) : LakeM (Array FileTarget) := do
@@ -66,13 +64,12 @@ def Package.linkTargetsOf
     return self.localTargetsOf targetMap ++ self.externLibTargets ++ ts
   | Except.error _ => panic! "dependency cycle emerged after resolution"
 
-def Package.mkSharedLibTarget (self : Package) (lib : LeanLibConfig) : FileTarget :=
-  let libFile := self.libDir / lib.sharedLibFileName
-  BuildTarget.mk' libFile do
-    let mods ← self.getLibModuleArray lib
-    let linkTargets ← self.linkTargetsOf <| ← buildModuleFacetMap mods &`lean.o
-    let target := leanSharedLibTarget libFile linkTargets lib.linkArgs
+protected def LeanLib.sharedLibTarget (self : LeanLib) : FileTarget :=
+  BuildTarget.mk' self.sharedLibFile do
+    let mods ← self.getModuleArray
+    let linkTargets ← self.pkg.linkTargetsOf <| ← buildModuleFacetMap mods &`lean.o
+    let target := leanSharedLibTarget self.sharedLibFile linkTargets self.linkArgs
     target.materializeAsync
 
 protected def Package.sharedLibTarget (self : Package) : FileTarget :=
-  self.mkSharedLibTarget self.builtinLibConfig
+  self.builtinLib.sharedLibTarget

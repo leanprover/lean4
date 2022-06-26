@@ -4,10 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lean.Util.Paths
-import Lake.Config.Opaque
-import Lake.Config.WorkspaceConfig
-import Lake.Config.Package
-import Lake.Config.Module
+import Lake.Config.LeanExe
+import Lake.Config.ExternLib
 
 open System
 open Lean (LeanPaths)
@@ -92,17 +90,17 @@ def isLocalModule (mod : Name) (self : Workspace) : Bool :=
 def findModule? (mod : Name) (self : Workspace) : Option Module :=
   self.packageArray.findSome? (·.findModule? mod)
 
-/-- Get the workspace's library configuration with the given name. -/
-def findLeanLib? (name : Name) (self : Workspace) : Option (Package × LeanLibConfig) :=
-  self.packageArray.findSome? fun pkg => pkg.findLeanLib? name <&> (pkg, ·)
+/-- Try to find a Lean library in the workspace with the given name. -/
+def findLeanLib? (name : Name) (self : Workspace) : Option LeanLib :=
+  self.packageArray.findSome? fun pkg => pkg.findLeanLib? name
 
-/-- Get the workspace's executable configuration with the given name. -/
-def findLeanExe? (name : Name) (self : Workspace) : Option (Package × LeanExeConfig) :=
-  self.packageArray.findSome? fun pkg => pkg.findLeanExe? name <&> (pkg, ·)
+/-- Try to find a Lean executable in the workspace with the given name. -/
+def findLeanExe? (name : Name) (self : Workspace) : Option LeanExe :=
+  self.packageArray.findSome? fun pkg => pkg.findLeanExe? name
 
 /-- Get the workspace's external library with the given name. -/
-def findExternLib? (name : Name) (self : Workspace) : Option (Package × ExternLibConfig) :=
-  self.packageArray.findSome? fun pkg => pkg.findExternLib? name <&> (pkg, ·)
+def findExternLib? (name : Name) (self : Workspace) : Option ExternLib :=
+  self.packageArray.findSome? fun pkg => pkg.findExternLib? name
 
 /-- The `LEAN_PATH` of the workspace. -/
 def oleanPath (self : Workspace) : SearchPath :=

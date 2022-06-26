@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, Mac Malone
 -/
 import Lean.Util.Path
+import Lake.Util.Name
 
 open Lean (Name)
 open System (FilePath)
@@ -22,29 +23,25 @@ deriving Inhabited, Repr
 
 instance : Coe Name Glob := ⟨Glob.one⟩
 
-def Glob.matches (m : Name) : (self : Glob) → Bool
+partial def forEachNoduleIn [Monad m] [MonadLiftT IO m]
+(dir : FilePath) (f : WfName → m PUnit) : m PUnit := do
+  for entry in (← dir.readDir) do
+    if (← liftM (m := IO) <| entry.path.isDir) then
+      f entry.fileName
+    else if entry.path.extension == some "lean" then
+      f <| FilePath.withExtension entry.fileName "" |>.toString
+
+namespace Glob
+
+def «matches» (m : Name) : (self : Glob) → Bool
 | one n => n == m
 | submodules n => n.isPrefixOf m && n != m
 | andSubmodules n => n.isPrefixOf m
 
-partial def pushSubmodules
-(rootDir : FilePath) (mod : Name) (arr : Array Name) : IO (Array Name) := do
-  let mut arr := arr
-  let dirPath := Lean.modToFilePath rootDir mod ""
-  for entry in (← dirPath.readDir) do
-    let path := entry.path
-    if (← path.isDir) then
-      arr ← pushSubmodules rootDir (mod ++ entry.fileName) arr
-    else if path.extension == some "lean" then
-      let fileName := FilePath.withExtension entry.fileName "" |>.toString
-      arr := arr.push (mod ++ fileName)
-  return arr
-
-def Glob.pushModules
-(dir : FilePath) (arr : Array Name) : (self : Glob) → IO (Array Name)
-| one n => pure #[n]
-| submodules n => pushSubmodules dir n arr
-| andSubmodules n => pushSubmodules dir n (arr.push n)
-
-def Glob.getModules (dir : FilePath) (self : Glob) : IO (Array Name) :=
-  self.pushModules dir #[]
+def forEachModuleIn [Monad m] [MonadLiftT IO m]
+(dir : FilePath) (f : WfName → m PUnit) : (self : Glob) → m PUnit
+| one n => f (WfName.ofName n)
+| submodules n => forEachNoduleIn (Lean.modToFilePath dir n "") f
+| andSubmodules n =>
+  f (WfName.ofName n) *>
+  forEachNoduleIn (Lean.modToFilePath dir n "") f

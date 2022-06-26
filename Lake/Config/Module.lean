@@ -52,10 +52,10 @@ namespace Module
 
 @[inline] def dynlib (self : Module) : FilePath :=
   -- NOTE: file name MUST be unique on Windows
-  s!"{self.name}.{sharedLibExt}"
+  self.name.toStringWithSep "-"
 
 @[inline] def dynlibFile (self : Module) : FilePath :=
-  self.pkg.libDir / self.dynlib
+  self.pkg.libDir / s!"lib{self.dynlib}.{sharedLibExt}"
 
 @[inline] def leanArgs (self : Module) : Array String :=
   self.pkg.moreLeanArgs

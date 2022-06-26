@@ -50,7 +50,7 @@ def Module.mkDynlibTarget (self : Module) (oTarget : FileTarget)
     oTarget.bindAsync fun oFile oTrace => do
     libsTarget.bindSync fun libFiles libTrace => do
       buildFileUnlessUpToDate self.dynlibFile (oTrace.mix libTrace) do
-        let args := #[oFile.toString] ++ libDirs.map (s!"-L{·}") ++ libFiles.map (s!"-l:{·}")
+        let args := #[oFile.toString] ++ libDirs.map (s!"-L{·}") ++ libFiles.map (s!"-l{·}")
         compileSharedLib self.dynlibFile args (← getLeanc)
 
 -- # Recursive Building
@@ -82,8 +82,11 @@ variable [Monad m] [MonadLiftT BuildM m] [MonadBuildStore m]
     for target in externLibTargets do
       if let some parent := target.info.parent then
         libDirs := libDirs.push parent
-      if let some fileName := target.info.fileName then
-        pkgTargets := pkgTargets.push <| target.withInfo fileName
+      if let some stem := target.info.fileStem then
+        if stem.startsWith "lib" then
+          pkgTargets := pkgTargets.push <| target.withInfo <| stem.drop 3
+        else
+          logWarning s!"external library `{target.info}` was skipped because it does not start with `lib`"
       else
         logWarning s!"external library `{target.info}` was skipped because it has no file name"
   return (modTargets, pkgTargets, libDirs)
@@ -109,7 +112,8 @@ optionally outputting a `.c` file as well if `c` is set to `true`.
         <| ← imports.mapM (·.recBuildFacet &`lean)
   let depTarget := Target.active <| ← extraDepTarget.mixOpaqueAsync
     <| ← dynlibsTarget.mixOpaqueAsync importTarget
-  let modTarget ← mod.soloTarget dynlibsTarget.info libDirs.toList depTarget c |>.activate
+  let dynlibs := dynlibsTarget.info.map (FilePath.mk s!"lib{·}.{sharedLibExt}")
+  let modTarget ← mod.soloTarget dynlibs libDirs.toList depTarget c |>.activate
   store (mod.mkBuildKey &`lean) modTarget
   store (mod.mkBuildKey &`olean) <| modTarget.withInfo mod.oleanFile
   store (mod.mkBuildKey &`ilean) <| modTarget.withInfo mod.ileanFile

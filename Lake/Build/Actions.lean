@@ -56,13 +56,19 @@ def compileLeanModule (leanFile : FilePath)
     args := args ++ #["-c", cFile.toString]
   for dynlib in dynlibs do
     args := args.push s!"--load-dynlib={dynlib}"
+  let dynlibVar :=
+    if Platform.isWindows then
+      "PATH"
+    else if Platform.isOSX then
+      "DYLD_LIBRARY_PATH"
+    else
+      "LD_LIBRARY_PATH"
   proc {
     args
     cmd := lean.toString
     env := #[
       ("LEAN_PATH", oleanPath.toString),
-      ("PATH", (← getSearchPath "PATH") ++ dynlibPath |>.toString), -- Windows
-      ("LD_LIBRARY_PATH", (← getSearchPath "LD_LIBRARY_PATH") ++ dynlibPath |>.toString) -- Unix
+      (dynlibVar, (← getSearchPath dynlibVar) ++ dynlibPath |>.toString)
     ]
   }
 

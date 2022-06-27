@@ -215,7 +215,7 @@ private def isOffset (fName : Name) (e : Expr) : MetaM Bool := do
   `Nat.succ ?m |-> v`, and we are trying to retrieve the matches for `Expr.lit (Literal.natVal 1) _`.
   In this scenario, we want to retrieve `Nat.succ ?m |-> v` -/
 private def shouldAddAsStar (fName : Name) (e : Expr) : MetaM Bool := do
-  if fName == `Nat.zero then
+  if fName == ``Nat.zero then
     return true
   else
     isOffset fName e

@@ -126,10 +126,11 @@ jobs:
         uses: cachix/install-nix-action@v15
         if: matrix.os == 'ubuntu-latest'
       - name: Install MSYS2
-        uses: msys2/setup-msys2@v2.10.0
+        uses: msys2/setup-msys2@v2
         with:
           msystem: clang64
-          install: make python mingw-w64-clang-x86_64-cmake mingw-w64-clang-x86_64-clang mingw-w64-clang-x86_64-ccache git zip unzip diffutils binutils tree mingw-w64-clang-x86_64-zstd tar
+          # `:p` means prefix with appropriate msystem prefix
+          pacboy: "make python cmake:p clang:p ccache:p gmp:p git zip unzip diffutils binutils tree zstd:p tar"
         if: matrix.os == 'windows-2022'
       - name: Install Brew Packages
         run: |

@@ -552,7 +552,8 @@ private partial def findMethod? (env : Environment) (structName fieldName : Name
 -/
 private def findMethodAlias? (env : Environment) (structName fieldName : Name) : Option (Name × Name) :=
   let fullName := structName ++ fieldName
-  let aliasesCandidates := getAliases env fullName |>.filterMap fun alias =>
+  -- We never skip `protected` aliases when resolving dot-notation.
+  let aliasesCandidates := getAliases env fullName (skipProtected := false) |>.filterMap fun alias =>
     match alias.eraseSuffix? fieldName with
     | none => none
     | some structName' => some (structName', alias)

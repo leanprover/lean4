@@ -169,6 +169,15 @@ def replacePrefix : Name → Name → Name → Name
   | n@(str p s _), queryP,    newP => if n == queryP then newP else Name.mkStr (p.replacePrefix queryP newP) s
   | n@(num p s _), queryP,    newP => if n == queryP then newP else Name.mkNum (p.replacePrefix queryP newP) s
 
+/--
+  `eraseSuffix? n s` return `n'` if `n` is of the form `n == n' ++ s`.
+-/
+def eraseSuffix? : Name → Name → Option Name
+  | n,         anonymous   => some n
+  | str p s _, str p' s' _ => if s == s' then eraseSuffix? p p' else none
+  | num p s _, num p' s' _ => if s == s' then eraseSuffix? p p' else none
+  | _,         _           => none
+
 /-- Remove macros scopes, apply `f`, and put them back -/
 @[inline] def modifyBase (n : Name) (f : Name → Name) : Name :=
   if n.hasMacroScopes then

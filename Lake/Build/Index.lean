@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Build.Module1
+import Lake.Build.LeanTarget1
 import Lake.Build.Topological
 import Lake.Util.EStateT
 
@@ -38,6 +39,13 @@ abbrev PackageBuildMap (m : Type → Type v) :=
 
 @[inline] def PackageBuildMap.empty : PackageBuildMap m := DRBMap.empty
 
+/-- A map from target facet names to build functions. -/
+abbrev TargetBuildMap (m : Type → Type v) :=
+  DRBMap WfName (cmp := WfName.quickCmp) fun k =>
+    Package → IndexBuildFn m → m (PackageData k)
+
+@[inline] def TargetBuildMap.empty : PackageBuildMap m := DRBMap.empty
+
 /-!
 ## Build Function Constructor Helpers
 -/
@@ -56,6 +64,14 @@ dynamically typed equivalent.
 -/
 @[inline] def mkPackageFacetBuild {facet : WfName} (build : Package → IndexT m α)
 [h : DynamicType PackageData facet α] : Package → IndexT m (PackageData facet) :=
+  cast (by rw [← h.eq_dynamic_type]) build
+
+/--
+Converts a conveniently typed target build function into its
+dynamically typed equivalent.
+-/
+@[inline] def mkTargetBuild (facet : WfName) (build : IndexT m α)
+[h : DynamicType TargetData facet α] : IndexT m (TargetData facet) :=
   cast (by rw [← h.eq_dynamic_type]) build
 
 section
@@ -127,15 +143,6 @@ the initial set of Lake package facets (e.g., `extraDep`).
         target ← target.mixOpaqueAsync extraDepTarget
     target.mixOpaqueAsync <| ← pkg.extraDepTarget.activate
   )
-  -- Build the `extern_lib` targets of the package
-  |>.insert &`externSharedLibs (mkPackageFacetBuild <| fun pkg => do
-    let mut targets := #[]
-    for (_, config) in pkg.externLibConfigs.toList do
-      let target := staticToLeanDynlibTarget config.target
-      targets := targets.push <| ← target.activate
-    return targets
-  )
-
 /-!
 ## Topologically-based Recursive Build Using the Index
 -/
@@ -154,6 +161,16 @@ the initial set of Lake package facets (e.g., `extraDep`).
       build pkg
     else
       error s!"do not know how to build package facet `{facet}`"
+  | .staticLeanLib lib =>
+    mkTargetBuild &`leanLib.static lib.recBuildStatic
+  | .sharedLeanLib lib =>
+    mkTargetBuild &`leanLib.shared lib.recBuildShared
+  | .leanExe exe =>
+    mkTargetBuild &`leanExe exe.recBuild
+  | .staticExternLib lib =>
+    mkTargetBuild &`externLib.static <| lib.target.activate
+  | .sharedExternLib lib =>
+    mkTargetBuild &`externLib.shared <| staticToLeanDynlibTarget (lib.target) |>.activate
   | _ =>
     error s!"do not know how to build `{info.key}`"
 
@@ -171,7 +188,9 @@ of the top-level build.
 -/
 @[inline] def buildPackageTop (pkg : Package) (facet : WfName)
 [h : DynamicType PackageData facet α] : CycleT BuildKey m α  :=
-  have of_data := by unfold BuildData, BuildInfo.key; simp [h.eq_dynamic_type]
+  have of_data := by
+    unfold BuildData, BuildInfo.key, Package.mkBuildKey
+    simp [h.eq_dynamic_type]
   cast of_data <| buildIndexTop (m := m) <| BuildInfo.package pkg facet
 
 end
@@ -184,8 +203,7 @@ end
 Recursively build the specified facet of the given package,
 returning the result.
 -/
-def buildPackageFacet
-(pkg : Package) (facet : WfName)
+def Package.buildFacet (self : Package) (facet : WfName)
 [DynamicType PackageData facet α] : BuildM α := do
   failOnBuildCycle <| ← EStateT.run' BuildStore.empty do
-    buildPackageTop pkg facet
+    buildPackageTop self facet

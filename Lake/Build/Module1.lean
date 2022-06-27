@@ -78,7 +78,7 @@ variable [Monad m] [MonadLiftT BuildM m] [MonadBuildStore m]
   let mut pkgTargets := #[]
   for pkg in pkgs do
     libDirs := libDirs.push pkg.libDir
-    let externLibTargets ← pkg.recBuildFacet &`externSharedLibs
+    let externLibTargets ← pkg.externLibs.mapM (·.recBuildShared)
     for target in externLibTargets do
       if let some parent := target.info.parent then
         libDirs := libDirs.push parent

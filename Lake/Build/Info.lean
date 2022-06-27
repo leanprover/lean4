@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Build.Data
-import Lake.Config.Module
+import Lake.Config.LeanExe
+import Lake.Config.ExternLib
 import Lake.Util.EquipT
 
 namespace Lake
@@ -17,17 +18,42 @@ namespace Lake
 @[inline] def Package.mkBuildKey (facet : WfName) (self : Package) : PackageBuildKey facet :=
   ⟨⟨self.name, none, facet⟩, rfl, rfl⟩
 
+abbrev LeanLib.staticBuildKey (self : LeanLib) : BuildKey :=
+  ⟨self.pkg.name, self.name, &`leanLib.static⟩
+
+abbrev LeanLib.sharedBuildKey (self : LeanLib) : BuildKey :=
+  ⟨self.pkg.name, self.name, &`leanLib.shared⟩
+
+abbrev LeanExe.buildKey (self : LeanExe) : BuildKey :=
+  ⟨self.pkg.name, self.name, &`leanExe⟩
+
+abbrev ExternLib.staticBuildKey (self : ExternLib) : BuildKey :=
+  ⟨self.pkg.name, self.name, &`externLib.static⟩
+
+abbrev ExternLib.sharedBuildKey (self : ExternLib) : BuildKey :=
+  ⟨self.pkg.name, self.name, &`externLib.shared⟩
+
 -- # Build Info
 
 /-- The type of Lake's build info. -/
 inductive BuildInfo
 | module (module : Module) (facet : WfName)
 | package (package : Package) (facet : WfName)
+| staticLeanLib (lib : LeanLib)
+| sharedLeanLib (lib : LeanLib)
+| leanExe (exe : LeanExe)
+| staticExternLib (lib : ExternLib)
+| sharedExternLib (lib : ExternLib)
 | target (package : Package) (target : WfName) (facet : WfName)
 
 def BuildInfo.key : (self : BuildInfo) → BuildKey
-| module m f => ⟨none, m.name, f⟩
-| package p f => ⟨p.name, none, f⟩
+| module m f => m.mkBuildKey f
+| package p f => p.mkBuildKey f
+| staticLeanLib l => l.staticBuildKey
+| sharedLeanLib l => l.sharedBuildKey
+| leanExe x => x.buildKey
+| staticExternLib l => l.staticBuildKey
+| sharedExternLib l => l.sharedBuildKey
 | target p t f => ⟨p.name, t, f⟩
 
 /-- A build function for any element of the Lake build index. -/
@@ -38,15 +64,29 @@ abbrev IndexBuildFn (m : Type → Type v) :=
 /-- A transformer to equip a monad with a build function for the Lake index. -/
 abbrev IndexT (m : Type → Type v) := EquipT (IndexBuildFn m) m
 
-@[inline] def Module.recBuildFacet (mod : Module) (facet : WfName)
+@[inline] def Module.recBuildFacet (self : Module) (facet : WfName)
 [DynamicType ModuleData facet α] : IndexT m α := fun build =>
-  let to_data := by unfold BuildData, BuildInfo.key; simp [eq_dynamic_type]
-  cast to_data <| build <| BuildInfo.module mod facet
+  let to_data := by
+    unfold BuildData, BuildInfo.key, Module.mkBuildKey
+    simp [eq_dynamic_type]
+  cast to_data <| build <| BuildInfo.module self facet
 
-@[inline] def Package.recBuildFacet (pkg : Package) (facet : WfName)
+@[inline] def Package.recBuildFacet (self : Package) (facet : WfName)
 [DynamicType PackageData facet α] : IndexT m α := fun build =>
+  let to_data := by
+    unfold BuildData, BuildInfo.key, Package.mkBuildKey
+    simp [eq_dynamic_type]
+  cast to_data <| build <| BuildInfo.package self facet
+
+@[inline] def ExternLib.recBuildStatic (self : ExternLib)
+[DynamicType TargetData &`externLib.static α] : IndexT m α := fun build =>
   let to_data := by unfold BuildData, BuildInfo.key; simp [eq_dynamic_type]
-  cast to_data <| build <| BuildInfo.package pkg facet
+  cast to_data <| build <| BuildInfo.staticExternLib self
+
+@[inline] def ExternLib.recBuildShared (self : ExternLib)
+[DynamicType TargetData &`externLib.shared α] : IndexT m α := fun build =>
+  let to_data := by unfold BuildData, BuildInfo.key; simp [eq_dynamic_type]
+  cast to_data <| build <| BuildInfo.sharedExternLib self
 
 -- # Data Types of Build Results
 
@@ -81,5 +121,19 @@ package_data deps : Array Package
 /-- The package's `extraDepTarget`. -/
 package_data extraDep : ActiveOpaqueTarget
 
-/-- The package's `extern_lib` targets compiled into shared libraries. -/
-package_data externSharedLibs : Array ActiveFileTarget
+-- ## For Target Types
+
+/-- A Lean library's static binary. -/
+target_data leanLib.static : ActiveFileTarget
+
+/-- A Lean library's shared binary. -/
+target_data leanLib.shared : ActiveFileTarget
+
+/-- A Lean binary executable. -/
+target_data leanExe : ActiveFileTarget
+
+/-- A external library's static binary. -/
+target_data externLib.static : ActiveFileTarget
+
+/-- A external library's shared binary. -/
+target_data externLib.shared : ActiveFileTarget

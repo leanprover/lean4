@@ -30,8 +30,12 @@ structure LeanLib where
 
 namespace LeanLib
 
+/- The library's well-formed name. -/
+@[inline] def name (self : LeanLib) : WfName :=
+  WfName.ofName self.config.name
+
 /- The package's `srcDir` joined with the library's `srcDir`. -/
-def srcDir (self : LeanLib) : FilePath :=
+@[inline] def srcDir (self : LeanLib) : FilePath :=
   self.pkg.srcDir / self.config.srcDir
 
 /-- Whether the given module is considered local to the library. -/
@@ -43,33 +47,33 @@ def srcDir (self : LeanLib) : FilePath :=
   self.config.isBuildableModule mod
 
 /-- The file name of the library's static binary (i.e., `lib{libName}.a`) -/
-def staticLibFileName (self : LeanLib) : FilePath :=
+@[inline] def staticLibFileName (self : LeanLib) : FilePath :=
   s!"lib{self.config.libName}.a"
 
 /-- The path to the static library in the package's `libDir`. -/
-def staticLibFile (self : LeanLib) : FilePath :=
+@[inline] def staticLibFile (self : LeanLib) : FilePath :=
   self.pkg.libDir / self.staticLibFileName
 
 /-- The file name of the library's shared binary (i.e., its `dll`/`dylib`/`so`) . -/
-def sharedLibFileName (self : LeanLib) : FilePath :=
+@[inline] def sharedLibFileName (self : LeanLib) : FilePath :=
   s!"{self.config.libName}.{sharedLibExt}"
 
 /-- The path to the shared library in the package's `libDir`. -/
-def sharedLibFile (self : LeanLib) : FilePath :=
+@[inline] def sharedLibFile (self : LeanLib) : FilePath :=
   self.pkg.libDir / self.sharedLibFileName
 
 /--
 Whether to precompile the library's modules.
 Is true if either the package or the library have `precompileModules` set.
 -/
-def precompileModules (self : LeanLib) : Bool :=
+@[inline] def precompileModules (self : LeanLib) : Bool :=
   self.pkg.precompileModules || self.config.precompileModules
 
 /--
 The arguments to pass to `lean` when compiling the library's Lean files.
 That is, the package's `moreLeanArgs` plus the library's  `moreLeanArgs`.
 -/
-def leanArgs (self : LeanLib) : Array String :=
+@[inline] def leanArgs (self : LeanLib) : Array String :=
   self.pkg.moreLeanArgs ++ self.config.moreLeanArgs
 
 /--
@@ -77,12 +81,12 @@ The arguments to pass to `leanc` when compiling the library's C files.
 That is, `-O3`, `-DNDEBUG`, the package's `moreLeancArgs`, and then the
 library's `moreLeancArgs`.
 -/
-def leancArgs (self : LeanLib) : Array String :=
+@[inline] def leancArgs (self : LeanLib) : Array String :=
   #["-O3", "-DNDEBUG"] ++ self.pkg.moreLeancArgs ++ self.config.moreLeancArgs
 
 /--
 The arguments to pass to `leanc` when linking the shared library.
 That is, the package's `moreLinkArgs` plus the library's  `moreLinkArgs`.
 -/
-def linkArgs (self : LeanLib) : Array String :=
+@[inline] def linkArgs (self : LeanLib) : Array String :=
   self.pkg.moreLinkArgs ++ self.config.moreLinkArgs

@@ -40,6 +40,10 @@ def LeanExeConfig.toLeanLibConfig (self : LeanExeConfig) : LeanLibConfig where
 
 namespace LeanExe
 
+/- The executable's well-formed name. -/
+@[inline] def name (self : LeanExe) : WfName :=
+  WfName.ofName self.config.name
+
 /-- Converts the executable into a library with a single module (the root). -/
 @[inline] def toLeanLib (self : LeanExe) : LeanLib :=
   ⟨self.pkg, self.config.toLeanLibConfig⟩

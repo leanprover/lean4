@@ -62,6 +62,9 @@ namespace BuildKey
 @[simp] theorem isPackageKey_mk : BuildKey.isPackageKey ⟨some p, none, f⟩ := by
   simp [BuildKey.isPackageKey]
 
+@[simp] theorem not_isPackageKey_target : ¬BuildKey.isPackageKey ⟨o, some t, f⟩ := by
+  simp [BuildKey.isPackageKey]
+
 @[inline] def isTargetKey (self : BuildKey) : Bool :=
   self.hasPackage ∧ self.hasTarget
 

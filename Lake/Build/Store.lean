@@ -70,3 +70,13 @@ def collectPackageFacetArray (self : BuildStore)
       let of_data := by simp [isPackageKey_data h.1, h.2, eq_dynamic_type]
       res := res.push <| cast of_data v
   return res
+
+/-- Derive an array of built external shared libraries from the store. -/
+def collectSharedExternLibs (self : BuildStore)
+[DynamicType TargetData &`externLib.shared α] : Array α := Id.run do
+  let mut res : Array α := #[]
+  for ⟨k, v⟩ in self do
+    if h : k.isTargetKey ∧ k.facet = &`externLib.shared then
+      let of_data := by simp [isTargetKey_data h.1, h.2, eq_dynamic_type]
+      res := res.push <| cast of_data v
+  return res

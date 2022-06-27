@@ -25,6 +25,10 @@ structure ExternLib where
 
 namespace ExternLib
 
+/- The library's well-formed name. -/
+@[inline] def name (self : ExternLib) : WfName :=
+  WfName.ofName self.config.name
+
 /-- The external library's user-defined `target`. -/
 @[inline] def target (self : ExternLib) : FileTarget :=
   self.config.target

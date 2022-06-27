@@ -36,7 +36,7 @@ as "Lean-only". Otherwise, also build `.c` files.
 def Package.buildImportsAndDeps (imports : List String) (self : Package) : BuildM (Array FilePath) := do
   if imports.isEmpty then
     -- build the package's (and its dependencies') `extraDepTarget`
-    buildPackageFacet self &`extraDep >>= (·.buildOpaque)
+    self.buildFacet &`extraDep >>= (·.buildOpaque)
     return #[]
   else
     -- build local imports from list
@@ -50,9 +50,9 @@ def Package.buildImportsAndDeps (imports : List String) (self : Package) : Build
         buildModuleTop mod &`lean.c <&> (·.withoutInfo)
     let importTargets ← failOnBuildCycle res
     let dynlibTargets := bStore.collectModuleFacetArray &`lean.dynlib
-    let externLibTargets := bStore.collectPackageFacetArray &`externSharedLibs
+    let externLibTargets := bStore.collectSharedExternLibs
     importTargets.forM (·.buildOpaque)
     let dynlibs ← dynlibTargets.mapM (·.build)
-    let externLibs ← externLibTargets.concatMapM (·.mapM (·.build))
+    let externLibs ← externLibTargets.mapM (·.build)
     -- Note: Lean wants the external library symbols before module symbols
     return  externLibs ++ dynlibs

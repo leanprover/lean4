@@ -1,4 +1,3 @@
-
 /-
 Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -21,7 +20,9 @@ of the top-level build.
 -/
 @[inline] def buildModuleTop (mod : Module) (facet : WfName)
 [h : DynamicType ModuleData facet α] : CycleT BuildKey m α  :=
-  have of_data := by unfold BuildData, BuildInfo.key; simp [h.eq_dynamic_type]
+  have of_data := by
+    unfold BuildData, BuildInfo.key, Module.mkBuildKey
+    simp [h.eq_dynamic_type]
   cast of_data <| buildIndexTop (m := m) <| BuildInfo.module mod facet
 
 /--

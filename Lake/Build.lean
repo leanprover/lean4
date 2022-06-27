@@ -5,6 +5,5 @@ Authors: Mac Malone
 -/
 import Lake.Build.Monad
 import Lake.Build.Actions
-import Lake.Build.LeanLib
-import Lake.Build.LeanExe
+import Lake.Build.LeanTarget
 import Lake.Build.Imports

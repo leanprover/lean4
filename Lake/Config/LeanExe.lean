@@ -16,6 +16,10 @@ structure LeanExe where
   config : LeanExeConfig
   deriving Inhabited
 
+/-- The Lean executables of the package (as an Array). -/
+@[inline] def Package.leanExes (self : Package) : Array LeanExe :=
+  self.leanExeConfigs.fold (fun a _ v => a.push (⟨self, v⟩)) #[]
+
 /-- The Lean executable built into the package. -/
 @[inline] def Package.builtinExe (self : Package) : LeanExe :=
   ⟨self, self.builtinExeConfig⟩
@@ -24,11 +28,29 @@ structure LeanExe where
 @[inline] def Package.findLeanExe? (name : Name) (self : Package) : Option LeanExe :=
   self.leanExeConfigs.find? name |>.map (⟨self, ·⟩)
 
+/--
+Converts the executable configuration into a library
+with a single module (the root).
+-/
+def LeanExeConfig.toLeanLibConfig (self : LeanExeConfig) : LeanLibConfig where
+  name := self.name
+  roots := #[self.root]
+  libName := self.exeName
+  toLeanConfig := self.toLeanConfig
+
 namespace LeanExe
+
+/-- Converts the executable into a library with a single module (the root). -/
+@[inline] def toLeanLib (self : LeanExe) : LeanLib :=
+  ⟨self.pkg, self.config.toLeanLibConfig⟩
 
 /-- The executable's root module. -/
 @[inline] def root (self : LeanExe) : Module :=
-  ⟨self.pkg, WfName.ofName self.config.root⟩
+  ⟨self.toLeanLib, WfName.ofName self.config.root⟩
+
+/- Return the the modules root if the name matches, otherwise return none. -/
+def isRoot? (name : Name) (self : LeanExe) : Option Module :=
+  if name == self.config.root then some self.root else none
 
 /--
 The file name of binary executable
@@ -52,3 +74,12 @@ def linkArgs (self : LeanExe) : Array String :=
     #["-rdynamic"] ++ self.pkg.moreLinkArgs ++ self.config.moreLinkArgs
   else
     self.pkg.moreLinkArgs ++ self.config.moreLinkArgs
+
+end LeanExe
+
+/-- Locate the named module in the package (if it is buildable and local to it). -/
+def Package.findModule? (mod : Name) (self : Package) : Option Module :=
+  self.leanLibs.findSome? (·.findModule? mod) <|>
+  self.leanExes.findSome? (·.isRoot? mod) <|>
+  self.builtinLib.findModule? mod <|>
+  self.builtinExe.isRoot? mod

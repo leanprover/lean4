@@ -3,11 +3,13 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lake.Config.LeanConfig
+
 namespace Lake
 open Lean System
 
 /-- A Lean executable's declarative configuration. -/
-structure LeanExeConfig where
+structure LeanExeConfig extends LeanConfig where
   /-- The name of the target. -/
   name : Name
 
@@ -40,11 +42,5 @@ structure LeanExeConfig where
   Defaults to `false`.
   -/
   supportInterpreter : Bool := false
-
-  /--
-  Additional arguments to pass to `leanc` when linking the binary executable.
-  These will come *after* the paths of the package's external libraries.
-  -/
-  moreLinkArgs : Array String := #[]
 
 deriving Inhabited, Repr

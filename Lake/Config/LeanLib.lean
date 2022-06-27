@@ -16,6 +16,10 @@ structure LeanLib where
   config : LeanLibConfig
   deriving Inhabited
 
+/-- The Lean libraries of the package (as an Array). -/
+@[inline] def Package.leanLibs (self : Package) : Array LeanLib :=
+  self.leanLibConfigs.fold (fun a _ v => a.push (⟨self, v⟩)) #[]
+
 /-- The Lean library built into the package. -/
 @[inline] def Package.builtinLib (self : Package) : LeanLib :=
   ⟨self, self.builtinLibConfig⟩
@@ -55,14 +59,26 @@ def sharedLibFile (self : LeanLib) : FilePath :=
   self.pkg.libDir / self.sharedLibFileName
 
 /--
-The arguments to pass to `leanc` when compiling the library's C files.
-It is `-O3`, `-DNDEBUG`, the package's `moreLeancArgs`, and then the library's
-`moreLeancArgs`.
+Whether to precompile the library's modules.
+Is true if either the package or the library have `precompileModules` set.
+-/
+def precompileModules (self : LeanLib) : Bool :=
+  self.pkg.precompileModules || self.config.precompileModules
 
-TODO: Use this option.
+/--
+The arguments to pass to `lean` when compiling the library's Lean files.
+That is, the package's `moreLeanArgs` plus the library's  `moreLeanArgs`.
+-/
+def leanArgs (self : LeanLib) : Array String :=
+  self.pkg.moreLeanArgs ++ self.config.moreLeanArgs
+
+/--
+The arguments to pass to `leanc` when compiling the library's C files.
+That is, `-O3`, `-DNDEBUG`, the package's `moreLeancArgs`, and then the
+library's `moreLeancArgs`.
 -/
 def leancArgs (self : LeanLib) : Array String :=
-  self.pkg.moreLeancArgs ++ self.config.moreLeancArgs
+  #["-O3", "-DNDEBUG"] ++ self.pkg.moreLeancArgs ++ self.config.moreLeancArgs
 
 /--
 The arguments to pass to `leanc` when linking the shared library.

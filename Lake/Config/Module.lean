@@ -9,9 +9,9 @@ import Lake.Config.LeanLib
 namespace Lake
 open Std System
 
-/-- A buildable Lean module of a `Package`. -/
+/-- A buildable Lean module of a `LeanLib`. -/
 structure Module where
-  pkg : Package
+  lib : LeanLib
   name : WfName
   deriving Inhabited
 
@@ -24,24 +24,22 @@ abbrev ModuleMap (α) := RBMap Module α (·.name.quickCmp ·.name)
 /-- Locate the named module in the library (if it is buildable and local to it). -/
 def LeanLib.findModule? (mod : Name) (self : LeanLib) : Option Module :=
   let mod := WfName.ofName mod
-  if self.isBuildableModule mod then some ⟨self.pkg, mod⟩ else none
+  if self.isBuildableModule mod then some ⟨self, mod⟩ else none
 
 /-- Get an `Array` of the library's modules. -/
 def LeanLib.getModuleArray (self : LeanLib) : IO (Array Module) :=
   (·.2) <$> StateT.run (s := #[]) do
     self.config.globs.forM fun glob => do
       glob.forEachModuleIn self.srcDir fun mod => do
-        modify (·.push ⟨self.pkg, mod⟩)
-
-/-- Locate the named module in the package (if it is buildable and local to it). -/
-def Package.findModule? (mod : Name) (self : Package) : Option Module :=
-  let mod := WfName.ofName mod
-  if self.isBuildableModule mod then some ⟨self, mod⟩ else none
+        modify (·.push ⟨self, mod⟩)
 
 namespace Module
 
+abbrev pkg (self : Module) : Package :=
+  self.lib.pkg
+
 @[inline] def leanFile (self : Module) : FilePath :=
-  Lean.modToFilePath self.pkg.srcDir self.name "lean"
+  Lean.modToFilePath self.lib.srcDir self.name "lean"
 
 @[inline] def oleanFile (self : Module) : FilePath :=
   Lean.modToFilePath self.pkg.oleanDir self.name "olean"
@@ -69,17 +67,16 @@ namespace Module
   self.pkg.libDir / s!"lib{self.dynlib}.{sharedLibExt}"
 
 @[inline] def leanArgs (self : Module) : Array String :=
-  self.pkg.moreLeanArgs
+  self.lib.leanArgs
 
 @[inline] def leancArgs (self : Module) : Array String :=
-  self.pkg.moreLeancArgs
+  self.lib.leancArgs
 
 @[inline] def linkArgs (self : Module) : Array String :=
-  -- TODO: derive link arguments from library, not package
-  self.pkg.config.moreLinkArgs
+  self.lib.linkArgs
 
 @[inline] def shouldPrecompile (self : Module) : Bool :=
-  self.pkg.precompileModules
+  self.lib.precompileModules
 
 @[inline] def isLeanOnly (self : Module) : Bool :=
   self.pkg.isLeanOnly && !self.shouldPrecompile

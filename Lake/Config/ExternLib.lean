@@ -15,6 +15,10 @@ structure ExternLib where
   config : ExternLibConfig
   deriving Inhabited
 
+/-- The external libraries of the package (as an Array). -/
+@[inline] def Package.externLibs (self : Package) : Array ExternLib :=
+  self.externLibConfigs.fold (fun a _ v => a.push (⟨self, v⟩)) #[]
+
 /-- Try to find a external library in the package with the given name. -/
 @[inline] def Package.findExternLib? (name : Name) (self : Package) : Option ExternLib :=
   self.externLibConfigs.find? name |>.map (⟨self, ·⟩)

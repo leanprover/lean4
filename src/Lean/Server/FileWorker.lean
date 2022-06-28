@@ -273,21 +273,22 @@ section Updates
   def updateDocument (newMeta : DocumentMeta) : WorkerM Unit := do
     let ctx ← read
     let oldDoc := (←get).doc
-    let ⟨cmdSnaps, e?⟩ ← oldDoc.cmdSnaps.updateFinishedPrefix
-    match e? with
-    | some ElabTaskError.aborted =>
-      -- This case should not be possible. only the main task aborts tasks and ensures that aborted tasks
-      -- do not show up in `snapshots` of an EditableDocument.
-      throwServerError "Internal server error: elab task was aborted while still in use."
-    | some (ElabTaskError.ioError ioError) => throw ioError
-    | _ => -- No error or EOF
-      -- The watchdog only restarts the file worker when the semantic content of the header changes.
-      -- If e.g. a newline is deleted, it will not restart this file worker, but we still
-      -- need to reparse the header so that the offsets are correct.
-      let (newHeaderStx, newMpState, _) ← Parser.parseHeader newMeta.mkInputContext
-      let newHeaderSnap := { cmdSnaps.finishedPrefix.head! with stx := newHeaderStx, mpState := newMpState }
+    -- The watchdog only restarts the file worker when the semantic content of the header changes.
+    -- If e.g. a newline is deleted, it will not restart this file worker, but we still
+    -- need to reparse the header so that the offsets are correct.
+    let (newHeaderStx, newMpState, _) ← Parser.parseHeader newMeta.mkInputContext
+    let cancelTk ← CancelToken.new
+    -- Wait for at least one snapshot from the old doc, we don't want to unnecessarily re-run `print-paths`
+    let headSnapTask ← oldDoc.cmdSnaps.waitHead?
+    let newSnaps ← EIO.mapTask (ε := ElabTaskError) (t := headSnapTask) fun headSnap?? => do
+      let headSnap? ← MonadExcept.ofExcept headSnap??
+      -- There is always at least one snapshot absent exceptions
+      let headSnap := headSnap?.get!
+      let newHeaderSnap := { headSnap with stx := newHeaderStx, mpState := newMpState }
       oldDoc.cancelTk.set
       let changePos := oldDoc.meta.text.source.firstDiffPos newMeta.text.source
+      -- Ignore exceptions, we are only interested in the successful snapshots
+      let (cmdSnaps, _) ← oldDoc.cmdSnaps.updateFinishedPrefix
       -- NOTE(WN): we invalidate eagerly as `endPos` consumes input greedily. To re-elaborate only
       -- when really necessary, we could do a whitespace-aware `Syntax` comparison instead.
       let mut validSnaps := cmdSnaps.finishedPrefix.takeWhile (fun s => s.endPos < changePos)
@@ -306,9 +307,8 @@ section Updates
         let newLastStx ← parseNextCmd newMeta.mkInputContext preLastSnap
         if newLastStx != lastSnap.stx then
           validSnaps := validSnaps.dropLast
-      let cancelTk ← CancelToken.new
-      let newSnaps ← unfoldCmdSnaps newMeta validSnaps.toArray cancelTk ctx
-      modify fun st => { st with doc := ⟨newMeta, newSnaps, cancelTk⟩ }
+      unfoldCmdSnaps newMeta validSnaps.toArray cancelTk ctx
+    modify fun st => { st with doc := ⟨newMeta, AsyncList.asyncTail newSnaps, cancelTk⟩ }
 end Updates
 
 /- Notifications are handled in the main thread. They may change global worker state

@@ -127,6 +127,21 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     object * parent_stderr = box(0); setup_stdio(&saAttr, &child_stderr, &parent_stderr, false, stderr_mode);
 
     std::string command = proc_name.to_std_string();
+    char buffer[32767];
+    auto rc = FindExecutable(command.c_str(), NULL, buffer);
+    long long error = (long long)rc;
+    if (error < 32) {
+        // find program failed, well then fall back on whatever is in the command string.
+    } else {
+        // buffer now contains the executable that Windows would have executed if you
+        // typed that name in a terminal window.  This can change the name of the command.
+        // For example, "npm" becomes "C:\Program Files\nodejs\npm.cmd" and not the bash
+        // shell script named "C:\Program Files\nodejs\npm".  It is the executable returned from
+        // FindExecutable that we need to spawn here.
+        command = "\"";
+        command += buffer;
+        command += "\"";
+    }
 
     // This needs some thought, on Windows we must pass a command string
     // which is a valid command, that is a fully assembled command to be executed.

@@ -8157,7 +8157,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_DecEq_mkDecEqEnum___closed__41() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tacticHave__:=_", 15);
+x_1 = lean_mk_string_from_bytes("tacticHave_:=_", 14);
 return x_1;
 }
 }

@@ -12,8 +12,8 @@ namespace Lean.Parser.Tactic.Conv
 
 declare_syntax_cat conv (behavior := both)
 
-syntax convSeq1Indented := withPosition((group(colGe conv ";"?))+)
-syntax convSeqBracketed := "{" (group(conv ";"?))+ "}"
+syntax convSeq1Indented := withPosition((colGe conv ";"?)+)
+syntax convSeqBracketed := "{" (conv ";"?)+ "}"
 -- Order is important: a missing `conv` proof should not be parsed as `{ <missing> }`,
 -- automatically closing goals
 syntax convSeq := convSeqBracketed <|> convSeq1Indented
@@ -58,7 +58,7 @@ syntax "intro " (colGt ident)* : conv
 macro_rules
   | `(conv| intro $[$xs:ident]*) => `(conv| ext $xs*)
 
-syntax enterArg := ident <|> group("@"? num)
+syntax enterArg := ident <|> ("@"? num)
 syntax "enter " "[" (colGt enterArg),+ "]": conv
 macro_rules
   | `(conv| enter [$i:num]) => `(conv| arg $i)
@@ -72,7 +72,7 @@ macro "trace_state" : conv => `(tactic' => trace_state)
 macro "apply " e:term : conv => `(tactic => apply $e)
 
 /-- `first | conv | ...` runs each `conv` until one succeeds, or else fails. -/
-syntax (name := first) "first " withPosition((group(colGe "|" convSeq))+) : conv
+syntax (name := first) "first " withPosition((colGe "|" convSeq)+) : conv
 
 syntax "repeat " convSeq : conv
 macro_rules

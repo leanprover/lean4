@@ -212,14 +212,14 @@ macro_rules
       attribute [instance] $ctor)
 
 /-- `· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. -/
-syntax ("·" <|> ".") ppHardSpace many1Indent(group(tactic ";"? ppLine)) : tactic
+syntax ("·" <|> ".") ppHardSpace many1Indent(tactic ";"? ppLine) : tactic
 macro_rules
   | `(tactic| ·%$dot $[$tacs:tactic $[;%$sc]?]*) => `(tactic| {%$dot $[$tacs:tactic $[;%$sc]?]*})
 
 /--
   Similar to `first`, but succeeds only if one the given tactics solves the current goal.
 -/
-syntax (name := solve) "solve " withPosition((group(colGe "|" tacticSeq))+) : tactic
+syntax (name := solve) "solve " withPosition((colGe "|" tacticSeq)+) : tactic
 
 macro_rules
   | `(tactic| solve $[| $ts]* ) => `(tactic| focus first $[| ($ts); done]*)

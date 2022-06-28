@@ -141,7 +141,7 @@ syntax (name := withReducible) "with_reducible " tacticSeq : tactic
 syntax (name := withReducibleAndInstances) "with_reducible_and_instances " tacticSeq : tactic
 syntax (name := withUnfoldingAll) "with_unfolding_all " tacticSeq : tactic
 /-- `first | tac | ...` runs each `tac` until one succeeds, or else fails. -/
-syntax (name := first) "first " withPosition((group(colGe "|" tacticSeq))+) : tactic
+syntax (name := first) "first " withPosition((colGe "|" tacticSeq)+) : tactic
 syntax (name := rotateLeft) "rotate_left" (num)? : tactic
 syntax (name := rotateRight) "rotate_right" (num)? : tactic
 /-- `try tac` runs `tac` and succeeds even if `tac` failed. -/
@@ -281,7 +281,8 @@ macro "have " d:haveDecl : tactic => `(refine_lift have $d:haveDecl; ?_)
 `have h := e` adds the hypothesis `h : t` if `e : t`.
 -/
 -- TODO: `DecidableEq` derive handler depends on the old name, see if we can get rid of it in a future stage
-macro  (name := «tacticHave__:=_») (priority := high) "have" x:ident " := " p:term : tactic => `(have $x:ident : _ := $p)
+macro  (name := «tacticHave__:=_») "have" x:ident " := " p:term : tactic => `(have $x:ident : _ := $p)
+macro (priority := high) "have" x:ident " := " p:term : tactic => `(have $x:ident : _ := $p)
 /--
 Given a main goal `ctx |- t`, `suffices h : t' from e` replaces the main goal with `ctx |- t'`,
 `e` must have type `t` in the context `ctx, h : t'`.
@@ -302,7 +303,7 @@ macro "let " d:letDecl : tactic => `(refine_lift let $d:letDecl; ?_)
  performs the unification, and replaces the target with the unified version of `t`.
 -/
 macro "show " e:term : tactic => `(refine_lift show $e:term from ?_) -- TODO: fix, see comment
-syntax (name := letrec) withPosition(atomic(group("let " &"rec ")) letRecDecls) : tactic
+syntax (name := letrec) withPosition(atomic("let " &"rec ") letRecDecls) : tactic
 macro_rules
   | `(tactic| let rec $d:letRecDecls) => `(tactic| refine_lift let rec $d:letRecDecls; ?_)
 
@@ -312,7 +313,7 @@ macro "have' " d:haveDecl : tactic => `(refine_lift' have $d:haveDecl; ?_)
 macro (priority := high) "have'" x:ident " := " p:term : tactic => `(have' $x:ident : _ := $p)
 macro "let' " d:letDecl : tactic => `(refine_lift' let $d:letDecl; ?_)
 
-syntax inductionAltLHS := "| " (group("@"? ident) <|> "_") (ident <|> "_")*
+syntax inductionAltLHS := "| " (("@"? ident) <|> "_") (ident <|> "_")*
 syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ " => " (hole <|> syntheticHole <|> tacticSeq)
 syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)+)
 /--

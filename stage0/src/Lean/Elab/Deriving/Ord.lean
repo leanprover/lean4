@@ -14,12 +14,12 @@ open Meta
 def mkOrdHeader (indVal : InductiveVal) : TermElabM Header := do
   mkHeader `Ord 2 indVal
 
-def mkMatch (header : Header) (indVal : InductiveVal) : TermElabM Syntax := do
+def mkMatch (header : Header) (indVal : InductiveVal) : TermElabM Term := do
   let discrs ← mkDiscrs header indVal
   let alts ← mkAlts
   `(match $[$discrs],* with $alts:matchAlt*)
 where
-  mkAlts : TermElabM (Array Syntax) := do
+  mkAlts : TermElabM (Array (TSyntax ``matchAlt)) := do
     let mut alts := #[]
     for ctorName in indVal.ctors do
       let ctorInfo ← getConstInfoCtor ctorName
@@ -32,7 +32,7 @@ where
         let mut ctorArgs1 := #[]
         let mut ctorArgs2 := #[]
         -- construct RHS top-down as continuation over the remaining comparison
-        let mut rhsCont : Syntax → TermElabM Syntax := fun rhs => pure rhs
+        let mut rhsCont : Term → TermElabM Term := fun rhs => pure rhs
         -- add `_` for inductive parameters, they are inaccessible
         for _ in [:indVal.numParams] do
           ctorArgs1 := ctorArgs1.push (← `(_))
@@ -48,7 +48,7 @@ where
             let b := mkIdent (← mkFreshUserName `b)
             ctorArgs1 := ctorArgs1.push a
             ctorArgs2 := ctorArgs2.push b
-            rhsCont := fun rhs => `(match compare $a:ident $b:ident with
+            rhsCont := fun rhs => `(match compare $a $b with
               | Ordering.lt => Ordering.lt
               | Ordering.gt => Ordering.gt
               | Ordering.eq => $rhs) >>= rhsCont
@@ -61,10 +61,10 @@ where
         pure #[←`(matchAltExpr| | $[$(patterns):term],* => $rhs:term),
                ←`(matchAltExpr| | $[$(ltPatterns):term],* => Ordering.lt),
                ←`(matchAltExpr| | $[$(gtPatterns):term],* => Ordering.gt)]
-      alts := alts ++ alt
+      alts := alts ++ (alt : Array (TSyntax ``matchAlt))
     return alts.pop.pop
 
-def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Syntax := do
+def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
   let auxFunName := ctx.auxFunNames[i]
   let indVal     := ctx.typeInfos[i]
   let header     ← mkOrdHeader indVal
@@ -74,9 +74,9 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Syntax := do
     body ← mkLet letDecls body
   let binders    := header.binders
   if ctx.usePartial || indVal.isRec then
-    `(private partial def $(mkIdent auxFunName):ident $binders:explicitBinder* : Ordering := $body:term)
+    `(private partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Ordering := $body:term)
   else
-    `(private def $(mkIdent auxFunName):ident $binders:explicitBinder* : Ordering := $body:term)
+    `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Ordering := $body:term)
 
 def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]

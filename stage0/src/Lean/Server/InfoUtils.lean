@@ -154,8 +154,6 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (in
         else if i matches .ofTermInfo { expr := .fvar .., .. } then
           0  -- prefer results for constants over variables (which overlap at declaration names)
         else 1
-      -- must prioritize smaller nodes because pattern infos are not properly nested
-      let priority := (-(r.stop - r.start |>.byteIdx : Int), priority)
       [(priority, ctx, i)]
     else
       results) |>.getD []

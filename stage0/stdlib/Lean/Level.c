@@ -47,6 +47,7 @@ static lean_object* l_Lean_Level_mkData___closed__3;
 extern lean_object* l_Std_Format_defWidth;
 lean_object* l_Std_RBMap_instForInRBMapProd___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instReprLevel___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Level_instQuoteLevelMkStrAnonymous(lean_object*);
 uint64_t lean_uint64_add(uint64_t, uint64_t);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*);
 uint64_t lean_bool_to_uint64(uint8_t);
@@ -140,7 +141,6 @@ LEAN_EXPORT uint8_t l_Lean_Level_isParam(lean_object*);
 static lean_object* l_Lean_Level_PP_Result_format___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Level_updateSucc_x21(lean_object*, lean_object*);
 static lean_object* l_Lean_Level_updateMax_x21___closed__1;
-extern lean_object* l_Lean_numLitKind;
 lean_object* l_ReaderT_bind___at_Lean_Unhygienic_instMonadQuotationUnhygienic___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_isParam___boxed(lean_object*);
 static lean_object* l_Lean_Level_PP_toResult___closed__2;
@@ -249,6 +249,7 @@ static lean_object* l_Lean_Level_PP_Result_format___closed__3;
 static lean_object* l_Lean_Level_PP_Result_quote___lambda__3___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Level_PP_Result_imax(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Level_0__Lean_reprLevel____x40_Lean_Level___hyg_800____closed__20;
+lean_object* l_Lean_Syntax_mkNumLit(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instReprData___lambda__3(lean_object*, uint64_t, lean_object*, lean_object*);
 static lean_object* l_Lean_Level_PP_Result_format___closed__5;
 static lean_object* l_Lean_Level_PP_Result_quote___lambda__3___closed__6;
@@ -271,7 +272,6 @@ LEAN_EXPORT lean_object* l_Lean_mkLevelSucc(lean_object*);
 static lean_object* l_Lean_Level_PP_Result_quote___lambda__3___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_Level_getMaxArgsAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Level_PP_toResult___closed__3;
-LEAN_EXPORT lean_object* l_Lean_Level_instQuoteLevel(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_find_x3f(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t l_Std_RBNode_isRed___rarg(lean_object*);
@@ -390,7 +390,6 @@ LEAN_EXPORT lean_object* l_Nat_toLevel___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Level_isMax(lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Level_0__Lean_Level_isExplicitSubsumed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedLevel;
-lean_object* l_Lean_Syntax_mkLit(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_Level_mkMaxAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Level_0__Lean_reprMVarId____x40_Lean_Level___hyg_503____closed__8;
@@ -5622,15 +5621,14 @@ return x_6;
 LEAN_EXPORT lean_object* l_Lean_Level_PP_Result_quote___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_5 = l_Nat_repr(x_1);
-x_6 = l_Lean_numLitKind;
-x_7 = lean_box(2);
-x_8 = l_Lean_Syntax_mkLit(x_6, x_5, x_7);
-x_9 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_9, 0, x_8);
-lean_ctor_set(x_9, 1, x_4);
-return x_9;
+x_6 = lean_box(2);
+x_7 = l_Lean_Syntax_mkNumLit(x_5, x_6);
+x_8 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_8, 0, x_7);
+lean_ctor_set(x_8, 1, x_4);
+return x_8;
 }
 }
 static lean_object* _init_l_Lean_Level_PP_Result_quote___lambda__3___closed__1() {
@@ -5717,7 +5715,7 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Level_PP_Result_quote___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_6 = lean_unsigned_to_nat(65u);
 x_7 = l_Lean_Level_PP_Result_quote(x_1, x_6);
 x_8 = l_Lean_Level_PP_Result_format___closed__1;
@@ -5727,22 +5725,21 @@ lean_ctor_set(x_9, 1, x_8);
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = lean_nat_add(x_2, x_10);
 x_12 = l_Nat_repr(x_11);
-x_13 = l_Lean_numLitKind;
-x_14 = lean_box(2);
-x_15 = l_Lean_Syntax_mkLit(x_13, x_12, x_14);
-x_16 = l_Lean_Level_PP_Result_quote___lambda__3___closed__9;
-x_17 = lean_array_push(x_16, x_7);
-x_18 = lean_array_push(x_17, x_9);
-x_19 = lean_array_push(x_18, x_15);
-x_20 = l_Lean_Level_PP_Result_quote___lambda__3___closed__8;
-x_21 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_21, 0, x_14);
-lean_ctor_set(x_21, 1, x_20);
-lean_ctor_set(x_21, 2, x_19);
-x_22 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_22, 0, x_21);
-lean_ctor_set(x_22, 1, x_5);
-return x_22;
+x_13 = lean_box(2);
+x_14 = l_Lean_Syntax_mkNumLit(x_12, x_13);
+x_15 = l_Lean_Level_PP_Result_quote___lambda__3___closed__9;
+x_16 = lean_array_push(x_15, x_7);
+x_17 = lean_array_push(x_16, x_9);
+x_18 = lean_array_push(x_17, x_14);
+x_19 = l_Lean_Level_PP_Result_quote___lambda__3___closed__8;
+x_20 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_20, 0, x_13);
+lean_ctor_set(x_20, 1, x_19);
+lean_ctor_set(x_20, 2, x_18);
+x_21 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_21, 0, x_20);
+lean_ctor_set(x_21, 1, x_5);
+return x_21;
 }
 }
 static lean_object* _init_l_Lean_Level_PP_Result_quote___lambda__4___closed__1() {
@@ -6196,7 +6193,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Level_instQuoteLevel(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Level_instQuoteLevelMkStrAnonymous(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 

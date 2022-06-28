@@ -485,6 +485,8 @@ def mergeOrElseErrors (s : ParserState) (error1 : Error) (iniPos : String.Pos) (
     else s
   | other => other
 
+-- When `mergeAntiquots` is true, if `p` parses an antiquotation, we try `q` as well and return a choice node if they
+-- both return antiquotations
 def orelseFnCore (p q : ParserFn) (mergeAntiquots : Bool) : ParserFn := fun c s => Id.run do
   let s0     := s
   let iniSz  := s.stackSize
@@ -1745,6 +1747,7 @@ def mkAntiquot (name : String) (kind : SyntaxNodeKind) (anonymous := true) (isPs
 @[inline] def withAntiquotFn (antiquotP p : ParserFn) : ParserFn := fun c s =>
   -- fast check that is false in most cases
   if c.input.get s.pos == '$' then
+    -- do not allow antiquotation choice nodes here as `antiquotP` is the strictly more general antiquotation than any in `p`
     orelseFnCore (mergeAntiquots := false) antiquotP p c s
   else
     p c s

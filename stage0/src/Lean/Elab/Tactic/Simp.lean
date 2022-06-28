@@ -13,6 +13,7 @@ import Lean.Elab.Tactic.Config
 
 namespace Lean.Elab.Tactic
 open Meta
+open TSyntax.Compat
 
 declare_config_elab elabSimpConfigCore    Meta.Simp.Config
 declare_config_elab elabSimpConfigCtxCore Meta.Simp.ConfigCtx
@@ -174,24 +175,26 @@ private def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Bool)
           throwUnsupportedSyntax
       return { ctx := { ctx with simpTheorems := thmsArray.set! 0 thms }, starArg }
 where
-  resolveSimpIdTheorem? (simpArgTerm : Syntax) : TacticM ResolveSimpIdResult := do
+  resolveSimpIdTheorem? (simpArgTerm : Term) : TacticM ResolveSimpIdResult := do
     let resolveExt (n : Name) : TacticM ResolveSimpIdResult := do
       if let some ext ← getSimpExtension? n then
         return .ext ext
       else
         return .none
-    if simpArgTerm.isIdent then
+    match simpArgTerm with
+    | `($id:ident) =>
       try
         if let some e ← Term.resolveId? simpArgTerm (withInfo := true) then
           return .expr e
         else
-          resolveExt simpArgTerm.getId.eraseMacroScopes
+          resolveExt id.getId.eraseMacroScopes
       catch _ =>
-        resolveExt simpArgTerm.getId.eraseMacroScopes
-    else if let some e ← Term.elabCDotFunctionAlias? simpArgTerm then
-      return .expr e
-    else
-      return .none
+        resolveExt id.getId.eraseMacroScopes
+    | _ =>
+      if let some e ← Term.elabCDotFunctionAlias? simpArgTerm then
+        return .expr e
+      else
+        return .none
 
 structure MkSimpContextResult where
   ctx              : Simp.Context

@@ -9,7 +9,7 @@ import Lean.Elab.MutualDef
 namespace Lean.Elab
 open Command
 
-def DerivingHandler := (typeNames : Array Name) → (args? : Option Syntax) → CommandElabM Bool
+def DerivingHandler := (typeNames : Array Name) → (args? : Option (TSyntax ``Parser.Term.structInst)) → CommandElabM Bool
 def DerivingHandlerNoArgs := (typeNames : Array Name) → CommandElabM Bool
 
 builtin_initialize derivingHandlersRef : IO.Ref (NameMap DerivingHandler) ← IO.mkRef {}
@@ -33,7 +33,7 @@ def registerBuiltinDerivingHandler (className : Name) (handler : DerivingHandler
 def defaultHandler (className : Name) (typeNames : Array Name) : CommandElabM Unit := do
   throwError "default handlers have not been implemented yet, class: '{className}' types: {typeNames}"
 
-def applyDerivingHandlers (className : Name) (typeNames : Array Name) (args? : Option Syntax) : CommandElabM Unit := do
+def applyDerivingHandlers (className : Name) (typeNames : Array Name) (args? : Option (TSyntax ``Parser.Term.structInst)) : CommandElabM Unit := do
   match (← derivingHandlersRef.get).find? className with
   | some handler =>
     unless (← handler typeNames args?) do
@@ -62,7 +62,7 @@ private def tryApplyDefHandler (className : Name) (declName : Name) : CommandEla
 structure DerivingClassView where
   ref : Syntax
   className : Name
-  args? : Option Syntax
+  args? : Option (TSyntax ``Parser.Term.structInst)
 
 def getOptDerivingClasses [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadInfoTree m] (optDeriving : Syntax) : m (Array DerivingClassView) := do
   match optDeriving with

@@ -8,6 +8,8 @@ import Init.Notation
 
 namespace Lean
 
+syntax binderIdent := ident <|> "_"
+
 namespace Parser.Tactic
 /-- `with_annotate_state stx t` annotates the lexical range of `stx : Syntax` with the initial and final state of running tactic `t`. -/
 scoped syntax (name := withAnnotateState) "with_annotate_state " rawStx ppSpace tactic : tactic
@@ -103,18 +105,18 @@ syntax (name := constructor) "constructor" : tactic
 /--
 `case tag => tac` focuses on the goal with case name `tag` and solves it using `tac`, or else fails.
 `case tag x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses with inaccessible names to the given names. -/
-syntax (name := case) "case " (ident <|> "_") (ident <|> "_")* " => " tacticSeq : tactic
+syntax (name := case) "case " binderIdent binderIdent* " => " tacticSeq : tactic
 /--
 `case'` is similar to the `case tag => tac` tactic, but does not ensure the goal has been solved after applying `tac`, nor
 admits the goal if `tac` failed. Recall that `case` closes the goal using `sorry` when `tac` fails, and
 the tactic execution is not interrupted.
 -/
-syntax (name := case') "case' " (ident <|> "_") (ident <|> "_")* " => " tacticSeq : tactic
+syntax (name := case') "case' " binderIdent binderIdent* " => " tacticSeq : tactic
 
 /--
 `next => tac` focuses on the next goal solves it using `tac`, or else fails.
 `next x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses with inaccessible names to the given names. -/
-macro "next " args:(ident <|> "_")* " => " tac:tacticSeq : tactic => `(tactic| case _ $args* => $tac)
+macro "next " args:binderIdent* " => " tac:tacticSeq : tactic => `(tactic| case _ $args* => $tac)
 
 /-- `all_goals tac` runs `tac` on each goal, concatenating the resulting goals, if any. -/
 syntax (name := allGoals) "all_goals " tacticSeq : tactic
@@ -201,19 +203,12 @@ syntax (name := rewriteSeq) "rewrite " (config)? rwRuleSeq (location)? : tactic
 /--
 `rw` is like `rewrite`, but also tries to close the goal by "cheap" (reducible) `rfl` afterwards.
 -/
-syntax (name := rwSeq) "rw " (config)? rwRuleSeq (location)? : tactic
-
-def rwWithRfl (kind : SyntaxNodeKind) (atom : String) (stx : Syntax) : MacroM Syntax := do
-  -- We show the `rfl` state on `]`
-  let seq   := stx[2]
-  let rbrak := seq[2]
-  -- Replace `]` token with one without position information in the expanded tactic
-  let seq   := seq.setArg 2 (mkAtom "]")
-  let tac   := stx.setKind kind |>.setArg 0 (mkAtomFrom stx atom) |>.setArg 2 seq
-  `(tactic| $tac; try (with_reducible rfl%$rbrak))
-
-@[macro rwSeq] def expandRwSeq : Macro :=
-  rwWithRfl ``Lean.Parser.Tactic.rewriteSeq "rewrite"
+macro (name := rwSeq) rw:"rw " c:(config)? s:rwRuleSeq l:(location)? : tactic =>
+  match s with
+  | `(rwRuleSeq| [%$lbrak $rs:rwRule,* ]%$rbrak) =>
+    -- We show the `rfl` state on `]`
+    `(tactic| rewrite%$rw $(c)? [%$lbrak $rs,*] $(l)?; try (with_reducible rfl%$rbrak))
+  | _ => Macro.throwUnsupported
 
 /--
 The `injection` tactic is based on the fact that constructors of inductive data types are injections.
@@ -285,7 +280,8 @@ macro "have " d:haveDecl : tactic => `(refine_lift have $d:haveDecl; ?_)
 /--
 `have h := e` adds the hypothesis `h : t` if `e : t`.
 -/
-macro (priority := high) "have" x:ident " := " p:term : tactic => `(have $x:ident : _ := $p)
+-- TODO: `DecidableEq` derive handler depends on the old name, see if we can get rid of it in a future stage
+macro  (name := «tacticHave__:=_») (priority := high) "have" x:ident " := " p:term : tactic => `(have $x:ident : _ := $p)
 /--
 Given a main goal `ctx |- t`, `suffices h : t' from e` replaces the main goal with `ctx |- t'`,
 `e` must have type `t` in the context `ctx, h : t'`.
@@ -356,7 +352,7 @@ and one goal with hypothesis `h : P (Nat.succ a)` and target `Q (Nat.succ a)`. H
 syntax (name := cases) "cases " casesTarget,+ (" using " ident)? (inductionAlts)? : tactic
 
 /-- `rename_i x_1 ... x_n` renames the last `n` inaccessible names using the given names. -/
-syntax (name := renameI) "rename_i " (colGt (ident <|> "_"))+ : tactic
+syntax (name := renameI) "rename_i " (colGt binderIdent)+ : tactic
 
 /--
 `repeat tac` applies `tac` to main goal. If the application succeeds,

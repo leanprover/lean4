@@ -695,8 +695,5 @@ end Lean
 syntax "println! " (interpolatedStr(term) <|> term) : term
 
 macro_rules
-  | `(println! $msg) =>
-    if msg.getKind == Lean.interpolatedStrKind then
-      `((IO.println (s! $msg) : IO Unit))
-    else
-      `((IO.println $msg : IO Unit))
+  | `(println! $msg:interpolatedStr) => `((IO.println (s! $msg) : IO Unit))
+  | `(println! $msg:term)            => `((IO.println $msg : IO Unit))

@@ -13,6 +13,7 @@ namespace Lean.PrettyPrinter.Delaborator
 open Lean.Meta
 open Lean.Parser.Term
 open SubExpr
+open TSyntax.Compat
 
 def maybeAddBlockImplicit (ident : Syntax) : DelabM Syntax := do
   if ← getPPOption getPPAnalysisBlockImplicit then `(@$ident:ident) else pure ident
@@ -165,7 +166,7 @@ def delabAppExplicit : Delab := do
   let (fnStx, _, argStxs) ← withAppFnArgs
     (do
       let stx ← withOptionAtCurrPos `pp.tagAppFns tagAppFn delabAppFn
-      let needsExplicit := stx.getKind != ``Lean.Parser.Term.explicit
+      let needsExplicit := stx.raw.getKind != ``Lean.Parser.Term.explicit
       let stx ← if needsExplicit then `(@$stx) else pure stx
       pure (stx, paramKinds.toList, #[]))
     (fun ⟨fnStx, paramKinds, argStxs⟩ => do
@@ -273,7 +274,7 @@ def delabAppImplicit : Delab := do
               let v := param.defVal.get!
               if !v.hasLooseBVars && v == arg then pure none else delab
             else if !param.isRegularExplicit && param.defVal.isNone then
-              if ← getPPOption getPPAnalysisNamedArg <||> (pure (param.name == `motive) <&&> shouldShowMotive arg opts) then mkNamedArg param.name (← delab) else pure none
+              if ← getPPOption getPPAnalysisNamedArg <||> (pure (param.name == `motive) <&&> shouldShowMotive arg opts) then some <$> mkNamedArg param.name (← delab) else pure none
             else delab
       let argStxs := match argStx? with
         | none => argStxs
@@ -293,17 +294,17 @@ structure AppMatchState where
   info        : MatcherInfo
   matcherTy   : Expr
   params      : Array Expr := #[]
-  motive      : Option (Syntax × Expr) := none
+  motive      : Option (Term × Expr) := none
   motiveNamed : Bool := false
-  discrs      : Array Syntax := #[]
+  discrs      : Array Term := #[]
   varNames    : Array (Array Name) := #[]
-  rhss        : Array Syntax := #[]
+  rhss        : Array Term := #[]
   -- additional arguments applied to the result of the `match` expression
-  moreArgs    : Array Syntax := #[]
+  moreArgs    : Array Term := #[]
 /--
   Extract arguments of motive applications from the matcher type.
   For the example below: `#[#[`([])], #[`(a::as)]]` -/
-private partial def delabPatterns (st : AppMatchState) : DelabM (Array (Array Syntax)) :=
+private partial def delabPatterns (st : AppMatchState) : DelabM (Array (Array Term)) :=
   withReader (fun ctx => { ctx with inPattern := true, optionsPerPos := {} }) do
     let ty ← instantiateForall st.matcherTy st.params
     -- need to reduce `let`s that are lifted into the matcher type
@@ -704,7 +705,7 @@ def delabNamedPattern : Delab := do
   let p ← withAppFn $ withAppArg delab
   -- TODO: we should hide `h` if it has an inaccessible name and is not used in the rhs
   let h ← withAppArg delab
-  guard x.isIdent
+  guard x.raw.isIdent
   `($x:ident@$h:ident:$p:term)
 
 -- Sigma and PSigma delaborators

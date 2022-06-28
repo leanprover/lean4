@@ -124,7 +124,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
           wf? := some wf
           terminationBy := terminationBy.markAsUsed (preDefs.map (·.declName))
         if let some { ref, value := decrTactic } := decreasingBy.find? (preDefs.map (·.declName)) then
-          decrTactic? := some (← withRef ref `(by $decrTactic))
+          decrTactic? := some (← withRef ref `(by $(⟨decrTactic⟩)))
           decreasingBy := decreasingBy.markAsUsed (preDefs.map (·.declName))
         if wf?.isSome || decrTactic?.isSome then
           wfRecursion preDefs wf? decrTactic?

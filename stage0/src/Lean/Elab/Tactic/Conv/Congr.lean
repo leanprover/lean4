@@ -98,7 +98,7 @@ private def selectIdx (tacticName : String) (mvarIds : List (Option MVarId)) (i 
 @[builtinTactic Lean.Parser.Tactic.Conv.arg] def evalArg : Tactic := fun stx => do
    match stx with
    | `(conv| arg $[@%$tk?]? $i:num) =>
-      let i := i.isNatLit?.getD 0
+      let i := i.getNat
       if i == 0 then
         throwError "invalid 'arg' conv tactic, index must be greater than 0"
       let i := i - 1

@@ -25,7 +25,7 @@ def ppTerm (stx : Syntax) : CoreM Format := do
   let stx := (sanitizeSyntax stx).run' { options := opts }
   parenthesizeTerm stx >>= formatTerm
 
-def ppUsing (e : Expr) (delab : Expr → MetaM Syntax) : MetaM Format := do
+def ppUsing (e : Expr) (delab : Expr → MetaM Term) : MetaM Format := do
   let lctx := (← getLCtx).sanitizeNames.run' { options := (← getOptions) }
   Meta.withLCtx lctx #[] do
     ppTerm (← delab e)

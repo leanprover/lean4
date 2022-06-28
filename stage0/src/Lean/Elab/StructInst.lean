@@ -13,6 +13,7 @@ namespace Lean.Elab.Term.StructInst
 
 open Std (HashMap)
 open Meta
+open TSyntax.Compat
 
 /--
   Structure instances are of the form:
@@ -36,13 +37,11 @@ open Meta
 /-- Expand field abbreviations. Example: `{ x, y := 0 }` expands to `{ x := x, y := 0 }` -/
 @[builtinMacro Lean.Parser.Term.structInst] def expandStructInstFieldAbbrev : Macro
   | `({ $[$srcs,* with]? $fields,* $[..%$ell]? $[: $ty]? }) =>
-    if fields.getElems.any (·.getKind == ``Lean.Parser.Term.structInstFieldAbbrev) then do
-      let fieldsNew ← fields.getElems.mapM fun field => do
-        if field.getKind == ``Lean.Parser.Term.structInstFieldAbbrev then
-          let id := field[0]
-          `(Lean.Parser.Term.structInstField| $id:ident := $id:ident)
-        else
-          return field
+    if fields.getElems.raw.any (·.getKind == ``Lean.Parser.Term.structInstFieldAbbrev) then do
+      let fieldsNew ← fields.getElems.mapM fun
+        | `(Parser.Term.structInstFieldAbbrev| $id:ident) =>
+          `(Parser.Term.structInstField| $id:ident := $id:ident)
+        | field => return field
       `({ $[$srcs,* with]? $fieldsNew,* $[..%$ell]? $[: $ty]? })
     else
       Macro.throwUnsupported

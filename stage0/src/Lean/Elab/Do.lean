@@ -15,6 +15,7 @@ set_option compiler.reuse false
 namespace Lean.Elab.Term
 open Lean.Parser.Term
 open Meta
+open TSyntax.Compat
 
 private def getDoSeqElems (doSeq : Syntax) : List Syntax :=
   if doSeq.getKind == ``Lean.Parser.Term.doSeqBracketed then
@@ -122,7 +123,7 @@ private partial def extractBind (expectedType? : Option Expr) : TermElabM Extrac
 
 namespace Do
 
-abbrev Var := Syntax  -- TODO: should be `TSyntax identKind`
+abbrev Var := Syntax  -- TODO: should be `Ident`
 
 /- A `doMatch` alternative. `vars` is the array of variables declared by `patterns`. -/
 structure Alt (σ : Type) where
@@ -305,7 +306,7 @@ def attachJPs (jpDecls : Array JPDecl) (k : Code) : Code :=
 def mkFreshJP (ps : Array (Var × Bool)) (body : Code) : TermElabM JPDecl := do
   let ps ← if ps.isEmpty then
     let y ← `(y)
-    pure #[(y, false)]
+    pure #[(y.raw, false)]
   else
     pure ps
   -- Remark: the compiler frontend implemented in C++ currently detects jointpoints created by
@@ -1171,7 +1172,7 @@ private partial def expandLiftMethodAux (inQuot : Bool) (inBinder : Bool) : Synt
         throwErrorAt stx "cannot lift `(<- ...)` over a binder, this error usually happens when you are trying to lift a method nested in a `fun`, `let`, or `match`-alternative, and it can often be fixed by adding a missing `do`"
       let term := args[1]
       let term ← expandLiftMethodAux inQuot inBinder term
-      let auxDoElem ← `(doElem| let a ← $term:term)
+      let auxDoElem : Syntax ← `(doElem| let a ← $term:term)
       modify fun s => s ++ [auxDoElem]
       `(a)
     else do
@@ -1439,7 +1440,7 @@ mutual
     let optMotive := doMatch[2]
     let discrs    := doMatch[3]
     let matchAlts := doMatch[5][0].getArgs -- Array of `doMatchAlt`
-    let matchAlts := matchAlts.foldl (init := #[]) fun result matchAlt => result ++ expandMatchAlt matchAlt
+    let matchAlts ← matchAlts.foldlM (init := #[]) fun result matchAlt => return result ++ (← liftMacroM <| expandMatchAlt matchAlt)
     let alts ←  matchAlts.mapM fun matchAlt => do
       let patterns := matchAlt[1][0]
       let vars ← getPatternsVarsEx patterns.getSepArgs

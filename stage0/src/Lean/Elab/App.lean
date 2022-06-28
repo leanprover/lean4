@@ -401,7 +401,7 @@ mutual
         | Except.error err       => throwError err
         | Except.ok tacticSyntax =>
           -- TODO(Leo): does this work correctly for tactic sequences?
-          let tacticBlock ← `(by $tacticSyntax)
+          let tacticBlock ← `(by $(⟨tacticSyntax⟩))
           let argNew := Arg.stx tacticBlock
           propagateExpectedType argNew
           elabAndAddNewArg argName argNew
@@ -527,7 +527,8 @@ private def throwLValError (e : Expr) (eType : Expr) (msg : MessageData) : TermE
 /-- `findMethod? env S fName`.
     1- If `env` contains `S ++ fName`, return `(S, S++fName)`
     2- Otherwise if `env` contains private name `prv` for `S ++ fName`, return `(S, prv)`, o
-    3- Otherwise for each parent structure `S'` of  `S`, we try `findMethod? env S' fname` -/
+    3- Otherwise for each parent structure `S'` of  `S`, we try `findMethod? env S' fname`
+-/
 private partial def findMethod? (env : Environment) (structName fieldName : Name) : Option (Name × Name) :=
   let fullName := structName ++ fieldName
   match env.find? fullName with
@@ -541,6 +542,24 @@ private partial def findMethod? (env : Environment) (structName fieldName : Name
         (getParentStructures env structName).findSome? fun parentStructName => findMethod? env parentStructName fieldName
       else
         none
+
+/--
+  Return `some (structName', fullName)` if `structName ++ fieldName` is an alias for `fullName`, and
+  `fullName` is of the form `structName' ++ fieldName`.
+
+  TODO: if there is more than one applicable alias, it returns `none`. We should consider throwing an error or
+  warning.
+-/
+private def findMethodAlias? (env : Environment) (structName fieldName : Name) : Option (Name × Name) :=
+  let fullName := structName ++ fieldName
+  -- We never skip `protected` aliases when resolving dot-notation.
+  let aliasesCandidates := getAliases env fullName (skipProtected := false) |>.filterMap fun alias =>
+    match alias.eraseSuffix? fieldName with
+    | none => none
+    | some structName' => some (structName', alias)
+  match aliasesCandidates with
+  | [r] => some r
+  | _   => none
 
 private def throwInvalidFieldNotation (e eType : Expr) : TermElabM α :=
   throwLValError e eType "invalid field notation, type is not of the form (C ...) where C is a constant"
@@ -574,9 +593,11 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
   | some structName, LVal.fieldName _ fieldName _ _ =>
     let env ← getEnv
     let searchEnv : Unit → TermElabM LValResolution := fun _ => do
-      match findMethod? env structName (Name.mkSimple fieldName) with
-      | some (baseStructName, fullName) => return LValResolution.const baseStructName structName fullName
-      | none   =>
+      if let some (baseStructName, fullName) := findMethod? env structName fieldName then
+        return LValResolution.const baseStructName structName fullName
+      else if let some (structName', fullName) := findMethodAlias? env structName fieldName then
+        return LValResolution.const structName' structName' fullName
+      else
         throwLValError e eType
           m!"invalid field '{fieldName}', the environment does not contain '{Name.mkStr structName fieldName}'"
     -- search local context first, then environment

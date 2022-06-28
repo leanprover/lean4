@@ -14,12 +14,12 @@ open Meta
 def mkBEqHeader (indVal : InductiveVal) : TermElabM Header := do
   mkHeader `BEq 2 indVal
 
-def mkMatch (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Syntax := do
+def mkMatch (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Term := do
   let discrs ← mkDiscrs header indVal
   let alts ← mkAlts
   `(match $[$discrs],* with $alts:matchAlt*)
 where
-  mkElseAlt : TermElabM Syntax := do
+  mkElseAlt : TermElabM (TSyntax ``matchAltExpr) := do
     let mut patterns := #[]
     -- add `_` pattern for indices
     for _ in [:indVal.numIndices] do
@@ -29,7 +29,7 @@ where
     let altRhs ← `(false)
     `(matchAltExpr| | $[$patterns:term],* => $altRhs:term)
 
-  mkAlts : TermElabM (Array Syntax) := do
+  mkAlts : TermElabM (Array (TSyntax ``matchAlt)) := do
     let mut alts := #[]
     for ctorName in indVal.ctors do
       let ctorInfo ← getConstInfoCtor ctorName
@@ -68,7 +68,7 @@ where
     alts := alts.push (← mkElseAlt)
     return alts
 
-def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Syntax := do
+def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
   let auxFunName := ctx.auxFunNames[i]
   let indVal     := ctx.typeInfos[i]
   let header     ← mkBEqHeader indVal
@@ -78,9 +78,9 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Syntax := do
     body ← mkLet letDecls body
   let binders    := header.binders
   if ctx.usePartial then
-    `(private partial def $(mkIdent auxFunName):ident $binders:explicitBinder* : Bool := $body:term)
+    `(private partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Bool := $body:term)
   else
-    `(private def $(mkIdent auxFunName):ident $binders:explicitBinder* : Bool := $body:term)
+    `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Bool := $body:term)
 
 def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]

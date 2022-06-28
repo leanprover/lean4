@@ -4175,7 +4175,7 @@ if (lean_is_exclusive(x_4)) {
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_15 = lean_ctor_get(x_5, 2);
+x_15 = lean_ctor_get(x_5, 1);
 lean_inc(x_15);
 lean_dec(x_5);
 x_16 = l_Lean_Widget_getInteractiveDiagnostics___closed__1;
@@ -4192,7 +4192,7 @@ goto block_14;
 else
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
-x_20 = lean_ctor_get(x_5, 2);
+x_20 = lean_ctor_get(x_5, 1);
 lean_inc(x_20);
 x_21 = lean_ctor_get(x_1, 0);
 lean_inc(x_21);

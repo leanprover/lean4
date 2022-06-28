@@ -19,7 +19,7 @@ namespace Lean.Elab.Term
 open Meta
 open Lean.Parser.Term
 
-private def expandSimpleMatch (stx discr lhsVar rhs : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+private def expandSimpleMatch (stx : Syntax) (discr : Term) (lhsVar : Ident) (rhs : Term) (expectedType? : Option Expr) : TermElabM Expr := do
   let newStx ← `(let $lhsVar := $discr; $rhs)
   withMacroExpansion stx newStx <| elabTerm newStx expectedType?
 
@@ -658,12 +658,9 @@ where
       if inaccessible? p |>.isSome then
         return mkMData k (← withReader (fun _ => false) (go b))
       else if let some (stx, p) := patternWithRef? p then
-        let p ← go p
-        if p.isFVar && !(← read) then
+        Elab.withInfoContext' (go p) fun p => do
           /- If `p` is a free variable and we are not inside of an "inaccessible" pattern, this `p` is a binder. -/
-          addTermInfo stx p (isBinder := true)
-        else
-          addTermInfo stx p
+          mkTermInfo Name.anonymous stx p (isBinder := p.isFVar && !(← read))
       else
         return mkMData k (← go b)
     | _ => return p
@@ -1124,6 +1121,7 @@ private def getDiscrs (matchStx : Syntax) : Array Syntax :=
 private def getMatchOptMotive (matchStx : Syntax) : Syntax :=
   matchStx[2]
 
+open TSyntax.Compat in
 private def expandNonAtomicDiscrs? (matchStx : Syntax) : TermElabM (Option Syntax) :=
   let matchOptMotive := getMatchOptMotive matchStx
   if matchOptMotive.isNone then do

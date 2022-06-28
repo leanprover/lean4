@@ -115,6 +115,8 @@ private partial def finishedPrefixAux : List α → AsyncList ε α → List α
 def finishedPrefix : AsyncList ε α → List α :=
   List.reverse ∘ (finishedPrefixAux [])
 
+def waitHead? (as : AsyncList ε α) : BaseIO (Task (Except ε (Option α))) := as.waitFind? (fun _ => true)
+
 end AsyncList
 
 end IO

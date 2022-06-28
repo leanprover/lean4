@@ -280,8 +280,6 @@ macro "have " d:haveDecl : tactic => `(refine_lift have $d:haveDecl; ?_)
 /--
 `have h := e` adds the hypothesis `h : t` if `e : t`.
 -/
--- TODO: `DecidableEq` derive handler depends on the old name, see if we can get rid of it in a future stage
-macro  (name := «tacticHave__:=_») "have" x:ident " := " p:term : tactic => `(have $x:ident : _ := $p)
 macro (priority := high) "have" x:ident " := " p:term : tactic => `(have $x:ident : _ := $p)
 /--
 Given a main goal `ctx |- t`, `suffices h : t' from e` replaces the main goal with `ctx |- t'`,

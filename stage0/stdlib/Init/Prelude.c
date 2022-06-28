@@ -366,6 +366,7 @@ LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_Macro_instMonadRefMacroM___spe
 static uint8_t l_instInhabitedUInt8___closed__1;
 LEAN_EXPORT lean_object* l_instMonadFunctorT___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableEqPos___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_MonadExcept_ofExcept(lean_object*, lean_object*, lean_object*);
 static uint16_t l_instInhabitedUInt16___closed__1;
 static uint32_t l_Char_utf8Size___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Macro_instMonadQuotationMacroM___lambda__1___boxed(lean_object*, lean_object*);
@@ -453,6 +454,7 @@ LEAN_EXPORT lean_object* l_Lean_Syntax_getTailPos_x3f_loop(uint8_t, lean_object*
 LEAN_EXPORT lean_object* l_Lean_Macro_instInhabitedMethods___lambda__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Monad_seq___default(lean_object*);
 LEAN_EXPORT lean_object* l_Monad_seqLeft___default___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadLiftT__1___rarg___boxed(lean_object*);
 uint16_t lean_uint16_of_nat_mk(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Prelude_0__Lean_assembleParts(lean_object*, lean_object*);
@@ -4958,6 +4960,48 @@ _start:
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l_tryCatchThe___rarg), 4, 0);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+lean_dec(x_1);
+x_4 = lean_ctor_get(x_3, 0);
+lean_inc(x_4);
+lean_dec(x_3);
+x_5 = lean_ctor_get(x_2, 0);
+lean_inc(x_5);
+lean_dec(x_2);
+x_6 = lean_apply_2(x_5, lean_box(0), x_4);
+return x_6;
+}
+else
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_dec(x_2);
+x_7 = lean_ctor_get(x_3, 0);
+lean_inc(x_7);
+lean_dec(x_3);
+x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
+lean_dec(x_1);
+x_9 = lean_ctor_get(x_8, 1);
+lean_inc(x_9);
+lean_dec(x_8);
+x_10 = lean_apply_2(x_9, lean_box(0), x_7);
+return x_10;
+}
+}
+}
+LEAN_EXPORT lean_object* l_MonadExcept_ofExcept(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_MonadExcept_ofExcept___rarg), 3, 0);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_instMonadExcept___rarg(lean_object* x_1) {

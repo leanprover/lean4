@@ -1427,7 +1427,11 @@ class MonadExcept (ε : outParam (Type u)) (m : Type v → Type w) where
   throw {α : Type v} : ε → m α
   tryCatch {α : Type v} : m α → (ε → m α) → m α
 
-export MonadExcept (throw tryCatch)
+def MonadExcept.ofExcept [Monad m] [MonadExcept ε m] : Except ε α → m α
+  | .ok a    => pure a
+  | .error e => throw e
+
+export MonadExcept (throw tryCatch ofExcept)
 
 instance (ε : outParam (Type u)) (m : Type v → Type w) [MonadExceptOf ε m] : MonadExcept ε m where
   throw    := throwThe ε

@@ -237,7 +237,7 @@ open Parser.Command in
 partial def handleDocumentSymbol (_ : DocumentSymbolParams)
     : RequestM (RequestTask DocumentSymbolResult) := do
   let doc ← readDoc
-  asTask do
+  mapTask (← doc.cmdSnaps.waitHead?) fun _ => do
     let ⟨cmdSnaps, e?⟩ ← doc.cmdSnaps.updateFinishedPrefix
     let mut stxs := cmdSnaps.finishedPrefix.map (·.stx)
     match e? with
@@ -247,7 +247,7 @@ partial def handleDocumentSymbol (_ : DocumentSymbolParams)
       throw (e : RequestError)
     | _ => pure ()
 
-    let lastSnap := cmdSnaps.finishedPrefix.getLast!
+    let lastSnap := cmdSnaps.finishedPrefix.getLast!  -- see `waitHead?` above
     stxs := stxs ++ (← parseAhead doc.meta.mkInputContext lastSnap).toList
     let (syms, _) := toDocumentSymbols doc.meta.text stxs
     return { syms := syms.toArray }

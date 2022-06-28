@@ -143,13 +143,13 @@ def openDecl         := openHiding <|> openRenaming <|> openOnly <|> openSimple 
 @[runBuiltinParserAttributeHooks] abbrev declModifiersT := declModifiers true
 
 builtin_initialize
-  register_parser_alias "declModifiers"       declModifiersF
-  register_parser_alias "nestedDeclModifiers" declModifiersT
-  register_parser_alias                       declId
-  register_parser_alias                       declSig
-  register_parser_alias                       declVal
-  register_parser_alias                       optDeclSig
-  register_parser_alias                       openDecl
+  register_parser_alias (kind := ``declModifiers) "declModifiers"       declModifiersF
+  register_parser_alias (kind := ``declModifiers) "nestedDeclModifiers" declModifiersT
+  register_parser_alias                                                 declId
+  register_parser_alias                                                 declSig
+  register_parser_alias                                                 declVal
+  register_parser_alias                                                 optDeclSig
+  register_parser_alias                                                 openDecl
 
 end Command
 

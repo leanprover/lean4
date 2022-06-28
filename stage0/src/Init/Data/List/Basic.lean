@@ -162,14 +162,33 @@ def join : List (List α) → List α
     | none   => filterMap f as
     | some b => b :: filterMap f as
 
-@[specialize] def filterAux (p : α → Bool) : List α → List α → List α
+def filter (p : α → Bool) : List α → List α
+  | [] => []
+  | a::as => match p a with
+    | true => a :: filter p as
+    | false => filter p as
+
+@[specialize] def filterTRAux (p : α → Bool) : List α → List α → List α
   | [],    rs => rs.reverse
   | a::as, rs => match p a with
-     | true  => filterAux p as (a::rs)
-     | false => filterAux p as rs
+     | true  => filterTRAux p as (a::rs)
+     | false => filterTRAux p as rs
 
-@[inline] def filter (p : α → Bool) (as : List α) : List α :=
-  filterAux p as []
+@[inline] def filterTR (p : α → Bool) (as : List α) : List α :=
+  filterTRAux p as []
+
+theorem filterTRAux_eq (p : α → Bool) (as bs : List α) : filterTRAux p as bs = bs.reverse ++ filter p as := by
+  induction as generalizing bs with
+  | nil => simp [filterTRAux, filter]
+  | cons a as ih =>
+    simp [filterTRAux, filter]
+    split
+    next => rw [ih, reverse_cons, append_assoc]; simp
+    next => rw [ih]
+
+@[csimp] theorem filter_eq_filterTR : @filter = @filterTR := by
+  apply funext; intro α; apply funext; intro p; apply funext; intro as
+  simp [filterTR, filterTRAux_eq]
 
 @[specialize] def partitionAux (p : α → Bool) : List α → List α × List α → List α × List α
   | [],    (bs, cs) => (bs.reverse, cs.reverse)

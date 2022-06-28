@@ -333,7 +333,7 @@ s.any (fun a => a == c)
   mapAux f 0 s
 
 def isNat (s : String) : Bool :=
-  s.all fun c => c.isDigit
+  !s.isEmpty && s.all (·.isDigit)
 
 def toNat? (s : String) : Option Nat :=
   if s.isNat then

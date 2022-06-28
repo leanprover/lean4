@@ -1102,7 +1102,7 @@ private def isExplicitApp (stx : Syntax) : Bool :=
   Example: `fun {α} (a : α) => a` -/
 private def isLambdaWithImplicit (stx : Syntax) : Bool :=
   match stx with
-  | `(fun $binders* => $_) => binders.any fun b => b.isOfKind ``Lean.Parser.Term.implicitBinder || b.isOfKind `Lean.Parser.Term.instBinder
+  | `(fun $binders* => $_) => binders.raw.any fun b => b.isOfKind ``Lean.Parser.Term.implicitBinder || b.isOfKind `Lean.Parser.Term.instBinder
   | _                      => false
 
 private partial def dropTermParens : Syntax → Syntax := fun stx =>

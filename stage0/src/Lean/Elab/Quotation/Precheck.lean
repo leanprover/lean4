@@ -109,7 +109,7 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
 @[builtinQuotPrecheck Lean.Parser.Term.app] def precheckApp : Precheck
   | `($f $args*) => do
     precheck f
-    for arg in args do
+    for arg in args.raw do
       match arg with
       | `(argument| ($_ := $e)) => precheck e
       | `(argument| $e:term)    => precheck e
@@ -125,7 +125,7 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
   | `(($e))         => precheck e
   | `(($e, $es,*))  => do
     precheck e
-    es.getElems.forM precheck
+    es.getElems.raw.forM precheck
   | _ => throwUnsupportedSyntax
 
 @[builtinQuotPrecheck choice] def precheckChoice : Precheck := fun stx => do

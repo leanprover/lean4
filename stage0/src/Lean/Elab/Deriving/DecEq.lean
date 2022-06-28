@@ -15,12 +15,12 @@ open Meta
 def mkDecEqHeader (indVal : InductiveVal) : TermElabM Header := do
   mkHeader `DecidableEq 2 indVal
 
-def mkMatch (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Syntax := do
+def mkMatch (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Term := do
   let discrs ← mkDiscrs header indVal
   let alts ← mkAlts
   `(match $[$discrs],* with $alts:matchAlt*)
 where
-  mkSameCtorRhs : List (Syntax × Syntax × Bool × Bool) → TermElabM Syntax
+  mkSameCtorRhs : List (Ident × Ident × Bool × Bool) → TermElabM Term
     | [] => ``(isTrue rfl)
     | (a, b, recField, isProof) :: todo => withFreshMacroScope do
       let rhs ← if isProof then
@@ -36,7 +36,7 @@ where
       else
         return rhs
 
-  mkAlts : TermElabM (Array Syntax) := do
+  mkAlts : TermElabM (Array (TSyntax ``matchAlt)) := do
     let mut alts := #[]
     for ctorName₁ in indVal.ctors do
       let ctorInfo ← getConstInfoCtor ctorName₁
@@ -88,7 +88,7 @@ def mkAuxFunction (ctx : Context) : TermElabM Syntax := do
   let mut body   ← mkMatch header indVal auxFunName
   let binders    := header.binders
   let type       ← `(Decidable ($(mkIdent header.targetNames[0]) = $(mkIdent header.targetNames[1])))
-  `(private def $(mkIdent auxFunName):ident $binders:explicitBinder* : $type:term := $body:term)
+  `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type:term := $body:term)
 
 def mkDecEqCmds (indVal : InductiveVal) : TermElabM (Array Syntax) := do
   let ctx ← mkContext "decEq" indVal.name

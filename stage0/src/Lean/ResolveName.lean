@@ -36,10 +36,18 @@ builtin_initialize aliasExtension : SimplePersistentEnvExtension AliasEntry Alia
 def getAliasState (env : Environment) : AliasState :=
   aliasExtension.getState env
 
-def getAliases (env : Environment) (a : Name) : List Name :=
+/-
+  Retrieve aliases for `a`. If `skipProtected` is `true`, then the resulting list only includes
+  declarations that are not marked as `proctected`.
+-/
+def getAliases (env : Environment) (a : Name) (skipProtected : Bool) : List Name :=
   match aliasExtension.getState env |>.find? a with
   | none    => []
-  | some es => es
+  | some es =>
+    if skipProtected then
+      es.filter (!isProtected env ·)
+    else
+      es
 
 -- slower, but only used in the pretty printer
 def getRevAliases (env : Environment) (e : Name) : List Name :=
@@ -51,7 +59,8 @@ namespace ResolveName
 /- Check whether `ns ++ id` is a valid namepace name and/or there are aliases names `ns ++ id`. -/
 private def resolveQualifiedName (env : Environment) (ns : Name) (id : Name) : List Name :=
   let resolvedId    := ns ++ id
-  let resolvedIds   := getAliases env resolvedId
+  -- We ignore protected aliases if `id` is atomic.
+  let resolvedIds   := getAliases env resolvedId (skipProtected := id.isAtomic)
   if env.contains resolvedId && (!id.isAtomic || !isProtected env resolvedId) then
     resolvedId :: resolvedIds
   else
@@ -122,7 +131,7 @@ def resolveGlobalName (env : Environment) (ns : Name) (openDecls : List OpenDecl
           let idPrv       := mkPrivateName env id
           let resolvedIds := if env.contains idPrv then [idPrv] ++ resolvedIds else resolvedIds
           let resolvedIds := resolveOpenDecls env id openDecls resolvedIds
-          let resolvedIds := getAliases env id ++ resolvedIds
+          let resolvedIds := getAliases env id (skipProtected := id.isAtomic) ++ resolvedIds
           match resolvedIds with
           | _ :: _ => resolvedIds.eraseDups.map fun id => (id, projs)
           | []     => loop p (s::projs)

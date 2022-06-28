@@ -294,6 +294,7 @@ instance : ToMessageData Level         := ⟨MessageData.ofLevel⟩
 instance : ToMessageData Name          := ⟨MessageData.ofName⟩
 instance : ToMessageData String        := ⟨stringToMessageData⟩
 instance : ToMessageData Syntax        := ⟨MessageData.ofSyntax⟩
+instance : ToMessageData (TSyntax k)   := ⟨(MessageData.ofSyntax ·)⟩
 instance : ToMessageData Format        := ⟨MessageData.ofFormat⟩
 instance : ToMessageData MVarId        := ⟨MessageData.ofGoal⟩
 instance : ToMessageData MessageData   := ⟨id⟩

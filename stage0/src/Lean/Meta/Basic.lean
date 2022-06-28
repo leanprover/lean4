@@ -1027,7 +1027,11 @@ private def withNewMCtxDepthImp (x : MetaM α) : MetaM α := do
 
 /--
   Save cache and `MetavarContext`, bump the `MetavarContext` depth, execute `x`,
-  and restore saved data. -/
+  and restore saved data.
+
+  Metavariable context depths are used to control which metavariables may be assigned in `isDefEq`.
+  See the docstring of `isDefEq` for more information.
+   -/
 def withNewMCtxDepth : n α → n α :=
   mapMetaM withNewMCtxDepthImp
 
@@ -1343,7 +1347,17 @@ def isExprDefEq (t s : Expr) : MetaM Bool :=
     trace[Meta.isDefEq] "{t} =?= {s} ... {if b then "success" else "failure"}"
     return b
 
-/-- Determines whether two expressions are definitionally equal to each other. -/
+/-- Determines whether two expressions are definitionally equal to each other.
+
+  To control how metavariables are assigned and unified, metavariables and their context have a "depth".
+  Given a metavariable `?m` and a `MetavarContext` `mctx`, `?m` is not assigned if `?m.depth != mctx.depth`.
+  The combinator `withNewMCtxDepth x` will bump the depth while executing `x`.
+  So, `withNewMCtxDepth (isDefEq a b)` is `isDefEq` without any mvar assignment happening
+  whereas `isDefEq a b` will assign any metavariables of the current depth in `a` and `b` to unify them.
+
+  For matching (where only mvars in `b` should be assigned), we create the term inside the `withNewMCtxDepth`.
+  For an example, see [Lean.Meta.Simp.tryTheoremWithExtraArgs?](https://github.com/leanprover/lean4/blob/master/src/Lean/Meta/Tactic/Simp/Rewrite.lean#L100-L106)
+ -/
 abbrev isDefEq (t s : Expr) : MetaM Bool :=
   isExprDefEq t s
 

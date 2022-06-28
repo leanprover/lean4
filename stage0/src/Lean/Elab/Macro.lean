@@ -22,16 +22,17 @@ open Lean.Parser.Command
       | none => liftMacroM <| mkNameFromParserSyntax cat.getId (mkNullNode stxParts)
     /- The command `syntax [<kind>] ...` adds the current namespace to the syntax node kind.
       So, we must include current namespace when we create a pattern for the following `macro_rules` commands. -/
-    let pat := mkNode ((← getCurrNamespace) ++ name) patArgs
+    let pat := ⟨mkNode ((← getCurrNamespace) ++ name) patArgs⟩
     let stxCmd ← `($[$doc?:docComment]? $attrKind:attrKind
-      syntax%$tk$[:$prec?]? (name := $(← mkIdentFromRef name)) (priority := $(quote prio)) $[$stxParts]* : $cat)
+      syntax%$tk$[:$prec?]? (name := $(← mkIdentFromRef name)) (priority := $(quote prio):num) $[$stxParts]* : $cat)
+    let rhs := rhs.raw
     let macroRulesCmd ← if rhs.getArgs.size == 1 then
       -- `rhs` is a `term`
-      let rhs := rhs[0]
+      let rhs := ⟨rhs[0]⟩
       `($[$doc?:docComment]? macro_rules%$tk | `($pat) => $rhs)
     else
       -- `rhs` is of the form `` `( $body ) ``
-      let rhsBody := rhs[1]
+      let rhsBody := ⟨rhs[1]⟩
       `($[$doc?:docComment]? macro_rules%$tk | `($pat) => `($rhsBody))
     elabCommand <| mkNullNode #[stxCmd, macroRulesCmd]
   | _ => throwUnsupportedSyntax

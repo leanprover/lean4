@@ -16,6 +16,7 @@ namespace Lean.Elab.Term.Quotation
 open Lean.Parser.Term
 open Lean.Syntax
 open Meta
+open TSyntax.Compat
 
 /-- `C[$(e)]` ~> `let a := e; C[$a]`. Used in the implementation of antiquot splices. -/
 private partial def floatOutAntiquotTerms (stx : Syntax) : StateT (Syntax → TermElabM Syntax) TermElabM Syntax :=
@@ -46,7 +47,7 @@ private def getSepFromSplice (splice : Syntax) : String :=
 private def getSepStxFromSplice (splice : Syntax) : Syntax := Unhygienic.run do
   match getSepFromSplice splice with
   | "" => `(mkNullNode) -- sepByIdent uses the null node for separator-less enumerations
-  | sep => `(mkAtom $(.mkStrLit sep))
+  | sep => `(mkAtom $(Syntax.mkStrLit sep))
 
 partial def mkTuple : Array Syntax → TermElabM Syntax
   | #[]  => `(Unit.unit)
@@ -69,13 +70,13 @@ def resolveSectionVariable (sectionVars : NameMap Name) (id : Name) : List (Name
   loop extractionResult.name []
 
 /-- Transform sequence of pushes and appends into acceptable code -/
-def ArrayStxBuilder := Sum (Array Syntax) Syntax
+def ArrayStxBuilder := Sum (Array Term) Term
 
 namespace ArrayStxBuilder
 
 def empty : ArrayStxBuilder := Sum.inl #[]
 
-def build : ArrayStxBuilder → Syntax
+def build : ArrayStxBuilder → Term
   | Sum.inl elems => quote elems
   | Sum.inr arr   => arr
 
@@ -90,8 +91,8 @@ def append (b : ArrayStxBuilder) (arr : Syntax) (appendName := ``Array.append) :
 end ArrayStxBuilder
 
 -- Elaborate the content of a syntax quotation term
-private partial def quoteSyntax : Syntax → TermElabM Syntax
-  | Syntax.ident _    rawVal val preresolved => do
+private partial def quoteSyntax : Syntax → TermElabM Term
+  | Syntax.ident _ rawVal val preresolved => do
     if !hygiene.get (← getOptions) then
       return ← `(Syntax.ident info $(quote rawVal) $(quote val) $(quote preresolved))
     -- Add global scopes at compilation time (now), add macro scope at runtime (in the quotation).
@@ -134,7 +135,9 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
               | some x => Array.empty.push x
               | none   => Array.empty)
             | `many     => `(@TSyntaxArray.raw $(quote ks) $val)
-            | `sepBy    => `(@TSepArray.elemsAndSeps $(quote ks) $(quote <| getSepFromSplice arg) $val)
+            | `sepBy    =>
+              let sep := quote <| getSepFromSplice arg
+              `(@TSepArray.elemsAndSeps $(quote ks) $sep $val)
             | k         => throwErrorAt arg "invalid antiquotation suffix splice kind '{k}'"
         else if k == nullKind && isAntiquotSplice arg then
           let k := antiquotSpliceKind? arg
@@ -148,7 +151,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
                 | $[some $ids:ident],* => $(quote inner)
                 | $[_%$ids],*          => Array.empty)
             | _ =>
-              let arr ← ids[:ids.size-1].foldrM (fun id arr => `(Array.zip $id $arr)) ids.back
+              let arr ← ids[:ids.size-1].foldrM (fun id arr => `(Array.zip $id:ident $arr)) ids.back
               `(Array.map (fun $(← mkTuple ids) => $(inner[0])) $arr)
           let arr ← if k == `sepBy then
             `(mkSepArray $arr $(getSepStxFromSplice arg))
@@ -234,7 +237,7 @@ elab_stx_quot Parser.Command.quot
 /- match -/
 
 -- an "alternative" of patterns plus right-hand side
-private abbrev Alt := List Syntax × Syntax
+private abbrev Alt := List Term × Term
 
 /--
   In a single match step, we match the first discriminant against the "head" of the first pattern of the first
@@ -280,7 +283,7 @@ structure HeadInfo where
   -- compute compatibility of pattern with given head check
   onMatch (taken : HeadCheck) : MatchResult
   -- actually run the specified head check, with the discriminant bound to `discr`
-  doMatch (yes : (newDiscrs : List Syntax) → TermElabM Syntax) (no : TermElabM Syntax) : TermElabM Syntax
+  doMatch (yes : (newDiscrs : List Term) → TermElabM Term) (no : TermElabM Term) : TermElabM Term
 
 /-- Adapt alternatives that do not introduce new discriminants in `doMatch`, but are covered by those that do so. -/
 private def noOpMatchAdaptPats : HeadCheck → Alt → Alt
@@ -288,7 +291,7 @@ private def noOpMatchAdaptPats : HeadCheck → Alt → Alt
   | slice p s,         (pats, rhs) => (List.replicate (p + 1 + s) (Unhygienic.run `(_)) ++ pats, rhs)
   | _,                 alt         => alt
 
-private def adaptRhs (fn : Syntax → TermElabM Syntax) : Alt → TermElabM Alt
+private def adaptRhs (fn : Term → TermElabM Term) : Alt → TermElabM Alt
   | (pats, rhs) => return (pats, ← fn rhs)
 
 private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
@@ -489,7 +492,7 @@ private def deduplicate (floatedLetDecls : Array Syntax) : Alt → TermElabM (Ar
         let rhs' ← `(rhs $vars*)
         pure (floatedLetDecls.push (← `(letDecl|rhs $vars:ident* := $rhs)), (pats, rhs'))
 
-private partial def compileStxMatch (discrs : List Syntax) (alts : List Alt) : TermElabM Syntax := do
+private partial def compileStxMatch (discrs : List Term) (alts : List Alt) : TermElabM Syntax := do
   trace[Elab.match_syntax] "match {discrs} with {alts}"
   match discrs, alts with
   | [],            ([], rhs)::_ => pure rhs  -- nothing left to match
@@ -536,7 +539,7 @@ private partial def compileStxMatch (discrs : List Syntax) (alts : List Alt) : T
         withFreshMacroScope $ compileStxMatch (newDiscrs ++ discrs) yesAlts.toList)
       (no := withFreshMacroScope $ compileStxMatch (discr::discrs) nonExhaustiveAlts.toList)
     for d in floatedLetDecls do
-      stx ← `(let_delayed $d:letDecl; $stx)
+      stx ← `(let_delayed $(⟨d⟩):letDecl; $stx)
     `(let discr := $discr; $stx)
   | _, _ => unreachable!
 
@@ -544,8 +547,8 @@ def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
   match stx with
   | `(match $[$discrs:term],* with $[| $[$patss],* => $rhss]*) => do
     if !patss.any (·.any (fun
-      | `($_@$pat) => pat.isQuot
-      | pat         => pat.isQuot)) then
+      | `($_@$pat) => pat.raw.isQuot
+      | pat        => pat.raw.isQuot)) then
       -- no quotations => fall back to regular `match`
       throwUnsupportedSyntax
     let stx ← compileStxMatch discrs.toList (patss.map (·.toList) |>.zip rhss).toList

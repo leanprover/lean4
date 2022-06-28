@@ -22,8 +22,13 @@ syntax:65 (name := subPrio) prio " - " prio:66 : prio
 end Lean.Parser.Syntax
 
 namespace Lean
-instance : Coe (TSyntax k) Syntax where
+
+instance : Coe (TSyntax ks) Syntax where
   coe stx := stx.raw
+
+instance : Coe SyntaxNodeKind SyntaxNodeKinds where
+  coe k := List.cons k List.nil
+
 end Lean
 
 macro "max"  : prec => `(1024) -- maximum precedence used in term parsers, in particular for terms in function position (`ident`, `paren`, ...)
@@ -151,35 +156,35 @@ syntax (name := termDepIfThenElse)
     ppDedent(ppSpace) ppRealFill("else " term)) : term
 
 macro_rules
-  | `(if $h:ident : $c then $t:term else $e:term) => `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; dite ?m (fun $h:ident => $t) (fun $h:ident => $e))
+  | `(if $h : $c then $t else $e) => `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; dite ?m (fun $h:ident => $t) (fun $h:ident => $e))
 
 syntax (name := termIfThenElse)
   ppRealGroup(ppRealFill(ppIndent("if " term " then") ppSpace term)
     ppDedent(ppSpace) ppRealFill("else " term)) : term
 
 macro_rules
-  | `(if $c then $t:term else $e:term) => `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; ite ?m $t $e)
+  | `(if $c then $t else $e) => `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; ite ?m $t $e)
 
 macro "if " "let " pat:term " := " d:term " then " t:term " else " e:term : term =>
-  `(match $d:term with | $pat:term => $t | _ => $e)
+  `(match $d:term with | $pat => $t | _ => $e)
 
 syntax (name := boolIfThenElse)
   ppRealGroup(ppRealFill(ppIndent("bif " term " then") ppSpace term)
     ppDedent(ppSpace) ppRealFill("else " term)) : term
 
 macro_rules
-  | `(bif $c then $t:term else $e:term) => `(cond $c $t $e)
+  | `(bif $c then $t else $e) => `(cond $c $t $e)
 
 syntax:min term " <| " term:min : term
 
 macro_rules
-  | `($f $args* <| $a) => let args := args.push a; `($f $args*)
+  | `($f $args* <| $a) => `($f $args* $a)
   | `($f <| $a) => `($f $a)
 
 syntax:min term " |> " term:min1 : term
 
 macro_rules
-  | `($a |> $f $args*) => let args := args.push a; `($f $args*)
+  | `($a |> $f $args*) => `($f $args* $a)
   | `($a |> $f)        => `($f $a)
 
 -- Haskell-like pipe <|
@@ -187,7 +192,7 @@ macro_rules
 syntax:min term atomic(" $" ws) term:min : term
 
 macro_rules
-  | `($f $args* $ $a) => let args := args.push a; `($f $args*)
+  | `($f $args* $ $a) => `($f $args* $a)
   | `($f $ $a) => `($f $a)
 
 syntax "{ " ident (" : " term)? " // " term " }" : term
@@ -209,11 +214,12 @@ namespace Lean
 
 macro_rules
   | `([ $elems,* ]) => do
-    let rec expandListLit (i : Nat) (skip : Bool) (result : Syntax) : MacroM Syntax := do
+    -- NOTE: we do not have `TSepArray.getElems` yet at this point
+    let rec expandListLit (i : Nat) (skip : Bool) (result : TSyntax `term) : MacroM Syntax := do
       match i, skip with
       | 0,   _     => pure result
       | i+1, true  => expandListLit i false result
-      | i+1, false => expandListLit i true  (← ``(List.cons $(elems.elemsAndSeps[i]) $result))
+      | i+1, false => expandListLit i true  (← ``(List.cons $(⟨elems.elemsAndSeps[i]⟩) $result))
     if elems.elemsAndSeps.size < 64 then
       expandListLit elems.elemsAndSeps.size false (← ``(List.nil))
     else
@@ -228,3 +234,6 @@ macro tk:"this" : term => return Syntax.ident tk.getHeadInfo "this".toSubstring 
   Category for carrying raw syntax trees between macros; any content is printed as is by the pretty printer.
   The only accepted parser for this category is an antiquotation. -/
 declare_syntax_cat rawStx
+
+instance : Coe Syntax (TSyntax `rawStx) where
+  coe stx := ⟨stx⟩

@@ -19,6 +19,7 @@ static lean_object* l_Lean_throwUnknownConstant___at_Lean_Elab_Command_elabGenIn
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems___closed__11;
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabGenInjectiveTheorems___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_filterTRAux___at_Lean_resolveGlobalConstCore___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_liftTermElabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalName___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -64,7 +65,6 @@ LEAN_EXPORT lean_object* l_Lean_resolveGlobalConstCore___at_Lean_Elab_Command_el
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems___closed__14;
 lean_object* l_Lean_ResolveName_resolveGlobalName(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_filterAux___at_Lean_resolveGlobalConstCore___spec__1(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__4;
 lean_object* l_Lean_Elab_addMacroStack___at_Lean_Elab_Command_instAddErrorMessageContextCommandElabM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems___closed__6;
@@ -279,7 +279,7 @@ x_7 = lean_ctor_get(x_5, 1);
 lean_inc(x_7);
 lean_dec(x_5);
 x_8 = lean_box(0);
-x_9 = l_List_filterAux___at_Lean_resolveGlobalConstCore___spec__1(x_6, x_8);
+x_9 = l_List_filterTRAux___at_Lean_resolveGlobalConstCore___spec__1(x_6, x_8);
 x_10 = l_List_isEmpty___rarg(x_9);
 if (x_10 == 0)
 {

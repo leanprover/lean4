@@ -169,11 +169,11 @@ private def expandWhereStructInst : Macro
       | `(letDecl|$decl:letIdDecl)   => pure decl
       | _                               => Macro.throwUnsupported
     let structInstFields ← letIdDecls.mapM fun
-      | stx@`(letIdDecl|$id:ident $[$binders]* $[: $ty?]? := $val) => withRef stx do
+      | stx@`(letIdDecl|$id:ident $binders* $[: $ty?]? := $val) => withRef stx do
         let mut val := val
         if let some ty := ty? then
           val ← `(($val : $ty))
-        val ← if binders.size > 0 then `(fun $[$binders]* => $val:term) else pure val
+        val ← if binders.size > 0 then `(fun $binders* => $val) else pure val
         `(structInstField|$id:ident := $val)
       | _ => Macro.throwUnsupported
     let body ← `({ $structInstFields,* })

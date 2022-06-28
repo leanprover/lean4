@@ -202,14 +202,25 @@ def getBinaryAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) : I
 
 abbrev ParserAliasValue := AliasValue Parser
 
+structure ParserAliasInfo where
+  /-- Number of syntax nodes produced by this parser. `none` means "sum of input sizes". -/
+  stackSz? : Option Nat := some 1
+  /-- Whether arguments should be wrapped in `group(·)` if they do not produce exactly one syntax node. -/
+  autoGroupArgs : Bool := stackSz?.isSome
+
 builtin_initialize parserAliasesRef : IO.Ref (NameMap ParserAliasValue) ← IO.mkRef {}
 builtin_initialize parserAlias2kindRef : IO.Ref (NameMap SyntaxNodeKind) ← IO.mkRef {}
+builtin_initialize parserAliases2infoRef : IO.Ref (NameMap ParserAliasInfo) ← IO.mkRef {}
+
+def getParserAliasInfo (aliasName : Name) : IO ParserAliasInfo := do
+  return (← parserAliases2infoRef.get).findD aliasName {}
 
 -- Later, we define macro `register_parser_alias` which registers a parser, formatter and parenthesizer
-def registerAlias (aliasName : Name) (p : ParserAliasValue) (kind? : Option SyntaxNodeKind := none) : IO Unit := do
+def registerAlias (aliasName : Name) (p : ParserAliasValue) (kind? : Option SyntaxNodeKind := none) (info : ParserAliasInfo := {}) : IO Unit := do
   registerAliasCore parserAliasesRef aliasName p
   if let some kind := kind? then
     parserAlias2kindRef.modify (·.insert aliasName kind)
+  parserAliases2infoRef.modify (·.insert aliasName info)
 
 instance : Coe Parser ParserAliasValue := { coe := AliasValue.const }
 instance : Coe (Parser → Parser) ParserAliasValue := { coe := AliasValue.unary }

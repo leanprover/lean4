@@ -23,8 +23,8 @@ structure Scope where
   currNamespace : Name := Name.anonymous
   openDecls     : List OpenDecl := []
   levelNames    : List Name := []
-  /-- section variables as `bracketedBinder`s -/
-  varDecls      : Array Syntax := #[]
+  /-- section variables -/
+  varDecls      : Array (TSyntax ``Parser.Term.bracketedBinder) := #[]
   /-- Globally unique internal identifiers for the `varDecls` -/
   varUIds       : Array Name := #[]
   /-- noncomputable sections automatically add the `noncomputable` modifier to any declaration we cannot generate code for. -/

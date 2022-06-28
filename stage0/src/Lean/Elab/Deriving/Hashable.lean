@@ -15,13 +15,13 @@ open Meta
 def mkHashableHeader (indVal : InductiveVal) : TermElabM Header := do
   mkHeader `Hashable 1 indVal
 
-def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) : TermElabM Syntax := do
+def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) : TermElabM Term := do
   let discrs ← mkDiscrs header indVal
   let alts ← mkAlts
   `(match $[$discrs],* with $alts:matchAlt*)
 where
 
-  mkAlts : TermElabM (Array Syntax) := do
+  mkAlts : TermElabM (Array (TSyntax ``matchAlt)) := do
     let mut alts := #[]
     let mut ctorIdx := 0
     let allIndVals := indVal.all.toArray
@@ -54,7 +54,7 @@ where
       ctorIdx := ctorIdx + 1
     return alts
 
-def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Syntax := do
+def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
   let auxFunName := ctx.auxFunNames[i]
   let indVal     := ctx.typeInfos[i]
   let header     ← mkHashableHeader indVal
@@ -62,9 +62,9 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Syntax := do
   let binders    := header.binders
   if ctx.usePartial then
     -- TODO(Dany): Get rid of this code branch altogether once we have well-founded recursion
-    `(private partial def $(mkIdent auxFunName):ident $binders:explicitBinder* : UInt64 := $body:term)
+    `(private partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : UInt64 := $body:term)
   else
-    `(private def $(mkIdent auxFunName):ident $binders:explicitBinder* : UInt64 := $body:term)
+    `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : UInt64 := $body:term)
 
 def mkHashFuncs (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]

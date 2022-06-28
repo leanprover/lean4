@@ -16,11 +16,11 @@ macro "Macro.trace[" id:ident "]" s:interpolatedStr(term) : term =>
 
 -- Auxiliary parsers and functions for declaring notation with binders
 
-syntax binderIdent                := ident <|> "_"
 syntax unbracketedExplicitBinders := binderIdent+ (" : " term)?
 syntax bracketedExplicitBinders   := "(" binderIdent+ " : " term ")"
 syntax explicitBinders            := bracketedExplicitBinders+ <|> unbracketedExplicitBinders
 
+open TSyntax.Compat in
 def expandExplicitBindersAux (combinator : Syntax) (idents : Array Syntax) (type? : Option Syntax) (body : Syntax) : MacroM Syntax :=
   let rec loop (i : Nat) (acc : Syntax) := do
     match i with
@@ -66,19 +66,13 @@ syntax unifConstraintElem := colGe unifConstraint ", "?
 
 syntax attrKind "unif_hint " (ident)? bracketedBinder* " where " withPosition(unifConstraintElem*) ("|-" <|> "⊢ ") unifConstraint : command
 
-private def mkHintBody (cs : Array Syntax) (p : Syntax) : MacroM Syntax := do
-  let mut body ← `($(p[0]) = $(p[2]))
-  for c in cs.reverse do
-    body ← `($(c[0][0]) = $(c[0][2]) → $body)
-  return body
-
 macro_rules
-  | `($kind:attrKind unif_hint $bs:explicitBinder* where $cs* |- $p) => do
-    let body ← mkHintBody cs p
-    `(@[$kind:attrKind unificationHint] def hint $bs:explicitBinder* : Sort _ := $body)
-  | `($kind:attrKind unif_hint $n:ident $bs* where $cs* |- $p) => do
-    let body ← mkHintBody cs p
-    `(@[$kind:attrKind unificationHint] def $n:ident $bs:explicitBinder* : Sort _ := $body)
+  | `($kind:attrKind unif_hint $(n)? $bs:bracketedBinder* where $[$cs₁:term ≟ $cs₂]* |- $t₁:term ≟ $t₂) => do
+    let mut body ← `($t₁ = $t₂)
+    for (c₁, c₂) in cs₁.zip cs₂ |>.reverse do
+      body ← `($c₁ = $c₂ → $body)
+    let hint : Ident ← `(hint)
+    `(@[$kind:attrKind unificationHint] def $(n.getD hint):ident $bs:bracketedBinder* : Sort _ := $body)
 end Lean
 
 open Lean
@@ -94,7 +88,7 @@ macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBrackedBi
 syntax calcStep := ppIndent(colGe term " := " withPosition(term))
 syntax (name := calc) "calc" ppLine withPosition((calcStep ppLine)+) : term
 
-macro "calc " steps:withPosition(calcStep+) : tactic => `(exact calc $(steps.getArgs)*)
+macro "calc " steps:withPosition(calcStep+) : tactic => `(exact calc $steps*)
 
 @[appUnexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `(())
@@ -154,6 +148,18 @@ macro "calc " steps:withPosition(calcStep+) : tactic => `(exact calc $(steps.get
   | `($(_) fun $x:ident => $p)            => `({ $x // $p })
   | _                                     => throw ()
 
+@[appUnexpander TSyntax] def unexpandTSyntax : Lean.PrettyPrinter.Unexpander
+  | `($f [$k])  => `($f $k)
+  | _           => throw ()
+
+@[appUnexpander TSyntaxArray] def unexpandTSyntaxArray : Lean.PrettyPrinter.Unexpander
+  | `($f [$k])  => `($f $k)
+  | _           => throw ()
+
+@[appUnexpander Syntax.TSepArray] def unexpandTSepArray : Lean.PrettyPrinter.Unexpander
+  | `($f [$k] $sep)  => `($f $k $sep)
+  | _                => throw ()
+
 /--
 Apply function extensionality and introduce new hypotheses.
 The tactic `funext` will keep applying new the `funext` lemma until the goal target is not reducible to
@@ -170,16 +176,13 @@ Patterns can be used like in the `intro` tactic. Example, given a goal
 syntax "funext " (colGt term:max)+ : tactic
 
 macro_rules
-  | `(tactic|funext $xs*) =>
-    if xs.size == 1 then
-      `(tactic| apply funext; intro $(xs[0]):term)
-    else
-      `(tactic| apply funext; intro $(xs[0]):term; funext $(xs[1:])*)
+  | `(tactic|funext $x) => `(tactic| apply funext; intro $x:term)
+  | `(tactic|funext $x $xs*) => `(tactic| apply funext; intro $x:term; funext $xs*)
 
 macro_rules
   | `(%[ $[$x],* | $k ]) =>
     if x.size < 8 then
-      x.foldrM (init := k) fun x k =>
+      x.foldrM (β := Term) (init := k) fun x k =>
         `(List.cons $x $k)
     else
       let m := x.size / 2
@@ -203,9 +206,8 @@ syntax declModifiers "class " "abbrev " declId bracketedBinder* (":" term)?
   ":=" withPosition(group(colGe term ","?)*) : command
 
 macro_rules
-  | `($mods:declModifiers class abbrev $id $params* $[: $ty:term]? := $[ $parents:term $[,]? ]*) =>
-    let name := id[0]
-    let ctor := mkIdentFrom name <| name.getId.modifyBase (. ++ `mk)
+  | `($mods:declModifiers class abbrev $id $params* $[: $ty]? := $[ $parents $[,]? ]*) =>
+    let ctor := mkIdentFrom id <| id.raw[0].getId.modifyBase (. ++ `mk)
     `($mods:declModifiers class $id $params* extends $[$parents:term],* $[: $ty]?
       attribute [instance] $ctor)
 

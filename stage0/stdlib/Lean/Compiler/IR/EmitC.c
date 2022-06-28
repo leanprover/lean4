@@ -149,7 +149,6 @@ static lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__2___closed__16;
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_EmitC_emitCase___spec__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitFnDecl(lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_quoteString___closed__2;
-uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_822____at_Lean_IR_IRType_beq___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_getExternNameFor(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_quoteString___closed__1;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_quoteString___boxed(lean_object*);
@@ -230,6 +229,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitDeclAux___lambda__2(lean_object*, l
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_toCInitName(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_overwriteParam___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitTailCall___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_800____at_Lean_IR_IRType_beq___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitTag___closed__1;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitTailCall(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_getDecls(lean_object*);
@@ -263,6 +263,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitCtor___boxed(lean_object*, lean_obj
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitSimpleExternalCall___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitBoxFn___closed__4;
+lean_object* l_panic___at_Lean_TSyntax_getString___spec__1(lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitJmp(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__1___closed__6;
@@ -553,7 +554,6 @@ LEAN_EXPORT lean_object* l_Std_RBNode_revFold___at_Lean_IR_EmitC_emitFnDecls___s
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitOffset(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_EmitC_emitInitFn___spec__3(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitSSet___closed__4;
-lean_object* l_panic___at_Lean_Name_getString_x21___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_forM_loop___at_Lean_IR_EmitC_emitTailCall___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitInitFn___closed__2;
 LEAN_EXPORT lean_object* l_List_forM___at_Lean_IR_EmitC_emitMainFn___spec__3(lean_object*, lean_object*, lean_object*);
@@ -1177,14 +1177,14 @@ case 9:
 {
 lean_object* x_8; lean_object* x_9; 
 x_8 = l_Lean_IR_EmitC_toCType___closed__11;
-x_9 = l_panic___at_Lean_Name_getString_x21___spec__1(x_8);
+x_9 = l_panic___at_Lean_TSyntax_getString___spec__1(x_8);
 return x_9;
 }
 case 10:
 {
 lean_object* x_10; lean_object* x_11; 
 x_10 = l_Lean_IR_EmitC_toCType___closed__12;
-x_11 = l_panic___at_Lean_Name_getString_x21___spec__1(x_10);
+x_11 = l_panic___at_Lean_TSyntax_getString___spec__1(x_10);
 return x_11;
 }
 default: 
@@ -3034,7 +3034,7 @@ lean_dec(x_26);
 x_28 = l_Lean_Expr_constName_x3f(x_27);
 lean_dec(x_27);
 x_29 = l_Lean_IR_EmitC_emitMainFn___lambda__1___closed__4;
-x_30 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_822____at_Lean_IR_IRType_beq___spec__1(x_28, x_29);
+x_30 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_800____at_Lean_IR_IRType_beq___spec__1(x_28, x_29);
 lean_dec(x_28);
 if (x_30 == 0)
 {

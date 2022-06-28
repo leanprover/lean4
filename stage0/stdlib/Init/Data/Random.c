@@ -50,7 +50,6 @@ lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_stdGenRef;
 static lean_object* l_stdRange___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Data_Random_0__randNatAux(lean_object*);
-static lean_object* l_initFn____x40_Init_Data_Random___hyg_712____closed__1;
 static lean_object* l_instReprStdGen___closed__2;
 LEAN_EXPORT lean_object* l_IO_rand(lean_object*, lean_object*, lean_object*);
 static lean_object* l_instRandomGenStdGen___closed__1;
@@ -66,7 +65,9 @@ lean_object* lean_int_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_randBool___rarg(lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_randNat___at_IO_rand___spec__1___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_get_random_bytes(size_t, lean_object*);
 static lean_object* l_stdNext___closed__5;
+lean_object* lean_uint64_to_nat(uint64_t);
 static lean_object* l_instRandomGenStdGen___closed__2;
 LEAN_EXPORT lean_object* l_randNat___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_int_sub(lean_object*, lean_object*);
@@ -77,6 +78,7 @@ static lean_object* l_stdNext___closed__7;
 lean_object* lean_int_add(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_initFn____x40_Init_Data_Random___hyg_712_(lean_object*);
+lean_object* l_ByteArray_toUInt64LE_x21(lean_object*);
 LEAN_EXPORT lean_object* l_instReprStdGen(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instInhabitedStdGen;
 static lean_object* l_instRandomGenStdGen___closed__4;
@@ -1289,38 +1291,67 @@ x_2 = lean_alloc_closure((void*)(l_randBool___rarg), 2, 0);
 return x_2;
 }
 }
-static lean_object* _init_l_initFn____x40_Init_Data_Random___hyg_712____closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_mkStdGen(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_initFn____x40_Init_Data_Random___hyg_712_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; uint8_t x_4; 
-x_2 = l_initFn____x40_Init_Data_Random___hyg_712____closed__1;
-x_3 = lean_st_mk_ref(x_2, x_1);
-x_4 = !lean_is_exclusive(x_3);
-if (x_4 == 0)
+size_t x_2; lean_object* x_3; 
+x_2 = 8;
+x_3 = lean_io_get_random_bytes(x_2, x_1);
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; uint64_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
+x_4 = lean_ctor_get(x_3, 0);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_3, 1);
+lean_inc(x_5);
+lean_dec(x_3);
+x_6 = l_ByteArray_toUInt64LE_x21(x_4);
+x_7 = lean_unbox_uint64(x_6);
+lean_dec(x_6);
+x_8 = lean_uint64_to_nat(x_7);
+x_9 = l_mkStdGen(x_8);
+lean_dec(x_8);
+x_10 = lean_st_mk_ref(x_9, x_5);
+x_11 = !lean_is_exclusive(x_10);
+if (x_11 == 0)
+{
+return x_10;
+}
+else
+{
+lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_12 = lean_ctor_get(x_10, 0);
+x_13 = lean_ctor_get(x_10, 1);
+lean_inc(x_13);
+lean_inc(x_12);
+lean_dec(x_10);
+x_14 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_14, 0, x_12);
+lean_ctor_set(x_14, 1, x_13);
+return x_14;
+}
+}
+else
+{
+uint8_t x_15; 
+x_15 = !lean_is_exclusive(x_3);
+if (x_15 == 0)
 {
 return x_3;
 }
 else
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_ctor_get(x_3, 0);
-x_6 = lean_ctor_get(x_3, 1);
-lean_inc(x_6);
-lean_inc(x_5);
+lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+x_16 = lean_ctor_get(x_3, 0);
+x_17 = lean_ctor_get(x_3, 1);
+lean_inc(x_17);
+lean_inc(x_16);
 lean_dec(x_3);
-x_7 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_7, 0, x_5);
-lean_ctor_set(x_7, 1, x_6);
-return x_7;
+x_18 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_18, 0, x_16);
+lean_ctor_set(x_18, 1, x_17);
+return x_18;
+}
 }
 }
 }
@@ -1824,8 +1855,6 @@ l_instRandomGenStdGen___closed__4 = _init_l_instRandomGenStdGen___closed__4();
 lean_mark_persistent(l_instRandomGenStdGen___closed__4);
 l_instRandomGenStdGen = _init_l_instRandomGenStdGen();
 lean_mark_persistent(l_instRandomGenStdGen);
-l_initFn____x40_Init_Data_Random___hyg_712____closed__1 = _init_l_initFn____x40_Init_Data_Random___hyg_712____closed__1();
-lean_mark_persistent(l_initFn____x40_Init_Data_Random___hyg_712____closed__1);
 res = l_initFn____x40_Init_Data_Random___hyg_712_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_IO_stdGenRef = lean_io_result_get_value(res);

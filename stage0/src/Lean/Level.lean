@@ -447,8 +447,8 @@ mutual
     | Result.imaxNode fs,   r => parenIfFalse (Format.group <| "imax" ++ formatLst fs) r
 end
 
-protected partial def Result.quote (r : Result) (prec : Nat) : Syntax :=
-  let addParen (s : Syntax) :=
+protected partial def Result.quote (r : Result) (prec : Nat) : Syntax.Level :=
+  let addParen (s : Syntax.Level) :=
     if prec > 0 then Unhygienic.run `(level| ( $s )) else s
   match r with
   | Result.leaf n         => Unhygienic.run `(level| $(mkIdent n):ident)
@@ -469,11 +469,11 @@ instance : ToFormat Level where
 instance : ToString Level where
   toString u := Format.pretty (Level.format u)
 
-protected def quote (u : Level) (prec : Nat := 0) : Syntax :=
+protected def quote (u : Level) (prec : Nat := 0) : Syntax.Level :=
   (PP.toResult u).quote prec
 
-instance : Quote Level where
-  quote u := Level.quote u
+instance : Quote Level `level where
+  quote := Level.quote
 
 end Level
 

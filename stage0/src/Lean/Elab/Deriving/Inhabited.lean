@@ -66,10 +66,10 @@ where
     for i in [:indVal.numParams + indVal.numIndices] do
       let arg := mkIdent (← mkFreshUserName `a)
       indArgs := indArgs.push arg
-      let binder ← `(implicitBinderF| { $arg:ident })
+      let binder ← `(bracketedBinder| { $arg:ident })
       binders := binders.push binder
       if assumingParamIdxs.contains i then
-        let binder ← `(instBinderF| [ Inhabited $arg:ident ])
+        let binder ← `(bracketedBinder| [Inhabited $arg:ident ])
         binders := binders.push binder
     let type ← `(Inhabited (@$(mkIdent inductiveTypeName):ident $indArgs:ident*))
     let mut ctorArgs := #[]
@@ -77,8 +77,8 @@ where
       ctorArgs := ctorArgs.push (← `(_))
     for _ in [:ctorVal.numFields] do
       ctorArgs := ctorArgs.push (← ``(Inhabited.default))
-    let val ← `(⟨@$(mkIdent ctorName):ident $ctorArgs:ident*⟩)
-    `(instance $binders:explicitBinder* : $type := $val)
+    let val ← `(⟨@$(mkIdent ctorName):ident $ctorArgs*⟩)
+    `(instance $binders:bracketedBinder* : $type := $val)
 
   mkInstanceCmd? : TermElabM (Option Syntax) := do
     let ctorVal ← getConstInfoCtor ctorName

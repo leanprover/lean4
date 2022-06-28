@@ -2763,23 +2763,34 @@ return x_1;
 LEAN_EXPORT uint8_t l_String_isNat(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_2 = lean_string_utf8_byte_size(x_1);
-x_3 = l_String_isNat___closed__1;
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = l_String_anyAux_loop(x_1, x_2, x_3, x_4);
-lean_dec(x_2);
-if (x_5 == 0)
+uint8_t x_2; 
+x_2 = l_String_isEmpty(x_1);
+if (x_2 == 0)
 {
-uint8_t x_6; 
-x_6 = 1;
-return x_6;
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+x_3 = lean_string_utf8_byte_size(x_1);
+x_4 = l_String_isNat___closed__1;
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = l_String_anyAux_loop(x_1, x_3, x_4, x_5);
+lean_dec(x_3);
+if (x_6 == 0)
+{
+uint8_t x_7; 
+x_7 = 1;
+return x_7;
 }
 else
 {
-uint8_t x_7; 
-x_7 = 0;
-return x_7;
+uint8_t x_8; 
+x_8 = 0;
+return x_8;
+}
+}
+else
+{
+uint8_t x_9; 
+x_9 = 0;
+return x_9;
 }
 }
 }

@@ -48,6 +48,11 @@ jobs:
         run: |
           # Nix seems to mutate the cache, so make a copy
           cp -r nix-store-cache nix-store-cache-copy || true
+      - name: Prepare CCache Cache
+        shell: bash -euxo pipefail {0}
+        run: |
+          sudo mkdir -m0770 -p /nix/var/cache/ccache
+          sudo chown -R $USER /nix/var/cache/ccache
       - name: Setup CCache Cache
         uses: actions/cache@v2
         with:
@@ -59,7 +64,6 @@ jobs:
       - name: Further Set Up CCache Cache
         shell: bash -euxo pipefail {0}
         run: |
-          sudo mkdir -m0770 -p /nix/var/cache/ccache
           sudo chown -R root:nixbld /nix/var/cache/ccache
       - uses: cachix/cachix-action@v10
         with:

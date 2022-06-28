@@ -60,7 +60,7 @@ jobs:
         shell: bash -euxo pipefail {0}
         run: |
           sudo mkdir -m0770 -p /nix/var/cache/ccache
-          sudo chown -R root /nix/var/cache/ccache
+          sudo chown -R root:nixbld /nix/var/cache/ccache
       - uses: cachix/cachix-action@v10
         with:
           name: lean4

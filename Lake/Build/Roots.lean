@@ -83,7 +83,7 @@ def LeanExe.recBuild (self : LeanExe) : IndexT m ActiveFileTarget := do
   let (_, imports) ← self.root.imports.recBuild
   let linkTargets := #[Target.active <| ← self.root.o.recBuild]
   let mut linkTargets ← imports.foldlM (init := linkTargets) fun arr mod => do
-    return arr.push <| Target.active <| ← mod.o.recBuild
+    return arr.push <| Target.active <| ← mod.c.recBuild
   let deps := (← recBuild <| self.pkg.facet &`deps).push self.pkg
   for dep in deps do for lib in dep.externLibs do
     linkTargets := linkTargets.push <| Target.active <| ← lib.static.recBuild

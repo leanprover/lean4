@@ -10,28 +10,34 @@ import Lake.Util.EquipT
 
 namespace Lake
 
--- # Build Key Constructor Helpers
+-- # Build Key Helper Constructors
 
-@[inline] def Module.mkBuildKey (facet : WfName) (self : Module) : ModuleBuildKey facet :=
+abbrev Module.mkBuildKey (facet : WfName) (self : Module) : ModuleBuildKey facet :=
   ⟨⟨none, self.name, facet⟩, rfl, rfl⟩
 
-@[inline] def Package.mkBuildKey (facet : WfName) (self : Package) : PackageBuildKey facet :=
+abbrev Package.mkBuildKey (facet : WfName) (self : Package) : PackageBuildKey facet :=
   ⟨⟨self.name, none, facet⟩, rfl, rfl⟩
 
+abbrev LeanLib.staticFacet := &`leanLib.static
+abbrev LeanLib.sharedFacet := &`leanLib.shared
+abbrev LeanExe.facet := &`leanExe
+abbrev ExternLib.staticFacet := &`externLib.static
+abbrev ExternLib.sharedFacet := &`externLib.shared
+
 abbrev LeanLib.staticBuildKey (self : LeanLib) : BuildKey :=
-  ⟨self.pkg.name, self.name, &`leanLib.static⟩
+  ⟨self.pkg.name, self.name, staticFacet⟩
 
 abbrev LeanLib.sharedBuildKey (self : LeanLib) : BuildKey :=
-  ⟨self.pkg.name, self.name, &`leanLib.shared⟩
+  ⟨self.pkg.name, self.name, sharedFacet⟩
 
 abbrev LeanExe.buildKey (self : LeanExe) : BuildKey :=
-  ⟨self.pkg.name, self.name, &`leanExe⟩
+  ⟨self.pkg.name, self.name, facet⟩
 
 abbrev ExternLib.staticBuildKey (self : ExternLib) : BuildKey :=
-  ⟨self.pkg.name, self.name, &`externLib.static⟩
+  ⟨self.pkg.name, self.name, staticFacet⟩
 
 abbrev ExternLib.sharedBuildKey (self : ExternLib) : BuildKey :=
-  ⟨self.pkg.name, self.name, &`externLib.shared⟩
+  ⟨self.pkg.name, self.name, sharedFacet⟩
 
 -- # Build Info
 
@@ -44,9 +50,9 @@ inductive BuildInfo
 | leanExe (exe : LeanExe)
 | staticExternLib (lib : ExternLib)
 | sharedExternLib (lib : ExternLib)
-| target (package : Package) (target : WfName) (facet : WfName)
+| custom (package : Package) (target : WfName) (facet : WfName)
 
-def BuildInfo.key : (self : BuildInfo) → BuildKey
+abbrev BuildInfo.key : (self : BuildInfo) → BuildKey
 | module m f => m.mkBuildKey f
 | package p f => p.mkBuildKey f
 | staticLeanLib l => l.staticBuildKey
@@ -54,7 +60,39 @@ def BuildInfo.key : (self : BuildInfo) → BuildKey
 | leanExe x => x.buildKey
 | staticExternLib l => l.staticBuildKey
 | sharedExternLib l => l.sharedBuildKey
-| target p t f => ⟨p.name, t, f⟩
+| custom p t f => ⟨p.name, t, f⟩
+
+-- # Instances for deducing data types of `BuildInfo` keys
+
+instance [DynamicType ModuleData f α]
+: DynamicType BuildData (BuildInfo.key (.module m f)) α where
+  eq_dynamic_type := by unfold BuildData; simp [eq_dynamic_type]
+
+instance [DynamicType PackageData f α]
+: DynamicType BuildData (BuildInfo.key (.package p f)) α where
+  eq_dynamic_type := by unfold BuildData; simp [eq_dynamic_type]
+
+instance [DynamicType TargetData LeanLib.staticFacet α]
+: DynamicType BuildData (BuildInfo.key (.staticLeanLib l)) α where
+  eq_dynamic_type := by unfold BuildData; simp [eq_dynamic_type]
+
+instance [DynamicType TargetData LeanLib.sharedFacet α]
+: DynamicType BuildData (BuildInfo.key (.sharedLeanLib l)) α where
+  eq_dynamic_type := by unfold BuildData; simp [eq_dynamic_type]
+
+instance [DynamicType TargetData LeanExe.facet α]
+: DynamicType BuildData (BuildInfo.key (.leanExe x)) α where
+  eq_dynamic_type := by unfold BuildData; simp [eq_dynamic_type]
+
+instance [DynamicType TargetData ExternLib.staticFacet α]
+: DynamicType BuildData (BuildInfo.key (.staticExternLib l)) α where
+  eq_dynamic_type := by unfold BuildData; simp [eq_dynamic_type]
+
+instance [DynamicType TargetData ExternLib.sharedFacet α]
+: DynamicType BuildData (BuildInfo.key (.sharedExternLib l)) α where
+  eq_dynamic_type := by unfold BuildData; simp [eq_dynamic_type]
+
+-- # Recursive Facet Builds
 
 /-- A build function for any element of the Lake build index. -/
 abbrev IndexBuildFn (m : Type → Type v) :=
@@ -64,36 +102,74 @@ abbrev IndexBuildFn (m : Type → Type v) :=
 /-- A transformer to equip a monad with a build function for the Lake index. -/
 abbrev IndexT (m : Type → Type v) := EquipT (IndexBuildFn m) m
 
-@[inline] def Module.recBuildFacet (self : Module) (facet : WfName)
-[DynamicType ModuleData facet α] : IndexT m α := fun build =>
-  let to_data := by
-    unfold BuildData, BuildInfo.key, Module.mkBuildKey
-    simp [eq_dynamic_type]
-  cast to_data <| build <| BuildInfo.module self facet
+/-- Build the given info using the Lake build index. -/
+@[inline] def BuildInfo.recBuild (self : BuildInfo) [DynamicType BuildData self.key α] : IndexT m α :=
+  fun build => cast (by simp [eq_dynamic_type]) <| build self
 
-@[inline] def Package.recBuildFacet (self : Package) (facet : WfName)
-[DynamicType PackageData facet α] : IndexT m α := fun build =>
-  let to_data := by
-    unfold BuildData, BuildInfo.key, Package.mkBuildKey
-    simp [eq_dynamic_type]
-  cast to_data <| build <| BuildInfo.package self facet
+export BuildInfo (recBuild)
 
-@[inline] def ExternLib.recBuildStatic (self : ExternLib)
-[DynamicType TargetData &`externLib.static α] : IndexT m α := fun build =>
-  let to_data := by unfold BuildData, BuildInfo.key; simp [eq_dynamic_type]
-  cast to_data <| build <| BuildInfo.staticExternLib self
+-- # Build Info Helper Constructors
 
-@[inline] def ExternLib.recBuildShared (self : ExternLib)
-[DynamicType TargetData &`externLib.shared α] : IndexT m α := fun build =>
-  let to_data := by unfold BuildData, BuildInfo.key; simp [eq_dynamic_type]
-  cast to_data <| build <| BuildInfo.sharedExternLib self
+namespace Module
+
+/-- Build info for the module's specified facet. -/
+abbrev facet (facet : WfName) (self : Module) : BuildInfo :=
+  .module self facet
+
+abbrev importFacet   := &`lean.imports
+abbrev binFacet      := &`lean.bin
+abbrev oleanFacet    := &`olean
+abbrev ileanFacet    := &`ilean
+abbrev cFacet        := &`lean.c
+abbrev oFacet        := &`lean.o
+abbrev dynlibFacet   := &`lean.dynlib
+
+variable (self : Module)
+
+abbrev imports  := self.facet importFacet
+abbrev leanBin  := self.facet binFacet
+abbrev olean    := self.facet oleanFacet
+abbrev ilean    := self.facet ileanFacet
+abbrev c        := self.facet cFacet
+abbrev o        := self.facet oFacet
+abbrev dynlib   := self.facet dynlibFacet
+
+end Module
+
+/-- Build info for the package's specified facet. -/
+abbrev Package.facet (facet : WfName) (self : Package) : BuildInfo :=
+  .package self facet
+
+/-- Build info for the package's `extraDepTarget`. -/
+abbrev Package.extraDep (self : Package) : BuildInfo :=
+  self.facet &`extraDep
+
+/-- Build info of the Lean library's static binary. -/
+abbrev LeanLib.static (self : LeanLib) : BuildInfo :=
+  .staticLeanLib self
+
+/-- Build info of the Lean library's shared binary. -/
+abbrev LeanLib.shared (self : LeanLib) : BuildInfo :=
+  .sharedLeanLib self
+
+/-- Build info of the Lean executable. -/
+abbrev LeanExe.info (self : LeanExe) : BuildInfo :=
+  .leanExe self
+
+/-- Build info of the external library's static binary. -/
+abbrev ExternLib.static (self : ExternLib) : BuildInfo :=
+  .staticExternLib self
+
+/-- Build info of the external library's shared binary. -/
+abbrev ExternLib.shared (self : ExternLib) : BuildInfo :=
+  .sharedExternLib self
 
 -- # Data Types of Build Results
 
 -- ## For Module Facets
 
 /-- Lean binary build (`olean`, `ilean` files) -/
-module_data lean : ActiveOpaqueTarget
+module_data lean.bin : ActiveOpaqueTarget
 
 /-- The `olean` file produced by `lean`  -/
 module_data olean : ActiveFileTarget

@@ -5,5 +5,5 @@ Authors: Mac Malone
 -/
 import Lake.Build.Monad
 import Lake.Build.Actions
-import Lake.Build.LeanTarget
+import Lake.Build.IndexTargets
 import Lake.Build.Imports

@@ -13,7 +13,7 @@ def Package.defaultTarget (self : Package) : OpaqueTarget :=
   | .exe | .bin => self.exeTarget.withoutInfo
   | .staticLib => self.staticLibTarget.withoutInfo
   | .sharedLib => self.sharedLibTarget.withoutInfo
-  | .leanLib | .oleans => self.libTarget.withoutInfo
+  | .leanLib | .oleans => self.leanLibTarget.withoutInfo
   | .none => Target.nil
 
 def parsePackageSpec (ws : Workspace) (spec : String) : Except CliError Package :=
@@ -24,19 +24,20 @@ def parsePackageSpec (ws : Workspace) (spec : String) : Except CliError Package 
     | some pkg => return pkg
     | none => throw <| CliError.unknownPackage spec
 
+open Module in
 def resolveModuleTarget (mod : Module) (facet : String) : Except CliError OpaqueTarget :=
   if facet.isEmpty || facet == "bin"  then
-    return mod.facetTarget &`lean
+    return mod.facetTarget binFacet
   else if facet == "ilean" then
-    return mod.facetTarget &`ilean
+    return mod.facetTarget ileanFacet
   else if facet == "olean" then
-    return mod.facetTarget &`olean
+    return mod.facetTarget oleanFacet
   else if facet == "c" then
-    return mod.facetTarget &`lean.c
+    return mod.facetTarget cFacet
   else if facet == "o" then
-    return mod.facetTarget &`lean.o
+    return mod.facetTarget oFacet
   else if facet == "dynlib" then
-    return mod.facetTarget &`lean.dynlib
+    return mod.facetTarget dynlibFacet
   else
     throw <| CliError.unknownFacet "module" facet
 
@@ -88,7 +89,7 @@ def resolvePackageTarget (pkg : Package) (facet : String) : Except CliError Opaq
   else if facet == "sharedLib" then
     return pkg.sharedLibTarget.withoutInfo
   else if facet == "leanLib" || facet == "oleans" then
-    return pkg.libTarget.withoutInfo
+    return pkg.leanLibTarget.withoutInfo
   else
     throw <| CliError.unknownFacet "package" facet
 

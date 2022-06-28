@@ -3,7 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Build.Module
+import Lake.Build.Index
 import Lake.Config.Workspace
 
 /-!
@@ -36,20 +36,20 @@ as "Lean-only". Otherwise, also build `.c` files.
 def Package.buildImportsAndDeps (imports : List String) (self : Package) : BuildM (Array FilePath) := do
   if imports.isEmpty then
     -- build the package's (and its dependencies') `extraDepTarget`
-    self.buildFacet &`extraDep >>= (·.buildOpaque)
+    self.extraDep.build >>= (·.buildOpaque)
     return #[]
   else
     -- build local imports from list
     let mods := (← getWorkspace).processImportList imports
     let (res, bStore) ← EStateT.run BuildStore.empty <| mods.mapM fun mod =>
       if mod.shouldPrecompile then
-        buildModuleTop mod &`lean.dynlib <&> (·.withoutInfo)
+        buildIndexTop mod.dynlib <&> (·.withoutInfo)
       else if mod.isLeanOnly then
-        buildModuleTop mod &`lean
+        buildIndexTop mod.leanBin
       else
-        buildModuleTop mod &`lean.c <&> (·.withoutInfo)
+        buildIndexTop mod.c <&> (·.withoutInfo)
     let importTargets ← failOnBuildCycle res
-    let dynlibTargets := bStore.collectModuleFacetArray &`lean.dynlib
+    let dynlibTargets := bStore.collectModuleFacetArray Module.dynlibFacet
     let externLibTargets := bStore.collectSharedExternLibs
     importTargets.forM (·.buildOpaque)
     let dynlibs ← dynlibTargets.mapM (·.build)

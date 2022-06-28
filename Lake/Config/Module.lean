@@ -59,12 +59,12 @@ abbrev pkg (self : Module) : Package :=
 @[inline] def oFile (self : Module) : FilePath :=
   Lean.modToFilePath self.pkg.irDir self.name "o"
 
-@[inline] def dynlib (self : Module) : FilePath :=
+@[inline] def dynlibName (self : Module) : FilePath :=
   -- NOTE: file name MUST be unique on Windows
   self.name.toStringWithSep "-"
 
 @[inline] def dynlibFile (self : Module) : FilePath :=
-  self.pkg.libDir / s!"lib{self.dynlib}.{sharedLibExt}"
+  self.pkg.libDir / s!"lib{self.dynlibName}.{sharedLibExt}"
 
 @[inline] def leanArgs (self : Module) : Array String :=
   self.lib.leanArgs

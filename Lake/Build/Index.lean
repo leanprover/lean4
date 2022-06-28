@@ -3,8 +3,8 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Build.Module1
-import Lake.Build.LeanTarget1
+import Lake.Build.Roots
+import Lake.Build.Module
 import Lake.Build.Topological
 import Lake.Util.EStateT
 
@@ -81,6 +81,7 @@ variable [Monad m] [MonadLiftT BuildM m] [MonadBuildStore m]
 ## Initial Facet Maps
 -/
 
+open Module in
 /--
 A module facet name to build function map that contains builders for
 the initial set of Lake module facets (e.g., `lean.{imports, c, o, dynlib]`).
@@ -89,28 +90,27 @@ the initial set of Lake module facets (e.g., `lean.{imports, c, o, dynlib]`).
   have : MonadLift BuildM m := ⟨liftM⟩
   ModuleBuildMap.empty (m := m)
   -- Compute unique imports (direct × transitive)
-  |>.insert &`lean.imports (mkModuleFacetBuild (·.recParseImports))
+  |>.insert importFacet (mkModuleFacetBuild (·.recParseImports))
   -- Build module (`.olean` and `.ilean`)
-  |>.insert &`lean (mkModuleFacetBuild (fun mod => do
+  |>.insert binFacet (mkModuleFacetBuild (fun mod => do
     mod.recBuildLean !mod.isLeanOnly
   ))
-  |>.insert &`olean (mkModuleFacetBuild (fun mod => do
+  |>.insert oleanFacet (mkModuleFacetBuild (fun mod => do
     mod.recBuildLean (!mod.isLeanOnly) <&> (·.withInfo mod.oleanFile)
   ))
-  |>.insert &`ilean (mkModuleFacetBuild (fun mod => do
+  |>.insert ileanFacet (mkModuleFacetBuild (fun mod => do
     mod.recBuildLean (!mod.isLeanOnly) <&> (·.withInfo mod.ileanFile)
   ))
   -- Build module `.c` (and `.olean` and `.ilean`)
-  |>.insert &`lean.c (mkModuleFacetBuild <| fun mod => do
+  |>.insert cFacet (mkModuleFacetBuild <| fun mod => do
     mod.recBuildLean true <&> (·.withInfo mod.cFile)
   )
   -- Build module `.o`
-  |>.insert &`lean.o (mkModuleFacetBuild <| fun mod => do
-    let cTarget ← mod.recBuildFacet &`lean.c
-    mod.mkOTarget (Target.active cTarget) |>.activate
+  |>.insert oFacet (mkModuleFacetBuild <| fun mod => do
+    mod.mkOTarget (Target.active (← mod.c.recBuild)) |>.activate
   )
   -- Build shared library for `--load-dynlb`
-  |>.insert &`lean.dynlib (mkModuleFacetBuild (·.recBuildDynLib))
+  |>.insert dynlibFacet (mkModuleFacetBuild (·.recBuildDynlib))
 
 /--
 A package facet name to build function map that contains builders for
@@ -125,7 +125,7 @@ the initial set of Lake package facets (e.g., `extraDep`).
     let mut depSet := PackageSet.empty
     for dep in pkg.dependencies do
       if let some depPkg ← findPackage? dep.name then
-        for depDepPkg in (← depPkg.recBuildFacet &`deps) do
+        for depDepPkg in (← recBuild <| depPkg.facet &`deps) do
           unless depSet.contains depDepPkg do
             deps := deps.push depDepPkg
             depSet := depSet.insert depDepPkg
@@ -139,8 +139,7 @@ the initial set of Lake package facets (e.g., `extraDep`).
     let mut target := ActiveTarget.nil
     for dep in pkg.dependencies do
       if let some depPkg ← findPackage? dep.name then
-        let extraDepTarget ← depPkg.recBuildFacet &`extraDep
-        target ← target.mixOpaqueAsync extraDepTarget
+        target ← target.mixOpaqueAsync (← depPkg.extraDep.recBuild)
     target.mixOpaqueAsync <| ← pkg.extraDepTarget.activate
   )
 /-!
@@ -162,15 +161,17 @@ the initial set of Lake package facets (e.g., `extraDep`).
     else
       error s!"do not know how to build package facet `{facet}`"
   | .staticLeanLib lib =>
-    mkTargetBuild &`leanLib.static lib.recBuildStatic
+    mkTargetBuild LeanLib.staticFacet lib.recBuildStatic
   | .sharedLeanLib lib =>
-    mkTargetBuild &`leanLib.shared lib.recBuildShared
+    mkTargetBuild LeanLib.sharedFacet lib.recBuildShared
   | .leanExe exe =>
-    mkTargetBuild &`leanExe exe.recBuild
+    mkTargetBuild LeanExe.facet exe.recBuild
   | .staticExternLib lib =>
-    mkTargetBuild &`externLib.static <| lib.target.activate
+    mkTargetBuild ExternLib.staticFacet lib.target.activate
   | .sharedExternLib lib =>
-    mkTargetBuild &`externLib.shared <| staticToLeanDynlibTarget (lib.target) |>.activate
+    mkTargetBuild ExternLib.sharedFacet do
+      let staticTarget := Target.active <| ← lib.static.recBuild
+      staticToLeanDynlibTarget staticTarget |>.activate
   | _ =>
     error s!"do not know how to build `{info.key}`"
 
@@ -178,32 +179,31 @@ the initial set of Lake package facets (e.g., `extraDep`).
 Recursively build the given info using the Lake build index
 and a topological / suspending scheduler.
 -/
-@[specialize] def buildIndexTop (info : BuildInfo) : CycleT BuildKey m (BuildData info.key) :=
+@[specialize] def buildIndexTop' (info : BuildInfo) : CycleT BuildKey m (BuildData info.key) :=
   buildDTop BuildData BuildInfo.key recBuildIndex info
 
 /--
-Build the package's specified facet recursively using a topological-based
-scheduler, storing the results in the monad's store and returning the result
-of the top-level build.
+Recursively build the given info using the Lake build index
+and a topological / suspending scheduler and return the dynamic result.
 -/
-@[inline] def buildPackageTop (pkg : Package) (facet : WfName)
-[h : DynamicType PackageData facet α] : CycleT BuildKey m α  :=
-  have of_data := by
-    unfold BuildData, BuildInfo.key, Package.mkBuildKey
-    simp [h.eq_dynamic_type]
-  cast of_data <| buildIndexTop (m := m) <| BuildInfo.package pkg facet
+@[inline] def buildIndexTop (info : BuildInfo)
+[h : DynamicType BuildData info.key α] : CycleT BuildKey m α := do
+  cast (by simp [h.eq_dynamic_type]) <| buildIndexTop' (m := m) info
 
 end
 
-/-!
-## Package Facet Builders
--/
+/- Build the given Lake target using the given Lake build store. -/
+@[inline] def BuildInfo.buildIn (store : BuildStore) (self : BuildInfo)
+[DynamicType BuildData self.key α] : BuildM α := do
+  failOnBuildCycle <| ← EStateT.run' (m := BuildM) store <| buildIndexTop self
 
-/--
-Recursively build the specified facet of the given package,
-returning the result.
--/
-def Package.buildFacet (self : Package) (facet : WfName)
-[DynamicType PackageData facet α] : BuildM α := do
-  failOnBuildCycle <| ← EStateT.run' BuildStore.empty do
-    buildPackageTop self facet
+/- Build the given Lake target in a fresh build store. -/
+@[inline] def BuildInfo.build (self : BuildInfo) [DynamicType BuildData self.key α] : BuildM α :=
+  buildIn BuildStore.empty self
+
+export BuildInfo (build buildIn)
+
+/-- An opaque target that builds the Lake target in a fresh build store. -/
+@[inline] def BuildInfo.target (self : BuildInfo)
+[DynamicType BuildData self.key (ActiveBuildTarget α)] : OpaqueTarget :=
+  BuildTarget.mk' () <| self.build <&> (·.task)

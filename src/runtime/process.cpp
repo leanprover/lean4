@@ -19,6 +19,7 @@ Author: Jared Roesch
 #include <tchar.h>
 #include <stdio.h>
 #include <strsafe.h>
+#include <shellapi.h>
 #else
 #include <unistd.h>
 #include <fcntl.h>
@@ -138,9 +139,12 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
         // For example, "npm" becomes "C:\Program Files\nodejs\npm.cmd" and not the bash
         // shell script named "C:\Program Files\nodejs\npm".  It is the executable returned from
         // FindExecutable that we need to spawn here.
-        command = "\"";
-        command += buffer;
-        command += "\"";
+        command = buffer;
+        if (command.find(' ') != std::string::npos) {
+            // path contains spaces!
+            command.insert(ascii.begin(), '"');
+            command += "\"";
+        }
     }
 
     // This needs some thought, on Windows we must pass a command string

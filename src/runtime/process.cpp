@@ -142,7 +142,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
         command = buffer;
         if (command.find(' ') != std::string::npos) {
             // path contains spaces!
-            command.insert(ascii.begin(), '"');
+            command.insert(command.begin(), '"');
             command += "\"";
         }
     }

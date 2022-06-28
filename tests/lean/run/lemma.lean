@@ -1,4 +1,4 @@
-macro "lemma" n:declId sig:declSig val:declVal : command => `(theorem $n $sig $val)
+macro mods:declModifiers "lemma" n:declId sig:declSig val:declVal : command => `($mods:declModifiers theorem $n $sig $val)
 
 lemma fooSimple (n : Nat) : Prop :=
   if n = 0 then True else False

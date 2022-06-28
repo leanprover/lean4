@@ -64,7 +64,8 @@ jobs:
       - name: Further Set Up CCache Cache
         shell: bash -euxo pipefail {0}
         run: |
-          sudo chown -R root:nixbld /nix/var/cache/ccache
+          sudo chown -R root:nixbld /nix/var/cache
+          sudo chmod -R 770 /nix/var/cache
       - uses: cachix/cachix-action@v10
         with:
           name: lean4

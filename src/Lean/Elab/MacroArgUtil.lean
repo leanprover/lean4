@@ -33,7 +33,9 @@ where
     | `(stx| interpolatedStr(term)) => pure ⟨Syntax.mkAntiquotNode interpolatedStrKind id⟩
     -- bind through withPosition
     | `(stx| withPosition($stx)) =>
-      return (← mkSyntaxAndPat id? id stx)
+      let (stx, pat) ← mkSyntaxAndPat id? id stx
+      let stx ← `(stx| withPosition($stx))
+      return (stx, pat)
     | _ => match id? with
       -- if there is a binding, we assume the user knows what they are doing
       | some id => mkAntiquotNode stx id

@@ -57,26 +57,13 @@ def Module.mkDynlibTarget (self : Module) (linkTargets : Array FileTarget)
 -- # Recursive Building
 
 section
-variable [Monad m] [MonadLiftT BuildM m] [MonadBuildStore m]
+variable [Monad m] [MonadBuildStore m]
 
-/-- Build the dynlibs of the imports that want precompilation. -/
-@[specialize] def recBuildPrecompileDynlibs (pkg : Package) (imports : Array Module)
-: IndexT m (Array ActiveFileTarget × Array ActiveFileTarget × Array FilePath) := do
-  have : MonadLift BuildM m := ⟨liftM⟩
-  -- Build and collect precompiled imports
-  let mut pkgs := #[]
-  let mut pkgSet := PackageSet.empty.insert pkg
-  let mut modTargets := #[]
-  for imp in imports do
-    if imp.shouldPrecompile then
-      unless pkgSet.contains imp.pkg do
-        pkgSet := pkgSet.insert imp.pkg
-        pkgs := pkgs.push imp.pkg
-      modTargets := modTargets.push <| ← imp.dynlib.recBuild
-  pkgs := pkgs.push pkg
-  -- Compute library directories and external library targets
+/-- Compute library directories and build external library targets of the given packages. -/
+def recBuildExternalDynlibs (pkgs : Array Package)
+[MonadLog m] : IndexT m (Array ActiveFileTarget × Array FilePath) := do
   let mut libDirs := #[]
-  let mut pkgTargets := #[]
+  let mut targets := #[]
   for pkg in pkgs do
     libDirs := libDirs.push pkg.libDir
     let externLibTargets ← pkg.externLibs.mapM (·.shared.recBuild)
@@ -85,12 +72,46 @@ variable [Monad m] [MonadLiftT BuildM m] [MonadBuildStore m]
         libDirs := libDirs.push parent
       if let some stem := target.info.fileStem then
         if stem.startsWith "lib" then
-          pkgTargets := pkgTargets.push <| target.withInfo <| stem.drop 3
+          targets := targets.push <| target.withInfo <| stem.drop 3
         else
           logWarning s!"external library `{target.info}` was skipped because it does not start with `lib`"
       else
         logWarning s!"external library `{target.info}` was skipped because it has no file name"
-  return (modTargets, pkgTargets, libDirs)
+  return (targets, libDirs)
+
+/-- Build the dynlibs of all imports. -/
+@[specialize] def recBuildDynlibs (pkg : Package) (imports : Array Module)
+[MonadLog m] : IndexT m (Array ActiveFileTarget × Array ActiveFileTarget × Array FilePath) := do
+  let mut pkgs := #[]
+  let mut pkgSet := PackageSet.empty.insert pkg
+  let mut targets := #[]
+  for imp in imports do
+    unless pkgSet.contains imp.pkg do
+      pkgSet := pkgSet.insert imp.pkg
+      pkgs := pkgs.push imp.pkg
+    targets := targets.push <| ← imp.dynlib.recBuild
+  return (targets, ← recBuildExternalDynlibs <| pkgs.push pkg)
+
+/-- Build the dynlibs of the imports that want precompilation (and *their* imports). -/
+@[specialize] def recBuildPrecompileDynlibs (pkg : Package) (imports : Array Module)
+[MonadLog m] : IndexT m (Array ActiveFileTarget × Array ActiveFileTarget × Array FilePath) := do
+  let mut pkgs := #[]
+  let mut pkgSet := PackageSet.empty.insert pkg
+  let mut modSet := ModuleSet.empty
+  let mut targets := #[]
+  for imp in imports do
+    if imp.shouldPrecompile then
+      let (_, transImports) ← imp.imports.recBuild
+      for mod in transImports.push imp do
+        unless pkgSet.contains mod.pkg do
+          pkgSet := pkgSet.insert mod.pkg
+          pkgs := pkgs.push mod.pkg
+        unless modSet.contains mod do
+          modSet := modSet.insert mod
+          targets := targets.push <| ← mod.dynlib.recBuild
+  return (targets, ← recBuildExternalDynlibs <| pkgs.push pkg)
+
+variable [MonadLiftT BuildM m]
 
 /--
 Recursively build a module and its (transitive, local) imports,
@@ -100,8 +121,8 @@ optionally outputting a `.c` file as well if `c` is set to `true`.
 : IndexT m ActiveOpaqueTarget := do
   have : MonadLift BuildM m := ⟨liftM⟩
   let extraDepTarget ← mod.pkg.extraDep.recBuild
-  let (imports, transImports) ← mod.imports.recBuild
-  let (modTargets, pkgTargets, libDirs) ← recBuildPrecompileDynlibs mod.pkg transImports
+  let (imports, _) ← mod.imports.recBuild
+  let (modTargets, pkgTargets, libDirs) ← recBuildPrecompileDynlibs mod.pkg imports
    -- Note: Lean wants the external library symbols before module symbols
   let dynlibsTarget ← ActiveTarget.collectArray <| pkgTargets ++ modTargets
   let importTarget ←
@@ -159,6 +180,6 @@ Recursively build the shared library of a module (e.g., for `--load-dynlib`).
   let (_, transImports) ← mod.imports.recBuild
   let linkTargets ← mod.nativeFacets.mapM fun facet => do
     return Target.active <| ← recBuild <| mod.facet facet.name
-  let (modTargets, pkgTargets, libDirs) ← recBuildPrecompileDynlibs mod.pkg transImports
+  let (modTargets, pkgTargets, libDirs) ← recBuildDynlibs mod.pkg transImports
   let libTargets := modTargets ++ pkgTargets |>.map Target.active
   mod.mkDynlibTarget linkTargets libDirs libTargets |>.activate

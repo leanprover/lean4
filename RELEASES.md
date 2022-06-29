@@ -1,6 +1,17 @@
 Unreleased
 ---------
 
+* Try to elaborate `do` notation even if the expected type is not available. We still delay elaboration when the expected type
+  is not available. This change is particularly useful when writing examples such as
+  ```lean
+  #eval do
+    IO.println "hello"
+    IO.println "world"
+  ```
+  That is, we don't have to use the idiom `#eval show IO _ from do ...` anymore.
+  Note that auto monadic lifting is less effective when the expected type is not available.
+  Monadic polymorphic functions (e.g., `ST.Ref.get`) also require the expected type.
+
 * On Linux, panics now print a backtrace by default, which can be disabled by setting the environment variable `LEAN_BACKTRACE` to `0`.
   Other platforms are TBD.
 

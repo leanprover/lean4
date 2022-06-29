@@ -1,7 +1,7 @@
 import Lean
 open Lean Meta
 
-#eval show MetaM Unit from do
+#eval do
   let e ← withLetDecl `y (mkConst ``Nat) (mkConst ``Nat.zero) fun y => do
     let m ← mkFreshExprMVar (mkConst ``Nat)
     assignExprMVar m.mvarId! y
@@ -14,7 +14,7 @@ open Lean Meta
       mkLambda `y BinderInfo.default (mkConst ``Nat) (e.abstract #[y])
   dbg_trace (← ppExpr e)
 
-#eval show MetaM Unit from
+#eval
   withLetDecl `y (mkConst ``Nat) (mkConst ``Nat.zero) fun y => do
     let m ← mkFreshExprMVar (mkConst ``Nat)
     assignExprMVar m.mvarId! y
@@ -23,8 +23,8 @@ open Lean Meta
      dbg_trace (← instantiateMVars <| -- doesn't work: contains free variable
       mkLambda `y BinderInfo.default (mkConst ``Nat) (← abstract e #[y]))
 
-#eval show MetaM Unit from do
-  let (e, m) ← withLetDecl `y (mkConst ``Nat) (mkConst ``Nat.zero) fun y => do
+#eval do
+  let (e, _) ← withLetDecl `y (mkConst ``Nat) (mkConst ``Nat.zero) fun y => do
     let m ← mkFreshExprMVar (mkConst ``Nat) (kind := MetavarKind.syntheticOpaque)
     let e := mkApp2 (mkConst ``Nat.add) m y
     dbg_trace (← ppExpr e)

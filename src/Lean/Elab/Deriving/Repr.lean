@@ -13,13 +13,33 @@ open Lean.Parser.Term
 open Meta
 open Std
 
+register_builtin_option deriving.repr.recursive : Bool := {
+  defValue := false
+  group    := "deriving"
+  descr    := "(deriving) generate missig `Repr` instances."
+}
+
 def mkReprHeader (indVal : InductiveVal) : TermElabM Header := do
   let header ← mkHeader `Repr 1 indVal
   return { header with
     binders := header.binders.push (← `(bracketedBinder| (prec : Nat)))
   }
 
-def mkBodyForStruct (header : Header) (indVal : InductiveVal) : TermElabM Term := do
+structure MissingRepr where
+  toGenerate : Array Name
+
+abbrev M := ExceptT MissingRepr TermElabM
+
+def checkInstanceFor (x : Expr) : M Unit := do
+  if deriving.repr.recursive.get (← getOptions) then
+    let xType ← inferType x
+    let repr  ← mkAppM ``Repr #[xType]
+    unless Option.isSome (← synthInstance? repr) do
+      let .const declName _ _ := (← whnf xType).getAppFn | return ()
+      let .inductInfo val ← getConstInfo declName | return ()
+      throwThe MissingRepr { toGenerate := val.all.toArray }
+
+def mkBodyForStruct (header : Header) (indVal : InductiveVal) : M Term := do
   let ctorVal ← getConstInfoCtor indVal.ctors.head!
   let fieldNames := getStructureFields (← getEnv) indVal.name
   let numParams  := indVal.numParams
@@ -40,15 +60,16 @@ def mkBodyForStruct (header : Header) (indVal : InductiveVal) : TermElabM Term :
       if (← isType x <||> isProof x) then
         fields ← `($fields ++ $fieldNameLit ++ " := " ++ "_")
       else
+        checkInstanceFor x
         fields ← `($fields ++ $fieldNameLit ++ " := " ++ repr ($target.$(mkIdent fieldName):ident))
     `(Format.bracket "{ " $fields:term " }")
 
-def mkBodyForInduct (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Term := do
+def mkBodyForInduct (header : Header) (indVal : InductiveVal) (auxFunName : Name) : M Term := do
   let discrs ← mkDiscrs header indVal
   let alts ← mkAlts
   `(match $[$discrs],* with $alts:matchAlt*)
 where
-  mkAlts : TermElabM (Array (TSyntax ``matchAlt)) := do
+  mkAlts : M (Array (TSyntax ``matchAlt)) := do
     let mut alts := #[]
     for ctorName in indVal.ctors do
       let ctorInfo ← getConstInfoCtor ctorName
@@ -72,19 +93,20 @@ where
             if (← inferType x).isAppOf indVal.name then
               rhs ← `($rhs ++ Format.line ++ $(mkIdent auxFunName):ident $a:ident max_prec)
             else
+              checkInstanceFor x
               rhs ← `($rhs ++ Format.line ++ reprArg $a)
         patterns := patterns.push (← `(@$(mkIdent ctorName):ident $ctorArgs:term*))
         `(matchAltExpr| | $[$patterns:term],* => Repr.addAppParen (Format.group (Format.nest (if prec >= max_prec then 1 else 2) ($rhs:term))) prec)
       alts := alts.push alt
     return alts
 
-def mkBody (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Term := do
+def mkBody (header : Header) (indVal : InductiveVal) (auxFunName : Name) : M Term := do
   if isStructure (← getEnv) indVal.name then
     mkBodyForStruct header indVal
   else
     mkBodyForInduct header indVal auxFunName
 
-def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
+def mkAuxFunction (ctx : Context) (i : Nat) : M Command := do
   let auxFunName := ctx.auxFunNames[i]
   let indVal     := ctx.typeInfos[i]
   let header     ← mkReprHeader indVal
@@ -98,7 +120,7 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
   else
     `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Format := $body:term)
 
-def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
+def mkMutualBlock (ctx : Context) : M Syntax := do
   let mut auxDefs := #[]
   for i in [:ctx.typeInfos.size] do
     auxDefs := auxDefs.push (← mkAuxFunction ctx i)
@@ -106,7 +128,7 @@ def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
      $auxDefs:command*
     end)
 
-private def mkReprInstanceCmds (declNames : Array Name) : TermElabM (Array Syntax) := do
+private def mkReprInstanceCmds (declNames : Array Name) : M (Array Syntax) := do
   let ctx ← mkContext "repr" declNames[0]
   let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `Repr declNames)
   trace[Elab.Deriving.repr] "\n{cmds}"
@@ -114,11 +136,15 @@ private def mkReprInstanceCmds (declNames : Array Name) : TermElabM (Array Synta
 
 open Command
 
-def mkReprInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
+partial def mkReprInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if (← declNames.allM isInductive) && declNames.size > 0 then
-    let cmds ← liftTermElabM none <| mkReprInstanceCmds declNames
-    cmds.forM elabCommand
-    return true
+    match (← liftTermElabM none <| mkReprInstanceCmds declNames) with
+    | .ok cmds => cmds.forM elabCommand; return true
+    | .error { toGenerate := todo } =>
+      if (← mkReprInstanceHandler todo) then
+        mkReprInstanceHandler declNames
+      else
+        return false
   else
     return false
 

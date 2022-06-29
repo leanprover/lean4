@@ -1597,6 +1597,22 @@ def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : S
     throwError "invalid declaration name '{r.shortName}', there is a section variable with the same name"
   return r
 
+/--
+  Helper function for "embedding" an `Expr` in `Syntax`.
+  It creates a named hole `?m` and immediately assigns `e` to it.
+  Examples:
+  ```lean
+  let e := mkConst ``Nat.zero
+  `(Nat.succ $(← exprToSyntax e))
+  ```
+-/
+def exprToSyntax (e : Expr) : TermElabM Term := do
+  let result ← `(?m)
+  let eType ← inferType e
+  let mvar ← elabTerm result eType
+  assignExprMVar mvar.mvarId! e
+  return result
+
 end Term
 
 open Term in

@@ -184,7 +184,7 @@ jobs:
           fi
           zip -rq9 pack/$dir.zip $dir
       - uses: actions/upload-artifact@v2
-        if: matrix.release
+        if: matrix.release && github.event_name == 'push' && github.repository == 'leanprover/lean4'
         with:
           name: build-${{ matrix.name }}
           path: pack/*

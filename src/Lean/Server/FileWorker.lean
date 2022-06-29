@@ -257,7 +257,7 @@ section Initialization
     let cmdSnaps ← EIO.mapTask (t := headerTask) (match · with
       | Except.ok (s, _) => unfoldCmdSnaps meta #[s] cancelTk ctx
       | Except.error e   => throw (e : ElabTaskError))
-    let doc : EditableDocument := ⟨meta, AsyncList.asyncTail cmdSnaps, cancelTk⟩
+    let doc : EditableDocument := ⟨meta, AsyncList.delayed cmdSnaps, cancelTk⟩
     return (ctx,
     { doc             := doc
       pendingRequests := RBMap.empty
@@ -308,7 +308,7 @@ section Updates
         if newLastStx != lastSnap.stx then
           validSnaps := validSnaps.dropLast
       unfoldCmdSnaps newMeta validSnaps.toArray cancelTk ctx
-    modify fun st => { st with doc := ⟨newMeta, AsyncList.asyncTail newSnaps, cancelTk⟩ }
+    modify fun st => { st with doc := ⟨newMeta, AsyncList.delayed newSnaps, cancelTk⟩ }
 end Updates
 
 /- Notifications are handled in the main thread. They may change global worker state

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.ACLt
+import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.AppBuilder
 import Lean.Meta.SynthInstance
 import Lean.Meta.Tactic.Simp.Types
@@ -26,9 +27,6 @@ def synthesizeArgs (thmName : Name) (xs : Array Expr) (bis : Array BinderInfo) (
         return false
     else if (← instantiateMVars x).isMVar then
       if (← isProp type) then
-        if (← hasAssignableMVar (← instantiateMVars type)) then
-          trace[Meta.Tactic.simp.discharge] "{thmName}, hypothesis contains metavariables{indentExpr type}"
-          return false
         match (← discharge? type) with
         | some proof =>
           unless (← isDefEq x proof) do
@@ -59,11 +57,15 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
     if (← isDefEq lhs e) then
       unless (← synthesizeArgs thm.getName xs bis discharge?) do
         return none
-      let proof ← instantiateMVars (mkAppN val xs)
-      if ← hasAssignableMVar proof then
-        trace[Meta.Tactic.simp.rewrite] "{thm}, has unassigned metavariables after unification"
-        return none
-      let rhs   ← instantiateMVars type.appArg!
+      let proof? ← if thm.rfl then
+        pure none
+      else
+        let proof ← instantiateMVars (mkAppN val xs)
+        if (← hasAssignableMVar proof) then
+          trace[Meta.Tactic.simp.rewrite] "{thm}, has unassigned metavariables after unification"
+          return none
+        pure <| some proof
+      let rhs := (← instantiateMVars type).appArg!
       if e == rhs then
         return none
       if thm.perm then
@@ -71,7 +73,7 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
           trace[Meta.Tactic.simp.rewrite] "{thm}, perm rejected {e} ==> {rhs}"
           return none
       trace[Meta.Tactic.simp.rewrite] "{thm}, {e} ==> {rhs}"
-      return some { expr := rhs, proof? := proof }
+      return some { expr := rhs, proof? }
     else
       unless lhs.isMVar do
         -- We do not report unification failures when `lhs` is a metavariable
@@ -83,14 +85,14 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
      This simple approach was good enough for Mathlib 3 -/
   let mut extraArgs := #[]
   let mut e := e
-  for i in [:numExtraArgs] do
+  for _ in [:numExtraArgs] do
     extraArgs := extraArgs.push e.appArg!
     e := e.appFn!
   extraArgs := extraArgs.reverse
   match (← go e) with
   | none => return none
-  | some { expr := eNew, proof? := none } => return some { expr := mkAppN eNew extraArgs }
-  | some { expr := eNew, proof? := some proof } =>
+  | some { expr := eNew, proof? := none, .. } => return some { expr := mkAppN eNew extraArgs }
+  | some { expr := eNew, proof? := some proof, .. } =>
     let mut proof := proof
     for extraArg in extraArgs do
       proof ← mkCongrFun proof extraArg
@@ -124,18 +126,19 @@ def tryTheorem? (e : Expr) (thm : SimpTheorem) (discharge? : Expr → SimpM (Opt
 /-
 Remark: the parameter tag is used for creating trace messages. It is irrelevant otherwise.
 -/
-def rewrite (e : Expr) (s : DiscrTree SimpTheorem) (erased : Std.PHashSet Name) (discharge? : Expr → SimpM (Option Expr)) (tag : String) : SimpM Result := do
+def rewrite? (e : Expr) (s : DiscrTree SimpTheorem) (erased : Std.PHashSet Name) (discharge? : Expr → SimpM (Option Expr)) (tag : String) (rflOnly : Bool) : SimpM (Option Result) := do
   let candidates ← s.getMatchWithExtra e
   if candidates.isEmpty then
     trace[Debug.Meta.Tactic.simp] "no theorems found for {tag}-rewriting {e}"
-    return { expr := e }
+    return none
   else
     let candidates := candidates.insertionSort fun e₁ e₂ => e₁.1.priority > e₂.1.priority
     for (thm, numExtraArgs) in candidates do
-      unless inErasedSet thm do
+      unless inErasedSet thm || (rflOnly && !thm.rfl) do
         if let some result ← tryTheoremWithExtraArgs? e thm numExtraArgs discharge? then
-          return result
-    return { expr := e }
+          trace[Debug.Meta.Tactic.simp] "rewrite result {e} => {result.expr}"
+          return some result
+    return none
 where
   inErasedSet (thm : SimpTheorem) : Bool :=
     match thm.name? with
@@ -144,7 +147,7 @@ where
 
 @[inline] def andThen (s : Step) (f? : Expr → SimpM (Option Step)) : SimpM Step := do
   match s with
-  | Step.done r  => return s
+  | Step.done _  => return s
   | Step.visit r =>
     if let some s' ← f? r.expr then
       return s'.updateResult (← mkEqTrans r s'.result)
@@ -182,7 +185,6 @@ def rewriteUsingDecide? (e : Expr) : MetaM (Option Result) := withReducibleAndIn
       if r.isConstOf ``true then
         return some { expr := mkConst ``True, proof? := mkAppN (mkConst ``eq_true_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``true))] }
       else if r.isConstOf ``false then
-        let h ← mkEqRefl d
         return some { expr := mkConst ``False, proof? := mkAppN (mkConst ``eq_false_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``false))] }
       else
         return none
@@ -202,13 +204,32 @@ def simpArith? (e : Expr) : SimpM (Option Step) := do
   let some (e', h) ← Linear.simp? e (← read).parent? | return none
   return Step.visit { expr := e', proof? := h }
 
-def rewritePre (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
-  let thms := (← read).simpTheorems
-  return Step.visit (← rewrite e thms.pre thms.erased discharge? (tag := "pre"))
+def simpMatchCore? (app : MatcherApp) (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Step) := do
+  for matchEq in (← Match.getEquationsFor app.matcherName).eqnNames do
+    -- Try lemma
+    match (← withReducible <| Simp.tryTheorem? e { proof := mkConst matchEq, name? := some matchEq, rfl := (← isRflTheorem matchEq) } discharge?) with
+    | none   => pure ()
+    | some r => return some (Simp.Step.done r)
+  return none
 
-def rewritePost (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
-  let thms := (← read).simpTheorems
-  return Step.visit (← rewrite e thms.post thms.erased discharge? (tag := "post"))
+def simpMatch? (discharge? : Expr → SimpM (Option Expr)) (e : Expr) : SimpM (Option Step) := do
+  if (← read).config.iota then
+    let some app ← matchMatcherApp? e | return none
+    simpMatchCore? app e discharge?
+  else
+    return none
+
+def rewritePre (e : Expr) (discharge? : Expr → SimpM (Option Expr)) (rflOnly := false) : SimpM Step := do
+  for thms in (← read).simpTheorems do
+    if let some r ← rewrite? e thms.pre thms.erased discharge? (tag := "pre") (rflOnly := rflOnly) then
+      return Step.visit r
+  return Step.visit { expr := e }
+
+def rewritePost (e : Expr) (discharge? : Expr → SimpM (Option Expr)) (rflOnly := false) : SimpM Step := do
+  for thms in (← read).simpTheorems do
+    if let some r ← rewrite? e thms.post thms.erased discharge? (tag := "post") (rflOnly := rflOnly) then
+      return Step.visit r
+  return Step.visit { expr := e }
 
 def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
   let s ← rewritePre e discharge?
@@ -216,6 +237,7 @@ def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM St
 
 def postDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
   let s ← rewritePost e discharge?
+  let s ← andThen s (simpMatch? discharge?)
   let s ← andThen s simpArith?
   let s ← andThen s tryRewriteUsingDecide?
   andThen s tryRewriteCtorEq?

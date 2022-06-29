@@ -21,7 +21,7 @@ def mkLam1 : MetaM Expr :=
     -- Double backticks instruct Lean to resolve the names at compilation time
     let b ← mkAppM ``HAdd.hAdd #[x, y] -- `x + y`
     let b ← mkAppM ``HAdd.hAdd #[b, x] -- `x + y + x`
-    /- `mkLamdaFVars` converts the free variables into de-Bruijn bound variables, and construct the lambda for us. -/
+    /- `mkLambdaFVars` converts the free variables into de-Bruijn bound variables, and construct the lambda for us. -/
     mkLambdaFVars #[x, y] b
 
 #eval execShow mkLam1

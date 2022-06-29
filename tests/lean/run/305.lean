@@ -19,7 +19,7 @@ namespace Cmd
   def flag?   (c : Cmd) (longName : String) : Option Unit := c.flags.find? (·.longName = longName)
   def hasFlag (c : Cmd) (longName : String) : Bool := c.flag? longName |>.isSome
 
-  def subCmdByFullName? (c : Cmd) (fullName : Array String) : Option Cmd := OptionM.run do
+  def subCmdByFullName? (c : Cmd) (fullName : Array String) : Option Cmd := do
     let mut c := c
     guard <| c.name = fullName.get? 0
     for subName in fullName[1:] do

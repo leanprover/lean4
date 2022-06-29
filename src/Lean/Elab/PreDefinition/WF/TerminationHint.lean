@@ -50,7 +50,7 @@ def TerminationHint.markAsUsed (t : TerminationHint) (clique : Array Name) : Ter
   match t with
   | TerminationHint.none   => TerminationHint.none
   | TerminationHint.one .. => TerminationHint.none
-  | TerminationHint.many m => Id.run <| do
+  | TerminationHint.many m => Id.run do
     for declName in clique do
       if m.contains declName then
         let m := m.erase declName
@@ -108,7 +108,6 @@ private def expandTerminationByNonCore (hint : Syntax) (cliques : Array (Array N
   let mut elseElemStx? := none
   for elementStx in elementStxs do
     let declStx := elementStx[0]
-    let vars := elementStx[1].getArgs
     if declStx.isIdent then
       let declSuffix := declStx.getId
       if alreadyFound.contains declSuffix then

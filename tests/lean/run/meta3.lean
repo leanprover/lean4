@@ -24,7 +24,7 @@ do let v? ← getExprMVarAssignment? m.mvarId!;
 unsafe def run (mods : List Name) (x : MetaM Unit) (opts : Options := dbgOpt) : IO Unit :=
 withImportModules (mods.map $ fun m => {module := m}) {} 0 fun env => do
    let x : MetaM Unit := do { x; printTraces };
-   discard $ x.toIO { options := opts } { env := env };
+   discard $ x.toIO { options := opts, fileName := "", fileMap := default } { env := env };
    pure ()
 
 def nat  := mkConst `Nat

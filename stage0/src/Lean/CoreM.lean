@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Util.RecDepth
 import Lean.Util.Trace
+import Lean.Log
 import Lean.Data.Options
 import Lean.Environment
 import Lean.Exception
@@ -24,14 +25,27 @@ register_builtin_option maxHeartbeats : Nat := {
 def getMaxHeartbeats (opts : Options) : Nat :=
   maxHeartbeats.get opts * 1000
 
+abbrev InstantiateLevelCache := Std.PersistentHashMap Name (List Level × Expr)
+
+structure Cache where
+  instLevelType  : InstantiateLevelCache := {}
+  instLevelValue : InstantiateLevelCache := {}
+  deriving Inhabited
+
+/-- State for the CoreM monad. -/
 structure State where
   env             : Environment
   nextMacroScope  : MacroScope    := firstFrontendMacroScope + 1
   ngen            : NameGenerator := {}
   traceState      : TraceState    := {}
+  cache           : Cache         := {}
+  messages        : MessageLog := {}
   deriving Inhabited
 
+/-- Context for the CoreM monad. -/
 structure Context where
+  fileName       : String
+  fileMap        : FileMap
   options        : Options := {}
   currRecDepth   : Nat := 0
   maxRecDepth    : Nat := 1000
@@ -42,6 +56,14 @@ structure Context where
   maxHeartbeats  : Nat := getMaxHeartbeats options
   currMacroScope : MacroScope := firstFrontendMacroScope
 
+/-- CoreM is a monad for manipulating the Lean environment.
+It is the base monad for `MetaM`.
+The main features it provides are:
+- name generator state
+- environment state
+- Lean options context
+- the current open namespace
+-/
 abbrev CoreM := ReaderT Context <| StateRefT State (EIO Exception)
 
 -- Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
@@ -57,7 +79,7 @@ instance : MonadRef CoreM where
 
 instance : MonadEnv CoreM where
   getEnv := return (← get).env
-  modifyEnv f := modify fun s => { s with env := f s.env }
+  modifyEnv f := modify fun s => { s with env := f s.env, cache := {} }
 
 instance : MonadOptions CoreM where
   getOptions := return (← read).options
@@ -90,6 +112,31 @@ instance : MonadQuotation CoreM where
   getMainModule       := return (← get).env.mainModule
   withFreshMacroScope := Core.withFreshMacroScope
 
+@[inline] def modifyCache (f : Cache → Cache) : CoreM Unit :=
+  modify fun ⟨env, next, ngen, trace, cache, messages⟩ => ⟨env, next, ngen, trace, f cache, messages⟩
+
+@[inline] def modifyInstLevelTypeCache (f : InstantiateLevelCache → InstantiateLevelCache) : CoreM Unit :=
+  modifyCache fun ⟨c₁, c₂⟩ => ⟨f c₁, c₂⟩
+
+@[inline] def modifyInstLevelValueCache (f : InstantiateLevelCache → InstantiateLevelCache) : CoreM Unit :=
+  modifyCache fun ⟨c₁, c₂⟩ => ⟨c₁, f c₂⟩
+
+def instantiateTypeLevelParams (c : ConstantInfo) (us : List Level) : CoreM Expr := do
+  if let some (us', r) := (← get).cache.instLevelType.find? c.name then
+    if us == us' then
+      return r
+  let r := c.instantiateTypeLevelParams us
+  modifyInstLevelTypeCache fun s => s.insert c.name (us, r)
+  return r
+
+def instantiateValueLevelParams (c : ConstantInfo) (us : List Level) : CoreM Expr := do
+  if let some (us', r) := (← get).cache.instLevelValue.find? c.name then
+    if us == us' then
+      return r
+  let r := c.instantiateValueLevelParams us
+  modifyInstLevelValueCache fun s => s.insert c.name (us, r)
+  return r
+
 @[inline] def liftIOCore (x : IO α) : CoreM α := do
   let ref ← getRef
   IO.toEIO (fun (err : IO.Error) => Exception.error ref (toString err)) x
@@ -103,7 +150,7 @@ instance : MonadTrace CoreM where
 
 /-- Restore backtrackable parts of the state. -/
 def restore (b : State) : CoreM Unit :=
-  modify fun s => { s with env := b.env }
+  modify fun s => { s with env := b.env, messages := b.messages }
 
 private def mkFreshNameImp (n : Name) : CoreM Name := do
   let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })
@@ -127,7 +174,7 @@ def mkFreshUserName (n : Name) : CoreM Name :=
 instance [MetaEval α] : MetaEval (CoreM α) where
   eval env opts x _ := do
     let x : CoreM α := do try x finally printTraces
-    let (a, s) ← x.toIO { maxRecDepth := maxRecDepth.get opts, options := opts } { env := env }
+    let (a, s) ← x.toIO { maxRecDepth := maxRecDepth.get opts, options := opts, fileName := "<CoreM>", fileMap := default } { env := env }
     MetaEval.eval s.env opts a (hideUnit := true)
 
 -- withIncRecDepth for a monad `m` such that `[MonadControlT CoreM n]`
@@ -153,6 +200,25 @@ private def withCurrHeartbeatsImp (x : CoreM α) : CoreM α := do
 
 def withCurrHeartbeats [Monad m] [MonadControlT CoreM m] (x : m α) : m α :=
   controlAt CoreM fun runInBase => withCurrHeartbeatsImp (runInBase x)
+
+def setMessageLog (messages : MessageLog) : CoreM Unit :=
+  modify fun s => { s with messages := messages }
+
+def resetMessageLog : CoreM Unit :=
+  setMessageLog {}
+
+def getMessageLog : CoreM MessageLog :=
+  return (← get).messages
+
+instance : MonadLog CoreM where
+  getRef      := getRef
+  getFileMap  := return (← read).fileMap
+  getFileName := return (← read).fileName
+  hasErrors   := return (← get).messages.hasErrors
+  logMessage msg := do
+    let ctx ← read
+    let msg := { msg with data := MessageData.withNamingContext { currNamespace := ctx.currNamespace, openDecls := ctx.openDecls } msg.data };
+    modify fun s => { s with messages := s.messages.add msg }
 
 end Core
 

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Util.HasConstCache
+import Lean.Meta.CasesOn
 import Lean.Meta.Match.Match
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
@@ -16,31 +17,31 @@ private def throwToBelowFailed : MetaM α :=
   throwError "toBelow failed"
 
 /- See toBelow -/
-private partial def toBelowAux (C : Expr) : Expr → Expr → Expr → MetaM Expr
-  | belowDict, arg, F => do
-    let belowDict ← whnf belowDict
-    trace[Elab.definition.structural] "belowDict: {belowDict}, arg: {arg}"
+private partial def toBelowAux (C : Expr) (belowDict : Expr) (arg : Expr) (F : Expr) : MetaM Expr := do
+  let belowDict ← whnf belowDict
+  trace[Elab.definition.structural] "belowDict: {belowDict}, arg: {arg}"
+  match belowDict with
+  | Expr.app (Expr.app (Expr.const `PProd _ _) d1 _) d2 _ =>
+    (do toBelowAux C d1 arg (← mkAppM `PProd.fst #[F]))
+    <|>
+    (do toBelowAux C d2 arg (← mkAppM `PProd.snd #[F]))
+  | Expr.app (Expr.app (Expr.const `And _ _) d1 _) d2 _ =>
+    (do toBelowAux C d1 arg (← mkAppM `And.left #[F]))
+    <|>
+    (do toBelowAux C d2 arg (← mkAppM `And.right #[F]))
+  | _ => forallTelescopeReducing belowDict fun xs belowDict => do
+    let arg ← zetaReduce arg
+    let argArgs := arg.getAppArgs
+    unless argArgs.size >= xs.size do throwToBelowFailed
+    let n := argArgs.size
+    let argTailArgs := argArgs.extract (n - xs.size) n
+    let belowDict := belowDict.replaceFVars xs argTailArgs
     match belowDict with
-    | Expr.app (Expr.app (Expr.const `PProd _ _) d1 _) d2 _ =>
-      (do toBelowAux C d1 arg (← mkAppM `PProd.fst #[F]))
-      <|>
-      (do toBelowAux C d2 arg (← mkAppM `PProd.snd #[F]))
-    | Expr.app (Expr.app (Expr.const `And _ _) d1 _) d2 _ =>
-      (do toBelowAux C d1 arg (← mkAppM `And.left #[F]))
-      <|>
-      (do toBelowAux C d2 arg (← mkAppM `And.right #[F]))
-    | _ => forallTelescopeReducing belowDict fun xs belowDict => do
-      let argArgs := arg.getAppArgs
-      unless argArgs.size >= xs.size do throwToBelowFailed
-      let n := argArgs.size
-      let argTailArgs := argArgs.extract (n - xs.size) n
-      let belowDict := belowDict.replaceFVars xs argTailArgs
-      match belowDict with
-      | Expr.app belowDictFun belowDictArg _ =>
-        unless belowDictFun.getAppFn == C do throwToBelowFailed
-        unless ← isDefEq belowDictArg arg do throwToBelowFailed
-        pure (mkAppN F argTailArgs)
-      | _ => throwToBelowFailed
+    | Expr.app belowDictFun belowDictArg _ =>
+      unless belowDictFun.getAppFn == C do throwToBelowFailed
+      unless ← isDefEq belowDictArg arg do throwToBelowFailed
+      pure (mkAppN F argTailArgs)
+    | _ => throwToBelowFailed
 
 /- See toBelow -/
 private def withBelowDict (below : Expr) (numIndParams : Nat) (k : Expr → Expr → MetaM α) : MetaM α := do
@@ -89,10 +90,9 @@ private partial def toBelow (below : Expr) (numIndParams : Nat) (recArg : Expr) 
 def refinedArgType (matcherApp : MatcherApp) (arg : Expr) : MetaM Bool := do
   let argType ← inferType arg
   (Array.zip matcherApp.alts matcherApp.altNumParams).anyM fun (alt, numParams) =>
-    lambdaTelescope alt fun xs altBody => do
+    lambdaTelescope alt fun xs _ => do
       if xs.size >= numParams then
         let refinedArg := xs[numParams - 1]
-        trace[Meta.debug] "refinedArgType {argType} =?= {← inferType refinedArg}"
         return !(← isDefEq (← inferType refinedArg) argType)
       else
         return false
@@ -114,7 +114,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
       withLetDecl n (← loop below type) (← loop below val) fun x => do
         mkLetFVars #[x] (← loop below (body.instantiate1 x)) (usedLetOnly := false)
     | Expr.mdata d b _   =>
-      if let some stx := getRecAppSyntax? e then
+      if let some _ := getRecAppSyntax? e then
         loop below b
       else
         return mkMData d (← loop below b)
@@ -143,8 +143,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
             return mkAppN f fArgs
           else
             return mkAppN (← loop below f) (← args.mapM (loop below))
-      let matcherApp? ← matchMatcherApp? e
-      match matcherApp? with
+      match (← matchMatcherApp? e) with
       | some matcherApp =>
         if !recArgHasLooseBVarsAt recFnName recArgInfo.recArgPos e then
           processApp e
@@ -178,6 +177,21 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
                 let belowForAlt := xs[numParams - 1]
                 mkLambdaFVars xs (← loop belowForAlt altBody)
             pure { matcherApp with alts := altsNew }.toExpr
+      | none =>
+      match (← toCasesOnApp? e) with
+      | some casesOnApp =>
+        if !recArgHasLooseBVarsAt recFnName recArgInfo.recArgPos e then
+          processApp e
+        else if let some casesOnApp ← casesOnApp.addArg? below (checkIfRefined := true) then
+          let altsNew ← (Array.zip casesOnApp.alts casesOnApp.altNumParams).mapM fun (alt, numParams) =>
+            lambdaTelescope alt fun xs altBody => do
+              unless xs.size >= numParams do
+                throwError "unexpected `casesOn` application alternative{indentExpr alt}\nat application{indentExpr e}"
+              let belowForAlt := xs[numParams]
+              mkLambdaFVars xs (← loop belowForAlt altBody)
+          return { casesOnApp with alts := altsNew }.toExpr
+        else
+          processApp e
       | none => processApp e
     | e => ensureNoRecFn recFnName e
   loop below e |>.run' {}

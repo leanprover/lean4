@@ -15,13 +15,13 @@ namespace List
    and `Init.Util` depends on `Init.Data.List.Basic`. -/
 
 def get! [Inhabited α] : List α → Nat → α
-  | a::as, 0   => a
-  | a::as, n+1 => get! as n
+  | a::_,  0   => a
+  | _::as, n+1 => get! as n
   | _,     _   => panic! "invalid index"
 
 def get? : List α → Nat → Option α
-  | a::as, 0   => some a
-  | a::as, n+1 => get? as n
+  | a::_,  0   => some a
+  | _::as, n+1 => get? as n
   | _,     _   => none
 
 def getD (as : List α) (idx : Nat) (a₀ : α) : α :=
@@ -44,20 +44,20 @@ def head : (as : List α) → as ≠ [] → α
 
 def tail! : List α → List α
   | []    => panic! "empty list"
-  | a::as => as
+  | _::as => as
 
 def tail? : List α → Option (List α)
   | []    => none
-  | a::as => some as
+  | _::as => some as
 
 def tailD : List α → List α → List α
   | [],   as₀ => as₀
-  | a::as, _  => as
+  | _::as, _  => as
 
 def getLast : ∀ (as : List α), as ≠ [] → α
   | [],       h => absurd rfl h
-  | [a],      h => a
-  | a::b::as, h => getLast (b::as) (fun h => List.noConfusion h)
+  | [a],      _ => a
+  | _::b::as, _ => getLast (b::as) (fun h => List.noConfusion h)
 
 def getLast! [Inhabited α] : List α → α
   | []    => panic! "empty list"
@@ -120,5 +120,65 @@ theorem sizeOf_lt_of_mem [SizeOf α] {as : List α} (h : a ∈ as) : sizeOf a < 
   induction h with
   | head => simp_arith
   | tail _ _ ih => exact Nat.lt_trans ih (by simp_arith)
+
+macro "sizeOf_list_dec" : tactic =>
+  `(first
+    | apply sizeOf_lt_of_mem; assumption; done
+    | apply Nat.lt_trans (sizeOf_lt_of_mem ?h)
+      case' h => assumption
+      simp_arith)
+
+macro_rules | `(tactic| decreasing_trivial) => `(tactic| sizeOf_list_dec)
+
+theorem append_cancel_left {as bs cs : List α} (h : as ++ bs = as ++ cs) : bs = cs := by
+  induction as with
+  | nil => assumption
+  | cons a as ih =>
+    injection h with _ h
+    exact ih h
+
+theorem append_cancel_right {as bs cs : List α} (h : as ++ bs = cs ++ bs) : as = cs := by
+  match as, cs with
+  | [], []       => rfl
+  | [], c::cs    => have aux := congrArg length h; simp_arith at aux
+  | a::as, []    => have aux := congrArg length h; simp_arith at aux
+  | a::as, c::cs => injection h with h₁ h₂; subst h₁; rw [append_cancel_right h₂]
+
+@[simp] theorem append_cancel_left_eq (as bs cs : List α) : (as ++ bs = as ++ cs) = (bs = cs) := by
+  apply propext; apply Iff.intro
+  next => apply append_cancel_left
+  next => intro h; simp [h]
+
+@[simp] theorem append_cancel_right_eq (as bs cs : List α) : (as ++ bs = cs ++ bs) = (as = cs) := by
+  apply propext; apply Iff.intro
+  next => apply append_cancel_right
+  next => intro h; simp [h]
+
+@[simp] theorem sizeOf_get [SizeOf α] (as : List α) (i : Fin as.length) : sizeOf (as.get i) < sizeOf as := by
+  match as, i with
+  | a::as, ⟨0, _⟩  => simp_arith [get]
+  | a::as, ⟨i+1, h⟩ =>
+    have ih := sizeOf_get as ⟨i, Nat.le_of_succ_le_succ h⟩
+    apply Nat.lt_trans ih
+    simp_arith
+
+theorem le_antisymm [LT α] [s : Antisymm (¬ · < · : α → α → Prop)] {as bs : List α} (h₁ : as ≤ bs) (h₂ : bs ≤ as) : as = bs :=
+  match as, bs with
+  | [],    []    => rfl
+  | [],    b::bs => False.elim <| h₂ (List.lt.nil ..)
+  | a::as, []    => False.elim <| h₁ (List.lt.nil ..)
+  | a::as, b::bs => by
+    by_cases hab : a < b
+    · exact False.elim <| h₂ (List.lt.head _ _ hab)
+    · by_cases hba : b < a
+      · exact False.elim <| h₁ (List.lt.head _ _ hba)
+      · have h₁ : as ≤ bs := fun h => h₁ (List.lt.tail hba hab h)
+        have h₂ : bs ≤ as := fun h => h₂ (List.lt.tail hab hba h)
+        have ih : as = bs := le_antisymm h₁ h₂
+        have : a = b := s.antisymm hab hba
+        simp [this, ih]
+
+instance [LT α] [Antisymm (¬ · < · : α → α → Prop)] : Antisymm (· ≤ · : List α → List α → Prop) where
+  antisymm h₁ h₂ := le_antisymm h₁ h₂
 
 end List

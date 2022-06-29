@@ -1241,7 +1241,7 @@ static lean_object* _init_l_Lean_Server_WithRpcRef_decodeUnsafeAs___rarg___lambd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("RPC reference '");
+x_1 = lean_mk_string_from_bytes("RPC reference '", 15);
 return x_1;
 }
 }
@@ -1249,7 +1249,7 @@ static lean_object* _init_l_Lean_Server_WithRpcRef_decodeUnsafeAs___rarg___lambd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' is not valid");
+x_1 = lean_mk_string_from_bytes("' is not valid", 14);
 return x_1;
 }
 }
@@ -1257,7 +1257,7 @@ static lean_object* _init_l_Lean_Server_WithRpcRef_decodeUnsafeAs___rarg___lambd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("RPC call type mismatch in reference '");
+x_1 = lean_mk_string_from_bytes("RPC call type mismatch in reference '", 37);
 return x_1;
 }
 }
@@ -1265,7 +1265,7 @@ static lean_object* _init_l_Lean_Server_WithRpcRef_decodeUnsafeAs___rarg___lambd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'\nexpected '");
+x_1 = lean_mk_string_from_bytes("'\nexpected '", 12);
 return x_1;
 }
 }
@@ -1273,7 +1273,7 @@ static lean_object* _init_l_Lean_Server_WithRpcRef_decodeUnsafeAs___rarg___lambd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', got '");
+x_1 = lean_mk_string_from_bytes("', got '", 8);
 return x_1;
 }
 }
@@ -1281,7 +1281,7 @@ static lean_object* _init_l_Lean_Server_WithRpcRef_decodeUnsafeAs___rarg___lambd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }

@@ -18,8 +18,7 @@ the stdlib.
 ## Installing dependencies
 
 [The official webpage of MSYS2][msys2] provides one-click installers.
-Once installed, you should run the "MSYS2 MinGW 64-bit shell" from the start menu.
-(The one that runs `mingw64.exe`)
+Once installed, you should run the "MSYS2 MinGW 64-bit shell" from the start menu (the one that runs `mingw64.exe`).
 Do not run "MSYS2 MSYS" instead!
 MSYS2 has a package management system, [pacman][pacman], which is used in Arch Linux.
 

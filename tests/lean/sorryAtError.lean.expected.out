@@ -1,4 +1,4 @@
-sorryAtError.lean:13:40-13:47: error: application type mismatch
+sorryAtError.lean:13:46-13:47: error: application type mismatch
   Ty.ty ty Γ
 argument
   Γ

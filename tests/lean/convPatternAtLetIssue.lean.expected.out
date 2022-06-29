@@ -1,4 +1,4 @@
 x y : Nat
-⊢ id (id y)
+| id (id y)
 x y : Nat
-⊢ y
+| y

@@ -50,7 +50,7 @@ instance : BEq Value := ⟨Value.beq⟩
 
 partial def addChoice (merge : Value → Value → Value) : List Value → Value → List Value
   | [], v => [v]
-  | v₁@(ctor i₁ vs₁) :: cs, v₂@(ctor i₂ vs₂) =>
+  | v₁@(ctor i₁ _) :: cs, v₂@(ctor i₂ _) =>
     if i₁ == i₂ then merge v₁ v₂ :: cs
     else v₁ :: addChoice merge cs v₂
   | _, _ => panic! "invalid addChoice"
@@ -186,7 +186,7 @@ partial def projValue : Value → Nat → Value
 def interpExpr : Expr → M Value
   | Expr.ctor i ys => return ctor i (← ys.mapM fun y => findArgValue y)
   | Expr.proj i x  => return projValue (← findVarValue x) i
-  | Expr.fap fid ys => do
+  | Expr.fap fid _  => do
     let ctx ← read
     match getFunctionSummary? ctx.env fid with
     | some v => pure v
@@ -225,9 +225,7 @@ def updateJPParamsAssignment (ys : Array Param) (xs : Array Arg) : M Bool := do
       pure true
 
 private partial def resetNestedJPParams : FnBody → M Unit
-  | FnBody.jdecl _ ys b k => do
-    let ctx ← read
-    let currFnIdx := ctx.currFnIdx
+  | FnBody.jdecl _ ys _ k => do
     ys.forM resetParamAssignment
     /- Remark we don't need to reset the parameters of joint-points
       nested in `b` since they will be reset if this JP is used. -/

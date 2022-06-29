@@ -12,7 +12,7 @@ let env ← getEnv;
   pure val.ctors
 | _ => pure [])
 
-def elabAnonCtor (args : Array Syntax) (τ : Expr) : TermElabM Expr :=
+def elabAnonCtor (args : Array (TSyntax `term)) (τ : Expr) : TermElabM Expr :=
   match τ.getAppFn with
   | Expr.const C _ _ => do
     let ctors ← getCtors C;

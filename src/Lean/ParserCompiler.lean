@@ -38,7 +38,7 @@ partial def parserNodeKind? (e : Expr) : MetaM (Option Name) := do
     try pure <| some (← reduceEval e) catch _ => pure none
   let e ← whnfCore e
   if e matches Expr.lam .. then
-    lambdaLetTelescope e fun xs e => parserNodeKind? e
+    lambdaLetTelescope e fun _ e => parserNodeKind? e
   else if e.isAppOfArity ``nodeWithAntiquot 4 then
     reduceEval? (e.getArg! 1)
   else if e.isAppOfArity ``withAntiquot 2 then
@@ -58,13 +58,11 @@ variable {α} (ctx : Context α) (builtin : Bool) (force : Bool) in
 partial def compileParserExpr (e : Expr) : MetaM Expr := do
   let e ← whnfCore e
   match e with
-  | e@(Expr.lam _ _ _ _)     => lambdaLetTelescope e fun xs b => compileParserExpr b >>= mkLambdaFVars xs
-  | e@(Expr.fvar _ _)        => pure e
+  | .lam ..  => lambdaLetTelescope e fun xs b => compileParserExpr b >>= mkLambdaFVars xs
+  | .fvar .. => return e
   | _ => do
     let fn := e.getAppFn
-    let Expr.const c _ _ ← pure fn
-      | throwError "call of unknown parser at '{e}'"
-    let args := e.getAppArgs
+    let .const c .. := fn | throwError "call of unknown parser at '{e}'"
     -- call the translated `p` with (a prefix of) the arguments of `e`, recursing for arguments
     -- of type `ty` (i.e. formerly `Parser`)
     let mkCall (p : Name) := do
@@ -79,7 +77,7 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
           let resultTy ← forallTelescope paramTy fun _ b => pure b
           let arg ← if resultTy.isConstOf ctx.tyName then compileParserExpr arg else pure arg
           p := mkApp p arg
-        pure p
+        return p
     let env ← getEnv
     match ctx.combinatorAttr.getDeclFor? env c with
     | some p => mkCall p
@@ -99,8 +97,9 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
             let paramTy ← replaceParserTy ctx <$> inferType param
             return mkForall `_ BinderInfo.default paramTy ty
         let decl := Declaration.defnDecl {
-          name := c', levelParams := [],
-          type := ty, value := value, hints := ReducibilityHints.opaque, safety := DefinitionSafety.safe }
+          name := c', levelParams := []
+          type := ty, value := value, hints := ReducibilityHints.opaque, safety := DefinitionSafety.safe
+        }
         let env ← getEnv
         let env ← match env.addAndCompile {} decl with
           | Except.ok    env => pure env

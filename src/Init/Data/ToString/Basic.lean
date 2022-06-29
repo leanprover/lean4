@@ -46,7 +46,7 @@ instance {p : Prop} : ToString (Decidable p) := ⟨fun h =>
   | Decidable.isFalse _ => "false"⟩
 
 protected def List.toStringAux {α : Type u} [ToString α] : Bool → List α → String
-  | b,     []    => ""
+  | _,     []    => ""
   | true,  x::xs => toString x ++ List.toStringAux false xs
   | false, x::xs => ", " ++ toString x ++ List.toStringAux false xs
 
@@ -64,10 +64,13 @@ instance {α : Type u} [ToString α] : ToString (ULift.{v} α) :=
   ⟨fun v => toString v.1⟩
 
 instance : ToString Unit :=
-  ⟨fun u => "()"⟩
+  ⟨fun _ => "()"⟩
 
 instance : ToString Nat :=
   ⟨fun n => Nat.repr n⟩
+
+instance : ToString String.Pos :=
+  ⟨fun p => Nat.repr p.byteIdx⟩
 
 instance : ToString Int where
   toString
@@ -114,19 +117,18 @@ instance {α : Type u} {β : Type v} [ToString α] [ToString β] : ToString (Sum
 instance {α : Type u} {β : Type v} [ToString α] [ToString β] : ToString (α × β) := ⟨fun (a, b) =>
   "(" ++ toString a ++ ", " ++ toString b ++ ")"⟩
 
-instance {α : Type u} {β : α → Type v} [ToString α] [s : ∀ x, ToString (β x)] : ToString (Sigma β) := ⟨fun ⟨a, b⟩ =>
+instance {α : Type u} {β : α → Type v} [ToString α] [∀ x, ToString (β x)] : ToString (Sigma β) := ⟨fun ⟨a, b⟩ =>
   "⟨"  ++ toString a ++ ", " ++ toString b ++ "⟩"⟩
 
 instance {α : Type u} {p : α → Prop} [ToString α] : ToString (Subtype p) := ⟨fun s =>
   toString (val s)⟩
 
-def String.toInt? (s : String) : Option Int :=
-  OptionM.run do
-    if s.get 0 = '-' then do
-      let v ← (s.toSubstring.drop 1).toNat?;
-      pure <| - Int.ofNat v
-    else
-     Int.ofNat <$> s.toNat?
+def String.toInt? (s : String) : Option Int := do
+  if s.get 0 = '-' then do
+    let v ← (s.toSubstring.drop 1).toNat?;
+    pure <| - Int.ofNat v
+  else
+   Int.ofNat <$> s.toNat?
 
 def String.isInt (s : String) : Bool :=
   if s.get 0 = '-' then

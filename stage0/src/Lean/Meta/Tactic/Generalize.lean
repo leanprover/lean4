@@ -16,7 +16,10 @@ structure GeneralizeArg where
   hName? : Option Name := none
   deriving Inhabited
 
-partial def generalize (mvarId : MVarId) (args : Array GeneralizeArg) : MetaM (Array FVarId × MVarId) :=
+partial def generalize
+    (mvarId : MVarId) (args : Array GeneralizeArg)
+    -- (pred : (parent? : Option Expr) → (e : Expr) → MetaM Bool := fun _ _ => return true)
+    : MetaM (Array FVarId × MVarId) :=
   withMVarContext mvarId do
     checkNotAssigned mvarId `generalize
     let tag ← getMVarTag mvarId
@@ -48,11 +51,10 @@ partial def generalize (mvarId : MVarId) (args : Array GeneralizeArg) : MetaM (A
               let xType ← inferType xs[i]
               let e ← instantiateMVars arg.expr
               let eType ← instantiateMVars (← inferType e)
-              let (hType, r) ←
-                if (← isDefEq xType eType) then
-                  pure (← mkEq e xs[i], ← mkEqRefl e)
-                else
-                  pure (← mkHEq e xs[i], ← mkHEqRefl e)
+              let (hType, r) ← if (← isDefEq xType eType) then
+                pure (← mkEq e xs[i], ← mkEqRefl e)
+              else
+                pure (← mkHEq e xs[i], ← mkHEqRefl e)
               let (rs, type) ← go' (i+1)
               return (r :: rs, mkForall hName BinderInfo.default hType type)
             else

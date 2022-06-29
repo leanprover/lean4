@@ -21,7 +21,7 @@ lean_object* l___private_Std_Data_HashMap_0__Std_numBucketsForCapacity(lean_obje
 LEAN_EXPORT lean_object* l_Std_HashMapImp_expand___at_Lean_Lsp_instFromJsonModuleRefs___spec__3(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
-uint64_t l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1754_(lean_object*);
+uint64_t l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1845_(lean_object*);
 LEAN_EXPORT lean_object* l_Std_RBNode_foldM___at_Lean_Lsp_instFromJsonModuleRefs___spec__8(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Lsp_instToJsonRefInfo___spec__2(size_t, size_t, lean_object*);
 LEAN_EXPORT uint64_t l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_hashRefIdent____x40_Lean_Data_Lsp_Internal___hyg_106_(lean_object*);
@@ -219,7 +219,7 @@ else
 lean_object* x_6; uint64_t x_7; uint64_t x_8; uint64_t x_9; 
 x_6 = lean_ctor_get(x_1, 0);
 x_7 = 1;
-x_8 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1754_(x_6);
+x_8 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1845_(x_6);
 x_9 = lean_uint64_mix_hash(x_7, x_8);
 return x_9;
 }
@@ -273,7 +273,7 @@ static lean_object* _init_l_Lean_Lsp_RefIdent_toString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("c:");
+x_1 = lean_mk_string_from_bytes("c:", 2);
 return x_1;
 }
 }
@@ -281,7 +281,7 @@ static lean_object* _init_l_Lean_Lsp_RefIdent_toString___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -289,7 +289,7 @@ static lean_object* _init_l_Lean_Lsp_RefIdent_toString___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("f:");
+x_1 = lean_mk_string_from_bytes("f:", 2);
 return x_1;
 }
 }
@@ -332,7 +332,7 @@ static lean_object* _init_l_Lean_Lsp_RefIdent_fromString___lambda__1___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("string must start with 'c:' or 'f:'");
+x_1 = lean_mk_string_from_bytes("string must start with 'c:' or 'f:'", 35);
 return x_1;
 }
 }
@@ -389,7 +389,7 @@ static lean_object* _init_l_Lean_Lsp_RefIdent_fromString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[anonymous]");
+x_1 = lean_mk_string_from_bytes("[anonymous]", 11);
 return x_1;
 }
 }
@@ -397,7 +397,7 @@ static lean_object* _init_l_Lean_Lsp_RefIdent_fromString___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("`");
+x_1 = lean_mk_string_from_bytes("`", 1);
 return x_1;
 }
 }
@@ -405,7 +405,7 @@ static lean_object* _init_l_Lean_Lsp_RefIdent_fromString___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected a Name, got ");
+x_1 = lean_mk_string_from_bytes("expected a Name, got ", 21);
 return x_1;
 }
 }
@@ -587,7 +587,7 @@ static lean_object* _init_l_Lean_Lsp_instToJsonRefInfo___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("usages");
+x_1 = lean_mk_string_from_bytes("usages", 6);
 return x_1;
 }
 }
@@ -595,7 +595,7 @@ static lean_object* _init_l_Lean_Lsp_instToJsonRefInfo___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("definition");
+x_1 = lean_mk_string_from_bytes("definition", 10);
 return x_1;
 }
 }
@@ -810,7 +810,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected JSON array, got '");
+x_1 = lean_mk_string_from_bytes("expected JSON array, got '", 26);
 return x_1;
 }
 }
@@ -818,7 +818,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -1032,7 +1032,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Lsp_instFromJsonRefIn
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Expected list of length 4, not ");
+x_1 = lean_mk_string_from_bytes("Expected list of length 4, not ", 31);
 return x_1;
 }
 }
@@ -3600,7 +3600,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("version");
+x_1 = lean_mk_string_from_bytes("version", 7);
 return x_1;
 }
 }
@@ -3608,7 +3608,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("references");
+x_1 = lean_mk_string_from_bytes("references", 10);
 return x_1;
 }
 }

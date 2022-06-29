@@ -12,7 +12,7 @@ open Lean.PrettyPrinter
 def checkDelab (e : Expr) (tgt? : Option Syntax) (name? : Option Name := none) : TermElabM Unit := do
   let pfix := "[checkDelab" ++ (match name? with | some n => ("." ++ toString n) | none => "") ++ "]"
   if e.hasMVar then throwError "{pfix} original term has mvars, {e}"
-  let stx ← delab (← getCurrNamespace) (← getOpenDecls) e
+  let stx ← delab e
   match tgt? with
   | some tgt =>
     if toString (← PrettyPrinter.ppTerm stx) != toString (← PrettyPrinter.ppTerm tgt?.get!) then
@@ -189,7 +189,7 @@ end Z1.Z2
 
 set_option pp.analyze.trustSubst false in
 #testDelab (fun (x y z : Nat) (hxy : x = y) (hyz : x = z) => hxy ▸ hyz : ∀ (x y z : Nat), x = y → x = z → y = z)
-  expecting fun x y z hxy hyz => Eq.ndrec (a := x) (motive := fun x => x = z) hyz hxy
+  expecting fun x y z hxy hyz => Eq.rec (motive := fun x_1 h => x_1 = z) hyz hxy
 
 set_option pp.analyze.trustSubst true in
 #testDelab (fun (x y z : Nat) (hxy : x = y) (hyz : x = z) => hxy ▸ hyz : ∀ (x y z : Nat), x = y → x = z → y = z)

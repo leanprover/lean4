@@ -104,7 +104,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("maxRecDepth");
+x_1 = lean_mk_string_from_bytes("maxRecDepth", 11);
 return x_1;
 }
 }
@@ -122,7 +122,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -130,7 +130,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("maximum recursion depth for many Lean procedures");
+x_1 = lean_mk_string_from_bytes("maximum recursion depth for many Lean procedures", 48);
 return x_1;
 }
 }

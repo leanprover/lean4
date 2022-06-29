@@ -1,8 +1,8 @@
-
+--
 set_option pp.explicit true
 -- set_option trace.compiler.boxed true
 
-partial def contains : String → Char → Nat → Bool
+partial def contains : String → Char → String.Pos → Bool
 | s, c, i =>
   if s.atEnd i then false
   else if s.get i == c then true

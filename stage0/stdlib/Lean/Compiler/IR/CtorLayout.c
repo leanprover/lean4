@@ -38,7 +38,7 @@ static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("◾");
+x_1 = lean_mk_string_from_bytes("◾", 3);
 return x_1;
 }
 }
@@ -56,7 +56,7 @@ static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("obj@");
+x_1 = lean_mk_string_from_bytes("obj@", 4);
 return x_1;
 }
 }
@@ -74,7 +74,7 @@ static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -92,7 +92,7 @@ static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("usize@");
+x_1 = lean_mk_string_from_bytes("usize@", 6);
 return x_1;
 }
 }
@@ -110,7 +110,7 @@ static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("scalar#");
+x_1 = lean_mk_string_from_bytes("scalar#", 7);
 return x_1;
 }
 }
@@ -128,7 +128,7 @@ static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("@");
+x_1 = lean_mk_string_from_bytes("@", 1);
 return x_1;
 }
 }
@@ -146,7 +146,7 @@ static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(":");
+x_1 = lean_mk_string_from_bytes(":", 1);
 return x_1;
 }
 }

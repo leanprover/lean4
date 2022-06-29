@@ -335,7 +335,7 @@ x_13 = lean_ctor_get(x_6, 0);
 x_14 = lean_ctor_get(x_6, 1);
 lean_inc(x_3);
 x_15 = l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_getOccsOf(x_1, x_3);
-x_16 = lean_nat_dec_lt(x_14, x_15);
+x_16 = lean_nat_dec_lt(x_13, x_15);
 if (x_16 == 0)
 {
 lean_object* x_17; 
@@ -353,8 +353,8 @@ lean_dec(x_14);
 lean_dec(x_13);
 x_19 = l_Lean_IR_instInhabitedAlt;
 x_20 = lean_array_get(x_19, x_1, x_3);
-lean_ctor_set(x_6, 1, x_15);
-lean_ctor_set(x_6, 0, x_20);
+lean_ctor_set(x_6, 1, x_20);
+lean_ctor_set(x_6, 0, x_15);
 x_21 = lean_nat_add(x_3, x_5);
 lean_dec(x_3);
 x_2 = x_11;
@@ -372,7 +372,7 @@ lean_inc(x_23);
 lean_dec(x_6);
 lean_inc(x_3);
 x_25 = l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_getOccsOf(x_1, x_3);
-x_26 = lean_nat_dec_lt(x_24, x_25);
+x_26 = lean_nat_dec_lt(x_23, x_25);
 if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; 
@@ -395,8 +395,8 @@ lean_dec(x_23);
 x_30 = l_Lean_IR_instInhabitedAlt;
 x_31 = lean_array_get(x_30, x_1, x_3);
 x_32 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_32, 0, x_31);
-lean_ctor_set(x_32, 1, x_25);
+lean_ctor_set(x_32, 0, x_25);
+lean_ctor_set(x_32, 1, x_31);
 x_33 = lean_nat_add(x_3, x_5);
 lean_dec(x_3);
 x_2 = x_11;
@@ -431,8 +431,8 @@ x_4 = lean_array_get(x_2, x_1, x_3);
 x_5 = l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_getOccsOf(x_1, x_3);
 x_6 = lean_array_get_size(x_1);
 x_7 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_7, 0, x_4);
-lean_ctor_set(x_7, 1, x_5);
+lean_ctor_set(x_7, 0, x_5);
+lean_ctor_set(x_7, 1, x_4);
 x_8 = lean_unsigned_to_nat(1u);
 lean_inc(x_6);
 x_9 = l_Std_Range_forIn_loop___at___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_maxOccs___spec__1(x_1, x_6, x_8, x_6, x_8, x_7);
@@ -443,8 +443,8 @@ x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
 lean_dec(x_9);
 x_12 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_12, 0, x_10);
-lean_ctor_set(x_12, 1, x_11);
+lean_ctor_set(x_12, 0, x_11);
+lean_ctor_set(x_12, 1, x_10);
 return x_12;
 }
 }

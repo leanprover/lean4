@@ -65,17 +65,17 @@ def setOptionFromString (opts : Options) (entry : String) : IO Options := do
   let key := Name.mkSimple key
   let defValue ← getOptionDefaulValue key
   match defValue with
-  | DataValue.ofString v => pure $ opts.setString key val
-  | DataValue.ofBool v   =>
+  | DataValue.ofString _ => pure $ opts.setString key val
+  | DataValue.ofBool _   =>
     if key == `true then pure $ opts.setBool key true
     else if key == `false then pure $ opts.setBool key false
     else throw $ IO.userError s!"invalid Bool option value '{val}'"
-  | DataValue.ofName v   => pure $ opts.setName key val.toName
-  | DataValue.ofNat v    =>
+  | DataValue.ofName _   => pure $ opts.setName key val.toName
+  | DataValue.ofNat _    =>
     match val.toNat? with
     | none   => throw (IO.userError s!"invalid Nat option value '{val}'")
     | some v => pure $ opts.setNat key v
-  | DataValue.ofInt v    =>
+  | DataValue.ofInt _    =>
     match val.toInt? with
     | none   => throw (IO.userError s!"invalid Int option value '{val}'")
     | some v => pure $ opts.setInt key v
@@ -106,6 +106,15 @@ export MonadWithOptions (withOptions)
 
 instance [MonadFunctor m n] [MonadWithOptions m] : MonadWithOptions n where
   withOptions f x := monadMap (m := m) (withOptions f) x
+
+/- Remark: `_inPattern` is an internal option for communicating to the delaborator that
+   the term being delaborated should be treated as a pattern. -/
+
+def withInPattern [MonadWithOptions m] (x : m α) : m α :=
+  withOptions (fun o => o.setBool `_inPattern true) x
+
+def Options.getInPattern (o : Options) : Bool :=
+  o.getBool `_inPattern
 
 /-- A strongly-typed reference to an option. -/
 protected structure Option (α : Type) where

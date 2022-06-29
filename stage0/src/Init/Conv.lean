@@ -12,19 +12,23 @@ namespace Lean.Parser.Tactic.Conv
 
 declare_syntax_cat conv (behavior := both)
 
-syntax convSeq1Indented := withPosition((group(colGe conv ";"?))+)
-syntax convSeqBracketed := "{" (group(conv ";"?))+ "}"
-syntax convSeq := convSeq1Indented <|> convSeqBracketed
+syntax convSeq1Indented := withPosition((colGe conv ";"?)+)
+syntax convSeqBracketed := "{" (conv ";"?)+ "}"
+-- Order is important: a missing `conv` proof should not be parsed as `{ <missing> }`,
+-- automatically closing goals
+syntax convSeq := convSeqBracketed <|> convSeq1Indented
 
 syntax (name := conv) "conv " (" at " ident)? (" in " term)? " => " convSeq : tactic
 
 syntax (name := lhs) "lhs" : conv
 syntax (name := rhs) "rhs" : conv
 syntax (name := whnf) "whnf" : conv
+/-- Expand let-declarations and let-variables. -/
+syntax (name := zeta) "zeta" : conv
 /-- Put term in normal form, this tactic is ment for debugging purposes only -/
 syntax (name := reduce) "reduce" : conv
 syntax (name := congr) "congr" : conv
-syntax (name := arg) "arg " num : conv
+syntax (name := arg) "arg " "@"? num : conv
 syntax (name := ext) "ext " (colGt ident)* : conv
 syntax (name := change) "change " term : conv
 syntax (name := delta) "delta " ident : conv
@@ -44,18 +48,21 @@ syntax (name := convConvSeq) "conv " " => " convSeq : conv
 
 /-- `· conv` focuses on the main conv goal and tries to solve it using `s` -/
 macro dot:("·" <|> ".") s:convSeq : conv => `({%$dot ($s:convSeq) })
-macro "rw " c:(config)? s:rwRuleSeq : conv => `(rewrite $[$(c.getOptional?):config]? $s:rwRuleSeq)
+macro "rw " c:(config)? s:rwRuleSeq : conv => `(rewrite $[$c:config]? $s:rwRuleSeq)
 macro "erw " s:rwRuleSeq : conv => `(rw (config := { transparency := Meta.TransparencyMode.default }) $s:rwRuleSeq)
 
 macro "args" : conv => `(congr)
 macro "left" : conv => `(lhs)
 macro "right" : conv => `(rhs)
-macro "intro " xs:(colGt ident)* : conv => `(ext $(xs.getArgs)*)
+syntax "intro " (colGt ident)* : conv
+macro_rules
+  | `(conv| intro $[$xs:ident]*) => `(conv| ext $xs*)
 
-syntax enterArg := ident <|> num
+syntax enterArg := ident <|> ("@"? num)
 syntax "enter " "[" (colGt enterArg),+ "]": conv
 macro_rules
-  | `(conv| enter [$i:numLit]) => `(conv| arg $i)
+  | `(conv| enter [$i:num]) => `(conv| arg $i)
+  | `(conv| enter [@$i:num]) => `(conv| arg @$i)
   | `(conv| enter [$id:ident]) => `(conv| ext $id)
   | `(conv| enter [$arg:enterArg, $args,*]) => `(conv| (enter [$arg]; enter [$args,*]))
 
@@ -65,7 +72,7 @@ macro "trace_state" : conv => `(tactic' => trace_state)
 macro "apply " e:term : conv => `(tactic => apply $e)
 
 /-- `first | conv | ...` runs each `conv` until one succeeds, or else fails. -/
-syntax (name := first) "first " withPosition((group(colGe "|" convSeq))+) : conv
+syntax (name := first) "first " withPosition((colGe "|" convSeq)+) : conv
 
 syntax "repeat " convSeq : conv
 macro_rules

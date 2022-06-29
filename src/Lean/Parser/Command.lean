@@ -9,16 +9,18 @@ import Lean.Parser.Do
 namespace Lean
 namespace Parser
 
-/--
-  Syntax quotation for terms and (lists of) commands. We prefer terms, so ambiguous quotations like
-  `` `($x $y) `` will be parsed as an application, not two commands. Use `` `($x:command $y:command) `` instead.
-  Multiple command will be put in a `` `null `` node, but a single command will not (so that you can directly
-  match against a quotation in a command kind's elaborator). -/
--- TODO: use two separate quotation parsers with parser priorities instead
-@[builtinTermParser] def Term.quot := leading_parser "`(" >> incQuotDepth (termParser <|> many1Unbox commandParser) >> ")"
+/-- Syntax quotation for terms. -/
+@[builtinTermParser] def Term.quot := leading_parser "`(" >> incQuotDepth termParser >> ")"
 @[builtinTermParser] def Term.precheckedQuot := leading_parser "`" >> Term.quot
 
 namespace Command
+
+/--
+  Syntax quotation for (sequences of) commands. The identical syntax for term quotations takes priority, so ambiguous quotations like
+  `` `($x $y) `` will be parsed as an application, not two commands. Use `` `($x:command $y:command) `` instead.
+  Multiple commands will be put in a `` `null `` node, but a single command will not (so that you can directly
+  match against a quotation in a command kind's elaborator). -/
+@[builtinTermParser low] def quot := leading_parser "`(" >> incQuotDepth (many1Unbox commandParser) >> ")"
 
 /--
   A mutual block may be broken in different cliques, we identify them using an `ident` (an element of the clique)
@@ -58,34 +60,34 @@ def optDeclSig       := leading_parser many (ppSpace >> (Term.simpleBinderWithou
 def declValSimple    := leading_parser " :=" >> ppHardLineUnlessUngrouped >> termParser >> optional Term.whereDecls
 def declValEqns      := leading_parser Term.matchAltsWhereDecls
 def whereStructField := leading_parser Term.letDecl
-def whereStructInst  := leading_parser " where" >> many1Indent (ppLine >> ppGroup (group (whereStructField >> optional ";")))
+def whereStructInst  := leading_parser " where" >> sepBy1Indent (ppGroup whereStructField) "; " (allowTrailingSep := true) >> optional Term.whereDecls
 /-
   Remark: we should not use `Term.whereDecls` at `declVal` because `Term.whereDecls` is defined using `Term.letRecDecl` which may contain attributes.
   Issue #753 showns an example that fails to be parsed when we used `Term.whereDecls`.
 -/
-def declVal          := declValSimple <|> declValEqns <|> whereStructInst
+def declVal          := withAntiquot (mkAntiquot "declVal" `Lean.Parser.Command.declVal (isPseudoKind := true)) <|
+  declValSimple <|> declValEqns <|> whereStructInst
 def «abbrev»         := leading_parser "abbrev " >> declId >> ppIndent optDeclSig >> declVal
 def optDefDeriving   := optional (atomic ("deriving " >> notSymbol "instance") >> sepBy1 ident ", ")
 def «def»            := leading_parser "def " >> declId >> ppIndent optDeclSig >> declVal >> optDefDeriving >> terminationSuffix
 def «theorem»        := leading_parser "theorem " >> declId >> ppIndent declSig >> declVal >> terminationSuffix
-def «constant»       := leading_parser "constant " >> declId >> ppIndent declSig >> optional declValSimple
+def «opaque»         := leading_parser "opaque " >> declId >> ppIndent declSig >> optional declValSimple
 /- As `declSig` starts with a space, "instance" does not need a trailing space if we put `ppSpace` in the optional fragments. -/
 def «instance»       := leading_parser Term.attrKind >> "instance" >> optNamedPrio >> optional (ppSpace >> declId) >> ppIndent declSig >> declVal >> terminationSuffix
 def «axiom»          := leading_parser "axiom " >> declId >> ppIndent declSig
 /- As `declSig` starts with a space, "example" does not need a trailing space. -/
 def «example»        := leading_parser "example" >> ppIndent declSig >> declVal
-def inferMod         := leading_parser ppSpace >> atomic (symbol "{" >> "}")
-def ctor             := leading_parser "\n| " >> ppIndent (declModifiers true >> ident >> optional inferMod >> optDeclSig)
+def ctor             := leading_parser "\n| " >> ppIndent (declModifiers true >> ident >> optDeclSig)
 def derivingClasses  := sepBy1 (group (ident >> optional (" with " >> Term.structInst))) ", "
 def optDeriving      := leading_parser optional (ppLine >> atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
 def «inductive»      := leading_parser "inductive " >> declId >> optDeclSig >> optional (symbol " :=" <|> " where") >> many ctor >> optDeriving
 def classInductive   := leading_parser atomic (group (symbol "class " >> "inductive ")) >> declId >> ppIndent optDeclSig >> optional (symbol " :=" <|> " where") >> many ctor >> optDeriving
-def structExplicitBinder := leading_parser atomic (declModifiers true >> "(") >> many1 ident >> optional inferMod >> ppIndent optDeclSig >> optional (Term.binderTactic <|> Term.binderDefault) >> ")"
-def structImplicitBinder := leading_parser atomic (declModifiers true >> "{") >> many1 ident >> optional inferMod >> declSig >> "}"
-def structInstBinder     := leading_parser atomic (declModifiers true >> "[") >> many1 ident >> optional inferMod >> declSig >> "]"
-def structSimpleBinder   := leading_parser atomic (declModifiers true >> ident) >> optional inferMod >> optDeclSig >> optional (Term.binderTactic <|> Term.binderDefault)
+def structExplicitBinder := leading_parser atomic (declModifiers true >> "(") >> many1 ident >> ppIndent optDeclSig >> optional (Term.binderTactic <|> Term.binderDefault) >> ")"
+def structImplicitBinder := leading_parser atomic (declModifiers true >> "{") >> many1 ident >> declSig >> "}"
+def structInstBinder     := leading_parser atomic (declModifiers true >> "[") >> many1 ident >> declSig >> "]"
+def structSimpleBinder   := leading_parser atomic (declModifiers true >> ident) >> optDeclSig >> optional (Term.binderTactic <|> Term.binderDefault)
 def structFields         := leading_parser manyIndent (ppLine >> checkColGe >> ppGroup (structExplicitBinder <|> structImplicitBinder <|> structInstBinder <|> structSimpleBinder))
-def structCtor           := leading_parser atomic (declModifiers true >> ident >> optional inferMod >> " :: ")
+def structCtor           := leading_parser atomic (declModifiers true >> ident >> " :: ")
 def structureTk          := leading_parser "structure "
 def classTk              := leading_parser "class "
 def «extends»            := leading_parser " extends " >> sepBy1 termParser ", "
@@ -94,7 +96,7 @@ def «structure»          := leading_parser
     >> optional ((symbol " := " <|> " where ") >> optional structCtor >> structFields)
     >> optDeriving
 @[builtinCommandParser] def declaration := leading_parser
-declModifiers false >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «instance» <|> «axiom» <|> «example» <|> «inductive» <|> classInductive <|> «structure»)
+declModifiers false >> («abbrev» <|> «def» <|> «theorem» <|> «opaque» <|> «instance» <|> «axiom» <|> «example» <|> «inductive» <|> classInductive <|> «structure»)
 @[builtinCommandParser] def «deriving»     := leading_parser "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 ident ", "
 @[builtinCommandParser] def noncomputableSection := leading_parser "noncomputable " >> "section " >> optional ident
 @[builtinCommandParser] def «section»      := leading_parser "section " >> optional ident
@@ -141,13 +143,13 @@ def openDecl         := openHiding <|> openRenaming <|> openOnly <|> openSimple 
 @[runBuiltinParserAttributeHooks] abbrev declModifiersT := declModifiers true
 
 builtin_initialize
-  register_parser_alias "declModifiers"       declModifiersF
-  register_parser_alias "nestedDeclModifiers" declModifiersT
-  register_parser_alias                       declId
-  register_parser_alias                       declSig
-  register_parser_alias                       declVal
-  register_parser_alias                       optDeclSig
-  register_parser_alias                       openDecl
+  register_parser_alias (kind := ``declModifiers) "declModifiers"       declModifiersF
+  register_parser_alias (kind := ``declModifiers) "nestedDeclModifiers" declModifiersT
+  register_parser_alias                                                 declId
+  register_parser_alias                                                 declSig
+  register_parser_alias                                                 declVal
+  register_parser_alias                                                 optDeclSig
+  register_parser_alias                                                 openDecl
 
 end Command
 

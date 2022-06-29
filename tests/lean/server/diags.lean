@@ -2,7 +2,7 @@ import Lean.Data.Lsp
 open IO Lean Lsp
 
 def main : IO Unit := do
-  Ipc.runWith (←IO.appPath) #["--server"] do
+  Ipc.runWith (←IO.appPath) #["--server", "-Dlinter.all=false"] do
     let hIn ← Ipc.stdin
     hIn.write (←FS.readBinFile "init_vscode_1_47_2.log")
     hIn.flush

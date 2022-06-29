@@ -139,7 +139,7 @@ xs.size.fold (init := b) fun i b =>
     else b
 
 private def addIncBeforeConsumeAll (ctx : Context) (xs : Array Arg) (b : FnBody) (liveVarsAfter : LiveVarSet) : FnBody :=
-  addIncBeforeAux ctx xs (fun i => true) b liveVarsAfter
+  addIncBeforeAux ctx xs (fun _ => true) b liveVarsAfter
 
 /- Add `dec` instructions for parameters that are references, are not alive in `b`, and are not borrow.
    That is, we must make sure these parameters are consumed. -/
@@ -148,21 +148,21 @@ private def addDecForDeadParams (ctx : Context) (ps : Array Param) (b : FnBody) 
     if !p.borrow && p.ty.isObj && !bLiveVars.contains p.x then addDec ctx p.x b else b
 
 private def isPersistent : Expr → Bool
-  | Expr.fap c xs => xs.isEmpty -- all global constants are persistent objects
+  | Expr.fap _ xs => xs.isEmpty -- all global constants are persistent objects
   | _             => false
 
 /- We do not need to consume the projection of a variable that is not consumed -/
 private def consumeExpr (m : VarMap) : Expr → Bool
-  | Expr.proj i x   => match m.find? x with
+  | Expr.proj _ x   => match m.find? x with
     | some info => info.consume
     | none      => true
-  | other => true
+  | _     => true
 
 /- Return true iff `v` at runtime is a scalar value stored in a tagged pointer.
    We do not need RC operations for this kind of value. -/
 private def isScalarBoxedInTaggedPtr (v : Expr) : Bool :=
   match v with
-  | Expr.ctor c ys          => c.size == 0 && c.ssize == 0 && c.usize == 0
+  | Expr.ctor c _           => c.size == 0 && c.ssize == 0 && c.usize == 0
   | Expr.lit (LitVal.num n) => n ≤ maxSmallNat
   | _ => false
 
@@ -198,7 +198,7 @@ private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b 
       let ysx := ys.push (Arg.var x) -- TODO: avoid temporary array allocation
       addIncBeforeConsumeAll ctx ysx (FnBody.vdecl z t v b) bLiveVars
     | (Expr.unbox x)         => FnBody.vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
-    | other                  => FnBody.vdecl z t v b  -- Expr.reset, Expr.box, Expr.lit are handled here
+    | _                      => FnBody.vdecl z t v b  -- Expr.reset, Expr.box, Expr.lit are handled here
   let liveVars := updateLiveVars v bLiveVars
   let liveVars := liveVars.erase z
   (b, liveVars)
@@ -262,7 +262,7 @@ partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
     let bLiveVars := collectLiveVars b ctx.jpLiveVarMap
     (b, bLiveVars)
   | FnBody.unreachable, _ => (FnBody.unreachable, {})
-  | other, ctx => (other, {}) -- unreachable if well-formed
+  | other, _ => (other, {}) -- unreachable if well-formed
 
 partial def visitDecl (env : Environment) (decls : Array Decl) (d : Decl) : Decl :=
   match d with

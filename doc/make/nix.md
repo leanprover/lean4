@@ -10,7 +10,7 @@ Follow the setup in the link above; to open the Lean shell inside a Lean checkou
 $ nix-shell -A nix
 ```
 
-On top of the local and remote Nix cache, it helps to we do still rely on CCache as well to make C/C++ build steps incremental, which are atomic steps from Nix's point of view.
+On top of the local and remote Nix cache, we do still rely on CCache as well to make C/C++ build steps incremental, which are atomic steps from Nix's point of view.
 To enable CCache, add the following line to the config file mentioned in the setup:
 ```bash
 extra-sandbox-paths = /nix/var/cache/ccache
@@ -35,7 +35,7 @@ The `stage1.` part in each command is optional:
 ```bash
 nix build .#test  # run tests for stage 1
 nix build .  # build stage 1
-nix build  # dito
+nix build  # ditto
 ```
 
 ## Build Process Description
@@ -89,7 +89,7 @@ nix run .#HEAD-as-stage0.emacs-dev&
 ```
 To run `nix build` on the second stage outside of the second editor, use
 ```bash
-nix build .#stage0-from-input
+nix build .#stage0-from-input --override-input lean-stage0 .\?rev=$(git rev-parse HEAD)
 ```
 This setup will inadvertently change your `flake.lock` file, which you can revert when you are done.
 

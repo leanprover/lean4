@@ -9,11 +9,15 @@ import Lean.Exception
 namespace Lean
 
 def Expr.isSorry : Expr → Bool
-  | Expr.app (Expr.app (Expr.const `sorryAx _ _) _ _) _ _ => true
+  | Expr.app (Expr.app (Expr.const ``sorryAx _ _) _ _) _ _ => true
   | _ => false
 
 def Expr.isSyntheticSorry : Expr → Bool
-  | Expr.app (Expr.app (Expr.const `sorryAx _ _) _ _) (Expr.const `Bool.true _ _) _ => true
+  | Expr.app (Expr.app (Expr.const ``sorryAx _ _) _ _) (Expr.const ``Bool.true _ _) _ => true
+  | _ => false
+
+def Expr.isNonSyntheticSorry : Expr → Bool
+  | Expr.app (Expr.app (Expr.const ``sorryAx _ _) _ _) (Expr.const ``Bool.false _ _) _ => true
   | _ => false
 
 def Expr.hasSorry : Expr → Bool
@@ -33,6 +37,15 @@ def Expr.hasSyntheticSorry : Expr → Bool
   | Expr.lam _ d b _     => d.hasSyntheticSorry || b.hasSyntheticSorry
   | Expr.mdata _ e _     => e.hasSyntheticSorry
   | Expr.proj _ _ e _    => e.hasSyntheticSorry
+  | _                    => false
+
+def Expr.hasNonSyntheticSorry : Expr → Bool
+  | e@(Expr.app f a _)   => e.isNonSyntheticSorry  || f.hasNonSyntheticSorry || a.hasNonSyntheticSorry
+  | Expr.letE _ t v b _  => t.hasNonSyntheticSorry || v.hasNonSyntheticSorry || b.hasNonSyntheticSorry
+  | Expr.forallE _ d b _ => d.hasNonSyntheticSorry || b.hasNonSyntheticSorry
+  | Expr.lam _ d b _     => d.hasNonSyntheticSorry || b.hasNonSyntheticSorry
+  | Expr.mdata _ e _     => e.hasNonSyntheticSorry
+  | Expr.proj _ _ e _    => e.hasNonSyntheticSorry
   | _                    => false
 
 partial def MessageData.hasSorry : MessageData → Bool
@@ -62,5 +75,11 @@ where
 def Exception.hasSyntheticSorry : Exception → Bool
   | Exception.error _ msg => msg.hasSyntheticSorry
   | _                     => false
+
+def Declaration.hasSorry (d : Declaration) : Bool := Id.run do
+  d.foldExprM (fun r e => r || e.hasSorry) false
+
+def Declaration.hasNonSyntheticSorry (d : Declaration) : Bool := Id.run do
+  d.foldExprM (fun r e => r || e.hasNonSyntheticSorry) false
 
 end Lean

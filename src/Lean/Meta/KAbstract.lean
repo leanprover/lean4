@@ -34,7 +34,7 @@ def kabstract (e : Expr) (p : Expr) (occs : Occurrences := Occurrences.all) : Me
         let i ← get
         set (i+1)
         if occs.contains i then
-          pure (mkBVar offset)
+          return mkBVar offset
         else
           visitChildren ()
       else

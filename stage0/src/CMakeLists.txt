@@ -38,6 +38,8 @@ option(LLVM               "LLVM"               OFF)
 
 # When ON we include githash in the version string
 option(USE_GITHASH        "GIT_HASH"           ON)
+# When ON we install LICENSE files to CMAKE_INSTALL_PREFIX
+option(INSTALL_LICENSE "INSTALL_LICENSE" ON)
 # When ON thread storage is automatically finalized, it assumes platform support pthreads.
 # This option is important when using Lean as library that is invoked from a different programming language (e.g., Haskell).
 option(AUTO_THREAD_FINALIZATION "AUTO_THREAD_FINALIZATION" ON)
@@ -129,6 +131,8 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(EXTRA_UTIL_LIBS ${EXTRA_UTIL_LIBS} -lpsapi)
   endif()
   string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_WINDOWS -D LEAN_WIN_STACK_SIZE=${LEAN_WIN_STACK_SIZE}")
+  # do not import the world from windows.h using appropriately named flag
+  string(APPEND LEAN_EXTRA_CXX_FLAGS " -D WIN32_LEAN_AND_MEAN")
   # DLLs must go next to executables on Windows
   set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 else()
@@ -237,8 +241,9 @@ if("${USE_GMP}" MATCHES "ON")
     # GMP
     find_package(GMP 5.0.5 REQUIRED)
     include_directories(${GMP_INCLUDE_DIR})
-    # dlopen
-    set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_DL_LIBS})
+  endif()
+  if(NOT LEAN_STANDALONE)
+    string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${GMP_LIBRARIES}")
   endif()
 endif()
 
@@ -528,33 +533,16 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/" DESTINATION src/lean
         PATTERN "*.md"
         PATTERN examples EXCLUDE)
 
-if(${STAGE} GREATER 0)
+if(${STAGE} GREATER 0 AND INSTALL_LICENSE)
   install(FILES "${CMAKE_SOURCE_DIR}/../LICENSE" "${CMAKE_SOURCE_DIR}/../LICENSES" DESTINATION ".")
 endif()
 
 file(COPY ${CMAKE_SOURCE_DIR}/include/lean DESTINATION ${CMAKE_BINARY_DIR}/include
   FILES_MATCHING PATTERN "*.h")
 
-# CPack
-set(CPACK_PACKAGE_NAME lean)
-set(CPACK_PACKAGE_CONTACT "Leonardo de Moura <leodemoura@microsoft.com>")
-string(TOLOWER ${CMAKE_SYSTEM_NAME} LOWER_SYSTEM_NAME)
-string(TIMESTAMP COMPILE_DATETIME "%Y%m%d%H%M%S")
-set(CPACK_PACKAGE_VERSION "${LEAN_VERSION_STRING}.${COMPILE_DATETIME}")
-if(NOT (${GIT_SHA1} MATCHES ""))
-  string(APPEND CPACK_PACKAGE_VERSION ".git${GIT_SHA1}")
-endif()
-set(CPACK_PACKAGE_FILE_NAME "lean-${LEAN_VERSION_STRING}-${LOWER_SYSTEM_NAME}")
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  SET(CPACK_GENERATOR TGZ)
-else()
-  SET(CPACK_GENERATOR ZIP)
-endif()
-
 set(LEAN_INSTALL_PREFIX "" CACHE STRING "If set, set CMAKE_INSTALL_PREFIX to this value + version name")
 if(LEAN_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "${LEAN_INSTALL_PREFIX}/${CPACK_PACKAGE_FILE_NAME}")
+  string(TOLOWER ${CMAKE_SYSTEM_NAME} LOWER_SYSTEM_NAME)
+  set(LEAN_INSTALL_SUFFIX "-${LOWER_SYSTEM_NAME}" CACHE STRING "If LEAN_INSTALL_PREFIX is set, append this value to CMAKE_INSTALL_PREFIX")
+  set(CMAKE_INSTALL_PREFIX "${LEAN_INSTALL_PREFIX}/lean-${LEAN_VERSION_STRING}${LEAN_INSTALL_SUFFIX}")
 endif()
-
-# NOTE: modifies `CPACK_PACKAGE_FILE_NAME`(??)
-include(CPack)

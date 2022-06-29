@@ -117,7 +117,7 @@ private partial def getNumParams (xs : Array Expr) (motive : Expr) (i : Nat) : N
   else
     i
 
-private def getMajorPosDepElim (declName : Name) (majorPos? : Option Nat) (xs : Array Expr) (motive : Expr) (motiveArgs : Array Expr)
+private def getMajorPosDepElim (declName : Name) (majorPos? : Option Nat) (xs : Array Expr) (motiveArgs : Array Expr)
     : MetaM (Expr × Nat × Bool) := do
   match majorPos? with
   | some majorPos =>
@@ -207,7 +207,7 @@ private def mkRecursorInfoAux (cinfo : ConstantInfo) (majorPos? : Option Nat) : 
   forallTelescopeReducing cinfo.type fun xs type => type.withApp fun motive motiveArgs => do
     checkMotive declName motive motiveArgs
     let numParams := getNumParams xs motive 0
-    let (major, majorPos, depElim) ← getMajorPosDepElim declName majorPos? xs motive motiveArgs
+    let (major, majorPos, depElim) ← getMajorPosDepElim declName majorPos? xs motiveArgs
     let numIndices := if depElim then motiveArgs.size - 1 else motiveArgs.size
     if majorPos < numIndices then
       throwError "invalid user defined recursor '{declName}', indices must occur before major premise"

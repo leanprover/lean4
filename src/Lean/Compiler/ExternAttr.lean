@@ -56,7 +56,7 @@ private def syntaxToExternAttrData (stx : Syntax) : AttrM ExternAttrData := do
   return { arity? := arity?, entries := entries.toList }
 
 @[extern "lean_add_extern"]
-constant addExtern (env : Environment) (n : Name) : ExceptT String Id Environment
+opaque addExtern (env : Environment) (n : Name) : ExceptT String Id Environment
 
 builtin_initialize externAttr : ParametricAttribute ExternAttrData ←
   registerParametricAttribute {
@@ -87,7 +87,7 @@ private def parseOptNum : Nat → String.Iterator → Nat → String.Iterator ×
       else (it, r)
 
 def expandExternPatternAux (args : List String) : Nat → String.Iterator → String → String
-  | 0,   it, r => r
+  | 0,   _,  r => r
   | i+1, it, r =>
     if ¬ it.hasNext then r
     else let c := it.curr
@@ -130,7 +130,7 @@ def isExternC (env : Environment) (fn : Name) : Bool :=
   | some { entries := [ ExternEntry.standard `all _ ], .. } => true
   | _ => false
 
-def getExternNameFor (env : Environment) (backend : Name) (fn : Name) : Option String := OptionM.run do
+def getExternNameFor (env : Environment) (backend : Name) (fn : Name) : Option String := do
   let data ← getExternAttrData env fn
   let entry ← getExternEntryFor data backend
   match entry with
@@ -153,10 +153,10 @@ private def getExternConstArity (declName : Name) : CoreM Nat := do
 @[export lean_get_extern_const_arity]
 def getExternConstArityExport (env : Environment) (declName : Name) : IO (Option Nat) := do
   try
-    let (arity, _) ← (getExternConstArity declName).toIO {} { env := env }
+    let (arity, _) ← (getExternConstArity declName).toIO { fileName := "<compiler>", fileMap := default } { env := env }
     return some arity
   catch
-   | IO.Error.userError msg => return none
+   | IO.Error.userError _   => return none
    | _  => return none
 
 end Lean

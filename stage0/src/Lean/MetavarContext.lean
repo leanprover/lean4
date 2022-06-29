@@ -349,13 +349,26 @@ def setMVarKind (mctx : MetavarContext) (mvarId : MVarId) (kind : MetavarKind) :
   let decl := mctx.getDecl mvarId
   { mctx with decls := mctx.decls.insert mvarId { decl with kind := kind } }
 
-def renameMVar (mctx : MetavarContext) (mvarId : MVarId) (userName : Name) : MetavarContext :=
+/--
+  Set the metavariable user facing name.
+-/
+def setMVarUserName (mctx : MetavarContext) (mvarId : MVarId) (userName : Name) : MetavarContext :=
   let decl := mctx.getDecl mvarId
   { mctx with
     decls := mctx.decls.insert mvarId { decl with userName := userName }
     userNames :=
       let userNames := mctx.userNames.erase decl.userName
       if userName.isAnonymous then userNames else userNames.insert userName mvarId }
+
+/--
+  Low-level version of `setMVarUserName`.
+  It does not update the table `userNames`. Thus, `findUserName?` cannot see the modification.
+  It is meant for `mkForallFVars'` where we temporarily set the user facing name of metavariables to get more
+  meaningful binder names.
+-/
+def setMVarUserNameTemporarily (mctx : MetavarContext) (mvarId : MVarId) (userName : Name) : MetavarContext :=
+  let decl := mctx.getDecl mvarId
+  { mctx with decls := mctx.decls.insert mvarId { decl with userName := userName } }
 
 /- Update the type of the given metavariable. This function assumes the new type is
    definitionally equal to the current one -/
@@ -383,7 +396,7 @@ def assignExpr (m : MetavarContext) (mvarId : MVarId) (val : Expr) : MetavarCont
   { m with eAssignment := m.eAssignment.insert mvarId val }
 
 def assignDelayed (m : MetavarContext) (mvarId : MVarId) (lctx : LocalContext) (fvars : Array Expr) (val : Expr) : MetavarContext :=
-  { m with dAssignment := m.dAssignment.insert mvarId { lctx := lctx, fvars := fvars, val := val } }
+  { m with dAssignment := m.dAssignment.insert mvarId { lctx, fvars, val } }
 
 def getLevelAssignment? (m : MetavarContext) (mvarId : MVarId) : Option Level :=
   m.lAssignment.find? mvarId
@@ -544,7 +557,7 @@ partial def instantiateExprMVars [Monad m] [MonadMCtx m] [STWorld ω m] [MonadLi
         let mctx ← getMCtx
         match mctx.getDelayedAssignment? mvarId with
         | none => instApp
-        | some { fvars := fvars, val := val, .. } =>
+        | some { fvars, val, .. } =>
           /-
              Apply "delayed substitution" (i.e., delayed assignment + application).
              That is, `f` is some metavariable `?m`, that is delayed assigned to `val`.
@@ -615,7 +628,7 @@ def instantiateMVarDeclMVars (mctx : MetavarContext) (mvarId : MVarId) : Metavar
   let mvarDecl     := mctx.getDecl mvarId
   let (lctx, mctx) := mctx.instantiateLCtxMVars mvarDecl.lctx
   let (type, mctx) := mctx.instantiateMVars mvarDecl.type
-  { mctx with decls := mctx.decls.insert mvarId { mvarDecl with lctx := lctx, type := type } }
+  { mctx with decls := mctx.decls.insert mvarId { mvarDecl with lctx, type } }
 
 namespace DependsOn
 
@@ -668,7 +681,7 @@ private def shouldVisit (e : Expr) : M Bool := do
             let lctx := (mctx.getDecl mvarId).lctx
             return lctx.any fun decl => pf decl.fvarId
       | Expr.fvar fvarId _   => return pf fvarId
-      | e                    => pure false
+      | _                    => pure false
   visit e
 
 @[inline] partial def main (mctx : MetavarContext) (pf : FVarId → Bool) (pm : MVarId → Bool) (e : Expr) : M Bool :=
@@ -814,7 +827,6 @@ def collectForwardDeps (mctx : MetavarContext) (lctx : LocalContext) (toRevert :
       -- Make sure toRevert[j] does not depend on toRevert[i] for j > i
       toRevert.size.forM fun i => do
         let fvar := toRevert[i]
-        let decl := lctx.getFVar! fvar
         i.forM fun j => do
           let prevFVar := toRevert[j]
           let prevDecl := lctx.getFVar! prevFVar
@@ -884,8 +896,8 @@ mutual
     | Expr.lam _ d b _     => return e.updateLambdaE! (← visit xs d) (← visit xs b)
     | Expr.letE _ t v b _  => return e.updateLet! (← visit xs t) (← visit xs v) (← visit xs b)
     | Expr.mdata _ b _     => return e.updateMData! (← visit xs b)
-    | Expr.app _ _ _       => e.withApp fun f args => elimApp xs f args
-    | Expr.mvar mvarId _   => elimApp xs e #[]
+    | Expr.app ..          => e.withApp fun f args => elimApp xs f args
+    | Expr.mvar _      _   => elimApp xs e #[]
     | e                    => return e
 
   private partial def mkAuxMVarType (lctx : LocalContext)  (xs : Array Expr) (kind : MetavarKind) (e : Expr) : M Expr := do
@@ -980,7 +992,7 @@ mutual
         cont #[] mvarLCtx
       else match mctx.getDelayedAssignment? mvarId with
       | none => cont #[] mvarLCtx
-      | some { fvars := fvars, lctx := nestedLCtx, .. } => cont fvars nestedLCtx -- Remark: nestedLCtx is bigger than mvarLCtx
+      | some { fvars, lctx := nestedLCtx, .. } => cont fvars nestedLCtx -- Remark: nestedLCtx is bigger than mvarLCtx
 
   private partial def elimApp (xs : Array Expr) (f : Expr) (args : Array Expr) : M Expr := do
     match f with
@@ -1115,6 +1127,7 @@ namespace LevelMVarToParam
 structure Context where
   paramNamePrefix : Name
   alreadyUsedPred : Name → Bool
+  except          : MVarId → Bool
 
 structure State where
   mctx         : MetavarContext
@@ -1144,17 +1157,20 @@ partial def visitLevel (u : Level) : M Level := do
   | Level.succ v _      => return u.updateSucc! (← visitLevel v)
   | Level.max v₁ v₂ _   => return u.updateMax! (← visitLevel v₁) (← visitLevel v₂)
   | Level.imax v₁ v₂ _  => return u.updateIMax! (← visitLevel v₁) (← visitLevel v₂)
-  | Level.zero _        => pure u
-  | Level.param ..      => pure u
+  | Level.zero _        => return u
+  | Level.param ..      => return u
   | Level.mvar mvarId _ =>
     let s ← get
     match s.mctx.getLevelAssignment? mvarId with
     | some v => visitLevel v
     | none   =>
-      let p ← mkParamName
-      let p := mkLevelParam p
-      modify fun s => { s with mctx := s.mctx.assignLevel mvarId p }
-      pure p
+      if (← read).except mvarId then
+        return u
+      else
+        let p ← mkParamName
+        let p := mkLevelParam p
+        modify fun s => { s with mctx := s.mctx.assignLevel mvarId p }
+        return p
 
 partial def main (e : Expr) : M Expr :=
   if !e.hasMVar then
@@ -1189,12 +1205,12 @@ structure UnivMVarParamResult where
   nextParamIdx  : Nat
   expr          : Expr
 
-def levelMVarToParam (mctx : MetavarContext) (alreadyUsedPred : Name → Bool) (e : Expr) (paramNamePrefix : Name := `u) (nextParamIdx : Nat := 1)
+def levelMVarToParam (mctx : MetavarContext) (alreadyUsedPred : Name → Bool) (except : MVarId → Bool) (e : Expr) (paramNamePrefix : Name := `u) (nextParamIdx : Nat := 1)
     : UnivMVarParamResult :=
-  let (e, s) := LevelMVarToParam.main e { paramNamePrefix := paramNamePrefix, alreadyUsedPred := alreadyUsedPred } { mctx := mctx, nextParamIdx := nextParamIdx }
-  { mctx          := s.mctx,
-    newParamNames := s.paramNames,
-    nextParamIdx  := s.nextParamIdx,
+  let (e, s) := LevelMVarToParam.main e { except, paramNamePrefix, alreadyUsedPred } { mctx, nextParamIdx }
+  { mctx          := s.mctx
+    newParamNames := s.paramNames
+    nextParamIdx  := s.nextParamIdx
     expr          := e }
 
 def getExprAssignmentDomain (mctx : MetavarContext) : Array MVarId :=

@@ -20,6 +20,9 @@ namespace Lean.Server.Snapshots
 
 open Elab
 
+/- For `Inhabited Snapshot` -/
+builtin_initialize dummyTacticCache : IO.Ref Tactic.Cache ← IO.mkRef {}
+
 /-- What Lean knows about the world after the header and each command. -/
 structure Snapshot where
   /-- Where the command which produced this snapshot begins. Note that
@@ -34,7 +37,17 @@ structure Snapshot where
   from previous snapshots when publishing diagnostics for every new snapshot (this is quadratic),
   as well as not to invoke it once again when handling `$/lean/interactiveDiagnostics`. -/
   interactiveDiags : Std.PersistentArray Widget.InteractiveDiagnostic
-  deriving Inhabited
+  tacticCache : IO.Ref Tactic.Cache
+
+instance : Inhabited Snapshot where
+  default := {
+    beginPos         := default
+    stx              := default
+    mpState          := default
+    cmdState         := default
+    interactiveDiags := default
+    tacticCache      := dummyTacticCache
+  }
 
 namespace Snapshot
 
@@ -59,11 +72,6 @@ def isAtEnd (s : Snapshot) : Bool :=
   Parser.isEOI s.stx || Parser.isExitCommand s.stx
 
 end Snapshot
-
-/-- Reparses the header syntax but does not re-elaborate it. Used to ignore whitespace-only changes. -/
-def reparseHeader (inputCtx : Parser.InputContext) (header : Snapshot) (opts : Options := {}) : IO Snapshot := do
-  let (newStx, newMpState, _) ← Parser.parseHeader inputCtx
-  pure { header with stx := newStx, mpState := newMpState }
 
 /-- Parses the next command occurring after the given snapshot
 without elaborating it. -/
@@ -91,6 +99,12 @@ partial def parseAhead (inputCtx : Parser.InputContext) (snap : Snapshot) : IO (
       else
         go inputCtx pmctx cmdParserState (stxs.push cmdStx)
 
+register_builtin_option server.stderrAsMessages : Bool := {
+  defValue := true
+  group    := "server"
+  descr    := "(server) capture output to the Lean stderr channel (such as from `dbg_trace`) during elaboration of a command as a diagnostic message"
+}
+
 /-- Compiles the next command occurring after the given snapshot. If there is no next command
 (file ended), `Snapshot.isAtEnd` will hold of the return value. -/
 -- NOTE: This code is really very similar to Elab.Frontend. But generalizing it
@@ -110,19 +124,27 @@ def compileNextCmd (inputCtx : Parser.InputContext) (snap : Snapshot) (hasWidget
       mpState := cmdParserState
       cmdState := snap.cmdState
       interactiveDiags := ← withNewInteractiveDiags msgLog
+      tacticCache := snap.tacticCache
     }
     return endSnap
   else
     let cmdStateRef ← IO.mkRef { snap.cmdState with messages := msgLog }
+    /- The same snapshot may be executed by different tasks. So, to make sure `elabCommandTopLevel` has exclusive
+       access to the cache, we create a fresh reference here. Before this change, the
+       following `snap.tacticCache.modify` would reset the tactic post cache while another snapshot was still using it. -/
+    let tacticCacheNew ← IO.mkRef (← snap.tacticCache.get)
     let cmdCtx : Elab.Command.Context := {
-      cmdPos   := snap.endPos
-      fileName := inputCtx.fileName
-      fileMap  := inputCtx.fileMap
+      cmdPos       := snap.endPos
+      fileName     := inputCtx.fileName
+      fileMap      := inputCtx.fileMap
+      tacticCache? := some tacticCacheNew
     }
-    let (output, _) ← IO.FS.withIsolatedStreams <| liftM (m := BaseIO) do
+    let (output, _) ← IO.FS.withIsolatedStreams (isolateStderr := server.stderrAsMessages.get scope.opts) <| liftM (m := BaseIO) do
       Elab.Command.catchExceptions
         (getResetInfoTrees *> Elab.Command.elabCommandTopLevel cmdStx)
         cmdCtx cmdStateRef
+    let postNew := (← tacticCacheNew.get).post
+    snap.tacticCache.modify fun _ => { pre := postNew, post := {} }
     let mut postCmdState ← cmdStateRef.get
     if !output.isEmpty then
       postCmdState := {
@@ -140,6 +162,7 @@ def compileNextCmd (inputCtx : Parser.InputContext) (snap : Snapshot) (hasWidget
       mpState := cmdParserState
       cmdState := postCmdState
       interactiveDiags := ← withNewInteractiveDiags postCmdState.messages
+      tacticCache := (← IO.mkRef {})
     }
     return postCmdSnap
 

@@ -1,0 +1,10 @@
+matchVarNames.lean:13:29-13:30: error: don't know how to synthesize placeholder
+context:
+α✝ : Type
+β : α✝ → Type u_1
+i i✝ : α✝
+is✝ : List α✝
+a : β i✝
+as : HList β is✝
+h : Member i is✝
+⊢ Member i is✝

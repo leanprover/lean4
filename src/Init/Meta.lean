@@ -7,32 +7,33 @@ Additional goodies for writing macros
 -/
 prelude
 import Init.Data.Array.Basic
+import Init.Data.Option.BasicAux
 
 namespace Lean
 
 @[extern c inline "lean_box(LEAN_VERSION_MAJOR)"]
-private constant version.getMajor (u : Unit) : Nat
+private opaque version.getMajor (u : Unit) : Nat
 def version.major : Nat := version.getMajor ()
 
 @[extern c inline "lean_box(LEAN_VERSION_MINOR)"]
-private constant version.getMinor (u : Unit) : Nat
+private opaque version.getMinor (u : Unit) : Nat
 def version.minor : Nat := version.getMinor ()
 
 @[extern c inline "lean_box(LEAN_VERSION_PATCH)"]
-private constant version.getPatch (u : Unit) : Nat
+private opaque version.getPatch (u : Unit) : Nat
 def version.patch : Nat := version.getPatch ()
 
 @[extern "lean_get_githash"]
-constant getGithash (u : Unit) : String
+opaque getGithash (u : Unit) : String
 def githash : String := getGithash ()
 
 @[extern c inline "LEAN_VERSION_IS_RELEASE"]
-constant version.getIsRelease (u : Unit) : Bool
+opaque version.getIsRelease (u : Unit) : Bool
 def version.isRelease : Bool := version.getIsRelease ()
 
 /-- Additional version description like "nightly-2018-03-11" -/
 @[extern c inline "lean_mk_string(LEAN_SPECIAL_VERSION_DESC)"]
-constant version.getSpecialDesc (u : Unit) : String
+opaque version.getSpecialDesc (u : Unit) : String
 def version.specialDesc : String := version.getSpecialDesc ()
 
 def versionStringCore :=
@@ -59,6 +60,9 @@ def toolchain :=
     origin ++ ":" ++ versionStringCore
   else
     ""
+
+@[extern c inline "LEAN_IS_STAGE0"]
+opaque Internal.isStage0 (u : Unit) : Bool
 
 /- Valid identifier names -/
 def isGreek (c : Char) : Bool :=
@@ -103,7 +107,7 @@ def getRoot : Name → Name
 @[export lean_is_inaccessible_user_name]
 def isInaccessibleUserName : Name → Bool
   | Name.str _ s _   => s.contains '✝' || s == "_inaccessible"
-  | Name.num p idx _ => isInaccessibleUserName p
+  | Name.num p _   _ => isInaccessibleUserName p
   | _                => false
 
 def escapePart (s : String) : Option String :=
@@ -165,6 +169,15 @@ def replacePrefix : Name → Name → Name → Name
   | anonymous,     _,         _    => anonymous
   | n@(str p s _), queryP,    newP => if n == queryP then newP else Name.mkStr (p.replacePrefix queryP newP) s
   | n@(num p s _), queryP,    newP => if n == queryP then newP else Name.mkNum (p.replacePrefix queryP newP) s
+
+/--
+  `eraseSuffix? n s` return `n'` if `n` is of the form `n == n' ++ s`.
+-/
+def eraseSuffix? : Name → Name → Option Name
+  | n,         anonymous   => some n
+  | str p s _, str p' s' _ => if s == s' then eraseSuffix? p p' else none
+  | num p s _, num p' s' _ => if s == s' then eraseSuffix? p p' else none
+  | _,         _           => none
 
 /-- Remove macros scopes, apply `f`, and put them back -/
 @[inline] def modifyBase (n : Name) (f : Name → Name) : Name :=
@@ -233,6 +246,64 @@ instance monadNameGeneratorLift (m n : Type → Type) [MonadLift m n] [MonadName
 
 namespace Syntax
 
+abbrev Term := TSyntax `term
+abbrev Command := TSyntax `command
+protected abbrev Level := TSyntax `level
+abbrev Prec := TSyntax `prec
+abbrev Prio := TSyntax `prio
+abbrev Ident := TSyntax identKind
+abbrev StrLit := TSyntax strLitKind
+abbrev CharLit := TSyntax charLitKind
+abbrev NameLit := TSyntax nameLitKind
+abbrev NumLit := TSyntax numLitKind
+
+end Syntax
+
+export Syntax (Term Command Prec Prio Ident StrLit CharLit NameLit NumLit)
+
+namespace TSyntax
+
+instance : Coe (TSyntax [k]) (TSyntax (k :: ks)) where
+  coe stx := ⟨stx⟩
+
+instance [Coe (TSyntax [k]) (TSyntax ks)] : Coe (TSyntax [k]) (TSyntax (k' :: ks)) where
+  coe stx := ⟨stx⟩
+
+instance : Coe Ident Term where
+  coe s := ⟨s.raw⟩
+
+instance : CoeDep Term ⟨Syntax.ident info ss n res⟩ Ident where
+  coe := ⟨Syntax.ident info ss n res⟩
+
+instance : Coe StrLit Term where
+  coe s := ⟨s.raw⟩
+
+instance : Coe NameLit Term where
+  coe s := ⟨s.raw⟩
+
+instance : Coe NumLit Term where
+  coe s := ⟨s.raw⟩
+
+instance : Coe CharLit Term where
+  coe s := ⟨s.raw⟩
+
+instance : Coe NumLit Prec where
+  coe s := ⟨s.raw⟩
+
+namespace Compat
+
+scoped instance : CoeTail Syntax (TSyntax k) where
+  coe s := ⟨s⟩
+
+scoped instance : CoeTail (Array Syntax) (TSyntaxArray k) where
+  coe := .mk
+
+end Compat
+
+end TSyntax
+
+namespace Syntax
+
 partial def structEq : Syntax → Syntax → Bool
   | Syntax.missing, Syntax.missing => true
   | Syntax.node _ k args, Syntax.node _ k' args' => k == k' && args.isEqv args' structEq
@@ -241,13 +312,14 @@ partial def structEq : Syntax → Syntax → Bool
   | _, _ => false
 
 instance : BEq Lean.Syntax := ⟨structEq⟩
+instance : BEq (Lean.TSyntax k) := ⟨(·.raw == ·.raw)⟩
 
 partial def getTailInfo? : Syntax → Option SourceInfo
   | atom info _   => info
   | ident info .. => info
   | node SourceInfo.none _ args =>
       args.findSomeRev? getTailInfo?
-  | node info _ args => info
+  | node info _ _    => info
   | _             => none
 
 def getTailInfo (stx : Syntax) : SourceInfo :=
@@ -288,7 +360,7 @@ partial def setTailInfoAux (info : SourceInfo) : Syntax → Option Syntax
     match updateLast args (setTailInfoAux info) args.size with
     | some args => some <| node info k args
     | none      => none
-  | stx                    => none
+  | _                      => none
 
 def setTailInfo (stx : Syntax) (info : SourceInfo) : Syntax :=
   match setTailInfoAux info stx with
@@ -297,8 +369,8 @@ def setTailInfo (stx : Syntax) (info : SourceInfo) : Syntax :=
 
 def unsetTrailing (stx : Syntax) : Syntax :=
   match stx.getTailInfo with
-  | SourceInfo.original lead pos trail endPos => stx.setTailInfo (SourceInfo.original lead pos "".toSubstring endPos)
-  | _                                         => stx
+  | SourceInfo.original lead pos _ endPos => stx.setTailInfo (SourceInfo.original lead pos "".toSubstring endPos)
+  | _                                     => stx
 
 @[specialize] private partial def updateFirst {α} [Inhabited α] (a : Array α) (f : α → Option α) (i : Nat) : Option (Array α) :=
   if h : i < a.size then
@@ -315,8 +387,8 @@ partial def setHeadInfoAux (info : SourceInfo) : Syntax → Option Syntax
   | node i k args          =>
     match updateFirst args (setHeadInfoAux info) 0 with
     | some args => some <| node i k args
-    | noxne     => none
-  | stx                    => none
+    | _         => none
+  | _                      => none
 
 def setHeadInfo (stx : Syntax) (info : SourceInfo) : Syntax :=
   match setHeadInfoAux info stx with
@@ -334,8 +406,8 @@ partial def getHead? : Syntax → Option Syntax
   | stx@(atom info ..)  => info.getPos?.map fun _ => stx
   | stx@(ident info ..) => info.getPos?.map fun _ => stx
   | node SourceInfo.none _ args => args.findSome? getHead?
-  | stx@(node info _ _) => stx
-  | _                => none
+  | stx@(node ..) => stx
+  | _ => none
 
 def copyHeadTailInfoFrom (target source : Syntax) : Syntax :=
   target.setHeadInfo source.getHeadInfo |>.setTailInfo source.getTailInfo
@@ -352,8 +424,8 @@ end Syntax
   | none => x
   | some ref => withRef ref x
 
-@[inline] def mkNode (k : SyntaxNodeKind) (args : Array Syntax) : Syntax :=
-  Syntax.node SourceInfo.none k args
+@[inline] def mkNode (k : SyntaxNodeKind) (args : Array Syntax) : TSyntax k :=
+  ⟨Syntax.node SourceInfo.none k args⟩
 
 /- Syntax objects for a Lean module. -/
 structure Module where
@@ -375,30 +447,30 @@ partial def expandMacros : Syntax → MacroM Syntax
 /--
   Create an identifier copying the position from `src`.
   To refer to a specific constant, use `mkCIdentFrom` instead. -/
-def mkIdentFrom (src : Syntax) (val : Name) : Syntax :=
-  Syntax.ident (SourceInfo.fromRef src) (toString val).toSubstring val []
+def mkIdentFrom (src : Syntax) (val : Name) : Ident :=
+  ⟨Syntax.ident (SourceInfo.fromRef src) (toString val).toSubstring val []⟩
 
-def mkIdentFromRef [Monad m] [MonadRef m] (val : Name) : m Syntax := do
+def mkIdentFromRef [Monad m] [MonadRef m] (val : Name) : m Ident := do
   return mkIdentFrom (← getRef) val
 
 /--
   Create an identifier referring to a constant `c` copying the position from `src`.
   This variant of `mkIdentFrom` makes sure that the identifier cannot accidentally
   be captured. -/
-def mkCIdentFrom (src : Syntax) (c : Name) : Syntax :=
+def mkCIdentFrom (src : Syntax) (c : Name) : Ident :=
   -- Remark: We use the reserved macro scope to make sure there are no accidental collision with our frontend
   let id   := addMacroScope `_internal c reservedMacroScope
-  Syntax.ident (SourceInfo.fromRef src) (toString id).toSubstring id [(c, [])]
+  ⟨Syntax.ident (SourceInfo.fromRef src) (toString id).toSubstring id [(c, [])]⟩
 
 def mkCIdentFromRef [Monad m] [MonadRef m] (c : Name) : m Syntax := do
   return mkCIdentFrom (← getRef) c
 
-def mkCIdent (c : Name) : Syntax :=
+def mkCIdent (c : Name) : Ident :=
   mkCIdentFrom Syntax.missing c
 
 @[export lean_mk_syntax_ident]
-def mkIdent (val : Name) : Syntax :=
-  Syntax.ident SourceInfo.none (toString val).toSubstring val []
+def mkIdent (val : Name) : Ident :=
+  ⟨Syntax.ident SourceInfo.none (toString val).toSubstring val []⟩
 
 @[inline] def mkNullNode (args : Array Syntax := #[]) : Syntax :=
   mkNode nullKind args
@@ -406,7 +478,7 @@ def mkIdent (val : Name) : Syntax :=
 @[inline] def mkGroupNode (args : Array Syntax := #[]) : Syntax :=
   mkNode groupKind args
 
-def mkSepArray (as : Array Syntax) (sep : Syntax) : Array Syntax := Id.run <| do
+def mkSepArray (as : Array Syntax) (sep : Syntax) : Array Syntax := Id.run do
   let mut i := 0
   let mut r := #[]
   for a in as do
@@ -431,37 +503,40 @@ def mkSep (a : Array Syntax) (sep : Syntax) : Syntax :=
   mkNullNode <| mkSepArray a sep
 
 def SepArray.ofElems {sep} (elems : Array Syntax) : SepArray sep :=
-⟨mkSepArray elems (mkAtom sep)⟩
+⟨mkSepArray elems (if sep.isEmpty then mkNullNode else mkAtom sep)⟩
 
 def SepArray.ofElemsUsingRef [Monad m] [MonadRef m] {sep} (elems : Array Syntax) : m (SepArray sep) := do
   let ref ← getRef;
-  return ⟨mkSepArray elems (mkAtomFrom ref sep)⟩
+  return ⟨mkSepArray elems (if sep.isEmpty then mkNullNode else mkAtomFrom ref sep)⟩
 
-instance (sep) : Coe (Array Syntax) (SepArray sep) where
+instance : Coe (Array Syntax) (SepArray sep) where
   coe := SepArray.ofElems
 
-/-- Create syntax representing a Lean term application, but avoid degenerate empty applications. -/
-def mkApp (fn : Syntax) : (args : Array Syntax) → Syntax
-  | #[]  => fn
-  | args => mkNode `Lean.Parser.Term.app #[fn, mkNullNode args]
+instance : Coe (TSyntaxArray k) (TSepArray k sep) where
+  coe a := ⟨mkSepArray a.raw (mkAtom sep)⟩
 
-def mkCApp (fn : Name) (args : Array Syntax) : Syntax :=
+/-- Create syntax representing a Lean term application, but avoid degenerate empty applications. -/
+def mkApp (fn : Term) : (args : TSyntaxArray `term) → Term
+  | #[]  => fn
+  | args => ⟨mkNode `Lean.Parser.Term.app #[fn, mkNullNode args.raw]⟩
+
+def mkCApp (fn : Name) (args : TSyntaxArray `term) : Term :=
   mkApp (mkCIdent fn) args
 
-def mkLit (kind : SyntaxNodeKind) (val : String) (info := SourceInfo.none) : Syntax :=
+def mkLit (kind : SyntaxNodeKind) (val : String) (info := SourceInfo.none) : TSyntax kind :=
   let atom : Syntax := Syntax.atom info val
   mkNode kind #[atom]
 
-def mkStrLit (val : String) (info := SourceInfo.none) : Syntax :=
+def mkStrLit (val : String) (info := SourceInfo.none) : StrLit :=
   mkLit strLitKind (String.quote val) info
 
-def mkNumLit (val : String) (info := SourceInfo.none) : Syntax :=
+def mkNumLit (val : String) (info := SourceInfo.none) : NumLit :=
   mkLit numLitKind val info
 
-def mkScientificLit (val : String) (info := SourceInfo.none) : Syntax :=
+def mkScientificLit (val : String) (info := SourceInfo.none) : TSyntax scientificLitKind :=
   mkLit scientificLitKind val info
 
-def mkNameLit (val : String) (info := SourceInfo.none) : Syntax :=
+def mkNameLit (val : String) (info := SourceInfo.none) : NameLit :=
   mkLit nameLitKind val info
 
 /- Recall that we don't have special Syntax constructors for storing numeric and string atoms.
@@ -515,10 +590,10 @@ def decodeNatLitVal? (s : String) : Option Nat :=
     if c == '0' then
       if len == 1 then some 0
       else
-        let c := s.get 1
-        if c == 'x' || c == 'X' then decodeHexLitAux s 2 0
-        else if c == 'b' || c == 'B' then decodeBinLitAux s 2 0
-        else if c == 'o' || c == 'O' then decodeOctalLitAux s 2 0
+        let c := s.get ⟨1⟩
+        if c == 'x' || c == 'X' then decodeHexLitAux s ⟨2⟩ 0
+        else if c == 'b' || c == 'B' then decodeBinLitAux s ⟨2⟩ 0
+        else if c == 'o' || c == 'O' then decodeOctalLitAux s ⟨2⟩ 0
         else if c.isDigit then decodeDecimalLitAux s 0 0
         else none
     else if c.isDigit then decodeDecimalLitAux s 0 0
@@ -618,59 +693,56 @@ def toNat (stx : Syntax) : Nat :=
   | some val => val
   | none     => 0
 
-def decodeQuotedChar (s : String) (i : String.Pos) : Option (Char × String.Pos) :=
-  OptionM.run do
-    let c := s.get i
-    let i := s.next i
-    if c == '\\' then pure ('\\', i)
-    else if c = '\"' then pure ('\"', i)
-    else if c = '\'' then pure ('\'', i)
-    else if c = 'r'  then pure ('\r', i)
-    else if c = 'n'  then pure ('\n', i)
-    else if c = 't'  then pure ('\t', i)
-    else if c = 'x'  then
-      let (d₁, i) ← decodeHexDigit s i
-      let (d₂, i) ← decodeHexDigit s i
-      pure (Char.ofNat (16*d₁ + d₂), i)
-    else if c = 'u'  then do
-      let (d₁, i) ← decodeHexDigit s i
-      let (d₂, i) ← decodeHexDigit s i
-      let (d₃, i) ← decodeHexDigit s i
-      let (d₄, i) ← decodeHexDigit s i
-      pure (Char.ofNat (16*(16*(16*d₁ + d₂) + d₃) + d₄), i)
-    else
-      none
+def decodeQuotedChar (s : String) (i : String.Pos) : Option (Char × String.Pos) := do
+  let c := s.get i
+  let i := s.next i
+  if c == '\\' then pure ('\\', i)
+  else if c = '\"' then pure ('\"', i)
+  else if c = '\'' then pure ('\'', i)
+  else if c = 'r'  then pure ('\r', i)
+  else if c = 'n'  then pure ('\n', i)
+  else if c = 't'  then pure ('\t', i)
+  else if c = 'x'  then
+    let (d₁, i) ← decodeHexDigit s i
+    let (d₂, i) ← decodeHexDigit s i
+    pure (Char.ofNat (16*d₁ + d₂), i)
+  else if c = 'u'  then do
+    let (d₁, i) ← decodeHexDigit s i
+    let (d₂, i) ← decodeHexDigit s i
+    let (d₃, i) ← decodeHexDigit s i
+    let (d₄, i) ← decodeHexDigit s i
+    pure (Char.ofNat (16*(16*(16*d₁ + d₂) + d₃) + d₄), i)
+  else
+    none
 
-partial def decodeStrLitAux (s : String) (i : String.Pos) (acc : String) : Option String :=
-  OptionM.run do
-    let c := s.get i
-    let i := s.next i
-    if c == '\"' then
-      pure acc
-    else if s.atEnd i then
-      none
-    else if c == '\\' then do
-      let (c, i) ← decodeQuotedChar s i
-      decodeStrLitAux s i (acc.push c)
-    else
-      decodeStrLitAux s i (acc.push c)
+partial def decodeStrLitAux (s : String) (i : String.Pos) (acc : String) : Option String := do
+  let c := s.get i
+  let i := s.next i
+  if c == '\"' then
+    pure acc
+  else if s.atEnd i then
+    none
+  else if c == '\\' then do
+    let (c, i) ← decodeQuotedChar s i
+    decodeStrLitAux s i (acc.push c)
+  else
+    decodeStrLitAux s i (acc.push c)
 
 def decodeStrLit (s : String) : Option String :=
-  decodeStrLitAux s 1 ""
+  decodeStrLitAux s ⟨1⟩ ""
 
 def isStrLit? (stx : Syntax) : Option String :=
   match isLit? strLitKind stx with
   | some val => decodeStrLit val
   | _        => none
 
-def decodeCharLit (s : String) : Option Char :=
-  OptionM.run do
-    let c := s.get 1
-    if c == '\\' then do
-      let (c, _) ← decodeQuotedChar s 2
-      pure c
-    else
-      pure c
+def decodeCharLit (s : String) : Option Char := do
+  let c := s.get ⟨1⟩
+  if c == '\\' then do
+    let (c, _) ← decodeQuotedChar s ⟨2⟩
+    pure c
+  else
+    pure c
 
 def isCharLit? (stx : Syntax) : Option Char :=
   match isLit? charLitKind stx with
@@ -691,14 +763,14 @@ private partial def splitNameLitAux (ss : Substring) (acc : List Substring) : Li
     if isIdBeginEscape curr then
       let escapedPart := ss.takeWhile (!isIdEndEscape ·)
       let escapedPart := { escapedPart with stopPos := ss.stopPos.min (escapedPart.str.next escapedPart.stopPos) }
-      if !isIdEndEscape (escapedPart.get <| escapedPart.prev escapedPart.bsize) then []
-      else splitRest (ss.extract escapedPart.bsize ss.bsize) (escapedPart :: acc)
+      if !isIdEndEscape (escapedPart.get <| escapedPart.prev ⟨escapedPart.bsize⟩) then []
+      else splitRest (ss.extract ⟨escapedPart.bsize⟩ ⟨ss.bsize⟩) (escapedPart :: acc)
     else if isIdFirst curr then
       let idPart := ss.takeWhile isIdRest
-      splitRest (ss.extract idPart.bsize ss.bsize) (idPart :: acc)
+      splitRest (ss.extract ⟨idPart.bsize⟩ ⟨ss.bsize⟩) (idPart :: acc)
     else if curr.isDigit then
       let idPart := ss.takeWhile Char.isDigit
-      splitRest (ss.extract idPart.bsize ss.bsize) (idPart :: acc)
+      splitRest (ss.extract ⟨idPart.bsize⟩ ⟨ss.bsize⟩) (idPart :: acc)
     else
       []
 
@@ -750,11 +822,6 @@ def isNone (stx : Syntax) : Bool :=
   | Syntax.missing     => true
   | _                  => false
 
-def getOptional? (stx : Syntax) : Option Syntax :=
-  match stx with
-  | Syntax.node _ k args => if k == nullKind && args.size == 1 then some (args.get! 0) else none
-  | _                    => none
-
 def getOptionalIdent? (stx : Syntax) : Option Name :=
   match stx.getOptional? with
   | some stx => some stx.getId
@@ -769,92 +836,113 @@ def find? (stx : Syntax) (p : Syntax → Bool) : Option Syntax :=
 
 end Syntax
 
+namespace TSyntax
+
+def getNat (s : TSyntax numLitKind) : Nat :=
+  s.raw.isNatLit?.get!
+
+def getId (s : Ident) : Name :=
+  s.raw.getId
+
+def getString (s : TSyntax strLitKind) : String :=
+  s.raw.isStrLit?.get!
+
+namespace Compat
+
+scoped instance : CoeTail (Array Syntax) (Syntax.TSepArray k sep) where
+  coe a := (a : TSyntaxArray k)
+
+end Compat
+
+end TSyntax
+
 /-- Reflect a runtime datum back to surface syntax (best-effort). -/
-class Quote (α : Type) where
-  quote : α → Syntax
+class Quote (α : Type) (k : SyntaxNodeKind := `term) where
+  quote : α → TSyntax k
 
 export Quote (quote)
 
-instance : Quote Syntax := ⟨id⟩
+instance [Quote α k] [CoeHTCT (TSyntax k) (TSyntax [k'])]: Quote α k' := ⟨fun a => quote (k := k) a⟩
+
+instance : Quote Term := ⟨id⟩
 instance : Quote Bool := ⟨fun | true => mkCIdent `Bool.true | false => mkCIdent `Bool.false⟩
-instance : Quote String := ⟨Syntax.mkStrLit⟩
-instance : Quote Nat := ⟨fun n => Syntax.mkNumLit <| toString n⟩
+instance : Quote String strLitKind := ⟨Syntax.mkStrLit⟩
+instance : Quote Nat numLitKind := ⟨fun n => Syntax.mkNumLit <| toString n⟩
 instance : Quote Substring := ⟨fun s => Syntax.mkCApp `String.toSubstring #[quote s.toString]⟩
 
 -- in contrast to `Name.toString`, we can, and want to be, precise here
-private def getEscapedNameParts? (acc : List String) : Name → OptionM (List String)
-  | Name.anonymous => return acc
+private def getEscapedNameParts? (acc : List String) : Name → Option (List String)
+  | Name.anonymous => if acc.isEmpty then none else some acc
   | Name.str n s _ => do
     let s ← Name.escapePart s
     getEscapedNameParts? (s::acc) n
-  | Name.num n i _ => none
+  | Name.num _ _ _ => none
 
-private def quoteNameMk : Name → Syntax
+def quoteNameMk : Name → Term
   | Name.anonymous => mkCIdent ``Name.anonymous
   | Name.str n s _ => Syntax.mkCApp ``Name.mkStr #[quoteNameMk n, quote s]
   | Name.num n i _ => Syntax.mkCApp ``Name.mkNum #[quoteNameMk n, quote i]
 
-instance : Quote Name where
+instance : Quote Name `term where
   quote n := match getEscapedNameParts? [] n with
-    | some ss => mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ ".".intercalate ss)]
-    | none    => quoteNameMk n
+    | some ss => ⟨mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ ".".intercalate ss)]⟩
+    | none    => ⟨quoteNameMk n⟩
 
-instance {α β : Type} [Quote α] [Quote β] : Quote (α × β) where
+instance [Quote α `term] [Quote β `term] : Quote (α × β) `term where
   quote
     | ⟨a, b⟩ => Syntax.mkCApp ``Prod.mk #[quote a, quote b]
 
-private def quoteList {α : Type} [Quote α] : List α → Syntax
+private def quoteList [Quote α `term] : List α → Term
   | []      => mkCIdent ``List.nil
   | (x::xs) => Syntax.mkCApp ``List.cons #[quote x, quoteList xs]
 
-instance {α : Type} [Quote α] : Quote (List α) where
+instance [Quote α `term] : Quote (List α) `term where
   quote := quoteList
 
-instance {α : Type} [Quote α] : Quote (Array α) where
+instance [Quote α `term] : Quote (Array α) `term where
   quote xs := Syntax.mkCApp ``List.toArray #[quote xs.toList]
 
-private def quoteOption {α : Type} [Quote α] : Option α → Syntax
-  | none     => mkIdent ``none
-  | (some x) => Syntax.mkCApp ``some #[quote x]
+instance Option.hasQuote {α : Type} [Quote α `term] : Quote (Option α) `term where
+  quote
+    | none     => mkIdent ``none
+    | (some x) => Syntax.mkCApp ``some #[quote x]
 
-instance Option.hasQuote {α : Type} [Quote α] : Quote (Option α) where
-  quote := quoteOption
 
 /- Evaluator for `prec` DSL -/
 def evalPrec (stx : Syntax) : MacroM Nat :=
   Macro.withIncRecDepth stx do
     let stx ← expandMacros stx
     match stx with
-    | `(prec| $num:numLit) => return num.isNatLit?.getD 0
+    | `(prec| $num:num) => return num.getNat
     | _ => Macro.throwErrorAt stx "unexpected precedence"
 
 macro_rules
-  | `(prec| $a + $b) => do `(prec| $(quote <| (← evalPrec a) + (← evalPrec b)):numLit)
+  | `(prec| $a + $b) => do `(prec| $(quote <| (← evalPrec a) + (← evalPrec b)):num)
 
 macro_rules
-  | `(prec| $a - $b) => do `(prec| $(quote <| (← evalPrec a) - (← evalPrec b)):numLit)
+  | `(prec| $a - $b) => do `(prec| $(quote <| (← evalPrec a) - (← evalPrec b)):num)
 
-macro "eval_prec " p:prec:max : term => return quote (← evalPrec p)
+macro "eval_prec " p:prec:max : term => return quote (k := `term) (← evalPrec p)
 
 /- Evaluator for `prio` DSL -/
 def evalPrio (stx : Syntax) : MacroM Nat :=
   Macro.withIncRecDepth stx do
     let stx ← expandMacros stx
     match stx with
-    | `(prio| $num:numLit) => return num.isNatLit?.getD 0
+    | `(prio| $num:num) => return num.getNat
     | _ => Macro.throwErrorAt stx "unexpected priority"
 
 macro_rules
-  | `(prio| $a + $b) => do `(prio| $(quote <| (← evalPrio a) + (← evalPrio b)):numLit)
+  | `(prio| $a + $b) => do `(prio| $(quote <| (← evalPrio a) + (← evalPrio b)):num)
 
 macro_rules
-  | `(prio| $a - $b) => do `(prio| $(quote <| (← evalPrio a) - (← evalPrio b)):numLit)
+  | `(prio| $a - $b) => do `(prio| $(quote <| (← evalPrio a) - (← evalPrio b)):num)
 
-macro "eval_prio " p:prio:max : term => return quote (← evalPrio p)
+macro "eval_prio " p:prio:max : term => return quote (k := `term) (← evalPrio p)
 
-def evalOptPrio : Option Syntax → MacroM Nat
+def evalOptPrio : Option (TSyntax `prio) → MacroM Nat
   | some prio => evalPrio prio
-  | none      => return eval_prio default
+  | none      => return 1000 -- TODO: FIX back eval_prio default
 
 end Lean
 
@@ -906,21 +994,40 @@ def mapSepElems (a : Array Syntax) (f : Syntax → Syntax) : Array Syntax :=
 
 end Array
 
-namespace Lean.Syntax.SepArray
+namespace Lean.Syntax
 
-def getElems {sep} (sa : SepArray sep) : Array Syntax :=
+def SepArray.getElems (sa : SepArray sep) : Array Syntax :=
   sa.elemsAndSeps.getSepElems
+
+def TSepArray.getElems (sa : TSepArray k sep) : TSyntaxArray k :=
+  .mk sa.elemsAndSeps.getSepElems
 
 /-
 We use `CoeTail` here instead of `Coe` to avoid a "loop" when computing `CoeTC`.
 The "loop" is interrupted using the maximum instance size threshold, but it is a performance bottleneck.
 The loop occurs because the predicate `isNewAnswer` is too imprecise.
 -/
-instance (sep) : CoeTail (SepArray sep) (Array Syntax) where
-  coe := getElems
+instance : CoeTail (SepArray sep) (Array Syntax) where
+  coe := SepArray.getElems
 
-end Lean.Syntax.SepArray
+instance : Coe (TSepArray k sep) (TSyntaxArray k) where
+  coe := TSepArray.getElems
 
+instance [Coe (TSyntax k) (TSyntax k')] : Coe (TSyntaxArray k) (TSyntaxArray k') where
+  coe a := .mk a.raw
+
+instance : Coe (TSyntaxArray k) (Array Syntax) where
+  coe a := a.raw
+
+instance : Coe Ident (TSyntax `Lean.Parser.Command.declId) where
+  coe id := mkNode _ #[id, mkNullNode #[]]
+
+instance : Coe (Lean.Term) (Lean.TSyntax `Lean.Parser.Term.funBinder) where
+  coe stx := ⟨stx⟩
+
+end Lean.Syntax
+
+set_option linter.unusedVariables.funArgs false in
 /--
   Gadget for automatic parameter support. This is similar to the `optParam` gadget, but it uses
   the given tactic.
@@ -931,18 +1038,17 @@ abbrev autoParam.{u} (α : Sort u) (tactic : Lean.Syntax) : Sort u := α
 /- Helper functions for manipulating interpolated strings -/
 namespace Lean.Syntax
 
-private def decodeInterpStrQuotedChar (s : String) (i : String.Pos) : Option (Char × String.Pos) :=
-  OptionM.run do
-    match decodeQuotedChar s i with
-    | some r => some r
-    | none   =>
-      let c := s.get i
-      let i := s.next i
-      if c == '{' then pure ('{', i)
-      else none
+private def decodeInterpStrQuotedChar (s : String) (i : String.Pos) : Option (Char × String.Pos) := do
+  match decodeQuotedChar s i with
+  | some r => some r
+  | none   =>
+    let c := s.get i
+    let i := s.next i
+    if c == '{' then pure ('{', i)
+    else none
 
 private partial def decodeInterpStrLit (s : String) : Option String :=
-  let rec loop (i : String.Pos) (acc : String) : OptionM String :=
+  let rec loop (i : String.Pos) (acc : String) : Option String :=
     let c := s.get i
     let i := s.next i
     if c == '\"' || c == '{' then
@@ -954,12 +1060,19 @@ private partial def decodeInterpStrLit (s : String) : Option String :=
       loop i (acc.push c)
     else
       loop i (acc.push c)
-  loop 1 ""
+  loop ⟨1⟩ ""
 
 partial def isInterpolatedStrLit? (stx : Syntax) : Option String :=
   match isLit? interpolatedStrLitKind stx with
   | none     => none
   | some val => decodeInterpStrLit val
+
+def getSepArgs (stx : Syntax) : Array Syntax :=
+  stx.getArgs.getSepElems
+
+end Syntax
+
+namespace TSyntax
 
 def expandInterpolatedStrChunks (chunks : Array Syntax) (mkAppend : Syntax → Syntax → MacroM Syntax) (mkElem : Syntax → MacroM Syntax) : MacroM Syntax := do
   let mut i := 0
@@ -975,21 +1088,42 @@ def expandInterpolatedStrChunks (chunks : Array Syntax) (mkAppend : Syntax → S
     i := i+1
   return result
 
-def expandInterpolatedStr (interpStr : Syntax) (type : Syntax) (toTypeFn : Syntax) : MacroM Syntax := do
-  let ref := interpStr
-  let r ← expandInterpolatedStrChunks interpStr.getArgs (fun a b => `($a ++ $b)) (fun a => `($toTypeFn $a))
+open TSyntax.Compat in
+def expandInterpolatedStr (interpStr : TSyntax interpolatedStrKind) (type : Term) (toTypeFn : Term) : MacroM Term := do
+  let r ← expandInterpolatedStrChunks interpStr.raw.getArgs (fun a b => `($a ++ $b)) (fun a => `($toTypeFn $a))
   `(($r : $type))
 
-def getSepArgs (stx : Syntax) : Array Syntax :=
-  stx.getArgs.getSepElems
-
-end Syntax
+end TSyntax
 
 namespace Meta
 
 inductive TransparencyMode where
   | all | default | reducible | instances
   deriving Inhabited, BEq, Repr
+
+inductive EtaStructMode where
+  | /-- Enable eta for structure and classes. -/
+    all
+  | /-- Enable eta only for structures that are not classes. -/
+    notClasses
+  | /-- Disable eta for structures and classes. -/
+    none
+  deriving Inhabited, BEq, Repr
+
+namespace DSimp
+
+structure Config where
+  zeta              : Bool := true
+  beta              : Bool := true
+  eta               : Bool := true
+  etaStruct         : EtaStructMode := .all
+  iota              : Bool := true
+  proj              : Bool := true
+  decide            : Bool := true
+  autoUnfold        : Bool := false
+  deriving Inhabited, BEq, Repr
+
+end DSimp
 
 namespace Simp
 
@@ -1004,25 +1138,28 @@ structure Config where
   zeta              : Bool := true
   beta              : Bool := true
   eta               : Bool := true
-  etaStruct         : Bool := true
+  etaStruct         : EtaStructMode := .all
   iota              : Bool := true
   proj              : Bool := true
   decide            : Bool := true
   arith             : Bool := false
+  autoUnfold        : Bool := false
   deriving Inhabited, BEq, Repr
 
 -- Configuration object for `simp_all`
 structure ConfigCtx extends Config where
   contextual := true
 
-def neutralConfig : Simp.Config :=
-  { zeta              := false
-    beta              := false
-    eta               := false
-    iota              := false
-    proj              := false
-    decide            := false
-    arith             := false }
+def neutralConfig : Simp.Config := {
+  zeta              := false
+  beta              := false
+  eta               := false
+  iota              := false
+  proj              := false
+  decide            := false
+  arith             := false
+  autoUnfold        := false
+}
 
 end Simp
 
@@ -1039,19 +1176,38 @@ end Meta
 namespace Parser.Tactic
 
 macro "erw " s:rwRuleSeq loc:(location)? : tactic =>
-  `(rw (config := { transparency := Lean.Meta.TransparencyMode.default }) $s:rwRuleSeq $[$(loc.getOptional?):location]?)
+  `(rw (config := { transparency := Lean.Meta.TransparencyMode.default }) $s:rwRuleSeq $[$loc:location]?)
 
-/-- Similar to `simp` but with `arith := true` -/
-syntax (name := simpArith) "simp_arith " (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
+syntax simpAllKind := atomic("(" &"all") " := " &"true" ")"
+syntax dsimpKind   := atomic("(" &"dsimp") " := " &"true" ")"
 
-@[macro simpArith] def expandSimpArith : Macro := fun s => do
-  let c ← match s[1][0] with
-    | `(config| (config := $c:term)) => `(config| (config := { ($c : Lean.Meta.Simp.Config) with arith := true }))
-    | _ => `(config| (config := { arith := true }))
-  let s := s.setKind ``simp
-  let s := s.setArg 0 (mkAtomFrom s[0] "simp")
-  let r := s.setArg 1 (mkNullNode #[c])
-  return r
+macro "declare_simp_like_tactic" opt:((simpAllKind <|> dsimpKind)?) tacName:ident tacToken:str updateCfg:term : command => do
+  let (kind, tkn, stx) ←
+    if opt.raw.isNone then
+      pure (← `(``simp), ← `("simp "), ← `(syntax (name := $tacName:ident) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic))
+    else if opt.raw[0].getKind == ``simpAllKind then
+      pure (← `(``simpAll), ← `("simp_all "), ← `(syntax (name := $tacName:ident) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic))
+    else
+      pure (← `(``dsimp), ← `("dsimp "), ← `(syntax (name := $tacName:ident) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? (location)? : tactic))
+  `($stx:command
+    @[macro $tacName:ident] def expandSimp : Macro := fun s => do
+      let c ← match s[1][0] with
+        | `(config| (config := $$c:term)) => `(config| (config := $updateCfg:term $$c))
+        | _ => `(config| (config := $updateCfg:term {}))
+      let s := s.setKind $kind:term
+      let s := s.setArg 0 (mkAtomFrom s[0] $tkn:term)
+      let r := s.setArg 1 (mkNullNode #[c])
+      return r)
+
+declare_simp_like_tactic simpAutoUnfold "simp! " fun (c : Lean.Meta.Simp.Config) => { c with autoUnfold := true }
+declare_simp_like_tactic simpArith "simp_arith " fun (c : Lean.Meta.Simp.Config) => { c with arith := true }
+declare_simp_like_tactic simpArithAutoUnfold "simp_arith! " fun (c : Lean.Meta.Simp.Config) => { c with arith := true, autoUnfold := true }
+
+declare_simp_like_tactic (all := true) simpAllAutoUnfold "simp_all! " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with autoUnfold := true }
+declare_simp_like_tactic (all := true) simpAllArith "simp_all_arith " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with arith := true }
+declare_simp_like_tactic (all := true) simpAllArithAutoUnfold "simp_all_arith! " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with arith := true, autoUnfold := true }
+
+declare_simp_like_tactic (dsimp := true) dsimpAutoUnfold "dsimp! " fun (c : Lean.Meta.DSimp.Config) => { c with autoUnfold := true }
 
 end Parser.Tactic
 

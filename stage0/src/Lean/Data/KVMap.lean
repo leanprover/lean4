@@ -73,7 +73,7 @@ def size (m : KVMap) : Nat :=
   m.entries.length
 
 def findCore : List (Name × DataValue) → Name → Option DataValue
-  | [],       k' => none
+  | [],       _  => none
   | (k,v)::m, k' => if k == k' then some v else findCore m k'
 
 def find : KVMap → Name → Option DataValue
@@ -148,7 +148,7 @@ instance : ForIn m KVMap (Name × DataValue) where
   forIn := KVMap.forIn
 
 def subsetAux : List (Name × DataValue) → KVMap → Bool
-  | [],          m₂ => true
+  | [],          _  => true
   | (k, v₁)::m₁, m₂ =>
     match m₂.find k with
     | some v₂ => v₁ == v₂ && subsetAux m₁ m₂
@@ -167,13 +167,13 @@ class Value (α : Type) where
   toDataValue  : α → DataValue
   ofDataValue? : DataValue → Option α
 
-@[inline] def get? {α : Type} [s : Value α] (m : KVMap) (k : Name) : Option α :=
+@[inline] def get? {α : Type} [Value α] (m : KVMap) (k : Name) : Option α :=
   m.find k |>.bind Value.ofDataValue?
 
-@[inline] def get {α : Type} [s : Value α] (m : KVMap) (k : Name) (defVal : α) : α :=
+@[inline] def get {α : Type} [Value α] (m : KVMap) (k : Name) (defVal : α) : α :=
   m.get? k |>.getD defVal
 
-@[inline] def set {α : Type} [s : Value α] (m : KVMap) (k : Name) (v : α) : KVMap :=
+@[inline] def set {α : Type} [Value α] (m : KVMap) (k : Name) (v : α) : KVMap :=
   m.insert k (Value.toDataValue v)
 
 instance : Value DataValue where

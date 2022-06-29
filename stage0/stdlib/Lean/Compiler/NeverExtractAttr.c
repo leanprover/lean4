@@ -46,7 +46,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Compiler_NeverExtractAttr___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("neverExtract");
+x_1 = lean_mk_string_from_bytes("neverExtract", 12);
 return x_1;
 }
 }
@@ -64,7 +64,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Compiler_NeverExtractAttr___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("instruct the compiler that function applications using the tagged declaration should not be extracted when they are closed terms, nor common subexpression should be performed. This is useful for declarations that have implicit effects.");
+x_1 = lean_mk_string_from_bytes("instruct the compiler that function applications using the tagged declaration should not be extracted when they are closed terms, nor common subexpression should be performed. This is useful for declarations that have implicit effects.", 235);
 return x_1;
 }
 }

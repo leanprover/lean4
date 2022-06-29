@@ -139,8 +139,8 @@ theorem ex15 (p q : Nat) : p ≤ q ∨ p > q := by
   | lower d => _
   | upper d => ?hupper
   { apply Or.inl; apply Nat.le_refl }
-  { apply Or.inr; show q + d.succ > q; admit }
   { apply Or.inl; show p ≤ p + d.succ; admit }
+  { apply Or.inr; show q + d.succ > q; admit }
 
 theorem ex16 {p q : Prop} (h : p ∨ q) : q ∨ p := by
   induction h

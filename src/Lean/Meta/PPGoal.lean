@@ -34,7 +34,12 @@ structure State where
   modified               : Bool := false
 
 structure Context where
-  goalTarget : Expr
+  /--
+   If true we make a declaration "visible" if it has visible backward dependencies.
+   Remark: recall that for the `Prop` case, the declaration is moved to `hiddenInaccessibleProp`
+   -/
+  backwardDeps : Bool
+  goalTarget   : Expr
 
 abbrev M := ReaderT Context $ StateRefT State MetaM
 
@@ -95,17 +100,17 @@ def fixpointStep : M Unit := do
   (← getLCtx).forM fun localDecl => do
     let fvarId := localDecl.fvarId
     if (← get).hiddenInaccessible.contains fvarId then
-      if (← hasVisibleDep localDecl) then
-        /- localDecl is marked to be hidden, but it has a (backward) visible dependency. -/
-        unmark fvarId
-      if (← isProp localDecl.type) then
-        unless (← hasInaccessibleNameDep localDecl) do
-          moveToHiddeProp fvarId
+      if (← read).backwardDeps then
+        if (← hasVisibleDep localDecl) then
+          /- localDecl is marked to be hidden, but it has a (backward) visible dependency. -/
+          unmark fvarId
+        if (← isProp localDecl.type) then
+          unless (← hasInaccessibleNameDep localDecl) do
+            moveToHiddeProp fvarId
     else
       visitVisibleExpr localDecl.type
-      match localDecl.value? with
-      | some value => visitVisibleExpr value
-      | _ => pure ()
+      let some value := localDecl.value? | return ()
+      visitVisibleExpr value
 
 partial def fixpoint : M Unit := do
   modify fun s => { s with modified := false }
@@ -113,29 +118,43 @@ partial def fixpoint : M Unit := do
   if (← get).modified then
     fixpoint
 
+/--
+  Construct initial `FVarIdSet` containting free variables ids that have inaccessible user names.
+-/
+private def getInitialHiddenInaccessible (propOnly : Bool) : MetaM FVarIdSet := do
+  (← getLCtx).foldlM (init := {}) fun r localDecl => do
+    if localDecl.userName.isInaccessibleUserName then
+      if (← pure !propOnly <||> isProp localDecl.type) then
+        return r.insert localDecl.fvarId
+    return r
+
 /-
 If pp.inaccessibleNames == false, then collect two sets of `FVarId`s : `hiddenInaccessible` and `hiddenInaccessibleProp`
 1- `hiddenInaccessible` contains `FVarId`s of free variables with inaccessible names that
-    a) are not propositions or are propositions containing "visible" names.
+    a) are not propositions or
+    b) are propositions containing "visible" names.
 2- `hiddenInaccessibleProp` contains `FVarId`s of free variables with inaccessible names that are propositions
    containing "visible" names.
 Both sets do not contain `FVarId`s that contain visible backward or forward dependencies.
 The `goalTarget` counts as a forward dependency.
 
 We say a name is visible if it is a free variable with FVarId not in `hiddenInaccessible` nor `hiddenInaccessibleProp`
+
+For propositions in `hiddenInaccessibleProp`, we show only their types when displaying a goal.
+
+Remark: when `pp.inaccessibleNames == true`, we still compute `hiddenInaccessibleProp` to prevent the
+goal from being littered with irrelevant names.
+
 -/
 def collect (goalTarget : Expr) : MetaM (FVarIdSet × FVarIdSet) := do
   if pp.inaccessibleNames.get (← getOptions) then
-    /- Don't hide inaccessible names when `pp.inaccessibleNames` is set to true. -/
-    return ({}, {})
+    -- If `pp.inaccessibleNames == true`, we still must compute `hiddenInaccessibleProp`.
+    let hiddenInaccessible ← getInitialHiddenInaccessible (propOnly := true)
+    let (_, s) ← fixpoint.run { backwardDeps := false, goalTarget } |>.run { hiddenInaccessible }
+    return ({}, s.hiddenInaccessible)
   else
-    let lctx ← getLCtx
-    let hiddenInaccessible := lctx.foldl (init := {}) fun hiddenInaccessible localDecl => Id.run <| do
-      if localDecl.userName.isInaccessibleUserName then
-        hiddenInaccessible.insert localDecl.fvarId
-      else
-        hiddenInaccessible
-    let (_, s) ← fixpoint.run { goalTarget := goalTarget } |>.run { hiddenInaccessible := hiddenInaccessible }
+    let hiddenInaccessible ← getInitialHiddenInaccessible (propOnly := false)
+    let (_, s) ← fixpoint.run { backwardDeps := true, goalTarget } |>.run { hiddenInaccessible }
     return (s.hiddenInaccessible, s.hiddenInaccessibleProp)
 
 end ToHide
@@ -143,10 +162,17 @@ end ToHide
 private def addLine (fmt : Format) : Format :=
   if fmt.isNil then fmt else fmt ++ Format.line
 
+def getGoalPrefix (mvarDecl : MetavarDecl) : String :=
+  if isLHSGoal? mvarDecl.type |>.isSome then
+    -- use special prefix for `conv` goals
+    "| "
+  else
+    "⊢ "
+
 def ppGoal (mvarId : MVarId) : MetaM Format := do
   match (← getMCtx).findDecl? mvarId with
-  | none          => pure "unknown goal"
-  | some mvarDecl => do
+  | none          => return "unknown goal"
+  | some mvarDecl =>
     let indent         := 2 -- Use option
     let ppAuxDecls     := pp.auxDecls.get (← getOptions)
     let lctx           := mvarDecl.lctx
@@ -155,34 +181,34 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
       let (hidden, hiddenProp) ← ToHide.collect mvarDecl.type
       -- The followint two `let rec`s are being used to control the generated code size.
       -- Then should be remove after we rewrite the compiler in Lean
-      let rec pushPending (ids : List Name) (type? : Option Expr) (fmt : Format) : MetaM Format :=
+      let rec pushPending (ids : List Name) (type? : Option Expr) (fmt : Format) : MetaM Format := do
         if ids.isEmpty then
-          pure fmt
+          return fmt
         else
           let fmt := addLine fmt
           match type? with
-          | none      => pure fmt
-          | some type => do
+          | none      => return fmt
+          | some type =>
             let typeFmt ← ppExpr type
-            pure $ fmt ++ (Format.joinSep ids.reverse (format " ") ++ " :" ++ Format.nest indent (Format.line ++ typeFmt)).group
+            return fmt ++ (Format.joinSep ids.reverse (format " ") ++ " :" ++ Format.nest indent (Format.line ++ typeFmt)).group
       let rec ppVars (varNames : List Name) (prevType? : Option Expr) (fmt : Format) (localDecl : LocalDecl) : MetaM (List Name × Option Expr × Format) := do
         if hiddenProp.contains localDecl.fvarId then
           let fmt ← pushPending varNames prevType? fmt
           let fmt  := addLine fmt
           let type ← instantiateMVars localDecl.type
           let typeFmt ← ppExpr type
-          let fmt  := fmt ++ " : " ++ typeFmt
-          pure ([], none, fmt)
+          let fmt  := fmt ++ ": " ++ typeFmt
+          return ([], none, fmt)
         else
           match localDecl with
           | LocalDecl.cdecl _ _ varName type _   =>
             let varName := varName.simpMacroScopes
             let type ← instantiateMVars type
             if prevType? == none || prevType? == some type then
-              pure (varName :: varNames, some type, fmt)
+              return (varName :: varNames, some type, fmt)
             else do
               let fmt ← pushPending varNames prevType? fmt
-              pure ([varName], some type, fmt)
+              return ([varName], some type, fmt)
           | LocalDecl.ldecl _ _ varName type val _ => do
             let varName := varName.simpMacroScopes
             let fmt ← pushPending varNames prevType? fmt
@@ -192,18 +218,18 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
             let typeFmt ← ppExpr type
             let valFmt ← ppExpr val
             let fmt  := fmt ++ (format varName ++ " : " ++ typeFmt ++ " :=" ++ Format.nest indent (Format.line ++ valFmt)).group
-            pure ([], none, fmt)
+            return ([], none, fmt)
       let (varNames, type?, fmt) ← lctx.foldlM (init := ([], none, Format.nil)) fun (varNames, prevType?, fmt) (localDecl : LocalDecl) =>
          if !ppAuxDecls && localDecl.isAuxDecl || hidden.contains localDecl.fvarId then
-           pure (varNames, prevType?, fmt)
+           return (varNames, prevType?, fmt)
          else
            ppVars varNames prevType? fmt localDecl
       let fmt ← pushPending varNames type? fmt
       let fmt := addLine fmt
       let typeFmt ← ppExpr (← instantiateMVars mvarDecl.type)
-      let fmt := fmt ++ "⊢ " ++ Format.nest indent typeFmt
+      let fmt := fmt ++ getGoalPrefix mvarDecl ++ Format.nest indent typeFmt
       match mvarDecl.userName with
-      | Name.anonymous => pure fmt
+      | Name.anonymous => return fmt
       | name           => return "case " ++ format name.eraseMacroScopes ++ Format.line ++ fmt
 
 end Lean.Meta

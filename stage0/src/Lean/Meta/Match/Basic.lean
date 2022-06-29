@@ -4,10 +4,21 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.Check
+import Lean.Meta.CollectFVars
 import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Match.CaseArraySizes
 
 namespace Lean.Meta.Match
+
+def mkNamedPattern (x h p : Expr) : MetaM Expr :=
+  mkAppM ``namedPattern #[x, p, h]
+
+def isNamedPattern? (e : Expr) : Option Expr :=
+  let e := e.consumeMData
+  if e.getAppNumArgs == 4 && e.getAppFn.consumeMData.isConstOf ``namedPattern then
+    some e
+  else
+    none
 
 inductive Pattern : Type where
   | inaccessible (e : Expr) : Pattern
@@ -27,7 +38,7 @@ partial def toMessageData : Pattern → MessageData
   | ctor ctorName _ _ pats => m!"({ctorName}{pats.foldl (fun (msg : MessageData) pat => msg ++ " " ++ toMessageData pat) Format.nil})"
   | val e                  => e
   | arrayLit _ pats        => m!"#[{MessageData.joinSep (pats.map toMessageData) ", "}]"
-  | as varId p h           => m!"{mkFVar varId}@{toMessageData p}"
+  | as varId p _           => m!"{mkFVar varId}@{toMessageData p}"
 
 partial def toExpr (p : Pattern) (annotate := false) : MetaM Expr :=
   visit p
@@ -44,7 +55,7 @@ where
     | as fvarId p hId                =>
       -- TODO
       if annotate then
-        mkAppM ``namedPattern #[mkFVar fvarId, (← visit p), mkFVar hId]
+        mkNamedPattern (mkFVar fvarId) (mkFVar hId) (← visit p)
       else
         visit p
     | arrayLit type xs               =>
@@ -79,6 +90,18 @@ partial def hasExprMVar : Pattern → Bool
   | arrayLit t xs  => t.hasExprMVar || xs.any hasExprMVar
   | _              => false
 
+
+partial def collectFVars (p : Pattern) : StateRefT CollectFVars.State MetaM Unit := do
+  match p with
+  | inaccessible e => e.collectFVars
+  | ctor _ _ ps fs =>
+    ps.forM fun p => p.collectFVars
+    fs.forM collectFVars
+  | val e => e.collectFVars
+  | arrayLit t xs => t.collectFVars; xs.forM collectFVars
+  | as fvarId₁ p fvarId₂ => modify (·.add fvarId₁ |>.add fvarId₂); p.collectFVars
+  | var fvarId => modify (·.add fvarId)
+
 end Pattern
 
 partial def instantiatePatternMVars : Pattern → MetaM Pattern
@@ -93,6 +116,10 @@ structure AltLHS where
   ref        : Syntax
   fvarDecls  : List LocalDecl -- Free variables used in the patterns.
   patterns   : List Pattern   -- We use `List Pattern` since we have nary match-expressions.
+
+def AltLHS.collectFVars (altLHS: AltLHS) : StateRefT CollectFVars.State MetaM Unit := do
+  altLHS.fvarDecls.forM fun fvarDecl => fvarDecl.collectFVars
+  altLHS.patterns.forM fun p => p.collectFVars
 
 def instantiateAltLHSMVars (altLHS : AltLHS) : MetaM AltLHS :=
   return { altLHS with
@@ -210,7 +237,7 @@ partial def applyFVarSubst (s : FVarSubst) : Example → Example
   | ex           => ex
 
 partial def varsToUnderscore : Example → Example
-  | var x        => underscore
+  | var _        => underscore
   | ctor n exs   => ctor n $ exs.map varsToUnderscore
   | arrayLit exs => arrayLit $ exs.map varsToUnderscore
   | ex           => ex
@@ -276,7 +303,7 @@ partial def toPattern (e : Expr) : MetaM Pattern := do
     | some (α, lits) =>
       return Pattern.arrayLit α (← lits.mapM toPattern)
     | none =>
-      if e.isAppOfArity ``namedPattern 4 then
+      if let some e := isNamedPattern? e then
         let p ← toPattern <| e.getArg! 2
         match e.getArg! 1, e.getArg! 3 with
         | Expr.fvar x _, Expr.fvar h _ => return Pattern.as x p h

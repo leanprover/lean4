@@ -1,5 +1,5 @@
-constant foo : {x : Nat} → Type
-constant bar : {T : Type} → ({x : T} → Type) → Type
+opaque foo : {x : Nat} → Type
+opaque bar : {T : Type} → ({x : T} → Type) → Type
 structure Baz where
   baz : {x : Nat} → Type
 

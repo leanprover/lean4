@@ -13,15 +13,22 @@ namespace CSimp
 structure Entry where
   fromDeclName : Name
   toDeclName   : Name
+  thmName      : Name
   deriving Inhabited
 
-abbrev State := SMap Name Name
+structure State where
+  map : SMap Name Name := {}
+  thmNames : SSet Name := {}
+  deriving Inhabited
+
+def State.switch : State → State
+  | { map, thmNames } => { map := map.switch, thmNames := thmNames.switch }
 
 builtin_initialize ext : SimpleScopedEnvExtension Entry State ←
   registerSimpleScopedEnvExtension {
     name           := `csimp
     initial        := {}
-    addEntry       := fun s { fromDeclName, toDeclName } => s.insert fromDeclName toDeclName
+    addEntry       := fun { map, thmNames } { fromDeclName, toDeclName, thmName } => { map := map.insert fromDeclName toDeclName, thmNames := thmNames.insert thmName }
     finalizeImport := fun s => s.switch
   }
 
@@ -30,7 +37,7 @@ private def isConstantReplacement? (declName : Name) : CoreM (Option Entry) := d
   match info.type.eq? with
   | some (_, Expr.const fromDeclName us .., Expr.const toDeclName vs ..) =>
     if us == vs then
-      return some { fromDeclName, toDeclName }
+      return some { fromDeclName, toDeclName, thmName := declName }
     else
       return none
   | _ => return none
@@ -52,14 +59,18 @@ builtin_initialize
 
 @[export lean_csimp_replace_constants]
 def replaceConstants (env : Environment) (e : Expr) : Expr :=
-  let map := ext.getState env
+  let s := ext.getState env
   e.replace fun e =>
     if e.isConst then
-      match map.find? e.constName! with
+      match s.map.find? e.constName! with
       | some declNameNew => some (mkConst declNameNew e.constLevels!)
       | none => none
     else
       none
 
 end CSimp
+
+def hasCSimpAttribute (env : Environment) (declName : Name) : Bool :=
+  CSimp.ext.getState env |>.thmNames.contains declName
+
 end Lean.Compiler

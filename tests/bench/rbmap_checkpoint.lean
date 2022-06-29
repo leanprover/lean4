@@ -15,7 +15,7 @@ inductive color
 | Red | Black
 
 inductive Tree
-| Leaf  {}                                                                       : Tree
+| Leaf                                                                           : Tree
 | Node  (color : color) (lchild : Tree) (key : Nat) (val : Bool) (rchild : Tree) : Tree
 
 instance : Inhabited Tree := ⟨Tree.Leaf⟩

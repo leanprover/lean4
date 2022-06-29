@@ -17,8 +17,8 @@ def Vec.map (v : Vec α n) (f : α → β) : Vec β n :=
 
 def Vec.reverse (v : Vec α n) : Vec α n :=
   let rec loop : {n m : Nat} → Vec α n → Vec α m → Vec α (n + m)
-    | _, _, nil,       w => Nat.zero_add .. ▸ w
-    | _, _, cons a as, w => Nat.add_assoc .. ▸ loop as (Nat.add_comm .. ▸ cons a w)
+    | nil,       w => Nat.zero_add .. ▸ w
+    | cons a as, w => Nat.add_assoc .. ▸ loop as (Nat.add_comm .. ▸ cons a w)
   loop v nil
 
 @[simp] theorem map_id (v : Vec α n) : v.map id = v := by

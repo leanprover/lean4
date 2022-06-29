@@ -6,3 +6,11 @@ has type
   Nat : Type
 but is expected to have type
   Prop : Type
+elseifDoErrorPos.lean:7:11-7:14: error: application type mismatch
+  pure "a"
+argument
+  "a"
+has type
+  String : Type
+but is expected to have type
+  Nat : Type

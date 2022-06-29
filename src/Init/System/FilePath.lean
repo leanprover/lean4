@@ -52,7 +52,7 @@ def normalize (p : FilePath) (normalizeCase := isCaseInsensitive) : FilePath :=
 -- the following functions follow the names and semantics from Rust's `std::path::Path`
 
 def isAbsolute (p : FilePath) : Bool :=
-  pathSeparators.contains p.toString.front || (isWindows && p.toString.bsize >= 1 && p.toString[1] == ':')
+  pathSeparators.contains p.toString.front || (isWindows && p.toString.length > 1 && p.toString.iter.next.curr == ':')
 
 def isRelative (p : FilePath) : Bool :=
   !p.isAbsolute
@@ -73,11 +73,11 @@ private def posOfLastSep (p : FilePath) : Option String.Pos :=
   p.toString.revFind pathSeparators.contains
 
 def parent (p : FilePath) : Option FilePath :=
-  FilePath.mk <$> p.toString.extract 0 <$> posOfLastSep p
+  FilePath.mk <$> p.toString.extract {} <$> posOfLastSep p
 
 def fileName (p : FilePath) : Option String :=
   let lastPart := match posOfLastSep p with
-    | some sepPos => p.toString.extract (sepPos + 1) p.toString.bsize
+    | some sepPos => p.toString.extract (sepPos + '/') p.toString.endPos
     | none        => p.toString
   if lastPart.isEmpty || lastPart == "." || lastPart == ".." then none else some lastPart
 
@@ -85,7 +85,7 @@ def fileName (p : FilePath) : Option String :=
 def fileStem (p : FilePath) : Option String :=
   p.fileName.map fun fname =>
     match fname.revPosOf '.' with
-    | some 0   => fname
+    | some ⟨0⟩ => fname
     | some pos => fname.extract 0 pos
     | none     => fname
 
@@ -93,7 +93,7 @@ def extension (p : FilePath) : Option String :=
   p.fileName.bind fun fname =>
     match fname.revPosOf '.' with
     | some 0   => none
-    | some pos => fname.extract (pos + 1) fname.bsize
+    | some pos => fname.extract (pos + '.') fname.endPos
     | none     => none
 
 def withFileName (p : FilePath) (fname : String) : FilePath :=

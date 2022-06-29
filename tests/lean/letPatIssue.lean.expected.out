@@ -1,0 +1,22 @@
+letPatIssue.lean:3:2-3:3: error: don't know how to synthesize placeholder
+context:
+x : Nat × Nat
+a b : Nat
+⊢ (a, b).fst + (a, b).snd ≥ 0
+letPatIssue.lean:7:2-7:3: error: don't know how to synthesize placeholder
+context:
+x : Nat × Nat
+a b : Nat
+⊢ (a, b).fst + (a, b).snd ≥ 0
+letPatIssue.lean:11:2-11:6: error: unsolved goals
+x : Nat × Nat
+a b : Nat
+⊢ (a, b).fst + (a, b).snd ≥ 0
+letPatIssue.lean:15:2-15:6: error: unsolved goals
+x : Nat × Nat
+a b : Nat
+⊢ (a, b).fst + (a, b).snd ≥ 0
+letPatIssue.lean:22:2-22:6: error: unsolved goals
+x : Nat × Nat
+a b : Nat
+⊢ f (a, b) > 0

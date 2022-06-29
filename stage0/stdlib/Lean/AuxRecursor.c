@@ -39,7 +39,6 @@ LEAN_EXPORT lean_object* l_Lean_isCasesOnRecursor___boxed(lean_object*, lean_obj
 static lean_object* l_Lean_casesOnSuffix___closed__1;
 static lean_object* l_Lean_isCasesOnRecursor___closed__1;
 LEAN_EXPORT uint8_t l_Lean_isAuxRecursorWithSuffix(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_markNoConfusion___closed__1;
 static lean_object* l_Lean_brecOnSuffix___closed__1;
 static lean_object* l_Lean_binductionOnSuffix___closed__1;
@@ -59,6 +58,7 @@ LEAN_EXPORT lean_object* l_Lean_brecOnSuffix;
 static lean_object* l_Lean_isAuxRecursor___closed__1;
 LEAN_EXPORT lean_object* l_Lean_isAuxRecursorWithSuffix___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_isAuxRecursor___closed__6;
+lean_object* l_Lean_TagDeclarationExtension_tag(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_recOnSuffix___closed__1;
 LEAN_EXPORT lean_object* l_Lean_casesOnSuffix;
 LEAN_EXPORT lean_object* l_Lean_mkBInductionOnName(lean_object*);
@@ -67,7 +67,7 @@ static lean_object* _init_l_Lean_casesOnSuffix___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("casesOn");
+x_1 = lean_mk_string_from_bytes("casesOn", 7);
 return x_1;
 }
 }
@@ -83,7 +83,7 @@ static lean_object* _init_l_Lean_recOnSuffix___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("recOn");
+x_1 = lean_mk_string_from_bytes("recOn", 5);
 return x_1;
 }
 }
@@ -99,7 +99,7 @@ static lean_object* _init_l_Lean_brecOnSuffix___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("brecOn");
+x_1 = lean_mk_string_from_bytes("brecOn", 6);
 return x_1;
 }
 }
@@ -115,7 +115,7 @@ static lean_object* _init_l_Lean_binductionOnSuffix___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("binductionOn");
+x_1 = lean_mk_string_from_bytes("binductionOn", 12);
 return x_1;
 }
 }
@@ -131,7 +131,7 @@ static lean_object* _init_l_Lean_belowSuffix___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("below");
+x_1 = lean_mk_string_from_bytes("below", 5);
 return x_1;
 }
 }
@@ -192,7 +192,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_AuxRecursor___hyg_49____clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("auxRec");
+x_1 = lean_mk_string_from_bytes("auxRec", 6);
 return x_1;
 }
 }
@@ -228,7 +228,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = l_Lean_markAuxRecursor___closed__1;
-x_4 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_3, x_1, x_2);
+x_4 = l_Lean_TagDeclarationExtension_tag(x_3, x_1, x_2);
 return x_4;
 }
 }
@@ -236,7 +236,7 @@ static lean_object* _init_l_Lean_isAuxRecursor___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Eq");
+x_1 = lean_mk_string_from_bytes("Eq", 2);
 return x_1;
 }
 }
@@ -254,7 +254,7 @@ static lean_object* _init_l_Lean_isAuxRecursor___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ndrec");
+x_1 = lean_mk_string_from_bytes("ndrec", 5);
 return x_1;
 }
 }
@@ -272,7 +272,7 @@ static lean_object* _init_l_Lean_isAuxRecursor___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ndrecOn");
+x_1 = lean_mk_string_from_bytes("ndrecOn", 7);
 return x_1;
 }
 }
@@ -439,7 +439,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_AuxRecursor___hyg_150____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("noConf");
+x_1 = lean_mk_string_from_bytes("noConf", 6);
 return x_1;
 }
 }
@@ -475,7 +475,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = l_Lean_markNoConfusion___closed__1;
-x_4 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_3, x_1, x_2);
+x_4 = l_Lean_TagDeclarationExtension_tag(x_3, x_1, x_2);
 return x_4;
 }
 }

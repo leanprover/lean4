@@ -34,12 +34,13 @@ namespace Lean.Meta
   That is, proof irrelevance may prevent us from performing desired mvar assignments.
 -/
 private def isDefEqEtaStruct (a b : Expr) : MetaM Bool := do
-  if !(← getConfig).etaStruct then return false
-  else
-    matchConstCtor b.getAppFn (fun _ => return false) fun ctorVal _ =>
-    matchConstCtor a.getAppFn (fun _ => go ctorVal) fun _ _ => return false
+  matchConstCtor b.getAppFn (fun _ => return false) fun ctorVal us => do
+    if (← useEtaStruct ctorVal.induct) then
+      matchConstCtor a.getAppFn (fun _ => go ctorVal us) fun _ _ => return false
+    else
+      return false
 where
-  go ctorVal := do
+  go ctorVal us := do
     if ctorVal.numParams + ctorVal.numFields != b.getAppNumArgs then
       trace[Meta.isDefEq.eta.struct] "failed, insufficient number of arguments at{indentExpr b}"
       return false
@@ -50,9 +51,11 @@ where
       else if (← isDefEq (← inferType a) (← inferType b)) then
         checkpointDefEq do
           let args := b.getAppArgs
+          let params := args[:ctorVal.numParams].toArray
           for i in [ctorVal.numParams : args.size] do
-            let proj := mkProj ctorVal.induct (i - ctorVal.numParams) a
-            trace[Meta.isDefEq.eta.struct] "{a} =?= {b} @ [{i - ctorVal.numParams}], {proj} =?= {args[i]}"
+            let j := i - ctorVal.numParams
+            let proj ← mkProjFn ctorVal us params j a
+            trace[Meta.isDefEq.eta.struct] "{a} =?= {b} @ [{j}], {proj} =?= {args[i]}"
             unless (← isDefEq proj args[i]) do
               trace[Meta.isDefEq.eta.struct] "failed, unexpect arg #{i}, projection{indentExpr proj}\nis not defeq to{indentExpr args[i]}"
               return false
@@ -109,7 +112,7 @@ def isDefEqNat (s t : Expr) : MetaM LBool := do
 /-- Support for constraints of the form `("..." =?= String.mk cs)` -/
 def isDefEqStringLit (s t : Expr) : MetaM LBool := do
   let isDefEq (s t) : MetaM LBool := toLBoolM <| Meta.isExprDefEqAux s t
-  if s.isStringLit && t.isAppOf `String.mk then
+  if s.isStringLit && t.isAppOf ``String.mk then
     isDefEq (toCtorIfLit s) t
   else if s.isAppOf `String.mk && t.isStringLit then
     isDefEq s (toCtorIfLit t)
@@ -323,14 +326,13 @@ private partial def mkLambdaFVarsWithLetDeps (xs : Array Expr) (v : Expr) : Meta
     mkLambdaFVars xs v
   else
     let ys ← addLetDeps
-    trace[Meta.debug] "ys: {ys}, v: {v}"
     mkLambdaFVars ys v
 
 where
   /- Return true if there are let-declarions between `xs[0]` and `xs[xs.size-1]`.
      We use it a quick-check to avoid the more expensive collection procedure. -/
   hasLetDeclsInBetween : MetaM Bool := do
-    let check (lctx : LocalContext) : Bool := Id.run <| do
+    let check (lctx : LocalContext) : Bool := Id.run do
       let start := lctx.getFVar! xs[0] |>.index
       let stop  := lctx.getFVar! xs.back |>.index
       for i in [start+1:stop] do
@@ -782,7 +784,7 @@ end CheckAssignment
 namespace CheckAssignmentQuick
 
 partial def check
-    (hasCtxLocals ctxApprox : Bool)
+    (hasCtxLocals : Bool)
     (mctx : MetavarContext) (lctx : LocalContext) (mvarDecl : MetavarDecl) (mvarId : MVarId) (fvars : Array Expr) (e : Expr) : Bool :=
   let rec visit (e : Expr) : Bool :=
     if !e.hasExprMVar && !e.hasFVar then
@@ -801,7 +803,7 @@ partial def check
     | Expr.fvar fvarId ..  =>
       if mvarDecl.lctx.contains fvarId then true
       else match lctx.find? fvarId with
-        | some (LocalDecl.ldecl (value := v) ..) => false -- need expensive CheckAssignment.check
+        | some (LocalDecl.ldecl ..) => false -- need expensive CheckAssignment.check
         | _ =>
           if fvars.any fun x => x.fvarId! == fvarId then true
           else false -- We could throw an exception here, but we would have to use ExceptM. So, we let CheckAssignment.check do it
@@ -842,7 +844,7 @@ def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (O
     let hasCtxLocals := fvars.any fun fvar => mvarDecl.lctx.containsFVar fvar
     let ctx ← read
     let mctx ← getMCtx
-    if CheckAssignmentQuick.check hasCtxLocals ctx.config.ctxApprox mctx ctx.lctx mvarDecl mvarId fvars v then
+    if CheckAssignmentQuick.check hasCtxLocals mctx ctx.lctx mvarDecl mvarId fvars v then
       pure (some v)
     else
       let v ← instantiateMVars v
@@ -1144,7 +1146,7 @@ private def unfoldBothDefEq (fn : Name) (t s : Expr) : MetaM LBool := do
 
 private def sameHeadSymbol (t s : Expr) : Bool :=
   match t.getAppFn, s.getAppFn with
-  | Expr.const c₁ _ _, Expr.const c₂ _ _ => true
+  | Expr.const c₁ _ _, Expr.const c₂ _ _ => c₁ == c₂
   | _,                 _                 => false
 
 /--
@@ -1382,16 +1384,16 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
       -- ⊢ q ((fun x => x + 1) 0)
       sorry
     ```
-    However, the inaccessible pattern annotation must be consumed.
+    However, pattern annotations (`inaccessible?` and `patternWithRef?`) must be consumed.
     The frontend relies on the fact that is must not be propagated by `isDefEq`.
     Thus, we consume it here. This is a bit hackish since it is very adhoc.
     We might other annotations in the future that we should not preserve.
     Perhaps, we should mark the annotation we do want to preserve ones
     (e.g., hints for the pretty printer), and consume all other
   -/
-  if let some t := inaccessible? t then
+  if let some t := patternAnnotation? t then
     isDefEqQuick t s
-  else if let some s := inaccessible? s then
+  else if let some s := patternAnnotation? s then
     isDefEqQuick t s
   else if t == s then
     return LBool.true
@@ -1492,10 +1494,6 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
 
 -- Both `t` and `s` are terms of the form `?m ...`
 private partial def isDefEqQuickMVarMVar (t s : Expr) : MetaM LBool := do
-  let tFn := t.getAppFn
-  let sFn := s.getAppFn
-  let tMVarDecl ← getMVarDecl tFn.mvarId!
-  let sMVarDecl ← getMVarDecl sFn.mvarId!
   if s.isMVar && !t.isMVar then
      /- Solve `?m t =?= ?n` by trying first `?n := ?m t`.
         Reason: this assignment is precise. -/
@@ -1580,14 +1578,14 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
 
 /-- Return `true` if the types of the given expressions is an inductive datatype with an inductive datatype with a single constructor with no fields. -/
 private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
-  if !(← getConfig).etaStruct then return false
-  else
-    let tType ← whnf (← inferType t)
-    matchConstStruct tType.getAppFn (fun _ => return false) fun _ _ ctorVal => do
-      if ctorVal.numFields != 0 then
-        return false
-      else
-        Meta.isExprDefEqAux tType (← inferType s)
+  let tType ← whnf (← inferType t)
+  matchConstStruct tType.getAppFn (fun _ => return false) fun _ _ ctorVal => do
+    if ctorVal.numFields != 0 then
+      return false
+    else if (← useEtaStruct ctorVal.induct) then
+      Meta.isExprDefEqAux tType (← inferType s)
+    else
+      return false
 
 private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
   if (← (isDefEqEta t s <||> isDefEqEta s t)) then pure true else

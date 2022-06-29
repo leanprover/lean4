@@ -1,4 +1,4 @@
-
+--
 
 -- Test1
 inductive T1 : Nat -- Error, resultant type is not a sort
@@ -111,7 +111,7 @@ inductive T1 : Nat → Type
 -- Test13
 
 inductive A (α : Type u) (β : Type v)
-| nil {}
+| nil
 | protected cons : α → β → A α β → A α β
 
 open A

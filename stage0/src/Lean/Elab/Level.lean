@@ -3,8 +3,9 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Log
+import Lean.Parser.Level
 import Lean.Elab.Exception
-import Lean.Elab.Log
 import Lean.Elab.AutoBound
 
 namespace Lean.Elab.Level
@@ -53,17 +54,17 @@ private def checkUniverseOffset [Monad m] [MonadError m] [MonadOptions m] (n : N
 
 partial def elabLevel (stx : Syntax) : LevelElabM Level := withRef stx do
   let kind := stx.getKind
-  if kind == `Lean.Parser.Level.paren then
+  if kind == ``Lean.Parser.Level.paren then
     elabLevel (stx.getArg 1)
-  else if kind == `Lean.Parser.Level.max then
+  else if kind == ``Lean.Parser.Level.max then
     let args := stx.getArg 1 |>.getArgs
     args[:args.size - 1].foldrM (init := ← elabLevel args.back) fun stx lvl =>
       return mkLevelMax' (← elabLevel stx) lvl
-  else if kind == `Lean.Parser.Level.imax then
+  else if kind == ``Lean.Parser.Level.imax then
     let args := stx.getArg 1 |>.getArgs
     args[:args.size - 1].foldrM (init := ← elabLevel args.back) fun stx lvl =>
       return mkLevelIMax' (← elabLevel stx) lvl
-  else if kind == `Lean.Parser.Level.hole then
+  else if kind == ``Lean.Parser.Level.hole then
     mkFreshLevelMVar
   else if kind == numLitKind then
     match stx.isNatLit? with

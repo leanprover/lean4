@@ -14,30 +14,18 @@ by
 [Elab.step] trivial
 [Elab.step] (apply And.intro✝) <;> trivial
 [Elab.step] focus
-  (
-    apply And.intro✝;
-    all_goals
-      trivial)
-[Elab.step] 
-  (
-    apply And.intro✝;
-    all_goals
-      trivial)
-[Elab.step] 
-  (
-    apply And.intro✝;
-    all_goals
-      trivial)
-[Elab.step] (
-  apply And.intro✝;
-  all_goals
-    trivial)
-[Elab.step] 
-  apply And.intro✝;
+  apply And.intro✝
+  with_annotate_state"<;>" skip
   all_goals
     trivial
 [Elab.step] 
-  apply And.intro✝;
+  apply And.intro✝
+  with_annotate_state"<;>" skip
+  all_goals
+    trivial
+[Elab.step] 
+  apply And.intro✝
+  with_annotate_state"<;>" skip
   all_goals
     trivial
 [Elab.step] apply And.intro✝

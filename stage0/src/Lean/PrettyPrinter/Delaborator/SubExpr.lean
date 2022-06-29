@@ -4,31 +4,22 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Daniel Selsam, Wojciech Nawrocki
 -/
 import Lean.Meta.Basic
+import Lean.SubExpr
 import Std.Data.RBMap
 
 /-!
+# Subexpr utilities for delaborator.
 This file defines utilities for `MetaM` computations to traverse subexpressions of an expression
-in sync with the `Nat` "position" values that refer to them.  We use a simple encoding scheme:
-every `Expr` constructor has at most 3 direct expression children. Considering an expression's type
-to be one extra child as well, we can injectively map a path of `childIdxs` to a natural number
-by computing the value of the 4-ary representation `1 :: childIdxs`, since n-ary representations
-without leading zeros are unique. Note that `pos` is initialized to `1` (case `childIdxs == []`).
+in sync with the `Nat` "position" values that refer to them.
 -/
 
 namespace Lean.PrettyPrinter.Delaborator
 
-abbrev Pos := Nat
-
-abbrev OptionsPerPos := Std.RBMap Pos Options compare
-
-structure SubExpr where
-  expr : Expr
-  pos  : Pos
-  deriving Inhabited
+abbrev OptionsPerPos := Std.RBMap SubExpr.Pos Options compare
 
 namespace SubExpr
 
-abbrev maxChildren : Pos := 4
+open Lean.SubExpr
 
 variable {α : Type} [Inhabited α]
 variable {m : Type → Type} [Monad m]
@@ -39,19 +30,17 @@ variable [MonadReaderOf SubExpr m] [MonadWithReaderOf SubExpr m]
 variable [MonadLiftT MetaM m] [MonadControlT MetaM m]
 variable [MonadLiftT IO m]
 
-def mkRoot (e : Expr) : SubExpr := ⟨e, 1⟩
-
 def getExpr : m Expr := return (← readThe SubExpr).expr
 def getPos  : m Pos  := return (← readThe SubExpr).pos
 
-def descend (child : Expr) (childIdx : Pos) (x : m α) : m α :=
-  withTheReader SubExpr (fun cfg => { cfg with expr := child, pos := cfg.pos * maxChildren + childIdx }) x
+def descend (child : Expr) (childIdx : Nat) (x : m α) : m α :=
+  withTheReader SubExpr (fun cfg => { cfg with expr := child, pos := cfg.pos.push childIdx }) x
 
 def withAppFn   (x : m α) : m α := do descend (← getExpr).appFn!  0 x
 def withAppArg  (x : m α) : m α := do descend (← getExpr).appArg! 1 x
 
 def withType (x : m α) : m α := do
-  descend (← Meta.inferType (← getExpr)) (maxChildren - 1) x -- phantom positions for types
+  descend (← Meta.inferType (← getExpr)) Pos.typeCoord x -- phantom positions for types
 
 partial def withAppFnArgs (xf : m α) (xa : α → m α) : m α := do
   if (← getExpr).isApp then
@@ -90,21 +79,20 @@ def withLetBody (x : m α) : m α := do
 
 def withNaryFn (x : m α) : m α := do
   let e ← getExpr
-  let n := e.getAppNumArgs
-  let newPos := (← getPos) * (maxChildren ^ n)
+  let newPos := (← getPos).pushNaryFn e.getAppNumArgs
   withTheReader SubExpr (fun cfg => { cfg with expr := e.getAppFn, pos := newPos }) x
 
 def withNaryArg (argIdx : Nat) (x : m α) : m α := do
   let e ← getExpr
   let args := e.getAppArgs
-  let newPos := (← getPos) * (maxChildren ^ (args.size - argIdx)) + 1
+  let newPos := (← getPos).pushNaryArg args.size argIdx
   withTheReader SubExpr (fun cfg => { cfg with expr := args[argIdx], pos := newPos }) x
 
 end Descend
 
 structure HoleIterator where
   curr : Nat := 2
-  top  : Nat := maxChildren
+  top  : Nat := Pos.maxChildren
   deriving Inhabited
 
 section Hole
@@ -118,7 +106,7 @@ def HoleIterator.toPos (iter : HoleIterator) : Pos :=
 
 def HoleIterator.next (iter : HoleIterator) : HoleIterator :=
   if (iter.curr+1) == iter.top then
-    ⟨2*iter.top, maxChildren*iter.top⟩
+    ⟨2*iter.top, Pos.maxChildren*iter.top⟩
   else ⟨iter.curr+1, iter.top⟩
 
 /-- The positioning scheme guarantees that there will be an infinite number of extra positions

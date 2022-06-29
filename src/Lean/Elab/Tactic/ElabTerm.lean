@@ -16,15 +16,18 @@ open Meta
 
 /- `elabTerm` for Tactics and basic tactics that use it. -/
 
-def elabTerm (stx : Syntax) (expectedType? : Option Expr) (mayPostpone := false) : TermElabM Expr := do
-  /- We have disabled `Term.withoutErrToSorry` to improve error recovery.
-     When we were using it, any tactic using `elabTerm` would be interrupted at elaboration errors.
-     Tactics that do not want to proceed should check whether the result contains sythetic sorrys or
-     disable `errToSorry` before invoking `elabTerm` -/
-  withRef stx do -- <| Term.withoutErrToSorry do
-    let e ← Term.elabTerm stx expectedType?
-    Term.synthesizeSyntheticMVars mayPostpone
-    instantiateMVars e
+def elabTerm (stx : Syntax) (expectedType? : Option Expr) (mayPostpone := false) : TacticM Expr := do
+  /- If error recovery is disabled, we disable `Term.withoutErrToSorry` -/
+  if (← read).recover then
+    go
+  else
+    Term.withoutErrToSorry go
+where
+  go : TermElabM Expr :=
+    withRef stx do -- <|
+      let e ← Term.elabTerm stx expectedType?
+      Term.synthesizeSyntheticMVars mayPostpone
+      instantiateMVars e
 
 def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (mayPostpone := false) : TacticM Expr := do
   let e ← elabTerm stx expectedType? mayPostpone
@@ -67,15 +70,14 @@ def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : 
   let newMVarIds ← getMVarsNoDelayed val
   /- ignore let-rec auxiliary variables, they are synthesized automatically later -/
   let newMVarIds ← newMVarIds.filterM fun mvarId => return !(← Term.isLetRecAuxMVar mvarId)
-  let newMVarIds ←
-    if allowNaturalHoles then
-      pure newMVarIds.toList
-    else
-      let naturalMVarIds ← newMVarIds.filterM fun mvarId => return (← getMVarDecl mvarId).kind.isNatural
-      let syntheticMVarIds ← newMVarIds.filterM fun mvarId => return !(← getMVarDecl mvarId).kind.isNatural
-      let naturalMVarIds ← filterOldMVars naturalMVarIds mvarCounterSaved
-      logUnassignedAndAbort naturalMVarIds
-      pure syntheticMVarIds.toList
+  let newMVarIds ← if allowNaturalHoles then
+    pure newMVarIds.toList
+  else
+    let naturalMVarIds ← newMVarIds.filterM fun mvarId => return (← getMVarDecl mvarId).kind.isNatural
+    let syntheticMVarIds ← newMVarIds.filterM fun mvarId => return !(← getMVarDecl mvarId).kind.isNatural
+    let naturalMVarIds ← filterOldMVars naturalMVarIds mvarCounterSaved
+    logUnassignedAndAbort naturalMVarIds
+    pure syntheticMVarIds.toList
   tagUntaggedGoals (← getMainTag) tagSuffix newMVarIds
   pure (val, newMVarIds)
 
@@ -86,7 +88,12 @@ def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : 
 def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : TacticM Unit := do
   withMainContext do
     let (val, mvarIds') ← elabTermWithHoles stx (← getMainTarget) tagSuffix allowNaturalHoles
-    assignExprMVar (← getMainGoal) val
+    let mvarId ← getMainGoal
+    let val ← instantiateMVars val
+    unless val == mkMVar mvarId do
+      if val.findMVar? (· == mvarId) matches some _ then
+        throwError "'refine' tactic failed, value{indentExpr val}\ndepends on the main goal metavariable '{mkMVar mvarId}'"
+      assignExprMVar mvarId val
     replaceMainGoal mvarIds'
 
 @[builtinTactic «refine»] def evalRefine : Tactic := fun stx =>
@@ -138,7 +145,8 @@ def elabTermForApply (stx : Syntax) (mayPostpone := true) : TacticM Expr := do
     | some e => return e
     | _      => pure ()
   /-
-    By disabling the "error to sorry" feature, we make sure an `apply e` fails without logging an error message.
+    By disabling the "error recovery" (and consequently "error to sorry") feature,
+    we make sure an `apply e` fails without logging an error message.
     The motivation is that `apply` is frequently used when writing tactic such as
     ```
     cases h <;> intro h' <;> first | apply t[h'] | ....
@@ -168,9 +176,8 @@ def elabTermForApply (stx : Syntax) (mayPostpone := true) : TacticM Expr := do
       - We do not disable "error to sorry"
       - We elaborate term and check whether errors were produced
       - If there are other tactic braches and there are errors, we remove the errors from the log, and throw a new error to force the tactic to backtrack.
-
   -/
-  Term.withoutErrToSorry <| elabTerm stx none mayPostpone
+  withoutRecover <| elabTerm stx none mayPostpone
 
 def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syntax) : TacticM Unit := do
   withMainContext do
@@ -195,22 +202,20 @@ def getFVarIds (ids : Array Syntax) : TacticM (Array FVarId) := do
   | `(tactic| apply $e) => evalApplyLikeTactic Meta.apply e
   | _ => throwUnsupportedSyntax
 
-@[builtinTactic Lean.Parser.Tactic.constructor] def evalConstructor : Tactic := fun stx =>
+@[builtinTactic Lean.Parser.Tactic.constructor] def evalConstructor : Tactic := fun _ =>
   withMainContext do
     let mvarIds'  ← Meta.constructor (← getMainGoal)
     Term.synthesizeSyntheticMVarsNoPostponing
     replaceMainGoal mvarIds'
-
-@[builtinTactic Lean.Parser.Tactic.existsIntro] def evalExistsIntro : Tactic := fun stx =>
-  match stx with
-  | `(tactic| exists $e) => evalApplyLikeTactic (fun mvarId e => return [(← Meta.existsIntro mvarId e)]) e
-  | _ => throwUnsupportedSyntax
 
 @[builtinTactic Lean.Parser.Tactic.withReducible] def evalWithReducible : Tactic := fun stx =>
   withReducible <| evalTactic stx[1]
 
 @[builtinTactic Lean.Parser.Tactic.withReducibleAndInstances] def evalWithReducibleAndInstances : Tactic := fun stx =>
   withReducibleAndInstances <| evalTactic stx[1]
+
+@[builtinTactic Lean.Parser.Tactic.withUnfoldingAll] def evalWithUnfoldingAll : Tactic := fun stx =>
+  withTransparency TransparencyMode.all <| evalTactic stx[1]
 
 /--
   Elaborate `stx`. If it a free variable, return it. Otherwise, assert it, and return the free variable.
@@ -266,7 +271,7 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
     throwError "expected type must not contain free or meta variables{indentExpr expectedType}"
   return expectedType
 
-@[builtinTactic Lean.Parser.Tactic.decide] def evalDecide : Tactic := fun stx =>
+@[builtinTactic Lean.Parser.Tactic.decide] def evalDecide : Tactic := fun _ =>
   closeMainGoalUsing fun expectedType => do
     let expectedType ← preprocessPropToDecide expectedType
     let d ← mkDecide expectedType
@@ -278,18 +283,18 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
     let rflPrf ← mkEqRefl (toExpr true)
     return mkApp3 (Lean.mkConst ``of_decide_eq_true) expectedType s rflPrf
 
-private def mkNativeAuxDecl (baseName : Name) (type val : Expr) : TermElabM Name := do
+private def mkNativeAuxDecl (baseName : Name) (type value : Expr) : TermElabM Name := do
   let auxName ← Term.mkAuxName baseName
   let decl := Declaration.defnDecl {
-    name := auxName, levelParams := [], type := type, value := val,
-    hints := ReducibilityHints.abbrev,
-    safety := DefinitionSafety.safe
+    name := auxName, levelParams := [], type, value
+    hints := .abbrev
+    safety := .safe
   }
   addDecl decl
   compileDecl decl
   pure auxName
 
-@[builtinTactic Lean.Parser.Tactic.nativeDecide] def evalNativeDecide : Tactic := fun stx =>
+@[builtinTactic Lean.Parser.Tactic.nativeDecide] def evalNativeDecide : Tactic := fun _ =>
   closeMainGoalUsing fun expectedType => do
     let expectedType ← preprocessPropToDecide expectedType
     let d ← mkDecide expectedType

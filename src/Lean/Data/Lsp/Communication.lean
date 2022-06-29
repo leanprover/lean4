@@ -15,7 +15,7 @@ open Lean
 open Lean.JsonRpc
 
 section
-  private def parseHeaderField (s : String) : Option (String × String) := OptionM.run do
+  private def parseHeaderField (s : String) : Option (String × String) := do
     guard $ s ≠ "" ∧ s.takeRight 2 = "\r\n"
     let xs := (s.dropRight 2).splitOn ": "
     match xs with

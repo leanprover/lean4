@@ -3,11 +3,18 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Meta.Tactic.Refl
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.ElabTerm
 
 namespace Lean.Elab.Tactic
 open Meta
+open Parser.Tactic
+
+@[builtinTactic withAnnotateState] def evalWithAnnotateState : Tactic
+  | `(tactic| with_annotate_state $stx $t) =>
+    withTacticInfoContext stx (evalTactic t)
+  | _ => throwUnsupportedSyntax
 
 @[builtinTactic Lean.Parser.Tactic.«done»] def evalDone : Tactic := fun _ =>
   done
@@ -23,9 +30,43 @@ open Meta
 @[builtinTactic paren] def evalParen : Tactic := fun stx =>
   evalTactic stx[1]
 
+def isCheckpointableTactic (arg : Syntax) : TacticM Bool := do
+  -- TODO: make it parametric
+  let kind := arg.getKind
+  return kind == ``Lean.Parser.Tactic.save
+
+partial def addCheckpoints (args : Array Syntax) : TacticM (Array Syntax) := do
+  -- if (← readThe Term.Context).tacticCache? |>.isSome then
+  if (← args.anyM fun arg => isCheckpointableTactic arg[0]) then
+    let argsNew ← go 0 #[] #[]
+    return argsNew
+  return args
+where
+  push (acc : Array Syntax) (result : Array Syntax) : Array Syntax :=
+    if acc.isEmpty then
+      result
+    else
+      let ref := acc.back
+      let accSeq := mkNode ``Lean.Parser.Tactic.tacticSeq1Indented #[mkNullNode acc]
+      let checkpoint := mkNode ``Lean.Parser.Tactic.checkpoint #[mkAtomFrom ref "checkpoint", accSeq]
+      result.push (mkNode groupKind #[checkpoint, mkNullNode])
+
+  go (i : Nat) (acc : Array Syntax) (result : Array Syntax) : TacticM (Array Syntax) := do
+    if h : i < args.size then
+      let arg := args.get ⟨i, h⟩
+      if (← isCheckpointableTactic arg[0]) then
+        -- `argNew` is `arg` as singleton sequence. The idea is to make sure it does not satisfy `isCheckpointableTactic` anymore
+        let argNew := arg.setArg 0 (mkNullNode #[arg[0]])
+        let acc := acc.push argNew
+        go (i+1) #[] (push acc result)
+      else
+        go (i+1) (acc.push arg) result
+    else
+      return result ++ acc
+
 /- Evaluate `many (group (tactic >> optional ";")) -/
 def evalManyTacticOptSemi (stx : Syntax) : TacticM Unit := do
-  stx.forArgsM fun seqElem => do
+  for seqElem in (← addCheckpoints stx.getArgs) do
     evalTactic seqElem[0]
     saveTacticInfoForToken seqElem[1] -- add TacticInfo node for `;`
 
@@ -81,8 +122,11 @@ private def getOptRotation (stx : Syntax) : Nat :=
         evalTactic stx[1]
         mvarIdsNew := mvarIdsNew ++ (← getUnsolvedGoals)
       catch ex =>
-        logException ex
-        mvarIdsNew := mvarIdsNew.push mvarId
+        if (← read).recover then
+          logException ex
+          mvarIdsNew := mvarIdsNew.push mvarId
+        else
+          throw ex
   setGoals mvarIdsNew.toList
 
 @[builtinTactic Parser.Tactic.anyGoals] def evalAnyGoals : Tactic := fun stx => do
@@ -117,7 +161,7 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
 @[builtinTactic choice] def evalChoice : Tactic := fun stx =>
   evalChoiceAux stx.getArgs 0
 
-@[builtinTactic skip] def evalSkip : Tactic := fun stx => pure ()
+@[builtinTactic skip] def evalSkip : Tactic := fun _ => pure ()
 
 @[builtinTactic unknown] def evalUnknown : Tactic := fun stx => do
   addCompletionInfo <| CompletionInfo.tactic stx (← getGoals)
@@ -127,36 +171,40 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
   if (← try evalTactic tactic; pure true catch _ => pure false) then
     throwError "tactic succeeded"
 
-@[builtinTactic traceState] def evalTraceState : Tactic := fun stx => do
+@[builtinTactic traceState] def evalTraceState : Tactic := fun _ => do
   let gs ← getUnsolvedGoals
   addRawTrace (goalsToMessageData gs)
 
 @[builtinTactic traceMessage] def evalTraceMessage : Tactic := fun stx => do
   match stx[1].isStrLit? with
   | none     => throwIllFormedSyntax
-  | some msg =>
-    let gs ← getUnsolvedGoals
-    withRef stx[0] <| addRawTrace msg
+  | some msg => withRef stx[0] <| addRawTrace msg
 
-@[builtinTactic Lean.Parser.Tactic.assumption] def evalAssumption : Tactic := fun stx =>
+@[builtinTactic Lean.Parser.Tactic.assumption] def evalAssumption : Tactic := fun _ =>
   liftMetaTactic fun mvarId => do Meta.assumption mvarId; pure []
 
-@[builtinTactic Lean.Parser.Tactic.contradiction] def evalContradiction : Tactic := fun stx =>
+@[builtinTactic Lean.Parser.Tactic.contradiction] def evalContradiction : Tactic := fun _ =>
   liftMetaTactic fun mvarId => do Meta.contradiction mvarId; pure []
+
+@[builtinTactic Lean.Parser.Tactic.refl] def evalRefl : Tactic := fun _ =>
+  liftMetaTactic fun mvarId => do Meta.refl mvarId; pure []
 
 @[builtinTactic Lean.Parser.Tactic.intro] def evalIntro : Tactic := fun stx => do
   match stx with
-  | `(tactic| intro)                   => introStep `_
-  | `(tactic| intro $h:ident)          => introStep h.getId
-  | `(tactic| intro _)                 => introStep `_
+  | `(tactic| intro)                   => introStep none `_
+  | `(tactic| intro $h:ident)          => introStep h h.getId
+  | `(tactic| intro _%$tk)             => introStep tk `_
   | `(tactic| intro $pat:term)         => evalTactic (← `(tactic| intro h; match h with | $pat:term => ?_; try clear h))
   | `(tactic| intro $h:term $hs:term*) => evalTactic (← `(tactic| intro $h:term; intro $hs:term*))
   | _ => throwUnsupportedSyntax
 where
-  introStep (n : Name) : TacticM Unit :=
-    liftMetaTactic fun mvarId => do
-      let (_, mvarId) ← Meta.intro mvarId n
-      pure [mvarId]
+  introStep (ref : Option Syntax) (n : Name) : TacticM Unit := do
+    let fvar ← liftMetaTacticAux fun mvarId => do
+      let (fvar, mvarId) ← Meta.intro mvarId n
+      pure (fvar, [mvarId])
+    if let some stx := ref then
+      withMainContext do
+        Term.addLocalVarInfo stx (mkFVar fvar)
 
 @[builtinTactic Lean.Parser.Tactic.introMatch] def evalIntroMatch : Tactic := fun stx => do
   let matchAlts := stx[1]
@@ -168,9 +216,13 @@ where
   | `(tactic| intros) => liftMetaTactic fun mvarId => do
     let (_, mvarId) ← Meta.intros mvarId
     return [mvarId]
-  | `(tactic| intros $ids*) => liftMetaTactic fun mvarId => do
-    let (_, mvarId) ← Meta.introN mvarId ids.size (ids.map getNameOfIdent').toList
-    return [mvarId]
+  | `(tactic| intros $ids*) => do
+    let fvars ← liftMetaTacticAux fun mvarId => do
+      let (fvars, mvarId) ← Meta.introN mvarId ids.size (ids.map getNameOfIdent').toList
+      return (fvars, [mvarId])
+    withMainContext do
+      for stx in ids, fvar in fvars do
+        Term.addLocalVarInfo stx.raw (mkFVar fvar)
   | _ => throwUnsupportedSyntax
 
 @[builtinTactic Lean.Parser.Tactic.revert] def evalRevert : Tactic := fun stx =>
@@ -203,22 +255,29 @@ def forEachVar (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : 
   | `(tactic| subst $hs*) => forEachVar hs Meta.subst
   | _                     => throwUnsupportedSyntax
 
-/--
-  First method searches for a metavariable `g` s.t. `tag` is a suffix of its name.
-  If none is found, then it searches for a metavariable `g` s.t. `tag` is a prefix of its name. -/
-private def findTag? (mvarIds : List MVarId) (tag : Name) : TacticM (Option MVarId) := do
-  let mvarId? ← mvarIds.findM? fun mvarId => return tag.isSuffixOf (← getMVarDecl mvarId).userName
-  match mvarId? with
-  | some mvarId => return mvarId
-  | none        => mvarIds.findM? fun mvarId => return tag.isPrefixOf (← getMVarDecl mvarId).userName
+@[builtinTactic Lean.Parser.Tactic.substVars] def evalSubstVars : Tactic := fun _ =>
+  liftMetaTactic fun mvarId => return [← substVars mvarId]
 
-def renameInaccessibles (mvarId : MVarId) (hs : Array Syntax) : TacticM MVarId := do
+/--
+  Searches for a metavariable `g` s.t. `tag` is its exact name.
+  If none then searches for a metavariable `g` s.t. `tag` is a suffix of its name.
+  If none, then it searches for a metavariable `g` s.t. `tag` is a prefix of its name. -/
+private def findTag? (mvarIds : List MVarId) (tag : Name) : TacticM (Option MVarId) := do
+  match (← mvarIds.findM? fun mvarId => return tag == (← getMVarDecl mvarId).userName) with
+  | some mvarId => return mvarId
+  | none =>
+  match (← mvarIds.findM? fun mvarId => return tag.isSuffixOf (← getMVarDecl mvarId).userName) with
+  | some mvarId => return mvarId
+  | none => mvarIds.findM? fun mvarId => return tag.isPrefixOf (← getMVarDecl mvarId).userName
+
+def renameInaccessibles (mvarId : MVarId) (hs : TSyntaxArray ``binderIdent) : TacticM MVarId := do
   if hs.isEmpty then
     return mvarId
   else
     let mvarDecl ← getMVarDecl mvarId
     let mut lctx  := mvarDecl.lctx
     let mut hs    := hs
+    let mut info  := #[]
     let mut found : NameSet := {}
     let n := lctx.numIndices
     for i in [:n] do
@@ -227,10 +286,10 @@ def renameInaccessibles (mvarId : MVarId) (hs : Array Syntax) : TacticM MVarId :
       | none => pure ()
       | some localDecl =>
         if localDecl.userName.hasMacroScopes || found.contains localDecl.userName then
-          let h := hs.back
-          if h.isIdent then
+          if let `(binderIdent| $h:ident) := hs.back then
             let newName := h.getId
             lctx := lctx.setUserName localDecl.fvarId newName
+            info := info.push (localDecl.fvarId, h)
           hs := hs.pop
           if hs.isEmpty then
             break
@@ -238,35 +297,48 @@ def renameInaccessibles (mvarId : MVarId) (hs : Array Syntax) : TacticM MVarId :
     unless hs.isEmpty do
       logError m!"too many variable names provided"
     let mvarNew ← mkFreshExprMVarAt lctx mvarDecl.localInstances mvarDecl.type MetavarKind.syntheticOpaque mvarDecl.userName
+    withSaveInfoContext <| withMVarContext mvarNew.mvarId! do
+      for (fvarId, stx) in info do
+        Term.addLocalVarInfo stx (mkFVar fvarId)
     assignExprMVar mvarId mvarNew
     return mvarNew.mvarId!
 
+private def getCaseGoals (tag : TSyntax ``binderIdent) : TacticM (MVarId × List MVarId) := do
+  let gs ← getUnsolvedGoals
+  let g ← if let `(binderIdent| $tag:ident) := tag then
+    let tag := tag.getId
+    let some g ← findTag? gs tag | throwError "tag not found"
+    pure g
+  else
+    getMainGoal
+  return (g, gs.erase g)
+
 @[builtinTactic «case»] def evalCase : Tactic
   | stx@`(tactic| case $tag $hs* =>%$arr $tac:tacticSeq) => do
-    let gs ← getUnsolvedGoals
-    let g ←
-      if tag.isIdent then
-        let tag := tag.getId
-        let some g ← findTag? gs tag | throwError "tag not found"
-        pure g
-      else
-        getMainGoal
-    let gs := gs.erase g
+    let (g, gs) ← getCaseGoals tag
     let g ← renameInaccessibles g hs
     setGoals [g]
-    let savedTag ← getMVarTag g
     setMVarTag g Name.anonymous
-    try
-      withCaseRef arr tac do
-        closeUsingOrAdmit (withTacticInfoContext stx (evalTactic tac))
-    finally
-      setMVarTag g savedTag
-    done
+    withCaseRef arr tac do
+      closeUsingOrAdmit (withTacticInfoContext stx (evalTactic tac))
     setGoals gs
   | _ => throwUnsupportedSyntax
 
+@[builtinTactic «case'»] def evalCase' : Tactic
+  | `(tactic| case' $tag $hs* =>%$arr $tac:tacticSeq) => do
+    let (g, gs) ← getCaseGoals tag
+    let g ← renameInaccessibles g hs
+    let mvarTag ← getMVarTag g
+    setGoals [g]
+    withCaseRef arr tac (evalTactic tac)
+    let gs' ← getUnsolvedGoals
+    if let [g'] := gs' then
+      setMVarTag g' mvarTag
+    setGoals (gs' ++ gs)
+  | _ => throwUnsupportedSyntax
+
 @[builtinTactic «renameI»] def evalRenameInaccessibles : Tactic
-  | stx@`(tactic| rename_i $hs*) => do replaceMainGoal [← renameInaccessibles (← getMainGoal) hs]
+  | `(tactic| rename_i $hs*) => do replaceMainGoal [← renameInaccessibles (← getMainGoal) hs]
   | _ => throwUnsupportedSyntax
 
 @[builtinTactic «first»] partial def evalFirst : Tactic := fun stx => do
@@ -284,11 +356,18 @@ where
   let goals ← getGoals
   let goalsMsg := MessageData.joinSep (goals.map MessageData.ofGoal) m!"\n\n"
   match stx with
-  | `(tactic| fail)      => throwError "tactic 'fail' failed\n{goalsMsg}"
-  | `(tactic| fail $msg) =>
-    match msg.isStrLit? with
-    | none     => throwIllFormedSyntax
-    | some msg => throwError "{msg}\n{goalsMsg}"
+  | `(tactic| fail)          => throwError "tactic 'fail' failed\n{goalsMsg}"
+  | `(tactic| fail $msg:str) => throwError "{msg.getString}\n{goalsMsg}"
   | _ => throwUnsupportedSyntax
+
+@[builtinTactic dbgTrace] def evalDbgTrace : Tactic := fun stx => do
+  match stx[1].isStrLit? with
+  | none     => throwIllFormedSyntax
+  | some msg => dbg_trace msg
+
+@[builtinTactic sleep] def evalSleep : Tactic := fun stx => do
+  match stx[1].isNatLit? with
+  | none    => throwIllFormedSyntax
+  | some ms => IO.sleep ms.toUInt32
 
 end Lean.Elab.Tactic

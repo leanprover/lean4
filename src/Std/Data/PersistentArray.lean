@@ -140,7 +140,7 @@ private def emptyArray {α : Type u} : Array (PersistentArrayNode α) :=
   Array.mkEmpty PersistentArray.branching.toNat
 
 partial def popLeaf : PersistentArrayNode α → Option (Array α) × Array (PersistentArrayNode α)
-  | n@(node cs) =>
+  | node cs =>
     if h : cs.size ≠ 0 then
       let idx : Fin cs.size := ⟨cs.size - 1, by exact Nat.pred_lt h⟩
       let last := cs.get idx
@@ -212,6 +212,7 @@ variable {β : Type v}
 @[specialize] def foldrM [Monad m] (t : PersistentArray α) (f : α → β → m β) (init : β) : m β := do
   foldrMAux f t.root (← t.tail.foldrM f init)
 
+set_option linter.unusedVariables.funArgs false in
 @[specialize]
 partial def forInAux {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] [inh : Inhabited β]
     (f : α → β → m (ForInStep β)) (n : PersistentArrayNode α) (b : β) : m (ForInStep β) := do
@@ -350,7 +351,7 @@ partial def collectStats : PersistentArrayNode α → Stats → Nat → Stats
       { s with
         numNodes := s.numNodes + 1,
         depth    := Nat.max d s.depth }
-  | leaf vs, s, d => { s with numNodes := s.numNodes + 1, depth := Nat.max d s.depth }
+  | leaf _,  s, d => { s with numNodes := s.numNodes + 1, depth := Nat.max d s.depth }
 
 def stats (r : PersistentArray α) : Stats :=
   collectStats r.root { numNodes := 0, depth := 0, tailSize := r.tail.size } 0
@@ -363,7 +364,7 @@ instance : ToString Stats := ⟨Stats.toString⟩
 end PersistentArray
 
 def mkPersistentArray {α : Type u} (n : Nat) (v : α) : PArray α :=
-  n.fold (init := PersistentArray.empty) fun i p => p.push v
+  n.fold (init := PersistentArray.empty) fun _ p => p.push v
 
 @[inline] def mkPArray {α : Type u} (n : Nat) (v : α) : PArray α :=
   mkPersistentArray n v

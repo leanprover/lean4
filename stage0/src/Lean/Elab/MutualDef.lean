@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Parser.Term
 import Lean.Meta.Closure
 import Lean.Meta.Check
+import Lean.PrettyPrinter.Delaborator.Options
 import Lean.Elab.Command
 import Lean.Elab.Match
 import Lean.Elab.DefView
@@ -78,7 +79,7 @@ private def registerFailedToInferDefTypeInfo (type : Expr) (ref : Syntax) : Term
 /--
   Return `some [b, c]` if the given `views` are representing a declaration of the form
   ```
-  constant a b c : Nat
+  opaque a b c : Nat
   ```  -/
 private def isMultiConstant? (views : Array DefView) : Option (List Name) :=
   if views.size == 1 &&
@@ -99,30 +100,33 @@ private def getPendindMVarErrorMessage (views : Array DefView) : String :=
     "\nwhen the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed"
 
 private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHeader) := do
-  let mut headers := #[]
-  for view in views do
-    let newHeader ← withRef view.ref do
-      let ⟨shortDeclName, declName, levelNames⟩ ← Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
-      addDeclarationRanges declName view.ref
-      applyAttributesAt declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration
-      withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|
-        elabBindersEx view.binders.getArgs fun xs => do
-          let refForElabFunType := view.value
-          let type ← match view.type? with
-            | some typeStx =>
-              let type ← elabType typeStx
-              registerFailedToInferDefTypeInfo type typeStx
-              pure type
-            | none =>
-              let hole := mkHole refForElabFunType
-              let type ← elabType hole
-              trace[Elab.definition] ">> type: {type}\n{type.mvarId!}"
-              registerFailedToInferDefTypeInfo type refForElabFunType
-              pure type
-          Term.synthesizeSyntheticMVarsNoPostponing
-          let (binderIds, xs) := xs.unzip
-          addAutoBoundImplicits xs fun xs => do
-            let type ← mkForallFVars xs type
+  let expandedDeclIds ← views.mapM fun view => withRef view.ref do
+    Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
+  withAutoBoundImplicitForbiddenPred (fun n => expandedDeclIds.any (·.shortName == n)) do
+    let mut headers := #[]
+    for view in views, ⟨shortDeclName, declName, levelNames⟩ in expandedDeclIds do
+      let newHeader ← withRef view.ref do
+        addDeclarationRanges declName view.ref
+        applyAttributesAt declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration
+        withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|
+          elabBindersEx view.binders.getArgs fun xs => do
+            let refForElabFunType := view.value
+            let type ← match view.type? with
+              | some typeStx =>
+                let type ← elabType typeStx
+                registerFailedToInferDefTypeInfo type typeStx
+                pure type
+              | none =>
+                let hole := mkHole refForElabFunType
+                let type ← elabType hole
+                trace[Elab.definition] ">> type: {type}\n{type.mvarId!}"
+                registerFailedToInferDefTypeInfo type refForElabFunType
+                pure type
+            Term.synthesizeSyntheticMVarsNoPostponing
+            let (binderIds, xs) := xs.unzip
+            -- TODO: add forbidden predicate using `shortDeclName` from `views`
+            let xs ← addAutoBoundImplicits xs
+            let type ← mkForallFVars' xs type
             let type ← instantiateMVars type
             let levelNames ← getLevelNames
             if view.type?.isSome then
@@ -142,8 +146,8 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
               valueStx      := view.value : DefViewElabHeader }
             check headers newHeader
             return newHeader
-    headers := headers.push newHeader
-  pure headers
+      headers := headers.push newHeader
+    return headers
 
 private partial def withFunLocalDecls {α} (headers : Array DefViewElabHeader) (k : Array Expr → TermElabM α) : TermElabM α :=
   let rec loop (i : Nat) (fvars : Array Expr) := do
@@ -158,21 +162,24 @@ private partial def withFunLocalDecls {α} (headers : Array DefViewElabHeader) (
   loop 0 #[]
 
 private def expandWhereStructInst : Macro
-  | `(Parser.Command.whereStructInst|where $[$decls:letDecl$[;]?]*) => do
+  | `(Parser.Command.whereStructInst|where $[$decls:letDecl];* $[$whereDecls?:whereDecls]?) => do
     let letIdDecls ← decls.mapM fun stx => match stx with
-      | `(letDecl|$decl:letPatDecl)  => Macro.throwErrorAt stx "patterns are not allowed here"
+      | `(letDecl|$_decl:letPatDecl)  => Macro.throwErrorAt stx "patterns are not allowed here"
       | `(letDecl|$decl:letEqnsDecl) => expandLetEqnsDecl decl
       | `(letDecl|$decl:letIdDecl)   => pure decl
       | _                               => Macro.throwUnsupported
     let structInstFields ← letIdDecls.mapM fun
-      | stx@`(letIdDecl|$id:ident $[$binders]* $[: $ty?]? := $val) => withRef stx do
+      | stx@`(letIdDecl|$id:ident $binders* $[: $ty?]? := $val) => withRef stx do
         let mut val := val
         if let some ty := ty? then
           val ← `(($val : $ty))
-        val ← if binders.size > 0 then `(fun $[$binders]* => $val:term) else pure val
+        val ← if binders.size > 0 then `(fun $binders* => $val) else pure val
         `(structInstField|$id:ident := $val)
       | _ => Macro.throwUnsupported
-    `({ $[$structInstFields,]* })
+    let body ← `({ $structInstFields,* })
+    match whereDecls? with
+    | some whereDecls => expandWhereDecls whereDecls body
+    | none => return body
   | _ => Macro.throwUnsupported
 
 /-
@@ -202,17 +209,17 @@ private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array
       -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
       for i in [0:header.binderIds.size] do
         -- skip auto-bound prefix in `xs`
-        addTermInfo (isBinder := true) header.binderIds[i] xs[header.numParams - header.binderIds.size + i]
+        addLocalVarInfo header.binderIds[i] xs[header.numParams - header.binderIds.size + i]
       let val ← elabTermEnsuringType valStx type
       mkLambdaFVars xs val
 
 private def collectUsed (headers : Array DefViewElabHeader) (values : Array Expr) (toLift : List LetRecToLift)
     : StateRefT CollectFVars.State MetaM Unit := do
-  headers.forM fun header => collectUsedFVars header.type
-  values.forM collectUsedFVars
+  headers.forM fun header => header.type.collectFVars
+  values.forM fun val => val.collectFVars
   toLift.forM fun letRecToLift => do
-    collectUsedFVars letRecToLift.type
-    collectUsedFVars letRecToLift.val
+    letRecToLift.type.collectFVars
+    letRecToLift.val.collectFVars
 
 private def removeUnusedVars (vars : Array Expr) (headers : Array DefViewElabHeader) (values : Array Expr) (toLift : List LetRecToLift)
     : TermElabM (LocalContext × LocalInstances × Array Expr) := do
@@ -320,7 +327,7 @@ Note that `g` is not a free variable at `(let g : B := ?m₂; body)`. We recover
 `f` depends on `g` because it contains `m₂`
 -/
 private def mkInitialUsedFVarsMap (mctx : MetavarContext) (sectionVars : Array Expr) (mainFVarIds : Array FVarId) (letRecsToLift : Array LetRecToLift)
-    : UsedFVarsMap := Id.run <| do
+    : UsedFVarsMap := Id.run do
   let mut sectionVarSet := {}
   for var in sectionVars do
     sectionVarSet := sectionVarSet.insert var.fvarId!
@@ -418,7 +425,7 @@ abbrev FreeVarMap := FVarIdMap (Array FVarId)
 
 private def mkFreeVarMap
     (mctx : MetavarContext) (sectionVars : Array Expr) (mainFVarIds : Array FVarId)
-    (recFVarIds : Array FVarId) (letRecsToLift : Array LetRecToLift) : FreeVarMap := Id.run <| do
+    (recFVarIds : Array FVarId) (letRecsToLift : Array LetRecToLift) : FreeVarMap := Id.run do
   let usedFVarsMap  := mkInitialUsedFVarsMap mctx sectionVars mainFVarIds letRecsToLift
   let letRecFVarIds := letRecsToLift.map fun toLift => toLift.fvarId
   let usedFVarsMap  := FixPoint.run letRecFVarIds usedFVarsMap
@@ -704,7 +711,7 @@ def processDefDeriving (className : Name) (declName : Name) : TermElabM Bool := 
     }
     addInstance instName AttributeKind.global (eval_prio default)
     return true
-  catch ex =>
+  catch _ =>
     return false
 
 /-- Remove auxiliary match discriminant let-declarations. -/
@@ -716,6 +723,45 @@ def eraseAuxDiscr (e : Expr) : CoreM Expr := do
       else
         return TransformStep.visit e
     | e => return TransformStep.visit e
+
+partial def checkForHiddenUnivLevels (allUserLevelNames : List Name) (preDefs : Array PreDefinition) : TermElabM Unit :=
+  unless (← MonadLog.hasErrors) do
+    -- We do not report this kind of error if the declaration already contains errors
+    let mut sTypes : CollectLevelParams.State := {}
+    let mut sValues : CollectLevelParams.State := {}
+    for preDef in preDefs do
+      sTypes  := collectLevelParams sTypes preDef.type
+      sValues := collectLevelParams sValues preDef.value
+    if sValues.params.all fun u => sTypes.params.contains u || allUserLevelNames.contains u then
+      -- If all universe level occurring in values also occur in types or explicitly provided universes, then everything is fine
+      -- and we just return
+      return ()
+    let checkPreDef (preDef : PreDefinition) : TermElabM Unit :=
+      -- Otherwise, we try to produce an error message containing the expression with the offending universe
+      let rec visitLevel (u : Level) : ReaderT Expr TermElabM Unit := do
+        match u with
+        | .succ u _ => visitLevel u
+        | .imax u v _ | .max u v _ => visitLevel u; visitLevel v
+        | .param n _ =>
+          unless sTypes.visitedLevel.contains u || allUserLevelNames.contains n do
+            let parent ← withOptions (fun o => pp.universes.set o true) do addMessageContext m!"{indentExpr (← read)}"
+            let body ← withOptions (fun o => pp.letVarTypes.setIfNotSet (pp.funBinderTypes.setIfNotSet o true) true) do addMessageContext m!"{indentExpr preDef.value}"
+            throwError "invalid occurrence of universe level '{u}' at '{preDef.declName}', it does not occur at the declaration type, nor it is explicit universe level provided by the user, occurring at expression{parent}\nat declaration body{body}"
+        | _ => pure ()
+      let rec visit (e : Expr) : ReaderT Expr (MonadCacheT ExprStructEq Unit TermElabM) Unit := do
+        checkCache { val := e : ExprStructEq } fun _ => do
+          match e with
+          | .forallE n d b c | .lam n d b c => visit d e; withLocalDecl n c.binderInfo d fun x => visit (b.instantiate1 x) e
+          | .letE n t v b _  => visit t e; visit v e; withLetDecl n t v fun x => visit (b.instantiate1 x) e
+          | .app ..        => e.withApp fun f args => do visit f e; args.forM fun arg => visit arg e
+          | .mdata _ b _   => visit b e
+          | .proj _ _ b _  => visit b e
+          | .sort u _      => visitLevel u (← read)
+          | .const _ us _  => us.forM (visitLevel · (← read))
+          | _              => pure ()
+      visit preDef.value preDef.value |>.run {}
+    for preDef in preDefs do
+      checkPreDef preDef
 
 def elabMutualDef (vars : Array Expr) (views : Array DefView) (hints : TerminationHints) : TermElabM Unit :=
   if isExample views then
@@ -729,6 +775,8 @@ where
     let headers ← levelMVarToParamHeaders views headers
     let allUserLevelNames := getAllUserLevelNames headers
     withFunLocalDecls headers fun funFVars => do
+      for view in views, funFVar in funFVars do
+        addLocalVarInfo view.declId funFVar
       let values ← elabFunValues headers
       Term.synthesizeSyntheticMVarsNoPostponing
       let values ← values.mapM (instantiateMVars ·)
@@ -748,6 +796,7 @@ where
             return preDef
           else
             return { preDef with value := (← eraseAuxDiscr preDef.value) }
+        checkForHiddenUnivLevels allUserLevelNames preDefs
         addPreDefinitions preDefs hints
         processDeriving headers
 

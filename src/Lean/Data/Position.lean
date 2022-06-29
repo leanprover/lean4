@@ -75,7 +75,7 @@ partial def toPosition (fmap : FileMap) (pos : String.Pos) : Position :=
       -- Some systems like the delaborator use synthetic positions without an input file,
       -- which would violate `toPositionAux`'s invariant.
       -- Can also happen with EOF errors, which are not strictly inside the file.
-      ⟨lines.back, pos - ps.back⟩
+      ⟨lines.back, (pos - ps.back).byteIdx⟩
 
 end FileMap
 end Lean

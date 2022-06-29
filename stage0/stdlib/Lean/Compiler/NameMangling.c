@@ -98,7 +98,7 @@ static lean_object* _init_l___private_Lean_Compiler_NameMangling_0__String_mangl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_U");
+x_1 = lean_mk_string_from_bytes("_U", 2);
 return x_1;
 }
 }
@@ -106,7 +106,7 @@ static lean_object* _init_l___private_Lean_Compiler_NameMangling_0__String_mangl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_u");
+x_1 = lean_mk_string_from_bytes("_u", 2);
 return x_1;
 }
 }
@@ -114,7 +114,7 @@ static lean_object* _init_l___private_Lean_Compiler_NameMangling_0__String_mangl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_x");
+x_1 = lean_mk_string_from_bytes("_x", 2);
 return x_1;
 }
 }
@@ -122,7 +122,7 @@ static lean_object* _init_l___private_Lean_Compiler_NameMangling_0__String_mangl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("__");
+x_1 = lean_mk_string_from_bytes("__", 2);
 return x_1;
 }
 }
@@ -282,7 +282,7 @@ static lean_object* _init_l_String_mangle___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -304,7 +304,7 @@ static lean_object* _init_l___private_Lean_Compiler_NameMangling_0__Lean_Name_ma
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_");
+x_1 = lean_mk_string_from_bytes("_", 1);
 return x_1;
 }
 }
@@ -376,7 +376,7 @@ static lean_object* _init_l_Lean_mkModuleInitializationFunctionName___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("initialize_");
+x_1 = lean_mk_string_from_bytes("initialize_", 11);
 return x_1;
 }
 }

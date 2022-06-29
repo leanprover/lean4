@@ -22,8 +22,8 @@ class MonadCache (α β : Type) (m : Type → Type) where
     pure b
 
 instance {α β ρ : Type} {m : Type → Type} [MonadCache α β m] : MonadCache α β (ReaderT ρ m) where
-  findCached? a r := MonadCache.findCached? a
-  cache a b r := MonadCache.cache a b
+  findCached? a _ := MonadCache.findCached? a
+  cache a b _ := MonadCache.cache a b
 
 instance {α β ε : Type} {m : Type → Type} [MonadCache α β m] [Monad m] : MonadCache α β (ExceptT ε m) where
   findCached? a := ExceptT.lift $ MonadCache.findCached? a

@@ -61,7 +61,7 @@ end FoldConstsImpl
 
 /-- Apply `f` to every constant occurring in `e` once. -/
 @[implementedBy FoldConstsImpl.foldUnsafe]
-constant foldConsts {α : Type} (e : Expr) (init : α) (f : Name → α → α) : α := init
+opaque foldConsts {α : Type} (e : Expr) (init : α) (f : Name → α → α) : α := init
 
 def getUsedConstants (e : Expr) : Array Name :=
   e.foldConsts #[] fun c cs => cs.push c

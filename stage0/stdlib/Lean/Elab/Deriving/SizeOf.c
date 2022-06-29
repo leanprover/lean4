@@ -422,7 +422,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_SizeOf_initFn____x40_Lean_Elab_De
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("SizeOf");
+x_1 = lean_mk_string_from_bytes("SizeOf", 6);
 return x_1;
 }
 }

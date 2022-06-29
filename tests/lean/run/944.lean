@@ -28,8 +28,14 @@ end Lean.Elab
 def f2 (xs : List Nat) : List Nat :=
   .map (· + 1) xs
 
+def f2' (xs : List Nat) : List Nat :=
+  .map .succ xs
+
 def f3 : Nat :=
   .zero
 
 def f4 (x : Nat) : Nat :=
   .succ x
+
+example (xs : List α) : Std.RBTree α ord :=
+  xs.foldl .insert ∅

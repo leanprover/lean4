@@ -35,6 +35,18 @@ def mkHEq (a b : Expr) : MetaM Expr := do
   let u ← getLevel aType
   return mkApp4 (mkConst ``HEq [u]) aType a bType b
 
+/--
+  If `a` and `b` have definitionally equal types, return `Eq a b`, otherwise return `HEq a b`.
+-/
+def mkEqHEq (a b : Expr) : MetaM Expr := do
+  let aType ← inferType a
+  let bType ← inferType b
+  let u ← getLevel aType
+  if (← isDefEq aType bType) then
+    return mkApp3 (mkConst ``Eq [u]) aType a b
+  else
+    return mkApp4 (mkConst ``HEq [u]) aType a bType b
+
 def mkEqRefl (a : Expr) : MetaM Expr := do
   let aType ← inferType a
   let u ← getLevel aType
@@ -225,7 +237,7 @@ private def mkFun (constName : Name) : MetaM (Expr × Expr) := do
   let cinfo ← getConstInfo constName
   let us ← cinfo.levelParams.mapM fun _ => mkFreshLevelMVar
   let f := mkConst constName us
-  let fType := cinfo.instantiateTypeLevelParams us
+  let fType ← instantiateTypeLevelParams cinfo us
   return (f, fType)
 
 /--
@@ -363,33 +375,32 @@ def mkPure (monad : Expr) (e : Expr) : MetaM Expr :=
 /--
   `mkProjection s fieldName` return an expression for accessing field `fieldName` of the structure `s`.
   Remark: `fieldName` may be a subfield of `s`. -/
-partial def mkProjection : Expr → Name → MetaM Expr
-  | s, fieldName => do
-    let type ← inferType s
-    let type ← whnf type
-    match type.getAppFn with
-    | Expr.const structName us _ =>
-      let env ← getEnv
-      unless isStructure env structName do
-        throwAppBuilderException `mkProjection ("structure expected" ++ hasTypeMsg s type)
-      match getProjFnForField? env structName fieldName with
-      | some projFn =>
-        let params := type.getAppArgs
-        return mkApp (mkAppN (mkConst projFn us) params) s
-      | none =>
-        let fields := getStructureFields env structName
-        let r? ← fields.findSomeM? fun fieldName' => do
-          match isSubobjectField? env structName fieldName' with
-          | none   => pure none
-          | some _ =>
-            let parent ← mkProjection s fieldName'
-            (do let r ← mkProjection parent fieldName; return some r)
-            <|>
-            pure none
-        match r? with
-        | some r => pure r
-        | none   => throwAppBuilderException `mkProjectionn ("invalid field name '" ++ toString fieldName ++ "' for" ++ hasTypeMsg s type)
-    | _ => throwAppBuilderException `mkProjectionn ("structure expected" ++ hasTypeMsg s type)
+partial def mkProjection (s : Expr) (fieldName : Name) : MetaM Expr := do
+  let type ← inferType s
+  let type ← whnf type
+  match type.getAppFn with
+  | Expr.const structName us _ =>
+    let env ← getEnv
+    unless isStructure env structName do
+      throwAppBuilderException `mkProjection ("structure expected" ++ hasTypeMsg s type)
+    match getProjFnForField? env structName fieldName with
+    | some projFn =>
+      let params := type.getAppArgs
+      return mkApp (mkAppN (mkConst projFn us) params) s
+    | none =>
+      let fields := getStructureFields env structName
+      let r? ← fields.findSomeM? fun fieldName' => do
+        match isSubobjectField? env structName fieldName' with
+        | none   => pure none
+        | some _ =>
+          let parent ← mkProjection s fieldName'
+          (do let r ← mkProjection parent fieldName; return some r)
+          <|>
+          pure none
+      match r? with
+      | some r => pure r
+      | none   => throwAppBuilderException `mkProjectionn ("invalid field name '" ++ toString fieldName ++ "' for" ++ hasTypeMsg s type)
+  | _ => throwAppBuilderException `mkProjectionn ("structure expected" ++ hasTypeMsg s type)
 
 private def mkListLitAux (nil : Expr) (cons : Expr) : List Expr → Expr
   | []    => nil

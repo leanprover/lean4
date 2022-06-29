@@ -35,6 +35,7 @@ lean_object* l_Lean_Elab_Tactic_filterOldMVars(lean_object*, lean_object*, lean_
 static lean_object* l_Lean_Elab_Tactic_Conv_evalChange___closed__12;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalChange_declRange___closed__3;
 lean_object* l_Lean_Meta_isExprDefEqGuarded(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_refineCore___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalChange_declRange___closed__5;
 static lean_object* l_Lean_Elab_Tactic_Conv_evalChange___closed__1;
@@ -62,7 +63,6 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalChange_declRan
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalChange___closed__7;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalChange_declRange___closed__6;
-lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_evalDecide___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalChange___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalChange_declRange___closed__1;
 lean_object* l_Lean_Elab_Tactic_logUnassignedAndAbort(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -80,7 +80,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_evalChange___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -98,7 +98,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_evalChange___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -116,7 +116,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_evalChange___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Tactic");
+x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }
@@ -134,7 +134,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_evalChange___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Conv");
+x_1 = lean_mk_string_from_bytes("Conv", 4);
 return x_1;
 }
 }
@@ -152,7 +152,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_evalChange___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("change");
+x_1 = lean_mk_string_from_bytes("change", 6);
 return x_1;
 }
 }
@@ -170,7 +170,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_evalChange___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid 'change' conv tactic, term");
+x_1 = lean_mk_string_from_bytes("invalid 'change' conv tactic, term", 34);
 return x_1;
 }
 }
@@ -187,7 +187,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_evalChange___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nis not definitionally equal to current left-hand-side");
+x_1 = lean_mk_string_from_bytes("\nis not definitionally equal to current left-hand-side", 54);
 return x_1;
 }
 }
@@ -204,7 +204,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_evalChange___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -373,7 +373,7 @@ x_53 = l_Lean_Elab_Tactic_Conv_evalChange___closed__16;
 x_54 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_54, 0, x_52);
 lean_ctor_set(x_54, 1, x_53);
-x_55 = l_Lean_throwError___at_Lean_Elab_Tactic_evalDecide___spec__1(x_54, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_45);
+x_55 = l_Lean_throwError___at_Lean_Elab_Tactic_refineCore___spec__1(x_54, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_45);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -559,7 +559,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalChange___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -597,7 +597,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalChange___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalChange");
+x_1 = lean_mk_string_from_bytes("evalChange", 10);
 return x_1;
 }
 }

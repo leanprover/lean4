@@ -58,7 +58,7 @@ where
       let p ← decodeConstraint e
       return { pattern := p, constraints := cs.toList }
 
-private partial def validateHint (declName : Name) (hint : UnificationHint) : MetaM Unit := do
+private partial def validateHint (hint : UnificationHint) : MetaM Unit := do
   hint.constraints.forM fun c => do
     unless (← isDefEq c.lhs c.rhs) do
       throwError "invalid unification hint, failed to unify constraint left-hand-side{indentExpr c.lhs}\nwith right-hand-side{indentExpr c.rhs}"
@@ -76,9 +76,8 @@ def addUnificationHint (declName : Name) (kind : AttributeKind) : MetaM Unit :=
       | Except.error msg => throwError msg
       | Except.ok hint =>
         let keys ← DiscrTree.mkPath hint.pattern.lhs
-        validateHint declName hint
+        validateHint hint
         unificationHintExtension.add { keys := keys, val := declName } kind
-        trace[Meta.debug] "addUnificationHint: {unificationHintExtension.getState (← getEnv)}"
 
 builtin_initialize
   registerBuiltinAttribute {
@@ -110,7 +109,7 @@ where
       trace[Meta.isDefEq.hint] "trying hint {candidate} at {t} =?= {s}"
       let cinfo ← getConstInfo candidate
       let us ← cinfo.levelParams.mapM fun _ => mkFreshLevelMVar
-      let val := cinfo.instantiateValueLevelParams us
+      let val ← instantiateValueLevelParams cinfo us
       let (xs, bis, body) ← lambdaMetaTelescope val
       let hint? ← withConfig (fun cfg => { cfg with unificationHints := false }) do
         match decodeUnificationHint body with

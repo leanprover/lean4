@@ -65,7 +65,7 @@ def find? [BEq α] (a : α) : AssocList α β → Option β
 
 def contains [BEq α] (a : α) : AssocList α β → Bool
   | nil         => false
-  | cons k v es => k == a || contains a es
+  | cons k _ es => k == a || contains a es
 
 def replace [BEq α] (a : α) (b : β) : AssocList α β → AssocList α β
   | nil         => nil

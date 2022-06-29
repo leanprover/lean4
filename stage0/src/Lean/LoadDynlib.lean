@@ -14,4 +14,4 @@ Equivalent to passing `--load-dynlib=lib` to `lean`.
 Note that Lean never unloads libraries.
 -/
 @[extern "lean_load_dynlib"]
-constant loadDynlib (path : @& System.FilePath) : IO Unit
+opaque loadDynlib (path : @& System.FilePath) : IO Unit

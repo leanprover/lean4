@@ -78,8 +78,8 @@ structure Config where
   ignoreLevelMVarDepth  : Bool := true
   /-- Enable/Disable support for offset constraints such as `?x + 1 =?= e` -/
   offsetCnstrs          : Bool := true
-  /-- Enable/Disable support for eta-structures. -/
-  etaStruct             : Bool := true
+  /-- Eta for structures configuration mode. -/
+  etaStruct             : EtaStructMode := .all
 
 structure ParamInfo where
   binderInfo     : BinderInfo := BinderInfo.default
@@ -129,13 +129,13 @@ abbrev WhnfCache      := PersistentExprStructMap Expr
 abbrev DefEqCache := PersistentHashMap (Expr × Expr) Unit
 
 structure Cache where
-  inferType     : InferTypeCache := {}
-  funInfo       : FunInfoCache   := {}
-  synthInstance : SynthInstanceCache := {}
-  whnfDefault   : WhnfCache := {} -- cache for closed terms and `TransparencyMode.default`
-  whnfAll       : WhnfCache := {} -- cache for closed terms and `TransparencyMode.all`
-  defEqDefault  : DefEqCache := {}
-  defEqAll      : DefEqCache := {}
+  inferType      : InferTypeCache := {}
+  funInfo        : FunInfoCache   := {}
+  synthInstance  : SynthInstanceCache := {}
+  whnfDefault    : WhnfCache := {} -- cache for closed terms and `TransparencyMode.default`
+  whnfAll        : WhnfCache := {} -- cache for closed terms and `TransparencyMode.all`
+  defEqDefault   : DefEqCache := {}
+  defEqAll       : DefEqCache := {}
   deriving Inhabited
 
 /--
@@ -207,6 +207,10 @@ instance : MonadMCtx MetaM where
   getMCtx    := return (← get).mctx
   modifyMCtx f := modify fun s => { s with mctx := f s.mctx }
 
+instance : MonadEnv MetaM where
+  getEnv      := return (← getThe Core.State).env
+  modifyEnv f := do modifyThe Core.State fun s => { s with env := f s.env, cache := {} }; modify fun s => { s with cache := {} }
+
 instance : AddMessageContext MetaM where
   addMessageContext := addMessageContextFull
 
@@ -241,6 +245,8 @@ protected def throwIsDefEqStuck : MetaM α :=
 builtin_initialize
   registerTraceClass `Meta
   registerTraceClass `Meta.debug
+
+export Core (instantiateTypeLevelParams instantiateValueLevelParams)
 
 @[inline] def liftMetaM [MonadLiftT MetaM m] (x : MetaM α) : m α :=
   liftM x
@@ -287,15 +293,26 @@ def setPostponed (postponed : PersistentArray PostponedEntry) : MetaM Unit :=
 @[inline] def modifyPostponed (f : PersistentArray PostponedEntry → PersistentArray PostponedEntry) : MetaM Unit :=
   modify fun s => { s with postponed := f s.postponed }
 
+def useEtaStruct (inductName : Name) : MetaM Bool := do
+  match (← getConfig).etaStruct with
+  | .none => return false
+  | .all  => return true
+  | .notClasses => return !isClass (← getEnv) inductName
+
 /- WARNING: The following 4 constants are a hack for simulating forward declarations.
    They are defined later using the `export` attribute. This is hackish because we
    have to hard-code the true arity of these definitions here, and make sure the C names match.
    We have used another hack based on `IO.Ref`s in the past, it was safer but less efficient. -/
-@[extern 6 "lean_whnf"] constant whnf : Expr → MetaM Expr
-@[extern 6 "lean_infer_type"] constant inferType : Expr → MetaM Expr
-@[extern 7 "lean_is_expr_def_eq"] constant isExprDefEqAux : Expr → Expr → MetaM Bool
-@[extern 7 "lean_is_level_def_eq"] constant isLevelDefEqAux : Level → Level → MetaM Bool
-@[extern 6 "lean_synth_pending"] protected constant synthPending : MVarId → MetaM Bool
+
+/-- Reduces an expression to its Weak Head Normal Form.
+This is when the topmost expression has been fully reduced,
+but may contain subexpressions which have not been reduced. -/
+@[extern 6 "lean_whnf"] opaque whnf : Expr → MetaM Expr
+/-- Returns the inferred type of the given expression, or fails if it is not type-correct. -/
+@[extern 6 "lean_infer_type"] opaque inferType : Expr → MetaM Expr
+@[extern 7 "lean_is_expr_def_eq"] opaque isExprDefEqAux : Expr → Expr → MetaM Bool
+@[extern 7 "lean_is_level_def_eq"] opaque isLevelDefEqAux : Level → Level → MetaM Bool
+@[extern 6 "lean_synth_pending"] protected opaque synthPending : MVarId → MetaM Bool
 
 def whnfForall (e : Expr) : MetaM Expr := do
   let e' ← whnf e
@@ -407,8 +424,8 @@ def isReadOnlyLevelMVar (mvarId : MVarId) : MetaM Bool := do
   else
     return (← getLevelMVarDepth mvarId) != (← getMCtx).depth
 
-def renameMVar (mvarId : MVarId) (newUserName : Name) : MetaM Unit :=
-  modifyMCtx fun mctx => mctx.renameMVar mvarId newUserName
+def setMVarUserName (mvarId : MVarId) (newUserName : Name) : MetaM Unit :=
+  modifyMCtx fun mctx => mctx.setMVarUserName mvarId newUserName
 
 def isExprMVarAssigned (mvarId : MVarId) : MetaM Bool :=
   return (← getMCtx).isExprAssigned mvarId
@@ -470,7 +487,7 @@ def instantiateLocalDeclMVars (localDecl : LocalDecl) : MetaM LocalDecl :=
     setMCtx sNew.mctx
     modifyThe Core.State fun s => { s with ngen := sNew.ngen, nextMacroScope := sNew.nextMacroScope }
     pure e
-  | EStateM.Result.error (MetavarContext.MkBinding.Exception.revertFailure mctx lctx toRevert decl) sNew => do
+  | EStateM.Result.error (.revertFailure ..) sNew => do
     setMCtx sNew.mctx
     modifyThe Core.State fun s => { s with ngen := sNew.ngen, nextMacroScope := sNew.nextMacroScope }
     throwError "failed to create binder due to failure when reverting variable dependencies"
@@ -481,15 +498,24 @@ def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : MetaM Expr :=
 def abstract (e : Expr) (xs : Array Expr) : MetaM Expr :=
   abstractRange e xs.size xs
 
-def mkForallFVars (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (binderInfoForMVars := BinderInfo.implicit) : MetaM Expr :=
-  if xs.isEmpty then pure e else liftMkBindingM <| MetavarContext.mkForall xs e usedOnly usedLetOnly binderInfoForMVars
+/-- Takes an array `xs` of free variables or metavariables and a term `e` that may contain those variables, and abstracts and binds them as universal quantifiers.
 
+- if `usedOnly = true` then only variables that the expression body depends on will appear.
+- if `usedLetOnly = true` same as `usedOnly` except for let-bound variables. (That is, local constants which have been assigned a value.)
+ -/
+def mkForallFVars (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (binderInfoForMVars := BinderInfo.implicit) : MetaM Expr :=
+  if xs.isEmpty then return e else liftMkBindingM <| MetavarContext.mkForall xs e usedOnly usedLetOnly binderInfoForMVars
+
+/-- Takes an array `xs` of free variables and metavariables and a
+body term `e` and creates `fun ..xs => e`, suitably
+abstracting `e` and the types in `xs`. -/
 def mkLambdaFVars (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (binderInfoForMVars := BinderInfo.implicit) : MetaM Expr :=
-  if xs.isEmpty then pure e else liftMkBindingM <| MetavarContext.mkLambda xs e usedOnly usedLetOnly binderInfoForMVars
+  if xs.isEmpty then return e else liftMkBindingM <| MetavarContext.mkLambda xs e usedOnly usedLetOnly binderInfoForMVars
 
 def mkLetFVars (xs : Array Expr) (e : Expr) (usedLetOnly := true) (binderInfoForMVars := BinderInfo.implicit) : MetaM Expr :=
   mkLambdaFVars xs e (usedLetOnly := usedLetOnly) (binderInfoForMVars := binderInfoForMVars)
 
+/-- Creates the expression `d → b` -/
 def mkArrow (d b : Expr) : MetaM Expr :=
   return Lean.mkForall (← mkFreshUserName `x) BinderInfo.default d b
 
@@ -573,8 +599,8 @@ private def isClassQuickConst? (constName : Name) : MetaM (LOption Name) := do
     pure (LOption.some constName)
   else
     match (← getConstTemp? constName) with
-    | some _ => pure LOption.undef
-    | none   => pure LOption.none
+    | some (ConstantInfo.defnInfo ..) => pure LOption.undef -- We may be able to unfold the definition
+    | _ => pure LOption.none
 
 private partial def isClassQuick? : Expr → MetaM (LOption Name)
   | Expr.bvar ..         => pure LOption.none
@@ -730,9 +756,9 @@ mutual
       else
         k #[] type
 
-  private partial def isClassExpensive? : Expr → MetaM (Option Name)
-    | type => withReducible <| -- when testing whether a type is a type class, we only unfold reducible constants.
-      forallTelescopeReducingAux type none fun xs type => do
+  private partial def isClassExpensive? (type : Expr) : MetaM (Option Name) :=
+    withReducible do -- when testing whether a type is a type class, we only unfold reducible constants.
+      forallTelescopeReducingAux type none fun _ type => do
         let env ← getEnv
         match type.getAppFn with
         | Expr.const c _ _ => do
@@ -814,15 +840,18 @@ where
         withNewLocalInstancesImp fvars j do
           k fvars e
 
-/-- Similar to `forallTelescope` but for lambda and let expressions. -/
-def lambdaLetTelescope (type : Expr) (k : Array Expr → Expr → n α) : n α :=
-  map2MetaM (fun k => lambdaTelescopeImp type true k) k
+/-- Similar to `lambdaTelescope` but for lambda and let expressions. -/
+def lambdaLetTelescope (e : Expr) (k : Array Expr → Expr → n α) : n α :=
+  map2MetaM (fun k => lambdaTelescopeImp e true k) k
 
-/-- Similar to `forallTelescope` but for lambda expressions. -/
-def lambdaTelescope (type : Expr) (k : Array Expr → Expr → n α) : n α :=
-  map2MetaM (fun k => lambdaTelescopeImp type false k) k
+/--
+  Given `e` of the form `fun ..xs => A`, execute `k xs A`.
+  This combinator will declare local declarations, create free variables for them,
+  execute `k` with updated local context, and make sure the cache is restored after executing `k`. -/
+def lambdaTelescope (e : Expr) (k : Array Expr → Expr → n α) : n α :=
+  map2MetaM (fun k => lambdaTelescopeImp e false k) k
 
-/-- Return the parameter names for the givel global declaration. -/
+/-- Return the parameter names for the given global declaration. -/
 def getParamNames (declName : Name) : MetaM (Array Name) := do
   forallTelescopeReducing (← getConstInfo declName).type fun xs _ => do
     xs.mapM fun x => do
@@ -858,15 +887,23 @@ where
         else
           return (mvars, bis, type)
 
-/-- Similar to `forallTelescope`, but creates metavariables instead of free variables. -/
+/-- Given `e` of the form `forall ..xs, A`, this combinator will create a new
+  metavariable for each `x` in `xs` and instantiate `A` with these.
+  Returns a product containing
+  - the new metavariables
+  - the binder info for the `xs`
+  - the instantiated `A`
+  -/
 def forallMetaTelescope (e : Expr) (kind := MetavarKind.natural) : MetaM (Array Expr × Array BinderInfo × Expr) :=
   forallMetaTelescopeReducingAux e (reducing := false) (maxMVars? := none) kind
 
-/-- Similar to `forallTelescopeReducing`, but creates metavariables instead of free variables. -/
+/-- Similar to `forallMetaTelescope`, but if `e = forall ..xs, A`
+it will reduce `A` to construct further mvars.  -/
 def forallMetaTelescopeReducing (e : Expr) (maxMVars? : Option Nat := none) (kind := MetavarKind.natural) : MetaM (Array Expr × Array BinderInfo × Expr) :=
   forallMetaTelescopeReducingAux e (reducing := true) maxMVars? kind
 
-/-- Similar to `forallMetaTelescopeReducing`, stops constructing the telescope when it reaches size `maxMVars`. -/
+/-- Similar to `forallMetaTelescopeReducing`, stops
+constructing the telescope when it reaches size `maxMVars`. -/
 def forallMetaBoundedTelescope (e : Expr) (maxMVars : Nat) (kind : MetavarKind := MetavarKind.natural) : MetaM (Array Expr × Array BinderInfo × Expr) :=
   forallMetaTelescopeReducingAux e (reducing := true) (maxMVars? := some maxMVars) (kind := kind)
 
@@ -882,7 +919,7 @@ where
       finalize ()
     else
       match type with
-      | Expr.lam n d b c =>
+      | Expr.lam _ d b c =>
         let d     := d.instantiateRevRange j mvars.size mvars
         let mvar ← mkFreshExprMVar d
         let mvars := mvars.push mvar
@@ -903,12 +940,21 @@ private def withLocalDeclImp (n : Name) (bi : BinderInfo) (type : Expr) (k : Exp
   withReader (fun ctx => { ctx with lctx := lctx }) do
     withNewFVar fvar type k
 
+/-- Create a free variable `x` with name, binderInfo and type, add it to the context and run in `k`.
+Then revert the context. -/
 def withLocalDecl (name : Name) (bi : BinderInfo) (type : Expr) (k : Expr → n α) : n α :=
   map1MetaM (fun k => withLocalDeclImp name bi type k) k
 
 def withLocalDeclD (name : Name) (type : Expr) (k : Expr → n α) : n α :=
   withLocalDecl name BinderInfo.default type k
 
+/-- Append an array of free variables `xs` to the local context and execute `k xs`.
+declInfos takes the form of an array consisting of:
+- the name of the variable
+- the binder info of the variable
+- a type constructor for the variable, where the array consists of all of the free variables
+  defined prior to this one. This is needed because the type of the variable may depend on prior variables.
+-/
 partial def withLocalDecls
     [Inhabited α]
     (declInfos : Array (Name × BinderInfo × (Array Expr → n Expr)))
@@ -964,7 +1010,6 @@ def withLocalInstances (decls : List LocalDecl) : n α → n α :=
 
 private def withExistingLocalDeclsImp (decls : List LocalDecl) (k : MetaM α) : MetaM α := do
   let ctx ← read
-  let numLocalInstances := ctx.localInstances.size
   let lctx := decls.foldl (fun (lctx : LocalContext) decl => lctx.addDecl decl) ctx.lctx
   withReader (fun ctx => { ctx with lctx := lctx }) do
     withLocalInstancesImp decls k
@@ -982,7 +1027,11 @@ private def withNewMCtxDepthImp (x : MetaM α) : MetaM α := do
 
 /--
   Save cache and `MetavarContext`, bump the `MetavarContext` depth, execute `x`,
-  and restore saved data. -/
+  and restore saved data.
+
+  Metavariable context depths are used to control which metavariables may be assigned in `isDefEq`.
+  See the docstring of `isDefEq` for more information.
+   -/
 def withNewMCtxDepth : n α → n α :=
   mapMetaM withNewMCtxDepthImp
 
@@ -1043,12 +1092,15 @@ def normalizeLevel (u : Level) : MetaM Level := do
 def assignLevelMVar (mvarId : MVarId) (u : Level) : MetaM Unit := do
   modifyMCtx fun mctx => mctx.assignLevel mvarId u
 
+/-- `whnf` with reducible transparency.-/
 def whnfR (e : Expr) : MetaM Expr :=
   withTransparency TransparencyMode.reducible <| whnf e
 
+/-- `whnf` with default transparency.-/
 def whnfD (e : Expr) : MetaM Expr :=
   withTransparency TransparencyMode.default <| whnf e
 
+/-- `whnf` with instances transparency.-/
 def whnfI (e : Expr) : MetaM Expr :=
   withTransparency TransparencyMode.instances <| whnf e
 
@@ -1089,6 +1141,10 @@ def instantiateLambda (e : Expr) (ps : Array Expr) : MetaM Expr :=
 def dependsOn (e : Expr) (fvarId : FVarId) : MetaM Bool :=
   return (← getMCtx).exprDependsOn e fvarId
 
+/-- Return true iff `e` depends on the free variable `fvarId` -/
+def localDeclDependsOn (localDecl : LocalDecl) (fvarId : FVarId) : MetaM Bool :=
+  return (← getMCtx).localDeclDependsOn localDecl fvarId
+
 /-- Return true iff `e` depends on a free variable `x` s.t. `pf x`, or an unassigned metavariable `?m` s.t. `pm ?m` is true. -/
 def dependsOnPred (e : Expr) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : MetaM Bool :=
   return (← getMCtx).findExprDependsOn e pf pm
@@ -1108,11 +1164,11 @@ def ppExpr (e : Expr) : MetaM Format := do
 instance : OrElse (MetaM α) := ⟨Meta.orElse⟩
 
 instance : Alternative MetaM where
-  failure := fun {α} => throwError "failed"
+  failure := fun {_} => throwError "failed"
   orElse  := Meta.orElse
 
 @[inline] private def orelseMergeErrorsImp (x y : MetaM α)
-    (mergeRef : Syntax → Syntax → Syntax := fun r₁ r₂ => r₁)
+    (mergeRef : Syntax → Syntax → Syntax := fun r₁ _ => r₁)
     (mergeMsg : MessageData → MessageData → MessageData := fun m₁ m₂ => m₁ ++ Format.line ++ m₂) : MetaM α := do
   let env  ← getEnv
   let mctx ← getMCtx
@@ -1135,7 +1191,7 @@ instance : Alternative MetaM where
   The default `mergeRef` uses the `ref` (position information) for the first message.
   The default `mergeMsg` combines error messages using `Format.line ++ Format.line` as a separator. -/
 @[inline] def orelseMergeErrors [MonadControlT MetaM m] [Monad m] (x y : m α)
-    (mergeRef : Syntax → Syntax → Syntax := fun r₁ r₂ => r₁)
+    (mergeRef : Syntax → Syntax → Syntax := fun r₁ _ => r₁)
     (mergeMsg : MessageData → MessageData → MessageData := fun m₁ m₂ => m₁ ++ Format.line ++ Format.line ++ m₂) : m α := do
   controlAt MetaM fun runInBase => orelseMergeErrorsImp (runInBase x) (runInBase y) mergeRef mergeMsg
 
@@ -1222,7 +1278,8 @@ private def processPostponedStep (exceptionOnFailure : Bool) : MetaM Bool :=
     for p in ps do
       unless (← withReader (fun ctx => { ctx with defEqCtx? := p.ctx? }) <| isLevelDefEqAux p.lhs p.rhs) do
         if exceptionOnFailure then
-          throwError (← mkLevelErrorMessage p)
+          withRef p.ref do
+            throwError (← mkLevelErrorMessage p)
         else
           return false
     return true
@@ -1290,6 +1347,17 @@ def isExprDefEq (t s : Expr) : MetaM Bool :=
     trace[Meta.isDefEq] "{t} =?= {s} ... {if b then "success" else "failure"}"
     return b
 
+/-- Determines whether two expressions are definitionally equal to each other.
+
+  To control how metavariables are assigned and unified, metavariables and their context have a "depth".
+  Given a metavariable `?m` and a `MetavarContext` `mctx`, `?m` is not assigned if `?m.depth != mctx.depth`.
+  The combinator `withNewMCtxDepth x` will bump the depth while executing `x`.
+  So, `withNewMCtxDepth (isDefEq a b)` is `isDefEq` without any mvar assignment happening
+  whereas `isDefEq a b` will assign any metavariables of the current depth in `a` and `b` to unify them.
+
+  For matching (where only mvars in `b` should be assigned), we create the term inside the `withNewMCtxDepth`.
+  For an example, see [Lean.Meta.Simp.tryTheoremWithExtraArgs?](https://github.com/leanprover/lean4/blob/master/src/Lean/Meta/Tactic/Simp/Rewrite.lean#L100-L106)
+ -/
 abbrev isDefEq (t s : Expr) : MetaM Bool :=
   isExprDefEq t s
 

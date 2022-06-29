@@ -21,8 +21,7 @@ def leftArrow : Parser := unicodeSymbol "← " "<- "
 def doSeqItem      := leading_parser ppLine >> doElemParser >> optional "; "
 def doSeqIndent    := leading_parser many1Indent doSeqItem
 def doSeqBracketed := leading_parser "{" >> withoutPosition (many1 doSeqItem) >> ppLine >> "}"
-def doSeq          := doSeqBracketed <|> doSeqIndent
-
+def doSeq          := withAntiquot (mkAntiquot "doSeq" `Lean.Parser.Term.doSeq (isPseudoKind := true)) <| doSeqBracketed <|> doSeqIndent
 def termBeforeDo := withForbidden "do" termParser
 
 attribute [runBuiltinParserAttributeHooks] doSeq termBeforeDo
@@ -84,10 +83,10 @@ def elseIf := atomic (group (withPosition (" else " >> checkLineEq >> " if ")))
 -- ensure `if $e then ...` still binds to `e:term`
 def doIfLetPure := leading_parser " := " >> termParser
 def doIfLetBind := leading_parser " ← " >> termParser
-def doIfLet     := nodeWithAntiquot "doIfLet"     `Lean.Parser.Term.doIfLet       <| "let " >> termParser >> (doIfLetPure <|> doIfLetBind)
-def doIfProp    := nodeWithAntiquot "doIfProp"    `Lean.Parser.Term.doIfProp      <| optIdent >> termParser
-def doIfCond    := withAntiquot (mkAntiquot "doIfCond" none (anonymous := false)) <| doIfLet <|> doIfProp
-@[builtinDoElemParser] def doIf := leading_parser withPosition $
+def doIfLet     := leading_parser (withAnonymousAntiquot := false) "let " >> termParser >> (doIfLetPure <|> doIfLetBind)
+def doIfProp    := leading_parser (withAnonymousAntiquot := false) optIdent >> termParser
+def doIfCond    := withAntiquot (mkAntiquot "doIfCond" `Lean.Parser.Term.doIfCond (anonymous := false) (isPseudoKind := true)) <| doIfLet <|> doIfProp
+@[builtinDoElemParser] def doIf := leading_parser withPositionAfterLinebreak $
   "if " >> doIfCond >> " then " >> doSeq
   >> many (checkColGe "'else if' in 'do' must be indented" >> group (elseIf >> doIfCond >> " then " >> doSeq))
   >> optional (checkColGe "'else' in 'do' must be indented" >> " else " >> doSeq)

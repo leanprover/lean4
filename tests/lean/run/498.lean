@@ -51,7 +51,7 @@ inductive Kind
   (flag      : Flag)
   (inputFlag : InputFlag)
   (msg       : String :=
-    let complementaryName? : Option String := OptionM.run do
+    let complementaryName? : Option String := do
       if inputFlag.isShort then
         pure s!" (`--{flag.longName}`)"
       else

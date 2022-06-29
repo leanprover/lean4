@@ -76,8 +76,7 @@ def contains [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Bool :=
     let ⟨i, h⟩ := mkIdx buckets.property (hash a |>.toUSize)
     (buckets.val.uget i h).contains a
 
--- TODO: remove `partial` by using well-founded recursion
-partial def moveEntries [Hashable α] (i : Nat) (source : Array (AssocList α β)) (target : HashMapBucket α β) : HashMapBucket α β :=
+def moveEntries [Hashable α] (i : Nat) (source : Array (AssocList α β)) (target : HashMapBucket α β) : HashMapBucket α β :=
   if h : i < source.size then
      let idx : Fin source.size := ⟨i, h⟩
      let es  : AssocList α β   := source.get idx
@@ -86,6 +85,7 @@ partial def moveEntries [Hashable α] (i : Nat) (source : Array (AssocList α β
      let target                := es.foldl (reinsertAux hash) target
      moveEntries (i+1) source target
   else target
+termination_by _ i source _ => source.size - i
 
 def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapImp α β :=
   let nbuckets := buckets.val.size * 2

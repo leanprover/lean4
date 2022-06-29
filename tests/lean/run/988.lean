@@ -6,7 +6,7 @@ def empty : Fin 0 → Nat := (nomatch ·)
 theorem append_empty (x : Fin i → Nat) : x ++ empty = x :=
   funext fun i => dif_pos _
 
-constant f : (Fin 0 → Nat) → Prop
+opaque f : (Fin 0 → Nat) → Prop
 example : f (empty ++ empty) = f empty := by simp only [append_empty] -- should work
 
 @[congr] theorem Array.get_congr (as bs : Array α) (h : as = bs) (i : Fin as.size) (j : Nat) (hi : i = j) :

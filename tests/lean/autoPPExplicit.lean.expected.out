@@ -1,4 +1,4 @@
-autoPPExplicit.lean:2:2-2:32: error: application type mismatch
+autoPPExplicit.lean:2:26-2:31: error: application type mismatch
   @Eq.trans α a (b = c)
 argument
   b = c

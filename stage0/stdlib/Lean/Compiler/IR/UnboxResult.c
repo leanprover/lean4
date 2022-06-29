@@ -49,7 +49,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_IR_UnboxResult_initFn____x4
 _start:
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_5 = lean_ctor_get(x_2, 3);
+x_5 = lean_ctor_get(x_2, 5);
 x_6 = l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContextCoreM___spec__1(x_1, x_2, x_3, x_4);
 x_7 = !lean_is_exclusive(x_6);
 if (x_7 == 0)
@@ -87,7 +87,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_Lean_IR_UnboxResult_initFn___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown constant '");
+x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
 return x_1;
 }
 }
@@ -104,7 +104,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_Lean_IR_UnboxResult_initFn___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -213,7 +213,7 @@ static lean_object* _init_l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_U
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("constant must be an inductive type");
+x_1 = lean_mk_string_from_bytes("constant must be an inductive type", 34);
 return x_1;
 }
 }
@@ -230,7 +230,7 @@ static lean_object* _init_l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_U
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("recursive inductive datatypes are not supported");
+x_1 = lean_mk_string_from_bytes("recursive inductive datatypes are not supported", 47);
 return x_1;
 }
 }
@@ -338,7 +338,7 @@ static lean_object* _init_l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_U
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unbox");
+x_1 = lean_mk_string_from_bytes("unbox", 5);
 return x_1;
 }
 }
@@ -356,7 +356,7 @@ static lean_object* _init_l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_U
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("compiler tries to unbox result values if their types are tagged with `[unbox]`");
+x_1 = lean_mk_string_from_bytes("compiler tries to unbox result values if their types are tagged with `[unbox]`", 78);
 return x_1;
 }
 }

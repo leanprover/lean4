@@ -28,7 +28,6 @@ with builtins; let
   modToPath = mod: replaceStrings ["."] ["/"] mod;
   modToLean = mod: modToPath mod + ".lean";
   mkBareDerivation = args@{ buildCommand, ... }: derivation (args // {
-    inherit stdenv;
     inherit (stdenv) system;
     buildInputs = (args.buildInputs or []) ++ [ coreutils ];
     builder = stdenv.shell;
@@ -164,8 +163,8 @@ with builtins; let
       deps = filter (p: p != "") (lib.splitString "\n" (readFile (leanDeps mod)));
       modMap' = lib.foldr buildModAndDeps modMap deps;
     in modMap' // { ${mod} = mkMod mod (map (dep: if modMap' ? ${dep} then modMap'.${dep} else externalModMap.${dep}) deps); };
-  makeEmacsWrapper = name: lean: writeShellScriptBin name ''
-    ${lean-emacs}/bin/emacs --eval "(progn (setq lean4-rootdir \"${lean}\"))" "$@"
+  makeEmacsWrapper = name: emacs: lean: writeShellScriptBin name ''
+    ${emacs} --eval "(progn (setq lean4-rootdir \"${lean}\"))" "$@"
   '';
   makeVSCodeWrapper = name: lean: writeShellScriptBin name ''
     PATH=${lean}/bin:$PATH ${lean-vscode}/bin/code "$@"
@@ -253,6 +252,7 @@ in rec {
     inherit bash nix srcTarget srcArgs;
   };
   lean-dev = symlinkJoin { name = "lean-dev"; paths = [ lean-bin-dev lake-dev ]; };
-  emacs-dev = makeEmacsWrapper "emacs-dev" lean-dev;
+  emacs-dev = makeEmacsWrapper "emacs-dev" "${lean-emacs}/bin/emacs" lean-dev;
+  emacs-path-dev = makeEmacsWrapper "emacs-path-dev" "emacs" lean-dev;
   vscode-dev = makeVSCodeWrapper "vscode-dev" lean-dev;
 })

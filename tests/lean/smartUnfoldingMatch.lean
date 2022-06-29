@@ -6,7 +6,7 @@ elab "whnf%" t:term : term <= expectedType => do
   trace[Meta.debug] "r: {r}"
   return r
 
-constant x : Option Nat := some 42
+opaque x : Option Nat := some 42
 
 set_option trace.Meta.debug true
 #eval whnf% x.getD 0

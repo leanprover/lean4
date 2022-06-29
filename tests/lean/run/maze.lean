@@ -67,13 +67,13 @@ def game_state_from_cells_aux : Coords → Nat → List (List CellContents) → 
 def game_state_from_cells : Coords → List (List CellContents) → GameState
 | size, cells => game_state_from_cells_aux size 0 cells
 
-def termOfCell : Lean.Macro
+def termOfCell : Lean.TSyntax `game_cell → Lean.MacroM (Lean.TSyntax `term)
 | `(game_cell| ░) => `(CellContents.empty)
 | `(game_cell| ▓) => `(CellContents.wall)
 | `(game_cell| @) => `(CellContents.player)
 | _ => Lean.Macro.throwError "unknown game cell"
 
-def termOfGameRow : Nat → Lean.Macro
+def termOfGameRow : Nat → Lean.TSyntax `game_row → Lean.MacroM (Lean.TSyntax `term)
 | expectedRowSize, `(game_row| │$cells:game_cell*│) =>
       do if cells.size != expectedRowSize
          then Lean.Macro.throwError "row has wrong size"
@@ -135,7 +135,7 @@ def update2dArrayMulti {α : Type} : Array (Array α) → List Coords → α →
      let a' := update2dArrayMulti a cs v
      update2dArray a' c v
 
-def delabGameRow : (Array Lean.Syntax) → Lean.PrettyPrinter.Delaborator.Delab
+def delabGameRow : Array (Lean.TSyntax `game_cell) → Lean.PrettyPrinter.Delaborator.DelabM (Lean.TSyntax `game_row)
 | a => `(game_row| │ $a:game_cell* │)
 
 def delabGameState : Lean.Expr → Lean.PrettyPrinter.Delaborator.Delab

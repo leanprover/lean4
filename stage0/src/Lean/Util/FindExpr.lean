@@ -41,7 +41,7 @@ unsafe def findM? (p : Expr → Bool) (size : USize) (e : Expr) : OptionT FindM 
       | Expr.letE _ t v b _    => visit t <|> visit v <|> visit b
       | Expr.app f a _         => visit f <|> visit a
       | Expr.proj _ _ b _      => visit b
-      | e                      => failure
+      | _                      => failure
   visit e
 
 
@@ -65,7 +65,7 @@ def find? (p : Expr → Bool) (e : Expr) : Option Expr :=
     | Expr.letE _ t v b _    => find? p t <|> find? p v <|> find? p b
     | Expr.app f a _         => find? p f <|> find? p a
     | Expr.proj _ _ b _      => find? p b
-    | e                      => none
+    | _                      => none
 
 /-- Return true if `e` occurs in `t` -/
 def occurs (e : Expr) (t : Expr) : Bool :=
@@ -103,7 +103,7 @@ where
         | Expr.letE _ t v b _    => visit t <|> visit v <|> visit b
         | Expr.app ..            => visitApp e
         | Expr.proj _ _ b _      => visit b
-        | e                      => failure
+        | _                      => failure
 
 unsafe def findUnsafe? (p : Expr → FindStep) (e : Expr) : Option Expr :=
   Id.run <| findM? p FindImpl.cacheSize e |>.run' FindImpl.initCache
@@ -114,7 +114,7 @@ end FindExtImpl
   Similar to `find?`, but `p` can return `FindStep.done` to interrupt the search on subterms.
   Remark: Differently from `find?`, we do not invoke `p` for partial applications of an application. -/
 @[implementedBy FindExtImpl.findUnsafe?]
-constant findExt? (p : Expr → FindStep) (e : Expr) : Option Expr
+opaque findExt? (p : Expr → FindStep) (e : Expr) : Option Expr
 
 end Expr
 end Lean

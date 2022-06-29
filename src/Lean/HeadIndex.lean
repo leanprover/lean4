@@ -16,7 +16,7 @@ inductive HeadIndex where
   | sort
   | lam
   | forallE
-  deriving Inhabited, BEq
+  deriving Inhabited, BEq, Repr
 
 namespace HeadIndex
 

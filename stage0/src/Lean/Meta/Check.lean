@@ -18,7 +18,7 @@ private def ensureType (e : Expr) : MetaM Unit := do
 def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
   let lctx ← getLCtx
   match lctx.find? fvarId with
-  | some (LocalDecl.ldecl _ _ n t v _) => do
+  | some (LocalDecl.ldecl _ _ _ t v _) => do
     let vType ← inferType v
     throwError "invalid let declaration, term{indentExpr v}\nhas type{indentExpr vType}\nbut is expected to have type{indentExpr t}"
   | _ => unreachable!
@@ -125,7 +125,7 @@ def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr) : MetaM MessageDat
     let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
     return m!"has type{indentExpr givenType}\nbut is expected to have type{indentExpr expectedType}"
 
-def throwAppTypeMismatch {α} (f a : Expr) (extraMsg : MessageData := Format.nil) : MetaM α := do
+def throwAppTypeMismatch (f a : Expr) : MetaM α := do
   let (expectedType, binfo) ← getFunctionDomain f
   let mut e := mkApp f a
   unless binfo.isExplicit do

@@ -29,7 +29,7 @@ def KExprMap.find? (m : KExprMap α) (e : Expr) : MetaM (Option α) := do
 
 private def updateList (ps : Std.AssocList Expr α) (e : Expr) (v : α) : MetaM (Std.AssocList Expr α) := do
   match ps with
-  | Std.AssocList.nil => return Std.AssocList.nil
+  | Std.AssocList.nil => return Std.AssocList.cons e v ps
   | Std.AssocList.cons e' v' ps =>
     if (← isDefEq e e') then
       return Std.AssocList.cons e v ps

@@ -85,7 +85,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Structural_instInhabit
 _start:
 {
 lean_object* x_8; lean_object* x_9; uint8_t x_10; 
-x_8 = lean_ctor_get(x_5, 3);
+x_8 = lean_ctor_get(x_5, 5);
 x_9 = l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(x_1, x_3, x_4, x_5, x_6, x_7);
 x_10 = !lean_is_exclusive(x_9);
 if (x_10 == 0)
@@ -131,7 +131,7 @@ static lean_object* _init_l_Lean_Elab_Structural_instInhabitedM___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed");
+x_1 = lean_mk_string_from_bytes("failed", 6);
 return x_1;
 }
 }
@@ -269,6 +269,7 @@ x_4 = l_Lean_Expr_isAppOf(x_3, x_1);
 if (x_4 == 0)
 {
 uint8_t x_5; 
+lean_dec(x_3);
 x_5 = 0;
 return x_5;
 }
@@ -282,6 +283,7 @@ if (x_8 == 0)
 {
 uint8_t x_9; 
 lean_dec(x_7);
+lean_dec(x_3);
 x_9 = 0;
 return x_9;
 }
@@ -329,7 +331,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = l_Lean_Elab_Structural_recArgHasLooseBVarsAt___lambda__1(x_1, x_2, x_3);
-lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_5 = lean_box(x_4);

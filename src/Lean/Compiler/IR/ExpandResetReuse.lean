@@ -78,8 +78,8 @@ partial def eraseProjIncForAux (y : VarId) (bs : Array FnBody) (mask : Mask) (ke
           let keep := if n == 1 then keep else keep.push (FnBody.inc z (n-1) c p FnBody.nil)
           eraseProjIncForAux y bs mask keep
         else done ()
-      | other => done ()
-    | other => done ()
+      | _ => done ()
+    | _ => done ()
 
 /- Try to erase `inc` instructions on projections of `y` occurring in the tail of `bs`.
    Return the updated `bs` and a bit mask specifying which `inc`s have been removed. -/
@@ -93,7 +93,7 @@ partial def reuseToCtor (x : VarId) : FnBody → FnBody
     else FnBody.dec y n c p (reuseToCtor x b)
   | FnBody.vdecl z t v b   =>
     match v with
-    | Expr.reuse y c u xs =>
+    | Expr.reuse y c _ xs =>
       if x == y then FnBody.vdecl z t (Expr.ctor c xs) b
       else FnBody.vdecl z t v (reuseToCtor x b)
     | _ =>
@@ -235,7 +235,6 @@ def mkFastPath (x y : VarId) (mask : Mask) (b : FnBody) : M FnBody := do
 -- Expand `bs; x := reset[n] y; b`
 partial def expand (mainFn : FnBody → Array FnBody → M FnBody)
     (bs : Array FnBody) (x : VarId) (n : Nat) (y : VarId) (b : FnBody) : M FnBody := do
-  let bOld := FnBody.vdecl x IRType.object (Expr.reset n y) b
   let (bs, mask) := eraseProjIncFor n y bs
   /- Remark: we may be duplicting variable/JP indices. That is, `bSlow` and `bFast` may
      have duplicate indices. We run `normalizeIds` to fix the ids after we have expand them. -/
@@ -248,7 +247,7 @@ partial def expand (mainFn : FnBody → Array FnBody → M FnBody)
   return reshape bs b
 
 partial def searchAndExpand : FnBody → Array FnBody → M FnBody
-  | d@(FnBody.vdecl x t (Expr.reset n y) b), bs =>
+  | d@(FnBody.vdecl x _ (Expr.reset n y) b), bs =>
     if consumed x b then do
       expand searchAndExpand bs x n y b
     else

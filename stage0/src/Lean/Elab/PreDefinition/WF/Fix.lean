@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Util.HasConstCache
+import Lean.Meta.CasesOn
 import Lean.Meta.Match.Match
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Cleanup
@@ -27,10 +28,15 @@ private def mkDecreasingProof (decreasingProp : Expr) (decrTactic? : Option Synt
   let mvarId ← cleanup mvarId
   match decrTactic? with
   | none => applyDefaultDecrTactic mvarId
-  | some decrTactic => Term.runTactic mvarId decrTactic
+  | some decrTactic =>
+    -- make info from `runTactic` available
+    pushInfoTree (.hole mvarId)
+    Term.runTactic mvarId decrTactic
   instantiateMVars mvar
 
-private partial def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (decrTactic? : Option Syntax) (F : Expr) (e : Expr) : TermElabM Expr :=
+private partial def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (decrTactic? : Option Syntax) (F : Expr) (e : Expr) : TermElabM Expr := do
+  trace[Elab.definition.wf] "replaceRecApps:{indentExpr e}"
+  trace[Elab.definition.wf] "{F} : {← inferType F}"
   loop F e |>.run' {}
 where
   processRec (F : Expr) (e : Expr) : StateRefT (HasConstCache recFnName) TermElabM Expr := do
@@ -73,13 +79,11 @@ where
     | Expr.proj n i e _  => return mkProj n i (← loop F e)
     | Expr.const .. => if e.isConstOf recFnName then processRec F e else return e
     | Expr.app .. =>
-      let matcherApp? ← matchMatcherApp? e
-      match matcherApp? with
+      match (← matchMatcherApp? e) with
       | some matcherApp =>
         if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then
           processApp F e
-        else
-          let matcherApp ← mapError (matcherApp.addArg F) (fun msg => "failed to add functional argument to 'matcher' application" ++ indentD msg)
+        else if let some matcherApp ← matcherApp.addArg? F then
           if !(← Structural.refinedArgType matcherApp F) then
             processApp F e
           else
@@ -90,6 +94,25 @@ where
                 let FAlt := xs[numParams - 1]
                 mkLambdaFVars xs (← loop FAlt altBody)
             return { matcherApp with alts := altsNew, discrs := (← matcherApp.discrs.mapM (loop F)) }.toExpr
+        else
+          processApp F e
+      | none =>
+      match (← toCasesOnApp? e) with
+      | some casesOnApp =>
+        if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then
+          processApp F e
+        else if let some casesOnApp ← casesOnApp.addArg? F (checkIfRefined := true) then
+          let altsNew ← (Array.zip casesOnApp.alts casesOnApp.altNumParams).mapM fun (alt, numParams) =>
+            lambdaTelescope alt fun xs altBody => do
+              unless xs.size >= numParams do
+                throwError "unexpected `casesOn` application alternative{indentExpr alt}\nat application{indentExpr e}"
+              let FAlt := xs[numParams]
+              mkLambdaFVars xs (← loop FAlt altBody)
+          return { casesOnApp with
+                   alts      := altsNew
+                   remaining := (← casesOnApp.remaining.mapM (loop F)) }.toExpr
+        else
+          processApp F e
       | none => processApp F e
     | e => ensureNoRecFn recFnName e
 

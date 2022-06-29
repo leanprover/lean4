@@ -27,18 +27,19 @@ def setCommandState (commandState : Command.State) : FrontendM Unit :=
 @[inline] def runCommandElabM (x : Command.CommandElabM α) : FrontendM α := do
   let ctx ← read
   let s ← get
-  let cmdCtx : Command.Context := { cmdPos := s.cmdPos, fileName := ctx.inputCtx.fileName, fileMap := ctx.inputCtx.fileMap }
+  let cmdCtx : Command.Context := {
+    cmdPos       := s.cmdPos
+    fileName     := ctx.inputCtx.fileName
+    fileMap      := ctx.inputCtx.fileMap
+    tacticCache? := none
+  }
   match (← liftM <| EIO.toIO' <| (x cmdCtx).run s.commandState) with
   | Except.error e      => throw <| IO.Error.userError s!"unexpected internal error: {← e.toMessageData.toString}"
   | Except.ok (a, sNew) => setCommandState sNew; return a
 
 def elabCommandAtFrontend (stx : Syntax) : FrontendM Unit := do
   runCommandElabM do
-    let infoTreeEnabled := (← getInfoState).enabled
-    if checkTraceOption (← getOptions) `Elab.info then
-      enableInfoTree
     Command.elabCommandTopLevel stx
-    enableInfoTree infoTreeEnabled
 
 def updateCmdPos : FrontendM Unit := do
   modify fun s => { s with cmdPos := s.parserState.pos }
@@ -56,7 +57,6 @@ def processCommand : FrontendM Bool := do
   let pstate ← getParserState
   let scope := cmdState.scopes.head!
   let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
-  let pos := ictx.fileMap.toPosition pstate.pos
   match profileit "parsing" scope.opts fun _ => Parser.parseCommand ictx pmctx pstate cmdState.messages with
   | (cmd, ps, messages) =>
     modify fun s => { s with commands := s.commands.push cmd }

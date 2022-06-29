@@ -46,9 +46,8 @@ For example, on an AMD Ryzen 9 `make` takes 00:04:55, whereas `make -j 10`
 takes 00:01:38.  Your results may vary depending on the speed of your hard
 drive.
 
-To install the build, see [Dev setup using
-elan](../dev/index.md#dev-setup-using-elan).
-
+You should not usually run `make install` after a successful build.
+See [Dev setup using elan](../dev/index.md#dev-setup-using-elan) on how to properly set up your editor to use the correct stage depending on the source directory.
 
 Useful CMake Configuration Settings
 -----------------------------------

@@ -31,7 +31,7 @@ Remark: the ReducibilityHints are not related to the attributes: reducible/irrel
 These attributes are used by the Elaborator. The ReducibilityHints are used by the kernel (and Elaborator).
 Moreover, the ReducibilityHints cannot be changed after a declaration is added to the kernel. -/
 inductive ReducibilityHints where
-  | opaque   : ReducibilityHints
+  | «opaque» : ReducibilityHints
   | «abbrev» : ReducibilityHints
   | regular  : UInt32 → ReducibilityHints
   deriving Inhabited
@@ -52,7 +52,7 @@ def lt : ReducibilityHints → ReducibilityHints → Bool
   | «abbrev»,   «abbrev»   => false
   | «abbrev»,   _          => true
   | regular d₁, regular d₂ => d₁ < d₂
-  | regular _,  opaque     => true
+  | regular _, «opaque»    => true
   | _,          _          => false
 
 def isAbbrev : ReducibilityHints → Bool
@@ -95,16 +95,19 @@ structure DefinitionVal extends ConstantVal where
   value  : Expr
   hints  : ReducibilityHints
   safety : DefinitionSafety
+  /--
+    List of all (including this one) declarations in the same mutual block.
+    Note that this information is not used by the kernel, and is only used
+    to save the information provided by the user when using mutual blocks.
+    Recall that the Lean kernel does not support recursive definitions and they
+    are compiled using recursors and `WellFounded.fix`.
+  -/
+  all : List Name := [name]
   deriving Inhabited
 
 @[export lean_mk_definition_val]
-def mkDefinitionValEx (name : Name) (levelParams : List Name) (type : Expr) (val : Expr) (hints : ReducibilityHints) (safety : DefinitionSafety) : DefinitionVal := {
-  name := name,
-  levelParams := levelParams,
-  type := type,
-  value := val,
-  hints := hints,
-  safety := safety
+def mkDefinitionValEx (name : Name) (levelParams : List Name) (type : Expr) (value : Expr) (hints : ReducibilityHints) (safety : DefinitionSafety) (all : List Name) : DefinitionVal := {
+  name, levelParams, type, hints, safety, value, all
 }
 
 @[export lean_definition_val_get_safety] def DefinitionVal.getSafetyEx (v : DefinitionVal) : DefinitionSafety :=
@@ -112,21 +115,25 @@ def mkDefinitionValEx (name : Name) (levelParams : List Name) (type : Expr) (val
 
 structure TheoremVal extends ConstantVal where
   value : Expr
+  /--
+    List of all (including this one) declarations in the same mutual block.
+    See comment at `DefinitionVal.all`. -/
+  all : List Name := [name]
   deriving Inhabited
 
 /- Value for an opaque constant declaration `constant x : t := e` -/
 structure OpaqueVal extends ConstantVal where
   value : Expr
   isUnsafe : Bool
+  /--
+    List of all (including this one) declarations in the same mutual block.
+    See comment at `DefinitionVal.all`. -/
+  all : List Name := [name]
   deriving Inhabited
 
 @[export lean_mk_opaque_val]
-def mkOpaqueValEx (name : Name) (levelParams : List Name) (type : Expr) (val : Expr) (isUnsafe : Bool) : OpaqueVal := {
-  name := name,
-  levelParams := levelParams,
-  type := type,
-  value := val,
-  isUnsafe := isUnsafe
+def mkOpaqueValEx (name : Name) (levelParams : List Name) (type : Expr) (value : Expr) (isUnsafe : Bool) (all : List Name) : OpaqueVal := {
+  name, levelParams, type, value, isUnsafe, all
 }
 
 @[export lean_opaque_val_is_unsafe] def OpaqueVal.isUnsafeEx (v : OpaqueVal) : Bool :=
@@ -192,13 +199,23 @@ def Declaration.isUnsafeInductiveDeclEx : Declaration → Bool
     A series of checks are performed by the kernel to check whether a `inductiveDecls`
     is valid or not. -/
 structure InductiveVal extends ConstantVal where
-  numParams : Nat     -- Number of parameters
-  numIndices : Nat    -- Number of indices
-  all : List Name     -- List of all (including this one) inductive datatypes in the mutual declaration containing this one
-  ctors : List Name   -- List of all constructors for this inductive datatype
-  isRec : Bool        -- `true` Iff it is recursive
+  /-- Number of parameters. A parameter is an argument to the defined type that is fixed over constructors.  -/
+  numParams : Nat
+  /-- Number of indices. An index is an argument that varies over constructors.
+
+  An example of this is the `n : Nat` argument in the vector constructor `cons : α → Vector α n → Vector α (n+1)` -/
+  numIndices : Nat
+  /-- List of all (including this one) inductive datatypes in the mutual declaration containing this one -/
+  all : List Name
+  /-- List of the names of the constructors for this inductive datatype. -/
+  ctors : List Name
+  /-- `true` when recursive (that is, the inductive type appears as an argument in a constructor). -/
+  isRec : Bool
+  /-- Whether the definition is flagged as unsafe. -/
   isUnsafe : Bool
   isReflexive : Bool
+  /-- An inductive definition `T` is nested when there is a constructor with an argument `x : F T`,
+   where `F : Type → Type` is some suitably behaved (ie strictly positive) function (Eg `Array T`, `List T`, `T × T`, ...). -/
   isNested : Bool
   deriving Inhabited
 
@@ -226,10 +243,14 @@ def mkInductiveValEx (name : Name) (levelParams : List Name) (type : Expr) (numP
 def InductiveVal.numCtors (v : InductiveVal) : Nat := v.ctors.length
 
 structure ConstructorVal extends ConstantVal where
-  induct  : Name    -- Inductive Type this Constructor is a member of
-  cidx    : Nat     -- Constructor index (i.e., Position in the inductive declaration)
-  numParams : Nat   -- Number of parameters in inductive datatype `induct`
-  numFields : Nat   -- Number of fields (i.e., arity - nparams)
+  /-- Inductive type this constructor is a member of -/
+  induct  : Name
+  /-- Constructor index (i.e., Position in the inductive declaration) -/
+  cidx    : Nat
+  /-- Number of parameters in inductive datatype. -/
+  numParams : Nat
+  /-- Number of fields (i.e., arity - nparams) -/
+  numFields : Nat
   isUnsafe : Bool
   deriving Inhabited
 
@@ -249,19 +270,29 @@ def mkConstructorValEx (name : Name) (levelParams : List Name) (type : Expr) (in
 
 /-- Information for reducing a recursor -/
 structure RecursorRule where
-  ctor : Name   -- Reduction rule for this Constructor
-  nfields : Nat -- Number of fields (i.e., without counting inductive datatype parameters)
-  rhs : Expr    -- Right hand side of the reduction rule
+  /-- Reduction rule for this Constructor -/
+  ctor : Name
+  /-- Number of fields (i.e., without counting inductive datatype parameters) -/
+  nfields : Nat
+  /-- Right hand side of the reduction rule -/
+  rhs : Expr
   deriving Inhabited
 
 structure RecursorVal extends ConstantVal where
-  all : List Name              -- List of all inductive datatypes in the mutual declaration that generated this recursor
-  numParams : Nat              -- Number of parameters
-  numIndices : Nat             -- Number of indices
-  numMotives : Nat             -- Number of motives
-  numMinors : Nat              -- Number of minor premises
-  rules : List RecursorRule    -- A reduction for each Constructor
-  k : Bool                     -- It supports K-like reduction
+  /-- List of all inductive datatypes in the mutual declaration that generated this recursor -/
+  all : List Name
+  /-- Number of parameters -/
+  numParams : Nat
+  /-- Number of indices -/
+  numIndices : Nat
+  /-- Number of motives -/
+  numMotives : Nat
+  /-- Number of minor premises -/
+  numMinors : Nat
+  /-- A reduction for each Constructor -/
+  rules : List RecursorRule
+  /-- It supports K-like reduction -/
+  k : Bool
   isUnsafe : Bool
   deriving Inhabited
 
@@ -332,9 +363,9 @@ def toConstantVal : ConstantInfo → ConstantVal
 def isUnsafe : ConstantInfo → Bool
   | defnInfo   v => v.safety == DefinitionSafety.unsafe
   | axiomInfo  v => v.isUnsafe
-  | thmInfo    v => false
+  | thmInfo    _ => false
   | opaqueInfo v => v.isUnsafe
-  | quotInfo   v => false
+  | quotInfo   _ => false
   | inductInfo v => v.isUnsafe
   | ctorInfo   v => v.isUnsafe
   | recInfo    v => v.isUnsafe
@@ -357,8 +388,8 @@ def value? : ConstantInfo → Option Expr
   | _                         => none
 
 def hasValue : ConstantInfo → Bool
-  | defnInfo {value := r, ..} => true
-  | thmInfo  {value := r, ..} => true
+  | defnInfo _ => true
+  | thmInfo  _ => true
   | _                         => false
 
 def value! : ConstantInfo → Expr
@@ -378,11 +409,21 @@ def isInductive : ConstantInfo → Bool
   | inductInfo _ => true
   | _            => false
 
+/--
+  List of all (including this one) declarations in the same mutual block.
+-/
+def all : ConstantInfo → List Name
+  | inductInfo val => val.all
+  | defnInfo val   => val.all
+  | thmInfo val    => val.all
+  | opaqueInfo val => val.all
+  | info           => [info.name]
+
 @[extern "lean_instantiate_type_lparams"]
-constant instantiateTypeLevelParams (c : @& ConstantInfo) (ls : @& List Level) : Expr
+opaque instantiateTypeLevelParams (c : @& ConstantInfo) (ls : @& List Level) : Expr
 
 @[extern "lean_instantiate_value_lparams"]
-constant instantiateValueLevelParams (c : @& ConstantInfo) (ls : @& List Level) : Expr
+opaque instantiateValueLevelParams (c : @& ConstantInfo) (ls : @& List Level) : Expr
 
 end ConstantInfo
 

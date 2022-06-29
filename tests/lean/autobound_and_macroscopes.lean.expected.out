@@ -1,3 +1,2 @@
 autobound_and_macroscopes.lean:2:15-2:16: error: unknown identifier 'x✝'
 autobound_and_macroscopes.lean:2:19-2:20: error: unknown identifier 'x✝'
-autobound_and_macroscopes.lean:2:24-2:29: warning: declaration uses 'sorry'

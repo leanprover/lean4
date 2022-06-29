@@ -36,13 +36,14 @@ def Term.reportUnsolvedGoals (goals : List MVarId) : TermElabM Unit :=
 namespace Tactic
 
 structure Context where
-  main       : MVarId
-  -- declaration name of the executing elaborator, used by `mkTacticInfo` to persist it in the info tree
+  /-- Declaration name of the executing elaborator, used by `mkTacticInfo` to persist it in the info tree -/
   elaborator : Name
-
-structure State where
-  goals : List MVarId
-  deriving Inhabited
+  /--
+    If `true`, enable "error recovery" in some tactics. For example, `cases` tactic
+    admits unsolved alternatives when `recover == true`. The combinator `withoutRecover <tac>` disables
+    "error recovery" while executing `<tac>`. This is useful for tactics such as `first | ... | ...`.
+  -/
+  recover    : Bool := true
 
 structure SavedState where
   term   : Term.SavedState
@@ -59,7 +60,7 @@ def getGoals : TacticM (List MVarId) :=
   return (← get).goals
 
 def setGoals (mvarIds : List MVarId) : TacticM Unit :=
-  modify fun s => { s with goals := mvarIds }
+  modify fun _ => { goals := mvarIds }
 
 def pruneSolvedGoals : TacticM Unit := do
   let gs ← getGoals
@@ -92,7 +93,7 @@ def run (mvarId : MVarId) (x : TacticM Unit) : TermElabM (List MVarId) :=
        else
          throw ex
    try
-     aux.runCore' { main := mvarId, elaborator := Name.anonymous } { goals := [mvarId] }
+     aux.runCore' { elaborator := Name.anonymous } { goals := [mvarId] }
    finally
      modify fun s => { s with syntheticMVars := savedSyntheticMVars }
 
@@ -109,7 +110,7 @@ protected def getMainModule     : TacticM Name       := do pure (← getEnv).mai
 unsafe def mkTacticAttribute : IO (KeyedDeclsAttribute Tactic) :=
   mkElabAttribute Tactic `Lean.Elab.Tactic.tacticElabAttribute `builtinTactic `tactic `Lean.Parser.Tactic `Lean.Elab.Tactic.Tactic "tactic"
 
-@[builtinInit mkTacticAttribute] constant tacticElabAttribute : KeyedDeclsAttribute Tactic
+@[builtinInit mkTacticAttribute] opaque tacticElabAttribute : KeyedDeclsAttribute Tactic
 
 def mkTacticInfo (mctxBefore : MetavarContext) (goalsBefore : List MVarId) (stx : Syntax) : TacticM Info :=
   return Info.ofTacticInfo {
@@ -156,11 +157,10 @@ private def evalTacticUsing (s : SavedState) (stx : Syntax) (tactics : List (Key
 
 mutual
 
-  partial def expandTacticMacroFns (stx : Syntax) (macros : List (KeyedDeclsAttribute.AttributeEntry Macro)) : TacticM Unit :=
+  partial def expandTacticMacroFns (s : SavedState) (stx : Syntax) (macros : List (KeyedDeclsAttribute.AttributeEntry Macro)) : TacticM Unit :=
     let rec loop
       | []    => throwErrorAt stx "tactic '{stx.getKind}' has not been implemented"
       | m::ms => do
-        let scp ← getCurrMacroScope
         try
           withReader ({ · with elaborator := m.declName }) do
             withTacticInfoContext stx do
@@ -168,15 +168,15 @@ mutual
               evalTactic stx'
         catch ex =>
           if ms.isEmpty then throw ex -- (*)
-          loop ms
+          s.restore; loop ms
     loop macros
 
-  partial def expandTacticMacro (stx : Syntax) : TacticM Unit := do
-    expandTacticMacroFns stx (macroAttribute.getEntries (← getEnv) stx.getKind)
+  partial def expandTacticMacro (s : SavedState) (stx : Syntax) : TacticM Unit := do
+    expandTacticMacroFns s stx (macroAttribute.getEntries (← getEnv) stx.getKind)
 
   partial def evalTacticAux (stx : Syntax) : TacticM Unit :=
     withRef stx <| withIncRecDepth <| withFreshMacroScope <| match stx with
-      | Syntax.node _ k args =>
+      | Syntax.node _ k _    =>
         if k == nullKind then
           -- Macro writers create a sequence of tactics `t₁ ... tₙ` using `mkNullNode #[t₁, ..., tₙ]`
           stx.getArgs.forM evalTactic
@@ -184,7 +184,7 @@ mutual
           trace[Elab.step] "{stx}"
           let s ← Tactic.saveState
           match tacticElabAttribute.getEntries (← getEnv) stx.getKind with
-          | []      => expandTacticMacro stx
+          | []      => expandTacticMacro s stx
           | evalFns => evalTacticUsing s stx evalFns
       | Syntax.missing => pure ()
       | _ => throwError m!"unexpected tactic{indentD stx}"
@@ -225,9 +225,12 @@ def closeUsingOrAdmit (tac : TacticM Unit) : TacticM Unit := do
   try
     focusAndDone tac
   catch ex =>
-    logException ex
-    admitGoal mvarId
-    setGoals mvarIds
+    if (← read).recover then
+      logException ex
+      admitGoal mvarId
+      setGoals mvarIds
+    else
+      throw ex
 
 instance : MonadBacktrack SavedState TacticM where
   saveState := Tactic.saveState
@@ -241,14 +244,18 @@ instance : MonadExcept Exception TacticM where
   throw    := throw
   tryCatch := Tactic.tryCatch
 
+/-- Execute `x` with error recovery disabled -/
+def withoutRecover (x : TacticM α) : TacticM α :=
+  withReader (fun ctx => { ctx with recover := false }) x
+
 @[inline] protected def orElse {α} (x : TacticM α) (y : Unit → TacticM α) : TacticM α := do
-  try x catch _ => y ()
+  try withoutRecover x catch _ => y ()
 
 instance {α} : OrElse (TacticM α) where
   orElse := Tactic.orElse
 
 instance : Alternative TacticM where
-  failure := fun {α} => throwError "failed"
+  failure := fun {_} => throwError "failed"
   orElse  := Tactic.orElse
 
 /-
@@ -275,8 +282,8 @@ def appendGoals (mvarIds : List MVarId) : TacticM Unit :=
   modify fun s => { s with goals := s.goals ++ mvarIds }
 
 def replaceMainGoal (mvarIds : List MVarId) : TacticM Unit := do
-  let (mvarId :: mvarIds') ← getGoals | throwNoGoalsToBeSolved
-  modify fun s => { s with goals := mvarIds ++ mvarIds' }
+  let (_ :: mvarIds') ← getGoals | throwNoGoalsToBeSolved
+  modify fun _ => { goals := mvarIds ++ mvarIds' }
 
 /-- Return the first goal. -/
 def getMainGoal : TacticM MVarId := do
@@ -375,15 +382,15 @@ def tagUntaggedGoals (parentTag : Name) (newSuffix : Name) (newGoals : List MVar
   for g in newGoals do
     if mctx.isAnonymousMVar g then
       numAnonymous := numAnonymous + 1
-  modifyMCtx fun mctx => Id.run <| do
+  modifyMCtx fun mctx => Id.run do
     let mut mctx := mctx
     let mut idx  := 1
     for g in newGoals do
       if mctx.isAnonymousMVar g then
         if numAnonymous == 1 then
-          mctx := mctx.renameMVar g parentTag
+          mctx := mctx.setMVarUserName g parentTag
         else
-          mctx := mctx.renameMVar g (parentTag ++ newSuffix.appendIndexAfter idx)
+          mctx := mctx.setMVarUserName g (parentTag ++ newSuffix.appendIndexAfter idx)
         idx := idx + 1
     pure mctx
 

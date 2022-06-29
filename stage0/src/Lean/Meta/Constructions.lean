@@ -8,15 +8,15 @@ import Lean.Meta.AppBuilder
 
 namespace Lean
 
-@[extern "lean_mk_cases_on"] constant mkCasesOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_rec_on"] constant mkRecOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_no_confusion"] constant mkNoConfusionCoreImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_below"] constant mkBelowImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_ibelow"] constant mkIBelowImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_brec_on"] constant mkBRecOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_binduction_on"] constant mkBInductionOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
+@[extern "lean_mk_cases_on"] opaque mkCasesOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
+@[extern "lean_mk_rec_on"] opaque mkRecOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
+@[extern "lean_mk_no_confusion"] opaque mkNoConfusionCoreImp (env : Environment) (declName : @& Name) : Except KernelException Environment
+@[extern "lean_mk_below"] opaque mkBelowImp (env : Environment) (declName : @& Name) : Except KernelException Environment
+@[extern "lean_mk_ibelow"] opaque mkIBelowImp (env : Environment) (declName : @& Name) : Except KernelException Environment
+@[extern "lean_mk_brec_on"] opaque mkBRecOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
+@[extern "lean_mk_binduction_on"] opaque mkBInductionOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
 
-variable {m} [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m]
+variable [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m]
 
 @[inline] private def adaptFn (f : Environment → Name → Except KernelException Environment) (declName : Name) : m Unit := do
   match f (← getEnv) declName with
@@ -45,9 +45,10 @@ where
 
   mkToCtorIdx : MetaM Unit := do
     let ConstantInfo.inductInfo info ← getConstInfo enumName | unreachable!
+    let us := info.levelParams.map mkLevelParam
     let numCtors := info.ctors.length
     let declName := Name.mkStr enumName "toCtorIdx"
-    let enumType := mkConst enumName
+    let enumType := mkConst enumName us
     let natType  := mkConst ``Nat
     let declType ← mkArrow enumType natType
     let mut minors := #[]
@@ -55,10 +56,10 @@ where
       minors := minors.push <| mkNatLit i
     withLocalDeclD `x enumType fun x => do
       let motive ← mkLambdaFVars #[x] natType
-      let declValue ← mkLambdaFVars #[x] <| mkAppN (mkApp2 (mkConst (mkCasesOnName enumName) [levelOne]) motive x) minors
+      let declValue ← mkLambdaFVars #[x] <| mkAppN (mkApp2 (mkConst (mkCasesOnName enumName) (levelOne::us)) motive x) minors
       addAndCompile <| Declaration.defnDecl {
         name        := declName
-        levelParams := []
+        levelParams := info.levelParams
         type        := declType
         value       := declValue
         safety      := DefinitionSafety.safe
@@ -67,18 +68,21 @@ where
       setReducibleAttribute declName
 
   mkNoConfusionType : MetaM Unit := do
-    let enumType := mkConst enumName
-    let sortU := mkSort (mkLevelParam `u)
-    let toCtorIdx := mkConst (Name.mkStr enumName "toCtorIdx")
-    withLocalDeclD `P sortU fun P =>
+    let ConstantInfo.inductInfo info ← getConstInfo enumName | unreachable!
+    let us := info.levelParams.map mkLevelParam
+    let v ← mkFreshUserName `v
+    let enumType := mkConst enumName us
+    let sortV := mkSort (mkLevelParam v)
+    let toCtorIdx := mkConst (Name.mkStr enumName "toCtorIdx") us
+    withLocalDeclD `P sortV fun P =>
     withLocalDeclD `x enumType fun x =>
     withLocalDeclD `y enumType fun y => do
-      let declType  ← mkForallFVars #[P, x, y] sortU
+      let declType  ← mkForallFVars #[P, x, y] sortV
       let declValue ← mkLambdaFVars #[P, x, y] (← mkAppM ``noConfusionTypeEnum #[toCtorIdx, P, x, y])
       let declName  := Name.mkStr enumName "noConfusionType"
       addAndCompile <| Declaration.defnDecl {
         name        := declName
-        levelParams := [`u]
+        levelParams := v :: info.levelParams
         type        := declType
         value       := declValue
         safety      := DefinitionSafety.safe
@@ -87,12 +91,14 @@ where
       setReducibleAttribute declName
 
   mkNoConfusion : MetaM Unit := do
-    let enumType := mkConst enumName
-    let u := mkLevelParam `u
-    let sortU := mkSort u
-    let toCtorIdx := mkConst (Name.mkStr enumName "toCtorIdx")
-    let noConfusionType := mkConst (Name.mkStr enumName "noConfusionType") [u]
-    withLocalDecl `P BinderInfo.implicit sortU fun P =>
+    let ConstantInfo.inductInfo info ← getConstInfo enumName | unreachable!
+    let us := info.levelParams.map mkLevelParam
+    let v ← mkFreshUserName `v
+    let enumType := mkConst enumName us
+    let sortV := mkSort (mkLevelParam v)
+    let toCtorIdx := mkConst (Name.mkStr enumName "toCtorIdx") us
+    let noConfusionType := mkConst (Name.mkStr enumName "noConfusionType") (mkLevelParam v :: us)
+    withLocalDecl `P BinderInfo.implicit sortV fun P =>
     withLocalDecl `x BinderInfo.implicit enumType fun x =>
     withLocalDecl `y BinderInfo.implicit enumType fun y => do
     withLocalDeclD `h (← mkEq x y) fun h => do
@@ -101,13 +107,14 @@ where
       let declName  := Name.mkStr enumName "noConfusion"
       addAndCompile <| Declaration.defnDecl {
         name        := declName
-        levelParams := [`u]
+        levelParams := v :: info.levelParams
         type        := declType
         value       := declValue
         safety      := DefinitionSafety.safe
         hints       := ReducibilityHints.abbrev
       }
       setReducibleAttribute declName
+      modifyEnv fun env => markNoConfusion env declName
 
 def mkNoConfusion (declName : Name) : MetaM Unit := do
   if (← isEnumType declName) then

@@ -11,12 +11,7 @@ namespace Lean.Elab.Term
 
 open Meta
 
-structure PatternVar where
-  userName : Name
-  deriving BEq
-
-instance : ToString PatternVar where
-  toString x := toString x.userName
+abbrev PatternVar := Syntax  -- TODO: should be `Ident`
 
 /-
   Patterns define new local variables.
@@ -65,7 +60,7 @@ An application in a pattern can be
 -/
 
 structure Context where
-  funId         : Syntax
+  funId         : Ident
   ctorVal?      : Option ConstructorVal -- It is `some`, if constructor application
   explicit      : Bool
   ellipsis      : Bool
@@ -73,7 +68,7 @@ structure Context where
   paramDeclIdx  : Nat := 0
   namedArgs     : Array NamedArg
   args          : List Arg
-  newArgs       : Array Syntax := #[]
+  newArgs       : Array Term := #[]
   deriving Inhabited
 
 private def isDone (ctx : Context) : Bool :=
@@ -111,10 +106,10 @@ private def processVar (idStx : Syntax) : M Syntax := do
     throwError "invalid pattern variable, must be atomic"
   if (← get).found.contains id then
     throwError "invalid pattern, variable '{id}' occurred more than once"
-  modify fun s => { s with vars := s.vars.push { userName := id }, found := s.found.insert id }
+  modify fun s => { s with vars := s.vars.push idStx, found := s.found.insert id }
   return idStx
 
-private def nameToPattern : Name → TermElabM Syntax
+private def nameToPattern : Name → TermElabM Term
   | Name.anonymous => `(Name.anonymous)
   | Name.str p s _ => do let p ← nameToPattern p; `(Name.str $p $(quote s) _)
   | Name.num p n _ => do let p ← nameToPattern p; `(Name.num $p $(quote n) _)
@@ -133,6 +128,7 @@ private def samePatternsVariables (startingAt : Nat) (s₁ s₂ : State) : Bool 
   else
     false
 
+open TSyntax.Compat in
 partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroScope do
   let k := stx.getKind
   if k == identKind then
@@ -144,27 +140,6 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
     return stx.setArg 1 <| mkNullNode elems
   else if k == ``Lean.Parser.Term.dotIdent then
     return stx
-  else if k == ``Lean.Parser.Term.structInst then
-    /-
-    ```
-    leading_parser "{" >> optional (atomic (termParser >> " with "))
-                >> manyIndent (group (structInstField >> optional ", "))
-                >> optional ".."
-                >> optional (" : " >> termParser)
-                >> " }"
-    ```
-    -/
-    let withMod := stx[1]
-    unless withMod.isNone do
-      throwErrorAt withMod "invalid struct instance pattern, 'with' is not allowed in patterns"
-    let fields ← stx[2].getArgs.mapM fun p => do
-        -- p is of the form (group (structInstField >> optional ", "))
-        let field := p[0]
-        -- leading_parser structInstLVal >> " := " >> termParser
-        let newVal ← collect field[2]
-        let field := field.setArg 2 newVal
-        pure <| field.setArg 0 field
-    return stx.setArg 2 <| mkNullNode fields
   else if k == ``Lean.Parser.Term.hole then
     `(.( $stx ))
   else if k == ``Lean.Parser.Term.syntheticHole then
@@ -194,11 +169,10 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
      -/
     let id := stx[0]
     discard <| processVar id
-    let h ←
-      if stx[2].isNone then
-        `(h)
-      else
-        pure stx[2][0]
+    let h ← if stx[2].isNone then
+      `(h)
+    else
+      pure stx[2][0]
     let pat := stx[3]
     let pat ← collect pat
     discard <| processVar h
@@ -226,7 +200,16 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
     /- Similar to previous case -/
     doubleQuotedNameToPattern stx
   else if k == choiceKind then
-    let args := stx.getArgs
+    /- Remark: If there are `Term.structInst` alternatives, we keep only them. This is a hack to get rid of
+       Set-like notation in patterns. Recall that in Mathlib `{a, b}` can be a set with two elements or the
+       structure instance `{ a := a, b := b }`. Possible alternative solution: add a `pattern` category, or at least register
+       the `Syntax` node kinds that are allowed in patterns. -/
+    let args :=
+      let args := stx.getArgs
+      if args.any (·.isOfKind ``Parser.Term.structInst) then
+        args.filter (·.isOfKind ``Parser.Term.structInst)
+      else
+        args
     let stateSaved ← get
     let arg0 ← collect args[0]
     let stateNew ← get
@@ -238,8 +221,17 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
         throwError "invalid pattern, overloaded notation is only allowed when all alternative have the same set of pattern variables"
     set stateNew
     return mkNode choiceKind argsNew
-  else
-    throwInvalidPattern
+  else match stx with
+  | `({ $[$srcs?,* with]? $fields,* $[..%$ell?]? $[: $ty?]? }) =>
+    if let some srcs := srcs? then
+      throwErrorAt (mkNullNode srcs) "invalid struct instance pattern, 'with' is not allowed in patterns"
+    let fields ← fields.getElems.mapM fun
+      | `(Parser.Term.structInstField| $lval:structInstLVal := $val) => do
+        let newVal ← collect val
+        `(Parser.Term.structInstField| $lval:structInstLVal := $newVal)
+      | field => throwInvalidPattern  -- `structInstFieldAbbrev` should be expanded at this point
+    `({ $[$srcs?,* with]? $fields,* $[..%$ell?]? $[: $ty?]? })
+  | _ => throwInvalidPattern
 
 where
 
@@ -260,7 +252,7 @@ where
 
   /- Check whether `stx` is a pattern variable or constructor-like (i.e., constructor or constant tagged with `[matchPattern]` attribute) -/
   processId (stx : Syntax) : M Syntax := do
-    match (← resolveId? stx "pattern" (withInfo := true)) with
+    match (← resolveId? stx "pattern") with
     | none   => processVar stx
     | some f => match f with
       | Expr.const fName _ _ =>
@@ -366,6 +358,6 @@ def getPatternsVars (patterns : Array Syntax) : TermElabM (Array PatternVar) := 
   return s.vars
 
 def getPatternVarNames (pvars : Array PatternVar) : Array Name :=
-  pvars.map fun x => x.userName
+  pvars.map fun x => x.getId
 
 end Lean.Elab.Term

@@ -68,3 +68,38 @@ example : True ∧ False := by
  --^ $/lean/plainGoal
   ·
  --^ $/lean/plainGoal
+
+theorem left_distrib (t a b : Nat) : t * (a + b) = t * a + t * b := by
+  induction b
+  next => simp
+  next =>
+    rw [Nat.add_succ]
+    repeat (rw [Nat.mul_succ])
+                           --^ $/lean/plainGoal
+
+example (as bs cs : List α) : (as ++ bs) ++ cs = as ++ (bs ++ cs) := by
+  induction as <;> skip <;> (try rename_i h; simp[h]) <;> rfl
+                                                   --^ $/lean/plainGoal
+                                                    --^ $/lean/plainGoal
+
+example : True := (by exact True.intro)
+                                    --^ $/lean/plainGoal
+
+example : True := (by exact True.intro )
+                                     --^ $/lean/plainGoal
+
+example : True ∧ False := by
+  · constructor; constructor
+              --^ $/lean/plainGoal
+
+example : True = True := by
+  conv =>
+      --^ $/lean/plainGoal
+    whnf
+  --^ $/lean/plainGoal
+  --
+--^ $/lean/plainGoal
+
+example : False := by
+-- EOF test
+--^ $/lean/plainGoal

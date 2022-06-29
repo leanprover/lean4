@@ -11,6 +11,7 @@ import Lean.Elab.InfoTree
 import Lean.Server.Utils
 import Lean.Server.Rpc.Basic
 
+import Lean.Widget.Basic
 import Lean.Widget.TaggedText
 import Lean.Widget.InteractiveCode
 import Lean.Widget.InteractiveGoal
@@ -18,54 +19,18 @@ import Lean.Widget.InteractiveGoal
 namespace Lean.Widget
 open Lsp Server
 
-deriving instance RpcEncoding with { withRef := true } for MessageData
-
 inductive MsgEmbed where
   | expr : CodeWithInfos → MsgEmbed
   | goal : InteractiveGoal → MsgEmbed
   | lazyTrace : Nat → Name → WithRpcRef MessageData → MsgEmbed
-  deriving Inhabited
-
-namespace MsgEmbed
-
--- TODO(WN): `deriving RpcEncoding` for `inductive` to replace the following hack
-@[reducible]
-def rpcPacketFor {β : outParam Type} (α : Type) [RpcEncoding α β] := β
-
-private inductive RpcEncodingPacket where
-  | expr : TaggedText (rpcPacketFor CodeToken) → RpcEncodingPacket
-  | goal : rpcPacketFor InteractiveGoal → RpcEncodingPacket
-  | lazyTrace : Nat → Name → Lsp.RpcRef → RpcEncodingPacket
-  deriving Inhabited, FromJson, ToJson
-
-instance : RpcEncoding MsgEmbed RpcEncodingPacket where
-  rpcEncode a := match a with
-    | expr t            => return RpcEncodingPacket.expr (← rpcEncode t)
-    | goal g            => return RpcEncodingPacket.goal (← rpcEncode g)
-    | lazyTrace col n t => return RpcEncodingPacket.lazyTrace col n (← rpcEncode t)
-
-  rpcDecode a := match a with
-    | RpcEncodingPacket.expr t            => return expr (← rpcDecode t)
-    | RpcEncodingPacket.goal g            => return goal (← rpcDecode g)
-    | RpcEncodingPacket.lazyTrace col n t => return lazyTrace col n (← rpcDecode t)
-
-end MsgEmbed
+  deriving Inhabited, RpcEncoding
 
 /-- We embed objects in LSP diagnostics by storing them in the tag of an empty subtree (`text ""`).
 In other words, we terminate the `MsgEmbed`-tagged tree at embedded objects and instead store
 the pretty-printed embed (which can itself be a `TaggedText`) in the tag. -/
 abbrev InteractiveDiagnostic := Lsp.DiagnosticWith (TaggedText MsgEmbed)
 
-namespace InteractiveDiagnostic
-open Lsp
-
-private abbrev RpcEncodingPacket := Lsp.DiagnosticWith (TaggedText MsgEmbed.RpcEncodingPacket)
-
-instance : RpcEncoding InteractiveDiagnostic RpcEncodingPacket where
-  rpcEncode a := return { a with message := ← rpcEncode a.message }
-  rpcDecode a := return { a with message := ← rpcDecode a.message }
-
-end InteractiveDiagnostic
+deriving instance RpcEncoding for Lsp.DiagnosticWith
 
 namespace InteractiveDiagnostic
 open MsgEmbed
@@ -123,14 +88,16 @@ where
   | _,    none,      ofExpr e                 => return format (toString e)
   | nCtx, some ctx,  ofExpr e                 => do
     let ci : Elab.ContextInfo := {
-      env := ctx.env
-      mctx := ctx.mctx
-      fileMap := default
-      options := ctx.opts
+      env           := ctx.env
+      mctx          := ctx.mctx
+      fileMap       := default
+      options       := ctx.opts
       currNamespace := nCtx.currNamespace
-      openDecls := nCtx.openDecls
+      openDecls     := nCtx.openDecls
+      -- Hack: to make sure unique ids created at `ppExprWithInfos` do not collide with ones in `ctx.mctx`
+      ngen          := { namePrefix := `_diag }
     }
-    let (fmt, infos) ← ci.runMetaM ctx.lctx (formatInfos e)
+    let (fmt, infos) ← ci.runMetaM ctx.lctx <| PrettyPrinter.ppExprWithInfos e
     let t ← pushEmbed <| EmbedFmt.expr ci infos
     return Format.tag t fmt
   | _,    none,      ofGoal mvarId            => pure $ "goal " ++ format (mkMVar mvarId)
@@ -166,7 +133,7 @@ partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent
     | EmbedFmt.expr ctx infos =>
       let subTt' := tagExprInfos ctx infos subTt
       return TaggedText.tag (MsgEmbed.expr subTt') (TaggedText.text subTt.stripTags)
-    | EmbedFmt.goal ctx lctx g =>
+    | EmbedFmt.goal _   _    _ =>
       -- TODO(WN): use InteractiveGoal types here
       unreachable!
     | EmbedFmt.lazyTrace nCtx ctx? cls m =>

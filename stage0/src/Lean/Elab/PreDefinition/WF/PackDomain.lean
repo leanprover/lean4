@@ -13,10 +13,10 @@ open Meta
   Return an array containing its "elements".
   Example: `mkTupleElems a 4` returns `#[a.1, a.2.1, a.2.2.1, a.2.2.2]`.
   -/
-private def mkTupleElems (t : Expr) (arity : Nat) : Array Expr := Id.run <| do
+private def mkTupleElems (t : Expr) (arity : Nat) : Array Expr := Id.run do
   let mut result := #[]
   let mut t := t
-  for i in [:arity - 1] do
+  for _ in [:arity - 1] do
     result := result.push (mkProj ``PSigma 0 t)
     t := mkProj ``PSigma 1 t
   result.push t
@@ -62,7 +62,7 @@ partial def packDomain (fixedPrefix : Nat) (preDefs : Array PreDefinition) : Met
   let mut arities := #[]
   let mut modified := false
   for preDef in preDefs do
-    let (preDefNew, arity, modifiedCurr) ← lambdaTelescope preDef.value fun xs body => do
+    let (preDefNew, arity, modifiedCurr) ← lambdaTelescope preDef.value fun xs _ => do
       if xs.size == fixedPrefix then
         throwError "well-founded recursion cannot be used, '{preDef.declName}' does not take any (non-fixed) arguments"
       let arity := xs.size
@@ -93,7 +93,6 @@ partial def packDomain (fixedPrefix : Nat) (preDefs : Array PreDefinition) : Met
   for i in [:preDefs.size] do
     let preDef := preDefs[i]
     let preDefNew := preDefsNew[i]
-    let arity := arities[i]
     let valueNew ← lambdaTelescope preDef.value fun xs body => do
       let ys : Array Expr := xs[:fixedPrefix]
       let xs : Array Expr := xs[fixedPrefix:]
@@ -113,7 +112,7 @@ partial def packDomain (fixedPrefix : Nat) (preDefs : Array PreDefinition) : Met
   return preDefsNew
 where
   /-- Return `some i` if `e` is a `preDefs[i]` application -/
-  isAppOfPreDef? (e : Expr) : OptionM Nat := do
+  isAppOfPreDef? (e : Expr) : Option Nat := do
     let f := e.getAppFn
     guard f.isConst
     preDefs.findIdx? (·.declName == f.constName!)
@@ -131,14 +130,20 @@ where
       visit (e : Expr) : MonadCacheT ExprStructEq Expr MetaM Expr := do
         checkCache { val := e : ExprStructEq } fun _ => Meta.withIncRecDepth do
           match e with
-          | Expr.lam ..          => lambdaTelescope e fun xs b => do mkLambdaFVars (usedLetOnly := false) xs (← visit b)
-          | Expr.letE n t v b _  => withLetDecl n t (← visit v) fun x => do mkLambdaFVars (usedLetOnly := false) #[x] (← visit (b.instantiate1 x))
-          | Expr.forallE ..      => forallTelescope e fun xs b => do mkForallFVars (usedLetOnly := false) xs (← visit b)
-          | Expr.proj n i s ..   => return mkProj n i (← visit s)
-          | Expr.mdata d b _     => return mkMData d (← visit b)
-          | Expr.app ..          => visitApp e
-          | Expr.const ..        => visitApp e
-          | e                    => return e,
+          | Expr.lam n d b c =>
+            withLocalDecl n c.binderInfo (← visit d) fun x => do
+              mkLambdaFVars (usedLetOnly := false) #[x] (← visit (b.instantiate1 x))
+          | Expr.forallE n d b c =>
+            withLocalDecl n c.binderInfo (← visit d) fun x => do
+              mkForallFVars (usedLetOnly := false) #[x] (← visit (b.instantiate1 x))
+          | Expr.letE n t v b _  =>
+            withLetDecl n (← visit t) (← visit v) fun x => do
+              mkLambdaFVars (usedLetOnly := false) #[x] (← visit (b.instantiate1 x))
+          | Expr.proj n i s .. => return mkProj n i (← visit s)
+          | Expr.mdata d b _   => return mkMData d (← visit b)
+          | Expr.app ..        => visitApp e
+          | Expr.const ..      => visitApp e
+          | e                  => return e,
       visitApp (e : Expr) : MonadCacheT ExprStructEq Expr MetaM Expr := e.withApp fun f args => do
         let args ← args.mapM visit
         if let some funIdx := isAppOfPreDef? f then

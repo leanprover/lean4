@@ -1,48 +1,30 @@
 # Development Workflow
-- [Commit Convention](./commit_convention.md)
-- [Building Lean](../make/index.md)
-  - [Ubuntu Setup](../make/ubuntu.md)
-  - [macOS Setup](../make/osx-10.9.md)
-  - [Windows MSYS2 Setup](../make/msys2.md)
-  - [Windows with WSL](../make/wsl.md)
-  - [Nix Setup (*Experimental*)](../make/nix.md)
-- [Unit Testing](./testing.md)
-- [Building This Manual](./mdbook.md)
-- [Fixing Tests](./fixing_tests.md)
-- [Debugging](./debugging.md)
-- [C++ Coding Style](./dev/cpp_coding_style.md)
 
-You will notice there is a `stage0` folder. This is for bootstrapping
-the compiler development.  Generally you do not change any code in
-`stage0` manually.  It is important that you read [bootstrapping
-pipeline](bootstrap.md) so you understand how this works.
+If you want to make changes to Lean itself, start by [building Lean](../make/index.html) from a clean checkout to make sure that everything is set up correctly.
+After that, read on below to find out how to set up your editor for changing the Lean source code, followed by further sections of the development manual where applicable such as on the [test suite](testing.md) and [commit convention](commit_convention.md).
 
-The dev team uses `elan` to manage which `lean` toolchain to use
-locally and `elan` can be used to setup the version of Lean you are
-manually building.  This means you generally do not use `make
-install`. You use `elan` instead.
+If you are planning to make any changes that may affect the compilation of Lean itself, e.g. changes to the parser, elaborator, or compiler, you should first read about the [bootstrapping pipeline](bootstrap.md).
+You should not edit the `stage0` directory except using the commands described in that section when necessary.
 
 ## Development Setup
 
-You can use any of the [supported editors](../setup.md) for editing
-the Lean source code. If you set up `elan` as below, opening `src/` as
-a *workspace folder* should ensure that stage 0 will be used for file
-in that directory.
+You can use any of the [supported editors](../setup.md) for editing the Lean source code.
+If you set up `elan` as below, opening `src/` as a *workspace folder* should ensure that stage 0 (i.e. the stage that first compiles `src/`) will be used for files in that directory.
 
-## Dev setup using elan
+### Dev setup using elan
 
 You can use [`elan`](https://github.com/leanprover/elan) to easily
 switch between stages and build configurations based on the current
 directory, both for the `lean`, `leanc`, and `leanmake` binaries in your shell's
 PATH and inside your editor.
 
-To install elan, you can do so, without installing a default version of Lean, using
+To install elan, you can do so, without installing a default version of Lean, using (Unix)
 
 ```bash
-[Unix]
 curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- --default-toolchain none
-
-[Windows]
+```
+or (Windows)
+```
 curl -O --location https://raw.githubusercontent.com/leanprover/elan/master/elan-init.ps1
 powershell -f elan-init.ps1 --default-toolchain none
 del elan-init.ps1

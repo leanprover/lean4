@@ -50,7 +50,7 @@ variable {ε : Type u}
 def orElseLazy (x : Except ε α) (y : Unit → Except ε α) : Except ε α :=
   match x with
   | Except.ok a    => Except.ok a
-  | Except.error e => y ()
+  | Except.error _ => y ()
 
 instance : Monad (Except ε) where
   pure := Except.pure
@@ -145,6 +145,11 @@ instance (ε : Type u) (m : Type u → Type v) [Monad m] : MonadControl m (Excep
   restoreM x := x
 
 class MonadFinally (m : Type u → Type v) where
+  /-- `tryFinally' x f` runs `x` and then the "finally" computation `f`.
+  When `x` succeeds with `a : α`, `f (some a)` is returned. If `x` fails
+  for `m`'s definition of failure, `f none` is returned. Hence `tryFinally'`
+  can be thought of as performing the same role as a `finally` block in
+  an imperative programming language. -/
   tryFinally' {α β} : m α → (Option α → m β) → m (α × β)
 
 export MonadFinally (tryFinally')

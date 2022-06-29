@@ -11,6 +11,9 @@ universe u
 instance : Hashable Nat where
   hash n := UInt64.ofNat n
 
+instance : Hashable String.Pos where
+  hash p := UInt64.ofNat p.byteIdx
+
 instance [Hashable α] [Hashable β] : Hashable (α × β) where
   hash | (a, b) => mixHash (hash a) (hash b)
 
@@ -25,6 +28,9 @@ instance [Hashable α] : Hashable (Option α) where
     | some a => mixHash (hash a) 13
 
 instance [Hashable α] : Hashable (List α) where
+  hash as := as.foldl (fun r a => mixHash r (hash a)) 7
+
+instance [Hashable α] : Hashable (Array α) where
   hash as := as.foldl (fun r a => mixHash r (hash a)) 7
 
 instance : Hashable UInt8 where
@@ -51,4 +57,4 @@ instance : Hashable Int where
     | Int.negSucc n => UInt64.ofNat (2 * n + 1)
 
 instance (P : Prop) : Hashable P where
-  hash p := 0
+  hash _ := 0

@@ -10,10 +10,10 @@ structure Node : Type where
 
 def h1 (x : List Node) : Bool :=
   match x with
-  | _ :: Node.mk 0 _ Op.mk :: _  => true
-  | _                            => false
+  | _ :: Node.mk 0 _ (Op.mk _) :: _  => true
+  | _                                => false
 
-def mkNode (n : Nat) : Node := { id₁ := n, id₂ := n, o := Op.mk }
+def mkNode (n : Nat) : Node := { id₁ := n, id₂ := n, o := Op.mk _ }
 
 #eval h1 [mkNode 1, mkNode 0, mkNode 3]
 #eval h1 [mkNode 1, mkNode 1, mkNode 3]
@@ -53,7 +53,7 @@ def h3 {b : Bool} (x : Foo b) : Bool :=
 
 def h4 (x : List Node) : Bool :=
   match x with
-  | _ :: ⟨1, 1, Op.mk⟩ :: _  => true
+  | _ :: ⟨1, 1, Op.mk _⟩ :: _  => true
   | _                          => false
 
 #eval h4 [mkNode 1, mkNode 0, mkNode 3]

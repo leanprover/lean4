@@ -29,7 +29,7 @@ partial def cleanup (mvarId : MVarId) : MetaM MVarId := do
     return mvarNew.mvarId!
 where
   addUsedFVars (e : Expr) : StateRefT (Bool × FVarIdSet) MetaM Unit := do
-    let (_, s) ← collectUsedFVars (← instantiateMVars e) |>.run {}
+    let (_, s) ← (← instantiateMVars e).collectFVars |>.run {}
     for fvarId in s.fvarSet do
       addUsedFVar fvarId
 
@@ -41,7 +41,7 @@ where
 
   addUsedFVar (fvarId : FVarId) : StateRefT (Bool × FVarIdSet) MetaM Unit := do
     unless (← get).2.contains fvarId do
-      modify fun (modified, s) => (true, s.insert fvarId)
+      modify fun (_, s) => (true, s.insert fvarId)
       addDeps fvarId
 
   /- We include `p` in the used-set, if `p` is a proposition that contains a `x` that is in the used-set. -/
@@ -59,7 +59,7 @@ where
       collectProps
 
   collectUsed : StateRefT (Bool × FVarIdSet) MetaM FVarIdSet := do
-    addUsedFVars (← getMVarType' mvarId)
+    addUsedFVars (← instantiateMVars (← getMVarType mvarId))
     collectProps
     return (← get).2
 

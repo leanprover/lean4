@@ -11,7 +11,7 @@ namespace Lean.Meta
 def delta? (e : Expr) (p : Name → Bool := fun _ => true) : CoreM (Option Expr) :=
   matchConst e.getAppFn (fun _ => return none) fun fInfo fLvls => do
     if p fInfo.name && fInfo.hasValue && fInfo.levelParams.length == fLvls.length then
-      let f := fInfo.instantiateValueLevelParams fLvls
+      let f ← instantiateValueLevelParams fInfo fLvls
       return some (f.betaRev e.getAppRevArgs (useZeta := true))
     else
       return none
@@ -31,7 +31,6 @@ def deltaTarget (mvarId : MVarId) (p : Name → Bool) : MetaM MVarId :=
 def deltaLocalDecl (mvarId : MVarId) (fvarId : FVarId) (p : Name → Bool) : MetaM MVarId :=
   withMVarContext mvarId do
     checkNotAssigned mvarId `delta
-    let localDecl ← getLocalDecl fvarId
     changeLocalDecl mvarId fvarId (← deltaExpand (← getMVarType mvarId) p) (checkDefEq := false)
 
 end Lean.Meta

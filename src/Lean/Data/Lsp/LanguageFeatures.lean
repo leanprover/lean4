@@ -229,6 +229,7 @@ inductive SemanticTokenType where
   | keyword
   | «variable»
   | property
+  | function
   /-
   | «namespace»
   | type
@@ -240,7 +241,6 @@ inductive SemanticTokenType where
   | parameter
   | enumMember
   | event
-  | function
   | method
   | «macro»
   | modifier
@@ -252,13 +252,14 @@ inductive SemanticTokenType where
   -/
 
 def SemanticTokenType.names : Array String :=
-  #["keyword", "variable", "property"]
+  #["keyword", "variable", "property", "function"]
 
 -- must be the correct index in `names`
 def SemanticTokenType.toNat : SemanticTokenType → Nat
   | keyword    => 0
   | «variable» => 1
   | property   => 2
+  | function   => 3
 
 /-
 inductive SemanticTokenModifier where

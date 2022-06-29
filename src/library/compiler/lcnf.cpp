@@ -362,7 +362,9 @@ public:
                 minor = args[3];
             else
                 minor = args[4];
-            return visit(mk_app(minor, pr_a, pr_b), root);
+            expr new_e = mk_app(minor, pr_a, pr_b);
+            new_e      = mk_app(new_e, args.size() - 5, args.data() + 5);
+            return visit(new_e, root);
         }
     }
 

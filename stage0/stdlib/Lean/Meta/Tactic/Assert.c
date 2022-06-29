@@ -122,7 +122,8 @@ LEAN_EXPORT lean_object* l_Lean_Meta_assert___lambda__1(lean_object* x_1, lean_o
 _start:
 {
 lean_object* x_11; 
-lean_inc(x_7);
+lean_inc(x_8);
+lean_inc(x_6);
 lean_inc(x_1);
 x_11 = l_Lean_Meta_checkNotAssigned(x_1, x_2, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_11) == 0)
@@ -163,7 +164,7 @@ lean_dec(x_21);
 lean_inc(x_22);
 x_24 = l_Lean_mkApp(x_22, x_5);
 x_25 = l_Lean_Meta_assignExprMVar(x_1, x_24, x_6, x_7, x_8, x_9, x_23);
-lean_dec(x_7);
+lean_dec(x_8);
 lean_dec(x_6);
 x_26 = !lean_is_exclusive(x_25);
 if (x_26 == 0)
@@ -194,7 +195,7 @@ else
 {
 uint8_t x_32; 
 lean_dec(x_14);
-lean_dec(x_7);
+lean_dec(x_8);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -223,7 +224,7 @@ return x_35;
 else
 {
 uint8_t x_36; 
-lean_dec(x_7);
+lean_dec(x_8);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -252,7 +253,7 @@ return x_39;
 else
 {
 uint8_t x_40; 
-lean_dec(x_7);
+lean_dec(x_8);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -283,7 +284,7 @@ static lean_object* _init_l_Lean_Meta_assert___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("assert");
+x_1 = lean_mk_string_from_bytes("assert", 6);
 return x_1;
 }
 }
@@ -319,7 +320,7 @@ _start:
 lean_object* x_11; 
 x_11 = l_Lean_Meta_assert___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_9);
-lean_dec(x_8);
+lean_dec(x_7);
 return x_11;
 }
 }
@@ -327,7 +328,8 @@ LEAN_EXPORT lean_object* l_Lean_Meta_define___lambda__1(lean_object* x_1, lean_o
 _start:
 {
 lean_object* x_11; 
-lean_inc(x_7);
+lean_inc(x_8);
+lean_inc(x_6);
 lean_inc(x_1);
 x_11 = l_Lean_Meta_checkNotAssigned(x_1, x_2, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_11) == 0)
@@ -367,7 +369,7 @@ lean_inc(x_23);
 lean_dec(x_21);
 lean_inc(x_22);
 x_24 = l_Lean_Meta_assignExprMVar(x_1, x_22, x_6, x_7, x_8, x_9, x_23);
-lean_dec(x_7);
+lean_dec(x_8);
 lean_dec(x_6);
 x_25 = !lean_is_exclusive(x_24);
 if (x_25 == 0)
@@ -398,7 +400,7 @@ else
 {
 uint8_t x_31; 
 lean_dec(x_14);
-lean_dec(x_7);
+lean_dec(x_8);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -427,7 +429,7 @@ return x_34;
 else
 {
 uint8_t x_35; 
-lean_dec(x_7);
+lean_dec(x_8);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -456,7 +458,7 @@ return x_38;
 else
 {
 uint8_t x_39; 
-lean_dec(x_7);
+lean_dec(x_8);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -487,7 +489,7 @@ static lean_object* _init_l_Lean_Meta_define___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("define");
+x_1 = lean_mk_string_from_bytes("define", 6);
 return x_1;
 }
 }
@@ -523,7 +525,7 @@ _start:
 lean_object* x_11; 
 x_11 = l_Lean_Meta_define___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_9);
-lean_dec(x_8);
+lean_dec(x_7);
 return x_11;
 }
 }
@@ -531,7 +533,7 @@ static lean_object* _init_l_Lean_Meta_assertExt___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Eq");
+x_1 = lean_mk_string_from_bytes("Eq", 2);
 return x_1;
 }
 }
@@ -558,7 +560,8 @@ LEAN_EXPORT lean_object* l_Lean_Meta_assertExt___lambda__1(lean_object* x_1, lea
 _start:
 {
 lean_object* x_12; 
-lean_inc(x_8);
+lean_inc(x_9);
+lean_inc(x_7);
 lean_inc(x_1);
 x_12 = l_Lean_Meta_checkNotAssigned(x_1, x_2, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_12) == 0)
@@ -1383,7 +1386,8 @@ LEAN_EXPORT lean_object* l_Lean_Meta_assertAfter___lambda__1(lean_object* x_1, l
 _start:
 {
 lean_object* x_12; 
-lean_inc(x_8);
+lean_inc(x_9);
+lean_inc(x_7);
 lean_inc(x_1);
 x_12 = l_Lean_Meta_checkNotAssigned(x_1, x_2, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_12) == 0)
@@ -1875,7 +1879,7 @@ static lean_object* _init_l_Lean_Meta_assertAfter___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("assertAfter");
+x_1 = lean_mk_string_from_bytes("assertAfter", 11);
 return x_1;
 }
 }
@@ -2053,7 +2057,8 @@ LEAN_EXPORT lean_object* l_Lean_Meta_assertHypotheses___lambda__1(lean_object* x
 _start:
 {
 lean_object* x_9; 
-lean_inc(x_5);
+lean_inc(x_6);
+lean_inc(x_4);
 lean_inc(x_1);
 x_9 = l_Lean_Meta_checkNotAssigned(x_1, x_2, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_9) == 0)
@@ -2259,7 +2264,7 @@ static lean_object* _init_l_Lean_Meta_assertHypotheses___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("assertHypotheses");
+x_1 = lean_mk_string_from_bytes("assertHypotheses", 16);
 return x_1;
 }
 }

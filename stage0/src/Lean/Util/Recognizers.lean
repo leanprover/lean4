@@ -81,18 +81,19 @@ def isDIte (e : Expr) :=
 
 partial def listLit? (e : Expr) : Option (Expr × List Expr) :=
   let rec loop (e : Expr) (acc : List Expr) :=
-    if e.isAppOfArity ``List.nil 1 then
-      some (e.appArg!, acc.reverse)
-    else if e.isAppOfArity ``List.cons 3 then
-      loop e.appArg! (e.appFn!.appArg! :: acc)
+    if e.isAppOfArity' ``List.nil 1 then
+      some (e.appArg!', acc.reverse)
+    else if e.isAppOfArity' ``List.cons 3 then
+      loop e.appArg!' (e.appFn!'.appArg!' :: acc)
     else
       none
   loop e []
 
 def arrayLit? (e : Expr) : Option (Expr × List Expr) :=
-  match e.app2? ``List.toArray with
-  | some (_, e) => e.listLit?
-  | none        => none
+  if e.isAppOfArity' ``List.toArray 2 then
+    listLit? e.appArg!'
+  else
+    none
 
 /-- Recognize `α × β` -/
 def prod? (e : Expr) : Option (Expr × Expr) :=
@@ -116,24 +117,23 @@ def isConstructorApp? (env : Environment) (e : Expr) : Option ConstructorVal :=
 def isConstructorApp (env : Environment) (e : Expr) : Bool :=
   e.isConstructorApp? env |>.isSome
 
-def constructorApp? (env : Environment) (e : Expr) : Option (ConstructorVal × Array Expr) :=
-  OptionM.run do
-    match e with
-    | Expr.lit (Literal.natVal n) _ =>
-      if n == 0 then do
-        let v ← getConstructorVal? env `Nat.zero
-        pure (v, #[])
-      else do
-        let v ← getConstructorVal? env `Nat.succ
-        pure (v, #[mkNatLit (n-1)])
-    | _ =>
-      match e.getAppFn with
-      | Expr.const n _ _ => do
-        let v ← getConstructorVal? env n
-        if v.numParams + v.numFields == e.getAppNumArgs then
-          pure (v, e.getAppArgs)
-        else
-          none
-      | _ => none
+def constructorApp? (env : Environment) (e : Expr) : Option (ConstructorVal × Array Expr) := do
+  match e with
+  | Expr.lit (Literal.natVal n) _ =>
+    if n == 0 then do
+      let v ← getConstructorVal? env `Nat.zero
+      pure (v, #[])
+    else do
+      let v ← getConstructorVal? env `Nat.succ
+      pure (v, #[mkNatLit (n-1)])
+  | _ =>
+    match e.getAppFn with
+    | Expr.const n _ _ => do
+      let v ← getConstructorVal? env n
+      if v.numParams + v.numFields == e.getAppNumArgs then
+        pure (v, e.getAppArgs)
+      else
+        none
+    | _ => none
 
 end Lean.Expr

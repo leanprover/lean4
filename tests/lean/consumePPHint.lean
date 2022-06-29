@@ -1,5 +1,5 @@
-constant p : Nat → Prop
-constant q : Nat → Prop
+opaque p : Nat → Prop
+opaque q : Nat → Prop
 
 theorem p_of_q : q x → p x := sorry
 

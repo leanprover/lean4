@@ -1,0 +1,786 @@
+@charset "UTF-8";
+/*
+Copyright © 2019 Clément Pit-Claudel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+/*******************************/
+/* CSS reset for .alectryon-io */
+/*******************************/
+
+.content {
+    /*
+    Use `initial` instead of `contents` to avoid a browser bug which removes
+    the element from the accessibility tree.
+    https://developer.mozilla.org/en-US/docs/Web/CSS/display#display_contents
+     */
+    display: initial;
+}
+
+.alectryon-io blockquote {
+    line-height: inherit;
+}
+
+.alectryon-io blockquote:after {
+    display: none;
+}
+
+.alectryon-io label {
+    display: inline;
+    font-size: inherit;
+    margin: 0;
+}
+
+.alectryon-io a {
+    text-decoration: none !important;
+    font-style: oblique !important;
+    color: unset;
+}
+
+/* Undo <small> and <blockquote>, added to improve RSS rendering. */
+
+.alectryon-io small.alectryon-output,
+.alectryon-io small.alectryon-type-info {
+    font-size: inherit;
+}
+
+.alectryon-io blockquote.alectryon-goal,
+.alectryon-io blockquote.alectryon-message {
+    font-weight: normal;
+    font-size: inherit;
+}
+
+/***************/
+/* Main styles */
+/***************/
+
+.alectryon-coqdoc .doc .code,
+.alectryon-coqdoc .doc .comment,
+.alectryon-coqdoc .doc .inlinecode,
+.alectryon-mref,
+.alectryon-block, .alectryon-io,
+.alectryon-toggle-label, .alectryon-banner {
+    font-family: "Source Code Pro", Consolas, "Ubuntu Mono", Menlo, "DejaVu Sans Mono", monospace, monospace !important;
+    font-size: 0.875em;
+    font-feature-settings: "COQX" 1 /* Coq ligatures */, "XV00" 1 /* Legacy */, "calt" 1 /* Fallback */;
+    line-height: initial;
+}
+
+.alectryon-io, .alectryon-block, .alectryon-toggle-label, .alectryon-banner {
+    overflow: visible;
+    overflow-wrap: break-word;
+    position: relative;
+    white-space: pre-wrap;
+}
+
+/*
+CoqIDE doesn't turn off the unicode bidirectional algorithm (and PG simply
+respects the user's `bidi-display-reordering` setting), so don't turn it off
+here either.  But beware unexpected results like `Definition test_אב := 0.`
+
+.alectryon-io span {
+    direction: ltr;
+    unicode-bidi: bidi-override;
+}
+
+In any case, make an exception for comments:
+
+.highlight .c {
+    direction: embed;
+    unicode-bidi: initial;
+}
+*/
+
+.alectryon-mref,
+.alectryon-mref-marker {
+    align-self: center;
+    box-sizing: border-box;
+    display: inline-block;
+    font-size: 80%;
+    font-weight: bold;
+    line-height: 1;
+    box-shadow: 0 0 0 1pt black;
+    padding: 1pt 0.3em;
+    text-decoration: none;
+}
+
+.alectryon-block .alectryon-mref-marker,
+.alectryon-io .alectryon-mref-marker {
+    user-select: none;
+    margin: -0.25em 0 -0.25em 0.5em;
+}
+
+.alectryon-inline .alectryon-mref-marker {
+    margin: -0.25em 0.15em -0.25em 0.625em; /* 625 = 0.5em / 80% */
+}
+
+.alectryon-mref {
+    color: inherit;
+    margin: -0.5em 0.25em;
+}
+
+.alectryon-goal:target .goal-separator .alectryon-mref-marker,
+:target > .alectryon-mref-marker {
+    animation: blink 0.2s step-start 0s 3 normal none;
+    background-color: #fcaf3e;
+    position: relative;
+}
+
+@keyframes blink {
+    50% {
+        box-shadow: 0 0 0 3pt #fcaf3e, 0 0 0 4pt black;
+        z-index: 10;
+    }
+}
+
+.alectryon-toggle,
+.alectryon-io .alectryon-extra-goal-toggle {
+    display: none;
+}
+
+.alectryon-bubble,
+.alectryon-io label,
+.alectryon-toggle-label {
+    cursor: pointer;
+}
+
+.alectryon-toggle-label {
+    display: block;
+    font-size: 0.8em;
+}
+
+.alectryon-io .alectryon-input {
+    padding: 0.1em 0; /* Enlarge the hitbox slightly to fill interline gaps */
+}
+
+.alectryon-io .alectryon-token {
+    white-space: pre-wrap;
+    display: inline;
+}
+
+.alectryon-io .alectryon-sentence.alectryon-target .alectryon-input {
+    /* FIXME if keywords were ‘bolder’ we wouldn't need !important */
+    font-weight: bold !important; /* Use !important to avoid a * selector */
+}
+
+.alectryon-bubble:before,
+.alectryon-toggle-label:before,
+.alectryon-io label.alectryon-input:after,
+.alectryon-io .alectryon-goal > label:before {
+    border: 1px solid #babdb6;
+    border-radius: 1em;
+    box-sizing: border-box;
+    content: '';
+    display: inline-block;
+    font-weight: bold;
+    height: 0.25em;
+    margin-bottom: 0.15em;
+    vertical-align: middle;
+    width: 0.75em;
+}
+
+.alectryon-toggle-label:before,
+.alectryon-io .alectryon-goal > label:before {
+    margin-right: 0.25em;
+}
+
+.alectryon-io .alectryon-goal > label:before {
+    margin-top: 0.125em;
+}
+
+.alectryon-io label.alectryon-input {
+    padding-right: 1em; /* Prevent line wraps before the checkbox bubble */
+}
+
+.alectryon-io label.alectryon-input:after {
+    margin-left: 0.25em;
+    margin-right: -1em; /* Compensate for the anti-wrapping space */
+}
+
+.alectryon-failed {
+    /* Underlines are broken in Chrome (they reset at each element boundary)… */
+    /* text-decoration: red wavy underline; */
+    /* … but it isn't too noticeable with dots */
+    text-decoration: red dotted underline;
+    text-decoration-skip-ink: none;
+    /* Chrome prints background images in low resolution, yielding a blurry underline */
+    /* background: bottom / 0.3em auto repeat-x url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyLjY0NiAxLjg1MiIgaGVpZ2h0PSI4IiB3aWR0aD0iMTAiPjxwYXRoIGQ9Ik0wIC4yNjVjLjc5NCAwIC41MyAxLjMyMiAxLjMyMyAxLjMyMi43OTQgMCAuNTMtMS4zMjIgMS4zMjMtMS4zMjIiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmVkIiBzdHJva2Utd2lkdGg9Ii41MjkiLz48L3N2Zz4=); */
+}
+
+/* Wrapping :hover rules in a media query ensures that tapping a Coq sentence
+   doesn't trigger its :hover state (otherwise, on mobile, tapping a sentence to
+   hide its output causes it to remain visible (its :hover state gets triggered.
+   We only do it for the default style though, since other styles don't put the
+   output over the main text, so showing too much is not an issue. */
+@media (any-hover: hover) {
+    .alectryon-bubble:hover:before,
+    .alectryon-toggle-label:hover:before,
+    .alectryon-io label.alectryon-input:hover:after {
+        background: #eeeeec;
+    }
+
+    .alectryon-io label.alectryon-input:hover {
+        text-decoration: underline dotted #babdb6;
+	    text-shadow: 0 0 1px rgb(46, 52, 54, 0.3); /* #2e3436 + opacity */
+    }
+
+    .alectryon-io .alectryon-sentence:hover .alectryon-output,
+    .alectryon-io .alectryon-token:hover .alectryon-type-info-wrapper,
+    .alectryon-io .alectryon-token:hover .alectryon-type-info-wrapper {
+        z-index: 2; /* Place hovered goals above .alectryon-sentence.alectryon-target ones */
+    }
+}
+
+.alectryon-toggle:checked + .alectryon-toggle-label:before,
+.alectryon-io .alectryon-sentence > .alectryon-toggle:checked + label.alectryon-input:after,
+.alectryon-io .alectryon-extra-goal-toggle:checked + .alectryon-goal > label:before {
+    background-color: #babdb6;
+    border-color: #babdb6;
+}
+
+/* Disable clicks on sentences when the document-wide toggle is set. */
+.alectryon-toggle:checked + label + .alectryon-container label.alectryon-input {
+    cursor: unset;
+    pointer-events: none;
+}
+
+/* Hide individual checkboxes when the document-wide toggle is set. */
+.alectryon-toggle:checked + label + .alectryon-container label.alectryon-input:after {
+    display: none;
+}
+
+/* .alectryon-output is displayed by toggles, :hover, and .alectryon-target rules */
+.alectryon-io .alectryon-output {
+    box-sizing: border-box;
+    display: none;
+    left: 0;
+    right: 0;
+    position: absolute;
+    padding: 0.25em 0;
+    overflow: visible; /* Let box-shadows overflow */
+    z-index: 1; /* Default to an index lower than that used by :hover */
+}
+
+.alectryon-io .alectryon-type-info-wrapper {
+    position: absolute;
+    display: inline-block;
+    width: 100%;
+}
+
+.alectryon-io .alectryon-type-info-wrapper.full-width {
+    left: 0;
+    min-width: 100%;
+    max-width: 100%;
+}
+
+.alectryon-io .alectryon-type-info .goal-separator {
+    height: unset;
+    margin-top: 0em;
+}
+
+.alectryon-io .alectryon-type-info-wrapper .alectryon-type-info {
+    box-sizing: border-box;
+    bottom: 100%;
+    position: absolute;
+    /*padding: 0.25em 0;*/
+    visibility: hidden;
+    overflow: visible; /* Let box-shadows overflow */
+    z-index: 1; /* Default to an index lower than that used by :hover */
+    white-space: pre-wrap !important;
+}
+
+.alectryon-io .alectryon-type-info-wrapper .alectryon-type-info .alectryon-goal.alectryon-docstring {
+    white-space: pre-wrap !important;
+}
+
+@media (any-hover: hover) { /* See note above about this @media query */
+    .alectryon-io .alectryon-sentence:hover .alectryon-output:not(:hover) {
+        display: block;
+    }
+
+    .alectryon-io.output-hidden .alectryon-sentence:hover .alectryon-output:not(:hover) {
+        display: none !important;
+    }
+
+    .alectryon-io.type-info-hidden .alectryon-token:hover .alectryon-type-info-wrapper .alectryon-type-info,
+    .alectryon-io.type-info-hidden .alectryon-token:hover .alectryon-type-info-wrapper .alectryon-type-info {
+        /*visibility: hidden !important;*/
+    }
+
+    .alectryon-io .alectryon-token:hover .alectryon-type-info-wrapper .alectryon-type-info,
+    .alectryon-io .alectryon-token:hover .alectryon-type-info-wrapper .alectryon-type-info {
+        visibility: visible;
+        transition-delay: 0.5s;
+    }
+}
+
+.alectryon-io .alectryon-sentence.alectryon-target .alectryon-output {
+    display: block;
+}
+
+/* Indicate active (hovered or targeted) goals with a shadow. */
+.alectryon-io .alectryon-sentence:hover .alectryon-output:not(:hover) .alectryon-messages,
+.alectryon-io .alectryon-sentence.alectryon-target .alectryon-output  .alectryon-messages,
+.alectryon-io .alectryon-sentence:hover .alectryon-output:not(:hover) .alectryon-goals,
+.alectryon-io .alectryon-sentence.alectryon-target .alectryon-output  .alectryon-goals,
+.alectryon-io .alectryon-token:hover .alectryon-type-info-wrapper .alectryon-type-info {
+    box-shadow: 2px 2px 2px gray;
+}
+
+.alectryon-io .alectryon-extra-goals .alectryon-goal .goal-hyps {
+    display: none;
+}
+
+.alectryon-io .alectryon-extra-goals .alectryon-extra-goal-toggle:not(:checked) + .alectryon-goal label.goal-separator hr {
+    /* Dashes indicate that the hypotheses are hidden */
+    border-top-style: dashed;
+}
+
+
+/* Show just a small preview of the other goals; this is undone by the
+   "extra-goal" toggle and by :hover and .alectryon-target in windowed mode. */
+.alectryon-io .alectryon-extra-goals .alectryon-goal .goal-conclusion {
+    max-height: 5.2em;
+    overflow-y: auto;
+    /* Combining ‘overflow-y: auto’ with ‘display: inline-block’ causes extra space
+       to be added below the box. ‘vertical-align: middle’ gets rid of it. */
+    vertical-align: middle;
+}
+
+.alectryon-io .alectryon-goals,
+.alectryon-io .alectryon-messages {
+    background: #f6f7f6;
+	/*border: thin solid #d3d7cf; /* Convenient when pre's background is already #EEE */
+    display: block;
+    padding: 0.25em;
+}
+
+.alectryon-message::before {
+    content: '';
+    float: right;
+    /* etc/svg/square-bubble-xl.svg */
+    background: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 3.704 3.704' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill-rule='evenodd' stroke='%23000' stroke-width='.264'%3E%3Cpath d='M.794.934h2.115M.794 1.463h1.455M.794 1.992h1.852'/%3E%3C/g%3E%3Cpath d='M.132.14v2.646h.794v.661l.926-.661h1.72V.14z' fill='none' stroke='%23000' stroke-width='.265'/%3E%3C/svg%3E") top right no-repeat;
+    height: 14px;
+    width: 14px;
+}
+
+.alectryon-toggle:checked + label + .alectryon-container {
+    width: unset;
+}
+
+/* Show goals when a toggle is set */
+.alectryon-toggle:checked + label + .alectryon-container label.alectryon-input + .alectryon-output,
+.alectryon-io .alectryon-sentence > .alectryon-toggle:checked ~ .alectryon-output {
+    display: block;
+    position: static;
+    width: unset;
+    background: unset; /* Override the backgrounds set in floating in windowed mode */
+    padding: 0.25em 0; /* Re-assert so that later :hover rules don't override this padding */
+}
+
+.alectryon-toggle:checked + label + .alectryon-container label.alectryon-input + .alectryon-output .goal-hyps,
+.alectryon-io .alectryon-sentence > .alectryon-toggle:checked ~ .alectryon-output .goal-hyps {
+    /* Overridden back in windowed style */
+    flex-flow: row wrap;
+    justify-content: flex-start;
+}
+
+.alectryon-toggle:checked + label + .alectryon-container .alectryon-sentence .alectryon-output > div,
+.alectryon-io .alectryon-sentence > .alectryon-toggle:checked ~ .alectryon-output > div {
+    display: block;
+}
+
+.alectryon-io .alectryon-extra-goal-toggle:checked + .alectryon-goal .goal-hyps {
+    display: flex;
+}
+
+.alectryon-io .alectryon-extra-goal-toggle:checked + .alectryon-goal .goal-conclusion {
+    max-height: unset;
+    overflow-y: unset;
+}
+
+.alectryon-toggle:checked + label + .alectryon-container .alectryon-sentence > .alectryon-toggle ~ .alectryon-wsp,
+.alectryon-io .alectryon-sentence > .alectryon-toggle:checked ~ .alectryon-wsp {
+    display: none;
+}
+
+.alectryon-io .alectryon-messages,
+.alectryon-io .alectryon-message,
+.alectryon-io .alectryon-goals,
+.alectryon-io .alectryon-goal,
+.alectryon-io .goal-hyps > span,
+.alectryon-io .goal-conclusion {
+    border-radius: 0.15em;
+}
+
+.alectryon-io .alectryon-goal,
+.alectryon-io .alectryon-message {
+    align-items: center;
+    background: #f6f7f6;
+    border: 0em;
+    display: block;
+    flex-direction: column;
+    margin: 0.25em;
+    padding: 0.5em;
+    position: relative;
+}
+
+.alectryon-io .goal-hyps {
+    align-content: space-around;
+    align-items: baseline;
+    display: flex;
+    flex-flow: column nowrap; /* re-stated in windowed mode */
+    justify-content: space-around;
+    /* LATER use a ‘gap’ property instead of margins once supported */
+    margin: -0.15em -0.25em; /* -0.15em to cancel the item spacing */
+    padding-bottom: 0.35em; /* 0.5em-0.15em to cancel the 0.5em of .goal-separator */
+}
+
+.alectryon-io .goal-hyps > br {
+    display: none; /* Only for RSS readers */
+}
+
+.alectryon-io .goal-hyps > span,
+.alectryon-io .goal-conclusion {
+    /*background: #eeeeec;*/
+    display: inline-block;
+    padding: 0.15em 0.35em;
+}
+
+.alectryon-io .goal-hyps > span {
+    align-items: baseline;
+    display: inline-flex;
+    margin: 0.15em 0.25em;
+}
+
+.alectryon-block var,
+.alectryon-inline var,
+.alectryon-io .goal-hyps > span > var {
+    font-weight: 600;
+    font-style: unset;
+}
+
+.alectryon-io .goal-hyps > span > var {
+    /* Shrink the list of names, but let it grow as long as space is available. */
+    flex-basis: min-content;
+    flex-grow: 1;
+}
+
+.alectryon-io .goal-hyps > span b {
+    font-weight: 600;
+    margin: 0 0 0 0.5em;
+    white-space: pre;
+}
+
+.alectryon-io .hyp-body,
+.alectryon-io .hyp-type {
+    display: flex;
+    align-items: baseline;
+}
+
+.alectryon-io .goal-separator {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    height: 1em; /* Fixed height to ignore goal name and markers */
+    margin-top: -0.5em; /* Compensated in .goal-hyps when shown */
+}
+
+.alectryon-io .goal-separator hr {
+    border: none;
+    border-top: thin solid #555753;
+    display: block;
+    flex-grow: 1;
+    margin: 0;
+}
+
+.alectryon-io .goal-separator .goal-name {
+    font-size: 0.75em;
+    margin-left: 0.5em;
+}
+
+/**********/
+/* Banner */
+/**********/
+
+.alectryon-banner {
+    background: #eeeeec;
+    border: 1px solid #babcbd;
+    font-size: 0.75em;
+    padding: 0.25em;
+    text-align: center;
+    margin: 1em 0;
+}
+
+.alectryon-banner a {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.alectryon-banner kbd {
+    background: #d3d7cf;
+    border-radius: 0.15em;
+    border: 1px solid #babdb6;
+    box-sizing: border-box;
+    display: inline-block;
+    font-family: inherit;
+    font-size: 0.9em;
+    height: 1.3em;
+    line-height: 1.2em;
+    margin: -0.25em 0;
+    padding: 0 0.25em;
+    vertical-align: middle;
+}
+
+/**********/
+/* Toggle */
+/**********/
+
+.alectryon-toggle-label {
+    margin: 1rem 0;
+}
+
+/******************/
+/* Floating style */
+/******************/
+
+/* If there's space, display goals to the right of the code, not below it. */
+@media (min-width: 80rem) {
+    /* Unlike the windowed case, we don't want to move output blocks to the side
+       when they are both :checked and -targeted, since it gets confusing as
+       things jump around; hence the commented-output part of the selector,
+       which would otherwise increase specificity */
+    .alectryon-floating .alectryon-sentence.alectryon-target /* > .alectryon-toggle ~ */ .alectryon-output,
+    .alectryon-floating .alectryon-sentence:hover .alectryon-output {
+        top: 0;
+        left: 100%;
+        right: -100%;
+        padding: 0 0.5em;
+        position:  absolute;
+    }
+
+    .alectryon-floating .alectryon-output {
+        min-height: 100%;
+    }
+
+    .alectryon-floating .alectryon-sentence:hover .alectryon-output {
+        background: white; /* Ensure that short goals hide long ones */
+    }
+
+    /* This odd margin-bottom property prevents the sticky div from bumping
+       against the bottom of its container (.alectryon-output).  The alternative
+       would be enlarging .alectryon-output, but that would cause overflows,
+       enlarging scrollbars and yielding scrolling towards the bottom of the
+       page.  Doing things this way instead makes it possible to restrict
+       .alectryon-output to a reasonable size (100%, through top = bottom = 0).
+       See also https://stackoverflow.com/questions/43909940/. */
+    /* See note on specificity above */
+    .alectryon-floating .alectryon-sentence.alectryon-target /* > .alectryon-toggle ~ */ .alectryon-output > div,
+    .alectryon-floating .alectryon-sentence:hover .alectryon-output > div {
+        margin-bottom: -200%;
+        position: sticky;
+        top: 0;
+    }
+
+    .alectryon-floating .alectryon-toggle:checked + label + .alectryon-container .alectryon-sentence .alectryon-output > div,
+    .alectryon-floating .alectryon-io .alectryon-sentence > .alectryon-toggle:checked ~ .alectryon-output > div {
+        margin-bottom: unset; /* Undo the margin */
+    }
+
+    /* Float underneath the current fragment
+    @media (max-width: 80rem) {
+        .alectryon-floating .alectryon-output {
+            top: 100%;
+        }
+    } */
+}
+
+/********************/
+/* Multi-pane style */
+/********************/
+
+.alectryon-windowed {
+    border: 0 solid #2e3436;
+    box-sizing: border-box;
+}
+
+.alectryon-windowed .alectryon-sentence:hover .alectryon-output {
+    background: white; /* Ensure that short goals hide long ones */
+}
+
+.alectryon-windowed .alectryon-output {
+    position: fixed; /* Overwritten by the ‘:checked’ rules */
+}
+
+/* See note about specificity below */
+.alectryon-windowed .alectryon-sentence:hover .alectryon-output,
+.alectryon-windowed .alectryon-sentence.alectryon-target > .alectryon-toggle ~ .alectryon-output {
+    padding: 0.5em;
+    overflow-y: auto; /* Windowed contents may need to scroll */
+}
+
+.alectryon-windowed .alectryon-io .alectryon-sentence:hover .alectryon-output:not(:hover) .alectryon-messages,
+.alectryon-windowed .alectryon-io .alectryon-sentence.alectryon-target .alectryon-output  .alectryon-messages,
+.alectryon-windowed .alectryon-io .alectryon-sentence:hover .alectryon-output:not(:hover) .alectryon-goals,
+.alectryon-windowed .alectryon-io .alectryon-sentence.alectryon-target .alectryon-output  .alectryon-goals {
+    box-shadow: none; /* A shadow is unnecessary here and incompatible with overflow-y set to auto */
+}
+
+.alectryon-windowed .alectryon-io .alectryon-sentence.alectryon-target .alectryon-output .goal-hyps {
+    /* Restated to override the :checked style */
+    flex-flow: column nowrap;
+    justify-content: space-around;
+}
+
+
+.alectryon-windowed .alectryon-sentence.alectryon-target .alectryon-extra-goals .alectryon-goal .goal-conclusion
+/* Like .alectryon-io .alectryon-extra-goal-toggle:checked + .alectryon-goal .goal-conclusion */ {
+    max-height: unset;
+    overflow-y: unset;
+}
+
+.alectryon-windowed .alectryon-output > div {
+    display: flex; /* Put messages after goals */
+    flex-direction: column-reverse;
+}
+
+/*********************/
+/* Standalone styles */
+/*********************/
+
+.alectryon-standalone {
+    font-family: 'IBM Plex Serif', 'PT Serif', 'Merriweather', 'DejaVu Serif', serif;
+    line-height: 1.5;
+}
+
+@media screen and (min-width: 50rem) {
+    html.alectryon-standalone {
+        /* Prevent flickering when hovering a block causes scrollbars to appear. */
+        margin-left: calc(100vw - 100%);
+        margin-right: 0;
+    }
+}
+
+/* Coqdoc */
+
+.alectryon-coqdoc .doc .code,
+.alectryon-coqdoc .doc .inlinecode,
+.alectryon-coqdoc .doc .comment {
+    display: inline;
+}
+
+.alectryon-coqdoc .doc .comment {
+    color: #eeeeec;
+}
+
+.alectryon-coqdoc .doc .paragraph {
+    height: 0.75em;
+}
+
+/* Centered, Floating */
+
+.alectryon-standalone .alectryon-centered,
+.alectryon-standalone .alectryon-floating {
+    max-width: 50rem;
+    margin: auto;
+}
+
+@media (min-width: 80rem) {
+    .alectryon-standalone .alectryon-floating {
+        max-width: 80rem;
+    }
+
+    .alectryon-standalone .alectryon-floating > * {
+        width: 50%;
+        margin-left: 0;
+    }
+}
+
+/* Windowed */
+
+.alectryon-standalone .alectryon-windowed {
+    display: block;
+    margin: 0;
+    overflow-y: auto;
+    position: absolute;
+    padding: 0 1em;
+}
+
+.alectryon-standalone .alectryon-windowed > * {
+    /* Override properties of docutils_basic.css */
+    margin-left: 0;
+    max-width: unset;
+}
+
+.alectryon-standalone .alectryon-windowed .alectryon-io {
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/* No need to predicate the ‘:hover’ rules below on ‘:not(:checked)’, since ‘left’,
+   ‘right’, ‘top’, and ‘bottom’ will be inactived by the :checked rules setting
+   ‘position’ to ‘static’ */
+
+
+/* Specificity: We want the output to stay inline when hovered while unfolded
+   (:checked), but we want it to move when it's targeted (i.e. when the user
+   is browsing goals one by one using the keyboard, in which case we want to
+   goals to appear in consistent locations).  The selectors below ensure
+   that :hover < :checked < -targeted in terms of specificity. */
+/* LATER: Reimplement this stuff with CSS variables */
+.alectryon-windowed .alectryon-sentence.alectryon-target > .alectryon-toggle ~ .alectryon-output {
+    position: fixed;
+}
+
+@media screen and (min-width: 60rem) {
+    .alectryon-standalone .alectryon-windowed {
+        border-right-width: thin;
+        bottom: 0;
+        left: 0;
+        right: 50%;
+        top: 0;
+    }
+
+    .alectryon-standalone .alectryon-windowed .alectryon-sentence:hover .alectryon-output,
+    .alectryon-standalone .alectryon-windowed .alectryon-sentence.alectryon-target .alectryon-output {
+        bottom: 0;
+        left: 50%;
+        right: 0;
+        top: 0;
+    }
+}
+
+@media screen and (max-width: 60rem) {
+    .alectryon-standalone .alectryon-windowed {
+        border-bottom-width: 1px;
+        bottom: 40%;
+        left: 0;
+        right: 0;
+        top: 0;
+    }
+
+    .alectryon-standalone .alectryon-windowed .alectryon-sentence:hover .alectryon-output,
+    .alectryon-standalone .alectryon-windowed .alectryon-sentence.alectryon-target .alectryon-output {
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: 60%;
+    }
+}

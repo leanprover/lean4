@@ -8,6 +8,8 @@ import Init.Data.String.Basic
 import Init.Data.ToString.Basic
 
 universe u v
+set_option linter.unusedVariables.funArgs false
+
 /- debugging helper functions -/
 @[neverExtract, extern "lean_dbg_trace"]
 def dbgTrace {α : Type u} (s : String) (f : Unit → α) : α := f ()

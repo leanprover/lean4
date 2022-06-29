@@ -48,7 +48,7 @@ def mwe [Stream ρ τ] (acc : α) : {l : ρ // isFinite l} → α
     match h:next? l with
     | none => acc
     | some (x,xs) =>
-      have h_next : hasNext l xs := by exists x; simp [hasNext, h]
+      have h_next : hasNext l xs := by exists x
       mwe acc ⟨xs, by sorry⟩
   termination_by _ l => l
 

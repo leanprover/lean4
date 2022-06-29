@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+import Lean.Widget.Basic
 import Lean.Widget.InteractiveCode
 import Lean.Widget.InteractiveGoal
 import Lean.Widget.InteractiveDiagnostic
@@ -22,31 +23,42 @@ structure MsgToInteractive where
   deriving Inhabited, RpcEncoding
 
 builtin_initialize
-  registerRpcCallHandler
+  registerBuiltinRpcProcedure
     `Lean.Widget.InteractiveDiagnostics.msgToInteractive
     MsgToInteractive
     (TaggedText MsgEmbed)
     fun ⟨⟨m⟩, i⟩ => RequestM.asTask do msgToInteractive m i (hasWidgets := true)
 
+/-- The information that the infoview uses to render a popup
+for when the user hovers over an expression.
+-/
 structure InfoPopup where
   type : Option CodeWithInfos
+  /-- Show the term with the implicit arguments. -/
   exprExplicit : Option CodeWithInfos
+  /-- Docstring. In markdown. -/
   doc : Option String
   deriving Inhabited, RpcEncoding
 
-builtin_initialize
-  registerRpcCallHandler
-    `Lean.Widget.InteractiveDiagnostics.infoToInteractive
-    (WithRpcRef InfoWithCtx)
-    InfoPopup
-    fun ⟨i⟩ => RequestM.asTask do
+/-- Given elaborator info for a particular subexpression. Produce the `InfoPopup`.
+
+The intended usage of this is for the infoview to pass the `InfoWithCtx` which
+was stored for a particular `SubexprInfo` tag in a `TaggedText` generated with `ppExprTagged`.
+ -/
+def makePopup : WithRpcRef InfoWithCtx → RequestM (RequestTask InfoPopup)
+    | ⟨i⟩ => RequestM.asTask do
       i.ctx.runMetaM i.info.lctx do
         let type? ← match (← i.info.type?) with
-          | some type => some <$> exprToInteractive type
+          | some type => some <$> ppExprTagged type
           | none => pure none
         let exprExplicit? ← match i.info with
-          | Elab.Info.ofTermInfo ti => some <$> exprToInteractiveExplicit ti.expr
-          | Elab.Info.ofFieldInfo fi => pure <| some (TaggedText.text fi.fieldName.toString)
+          | Elab.Info.ofTermInfo ti =>
+            let ti ← ppExprTagged ti.expr (explicit := true)
+            -- remove top-level expression highlight
+            pure <| some <| match ti with
+              | .tag _ tt => tt
+              | tt => tt
+          | Elab.Info.ofFieldInfo fi => pure <| some <| TaggedText.text fi.fieldName.toString
           | _ => pure none
         return {
           type := type?
@@ -55,13 +67,21 @@ builtin_initialize
         }
 
 builtin_initialize
-  registerRpcCallHandler
+  registerBuiltinRpcProcedure
+    `Lean.Widget.InteractiveDiagnostics.infoToInteractive
+    (WithRpcRef InfoWithCtx)
+    InfoPopup
+    makePopup
+
+builtin_initialize
+  registerBuiltinRpcProcedure
     `Lean.Widget.getInteractiveGoals
     Lsp.PlainGoalParams
     (Option InteractiveGoals)
     FileWorker.getInteractiveGoals
 
-  registerRpcCallHandler
+builtin_initialize
+  registerBuiltinRpcProcedure
     `Lean.Widget.getInteractiveTermGoal
     Lsp.PlainTermGoalParams
     (Option InteractiveTermGoal)
@@ -89,10 +109,31 @@ def getInteractiveDiagnostics (params : GetInteractiveDiagnosticsParams) : Reque
     pure <| diags?.getD #[]
 
 builtin_initialize
-  registerRpcCallHandler
+  registerBuiltinRpcProcedure
     `Lean.Widget.getInteractiveDiagnostics
     GetInteractiveDiagnosticsParams
     (Array InteractiveDiagnostic)
     getInteractiveDiagnostics
+
+structure GetGoToLocationParams where
+  kind : GoToKind
+  info : WithRpcRef InfoWithCtx
+  deriving RpcEncoding
+
+builtin_initialize
+  registerBuiltinRpcProcedure
+    `Lean.Widget.getGoToLocation
+    GetGoToLocationParams
+    (Array Lsp.LocationLink)
+    fun ⟨kind, ⟨i⟩⟩ => RequestM.asTask do
+      let rc ← read
+      let ls ← FileWorker.locationLinksOfInfo kind i.ctx i.info
+      if !ls.isEmpty then return ls
+      -- TODO(WN): unify handling of delab'd (infoview) and elab'd (editor) applications
+      let .ofTermInfo ti := i.info | return #[]
+      let .app _ _ _ := ti.expr | return #[]
+      let some nm := ti.expr.getAppFn.constName? | return #[]
+      i.ctx.runMetaM ti.lctx <|
+        locationLinksFromDecl rc.srcSearchPath rc.doc.meta.uri nm none
 
 end Lean.Widget

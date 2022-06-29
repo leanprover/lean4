@@ -196,7 +196,7 @@ def isNeverZero : Level → Bool
   | mvar ..      => false
   | succ ..      => true
   | max l₁ l₂ _  => isNeverZero l₁ || isNeverZero l₂
-  | imax l₁ l₂ _ => isNeverZero l₂
+  | imax _  l₂ _ => isNeverZero l₂
 
 def ofNat : Nat → Level
   | 0   => levelZero
@@ -231,7 +231,7 @@ def toNat (lvl : Level) : Option Nat :=
   | _      => none
 
 @[extern "lean_level_eq"]
-protected constant beq (a : @& Level) (b : @& Level) : Bool
+protected opaque beq (a : @& Level) (b : @& Level) : Bool
 
 instance : BEq Level := ⟨Level.beq⟩
 
@@ -262,8 +262,14 @@ partial def normLtAux : Level → Nat → Level → Nat → Bool
     if l₁ == l₂ then k₁ < k₂
     else if l₁₁ != l₂₁ then normLtAux l₁₁ 0 l₂₁ 0
     else normLtAux l₁₂ 0 l₂₂ 0
-  | param n₁ _, k₁, param n₂ _, k₂ => if n₁ == n₂ then k₁ < k₂ else Name.lt n₁ n₂     -- use Name.lt because it is lexicographical
-  | mvar n₁ _, k₁, mvar n₂ _, k₂ => if n₁ == n₂ then k₁ < k₂ else Name.quickLt n₁.name n₂.name  -- metavariables are temporary, the actual order doesn't matter
+  | param n₁ _, k₁, param n₂ _, k₂ => if n₁ == n₂ then k₁ < k₂ else Name.lt n₁ n₂ -- use `Name.lt` because it is lexicographical
+  /-
+    We also use `Name.lt` in the following case to make sure universe parameters in a declaration
+    are not affected by shifted indices. We used to use `Name.quickLt` which is not stable over shifted indices (the hashcodes change),
+    and changes to the elaborator could affect the universe parameters and break code that relies on an explicit order.
+    Example: test `tests/lean/343.lean`.
+   -/
+  | mvar n₁ _, k₁, mvar n₂ _, k₂ => if n₁ == n₂ then k₁ < k₂ else Name.lt n₁.name n₂.name
   | l₁, k₁, l₂, k₂ => if l₁ == l₂ then k₁ < k₂ else ctorToNat l₁ < ctorToNat l₂
 
 /--
@@ -383,10 +389,10 @@ def dec : Level → Option Level
   | param _ _    => none
   | mvar _ _     => none
   | succ l _     => l
-  | max l₁ l₂ _  => OptionM.run do return mkLevelMax (← dec l₁) (← dec l₂)
+  | max l₁ l₂ _  => return mkLevelMax (← dec l₁) (← dec l₂)
   /- Remark: `mkLevelMax` in the following line is not a typo.
      If `dec l₂` succeeds, then `imax l₁ l₂` is equivalent to `max l₁ l₂`. -/
-  | imax l₁ l₂ _ => OptionM.run do return mkLevelMax (←  dec l₁) (← dec l₂)
+  | imax l₁ l₂ _ => return mkLevelMax (←  dec l₁) (← dec l₂)
 
 
 /- Level to Format/Syntax -/
@@ -441,14 +447,14 @@ mutual
     | Result.imaxNode fs,   r => parenIfFalse (Format.group <| "imax" ++ formatLst fs) r
 end
 
-protected partial def Result.quote (r : Result) (prec : Nat) : Syntax :=
-  let addParen (s : Syntax) :=
+protected partial def Result.quote (r : Result) (prec : Nat) : Syntax.Level :=
+  let addParen (s : Syntax.Level) :=
     if prec > 0 then Unhygienic.run `(level| ( $s )) else s
   match r with
   | Result.leaf n         => Unhygienic.run `(level| $(mkIdent n):ident)
-  | Result.num  k         => Unhygienic.run `(level| $(quote k):numLit)
+  | Result.num  k         => Unhygienic.run `(level| $(quote k):num)
   | Result.offset r 0     => Result.quote r prec
-  | Result.offset r (k+1) => addParen <| Unhygienic.run `(level| $(Result.quote r 65) + $(quote (k+1)):numLit)
+  | Result.offset r (k+1) => addParen <| Unhygienic.run `(level| $(Result.quote r 65) + $(quote (k+1)):num)
   | Result.maxNode rs     => addParen <| Unhygienic.run `(level| max $(rs.toArray.map (Result.quote · max_prec))*)
   | Result.imaxNode rs    => addParen <| Unhygienic.run `(level| imax $(rs.toArray.map (Result.quote · max_prec))*)
 
@@ -463,11 +469,11 @@ instance : ToFormat Level where
 instance : ToString Level where
   toString u := Format.pretty (Level.format u)
 
-protected def quote (u : Level) (prec : Nat := 0) : Syntax :=
+protected def quote (u : Level) (prec : Nat := 0) : Syntax.Level :=
   (PP.toResult u).quote prec
 
-instance : Quote Level where
-  quote u := Level.quote u
+instance : Quote Level `level where
+  quote := Level.quote
 
 end Level
 
@@ -553,6 +559,24 @@ def mkNaryMax : List Level → Level
     | none    => u
   | u           => u
 
+def geq (u v : Level) : Bool :=
+  go u.normalize v.normalize
+where
+  go (u v : Level) : Bool :=
+    u == v ||
+    match u, v with
+    | _,            zero _       => true
+    | u,            max v₁ v₂ _  => go u v₁ && go u v₂
+    | max u₁ u₂ _,  v            => go u₁ v || go u₂ v
+    | u,            imax v₁ v₂ _ => go u v₁ && go u v₂
+    | imax _  u₂ _, v            => go u₂ v
+    | succ u _,     succ v _     => go u v
+    | _, _ =>
+      let v' := v.getLevelOffset
+      (u.getLevelOffset == v' || v'.isZero)
+      && u.getOffset ≥ v.getOffset
+termination_by _ u v => (u, v)
+
 end Level
 
 open Std (HashMap HashSet PHashMap PHashSet)
@@ -572,7 +596,7 @@ def Level.collectMVars (u : Level) (s : MVarIdSet := {}) : MVarIdSet :=
   | _          => s
 
 def Level.find? (u : Level) (p : Level → Bool) : Option Level :=
-  let rec visit (u : Level) : OptionM Level :=
+  let rec visit (u : Level) : Option Level :=
     if p u then
       return u
     else match u with

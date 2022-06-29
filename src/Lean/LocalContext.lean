@@ -9,6 +9,14 @@ import Lean.Hygiene
 
 namespace Lean
 
+/-- A declaration for a LocalContext. This is used to register which free variables are in scope.
+Each declaration comes with
+- `index` the position of the decl in the local context
+- `fvarId` the unique id of the free variables
+- `userName` the pretty-printable name of the variable
+- `type` the type.
+A `cdecl` is a local variable, a `ldecl` is a let-bound free variable with a `value : Expr`.
+-/
 inductive LocalDecl where
   | cdecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo)
   | ldecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) (nonDep : Bool)
@@ -96,6 +104,13 @@ end LocalDecl
 
 open Std (PersistentHashMap PersistentArray PArray)
 
+/-- A LocalContext is an ordered set of local variable declarations.
+It is used to store the free variables (also known as local constants) that
+are in scope.
+
+When inspecting a goal or expected type in the infoview, the local
+context is all of the variables above the `⊢` symbol.
+ -/
 structure LocalContext where
   fvarIdToDecl : PersistentHashMap FVarId LocalDecl := {}
   decls        : PersistentArray (Option LocalDecl) := {}
@@ -112,7 +127,10 @@ def empty : LocalContext := {}
 def isEmpty (lctx : LocalContext) : Bool :=
   lctx.fvarIdToDecl.isEmpty
 
-/- Low level API for creating local declarations. It is used to implement actions in the monads `Elab` and `Tactic`. It should not be used directly since the argument `(name : Name)` is assumed to be "unique". -/
+/-- Low level API for creating local declarations.
+It is used to implement actions in the monads `Elab` and `Tactic`.
+It should not be used directly since the argument `(fvarId : FVarId)` is
+assumed to be unique. You can create a unique fvarId with `mkFreshFVarId`. -/
 @[export lean_local_ctx_mk_local_decl]
 def mkLocalDecl (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo := BinderInfo.default) : LocalContext :=
   match lctx with
@@ -121,6 +139,7 @@ def mkLocalDecl (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type 
     let decl := LocalDecl.cdecl idx fvarId userName type bi
     { fvarIdToDecl := map.insert fvarId decl, decls := decls.push decl }
 
+/-- Low level API for let declarations. Do not use directly.-/
 @[export lean_local_ctx_mk_let_decl]
 def mkLetDecl (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) (nonDep := false) : LocalContext :=
   match lctx with
@@ -129,7 +148,8 @@ def mkLetDecl (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type : 
     let decl := LocalDecl.ldecl idx fvarId userName type value nonDep
     { fvarIdToDecl := map.insert fvarId decl, decls := decls.push decl }
 
-/- Low level API -/
+/-- Low level API for adding a local declaration.
+Do not use directly. -/
 def addDecl (lctx : LocalContext) (newDecl : LocalDecl) : LocalContext :=
   match lctx with
   | { fvarIdToDecl := map, decls := decls } =>
@@ -149,12 +169,16 @@ def get! (lctx : LocalContext) (fvarId : FVarId) : LocalDecl :=
   | some d => d
   | none   => panic! "unknown free variable"
 
+/-- Gets the declaration for expression `e` in the local context.
+If `e` is not a free variable or not present then panics. -/
 def getFVar! (lctx : LocalContext) (e : Expr) : LocalDecl :=
   lctx.get! e.fvarId!
 
 def contains (lctx : LocalContext) (fvarId : FVarId) : Bool :=
   lctx.fvarIdToDecl.contains fvarId
 
+/-- Returns true when the lctx contains the free variable `e`.
+Panics if `e` is not an fvar. -/
 def containsFVar (lctx : LocalContext) (e : Expr) : Bool :=
   lctx.contains e.fvarId!
 
@@ -163,6 +187,7 @@ def getFVarIds (lctx : LocalContext) : Array FVarId :=
     | some decl => r.push decl.fvarId
     | none      => r
 
+/-- Return all of the free variables in the given context. -/
 def getFVars (lctx : LocalContext) : Array Expr :=
   lctx.getFVarIds.map mkFVar
 
@@ -339,9 +364,13 @@ def isSubPrefixOf (lctx₁ lctx₂ : LocalContext) (exceptFVars : Array Expr := 
         b.lowerLooseBVars 1 1
     | none => panic! "unknown free variable"
 
+/-- Creates the expression `fun x₁ .. xₙ => b` for free variables `xs = #[x₁, .., xₙ]`,
+suitably abstracting `b` and the types for each of the `xᵢ`. -/
 def mkLambda (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=
   mkBinding true lctx xs b
 
+/-- Creates the expression `(x₁:α₁) → .. → (xₙ:αₙ) → b` for free variables `xs = #[x₁, .., xₙ]`,
+suitably abstracting `b` and the types for each of the `xᵢ`, `αᵢ`. -/
 def mkForall (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=
   mkBinding false lctx xs b
 
@@ -379,6 +408,7 @@ def sanitizeNames (lctx : LocalContext) : StateM NameSanitizerState LocalContext
 
 end LocalContext
 
+/-- Class used to denote that `m` has a local context. -/
 class MonadLCtx (m : Type → Type) where
   getLCtx : m LocalContext
 

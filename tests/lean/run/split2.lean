@@ -7,7 +7,7 @@ def f (x y z : Nat) : Nat :=
 
 example (x y z : Nat) : x ≠ 5 → y ≠ 5 → z ≠ 5 → f x y z = 1 := by
   intros
-  simp [f]
+  simp (config := { iota := false }) [f]
   split
   · contradiction
   · contradiction

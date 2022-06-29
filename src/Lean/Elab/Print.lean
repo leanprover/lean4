@@ -14,7 +14,7 @@ private def throwUnknownId (id : Name) : CommandElabM Unit :=
 private def levelParamsToMessageData (levelParams : List Name) : MessageData :=
   match levelParams with
   | []    => ""
-  | u::us => Id.run <| do
+  | u::us => Id.run do
     let mut m := m!".\{{u}"
     for u in us do
       m := m ++ ", " ++ toMessageData u
@@ -50,10 +50,10 @@ private def printDefLike (kind : String) (id : Name) (levelParams : List Name) (
 private def printAxiomLike (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (isUnsafe := false) : CommandElabM Unit := do
   logInfo (← mkHeader' kind id levelParams type isUnsafe)
 
-private def printQuot (kind : QuotKind) (id : Name) (levelParams : List Name) (type : Expr) : CommandElabM Unit := do
+private def printQuot (id : Name) (levelParams : List Name) (type : Expr) : CommandElabM Unit := do
   printAxiomLike "Quotient primitive" id levelParams type
 
-private def printInduct (id : Name) (levelParams : List Name) (numParams : Nat) (numIndices : Nat) (type : Expr)
+private def printInduct (id : Name) (levelParams : List Name) (numParams : Nat) (type : Expr)
     (ctors : List Name) (isUnsafe : Bool) : CommandElabM Unit := do
   let mut m ← mkHeader' "inductive" id levelParams type isUnsafe
   m := m ++ Format.line ++ "number of parameters: " ++ toString numParams
@@ -68,12 +68,12 @@ private def printIdCore (id : Name) : CommandElabM Unit := do
   | ConstantInfo.axiomInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "axiom" id us t u
   | ConstantInfo.defnInfo  { levelParams := us, type := t, value := v, safety := s, .. } => printDefLike "def" id us t v s
   | ConstantInfo.thmInfo  { levelParams := us, type := t, value := v, .. } => printDefLike "theorem" id us t v
-  | ConstantInfo.opaqueInfo  { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "constant" id us t u
-  | ConstantInfo.quotInfo  { kind := kind, levelParams := us, type := t, .. } => printQuot kind id us t
+  | ConstantInfo.opaqueInfo  { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "opaque" id us t u
+  | ConstantInfo.quotInfo  { levelParams := us, type := t, .. } => printQuot id us t
   | ConstantInfo.ctorInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "constructor" id us t u
   | ConstantInfo.recInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "recursor" id us t u
-  | ConstantInfo.inductInfo { levelParams := us, numParams := numParams, numIndices := numIndices, type := t, ctors := ctors, isUnsafe := u, .. } =>
-    printInduct id us numParams numIndices t ctors u
+  | ConstantInfo.inductInfo { levelParams := us, numParams, type := t, ctors, isUnsafe := u, .. } =>
+    printInduct id us numParams t ctors u
   | none => throwUnknownId id
 
 private def printId (id : Syntax) : CommandElabM Unit := do
@@ -83,7 +83,7 @@ private def printId (id : Syntax) : CommandElabM Unit := do
 
 @[builtinCommandElab «print»] def elabPrint : CommandElab
   | `(#print%$tk $id:ident) => withRef tk <| printId id
-  | `(#print%$tk $s:strLit) => logInfoAt tk s.isStrLit?.get!
+  | `(#print%$tk $s:str) => logInfoAt tk s.getString
   | _                       => throwError "invalid #print command"
 
 namespace CollectAxioms

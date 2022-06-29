@@ -7,4 +7,7 @@ h_size : size ≤ cap
 h_full : ∀ (i : Nat), i < size → Option.isSome (backing { val := i, isLt := (_ : i < cap) }) = true
 i : Nat
 h : i < size
-⊢ Option.isSome (if h : i < cap then backing { val := i, isLt := h } else none) = true
+⊢ Option.isSome
+      (if h_1 : i < cap then backing { val := i, isLt := (_ : { val := i, isLt := (_ : i < cap + cap) }.val < cap) }
+      else none) =
+    true

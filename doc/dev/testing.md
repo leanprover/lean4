@@ -1,8 +1,6 @@
-# Unit Testing
+# Test Suite
 
-You can run the unit tests after completing a build using the following:
-
-After [building lean](../make/index.md) you can run all the tests using
+After [building Lean](../make/index.md) you can run all the tests using
 ```
 cd build/release
 make test ARGS=-j4
@@ -29,10 +27,11 @@ ctest -j 4 --output-on-failure --timeout 300
 
 To get verbose output from ctest pass the `--verbose` command line
 option. Test output is normally suppressed and only summary
-information is displayed. This option will show all test output
+information is displayed. This option will show all test output.
 
-Here is the summary of the test source code organization.
-All these tests are included by [/src/shell/CMakeLists.txt](https://github.com/leanprover/lean4/blob/master/src/shell/CMakeLists.txt):
+## Test Suite Organization
+
+All these tests are included by [src/shell/CMakeLists.txt](https://github.com/leanprover/lean4/blob/master/src/shell/CMakeLists.txt):
 
 - `tests/lean`: contains tests that come equipped with a
   .lean.expected.out file. The driver script `test_single.sh` runs
@@ -87,3 +86,36 @@ All these tests are included by [/src/shell/CMakeLists.txt](https://github.com/l
 
 - `tests/plugin`: tests that compiled Lean code can be loaded into
   `lean` via the `--plugin` command line option.
+
+## Fixing Tests
+
+When the Lean source code or the standard library are modified, some of the
+tests break because the produced output is slightly different, and we have
+to reflect the changes in the `.lean.expected.out` files.
+We should not blindly copy the new produced output since we may accidentally
+miss a bug introduced by recent changes.
+The test suite contains commands that allow us to see what changed in a convenient way.
+First, we must install [meld](http://meldmerge.org/). On Ubuntu, we can do it by simply executing
+
+```
+sudo apt-get install meld
+```
+
+Now, suppose `bad_class.lean` test is broken. We can see the problem by going to `test/lean` directory and
+executing
+
+```
+./test_single.sh -i bad_class.lean
+```
+
+When the `-i` option is provided, `meld` is automatically invoked
+whenever there is discrepancy between the produced and expected
+outputs. `meld` can also be used to repair the problems.
+
+In Emacs, we can also execute `M-x lean4-diff-test-file` to check/diff the file of the current buffer.
+To mass-copy all `.produced.out` files to the respective `.expected.out` file, use `tests/lean/copy-produced`.
+When using the Nix setup, add `--keep-failed` to the `nix build` call and then call
+```sh
+tests/lean/copy-produced <build-dir>/source/tests/lean
+```
+instead where `<build-dir>` is the path printed out by `nix build`.

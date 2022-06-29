@@ -1,11 +1,11 @@
-{ pkgs, nix, temci, mdBook, ... } @ args:
+{ pkgs, nix, ... } @ args:
 with pkgs;
 let
   nix-pinned = writeShellScriptBin "nix" ''
     ${nix.defaultPackage.${system}}/bin/nix --experimental-features 'nix-command flakes' --extra-substituters https://lean4.cachix.org/ --option warn-dirty false "$@"
   '';
   # https://github.com/NixOS/nixpkgs/issues/130963
-  llvmPackages = if stdenv.isDarwin then llvmPackages_11 else llvmPackages_13;
+  llvmPackages = if stdenv.isDarwin then llvmPackages_11 else llvmPackages_14;
   cc = (ccacheWrapper.override rec {
     cc = llvmPackages.clang;
     extraConfig = ''
@@ -66,55 +66,19 @@ let
   lean-vscode = vscode-with-extensions.override {
     vscodeExtensions = [ vscode-lean4 ];
   };
-  lean-mdbook = mdbook.overrideAttrs (drv: rec {
-    name = "lean-${mdbook.name}";
-    src = mdBook;
-    cargoDeps = drv.cargoDeps.overrideAttrs (_: {
-      inherit src;
-      outputHash = "sha256-fowNVGhul0jniLmEAt5O/ZrvabuEe02uOAM4S/CB9ss=";
-    });
-    doCheck = false;
-  });
-  doc-src = lib.sourceByRegex ../. ["doc.*" "tests(/lean(/beginEndAsMacro.lean)?)?"];
-  doc = stdenv.mkDerivation {
-    name ="lean-doc";
-    src = doc-src;
-    buildInputs = [ lean-mdbook ];
-    buildCommand = ''
-      mdbook build -d $out $src/doc
-    '';
-  };
-  # We use a separate derivation instead of `checkPhase` so we can push it but not `doc` to the binary cache
-  doc-test = stdenv.mkDerivation {
-    name ="lean-doc-test";
-    src = doc-src;
-    buildInputs = [ lean-mdbook lean.stage1.Lean.lean-package strace ];
-    patchPhase = ''
-      cd doc
-      patchShebangs test
-    '';
-    buildPhase = ''
-      mdbook test
-      touch $out
-    '';
-    dontInstall = true;
-  };
 in {
   inherit cc lean4-mode buildLeanPackage llvmPackages vscode-lean4;
   lean = lean.stage1;
   stage0print-paths = lean.stage1.Lean.print-paths;
   HEAD-as-stage0 = (lean.stage1.Lean.overrideArgs { srcTarget = "..#stage0-from-input.stage0"; srcArgs = "(--override-input lean-stage0 ..\?rev=$(git rev-parse HEAD) -- -Dinterpreter.prefer_native=false \"$@\")"; });
   HEAD-as-stage1 = (lean.stage1.Lean.overrideArgs { srcTarget = "..\?rev=$(git rev-parse HEAD)#stage0"; });
-  temci = (import temci {}).override { doCheck = false; };
   nix = nix-pinned;
   nixpkgs = pkgs;
   ciShell = writeShellScriptBin "ciShell" ''
     set -o pipefail
-    export PATH=${nix-pinned}/bin:${moreutils}/bin:$PATH
+    export PATH=${moreutils}/bin:$PATH
     # prefix lines with cumulative and individual execution time
     "$@" |& ts -i "(%.S)]" | ts -s "[%M:%S"
   '';
-  mdbook = lean-mdbook;
   vscode = lean-vscode;
-  inherit doc doc-test;
 } // lean.stage1.Lean // lean.stage1 // lean

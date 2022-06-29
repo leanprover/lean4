@@ -1,5 +1,3 @@
-
-
 inductive type
 | bv  : Nat → type
 | bit : type
@@ -9,7 +7,7 @@ open type
 -- This is a "parameterized List" where `plist f types` contains
 -- an element of Type `f tp` for each corresponding element `tp ∈ types`.
 inductive plist (f : type → Type) : List type → Type
-| nil {} : plist f []
+| nil  : plist f []
 | cons {h:type} {r:List type} : f h → plist f r → plist f (h::r)
 
 -- Operations on values; the first argument contains the types of

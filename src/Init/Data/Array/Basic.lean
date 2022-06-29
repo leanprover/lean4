@@ -342,17 +342,17 @@ termination_by loop i j => stop - j
 
 @[inline]
 def allM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as : Array α) (start := 0) (stop := as.size) : m Bool :=
-  return !(← as.anyM fun v => return !(← p v))
+  return !(← as.anyM (start := start) (stop := stop) fun v => return !(← p v))
 
 @[inline]
 def findSomeRevM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (f : α → m (Option β)) : m (Option β) :=
   let rec @[specialize] find : (i : Nat) → i ≤ as.size → m (Option β)
-    | 0,   h => pure none
+    | 0,   _ => pure none
     | i+1, h => do
       have : i < as.size := Nat.lt_of_lt_of_le (Nat.lt_succ_self _) h
       let r ← f (as.get ⟨i, this⟩)
       match r with
-      | some v => pure r
+      | some _ => pure r
       | none   =>
         have : i ≤ as.size := Nat.le_of_lt this
         find i this
@@ -469,7 +469,7 @@ def toList (as : Array α) : List α :=
   as.foldr List.cons []
 
 instance {α : Type u} [Repr α] : Repr (Array α) where
-  reprPrec a n :=
+  reprPrec a _ :=
     let _ : Std.ToFormat α := ⟨repr⟩
     if a.size == 0 then
       "#[]"
@@ -557,7 +557,7 @@ def getMax? (as : Array α) (lt : α → α → Bool) : Option α :=
     none
 
 @[inline]
-def partition (p : α → Bool) (as : Array α) : Array α × Array α := Id.run <| do
+def partition (p : α → Bool) (as : Array α) : Array α × Array α := Id.run do
   let mut bs := #[]
   let mut cs := #[]
   for a in as do
@@ -606,7 +606,7 @@ theorem extLit {n : Nat}
     (a b : Array α)
     (hsz₁ : a.size = n) (hsz₂ : b.size = n)
     (h : (i : Nat) → (hi : i < n) → a.getLit i hsz₁ hi = b.getLit i hsz₂ hi) : a = b :=
-  Array.ext a b (hsz₁.trans hsz₂.symm) fun i hi₁ hi₂ => h i (hsz₁ ▸ hi₁)
+  Array.ext a b (hsz₁.trans hsz₂.symm) fun i hi₁ _ => h i (hsz₁ ▸ hi₁)
 
 end Array
 
@@ -628,8 +628,10 @@ def indexOf? [BEq α] (a : Array α) (v : α) : Option (Fin a.size) :=
   show ((a.set i (a.get j)).set (size_set a i _ ▸ j) (a.get i)).size = a.size
   rw [size_set, size_set]
 
-@[simp] theorem size_pop (a : Array α) : a.pop.size = a.size - 1 :=
-  List.length_dropLast ..
+@[simp] theorem size_pop (a : Array α) : a.pop.size = a.size - 1 := by
+  match a with
+  | ⟨[]⟩ => rfl
+  | ⟨a::as⟩ => simp [pop, Nat.succ_sub_succ_eq_sub]
 
 def popWhile (p : α → Bool) (as : Array α) : Array α :=
   if h : as.size > 0 then
@@ -704,7 +706,7 @@ def insertAt (as : Array α) (i : Nat) (a : α) : Array α :=
     as.insertAtAux i as.size
 
 def toListLitAux (a : Array α) (n : Nat) (hsz : a.size = n) : ∀ (i : Nat), i ≤ a.size → List α → List α
-  | 0,     hi, acc => acc
+  | 0,     _,  acc => acc
   | (i+1), hi, acc => toListLitAux a n hsz i (Nat.le_of_succ_le hi) (a.getLit i hsz (Nat.lt_of_lt_of_eq (Nat.lt_of_lt_of_le (Nat.lt_succ_self i) hi) hsz) :: acc)
 
 def toArrayLit (a : Array α) (n : Nat) (hsz : a.size = n) : Array α :=
@@ -763,7 +765,8 @@ def isPrefixOfAux [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) (i : N
     true
 termination_by _ => as.size - i
 
-/- Return true iff `as` is a prefix of `bs` -/
+/-- Return true iff `as` is a prefix of `bs`.
+That is, `bs = as ++ t` for some `t : List α`.-/
 def isPrefixOf [BEq α] (as bs : Array α) : Bool :=
   if h : as.size ≤ bs.size then
     isPrefixOfAux as bs h 0
@@ -771,7 +774,7 @@ def isPrefixOf [BEq α] (as bs : Array α) : Bool :=
     false
 
 private def allDiffAuxAux [BEq α] (as : Array α) (a : α) : forall (i : Nat), i < as.size → Bool
-  | 0,   h => true
+  | 0,   _ => true
   | i+1, h =>
     have : i < as.size := Nat.lt_trans (Nat.lt_succ_self _) h;
     a != as.get ⟨i, this⟩ && allDiffAuxAux as a i this

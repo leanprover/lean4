@@ -113,6 +113,9 @@ structure TextDocumentPositionParams where
   position : Position
   deriving ToJson, FromJson
 
+instance : ToString TextDocumentPositionParams where
+  toString p := s!"{p.textDocument.uri}:{p.position.line}:{p.position.character}"
+
 structure DocumentFilter where
   language? : Option String := none
   scheme? : Option String := none

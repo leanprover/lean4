@@ -258,8 +258,9 @@ section ServerM
           return WorkerEvent.terminated
         else
           -- Worker crashed
-          fw.errorPendingRequests o ErrorCode.internalError
-            s!"Server process for {fw.doc.meta.uri} crashed, {if exitCode = 1 then "see stderr for exception" else "likely due to a stack overflow in user code"}."
+          fw.errorPendingRequests o (if exitCode = 1 then ErrorCode.workerExited else ErrorCode.workerCrashed)
+            s!"Server process for {fw.doc.meta.uri} crashed, {if exitCode = 1 then "see stderr for exception" else "likely due to a stack overflow or a bug"}."
+          publishProgressAtPos fw.doc.meta 0 o (kind := LeanFileProgressKind.fatalError)
           return WorkerEvent.crashed err
       loop
     let task ← IO.asTask (loop $ ←read) Task.Priority.dedicated
@@ -389,14 +390,16 @@ def handleReference (p : ReferenceParams) : ServerM (Array Location) := do
     if let some module ← searchModuleNameOfFileName path srcSearchPath then
       let references ← (← read).references.get
       for ident in references.findAt module p.position do
-        let identRefs ← references.referringTo ident srcSearchPath p.context.includeDeclaration
+        let identRefs ← references.referringTo module ident srcSearchPath p.context.includeDeclaration
         result := result.append identRefs
   return result
 
 def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ServerM (Array SymbolInformation) := do
+  if p.query.isEmpty then
+    return #[]
   let references ← (← read).references.get
   let srcSearchPath := (← read).srcSearchPath
-  let symbols ← references.definitionsMatching srcSearchPath (maxAmount? := some 100)
+  let symbols ← references.definitionsMatching srcSearchPath (maxAmount? := none)
     fun name =>
       let name := privateToUserName? name |>.getD name
       if let some score := fuzzyMatchScoreWithThreshold? p.query name.toString then
@@ -405,7 +408,8 @@ def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ServerM (Array SymbolInf
         none
   return symbols
     |>.qsort (fun ((_, s1), _) ((_, s2), _) => s1 > s2)
-    |>.map fun ((name, score), location) =>
+    |>.extract 0 100 -- max amount
+    |>.map fun ((name, _), location) =>
       { name, kind := SymbolKind.constant, location }
 
 end RequestHandling
@@ -636,7 +640,7 @@ section MainLoop
       | Message.notification method (some params) =>
         handleNotification method (toJson params)
         mainLoop (←runClientTask)
-      | Message.response "register_ilean_watcher" result =>
+      | Message.response "register_ilean_watcher" _      =>
         mainLoop (←runClientTask)
       | _ => throwServerError "Got invalid JSON-RPC message"
     | ServerEvent.clientError e => throw e
@@ -647,7 +651,7 @@ section MainLoop
         mainLoop clientTask
       | WorkerEvent.ioError e =>
         throwServerError s!"IO error while processing events for {fw.doc.meta.uri}: {e}"
-      | WorkerEvent.crashed e =>
+      | WorkerEvent.crashed _ =>
         handleCrash fw.doc.meta.uri #[]
         mainLoop clientTask
       | WorkerEvent.terminated =>

@@ -12,8 +12,9 @@ namespace Lean.Meta
 namespace Simp
 
 structure Result where
-  expr   : Expr
-  proof? : Option Expr := none -- If none, proof is assumed to be `refl`
+  expr           : Expr
+  proof?         : Option Expr := none -- If none, proof is assumed to be `refl`
+  dischargeDepth : Nat := 0
   deriving Inhabited
 
 abbrev Cache := ExprMap Result
@@ -22,14 +23,17 @@ abbrev CongrCache := ExprMap (Option CongrTheorem)
 
 structure Context where
   config         : Config      := {}
-  simpTheorems   : SimpTheorems  := {}
+  simpTheorems   : SimpTheoremsArray  := {}
   congrTheorems  : SimpCongrTheorems := {}
   parent?        : Option Expr := none
   dischargeDepth : Nat      := 0
   deriving Inhabited
 
+def Context.isDeclToUnfold (ctx : Context) (declName : Name) : Bool :=
+  ctx.simpTheorems.isDeclToUnfold declName
+
 def Context.mkDefault : MetaM Context :=
-  return { config := {}, simpTheorems := (← getSimpTheorems), congrTheorems := (← getSimpCongrTheorems) }
+  return { config := {}, simpTheorems := #[(← getSimpTheorems)], congrTheorems := (← getSimpCongrTheorems) }
 
 structure State where
   cache      : Cache := {}
@@ -58,7 +62,7 @@ def Step.updateResult : Step → Result → Step
 structure Methods where
   pre        : Expr → SimpM Step          := fun e => return Step.visit { expr := e }
   post       : Expr → SimpM Step          := fun e => return Step.done { expr := e }
-  discharge? : Expr → SimpM (Option Expr) := fun e => return none
+  discharge? : Expr → SimpM (Option Expr) := fun _ => return none
   deriving Inhabited
 
 /- Internal monad -/
@@ -79,13 +83,13 @@ def getConfig : M Config :=
 @[inline] def withParent (parent : Expr) (f : M α) : M α :=
   withTheReader Context (fun ctx => { ctx with parent? := parent }) f
 
-def getSimpTheorems : M SimpTheorems :=
+def getSimpTheorems : M SimpTheoremsArray :=
   return (← readThe Context).simpTheorems
 
 def getSimpCongrTheorems : M SimpCongrTheorems :=
   return (← readThe Context).congrTheorems
 
-@[inline] def withSimpTheorems (s : SimpTheorems) (x : M α) : M α := do
+@[inline] def withSimpTheorems (s : SimpTheoremsArray) (x : M α) : M α := do
   let cacheSaved := (← get).cache
   modify fun s => { s with cache := {} }
   try

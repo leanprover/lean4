@@ -50,7 +50,7 @@ unsafe def replaceUnsafeM (f? : Level → Option Level) (size : USize) (e : Expr
         | Expr.app f a _         => cache i e <| e.updateApp! (← visit f) (← visit a)
         | Expr.proj _ _ b _      => cache i e <| e.updateProj! (← visit b)
         | Expr.sort u _          => cache i e <| e.updateSort! (u.replace f?)
-        | Expr.const n us _      => cache i e <| e.updateConst! (us.map (Level.replace f?))
+        | Expr.const _ us _      => cache i e <| e.updateConst! (us.map (Level.replace f?))
         | e                      => pure e
   visit e
 
@@ -72,7 +72,7 @@ partial def replaceLevel (f? : Level → Option Level) : Expr → Expr
   | e@(Expr.app f a _)         => let f := replaceLevel f? f; let a := replaceLevel f? a; e.updateApp! f a
   | e@(Expr.proj _ _ b _)      => let b := replaceLevel f? b; e.updateProj! b
   | e@(Expr.sort u _)          => e.updateSort! (u.replace f?)
-  | e@(Expr.const n us _)      => e.updateConst! (us.map (Level.replace f?))
+  | e@(Expr.const _ us _)      => e.updateConst! (us.map (Level.replace f?))
   | e                          => e
 
 end Expr

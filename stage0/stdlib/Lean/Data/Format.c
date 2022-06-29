@@ -95,7 +95,7 @@ static lean_object* _init_l_Std_Format_getWidth___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("format");
+x_1 = lean_mk_string_from_bytes("format", 6);
 return x_1;
 }
 }
@@ -113,7 +113,7 @@ static lean_object* _init_l_Std_Format_getWidth___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("width");
+x_1 = lean_mk_string_from_bytes("width", 5);
 return x_1;
 }
 }
@@ -176,7 +176,7 @@ static lean_object* _init_l_Std_Format_getIndent___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("indent");
+x_1 = lean_mk_string_from_bytes("indent", 6);
 return x_1;
 }
 }
@@ -239,7 +239,7 @@ static lean_object* _init_l_Std_Format_getUnicode___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unicode");
+x_1 = lean_mk_string_from_bytes("unicode", 7);
 return x_1;
 }
 }
@@ -377,7 +377,7 @@ static lean_object* _init_l_Std_Format_initFn____x40_Lean_Data_Format___hyg_27__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -385,7 +385,7 @@ static lean_object* _init_l_Std_Format_initFn____x40_Lean_Data_Format___hyg_27__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("indentation");
+x_1 = lean_mk_string_from_bytes("indentation", 11);
 return x_1;
 }
 }
@@ -501,7 +501,7 @@ static lean_object* _init_l_Std_Format_initFn____x40_Lean_Data_Format___hyg_54__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unicode characters");
+x_1 = lean_mk_string_from_bytes("unicode characters", 18);
 return x_1;
 }
 }
@@ -650,7 +650,7 @@ static lean_object* _init_l_Lean_instToFormatDataValue___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("false");
+x_1 = lean_mk_string_from_bytes("false", 5);
 return x_1;
 }
 }
@@ -668,7 +668,7 @@ static lean_object* _init_l_Lean_instToFormatDataValue___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("true");
+x_1 = lean_mk_string_from_bytes("true", 4);
 return x_1;
 }
 }
@@ -686,7 +686,7 @@ static lean_object* _init_l_Lean_instToFormatDataValue___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("`");
+x_1 = lean_mk_string_from_bytes("`", 1);
 return x_1;
 }
 }
@@ -713,7 +713,7 @@ static lean_object* _init_l_Lean_instToFormatDataValue___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("-");
+x_1 = lean_mk_string_from_bytes("-", 1);
 return x_1;
 }
 }
@@ -834,7 +834,7 @@ static lean_object* _init_l_Lean_instToFormatProdNameDataValue___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" := ");
+x_1 = lean_mk_string_from_bytes(" := ", 4);
 return x_1;
 }
 }
@@ -1373,7 +1373,7 @@ static lean_object* _init_l_Lean_formatKVMap___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", ");
+x_1 = lean_mk_string_from_bytes(", ", 2);
 return x_1;
 }
 }
@@ -1391,7 +1391,7 @@ static lean_object* _init_l_Lean_formatKVMap___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -1427,7 +1427,7 @@ static lean_object* _init_l_Lean_formatKVMap___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }

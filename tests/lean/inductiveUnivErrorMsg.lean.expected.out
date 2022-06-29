@@ -1,0 +1,14 @@
+inductiveUnivErrorMsg.lean:2:0-2:20: error: failed to compute resulting universe level of inductive datatype, constructor 'Bar.foobar' has type
+  {Foo : Sort u_1} → Foo → Bar
+parameter has type
+  Foo : Sort u_1
+inductive type resulting type
+  Type ?u
+recall that Lean only infers the resulting universe level automatically when there is a unique solution for the universe level constraints, consider explicitly providing the inductive type resulting universe level
+inductiveUnivErrorMsg.lean:6:0-6:27: error: failed to compute resulting universe level of inductive datatype, constructor 'Bar2.foobar' has type
+  {Foo : Sort u_1} → Foo → Bar2
+parameter 'x' has type
+  Foo : Sort u_1
+inductive type resulting type
+  Type ?u
+recall that Lean only infers the resulting universe level automatically when there is a unique solution for the universe level constraints, consider explicitly providing the inductive type resulting universe level

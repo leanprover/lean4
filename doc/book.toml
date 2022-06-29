@@ -10,6 +10,12 @@ build-dir = "out"
 
 [output.html]
 git-repository-url = "https://github.com/leanprover/lean4"
+additional-css = ["alectryon.css", "pygments.css"]
+additional-js = ["alectryon.js"]
+
+[output.html.fold]
+enable = true
+level = 0
 
 [output.html.playground.boring-prefixes]
 lean = "# "

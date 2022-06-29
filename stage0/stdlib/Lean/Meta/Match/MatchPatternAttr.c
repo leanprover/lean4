@@ -42,7 +42,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("matchPattern");
+x_1 = lean_mk_string_from_bytes("matchPattern", 12);
 return x_1;
 }
 }
@@ -60,7 +60,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mark that a definition can be used in a pattern (remark: the dependent pattern matching compiler will unfold the definition)");
+x_1 = lean_mk_string_from_bytes("mark that a definition can be used in a pattern (remark: the dependent pattern matching compiler will unfold the definition)", 124);
 return x_1;
 }
 }

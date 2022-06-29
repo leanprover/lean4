@@ -19,7 +19,7 @@ structure EqnInfoCore where
   deriving Inhabited
 
 partial def expand : Expr → Expr
-  | Expr.letE _ t v b _ => expand (b.instantiate1 v)
+  | Expr.letE _ _ v b _ => expand (b.instantiate1 v)
   | Expr.mdata _ b _    => expand b
   | e => e
 
@@ -31,7 +31,7 @@ def expandRHS? (mvarId : MVarId) : MetaM (Option MVarId) := do
 
 def funext? (mvarId : MVarId) : MetaM (Option MVarId) := do
   let target ← getMVarType' mvarId
-  let some (_, lhs, rhs) := target.eq? | return none
+  let some (_, _, rhs) := target.eq? | return none
   unless rhs.isLambda do return none
   commitWhenSome? do
     let [mvarId] ← apply mvarId (← mkConstWithFreshMVarLevels ``funext) | return none
@@ -52,6 +52,15 @@ private def findMatchToSplit? (env : Environment) (e : Expr) (declNames : Array 
       return Expr.FindStep.visit
     else if let some info := isMatcherAppCore? env e then
       let args := e.getAppArgs
+      -- If none of the discriminants is a free variable, then it is not worth splitting the match
+      let mut hasFVarDiscr := false
+      for i in [info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
+        let discr := args[i]
+        if discr.isFVar then
+          hasFVarDiscr := true
+          break
+      unless hasFVarDiscr do
+        return Expr.FindStep.visit
       -- At least one alternative must contain a `declNames` application with loose bound variables.
       for i in [info.getFirstAltPos : info.getFirstAltPos + info.numAlts] do
         let alt := args[i]
@@ -89,6 +98,11 @@ private def lhsDependsOn (type : Expr) (fvarId : FVarId) : MetaM Bool :=
     else
       dependsOn type fvarId
 
+/-- Try to close goal using `rfl` with smart unfolding turned off. -/
+def tryURefl (mvarId : MVarId) : MetaM Bool :=
+  withOptions (smartUnfolding.set · false) do
+    try applyRefl mvarId; return true catch _ => return false
+
 /--
   Eliminate `namedPatterns` from equation, and trivial hypotheses.
 -/
@@ -124,8 +138,10 @@ where
     let go (e : Expr) (ω) : ST ω FVarIdSet := do
       let ref ← ST.mkRef {}
       e.forEach fun e => do
-        if e.isAppOfArity ``namedPattern 4 && e.appArg!.isFVar then
-          ST.Prim.Ref.modify ref (·.insert e.appArg!.fvarId!)
+        if let some e := Match.isNamedPattern? e then
+          let arg := e.appArg!.consumeMData
+          if arg.isFVar then
+            ST.Prim.Ref.modify ref (·.insert arg.fvarId!)
       ST.Prim.Ref.get ref
     runST (go e)
 
@@ -183,23 +199,44 @@ where
         (fvarIdSet, fvarIds) ← pushDecl fvarIdSet fvarIds (← getLocalDecl fvarId)
     return (fvarIdSet, fvarIds)
 
+/--
+  Quick filter for deciding whether to use `simpMatch?` at `mkEqnTypes`.
+  If the result is `false`, then it is not worth trying `simpMatch`.
+-/
+private def shouldUseSimpMatch (e : Expr) : MetaM Bool := do
+  let env ← getEnv
+  return Option.isSome <| e.find? fun e => Id.run do
+    if let some info := isMatcherAppCore? env e then
+      let args := e.getAppArgs
+      for discr in args[info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
+        if discr.isConstructorApp env then
+          return true
+    return false
+
 partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) : MetaM (Array Expr) := do
   let (_, eqnTypes) ← go mvarId |>.run { declNames } |>.run #[]
   return eqnTypes
 where
   go (mvarId : MVarId) : ReaderT Context (StateRefT (Array Expr) MetaM) Unit := do
-    trace[Elab.definition.structural.eqns] "mkEqnTypes step\n{MessageData.ofGoal mvarId}"
-    if let some mvarId ← expandRHS? mvarId then
-      go mvarId
---  The following `funext?` was producing an overapplied `lhs`. Possible refinement: only do it if we want to apply `splitMatch` on the body of the lambda
-/-    else if let some mvarId ← funext? mvarId then
-      go mvarId -/
-    else if let some mvarId ← simpMatch? mvarId then
-      go mvarId
-    else if let some mvarIds ← splitMatch? mvarId declNames then
-      mvarIds.forM go
-    else
+    trace[Elab.definition.eqns] "mkEqnTypes step\n{MessageData.ofGoal mvarId}"
+    if (← tryURefl mvarId) then
       saveEqn mvarId
+      return ()
+
+    if let some mvarId ← expandRHS? mvarId then
+      return (← go mvarId)
+--  The following `funext?` was producing an overapplied `lhs`. Possible refinement: only do it if we want to apply `splitMatch` on the body of the lambda
+/-    if let some mvarId ← funext? mvarId then
+        return (← go mvarId) -/
+
+    if (← shouldUseSimpMatch (← getMVarType' mvarId)) then
+      if let some mvarId ← simpMatch? mvarId then
+        return (← go mvarId)
+
+    if let some mvarIds ← splitMatch? mvarId declNames then
+      return (← mvarIds.forM go)
+
+    saveEqn mvarId
 
 /--
   Some of the hypotheses added by `mkEqnTypes` may not be used by the actual proof (i.e., `value` argument).
@@ -231,11 +268,6 @@ where
       else
         xsNew := xsNew.reverse
         return (lctx.mkForall xsNew type, lctx.mkLambda xsNew value)
-
-/-- Try to close goal using `rfl` with smart unfolding turned off. -/
-def tryURefl (mvarId : MVarId) : MetaM Bool :=
-  withOptions (smartUnfolding.set · false) do
-    try applyRefl mvarId; return true catch _ => return false
 
 /-- Delta reduce the equation left-hand-side -/
 def deltaLHS (mvarId : MVarId) : MetaM MVarId := withMVarContext mvarId do
@@ -294,7 +326,11 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
     eqs.anyM fun eq => commitWhen do
       try
         let subgoals ← apply mvarId (← mkConstWithFreshMVarLevels eq)
-        subgoals.allM assumptionCore
+        subgoals.allM fun subgoal => do
+          if (← isExprMVarAssigned subgoal) then
+            return true -- Subgoal was already solved. This can happen when there are dependencies between the subgoals
+          else
+            assumptionCore subgoal
       catch _ =>
         return false
   let rec go (mvarId : MVarId) : MetaM Unit := do
@@ -303,14 +339,18 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
     -- Remark: we removed funext? from `mkEqnTypes`
     -- else if let some mvarId ← funext? mvarId then
     --  go mvarId
-    else if let some mvarId ← simpMatch? mvarId then
-      go mvarId
-    else if let some mvarIds ← splitTarget? mvarId (splitIte := false) then
-      mvarIds.forM go
-    else if (← tryContradiction mvarId) then
+
+    if (← shouldUseSimpMatch (← getMVarType' mvarId)) then
+      if let some mvarId ← simpMatch? mvarId then
+        return (← go mvarId)
+
+    if let some mvarIds ← splitTarget? mvarId (splitIte := false) then
+      return (← mvarIds.forM go)
+
+    if (← tryContradiction mvarId) then
       return ()
-    else
-      throwError "failed to generate unfold theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
+
+    throwError "failed to generate unfold theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
   go mvarId
 
 /-- Generate the "unfold" lemma for `declName`. -/
@@ -345,5 +385,6 @@ def getUnfoldFor? (declName : Name) (getInfo? : Unit → Option EqnInfoCore) : M
 
 builtin_initialize
   registerTraceClass `Elab.definition.unfoldEqn
+  registerTraceClass `Elab.definition.eqns
 
 end Lean.Elab.Eqns

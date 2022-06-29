@@ -46,9 +46,9 @@ structure PPFns where
 
 builtin_initialize ppFnsRef : IO.Ref PPFns ←
   IO.mkRef {
-    ppExpr := fun ctx e      => return format (toString e),
-    ppTerm := fun ctx stx    => return stx.formatStx (some <| pp.raw.maxDepth.get ctx.opts)
-    ppGoal := fun ctx mvarId => return "goal"
+    ppExpr := fun _ e => return format (toString e)
+    ppTerm := fun ctx stx => return stx.formatStx (some <| pp.raw.maxDepth.get ctx.opts)
+    ppGoal := fun _ _ => return "goal"
   }
 
 builtin_initialize ppExt : EnvExtension PPFns ←

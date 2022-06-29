@@ -15,7 +15,7 @@ structure StructureFieldInfo where
   projFn     : Name
   subobject? : Option Name -- It is `some parentStructName` if it is a subobject, and `parentStructName` is the name of the parent structure
   binderInfo : BinderInfo
-  inferMod   : Bool        -- true if user used the `{}` when declaring the field
+  autoParam? : Option Expr := none
   deriving Inhabited, Repr
 
 def StructureFieldInfo.lt (i₁ i₂ : StructureFieldInfo) : Bool :=
@@ -29,6 +29,13 @@ structure StructureInfo where
 
 def StructureInfo.lt (i₁ i₂ : StructureInfo) : Bool :=
   Name.quickLt i₁.structName i₂.structName
+
+def StructureInfo.getProjFn? (info : StructureInfo) (i : Nat) : Option Name :=
+  if h : i < info.fieldNames.size then
+    let fieldName := info.fieldNames.get ⟨i, h⟩
+    info.fieldInfo.binSearch { fieldName := fieldName, projFn := default, subobject? := none, binderInfo := default } StructureFieldInfo.lt |>.map (·.projFn)
+  else
+    none
 
 /-- Auxiliary state for structures defined in the current module. -/
 private structure StructureState where
@@ -76,7 +83,7 @@ def getStructureFields (env : Environment) (structName : Name) : Array Name :=
 
 def getFieldInfo? (env : Environment) (structName : Name) (fieldName : Name) : Option StructureFieldInfo :=
   if let some info := getStructureInfo? env structName then
-    info.fieldInfo.binSearch { fieldName := fieldName, projFn := default, subobject? := none, binderInfo := default, inferMod := false } StructureFieldInfo.lt
+    info.fieldInfo.binSearch { fieldName := fieldName, projFn := default, subobject? := none, binderInfo := default } StructureFieldInfo.lt
   else
     none
 
@@ -119,6 +126,15 @@ private partial def getStructureFieldsFlattenedAux (env : Environment) (structNa
       getStructureFieldsFlattenedAux env parentStructName fullNames includeSubobjectFields
     | none                  => fullNames.push fieldName
 
+/-- Return field names for the given structure, including "flattened" fields from parent
+structures. To omit `toParent` projections, set `includeSubobjectFields := false`.
+
+For example, given `Bar` such that
+```lean
+structure Foo where a : Nat
+structure Bar extends Foo where b : Nat
+```
+return `#[toFoo,a,b]` or `#[a,b]` with subobject fields omitted. -/
 def getStructureFieldsFlattened (env : Environment) (structName : Name) (includeSubobjectFields := true) : Array Name :=
   getStructureFieldsFlattenedAux env structName #[] includeSubobjectFields
 
@@ -134,6 +150,12 @@ def isStructure (env : Environment) (constName : Name) : Bool :=
 def getProjFnForField? (env : Environment) (structName : Name) (fieldName : Name) : Option Name :=
   if let some fieldInfo := getFieldInfo? env structName fieldName then
     some fieldInfo.projFn
+  else
+    none
+
+def getProjFnInfoForField? (env : Environment) (structName : Name) (fieldName : Name) : Option (Name × ProjectionFunctionInfo) :=
+  if let some projFn := getProjFnForField? env structName fieldName then
+    (projFn, ·) <$> env.getProjectionFnInfo? projFn
   else
     none
 
@@ -171,7 +193,7 @@ def getPathToBaseStructure? (env : Environment) (baseStructName : Name) (structN
 /-- Return true iff `constName` is the a non-recursive inductive datatype that has only one constructor. -/
 def isStructureLike (env : Environment) (constName : Name) : Bool :=
   match env.find? constName with
-  | some (ConstantInfo.inductInfo { isRec := false, ctors := [ctor], numIndices := 0, .. }) => true
+  | some (ConstantInfo.inductInfo { isRec := false, ctors := [_], numIndices := 0, .. }) => true
   | _ => false
 
 /-- Return number of fields for a structure-like type -/

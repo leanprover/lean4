@@ -21,20 +21,28 @@ def hasElabWithoutExpectedType (env : Environment) (declName : Name) : Bool :=
   elabWithoutExpectedTypeAttr.hasTag env declName
 
 instance : ToString Arg := ⟨fun
-  | Arg.stx  val => toString val
-  | Arg.expr val => toString val⟩
+  | .stx  val => toString val
+  | .expr val => toString val⟩
 
 instance : ToString NamedArg where
   toString s := "(" ++ toString s.name ++ " := " ++ toString s.val ++ ")"
 
-def throwInvalidNamedArg {α} (namedArg : NamedArg) (fn? : Option Name) : TermElabM α :=
+def throwInvalidNamedArg (namedArg : NamedArg) (fn? : Option Name) : TermElabM α :=
   withRef namedArg.ref <| match fn? with
     | some fn => throwError "invalid argument name '{namedArg.name}' for function '{fn}'"
     | none    => throwError "invalid argument name '{namedArg.name}' for function"
 
 private def ensureArgType (f : Expr) (arg : Expr) (expectedType : Expr) : TermElabM Expr := do
   let argType ← inferType arg
-  ensureHasTypeAux expectedType argType arg f
+  try
+    ensureHasTypeAux expectedType argType arg f
+  catch
+    | ex@(Exception.error ..) =>
+      if (← read).errToSorry then
+        exceptionToSorry ex expectedType
+      else
+        throw ex
+    | ex => throw ex
 
 private def mkProjAndCheck (structName : Name) (idx : Nat) (e : Expr) : MetaM Expr := do
   let r := mkProj structName idx e
@@ -113,12 +121,12 @@ private def synthesizePendingAndNormalizeFunType : M Unit := do
   let s ← get
   let fType ← whnfForall s.fType
   if fType.isForall then
-    modify fun s => { s with fType := fType }
+    modify fun s => { s with fType }
   else
     match (← tryCoeFun? fType s.f) with
     | some f =>
       let fType ← inferType f
-      modify fun s => { s with f := f, fType := fType }
+      modify fun s => { s with f, fType }
     | none =>
       for namedArg in s.namedArgs do
         let f := s.f.getAppFn
@@ -132,8 +140,8 @@ private def synthesizePendingAndNormalizeFunType : M Unit := do
 private def normalizeFunType : M Expr := do
   let s ← get
   let fType ← whnfForall s.fType
-  modify fun s => { s with fType := fType }
-  pure fType
+  modify fun s => { s with fType }
+  return fType
 
 /- Return the binder name at `fType`. This method assumes `fType` is a function type. -/
 private def getBindingName : M Name := return (← get).fType.bindingName!
@@ -168,14 +176,14 @@ private def elabAndAddNewArg (argName : Name) (arg : Arg) : M Unit := do
   | Arg.expr val =>
     let arg ← ensureArgType s.f val expectedType
     addNewArg argName arg
-  | Arg.stx val  =>
-    let val ← elabTerm val expectedType
-    let arg ← ensureArgType s.f val expectedType
+  | Arg.stx stx  =>
+    let val ← elabTerm stx expectedType
+    let arg ← withRef stx <| ensureArgType s.f val expectedType
     addNewArg argName arg
 
 /- Return true if the given type contains `OptParam` or `AutoParams` -/
 private def hasOptAutoParams (type : Expr) : M Bool := do
-  forallTelescopeReducing type fun xs type =>
+  forallTelescopeReducing type fun xs _ =>
     xs.anyM fun x => do
       let xType ← inferType x
       return xType.getOptParamDefault?.isSome || xType.getAutoParamTactic?.isSome
@@ -206,8 +214,8 @@ private partial def getForallBody (explicit : Bool) : Nat → List NamedArg → 
 
 private def shouldPropagateExpectedTypeFor (nextArg : Arg) : Bool :=
   match nextArg with
-  | Arg.expr _  => false -- it has already been elaborated
-  | Arg.stx stx =>
+  | .expr _  => false -- it has already been elaborated
+  | .stx stx =>
     -- TODO: make this configurable?
     stx.getKind != ``Lean.Parser.Term.hole &&
     stx.getKind != ``Lean.Parser.Term.syntheticHole &&
@@ -322,7 +330,7 @@ private def finalize : M Expr := do
      -- Try to propagate expected type. Ignore if types are not definitionally equal, caller must handle it.
      discard <| isDefEq expectedType eType
   synthesizeAppInstMVars
-  pure e
+  return e
 
 /- Return true if there is a named argument that depends on the next argument. -/
 private def anyNamedArgDependsOnCurrent : M Bool := do
@@ -379,7 +387,7 @@ mutual
     match s.args with
     | arg::args =>
       propagateExpectedType arg
-      modify fun s => { s with args := args }
+      modify fun s => { s with args }
       elabAndAddNewArg argName arg
       main
     | _ =>
@@ -393,7 +401,7 @@ mutual
         | Except.error err       => throwError err
         | Except.ok tacticSyntax =>
           -- TODO(Leo): does this work correctly for tactic sequences?
-          let tacticBlock ← `(by $tacticSyntax)
+          let tacticBlock ← `(by $(⟨tacticSyntax⟩))
           let argNew := Arg.stx tacticBlock
           propagateExpectedType argNew
           elabAndAddNewArg argName argNew
@@ -458,7 +466,6 @@ mutual
 
   /- Elaborate function application arguments. -/
   partial def main : M Expr := do
-    let s ← get
     let fType ← normalizeFunType
     if fType.isForall then
       let binderName := fType.bindingName!
@@ -472,10 +479,10 @@ mutual
         main
       | none          =>
         match binfo with
-        | BinderInfo.implicit       => processImplicitArg binderName
-        | BinderInfo.instImplicit   => processInstImplicitArg binderName
-        | BinderInfo.strictImplicit => processStrictImplicitArg binderName
-        | _                         => processExplictArg binderName
+        | .implicit       => processImplicitArg binderName
+        | .instImplicit   => processInstImplicitArg binderName
+        | .strictImplicit => processStrictImplicitArg binderName
+        | _               => processExplictArg binderName
     else if (← hasArgsToProcess) then
       synthesizePendingAndNormalizeFunType
       main
@@ -499,13 +506,10 @@ def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
   unless namedArgs.isEmpty && args.isEmpty do
     tryPostponeIfMVar fType
   ElabAppArgs.main.run' {
-    args := args.toList,
-    expectedType? := expectedType?,
-    explicit := explicit,
-    ellipsis := ellipsis,
-    namedArgs := namedArgs.toList,
-    f := f,
-    fType := fType
+    args := args.toList
+    expectedType? := expectedType?
+    explicit, ellipsis, f, fType
+    namedArgs := namedArgs.toList
     propagateExpected := (← propagateExpectedTypeFor f)
   }
 
@@ -517,13 +521,14 @@ inductive LValResolution where
   | localRec (baseName : Name) (fullName : Name) (fvar : Expr)
   | getOp    (fullName : Name) (idx : Syntax)
 
-private def throwLValError {α} (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α :=
+private def throwLValError (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α :=
   throwError "{msg}{indentExpr e}\nhas type{indentExpr eType}"
 
 /-- `findMethod? env S fName`.
     1- If `env` contains `S ++ fName`, return `(S, S++fName)`
     2- Otherwise if `env` contains private name `prv` for `S ++ fName`, return `(S, prv)`, o
-    3- Otherwise for each parent structure `S'` of  `S`, we try `findMethod? env S' fname` -/
+    3- Otherwise for each parent structure `S'` of  `S`, we try `findMethod? env S' fname`
+-/
 private partial def findMethod? (env : Environment) (structName fieldName : Name) : Option (Name × Name) :=
   let fullName := structName ++ fieldName
   match env.find? fullName with
@@ -537,6 +542,24 @@ private partial def findMethod? (env : Environment) (structName fieldName : Name
         (getParentStructures env structName).findSome? fun parentStructName => findMethod? env parentStructName fieldName
       else
         none
+
+/--
+  Return `some (structName', fullName)` if `structName ++ fieldName` is an alias for `fullName`, and
+  `fullName` is of the form `structName' ++ fieldName`.
+
+  TODO: if there is more than one applicable alias, it returns `none`. We should consider throwing an error or
+  warning.
+-/
+private def findMethodAlias? (env : Environment) (structName fieldName : Name) : Option (Name × Name) :=
+  let fullName := structName ++ fieldName
+  -- We never skip `protected` aliases when resolving dot-notation.
+  let aliasesCandidates := getAliases env fullName (skipProtected := false) |>.filterMap fun alias =>
+    match alias.eraseSuffix? fieldName with
+    | none => none
+    | some structName' => some (structName', alias)
+  match aliasesCandidates with
+  | [r] => some r
+  | _   => none
 
 private def throwInvalidFieldNotation (e eType : Expr) : TermElabM α :=
   throwLValError e eType "invalid field notation, type is not of the form (C ...) where C is a constant"
@@ -570,9 +593,11 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
   | some structName, LVal.fieldName _ fieldName _ _ =>
     let env ← getEnv
     let searchEnv : Unit → TermElabM LValResolution := fun _ => do
-      match findMethod? env structName (Name.mkSimple fieldName) with
-      | some (baseStructName, fullName) => pure $ LValResolution.const baseStructName structName fullName
-      | none   =>
+      if let some (baseStructName, fullName) := findMethod? env structName fieldName then
+        return LValResolution.const baseStructName structName fullName
+      else if let some (structName', fullName) := findMethodAlias? env structName fieldName then
+        return LValResolution.const structName' structName' fullName
+      else
         throwLValError e eType
           m!"invalid field '{fieldName}', the environment does not contain '{Name.mkStr structName fieldName}'"
     -- search local context first, then environment
@@ -585,13 +610,13 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       | some localDecl =>
         if localDecl.binderInfo == BinderInfo.auxDecl then
           /- LVal notation is being used to make a "local" recursive call. -/
-          pure $ LValResolution.localRec structName fullName localDecl.toExpr
+          return LValResolution.localRec structName fullName localDecl.toExpr
         else
           searchEnv ()
       | none => searchEnv ()
     if isStructure env structName then
       match findField? env structName (Name.mkSimple fieldName) with
-      | some baseStructName => pure $ LValResolution.projFn baseStructName structName (Name.mkSimple fieldName)
+      | some baseStructName => return LValResolution.projFn baseStructName structName (Name.mkSimple fieldName)
       | none                => searchCtx ()
     else
       searchCtx ()
@@ -599,14 +624,14 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     let env ← getEnv
     let fullName := Name.mkStr structName "getOp"
     match env.find? fullName with
-    | some _ => pure $ LValResolution.getOp fullName idx
+    | some _ => return LValResolution.getOp fullName idx
     | none   => throwLValError e eType m!"invalid [..] notation because environment does not contain '{fullName}'"
   | none, LVal.fieldName _ _ (some suffix) _ =>
     if e.isConst then
       throwUnknownConstant (e.constName! ++ suffix)
     else
       throwInvalidFieldNotation e eType
-  | _, LVal.getOp _ idx => throwInvalidFieldNotation e eType
+  | _, LVal.getOp _ _   => throwInvalidFieldNotation e eType
   | _, _ => throwInvalidFieldNotation e eType
 
 /- whnfCore + implicit consumption.
@@ -614,7 +639,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
 private partial def consumeImplicits (stx : Syntax) (e eType : Expr) (hasArgs : Bool) : TermElabM (Expr × Expr) := do
   let eType ← whnfCore eType
   match eType with
-  | Expr.forallE n d b c =>
+  | .forallE _ d b c =>
     if c.binderInfo.isImplicit || (hasArgs && c.binderInfo.isStrictImplicit) then
       let mvar ← mkFreshExprMVar d
       registerMVarErrorHoleInfo mvar.mvarId! stx
@@ -627,15 +652,15 @@ private partial def consumeImplicits (stx : Syntax) (e eType : Expr) (hasArgs : 
     else match d.getOptParamDefault? with
       | some defVal => consumeImplicits stx (mkApp e defVal) (b.instantiate1 defVal) hasArgs
       -- TODO: we do not handle autoParams here.
-      | _ => pure (e, eType)
-  | _ => pure (e, eType)
+      | _ => return (e, eType)
+  | _ => return (e, eType)
 
 private partial def resolveLValLoop (lval : LVal) (e eType : Expr) (previousExceptions : Array Exception) (hasArgs : Bool) : TermElabM (Expr × LValResolution) := do
   let (e, eType) ← consumeImplicits lval.getRef e eType hasArgs
   tryPostponeIfMVar eType
   try
     let lvalRes ← resolveLValAux e eType lval
-    pure (e, lvalRes)
+    return (e, lvalRes)
   catch
     | ex@(Exception.error _ _) =>
       let eType? ← unfoldDefinition? eType
@@ -721,7 +746,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
     match lvalRes with
     | LValResolution.projIdx structName idx =>
       let f ← mkProjAndCheck structName idx f
-      addTermInfo lval.getRef f
+      let f ← addTermInfo lval.getRef f
       loop f lvals
     | LValResolution.projFn baseStructName structName fieldName =>
       let f ← mkBaseProjections baseStructName structName f
@@ -729,7 +754,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
         if isPrivateNameFromImportedModule (← getEnv) info.projFn then
           throwError "field '{fieldName}' from structure '{structName}' is private"
         let projFn ← mkConst info.projFn
-        addTermInfo lval.getRef projFn
+        let projFn ← addTermInfo lval.getRef projFn
         if lvals.isEmpty then
           let namedArgs ← addNamedArg namedArgs { name := `self, val := Arg.expr f }
           elabAppArgs projFn namedArgs args expectedType? explicit ellipsis
@@ -741,7 +766,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
     | LValResolution.const baseStructName structName constName =>
       let f ← if baseStructName != structName then mkBaseProjections baseStructName structName f else pure f
       let projFn ← mkConst constName
-      addTermInfo lval.getRef projFn
+      let projFn ← addTermInfo lval.getRef projFn
       if lvals.isEmpty then
         let projFnType ← inferType projFn
         let (args, namedArgs) ← addLValArg baseStructName constName f args namedArgs projFnType
@@ -750,7 +775,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
         let f ← elabAppArgs projFn #[] #[Arg.expr f] (expectedType? := none) (explicit := false) (ellipsis := false)
         loop f lvals
     | LValResolution.localRec baseName fullName fvar =>
-      addTermInfo lval.getRef fvar
+      let fvar ← addTermInfo lval.getRef fvar
       if lvals.isEmpty then
         let fvarType ← inferType fvar
         let (args, namedArgs) ← addLValArg baseName fullName f args namedArgs fvarType
@@ -760,7 +785,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
         loop f lvals
     | LValResolution.getOp fullName idx =>
       let getOpFn ← mkConst fullName
-      addTermInfo lval.getRef getOpFn
+      let getOpFn ← addTermInfo lval.getRef getOpFn
       if lvals.isEmpty then
         let namedArgs ← addNamedArg namedArgs { name := `self, val := Arg.expr f }
         let namedArgs ← addNamedArg namedArgs { name := `idx,  val := Arg.stx idx }
@@ -778,7 +803,7 @@ private def elabAppLVals (f : Expr) (lvals : List LVal) (namedArgs : Array Named
   elabAppLValsAux namedArgs args expectedType? explicit ellipsis f lvals
 
 def elabExplicitUnivs (lvls : Array Syntax) : TermElabM (List Level) := do
-  lvls.foldrM (fun stx lvls => do pure ((← elabLevel stx)::lvls)) []
+  lvls.foldrM (init := []) fun stx lvls => return (← elabLevel stx)::lvls
 
 /-
 Interaction between `errToSorry` and `observing`.
@@ -811,21 +836,48 @@ private partial def elabAppFnId (fIdent : Syntax) (fExplicitUnivs : List Level) 
     funLVals.foldlM (init := acc) fun acc (f, fIdent, fields) => do
       let lvals' := toLVals fields (first := true)
       let s ← observing do
-        addTermInfo fIdent f expectedType?
+        let f ← addTermInfo fIdent f expectedType?
         let e ← elabAppLVals f (lvals' ++ lvals) namedArgs args expectedType? explicit ellipsis
-        if overloaded then ensureHasType expectedType? e else pure e
+        if overloaded then ensureHasType expectedType? e else return e
       return acc.push s
 where
   toName (fields : List Syntax) : Name :=
     let rec go
-      | []              => Name.anonymous
-      | field :: fields => Name.mkStr (go fields) field.getId.toString
+      | []              => .anonymous
+      | field :: fields => .mkStr (go fields) field.getId.toString
     go fields.reverse
 
   toLVals : List Syntax → (first : Bool) → List LVal
     | [],            _     => []
-    | field::fields, true  => LVal.fieldName field field.getId.toString (toName (field::fields)) fIdent :: toLVals fields false
-    | field::fields, false => LVal.fieldName field field.getId.toString none fIdent :: toLVals fields false
+    | field::fields, true  => .fieldName field field.getId.toString (toName (field::fields)) fIdent :: toLVals fields false
+    | field::fields, false => .fieldName field field.getId.toString none fIdent :: toLVals fields false
+
+/-- Resolve `(.$id:ident)` using the expected type to infer namespace. -/
+private partial def resolveDotName (id : Syntax) (expectedType? : Option Expr) : TermElabM Name := do
+  tryPostponeIfNoneOrMVar expectedType?
+  let some expectedType := expectedType?
+    | throwError "invalid dotted identifier notation, expected type must be known"
+  forallTelescopeReducing expectedType fun _ resultType => do
+    go resultType expectedType #[]
+where
+  go (resultType : Expr) (expectedType : Expr) (previousExceptions : Array Exception) : TermElabM Name := do
+    let resultTypeFn := (← instantiateMVars resultType).consumeMDataAndTypeAnnotations.getAppFn
+    try
+      tryPostponeIfMVar resultTypeFn
+      let .const declName .. := resultTypeFn.consumeMDataAndTypeAnnotations
+        | throwError "invalid dotted identifier notation, expected type is not of the form (... → C ...) where C is a constant{indentExpr expectedType}"
+      let idNew := declName ++ id.getId.eraseMacroScopes
+      unless (← getEnv).contains idNew do
+        throwError "invalid dotted identifier notation, unknown identifier `{idNew}` from expected type{indentExpr expectedType}"
+      return idNew
+    catch
+      | ex@(.error _ _) =>
+        match (← unfoldDefinition? resultType) with
+        | some resultType => go (← whnfCore resultType) expectedType (previousExceptions.push ex)
+        | none       =>
+          previousExceptions.forM fun ex => logException ex
+          throw ex
+      | ex@(.internal _ _) => throw ex
 
 private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Array NamedArg) (args : Array Arg)
     (expectedType? : Option Expr) (explicit ellipsis overloaded : Bool) (acc : Array (TermElabResult Expr)) : TermElabM (Array (TermElabResult Expr)) := do
@@ -848,7 +900,7 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     | `($(e).$field:ident) => elabFieldName e field
     | `($e |>.$field:ident) => elabFieldName e field
     | `($e[%$bracket $idx]) => elabAppFn e (LVal.getOp bracket idx :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
-    | `($id:ident@$t:term) =>
+    | `($_:ident@$_:term) =>
       throwError "unexpected occurrence of named pattern"
     | `($id:ident) => do
       elabAppFnId id [] lvals namedArgs args expectedType? explicit ellipsis overloaded acc
@@ -857,27 +909,17 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
       elabAppFnId id us lvals namedArgs args expectedType? explicit ellipsis overloaded acc
     | `(@$id:ident) =>
       elabAppFn id lvals namedArgs args expectedType? (explicit := true) ellipsis overloaded acc
-    | `(@$id:ident.{$us,*}) =>
+    | `(@$_:ident.{$_us,*}) =>
       elabAppFn (f.getArg 1) lvals namedArgs args expectedType? (explicit := true) ellipsis overloaded acc
-    | `(@$t)     => throwUnsupportedSyntax -- invalid occurrence of `@`
+    | `(@$_)     => throwUnsupportedSyntax -- invalid occurrence of `@`
     | `(_)       => throwError "placeholders '_' cannot be used where a function is expected"
     | `(.$id:ident) =>
-       tryPostponeIfNoneOrMVar expectedType?
-       match expectedType? with
-       | none => throwError "invalid dotted identifier notation, expected type must be known"
-       | some expectedType =>
-         if let .const declName .. := (← instantiateMVars expectedType).getAppFn then
-           let idNew := declName ++ id.getId.eraseMacroScopes
-           unless (← getEnv).contains idNew do
-             throwError "invalid dotted identifier notation, unknown identifier `{idNew}` from expected type{indentExpr expectedType}"
-           let fConst ← mkConst idNew
-           addTermInfo f fConst
-           let s ← observing do
-             let e ← elabAppLVals fConst lvals namedArgs args expectedType? explicit ellipsis
-             if overloaded then ensureHasType expectedType? e else pure e
-           return acc.push s
-         else
-           throwError "invalid dotted identifier notation, expected type is not of the form (C ...) where C is a constant{indentExpr expectedType}"
+        let fConst ← mkConst (← resolveDotName id expectedType?)
+        let fConst ← addTermInfo f fConst
+        let s ← observing do
+          let e ← elabAppLVals fConst lvals namedArgs args expectedType? explicit ellipsis
+          if overloaded then ensureHasType expectedType? e else return e
+        return acc.push s
     | _ => do
       let catchPostpone := !overloaded
       /- If we are processing a choice node, then we should use `catchPostpone == false` when elaborating terms.
@@ -895,14 +937,14 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
         let s ← observing do
           let f ← elabTerm f none catchPostpone
           let e ← elabAppLVals f lvals namedArgs args expectedType? explicit ellipsis
-          if overloaded then ensureHasType expectedType? e else pure e
+          if overloaded then ensureHasType expectedType? e else return e
         return acc.push s
 
 private def getSuccesses (candidates : Array (TermElabResult Expr)) : TermElabM (Array (TermElabResult Expr)) := do
   let r₁ := candidates.filter fun | EStateM.Result.ok .. => true | _ => false
   if r₁.size ≤ 1 then return r₁
   let r₂ ← candidates.filterM fun
-    | EStateM.Result.ok e s => do
+    | .ok e s => do
       if e.isMVar then
         /- Make sure `e` is not a delayed coercion.
            Recall that coercion insertion may be delayed when the type and expected type contains
@@ -924,26 +966,9 @@ private def getSuccesses (candidates : Array (TermElabResult Expr)) : TermElabM 
     | _ => return false
   if r₂.size == 0 then return r₁ else return r₂
 
-private def toMessageData (ex : Exception) : TermElabM MessageData := do
-  let pos ← getRefPos
-  match ex.getRef.getPos? with
-  | none       => return ex.toMessageData
-  | some exPos =>
-    if pos == exPos then
-      return ex.toMessageData
-    else
-      let exPosition := (← getFileMap).toPosition exPos
-      return m!"{exPosition.line}:{exPosition.column} {ex.toMessageData}"
-
-private def toMessageList (msgs : Array MessageData) : MessageData :=
-  indentD (MessageData.joinSep msgs.toList m!"\n\n")
-
-private def mergeFailures {α} (failures : Array (TermElabResult Expr)) : TermElabM α := do
-  let msgs ← failures.mapM fun failure =>
-    match failure with
-    | EStateM.Result.ok _ _     => unreachable!
-    | EStateM.Result.error ex _ => toMessageData ex
-  throwError "overloaded, errors {toMessageList msgs}"
+private def mergeFailures (failures : Array (TermElabResult Expr)) : TermElabM α := do
+  let exs := failures.map fun | .error ex _ => ex | _ => unreachable!
+  throwErrorWithNestedErrors "overloaded" exs
 
 private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) (ellipsis : Bool) (expectedType? : Option Expr) : TermElabM Expr := do
   let candidates ← elabAppFn f [] namedArgs args expectedType? (explicit := false) (ellipsis := ellipsis) (overloaded := false) #[]
@@ -963,15 +988,16 @@ private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array A
       withRef f <| mergeFailures candidates
 
 private def annotateIfRec (stx : Syntax) (e : Expr) : TermElabM Expr := do
-  let resultFn := e.getAppFn
-  if resultFn.isFVar then
-    let localDecl ← getLocalDecl resultFn.fvarId!
-    if localDecl.isAuxDecl then
-      return mkRecAppWithSyntax e stx
+  if (← read).saveRecAppSyntax then
+    let resultFn := e.getAppFn
+    if resultFn.isFVar then
+      let localDecl ← getLocalDecl resultFn.fvarId!
+      if localDecl.isAuxDecl then
+        return mkRecAppWithSyntax e stx
   return e
 
 @[builtinTermElab app] def elabApp : TermElab := fun stx expectedType? =>
-  withoutPostponingUniverseConstraints do
+  universeConstraintsCheckpoint do
     let (f, namedArgs, args, ellipsis) ← expandApp stx
     annotateIfRec stx (← elabAppAux f namedArgs args (ellipsis := ellipsis) expectedType?)
 
@@ -987,7 +1013,7 @@ private def elabAtom : TermElab := fun stx expectedType? => do
 /-- `e |>.x` is a shorthand for `(e).x`. It is especially useful for avoiding parentheses with repeated applications. -/
 @[builtinTermElab pipeProj] def elabPipeProj : TermElab
   | `($e |>.$f $args*), expectedType? =>
-    withoutPostponingUniverseConstraints do
+    universeConstraintsCheckpoint do
       let (namedArgs, args, ellipsis) ← expandArgs args
       elabAppAux (← `($e |>.$f)) namedArgs args (ellipsis := ellipsis) expectedType?
   | _, _ => throwUnsupportedSyntax
@@ -997,11 +1023,11 @@ private def elabAtom : TermElab := fun stx expectedType? => do
 `@e` for any term `e` also disables the insertion of implicit lambdas at this position. -/
 @[builtinTermElab explicit] def elabExplicit : TermElab := fun stx expectedType? =>
   match stx with
-  | `(@$id:ident)         => elabAtom stx expectedType?  -- Recall that `elabApp` also has support for `@`
-  | `(@$id:ident.{$us,*}) => elabAtom stx expectedType?
-  | `(@($t))              => elabTerm t expectedType? (implicitLambda := false)    -- `@` is being used just to disable implicit lambdas
-  | `(@$t)                => elabTerm t expectedType? (implicitLambda := false)   -- `@` is being used just to disable implicit lambdas
-  | _                     => throwUnsupportedSyntax
+  | `(@$_:ident)         => elabAtom stx expectedType?  -- Recall that `elabApp` also has support for `@`
+  | `(@$_:ident.{$_us,*}) => elabAtom stx expectedType?
+  | `(@($t))             => elabTerm t expectedType? (implicitLambda := false)    -- `@` is being used just to disable implicit lambdas
+  | `(@$t)               => elabTerm t expectedType? (implicitLambda := false)   -- `@` is being used just to disable implicit lambdas
+  | _                    => throwUnsupportedSyntax
 
 @[builtinTermElab choice] def elabChoice : TermElab := elabAtom
 @[builtinTermElab proj] def elabProj : TermElab := elabAtom

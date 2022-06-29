@@ -80,7 +80,7 @@ private def mkSimpleEqThm (declName : Name) : MetaM (Option Name) := do
   By default, we not create equation theorems for nonrecursive definitions.
   You can use `nonRec := true` to override this behavior, a dummy `rfl` proof is created on the fly.
 -/
-def getEqnsFor? (declName : Name) (nonRec := false) : MetaM (Option (Array Name)) := do
+def getEqnsFor? (declName : Name) (nonRec := false) : MetaM (Option (Array Name)) := withLCtx {} {} do
   if let some eqs := eqnsExt.getState (← getEnv) |>.map.find? declName then
     return some eqs
   else if (← shouldGenerateEqnThms declName) then
@@ -134,7 +134,7 @@ def registerGetUnfoldEqnFn (f : GetUnfoldEqnFn) : IO Unit := do
   By default, we not create unfold theorems for nonrecursive definitions.
   You can use `nonRec := true` to override this behavior.
 -/
-def getUnfoldEqnFor? (declName : Name) (nonRec := false) : MetaM (Option Name) := do
+def getUnfoldEqnFor? (declName : Name) (nonRec := false) : MetaM (Option Name) := withLCtx {} {} do
   if (← shouldGenerateEqnThms declName) then
     for f in (← getUnfoldEqnFnsRef.get) do
       if let some r ← f declName then

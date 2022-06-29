@@ -53,7 +53,6 @@ def h (xs : List Nat) (y : Nat) : Nat :=
 #eval tst ``h
 #check h._eq_1
 #check h._eq_2
-#check h._eq_3
 #check h._unfold
 
 def r (i j : Nat) : Nat :=

@@ -1,2 +1,2 @@
 x : Nat
-⊢ id (id x)
+| id (id x)

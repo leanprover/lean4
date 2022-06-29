@@ -19,7 +19,6 @@ lean_object* l_Lean_Name_mkSimple(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_Name_getString_x21___closed__3;
 LEAN_EXPORT lean_object* l_Lean_NameSSet_empty;
-extern lean_object* l_String_instInhabitedString;
 uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Std_Data_HashMap_0__Std_numBucketsForCapacity(lean_object*);
@@ -100,6 +99,7 @@ LEAN_EXPORT uint8_t l_Std_HashMapImp_contains___at_Lean_NameSSet_contains___spec
 LEAN_EXPORT lean_object* l_Lean_Name_hashEx___boxed(lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint64_t lean_name_hash_exported(lean_object*);
+lean_object* l_panic___at_Lean_TSyntax_getString___spec__1(lean_object*);
 LEAN_EXPORT uint8_t l_Std_AssocList_contains___at_Lean_NameSSet_insert___spec__7(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_RBNode_find___at_Lean_NameSet_contains___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
@@ -110,7 +110,7 @@ LEAN_EXPORT lean_object* l_Lean_NameMap_insert(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_String_toName___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_12_(uint8_t, uint8_t);
+uint8_t l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_14_(uint8_t, uint8_t);
 uint64_t l_Lean_Name_hash(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_eqStr___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_RBNode_find___at_Lean_NameMap_contains___spec__1___rarg___boxed(lean_object*, lean_object*);
@@ -172,7 +172,6 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_RBNode_ins___at_Lean_NameMap_insert___spec__3___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_RBNode_ins___at_Lean_NameMap_insert___spec__3(lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_String_trim(lean_object*);
 static lean_object* l_Lean_Name_getString_x21___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Name_quickCmp___boxed(lean_object*, lean_object*);
@@ -180,6 +179,7 @@ LEAN_EXPORT lean_object* l_Lean_NameSet_instForInNameSetName(lean_object*);
 static lean_object* l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__1;
 static lean_object* l_Lean_Name_getString_x21___closed__1;
 lean_object* lean_mk_array(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Name_getString_x21___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameMap_instInhabitedNameMap(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_isNum___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_mkHashSet___at_Lean_NameHashSet_empty___spec__1(lean_object*);
@@ -192,7 +192,6 @@ LEAN_EXPORT lean_object* l_Std_RBNode_ins___at_Lean_NameSet_insert___spec__2(lea
 static lean_object* l_Lean_Name_getString_x21___closed__4;
 LEAN_EXPORT lean_object* l_Lean_NameSSet_instEmptyCollectionNameSSet;
 LEAN_EXPORT lean_object* l_Lean_mkNameMap(lean_object*);
-LEAN_EXPORT lean_object* l_panic___at_Lean_Name_getString_x21___spec__1(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_NameSSet_insert___spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_insert___at_Lean_NameSSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
@@ -269,20 +268,11 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_panic___at_Lean_Name_getString_x21___spec__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = l_String_instInhabitedString;
-x_3 = lean_panic_fn(x_2, x_1);
-return x_3;
-}
-}
 static lean_object* _init_l_Lean_Name_getString_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Data.Name");
+x_1 = lean_mk_string_from_bytes("Lean.Data.Name", 14);
 return x_1;
 }
 }
@@ -290,7 +280,7 @@ static lean_object* _init_l_Lean_Name_getString_x21___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Name.getString!");
+x_1 = lean_mk_string_from_bytes("Lean.Name.getString!", 20);
 return x_1;
 }
 }
@@ -298,7 +288,7 @@ static lean_object* _init_l_Lean_Name_getString_x21___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
@@ -323,17 +313,24 @@ if (lean_obj_tag(x_1) == 1)
 lean_object* x_2; 
 x_2 = lean_ctor_get(x_1, 1);
 lean_inc(x_2);
-lean_dec(x_1);
 return x_2;
 }
 else
 {
 lean_object* x_3; lean_object* x_4; 
-lean_dec(x_1);
 x_3 = l_Lean_Name_getString_x21___closed__4;
-x_4 = l_panic___at_Lean_Name_getString_x21___spec__1(x_3);
+x_4 = l_panic___at_Lean_TSyntax_getString___spec__1(x_3);
 return x_4;
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Name_getString_x21___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Name_getString_x21(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Name_getNumParts(lean_object* x_1) {
@@ -767,7 +764,7 @@ _start:
 uint8_t x_3; uint8_t x_4; uint8_t x_5; 
 x_3 = l_Lean_Name_cmp(x_1, x_2);
 x_4 = 0;
-x_5 = l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_12_(x_3, x_4);
+x_5 = l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_14_(x_3, x_4);
 return x_5;
 }
 }
@@ -954,7 +951,7 @@ _start:
 uint8_t x_3; uint8_t x_4; uint8_t x_5; 
 x_3 = l_Lean_Name_quickCmp(x_1, x_2);
 x_4 = 0;
-x_5 = l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_12_(x_3, x_4);
+x_5 = l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_14_(x_3, x_4);
 return x_5;
 }
 }
@@ -10716,7 +10713,7 @@ static lean_object* _init_l_String_toName___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(".");
+x_1 = lean_mk_string_from_bytes(".", 1);
 return x_1;
 }
 }

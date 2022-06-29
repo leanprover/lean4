@@ -22,7 +22,7 @@ def applySimpResult (result : Simp.Result) : TacticM Unit := do
   let result ← dischargeWrapper.with fun d? => simp lhs ctx (discharge? := d?)
   applySimpResult result
 
-@[builtinTactic Lean.Parser.Tactic.Conv.simpMatch] def evalSimpMatch : Tactic := fun stx => withMainContext do
+@[builtinTactic Lean.Parser.Tactic.Conv.simpMatch] def evalSimpMatch : Tactic := fun _ => withMainContext do
   applySimpResult (← Split.simpMatch (← getLhs))
 
 end Lean.Elab.Tactic.Conv

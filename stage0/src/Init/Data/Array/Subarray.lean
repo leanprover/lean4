@@ -17,6 +17,27 @@ structure Subarray (α : Type u)  where
 
 namespace Subarray
 
+def size (s : Subarray α) : Nat :=
+  s.stop - s.start
+
+def get (s : Subarray α) (i : Fin s.size) : α :=
+  have : s.start + i.val < s.as.size := by
+   apply Nat.lt_of_lt_of_le _ s.h₂
+   have := i.isLt
+   simp [size] at this
+   rw [Nat.add_comm]
+   exact Nat.add_lt_of_lt_sub this
+  s.as.get ⟨s.start + i.val, this⟩
+
+@[inline] def getD (s : Subarray α) (i : Nat) (v₀ : α) : α :=
+  if h : i < s.size then s.get ⟨i, h⟩ else v₀
+
+def get! [Inhabited α] (s : Subarray α) (i : Nat) : α :=
+  getD s i default
+
+def getOp [Inhabited α] (self : Subarray α) (idx : Nat) : α :=
+  self.get! idx
+
 def popFront (s : Subarray α) : Subarray α :=
   if h : s.start < s.stop then
     { s with start := s.start + 1, h₁ := Nat.le_of_lt_succ (Nat.add_lt_add_right h 1) }
@@ -37,7 +58,7 @@ def popFront (s : Subarray α) : Subarray α :=
 
 -- TODO: provide reference implementation
 @[implementedBy Subarray.forInUnsafe]
-protected constant forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (s : Subarray α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
+protected opaque forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (s : Subarray α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
   pure b
 
 instance : ForIn m (Subarray α) α where
@@ -100,7 +121,7 @@ def toSubarray (as : Array α) (start : Nat := 0) (stop : Nat := as.size) : Suba
      else
        { as := as, start := as.size, stop := as.size, h₁ := Nat.le_refl _, h₂ := Nat.le_refl _ }
 
-def ofSubarray (s : Subarray α) : Array α := Id.run <| do
+def ofSubarray (s : Subarray α) : Array α := Id.run do
   let mut as := mkEmpty (s.stop - s.start)
   for a in s do
     as := as.push a

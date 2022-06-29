@@ -135,6 +135,33 @@ example (x y : Nat) (h : y = 0) : x + ((y + x) + x) = x + (x + x) := by
     trace_state
     rw [h, Nat.zero_add]
 
+example (p : Nat → Prop) (x y : Nat) (h1 : y = 0) (h2 : p x) : p (y + x) := by
+  conv =>
+    rhs
+    trace_state
+    rw [h1]
+    apply Nat.zero_add
+  exact h2
+
+example (p : (n : Nat) → Fin n → Prop) (i : Fin 5) (hp : p 5 i) (hi : j = i) : p 5 j := by
+  conv =>
+    arg 2
+    trace_state
+    rw [hi]
+  exact hp
+
+example (p : {_ : Nat} → Nat → Prop) (x y : Nat) (h1 : y = 0) (h2 : @p x x) : @p (y + x) (y + x) := by
+  conv =>
+    enter [@1, 1]
+    trace_state
+    rw [h1]
+  conv =>
+    enter [@2, 1]
+    trace_state
+    rw [h1]
+  rw [Nat.zero_add]
+  exact h2
+
 example (p : Nat → Prop) (x y : Nat) (h : y = 0) : p (y + x) := by
   conv => lhs
 
@@ -144,10 +171,5 @@ example (p : Nat → Prop) (x y : Nat) (h : y = 0) : p (y + x) := by
 example (p : Prop) : p := by
   conv => rhs
 
-example (p : Nat → Prop) (x y : Nat) (h1 : y = 0) (h2 : p x) : p (y + x) := by
-  conv =>
-    rhs
-    trace_state
-    rw [h1]
-    apply Nat.zero_add
-  exact h2
+example (p : (n : Nat) → Fin n → Prop) (i : Fin 5) (hp : p 5 i) : p 5 j := by
+  conv => arg 1

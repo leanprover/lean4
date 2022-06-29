@@ -106,17 +106,11 @@ syntax "throwError " (interpolatedStr(term) <|> term) : term
 syntax "throwErrorAt " term:max (interpolatedStr(term) <|> term) : term
 
 macro_rules
-  | `(throwError $msg) =>
-    if msg.getKind == interpolatedStrKind then
-      `(Lean.throwError (m! $msg))
-    else
-      `(Lean.throwError $msg)
+  | `(throwError $msg:interpolatedStr) => `(Lean.throwError (m! $msg))
+  | `(throwError $msg:term)            => `(Lean.throwError $msg)
 
 macro_rules
-  | `(throwErrorAt $ref $msg) =>
-    if msg.getKind == interpolatedStrKind then
-      `(Lean.throwErrorAt $ref (m! $msg))
-    else
-      `(Lean.throwErrorAt $ref $msg)
+  | `(throwErrorAt $ref $msg:interpolatedStr) => `(Lean.throwErrorAt $ref (m! $msg))
+  | `(throwErrorAt $ref $msg:term)            => `(Lean.throwErrorAt $ref $msg)
 
 end Lean

@@ -43,8 +43,8 @@ abbrev visitArgs (w : Index) (as : Array Arg) : M Bool := pure (HasIndex.visitAr
 abbrev visitExpr (w : Index) (e : Expr) : M Bool := pure (HasIndex.visitExpr w e)
 
 partial def visitFnBody (w : Index) : FnBody → M Bool
-  | FnBody.vdecl x _ v b    => visitExpr w v <||> visitFnBody w b
-  | FnBody.jdecl j ys v b   => visitFnBody w v <||> visitFnBody w b
+  | FnBody.vdecl _ _ v b    => visitExpr w v <||> visitFnBody w b
+  | FnBody.jdecl _ _  v b   => visitFnBody w v <||> visitFnBody w b
   | FnBody.set x _ y b      => visitVar w x <||> visitArg w y <||> visitFnBody w b
   | FnBody.uset x _ y b     => visitVar w x <||> visitVar w y <||> visitFnBody w b
   | FnBody.sset x _ _ y _ b => visitVar w x <||> visitVar w y <||> visitFnBody w b
@@ -96,7 +96,7 @@ abbrev Collector := LiveVarSet → LiveVarSet
 
 private def collectArg : Arg → Collector
   | Arg.var x  => collectVar x
-  | irrelevant => skip
+  | _          => skip
 
 private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector := fun s =>
   as.foldl (fun s a => f a s) s
@@ -130,7 +130,7 @@ def collectExpr : Expr → Collector
   | Expr.ap x ys        => collectVar x ∘ collectArgs ys
   | Expr.box _ x        => collectVar x
   | Expr.unbox x        => collectVar x
-  | Expr.lit v          => skip
+  | Expr.lit _          => skip
   | Expr.isShared x     => collectVar x
   | Expr.isTaggedPtr x  => collectVar x
 
@@ -148,9 +148,9 @@ partial def collectFnBody : FnBody → JPLiveVarMap → Collector
   | FnBody.dec x _ _ _ b,    m => collectVar x ∘ collectFnBody b m
   | FnBody.del x b,          m => collectVar x ∘ collectFnBody b m
   | FnBody.mdata _ b,        m => collectFnBody b m
-  | FnBody.ret x,            m => collectArg x
+  | FnBody.ret x,            _ => collectArg x
   | FnBody.case _ x _ alts,  m => collectVar x ∘ collectArray alts (fun alt => collectFnBody alt.body m)
-  | FnBody.unreachable,      m => skip
+  | FnBody.unreachable,      _ => skip
   | FnBody.jmp j xs,         m => collectJP m j ∘ collectArgs xs
 
 def updateJPLiveVarMap (j : JoinPointId) (ys : Array Param) (v : FnBody) (m : JPLiveVarMap) : JPLiveVarMap :=

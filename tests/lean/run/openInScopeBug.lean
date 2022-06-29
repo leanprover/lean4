@@ -1,5 +1,5 @@
-constant f : Nat → Nat
-constant g : Nat → Nat
+opaque f : Nat → Nat
+opaque g : Nat → Nat
 
 namespace Foo
 

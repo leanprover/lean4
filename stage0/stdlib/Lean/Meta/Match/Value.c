@@ -74,7 +74,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Value_0__Lean_Meta_UIntTyp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("UInt8");
+x_1 = lean_mk_string_from_bytes("UInt8", 5);
 return x_1;
 }
 }
@@ -92,7 +92,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Value_0__Lean_Meta_UIntTyp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("UInt16");
+x_1 = lean_mk_string_from_bytes("UInt16", 6);
 return x_1;
 }
 }
@@ -110,7 +110,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Value_0__Lean_Meta_UIntTyp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("UInt32");
+x_1 = lean_mk_string_from_bytes("UInt32", 6);
 return x_1;
 }
 }
@@ -128,7 +128,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Value_0__Lean_Meta_UIntTyp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("UInt64");
+x_1 = lean_mk_string_from_bytes("UInt64", 6);
 return x_1;
 }
 }
@@ -146,7 +146,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Value_0__Lean_Meta_UIntTyp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("USize");
+x_1 = lean_mk_string_from_bytes("USize", 5);
 return x_1;
 }
 }
@@ -347,7 +347,7 @@ static lean_object* _init_l_Lean_Meta_isFinPatLit___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Fin");
+x_1 = lean_mk_string_from_bytes("Fin", 3);
 return x_1;
 }
 }
@@ -365,7 +365,7 @@ static lean_object* _init_l_Lean_Meta_isFinPatLit___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ofNat");
+x_1 = lean_mk_string_from_bytes("ofNat", 5);
 return x_1;
 }
 }
@@ -416,7 +416,7 @@ static lean_object* _init_l_Lean_Meta_isUIntPatLit_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mk");
+x_1 = lean_mk_string_from_bytes("mk", 2);
 return x_1;
 }
 }

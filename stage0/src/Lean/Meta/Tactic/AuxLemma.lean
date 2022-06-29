@@ -29,10 +29,8 @@ def mkAuxLemma (levelParams : List Name) (type : Expr) (value : Expr) : MetaM Na
   let mkNewAuxLemma := do
     let auxName := Name.mkNum (env.mainModule ++ `_auxLemma) s.idx
     addDecl <| Declaration.thmDecl {
-      name        := auxName
-      levelParams := levelParams
-      type        := type
-      value       := value
+      name := auxName
+      levelParams, type, value
     }
     modifyEnv fun env => auxLemmasExt.modifyState env fun ⟨idx, lemmas⟩ => ⟨idx + 1, lemmas.insert type (auxName, levelParams)⟩
     return auxName

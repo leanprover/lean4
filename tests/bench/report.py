@@ -17,7 +17,7 @@ settings.Settings().load_file("cross.yaml")
 def single(bench, cat, prop):
     f = f"bench/{bench}{cat}.bench"
     with open(f, "r") as f:
-        runs = yaml.load(f)
+        runs = yaml.load(f, Loader=yaml.CLoader)
     stats_helper = rundata.RunDataStatsHelper.init_from_dicts(runs)
     stat = stats.TestedPairsAndSingles(stats_helper.valid_runs())
     return stat.singles[0].properties[prop]

@@ -53,11 +53,10 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
           let type ← mkForallFVars xs type
           pure (type, binderIds)
       let mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque
-      let valStx ←
-        if decl.isOfKind `Lean.Parser.Term.letIdDecl then
-          pure decl[4]
-        else
-          liftMacroM <| expandMatchAltsIntoMatch decl decl[3]
+      let valStx ← if decl.isOfKind `Lean.Parser.Term.letIdDecl then
+        pure decl[4]
+      else
+        liftMacroM <| expandMatchAltsIntoMatch decl decl[3]
       pure { ref := declId, attrs, shortDeclName, declName, binderIds, type, mvar, valStx : LetRecDeclView }
     else
       throwUnsupportedSyntax
@@ -77,8 +76,8 @@ private def elabLetRecDeclValues (view : LetRecView) : TermElabM (Array Expr) :=
     forallBoundedTelescope view.type view.binderIds.size fun xs type => do
       -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
       for i in [0:view.binderIds.size] do
-        addTermInfo (isBinder := true) view.binderIds[i] xs[i]
-       withDeclName view.declName do
+        addLocalVarInfo view.binderIds[i] xs[i]
+      withDeclName view.declName do
          let value ← elabTermEnsuringType view.valStx type
          mkLambdaFVars xs value
 
@@ -108,7 +107,7 @@ private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array 
   let view ← mkLetRecDeclView stx
   withAuxLocalDecls view.decls fun fvars => do
     for decl in view.decls, fvar in fvars do
-      addTermInfo (isBinder := true) decl.ref fvar
+      addLocalVarInfo decl.ref fvar
     let values ← elabLetRecDeclValues view
     let body ← elabTermEnsuringType view.body expectedType?
     registerLetRecsToLift view.decls fvars values

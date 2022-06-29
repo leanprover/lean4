@@ -30,7 +30,7 @@ partial def collectFnBody : FnBody → M Unit
     match v with
     | Expr.fap f _ => collect f *> collectFnBody b
     | Expr.pap f _ => collect f *> collectFnBody b
-    | other        => collectFnBody b
+    | _            => collectFnBody b
   | FnBody.jdecl _ _ v b   => collectFnBody v *> collectFnBody b
   | FnBody.case _ _ _ alts => alts.forM fun alt => collectFnBody alt.body
   | e => do unless e.isTerminal do collectFnBody e.body

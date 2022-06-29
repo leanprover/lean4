@@ -1,4 +1,4 @@
-constant getA (s : String) : Array String := #[]
+opaque getA (s : String) : Array String := #[]
 
 private def resolveLValAux (s : String) (i : Nat) : Nat :=
   let s1 := s

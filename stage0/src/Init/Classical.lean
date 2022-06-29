@@ -22,7 +22,7 @@ noncomputable def choose {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : α :
 theorem choose_spec {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : p (choose h) :=
   (indefiniteDescription p h).property
 
-/- Diaconescu's theorem: excluded middle from choice, Function extensionality and propositional extensionality. -/
+/-- Diaconescu's theorem: excluded middle from choice, Function extensionality and propositional extensionality. -/
 theorem em (p : Prop) : p ∨ ¬p :=
   let U (x : Prop) : Prop := x = True ∨ p
   let V (x : Prop) : Prop := x = False ∨ p
@@ -56,14 +56,14 @@ theorem em (p : Prop) : p ∨ ¬p :=
   | Or.inl hne => Or.inr (mt p_implies_uv hne)
   | Or.inr h   => Or.inl h
 
-theorem exists_true_of_nonempty {α : Sort u} : Nonempty α → ∃ x : α, True
+theorem exists_true_of_nonempty {α : Sort u} : Nonempty α → ∃ _ : α, True
   | ⟨x⟩ => ⟨x, trivial⟩
 
 noncomputable def inhabited_of_nonempty {α : Sort u} (h : Nonempty α) : Inhabited α :=
   ⟨choice h⟩
 
 noncomputable def inhabited_of_exists {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : Inhabited α :=
-  inhabited_of_nonempty (Exists.elim h (fun w hw => ⟨w⟩))
+  inhabited_of_nonempty (Exists.elim h (fun w _ => ⟨w⟩))
 
 /- all propositions are Decidable -/
 noncomputable scoped instance (priority := low) propDecidable (a : Prop) : Decidable a :=
@@ -75,7 +75,7 @@ noncomputable def decidableInhabited (a : Prop) : Inhabited (Decidable a) where
   default := inferInstance
 
 noncomputable def typeDecidableEq (α : Sort u) : DecidableEq α :=
-  fun x y => inferInstance
+  fun _ _ => inferInstance
 
 noncomputable def typeDecidable (α : Sort u) : PSum α (α → False) :=
   match (propDecidable (Nonempty α)) with
@@ -87,11 +87,10 @@ noncomputable def strongIndefiniteDescription {α : Sort u} (p : α → Prop) (h
     (fun (hp : ∃ x : α, p x) =>
       show {x : α // (∃ y : α, p y) → p x} from
       let xp := indefiniteDescription _ hp;
-      ⟨xp.val, fun h' => xp.property⟩)
+      ⟨xp.val, fun _ => xp.property⟩)
     (fun hp => ⟨choice h, fun h => absurd h hp⟩)
 
-/- the Hilbert epsilon Function -/
-
+/-- the Hilbert epsilon Function -/
 noncomputable def epsilon {α : Sort u} [h : Nonempty α] (p : α → Prop) : α :=
   (strongIndefiniteDescription p h).val
 
@@ -104,8 +103,7 @@ theorem epsilon_spec {α : Sort u} {p : α → Prop} (hex : ∃ y, p y) : p (@ep
 theorem epsilon_singleton {α : Sort u} (x : α) : @epsilon α ⟨x⟩ (fun y => y = x) = x :=
   @epsilon_spec α (fun y => y = x) ⟨x, rfl⟩
 
-/- the axiom of choice -/
-
+/-- the axiom of choice -/
 theorem axiomOfChoice {α : Sort u} {β : α → Sort v} {r : ∀ x, β x → Prop} (h : ∀ x, ∃ y, r x y) : ∃ (f : ∀ x, β x), ∀ x, r x (f x) :=
   ⟨_, fun x => choose_spec (h x)⟩
 
@@ -125,9 +123,21 @@ theorem byCases {p q : Prop} (hpq : p → q) (hnpq : ¬p → q) : q :=
 theorem byContradiction {p : Prop} (h : ¬p → False) : p :=
   Decidable.byContradiction (dec := propDecidable _) h
 
-macro "by_cases" h:ident ":" e:term : tactic =>
-  `(cases em $e:term with
-    | inl $h:ident => _
-    | inr $h:ident => _)
+/--
+`by_cases (h :)? p` splits the main goal into two cases, assuming `h : p` in the first branch, and `h : ¬ p` in the second branch.
+-/
+syntax "by_cases" (atomic(ident ":"))? term : tactic
+
+macro_rules
+  | `(tactic| by_cases $h:ident : $e:term) =>
+    `(tactic|
+      cases em $e:term with
+      | inl $h:ident => _
+      | inr $h:ident => _)
+  | `(tactic| by_cases $e:term) =>
+    `(tactic|
+      cases em $e:term with
+      | inl h => _
+      | inr h => _)
 
 end Classical

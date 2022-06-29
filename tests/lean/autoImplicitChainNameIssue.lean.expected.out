@@ -1,0 +1,6 @@
+autoImplicitChainNameIssue.lean:8:11-8:15: error: unsolved goals
+case nil
+α✝ : Type u_1
+as : List α✝
+⊢ Palindrome (List.reverse [])
+@palindrome_reverse : ∀ {α : Type u_1} {as : List α}, Palindrome as → Palindrome (List.reverse as)

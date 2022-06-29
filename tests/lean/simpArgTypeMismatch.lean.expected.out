@@ -1,4 +1,4 @@
-simpArgTypeMismatch.lean:3:13-3:33: error: application type mismatch
+simpArgTypeMismatch.lean:3:29-3:33: error: application type mismatch
   decide_eq_false Unit
 argument
   Unit

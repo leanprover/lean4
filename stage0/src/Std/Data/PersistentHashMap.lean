@@ -189,7 +189,7 @@ partial def containsAux [BEq α] : Node α β → USize → α → Bool
     match entries.get! j with
     | Entry.null       => false
     | Entry.ref node   => containsAux node (div2Shift h shift) k
-    | Entry.entry k' v => k == k'
+    | Entry.entry k' _ => k == k'
   | Node.collision keys vals heq, _, k => containsAtAux keys vals heq 0 k
 
 def contains [BEq α] [Hashable α] : PersistentHashMap α β → α → Bool
@@ -229,7 +229,7 @@ partial def eraseAux [BEq α] : Node α β → USize → α → Node α β × Bo
     let entry   := entries.get! j
     match entry with
     | Entry.null       => (n, false)
-    | Entry.entry k' v =>
+    | Entry.entry k' _ =>
       if k == k' then (Node.entries (entries.set! j Entry.null), true) else (n, false)
     | Entry.ref node   =>
       let entries := entries.set! j Entry.null

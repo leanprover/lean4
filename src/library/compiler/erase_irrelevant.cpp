@@ -114,7 +114,7 @@ class erase_irrelevant_fn {
         unsigned saved_let_fvars_size = m_let_fvars.size();
         lean_always_assert(m_let_entries.size() == m_let_fvars.size());
         e = instantiate_rev(e, bfvars.size(), bfvars.data());
-        if (is_irrelevant(e))
+        if (is_irrelevant(e) && !is_minor)
             return mk_enf_neutral();
         expr r = visit(e);
         r      = mk_let(saved_let_fvars_size, r);

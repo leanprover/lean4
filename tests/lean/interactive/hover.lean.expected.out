@@ -80,7 +80,7 @@ null
 {"range":
  {"start": {"line": 93, "character": 8}, "end": {"line": 93, "character": 10}},
  "contents":
- {"value": "```lean\n@id.{0} : ∀ {α : Prop}, α → α\n```", "kind": "markdown"}}
+ {"value": "```lean\nid.{0} : ∀ {α : Prop}, α → α\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 93, "character": 10}}
 {"range":
@@ -98,10 +98,10 @@ null
   "end": {"line": 107, "character": 17}},
  "contents": {"value": "```lean\nfoo : Nat\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 112, "character": 9}}
+ "position": {"line": 112, "character": 7}}
 {"range":
- {"start": {"line": 112, "character": 9},
-  "end": {"line": 112, "character": 12}},
+ {"start": {"line": 112, "character": 7},
+  "end": {"line": 112, "character": 10}},
  "contents": {"value": "```lean\nBar.foo : Nat\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 115, "character": 9}}
@@ -143,8 +143,7 @@ null
  "position": {"line": 129, "character": 4}}
 {"range":
  {"start": {"line": 129, "character": 4}, "end": {"line": 129, "character": 6}},
- "contents":
- {"value": "```lean\nBar.Bar.mk : Bar.Bar\n```", "kind": "markdown"}}
+ "contents": {"value": "```lean\nBar.Bar.mk : Bar\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 132, "character": 2}}
 {"range":
@@ -179,3 +178,53 @@ null
  {"start": {"line": 140, "character": 4},
   "end": {"line": 140, "character": 11}},
  "contents": {"value": "```lean\nBar.foo.bar : Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 145, "character": 6}}
+{"range":
+ {"start": {"line": 145, "character": 6}, "end": {"line": 145, "character": 7}},
+ "contents": {"value": "```lean\nx : Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 148, "character": 4}}
+[{"targetUri": "file://hover.lean",
+  "targetSelectionRange":
+  {"start": {"line": 145, "character": 6},
+   "end": {"line": 145, "character": 7}},
+  "targetRange":
+  {"start": {"line": 145, "character": 6},
+   "end": {"line": 145, "character": 7}},
+  "originSelectionRange":
+  {"start": {"line": 148, "character": 4},
+   "end": {"line": 148, "character": 5}}}]
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 148, "character": 4}}
+{"range":
+ {"start": {"line": 148, "character": 4}, "end": {"line": 148, "character": 5}},
+ "contents": {"value": "```lean\nx : Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 152, "character": 8}}
+{"range":
+ {"start": {"line": 152, "character": 8}, "end": {"line": 152, "character": 9}},
+ "contents": {"value": "```lean\nx : Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 155, "character": 8}}
+[{"targetUri": "file://hover.lean",
+  "targetSelectionRange":
+  {"start": {"line": 152, "character": 8},
+   "end": {"line": 152, "character": 9}},
+  "targetRange":
+  {"start": {"line": 152, "character": 8},
+   "end": {"line": 152, "character": 9}},
+  "originSelectionRange":
+  {"start": {"line": 155, "character": 8},
+   "end": {"line": 155, "character": 9}}}]
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 155, "character": 8}}
+{"range":
+ {"start": {"line": 155, "character": 8}, "end": {"line": 155, "character": 9}},
+ "contents": {"value": "```lean\nx : Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 160, "character": 25}}
+{"range":
+ {"start": {"line": 160, "character": 25},
+  "end": {"line": 160, "character": 26}},
+ "contents": {"value": "```lean\nn : Nat\n```", "kind": "markdown"}}

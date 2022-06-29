@@ -5,11 +5,11 @@ def f : Nat → Nat → Nat :=
 fun x x =>
   match x with
   | 0 => x + 1
-  | Nat.succ x_1 => x + 2
+  | Nat.succ n => x + 2
 fun {α_1} a => a : {α_1 : Sort u_1} → α_1 → α_1
 fun x x_1 => x_1 : Nat → Nat → Nat
 def f : Nat → Nat → Nat :=
 fun x x_1 =>
   match x_1 with
   | 0 => x_1 + 1
-  | Nat.succ x_2 => x_1 + 2
+  | Nat.succ n => x_1 + 2

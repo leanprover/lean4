@@ -49,7 +49,7 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalGeneralize(lean_obj
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalGeneralize___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalGeneralize___closed__13;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalGeneralize_declRange___closed__3;
-lean_object* l_Lean_Elab_Tactic_elabTerm(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Tactic_elabTerm(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalGeneralize___closed__6;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalGeneralize___closed__9;
@@ -101,7 +101,7 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
-x_24 = l_Lean_Elab_Tactic_elabTerm(x_21, x_22, x_23, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
+x_24 = l_Lean_Elab_Tactic_elabTerm(x_21, x_22, x_23, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 if (x_19 == 0)
 {
 if (lean_obj_tag(x_24) == 0)
@@ -513,7 +513,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalGeneralize___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -531,7 +531,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalGeneralize___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -549,7 +549,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalGeneralize___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Tactic");
+x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }
@@ -567,7 +567,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalGeneralize___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("generalize");
+x_1 = lean_mk_string_from_bytes("generalize", 10);
 return x_1;
 }
 }
@@ -585,7 +585,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalGeneralize___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -613,7 +613,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalGeneralize___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalGeneralize");
+x_1 = lean_mk_string_from_bytes("evalGeneralize", 14);
 return x_1;
 }
 }

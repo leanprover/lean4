@@ -28,8 +28,7 @@ namespace lean {
 static void abort_on_panic() {
 #ifndef LEAN_EMSCRIPTEN
     if (std::getenv("LEAN_ABORT_ON_PANIC")) {
-        int * v = nullptr;
-        *v = 0;
+        abort();
     }
 #endif
 }
@@ -350,107 +349,6 @@ extern "C" LEAN_EXPORT b_obj_res lean_thunk_get_core(b_obj_arg t) {
         }
         return lean_to_thunk(t)->m_value;
     }
-}
-
-// =======================================
-// Fixpoint
-
-static inline object * ptr_to_weak_ptr(object * p) {
-    return reinterpret_cast<object*>(reinterpret_cast<uintptr_t>(p) | 1);
-}
-
-static inline object * weak_ptr_to_ptr(object * w) {
-    return reinterpret_cast<object*>((reinterpret_cast<uintptr_t>(w) >> 1) << 1);
-}
-
-obj_res fixpoint_aux(obj_arg rec, obj_arg weak_k, obj_arg a) {
-    object * k = weak_ptr_to_ptr(weak_k);
-    lean_inc(k);
-    return lean_apply_2(rec, k, a);
-}
-
-extern "C" LEAN_EXPORT obj_res lean_fixpoint(obj_arg rec, obj_arg a) {
-    object * k = lean_alloc_closure((void*)fixpoint_aux, 3, 2);
-    lean_inc(rec);
-    lean_closure_set(k, 0, rec);
-    lean_closure_set(k, 1, ptr_to_weak_ptr(k));
-    object * r = lean_apply_2(rec, k, a);
-    return r;
-}
-
-obj_res fixpoint_aux2(obj_arg rec, obj_arg weak_k, obj_arg a1, obj_arg a2) {
-    object * k = weak_ptr_to_ptr(weak_k);
-    lean_inc(k);
-    return lean_apply_3(rec, k, a1, a2);
-}
-
-extern "C" LEAN_EXPORT obj_res lean_fixpoint2(obj_arg rec, obj_arg a1, obj_arg a2) {
-    object * k = lean_alloc_closure((void*)fixpoint_aux2, 4, 2);
-    lean_inc(rec);
-    lean_closure_set(k, 0, rec);
-    lean_closure_set(k, 1, ptr_to_weak_ptr(k));
-    object * r = lean_apply_3(rec, k, a1, a2);
-    return r;
-}
-
-obj_res fixpoint_aux3(obj_arg rec, obj_arg weak_k, obj_arg a1, obj_arg a2, obj_arg a3) {
-    object * k = weak_ptr_to_ptr(weak_k);
-    lean_inc(k);
-    return lean_apply_4(rec, k, a1, a2, a3);
-}
-
-extern "C" LEAN_EXPORT obj_res lean_fixpoint3(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3) {
-    object * k = lean_alloc_closure((void*)fixpoint_aux3, 5, 2);
-    lean_inc(rec);
-    lean_closure_set(k, 0, rec);
-    lean_closure_set(k, 1, ptr_to_weak_ptr(k));
-    object * r = lean_apply_4(rec, k, a1, a2, a3);
-    return r;
-}
-
-obj_res fixpoint_aux4(obj_arg rec, obj_arg weak_k, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4) {
-    object * k = weak_ptr_to_ptr(weak_k);
-    lean_inc(k);
-    return lean_apply_5(rec, k, a1, a2, a3, a4);
-}
-
-extern "C" LEAN_EXPORT obj_res lean_fixpoint4(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4) {
-    object * k = lean_alloc_closure((void*)fixpoint_aux4, 6, 2);
-    lean_inc(rec);
-    lean_closure_set(k, 0, rec);
-    lean_closure_set(k, 1, ptr_to_weak_ptr(k));
-    object * r = lean_apply_5(rec, k, a1, a2, a3, a4);
-    return r;
-}
-
-obj_res fixpoint_aux5(obj_arg rec, obj_arg weak_k, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5) {
-    object * k = weak_ptr_to_ptr(weak_k);
-    lean_inc(k);
-    return lean_apply_6(rec, k, a1, a2, a3, a4, a5);
-}
-
-extern "C" LEAN_EXPORT obj_res lean_fixpoint5(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5) {
-    object * k = lean_alloc_closure((void*)fixpoint_aux5, 7, 2);
-    lean_inc(rec);
-    lean_closure_set(k, 0, rec);
-    lean_closure_set(k, 1, ptr_to_weak_ptr(k));
-    object * r = lean_apply_6(rec, k, a1, a2, a3, a4, a5);
-    return r;
-}
-
-obj_res fixpoint_aux6(obj_arg rec, obj_arg weak_k, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5, obj_arg a6) {
-    object * k = weak_ptr_to_ptr(weak_k);
-    lean_inc(k);
-    return lean_apply_7(rec, k, a1, a2, a3, a4, a5, a6);
-}
-
-extern "C" LEAN_EXPORT obj_res lean_fixpoint6(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5, obj_arg a6) {
-    object * k = lean_alloc_closure((void*)fixpoint_aux6, 8, 2);
-    lean_inc(rec);
-    lean_closure_set(k, 0, rec);
-    lean_closure_set(k, 1, ptr_to_weak_ptr(k));
-    object * r = lean_apply_7(rec, k, a1, a2, a3, a4, a5, a6);
-    return r;
 }
 
 // =======================================
@@ -1571,23 +1469,24 @@ static object * string_ensure_capacity(object * o, size_t extra) {
     }
 }
 
-extern "C" LEAN_EXPORT object * lean_mk_string(char const * s) {
-    size_t sz  = strlen(s);
-    size_t len = utf8_strlen(s);
+extern "C" LEAN_EXPORT object * lean_mk_string_core(char const * s, size_t sz, size_t len) {
     size_t rsz = sz + 1;
     object * r = lean_alloc_string(rsz, rsz, len);
-    memcpy(w_string_cstr(r), s, sz+1);
+    memcpy(w_string_cstr(r), s, sz);
+    w_string_cstr(r)[sz] = 0;
     return r;
 }
 
+extern "C" LEAN_EXPORT object * lean_mk_string_from_bytes(char const * s, size_t sz) {
+    return lean_mk_string_core(s, sz, utf8_strlen(s, sz));
+}
+
+extern "C" LEAN_EXPORT object * lean_mk_string(char const * s) {
+    return lean_mk_string_from_bytes(s, strlen(s));
+}
+
 extern "C" LEAN_EXPORT obj_res lean_string_from_utf8_unchecked(b_obj_arg a) {
-    size_t sz  = lean_sarray_size(a);
-    size_t len = utf8_strlen(reinterpret_cast<char *>(lean_sarray_cptr(a)), sz);
-    size_t rsz = sz + 1;
-    obj_res r  = lean_alloc_string(rsz, rsz, len);
-    memcpy(w_string_cstr(r), lean_sarray_cptr(a), sz);
-    w_string_cstr(r)[sz] = 0;
-    return r;
+    return lean_mk_string_from_bytes(reinterpret_cast<char *>(lean_sarray_cptr(a)), lean_sarray_size(a));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_string_to_utf8(b_obj_arg s) {
@@ -1598,13 +1497,7 @@ extern "C" LEAN_EXPORT obj_res lean_string_to_utf8(b_obj_arg s) {
 }
 
 object * mk_string(std::string const & s) {
-    size_t sz  = s.size();
-    size_t len = utf8_strlen(s);
-    size_t rsz = sz + 1;
-    object * r = lean_alloc_string(rsz, rsz, len);
-    memcpy(w_string_cstr(r), s.data(), sz);
-    w_string_cstr(r)[sz] = 0;
-    return r;
+    return lean_mk_string_from_bytes(s.data(), s.size());
 }
 
 std::string string_to_std(b_obj_arg o) {
@@ -1829,11 +1722,7 @@ extern "C" LEAN_EXPORT obj_res lean_string_utf8_extract(b_obj_arg s, b_obj_arg b
     if (e < sz && !is_utf8_first_byte(str[e])) e = sz;
     usize new_sz = e - b;
     lean_assert(new_sz > 0);
-    obj_res r = lean_alloc_string(new_sz+1, new_sz+1, 0);
-    memcpy(w_string_cstr(r), lean_string_cstr(s) + b, new_sz);
-    w_string_cstr(r)[new_sz] = 0;
-    lean_to_string(r)->m_length = utf8_strlen(w_string_cstr(r), new_sz);
-    return r;
+    return lean_mk_string_from_bytes(lean_string_cstr(s) + b, new_sz);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_string_utf8_prev(b_obj_arg s, b_obj_arg i0) {

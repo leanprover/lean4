@@ -11,6 +11,7 @@ import Lean.Elab.Exception
 import Lean.DocString
 import Lean.DeclarationRange
 import Lean.Compiler.InitAttr
+import Lean.Log
 
 namespace Lean
 
@@ -94,7 +95,7 @@ private unsafe def evalSyntaxConstantUnsafe (env : Environment) (opts : Options)
   env.evalConstCheck Syntax opts `Lean.Syntax constName
 
 @[implementedBy evalSyntaxConstantUnsafe]
-constant evalSyntaxConstant (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax := throw ""
+opaque evalSyntaxConstant (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax := throw ""
 
 unsafe def mkElabAttribute (γ) (attrDeclName attrBuiltinName attrName : Name) (parserNamespace : Name) (typeName : Name) (kind : String)
     : IO (KeyedDeclsAttribute γ) :=
@@ -116,7 +117,7 @@ unsafe def mkMacroAttributeUnsafe : IO (KeyedDeclsAttribute Macro) :=
   mkElabAttribute Macro `Lean.Elab.macroAttribute `builtinMacro `macro Name.anonymous `Lean.Macro "macro"
 
 @[implementedBy mkMacroAttributeUnsafe]
-constant mkMacroAttribute : IO (KeyedDeclsAttribute Macro)
+opaque mkMacroAttribute : IO (KeyedDeclsAttribute Macro)
 
 builtin_initialize macroAttribute : KeyedDeclsAttribute Macro ← mkMacroAttribute
 
@@ -153,11 +154,11 @@ def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEn
     -- TODO: record recursive expansions in info tree?
     expandMacro?     := fun stx => do
       match (← expandMacroImpl? env stx) with
-      | some (_, Except.ok stx) => return some stx
-      | _                       => return none
+      | some (_, stx?) => liftExcept stx?
+      | none           => return none
     hasDecl          := fun declName => return env.contains declName
     getCurrNamespace := return currNamespace
-    resolveNamespace? := fun n => return ResolveName.resolveNamespace? env currNamespace openDecls n
+    resolveNamespace := fun n => return ResolveName.resolveNamespace env currNamespace openDecls n
     resolveGlobalName := fun n => return ResolveName.resolveGlobalName env currNamespace openDecls n
   }
   match x { methods        := methods
@@ -194,6 +195,35 @@ partial def mkUnusedBaseName (baseName : Name) : MacroM Name := do
     loop 1
   else
     return baseName
+
+def logException [Monad m] [MonadLog m] [AddMessageContext m] [MonadLiftT IO m] (ex : Exception) : m Unit := do
+  match ex with
+  | Exception.error ref msg => logErrorAt ref msg
+  | Exception.internal id _ =>
+    unless isAbortExceptionId id do
+      let name ← id.getName
+      logError m!"internal exception: {name}"
+
+@[inline] def trace [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] (cls : Name) (msg : Unit → MessageData) : m Unit := do
+  if checkTraceOption (← getOptions) cls then
+    logTrace cls (msg ())
+
+def logDbgTrace [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] (msg : MessageData) : m Unit := do
+  trace `Elab.debug fun _ => msg
+
+def nestedExceptionToMessageData [Monad m] [MonadLog m] (ex : Exception) : m MessageData := do
+  let pos ← getRefPos
+  match ex.getRef.getPos? with
+  | none       => return ex.toMessageData
+  | some exPos =>
+    if pos == exPos then
+      return ex.toMessageData
+    else
+      let exPosition := (← getFileMap).toPosition exPos
+      return m!"{exPosition.line}:{exPosition.column} {ex.toMessageData}"
+
+def throwErrorWithNestedErrors [MonadError m] [Monad m] [MonadLog m] (msg : MessageData) (exs : Array Exception) : m α := do
+  throwError "{msg}, errors {toMessageList (← exs.mapM fun | ex => nestedExceptionToMessageData ex)}"
 
 builtin_initialize
   registerTraceClass `Elab

@@ -1,4 +1,4 @@
-phashmap_inst_coherence.lean:12:6-12:56: error: application type mismatch
+phashmap_inst_coherence.lean:12:53-12:54: error: application type mismatch
   PersistentHashMap.find? m
 argument
   m
@@ -6,3 +6,4 @@ has type
   @PersistentHashMap Nat Nat instBEqNat instHashableNat : Type
 but is expected to have type
   @PersistentHashMap Nat Nat instBEqNat natDiffHash : Type
+phashmap_inst_coherence.lean:12:0-12:56: error: cannot evaluate code because '_eval._lambda_1' uses 'sorry' and/or contains errors

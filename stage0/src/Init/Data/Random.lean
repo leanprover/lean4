@@ -84,7 +84,7 @@ The parameter `r` is the "remaining" magnitude.
 -/
 private partial def randNatAux {gen : Type u} [RandomGen gen] (genLo genMag : Nat) : Nat → (Nat × gen) → Nat × gen
   | 0,        (v, g) => (v, g)
-  | r'@(r+1), (v, g) =>
+  | r'@(_+1), (v, g) =>
     let (x, g') := RandomGen.next g
     let v'      := v*genMag + (x - genLo)
     randNatAux genLo genMag (r' / genMag - 1) (v', g')
@@ -112,7 +112,9 @@ def randBool {gen : Type u} [RandomGen gen] (g : gen) : Bool × gen :=
   let (v, g') := randNat g 0 1
   (v = 1, g')
 
-initialize IO.stdGenRef : IO.Ref StdGen ← IO.mkRef mkStdGen
+initialize IO.stdGenRef : IO.Ref StdGen ←
+  let seed := UInt64.toNat (ByteArray.toUInt64LE! (← IO.getRandomBytes 8))
+  IO.mkRef (mkStdGen seed)
 
 def IO.setRandSeed (n : Nat) : IO Unit :=
   IO.stdGenRef.set (mkStdGen n)

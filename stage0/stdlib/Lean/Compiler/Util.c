@@ -76,7 +76,7 @@ static lean_object* _init_l_Lean_Compiler_neutralExpr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_neutral");
+x_1 = lean_mk_string_from_bytes("_neutral", 8);
 return x_1;
 }
 }
@@ -112,7 +112,7 @@ static lean_object* _init_l_Lean_Compiler_unreachableExpr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_unreachable");
+x_1 = lean_mk_string_from_bytes("_unreachable", 12);
 return x_1;
 }
 }
@@ -148,7 +148,7 @@ static lean_object* _init_l_Lean_Compiler_objectType___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_obj");
+x_1 = lean_mk_string_from_bytes("_obj", 4);
 return x_1;
 }
 }
@@ -184,7 +184,7 @@ static lean_object* _init_l_Lean_Compiler_voidType___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_void");
+x_1 = lean_mk_string_from_bytes("_void", 5);
 return x_1;
 }
 }
@@ -220,7 +220,7 @@ static lean_object* _init_l_Lean_Compiler_mkLcProof___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("lcProof");
+x_1 = lean_mk_string_from_bytes("lcProof", 7);
 return x_1;
 }
 }
@@ -795,7 +795,7 @@ static lean_object* _init_l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_elambda_");
+x_1 = lean_mk_string_from_bytes("_elambda_", 9);
 return x_1;
 }
 }
@@ -815,7 +815,7 @@ static lean_object* _init_l_Lean_Compiler_isEagerLambdaLiftingName___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_elambda");
+x_1 = lean_mk_string_from_bytes("_elambda", 8);
 return x_1;
 }
 }
@@ -989,7 +989,7 @@ static lean_object* _init_l_Lean_Compiler_checkIsDefinition___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknow declaration '");
+x_1 = lean_mk_string_from_bytes("unknow declaration '", 20);
 return x_1;
 }
 }
@@ -997,7 +997,7 @@ static lean_object* _init_l_Lean_Compiler_checkIsDefinition___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -1005,7 +1005,7 @@ static lean_object* _init_l_Lean_Compiler_checkIsDefinition___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("declaration is not a definition '");
+x_1 = lean_mk_string_from_bytes("declaration is not a definition '", 33);
 return x_1;
 }
 }
@@ -1085,7 +1085,7 @@ static lean_object* _init_l_Lean_Compiler_mkUnsafeRecName___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_unsafe_rec");
+x_1 = lean_mk_string_from_bytes("_unsafe_rec", 11);
 return x_1;
 }
 }

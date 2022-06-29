@@ -11,12 +11,21 @@ import Lean.Util.Recognizers
 import Lean.Meta.Basic
 import Lean.Meta.GetConst
 import Lean.Meta.Match.MatcherInfo
+import Lean.Meta.Match.MatchPatternAttr
 
 namespace Lean.Meta
 
 /- ===========================
    Smart unfolding support
    =========================== -/
+
+/-
+Forward declaration. It is defined in the module `src/Lean/Elab/PreDefinition/Structural/Eqns.lean`.
+It is possible to avoid this hack if we move `Structural.EqnInfo` and `Structural.eqnInfoExt`
+to this module.
+-/
+@[extern "lean_get_structural_rec_arg_pos"]
+opaque getStructuralRecArgPos? (declName : Name) : CoreM (Option Nat)
 
 def smartUnfoldingSuffix := "_sunfold"
 
@@ -101,11 +110,26 @@ private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM Expr := do
     let newType ← inferType newCtorApp
     /- TODO: check whether changing reducibility to default hurts performance here.
        We do that to make sure auxiliary `Eq.rec` introduced by the `match`-compiler
-       are reduced even when `TransparencyMode.reducible` (like in `simp`) -/
-    if (← withAtLeastTransparency TransparencyMode.default <| isDefEq majorType newType) then
+       are reduced even when `TransparencyMode.reducible` (like in `simp`).
+
+       We use `withNewMCtxDepth` to make sure metavariables at `majorType` are not assigned.
+       For example, given `major : Eq ?x y`, we don't want to apply K by assigning `?x := y`.
+    -/
+    if (← withAtLeastTransparency TransparencyMode.default <| withNewMCtxDepth <| isDefEq majorType newType) then
       return newCtorApp
     else
       return major
+
+/--
+  Create the `i`th projection `major`. It tries to use the auto-generated projection functions if available. Otherwise falls back
+  to `Expr.proj`.
+-/
+def mkProjFn (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) (i : Nat) (major : Expr) : CoreM Expr := do
+  match getStructureInfo? (← getEnv) ctorVal.induct with
+  | none => return mkProj ctorVal.induct i major
+  | some info => match info.getProjFn? i with
+    | none => return mkProj ctorVal.induct i major
+    | some projFn => return mkApp (mkAppN (mkConst projFn us) params) major
 
 /--
   If `major` is not a constructor application, and its type is a structure `C ...`, then return `C.mk major.1 ... major.n`
@@ -114,7 +138,7 @@ private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM Expr := do
 
   If `Meta.Config.etaStruct` is `false` or the condition above does not hold, this method just returns `major`. -/
 private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr := do
-  unless (← getConfig).etaStruct do
+  unless (← useEtaStruct inductName) do
     return major
   let env ← getEnv
   if !isStructureLike env inductName then
@@ -129,12 +153,16 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
       return major
     match majorType.getAppFn with
     | Expr.const d us _ =>
-      let some ctorName ← getFirstCtor d | pure major
-      let ctorInfo ← getConstInfoCtor ctorName
-      let mut result := mkAppN (mkConst ctorName us) (majorType.getAppArgs.shrink ctorInfo.numParams)
-      for i in [:ctorInfo.numFields] do
-        result := mkApp result (mkProj inductName i major)
-      return result
+      if (← whnfD (← inferType majorType)) == mkSort levelZero then
+        return major -- We do not perform eta for propositions, see implementation in the kernel
+      else
+        let some ctorName ← getFirstCtor d | pure major
+        let ctorInfo ← getConstInfoCtor ctorName
+        let params := majorType.getAppArgs.shrink ctorInfo.numParams
+        let mut result := mkAppN (mkConst ctorName us) params
+        for i in [:ctorInfo.numFields] do
+          result := mkApp result (← mkProjFn ctorInfo us params i major)
+        return result
     | _ => return major
 
 /-- Auxiliary function for reducing recursor applications. -/
@@ -197,7 +225,7 @@ private def reduceQuotRec (recVal  : QuotVal) (recLvls : List Level) (recArgs : 
    =========================== -/
 
 mutual
-  private partial def isRecStuck? (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) : MetaM (Option MVarId) :=
+  private partial def isRecStuck? (recVal : RecursorVal) (recArgs : Array Expr) : MetaM (Option MVarId) :=
     if recVal.k then
       -- TODO: improve this case
       return none
@@ -210,7 +238,7 @@ mutual
       else
         return none
 
-  private partial def isQuotRecStuck? (recVal : QuotVal) (recLvls : List Level) (recArgs : Array Expr) : MetaM (Option MVarId) :=
+  private partial def isQuotRecStuck? (recVal : QuotVal) (recArgs : Array Expr) : MetaM (Option MVarId) :=
     let process? (majorPos : Nat) : MetaM (Option MVarId) :=
       if h : majorPos < recArgs.size then do
         let major := recArgs.get ⟨majorPos, h⟩
@@ -236,12 +264,12 @@ mutual
     | Expr.app f .. =>
       let f := f.getAppFn
       match f with
-      | Expr.mvar mvarId _       => return some mvarId
-      | Expr.const fName fLvls _ =>
+      | Expr.mvar mvarId _   => return some mvarId
+      | Expr.const fName _ _ =>
         let cinfo? ← getConstNoEx? fName
         match cinfo? with
-        | some $ ConstantInfo.recInfo recVal  => isRecStuck? recVal fLvls e.getAppArgs
-        | some $ ConstantInfo.quotInfo recVal => isQuotRecStuck? recVal fLvls e.getAppArgs
+        | some $ ConstantInfo.recInfo recVal  => isRecStuck? recVal e.getAppArgs
+        | some $ ConstantInfo.quotInfo recVal => isQuotRecStuck? recVal e.getAppArgs
         | _                                => return none
       | Expr.proj _ _ e _ => getStuckMVar? (← whnf e)
       | _ => return none
@@ -283,18 +311,18 @@ end
     | none   => return e
 
 @[specialize] private def deltaDefinition (c : ConstantInfo) (lvls : List Level)
-    (failK : Unit → α) (successK : Expr → α) : α :=
-  if c.levelParams.length != lvls.length then failK ()
-  else
-    let val := c.instantiateValueLevelParams lvls
-    successK val
-
-@[specialize] private def deltaBetaDefinition (c : ConstantInfo) (lvls : List Level) (revArgs : Array Expr)
-    (failK : Unit → α) (successK : Expr → α) (preserveMData := false) : α :=
+    (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α := do
   if c.levelParams.length != lvls.length then
     failK ()
   else
-    let val := c.instantiateValueLevelParams lvls
+    successK (← instantiateValueLevelParams c lvls)
+
+@[specialize] private def deltaBetaDefinition (c : ConstantInfo) (lvls : List Level) (revArgs : Array Expr)
+    (failK : Unit → MetaM α) (successK : Expr → MetaM α) (preserveMData := false) : MetaM α := do
+  if c.levelParams.length != lvls.length then
+    failK ()
+  else
+    let val ← instantiateValueLevelParams c lvls
     let val := val.betaRev revArgs (preserveMData := preserveMData)
     successK val
 
@@ -332,12 +360,14 @@ inductive ReduceMatcherResult where
   This solution is also not perfect because the match-expression above will not reduce during type checking when we are not using
   `TransparencyMode.default` or `TransparencyMode.all`.
 -/
-private def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
+def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
   match cfg.transparency with
   | TransparencyMode.all     => return true
   | TransparencyMode.default => return true
-  | m =>
+  | _ =>
     if (← isReducible info.name) || isGlobalInstance (← getEnv) info.name then
+      return true
+    else if hasMatchPatternAttribute (← getEnv) info.name then
       return true
     else
       return info.name == ``ite
@@ -379,7 +409,7 @@ partial def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
       return ReduceMatcherResult.partialApp
     else
       let constInfo ← getConstInfo declName
-      let f := constInfo.instantiateValueLevelParams declLevels
+      let f ← instantiateValueLevelParams constInfo declLevels
       let auxApp := mkAppN f args[0:prefixSz]
       let auxAppType ← inferType auxApp
       forallBoundedTelescope auxAppType info.numAlts fun hs _ => do
@@ -585,8 +615,52 @@ mutual
             match ((← getEnv).find? (mkSmartUnfoldingNameFor fInfo.name)) with
             | some fAuxInfo@(ConstantInfo.defnInfo _) =>
               -- We use `preserveMData := true` to make sure the smart unfolding annotation are not erased in an over-application.
-              deltaBetaDefinition fAuxInfo fLvls e.getAppRevArgs (preserveMData := true) (fun _ => pure none) fun e₁ =>
-                smartUnfoldingReduce? e₁
+              deltaBetaDefinition fAuxInfo fLvls e.getAppRevArgs (preserveMData := true) (fun _ => pure none) fun e₁ => do
+                let some r ← smartUnfoldingReduce? e₁ | return none
+                /-
+                  If `smartUnfoldingReduce?` succeeds, we should still check whether the argument the
+                  structural recursion is recursing on reduces to a constructor.
+                  This extra check is necessary in definitions (see issue #1081) such as
+                  ```
+                  inductive Vector (α : Type u) : Nat → Type u where
+                    | nil  : Vector α 0
+                    | cons : α → Vector α n → Vector α (n+1)
+
+                  def Vector.insert (a: α) (i : Fin (n+1)) (xs : Vector α n) : Vector α (n+1) :=
+                    match i, xs with
+                    | ⟨0,   _⟩,        xs => cons a xs
+                    | ⟨i+1, h⟩, cons x xs => cons x (xs.insert a ⟨i, Nat.lt_of_succ_lt_succ h⟩)
+                  ```
+                  The structural recursion is being performed using the vector `xs`. That is, we used `Vector.brecOn` to define
+                  `Vector.insert`. Thus, an application `xs.insert a ⟨0, h⟩` is **not** definitionally equal to
+                  `Vector.cons a xs` because `xs` is not a constructor application (the `Vector.brecOn` application is blocked).
+
+                  Remark 1: performing structural recursion on `Fin (n+1)` is not an option here because it is a `Subtype` and
+                  and the repacking in recursive applications confuses the structural recursion module.
+
+                  Remark 2: the match expression reduces reduces to `cons a xs` when the discriminants are `⟨0, h⟩` and `xs`.
+
+                  Remark 3: this check is unnecessary in most cases, but we don't need dependent elimination to trigger the issue                        fixed by this extra check. Here is another example that triggers the issue fixed by this check.
+                  ```
+                  def f : Nat → Nat → Nat
+                    | 0,   y   => y
+                    | x+1, y+1 => f (x-2) y
+                    | x+1, 0   => 0
+
+                  theorem ex : f 0 y = y := rfl
+                  ```
+
+                  Remark 4: the `return some r` in the following `let` is not a typo. Binport generated .olean files do not
+                  store the position of recursive arguments for definitions using structural recursion.
+                  Thus, we should keep `return some r` until Mathlib has been ported to Lean 3.
+                  Note that the `Vector` example above does not even work in Lean 3.
+                -/
+                let some recArgPos ← getStructuralRecArgPos? fInfo.name | return some r
+                let numArgs := e.getAppNumArgs
+                if recArgPos >= numArgs then return none
+                let recArg := e.getArg! recArgPos numArgs
+                if !(← whnfMatcher recArg).isConstructorApp (← getEnv) then return none
+                return some r
             | _ =>
               if (← getMatcherInfo? fInfo.name).isSome then
                 -- Recall that `whnfCore` tries to reduce "matcher" applications.
@@ -646,8 +720,8 @@ def reduceRecMatcher? (e : Expr) : MetaM (Option Expr) := do
 
 unsafe def reduceBoolNativeUnsafe (constName : Name) : MetaM Bool := evalConstCheck Bool `Bool constName
 unsafe def reduceNatNativeUnsafe (constName : Name) : MetaM Nat := evalConstCheck Nat `Nat constName
-@[implementedBy reduceBoolNativeUnsafe] constant reduceBoolNative (constName : Name) : MetaM Bool
-@[implementedBy reduceNatNativeUnsafe] constant reduceNatNative (constName : Name) : MetaM Nat
+@[implementedBy reduceBoolNativeUnsafe] opaque reduceBoolNative (constName : Name) : MetaM Bool
+@[implementedBy reduceNatNativeUnsafe] opaque reduceNatNative (constName : Name) : MetaM Nat
 
 def reduceNative? (e : Expr) : MetaM (Option Expr) :=
   match e with

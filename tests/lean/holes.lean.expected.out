@@ -22,12 +22,12 @@ x : Nat
 ⊢ Type
 holes.lean:13:10-13:11: error: failed to infer binder type
 holes.lean:15:16-15:17: error: failed to infer binder type
-holes.lean:18:9-18:10: error: failed to infer binder type
 holes.lean:19:0-19:3: error: don't know how to synthesize implicit argument
   @f Nat (?m a) a
 context:
 a : Nat
 f : {α : Type} → {β : ?m a} → α → α := fun {α} {β} a => a
 ⊢ ?m a
+holes.lean:18:9-18:10: error: failed to infer binder type
 holes.lean:21:25-22:4: error: failed to infer definition type
 holes.lean:25:8-25:11: error: failed to infer 'let rec' declaration type

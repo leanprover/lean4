@@ -71,6 +71,17 @@ FOREACH(T ${LEANRUNTESTS})
   endif()
 ENDFOREACH(T)
 
+# LEAN RUN doc/examples
+file(GLOB LEANDOCEXS "${LEAN_SOURCE_DIR}/../doc/examples/*.lean")
+FOREACH(T ${LEANDOCEXS})
+  if(NOT T MATCHES "\\.#")
+    GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+    add_test(NAME "leandocex_${T_NAME}"
+             WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../doc/examples"
+             COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
+  endif()
+ENDFOREACH(T)
+
 # LEAN COMPILER TESTS
 file(GLOB LEANCOMPTESTS "${LEAN_SOURCE_DIR}/../tests/compiler/*.lean")
 FOREACH(T ${LEANCOMPTESTS})
@@ -82,7 +93,7 @@ ENDFOREACH(T)
 
 add_test(NAME leancomptest_foreign
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/compiler/foreign"
-         COMMAND bash -c "LEANC_GMP=${GMP_LIBRARIES} ${LEAN_BIN}/leanmake --always-make")
+         COMMAND bash -c "${LEAN_BIN}/leanmake --always-make")
 add_test(NAME leancomptest_doc_example
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../doc/examples/compiler"
          COMMAND bash -c "export ${TEST_VARS}; leanmake --always-make bin && ./build/bin/test hello world")

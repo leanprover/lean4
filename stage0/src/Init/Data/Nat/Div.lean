@@ -9,12 +9,12 @@ import Init.WFTactics
 import Init.Data.Nat.Basic
 namespace Nat
 
-private def div_rec_lemma {x y : Nat} : 0 < y ∧ y ≤ x → x - y < x :=
+theorem div_rec_lemma {x y : Nat} : 0 < y ∧ y ≤ x → x - y < x :=
   fun ⟨ypos, ylex⟩ => sub_lt (Nat.lt_of_lt_of_le ypos ylex) ypos
 
 @[extern "lean_nat_div"]
 protected def div (x y : @& Nat) : Nat :=
-  if h : 0 < y ∧ y ≤ x then
+  if 0 < y ∧ y ≤ x then
     Nat.div (x - y) y + 1
   else
     0
@@ -23,8 +23,9 @@ decreasing_by apply div_rec_lemma; assumption
 instance : Div Nat := ⟨Nat.div⟩
 
 theorem div_eq (x y : Nat) : x / y = if 0 < y ∧ y ≤ x then (x - y) / y + 1 else 0 := by
-  simp [Nat.div] -- hack to force eq theorem to be generated. We don't have `conv` yet.
-  apply Nat.div._eq_1
+  show Nat.div x y = _
+  rw [Nat.div]
+  rfl
 
 theorem div.inductionOn.{u}
       {motive : Nat → Nat → Sort u}
@@ -38,9 +39,34 @@ theorem div.inductionOn.{u}
     base x y h
 decreasing_by apply div_rec_lemma; assumption
 
+theorem div_le_self (n k : Nat) : n / k ≤ n := by
+  induction n using Nat.strongInductionOn with
+  | ind n ih =>
+    rw [div_eq]
+    -- Note: manual split to avoid Classical.em which is not yet defined
+    cases (inferInstance : Decidable (0 < k ∧ k ≤ n)) with
+    | isFalse h => simp [h]
+    | isTrue h =>
+      suffices (n - k) / k + 1 ≤ n by simp [h, this]
+      have ⟨hK, hKN⟩ := h
+      have hSub : n - k < n := sub_lt (Nat.lt_of_lt_of_le hK hKN) hK
+      have : (n - k) / k ≤ n - k := ih (n - k) hSub
+      exact succ_le_of_lt (Nat.lt_of_le_of_lt this hSub)
+
+theorem div_lt_self {n k : Nat} (hLtN : 0 < n) (hLtK : 1 < k) : n / k < n := by
+  rw [div_eq]
+  cases (inferInstance : Decidable (0 < k ∧ k ≤ n)) with
+  | isFalse h => simp [hLtN, h]
+  | isTrue h =>
+    suffices (n - k) / k + 1 < n by simp [h, this]
+    have ⟨_, hKN⟩ := h
+    have : (n - k) / k ≤ n - k := div_le_self (n - k) k
+    have := Nat.add_le_of_le_sub hKN this
+    exact Nat.lt_of_lt_of_le (Nat.add_lt_add_left hLtK _) this
+
 @[extern "lean_nat_mod"]
 protected def mod (x y : @& Nat) : Nat :=
-  if h : 0 < y ∧ y ≤ x then
+  if 0 < y ∧ y ≤ x then
     Nat.mod (x - y) y
   else
     x
@@ -49,8 +75,9 @@ decreasing_by apply div_rec_lemma; assumption
 instance : Mod Nat := ⟨Nat.mod⟩
 
 theorem mod_eq (x y : Nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x := by
-  simp [Nat.mod] -- hack to force eq theorem to be generated. We don't have `conv` yet.
-  apply Nat.mod._eq_1
+  show Nat.mod x y = _
+  rw [Nat.mod]
+  rfl
 
 theorem mod.inductionOn.{u}
       {motive : Nat → Nat → Sort u}
@@ -117,8 +144,19 @@ theorem mod_one (x : Nat) : x % 1 = 0 := by
   have : (y : Nat) → y < 1 → y = 0 := by
     intro y
     cases y with
-    | zero   => intro h; rfl
+    | zero   => intro _; rfl
     | succ y => intro h; apply absurd (Nat.lt_of_succ_lt_succ h) (Nat.not_lt_zero y)
   exact this _ h
+
+theorem div_add_mod (m n : Nat) : n * (m / n) + m % n = m := by
+  rw [div_eq, mod_eq]
+  have h : Decidable (0 < n ∧ n ≤ m) := inferInstance
+  cases h with
+  | isFalse h => simp [h]
+  | isTrue h =>
+    simp [h]
+    have ih := div_add_mod (m - n) n
+    rw [Nat.left_distrib, Nat.mul_one, Nat.add_assoc, Nat.add_left_comm, ih, Nat.add_comm, Nat.sub_add_cancel h.2]
+decreasing_by apply div_rec_lemma; assumption
 
 end Nat

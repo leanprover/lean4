@@ -69,7 +69,7 @@ def normExpr : Expr → M Expr
   | Expr.unbox x,        m => Expr.unbox (normVar x m)
   | Expr.isShared x,     m => Expr.isShared (normVar x m)
   | Expr.isTaggedPtr x,  m => Expr.isTaggedPtr (normVar x m)
-  | e@(Expr.lit v),      m =>  e
+  | e@(Expr.lit _),      _ =>  e
 
 abbrev N := ReaderT IndexRenaming (StateM Nat)
 
@@ -114,7 +114,7 @@ partial def normFnBody : FnBody → N FnBody
 
 def normDecl (d : Decl) : N Decl :=
   match d with
-  | Decl.fdecl (xs := xs) (body := b) .. => withParams xs fun xs => return d.updateBody! (← normFnBody b)
+  | Decl.fdecl (xs := xs) (body := b) .. => withParams xs fun _ => return d.updateBody! (← normFnBody b)
   | other => pure other
 
 end NormalizeIds
@@ -148,7 +148,7 @@ def mapExpr (f : VarId → VarId) : Expr → Expr
   | Expr.unbox x        => Expr.unbox (f x)
   | Expr.isShared x     => Expr.isShared (f x)
   | Expr.isTaggedPtr x  => Expr.isTaggedPtr (f x)
-  | e@(Expr.lit v)      =>  e
+  | e@(Expr.lit _)      =>  e
 
 partial def mapFnBody (f : VarId → VarId) : FnBody → FnBody
   | FnBody.vdecl x t v b         => FnBody.vdecl x t (mapExpr f v) (mapFnBody f b)

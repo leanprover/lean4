@@ -22,18 +22,64 @@ namespace Lean.Meta
 -/
 structure SimpTheorem where
   keys        : Array DiscrTree.Key := #[]
-  levelParams : Array Name := #[] -- non empty for local universe polymorphic proofs.
+  /--
+    It stores universe parameter names for universe polymorphic proofs.
+    Recall that it is non-empty only when we elaborate an expression provided by the user.
+    When `proof` is just a constant, we can use the universe parameter names stored in the declaration.
+   -/
+  levelParams : Array Name := #[]
   proof       : Expr
   priority    : Nat  := eval_prio default
   post        : Bool := true
-  perm        : Bool := false -- true is lhs and rhs are identical modulo permutation of variables
-  name?       : Option Name := none -- for debugging and tracing purposes
+  /-- `perm` is true if lhs and rhs are identical modulo permutation of variables. -/
+  perm        : Bool := false
+  /--
+    `name?` is mainly relevant for producing trace messages.
+    It is also viewed an `id` used to "erase" `simp` theorems from `SimpTheorems`.
+  -/
+  name?       : Option Name := none
+  /-- `rfl` is true if `proof` is by `Eq.refl` or `rfl`. -/
+  rfl         : Bool
   deriving Inhabited
 
 def SimpTheorem.getName (s : SimpTheorem) : Name :=
   match s.name? with
   | some n => n
   | none   => "<unknown>"
+
+mutual
+  partial def isRflProofCore (type : Expr) (proof : Expr) : CoreM Bool := do
+    match type with
+    | .forallE _ _ type _ =>
+      if let .lam _ _ proof _ := proof then
+        isRflProofCore type proof
+      else
+        return false
+    | _ =>
+      if type.isAppOfArity ``Eq 3 then
+        if proof.isAppOfArity ``Eq.refl 2 || proof.isAppOfArity ``rfl 2 then
+          return true
+        else if proof.isAppOfArity ``Eq.symm 4 then
+          -- `Eq.symm` of rfl theorem is a rfl theorem
+          isRflProofCore type proof.appArg! -- small hack: we don't need to set the exact type
+        else if proof.isApp && proof.getAppFn.isConst then
+          -- The application of a `rfl` theorem is a `rfl` theorem
+          isRflTheorem proof.getAppFn.constName!
+        else
+          return false
+      else
+        return false
+
+  partial def isRflTheorem (declName : Name) : CoreM Bool := do
+    let .thmInfo info ← getConstInfo declName | return false
+    isRflProofCore info.type info.value
+end
+
+def isRflProof (proof : Expr) : MetaM Bool := do
+  if let .const declName .. := proof then
+    isRflTheorem declName
+  else
+    isRflProofCore (← inferType proof) proof
 
 instance : ToFormat SimpTheorem where
   format s :=
@@ -99,9 +145,9 @@ private partial def isPerm : Expr → Expr → MetaM Bool
   | Expr.mdata _ s _, t => isPerm s t
   | s, Expr.mdata _ t _ => isPerm s t
   | s@(Expr.mvar ..), t@(Expr.mvar ..) => isDefEq s t
-  | Expr.forallE n₁ d₁ b₁ _, Expr.forallE n₂ d₂ b₂ _ => isPerm d₁ d₂ <&&> withLocalDeclD n₁ d₁ fun x => isPerm (b₁.instantiate1 x) (b₂.instantiate1 x)
-  | Expr.lam n₁ d₁ b₁ _, Expr.lam n₂ d₂ b₂ _ => isPerm d₁ d₂ <&&> withLocalDeclD n₁ d₁ fun x => isPerm (b₁.instantiate1 x) (b₂.instantiate1 x)
-  | Expr.letE n₁ t₁ v₁ b₁ _, Expr.letE n₂ t₂ v₂ b₂ _ =>
+  | Expr.forallE n₁ d₁ b₁ _, Expr.forallE _ d₂ b₂ _ => isPerm d₁ d₂ <&&> withLocalDeclD n₁ d₁ fun x => isPerm (b₁.instantiate1 x) (b₂.instantiate1 x)
+  | Expr.lam n₁ d₁ b₁ _, Expr.lam _ d₂ b₂ _ => isPerm d₁ d₂ <&&> withLocalDeclD n₁ d₁ fun x => isPerm (b₁.instantiate1 x) (b₂.instantiate1 x)
+  | Expr.letE n₁ t₁ v₁ b₁ _, Expr.letE _  t₂ v₂ b₂ _ =>
     isPerm t₁ t₂ <&&> isPerm v₁ v₂ <&&> withLetDecl n₁ t₁ v₁ fun x => isPerm (b₁.instantiate1 x) (b₂.instantiate1 x)
   | Expr.proj _ i₁ b₁ _, Expr.proj _ i₂ b₂ _ => pure (i₁ == i₂) <&&> isPerm b₁ b₂
   | s, t => return s == t
@@ -112,7 +158,7 @@ private def checkBadRewrite (lhs rhs : Expr) : MetaM Unit := do
     throwError "invalid `simp` theorem, equation is equivalent to{indentExpr (← mkEq lhs rhs)}"
 
 private partial def shouldPreprocess (type : Expr) : MetaM Bool :=
-  forallTelescopeReducing type fun xs result => do
+  forallTelescopeReducing type fun _ result => do
     if let some (_, lhs, rhs) := result.eq? then
       checkBadRewrite lhs rhs
       return false
@@ -189,13 +235,13 @@ private def checkTypeIsProp (type : Expr) : MetaM Unit :=
 private def mkSimpTheoremCore (e : Expr) (levelParams : Array Name) (proof : Expr) (post : Bool) (prio : Nat) (name? : Option Name) : MetaM SimpTheorem := do
   let type ← instantiateMVars (← inferType e)
   withNewMCtxDepth do
-    let (xs, _, type) ← withReducible <| forallMetaTelescopeReducing type
+    let (_, _, type) ← withReducible <| forallMetaTelescopeReducing type
     let type ← whnfR type
     let (keys, perm) ←
       match type.eq? with
       | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs, ← isPerm lhs rhs)
       | none => throwError "unexpected kind of 'simp' theorem{indentExpr type}"
-    return { keys := keys, perm := perm, post := post, levelParams := levelParams, proof := proof, name? := name?, priority := prio }
+    return { keys, perm, post, levelParams, proof, name?, priority := prio, rfl := (← isRflProof proof) }
 
 private def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool) (prio : Nat) : MetaM (Array SimpTheorem) := do
   let cinfo ← getConstInfo declName
@@ -269,12 +315,20 @@ def mkSimpExt (extName : Name) : IO SimpExtension :=
       | SimpEntry.toUnfoldThms n thms => d.registerDeclToUnfoldThms n thms
   }
 
+abbrev SimpExtensionMap := Std.HashMap Name SimpExtension
+
+builtin_initialize simpExtensionMapRef : IO.Ref SimpExtensionMap ← IO.mkRef {}
+
 def registerSimpAttr (attrName : Name) (attrDescr : String) (extName : Name := attrName.appendAfter "Ext") : IO SimpExtension := do
   let ext ← mkSimpExt extName
-  mkSimpAttr attrName attrDescr ext
+  mkSimpAttr attrName attrDescr ext -- Remark: it will fail if it is not performed during initialization
+  simpExtensionMapRef.modify fun map => map.insert attrName ext
   return ext
 
 builtin_initialize simpExtension : SimpExtension ← registerSimpAttr `simp "simplification theorem"
+
+def getSimpExtension? (attrName : Name) : IO (Option SimpExtension) :=
+  return (← simpExtensionMapRef.get).find? attrName
 
 def getSimpTheorems : CoreM SimpTheorems :=
   simpExtension.getTheorems
@@ -328,16 +382,41 @@ where
       else
         return none
 
-def SimpTheorems.addDeclToUnfold (d : SimpTheorems) (declName : Name) : MetaM SimpTheorems :=
-  withLCtx {} {} do
-    if let some eqns ← getEqnsFor? declName then
-      let mut d := d
-      for eqn in eqns do
-        d ← SimpTheorems.addConst d eqn
-      if hasSmartUnfoldingDecl (← getEnv) declName then
-        d := d.addDeclToUnfoldCore declName
-      return d
-    else
-      return d.addDeclToUnfoldCore declName
+def SimpTheorems.addDeclToUnfold (d : SimpTheorems) (declName : Name) : MetaM SimpTheorems := do
+  if let some eqns ← getEqnsFor? declName then
+    let mut d := d
+    for eqn in eqns do
+      d ← SimpTheorems.addConst d eqn
+    if hasSmartUnfoldingDecl (← getEnv) declName then
+      d := d.addDeclToUnfoldCore declName
+    return d
+  else
+    return d.addDeclToUnfoldCore declName
 
-end Lean.Meta
+abbrev SimpTheoremsArray := Array SimpTheorems
+
+def SimpTheoremsArray.addTheorem (thmsArray : SimpTheoremsArray) (h : Expr) (name? : Option Name := none) : MetaM SimpTheoremsArray :=
+  if thmsArray.isEmpty then
+    let thms : SimpTheorems := {}
+    return #[ (← thms.add #[] h (name? := name?)) ]
+  else
+    thmsArray.modifyM 0 fun thms => thms.add #[] h (name? := name?)
+
+def SimpTheoremsArray.eraseTheorem (thmsArray : SimpTheoremsArray) (thmId : Name) : SimpTheoremsArray :=
+  thmsArray.map fun thms => thms.eraseCore thmId
+
+def SimpTheoremsArray.isErased (thmsArray : SimpTheoremsArray) (thmId : Name) : Bool :=
+  thmsArray.any fun thms => thms.erased.contains thmId
+
+def SimpTheoremsArray.isDeclToUnfold (thmsArray : SimpTheoremsArray) (declName : Name) : Bool :=
+  thmsArray.any fun thms => thms.isDeclToUnfold declName
+
+macro "register_simp_attr" id:ident descr:str : command => do
+  let str := id.getId.toString
+  let idParser := mkIdentFrom id (`Parser.Attr ++ id.getId)
+  `(initialize ext : SimpExtension ← registerSimpAttr $(quote id.getId) $descr
+    syntax (name := $idParser:ident) $(quote str):str (Parser.Tactic.simpPre <|> Parser.Tactic.simpPost)? (prio)? : attr)
+
+end Meta
+
+end Lean

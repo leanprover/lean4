@@ -13,7 +13,7 @@ import Lean.Meta.Tactic.Assumption
 
 namespace Lean.Meta
 
-private def mkAnd? (args : Array Expr) : Option Expr := Id.run <| do
+private def mkAnd? (args : Array Expr) : Option Expr := Id.run do
   if args.isEmpty then
     return none
   else
@@ -42,16 +42,12 @@ private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useE
       for arg1 in args1, arg2 in args2 do
         let arg1Type ← inferType arg1
         if !(← isProp arg1Type) && arg1 != arg2 then
-          if (← isDefEq arg1Type (← inferType arg2)) then
-            eqs := eqs.push (← mkEq arg1 arg2)
-          else
-            eqs := eqs.push (← mkHEq arg1 arg2)
+          eqs := eqs.push (← mkEqHEq arg1 arg2)
       if let some andEqs := mkAnd? eqs then
-        let result ←
-          if useEq then
-            mkEq eq andEqs
-          else
-            mkArrow eq andEqs
+        let result ← if useEq then
+          mkEq eq andEqs
+        else
+          mkArrow eq andEqs
         mkForallFVars params (← mkForallFVars args1 (← mkForallFVars args2New result))
       else
         return none
@@ -105,8 +101,9 @@ private def mkInjectiveTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
   let some type ← mkInjectiveTheoremType? ctorVal
     | return ()
   let value ← mkInjectiveTheoremValue ctorVal.name type
+  let name := mkInjectiveTheoremNameFor ctorVal.name
   addDecl <| Declaration.thmDecl {
-    name        := mkInjectiveTheoremNameFor ctorVal.name
+    name
     levelParams := ctorVal.levelParams
     type        := (← instantiateMVars type)
     value       := (← instantiateMVars value)

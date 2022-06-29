@@ -73,6 +73,8 @@ static lean_object* l_Lean_Expr_iff_x3f___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Expr_app2_x3f(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_isConstructorApp_x3f___closed__2;
+lean_object* l_Lean_Expr_appFn_x21_x27(lean_object*);
+uint8_t l_Lean_Expr_isAppOfArity_x27(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Recognizers_0__Lean_Expr_getConstructorVal_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_ne_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_app3_x3f(lean_object*, lean_object*);
@@ -114,6 +116,7 @@ lean_object* l_Lean_mkNatLit(lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 static lean_object* l_Lean_Expr_not_x3f___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Expr_not_x3f___boxed(lean_object*);
+lean_object* l_Lean_Expr_appArg_x21_x27(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_listLit_x3f_loop(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_isConstructorApp_x3f(lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_constructorApp_x3f___closed__3;
@@ -319,7 +322,7 @@ static lean_object* _init_l_Lean_Expr_eq_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Eq");
+x_1 = lean_mk_string_from_bytes("Eq", 2);
 return x_1;
 }
 }
@@ -381,7 +384,7 @@ static lean_object* _init_l_Lean_Expr_ne_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Ne");
+x_1 = lean_mk_string_from_bytes("Ne", 2);
 return x_1;
 }
 }
@@ -443,7 +446,7 @@ static lean_object* _init_l_Lean_Expr_iff_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Iff");
+x_1 = lean_mk_string_from_bytes("Iff", 3);
 return x_1;
 }
 }
@@ -499,7 +502,7 @@ static lean_object* _init_l_Lean_Expr_not_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Not");
+x_1 = lean_mk_string_from_bytes("Not", 3);
 return x_1;
 }
 }
@@ -595,7 +598,7 @@ static lean_object* _init_l_Lean_Expr_and_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("And");
+x_1 = lean_mk_string_from_bytes("And", 3);
 return x_1;
 }
 }
@@ -651,7 +654,7 @@ static lean_object* _init_l_Lean_Expr_heq_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("HEq");
+x_1 = lean_mk_string_from_bytes("HEq", 3);
 return x_1;
 }
 }
@@ -719,7 +722,7 @@ static lean_object* _init_l_Lean_Expr_natAdd_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Nat");
+x_1 = lean_mk_string_from_bytes("Nat", 3);
 return x_1;
 }
 }
@@ -737,7 +740,7 @@ static lean_object* _init_l_Lean_Expr_natAdd_x3f___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("add");
+x_1 = lean_mk_string_from_bytes("add", 3);
 return x_1;
 }
 }
@@ -878,7 +881,7 @@ static lean_object* _init_l_Lean_Expr_isIte___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ite");
+x_1 = lean_mk_string_from_bytes("ite", 3);
 return x_1;
 }
 }
@@ -916,7 +919,7 @@ static lean_object* _init_l_Lean_Expr_isDIte___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("dite");
+x_1 = lean_mk_string_from_bytes("dite", 4);
 return x_1;
 }
 }
@@ -954,7 +957,7 @@ static lean_object* _init_l_Lean_Expr_listLit_x3f_loop___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("List");
+x_1 = lean_mk_string_from_bytes("List", 4);
 return x_1;
 }
 }
@@ -972,7 +975,7 @@ static lean_object* _init_l_Lean_Expr_listLit_x3f_loop___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("nil");
+x_1 = lean_mk_string_from_bytes("nil", 3);
 return x_1;
 }
 }
@@ -990,7 +993,7 @@ static lean_object* _init_l_Lean_Expr_listLit_x3f_loop___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("cons");
+x_1 = lean_mk_string_from_bytes("cons", 4);
 return x_1;
 }
 }
@@ -1010,13 +1013,13 @@ _start:
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = l_Lean_Expr_listLit_x3f_loop___closed__4;
 x_4 = lean_unsigned_to_nat(1u);
-x_5 = l_Lean_Expr_isAppOfArity(x_1, x_3, x_4);
+x_5 = l_Lean_Expr_isAppOfArity_x27(x_1, x_3, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = l_Lean_Expr_listLit_x3f_loop___closed__6;
 x_7 = lean_unsigned_to_nat(3u);
-x_8 = l_Lean_Expr_isAppOfArity(x_1, x_6, x_7);
+x_8 = l_Lean_Expr_isAppOfArity_x27(x_1, x_6, x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; 
@@ -1028,10 +1031,10 @@ return x_9;
 else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_10 = l_Lean_Expr_appArg_x21(x_1);
-x_11 = l_Lean_Expr_appFn_x21(x_1);
+x_10 = l_Lean_Expr_appArg_x21_x27(x_1);
+x_11 = l_Lean_Expr_appFn_x21_x27(x_1);
 lean_dec(x_1);
-x_12 = l_Lean_Expr_appArg_x21(x_11);
+x_12 = l_Lean_Expr_appArg_x21_x27(x_11);
 lean_dec(x_11);
 x_13 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
@@ -1044,7 +1047,7 @@ goto _start;
 else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_15 = l_Lean_Expr_appArg_x21(x_1);
+x_15 = l_Lean_Expr_appArg_x21_x27(x_1);
 lean_dec(x_1);
 x_16 = l_List_reverse___rarg(x_2);
 x_17 = lean_alloc_ctor(0, 2, 0);
@@ -1069,7 +1072,7 @@ static lean_object* _init_l_Lean_Expr_arrayLit_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("toArray");
+x_1 = lean_mk_string_from_bytes("toArray", 7);
 return x_1;
 }
 }
@@ -1089,7 +1092,7 @@ _start:
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
 x_2 = l_Lean_Expr_arrayLit_x3f___closed__2;
 x_3 = lean_unsigned_to_nat(2u);
-x_4 = l_Lean_Expr_isAppOfArity(x_1, x_2, x_3);
+x_4 = l_Lean_Expr_isAppOfArity_x27(x_1, x_2, x_3);
 if (x_4 == 0)
 {
 lean_object* x_5; 
@@ -1099,7 +1102,7 @@ return x_5;
 else
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = l_Lean_Expr_appArg_x21(x_1);
+x_6 = l_Lean_Expr_appArg_x21_x27(x_1);
 x_7 = l_Lean_Expr_listLit_x3f(x_6);
 return x_7;
 }
@@ -1118,7 +1121,7 @@ static lean_object* _init_l_Lean_Expr_prod_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Prod");
+x_1 = lean_mk_string_from_bytes("Prod", 4);
 return x_1;
 }
 }
@@ -1238,7 +1241,7 @@ static lean_object* _init_l_Lean_Expr_isConstructorApp_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("succ");
+x_1 = lean_mk_string_from_bytes("succ", 4);
 return x_1;
 }
 }
@@ -1256,7 +1259,7 @@ static lean_object* _init_l_Lean_Expr_isConstructorApp_x3f___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("zero");
+x_1 = lean_mk_string_from_bytes("zero", 4);
 return x_1;
 }
 }

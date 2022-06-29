@@ -16,13 +16,55 @@ import Lean.Server.Snapshots
 /- Representing collected and deduplicated definitions and usages -/
 
 namespace Lean.Server
-open Lsp
+open Lsp Lean.Elab Std
 
 structure Reference where
   ident : RefIdent
+  /-- FVarIds that are logically identical to this reference -/
+  aliases : Array RefIdent := #[]
   range : Lsp.Range
-  isDeclaration : Bool
-  deriving BEq, Inhabited
+  stx : Syntax
+  ci : ContextInfo
+  info : Info
+  isBinder : Bool
+  deriving Inhabited
+
+structure RefInfo where
+  definition : Option Reference
+  usages : Array Reference
+
+namespace RefInfo
+
+def empty : RefInfo := ⟨ none, #[] ⟩
+
+def addRef : RefInfo → Reference → RefInfo
+  | i@{ definition := none, .. }, ref@{ isBinder := true, .. } =>
+    { i with definition := ref }
+  | i@{ usages, .. }, ref@{ isBinder := false, .. } =>
+    { i with usages := usages.push ref }
+  | i, _ => i
+
+instance : Coe RefInfo Lsp.RefInfo where
+  coe self :=
+  {
+    definition := self.definition.map (·.range)
+    usages := self.usages.map (·.range)
+  }
+
+end RefInfo
+
+def ModuleRefs := HashMap RefIdent RefInfo
+
+namespace ModuleRefs
+
+def addRef (self : ModuleRefs) (ref : Reference) : ModuleRefs :=
+  let refInfo := self.findD ref.ident RefInfo.empty
+  self.insert ref.ident (refInfo.addRef ref)
+
+instance : Coe ModuleRefs Lsp.ModuleRefs where
+  coe self := HashMap.ofList <| List.map (fun (k, v) => (k, v)) <| self.toList
+
+end ModuleRefs
 
 end Lean.Server
 
@@ -36,13 +78,6 @@ def merge (a : RefInfo) (b : RefInfo) : RefInfo :=
     definition := b.definition.orElse fun _ => a.definition
     usages := a.usages.append b.usages
   }
-
-def addRef : RefInfo → Reference → RefInfo
-  | i@{ definition := none, .. }, { range, isDeclaration := true, .. } =>
-    { i with definition := range }
-  | i@{ usages, .. }, { range, isDeclaration := false, .. } =>
-    { i with usages := usages.push range }
-  | i, _ => i
 
 def contains (self : RefInfo) (pos : Lsp.Position) : Bool := Id.run do
   if let some range := self.definition then
@@ -60,10 +95,6 @@ end Lean.Lsp.RefInfo
 
 namespace Lean.Lsp.ModuleRefs
 open Server
-
-def addRef (self : ModuleRefs) (ref : Reference) : ModuleRefs :=
-  let refInfo := self.findD ref.ident RefInfo.empty
-  self.insert ref.ident (refInfo.addRef ref)
 
 def findAt (self : ModuleRefs) (pos : Lsp.Position) : Array RefIdent := Id.run do
   let mut result := #[]
@@ -84,7 +115,7 @@ open Elab
 structure Ilean where
   version : Nat := 1
   module : Name
-  references : ModuleRefs
+  references : Lsp.ModuleRefs
   deriving FromJson, ToJson
 
 namespace Ilean
@@ -109,55 +140,71 @@ def identOf : Info → Option (RefIdent × Bool)
 def findReferences (text : FileMap) (trees : Array InfoTree) : Array Reference := Id.run do
   let mut refs := #[]
   for tree in trees do
-    refs := refs.appendList <| tree.deepestNodes fun _ info _ => Id.run do
-      if let some (ident, isDeclaration) := identOf info then
+    refs := refs.appendList <| tree.deepestNodes fun ci info _ => Id.run do
+      if let some (ident, isBinder) := identOf info then
         if let some range := info.range? then
-          return some { ident, range := range.toLspRange text, isDeclaration }
+          return some { ident, range := range.toLspRange text, stx := info.stx, ci, info, isBinder }
       return none
   refs
 
 /--
 The `FVarId`s of a function parameter in the function's signature and body
 differ. However, they have `TermInfo` nodes with `binder := true` in the exact
-same position.
+same position. Moreover, macros such as do-reassignment `x := e` may create
+chains of variable definitions where a helper definition overlaps with a use
+of a variable.
 
-This function changes every such group to use a single `FVarId` and gets rid of
-duplicate definitions.
+This function changes every such group to use a single `FVarId` (the head of the
+chain/DAG) and gets rid of duplicate definitions.
 -/
-def combineFvars (refs : Array Reference) : Array Reference := Id.run do
+partial def combineFvars (refs : Array Reference) : Array Reference := Id.run do
   -- Deduplicate definitions based on their exact range
   let mut posMap : HashMap Lsp.Range FVarId := HashMap.empty
-  -- Map all `FVarId`s of a group to the first definition's id
+  for ref in refs do
+    if let { ident := RefIdent.fvar id, range, isBinder := true, .. } := ref then
+      posMap := posMap.insert range id
+
+  -- Map fvar defs to overlapping fvar defs/uses
+  -- NOTE: poor man's union-find; see also `findCanonicalBinder?`
   let mut idMap : HashMap FVarId FVarId := HashMap.empty
   for ref in refs do
-    if let { ident := RefIdent.fvar id, range, isDeclaration := true } := ref then
-      if let some baseId := posMap.find? range then
-        idMap := idMap.insert id baseId
-      else
-        posMap := posMap.insert range id
-        idMap := idMap.insert id id
+    if let { ident := RefIdent.fvar baseId, range, .. } := ref then
+      if let some id := posMap.find? range then
+        let id := findCanonicalBinder idMap id
+        let baseId := findCanonicalBinder idMap baseId
+        if baseId != id then
+          idMap := idMap.insert id baseId
 
-  refs.foldl (init := #[]) fun refs ref => match ref with
-    | { ident := RefIdent.fvar id, range, isDeclaration := true } => Id.run do
-      -- Since deduplication works via definitions, we know that a definition
-      -- for the base id exists.
-      if let some baseId := idMap.find? id then
-        if id == baseId then -- Only keep the base definition
-          return refs.push ref
-      return refs
-    | { ident := ident@(RefIdent.fvar _), range, isDeclaration := false } =>
-      refs.push { ident := applyIdMap idMap ident, range, isDeclaration := false }
-    | _ => refs.push ref
+  let mut refs' := #[]
+  for ref in refs do
+    match ref with
+    | { ident := ident@(RefIdent.fvar id), isBinder, .. } =>
+      if isBinder && idMap.contains id then
+        -- downgrade chained definitions to usages
+        -- (we shouldn't completely remove them in case they do not have usages)
+        refs' := refs'.push { ref with ident := applyIdMap idMap ident, isBinder := false, aliases := #[ident] }
+      else
+        refs' := refs'.push { ref with ident := applyIdMap idMap ident }
+    | _ =>
+      refs' := refs'.push ref
+  refs'
 where
+  findCanonicalBinder (idMap : HashMap FVarId FVarId) (id : FVarId) : FVarId :=
+    match idMap.find? id with
+    | some id' => findCanonicalBinder idMap id'  -- recursion depth is expected to be very low
+    | none     => id
+
   applyIdMap : HashMap FVarId FVarId → RefIdent → RefIdent
-    | m, RefIdent.fvar id => RefIdent.fvar <| m.findD id id
+    | m, RefIdent.fvar id => RefIdent.fvar <| findCanonicalBinder m id
     | _, ident => ident
 
 def dedupReferences (refs : Array Reference) : Array Reference := Id.run do
   let mut refsByIdAndRange : HashMap (RefIdent × Lsp.Range) Reference := HashMap.empty
   for ref in refs do
-    if ref.isDeclaration || !(refsByIdAndRange.contains (ref.ident, ref.range)) then
-      refsByIdAndRange := refsByIdAndRange.insert (ref.ident, ref.range) ref
+    let key := (ref.ident, ref.range)
+    refsByIdAndRange := match refsByIdAndRange[key] with
+      | some ref' => refsByIdAndRange.insert key { ref' with isBinder := ref'.isBinder || ref.isBinder, aliases := ref'.aliases ++ ref.aliases }
+      | none => refsByIdAndRange.insert key ref
 
   let dedupedRefs := refsByIdAndRange.fold (init := #[]) fun refs _ ref => refs.push ref
   return dedupedRefs.qsort (·.range < ·.range)
@@ -175,9 +222,9 @@ def findModuleRefs (text : FileMap) (trees : Array InfoTree) (localVars : Bool :
 
 structure References where
   /-- References loaded from ilean files -/
-  ileans : HashMap Name (System.FilePath × ModuleRefs)
+  ileans : HashMap Name (System.FilePath × Lsp.ModuleRefs)
   /-- References from workers, overriding the corresponding ilean files -/
-  workers : HashMap Name (Nat × ModuleRefs)
+  workers : HashMap Name (Nat × Lsp.ModuleRefs)
 
 namespace References
 
@@ -192,18 +239,18 @@ def removeIlean (self : References) (path : System.FilePath) : References :=
   namesToRemove.foldl (init := self) fun self name =>
     { self with ileans := self.ileans.erase name }
 
-def updateWorkerRefs (self : References) (name : Name) (version : Nat) (refs : ModuleRefs) : References := Id.run do
+def updateWorkerRefs (self : References) (name : Name) (version : Nat) (refs : Lsp.ModuleRefs) : References := Id.run do
   if let some (currVersion, _) := self.workers.find? name then
     if version > currVersion then
       return { self with workers := self.workers.insert name (version, refs) }
     if version == currVersion then
       let current := self.workers.findD name (version, HashMap.empty)
       let merged := refs.fold (init := current.snd) fun m ident info =>
-        m.findD ident RefInfo.empty |>.merge info |> m.insert ident
+        m.findD ident Lsp.RefInfo.empty |>.merge info |> m.insert ident
       return { self with workers := self.workers.insert name (version, merged) }
   return self
 
-def finalizeWorkerRefs (self : References) (name : Name) (version : Nat) (refs : ModuleRefs) : References := Id.run do
+def finalizeWorkerRefs (self : References) (name : Name) (version : Nat) (refs : Lsp.ModuleRefs) : References := Id.run do
   if let some (currVersion, _) := self.workers.find? name then
     if version < currVersion then
       return self
@@ -212,7 +259,7 @@ def finalizeWorkerRefs (self : References) (name : Name) (version : Nat) (refs :
 def removeWorkerRefs (self : References) (name : Name) : References :=
   { self with workers := self.workers.erase name }
 
-def allRefs (self : References) : HashMap Name ModuleRefs :=
+def allRefs (self : References) : HashMap Name Lsp.ModuleRefs :=
   let ileanRefs := self.ileans.toList.foldl (init := HashMap.empty) fun m (name, _, refs) => m.insert name refs
   self.workers.toList.foldl (init := ileanRefs) fun m (name, _, refs) => m.insert name refs
 
@@ -221,10 +268,15 @@ def findAt (self : References) (module : Name) (pos : Lsp.Position) : Array RefI
     return refs.findAt pos
   #[]
 
-def referringTo (self : References) (ident : RefIdent) (srcSearchPath : SearchPath)
+def referringTo (self : References) (identModule : Name) (ident : RefIdent) (srcSearchPath : SearchPath)
     (includeDefinition : Bool := true) : IO (Array Location) := do
+  let refsToCheck := match ident with
+    | RefIdent.const _ => self.allRefs.toList
+    | RefIdent.fvar _ => match self.allRefs.find? identModule with
+      | none => []
+      | some refs => [(identModule, refs)]
   let mut result := #[]
-  for (module, refs) in self.allRefs.toList do
+  for (module, refs) in refsToCheck do
     if let some info := refs.find? ident then
       if let some path ← srcSearchPath.findModuleWithExt "lean" module then
         -- Resolve symlinks (such as `src` in the build dir) so that files are

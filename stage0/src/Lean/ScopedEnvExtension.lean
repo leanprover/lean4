@@ -117,7 +117,7 @@ unsafe def registerScopedEnvExtensionUnsafe (descr : Descr α β σ) : IO (Scope
   return ext
 
 @[implementedBy registerScopedEnvExtensionUnsafe]
-constant registerScopedEnvExtension (descr : Descr α β σ) : IO (ScopedEnvExtension α β σ)
+opaque registerScopedEnvExtension (descr : Descr α β σ) : IO (ScopedEnvExtension α β σ)
 
 def ScopedEnvExtension.pushScope (ext : ScopedEnvExtension α β σ) (env : Environment) : Environment :=
   let s := ext.ext.getState env
@@ -128,7 +128,7 @@ def ScopedEnvExtension.pushScope (ext : ScopedEnvExtension α β σ) (env : Envi
 def ScopedEnvExtension.popScope (ext : ScopedEnvExtension α β σ) (env : Environment) : Environment :=
   let s := ext.ext.getState env
   match s.stateStack with
-  | state₁ :: state₂ :: stack => ext.ext.setState env { s with stateStack := state₂ :: stack }
+  | _      :: state₂ :: stack => ext.ext.setState env { s with stateStack := state₂ :: stack }
   | _ => env
 
 def ScopedEnvExtension.addEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
@@ -168,7 +168,7 @@ def ScopedEnvExtension.activateScoped (ext : ScopedEnvExtension α β σ) (env :
         match s.scopedEntries.map.find? namespaceName with
         | none =>
           { top with activeScopes := activeScopes }
-        | some bs => Id.run <| do
+        | some bs => Id.run do
           let mut state := top.state
           for b in bs do
             state := ext.descr.addEntry state b
@@ -208,7 +208,7 @@ def registerSimpleScopedEnvExtension (descr : SimpleScopedEnvExtension.Descr α 
     mkInitial      := return descr.initial
     addEntry       := descr.addEntry
     toOLeanEntry   := id
-    ofOLeanEntry   := fun s a => return a
+    ofOLeanEntry   := fun _ a => return a
     finalizeImport := descr.finalizeImport
   }
 

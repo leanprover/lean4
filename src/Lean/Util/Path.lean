@@ -22,7 +22,7 @@ where
   go : Name → FilePath
   | Name.str p h _ => go p / h
   | Name.anonymous => base
-  | Name.num p _ _ => panic! "ill-formed import"
+  | Name.num _ _ _ => panic! "ill-formed import"
 
 /-- A `.olean' search path. -/
 abbrev SearchPath := System.SearchPath
@@ -56,9 +56,6 @@ end SearchPath
 
 builtin_initialize searchPathRef : IO.Ref SearchPath ← IO.mkRef {}
 
-@[extern c inline "LEAN_IS_STAGE0"]
-private constant isStage0 (u : Unit) : Bool
-
 @[export lean_get_prefix]
 def getBuildDir : IO FilePath := do
   return (← IO.appDir).parent |>.get!
@@ -67,7 +64,7 @@ def getBuildDir : IO FilePath := do
 def getLibDir (leanSysroot : FilePath) : IO FilePath := do
   let mut buildDir := leanSysroot
   -- use stage1 stdlib with stage0 executable (which should never be distributed outside of the build directory)
-  if isStage0 () then
+  if Internal.isStage0 () then
     buildDir := buildDir / ".." / "stage1"
   return buildDir / "lib" / "lean"
 
@@ -134,7 +131,7 @@ def searchModuleNameOfFileName (fname : FilePath) (rootDirs : SearchPath) : IO (
       return some <| ← moduleNameOfFileName fname <| some rootDir
     catch
       -- Try the next one
-      | e => pure ()
+      | _ => pure ()
   return none
 
 /--

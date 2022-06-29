@@ -10,6 +10,7 @@ import Lean.Elab.PreDefinition.WF.PackMutual
 import Lean.Elab.PreDefinition.WF.Rel
 import Lean.Elab.PreDefinition.WF.Fix
 import Lean.Elab.PreDefinition.WF.Eqns
+import Lean.Elab.PreDefinition.WF.Ite
 
 namespace Lean.Elab
 open WF
@@ -25,6 +26,7 @@ private partial def addNonRecPreDefs (preDefs : Array PreDefinition) (preDefNonR
   if (← isOnlyOneUnaryDef preDefs fixedPrefixSize) then
     return ()
   let us := preDefNonRec.levelParams.map mkLevelParam
+  let all := preDefs.toList.map (·.declName)
   for fidx in [:preDefs.size] do
     let preDef := preDefs[fidx]
     let value ← lambdaTelescope preDef.value fun xs _ => do
@@ -46,7 +48,7 @@ private partial def addNonRecPreDefs (preDefs : Array PreDefinition) (preDefNonR
       let arg ← mkSum 0 domain
       mkLambdaFVars xs (mkApp (mkAppN (mkConst preDefNonRec.declName us) xs[:fixedPrefixSize]) arg)
     trace[Elab.definition.wf] "{preDef.declName} := {value}"
-    addNonRec { preDef with value } (applyAttrAfterCompilation := false)
+    addNonRec { preDef with value } (applyAttrAfterCompilation := false) (all := all)
 
 partial def withCommonTelescope (preDefs : Array PreDefinition) (k : Array Expr → Array Expr → TermElabM α) : TermElabM α :=
   go #[] (preDefs.map (·.value))
@@ -84,8 +86,9 @@ def wfRecursion (preDefs : Array PreDefinition) (wf? : Option TerminationWF) (de
       addAsAxiom preDef
     let fixedPrefixSize ← getFixedPrefix preDefs
     trace[Elab.definition.wf] "fixed prefix: {fixedPrefixSize}"
-    let unaryPreDefs ← packDomain fixedPrefixSize preDefs
-    return (← packMutual fixedPrefixSize unaryPreDefs, fixedPrefixSize)
+    let preDefsDIte ← preDefs.mapM fun preDef => return { preDef with value := (← iteToDIte preDef.value) }
+    let unaryPreDefs ← packDomain fixedPrefixSize preDefsDIte
+    return (← packMutual fixedPrefixSize preDefs unaryPreDefs, fixedPrefixSize)
   let preDefNonRec ← forallBoundedTelescope unaryPreDef.type fixedPrefixSize fun prefixArgs type => do
     let packedArgType := type.bindingDomain!
     elabWFRel preDefs unaryPreDef.declName fixedPrefixSize packedArgType wf? fun wfRel => do
@@ -101,7 +104,7 @@ def wfRecursion (preDefs : Array PreDefinition) (wf? : Option TerminationWF) (de
   let preDefs ← preDefs.mapM fun d => eraseRecAppSyntax d
   addNonRec preDefNonRec (applyAttrAfterCompilation := false)
   addNonRecPreDefs preDefs preDefNonRec fixedPrefixSize
-  registerEqnsInfo preDefs preDefNonRec.declName
+  registerEqnsInfo preDefs preDefNonRec.declName fixedPrefixSize
   for preDef in preDefs do
     applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
   addAndCompilePartialRec preDefs

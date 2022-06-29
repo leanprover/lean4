@@ -26,7 +26,7 @@ def replaceTargetEq (mvarId : MVarId) (targetNew : Expr) (eqProof : Expr) : Meta
     let u        ← getLevel target
     let eq       ← mkEq target targetNew
     let newProof ← mkExpectedTypeHint eqProof eq
-    let val  := mkAppN (Lean.mkConst `Eq.mpr [u]) #[target, targetNew, eqProof, mvarNew]
+    let val  := mkAppN (Lean.mkConst `Eq.mpr [u]) #[target, targetNew, newProof, mvarNew]
     assignExprMVar mvarId val
     return mvarNew.mvarId!
 
@@ -47,7 +47,7 @@ def replaceTargetDefEq (mvarId : MVarId) (targetNew : Expr) : MetaM MVarId :=
       let tag     ← getMVarTag mvarId
       let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew tag
       let newVal  ← mkExpectedTypeHint mvarNew target
-      assignExprMVar mvarId mvarNew
+      assignExprMVar mvarId newVal
       return mvarNew.mvarId!
 
 /--

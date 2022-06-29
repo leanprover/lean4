@@ -73,12 +73,12 @@ private structure SpaceResult where
     { r₂ with space := r₁.space + r₂.space }
 
 private def spaceUptoLine : Format → Bool → Nat → SpaceResult
-  | nil,          flatten, w => {}
-  | line,         flatten, w => if flatten then { space := 1 } else { foundLine := true }
-  | text s,       flatten, w =>
+  | nil,          _,       _ => {}
+  | line,         flatten, _ => if flatten then { space := 1 } else { foundLine := true }
+  | text s,       flatten, _ =>
     let p := s.posOf '\n';
     let off := s.offsetOfPos p;
-    { foundLine := p != s.bsize, foundFlattenedHardLine := flatten && p != s.bsize, space := off }
+    { foundLine := p != s.endPos, foundFlattenedHardLine := flatten && p != s.endPos, space := off }
   | append f₁ f₂, flatten, w => merge w (spaceUptoLine f₁ flatten w) (spaceUptoLine f₂ flatten)
   | nest _ f,     flatten, w => spaceUptoLine f flatten w
   | group f _,    _,       w => spaceUptoLine f true w
@@ -95,7 +95,7 @@ private structure WorkGroup where
   items   : List WorkItem
 
 private partial def spaceUptoLine' : List WorkGroup → Nat → SpaceResult
-  |   [],                         w => {}
+  |   [],                         _ => {}
   |   { items := [],    .. }::gs, w => spaceUptoLine' gs w
   | g@{ items := i::is, .. }::gs, w => merge w (spaceUptoLine i.f g.flatten w) (spaceUptoLine' ({ g with items := is }::gs))
 
@@ -135,14 +135,14 @@ private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] : List WorkGrou
     | nest n f => be w (gs' ({ i with f, indent := i.indent + n }::is))
     | text s =>
       let p := s.posOf '\n'
-      if p == s.bsize then
+      if p == s.endPos then
         pushOutput s
         endTags i.activeTags
         be w (gs' is)
       else
-        pushOutput (s.extract 0 p)
+        pushOutput (s.extract {} p)
         pushNewline i.indent.toNat
-        let is := { i with f := text (s.extract (s.next p) s.bsize) }::is
+        let is := { i with f := text (s.extract (s.next p) s.endPos) }::is
         -- after a hard line break, re-evaluate whether to flatten the remaining group
         pushGroup g.flb is gs w >>= be w
     | line =>
@@ -214,10 +214,10 @@ private structure State where
 instance : MonadPrettyFormat (StateM State) where
   -- We avoid a structure instance update, and write these functions using pattern matching because of issue #316
   pushOutput s       := modify fun ⟨out, col⟩ => ⟨out ++ s, col + s.length⟩
-  pushNewline indent := modify fun ⟨out, col⟩ => ⟨out ++ "\n".pushn ' ' indent, indent⟩
-  currColumn         := return (←get).column
-  startTag n         := return ()
-  endTags n          := return ()
+  pushNewline indent := modify fun ⟨out, _⟩ => ⟨out ++ "\n".pushn ' ' indent, indent⟩
+  currColumn         := return (← get).column
+  startTag _         := return ()
+  endTags _          := return ()
 
 /-- Pretty-print a `Format` object as a string with expected width `w`. -/
 @[export lean_format_pretty]
@@ -240,8 +240,8 @@ instance : ToFormat String where
   format s := Format.text s
 
 def Format.joinSep {α : Type u} [ToFormat α] : List α → Format → Format
-  | [],    sep => nil
-  | [a],   sep => format a
+  | [],    _   => nil
+  | [a],   _   => format a
   | a::as, sep => format a ++ sep ++ joinSep as sep
 
 def Format.prefixJoin {α : Type u} [ToFormat α] (pre : Format) : List α → Format
@@ -249,7 +249,7 @@ def Format.prefixJoin {α : Type u} [ToFormat α] (pre : Format) : List α → F
   | a::as => pre ++ format a ++ prefixJoin pre as
 
 def Format.joinSuffix {α : Type u} [ToFormat α] : List α → Format → Format
-  | [],    suffix => nil
+  | [],    _      => nil
   | a::as, suffix => format a ++ suffix ++ joinSuffix as suffix
 
 end Std

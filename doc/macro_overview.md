@@ -158,7 +158,7 @@ Output:
 [Elab.definition.body] binderterm.quot : Lean.ParserDescr :=
 Lean.ParserDescr.node `Lean.Parser.Term.quot 1024
   (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.symbol "`(binderterm|")
-    (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.unary `incQuotDepth (Lean.ParserDescr.cat `binderterm 0))
+    (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.cat `binderterm 0)
       (Lean.ParserDescr.symbol ")")))
 -/
 ```

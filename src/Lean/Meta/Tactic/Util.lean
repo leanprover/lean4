@@ -15,7 +15,7 @@ def getMVarTag (mvarId : MVarId) : MetaM Name :=
   return (← getMVarDecl mvarId).userName
 
 def setMVarTag (mvarId : MVarId) (tag : Name) : MetaM Unit := do
-  modify fun s => { s with mctx := s.mctx.renameMVar mvarId tag }
+  modify fun s => { s with mctx := s.mctx.setMVarUserName mvarId tag }
 
 def appendTag (tag : Name) (suffix : Name) : Name :=
   tag.modifyBase (· ++ suffix.eraseMacroScopes)
@@ -27,11 +27,11 @@ def appendTagSuffix (mvarId : MVarId) (suffix : Name) : MetaM Unit := do
 def mkFreshExprSyntheticOpaqueMVar (type : Expr) (tag : Name := Name.anonymous) : MetaM Expr :=
   mkFreshExprMVar type MetavarKind.syntheticOpaque tag
 
-def throwTacticEx {α} (tacticName : Name) (mvarId : MVarId) (msg : MessageData) (ref := Syntax.missing) : MetaM α :=
+def throwTacticEx (tacticName : Name) (mvarId : MVarId) (msg : MessageData) : MetaM α :=
   if msg.isEmpty then
-    throwError "tactic '{tacticName}' failed\n{MessageData.ofGoal mvarId}"
+    throwError "tactic '{tacticName}' failed\n{mvarId}"
   else
-    throwError "tactic '{tacticName}' failed, {msg}\n{MessageData.ofGoal mvarId}"
+    throwError "tactic '{tacticName}' failed, {msg}\n{mvarId}"
 
 def throwNestedTacticEx {α} (tacticName : Name) (ex : Exception) : MetaM α := do
   throwError "tactic '{tacticName}' failed, nested error:\n{ex.toMessageData}"

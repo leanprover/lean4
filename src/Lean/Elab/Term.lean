@@ -1582,22 +1582,6 @@ instance [MetaEval α] : MetaEval (TermElabM α) where
         (← Core.getMessageLog).forM fun msg => do IO.println (← msg.toString)
     MetaEval.eval env opts (hideUnit := true) <| x.run' {}
 
-unsafe def evalExpr (α) (typeName : Name) (value : Expr) : TermElabM α :=
-  withoutModifyingEnv do
-    let name ← mkFreshUserName `_tmp
-    let type ← inferType value
-    let type ← whnfD type
-    unless type.isConstOf typeName do
-      throwError "unexpected type at evalExpr{indentExpr type}"
-    let decl := Declaration.defnDecl {
-       name, levelParams := [], type
-       value, hints := ReducibilityHints.opaque,
-       safety := .unsafe
-    }
-    ensureNoUnassignedMVars decl
-    addAndCompile decl
-    evalConst α name
-
 /--
   Execute `x` and then tries to solve pending universe constraints.
   Note that, stuck constraints will not be discarded.

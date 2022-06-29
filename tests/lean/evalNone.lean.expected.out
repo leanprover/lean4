@@ -1,0 +1,12 @@
+evalNone.lean:1:6-1:10: error: don't know how to synthesize implicit argument
+  @none ?m
+context:
+⊢ Type ?u
+evalNone.lean:3:6-3:14: error: don't know how to synthesize implicit argument
+  @List.head? ?m []
+context:
+⊢ Type ?u
+evalNone.lean:3:6-3:8: error: don't know how to synthesize implicit argument
+  @List.nil ?m
+context:
+⊢ Type ?u

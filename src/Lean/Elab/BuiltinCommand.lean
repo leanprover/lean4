@@ -324,6 +324,7 @@ unsafe def elabEvalUnsafe : CommandElab
     let elabEvalTerm : TermElabM Expr := do
       let e ← Term.elabTerm term none
       Term.synthesizeSyntheticMVarsNoPostponing
+      if (← Term.logUnassignedUsingErrorInfos (← getMVars e)) then throwAbortTerm
       if (← isProp e) then
         mkDecide e
       else

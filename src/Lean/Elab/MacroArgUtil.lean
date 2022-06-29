@@ -18,7 +18,7 @@ partial def expandMacroArg (stx : TSyntax ``macroArg) : CommandElabM (TSyntax `s
     | _                           => throwUnsupportedSyntax
   mkSyntaxAndPat id? id stx
 where
-  mkSyntaxAndPat id? id stx := do
+  mkSyntaxAndPat (id? : Option Ident) (id : Term) (stx : TSyntax `stx) := do
     let pat ← match stx with
     | `(stx| $s:str)         => pure ⟨mkNode `token_antiquot #[← liftMacroM <| strLitToPattern s, mkAtom "%", mkAtom "$", id]⟩
     | `(stx| &$s:str)        => pure ⟨mkNode `token_antiquot #[← liftMacroM <| strLitToPattern s, mkAtom "%", mkAtom "$", id]⟩
@@ -40,7 +40,7 @@ where
       -- otherwise `group` the syntax to enforce arity 1, e.g. for `noWs`
       | none    => return (← `(stx| group($stx)), (← mkAntiquotNode stx id))
     pure (stx, pat)
-  mkSplicePat kind stx id suffix : CommandElabM Term :=
+  mkSplicePat (kind : SyntaxNodeKind) (stx : TSyntax `stx) (id : Term) (suffix : String) : CommandElabM Term :=
     return ⟨mkNullNode #[mkAntiquotSuffixSpliceNode kind (← mkAntiquotNode stx id) suffix]⟩
   mkAntiquotNode : TSyntax `stx → Term → CommandElabM Term
     | `(stx| ($stx)), term => mkAntiquotNode stx term

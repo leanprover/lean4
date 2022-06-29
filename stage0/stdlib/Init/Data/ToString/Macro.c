@@ -25,8 +25,8 @@ static lean_object* l_termS_x21_____closed__2;
 static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__15;
 static lean_object* l_termS_x21_____closed__13;
 static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__6;
-lean_object* l_Lean_Syntax_expandInterpolatedStr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_termS_x21_____closed__6;
+lean_object* l_Lean_TSyntax_expandInterpolatedStr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__3;
 static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__5;
 static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__14;
@@ -421,9 +421,52 @@ lean_ctor_set(x_27, 0, x_21);
 lean_ctor_set(x_27, 1, x_25);
 lean_ctor_set(x_27, 2, x_24);
 lean_ctor_set(x_27, 3, x_26);
-x_28 = l_Lean_Syntax_expandInterpolatedStr(x_9, x_19, x_27, x_2, x_22);
+x_28 = l_Lean_TSyntax_expandInterpolatedStr(x_9, x_19, x_27, x_2, x_22);
 lean_dec(x_9);
+if (lean_obj_tag(x_28) == 0)
+{
+uint8_t x_29; 
+x_29 = !lean_is_exclusive(x_28);
+if (x_29 == 0)
+{
 return x_28;
+}
+else
+{
+lean_object* x_30; lean_object* x_31; lean_object* x_32; 
+x_30 = lean_ctor_get(x_28, 0);
+x_31 = lean_ctor_get(x_28, 1);
+lean_inc(x_31);
+lean_inc(x_30);
+lean_dec(x_28);
+x_32 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_32, 0, x_30);
+lean_ctor_set(x_32, 1, x_31);
+return x_32;
+}
+}
+else
+{
+uint8_t x_33; 
+x_33 = !lean_is_exclusive(x_28);
+if (x_33 == 0)
+{
+return x_28;
+}
+else
+{
+lean_object* x_34; lean_object* x_35; lean_object* x_36; 
+x_34 = lean_ctor_get(x_28, 0);
+x_35 = lean_ctor_get(x_28, 1);
+lean_inc(x_35);
+lean_inc(x_34);
+lean_dec(x_28);
+x_36 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_36, 0, x_34);
+lean_ctor_set(x_36, 1, x_35);
+return x_36;
+}
+}
 }
 }
 }

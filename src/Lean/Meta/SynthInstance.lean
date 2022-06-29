@@ -639,7 +639,7 @@ private partial def preprocessArgs (type : Expr) (i : Nat) (args : Array Expr) :
 private def preprocessOutParam (type : Expr) : MetaM Expr :=
   forallTelescope type fun xs typeBody => do
     match typeBody.getAppFn with
-    | c@(Expr.const constName us _) =>
+    | c@(Expr.const constName _ _) =>
       let env ← getEnv
       if !hasOutParams env constName then
         return type

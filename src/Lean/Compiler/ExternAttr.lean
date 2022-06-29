@@ -56,7 +56,7 @@ private def syntaxToExternAttrData (stx : Syntax) : AttrM ExternAttrData := do
   return { arity? := arity?, entries := entries.toList }
 
 @[extern "lean_add_extern"]
-constant addExtern (env : Environment) (n : Name) : ExceptT String Id Environment
+opaque addExtern (env : Environment) (n : Name) : ExceptT String Id Environment
 
 builtin_initialize externAttr : ParametricAttribute ExternAttrData ←
   registerParametricAttribute {

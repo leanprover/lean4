@@ -9,6 +9,7 @@ options get_default_options() {
     opts = opts.update({"interpreter", "prefer_native"}, false);
     // switch to `true` for changing built-in parsers used in quotations
     opts = opts.update({"internal", "parseQuotWithCurrentStage"}, false);
+    opts = opts.update({"pp", "rawOnError"}, true);
 #endif
     return opts;
 }

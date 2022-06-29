@@ -9,9 +9,9 @@ import Init.Data.Nat.Basic
 namespace System
 namespace Platform
 
-@[extern "lean_system_platform_windows"] constant getIsWindows : Unit → Bool
-@[extern "lean_system_platform_osx"] constant getIsOSX : Unit → Bool
-@[extern "lean_system_platform_emscripten"] constant getIsEmscripten : Unit → Bool
+@[extern "lean_system_platform_windows"] opaque getIsWindows : Unit → Bool
+@[extern "lean_system_platform_osx"] opaque getIsOSX : Unit → Bool
+@[extern "lean_system_platform_emscripten"] opaque getIsEmscripten : Unit → Bool
 
 def isWindows : Bool := getIsWindows ()
 def isOSX : Bool := getIsOSX ()

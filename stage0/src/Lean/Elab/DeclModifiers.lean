@@ -160,10 +160,20 @@ def checkIfShadowingStructureField (declName : Name) : m Unit := do
   | _ => pure ()
 
 def mkDeclName (currNamespace : Name) (modifiers : Modifiers) (shortName : Name) : m (Name × Name) := do
-  let name := (extractMacroScopes shortName).name
-  unless name.isAtomic || isFreshInstanceName name do
+  let mut shortName := shortName
+  let mut currNamespace := currNamespace
+  let view := extractMacroScopes shortName
+  let name := view.name
+  let isRootName := (`_root_).isPrefixOf name
+  if name == `_root_ then
+    throwError "invalid declaration name `_root_`, `_root_` is a prefix used to refer to the 'root' namespace"
+  unless name.isAtomic || isFreshInstanceName name || isRootName do
     throwError "atomic identifier expected '{shortName}'"
-  let declName := currNamespace ++ shortName
+  let declName := if isRootName then { view with name := name.replacePrefix `_root_ Name.anonymous }.review else currNamespace ++ shortName
+  if isRootName then
+    let .str p s _ := name | throwError "invalid declaration name '{name}'"
+    shortName := Name.mkSimple s
+    currNamespace := p.replacePrefix `_root_ Name.anonymous
   checkIfShadowingStructureField declName
   let declName ← applyVisibility modifiers.visibility declName
   match modifiers.visibility with
@@ -196,19 +206,18 @@ structure ExpandDeclIdResult where
 def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : Syntax) (modifiers : Modifiers) : m ExpandDeclIdResult := do
   -- ident >> optional (".{" >> sepBy1 ident ", " >> "}")
   let (shortName, optUnivDeclStx) := expandDeclIdCore declId
-  let levelNames ←
-    if optUnivDeclStx.isNone then
-      pure currLevelNames
-    else
-      let extraLevels := optUnivDeclStx[1].getArgs.getEvenElems
-      extraLevels.foldlM
-        (fun levelNames idStx =>
-          let id := idStx.getId
-          if levelNames.elem id then
-            withRef idStx <| throwAlreadyDeclaredUniverseLevel id
-          else
-            pure (id :: levelNames))
-        currLevelNames
+  let levelNames ← if optUnivDeclStx.isNone then
+    pure currLevelNames
+  else
+    let extraLevels := optUnivDeclStx[1].getArgs.getEvenElems
+    extraLevels.foldlM
+      (fun levelNames idStx =>
+        let id := idStx.getId
+        if levelNames.elem id then
+          withRef idStx <| throwAlreadyDeclaredUniverseLevel id
+        else
+          pure (id :: levelNames))
+      currLevelNames
   let (declName, shortName) ← withRef declId <| mkDeclName currNamespace modifiers shortName
   addDocString' declName modifiers.docString?
   return { shortName := shortName, declName := declName, levelNames := levelNames }

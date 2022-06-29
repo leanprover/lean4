@@ -33,7 +33,7 @@ def parseImports (input : String) (fileName : Option String := none) : IO (List 
 
 @[export lean_print_imports]
 def printImports (input : String) (fileName : Option String) : IO Unit := do
-  let (deps, pos, log) ← parseImports input fileName
+  let (deps, _, _) ← parseImports input fileName
   for dep in deps do
     let fname ← findOLean dep.module
     IO.println fname

@@ -135,11 +135,11 @@ def getPPAnalysisBlockImplicit   (o : Options) : Bool := o.get `pp.analysis.bloc
 namespace PrettyPrinter.Delaborator
 
 def returnsPi (motive : Expr) : MetaM Bool := do
-  lambdaTelescope motive fun xs b => return b.isForall
+  lambdaTelescope motive fun _ b => return b.isForall
 
 def isNonConstFun (motive : Expr) : MetaM Bool := do
   match motive with
-  | Expr.lam name d b _ => isNonConstFun b
+  | Expr.lam _    _ b _ => isNonConstFun b
   | _ => return motive.hasLooseBVars
 
 def isSimpleHOFun (motive : Expr) : MetaM Bool :=
@@ -229,7 +229,7 @@ def isHigherOrder (type : Expr) : MetaM Bool := do
   forallTelescopeReducing type fun xs b => return xs.size > 0 && b.isSort
 
 def isFunLike (e : Expr) : MetaM Bool := do
-  forallTelescopeReducing (← inferType e) fun xs b => return xs.size > 0
+  forallTelescopeReducing (← inferType e) fun xs _ => return xs.size > 0
 
 def isSubstLike (e : Expr) : Bool :=
   e.isAppOfArity ``Eq.ndrec 6 || e.isAppOfArity ``Eq.rec 6
@@ -278,7 +278,7 @@ def tryUnify (e₁ e₂ : Expr) : AnalyzeM Unit := do
     let r ← isDefEqAssigning e₁ e₂
     if !r then modify fun s => { s with postponed := s.postponed.push (e₁, e₂) }
     pure ()
-  catch ex =>
+  catch _ =>
     modify fun s => { s with postponed := s.postponed.push (e₁, e₂) }
 
 partial def inspectOutParams (arg mvar : Expr) : AnalyzeM Unit := do
@@ -293,7 +293,7 @@ where
     let mType ← whnf mType
     if not (i < args.size) then return ()
     match fType, mType with
-    | Expr.forallE _ fd fb _, Expr.forallE _ md mb _ => do
+    | Expr.forallE _ fd fb _, Expr.forallE _ _  mb _ => do
       -- TODO: do I need to check (← okBottomUp? args[i] mvars[i] fuel).isSafe here?
       -- if so, I'll need to take a callback
       if fd.isOutParam then
@@ -372,7 +372,7 @@ mutual
     trace[pp.analyze] "{(← read).knowsType}.{(← read).knowsLevel}"
     let e ← getExpr
     let opts ← getOptions
-    if ← (pure !e.isAtomic) <&&> pure !(getPPProofs opts) <&&> (try Meta.isProof e catch ex => pure false) then
+    if ← (pure !e.isAtomic) <&&> pure !(getPPProofs opts) <&&> (try Meta.isProof e catch _ => pure false) then
       if getPPProofsWithType opts then
         withType $ withKnowing true true $ analyze
       return ()
@@ -441,7 +441,7 @@ mutual
           annotateBool `pp.analysis.blockImplicit
 
     analyzeConst : AnalyzeM Unit := do
-      let Expr.const n ls .. ← getExpr | unreachable!
+      let Expr.const _ ls .. ← getExpr | unreachable!
       if !(← read).knowsLevel && !ls.isEmpty then
         -- TODO: this is a very crude heuristic, motivated by https://github.com/leanprover/lean4/issues/590
         unless getPPAnalyzeOmitMax (← getOptions) && ls.any containsBadMax do
@@ -458,7 +458,7 @@ mutual
       withBindingBody Name.anonymous analyze
 
     analyzeLet : AnalyzeM Unit := do
-      let Expr.letE n t v body .. ← getExpr | unreachable!
+      let Expr.letE _ _ v _    .. ← getExpr | unreachable!
       if !(← canBottomUp v) then
         annotateBool `pp.analysis.letVarType
         withLetVarType $ withKnowing true false analyze
@@ -515,7 +515,7 @@ mutual
         modify fun s => { s with higherOrders := s.higherOrders.set! i true }
 
     hBinOpHeuristic := do
-      let { args, mvars, bInfos, ..} ← read
+      let { mvars, ..} ← read
       if ← (pure (isHBinOp (← getExpr)) <&&> (valUnknown mvars[0] <||> valUnknown mvars[1])) then
         tryUnify mvars[0] mvars[1]
 
@@ -530,11 +530,11 @@ mutual
             modify fun s => { s with bottomUps := s.bottomUps.set! i true }
 
     applyFunBinderHeuristic := do
-      let { f, args, mvars, bInfos, .. } ← read
+      let { args, mvars, bInfos, .. } ← read
 
       let rec core (argIdx : Nat) (mvarType : Expr) : AnalyzeAppM Bool := do
         match ← getExpr, mvarType with
-        | Expr.lam .., Expr.forallE n t b .. =>
+        | Expr.lam .., Expr.forallE _ t b .. =>
           let mut annotated := false
           for i in [:argIdx] do
             if ← pure (bInfos[i] == BinderInfo.implicit) <&&> valUnknown mvars[i] <&&> withNewMCtxDepth (checkpointDefEq t mvars[i]) then
@@ -610,7 +610,7 @@ mutual
           tryUnify mvars[i] args[i]
 
     maybeSetExplicit := do
-      let { f, args, mvars, bInfos, forceRegularApp, ..} ← read
+      let { f, args, bInfos, ..} ← read
       if (← get).namedArgs.any nameNotRoundtrippable then
         annotateBool `pp.explicit
         for i in [:args.size] do
@@ -634,7 +634,7 @@ def topDownAnalyze (e : Expr) : MetaM OptionsPerPos := do
         let knowsType := getPPAnalyzeKnowsType (← getOptions)
         ϕ { knowsType := knowsType, knowsLevel := knowsType, subExpr := mkRoot e }
           |>.run' { : TopDownAnalyze.State }
-      catch ex =>
+      catch _ =>
         trace[pp.analyze.error] "failed"
         pure {}
       finally set s₀

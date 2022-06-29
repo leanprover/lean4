@@ -79,7 +79,7 @@ private def registerFailedToInferDefTypeInfo (type : Expr) (ref : Syntax) : Term
 /--
   Return `some [b, c]` if the given `views` are representing a declaration of the form
   ```
-  constant a b c : Nat
+  opaque a b c : Nat
   ```  -/
 private def isMultiConstant? (views : Array DefView) : Option (List Name) :=
   if views.size == 1 &&
@@ -162,21 +162,24 @@ private partial def withFunLocalDecls {α} (headers : Array DefViewElabHeader) (
   loop 0 #[]
 
 private def expandWhereStructInst : Macro
-  | `(Parser.Command.whereStructInst|where $[$decls:letDecl$[;]?]*) => do
+  | `(Parser.Command.whereStructInst|where $[$decls:letDecl];* $[$whereDecls?:whereDecls]?) => do
     let letIdDecls ← decls.mapM fun stx => match stx with
-      | `(letDecl|$decl:letPatDecl)  => Macro.throwErrorAt stx "patterns are not allowed here"
+      | `(letDecl|$_decl:letPatDecl)  => Macro.throwErrorAt stx "patterns are not allowed here"
       | `(letDecl|$decl:letEqnsDecl) => expandLetEqnsDecl decl
       | `(letDecl|$decl:letIdDecl)   => pure decl
       | _                               => Macro.throwUnsupported
     let structInstFields ← letIdDecls.mapM fun
-      | stx@`(letIdDecl|$id:ident $[$binders]* $[: $ty?]? := $val) => withRef stx do
+      | stx@`(letIdDecl|$id:ident $binders* $[: $ty?]? := $val) => withRef stx do
         let mut val := val
         if let some ty := ty? then
           val ← `(($val : $ty))
-        val ← if binders.size > 0 then `(fun $[$binders]* => $val:term) else pure val
+        val ← if binders.size > 0 then `(fun $binders* => $val) else pure val
         `(structInstField|$id:ident := $val)
       | _ => Macro.throwUnsupported
-    `({ $[$structInstFields,]* })
+    let body ← `({ $structInstFields,* })
+    match whereDecls? with
+    | some whereDecls => expandWhereDecls whereDecls body
+    | none => return body
   | _ => Macro.throwUnsupported
 
 /-
@@ -212,11 +215,11 @@ private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array
 
 private def collectUsed (headers : Array DefViewElabHeader) (values : Array Expr) (toLift : List LetRecToLift)
     : StateRefT CollectFVars.State MetaM Unit := do
-  headers.forM fun header => collectUsedFVars header.type
-  values.forM collectUsedFVars
+  headers.forM fun header => header.type.collectFVars
+  values.forM fun val => val.collectFVars
   toLift.forM fun letRecToLift => do
-    collectUsedFVars letRecToLift.type
-    collectUsedFVars letRecToLift.val
+    letRecToLift.type.collectFVars
+    letRecToLift.val.collectFVars
 
 private def removeUnusedVars (vars : Array Expr) (headers : Array DefViewElabHeader) (values : Array Expr) (toLift : List LetRecToLift)
     : TermElabM (LocalContext × LocalInstances × Array Expr) := do
@@ -708,7 +711,7 @@ def processDefDeriving (className : Name) (declName : Name) : TermElabM Bool := 
     }
     addInstance instName AttributeKind.global (eval_prio default)
     return true
-  catch ex =>
+  catch _ =>
     return false
 
 /-- Remove auxiliary match discriminant let-declarations. -/

@@ -193,7 +193,7 @@ def getPathToBaseStructure? (env : Environment) (baseStructName : Name) (structN
 /-- Return true iff `constName` is the a non-recursive inductive datatype that has only one constructor. -/
 def isStructureLike (env : Environment) (constName : Name) : Bool :=
   match env.find? constName with
-  | some (ConstantInfo.inductInfo { isRec := false, ctors := [ctor], numIndices := 0, .. }) => true
+  | some (ConstantInfo.inductInfo { isRec := false, ctors := [_], numIndices := 0, .. }) => true
   | _ => false
 
 /-- Return number of fields for a structure-like type -/

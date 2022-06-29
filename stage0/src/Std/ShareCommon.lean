@@ -27,10 +27,10 @@ unsafe abbrev Object.ptrHash (a : Object) : UInt64 :=
   ptrAddrUnsafe a |>.toUInt64
 
 @[extern "lean_sharecommon_eq"]
-unsafe constant Object.eq (a b : @& Object) : Bool
+unsafe opaque Object.eq (a b : @& Object) : Bool
 
 @[extern "lean_sharecommon_hash"]
-unsafe constant Object.hash (a : @& Object) : UInt64
+unsafe opaque Object.hash (a : @& Object) : UInt64
 
 unsafe def ObjectMap : Type := @HashMap Object Object ⟨Object.ptrEq⟩ ⟨Object.ptrHash⟩
 unsafe def ObjectSet : Type := @HashSet Object ⟨Object.eq⟩ ⟨Object.hash⟩
@@ -86,18 +86,18 @@ unsafe def ObjectPersistentSet.insert (s : ObjectPersistentSet) (o : Object) : O
   @PersistentHashSet.insert Object ⟨Object.eq⟩ ⟨Object.hash⟩ s o
 
 /- Internally `State` is implemented as a pair `ObjectMap` and `ObjectSet` -/
-constant StatePointed : NonemptyType
+opaque StatePointed : NonemptyType
 abbrev State : Type u := StatePointed.type
 @[extern "lean_sharecommon_mk_state"]
-constant mkState : Unit → State := fun _ => Classical.choice StatePointed.property
+opaque mkState : Unit → State := fun _ => Classical.choice StatePointed.property
 def State.empty : State := mkState ()
 instance State.inhabited : Inhabited State := ⟨State.empty⟩
 
 /- Internally `PersistentState` is implemented as a pair `ObjectPersistentMap` and `ObjectPersistentSet` -/
-constant PersistentStatePointed : NonemptyType
+opaque PersistentStatePointed : NonemptyType
 abbrev PersistentState : Type u := PersistentStatePointed.type
 @[extern "lean_sharecommon_mk_pstate"]
-constant mkPersistentState : Unit → PersistentState := fun _ => Classical.choice PersistentStatePointed.property
+opaque mkPersistentState : Unit → PersistentState := fun _ => Classical.choice PersistentStatePointed.property
 def PersistentState.empty : PersistentState := mkPersistentState ()
 instance PersistentState.inhabited : Inhabited PersistentState := ⟨PersistentState.empty⟩
 abbrev PState : Type u := PersistentState

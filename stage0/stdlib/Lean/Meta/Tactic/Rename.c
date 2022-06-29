@@ -32,7 +32,8 @@ LEAN_EXPORT lean_object* l_Lean_Meta_rename___lambda__1(lean_object* x_1, lean_o
 _start:
 {
 lean_object* x_10; 
-lean_inc(x_6);
+lean_inc(x_7);
+lean_inc(x_5);
 lean_inc(x_1);
 x_10 = l_Lean_Meta_checkNotAssigned(x_1, x_2, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_10) == 0)
@@ -80,7 +81,7 @@ lean_inc(x_27);
 lean_dec(x_25);
 lean_inc(x_26);
 x_28 = l_Lean_Meta_assignExprMVar(x_1, x_26, x_5, x_6, x_7, x_8, x_27);
-lean_dec(x_6);
+lean_dec(x_7);
 lean_dec(x_5);
 x_29 = !lean_is_exclusive(x_28);
 if (x_29 == 0)
@@ -113,7 +114,7 @@ uint8_t x_35;
 lean_dec(x_18);
 lean_dec(x_15);
 lean_dec(x_13);
-lean_dec(x_6);
+lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_1);
 x_35 = !lean_is_exclusive(x_20);
@@ -141,7 +142,7 @@ else
 uint8_t x_39; 
 lean_dec(x_15);
 lean_dec(x_13);
-lean_dec(x_6);
+lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_1);
 x_39 = !lean_is_exclusive(x_17);
@@ -167,7 +168,7 @@ return x_42;
 else
 {
 uint8_t x_43; 
-lean_dec(x_6);
+lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -232,7 +233,7 @@ _start:
 lean_object* x_10; 
 x_10 = l_Lean_Meta_rename___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_8);
-lean_dec(x_7);
+lean_dec(x_6);
 return x_10;
 }
 }

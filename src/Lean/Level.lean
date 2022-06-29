@@ -231,7 +231,7 @@ def toNat (lvl : Level) : Option Nat :=
   | _      => none
 
 @[extern "lean_level_eq"]
-protected constant beq (a : @& Level) (b : @& Level) : Bool
+protected opaque beq (a : @& Level) (b : @& Level) : Bool
 
 instance : BEq Level := ⟨Level.beq⟩
 
@@ -262,8 +262,14 @@ partial def normLtAux : Level → Nat → Level → Nat → Bool
     if l₁ == l₂ then k₁ < k₂
     else if l₁₁ != l₂₁ then normLtAux l₁₁ 0 l₂₁ 0
     else normLtAux l₁₂ 0 l₂₂ 0
-  | param n₁ _, k₁, param n₂ _, k₂ => if n₁ == n₂ then k₁ < k₂ else Name.lt n₁ n₂     -- use Name.lt because it is lexicographical
-  | mvar n₁ _, k₁, mvar n₂ _, k₂ => if n₁ == n₂ then k₁ < k₂ else Name.quickLt n₁.name n₂.name  -- metavariables are temporary, the actual order doesn't matter
+  | param n₁ _, k₁, param n₂ _, k₂ => if n₁ == n₂ then k₁ < k₂ else Name.lt n₁ n₂ -- use `Name.lt` because it is lexicographical
+  /-
+    We also use `Name.lt` in the following case to make sure universe parameters in a declaration
+    are not affected by shifted indices. We used to use `Name.quickLt` which is not stable over shifted indices (the hashcodes change),
+    and changes to the elaborator could affect the universe parameters and break code that relies on an explicit order.
+    Example: test `tests/lean/343.lean`.
+   -/
+  | mvar n₁ _, k₁, mvar n₂ _, k₂ => if n₁ == n₂ then k₁ < k₂ else Name.lt n₁.name n₂.name
   | l₁, k₁, l₂, k₂ => if l₁ == l₂ then k₁ < k₂ else ctorToNat l₁ < ctorToNat l₂
 
 /--
@@ -441,8 +447,8 @@ mutual
     | Result.imaxNode fs,   r => parenIfFalse (Format.group <| "imax" ++ formatLst fs) r
 end
 
-protected partial def Result.quote (r : Result) (prec : Nat) : Syntax :=
-  let addParen (s : Syntax) :=
+protected partial def Result.quote (r : Result) (prec : Nat) : Syntax.Level :=
+  let addParen (s : Syntax.Level) :=
     if prec > 0 then Unhygienic.run `(level| ( $s )) else s
   match r with
   | Result.leaf n         => Unhygienic.run `(level| $(mkIdent n):ident)
@@ -463,11 +469,11 @@ instance : ToFormat Level where
 instance : ToString Level where
   toString u := Format.pretty (Level.format u)
 
-protected def quote (u : Level) (prec : Nat := 0) : Syntax :=
+protected def quote (u : Level) (prec : Nat := 0) : Syntax.Level :=
   (PP.toResult u).quote prec
 
-instance : Quote Level where
-  quote u := Level.quote u
+instance : Quote Level `level where
+  quote := Level.quote
 
 end Level
 

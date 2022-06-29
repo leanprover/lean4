@@ -62,7 +62,7 @@ instance [Repr α] : Repr (ULift.{v} α) where
     Repr.addAppParen ("ULift.up " ++ reprArg v.1) prec
 
 instance : Repr Unit where
-  reprPrec v _ := "()"
+  reprPrec _ _ := "()"
 
 instance [Repr α] : Repr (Option α) where
   reprPrec
@@ -88,7 +88,7 @@ instance [Repr α] [ReprTuple β] : ReprTuple (α × β) where
 instance [Repr α] [ReprTuple β] : Repr (α × β) where
   reprPrec | (a, b), _ => Format.bracket "(" (Format.joinSep (reprTuple b [repr a]).reverse ("," ++ Format.line)) ")"
 
-instance {β : α → Type v} [Repr α] [s : (x : α) → Repr (β x)] : Repr (Sigma β) where
+instance {β : α → Type v} [Repr α] [(x : α) → Repr (β x)] : Repr (Sigma β) where
   reprPrec | ⟨a, b⟩, _ => Format.bracket "⟨" (repr a ++ ", " ++ repr b) "⟩"
 
 instance {p : α → Prop} [Repr α] : Repr (Subtype p) where
@@ -116,7 +116,7 @@ def digitChar (n : Nat) : Char :=
   '*'
 
 def toDigitsCore (base : Nat) : Nat → Nat → List Char → List Char
-  | 0,      n, ds => ds
+  | 0,      _, ds => ds
   | fuel+1, n, ds =>
     let d  := digitChar <| n % base;
     let n' := n / base;

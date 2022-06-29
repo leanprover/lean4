@@ -102,7 +102,7 @@ def throwUnknownParserCategory {α} (catName : Name) : ExceptT String Id α :=
 abbrev getCategory (categories : ParserCategories) (catName : Name) : Option ParserCategory :=
   categories.find? catName
 
-def addLeadingParser (categories : ParserCategories) (catName : Name) (parserName : Name) (p : Parser) (prio : Nat) : Except String ParserCategories :=
+def addLeadingParser (categories : ParserCategories) (catName : Name) (p : Parser) (prio : Nat) : Except String ParserCategories :=
   match getCategory categories catName with
   | none     =>
     throwUnknownParserCategory catName
@@ -132,9 +132,9 @@ def addTrailingParser (categories : ParserCategories) (catName : Name) (p : Trai
   | none     => throwUnknownParserCategory catName
   | some cat => pure $ categories.insert catName { cat with tables := addTrailingParserAux cat.tables p prio }
 
-def addParser (categories : ParserCategories) (catName : Name) (declName : Name) (leading : Bool) (p : Parser) (prio : Nat) : Except String ParserCategories :=
+def addParser (categories : ParserCategories) (catName : Name) (_declName : Name) (leading : Bool) (p : Parser) (prio : Nat) : Except String ParserCategories :=
   match leading, p with
-  | true, p  => addLeadingParser categories catName declName p prio
+  | true, p  => addLeadingParser categories catName p prio
   | false, p => addTrailingParser categories catName p prio
 
 def addParserTokens (tokenTable : TokenTable) (info : ParserInfo) : Except String TokenTable :=
@@ -202,11 +202,25 @@ def getBinaryAlias {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) : I
 
 abbrev ParserAliasValue := AliasValue Parser
 
-builtin_initialize parserAliasesRef : IO.Ref (NameMap ParserAliasValue) ← IO.mkRef {}
+structure ParserAliasInfo where
+  /-- Number of syntax nodes produced by this parser. `none` means "sum of input sizes". -/
+  stackSz? : Option Nat := some 1
+  /-- Whether arguments should be wrapped in `group(·)` if they do not produce exactly one syntax node. -/
+  autoGroupArgs : Bool := stackSz?.isSome
 
--- Later, we define macro registerParserAlias! which registers a parser, formatter and parenthesizer
-def registerAlias (aliasName : Name) (p : ParserAliasValue) : IO Unit := do
+builtin_initialize parserAliasesRef : IO.Ref (NameMap ParserAliasValue) ← IO.mkRef {}
+builtin_initialize parserAlias2kindRef : IO.Ref (NameMap SyntaxNodeKind) ← IO.mkRef {}
+builtin_initialize parserAliases2infoRef : IO.Ref (NameMap ParserAliasInfo) ← IO.mkRef {}
+
+def getParserAliasInfo (aliasName : Name) : IO ParserAliasInfo := do
+  return (← parserAliases2infoRef.get).findD aliasName {}
+
+-- Later, we define macro `register_parser_alias` which registers a parser, formatter and parenthesizer
+def registerAlias (aliasName : Name) (p : ParserAliasValue) (kind? : Option SyntaxNodeKind := none) (info : ParserAliasInfo := {}) : IO Unit := do
   registerAliasCore parserAliasesRef aliasName p
+  if let some kind := kind? then
+    parserAlias2kindRef.modify (·.insert aliasName kind)
+  parserAliases2infoRef.modify (·.insert aliasName info)
 
 instance : Coe Parser ParserAliasValue := { coe := AliasValue.const }
 instance : Coe (Parser → Parser) ParserAliasValue := { coe := AliasValue.unary }
@@ -216,6 +230,9 @@ def isParserAlias (aliasName : Name) : IO Bool := do
   match (← getAlias parserAliasesRef aliasName) with
   | some _ => pure true
   | _      => pure false
+
+def getSyntaxKindOfParserAlias? (aliasName : Name) : IO (Option SyntaxNodeKind) :=
+  return (← parserAlias2kindRef.get).find? aliasName
 
 def ensureUnaryParserAlias (aliasName : Name) : IO Unit :=
   discard $ getUnaryAlias parserAliasesRef aliasName
@@ -250,7 +267,7 @@ unsafe def mkParserOfConstantUnsafe (constName : Name) (compileParserDescr : Par
     | _ => throw ↑s!"unexpected parser type at '{constName}' (`ParserDescr`, `TrailingParserDescr`, `Parser` or `TrailingParser` expected)"
 
 @[implementedBy mkParserOfConstantUnsafe]
-constant mkParserOfConstantAux (constName : Name) (compileParserDescr : ParserDescr → ImportM Parser) : ImportM (Bool × Parser)
+opaque mkParserOfConstantAux (constName : Name) (compileParserDescr : ParserDescr → ImportM Parser) : ImportM (Bool × Parser)
 
 partial def compileParserDescr (categories : ParserCategories) (d : ParserDescr) : ImportM Parser :=
   let rec visit : ParserDescr → ImportM Parser
@@ -293,7 +310,7 @@ builtin_initialize
   registerBuiltinAttribute {
     name  := `runBuiltinParserAttributeHooks,
     descr := "explicitly run hooks normally activated by builtin parser attributes",
-    add   := fun decl stx persistent => do
+    add   := fun decl stx _ => do
       Attribute.Builtin.ensureNoArgs stx
       runParserAttributeHooks Name.anonymous decl (builtin := true)
   }
@@ -302,7 +319,7 @@ builtin_initialize
   registerBuiltinAttribute {
     name  := `runParserAttributeHooks,
     descr := "explicitly run hooks normally activated by parser attributes",
-    add   := fun decl stx persistent => do
+    add   := fun decl stx _ => do
       Attribute.Builtin.ensureNoArgs stx
       runParserAttributeHooks Name.anonymous decl (builtin := false)
   }
@@ -341,11 +358,11 @@ def leadingIdentBehavior (env : Environment) (catName : Name) : LeadingIdentBeha
 unsafe def evalParserConstUnsafe (declName : Name) : ParserFn := fun ctx s => unsafeBaseIO do
   let categories := (parserExtension.getState ctx.env).categories
   match (← (mkParserOfConstant categories declName { env := ctx.env, opts := ctx.options }).toBaseIO) with
-  | Except.ok (bool, p) => return p.fn ctx s
-  | Except.error e => return s.mkUnexpectedError e.toString
+  | .ok (_, p) => return p.fn ctx s
+  | .error e   => return s.mkUnexpectedError e.toString
 
 @[implementedBy evalParserConstUnsafe]
-constant evalParserConst (declName : Name) : ParserFn
+opaque evalParserConst (declName : Name) : ParserFn
 
 register_builtin_option internal.parseQuotWithCurrentStage : Bool := {
   defValue := false
@@ -376,7 +393,7 @@ def addBuiltinTrailingParser (catName : Name) (declName : Name) (p : TrailingPar
   addBuiltinParser catName declName false p prio
 
 def mkCategoryAntiquotParser (kind : Name) : Parser :=
-  mkAntiquot kind.toString none
+  mkAntiquot kind.toString kind (isPseudoKind := true)
 
 -- helper decl to work around inlining issue https://github.com/leanprover/lean4/commit/3f6de2af06dd9a25f62294129f64bc05a29ea912#r41340377
 @[inline] private def mkCategoryAntiquotParserFn (kind : Name) : ParserFn :=
@@ -467,7 +484,6 @@ private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
   let prio ← Attribute.Builtin.getPrio stx
   unless kind == AttributeKind.global do throwError "invalid attribute '{attrName}', must be global"
   let decl ← getConstInfo declName
-  let env ← getEnv
   match decl.type with
   | Expr.const `Lean.Parser.TrailingParser _ _ =>
     declareTrailingBuiltinParser catName declName prio
@@ -492,10 +508,9 @@ def registerBuiltinParserAttribute (attrName : Name) (catName : Name) (behavior 
    applicationTime := AttributeApplicationTime.afterCompilation
   }
 
-private def ParserAttribute.add (attrName : Name) (catName : Name) (declName : Name) (stx : Syntax) (attrKind : AttributeKind) : AttrM Unit := do
+private def ParserAttribute.add (_attrName : Name) (catName : Name) (declName : Name) (stx : Syntax) (attrKind : AttributeKind) : AttrM Unit := do
   let prio ← Attribute.Builtin.getPrio stx
   let env ← getEnv
-  let opts ← getOptions
   let categories := (parserExtension.getState env).categories
   let p ← mkParserOfConstant categories declName
   let leading    := p.1
@@ -551,12 +566,12 @@ builtin_initialize registerBuiltinDynamicParserAttribute `commandParser `command
 
 private def withNamespaces (ids : Array Name) (p : ParserFn) (addOpenSimple : Bool) : ParserFn := fun c s =>
   let c := ids.foldl (init := c) fun c id =>
-    match ResolveName.resolveNamespace? c.env c.currNamespace c.openDecls id with
-    | none => c -- Ignore namespace resolution errors, the elaborator will report them.
-    | some ns =>
-      let openDecls := if addOpenSimple then OpenDecl.simple ns [] :: c.openDecls else c.openDecls
-      let env := parserExtension.activateScoped c.env ns
-      { c with env, openDecls }
+    let nss := ResolveName.resolveNamespace c.env c.currNamespace c.openDecls id
+    let (env, openDecls) := nss.foldl (init := (c.env, c.openDecls)) fun (env, openDecls) ns =>
+      let openDecls := if addOpenSimple then OpenDecl.simple ns [] :: openDecls else openDecls
+      let env := parserExtension.activateScoped env ns
+      (env, openDecls)
+    { c with env, openDecls }
   let tokens := parserExtension.getState c.env |>.tokens
   p { c with tokens } s
 

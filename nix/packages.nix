@@ -76,7 +76,7 @@ in {
   nixpkgs = pkgs;
   ciShell = writeShellScriptBin "ciShell" ''
     set -o pipefail
-    export PATH=${nix-pinned}/bin:${moreutils}/bin:$PATH
+    export PATH=${moreutils}/bin:$PATH
     # prefix lines with cumulative and individual execution time
     "$@" |& ts -i "(%.S)]" | ts -s "[%M:%S"
   '';

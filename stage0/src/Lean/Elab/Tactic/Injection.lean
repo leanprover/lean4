@@ -27,7 +27,7 @@ private def checkUnusedIds (mvarId : MVarId) (unusedIds : List Name) : MetaM Uni
     | Meta.InjectionResult.solved                      => checkUnusedIds mvarId ids; return []
     | Meta.InjectionResult.subgoal mvarId' _ unusedIds => checkUnusedIds mvarId unusedIds; return [mvarId']
 
-@[builtinTactic «injections»] def evalInjections : Tactic := fun stx => do
+@[builtinTactic «injections»] def evalInjections : Tactic := fun _ => do
   liftMetaTactic fun mvarId => do
     match (← Meta.injections mvarId) with
     | none => return []

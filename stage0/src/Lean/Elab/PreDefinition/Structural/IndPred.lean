@@ -90,7 +90,6 @@ def mkIndPredBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr) 
     let FType ← instantiateForall FType recArgInfo.indIndices
     instantiateForall FType #[major]
   forallBoundedTelescope FType (some 1) fun below _ => do
-    let main ← mkFreshExprSyntheticOpaqueMVar FType
     let below := below[0]
     let valueNew     ← replaceIndPredRecApps recFnName recArgInfo motive value
     let Farg         ← mkLambdaFVars (recArgInfo.indIndices ++ #[major, below] ++ otherArgs) valueNew

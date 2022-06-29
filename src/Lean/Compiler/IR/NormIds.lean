@@ -114,7 +114,7 @@ partial def normFnBody : FnBody → N FnBody
 
 def normDecl (d : Decl) : N Decl :=
   match d with
-  | Decl.fdecl (xs := xs) (body := b) .. => withParams xs fun xs => return d.updateBody! (← normFnBody b)
+  | Decl.fdecl (xs := xs) (body := b) .. => withParams xs fun _ => return d.updateBody! (← normFnBody b)
   | other => pure other
 
 end NormalizeIds

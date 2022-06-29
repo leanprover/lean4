@@ -146,7 +146,6 @@ private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr :=
   let mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque
   let mvarId := mvar.mvarId!
   let ref ← getRef
-  let declName? ← getDeclName?
   registerSyntheticMVar ref mvarId <| SyntheticMVarKind.tactic tacticCode (← saveContext)
   return mvar
 
@@ -159,7 +158,7 @@ private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr :=
 @[builtinTermElab noImplicitLambda] def elabNoImplicitLambda : TermElab := fun stx expectedType? =>
   elabTerm stx[1] (mkNoImplicitLambdaAnnotation <$> expectedType?)
 
-@[builtinTermElab cdot] def elabBadCDot : TermElab := fun stx _ =>
+@[builtinTermElab cdot] def elabBadCDot : TermElab := fun _ _ =>
   throwError "invalid occurrence of `·` notation, it must be surrounded by parentheses (e.g. `(· + 1)`)"
 
 @[builtinTermElab str] def elabStrLit : TermElab := fun stx _ => do
@@ -185,7 +184,7 @@ private def mkFreshTypeMVarFor (expectedType? : Option Expr) : TermElabM Expr :=
   registerMVarErrorImplicitArgInfo mvar.mvarId! stx r
   return r
 
-@[builtinTermElab rawNatLit] def elabRawNatLit : TermElab :=  fun stx expectedType? => do
+@[builtinTermElab rawNatLit] def elabRawNatLit : TermElab :=  fun stx _ => do
   match stx[1].isNatLit? with
   | some val => return mkRawNatLit val
   | none     => throwIllFormedSyntax
@@ -250,7 +249,7 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
   else
     return e
 
-@[builtinTermElab ensureTypeOf] def elabEnsureTypeOf : TermElab := fun stx expectedType? =>
+@[builtinTermElab ensureTypeOf] def elabEnsureTypeOf : TermElab := fun stx _ =>
   match stx[2].isStrLit? with
   | none     => throwIllFormedSyntax
   | some msg => do

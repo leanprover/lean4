@@ -31,7 +31,6 @@ def deltaTarget (mvarId : MVarId) (p : Name → Bool) : MetaM MVarId :=
 def deltaLocalDecl (mvarId : MVarId) (fvarId : FVarId) (p : Name → Bool) : MetaM MVarId :=
   withMVarContext mvarId do
     checkNotAssigned mvarId `delta
-    let localDecl ← getLocalDecl fvarId
     changeLocalDecl mvarId fvarId (← deltaExpand (← getMVarType mvarId) p) (checkDefEq := false)
 
 end Lean.Meta

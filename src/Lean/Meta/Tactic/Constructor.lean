@@ -29,7 +29,7 @@ def existsIntro (mvarId : MVarId) (w : Expr) : MetaM MVarId := do
     let target ← getMVarType' mvarId
     matchConstStruct target.getAppFn
       (fun _ => throwTacticEx `exists mvarId "target is not an inductive datatype with one constructor")
-      fun ival us cval => do
+      fun _ us cval => do
         if cval.numFields < 2 then
           throwTacticEx `exists mvarId "constructor must have at least two fields"
         let ctor := mkAppN (Lean.mkConst cval.name us) target.getAppArgs[:cval.numParams]

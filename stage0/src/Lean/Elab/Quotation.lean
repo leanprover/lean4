@@ -16,25 +16,38 @@ namespace Lean.Elab.Term.Quotation
 open Lean.Parser.Term
 open Lean.Syntax
 open Meta
+open TSyntax.Compat
 
 /-- `C[$(e)]` ~> `let a := e; C[$a]`. Used in the implementation of antiquot splices. -/
-private partial def floatOutAntiquotTerms : Syntax → StateT (Syntax → TermElabM Syntax) TermElabM Syntax
-  | stx@(Syntax.node i k args) => do
-    if isAntiquot stx && !isEscapedAntiquot stx then
-      let e := getAntiquotTerm stx
-      if !e.isIdent || !e.getId.isAtomic then
-        return ← withFreshMacroScope do
-          let a ← `(a)
-          modify (fun cont stx => (`(let $a:ident := $e; $stx) : TermElabM _))
-          pure <| stx.setArg 2 a
+private partial def floatOutAntiquotTerms (stx : Syntax) : StateT (Syntax → TermElabM Syntax) TermElabM Syntax :=
+  if isAntiquots stx && !isEscapedAntiquot (getCanonicalAntiquot stx) then
+    let e := getAntiquotTerm (getCanonicalAntiquot stx)
+    if !e.isIdent || !e.getId.isAtomic then
+      withFreshMacroScope do
+        let a ← `(a)
+        modify (fun _ (stx : Syntax) => (`(let $a:ident := $e; $stx) : TermElabM Syntax))
+        let stx := if stx.isOfKind choiceKind then
+            mkNullNode <| stx.getArgs.map (·.setArg 2 a)
+          else
+            stx.setArg 2 a
+        return stx
+    else
+      return stx
+  else if let Syntax.node i k args := stx then
     return Syntax.node i k (← args.mapM floatOutAntiquotTerms)
-  | stx => pure stx
+  else
+    return stx
 
-private def getSepFromSplice (splice : Syntax) : Syntax :=
+private def getSepFromSplice (splice : Syntax) : String :=
   if let Syntax.atom _ sep := getAntiquotSpliceSuffix splice then
-    Syntax.mkStrLit (sep.dropRight 1)
+    sep.dropRight 1 -- drop trailing *
   else
     unreachable!
+
+private def getSepStxFromSplice (splice : Syntax) : Syntax := Unhygienic.run do
+  match getSepFromSplice splice with
+  | "" => `(mkNullNode) -- sepByIdent uses the null node for separator-less enumerations
+  | sep => `(mkAtom $(Syntax.mkStrLit sep))
 
 partial def mkTuple : Array Syntax → TermElabM Syntax
   | #[]  => `(Unit.unit)
@@ -57,13 +70,13 @@ def resolveSectionVariable (sectionVars : NameMap Name) (id : Name) : List (Name
   loop extractionResult.name []
 
 /-- Transform sequence of pushes and appends into acceptable code -/
-def ArrayStxBuilder := Sum (Array Syntax) Syntax
+def ArrayStxBuilder := Sum (Array Term) Term
 
 namespace ArrayStxBuilder
 
 def empty : ArrayStxBuilder := Sum.inl #[]
 
-def build : ArrayStxBuilder → Syntax
+def build : ArrayStxBuilder → Term
   | Sum.inl elems => quote elems
   | Sum.inr arr   => arr
 
@@ -78,8 +91,8 @@ def append (b : ArrayStxBuilder) (arr : Syntax) (appendName := ``Array.append) :
 end ArrayStxBuilder
 
 -- Elaborate the content of a syntax quotation term
-private partial def quoteSyntax : Syntax → TermElabM Syntax
-  | Syntax.ident info rawVal val preresolved => do
+private partial def quoteSyntax : Syntax → TermElabM Term
+  | Syntax.ident _ rawVal val preresolved => do
     if !hygiene.get (← getOptions) then
       return ← `(Syntax.ident info $(quote rawVal) $(quote val) $(quote preresolved))
     -- Add global scopes at compilation time (now), add macro scope at runtime (in the quotation).
@@ -94,8 +107,9 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
     `(Syntax.ident info $(quote rawVal) (addMacroScope mainModule $val scp) $(quote preresolved))
   -- if antiquotation, insert contents as-is, else recurse
   | stx@(Syntax.node _ k _) => do
-    if isAntiquot stx && !isEscapedAntiquot stx then
-      return getAntiquotTerm stx
+    if isAntiquots stx && !isEscapedAntiquot (getCanonicalAntiquot stx) then
+      let ks := antiquotKinds stx
+      `(@TSyntax.raw $(quote <| ks.map (·.1)) $(getAntiquotTerm (getCanonicalAntiquot stx)))
     else if isTokenAntiquot stx && !isEscapedAntiquot stx then
       match stx[0] with
       | Syntax.atom _ val => `(Syntax.atom (Option.getD (getHeadInfo? $(getAntiquotTerm stx)) info) $(quote val))
@@ -113,13 +127,17 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
       for arg in stx.getArgs do
         if k == nullKind && isAntiquotSuffixSplice arg then
           let antiquot := getAntiquotSuffixSpliceInner arg
+          let ks := antiquotKinds antiquot |>.map (·.1)
+          let val := getAntiquotTerm (getCanonicalAntiquot antiquot)
           args := args.append (appendName := appendName) <| ←
             match antiquotSuffixSplice? arg with
-            | `optional => `(match $(getAntiquotTerm antiquot):term with
+            | `optional => `(match Option.map (@TSyntax.raw $(quote ks)) $val:term with
               | some x => Array.empty.push x
               | none   => Array.empty)
-            | `many     => return getAntiquotTerm antiquot
-            | `sepBy    => `(@SepArray.elemsAndSeps $(getSepFromSplice arg) $(getAntiquotTerm antiquot))
+            | `many     => `(@TSyntaxArray.raw $(quote ks) $val)
+            | `sepBy    =>
+              let sep := quote <| getSepFromSplice arg
+              `(@TSepArray.elemsAndSeps $(quote ks) $sep $val)
             | k         => throwErrorAt arg "invalid antiquotation suffix splice kind '{k}'"
         else if k == nullKind && isAntiquotSplice arg then
           let k := antiquotSpliceKind? arg
@@ -133,12 +151,12 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
                 | $[some $ids:ident],* => $(quote inner)
                 | $[_%$ids],*          => Array.empty)
             | _ =>
-              let arr ← ids[:ids.size-1].foldrM (fun id arr => `(Array.zip $id $arr)) ids.back
+              let arr ← ids[:ids.size-1].foldrM (fun id arr => `(Array.zip $id:ident $arr)) ids.back
               `(Array.map (fun $(← mkTuple ids) => $(inner[0])) $arr)
-          let arr ←
-            if k == `sepBy then
-              `(mkSepArray $arr (mkAtom $(getSepFromSplice arg)))
-            else pure arr
+          let arr ← if k == `sepBy then
+            `(mkSepArray $arr $(getSepStxFromSplice arg))
+          else
+            pure arr
           let arr ← bindLets arr
           args := args.append (appendName := appendName) arr
         else do
@@ -149,17 +167,37 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
     `(Syntax.atom info $(quote val))
   | Syntax.missing => throwUnsupportedSyntax
 
+def getQuotKind (stx : Syntax) : TermElabM SyntaxNodeKind := do
+  match stx.getKind with
+  | ``Parser.Command.quot => pure `command
+  | ``Parser.Term.quot => pure `term
+  | ``Parser.Level.quot => pure `level
+  | ``Parser.Tactic.quot => pure `tactic
+  | ``Parser.Tactic.quotSeq => pure `tactic.seq
+  | ``Parser.Term.stx.quot => pure `stx
+  | ``Parser.Term.prec.quot => pure `prec
+  | ``Parser.Term.attr.quot => pure `attr
+  | ``Parser.Term.prio.quot => pure `prio
+  | ``Parser.Term.doElem.quot => pure `doElem
+  | Name.str kind "quot" _ => return kind
+  | ``dynamicQuot =>
+    match (← resolveGlobalConst stx[1]) with
+    | [parser] => pure parser
+    | _ => throwError "unknown parser {stx[1]}"
+  | k => throwError "unexpected quotation kind {k}"
+
 def stxQuot.expand (stx : Syntax) : TermElabM Syntax := do
+  let stx := if stx.getNumArgs == 1 then stx[0] else stx
   /- Syntax quotations are monadic values depending on the current macro scope. For efficiency, we bind
      the macro scope once for each quotation, then build the syntax tree in a completely pure computation
      depending on this binding. Note that regular function calls do not introduce a new macro scope (i.e.
      we preserve referential transparency), so we can refer to this same `scp` inside `quoteSyntax` by
      including it literally in a syntax quotation. -/
-  -- TODO: simplify to `(do scp ← getCurrMacroScope; pure $(quoteSyntax quoted))
-  let stx ← quoteSyntax stx.getQuotContent;
+  let kind ← getQuotKind stx
+  let stx ← quoteSyntax stx.getQuotContent
   `(Bind.bind MonadRef.mkInfoFromRefPos (fun info =>
       Bind.bind getCurrMacroScope (fun scp =>
-        Bind.bind getMainModule (fun mainModule => Pure.pure $stx))))
+        Bind.bind getMainModule (fun mainModule => Pure.pure (@TSyntax.mk $(quote kind) $stx)))))
   /- NOTE: It may seem like the newly introduced binding `scp` may accidentally
      capture identifiers in an antiquotation introduced by `quoteSyntax`. However,
      note that the syntax quotation above enjoys the same hygiene guarantees as
@@ -199,7 +237,7 @@ elab_stx_quot Parser.Command.quot
 /- match -/
 
 -- an "alternative" of patterns plus right-hand side
-private abbrev Alt := List Syntax × Syntax
+private abbrev Alt := List Term × Term
 
 /--
   In a single match step, we match the first discriminant against the "head" of the first pattern of the first
@@ -215,7 +253,7 @@ inductive HeadCheck where
   -- the node kind.
   -- without arity: `($x:k)
   -- with arity: any quotation without an antiquotation head pattern
-  | shape (k : SyntaxNodeKind) (arity : Option Nat)
+  | shape (k : List SyntaxNodeKind) (arity : Option Nat)
   -- Match step that succeeds on `null` nodes of arity at least `numPrefix + numSuffix`, introducing discriminants
   -- for the first `numPrefix` children, one `null` node for those in between, and for the `numSuffix` last children.
   -- example: `([$x, $xs,*, $y]) is `slice 2 2`
@@ -245,22 +283,22 @@ structure HeadInfo where
   -- compute compatibility of pattern with given head check
   onMatch (taken : HeadCheck) : MatchResult
   -- actually run the specified head check, with the discriminant bound to `discr`
-  doMatch (yes : (newDiscrs : List Syntax) → TermElabM Syntax) (no : TermElabM Syntax) : TermElabM Syntax
+  doMatch (yes : (newDiscrs : List Term) → TermElabM Term) (no : TermElabM Term) : TermElabM Term
 
 /-- Adapt alternatives that do not introduce new discriminants in `doMatch`, but are covered by those that do so. -/
 private def noOpMatchAdaptPats : HeadCheck → Alt → Alt
-  | shape k (some sz), (pats, rhs) => (List.replicate sz (Unhygienic.run `(_)) ++ pats, rhs)
+  | shape _ (some sz), (pats, rhs) => (List.replicate sz (Unhygienic.run `(_)) ++ pats, rhs)
   | slice p s,         (pats, rhs) => (List.replicate (p + 1 + s) (Unhygienic.run `(_)) ++ pats, rhs)
   | _,                 alt         => alt
 
-private def adaptRhs (fn : Syntax → TermElabM Syntax) : Alt → TermElabM Alt
+private def adaptRhs (fn : Term → TermElabM Term) : Alt → TermElabM Alt
   | (pats, rhs) => return (pats, ← fn rhs)
 
 private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
   let pat := alt.fst.head!
   let unconditionally (rhsFn) := pure {
     check := unconditional,
-    doMatch := fun yes no => yes [],
+    doMatch := fun yes _ => yes [],
     onMatch := fun taken => covered (adaptRhs rhsFn ∘ noOpMatchAdaptPats taken) (match taken with | unconditional => true | _ => false)
   }
   -- quotation pattern
@@ -271,42 +309,46 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
       unconditionally pure
     else if quoted.isTokenAntiquot then
       unconditionally (`(let $(quoted.getAntiquotTerm) := discr; $(·)))
-    else if isAntiquot quoted && !isEscapedAntiquot quoted then
+    else if isAntiquots quoted && !isEscapedAntiquot (getCanonicalAntiquot quoted) then
       -- quotation contains a single antiquotation
-      let k := antiquotKind? quoted |>.get!
-      let rhsFn := match getAntiquotTerm quoted with
+      let (ks, pseudoKinds) := antiquotKinds quoted |>.unzip
+      let rhsFn := match getAntiquotTerm (getCanonicalAntiquot quoted) with
         | `(_)         => pure
-        | `($id:ident) => fun stx => `(let $id := discr; $(stx))
+        | `($id:ident) => fun stx => `(let $id := @TSyntax.mk $(quote ks) discr; $(stx))
         | anti =>         fun _   => throwErrorAt anti "unsupported antiquotation kind in pattern"
       -- Antiquotation kinds like `$id:ident` influence the parser, but also need to be considered by
       -- `match` (but not by quotation terms). For example, `($id:ident) and `($e) are not
       -- distinguishable without checking the kind of the node to be captured. Note that some
-      -- antiquotations like the latter one for terms do not correspond to any actual node kind
-      -- (signified by `k == Name.anonymous`), so we would only check for `ident` here.
+      -- antiquotations like the latter one for terms do not correspond to any actual node kind,
+      -- so we would only check for `ident` here.
       --
       -- if stx.isOfKind `ident then
       --   let id := stx; let e := stx; ...
       -- else
       --   let e := stx; ...
-      if k == Name.anonymous then unconditionally rhsFn else pure {
-        check   := shape k none,
+      if (getCanonicalAntiquot quoted)[3].isNone || pseudoKinds.all id then unconditionally rhsFn else pure {
+        check   := shape ks none,
         onMatch := fun
           | other _ => undecided
-          | taken@(shape k' sz) =>
-            if k' == k then
+          | taken@(shape ks' sz) =>
+            if ks' == ks then
               covered (adaptRhs rhsFn ∘ noOpMatchAdaptPats taken) (exhaustive := sz.isNone)
             else uncovered
           | _ => uncovered,
-        doMatch := fun yes no => do `(cond (Syntax.isOfKind discr $(quote k)) $(← yes []) $(← no)),
+        doMatch := fun yes no => do
+          let cond ← ks.foldlM (fun cond k => `(or $cond (Syntax.isOfKind discr $(quote k)))) (← `(false))
+          `(cond $cond $(← yes []) $(← no)),
       }
     else if isAntiquotSuffixSplice quoted then throwErrorAt quoted "unexpected antiquotation splice"
     else if isAntiquotSplice quoted then throwErrorAt quoted "unexpected antiquotation splice"
     else if quoted.getArgs.size == 1 && isAntiquotSuffixSplice quoted[0] then
-      let anti := getAntiquotTerm (getAntiquotSuffixSpliceInner quoted[0])
+      let inner := getAntiquotSuffixSpliceInner quoted[0]
+      let anti := getAntiquotTerm (getCanonicalAntiquot inner)
+      let ks := antiquotKinds inner |>.map (·.1)
       unconditionally fun rhs => match antiquotSuffixSplice? quoted[0] with
-        | `optional => `(let $anti := Syntax.getOptional? discr; $rhs)
-        | `many     => `(let $anti := Syntax.getArgs discr; $rhs)
-        | `sepBy    => `(let $anti := @SepArray.mk $(getSepFromSplice quoted[0]) (Syntax.getArgs discr); $rhs)
+        | `optional => `(let $anti := Option.map (@TSyntax.mk $(quote ks)) (Syntax.getOptional? discr); $rhs)
+        | `many     => `(let $anti := @TSyntaxArray.mk $(quote ks) (Syntax.getArgs discr); $rhs)
+        | `sepBy    => `(let $anti := @TSepArray.mk $(quote ks) $(quote <| getSepFromSplice quoted[0]) (Syntax.getArgs discr); $rhs)
         | k         => throwErrorAt quoted "invalid antiquotation suffix splice kind '{k}'"
     else if quoted.getArgs.size == 1 && isAntiquotSplice quoted[0] then pure {
       check   := other pat,
@@ -351,7 +393,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
     }
     else if let some idx := quoted.getArgs.findIdx? (fun arg => isAntiquotSuffixSplice arg || isAntiquotSplice arg) then do
       /-
-        pattern of the form `match discr, ... with | `(pat_0 ... pat_(idx-1) $[...]* pat_(idx+1) ...), ...`
+        patterns of the form `match discr, ... with | `(pat_0 ... pat_(idx-1) $[...]* pat_(idx+1) ...), ...`
         transform to
         ```
         if discr.getNumArgs >= $quoted.getNumArgs - 1 then
@@ -397,31 +439,30 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
             -- but matching on literals is quite rare.
             other quoted
           else
-            shape kind argPats.size,
+            shape [kind] argPats.size,
         onMatch := fun
           | other stx' =>
             if (quoted.isIdent || lit) && quoted == stx' then
               covered pure (exhaustive := true)
             else
               uncovered
-          | shape k' sz =>
-            if k' == kind && sz == argPats.size then
+          | shape ks sz =>
+            if ks == [kind] && sz == argPats.size then
               covered (fun (pats, rhs) => pure (argPats.toList ++ pats, rhs)) (exhaustive := true)
             else
               uncovered
           | _ => uncovered,
         doMatch := fun yes no => do
-          let (cond, newDiscrs) ←
-            if lit then
-              let cond ← `(Syntax.matchesLit discr $(quote kind) $(quote (isLit? kind quoted).get!))
-              pure (cond, [])
-            else
-              let cond ← match kind with
-              | `null => `(Syntax.matchesNull discr $(quote argPats.size))
-              | `ident => `(Syntax.matchesIdent discr $(quote quoted.getId))
-              | _     => `(Syntax.isOfKind discr $(quote kind))
-              let newDiscrs ← (List.range argPats.size).mapM fun i => `(Syntax.getArg discr $(quote i))
-              pure (cond, newDiscrs)
+          let (cond, newDiscrs) ← if lit then
+            let cond ← `(Syntax.matchesLit discr $(quote kind) $(quote (isLit? kind quoted).get!))
+            pure (cond, [])
+          else
+            let cond ← match kind with
+            | `null => `(Syntax.matchesNull discr $(quote argPats.size))
+            | `ident => `(Syntax.matchesIdent discr $(quote quoted.getId))
+            | _     => `(Syntax.isOfKind discr $(quote kind))
+            let newDiscrs ← (List.range argPats.size).mapM fun i => `(Syntax.getArg discr $(quote i))
+            pure (cond, newDiscrs)
           `(ite (Eq $cond true) $(← yes newDiscrs) $(← no))
       }
   else match pat with
@@ -438,7 +479,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
 private def deduplicate (floatedLetDecls : Array Syntax) : Alt → TermElabM (Array Syntax × Alt)
   -- NOTE: new macro scope so that introduced bindings do not collide
   | (pats, rhs) => do
-    if let `($f:ident $[ $args:ident]*) := rhs then
+    if let `($_:ident $[ $_:ident]*) := rhs then
       -- looks simple enough/created by this function, skip
       return (floatedLetDecls, (pats, rhs))
     withFreshMacroScope do
@@ -451,7 +492,7 @@ private def deduplicate (floatedLetDecls : Array Syntax) : Alt → TermElabM (Ar
         let rhs' ← `(rhs $vars*)
         pure (floatedLetDecls.push (← `(letDecl|rhs $vars:ident* := $rhs)), (pats, rhs'))
 
-private partial def compileStxMatch (discrs : List Syntax) (alts : List Alt) : TermElabM Syntax := do
+private partial def compileStxMatch (discrs : List Term) (alts : List Alt) : TermElabM Syntax := do
   trace[Elab.match_syntax] "match {discrs} with {alts}"
   match discrs, alts with
   | [],            ([], rhs)::_ => pure rhs  -- nothing left to match
@@ -460,16 +501,15 @@ private partial def compileStxMatch (discrs : List Syntax) (alts : List Alt) : T
    pure Syntax.missing
   | discr::discrs, alt::alts    => do
     let info ← getHeadInfo alt
-    let pat  := alt.1.head!
     let alts ← (alt::alts).mapM fun alt => return ((← getHeadInfo alt).onMatch info.check, alt)
     let mut yesAlts           := #[]
     let mut undecidedAlts     := #[]
     let mut nonExhaustiveAlts := #[]
     let mut floatedLetDecls   := #[]
-    for alt in alts do
-      let mut alt := alt
-      match alt with
-      | (covered f exh, alt') =>
+    for (x, alt') in alts do
+      let mut alt' := alt'
+      match x with
+      | covered f exh =>
         -- we can only factor out a common check if there are no undecided patterns in between;
         -- otherwise we would change the order of alternatives
         if undecidedAlts.isEmpty then
@@ -477,14 +517,14 @@ private partial def compileStxMatch (discrs : List Syntax) (alts : List Alt) : T
           if !exh then
             nonExhaustiveAlts := nonExhaustiveAlts.push alt'
         else
-          (floatedLetDecls, alt) ← deduplicate floatedLetDecls alt'
-          undecidedAlts := undecidedAlts.push alt
-          nonExhaustiveAlts := nonExhaustiveAlts.push alt
-      | (undecided, alt') =>
-        (floatedLetDecls, alt) ← deduplicate floatedLetDecls alt'
-        undecidedAlts := undecidedAlts.push alt
-        nonExhaustiveAlts := nonExhaustiveAlts.push alt
-      | (uncovered, alt') =>
+          (floatedLetDecls, alt') ← deduplicate floatedLetDecls alt'
+          undecidedAlts := undecidedAlts.push alt'
+          nonExhaustiveAlts := nonExhaustiveAlts.push alt'
+      | undecided =>
+        (floatedLetDecls, alt') ← deduplicate floatedLetDecls alt'
+        undecidedAlts := undecidedAlts.push alt'
+        nonExhaustiveAlts := nonExhaustiveAlts.push alt'
+      | uncovered =>
         nonExhaustiveAlts := nonExhaustiveAlts.push alt'
     let mut stx ← info.doMatch
       (yes := fun newDiscrs => do
@@ -499,7 +539,7 @@ private partial def compileStxMatch (discrs : List Syntax) (alts : List Alt) : T
         withFreshMacroScope $ compileStxMatch (newDiscrs ++ discrs) yesAlts.toList)
       (no := withFreshMacroScope $ compileStxMatch (discr::discrs) nonExhaustiveAlts.toList)
     for d in floatedLetDecls do
-      stx ← `(let_delayed $d:letDecl; $stx)
+      stx ← `(let_delayed $(⟨d⟩):letDecl; $stx)
     `(let discr := $discr; $stx)
   | _, _ => unreachable!
 
@@ -507,8 +547,8 @@ def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
   match stx with
   | `(match $[$discrs:term],* with $[| $[$patss],* => $rhss]*) => do
     if !patss.any (·.any (fun
-      | `($id@$pat) => pat.isQuot
-      | pat         => pat.isQuot)) then
+      | `($_@$pat) => pat.raw.isQuot
+      | pat        => pat.raw.isQuot)) then
       -- no quotations => fall back to regular `match`
       throwUnsupportedSyntax
     let stx ← compileStxMatch discrs.toList (patss.map (·.toList) |>.zip rhss).toList

@@ -229,7 +229,7 @@ def getObjValD (j : Json) (k : String) : Json :=
 
 def setObjVal! : Json → String → Json → Json
   | obj kvs, k, v => obj <| kvs.insert compare k v
-  | j      , _, _ => panic! "Json.setObjVal!: not an object: {j}"
+  | _      , _, _ => panic! "Json.setObjVal!: not an object: {j}"
 
 inductive Structured where
   | arr (elems : Array Json)

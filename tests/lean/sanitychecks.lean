@@ -7,7 +7,7 @@ partial theorem unsound2 : False := -- Error
 unsafe theorem unsound3 : False := -- Error
   unsound3
 
-constant unsound4 : False  -- Error
+opaque unsound4 : False  -- Error
 
 axiom magic : False -- OK
 namespace Foo

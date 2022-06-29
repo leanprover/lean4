@@ -15,6 +15,7 @@ set_option compiler.reuse false
 namespace Lean.Elab.Term
 open Lean.Parser.Term
 open Meta
+open TSyntax.Compat
 
 private def getDoSeqElems (doSeq : Syntax) : List Syntax :=
   if doSeq.getKind == ``Lean.Parser.Term.doSeqBracketed then
@@ -122,7 +123,7 @@ private partial def extractBind (expectedType? : Option Expr) : TermElabM Extrac
 
 namespace Do
 
-abbrev Var := Syntax  -- TODO: should be `TSyntax identKind`
+abbrev Var := Syntax  -- TODO: should be `Ident`
 
 /- A `doMatch` alternative. `vars` is the array of variables declared by `patterns`. -/
 structure Alt (σ : Type) where
@@ -222,7 +223,7 @@ partial def CodeBlocl.toMessageData (codeBlock : CodeBlock) : MessageData :=
     | Code.«break» _              => m!"break {us}"
     | Code.«continue» _           => m!"continue {us}"
     | Code.«return» _ v           => m!"return {v} {us}"
-    | Code.«match» _ _ ds t alts  =>
+    | Code.«match» _ _ ds _ alts  =>
       m!"match {ds} with"
       ++ alts.foldl (init := m!"") fun acc alt => acc ++ m!"\n| {alt.patterns} => {loop alt.rhs}"
   loop codeBlock.code
@@ -241,7 +242,7 @@ partial def hasExitPointPred (c : Code) (p : Code → Bool) : Bool :=
   loop c
 
 def hasExitPoint (c : Code) : Bool :=
-  hasExitPointPred c fun c => true
+  hasExitPointPred c fun _ => true
 
 def hasReturn (c : Code) : Bool :=
   hasExitPointPred c fun
@@ -303,12 +304,11 @@ def attachJPs (jpDecls : Array JPDecl) (k : Code) : Code :=
   jpDecls.foldr attachJP k
 
 def mkFreshJP (ps : Array (Var × Bool)) (body : Code) : TermElabM JPDecl := do
-  let ps ←
-    if ps.isEmpty then
-      let y ← `(y)
-      pure #[(y, false)]
-    else
-      pure ps
+  let ps ← if ps.isEmpty then
+    let y ← `(y)
+    pure #[(y.raw, false)]
+  else
+    pure ps
   -- Remark: the compiler frontend implemented in C++ currently detects jointpoints created by
   -- the "do" notation by testing the name. See hack at method `visit_let` at `lcnf.cpp`
   -- We will remove this hack when we re-implement the compiler frontend in Lean.
@@ -362,7 +362,7 @@ partial def pullExitPointsAux : VarSet → Code → StateRefT (Array JPDecl) Ter
   | rs, Code.seq e k                 => return Code.seq e (← pullExitPointsAux rs k)
   | rs, Code.ite ref x? o c t e      => return Code.ite ref x? o c (← pullExitPointsAux (eraseOptVar rs x?) t) (← pullExitPointsAux (eraseOptVar rs x?) e)
   | rs, Code.«match» ref g ds t alts => return Code.«match» ref g ds t (← alts.mapM fun alt => do pure { alt with rhs := (← pullExitPointsAux (eraseVars rs alt.vars) alt.rhs) })
-  | rs, c@(Code.jmp _ _ _)           => return  c
+  | _,  c@(Code.jmp _ _ _)           => return  c
   | rs, Code.«break» ref             => mkSimpleJmp ref rs (Code.«break» ref)
   | rs, Code.«continue» ref          => mkSimpleJmp ref rs (Code.«continue» ref)
   | rs, Code.«return» ref val        => mkJmp ref rs val (fun y => return Code.«return» ref y)
@@ -669,7 +669,7 @@ def mkSingletonDoSeq (doElem : Syntax) : Syntax :=
 /-
   If the given syntax is a `doIf`, return an equivalente `doIf` that has an `else` but no `else if`s or `if let`s.  -/
 private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := match stx with
-  | `(doElem|if $p:doIfProp then $t else $e) => pure none
+  | `(doElem|if $_:doIfProp then $_ else $_) => pure none
   | `(doElem|if%$i $cond:doIfCond then $t $[else if%$is $conds:doIfCond then $ts]* $[else $e?]?) => withRef stx do
     let mut e      := e?.getD (← `(doSeq|pure PUnit.unit))
     let mut eIsSeq := true
@@ -940,7 +940,6 @@ def declToTerm (decl : Syntax) (k : Syntax) : M Syntax := withRef decl <| withFr
     return mkNode ``Lean.Parser.Term.letrec #[letRecToken, letRecDecls, mkNullNode, k]
   else if kind == ``Lean.Parser.Term.doLetArrow then
     let arg := decl[2]
-    let ref := arg
     if arg.getKind == ``Lean.Parser.Term.doIdDecl then
       let id     := arg[0]
       let type   := expandOptType id arg[1]
@@ -962,23 +961,10 @@ def declToTerm (decl : Syntax) (k : Syntax) : M Syntax := withRef decl <| withFr
     Macro.throwErrorAt decl "unexpected kind of 'do' declaration"
 
 def reassignToTerm (reassign : Syntax) (k : Syntax) : MacroM Syntax := withRef reassign <| withFreshMacroScope do
-  let kind := reassign.getKind
-  if kind == ``Lean.Parser.Term.doReassign then
-    -- doReassign := leading_parser (letIdDecl <|> letPatDecl)
-    let arg := reassign[0]
-    if arg.getKind == ``Lean.Parser.Term.letIdDecl then
-      -- letIdDecl := leading_parser ident >> many (ppSpace >> bracketedBinder) >> optType >>  " := " >> termParser
-      let x   := arg[0]
-      let val := arg[4]
-      let newVal ← `(ensure_type_of% $x $(quote "invalid reassignment, value") $val)
-      let arg := arg.setArg 4 newVal
-      let letDecl := mkNode `Lean.Parser.Term.letDecl #[arg]
-      `(let $letDecl:letDecl; $k)
-    else
-      -- TODO: ensure the types did not change
-      let letDecl := mkNode `Lean.Parser.Term.letDecl #[arg]
-      `(let $letDecl:letDecl; $k)
-  else
+  match reassign with
+  | `(doElem| $x:ident := $rhs) => `(let $x:ident := ensure_type_of% $x $(quote "invalid reassignment, value") $rhs; $k)
+  | `(doElem| $e:term  := $rhs) => `(let $e:term  := ensure_type_of% $e $(quote "invalid reassignment, value") $rhs; $k)
+  | _ =>
     -- Note that `doReassignArrow` is expanded by `doReassignArrowToCode
     Macro.throwErrorAt reassign "unexpected kind of 'do' reassignment"
 
@@ -1162,7 +1148,7 @@ structure ToForInTermResult where
   uvars      : Array Var
   term       : Syntax
 
-def mkForInBody  (x : Syntax) (forInBody : CodeBlock) : M ToForInTermResult := do
+def mkForInBody  (_ : Syntax) (forInBody : CodeBlock) : M ToForInTermResult := do
   let ctx ← read
   let uvars := forInBody.uvars
   let uvars := varSetToArray uvars
@@ -1186,7 +1172,7 @@ private partial def expandLiftMethodAux (inQuot : Bool) (inBinder : Bool) : Synt
         throwErrorAt stx "cannot lift `(<- ...)` over a binder, this error usually happens when you are trying to lift a method nested in a `fun`, `let`, or `match`-alternative, and it can often be fixed by adding a missing `do`"
       let term := args[1]
       let term ← expandLiftMethodAux inQuot inBinder term
-      let auxDoElem ← `(doElem| let a ← $term:term)
+      let auxDoElem : Syntax ← `(doElem| let a ← $term:term)
       modify fun s => s ++ [auxDoElem]
       `(a)
     else do
@@ -1266,7 +1252,6 @@ mutual
      ```
   -/
   partial def doLetArrowToCode (doLetArrow : Syntax) (doElems : List Syntax) : M CodeBlock := do
-    let ref     := doLetArrow
     let decl    := doLetArrow[2]
     if decl.getKind == ``Lean.Parser.Term.doIdDecl then
       let y := decl[0]
@@ -1274,7 +1259,7 @@ mutual
       let doElem := decl[3]
       let k ← withNewMutableVars #[y] (isMutableLet doLetArrow) (doSeqToCode doElems)
       match isDoExpr? doElem with
-      | some action => return mkVarDeclCore #[y] doLetArrow k
+      | some _      => return mkVarDeclCore #[y] doLetArrow k
       | none =>
         checkLetArrowRHS doElem
         let c ← doSeqToCode [doElem]
@@ -1286,11 +1271,10 @@ mutual
       let doElem  := decl[2]
       let optElse := decl[3]
       if optElse.isNone then withFreshMacroScope do
-        let auxDo ←
-          if isMutableLet doLetArrow then
-            `(do let discr ← $doElem; let mut $pattern:term := discr)
-          else
-            `(do let discr ← $doElem; let $pattern:term := discr)
+        let auxDo ← if isMutableLet doLetArrow then
+          `(do let discr ← $doElem; let mut $pattern:term := discr)
+        else
+          `(do let discr ← $doElem; let $pattern:term := discr)
         doSeqToCode <| getDoSeqElems (getDoSeq auxDo) ++ doElems
       else
         if isMutableLet doLetArrow then
@@ -1318,7 +1302,6 @@ mutual
      ```
   -/
   partial def doReassignArrowToCode (doReassignArrow : Syntax) (doElems : List Syntax) : M CodeBlock := do
-    let ref  := doReassignArrow
     let decl := doReassignArrow[0]
     if decl.getKind == ``Lean.Parser.Term.doIdDecl then
       let doElem := decl[3]
@@ -1357,7 +1340,6 @@ mutual
      "unless " >> termParser >> "do " >> doSeq
      ```  -/
   partial def doUnlessToCode (doUnless : Syntax) (doElems : List Syntax) : M CodeBlock := withRef doUnless do
-    let ref   := doUnless
     let cond  := doUnless[1]
     let doSeq := doUnless[3]
     let body ← doSeqToCode (getDoSeqElems doSeq)
@@ -1426,11 +1408,10 @@ mutual
       let uvarsTuple ← liftMacroM do mkTuple uvars
       if hasReturn forInBodyCodeBlock.code then
         let forInBody ← liftMacroM <| destructTuple uvars (← `(r)) forInBody
-        let forInTerm ←
-          if let some h := h? then
-            `(for_in'% $(xs) (MProd.mk none $uvarsTuple) fun $x $h r => let r := r.2; $forInBody)
-          else
-            `(for_in% $(xs) (MProd.mk none $uvarsTuple) fun $x r => let r := r.2; $forInBody)
+        let forInTerm ← if let some h := h? then
+          `(for_in'% $(xs) (MProd.mk none $uvarsTuple) fun $x $h r => let r := r.2; $forInBody)
+        else
+          `(for_in% $(xs) (MProd.mk none $uvarsTuple) fun $x r => let r := r.2; $forInBody)
         let auxDo ← `(do let r ← $forInTerm:term;
                          $uvarsTuple:term := r.2;
                          match r.1 with
@@ -1439,11 +1420,10 @@ mutual
         doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
       else
         let forInBody ← liftMacroM <| destructTuple uvars (← `(r)) forInBody
-        let forInTerm ←
-          if let some h := h? then
-            `(for_in'% $(xs) $uvarsTuple fun $x $h r => $forInBody)
-          else
-            `(for_in% $(xs) $uvarsTuple fun $x r => $forInBody)
+        let forInTerm ← if let some h := h? then
+          `(for_in'% $(xs) $uvarsTuple fun $x $h r => $forInBody)
+        else
+          `(for_in% $(xs) $uvarsTuple fun $x r => $forInBody)
         if doElems.isEmpty then
           let auxDo ← `(do let r ← $forInTerm:term;
                            $uvarsTuple:term := r;
@@ -1460,7 +1440,7 @@ mutual
     let optMotive := doMatch[2]
     let discrs    := doMatch[3]
     let matchAlts := doMatch[5][0].getArgs -- Array of `doMatchAlt`
-    let matchAlts := matchAlts.foldl (init := #[]) fun result matchAlt => result ++ expandMatchAlt matchAlt
+    let matchAlts ← matchAlts.foldlM (init := #[]) fun result matchAlt => return result ++ (← liftMacroM <| expandMatchAlt matchAlt)
     let alts ←  matchAlts.mapM fun matchAlt => do
       let patterns := matchAlt[1][0]
       let vars ← getPatternsVarsEx patterns.getSepArgs
@@ -1481,7 +1461,6 @@ mutual
     ```
   -/
   partial def doTryToCode (doTry : Syntax) (doElems: List Syntax) : M CodeBlock := do
-    let ref := doTry
     let tryCode ← doSeqToCode (getDoSeqElems doTry[1])
     let optFinally := doTry[3]
     let catches ← doTry[2].getArgs.mapM fun catchStx => do
@@ -1547,7 +1526,6 @@ mutual
           doSeqToCode (liftedDoElems ++ [doElem] ++ doElems)
         else
           let ref := doElem
-          let concatWithRest (c : CodeBlock) : M CodeBlock := concatWith c doElems
           let k := doElem.getKind
           if k == ``Lean.Parser.Term.doLet then
             let vars ← getDoLetVars doElem

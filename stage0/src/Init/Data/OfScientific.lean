@@ -23,6 +23,14 @@ def Float.ofBinaryScientific (m : Nat) (e : Int) : Float :=
   let e := e + s
   m.toFloat.scaleB e
 
+protected opaque Float.ofScientific (m : Nat) (s : Bool) (e : Nat) : Float :=
+  if s then
+    let s := 64 - m.log2 -- ensure we have 64 bits of mantissa left after division
+    let m := (m <<< (3 * e + s)) / 5^e
+    Float.ofBinaryScientific m (-4 * e - s)
+  else
+    Float.ofBinaryScientific (m * 5^e) e
+
 /-
   The `OfScientifi Float` must have priority higher than `mid` since
   the default instance `Neg Int` has `mid` priority.
@@ -32,13 +40,7 @@ def Float.ofBinaryScientific (m : Nat) (e : Int) : Float :=
 -/
 @[defaultInstance mid+1]
 instance : OfScientific Float where
-  ofScientific m s e :=
-    if s then
-      let s := 64 - m.log2 -- ensure we have 64 bits of mantissa left after division
-      let m := (m <<< (3 * e + s)) / 5^e
-      Float.ofBinaryScientific m (-4 * e - s)
-    else
-      Float.ofBinaryScientific (m * 5^e) e
+  ofScientific := Float.ofScientific
 
 @[export lean_float_of_nat]
 def Float.ofNat (n : Nat) : Float :=

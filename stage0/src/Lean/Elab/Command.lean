@@ -23,8 +23,8 @@ structure Scope where
   currNamespace : Name := Name.anonymous
   openDecls     : List OpenDecl := []
   levelNames    : List Name := []
-  /-- section variables as `bracketedBinder`s -/
-  varDecls      : Array Syntax := #[]
+  /-- section variables -/
+  varDecls      : Array (TSyntax ``Parser.Term.bracketedBinder) := #[]
   /-- Globally unique internal identifiers for the `varDecls` -/
   varUIds       : Array Name := #[]
   /-- noncomputable sections automatically add the `noncomputable` modifier to any declaration we cannot generate code for. -/
@@ -218,7 +218,7 @@ unsafe def mkCommandElabAttributeUnsafe : IO (KeyedDeclsAttribute CommandElab) :
   mkElabAttribute CommandElab `Lean.Elab.Command.commandElabAttribute `builtinCommandElab `commandElab `Lean.Parser.Command `Lean.Elab.Command.CommandElab "command"
 
 @[implementedBy mkCommandElabAttributeUnsafe]
-constant mkCommandElabAttribute : IO (KeyedDeclsAttribute CommandElab)
+opaque mkCommandElabAttribute : IO (KeyedDeclsAttribute CommandElab)
 
 builtin_initialize commandElabAttribute : KeyedDeclsAttribute CommandElab ← mkCommandElabAttribute
 
@@ -297,11 +297,14 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
           | elabFns => elabCommandUsing s stx elabFns
     | _ => throwError "unexpected command"
 
+builtin_initialize registerTraceClass `Elab.input
+
 /--
 `elabCommand` wrapper that should be used for the initial invocation, not for recursive calls after
 macro expansion etc.
 -/
 def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do
+  trace[Elab.input] stx
   let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
   let initInfoTrees ← getResetInfoTrees
   -- We should *not* factor out `elabCommand`'s `withLogging` to here since it would make its error
@@ -343,10 +346,10 @@ private def mkMetaContext : Meta.Context := {
 }
 
 def getBracketedBinderIds : Syntax → Array Name
-  | `(bracketedBinder|($ids* $[: $ty?]? $(annot?)?)) => ids.map Syntax.getId
+  | `(bracketedBinder|($ids* $[: $ty?]? $(_annot?)?)) => ids.map Syntax.getId
   | `(bracketedBinder|{$ids* $[: $ty?]?})            => ids.map Syntax.getId
-  | `(bracketedBinder|[$id : $ty])                   => #[id.getId]
-  | `(bracketedBinder|[$ty])                         => #[Name.anonymous]
+  | `(bracketedBinder|[$id : $_])                    => #[id.getId]
+  | `(bracketedBinder|[$_])                          => #[Name.anonymous]
   | _                                                => #[]
 
 private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) : Term.Context := Id.run do
@@ -377,7 +380,7 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
   let x : MetaM _      := (observing x).run (mkTermContext ctx s declName?) (mkTermState scope s)
   let x : CoreM _      := x.run mkMetaContext {}
   let x : EIO _ _      := x.run (mkCoreContext ctx s heartbeats) { env := s.env, ngen := s.ngen, nextMacroScope := s.nextMacroScope }
-  let (((ea, termS), metaS), coreS) ← liftEIO x
+  let (((ea, termS), _), coreS) ← liftEIO x
   modify fun s => { s with
     env             := coreS.env
     nextMacroScope  := coreS.nextMacroScope

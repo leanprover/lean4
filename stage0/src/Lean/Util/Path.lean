@@ -22,7 +22,7 @@ where
   go : Name → FilePath
   | Name.str p h _ => go p / h
   | Name.anonymous => base
-  | Name.num p _ _ => panic! "ill-formed import"
+  | Name.num _ _ _ => panic! "ill-formed import"
 
 /-- A `.olean' search path. -/
 abbrev SearchPath := System.SearchPath
@@ -131,7 +131,7 @@ def searchModuleNameOfFileName (fname : FilePath) (rootDirs : SearchPath) : IO (
       return some <| ← moduleNameOfFileName fname <| some rootDir
     catch
       -- Try the next one
-      | e => pure ()
+      | _ => pure ()
   return none
 
 /--

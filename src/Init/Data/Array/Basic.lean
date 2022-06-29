@@ -606,7 +606,7 @@ theorem extLit {n : Nat}
     (a b : Array α)
     (hsz₁ : a.size = n) (hsz₂ : b.size = n)
     (h : (i : Nat) → (hi : i < n) → a.getLit i hsz₁ hi = b.getLit i hsz₂ hi) : a = b :=
-  Array.ext a b (hsz₁.trans hsz₂.symm) fun i hi₁ hi₂ => h i (hsz₁ ▸ hi₁)
+  Array.ext a b (hsz₁.trans hsz₂.symm) fun i hi₁ _ => h i (hsz₁ ▸ hi₁)
 
 end Array
 
@@ -765,7 +765,8 @@ def isPrefixOfAux [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) (i : N
     true
 termination_by _ => as.size - i
 
-/- Return true iff `as` is a prefix of `bs` -/
+/-- Return true iff `as` is a prefix of `bs`.
+That is, `bs = as ++ t` for some `t : List α`.-/
 def isPrefixOf [BEq α] (as bs : Array α) : Bool :=
   if h : as.size ≤ bs.size then
     isPrefixOfAux as bs h 0

@@ -30,7 +30,7 @@ private partial def unpackMutual (preDefs : Array PreDefinition) (mvarId : MVarI
   go 0 mvarId fvarId #[]
 
 private partial def unpackUnary (preDef : PreDefinition) (prefixSize : Nat) (mvarId : MVarId) (fvarId : FVarId) (element : TerminationByElement) : TermElabM MVarId := do
-  let varNames ← lambdaTelescope preDef.value fun xs body => do
+  let varNames ← lambdaTelescope preDef.value fun xs _ => do
     let mut varNames ← xs.mapM fun x => return (← getLocalDecl x.fvarId!).userName
     if element.vars.size > varNames.size then
       throwErrorAt element.vars[varNames.size] "too many variable names"
@@ -133,7 +133,7 @@ where
     let hole ← `(_)
     for preDef in preDefs, numArg in numArgs, argIdx in argCombination, i in [:preDefs.size] do
       let mut vars := #[var]
-      for i in [:numArg - argIdx - 1] do
+      for _ in [:numArg - argIdx - 1] do
         vars := vars.push hole
       -- TODO: improve this.
       -- The following trick allows a function `f` in a mutual block to invoke `g` appearing before it with the input argument.

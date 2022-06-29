@@ -47,7 +47,7 @@ private def caseValueAux (mvarId : MVarId) (fvarId : FVarId) (value : Expr) (hNa
       trace[Meta] "subst domain: {thenSubst.domain.map (·.name)}"
       let thenH := (thenSubst.get thenH).fvarId!
       trace[Meta] "searching for decl"
-      let decl ← getLocalDecl thenH
+      let _ ← getLocalDecl thenH
       trace[Meta] "found decl"
     let thenSubgoal := { mvarId := thenMVarId, newH := (thenSubst.get thenH).fvarId!, subst := thenSubst : CaseValueSubgoal }
     pure (thenSubgoal, elseSubgoal)
@@ -90,12 +90,11 @@ def caseValues (mvarId : MVarId) (fvarId : FVarId) (values : Array Expr) (hNameP
           | Expr.fvar fvarId _ => tryClear thenMVarId fvarId
           | _                  => pure thenMVarId)
         thenSubgoal.mvarId
-      let subgoals ←
-         if substNewEqs then
-           let (subst, mvarId) ← substCore thenMVarId thenSubgoal.newH false thenSubgoal.subst true
-           pure <| subgoals.push { mvarId := mvarId, newHs := #[], subst := subst }
-         else
-           pure <| subgoals.push { mvarId := thenMVarId, newHs := #[thenSubgoal.newH], subst := thenSubgoal.subst }
+      let subgoals ← if substNewEqs then
+         let (subst, mvarId) ← substCore thenMVarId thenSubgoal.newH false thenSubgoal.subst true
+         pure <| subgoals.push { mvarId := mvarId, newHs := #[], subst := subst }
+      else
+         pure <| subgoals.push { mvarId := thenMVarId, newHs := #[thenSubgoal.newH], subst := thenSubgoal.subst }
       match vs with
       | [] => do
         appendTagSuffix elseSubgoal.mvarId ((`case).appendIndexAfter (i+1))

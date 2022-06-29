@@ -7,24 +7,24 @@
     url = github:leanprover/mdBook;
     flake = false;
   };
-  inputs.alectryon-src = {
+  inputs.alectryon = {
     url = github:Kha/alectryon/typeid;
     flake = false;
   };
-  inputs.leanInk-src = {
+  inputs.leanInk = {
     url = github:leanprover/LeanInk;
     flake = false;
   };
 
-  outputs = { self, lean, flake-utils, mdBook, alectryon-src, leanInk-src }: flake-utils.lib.eachDefaultSystem (system:
-    with lean.packages.${system}; with nixpkgs;
+  outputs = inputs@{ self, ... }: inputs.flake-utils.lib.eachDefaultSystem (system:
+    with inputs.lean.packages.${system}; with nixpkgs;
     let
       doc-src = lib.sourceByRegex ../. ["doc.*" "tests(/lean(/beginEndAsMacro.lean)?)?"];
     in {
     packages = rec {
       lean-mdbook = mdbook.overrideAttrs (drv: rec {
         name = "lean-${mdbook.name}";
-        src = mdBook;
+        src = inputs.mdBook;
         cargoDeps = drv.cargoDeps.overrideAttrs (_: {
           inherit src;
           outputHash = "sha256-5cAV8tOU3R1cPubseetURDQOzKyoo4485wD5IgeJUhQ=";
@@ -60,14 +60,18 @@
         dontInstall = true;
       };
       leanInk = (buildLeanPackage {
-        name = "LeanInk";
-        src = leanInk-src;
+        name = "Main";
+        src = inputs.leanInk;
+        deps = [ (buildLeanPackage {
+          name = "LeanInk";
+          src = inputs.leanInk;
+        }) ];
         executableName = "leanInk";
         linkFlags = ["-rdynamic"];
       }).executable;
       alectryon = python3Packages.buildPythonApplication {
         name = "alectryon";
-        src = alectryon-src;
+        src = inputs.alectryon;
         propagatedBuildInputs =
           [ leanInk lean-all ] ++
           # https://github.com/cpitclaudel/alectryon/blob/master/setup.cfg

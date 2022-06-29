@@ -42,7 +42,7 @@ instance {ε σ} : MonadLift (ST σ) (EST ε σ) := ⟨fun x s =>
 namespace ST
 
 /- References -/
-constant RefPointed : NonemptyType.{0}
+opaque RefPointed : NonemptyType.{0}
 
 structure Ref (σ : Type) (α : Type) : Type where
   ref : RefPointed.type
@@ -55,21 +55,21 @@ namespace Prim
 
 /- Auxiliary definition for showing that `ST σ α` is inhabited when we have a `Ref σ α` -/
 private noncomputable def inhabitedFromRef {σ α} (r : Ref σ α) : ST σ α :=
-  let inh : Inhabited α := Classical.inhabited_of_nonempty r.h
+  let _ : Inhabited α := Classical.inhabited_of_nonempty r.h
   pure default
 
 @[extern "lean_st_mk_ref"]
-constant mkRef {σ α} (a : α) : ST σ (Ref σ α) := pure { ref := Classical.choice RefPointed.property, h := Nonempty.intro a }
+opaque mkRef {σ α} (a : α) : ST σ (Ref σ α) := pure { ref := Classical.choice RefPointed.property, h := Nonempty.intro a }
 @[extern "lean_st_ref_get"]
-constant Ref.get {σ α} (r : @& Ref σ α) : ST σ α := inhabitedFromRef r
+opaque Ref.get {σ α} (r : @& Ref σ α) : ST σ α := inhabitedFromRef r
 @[extern "lean_st_ref_set"]
-constant Ref.set {σ α} (r : @& Ref σ α) (a : α) : ST σ Unit
+opaque Ref.set {σ α} (r : @& Ref σ α) (a : α) : ST σ Unit
 @[extern "lean_st_ref_swap"]
-constant Ref.swap {σ α} (r : @& Ref σ α) (a : α) : ST σ α := inhabitedFromRef r
+opaque Ref.swap {σ α} (r : @& Ref σ α) (a : α) : ST σ α := inhabitedFromRef r
 @[extern "lean_st_ref_take"]
-unsafe constant Ref.take {σ α} (r : @& Ref σ α) : ST σ α := inhabitedFromRef r
+unsafe opaque Ref.take {σ α} (r : @& Ref σ α) : ST σ α := inhabitedFromRef r
 @[extern "lean_st_ref_ptr_eq"]
-constant Ref.ptrEq {σ α} (r1 r2 : @& Ref σ α) : ST σ Bool
+opaque Ref.ptrEq {σ α} (r1 r2 : @& Ref σ α) : ST σ Bool
 
 @[inline] unsafe def Ref.modifyUnsafe {σ α : Type} (r : Ref σ α) (f : α → α) : ST σ Unit := do
   let v ← Ref.take r

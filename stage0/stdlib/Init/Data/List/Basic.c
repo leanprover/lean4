@@ -46,6 +46,7 @@ LEAN_EXPORT lean_object* l_List_reverseAux(lean_object*);
 LEAN_EXPORT lean_object* l_List_replace___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_isSuffixOf___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_isPrefixOf___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_filterTRAux___at_List_removeAll___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_List_isPrefixOf___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_all___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_append___rarg(lean_object*, lean_object*);
@@ -71,6 +72,7 @@ LEAN_EXPORT lean_object* l_List_groupBy___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_concat_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_instMembershipList(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_init_match__1_splitter(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_filterTRAux___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_join___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_List_elem___at_List_instDecidableMemListInstMembershipList___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_max___at_List_maximum_x3f___spec__1(lean_object*, lean_object*);
@@ -85,10 +87,10 @@ LEAN_EXPORT lean_object* l_List_or___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_replicate___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_isEmpty___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_beq_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_filterTR___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_any(lean_object*);
 LEAN_EXPORT lean_object* l_List_instLTList___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_bind___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_filterAux___at_List_removeAll___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_List_reverse(lean_object*);
 LEAN_EXPORT lean_object* l_List_minimum_x3f___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_minimum_x3f(lean_object*);
@@ -104,7 +106,6 @@ LEAN_EXPORT lean_object* l_List_eraseIdx(lean_object*);
 LEAN_EXPORT lean_object* l_List_groupByAux___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_all___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_filterAux___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_instDecidableMemListInstMembershipList___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_zip___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_foldr___at_List_or___spec__1(uint8_t, lean_object*);
@@ -115,6 +116,7 @@ LEAN_EXPORT lean_object* l_List_init___rarg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_length_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_isSuffixOf(lean_object*);
 LEAN_EXPORT uint8_t l_List_or(lean_object*);
+LEAN_EXPORT lean_object* l_List_filterTR(lean_object*);
 LEAN_EXPORT lean_object* l_List_replicate(lean_object*);
 LEAN_EXPORT lean_object* l_List_append(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_beq_match__1_splitter(lean_object*, lean_object*);
@@ -154,6 +156,8 @@ LEAN_EXPORT lean_object* l_List_removeAll(lean_object*);
 LEAN_EXPORT lean_object* l_List_replicateTR_loop(lean_object*);
 LEAN_EXPORT lean_object* l_List_enumFrom___rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_foldr___at_List_and___spec__1(uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_List_filterTRAux___at_List_removeAll___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_filterTRAux(lean_object*);
 LEAN_EXPORT uint8_t l_List_hasDecidableLt___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_replicateTR_loop_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_partitionAux(lean_object*);
@@ -161,7 +165,6 @@ LEAN_EXPORT lean_object* l_List_isEmpty(lean_object*);
 LEAN_EXPORT lean_object* l_List_drop___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_take___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_span___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_filterAux___at_List_removeAll___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_erase(lean_object*);
 LEAN_EXPORT uint8_t l_List_beq___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_drop___rarg___boxed(lean_object*, lean_object*);
@@ -206,7 +209,6 @@ LEAN_EXPORT lean_object* l_List_zip___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_replicate___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_and___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_erase___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_filterAux(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_iotaTR_go(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_elem___at_List_instDecidableMemListInstMembershipList___spec__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -1098,7 +1100,86 @@ x_3 = lean_alloc_closure((void*)(l_List_filterMap___rarg), 2, 0);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_List_filterAux___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_List_filter___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_2) == 0)
+{
+lean_object* x_3; 
+lean_dec(x_1);
+x_3 = lean_box(0);
+return x_3;
+}
+else
+{
+uint8_t x_4; 
+x_4 = !lean_is_exclusive(x_2);
+if (x_4 == 0)
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
+x_5 = lean_ctor_get(x_2, 0);
+x_6 = lean_ctor_get(x_2, 1);
+lean_inc(x_1);
+lean_inc(x_5);
+x_7 = lean_apply_1(x_1, x_5);
+x_8 = lean_unbox(x_7);
+lean_dec(x_7);
+if (x_8 == 0)
+{
+lean_free_object(x_2);
+lean_dec(x_5);
+x_2 = x_6;
+goto _start;
+}
+else
+{
+lean_object* x_10; 
+x_10 = l_List_filter___rarg(x_1, x_6);
+lean_ctor_set(x_2, 1, x_10);
+return x_2;
+}
+}
+else
+{
+lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
+x_11 = lean_ctor_get(x_2, 0);
+x_12 = lean_ctor_get(x_2, 1);
+lean_inc(x_12);
+lean_inc(x_11);
+lean_dec(x_2);
+lean_inc(x_1);
+lean_inc(x_11);
+x_13 = lean_apply_1(x_1, x_11);
+x_14 = lean_unbox(x_13);
+lean_dec(x_13);
+if (x_14 == 0)
+{
+lean_dec(x_11);
+x_2 = x_12;
+goto _start;
+}
+else
+{
+lean_object* x_16; lean_object* x_17; 
+x_16 = l_List_filter___rarg(x_1, x_12);
+x_17 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_17, 0, x_11);
+lean_ctor_set(x_17, 1, x_16);
+return x_17;
+}
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_List_filter(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_List_filter___rarg), 2, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_List_filterTRAux___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -1174,29 +1255,64 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_filterAux(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_List_filterTRAux(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_List_filterAux___rarg), 3, 0);
+x_2 = lean_alloc_closure((void*)(l_List_filterTRAux___rarg), 3, 0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_List_filter___rarg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_filterTR___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_box(0);
-x_4 = l_List_filterAux___rarg(x_1, x_2, x_3);
+x_4 = l_List_filterTRAux___rarg(x_1, x_2, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_List_filter(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_List_filterTR(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_List_filter___rarg), 2, 0);
+x_2 = lean_alloc_closure((void*)(l_List_filterTR___rarg), 2, 0);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_erase_match__1_splitter___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (x_1 == 0)
+{
+lean_inc(x_3);
+return x_3;
+}
+else
+{
+lean_inc(x_2);
+return x_2;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_erase_match__1_splitter(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l___private_Init_Data_List_Basic_0__List_erase_match__1_splitter___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_erase_match__1_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_1);
+lean_dec(x_1);
+x_5 = l___private_Init_Data_List_Basic_0__List_erase_match__1_splitter___rarg(x_4, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_List_partitionAux___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1804,41 +1920,6 @@ _start:
 lean_object* x_2; 
 x_2 = lean_box(0);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_erase_match__1_splitter___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (x_1 == 0)
-{
-lean_inc(x_3);
-return x_3;
-}
-else
-{
-lean_inc(x_2);
-return x_2;
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_erase_match__1_splitter(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Init_Data_List_Basic_0__List_erase_match__1_splitter___rarg___boxed), 3, 0);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_erase_match__1_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = lean_unbox(x_1);
-lean_dec(x_1);
-x_5 = l___private_Init_Data_List_Basic_0__List_erase_match__1_splitter___rarg(x_4, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_5;
 }
 }
 LEAN_EXPORT uint8_t l_List_elem___at_List_instDecidableMemListInstMembershipList___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -2699,7 +2780,7 @@ x_3 = lean_alloc_closure((void*)(l_List_lookup___rarg), 3, 0);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_List_filterAux___at_List_removeAll___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_List_filterTRAux___at_List_removeAll___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 if (lean_obj_tag(x_3) == 0)
@@ -2774,11 +2855,11 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_filterAux___at_List_removeAll___spec__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_List_filterTRAux___at_List_removeAll___spec__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_List_filterAux___at_List_removeAll___spec__1___rarg), 4, 0);
+x_2 = lean_alloc_closure((void*)(l_List_filterTRAux___at_List_removeAll___spec__1___rarg), 4, 0);
 return x_2;
 }
 }
@@ -2787,7 +2868,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_box(0);
-x_5 = l_List_filterAux___at_List_removeAll___spec__1___rarg(x_1, x_3, x_2, x_4);
+x_5 = l_List_filterTRAux___at_List_removeAll___spec__1___rarg(x_1, x_3, x_2, x_4);
 return x_5;
 }
 }

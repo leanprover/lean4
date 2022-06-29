@@ -303,7 +303,6 @@ mutual
 
   partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
     /- Recall, `tacticCode` is the whole `by ...` expression. -/
-    let byTk := tacticCode[0]
     let code := tacticCode[1]
     modifyThe Meta.State fun s => { s with mctx := s.mctx.instantiateMVarDeclMVars mvarId }
     let remainingGoals ← withInfoHole mvarId <| Tactic.run mvarId do
@@ -365,7 +364,7 @@ mutual
     pending TC problems become implicit parameters for the simp theorem.
   -/
   partial def synthesizeSyntheticMVars (mayPostpone := true) (ignoreStuckTC := false) : TermElabM Unit := do
-    let rec loop (u : Unit) : TermElabM Unit := do
+    let rec loop (_ : Unit) : TermElabM Unit := do
       withRef (← getSomeSynthethicMVarsRef) <| withIncRecDepth do
         unless (← get).syntheticMVars.isEmpty do
           if ← synthesizeSyntheticMVarsStep (postponeOnError := false) (runTactics := false) then

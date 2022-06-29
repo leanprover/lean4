@@ -662,7 +662,6 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_MetavarContext_MkBindi
 lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentArray_anyMAux___at_Lean_MetavarContext_MkBinding_collectForwardDeps___spec__22___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSetImp_expand___at___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_shouldVisit___spec__4(lean_object*, lean_object*);
-lean_object* l_panic___at_String_toNat_x21___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSetImp_moveEntries___at___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_shouldVisit___spec__5(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_MetavarContext_instantiateLCtxMVars___spec__6(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visitMain___at_Lean_MetavarContext_localDeclDependsOn___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1089,6 +1088,7 @@ LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_MetavarContext_exprDependsOn_x27___spec__7___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_update_lambda(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_MetavarContext_instantiateExprMVars___spec__27___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_panic___at_Lean_TSyntax_getNat___spec__1(lean_object*);
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_level_update_succ(lean_object*, lean_object*);
@@ -6047,7 +6047,7 @@ if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = l_Lean_MetavarContext_getLevelDepth___closed__2;
-x_5 = l_panic___at_String_toNat_x21___spec__1(x_4);
+x_5 = l_panic___at_Lean_TSyntax_getNat___spec__1(x_4);
 return x_5;
 }
 else
@@ -11220,7 +11220,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_MetavarContext_instantiateLevelMVars___rarg___lambda__1___closed__1;
 x_2 = l_Lean_MetavarContext_instantiateLevelMVars___rarg___lambda__1___closed__2;
-x_3 = lean_unsigned_to_nat(519u);
+x_3 = lean_unsigned_to_nat(525u);
 x_4 = lean_unsigned_to_nat(18u);
 x_5 = l_Lean_MetavarContext_instantiateLevelMVars___rarg___lambda__1___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -11302,7 +11302,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_MetavarContext_instantiateLevelMVars___rarg___lambda__1___closed__1;
 x_2 = l_Lean_MetavarContext_instantiateLevelMVars___rarg___lambda__2___closed__1;
-x_3 = lean_unsigned_to_nat(528u);
+x_3 = lean_unsigned_to_nat(534u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Lean_MetavarContext_instantiateLevelMVars___rarg___lambda__2___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -11402,7 +11402,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_MetavarContext_instantiateLevelMVars___rarg___lambda__1___closed__1;
 x_2 = l_Lean_MetavarContext_instantiateLevelMVars___rarg___lambda__4___closed__1;
-x_3 = lean_unsigned_to_nat(537u);
+x_3 = lean_unsigned_to_nat(543u);
 x_4 = lean_unsigned_to_nat(22u);
 x_5 = l_Lean_MetavarContext_instantiateLevelMVars___rarg___lambda__4___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -15936,7 +15936,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_MetavarContext_instantiateExprMVars___rarg___lambda__10___closed__1;
 x_2 = l_Lean_MetavarContext_instantiateExprMVars___rarg___lambda__10___closed__2;
-x_3 = lean_unsigned_to_nat(1090u);
+x_3 = lean_unsigned_to_nat(1096u);
 x_4 = lean_unsigned_to_nat(16u);
 x_5 = l_Lean_MetavarContext_instantiateExprMVars___rarg___lambda__10___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -16018,7 +16018,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_MetavarContext_instantiateExprMVars___rarg___lambda__10___closed__1;
 x_2 = l_Lean_MetavarContext_instantiateExprMVars___rarg___lambda__11___closed__1;
-x_3 = lean_unsigned_to_nat(1081u);
+x_3 = lean_unsigned_to_nat(1087u);
 x_4 = lean_unsigned_to_nat(20u);
 x_5 = l_Lean_MetavarContext_instantiateExprMVars___rarg___lambda__11___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -16103,7 +16103,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_MetavarContext_instantiateExprMVars___rarg___lambda__10___closed__1;
 x_2 = l_Lean_MetavarContext_instantiateExprMVars___rarg___lambda__12___closed__1;
-x_3 = lean_unsigned_to_nat(1140u);
+x_3 = lean_unsigned_to_nat(1146u);
 x_4 = lean_unsigned_to_nat(19u);
 x_5 = l_Lean_MetavarContext_instantiateExprMVars___rarg___lambda__12___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -16209,7 +16209,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_MetavarContext_instantiateExprMVars___rarg___lambda__10___closed__1;
 x_2 = l_Lean_MetavarContext_instantiateExprMVars___rarg___lambda__14___closed__1;
-x_3 = lean_unsigned_to_nat(1126u);
+x_3 = lean_unsigned_to_nat(1132u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Lean_MetavarContext_instantiateExprMVars___rarg___lambda__14___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -16315,7 +16315,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_MetavarContext_instantiateExprMVars___rarg___lambda__10___closed__1;
 x_2 = l_Lean_MetavarContext_instantiateExprMVars___rarg___lambda__16___closed__1;
-x_3 = lean_unsigned_to_nat(1149u);
+x_3 = lean_unsigned_to_nat(1155u);
 x_4 = lean_unsigned_to_nat(22u);
 x_5 = l_Lean_MetavarContext_instantiateExprMVars___rarg___lambda__16___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -16448,7 +16448,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_MetavarContext_instantiateExprMVars___rarg___lambda__10___closed__1;
 x_2 = l_Lean_MetavarContext_instantiateExprMVars___rarg___lambda__19___closed__1;
-x_3 = lean_unsigned_to_nat(1107u);
+x_3 = lean_unsigned_to_nat(1113u);
 x_4 = lean_unsigned_to_nat(19u);
 x_5 = l_Lean_MetavarContext_instantiateExprMVars___rarg___lambda__19___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -16533,7 +16533,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_MetavarContext_instantiateExprMVars___rarg___lambda__10___closed__1;
 x_2 = l_Lean_MetavarContext_instantiateExprMVars___rarg___lambda__20___closed__1;
-x_3 = lean_unsigned_to_nat(1112u);
+x_3 = lean_unsigned_to_nat(1118u);
 x_4 = lean_unsigned_to_nat(20u);
 x_5 = l_Lean_MetavarContext_instantiateExprMVars___rarg___lambda__20___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

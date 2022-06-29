@@ -1,6 +1,96 @@
 Unreleased
 ---------
 
+* The `group(·)` `syntax` combinator is now introduced automatically where necessary, such as when using multiple parsers inside `(...)+`.
+
+* Add ["Typed Macros"](https://github.com/leanprover/lean4/pull/1251): syntax trees produced and accepted by syntax antiquotations now remember their syntax kinds, preventing accidental production of ill-formed syntax trees and reducing the need for explicit `:kind` antiquotation annotations. See PR for details.
+
+* Aliases of protected definitions are protected too. Example:
+  ```lean
+  protected def Nat.double (x : Nat) := 2*x
+
+  namespace Ex
+  export Nat (double) -- Add alias Ex.double for Nat.double
+  end Ex
+
+  open Ex
+  #check Ex.double -- Ok
+  #check double -- Error, `Ex.double` is alias for `Nat.double` which is protected
+  ```
+
+* Use `IO.getRandomBytes` to initialize random seed for `IO.rand`. See discussion at [this PR](https://github.com/leanprover/lean4-samples/pull/2).
+
+* Improve dot notation and aliases interaction. See discussion on [Zulip](https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/Namespace-based.20overloading.20does.20not.20find.20exports/near/282946185) for additional details.
+  Example:
+  ```lean
+  def Set (α : Type) := α → Prop
+  def Set.union (s₁ s₂ : Set α) : Set α := fun a => s₁ a ∨ s₂ a
+  def FinSet (n : Nat) := Fin n → Prop
+
+  namespace FinSet
+    export Set (union) -- FinSet.union is now an alias for `Set.union`
+  end FinSet
+
+  example (x y : FinSet 10) : FinSet 10 :=
+    x.union y -- Works
+  ```
+
+* `ext` and `enter` conv tactics can now go inside let-declarations. Example:
+  ```lean
+  example (g : Nat → Nat) (y : Nat) (h : let x := y + 1; g (0+x) = x) : g (y + 1) = y + 1 := by
+    conv at h => enter [x, 1, 1]; rw [Nat.zero_add]
+    /-
+      g : Nat → Nat
+      y : Nat
+      h : let x := y + 1;
+          g x = x
+      ⊢ g (y + 1) = y + 1
+    -/
+    exact h
+  ```
+
+* Add `zeta` conv tactic to expand let-declarations. Example:
+  ```lean
+  example (h : let x := y + 1; 0 + x = y) : False := by
+    conv at h => zeta; rw [Nat.zero_add]
+    /-
+      y : Nat
+      h : y + 1 = y
+      ⊢ False
+    -/
+    simp_arith at h
+  ```
+
+* Improve namespace resolution. See issue [#1224](https://github.com/leanprover/lean4/issues/1224). Example:
+  ```lean
+  import Lean
+  open Lean Parser Elab
+  open Tactic -- now opens both `Lean.Parser.Tactic` and `Lean.Elab.Tactic`
+  ```
+
+* Rename `constant` command to `opaque`. See discussion at [Zulip](https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/What.20is.20.60opaque.60.3F/near/284926171).
+
+* Extend `induction` and `cases` syntax: multiple left-hand-sides in a single alternative. This extension is very similar to the one implemented for `match` expressions. Examples:
+  ```lean
+  inductive Foo where
+    | mk1 (x : Nat) | mk2 (x : Nat) | mk3
+
+  def f (v : Foo) :=
+    match v with
+    | .mk1 x => x + 1
+    | .mk2 x => 2*x + 1
+    | .mk3   => 1
+
+  theorem f_gt_zero : f v > 0 := by
+    cases v with
+    | mk1 x | mk2 x => simp_arith!  -- New feature used here!
+    | mk3 => decide
+  ```
+
+* [`let/if` indentation in `do` blocks in now supported.](https://github.com/leanprover/lean4/issues/1120)
+
+* Update Lake to v3.1.1. See the [v3.1.0 release note](https://github.com/leanprover/lake/releases/tag/v3.1.0) for detailed changes.
+
 * Add unnamed antiquotation `$_` for use in syntax quotation patterns.
 
 * [Add unused variables linter](https://github.com/leanprover/lean4/pull/1159). Feedback welcome!

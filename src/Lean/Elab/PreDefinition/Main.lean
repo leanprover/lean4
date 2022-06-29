@@ -19,16 +19,16 @@ structure TerminationHints where
 private def addAndCompilePartial (preDefs : Array PreDefinition) (useSorry := false) : TermElabM Unit := do
   for preDef in preDefs do
     trace[Elab.definition] "processing {preDef.declName}"
+    let all := preDefs.toList.map (·.declName)
     forallTelescope preDef.type fun xs type => do
-      let val ←
-        if useSorry then
-          mkLambdaFVars xs (← mkSorry type (synthetic := true))
-        else
-          liftM <| mkInhabitantFor preDef.declName xs type
+      let value ← if useSorry then
+        mkLambdaFVars xs (← mkSorry type (synthetic := true))
+      else
+        liftM <| mkInhabitantFor preDef.declName xs type
       addNonRec { preDef with
         kind  := DefKind.«opaque»
-        value := val
-      }
+        value
+      } (all := all)
   addAndCompilePartialRec preDefs
 
 private def isNonRecursive (preDef : PreDefinition) : Bool :=
@@ -124,7 +124,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
           wf? := some wf
           terminationBy := terminationBy.markAsUsed (preDefs.map (·.declName))
         if let some { ref, value := decrTactic } := decreasingBy.find? (preDefs.map (·.declName)) then
-          decrTactic? := some (← withRef ref `(by $decrTactic))
+          decrTactic? := some (← withRef ref `(by $(⟨decrTactic⟩)))
           decreasingBy := decreasingBy.markAsUsed (preDefs.map (·.declName))
         if wf?.isSome || decrTactic?.isSome then
           wfRecursion preDefs wf? decrTactic?

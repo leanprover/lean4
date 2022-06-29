@@ -84,7 +84,7 @@ private def reorderGoals (mvars : Array Expr) : ApplyNewGoals → MetaM (List MV
       let (nonDeps, deps) ← partitionDependentMVars mvars
       return nonDeps.toList ++ deps.toList
   | ApplyNewGoals.nonDependentOnly => do
-      let (nonDeps, deps) ← partitionDependentMVars mvars
+      let (nonDeps, _) ← partitionDependentMVars mvars
       return nonDeps.toList
   | ApplyNewGoals.all => return mvars.toList.map Lean.Expr.mvarId!
 
@@ -142,7 +142,7 @@ def applyRefl (mvarId : MVarId) (msg : MessageData := "refl failed") : MetaM Uni
     let some [] ← observing? do apply mvarId (mkConst ``Eq.refl [← mkFreshLevelMVar])
       | throwTacticEx `refl mvarId msg
 
-def exfalso (mvarId : MVarId) (msg : MessageData := "exfalso failed") : MetaM MVarId :=
+def exfalso (mvarId : MVarId) : MetaM MVarId :=
   withMVarContext mvarId do
     checkNotAssigned mvarId `exfalso
     let target ← instantiateMVars (← getMVarType mvarId)

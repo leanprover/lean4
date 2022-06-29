@@ -12,8 +12,9 @@ namespace Lean.Meta
 namespace Simp
 
 structure Result where
-  expr   : Expr
-  proof? : Option Expr := none -- If none, proof is assumed to be `refl`
+  expr           : Expr
+  proof?         : Option Expr := none -- If none, proof is assumed to be `refl`
+  dischargeDepth : Nat := 0
   deriving Inhabited
 
 abbrev Cache := ExprMap Result
@@ -61,7 +62,7 @@ def Step.updateResult : Step → Result → Step
 structure Methods where
   pre        : Expr → SimpM Step          := fun e => return Step.visit { expr := e }
   post       : Expr → SimpM Step          := fun e => return Step.done { expr := e }
-  discharge? : Expr → SimpM (Option Expr) := fun e => return none
+  discharge? : Expr → SimpM (Option Expr) := fun _ => return none
   deriving Inhabited
 
 /- Internal monad -/

@@ -89,7 +89,7 @@ nix run .#HEAD-as-stage0.emacs-dev&
 ```
 To run `nix build` on the second stage outside of the second editor, use
 ```bash
-nix build .#stage0-from-input
+nix build .#stage0-from-input --override-input lean-stage0 .\?rev=$(git rev-parse HEAD)
 ```
 This setup will inadvertently change your `flake.lock` file, which you can revert when you are done.
 

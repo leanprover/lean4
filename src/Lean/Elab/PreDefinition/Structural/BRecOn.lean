@@ -90,7 +90,7 @@ private partial def toBelow (below : Expr) (numIndParams : Nat) (recArg : Expr) 
 def refinedArgType (matcherApp : MatcherApp) (arg : Expr) : MetaM Bool := do
   let argType ← inferType arg
   (Array.zip matcherApp.alts matcherApp.altNumParams).anyM fun (alt, numParams) =>
-    lambdaTelescope alt fun xs altBody => do
+    lambdaTelescope alt fun xs _ => do
       if xs.size >= numParams then
         let refinedArg := xs[numParams - 1]
         return !(← isDefEq (← inferType refinedArg) argType)
@@ -114,7 +114,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
       withLetDecl n (← loop below type) (← loop below val) fun x => do
         mkLetFVars #[x] (← loop below (body.instantiate1 x)) (usedLetOnly := false)
     | Expr.mdata d b _   =>
-      if let some stx := getRecAppSyntax? e then
+      if let some _ := getRecAppSyntax? e then
         loop below b
       else
         return mkMData d (← loop below b)

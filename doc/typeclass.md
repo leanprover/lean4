@@ -180,7 +180,7 @@ With this added to the earlier instance declarations, type class instance can in
 #  default := true
 # instance : Inhabited Nat where
 #  default := 0
-# constant default [Inhabited a] : a :=
+# opaque default [Inhabited a] : a :=
 #  Inhabited.default
 instance [Inhabited a] [Inhabited b] : Inhabited (a × b) where
   default := (default, default)

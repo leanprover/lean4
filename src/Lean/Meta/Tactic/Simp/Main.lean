@@ -246,7 +246,12 @@ partial def simp (e : Expr) : M Result := withIncRecDepth do
     return { expr := e }
   if cfg.memoize then
     if let some result := (← get).cache.find? e then
-      return result
+      /-
+         If the result was cached at a dischargeDepth > the current one, it may not be valid.
+         See issue #1234
+      -/
+      if result.dischargeDepth ≤ (← readThe Simp.Context).dischargeDepth then
+        return result
   simpLoop { expr := e }
 
 where
@@ -435,15 +440,14 @@ where
       | CongrArgKind.cast  => pure ()
       | CongrArgKind.subsingletonInst =>
         let clsNew := type.bindingDomain!.instantiateRev subst
-        let instNew ←
-          if (← isDefEq (← inferType arg) clsNew) then
-            pure arg
-          else
-            match (← trySynthInstance clsNew) with
-            | LOption.some val => pure val
-            | _ =>
-              trace[Meta.Tactic.simp.congr] "failed to synthesize instance{indentExpr clsNew}"
-              return none
+        let instNew ← if (← isDefEq (← inferType arg) clsNew) then
+          pure arg
+        else
+          match (← trySynthInstance clsNew) with
+          | LOption.some val => pure val
+          | _ =>
+            trace[Meta.Tactic.simp.congr] "failed to synthesize instance{indentExpr clsNew}"
+            return none
         proof := mkApp proof instNew
         subst := subst.push instNew
         type := type.bindingBody!
@@ -678,7 +682,8 @@ where
 
   cacheResult (cfg : Config) (r : Result) : M Result := do
     if cfg.memoize then
-      modify fun s => { s with cache := s.cache.insert e r }
+      let dischargeDepth := (← readThe Simp.Context).dischargeDepth
+      modify fun s => { s with cache := s.cache.insert e { r with dischargeDepth } }
     return r
 
 def main (e : Expr) (ctx : Context) (methods : Methods := {}) : MetaM Result := do
@@ -925,7 +930,7 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Di
         | some thmId => pure { ctx with simpTheorems := ctx.simpTheorems.eraseTheorem thmId }
       let r ← simp type ctx discharge?
       match r.proof? with
-      | some proof => match (← applySimpResultToProp mvarId (mkFVar fvarId) type r) with
+      | some _ => match (← applySimpResultToProp mvarId (mkFVar fvarId) type r) with
         | none => return none
         | some (value, type) => toAssert := toAssert.push { userName := localDecl.userName, type := type, value := value }
       | none =>

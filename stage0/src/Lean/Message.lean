@@ -171,8 +171,8 @@ def bracket (l : String) (f : MessageData) (r : String) : MessageData := group (
 def paren (f : MessageData) : MessageData := bracket "(" f ")"
 def sbracket (f : MessageData) : MessageData := bracket "[" f "]"
 def joinSep : List MessageData → MessageData → MessageData
-  | [],    sep => Format.nil
-  | [a],   sep => a
+  | [],    _   => Format.nil
+  | [a],   _   => a
   | a::as, sep => a ++ sep ++ joinSep as sep
 def ofList: List MessageData → MessageData
   | [] => "[]"
@@ -294,6 +294,7 @@ instance : ToMessageData Level         := ⟨MessageData.ofLevel⟩
 instance : ToMessageData Name          := ⟨MessageData.ofName⟩
 instance : ToMessageData String        := ⟨stringToMessageData⟩
 instance : ToMessageData Syntax        := ⟨MessageData.ofSyntax⟩
+instance : ToMessageData (TSyntax k)   := ⟨(MessageData.ofSyntax ·)⟩
 instance : ToMessageData Format        := ⟨MessageData.ofFormat⟩
 instance : ToMessageData MVarId        := ⟨MessageData.ofGoal⟩
 instance : ToMessageData MessageData   := ⟨id⟩
@@ -308,6 +309,8 @@ syntax:max "m!" interpolatedStr(term) : term
 macro_rules
   | `(m! $interpStr) => do interpStr.expandInterpolatedStr (← `(MessageData)) (← `(toMessageData))
 
+def toMessageList (msgs : Array MessageData) : MessageData :=
+  indentD (MessageData.joinSep msgs.toList m!"\n\n")
 
 namespace KernelException
 
@@ -319,6 +322,7 @@ def toMessageData (e : KernelException) (opts : Options) : MessageData :=
   | unknownConstant env constName       => mkCtx env {} opts m!"(kernel) unknown constant '{constName}'"
   | alreadyDeclared env constName       => mkCtx env {} opts m!"(kernel) constant has already been declared '{constName}'"
   | declTypeMismatch env decl givenType =>
+    mkCtx env {} opts <|
     let process (n : Name) (expectedType : Expr) : MessageData :=
       m!"(kernel) declaration type mismatch, '{n}' has type{indentExpr givenType}\nbut it is expected to have type{indentExpr expectedType}";
     match decl with

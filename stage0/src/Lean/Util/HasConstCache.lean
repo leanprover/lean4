@@ -32,6 +32,6 @@ where
   Return true iff `e` contains the constant `declName`.
   Remark: the results for visited expressions are stored in the state cache. -/
 @[implementedBy HasConstCache.containsUnsafe]
-constant HasConstCache.contains (e : Expr) : StateM (HasConstCache declName) Bool
+opaque HasConstCache.contains (e : Expr) : StateM (HasConstCache declName) Bool
 
 end Lean

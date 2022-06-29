@@ -92,14 +92,14 @@ theorem congrArg {α : Sort u} {β : Sort v} {a₁ a₂ : α} (f : α → β) (h
 /-
 Initialize the Quotient Module, which effectively adds the following definitions:
 
-constant Quot {α : Sort u} (r : α → α → Prop) : Sort u
+opaque Quot {α : Sort u} (r : α → α → Prop) : Sort u
 
-constant Quot.mk {α : Sort u} (r : α → α → Prop) (a : α) : Quot r
+opaque Quot.mk {α : Sort u} (r : α → α → Prop) (a : α) : Quot r
 
-constant Quot.lift {α : Sort u} {r : α → α → Prop} {β : Sort v} (f : α → β) :
+opaque Quot.lift {α : Sort u} {r : α → α → Prop} {β : Sort v} (f : α → β) :
   (∀ a b : α, r a b → Eq (f a) (f b)) → Quot r → β
 
-constant Quot.ind {α : Sort u} {r : α → α → Prop} {β : Quot r → Prop} :
+opaque Quot.ind {α : Sort u} {r : α → α → Prop} {β : Quot r → Prop} :
   (∀ a : α, β (Quot.mk r a)) → ∀ q : Quot r, β q
 -/
 init_quot
@@ -183,16 +183,12 @@ theorem neTrueOfEqFalse : {b : Bool} → Eq b false → Not (Eq b true)
 class Inhabited (α : Sort u) :=
   (default : α)
 
-constant arbitrary (α : Sort u) [s : Inhabited α] : α :=
+opaque arbitrary (α : Sort u) [s : Inhabited α] : α :=
   @Inhabited.default α s
 
-instance (α : Sort u) {β : Sort v} [Inhabited β] : Inhabited (α → β) := {
-  default := fun _ => arbitrary β
-}
+instance (α : Sort u) {β : Sort v} [Inhabited β] : Inhabited (α → β) := {default := fun _ => arbitrary β}
 
-instance (α : Sort u) {β : α → Sort v} [(a : α) → Inhabited (β a)] : Inhabited ((a : α) → β a) := {
-  default := fun a => arbitrary (β a)
-}
+instance (α : Sort u) {β : α → Sort v} [(a : α) → Inhabited (β a)] : Inhabited ((a : α) → β a) := {default := fun a => arbitrary (β a)}
 
 /-- Universe lifting operation from Sort to Type -/
 structure PLift (α : Sort u) : Type u :=
@@ -210,9 +206,7 @@ structure PointedType :=
   (type : Type u)
   (val : type)
 
-instance : Inhabited PointedType.{u} := {
-  default := { type := PUnit.{u+1}, val := ⟨⟩ }
-}
+instance : Inhabited PointedType.{u} := {default := { type := PUnit.{u+1}, val := ⟨⟩ }}
 
 /-- Universe lifting operation -/
 structure ULift.{r, s} (α : Type s) : Type (max s r) :=

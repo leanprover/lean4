@@ -108,7 +108,7 @@ def withWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
   (notFoundX : RequestM β)
   (x : Snapshot → RequestM β)
     : RequestM (RequestTask β) := do
-  let findTask ← doc.allSnaps.waitFind? p
+  let findTask ← doc.cmdSnaps.waitFind? p
   mapTask findTask <| waitFindSnapAux notFoundX x
 
 /-- See `withWaitFindSnap`. -/
@@ -116,7 +116,7 @@ def bindWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
   (notFoundX : RequestM (RequestTask β))
   (x : Snapshot → RequestM (RequestTask β))
     : RequestM (RequestTask β) := do
-  let findTask ← doc.allSnaps.waitFind? p
+  let findTask ← doc.cmdSnaps.waitFind? p
   bindTask findTask <| waitFindSnapAux notFoundX x
 
 end RequestM

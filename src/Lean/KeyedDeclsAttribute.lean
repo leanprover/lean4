@@ -123,7 +123,6 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name) : IO (KeyedDe
         | Expr.const c _ _ =>
           if c != df.valueTypeName then throwError "unexpected type at '{declName}', '{df.valueTypeName}' expected"
           else
-            let env ← getEnv
             /- builtin_initialize @addBuiltin $(mkConst valueTypeName) $(mkConst attrDeclName) $(key) $(declName) $(mkConst declName) -/
             let val := mkAppN (mkConst `Lean.KeyedDeclsAttribute.addBuiltin) #[mkConst df.valueTypeName, mkConst attrDeclName, toExpr key, toExpr declName, mkConst declName]
             declareBuiltin declName val

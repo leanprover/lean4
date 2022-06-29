@@ -29,7 +29,7 @@ def appendText (s₀ : String) : TaggedText α → TaggedText α
   | text s    => text (s ++ s₀)
   | append as => match as.back with
     | text s => append <| as.set! (as.size - 1) <| text (s ++ s₀)
-    | a      => append <| as.push (text s₀)
+    | _      => append <| as.push (text s₀)
   | a         => append #[a, text s₀]
 
 def appendTag (acc : TaggedText α) (t₀ : α) (a₀ : TaggedText α) : TaggedText α :=
@@ -75,7 +75,7 @@ private structure TaggedState where
 
 instance : Std.Format.MonadPrettyFormat (StateM TaggedState) where
   pushOutput s       := modify fun ⟨out, ts, col⟩ => ⟨out.appendText s, ts, col + s.length⟩
-  pushNewline indent := modify fun ⟨out, ts, col⟩ => ⟨out.appendText ("\n".pushn ' ' indent), ts, indent⟩
+  pushNewline indent := modify fun ⟨out, ts, _⟩ => ⟨out.appendText ("\n".pushn ' ' indent), ts, indent⟩
   currColumn         := return (←get).column
   startTag n         := modify fun ⟨out, ts, col⟩ => ⟨TaggedText.text "", (n, col, out) :: ts, col⟩
   endTags n          := modify fun ⟨out, ts, col⟩ =>

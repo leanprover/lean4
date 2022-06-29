@@ -118,7 +118,6 @@ def emitFnDecl (decl : Decl) (isExternal : Bool) : M Unit := do
   emitFnDeclAux decl cppBaseName isExternal
 
 def emitExternDeclAux (decl : Decl) (cNameStr : String) : M Unit := do
-  let cName := Name.mkSimple cNameStr
   let env ← getEnv
   let extC := isExternC env decl.name
   emitFnDeclAux decl cNameStr extC
@@ -138,7 +137,7 @@ def emitFnDecls : M Unit := do
 def emitMainFn : M Unit := do
   let d ← getDecl `main
   match d with
-  | Decl.fdecl (f := f) (xs := xs) (type := t) (body := b) .. => do
+  | Decl.fdecl (xs := xs) .. => do
     unless xs.size == 2 || xs.size == 1 do throw "invalid main function, incorrect arity when generating code"
     let env ← getEnv
     let usesLeanAPI := usesModuleFrom env `Lean
@@ -199,7 +198,7 @@ def emitMainFn : M Unit := do
              "  return 1;",
              "}"]
     emitLn "}"
-  | other => throw "function declaration expected"
+  | _     => throw "function declaration expected"
 
 def hasMainFn : M Bool := do
   let env ← getEnv
@@ -261,7 +260,7 @@ partial def declareVars : FnBody → Bool → M Bool
       pure d
     else
       declareVar x t; declareVars b true
-  | FnBody.jdecl j xs _ b,    d => do declareParams xs; declareVars b (d || xs.size > 0)
+  | FnBody.jdecl _ xs _ b,    d => do declareParams xs; declareVars b (d || xs.size > 0)
   | e,                        d => if e.isTerminal then pure d else declareVars e.body d
 
 def emitTag (x : VarId) (xType : IRType) : M Unit := do
@@ -448,7 +447,7 @@ def emitBoxFn (xType : IRType) : M Unit :=
   | IRType.uint32 => emit "lean_box_uint32"
   | IRType.uint64 => emit "lean_box_uint64"
   | IRType.float  => emit "lean_box_float"
-  | other         => emit "lean_box"
+  | _             => emit "lean_box"
 
 def emitBox (z : VarId) (x : VarId) (xType : IRType) : M Unit := do
   emitLhs z; emitBoxFn xType; emit "("; emit x; emitLn ");"
@@ -460,7 +459,7 @@ def emitUnbox (z : VarId) (t : IRType) (x : VarId) : M Unit := do
   | IRType.uint32 => emit "lean_unbox_uint32"
   | IRType.uint64 => emit "lean_unbox_uint64"
   | IRType.float  => emit "lean_unbox_float"
-  | other         => emit "lean_unbox";
+  | _             => emit "lean_unbox";
   emit "("; emit x; emitLn ");"
 
 def emitIsShared (z : VarId) (x : VarId) : M Unit := do
@@ -600,7 +599,7 @@ partial def emitCase (x : VarId) (xType : IRType) (alts : Array Alt) : M Unit :=
 
 partial def emitBlock (b : FnBody) : M Unit := do
   match b with
-  | FnBody.jdecl j xs v b      => emitBlock b
+  | FnBody.jdecl _ _  _ b      => emitBlock b
   | d@(FnBody.vdecl x t v b)   =>
     let ctx ← read
     if isTailCallTo ctx.mainFn d then
@@ -626,7 +625,7 @@ partial def emitBlock (b : FnBody) : M Unit := do
   | FnBody.unreachable         => emitLn "lean_internal_panic_unreachable();"
 
 partial def emitJPs : FnBody → M Unit
-  | FnBody.jdecl j xs v b => do emit j; emitLn ":"; emitFnBody v; emitJPs b
+  | FnBody.jdecl j _  v b => do emit j; emitLn ":"; emitFnBody v; emitJPs b
   | e                     => do unless e.isTerminal do emitJPs e.body
 
 partial def emitFnBody (b : FnBody) : M Unit := do
@@ -641,7 +640,7 @@ end
 
 def emitDeclAux (d : Decl) : M Unit := do
   let env ← getEnv
-  let (vMap, jpMap) := mkVarJPMaps d
+  let (_, jpMap) := mkVarJPMaps d
   withReader (fun ctx => { ctx with jpMap := jpMap }) do
   unless hasInitAttr env d.name do
     match d with

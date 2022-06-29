@@ -1,4 +1,4 @@
-constant f : Nat → Nat
+opaque f : Nat → Nat
 axiom f_eq (x : Nat) : f (f x) = x
 
 theorem ex1 (x : Nat) (h : f (f x) = x) : (let y := x*x; if f (f x) = x then 1 else y + 1) = 1 := by

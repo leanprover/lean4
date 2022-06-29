@@ -60,7 +60,7 @@ def getGoals : TacticM (List MVarId) :=
   return (← get).goals
 
 def setGoals (mvarIds : List MVarId) : TacticM Unit :=
-  modify fun s => { s with goals := mvarIds }
+  modify fun _ => { goals := mvarIds }
 
 def pruneSolvedGoals : TacticM Unit := do
   let gs ← getGoals
@@ -110,7 +110,7 @@ protected def getMainModule     : TacticM Name       := do pure (← getEnv).mai
 unsafe def mkTacticAttribute : IO (KeyedDeclsAttribute Tactic) :=
   mkElabAttribute Tactic `Lean.Elab.Tactic.tacticElabAttribute `builtinTactic `tactic `Lean.Parser.Tactic `Lean.Elab.Tactic.Tactic "tactic"
 
-@[builtinInit mkTacticAttribute] constant tacticElabAttribute : KeyedDeclsAttribute Tactic
+@[builtinInit mkTacticAttribute] opaque tacticElabAttribute : KeyedDeclsAttribute Tactic
 
 def mkTacticInfo (mctxBefore : MetavarContext) (goalsBefore : List MVarId) (stx : Syntax) : TacticM Info :=
   return Info.ofTacticInfo {
@@ -161,7 +161,6 @@ mutual
     let rec loop
       | []    => throwErrorAt stx "tactic '{stx.getKind}' has not been implemented"
       | m::ms => do
-        let scp ← getCurrMacroScope
         try
           withReader ({ · with elaborator := m.declName }) do
             withTacticInfoContext stx do
@@ -177,7 +176,7 @@ mutual
 
   partial def evalTacticAux (stx : Syntax) : TacticM Unit :=
     withRef stx <| withIncRecDepth <| withFreshMacroScope <| match stx with
-      | Syntax.node _ k args =>
+      | Syntax.node _ k _    =>
         if k == nullKind then
           -- Macro writers create a sequence of tactics `t₁ ... tₙ` using `mkNullNode #[t₁, ..., tₙ]`
           stx.getArgs.forM evalTactic
@@ -256,7 +255,7 @@ instance {α} : OrElse (TacticM α) where
   orElse := Tactic.orElse
 
 instance : Alternative TacticM where
-  failure := fun {α} => throwError "failed"
+  failure := fun {_} => throwError "failed"
   orElse  := Tactic.orElse
 
 /-
@@ -283,8 +282,8 @@ def appendGoals (mvarIds : List MVarId) : TacticM Unit :=
   modify fun s => { s with goals := s.goals ++ mvarIds }
 
 def replaceMainGoal (mvarIds : List MVarId) : TacticM Unit := do
-  let (mvarId :: mvarIds') ← getGoals | throwNoGoalsToBeSolved
-  modify fun s => { s with goals := mvarIds ++ mvarIds' }
+  let (_ :: mvarIds') ← getGoals | throwNoGoalsToBeSolved
+  modify fun _ => { goals := mvarIds ++ mvarIds' }
 
 /-- Return the first goal. -/
 def getMainGoal : TacticM MVarId := do

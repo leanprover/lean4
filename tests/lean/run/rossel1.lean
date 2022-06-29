@@ -1,4 +1,4 @@
-constant ID : Type
+opaque ID : Type
 
 -- A `Reactor` contains "things" identified by an `ID`. It also contains other `Reactor`s, thereby giving us a tree structure of reactors.
 inductive Reactor

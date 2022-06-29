@@ -9,6 +9,7 @@ import Lean.Elab.AuxDef
 namespace Lean.Elab.Command
 open Lean.Syntax
 open Lean.Parser.Term hiding macroArg
+open Lean.Parser.Command
 
 def withExpectedType (expectedType? : Option Expr) (x : Expr → TermElabM Expr) : TermElabM Expr := do
   Term.tryPostponeIfNoneOrMVar expectedType?
@@ -16,8 +17,8 @@ def withExpectedType (expectedType? : Option Expr) (x : Expr → TermElabM Expr)
     | throwError "expected type must be known"
   x expectedType
 
-def elabElabRulesAux (doc? : Option Syntax) (attrKind : Syntax) (k : SyntaxNodeKind) (cat? expty? : Option Syntax) (alts : Array Syntax) : CommandElabM Syntax := do
-  let alts ← alts.mapM fun alt => match alt with
+def elabElabRulesAux (doc? : Option (TSyntax ``docComment)) (attrKind : TSyntax ``attrKind) (k : SyntaxNodeKind) (cat? expty? : Option (Ident)) (alts : Array (TSyntax ``matchAlt)) : CommandElabM Syntax := do
+  let alts ← alts.mapM fun (alt : TSyntax ``matchAlt) => match alt with
     | `(matchAltExpr| | $pats,* => $rhs) => do
       let pat := pats.elemsAndSeps[0]
       if !pat.isQuot then
@@ -31,7 +32,7 @@ def elabElabRulesAux (doc? : Option Syntax) (attrKind : Syntax) (k : SyntaxNodeK
          | none        => throwErrorAt alt "invalid elab_rules alternative, expected syntax node kind '{k}'"
          | some quoted =>
            let pat := pat.setArg 1 quoted
-           let pats := pats.elemsAndSeps.set! 0 pat
+           let pats := ⟨pats.elemsAndSeps.set! 0 pat⟩
            `(matchAltExpr| | $pats,* => $rhs)
       else
         throwErrorAt alt "invalid elab_rules alternative, unexpected syntax node kind '{k'}'"
@@ -76,21 +77,20 @@ def elabElabRulesAux (doc? : Option Syntax) (attrKind : Syntax) (k : SyntaxNodeK
     do elabElabRulesAux doc? attrKind (← resolveSyntaxKind kind.getId) cat? expty? alts
   | _  => throwUnsupportedSyntax
 
-@[builtinMacro Lean.Parser.Command.elab]
-def expandElab : Macro
+@[builtinCommandElab Lean.Parser.Command.elab]
+def elabElab : CommandElab
   | `($[$doc?:docComment]? $attrKind:attrKind
     elab$[:$prec?]? $[(name := $name?)]? $[(priority := $prio?)]? $args:macroArg* :
       $cat $[<= $expectedType?]? => $rhs) => do
-    let prio    ← evalOptPrio prio?
-    let catName := cat.getId
+    let prio    ← liftMacroM <| evalOptPrio prio?
     let (stxParts, patArgs) := (← args.mapM expandMacroArg).unzip
     -- name
     let name ← match name? with
       | some name => pure name.getId
-      | none => mkNameFromParserSyntax cat.getId (mkNullNode stxParts)
-    let pat := mkNode ((← Macro.getCurrNamespace) ++ name) patArgs
-    `($[$doc?:docComment]? $attrKind:attrKind syntax$[:$prec?]? (name := $(← mkIdentFromRef name)) (priority := $(quote prio)) $[$stxParts]* : $cat
-      $[$doc?:docComment]? elab_rules : $cat $[<= $expectedType?]? | `($pat) => $rhs)
-  | _ => Macro.throwUnsupported
+      | none => liftMacroM <| mkNameFromParserSyntax cat.getId (mkNullNode stxParts)
+    let pat := ⟨mkNode ((← getCurrNamespace) ++ name) patArgs⟩
+    `($[$doc?:docComment]? $attrKind:attrKind syntax$[:$prec?]? (name := $(← mkIdentFromRef name)) (priority := $(quote prio):num) $[$stxParts]* : $cat
+      $[$doc?:docComment]? elab_rules : $cat $[<= $expectedType?]? | `($pat) => $rhs) >>= (elabCommand ·)
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Command

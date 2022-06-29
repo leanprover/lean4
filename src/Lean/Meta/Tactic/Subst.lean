@@ -32,7 +32,6 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
         let mctx ← getMCtx
         if mctx.exprDependsOn b aFVarId then
           throwTacticEx `subst mvarId m!"'{a}' occurs at{indentExpr b}"
-        let aLocalDecl ← getLocalDecl aFVarId
         let (vars, mvarId) ← revert mvarId #[aFVarId, hFVarId] true
         trace[Meta.Tactic.subst] "after revert {MessageData.ofGoal mvarId}"
         let (twoVars, mvarId) ← introNP mvarId 2
@@ -43,13 +42,12 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
         let hFVarId := twoVars[1]
         let h       := mkFVar hFVarId
         /- Set skip to true if there is no local variable nor the target depend on the equality -/
-        let skip ←
-          if !tryToSkip || vars.size != 2 then
-            pure false
-          else
-            let mvarType ← getMVarType mvarId
-            let mctx ← getMCtx
-            pure (!mctx.exprDependsOn mvarType aFVarId && !mctx.exprDependsOn mvarType hFVarId)
+        let skip ← if !tryToSkip || vars.size != 2 then
+          pure false
+        else
+          let mvarType ← getMVarType mvarId
+          let mctx ← getMCtx
+          pure (!mctx.exprDependsOn mvarType aFVarId && !mctx.exprDependsOn mvarType hFVarId)
         if skip then
           if clearH then
             let mvarId ← clear mvarId hFVarId
@@ -75,12 +73,11 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
                 let newVal  ← if depElim then mkEqRec motive minor major else mkEqNDRec motive minor major
                 assignExprMVar mvarId newVal
                 let mvarId := newMVar.mvarId!
-                let mvarId ←
-                  if clearH then
-                    let mvarId ← clear mvarId hFVarId
-                    clear mvarId aFVarId
-                  else
-                    pure mvarId
+                let mvarId ← if clearH then
+                  let mvarId ← clear mvarId hFVarId
+                  clear mvarId aFVarId
+                else
+                  pure mvarId
                 let (newFVars, mvarId) ← introNP mvarId (vars.size - 2)
                 trace[Meta.Tactic.subst] "after intro rest {vars.size - 2} {MessageData.ofGoal mvarId}"
                 let fvarSubst ← newFVars.size.foldM (init := fvarSubst) fun i (fvarSubst : FVarSubst) =>
@@ -145,9 +142,9 @@ partial def subst (mvarId : MVarId) (h : FVarId) : MetaM MVarId :=
   withMVarContext mvarId do
     let localDecl ← getLocalDecl h
     match (← matchEq? localDecl.type) with
-    | some (_, lhs, rhs) => substEq mvarId h
+    | some _ => substEq mvarId h
     | none => match (← matchHEq? localDecl.type) with
-      | some (_, lhs, _, rhs) =>
+      | some _ =>
         let (h', mvarId') ← heqToEq mvarId h
         if mvarId == mvarId' then
           findEq mvarId h

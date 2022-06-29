@@ -50,7 +50,7 @@ private unsafe def handleRpcCallUnsafe (p : Lsp.RpcCallParams) : RequestM (Reque
           message := s!"No RPC method '{p.method}' bound" }
 
 @[implementedBy handleRpcCallUnsafe]
-private constant handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json)
+private opaque handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json)
 
 builtin_initialize
   registerLspRequestHandler "$/lean/rpc/call" Lsp.RpcCallParams Json handleRpcCall
@@ -108,9 +108,10 @@ def registerRpcProcedure (method : Name) : CoreM Unit := do
     throwError s!"{errMsg}: already registered"
   let wrappedName := method ++ `_rpc_wrapped
   let procT := mkConst ``RpcProcedure
-  let proc ← MetaM.run' <| TermElabM.run' <| do
-     let c ← Lean.Elab.Term.elabTerm (← `(wrapRpcProcedure $(quote method) _ _ $(mkIdent method))) procT
-     return ← instantiateMVars c
+  let proc ← MetaM.run' <| TermElabM.run' <| withoutErrToSorry do
+    let stx ← ``(wrapRpcProcedure $(quote method) _ _ $(mkIdent method))
+    let c ← Lean.Elab.Term.elabTerm stx procT
+    instantiateMVars c
   addAndCompile <| Declaration.defnDecl {
         name        := wrappedName
         type        := procT
@@ -128,7 +129,7 @@ builtin_initialize registerBuiltinAttribute {
     The function must have type `α → RequestM (RequestTask β)` with
     RpcEncodings for both α and β."
   applicationTime := AttributeApplicationTime.afterCompilation
-  add := fun decl stx kind =>
+  add := fun decl _ _ =>
     registerRpcProcedure decl
 }
 

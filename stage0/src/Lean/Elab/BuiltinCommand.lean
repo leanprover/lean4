@@ -46,7 +46,7 @@ def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) : CommandElabM α 
   pure a
 
 private def popScopes (numScopes : Nat) : CommandElabM Unit :=
-  for i in [0:numScopes] do
+  for _ in [0:numScopes] do
     popScope
 
 private def checkAnonymousScope : List Scope → Bool
@@ -103,7 +103,7 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
     let cmd := cmds.get ⟨i, h⟩;
     catchInternalId unsupportedSyntaxExceptionId
       (elabCommand cmd)
-      (fun ex => elabChoiceAux cmds (i+1))
+      (fun _ => elabChoiceAux cmds (i+1))
   else
     throwUnsupportedSyntax
 
@@ -113,7 +113,7 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
 @[builtinCommandElab «universe»] def elabUniverse : CommandElab := fun n => do
   n[1].forArgsM addUnivLevel
 
-@[builtinCommandElab «init_quot»] def elabInitQuot : CommandElab := fun stx => do
+@[builtinCommandElab «init_quot»] def elabInitQuot : CommandElab := fun _ => do
   match (← getEnv).addDecl Declaration.quotDecl with
   | Except.ok env   => setEnv env
   | Except.error ex => throwError (ex.toMessageData (← getOptions))
@@ -121,15 +121,15 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
 @[builtinCommandElab «export»] def elabExport : CommandElab := fun stx => do
   -- `stx` is of the form (Command.export "export" <namespace> "(" (null <ids>*) ")")
   let id  := stx[1].getId
-  let ns ← resolveNamespace id
+  let nss ← resolveNamespace id
   let currNamespace ← getCurrNamespace
-  if ns == currNamespace then throwError "invalid 'export', self export"
-  let env ← getEnv
+  if nss == [currNamespace] then throwError "invalid 'export', self export"
   let ids := stx[3].getArgs
-  let aliases ← ids.foldlM (init := []) fun (aliases : List (Name × Name)) (idStx : Syntax) => do
+  let mut aliases := #[]
+  for idStx in ids do
     let id := idStx.getId
-    let declName ← resolveOpenDeclId ns idStx
-    pure <| (currNamespace ++ id, declName) :: aliases
+    let declName ← resolveNameUsingNamespaces nss idStx
+    aliases := aliases.push (currNamespace ++ id, declName)
   modify fun s => { s with env := aliases.foldl (init := s.env) fun env p => addAlias env p.1 p.2 }
 
 @[builtinCommandElab «open»] def elabOpen : CommandElab := fun n => do
@@ -172,14 +172,14 @@ private def matchBinderNames (ids : Array Syntax) (binderNames : Array Name) : C
   variable {α} -- trying to update part of the binder block defined above.
   ```
 -/
-private def replaceBinderAnnotation (binder : Syntax) : CommandElabM Bool := do
+private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBinder) : CommandElabM Bool := do
   if let some (binderNames, explicit) := typelessBinder? binder then
     let varDecls := (← getScope).varDecls
     let mut varDeclsNew := #[]
     let mut found := false
     for varDecl in varDecls do
       if let some (ids, ty?, annot?) :=
-        match varDecl with
+        match (varDecl : TSyntax ``Parser.Term.bracketedBinder) with
         | `(bracketedBinder|($ids* $[: $ty?]? $(annot?)?)) => some (ids, ty?, annot?)
         | `(bracketedBinder|{$ids* $[: $ty?]?})            => some (ids, ty?, none)
         | `(bracketedBinder|[$id : $ty])                   => some (#[id], some ty, none)
@@ -253,15 +253,14 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
   let restoreMessages (prevMessages : MessageLog) : CommandElabM Unit := do
     modify fun s => { s with messages := prevMessages ++ s.messages.errorsToWarnings }
   let prevMessages ← resetMessages
-  let succeeded ←
-    try
-      x
-      hasNoErrorMessages
-    catch
-      | ex@(Exception.error _ _) => do logException ex; pure false
-      | Exception.internal id _  => do logError (← id.getName); pure false
-    finally
-      restoreMessages prevMessages
+  let succeeded ← try
+    x
+    hasNoErrorMessages
+  catch
+    | ex@(Exception.error _ _) => do logException ex; pure false
+    | Exception.internal id _  => do logError (← id.getName); pure false
+  finally
+    restoreMessages prevMessages
   if succeeded then
     throwError "unexpected success"
 
@@ -307,7 +306,6 @@ private def mkRunEval (e : Expr) : MetaM Expr := do
 unsafe def elabEvalUnsafe : CommandElab
   | `(#eval%$tk $term) => do
     let n := `_eval
-    let ctx ← read
     let addAndCompile (value : Expr) : TermElabM Unit := do
       let (value, _) ← Term.levelMVarToParam (← instantiateMVars value)
       let type ← inferType value
@@ -358,7 +356,7 @@ unsafe def elabEvalUnsafe : CommandElab
   | _ => throwUnsupportedSyntax
 
 @[builtinCommandElab «eval», implementedBy elabEvalUnsafe]
-constant elabEval : CommandElab
+opaque elabEval : CommandElab
 
 @[builtinCommandElab «synth»] def elabSynth : CommandElab := fun stx => do
   let term := stx[1]
@@ -375,9 +373,8 @@ constant elabEval : CommandElab
   modify fun s => { s with maxRecDepth := maxRecDepth.get options }
   modifyScope fun scope => { scope with opts := options }
 
-@[builtinMacro Lean.Parser.Command.«in»] def expandInCmd : Macro := fun stx => do
-  let cmd₁ := stx[0]
-  let cmd₂ := stx[2]
-  `(section $cmd₁:command $cmd₂:command end)
+@[builtinMacro Lean.Parser.Command.«in»] def expandInCmd : Macro
+  | `($cmd₁ in $cmd₂) => `(section $cmd₁:command $cmd₂ end)
+  | _                 => Macro.throwUnsupported
 
 end Lean.Elab.Command

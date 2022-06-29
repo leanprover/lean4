@@ -30,10 +30,10 @@ structure WaitForDiagnosticsParams where
 structure WaitForDiagnostics
 
 instance : FromJson WaitForDiagnostics :=
-  ⟨fun j => pure WaitForDiagnostics.mk⟩
+  ⟨fun _ => pure WaitForDiagnostics.mk⟩
 
 instance : ToJson WaitForDiagnostics :=
-  ⟨fun o => mkObj []⟩
+  ⟨fun _ => mkObj []⟩
 
 inductive LeanFileProgressKind
   | processing | fatalError

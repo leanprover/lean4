@@ -31,7 +31,7 @@ Remark: the ReducibilityHints are not related to the attributes: reducible/irrel
 These attributes are used by the Elaborator. The ReducibilityHints are used by the kernel (and Elaborator).
 Moreover, the ReducibilityHints cannot be changed after a declaration is added to the kernel. -/
 inductive ReducibilityHints where
-  | opaque   : ReducibilityHints
+  | «opaque» : ReducibilityHints
   | «abbrev» : ReducibilityHints
   | regular  : UInt32 → ReducibilityHints
   deriving Inhabited
@@ -52,7 +52,7 @@ def lt : ReducibilityHints → ReducibilityHints → Bool
   | «abbrev»,   «abbrev»   => false
   | «abbrev»,   _          => true
   | regular d₁, regular d₂ => d₁ < d₂
-  | regular _,  opaque     => true
+  | regular _, «opaque»    => true
   | _,          _          => false
 
 def isAbbrev : ReducibilityHints → Bool
@@ -95,16 +95,19 @@ structure DefinitionVal extends ConstantVal where
   value  : Expr
   hints  : ReducibilityHints
   safety : DefinitionSafety
+  /--
+    List of all (including this one) declarations in the same mutual block.
+    Note that this information is not used by the kernel, and is only used
+    to save the information provided by the user when using mutual blocks.
+    Recall that the Lean kernel does not support recursive definitions and they
+    are compiled using recursors and `WellFounded.fix`.
+  -/
+  all : List Name := [name]
   deriving Inhabited
 
 @[export lean_mk_definition_val]
-def mkDefinitionValEx (name : Name) (levelParams : List Name) (type : Expr) (val : Expr) (hints : ReducibilityHints) (safety : DefinitionSafety) : DefinitionVal := {
-  name := name,
-  levelParams := levelParams,
-  type := type,
-  value := val,
-  hints := hints,
-  safety := safety
+def mkDefinitionValEx (name : Name) (levelParams : List Name) (type : Expr) (value : Expr) (hints : ReducibilityHints) (safety : DefinitionSafety) (all : List Name) : DefinitionVal := {
+  name, levelParams, type, hints, safety, value, all
 }
 
 @[export lean_definition_val_get_safety] def DefinitionVal.getSafetyEx (v : DefinitionVal) : DefinitionSafety :=
@@ -112,21 +115,25 @@ def mkDefinitionValEx (name : Name) (levelParams : List Name) (type : Expr) (val
 
 structure TheoremVal extends ConstantVal where
   value : Expr
+  /--
+    List of all (including this one) declarations in the same mutual block.
+    See comment at `DefinitionVal.all`. -/
+  all : List Name := [name]
   deriving Inhabited
 
 /- Value for an opaque constant declaration `constant x : t := e` -/
 structure OpaqueVal extends ConstantVal where
   value : Expr
   isUnsafe : Bool
+  /--
+    List of all (including this one) declarations in the same mutual block.
+    See comment at `DefinitionVal.all`. -/
+  all : List Name := [name]
   deriving Inhabited
 
 @[export lean_mk_opaque_val]
-def mkOpaqueValEx (name : Name) (levelParams : List Name) (type : Expr) (val : Expr) (isUnsafe : Bool) : OpaqueVal := {
-  name := name,
-  levelParams := levelParams,
-  type := type,
-  value := val,
-  isUnsafe := isUnsafe
+def mkOpaqueValEx (name : Name) (levelParams : List Name) (type : Expr) (value : Expr) (isUnsafe : Bool) (all : List Name) : OpaqueVal := {
+  name, levelParams, type, value, isUnsafe, all
 }
 
 @[export lean_opaque_val_is_unsafe] def OpaqueVal.isUnsafeEx (v : OpaqueVal) : Bool :=
@@ -356,9 +363,9 @@ def toConstantVal : ConstantInfo → ConstantVal
 def isUnsafe : ConstantInfo → Bool
   | defnInfo   v => v.safety == DefinitionSafety.unsafe
   | axiomInfo  v => v.isUnsafe
-  | thmInfo    v => false
+  | thmInfo    _ => false
   | opaqueInfo v => v.isUnsafe
-  | quotInfo   v => false
+  | quotInfo   _ => false
   | inductInfo v => v.isUnsafe
   | ctorInfo   v => v.isUnsafe
   | recInfo    v => v.isUnsafe
@@ -381,8 +388,8 @@ def value? : ConstantInfo → Option Expr
   | _                         => none
 
 def hasValue : ConstantInfo → Bool
-  | defnInfo {value := r, ..} => true
-  | thmInfo  {value := r, ..} => true
+  | defnInfo _ => true
+  | thmInfo  _ => true
   | _                         => false
 
 def value! : ConstantInfo → Expr
@@ -402,11 +409,21 @@ def isInductive : ConstantInfo → Bool
   | inductInfo _ => true
   | _            => false
 
+/--
+  List of all (including this one) declarations in the same mutual block.
+-/
+def all : ConstantInfo → List Name
+  | inductInfo val => val.all
+  | defnInfo val   => val.all
+  | thmInfo val    => val.all
+  | opaqueInfo val => val.all
+  | info           => [info.name]
+
 @[extern "lean_instantiate_type_lparams"]
-constant instantiateTypeLevelParams (c : @& ConstantInfo) (ls : @& List Level) : Expr
+opaque instantiateTypeLevelParams (c : @& ConstantInfo) (ls : @& List Level) : Expr
 
 @[extern "lean_instantiate_value_lparams"]
-constant instantiateValueLevelParams (c : @& ConstantInfo) (ls : @& List Level) : Expr
+opaque instantiateValueLevelParams (c : @& ConstantInfo) (ls : @& List Level) : Expr
 
 end ConstantInfo
 

@@ -89,14 +89,14 @@ theorem congrFun {α : Sort u} {β : α → Sort v} {f g : (x : α) →  β x} (
 /-
 Initialize the Quotient Module, which effectively adds the following definitions:
 
-constant Quot {α : Sort u} (r : α → α → Prop) : Sort u
+opaque Quot {α : Sort u} (r : α → α → Prop) : Sort u
 
-constant Quot.mk {α : Sort u} (r : α → α → Prop) (a : α) : Quot r
+opaque Quot.mk {α : Sort u} (r : α → α → Prop) (a : α) : Quot r
 
-constant Quot.lift {α : Sort u} {r : α → α → Prop} {β : Sort v} (f : α → β) :
+opaque Quot.lift {α : Sort u} {r : α → α → Prop} {β : Sort v} (f : α → β) :
   (∀ a b : α, r a b → Eq (f a) (f b)) → Quot r → β
 
-constant Quot.ind {α : Sort u} {r : α → α → Prop} {β : Quot r → Prop} :
+opaque Quot.ind {α : Sort u} {r : α → α → Prop} {β : Quot r → Prop} :
   (∀ a : α, β (Quot.mk r a)) → ∀ q : Quot r, β q
 -/
 init_quot
@@ -111,7 +111,7 @@ theorem eq_of_heq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=
   have : (α β : Sort u) → (a : α) → (b : β) → HEq a b → (h : Eq α β) → Eq (cast h a) b :=
     fun α _ a _ h₁ =>
       HEq.rec (motive := fun {β} (b : β) (_ : HEq a b) => (h₂ : Eq α β) → Eq (cast h₂ a) b)
-        (fun (h₂ : Eq α α) => rfl)
+        (fun (_ : Eq α α) => rfl)
         h₁
   this α α a a' h rfl
 
@@ -161,6 +161,7 @@ structure Subtype {α : Sort u} (p : α → Prop) where
   val : α
   property : p val
 
+set_option linter.unusedVariables.funArgs false in
 /-- Gadget for optional parameter support. -/
 @[reducible] def optParam (α : Sort u) (default : α) : Sort u := α
 
@@ -287,7 +288,7 @@ theorem decide_eq_true : [s : Decidable p] → p → Eq (decide p) true
   | isTrue  _, _   => rfl
   | isFalse h₁, h₂ => absurd h₂ h₁
 
-theorem decide_eq_false : [s : Decidable p] → Not p → Eq (decide p) false
+theorem decide_eq_false : [Decidable p] → Not p → Eq (decide p) false
   | isTrue  h₁, h₂ => absurd h₁ h₂
   | isFalse _, _   => rfl
 
@@ -385,7 +386,7 @@ instance : Inhabited Nat where
   default := Nat.zero
 
 /- For numeric literals notation -/
-class OfNat (α : Type u) (n : Nat) where
+class OfNat (α : Type u) (_ : Nat) where
   ofNat : α
 
 @[defaultInstance 100] /- low prio -/
@@ -794,7 +795,7 @@ protected def Nat.sub : (@& Nat) → (@& Nat) → Nat
 instance : Sub Nat where
   sub := Nat.sub
 
-@[extern "lean_system_platform_nbits"] constant System.Platform.getNumBits : Unit → Subtype fun (n : Nat) => Or (Eq n 32) (Eq n 64) :=
+@[extern "lean_system_platform_nbits"] opaque System.Platform.getNumBits : Unit → Subtype fun (n : Nat) => Or (Eq n 32) (Eq n 64) :=
   fun _ => ⟨64, Or.inr rfl⟩ -- inhabitant
 
 def System.Platform.numBits : Nat :=
@@ -1064,6 +1065,10 @@ instance {α} : Inhabited (Option α) where
   | some x, _ => x
   | none,   e => e
 
+@[inline] protected def Option.map (f : α → β) : Option α → Option β
+  | some x => some (f x)
+  | none   => none
+
 inductive List (α : Type u) where
   | nil : List α
   | cons (head : α) (tail : List α) : List α
@@ -1073,8 +1078,8 @@ instance {α} : Inhabited (List α) where
 
 protected def List.hasDecEq {α: Type u} [DecidableEq α] : (a b : List α) → Decidable (Eq a b)
   | nil,       nil       => isTrue rfl
-  | cons _ as, nil       => isFalse (fun h => List.noConfusion h)
-  | nil,       cons _ bs => isFalse (fun h => List.noConfusion h)
+  | cons _ _, nil        => isFalse (fun h => List.noConfusion h)
+  | nil,       cons _ _  => isFalse (fun h => List.noConfusion h)
   | cons a as, cons b bs =>
     match decEq a b with
     | isTrue hab  =>
@@ -1206,7 +1211,7 @@ unsafe def unsafeCast {α : Type u} {β : Type v} (a : α) : β :=
   ULift.down.{max u v} (cast lcProof (ULift.up.{max u v} a))
 
 @[neverExtract, extern "lean_panic_fn"]
-constant panicCore {α : Type u} [Inhabited α] (msg : String) : α
+opaque panicCore {α : Type u} [Inhabited α] (msg : String) : α
 
 /-
   This is workaround for `panic` occurring in monadic code. See issue #695.
@@ -1352,7 +1357,7 @@ def Array.sequenceMap {α : Type u} {β : Type v} {m : Type v → Type w} [Monad
         | 0           => pure bs
         | Nat.succ i' => Bind.bind (f (as.get ⟨j, hlt⟩)) fun b => loop i' (hAdd j 1) (bs.push b))
       (fun _ => pure bs)
-  loop as.size 0 Array.empty
+  loop as.size 0 (Array.mkEmpty as.size)
 
 /-- A Function for lifting a computation from an inner Monad to an outer Monad.
     Like [MonadTrans](https://hackage.haskell.org/package/transformers-0.5.5.0/docs/Control-Monad-Trans-Class.html),
@@ -1422,7 +1427,11 @@ class MonadExcept (ε : outParam (Type u)) (m : Type v → Type w) where
   throw {α : Type v} : ε → m α
   tryCatch {α : Type v} : m α → (ε → m α) → m α
 
-export MonadExcept (throw tryCatch)
+def MonadExcept.ofExcept [Monad m] [MonadExcept ε m] : Except ε α → m α
+  | .ok a    => pure a
+  | .error e => throw e
+
+export MonadExcept (throw tryCatch ofExcept)
 
 instance (ε : outParam (Type u)) (m : Type v → Type w) [MonadExceptOf ε m] : MonadExcept ε m where
   throw    := throwThe ε
@@ -1713,16 +1722,16 @@ class Hashable (α : Sort u) where
 export Hashable (hash)
 
 @[extern "lean_uint64_to_usize"]
-constant UInt64.toUSize (u : UInt64) : USize
+opaque UInt64.toUSize (u : UInt64) : USize
 
 @[extern "lean_usize_to_uint64"]
-constant USize.toUInt64 (u : USize) : UInt64
+opaque USize.toUInt64 (u : USize) : UInt64
 
 @[extern "lean_uint64_mix_hash"]
-constant mixHash (u₁ u₂ : UInt64) : UInt64
+opaque mixHash (u₁ u₂ : UInt64) : UInt64
 
 @[extern "lean_string_hash"]
-protected constant String.hash (s : @& String) : UInt64
+protected opaque String.hash (s : @& String) : UInt64
 
 instance : Hashable String where
   hash := String.hash
@@ -1840,22 +1849,36 @@ inductive Syntax where
   | atom   (info : SourceInfo) (val : String) : Syntax
   | ident  (info : SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List (Prod Name (List String))) : Syntax
 
+def SyntaxNodeKinds := List SyntaxNodeKind
+
+/--
+  A `Syntax` value of one of the given syntax kinds.
+  Note that while syntax quotations produce/expect `TSyntax` values of the correct kinds,
+  this is not otherwise enforced and can easily be circumvented by direct use of the constructor.
+  The namespace `TSyntax.Compat` can be opened to expose a general coercion from `Syntax` to any
+  `TSyntax ks` for porting older code. -/
+structure TSyntax (ks : SyntaxNodeKinds) where
+  raw : Syntax
+
 instance : Inhabited Syntax where
   default := Syntax.missing
 
+instance : Inhabited (TSyntax ks) where
+  default := ⟨default⟩
+
 /- Builtin kinds -/
-def choiceKind : SyntaxNodeKind := `choice
-def nullKind : SyntaxNodeKind := `null
-def groupKind : SyntaxNodeKind := `group
-def identKind : SyntaxNodeKind := `ident
-def strLitKind : SyntaxNodeKind := `str
-def charLitKind : SyntaxNodeKind := `char
-def numLitKind : SyntaxNodeKind := `num
-def scientificLitKind : SyntaxNodeKind := `scientific
-def nameLitKind : SyntaxNodeKind := `name
-def fieldIdxKind : SyntaxNodeKind := `fieldIdx
-def interpolatedStrLitKind : SyntaxNodeKind := `interpolatedStrLitKind
-def interpolatedStrKind : SyntaxNodeKind := `interpolatedStrKind
+abbrev choiceKind : SyntaxNodeKind := `choice
+abbrev nullKind : SyntaxNodeKind := `null
+abbrev groupKind : SyntaxNodeKind := `group
+abbrev identKind : SyntaxNodeKind := `ident
+abbrev strLitKind : SyntaxNodeKind := `str
+abbrev charLitKind : SyntaxNodeKind := `char
+abbrev numLitKind : SyntaxNodeKind := `num
+abbrev scientificLitKind : SyntaxNodeKind := `scientific
+abbrev nameLitKind : SyntaxNodeKind := `name
+abbrev fieldIdxKind : SyntaxNodeKind := `fieldIdx
+abbrev interpolatedStrLitKind : SyntaxNodeKind := `interpolatedStrLitKind
+abbrev interpolatedStrKind : SyntaxNodeKind := `interpolatedStrKind
 
 namespace Syntax
 
@@ -1895,6 +1918,13 @@ def getNumArgs (stx : Syntax) : Nat :=
   match stx with
   | Syntax.node _ _ args => args.size
   | _                    => 0
+
+def getOptional? (stx : Syntax) : Option Syntax :=
+  match stx with
+  | Syntax.node _ k args => match and (beq k nullKind) (beq args.size 1) with
+    | true  => some (args.get! 0)
+    | false => none
+  | _                    => none
 
 def isMissing : Syntax → Bool
   | Syntax.missing => true
@@ -1969,7 +1999,23 @@ partial def getTailPos? (stx : Syntax) (originalOnly := false) : Option String.P
 structure SepArray (sep : String) where
   elemsAndSeps : Array Syntax
 
+/-- A typed version of `SepArray`. -/
+structure TSepArray (ks : SyntaxNodeKinds) (sep : String) where
+  elemsAndSeps : Array Syntax
+
 end Syntax
+
+abbrev TSyntaxArray (ks : SyntaxNodeKinds) := Array (TSyntax ks)
+
+unsafe def TSyntaxArray.rawImpl : TSyntaxArray ks → Array Syntax := unsafeCast
+
+@[implementedBy TSyntaxArray.rawImpl]
+opaque TSyntaxArray.raw (as : TSyntaxArray ks) : Array Syntax := Array.empty
+
+unsafe def TSyntaxArray.mkImpl : Array Syntax → TSyntaxArray ks := unsafeCast
+
+@[implementedBy TSyntaxArray.mkImpl]
+opaque TSyntaxArray.mk (as : Array Syntax) : TSyntaxArray ks := Array.empty
 
 def SourceInfo.fromRef (ref : Syntax) : SourceInfo :=
   match ref.getPos?, ref.getTailPos? with
@@ -2147,7 +2193,7 @@ private def extractImported (scps : List MacroScope) (mainModule : Name) : Name 
     match beq str "_@" with
     | true  => { name := p, mainModule := mainModule, imported := assembleParts parts Name.anonymous, scopes := scps }
     | false => extractImported scps mainModule p (List.cons n parts)
-  | n@(Name.num p str _), parts => extractImported scps mainModule p (List.cons n parts)
+  | n@(Name.num p _ _), parts => extractImported scps mainModule p (List.cons n parts)
   | _,                    _     => panic "Error: unreachable @ extractImported"
 
 private def extractMainModule (scps : List MacroScope) : Name → List Name → MacroScopesView
@@ -2155,7 +2201,7 @@ private def extractMainModule (scps : List MacroScope) : Name → List Name → 
     match beq str "_@" with
     | true  => { name := p, mainModule := assembleParts parts Name.anonymous, imported := Name.anonymous, scopes := scps }
     | false => extractMainModule scps p (List.cons n parts)
-  | n@(Name.num _ num _), acc => extractImported scps (assembleParts acc Name.anonymous) n List.nil
+  | n@(Name.num _ _ _), acc => extractImported scps (assembleParts acc Name.anonymous) n List.nil
   | _,                    _   => panic "Error: unreachable @ extractMainModule"
 
 private def extractMacroScopesAux : Name → List MacroScope → MacroScopesView
@@ -2225,7 +2271,7 @@ end Syntax
 namespace Macro
 
 /- References -/
-private constant MethodsRefPointed : NonemptyType.{0}
+private opaque MethodsRefPointed : NonemptyType.{0}
 
 private def MethodsRef : Type := MethodsRefPointed.type
 
@@ -2293,7 +2339,7 @@ structure Methods where
   expandMacro?      : Syntax → MacroM (Option Syntax)
   getCurrNamespace  : MacroM Name
   hasDecl           : Name → MacroM Bool
-  resolveNamespace? : Name → MacroM (Option Name)
+  resolveNamespace  : Name → MacroM (List Name)
   resolveGlobalName : Name → MacroM (List (Prod Name (List String)))
   deriving Inhabited
 
@@ -2301,7 +2347,7 @@ unsafe def mkMethodsImp (methods : Methods) : MethodsRef :=
   unsafeCast methods
 
 @[implementedBy mkMethodsImp]
-constant mkMethods (methods : Methods) : MethodsRef
+opaque mkMethods (methods : Methods) : MethodsRef
 
 instance : Inhabited MethodsRef where
   default := mkMethods default
@@ -2309,7 +2355,7 @@ instance : Inhabited MethodsRef where
 unsafe def getMethodsImp : MacroM Methods :=
   bind read fun ctx => pure (unsafeCast (ctx.methods))
 
-@[implementedBy getMethodsImp] constant getMethods : MacroM Methods
+@[implementedBy getMethodsImp] opaque getMethods : MacroM Methods
 
 /-- `expandMacro? stx` return `some stxNew` if `stx` is a macro, and `stxNew` is its expansion. -/
 def expandMacro? (stx : Syntax) : MacroM (Option Syntax) := do
@@ -2322,8 +2368,8 @@ def hasDecl (declName : Name) : MacroM Bool := do
 def getCurrNamespace : MacroM Name := do
   (← getMethods).getCurrNamespace
 
-def resolveNamespace? (n : Name) : MacroM (Option Name) := do
-  (← getMethods).resolveNamespace? n
+def resolveNamespace (n : Name) : MacroM (List Name) := do
+  (← getMethods).resolveNamespace n
 
 def resolveGlobalName (n : Name) : MacroM (List (Prod Name (List String))) := do
   (← getMethods).resolveGlobalName n

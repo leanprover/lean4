@@ -12,8 +12,9 @@ namespace Lean.Meta
 namespace Simp
 
 structure Result where
-  expr   : Expr
-  proof? : Option Expr := none -- If none, proof is assumed to be `refl`
+  expr           : Expr
+  proof?         : Option Expr := none -- If none, proof is assumed to be `refl`
+  dischargeDepth : Nat := 0
   deriving Inhabited
 
 abbrev Cache := ExprMap Result

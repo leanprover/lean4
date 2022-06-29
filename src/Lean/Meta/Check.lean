@@ -125,7 +125,7 @@ def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr) : MetaM MessageDat
     let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
     return m!"has type{indentExpr givenType}\nbut is expected to have type{indentExpr expectedType}"
 
-def throwAppTypeMismatch {α} (f a : Expr) (extraMsg : MessageData := Format.nil) : MetaM α := do
+def throwAppTypeMismatch (f a : Expr) : MetaM α := do
   let (expectedType, binfo) ← getFunctionDomain f
   let mut e := mkApp f a
   unless binfo.isExplicit do

@@ -11,15 +11,15 @@ namespace Lean.Elab.Deriving.Ord
 open Lean.Parser.Term
 open Meta
 
-def mkOrdHeader (ctx : Context) (indVal : InductiveVal) : TermElabM Header := do
-  mkHeader ctx `Ord 2 indVal
+def mkOrdHeader (indVal : InductiveVal) : TermElabM Header := do
+  mkHeader `Ord 2 indVal
 
-def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Syntax := do
+def mkMatch (header : Header) (indVal : InductiveVal) : TermElabM Term := do
   let discrs ← mkDiscrs header indVal
   let alts ← mkAlts
   `(match $[$discrs],* with $alts:matchAlt*)
 where
-  mkAlts : TermElabM (Array Syntax) := do
+  mkAlts : TermElabM (Array (TSyntax ``matchAlt)) := do
     let mut alts := #[]
     for ctorName in indVal.ctors do
       let ctorInfo ← getConstInfoCtor ctorName
@@ -27,14 +27,14 @@ where
         let type ← Core.betaReduce type -- we 'beta-reduce' to eliminate "artificial" dependencies
         let mut indPatterns := #[]
         -- add `_` pattern for indices
-        for i in [:indVal.numIndices] do
+        for _ in [:indVal.numIndices] do
           indPatterns := indPatterns.push (← `(_))
         let mut ctorArgs1 := #[]
         let mut ctorArgs2 := #[]
         -- construct RHS top-down as continuation over the remaining comparison
-        let mut rhsCont : Syntax → TermElabM Syntax := fun rhs => pure rhs
+        let mut rhsCont : Term → TermElabM Term := fun rhs => pure rhs
         -- add `_` for inductive parameters, they are inaccessible
-        for i in [:indVal.numParams] do
+        for _ in [:indVal.numParams] do
           ctorArgs1 := ctorArgs1.push (← `(_))
           ctorArgs2 := ctorArgs2.push (← `(_))
         for i in [:ctorInfo.numFields] do
@@ -48,7 +48,7 @@ where
             let b := mkIdent (← mkFreshUserName `b)
             ctorArgs1 := ctorArgs1.push a
             ctorArgs2 := ctorArgs2.push b
-            rhsCont := fun rhs => `(match compare $a:ident $b:ident with
+            rhsCont := fun rhs => `(match compare $a $b with
               | Ordering.lt => Ordering.lt
               | Ordering.gt => Ordering.gt
               | Ordering.eq => $rhs) >>= rhsCont
@@ -61,22 +61,22 @@ where
         pure #[←`(matchAltExpr| | $[$(patterns):term],* => $rhs:term),
                ←`(matchAltExpr| | $[$(ltPatterns):term],* => Ordering.lt),
                ←`(matchAltExpr| | $[$(gtPatterns):term],* => Ordering.gt)]
-      alts := alts ++ alt
+      alts := alts ++ (alt : Array (TSyntax ``matchAlt))
     return alts.pop.pop
 
-def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Syntax := do
+def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
   let auxFunName := ctx.auxFunNames[i]
   let indVal     := ctx.typeInfos[i]
-  let header     ← mkOrdHeader ctx indVal
-  let mut body   ← mkMatch ctx header indVal auxFunName
+  let header     ← mkOrdHeader indVal
+  let mut body   ← mkMatch header indVal
   if ctx.usePartial || indVal.isRec then
     let letDecls ← mkLocalInstanceLetDecls ctx `Ord header.argNames
     body ← mkLet letDecls body
   let binders    := header.binders
   if ctx.usePartial || indVal.isRec then
-    `(private partial def $(mkIdent auxFunName):ident $binders:explicitBinder* : Ordering := $body:term)
+    `(private partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Ordering := $body:term)
   else
-    `(private def $(mkIdent auxFunName):ident $binders:explicitBinder* : Ordering := $body:term)
+    `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Ordering := $body:term)
 
 def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]

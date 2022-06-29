@@ -23,17 +23,17 @@ def ofList (l : List α) : DList α :=
   ⟨(l ++ ·), fun t => by simp⟩
 
 def empty : DList α :=
-  ⟨id, fun t => rfl⟩
+  ⟨id, fun _ => rfl⟩
 
 instance : EmptyCollection (DList α) :=
   ⟨DList.empty⟩
 
 def toList : DList α → List α
-  | ⟨f, h⟩ => f []
+  | ⟨f, _⟩ => f []
 
 def singleton (a : α) : DList α := {
   apply     := fun t => a :: t,
-  invariant := fun t => rfl
+  invariant := fun _ => rfl
 }
 
 def cons : α → DList α → DList α

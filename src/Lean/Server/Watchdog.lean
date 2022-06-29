@@ -258,8 +258,9 @@ section ServerM
           return WorkerEvent.terminated
         else
           -- Worker crashed
-          fw.errorPendingRequests o ErrorCode.internalError
-            s!"Server process for {fw.doc.meta.uri} crashed, {if exitCode = 1 then "see stderr for exception" else "likely due to a stack overflow in user code"}."
+          fw.errorPendingRequests o (if exitCode = 1 then ErrorCode.workerExited else ErrorCode.workerCrashed)
+            s!"Server process for {fw.doc.meta.uri} crashed, {if exitCode = 1 then "see stderr for exception" else "likely due to a stack overflow or a bug"}."
+          publishProgressAtPos fw.doc.meta 0 o (kind := LeanFileProgressKind.fatalError)
           return WorkerEvent.crashed err
       loop
     let task ← IO.asTask (loop $ ←read) Task.Priority.dedicated
@@ -408,7 +409,7 @@ def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ServerM (Array SymbolInf
   return symbols
     |>.qsort (fun ((_, s1), _) ((_, s2), _) => s1 > s2)
     |>.extract 0 100 -- max amount
-    |>.map fun ((name, score), location) =>
+    |>.map fun ((name, _), location) =>
       { name, kind := SymbolKind.constant, location }
 
 end RequestHandling

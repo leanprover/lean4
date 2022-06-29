@@ -101,6 +101,15 @@ def subset (t₁ t₂ : RBTree α cmp) : Bool :=
 def seteq (t₁ t₂ : RBTree α cmp) : Bool :=
   subset t₁ t₂ && subset t₂ t₁
 
+def union (t₁ t₂ : RBTree α cmp) : RBTree α cmp :=
+  if t₁.isEmpty then
+    t₂
+  else
+    t₂.fold .insert t₁
+
+def diff (t₁ t₂ : RBTree α cmp) : RBTree α cmp :=
+  t₂.fold .erase t₁
+
 end RBTree
 
 def rbtreeOf {α : Type u} (l : List α) (cmp : α → α → Ordering) : RBTree α cmp :=

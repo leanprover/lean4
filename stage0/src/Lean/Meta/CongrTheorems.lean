@@ -218,7 +218,7 @@ where
   mk? (f : Expr) (info : FunInfo) (kinds : Array CongrArgKind) : MetaM (Option CongrTheorem) := do
     try
       let fType ← inferType f
-      forallBoundedTelescope fType kinds.size fun lhss xType => do
+      forallBoundedTelescope fType kinds.size fun lhss _ => do
         if lhss.size != kinds.size then return none
         let rec go (i : Nat) (rhss : Array Expr) (eqs : Array (Option Expr)) (hyps : Array Expr) : MetaM CongrTheorem := do
           if i == kinds.size then

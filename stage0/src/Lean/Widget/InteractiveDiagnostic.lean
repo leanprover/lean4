@@ -133,7 +133,7 @@ partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent
     | EmbedFmt.expr ctx infos =>
       let subTt' := tagExprInfos ctx infos subTt
       return TaggedText.tag (MsgEmbed.expr subTt') (TaggedText.text subTt.stripTags)
-    | EmbedFmt.goal ctx lctx g =>
+    | EmbedFmt.goal _   _    _ =>
       -- TODO(WN): use InteractiveGoal types here
       unreachable!
     | EmbedFmt.lazyTrace nCtx ctx? cls m =>

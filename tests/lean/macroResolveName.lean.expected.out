@@ -1,2 +1,2 @@
-some `Lean.Macro : Option Name
+[`Lean.Macro] : List Name
 [(`Nat.succ, [])] : List (Lean.Name × List ?m)

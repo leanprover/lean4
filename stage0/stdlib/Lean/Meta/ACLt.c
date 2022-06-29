@@ -60,7 +60,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_lt_ltApp___lambda__1(lean_object*, lea
 extern lean_object* l_Lean_instInhabitedExpr;
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_lt_lex(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_lt_ltApp___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_letValue_x21(lean_object*);
 extern lean_object* l_Lean_Meta_instInhabitedParamInfo;
@@ -3507,58 +3506,6 @@ x_12 = l_Lean_Expr_withAppAux___at_Lean_Meta_ACLt_lt_allChildrenLt___spec__3___l
 lean_dec(x_6);
 lean_dec(x_2);
 return x_12;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_lt_lex(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-uint8_t x_8; uint8_t x_9; uint8_t x_10; 
-x_8 = l_Lean_Expr_ctorWeight(x_1);
-x_9 = l_Lean_Expr_ctorWeight(x_2);
-x_10 = lean_uint8_dec_lt(x_8, x_9);
-if (x_10 == 0)
-{
-uint8_t x_11; 
-x_11 = lean_uint8_dec_lt(x_9, x_8);
-if (x_11 == 0)
-{
-lean_object* x_12; 
-x_12 = l_Lean_Meta_ACLt_lt_lexSameCtor(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-return x_12;
-}
-else
-{
-uint8_t x_13; lean_object* x_14; lean_object* x_15; 
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-x_13 = 0;
-x_14 = lean_box(x_13);
-x_15 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_15, 0, x_14);
-lean_ctor_set(x_15, 1, x_7);
-return x_15;
-}
-}
-else
-{
-uint8_t x_16; lean_object* x_17; lean_object* x_18; 
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-x_16 = 1;
-x_17 = lean_box(x_16);
-x_18 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_18, 0, x_17);
-lean_ctor_set(x_18, 1, x_7);
-return x_18;
-}
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);

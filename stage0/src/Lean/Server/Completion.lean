@@ -55,7 +55,7 @@ private def isTypeApplicable (type : Expr) (expectedType? : Option Expr) : MetaM
       unless hasMVarHead do
         let targetTypeNumArgs ← getExpectedNumArgs expectedType
         numArgs := numArgs - targetTypeNumArgs
-      let (newMVars, _, type) ← forallMetaTelescopeReducing type (some numArgs)
+      let (_, _, type) ← forallMetaTelescopeReducing type (some numArgs)
       -- TODO take coercions into account
       -- We use `withReducible` to make sure we don't spend too much time unfolding definitions
       -- Alternative: use default and small number of heartbeats
@@ -215,7 +215,7 @@ def completeNamespaces (ctx : ContextInfo) (id : Name) (danglingDot : Bool) : M 
     unless ns.isInternal || env.contains ns do -- Ignore internal and namespaces that are also declaration names
       for openDecl in ctx.openDecls do
         match openDecl with
-        | OpenDecl.simple ns' except =>
+        | OpenDecl.simple ns' _      =>
           if let some score := matchNamespace ns (ns' ++ id) danglingDot then
             add ns ns' score
             return ()
@@ -288,7 +288,7 @@ private def idCompletionCore (ctx : ContextInfo) (id : Name) (hoverInfo : HoverI
       unless (← isBlackListed resolvedId) do
         if let some score := matchAtomic id openedId then
           addCompletionItemForDecl openedId resolvedId expectedType? score
-    | OpenDecl.simple ns except =>
+    | OpenDecl.simple ns _      =>
       getAliasState env |>.forM fun alias declNames => do
         if let some score := matchAlias ns alias then
           addAlias alias declNames score
@@ -346,11 +346,10 @@ where
 
 private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (hoverInfo : HoverInfo) (expectedType? : Option Expr) : IO (Option CompletionList) :=
   runM ctx info.lctx do
-    let nameSet ←
-      try
-        getDotCompletionTypeNames (← instantiateMVars (← inferType info.expr))
-      catch _ =>
-        pure {}
+    let nameSet ← try
+      getDotCompletionTypeNames (← instantiateMVars (← inferType info.expr))
+    catch _ =>
+      pure {}
     if nameSet.isEmpty then
       if info.stx.isIdent then
         idCompletionCore ctx info.stx.getId hoverInfo (danglingDot := false) expectedType?
@@ -406,7 +405,7 @@ private def tacticCompletion (ctx : ContextInfo) : IO (Option CompletionList) :=
   -- Just return the list of tactics for now.
   ctx.runMetaM {} do
     let table := Parser.getCategory (Parser.parserExtension.getState (← getEnv)).categories `tactic |>.get!.tables.leadingTable
-    let items : Array (CompletionItem × Float) := table.fold (init := #[]) fun items tk parser =>
+    let items : Array (CompletionItem × Float) := table.fold (init := #[]) fun items tk _ =>
       -- TODO pretty print tactic syntax
       items.push ({ label := tk.toString, detail? := none, documentation? := none, kind? := CompletionItemKind.keyword }, 1)
     return some { items := sortCompletionItems items, isIncomplete := true }
@@ -417,7 +416,7 @@ partial def find? (fileMap : FileMap) (hoverPos : String.Pos) (infoTree : InfoTr
   | some (hoverInfo, ctx, Info.ofCompletionInfo info) =>
     match info with
     | CompletionInfo.dot info (expectedType? := expectedType?) .. => dotCompletion ctx info hoverInfo expectedType?
-    | CompletionInfo.id stx id danglingDot lctx expectedType? => idCompletion ctx lctx id hoverInfo danglingDot expectedType?
+    | CompletionInfo.id _   id danglingDot lctx expectedType? => idCompletion ctx lctx id hoverInfo danglingDot expectedType?
     | CompletionInfo.option stx => optionCompletion ctx stx caps
     | CompletionInfo.tactic .. => tacticCompletion ctx
     | _ => return none

@@ -63,7 +63,7 @@ private def logMessageIfAux {α : Type} [ToFormat α] (optName : Name) (a : α) 
 @[inline] def logMessageIf {α : Type} [ToFormat α] (cls : Name) (a : α) : CompilerM Unit :=
   logMessageIfAux (tracePrefixOptionName ++ cls) a
 
-@[inline] def logMessage {α : Type} [ToFormat α] (cls : Name) (a : α) : CompilerM Unit :=
+@[inline] def logMessage {α : Type} [ToFormat α] (a : α) : CompilerM Unit :=
   logMessageIfAux tracePrefixOptionName a
 
 @[inline] def modifyEnv (f : Environment → Environment) : CompilerM Unit :=

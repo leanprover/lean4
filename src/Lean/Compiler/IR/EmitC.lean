@@ -118,7 +118,6 @@ def emitFnDecl (decl : Decl) (isExternal : Bool) : M Unit := do
   emitFnDeclAux decl cppBaseName isExternal
 
 def emitExternDeclAux (decl : Decl) (cNameStr : String) : M Unit := do
-  let cName := Name.mkSimple cNameStr
   let env ← getEnv
   let extC := isExternC env decl.name
   emitFnDeclAux decl cNameStr extC
@@ -641,7 +640,7 @@ end
 
 def emitDeclAux (d : Decl) : M Unit := do
   let env ← getEnv
-  let (vMap, jpMap) := mkVarJPMaps d
+  let (_, jpMap) := mkVarJPMaps d
   withReader (fun ctx => { ctx with jpMap := jpMap }) do
   unless hasInitAttr env d.name do
     match d with

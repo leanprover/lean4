@@ -174,7 +174,7 @@ structure ParametricAttribute (α : Type) where
 
 structure ParametricAttributeImpl (α : Type) extends AttributeImplCore where
   getParam : Name → Syntax → AttrM α
-  afterSet : Name → α → AttrM Unit := fun env _ _ => pure ()
+  afterSet : Name → α → AttrM Unit := fun _ _ _ => pure ()
   afterImport : Array (Array (Name × α)) → ImportM Unit := fun _ => pure ()
 
 def registerParametricAttribute {α : Type} [Inhabited α] (impl : ParametricAttributeImpl α) : IO (ParametricAttribute α) := do
@@ -327,7 +327,7 @@ unsafe def mkAttributeImplOfConstantUnsafe (env : Environment) (opts : Options) 
     | _ => throw ("unexpected attribute implementation type at '" ++ toString declName ++ "' (`AttributeImpl` expected")
 
 @[implementedBy mkAttributeImplOfConstantUnsafe]
-constant mkAttributeImplOfConstant (env : Environment) (opts : Options) (declName : Name) : Except String AttributeImpl
+opaque mkAttributeImplOfConstant (env : Environment) (opts : Options) (declName : Name) : Except String AttributeImpl
 
 def mkAttributeImplOfEntry (env : Environment) (opts : Options) (e : AttributeExtensionOLeanEntry) : IO AttributeImpl :=
   match e with

@@ -48,7 +48,7 @@ and calling `precheck` recursively on nested terms, potentially with an extended
 Macros without registered precheck hook are unfolded, and identifier-less syntax is ultimately assumed to be well-formed.",
     valueTypeName := ``Precheck
   } `Lean.Elab.Term.Quotation.precheckAttribute
-@[builtinInit mkPrecheckAttribute] constant precheckAttribute : KeyedDeclsAttribute Precheck
+@[builtinInit mkPrecheckAttribute] opaque precheckAttribute : KeyedDeclsAttribute Precheck
 
 partial def precheck : Precheck := fun stx => do
   if let p::_ := precheckAttribute.getValues (← getEnv) stx.getKind then
@@ -109,7 +109,7 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
 @[builtinQuotPrecheck Lean.Parser.Term.app] def precheckApp : Precheck
   | `($f $args*) => do
     precheck f
-    for arg in args do
+    for arg in args.raw do
       match arg with
       | `(argument| ($_ := $e)) => precheck e
       | `(argument| $e:term)    => precheck e
@@ -125,7 +125,7 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
   | `(($e))         => precheck e
   | `(($e, $es,*))  => do
     precheck e
-    es.getElems.forM precheck
+    es.getElems.raw.forM precheck
   | _ => throwUnsupportedSyntax
 
 @[builtinQuotPrecheck choice] def precheckChoice : Precheck := fun stx => do

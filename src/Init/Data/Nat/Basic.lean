@@ -64,8 +64,8 @@ attribute [simp] Nat.zero_le
 @[simp] theorem blt_eq : (Nat.blt x y = true) = (x < y) := propext <| Iff.intro Nat.le_of_ble_eq_true Nat.ble_eq_true_of_le
 
 instance : LawfulBEq Nat where
-  eq_of_beq _ _ h := Nat.eq_of_beq_eq_true h
-  rfl a := by simp [BEq.beq]
+  eq_of_beq h := Nat.eq_of_beq_eq_true h
+  rfl := by simp [BEq.beq]
 
 @[simp] theorem beq_eq_true_eq (a b : Nat) : ((a == b) = true) = (a = b) := propext <| Iff.intro eq_of_beq (fun h => by subst h; apply LawfulBEq.rfl)
 @[simp] theorem not_beq_eq_true_eq (a b : Nat) : ((!(a == b)) = true) = ¬(a = b) :=
@@ -200,8 +200,8 @@ theorem sub_le (n m : Nat) : n - m ≤ n := by
   | succ m ih => apply Nat.le_trans (pred_le (n - m)) ih
 
 theorem sub_lt : ∀ {n m : Nat}, 0 < n → 0 < m → n - m < n
-  | 0,   _,   h1, h2 => absurd h1 (Nat.lt_irrefl 0)
-  | _+1, 0,   h1, h2 => absurd h2 (Nat.lt_irrefl 0)
+  | 0,   _,   h1, _  => absurd h1 (Nat.lt_irrefl 0)
+  | _+1, 0,   _, h2  => absurd h2 (Nat.lt_irrefl 0)
   | n+1, m+1, _,  _  =>
     Eq.symm (succ_sub_succ_eq_sub n m) ▸
       show n - m < succ n from
@@ -259,11 +259,6 @@ protected theorem le_total (m n : Nat) : m ≤ n ∨ n ≤ m :=
   | Or.inl h => Or.inl (Nat.le_of_lt h)
   | Or.inr h => Or.inr h
 
-protected theorem lt_of_le_and_ne {m n : Nat} (h₁ : m ≤ n) (h₂ : m ≠ n) : m < n :=
-  match Nat.eq_or_lt_of_le h₁ with
-  | Or.inl h => absurd h h₂
-  | Or.inr h => h
-
 theorem eq_zero_of_le_zero {n : Nat} (h : n ≤ 0) : n = 0 :=
   Nat.le_antisymm h (zero_le _)
 
@@ -299,7 +294,7 @@ theorem le_or_eq_or_le_succ {m n : Nat} (h : m ≤ succ n) : m ≤ n ∨ m = suc
   Decidable.byCases
     (fun (h' : m = succ n) => Or.inr h')
     (fun (h' : m ≠ succ n) =>
-       have : m < succ n := Nat.lt_of_le_and_ne h h'
+       have : m < succ n := Nat.lt_of_le_of_ne h h'
        have : succ m ≤ succ n := succ_le_of_lt this
        Or.inl (le_of_succ_le_succ this))
 

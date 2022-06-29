@@ -138,7 +138,7 @@ builtin_initialize
   registerBuiltinAttribute {
     name  := `eliminator
     descr := "custom eliminator for `cases` and `induction` tactics"
-    add   := fun declName stx attrKind => do
+    add   := fun declName _ attrKind => do
       discard <| addCustomEliminator declName attrKind |>.run {} {}
   }
 

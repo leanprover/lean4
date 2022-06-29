@@ -266,7 +266,7 @@ structure SubgoalsResult where
 
 private partial def getSubgoalsAux (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array Expr)
     : Array Expr → Nat → List Expr → Expr → Expr → MetaM SubgoalsResult
-  | args, j, subgoals, instVal, Expr.forallE n d b c => do
+  | args, j, subgoals, instVal, Expr.forallE _ d b c => do
     let d        := d.instantiateRevRange j args.size args
     let mvarType ← mkForallFVars xs d
     let mvar     ← mkFreshExprMVarAt lctx localInsts mvarType
@@ -423,7 +423,7 @@ def addAnswer (cNode : ConsumerNode) : SynthM Unit := do
   Remark: This is syntactic check and no reduction is performed.
 -/
 private def hasUnusedArguments : Expr → Bool
-  | Expr.forallE _ d b _ => !b.hasLooseBVar 0 || hasUnusedArguments b
+  | Expr.forallE _ _ b _ => !b.hasLooseBVar 0 || hasUnusedArguments b
   | _ => false
 
 /--
@@ -639,7 +639,7 @@ private partial def preprocessArgs (type : Expr) (i : Nat) (args : Array Expr) :
 private def preprocessOutParam (type : Expr) : MetaM Expr :=
   forallTelescope type fun xs typeBody => do
     match typeBody.getAppFn with
-    | c@(Expr.const constName us _) =>
+    | c@(Expr.const constName _ _) =>
       let env ← getEnv
       if !hasOutParams env constName then
         return type

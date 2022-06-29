@@ -29,7 +29,7 @@ partial def insert (t : PrefixTreeNode α β) (cmp : α → α → Ordering) (k 
       let t := insertEmpty ks
       PrefixTreeNode.Node none (RBNode.singleton k t)
   let rec loop
-    | PrefixTreeNode.Node v m, [] =>
+    | PrefixTreeNode.Node _ m, [] =>
       PrefixTreeNode.Node (some val) m -- overrides old value
     | PrefixTreeNode.Node v m, k :: ks =>
       let t := match RBNode.find cmp m k with
@@ -41,8 +41,8 @@ partial def insert (t : PrefixTreeNode α β) (cmp : α → α → Ordering) (k 
 @[specialize]
 partial def find? (t : PrefixTreeNode α β) (cmp : α → α → Ordering) (k : List α) : Option β :=
   let rec loop
-    | PrefixTreeNode.Node val m, [] => val
-    | PrefixTreeNode.Node val m, k :: ks =>
+    | PrefixTreeNode.Node val _, [] => val
+    | PrefixTreeNode.Node _   m, k :: ks =>
       match RBNode.find cmp m k with
       | none   => none
       | some t => loop t ks

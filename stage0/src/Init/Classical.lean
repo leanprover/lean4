@@ -56,14 +56,14 @@ theorem em (p : Prop) : p ∨ ¬p :=
   | Or.inl hne => Or.inr (mt p_implies_uv hne)
   | Or.inr h   => Or.inl h
 
-theorem exists_true_of_nonempty {α : Sort u} : Nonempty α → ∃ x : α, True
+theorem exists_true_of_nonempty {α : Sort u} : Nonempty α → ∃ _ : α, True
   | ⟨x⟩ => ⟨x, trivial⟩
 
 noncomputable def inhabited_of_nonempty {α : Sort u} (h : Nonempty α) : Inhabited α :=
   ⟨choice h⟩
 
 noncomputable def inhabited_of_exists {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : Inhabited α :=
-  inhabited_of_nonempty (Exists.elim h (fun w hw => ⟨w⟩))
+  inhabited_of_nonempty (Exists.elim h (fun w _ => ⟨w⟩))
 
 /- all propositions are Decidable -/
 noncomputable scoped instance (priority := low) propDecidable (a : Prop) : Decidable a :=
@@ -75,7 +75,7 @@ noncomputable def decidableInhabited (a : Prop) : Inhabited (Decidable a) where
   default := inferInstance
 
 noncomputable def typeDecidableEq (α : Sort u) : DecidableEq α :=
-  fun x y => inferInstance
+  fun _ _ => inferInstance
 
 noncomputable def typeDecidable (α : Sort u) : PSum α (α → False) :=
   match (propDecidable (Nonempty α)) with
@@ -87,7 +87,7 @@ noncomputable def strongIndefiniteDescription {α : Sort u} (p : α → Prop) (h
     (fun (hp : ∃ x : α, p x) =>
       show {x : α // (∃ y : α, p y) → p x} from
       let xp := indefiniteDescription _ hp;
-      ⟨xp.val, fun h' => xp.property⟩)
+      ⟨xp.val, fun _ => xp.property⟩)
     (fun hp => ⟨choice h, fun h => absurd h hp⟩)
 
 /-- the Hilbert epsilon Function -/

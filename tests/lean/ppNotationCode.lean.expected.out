@@ -8,17 +8,18 @@ fun x =>
     let discr_1 := Lean.Syntax.getArg discr 0;
     let discr_2 := Lean.Syntax.getArg discr 1;
     let discr := Lean.Syntax.getArg discr 2;
-    let rhs := discr;
-    let lhs := discr_1;
+    let rhs := { raw := discr };
+    let lhs := { raw := discr_1 };
     do
     let info ← Lean.MonadRef.mkInfoFromRefPos
     let scp ← Lean.getCurrMacroScope
     let mainModule ← Lean.getMainModule
     pure
-        (Lean.Syntax.node Lean.SourceInfo.none `Lean.Parser.Term.app
-          #[Lean.Syntax.ident info (String.toSubstring "Nat.add") (Lean.addMacroScope mainModule `Nat.add scp)
-              [(`Nat.add, [])],
-            Lean.Syntax.node Lean.SourceInfo.none `null #[lhs, rhs]])
+        { raw :=
+              Lean.Syntax.node Lean.SourceInfo.none `Lean.Parser.Term.app
+                #[Lean.Syntax.ident info (String.toSubstring "Nat.add") (Lean.addMacroScope mainModule `Nat.add scp)
+                    [(`Nat.add, [])],
+                  Lean.Syntax.node Lean.SourceInfo.none `null #[lhs.raw, rhs.raw]] }.raw
   else
     let discr := x;
     throw Lean.Macro.Exception.unsupportedSyntax
@@ -27,19 +28,22 @@ fun x =>
   let discr := x;
   if Lean.Syntax.isOfKind discr `Lean.Parser.Term.app = true then
     let discr_1 := Lean.Syntax.getArg discr 0;
-    bif Lean.Syntax.isOfKind discr_1 `ident then
+    bif false || Lean.Syntax.isOfKind discr_1 `ident then
       let discr_2 := Lean.Syntax.getArg discr 1;
       if Lean.Syntax.matchesNull discr_2 2 = true then
         let discr := Lean.Syntax.getArg discr_2 0;
         let discr_3 := Lean.Syntax.getArg discr_2 1;
-        let rhs := discr_3;
-        let lhs := discr;
-        let f := discr_1;
-        Lean.withRef f do
+        let rhs := { raw := discr_3 };
+        let lhs := { raw := discr };
+        let f := { raw := discr_1 };
+        Lean.withRef f.raw do
           let info ← Lean.MonadRef.mkInfoFromRefPos
           let _ ← Lean.getCurrMacroScope
           let _ ← Lean.getMainModule
-          pure (Lean.Syntax.node Lean.SourceInfo.none `«term_+++_» #[lhs, Lean.Syntax.atom info "+++", rhs])
+          pure
+              { raw :=
+                    Lean.Syntax.node Lean.SourceInfo.none `«term_+++_»
+                      #[lhs.raw, Lean.Syntax.atom info "+++", rhs.raw] }.raw
       else
         let discr := Lean.Syntax.getArg discr 1;
         throw ()

@@ -11,7 +11,7 @@ open Meta
 macro "declare_config_elab" elabName:ident type:ident : command =>
  `(unsafe def evalUnsafe (e : Expr) : TermElabM $type :=
     Term.evalExpr $type ``$type e
-   @[implementedBy evalUnsafe] constant eval (e : Expr) : TermElabM $type
+   @[implementedBy evalUnsafe] opaque eval (e : Expr) : TermElabM $type
    def $elabName (optConfig : Syntax) : TermElabM $type := do
      if optConfig.isNone then
        return { : $type }

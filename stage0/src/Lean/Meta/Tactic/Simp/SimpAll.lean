@@ -28,7 +28,8 @@ structure State where
 abbrev M := StateRefT State MetaM
 
 private def initEntries : M Unit := do
-  let hs ← getNondepPropHyps (← get).mvarId
+  let hs ← withMVarContext (← get).mvarId do getPropHyps
+  let hsNonDeps ← getNondepPropHyps (← get).mvarId
   let mut simpThms := (← get).ctx.simpTheorems
   for h in hs do
     let localDecl ← getLocalDecl h
@@ -37,8 +38,11 @@ private def initEntries : M Unit := do
       let proof  := localDecl.toExpr
       let id     ← mkFreshUserName `h
       simpThms ← simpThms.addTheorem proof (name? := id)
-      let entry : Entry := { fvarId := fvarId, userName := localDecl.userName, id := id, type := (← instantiateMVars localDecl.type), proof := proof }
-      modify fun s => { s with entries := s.entries.push entry, ctx.simpTheorems := simpThms }
+      modify fun s => { s with ctx.simpTheorems := simpThms }
+      if hsNonDeps.contains h then
+        -- We only simplify nondependent hypotheses
+        let entry : Entry := { fvarId := fvarId, userName := localDecl.userName, id := id, type := (← instantiateMVars localDecl.type), proof := proof }
+        modify fun s => { s with entries := s.entries.push entry }
 
 private abbrev getSimpTheorems : M SimpTheoremsArray :=
   return (← get).ctx.simpTheorems

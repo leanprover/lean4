@@ -19,7 +19,7 @@ structure EqnInfoCore where
   deriving Inhabited
 
 partial def expand : Expr → Expr
-  | Expr.letE _ t v b _ => expand (b.instantiate1 v)
+  | Expr.letE _ _ v b _ => expand (b.instantiate1 v)
   | Expr.mdata _ b _    => expand b
   | e => e
 
@@ -31,7 +31,7 @@ def expandRHS? (mvarId : MVarId) : MetaM (Option MVarId) := do
 
 def funext? (mvarId : MVarId) : MetaM (Option MVarId) := do
   let target ← getMVarType' mvarId
-  let some (_, lhs, rhs) := target.eq? | return none
+  let some (_, _, rhs) := target.eq? | return none
   unless rhs.isLambda do return none
   commitWhenSome? do
     let [mvarId] ← apply mvarId (← mkConstWithFreshMVarLevels ``funext) | return none

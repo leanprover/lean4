@@ -1,6 +1,6 @@
-constant f : Nat → Nat
-constant q : Nat → Prop
-constant r : Nat → Prop
+opaque f : Nat → Nat
+opaque q : Nat → Prop
+opaque r : Nat → Prop
 
 @[simp] axiom ax1 (p : Prop) : (p ∧ True) ↔ p
 @[simp] axiom ax2 (x : Nat) : q (f x)

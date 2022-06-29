@@ -11,6 +11,7 @@ import Lean.Util.Recognizers
 import Lean.Meta.Basic
 import Lean.Meta.GetConst
 import Lean.Meta.Match.MatcherInfo
+import Lean.Meta.Match.MatchPatternAttr
 
 namespace Lean.Meta
 
@@ -24,7 +25,7 @@ It is possible to avoid this hack if we move `Structural.EqnInfo` and `Structura
 to this module.
 -/
 @[extern "lean_get_structural_rec_arg_pos"]
-constant getStructuralRecArgPos? (declName : Name) : CoreM (Option Nat)
+opaque getStructuralRecArgPos? (declName : Name) : CoreM (Option Nat)
 
 def smartUnfoldingSuffix := "_sunfold"
 
@@ -224,7 +225,7 @@ private def reduceQuotRec (recVal  : QuotVal) (recLvls : List Level) (recArgs : 
    =========================== -/
 
 mutual
-  private partial def isRecStuck? (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) : MetaM (Option MVarId) :=
+  private partial def isRecStuck? (recVal : RecursorVal) (recArgs : Array Expr) : MetaM (Option MVarId) :=
     if recVal.k then
       -- TODO: improve this case
       return none
@@ -237,7 +238,7 @@ mutual
       else
         return none
 
-  private partial def isQuotRecStuck? (recVal : QuotVal) (recLvls : List Level) (recArgs : Array Expr) : MetaM (Option MVarId) :=
+  private partial def isQuotRecStuck? (recVal : QuotVal) (recArgs : Array Expr) : MetaM (Option MVarId) :=
     let process? (majorPos : Nat) : MetaM (Option MVarId) :=
       if h : majorPos < recArgs.size then do
         let major := recArgs.get ⟨majorPos, h⟩
@@ -263,12 +264,12 @@ mutual
     | Expr.app f .. =>
       let f := f.getAppFn
       match f with
-      | Expr.mvar mvarId _       => return some mvarId
-      | Expr.const fName fLvls _ =>
+      | Expr.mvar mvarId _   => return some mvarId
+      | Expr.const fName _ _ =>
         let cinfo? ← getConstNoEx? fName
         match cinfo? with
-        | some $ ConstantInfo.recInfo recVal  => isRecStuck? recVal fLvls e.getAppArgs
-        | some $ ConstantInfo.quotInfo recVal => isQuotRecStuck? recVal fLvls e.getAppArgs
+        | some $ ConstantInfo.recInfo recVal  => isRecStuck? recVal e.getAppArgs
+        | some $ ConstantInfo.quotInfo recVal => isQuotRecStuck? recVal e.getAppArgs
         | _                                => return none
       | Expr.proj _ _ e _ => getStuckMVar? (← whnf e)
       | _ => return none
@@ -359,12 +360,14 @@ inductive ReduceMatcherResult where
   This solution is also not perfect because the match-expression above will not reduce during type checking when we are not using
   `TransparencyMode.default` or `TransparencyMode.all`.
 -/
-private def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
+def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
   match cfg.transparency with
   | TransparencyMode.all     => return true
   | TransparencyMode.default => return true
-  | m =>
+  | _ =>
     if (← isReducible info.name) || isGlobalInstance (← getEnv) info.name then
+      return true
+    else if hasMatchPatternAttribute (← getEnv) info.name then
       return true
     else
       return info.name == ``ite
@@ -656,7 +659,7 @@ mutual
                 let numArgs := e.getAppNumArgs
                 if recArgPos >= numArgs then return none
                 let recArg := e.getArg! recArgPos numArgs
-                if !(← whnf recArg).isConstructorApp (← getEnv) then return none
+                if !(← whnfMatcher recArg).isConstructorApp (← getEnv) then return none
                 return some r
             | _ =>
               if (← getMatcherInfo? fInfo.name).isSome then
@@ -717,8 +720,8 @@ def reduceRecMatcher? (e : Expr) : MetaM (Option Expr) := do
 
 unsafe def reduceBoolNativeUnsafe (constName : Name) : MetaM Bool := evalConstCheck Bool `Bool constName
 unsafe def reduceNatNativeUnsafe (constName : Name) : MetaM Nat := evalConstCheck Nat `Nat constName
-@[implementedBy reduceBoolNativeUnsafe] constant reduceBoolNative (constName : Name) : MetaM Bool
-@[implementedBy reduceNatNativeUnsafe] constant reduceNatNative (constName : Name) : MetaM Nat
+@[implementedBy reduceBoolNativeUnsafe] opaque reduceBoolNative (constName : Name) : MetaM Bool
+@[implementedBy reduceNatNativeUnsafe] opaque reduceNatNative (constName : Name) : MetaM Nat
 
 def reduceNative? (e : Expr) : MetaM (Option Expr) :=
   match e with

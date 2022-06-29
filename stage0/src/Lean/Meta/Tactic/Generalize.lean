@@ -18,7 +18,7 @@ structure GeneralizeArg where
 
 partial def generalize
     (mvarId : MVarId) (args : Array GeneralizeArg)
-    (pred : (parent? : Option Expr) → (e : Expr) → MetaM Bool := fun _ _ => return true)
+    -- (pred : (parent? : Option Expr) → (e : Expr) → MetaM Bool := fun _ _ => return true)
     : MetaM (Array FVarId × MVarId) :=
   withMVarContext mvarId do
     checkNotAssigned mvarId `generalize
@@ -31,7 +31,7 @@ partial def generalize
         let eType ← instantiateMVars (← inferType e)
         let type ← go (i+1)
         let xName ← if let some xName := arg.xName? then pure xName else mkFreshUserName `x
-        return Lean.mkForall xName BinderInfo.default eType (← kabstractWithPred type e pred)
+        return Lean.mkForall xName BinderInfo.default eType (← kabstract type e)
       else
         return target
     let targetNew ← go 0
@@ -51,11 +51,10 @@ partial def generalize
               let xType ← inferType xs[i]
               let e ← instantiateMVars arg.expr
               let eType ← instantiateMVars (← inferType e)
-              let (hType, r) ←
-                if (← isDefEq xType eType) then
-                  pure (← mkEq e xs[i], ← mkEqRefl e)
-                else
-                  pure (← mkHEq e xs[i], ← mkHEqRefl e)
+              let (hType, r) ← if (← isDefEq xType eType) then
+                pure (← mkEq e xs[i], ← mkEqRefl e)
+              else
+                pure (← mkHEq e xs[i], ← mkHEqRefl e)
               let (rs, type) ← go' (i+1)
               return (r :: rs, mkForall hName BinderInfo.default hType type)
             else

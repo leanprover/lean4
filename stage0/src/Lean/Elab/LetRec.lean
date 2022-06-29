@@ -53,11 +53,10 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
           let type ← mkForallFVars xs type
           pure (type, binderIds)
       let mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque
-      let valStx ←
-        if decl.isOfKind `Lean.Parser.Term.letIdDecl then
-          pure decl[4]
-        else
-          liftMacroM <| expandMatchAltsIntoMatch decl decl[3]
+      let valStx ← if decl.isOfKind `Lean.Parser.Term.letIdDecl then
+        pure decl[4]
+      else
+        liftMacroM <| expandMatchAltsIntoMatch decl decl[3]
       pure { ref := declId, attrs, shortDeclName, declName, binderIds, type, mvar, valStx : LetRecDeclView }
     else
       throwUnsupportedSyntax

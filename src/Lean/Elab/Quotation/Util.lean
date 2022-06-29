@@ -13,12 +13,12 @@ register_builtin_option hygiene : Bool := {
   descr    := "Annotate identifiers in quotations such that they are resolved relative to the scope at their declaration, not that at their eventual use/expansion, to avoid accidental capturing. Note that quotations/notations already defined are unaffected."
 }
 
-def getAntiquotationIds (stx : Syntax) : TermElabM (Array Syntax) := do
+def getAntiquotationIds (stx : Syntax) : TermElabM (Array Ident) := do
   let mut ids := #[]
-  for stx in stx.topDown do
+  for stx in stx.topDown (firstChoiceOnly := true) do
     if (isAntiquot stx || isTokenAntiquot stx) && !isEscapedAntiquot stx then
       let anti := getAntiquotTerm stx
-      if anti.isIdent then ids := ids.push anti
+      if anti.isIdent then ids := ids.push ⟨anti⟩
       else if anti.isOfKind ``Parser.Term.hole then pure ()
       else throwErrorAt stx "complex antiquotation not allowed here"
   return ids

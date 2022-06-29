@@ -71,13 +71,17 @@ def changeLhs (lhs' : Expr) : TacticM Unit := do
   liftMetaTactic1 fun mvarId => do
     replaceTargetDefEq mvarId (mkLHSGoal (← mkEq lhs' rhs))
 
-@[builtinTactic Lean.Parser.Tactic.Conv.whnf] def evalWhnf : Tactic := fun stx =>
+@[builtinTactic Lean.Parser.Tactic.Conv.whnf] def evalWhnf : Tactic := fun _ =>
    withMainContext do
      changeLhs (← whnf (← getLhs))
 
-@[builtinTactic Lean.Parser.Tactic.Conv.reduce] def evalReduce : Tactic := fun stx =>
+@[builtinTactic Lean.Parser.Tactic.Conv.reduce] def evalReduce : Tactic := fun _ =>
    withMainContext do
      changeLhs (← reduce (← getLhs))
+
+@[builtinTactic Lean.Parser.Tactic.Conv.zeta] def evalZeta : Tactic := fun _ =>
+   withMainContext do
+     changeLhs (← zetaReduce (← getLhs))
 
 @[builtinTactic Lean.Parser.Tactic.Conv.convSeq1Indented] def evalConvSeq1Indented : Tactic := fun stx => do
   evalTacticSeq1Indented stx
@@ -108,7 +112,7 @@ def changeLhs (lhs' : Expr) : TacticM Unit := do
 def remarkAsConvGoal : TacticM Unit := do
   let newGoals ← (← getUnsolvedGoals).mapM fun mvarId => withMVarContext mvarId do
     let target ← getMVarType mvarId
-    if let some (_, lhs, rhs) ← matchEq? target then
+    if let some (_, _, rhs) ← matchEq? target then
       if rhs.getAppFn.isMVar then
         replaceTargetDefEq mvarId (mkLHSGoal target)
       else
@@ -131,25 +135,27 @@ def remarkAsConvGoal : TacticM Unit := do
 
 private def convTarget (conv : Syntax) : TacticM Unit := withMainContext do
    let target ← getMainTarget
-   let (targetNew, proof) ← convert target (evalTactic conv)
+   let (targetNew, proof) ← convert target (withTacticInfoContext (← getRef) (evalTactic conv))
    liftMetaTactic1 fun mvarId => replaceTargetEq mvarId targetNew proof
    evalTactic (← `(tactic| try rfl))
 
 private def convLocalDecl (conv : Syntax) (hUserName : Name) : TacticM Unit := withMainContext do
    let localDecl ← getLocalDeclFromUserName hUserName
-   let (typeNew, proof) ← convert localDecl.type (evalTactic conv)
+   let (typeNew, proof) ← convert localDecl.type (withTacticInfoContext (← getRef) (evalTactic conv))
    liftMetaTactic1 fun mvarId =>
      return some (← replaceLocalDecl mvarId localDecl.fvarId typeNew proof).mvarId
 
 @[builtinTactic Lean.Parser.Tactic.Conv.conv] def evalConv : Tactic := fun stx => do
   match stx with
-  | `(tactic| conv $[at $loc?]? in $p => $code) =>
-    evalTactic (← `(tactic| conv $[at $loc?]? => pattern $p; ($code:convSeq)))
-  | `(tactic| conv $[at $loc?]? => $code) =>
-    if let some loc := loc? then
-      convLocalDecl code loc.getId
-    else
-      convTarget code
+  | `(tactic| conv%$tk $[at $loc?]? in $p =>%$arr $code) =>
+    evalTactic (← `(tactic| conv%$tk $[at $loc?]? =>%$arr pattern $p; ($code:convSeq)))
+  | `(tactic| conv%$tk $[at $loc?]? =>%$arr $code) =>
+    -- show initial conv goal state between `conv` and `=>`
+    withRef (mkNullNode #[tk, arr]) do
+      if let some loc := loc? then
+        convLocalDecl code loc.getId
+      else
+        convTarget code
   | _ => throwUnsupportedSyntax
 
 @[builtinTactic Lean.Parser.Tactic.Conv.first] partial def evalFirst : Tactic :=

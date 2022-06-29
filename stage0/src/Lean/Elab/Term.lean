@@ -70,9 +70,9 @@ inductive MVarErrorKind where
 
 instance : ToString MVarErrorKind where
   toString
-    | MVarErrorKind.implicitArg ctx => "implicitArg"
+    | MVarErrorKind.implicitArg _   => "implicitArg"
     | MVarErrorKind.hole            => "hole"
-    | MVarErrorKind.custom msg      => "custom"
+    | MVarErrorKind.custom _        => "custom"
 
 structure MVarErrorInfo where
   mvarId    : MVarId
@@ -320,7 +320,7 @@ unsafe def mkTermElabAttributeUnsafe : IO (KeyedDeclsAttribute TermElab) :=
   mkElabAttribute TermElab `Lean.Elab.Term.termElabAttribute `builtinTermElab `termElab `Lean.Parser.Term `Lean.Elab.Term.TermElab "term"
 
 @[implementedBy mkTermElabAttributeUnsafe]
-constant mkTermElabAttribute : IO (KeyedDeclsAttribute TermElab)
+opaque mkTermElabAttribute : IO (KeyedDeclsAttribute TermElab)
 
 builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermElabAttribute
 
@@ -595,7 +595,7 @@ def throwTypeMismatchError (header? : Option String) (expectedType : Expr) (eTyp
   -/
   match f? with
   | none   => throwError "{← mkTypeMismatchError header? e eType expectedType}{extraMsg}"
-  | some f => Meta.throwAppTypeMismatch f e extraMsg
+  | some f => Meta.throwAppTypeMismatch f e
 
 def withoutMacroStackAtErr (x : TermElabM α) : TermElabM α :=
   withTheReader Core.Context (fun (ctx : Core.Context) => { ctx with options := pp.macroStack.set ctx.options false }) x
@@ -951,9 +951,8 @@ def withSavedContext (savedCtx : SavedContext) (x : TermElabM α) : TermElabM α
 private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
   trace[Elab.postpone] "{stx} : {expectedType?}"
   let mvar ← mkFreshExprMVar expectedType? MetavarKind.syntheticOpaque
-  let ctx ← read
   registerSyntheticMVar stx mvar.mvarId! (SyntheticMVarKind.postponed (← saveContext))
-  pure mvar
+  return mvar
 
 def getSyntheticMVarDecl? (mvarId : MVarId) : TermElabM (Option SyntheticMVarDecl) :=
   return (← get).syntheticMVars.find? fun d => d.mvarId == mvarId
@@ -1040,7 +1039,7 @@ private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? :
         (try
           elabFn.value stx expectedType?
         catch ex => match ex with
-          | Exception.error ref msg =>
+          | Exception.error _   _   =>
             if (← read).errToSorry then
               exceptionToSorry ex expectedType?
             else
@@ -1092,7 +1091,7 @@ instance : MonadMacroAdapter TermElabM where
 
 private def isExplicit (stx : Syntax) : Bool :=
   match stx with
-  | `(@$f) => true
+  | `(@$_) => true
   | _      => false
 
 private def isExplicitApp (stx : Syntax) : Bool :=
@@ -1103,8 +1102,8 @@ private def isExplicitApp (stx : Syntax) : Bool :=
   Example: `fun {α} (a : α) => a` -/
 private def isLambdaWithImplicit (stx : Syntax) : Bool :=
   match stx with
-  | `(fun $binders* => $body) => binders.any fun b => b.isOfKind ``Lean.Parser.Term.implicitBinder || b.isOfKind `Lean.Parser.Term.instBinder
-  | _                         => false
+  | `(fun $binders* => $_) => binders.raw.any fun b => b.isOfKind ``Lean.Parser.Term.implicitBinder || b.isOfKind `Lean.Parser.Term.instBinder
+  | _                      => false
 
 private partial def dropTermParens : Syntax → Syntax := fun stx =>
   match stx with
@@ -1115,23 +1114,23 @@ private def isHole (stx : Syntax) : Bool :=
   match stx with
   | `(_)          => true
   | `(? _)        => true
-  | `(? $x:ident) => true
+  | `(? $_:ident) => true
   | _             => false
 
 private def isTacticBlock (stx : Syntax) : Bool :=
   match stx with
-  | `(by $x:tacticSeq) => true
+  | `(by $_:tacticSeq) => true
   | _ => false
 
 private def isNoImplicitLambda (stx : Syntax) : Bool :=
   match stx with
-  | `(no_implicit_lambda% $x:term) => true
+  | `(no_implicit_lambda% $_:term) => true
   | _ => false
 
 private def isTypeAscription (stx : Syntax) : Bool :=
   match stx with
-  | `(($e : $type)) => true
-  | _               => false
+  | `(($_ : $_)) => true
+  | _            => false
 
 def hasNoImplicitLambdaAnnotation (type : Expr) : Bool :=
   annotation? `noImplicitLambda type |>.isSome
@@ -1541,7 +1540,7 @@ where process (candidates : List (Name × List String)) : TermElabM (List (Expr 
   `(v.head, id, [f₁, f₂])` where `id` is an identifier for `v.head`, and `f₁` and `f₂` are identifiers for fields `"bla"` and `"boo"`. -/
 def resolveName' (ident : Syntax) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × Syntax × List Syntax)) := do
   match ident with
-  | Syntax.ident info rawStr n preresolved =>
+  | Syntax.ident _    _      n preresolved =>
     let r ← resolveName ident n preresolved explicitLevels expectedType?
     r.mapM fun (c, fields) => do
       let ids := ident.identComponents (nFields? := fields.length)
@@ -1552,7 +1551,7 @@ def resolveId? (stx : Syntax) (kind := "term") (withInfo := false) : TermElabM (
   match stx with
   | Syntax.ident _ _ val preresolved => do
     let rs ← try resolveName stx val preresolved [] catch _ => pure []
-    let rs := rs.filter fun ⟨f, projs⟩ => projs.isEmpty
+    let rs := rs.filter fun ⟨_, projs⟩ => projs.isEmpty
     let fs := rs.map fun (f, _) => f
     match fs with
     | []  => return none
@@ -1591,9 +1590,9 @@ unsafe def evalExpr (α) (typeName : Name) (value : Expr) : TermElabM α :=
     unless type.isConstOf typeName do
       throwError "unexpected type at evalExpr{indentExpr type}"
     let decl := Declaration.defnDecl {
-       name := name, levelParams := [], type := type,
-       value := value, hints := ReducibilityHints.opaque,
-       safety := DefinitionSafety.unsafe
+       name, levelParams := [], type
+       value, hints := ReducibilityHints.opaque,
+       safety := .unsafe
     }
     ensureNoUnassignedMVars decl
     addAndCompile decl

@@ -62,12 +62,12 @@ axiom_val::axiom_val(name const & n, names const & lparams, expr const & type, b
 
 bool axiom_val::is_unsafe() const { return lean_axiom_val_is_unsafe(to_obj_arg()); }
 
-extern "C" object * lean_mk_definition_val(object * n, object * lparams, object * type, object * value, object * hints, uint8 safety);
+extern "C" object * lean_mk_definition_val(object * n, object * lparams, object * type, object * value, object * hints, uint8 safety, object * all);
 extern "C" uint8 lean_definition_val_get_safety(object * v);
 
-definition_val::definition_val(name const & n, names const & lparams, expr const & type, expr const & val, reducibility_hints const & hints, definition_safety safety):
+definition_val::definition_val(name const & n, names const & lparams, expr const & type, expr const & val, reducibility_hints const & hints, definition_safety safety, names const & all):
     object_ref(lean_mk_definition_val(n.to_obj_arg(), lparams.to_obj_arg(), type.to_obj_arg(), val.to_obj_arg(),
-                                      hints.to_obj_arg(), static_cast<uint8>(safety))) {
+                                      hints.to_obj_arg(), static_cast<uint8>(safety), all.to_obj_arg())) {
 }
 
 definition_safety definition_val::get_safety() const { return static_cast<definition_safety>(lean_definition_val_get_safety(to_obj_arg())); }
@@ -76,11 +76,11 @@ theorem_val::theorem_val(name const & n, names const & lparams, expr const & typ
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), val)) {
 }
 
-extern "C" object * lean_mk_opaque_val(object * n, object * lparams, object * type, object * value, uint8 is_unsafe);
+extern "C" object * lean_mk_opaque_val(object * n, object * lparams, object * type, object * value, uint8 is_unsafe, object * all);
 extern "C" uint8 lean_opaque_val_is_unsafe(object * v);
 
-opaque_val::opaque_val(name const & n, names const & lparams, expr const & type, expr const & val, bool is_unsafe):
-    object_ref(lean_mk_opaque_val(n.to_obj_arg(), lparams.to_obj_arg(), type.to_obj_arg(), val.to_obj_arg(), is_unsafe)) {
+opaque_val::opaque_val(name const & n, names const & lparams, expr const & type, expr const & val, bool is_unsafe, names const & all):
+    object_ref(lean_mk_opaque_val(n.to_obj_arg(), lparams.to_obj_arg(), type.to_obj_arg(), val.to_obj_arg(), is_unsafe, all.to_obj_arg())) {
 }
 
 bool opaque_val::is_unsafe() const { return lean_opaque_val_is_unsafe(to_obj_arg()); }
@@ -193,12 +193,12 @@ static unsigned get_max_height(environment const & env, expr const & v) {
 
 definition_val mk_definition_val(environment const & env, name const & n, names const & params, expr const & t, expr const & v, definition_safety s) {
     unsigned h = get_max_height(env, v);
-    return definition_val(n, params, t, v, reducibility_hints::mk_regular(h+1), s);
+    return definition_val(n, params, t, v, reducibility_hints::mk_regular(h+1), s, names(n));
 }
 
 declaration mk_definition(name const & n, names const & params, expr const & t, expr const & v,
                           reducibility_hints const & h, definition_safety safety) {
-    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Definition), definition_val(n, params, t, v, h, safety)));
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Definition), definition_val(n, params, t, v, h, safety, names(n))));
 }
 
 declaration mk_definition(environment const & env, name const & n, names const & params, expr const & t,
@@ -207,7 +207,7 @@ declaration mk_definition(environment const & env, name const & n, names const &
 }
 
 declaration mk_opaque(name const & n, names const & params, expr const & t, expr const & v, bool is_unsafe) {
-    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Opaque), opaque_val(n, params, t, v, is_unsafe)));
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Opaque), opaque_val(n, params, t, v, is_unsafe, names(n))));
 }
 
 declaration mk_axiom(name const & n, names const & params, expr const & t, bool unsafe) {

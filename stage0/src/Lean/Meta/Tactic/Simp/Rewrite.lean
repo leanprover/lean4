@@ -57,15 +57,14 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
     if (← isDefEq lhs e) then
       unless (← synthesizeArgs thm.getName xs bis discharge?) do
         return none
-      let proof? ←
-        if thm.rfl then
-          pure none
-        else
-          let proof ← instantiateMVars (mkAppN val xs)
-          if (← hasAssignableMVar proof) then
-            trace[Meta.Tactic.simp.rewrite] "{thm}, has unassigned metavariables after unification"
-            return none
-          pure <| some proof
+      let proof? ← if thm.rfl then
+        pure none
+      else
+        let proof ← instantiateMVars (mkAppN val xs)
+        if (← hasAssignableMVar proof) then
+          trace[Meta.Tactic.simp.rewrite] "{thm}, has unassigned metavariables after unification"
+          return none
+        pure <| some proof
       let rhs := (← instantiateMVars type).appArg!
       if e == rhs then
         return none
@@ -86,14 +85,14 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
      This simple approach was good enough for Mathlib 3 -/
   let mut extraArgs := #[]
   let mut e := e
-  for i in [:numExtraArgs] do
+  for _ in [:numExtraArgs] do
     extraArgs := extraArgs.push e.appArg!
     e := e.appFn!
   extraArgs := extraArgs.reverse
   match (← go e) with
   | none => return none
-  | some { expr := eNew, proof? := none } => return some { expr := mkAppN eNew extraArgs }
-  | some { expr := eNew, proof? := some proof } =>
+  | some { expr := eNew, proof? := none, .. } => return some { expr := mkAppN eNew extraArgs }
+  | some { expr := eNew, proof? := some proof, .. } =>
     let mut proof := proof
     for extraArg in extraArgs do
       proof ← mkCongrFun proof extraArg
@@ -148,7 +147,7 @@ where
 
 @[inline] def andThen (s : Step) (f? : Expr → SimpM (Option Step)) : SimpM Step := do
   match s with
-  | Step.done r  => return s
+  | Step.done _  => return s
   | Step.visit r =>
     if let some s' ← f? r.expr then
       return s'.updateResult (← mkEqTrans r s'.result)
@@ -186,7 +185,6 @@ def rewriteUsingDecide? (e : Expr) : MetaM (Option Result) := withReducibleAndIn
       if r.isConstOf ``true then
         return some { expr := mkConst ``True, proof? := mkAppN (mkConst ``eq_true_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``true))] }
       else if r.isConstOf ``false then
-        let h ← mkEqRefl d
         return some { expr := mkConst ``False, proof? := mkAppN (mkConst ``eq_false_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``false))] }
       else
         return none

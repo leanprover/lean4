@@ -827,7 +827,6 @@ def collectForwardDeps (mctx : MetavarContext) (lctx : LocalContext) (toRevert :
       -- Make sure toRevert[j] does not depend on toRevert[i] for j > i
       toRevert.size.forM fun i => do
         let fvar := toRevert[i]
-        let decl := lctx.getFVar! fvar
         i.forM fun j => do
           let prevFVar := toRevert[j]
           let prevDecl := lctx.getFVar! prevFVar

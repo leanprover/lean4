@@ -84,11 +84,11 @@ private def elimEmptyInductive (mvarId : MVarId) (fvarId : FVarId) (fuel : Nat) 
     else
       return false
 
-/-- Return true if `e` is of the form `(x : α) → ... → s = t → ... → False` -/
-private def isGenDiseq (e : Expr) : Bool :=
-  match e with
-  | Expr.forallE _ d b _ => (d.isEq || d.isHEq || b.hasLooseBVar 0) && isGenDiseq b
-  | _ => e.isConstOf ``False
+/--
+  See `Simp.isEqnThmHypothesis`
+-/
+private abbrev isGenDiseq (e : Expr) : Bool :=
+  Simp.isEqnThmHypothesis e
 
 /--
   Given `e` s.t. `isGenDiseq e`, generate a bit-mask `mask` s.t. `mask[i] = true` iff
@@ -133,7 +133,7 @@ private def processGenDiseq (mvarId : MVarId) (localDecl : LocalDecl) : MetaM Bo
         if let some (_, lhs, _) ← matchEq? (← inferType arg) then
           unless (← isDefEq arg (← mkEqRefl lhs)) do
             return none
-        if let some (α, lhs, _,  _) ← matchHEq? (← inferType arg) then
+        if let some (_, lhs, _,  _) ← matchHEq? (← inferType arg) then
           unless (← isDefEq arg (← mkHEqRefl lhs)) do
             return none
     let falseProof ← instantiateMVars (mkAppN localDecl.toExpr args)

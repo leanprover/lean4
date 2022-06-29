@@ -73,7 +73,7 @@ class LeanObjectPrinter:
         if is_scalar(self.val):
             return unbox(self.val)
         else:
-            return "{} ({})".format(LeanObjectPrinter.kinds[self.kind][0], get_rc(self.val))
+            return "{} (RC {})".format(LeanObjectPrinter.kinds[self.kind][0], get_rc(self.val))
 
     def children(self):
         if is_scalar(self.val):
@@ -82,11 +82,14 @@ class LeanObjectPrinter:
             return
         typ, fields = LeanObjectPrinter.kinds[self.kind]
         val = self.val.cast(gdb.lookup_type("lean_" + typ + "_object").pointer()).dereference()
+        if self.kind == 0:
+            yield ('tag', get_tag(self.val))
         for f in fields:
             yield (f, val[f])
         if typ == 'ctor':
             for i in range(get_num_objs(self.val)):
-                yield ('', val['m_objs'][i].cast(gdb.lookup_type('lean_object').pointer()))
+                p = val['m_objs'][i].cast(gdb.lookup_type('lean_object').pointer())
+                yield ('', p if is_scalar(p) else p.dereference())
         elif typ == 'array':
             for i in range(val['m_size']):
                 yield ('', val['m_data'][i].cast(gdb.lookup_type('lean_object').pointer()))

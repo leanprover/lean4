@@ -149,14 +149,17 @@ def Priority.max : Priority := 8
   non-dedicated workers than the number of cores to reduce context switches. -/
 def Priority.dedicated : Priority := 9
 
+set_option linter.unusedVariables.funArgs false in
 @[noinline, extern "lean_task_spawn"]
 protected def spawn {α : Type u} (fn : Unit → α) (prio := Priority.default) : Task α :=
   ⟨fn ()⟩
 
+set_option linter.unusedVariables.funArgs false in
 @[noinline, extern "lean_task_map"]
 protected def map {α : Type u} {β : Type v} (f : α → β) (x : Task α) (prio := Priority.default) : Task β :=
   ⟨f x.get⟩
 
+set_option linter.unusedVariables.funArgs false in
 @[noinline, extern "lean_task_bind"]
 protected def bind {α : Type u} {β : Type v} (x : Task α) (f : α → Task β) (prio := Priority.default) : Task β :=
   ⟨(f x.get).get⟩
@@ -186,23 +189,21 @@ theorem optParam_eq (α : Sort u) (default : α) : optParam α default = α := r
 infix:50 " != " => bne
 
 class LawfulBEq (α : Type u) [BEq α] : Prop where
-  eq_of_beq : (a b : α) → (a == b) = true → a = b
-  rfl : (a : α) → (a == a) = true
-
-theorem eq_of_beq [BEq α] [LawfulBEq α] {a b : α} (h : (a == b) = true) : a = b :=
-  LawfulBEq.eq_of_beq a b h
+  eq_of_beq : {a b : α} → (a == b) = true → a = b
+  protected rfl : {a : α} → (a == a) = true
+export LawfulBEq (eq_of_beq)
 
 instance : LawfulBEq Bool where
-  eq_of_beq a b h := by cases a <;> cases b <;> first | rfl | contradiction
-  rfl a := by cases a <;> decide
+  eq_of_beq {a b} h := by cases a <;> cases b <;> first | rfl | contradiction
+  rfl {a} := by cases a <;> decide
 
 instance : LawfulBEq Char where
-  eq_of_beq _ _  h := of_decide_eq_true h
-  rfl a := of_decide_eq_self_eq_true a
+  eq_of_beq h := of_decide_eq_true h
+  rfl {a} := of_decide_eq_self_eq_true a
 
 instance : LawfulBEq String where
-  eq_of_beq _ _  h := of_decide_eq_true h
-  rfl a := of_decide_eq_self_eq_true a
+  eq_of_beq h := of_decide_eq_true h
+  rfl {a} := of_decide_eq_self_eq_true a
 
 /- Logical connectives an equality -/
 
@@ -280,7 +281,7 @@ theorem Bool.of_not_eq_false : {b : Bool} → ¬ (b = false) → b = true
   | false, h => absurd rfl h
 
 theorem ne_of_beq_false [BEq α] [LawfulBEq α] {a b : α} (h : (a == b) = false) : a ≠ b := by
-  intro h'; subst h'; have : true = false := Eq.trans (LawfulBEq.rfl a).symm h; contradiction
+  intro h'; subst h'; have : true = false := Eq.trans LawfulBEq.rfl.symm h; contradiction
 
 theorem beq_false_of_ne [BEq α] [LawfulBEq α] {a b : α} (h : a ≠ b) : (a == b) = false :=
   have : ¬ (a == b) = true := by
@@ -404,6 +405,7 @@ variable {p q : Prop}
 theorem em (p : Prop) [Decidable p] : p ∨ ¬p :=
   byCases Or.inl Or.inr
 
+set_option linter.unusedVariables.funArgs false in
 theorem byContradiction [dec : Decidable p] (h : ¬p → False) : p :=
   byCases id (fun np => False.elim (h np))
 
@@ -424,7 +426,7 @@ end Decidable
 
 section
 variable {p q : Prop}
-@[inline] def  decidable_of_decidable_of_iff [hp : Decidable p] (h : p ↔ q) : Decidable q :=
+@[inline] def  decidable_of_decidable_of_iff [Decidable p] (h : p ↔ q) : Decidable q :=
   if hp : p then
     isTrue (Iff.mp h hp)
   else
@@ -501,7 +503,7 @@ abbrev noConfusionEnum {α : Sort u} {β : Sort v} [inst : DecidableEq β] (f : 
     (motive := fun (inst : Decidable (f x = f y)) => Decidable.casesOn (motive := fun _ => Sort w) inst (fun _ => P) (fun _ => P → P))
     (inst (f x) (f y))
     (fun h' => False.elim (h' (congrArg f h)))
-    (fun h' => fun x => x)
+    (fun _ => fun x => x)
 
 /- Inhabited -/
 
@@ -554,7 +556,7 @@ structure Equivalence {α : Sort u} (r : α → α → Prop) : Prop where
   symm  : ∀ {x y}, r x y → r y x
   trans : ∀ {x y z}, r x y → r y z → r x z
 
-def emptyRelation {α : Sort u} (a₁ a₂ : α) : Prop :=
+def emptyRelation {α : Sort u} (_ _ : α) : Prop :=
   False
 
 def Subrelation {α : Sort u} (q r : α → α → Prop) :=
@@ -576,7 +578,7 @@ def existsOfSubtype {α : Type u} {p : α → Prop} : { x // p x } → Exists (f
 variable {α : Type u} {p : α → Prop}
 
 protected theorem eq : ∀ {a1 a2 : {x // p x}}, val a1 = val a2 → a1 = a2
-  | ⟨_, _ ⟩, ⟨_, _⟩, rfl => rfl
+  | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
 theorem eta (a : {x // p x}) (h : p (val a)) : mk (val a) h = a := by
   cases a
@@ -959,7 +961,7 @@ variable   {α : Sort u}
 private def rel {s : Setoid α} (q₁ q₂ : Quotient s) : Prop :=
   Quotient.liftOn₂ q₁ q₂
     (fun a₁ a₂ => a₁ ≈ a₂)
-    (fun a₁ a₂ b₁ b₂ a₁b₁ a₂b₂ =>
+    (fun _ _ _ _ a₁b₁ a₂b₂ =>
       propext (Iff.intro
         (fun a₁a₂ => Setoid.trans (Setoid.symm a₁b₁) (Setoid.trans a₁a₂ a₂b₂))
         (fun b₁b₂ => Setoid.trans a₁b₁ (Setoid.trans b₁b₂ (Setoid.symm a₂b₂)))))
@@ -1045,7 +1047,7 @@ private def funSetoid (α : Sort u) (β : α → Sort v) : Setoid (∀ (x : α),
 private def extfunApp (f : Quotient <| funSetoid α β) (x : α) : β x :=
   Quot.liftOn f
     (fun (f : ∀ (x : α), β x) => f x)
-    (fun f₁ f₂ h => h x)
+    (fun _ _ h => h x)
 
 theorem funext {f₁ f₂ : ∀ (x : α), β x} (h : ∀ x, f₁ x = f₂ x) : f₁ = f₂ := by
   show extfunApp (Quotient.mk' f₁) = extfunApp (Quotient.mk' f₂)
@@ -1105,7 +1107,7 @@ namespace Lean
   If an extern function is executed, then the trusted code base will also include the implementation of the associated
   foreign function.
 -/
-constant reduceBool (b : Bool) : Bool := b
+opaque reduceBool (b : Bool) : Bool := b
 
 /--
   Similar to `Lean.reduceBool` for closed `Nat` terms.
@@ -1113,7 +1115,7 @@ constant reduceBool (b : Bool) : Bool := b
   Remark: we do not have plans for supporting a generic `reduceValue {α} (a : α) : α := a`.
   The main issue is that it is non-trivial to convert an arbitrary runtime object back into a Lean expression.
   We believe `Lean.reduceBool` enables most interesting applications (e.g., proof by reflection). -/
-constant reduceNat (n : Nat) : Nat := n
+opaque reduceNat (n : Nat) : Nat := n
 
 axiom ofReduceBool (a b : Bool) (h : reduceBool a = b) : a = b
 axiom ofReduceNat (a b : Nat) (h : reduceNat a = b)    : a = b

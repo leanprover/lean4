@@ -298,10 +298,10 @@ def Info.toElabInfo? : Info → Option ElabInfo
   | ofTacticInfo i         => some i.toElabInfo
   | ofTermInfo i           => some i.toElabInfo
   | ofCommandInfo i        => some i.toElabInfo
-  | ofMacroExpansionInfo i => none
-  | ofFieldInfo i          => none
-  | ofCompletionInfo i     => none
-  | ofCustomInfo i         => none
+  | ofMacroExpansionInfo _ => none
+  | ofFieldInfo _          => none
+  | ofCompletionInfo _     => none
+  | ofCustomInfo _         => none
 
 /--
   Helper function for propagating the tactic metavariable context to its children nodes.
@@ -448,7 +448,7 @@ def withMacroExpansionInfo [MonadFinally m] [Monad m] [MonadInfoTree m] [MonadLC
 @[inline] def withInfoHole [MonadFinally m] [Monad m] [MonadInfoTree m] (mvarId : MVarId) (x : m α) : m α := do
   if (← getInfoState).enabled then
     let treesSaved ← getResetInfoTrees
-    Prod.fst <$> MonadFinally.tryFinally' x fun a? => modifyInfoState fun s =>
+    Prod.fst <$> MonadFinally.tryFinally' x fun _ => modifyInfoState fun s =>
       if s.trees.size > 0 then
         { s with trees := treesSaved, assignment := s.assignment.insert mvarId s.trees[s.trees.size - 1] }
       else

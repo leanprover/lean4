@@ -85,7 +85,7 @@ partial def visitFnBody (fnid : FunId) : FnBody → StateM ParamMap Unit
   | FnBody.case _ _ _ alts => alts.forM fun alt => visitFnBody fnid alt.body
   | e => do
     unless e.isTerminal do
-      let (instr, b) := e.split
+      let (_, b) := e.split
       visitFnBody fnid b
 
 def visitDecls (env : Environment) (decls : Array Decl) : StateM ParamMap Unit :=
@@ -105,7 +105,7 @@ def mkInitParamMap (env : Environment) (decls : Array Decl) : ParamMap :=
 namespace ApplyParamMap
 
 partial def visitFnBody (fn : FunId) (paramMap : ParamMap) : FnBody → FnBody
-  | FnBody.jdecl j xs v b =>
+  | FnBody.jdecl j _  v b =>
     let v := visitFnBody fn paramMap v
     let b := visitFnBody fn paramMap b
     match paramMap.find? (ParamMap.Key.jp fn j) with
@@ -122,7 +122,7 @@ partial def visitFnBody (fn : FunId) (paramMap : ParamMap) : FnBody → FnBody
 
 def visitDecls (decls : Array Decl) (paramMap : ParamMap) : Array Decl :=
   decls.map fun decl => match decl with
-    | Decl.fdecl f xs ty b info =>
+    | Decl.fdecl f _  ty b info =>
       let b := visitFnBody f paramMap b
       match paramMap.find? (ParamMap.Key.decl f) with
       | some xs => Decl.fdecl f xs ty b info
@@ -176,7 +176,6 @@ def isOwned (x : VarId) : M Bool := do
 
 /- Updates `map[k]` using the current set of `owned` variables. -/
 def updateParamMap (k : ParamMap.Key) : M Unit := do
-  let currFn ← getCurrFn
   let s ← get
   match s.paramMap.find? k with
   | some ps => do
@@ -252,7 +251,7 @@ def collectExpr (z : VarId) : Expr → M Unit
     ownVar z *> ownArgsUsingParams xs ps
   | Expr.ap x ys        => ownVar z *> ownVar x *> ownArgs ys
   | Expr.pap _ xs       => ownVar z *> ownArgs xs
-  | other               => pure ()
+  | _                   => pure ()
 
 def preserveTailCall (x : VarId) (v : Expr) (b : FnBody) : M Unit := do
   let ctx ← read

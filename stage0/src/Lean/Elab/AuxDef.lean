@@ -18,7 +18,7 @@ scoped syntax (name := aux_def) docComment ? attributes ? "aux_def" ident+ ":" t
 
 @[builtinCommandElab «aux_def»]
 def elabAuxDef : CommandElab
-  | `($[$doc?:docComment]? $[$attrs?:attributes]? aux_def $[$suggestion:ident]* : $ty := $body) => do
+  | `($[$doc?:docComment]? $[$attrs?:attributes]? aux_def $suggestion* : $ty := $body) => do
     let id := suggestion.map (·.getId.eraseMacroScopes) |>.foldl (· ++ ·) Name.anonymous
     let id := `_aux ++ (← getMainModule) ++ `_ ++ id
     let id := String.intercalate "_" <| id.components.map (·.toString (escape := false))

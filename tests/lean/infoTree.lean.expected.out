@@ -226,11 +226,11 @@
                 [.] `Prod.mk._@.infoTree._hyg.102 : some Prod.{0 0} Nat Nat @ ⟨23, 4⟩†-⟨25, 10⟩†
                 [.] `z : some [mdata _patWithRef: ?_uniq.634] @ ⟨23, 9⟩-⟨23, 10⟩
                 [.] `w : some [mdata _patWithRef: ?_uniq.635] @ ⟨23, 12⟩-⟨23, 13⟩
-                Nat : Type @ ⟨23, 4⟩†-⟨23, 13⟩†
-                Nat : Type @ ⟨23, 4⟩†-⟨23, 13⟩†
-                z (isBinder := true) : Nat @ ⟨23, 9⟩-⟨23, 10⟩
-                w (isBinder := true) : Nat @ ⟨23, 12⟩-⟨23, 13⟩
                 (z, w) : Nat × Nat @ ⟨23, 4⟩†-⟨23, 13⟩
+                  Nat : Type @ ⟨23, 4⟩†-⟨23, 13⟩†
+                  Nat : Type @ ⟨23, 4⟩†-⟨23, 13⟩†
+                  z (isBinder := true) : Nat @ ⟨23, 9⟩-⟨23, 10⟩
+                  w (isBinder := true) : Nat @ ⟨23, 12⟩-⟨23, 13⟩
                 let z1 := z + w;
                 z + z1 : Nat @ ⟨24, 4⟩-⟨25, 10⟩ @ Lean.Elab.Term.elabLetDecl
                   Nat : Type @ ⟨24, 8⟩†-⟨24, 10⟩† @ Lean.Elab.Term.elabHole
@@ -390,9 +390,9 @@ infoTree.lean:44:0: error: expected stx
     Macro expansion
     («term_=_» `x "=" `x)
     ===>
-    (Term.binrel "binrel%" `Eq._@.infoTree._hyg.177 `x `x)
+    (Term.binrel "binrel%" `Eq._@.infoTree._hyg.176 `x `x)
       Eq.{1} Nat _uniq.854 _uniq.854 : Prop @ ⟨45, 21⟩†-⟨45, 26⟩ @ Lean.Elab.Term.BinOp.elabBinRel
-        [.] `Eq._@.infoTree._hyg.177 : none @ ⟨45, 21⟩†-⟨45, 26⟩†
+        [.] `Eq._@.infoTree._hyg.176 : none @ ⟨45, 21⟩†-⟨45, 26⟩†
         _uniq.854 : Nat @ ⟨45, 21⟩-⟨45, 22⟩ @ Lean.Elab.Term.elabIdent
           [.] `x : none @ ⟨45, 21⟩-⟨45, 22⟩
           _uniq.854 : Nat @ ⟨45, 21⟩-⟨45, 22⟩
@@ -415,9 +415,9 @@ infoTree.lean:44:0: error: expected stx
       Macro expansion
       («term_=_» `x "=" `x)
       ===>
-      (Term.binrel "binrel%" `Eq._@.infoTree._hyg.185 `x `x)
+      (Term.binrel "binrel%" `Eq._@.infoTree._hyg.184 `x `x)
         Eq.{1} Nat _uniq.864 _uniq.864 : Prop @ ⟨46, 27⟩†-⟨46, 32⟩ @ Lean.Elab.Term.BinOp.elabBinRel
-          [.] `Eq._@.infoTree._hyg.185 : none @ ⟨46, 27⟩†-⟨46, 32⟩†
+          [.] `Eq._@.infoTree._hyg.184 : none @ ⟨46, 27⟩†-⟨46, 32⟩†
           _uniq.864 : Nat @ ⟨46, 27⟩-⟨46, 28⟩ @ Lean.Elab.Term.elabIdent
             [.] `x : none @ ⟨46, 27⟩-⟨46, 28⟩
             _uniq.864 : Nat @ ⟨46, 27⟩-⟨46, 28⟩

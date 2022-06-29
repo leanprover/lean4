@@ -13,7 +13,7 @@ private def mkInhabitant? (type : Expr) (useOfNonempty : Bool) : MetaM (Option E
       return some (← mkOfNonempty type)
     else
       return some (← mkDefault type)
-  catch ex =>
+  catch _ =>
     return none
 
 private def findAssumption? (xs : Array Expr) (type : Expr) : MetaM (Option Expr) := do

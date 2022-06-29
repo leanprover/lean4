@@ -307,12 +307,12 @@ def useEtaStruct (inductName : Name) : MetaM Bool := do
 /-- Reduces an expression to its Weak Head Normal Form.
 This is when the topmost expression has been fully reduced,
 but may contain subexpressions which have not been reduced. -/
-@[extern 6 "lean_whnf"] constant whnf : Expr → MetaM Expr
+@[extern 6 "lean_whnf"] opaque whnf : Expr → MetaM Expr
 /-- Returns the inferred type of the given expression, or fails if it is not type-correct. -/
-@[extern 6 "lean_infer_type"] constant inferType : Expr → MetaM Expr
-@[extern 7 "lean_is_expr_def_eq"] constant isExprDefEqAux : Expr → Expr → MetaM Bool
-@[extern 7 "lean_is_level_def_eq"] constant isLevelDefEqAux : Level → Level → MetaM Bool
-@[extern 6 "lean_synth_pending"] protected constant synthPending : MVarId → MetaM Bool
+@[extern 6 "lean_infer_type"] opaque inferType : Expr → MetaM Expr
+@[extern 7 "lean_is_expr_def_eq"] opaque isExprDefEqAux : Expr → Expr → MetaM Bool
+@[extern 7 "lean_is_level_def_eq"] opaque isLevelDefEqAux : Level → Level → MetaM Bool
+@[extern 6 "lean_synth_pending"] protected opaque synthPending : MVarId → MetaM Bool
 
 def whnfForall (e : Expr) : MetaM Expr := do
   let e' ← whnf e
@@ -487,7 +487,7 @@ def instantiateLocalDeclMVars (localDecl : LocalDecl) : MetaM LocalDecl :=
     setMCtx sNew.mctx
     modifyThe Core.State fun s => { s with ngen := sNew.ngen, nextMacroScope := sNew.nextMacroScope }
     pure e
-  | EStateM.Result.error (MetavarContext.MkBinding.Exception.revertFailure mctx lctx toRevert decl) sNew => do
+  | EStateM.Result.error (.revertFailure ..) sNew => do
     setMCtx sNew.mctx
     modifyThe Core.State fun s => { s with ngen := sNew.ngen, nextMacroScope := sNew.nextMacroScope }
     throwError "failed to create binder due to failure when reverting variable dependencies"
@@ -758,7 +758,7 @@ mutual
 
   private partial def isClassExpensive? (type : Expr) : MetaM (Option Name) :=
     withReducible do -- when testing whether a type is a type class, we only unfold reducible constants.
-      forallTelescopeReducingAux type none fun xs type => do
+      forallTelescopeReducingAux type none fun _ type => do
         let env ← getEnv
         match type.getAppFn with
         | Expr.const c _ _ => do
@@ -919,7 +919,7 @@ where
       finalize ()
     else
       match type with
-      | Expr.lam n d b c =>
+      | Expr.lam _ d b c =>
         let d     := d.instantiateRevRange j mvars.size mvars
         let mvar ← mkFreshExprMVar d
         let mvars := mvars.push mvar
@@ -1010,7 +1010,6 @@ def withLocalInstances (decls : List LocalDecl) : n α → n α :=
 
 private def withExistingLocalDeclsImp (decls : List LocalDecl) (k : MetaM α) : MetaM α := do
   let ctx ← read
-  let numLocalInstances := ctx.localInstances.size
   let lctx := decls.foldl (fun (lctx : LocalContext) decl => lctx.addDecl decl) ctx.lctx
   withReader (fun ctx => { ctx with lctx := lctx }) do
     withLocalInstancesImp decls k
@@ -1028,7 +1027,11 @@ private def withNewMCtxDepthImp (x : MetaM α) : MetaM α := do
 
 /--
   Save cache and `MetavarContext`, bump the `MetavarContext` depth, execute `x`,
-  and restore saved data. -/
+  and restore saved data.
+
+  Metavariable context depths are used to control which metavariables may be assigned in `isDefEq`.
+  See the docstring of `isDefEq` for more information.
+   -/
 def withNewMCtxDepth : n α → n α :=
   mapMetaM withNewMCtxDepthImp
 
@@ -1161,11 +1164,11 @@ def ppExpr (e : Expr) : MetaM Format := do
 instance : OrElse (MetaM α) := ⟨Meta.orElse⟩
 
 instance : Alternative MetaM where
-  failure := fun {α} => throwError "failed"
+  failure := fun {_} => throwError "failed"
   orElse  := Meta.orElse
 
 @[inline] private def orelseMergeErrorsImp (x y : MetaM α)
-    (mergeRef : Syntax → Syntax → Syntax := fun r₁ r₂ => r₁)
+    (mergeRef : Syntax → Syntax → Syntax := fun r₁ _ => r₁)
     (mergeMsg : MessageData → MessageData → MessageData := fun m₁ m₂ => m₁ ++ Format.line ++ m₂) : MetaM α := do
   let env  ← getEnv
   let mctx ← getMCtx
@@ -1188,7 +1191,7 @@ instance : Alternative MetaM where
   The default `mergeRef` uses the `ref` (position information) for the first message.
   The default `mergeMsg` combines error messages using `Format.line ++ Format.line` as a separator. -/
 @[inline] def orelseMergeErrors [MonadControlT MetaM m] [Monad m] (x y : m α)
-    (mergeRef : Syntax → Syntax → Syntax := fun r₁ r₂ => r₁)
+    (mergeRef : Syntax → Syntax → Syntax := fun r₁ _ => r₁)
     (mergeMsg : MessageData → MessageData → MessageData := fun m₁ m₂ => m₁ ++ Format.line ++ Format.line ++ m₂) : m α := do
   controlAt MetaM fun runInBase => orelseMergeErrorsImp (runInBase x) (runInBase y) mergeRef mergeMsg
 
@@ -1344,7 +1347,17 @@ def isExprDefEq (t s : Expr) : MetaM Bool :=
     trace[Meta.isDefEq] "{t} =?= {s} ... {if b then "success" else "failure"}"
     return b
 
-/-- Determines whether two expressions are definitionally equal to each other. -/
+/-- Determines whether two expressions are definitionally equal to each other.
+
+  To control how metavariables are assigned and unified, metavariables and their context have a "depth".
+  Given a metavariable `?m` and a `MetavarContext` `mctx`, `?m` is not assigned if `?m.depth != mctx.depth`.
+  The combinator `withNewMCtxDepth x` will bump the depth while executing `x`.
+  So, `withNewMCtxDepth (isDefEq a b)` is `isDefEq` without any mvar assignment happening
+  whereas `isDefEq a b` will assign any metavariables of the current depth in `a` and `b` to unify them.
+
+  For matching (where only mvars in `b` should be assigned), we create the term inside the `withNewMCtxDepth`.
+  For an example, see [Lean.Meta.Simp.tryTheoremWithExtraArgs?](https://github.com/leanprover/lean4/blob/master/src/Lean/Meta/Tactic/Simp/Rewrite.lean#L100-L106)
+ -/
 abbrev isDefEq (t s : Expr) : MetaM Bool :=
   isExprDefEq t s
 

@@ -13,6 +13,7 @@ import Lean.Elab.DeclarationRange
 namespace Lean.Elab.Command
 
 open Meta
+open TSyntax.Compat
 
 private def ensureValidNamespace (name : Name) : MacroM Unit := do
   match name with
@@ -20,28 +21,34 @@ private def ensureValidNamespace (name : Name) : MacroM Unit := do
     if s == "_root_" then
       Macro.throwError s!"invalid namespace '{name}', '_root_' is a reserved namespace"
     ensureValidNamespace p
-  | Name.num p .. => Macro.throwError s!"invalid namespace '{name}', it must not contain numeric parts"
-  | Name.anonymous => pure ()
+  | Name.num _ .. => Macro.throwError s!"invalid namespace '{name}', it must not contain numeric parts"
+  | Name.anonymous => return ()
 
-/- Auxiliary function for `expandDeclNamespace?` -/
+/-- Auxiliary function for `expandDeclNamespace?` -/
 private def expandDeclIdNamespace? (declId : Syntax) : MacroM (Option (Name × Syntax)) := do
-  let (id, optUnivDeclStx) := expandDeclIdCore declId
+  let (id, _) := expandDeclIdCore declId
+  if (`_root_).isPrefixOf id then
+    ensureValidNamespace (id.replacePrefix `_root_ Name.anonymous)
+    return none
   let scpView := extractMacroScopes id
   match scpView.name with
-  | Name.str Name.anonymous s _ => return none
+  | Name.str Name.anonymous _ _ => return none
   | Name.str pre s _            =>
     ensureValidNamespace pre
     let nameNew := { scpView with name := Name.mkSimple s }.review
     -- preserve "original" info, if any, so that hover etc. on the namespaced
     -- name access the info tree node of the declaration name
-    let id := mkIdent nameNew |>.setInfo declId.getHeadInfo
+    let id := mkIdent nameNew |>.raw.setInfo declId.getHeadInfo
     if declId.isIdent then
       return some (pre, id)
     else
       return some (pre, declId.setArg 0 id)
   | _ => return none
 
-/- given declarations such as `@[...] def Foo.Bla.f ...` return `some (Foo.Bla, @[...] def f ...)` -/
+/--
+  Given declarations such as `@[...] def Foo.Bla.f ...` return `some (Foo.Bla, @[...] def f ...)`
+  Remark: if the id starts with `_root_`, we return `none`.
+-/
 private def expandDeclNamespace? (stx : Syntax) : MacroM (Option (Name × Syntax)) := do
   if !stx.isOfKind `Lean.Parser.Command.declaration then
     return none
@@ -51,7 +58,7 @@ private def expandDeclNamespace? (stx : Syntax) : MacroM (Option (Name × Syntax
     if k == ``Lean.Parser.Command.abbrev ||
        k == ``Lean.Parser.Command.def ||
        k == ``Lean.Parser.Command.theorem ||
-       k == ``Lean.Parser.Command.constant ||
+       k == ``Lean.Parser.Command.opaque ||
        k == ``Lean.Parser.Command.axiom ||
        k == ``Lean.Parser.Command.inductive ||
        k == ``Lean.Parser.Command.classInductive ||
@@ -73,9 +80,9 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
   let declId             := stx[1]
   let (binders, typeStx) := expandDeclSig stx[2]
   let scopeLevelNames ← getLevelNames
-  let ⟨name, declName, allUserLevelNames⟩ ← expandDeclId declId modifiers
+  let ⟨_, declName, allUserLevelNames⟩ ← expandDeclId declId modifiers
   addDeclarationRanges declName stx
-  runTermElabM declName fun vars => Term.withLevelNames allUserLevelNames $ Term.elabBinders binders.getArgs fun xs => do
+  runTermElabM declName fun vars => Term.withLevelNames allUserLevelNames <| Term.elabBinders binders.getArgs fun xs => do
     Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.beforeElaboration
     let type ← Term.elabType typeStx
     Term.synthesizeSyntheticMVarsNoPostponing
@@ -122,7 +129,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Comm
     checkValidCtorModifier ctorModifiers
     let ctorName := ctor.getIdAt 2
     let ctorName := declName ++ ctorName
-    let ctorName ← withRef ctor[2] $ applyVisibility ctorModifiers.visibility ctorName
+    let ctorName ← withRef ctor[2] <| applyVisibility ctorModifiers.visibility ctorName
     let (binders, type?) := expandOptDeclSig ctor[3]
     addDocString' ctorName ctorModifiers.docString?
     addAuxDeclarationRanges ctorName ctor ctor[2]
@@ -163,7 +170,7 @@ def elabDeclaration : CommandElab := fun stx => do
   | some (ns, newStx) => do
     let ns := mkIdentFrom stx ns
     let newStx ← `(namespace $ns:ident $newStx end $ns:ident)
-    withMacroExpansion stx newStx $ elabCommand newStx
+    withMacroExpansion stx newStx <| elabCommand newStx
   | none => do
     let modifiers ← elabModifiers stx[0]
     let decl     := stx[1]
@@ -251,7 +258,7 @@ def expandMutualElement : Macro := fun stx => do
     | some elemNew => elemsNew := elemsNew.push elemNew; modified := true
     | none         => elemsNew := elemsNew.push elem
   if modified then
-    pure $ stx.setArg 1 (mkNullNode elemsNew)
+    return stx.setArg 1 (mkNullNode elemsNew)
   else
     Macro.throwUnsupported
 
@@ -263,7 +270,7 @@ def expandMutualPreamble : Macro := fun stx =>
     let secCmd    ← `(section)
     let newMutual := stx.setArg 1 (mkNullNode rest)
     let endCmd    ← `(end)
-    pure $ mkNullNode (#[secCmd] ++ preamble ++ #[newMutual] ++ #[endCmd])
+    return mkNullNode (#[secCmd] ++ preamble ++ #[newMutual] ++ #[endCmd])
 
 @[builtinCommandElab «mutual»]
 def elabMutual : CommandElab := fun stx => do
@@ -309,7 +316,7 @@ def expandInitCmd (builtin : Bool) : Macro := fun stx => do
   let optVisibility := stx[0]
   let optHeader     := stx[2]
   let doSeq         := stx[3]
-  let attrId        := mkIdentFrom stx $ if builtin then `builtinInit else `init
+  let attrId        := mkIdentFrom stx <| if builtin then `builtinInit else `init
   if optHeader.isNone then
     unless optVisibility.isNone do
       Macro.throwError "invalid initialization command, 'visibility' modifer is not allowed"
@@ -319,13 +326,13 @@ def expandInitCmd (builtin : Bool) : Macro := fun stx => do
     let type := optHeader[1][1]
     if optVisibility.isNone then
       `(def initFn : IO $type := do $doSeq
-        @[$attrId:ident initFn] constant $id : $type)
+        @[$attrId:ident initFn] opaque $id : $type)
     else if optVisibility[0].getKind == ``Parser.Command.private then
       `(def initFn : IO $type := do $doSeq
-        @[$attrId:ident initFn] private constant $id : $type)
+        @[$attrId:ident initFn] private opaque $id : $type)
     else if optVisibility[0].getKind == ``Parser.Command.protected then
       `(def initFn : IO $type := do $doSeq
-        @[$attrId:ident initFn] protected constant $id : $type)
+        @[$attrId:ident initFn] protected opaque $id : $type)
     else
       Macro.throwError "unexpected visibility annotation"
 

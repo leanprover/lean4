@@ -82,7 +82,6 @@ def CasesOnApp.addArg (c : CasesOnApp) (arg : Expr) (checkIfRefined : Bool := fa
     return { c with us, motive, alts, remaining }
 where
   updateAlts (argType : Expr) (auxType : Expr) : MetaM (Array Expr) := do
-    let indName := c.declName.getPrefix
     let mut auxType := auxType
     let mut altsNew := #[]
     let mut refined := false

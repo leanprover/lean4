@@ -88,7 +88,7 @@ where
           mkForallFVars (xs.insertAt numParams motive) s)
 
   motiveType (indVal : InductiveVal) : MetaM Expr :=
-    forallTelescopeReducing indVal.type fun xs t => do
+    forallTelescopeReducing indVal.type fun xs _ => do
       mkForallFVars xs (← mkArrow (mkAppN (mkIndValConst indVal) xs) (mkSort levelZero))
 
   mkIndValConst (indVal : InductiveVal) : Expr :=
@@ -133,7 +133,7 @@ where
     else rebuild vars
 
   rebuild (vars : Variables) :=
-    vars.innerType.withApp fun f args => do
+    vars.innerType.withApp fun _ args => do
       let hApp :=
         mkAppN
           (mkConst originalCtor.name $ ctx.typeInfos[0].levelParams.map mkLevelParam)
@@ -154,7 +154,7 @@ where
     let run (x : StateRefT Nat MetaM Expr) : MetaM (Expr × Nat) := StateRefT'.run x 0
     let (_, cnt) ← run <| transform domain fun e => do
       if let some name := e.constName? then
-        if let some idx := ctx.typeInfos.findIdx? fun indVal => indVal.name == name then
+        if let some _ := ctx.typeInfos.findIdx? fun indVal => indVal.name == name then
           modify (· + 1)
       return TransformStep.visit e
 
@@ -176,7 +176,6 @@ where
         if let some name := f.constName? then
           if let some idx := ctx.typeInfos.findIdx?
             fun indVal => indVal.name == name then
-            let indVal := ctx.typeInfos[idx]
             let hApp := mkAppN binder xs
             let t :=
               mkAppN vars.indVal[idx] $
@@ -194,7 +193,7 @@ where
       (domain : Expr)
       {α : Type} (k : Expr → MetaM α) : MetaM α := do
     forallTelescopeReducing domain fun xs t => do
-      t.withApp fun f args => do
+      t.withApp fun _ args => do
         let hApp := mkAppN binder xs
         let t := mkAppN vars.motives[indValIdx] $ args[ctx.numParams:] ++ #[hApp]
         let newDomain ← mkForallFVars xs t
@@ -257,7 +256,7 @@ partial def proveBrecOn (ctx : Context) (indVal : InductiveVal) (type : Expr) : 
   let ms ← induction m vars
   let ms ← applyCtors ms
   let maxDepth := maxBackwardChainingDepth.get $ ←getOptions
-  ms.forM (closeGoal vars maxDepth)
+  ms.forM (closeGoal maxDepth)
   instantiateMVars main
 where
   intros (m : MVarId) : MetaM (MVarId × BrecOnVariables) := do
@@ -270,7 +269,7 @@ where
 
   applyIH (m : MVarId) (vars : BrecOnVariables) : MetaM (List MVarId) := do
     match (← vars.indHyps.findSomeM?
-      fun ih => do try pure <| some <| (←apply m $ mkFVar ih) catch ex => pure none) with
+      fun ih => do try pure <| some <| (←apply m $ mkFVar ih) catch _ => pure none) with
     | some goals => pure goals
     | none => throwError "cannot apply induction hypothesis: {MessageData.ofGoal m}"
 
@@ -291,15 +290,15 @@ where
     apply m recursor
 
   applyCtors (ms : List MVarId) : MetaM $ List MVarId := do
-    let mss ← ms.toArray.mapIdxM fun idx m => do
+    let mss ← ms.toArray.mapIdxM fun _ m => do
       let m ← introNPRec m
       (← getMVarType m).withApp fun below args =>
       withMVarContext m do
-        args.back.withApp fun ctor ctorArgs => do
+        args.back.withApp fun ctor _ => do
         let ctorName := ctor.constName!.updatePrefix below.constName!
         let ctor := mkConst ctorName below.constLevels!
         let ctorInfo ← getConstInfoCtor ctorName
-        let (mvars, _, t) ← forallMetaTelescope ctorInfo.type
+        let (mvars, _, _) ← forallMetaTelescope ctorInfo.type
         let ctor := mkAppN ctor mvars
         apply m ctor
     return mss.foldr List.append []
@@ -307,7 +306,7 @@ where
   introNPRec (m : MVarId) : MetaM MVarId := do
     if (← getMVarType m).isForall then introNPRec (←intro1P m).2 else return m
 
-  closeGoal (vars : BrecOnVariables) (maxDepth : Nat) (m : MVarId) : MetaM Unit := do
+  closeGoal (maxDepth : Nat) (m : MVarId) : MetaM Unit := do
     unless (← isExprMVarAssigned m) do
       let m ← introNPRec m
       unless (← backwardsChaining m maxDepth) do
@@ -325,7 +324,7 @@ def mkBrecOnDecl (ctx : Context) (idx : Nat) : MetaM Declaration := do
     value := ←proveBrecOn ctx indVal type }
 where
   mkType : MetaM Expr :=
-    forallTelescopeReducing ctx.headers[idx] fun xs t => do
+    forallTelescopeReducing ctx.headers[idx] fun xs _ => do
     let params := xs[:ctx.numParams]
     let motives := xs[ctx.numParams:ctx.numParams + ctx.motives.size].toArray
     let indices := xs[ctx.numParams + ctx.motives.size:]
@@ -343,7 +342,7 @@ where
       else mkFreshUserName "ih"
     let ih ← instantiateForall motive.2 params
     let mkDomain (_ : Array Expr) : MetaM Expr :=
-      forallTelescopeReducing ih fun ys t => do
+      forallTelescopeReducing ih fun ys _ => do
         let levels := ctx.typeInfos[idx].levelParams.map mkLevelParam
         let args := params ++ motives ++ ys
         let premise :=
@@ -358,8 +357,7 @@ where
 partial def getBelowIndices (ctorName : Name) : MetaM $ Array Nat := do
   let ctorInfo ← getConstInfoCtor ctorName
   let belowCtorInfo ← getConstInfoCtor (ctorName.updatePrefix $ ctorInfo.induct ++ `below)
-  let belowInductInfo ← getConstInfoInduct belowCtorInfo.induct
-  forallTelescopeReducing ctorInfo.type fun xs t => do
+  forallTelescopeReducing ctorInfo.type fun xs _ => do
   loop xs belowCtorInfo.type #[] 0 0
 
 where
@@ -376,7 +374,7 @@ where
       let rest ← instantiateForall rest #[x]
       loop xs rest (belowIndices.push yIdx) (xIdx + 1) (yIdx + 1)
     else
-      forallBoundedTelescope rest (some 1) fun ys rest =>
+      forallBoundedTelescope rest (some 1) fun _ rest =>
       loop xs rest belowIndices xIdx (yIdx + 1)
 
 private def belowType (motive : Expr) (xs : Array Expr) (idx : Nat) : MetaM $ Name × Expr := do
@@ -407,7 +405,7 @@ partial def mkBelowMatcher
     (below : Expr)
     (idx : Nat) : MetaM $ Expr × MetaM Unit := do
   let mkMatcherInput ← getMkMatcherInputInContext matcherApp
-  let (indName, belowType, motive, matchType) ←
+  let (indName, _, motive, matchType) ←
     forallBoundedTelescope mkMatcherInput.matchType mkMatcherInput.numDiscrs fun xs t => do
     let (indName, belowType) ← belowType belowMotive xs idx
     let matchType ←
@@ -425,7 +423,7 @@ partial def mkBelowMatcher
     let xs :=
       -- special case: if we had no free vars, i.e. there was a unit added and no we do have free vars, we get rid of the unit.
       match oldFVars.size, fvars.size with
-      | 0, n+1 => xs[1:]
+      | 0, _+1 => xs[1:]
       | _, _ => xs
     let t := t.replaceFVars xs[:oldFVars.size] fvars[:oldFVars.size]
     trace[Meta.IndPredBelow.match] "xs = {xs}; oldFVars = {oldFVars.map (·.toExpr)}; fvars = {fvars}; new = {fvars[:oldFVars.size] ++ xs[oldFVars.size:] ++ fvars[oldFVars.size:]}"
@@ -442,7 +440,6 @@ partial def mkBelowMatcher
   -- if a wrong index is picked, the resulting matcher can be type-incorrect.
   -- we check here, so that errors can propagate higher up the call stack.
   check res.matcher
-  let args := #[motive] ++ matcherApp.discrs.push below ++ alts
   let newApp := mkApp res.matcher motive
   let newApp := mkAppN newApp $ matcherApp.discrs.push below
   let newApp := mkAppN newApp alts
@@ -506,7 +503,6 @@ where
       return (additionalFVars, Pattern.as varId p hId)
     | Pattern.var varId =>
       let var := mkFVar varId
-      (←inferType var).withApp fun ind args => do
       let (_, tgtType) ← belowType belowMotive #[var] 0
       withLocalDeclD (←mkFreshUserName `h) tgtType fun h => do
       let localDecl ← getFVarLocalDecl h
@@ -524,7 +520,7 @@ where
         let belowFieldExpr ← belowField.toExpr
         let belowCtor := mkApp belowCtor belowFieldExpr
         let patTy ← inferType belowFieldExpr
-        patTy.withApp fun f args => do
+        patTy.withApp fun f _ => do
         let constName := f.constName?
         if constName == indName then
           let (fvars, transformedField) ← convertToBelow indName belowField
@@ -560,7 +556,7 @@ where
 def findBelowIdx (xs : Array Expr) (motive : Expr) : MetaM $ Option (Expr × Nat) := do
   xs.findSomeM? fun x => do
   let xTy ← inferType x
-  xTy.withApp fun f args =>
+  xTy.withApp fun f _ =>
   match f.constName?, xs.indexOf? x with
   | some name, some idx => do
     if (← isInductivePredicate name) then

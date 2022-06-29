@@ -13,6 +13,7 @@ namespace Lean.Elab.Term.StructInst
 
 open Std (HashMap)
 open Meta
+open TSyntax.Compat
 
 /--
   Structure instances are of the form:
@@ -34,19 +35,17 @@ open Meta
     `(($stxNew : $expected))
 
 /-- Expand field abbreviations. Example: `{ x, y := 0 }` expands to `{ x := x, y := 0 }` -/
-@[builtinMacro Lean.Parser.Term.structInst] def expandStructInstFieldAbbrev : Macro := fun stx => do
-  if stx[2].getArgs.any fun arg => arg[0].getKind == ``Lean.Parser.Term.structInstFieldAbbrev then
-    let fieldsNew ← stx[2].getArgs.mapM fun stx => do
-      let field := stx[0]
-      if field.getKind == ``Lean.Parser.Term.structInstFieldAbbrev then
-        let id := field[0]
-        let fieldNew ← `(Lean.Parser.Term.structInstField| $id:ident := $id:ident)
-        return stx.setArg 0 fieldNew
-      else
-        return stx
-    return stx.setArg 2 (mkNullNode fieldsNew)
-  else
-    Macro.throwUnsupported
+@[builtinMacro Lean.Parser.Term.structInst] def expandStructInstFieldAbbrev : Macro
+  | `({ $[$srcs,* with]? $fields,* $[..%$ell]? $[: $ty]? }) =>
+    if fields.getElems.raw.any (·.getKind == ``Lean.Parser.Term.structInstFieldAbbrev) then do
+      let fieldsNew ← fields.getElems.mapM fun
+        | `(Parser.Term.structInstFieldAbbrev| $id:ident) =>
+          `(Parser.Term.structInstField| $id:ident := $id:ident)
+        | field => return field
+      `({ $[$srcs,* with]? $fieldsNew,* $[..%$ell]? $[: $ty]? })
+    else
+      Macro.throwUnsupported
+  | _ => Macro.throwUnsupported
 
 /--
   If `stx` is of the form `{ s₁, ..., sₙ with ... }` and `sᵢ` is not a local variable, expand into `let src := sᵢ; { ..., src, ... with ... }`.
@@ -129,9 +128,8 @@ private def getStructSource (structStx : Syntax) : TermElabM Source :=
   ```
 -/
 private def isModifyOp? (stx : Syntax) : TermElabM (Option Syntax) := do
-  let s? ← stx[2].getArgs.foldlM (init := none) fun s? p =>
-    /- p is of the form `(group ((structInstFieldAbbrev <|> structInstField) >> optional ", "))` -/
-    let arg := p[0]
+  let s? ← stx[2].getSepArgs.foldlM (init := none) fun s? arg =>
+    /- arg is of the form `structInstFieldAbbrev <|> structInstField` -/
     if arg.getKind == ``Lean.Parser.Term.structInstField then
       /- Remark: the syntax for `structInstField` is
          ```
@@ -185,7 +183,7 @@ private def elabModifyOp (stx modifyOp : Syntax) (sources : Array ExplicitSource
     let valField  := modifyOp.setArg 0 <| mkNode ``Parser.Term.structInstLVal #[valFirst, valRest]
     let valSource := mkSourcesWithSyntax #[s]
     let val       := stx.setArg 1 valSource
-    let val       := val.setArg 2 <| mkNullNode #[mkNullNode #[valField, mkNullNode]]
+    let val       := val.setArg 2 <| mkNullNode #[valField]
     trace[Elab.struct.modifyOp] "{stx}\nval: {val}"
     cont val
 
@@ -195,7 +193,7 @@ private def elabModifyOp (stx modifyOp : Syntax) (sources : Array ExplicitSource
 
   If the expected type is available and it is a structure, then we use it.
   Otherwise, we use the type of the first source. -/
-private def getStructName (stx : Syntax) (expectedType? : Option Expr) (sourceView : Source) : TermElabM Name := do
+private def getStructName (expectedType? : Option Expr) (sourceView : Source) : TermElabM Name := do
   tryPostponeIfNoneOrMVar expectedType?
   let useSource : Unit → TermElabM Name := fun _ => do
     match sourceView, expectedType? with
@@ -291,7 +289,7 @@ def formatField (formatStruct : Struct → Format) (field : Field Struct) : Form
     | FieldVal.default  => "<default>"
 
 partial def formatStruct : Struct → Format
-  | ⟨_, structName, _, fields, source⟩ =>
+  | ⟨_, _,          _, fields, source⟩ =>
     let fieldsFmt := Format.joinSep (fields.map (formatField formatStruct)) ", "
     match source with
     | Source.none             => "{" ++ fieldsFmt ++ "}"
@@ -346,7 +344,7 @@ private def mkStructView (stx : Syntax) (structName : Name) (source : Source) : 
   /- Recall that `stx` is of the form
      ```
      leading_parser "{" >> optional (atomic (sepBy1 termParser ", " >> " with "))
-                 >> manyIndent (group ((structInstFieldAbbrev <|> structInstField) >> optional ", "))
+                 >> sepByIndent (structInstFieldAbbrev <|> structInstField) ...
                  >> optional ".."
                  >> optional (" : " >> termParser)
                  >> " }"
@@ -354,8 +352,7 @@ private def mkStructView (stx : Syntax) (structName : Name) (source : Source) : 
 
      This method assumes that `structInstFieldAbbrev` had already been expanded.
   -/
-  let fields ← stx[2].getArgs.toList.mapM fun stx => do
-    let fieldStx := stx[0]
+  let fields ← stx[2].getSepArgs.toList.mapM fun fieldStx => do
     let val      := fieldStx[2]
     let first    ← toFieldLHS fieldStx[0][0]
     let rest     ← fieldStx[0][1].getArgs.toList.mapM toFieldLHS
@@ -378,7 +375,7 @@ def Struct.setParams (s : Struct) (ps : Array (Name × Expr)) : Struct :=
 
 private def expandCompositeFields (s : Struct) : Struct :=
   s.modifyFields fun fields => fields.map fun field => match field with
-    | { lhs := FieldLHS.fieldName ref (Name.str Name.anonymous _ _) :: rest, .. } => field
+    | { lhs := FieldLHS.fieldName _ (Name.str Name.anonymous _ _) :: _, .. } => field
     | { lhs := FieldLHS.fieldName ref n@(Name.str _ _ _) :: rest, .. } =>
       let newEntries := n.components.map <| FieldLHS.fieldName ref
       { field with lhs := newEntries ++ rest }
@@ -419,7 +416,7 @@ private def expandNumLitFields (s : Struct) : TermElabM Struct :=
 private def expandParentFields (s : Struct) : TermElabM Struct := do
   let env ← getEnv
   s.modifyFieldsM fun fields => fields.mapM fun field => match field with
-    | { lhs := FieldLHS.fieldName ref fieldName :: rest, .. } =>
+    | { lhs := FieldLHS.fieldName ref fieldName :: _,    .. } =>
       match findField? env s.structName fieldName with
       | none => throwErrorAt ref "'{fieldName}' is not a field of structure '{s.structName}'"
       | some baseStructName =>
@@ -438,7 +435,7 @@ private abbrev FieldMap := HashMap Name Fields
 private def mkFieldMap (fields : Fields) : TermElabM FieldMap :=
   fields.foldlM (init := {}) fun fieldMap field =>
     match field.lhs with
-    | FieldLHS.fieldName _ fieldName :: rest =>
+    | FieldLHS.fieldName _ fieldName :: _    =>
       match fieldMap.find? fieldName with
       | some (prevField::restFields) =>
         if field.isSimple || prevField.isSimple then
@@ -472,7 +469,6 @@ mutual
 
   private partial def groupFields (s : Struct) : TermElabM Struct := do
     let env ← getEnv
-    let fieldNames := getStructureFields env s.structName
     withRef s.ref do
     s.modifyFieldsM fun fields => do
       let fieldMap ← mkFieldMap fields
@@ -500,8 +496,8 @@ mutual
                   return (structStx.setArg 1 (mkSourcesWithSyntax sourcesNew)).setArg 3 mkNullNode
             let valStx := s.ref -- construct substructure syntax using s.ref as template
             let valStx := valStx.setArg 4 mkNullNode -- erase optional expected type
-            let args   := substructFields.toArray.map fun field => mkNullNode #[field.toSyntax, mkNullNode]
-            let valStx := valStx.setArg 2 (mkNullNode args)
+            let args   := substructFields.toArray.map (·.toSyntax)
+            let valStx := valStx.setArg 2 (mkNullNode <| mkSepArray args (mkAtom ","))
             let valStx ← updateSource valStx
             pure { field with lhs := [field.lhs.head!], val := FieldVal.term valStx }
 
@@ -574,7 +570,7 @@ private def mkCtorHeaderAux : Nat → Expr → Expr → Array MVarId → Array (
 
 private partial def getForallBody : Nat → Expr → Option Expr
   | i+1, Expr.forallE _ _ b _ => getForallBody i b
-  | i+1, _                    => none
+  | _+1, _                    => none
   | 0,   type                 => type
 
 private def propagateExpectedType (type : Expr) (numFields : Nat) (expectedType? : Option Expr) : TermElabM Unit :=
@@ -742,7 +738,7 @@ partial def mkDefaultValueAux? (struct : Struct) : Expr → TermElabM (Option Ex
         else
           return none
     else
-      if let some (_, param) := struct.params.find? fun (paramName, param) => paramName == n then
+      if let some (_, param) := struct.params.find? fun (paramName, _) => paramName == n then
         -- Recall that we did not use to have support for parameter propagation here.
         if (← isDefEq (← inferType param) d) then
           mkDefaultValueAux? struct (b.instantiate1 param)
@@ -838,7 +834,7 @@ partial def step (struct : Struct) : M Unit :=
               unless (← isExprMVarAssigned mvarId) do
                 let ctx ← read
                 if (← withRef field.ref <| tryToSynthesizeDefault ctx.structs ctx.allStructNames ctx.maxDistance (getFieldName field) mvarId) then
-                  modify fun s => { s with progress := true }
+                  modify fun _ => { progress := true }
             | _ => pure ()
 
 partial def propagateLoop (hierarchyDepth : Nat) (d : Nat) (struct : Struct) : M Unit := do
@@ -849,7 +845,7 @@ partial def propagateLoop (hierarchyDepth : Nat) (d : Nat) (struct : Struct) : M
     if d > hierarchyDepth then
       throwErrorAt field.ref "field '{getFieldName field}' is missing"
     else withReader (fun ctx => { ctx with maxDistance := d }) do
-      modify fun s => { s with progress := false }
+      modify fun _ => { progress := false }
       step struct
       if (← get).progress then do
         propagateLoop hierarchyDepth 0 struct
@@ -864,7 +860,7 @@ def propagate (struct : Struct) : TermElabM Unit :=
 end DefaultFields
 
 private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (source : Source) : TermElabM Expr := do
-  let structName ← getStructName stx expectedType? source
+  let structName ← getStructName expectedType? source
   let struct ← liftMacroM <| mkStructView stx structName source
   let struct ← expandStruct struct
   trace[Elab.struct] "{struct}"

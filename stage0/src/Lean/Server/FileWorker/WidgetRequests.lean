@@ -29,25 +29,31 @@ builtin_initialize
     (TaggedText MsgEmbed)
     fun ⟨⟨m⟩, i⟩ => RequestM.asTask do msgToInteractive m i (hasWidgets := true)
 
+/-- The information that the infoview uses to render a popup
+for when the user hovers over an expression.
+-/
 structure InfoPopup where
   type : Option CodeWithInfos
+  /-- Show the term with the implicit arguments. -/
   exprExplicit : Option CodeWithInfos
+  /-- Docstring. In markdown. -/
   doc : Option String
   deriving Inhabited, RpcEncoding
 
-builtin_initialize
-  registerBuiltinRpcProcedure
-    `Lean.Widget.InteractiveDiagnostics.infoToInteractive
-    (WithRpcRef InfoWithCtx)
-    InfoPopup
-    fun ⟨i⟩ => RequestM.asTask do
+/-- Given elaborator info for a particular subexpression. Produce the `InfoPopup`.
+
+The intended usage of this is for the infoview to pass the `InfoWithCtx` which
+was stored for a particular `SubexprInfo` tag in a `TaggedText` generated with `ppExprTagged`.
+ -/
+def makePopup : WithRpcRef InfoWithCtx → RequestM (RequestTask InfoPopup)
+    | ⟨i⟩ => RequestM.asTask do
       i.ctx.runMetaM i.info.lctx do
         let type? ← match (← i.info.type?) with
-          | some type => some <$> exprToInteractive type
+          | some type => some <$> ppExprTagged type
           | none => pure none
         let exprExplicit? ← match i.info with
           | Elab.Info.ofTermInfo ti =>
-            let ti ← exprToInteractive ti.expr (explicit := true)
+            let ti ← ppExprTagged ti.expr (explicit := true)
             -- remove top-level expression highlight
             pure <| some <| match ti with
               | .tag _ tt => tt
@@ -59,6 +65,13 @@ builtin_initialize
           exprExplicit := exprExplicit?
           doc := ← i.info.docString? : InfoPopup
         }
+
+builtin_initialize
+  registerBuiltinRpcProcedure
+    `Lean.Widget.InteractiveDiagnostics.infoToInteractive
+    (WithRpcRef InfoWithCtx)
+    InfoPopup
+    makePopup
 
 builtin_initialize
   registerBuiltinRpcProcedure

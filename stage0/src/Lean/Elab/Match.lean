@@ -19,7 +19,7 @@ namespace Lean.Elab.Term
 open Meta
 open Lean.Parser.Term
 
-private def expandSimpleMatch (stx discr lhsVar rhs : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+private def expandSimpleMatch (stx : Syntax) (discr : Term) (lhsVar : Ident) (rhs : Term) (expectedType? : Option Expr) : TermElabM Expr := do
   let newStx ← `(let $lhsVar := $discr; $rhs)
   withMacroExpansion stx newStx <| elabTerm newStx expectedType?
 
@@ -83,18 +83,17 @@ structure ElabMatchTypeAndDiscrsResult where
 
 private partial def elabMatchTypeAndDiscrs (discrStxs : Array Syntax) (matchOptMotive : Syntax) (matchAltViews : Array MatchAltView) (expectedType : Expr)
       : TermElabM ElabMatchTypeAndDiscrsResult := do
-  let numDiscrs := discrStxs.size
   if matchOptMotive.isNone then
     elabDiscrs 0 #[]
   else
     -- motive := leading_parser atomic ("(" >> nonReservedSymbol "motive" >> " := ") >> termParser >> ")"
     let matchTypeStx := matchOptMotive[0][3]
     let matchType ← elabType matchTypeStx
-    let (discrs, isDep) ← elabDiscrsWitMatchType matchType expectedType
+    let (discrs, isDep) ← elabDiscrsWitMatchType matchType
     return { discrs := discrs, matchType := matchType, isDep := isDep, alts := matchAltViews }
 where
   /- Easy case: elaborate discriminant when the match-type has been explicitly provided by the user.  -/
-  elabDiscrsWitMatchType (matchType : Expr) (expectedType : Expr) : TermElabM (Array Discr × Bool) := do
+  elabDiscrsWitMatchType (matchType : Expr) : TermElabM (Array Discr × Bool) := do
     let mut discrs := #[]
     let mut i := 0
     let mut matchType := matchType
@@ -150,13 +149,13 @@ def expandMacrosInPatterns (matchAlts : Array MatchAltView) : MacroM (Array Matc
     pure { matchAlt with patterns := patterns }
 
 private def getMatchGeneralizing? : Syntax → Option Bool
-  | `(match (generalizing := true)  $[$motive]? $discrs,* with $alts:matchAlt*) => some true
-  | `(match (generalizing := false) $[$motive]? $discrs,* with $alts:matchAlt*) => some false
+  | `(match (generalizing := true)  $[$motive]? $_discrs,* with $_alts:matchAlt*) => some true
+  | `(match (generalizing := false) $[$motive]? $_discrs,* with $_alts:matchAlt*) => some false
   | _ => none
 
 /- Given `stx` a match-expression, return its alternatives. -/
 private def getMatchAlts : Syntax → Array MatchAltView
-  | `(match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*) =>
+  | `(match $[$gen]? $[$motive]? $_discrs,* with $alts:matchAlt*) =>
     alts.filterMap fun alt => match alt with
       | `(matchAltExpr| | $patterns,* => $rhs) => some {
           ref      := alt,
@@ -175,11 +174,9 @@ open Lean.Elab.Term.Quotation in
   | `(match $[$discrs:term],* with $[| $[$patss],* => $rhss]*) => do
     discrs.forM precheck
     for (pats, rhs) in patss.zip rhss do
-      let vars ←
-        try
-          getPatternsVars pats
-        catch
-          | _ => return  -- can happen in case of pattern antiquotations
+      let vars ← try
+        getPatternsVars pats
+      catch | _ => return  -- can happen in case of pattern antiquotations
       Quotation.withNewLocals (getPatternVarNames vars) <| precheck rhs
   | _ => throwUnsupportedSyntax
 
@@ -427,7 +424,7 @@ where
    let map : ST.Ref σ (ExprMap Expr) ← ST.mkRef {}
    e.forEach fun e => do
      match patternWithRef? e with
-     | some (ref, b) => map.modify (·.insert b e)
+     | some (_, b) => map.modify (·.insert b e)
      | none => return ()
    map.get
 
@@ -511,7 +508,7 @@ partial def normalize (e : Expr) : M Expr := do
         else
           matchConstCtor e.getAppFn
             (fun _ => return mkInaccessible (← eraseInaccessibleAnnotations (← instantiateMVars e)))
-            (fun v us => do
+            (fun v _ => do
               let args := e.getAppArgs
               unless args.size == v.numParams + v.numFields do
                 throwInvalidPattern e
@@ -539,7 +536,7 @@ where
   processInaccessible (e : Expr) : M Expr := do
     let e' ← erasePatternRefAnnotations e
     match e' with
-    | Expr.fvar fvarId _ =>
+    | Expr.fvar _      _ =>
       if (← isExplicitPatternVar e') then
         processVar e
       else
@@ -652,8 +649,8 @@ where
   /- The `Bool` context is true iff we are inside of an "inaccessible" pattern. -/
   go (p : Expr) : ReaderT Bool TermElabM Expr := do
     match p with
-    | .forallE n d b bi => withLocalDecl n b.binderInfo (← go d) fun x => do mkForallFVars #[x] (← go (b.instantiate1 x))
-    | .lam n d b bi     => withLocalDecl n b.binderInfo (← go d) fun x => do mkLambdaFVars #[x] (← go (b.instantiate1 x))
+    | .forallE n d b _  => withLocalDecl n b.binderInfo (← go d) fun x => do mkForallFVars #[x] (← go (b.instantiate1 x))
+    | .lam n d b _      => withLocalDecl n b.binderInfo (← go d) fun x => do mkLambdaFVars #[x] (← go (b.instantiate1 x))
     | .letE n t v b ..  => withLetDecl n (← go t) (← go v) fun x => do mkLetFVars #[x] (← go (b.instantiate1 x))
     | .app f a _        => return mkApp (← go f) (← go a)
     | .proj _ _ b _     => return p.updateProj! (← go b)
@@ -661,12 +658,9 @@ where
       if inaccessible? p |>.isSome then
         return mkMData k (← withReader (fun _ => false) (go b))
       else if let some (stx, p) := patternWithRef? p then
-        let p ← go p
-        if p.isFVar && !(← read) then
+        Elab.withInfoContext' (go p) fun p => do
           /- If `p` is a free variable and we are not inside of an "inaccessible" pattern, this `p` is a binder. -/
-          addTermInfo stx p (isBinder := true)
-        else
-          addTermInfo stx p
+          mkTermInfo Name.anonymous stx p (isBinder := p.isFVar && !(← read))
       else
         return mkMData k (← go b)
     | _ => return p
@@ -873,7 +867,7 @@ private def generalize (discrs : Array Discr) (matchType : Expr) (altViews : Arr
       let ys := ysFVarIds.map mkFVar
       let matchType' ← forallBoundedTelescope matchType discrs.size fun ds type => do
         let type ← mkForallFVars ys type
-        let (discrs', ds') := Array.unzip <| Array.zip discrExprs ds |>.filter fun (di, d) => di.isFVar
+        let (discrs', ds') := Array.unzip <| Array.zip discrExprs ds |>.filter fun (di, _) => di.isFVar
         let type := type.replaceFVars discrs' ds'
         mkForallFVars ds type
       if (← isTypeCorrect matchType') then
@@ -921,11 +915,9 @@ where
       let first ← updateFirst first? ex
       s.restore (restoreInfo := true)
       let indices ← collectDeps #[index] (discrs.map (·.expr))
-      let matchType ←
-        try
-          updateMatchType indices matchType
-        catch ex =>
-          throwEx first
+      let matchType ← try
+        updateMatchType indices matchType
+      catch _ => throwEx first
       let ref ← getRef
       trace[Elab.match] "new indices to add as discriminants: {indices}"
       let wildcards ← indices.mapM fun index => do
@@ -1129,6 +1121,7 @@ private def getDiscrs (matchStx : Syntax) : Array Syntax :=
 private def getMatchOptMotive (matchStx : Syntax) : Syntax :=
   matchStx[2]
 
+open TSyntax.Compat in
 private def expandNonAtomicDiscrs? (matchStx : Syntax) : TermElabM (Option Syntax) :=
   let matchOptMotive := getMatchOptMotive matchStx
   if matchOptMotive.isNone then do

@@ -28,7 +28,6 @@ with builtins; let
   modToPath = mod: replaceStrings ["."] ["/"] mod;
   modToLean = mod: modToPath mod + ".lean";
   mkBareDerivation = args@{ buildCommand, ... }: derivation (args // {
-    inherit stdenv;
     inherit (stdenv) system;
     buildInputs = (args.buildInputs or []) ++ [ coreutils ];
     builder = stdenv.shell;

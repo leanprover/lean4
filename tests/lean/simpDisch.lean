@@ -1,4 +1,4 @@
-constant f : Nat → Nat
+opaque f : Nat → Nat
 @[simp] axiom fEq (x : Nat) (h : x ≠ 0) : f x = x
 
 example (x : Nat) (h : x ≠ 0) : f x = x + 0 := by

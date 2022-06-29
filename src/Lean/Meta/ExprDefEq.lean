@@ -52,7 +52,6 @@ where
         checkpointDefEq do
           let args := b.getAppArgs
           let params := args[:ctorVal.numParams].toArray
-          let info? := getStructureInfo? (← getEnv) ctorVal.induct
           for i in [ctorVal.numParams : args.size] do
             let j := i - ctorVal.numParams
             let proj ← mkProjFn ctorVal us params j a
@@ -785,7 +784,7 @@ end CheckAssignment
 namespace CheckAssignmentQuick
 
 partial def check
-    (hasCtxLocals ctxApprox : Bool)
+    (hasCtxLocals : Bool)
     (mctx : MetavarContext) (lctx : LocalContext) (mvarDecl : MetavarDecl) (mvarId : MVarId) (fvars : Array Expr) (e : Expr) : Bool :=
   let rec visit (e : Expr) : Bool :=
     if !e.hasExprMVar && !e.hasFVar then
@@ -845,7 +844,7 @@ def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (O
     let hasCtxLocals := fvars.any fun fvar => mvarDecl.lctx.containsFVar fvar
     let ctx ← read
     let mctx ← getMCtx
-    if CheckAssignmentQuick.check hasCtxLocals ctx.config.ctxApprox mctx ctx.lctx mvarDecl mvarId fvars v then
+    if CheckAssignmentQuick.check hasCtxLocals mctx ctx.lctx mvarDecl mvarId fvars v then
       pure (some v)
     else
       let v ← instantiateMVars v
@@ -1495,10 +1494,6 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
 
 -- Both `t` and `s` are terms of the form `?m ...`
 private partial def isDefEqQuickMVarMVar (t s : Expr) : MetaM LBool := do
-  let tFn := t.getAppFn
-  let sFn := s.getAppFn
-  let tMVarDecl ← getMVarDecl tFn.mvarId!
-  let sMVarDecl ← getMVarDecl sFn.mvarId!
   if s.isMVar && !t.isMVar then
      /- Solve `?m t =?= ?n` by trying first `?n := ?m t`.
         Reason: this assignment is precise. -/

@@ -31,7 +31,7 @@ protected def ofNat' {n : Nat} (a : Nat) (h : n > 0) : Fin n :=
 
 private theorem mlt {b : Nat} : {a : Nat} → a < n → b % n < n
   | 0,   h => Nat.mod_lt _ h
-  | a+1, h =>
+  | _+1, h =>
     have : n > 0 := Nat.lt_trans (Nat.zero_lt_succ _) h;
     Nat.mod_lt _ this
 
@@ -113,7 +113,7 @@ theorem val_ne_of_ne {i j : Fin n} (h : i ≠ j) : val i ≠ val j :=
   fun h' => absurd (eq_of_val_eq h') h
 
 theorem modn_lt : ∀ {m : Nat} (i : Fin n), m > 0 → (i % m).val < m
-  | m, ⟨a, h⟩, hp =>  Nat.lt_of_le_of_lt (mod_le _ _) (mod_lt _ hp)
+  | _, ⟨_, _⟩, hp =>  Nat.lt_of_le_of_lt (mod_le _ _) (mod_lt _ hp)
 
 end Fin
 

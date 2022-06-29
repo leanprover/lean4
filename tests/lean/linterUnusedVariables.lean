@@ -179,8 +179,8 @@ register_option opt : Nat := {
 }
 
 
-constant foo (x : Nat) : Nat
-constant foo' (x : Nat) : Nat :=
+opaque foo (x : Nat) : Nat
+opaque foo' (x : Nat) : Nat :=
   let y := 5
   3
 variable (bar)
@@ -201,7 +201,7 @@ def externDef (x : Nat) : Nat :=
   5
 
 @[extern "test"]
-constant externConst (x : Nat) : Nat :=
+opaque externConst (x : Nat) : Nat :=
   let y := 3
   5
 
@@ -209,3 +209,12 @@ theorem not_eq_zero_of_lt (h : b < a) : a ≠ 0 := by -- *not* unused
   cases a
   exact absurd h (Nat.not_lt_zero _)
   apply Nat.noConfusion
+
+-- should not be reported either
+example (a : Nat) : Nat := _
+example (a : Nat) : Nat := sorry
+example (a : sorry) : Nat := 0
+example (a : Nat) : Nat := by
+
+theorem Fin.eqq_of_val_eq {n : Nat} : ∀ {x y : Fin n}, x.val = y.val → x = y
+  | ⟨_, _⟩, _, rfl => rfl

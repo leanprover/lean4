@@ -16,7 +16,7 @@ open Meta
 private def mkTupleElems (t : Expr) (arity : Nat) : Array Expr := Id.run do
   let mut result := #[]
   let mut t := t
-  for i in [:arity - 1] do
+  for _ in [:arity - 1] do
     result := result.push (mkProj ``PSigma 0 t)
     t := mkProj ``PSigma 1 t
   result.push t
@@ -62,7 +62,7 @@ partial def packDomain (fixedPrefix : Nat) (preDefs : Array PreDefinition) : Met
   let mut arities := #[]
   let mut modified := false
   for preDef in preDefs do
-    let (preDefNew, arity, modifiedCurr) ← lambdaTelescope preDef.value fun xs body => do
+    let (preDefNew, arity, modifiedCurr) ← lambdaTelescope preDef.value fun xs _ => do
       if xs.size == fixedPrefix then
         throwError "well-founded recursion cannot be used, '{preDef.declName}' does not take any (non-fixed) arguments"
       let arity := xs.size
@@ -93,7 +93,6 @@ partial def packDomain (fixedPrefix : Nat) (preDefs : Array PreDefinition) : Met
   for i in [:preDefs.size] do
     let preDef := preDefs[i]
     let preDefNew := preDefsNew[i]
-    let arity := arities[i]
     let valueNew ← lambdaTelescope preDef.value fun xs body => do
       let ys : Array Expr := xs[:fixedPrefix]
       let xs : Array Expr := xs[fixedPrefix:]
@@ -137,7 +136,7 @@ where
           | Expr.forallE n d b c =>
             withLocalDecl n c.binderInfo (← visit d) fun x => do
               mkForallFVars (usedLetOnly := false) #[x] (← visit (b.instantiate1 x))
-          | Expr.letE n t v b c  =>
+          | Expr.letE n t v b _  =>
             withLetDecl n (← visit t) (← visit v) fun x => do
               mkLambdaFVars (usedLetOnly := false) #[x] (← visit (b.instantiate1 x))
           | Expr.proj n i s .. => return mkProj n i (← visit s)

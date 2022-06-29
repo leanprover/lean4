@@ -320,7 +320,7 @@ unsafe def mkTermElabAttributeUnsafe : IO (KeyedDeclsAttribute TermElab) :=
   mkElabAttribute TermElab `Lean.Elab.Term.termElabAttribute `builtinTermElab `termElab `Lean.Parser.Term `Lean.Elab.Term.TermElab "term"
 
 @[implementedBy mkTermElabAttributeUnsafe]
-constant mkTermElabAttribute : IO (KeyedDeclsAttribute TermElab)
+opaque mkTermElabAttribute : IO (KeyedDeclsAttribute TermElab)
 
 builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermElabAttribute
 
@@ -595,7 +595,7 @@ def throwTypeMismatchError (header? : Option String) (expectedType : Expr) (eTyp
   -/
   match f? with
   | none   => throwError "{← mkTypeMismatchError header? e eType expectedType}{extraMsg}"
-  | some f => Meta.throwAppTypeMismatch f e extraMsg
+  | some f => Meta.throwAppTypeMismatch f e
 
 def withoutMacroStackAtErr (x : TermElabM α) : TermElabM α :=
   withTheReader Core.Context (fun (ctx : Core.Context) => { ctx with options := pp.macroStack.set ctx.options false }) x
@@ -951,9 +951,8 @@ def withSavedContext (savedCtx : SavedContext) (x : TermElabM α) : TermElabM α
 private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
   trace[Elab.postpone] "{stx} : {expectedType?}"
   let mvar ← mkFreshExprMVar expectedType? MetavarKind.syntheticOpaque
-  let ctx ← read
   registerSyntheticMVar stx mvar.mvarId! (SyntheticMVarKind.postponed (← saveContext))
-  pure mvar
+  return mvar
 
 def getSyntheticMVarDecl? (mvarId : MVarId) : TermElabM (Option SyntheticMVarDecl) :=
   return (← get).syntheticMVars.find? fun d => d.mvarId == mvarId
@@ -1103,8 +1102,8 @@ private def isExplicitApp (stx : Syntax) : Bool :=
   Example: `fun {α} (a : α) => a` -/
 private def isLambdaWithImplicit (stx : Syntax) : Bool :=
   match stx with
-  | `(fun $binders* => $body) => binders.any fun b => b.isOfKind ``Lean.Parser.Term.implicitBinder || b.isOfKind `Lean.Parser.Term.instBinder
-  | _                         => false
+  | `(fun $binders* => $_) => binders.raw.any fun b => b.isOfKind ``Lean.Parser.Term.implicitBinder || b.isOfKind `Lean.Parser.Term.instBinder
+  | _                      => false
 
 private partial def dropTermParens : Syntax → Syntax := fun stx =>
   match stx with
@@ -1130,8 +1129,8 @@ private def isNoImplicitLambda (stx : Syntax) : Bool :=
 
 private def isTypeAscription (stx : Syntax) : Bool :=
   match stx with
-  | `(($_ : $type)) => true
-  | _               => false
+  | `(($_ : $_)) => true
+  | _            => false
 
 def hasNoImplicitLambdaAnnotation (type : Expr) : Bool :=
   annotation? `noImplicitLambda type |>.isSome
@@ -1591,9 +1590,9 @@ unsafe def evalExpr (α) (typeName : Name) (value : Expr) : TermElabM α :=
     unless type.isConstOf typeName do
       throwError "unexpected type at evalExpr{indentExpr type}"
     let decl := Declaration.defnDecl {
-       name := name, levelParams := [], type := type,
-       value := value, hints := ReducibilityHints.opaque,
-       safety := DefinitionSafety.unsafe
+       name, levelParams := [], type
+       value, hints := ReducibilityHints.opaque,
+       safety := .unsafe
     }
     ensureNoUnassignedMVars decl
     addAndCompile decl

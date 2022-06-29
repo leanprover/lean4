@@ -92,27 +92,32 @@ private def compileDecl (decl : Declaration) : TermElabM Bool := do
       throw ex
   return true
 
-private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (applyAttrAfterCompilation := true) : TermElabM Unit :=
+private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List Name) (applyAttrAfterCompilation := true) : TermElabM Unit :=
   withRef preDef.ref do
     let preDef ← abstractNestedProofs preDef
     let decl ←
       match preDef.kind with
       | DefKind.«theorem» =>
-        pure <| Declaration.thmDecl { name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value }
+        pure <| Declaration.thmDecl {
+          name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value, all
+        }
       | DefKind.«opaque»  =>
         pure <| Declaration.opaqueDecl {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
-          isUnsafe := preDef.modifiers.isUnsafe }
+          isUnsafe := preDef.modifiers.isUnsafe, all
+        }
       | DefKind.«abbrev»  =>
         pure <| Declaration.defnDecl {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
           hints := ReducibilityHints.«abbrev»
-          safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe }
+          safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe,
+          all }
       | _ => -- definitions and examples
         pure <| Declaration.defnDecl {
-          name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value,
-          hints := ReducibilityHints.regular (getMaxHeight (← getEnv) preDef.value + 1),
-          safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe }
+          name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
+          hints := ReducibilityHints.regular (getMaxHeight (← getEnv) preDef.value + 1)
+          safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe,
+          all }
     addDecl decl
     withSaveInfoContext do  -- save new env
       addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
@@ -125,11 +130,11 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (applyAttrAft
     if applyAttrAfterCompilation then
       applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
 
-def addAndCompileNonRec (preDef : PreDefinition) : TermElabM Unit := do
-  addNonRecAux preDef true
+def addAndCompileNonRec (preDef : PreDefinition) (all : List Name := [preDef.declName]) : TermElabM Unit := do
+  addNonRecAux preDef (compile := true) (all := all)
 
-def addNonRec (preDef : PreDefinition) (applyAttrAfterCompilation := true) : TermElabM Unit := do
-  addNonRecAux preDef (compile := false) (applyAttrAfterCompilation := applyAttrAfterCompilation)
+def addNonRec (preDef : PreDefinition) (applyAttrAfterCompilation := true) (all : List Name := [preDef.declName]) : TermElabM Unit := do
+  addNonRecAux preDef (compile := false) (applyAttrAfterCompilation := applyAttrAfterCompilation) (all := all)
 
 /--
   Eliminate recursive application annotations containing syntax. These annotations are used by the well-founded recursion module
@@ -143,13 +148,14 @@ def eraseRecAppSyntax (preDef : PreDefinition) : CoreM PreDefinition :=
 def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSafety.unsafe) : TermElabM Unit := do
   let preDefs ← preDefs.mapM fun d => eraseRecAppSyntax d
   withRef preDefs[0].ref do
+    let all  := preDefs.toList.map (·.declName)
     let decl := Declaration.mutualDefnDecl <| ← preDefs.toList.mapM fun preDef => return {
         name        := preDef.declName
         levelParams := preDef.levelParams
         type        := preDef.type
         value       := preDef.value
-        safety      := safety
         hints       := ReducibilityHints.opaque
+        safety, all
       }
     addDecl decl
     withSaveInfoContext do  -- save new env

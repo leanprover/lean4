@@ -12,6 +12,7 @@ import Lean.Elab.AuxDiscr
 namespace Lean.Elab.Term
 open Meta
 open Lean.Parser.Term
+open TSyntax.Compat
 
 /--
   Given syntax of the forms
@@ -57,18 +58,18 @@ partial def quoteAutoTactic : Syntax → TermElabM Syntax
           let quotedArg ← quoteAutoTactic arg
           quotedArgs ← `(Array.push $quotedArgs $quotedArg)
       `(Syntax.node SourceInfo.none $(quote k) $quotedArgs)
-  | Syntax.atom info val => `(mkAtom $(quote val))
-  | Syntax.missing       => throwError "invalid auto tactic, tactic is missing"
+  | Syntax.atom _ val => `(mkAtom $(quote val))
+  | Syntax.missing    => throwError "invalid auto tactic, tactic is missing"
 
 def declareTacticSyntax (tactic : Syntax) : TermElabM Name :=
   withFreshMacroScope do
     let name ← MonadQuotation.addMacroScope `_auto
     let type := Lean.mkConst `Lean.Syntax
     let tactic ← quoteAutoTactic tactic
-    let val ← elabTerm tactic type
-    let val ← instantiateMVars val
-    trace[Elab.autoParam] val
-    let decl := Declaration.defnDecl { name := name, levelParams := [], type := type, value := val, hints := ReducibilityHints.opaque,
+    let value ← elabTerm tactic type
+    let value ← instantiateMVars value
+    trace[Elab.autoParam] value
+    let decl := Declaration.defnDecl { name, levelParams := [], type, value, hints := .opaque,
                                        safety := DefinitionSafety.safe }
     addDecl decl
     compileDecl decl
@@ -244,7 +245,7 @@ in the literature. -/
   Auxiliary functions for converting `id_1 ... id_n` application into `#[id_1, ..., id_m]`
   It is used at `expandFunBinders`. -/
 private partial def getFunBinderIds? (stx : Syntax) : OptionT MacroM (Array Syntax) :=
-  let convertElem (stx : Syntax) : OptionT MacroM Syntax :=
+  let convertElem (stx : Term) : OptionT MacroM Syntax :=
     match stx with
     | `(_) => do let ident ← mkFreshIdent stx; pure ident
     | `($id:ident) => return id
@@ -406,7 +407,7 @@ def elabFunBinders {α} (binders : Array Syntax) (expectedType? : Option Expr) (
 
 def expandWhereDecls (whereDecls : Syntax) (body : Syntax) : MacroM Syntax :=
   match whereDecls with
-  | `(whereDecls|where $[$decls:letRecDecl $[;]?]*) => `(let rec $decls:letRecDecl,*; $body)
+  | `(whereDecls|where $[$decls:letRecDecl];*) => `(let rec $decls:letRecDecl,*; $body)
   | _ => Macro.throwUnsupported
 
 def expandWhereDeclsOpt (whereDeclsOpt : Syntax) (body : Syntax) : MacroM Syntax :=
@@ -552,7 +553,7 @@ def expandMatchAltsWhereDecls (matchAltsWhereDecls : Syntax) : MacroM Syntax :=
 open Lean.Elab.Term.Quotation in
 @[builtinQuotPrecheck Lean.Parser.Term.fun] def precheckFun : Precheck
   | `(fun $binders* => $body) => do
-    let (binders, body, expandedPattern) ← liftMacroM <| expandFunBinders binders body
+    let (binders, body, _) ← liftMacroM <| expandFunBinders binders body
     let mut ids := #[]
     for b in binders do
       for v in ← matchBinder b do
@@ -567,7 +568,7 @@ open Lean.Elab.Term.Quotation in
     -- We can assume all `match` binders have been iteratively expanded by the above macro here, though
     -- we still need to call `expandFunBinders` once to obtain `binders` in a normal form
     -- expected by `elabFunBinder`.
-    let (binders, body, expandedPattern) ← liftMacroM <| expandFunBinders binders body
+    let (binders, body, _) ← liftMacroM <| expandFunBinders binders body
     elabFunBinders binders expectedType? fun xs expectedType? => do
       /- We ensure the expectedType here since it will force coercions to be applied if needed.
           If we just use `elabTerm`, then we will need to a coercion `Coe (α → β) (α → δ)` whenever there is a coercion `Coe β δ`,
@@ -606,20 +607,19 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
       let val  ← mkLambdaFVars fvars val (usedLetOnly := false)
       pure (type, val, binders)
   trace[Elab.let.decl] "{id.getId} : {type} := {val}"
-  let result ←
-    if useLetExpr then
-      withLetDecl id.getId type val fun x => do
-        addLocalVarInfo id x
-        let body ← elabTermEnsuringType body expectedType?
-        let body ← instantiateMVars body
-        mkLetFVars #[x] body (usedLetOnly := usedLetOnly)
-    else
-      let f ← withLocalDecl id.getId BinderInfo.default type fun x => do
-        addLocalVarInfo id x
-        let body ← elabTermEnsuringType body expectedType?
-        let body ← instantiateMVars body
-        mkLambdaFVars #[x] body (usedLetOnly := false)
-      pure <| mkLetFunAnnotation (mkApp f val)
+  let result ← if useLetExpr then
+    withLetDecl id.getId type val fun x => do
+      addLocalVarInfo id x
+      let body ← elabTermEnsuringType body expectedType?
+      let body ← instantiateMVars body
+      mkLetFVars #[x] body (usedLetOnly := usedLetOnly)
+  else
+    let f ← withLocalDecl id.getId BinderInfo.default type fun x => do
+      addLocalVarInfo id x
+      let body ← elabTermEnsuringType body expectedType?
+      let body ← instantiateMVars body
+      mkLambdaFVars #[x] body (usedLetOnly := false)
+    pure <| mkLetFunAnnotation (mkApp f val)
   if elabBodyFirst then
     forallBoundedTelescope type binders.size fun xs type => do
       -- the original `fvars` from above are gone, so add back info manually
@@ -653,7 +653,6 @@ def expandLetEqnsDecl (letDecl : Syntax) : MacroM Syntax := do
   return mkNode `Lean.Parser.Term.letIdDecl #[letDecl[0], letDecl[1], letDecl[2], mkAtomFrom ref " := ", val]
 
 def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : Bool) (elabBodyFirst : Bool) (usedLetOnly : Bool) : TermElabM Expr := do
-  let ref     := stx
   let letDecl := stx[1][0]
   let body    := stx[3]
   if letDecl.getKind == ``Lean.Parser.Term.letIdDecl then
@@ -673,12 +672,11 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : B
       elabLetDeclAux id #[] type val body expectedType? useLetExpr elabBodyFirst usedLetOnly
     else
       -- We are currently treating `let_fun` and `let` the same way when patterns are used.
-      let stxNew ←
-        if optType.isNone then
-          `(match $val:term with | $pat => $body)
-        else
-          let type := optType[0][1]
-          `(match ($val:term : $type) with | $pat => $body)
+      let stxNew ← if optType.isNone then
+        `(match $val:term with | $pat => $body)
+      else
+        let type := optType[0][1]
+        `(match ($val:term : $type) with | $pat => $body)
       withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
   else if letDecl.getKind == ``Lean.Parser.Term.letEqnsDecl then
     let letDeclIdNew ← liftMacroM <| expandLetEqnsDecl letDecl

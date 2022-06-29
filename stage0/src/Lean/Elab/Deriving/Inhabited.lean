@@ -24,7 +24,7 @@ private def mkInhabitedInstanceUsing (inductiveTypeName : Name) (ctorName : Name
     return false
 where
   addLocalInstancesForParamsAux {α} (k : LocalInst2Index → TermElabM α) : List Expr → Nat → LocalInst2Index → TermElabM α
-    | [], i, map    => k map
+    | [], _, map    => k map
     | x::xs, i, map =>
       try
         let instType ← mkAppM `Inhabited #[x]
@@ -66,19 +66,19 @@ where
     for i in [:indVal.numParams + indVal.numIndices] do
       let arg := mkIdent (← mkFreshUserName `a)
       indArgs := indArgs.push arg
-      let binder ← `(implicitBinderF| { $arg:ident })
+      let binder ← `(bracketedBinder| { $arg:ident })
       binders := binders.push binder
       if assumingParamIdxs.contains i then
-        let binder ← `(instBinderF| [ Inhabited $arg:ident ])
+        let binder ← `(bracketedBinder| [Inhabited $arg:ident ])
         binders := binders.push binder
     let type ← `(Inhabited (@$(mkIdent inductiveTypeName):ident $indArgs:ident*))
     let mut ctorArgs := #[]
-    for i in [:ctorVal.numParams] do
+    for _ in [:ctorVal.numParams] do
       ctorArgs := ctorArgs.push (← `(_))
-    for i in [:ctorVal.numFields] do
+    for _ in [:ctorVal.numFields] do
       ctorArgs := ctorArgs.push (← ``(Inhabited.default))
-    let val ← `(⟨@$(mkIdent ctorName):ident $ctorArgs:ident*⟩)
-    `(instance $binders:explicitBinder* : $type := $val)
+    let val ← `(⟨@$(mkIdent ctorName):ident $ctorArgs*⟩)
+    `(instance $binders:bracketedBinder* : $type := $val)
 
   mkInstanceCmd? : TermElabM (Option Syntax) := do
     let ctorVal ← getConstInfoCtor ctorName

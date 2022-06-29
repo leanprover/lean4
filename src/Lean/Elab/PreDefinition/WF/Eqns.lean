@@ -20,7 +20,7 @@ structure EqnInfo extends EqnInfoCore where
 
 private partial def deltaLHSUntilFix (mvarId : MVarId) : MetaM MVarId := withMVarContext mvarId do
   let target ← getMVarType' mvarId
-  let some (_, lhs, rhs) := target.eq? | throwTacticEx `deltaLHSUntilFix mvarId "equality expected"
+  let some (_, lhs, _) := target.eq? | throwTacticEx `deltaLHSUntilFix mvarId "equality expected"
   if lhs.isAppOf ``WellFounded.fix then
     return mvarId
   else
@@ -143,7 +143,7 @@ private def tryToFoldLHS? (info : EqnInfo) (us : List Level) (fixedPrefix : Arra
 -/
 private def getFixedPrefix (declName : Name) (info : EqnInfo) (mvarId : MVarId) : MetaM (List Level × Array Expr) := withMVarContext mvarId do
   let target ← getMVarType' mvarId
-  let some (_, lhs, rhs) := target.eq? | unreachable!
+  let some (_, lhs, _) := target.eq? | unreachable!
   let lhsArgs := lhs.getAppArgs
   if lhsArgs.size < info.fixedPrefixSize || !lhs.getAppFn matches .const .. then
     throwError "failed to generate equational theorem for '{declName}', unexpected number of arguments in the equation left-hand-side\n{mvarId}"

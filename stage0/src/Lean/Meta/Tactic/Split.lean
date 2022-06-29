@@ -62,7 +62,7 @@ private partial def withEqs (lhs rhs : Array Expr) (k : Array Expr → Array Exp
   go 0 #[] #[]
 where
   go (i : Nat) (hs : Array Expr) (rfls : Array Expr) : MetaM α := do
-    if h : i < lhs.size then
+    if i < lhs.size then
       withLocalDeclD (← mkFreshUserName `heq) (← mkEqHEq lhs[i] rhs[i]) fun h => do
         let rfl ← if (← inferType h).isEq then mkEqRefl lhs[i] else mkHEqRefl lhs[i]
         go (i+1) (hs.push h) (rfls.push rfl)
@@ -169,12 +169,12 @@ where
         let eqType ← inferType eq
         let altEqType := altEqDecl.type
         match eqType.eq?, altEqType.eq? with
-        | some (_, discr, discrVar), some (_, _ /- discr -/, pattern) =>
+        | some (_, _, discrVar), some (_, _ /- discr -/, pattern) =>
           withLocalDeclD altEqDecl.userName (← mkEq discrVar pattern) fun altEqNew => do
             go (i+1) (altEqsNew.push altEqNew) (subst.push (← mkEqTrans eq altEqNew))
         | _, _ =>
         match eqType.heq?, altEqType.heq? with
-        | some (_, discr, _, discrVar), some (_, _ /- discr -/, _, pattern) =>
+        | some (_, _, _, discrVar), some (_, _ /- discr -/, _, pattern) =>
           withLocalDeclD altEqDecl.userName (← mkHEq discrVar pattern) fun altEqNew => do
             go (i+1) (altEqsNew.push altEqNew) (subst.push (← mkHEqTrans eq altEqNew))
         | _, _ =>
@@ -215,14 +215,13 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
   trace[Meta.Tactic.split] "after introN\n{mvarId}"
   let discrsNew := discrFVarIdsNew.map mkFVar
   let mvarType ← getMVarType mvarId
-  let elimUniv ← getLevel mvarType
-  let us ←
-    if let some uElimPos := info.uElimPos? then
-      pure <| us.set! uElimPos elimUniv
-    else
-      unless elimUniv.isZero do
-        throwError "match-splitter can only eliminate into `Prop`"
-      pure us
+  let elimUniv ← withMVarContext mvarId <| getLevel mvarType
+  let us ← if let some uElimPos := info.uElimPos? then
+    pure <| us.set! uElimPos elimUniv
+  else
+    unless elimUniv.isZero do
+      throwError "match-splitter can only eliminate into `Prop`"
+    pure us
   let splitter := mkAppN (mkConst matchEqns.splitterName us.toList) params
   withMVarContext mvarId do
     let motive ← mkLambdaFVars discrsNew mvarType
@@ -236,7 +235,7 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
       let numParams := matchEqns.splitterAltNumParams[i]
       let (_, mvarId) ← introN mvarId numParams
       trace[Meta.Tactic.split] "before unifyEqs\n{mvarId}"
-      match (← Cases.unifyEqs (numEqs + info.getNumDiscrEqs) mvarId {}) with
+      match (← Cases.unifyEqs? (numEqs + info.getNumDiscrEqs) mvarId {}) with
       | none   => return (i+1, mvarIds) -- case was solved
       | some (mvarId, fvarSubst) =>
         trace[Meta.Tactic.split] "after unifyEqs\n{mvarId}"

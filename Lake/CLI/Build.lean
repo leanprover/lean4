@@ -25,7 +25,7 @@ def parsePackageSpec (ws : Workspace) (spec : String) : Except CliError Package 
     | none => throw <| CliError.unknownPackage spec
 
 open Module in
-def resolveModuleTarget (mod : Module) (facet : String) : Except CliError OpaqueTarget :=
+def resolveModuleTarget (ws : Workspace) (mod : Module) (facet : String) : Except CliError OpaqueTarget :=
   if facet.isEmpty || facet == "bin"  then
     return mod.facetTarget binFacet
   else if facet == "ilean" then
@@ -38,6 +38,8 @@ def resolveModuleTarget (mod : Module) (facet : String) : Except CliError Opaque
     return mod.facetTarget oFacet
   else if facet == "dynlib" then
     return mod.facetTarget dynlibFacet
+  else if let some config := ws.findModuleFacetConfig? facet then
+    return mod.facetTarget config.facet
   else
     throw <| CliError.unknownFacet "module" facet
 
@@ -57,7 +59,7 @@ def resolveExeTarget (exe : LeanExe) (facet : String) : Except CliError OpaqueTa
   else
     throw <| CliError.unknownFacet "executable" facet
 
-def resolveTargetInPackage (pkg : Package) (target : Name) (facet : String) : Except CliError OpaqueTarget :=
+def resolveTargetInPackage (ws : Workspace) (pkg : Package) (target : Name) (facet : String) : Except CliError OpaqueTarget :=
   if let some exe := pkg.findLeanExe? target then
     resolveExeTarget exe facet
   else if let some lib := pkg.findExternLib? target then
@@ -68,20 +70,20 @@ def resolveTargetInPackage (pkg : Package) (target : Name) (facet : String) : Ex
   else if let some lib := pkg.findLeanLib? target then
     resolveLibTarget lib facet
   else if let some mod := pkg.findModule? target then
-    resolveModuleTarget mod facet
+    resolveModuleTarget ws mod facet
   else
     throw <| CliError.missingTarget pkg.name (target.toString false)
 
-def resolveDefaultPackageTarget (pkg : Package) : Except CliError OpaqueTarget :=
+def resolveDefaultPackageTarget (ws : Workspace) (pkg : Package) : Except CliError OpaqueTarget :=
   if pkg.defaultTargets.isEmpty then
     return pkg.defaultTarget
   else
     return Target.collectOpaqueArray <| ←
-      pkg.defaultTargets.mapM (resolveTargetInPackage pkg · "")
+      pkg.defaultTargets.mapM (resolveTargetInPackage ws pkg · "")
 
-def resolvePackageTarget (pkg : Package) (facet : String) : Except CliError OpaqueTarget :=
+def resolvePackageTarget (ws : Workspace) (pkg : Package) (facet : String) : Except CliError OpaqueTarget :=
   if facet.isEmpty then
-    resolveDefaultPackageTarget pkg
+    resolveDefaultPackageTarget ws pkg
   else if facet == "exe" || facet == "bin" then
     return pkg.exeTarget.withoutInfo
   else if facet == "staticLib" then
@@ -104,9 +106,9 @@ def resolveTargetInWorkspace (ws : Workspace) (spec : String) (facet : String) :
   else if let some lib := ws.findLeanLib? spec.toName then
     resolveLibTarget lib facet
   else if let some pkg := ws.findPackage? spec.toName then
-    resolvePackageTarget pkg facet
+    resolvePackageTarget ws pkg facet
   else if let some mod := ws.findModule? spec.toName then
-    resolveModuleTarget mod facet
+    resolveModuleTarget ws mod facet
   else
     throw <| CliError.unknownTarget spec
 
@@ -114,14 +116,14 @@ def resolveTargetBaseSpec (ws : Workspace) (spec : String) (facet := "") : Excep
   match spec.splitOn "/" with
   | [spec] =>
     if spec.isEmpty then
-      resolvePackageTarget ws.root facet
+      resolvePackageTarget ws ws.root facet
     else if spec.startsWith "@" then
       let pkg ← parsePackageSpec ws <| spec.drop 1
-      resolvePackageTarget pkg facet
+      resolvePackageTarget ws pkg facet
     else if spec.startsWith "+" then
       let mod := spec.drop 1 |>.toName
       if let some mod := ws.findModule? mod then
-        resolveModuleTarget mod facet
+        resolveModuleTarget ws mod facet
       else
         throw <| CliError.unknownModule mod
     else
@@ -132,11 +134,11 @@ def resolveTargetBaseSpec (ws : Workspace) (spec : String) (facet := "") : Excep
     if targetSpec.startsWith "+" then
       let mod := targetSpec.drop 1 |>.toName
       if let some mod := pkg.findModule? mod then
-        resolveModuleTarget mod facet
+        resolveModuleTarget ws mod facet
       else
         throw <| CliError.unknownModule mod
     else
-      resolveTargetInPackage pkg spec facet
+      resolveTargetInPackage ws pkg spec facet
   | _ =>
     throw <| CliError.invalidTargetSpec spec '/'
 

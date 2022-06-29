@@ -32,3 +32,6 @@ initialize defaultTargetAttr : TagAttribute ←
         externLibAttr.hasTag env name
       unless valid do
         throwError "attribute `defaultTarget` can only be used on a target (e.g., `lean_lib`, `lean_exe`)"
+
+initialize moduleFacetAttr : TagAttribute ←
+  registerTagAttribute `moduleFacet "mark a definition as a Lake module facet"

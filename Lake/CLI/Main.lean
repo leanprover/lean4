@@ -313,7 +313,7 @@ def command : (cmd : String) → CliM PUnit
   let target ← show Except _ _ from do
     let targets ← targetSpecs.mapM <| parseTargetSpec ws
     if targets.isEmpty then
-      resolveDefaultPackageTarget ws.root
+      resolveDefaultPackageTarget ws ws.root
     else
       return Target.collectOpaqueList targets
   let ctx ← mkBuildContext ws config.leanInstall config.lakeInstall

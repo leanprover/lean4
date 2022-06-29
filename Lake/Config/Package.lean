@@ -263,6 +263,8 @@ structure Package where
   leanExeConfigs : NameMap LeanExeConfig := {}
   /-- External library targets for the package. -/
   externLibConfigs : NameMap ExternLibConfig := {}
+  /-- (Opaque) module facets defined in the package. -/
+  opaqueModuleFacetConfigs : NameMap OpaqueModuleFacetConfig := {}
   /--
   The names of the package's targets to build by default
   (i.e., on a bare `lake build` of the package).
@@ -270,29 +272,10 @@ structure Package where
   defaultTargets : Array Name := #[]
   deriving Inhabited
 
+hydrate_opaque_type OpaquePackage Package
+
 abbrev PackageSet := RBTree Package (·.name.quickCmp ·.name)
 @[inline] def PackageSet.empty : PackageSet := RBTree.empty
-
-namespace OpaquePackage
-
-unsafe def unsafeMk (pkg : Package) : OpaquePackage :=
-  unsafeCast pkg
-
-@[implementedBy unsafeMk] opaque mk (pkg : Package) : OpaquePackage
-
-instance : Coe Package OpaquePackage := ⟨mk⟩
-instance : Inhabited OpaquePackage := ⟨mk Inhabited.default⟩
-
-unsafe def unsafeGet (self : OpaquePackage) : Package :=
-  unsafeCast self
-
-@[implementedBy unsafeGet] opaque get (self : OpaquePackage) : Package
-
-instance : Coe OpaquePackage Package := ⟨get⟩
-
-@[simp] axiom get_mk {pkg : Package} : get (mk pkg) = pkg
-
-end OpaquePackage
 
 /--
 An alternate signature for package configurations

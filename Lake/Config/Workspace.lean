@@ -4,8 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lean.Util.Paths
-import Lake.Config.LeanExe
-import Lake.Config.ExternLib
+import Lake.Config.ModuleFacetConfig
 
 open System
 open Lean (LeanPaths)
@@ -23,26 +22,7 @@ structure Workspace where
   packageMap : NameMap Package := {}
   deriving Inhabited
 
-namespace OpaqueWorkspace
-
-unsafe def unsafeMk (ws : Workspace) : OpaqueWorkspace :=
-  unsafeCast ws
-
-@[implementedBy unsafeMk] opaque mk (ws : Workspace) : OpaqueWorkspace
-
-instance : Coe Workspace OpaqueWorkspace := ⟨mk⟩
-instance : Inhabited OpaqueWorkspace := ⟨mk Inhabited.default⟩
-
-unsafe def unsafeGet (self : OpaqueWorkspace) : Workspace :=
-  unsafeCast self
-
-@[implementedBy unsafeGet] opaque get (self : OpaqueWorkspace) : Workspace
-
-instance : Coe OpaqueWorkspace Workspace := ⟨get⟩
-
-@[simp] axiom get_mk {ws : Workspace} : get (mk ws) = ws
-
-end OpaqueWorkspace
+hydrate_opaque_type OpaqueWorkspace Workspace
 
 namespace Workspace
 
@@ -86,6 +66,10 @@ def findPackage? (pkg : Name) (self : Workspace) : Option Package :=
 def isLocalModule (mod : Name) (self : Workspace) : Bool :=
   self.packageMap.any fun _ pkg => pkg.isLocalModule mod
 
+/-- Check if the module is buildable by any package in the workspace. -/
+def isBuildableModule (mod : Name) (self : Workspace) : Bool :=
+  self.packageMap.any fun _ pkg => pkg.isBuildableModule mod
+
 /-- Locate the named module in the workspace (if it is local to it). -/
 def findModule? (mod : Name) (self : Workspace) : Option Module :=
   self.packageArray.findSome? (·.findModule? mod)
@@ -98,9 +82,13 @@ def findLeanLib? (name : Name) (self : Workspace) : Option LeanLib :=
 def findLeanExe? (name : Name) (self : Workspace) : Option LeanExe :=
   self.packageArray.findSome? fun pkg => pkg.findLeanExe? name
 
-/-- Get the workspace's external library with the given name. -/
+/-- Try to find an external library in the workspace with the given name. -/
 def findExternLib? (name : Name) (self : Workspace) : Option ExternLib :=
   self.packageArray.findSome? fun pkg => pkg.findExternLib? name
+
+/-- Try to find a module facet configuration in the workspace with the given name. -/
+def findModuleFacetConfig? (name : Name) (self : Workspace) : Option ModuleFacetConfig :=
+  self.packageArray.findSome? fun pkg => pkg.findModuleFacetConfig? name
 
 /-- The `LEAN_PATH` of the workspace. -/
 def oleanPath (self : Workspace) : SearchPath :=
@@ -111,6 +99,6 @@ def leanSrcPath (self : Workspace) : SearchPath :=
   self.packageList.map (·.srcDir)
 
 /-- The `LeanPaths` of the workspace. -/
-def leanPaths (self : Workspace) : LeanPaths :=
-  let pkgs := self.packageList
-  { oleanPath := pkgs.map (·.oleanDir), srcPath := pkgs.map (·.srcDir) }
+def leanPaths (self : Workspace) : LeanPaths where
+  oleanPath := self.packageList.map (·.oleanDir)
+  srcPath := self.packageList.map (·.srcDir)

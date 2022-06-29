@@ -55,6 +55,15 @@ variable [Functor m]
 @[inline] def findModule? (mod : Name) : m (Option Module) :=
   (·.findModule? mod) <$> getWorkspace
 
+@[inline] def findLeanExe? (mod : Name) : m (Option LeanExe) :=
+  (·.findLeanExe? mod) <$> getWorkspace
+
+@[inline] def findLeanLib? (mod : Name) : m (Option LeanLib) :=
+  (·.findLeanLib? mod) <$> getWorkspace
+
+@[inline] def findExternLib? (mod : Name) : m (Option ExternLib) :=
+  (·.findExternLib? mod) <$> getWorkspace
+
 @[inline] def getOleanPath : m SearchPath :=
   (·.oleanPath) <$> getWorkspace
 

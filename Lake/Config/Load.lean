@@ -6,7 +6,7 @@ Authors: Mac Malone
 import Lean.Elab.Frontend
 import Lake.DSL.Attributes
 import Lake.DSL.Extensions
-import Lake.Config.Package
+import Lake.Config.ModuleFacetConfig
 
 namespace Lake
 open Lean System
@@ -95,6 +95,7 @@ unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
     match packageAttr.ext.getState env |>.toList with
     | [] => error s!"configuration file is missing a `package` declaration"
     | [pkgDeclName] =>
+      -- Load Package Configuration
       let config ← evalPackageDecl env pkgDeclName dir args leanOpts
       unless config.dependencies.isEmpty do
         logWarning "Syntax for package dependencies has changed. Use the new `require` syntax."
@@ -105,24 +106,33 @@ unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
       if config.defaultFacet = PackageFacet.oleans then
         logWarning "The `oleans` package facet has been deprecated in favor of `leanLib`."
       let config := {config with dependencies := depsExt.getState env ++ config.dependencies}
-      let scripts ← scriptAttr.ext.getState env |>.foldM (init := {})
-        fun m d => return m.insert d <| ← evalScriptDecl env d leanOpts
-      let leanLibConfigs ← leanLibAttr.ext.getState env |>.foldM (init := {}) fun m d =>
-        let eval := env.evalConstCheck LeanLibConfig leanOpts ``LeanLibConfig d
-        return m.insert d <| ← IO.ofExcept eval.run.run
-      let leanExeConfigs ← leanExeAttr.ext.getState env |>.foldM (init := {}) fun m d =>
-        let eval := env.evalConstCheck LeanExeConfig leanOpts ``LeanExeConfig d
-        return m.insert d <| ← IO.ofExcept eval.run.run
-      let externLibConfigs ← externLibAttr.ext.getState env |>.foldM (init := {}) fun m d =>
-        let eval := env.evalConstCheck ExternLibConfig leanOpts ``ExternLibConfig d
-        return m.insert d <| ← IO.ofExcept eval.run.run
+      -- Load Target & Script Configurations
+      let mkTagMap {α} (attr) (f : Name → IO α) : IO (NameMap α) :=
+        attr.ext.getState env |>.foldM (init := {}) fun map declName =>
+          return map.insert declName <| ← f declName
+      let evalConst (α typeName declName) : IO α :=
+        IO.ofExcept (env.evalConstCheck α leanOpts typeName declName).run.run
+      let scripts ← mkTagMap scriptAttr
+        (evalScriptDecl env · leanOpts)
+      let leanLibConfigs ← mkTagMap leanLibAttr
+        (evalConst LeanLibConfig ``LeanLibConfig)
+      let leanExeConfigs ← mkTagMap leanExeAttr
+        (evalConst LeanExeConfig ``LeanExeConfig)
+      let externLibConfigs ← mkTagMap externLibAttr
+        (evalConst ExternLibConfig ``ExternLibConfig)
+      let opaqueModuleFacetConfigs ← mkTagMap moduleFacetAttr fun declName =>
+        match env.evalConst ModuleFacetConfig leanOpts declName with
+        | .ok config => pure <| OpaqueModuleFacetConfig.mk config
+        | .error e => throw <| IO.userError e
+      let defaultTargets := defaultTargetAttr.ext.getState env |>.toArray
+      -- Construct the Package
       if leanLibConfigs.isEmpty && leanExeConfigs.isEmpty && config.defaultFacet ≠ .none then
         logWarning <| "Package targets are deprecated. " ++
           "Add a `lean_exe` and/or `lean_lib` default target to the package instead."
-      let defaultTargets := defaultTargetAttr.ext.getState env |>.toArray
       return {
         dir, config, scripts,
         leanLibConfigs, leanExeConfigs, externLibConfigs,
+        opaqueModuleFacetConfigs,
         defaultTargets
       }
     | _ => error s!"configuration file has multiple `package` declarations"

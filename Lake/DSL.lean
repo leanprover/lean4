@@ -11,3 +11,4 @@ import Lake.DSL.Package
 import Lake.DSL.Script
 import Lake.DSL.Require
 import Lake.DSL.Targets
+import Lake.DSL.ModuleFacet

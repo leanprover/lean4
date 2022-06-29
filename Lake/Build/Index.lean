@@ -153,6 +153,13 @@ the initial set of Lake package facets (e.g., `extraDep`).
   | .module mod facet =>
     if let some build := moduleBuildMap.find? facet then
       build mod
+    else if let some config := (← getWorkspace).findModuleFacetConfig? facet then
+      if h : facet = config.facet then
+        have : DynamicType ModuleData facet (ActiveBuildTarget config.resultType) :=
+          ⟨by simp [h, eq_dynamic_type]⟩
+        mkModuleFacetBuild config.build mod
+      else
+        error "module facet's name in the configuration does not match the name it was registered with"
     else
       error s!"do not know how to build module facet `{facet}`"
   | .package pkg facet =>

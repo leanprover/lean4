@@ -3,18 +3,15 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lake.Util.Opaque
+
 namespace Lake
 
-opaque OpaquePackagePointed : NonemptyType.{0}
-
 /-- Opaque reference to a `Package` used for forward declaration. -/
-def OpaquePackage : Type := OpaquePackagePointed.type
-
-instance : Nonempty OpaquePackage := OpaquePackagePointed.property
-
-opaque OpaqueWorkspacePointed : NonemptyType.{0}
+declare_opaque_type OpaquePackage
 
 /-- Opaque reference to a `Workspace` used for forward declaration. -/
-def OpaqueWorkspace : Type := OpaqueWorkspacePointed.type
+declare_opaque_type OpaqueWorkspace
 
-instance : Nonempty OpaqueWorkspace := OpaqueWorkspacePointed.property
+/-- Opaque reference to a `ModuleFacetConfig` used for forward declaration. -/
+declare_opaque_type OpaqueModuleFacetConfig

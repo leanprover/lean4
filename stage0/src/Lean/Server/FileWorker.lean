@@ -257,7 +257,7 @@ section Initialization
     let cmdSnaps ← EIO.mapTask (t := headerTask) (match · with
       | Except.ok (s, _) => unfoldCmdSnaps meta #[s] cancelTk ctx
       | Except.error e   => throw (e : ElabTaskError))
-    let doc : EditableDocument := ⟨meta, AsyncList.asyncTail cmdSnaps, cancelTk⟩
+    let doc : EditableDocument := ⟨meta, AsyncList.delayed cmdSnaps, cancelTk⟩
     return (ctx,
     { doc             := doc
       pendingRequests := RBMap.empty
@@ -288,10 +288,10 @@ section Updates
       oldDoc.cancelTk.set
       let changePos := oldDoc.meta.text.source.firstDiffPos newMeta.text.source
       -- Ignore exceptions, we are only interested in the successful snapshots
-      let (cmdSnaps, _) ← oldDoc.cmdSnaps.updateFinishedPrefix
+      let (cmdSnaps, _) ← oldDoc.cmdSnaps.getFinishedPrefix
       -- NOTE(WN): we invalidate eagerly as `endPos` consumes input greedily. To re-elaborate only
       -- when really necessary, we could do a whitespace-aware `Syntax` comparison instead.
-      let mut validSnaps := cmdSnaps.finishedPrefix.takeWhile (fun s => s.endPos < changePos)
+      let mut validSnaps := cmdSnaps.takeWhile (fun s => s.endPos < changePos)
       if validSnaps.length ≤ 1 then
         validSnaps := [newHeaderSnap]
       else
@@ -308,7 +308,7 @@ section Updates
         if newLastStx != lastSnap.stx then
           validSnaps := validSnaps.dropLast
       unfoldCmdSnaps newMeta validSnaps.toArray cancelTk ctx
-    modify fun st => { st with doc := ⟨newMeta, AsyncList.asyncTail newSnaps, cancelTk⟩ }
+    modify fun st => { st with doc := ⟨newMeta, AsyncList.delayed newSnaps, cancelTk⟩ }
 end Updates
 
 /- Notifications are handled in the main thread. They may change global worker state

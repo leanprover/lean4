@@ -90,36 +90,39 @@ structure ExtractMonadResult where
   α            : Expr
   expectedType : Expr
 
+private def mkUnknownMonadResult : MetaM ExtractMonadResult := do
+  let u ← mkFreshLevelMVar
+  let v ← mkFreshLevelMVar
+  let m ← mkFreshExprMVar (← mkArrow (mkSort (mkLevelSucc u)) (mkSort (mkLevelSucc v)))
+  let α ← mkFreshExprMVar (mkSort (mkLevelSucc u))
+  return { m, α, expectedType := mkApp m α }
+
 private partial def extractBind (expectedType? : Option Expr) : TermElabM ExtractMonadResult := do
-  match expectedType? with
-  | none => throwError "invalid 'do' notation, expected type is not available"
-  | some expectedType =>
-    let extractStep? (type : Expr) : MetaM (Option ExtractMonadResult) := do
-      match type with
-      | Expr.app m α _ =>
-        try
-          let bindInstType ← mkAppM ``Bind #[m]
-          let _  ← Meta.synthInstance bindInstType
-          return some { m := m, α := α, expectedType := expectedType }
-        catch _ =>
-          return none
-      | _ =>
-        return none
-    let rec extract? (type : Expr) : MetaM (Option ExtractMonadResult) := do
-      match (← extractStep? type) with
-      | some r => return r
-      | none =>
-        let typeNew ← whnfCore type
-        if typeNew != type then
-          extract? typeNew
-        else
-          if typeNew.getAppFn.isMVar then throwError "invalid 'do' notation, expected type is not available"
-          match (← unfoldDefinition? typeNew) with
+  let some expectedType := expectedType? | mkUnknownMonadResult
+  let extractStep? (type : Expr) : MetaM (Option ExtractMonadResult) := do
+    let .app m α _ := type | return none
+    try
+      let bindInstType ← mkAppM ``Bind #[m]
+      discard <| Meta.synthInstance bindInstType
+      return some { m, α, expectedType }
+    catch _ =>
+      return none
+  let rec extract? (type : Expr) : MetaM (Option ExtractMonadResult) := do
+    match (← extractStep? type) with
+    | some r => return r
+    | none =>
+      let typeNew ← whnfCore type
+      if typeNew != type then
+        extract? typeNew
+      else
+        if typeNew.getAppFn.isMVar then
+          mkUnknownMonadResult
+        else match (← unfoldDefinition? typeNew) with
           | some typeNew => extract? typeNew
           | none => return none
-    match (← extract? expectedType) with
-    | some r => return r
-    | none   => throwError "invalid 'do' notation, expected type is not a monad application{indentExpr expectedType}\nYou can use the `do` notation in pure code by writing `Id.run do` instead of `do`, where `Id` is the identity monad."
+  match (← extract? expectedType) with
+  | some r => return r
+  | none   => throwError "invalid 'do' notation, expected type is not a monad application{indentExpr expectedType}\nYou can use the `do` notation in pure code by writing `Id.run do` instead of `do`, where `Id` is the identity monad."
 
 namespace Do
 

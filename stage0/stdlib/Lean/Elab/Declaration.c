@@ -24,7 +24,6 @@ static lean_object* l_Lean_Elab_Command_expandInitCmd___lambda__1___closed__32;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Command_elabAttr___spec__3___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabDeclaration___closed__4;
 static lean_object* l_Lean_Elab_Command_expandInitCmd___closed__20;
-lean_object* l_Lean_compileDecl___at_Lean_Elab_Term_evalExpr___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_extractMacroScopes(lean_object*);
 static lean_object* l_Lean_Elab_Command_elabDeclaration___closed__9;
 size_t lean_usize_add(size_t, size_t);
@@ -49,6 +48,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Command_expandMutualNamespace_declR
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Command_elabDeclaration___spec__1___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_expandDeclNamespace_x3f___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_elabDeclaration___spec__5___rarg(lean_object*);
+lean_object* l_Lean_addDecl___at_Lean_Elab_Term_declareTacticSyntax___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabDeclaration___closed__8;
 static lean_object* l_Lean_Elab_Command_expandInitCmd___closed__7;
 lean_object* l_Lean_Elab_Command_elabMutualDef(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -191,7 +191,6 @@ static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Command_expandMutual
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_MapDeclarationExtension_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandInitCmd___lambda__1___closed__26;
-lean_object* l_Lean_addDecl___at_Lean_Elab_Term_evalExpr___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabDeclaration___closed__10;
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabDeclaration___closed__5;
 uint8_t l_Lean_isExtern(lean_object*, lean_object*);
@@ -371,6 +370,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_
 lean_object* l_Lean_Elab_addMacroStack___at_Lean_Elab_Command_instAddErrorMessageContextCommandElabM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandInitCmd___lambda__1___closed__25;
 static lean_object* l_Lean_Elab_Command_expandInitCmd___lambda__1___closed__6;
+lean_object* l_Lean_compileDecl___at_Lean_Elab_Term_declareTacticSyntax___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandInitCmd___closed__17;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_expandDeclNamespace_x3f(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -3671,7 +3671,7 @@ lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_56);
-x_59 = l_Lean_addDecl___at_Lean_Elab_Term_evalExpr___spec__2(x_56, x_10, x_11, x_12, x_13, x_14, x_15, x_58);
+x_59 = l_Lean_addDecl___at_Lean_Elab_Term_declareTacticSyntax___spec__1(x_56, x_10, x_11, x_12, x_13, x_14, x_15, x_58);
 if (lean_obj_tag(x_59) == 0)
 {
 lean_object* x_60; lean_object* x_61; lean_object* x_62; 
@@ -3738,7 +3738,7 @@ lean_inc(x_13);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
-x_74 = l_Lean_compileDecl___at_Lean_Elab_Term_evalExpr___spec__5(x_56, x_10, x_11, x_12, x_13, x_14, x_15, x_69);
+x_74 = l_Lean_compileDecl___at_Lean_Elab_Term_declareTacticSyntax___spec__3(x_56, x_10, x_11, x_12, x_13, x_14, x_15, x_69);
 if (lean_obj_tag(x_74) == 0)
 {
 lean_object* x_75; uint8_t x_76; lean_object* x_77; 

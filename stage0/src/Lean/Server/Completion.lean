@@ -315,12 +315,22 @@ private def idCompletion (ctx : ContextInfo) (lctx : LocalContext) (id : Name) (
   runM ctx lctx do
     idCompletionCore ctx id hoverInfo danglingDot expectedType?
 
+private def unfoldeDefinitionGuarded? (e : Expr) : MetaM (Option Expr) :=
+  try unfoldDefinition? e catch _ => pure none
+
+/-- Return `true` if `e` is a `declName`-application, or can be unfolded (delta-reduced) to one. -/
+private partial def isDefEqToAppOf (e : Expr) (declName : Name) : MetaM Bool := do
+  if e.getAppFn.isConstOf declName then
+    return true
+  let some e ← unfoldeDefinitionGuarded? e | return false
+  isDefEqToAppOf e declName
+
 private def isDotCompletionMethod (typeName : Name) (info : ConstantInfo) : MetaM Bool :=
   forallTelescopeReducing info.type fun xs _ => do
     for x in xs do
       let localDecl ← getLocalDecl x.fvarId!
       let type := localDecl.type.consumeMData
-      if type.getAppFn.isConstOf typeName then
+      if (← isDefEqToAppOf type typeName) then
         return true
     return false
 
@@ -332,17 +342,13 @@ private partial def getDotCompletionTypeNames (type : Expr) : MetaM NameSet :=
   return (← visit type |>.run {}).2
 where
   visit (type : Expr) : StateRefT NameSet MetaM Unit := do
-    match type.getAppFn with
-    | Expr.const typeName .. =>
-      modify fun s => s.insert typeName
-      if isStructure (← getEnv) typeName then
-        for parentName in getAllParentStructures (← getEnv) typeName do
-          modify fun s => s.insert parentName
-      let type? ← try unfoldDefinition? type catch _ => pure none
-      match type? with
-      | some type => visit type
-      | none => pure ()
-    | _ => pure ()
+    let .const typeName _ _ := type.getAppFn | return ()
+    modify fun s => s.insert typeName
+    if isStructure (← getEnv) typeName then
+      for parentName in getAllParentStructures (← getEnv) typeName do
+        modify fun s => s.insert parentName
+    let some type ← unfoldeDefinitionGuarded? type | return ()
+    visit type
 
 private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (hoverInfo : HoverInfo) (expectedType? : Option Expr) : IO (Option CompletionList) :=
   runM ctx info.lctx do

@@ -11,11 +11,11 @@ namespace IO
 universe u v
 
 /-- An async IO list is like a lazy list but instead of being *unevaluated* `Thunk`s,
-lazy tails are `Task`s *being evaluated asynchronously*. A tail can signal the end
+`delayed` suffixes are `Task`s *being evaluated asynchronously*. A delayed suffix can signal the end
 of computation (successful or due to a failure) with a terminating value of type `ε`. -/
 inductive AsyncList (ε : Type u) (α : Type v) where
   | cons (hd : α) (tl : AsyncList ε α)
-  | asyncTail (tl : Task $ Except ε $ AsyncList ε α)
+  | delayed (tl : Task $ Except ε $ AsyncList ε α)
   | nil
 
 namespace AsyncList
@@ -25,7 +25,7 @@ instance : Inhabited (AsyncList ε α) := ⟨nil⟩
 -- TODO(WN): tail-recursion without forcing sync?
 partial def append : AsyncList ε α → AsyncList ε α → AsyncList ε α
   | cons hd tl, s => cons hd (append tl s)
-  | asyncTail ttl, s => asyncTail (ttl.map $ Except.map (append · s))
+  | delayed ttl, s => delayed (ttl.map $ Except.map (append · s))
   | nil, s => s
 
 instance : Append (AsyncList ε α) := ⟨append⟩
@@ -48,10 +48,10 @@ partial def unfoldAsync (f : StateT σ (EIO ε) $ Option α) (init : σ)
       | none => return nil
       | some aNext => do
         let tNext ← EIO.asTask (step sNext)
-        return cons aNext $ asyncTail tNext
+        return cons aNext $ delayed tNext
 
   let tInit ← EIO.asTask (step init)
-  return asyncTail tInit
+  return delayed tInit
 
 /-- The computed, synchronous list. If an async tail was present, returns also
 its terminating value. -/
@@ -60,7 +60,7 @@ partial def getAll : AsyncList ε α → List α × Option ε
     let ⟨l, e?⟩ := tl.getAll
     ⟨hd :: l, e?⟩
   | nil => ⟨[], none⟩
-  | asyncTail tl =>
+  | delayed tl =>
     match tl.get with
     | Except.ok tl => tl.getAll
     | Except.error e => ⟨[], some e⟩
@@ -74,7 +74,7 @@ partial def waitAll (p : α → Bool := fun _ => true) : AsyncList ε α → Bas
     else
       return Task.pure ⟨[hd], none⟩
   | nil => return Task.pure ⟨[], none⟩
-  | asyncTail tl => do
+  | delayed tl => do
     BaseIO.bindTask tl fun
       | Except.ok tl   => tl.waitAll p
       | Except.error e => return Task.pure ⟨[], some e⟩
@@ -87,33 +87,23 @@ partial def waitFind? (p : α → Bool) : AsyncList ε α → BaseIO (Task $ Exc
   | cons hd tl => do
     if p hd then return Task.pure <| Except.ok <| some hd
     else tl.waitFind? p
-  | asyncTail tl => do
+  | delayed tl => do
     BaseIO.bindTask tl fun
       | Except.ok tl   => tl.waitFind? p
       | Except.error e => return Task.pure <| Except.error e
 
-/-- Extends the `finishedPrefix` as far as possible. If computation was ongoing
-and has finished, also returns the terminating value. -/
-partial def updateFinishedPrefix : AsyncList ε α → BaseIO (AsyncList ε α × Option ε)
+/-- Retrieve the already-computed prefix of the list. If computation has finished with an error, return it as well. -/
+partial def getFinishedPrefix : AsyncList ε α → BaseIO (List α × Option ε)
   | cons hd tl => do
-    let ⟨tl, e?⟩ ← tl.updateFinishedPrefix
-    pure ⟨cons hd tl, e?⟩
-  | nil => pure ⟨nil, none⟩
-  | l@(asyncTail tl) => do
+    let ⟨tl, e?⟩ ← tl.getFinishedPrefix
+    pure ⟨hd :: tl, e?⟩
+  | nil => pure ⟨[], none⟩
+  | delayed tl => do
     if (← hasFinished tl) then
       match tl.get with
-      | Except.ok tl => tl.updateFinishedPrefix
-      | Except.error e => pure ⟨nil, some e⟩
-    else pure ⟨l, none⟩
-
-private partial def finishedPrefixAux : List α → AsyncList ε α → List α
-  | acc, cons hd tl   => finishedPrefixAux (hd :: acc) tl
-  | acc, nil          => acc
-  | acc, asyncTail _  => acc
-
-/-- The longest already-computed prefix of the list. -/
-def finishedPrefix : AsyncList ε α → List α :=
-  List.reverse ∘ (finishedPrefixAux [])
+      | Except.ok tl => tl.getFinishedPrefix
+      | Except.error e => pure ⟨[], some e⟩
+    else pure ⟨[], none⟩
 
 def waitHead? (as : AsyncList ε α) : BaseIO (Task (Except ε (Option α))) := as.waitFind? (fun _ => true)
 

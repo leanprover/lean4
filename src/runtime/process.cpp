@@ -20,7 +20,6 @@ Author: Jared Roesch
 #include <stdio.h>
 #include <strsafe.h>
 #include <shellapi.h>
-#include <shlwapi.h>
 #else
 #include <unistd.h>
 #include <fcntl.h>
@@ -133,6 +132,16 @@ inline std::string& trim(std::string& s, const char* t = ws)
     return ltrim(rtrim(s, t), t);
 }
 
+inline bool file_exists(const std::string& path){
+   std::ifstream ifile;
+   ifile.open(path.c_str());
+   if(ifile) {
+      ifile.close();
+      return true;
+   }
+   return false;
+}
+
 // This code is adapted from: https://msdn.microsoft.com/en-us/library/windows/desktop/ms682499(v=vs.85).aspx
 static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const & args, stdio stdin_mode, stdio stdout_mode,
                      stdio stderr_mode, option_ref<string_ref> const & cwd, array_ref<pair_ref<string_ref, option_ref<string_ref>>> const & env) {
@@ -157,7 +166,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     trim(command, ws);
     trim(command, "\"");
 
-    if (!PathFileExistsA(command.c_str())) {
+    if (!file_exists(command)) {
         char buffer[32767];
         auto rc = FindExecutableA(command.c_str(), NULL, buffer);
         long long error = (long long)rc;

@@ -22,7 +22,7 @@ if(LLVM)
     string(APPEND LEAN_EXE_LINKER_FLAGS " `llvm-config --ldflags --libs nativecodegen` ${LLVM_SYSTEM_LIBS}")
   endif()
   if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    string(APPEND LEAN_EXE_LINKER_FLAGS " -lole32 -luuid -lShell32 -lShlwapi")
+    string(APPEND LEAN_EXE_LINKER_FLAGS " -lole32 -luuid -lShell32")
   endif()
 endif()
 

@@ -406,6 +406,7 @@ static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__com
 static lean_object* l_Lean_unbracketedExplicitBinders___closed__13;
 LEAN_EXPORT lean_object* l_Lean_bracketedExplicitBinders;
 static lean_object* l_tactic_xb7_x2e_____x3b_____closed__6;
+static lean_object* l_tacticCalc_____closed__8;
 LEAN_EXPORT lean_object* l_unexpandEqRec(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__command__Unif__hint____Where___x7c_x2d_u22a2____1___closed__13;
 static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__term__Matches___x7c__1___closed__30;
@@ -5956,10 +5957,22 @@ return x_3;
 static lean_object* _init_l_tacticCalc_____closed__6() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_command__Unif__hint____Where___x7c_x2d_u22a2_____closed__22;
+x_2 = l_tacticCalc_____closed__5;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_tacticCalc_____closed__7() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_termMacro_x2etrace_x5b___x5d_____closed__6;
 x_2 = l_tacticCalc_____closed__4;
-x_3 = l_tacticCalc_____closed__5;
+x_3 = l_tacticCalc_____closed__6;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -5967,13 +5980,13 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_tacticCalc_____closed__7() {
+static lean_object* _init_l_tacticCalc_____closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_tacticCalc_____closed__2;
 x_2 = lean_unsigned_to_nat(1022u);
-x_3 = l_tacticCalc_____closed__6;
+x_3 = l_tacticCalc_____closed__7;
 x_4 = lean_alloc_ctor(3, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -5985,7 +5998,7 @@ static lean_object* _init_l_tacticCalc__() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_tacticCalc_____closed__7;
+x_1 = l_tacticCalc_____closed__8;
 return x_1;
 }
 }
@@ -18299,6 +18312,8 @@ l_tacticCalc_____closed__6 = _init_l_tacticCalc_____closed__6();
 lean_mark_persistent(l_tacticCalc_____closed__6);
 l_tacticCalc_____closed__7 = _init_l_tacticCalc_____closed__7();
 lean_mark_persistent(l_tacticCalc_____closed__7);
+l_tacticCalc_____closed__8 = _init_l_tacticCalc_____closed__8();
+lean_mark_persistent(l_tacticCalc_____closed__8);
 l_tacticCalc__ = _init_l_tacticCalc__();
 lean_mark_persistent(l_tacticCalc__);
 l___aux__Init__NotationExtra______macroRules__tacticCalc____1___closed__1 = _init_l___aux__Init__NotationExtra______macroRules__tacticCalc____1___closed__1();

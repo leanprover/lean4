@@ -25,12 +25,12 @@ def Module.soloTarget (mod : Module) (dynlibs : Array FilePath)
       let cUpToDate ← modTrace.checkAgainstFile mod.cFile mod.cTraceFile
       unless modUpToDate && cUpToDate do
         compileLeanModule mod.leanFile mod.oleanFile mod.ileanFile mod.cFile
-          (← getOleanPath) mod.pkg.rootDir dynlibs dynlibPath mod.leanArgs (← getLean)
+          (← getOleanPath) mod.rootDir dynlibs dynlibPath mod.leanArgs (← getLean)
       modTrace.writeToFile mod.cTraceFile
     else
       unless modUpToDate do
         compileLeanModule mod.leanFile mod.oleanFile mod.ileanFile none
-          (← getOleanPath) mod.pkg.rootDir dynlibs dynlibPath mod.leanArgs (← getLean)
+          (← getOleanPath) mod.rootDir dynlibs dynlibPath mod.leanArgs (← getLean)
     modTrace.writeToFile mod.traceFile
     return depTrace
 

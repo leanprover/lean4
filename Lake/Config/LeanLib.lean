@@ -38,6 +38,10 @@ namespace LeanLib
 @[inline] def srcDir (self : LeanLib) : FilePath :=
   self.pkg.srcDir / self.config.srcDir
 
+/-- The library's root directory for `lean` (i.e., `srcDir`). -/
+@[inline] def rootDir (self : LeanLib) : FilePath :=
+  self.srcDir
+
 /-- Whether the given module is considered local to the library. -/
 @[inline] def isLocalModule (mod : Name) (self : LeanLib) : Bool :=
   self.config.isLocalModule mod

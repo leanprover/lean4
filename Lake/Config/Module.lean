@@ -38,6 +38,9 @@ namespace Module
 abbrev pkg (self : Module) : Package :=
   self.lib.pkg
 
+@[inline] def rootDir (self : Module) : FilePath :=
+  self.lib.rootDir
+
 @[inline] def leanFile (self : Module) : FilePath :=
   Lean.modToFilePath self.lib.srcDir self.name "lean"
 

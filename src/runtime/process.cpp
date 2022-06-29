@@ -132,16 +132,6 @@ inline std::string& trim(std::string& s, const char* t = ws)
     return ltrim(rtrim(s, t), t);
 }
 
-inline bool file_exists(const std::string& path){
-   std::ifstream ifile;
-   ifile.open(path.c_str());
-   if(ifile) {
-      ifile.close();
-      return true;
-   }
-   return false;
-}
-
 // This code is adapted from: https://msdn.microsoft.com/en-us/library/windows/desktop/ms682499(v=vs.85).aspx
 static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const & args, stdio stdin_mode, stdio stdout_mode,
                      stdio stderr_mode, option_ref<string_ref> const & cwd, array_ref<pair_ref<string_ref, option_ref<string_ref>>> const & env) {
@@ -166,21 +156,24 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     trim(command, ws);
     trim(command, "\"");
 
-    if (!file_exists(command)) {
-        char buffer[32767];
-        auto rc = FindExecutableA(command.c_str(), NULL, buffer);
-        long long error = (long long)rc;
-        if (error < 32) {
-            // find program failed, well then fall back on whatever is in the command string.
+    const char* extensions[] = { ".exe", ".com", ".cmd" };
+    const DWORD MAX_SIZE = 32767;
+    char buffer[MAX_SIZE];
+    LPSTR lpFilePart = NULL;
+    DWORD rc = 0;
+    for (auto ext : extensions) {
+        rc = SearchPath(NULL, command.c_str(), ext, MAX_SIZE, buffer, &lpFilePart);
+        if (rc != 0) {
+            break;
         }
-        else {
-            // buffer now contains the executable that Windows would have executed if you
-            // typed that name in a terminal window.  This can change the name of the command.
-            // For example, "npm" becomes "C:\Program Files\nodejs\npm.cmd" and not the bash
-            // shell script named "C:\Program Files\nodejs\npm".  It is the executable returned from
-            // FindExecutable that we need to spawn here.
-            command = buffer;
-        }
+    }
+
+    if (rc != 0) {
+        // buffer now contains the executable that Windows would have executed if you
+        // typed that name in a terminal window.  This can change the name of the command.
+        // For example, "npm" becomes "C:\Program Files\nodejs\npm.cmd" and not the bash
+        // shell script named "C:\Program Files\nodejs\npm".
+        command = buffer;
     }
 
     if (command.find(' ') != std::string::npos) {

@@ -288,10 +288,10 @@ section Updates
       oldDoc.cancelTk.set
       let changePos := oldDoc.meta.text.source.firstDiffPos newMeta.text.source
       -- Ignore exceptions, we are only interested in the successful snapshots
-      let (cmdSnaps, _) ← oldDoc.cmdSnaps.updateFinishedPrefix
+      let (cmdSnaps, _) ← oldDoc.cmdSnaps.getFinishedPrefix
       -- NOTE(WN): we invalidate eagerly as `endPos` consumes input greedily. To re-elaborate only
       -- when really necessary, we could do a whitespace-aware `Syntax` comparison instead.
-      let mut validSnaps := cmdSnaps.finishedPrefix.takeWhile (fun s => s.endPos < changePos)
+      let mut validSnaps := cmdSnaps.takeWhile (fun s => s.endPos < changePos)
       if validSnaps.length ≤ 1 then
         validSnaps := [newHeaderSnap]
       else

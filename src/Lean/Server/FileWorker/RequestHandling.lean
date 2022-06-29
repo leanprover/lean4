@@ -226,8 +226,8 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
 
   withWaitFindSnap doc (fun s => s.endPos > pos)
     (notFoundX := pure #[]) fun snap => do
-      let (snaps, _) ← doc.cmdSnaps.updateFinishedPrefix
-      if let some his := highlightRefs? snaps.finishedPrefix.toArray then
+      let (snaps, _) ← doc.cmdSnaps.getFinishedPrefix
+      if let some his := highlightRefs? snaps.toArray then
         return his
       if let some hi := highlightReturn? none snap.stx then
         return #[hi]
@@ -238,8 +238,8 @@ partial def handleDocumentSymbol (_ : DocumentSymbolParams)
     : RequestM (RequestTask DocumentSymbolResult) := do
   let doc ← readDoc
   mapTask (← doc.cmdSnaps.waitHead?) fun _ => do
-    let ⟨cmdSnaps, e?⟩ ← doc.cmdSnaps.updateFinishedPrefix
-    let mut stxs := cmdSnaps.finishedPrefix.map (·.stx)
+    let ⟨cmdSnaps, e?⟩ ← doc.cmdSnaps.getFinishedPrefix
+    let mut stxs := cmdSnaps.map (·.stx)
     match e? with
     | some ElabTaskError.aborted =>
       throw RequestError.fileChanged
@@ -247,7 +247,7 @@ partial def handleDocumentSymbol (_ : DocumentSymbolParams)
       throw (e : RequestError)
     | _ => pure ()
 
-    let lastSnap := cmdSnaps.finishedPrefix.getLast!  -- see `waitHead?` above
+    let lastSnap := cmdSnaps.getLast!  -- see `waitHead?` above
     stxs := stxs ++ (← parseAhead doc.meta.mkInputContext lastSnap).toList
     let (syms, _) := toDocumentSymbols doc.meta.text stxs
     return { syms := syms.toArray }

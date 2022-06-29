@@ -92,28 +92,18 @@ partial def waitFind? (p : α → Bool) : AsyncList ε α → BaseIO (Task $ Exc
       | Except.ok tl   => tl.waitFind? p
       | Except.error e => return Task.pure <| Except.error e
 
-/-- Extends the `finishedPrefix` as far as possible. If computation was ongoing
-and has finished, also returns the terminating value. -/
-partial def updateFinishedPrefix : AsyncList ε α → BaseIO (AsyncList ε α × Option ε)
+/-- Retrieve the already-computed prefix of the list. If computation has finished with an error, return it as well. -/
+partial def getFinishedPrefix : AsyncList ε α → BaseIO (List α × Option ε)
   | cons hd tl => do
-    let ⟨tl, e?⟩ ← tl.updateFinishedPrefix
-    pure ⟨cons hd tl, e?⟩
-  | nil => pure ⟨nil, none⟩
-  | l@(asyncTail tl) => do
+    let ⟨tl, e?⟩ ← tl.getFinishedPrefix
+    pure ⟨hd :: tl, e?⟩
+  | nil => pure ⟨[], none⟩
+  | asyncTail tl => do
     if (← hasFinished tl) then
       match tl.get with
-      | Except.ok tl => tl.updateFinishedPrefix
-      | Except.error e => pure ⟨nil, some e⟩
-    else pure ⟨l, none⟩
-
-private partial def finishedPrefixAux : List α → AsyncList ε α → List α
-  | acc, cons hd tl   => finishedPrefixAux (hd :: acc) tl
-  | acc, nil          => acc
-  | acc, asyncTail _  => acc
-
-/-- The longest already-computed prefix of the list. -/
-def finishedPrefix : AsyncList ε α → List α :=
-  List.reverse ∘ (finishedPrefixAux [])
+      | Except.ok tl => tl.getFinishedPrefix
+      | Except.error e => pure ⟨[], some e⟩
+    else pure ⟨[], none⟩
 
 def waitHead? (as : AsyncList ε α) : BaseIO (Task (Except ε (Option α))) := as.waitFind? (fun _ => true)
 

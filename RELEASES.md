@@ -212,7 +212,7 @@ Unreleased
     | true => isTrue (_ : n = m)
     | false => isFalse (_ : ¬n = m)
   -/
-```
+  ```
 
 * `exists` tactic is now takes a comma separated list of terms.
 

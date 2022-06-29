@@ -172,24 +172,17 @@ jobs:
         run: |
           # omit contents of Init/, ...
           tree --du -h lean-* | grep -E ' (Init|Std|Lean|Lake|LICENSE|[a-z])'
-      - name: Pack on Linux and macOS
-        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
+      - name: Pack
         run: |
           dir=$(echo lean-*)
           mkdir pack
           # high-compression tar.zst + zip for release, fast tar.zst otherwise
           if [[ '${{ startsWith(github.ref, 'refs/tags/v') && matrix.release }}' == true || -n '${{ needs.set-nightly.outputs.nightly }}' ]]; then
             tar cf - $dir | zstd -T0 --no-progress -19 -o pack/$dir.tar.zst
-            zip -rq pack/$dir.zip $dir
           else
             tar cf - $dir | zstd -T0 --no-progress -o pack/$dir.tar.zst
           fi
-      - name: Zip on Windows
-        if: matrix.os == 'windows-2022'
-        run: |
-          dir=$(echo lean-*)
-          mkdir pack
-          zip -rq pack/$dir.zip $dir
+          zip -rq9 pack/$dir.zip $dir
       - uses: actions/upload-artifact@v2
         if: matrix.release
         with:

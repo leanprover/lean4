@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Elab.DeclarationRange
 import Lean.DocString
 import Lean.Util.CollectLevelParams
+import Lean.Elab.Eval
 import Lean.Elab.Command
 import Lean.Elab.Open
 
@@ -305,14 +306,14 @@ private def mkRunEval (e : Expr) : MetaM Expr := do
 
 unsafe def elabEvalUnsafe : CommandElab
   | `(#eval%$tk $term) => do
-    let n := `_eval
+    let declName := `_eval
     let addAndCompile (value : Expr) : TermElabM Unit := do
       let (value, _) ← Term.levelMVarToParam (← instantiateMVars value)
       let type ← inferType value
       let us := collectLevelParams {} value |>.params
       let value ← instantiateMVars value
       let decl := Declaration.defnDecl {
-        name        := n
+        name        := declName
         levelParams := us.toList
         type        := type
         value       := value
@@ -321,6 +322,7 @@ unsafe def elabEvalUnsafe : CommandElab
       }
       Term.ensureNoUnassignedMVars decl
       addAndCompile decl
+    -- Elaborate `term`
     let elabEvalTerm : TermElabM Expr := do
       let e ← Term.elabTerm term none
       Term.synthesizeSyntheticMVarsNoPostponing
@@ -329,22 +331,37 @@ unsafe def elabEvalUnsafe : CommandElab
         mkDecide e
       else
         return e
-    let elabMetaEval : CommandElabM Unit := runTermElabM (some n) fun _ => do
-      let e ← mkRunMetaEval (← elabEvalTerm)
-      let env ← getEnv
-      let opts ← getOptions
-      let act ← try addAndCompile e; evalConst (Environment → Options → IO (String × Except IO.Error Environment)) n finally setEnv env
-      let (out, res) ← act env opts -- we execute `act` using the environment
-      logInfoAt tk out
-      match res with
-      | Except.error e => throwError e.toString
-      | Except.ok env  => do setEnv env; pure ()
-    let elabEval : CommandElabM Unit := runTermElabM (some n) fun _ => do
+    -- Evaluate using term using `MetaEval` class.
+    let elabMetaEval : CommandElabM Unit := do
+      -- act? is `some act` if elaborated `term` has type `CommandElabM α`
+      let act? ← runTermElabM (some declName) fun _ => do
+        let e ← elabEvalTerm
+        let eType ← instantiateMVars (← inferType e)
+        if eType.isAppOfArity ``CommandElabM 1 then
+          let mut stx ← Term.exprToSyntax e
+          unless (← isDefEq eType.appArg! (mkConst ``Unit)) do
+            stx ← `($stx >>= fun v => IO.println (repr v))
+          let act ← Lean.Elab.Term.evalTerm (CommandElabM Unit) (mkApp (mkConst ``CommandElabM) (mkConst ``Unit)) stx
+          pure <| some act
+        else
+          let e ← mkRunMetaEval e
+          let env ← getEnv
+          let opts ← getOptions
+          let act ← try addAndCompile e; evalConst (Environment → Options → IO (String × Except IO.Error Environment)) declName finally setEnv env
+          let (out, res) ← act env opts -- we execute `act` using the environment
+          logInfoAt tk out
+          match res with
+          | Except.error e => throwError e.toString
+          | Except.ok env  => do setEnv env; pure none
+      let some act := act? | return ()
+      act
+    -- Evaluate using term using `Eval` class.
+    let elabEval : CommandElabM Unit := runTermElabM (some declName) fun _ => do
       -- fall back to non-meta eval if MetaEval hasn't been defined yet
       -- modify e to `runEval e`
       let e ← mkRunEval (← elabEvalTerm)
       let env ← getEnv
-      let act ← try addAndCompile e; evalConst (IO (String × Except IO.Error Unit)) n finally setEnv env
+      let act ← try addAndCompile e; evalConst (IO (String × Except IO.Error Unit)) declName finally setEnv env
       let (out, res) ← liftM (m := IO) act
       logInfoAt tk out
       match res with

@@ -1,6 +1,19 @@
 Unreleased
 ---------
 
+* Add support for `CommandElabM` monad at `#eval`. Example:
+  ```lean
+  import Lean
+
+  open Lean Elab Command
+
+  #eval do
+    let id := mkIdent `foo
+    elabCommand (← `(def $id := 10))
+
+  #eval foo -- 10
+  ```
+
 * Try to elaborate `do` notation even if the expected type is not available. We still delay elaboration when the expected type
   is not available. This change is particularly useful when writing examples such as
   ```lean

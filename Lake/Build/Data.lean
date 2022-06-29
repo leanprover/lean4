@@ -9,6 +9,10 @@ import Lake.Util.DynamicType
 open Lean
 namespace Lake
 
+--------------------------------------------------------------------------------
+/-! ## Build Data Subtypes                                                    -/
+--------------------------------------------------------------------------------
+
 /--
 Type of build data associated with a module facet in the Lake build store.
 For example a transitive × direct import pair for `imports` or an active build
@@ -24,6 +28,10 @@ opaque PackageData (facet : WfName) : Type
 
 /-- Type of build data associated with Lake targets (e.g., `extern_lib`). -/
 opaque TargetData (facet : WfName) : Type
+
+--------------------------------------------------------------------------------
+/-! ## Build Data                                                             -/
+--------------------------------------------------------------------------------
 
 /--
 Type of the build data associated with a key in the Lake build store.
@@ -64,6 +72,10 @@ theorem isTargetKey_data {k : BuildKey}
   unfold BuildData, BuildKey.isModuleKey, BuildKey.isPackageKey
   have ⟨has_p, has_t⟩ := of_decide_eq_true h
   simp [of_decide_eq_true has_p, of_decide_eq_true has_t, h]
+
+--------------------------------------------------------------------------------
+/-! ## Macros for Declaring Build Data                                        -/
+--------------------------------------------------------------------------------
 
 /-- Macro for declaring new `PackageData`. -/
 scoped macro (name := packageDataDecl) doc?:optional(Parser.Command.docComment)

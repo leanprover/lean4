@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Util.Casing
+import Lake.Build.Facets
 import Lake.Config.InstallPath
 import Lake.Config.LeanConfig
 import Lake.Config.Glob
@@ -60,7 +61,14 @@ structure LeanLibConfig extends LeanConfig where
   -/
   precompileModules : Bool := false
 
-deriving Inhabited, Repr
+  /--
+  The set of module facets to build and combine into the library's static
+  and shared libraries. Defaults to ``#[Module.oFacet]`` (i.e., the object file
+  compiled from the Lean source).
+  -/
+  nativeFacets : Array (ModuleFacet ActiveFileTarget) := #[Module.oFacet]
+
+deriving Inhabited
 
 namespace LeanLibConfig
 

@@ -78,6 +78,9 @@ abbrev pkg (self : Module) : Package :=
 @[inline] def shouldPrecompile (self : Module) : Bool :=
   self.lib.precompileModules
 
+@[inline] def nativeFacets (self : Module) : Array (ModuleFacet ActiveFileTarget) :=
+  self.lib.nativeFacets
+
 @[inline] def isLeanOnly (self : Module) : Bool :=
   self.pkg.isLeanOnly && !self.shouldPrecompile
 

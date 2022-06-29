@@ -14,8 +14,8 @@ variable [Monad m] [MonadLiftT BuildM m] [MonadBuildStore m]
 -- # Build Static Lib
 
 /-- Build and collect the specified facet of the library's local modules. -/
-@[specialize] def LeanLib.recBuildLocalModules (facet : WfName) (self : LeanLib)
-[DynamicType ModuleData facet α]: IndexT m (Array α) := do
+@[specialize] def LeanLib.recBuildLocalModules
+(facets : Array (ModuleFacet α)) (self : LeanLib) : IndexT m (Array α) := do
   have : MonadLift BuildM m := ⟨liftM⟩
   let mut results := #[]
   let mut modSet := ModuleSet.empty
@@ -26,14 +26,15 @@ variable [Monad m] [MonadLiftT BuildM m] [MonadBuildStore m]
     for mod in mods do
       if self.isLocalModule mod.name then
         unless modSet.contains mod do
-          results := results.push <| ← recBuild <| mod.facet facet
+          for facet in facets do
+            results := results.push <| ← recBuild <| mod.facet facet.name
           modSet := modSet.insert mod
   return results
 
 @[specialize] protected
 def LeanLib.recBuildStatic (self : LeanLib) : IndexT m ActiveFileTarget := do
   have : MonadLift BuildM m := ⟨liftM⟩
-  let oTargets := (← self.recBuildLocalModules Module.oFacet).map Target.active
+  let oTargets := (← self.recBuildLocalModules self.nativeFacets).map Target.active
   staticLibTarget self.staticLibFile oTargets |>.activate
 
 -- # Build Shared Lib
@@ -43,7 +44,8 @@ Build and collect the local object files and external libraries
 of a library and its modules' imports.
 -/
 @[specialize] def LeanLib.recBuildLinks
-(self : LeanLib) : IndexT m (Array ActiveFileTarget) := do
+(facets : Array (ModuleFacet ActiveFileTarget)) (self : LeanLib)
+: IndexT m (Array ActiveFileTarget) := do
   have : MonadLift BuildM m := ⟨liftM⟩
   -- Build and collect modules
   let mut pkgs := #[]
@@ -60,7 +62,8 @@ of a library and its modules' imports.
             pkgSet := pkgSet.insert mod.pkg
             pkgs := pkgs.push mod.pkg
         if self.isLocalModule mod.name then
-          targets := targets.push <| ← mod.o.recBuild
+          for facet in facets do
+            targets := targets.push <| ← recBuild <| mod.facet facet.name
         modSet := modSet.insert mod
   -- Build and collect external library targets
   for pkg in pkgs do
@@ -72,7 +75,7 @@ of a library and its modules' imports.
 @[specialize] protected
 def LeanLib.recBuildShared (self : LeanLib) : IndexT m ActiveFileTarget := do
   have : MonadLift BuildM m := ⟨liftM⟩
-  let linkTargets := (← self.recBuildLinks).map Target.active
+  let linkTargets := (← self.recBuildLinks self.nativeFacets).map Target.active
   leanSharedLibTarget self.sharedLibFile linkTargets self.linkArgs |>.activate
 
 -- # Build Executable

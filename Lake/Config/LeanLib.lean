@@ -69,6 +69,10 @@ Is true if either the package or the library have `precompileModules` set.
 @[inline] def precompileModules (self : LeanLib) : Bool :=
   self.pkg.precompileModules || self.config.precompileModules
 
+/-- The library's `nativeFacets` configuration. -/
+@[inline] def nativeFacets (self : LeanLib) : Array (ModuleFacet ActiveFileTarget) :=
+  self.config.nativeFacets
+
 /--
 The arguments to pass to `lean` when compiling the library's Lean files.
 That is, the package's `moreLeanArgs` plus the library's  `moreLeanArgs`.

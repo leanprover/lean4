@@ -43,14 +43,15 @@ def Module.mkOTarget (cTarget : FileTarget) (self : Module) : FileTarget :=
   leanOFileTarget self.oFile cTarget self.leancArgs
 
 @[inline]
-def Module.mkDynlibTarget (self : Module) (oTarget : FileTarget)
+def Module.mkDynlibTarget (self : Module) (linkTargets : Array FileTarget)
 (libDirs : Array FilePath) (libTargets : Array FileTarget) : FileTarget :=
+  let linksTarget : BuildTarget _ := Target.collectArray linkTargets
   let libsTarget : BuildTarget _ := Target.collectArray libTargets
   Target.mk self.dynlibName do
-    oTarget.bindAsync fun oFile oTrace => do
+    linksTarget.bindAsync fun links oTrace => do
     libsTarget.bindSync fun libFiles libTrace => do
       buildFileUnlessUpToDate self.dynlibFile (oTrace.mix libTrace) do
-        let args := #[oFile.toString] ++ libDirs.map (s!"-L{·}") ++ libFiles.map (s!"-l{·}")
+        let args := links.map toString ++ libDirs.map (s!"-L{·}") ++ libFiles.map (s!"-l{·}")
         compileSharedLib self.dynlibFile args (← getLeanc)
 
 -- # Recursive Building
@@ -156,7 +157,8 @@ Recursively build the shared library of a module (e.g., for `--load-dynlib`).
 : IndexT m ActiveFileTarget := do
   have : MonadLift BuildM m := ⟨liftM⟩
   let (_, transImports) ← mod.imports.recBuild
-  let oTarget := Target.active (← mod.o.recBuild)
+  let linkTargets ← mod.nativeFacets.mapM fun facet => do
+    return Target.active <| ← recBuild <| mod.facet facet.name
   let (modTargets, pkgTargets, libDirs) ← recBuildPrecompileDynlibs mod.pkg transImports
   let libTargets := modTargets ++ pkgTargets |>.map Target.active
-  mod.mkDynlibTarget oTarget libDirs libTargets |>.activate
+  mod.mkDynlibTarget linkTargets libDirs libTargets |>.activate

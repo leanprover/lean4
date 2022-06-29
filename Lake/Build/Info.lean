@@ -3,26 +3,43 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Build.Data
 import Lake.Config.LeanExe
 import Lake.Config.ExternLib
+import Lake.Build.Facets
 import Lake.Util.EquipT
+
+/-!
+# Build Info
+
+This module defines the Lake build info type and related utilities.
+Build info is what is the data passed to a Lake build function to facilitate
+the build.
+-/
 
 namespace Lake
 
--- # Build Key Helper Constructors
+/-- The type of Lake's build info. -/
+inductive BuildInfo
+| module (module : Module) (facet : WfName)
+| package (package : Package) (facet : WfName)
+| staticLeanLib (lib : LeanLib)
+| sharedLeanLib (lib : LeanLib)
+| leanExe (exe : LeanExe)
+| staticExternLib (lib : ExternLib)
+| sharedExternLib (lib : ExternLib)
+| custom (package : Package) (target : WfName) (facet : WfName)
+
+--------------------------------------------------------------------------------
+/-! ## Build Info & Keys                                                      -/
+--------------------------------------------------------------------------------
+
+/-! ### Build Key Helper Constructors -/
 
 abbrev Module.mkBuildKey (facet : WfName) (self : Module) : ModuleBuildKey facet :=
   ⟨⟨none, self.name, facet⟩, rfl, rfl⟩
 
 abbrev Package.mkBuildKey (facet : WfName) (self : Package) : PackageBuildKey facet :=
   ⟨⟨self.name, none, facet⟩, rfl, rfl⟩
-
-abbrev LeanLib.staticFacet := &`leanLib.static
-abbrev LeanLib.sharedFacet := &`leanLib.shared
-abbrev LeanExe.facet := &`leanExe
-abbrev ExternLib.staticFacet := &`externLib.static
-abbrev ExternLib.sharedFacet := &`externLib.shared
 
 abbrev LeanLib.staticBuildKey (self : LeanLib) : BuildKey :=
   ⟨self.pkg.name, self.name, staticFacet⟩
@@ -39,19 +56,9 @@ abbrev ExternLib.staticBuildKey (self : ExternLib) : BuildKey :=
 abbrev ExternLib.sharedBuildKey (self : ExternLib) : BuildKey :=
   ⟨self.pkg.name, self.name, sharedFacet⟩
 
--- # Build Info
+/-! ### Build Info to Key -/
 
-/-- The type of Lake's build info. -/
-inductive BuildInfo
-| module (module : Module) (facet : WfName)
-| package (package : Package) (facet : WfName)
-| staticLeanLib (lib : LeanLib)
-| sharedLeanLib (lib : LeanLib)
-| leanExe (exe : LeanExe)
-| staticExternLib (lib : ExternLib)
-| sharedExternLib (lib : ExternLib)
-| custom (package : Package) (target : WfName) (facet : WfName)
-
+/-- The key that identifies the build in the Lake build store. -/
 abbrev BuildInfo.key : (self : BuildInfo) → BuildKey
 | module m f => m.mkBuildKey f
 | package p f => p.mkBuildKey f
@@ -62,7 +69,7 @@ abbrev BuildInfo.key : (self : BuildInfo) → BuildKey
 | sharedExternLib l => l.sharedBuildKey
 | custom p t f => ⟨p.name, t, f⟩
 
--- # Instances for deducing data types of `BuildInfo` keys
+/-! ### Instances for deducing data types of `BuildInfo` keys -/
 
 instance [DynamicType ModuleData f α]
 : DynamicType BuildData (BuildInfo.key (.module m f)) α where
@@ -92,7 +99,9 @@ instance [DynamicType TargetData ExternLib.sharedFacet α]
 : DynamicType BuildData (BuildInfo.key (.sharedExternLib l)) α where
   eq_dynamic_type := by unfold BuildData; simp [eq_dynamic_type]
 
--- # Recursive Facet Builds
+--------------------------------------------------------------------------------
+/-! ## Recursive Building                                                     -/
+--------------------------------------------------------------------------------
 
 /-- A build function for any element of the Lake build index. -/
 abbrev IndexBuildFn (m : Type → Type v) :=
@@ -108,21 +117,39 @@ abbrev IndexT (m : Type → Type v) := EquipT (IndexBuildFn m) m
 
 export BuildInfo (recBuild)
 
--- # Build Info Helper Constructors
+--------------------------------------------------------------------------------
+/-! ## Build Info & Facets                                                    -/
+--------------------------------------------------------------------------------
+
+/-!
+### Complex Builtin Facet Declarations
+
+Additional builtin build data types on top of those defined in `FacetData` .
+Defined here because they need to import configurations, whereas the definitions
+there need to be imported by configurations.
+-/
+
+abbrev Module.importFacet := &`lean.imports
+
+/-- The direct × transitive imports of the Lean module. -/
+module_data lean.imports : Array Module × Array Module
+
+/-- The package's complete array of transitive dependencies. -/
+package_data deps : Array Package
+
+
+/-!
+### Facet Build Info Helper Constructors
+
+Definitions to easily construct `BuildInfo` values for module, package,
+and target facets.
+-/
 
 namespace Module
 
 /-- Build info for the module's specified facet. -/
 abbrev facet (facet : WfName) (self : Module) : BuildInfo :=
   .module self facet
-
-abbrev importFacet   := &`lean.imports
-abbrev binFacet      := &`lean.bin
-abbrev oleanFacet    := &`olean
-abbrev ileanFacet    := &`ilean
-abbrev cFacet        := &`lean.c
-abbrev oFacet        := &`lean.o
-abbrev dynlibFacet   := &`lean.dynlib
 
 variable (self : Module)
 
@@ -163,53 +190,3 @@ abbrev ExternLib.static (self : ExternLib) : BuildInfo :=
 /-- Build info of the external library's shared binary. -/
 abbrev ExternLib.shared (self : ExternLib) : BuildInfo :=
   .sharedExternLib self
-
--- # Data Types of Build Results
-
--- ## For Module Facets
-
-/-- Lean binary build (`olean`, `ilean` files) -/
-module_data lean.bin : ActiveOpaqueTarget
-
-/-- The `olean` file produced by `lean`  -/
-module_data olean : ActiveFileTarget
-
-/-- The `ilean` file produced by `lean` -/
-module_data ilean : ActiveFileTarget
-
-/-- The C file built from the Lean file via `lean` -/
-module_data lean.c : ActiveFileTarget
-
-/-- The object file built from `lean.c` -/
-module_data lean.o : ActiveFileTarget
-
-/-- Shared library for `--load-dynlib` -/
-module_data lean.dynlib : ActiveFileTarget
-
-/-- The direct × transitive imports of the Lean module. -/
-module_data lean.imports : Array Module × Array Module
-
--- ## For Package Facets
-
-/-- The package's complete array of transitive dependencies. -/
-package_data deps : Array Package
-
-/-- The package's `extraDepTarget`. -/
-package_data extraDep : ActiveOpaqueTarget
-
--- ## For Target Types
-
-/-- A Lean library's static binary. -/
-target_data leanLib.static : ActiveFileTarget
-
-/-- A Lean library's shared binary. -/
-target_data leanLib.shared : ActiveFileTarget
-
-/-- A Lean binary executable. -/
-target_data leanExe : ActiveFileTarget
-
-/-- A external library's static binary. -/
-target_data externLib.static : ActiveFileTarget
-
-/-- A external library's shared binary. -/
-target_data externLib.shared : ActiveFileTarget

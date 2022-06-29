@@ -30,7 +30,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - uses: cachix/install-nix-action@v15
+      - name: Install Nix
+        uses: cachix/install-nix-action@v15
         with:
           extra_nix_config: |
             extra-sandbox-paths = /nix/var/cache/ccache
@@ -66,7 +67,8 @@ jobs:
         run: |
           sudo chown -R root:nixbld /nix/var/cache
           sudo chmod -R 770 /nix/var/cache
-      - uses: cachix/cachix-action@v10
+      - name: Install Cachix
+        uses: cachix/cachix-action@v10
         with:
           name: lean4
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
@@ -98,8 +100,8 @@ jobs:
           publish_dir: ./result
           destination_dir: ./doc
         if: matrix.name == 'Nix Linux' && github.ref == 'refs/heads/master' && github.event_name == 'push'
-      - name: CCache stats
-        run: CCACHE_DIR=/nix/var/cache/ccache nix run .#nixpkgs.ccache -- -s
       - name: Fixup CCache Cache
         run: |
           sudo chown -R $USER /nix/var/cache/ccache
+      - name: CCache stats
+        run: CCACHE_DIR=/nix/var/cache/ccache nix run .#nixpkgs.ccache -- -s

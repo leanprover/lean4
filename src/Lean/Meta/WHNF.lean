@@ -398,7 +398,7 @@ private def whnfMatcher (e : Expr) : MetaM Expr := do
   withTransparency transparency <| withReader (fun ctx => { ctx with canUnfold? := canUnfoldAtMatcher }) do
     whnf e
 
-partial def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
+def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
   match e.getAppFn with
   | Expr.const declName declLevels _ =>
     let some info ← getMatcherInfo? declName

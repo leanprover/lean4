@@ -210,20 +210,20 @@ where
       if e.isConst then
         -- Recall that `ppExpr` adds a `@` if the constant has implicit arguments, and it is quite distracting
         let eFmt ← withOptions (pp.fullNames.set · true |> (pp.universes.set · true)) <| PrettyPrinter.ppConst e
-        return some f!"```lean
+        return some f!"```lean4
 {eFmt} : {tpFmt}
 ```"
       else
         let eFmt ← Meta.ppExpr e
         -- Try not to show too scary internals
         let fmt := if isAtomicFormat eFmt then f!"{eFmt} : {tpFmt}" else f!"{tpFmt}"
-        return some f!"```lean
+        return some f!"```lean4
 {fmt}
 ```"
     | Info.ofFieldInfo fi =>
       let tp ← Meta.inferType fi.val
       let tpFmt ← Meta.ppExpr tp
-      return some f!"```lean
+      return some f!"```lean4
 {fi.fieldName} : {tpFmt}
 ```"
     | _ => return none
@@ -249,7 +249,7 @@ structure GoalsAtResult where
   We retrieve all `TacticInfo` nodes s.t. `hoverPos` is inside the node's range plus trailing whitespace.
   We usually prefer the innermost such nodes so that for composite tactics such as `induction`, we show the nested proofs' states.
   However, if `hoverPos` is after the tactic, we prefer nodes that are not indented relative to it, meaning that e.g. at `|` in
-  ```lean
+  ```lean4
   have := by
     exact foo
   |

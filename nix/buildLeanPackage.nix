@@ -35,15 +35,15 @@ with builtins; let
   modToPath = mod: replaceStrings ["."] ["/"] mod;
   modToAbsPath = mod: "${src}/${modToPath mod}";
   modToLean = mod: "${modToAbsPath mod}.lean";
+  bareStdenv = ./bareStdenv;
   mkBareDerivation = args@{ buildCommand, ... }: derivation (args // {
+    stdenv = bareStdenv;
     inherit (stdenv) system;
     buildInputs = (args.buildInputs or []) ++ [ coreutils ];
     builder = stdenv.shell;
     args = [ "-c" ''
-      for pkg in $buildInputs; do
-        export PATH=$PATH:$pkg/bin
-      done
-      set -euo pipefail
+      source $stdenv/setup
+      set -u
       ${buildCommand}
     '' ];
   });

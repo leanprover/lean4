@@ -8,6 +8,8 @@ LAKE=${LAKE:-../../build/bin/lake}
 $LAKE new a
 pushd a
 git add .
+git config user.name test
+git config user.email test@example.com
 git commit -am 'first commit in a'
 popd
 
@@ -18,6 +20,8 @@ require a from git "../a" @ "master"
 EOF
 ../$LAKE update
 git add .
+git config user.name test
+git config user.email test@example.com
 git commit -am 'first commit in b'
 popd
 

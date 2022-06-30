@@ -57,6 +57,9 @@ instance coeOfHeadOfTC {α : Sort u} {β : Sort v} {δ : Sort w} [CoeHead α β]
 instance coeOfTCOfTail {α : Sort u} {β : Sort v} {δ : Sort w} [CoeTail β δ] [CoeTC α β] : CoeHTCT α δ where
   coe a := CoeTail.coe (CoeTC.coe a : β)
 
+instance coeOfHeadOfTail {α : Sort u} {β : Sort v} {γ : Sort w} [CoeHead α β] [CoeTail β γ] : CoeHTCT α γ where
+  coe a := CoeTail.coe (CoeHead.coe a : β)
+
 instance coeOfHead {α : Sort u} {β : Sort v} [CoeHead α β] : CoeHTCT α β where
   coe a := CoeHead.coe a
 

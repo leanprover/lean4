@@ -266,7 +266,7 @@ namespace TSyntax
 instance : Coe (TSyntax [k]) (TSyntax (k :: ks)) where
   coe stx := ⟨stx⟩
 
-instance [Coe (TSyntax [k]) (TSyntax ks)] : Coe (TSyntax [k]) (TSyntax (k' :: ks)) where
+instance : Coe (TSyntax ks) (TSyntax (k' :: ks)) where
   coe stx := ⟨stx⟩
 
 instance : Coe Ident Term where
@@ -1014,7 +1014,7 @@ instance : Coe (TSepArray k sep) (TSyntaxArray k) where
   coe := TSepArray.getElems
 
 instance [Coe (TSyntax k) (TSyntax k')] : Coe (TSyntaxArray k) (TSyntaxArray k') where
-  coe a := .mk a.raw
+  coe a := a.map Coe.coe
 
 instance : Coe (TSyntaxArray k) (Array Syntax) where
   coe a := a.raw

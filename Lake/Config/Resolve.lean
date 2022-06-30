@@ -19,10 +19,17 @@ namespace Lake
 def updateGitPkg (name : String)
 (repo : GitRepo) (rev? : Option String) : LogIO PUnit := do
   if let some rev := rev? then
-    if (← repo.headRevision) == rev then return
-    logInfo s!"{name}: updating {repo} to revision {rev}"
-    unless ← repo.revisionExists rev do repo.fetch
-    repo.checkoutDetach rev
+    if (← repo.branchExists rev) then
+      repo.fetch
+      let rev ← repo.parseOriginRevision rev
+      if (← repo.headRevision) == rev then return
+      logInfo s!"{name}: updating {repo} to revision {rev}"
+      repo.checkoutDetach rev
+    else
+      if (← repo.headRevision) == rev then return
+      logInfo s!"{name}: updating {repo} to revision {rev}"
+      unless ← repo.revisionExists rev do repo.fetch
+      repo.checkoutDetach rev
   else
     logInfo s!"{name}: updating {repo}"
     repo.pull

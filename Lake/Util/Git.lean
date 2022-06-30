@@ -33,7 +33,10 @@ def exec (args : Array String) (wd : Option FilePath := none) : LogIO PUnit := d
 
 def test (args : Array String) (wd : Option FilePath := none) : LogT BaseIO Bool :=
   let act : IO _ := do
-    let child ← IO.Process.spawn {cmd := "git", args, cwd := wd}
+    let child ← IO.Process.spawn {
+      cmd := "git", args, cwd := wd,
+      stdout := IO.Process.Stdio.null, stderr := IO.Process.Stdio.null
+    }
     return (← child.wait) == 0
   act.catchExceptions fun _ => pure false
 

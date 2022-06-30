@@ -23,7 +23,7 @@ end Lean.Parser.Syntax
 
 namespace Lean
 
-instance : Coe (TSyntax ks) Syntax where
+instance : CoeHead (TSyntax ks) Syntax where
   coe stx := stx.raw
 
 instance : Coe SyntaxNodeKind SyntaxNodeKinds where

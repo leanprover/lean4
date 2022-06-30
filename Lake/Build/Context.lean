@@ -38,7 +38,7 @@ instance : MonadLift IO BuildM := ⟨MonadError.runIO⟩
 instance [Pure m] : MonadLift LakeM (BuildT m) where
   monadLift x := fun ctx => pure <| x.run ctx.toContext
 
-instance : MonadLift (LogT IO) BuildM where
+instance : MonadLift LogIO BuildM where
   monadLift x := fun ctx meths => liftM (n := BuildM) (x.run meths.lift) ctx meths
 
 def BuildM.run (logMethods : MonadLog BaseIO) (ctx : BuildContext) (self : BuildM α) : IO α :=

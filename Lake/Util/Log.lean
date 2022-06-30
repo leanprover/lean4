@@ -83,6 +83,9 @@ abbrev adaptMethods [Monad n]
 
 end MonadLogT
 
+abbrev LogIO :=
+  MonadLogT BaseIO IO
+
 abbrev LogT (m : Type → Type) :=
   MonadLogT m m
 

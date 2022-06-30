@@ -3,9 +3,13 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
+import Lake.Util.Log
+import Lake.Util.Misc
 
 open System
-namespace Lake.Git
+namespace Lake
+
+namespace Git
 
 def upstreamBranch :=
   "master"
@@ -17,57 +21,81 @@ def defaultRevision : Option String → String
   | none => upstreamBranch
   | some branch => branch
 
-def execGit (args : Array String) (repo : Option FilePath := none) : IO PUnit := do
-  let child ← IO.Process.spawn {
-    cmd := "git", args, cwd := repo,
-    stdout := IO.Process.Stdio.null, stderr := IO.Process.Stdio.null
-  }
-  let exitCode ← child.wait
-  if exitCode != 0 then
-    throw <| IO.userError <| "git exited with code " ++ toString exitCode
-
-def captureGit (args : Array String) (repo : Option FilePath := none) : IO String := do
-  let out ← IO.Process.output {cmd := "git", args, cwd := repo}
+def capture (args : Array String) (wd : Option FilePath := none) : LogIO String := do
+  let out ← IO.Process.output {cmd := "git", args, cwd := wd}
   if out.exitCode != 0 then
-    throw <| IO.userError <| "git exited with code " ++ toString out.exitCode
+    logError s!"stdout:\n{out.stdout}\nstderr:\n{out.stderr}"
+    error <| "git exited with code " ++ toString out.exitCode
   return out.stdout
 
-def clone (url : String) (dir : FilePath) :=
-  execGit #["clone", url, dir.toString]
+def exec (args : Array String) (wd : Option FilePath := none) : LogIO PUnit := do
+  discard <| capture args wd
 
-def quietInit (repo : Option FilePath := none) :=
-  execGit #["init", "-q"] repo
+def test (args : Array String) (wd : Option FilePath := none) : LogT BaseIO Bool :=
+  let act : IO _ := do
+    let child ← IO.Process.spawn {cmd := "git", args, cwd := wd}
+    return (← child.wait) == 0
+  act.catchExceptions fun _ => pure false
 
-def fetch (repo : Option FilePath := none) :=
-  execGit #["fetch"] repo
+end Git
 
-def pull (repo : Option FilePath := none) :=
-  execGit #["pull"] repo
+structure GitRepo where
+  dir : FilePath
 
-def checkoutBranch (branch : String) (repo : Option FilePath := none) :=
-  execGit #["checkout", "-B", branch] repo
+instance : ToString GitRepo := ⟨(·.dir.toString)⟩
 
-def checkoutDetach (hash : String) (repo : Option FilePath := none)  :=
-  execGit #["checkout", "--detach", hash] repo
+namespace GitRepo
 
-def parseRevision (rev : String) (repo : Option FilePath := none) : IO String := do
-  let rev ← captureGit #["rev-parse", "-q", "--verify", rev] repo
+def cwd : GitRepo := ⟨"."⟩
+
+def dirExists (repo : GitRepo) : BaseIO Bool :=
+  repo.dir.isDir
+
+def captureGit (args : Array String) (repo : GitRepo) : LogIO String :=
+  Git.capture args repo.dir
+
+def execGit (args : Array String) (repo : GitRepo) : LogIO PUnit :=
+  Git.exec args repo.dir
+
+def testGit (args : Array String) (repo : GitRepo) : LogIO Bool :=
+  Git.test args repo.dir
+
+def clone (url : String) (repo : GitRepo) : LogIO PUnit  :=
+  Git.exec #["clone", url, repo.dir.toString]
+
+def quietInit (repo : GitRepo) : LogIO PUnit  :=
+  repo.execGit #["init", "-q"]
+
+def fetch (repo : GitRepo) : LogIO PUnit  :=
+  repo.execGit #["fetch"]
+
+def pull (repo : GitRepo) : LogIO PUnit  :=
+  repo.execGit #["pull"]
+
+def checkoutBranch (branch : String) (repo : GitRepo) : LogIO PUnit :=
+  repo.execGit #["checkout", "-B", branch]
+
+def checkoutDetach (hash : String) (repo : GitRepo) : LogIO PUnit  :=
+  repo.execGit #["checkout", "--detach", hash]
+
+def parseRevision (rev : String) (repo : GitRepo) : LogIO String := do
+  let rev ← repo.captureGit #["rev-parse", "--verify", rev]
   pure rev.trim -- remove newline at end
 
-def headRevision (repo : Option FilePath := none) : IO String :=
+def headRevision (repo : GitRepo) : LogIO String :=
   parseRevision "HEAD" repo
 
-def parseOriginRevision (rev : String) (repo : Option FilePath := none) : IO String := do
-  if isFullObjectName rev then return rev
-  (parseRevision ("origin/" ++ rev) repo) <|> parseRevision rev repo
-    <|> throw (IO.userError s!"cannot find revision {rev} in repository {repo}")
+def parseOriginRevision (rev : String) (repo : GitRepo) : LogIO String := do
+  if Git.isFullObjectName rev then return rev
+  repo.parseRevision ("origin/" ++ rev) <|> repo.parseRevision rev
+    <|> error s!"cannot find revision {rev} in repository {repo}"
 
-def latestOriginRevision (branch : Option String) (repo : Option FilePath := none) : IO String := do
-  execGit #["fetch"] repo
-  parseOriginRevision (defaultRevision branch) repo
+def latestOriginRevision (branch : Option String) (repo : GitRepo) : LogIO String := do
+  repo.execGit #["fetch"]
+  parseOriginRevision (Git.defaultRevision branch) repo
 
-def revisionExists (rev : String) (repo : Option FilePath := none) : IO Bool := do
-  try
-    discard <| parseRevision (rev ++ "^{commit}") repo
-    pure true
-  catch _ => pure false
+def branchExists (rev : String) (repo : GitRepo) : LogIO Bool := do
+  repo.testGit #["show-ref", "--verify", s!"refs/heads/{rev}"]
+
+def revisionExists (rev : String) (repo : GitRepo) : LogIO Bool := do
+  repo.testGit #["rev-parse", "--verify", rev ++ "^{commit}"]

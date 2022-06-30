@@ -20,7 +20,7 @@ def defaultConfigFile : FilePath := "lakefile.lean"
 /-- Evaluate a `package` declaration to its respective `PackageConfig`. -/
 unsafe def evalPackageDecl (env : Environment) (declName : Name)
 (dir : FilePath) (args : List String := []) (leanOpts := Options.empty)
-: LogT IO PackageConfig := do
+: LogIO PackageConfig := do
   let m := env.evalConstCheck IOPackager leanOpts ``IOPackager declName
   if let Except.ok ioPackager := m.run.run then
     logWarning "Support for IO in package declarations may be dropped. Raise an issue if you disagree."
@@ -67,7 +67,7 @@ namespace Package
 /-- Unsafe implementation of `load`. -/
 unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
 (configFile := dir / defaultConfigFile) (leanOpts := Options.empty)
-: LogT IO Package := do
+: LogIO Package := do
 
   -- Read File & Initialize Environment
   let input ← IO.FS.readFile configFile
@@ -145,4 +145,4 @@ the given directory with the given configuration file.
 -/
 @[implementedBy loadUnsafe]
 opaque load (dir : FilePath) (args : List String := [])
-(configFile := dir / defaultConfigFile) (leanOpts := Options.empty) : LogT IO Package
+(configFile := dir / defaultConfigFile) (leanOpts := Options.empty) : LogIO Package

@@ -35,11 +35,11 @@ structure LakeConfig where
   lakeInstall : LakeInstall
   args : List String := []
 
-def loadPkg (config : LakeConfig) : LogT IO Package := do
+def loadPkg (config : LakeConfig) : LogIO Package := do
   setupLeanSearchPath config.leanInstall config.lakeInstall
   Package.load config.rootDir config.args (config.rootDir / config.configFile)
 
-def loadManifestMap (manifestFile : FilePath) : LogT IO (Lean.NameMap PackageEntry) := do
+def loadManifestMap (manifestFile : FilePath) : LogIO (Lean.NameMap PackageEntry) := do
   if let Except.ok contents ← IO.FS.readFile manifestFile  |>.toBaseIO then
     match Json.parse contents with
       | Except.ok json =>
@@ -55,7 +55,7 @@ def loadManifestMap (manifestFile : FilePath) : LogT IO (Lean.NameMap PackageEnt
   else
     pure {}
 
-def loadWorkspace (config : LakeConfig) (updateDeps := false) : LogT IO Workspace := do
+def loadWorkspace (config : LakeConfig) (updateDeps := false) : LogIO Workspace := do
   let pkg ← loadPkg config
   let ws := Workspace.ofPackage pkg
   let manifestMap ← loadManifestMap ws.manifestFile
@@ -221,7 +221,7 @@ def printPaths (config : LakeConfig) (imports : List String := []) : MainM PUnit
 def env (cmd : String) (args : Array String := #[]) : LakeT IO UInt32 := do
   IO.Process.spawn {cmd, args, env := ← getLeanEnv} >>= (·.wait)
 
-def serve (config : LakeConfig) (args : Array String) : LogT IO UInt32 := do
+def serve (config : LakeConfig) (args : Array String) : LogIO UInt32 := do
   let (extraEnv, moreServerArgs) ←
     try
       let ws ← loadWorkspace config

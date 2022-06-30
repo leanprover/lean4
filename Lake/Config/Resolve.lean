@@ -15,31 +15,28 @@ open Std System
 
 namespace Lake
 
-section
-open Git
-
-/-- Update the Git package in `dir` to `rev` if not already at it. -/
+/-- Update the Git package in `repo` to `rev` if not already at it. -/
 def updateGitPkg (name : String)
-(dir : FilePath) (rev? : Option String) : LogT IO PUnit := do
+(repo : GitRepo) (rev? : Option String) : LogIO PUnit := do
   if let some rev := rev? then
-    if (← headRevision dir) == rev then return
-    logInfo s!"{name}: updating {dir} to revision {rev}"
-    unless ← revisionExists rev dir do fetch dir
-    checkoutDetach rev dir
+    if (← repo.headRevision) == rev then return
+    logInfo s!"{name}: updating {repo} to revision {rev}"
+    unless ← repo.revisionExists rev do repo.fetch
+    repo.checkoutDetach rev
   else
-    logInfo s!"{name}: updating {dir}"
-    pull dir
+    logInfo s!"{name}: updating {repo}"
+    repo.pull
 
-/-- Clone the Git package as `dir`. -/
-def cloneGitPkg (name : String) (dir : FilePath)
-(url : String) (rev? : Option String) : LogT IO PUnit := do
-  logInfo s!"{name}: cloning {url} to {dir}"
-  clone url dir
+/-- Clone the Git package as `repo`. -/
+def cloneGitPkg (name : String) (repo : GitRepo)
+(url : String) (rev? : Option String) : LogIO PUnit := do
+  logInfo s!"{name}: cloning {url} to {repo}"
+  repo.clone url
   if let some rev := rev? then
-    let hash ← parseOriginRevision rev dir
-    checkoutDetach hash dir
+    let hash ← repo.parseOriginRevision rev
+    repo.checkoutDetach hash
 
-abbrev ResolveM := StateT (NameMap PackageEntry) <| LogT IO
+abbrev ResolveM := StateT (NameMap PackageEntry) <| LogIO
 
 /--
 Materializes a Git package in `dir`, cloning and/or updating it as necessary.
@@ -50,38 +47,37 @@ and saves the result to the manifest.
 -/
 def materializeGitPkg (name : String) (dir : FilePath)
 (url : String) (rev? : Option String) (shouldUpdate := true) : ResolveM PUnit := do
+  let repo := GitRepo.mk dir
   if let some entry := (← get).find? name then
-    if (← dir.isDir) then
+    if (← repo.dirExists) then
       if url = entry.url then
         if shouldUpdate then
-          updateGitPkg name dir rev?
-          let rev ← headRevision dir
+          updateGitPkg name repo rev?
+          let rev ← repo.headRevision
           modify (·.insert name {entry with rev})
         else
-          updateGitPkg name dir entry.rev
+          updateGitPkg name repo entry.rev
       else if shouldUpdate then
         logInfo s!"{name}: URL changed, deleting {dir} and cloning again"
         IO.FS.removeDirAll dir
-        cloneGitPkg name dir url rev?
-        let rev ← headRevision dir
+        cloneGitPkg name repo url rev?
+        let rev ← repo.headRevision
         modify (·.insert name {entry with url, rev})
     else
       if shouldUpdate then
-        cloneGitPkg name dir url rev?
-        let rev ← headRevision dir
+        cloneGitPkg name repo url rev?
+        let rev ← repo.headRevision
         modify (·.insert name {entry with url, rev})
       else
-        cloneGitPkg name dir entry.url entry.rev
+        cloneGitPkg name repo entry.url entry.rev
   else
-    if (← dir.isDir) then
-      let rev ← headRevision dir
+    if (← repo.dirExists) then
+      let rev ← repo.headRevision
       modify (·.insert name {name, url, rev})
     else
-      cloneGitPkg name dir url rev?
-      let rev ← headRevision dir
+      cloneGitPkg name repo url rev?
+      let rev ← repo.headRevision
       modify (·.insert name {name, url, rev})
-
-end
 
 /--
 Materializes a `Dependency` relative to the given `Package`,

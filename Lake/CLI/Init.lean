@@ -123,7 +123,7 @@ def InitTemplate.configFileContents (pkgName root : Name) : InitTemplate → Str
 instance : Inhabited InitTemplate := ⟨.std⟩
 
 /-- Initialize a new Lake package in the given directory with the given name. -/
-def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) : LogT IO PUnit := do
+def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) : LogIO PUnit := do
   let pkgName := name.decapitalize.toName
 
   -- determine the name to use for the root
@@ -168,17 +168,18 @@ def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) : LogT IO PUni
 
   -- initialize a `.git` repository if none already
   unless (← FilePath.isDir <| dir / ".git") do
+    let repo := GitRepo.mk dir
     try
-      quietInit dir
+      repo.quietInit
       unless upstreamBranch = "master" do
-        checkoutBranch upstreamBranch dir
+        repo.checkoutBranch upstreamBranch
     catch _ =>
       logWarning "failed to initialize git repository"
 
-def init (pkgName : String) (tmp : InitTemplate) : LogT IO PUnit :=
+def init (pkgName : String) (tmp : InitTemplate) : LogIO PUnit :=
   initPkg "." pkgName tmp
 
-def new (pkgName : String) (tmp : InitTemplate) : LogT IO PUnit := do
+def new (pkgName : String) (tmp : InitTemplate) : LogIO PUnit := do
   let dirName := pkgName.map fun chr => if chr == '.' then '-' else chr
   IO.FS.createDir dirName
   initPkg dirName pkgName tmp

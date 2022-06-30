@@ -287,6 +287,12 @@ instance : Coe NumLit Term where
 instance : Coe CharLit Term where
   coe s := ⟨s.raw⟩
 
+instance : Coe Ident Syntax.Level where
+  coe s := ⟨s.raw⟩
+
+instance : Coe NumLit Prio where
+  coe s := ⟨s.raw⟩
+
 instance : Coe NumLit Prec where
   coe s := ⟨s.raw⟩
 

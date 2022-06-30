@@ -33,9 +33,43 @@ namespace Lean.Meta
 
 builtin_initialize isDefEqStuckExceptionId : InternalExceptionId ← registerInternalExceptionId `isDefEqStuck
 
+/--
+  Configuration flags for the `MetaM` monad.
+  Many of them are used to control the `isDefEq` function that checks whether two terms are definitionally equal or not.
+  Recall that when `isDefEq` is trying to check whether
+  `?m@C a₁ ... aₙ` and `t` are definitionally equal (`?m@C a₁ ... aₙ =?= t`), where
+  `?m@C` as a shorthand for `C |- ?m : t` where `t` is the type of `?m`.
+  We solve it using the assignment `?m := fun a₁ ... aₙ => t` if
+  1) `a₁ ... aₙ` are pairwise distinct free variables that are ​*not*​ let-variables.
+  2) `a₁ ... aₙ` are not in `C`
+  3) `t` only contains free variables in `C` and/or `{a₁, ..., aₙ}`
+  4) For every metavariable `?m'@C'` occurring in `t`, `C'` is a subprefix of `C`
+  5) `?m` does not occur in `t`
+-/
 structure Config where
+  /--
+    If `foApprox` is set to true, and some `aᵢ` is not a free variable,
+     then we use first-order unification
+     ```
+       ?m a_1 ... a_i a_{i+1} ... a_{i+k} =?= f b_1 ... b_k
+     ```
+     reduces to
+     ```
+       ?m a_1 ... a_i =?= f
+       a_{i+1}        =?= b_1
+       ...
+       a_{i+k}        =?= b_k
+    ```
+  -/
   foApprox           : Bool := false
+  /--
+    When `ctxApprox` is set to true, we relax condition 4, by creating an
+    auxiliary metavariable `?n'` with a smaller context than `?m'`.
+  -/
   ctxApprox          : Bool := false
+  /--
+    When `quasiPatternApprox` is set to true, we ignore condition 2.
+  -/
   quasiPatternApprox : Bool := false
   /-- When `constApprox` is set to true,
      we solve `?m t =?= c` using
@@ -51,11 +85,15 @@ structure Config where
     we may want to notify the caller that the TC problem may be solveable
     later after it assigns `?m`. -/
   isDefEqStuckEx     : Bool := false
+  /--
+    Controls which definitions and theorems can be unfolded by `isDefEq` and `whnf`.
+   -/
   transparency       : TransparencyMode := TransparencyMode.default
   /-- If zetaNonDep == false, then non dependent let-decls are not zeta expanded. -/
   zetaNonDep         : Bool := true
   /-- When `trackZeta == true`, we store zetaFVarIds all free variables that have been zeta-expanded. -/
   trackZeta          : Bool := false
+  /-- Enable/disable the unification hints feature. -/
   unificationHints   : Bool := true
   /-- Enables proof irrelevance at `isDefEq` -/
   proofIrrelevance   : Bool := true
@@ -81,11 +119,22 @@ structure Config where
   /-- Eta for structures configuration mode. -/
   etaStruct             : EtaStructMode := .all
 
+/--
+  Function parameter information cache.
+-/
 structure ParamInfo where
+  /-- The binder annotation for the parameter. -/
   binderInfo     : BinderInfo := BinderInfo.default
+  /-- `hasFwdDeps` is true if there is another parameter whose type depends on this one. -/
   hasFwdDeps     : Bool       := false
+  /-- `backDeps` contains the backwards dependencies. That is, the (0-indexed) position of previous parameters that this one depends on. -/
   backDeps       : Array Nat  := #[]
+  /-- `isProp` is true if the parameter is always a proposition. -/
   isProp         : Bool       := false
+  /--
+    `isDecInst` is true if the parameter's type is of the form `Decidable ...`.
+    This information affects the generation of congruence theorems.
+  -/
   isDecInst      : Bool       := false
   deriving Inhabited
 
@@ -101,13 +150,32 @@ def ParamInfo.isStrictImplicit (p : ParamInfo) : Bool :=
 def ParamInfo.isExplicit (p : ParamInfo) : Bool :=
   p.binderInfo == BinderInfo.default || p.binderInfo == BinderInfo.auxDecl
 
+
+/--
+  Function information cache. See `ParamInfo`.
+-/
 structure FunInfo where
+  /-- Parameter information cache. -/
   paramInfo  : Array ParamInfo := #[]
+  /--
+    `resultDeps` contains the function result type backwards dependencies.
+    That is, the (0-indexed) position of parameters that the result type depends on.
+  -/
   resultDeps : Array Nat       := #[]
 
+/--
+  Key for the function information cache.
+-/
 structure InfoCacheKey where
+  /-- The transparency mode used to compute the `FunInfo`. -/
   transparency : TransparencyMode
+  /-- The function being cached information about. It is quite often an `Expr.const`. -/
   expr         : Expr
+  /--
+    `nargs? = some n` if the cached information was computed assuming the function has arity `n`.
+    If `nargs? = none`, then the cache information consumed the arrow type as much as possible
+    unsing the current transparency setting.
+  X-/
   nargs?       : Option Nat
   deriving Inhabited, BEq
 
@@ -128,6 +196,9 @@ abbrev WhnfCache      := PersistentExprStructMap Expr
    We should also investigate the impact on memory consumption. -/
 abbrev DefEqCache := PersistentHashMap (Expr × Expr) Unit
 
+/--
+  Cache datastructures for type inference, type class resolution, whnf, and definitional equality.
+-/
 structure Cache where
   inferType      : InferTypeCache := {}
   funInfo        : FunInfoCache   := {}
@@ -154,28 +225,42 @@ structure DefEqContext where
   Remark: we may consider improving the error message generation in the future.
 -/
 structure PostponedEntry where
-  ref  : Syntax -- We save the `ref` at entry creation time
+  /-- We save the `ref` at entry creation time. This is used for reporting errors back to the user. -/
+  ref  : Syntax
   lhs  : Level
   rhs  : Level
-  ctx? : Option DefEqContext -- Context for the surrounding `isDefEq` call when entry was created
+  /-- Context for the surrounding `isDefEq` call when entry was created. -/
+  ctx? : Option DefEqContext
   deriving Inhabited
 
+/--
+  `MetaM` monad state.
+-/
 structure State where
   mctx        : MetavarContext := {}
   cache       : Cache := {}
-  /- When `trackZeta == true`, then any let-decl free variable that is zeta expansion performed by `MetaM` is stored in `zetaFVarIds`. -/
+  /-- When `trackZeta == true`, then any let-decl free variable that is zeta expansion performed by `MetaM` is stored in `zetaFVarIds`. -/
   zetaFVarIds : FVarIdSet := {}
+  /-- Array of postponed universe level constraints -/
   postponed   : PersistentArray PostponedEntry := {}
   deriving Inhabited
 
+/--
+  Backtrackable state for the `MetaM` monad.
+-/
 structure SavedState where
   core        : Core.State
   meta        : State
   deriving Inhabited
 
+/--
+  Contextual information for the `MetaM` monad.
+-/
 structure Context where
   config            : Config               := {}
+  /-- Local context -/
   lctx              : LocalContext         := {}
+  /-- Local instances in `lctx`. -/
   localInstances    : LocalInstances       := #[]
   /-- Not `none` when inside of an `isDefEq` test. See `PostponedEntry`. -/
   defEqCtx?         : Option DefEqContext  := none
@@ -284,15 +369,27 @@ def resetZetaFVarIds : MetaM Unit :=
 def getZetaFVarIds : MetaM FVarIdSet :=
   return (← get).zetaFVarIds
 
+/-- Return the array of postponed universe level constraints. -/
 def getPostponed : MetaM (PersistentArray PostponedEntry) :=
   return (← get).postponed
 
+/-- Set the array of postponed universe level constraints. -/
 def setPostponed (postponed : PersistentArray PostponedEntry) : MetaM Unit :=
   modify fun s => { s with postponed := postponed }
 
+/-- Modify the array of postponed universe level constraints. -/
 @[inline] def modifyPostponed (f : PersistentArray PostponedEntry → PersistentArray PostponedEntry) : MetaM Unit :=
   modify fun s => { s with postponed := f s.postponed }
 
+/--
+  `useEtaStruct inductName` return `true` if we eta for structures is enabled for
+  for the inductive datatype `inductName`.
+
+  Recall we have three different settings: `.none` (never use it), `.all` (always use it), `.notClasses`
+  (enabled only for structure-like inductive types that are not classes).
+
+  The parameter `inductName` affects the result only if the current setting is `.notClasses`.
+-/
 def useEtaStruct (inductName : Name) : MetaM Bool := do
   match (← getConfig).etaStruct with
   | .none => return false
@@ -1335,6 +1432,9 @@ partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure :=
     s.restore
     throw ex
 
+/--
+  Determines whether two universe level expressions are definitionally equal to each other.
+-/
 def isLevelDefEq (u v : Level) : MetaM Bool :=
   traceCtx `Meta.isLevelDefEq do
     let b ← checkpointDefEq (mayPostpone := true) <| Meta.isLevelDefEqAux u v
@@ -1347,7 +1447,8 @@ def isExprDefEq (t s : Expr) : MetaM Bool :=
     trace[Meta.isDefEq] "{t} =?= {s} ... {if b then "success" else "failure"}"
     return b
 
-/-- Determines whether two expressions are definitionally equal to each other.
+/--
+  Determines whether two expressions are definitionally equal to each other.
 
   To control how metavariables are assigned and unified, metavariables and their context have a "depth".
   Given a metavariable `?m` and a `MetavarContext` `mctx`, `?m` is not assigned if `?m.depth != mctx.depth`.

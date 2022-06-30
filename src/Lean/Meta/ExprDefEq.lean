@@ -449,7 +449,7 @@ where
      (precise) solution: unfold `x` in `t`.
 
  A2) Suppose some `aᵢ` is in `C` (failed condition 2)
-     (approximated) solution (when `config.ctxApprox` is set to true) :
+     (approximated) solution (when `config.quasiPatternApprox` is set to true) :
      ignore condition and also use
 
         ?m := fun a₁ ... aₙ => t

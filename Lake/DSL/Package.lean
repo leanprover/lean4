@@ -19,34 +19,34 @@ syntax packageDeclSpec :=
   ident (Command.whereStructInst <|> declValTyped <|> packageDeclWithBinders)?
 
 def expandPackageBinders
-: (dir? : Option Syntax) → (args? : Option Syntax) → MacroM (Bool × Syntax × Syntax)
-| none,     none      => do let hole ← `(_); return (false, hole, hole)
-| some dir, none      => return (true, dir, ← `(_))
-| none,     some args => return (true, ← `(_), args)
+: Option SimpleBinder → Option SimpleBinder → MacroM (Bool × SimpleBinder × SimpleBinder)
+| none,     none      => do let hole ← `(Term.hole|_); return (false, hole, hole)
+| some dir, none      => return (true, dir, ← `(Term.hole|_))
+| none,     some args => return (true, ← `(Term.hole|_), args)
 | some dir, some args => return (true, dir, args)
 
 def mkSimplePackageDecl
-(doc? : Option Syntax) (attrs : Array Syntax) (id : Syntax) (defn : Syntax)
-(dir? : Option Syntax) (args? : Option Syntax) (wds? : Option Syntax) : MacroM Syntax := do
+(doc? : Option DocComment) (attrs : Array AttrInstance) (id : Ident) (defn : Term)
+(dir? : Option SimpleBinder) (args? : Option SimpleBinder) (wds? : Option WhereDecls) : MacroM Syntax := do
   let (hasBinders, dir, args) ← expandPackageBinders dir? args?
   if hasBinders then
-    `($[$doc?:docComment]? @[$attrs,*] def $id : Packager :=
+    `($[$doc?]? @[$attrs,*] def $id : Packager :=
         (fun $dir $args => $defn) $[$wds?]?)
   else
-    `($[$doc?:docComment]? @[$attrs,*] def $id : PackageConfig := $defn $[$wds?]?)
+    `($[$doc?]? @[$attrs,*] def $id : PackageConfig := $defn $[$wds?]?)
 
 /-- The name given to the definition created by the `package` syntax. -/
 def packageDeclName := `_package
 
-def mkPackageDecl (doc? : Option Syntax) (attrs : Array Syntax) : Macro
+def mkPackageDecl (doc? : Option DocComment) (attrs : Array AttrInstance) : Macro
 | `(packageDeclSpec| $id:ident) =>
-  `($[$doc?:docComment]? @[$attrs,*] def $(mkIdentFrom id packageDeclName) : PackageConfig :=
+  `($[$doc?]? @[$attrs,*] def $(mkIdentFrom id packageDeclName) : PackageConfig :=
     {name := $(quote id.getId)})
 | `(packageDeclSpec| $id:ident where $ds;* $[$wds?]?) =>
-  `($[$doc?:docComment]? @[$attrs,*] def $(mkIdentFrom id packageDeclName) : PackageConfig where
+  `($[$doc?]? @[$attrs,*] def $(mkIdentFrom id packageDeclName) : PackageConfig where
       name := $(quote id.getId); $ds;* $[$wds?]?)
 | `(packageDeclSpec| $id:ident : $ty := $defn $[$wds?]?) =>
-  `($[$doc?:docComment]? @[$attrs,*] def $(mkIdentFrom id packageDeclName) : $ty := $defn $[$wds?]?)
+  `($[$doc?]? @[$attrs,*] def $(mkIdentFrom id packageDeclName) : $ty := $defn $[$wds?]?)
 | `(packageDeclSpec| $id:ident $[($dir?)]? $[($args?)]? := $defn $[$wds?]?) =>
   mkSimplePackageDecl doc? attrs (mkIdentFrom id packageDeclName) defn dir? args? wds?
 | `(packageDeclSpec| $id:ident $[($dir?)]? $[($args?)]? { $[$fs $[,]?]* } $[$wds?]?) => do
@@ -54,7 +54,7 @@ def mkPackageDecl (doc? : Option Syntax) (attrs : Array Syntax) : Macro
   mkSimplePackageDecl doc? attrs (mkIdentFrom id packageDeclName) defn dir? args? wds?
 | `(packageDeclSpec| $id:ident $[($dir?)]? $[($args?)]? do $seq $[$wds?]?) => do
   let (_, dir, args) ← expandPackageBinders dir? args?
-  `($[$doc?:docComment]? @[$attrs,*] def $(mkIdentFrom id packageDeclName) : IOPackager :=
+  `($[$doc?]? @[$attrs,*] def $(mkIdentFrom id packageDeclName) : IOPackager :=
       (fun $dir $args => do $seq) $[$wds?]?)
 | stx => Macro.throwErrorAt stx "ill-formed package declaration"
 

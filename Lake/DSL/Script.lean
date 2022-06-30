@@ -18,10 +18,10 @@ scoped syntax (name := scriptDecl)
 
 @[macro scriptDecl]
 def expandScriptDecl : Macro
-| `($[$doc?:docComment]? script $id:ident $[($args?)]? do $seq $[$wds?]?) => do
-  let args := args?.getD (← `(_))
-  `($[$doc?:docComment]? @[«script»] def $id : ScriptFn := fun $args => do $seq $[$wds?]?)
-| `($[$doc?:docComment]? script $id:ident $[($args?)]? := $defn $[$wds?]?) => do
-  let args := args?.getD (← `(_))
-  `($[$doc?:docComment]? @[«script»] def $id : ScriptFn := fun $args => $defn $[$wds?]?)
+| `($[$doc?]? script $id:ident $[($args?)]? do $seq $[$wds?]?) => do
+  let args := args?.getD (← `(Term.hole|_))
+  `($[$doc?]? @[«script»] def $id : ScriptFn := fun $args => do $seq $[$wds?]?)
+| `($[$doc?]? script $id:ident $[($args?)]? := $defn $[$wds?]?) => do
+  let args := args?.getD (← `(Term.hole|_))
+  `($[$doc?]? @[«script»] def $id : ScriptFn := fun $args => $defn $[$wds?]?)
 | stx => Macro.throwErrorAt stx "ill-formed script declaration"

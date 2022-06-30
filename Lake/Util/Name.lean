@@ -258,7 +258,7 @@ instance : EqOfCmp WfName WfName.quickCmp where
   eq_of_cmp h := WfName.eq_of_quickCmp h
 
 open Syntax in
-protected def quoteFrom (ref : Syntax) : WfName → Syntax
+protected def quoteFrom (ref : Syntax) : WfName → Term
 | ⟨n, w⟩ => match n with
   | .anonymous => mkCIdentFrom ref ``anonymous
   | .str p s _ => mkApp (mkCIdentFrom ref ``mkStr)
@@ -280,7 +280,7 @@ instead of their plain counterparts. Well-formed names have additional
 properties that help ensure certain features of Lake work as intended.
 -/
 scoped macro:max (name := wfNameLit) "&" noWs stx:name : term =>
-  if let some nm := stx.isNameLit? then
+  if let some nm := stx.raw.isNameLit? then
     return WfName.quoteFrom stx <| WfName.ofName nm
   else
     Macro.throwErrorAt stx "ill-formed name literal"
@@ -290,12 +290,12 @@ scoped notation "&`✝" => WfName.anonymous
 @[scoped appUnexpander WfName.mkStr]
 def unexpandWfNameMkStr : PrettyPrinter.Unexpander
 | `($(_) &`✝ $s) => do
-  let some s := s.isStrLit? | throw ()
-  let qn := quote <| Name.mkStr Name.anonymous s
-  `(&$(qn[0]):name)
+  let some s := s.raw.isStrLit? | throw ()
+  let qn := quote (k := `term) <| Name.mkStr Name.anonymous s
+  `(&$(⟨qn.raw[0]⟩):name)
 | `($(_) &$n:name $s) => do
-  let some s := s.isStrLit? | throw ()
-  let some n := n.isNameLit? | throw ()
-  let qn := quote <| Name.mkStr n s
-  `(&$(qn[0]):name)
+  let some s := s.raw.isStrLit? | throw ()
+  let some n := n.raw.isNameLit? | throw ()
+  let qn := quote (k := `term) <| Name.mkStr n s
+  `(&$(⟨qn.raw[0]⟩):name)
 | _ => throw ()

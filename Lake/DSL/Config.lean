@@ -48,7 +48,7 @@ scoped syntax (name := argsConst) "__args__" :term
 def elabArgsConst : TermElab := fun stx expectedType? => do
   let exp :=
     if let some args := argsExt.getState (← getEnv) then
-      quote args
+      quote (k := `term) args
     else
       -- `id` app forces Lean to show macro's doc rather than the constant's
       Syntax.mkApp (mkCIdentFrom stx ``id) #[mkCIdentFrom stx ``dummyArgs]

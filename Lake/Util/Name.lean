@@ -174,10 +174,17 @@ instance : ToString WfName := ⟨(·.toString)⟩
 def isPrefixOf : WfName → WfName → Bool
 | ⟨n, _⟩, ⟨n', _⟩ => n.isPrefixOf n'
 
-def append : WfName → WfName → WfName
+protected def append : WfName → WfName → WfName
 | ⟨n, w⟩, ⟨n', w'⟩ => ⟨n.append n', Name.wf_of_append w w'⟩
 
-instance : Append WfName := ⟨append⟩
+instance : Append WfName := ⟨WfName.append⟩
+
+def appendName (n : WfName) : Name → WfName
+| .anonymous => n
+| .str p s _ => mkStr (appendName n p) s
+| .num p v _ => mkNum (appendName n p) v
+
+instance : HAppend WfName Name WfName := ⟨appendName⟩
 
 @[inline] protected def hash : WfName → UInt64
 | ⟨n, _⟩ => n.hash

@@ -13,6 +13,11 @@ open Std System
 structure Module where
   lib : LeanLib
   name : WfName
+  /--
+  The name of the module as a key.
+  Used to create private modules (e.g., executable roots).
+  -/
+  keyName : WfName := name
   deriving Inhabited
 
 abbrev ModuleSet := RBTree Module (·.name.quickCmp ·.name)
@@ -24,14 +29,14 @@ abbrev ModuleMap (α) := RBMap Module α (·.name.quickCmp ·.name)
 /-- Locate the named module in the library (if it is buildable and local to it). -/
 def LeanLib.findModule? (mod : Name) (self : LeanLib) : Option Module :=
   let mod := WfName.ofName mod
-  if self.isBuildableModule mod then some ⟨self, mod⟩ else none
+  if self.isBuildableModule mod then some {lib := self, name := mod} else none
 
 /-- Get an `Array` of the library's modules. -/
 def LeanLib.getModuleArray (self : LeanLib) : IO (Array Module) :=
   (·.2) <$> StateT.run (s := #[]) do
     self.config.globs.forM fun glob => do
       glob.forEachModuleIn self.srcDir fun mod => do
-        modify (·.push ⟨self, mod⟩)
+        modify (·.push {lib := self, name := mod})
 
 namespace Module
 

@@ -36,7 +36,7 @@ inductive BuildInfo
 /-! ### Build Key Helper Constructors -/
 
 abbrev Module.facetBuildKey (facet : WfName) (self : Module) : BuildKey :=
-  .moduleFacet self.name facet
+  .moduleFacet self.keyName facet
 
 abbrev Package.facetBuildKey (facet : WfName) (self : Package) : BuildKey :=
   .packageFacet self.name facet

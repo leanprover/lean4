@@ -3,7 +3,8 @@ This is the repository for **Lean 4**, which is currently being released as mile
 
 # About
 
-- [Quickstart](https://github.com/leanprover/lean4/blob/master/doc/quickstart.md) [Walkthrough installation demo video](https://www.youtube.com/watch?v=yZo6k48L0VY)
+- [Quickstart](https://github.com/leanprover/lean4/blob/master/doc/quickstart.md)
+- [Walkthrough installation video](https://www.youtube.com/watch?v=yZo6k48L0VY)
 - [Quick tour video](https://youtu.be/zyXtbb_eYbY)
 - [Homepage](https://leanprover.github.io)
 - [Theorem Proving Tutorial](https://leanprover.github.io/theorem_proving_in_lean4/)

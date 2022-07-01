@@ -14,7 +14,7 @@ test-ci: test-tests test-examples
 
 test-tests: test-49 test-50 test-62 test-75 test-84
 
-test-examples: test-init test-hello test-io test-deps\
+test-examples: test-init test-hello test-deps\
 	test-git test-ffi test-targets test-precompile test-scripts
 
 test-bootstrapped: test-boostrapped-hello
@@ -23,7 +23,7 @@ clean: clean-build clean-tests clean-examples
 
 clean-tests: clean-62 clean-84
 
-clean-examples: clean-init clean-hello clean-io clean-deps\
+clean-examples: clean-init clean-hello clean-deps\
 	clean-git clean-ffi clean-targets clean-precompile clean-bootstrap
 
 .PHONY: all test test-ci test-tests test-examples\
@@ -61,12 +61,6 @@ test-hello:
 
 clean-hello:
 	cd examples/hello && ./clean.sh
-
-test-io:
-	cd examples/io && ./test.sh
-
-clean-io:
-	cd examples/io && ./clean.sh
 
 test-deps:
 	cd examples/deps && ./test.sh

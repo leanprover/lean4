@@ -44,11 +44,9 @@ def defaultBinRoot : Name := `Main
 /- A buildable component of a `Package`. -/
 inductive PackageFacet
 | /-- The package's binary executable. -/ exe
-| /-- The package's binary executable. **DEPRECATED:** Use `exe` instead. -/ bin
 | /-- The package's static library. -/ staticLib
 | /-- The package's shared library. -/ sharedLib
 | /-- The package's lean library (e.g. `olean` / `ilean` files). -/ leanLib
-| /-- The package's `.olean` files. **DEPRECATED:** Use `leanLib` instead. -/ oleans
 | /-- The package has no buildable component. -/ none
 deriving BEq, DecidableEq, Repr
 instance : Inhabited PackageFacet := ⟨PackageFacet.exe⟩
@@ -63,23 +61,15 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   /-- The `Name` of the package. -/
   name : Name
 
-  /-
-  An `Array` of the package's dependencies.
-  See the documentation of `Dependency` for more information.
-
-  **DEPRECATED:**
-  This setting will be removed in a future version of Lake.
-  Use the `require` syntax to declare dependencies instead.
-  -/
-  dependencies : Array Dependency := #[]
-
   /--
   An extra `OpaqueTarget` that should be built before the package.
 
   `OpaqueTarget.collectList/collectArray` can be used combine multiple
   extra targets into a single `extraDepTarget`.
+
+  **DEPRECATED:** Use separate custom `target` declarations instead?
   -/
-  extraDepTarget : OpaqueTarget := Target.nil
+  extraDepTarget : Option OpaqueTarget.{0} := none
 
   /--
   The optional `PackageFacet` to build on a bare `lake build` of the package.
@@ -257,6 +247,8 @@ structure Package where
   name : WfName := WfName.ofName config.name
   /-- Scripts for the package. -/
   scripts : NameMap Script := {}
+  /- An `Array` of the package's dependencies. -/
+  dependencies : Array Dependency := #[]
   /-- Lean library configurations for the package. -/
   leanLibConfigs : NameMap LeanLibConfig := {}
   /-- Lean binary executable configurations for the package. -/
@@ -281,36 +273,15 @@ hydrate_opaque_type OpaquePackage Package
 abbrev PackageSet := RBTree Package (·.name.quickCmp ·.name)
 @[inline] def PackageSet.empty : PackageSet := RBTree.empty
 
-/--
-An alternate signature for package configurations
-that permits more dynamic configurations, but is still pure.
--/
-def Packager := (pkgDir : FilePath) → (args : List String) → PackageConfig
-
-/--
-An alternate signature for package configurations
-that permits more dynamic configurations, including performing `IO`.
--/
-def IOPackager := (pkgDir : FilePath) → (args : List String) → IO PackageConfig
-
 namespace Package
-
-/-- The package's `dependencies` configuration. -/
-@[inline] def dependencies (self : Package) : Array Dependency :=
-  self.config.dependencies
 
 /-- The package's `extraDepTarget` configuration. -/
 @[inline] def extraDepTarget (self : Package) : OpaqueTarget :=
-  self.config.extraDepTarget
+  self.config.extraDepTarget.getD Target.nil
 
 /-- The package's `defaultFacet` configuration. -/
 @[inline] def defaultFacet (self : Package) : PackageFacet :=
    self.config.defaultFacet
-
-/-- Get an `Array` of the package's external library targets. -/
-def externLibTargets (self : Package) : Array FileTarget :=
-  self.externLibConfigs.fold (fun xs _ x => xs.push x.target) #[] ++
-  self.config.moreLibTargets
 
 /-- The package's `precompileModules` configuration. -/
 @[inline] def precompileModules (self : Package) : Bool :=

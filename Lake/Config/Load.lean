@@ -19,31 +19,6 @@ def configModuleName : Name := `lakefile
 /-- The default name of the Lake configuration file (i.e., `lakefile.lean`). -/
 def defaultConfigFile : FilePath := "lakefile.lean"
 
-/-- Evaluate a `package` declaration to its respective `PackageConfig`. -/
-unsafe def evalPackageDecl (env : Environment) (declName : Name)
-(dir : FilePath) (args : List String := []) (leanOpts := Options.empty)
-: LogIO PackageConfig := do
-  let m := env.evalConstCheck IOPackager leanOpts ``IOPackager declName
-  if let Except.ok ioPackager := m.run.run then
-    logWarning "Support for IO in package declarations may be dropped. Raise an issue if you disagree."
-    return ← ioPackager dir args
-  let m := env.evalConstCheck Packager leanOpts ``Packager declName
-  if let Except.ok packager := m.run.run then
-    logWarning "Package parameters have been deprecated. Use __dir__ or __args__ instead."
-    return packager dir args
-  let m := env.evalConstCheck PackageConfig leanOpts ``PackageConfig declName
-  if let Except.ok config := m.run.run then
-    return config
-  error <| s!"unexpected type at `{declName}`, " ++
-    "`Lake.IOPackager`, `Lake.Packager`, or `Lake.PackageConfig` expected"
-
-/-- Evaluate a `script` declaration to its respective `Script`. -/
-unsafe def evalScriptDecl
-(env : Environment) (declName : Name) (leanOpts := Options.empty) : IO Script := do
-  let fn ← IO.ofExcept <| Id.run <| ExceptT.run <|
-    env.evalConstCheck ScriptFn leanOpts ``ScriptFn declName
-  return {fn, doc? := (← findDocString? env declName)}
-
 deriving instance BEq, Hashable for Import
 
 /- Cache for the imported header environment of Lake configuration files. -/
@@ -98,16 +73,11 @@ unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
     | [] => error s!"configuration file is missing a `package` declaration"
     | [pkgDeclName] =>
       -- Load Package Configuration
-      let config ← evalPackageDecl env pkgDeclName dir args leanOpts
-      unless config.dependencies.isEmpty do
-        logWarning "Syntax for package dependencies has changed. Use the new `require` syntax."
-      unless config.moreLibTargets.isEmpty do
-        logWarning "Syntax for `moreLibTargets` has changed. Use the new `extern_lib` syntax."
-      if config.defaultFacet = PackageFacet.bin then
-        logWarning "The `bin` package facet has been deprecated in favor of `exe`."
-      if config.defaultFacet = PackageFacet.oleans then
-        logWarning "The `oleans` package facet has been deprecated in favor of `leanLib`."
-      let config := {config with dependencies := depsExt.getState env ++ config.dependencies}
+      let config ← IO.ofExcept <| Id.run <| ExceptT.run <|
+        env.evalConstCheck PackageConfig leanOpts ``PackageConfig pkgDeclName
+      if config.extraDepTarget.isSome then
+        logWarning <| "`extraDepTarget` has been deprecated. " ++
+          "Try to use a custom target or raise an issue about your use case."
       -- Tag Load Helpers
       let mkTagMap {α} (attr) (f : Name → IO α) : IO (NameMap α) :=
         attr.ext.getState env |>.foldM (init := {}) fun map declName =>
@@ -119,8 +89,10 @@ unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
         | .ok a => pure <| f a
         | .error e => throw <| IO.userError e
        -- Load Target & Script Configurations
-      let scripts ← mkTagMap scriptAttr
-        (evalScriptDecl env · leanOpts)
+      let scripts ← mkTagMap scriptAttr fun declName => do
+        let fn ← IO.ofExcept <| Id.run <| ExceptT.run <|
+          env.evalConstCheck ScriptFn leanOpts ``ScriptFn declName
+        return {fn, doc? := (← findDocString? env declName)}
       let leanLibConfigs ← mkTagMap leanLibAttr
         (evalConst LeanLibConfig ``LeanLibConfig)
       let leanExeConfigs ← mkTagMap leanExeAttr
@@ -140,6 +112,7 @@ unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
           "Add a `lean_exe` and/or `lean_lib` default target to the package instead."
       return {
         dir, config, scripts,
+        dependencies := depsExt.getState env,
         leanLibConfigs, leanExeConfigs, externLibConfigs,
         opaqueModuleFacetConfigs, opaquePackageFacetConfigs, opaqueTargetConfigs,
         defaultTargets

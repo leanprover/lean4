@@ -13,6 +13,8 @@ class DynamicType {α : Type u} (Δ : α → Type v) (a : α) (β : outParam $ T
 
 export DynamicType (eq_dynamic_type)
 
+attribute [simp] eq_dynamic_type
+
 @[inline] def toDynamic (a : α) [DynamicType Δ a β] (b : β) : Δ a :=
   cast eq_dynamic_type.symm b
 

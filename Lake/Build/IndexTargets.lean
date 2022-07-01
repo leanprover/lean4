@@ -40,7 +40,7 @@ def LeanLib.buildModules (self : LeanLib) (facet : WfName)
   let buildMods : BuildM _ := do
     let mods ← self.getModuleArray
     let modTargets ← failOnBuildCycle <| ← EStateT.run' BuildStore.empty
-      <| mods.mapM fun mod => buildIndexTop <| BuildInfo.module mod facet
+      <| mods.mapM fun mod => buildIndexTop <| mod.facet facet
     (·.task) <$> ActiveTarget.collectOpaqueArray modTargets
   buildMods.catchFailure fun _ => pure <| failure
 

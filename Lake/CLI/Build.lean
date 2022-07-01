@@ -61,7 +61,7 @@ def resolveExeTarget (exe : LeanExe) (facet : String) : Except CliError OpaqueTa
 
 def resolveTargetInPackage (ws : Workspace) (pkg : Package) (target : Name) (facet : String) : Except CliError OpaqueTarget :=
   if let some target := pkg.findTargetConfig? target then
-    return pkg.facet target.name |>.target
+    return pkg.customTarget target.name |>.target
   else if let some exe := pkg.findLeanExe? target then
     resolveExeTarget exe facet
   else if let some lib := pkg.findExternLib? target then
@@ -101,7 +101,7 @@ def resolvePackageTarget (ws : Workspace) (pkg : Package) (facet : String) : Exc
 
 def resolveTargetInWorkspace (ws : Workspace) (spec : String) (facet : String) : Except CliError OpaqueTarget :=
   if let some (pkg, target) := ws.findTargetConfig? spec then
-    return pkg.facet target.name |>.target
+    return pkg.customTarget target.name |>.target
   else if let some exe := ws.findLeanExe? spec.toName then
     resolveExeTarget exe facet
   else if let some lib := ws.findExternLib? spec.toName then

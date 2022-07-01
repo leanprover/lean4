@@ -8,103 +8,96 @@ import Lake.Util.Name
 namespace Lake
 
 /-- The type of keys in the Lake build store. -/
-structure BuildKey where
-  package? : Option WfName
-  target? : Option WfName
-  facet : WfName
-  deriving Inhabited, Repr, DecidableEq, Hashable
+inductive BuildKey
+| moduleFacet (module : WfName) (facet : WfName)
+| packageFacet (package : WfName) (facet : WfName)
+| targetFacet (package : WfName) (target : WfName) (facet : WfName)
+| customTarget (package : WfName) (target : WfName)
+deriving Inhabited, Repr, DecidableEq, Hashable
 
 namespace BuildKey
 
-@[inline] def hasPackage (self : BuildKey) : Bool :=
-  self.package? ≠ none
-
-@[simp] theorem hasPackage_mk : BuildKey.hasPackage ⟨some p, x, f⟩ := by
-  simp [BuildKey.hasPackage]
-
-@[inline] def package (self : BuildKey) (h : self.hasPackage) : WfName :=
-  match mh:self.package? with
-  | some n => n
-  | none => absurd mh <| by
-    unfold hasPackage at h
-    exact of_decide_eq_true h
-
-@[inline] def hasTarget (self : BuildKey) : Bool :=
-  self.target? ≠ none
-
-@[simp] theorem hasTarget_mk : BuildKey.hasTarget ⟨x, some t, f⟩ := by
-  simp [BuildKey.hasTarget]
-
-@[inline] def target (self : BuildKey) (h : self.hasTarget) : WfName :=
-  match mh:self.target? with
-  | some n => n
-  | none => absurd mh <| by
-    unfold hasTarget at h
-    exact of_decide_eq_true h
-
-@[inline] def isModuleKey (self : BuildKey) : Bool :=
-  self.package? = none ∧ self.hasTarget
-
-@[simp] theorem isModuleKey_mk : BuildKey.isModuleKey ⟨none, some m, f⟩ := by
-  simp [BuildKey.isModuleKey]
-
-@[simp] theorem not_isModuleKey_pkg : ¬BuildKey.isModuleKey ⟨some pkg, x, f⟩ := by
-  simp [BuildKey.isModuleKey]
-
-@[inline] def module (self : BuildKey) (h : self.isModuleKey) : WfName :=
-  self.target <| by
-    unfold isModuleKey at h
-    exact of_decide_eq_true h |>.2
-
-@[inline] def isPackageKey (self : BuildKey) : Bool :=
-  self.hasPackage ∧ self.target? = none
-
-@[simp] theorem isPackageKey_mk : BuildKey.isPackageKey ⟨some p, none, f⟩ := by
-  simp [BuildKey.isPackageKey]
-
-@[simp] theorem not_isPackageKey_target : ¬BuildKey.isPackageKey ⟨o, some t, f⟩ := by
-  simp [BuildKey.isPackageKey]
-
-@[inline] def isTargetKey (self : BuildKey) : Bool :=
-  self.hasPackage ∧ self.hasTarget
-
-@[simp] theorem isTargetKey_mk : BuildKey.isTargetKey ⟨some p, some t, f⟩ := by
-  simp [BuildKey.isTargetKey]
-
-protected def toString : (self : BuildKey) → String
-| ⟨some p,  none,   f⟩ => s!"@{p}:{f}"
-| ⟨none,    some m, f⟩ => s!"+{m}:{f}"
-| ⟨some p,  some t, f⟩ => s!"{p}/{t}:{f}"
-| ⟨none,    none,   f⟩ => s!":{f}"
+def toString : (self : BuildKey) → String
+| moduleFacet m f => s!"+{m}:{f}"
+| packageFacet p f => s!"@{p}:{f}"
+| targetFacet p t f => s!"{p}/{t}:{f}"
+| customTarget p t => s!"{p}/{t}"
 
 instance : ToString BuildKey := ⟨(·.toString)⟩
 
-def quickCmp (k k' : BuildKey) :=
-  match Option.compareWith WfName.quickCmp k.package? k'.package? with
-  | .eq =>
-    match Option.compareWith WfName.quickCmp k.target? k'.target? with
-    | .eq => k.facet.quickCmp k'.facet
-    | ord => ord
-  | ord => ord
+def quickCmp (k k' : BuildKey) : Ordering :=
+  match k with
+  | moduleFacet m f =>
+    match k' with
+    | moduleFacet m' f' =>
+      match m.quickCmp m' with
+      | .eq => f.quickCmp f'
+      | ord => ord
+    | _ => .lt
+  | packageFacet p f =>
+    match k' with
+    | moduleFacet .. => .gt
+    | packageFacet p' f' =>
+      match p.quickCmp p' with
+      | .eq => f.quickCmp f'
+      | ord => ord
+    | _ => .lt
+  | targetFacet p t f =>
+    match k' with
+    | customTarget .. => .lt
+    | targetFacet p' t' f' =>
+      match p.quickCmp p' with
+      | .eq =>
+        match t.quickCmp t' with
+        | .eq => f.quickCmp f'
+        | ord => ord
+      | ord => ord
+    | _=> .gt
+  | customTarget p t =>
+    match k' with
+    | customTarget p' t' =>
+      match p.quickCmp p' with
+      | .eq => t.quickCmp t'
+      | ord => ord
+    | _ => .gt
 
-theorem eq_of_quickCmp :
-{k k' : _} → quickCmp k k' = Ordering.eq → k = k' := by
-  intro ⟨p, t, f⟩ ⟨p', t', f'⟩
+theorem eq_of_quickCmp {k k' : BuildKey}  :
+quickCmp k k' = Ordering.eq → k = k' := by
   unfold quickCmp
-  simp only []
-  split
-  next p_eq =>
-    split
-    next t_eq =>
-      intro f_eq
-      have p_eq := eq_of_cmp p_eq
-      have t_eq := eq_of_cmp t_eq
-      have f_eq := eq_of_cmp f_eq
-      simp only [p_eq, t_eq, f_eq]
-    next =>
-      intros; contradiction
-  next =>
-    intros; contradiction
+  cases k with
+  | moduleFacet m f =>
+    cases k'
+    case moduleFacet m' f' =>
+      dsimp; split
+      next m_eq => intro f_eq; simp [eq_of_cmp m_eq, eq_of_cmp f_eq]
+      next => intro; contradiction
+    all_goals (intro; contradiction)
+  | packageFacet p f =>
+    cases k'
+    case packageFacet p' f' =>
+      dsimp; split
+      next p_eq => intro f_eq; simp [eq_of_cmp p_eq, eq_of_cmp f_eq]
+      next => intro; contradiction
+    all_goals (intro; contradiction)
+  | targetFacet p t f =>
+    cases k'
+    case targetFacet p' t' f' =>
+      dsimp; split
+      next p_eq =>
+        split
+        next t_eq =>
+          intro f_eq
+          simp [eq_of_cmp p_eq, eq_of_cmp t_eq, eq_of_cmp f_eq]
+        next => intro; contradiction
+      next => intro; contradiction
+    all_goals (intro; contradiction)
+  | customTarget p t =>
+    cases k'
+    case customTarget p' t' =>
+      dsimp; split
+      next p_eq => intro t_eq; simp [eq_of_cmp p_eq, eq_of_cmp t_eq]
+      next => intro; contradiction
+    all_goals (intro; contradiction)
 
 instance : EqOfCmp BuildKey quickCmp where
   eq_of_cmp := eq_of_quickCmp

@@ -258,6 +258,7 @@ instance : EqOfCmp WfName WfName.quickCmp where
   eq_of_cmp h := WfName.eq_of_quickCmp h
 
 open Syntax in
+set_option linter.unusedVariables.patternVars false in -- false positive on `w`
 protected def quoteFrom (ref : Syntax) : WfName → Term
 | ⟨n, w⟩ => match n with
   | .anonymous => mkCIdentFrom ref ``anonymous

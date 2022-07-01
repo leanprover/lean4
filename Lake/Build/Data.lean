@@ -29,6 +29,9 @@ opaque PackageData (facet : WfName) : Type
 /-- Type of build data associated with Lake targets (e.g., `extern_lib`). -/
 opaque TargetData (facet : WfName) : Type
 
+/-- Type of build data associated with custom targets. -/
+opaque CustomData (target : WfName) : Type
+
 --------------------------------------------------------------------------------
 /-! ## Build Data                                                             -/
 --------------------------------------------------------------------------------
@@ -38,28 +41,11 @@ Type of the build data associated with a key in the Lake build store.
 It is dynamic type composed of the three separate dynamic types for modules,
 packages, and targets.
 -/
-abbrev BuildData (key : BuildKey) :=
-  if key.isModuleKey then
-    ModuleData key.facet
-  else if key.isPackageKey then
-    PackageData key.facet
-  else
-    TargetData key.facet
-
-theorem isModuleKey_data {k : BuildKey}
-(h : k.isModuleKey = true) : BuildData k = ModuleData k.facet := by
-  unfold BuildData; simp [h]
-
-theorem isPackageKey_data {k : BuildKey}
-(h : k.isPackageKey = true) : BuildData k = PackageData k.facet := by
-  unfold BuildData, BuildKey.isModuleKey
-  simp [of_decide_eq_true (of_decide_eq_true h |>.1), h]
-
-theorem isTargetKey_data {k : BuildKey}
-(h : k.isTargetKey = true) : BuildData k = TargetData k.facet := by
-  unfold BuildData, BuildKey.isModuleKey, BuildKey.isPackageKey
-  have ⟨has_p, has_t⟩ := of_decide_eq_true h
-  simp [of_decide_eq_true has_p, of_decide_eq_true has_t, h]
+abbrev BuildData : BuildKey → Type
+| .moduleFacet _ f => ModuleData f
+| .packageFacet _ f => PackageData f
+| .targetFacet _ _ f => TargetData f
+| .customTarget _ t => CustomData t
 
 --------------------------------------------------------------------------------
 /-! ## Macros for Declaring Build Data                                        -/
@@ -83,5 +69,12 @@ scoped macro (name := moduleDataDecl) doc?:optional(Parser.Command.docComment)
 scoped macro (name := targetDataDecl) doc?:optional(Parser.Command.docComment)
 "target_data " id:ident " : " ty:term : command => do
   let dty := mkCIdentFrom (← getRef) ``TargetData
+  let key := WfName.quoteFrom id <| WfName.ofName <| id.getId
+  `($[$doc?]? dynamic_data $id : $dty $key := $ty)
+
+/-- Macro for declaring new `CustomData`. -/
+scoped macro (name := customDataDecl) doc?:optional(Parser.Command.docComment)
+"custom_data " id:ident " : " ty:term : command => do
+  let dty := mkCIdentFrom (← getRef) ``CustomData
   let key := WfName.quoteFrom id <| WfName.ofName <| id.getId
   `($[$doc?]? dynamic_data $id : $dty $key := $ty)

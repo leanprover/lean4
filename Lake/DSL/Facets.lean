@@ -56,8 +56,8 @@ kw:"target " sig:simpleDeclSig : command => do
   | `(simpleDeclSig| $id:ident : $ty := $defn $[$wds?]?) =>
     let attr ← withRef kw `(Term.attrInstance| target)
     let attrs := #[attr] ++ expandAttrs attrs?
-    let axm := mkIdentFrom id <| ``Lake.PackageData ++ id.getId
-    `(package_data $id : ActiveBuildTarget $ty
+    let axm := mkIdentFrom id <| ``CustomData ++ id.getId
+    `(custom_data $id : ActiveBuildTarget $ty
       $[$doc?]? @[$attrs,*] def $id : TargetConfig := {
         name := $(WfName.quoteFrom id (WfName.ofName id.getId))
         resultType := $ty

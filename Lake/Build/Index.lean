@@ -67,10 +67,10 @@ dynamically typed equivalent.
   cast (by rw [← h.eq_dynamic_type]) build
 
 /--
-Converts a conveniently typed target build function into its
+Converts a conveniently typed target facet build function into its
 dynamically typed equivalent.
 -/
-@[inline] def mkTargetBuild (facet : WfName) (build : IndexT m α)
+@[inline] def mkTargetFacetBuild (facet : WfName) (build : IndexT m α)
 [h : DynamicType TargetData facet α] : IndexT m (TargetData facet) :=
   cast (by rw [← h.eq_dynamic_type]) build
 
@@ -141,47 +141,50 @@ the initial set of Lake package facets (e.g., `extraDep`).
 @[specialize] def recBuildIndex (info : BuildInfo) : IndexT m (BuildData info.key) := do
   have : MonadLift BuildM m := ⟨liftM⟩
   match info with
-  | .module mod facet =>
+  | .moduleFacet mod facet =>
     if let some build := moduleBuildMap.find? facet then
       build mod
     else if let some config := (← getWorkspace).findModuleFacetConfig? facet then
       if h : facet = config.name then
         have : DynamicType ModuleData facet (ActiveBuildTarget config.resultType) :=
-          ⟨by simp [h, eq_dynamic_type]⟩
+          ⟨by simp [h]⟩
         mkModuleFacetBuild config.build mod
       else
         error "module facet's name in the configuration does not match the name it was registered with"
     else
       error s!"do not know how to build module facet `{facet}`"
-  | .package pkg facet =>
+  | .packageFacet pkg facet =>
     if let some build := packageBuildMap.find? facet then
       build pkg
     else if let some config := pkg.findPackageFacetConfig? facet then
       if h : facet = config.name then
         have : DynamicType PackageData facet (ActiveBuildTarget config.resultType) :=
-          ⟨by simp [h, eq_dynamic_type]⟩
+          ⟨by simp [h]⟩
         mkPackageFacetBuild config.build pkg
       else
         error "package facet's name in the configuration does not match the name it was registered with"
-    else if let some config := pkg.findTargetConfig? facet then
-      if h : facet = config.name then
-        have : DynamicType PackageData facet (ActiveBuildTarget config.resultType) :=
-          ⟨by simp [h, eq_dynamic_type]⟩
-        mkPackageFacetBuild config.build pkg
+    else
+      error s!"do not know how to build package facet `{facet}`"
+  | .customTarget pkg target =>
+    if let some config := pkg.findTargetConfig? target then
+      if h : target = config.name then
+        have h' : DynamicType CustomData target (ActiveBuildTarget config.resultType) :=
+          ⟨by simp [h]⟩
+        cast (by rw [← h'.eq_dynamic_type]) <| config.build pkg
       else
         error "target's name in the configuration does not match the name it was registered with"
     else
-      error s!"do not know how to build package facet `{facet}`"
+       error s!"could not build `{target}` of `{pkg.name}` -- target not found"
   | .staticLeanLib lib =>
-    mkTargetBuild LeanLib.staticFacet lib.recBuildStatic
+    mkTargetFacetBuild LeanLib.staticFacet lib.recBuildStatic
   | .sharedLeanLib lib =>
-    mkTargetBuild LeanLib.sharedFacet lib.recBuildShared
+    mkTargetFacetBuild LeanLib.sharedFacet lib.recBuildShared
   | .leanExe exe =>
-    mkTargetBuild LeanExe.facet exe.recBuild
+    mkTargetFacetBuild LeanExe.facet exe.recBuild
   | .staticExternLib lib =>
-    mkTargetBuild ExternLib.staticFacet lib.target.activate
+    mkTargetFacetBuild ExternLib.staticFacet lib.target.activate
   | .sharedExternLib lib =>
-    mkTargetBuild ExternLib.sharedFacet do
+    mkTargetFacetBuild ExternLib.sharedFacet do
       let staticTarget := Target.active <| ← lib.static.recBuild
       staticToLeanDynlibTarget staticTarget |>.activate
 
@@ -197,8 +200,8 @@ Recursively build the given info using the Lake build index
 and a topological / suspending scheduler and return the dynamic result.
 -/
 @[inline] def buildIndexTop (info : BuildInfo)
-[h : DynamicType BuildData info.key α] : CycleT BuildKey m α := do
-  cast (by simp [h.eq_dynamic_type]) <| buildIndexTop' (m := m) info
+[DynamicType BuildData info.key α] : CycleT BuildKey m α := do
+  cast (by simp) <| buildIndexTop' (m := m) info
 
 end
 

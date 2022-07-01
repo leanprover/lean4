@@ -19,10 +19,12 @@ structure TargetConfig where
     [Monad m] → [MonadLift BuildM m] → [MonadBuildStore m] →
     Package → IndexT m (ActiveBuildTarget resultType)
   /-- Proof that target's build result is the correctly typed target.-/
-  data_eq_target : PackageData name = ActiveBuildTarget resultType
+  data_eq_target : CustomData name = ActiveBuildTarget resultType
+
+custom_data _nil_ : ActiveOpaqueTarget
 
 instance : Inhabited TargetConfig := ⟨{
-  name := &`extraDep
+  name := &`_nil_
   resultType := PUnit
   build := default
   data_eq_target := eq_dynamic_type
@@ -31,7 +33,7 @@ instance : Inhabited TargetConfig := ⟨{
 hydrate_opaque_type OpaqueTargetConfig TargetConfig
 
 instance dynamicTypeOfTargetConfig {cfg : TargetConfig}
-: DynamicType PackageData cfg.name (ActiveBuildTarget cfg.resultType) :=
+: DynamicType CustomData cfg.name (ActiveBuildTarget cfg.resultType) :=
   ⟨cfg.data_eq_target⟩
 
 /-- Try to find a target configuration in the package with the given name . -/

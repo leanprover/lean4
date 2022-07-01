@@ -15,9 +15,7 @@ structure TargetConfig where
   /-- The type of the target's build result. -/
   resultType : Type
   /-- The target's build function. -/
-  build : {m : Type → Type} →
-    [Monad m] → [MonadLift BuildM m] → [MonadBuildStore m] →
-    Package → IndexT m (ActiveBuildTarget resultType)
+  target : BuildTarget resultType
   /-- Proof that target's build result is the correctly typed target.-/
   data_eq_target : CustomData name = ActiveBuildTarget resultType
 
@@ -26,7 +24,7 @@ custom_data _nil_ : ActiveOpaqueTarget
 instance : Inhabited TargetConfig := ⟨{
   name := &`_nil_
   resultType := PUnit
-  build := default
+  target := default
   data_eq_target := eq_dynamic_type
 }⟩
 

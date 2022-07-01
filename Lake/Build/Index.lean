@@ -170,7 +170,7 @@ the initial set of Lake package facets (e.g., `extraDep`).
       if h : target = config.name then
         have h' : DynamicType CustomData target (ActiveBuildTarget config.resultType) :=
           ⟨by simp [h]⟩
-        cast (by rw [← h'.eq_dynamic_type]) <| config.build pkg
+        liftM <| cast (by rw [← h'.eq_dynamic_type]) <| config.target.activate
       else
         error "target's name in the configuration does not match the name it was registered with"
     else

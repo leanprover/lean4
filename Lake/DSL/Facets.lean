@@ -61,7 +61,7 @@ kw:"target " sig:simpleDeclSig : command => do
       $[$doc?]? @[$attrs,*] def $id : TargetConfig := {
         name := $(WfName.quoteFrom id (WfName.ofName id.getId))
         resultType := $ty
-        build := $defn
+        target := $defn
         data_eq_target := $axm
       })
   | stx => Macro.throwErrorAt stx "ill-formed target declaration"

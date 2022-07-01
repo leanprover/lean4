@@ -27,7 +27,7 @@ def parsePackageSpec (ws : Workspace) (spec : String) : Except CliError Package 
 open Module in
 def resolveModuleTarget (ws : Workspace) (mod : Module) (facet : String) : Except CliError OpaqueTarget :=
   if facet.isEmpty || facet == "bin"  then
-    return mod.facetTarget binFacet
+    return mod.facetTarget leanBinFacet
   else if facet == "ilean" then
     return mod.facetTarget ileanFacet
   else if facet == "olean" then

@@ -34,15 +34,20 @@ instance [DynamicType ModuleData facet α] : CoeDep WfName facet (ModuleFacet α
   ⟨facet, eq_dynamic_type⟩
 
 namespace Module
-abbrev binFacet      := &`lean.bin
+abbrev leanBinFacet  := &`lean.bin
 abbrev oleanFacet    := &`olean
 abbrev ileanFacet    := &`ilean
 abbrev cFacet        := &`lean.c
 abbrev oFacet        := &`lean.o
-abbrev dynlibFacet   := &`lean.dynlib
+abbrev dynlibFacet   := &`dynlib
 end Module
 
-/-- Lean binary build (`olean`, `ilean` files) -/
+/--
+The core compilation / elaboration of the Lean file via `lean`,
+which produce the Lean binaries of the module (i.e., `olean` and `ilean`).
+It is thus the facet used by default for building imports of a module.
+Also, if the module is not lean-only, it produces `c` files as well.
+-/
 module_data lean.bin : ActiveOpaqueTarget
 
 /-- The `olean` file produced by `lean`  -/
@@ -58,7 +63,7 @@ module_data lean.c : ActiveFileTarget
 module_data lean.o : ActiveFileTarget
 
 /-- Shared library for `--load-dynlib` -/
-module_data lean.dynlib : ActiveFileTarget
+module_data dynlib : ActiveFileTarget
 
 -- ## Package Facets
 

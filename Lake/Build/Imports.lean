@@ -44,10 +44,8 @@ def Package.buildImportsAndDeps (imports : List String) (self : Package) : Build
     let (res, bStore) ← EStateT.run BuildStore.empty <| mods.mapM fun mod =>
       if mod.shouldPrecompile then
         buildIndexTop mod.dynlib <&> (·.withoutInfo)
-      else if mod.isLeanOnly then
-        buildIndexTop mod.leanBin
       else
-        buildIndexTop mod.c <&> (·.withoutInfo)
+        buildIndexTop mod.leanBin
     let importTargets ← failOnBuildCycle res
     let dynlibTargets := bStore.collectModuleFacetArray Module.dynlibFacet
     let externLibTargets := bStore.collectSharedExternLibs

@@ -45,7 +45,7 @@ def LeanLib.buildModules (self : LeanLib) (facet : WfName)
   buildMods.catchFailure fun _ => pure <| failure
 
 @[inline] protected def LeanLib.leanTarget (self : LeanLib) : OpaqueTarget :=
-  Target.opaque <| self.buildModules Module.binFacet
+  Target.opaque <| self.buildModules Module.leanBinFacet
 
 @[inline] protected def Package.leanLibTarget (self : Package) : OpaqueTarget :=
   self.builtinLib.leanTarget

@@ -15,24 +15,32 @@ namespace Lake
 -- # Solo Module Targets
 
 def Module.soloTarget (mod : Module) (dynlibs : Array FilePath)
-(dynlibPath : SearchPath) (depTarget : BuildTarget x) (c := true) : OpaqueTarget :=
+(dynlibPath : SearchPath) (depTarget : BuildTarget x) (leanOnly : Bool) : OpaqueTarget :=
   Target.opaque <| depTarget.bindOpaqueSync fun depTrace => do
     let argTrace : BuildTrace := pureHash mod.leanArgs
     let srcTrace : BuildTrace ← computeTrace mod.leanFile
     let modTrace := (← getLeanTrace).mix <| argTrace.mix <| srcTrace.mix depTrace
     let modUpToDate ← modTrace.checkAgainstFile mod mod.traceFile
-    if c then
+    if leanOnly then
+      unless modUpToDate do
+        compileLeanModule mod.leanFile mod.oleanFile mod.ileanFile none
+          (← getOleanPath) mod.rootDir dynlibs dynlibPath mod.leanArgs (← getLean)
+    else
       let cUpToDate ← modTrace.checkAgainstFile mod.cFile mod.cTraceFile
       unless modUpToDate && cUpToDate do
         compileLeanModule mod.leanFile mod.oleanFile mod.ileanFile mod.cFile
           (← getOleanPath) mod.rootDir dynlibs dynlibPath mod.leanArgs (← getLean)
       modTrace.writeToFile mod.cTraceFile
-    else
-      unless modUpToDate do
-        compileLeanModule mod.leanFile mod.oleanFile mod.ileanFile none
-          (← getOleanPath) mod.rootDir dynlibs dynlibPath mod.leanArgs (← getLean)
     modTrace.writeToFile mod.traceFile
-    return depTrace
+    return mixTrace (← computeTrace mod) depTrace
+
+def Module.mkOleanTarget (modTarget : BuildTarget x) (self : Module) : FileTarget :=
+  Target.mk self.oleanFile <| modTarget.bindOpaqueSync fun depTrace =>
+    return mixTrace (← computeTrace self.oleanFile) depTrace
+
+def Module.mkIleanTarget (modTarget : BuildTarget x) (self : Module) : FileTarget :=
+  Target.mk self.ileanFile <| modTarget.bindOpaqueSync fun depTrace =>
+    return mixTrace (← computeTrace self.ileanFile) depTrace
 
 def Module.mkCTarget (modTarget : BuildTarget x) (self : Module) : FileTarget :=
   Target.mk self.cFile <| modTarget.bindOpaqueSync fun _ =>
@@ -113,38 +121,58 @@ def recBuildExternalDynlibs (pkgs : Array Package)
 
 variable [MonadLiftT BuildM m]
 
+/-- Possible artifacts of the `lean` command. -/
+inductive LeanArtifact
+| leanBin | olean | ilean | c
+deriving Inhabited, Repr, DecidableEq
+
 /--
 Recursively build a module and its (transitive, local) imports,
-optionally outputting a `.c` file as well if `c` is set to `true`.
+optionally outputting a `.c` file if the modules' is not lean-only or the
+requested artifact is `c`. Returns an active target producing the requested
+artifact.
 -/
-@[specialize] def Module.recBuildLean (mod : Module) (c : Bool)
-: IndexT m ActiveOpaqueTarget := do
+@[specialize] def Module.recBuildLean (mod : Module) (art : LeanArtifact)
+: IndexT m (ActiveBuildTarget (if art = .leanBin then PUnit else FilePath)) := do
   have : MonadLift BuildM m := ⟨liftM⟩
+  let leanOnly := mod.isLeanOnly ∧ art ≠ .c
+
+  -- Compute and build dependencies
   let extraDepTarget ← mod.pkg.extraDep.recBuild
   let (imports, _) ← mod.imports.recBuild
   let (modTargets, pkgTargets, libDirs) ← recBuildPrecompileDynlibs mod.pkg imports
-   -- Note: Lean wants the external library symbols before module symbols
+  -- NOTE: Lean wants the external library symbols before module symbols
   let dynlibsTarget ← ActiveTarget.collectArray <| pkgTargets ++ modTargets
-  let importTarget ←
-    if c then
-      ActiveTarget.collectOpaqueArray
-        <| ← imports.mapM (·.c.recBuild)
-    else
-      ActiveTarget.collectOpaqueArray
-        <| ← imports.mapM (·.leanBin.recBuild)
+  let importTarget ← ActiveTarget.collectOpaqueArray
+    <| ← imports.mapM (·.leanBin.recBuild)
   let depTarget := Target.active <| ← extraDepTarget.mixOpaqueAsync
     <| ← dynlibsTarget.mixOpaqueAsync importTarget
   let dynlibs := dynlibsTarget.info.map (FilePath.mk s!"lib{·}.{sharedLibExt}")
-  let modTarget ← mod.soloTarget dynlibs libDirs.toList depTarget c |>.activate
+
+  -- Build Module
+  let modTarget ← mod.soloTarget dynlibs libDirs.toList depTarget leanOnly |>.activate
+
+  -- Save All Resulting Targets & Return Requested One
   store mod.leanBin.key modTarget
-  store mod.olean.key <| modTarget.withInfo mod.oleanFile
-  store mod.ilean.key <| modTarget.withInfo mod.ileanFile
-  if c then
+  let oleanTarget ← mod.mkOleanTarget (Target.active modTarget) |>.activate
+  store mod.olean.key <| oleanTarget
+  let ileanTarget ← mod.mkIleanTarget (Target.active modTarget) |>.activate
+  store mod.ilean.key <| ileanTarget
+  if h : leanOnly then
+    have : art ≠ .c := h.2
+    return match art with
+    | .leanBin => modTarget
+    | .olean => oleanTarget
+    | .ilean => ileanTarget
+  else
     let cTarget ← mod.mkCTarget (Target.active modTarget) |>.activate
     store mod.c.key cTarget
-    return cTarget.withoutInfo
-  else
-    return modTarget
+    return match art with
+    | .leanBin => modTarget
+    | .olean => oleanTarget
+    | .ilean => ileanTarget
+    | .c => cTarget
+
 
 /--
 Recursively parse the Lean files of a module and its imports

@@ -152,7 +152,7 @@ abbrev facet (facet : WfName) (self : Module) : BuildInfo :=
 variable (self : Module)
 
 abbrev imports  := self.facet importFacet
-abbrev leanBin  := self.facet binFacet
+abbrev leanBin  := self.facet leanBinFacet
 abbrev olean    := self.facet oleanFacet
 abbrev ilean    := self.facet ileanFacet
 abbrev c        := self.facet cFacet

@@ -23,7 +23,7 @@ structure ModuleFacetConfig where
   data_eq_target : ModuleData name = ActiveBuildTarget resultType
 
 instance : Inhabited ModuleFacetConfig := ⟨{
-  name := &`lean.bin
+  name := Module.leanBinFacet
   resultType := PUnit
   build := default
   data_eq_target := eq_dynamic_type

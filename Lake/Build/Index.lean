@@ -91,20 +91,11 @@ the initial set of Lake module facets (e.g., `lean.{imports, c, o, dynlib]`).
   ModuleBuildMap.empty (m := m)
   -- Compute unique imports (direct × transitive)
   |>.insert importFacet (mkModuleFacetBuild (·.recParseImports))
-  -- Build module (`.olean` and `.ilean`)
-  |>.insert binFacet (mkModuleFacetBuild (fun mod => do
-    mod.recBuildLean !mod.isLeanOnly
-  ))
-  |>.insert oleanFacet (mkModuleFacetBuild (fun mod => do
-    mod.recBuildLean (!mod.isLeanOnly) <&> (·.withInfo mod.oleanFile)
-  ))
-  |>.insert ileanFacet (mkModuleFacetBuild (fun mod => do
-    mod.recBuildLean (!mod.isLeanOnly) <&> (·.withInfo mod.ileanFile)
-  ))
-  -- Build module `.c` (and `.olean` and `.ilean`)
-  |>.insert cFacet (mkModuleFacetBuild <| fun mod => do
-    mod.recBuildLean true <&> (·.withInfo mod.cFile)
-  )
+  -- Build module (`.olean`, `.ilean`, and possibly `.c`)
+  |>.insert leanBinFacet (mkModuleFacetBuild (·.recBuildLean .leanBin))
+  |>.insert oleanFacet (mkModuleFacetBuild (·.recBuildLean .olean))
+  |>.insert ileanFacet (mkModuleFacetBuild (·.recBuildLean .ilean))
+  |>.insert cFacet (mkModuleFacetBuild (·.recBuildLean .c))
   -- Build module `.o`
   |>.insert oFacet (mkModuleFacetBuild <| fun mod => do
     mod.mkOTarget (Target.active (← mod.c.recBuild)) |>.activate

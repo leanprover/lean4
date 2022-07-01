@@ -16,25 +16,6 @@ open Lean Parser Command
 -- # Lean Library & Executable Targets
 --------------------------------------------------------------------------------
 
-syntax targetDeclSpec :=
-  ident (Command.whereStructInst <|> declValOptTyped <|> declValStruct)?
-
-def mkTargetDecl
-(doc? : Option DocComment) (attrs : Array AttrInstance) (ty : Term)
-: (spec : Syntax) → MacroM Syntax
-| `(targetDeclSpec| $id:ident) =>
-  `($[$doc?]? @[$attrs,*] def $id : $ty :=
-    {name := $(quote id.getId)})
-| `(targetDeclSpec| $id:ident where $ds;* $[$wds?]?) =>
-  `($[$doc?]? @[$attrs,*] def $id : $ty where
-      name := $(quote id.getId); $ds;* $[$wds?]?)
-| `(targetDeclSpec| $id:ident $[: $ty?]? := $defn $[$wds?]?) =>
-  `($[$doc?]? @[$attrs,*] def $id : $(ty?.getD ty) := $defn $[$wds?]?)
-| `(targetDeclSpec| $id:ident { $[$fs $[,]?]* } $[$wds?]?) => do
-  let defn ← `({ name := $(quote id.getId), $fs,* })
-  `($[$doc?]? @[$attrs,*] def $id : $ty := $defn $[$wds?]?)
-| stx => Macro.throwErrorAt stx "ill-formed target declaration"
-
 /--
 Define a new Lean library target for the package.
 Can optionally be provided with a configuration of type `LeanLibConfig`.
@@ -49,11 +30,11 @@ lean_lib «target-name» := /- config -/
 -/
 scoped macro (name := leanLibDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
-"lean_lib " spec:targetDeclSpec : command => do
+"lean_lib " sig:structDeclSig : command => do
   let attr ← `(Term.attrInstance| leanLib)
   let ty := mkCIdentFrom (← getRef) ``LeanLibConfig
   let attrs := #[attr] ++ expandAttrs attrs?
-  mkTargetDecl doc? attrs ty spec
+  mkConfigStructDecl none doc? attrs ty sig
 
 /--
 Define a new Lean binary executable target for the package.
@@ -69,11 +50,11 @@ lean_exe «target-name» := /- config -/
 -/
 scoped macro (name := leanExeDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
-"lean_exe " spec:targetDeclSpec : command => do
+"lean_exe " sig:structDeclSig : command => do
   let attr ← `(Term.attrInstance| leanExe)
   let ty := mkCIdentFrom (← getRef) ``LeanExeConfig
   let attrs := #[attr] ++ expandAttrs attrs?
-  mkTargetDecl doc? attrs ty spec
+  mkConfigStructDecl none doc? attrs ty sig
 
 --------------------------------------------------------------------------------
 -- # External Library Target

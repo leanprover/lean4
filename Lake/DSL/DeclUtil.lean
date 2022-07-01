@@ -32,6 +32,14 @@ instance : Coe SimpleBinder FunBinder where
 
 ---
 
+def expandAttrs (attrs? : Option Attributes) : Array AttrInstance :=
+  if let some attrs := attrs? then
+    match attrs with
+    | `(Term.attributes| @[$attrs,*]) => attrs
+    | _ => #[]
+  else
+    #[]
+
 syntax structVal :=
   "{" manyIndent(group(Term.structInstField ", "?)) "}"
 
@@ -50,10 +58,25 @@ syntax declValOptTyped :=
 syntax simpleDeclSig :=
   ident Term.typeSpec declValSimple
 
-def expandAttrs (attrs? : Option Attributes) : Array AttrInstance :=
-  if let some attrs := attrs? then
-    match attrs with
-    | `(Term.attributes| @[$attrs,*]) => attrs
-    | _ => #[]
-  else
-    #[]
+syntax structDeclSig :=
+  ident (Command.whereStructInst <|> declValOptTyped <|> declValStruct)?
+
+def fixName (id : Ident) : Option Name → Ident
+| some n => mkIdentFrom id n
+| none => id
+
+def mkConfigStructDecl (name? : Option Name)
+(doc? : Option DocComment) (attrs : Array AttrInstance) (ty : Term)
+: (spec : Syntax) → MacroM Syntax
+| `(structDeclSig| $id:ident) =>
+  `($[$doc?]? @[$attrs,*] def $(fixName id name?) : $ty :=
+    {name := $(quote id.getId)})
+| `(structDeclSig| $id:ident where $ds;* $[$wds?]?) =>
+  `($[$doc?]? @[$attrs,*] def $(fixName id name?) : $ty where
+      name := $(quote id.getId); $ds;* $[$wds?]?)
+| `(structDeclSig| $id:ident $[: $ty?]? := $defn $[$wds?]?) =>
+  `($[$doc?]? @[$attrs,*] def $(fixName id name?) : $(ty?.getD ty) := $defn $[$wds?]?)
+| `(structDeclSig| $id:ident { $[$fs $[,]?]* } $[$wds?]?) => do
+  let defn ← `({ name := $(quote id.getId), $fs,* })
+  `($[$doc?]? @[$attrs,*] def $(fixName id name?) : $ty := $defn $[$wds?]?)
+| stx => Macro.throwErrorAt stx "ill-formed configuration syntax"

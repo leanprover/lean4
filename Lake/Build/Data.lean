@@ -50,22 +50,10 @@ theorem isModuleKey_data {k : BuildKey}
 (h : k.isModuleKey = true) : BuildData k = ModuleData k.facet := by
   unfold BuildData; simp [h]
 
-instance (k : ModuleBuildKey f)
-[t : DynamicType ModuleData f α] : DynamicType BuildData k α where
-  eq_dynamic_type := by
-    have h := isModuleKey_data k.is_module_key
-    simp [h, k.facet_eq_fixed, t.eq_dynamic_type]
-
 theorem isPackageKey_data {k : BuildKey}
 (h : k.isPackageKey = true) : BuildData k = PackageData k.facet := by
   unfold BuildData, BuildKey.isModuleKey
   simp [of_decide_eq_true (of_decide_eq_true h |>.1), h]
-
-instance (k : PackageBuildKey f)
-[t : DynamicType PackageData f α] : DynamicType BuildData k α where
-  eq_dynamic_type := by
-    have h := isPackageKey_data k.is_package_key
-    simp [h, k.facet_eq_fixed, t.eq_dynamic_type]
 
 theorem isTargetKey_data {k : BuildKey}
 (h : k.isTargetKey = true) : BuildData k = TargetData k.facet := by

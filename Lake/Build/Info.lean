@@ -34,11 +34,11 @@ inductive BuildInfo
 
 /-! ### Build Key Helper Constructors -/
 
-abbrev Module.mkBuildKey (facet : WfName) (self : Module) : ModuleBuildKey facet :=
-  ⟨⟨none, self.keyName, facet⟩, rfl, rfl⟩
+abbrev Module.facetBuildKey (facet : WfName) (self : Module) : BuildKey :=
+  ⟨none, self.keyName, facet⟩
 
-abbrev Package.mkBuildKey (facet : WfName) (self : Package) : PackageBuildKey facet :=
-  ⟨⟨self.name, none, facet⟩, rfl, rfl⟩
+abbrev Package.facetBuildKey (facet : WfName) (self : Package) : BuildKey :=
+  ⟨self.name, none, facet⟩
 
 abbrev LeanLib.staticBuildKey (self : LeanLib) : BuildKey :=
   ⟨self.pkg.name, self.name, staticFacet⟩
@@ -59,8 +59,8 @@ abbrev ExternLib.sharedBuildKey (self : ExternLib) : BuildKey :=
 
 /-- The key that identifies the build in the Lake build store. -/
 abbrev BuildInfo.key : (self : BuildInfo) → BuildKey
-| module m f => m.mkBuildKey f
-| package p f => p.mkBuildKey f
+| module m f => m.facetBuildKey f
+| package p f => p.facetBuildKey f
 | staticLeanLib l => l.staticBuildKey
 | sharedLeanLib l => l.sharedBuildKey
 | leanExe x => x.buildKey

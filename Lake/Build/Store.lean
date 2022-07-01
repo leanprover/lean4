@@ -16,22 +16,8 @@ topological-based build of an initial key's dependencies).
 
 namespace Lake
 
-/-! ## Abstract Monad -/
-
 /-- A monad equipped with a Lake build store. -/
 abbrev MonadBuildStore (m) := MonadDStore BuildKey BuildData m
-
-@[inline] instance [MonadBuildStore m]
-[DynamicType ModuleData f α] : MonadStore (ModuleBuildKey f) α m where
-  fetch? k := fetch? k.toBuildKey
-  store k a := store k.toBuildKey a
-
-@[inline] instance [MonadBuildStore m]
-[DynamicType PackageData f α] : MonadStore (PackageBuildKey f) α m where
-  fetch? k := fetch? k.toBuildKey
-  store k a := store k.toBuildKey a
-
-/-! ## Concrete Type -/
 
 /-- The type of the Lake build store. -/
 abbrev BuildStore :=

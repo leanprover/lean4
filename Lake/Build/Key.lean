@@ -108,38 +108,3 @@ theorem eq_of_quickCmp :
 
 instance : EqOfCmp BuildKey quickCmp where
   eq_of_cmp := eq_of_quickCmp
-
-end BuildKey
-
--- ## Subtypes
-
-/-- The type of build keys for modules. -/
-structure ModuleBuildKey (fixedFacet : WfName) extends BuildKey where
-  is_module_key : toBuildKey.isModuleKey = true
-  facet_eq_fixed : toBuildKey.facet = fixedFacet
-
-instance : Coe (ModuleBuildKey f) BuildKey := ⟨(·.toBuildKey)⟩
-
-@[inline] def BuildKey.toModuleKey
-(self : BuildKey) (h : self.isModuleKey) : ModuleBuildKey self.facet :=
-  ⟨self, h, rfl⟩
-
-@[inline] def ModuleBuildKey.module (self : ModuleBuildKey f) : WfName :=
-  self.toBuildKey.module self.is_module_key
-
-/-- The type of build keys for packages. -/
-structure PackageBuildKey (fixedFacet : WfName) extends BuildKey where
-  is_package_key : toBuildKey.isPackageKey = true
-  facet_eq_fixed : toBuildKey.facet = fixedFacet
-
-instance : Coe (PackageBuildKey f) BuildKey := ⟨(·.toBuildKey)⟩
-
-@[inline] def BuildKey.toPackageKey
-(self : BuildKey) (h : self.isPackageKey) : PackageBuildKey self.facet :=
-  ⟨self, h, rfl⟩
-
-@[inline] def PackageBuildKey.package (self : PackageBuildKey f) : WfName :=
-  self.toBuildKey.package <| by
-    have h := self.is_package_key
-    unfold BuildKey.isPackageKey at h
-    exact (of_decide_eq_true h).1

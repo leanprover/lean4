@@ -62,7 +62,7 @@ structure LeanLibConfig extends LeanConfig where
   precompileModules : Bool := false
 
   /--
-  The set of module facets to build and combine into the library's static
+  An `Array` of module facets to build and combine into the library's static
   and shared libraries. Defaults to ``#[Module.oFacet]`` (i.e., the object file
   compiled from the Lean source).
   -/

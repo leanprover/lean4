@@ -340,6 +340,10 @@ def externLibTargets (self : Package) : Array FileTarget :=
 @[inline] def oleanDir (self : Package) : FilePath :=
   self.buildDir / self.config.oleanDir
 
+/- The package's `buildType` configuration. -/
+@[inline] def buildType (self : Package) : BuildType :=
+  self.config.buildType
+
 /-- The package's `moreLeanArgs` configuration. -/
 @[inline] def moreLeanArgs (self : Package) : Array String :=
   self.config.moreLeanArgs

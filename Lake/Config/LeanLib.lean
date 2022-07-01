@@ -78,6 +78,13 @@ Is true if either the package or the library have `precompileModules` set.
   self.config.nativeFacets
 
 /--
+The build type for modules of this library.
+That is, the minimum of package's `buildType` and the library's  `buildType`.
+-/
+@[inline] def buildType (self : LeanLib) : BuildType :=
+  min self.pkg.buildType self.config.buildType
+
+/--
 The arguments to pass to `lean` when compiling the library's Lean files.
 That is, the package's `moreLeanArgs` plus the library's  `moreLeanArgs`.
 -/
@@ -86,11 +93,11 @@ That is, the package's `moreLeanArgs` plus the library's  `moreLeanArgs`.
 
 /--
 The arguments to pass to `leanc` when compiling the library's C files.
-That is, `-O3`, `-DNDEBUG`, the package's `moreLeancArgs`, and then the
-library's `moreLeancArgs`.
+That is, the build type's `leancArgs`, the package's `moreLeancArgs`,
+and then the library's `moreLeancArgs`.
 -/
 @[inline] def leancArgs (self : LeanLib) : Array String :=
-  #["-O3", "-DNDEBUG"] ++ self.pkg.moreLeancArgs ++ self.config.moreLeancArgs
+  self.buildType.leancArgs ++ self.pkg.moreLeancArgs ++ self.config.moreLeancArgs
 
 /--
 The arguments to pass to `leanc` when linking the shared library.

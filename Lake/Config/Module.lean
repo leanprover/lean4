@@ -74,6 +74,9 @@ abbrev pkg (self : Module) : Package :=
 @[inline] def dynlibFile (self : Module) : FilePath :=
   self.pkg.libDir / s!"lib{self.dynlibName}.{sharedLibExt}"
 
+@[inline] def buildType (self : Module) : BuildType :=
+  self.lib.buildType
+
 @[inline] def leanArgs (self : Module) : Array String :=
   self.lib.leanArgs
 

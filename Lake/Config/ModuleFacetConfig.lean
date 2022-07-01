@@ -12,7 +12,7 @@ open Lean System
 /-- A module facet's declarative configuration. -/
 structure ModuleFacetConfig where
   /-- The name of the facet. -/
-  facet : WfName
+  name : WfName
   /-- The type of the facet's build result. -/
   resultType : Type
   /-- The module facet's build function. -/
@@ -20,10 +20,10 @@ structure ModuleFacetConfig where
     [Monad m] → [MonadLift BuildM m] → [MonadBuildStore m] →
     Module → IndexT m (ActiveBuildTarget resultType)
   /-- Proof that module facet's build result is the correctly typed target.-/
-  data_eq_target : ModuleData facet = ActiveBuildTarget resultType
+  data_eq_target : ModuleData name = ActiveBuildTarget resultType
 
 instance : Inhabited ModuleFacetConfig := ⟨{
-  facet := &`lean.bin
+  name := &`lean.bin
   resultType := PUnit
   build := default
   data_eq_target := eq_dynamic_type
@@ -32,7 +32,7 @@ instance : Inhabited ModuleFacetConfig := ⟨{
 hydrate_opaque_type OpaqueModuleFacetConfig ModuleFacetConfig
 
 instance {cfg : ModuleFacetConfig}
-: DynamicType ModuleData cfg.facet (ActiveBuildTarget cfg.resultType) :=
+: DynamicType ModuleData cfg.name (ActiveBuildTarget cfg.resultType) :=
   ⟨cfg.data_eq_target⟩
 
 /-- Try to find a module facet configuration in the package with the given name . -/

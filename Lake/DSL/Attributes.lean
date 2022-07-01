@@ -39,3 +39,6 @@ initialize defaultTargetAttr : TagAttribute ←
 
 initialize moduleFacetAttr : TagAttribute ←
   registerTagAttribute `moduleFacet "mark a definition as a Lake module facet"
+
+initialize packageFacetAttr : TagAttribute ←
+  registerTagAttribute `packageFacet "mark a definition as a Lake package facet"

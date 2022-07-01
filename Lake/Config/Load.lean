@@ -7,6 +7,7 @@ import Lean.Elab.Frontend
 import Lake.DSL.Attributes
 import Lake.DSL.Extensions
 import Lake.Config.ModuleFacetConfig
+import Lake.Config.PackageFacetConfig
 import Lake.Config.TargetConfig
 
 namespace Lake
@@ -107,12 +108,17 @@ unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
       if config.defaultFacet = PackageFacet.oleans then
         logWarning "The `oleans` package facet has been deprecated in favor of `leanLib`."
       let config := {config with dependencies := depsExt.getState env ++ config.dependencies}
-      -- Load Target & Script Configurations
+      -- Tag Load Helpers
       let mkTagMap {α} (attr) (f : Name → IO α) : IO (NameMap α) :=
         attr.ext.getState env |>.foldM (init := {}) fun map declName =>
           return map.insert declName <| ← f declName
       let evalConst (α typeName declName) : IO α :=
         IO.ofExcept (env.evalConstCheck α leanOpts typeName declName).run.run
+      let evalConstMap {α β} (f : α → β) (declName) : IO β :=
+        match env.evalConst α leanOpts declName with
+        | .ok a => pure <| f a
+        | .error e => throw <| IO.userError e
+       -- Load Target & Script Configurations
       let scripts ← mkTagMap scriptAttr
         (evalScriptDecl env · leanOpts)
       let leanLibConfigs ← mkTagMap leanLibAttr
@@ -121,14 +127,12 @@ unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
         (evalConst LeanExeConfig ``LeanExeConfig)
       let externLibConfigs ← mkTagMap externLibAttr
         (evalConst ExternLibConfig ``ExternLibConfig)
-      let opaqueModuleFacetConfigs ← mkTagMap moduleFacetAttr fun declName =>
-        match env.evalConst ModuleFacetConfig leanOpts declName with
-        | .ok config => pure <| OpaqueModuleFacetConfig.mk config
-        | .error e => throw <| IO.userError e
-      let opaqueTargetConfigs ← mkTagMap targetAttr fun declName =>
-        match env.evalConst TargetConfig leanOpts declName with
-        | .ok config => pure <| OpaqueTargetConfig.mk config
-        | .error e => throw <| IO.userError e
+      let opaqueModuleFacetConfigs ← mkTagMap moduleFacetAttr
+        (evalConstMap OpaqueModuleFacetConfig.mk)
+      let opaquePackageFacetConfigs ← mkTagMap packageFacetAttr
+        (evalConstMap OpaquePackageFacetConfig.mk)
+      let opaqueTargetConfigs ← mkTagMap targetAttr
+        (evalConstMap OpaqueTargetConfig.mk)
       let defaultTargets := defaultTargetAttr.ext.getState env |>.toArray
       -- Construct the Package
       if leanLibConfigs.isEmpty && leanExeConfigs.isEmpty && config.defaultFacet ≠ .none then
@@ -137,7 +141,7 @@ unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
       return {
         dir, config, scripts,
         leanLibConfigs, leanExeConfigs, externLibConfigs,
-        opaqueModuleFacetConfigs, opaqueTargetConfigs,
+        opaqueModuleFacetConfigs, opaquePackageFacetConfigs, opaqueTargetConfigs,
         defaultTargets
       }
     | _ => error s!"configuration file has multiple `package` declarations"

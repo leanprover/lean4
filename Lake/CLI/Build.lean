@@ -39,7 +39,7 @@ def resolveModuleTarget (ws : Workspace) (mod : Module) (facet : String) : Excep
   else if facet == "dynlib" then
     return mod.facetTarget dynlibFacet
   else if let some config := ws.findModuleFacetConfig? facet then
-    return mod.facetTarget config.facet
+    return mod.facetTarget config.name
   else
     throw <| CliError.unknownFacet "module" facet
 
@@ -94,6 +94,8 @@ def resolvePackageTarget (ws : Workspace) (pkg : Package) (facet : String) : Exc
     return pkg.sharedLibTarget.withoutInfo
   else if facet == "leanLib" || facet == "oleans" then
     return pkg.leanLibTarget.withoutInfo
+  else if let some config := ws.findPackageFacetConfig? facet then
+    return pkg.facet config.name |>.target
   else
     throw <| CliError.unknownFacet "package" facet
 

@@ -24,3 +24,7 @@ target meow : PUnit := fun pkg => do
 target bark : PUnit := fun _ => do
   logInfo "Bark!"
   return ActiveTarget.nil
+
+package_facet print_name : PUnit := fun pkg => do
+  IO.println pkg.name
+  return ActiveTarget.nil

@@ -42,3 +42,5 @@ test -f ./build/lib/libFoo.a
 test -f ./build/lib/Bar.$SHARED_LIB_EXT
 
 $LAKE build bark | grep -m1 Bark!
+
+$LAKE build targets:print_name | grep -m1 targets

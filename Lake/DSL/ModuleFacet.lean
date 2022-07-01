@@ -9,15 +9,12 @@ import Lake.Config.ModuleFacetConfig
 namespace Lake.DSL
 open Lean Parser Command
 
-syntax moduleFacetDeclSpec :=
-  ident Term.typeSpec declValSimple
-
 scoped macro (name := moduleFacetDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
-"module_facet " spec:moduleFacetDeclSpec : command => do
-  match spec with
-  | `(moduleFacetDeclSpec| $id:ident : $ty := $defn $[$wds?]?) =>
-    let attr ← `(Term.attrInstance| moduleFacet)
+kw:"module_facet " sig:simpleDeclSig : command => do
+  match sig with
+  | `(simpleDeclSig| $id:ident : $ty := $defn $[$wds?]?) =>
+    let attr ← withRef kw `(Term.attrInstance| moduleFacet)
     let attrs := #[attr] ++ expandAttrs attrs?
     let axm := mkIdentFrom id <| ``Lake.ModuleData ++ id.getId
     `(module_data $id : ActiveBuildTarget $ty

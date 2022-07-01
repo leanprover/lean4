@@ -9,7 +9,7 @@ import Lake.Build.Store
 namespace Lake
 open Lean System
 
-/-- A Module facet's declarative configuration. -/
+/-- A module facet's declarative configuration. -/
 structure ModuleFacetConfig where
   /-- The name of the facet. -/
   facet : WfName

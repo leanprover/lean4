@@ -1,8 +1,7 @@
-set -e
+#!/usr/bin/env bash
+set -exo pipefail
 
 LAKE=${LAKE:-../../build/bin/lake}
-
-set -x
 
 if [ "$OS" = Windows_NT ]; then
 SHARED_LIB_EXT=dll
@@ -13,6 +12,8 @@ SHARED_LIB_EXT=so
 fi
 
 ./clean.sh
+
+$LAKE build bark | grep -m1 Bark!
 
 $LAKE build +Foo.Test
 
@@ -27,6 +28,7 @@ $LAKE build
 
 ./build/bin/c
 test -f ./build/lib/Foo.olean
+cat ./build/meow.txt | grep -m1 Meow!
 
 $LAKE build a b
 
@@ -38,3 +40,5 @@ $LAKE build bar:shared
 
 test -f ./build/lib/libFoo.a
 test -f ./build/lib/Bar.$SHARED_LIB_EXT
+
+$LAKE build bark | grep -m1 Bark!

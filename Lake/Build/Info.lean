@@ -27,7 +27,6 @@ inductive BuildInfo
 | leanExe (exe : LeanExe)
 | staticExternLib (lib : ExternLib)
 | sharedExternLib (lib : ExternLib)
-| custom (package : Package) (target : WfName) (facet : WfName)
 
 --------------------------------------------------------------------------------
 /-! ## Build Info & Keys                                                      -/
@@ -67,7 +66,6 @@ abbrev BuildInfo.key : (self : BuildInfo) → BuildKey
 | leanExe x => x.buildKey
 | staticExternLib l => l.staticBuildKey
 | sharedExternLib l => l.sharedBuildKey
-| custom p t f => ⟨p.name, t, f⟩
 
 /-! ### Instances for deducing data types of `BuildInfo` keys -/
 

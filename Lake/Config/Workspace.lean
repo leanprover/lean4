@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lean.Util.Paths
+import Lake.Config.TargetConfig
 import Lake.Config.ModuleFacetConfig
 
 open System
@@ -89,6 +90,10 @@ def findExternLib? (name : Name) (self : Workspace) : Option ExternLib :=
 /-- Try to find a module facet configuration in the workspace with the given name. -/
 def findModuleFacetConfig? (name : Name) (self : Workspace) : Option ModuleFacetConfig :=
   self.packageArray.findSome? fun pkg => pkg.findModuleFacetConfig? name
+
+/-- Try to find a target configuration in the workspace with the given name. -/
+def findTargetConfig? (name : Name) (self : Workspace) : Option (Package × TargetConfig) :=
+  self.packageArray.findSome? fun pkg => pkg.findTargetConfig? name <&> (⟨pkg, ·⟩)
 
 /-- The `LEAN_PATH` of the workspace. -/
 def oleanPath (self : Workspace) : SearchPath :=

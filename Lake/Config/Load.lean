@@ -7,6 +7,7 @@ import Lean.Elab.Frontend
 import Lake.DSL.Attributes
 import Lake.DSL.Extensions
 import Lake.Config.ModuleFacetConfig
+import Lake.Config.TargetConfig
 
 namespace Lake
 open Lean System
@@ -124,6 +125,10 @@ unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
         match env.evalConst ModuleFacetConfig leanOpts declName with
         | .ok config => pure <| OpaqueModuleFacetConfig.mk config
         | .error e => throw <| IO.userError e
+      let opaqueTargetConfigs ← mkTagMap targetAttr fun declName =>
+        match env.evalConst TargetConfig leanOpts declName with
+        | .ok config => pure <| OpaqueTargetConfig.mk config
+        | .error e => throw <| IO.userError e
       let defaultTargets := defaultTargetAttr.ext.getState env |>.toArray
       -- Construct the Package
       if leanLibConfigs.isEmpty && leanExeConfigs.isEmpty && config.defaultFacet ≠ .none then
@@ -132,7 +137,7 @@ unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
       return {
         dir, config, scripts,
         leanLibConfigs, leanExeConfigs, externLibConfigs,
-        opaqueModuleFacetConfigs,
+        opaqueModuleFacetConfigs, opaqueTargetConfigs,
         defaultTargets
       }
     | _ => error s!"configuration file has multiple `package` declarations"

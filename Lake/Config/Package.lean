@@ -263,8 +263,10 @@ structure Package where
   leanExeConfigs : NameMap LeanExeConfig := {}
   /-- External library targets for the package. -/
   externLibConfigs : NameMap ExternLibConfig := {}
-  /-- (Opaque) module facets defined in the package. -/
+  /-- (Opaque references to) module facets defined in the package. -/
   opaqueModuleFacetConfigs : NameMap OpaqueModuleFacetConfig := {}
+  /-- (Opaque references to) targets defined in the package. -/
+  opaqueTargetConfigs : NameMap OpaqueTargetConfig := {}
   /--
   The names of the package's targets to build by default
   (i.e., on a bare `lake build` of the package).

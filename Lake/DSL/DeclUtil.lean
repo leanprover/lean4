@@ -47,6 +47,9 @@ syntax declValTyped :=
 syntax declValOptTyped :=
   (Term.typeSpec)? declValSimple
 
+syntax simpleDeclSig :=
+  ident Term.typeSpec declValSimple
+
 def expandAttrs (attrs? : Option Attributes) : Array AttrInstance :=
   if let some attrs := attrs? then
     match attrs with

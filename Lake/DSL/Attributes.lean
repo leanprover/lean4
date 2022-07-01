@@ -23,13 +23,17 @@ initialize leanExeAttr : TagAttribute ←
 initialize externLibAttr : TagAttribute ←
   registerTagAttribute `externLib "mark a definition as a Lake external library target"
 
+initialize targetAttr : TagAttribute ←
+  registerTagAttribute `target "mark a definition as a custom Lake target"
+
 initialize defaultTargetAttr : TagAttribute ←
   registerTagAttribute `defaultTarget "mark a Lake target as the package's default"
     fun name => do
       let valid ← getEnv <&> fun env =>
         leanLibAttr.hasTag env name ||
         leanExeAttr.hasTag env name ||
-        externLibAttr.hasTag env name
+        externLibAttr.hasTag env name ||
+        targetAttr.hasTag env name
       unless valid do
         throwError "attribute `defaultTarget` can only be used on a target (e.g., `lean_lib`, `lean_exe`)"
 

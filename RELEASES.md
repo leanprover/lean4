@@ -1,6 +1,8 @@
 Unreleased
 ---------
 
+* Update Lake to v3.2.0. See the [v3.2.0 release notes](https://github.com/leanprover/lake/releases/tag/v3.2.0) for detailed changes.
+
 * Add support for `CommandElabM` monad at `#eval`. Example:
   ```lean
   import Lean
@@ -115,8 +117,6 @@ Unreleased
   ```
 
 * [`let/if` indentation in `do` blocks in now supported.](https://github.com/leanprover/lean4/issues/1120)
-
-* Update Lake to v3.1.1. See the [v3.1.0 release note](https://github.com/leanprover/lake/releases/tag/v3.1.0) for detailed changes.
 
 * Add unnamed antiquotation `$_` for use in syntax quotation patterns.
 

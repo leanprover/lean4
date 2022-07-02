@@ -873,7 +873,7 @@ end Compat
 end TSyntax
 
 /-- Reflect a runtime datum back to surface syntax (best-effort). -/
-class Quote (α : Type) (k : SyntaxNodeKind := `term) where
+class Quote (α : Type) (k : outParam $ SyntaxNodeKind := `term) where
   quote (a : α) (info := SourceInfo.none) : TSyntax k
 
 export Quote (quote)

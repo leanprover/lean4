@@ -168,7 +168,7 @@ where
       | #[p1, p2] => Parser.ensureBinaryParserAlias aliasName; ``(ParserDescr.binary $(quote aliasName) $p1 $p2)
       | _         => unreachable!
     return (stx, stackSz)
-    
+
   processNullaryOrCat (stx : Syntax) := do
     match (← resolveParserName stx[0]) with
     | [(c, true)]      =>
@@ -208,10 +208,10 @@ where
 
   isValidAtom (s : String) : Bool :=
     !s.isEmpty &&
-    s[0] != '\'' &&
-    s[0] != '\"' &&
-    !(s[0] == '`' && (s.endPos == ⟨1⟩ || isIdFirst s[⟨1⟩] || isIdBeginEscape s[⟨1⟩])) &&
-    !s[0].isDigit
+    s.front != '\'' &&
+    s.front != '\"' &&
+    !(s.front == '`' && (s.endPos == ⟨1⟩ || isIdFirst (s.get ⟨1⟩) || isIdBeginEscape (s.get ⟨1⟩))) &&
+    !s.front.isDigit
 
   processAtom (stx : Syntax) := do
     match stx[0].isStrLit? with

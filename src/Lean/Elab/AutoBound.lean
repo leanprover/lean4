@@ -39,12 +39,12 @@ Therefore, we do consider identifier with macro scopes anymore.
 
 def isValidAutoBoundImplicitName (n : Name) (relaxed : Bool) : Bool :=
   match n with
-  | Name.str Name.anonymous s _ => s.length > 0 && (relaxed || ((isGreek s[0] || s[0].isLower) && isValidAutoBoundSuffix s))
+  | Name.str Name.anonymous s _ => s.length > 0 && (relaxed || ((isGreek s.front || s.front.isLower) && isValidAutoBoundSuffix s))
   | _ => false
 
 def isValidAutoBoundLevelName (n : Name) (relaxed : Bool) : Bool :=
   match n with
-  | Name.str Name.anonymous s _ => s.length > 0 && (relaxed || (s[0].isLower && isValidAutoBoundSuffix s))
+  | Name.str Name.anonymous s _ => s.length > 0 && (relaxed || (s.front.isLower && isValidAutoBoundSuffix s))
   | _ => false
 
 end Lean.Elab

@@ -379,7 +379,7 @@ private def optionCompletion (ctx : ContextInfo) (stx : Syntax) (caps : ClientCa
       match stx[1].getSubstring? (withLeading := false) (withTrailing := false) with
       | none => ("", false)  -- the `ident` is `missing`, list all options
       | some ss =>
-        if !ss.str.atEnd ss.stopPos && ss.str[ss.stopPos] == '.' then
+        if !ss.str.atEnd ss.stopPos && ss.str.get ss.stopPos == '.' then
           -- include trailing dot, which is not parsed by `ident`
           (ss.toString ++ ".", true)
         else

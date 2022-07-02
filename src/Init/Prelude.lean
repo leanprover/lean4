@@ -1263,10 +1263,10 @@ def Array.get {α : Type u} (a : @& Array α) (i : @& Fin a.size) : α :=
 def Array.get! {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
   Array.getD a i default
 
-def Array.getOp {α : Type u} [Inhabited α] (self : Array α) (idx : Nat) : α :=
-  self.get! idx -- TODO: use `Array.get`
+abbrev Array.getOp {α : Type u} (self : Array α) (idx : Fin self.size) : α :=
+  self.get idx
 
-def Array.getOp! {α : Type u} [Inhabited α] (self : Array α) (idx : Nat) : α :=
+abbrev Array.getOp! {α : Type u} [Inhabited α] (self : Array α) (idx : Nat) : α :=
   self.get! idx
 
 @[extern "lean_array_push"]

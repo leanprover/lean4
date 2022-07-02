@@ -623,8 +623,6 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
   | some structName, LVal.getOp _ idx kind =>
     let env ← getEnv
     let fullName := Name.mkStr structName kind.opName
-    if fullName == ``Array.getOp then
-      logWarning "Array.getOp used here" -- TODO delete
     match env.find? fullName with
     | some _ => return LValResolution.getOp fullName idx
     | none   => throwLValError e eType m!"invalid [..] notation because environment does not contain '{fullName}'"

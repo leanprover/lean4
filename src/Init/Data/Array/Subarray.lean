@@ -29,13 +29,16 @@ def get (s : Subarray α) (i : Fin s.size) : α :=
    exact Nat.add_lt_of_lt_sub this
   s.as[s.start + i.val, this]
 
-@[inline] def getD (s : Subarray α) (i : Nat) (v₀ : α) : α :=
-  if h : i < s.size then s[i, h] else v₀
+abbrev getOp (self : Subarray α) (idx : Fin self.size) : α :=
+  self.get idx
 
-def get! [Inhabited α] (s : Subarray α) (i : Nat) : α :=
+@[inline] def getD (s : Subarray α) (i : Nat) (v₀ : α) : α :=
+  if h : i < s.size then s.get ⟨i, h⟩ else v₀
+
+abbrev get! [Inhabited α] (s : Subarray α) (i : Nat) : α :=
   getD s i default
 
-def getOp [Inhabited α] (self : Subarray α) (idx : Nat) : α :=
+abbrev getOp! [Inhabited α] (self : Subarray α) (idx : Nat) : α :=
   self.get! idx
 
 def popFront (s : Subarray α) : Subarray α :=

@@ -900,6 +900,8 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     | `($(e).$field:ident) => elabFieldName e field
     | `($e |>.$field:ident) => elabFieldName e field
     | `($e[%$bracket $idx]) => elabAppFn e (LVal.getOp bracket idx .safe :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
+    | `($e[%$bracket $idx]!) => elabAppFn e (LVal.getOp bracket idx .panic :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
+    | `($e[%$bracket $idx]?) => elabAppFn e (LVal.getOp bracket idx .optional :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
     | `($_:ident@$_:term) =>
       throwError "unexpected occurrence of named pattern"
     | `($id:ident) => do
@@ -1032,6 +1034,8 @@ private def elabAtom : TermElab := fun stx expectedType? => do
 @[builtinTermElab choice] def elabChoice : TermElab := elabAtom
 @[builtinTermElab proj] def elabProj : TermElab := elabAtom
 @[builtinTermElab arrayRef] def elabArrayRef : TermElab := elabAtom
+@[builtinTermElab arrayRefOpt] def elabArrayRefOpt : TermElab := elabAtom
+@[builtinTermElab arrayRefPanic] def elabArrayRefPanic : TermElab := elabAtom
 
 builtin_initialize
   registerTraceClass `Elab.app

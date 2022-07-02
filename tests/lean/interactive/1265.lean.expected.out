@@ -2,31 +2,33 @@
  "position": {"line": 0, "character": 51}}
 {"items":
  [{"label": "getId", "kind": 3, "detail": "Lean.Ident → Lean.Name"},
+  {"label": "getName", "kind": 3, "detail": "Lean.NameLit → Lean.Name"},
   {"label": "expandInterpolatedStr",
    "kind": 3,
    "detail":
    "Lean.TSyntax Lean.interpolatedStrKind → Lean.Term → Lean.Term → Lean.MacroM Lean.Term"},
-  {"label": "getNat",
+  {"label": "getChar", "kind": 3, "detail": "Lean.CharLit → Char"},
+  {"label": "getNat", "kind": 3, "detail": "Lean.NumLit → Nat"},
+  {"label": "getScientific",
    "kind": 3,
-   "detail": "Lean.TSyntax Lean.numLitKind → Nat"},
-  {"label": "getString",
-   "kind": 3,
-   "detail": "Lean.TSyntax Lean.strLitKind → String"},
+   "detail": "Lean.ScientificLit → Nat × Bool × Nat"},
+  {"label": "getString", "kind": 3, "detail": "Lean.StrLit → String"},
   {"label": "raw", "kind": 5, "detail": "Lean.TSyntax ks → Lean.Syntax"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://1265.lean"},
  "position": {"line": 2, "character": 53}}
 {"items":
  [{"label": "getId", "kind": 3, "detail": "Lean.Ident → Lean.Name"},
+  {"label": "getName", "kind": 3, "detail": "Lean.NameLit → Lean.Name"},
   {"label": "expandInterpolatedStr",
    "kind": 3,
    "detail":
    "Lean.TSyntax Lean.interpolatedStrKind → Lean.Term → Lean.Term → Lean.MacroM Lean.Term"},
-  {"label": "getNat",
+  {"label": "getChar", "kind": 3, "detail": "Lean.CharLit → Char"},
+  {"label": "getNat", "kind": 3, "detail": "Lean.NumLit → Nat"},
+  {"label": "getScientific",
    "kind": 3,
-   "detail": "Lean.TSyntax Lean.numLitKind → Nat"},
-  {"label": "getString",
-   "kind": 3,
-   "detail": "Lean.TSyntax Lean.strLitKind → String"},
+   "detail": "Lean.ScientificLit → Nat × Bool × Nat"},
+  {"label": "getString", "kind": 3, "detail": "Lean.StrLit → String"},
   {"label": "raw", "kind": 5, "detail": "Lean.TSyntax ks → Lean.Syntax"}],
  "isIncomplete": true}

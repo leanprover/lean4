@@ -4,7 +4,7 @@ set_option relaxedAutoImplicit false
 def BV (n : Nat) := { a : Array Bool // a.size = n }
 
 def allZero (bv : BV n) : Prop :=
-  ∀ i, i < n → bv.val[i] = false
+  ∀ i, i < n → bv.val[i]! = false
 
 def foo (b : BV n) (h : allZero b) : BV n :=
   b

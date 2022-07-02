@@ -262,7 +262,7 @@
                           [.] `z1 : none @ ⟨25, 8⟩-⟨25, 10⟩
                           z1 : Nat @ ⟨25, 8⟩-⟨25, 10⟩
   f2 (isBinder := true) : Nat → Nat → Bool → Nat @ ⟨21, 4⟩-⟨21, 6⟩
-[Elab.info] command @ ⟨27, 0⟩-⟨28, 17⟩ @ Lean.Elab.Command.elabDeclaration
+[Elab.info] command @ ⟨27, 0⟩-⟨28, 18⟩ @ Lean.Elab.Command.elabDeclaration
   Nat × Array (Array Nat) : Type @ ⟨27, 12⟩-⟨27, 35⟩ @ «_aux_Init_Notation___macroRules_term_×__1»
     Macro expansion
     Nat × Array (Array Nat)
@@ -297,18 +297,18 @@
       Nat : Type @ ⟨27, 45⟩-⟨27, 48⟩
   f3 (isBinder := true) : Nat × Array (Array Nat) → Array Nat @ ⟨27, 4⟩-⟨27, 6⟩
   s (isBinder := true) : Nat × Array (Array Nat) @ ⟨27, 8⟩-⟨27, 9⟩
-  Array.push (Array.getOp s.snd 1) s.fst : Array Nat @ ⟨28, 2⟩-⟨28, 17⟩ @ Lean.Elab.Term.elabApp
+  Array.push (Array.getOp! s.snd 1) s.fst : Array Nat @ ⟨28, 2⟩-⟨28, 18⟩ @ Lean.Elab.Term.elabApp
     [.] `s : some Array.{0} Nat @ ⟨28, 2⟩-⟨28, 3⟩
     s : Nat × Array (Array Nat) @ ⟨28, 2⟩-⟨28, 3⟩
     @Prod.snd : {α β : Type} → α × β → β @ ⟨28, 4⟩-⟨28, 5⟩
-    @Array.getOp : {α : Type} → [inst : Inhabited α] → Array α → Nat → α @ ⟨28, 5⟩-⟨28, 6⟩
+    @Array.getOp! : {α : Type} → [inst : Inhabited α] → Array α → Nat → α @ ⟨28, 5⟩-⟨28, 6⟩
     1 : Nat @ ⟨28, 6⟩-⟨28, 7⟩ @ Lean.Elab.Term.elabNumLit
-    [.] Array.getOp s.snd 1 : Array Nat @ ⟨28, 2⟩-⟨28, 8⟩ : some Array.{0} Nat
-    @Array.push : {α : Type} → Array α → α → Array α @ ⟨28, 9⟩-⟨28, 13⟩
-    s.fst : Nat @ ⟨28, 14⟩-⟨28, 17⟩ @ Lean.Elab.Term.elabProj
-      [.] `s : some ?_uniq.801 @ ⟨28, 14⟩-⟨28, 15⟩
-      s : Nat × Array (Array Nat) @ ⟨28, 14⟩-⟨28, 15⟩
-      @Prod.fst : {α β : Type} → α × β → α @ ⟨28, 16⟩-⟨28, 17⟩
+    [.] Array.getOp! s.snd 1 : Array Nat @ ⟨28, 2⟩-⟨28, 9⟩ : some Array.{0} Nat
+    @Array.push : {α : Type} → Array α → α → Array α @ ⟨28, 10⟩-⟨28, 14⟩
+    s.fst : Nat @ ⟨28, 15⟩-⟨28, 18⟩ @ Lean.Elab.Term.elabProj
+      [.] `s : some ?_uniq.801 @ ⟨28, 15⟩-⟨28, 16⟩
+      s : Nat × Array (Array Nat) @ ⟨28, 15⟩-⟨28, 16⟩
+      @Prod.fst : {α β : Type} → α × β → α @ ⟨28, 17⟩-⟨28, 18⟩
   f3 (isBinder := true) : Nat × Array (Array Nat) → Array Nat @ ⟨27, 4⟩-⟨27, 6⟩
 [Elab.info] command @ ⟨30, 0⟩-⟨31, 20⟩ @ Lean.Elab.Command.elabDeclaration
   B : Type @ ⟨30, 14⟩-⟨30, 15⟩ @ Lean.Elab.Term.elabIdent

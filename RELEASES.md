@@ -1,6 +1,13 @@
 Unreleased
 ---------
 
+* Update array access notation. Now, given `a : Array α`, `a[i]` never "panics" at runtime and `i : Fin a.size`.
+  Two new notations were introduced: `a[i]!` and `a[i]?`, `i` is a natural number in both cases. For `a[i]!`,
+  a panic error message is produced at runtime if `i` is an index out of bounds. `a[i]?` has type `Option α`,
+  and `a[i]?` evaluates to `none` if the index `i` is out of bounds. See discussion on [Zulip](https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/String.2EgetOp/near/287855425),
+  and issue [#406](https://github.com/leanprover/lean4/issues/406) for additional details.
+  The notation `a[i, h]` is now syntax sugar for `a[⟨i, h⟩]`.
+
 * Update Lake to v3.2.0. See the [v3.2.0 release notes](https://github.com/leanprover/lake/releases/tag/v3.2.0) for detailed changes.
 
 * Add support for `CommandElabM` monad at `#eval`. Example:

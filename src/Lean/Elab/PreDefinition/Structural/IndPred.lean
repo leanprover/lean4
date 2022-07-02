@@ -63,7 +63,7 @@ private partial def replaceIndPredRecApps (recFnName : Name) (recArgInfo : RecAr
 
 def mkIndPredBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
   let type  := (← inferType value).headBeta
-  let major := recArgInfo.ys[recArgInfo.pos]
+  let major := recArgInfo.ys[recArgInfo.pos]!
   let otherArgs := recArgInfo.ys.filter fun y => y != major && !recArgInfo.indIndices.contains y
   trace[Elab.definition.structural] "fixedParams: {recArgInfo.fixedParams}, otherArgs: {otherArgs}"
   let motive ← mkForallFVars otherArgs type
@@ -84,13 +84,13 @@ def mkIndPredBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr) 
   -- call, it uses this ih. But that ih doesn't exist in the actual brecOn call.
   -- That's why it must go.
   let FType ← forallBoundedTelescope brecOnType (some 1) fun F _ => do
-    let F := F[0]
+    let F := F[0]!
     let FType ← inferType F
     trace[Elab.definition.structural] "FType: {FType}"
     let FType ← instantiateForall FType recArgInfo.indIndices
     instantiateForall FType #[major]
   forallBoundedTelescope FType (some 1) fun below _ => do
-    let below := below[0]
+    let below := below[0]!
     let valueNew     ← replaceIndPredRecApps recFnName recArgInfo motive value
     let Farg         ← mkLambdaFVars (recArgInfo.indIndices ++ #[major, below] ++ otherArgs) valueNew
     let brecOn       := mkApp brecOn Farg

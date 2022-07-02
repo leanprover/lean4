@@ -57,7 +57,7 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
       forallBoundedTelescope fnType maxArgs? fun fvars type => do
         let mut pinfo := #[]
         for i in [:fvars.size] do
-          let fvar := fvars[i]
+          let fvar := fvars[i]!
           let decl ← getFVarLocalDecl fvar
           let backDeps := collectDeps fvars decl.type
           pinfo := updateHasFwdDeps pinfo backDeps

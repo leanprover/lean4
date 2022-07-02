@@ -26,13 +26,13 @@ partial def reduce (e : Expr) (explicitOnly skipTypes skipProofs := true) : Meta
           let mut args  := e.getAppArgs
           for i in [:args.size] do
             if i < finfo.paramInfo.size then
-              let info := finfo.paramInfo[i]
+              let info := finfo.paramInfo[i]!
               if !explicitOnly || info.isExplicit then
                 args ← args.modifyM i visit
             else
               args ← args.modifyM i visit
-          if f.isConstOf ``Nat.succ && args.size == 1 && args[0].isNatLit then
-            return mkRawNatLit (args[0].natLit?.get! + 1)
+          if f.isConstOf ``Nat.succ && args.size == 1 && args[0]!.isNatLit then
+            return mkRawNatLit (args[0]!.natLit?.get! + 1)
           else
             return mkAppN f args
         | Expr.lam ..        => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← visit b)

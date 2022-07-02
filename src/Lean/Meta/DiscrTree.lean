@@ -352,7 +352,7 @@ private partial def insertAux [BEq α] (keys : Array Key) (v : α) : Nat → Tri
 def insertCore [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : DiscrTree α :=
   if keys.isEmpty then panic! "invalid key sequence"
   else
-    let k := keys[0]
+    let k := keys[0]!
     match d.root.find? k with
     | none =>
       let c := createNodes keys v 1
@@ -463,7 +463,7 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Arr
     else
       let e     := todo.back
       let todo  := todo.pop
-      let first := cs[0] /- Recall that `Key.star` is the minimal key -/
+      let first := cs[0]! /- Recall that `Key.star` is the minimal key -/
       let (k, args) ← getMatchKeyArgs e (root := false)
       /- We must always visit `Key.star` edges since they are wildcards.
          Thus, `todo` is not used linearly when there is `Key.star` edge
@@ -565,7 +565,7 @@ where
         let todo  := todo.pop
         let (k, args) ← getUnifyKeyArgs e (root := false)
         let visitStar (result : Array α) : MetaM (Array α) :=
-          let first := cs[0]
+          let first := cs[0]!
           if first.1 == Key.star then
             process 0 todo first.2 result
           else

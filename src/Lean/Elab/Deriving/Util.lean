@@ -50,10 +50,10 @@ def mkInstImplicitBinders (className : Name) (indVal : InductiveVal) (argNames :
     let mut binders := #[]
     for i in [:xs.size] do
       try
-        let x := xs[i]
+        let x := xs[i]!
         let c ← mkAppM className #[x]
         if (← isTypeCorrect c) then
-          let argName := argNames[i]
+          let argName := argNames[i]!
           let binder : Syntax ← `(instBinderF| [ $(mkIdent className):ident $(mkIdent argName):ident ])
           binders := binders.push binder
       catch _ =>
@@ -86,8 +86,8 @@ def mkContext (fnPrefix : String) (typeName : Name) : TermElabM Context := do
 def mkLocalInstanceLetDecls (ctx : Context) (className : Name) (argNames : Array Name) : TermElabM (Array (TSyntax ``Parser.Term.letDecl)) := do
   let mut letDecls := #[]
   for i in [:ctx.typeInfos.size] do
-    let indVal       := ctx.typeInfos[i]
-    let auxFunName   := ctx.auxFunNames[i]
+    let indVal       := ctx.typeInfos[i]!
+    let auxFunName   := ctx.auxFunNames[i]!
     let currArgNames ← mkInductArgNames indVal
     let numParams    := indVal.numParams
     let currIndices  := currArgNames[numParams:]
@@ -109,9 +109,9 @@ open TSyntax.Compat in
 def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) (useAnonCtor := true) : TermElabM (Array Command) := do
   let mut instances := #[]
   for i in [:ctx.typeInfos.size] do
-    let indVal       := ctx.typeInfos[i]
+    let indVal       := ctx.typeInfos[i]!
     if typeNames.contains indVal.name then
-      let auxFunName   := ctx.auxFunNames[i]
+      let auxFunName   := ctx.auxFunNames[i]!
       let argNames     ← mkInductArgNames indVal
       let binders      ← mkImplicitBinders argNames
       let binders      := binders ++ (← mkInstImplicitBinders className indVal argNames)

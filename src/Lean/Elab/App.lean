@@ -339,9 +339,9 @@ private def anyNamedArgDependsOnCurrent : M Bool := do
     return false
   else
     forallTelescopeReducing s.fType fun xs _ => do
-      let curr := xs[0]
+      let curr := xs[0]!
       for i in [1:xs.size] do
-        let xDecl ← getLocalDecl xs[i].fvarId!
+        let xDecl ← getLocalDecl xs[i]!.fvarId!
         if s.namedArgs.any fun arg => arg.name == xDecl.userName then
           if (← getMCtx).localDeclDependsOn xDecl curr.fvarId! then
             return true
@@ -583,7 +583,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     if idx - 1 < numFields then
       if isStructure env structName then
         let fieldNames := getStructureFields env structName
-        return LValResolution.projFn structName structName fieldNames[idx - 1]
+        return LValResolution.projFn structName structName fieldNames[idx - 1]!
       else
         /- `structName` was declared using `inductive` command.
            So, we don't projection functions for it. Thus, we use `Expr.proj` -/
@@ -708,7 +708,7 @@ private def addLValArg (baseName : Name) (fullName : Name) (e : Expr) (args : Ar
     let mut argIdx := 0 -- position of the next explicit argument
     let mut remainingNamedArgs := namedArgs
     for i in [:xs.size] do
-      let x := xs[i]
+      let x := xs[i]!
       let xDecl ← getLocalDecl x.fvarId!
       /- If there is named argument with name `xDecl.userName`, then we skip it. -/
       match remainingNamedArgs.findIdx? (fun namedArg => namedArg.name == xDecl.userName) with
@@ -726,7 +726,7 @@ private def addLValArg (baseName : Name) (fullName : Name) (e : Expr) (args : Ar
           /- If we can't add `e` to `args`, we try to add it using a named argument, but this is only possible
              if there isn't an argument with the same name occurring before it. -/
           for j in [:i] do
-            let prev := xs[j]
+            let prev := xs[j]!
             let prevDecl ← getLocalDecl prev.fvarId!
             if prevDecl.userName == xDecl.userName then
               throwError "invalid field notation, function '{fullName}' has argument with the expected type{indentExpr type}\nbut it cannot be used"
@@ -977,11 +977,11 @@ private def mergeFailures (failures : Array (TermElabResult Expr)) : TermElabM �
 private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) (ellipsis : Bool) (expectedType? : Option Expr) : TermElabM Expr := do
   let candidates ← elabAppFn f [] namedArgs args expectedType? (explicit := false) (ellipsis := ellipsis) (overloaded := false) #[]
   if candidates.size == 1 then
-    applyResult candidates[0]
+    applyResult candidates[0]!
   else
     let successes ← getSuccesses candidates
     if successes.size == 1 then
-      applyResult successes[0]
+      applyResult successes[0]!
     else if successes.size > 1 then
       let msgs : Array MessageData ← successes.mapM fun success => do
         match success with

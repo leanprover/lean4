@@ -23,7 +23,7 @@ private def mkFnInhabitant? (xs : Array Expr) (type : Expr) (useOfNonempty : Boo
   let rec loop
     | 0,   type => mkInhabitant? type useOfNonempty
     | i+1, type => do
-      let x := xs[i]
+      let x := xs[i]!
       let type ← mkForallFVars #[x] type;
       match (← mkInhabitant? type useOfNonempty) with
       | none     => loop i type

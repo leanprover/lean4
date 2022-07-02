@@ -57,7 +57,7 @@ where
               ctorArgs2 := ctorArgs2.push (← `(_))
             let mut todo := #[]
             for i in [:ctorInfo.numFields] do
-              let x := xs[indVal.numParams + i]
+              let x := xs[indVal.numParams + i]!
               if type.containsFVar x.fvarId! then
                 -- If resulting type depends on this field, we don't need to compare
                 ctorArgs1 := ctorArgs1.push (← `(_))
@@ -82,12 +82,12 @@ where
     return alts
 
 def mkAuxFunction (ctx : Context) : TermElabM Syntax := do
-  let auxFunName := ctx.auxFunNames[0]
-  let indVal     :=ctx.typeInfos[0]
+  let auxFunName := ctx.auxFunNames[0]!
+  let indVal     :=ctx.typeInfos[0]!
   let header     ← mkDecEqHeader indVal
   let mut body   ← mkMatch header indVal auxFunName
   let binders    := header.binders
-  let type       ← `(Decidable ($(mkIdent header.targetNames[0]) = $(mkIdent header.targetNames[1])))
+  let type       ← `(Decidable ($(mkIdent header.targetNames[0]!) = $(mkIdent header.targetNames[1]!)))
   `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type:term := $body:term)
 
 def mkDecEqCmds (indVal : InductiveVal) : TermElabM (Array Syntax) := do
@@ -115,9 +115,9 @@ partial def mkEnumOfNat (declName : Name) : MetaM Unit := do
     let cond := mkConst ``cond [levelZero]
     let rec mkDecTree (low high : Nat) : Expr :=
       if low + 1 == high then
-        mkConst ctors[low]
+        mkConst ctors[low]!
       else if low + 2 == high then
-        mkApp4 cond enumType (mkApp2 (mkConst ``Nat.beq) n (mkRawNatLit low)) (mkConst ctors[low]) (mkConst ctors[low+1])
+        mkApp4 cond enumType (mkApp2 (mkConst ``Nat.beq) n (mkRawNatLit low)) (mkConst ctors[low]!) (mkConst ctors[low+1]!)
       else
         let mid := (low + high)/2
         let lowBranch := mkDecTree low mid
@@ -176,11 +176,11 @@ def mkDecEqEnum (declName : Name) : CommandElabM Unit := do
 def mkDecEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if declNames.size != 1 then
     return false -- mutually inductive types are not supported yet
-  else if (← isEnumType declNames[0]) then
-    mkDecEqEnum declNames[0]
+  else if (← isEnumType declNames[0]!) then
+    mkDecEqEnum declNames[0]!
     return true
   else
-    mkDecEq declNames[0]
+    mkDecEq declNames[0]!
 
 builtin_initialize
   registerBuiltinDerivingHandler `DecidableEq mkDecEqInstanceHandler

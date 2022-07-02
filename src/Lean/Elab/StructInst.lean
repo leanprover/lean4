@@ -98,7 +98,7 @@ def Source.isNone : Source → Bool
 
 /-- `optional (atomic (sepBy1 termParser ", " >> " with ")` -/
 private def mkSourcesWithSyntax (sources : Array Syntax) : Syntax :=
-  let ref := sources[0]
+  let ref := sources[0]!
   let stx := Syntax.mkSep sources (mkAtomFrom ref ", ")
   mkNullNode #[stx, mkAtomFrom ref "with "]
 
@@ -167,7 +167,7 @@ private def elabModifyOp (stx modifyOp : Syntax) (sources : Array ExplicitSource
   let cont (val : Syntax) : TermElabM Expr := do
     let lval := modifyOp[0][0]
     let idx  := lval[1]
-    let self := sources[0].stx
+    let self := sources[0]!.stx
     let stxNew ← `($(self).modifyOp (idx := $idx) (fun s => $val))
     trace[Elab.struct.modifyOp] "{stx}\n===>\n{stxNew}"
     withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
@@ -199,8 +199,8 @@ private def getStructName (expectedType? : Option Expr) (sourceView : Source) : 
     match sourceView, expectedType? with
     | Source.explicit sources, _ =>
       if sources.size > 1 then
-        throwErrorAt sources[1].stx "invalid \{...} notation, expected type is not known, using the type of the first source, extra sources are not needed"
-      return sources[0].structName
+        throwErrorAt sources[1]!.stx "invalid \{...} notation, expected type is not known, using the type of the first source, extra sources are not needed"
+      return sources[0]!.structName
     | _, some expectedType => throwUnexpectedExpectedType expectedType
     | _, none              => throwUnknownExpectedType
   match expectedType? with
@@ -389,7 +389,7 @@ private def expandNumLitFields (s : Struct) : TermElabM Struct :=
       | { lhs := FieldLHS.fieldIndex ref idx :: rest, .. } =>
         if idx == 0 then throwErrorAt ref "invalid field index, index must be greater than 0"
         else if idx > fieldNames.size then throwErrorAt ref "invalid field index, structure has only #{fieldNames.size} fields"
-        else pure { field with lhs := FieldLHS.fieldName ref fieldNames[idx - 1] :: rest }
+        else pure { field with lhs := FieldLHS.fieldName ref fieldNames[idx - 1]! :: rest }
       | _ => pure field
 
 /- For example, consider the following structures:

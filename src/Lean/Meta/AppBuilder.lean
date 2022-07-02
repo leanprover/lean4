@@ -218,7 +218,7 @@ private partial def mkAppMArgs (f : Expr) (fType : Expr) (xs : Array Expr) : Met
           let mvar ← mkFreshExprMVar d MetavarKind.synthetic n
           loop b i j (args.push mvar) (instMVars.push mvar.mvarId!)
         | _ =>
-          let x := xs[i]
+          let x := xs[i]!
           let xType ← inferType x
           if (← isDefEq d xType) then
             loop b (i+1) j (args.push x) instMVars

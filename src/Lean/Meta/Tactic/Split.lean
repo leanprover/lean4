@@ -63,8 +63,8 @@ private partial def withEqs (lhs rhs : Array Expr) (k : Array Expr → Array Exp
 where
   go (i : Nat) (hs : Array Expr) (rfls : Array Expr) : MetaM α := do
     if i < lhs.size then
-      withLocalDeclD (← mkFreshUserName `heq) (← mkEqHEq lhs[i] rhs[i]) fun h => do
-        let rfl ← if (← inferType h).isEq then mkEqRefl lhs[i] else mkHEqRefl lhs[i]
+      withLocalDeclD (← mkFreshUserName `heq) (← mkEqHEq lhs[i]! rhs[i]!) fun h => do
+        let rfl ← if (← inferType h).isEq then mkEqRefl lhs[i]! else mkHEqRefl lhs[i]!
         go (i+1) (hs.push h) (rfls.push rfl)
     else
       k hs rfls
@@ -121,8 +121,8 @@ private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : N
           foundRef.set true
           let mut altsNew := #[]
           for i in [:matcherApp.alts.size] do
-            let alt := matcherApp.alts[i]
-            let altNumParams := matcherApp.altNumParams[i]
+            let alt := matcherApp.alts[i]!
+            let altNumParams := matcherApp.altNumParams[i]!
             let altNew ← lambdaTelescope alt fun xs body => do
               if xs.size < altNumParams || xs.size < numDiscrEqs then
                 throwError "'applyMatchSplitter' failed, unexpected `match` alternative"
@@ -164,8 +164,8 @@ where
     -- `eqs'.size == altEqs.size ≤ eqs.size`
     let rec go (i : Nat) (altEqsNew : Array Expr) (subst : Array Expr) : MetaM Expr := do
       if i < altEqs.size then
-        let altEqDecl ← getFVarLocalDecl altEqs[i]
-        let eq := eqs'[i]
+        let altEqDecl ← getFVarLocalDecl altEqs[i]!
+        let eq := eqs'[i]!
         let eqType ← inferType eq
         let altEqType := altEqDecl.type
         match eqType.eq?, altEqType.eq? with
@@ -232,7 +232,7 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
     unless mvarIds.length == matchEqns.size do
       throwError "'applyMatchSplitter' failed, unexpected number of goals created after applying splitter for '{matcherDeclName}'."
     let (_, mvarIds) ← mvarIds.foldlM (init := (0, [])) fun (i, mvarIds) mvarId => do
-      let numParams := matchEqns.splitterAltNumParams[i]
+      let numParams := matchEqns.splitterAltNumParams[i]!
       let (_, mvarId) ← introN mvarId numParams
       trace[Meta.Tactic.split] "before unifyEqs\n{mvarId}"
       match (← Cases.unifyEqs? (numEqs + info.getNumDiscrEqs) mvarId {}) with
@@ -249,7 +249,7 @@ def splitMatch (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := do
     let matchEqns ← Match.getEquationsFor app.matcherName
     let mvarIds ← applyMatchSplitter mvarId app.matcherName app.matcherLevels app.params app.discrs
     let (_, mvarIds) ← mvarIds.foldlM (init := (0, [])) fun (i, mvarIds) mvarId => do
-      let mvarId ← simpMatchTargetCore mvarId app.matcherName matchEqns.eqnNames[i]
+      let mvarId ← simpMatchTargetCore mvarId app.matcherName matchEqns.eqnNames[i]!
       return (i+1, mvarId::mvarIds)
     return mvarIds.reverse
   catch ex =>
@@ -278,7 +278,7 @@ where
     else if let some info := isMatcherAppCore? env e then
       let args := e.getAppArgs
       for i in [info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
-        if args[i].hasLooseBVars then
+        if args[i]!.hasLooseBVars then
           return false
       return true
     else

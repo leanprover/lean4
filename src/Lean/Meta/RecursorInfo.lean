@@ -137,7 +137,7 @@ private def getMajorPosDepElim (declName : Name) (majorPos? : Option Nat) (xs : 
 private def getParamsPos (declName : Name) (xs : Array Expr) (numParams : Nat) (Iargs : Array Expr) : MetaM (List (Option Nat)) := do
   let mut paramsPos := #[]
   for i in [:numParams] do
-    let x := xs[i]
+    let x := xs[i]!
     match (← Iargs.findIdxM? fun Iarg => isDefEq Iarg x) with
     | some j => paramsPos := paramsPos.push (some j)
     | none   => do
@@ -152,7 +152,7 @@ private def getIndicesPos (declName : Name) (xs : Array Expr) (majorPos numIndic
   let mut indicesPos := #[]
   for i in [:numIndices] do
     let i := majorPos - numIndices + i
-    let x := xs[i]
+    let x := xs[i]!
     match (← Iargs.findIdxM? fun Iarg => isDefEq Iarg x) with
     | some j => indicesPos := indicesPos.push j
     | none   => throwError "invalid user defined recursor '{declName}', type of the major premise does not contain the recursor index"
@@ -187,7 +187,7 @@ private def getProduceMotiveAndRecursive (xs : Array Expr) (numParams numIndices
     if majorPos - numIndices ≤ i && i ≤ majorPos then
       continue -- skip indices and major premise
     -- process minor premise
-    let x := xs[i]
+    let x := xs[i]!
     let xType ← inferType x
     (produceMotive, recursor) ← forallTelescopeReducing xType fun minorArgs minorResultType => minorResultType.withApp fun res _ => do
       let produceMotive := produceMotive.push (res == motive)

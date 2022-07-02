@@ -77,8 +77,8 @@ where
   withNewEqs {α} (xs ys : Array Expr) (k : Array Expr → Array CongrArgKind → MetaM α) : MetaM α :=
     let rec loop (i : Nat) (eqs : Array Expr) (kinds : Array CongrArgKind) := do
       if  i < xs.size then
-        let x := xs[i]
-        let y := ys[i]
+        let x := xs[i]!
+        let y := ys[i]!
         let xType := (← inferType x).consumeTypeAnnotations
         let yType := (← inferType y).consumeTypeAnnotations
         if xType == yType then
@@ -98,9 +98,9 @@ where
       mkHEqRefl lhs
     else
       forallBoundedTelescope type (some 1) fun a type =>
-      let a := a[0]
+      let a := a[0]!
       forallBoundedTelescope type (some 1) fun b motive =>
-      let b := b[0]
+      let b := b[0]!
       let type := type.bindingBody!.instantiate1 a
       withLocalDeclD motive.bindingName! motive.bindingDomain! fun eqPr => do
       let type := type.bindingBody!
@@ -122,8 +122,8 @@ private def fixKindsForDependencies (info : FunInfo) (kinds : Array CongrArgKind
   let mut kinds := kinds
   for i in [:info.paramInfo.size] do
     for j in [i+1:info.paramInfo.size] do
-      if info.paramInfo[j].backDeps.contains i then
-        if kinds[j] matches CongrArgKind.eq || kinds[j] matches CongrArgKind.fixed then
+      if info.paramInfo[j]!.backDeps.contains i then
+        if kinds[j]! matches CongrArgKind.eq || kinds[j]! matches CongrArgKind.fixed then
           -- We must fix `i` because there is a `j` that depends on `i` and `j` is not cast-fixed.
           kinds := kinds.set! i CongrArgKind.fixed
           break
@@ -136,7 +136,7 @@ private def fixKindsForDependencies (info : FunInfo) (kinds : Array CongrArgKind
 private partial def mkCast (e : Expr) (type : Expr) (deps : Array Nat) (eqs : Array (Option Expr)) : MetaM Expr := do
   let rec go (i : Nat) (type : Expr) : MetaM Expr := do
      if i < deps.size then
-       match eqs[deps[i]] with
+       match eqs[deps[i]!]! with
        | none => go (i+1) type
        | some major =>
          let some (_, lhs, rhs) := (← inferType major).eq? | unreachable!
@@ -158,15 +158,15 @@ private def hasCastLike (kinds : Array CongrArgKind) : Bool :=
   kinds.any fun kind => kind matches CongrArgKind.cast || kind matches CongrArgKind.subsingletonInst
 
 private def withNext (type : Expr) (k : Expr → Expr → MetaM α) : MetaM α := do
-  forallBoundedTelescope type (some 1) fun xs type => k xs[0] type
+  forallBoundedTelescope type (some 1) fun xs type => k xs[0]! type
 
 /--
   Test whether we should use `subsingletonInst` kind for instances which depend on `eq`.
   (Otherwise `fixKindsForDependencies`will downgrade them to Fixed -/
 private def shouldUseSubsingletonInst (info : FunInfo) (kinds : Array CongrArgKind) (i : Nat) : Bool := Id.run do
-  if info.paramInfo[i].isDecInst then
-    for j in info.paramInfo[i].backDeps do
-      if kinds[j] matches CongrArgKind.eq then
+  if info.paramInfo[i]!.isDecInst then
+    for j in info.paramInfo[i]!.backDeps do
+      if kinds[j]! matches CongrArgKind.eq then
         return true
   return false
 
@@ -183,9 +183,9 @@ def getCongrSimpKinds (info : FunInfo) : Array CongrArgKind := Id.run do
   for i in [:info.paramInfo.size] do
     if info.resultDeps.contains i then
       result := result.push CongrArgKind.fixed
-    else if info.paramInfo[i].isProp then
+    else if info.paramInfo[i]!.isProp then
       result := result.push CongrArgKind.cast
-    else if info.paramInfo[i].isInstImplicit then
+    else if info.paramInfo[i]!.isInstImplicit then
       if shouldUseSubsingletonInst info result i then
         result := result.push CongrArgKind.subsingletonInst
       else
@@ -228,23 +228,23 @@ where
             let proof ← mkProof type kinds
             return { type, proof, argKinds := kinds }
           else
-            let hyps := hyps.push lhss[i]
-            match kinds[i] with
+            let hyps := hyps.push lhss[i]!
+            match kinds[i]! with
             | CongrArgKind.heq => unreachable!
             | CongrArgKind.fixedNoParam => unreachable!
             | CongrArgKind.eq =>
-              let localDecl ← getLocalDecl lhss[i].fvarId!
+              let localDecl ← getLocalDecl lhss[i]!.fvarId!
               withLocalDecl localDecl.userName localDecl.binderInfo localDecl.type fun rhs => do
-              withLocalDeclD ((`e).appendIndexAfter (eqs.size+1)) (← mkEq lhss[i] rhs) fun eq => do
+              withLocalDeclD ((`e).appendIndexAfter (eqs.size+1)) (← mkEq lhss[i]! rhs) fun eq => do
                 go (i+1) (rhss.push rhs) (eqs.push eq) (hyps.push rhs |>.push eq)
-            | CongrArgKind.fixed => go (i+1) (rhss.push lhss[i]) (eqs.push none) hyps
+            | CongrArgKind.fixed => go (i+1) (rhss.push lhss[i]!) (eqs.push none) hyps
             | CongrArgKind.cast =>
-              let rhsType := (← inferType lhss[i]).replaceFVars (lhss[:rhss.size]) rhss
-              let rhs ← mkCast lhss[i] rhsType info.paramInfo[i].backDeps eqs
+              let rhsType := (← inferType lhss[i]!).replaceFVars (lhss[:rhss.size]) rhss
+              let rhs ← mkCast lhss[i]! rhsType info.paramInfo[i]!.backDeps eqs
               go (i+1) (rhss.push rhs) (eqs.push none) hyps
             | CongrArgKind.subsingletonInst =>
-              let rhsType := (← inferType lhss[i]).replaceFVars (lhss[:rhss.size]) rhss
-              withLocalDecl (← getLocalDecl lhss[i].fvarId!).userName BinderInfo.instImplicit rhsType fun rhs =>
+              let rhsType := (← inferType lhss[i]!).replaceFVars (lhss[:rhss.size]) rhss
+              withLocalDecl (← getLocalDecl lhss[i]!.fvarId!).userName BinderInfo.instImplicit rhsType fun rhs =>
                 go (i+1) (rhss.push rhs) (eqs.push none) (hyps.push rhs)
         return some (← go 0 #[] #[] #[])
     catch _ =>
@@ -257,7 +257,7 @@ where
         mkEqRefl lhs
       else
         withNext type fun lhs type => do
-        match kinds[i] with
+        match kinds[i]! with
         | CongrArgKind.heq => unreachable!
         | CongrArgKind.fixedNoParam => unreachable!
         | CongrArgKind.fixed => mkLambdaFVars #[lhs] (← go (i+1) type)

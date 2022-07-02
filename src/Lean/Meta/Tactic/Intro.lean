@@ -108,11 +108,11 @@ abbrev introNP (mvarId : MVarId) (n : Nat) : MetaM (Array FVarId × MVarId) :=
 
 def intro (mvarId : MVarId) (name : Name) : MetaM (FVarId × MVarId) := do
   let (fvarIds, mvarId) ← introN mvarId 1 [name]
-  return (fvarIds[0], mvarId)
+  return (fvarIds[0]!, mvarId)
 
 def intro1Core (mvarId : MVarId) (preserveBinderNames : Bool) : MetaM (FVarId × MVarId) := do
   let (fvarIds, mvarId) ← introNCore mvarId 1 [] (useNamesForExplicitOnly := false) preserveBinderNames
-  return (fvarIds[0], mvarId)
+  return (fvarIds[0]!, mvarId)
 
 abbrev intro1 (mvarId : MVarId) : MetaM (FVarId × MVarId) :=
   intro1Core mvarId false

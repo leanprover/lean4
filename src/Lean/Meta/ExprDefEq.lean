@@ -55,9 +55,9 @@ where
           for i in [ctorVal.numParams : args.size] do
             let j := i - ctorVal.numParams
             let proj ← mkProjFn ctorVal us params j a
-            trace[Meta.isDefEq.eta.struct] "{a} =?= {b} @ [{j}], {proj} =?= {args[i]}"
-            unless (← isDefEq proj args[i]) do
-              trace[Meta.isDefEq.eta.struct] "failed, unexpect arg #{i}, projection{indentExpr proj}\nis not defeq to{indentExpr args[i]}"
+            trace[Meta.isDefEq.eta.struct] "{a} =?= {b} @ [{j}], {proj} =?= {args[i]!}"
+            unless (← isDefEq proj args[i]!) do
+              trace[Meta.isDefEq.eta.struct] "failed, unexpect arg #{i}, projection{indentExpr proj}\nis not defeq to{indentExpr args[i]!}"
               return false
           return true
       else
@@ -167,8 +167,8 @@ private partial def isDefEqArgsFirstPass
   let rec loop (i : Nat) (postponed : Array Nat) := do
     if h : i < paramInfo.size then
       let info := paramInfo.get ⟨i, h⟩
-      let a₁ := args₁[i]
-      let a₂ := args₂[i]
+      let a₁ := args₁[i]!
+      let a₂ := args₂[i]!
       if !info.isExplicit then
         if (← isEtaUnassignedMVar a₁ <||> isEtaUnassignedMVar a₂) then
           if (← Meta.isExprDefEqAux a₁ a₂) then
@@ -210,9 +210,9 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
         /- Second pass: unify implicit arguments.
            In the second pass, we make sure we are unfolding at
            least non reducible definitions (default setting). -/
-        let a₁   := args₁[i]
-        let a₂   := args₂[i]
-        let info := finfo.paramInfo[i]
+        let a₁   := args₁[i]!
+        let a₂   := args₂[i]!
+        let info := finfo.paramInfo[i]!
         if info.isInstImplicit then
           discard <| trySynthPending a₁
           discard <| trySynthPending a₂
@@ -239,7 +239,7 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
       let fvar := fvars.get ⟨i, h⟩
       let fvarDecl ← getFVarLocalDecl fvar
       let fvarType := fvarDecl.type
-      let d₂       := ds₂[i]
+      let d₂       := ds₂[i]!
       if (← Meta.isExprDefEqAux fvarType d₂) then
         match (← isClass? fvarType) with
         | some className => withNewLocalInstance className fvar <| loop (i+1)
@@ -333,7 +333,7 @@ where
      We use it a quick-check to avoid the more expensive collection procedure. -/
   hasLetDeclsInBetween : MetaM Bool := do
     let check (lctx : LocalContext) : Bool := Id.run do
-      let start := lctx.getFVar! xs[0] |>.index
+      let start := lctx.getFVar! xs[0]! |>.index
       let stop  := lctx.getFVar! xs.back |>.index
       for i in [start+1:stop] do
         match lctx.getAt? i with
@@ -391,7 +391,7 @@ where
   /- Computes the set `ys`. It is a set of `FVarId`s, -/
   collectLetDeps : MetaM FVarIdHashSet := do
     let lctx ← getLCtx
-    let start := lctx.getFVar! xs[0] |>.index
+    let start := lctx.getFVar! xs[0]! |>.index
     let stop  := lctx.getFVar! xs.back |>.index
     let s := xs.foldl (init := {}) fun s x => s.insert x.fvarId!
     let (_, s) ← collectLetDepsAux stop |>.run start |>.run s
@@ -403,7 +403,7 @@ where
     let lctx ← getLCtx
     let s ← collectLetDeps
     /- Convert `s` into the array `ys` -/
-    let start := lctx.getFVar! xs[0] |>.index
+    let start := lctx.getFVar! xs[0]! |>.index
     let stop  := lctx.getFVar! xs.back |>.index
     let mut ys := #[]
     for i in [start:stop+1] do

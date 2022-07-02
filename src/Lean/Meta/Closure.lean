@@ -287,7 +287,7 @@ partial def process : ClosureM Unit := do
   let xs := decls.map LocalDecl.toExpr
   let b  := b.abstract xs
   decls.size.foldRev (init := b) fun i b =>
-    let decl := decls[i]
+    let decl := decls[i]!
     match decl with
     | LocalDecl.cdecl _ _ n ty bi  =>
       let ty := ty.abstractRange i xs

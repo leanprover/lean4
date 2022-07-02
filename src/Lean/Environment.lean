@@ -204,7 +204,7 @@ where
   loop (i : Nat) (env : Environment) : IO Environment := do
     let envExtensions ← envExtensionsRef.get
     if i < envExtensions.size then
-      let s ← envExtensions[i].mkInitial
+      let s ← envExtensions[i]!.mkInitial
       let env := { env with extensions := env.extensions.push s }
       loop (i + 1) env
     else
@@ -593,7 +593,7 @@ where
     -- Recall that the size of the array stored `persistentEnvExtensionRef` may increase when we import user-defined environment extensions.
     let pExtDescrs ← persistentEnvExtensionsRef.get
     if i < pExtDescrs.size then
-      let extDescr := pExtDescrs[i]
+      let extDescr := pExtDescrs[i]!
       let s := extDescr.toEnvExtension.getState env
       let prevSize := (← persistentEnvExtensionsRef.get).size
       let prevAttrSize ← getNumBuiltiAttributes

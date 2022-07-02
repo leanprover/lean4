@@ -20,7 +20,7 @@ def withExpectedType (expectedType? : Option Expr) (x : Expr → TermElabM Expr)
 def elabElabRulesAux (doc? : Option (TSyntax ``docComment)) (attrKind : TSyntax ``attrKind) (k : SyntaxNodeKind) (cat? expty? : Option (Ident)) (alts : Array (TSyntax ``matchAlt)) : CommandElabM Syntax := do
   let alts ← alts.mapM fun (alt : TSyntax ``matchAlt) => match alt with
     | `(matchAltExpr| | $pats,* => $rhs) => do
-      let pat := pats.elemsAndSeps[0]
+      let pat := pats.elemsAndSeps[0]!
       if !pat.isQuot then
         throwUnsupportedSyntax
       let quoted := getQuotContent pat

@@ -143,7 +143,7 @@ private def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Bool)
     -/
     withMainContext do
       let mut thmsArray := ctx.simpTheorems
-      let mut thms      := thmsArray[0]
+      let mut thms      := thmsArray[0]!
       let mut starArg   := false
       for arg in stx[1].getSepArgs do
         if arg.getKind == ``Lean.Parser.Tactic.simpErase then

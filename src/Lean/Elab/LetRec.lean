@@ -76,7 +76,7 @@ private def elabLetRecDeclValues (view : LetRecView) : TermElabM (Array Expr) :=
     forallBoundedTelescope view.type view.binderIds.size fun xs type => do
       -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
       for i in [0:view.binderIds.size] do
-        addLocalVarInfo view.binderIds[i] xs[i]
+        addLocalVarInfo view.binderIds[i]! xs[i]!
       withDeclName view.declName do
          let value ← elabTermEnsuringType view.valStx type
          mkLambdaFVars xs value
@@ -91,14 +91,14 @@ private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array 
   let localInstances ← getLocalInstances
   let toLift := views.mapIdx fun i view => {
     ref            := view.ref
-    fvarId         := fvars[i].fvarId!
+    fvarId         := fvars[i]!.fvarId!
     attrs          := view.attrs
     shortDeclName  := view.shortDeclName
     declName       := view.declName
     lctx
     localInstances
     type           := view.type
-    val            := values[i]
+    val            := values[i]!
     mvarId         := view.mvar.mvarId!
     : LetRecToLift }
   modify fun s => { s with letRecsToLift := toLift.toList ++ s.letRecsToLift }

@@ -16,7 +16,7 @@ def getCtorNumPropFields (ctorInfo : ConstructorVal) : MetaM Nat := do
   forallTelescopeReducing ctorInfo.type fun xs _ => do
     let mut numProps := 0
     for i in [:ctorInfo.numFields] do
-      if (← isProp (← inferType xs[ctorInfo.numParams + i])) then
+      if (← isProp (← inferType xs[ctorInfo.numParams + i]!)) then
         numProps := numProps + 1
     return numProps
 

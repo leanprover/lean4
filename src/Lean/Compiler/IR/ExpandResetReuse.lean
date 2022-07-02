@@ -61,7 +61,7 @@ partial def eraseProjIncForAux (y : VarId) (bs : Array FnBody) (mask : Mask) (ke
     | (FnBody.vdecl _ _ (Expr.uproj _ _) _)   => keepInstr b
     | (FnBody.inc z n c p _) =>
       if n == 0 then done () else
-      let b' := bs[bs.size - 2]
+      let b' := bs[bs.size - 2]!
       match b' with
       | (FnBody.vdecl w _ (Expr.proj i x) _) =>
         if w == z && y == x then

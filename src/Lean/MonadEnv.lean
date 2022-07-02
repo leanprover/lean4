@@ -169,7 +169,7 @@ def findModuleOf? [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m (O
   discard <| getConstInfo declName -- ensure declaration exists
   match (← getEnv).getModuleIdxFor? declName with
   | none        => return none
-  | some modIdx => return some ((← getEnv).allImportedModuleNames[modIdx])
+  | some modIdx => return some ((← getEnv).allImportedModuleNames[modIdx]!)
 
 def isEnumType  [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m Bool := do
   if let ConstantInfo.inductInfo info ← getConstInfo declName then

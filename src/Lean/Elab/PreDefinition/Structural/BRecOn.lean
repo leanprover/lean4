@@ -53,7 +53,7 @@ private def withBelowDict (below : Expr) (numIndParams : Nat) (k : Expr → Expr
     let pre := mkAppN f (args.extract 0 numIndParams)
     let preType ← inferType pre
     forallBoundedTelescope preType (some 1) fun x _ => do
-      let motiveType ← inferType x[0]
+      let motiveType ← inferType x[0]!
       withLocalDeclD (← mkFreshUserName `C) motiveType fun C =>
         let belowDict := mkApp pre C
         let belowDict := mkAppN belowDict (args.extract (numIndParams + 1) args.size)
@@ -92,7 +92,7 @@ def refinedArgType (matcherApp : MatcherApp) (arg : Expr) : MetaM Bool := do
   (Array.zip matcherApp.alts matcherApp.altNumParams).anyM fun (alt, numParams) =>
     lambdaTelescope alt fun xs _ => do
       if xs.size >= numParams then
-        let refinedArg := xs[numParams - 1]
+        let refinedArg := xs[numParams - 1]!
         return !(← isDefEq (← inferType refinedArg) argType)
       else
         return false
@@ -127,7 +127,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
             let recArgPos := recArgInfo.fixedParams.size + recArgInfo.pos
             if recArgPos >= args.size then
               throwError "insufficient number of parameters at recursive application {indentExpr e}"
-            let recArg := args[recArgPos]
+            let recArg := args[recArgPos]!
             -- For reflexive type, we may have nested recursive applications in recArg
             let recArg ← loop below recArg
             let f ← try toBelow below recArgInfo.indParams.size recArg catch  _ => throwError "failed to eliminate recursive application{indentExpr e}"
@@ -137,7 +137,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
             let mut fArgs := #[]
             for i in [:argsNonFixed.size] do
               if recArgInfo.pos != i && !recArgInfo.indicesPos.contains i then
-                let arg := argsNonFixed[i]
+                let arg := argsNonFixed[i]!
                 let arg ← replaceRecApps recFnName recArgInfo below arg
                 fArgs := fArgs.push arg
             return mkAppN f fArgs
@@ -174,7 +174,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
                 trace[Elab.definition.structural] "altNumParams: {numParams}, xs: {xs}"
                 unless xs.size >= numParams do
                   throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
-                let belowForAlt := xs[numParams - 1]
+                let belowForAlt := xs[numParams - 1]!
                 mkLambdaFVars xs (← loop belowForAlt altBody)
             pure { matcherApp with alts := altsNew }.toExpr
       | none =>
@@ -187,7 +187,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
             lambdaTelescope alt fun xs altBody => do
               unless xs.size >= numParams do
                 throwError "unexpected `casesOn` application alternative{indentExpr alt}\nat application{indentExpr e}"
-              let belowForAlt := xs[numParams]
+              let belowForAlt := xs[numParams]!
               mkLambdaFVars xs (← loop belowForAlt altBody)
           return { casesOnApp with alts := altsNew }.toExpr
         else
@@ -199,7 +199,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
 def mkBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
   trace[Elab.definition.structural] "mkBRecOn: {value}"
   let type  := (← inferType value).headBeta
-  let major := recArgInfo.ys[recArgInfo.pos]
+  let major := recArgInfo.ys[recArgInfo.pos]!
   let otherArgs := recArgInfo.ys.filter fun y => y != major && !recArgInfo.indIndices.contains y
   trace[Elab.definition.structural] "fixedParams: {recArgInfo.fixedParams}, otherArgs: {otherArgs}"
   let motive ← mkForallFVars otherArgs type
@@ -224,7 +224,7 @@ def mkBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr) : M Exp
   trace[Elab.definition.structural] "brecOn     {brecOn}"
   trace[Elab.definition.structural] "brecOnType {brecOnType}"
   forallBoundedTelescope brecOnType (some 1) fun F _ => do
-    let F := F[0]
+    let F := F[0]!
     let FType ← inferType F
     trace[Elab.definition.structural] "FType: {FType}"
     let FType ← instantiateForall FType recArgInfo.indIndices
@@ -232,7 +232,7 @@ def mkBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr) : M Exp
     forallBoundedTelescope FType (some 1) fun below _ => do
       -- TODO: `below` user name is `f`, and it will make a global `f` to be pretty printed as `_root_.f` in error messages.
       -- We should add an option to `forallBoundedTelescope` to ensure fresh names are used.
-      let below := below[0]
+      let below := below[0]!
       let valueNew     ← replaceRecApps recFnName recArgInfo below value
       let Farg         ← mkLambdaFVars (recArgInfo.indIndices ++ #[major, below] ++ otherArgs) valueNew
       let brecOn       := mkApp brecOn Farg

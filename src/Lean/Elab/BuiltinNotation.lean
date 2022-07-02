@@ -48,7 +48,7 @@ are turned into a new anonymous constructor application. For example,
             let numExplicitFields ← forallTelescopeReducing cinfo.type fun xs _ => do
               let mut n := 0
               for i in [cinfo.numParams:xs.size] do
-                if (← getFVarLocalDecl xs[i]).binderInfo.isExplicit then
+                if (← getFVarLocalDecl xs[i]!).binderInfo.isExplicit then
                   n := n + 1
               return n
             let args := args.getElems
@@ -172,7 +172,7 @@ partial def mkPairs (elems : Array Term) : MacroM Term :=
   let rec loop (i : Nat) (acc : Term) := do
     if i > 0 then
       let i    := i - 1
-      let elem := elems[i]
+      let elem := elems[i]!
       let acc ← `(Prod.mk $elem $acc)
       loop i acc
     else

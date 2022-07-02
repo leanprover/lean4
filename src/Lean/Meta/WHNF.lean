@@ -208,10 +208,10 @@ private def reduceQuotRec (recVal  : QuotVal) (recLvls : List Level) (recArgs : 
       match major with
       | Expr.app (Expr.app (Expr.app (Expr.const majorFn _ _) _ _) _ _) majorArg _ => do
         let some (ConstantInfo.quotInfo { kind := QuotKind.ctor, .. }) ← getConstNoEx? majorFn | failK ()
-        let f := recArgs[argPos]
+        let f := recArgs[argPos]!
         let r := mkApp f majorArg
         let recArity := majorPos + 1
-        successK $ mkAppRange r recArity recArgs.size recArgs
+        successK <| mkAppRange r recArity recArgs.size recArgs
       | _ => failK ()
     else
       failK ()
@@ -418,7 +418,7 @@ def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
         let mut i := prefixSz
         for h in hs do
           if auxAppFn == h then
-            let result := mkAppN args[i] auxApp.getAppArgs
+            let result := mkAppN args[i]! auxApp.getAppArgs
             let result := mkAppN result args[prefixSz + info.numAlts:args.size]
             return ReduceMatcherResult.reduced result.headBeta
           i := i + 1

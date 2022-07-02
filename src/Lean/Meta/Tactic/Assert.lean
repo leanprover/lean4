@@ -81,7 +81,7 @@ def assertAfter (mvarId : MVarId) (fvarId : FVarId) (userName : Name) (type : Ex
     assignExprMVar mvarId (mkAppN mvarNew args)
     let (fvarIdNew, mvarIdNew) ← intro1P mvarNew.mvarId!
     let (fvarIdsNew, mvarIdNew) ← introNP mvarIdNew fvarIds.size
-    let subst := fvarIds.size.fold (init := {}) fun i subst => subst.insert fvarIds[i] (mkFVar fvarIdsNew[i])
+    let subst := fvarIds.size.fold (init := {}) fun i subst => subst.insert fvarIds[i]! (mkFVar fvarIdsNew[i]!)
     pure { fvarId := fvarIdNew, mvarId := mvarIdNew, subst := subst }
 
 structure Hypothesis where

@@ -28,7 +28,6 @@ private def mkAuxiliaryMatchTerm (parentTag : Name) (matchTac : Syntax) : MacroM
       if holeOrTacticSeq.isOfKind ``Parser.Term.syntheticHole then
         pure ()
       else if holeOrTacticSeq.isOfKind ``Parser.Term.hole then
-        let s ← get
         let tag := if alts.size > 1 then parentTag ++ (`match).appendIndexAfter nextIdx else parentTag
         let holeName := mkIdentFrom holeOrTacticSeq tag
         let newHole ← `(?$holeName:ident)

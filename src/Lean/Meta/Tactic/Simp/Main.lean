@@ -224,7 +224,7 @@ partial def removeUnnecessaryCasts (e : Expr) : MetaM Expr := do
   let mut args := e.getAppArgs
   let mut modified := false
   for i in [:args.size] do
-    let arg := args[i]
+    let arg := args[i]!
     if isDummyEqRec arg then
       args := args.set! i (elimDummyEqRec arg)
       modified := true
@@ -339,8 +339,8 @@ where
       let mut r := r
       let mut i := 0
       for arg in args do
-        trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i].hasFwdDeps}"
-        if i < infos.size && !infos[i].hasFwdDeps then
+        trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i]!.hasFwdDeps}"
+        if i < infos.size && !infos[i]!.hasFwdDeps then
           r ← mkCongr r (← simp arg)
         else if (← whnfD (← inferType r.expr)).isArrow then
           r ← mkCongr r (← simp arg)
@@ -455,7 +455,7 @@ where
         subst := subst.push instNew
         type := type.bindingBody!
       | CongrArgKind.eq =>
-        let argResult := argResults[j]
+        let argResult := argResults[j]!
         let argProof ← argResult.getProof' arg
         j := j + 1
         proof := mkApp2 proof argResult.expr argProof
@@ -526,7 +526,7 @@ where
     if (← isDefEq lhs e) then
       let mut modified := false
       for i in c.hypothesesPos do
-        let x := xs[i]
+        let x := xs[i]!
         try
           if (← processCongrHypothesis x) then
             modified := true

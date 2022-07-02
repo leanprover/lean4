@@ -717,7 +717,7 @@ private def mkTuple (elems : Array Syntax) : MacroM Syntax := do
   if elems.size == 0 then
     mkUnit
   else if elems.size == 1 then
-    return elems[0]
+    return elems[0]!
   else
     elems.extract 0 (elems.size - 1) |>.foldrM (init := elems.back) fun elem tuple =>
       ``(MProd.mk $elem $tuple)
@@ -752,7 +752,7 @@ private def destructTuple (uvars : Array Var) (x : Syntax) (body : Syntax) : Mac
   if uvars.size == 0 then
     return body
   else if uvars.size == 1 then
-    `(let $(uvars[0]):ident := $x; $body)
+    `(let $(uvars[0]!):ident := $x; $body)
   else
     destruct uvars.toList x body
 where
@@ -1173,7 +1173,7 @@ private partial def expandLiftMethodAux (inQuot : Bool) (inBinder : Bool) : Synt
     else if k == ``Lean.Parser.Term.liftMethod && !inQuot then withFreshMacroScope do
       if inBinder then
         throwErrorAt stx "cannot lift `(<- ...)` over a binder, this error usually happens when you are trying to lift a method nested in a `fun`, `let`, or `match`-alternative, and it can often be fixed by adding a missing `do`"
-      let term := args[1]
+      let term := args[1]!
       let term ← expandLiftMethodAux inQuot inBinder term
       let auxDoElem : Syntax ← `(doElem| let a ← $term:term)
       modify fun s => s ++ [auxDoElem]
@@ -1377,7 +1377,7 @@ mutual
         ```
       -/
       -- Extract second element
-      let doForDecl := doForDecls[1]
+      let doForDecl := doForDecls[1]!
       unless doForDecl[0].isNone do
         throwErrorAt doForDecl[0] "the proof annotation here has not been implemented yet"
       let y  := doForDecl[1]
@@ -1396,10 +1396,10 @@ mutual
                    do $body)
         doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
     else withRef doFor do
-      let h?        := if doForDecls[0][0].isNone then none else some doForDecls[0][0][0]
-      let x         := doForDecls[0][1]
+      let h?        := if doForDecls[0]![0].isNone then none else some doForDecls[0]![0][0]
+      let x         := doForDecls[0]![1]
       withRef x <| checkNotShadowingMutable (← getPatternVarsEx x)
-      let xs        := doForDecls[0][3]
+      let xs        := doForDecls[0]![3]
       let forElems  := getDoSeqElems doFor[3]
       let forInBodyCodeBlock ← withFor (doSeqToCode forElems)
       let ⟨uvars, forInBody⟩ ← mkForInBody x forInBodyCodeBlock

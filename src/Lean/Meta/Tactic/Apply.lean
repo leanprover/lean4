@@ -27,8 +27,8 @@ private def throwApplyError {α} (mvarId : MVarId) (eType : Expr) (targetType : 
 
 def synthAppInstances (tacticName : Name) (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo) : MetaM Unit :=
   newMVars.size.forM fun i => do
-    if binderInfos[i].isInstImplicit then
-      let mvar := newMVars[i]
+    if binderInfos[i]!.isInstImplicit then
+      let mvar := newMVars[i]!
       let mvarType ← inferType mvar
       let mvarVal  ← synthInstance mvarType
       unless (← isDefEq mvar mvarVal) do
@@ -38,13 +38,13 @@ def appendParentTag (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Arr
   let parentTag ← getMVarTag mvarId
   if newMVars.size == 1 then
     -- if there is only one subgoal, we inherit the parent tag
-    setMVarTag newMVars[0].mvarId! parentTag
+    setMVarTag newMVars[0]!.mvarId! parentTag
   else
     unless parentTag.isAnonymous do
       newMVars.size.forM fun i => do
-        let newMVarId := newMVars[i].mvarId!
+        let newMVarId := newMVars[i]!.mvarId!
         unless (← isExprMVarAssigned newMVarId) do
-          unless binderInfos[i].isInstImplicit do
+          unless binderInfos[i]!.isInstImplicit do
             let currTag ← getMVarTag newMVarId
             setMVarTag newMVarId (appendTag parentTag currTag)
 

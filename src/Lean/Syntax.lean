@@ -164,7 +164,7 @@ partial def updateTrailing (trailing : Substring) : Syntax → Syntax
     if args.size == 0 then n
     else
      let i    := args.size - 1
-     let last := updateTrailing trailing args[i]
+     let last := updateTrailing trailing args[i]!
      let args := args.set! i last;
      Syntax.node info k args
   | s => s
@@ -238,7 +238,7 @@ partial instance : ForIn m TopDown Syntax where
         let mut b := b'
         if let Syntax.node _ k args := stx then
           if firstChoiceOnly && k == choiceKind then
-            return ← loop args[0] b
+            return ← loop args[0]! b
           else
             for arg in args do
               match (← loop arg b) with
@@ -260,7 +260,7 @@ partial def reprint (stx : Syntax) : Option String := do
       if kind == choiceKind then
         -- this visit the first arg twice, but that should hardly be a problem
         -- given that choice nodes are quite rare and small
-        let s0 ← reprint args[0]
+        let s0 ← reprint args[0]!
         for arg in args[1:] do
           let s' ← reprint arg
           guard (s0 == s')

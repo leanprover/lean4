@@ -86,7 +86,7 @@ def withNaryArg (argIdx : Nat) (x : m α) : m α := do
   let e ← getExpr
   let args := e.getAppArgs
   let newPos := (← getPos).pushNaryArg args.size argIdx
-  withTheReader SubExpr (fun cfg => { cfg with expr := args[argIdx], pos := newPos }) x
+  withTheReader SubExpr (fun cfg => { cfg with expr := args[argIdx]!, pos := newPos }) x
 
 end Descend
 

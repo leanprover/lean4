@@ -51,7 +51,7 @@ private partial def loop : M Bool := do
   modify fun s => { s with modified := false }
   -- simplify entries
   for i in [:(← get).entries.size] do
-    let entry := (← get).entries[i]
+    let entry := (← get).entries[i]!
     let ctx := (← get).ctx
     -- We disable the current entry to prevent it to be simplified to `True`
     let simpThmsWithoutEntry := (← getSimpTheorems).eraseTheorem entry.id

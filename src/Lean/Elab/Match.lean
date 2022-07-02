@@ -290,13 +290,13 @@ where
       let tArgs := t.getAppArgs
       let dArgs := d.getAppArgs
       for i in [:info.numParams] do
-        let tArg := tArgs[i]
-        let dArg := dArgs[i]
+        let tArg := tArgs[i]!
+        let dArg := dArgs[i]!
         unless (← isDefEq tArg dArg) do
           return i :: (← goType tArg dArg)
       for i in [info.numParams : tArgs.size] do
-        let tArg := tArgs[i]
-        let dArg := dArgs[i]
+        let tArg := tArgs[i]!
+        let dArg := dArgs[i]!
         unless (← isDefEq tArg dArg) do
           return i :: (← goIndex tArg dArg)
       failure
@@ -313,13 +313,13 @@ where
         let tArgs := t.getAppArgs
         let dArgs := d.getAppArgs
         for i in [:info.numParams] do
-          let tArg := tArgs[i]
-          let dArg := dArgs[i]
+          let tArg := tArgs[i]!
+          let dArg := dArgs[i]!
           unless (← isDefEq tArg dArg) do
             failure
         for i in [info.numParams : tArgs.size] do
-          let tArg := tArgs[i]
-          let dArg := dArgs[i]
+          let tArg := tArgs[i]!
+          let dArg := dArgs[i]!
           unless (← isDefEq tArg dArg) do
             return i :: (← goIndex tArg dArg)
         failure
@@ -342,7 +342,7 @@ private def elabPatterns (patternStxs : Array Syntax) (matchType : Expr) : Excep
     let mut patterns  := #[]
     let mut matchType := matchType
     for idx in [:patternStxs.size] do
-      let patternStx := patternStxs[idx]
+      let patternStx := patternStxs[idx]!
       matchType ← whnf matchType
       match matchType with
       | Expr.forallE _ d b _ =>
@@ -906,7 +906,7 @@ where
     match (← altViews'.mapM (fun altView => elabMatchAltView discrs' altView matchType' (toClear ++ toClear')) |>.run) with
     | Except.ok alts => return (discrs', matchType', alts, first?.isSome || refined)
     | Except.error { patternIdx := patternIdx, pathToIndex := pathToIndex, ex := ex } =>
-      let discr := discrs[patternIdx]
+      let discr := discrs[patternIdx]!
       let some index ← getIndexToInclude? discr.expr pathToIndex
         | throwEx (← updateFirst first? ex)
       trace[Elab.match] "index to include: {index}"
@@ -1027,7 +1027,7 @@ private def isMatchUnit? (altLHSS : List Match.AltLHS) (rhss : Array Expr) : Met
   match altLHSS with
   | [ { fvarDecls := [], patterns := [ Pattern.ctor `PUnit.unit .. ], .. } ] =>
     /- Recall that for alternatives of the form `| PUnit.unit => rhs`, `rhss[0]` is of the form `fun _ : Unit => b`. -/
-    match rhss[0] with
+    match rhss[0]! with
     | Expr.lam _ _ b _ => return if b.hasLooseBVars then none else b
     | _ => return none
   | _ => return none

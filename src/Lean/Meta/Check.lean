@@ -92,8 +92,8 @@ where
             return (mkAppN a.getAppFn as', mkAppN b.getAppFn bs')
           else
             for i in [:as.size] do
-              unless (← isDefEq as[i] bs[i]) do
-                let (ai, bi) ← visit as[i] bs[i]
+              unless (← isDefEq as[i]! bs[i]!) do
+                let (ai, bi) ← visit as[i]! bs[i]!
                 as := as.set! i ai
                 bs := bs.set! i bi
             let a := mkAppN a.getAppFn as
@@ -104,10 +104,10 @@ where
 
   hasExplicitDiff? (xs as bs : Array Expr) : MetaM (Option (Array Expr × Array Expr)) := do
     for i in [:xs.size] do
-      let localDecl ← getLocalDecl xs[i].fvarId!
+      let localDecl ← getLocalDecl xs[i]!.fvarId!
       if localDecl.binderInfo.isExplicit then
-         unless (← isDefEq as[i] bs[i]) do
-           let (ai, bi) ← visit as[i] bs[i]
+         unless (← isDefEq as[i]! bs[i]!) do
+           let (ai, bi) ← visit as[i]! bs[i]!
            return some (as.set! i ai, bs.set! i bi)
     return none
 

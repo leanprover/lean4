@@ -37,9 +37,9 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
         let (twoVars, mvarId) ← introNP mvarId 2
         trace[Meta.Tactic.subst] "after intro2 {MessageData.ofGoal mvarId}"
         trace[Meta.Tactic.subst] "reverted variables {vars.map (·.name)}"
-        let aFVarId := twoVars[0]
+        let aFVarId := twoVars[0]!
         let a       := mkFVar aFVarId
-        let hFVarId := twoVars[1]
+        let hFVarId := twoVars[1]!
         let h       := mkFVar hFVarId
         /- Set skip to true if there is no local variable nor the target depend on the equality -/
         let skip ← if !tryToSkip || vars.size != 2 then
@@ -81,8 +81,8 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
                 let (newFVars, mvarId) ← introNP mvarId (vars.size - 2)
                 trace[Meta.Tactic.subst] "after intro rest {vars.size - 2} {MessageData.ofGoal mvarId}"
                 let fvarSubst ← newFVars.size.foldM (init := fvarSubst) fun i (fvarSubst : FVarSubst) =>
-                    let var     := vars[i+2]
-                    let newFVar := newFVars[i]
+                    let var     := vars[i+2]!
+                    let newFVar := newFVars[i]!
                     pure $ fvarSubst.insert var (mkFVar newFVar)
                 let fvarSubst := fvarSubst.insert aFVarIdOriginal (if clearH then b else mkFVar aFVarId)
                 let fvarSubst := fvarSubst.insert hFVarIdOriginal (mkFVar hFVarId)

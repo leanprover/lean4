@@ -148,7 +148,7 @@ def matchMatcherApp? [Monad m] [MonadEnv m] (e : Expr) : m (Option MatcherApp) :
           matcherLevels := declLevels.toArray
           uElimPos?     := info.uElimPos?
           params        := args.extract 0 info.numParams
-          motive        := args[info.getMotivePos]
+          motive        := args[info.getMotivePos]!
           discrs        := args[info.numParams + 1 : info.numParams + 1 + info.numDiscrs]
           altNumParams  := info.altNumParams
           alts          := args[info.numParams + 1 + info.numDiscrs : info.numParams + 1 + info.numDiscrs + info.numAlts]

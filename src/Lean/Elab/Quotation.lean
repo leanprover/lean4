@@ -54,7 +54,7 @@ partial def mkTuple : Array Syntax → TermElabM Syntax
   | #[e] => return e
   | es   => do
     let stx ← mkTuple (es.eraseIdx 0)
-    `(Prod.mk $(es[0]) $stx)
+    `(Prod.mk $(es[0]!) $stx)
 
 def resolveSectionVariable (sectionVars : NameMap Name) (id : Name) : List (Name × List String) :=
   -- decode macro scopes from name before recursion
@@ -152,7 +152,7 @@ private partial def quoteSyntax : Syntax → TermElabM Term
                 | $[_%$ids],*          => Array.empty)
             | _ =>
               let arr ← ids[:ids.size-1].foldrM (fun id arr => `(Array.zip $id:ident $arr)) ids.back
-              `(Array.map (fun $(← mkTuple ids) => $(inner[0])) $arr)
+              `(Array.map (fun $(← mkTuple ids) => $(inner[0]!)) $arr)
           let arr ← if k == `sepBy then
             `(mkSepArray $arr $(getSepStxFromSplice arg))
           else
@@ -383,7 +383,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
                 yes ← `(let $id := tuples.map (fun $tuple => $id); $yes)
               `(tuples)
           let contents := if contents.size == 1
-            then contents[0]
+            then contents[0]!
             else mkNullNode contents
           `(match ($(discrs).sequenceMap fun
                 | `($contents) => some $tuple

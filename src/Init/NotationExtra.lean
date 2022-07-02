@@ -26,7 +26,7 @@ def expandExplicitBindersAux (combinator : Syntax) (idents : Array Syntax) (type
     match i with
     | 0   => pure acc
     | i+1 =>
-      let ident := idents[i][0]
+      let ident := idents[i]![0]
       let acc ← match ident.isIdent, type? with
         | true,  none      => `($combinator fun $ident => $acc)
         | true,  some type => `($combinator fun $ident:ident : $type => $acc)
@@ -40,8 +40,8 @@ def expandBrackedBindersAux (combinator : Syntax) (binders : Array Syntax) (body
     match i with
     | 0   => pure acc
     | i+1 =>
-      let idents := binders[i][1].getArgs
-      let type   := binders[i][3]
+      let idents := binders[i]![1].getArgs
+      let type   := binders[i]![3]
       loop i (← expandExplicitBindersAux combinator idents (some type) acc)
   loop binders.size body
 

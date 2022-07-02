@@ -21,9 +21,9 @@ private def mkParserSeq (ds : Array (Term × Nat)) : TermElabM (Term × Nat) := 
   if ds.size == 0 then
     throwUnsupportedSyntax
   else if ds.size == 1 then
-    pure ds[0]
+    pure ds[0]!
   else
-    let mut (r, stackSum) := ds[0]
+    let mut (r, stackSum) := ds[0]!
     for (d, stackSz) in ds[1:ds.size] do
       r ← `(ParserDescr.binary `andthen $r $d)
       stackSum := stackSum + stackSz
@@ -376,11 +376,11 @@ def inferMacroRulesAltKind : TSyntax ``matchAlt → CommandElabM SyntaxNodeKind
 Infer syntax kind `k` from first pattern, put alternatives of same kind into new `macro/elab_rules (kind := k)` via `mkCmd (some k)`,
 leave remaining alternatives (via `mkCmd none`) to be recursively expanded. -/
 def expandNoKindMacroRulesAux (alts : Array (TSyntax ``matchAlt)) (cmdName : String) (mkCmd : Option Name → Array (TSyntax ``matchAlt) → CommandElabM Command) : CommandElabM Command := do
-  let mut k ← inferMacroRulesAltKind alts[0]
+  let mut k ← inferMacroRulesAltKind alts[0]!
   if k.isStr && k.getString! == "antiquot" then
     k := k.getPrefix
   if k == choiceKind then
-    throwErrorAt alts[0]
+    throwErrorAt alts[0]!
       "invalid {cmdName} alternative, multiple interpretations for pattern (solution: specify node kind using `{cmdName} (kind := ...) ...`)"
   else
     let altsK    ← alts.filterM fun alt => return checkRuleKind (← inferMacroRulesAltKind alt) k

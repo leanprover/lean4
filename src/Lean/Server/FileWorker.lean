@@ -124,7 +124,7 @@ section Elab
   def unfoldCmdSnaps (m : DocumentMeta) (snaps : Array Snapshot) (cancelTk : CancelToken)
       : ReaderT WorkerContext IO (AsyncList ElabTaskError Snapshot) := do
     let ctx ← read
-    let headerSnap := snaps[0]
+    let headerSnap := snaps[0]!
     if headerSnap.msgLog.hasErrors then
       -- Treat header processing errors as fatal so users aren't swamped with
       -- followup errors

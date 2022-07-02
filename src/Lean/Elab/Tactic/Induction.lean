@@ -125,7 +125,7 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
         let ctx ← read
         unless s.targetPos < ctx.targets.size do
           throwError "insufficient number of targets for '{elimInfo.name}'"
-        let target := ctx.targets[s.targetPos]
+        let target := ctx.targets[s.targetPos]!
         let expectedType ← getArgExpectedType
         let target ← withConfig (fun cfg => { cfg with assignSyntheticOpaque := true }) do Term.ensureHasType expectedType target
         modify fun s => { s with targetPos := s.targetPos + 1 }
@@ -183,7 +183,7 @@ private def getAltNumFields (elimInfo : ElimInfo) (altName : Name) : TermElabM N
 
 private def checkAltNames (alts : Array (Name × MVarId)) (altsSyntax : Array Syntax) : TacticM Unit :=
   for i in [:altsSyntax.size] do
-    let altStx := altsSyntax[i]
+    let altStx := altsSyntax[i]!
     if getAltName altStx == `_ && i != altsSyntax.size - 1 then
       withRef altStx <| throwError "invalid occurrence of wildcard alternative, it must be the last alternative"
     let altName := getAltName altStx
@@ -208,7 +208,7 @@ private def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Ar
     for fvarId in fvarIds do
       if !useNamesForExplicitOnly || (← getLocalDecl fvarId).binderInfo.isExplicit then
         if i < altVars.size then
-          Term.addLocalVarInfo altVars[i] (mkFVar fvarId)
+          Term.addLocalVarInfo altVars[i]! (mkFVar fvarId)
           i := i + 1
 
 /--
@@ -240,7 +240,7 @@ def reorderAlts (alts : Array (Name × MVarId)) (altsSyntax : Array Syntax) : Ar
     for altStx in altsSyntax do
       let altName := getAltName altStx
       let some i := alts.findIdx? (·.1 == altName) | return result ++ alts
-      result := result.push alts[i]
+      result := result.push alts[i]!
       alts := alts.eraseIdx i
     return result ++ alts
 
@@ -266,13 +266,13 @@ where
       let altStx? ←
         match altsSyntax.findIdx? (fun alt => getAltName alt == altName) with
         | some idx =>
-          let altStx := altsSyntax[idx]
+          let altStx := altsSyntax[idx]!
           altsSyntax := altsSyntax.eraseIdx idx
           pure (some altStx)
         | none => match altsSyntax.findIdx? (fun alt => getAltName alt == `_) with
           | some idx =>
             isWildcard := true
-            pure (some altsSyntax[idx])
+            pure (some altsSyntax[idx]!)
           | none =>
             pure none
       match altStx? with
@@ -323,7 +323,7 @@ where
     if usedWildcard then
       altsSyntax := altsSyntax.filter fun alt => getAltName alt != `_
     unless altsSyntax.isEmpty do
-      logErrorAt altsSyntax[0] "unused alternative"
+      logErrorAt altsSyntax[0]! "unused alternative"
     setGoals subgoals.toList
   applyPreTac (mvarId : MVarId) : TacticM (List MVarId) :=
     if optPreTac.isNone then
@@ -471,7 +471,7 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
       return elimInfo
     unless targets.size == 1 do
       throwError "eliminator must be provided when multiple targets are used (use 'using <eliminator-name>'), and no default eliminator has been registered using attribute `[eliminator]`"
-    let indVal ← getInductiveValFromMajor targets[0]
+    let indVal ← getInductiveValFromMajor targets[0]!
     if induction && indVal.all.length != 1 then
       throwError "'induction' tactic does not support mutually inductive types, the eliminator '{mkRecName indVal.name}' has multiple motives"
     if induction && indVal.isNested then
@@ -520,7 +520,7 @@ private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
           ElimApp.mkElimApp elimInfo targets tag
         trace[Elab.induction] "elimApp: {result.elimApp}"
         let elimArgs := result.elimApp.getAppArgs
-        ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos].mvarId! targetFVarIds
+        ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos]!.mvarId! targetFVarIds
         let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
         assignExprMVar mvarId result.elimApp
         ElimApp.evalAlts elimInfo result.alts optPreTac alts initInfo (numGeneralized := n) (toClear := targetFVarIds)
@@ -548,7 +548,7 @@ def elabCasesTargets (targets : Array Syntax) : TacticM (Array Expr) :=
         let mut j := 0
         for arg in args do
           if (← shouldGeneralizeTarget arg.expr) || arg.hName?.isSome then
-            result := result.push (mkFVar fvarIdsNew[j])
+            result := result.push (mkFVar fvarIdsNew[j]!)
             j := j+1
           else
             result := result.push arg.expr
@@ -575,12 +575,12 @@ def elabCasesTargets (targets : Array Syntax) : TacticM (Array Expr) :=
       let targets ← addImplicitTargets elimInfo targets
       let result ← withRef targetRef <| ElimApp.mkElimApp elimInfo targets tag
       let elimArgs := result.elimApp.getAppArgs
-      let targets ← elimInfo.targetsPos.mapM fun i => instantiateMVars elimArgs[i]
-      let motiveType ← inferType elimArgs[elimInfo.motivePos]
+      let targets ← elimInfo.targetsPos.mapM fun i => instantiateMVars elimArgs[i]!
+      let motiveType ← inferType elimArgs[elimInfo.motivePos]!
       let mvarId ← generalizeTargetsEq mvarId motiveType targets
       let (targetsNew, mvarId) ← introN mvarId targets.size
       withMVarContext mvarId do
-        ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos].mvarId! targetsNew
+        ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos]!.mvarId! targetsNew
         assignExprMVar mvarId result.elimApp
         ElimApp.evalAlts elimInfo result.alts optPreTac alts initInfo (numEqs := targets.size) (toClear := targetsNew)
 

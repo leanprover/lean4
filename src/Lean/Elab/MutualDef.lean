@@ -83,10 +83,10 @@ private def registerFailedToInferDefTypeInfo (type : Expr) (ref : Syntax) : Term
   ```  -/
 private def isMultiConstant? (views : Array DefView) : Option (List Name) :=
   if views.size == 1 &&
-     views[0].kind == DefKind.opaque &&
-     views[0].binders.getArgs.size > 0 &&
-     views[0].binders.getArgs.all (·.getKind == ``Parser.Term.simpleBinder) then
-    some <| (views[0].binders.getArgs.toList.map (fun stx => stx[0].getArgs.toList.map (·.getId))).join
+     views[0]!.kind == DefKind.opaque &&
+     views[0]!.binders.getArgs.size > 0 &&
+     views[0]!.binders.getArgs.all (·.getKind == ``Parser.Term.simpleBinder) then
+    some <| (views[0]!.binders.getArgs.toList.map (fun stx => stx[0].getArgs.toList.map (·.getId))).join
   else
     none
 
@@ -209,7 +209,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array
       -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
       for i in [0:header.binderIds.size] do
         -- skip auto-bound prefix in `xs`
-        addLocalVarInfo header.binderIds[i] xs[header.numParams - header.binderIds.size + i]
+        addLocalVarInfo header.binderIds[i]! xs[header.numParams - header.binderIds.size + i]!
       let val ← elabTermEnsuringType valStx type
       mkLambdaFVars xs val
 
@@ -539,15 +539,15 @@ private def mkLetRecClosures (sectionVars : Array Expr) (mainFVarIds : Array FVa
   let mut freeVarMap    := mkFreeVarMap (← getMCtx) sectionVars mainFVarIds recFVarIds letRecsToLift
   let mut result := #[]
   for i in [:letRecsToLift.size] do
-    if letRecsToLift[i].val.hasExprMVar then
+    if letRecsToLift[i]!.val.hasExprMVar then
       -- This can happen when this particular let-rec has nested let-rec that have been resolved in previous iterations.
       -- This code relies on the fact that nested let-recs occur before the outer most let-recs at `letRecsToLift`.
       -- Unresolved nested let-recs appear as metavariables before they are resolved. See `assignExprMVar` at `mkLetRecClosureFor`
-      let valNew ← instantiateMVars letRecsToLift[i].val
+      let valNew ← instantiateMVars letRecsToLift[i]!.val
       letRecsToLift := letRecsToLift.modify i fun t => { t with val := valNew }
       -- We have to recompute the `freeVarMap` in this case. This overhead should not be an issue in practice.
       freeVarMap := mkFreeVarMap (← getMCtx) sectionVars mainFVarIds recFVarIds letRecsToLift
-    let toLift := letRecsToLift[i]
+    let toLift := letRecsToLift[i]!
     result := result.push (← mkLetRecClosureFor toLift (freeVarMap.find? toLift.fvarId).get!)
   return result.toList
 
@@ -556,7 +556,7 @@ abbrev Replacement := FVarIdMap Expr
 
 def insertReplacementForMainFns (r : Replacement) (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mainFVars : Array Expr) : Replacement :=
   mainFVars.size.fold (init := r) fun i r =>
-    r.insert mainFVars[i].fvarId! (mkAppN (Lean.mkConst mainHeaders[i].declName) sectionVars)
+    r.insert mainFVars[i]!.fvarId! (mkAppN (Lean.mkConst mainHeaders[i]!.declName) sectionVars)
 
 
 def insertReplacementForLetRecs (r : Replacement) (letRecClosures : List LetRecClosure) : Replacement :=
@@ -573,8 +573,8 @@ def Replacement.apply (r : Replacement) (e : Expr) : Expr :=
 def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mainVals : Array Expr)
     : TermElabM (Array PreDefinition) :=
   mainHeaders.size.foldM (init := preDefs) fun i preDefs => do
-    let header := mainHeaders[i]
-    let val  ← mkLambdaFVars sectionVars mainVals[i]
+    let header := mainHeaders[i]!
+    let val  ← mkLambdaFVars sectionVars mainVals[i]!
     let type ← mkForallFVars sectionVars header.type
     return preDefs.push {
       ref         := getDeclarationSelectionRef header.ref

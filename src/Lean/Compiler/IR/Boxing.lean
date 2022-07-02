@@ -50,8 +50,8 @@ def mkBoxedVersionAux (decl : Decl) : N Decl := do
   let ps := decl.params
   let qs ← ps.mapM fun _ => do let x ← N.mkFresh; pure { x := x, ty := IRType.object, borrow := false : Param }
   let (newVDecls, xs) ← qs.size.foldM (init := (#[], #[])) fun i (newVDecls, xs) => do
-    let p := ps[i]
-    let q := qs[i]
+    let p := ps[i]!
+    let q := qs[i]!
     if !p.ty.isScalar then
       pure (newVDecls, xs.push (Arg.var q.x))
     else
@@ -244,7 +244,7 @@ def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Arr
   return (xs', bs)
 
 @[inline] def castArgsIfNeeded (xs : Array Arg) (ps : Array Param) (k : Array Arg → M FnBody) : M FnBody := do
-  let (ys, bs) ← castArgsIfNeededAux xs fun i => ps[i].ty
+  let (ys, bs) ← castArgsIfNeededAux xs fun i => ps[i]!.ty
   let b ← k ys
   pure (reshape bs b)
 

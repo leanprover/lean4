@@ -55,7 +55,7 @@ private def findMatchToSplit? (env : Environment) (e : Expr) (declNames : Array 
       -- If none of the discriminants is a free variable, then it is not worth splitting the match
       let mut hasFVarDiscr := false
       for i in [info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
-        let discr := args[i]
+        let discr := args[i]!
         if discr.isFVar then
           hasFVarDiscr := true
           break
@@ -63,7 +63,7 @@ private def findMatchToSplit? (env : Environment) (e : Expr) (declNames : Array 
         return Expr.FindStep.visit
       -- At least one alternative must contain a `declNames` application with loose bound variables.
       for i in [info.getFirstAltPos : info.getFirstAltPos + info.numAlts] do
-        let alt := args[i]
+        let alt := args[i]!
         if Option.isSome <| alt.find? fun e => declNames.any e.isAppOf && e.hasLooseBVars then
           return Expr.FindStep.found
       return Expr.FindStep.visit

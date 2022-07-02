@@ -668,7 +668,7 @@ private def collectLevelParamsInStructure (structType : Expr) (scopeVars : Array
 private def addCtorFields (fieldInfos : Array StructFieldInfo) : Nat → Expr → TermElabM Expr
   | 0,   type => pure type
   | i+1, type => do
-    let info := fieldInfos[i]
+    let info := fieldInfos[i]!
     let decl ← Term.getFVarLocalDecl! info.fvar
     let type ← instantiateMVars type
     let type := type.abstract #[info.fvar]

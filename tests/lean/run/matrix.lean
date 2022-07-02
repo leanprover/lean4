@@ -27,9 +27,9 @@ def Matrix (m n : Nat) (α : Type u) : Type u :=
 namespace Matrix
 
 /- Scoped notation for accessing values stored in matrices. -/
-scoped syntax:max term noWs "[" term ", " term "]" : term
+scoped syntax:max (name := matrixAccess) (priority := high) term noWs "[" term ", " term "]" : term
 
-macro_rules
+macro_rules (kind := matrixAccess)
   | `($x[$i, $j]) => `($x $i $j)
 
 def dotProduct [Mul α] [Add α] [Zero α] (u v : Fin m → α) : α :=
@@ -37,7 +37,7 @@ def dotProduct [Mul α] [Add α] [Zero α] (u v : Fin m → α) : α :=
 where
   loop (i : Nat) (h : i ≤ m) (acc : α) : α :=
     match i, h with
-    | 0, h   => acc
+    | 0, _   => acc
     | i+1, h =>
       have : i < m := Nat.lt_of_lt_of_le (Nat.lt_succ_self _) h
       loop i (Nat.le_of_lt this) (acc + u ⟨i, this⟩ * v ⟨i, this⟩)

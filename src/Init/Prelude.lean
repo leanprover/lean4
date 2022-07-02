@@ -1264,6 +1264,9 @@ def Array.get! {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α 
   Array.getD a i default
 
 def Array.getOp {α : Type u} [Inhabited α] (self : Array α) (idx : Nat) : α :=
+  self.get! idx -- TODO: use `Array.get`
+
+def Array.getOp! {α : Type u} [Inhabited α] (self : Array α) (idx : Nat) : α :=
   self.get! idx
 
 @[extern "lean_array_push"]

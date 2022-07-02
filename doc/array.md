@@ -39,16 +39,12 @@ To create an array of size `n` in which all the elements are initialized to some
 
 You can access array elements by using brackets (`[` and `]`).
 ```lean
-#eval #['a', 'b', 'c'][1]
--- 'b'
-
-def getThird (xs : Array Nat) : Nat :=
-  xs[2]
-
-#eval getThird #[10, 20, 30, 40]
--- 30
+def f (a : Array Nat) (i : Fin a.size) :=
+  a[i] + a[i]
 ```
+Note that the index `i` has type `Fin a.size`, i.e., it is natural number less than `a.size`.
 The bracket operator is whitespace sensitive.
+
 ```lean
 def f (xs : List Nat) : List Nat :=
   xs ++ xs
@@ -56,7 +52,21 @@ def f (xs : List Nat) : List Nat :=
 def as : Array Nat :=
   #[1, 2, 3, 4]
 
+def idx : Fin 4 :=
+  2
+
 #eval f [1, 2, 3] -- This is a function application
 
-#eval as[2] -- This is an array access
+#eval as[idx] -- This is an array access
+```
+The notation `a[i]` has two variants: `a[i]!` and `a[i]?`. In both cases, `i` has type `Nat`. The first one
+produces a panic error message if the index `i` is out of bounds. The latter returns an `Option` type.
+
+```lean
+#eval #['a', 'b', 'c'][1]?
+-- some 'b'
+#eval #['a', 'b', 'c'][5]?
+-- none
+#eval #['a', 'b', 'c'][1]!
+-- 'b!
 ```

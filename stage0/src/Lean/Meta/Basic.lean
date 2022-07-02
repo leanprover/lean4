@@ -1061,7 +1061,7 @@ partial def withLocalDecls
 where
   loop [Inhabited α] (acc : Array Expr) : n α := do
     if acc.size < declInfos.size then
-      let (name, bi, typeCtor) := declInfos[acc.size]
+      let (name, bi, typeCtor) := declInfos[acc.size]!
       withLocalDecl name bi (←typeCtor acc) fun x => loop (acc.push x)
     else
       k acc

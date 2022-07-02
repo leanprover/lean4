@@ -103,8 +103,8 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
   let mut hasErrors := false
   for preDefs in cliques do
     trace[Elab.definition.scc] "{preDefs.map (·.declName)}"
-    if preDefs.size == 1 && isNonRecursive preDefs[0] then
-      let preDef := preDefs[0]
+    if preDefs.size == 1 && isNonRecursive preDefs[0]! then
+      let preDef := preDefs[0]!
       if preDef.modifiers.isNoncomputable then
         addNonRec preDef
       else
@@ -129,7 +129,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
         if wf?.isSome || decrTactic?.isSome then
           wfRecursion preDefs wf? decrTactic?
         else
-          withRef (preDefs[0].ref) <| mapError
+          withRef (preDefs[0]!.ref) <| mapError
             (orelseMergeErrors
               (structuralRecursion preDefs)
               (wfRecursion preDefs none none))

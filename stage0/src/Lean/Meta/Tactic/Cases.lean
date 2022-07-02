@@ -35,7 +35,7 @@ private def mkEqAndProof (lhs rhs : Expr) : MetaM (Expr × Expr) := do
 private partial def withNewEqs (targets targetsNew : Array Expr) (k : Array Expr → Array Expr → MetaM α) : MetaM α :=
   let rec loop (i : Nat) (newEqs : Array Expr) (newRefls : Array Expr) := do
     if i < targets.size then
-      let (newEqType, newRefl) ← mkEqAndProof targets[i] targetsNew[i]
+      let (newEqType, newRefl) ← mkEqAndProof targets[i]! targetsNew[i]!
       withLocalDeclD `h newEqType fun newEq => do
         loop (i+1) (newEqs.push newEq) (newRefls.push newRefl)
     else
@@ -167,7 +167,7 @@ private def hasIndepIndices (ctx : Context) : MetaM Bool := do
   else if ctx.majorTypeIndices.any fun idx => !idx.isFVar then
     /- One of the indices is not a free variable. -/
     pure false
-  else if ctx.majorTypeIndices.size.any fun i => i.any fun j => ctx.majorTypeIndices[i] == ctx.majorTypeIndices[j] then
+  else if ctx.majorTypeIndices.size.any fun i => i.any fun j => ctx.majorTypeIndices[i]! == ctx.majorTypeIndices[j]! then
     /- An index ocurrs more than once -/
     pure false
   else
@@ -195,7 +195,7 @@ private def elimAuxIndices (s₁ : GeneralizeIndicesSubgoal) (s₂ : Array Cases
 private def toCasesSubgoals (s : Array InductionSubgoal) (ctorNames : Array Name) (majorFVarId : FVarId) (us : List Level) (params : Array Expr)
     : Array CasesSubgoal :=
   s.mapIdx fun i s =>
-    let ctorName := ctorNames[i]
+    let ctorName := ctorNames[i]!
     let ctorApp  := mkAppN (mkAppN (mkConst ctorName us) params) s.fields
     let s        := { s with subst := s.subst.insert majorFVarId ctorApp }
     { ctorName           := ctorName,

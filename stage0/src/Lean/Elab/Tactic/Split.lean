@@ -23,7 +23,7 @@ open Meta
        let some mvarIds ← splitTarget? mvarId | Meta.throwTacticEx `split mvarId ""
         return mvarIds
     else
-      let fvarId ← getFVarId hyps[0]
+      let fvarId ← getFVarId hyps[0]!
       liftMetaTactic fun mvarId => do
         let some mvarIds ← splitLocalDecl? mvarId fvarId | Meta.throwTacticEx `split mvarId ""
         return mvarIds

@@ -18,7 +18,7 @@ open Lean.Parser.Command
 def elabMacroRulesAux (doc? : Option (TSyntax ``docComment)) (attrKind : TSyntax ``attrKind) (tk : Syntax) (k : SyntaxNodeKind) (alts : Array (TSyntax ``matchAlt)) : CommandElabM Syntax := do
   let alts ← alts.mapM fun (alt : TSyntax ``matchAlt) => match alt with
     | `(matchAltExpr| | $pats,* => $rhs) => do
-      let pat := pats.elemsAndSeps[0]
+      let pat := pats.elemsAndSeps[0]!
       if !pat.isQuot then
         throwUnsupportedSyntax
       let quoted := getQuotContent pat

@@ -387,22 +387,22 @@ def elabBinCalc : TermElab :=  fun stx expectedType? => do
     let proof ← elabTermEnsuringType stepStx[2] type
     synthesizeSyntheticMVars
     proofs := proofs.push proof
-  let mut result := proofs[0]
-  let mut resultType := types[0]
+  let mut result := proofs[0]!
+  let mut resultType := types[0]!
   for i in [1:proofs.size] do
     let some (r, a, b) ← relation? resultType | unreachable!
-    let some (s, _, c) ← relation? (← instantiateMVars types[i]) | unreachable!
+    let some (s, _, c) ← relation? (← instantiateMVars types[i]!) | unreachable!
     let (α, β, γ)       := (← inferType a, ← inferType b, ← inferType c)
     let (u_1, u_2, u_3) := (← getLevel α, ← getLevel β, ← getLevel γ)
     let t ← mkFreshExprMVar (← mkArrow α (← mkArrow γ (mkSort levelZero)))
     let selfType := mkAppN (Lean.mkConst ``Trans [u_1, u_2, u_3]) #[α, β, γ, r, s, t]
     match (← trySynthInstance selfType) with
     | LOption.some self =>
-      result := mkAppN (Lean.mkConst ``Trans.trans [u_1, u_2, u_3]) #[α, β, γ, r, s, t, self, a, b, c, result, proofs[i]]
+      result := mkAppN (Lean.mkConst ``Trans.trans [u_1, u_2, u_3]) #[α, β, γ, r, s, t, self, a, b, c, result, proofs[i]!]
       resultType := (← instantiateMVars (← inferType result)).headBeta
       unless (← relation? resultType).isSome do
-        throwErrorAt stepStxs[i] "invalid 'calc' step, step result is not a relation{indentExpr resultType}"
-    | _ => throwErrorAt stepStxs[i] "invalid 'calc' step, failed to synthesize `Trans` instance{indentExpr selfType}"
+        throwErrorAt stepStxs[i]! "invalid 'calc' step, step result is not a relation{indentExpr resultType}"
+    | _ => throwErrorAt stepStxs[i]! "invalid 'calc' step, failed to synthesize `Trans` instance{indentExpr selfType}"
     pure ()
   ensureHasType expectedType? result
 

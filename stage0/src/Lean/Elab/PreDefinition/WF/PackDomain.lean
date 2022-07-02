@@ -27,7 +27,7 @@ partial def mkUnaryArg (type : Expr) (args : Array Expr) : MetaM Expr := do
 where
   go (i : Nat) (type : Expr) : MetaM Expr := do
     if i < args.size - 1 then
-      let arg := args[i]
+      let arg := args[i]!
       assert! type.isAppOfArity ``PSigma 2
       let us := type.getAppFn.constLevels!
       let α := type.appFn!.appArg!
@@ -37,16 +37,16 @@ where
       let rest ← go (i+1) type
       return mkApp4 (mkConst ``PSigma.mk us) α β arg rest
     else
-      return args[i]
+      return args[i]!
 
 private partial def mkPSigmaCasesOn (y : Expr) (codomain : Expr) (xs : Array Expr) (value : Expr) : MetaM Expr := do
   let mvar ← mkFreshExprSyntheticOpaqueMVar codomain
   let rec go (mvarId : MVarId) (y : FVarId) (ys : Array Expr) : MetaM Unit := do
     if ys.size < xs.size - 1 then
-      let xDecl  ← getLocalDecl xs[ys.size].fvarId!
-      let xDecl' ← getLocalDecl xs[ys.size + 1].fvarId!
+      let xDecl  ← getLocalDecl xs[ys.size]!.fvarId!
+      let xDecl' ← getLocalDecl xs[ys.size + 1]!.fvarId!
       let #[s] ← cases mvarId y #[{ varNames := [xDecl.userName, xDecl'.userName] }] | unreachable!
-      go s.mvarId s.fields[1].fvarId! (ys.push s.fields[0])
+      go s.mvarId s.fields[1]!.fvarId! (ys.push s.fields[0]!)
     else
       let ys := ys.push (mkFVar y)
       assignExprMVar mvarId (value.replaceFVars xs ys)
@@ -91,23 +91,23 @@ partial def packDomain (fixedPrefix : Nat) (preDefs : Array PreDefinition) : Met
     return preDefs
   -- Update values
   for i in [:preDefs.size] do
-    let preDef := preDefs[i]
-    let preDefNew := preDefsNew[i]
+    let preDef := preDefs[i]!
+    let preDefNew := preDefsNew[i]!
     let valueNew ← lambdaTelescope preDef.value fun xs body => do
       let ys : Array Expr := xs[:fixedPrefix]
       let xs : Array Expr := xs[fixedPrefix:]
       let type ← instantiateForall preDefNew.type ys
       forallBoundedTelescope type (some 1) fun z codomain => do
-        let z := z[0]
+        let z := z[0]!
         let newBody ← mkPSigmaCasesOn z codomain xs body
         mkLambdaFVars (ys.push z) (← packApplications newBody arities preDefsNew)
     let isBad (e : Expr) : Bool :=
       match isAppOfPreDef? e with
       | none   => false
-      | some i => e.getAppNumArgs > fixedPrefix + 1 || preDefsNew[i].declName != preDefs[i].declName
+      | some i => e.getAppNumArgs > fixedPrefix + 1 || preDefsNew[i]!.declName != preDefs[i]!.declName
     if let some bad := valueNew.find? isBad then
       if let some i := isAppOfPreDef? bad then
-        throwErrorAt preDef.ref "well-founded recursion cannot be used, function '{preDef.declName}' contains application of function '{preDefs[i].declName}' with #{bad.getAppNumArgs} argument(s), but function has arity {arities[i]}"
+        throwErrorAt preDef.ref "well-founded recursion cannot be used, function '{preDef.declName}' contains application of function '{preDefs[i]!.declName}' with #{bad.getAppNumArgs} argument(s), but function has arity {arities[i]!}"
     preDefsNew := preDefsNew.set! i { preDefNew with value := valueNew }
   return preDefsNew
 where
@@ -121,7 +121,7 @@ where
     let pack (e : Expr) (funIdx : Nat) : MetaM Expr := do
       let f := e.getAppFn
       let args := e.getAppArgs
-      let fNew := mkConst preDefsNew[funIdx].declName f.constLevels!
+      let fNew := mkConst preDefsNew[funIdx]!.declName f.constLevels!
       let fNew := mkAppN fNew args[:fixedPrefix]
       let Expr.forallE _ d .. ← inferType fNew | unreachable!
       let argNew ← mkUnaryArg d args[fixedPrefix:]
@@ -148,7 +148,7 @@ where
         let args ← args.mapM visit
         if let some funIdx := isAppOfPreDef? f then
           let numArgs := args.size
-          let arity   := arities[funIdx]
+          let arity   := arities[funIdx]!
           if numArgs < arity then
             -- Partial application
             let extra := arity - numArgs

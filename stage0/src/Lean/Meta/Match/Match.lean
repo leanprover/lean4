@@ -32,8 +32,8 @@ private partial def withEqs (lhs rhs : Array Expr) (discrInfos : Array DiscrInfo
 where
   go (i : Nat) (hs : Array Expr) : MetaM α := do
     if i < lhs.size then
-      if let some hName := discrInfos[i].hName? then
-        withLocalDeclD hName (← mkEqHEq lhs[i] rhs[i]) fun h =>
+      if let some hName := discrInfos[i]!.hName? then
+        withLocalDeclD hName (← mkEqHEq lhs[i]! rhs[i]!) fun h =>
           go (i+1) (hs.push h)
       else
         go (i+1) hs
@@ -880,7 +880,7 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
       let mut isEqMaskIdx := 0
       for discr in discrs, info in discrInfos do
         if info.hName?.isSome then
-          if isEqMask[isEqMaskIdx] then
+          if isEqMask[isEqMaskIdx]! then
             rfls := rfls.push (← mkEqRefl discr)
           else
             rfls := rfls.push (← mkHEqRefl discr)
@@ -910,7 +910,7 @@ def getMkMatcherInputInContext (matcherApp : MatcherApp) : MetaM MkMatcherInput 
   let matchType ← do
     let u :=
       if let some idx := matcherInfo.uElimPos?
-      then mkLevelParam matcherConst.levelParams.toArray[idx]
+      then mkLevelParam matcherConst.levelParams.toArray[idx]!
       else levelZero
     forallBoundedTelescope matcherType (some matcherInfo.numDiscrs) fun discrs _ => do
     mkForallFVars discrs (mkConst ``PUnit [u])
@@ -949,7 +949,7 @@ end Match
 private partial def updateAlts (typeNew : Expr) (altNumParams : Array Nat) (alts : Array Expr) (i : Nat) : MetaM (Array Nat × Array Expr) := do
   if h : i < alts.size then
     let alt       := alts.get ⟨i, h⟩
-    let numParams := altNumParams[i]
+    let numParams := altNumParams[i]!
     let typeNew ← whnfD typeNew
     match typeNew with
     | Expr.forallE _ d b _ =>
@@ -980,8 +980,8 @@ def MatcherApp.addArg (matcherApp : MatcherApp) (e : Expr) : MetaM MatcherApp :=
       throwError "unexpected matcher application, motive must be lambda expression with #{matcherApp.discrs.size} arguments"
     let eType ← inferType e
     let eTypeAbst ← matcherApp.discrs.size.foldRevM (init := eType) fun i eTypeAbst => do
-      let motiveArg := motiveArgs[i]
-      let discr     := matcherApp.discrs[i]
+      let motiveArg := motiveArgs[i]!
+      let discr     := matcherApp.discrs[i]!
       let eTypeAbst ← kabstract eTypeAbst discr
       return eTypeAbst.instantiate1 motiveArg
     let motiveBody ← mkArrow eTypeAbst motiveBody

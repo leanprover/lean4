@@ -347,7 +347,7 @@ def isSubPrefixOf (lctx₁ lctx₂ : LocalContext) (exceptFVars : Array Expr := 
 @[inline] def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=
   let b := b.abstract xs
   xs.size.foldRev (init := b) fun i b =>
-    let x := xs[i]
+    let x := xs[i]!
     match lctx.findFVar? x with
     | some (LocalDecl.cdecl _ _ n ty bi)  =>
       let ty := ty.abstractRange i xs;

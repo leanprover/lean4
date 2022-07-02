@@ -348,7 +348,7 @@ def getSubstring? (stx : Syntax) (withLeading := true) (withTrailing := true) : 
     none
   else
     let i := i - 1
-    let v := a[i]
+    let v := a[i]!
     match f v with
     | some v => some <| a.set! i v
     | none   => updateLast a f i

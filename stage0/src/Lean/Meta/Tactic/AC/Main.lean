@@ -25,7 +25,7 @@ structure PreContext where
 instance : ContextInformation (PreContext × Array Bool) where
   isComm ctx := ctx.1.comm.isSome
   isIdem ctx := ctx.1.idem.isSome
-  isNeutral ctx x := ctx.2[x]
+  isNeutral ctx x := ctx.2[x]!
 
 instance : EvalInformation PreContext ACExpr where
   arbitrary _ := Data.AC.Expr.var 0
@@ -86,7 +86,7 @@ def toACExpr (op l r : Expr) : MetaM (Array Expr × ACExpr) := do
 def buildNormProof (preContext : PreContext) (l r : Expr) : MetaM (Lean.Expr × Lean.Expr) := do
   let (vars, acExpr) ← toACExpr preContext.op l r
 
-  let α ← inferType vars[0]
+  let α ← inferType vars[0]!
   let u ← getLevel α
   let (isNeutrals, context) ← mkContext α u vars
   let acExprNormed := Data.AC.evalList ACExpr preContext $ Data.AC.norm (preContext, isNeutrals) acExpr
@@ -97,7 +97,7 @@ def buildNormProof (preContext : PreContext) (l r : Expr) : MetaM (Lean.Expr × 
   return (proof, tgt)
 where
   mkContext (α : Expr) (u : Level) (vars : Array Expr) : MetaM (Array Bool × Expr) := do
-    let arbitrary := vars[0]
+    let arbitrary := vars[0]!
     let zero := mkLevelZeroEx ()
     let noneE := mkApp (mkConst ``Option.none [zero])
     let someE := mkApp2 (mkConst ``Option.some [zero])
@@ -135,7 +135,7 @@ where
 
   convertTarget (vars : Array Expr) : ACExpr → Expr
     | Data.AC.Expr.op l r => mkApp2 preContext.op (convertTarget vars l) (convertTarget vars r)
-    | Data.AC.Expr.var x => vars[x]
+    | Data.AC.Expr.var x => vars[x]!
 
 def rewriteUnnormalized (mvarId : MVarId) : MetaM Unit := do
   let simpCtx :=

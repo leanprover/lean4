@@ -41,7 +41,7 @@ open Nat.Linear.Expr in
 def LinearExpr.toArith (ctx : Array Expr) (e : LinearExpr) : MetaM Expr := do
   match e with
   | num v    => return mkNatLit v
-  | var i    => return ctx[i]
+  | var i    => return ctx[i]!
   | add a b  => mkAdd (← toArith ctx a) (← toArith ctx b)
   | mulL k a => mkMul (mkNatLit k) (← toArith ctx a)
   | mulR a k => mkMul (← toArith ctx a) (mkNatLit k)

@@ -107,8 +107,8 @@ private partial def finalize
             let subst := reverted.size.fold (init := baseSubst) fun i (subst : FVarSubst) =>
               if i < indices.size + 1 then subst
               else
-                let revertedFVarId := reverted[i]
-                let newFVarId      := extra[i - indices.size - 1]
+                let revertedFVarId := reverted[i]!
+                let newFVarId      := extra[i - indices.size - 1]!
                 subst.insert revertedFVarId (mkFVar newFVarId)
             let fields := fields.map mkFVar
             loop (pos+1) (minorIdx+1) recursor recursorType consumedMajor (subgoals.push { mvarId := mvarId', fields := fields, subst := subst })
@@ -140,7 +140,7 @@ def induction (mvarId : MVarId) (majorFVarId : FVarId) (recursorName : Name) (gi
         let idx := majorTypeArgs.get! idxPos
         unless idx.isFVar do throwTacticEx `induction mvarId m!"major premise type index {idx} is not a variable{indentExpr majorType}"
         majorTypeArgs.size.forM fun i => do
-          let arg := majorTypeArgs[i]
+          let arg := majorTypeArgs[i]!
           if i != idxPos && arg == idx then
             throwTacticEx `induction mvarId m!"'{idx}' is an index in major premise, but it occurs more than once{indentExpr majorType}"
           if i < idxPos && mctx.exprDependsOn arg idx.fvarId! then
@@ -165,7 +165,7 @@ def induction (mvarId : MVarId) (majorFVarId : FVarId) (recursorName : Name) (gi
         let mut subst : FVarSubst := {}
         let mut i := 0
         for index in indices do
-          subst := subst.insert index.fvarId! (mkFVar indices'[i])
+          subst := subst.insert index.fvarId! (mkFVar indices'[i]!)
           i     := i + 1
         pure subst
       trace[Meta.Tactic.induction] "after revert&intro\n{MessageData.ofGoal mvarId}"

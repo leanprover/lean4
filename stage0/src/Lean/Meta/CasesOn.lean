@@ -31,9 +31,9 @@ def toCasesOnApp? (e : Expr) : MetaM (Option CasesOnApp) := do
   let args := e.getAppArgs
   unless args.size >= info.numParams + 1 /- motive -/ + info.numIndices + 1 /- major -/ + info.numCtors do return none
   let params    := args[:info.numParams]
-  let motive    := args[info.numParams]
+  let motive    := args[info.numParams]!
   let indices   := args[info.numParams + 1 : info.numParams + 1 + info.numIndices]
-  let major     := args[info.numParams + 1 + info.numIndices]
+  let major     := args[info.numParams + 1 + info.numIndices]!
   let alts      := args[info.numParams + 1 + info.numIndices + 1 : info.numParams + 1 + info.numIndices + 1 + info.numCtors]
   let remaining := args[info.numParams + 1 + info.numIndices + 1 + info.numCtors :]
   let propOnly  := info.levelParams.length == us.length
@@ -94,7 +94,7 @@ where
             let alt := alt.beta xs
             let alt ← mkLambdaFVars x alt -- x is the new argument we are adding to the alternative
             if checkIfRefined then
-              return (← mkLambdaFVars xs alt, !(← isDefEq argType (← inferType x[0])))
+              return (← mkLambdaFVars xs alt, !(← isDefEq argType (← inferType x[0]!)))
             else
               return (← mkLambdaFVars xs alt, true)
         if refinedAt then

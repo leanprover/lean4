@@ -297,8 +297,8 @@ where
       -- TODO: do I need to check (← okBottomUp? args[i] mvars[i] fuel).isSafe here?
       -- if so, I'll need to take a callback
       if fd.isOutParam then
-        tryUnify (args[i]) (mvars[i])
-      inspectAux (fb.instantiate1 args[i]) (mb.instantiate1 mvars[i]) (i+1) args mvars
+        tryUnify (args[i]!) (mvars[i]!)
+      inspectAux (fb.instantiate1 args[i]!) (mb.instantiate1 mvars[i]!) (i+1) args mvars
     | _, _ => return ()
 
 partial def isTrivialBottomUp (e : Expr) : AnalyzeM Bool := do
@@ -322,12 +322,12 @@ partial def canBottomUp (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 
     let fType ← replaceLPsWithVars (← inferType e.getAppFn)
     let (mvars, bInfos, resultType) ← forallMetaBoundedTelescope fType e.getAppArgs.size
     for i in [:mvars.size] do
-      if bInfos[i] == BinderInfo.instImplicit then
-        inspectOutParams args[i] mvars[i]
-      else if bInfos[i] == BinderInfo.default then
-        if ← isTrivialBottomUp args[i] then tryUnify args[i] mvars[i]
-        else if ← typeUnknown mvars[i] <&&> canBottomUp args[i] mvars[i] fuel then tryUnify args[i] mvars[i]
-    if ← (pure (isHBinOp e) <&&> (valUnknown mvars[0] <||> valUnknown mvars[1])) then tryUnify mvars[0] mvars[1]
+      if bInfos[i]! == BinderInfo.instImplicit then
+        inspectOutParams args[i]! mvars[i]!
+      else if bInfos[i]! == BinderInfo.default then
+        if ← isTrivialBottomUp args[i]! then tryUnify args[i]! mvars[i]!
+        else if ← typeUnknown mvars[i]! <&&> canBottomUp args[i]! mvars[i]! fuel then tryUnify args[i]! mvars[i]!
+    if ← (pure (isHBinOp e) <&&> (valUnknown mvars[0]! <||> valUnknown mvars[1]!)) then tryUnify mvars[0]! mvars[1]!
     if mvar?.isSome then tryUnify resultType (← inferType mvar?.get!)
     return !(← valUnknown resultType)
 
@@ -489,44 +489,44 @@ mutual
   where
     collectBottomUps := do
       let { args, mvars, bInfos, ..} ← read
-      for target in [fun _ => none, fun i => some mvars[i]] do
+      for target in [fun _ => none, fun i => some mvars[i]!] do
         for i in [:args.size] do
-          if bInfos[i] == BinderInfo.default then
-            if ← typeUnknown mvars[i] <&&> canBottomUp args[i] (target i) then
-              tryUnify args[i] mvars[i]
+          if bInfos[i]! == BinderInfo.default then
+            if ← typeUnknown mvars[i]! <&&> canBottomUp args[i]! (target i) then
+              tryUnify args[i]! mvars[i]!
               modify fun s => { s with bottomUps := s.bottomUps.set! i true }
 
     checkOutParams := do
       let { args, mvars, bInfos, ..} ← read
       for i in [:args.size] do
-        if bInfos[i] == BinderInfo.instImplicit then inspectOutParams args[i] mvars[i]
+        if bInfos[i]! == BinderInfo.instImplicit then inspectOutParams args[i]! mvars[i]!
 
     collectHigherOrders := do
       let { args, mvars, bInfos, ..} ← read
       for i in [:args.size] do
-        if not (bInfos[i] == BinderInfo.implicit || bInfos[i] == BinderInfo.strictImplicit) then continue
-        if not (← isHigherOrder (← inferType args[i])) then continue
-        if getPPAnalyzeTrustId (← getOptions) && isIdLike args[i] then continue
+        if not (bInfos[i]! == BinderInfo.implicit || bInfos[i]! == BinderInfo.strictImplicit) then continue
+        if not (← isHigherOrder (← inferType args[i]!)) then continue
+        if getPPAnalyzeTrustId (← getOptions) && isIdLike args[i]! then continue
 
-        if getPPAnalyzeTrustKnownFOType2TypeHOFuns (← getOptions) && not (← valUnknown mvars[i])
-          && (← isType2Type (args[i])) && (← isFOLike (args[i])) then continue
+        if getPPAnalyzeTrustKnownFOType2TypeHOFuns (← getOptions) && not (← valUnknown mvars[i]!)
+          && (← isType2Type (args[i]!)) && (← isFOLike (args[i]!)) then continue
 
-        tryUnify args[i] mvars[i]
+        tryUnify args[i]! mvars[i]!
         modify fun s => { s with higherOrders := s.higherOrders.set! i true }
 
     hBinOpHeuristic := do
       let { mvars, ..} ← read
-      if ← (pure (isHBinOp (← getExpr)) <&&> (valUnknown mvars[0] <||> valUnknown mvars[1])) then
-        tryUnify mvars[0] mvars[1]
+      if ← (pure (isHBinOp (← getExpr)) <&&> (valUnknown mvars[0]! <||> valUnknown mvars[1]!)) then
+        tryUnify mvars[0]! mvars[1]!
 
     collectTrivialBottomUps := do
       -- motivation: prevent levels from printing in
       -- Boo.mk : {α : Type u_1} → {β : Type u_2} → α → β → Boo.{u_1, u_2} α β
       let { args, mvars, bInfos, ..} ← read
       for i in [:args.size] do
-        if bInfos[i] == BinderInfo.default then
-          if ← valUnknown mvars[i] <&&> isTrivialBottomUp args[i] then
-            tryUnify args[i] mvars[i]
+        if bInfos[i]! == BinderInfo.default then
+          if ← valUnknown mvars[i]! <&&> isTrivialBottomUp args[i]! then
+            tryUnify args[i]! mvars[i]!
             modify fun s => { s with bottomUps := s.bottomUps.set! i true }
 
     applyFunBinderHeuristic := do
@@ -537,9 +537,9 @@ mutual
         | Expr.lam .., Expr.forallE _ t b .. =>
           let mut annotated := false
           for i in [:argIdx] do
-            if ← pure (bInfos[i] == BinderInfo.implicit) <&&> valUnknown mvars[i] <&&> withNewMCtxDepth (checkpointDefEq t mvars[i]) then
+            if ← pure (bInfos[i]! == BinderInfo.implicit) <&&> valUnknown mvars[i]! <&&> withNewMCtxDepth (checkpointDefEq t mvars[i]!) then
               annotateBool `pp.funBinderTypes
-              tryUnify args[i] mvars[i]
+              tryUnify args[i]! mvars[i]!
               -- Note: currently we always analyze the lambda binding domains in `analyzeLam`
               -- (so we don't need to analyze it again here)
               annotated := true
@@ -550,8 +550,8 @@ mutual
         | _, _ => return false
 
       for i in [:args.size] do
-        if bInfos[i] == BinderInfo.default then
-          let b ← withNaryArg i (core i (← inferType mvars[i]))
+        if bInfos[i]! == BinderInfo.default then
+          let b ← withNaryArg i (core i (← inferType mvars[i]!))
           if b then modify fun s => { s with funBinders := s.funBinders.set! i true }
 
     analyzeFn := do
@@ -566,22 +566,22 @@ mutual
     analyzeArg (i : Nat) := do
       let { f, args, mvars, bInfos, forceRegularApp ..} ← read
       let { bottomUps, higherOrders, funBinders, ..} ← get
-      let arg := args[i]
+      let arg := args[i]!
       let argType ← inferType arg
 
       let processNaturalImplicit : AnalyzeAppM Unit := do
-        if (← valUnknown mvars[i] <||> pure higherOrders[i]) && !forceRegularApp then
-          annotateNamedArg (← mvarName mvars[i])
+        if (← valUnknown mvars[i]! <||> pure higherOrders[i]!) && !forceRegularApp then
+          annotateNamedArg (← mvarName mvars[i]!)
           modify fun s => { s with provideds := s.provideds.set! i true }
         else
           annotateBool `pp.analysis.skip
 
       withNaryArg (f.getAppNumArgs + i) do
-        withTheReader Context (fun ctx => { ctx with inBottomUp := ctx.inBottomUp || bottomUps[i] }) do
+        withTheReader Context (fun ctx => { ctx with inBottomUp := ctx.inBottomUp || bottomUps[i]! }) do
 
-          match bInfos[i] with
+          match bInfos[i]! with
           | BinderInfo.default =>
-            if ← pure (getPPAnalyzeExplicitHoles (← getOptions)) <&&> pure !(← valUnknown mvars[i]) <&&> pure !(← readThe Context).inBottomUp <&&> pure !(← isFunLike arg) <&&> pure !funBinders[i] <&&> checkpointDefEq mvars[i] arg then
+            if ← pure (getPPAnalyzeExplicitHoles (← getOptions)) <&&> pure !(← valUnknown mvars[i]!) <&&> pure !(← readThe Context).inBottomUp <&&> pure !(← isFunLike arg) <&&> pure !funBinders[i]! <&&> checkpointDefEq mvars[i]! arg then
               annotateBool `pp.analysis.hole
             else
               modify fun s => { s with provideds := s.provideds.set! i true }
@@ -601,22 +601,22 @@ mutual
               match instResult with
               | LOption.some inst =>
                 if ← checkpointDefEq inst arg then annotateBool `pp.analysis.skip; provided := false
-                else annotateNamedArg (← mvarName mvars[i])
-              | _                 => annotateNamedArg (← mvarName mvars[i])
+                else annotateNamedArg (← mvarName mvars[i]!)
+              | _                 => annotateNamedArg (← mvarName mvars[i]!)
             else annotateBool `pp.analysis.skip; provided := false
             modify fun s => { s with provideds := s.provideds.set! i provided }
           | BinderInfo.auxDecl => pure ()
-          if (← get).provideds[i] then withKnowing (not (← typeUnknown mvars[i])) true analyze
-          tryUnify mvars[i] args[i]
+          if (← get).provideds[i]! then withKnowing (not (← typeUnknown mvars[i]!)) true analyze
+          tryUnify mvars[i]! args[i]!
 
     maybeSetExplicit := do
       let { f, args, bInfos, ..} ← read
       if (← get).namedArgs.any nameNotRoundtrippable then
         annotateBool `pp.explicit
         for i in [:args.size] do
-          if !(← get).provideds[i] then
+          if !(← get).provideds[i]! then
             withNaryArg (f.getAppNumArgs + i) do annotateBool `pp.analysis.hole
-          if bInfos[i] == BinderInfo.instImplicit && getPPInstanceTypes (← getOptions) then
+          if bInfos[i]! == BinderInfo.instImplicit && getPPInstanceTypes (← getOptions) then
             withType (withKnowing true false analyze)
 
 end

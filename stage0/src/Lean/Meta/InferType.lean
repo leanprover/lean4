@@ -54,7 +54,7 @@ where
         -- So, we must have offset ≤ vidx, since we are in the "else" branch of  `if offset >= e.looseBVarRange`
         let n := stop - start
         if vidx < offset + n then
-          return args[stop - (vidx - offset) - 1].liftLooseBVars 0 offset
+          return args[stop - (vidx - offset) - 1]!.liftLooseBVars 0 offset
         else
           return mkBVar (vidx - n)
       -- The following cases are unreachable because they never contain loose bound variables

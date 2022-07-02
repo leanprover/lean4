@@ -228,11 +228,11 @@ def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStruct
   let args := e.getAppArgs
   let fieldVals := args.extract s.numParams args.size
   for idx in [:fieldNames.size] do
-    let fieldName := fieldNames[idx]
+    let fieldName := fieldNames[idx]!
     let fieldId := mkIdent fieldName
     let fieldPos ← nextExtraPos
     let fieldId := annotatePos fieldPos fieldId
-    addFieldInfo fieldPos (s.induct ++ fieldName) fieldName fieldId fieldVals[idx]
+    addFieldInfo fieldPos (s.induct ++ fieldName) fieldName fieldId fieldVals[idx]!
     let field ← `(structInstField|$fieldId:ident := $(stx[1][idx]):term)
     fields := fields.push field
   let tyStx ← withType do
@@ -317,14 +317,14 @@ private partial def delabPatterns (st : AppMatchState) : DelabM (Array (Array Te
         -- Currently, we reset `optionsPerPos` at the beginning of `delabPatterns` to avoid
         -- incorrectly considering annotations.
         withTheReader SubExpr ({ · with expr := ty }) $
-          usingNames st.varNames[idx] do
+          usingNames st.varNames[idx]! do
             withAppFnArgs (pure #[]) (fun pats => do pure $ pats.push (← delab))
 where
   usingNames {α} (varNames : Array Name) (x : DelabM α) : DelabM α :=
     usingNamesAux 0 varNames x
   usingNamesAux {α} (i : Nat) (varNames : Array Name) (x : DelabM α) : DelabM α :=
     if i < varNames.size then
-      withBindingBody varNames[i] <| usingNamesAux (i+1) varNames x
+      withBindingBody varNames[i]! <| usingNamesAux (i+1) varNames x
     else
       x
 
@@ -351,7 +351,7 @@ where
       else
         -- eta expand `e`
         let e ← forallTelescopeReducing (← inferType e) fun xs _ => do
-          if xs.size == 1 && (← inferType xs[0]).isConstOf ``Unit then
+          if xs.size == 1 && (← inferType xs[0]!).isConstOf ``Unit then
             -- `e` might be a thunk create by the dependent pattern matching compiler, and `xs[0]` may not even be a pattern variable.
             -- If it is a pattern variable, it doesn't look too bad to use `()` instead of the pattern variable.
             -- If it becomes a problem in the future, we should modify the dependent pattern matching compiler, and make sure
@@ -392,7 +392,7 @@ def delabAppMatch : Delab := whenPPOption getPPNotation <| whenPPOption getPPMat
       else if st.discrs.size < st.info.numDiscrs then
         let idx := st.discrs.size
         let discr ← delab
-        if let some hName := st.info.discrInfos[idx].hName? then
+        if let some hName := st.info.discrInfos[idx]!.hName? then
           -- TODO: we should check whether the corresponding binder name, matches `hName`.
           -- If it does not we should pretty print this `match` as a regular application.
           return { st with discrs := st.discrs.push (← `(matchDiscr| $(mkIdent hName):ident : $discr:term)) }
@@ -401,7 +401,7 @@ def delabAppMatch : Delab := whenPPOption getPPNotation <| whenPPOption getPPMat
       else if st.rhss.size < st.info.altNumParams.size then
         /- We save the variables names here to be able to implement safe_shadowing.
            The pattern delaboration must use the names saved here. -/
-        let (varNames, rhs) ← skippingBinders st.info.altNumParams[st.rhss.size] fun varNames => do
+        let (varNames, rhs) ← skippingBinders st.info.altNumParams[st.rhss.size]! fun varNames => do
           let rhs ← delab
           return (varNames, rhs)
         return { st with rhss := st.rhss.push rhs, varNames := st.varNames.push varNames }
@@ -732,7 +732,7 @@ partial def delabDoElems : DelabM (List Syntax) := do
   let e ← getExpr
   if e.isAppOfArity ``Bind.bind 6 then
     -- Bind.bind.{u, v} : {m : Type u → Type v} → [self : Bind m] → {α β : Type u} → m α → (α → m β) → m β
-    let α := e.getAppArgs[2]
+    let α := e.getAppArgs[2]!
     let ma ← withAppFn $ withAppArg delab
     withAppArg do
       match (← getExpr) with

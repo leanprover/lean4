@@ -366,7 +366,7 @@ partial def normalize (l : Level) : Level :=
       let lvls  := lvls.qsort normLt
       let firstNonExplicit := skipExplicit lvls 0
       let i := if isExplicitSubsumed lvls firstNonExplicit then firstNonExplicit else firstNonExplicit - 1
-      let lvl₁  := lvls[i]
+      let lvl₁  := lvls[i]!
       let prev  := lvl₁.getLevelOffset
       let prevK := lvl₁.getOffset
       mkMaxAux lvls k (i+1) prev prevK levelZero

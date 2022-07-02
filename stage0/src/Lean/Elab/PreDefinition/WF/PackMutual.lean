@@ -23,16 +23,16 @@ private def getCodomainLevel (preDefType : Expr) : MetaM Level :=
   This method produces an error if the codomains are in different universe levels.
 -/
 private def getCodomainsLevel (preDefsOriginal : Array PreDefinition) (preDefTypes : Array Expr) : MetaM Level := do
-  let r ← getCodomainLevel preDefTypes[0]
+  let r ← getCodomainLevel preDefTypes[0]!
   for i in [1:preDefTypes.size] do
-    let preDef := preDefTypes[i]
+    let preDef := preDefTypes[i]!
     unless (← isLevelDefEq r (← getCodomainLevel preDef)) do
-      let arity₀ ← lambdaTelescope preDefsOriginal[0].value fun xs _ => return xs.size
-      let arityᵢ ← lambdaTelescope preDefsOriginal[i].value fun xs _ => return xs.size
-      forallBoundedTelescope preDefsOriginal[0].type arity₀ fun _ type₀ =>
-      forallBoundedTelescope preDefsOriginal[i].type arityᵢ fun _ typeᵢ =>
+      let arity₀ ← lambdaTelescope preDefsOriginal[0]!.value fun xs _ => return xs.size
+      let arityᵢ ← lambdaTelescope preDefsOriginal[i]!.value fun xs _ => return xs.size
+      forallBoundedTelescope preDefsOriginal[0]!.type arity₀ fun _ type₀ =>
+      forallBoundedTelescope preDefsOriginal[i]!.type arityᵢ fun _ typeᵢ =>
         withOptions (fun o => pp.sanitizeNames.set o false) do
-          throwError "invalid mutual definition, result types must be in the same universe level, resulting type for `{preDefsOriginal[0].declName}` is{indentExpr type₀} : {← inferType type₀}\nand for `{preDefsOriginal[i].declName}` is{indentExpr typeᵢ} : {← inferType typeᵢ}"
+          throwError "invalid mutual definition, result types must be in the same universe level, resulting type for `{preDefsOriginal[0]!.declName}` is{indentExpr type₀} : {← inferType type₀}\nand for `{preDefsOriginal[i]!.declName}` is{indentExpr typeᵢ} : {← inferType typeᵢ}"
   return r
 
 /--
@@ -50,13 +50,13 @@ private partial def mkNewCoDomain (preDefsOriginal : Array PreDefinition) (preDe
       let casesOn := mkAppN casesOn xTypeArgs -- parameters
       let casesOn := mkApp casesOn (← mkLambdaFVars #[x] (mkSort u)) -- motive
       let casesOn := mkApp casesOn x -- major
-      let minor1 ← withLocalDeclD (← mkFreshUserName `_x) xTypeArgs[0] fun x =>
-        mkLambdaFVars #[x] (preDefTypes[i].bindingBody!.instantiate1 x)
-      let minor2 ← withLocalDeclD (← mkFreshUserName `_x) xTypeArgs[1] fun x => do
+      let minor1 ← withLocalDeclD (← mkFreshUserName `_x) xTypeArgs[0]! fun x =>
+        mkLambdaFVars #[x] (preDefTypes[i]!.bindingBody!.instantiate1 x)
+      let minor2 ← withLocalDeclD (← mkFreshUserName `_x) xTypeArgs[1]! fun x => do
         mkLambdaFVars #[x] (← go x (i+1))
       return mkApp2 casesOn minor1 minor2
     else
-      return preDefTypes[i].bindingBody!.instantiate1 x
+      return preDefTypes[i]!.bindingBody!.instantiate1 x
   go x 0
 
 /--
@@ -78,14 +78,14 @@ private partial def packValues (x : Expr) (codomain : Expr) (preDefValues : Arra
       -/
       let givenNames : Array AltVarNames :=
          if i == preDefValues.size - 2 then
-           #[{ varNames := [varNames[i]] }, { varNames := [varNames[i+1]] }]
+           #[{ varNames := [varNames[i]!] }, { varNames := [varNames[i+1]!] }]
          else
-           #[{ varNames := [varNames[i]] }]
+           #[{ varNames := [varNames[i]!] }]
        let #[s₁, s₂] ← cases mvarId x (givenNames := givenNames) | unreachable!
-      assignExprMVar s₁.mvarId (mkApp preDefValues[i] s₁.fields[0]).headBeta
-      go s₂.mvarId s₂.fields[0].fvarId! (i+1)
+      assignExprMVar s₁.mvarId (mkApp preDefValues[i]! s₁.fields[0]!).headBeta
+      go s₂.mvarId s₂.fields[0]!.fvarId! (i+1)
     else
-      assignExprMVar mvarId (mkApp preDefValues[i] (mkFVar x)).headBeta
+      assignExprMVar mvarId (mkApp preDefValues[i]! (mkFVar x)).headBeta
   go mvar.mvarId! x.fvarId! 0
   instantiateMVars mvar
 
@@ -112,10 +112,10 @@ private partial def post (fixedPrefix : Nat) (preDefs : Array PreDefinition) (do
         (← whnfD type).withApp fun f args => do
           assert! args.size == 2
           if i == fidx then
-            return mkApp3 (mkConst ``PSum.inl f.constLevels!) args[0] args[1] arg
+            return mkApp3 (mkConst ``PSum.inl f.constLevels!) args[0]! args[1]! arg
           else
-            let r ← mkNewArg (i+1) args[1]
-            return mkApp3 (mkConst ``PSum.inr f.constLevels!) args[0] args[1] r
+            let r ← mkNewArg (i+1) args[1]!
+            return mkApp3 (mkConst ``PSum.inr f.constLevels!) args[0]! args[1]! r
     return TransformStep.done <| mkApp (mkAppN (mkConst newFn us) fixedArgs) (← mkNewArg 0 domain)
   return TransformStep.done e
 
@@ -126,7 +126,7 @@ where
     match i with
     | 0 => k fvars (← preDefs.mapM fun preDef => instantiateForall preDef.type fvars) vals
     | i+1 =>
-      withLocalDecl vals[0].bindingName! vals[0].binderInfo vals[0].bindingDomain! fun x =>
+      withLocalDecl vals[0]!.bindingName! vals[0]!.binderInfo vals[0]!.bindingDomain! fun x =>
         go i (fvars.push x) (vals.map fun val => val.bindingBody!.instantiate1 x)
 
 /--
@@ -171,7 +171,7 @@ where
   Remark: `preDefsOriginal` is used for error reporting, it contains the definitions before applying `packDomain`.
  -/
 def packMutual (fixedPrefix : Nat) (preDefsOriginal : Array PreDefinition) (preDefs : Array PreDefinition) : MetaM PreDefinition := do
-  if preDefs.size == 1 then return preDefs[0]
+  if preDefs.size == 1 then return preDefs[0]!
   withFixedPrefix fixedPrefix preDefs fun ys types vals => do
     let domains := types.map fun type => type.bindingDomain!
     let domain ← mkNewDomain domains
@@ -179,8 +179,8 @@ def packMutual (fixedPrefix : Nat) (preDefsOriginal : Array PreDefinition) (preD
       let codomain ← mkNewCoDomain preDefsOriginal types x
       let type ← mkForallFVars (ys.push x) codomain
       let value ← packValues x codomain vals
-      let newFn := preDefs[0].declName ++ `_mutual
-      let preDefNew := { preDefs[0] with declName := newFn, type, value }
+      let newFn := preDefs[0]!.declName ++ `_mutual
+      let preDefNew := { preDefs[0]! with declName := newFn, type, value }
       addAsAxiom preDefNew
       let value ← transform value (post := post fixedPrefix preDefs domain newFn)
       let value ← mkLambdaFVars (ys.push x) value

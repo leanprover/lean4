@@ -22,10 +22,10 @@ private def congrApp (mvarId : MVarId) (lhs rhs : Expr) (addImplicitArgs := fals
     for arg in args do
       let addGoal ←
         if i < infos.size then
-          pure (addImplicitArgs || infos[i].binderInfo.isExplicit)
+          pure (addImplicitArgs || infos[i]!.binderInfo.isExplicit)
         else
           pure (← whnfD (← inferType r.expr)).isArrow
-      let hasFwdDep := i < infos.size && infos[i].hasFwdDeps
+      let hasFwdDep := i < infos.size && infos[i]!.hasFwdDeps
       if addGoal then
         if hasFwdDep then
           newGoals := newGoals.push none

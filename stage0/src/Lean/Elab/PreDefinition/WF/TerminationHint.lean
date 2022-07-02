@@ -136,7 +136,7 @@ private def expandTerminationByNonCore (hint : Syntax) (cliques : Array (Array N
         usedElse := true
     unless elements.isEmpty do
       if let some missing := clique.find? fun declName => elements.find? (·.declName == declName) |>.isNone then
-        withRef elements[0].ref <| Macro.throwError s!"invalid `termination_by` syntax, missing case for function '{missing}'"
+        withRef elements[0]!.ref <| Macro.throwError s!"invalid `termination_by` syntax, missing case for function '{missing}'"
       result := result.push { elements }
   if !usedElse && elseElemStx?.isSome then
     withRef elseElemStx?.get! <| Macro.throwError s!"invalid `termination_by` syntax, unnecessary else-case"
@@ -191,6 +191,6 @@ def TerminationBy.ensureAllUsed (t : TerminationBy) : MacroM Unit :=
         else if !hasUsedAllImplicit then
           unless reportedAllImplicit do
             reportedAllImplicit := true
-            Macro.throwErrorAt clique.elements[0].ref "unused termination hint element"
+            Macro.throwErrorAt clique.elements[0]!.ref "unused termination hint element"
 
 end Lean.Elab.WF

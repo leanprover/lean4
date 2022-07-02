@@ -38,7 +38,7 @@ where
           ctorArgs1 := ctorArgs1.push (← `(_))
           ctorArgs2 := ctorArgs2.push (← `(_))
         for i in [:ctorInfo.numFields] do
-          let x := xs[indVal.numParams + i]
+          let x := xs[indVal.numParams + i]!
           if type.containsFVar x.fvarId! || (←isProp (←inferType x)) then
             -- If resulting type depends on this field or is a proof, we don't need to compare
             ctorArgs1 := ctorArgs1.push (← `(_))
@@ -65,8 +65,8 @@ where
     return alts.pop.pop
 
 def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
-  let auxFunName := ctx.auxFunNames[i]
-  let indVal     := ctx.typeInfos[i]
+  let auxFunName := ctx.auxFunNames[i]!
+  let indVal     := ctx.typeInfos[i]!
   let header     ← mkOrdHeader indVal
   let mut body   ← mkMatch header indVal
   if ctx.usePartial || indVal.isRec then
@@ -87,7 +87,7 @@ def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
     end)
 
 private def mkOrdInstanceCmds (declNames : Array Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext "ord" declNames[0]
+  let ctx ← mkContext "ord" declNames[0]!
   let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `Ord declNames)
   trace[Elab.Deriving.ord] "\n{cmds}"
   return cmds

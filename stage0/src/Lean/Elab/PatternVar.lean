@@ -95,7 +95,7 @@ private def isNextArgAccessible (ctx : Context) : Bool :=
 
 private def getNextParam (ctx : Context) : (Name × BinderInfo) × Context :=
   let i := ctx.paramDeclIdx
-  let d := ctx.paramDecls[i]
+  let d := ctx.paramDecls[i]!
   (d, { ctx with paramDeclIdx := ctx.paramDeclIdx + 1 })
 
 private def processVar (idStx : Syntax) : M Syntax := do
@@ -211,7 +211,7 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
       else
         args
     let stateSaved ← get
-    let arg0 ← collect args[0]
+    let arg0 ← collect args[0]!
     let stateNew ← get
     let mut argsNew := #[arg0]
     for arg in args[1:] do
@@ -297,7 +297,7 @@ where
       let (d, ctx)   := getNextParam ctx
       match ctx.namedArgs.findIdx? fun namedArg => namedArg.name == d.1 with
       | some idx =>
-        let arg := ctx.namedArgs[idx]
+        let arg := ctx.namedArgs[idx]!
         let ctx := { ctx with namedArgs := ctx.namedArgs.eraseIdx idx }
         let ctx ← pushNewArg accessible ctx arg.val
         processCtorAppContext ctx

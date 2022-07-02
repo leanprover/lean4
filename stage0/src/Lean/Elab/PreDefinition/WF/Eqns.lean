@@ -46,7 +46,7 @@ private def hasWellFoundedFix (e : Expr) : Bool :=
 private partial def decodePackedArg? (info : EqnInfo) (e : Expr) : Option (Name × Array Expr) := do
   if info.declNames.size == 1 then
     let args := decodePSigma e #[]
-    return (info.declNames[0], args)
+    return (info.declNames[0]!, args)
   else
     decodePSum? e 0
 where
@@ -57,7 +57,7 @@ where
       decodePSum? e.appArg! (i+1)
     else
       guard (i < info.declNames.size)
-      return (info.declNames[i], decodePSigma e #[])
+      return (info.declNames[i]!, decodePSigma e #[])
 
   decodePSigma (e : Expr) (acc : Array Expr) : Array Expr :=
     /- TODO: check arity of the given function. If it takes a PSigma as the last argument,
@@ -88,7 +88,7 @@ where
     let e' := e.headBeta
     if e'.isAppOf ``WellFounded.fix && e'.getAppNumArgs >= 6 then
       let args := e'.getAppArgs
-      let packedArg := args[5]
+      let packedArg := args[5]!
       let extraArgs := args[6:]
       if let some (declName, args) := decodePackedArg? info packedArg then
         let candidate := mkAppN (mkAppN (mkAppN (mkConst declName us) fixedPrefix) args) extraArgs
@@ -194,8 +194,8 @@ def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
     mkEqnTypes info.declNames goal.mvarId!
   let mut thmNames := #[]
   for i in [: eqnTypes.size] do
-    let type := eqnTypes[i]
-    trace[Elab.definition.wf.eqns] "{eqnTypes[i]}"
+    let type := eqnTypes[i]!
+    trace[Elab.definition.wf.eqns] "{eqnTypes[i]!}"
     let name := baseName ++ (`_eq).appendIndexAfter (i+1)
     thmNames := thmNames.push name
     let value ← mkProof declName info type

@@ -778,7 +778,7 @@ instance : MonadHashMapCacheAdapter ExprStructEq Expr M where
 
 /-- Return the local declaration of the free variable `x` in `xs` with the smallest index -/
 private def getLocalDeclWithSmallestIdx (lctx : LocalContext) (xs : Array Expr) : LocalDecl := Id.run do
-  let mut d : LocalDecl := lctx.getFVar! xs[0]
+  let mut d : LocalDecl := lctx.getFVar! xs[0]!
   for x in xs[1:] do
     if x.isFVar then
       let curr := lctx.getFVar! x
@@ -826,9 +826,9 @@ def collectForwardDeps (mctx : MetavarContext) (lctx : LocalContext) (toRevert :
     if preserveOrder then
       -- Make sure toRevert[j] does not depend on toRevert[i] for j > i
       toRevert.size.forM fun i => do
-        let fvar := toRevert[i]
+        let fvar := toRevert[i]!
         i.forM fun j => do
-          let prevFVar := toRevert[j]
+          let prevFVar := toRevert[j]!
           let prevDecl := lctx.getFVar! prevFVar
           if localDeclDependsOn mctx prevDecl fvar.fvarId! then
             throw (Exception.revertFailure mctx lctx toRevert prevDecl.userName.toString)
@@ -836,7 +836,7 @@ def collectForwardDeps (mctx : MetavarContext) (lctx : LocalContext) (toRevert :
     let firstDeclToVisit := getLocalDeclWithSmallestIdx lctx toRevert
     let initSize         := newToRevert.size
     lctx.foldlM (init := newToRevert) (start := firstDeclToVisit.index) fun (newToRevert : Array Expr) decl => do
-      if initSize.any fun i => decl.fvarId == newToRevert[i].fvarId! then
+      if initSize.any fun i => decl.fvarId == newToRevert[i]!.fvarId! then
         return newToRevert
       else if toRevert.any fun x => decl.fvarId == x.fvarId! then
         return newToRevert.push decl.toExpr
@@ -903,7 +903,7 @@ mutual
   private partial def mkAuxMVarType (lctx : LocalContext)  (xs : Array Expr) (kind : MetavarKind) (e : Expr) : M Expr := do
     let e ← abstractRangeAux xs xs.size e
     xs.size.foldRevM (init := e) fun i e => do
-      let x := xs[i]
+      let x := xs[i]!
       if x.isFVar then
         match lctx.getFVar! x with
         | LocalDecl.cdecl _ _ n type bi =>
@@ -1042,7 +1042,7 @@ partial def revert (xs : Array Expr) (mvarId : MVarId) : M (Expr × Array Expr) 
 @[specialize] def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Expr) (usedOnly : Bool) (usedLetOnly : Bool) : M (Expr × Nat) := do
   let e ← abstractRange xs xs.size e
   xs.size.foldRevM (init := (e, 0)) fun i (e, num) => do
-      let x := xs[i]
+      let x := xs[i]!
       if x.isFVar then
         match lctx.getFVar! x with
         | LocalDecl.cdecl _ _ n type bi =>

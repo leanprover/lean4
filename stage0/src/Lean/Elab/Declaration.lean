@@ -160,7 +160,7 @@ def getTerminationHints (stx : Syntax) : TerminationHints :=
   let k := decl.getKind
   if k == ``Parser.Command.def || k == ``Parser.Command.theorem || k == ``Parser.Command.instance then
     let args := decl.getArgs
-    { terminationBy? := args[args.size - 2].getOptional?, decreasingBy? := args[args.size - 1].getOptional? }
+    { terminationBy? := args[args.size - 2]!.getOptional?, decreasingBy? := args[args.size - 1]!.getOptional? }
   else
     {}
 

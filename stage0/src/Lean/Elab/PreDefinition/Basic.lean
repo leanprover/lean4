@@ -147,7 +147,7 @@ def eraseRecAppSyntax (preDef : PreDefinition) : CoreM PreDefinition :=
 
 def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSafety.unsafe) : TermElabM Unit := do
   let preDefs ← preDefs.mapM fun d => eraseRecAppSyntax d
-  withRef preDefs[0].ref do
+  withRef preDefs[0]!.ref do
     let all  := preDefs.toList.map (·.declName)
     let decl := Declaration.mutualDefnDecl <| ← preDefs.toList.mapM fun preDef => return {
         name        := preDef.declName

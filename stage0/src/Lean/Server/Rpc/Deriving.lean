@@ -296,9 +296,9 @@ private unsafe def dispatchDeriveInstanceUnsafe (declNames : Array Name) (args? 
         evalExpr' DerivingParams ``DerivingParams args
     else pure {}
   if args.withRef then
-    deriveWithRefInstance declNames[0]
+    deriveWithRefInstance declNames[0]!
   else
-    deriveInstance declNames[0]
+    deriveInstance declNames[0]!
 
 @[implementedBy dispatchDeriveInstanceUnsafe]
 private opaque dispatchDeriveInstance (declNames : Array Name) (args? : Option (TSyntax ``Parser.Term.structInst)) : CommandElabM Bool

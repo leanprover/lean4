@@ -35,14 +35,14 @@ where
         match (← getProjectionFnInfo? declName) with
         | some projInfo =>
           if projInfo.numParams < args.size then
-            findFVar? args[projInfo.numParams]
+            findFVar? args[projInfo.numParams]!
           else
             return none
         | none =>
           matchConstRec f (fun _ => return none) fun recVal _ => do
             if recVal.getMajorIdx >= args.size then
               return none
-            let major := args[recVal.getMajorIdx]
+            let major := args[recVal.getMajorIdx]!
             if major.isFVar then
               return some major.fvarId!
             else
@@ -118,7 +118,7 @@ where
       /- Recall that alternatives that do not have variables have a `Unit` parameter to ensure
          they are not eagerly evaluated. -/
       if ys.size == 1 then
-        if (← inferType ys[0]).isConstOf ``Unit && !(← dependsOn type ys[0].fvarId!) then
+        if (← inferType ys[0]!).isConstOf ``Unit && !(← dependsOn type ys[0]!.fvarId!) then
           return (← k #[] #[] #[mkConst ``Unit.unit] #[false] type)
       k ys eqs args mask type
 
@@ -459,7 +459,7 @@ where
       let mut argsNew := args
       let mut isAlt := #[]
       for i in [6:args.size] do
-        let arg := argsNew[i]
+        let arg := argsNew[i]!
         if arg.isFVar then
           match (← read).find? arg.fvarId! with
           | some (altNew, _, _) =>
@@ -473,13 +473,13 @@ where
           argsNew := argsNew.set! i (← convertTemplate arg)
           isAlt := isAlt.push false
       assert! isAlt.size == args.size - 6
-      let rhs := args[4]
-      let motive := args[2]
+      let rhs := args[4]!
+      let motive := args[2]!
       -- Construct new motive using the splitter theorem minor premise types.
       let motiveNew ← lambdaTelescope motive fun motiveArgs body => do
         unless motiveArgs.size == 1 do
           throwError "unexpected `Eq.ndrec` motive while creating splitter/eliminator theorem for `{matchDeclName}`, expected lambda with 1 binder{indentExpr motive}"
-        let x := motiveArgs[0]
+        let x := motiveArgs[0]!
         forallTelescopeReducing body fun motiveTypeArgs resultType => do
           unless motiveTypeArgs.size >= isAlt.size do
             throwError "unexpected `Eq.ndrec` motive while creating splitter/eliminator theorem for `{matchDeclName}`, expected arrow with at least #{isAlt.size} binders{indentExpr body}"
@@ -487,15 +487,15 @@ where
             assert! motiveTypeArgsNew.size == i
             if h : i < motiveTypeArgs.size then
               let motiveTypeArg := motiveTypeArgs.get ⟨i, h⟩
-              if i < isAlt.size && isAlt[i] then
-                let altNew := argsNew[6+i] -- Recall that `Eq.ndrec` has 6 arguments
+              if i < isAlt.size && isAlt[i]! then
+                let altNew := argsNew[6+i]! -- Recall that `Eq.ndrec` has 6 arguments
                 let altTypeNew ← inferType altNew
                 trace[Meta.Match.matchEqs] "altNew: {altNew} : {altTypeNew}"
                 -- Replace `rhs` with `x` (the lambda binder in the motive)
                 let mut altTypeNewAbst := (← kabstract altTypeNew rhs).instantiate1 x
                 -- Replace args[6:6+i] with `motiveTypeArgsNew`
                 for j in [:i] do
-                  altTypeNewAbst := (← kabstract altTypeNewAbst argsNew[6+j]).instantiate1 motiveTypeArgsNew[j]
+                  altTypeNewAbst := (← kabstract altTypeNewAbst argsNew[6+j]!).instantiate1 motiveTypeArgsNew[j]!
                 let localDecl ← getLocalDecl motiveTypeArg.fvarId!
                 withLocalDecl localDecl.userName localDecl.binderInfo altTypeNewAbst fun motiveTypeArgNew =>
                   go (i+1) (motiveTypeArgsNew.push motiveTypeArgNew)
@@ -513,18 +513,18 @@ where
       let eqRecNewPrefix := mkAppN f argsNew[:3] -- `Eq.ndrec` minor premise is the fourth argument.
       let .forallE _ minorTypeNew .. ← whnf (← inferType eqRecNewPrefix) | unreachable!
       trace[Meta.Match.matchEqs] "new minor type: {minorTypeNew}"
-      let minor := args[3]
+      let minor := args[3]!
       let minorNew ← forallBoundedTelescope minorTypeNew isAlt.size fun minorArgsNew _ => do
         let mut minorBodyNew := minor
         -- We have to extend the mapping to make sure `convertTemplate` can "fix" occurrences of the refined minor premises
         let mut m ← read
         for i in [:isAlt.size] do
-          if isAlt[i] then
+          if isAlt[i]! then
             -- `convertTemplate` will correct occurrences of the alternative
-            let alt := args[6+i] -- Recall that `Eq.ndrec` has 6 arguments
+            let alt := args[6+i]! -- Recall that `Eq.ndrec` has 6 arguments
             let some (_, numParams, argMask) := m.find? alt.fvarId! | unreachable!
             -- We add a new entry to `m` to make sure `convertTemplate` will correct the occurrences of the alternative
-            m := m.insert minorArgsNew[i].fvarId! (minorArgsNew[i], numParams, argMask)
+            m := m.insert minorArgsNew[i]!.fvarId! (minorArgsNew[i]!, numParams, argMask)
           unless minorBodyNew.isLambda do
             throwError "unexpected `Eq.ndrec` minor premise while creating splitter/eliminator theorem for `{matchDeclName}`, expected lambda with at least #{isAlt.size} binders{indentExpr minor}"
           minorBodyNew := minorBodyNew.bindingBody!
@@ -619,7 +619,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
   forallTelescopeReducing constInfo.type fun xs matchResultType => do
     let mut eqnNames := #[]
     let params := xs[:matchInfo.numParams]
-    let motive := xs[matchInfo.getMotivePos]
+    let motive := xs[matchInfo.getMotivePos]!
     let alts   := xs[xs.size - matchInfo.numAlts:]
     let firstDiscrIdx := matchInfo.numParams + 1
     let discrs := xs[firstDiscrIdx : firstDiscrIdx + matchInfo.numDiscrs]
@@ -629,7 +629,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
     let mut splitterAltNumParams := #[]
     let mut altArgMasks := #[] -- masks produced by `forallAltTelescope`
     for i in [:alts.size] do
-      let altNumParams := matchInfo.altNumParams[i]
+      let altNumParams := matchInfo.altNumParams[i]!
       let altNonEqNumParams := altNumParams - numDiscrEqs
       let thmName := baseName ++ ((`eq).appendIndexAfter idx)
       eqnNames := eqnNames.push thmName
@@ -651,7 +651,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
         /- Recall that when we use the `h : discr`, the alternative type depends on the discriminant.
            Thus, we need to create new `alts`. -/
         withNewAlts numDiscrEqs discrs patterns alts fun alts => do
-          let alt := alts[i]
+          let alt := alts[i]!
           let lhs := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ patterns ++ alts)
           let rhs := mkAppN alt rhsArgs
           let thmType ← mkEq lhs rhs

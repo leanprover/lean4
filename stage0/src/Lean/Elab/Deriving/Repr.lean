@@ -23,16 +23,16 @@ def mkBodyForStruct (header : Header) (indVal : InductiveVal) : TermElabM Term :
   let ctorVal ← getConstInfoCtor indVal.ctors.head!
   let fieldNames := getStructureFields (← getEnv) indVal.name
   let numParams  := indVal.numParams
-  let target     := mkIdent header.targetNames[0]
+  let target     := mkIdent header.targetNames[0]!
   forallTelescopeReducing ctorVal.type fun xs _ => do
     let mut fields ← `(Format.nil)
     let mut first := true
     if xs.size != numParams + fieldNames.size then
       throwError "'deriving Repr' failed, unexpected number of fields in structure"
     for i in [:fieldNames.size] do
-      let fieldName := fieldNames[i]
+      let fieldName := fieldNames[i]!
       let fieldNameLit := Syntax.mkStrLit (toString fieldName)
-      let x := xs[numParams + i]
+      let x := xs[numParams + i]!
       if first then
         first := false
       else
@@ -64,7 +64,7 @@ where
         for _ in [:indVal.numParams] do
           ctorArgs := ctorArgs.push (← `(_))
         for i in [:ctorInfo.numFields] do
-          let x := xs[indVal.numParams + i]
+          let x := xs[indVal.numParams + i]!
           let a := mkIdent (← mkFreshUserName `a)
           ctorArgs := ctorArgs.push a
           let localDecl ← getLocalDecl x.fvarId!
@@ -85,8 +85,8 @@ def mkBody (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermE
     mkBodyForInduct header indVal auxFunName
 
 def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
-  let auxFunName := ctx.auxFunNames[i]
-  let indVal     := ctx.typeInfos[i]
+  let auxFunName := ctx.auxFunNames[i]!
+  let indVal     := ctx.typeInfos[i]!
   let header     ← mkReprHeader indVal
   let mut body   ← mkBody header indVal auxFunName
   if ctx.usePartial then
@@ -107,7 +107,7 @@ def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
     end)
 
 private def mkReprInstanceCmds (declNames : Array Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext "repr" declNames[0]
+  let ctx ← mkContext "repr" declNames[0]!
   let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `Repr declNames)
   trace[Elab.Deriving.repr] "\n{cmds}"
   return cmds

@@ -79,14 +79,14 @@ def setMVarUserNamesAt (e : Expr) (isTarget : Array Expr) : MetaM (Array MVarId)
     if e.isApp then
       let args := e.getAppArgs
       for i in [:args.size] do
-        let arg := args[i]
+        let arg := args[i]!
         if arg.isMVar && isTarget.contains arg then
           let mvarId := arg.mvarId!
           if (← Meta.getMVarDecl mvarId).userName.isAnonymous then
             forallBoundedTelescope (← inferType e.getAppFn) (some (i+1)) fun xs _ => do
               if i < xs.size then
                 let mvarId := arg.mvarId!
-                let userName ← mkFreshUserName (← getFVarLocalDecl xs[i]).userName
+                let userName ← mkFreshUserName (← getFVarLocalDecl xs[i]!).userName
                 toReset.modify (·.push mvarId)
                 modifyMCtx fun mctx => mctx.setMVarUserNameTemporarily mvarId userName
   toReset.get

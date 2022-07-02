@@ -26,7 +26,7 @@ partial def generalize
     let target ← instantiateMVars (← getMVarType mvarId)
     let rec go (i : Nat) : MetaM Expr := do
       if i < args.size then
-        let arg := args[i]
+        let arg := args[i]!
         let e ← instantiateMVars arg.expr
         let eType ← instantiateMVars (← inferType e)
         let type ← go (i+1)
@@ -46,15 +46,15 @@ partial def generalize
       let (rfls, targetNew) ← forallBoundedTelescope targetNew args.size fun xs type => do
         let rec go' (i : Nat) : MetaM (List Expr × Expr) := do
           if i < xs.size then
-            let arg := args[i]
+            let arg := args[i]!
             if let some hName := arg.hName? then
-              let xType ← inferType xs[i]
+              let xType ← inferType xs[i]!
               let e ← instantiateMVars arg.expr
               let eType ← instantiateMVars (← inferType e)
               let (hType, r) ← if (← isDefEq xType eType) then
-                pure (← mkEq e xs[i], ← mkEqRefl e)
+                pure (← mkEq e xs[i]!, ← mkEqRefl e)
               else
-                pure (← mkHEq e xs[i], ← mkHEqRefl e)
+                pure (← mkHEq e xs[i]!, ← mkHEqRefl e)
               let (rs, type) ← go' (i+1)
               return (r :: rs, mkForall hName BinderInfo.default hType type)
             else

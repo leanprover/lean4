@@ -23,9 +23,9 @@ open Parser.Tactic
   let args := stx[0].getArgs
   for i in [:args.size] do
     if i % 2 == 0 then
-      evalTactic args[i]
+      evalTactic args[i]!
     else
-      saveTacticInfoForToken args[i] -- add `TacticInfo` node for `;`
+      saveTacticInfoForToken args[i]! -- add `TacticInfo` node for `;`
 
 @[builtinTactic paren] def evalParen : Tactic := fun stx =>
   evalTactic stx[1]
@@ -348,9 +348,9 @@ private def getCaseGoals (tag : TSyntax ``binderIdent) : TacticM (MVarId × List
 where
   loop (tacs : Array Syntax) (i : Nat) :=
     if i == tacs.size - 1 then
-      evalTactic tacs[i][1]
+      evalTactic tacs[i]![1]
     else
-      evalTactic tacs[i][1] <|> loop tacs (i+1)
+      evalTactic tacs[i]![1] <|> loop tacs (i+1)
 
 @[builtinTactic «fail»] def evalFail : Tactic := fun stx => do
   let goals ← getGoals

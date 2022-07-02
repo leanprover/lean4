@@ -204,7 +204,7 @@ def elabBinders (binders : Array Syntax) (k : Array Expr → TermElabM α) : Ter
 
 /-- Same as `elabBinder` with a single binder.-/
 def elabBinder {α} (binder : Syntax) (x : Expr → TermElabM α) : TermElabM α :=
-  elabBinders #[binder] fun fvars => x fvars[0]
+  elabBinders #[binder] fun fvars => x fvars[0]!
 
 @[builtinTermElab «forall»] def elabForall : TermElab := fun stx _ =>
   match stx with

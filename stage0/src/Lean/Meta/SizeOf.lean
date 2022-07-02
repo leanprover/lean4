@@ -14,7 +14,7 @@ private partial def mkLocalInstances {α} (params : Array Expr) (k : Array Expr 
 where
   loop (i : Nat) (insts : Array Expr) : MetaM α := do
     if i < params.size then
-      let param := params[i]
+      let param := params[i]!
       let paramType ← inferType param
       let instType? ← forallTelescopeReducing paramType fun xs _ => do
         let type := mkAppN param xs
@@ -65,7 +65,7 @@ private partial def mkSizeOfMotives {α} (motiveFVars : Array Expr) (k : Array E
 where
   loop (i : Nat) (motives : Array Expr) : MetaM α := do
     if i < motiveFVars.size then
-      let type ← inferType motiveFVars[i]
+      let type ← inferType motiveFVars[i]!
       let motive ← forallTelescopeReducing type fun xs _ => do
         mkLambdaFVars xs <| mkConst ``Nat
       trace[Meta.sizeOf] "motive: {motive}"
@@ -97,14 +97,14 @@ private partial def mkSizeOfMinors {α} (motiveFVars : Array Expr) (minorFVars :
 where
   loop (i : Nat) (minors : Array Expr) : MetaM α := do
     if i < minorFVars.size then
-      forallTelescopeReducing (← inferType minorFVars[i]) fun xs _ => do
-      forallBoundedTelescope (← inferType minorFVars'[i]) xs.size fun xs' _ => do
+      forallTelescopeReducing (← inferType minorFVars[i]!) fun xs _ => do
+      forallBoundedTelescope (← inferType minorFVars'[i]!) xs.size fun xs' _ => do
         let mut minor ← mkNumeral (mkConst ``Nat) 1
         for x in xs, x' in xs' do
           unless (← isInductiveHypothesis motiveFVars x) do
           unless (← ignoreField x) do -- we suppress higher-order fields
             match (← isRecField? motiveFVars xs x) with
-            | some idx => minor ← mkAdd minor (← mkSizeOfRecFieldFormIH xs'[idx])
+            | some idx => minor ← mkAdd minor (← mkSizeOfRecFieldFormIH xs'[idx]!)
             | none     => minor ← mkAdd minor (← mkAppM ``SizeOf.sizeOf #[x'])
         minor ← mkLambdaFVars xs' minor
         trace[Meta.sizeOf] "minor: {minor}"
@@ -124,7 +124,7 @@ partial def mkSizeOfFn (recName : Name) (declName : Name): MetaM Unit := do
     let motiveFVars := xs[recInfo.numParams : recInfo.numParams + recInfo.numMotives]
     let minorFVars := xs[recInfo.getFirstMinorIdx : recInfo.getFirstMinorIdx + recInfo.numMinors]
     let indices := xs[recInfo.getFirstIndexIdx : recInfo.getFirstIndexIdx + recInfo.numIndices]
-    let major := xs[recInfo.getMajorIdx]
+    let major := xs[recInfo.getMajorIdx]!
     let nat := mkConst ``Nat
     mkLocalInstances params fun localInsts =>
     mkSizeOfMotives motiveFVars fun motives => do
@@ -217,7 +217,7 @@ private def recToSizeOf (e : Expr) : M Expr := do
     | some sizeOfName =>
       let args    := e.getAppArgs
       let indices := args[info.getFirstIndexIdx : info.getFirstIndexIdx + info.numIndices]
-      let major   := args[info.getMajorIdx]
+      let major   := args[info.getMajorIdx]!
       return mkAppN (mkConst sizeOfName us.tail!) ((← read).params ++ (← read).localInsts ++ indices ++ #[major])
 
 mutual

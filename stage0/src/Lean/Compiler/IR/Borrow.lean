@@ -205,8 +205,8 @@ def getParamInfo (k : ParamMap.Key) : M (Array Param) := do
 /- For each ps[i], if ps[i] is owned, then mark xs[i] as owned. -/
 def ownArgsUsingParams (xs : Array Arg) (ps : Array Param) : M Unit :=
   xs.size.forM fun i => do
-    let x := xs[i]
-    let p := ps[i]
+    let x := xs[i]!
+    let p := ps[i]!
     unless p.borrow do ownArg x
 
 /- For each xs[i], if xs[i] is owned, then mark ps[i] as owned.
@@ -216,8 +216,8 @@ def ownArgsUsingParams (xs : Array Arg) (ps : Array Param) : M Unit :=
    "break" the tail call. -/
 def ownParamsUsingArgs (xs : Array Arg) (ps : Array Param) : M Unit :=
   xs.size.forM fun i => do
-    let x := xs[i]
-    let p := ps[i]
+    let x := xs[i]!
+    let p := ps[i]!
     match x with
     | Arg.var x => if (← isOwned x) then ownVar p.x
     | _         => pure ()

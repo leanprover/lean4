@@ -172,8 +172,8 @@ where
         -- Succeeded. Collect new TC problems
         let mut pending := []
         for i in [:bis.size] do
-          if bis[i] == BinderInfo.instImplicit then
-            pending := mvars[i].mvarId! :: pending
+          if bis[i]! == BinderInfo.instImplicit then
+            pending := mvars[i]!.mvarId! :: pending
         synthesizePending pending
       else
         return false
@@ -274,8 +274,8 @@ private def throwStuckAtUniverseCnstr : TermElabM Unit := do
       found := found.insert (lhs, rhs)
       uniqueEntries := uniqueEntries.push entry
   for i in [1:uniqueEntries.size] do
-    logErrorAt uniqueEntries[i].ref (← mkLevelStuckErrorMessage uniqueEntries[i])
-  throwErrorAt uniqueEntries[0].ref (← mkLevelStuckErrorMessage uniqueEntries[0])
+    logErrorAt uniqueEntries[i]!.ref (← mkLevelStuckErrorMessage uniqueEntries[i]!)
+  throwErrorAt uniqueEntries[0]!.ref (← mkLevelStuckErrorMessage uniqueEntries[0]!)
 
 /--
   Try to solve postponed universe constraints, and throws an exception if there are stuck constraints.

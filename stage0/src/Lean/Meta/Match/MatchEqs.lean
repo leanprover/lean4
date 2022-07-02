@@ -633,7 +633,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
       let altNonEqNumParams := altNumParams - numDiscrEqs
       let thmName := baseName ++ ((`eq).appendIndexAfter idx)
       eqnNames := eqnNames.push thmName
-      let (notAlt, splitterAltType, splitterAltNumParam, argMask) ← forallAltTelescope (← inferType alts[i]) altNonEqNumParams fun ys eqs rhsArgs argMask altResultType => do
+      let (notAlt, splitterAltType, splitterAltNumParam, argMask) ← forallAltTelescope (← inferType alts[i]!) altNonEqNumParams fun ys eqs rhsArgs argMask altResultType => do
         let patterns := altResultType.getAppArgs
         let mut hs := #[]
         for notAlt in notAlts do

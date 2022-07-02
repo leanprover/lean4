@@ -3,7 +3,7 @@ def Nat.isZero (n : Nat) :=
 
 def test (preDefs : Array (Array Nat)) : IO Unit := do
   for preDefs in preDefs do
-    let preDef := preDefs[0]
+    let preDef := preDefs[0]!
     if preDef.isZero then
       pure ()
     else

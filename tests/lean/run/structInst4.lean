@@ -15,7 +15,7 @@ structure Foo :=
 
 def foo : Foo := {}
 
-#check foo.x[1].1.2
+#check foo.x[1]!.1.2
 
 #check { foo with x[1].2 := true }
 #check { foo with x[1].fst.snd := 1 }

@@ -57,10 +57,10 @@ instance [Mul α] : HMul α (Matrix m n α) (Matrix m n α) where
 end Matrix
 
 def m1 : Matrix 2 2 Int :=
-  fun i j => #[#[1, 2], #[3, 4]][i][j]
+  fun i j => #[#[1, 2], #[3, 4]][i]![j]!
 
 def m2 : Matrix 2 2 Int :=
-  fun i j => #[#[5, 6], #[7, 8]][i][j]
+  fun i j => #[#[5, 6], #[7, 8]][i]![j]!
 
 open Matrix -- activate .[.,.] notation
 

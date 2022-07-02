@@ -11,6 +11,6 @@ def bench (f : ∀ {α : Type}, α → IO Unit := fun _ => pure ()) : IO Unit :=
   let arr := build n
   timeit "time" $
     for _ in [:1000] do
-      f $ #[1, 2, 3, 4].map fun ty => arr[ty]
+      f $ #[1, 2, 3, 4].map fun ty => arr[ty]!
 
 #eval bench

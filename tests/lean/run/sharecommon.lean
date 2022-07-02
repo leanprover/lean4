@@ -100,20 +100,20 @@ IO.println c
 check $
   ptrAddrUnsafe a != ptrAddrUnsafe b &&
   ptrAddrUnsafe a != ptrAddrUnsafe c &&
-  ptrAddrUnsafe a[0] != ptrAddrUnsafe a[1] &&
-  ptrAddrUnsafe a[0] != ptrAddrUnsafe a[2] &&
-  ptrAddrUnsafe b[0] != ptrAddrUnsafe b[1] &&
-  ptrAddrUnsafe c[0] != ptrAddrUnsafe c[1]
+  ptrAddrUnsafe a[0]! != ptrAddrUnsafe a[1]! &&
+  ptrAddrUnsafe a[0]! != ptrAddrUnsafe a[2]! &&
+  ptrAddrUnsafe b[0]! != ptrAddrUnsafe b[1]! &&
+  ptrAddrUnsafe c[0]! != ptrAddrUnsafe c[1]!
 let a ← shareCommonM a
 let b ← shareCommonM b
 let c ← shareCommonM c
 check $
   ptrAddrUnsafe a == ptrAddrUnsafe b &&
   ptrAddrUnsafe a != ptrAddrUnsafe c &&
-  ptrAddrUnsafe a[0] == ptrAddrUnsafe a[1] &&
-  ptrAddrUnsafe a[0] != ptrAddrUnsafe a[2] &&
-  ptrAddrUnsafe b[0] == ptrAddrUnsafe b[1] &&
-  ptrAddrUnsafe c[0] == ptrAddrUnsafe c[1]
+  ptrAddrUnsafe a[0]! == ptrAddrUnsafe a[1]! &&
+  ptrAddrUnsafe a[0]! != ptrAddrUnsafe a[2]! &&
+  ptrAddrUnsafe b[0]! == ptrAddrUnsafe b[1]! &&
+  ptrAddrUnsafe c[0]! == ptrAddrUnsafe c[1]!
 pure ()
 
 #eval tst5.run

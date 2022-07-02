@@ -28,6 +28,7 @@ double tanh(double);
 static lean_object* l_instSubFloat___closed__1;
 LEAN_EXPORT lean_object* l_Float_cos___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instReprFloat(double, lean_object*);
+LEAN_EXPORT lean_object* l_Float_round___boxed(lean_object*);
 double lean_uint64_to_float(uint64_t);
 extern uint8_t l_instDecidableTrue;
 LEAN_EXPORT lean_object* l_UInt64_toFloat___boxed(lean_object*);
@@ -36,9 +37,11 @@ uint8_t lean_float_beq(double, double);
 size_t lean_float_to_usize(double);
 double sqrt(double);
 LEAN_EXPORT lean_object* l_Float_log10___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Float_floor___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Float_div___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Float_pow___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Float_toUInt64___boxed(lean_object*);
+double round(double);
 LEAN_EXPORT lean_object* l_Float_cbrt___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Float_atanh___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instReprAtomFloat;
@@ -92,6 +95,7 @@ LEAN_EXPORT lean_object* l_Float_decLe___boxed(lean_object*, lean_object*);
 double asinh(double);
 static lean_object* l_instDivFloat___closed__1;
 double acosh(double);
+LEAN_EXPORT lean_object* l_Float_ceil___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Float_atan2___boxed(lean_object*, lean_object*);
 double acos(double);
 LEAN_EXPORT lean_object* l_Float_sub___boxed(lean_object*, lean_object*);
@@ -107,6 +111,8 @@ double exp2(double);
 LEAN_EXPORT lean_object* l_instMulFloat;
 LEAN_EXPORT lean_object* l_Float_beq___boxed(lean_object*, lean_object*);
 static lean_object* l_instNegFloat___closed__1;
+double ceil(double);
+double floor(double);
 static lean_object* l_instBEqFloat___closed__1;
 LEAN_EXPORT lean_object* l_Float_exp___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Float_add___boxed(lean_object*, lean_object*);
@@ -794,6 +800,39 @@ double x_2; double x_3; lean_object* x_4;
 x_2 = lean_unbox_float(x_1);
 lean_dec(x_1);
 x_3 = cbrt(x_2);
+x_4 = lean_box_float(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Float_ceil___boxed(lean_object* x_1) {
+_start:
+{
+double x_2; double x_3; lean_object* x_4; 
+x_2 = lean_unbox_float(x_1);
+lean_dec(x_1);
+x_3 = ceil(x_2);
+x_4 = lean_box_float(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Float_floor___boxed(lean_object* x_1) {
+_start:
+{
+double x_2; double x_3; lean_object* x_4; 
+x_2 = lean_unbox_float(x_1);
+lean_dec(x_1);
+x_3 = floor(x_2);
+x_4 = lean_box_float(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Float_round___boxed(lean_object* x_1) {
+_start:
+{
+double x_2; double x_3; lean_object* x_4; 
+x_2 = lean_unbox_float(x_1);
+lean_dec(x_1);
+x_3 = round(x_2);
 x_4 = lean_box_float(x_3);
 return x_4;
 }

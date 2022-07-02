@@ -449,7 +449,7 @@ where
      (precise) solution: unfold `x` in `t`.
 
  A2) Suppose some `aᵢ` is in `C` (failed condition 2)
-     (approximated) solution (when `config.ctxApprox` is set to true) :
+     (approximated) solution (when `config.quasiPatternApprox` is set to true) :
      ignore condition and also use
 
         ?m := fun a₁ ... aₙ => t
@@ -1588,22 +1588,27 @@ private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
       return false
 
 private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
-  if (← (isDefEqEta t s <||> isDefEqEta s t)) then pure true else
+  if (← (isDefEqEta t s <||> isDefEqEta s t)) then return true
   -- TODO: investigate whether this is the place for putting this check
-  if (← (isDefEqEtaStruct t s <||> isDefEqEtaStruct s t)) then pure true else
-  if (← isDefEqProj t s) then pure true else
-  whenUndefDo (isDefEqNative t s) do
-  whenUndefDo (isDefEqNat t s) do
-  whenUndefDo (isDefEqOffset t s) do
-  whenUndefDo (isDefEqDelta t s) do
-  if t.isConst && s.isConst then
-    if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
-  else if (← pure t.isApp <&&> pure s.isApp <&&> isDefEqApp t s) then
-    return true
+  if (← (isDefEqEtaStruct t s <||> isDefEqEtaStruct s t)) then return true
+  if (← isDefEqProj t s) then return true
+  let t' ← whnfCore t
+  let s' ← whnfCore s
+  if t != t' || s != s' then
+    Meta.isExprDefEqAux t' s'
   else
-    whenUndefDo (isDefEqStringLit t s) do
-    if (← isDefEqUnitLike t s) then return true else
-    isDefEqOnFailure t s
+    whenUndefDo (isDefEqNative t s) do
+    whenUndefDo (isDefEqNat t s) do
+    whenUndefDo (isDefEqOffset t s) do
+    whenUndefDo (isDefEqDelta t s) do
+    if t.isConst && s.isConst then
+      if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
+    else if (← pure t.isApp <&&> pure s.isApp <&&> isDefEqApp t s) then
+      return true
+    else
+      whenUndefDo (isDefEqStringLit t s) do
+      if (← isDefEqUnitLike t s) then return true else
+      isDefEqOnFailure t s
 
 -- We only check DefEq cache for default and all transparency modes
 private def skipDefEqCache : MetaM Bool := do
@@ -1635,8 +1640,9 @@ partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecD
   withNestedTraces do
   whenUndefDo (isDefEqQuick t s) do
   whenUndefDo (isDefEqProofIrrel t s) do
-  let t' ← whnfCore t
-  let s' ← whnfCore s
+  -- We perform `whnfCore` again with `deltaAtProj := true` at `isExprDefEqExpensive` after `isDefEqProj`
+  let t' ← whnfCore t (deltaAtProj := false)
+  let s' ← whnfCore s (deltaAtProj := false)
   if t != t' || s != s' then
     isExprDefEqAuxImpl t' s'
   else if (← skipDefEqCache) then

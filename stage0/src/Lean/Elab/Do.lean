@@ -1595,19 +1595,10 @@ def run (doStx : Syntax) (m : Syntax) : TermElabM CodeBlock :=
 
 end ToCodeBlock
 
-/- Create a synthetic metavariable `?m` and assign `m` to it.
-   We use `?m` to refer to `m` when expanding the `do` notation. -/
-private def mkMonadAlias (m : Expr) : TermElabM Syntax := do
-  let result ← `(?m)
-  let mType ← inferType m
-  let mvar ← elabTerm result mType
-  assignExprMVar mvar.mvarId! m
-  return result
-
 @[builtinTermElab «do»] def elabDo : TermElab := fun stx expectedType? => do
   tryPostponeIfNoneOrMVar expectedType?
   let bindInfo ← extractBind expectedType?
-  let m ← mkMonadAlias bindInfo.m
+  let m ← Term.exprToSyntax bindInfo.m
   let codeBlock ← ToCodeBlock.run stx m
   let stxNew ← liftMacroM <| ToTerm.run codeBlock.code m
   trace[Elab.do] stxNew

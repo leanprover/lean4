@@ -8,7 +8,7 @@ import Lean.Meta.Basic
 namespace Lean.Elab.Term
 
 /-
-  Set isDefEq configuration for the elaborator.
+  Set `isDefEq` configuration for the elaborator.
   Note that we enable all approximations but `quasiPatternApprox`
 
   In Lean3 and Lean 4, we used to use the quasi-pattern approximation during elaboration.

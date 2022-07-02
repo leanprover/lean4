@@ -173,6 +173,7 @@ private partial def reduce (e : Expr) : SimpM Expr := withIncRecDepth do
   | none => return e
 
 private partial def dsimp (e : Expr) : M Expr := do
+  let cfg ← getConfig
   let pre (e : Expr) : M TransformStep := do
     if let Step.visit r ← rewritePre e (fun _ => pure none) (rflOnly := true) then
       if r.expr != e then
@@ -182,9 +183,11 @@ private partial def dsimp (e : Expr) : M Expr := do
     if let Step.visit r ← rewritePost e (fun _ => pure none) (rflOnly := true) then
       if r.expr != e then
         return .visit r.expr
-    let eNew ← reduce e
+    let mut eNew ← reduce e
+    if cfg.zeta && eNew.isFVar then
+      eNew ← reduceFVar cfg eNew
     if eNew != e then return .visit eNew else return .done e
-  transform e (pre := pre) (post := post)
+  transform (usedLetOnly := cfg.zeta) e (pre := pre) (post := post)
 
 instance : Inhabited (M α) where
   default := fun _ _ _ => default

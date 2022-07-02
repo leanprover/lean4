@@ -398,7 +398,7 @@ private def whnfMatcher (e : Expr) : MetaM Expr := do
   withTransparency transparency <| withReader (fun ctx => { ctx with canUnfold? := canUnfoldAtMatcher }) do
     whnf e
 
-partial def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
+def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
   match e.getAppFn with
   | Expr.const declName declLevels _ =>
     let some info ← getMatcherInfo? declName
@@ -425,8 +425,7 @@ partial def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
         return ReduceMatcherResult.stuck auxApp
   | _ => pure ReduceMatcherResult.notMatcher
 
-def project? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
-  let e ← whnf e
+private def projectCore? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
   let e := toCtorIfLit e
   matchConstCtor e.getAppFn (fun _ => pure none) fun ctorVal _ =>
     let numArgs := e.getAppNumArgs
@@ -435,6 +434,9 @@ def project? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
       return some (e.getArg! idx)
     else
       return none
+
+def project? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
+  projectCore? (← whnf e) i
 
 /-- Reduce kernel projection `Expr.proj ..` expression. -/
 def reduceProj? (e : Expr) : MetaM (Option Expr) := do
@@ -469,42 +471,52 @@ private def whnfDelayedAssigned? (f' : Expr) (e : Expr) : MetaM (Option Expr) :=
 
 /--
   Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
-  expand let-expressions, expand assigned meta-variables. -/
-partial def whnfCore (e : Expr) : MetaM Expr :=
-  whnfEasyCases e fun e => do
-    trace[Meta.whnf] e
-    match e with
-    | Expr.const ..  => pure e
-    | Expr.letE _ _ v b _ => whnfCore $ b.instantiate1 v
-    | Expr.app f ..       =>
-      let f := f.getAppFn
-      let f' ← whnfCore f
-      if f'.isLambda then
-        let revArgs := e.getAppRevArgs
-        whnfCore <| f'.betaRev revArgs
-      else if let some eNew ← whnfDelayedAssigned? f' e then
-        whnfCore eNew
-      else
-        let e := if f == f' then e else e.updateFn f'
-        match (← reduceMatcher? e) with
-        | ReduceMatcherResult.reduced eNew => whnfCore eNew
-        | ReduceMatcherResult.partialApp   => pure e
-        | ReduceMatcherResult.stuck _      => pure e
-        | ReduceMatcherResult.notMatcher   =>
-          matchConstAux f' (fun _ => return e) fun cinfo lvls =>
-            match cinfo with
-            | ConstantInfo.recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) whnfCore
-            | ConstantInfo.quotInfo rec   => reduceQuotRec rec lvls e.getAppArgs (fun _ => return e) whnfCore
-            | c@(ConstantInfo.defnInfo _) => do
-              if (← isAuxDef c.name) then
-                deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) whnfCore
-              else
-                return e
-            | _ => return e
-    | Expr.proj .. => match (← reduceProj? e) with
-      | some e => whnfCore e
-      | none => return e
-    | _ => unreachable!
+  expand let-expressions, expand assigned meta-variables.
+
+  The parameter `deltaAtProj` controls how to reduce projections `s.i`. If `deltaAtProj == true`,
+  then delta reduction is used to reduce `s` (i.e., `whnf` is used), otherwise `whnfCore`.
+  We only set this flag to `false` when implementing `isDefEq`.
+-/
+partial def whnfCore (e : Expr) (deltaAtProj : Bool := true) : MetaM Expr :=
+  go e
+where
+  go (e : Expr) : MetaM Expr :=
+    whnfEasyCases e fun e => do
+      trace[Meta.whnf] e
+      match e with
+      | Expr.const ..  => pure e
+      | Expr.letE _ _ v b _ => go <| b.instantiate1 v
+      | Expr.app f ..       =>
+        let f := f.getAppFn
+        let f' ← go f
+        if f'.isLambda then
+          let revArgs := e.getAppRevArgs
+          go <| f'.betaRev revArgs
+        else if let some eNew ← whnfDelayedAssigned? f' e then
+          go eNew
+        else
+          let e := if f == f' then e else e.updateFn f'
+          match (← reduceMatcher? e) with
+          | ReduceMatcherResult.reduced eNew => go eNew
+          | ReduceMatcherResult.partialApp   => pure e
+          | ReduceMatcherResult.stuck _      => pure e
+          | ReduceMatcherResult.notMatcher   =>
+            matchConstAux f' (fun _ => return e) fun cinfo lvls =>
+              match cinfo with
+              | ConstantInfo.recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) go
+              | ConstantInfo.quotInfo rec   => reduceQuotRec rec lvls e.getAppArgs (fun _ => return e) go
+              | c@(ConstantInfo.defnInfo _) => do
+                if (← isAuxDef c.name) then
+                  deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) go
+                else
+                  return e
+              | _ => return e
+      | Expr.proj _ i c _ =>
+        let c ← if deltaAtProj then whnf c else whnfCore c
+        match (← projectCore? c i) with
+        | some e => go e
+        | none => return e
+      | _ => unreachable!
 
 /--
   Recall that `_sunfold` auxiliary definitions contains the markers: `markSmartUnfoldingMatch` (*) and `markSmartUnfoldingMatchAlt` (**).

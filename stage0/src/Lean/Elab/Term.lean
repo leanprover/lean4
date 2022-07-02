@@ -38,17 +38,18 @@ structure SavedContext where
 
 /-- We use synthetic metavariables as placeholders for pending elaboration steps. -/
 inductive SyntheticMVarKind where
-  -- typeclass instance search
-  | typeClass
-  /- Similar to typeClass, but error messages are different.
+  | /-- Use typeclass resolution to synthesize value for metavariable. -/
+    typeClass
+  | /--
+     Similar to `typeClass`, but error messages are different.
      if `f?` is `some f`, we produce an application type mismatch error message.
      Otherwise, if `header?` is `some header`, we generate the error `(header ++ "has type" ++ eType ++ "but it is expected to have type" ++ expectedType)`
      Otherwise, we generate the error `("type mismatch" ++ e ++ "has type" ++ eType ++ "but it is expected to have type" ++ expectedType)` -/
-  | coe (header? : Option String) (eNew : Expr) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr)
-  -- tactic block execution
-  | tactic (tacticCode : Syntax) (ctx : SavedContext)
-  -- `elabTerm` call that threw `Exception.postpone` (input is stored at `SyntheticMVarDecl.ref`)
-  | postponed (ctx : SavedContext)
+    coe (header? : Option String) (eNew : Expr) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr)
+  | /-- Use tactic to synthesize value for metavariable. -/
+    tactic (tacticCode : Syntax) (ctx : SavedContext)
+  | /-- Metavariable represents a hole whose elaboration has been postponed. -/
+    postponed (ctx : SavedContext)
 
 instance : ToString SyntheticMVarKind where
   toString
@@ -62,10 +63,17 @@ structure SyntheticMVarDecl where
   stx : Syntax
   kind : SyntheticMVarKind
 
+/--
+  We can optionally associate an error context with a metavariable (see `MVarErrorInfo`).
+  We have three different kinds of error context.
+-/
 inductive MVarErrorKind where
-  | implicitArg (ctx : Expr)
-  | hole
-  | custom (msgData : MessageData)
+  | /-- Metavariable for implicit arguments. `ctx` is the parent application. -/
+    implicitArg (ctx : Expr)
+  | /-- Metavariable for explicit holes provided by the user (e.g., `_` and `?m`) -/
+    hole
+  | /-- "Custom", `msgData` stores the additional error messages. -/
+    custom (msgData : MessageData)
   deriving Inhabited
 
 instance : ToString MVarErrorKind where
@@ -74,6 +82,9 @@ instance : ToString MVarErrorKind where
     | MVarErrorKind.hole            => "hole"
     | MVarErrorKind.custom _        => "custom"
 
+/--
+  We can optionally associate an error context with metavariables.
+-/
 structure MVarErrorInfo where
   mvarId    : MVarId
   ref       : Syntax
@@ -81,6 +92,10 @@ structure MVarErrorInfo where
   argName?  : Option Name := none
   deriving Inhabited
 
+/--
+  Nested `let rec` expressions are eagerly lifted by the elaborator.
+  We store the information necessary for performing the lifting here.
+-/
 structure LetRecToLift where
   ref            : Syntax
   fvarId         : FVarId
@@ -94,6 +109,9 @@ structure LetRecToLift where
   mvarId         : MVarId
   deriving Inhabited
 
+/--
+  State of the `TermElabM` monad.
+-/
 structure State where
   levelNames        : List Name       := []
   syntheticMVars    : List SyntheticMVarDecl := []
@@ -106,10 +124,19 @@ end Term
 
 namespace Tactic
 
+/--
+  State of the `TacticM` monad.
+-/
 structure State where
   goals : List MVarId
   deriving Inhabited
 
+/--
+  Snapshots are used to implement the `save` tactic.
+  This tactic caches the state of the system, and allows us to "replay"
+  expensive proofs efficiently. This is only relevant implementing the
+  LSP server.
+-/
 structure Snapshot where
   core   : Core.State
   meta   : Meta.State
@@ -118,11 +145,17 @@ structure Snapshot where
   stx    : Syntax
   deriving Inhabited
 
+/--
+  Key for the cache used to implement the `save` tactic.
+-/
 structure CacheKey where
   mvarId : MVarId -- TODO: should include all goals
   pos    : String.Pos
   deriving BEq, Hashable, Inhabited
 
+/--
+  Cache for the `save` tactic.
+-/
 structure Cache where
    pre  : Std.PHashMap CacheKey Snapshot := {}
    post : Std.PHashMap CacheKey Snapshot := {}
@@ -178,6 +211,7 @@ structure Context where
   ignoreTCFailures : Bool := false
   /-- `true` when elaborating patterns. It affects how we elaborate named holes. -/
   inPattern        : Bool := false
+  /-- Cache for the `save` tactic. It is only `some` in the LSP server. -/
   tacticCache?     : Option (IO.Ref Tactic.Cache) := none
   /-- If `true`, we store in the `Expr` the `Syntax` for recursive applications (i.e., applications
       of free variables tagged with `isAuxDecl`). We store the `Syntax` using `mkRecAppWithSyntax`.
@@ -196,6 +230,9 @@ open Meta
 instance : Inhabited (TermElabM α) where
   default := throw default
 
+/--
+  Backtrackable state for the `TermElabM` monad.
+-/
 structure SavedState where
   meta   : Meta.SavedState
   «elab» : State
@@ -263,9 +300,16 @@ def commitIfDidNotPostpone (x : TermElabM α) : TermElabM α := do
   let r ← observing x
   applyResult r
 
+/--
+  Return the universe level names explicitly provided by the user.
+-/
 def getLevelNames : TermElabM (List Name) :=
   return (← get).levelNames
 
+/--
+  Given a free variable `fvar`, return its declaration.
+  This function panics if `fvar` is not a free variable.
+-/
 def getFVarLocalDecl! (fvar : Expr) : TermElabM LocalDecl := do
   match (← getLCtx).find? fvar.fvarId! with
   | some d => pure d
@@ -324,6 +368,16 @@ opaque mkTermElabAttribute : IO (KeyedDeclsAttribute TermElab)
 
 builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermElabAttribute
 
+inductive GetOpKind where
+  | /-- `a[i]` -/  safe
+  | /-- `a[i]!` -/ panic
+  | /-- `a[i]?` -/ optional
+
+def GetOpKind.opName : GetOpKind → String
+  | safe => "getOp"
+  | panic => "getOp!"
+  | optional => "getOp?"
+
 /--
   Auxiliary datatatype for presenting a Lean lvalue modifier.
   We represent a unelaborated lvalue as a `Syntax` (or `Expr`) and `List LVal`.
@@ -335,12 +389,12 @@ inductive LVal where
     /- Field `suffix?` is for producing better error messages because `x.y` may be a field access or a hierachical/composite name.
        `ref` is the syntax object representing the field. `targetStx` is the target object being accessed. -/
   | fieldName (ref : Syntax) (name : String) (suffix? : Option Name) (targetStx : Syntax)
-  | getOp     (ref : Syntax) (idx : Syntax)
+  | getOp     (ref : Syntax) (idx : Syntax) (getOpKind : GetOpKind)
 
 def LVal.getRef : LVal → Syntax
   | LVal.fieldIdx ref _    => ref
   | LVal.fieldName ref ..  => ref
-  | LVal.getOp ref _       => ref
+  | LVal.getOp ref ..      => ref
 
 def LVal.isFieldName : LVal → Bool
   | LVal.fieldName .. => true
@@ -350,25 +404,42 @@ instance : ToString LVal where
   toString
     | LVal.fieldIdx _ i     => toString i
     | LVal.fieldName _ n .. => n
-    | LVal.getOp _ idx      => "[" ++ toString idx ++ "]"
+    | LVal.getOp _ idx k    =>
+      let r := "[" ++ toString idx ++ "]"
+      match k with
+      | .safe => r
+      | .panic => r ++ "!"
+      | .optional => r ++ "?"
 
+/-- Return the name of the declaration being elaborated if available. -/
 def getDeclName? : TermElabM (Option Name) := return (← read).declName?
+/-- Return the list of nested `let rec` declarations that need to be lifted. -/
 def getLetRecsToLift : TermElabM (List LetRecToLift) := return (← get).letRecsToLift
+/-- Return `true` if the give metavariable is already assigned. -/
 def isExprMVarAssigned (mvarId : MVarId) : TermElabM Bool := return (← getMCtx).isExprAssigned mvarId
+/-- Return the declaration of the given metavariable -/
 def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := return (← getMCtx).getDecl mvarId
+/-- Assign `mvarId := val`. It assumes `mvarId` it a valid universe level metavariable id. -/
 def assignLevelMVar (mvarId : MVarId) (val : Level) : TermElabM Unit := modifyThe Meta.State fun s => { s with mctx := s.mctx.assignLevel mvarId val }
 
+/-- Execute `x` with `declName? := name`. See `getDeclName? -/
 def withDeclName (name : Name) (x : TermElabM α) : TermElabM α :=
   withReader (fun ctx => { ctx with declName? := name }) x
 
+/-- Update the universe level parameter names. -/
 def setLevelNames (levelNames : List Name) : TermElabM Unit :=
   modify fun s => { s with levelNames := levelNames }
 
+/-- Execute `x` using `levelNames` as the universe level parameter names. See `getLevelNames`. -/
 def withLevelNames (levelNames : List Name) (x : TermElabM α) : TermElabM α := do
   let levelNamesSaved ← getLevelNames
   setLevelNames levelNames
   try x finally setLevelNames levelNamesSaved
 
+/--
+  Execute `x` without converting errors (i.e., exceptions) to `sorry` applications.
+  Recall that when `errToSorry = true`, the method `elabTerm` catches exceptions and convert them into `sorry` applications.
+-/
 def withoutErrToSorry (x : TermElabM α) : TermElabM α :=
   withReader (fun ctx => { ctx with errToSorry := false }) x
 
@@ -636,12 +707,14 @@ def containsPendingMVar (e : Expr) : TermElabM Bool := do
   | some _ => return false
   | none   => return true
 
-/- Try to synthesize metavariable using type class resolution.
-   This method assumes the local context and local instances of `instMVar` coincide
-   with the current local context and local instances.
-   Return `true` if the instance was synthesized successfully, and `false` if
-   the instance contains unassigned metavariables that are blocking the type class
-   resolution procedure. Throw an exception if resolution or assignment irrevocably fails. -/
+/--
+  Try to synthesize metavariable using type class resolution.
+  This method assumes the local context and local instances of `instMVar` coincide
+  with the current local context and local instances.
+  Return `true` if the instance was synthesized successfully, and `false` if
+  the instance contains unassigned metavariables that are blocking the type class
+  resolution procedure. Throw an exception if resolution or assignment irrevocably fails.
+-/
 def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := none) : TermElabM Bool := do
   let instMVarDecl ← getMVarDecl instMVar
   let type := instMVarDecl.type
@@ -701,9 +774,10 @@ register_builtin_option maxCoeSize : Nat := {
 def synthesizeCoeInstMVarCore (instMVar : MVarId) : TermElabM Bool := do
   synthesizeInstMVarCore instMVar (some (maxCoeSize.get (← getOptions)))
 
-/-
-The coercion from `α` to `Thunk α` cannot be implemented using an instance because it would
-eagerly evaluate `e` -/
+/--
+  The coercion from `α` to `Thunk α` cannot be implemented using an instance because it would
+  eagerly evaluate `e`
+-/
 def tryCoeThunk? (expectedType : Expr) (eType : Expr) (e : Expr) : TermElabM (Option Expr) := do
   match expectedType with
   | Expr.app (Expr.const ``Thunk u _) arg _ =>
@@ -750,13 +824,15 @@ private def tryCoe (errorMsgHeader? : Option String) (expectedType : Expr) (eTyp
     | some r => return r
     | none   => mkCoe expectedType eType e f? errorMsgHeader?
 
+/-- Return `some (m, α)` if `type` can be reduced to an application of the form `m α` using `[reducible]` transparency. -/
 def isTypeApp? (type : Expr) : TermElabM (Option (Expr × Expr)) := do
   let type ← withReducible <| whnf type
   match type with
   | Expr.app m α _ => return some ((← instantiateMVars m), (← instantiateMVars α))
   | _              => return none
 
-def synthesizeInst (type : Expr) : TermElabM Expr := do
+/-- Helper method used to implement auto-lift and coercions -/
+private def synthesizeInst (type : Expr) : TermElabM Expr := do
   let type ← instantiateMVars type
   match (← trySynthInstance type) with
   | LOption.some val => return val
@@ -764,11 +840,15 @@ def synthesizeInst (type : Expr) : TermElabM Expr := do
   | LOption.undef    => throwError "failed to synthesize instance{indentExpr type}"
   | LOption.none     => throwError "failed to synthesize instance{indentExpr type}"
 
+/--
+  Return `true` if `type` is of the form `m α` where `m` is a `Monad`.
+  Note that we reduce `type` using transparency `[reducible]`.
+-/
 def isMonadApp (type : Expr) : TermElabM Bool := do
   let some (m, _) ← isTypeApp? type | return false
   return (← isMonad? m) |>.isSome
 
-/-
+/--
 Try coercions and monad lifts to make sure `e` has type `expectedType`.
 
 If `expectedType` is of the form `n β`, we try monad lifts and other extensions.
@@ -892,12 +972,20 @@ def ensureHasType (expectedType? : Option Expr) (e : Expr) (errorMsgHeader? : Op
     let eType ← inferType e
     ensureHasTypeAux expectedType? eType e none errorMsgHeader?
 
+/--
+  Create a synthetic sorry for the given expected type. If `expectedType? = none`, then a fresh
+  metavariable is created to represent the type.
+-/
 private def mkSyntheticSorryFor (expectedType? : Option Expr) : TermElabM Expr := do
   let expectedType ← match expectedType? with
     | none              => mkFreshTypeMVar
     | some expectedType => pure expectedType
   mkSyntheticSorry expectedType
 
+/--
+  Log the given exception, and create an synthetic sorry for representing the failed
+  elaboration step with exception `ex`.
+-/
 def exceptionToSorry (ex : Exception) (expectedType? : Option Expr) : TermElabM Expr := do
   let syntheticSorry ← mkSyntheticSorryFor expectedType?
   logException ex
@@ -914,11 +1002,16 @@ def tryPostponeIfMVar (e : Expr) : TermElabM Unit := do
   if e.getAppFn.isMVar then
     tryPostpone
 
+/-- If `e? = some e`, then `tryPostponeIfMVar e`, otherwise it is just `tryPostpone`. -/
 def tryPostponeIfNoneOrMVar (e? : Option Expr) : TermElabM Unit :=
   match e? with
   | some e => tryPostponeIfMVar e
   | none   => tryPostpone
 
+/--
+  Throws `Exception.postpone`, if `expectedType?` contains unassigned metavariables.
+  It is a noop if `mayPostpone == false`.
+-/
 def tryPostponeIfHasMVars? (expectedType? : Option Expr) : TermElabM (Option Expr) := do
   tryPostponeIfNoneOrMVar expectedType?
   let some expectedType := expectedType? | return none
@@ -928,11 +1021,18 @@ def tryPostponeIfHasMVars? (expectedType? : Option Expr) : TermElabM (Option Exp
     return none
   return some expectedType
 
+/--
+  Throws `Exception.postpone`, if `expectedType?` contains unassigned metavariables.
+  If `mayPostpone == false`, it throws error `msg`.
+-/
 def tryPostponeIfHasMVars (expectedType? : Option Expr) (msg : String) : TermElabM Expr := do
   let some expectedType ← tryPostponeIfHasMVars? expectedType? |
     throwError "{msg}, expected type contains metavariables{indentD expectedType?}"
   return expectedType
 
+/--
+  Save relevant context for term elaboration postponement.
+-/
 def saveContext : TermElabM SavedContext :=
   return {
     macroStack := (← read).macroStack
@@ -943,6 +1043,9 @@ def saveContext : TermElabM SavedContext :=
     levelNames := (← get).levelNames
   }
 
+/--
+  Execute `x` with the context saved using `saveContext`.
+-/
 def withSavedContext (savedCtx : SavedContext) (x : TermElabM α) : TermElabM α := do
   withReader (fun ctx => { ctx with declName? := savedCtx.declName?, macroStack := savedCtx.macroStack, errToSorry := savedCtx.errToSorry }) <|
     withTheReader Core.Context (fun ctx => { ctx with options := savedCtx.options, openDecls := savedCtx.openDecls }) <|
@@ -1293,6 +1396,11 @@ def adaptExpander (exp : Syntax → TermElabM Syntax) : TermElab := fun stx expe
   let stx' ← exp stx
   withMacroExpansion stx stx' <| elabTerm stx' expectedType?
 
+/--
+  Create a new metavariable with the given type, and try to synthesize it.
+  It type class resolution cannot be executed (e.g., it is stuck because of metavariables in `type`),
+  register metavariable as a pending one.
+-/
 def mkInstMVar (type : Expr) : TermElabM Expr := do
   let mvar ← mkFreshExprMVar type MetavarKind.synthetic
   let mvarId := mvar.mvarId!
@@ -1300,7 +1408,7 @@ def mkInstMVar (type : Expr) : TermElabM Expr := do
     registerSyntheticMVarWithCurrRef mvarId SyntheticMVarKind.typeClass
   return mvar
 
-/-
+/--
   Relevant definitions:
   ```
   class CoeSort (α : Sort u) (β : outParam (Sort v))
@@ -1481,7 +1589,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
       | _                => none
   return loop view.name []
 
-/- Return true iff `stx` is a `Syntax.ident`, and it is a local variable. -/
+/-- Return true iff `stx` is a `Syntax.ident`, and it is a local variable. -/
 def isLocalIdent? (stx : Syntax) : TermElabM (Option Expr) :=
   match stx with
   | Syntax.ident _ _ val _ => do
@@ -1596,6 +1704,22 @@ def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : S
   if (← read).sectionVars.contains r.shortName then
     throwError "invalid declaration name '{r.shortName}', there is a section variable with the same name"
   return r
+
+/--
+  Helper function for "embedding" an `Expr` in `Syntax`.
+  It creates a named hole `?m` and immediately assigns `e` to it.
+  Examples:
+  ```lean
+  let e := mkConst ``Nat.zero
+  `(Nat.succ $(← exprToSyntax e))
+  ```
+-/
+def exprToSyntax (e : Expr) : TermElabM Term := do
+  let result ← `(?m)
+  let eType ← inferType e
+  let mvar ← elabTerm result eType
+  assignExprMVar mvar.mvarId! e
+  return result
 
 end Term
 

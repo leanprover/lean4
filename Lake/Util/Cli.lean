@@ -59,20 +59,20 @@ variable [Monad m] [MonadStateOf ArgList m]
 
 /-- Process a short option of the form `-x=arg`. -/
 @[inline] def shortOptionWithEq (handle : Char → m α) (opt : String) : m α := do
-  consArg (opt.drop 3); handle opt[⟨1⟩]
+  consArg (opt.drop 3); handle (opt.get ⟨1⟩)
 
 /-- Process a short option of the form `"-x arg"`. -/
 @[inline] def shortOptionWithSpace (handle : Char → m α) (opt : String) : m α := do
-  consArg <| opt.drop 2 |>.trimLeft; handle opt[⟨1⟩]
+  consArg <| opt.drop 2 |>.trimLeft; handle (opt.get ⟨1⟩)
 
 /-- Process a short option of the form `-xarg`. -/
 @[inline] def shortOptionWithArg (handle : Char → m α) (opt : String) : m α := do
-  consArg (opt.drop 2); handle opt[⟨1⟩]
+  consArg (opt.drop 2); handle (opt.get ⟨1⟩)
 
 /-- Process a multiple short options grouped together (ex. `-xyz` as `x`, `y`, `z`). -/
 @[inline] def multiShortOption (handle : Char → m PUnit) (opt : String) : m PUnit := do
   -- TODO: this code is assuming all characters are ASCII.
-  for i in [1:opt.length] do handle opt[⟨i⟩]
+  for i in [1:opt.length] do handle (opt.get ⟨i⟩)
 
 /-- Splits a long option of the form `"--long foo bar"` into `--long` and `"foo bar"`. -/
 @[inline] def longOptionOrSpace (handle : String → m α) (opt : String) : m α :=
@@ -103,9 +103,9 @@ variable [Monad m] [MonadStateOf ArgList m]
 (shortHandle : Char → m α) (longHandle : String → m α)
 (opt : String) : m α :=
   if opt.length == 2 then -- `-x`
-    shortHandle opt[⟨1⟩]
+    shortHandle (opt.get ⟨1⟩)
   else -- `-c(.+)`
-    match opt[⟨2⟩] with
+    match opt.get ⟨2⟩ with
     | '=' => -- `-x=arg`
       shortOptionWithEq shortHandle opt
     | ' ' => -- `"-x arg"`
@@ -119,7 +119,7 @@ An option is an argument of length > 1 starting with a dash (`-`).
 An option may consume additional elements of the argument list.
 -/
 @[inline] def option (handlers : OptionHandlers m α) (opt : String) : m α :=
-  if opt[⟨1⟩] == '-' then -- `--(.*)`
+  if opt.get ⟨1⟩ == '-' then -- `--(.*)`
     longOption handlers.long opt
   else
     shortOption handlers.short handlers.longShort opt
@@ -129,7 +129,7 @@ def processLeadingOption (handle : String → m PUnit) : m PUnit := do
   match (← getArgs) with
   | [] => pure ()
   | arg :: args =>
-    if arg.length > 1 && arg[0] == '-' then -- `-(.+)`
+    if arg.length > 1 && arg.get 0 == '-' then -- `-(.+)`
       setArgs args
       handle arg
 
@@ -140,7 +140,7 @@ Consumes empty leading arguments in the argument list.
 partial def processLeadingOptions (handle : String → m PUnit) : m PUnit := do
   if let arg :: args ← getArgs then
     let len := arg.length
-    if len > 1 && arg[0] == '-' then -- `-(.+)`
+    if len > 1 && arg.get 0 == '-' then -- `-(.+)`
       setArgs args
       handle arg
       processLeadingOptions handle
@@ -152,7 +152,7 @@ partial def processLeadingOptions (handle : String → m PUnit) : m PUnit := do
 partial def collectArgs (option : String → m PUnit) (args : Array String := #[]) : m (Array String) := do
   if let some arg ← takeArg? then
     let len := arg.length
-    if len > 1 && arg[0] == '-' then -- `-(.+)`
+    if len > 1 && arg.get 0 == '-' then -- `-(.+)`
       option arg
       collectArgs option args
     else if len == 0 then -- skip empty args

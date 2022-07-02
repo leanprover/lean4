@@ -20,7 +20,7 @@ def ffiOTarget : FileTarget :=
   let oFile := cBuildDir / "ffi.o"
   let srcTarget := inputFileTarget <| cSrcDir / "ffi.cpp"
   fileTargetWithDep oFile srcTarget fun srcFile => do
-    compileO oFile srcFile #["-I", (← getLeanIncludeDir).toString] "c++"
+    compileO oFile srcFile #["-I", (← getLeanIncludeDir).toString, "-fPIC"] "c++"
 
 extern_lib cLib :=
   let libFile := cBuildDir / s!"libleanffi.a"

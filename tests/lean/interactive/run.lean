@@ -31,7 +31,7 @@ partial def main (args : List String) : IO Unit := do
     for line in text.splitOn "\n" do
       match line.splitOn "--" with
       | [ws, directive] =>
-        let line ← match directive[0] with
+        let line ← match directive.front with
           | 'v' => pure <| lineNo + 1  -- TODO: support subsequent 'v'... or not
           | '^' => pure <| lastActualLineNo
           | _ =>

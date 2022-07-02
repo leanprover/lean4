@@ -255,11 +255,12 @@ abbrev Ident := TSyntax identKind
 abbrev StrLit := TSyntax strLitKind
 abbrev CharLit := TSyntax charLitKind
 abbrev NameLit := TSyntax nameLitKind
+abbrev ScientificLit := TSyntax scientificLitKind
 abbrev NumLit := TSyntax numLitKind
 
 end Syntax
 
-export Syntax (Term Command Prec Prio Ident StrLit CharLit NameLit NumLit)
+export Syntax (Term Command Prec Prio Ident StrLit CharLit NameLit ScientificLit NumLit)
 
 namespace TSyntax
 
@@ -279,6 +280,9 @@ instance : Coe StrLit Term where
   coe s := ⟨s.raw⟩
 
 instance : Coe NameLit Term where
+  coe s := ⟨s.raw⟩
+
+instance : Coe ScientificLit Term where
   coe s := ⟨s.raw⟩
 
 instance : Coe NumLit Term where
@@ -844,14 +848,23 @@ end Syntax
 
 namespace TSyntax
 
-def getNat (s : TSyntax numLitKind) : Nat :=
+def getNat (s : NumLit) : Nat :=
   s.raw.isNatLit?.get!
 
 def getId (s : Ident) : Name :=
   s.raw.getId
 
-def getString (s : TSyntax strLitKind) : String :=
+def getScientific (s : ScientificLit) : Nat × Bool × Nat :=
+  s.raw.isScientificLit?.get!
+
+def getString (s : StrLit) : String :=
   s.raw.isStrLit?.get!
+
+def getChar (s : CharLit) : Char :=
+  s.raw.isCharLit?.get!
+
+def getName (s : NameLit) : Name :=
+  s.raw.isNameLit?.get!
 
 namespace Compat
 

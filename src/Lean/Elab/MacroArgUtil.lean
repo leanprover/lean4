@@ -45,8 +45,7 @@ where
   mkSplicePat (kind : SyntaxNodeKind) (stx : TSyntax `stx) (id : Term) (suffix : String) : CommandElabM Term :=
     return ⟨mkNullNode #[mkAntiquotSuffixSpliceNode kind (← mkAntiquotNode stx id) suffix]⟩
   mkAntiquotNode : TSyntax `stx → Term → CommandElabM Term
-    | `(stx| ($stx)), term => mkAntiquotNode stx term
-    | `(stx| $id:ident$[:$p:prec]?), term => do
+    | `(stx| $id:ident$[:$_]?), term => do
       let kind ← match (← Elab.Term.resolveParserName id) with
         | [(`Lean.Parser.ident, _)] => pure identKind
         | [(`Lean.Parser.Term.ident, _)] => pure identKind
@@ -63,7 +62,18 @@ where
           else
             throwError "unknown parser declaration/category/alias '{id}'"
       pure ⟨Syntax.mkAntiquotNode kind term⟩
-    | stx, term =>
+    | stx, term => do
+      -- can't match against `` `(stx| ($stxs*)) `` as `*` is interpreted as the `stx` operator
+      if stx.raw.isOfKind ``Parser.Syntax.paren then
+        -- translate argument `v:(p1 ... pn)` where all but one `pi` produce zero nodes to
+        -- `v:pi` using that single `pi`
+        let nonNullaryNodes ← stx.raw[1].getArgs.filterM fun
+          | `(stx| $id:ident$[:$_]?) | `(stx| $id:ident($_)) => do
+            let info ← Parser.getParserAliasInfo id.getId
+            return info.stackSz? != some 0
+          | _ => return true
+        if let #[stx] := nonNullaryNodes then
+          return (← mkAntiquotNode ⟨stx⟩ term)
       pure ⟨Syntax.mkAntiquotNode Name.anonymous term (isPseudoKind := true)⟩
 
 end Lean.Elab.Command

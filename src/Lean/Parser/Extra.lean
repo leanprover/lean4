@@ -181,17 +181,17 @@ macro_rules
 
 builtin_initialize
   register_parser_alias group { autoGroupArgs := false }
-  register_parser_alias ppHardSpace { stackSz? := none }
-  register_parser_alias ppSpace { stackSz? := none }
-  register_parser_alias ppLine { stackSz? := none }
+  register_parser_alias ppHardSpace { stackSz? := some 0 }
+  register_parser_alias ppSpace { stackSz? := some 0 }
+  register_parser_alias ppLine { stackSz? := some 0 }
   register_parser_alias ppGroup { stackSz? := none }
   register_parser_alias ppRealGroup { stackSz? := none }
   register_parser_alias ppRealFill { stackSz? := none }
   register_parser_alias ppIndent { stackSz? := none }
   register_parser_alias ppDedent { stackSz? := none }
-  register_parser_alias ppAllowUngrouped { stackSz? := none }
   register_parser_alias ppDedentIfGrouped { stackSz? := none }
-  register_parser_alias ppHardLineUnlessUngrouped { stackSz? := none }
+  register_parser_alias ppAllowUngrouped { stackSz? := some 0 }
+  register_parser_alias ppHardLineUnlessUngrouped { stackSz? := some 0 }
 
 end Parser
 

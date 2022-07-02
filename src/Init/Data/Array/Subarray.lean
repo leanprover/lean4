@@ -27,10 +27,10 @@ def get (s : Subarray α) (i : Fin s.size) : α :=
    simp [size] at this
    rw [Nat.add_comm]
    exact Nat.add_lt_of_lt_sub this
-  s.as.get ⟨s.start + i.val, this⟩
+  s.as[s.start + i.val, this]
 
 @[inline] def getD (s : Subarray α) (i : Nat) (v₀ : α) : α :=
-  if h : i < s.size then s.get ⟨i, h⟩ else v₀
+  if h : i < s.size then s[i, h] else v₀
 
 def get! [Inhabited α] (s : Subarray α) (i : Nat) : α :=
   getD s i default

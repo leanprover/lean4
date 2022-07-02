@@ -9,7 +9,7 @@ import Init.Classical
 
 namespace Array
 
-theorem eq_of_isEqvAux [DecidableEq α] (a b : Array α) (hsz : a.size = b.size) (i : Nat) (hi : i ≤ a.size) (heqv : Array.isEqvAux a b hsz (fun x y => x = y) i) (j : Nat) (low : i ≤ j) (high : j < a.size) : a.get ⟨j, high⟩ = b.get ⟨j, hsz ▸ high⟩ := by
+theorem eq_of_isEqvAux [DecidableEq α] (a b : Array α) (hsz : a.size = b.size) (i : Nat) (hi : i ≤ a.size) (heqv : Array.isEqvAux a b hsz (fun x y => x = y) i) (j : Nat) (low : i ≤ j) (high : j < a.size) : a[j, high] = b[j, hsz ▸ high] := by
   by_cases h : i < a.size
   · unfold Array.isEqvAux at heqv
     simp [h] at heqv

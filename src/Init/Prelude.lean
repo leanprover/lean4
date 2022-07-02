@@ -1255,7 +1255,7 @@ def Array.size {α : Type u} (a : @& Array α) : Nat :=
 def Array.get {α : Type u} (a : @& Array α) (i : @& Fin a.size) : α :=
   a.data.get i
 
-@[inline] def Array.getD (a : Array α) (i : Nat) (v₀ : α) : α :=
+@[inline] abbrev Array.getD (a : Array α) (i : Nat) (v₀ : α) : α :=
   dite (LT.lt i a.size) (fun h => a.get ⟨i, h⟩) (fun _ => v₀)
 
 /- "Comfortable" version of `fget`. It performs a bound check at runtime. -/

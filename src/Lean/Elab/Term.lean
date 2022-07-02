@@ -368,6 +368,16 @@ opaque mkTermElabAttribute : IO (KeyedDeclsAttribute TermElab)
 
 builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermElabAttribute
 
+inductive GetOpKind where
+  | /-- `a[i]` -/  safe
+  | /-- `a[i]!` -/ panic
+  | /-- `a[i]?` -/ optional
+
+def GetOpKind.opName : GetOpKind → String
+  | safe => "getOp"
+  | panic => "getOp!"
+  | optional => "getOp?"
+
 /--
   Auxiliary datatatype for presenting a Lean lvalue modifier.
   We represent a unelaborated lvalue as a `Syntax` (or `Expr`) and `List LVal`.
@@ -379,12 +389,12 @@ inductive LVal where
     /- Field `suffix?` is for producing better error messages because `x.y` may be a field access or a hierachical/composite name.
        `ref` is the syntax object representing the field. `targetStx` is the target object being accessed. -/
   | fieldName (ref : Syntax) (name : String) (suffix? : Option Name) (targetStx : Syntax)
-  | getOp     (ref : Syntax) (idx : Syntax)
+  | getOp     (ref : Syntax) (idx : Syntax) (getOpKind : GetOpKind)
 
 def LVal.getRef : LVal → Syntax
   | LVal.fieldIdx ref _    => ref
   | LVal.fieldName ref ..  => ref
-  | LVal.getOp ref _       => ref
+  | LVal.getOp ref ..      => ref
 
 def LVal.isFieldName : LVal → Bool
   | LVal.fieldName .. => true
@@ -394,7 +404,12 @@ instance : ToString LVal where
   toString
     | LVal.fieldIdx _ i     => toString i
     | LVal.fieldName _ n .. => n
-    | LVal.getOp _ idx      => "[" ++ toString idx ++ "]"
+    | LVal.getOp _ idx k    =>
+      let r := "[" ++ toString idx ++ "]"
+      match k with
+      | .safe => r
+      | .panic => r ++ "!"
+      | .optional => r ++ "?"
 
 /-- Return the name of the declaration being elaborated if available. -/
 def getDeclName? : TermElabM (Option Name) := return (← read).declName?

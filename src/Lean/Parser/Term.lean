@@ -273,6 +273,8 @@ def argument       :=
 @[builtinTermParser] def proj     := trailing_parser checkNoWsBefore >> "." >> checkNoWsBefore >> (fieldIdx <|> rawIdent)
 @[builtinTermParser] def completion := trailing_parser checkNoWsBefore >> "."
 @[builtinTermParser] def arrayRef := trailing_parser checkNoWsBefore >> "[" >> termParser >>"]"
+@[builtinTermParser] def arrayRefOpt := trailing_parser checkNoWsBefore >> "[" >> termParser >> "]" >> checkNoWsBefore >> "?"
+@[builtinTermParser] def arrayRefPanic := trailing_parser checkNoWsBefore >> "[" >> termParser >>"]" >> checkNoWsBefore >> "!"
 @[builtinTermParser] def arrow    := trailing_parser checkPrec 25 >> unicodeSymbol " → " " -> " >> termParser 25
 
 def isIdent (stx : Syntax) : Bool :=

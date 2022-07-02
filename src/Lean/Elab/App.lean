@@ -620,9 +620,9 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       | none                => searchCtx ()
     else
       searchCtx ()
-  | some structName, LVal.getOp _ idx =>
+  | some structName, LVal.getOp _ idx kind =>
     let env ← getEnv
-    let fullName := Name.mkStr structName "getOp"
+    let fullName := Name.mkStr structName kind.opName
     match env.find? fullName with
     | some _ => return LValResolution.getOp fullName idx
     | none   => throwLValError e eType m!"invalid [..] notation because environment does not contain '{fullName}'"
@@ -631,7 +631,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       throwUnknownConstant (e.constName! ++ suffix)
     else
       throwInvalidFieldNotation e eType
-  | _, LVal.getOp _ _   => throwInvalidFieldNotation e eType
+  | _, LVal.getOp .. => throwInvalidFieldNotation e eType
   | _, _ => throwInvalidFieldNotation e eType
 
 /- whnfCore + implicit consumption.
@@ -899,7 +899,7 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     | `($e |>.$idx:fieldIdx) => elabFieldIdx e idx
     | `($(e).$field:ident) => elabFieldName e field
     | `($e |>.$field:ident) => elabFieldName e field
-    | `($e[%$bracket $idx]) => elabAppFn e (LVal.getOp bracket idx :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
+    | `($e[%$bracket $idx]) => elabAppFn e (LVal.getOp bracket idx .safe :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
     | `($_:ident@$_:term) =>
       throwError "unexpected occurrence of named pattern"
     | `($id:ident) => do

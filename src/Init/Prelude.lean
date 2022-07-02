@@ -2025,11 +2025,11 @@ def SourceInfo.fromRef (ref : Syntax) : SourceInfo :=
   | some pos, some tailPos => SourceInfo.synthetic pos tailPos
   | _,        _            => SourceInfo.none
 
-def mkAtom (val : String) : Syntax :=
-  Syntax.atom SourceInfo.none val
+def mkAtom (val : String) (info := SourceInfo.none) : Syntax :=
+  Syntax.atom info val
 
 def mkAtomFrom (src : Syntax) (val : String) : Syntax :=
-  Syntax.atom (SourceInfo.fromRef src) val
+  mkAtom val (SourceInfo.fromRef src)
 
 /- Parser descriptions -/
 

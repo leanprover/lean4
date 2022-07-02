@@ -110,7 +110,7 @@ def isInaccessibleUserName : Name → Bool
   | Name.num p _   _ => isInaccessibleUserName p
   | _                => false
 
-def escapePart (s : String) : Option String :=
+def escapePart? (s : String) : Option String :=
   if s.length > 0 && isIdFirst (s.get 0) && (s.toSubstring.drop 1).all isIdRest then s
   else if s.any isIdEndEscape then none
   else some <| idBeginEscape.toString ++ s ++ idEndEscape.toString
@@ -124,7 +124,7 @@ def toStringWithSep : Name → String
   | str n s _         => toStringWithSep n ++ sep ++ maybeEscape s
   | num n v _         => toStringWithSep n ++ sep ++ Nat.repr v
 where
-  maybeEscape s := if escape then escapePart s |>.getD s else s
+  maybeEscape s := if escape then escapePart? s |>.getD s else s
 
 protected def toString (n : Name) (escape := true) : String :=
   -- never escape "prettified" inaccessible names or macro scopes or pseudo-syntax introduced by the delaborator
@@ -451,32 +451,39 @@ partial def expandMacros : Syntax → MacroM Syntax
 /- Helper functions for processing Syntax programmatically -/
 
 /--
+  Create an identifier.
+  To refer to a specific constant, use `mkCIdent` instead. -/
+@[export lean_mk_syntax_ident]
+def mkIdent (val : Name) (info := SourceInfo.none) : Ident :=
+  ⟨Syntax.ident info (toString val).toSubstring val []⟩
+
+/--
   Create an identifier copying the position from `src`.
   To refer to a specific constant, use `mkCIdentFrom` instead. -/
 def mkIdentFrom (src : Syntax) (val : Name) : Ident :=
-  ⟨Syntax.ident (SourceInfo.fromRef src) (toString val).toSubstring val []⟩
+  mkIdent val (SourceInfo.fromRef src)
 
 def mkIdentFromRef [Monad m] [MonadRef m] (val : Name) : m Ident := do
   return mkIdentFrom (← getRef) val
+
+/--
+  Create an identifier referring to a constant `c`.
+  This variant of `mkIdent` makes sure that the identifier cannot accidentally
+  be captured. -/
+def mkCIdent (c : Name) (info := SourceInfo.none) : Ident :=
+  -- Remark: We use the reserved macro scope to make sure there are no accidental collision with our frontend
+  let id := addMacroScope `_internal c reservedMacroScope
+  ⟨Syntax.ident info (toString id).toSubstring id [(c, [])]⟩
 
 /--
   Create an identifier referring to a constant `c` copying the position from `src`.
   This variant of `mkIdentFrom` makes sure that the identifier cannot accidentally
   be captured. -/
 def mkCIdentFrom (src : Syntax) (c : Name) : Ident :=
-  -- Remark: We use the reserved macro scope to make sure there are no accidental collision with our frontend
-  let id   := addMacroScope `_internal c reservedMacroScope
-  ⟨Syntax.ident (SourceInfo.fromRef src) (toString id).toSubstring id [(c, [])]⟩
+  mkCIdent c (SourceInfo.fromRef src)
 
 def mkCIdentFromRef [Monad m] [MonadRef m] (c : Name) : m Syntax := do
   return mkCIdentFrom (← getRef) c
-
-def mkCIdent (c : Name) : Ident :=
-  mkCIdentFrom Syntax.missing c
-
-@[export lean_mk_syntax_ident]
-def mkIdent (val : Name) : Ident :=
-  ⟨Syntax.ident SourceInfo.none (toString val).toSubstring val []⟩
 
 @[inline] def mkNullNode (args : Array Syntax := #[]) : Syntax :=
   mkNode nullKind args
@@ -526,8 +533,11 @@ def mkApp (fn : Term) : (args : TSyntaxArray `term) → Term
   | #[]  => fn
   | args => ⟨mkNode `Lean.Parser.Term.app #[fn, mkNullNode args.raw]⟩
 
-def mkCApp (fn : Name) (args : TSyntaxArray `term) : Term :=
-  mkApp (mkCIdent fn) args
+def mkCApp (fn : Name) (args : TSyntaxArray `term) (info := SourceInfo.none) : Term :=
+  mkApp (mkCIdent fn info) args
+
+def mkCAppFrom (src : Syntax) (fn : Name) (args : TSyntaxArray `term) : Term :=
+  mkApp (mkCIdentFrom src fn) args
 
 def mkLit (kind : SyntaxNodeKind) (val : String) (info := SourceInfo.none) : TSyntax kind :=
   let atom : Syntax := Syntax.atom info val
@@ -864,55 +874,80 @@ end TSyntax
 
 /-- Reflect a runtime datum back to surface syntax (best-effort). -/
 class Quote (α : Type) (k : SyntaxNodeKind := `term) where
-  quote : α → TSyntax k
+  quote (a : α) (info := SourceInfo.none) : TSyntax k
 
 export Quote (quote)
 
-instance [Quote α k] [CoeHTCT (TSyntax k) (TSyntax [k'])] : Quote α k' := ⟨fun a => quote (k := k) a⟩
+/--
+  Reflect the runtime datum `a` back to surface syntax,
+  copying the position from `src`.  -/
+def quoteFrom [Quote α k] (src : Syntax) (a : α) : TSyntax k :=
+  quote a (SourceInfo.fromRef src)
 
-instance : Quote Term := ⟨id⟩
-instance : Quote Bool := ⟨fun | true => mkCIdent `Bool.true | false => mkCIdent `Bool.false⟩
-instance : Quote String strLitKind := ⟨Syntax.mkStrLit⟩
-instance : Quote Nat numLitKind := ⟨fun n => Syntax.mkNumLit <| toString n⟩
-instance : Quote Substring := ⟨fun s => Syntax.mkCApp `String.toSubstring #[quote s.toString]⟩
+def quoteFromRef [Quote α k] [Monad m] [MonadRef m] (a : α) : m (TSyntax k) := do
+  return quoteFrom (← getRef) a
+
+instance [Quote α k] [CoeHTCT (TSyntax k) (TSyntax [k'])] : Quote α k' :=
+  ⟨fun a i => quote (k := k) a i⟩
+
+instance : Quote Term := ⟨fun a _ => a⟩
+instance : Quote String strLitKind := ⟨fun s i => Syntax.mkStrLit s i⟩
+instance : Quote Nat numLitKind := ⟨fun n i => Syntax.mkNumLit (toString n) i⟩
+
+instance : Quote Bool where
+  quote
+    | true, info => mkCIdent `Bool.true info
+    | false, info => mkCIdent `Bool.false info
+
+instance : Quote Substring :=
+  ⟨fun s i => Syntax.mkCApp `String.toSubstring #[quote s.toString] i⟩
 
 -- in contrast to `Name.toString`, we can, and want to be, precise here
 private def getEscapedNameParts? (acc : List String) : Name → Option (List String)
   | Name.anonymous => if acc.isEmpty then none else some acc
   | Name.str n s _ => do
-    let s ← Name.escapePart s
+    let s ← Name.escapePart? s
     getEscapedNameParts? (s::acc) n
   | Name.num _ _ _ => none
 
-def quoteNameMk : Name → Term
-  | Name.anonymous => mkCIdent ``Name.anonymous
-  | Name.str n s _ => Syntax.mkCApp ``Name.mkStr #[quoteNameMk n, quote s]
-  | Name.num n i _ => Syntax.mkCApp ``Name.mkNum #[quoteNameMk n, quote i]
+def Name.escapeParts? (n : Name) : Option (List String) :=
+  getEscapedNameParts? [] n
+
+def Name.toNameLit? (n : Name) (info := SourceInfo.none) : Option NameLit :=
+  match n.escapeParts? with
+  | some ss => Syntax.mkNameLit ("`" ++ ".".intercalate ss) info
+  | none => none
+
+def quoteNameMk (n : Name) (info := SourceInfo.none) : Term :=
+  match n with
+  | Name.anonymous => mkCIdent ``Name.anonymous info
+  | Name.str n s _ => Syntax.mkCApp ``Name.mkStr #[quoteNameMk n, quote s info]
+  | Name.num n i _ => Syntax.mkCApp ``Name.mkNum #[quoteNameMk n, quote i info]
 
 instance : Quote Name `term where
-  quote n := match getEscapedNameParts? [] n with
-    | some ss => ⟨mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ ".".intercalate ss)]⟩
-    | none    => ⟨quoteNameMk n⟩
+  quote n info := match n.toNameLit? info with
+    | some lit => ⟨mkNode `Lean.Parser.Term.quotedName #[lit]⟩
+    | none     => ⟨quoteNameMk n info⟩
 
 instance [Quote α `term] [Quote β `term] : Quote (α × β) `term where
   quote
-    | ⟨a, b⟩ => Syntax.mkCApp ``Prod.mk #[quote a, quote b]
+    | ⟨a, b⟩, i => Syntax.mkCApp ``Prod.mk #[quote a i, quote b i] i
 
-private def quoteList [Quote α `term] : List α → Term
+protected def List.quote [Quote α `term] (xs : List α) (info := SourceInfo.none) : Term :=
+  match xs with
   | []      => mkCIdent ``List.nil
-  | (x::xs) => Syntax.mkCApp ``List.cons #[quote x, quoteList xs]
+  | (x::xs) => Syntax.mkCApp ``List.cons #[quote x info, List.quote xs info]
 
 instance [Quote α `term] : Quote (List α) `term where
-  quote := quoteList
+  quote xs i := List.quote xs i
 
 instance [Quote α `term] : Quote (Array α) `term where
-  quote xs := Syntax.mkCApp ``List.toArray #[quote xs.toList]
+  quote xs i := Syntax.mkCApp ``List.toArray #[quote xs.toList i] i
 
 instance Option.hasQuote {α : Type} [Quote α `term] : Quote (Option α) `term where
   quote
-    | none     => mkIdent ``none
-    | (some x) => Syntax.mkCApp ``some #[quote x]
-
+    | none, i => mkIdent ``none i
+    | (some x), i => Syntax.mkCApp ``some #[quote x i] i
 
 /- Evaluator for `prec` DSL -/
 def evalPrec (stx : Syntax) : MacroM Nat :=

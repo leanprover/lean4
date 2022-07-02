@@ -1,5 +1,5 @@
 import Lake
 open System Lake DSL
 
-package user_attr where
-  defaultFacet := PackageFacet.oleans
+package user_attr
+@[defaultTarget] lean_lib UserAttr

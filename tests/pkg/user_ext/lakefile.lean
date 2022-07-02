@@ -1,5 +1,5 @@
 import Lake
 open System Lake DSL
 
-package user_ext where
-  defaultFacet := PackageFacet.oleans
+package user_ext
+@[defaultTarget] lean_lib UserExt

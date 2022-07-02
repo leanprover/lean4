@@ -111,7 +111,7 @@ def isInaccessibleUserName : Name → Bool
   | _                => false
 
 def escapePart (s : String) : Option String :=
-  if s.length > 0 && isIdFirst s[0] && (s.toSubstring.drop 1).all isIdRest then s
+  if s.length > 0 && isIdFirst (s.get 0) && (s.toSubstring.drop 1).all isIdRest then s
   else if s.any isIdEndEscape then none
   else some <| idBeginEscape.toString ++ s ++ idEndEscape.toString
 

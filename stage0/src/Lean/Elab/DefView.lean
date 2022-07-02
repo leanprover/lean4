@@ -92,7 +92,7 @@ def mkInstanceName (binders : Array Syntax) (type : Syntax) : CommandElabM Name 
         else if e.isConst then
           match e.constName!.eraseMacroScopes with
           | Name.str _ str _ =>
-              if str[0].isLower then
+              if str.front.isLower then
                 ref.modify (· ++ str.capitalize)
               else
                 ref.modify (· ++ str)

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -exo pipefail
 
+LAKE1=${LAKE:-../../../build/bin/lake}
 LAKE=${LAKE:-../../build/bin/lake}
 
 ./clean.sh
@@ -18,7 +19,7 @@ pushd b
 cat >>lakefile.lean <<EOF
 require a from git "../a" @ "master"
 EOF
-../$LAKE update
+$LAKE1 update
 git add .
 git config user.name test
 git config user.email test@example.com
@@ -31,6 +32,6 @@ git commit -am 'second commit in a'
 popd
 
 pushd b
-../$LAKE update
+$LAKE1 update
 git diff | grep -m1 manifest
 popd

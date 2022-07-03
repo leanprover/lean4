@@ -240,11 +240,11 @@ theorem Bigstem.det (h₁ : (σ, s) ⇓ σ₁) (h₂ : (σ, s) ⇓ σ₂) : σ�
   case seq ih₁ ih₂ h₁ h₂ =>
     simp [ih₁ h₁] at ih₂
     simp [ih₂ h₂]
-  case ifTrue ih _ h =>
+  case ifTrue ih h =>
     simp [ih h]
-  case ifFalse ih _ h =>
+  case ifFalse ih h =>
     simp [ih h]
-  case whileTrue ih₁ ih₂ _ h₁ h₂ =>
+  case whileTrue ih₁ ih₂ h₁ h₂ =>
     simp [ih₁ h₁] at ih₂
     simp [ih₂ h₂]
 

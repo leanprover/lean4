@@ -1,0 +1,8 @@
+def Arrow.compose₁ : {α β γ : O} → Arrow β γ → Arrow α β → Arrow α γ :=
+fun {α β γ} x x_1 =>
+  match β, γ, x, x_1 with
+  | β, .(β), Arrow.id, g => g
+  | .(α), γ, f, Arrow.id => f
+  | β, γ, Arrow.comp f₁ f₂, g => Arrow.comp f₁ (Arrow.comp f₂ g)
+  | β, γ, f, g => Arrow.comp f g
+Arrow.unit

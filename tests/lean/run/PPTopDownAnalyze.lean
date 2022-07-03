@@ -9,7 +9,7 @@ import Std
 open Lean Lean.Meta Lean.Elab Lean.Elab.Term Lean.Elab.Command
 open Lean.PrettyPrinter
 
-def checkDelab (e : Expr) (tgt? : Option Syntax) (name? : Option Name := none) : TermElabM Unit := do
+def checkDelab (e : Expr) (tgt? : Option Term) (name? : Option Name := none) : TermElabM Unit := do
   let pfix := "[checkDelab" ++ (match name? with | some n => ("." ++ toString n) | none => "") ++ "]"
   if e.hasMVar then throwError "{pfix} original term has mvars, {e}"
   let stx ← delab e

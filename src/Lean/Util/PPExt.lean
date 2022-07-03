@@ -40,14 +40,14 @@ structure PPContext where
 
 structure PPFns where
   ppExpr : PPContext → Expr → IO Format
-  ppTerm : PPContext → Syntax → IO Format
+  ppTerm : PPContext → Term → IO Format
   ppGoal : PPContext → MVarId → IO Format
   deriving Inhabited
 
 builtin_initialize ppFnsRef : IO.Ref PPFns ←
   IO.mkRef {
     ppExpr := fun _ e => return format (toString e)
-    ppTerm := fun ctx stx => return stx.formatStx (some <| pp.raw.maxDepth.get ctx.opts)
+    ppTerm := fun ctx stx => return stx.raw.formatStx (some <| pp.raw.maxDepth.get ctx.opts)
     ppGoal := fun _ _ => return "goal"
   }
 
@@ -67,8 +67,8 @@ def ppExpr (ctx : PPContext) (e : Expr) : IO Format := do
       else
         pure f!"failed to pretty print expression (use 'set_option pp.rawOnError true' for raw representation)"
 
-def ppTerm (ctx : PPContext) (stx : Syntax) : IO Format :=
-  let fmtRaw := fun () => stx.formatStx (some <| pp.raw.maxDepth.get ctx.opts) (pp.raw.showInfo.get ctx.opts)
+def ppTerm (ctx : PPContext) (stx : Term) : IO Format :=
+  let fmtRaw := fun () => stx.raw.formatStx (some <| pp.raw.maxDepth.get ctx.opts) (pp.raw.showInfo.get ctx.opts)
   if pp.raw.get ctx.opts then
     return fmtRaw ()
   else

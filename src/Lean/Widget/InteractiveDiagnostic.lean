@@ -83,7 +83,7 @@ where
   | _,    _,         ofFormat fmt             => withIgnoreTags (pure fmt)
   | _,    _,         ofLevel u                => return format u
   | _,    _,         ofName n                 => return format n
-  | nCtx, some ctx,  ofSyntax s               => withIgnoreTags (ppTerm (mkPPContext nCtx ctx) s) -- HACK: might not be a term
+  | nCtx, some ctx,  ofSyntax s               => withIgnoreTags (ppTerm (mkPPContext nCtx ctx) ⟨s⟩) -- HACK: might not be a term
   | _,    none,      ofSyntax s               => withIgnoreTags (pure s.formatStx)
   | _,    none,      ofExpr e                 => return format (toString e)
   | nCtx, some ctx,  ofExpr e                 => do

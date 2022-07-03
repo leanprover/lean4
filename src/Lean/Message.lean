@@ -119,7 +119,7 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
   | _,    _,         ofFormat fmt             => return fmt
   | _,    _,         ofLevel u                => return format u
   | _,    _,         ofName n                 => return format n
-  | nCtx, some ctx,  ofSyntax s               => ppTerm (mkPPContext nCtx ctx) s  -- HACK: might not be a term
+  | nCtx, some ctx,  ofSyntax s               => ppTerm (mkPPContext nCtx ctx) ⟨s⟩  -- HACK: might not be a term
   | _,    none,      ofSyntax s               => return s.formatStx
   | _,    none,      ofExpr e                 => return format (toString e)
   | nCtx, some ctx,  ofExpr e                 => ppExpr (mkPPContext nCtx ctx) e

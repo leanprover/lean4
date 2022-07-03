@@ -17,8 +17,8 @@ let (f, _) ← (tryFinally (PrettyPrinter.ppModule stx) printTraces).toIO { opti
 IO.print f
 let stx' ← Lean.Parser.testParseModule env args.head! (toString f)
 if stx' != stx then
-  let stx := stx.getArg 1
-  let stx' := stx'.getArg 1
+  let stx := stx.raw.getArg 1
+  let stx' := stx'.raw.getArg 1
   stx.getArgs.size.forM fun i => do
     if stx.getArg i != stx'.getArg i then
       throw $ IO.userError s!"reparsing failed:\n{stx.getArg i}\n{stx'.getArg i}"

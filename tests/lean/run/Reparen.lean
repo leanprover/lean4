@@ -26,10 +26,10 @@ let (debug, f) : Bool × String := match args with
   | _         => panic! "usage: file [-d]";
 let env ← mkEmptyEnvironment;
 let stx ← Lean.Parser.testParseFile env args.head!;
-let header := stx.getArg 0;
+let header := stx.raw.getArg 0;
 let some s ← pure header.reprint | throw $ IO.userError "header reprint failed";
 IO.print s;
-let cmds := (stx.getArg 1).getArgs;
+let cmds := (stx.raw.getArg 1).getArgs;
 cmds.forM $ fun cmd => do
   let cmd := unparen cmd;
   let (cmd, _) ← (tryFinally (PrettyPrinter.parenthesizeCommand cmd) printTraces).toIO { options := Options.empty.setBool `trace.PrettyPrinter.parenthesize debug, fileName := "", fileMap := default } { env := env };

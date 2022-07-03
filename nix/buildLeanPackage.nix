@@ -18,6 +18,9 @@ lib.makeOverridable (
   # A set of Lean modules names as strings (`"Foo.Bar"`) or attrsets (`{ name = "Foo.Bar"; glob = "one" | "submodules" | "andSubmodules"; }`);
   # see Lake README for glob meanings. Dependencies of selected modules are always included.
   roots ? [ name ],
+  # Output from `lean --deps-json` on package source files. Persist the corresponding output attribute to a file and pass it back in here to avoid IFD.
+  # Must be refreshed on any change in `import`s or set of source file names.
+  modDepsFile ? null,
   # Whether to compile each module into a native shared library that is loaded whenever the module is imported in order to accelerate evaluation
   precompileModules ? false,
   # Whether to compile the package into a native shared library that is loaded whenever *any* of the package's modules is imported into another package.
@@ -26,7 +29,7 @@ lib.makeOverridable (
   # Lean plugin dependencies. Each derivation `plugin` should contain a plugin library at path `${plugin}/${plugin.name}`.
   pluginDeps ? [],
   debug ? false, leanFlags ? [], leancFlags ? [], linkFlags ? [], executableName ? lib.toLower name, libName ? name,
-  srcTarget ? "..#stage0", srcArgs ? "(\${args[*]})", lean-final ? lean-final' }:
+  srcTarget ? "..#stage0", srcArgs ? "(\${args[*]})", lean-final ? lean-final' }@args:
 with builtins; let
   # "Init.Core" ~> "Init/Core"
   modToPath = mod: replaceStrings ["."] ["/"] mod;
@@ -90,26 +93,42 @@ with builtins; let
   leanPluginFlags = lib.concatStringsSep " " (map (dep: "--plugin=${pathOfSharedLib dep}") pluginDeps);
   loadDynlibsOfDeps = deps: lib.unique (concatMap (d: d.propagatedLoadDynlibs) deps);
 
-  fakeDepRoot = runBareCommandLocal "${name}-dep-root" {} ''
-    mkdir $out
-    cd $out
-    mkdir ${lib.concatStringsSep " " (map (r: head (split "\\." (r.mod or r))) roots ++ (map (d: d.name) allExternalDeps))}
-  '';
-  print-lean-deps = writeShellScriptBin "print-lean-deps" ''
-    export LEAN_PATH=${fakeDepRoot}
-    ${lean-leanDeps}/bin/lean --deps --stdin | ${gnused}/bin/sed "s!$LEAN_PATH/!!;s!/!.!g;s!.olean!!"
-  '';
-  # build a file containing the module names of all immediate dependencies of `mod`
-  leanDeps = mod: mkBareDerivation {
-    name ="${mod}-deps";
-    src = modToLean mod;
-    buildInputs = [ print-lean-deps ];
+  # submodules "Init" = ["Init.List.Basic", "Init.Core", ...]
+  submodules = mod: let
+    dir = readDir (modToAbsPath mod);
+    f = p: t:
+      if t == "directory" then
+        submodules "${mod}.${p}"
+      else
+        let m = builtins.match "(.*)\.lean" p;
+        in lib.optional (m != null) "${mod}.${head m}";
+  in concatLists (lib.mapAttrsToList f dir);
+
+  # conservatively approximate list of source files matched by glob
+  expandGlobAllApprox = g:
+    if typeOf g == "string" then
+      # we can't know the required files without parsing dependencies (which is what we want this
+      # function for), so we approximate to the entire package.
+      let root = (head (split "\\." g));
+      in lib.optional (pathExists (modToLean root)) root ++ lib.optionals (pathExists (modToAbsPath root)) (submodules root)
+    else if g.glob == "one" then expandGlobAllApprox g.mod
+    else if g.glob == "submodules" then submodules g.mod
+    else if g.glob == "andSubmodules" then [g.mod] ++ submodules g.mod
+    else throw "unknown glob kind '${g}'";
+  # list of modules that could potentially be involved in the build
+  candidateMods = filter (m: pathExists (modToLean m)) (lib.unique (concatMap expandGlobAllApprox roots));
+  candidateFiles = map modToLean candidateMods;
+  modDepsFile = args.modDepsFile or mkBareDerivation {
+    name = "${name}-deps.json";
     buildCommand = ''
-      print-lean-deps < $src > $out
+      mkdir $out
+      ${lean-leanDeps}/bin/lean --deps-json ${lib.concatStringsSep " " candidateFiles} > $out/$name
     '';
-    preferLocalBuild = true;
-    allowSubstitutes = false;
   };
+  modDeps = fromJSON (
+    # the only possible references to store paths in the JSON should be inside errors, so no chance of missed dependencies from this
+    unsafeDiscardStringContext (readFile "${modDepsFile}/${modDepsFile.name}"));
+  modDepsMap = listToAttrs (lib.zipListsWith lib.nameValuePair candidateMods modDeps.imports);
   # build module (.olean and .c) given derivations of all (immediate) dependencies
   buildMod = mod: deps: mkBareDerivation rec {
     name = "${mod}";
@@ -165,7 +184,9 @@ with builtins; let
   # recursion to memoize common dependencies.
   buildModAndDeps = mod: modMap: if modMap ? ${mod} || externalModMap ? ${mod} then modMap else
     let
-      deps = filter (p: p != "") (lib.splitString "\n" (readFile (leanDeps mod)));
+      deps = if modDepsMap.${mod}.errors == []
+             then map (m: m.module) modDepsMap.${mod}.imports
+             else abort "errors while parsing imports of ${mod}:\n${lib.concatStringsSep "\n" modDepsMap.${mod}.errors}";
       modMap' = lib.foldr buildModAndDeps modMap deps;
     in modMap' // { ${mod} = mkMod mod (map (dep: if modMap' ? ${dep} then modMap'.${dep} else externalModMap.${dep}) deps); };
   makeEmacsWrapper = name: emacs: lean: writeShellScriptBin name ''
@@ -182,15 +203,6 @@ with builtins; let
     }}'
   '';
   makePrintPathsFor = deps: mods: printPaths deps // mapAttrs (_: mod: makePrintPathsFor (deps ++ [mod]) mods) mods;
-  submodules = mod: let
-    dir = readDir (modToAbsPath mod);
-    f = p: t:
-      if t == "directory" then
-        submodules "${mod}.${p}"
-      else
-        let m = builtins.match "(.*)\.lean";
-        in lib.optional (m != null) ["${mod}.${m[0]}"];
-  in mapConcat (lib.mapAttrsToList f) dir;
   expandGlob = g:
     if typeOf g == "string" then [g]
     else if g.glob == "one" then [g.mod]
@@ -210,7 +222,7 @@ with builtins; let
     then "-Wl,--start-group ${libs} -Wl,--end-group"
     else "${libs}";
 in rec {
-  inherit name lean deps staticLibDeps allNativeSharedLibs allLinkFlags allExternalDeps print-lean-deps src objects staticLib;
+  inherit name lean deps staticLibDeps allNativeSharedLibs allLinkFlags allExternalDeps src objects staticLib modDepsFile;
   mods = mapAttrs (_: m:
       m //
       # if neither precompilation option was set but a dependent module wants to be precompiled, default to precompiling this package whole

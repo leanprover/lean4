@@ -61,7 +61,7 @@ def mctx4  := mctx3.addExprMVarDecl `m3 `m3 lctx4 #[] natE
 def mctx5  := mctx4.addExprMVarDecl `m4 `m4 lctx1 #[] (arrow typeE (arrow natE (arrow α natE)))
 def mctx6  := mctx5.addExprMVarDecl `m5 `m5 lctx5 #[] typeE
 def mctx7  := mctx5.addExprMVarDecl `m6 `m6 lctx5 #[] (arrow typeE (arrow natE (arrow α natE)))
-def mctx8  := mctx7.assignDelayed `m4 lctx4 #[α, x, y] m3
+def mctx8  := mctx7.assignDelayed `m4 #[α, x, y] m3
 def mctx9  := mctx8.assignExpr `m3 (mkAppN g #[x, y])
 def mctx10 := mctx9.assignExpr `m1 a
 
@@ -90,7 +90,7 @@ partial def mkDiamond : Nat → Expr
 #eval toString (mctx7.instantiateMVars (mkDiamond 100)).1.getAppFn
 #eval toString (mctx10.instantiateMVars (mkDiamond 100)).1.getAppFn
 
-def mctx11 := mctx10.assignDelayed `m6 lctx5 #[α, x, y] m5
+def mctx11 := mctx10.assignDelayed `m6 #[α, x, y] m5
 def mctx12 := mctx11.assignExpr `m5 (arrow α α)
 
 def t4 := lctx6.mkLambda #[α, x, y, w] $ mkAppN f #[mkAppN m4 #[α, x, y], x]

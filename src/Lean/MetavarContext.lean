@@ -263,11 +263,8 @@ structure MetavarDecl where
   A delayed assignment for a metavariable `?m`. It represents an assignment of the form
   `?m := (fun fvars => val)`. The local context `lctx` provides the declarations for `fvars`.
   Note that `fvars` may not be defined in the local context for `?m`.
-
-  - TODO: after we delete the old frontend, we can remove the field `lctx`.
-    This field is only used in old C++ implementation. -/
+-/
 structure DelayedMetavarAssignment where
-  lctx     : LocalContext
   fvars    : Array Expr
   val      : Expr
 
@@ -395,8 +392,8 @@ def assignLevel (m : MetavarContext) (mvarId : MVarId) (val : Level) : MetavarCo
 def assignExpr (m : MetavarContext) (mvarId : MVarId) (val : Expr) : MetavarContext :=
   { m with eAssignment := m.eAssignment.insert mvarId val }
 
-def assignDelayed (m : MetavarContext) (mvarId : MVarId) (lctx : LocalContext) (fvars : Array Expr) (val : Expr) : MetavarContext :=
-  { m with dAssignment := m.dAssignment.insert mvarId { lctx, fvars, val } }
+def assignDelayed (m : MetavarContext) (mvarId : MVarId) (fvars : Array Expr) (val : Expr) : MetavarContext :=
+  { m with dAssignment := m.dAssignment.insert mvarId { fvars, val } }
 
 def getLevelAssignment? (m : MetavarContext) (mvarId : MVarId) : Option Level :=
   m.lAssignment.find? mvarId
@@ -963,7 +960,7 @@ mutual
 
          Remark: `newMVarKind != MetavarKind.syntheticOpaque ==> nestedFVars == #[]`
       -/
-      let rec cont (nestedFVars : Array Expr) (nestedLCtx : LocalContext) : M (Expr × Array Expr) := do
+      let rec cont (nestedFVars : Array Expr) : M (Expr × Array Expr) := do
         let args ← args.mapM (visit xs)
         let preserve ← preserveOrder
         -- Note that `toRevert` only contains free variables since it is the result of `getInScope`
@@ -984,15 +981,15 @@ mutual
             }
           match newMVarKind with
           | MetavarKind.syntheticOpaque =>
-            modify fun s => { s with mctx := assignDelayed s.mctx newMVarId nestedLCtx (toRevert ++ nestedFVars) (mkAppN (mkMVar mvarId) nestedFVars) }
+            modify fun s => { s with mctx := assignDelayed s.mctx newMVarId (toRevert ++ nestedFVars) (mkAppN (mkMVar mvarId) nestedFVars) }
           | _                           =>
             modify fun s => { s with mctx := assignExpr s.mctx mvarId result }
           return (mkAppN result args, toRevert)
       if !mvarDecl.kind.isSyntheticOpaque then
-        cont #[] mvarLCtx
+        cont #[]
       else match mctx.getDelayedAssignment? mvarId with
-      | none => cont #[] mvarLCtx
-      | some { fvars, lctx := nestedLCtx, .. } => cont fvars nestedLCtx -- Remark: nestedLCtx is bigger than mvarLCtx
+      | none => cont #[]
+      | some { fvars, .. } => cont fvars
 
   private partial def elimApp (xs : Array Expr) (f : Expr) (args : Array Expr) : M Expr := do
     match f with

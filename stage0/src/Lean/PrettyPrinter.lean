@@ -20,7 +20,7 @@ def PPContext.runMetaM {α : Type} (ppCtx : PPContext) (x : MetaM α) : IO α :=
 
 namespace PrettyPrinter
 
-def ppTerm (stx : Syntax) : CoreM Format := do
+def ppTerm (stx : Term) : CoreM Format := do
   let opts ← getOptions
   let stx := (sanitizeSyntax stx).run' { options := opts }
   parenthesizeTerm stx >>= formatTerm
@@ -50,10 +50,13 @@ def ppConst (e : Expr) : MetaM Format := do
 def ppExprLegacy (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : IO Format :=
   Prod.fst <$> ((ppExpr e).run' { lctx := lctx } { mctx := mctx }).toIO { options := opts, fileName := "<PrettyPrinter>", fileMap := default } { env := env }
 
-def ppCommand (stx : Syntax) : CoreM Format :=
+def ppTactic (stx : TSyntax `tactic) : CoreM Format :=
+  parenthesizeTactic stx >>= formatTactic
+
+def ppCommand (stx : Syntax.Command) : CoreM Format :=
   parenthesizeCommand stx >>= formatCommand
 
-def ppModule (stx : Syntax) : CoreM Format := do
+def ppModule (stx : TSyntax ``Parser.Module.module) : CoreM Format := do
   parenthesize Lean.Parser.Module.module.parenthesizer stx >>= format Lean.Parser.Module.module.formatter
 
 private partial def noContext : MessageData → MessageData

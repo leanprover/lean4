@@ -39,13 +39,13 @@ def singleton (v : α) : Array α :=
    `fget` may be slightly slower than `uget`. -/
 @[extern "lean_array_uget"]
 def uget (a : @& Array α) (i : USize) (h : i.toNat < a.size) : α :=
-  a[i.toNat, h]
+  a[⟨i.toNat, h⟩]
 
 def back [Inhabited α] (a : Array α) : α :=
   a.get! (a.size - 1)
 
 def get? (a : Array α) (i : Nat) : Option α :=
-  if h : i < a.size then some a[i, h] else none
+  if h : i < a.size then some a[⟨i, h⟩] else none
 
 abbrev getOp? (self : Array α) (idx : Nat) : Option α :=
   self.get? idx
@@ -55,7 +55,7 @@ def back? (a : Array α) : Option α :=
 
 -- auxiliary declaration used in the equation compiler when pattern matching array literals.
 abbrev getLit {α : Type u} {n : Nat} (a : Array α) (i : Nat) (h₁ : a.size = n) (h₂ : i < n) : α :=
-  a[i, h₁.symm ▸ h₂]
+  a[⟨i, h₁.symm ▸ h₂⟩]
 
 @[simp] theorem size_set (a : Array α) (i : Fin a.size) (v : α) : (set a i v).size = a.size :=
   List.length_set ..
@@ -166,7 +166,7 @@ protected def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m
       have h' : i < as.size            := Nat.lt_of_lt_of_le (Nat.lt_succ_self i) h
       have : as.size - 1 < as.size     := Nat.sub_lt (Nat.zero_lt_of_lt h') (by decide)
       have : as.size - 1 - i < as.size := Nat.lt_of_le_of_lt (Nat.sub_le (as.size - 1) i) this
-      match (← f as[as.size - 1 - i, this] b) with
+      match (← f as[⟨as.size - 1 - i, this⟩] b) with
       | ForInStep.done b  => pure b
       | ForInStep.yield b => loop i (Nat.le_of_lt h') b
   loop as.size (Nat.le_refl _) b
@@ -199,7 +199,7 @@ def foldlM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β
         match i with
         | 0    => pure b
         | i'+1 =>
-          loop i' (j+1) (← f b as[j, Nat.lt_of_lt_of_le hlt h])
+          loop i' (j+1) (← f b as[⟨j, Nat.lt_of_lt_of_le hlt h⟩])
       else
         pure b
     loop (stop - start) start init
@@ -236,7 +236,7 @@ def foldrM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α
       | 0, _   => pure b
       | i+1, h =>
         have : i < as.size := Nat.lt_of_lt_of_le (Nat.lt_succ_self _) h
-        fold i (Nat.le_of_lt this) (← f as[i, this] b)
+        fold i (Nat.le_of_lt this) (← f as[⟨i, this⟩] b)
   if h : start ≤ as.size then
     if stop < start then
       fold start h init
@@ -330,7 +330,7 @@ def anyM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as :
   let any (stop : Nat) (h : stop ≤ as.size) :=
     let rec loop (j : Nat) : m Bool := do
       if hlt : j < stop then
-        if (← p as[j, Nat.lt_of_lt_of_le hlt h]) then
+        if (← p as[⟨j, Nat.lt_of_lt_of_le hlt h⟩]) then
           pure true
         else
           loop (j+1)
@@ -353,7 +353,7 @@ def findSomeRevM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] 
     | 0,   _ => pure none
     | i+1, h => do
       have : i < as.size := Nat.lt_of_lt_of_le (Nat.lt_succ_self _) h
-      let r ← f as[i, this]
+      let r ← f as[⟨i, this⟩]
       match r with
       | some _ => pure r
       | none   =>
@@ -422,7 +422,7 @@ def findIdx? {α : Type u} (as : Array α) (p : α → Bool) : Option Nat :=
         rw [inv] at hlt
         exact absurd hlt (Nat.lt_irrefl _)
       | i+1, inv =>
-        if p as[j, hlt] then
+        if p as[⟨j, hlt⟩] then
           some j
         else
           have : i + (j+1) = as.size := by
@@ -515,7 +515,7 @@ namespace Array
 @[specialize]
 def isEqvAux (a b : Array α) (hsz : a.size = b.size) (p : α → α → Bool) (i : Nat) : Bool :=
   if h : i < a.size then
-     p a[i, h] b[i, hsz ▸ h] && isEqvAux a b hsz p (i+1)
+     p a[⟨i, h⟩] b[⟨i, hsz ▸ h⟩] && isEqvAux a b hsz p (i+1)
   else
     true
 termination_by _ => a.size - i
@@ -553,7 +553,7 @@ def filterMap (f : α → Option β) (as : Array α) (start := 0) (stop := as.si
 @[specialize]
 def getMax? (as : Array α) (lt : α → α → Bool) : Option α :=
   if h : 0 < as.size then
-    let a0 := as[0, h]
+    let a0 := as[⟨0, h⟩]
     some <| as.foldl (init := a0) (start := 1) fun best a =>
       if lt best a then a else best
   else
@@ -572,7 +572,7 @@ def partition (p : α → Bool) (as : Array α) : Array α × Array α := Id.run
 
 theorem ext (a b : Array α)
     (h₁ : a.size = b.size)
-    (h₂ : (i : Nat) → (hi₁ : i < a.size) → (hi₂ : i < b.size) → a[i, hi₁] = b[i, hi₂])
+    (h₂ : (i : Nat) → (hi₁ : i < a.size) → (hi₂ : i < b.size) → a[⟨i, hi₁⟩] = b[⟨i, hi₂⟩])
     : a = b := by
   let rec extAux (a b : List α)
       (h₁ : a.length = b.length)
@@ -758,8 +758,8 @@ theorem toArrayLit_eq (a : Array α) (n : Nat) (hsz : a.size = n) : a = toArrayL
 
 def isPrefixOfAux [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) (i : Nat) : Bool :=
   if h : i < as.size then
-    let a := as[i, h]
-    let b := bs[i, Nat.lt_of_lt_of_le h hle]
+    let a := as[⟨i, h⟩]
+    let b := bs[⟨i, Nat.lt_of_lt_of_le h hle⟩]
     if a == b then
       isPrefixOfAux as bs hle (i+1)
     else
@@ -780,11 +780,11 @@ private def allDiffAuxAux [BEq α] (as : Array α) (a : α) : forall (i : Nat), 
   | 0,   _ => true
   | i+1, h =>
     have : i < as.size := Nat.lt_trans (Nat.lt_succ_self _) h;
-    a != as[i, this] && allDiffAuxAux as a i this
+    a != as[⟨i, this⟩] && allDiffAuxAux as a i this
 
 private def allDiffAux [BEq α] (as : Array α) (i : Nat) : Bool :=
   if h : i < as.size then
-    allDiffAuxAux as as[i, h] i h && allDiffAux as (i+1)
+    allDiffAuxAux as as[⟨i, h⟩] i h && allDiffAux as (i+1)
   else
     true
 termination_by _ => as.size - i
@@ -794,9 +794,9 @@ def allDiff [BEq α] (as : Array α) : Bool :=
 
 @[specialize] def zipWithAux (f : α → β → γ) (as : Array α) (bs : Array β) (i : Nat) (cs : Array γ) : Array γ :=
   if h : i < as.size then
-    let a := as[i, h]
+    let a := as[⟨i, h⟩]
     if h : i < bs.size then
-      let b := bs[i, h]
+      let b := bs[⟨i, h⟩]
       zipWithAux f as bs (i+1) <| cs.push <| f a b
     else
       cs

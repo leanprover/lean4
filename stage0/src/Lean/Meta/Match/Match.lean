@@ -267,8 +267,58 @@ def assign (fvarId : FVarId) (v : Expr) : M Bool := do
       modify fun s => { s with fvarSubst := s.fvarSubst.insert fvarId v }
       return true
     else
-      trace[Meta.Match.unify] "assign failed variable is not local, {mkFVar fvarId} := {v}"
-      return false
+      /-
+        TODO: improve this branch. Returning `true` here is an approximation.
+        `fvarId` is not an alternative variable, and we used to return `false` here, but it is incorrect, and may
+        incorrectly discard applicable alternatives. It was buggy because of the way we handle inaccessible patterns
+        in variable transitions. The bug was exposed by issue #1279
+        Here is a simplified version of the example on this issue (see test: `1279_simplified.lean`)
+        ```lean
+        inductive Arrow : Type → Type → Type 1
+          | id   : Arrow a a
+          | unit : Arrow Unit Unit
+          | comp : Arrow β γ → Arrow α β → Arrow α γ
+        deriving Repr
+
+        def Arrow.compose (f : Arrow β γ) (g : Arrow α β) : Arrow α γ :=
+          match f, g with
+          | id, g => g
+          | f, id => f
+          | f, g => comp f g
+        ```
+        The initial state for the `match`-expression above is
+        ```lean
+        [Meta.Match.match] remaining variables: [β✝:(Type), γ✝:(Type), f✝:(Arrow β✝ γ✝), g✝:(Arrow α β✝)]
+        alternatives:
+          [β:(Type), g:(Arrow α β)] |- [β, .(β), (Arrow.id .(β)), g] => h_1 β g
+          [γ:(Type), f:(Arrow α γ)] |- [.(α), γ, f, (Arrow.id .(α))] => h_2 γ f
+          [β:(Type), γ:(Type), f:(Arrow β γ), g:(Arrow α β)] |- [β, γ, f, g] => h_3 β γ f g
+        ```
+        The first step is a variable-transition which replaces `β` with `β✝` in the first and third alternatives.
+        The constraint `β✝ === α` in the second alternative is lost. Note that `α` is not an alternative variable.
+        After applying the variable-transition step twice, we reach the following state
+        ``lean
+        [Meta.Match.match] remaining variables: [f✝:(Arrow β✝ γ✝), g✝:(Arrow α β✝)]
+        alternatives:
+          [g:(Arrow α β✝)] |- [(Arrow.id .(β✝)), g] => h_1 β✝ g
+          [f:(Arrow α γ✝)] |- [f, (Arrow.id .(α))] => h_2 γ✝ f
+          [f:(Arrow β✝ γ✝), g:(Arrow α β✝)] |- [f, g] => h_3 β✝ γ✝ f g
+        ```
+        A constructor-transition should be used, and the functions `expandVarIntoCtor?` is required for the second and
+        third alternatives. There are 3 constructors, in the `Arrow.id` case, we use unify to solve
+        ```
+        Arrow a a =?= Arrow α β✝
+        ```
+        Where `a` is new alternative variable corresponding to the `Arrow.id` field.
+        The first assignment is fine `a := α`.
+        In the second assignment we have `α := β✝` where both `α` and `β✝` are not alternative variables.
+        We did not store information that `β✝ === α` in the first step, and the alternative was being incorrectly discarded.
+        Returning `true` here "solves" the problem, but it is a bit hackish. We see two possible improvements:
+        - We store the constraint `β✝ === α`.
+        - We postpone variable-transition steps.
+        It is unclear at this point what is the best solution. We should keep accumulating problematic examples.
+      -/
+      return true
 
 partial def unify (a : Expr) (b : Expr) : M Bool := do
   trace[Meta.Match.unify] "{a} =?= {b}"
@@ -289,6 +339,7 @@ partial def unify (a : Expr) (b : Expr) : M Bool := do
 end Unify
 
 private def unify? (altFVarDecls : List LocalDecl) (a b : Expr) : MetaM (Option FVarSubst) := do
+  trace[Meta.Match.unify] "altFVarDecls: {altFVarDecls.map fun d => d.userName}, {a} =?= {b}"
   let a ← instantiateMVars a
     let b ← instantiateMVars b
     let (r, s) ← Unify.unify a b { altFVarDecls := altFVarDecls} |>.run {}
@@ -300,6 +351,7 @@ private def unify? (altFVarDecls : List LocalDecl) (a b : Expr) : MetaM (Option 
 
 private def expandVarIntoCtor? (alt : Alt) (fvarId : FVarId) (ctorName : Name) : MetaM (Option Alt) :=
   withExistingLocalDecls alt.fvarDecls do
+    trace[Meta.Match.unify] "expandVarIntoCtor? fvarId: {mkFVar fvarId}, ctorName: {ctorName}, alt:\n{← alt.toMessageData}"
     let expectedType ← inferType (mkFVar fvarId)
     let expectedType ← whnfD expectedType
     let (ctorLevels, ctorParams) ← getInductiveUniverseAndParams expectedType
@@ -310,6 +362,7 @@ private def expandVarIntoCtor? (alt : Alt) (fvarId : FVarId) (ctorName : Name) :
       let alt  := alt.replaceFVarId fvarId ctor
       let ctorFieldDecls ← ctorFields.mapM fun ctorField => getLocalDecl ctorField.fvarId!
       let newAltDecls := ctorFieldDecls.toList ++ alt.fvarDecls
+      trace[Meta.Match.unify] "expandVarIntoCtor? {mkFVar fvarId} : {expectedType}, ctor: {ctor}, resultType: {resultType}"
       let subst? ← unify? newAltDecls resultType expectedType
       match subst? with
       | none       => return none

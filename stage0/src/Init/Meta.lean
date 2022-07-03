@@ -266,7 +266,7 @@ namespace TSyntax
 instance : Coe (TSyntax [k]) (TSyntax (k :: ks)) where
   coe stx := ⟨stx⟩
 
-instance [Coe (TSyntax [k]) (TSyntax ks)] : Coe (TSyntax [k]) (TSyntax (k' :: ks)) where
+instance : Coe (TSyntax ks) (TSyntax (k' :: ks)) where
   coe stx := ⟨stx⟩
 
 instance : Coe Ident Term where
@@ -285,6 +285,12 @@ instance : Coe NumLit Term where
   coe s := ⟨s.raw⟩
 
 instance : Coe CharLit Term where
+  coe s := ⟨s.raw⟩
+
+instance : Coe Ident Syntax.Level where
+  coe s := ⟨s.raw⟩
+
+instance : Coe NumLit Prio where
   coe s := ⟨s.raw⟩
 
 instance : Coe NumLit Prec where
@@ -374,7 +380,7 @@ def unsetTrailing (stx : Syntax) : Syntax :=
 
 @[specialize] private partial def updateFirst {α} [Inhabited α] (a : Array α) (f : α → Option α) (i : Nat) : Option (Array α) :=
   if h : i < a.size then
-    let v := a[i, h]
+    let v := a[⟨i, h⟩]
     match f v with
     | some v => some <| a.set ⟨i, h⟩ v
     | none   => updateFirst a f (i+1)
@@ -862,7 +868,7 @@ class Quote (α : Type) (k : SyntaxNodeKind := `term) where
 
 export Quote (quote)
 
-instance [Quote α k] [CoeHTCT (TSyntax k) (TSyntax [k'])]: Quote α k' := ⟨fun a => quote (k := k) a⟩
+instance [Quote α k] [CoeHTCT (TSyntax k) (TSyntax [k'])] : Quote α k' := ⟨fun a => quote (k := k) a⟩
 
 instance : Quote Term := ⟨id⟩
 instance : Quote Bool := ⟨fun | true => mkCIdent `Bool.true | false => mkCIdent `Bool.false⟩
@@ -954,13 +960,13 @@ open Lean
 
 private partial def filterSepElemsMAux {m : Type → Type} [Monad m] (a : Array Syntax) (p : Syntax → m Bool) (i : Nat) (acc : Array Syntax) : m (Array Syntax) := do
   if h : i < a.size then
-    let stx := a[i, h]
+    let stx := a[⟨i, h⟩]
     if (← p stx) then
       if acc.isEmpty then
         filterSepElemsMAux a p (i+2) (acc.push stx)
       else if hz : i ≠ 0 then
         have : i.pred < i := Nat.pred_lt hz
-        let sepStx := a[i.pred, Nat.lt_trans this h]
+        let sepStx := a[⟨i.pred, Nat.lt_trans this h⟩]
         filterSepElemsMAux a p (i+2) ((acc.push sepStx).push stx)
       else
         filterSepElemsMAux a p (i+2) (acc.push stx)
@@ -977,7 +983,7 @@ def filterSepElems (a : Array Syntax) (p : Syntax → Bool) : Array Syntax :=
 
 private partial def mapSepElemsMAux {m : Type → Type} [Monad m] (a : Array Syntax) (f : Syntax → m Syntax) (i : Nat) (acc : Array Syntax) : m (Array Syntax) := do
   if h : i < a.size then
-    let stx := a[i, h]
+    let stx := a[⟨i, h⟩]
     if i % 2 == 0 then do
       let stx ← f stx
       mapSepElemsMAux a f (i+1) (acc.push stx)
@@ -1014,7 +1020,7 @@ instance : Coe (TSepArray k sep) (TSyntaxArray k) where
   coe := TSepArray.getElems
 
 instance [Coe (TSyntax k) (TSyntax k')] : Coe (TSyntaxArray k) (TSyntaxArray k') where
-  coe a := .mk a.raw
+  coe a := a.map Coe.coe
 
 instance : Coe (TSyntaxArray k) (Array Syntax) where
   coe a := a.raw

@@ -23,7 +23,7 @@ end Lean.Parser.Syntax
 
 namespace Lean
 
-instance : Coe (TSyntax ks) Syntax where
+instance : CoeHead (TSyntax ks) Syntax where
   coe stx := stx.raw
 
 instance : Coe SyntaxNodeKind SyntaxNodeKinds where
@@ -237,5 +237,3 @@ declare_syntax_cat rawStx
 
 instance : Coe Syntax (TSyntax `rawStx) where
   coe stx := ⟨stx⟩
-
-macro:max a:term noWs "[" i:term ", " h:term "]" : term => `($a[⟨$i, $h⟩])

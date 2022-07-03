@@ -225,7 +225,7 @@ def ContextInfo.toPPContext (info : ContextInfo) (lctx : LocalContext) : PPConte
     opts := info.options, currNamespace := info.currNamespace, openDecls := info.openDecls }
 
 def ContextInfo.ppSyntax (info : ContextInfo) (lctx : LocalContext) (stx : Syntax) : IO Format := do
-  ppTerm (info.toPPContext lctx) stx
+  ppTerm (info.toPPContext lctx) ⟨stx⟩  -- HACK: might not be a term
 
 private def formatStxRange (ctx : ContextInfo) (stx : Syntax) : Format :=
   let pos    := stx.getPos?.getD 0

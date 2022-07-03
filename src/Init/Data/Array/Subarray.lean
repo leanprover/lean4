@@ -27,7 +27,7 @@ def get (s : Subarray α) (i : Fin s.size) : α :=
    simp [size] at this
    rw [Nat.add_comm]
    exact Nat.add_lt_of_lt_sub this
-  s.as[s.start + i.val, this]
+  s.as[⟨s.start + i.val, this⟩]
 
 abbrev getOp (self : Subarray α) (idx : Fin self.size) : α :=
   self.get idx

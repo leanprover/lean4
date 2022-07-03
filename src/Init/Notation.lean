@@ -237,5 +237,3 @@ declare_syntax_cat rawStx
 
 instance : Coe Syntax (TSyntax `rawStx) where
   coe stx := ⟨stx⟩
-
-macro:max a:term noWs "[" i:term ", " h:term "]" : term => `($a[⟨$i, $h⟩])

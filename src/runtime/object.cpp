@@ -1717,6 +1717,28 @@ extern "C" LEAN_EXPORT obj_res lean_string_utf8_get_opt(b_obj_arg s, b_obj_arg i
     }
 }
 
+static uint32 lean_string_utf8_get_panic() {
+    lean_panic_fn(lean_box(0), lean_mk_string("Error: invalid `String.Pos` at `String.get!`"));
+    return lean_char_default_value();
+}
+
+extern "C" LEAN_EXPORT uint32 lean_string_utf8_get_bang(b_obj_arg s, b_obj_arg i0) {
+    if (!lean_is_scalar(i0)) {
+        return lean_string_utf8_get_panic();
+    }
+    usize i = lean_unbox(i0);
+    char const * str = lean_string_cstr(s);
+    usize size = lean_string_size(s) - 1;
+    if (i >= lean_string_size(s) - 1)
+        return lean_string_utf8_get_panic();
+    uint32 result;
+    if (lean_string_utf8_get_core(str, size, i, result))
+        return result;
+    else
+        return lean_string_utf8_get_panic();
+}
+
+
 /* The reference implementation is:
    ```
    def next (s : @& String) (p : @& Pos) : Ppos :=

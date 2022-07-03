@@ -876,6 +876,16 @@ mutual
 
 end
 
+/--
+  `isClass? type` return `some ClsName` if `type` is an instance of the class `ClsName`.
+  Example:
+  ```
+  #eval do
+    let x ← mkAppM ``Inhabited #[mkConst ``Nat]
+    IO.println (← isClass? x)
+    -- (some Inhabited)
+  ```
+-/
 def isClass? (type : Expr) : MetaM (Option Name) :=
   try isClassImp? type catch _ => pure none
 
@@ -1086,6 +1096,10 @@ private def withLetDeclImp (n : Name) (type : Expr) (val : Expr) (k : Expr → M
   withReader (fun ctx => { ctx with lctx := lctx }) do
     withNewFVar fvar type k
 
+/--
+  Add the local declaration `<name> : <type> := <val>` to the local context and execute `k x`, where `x` is a new
+  free variable corresponding to the `let`-declaration. After executing `k x`, the local context is restored.
+-/
 def withLetDecl (name : Name) (type : Expr) (val : Expr) (k : Expr → n α) : n α :=
   map1MetaM (fun k => withLetDeclImp name type val k) k
 
@@ -1111,6 +1125,16 @@ private def withExistingLocalDeclsImp (decls : List LocalDecl) (k : MetaM α) : 
   withReader (fun ctx => { ctx with lctx := lctx }) do
     withLocalInstancesImp decls k
 
+/--
+  `withExistingLocalDecls decls k`, adds the given local declarations to the local context,
+  and then executes `k`. This method assumes declarations in `decls` have valid `FVarId`s.
+  After executing `k`, the local context is restored.
+
+  Remark: this method is used, for example, to implement the `match`-compiler.
+  Each `match`-alternative commes with a local declarations (corresponding to pattern variables),
+  and we use `withExistingLocalDecls` to add them to the local context before we process
+  them.
+-/
 def withExistingLocalDecls (decls : List LocalDecl) : n α → n α :=
   mapMetaM <| withExistingLocalDeclsImp decls
 
@@ -1140,6 +1164,11 @@ private def withLocalContextImp (lctx : LocalContext) (localInsts : LocalInstanc
     else
       resettingSynthInstanceCache x
 
+/--
+  `withLCtx lctx localInsts k` replaces the local context and local instances, and then executes `k`.
+  The local context and instances are restored after executing `k`.
+  This method assumes that the local instances in `localInsts` are in the local context `lctx`.
+-/
 def withLCtx (lctx : LocalContext) (localInsts : LocalInstances) : n α → n α :=
   mapMetaM <| withLocalContextImp lctx localInsts
 
@@ -1159,6 +1188,11 @@ private def withMCtxImp (mctx : MetavarContext) (x : MetaM α) : MetaM α := do
   setMCtx mctx
   try x finally setMCtx mctx'
 
+/--
+  `withMCtx mctx k` replaces the metavariable context and then executes `k`.
+  The metavariable context is restored after executing `k`.
+
+  This method is used to implement the type class resolution procedure. -/
 def withMCtx (mctx : MetavarContext) : n α → n α :=
   mapMetaM <| withMCtxImp mctx
 
@@ -1182,10 +1216,17 @@ def withMCtx (mctx : MetavarContext) : n α → n α :=
 @[inline] def fullApproxDefEq : n α → n α :=
   mapMetaM fullApproxDefEqImp
 
+/-- Instantiate assigned universe metavariables in `u`, and then normalize it. -/
 def normalizeLevel (u : Level) : MetaM Level := do
   let u ← instantiateLevelMVars u
   pure u.normalize
 
+/--
+  Add `mvarId := u` to the universe metavariable assignment.
+  This method does not check whether `mvarId` is already assigned, nor it checks whether
+  a cycle is being introduced.
+  This is a low-level API, and it is safer to use `isLevelDefEq (mkLevelMVar mvarId) u`.
+-/
 def assignLevelMVar (mvarId : MVarId) (u : Level) : MetaM Unit := do
   modifyMCtx fun mctx => mctx.assignLevel mvarId u
 
@@ -1201,6 +1242,12 @@ def whnfD (e : Expr) : MetaM Expr :=
 def whnfI (e : Expr) : MetaM Expr :=
   withTransparency TransparencyMode.instances <| whnf e
 
+/--
+  Mark declaration `declName` with the attribute `[inline]`.
+  This method does not check whether the given declaration is a definition.
+
+  Recall that this attribute can only be set in the same module where `declName` has been declared.
+-/
 def setInlineAttribute (declName : Name) (kind := Compiler.InlineAttributeKind.inline): MetaM Unit := do
   let env ← getEnv
   match Compiler.setInlineAttribute env declName kind with
@@ -1250,6 +1297,7 @@ def dependsOnPred (e : Expr) (pf : FVarId → Bool := fun _ => false) (pm : MVar
 def localDeclDependsOnPred (localDecl : LocalDecl) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : MetaM Bool := do
   return (← getMCtx).findLocalDeclDependsOn localDecl pf pm
 
+/-- Pretty-print the given expression. -/
 def ppExpr (e : Expr) : MetaM Format := do
   let ctxCore  ← readThe Core.Context
   Lean.ppExpr { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptions), currNamespace := ctxCore.currNamespace, openDecls := ctxCore.openDecls  } e
@@ -1326,7 +1374,6 @@ def isInductivePredicate (declName : Name) : MetaM Bool := do
       | _ => return false
   | _ => return false
 
-/- -/
 def isListLevelDefEqAux : List Level → List Level → MetaM Bool
   | [],    []    => return true
   | u::us, v::vs => isLevelDefEqAux u v <&&> isListLevelDefEqAux us vs
@@ -1465,6 +1512,7 @@ abbrev isDefEq (t s : Expr) : MetaM Bool :=
 def isExprDefEqGuarded (a b : Expr) : MetaM Bool := do
   try isExprDefEq a b catch _ => return false
 
+/-- Similar to `isDefEq`, but returns `false` if an exception has been thrown. -/
 abbrev isDefEqGuarded (t s : Expr) : MetaM Bool :=
   isExprDefEqGuarded t s
 

@@ -40,7 +40,7 @@ def unusedVariables : Linter := fun stx => do
     return
 
   -- collect references
-  let refs := findModuleRefs fileMap infoTrees
+  let refs := findModuleRefs fileMap infoTrees (allowSimultaneousBinderUse := true)
 
   let mut vars : HashMap FVarId RefInfo := .empty
   let mut constDecls : HashSet String.Range := .empty

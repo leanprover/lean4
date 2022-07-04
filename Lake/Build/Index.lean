@@ -55,24 +55,24 @@ Converts a conveniently typed module facet build function into its
 dynamically typed equivalent.
 -/
 @[inline] def mkModuleFacetBuild {facet : WfName} (build : Module → IndexT m α)
-[h : DynamicType ModuleData facet α] : Module → IndexT m (ModuleData facet) :=
-  cast (by rw [← h.eq_dynamic_type]) build
+[h : FamilyDef ModuleData facet α] : Module → IndexT m (ModuleData facet) :=
+  cast (by rw [← h.family_key_eq_type]) build
 
 /--
 Converts a conveniently typed package facet build function into its
 dynamically typed equivalent.
 -/
 @[inline] def mkPackageFacetBuild {facet : WfName} (build : Package → IndexT m α)
-[h : DynamicType PackageData facet α] : Package → IndexT m (PackageData facet) :=
-  cast (by rw [← h.eq_dynamic_type]) build
+[h : FamilyDef PackageData facet α] : Package → IndexT m (PackageData facet) :=
+  cast (by rw [← h.family_key_eq_type]) build
 
 /--
 Converts a conveniently typed target facet build function into its
 dynamically typed equivalent.
 -/
 @[inline] def mkTargetFacetBuild (facet : WfName) (build : IndexT m α)
-[h : DynamicType TargetData facet α] : IndexT m (TargetData facet) :=
-  cast (by rw [← h.eq_dynamic_type]) build
+[h : FamilyDef TargetData facet α] : IndexT m (TargetData facet) :=
+  cast (by rw [← h.family_key_eq_type]) build
 
 section
 variable [Monad m] [MonadLiftT BuildM m] [MonadBuildStore m]
@@ -146,7 +146,7 @@ the initial set of Lake package facets (e.g., `extraDep`).
       build mod
     else if let some config := (← getWorkspace).findModuleFacetConfig? facet then
       if h : facet = config.name then
-        have : DynamicType ModuleData facet (ActiveBuildTarget config.resultType) :=
+        have : FamilyDef ModuleData facet (ActiveBuildTarget config.resultType) :=
           ⟨by simp [h]⟩
         mkModuleFacetBuild config.build mod
       else
@@ -158,7 +158,7 @@ the initial set of Lake package facets (e.g., `extraDep`).
       build pkg
     else if let some config := pkg.findPackageFacetConfig? facet then
       if h : facet = config.name then
-        have : DynamicType PackageData facet (ActiveBuildTarget config.resultType) :=
+        have : FamilyDef PackageData facet (ActiveBuildTarget config.resultType) :=
           ⟨by simp [h]⟩
         mkPackageFacetBuild config.build pkg
       else
@@ -168,9 +168,9 @@ the initial set of Lake package facets (e.g., `extraDep`).
   | .customTarget pkg target =>
     if let some config := pkg.findTargetConfig? target then
       if h : target = config.name then
-        have h' : DynamicType CustomData target (ActiveBuildTarget config.resultType) :=
+        have h' : FamilyDef CustomData target (ActiveBuildTarget config.resultType) :=
           ⟨by simp [h]⟩
-        liftM <| cast (by rw [← h'.eq_dynamic_type]) <| config.target.activate
+        liftM <| cast (by rw [← h'.family_key_eq_type]) <| config.target.activate
       else
         error "target's name in the configuration does not match the name it was registered with"
     else
@@ -200,23 +200,23 @@ Recursively build the given info using the Lake build index
 and a topological / suspending scheduler and return the dynamic result.
 -/
 @[inline] def buildIndexTop (info : BuildInfo)
-[DynamicType BuildData info.key α] : CycleT BuildKey m α := do
+[FamilyDef BuildData info.key α] : CycleT BuildKey m α := do
   cast (by simp) <| buildIndexTop' (m := m) info
 
 end
 
 /- Build the given Lake target using the given Lake build store. -/
 @[inline] def BuildInfo.buildIn (store : BuildStore) (self : BuildInfo)
-[DynamicType BuildData self.key α] : BuildM α := do
+[FamilyDef BuildData self.key α] : BuildM α := do
   failOnBuildCycle <| ← EStateT.run' (m := BuildM) store <| buildIndexTop self
 
 /- Build the given Lake target in a fresh build store. -/
-@[inline] def BuildInfo.build (self : BuildInfo) [DynamicType BuildData self.key α] : BuildM α :=
+@[inline] def BuildInfo.build (self : BuildInfo) [FamilyDef BuildData self.key α] : BuildM α :=
   buildIn BuildStore.empty self
 
 export BuildInfo (build buildIn)
 
 /-- An opaque target that builds the Lake target in a fresh build store. -/
 @[inline] def BuildInfo.target (self : BuildInfo)
-[DynamicType BuildData self.key (ActiveBuildTarget α)] : OpaqueTarget :=
+[FamilyDef BuildData self.key (ActiveBuildTarget α)] : OpaqueTarget :=
   BuildTarget.mk' () <| self.build <&> (·.task)

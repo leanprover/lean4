@@ -27,11 +27,11 @@ structure ModuleFacet (α) where
   data_eq : ModuleData name = α
   deriving Repr
 
-instance (facet : ModuleFacet α) : DynamicType ModuleData facet.name α :=
+instance (facet : ModuleFacet α) : FamilyDef ModuleData facet.name α :=
   ⟨facet.data_eq⟩
 
-instance [DynamicType ModuleData facet α] : CoeDep WfName facet (ModuleFacet α) :=
-  ⟨facet, eq_dynamic_type⟩
+instance [FamilyDef ModuleData facet α] : CoeDep WfName facet (ModuleFacet α) :=
+  ⟨facet, family_key_eq_type⟩
 
 namespace Module
 abbrev leanBinFacet  := &`lean.bin

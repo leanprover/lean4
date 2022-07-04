@@ -25,13 +25,13 @@ instance : Inhabited PackageFacetConfig := ⟨{
   name := &`extraDep
   resultType := PUnit
   build := default
-  data_eq_target := eq_dynamic_type
+  data_eq_target := family_key_eq_type
 }⟩
 
 hydrate_opaque_type OpaquePackageFacetConfig PackageFacetConfig
 
 instance (cfg : PackageFacetConfig)
-: DynamicType PackageData cfg.name (ActiveBuildTarget cfg.resultType) :=
+: FamilyDef PackageData cfg.name (ActiveBuildTarget cfg.resultType) :=
   ⟨cfg.data_eq_target⟩
 
 /-- Try to find a package configuration in the package with the given name . -/

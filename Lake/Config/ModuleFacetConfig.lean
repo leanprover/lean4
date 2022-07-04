@@ -26,13 +26,13 @@ instance : Inhabited ModuleFacetConfig := ⟨{
   name := Module.leanBinFacet
   resultType := PUnit
   build := default
-  data_eq_target := eq_dynamic_type
+  data_eq_target := family_key_eq_type
 }⟩
 
 hydrate_opaque_type OpaqueModuleFacetConfig ModuleFacetConfig
 
 instance {cfg : ModuleFacetConfig}
-: DynamicType ModuleData cfg.name (ActiveBuildTarget cfg.resultType) :=
+: FamilyDef ModuleData cfg.name (ActiveBuildTarget cfg.resultType) :=
   ⟨cfg.data_eq_target⟩
 
 /-- Try to find a module facet configuration in the package with the given name . -/

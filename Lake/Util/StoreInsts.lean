@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Util.DRBMap
-import Lake.Util.DynamicType
+import Lake.Util.Family
 import Lake.Util.Store
 
 open Std
@@ -18,6 +18,6 @@ instance [Monad m] : MonadStore κ α (StateT (RBMap κ α cmp) m) where
   fetch? k := return (← get).find? k
   store k a := modify (·.insert k a)
 
-@[inline] instance [MonadDStore κ β m] [t : DynamicType β k α] : MonadStore1 k α m where
-  fetch? := cast (by rw [t.eq_dynamic_type]) <| fetch? (m := m) k
-  store a := store k <| cast t.eq_dynamic_type.symm a
+@[inline] instance [MonadDStore κ β m] [t : FamilyDef β k α] : MonadStore1 k α m where
+  fetch? := cast (by rw [t.family_key_eq_type]) <| fetch? (m := m) k
+  store a := store k <| cast t.family_key_eq_type.symm a

@@ -25,13 +25,13 @@ instance : Inhabited TargetConfig := ⟨{
   name := &`_nil_
   resultType := PUnit
   target := default
-  data_eq_target := eq_dynamic_type
+  data_eq_target := family_key_eq_type
 }⟩
 
 hydrate_opaque_type OpaqueTargetConfig TargetConfig
 
-instance dynamicTypeOfTargetConfig {cfg : TargetConfig}
-: DynamicType CustomData cfg.name (ActiveBuildTarget cfg.resultType) :=
+instance FamilyDefOfTargetConfig {cfg : TargetConfig}
+: FamilyDef CustomData cfg.name (ActiveBuildTarget cfg.resultType) :=
   ⟨cfg.data_eq_target⟩
 
 /-- Try to find a target configuration in the package with the given name . -/

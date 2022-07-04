@@ -74,37 +74,37 @@ abbrev BuildInfo.key : (self : BuildInfo) → BuildKey
 
 /-! ### Instances for deducing data types of `BuildInfo` keys -/
 
-instance [DynamicType ModuleData f α]
-: DynamicType BuildData (BuildInfo.key (.moduleFacet m f)) α where
-  eq_dynamic_type := by unfold BuildData; simp
+instance [FamilyDef ModuleData f α]
+: FamilyDef BuildData (BuildInfo.key (.moduleFacet m f)) α where
+  family_key_eq_type := by unfold BuildData; simp
 
-instance [DynamicType PackageData f α]
-: DynamicType BuildData (BuildInfo.key (.packageFacet p f)) α where
-  eq_dynamic_type := by unfold BuildData; simp
+instance [FamilyDef PackageData f α]
+: FamilyDef BuildData (BuildInfo.key (.packageFacet p f)) α where
+  family_key_eq_type := by unfold BuildData; simp
 
-instance [DynamicType CustomData t α]
-: DynamicType BuildData (BuildInfo.key (.customTarget p t)) α where
-  eq_dynamic_type := by unfold BuildData; simp
+instance [FamilyDef CustomData t α]
+: FamilyDef BuildData (BuildInfo.key (.customTarget p t)) α where
+  family_key_eq_type := by unfold BuildData; simp
 
-instance [DynamicType TargetData LeanLib.staticFacet α]
-: DynamicType BuildData (BuildInfo.key (.staticLeanLib l)) α where
-  eq_dynamic_type := by unfold BuildData; simp
+instance [FamilyDef TargetData LeanLib.staticFacet α]
+: FamilyDef BuildData (BuildInfo.key (.staticLeanLib l)) α where
+  family_key_eq_type := by unfold BuildData; simp
 
-instance [DynamicType TargetData LeanLib.sharedFacet α]
-: DynamicType BuildData (BuildInfo.key (.sharedLeanLib l)) α where
-  eq_dynamic_type := by unfold BuildData; simp
+instance [FamilyDef TargetData LeanLib.sharedFacet α]
+: FamilyDef BuildData (BuildInfo.key (.sharedLeanLib l)) α where
+  family_key_eq_type := by unfold BuildData; simp
 
-instance [DynamicType TargetData LeanExe.facet α]
-: DynamicType BuildData (BuildInfo.key (.leanExe x)) α where
-  eq_dynamic_type := by unfold BuildData; simp
+instance [FamilyDef TargetData LeanExe.facet α]
+: FamilyDef BuildData (BuildInfo.key (.leanExe x)) α where
+  family_key_eq_type := by unfold BuildData; simp
 
-instance [DynamicType TargetData ExternLib.staticFacet α]
-: DynamicType BuildData (BuildInfo.key (.staticExternLib l)) α where
-  eq_dynamic_type := by unfold BuildData; simp
+instance [FamilyDef TargetData ExternLib.staticFacet α]
+: FamilyDef BuildData (BuildInfo.key (.staticExternLib l)) α where
+  family_key_eq_type := by unfold BuildData; simp
 
-instance [DynamicType TargetData ExternLib.sharedFacet α]
-: DynamicType BuildData (BuildInfo.key (.sharedExternLib l)) α where
-  eq_dynamic_type := by unfold BuildData; simp
+instance [FamilyDef TargetData ExternLib.sharedFacet α]
+: FamilyDef BuildData (BuildInfo.key (.sharedExternLib l)) α where
+  family_key_eq_type := by unfold BuildData; simp
 
 --------------------------------------------------------------------------------
 /-! ## Recursive Building                                                     -/
@@ -119,7 +119,7 @@ abbrev IndexBuildFn (m : Type → Type v) :=
 abbrev IndexT (m : Type → Type v) := EquipT (IndexBuildFn m) m
 
 /-- Build the given info using the Lake build index. -/
-@[inline] def BuildInfo.recBuild (self : BuildInfo) [DynamicType BuildData self.key α] : IndexT m α :=
+@[inline] def BuildInfo.recBuild (self : BuildInfo) [FamilyDef BuildData self.key α] : IndexT m α :=
   fun build => cast (by simp) <| build self
 
 export BuildInfo (recBuild)

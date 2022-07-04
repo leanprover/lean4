@@ -13,7 +13,7 @@ namespace Lake
 -- # Module Facet Targets
 
 @[inline] def Module.facetTarget (facet : WfName) (self : Module)
-[DynamicType ModuleData facet (ActiveBuildTarget α)] : OpaqueTarget :=
+[FamilyDef ModuleData facet (ActiveBuildTarget α)] : OpaqueTarget :=
   self.facet facet |>.target
 
 @[inline] def Module.oleanTarget (self : Module) : FileTarget :=
@@ -36,7 +36,7 @@ and then build the target `facet` of library's modules recursively, constructing
 a single opaque target for the whole build.
 -/
 def LeanLib.buildModules (self : LeanLib) (facet : WfName)
-[DynamicType ModuleData facet (ActiveBuildTarget α)] : SchedulerM Job := do
+[FamilyDef ModuleData facet (ActiveBuildTarget α)] : SchedulerM Job := do
   let buildMods : BuildM _ := do
     let mods ← self.getModuleArray
     let modTargets ← failOnBuildCycle <| ← EStateT.run' BuildStore.empty

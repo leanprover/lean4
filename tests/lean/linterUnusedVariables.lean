@@ -205,6 +205,14 @@ opaque externConst (x : Nat) : Nat :=
   let y := 3
   5
 
+
+macro "useArg " name:declId arg:ident : command => `(def $name ($arg : α) : α := $arg)
+useArg usedMacroVariable a
+
+macro "doNotUseArg " name:declId arg:ident : command => `(def $name ($arg : α) : Nat := 3)
+doNotUseArg unusedMacroVariable b
+
+
 theorem not_eq_zero_of_lt (h : b < a) : a ≠ 0 := by -- *not* unused
   cases a
   exact absurd h (Nat.not_lt_zero _)

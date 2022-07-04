@@ -82,9 +82,6 @@
 {"textDocument": {"uri": "file://highlight.lean"},
  "position": {"line": 41, "character": 7}}
 [{"range":
-  {"start": {"line": 38, "character": 4}, "end": {"line": 38, "character": 5}},
-  "kind": 1},
- {"range":
   {"start": {"line": 34, "character": 10},
    "end": {"line": 34, "character": 11}},
   "kind": 1},
@@ -93,6 +90,9 @@
   "kind": 1},
  {"range":
   {"start": {"line": 36, "character": 9}, "end": {"line": 36, "character": 10}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 38, "character": 4}, "end": {"line": 38, "character": 5}},
   "kind": 1},
  {"range":
   {"start": {"line": 38, "character": 9}, "end": {"line": 38, "character": 10}},
@@ -107,11 +107,11 @@
 {"textDocument": {"uri": "file://highlight.lean"},
  "position": {"line": 48, "character": 9}}
 [{"range":
-  {"start": {"line": 47, "character": 4}, "end": {"line": 47, "character": 5}},
-  "kind": 1},
- {"range":
   {"start": {"line": 45, "character": 10},
    "end": {"line": 45, "character": 11}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 47, "character": 4}, "end": {"line": 47, "character": 5}},
   "kind": 1},
  {"range":
   {"start": {"line": 48, "character": 9}, "end": {"line": 48, "character": 10}},

@@ -178,13 +178,11 @@ partial def combineFvars (refs : Array Reference) : Array Reference := Id.run do
   let mut refs' := #[]
   for ref in refs do
     match ref with
-    | { ident := ident@(RefIdent.fvar id), isBinder, .. } =>
-      if isBinder && idMap.contains id then
-        -- downgrade chained definitions to usages
-        -- (we shouldn't completely remove them in case they do not have usages)
-        refs' := refs'.push { ref with ident := applyIdMap idMap ident, isBinder := false, aliases := #[ident] }
-      else
-        refs' := refs'.push { ref with ident := applyIdMap idMap ident }
+    | { ident := ident@(RefIdent.fvar id), .. } =>
+      if idMap.contains id then
+        refs' := refs'.push { ref with ident := applyIdMap idMap ident, aliases := #[ident] }
+      else if !idMap.contains id then
+        refs' := refs'.push ref
     | _ =>
       refs' := refs'.push ref
   refs'
@@ -198,20 +196,24 @@ where
     | m, RefIdent.fvar id => RefIdent.fvar <| findCanonicalBinder m id
     | _, ident => ident
 
-def dedupReferences (refs : Array Reference) : Array Reference := Id.run do
-  let mut refsByIdAndRange : HashMap (RefIdent × Lsp.Range) Reference := HashMap.empty
+def dedupReferences (refs : Array Reference) (allowSimultaneousBinderUse := false) : Array Reference := Id.run do
+  let mut refsByIdAndRange : HashMap (RefIdent × Option Bool × Lsp.Range) Reference := HashMap.empty
   for ref in refs do
-    let key := (ref.ident, ref.range)
+    let isBinder := if allowSimultaneousBinderUse then some ref.isBinder else none
+    let key := (ref.ident, isBinder, ref.range)
     refsByIdAndRange := match refsByIdAndRange[key] with
-      | some ref' => refsByIdAndRange.insert key { ref' with isBinder := ref'.isBinder || ref.isBinder, aliases := ref'.aliases ++ ref.aliases }
+      | some ref' => refsByIdAndRange.insert key { ref' with aliases := ref'.aliases ++ ref.aliases }
       | none => refsByIdAndRange.insert key ref
 
   let dedupedRefs := refsByIdAndRange.fold (init := #[]) fun refs _ ref => refs.push ref
   return dedupedRefs.qsort (·.range < ·.range)
 
 def findModuleRefs (text : FileMap) (trees : Array InfoTree) (localVars : Bool := true)
-    : ModuleRefs := Id.run do
-  let mut refs := dedupReferences <| combineFvars <| findReferences text trees
+    (allowSimultaneousBinderUse := false) : ModuleRefs := Id.run do
+  let mut refs :=
+    dedupReferences (allowSimultaneousBinderUse := allowSimultaneousBinderUse) <|
+    combineFvars <|
+    findReferences text trees
   if !localVars then
     refs := refs.filter fun
       | { ident := RefIdent.fvar _, .. } => false

@@ -45,8 +45,8 @@ a : α
     [.] `Fam2.any : none @ ⟨9, 4⟩-⟨9, 12⟩
     @Fam2.any : {α : Type} → Fam2 α α @ ⟨9, 4⟩-⟨9, 12⟩
     [.] `a : none @ ⟨8, 2⟩†-⟨10, 19⟩†
-    [.] `Fam2.any : some Fam2 ([mdata _patWithRef: [mdata _inaccessible:1 [mdata _patWithRef: ?_uniq.660]]]) ([mdata _patWithRef: [mdata _inaccessible:1 [mdata _patWithRef: ?_uniq.661]]]) @ ⟨9, 4⟩-⟨9, 12⟩
-    [.] `a : some [mdata _patWithRef: [mdata _inaccessible:1 [mdata _patWithRef: ?_uniq.660]]] @ ⟨8, 2⟩†-⟨10, 19⟩†
+    [.] `Fam2.any : some Fam2 ([mdata _patWithRef: [mdata _inaccessible:1 [mdata _patWithRef: ?_uniq.656]]]) ([mdata _patWithRef: [mdata _inaccessible:1 [mdata _patWithRef: ?_uniq.657]]]) @ ⟨9, 4⟩-⟨9, 12⟩
+    [.] `a : some [mdata _patWithRef: [mdata _inaccessible:1 [mdata _patWithRef: ?_uniq.656]]] @ ⟨8, 2⟩†-⟨10, 19⟩†
     α (isBinder := true) : Type @ ⟨8, 2⟩†-⟨10, 19⟩†
     α : Type @ ⟨8, 2⟩†-⟨10, 19⟩†
     Fam2.any : Fam2 α α @ ⟨9, 4⟩†-⟨9, 12⟩†
@@ -57,9 +57,9 @@ a : α
     Fam2.nat : Nat → Fam2 Nat Nat @ ⟨10, 4⟩-⟨10, 12⟩
     [.] `n : none @ ⟨10, 13⟩-⟨10, 14⟩
     [.] `a : none @ ⟨8, 2⟩†-⟨10, 19⟩†
-    [.] `Fam2.nat : some Fam2 ([mdata _patWithRef: [mdata _inaccessible:1 [mdata _patWithRef: ?_uniq.692]]]) ([mdata _patWithRef: [mdata _inaccessible:1 [mdata _patWithRef: ?_uniq.693]]]) @ ⟨10, 4⟩-⟨10, 12⟩
+    [.] `Fam2.nat : some Fam2 ([mdata _patWithRef: [mdata _inaccessible:1 [mdata _patWithRef: ?_uniq.688]]]) ([mdata _patWithRef: [mdata _inaccessible:1 [mdata _patWithRef: ?_uniq.689]]]) @ ⟨10, 4⟩-⟨10, 12⟩
     [.] `n : some Nat @ ⟨10, 13⟩-⟨10, 14⟩
-    [.] `a : some [mdata _patWithRef: [mdata _inaccessible:1 [mdata _patWithRef: ?_uniq.692]]] @ ⟨8, 2⟩†-⟨10, 19⟩†
+    [.] `a : some [mdata _patWithRef: [mdata _inaccessible:1 [mdata _patWithRef: ?_uniq.688]]] @ ⟨8, 2⟩†-⟨10, 19⟩†
     Nat : Type @ ⟨8, 2⟩†-⟨10, 19⟩†
     Nat : Type @ ⟨8, 2⟩†-⟨10, 19⟩†
     Fam2.nat n : Fam2 Nat Nat @ ⟨10, 4⟩†-⟨10, 14⟩

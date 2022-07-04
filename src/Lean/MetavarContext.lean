@@ -294,8 +294,8 @@ instance (m n) [MonadLift m n] [MonadMCtx m] : MonadMCtx n where
 def markUsedAssignment [MonadMCtx m] : m Unit :=
   modifyMCtx fun mctx => { mctx with usedAssignment := true }
 
-abbrev setMCtx [MonadMCtx m] (mctx : MetavarContext) : m Unit :=
-  modifyMCtx fun _ => mctx
+abbrev setMCtx [MonadMCtx m] (mctx' : MetavarContext) : m Unit :=
+  modifyMCtx fun mctx => { mctx' with usedAssignment := mctx'.usedAssignment || mctx.usedAssignment }
 
 abbrev getLevelMVarAssignment? [Monad m] [MonadMCtx m] (mvarId : MVarId) : m (Option Level) := do
   let result? := (← getMCtx).lAssignment.find? mvarId

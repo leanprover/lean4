@@ -307,8 +307,8 @@ protected def saveState : MetaM SavedState :=
 /-- Restore backtrackable parts of the state. -/
 def SavedState.restore (b : SavedState) : MetaM Unit := do
   Core.restore b.core
-  let usedAssignment := (← getMCtx).usedAssignment
-  modify fun s => { s with mctx := { b.meta.mctx with usedAssignment }, zetaFVarIds := b.meta.zetaFVarIds, postponed := b.meta.postponed }
+  setMCtx b.meta.mctx -- Recall that `setMCtx` propagate `usedAssignment`
+  modify fun s => { s with zetaFVarIds := b.meta.zetaFVarIds, postponed := b.meta.postponed }
 
 instance : MonadBacktrack SavedState MetaM where
   saveState      := Meta.saveState
@@ -362,9 +362,6 @@ def getLocalInstances : MetaM LocalInstances :=
 
 def getConfig : MetaM Config :=
   return (← read).config
-
-def setMCtx (mctx : MetavarContext) : MetaM Unit :=
-  modify fun s => { s with mctx := mctx }
 
 def resetZetaFVarIds : MetaM Unit :=
   modify fun s => { s with zetaFVarIds := {} }
@@ -1144,13 +1141,8 @@ private def withNewMCtxDepthImp (x : MetaM α) : MetaM α := do
   try
     x
   finally
-    -- TODO: document why we need to restore defEqCache
-    modify fun s => { s with
-      mctx               := saved.mctx
-      cache.defEqDefault := saved.cache.defEqDefault
-      cache.defEqAll     := saved.cache.defEqAll
-      postponed          := saved.postponed
-    }
+    setMCtx saved.mctx -- Recall that `setMCtx` propagate `usedAssignment`
+    modify fun s => { s with postponed := saved.postponed }
 
 /--
   Save cache and `MetavarContext`, bump the `MetavarContext` depth, execute `x`,

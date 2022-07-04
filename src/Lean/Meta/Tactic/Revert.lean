@@ -16,30 +16,28 @@ def revert (mvarId : MVarId) (fvarIds : Array FVarId) (preserveOrder : Bool := f
       if (← getLocalDecl fvarId) |>.isAuxDecl then
         throwError "failed to revert {mkFVar fvarId}, it is an auxiliary declaration created to represent recursive definitions"
     let fvars := fvarIds.map mkFVar
-    match MetavarContext.MkBinding.collectForwardDeps (← getMCtx) (← getLCtx) fvars preserveOrder with
-    | Except.error _     => throwError "failed to revert variables {fvars}"
-    | Except.ok toRevert =>
-      /- We should clear any `auxDecl` in `toRevert` -/
-      let mut mvarId      := mvarId
-      let mut toRevertNew := #[]
-      for x in toRevert do
-        if (← getLocalDecl x.fvarId!) |>.isAuxDecl then
-          mvarId ← clear mvarId x.fvarId!
-        else
-          toRevertNew := toRevertNew.push x
-      let tag ← getMVarTag mvarId
-      -- TODO: the following code can be optimized because `MetavarContext.revert` will compute `collectDeps` again.
-      -- We should factor out the relevat part
+    let toRevert ← collectForwardDeps fvars preserveOrder
+    /- We should clear any `auxDecl` in `toRevert` -/
+    let mut mvarId      := mvarId
+    let mut toRevertNew := #[]
+    for x in toRevert do
+      if (← getLocalDecl x.fvarId!) |>.isAuxDecl then
+        mvarId ← clear mvarId x.fvarId!
+      else
+        toRevertNew := toRevertNew.push x
+    let tag ← getMVarTag mvarId
+    -- TODO: the following code can be optimized because `MetavarContext.revert` will compute `collectDeps` again.
+    -- We should factor out the relevat part
 
-      -- Set metavariable kind to natural to make sure `revert` will assign it.
-      setMVarKind mvarId MetavarKind.natural
-      let (e, toRevert) ←
-        try
-          liftMkBindingM <| MetavarContext.revert toRevertNew mvarId preserveOrder
-        finally
-          setMVarKind mvarId MetavarKind.syntheticOpaque
-      let mvar := e.getAppFn
-      setMVarTag mvar.mvarId! tag
-      return (toRevert.map Expr.fvarId!, mvar.mvarId!)
+    -- Set metavariable kind to natural to make sure `revert` will assign it.
+    setMVarKind mvarId MetavarKind.natural
+    let (e, toRevert) ←
+      try
+        liftMkBindingM <| MetavarContext.revert toRevertNew mvarId preserveOrder
+      finally
+        setMVarKind mvarId MetavarKind.syntheticOpaque
+    let mvar := e.getAppFn
+    setMVarTag mvar.mvarId! tag
+    return (toRevert.map Expr.fvarId!, mvar.mvarId!)
 
 end Lean.Meta

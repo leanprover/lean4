@@ -19,8 +19,7 @@ private partial def decAux? : Level → ReaderT DecLevelContext MetaM (Option Le
   | Level.zero _        => return none
   | Level.param _ _     => return none
   | Level.mvar mvarId _ => do
-    let mctx ← getMCtx
-    match mctx.getLevelAssignment? mvarId with
+    match (← getLevelMVarAssignment? mvarId) with
     | some u => decAux? u
     | none   =>
       if (← isReadOnlyLevelMVar mvarId) || !(← read).canAssignMVars then

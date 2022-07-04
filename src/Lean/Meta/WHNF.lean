@@ -450,7 +450,7 @@ def reduceProj? (e : Expr) : MetaM (Option Expr) := do
 -/
 private def whnfDelayedAssigned? (f' : Expr) (e : Expr) : MetaM (Option Expr) := do
   if f'.isMVar then
-    match (← getDelayedAssignment? f'.mvarId!) with
+    match (← getDelayedMVarAssignment? f'.mvarId!) with
     | none => return none
     | some { fvars := fvars, val := val, .. } =>
       let args := e.getAppArgs

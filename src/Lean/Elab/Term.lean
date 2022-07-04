@@ -694,7 +694,7 @@ partial def visit (e : Expr) : M Unit := do
       if e' != e then
         visit e'
       else
-        match (← getDelayedAssignment? mvarId) with
+        match (← getDelayedMVarAssignment? mvarId) with
         | some d => visit d.val
         | none   => failure
     | _ => return ()
@@ -1531,7 +1531,7 @@ where
         if auto.isFVar then
           let localDecl ← getLocalDecl auto.fvarId!
           for x in xs do
-            if (← getMCtx).localDeclDependsOn localDecl x.fvarId! then
+            if (← MetavarContext.localDeclDependsOn localDecl x.fvarId!) then
               throwError "invalid auto implicit argument '{auto}', it depends on explicitly provided argument '{x}'"
       return autos ++ xs
     | auto :: todo =>
@@ -1562,7 +1562,7 @@ builtin_initialize registerTraceClass `Elab.letrec
    is delayed assigned to one. -/
 def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
   trace[Elab.letrec] "mvarId: {mkMVar mvarId} letrecMVars: {(← get).letRecsToLift.map (mkMVar $ ·.mvarId)}"
-  let mvarId := (← getMCtx).getDelayedRoot mvarId
+  let mvarId ← getDelayedMVarRoot mvarId
   trace[Elab.letrec] "mvarId root: {mkMVar mvarId}"
   return (← get).letRecsToLift.any (·.mvarId == mvarId)
 

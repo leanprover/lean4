@@ -1609,19 +1609,26 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
       if (← isDefEqUnitLike t s) then return true else
       isDefEqOnFailure t s
 
--- We only check DefEq cache for default and all transparency modes
+/--
+  We only check DefEq cache if
+  - using default and all transparency modes, and
+  - smart unfolding is enabled, and
+  - proof irrelevance, eta for structures, and `zetaNonDep` are enabled
+-/
 private def skipDefEqCache : MetaM Bool := do
   match (← getConfig).transparency with
-  | TransparencyMode.default => return false
-  | TransparencyMode.all     => return false
-  | _                        => return true
+  | .reducible => return true
+  | .instances => return true
+  | _ =>
+    unless smartUnfolding.get (← getOptions) do
+      return true
+    let cfg ← getConfig
+    return !(cfg.proofIrrelevance && cfg.etaStruct matches .all && cfg.zetaNonDep)
 
 private def mkCacheKey (t : Expr) (s : Expr) : Expr × Expr :=
   if Expr.quickLt t s then (t, s) else (s, t)
 
 private def getCachedResult (key : Expr × Expr) : MetaM LBool := do
-  if smartUnfolding.get (← getOptions) then
-    return .undef
   let cache ← match (← getConfig).transparency with
     | TransparencyMode.default => pure (← get).cache.defEqDefault
     | TransparencyMode.all     => pure (← get).cache.defEqAll
@@ -1631,11 +1638,10 @@ private def getCachedResult (key : Expr × Expr) : MetaM LBool := do
   | none => return .undef
 
 private def cacheResult (key : Expr × Expr) (result : Bool) : MetaM Unit := do
-  unless smartUnfolding.get (← getOptions) do
-    match (← getConfig).transparency with
-    | TransparencyMode.default => modify fun s => { s with cache.defEqDefault := s.cache.defEqDefault.insert key result }
-    | TransparencyMode.all     => modify fun s => { s with cache.defEqAll := s.cache.defEqAll.insert key result }
-    | _                        => pure ()
+  match (← getConfig).transparency with
+  | TransparencyMode.default => modify fun s => { s with cache.defEqDefault := s.cache.defEqDefault.insert key result }
+  | TransparencyMode.all     => modify fun s => { s with cache.defEqAll := s.cache.defEqAll.insert key result }
+  | _                        => pure ()
 
 private abbrev withResetUsedAssignment (k : MetaM α) : MetaM α := do
   let usedAssignment := (← getMCtx).usedAssignment

@@ -5,7 +5,7 @@ def f : Fin 2 → Nat
 example : f 0 = 5 := rfl
 example : f 1 = 45 := rfl
 
-def g : Fin 15 → Nat
+def g : Fin 11 → Nat
   | 0 => 5
   | 1 => 10
   | 2 => 15
@@ -17,10 +17,6 @@ def g : Fin 15 → Nat
   | 8 => 32
   | 9 => 64
   | 10 => 21
-  | 11 => 0
-  | 12 => 5
-  | 13 => 1
-  | 14 => 4
 
 def h : Fin 15 → Nat
   | 0 => 5

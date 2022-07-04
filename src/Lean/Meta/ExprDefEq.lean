@@ -1620,6 +1620,8 @@ private def mkCacheKey (t : Expr) (s : Expr) : Expr × Expr :=
   if Expr.quickLt t s then (t, s) else (s, t)
 
 private def getCachedResult (key : Expr × Expr) : MetaM LBool := do
+  if smartUnfolding.get (← getOptions) then
+    return .undef
   let cache ← match (← getConfig).transparency with
     | TransparencyMode.default => pure (← get).cache.defEqDefault
     | TransparencyMode.all     => pure (← get).cache.defEqAll
@@ -1629,10 +1631,11 @@ private def getCachedResult (key : Expr × Expr) : MetaM LBool := do
   | none => return .undef
 
 private def cacheResult (key : Expr × Expr) (result : Bool) : MetaM Unit := do
-  match (← getConfig).transparency with
-  | TransparencyMode.default => modify fun s => { s with cache.defEqDefault := s.cache.defEqDefault.insert key result }
-  | TransparencyMode.all     => modify fun s => { s with cache.defEqAll := s.cache.defEqAll.insert key result }
-  | _                        => pure ()
+  unless smartUnfolding.get (← getOptions) do
+    match (← getConfig).transparency with
+    | TransparencyMode.default => modify fun s => { s with cache.defEqDefault := s.cache.defEqDefault.insert key result }
+    | TransparencyMode.all     => modify fun s => { s with cache.defEqAll := s.cache.defEqAll.insert key result }
+    | _                        => pure ()
 
 private abbrev withResetUsedAssignment (k : MetaM α) : MetaM α := do
   let usedAssignment := (← getMCtx).usedAssignment

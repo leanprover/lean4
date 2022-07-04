@@ -732,7 +732,7 @@ mutual
           (fun ex => do
             if !f.isMVar then
               throw ex
-            else if (← isDelayedAssigned f.mvarId!) then
+            else if (← isMVarDelayedAssigned f.mvarId!) then
               throw ex
             else
               let eType ← inferType e
@@ -1268,7 +1268,7 @@ private def isAssigned : Expr → MetaM Bool
 private def isDelayedAssignedHead (tFn : Expr) (t : Expr) : MetaM Bool := do
   match tFn with
   | Expr.mvar mvarId _ =>
-    if (← isDelayedAssigned mvarId) then
+    if (← isMVarDelayedAssigned mvarId) then
       let tNew ← instantiateMVars t
       return tNew != t
     else

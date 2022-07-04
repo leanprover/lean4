@@ -86,8 +86,13 @@ structure State where
   nextIdx : Nat := 0
   lmap    : HashMap MVarId Level := {}
   emap    : HashMap MVarId Expr := {}
+  mctx    : MetavarContext
 
-abbrev M := ReaderT MetavarContext (StateM State)
+abbrev M := StateM State
+
+instance : MonadMCtx M where
+  getMCtx := return (← get).mctx
+  modifyMCtx f := modify fun s => { s with mctx := f s.mctx }
 
 partial def normLevel (u : Level) : M Level := do
   if !u.hasMVar then
@@ -97,8 +102,7 @@ partial def normLevel (u : Level) : M Level := do
     | Level.max v w _     => return u.updateMax! (← normLevel v) (← normLevel w)
     | Level.imax v w _    => return u.updateIMax! (← normLevel v) (← normLevel w)
     | Level.mvar mvarId _ =>
-      let mctx ← read
-      if !mctx.isLevelAssignable mvarId then
+      if !(← isLevelMVarAssignable mvarId) then
         return u
       else
         let s ← get
@@ -123,7 +127,7 @@ partial def normExpr (e : Expr) : M Expr := do
     | Expr.mdata _ b _     => return e.updateMData! (← normExpr b)
     | Expr.proj _ _ b _    => return e.updateProj! (← normExpr b)
     | Expr.mvar mvarId _   =>
-      if !(← read).isExprAssignable mvarId then
+      if !(← isExprMVarAssignable mvarId) then
         return e
       else
         let s ← get
@@ -138,8 +142,10 @@ partial def normExpr (e : Expr) : M Expr := do
 end MkTableKey
 
 /- Remark: `mkTableKey` assumes `e` does not contain assigned metavariables. -/
-def mkTableKey (mctx : MetavarContext) (e : Expr) : Expr :=
-  MkTableKey.normExpr e mctx |>.run' {}
+def mkTableKey [Monad m] [MonadMCtx m] (e : Expr) : m Expr := do
+  let (r, s) := MkTableKey.normExpr e |>.run { mctx := (← getMCtx) }
+  setMCtx s.mctx
+  return r
 
 structure Answer where
   result     : AbstractMVarsResult
@@ -251,7 +257,7 @@ def mkTableKeyFor (mctx : MetavarContext) (mvar : Expr) : SynthM Expr :=
   withMCtx mctx do
     let mvarType ← inferType mvar
     let mvarType ← instantiateMVars mvarType
-    return mkTableKey mctx mvarType
+    mkTableKey mvarType
 
 /- See `getSubgoals` and `getSubgoalsAux`
 
@@ -483,7 +489,7 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
        match (← removeUnusedArguments? cNode.mctx mvar) with
        | none => newSubgoal cNode.mctx key mvar waiter
        | some (mvarType', transformer) =>
-         let key' := mkTableKey cNode.mctx mvarType'
+         let key' ← withMCtx cNode.mctx <| mkTableKey mvarType'
          match (← findEntry? key') with
          | none =>
            let (mctx', mvar') ← withMCtx cNode.mctx do
@@ -577,10 +583,9 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
   withCurrHeartbeats <| traceCtx `Meta.synthInstance do
      trace[Meta.synthInstance] "main goal {type}"
      let mvar ← mkFreshExprMVar type
-     let mctx ← getMCtx
-     let key    := mkTableKey mctx type
+     let key  ← mkTableKey type
      let action : SynthM (Option AbstractMVarsResult) := do
-       newSubgoal mctx key mvar Waiter.root
+       newSubgoal (← getMCtx) key mvar Waiter.root
        synth
      try
        action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {}

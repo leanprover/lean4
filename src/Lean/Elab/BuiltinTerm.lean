@@ -89,7 +89,7 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
           withLCtx mvarDecl.lctx mvarDecl.localInstances do
             throwError "synthetic hole has already been defined and assigned to value incompatible with the current context{indentExpr val}"
       | none =>
-        if (← getMCtx).isDelayedAssigned mvarId then
+        if (← isMVarDelayedAssigned mvarId) then
           -- We can try to improve this case if needed.
           throwError "synthetic hole has already beend defined and delayed assigned with an incompatible local context"
         else if lctx.isSubPrefixOf mvarDecl.lctx then

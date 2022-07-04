@@ -36,7 +36,7 @@ def getMVars (e : Expr) : MetaM (Array MVarId) := do
 /-- Similar to getMVars, but removes delayed assignments. -/
 def getMVarsNoDelayed (e : Expr) : MetaM (Array MVarId) := do
   let mvarIds ← getMVars e
-  mvarIds.filterM fun mvarId => not <$> isDelayedAssigned mvarId
+  mvarIds.filterM fun mvarId => not <$> isMVarDelayedAssigned mvarId
 
 def collectMVarsAtDecl (d : Declaration) : StateRefT CollectMVars.State MetaM Unit :=
   d.forExprM collectMVars

@@ -333,6 +333,85 @@ partial def getDelayedMVarRoot [Monad m] [MonadMCtx m] (mvarId : MVarId) : m MVa
     | _                  => return mvarId
   | none   => return mvarId
 
+def isLevelMVarAssigned [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool := do
+  markUsedAssignment
+  return (← getMCtx).lAssignment.contains mvarId
+
+/-- Return `true` if the give metavariable is already assigned. -/
+def isExprMVarAssigned [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool := do
+  markUsedAssignment
+  return (← getMCtx).eAssignment.contains mvarId
+
+def isMVarDelayedAssigned [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool := do
+  markUsedAssignment
+  return (← getMCtx).dAssignment.contains mvarId
+
+def isLevelMVarAssignable [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool := do
+  markUsedAssignment
+  let mctx ← getMCtx
+  match mctx.lDepth.find? mvarId with
+  | some d => return d == mctx.depth
+  | _      => panic! "unknown universe metavariable"
+
+def MetavarContext.getDecl (mctx : MetavarContext) (mvarId : MVarId) : MetavarDecl :=
+  match mctx.decls.find? mvarId with
+  | some decl => decl
+  | none      => panic! "unknown metavariable"
+
+def isExprMVarAssignable [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool := do
+  markUsedAssignment
+  let mctx ← getMCtx
+  let decl := mctx.getDecl mvarId
+  return decl.depth == mctx.depth
+
+/-- Return true iff the given level contains an assigned metavariable. -/
+def hasAssignedLevelMVar [Monad m] [MonadMCtx m] : Level → m Bool
+  | Level.succ lvl _       => pure lvl.hasMVar <&&> hasAssignedLevelMVar lvl
+  | Level.max lvl₁ lvl₂ _  => (pure lvl₁.hasMVar <&&> hasAssignedLevelMVar lvl₁) <||> (pure lvl₂.hasMVar <&&> hasAssignedLevelMVar lvl₂)
+  | Level.imax lvl₁ lvl₂ _ => (pure lvl₁.hasMVar <&&> hasAssignedLevelMVar lvl₁) <||> (pure lvl₂.hasMVar <&&> hasAssignedLevelMVar lvl₂)
+  | Level.mvar mvarId _    => isLevelMVarAssigned mvarId
+  | Level.zero _           => pure false
+  | Level.param _ _        => pure false
+
+/-- Return `true` iff expression contains assigned (level/expr) metavariables or delayed assigned mvars -/
+def hasAssignedMVar [Monad m] [MonadMCtx m] : Expr → m Bool
+  | Expr.const _ lvls _  => lvls.anyM hasAssignedLevelMVar
+  | Expr.sort lvl _      => hasAssignedLevelMVar lvl
+  | Expr.app f a _       => (pure f.hasMVar <&&> hasAssignedMVar f) <||> (pure a.hasMVar <&&> hasAssignedMVar a)
+  | Expr.letE _ t v b _  => (pure t.hasMVar <&&> hasAssignedMVar t) <||> (pure v.hasMVar <&&> hasAssignedMVar v) <||> (pure b.hasMVar <&&> hasAssignedMVar b)
+  | Expr.forallE _ d b _ => (pure d.hasMVar <&&> hasAssignedMVar d) <||> (pure b.hasMVar <&&> hasAssignedMVar b)
+  | Expr.lam _ d b _     => (pure d.hasMVar <&&> hasAssignedMVar d) <||> (pure b.hasMVar <&&> hasAssignedMVar b)
+  | Expr.fvar _ _        => return false
+  | Expr.bvar _ _        => return false
+  | Expr.lit _ _         => return false
+  | Expr.mdata _ e _     => pure e.hasMVar <&&> hasAssignedMVar e
+  | Expr.proj _ _ e _    => pure e.hasMVar <&&> hasAssignedMVar e
+  | Expr.mvar mvarId _   => isExprMVarAssigned mvarId <||> isMVarDelayedAssigned mvarId
+
+/-- Return true iff the given level contains a metavariable that can be assigned. -/
+def hasAssignableLevelMVar [Monad m] [MonadMCtx m] : Level → m Bool
+  | Level.succ lvl _       => pure lvl.hasMVar <&&> hasAssignableLevelMVar lvl
+  | Level.max lvl₁ lvl₂ _  => (pure lvl₁.hasMVar <&&> hasAssignableLevelMVar lvl₁) <||> (pure lvl₂.hasMVar <&&> hasAssignableLevelMVar lvl₂)
+  | Level.imax lvl₁ lvl₂ _ => (pure lvl₁.hasMVar <&&> hasAssignableLevelMVar lvl₁) <||> (pure lvl₂.hasMVar <&&> hasAssignableLevelMVar lvl₂)
+  | Level.mvar mvarId _    => isLevelMVarAssignable mvarId
+  | Level.zero _           => return false
+  | Level.param _ _        => return false
+
+/-- Return `true` iff expression contains a metavariable that can be assigned. -/
+def hasAssignableMVar [Monad m] [MonadMCtx m] : Expr → m Bool
+  | Expr.const _ lvls _  => lvls.anyM hasAssignableLevelMVar
+  | Expr.sort lvl _      => hasAssignableLevelMVar lvl
+  | Expr.app f a _       => (pure f.hasMVar <&&> hasAssignableMVar f) <||> (pure a.hasMVar <&&> hasAssignableMVar a)
+  | Expr.letE _ t v b _  => (pure t.hasMVar <&&> hasAssignableMVar t) <||> (pure v.hasMVar <&&> hasAssignableMVar v) <||> (pure b.hasMVar <&&> hasAssignableMVar b)
+  | Expr.forallE _ d b _ => (pure d.hasMVar <&&> hasAssignableMVar d) <||> (pure b.hasMVar <&&> hasAssignableMVar b)
+  | Expr.lam _ d b _     => (pure d.hasMVar <&&> hasAssignableMVar d) <||> (pure b.hasMVar <&&> hasAssignableMVar b)
+  | Expr.fvar _ _        => return false
+  | Expr.bvar _ _        => return false
+  | Expr.lit _ _         => return false
+  | Expr.mdata _ e _     => pure e.hasMVar <&&> hasAssignableMVar e
+  | Expr.proj _ _ e _    => pure e.hasMVar <&&> hasAssignableMVar e
+  | Expr.mvar mvarId _   => isExprMVarAssignable mvarId
+
 namespace MetavarContext
 
 instance : Inhabited MetavarContext := ⟨{}⟩
@@ -376,11 +455,6 @@ def addLevelMVarDecl (mctx : MetavarContext) (mvarId : MVarId) : MetavarContext 
 
 def findDecl? (mctx : MetavarContext) (mvarId : MVarId) : Option MetavarDecl :=
   mctx.decls.find? mvarId
-
-def getDecl (mctx : MetavarContext) (mvarId : MVarId) : MetavarDecl :=
-  match mctx.decls.find? mvarId with
-  | some decl => decl
-  | none      => panic! "unknown metavariable"
 
 def findUserName? (mctx : MetavarContext) (userName : Name) : Option MVarId :=
   mctx.userNames.find? userName
@@ -438,77 +512,11 @@ def assignExpr (m : MetavarContext) (mvarId : MVarId) (val : Expr) : MetavarCont
 def assignDelayed (m : MetavarContext) (mvarId : MVarId) (fvars : Array Expr) (val : Expr) : MetavarContext :=
   { m with dAssignment := m.dAssignment.insert mvarId { fvars, val }, usedAssignment := true }
 
-def isLevelAssigned (m : MetavarContext) (mvarId : MVarId) : Bool :=
-  m.lAssignment.contains mvarId
-
-def isExprAssigned (m : MetavarContext) (mvarId : MVarId) : Bool :=
-  m.eAssignment.contains mvarId
-
-def isDelayedAssigned (m : MetavarContext) (mvarId : MVarId) : Bool :=
-  m.dAssignment.contains mvarId
-
 def eraseDelayed (m : MetavarContext) (mvarId : MVarId) : MetavarContext :=
-  { m with dAssignment := m.dAssignment.erase mvarId }
-
-def isLevelAssignable (mctx : MetavarContext) (mvarId : MVarId) : Bool :=
-  match mctx.lDepth.find? mvarId with
-  | some d => d == mctx.depth
-  | _      => panic! "unknown universe metavariable"
-
-def isExprAssignable (mctx : MetavarContext) (mvarId : MVarId) : Bool :=
-  let decl := mctx.getDecl mvarId
-  decl.depth == mctx.depth
+  { m with dAssignment := m.dAssignment.erase mvarId, usedAssignment := true }
 
 def incDepth (mctx : MetavarContext) : MetavarContext :=
   { mctx with depth := mctx.depth + 1 }
-
-/-- Return true iff the given level contains an assigned metavariable. -/
-def hasAssignedLevelMVar (mctx : MetavarContext) : Level → Bool
-  | Level.succ lvl _       => lvl.hasMVar && hasAssignedLevelMVar mctx lvl
-  | Level.max lvl₁ lvl₂ _  => (lvl₁.hasMVar && hasAssignedLevelMVar mctx lvl₁) || (lvl₂.hasMVar && hasAssignedLevelMVar mctx lvl₂)
-  | Level.imax lvl₁ lvl₂ _ => (lvl₁.hasMVar && hasAssignedLevelMVar mctx lvl₁) || (lvl₂.hasMVar && hasAssignedLevelMVar mctx lvl₂)
-  | Level.mvar mvarId _    => mctx.isLevelAssigned mvarId
-  | Level.zero _           => false
-  | Level.param _ _        => false
-
-/-- Return `true` iff expression contains assigned (level/expr) metavariables or delayed assigned mvars -/
-def hasAssignedMVar (mctx : MetavarContext) : Expr → Bool
-  | Expr.const _ lvls _  => lvls.any (hasAssignedLevelMVar mctx)
-  | Expr.sort lvl _      => hasAssignedLevelMVar mctx lvl
-  | Expr.app f a _       => (f.hasMVar && hasAssignedMVar mctx f) || (a.hasMVar && hasAssignedMVar mctx a)
-  | Expr.letE _ t v b _  => (t.hasMVar && hasAssignedMVar mctx t) || (v.hasMVar && hasAssignedMVar mctx v) || (b.hasMVar && hasAssignedMVar mctx b)
-  | Expr.forallE _ d b _ => (d.hasMVar && hasAssignedMVar mctx d) || (b.hasMVar && hasAssignedMVar mctx b)
-  | Expr.lam _ d b _     => (d.hasMVar && hasAssignedMVar mctx d) || (b.hasMVar && hasAssignedMVar mctx b)
-  | Expr.fvar _ _        => false
-  | Expr.bvar _ _        => false
-  | Expr.lit _ _         => false
-  | Expr.mdata _ e _     => e.hasMVar && hasAssignedMVar mctx e
-  | Expr.proj _ _ e _    => e.hasMVar && hasAssignedMVar mctx e
-  | Expr.mvar mvarId _   => mctx.isExprAssigned mvarId || mctx.isDelayedAssigned mvarId
-
-/-- Return true iff the given level contains a metavariable that can be assigned. -/
-def hasAssignableLevelMVar (mctx : MetavarContext) : Level → Bool
-  | Level.succ lvl _       => lvl.hasMVar && hasAssignableLevelMVar mctx lvl
-  | Level.max lvl₁ lvl₂ _  => (lvl₁.hasMVar && hasAssignableLevelMVar mctx lvl₁) || (lvl₂.hasMVar && hasAssignableLevelMVar mctx lvl₂)
-  | Level.imax lvl₁ lvl₂ _ => (lvl₁.hasMVar && hasAssignableLevelMVar mctx lvl₁) || (lvl₂.hasMVar && hasAssignableLevelMVar mctx lvl₂)
-  | Level.mvar mvarId _    => mctx.isLevelAssignable mvarId
-  | Level.zero _           => false
-  | Level.param _ _        => false
-
-/-- Return `true` iff expression contains a metavariable that can be assigned. -/
-def hasAssignableMVar (mctx : MetavarContext) : Expr → Bool
-  | Expr.const _ lvls _  => lvls.any (hasAssignableLevelMVar mctx)
-  | Expr.sort lvl _      => hasAssignableLevelMVar mctx lvl
-  | Expr.app f a _       => (f.hasMVar && hasAssignableMVar mctx f) || (a.hasMVar && hasAssignableMVar mctx a)
-  | Expr.letE _ t v b _  => (t.hasMVar && hasAssignableMVar mctx t) || (v.hasMVar && hasAssignableMVar mctx v) || (b.hasMVar && hasAssignableMVar mctx b)
-  | Expr.forallE _ d b _ => (d.hasMVar && hasAssignableMVar mctx d) || (b.hasMVar && hasAssignableMVar mctx b)
-  | Expr.lam _ d b _     => (d.hasMVar && hasAssignableMVar mctx d) || (b.hasMVar && hasAssignableMVar mctx b)
-  | Expr.fvar _ _        => false
-  | Expr.bvar _ _        => false
-  | Expr.lit _ _         => false
-  | Expr.mdata _ e _     => e.hasMVar && hasAssignableMVar mctx e
-  | Expr.proj _ _ e _    => e.hasMVar && hasAssignableMVar mctx e
-  | Expr.mvar mvarId _   => mctx.isExprAssignable mvarId
 
 /-
 Notes on artificial eta-expanded terms due to metavariables.
@@ -979,7 +987,7 @@ mutual
           A potential disadvantage is that `isDefEq` will not eagerly use `synthPending` for natural metavariables.
           That being said, we should try this approach as soon as we have an extensive test suite.
       -/
-      let newMVarKind := if !(← getMCtx).isExprAssignable mvarId then MetavarKind.syntheticOpaque else mvarDecl.kind
+      let newMVarKind := if !(← isExprMVarAssignable mvarId) then MetavarKind.syntheticOpaque else mvarDecl.kind
       /- If `mvarId` is the lhs of a delayed assignment `?m #[x_1, ... x_n] := val`,
          then `nestedFVars` is `#[x_1, ..., x_n]`.
          In this case, we produce a new `syntheticOpaque` metavariable `?n` and a delayed assignment

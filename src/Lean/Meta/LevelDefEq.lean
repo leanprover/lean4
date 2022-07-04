@@ -105,18 +105,16 @@ mutual
             let r ← solve rhs lhs;
             if r != LBool.undef then
               return r == LBool.true
-            else do
-              let mctx ← getMCtx
-              if !mctx.hasAssignableLevelMVar lhs && !mctx.hasAssignableLevelMVar rhs then
-                let ctx ← read
-                if ctx.config.isDefEqStuckEx && (lhs.isMVar || rhs.isMVar) then do
-                  trace[Meta.isLevelDefEq.stuck] "{lhs} =?= {rhs}"
-                  Meta.throwIsDefEqStuck
-                else
-                  return false
+            else if !(← hasAssignableLevelMVar lhs <||> hasAssignableLevelMVar rhs) then
+              let ctx ← read
+              if ctx.config.isDefEqStuckEx && (lhs.isMVar || rhs.isMVar) then do
+                trace[Meta.isLevelDefEq.stuck] "{lhs} =?= {rhs}"
+                Meta.throwIsDefEqStuck
               else
-                postponeIsLevelDefEq lhs rhs
-                return true
+                return false
+            else
+              postponeIsLevelDefEq lhs rhs
+              return true
 end
 
 builtin_initialize

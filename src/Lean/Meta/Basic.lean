@@ -527,17 +527,8 @@ def isReadOnlyLevelMVar (mvarId : MVarId) : MetaM Bool := do
 def setMVarUserName (mvarId : MVarId) (newUserName : Name) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.setMVarUserName mvarId newUserName
 
-def isExprMVarAssigned (mvarId : MVarId) : MetaM Bool :=
-  return (← getMCtx).isExprAssigned mvarId
-
 def assignExprMVar (mvarId : MVarId) (val : Expr) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.assignExpr mvarId val
-
-def isDelayedAssigned (mvarId : MVarId) : MetaM Bool :=
-  return (← getMCtx).isDelayedAssigned mvarId
-
-def hasAssignableMVar (e : Expr) : MetaM Bool :=
-  return (← getMCtx).hasAssignableMVar e
 
 def throwUnknownFVar (fvarId : FVarId) : MetaM α :=
   throwError "unknown free variable '{mkFVar fvarId}'"

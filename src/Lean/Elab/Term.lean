@@ -415,8 +415,6 @@ instance : ToString LVal where
 def getDeclName? : TermElabM (Option Name) := return (← read).declName?
 /-- Return the list of nested `let rec` declarations that need to be lifted. -/
 def getLetRecsToLift : TermElabM (List LetRecToLift) := return (← get).letRecsToLift
-/-- Return `true` if the give metavariable is already assigned. -/
-def isExprMVarAssigned (mvarId : MVarId) : TermElabM Bool := return (← getMCtx).isExprAssigned mvarId
 /-- Return the declaration of the given metavariable -/
 def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := return (← getMCtx).getDecl mvarId
 /-- Assign `mvarId := val`. It assumes `mvarId` it a valid universe level metavariable id. -/

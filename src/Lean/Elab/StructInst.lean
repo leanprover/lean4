@@ -698,15 +698,15 @@ partial def getHierarchyDepth (struct : Struct) : Nat :=
     | FieldVal.nested struct => Nat.max max (getHierarchyDepth struct + 1)
     | _ => max
 
-partial def findDefaultMissing? (mctx : MetavarContext) (struct : Struct) : Option (Field Struct) :=
-  struct.fields.findSome? fun field =>
+partial def findDefaultMissing? [Monad m] [MonadMCtx m] (struct : Struct) : m (Option (Field Struct)) :=
+  struct.fields.findSomeM? fun field => do
    match field.val with
-   | FieldVal.nested struct => findDefaultMissing? mctx struct
+   | FieldVal.nested struct => findDefaultMissing? struct
    | _ => match field.expr? with
      | none      => unreachable!
      | some expr => match defaultMissing? expr with
-       | some (Expr.mvar mvarId _) => if mctx.isExprAssigned mvarId then none else some field
-       | _                         => none
+       | some (Expr.mvar mvarId _) => return if (← isExprMVarAssigned mvarId) then none else some field
+       | _                         => return none
 
 def getFieldName (field : Field Struct) : Name :=
   match field.lhs with
@@ -838,7 +838,7 @@ partial def step (struct : Struct) : M Unit :=
             | _ => pure ()
 
 partial def propagateLoop (hierarchyDepth : Nat) (d : Nat) (struct : Struct) : M Unit := do
-  match findDefaultMissing? (← getMCtx) struct with
+  match (← findDefaultMissing? struct) with
   | none       => pure () -- Done
   | some field =>
     trace[Elab.struct] "propagate [{d}] [field := {field}]: {struct}"

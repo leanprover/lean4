@@ -310,7 +310,6 @@ lean_inc(x_32);
 x_33 = lean_ctor_get(x_31, 1);
 lean_inc(x_33);
 lean_dec(x_31);
-lean_inc(x_7);
 lean_inc(x_32);
 x_34 = l_Lean_Meta_getMVars(x_32, x_6, x_7, x_8, x_9, x_33);
 x_35 = lean_ctor_get(x_34, 0);

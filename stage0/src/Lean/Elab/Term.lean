@@ -415,12 +415,8 @@ instance : ToString LVal where
 def getDeclName? : TermElabM (Option Name) := return (← read).declName?
 /-- Return the list of nested `let rec` declarations that need to be lifted. -/
 def getLetRecsToLift : TermElabM (List LetRecToLift) := return (← get).letRecsToLift
-/-- Return `true` if the give metavariable is already assigned. -/
-def isExprMVarAssigned (mvarId : MVarId) : TermElabM Bool := return (← getMCtx).isExprAssigned mvarId
 /-- Return the declaration of the given metavariable -/
 def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := return (← getMCtx).getDecl mvarId
-/-- Assign `mvarId := val`. It assumes `mvarId` it a valid universe level metavariable id. -/
-def assignLevelMVar (mvarId : MVarId) (val : Level) : TermElabM Unit := modifyThe Meta.State fun s => { s with mctx := s.mctx.assignLevel mvarId val }
 
 /-- Execute `x` with `declName? := name`. See `getDeclName? -/
 def withDeclName (name : Name) (x : TermElabM α) : TermElabM α :=
@@ -694,7 +690,7 @@ partial def visit (e : Expr) : M Unit := do
       if e' != e then
         visit e'
       else
-        match (← getDelayedAssignment? mvarId) with
+        match (← getDelayedMVarAssignment? mvarId) with
         | some d => visit d.val
         | none   => failure
     | _ => return ()
@@ -1531,7 +1527,7 @@ where
         if auto.isFVar then
           let localDecl ← getLocalDecl auto.fvarId!
           for x in xs do
-            if (← getMCtx).localDeclDependsOn localDecl x.fvarId! then
+            if (← localDeclDependsOn localDecl x.fvarId!) then
               throwError "invalid auto implicit argument '{auto}', it depends on explicitly provided argument '{x}'"
       return autos ++ xs
     | auto :: todo =>
@@ -1562,7 +1558,7 @@ builtin_initialize registerTraceClass `Elab.letrec
    is delayed assigned to one. -/
 def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
   trace[Elab.letrec] "mvarId: {mkMVar mvarId} letrecMVars: {(← get).letRecsToLift.map (mkMVar $ ·.mvarId)}"
-  let mvarId := (← getMCtx).getDelayedRoot mvarId
+  let mvarId ← getDelayedMVarRoot mvarId
   trace[Elab.letrec] "mvarId root: {mkMVar mvarId}"
   return (← get).letRecsToLift.any (·.mvarId == mvarId)
 

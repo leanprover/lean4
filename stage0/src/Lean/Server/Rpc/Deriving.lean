@@ -177,7 +177,7 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
     let argFVars ← argVars.mapM (LocalDecl.fvarId <$> getFVarLocalDecl ·)
     for arg in argVars do
       let argTp ← inferType arg
-      if (← getMCtx).findExprDependsOn argTp (pf := fun fv => argFVars.contains fv) then
+      if (← findExprDependsOn argTp (pf := fun fv => argFVars.contains fv)) then
         throwError "cross-argument dependencies are not supported ({arg} : {argTp})"
 
       if (← acc.encArgTypes.getMatch argTp).isEmpty then

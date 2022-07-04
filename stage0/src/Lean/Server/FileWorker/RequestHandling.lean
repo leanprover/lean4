@@ -100,7 +100,7 @@ def locationLinksOfInfo (kind : GoToKind) (ci : Elab.ContextInfo) (i : Elab.Info
     let mut expr := ti.expr
     if kind == type then
       expr ← ci.runMetaM i.lctx do
-        return Expr.getAppFn (← Meta.instantiateMVars (← Meta.inferType expr))
+        return Expr.getAppFn (← instantiateMVars (← Meta.inferType expr))
     match expr with
     | Expr.const n .. => return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
     | Expr.fvar id .. => return ← ci.runMetaM i.lctx <| locationLinksFromBinder i id
@@ -108,7 +108,7 @@ def locationLinksOfInfo (kind : GoToKind) (ci : Elab.ContextInfo) (i : Elab.Info
   if let Info.ofFieldInfo fi := i then
     if kind == type then
       let expr ← ci.runMetaM i.lctx do
-        Meta.instantiateMVars (← Meta.inferType fi.val)
+        instantiateMVars (← Meta.inferType fi.val)
       if let some n := expr.getAppFn.constName? then
         return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
     else
@@ -178,7 +178,7 @@ def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
     (notFoundX := pure none) fun snap => do
       if let some (ci, i@(Elab.Info.ofTermInfo ti)) := snap.infoTree.termGoalAt? hoverPos then
         let ty ← ci.runMetaM i.lctx do
-          Meta.instantiateMVars <| ti.expectedType?.getD (← Meta.inferType ti.expr)
+          instantiateMVars <| ti.expectedType?.getD (← Meta.inferType ti.expr)
         -- for binders, hide the last hypothesis (the binder itself)
         let lctx' := if ti.isBinder then i.lctx.pop else i.lctx
         let goal ← ci.runMetaM lctx' do

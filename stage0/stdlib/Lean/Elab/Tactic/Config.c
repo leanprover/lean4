@@ -2913,7 +2913,7 @@ static lean_object* _init_l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab__Tactic__commandDeclare__config__elab______1___closed__73;
+x_1 = l_Lean_Elab_Tactic_commandDeclare__config__elab_______closed__2;
 x_2 = l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab__Tactic__commandDeclare__config__elab______1___closed__246;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;

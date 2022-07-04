@@ -1490,6 +1490,7 @@ lean_dec(x_11);
 x_14 = l_Lean_Meta_abstractMVars(x_12, x_5, x_6, x_7, x_8, x_13);
 lean_dec(x_8);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
 return x_14;
 }

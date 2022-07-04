@@ -201,11 +201,11 @@ where
   fmtTerm? : MetaM (Option Format) := do
     match i with
     | Info.ofTermInfo ti =>
-      let e ← Meta.instantiateMVars ti.expr
+      let e ← instantiateMVars ti.expr
       if e.isSort then
         -- Types of sorts are funny to look at in widgets, but ultimately not very helpful
         return none
-      let tp ← Meta.instantiateMVars (← Meta.inferType e)
+      let tp ← instantiateMVars (← Meta.inferType e)
       let tpFmt ← Meta.ppExpr tp
       if e.isConst then
         -- Recall that `ppExpr` adds a `@` if the constant has implicit arguments, and it is quite distracting
@@ -309,7 +309,7 @@ where go ci?
   | .context ci t => go ci t
   | .node i cs =>
     if let (some ci, .ofTermInfo ti) := (ci?, i) then do
-      let expr ← ti.runMetaM ci (Meta.instantiateMVars ti.expr)
+      let expr ← ti.runMetaM ci (instantiateMVars ti.expr)
       return expr.hasSorry
       -- we assume that `cs` are subterms of `ti.expr` and
       -- thus do not have to be checked as well

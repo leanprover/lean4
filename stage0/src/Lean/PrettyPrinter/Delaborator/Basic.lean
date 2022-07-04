@@ -284,7 +284,7 @@ def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab := Delabor
   if pp.proofs.get? opts == none then
     try if ← Meta.isProof e then opts := pp.proofs.set opts true
     catch _ => pure ()
-  let e ← if getPPInstantiateMVars opts then Meta.instantiateMVars e else pure e
+  let e ← if getPPInstantiateMVars opts then instantiateMVars e else pure e
   let optionsPerPos ←
     if !getPPAll opts && getPPAnalyze opts && optionsPerPos.isEmpty then
       withTheReader Core.Context (fun ctx => { ctx with options := opts }) do topDownAnalyze e

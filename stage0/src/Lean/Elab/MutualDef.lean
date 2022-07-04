@@ -326,8 +326,8 @@ we would have a `LetRecToLift` containing:
 Note that `g` is not a free variable at `(let g : B := ?m₂; body)`. We recover the fact that
 `f` depends on `g` because it contains `m₂`
 -/
-private def mkInitialUsedFVarsMap (mctx : MetavarContext) (sectionVars : Array Expr) (mainFVarIds : Array FVarId) (letRecsToLift : Array LetRecToLift)
-    : UsedFVarsMap := Id.run do
+private def mkInitialUsedFVarsMap [Monad m] [MonadMCtx m] (sectionVars : Array Expr) (mainFVarIds : Array FVarId) (letRecsToLift : Array LetRecToLift)
+    : m UsedFVarsMap := do
   let mut sectionVarSet := {}
   for var in sectionVars do
     sectionVarSet := sectionVarSet.insert var.fvarId!
@@ -342,11 +342,11 @@ private def mkInitialUsedFVarsMap (mctx : MetavarContext) (sectionVars : Array E
        for the associated let-rec because we need this information to compute the fixpoint later. -/
     let mvarIds := (toLift.val.collectMVars {}).result
     for mvarId in mvarIds do
-      match letRecsToLift.findSome? fun (toLift : LetRecToLift) => if toLift.mvarId == mctx.getDelayedRoot mvarId then some toLift.fvarId else none with
+      match (← letRecsToLift.findSomeM? fun (toLift : LetRecToLift) => return if toLift.mvarId == (← getDelayedMVarRoot mvarId) then some toLift.fvarId else none) with
       | some fvarId => set := set.insert fvarId
       | none        => pure ()
     usedFVarMap := usedFVarMap.insert toLift.fvarId set
-  pure usedFVarMap
+  return usedFVarMap
 
 /-
 The let-recs may invoke each other. Example:
@@ -423,10 +423,10 @@ end FixPoint
 
 abbrev FreeVarMap := FVarIdMap (Array FVarId)
 
-private def mkFreeVarMap
-    (mctx : MetavarContext) (sectionVars : Array Expr) (mainFVarIds : Array FVarId)
-    (recFVarIds : Array FVarId) (letRecsToLift : Array LetRecToLift) : FreeVarMap := Id.run do
-  let usedFVarsMap  := mkInitialUsedFVarsMap mctx sectionVars mainFVarIds letRecsToLift
+private def mkFreeVarMap [Monad m] [MonadMCtx m]
+    (sectionVars : Array Expr) (mainFVarIds : Array FVarId)
+    (recFVarIds : Array FVarId) (letRecsToLift : Array LetRecToLift) : m FreeVarMap := do
+  let usedFVarsMap  ← mkInitialUsedFVarsMap sectionVars mainFVarIds letRecsToLift
   let letRecFVarIds := letRecsToLift.map fun toLift => toLift.fvarId
   let usedFVarsMap  := FixPoint.run letRecFVarIds usedFVarsMap
   let mut freeVarMap := {}
@@ -536,7 +536,7 @@ private def mkLetRecClosureFor (toLift : LetRecToLift) (freeVars : Array FVarId)
 private def mkLetRecClosures (sectionVars : Array Expr) (mainFVarIds : Array FVarId) (recFVarIds : Array FVarId) (letRecsToLift : Array LetRecToLift) : TermElabM (List LetRecClosure) := do
   -- Compute the set of free variables (excluding `recFVarIds`) for each let-rec.
   let mut letRecsToLift := letRecsToLift
-  let mut freeVarMap    := mkFreeVarMap (← getMCtx) sectionVars mainFVarIds recFVarIds letRecsToLift
+  let mut freeVarMap    ← mkFreeVarMap sectionVars mainFVarIds recFVarIds letRecsToLift
   let mut result := #[]
   for i in [:letRecsToLift.size] do
     if letRecsToLift[i]!.val.hasExprMVar then
@@ -546,7 +546,7 @@ private def mkLetRecClosures (sectionVars : Array Expr) (mainFVarIds : Array FVa
       let valNew ← instantiateMVars letRecsToLift[i]!.val
       letRecsToLift := letRecsToLift.modify i fun t => { t with val := valNew }
       -- We have to recompute the `freeVarMap` in this case. This overhead should not be an issue in practice.
-      freeVarMap := mkFreeVarMap (← getMCtx) sectionVars mainFVarIds recFVarIds letRecsToLift
+      freeVarMap ← mkFreeVarMap sectionVars mainFVarIds recFVarIds letRecsToLift
     let toLift := letRecsToLift[i]!
     result := result.push (← mkLetRecClosureFor toLift (freeVarMap.find? toLift.fvarId).get!)
   return result.toList

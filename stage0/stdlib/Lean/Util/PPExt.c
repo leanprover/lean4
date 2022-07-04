@@ -18,7 +18,6 @@ static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_6____closed__1;
 static lean_object* l_Lean_ppExpr___closed__5;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PPContext_mctx___default;
-lean_object* l_Lean_MetavarContext_instantiateMVars(lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 static lean_object* l_Lean_ppExpr___closed__3;
 lean_object* lean_io_error_to_string(lean_object*);
@@ -93,6 +92,7 @@ static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_246____lambda__3_
 static lean_object* l_Lean_PPContext_lctx___default___closed__3;
 static lean_object* l_Lean_ppExpr___closed__6;
 static lean_object* l_Lean_PPContext_lctx___default___closed__5;
+lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 static lean_object* l_Lean_ppExpr___closed__2;
 LEAN_EXPORT lean_object* l_Lean_ppTerm(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_62____closed__3;
@@ -382,20 +382,22 @@ return x_3;
 static lean_object* _init_l_Lean_PPContext_mctx___default___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Lean_PPContext_mctx___default___closed__3;
 x_3 = l_Lean_PPContext_mctx___default___closed__4;
-x_4 = lean_alloc_ctor(0, 8, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_1);
-lean_ctor_set(x_4, 2, x_2);
-lean_ctor_set(x_4, 3, x_2);
-lean_ctor_set(x_4, 4, x_3);
-lean_ctor_set(x_4, 5, x_2);
-lean_ctor_set(x_4, 6, x_2);
-lean_ctor_set(x_4, 7, x_2);
-return x_4;
+x_4 = 0;
+x_5 = lean_alloc_ctor(0, 8, 1);
+lean_ctor_set(x_5, 0, x_1);
+lean_ctor_set(x_5, 1, x_1);
+lean_ctor_set(x_5, 2, x_2);
+lean_ctor_set(x_5, 3, x_2);
+lean_ctor_set(x_5, 4, x_3);
+lean_ctor_set(x_5, 5, x_2);
+lean_ctor_set(x_5, 6, x_2);
+lean_ctor_set(x_5, 7, x_2);
+lean_ctor_set_uint8(x_5, sizeof(void*)*8, x_4);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_PPContext_mctx___default() {
@@ -885,7 +887,7 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_4 = lean_ctor_get(x_1, 1);
 lean_inc(x_4);
-x_5 = l_Lean_MetavarContext_instantiateMVars(x_4, x_2);
+x_5 = l_Lean_instantiateMVarsCore(x_4, x_2);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 lean_dec(x_5);

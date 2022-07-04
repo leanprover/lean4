@@ -4376,20 +4376,22 @@ return x_3;
 static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_720____lambda__1___closed__9() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_720____lambda__1___closed__8;
 x_3 = l_Lean_ScopedEnvExtension_add___at_Lean_Meta_addUnificationHint___spec__1___closed__1;
-x_4 = lean_alloc_ctor(0, 8, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_1);
-lean_ctor_set(x_4, 2, x_2);
-lean_ctor_set(x_4, 3, x_2);
-lean_ctor_set(x_4, 4, x_3);
-lean_ctor_set(x_4, 5, x_2);
-lean_ctor_set(x_4, 6, x_2);
-lean_ctor_set(x_4, 7, x_2);
-return x_4;
+x_4 = 0;
+x_5 = lean_alloc_ctor(0, 8, 1);
+lean_ctor_set(x_5, 0, x_1);
+lean_ctor_set(x_5, 1, x_1);
+lean_ctor_set(x_5, 2, x_2);
+lean_ctor_set(x_5, 3, x_2);
+lean_ctor_set(x_5, 4, x_3);
+lean_ctor_set(x_5, 5, x_2);
+lean_ctor_set(x_5, 6, x_2);
+lean_ctor_set(x_5, 7, x_2);
+lean_ctor_set_uint8(x_5, sizeof(void*)*8, x_4);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_720____lambda__1___closed__10() {
@@ -6896,7 +6898,6 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_12);
 x_20 = !lean_is_exclusive(x_19);
 if (x_20 == 0)
 {
@@ -6930,7 +6931,6 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_12);
 x_28 = !lean_is_exclusive(x_27);
 if (x_28 == 0)
 {
@@ -6984,7 +6984,6 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_12);
 x_42 = !lean_is_exclusive(x_41);
 if (x_42 == 0)
 {
@@ -7246,7 +7245,6 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_12);
 x_20 = !lean_is_exclusive(x_19);
 if (x_20 == 0)
 {
@@ -7280,7 +7278,6 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_12);
 x_28 = !lean_is_exclusive(x_27);
 if (x_28 == 0)
 {
@@ -7334,7 +7331,6 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_12);
 x_42 = !lean_is_exclusive(x_41);
 if (x_42 == 0)
 {

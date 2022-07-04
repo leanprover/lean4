@@ -72,8 +72,7 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
   if userName.isAnonymous || (← read).inPattern then
     mkNewHole ()
   else
-    let mctx ← getMCtx
-    match mctx.findUserName? userName with
+    match (← getMCtx).findUserName? userName with
     | none => mkNewHole ()
     | some mvarId =>
       let mvar := mkMVar mvarId
@@ -81,21 +80,21 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
       let lctx ← getLCtx
       if mvarDecl.lctx.isSubPrefixOf lctx then
         return mvar
-      else match mctx.getExprAssignment? mvarId with
+      else match (← getExprMVarAssignment? mvarId) with
       | some val =>
         let val ← instantiateMVars val
-        if mctx.isWellFormed lctx val then
+        if (← MetavarContext.isWellFormed lctx val) then
           return val
         else
           withLCtx mvarDecl.lctx mvarDecl.localInstances do
             throwError "synthetic hole has already been defined and assigned to value incompatible with the current context{indentExpr val}"
       | none =>
-        if mctx.isDelayedAssigned mvarId then
+        if (← isMVarDelayedAssigned mvarId) then
           -- We can try to improve this case if needed.
           throwError "synthetic hole has already beend defined and delayed assigned with an incompatible local context"
         else if lctx.isSubPrefixOf mvarDecl.lctx then
           let mvarNew ← mkNewHole ()
-          modifyMCtx fun mctx => mctx.assignExpr mvarId mvarNew
+          assignExprMVar mvarId mvarNew
           return mvarNew
         else
           throwError "synthetic hole has already been defined with an incompatible local context"

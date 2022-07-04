@@ -97,6 +97,7 @@ lean_object* l_Std_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_mkSimpCongrTheorem_onlyMVarsAt(lean_object*, lean_object*);
 static lean_object* l_repr___at___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_reprSimpCongrTheorems____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems___hyg_148____spec__14___closed__5;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_reprSimpCongrTheorems____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems___hyg_148____spec__13___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
+lean_object* l_Std_RBNode_findCore___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__5(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_mkSimpCongrTheorem___spec__8___lambda__2(lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_reprSimpCongrTheorems____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems___hyg_148____spec__10___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Std_Format_joinSep___at_instReprProd___spec__1(lean_object*, lean_object*);
@@ -319,7 +320,6 @@ lean_object* lean_string_length(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instReprSimpCongrTheorem;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_mkSimpCongrTheorem___spec__5(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_reprSimpCongrTheorems____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems___hyg_148____spec__16(lean_object*, lean_object*);
-lean_object* l_Std_RBNode_findCore___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_insertAux_traverse___at_Lean_Meta_addSimpCongrTheoremEntry___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_reprSimpCongrTheorems____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems___hyg_148____closed__8;
@@ -3731,7 +3731,7 @@ else
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = l_Lean_Expr_mvarId_x21(x_2);
-x_6 = l_Std_RBNode_findCore___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__3(x_1, x_5);
+x_6 = l_Std_RBNode_findCore___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__5(x_1, x_5);
 lean_dec(x_5);
 if (lean_obj_tag(x_6) == 0)
 {
@@ -4575,7 +4575,7 @@ _start:
 lean_object* x_12; lean_object* x_13; 
 lean_dec(x_6);
 x_12 = l_Lean_Expr_mvarId_x21(x_4);
-x_13 = l_Std_RBNode_findCore___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__3(x_5, x_12);
+x_13 = l_Std_RBNode_findCore___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__5(x_5, x_12);
 lean_dec(x_12);
 lean_dec(x_5);
 if (lean_obj_tag(x_13) == 0)
@@ -5003,7 +5003,7 @@ else
 {
 lean_object* x_54; lean_object* x_55; 
 x_54 = l_Lean_Expr_mvarId_x21(x_15);
-x_55 = l_Std_RBNode_findCore___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__3(x_31, x_54);
+x_55 = l_Std_RBNode_findCore___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__5(x_31, x_54);
 if (lean_obj_tag(x_55) == 0)
 {
 lean_object* x_56; 
@@ -5207,7 +5207,7 @@ else
 {
 lean_object* x_100; lean_object* x_101; 
 x_100 = l_Lean_Expr_mvarId_x21(x_15);
-x_101 = l_Std_RBNode_findCore___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__3(x_31, x_100);
+x_101 = l_Std_RBNode_findCore___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__5(x_31, x_100);
 if (lean_obj_tag(x_101) == 0)
 {
 lean_object* x_102; 
@@ -5463,7 +5463,7 @@ else
 {
 lean_object* x_155; lean_object* x_156; 
 x_155 = l_Lean_Expr_mvarId_x21(x_15);
-x_156 = l_Std_RBNode_findCore___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__3(x_31, x_155);
+x_156 = l_Std_RBNode_findCore___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__5(x_31, x_155);
 if (lean_obj_tag(x_156) == 0)
 {
 lean_object* x_157; 
@@ -5736,7 +5736,7 @@ else
 {
 lean_object* x_213; lean_object* x_214; 
 x_213 = l_Lean_Expr_mvarId_x21(x_15);
-x_214 = l_Std_RBNode_findCore___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__3(x_191, x_213);
+x_214 = l_Std_RBNode_findCore___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__5(x_191, x_213);
 if (lean_obj_tag(x_214) == 0)
 {
 lean_object* x_215; 
@@ -6025,7 +6025,7 @@ else
 {
 lean_object* x_274; lean_object* x_275; 
 x_274 = l_Lean_Expr_mvarId_x21(x_15);
-x_275 = l_Std_RBNode_findCore___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__3(x_250, x_274);
+x_275 = l_Std_RBNode_findCore___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__5(x_250, x_274);
 if (lean_obj_tag(x_275) == 0)
 {
 lean_object* x_276; 
@@ -6344,7 +6344,7 @@ else
 {
 lean_object* x_53; lean_object* x_54; 
 x_53 = l_Lean_Expr_mvarId_x21(x_14);
-x_54 = l_Std_RBNode_findCore___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__3(x_30, x_53);
+x_54 = l_Std_RBNode_findCore___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__5(x_30, x_53);
 if (lean_obj_tag(x_54) == 0)
 {
 lean_object* x_55; 
@@ -6548,7 +6548,7 @@ else
 {
 lean_object* x_99; lean_object* x_100; 
 x_99 = l_Lean_Expr_mvarId_x21(x_14);
-x_100 = l_Std_RBNode_findCore___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__3(x_30, x_99);
+x_100 = l_Std_RBNode_findCore___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__5(x_30, x_99);
 if (lean_obj_tag(x_100) == 0)
 {
 lean_object* x_101; 
@@ -6804,7 +6804,7 @@ else
 {
 lean_object* x_154; lean_object* x_155; 
 x_154 = l_Lean_Expr_mvarId_x21(x_14);
-x_155 = l_Std_RBNode_findCore___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__3(x_30, x_154);
+x_155 = l_Std_RBNode_findCore___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__5(x_30, x_154);
 if (lean_obj_tag(x_155) == 0)
 {
 lean_object* x_156; 
@@ -7077,7 +7077,7 @@ else
 {
 lean_object* x_212; lean_object* x_213; 
 x_212 = l_Lean_Expr_mvarId_x21(x_14);
-x_213 = l_Std_RBNode_findCore___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__3(x_190, x_212);
+x_213 = l_Std_RBNode_findCore___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__5(x_190, x_212);
 if (lean_obj_tag(x_213) == 0)
 {
 lean_object* x_214; 
@@ -7366,7 +7366,7 @@ else
 {
 lean_object* x_273; lean_object* x_274; 
 x_273 = l_Lean_Expr_mvarId_x21(x_14);
-x_274 = l_Std_RBNode_findCore___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__3(x_249, x_273);
+x_274 = l_Std_RBNode_findCore___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimApp___spec__5(x_249, x_273);
 if (lean_obj_tag(x_274) == 0)
 {
 lean_object* x_275; 
@@ -10016,20 +10016,22 @@ return x_3;
 static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems___hyg_1727____lambda__1___closed__9() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems___hyg_1727____lambda__1___closed__8;
 x_3 = l_Lean_Meta_SimpCongrTheorems_lemmas___default___closed__3;
-x_4 = lean_alloc_ctor(0, 8, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_1);
-lean_ctor_set(x_4, 2, x_2);
-lean_ctor_set(x_4, 3, x_2);
-lean_ctor_set(x_4, 4, x_3);
-lean_ctor_set(x_4, 5, x_2);
-lean_ctor_set(x_4, 6, x_2);
-lean_ctor_set(x_4, 7, x_2);
-return x_4;
+x_4 = 0;
+x_5 = lean_alloc_ctor(0, 8, 1);
+lean_ctor_set(x_5, 0, x_1);
+lean_ctor_set(x_5, 1, x_1);
+lean_ctor_set(x_5, 2, x_2);
+lean_ctor_set(x_5, 3, x_2);
+lean_ctor_set(x_5, 4, x_3);
+lean_ctor_set(x_5, 5, x_2);
+lean_ctor_set(x_5, 6, x_2);
+lean_ctor_set(x_5, 7, x_2);
+lean_ctor_set_uint8(x_5, sizeof(void*)*8, x_4);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems___hyg_1727____lambda__1___closed__10() {

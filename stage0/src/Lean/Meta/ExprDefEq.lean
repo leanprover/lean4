@@ -16,7 +16,7 @@ import Lean.Meta.UnificationHint
 namespace Lean.Meta
 
 /--
-  Return true `b` is of the form `mk a.1 ... a.n`, and `a` is not a constructor application.
+  Return true if `b` is of the form `mk a.1 ... a.n`, and `a` is not a constructor application.
 
   If `a` and `b` are constructor applications, the method returns `false` to force `isDefEq` to use `isDefEqArgs`.
   For example, suppose we are trying to solve the constraint
@@ -644,14 +644,13 @@ mutual
   partial def checkMVar (mvar : Expr) : CheckAssignmentM Expr := do
     let mvarId := mvar.mvarId!
     let ctx  ← read
-    let mctx ← getMCtx
     if mvarId == ctx.mvarId then
       traceM `Meta.isDefEq.assign.occursCheck <| addAssignmentInfo "occurs check failed"
       throwCheckAssignmentFailure
-    else match mctx.getExprAssignment? mvarId with
+    else match (← getExprMVarAssignment? mvarId) with
       | some v => check v
       | none   =>
-        match mctx.findDecl? mvarId with
+        match (← findMVarDecl? mvarId) with
         | none          => throwUnknownMVar mvarId
         | some mvarDecl =>
           if ctx.hasCtxLocals then
@@ -660,7 +659,7 @@ mutual
             /- The local context of `mvar` - free variables being abstracted is a subprefix of the metavariable being assigned.
                We "substract" variables being abstracted because we use `elimMVarDeps` -/
             pure mvar
-          else if mvarDecl.depth != mctx.depth || mvarDecl.kind.isSyntheticOpaque then
+          else if mvarDecl.depth != (← getMCtx).depth || mvarDecl.kind.isSyntheticOpaque then
             traceM `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx <| addAssignmentInfo (mkMVar mvarId)
             throwCheckAssignmentFailure
           else
@@ -678,24 +677,24 @@ mutual
                  Notat that if a variable is `ctx.fvars`, but it depends on variable at `toErase`,
                  we must also erase it.
               -/
-              let toErase := mvarDecl.lctx.foldl (init := #[]) fun toErase localDecl =>
+              let toErase ← mvarDecl.lctx.foldlM (init := #[]) fun toErase localDecl => do
                 if ctx.mvarDecl.lctx.contains localDecl.fvarId then
-                  toErase
+                  return toErase
                 else if ctx.fvars.any fun fvar => fvar.fvarId! == localDecl.fvarId then
-                  if mctx.findLocalDeclDependsOn localDecl fun fvarId => toErase.contains fvarId then
+                  if (← findLocalDeclDependsOn localDecl fun fvarId => toErase.contains fvarId) then
                     -- localDecl depends on a variable that will be erased. So, we must add it to `toErase` too
-                    toErase.push localDecl.fvarId
+                    return toErase.push localDecl.fvarId
                   else
-                    toErase
+                    return toErase
                 else
-                  toErase.push localDecl.fvarId
+                  return toErase.push localDecl.fvarId
               let lctx := toErase.foldl (init := mvarDecl.lctx) fun lctx toEraseFVar =>
                 lctx.erase toEraseFVar
               /- Compute new set of local instances. -/
               let localInsts := mvarDecl.localInstances.filter fun localInst => toErase.contains localInst.fvar.fvarId!
               let mvarType ← check mvarDecl.type
               let newMVar ← mkAuxMVar lctx localInsts mvarType mvarDecl.numScopeArgs
-              modifyThe Meta.State fun s => { s with mctx := s.mctx.assignExpr mvarId newMVar }
+              assignExprMVar mvarId newMVar
               pure newMVar
             else
               traceM `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx <| addAssignmentInfo (mkMVar mvarId)
@@ -733,7 +732,7 @@ mutual
           (fun ex => do
             if !f.isMVar then
               throw ex
-            else if (← isDelayedAssigned f.mvarId!) then
+            else if (← isMVarDelayedAssigned f.mvarId!) then
               throw ex
             else
               let eType ← inferType e
@@ -808,7 +807,7 @@ partial def check
           if fvars.any fun x => x.fvarId! == fvarId then true
           else false -- We could throw an exception here, but we would have to use ExceptM. So, we let CheckAssignment.check do it
     | Expr.mvar mvarId' _  =>
-      match mctx.getExprAssignment? mvarId' with
+      match mctx.getExprAssignmentCore? mvarId' with
       | some _ => false -- use CheckAssignment.check to instantiate
       | none   =>
         if mvarId' == mvarId then false -- occurs check failed, use CheckAssignment.check to throw exception
@@ -1269,7 +1268,7 @@ private def isAssigned : Expr → MetaM Bool
 private def isDelayedAssignedHead (tFn : Expr) (t : Expr) : MetaM Bool := do
   match tFn with
   | Expr.mvar mvarId _ =>
-    if (← isDelayedAssigned mvarId) then
+    if (← isMVarDelayedAssigned mvarId) then
       let tNew ← instantiateMVars t
       return tNew != t
     else
@@ -1610,28 +1609,47 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
       if (← isDefEqUnitLike t s) then return true else
       isDefEqOnFailure t s
 
--- We only check DefEq cache for default and all transparency modes
+/--
+  We only check DefEq cache if
+  - using default and all transparency modes, and
+  - smart unfolding is enabled, and
+  - proof irrelevance, eta for structures, and `zetaNonDep` are enabled
+-/
 private def skipDefEqCache : MetaM Bool := do
   match (← getConfig).transparency with
-  | TransparencyMode.default => return false
-  | TransparencyMode.all     => return false
-  | _                        => return true
+  | .reducible => return true
+  | .instances => return true
+  | _ =>
+    unless smartUnfolding.get (← getOptions) do
+      return true
+    let cfg ← getConfig
+    return !(cfg.proofIrrelevance && cfg.etaStruct matches .all && cfg.zetaNonDep)
 
 private def mkCacheKey (t : Expr) (s : Expr) : Expr × Expr :=
   if Expr.quickLt t s then (t, s) else (s, t)
 
-private def isCached (key : Expr × Expr) : MetaM Bool := do
-  match (← getConfig).transparency with
-  | TransparencyMode.default => return (← get).cache.defEqDefault.contains key
-  | TransparencyMode.all     => return (← get).cache.defEqAll.contains key
-  | _                        => return false
+private def getCachedResult (key : Expr × Expr) : MetaM LBool := do
+  let cache ← match (← getConfig).transparency with
+    | TransparencyMode.default => pure (← get).cache.defEqDefault
+    | TransparencyMode.all     => pure (← get).cache.defEqAll
+    | _                        => return .undef
+  match cache.find? key with
+  | some val => return val.toLBool
+  | none => return .undef
 
-private def cacheResult (key : Expr × Expr) : MetaM Unit := do
+private def cacheResult (key : Expr × Expr) (result : Bool) : MetaM Unit := do
   match (← getConfig).transparency with
-  | TransparencyMode.default => modify fun s => { s with cache.defEqDefault := s.cache.defEqDefault.insert key () }
-  | TransparencyMode.all     => modify fun s => { s with cache.defEqAll := s.cache.defEqAll.insert key () }
+  | TransparencyMode.default => modify fun s => { s with cache.defEqDefault := s.cache.defEqDefault.insert key result }
+  | TransparencyMode.all     => modify fun s => { s with cache.defEqAll := s.cache.defEqAll.insert key result }
   | _                        => pure ()
 
+private abbrev withResetUsedAssignment (k : MetaM α) : MetaM α := do
+  let usedAssignment := (← getMCtx).usedAssignment
+  modifyMCtx fun mctx => { mctx with usedAssignment := false }
+  try
+    k
+  finally
+    modifyMCtx fun mctx => { mctx with usedAssignment := usedAssignment || mctx.usedAssignment }
 
 @[export lean_is_expr_def_eq]
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecDepth do
@@ -1658,18 +1676,24 @@ partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecD
     -/
     let t ← instantiateMVars t
     let s ← instantiateMVars s
-    if t.hasMVar || s.hasMVar then
-      -- It is not safe to use DefEq cache if terms contain metavariables
-      isExprDefEqExpensive t s
-    else
-      let k := mkCacheKey t s
-      if (← isCached k) then
-        return true
-      else if (← isExprDefEqExpensive t s) then
-        cacheResult k
-        return true
-      else
-        return false
+    let numPostponed ← getNumPostponed
+    let k := mkCacheKey t s
+    match (← getCachedResult k) with
+    | .true  =>
+      trace[Meta.isDefEq.cache] "cache hit 'true' for {t} =?= {s}"
+      return true
+    | .false =>
+      trace[Meta.isDefEq.cache] "cache hit 'false' for {t} =?= {s}"
+      return false
+    | .undef =>
+      withResetUsedAssignment do
+        let result ← isExprDefEqExpensive t s
+        if numPostponed == (← getNumPostponed) && !(← getMCtx).usedAssignment then
+          -- It is only safe to cache the result if the mvars assignments have not been accessed/used,
+          -- and universe level variables have not been postponed.
+          trace[Meta.isDefEq.cache] "cache {result} for {t} =?= {s}"
+          cacheResult k result
+        return result
 
 builtin_initialize
   registerTraceClass `Meta.isDefEq

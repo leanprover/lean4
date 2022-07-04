@@ -244,6 +244,7 @@ uint8_t l_Lean_Linter_getLinterAll(lean_object*);
 LEAN_EXPORT uint8_t l_List_foldr___at_Lean_Linter_unusedVariables_isInDeclarationSignature___spec__1(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_Linter_unusedVariables_isInDeclarationSignature___rarg___closed__1;
 size_t lean_usize_of_nat(lean_object*);
+lean_object* l_Std_HashMap_insert___at_Lean_Meta_AbstractMVars_abstractExprMVars___spec__4(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_unusedVariables_isInFun___rarg___closed__8;
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_Linter_unusedVariables___spec__17___lambda__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_unusedVariables_isInFun___rarg___closed__2;
@@ -251,7 +252,6 @@ static lean_object* l_Lean_Linter_unusedVariables_isInInductive___rarg___closed_
 static lean_object* l_Lean_Linter_unusedVariables_isInConstantOrAxiom___rarg___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Linter_unusedVariables_isInDeclarationSignature___rarg___boxed(lean_object*);
 lean_object* l_Lean_Elab_InfoTree_foldInfo___rarg(lean_object*, lean_object*, lean_object*);
-uint8_t l_Std_AssocList_contains___at_Lean_Meta_AbstractMVars_abstractExprMVars___spec__4(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_unusedVariables___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_HashSetImp_contains___at_Lean_Linter_unusedVariables_isTopLevelDecl___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_unusedVariables_isInDefWithForeignDefinition___rarg___closed__6;
@@ -344,6 +344,7 @@ LEAN_EXPORT lean_object* l_Lean_Linter_unusedVariables_isInInductive(lean_object
 static lean_object* l_List_forIn_loop___at_Lean_Linter_unusedVariables___spec__25___lambda__1___closed__1;
 static lean_object* l_List_forIn_loop___at_Lean_Linter_unusedVariables___spec__25___lambda__4___closed__16;
 static lean_object* l_List_forIn_loop___at_Lean_Linter_unusedVariables___spec__25___lambda__4___closed__14;
+uint8_t l_Std_AssocList_contains___at_Lean_Meta_AbstractMVars_abstractExprMVars___spec__5(lean_object*, lean_object*);
 static lean_object* l_List_forIn_loop___at_Lean_Linter_unusedVariables___spec__25___lambda__4___closed__15;
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Linter_unusedVariables___spec__25___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_unusedVariables_isInCtorOrStructBinder___rarg___closed__5;
@@ -373,7 +374,6 @@ LEAN_EXPORT lean_object* l_Lean_Linter_unusedVariables_isPatternVar___boxed(lean
 static lean_object* l_Lean_Linter_unusedVariables_isInDefWithForeignDefinition___rarg___lambda__1___closed__5;
 lean_object* l_Std_HashMap_insert___at_Lean_ForEachExpr_visit___spec__3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_unusedVariables_isInConstantOrAxiom___rarg___closed__7;
-lean_object* l_Std_HashMap_insert___at_Lean_Meta_AbstractMVars_abstractExprMVars___spec__3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_unusedVariables_isInStructure___rarg___closed__3;
 static lean_object* l_Lean_Linter_unusedVariables_isInStructure___rarg___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Linter_unusedVariables_isInCtorOrStructBinder(lean_object*);
@@ -4094,7 +4094,7 @@ x_6 = lean_uint64_to_usize(x_5);
 x_7 = lean_usize_modn(x_6, x_4);
 lean_dec(x_4);
 x_8 = lean_array_uget(x_3, x_7);
-x_9 = l_Std_AssocList_contains___at_Lean_Meta_AbstractMVars_abstractExprMVars___spec__4(x_2, x_8);
+x_9 = l_Std_AssocList_contains___at_Lean_Meta_AbstractMVars_abstractExprMVars___spec__5(x_2, x_8);
 lean_dec(x_8);
 return x_9;
 }
@@ -4123,7 +4123,7 @@ x_11 = l_Std_HashMapImp_contains___at_Lean_Linter_unusedVariables___spec__15(x_4
 if (x_11 == 0)
 {
 lean_object* x_12; 
-x_12 = l_Std_HashMap_insert___at_Lean_Meta_AbstractMVars_abstractExprMVars___spec__3(x_4, x_9, x_10);
+x_12 = l_Std_HashMap_insert___at_Lean_Meta_AbstractMVars_abstractExprMVars___spec__4(x_4, x_9, x_10);
 x_2 = x_8;
 x_4 = x_12;
 goto _start;
@@ -4168,7 +4168,7 @@ x_4 = l_Std_HashMapImp_contains___at_Lean_Linter_unusedVariables___spec__15(x_1,
 if (x_4 == 0)
 {
 lean_object* x_5; 
-x_5 = l_Std_HashMap_insert___at_Lean_Meta_AbstractMVars_abstractExprMVars___spec__3(x_1, x_2, x_3);
+x_5 = l_Std_HashMap_insert___at_Lean_Meta_AbstractMVars_abstractExprMVars___spec__4(x_1, x_2, x_3);
 return x_5;
 }
 else

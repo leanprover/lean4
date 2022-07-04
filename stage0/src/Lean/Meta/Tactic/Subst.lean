@@ -29,8 +29,7 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
       | Expr.fvar aFVarId _ => do
         let aFVarIdOriginal := aFVarId
         trace[Meta.Tactic.subst] "substituting {a} (id: {aFVarId.name}) with {b}"
-        let mctx ← getMCtx
-        if mctx.exprDependsOn b aFVarId then
+        if (← exprDependsOn b aFVarId) then
           throwTacticEx `subst mvarId m!"'{a}' occurs at{indentExpr b}"
         let (vars, mvarId) ← revert mvarId #[aFVarId, hFVarId] true
         trace[Meta.Tactic.subst] "after revert {MessageData.ofGoal mvarId}"
@@ -46,8 +45,9 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
           pure false
         else
           let mvarType ← getMVarType mvarId
-          let mctx ← getMCtx
-          pure (!mctx.exprDependsOn mvarType aFVarId && !mctx.exprDependsOn mvarType hFVarId)
+          if (← exprDependsOn mvarType aFVarId) then pure false
+          else if (← exprDependsOn mvarType hFVarId) then pure false
+          else pure true
         if skip then
           if clearH then
             let mvarId ← clear mvarId hFVarId
@@ -64,8 +64,7 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
             | none => unreachable!
             | some (_, lhs, rhs) => do
               let b        ← instantiateMVars <| if symm then lhs else rhs
-              let mctx     ← getMCtx
-              let depElim := mctx.exprDependsOn mvarDecl.type hFVarId
+              let depElim  ← exprDependsOn mvarDecl.type hFVarId
               let cont (motive : Expr) (newType : Expr) : MetaM (FVarSubst × MVarId) := do
                 let major ← if symm then pure h else mkEqSymm h
                 let newMVar ← mkFreshExprSyntheticOpaqueMVar newType tag
@@ -192,12 +191,13 @@ where
          | some (_, lhs, rhs) =>
            let lhs ← instantiateMVars lhs
            let rhs ← instantiateMVars rhs
-           if rhs.isFVar && rhs.fvarId! == h && !mctx.exprDependsOn lhs h then
-             return some (localDecl.fvarId, true)
-           else if lhs.isFVar && lhs.fvarId! == h && !mctx.exprDependsOn rhs h then
-             return some (localDecl.fvarId, false)
-           else
-             return none
+           if rhs.isFVar && rhs.fvarId! == h then
+             if !(← exprDependsOn lhs h) then
+               return some (localDecl.fvarId, true)
+           if lhs.isFVar && lhs.fvarId! == h then
+             if !(← exprDependsOn rhs h) then
+               return some (localDecl.fvarId, false)
+           return none
          | _ => return none
       | throwTacticEx `subst mvarId m!"did not find equation for eliminating '{mkFVar h}'"
     return (← substCore mvarId fvarId (symm := symm) (tryToSkip := true)).2

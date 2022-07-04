@@ -343,7 +343,7 @@ private def anyNamedArgDependsOnCurrent : M Bool := do
       for i in [1:xs.size] do
         let xDecl ← getLocalDecl xs[i]!.fvarId!
         if s.namedArgs.any fun arg => arg.name == xDecl.userName then
-          if (← getMCtx).localDeclDependsOn xDecl curr.fvarId! then
+          if (← localDeclDependsOn xDecl curr.fvarId!) then
             return true
       return false
 

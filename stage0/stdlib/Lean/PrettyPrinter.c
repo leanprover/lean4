@@ -60,7 +60,6 @@ static lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_
 static lean_object* l_Lean_PrettyPrinter_ppExpr___closed__1;
 static lean_object* l_Lean_PPContext_runMetaM___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_ppCommand(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_withLCtx___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PPContext_runMetaM___rarg___closed__6;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_588____lambda__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_588____closed__5;
@@ -71,6 +70,7 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter__
 static lean_object* l_Lean_PrettyPrinter_ppExprLegacy___closed__2;
 lean_object* l_Nat_repr(lean_object*);
 static lean_object* l_Lean_PrettyPrinter_registerParserCompilers___closed__2;
+lean_object* l_Lean_Meta_withLCtx___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_ppFnsRef;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_Core_getMaxHeartbeats(lean_object*);
@@ -840,7 +840,7 @@ x_14 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_ppUsing___lambda__1), 7, 
 lean_closure_set(x_14, 0, x_2);
 lean_closure_set(x_14, 1, x_1);
 x_15 = l_Lean_PPContext_runCoreM___rarg___closed__1;
-x_16 = l_Lean_Meta_withLCtx___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__1___rarg(x_13, x_15, x_14, x_3, x_4, x_5, x_6, x_7);
+x_16 = l_Lean_Meta_withLCtx___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2___rarg(x_13, x_15, x_14, x_3, x_4, x_5, x_6, x_7);
 return x_16;
 }
 }
@@ -1063,7 +1063,7 @@ x_14 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_ppExprWithInfos___lambda_
 lean_closure_set(x_14, 0, x_1);
 lean_closure_set(x_14, 1, x_2);
 x_15 = l_Lean_PPContext_runCoreM___rarg___closed__1;
-x_16 = l_Lean_Meta_withLCtx___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__1___rarg(x_13, x_15, x_14, x_3, x_4, x_5, x_6, x_7);
+x_16 = l_Lean_Meta_withLCtx___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2___rarg(x_13, x_15, x_14, x_3, x_4, x_5, x_6, x_7);
 return x_16;
 }
 }

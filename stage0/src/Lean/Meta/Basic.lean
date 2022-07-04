@@ -192,9 +192,11 @@ abbrev InferTypeCache := PersistentExprStructMap Expr
 abbrev FunInfoCache   := PersistentHashMap InfoCacheKey FunInfo
 abbrev WhnfCache      := PersistentExprStructMap Expr
 
-/- A set of pairs. TODO: consider more efficient representations (e.g., a proper set) and caching policies (e.g., imperfect cache).
-   We should also investigate the impact on memory consumption. -/
-abbrev DefEqCache := PersistentHashMap (Expr × Expr) Unit
+/--
+  A mapping `(s, t) ↦ isDefEq s t`.
+  TODO: consider more efficient representations (e.g., a proper set) and caching policies (e.g., imperfect cache).
+  We should also investigate the impact on memory consumption. -/
+abbrev DefEqCache := PersistentHashMap (Expr × Expr) Bool
 
 /--
   Cache datastructures for type inference, type class resolution, whnf, and definitional equality.
@@ -237,12 +239,12 @@ structure PostponedEntry where
   `MetaM` monad state.
 -/
 structure State where
-  mctx        : MetavarContext := {}
-  cache       : Cache := {}
+  mctx           : MetavarContext := {}
+  cache          : Cache := {}
   /-- When `trackZeta == true`, then any let-decl free variable that is zeta expansion performed by `MetaM` is stored in `zetaFVarIds`. -/
-  zetaFVarIds : FVarIdSet := {}
+  zetaFVarIds    : FVarIdSet := {}
   /-- Array of postponed universe level constraints -/
-  postponed   : PersistentArray PostponedEntry := {}
+  postponed      : PersistentArray PostponedEntry := {}
   deriving Inhabited
 
 /--
@@ -305,7 +307,8 @@ protected def saveState : MetaM SavedState :=
 /-- Restore backtrackable parts of the state. -/
 def SavedState.restore (b : SavedState) : MetaM Unit := do
   Core.restore b.core
-  modify fun s => { s with mctx := b.meta.mctx, zetaFVarIds := b.meta.zetaFVarIds, postponed := b.meta.postponed }
+  setMCtx b.meta.mctx -- Recall that `setMCtx` propagate `usedAssignment`
+  modify fun s => { s with zetaFVarIds := b.meta.zetaFVarIds, postponed := b.meta.postponed }
 
 instance : MonadBacktrack SavedState MetaM where
   saveState      := Meta.saveState
@@ -359,9 +362,6 @@ def getLocalInstances : MetaM LocalInstances :=
 
 def getConfig : MetaM Config :=
   return (← read).config
-
-def setMCtx (mctx : MetavarContext) : MetaM Unit :=
-  modify fun s => { s with mctx := mctx }
 
 def resetZetaFVarIds : MetaM Unit :=
   modify fun s => { s with zetaFVarIds := {} }
@@ -488,8 +488,11 @@ def shouldReduceAll : MetaM Bool :=
 def shouldReduceReducibleOnly : MetaM Bool :=
   return (← getTransparency) == TransparencyMode.reducible
 
+def findMVarDecl? (mvarId : MVarId) : MetaM (Option MetavarDecl) :=
+  return (← getMCtx).findDecl? mvarId
+
 def getMVarDecl (mvarId : MVarId) : MetaM MetavarDecl := do
-  match (← getMCtx).findDecl? mvarId with
+  match (← findMVarDecl? mvarId) with
   | some d => pure d
   | none   => throwError "unknown metavariable '?{mvarId.name}'"
 
@@ -524,28 +527,6 @@ def isReadOnlyLevelMVar (mvarId : MVarId) : MetaM Bool := do
 def setMVarUserName (mvarId : MVarId) (newUserName : Name) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.setMVarUserName mvarId newUserName
 
-def isExprMVarAssigned (mvarId : MVarId) : MetaM Bool :=
-  return (← getMCtx).isExprAssigned mvarId
-
-def getExprMVarAssignment? (mvarId : MVarId) : MetaM (Option Expr) :=
-  return (← getMCtx).getExprAssignment? mvarId
-
-/-- Return true if `e` contains `mvarId` directly or indirectly -/
-def occursCheck (mvarId : MVarId) (e : Expr) : MetaM Bool :=
-  return (← getMCtx).occursCheck mvarId e
-
-def assignExprMVar (mvarId : MVarId) (val : Expr) : MetaM Unit :=
-  modifyMCtx fun mctx => mctx.assignExpr mvarId val
-
-def isDelayedAssigned (mvarId : MVarId) : MetaM Bool :=
-  return (← getMCtx).isDelayedAssigned mvarId
-
-def getDelayedAssignment? (mvarId : MVarId) : MetaM (Option DelayedMetavarAssignment) :=
-  return (← getMCtx).getDelayedAssignment? mvarId
-
-def hasAssignableMVar (e : Expr) : MetaM Bool :=
-  return (← getMCtx).hasAssignableMVar e
-
 def throwUnknownFVar (fvarId : FVarId) : MetaM α :=
   throwError "unknown free variable '{mkFVar fvarId}'"
 
@@ -565,19 +546,6 @@ def getLocalDeclFromUserName (userName : Name) : MetaM LocalDecl := do
   | some d => pure d
   | none   => throwError "unknown local declaration '{userName}'"
 
-def instantiateLevelMVars (u : Level) : MetaM Level :=
-  MetavarContext.instantiateLevelMVars u
-
-def instantiateMVars (e : Expr) : MetaM Expr :=
-  (MetavarContext.instantiateExprMVars e).run
-
-def instantiateLocalDeclMVars (localDecl : LocalDecl) : MetaM LocalDecl :=
-  match localDecl with
-  | LocalDecl.cdecl idx id n type bi  =>
-    return LocalDecl.cdecl idx id n (← instantiateMVars type) bi
-  | LocalDecl.ldecl idx id n type val nonDep =>
-    return LocalDecl.ldecl idx id n (← instantiateMVars type) (← instantiateMVars val) nonDep
-
 @[inline] def liftMkBindingM (x : MetavarContext.MkBindingM α) : MetaM α := do
   match x { lctx := (← getLCtx), mainModule := (← getEnv).mainModule } { mctx := (← getMCtx), ngen := (← getNGen), nextMacroScope := (← getThe Core.State).nextMacroScope } with
   | EStateM.Result.ok e sNew => do
@@ -594,6 +562,10 @@ def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : MetaM Expr :=
 
 def abstract (e : Expr) (xs : Array Expr) : MetaM Expr :=
   abstractRange e xs.size xs
+
+def collectForwardDeps (toRevert : Array Expr) (preserveOrder : Bool) : MetaM (Array Expr) := do
+  liftMkBindingM <| MetavarContext.collectForwardDeps toRevert preserveOrder
+
 
 /-- Takes an array `xs` of free variables or metavariables and a term `e` that may contain those variables, and abstracts and binds them as universal quantifiers.
 
@@ -876,6 +848,16 @@ mutual
 
 end
 
+/--
+  `isClass? type` return `some ClsName` if `type` is an instance of the class `ClsName`.
+  Example:
+  ```
+  #eval do
+    let x ← mkAppM ``Inhabited #[mkConst ``Nat]
+    IO.println (← isClass? x)
+    -- (some Inhabited)
+  ```
+-/
 def isClass? (type : Expr) : MetaM (Option Name) :=
   try isClassImp? type catch _ => pure none
 
@@ -1086,6 +1068,10 @@ private def withLetDeclImp (n : Name) (type : Expr) (val : Expr) (k : Expr → M
   withReader (fun ctx => { ctx with lctx := lctx }) do
     withNewFVar fvar type k
 
+/--
+  Add the local declaration `<name> : <type> := <val>` to the local context and execute `k x`, where `x` is a new
+  free variable corresponding to the `let`-declaration. After executing `k x`, the local context is restored.
+-/
 def withLetDecl (name : Name) (type : Expr) (val : Expr) (k : Expr → n α) : n α :=
   map1MetaM (fun k => withLetDeclImp name type val k) k
 
@@ -1111,6 +1097,16 @@ private def withExistingLocalDeclsImp (decls : List LocalDecl) (k : MetaM α) : 
   withReader (fun ctx => { ctx with lctx := lctx }) do
     withLocalInstancesImp decls k
 
+/--
+  `withExistingLocalDecls decls k`, adds the given local declarations to the local context,
+  and then executes `k`. This method assumes declarations in `decls` have valid `FVarId`s.
+  After executing `k`, the local context is restored.
+
+  Remark: this method is used, for example, to implement the `match`-compiler.
+  Each `match`-alternative commes with a local declarations (corresponding to pattern variables),
+  and we use `withExistingLocalDecls` to add them to the local context before we process
+  them.
+-/
 def withExistingLocalDecls (decls : List LocalDecl) : n α → n α :=
   mapMetaM <| withExistingLocalDeclsImp decls
 
@@ -1120,7 +1116,8 @@ private def withNewMCtxDepthImp (x : MetaM α) : MetaM α := do
   try
     x
   finally
-    modify fun s => { s with mctx := saved.mctx, postponed := saved.postponed }
+    setMCtx saved.mctx -- Recall that `setMCtx` propagate `usedAssignment`
+    modify fun s => { s with postponed := saved.postponed }
 
 /--
   Save cache and `MetavarContext`, bump the `MetavarContext` depth, execute `x`,
@@ -1140,6 +1137,11 @@ private def withLocalContextImp (lctx : LocalContext) (localInsts : LocalInstanc
     else
       resettingSynthInstanceCache x
 
+/--
+  `withLCtx lctx localInsts k` replaces the local context and local instances, and then executes `k`.
+  The local context and instances are restored after executing `k`.
+  This method assumes that the local instances in `localInsts` are in the local context `lctx`.
+-/
 def withLCtx (lctx : LocalContext) (localInsts : LocalInstances) : n α → n α :=
   mapMetaM <| withLocalContextImp lctx localInsts
 
@@ -1159,6 +1161,11 @@ private def withMCtxImp (mctx : MetavarContext) (x : MetaM α) : MetaM α := do
   setMCtx mctx
   try x finally setMCtx mctx'
 
+/--
+  `withMCtx mctx k` replaces the metavariable context and then executes `k`.
+  The metavariable context is restored after executing `k`.
+
+  This method is used to implement the type class resolution procedure. -/
 def withMCtx (mctx : MetavarContext) : n α → n α :=
   mapMetaM <| withMCtxImp mctx
 
@@ -1182,12 +1189,10 @@ def withMCtx (mctx : MetavarContext) : n α → n α :=
 @[inline] def fullApproxDefEq : n α → n α :=
   mapMetaM fullApproxDefEqImp
 
+/-- Instantiate assigned universe metavariables in `u`, and then normalize it. -/
 def normalizeLevel (u : Level) : MetaM Level := do
   let u ← instantiateLevelMVars u
   pure u.normalize
-
-def assignLevelMVar (mvarId : MVarId) (u : Level) : MetaM Unit := do
-  modifyMCtx fun mctx => mctx.assignLevel mvarId u
 
 /-- `whnf` with reducible transparency.-/
 def whnfR (e : Expr) : MetaM Expr :=
@@ -1201,6 +1206,12 @@ def whnfD (e : Expr) : MetaM Expr :=
 def whnfI (e : Expr) : MetaM Expr :=
   withTransparency TransparencyMode.instances <| whnf e
 
+/--
+  Mark declaration `declName` with the attribute `[inline]`.
+  This method does not check whether the given declaration is a definition.
+
+  Recall that this attribute can only be set in the same module where `declName` has been declared.
+-/
 def setInlineAttribute (declName : Name) (kind := Compiler.InlineAttributeKind.inline): MetaM Unit := do
   let env ← getEnv
   match Compiler.setInlineAttribute env declName kind with
@@ -1234,22 +1245,7 @@ private partial def instantiateLambdaAux (ps : Array Expr) (i : Nat) (e : Expr) 
 def instantiateLambda (e : Expr) (ps : Array Expr) : MetaM Expr :=
   instantiateLambdaAux ps 0 e
 
-/-- Return true iff `e` depends on the free variable `fvarId` -/
-def dependsOn (e : Expr) (fvarId : FVarId) : MetaM Bool :=
-  return (← getMCtx).exprDependsOn e fvarId
-
-/-- Return true iff `e` depends on the free variable `fvarId` -/
-def localDeclDependsOn (localDecl : LocalDecl) (fvarId : FVarId) : MetaM Bool :=
-  return (← getMCtx).localDeclDependsOn localDecl fvarId
-
-/-- Return true iff `e` depends on a free variable `x` s.t. `pf x`, or an unassigned metavariable `?m` s.t. `pm ?m` is true. -/
-def dependsOnPred (e : Expr) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : MetaM Bool :=
-  return (← getMCtx).findExprDependsOn e pf pm
-
-/-- Return true iff the local declaration `localDecl` depends on a free variable `x` s.t. `pf x`, an unassigned metavariable `?m` s.t. `pm ?m` is true. -/
-def localDeclDependsOnPred (localDecl : LocalDecl) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : MetaM Bool := do
-  return (← getMCtx).findLocalDeclDependsOn localDecl pf pm
-
+/-- Pretty-print the given expression. -/
 def ppExpr (e : Expr) : MetaM Format := do
   let ctxCore  ← readThe Core.Context
   Lean.ppExpr { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptions), currNamespace := ctxCore.currNamespace, openDecls := ctxCore.openDecls  } e
@@ -1326,13 +1322,12 @@ def isInductivePredicate (declName : Name) : MetaM Bool := do
       | _ => return false
   | _ => return false
 
-/- -/
 def isListLevelDefEqAux : List Level → List Level → MetaM Bool
   | [],    []    => return true
   | u::us, v::vs => isLevelDefEqAux u v <&&> isListLevelDefEqAux us vs
   | _,     _     => return false
 
-private def getNumPostponed : MetaM Nat := do
+def getNumPostponed : MetaM Nat := do
   return (← getPostponed).size
 
 def getResetPostponed : MetaM (PersistentArray PostponedEntry) := do
@@ -1465,6 +1460,7 @@ abbrev isDefEq (t s : Expr) : MetaM Bool :=
 def isExprDefEqGuarded (a b : Expr) : MetaM Bool := do
   try isExprDefEq a b catch _ => return false
 
+/-- Similar to `isDefEq`, but returns `false` if an exception has been thrown. -/
 abbrev isDefEqGuarded (t s : Expr) : MetaM Bool :=
   isExprDefEqGuarded t s
 

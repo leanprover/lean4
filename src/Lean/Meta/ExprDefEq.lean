@@ -1649,7 +1649,7 @@ private abbrev withResetUsedAssignment (k : MetaM α) : MetaM α := do
   try
     k
   finally
-    modifyMCtx fun mctx => { mctx with usedAssignment }
+    modifyMCtx fun mctx => { mctx with usedAssignment := usedAssignment || mctx.usedAssignment }
 
 @[export lean_is_expr_def_eq]
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecDepth do

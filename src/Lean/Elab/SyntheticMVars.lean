@@ -304,7 +304,7 @@ mutual
   partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
     /- Recall, `tacticCode` is the whole `by ...` expression. -/
     let code := tacticCode[1]
-    modifyThe Meta.State fun s => { s with mctx := s.mctx.instantiateMVarDeclMVars mvarId }
+    instantiateMVarDeclMVars mvarId
     let remainingGoals ← withInfoHole mvarId <| Tactic.run mvarId do
        withTacticInfoContext tacticCode (evalTactic code)
        synthesizeSyntheticMVars (mayPostpone := false)

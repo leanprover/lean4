@@ -681,7 +681,7 @@ mutual
                 if ctx.mvarDecl.lctx.contains localDecl.fvarId then
                   return toErase
                 else if ctx.fvars.any fun fvar => fvar.fvarId! == localDecl.fvarId then
-                  if (← MetavarContext.findLocalDeclDependsOn localDecl fun fvarId => toErase.contains fvarId) then
+                  if (← findLocalDeclDependsOn localDecl fun fvarId => toErase.contains fvarId) then
                     -- localDecl depends on a variable that will be erased. So, we must add it to `toErase` too
                     return toErase.push localDecl.fvarId
                   else
@@ -694,7 +694,7 @@ mutual
               let localInsts := mvarDecl.localInstances.filter fun localInst => toErase.contains localInst.fvar.fvarId!
               let mvarType ← check mvarDecl.type
               let newMVar ← mkAuxMVar lctx localInsts mvarType mvarDecl.numScopeArgs
-              modifyThe Meta.State fun s => { s with mctx := s.mctx.assignExpr mvarId newMVar }
+              assignExprMVar mvarId newMVar
               pure newMVar
             else
               traceM `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx <| addAssignmentInfo (mkMVar mvarId)

@@ -983,7 +983,7 @@ where
       unless containsFVar discrs fvarId || containsFVar indices fvarId do
         let localDecl ← getLocalDecl fvarId
         for indexFVarId in indicesFVar do
-          if (← MetavarContext.localDeclDependsOn localDecl indexFVarId) then
+          if (← localDeclDependsOn localDecl indexFVarId) then
             toAdd := toAdd.push fvarId
     let indicesFVar ← sortFVarIds (indicesFVar ++ toAdd)
     return indicesFVar.map mkFVar ++ indicesNonFVar

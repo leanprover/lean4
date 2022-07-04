@@ -29,6 +29,10 @@ structure State where
 
 abbrev M := StateM State
 
+instance : MonadMCtx M where
+  getMCtx := return (← get).mctx
+  modifyMCtx f := modify fun s => { s with mctx := f s.mctx }
+
 def mkFreshId : M Name := do
   let s ← get
   let fresh := s.ngen.curr
@@ -79,24 +83,22 @@ partial def abstractExprMVars (e : Expr) : M Expr := do
     | e@(Expr.forallE _ d b _) => return e.updateForallE! (← abstractExprMVars d) (← abstractExprMVars b)
     | e@(Expr.letE _ t v b _)  => return e.updateLet! (← abstractExprMVars t) (← abstractExprMVars v) (← abstractExprMVars b)
     | e@(Expr.mvar mvarId _)   =>
-      let s ← get
-      let decl := s.mctx.getDecl mvarId
-      if decl.depth != s.mctx.depth then
+      let decl := (← getMCtx).getDecl mvarId
+      if decl.depth != (← getMCtx).depth then
         return e
       else
-        let (eNew, mctxNew) := s.mctx.instantiateMVars e
+        let eNew ← instantiateMVars e
         if e != eNew then
-          modify fun s => { s with mctx := mctxNew }
           abstractExprMVars eNew
         else
-          match s.emap.find? mvarId with
+          match (← get).emap.find? mvarId with
           | some e =>
             return e
           | none   =>
             let type   ← abstractExprMVars decl.type
             let fvarId ← mkFreshFVarId
             let fvar := mkFVar fvarId;
-            let userName := if decl.userName.isAnonymous then (`x).appendIndexAfter s.fvars.size else decl.userName
+            let userName := if decl.userName.isAnonymous then (`x).appendIndexAfter (← get).fvars.size else decl.userName
             modify fun s => {
               s with
               emap  := s.emap.insert mvarId fvar,

@@ -174,7 +174,7 @@ private def hasIndepIndices (ctx : Context) : MetaM Bool := do
     (← getLCtx).allM fun decl =>
       pure (decl.fvarId == ctx.majorDecl.fvarId) <||> -- decl is the major
       pure (ctx.majorTypeIndices.any (fun index => decl.fvarId == index.fvarId!)) <||> -- decl is one of the indices
-      MetavarContext.findLocalDeclDependsOn decl (fun fvarId => ctx.majorTypeIndices.all fun idx => idx.fvarId! != fvarId) -- or does not depend on any index
+     findLocalDeclDependsOn decl (fun fvarId => ctx.majorTypeIndices.all fun idx => idx.fvarId! != fvarId) -- or does not depend on any index
 
 private def elimAuxIndices (s₁ : GeneralizeIndicesSubgoal) (s₂ : Array CasesSubgoal) : MetaM (Array CasesSubgoal) :=
   let indicesFVarIds := s₁.indicesFVarIds

@@ -94,7 +94,7 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
           throwError "synthetic hole has already beend defined and delayed assigned with an incompatible local context"
         else if lctx.isSubPrefixOf mvarDecl.lctx then
           let mvarNew ← mkNewHole ()
-          modifyMCtx fun mctx => mctx.assignExpr mvarId mvarNew
+          assignExprMVar mvarId mvarNew
           return mvarNew
         else
           throwError "synthetic hole has already been defined with an incompatible local context"

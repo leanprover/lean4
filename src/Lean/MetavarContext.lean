@@ -412,6 +412,296 @@ def hasAssignableMVar [Monad m] [MonadMCtx m] : Expr → m Bool
   | Expr.proj _ _ e _    => pure e.hasMVar <&&> hasAssignableMVar e
   | Expr.mvar mvarId _   => isExprMVarAssignable mvarId
 
+/--
+  Add `mvarId := u` to the universe metavariable assignment.
+  This method does not check whether `mvarId` is already assigned, nor it checks whether
+  a cycle is being introduced.
+  This is a low-level API, and it is safer to use `isLevelDefEq (mkLevelMVar mvarId) u`.
+-/
+def assignLevelMVar [MonadMCtx m] (mvarId : MVarId) (val : Level) : m Unit :=
+  modifyMCtx fun m => { m with lAssignment := m.lAssignment.insert mvarId val, usedAssignment := true }
+
+def assignExprMVar [MonadMCtx m] (mvarId : MVarId) (val : Expr) : m Unit :=
+  modifyMCtx fun m => { m with eAssignment := m.eAssignment.insert mvarId val, usedAssignment := true }
+
+def assignDelayedMVar [MonadMCtx m] (mvarId : MVarId) (fvars : Array Expr) (val : Expr) : m Unit :=
+  modifyMCtx fun m => { m with dAssignment := m.dAssignment.insert mvarId { fvars, val }, usedAssignment := true }
+
+def eraseDelayedMVar [MonadMCtx m] (mvarId : MVarId) : m Unit :=
+  modifyMCtx fun m => { m with dAssignment := m.dAssignment.erase mvarId, usedAssignment := true }
+
+/-
+Notes on artificial eta-expanded terms due to metavariables.
+We try avoid synthetic terms such as `((fun x y => t) a b)` in the output produced by the elaborator.
+This kind of term may be generated when instantiating metavariable assignments.
+This module tries to avoid their generation because they often introduce unnecessary dependencies and
+may affect automation.
+
+When elaborating terms, we use metavariables to represent "holes". Each hole has a context which includes
+all free variables that may be used to "fill" the hole. Suppose, we create a metavariable (hole) `?m : Nat` in a context
+containing `(x : Nat) (y : Nat) (b : Bool)`, then we can assign terms such as `x + y` to `?m` since `x` and `y`
+are in the context used to create `?m`. Now, suppose we have the term `?m + 1` and we want to create the lambda expression
+`fun x => ?m + 1`. This term is not correct since we may assign to `?m` a term containing `x`.
+We address this issue by create a synthetic metavariable `?n : Nat → Nat` and adding the delayed assignment
+`?n #[x] := ?m`, and the term `fun x => ?n x + 1`. When we later assign a term `t[x]` to `?m`, `fun x => t[x]` is assigned to
+`?n`, and if we substitute it at `fun x => ?n x + 1`, we produce `fun x => ((fun x => t[x]) x) + 1`.
+To avoid this term eta-expanded term, we apply beta-reduction when instantiating metavariable assignments in this module.
+This operation is performed at `instantiateExprMVars`, `elimMVarDeps`, and `levelMVarToParam`.
+-/
+partial def instantiateLevelMVars [Monad m] [MonadMCtx m] : Level → m Level
+  | lvl@(Level.succ lvl₁ _)      => return Level.updateSucc! lvl (← instantiateLevelMVars lvl₁)
+  | lvl@(Level.max lvl₁ lvl₂ _)  => return Level.updateMax! lvl (← instantiateLevelMVars lvl₁) (← instantiateLevelMVars lvl₂)
+  | lvl@(Level.imax lvl₁ lvl₂ _) => return Level.updateIMax! lvl (← instantiateLevelMVars lvl₁) (← instantiateLevelMVars lvl₂)
+  | lvl@(Level.mvar mvarId _)    => do
+    match (← getLevelMVarAssignment? mvarId) with
+    | some newLvl =>
+      if !newLvl.hasMVar then pure newLvl
+      else do
+        let newLvl' ← instantiateLevelMVars newLvl
+        assignLevelMVar mvarId newLvl'
+        pure newLvl'
+    | none        => pure lvl
+  | lvl => pure lvl
+
+/-- instantiateExprMVars main function -/
+partial def instantiateExprMVars [Monad m] [MonadMCtx m] [STWorld ω m] [MonadLiftT (ST ω) m] (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
+  if !e.hasMVar then
+    pure e
+  else checkCache { val := e : ExprStructEq } fun _ => do match e with
+    | Expr.proj _ _ s _    => return e.updateProj! (← instantiateExprMVars s)
+    | Expr.forallE _ d b _ => return e.updateForallE! (← instantiateExprMVars d) (← instantiateExprMVars b)
+    | Expr.lam _ d b _     => return e.updateLambdaE! (← instantiateExprMVars d) (← instantiateExprMVars b)
+    | Expr.letE _ t v b _  => return e.updateLet! (← instantiateExprMVars t) (← instantiateExprMVars v) (← instantiateExprMVars b)
+    | Expr.const _ lvls _  => return e.updateConst! (← lvls.mapM instantiateLevelMVars)
+    | Expr.sort lvl _      => return e.updateSort! (← instantiateLevelMVars lvl)
+    | Expr.mdata _ b _     => return e.updateMData! (← instantiateExprMVars b)
+    | Expr.app ..          => e.withApp fun f args => do
+      let instArgs (f : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
+        let args ← args.mapM instantiateExprMVars
+        pure (mkAppN f args)
+      let instApp : MonadCacheT ExprStructEq Expr m Expr := do
+        let wasMVar := f.isMVar
+        let f ← instantiateExprMVars f
+        if wasMVar && f.isLambda then
+          /- Some of the arguments in args are irrelevant after we beta reduce. -/
+          instantiateExprMVars (f.betaRev args.reverse)
+        else
+          instArgs f
+      match f with
+      | Expr.mvar mvarId _ =>
+        match (← getDelayedMVarAssignment? mvarId) with
+        | none => instApp
+        | some { fvars, val, .. } =>
+          /-
+             Apply "delayed substitution" (i.e., delayed assignment + application).
+             That is, `f` is some metavariable `?m`, that is delayed assigned to `val`.
+             If after instantiating `val`, we obtain `newVal`, and `newVal` does not contain
+             metavariables, we replace the free variables `fvars` in `newVal` with the first
+             `fvars.size` elements of `args`. -/
+          if fvars.size > args.size then
+            /- We don't have sufficient arguments for instantiating the free variables `fvars`.
+               This can only happy if a tactic or elaboration function is not implemented correctly.
+               We decided to not use `panic!` here and report it as an error in the frontend
+               when we are checking for unassigned metavariables in an elaborated term. -/
+            instArgs f
+          else
+            let newVal ← instantiateExprMVars val
+            if newVal.hasExprMVar then
+              instArgs f
+            else do
+              let args ← args.mapM instantiateExprMVars
+              /-
+                 Example: suppose we have
+                   `?m t1 t2 t3`
+                 That is, `f := ?m` and `args := #[t1, t2, t3]`
+                 Morever, `?m` is delayed assigned
+                   `?m #[x, y] := f x y`
+                 where, `fvars := #[x, y]` and `newVal := f x y`.
+                 After abstracting `newVal`, we have `f (Expr.bvar 0) (Expr.bvar 1)`.
+                 After `instantiaterRevRange 0 2 args`, we have `f t1 t2`.
+                 After `mkAppRange 2 3`, we have `f t1 t2 t3` -/
+              let newVal := newVal.abstract fvars
+              let result := newVal.instantiateRevRange 0 fvars.size args
+              let result := mkAppRange result fvars.size args.size args
+              pure result
+      | _ => instApp
+    | e@(Expr.mvar mvarId _)   => checkCache { val := e : ExprStructEq } fun _ => do
+      match (← getExprMVarAssignment? mvarId) with
+      | some newE => do
+        let newE' ← instantiateExprMVars newE
+        assignExprMVar mvarId newE'
+        pure newE'
+      | none => pure e
+    | e => pure e
+
+instance : MonadMCtx (StateRefT MetavarContext (ST ω)) where
+  getMCtx    := get
+  modifyMCtx := modify
+
+def instantiateMVarsCore (mctx : MetavarContext) (e : Expr) : Expr × MetavarContext :=
+  let instantiate {ω} (e : Expr) : (MonadCacheT ExprStructEq Expr <| StateRefT MetavarContext (ST ω)) Expr :=
+    instantiateExprMVars e
+  runST fun _ => instantiate e |>.run |>.run mctx
+
+def instantiateMVars [Monad m] [MonadMCtx m] (e : Expr) : m Expr := do
+  if !e.hasMVar then
+    return e
+  else
+    let (r, mctx) := instantiateMVarsCore (← getMCtx) e
+    modifyMCtx fun _ => mctx
+    return r
+
+def instantiateLCtxMVars [Monad m] [MonadMCtx m] (lctx : LocalContext) : m LocalContext :=
+  lctx.foldlM (init := {}) fun lctx ldecl => do
+     match ldecl with
+     | .cdecl _ fvarId userName type bi =>
+       let type ← instantiateMVars type
+       return lctx.mkLocalDecl fvarId userName type bi
+     | .ldecl _ fvarId userName type value nonDep =>
+       let type ← instantiateMVars type
+       let value ← instantiateMVars value
+       return lctx.mkLetDecl fvarId userName type value nonDep
+
+def instantiateMVarDeclMVars [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Unit := do
+  let mvarDecl     := (← getMCtx).getDecl mvarId
+  let lctx ← instantiateLCtxMVars mvarDecl.lctx
+  let type ← instantiateMVars mvarDecl.type
+  modifyMCtx fun mctx => { mctx with decls := mctx.decls.insert mvarId { mvarDecl with lctx, type } }
+
+def instantiateLocalDeclMVars [Monad m] [MonadMCtx m] (localDecl : LocalDecl) : m LocalDecl := do
+  match localDecl with
+  | .cdecl idx id n type bi  =>
+    return .cdecl idx id n (← instantiateMVars type) bi
+  | .ldecl idx id n type val nonDep =>
+    return .ldecl idx id n (← instantiateMVars type) (← instantiateMVars val) nonDep
+
+namespace DependsOn
+
+structure State where
+  visited : ExprSet := {}
+  mctx    : MetavarContext
+
+private abbrev M := StateM State
+
+instance : MonadMCtx M where
+  getMCtx := return (← get).mctx
+  modifyMCtx f := modify fun s => { s with mctx := f s.mctx }
+
+private def shouldVisit (e : Expr) : M Bool := do
+  if !e.hasMVar && !e.hasFVar then
+    return false
+  else if (← get).visited.contains e then
+    return false
+  else
+    modify fun s => { s with visited := s.visited.insert e }
+    return true
+
+@[specialize] private partial def dep (pf : FVarId → Bool) (pm : MVarId →  Bool) (e : Expr) : M Bool :=
+  let rec
+    visit (e : Expr) : M Bool := do
+      if !(← shouldVisit e) then
+        pure false
+      else
+        visitMain e,
+    visitApp : Expr → M Bool
+      | Expr.app f a .. => visitApp f <||> visit a
+      | e => visit e,
+    visitMain : Expr → M Bool
+      | Expr.proj _ _ s _    => visit s
+      | Expr.forallE _ d b _ => visit d <||> visit b
+      | Expr.lam _ d b _     => visit d <||> visit b
+      | Expr.letE _ t v b _  => visit t <||> visit v <||> visit b
+      | Expr.mdata _ b _     => visit b
+      | e@(Expr.app ..)      => do
+        let f := e.getAppFn
+        if f.isMVar then
+          let e' ← instantiateMVars e
+          if e'.getAppFn != f then
+            visitMain e'
+          else if pm f.mvarId! then
+            return true
+          else
+            visitApp e
+        else
+          visitApp e
+      | Expr.mvar mvarId _   => do
+        match (← getExprMVarAssignment? mvarId) with
+        | some a => visit a
+        | none   =>
+          if pm mvarId then
+            return true
+          else
+            let lctx := (← getMCtx).getDecl mvarId |>.lctx
+            return lctx.any fun decl => pf decl.fvarId
+      | Expr.fvar fvarId _   => return pf fvarId
+      | _                    => pure false
+  visit e
+
+@[inline] partial def main (pf : FVarId → Bool) (pm : MVarId → Bool) (e : Expr) : M Bool :=
+  if !e.hasFVar && !e.hasMVar then pure false else dep pf pm e
+
+end DependsOn
+
+/--
+  Return `true` iff `e` depends on a free variable `x` s.t. `pf x` is `true`, or an unassigned metavariable `?m` s.t. `pm ?m` is true.
+  For each metavariable `?m` (that does not satisfy `pm` occurring in `x`
+  1- If `?m := t`, then we visit `t` looking for `x`
+  2- If `?m` is unassigned, then we consider the worst case and check whether `x` is in the local context of `?m`.
+     This case is a "may dependency". That is, we may assign a term `t` to `?m` s.t. `t` contains `x`. -/
+@[inline] def findExprDependsOn [Monad m] [MonadMCtx m] (e : Expr) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : m Bool := do
+  let (result, { mctx, .. }) := DependsOn.main pf pm e |>.run { mctx := (← getMCtx) }
+  setMCtx mctx
+  return result
+
+/--
+  Similar to `findExprDependsOn`, but checks the expressions in the given local declaration
+  depends on a free variable `x` s.t. `pf x` is `true` or an unassigned metavariable `?m` s.t. `pm ?m` is true. -/
+@[inline] def findLocalDeclDependsOn [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : m Bool := do
+  match localDecl with
+  | LocalDecl.cdecl (type := t) ..  => findExprDependsOn t pf pm
+  | LocalDecl.ldecl (type := t) (value := v) .. =>
+    let (result, { mctx, .. }) := (DependsOn.main pf pm t <||> DependsOn.main pf pm v).run { mctx := (← getMCtx) }
+    setMCtx mctx
+    return result
+
+def exprDependsOn [Monad m] [MonadMCtx m] (e : Expr) (fvarId : FVarId) : m Bool :=
+  findExprDependsOn e (fvarId == ·)
+
+/-- Return true iff `e` depends on the free variable `fvarId` -/
+def dependsOn [Monad m] [MonadMCtx m] (e : Expr) (fvarId : FVarId) : m Bool :=
+  exprDependsOn e fvarId
+
+/-- Return true iff `e` depends on the free variable `fvarId` -/
+def localDeclDependsOn [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (fvarId : FVarId) : m Bool :=
+  findLocalDeclDependsOn localDecl (fvarId == ·)
+
+/-- Similar to `exprDependsOn`, but `x` can be a free variable or an unassigned metavariable. -/
+def exprDependsOn' [Monad m] [MonadMCtx m] (e : Expr) (x : Expr) : m Bool :=
+  if x.isFVar then
+    findExprDependsOn e (x.fvarId! == ·)
+  else if x.isMVar then
+    findExprDependsOn e (pm := (x.mvarId! == ·))
+  else
+    return false
+
+/-- Similar to `localDeclDependsOn`, but `x` can be a free variable or an unassigned metavariable. -/
+def localDeclDependsOn' [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (x : Expr) : m Bool :=
+  if x.isFVar then
+    findLocalDeclDependsOn localDecl (x.fvarId! == ·)
+  else if x.isMVar then
+    findLocalDeclDependsOn localDecl (pm := (x.mvarId! == ·))
+  else
+    return false
+
+/-- Return true iff `e` depends on a free variable `x` s.t. `pf x`, or an unassigned metavariable `?m` s.t. `pm ?m` is true. -/
+def dependsOnPred [Monad m] [MonadMCtx m] (e : Expr) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : m Bool :=
+  findExprDependsOn e pf pm
+
+/-- Return true iff the local declaration `localDecl` depends on a free variable `x` s.t. `pf x`, an unassigned metavariable `?m` s.t. `pm ?m` is true. -/
+def localDeclDependsOnPred [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : m Bool := do
+  findLocalDeclDependsOn localDecl pf pm
+
+
 namespace MetavarContext
 
 instance : Inhabited MetavarContext := ⟨{}⟩
@@ -503,267 +793,12 @@ def isAnonymousMVar (mctx : MetavarContext) (mvarId : MVarId) : Bool :=
   | none          => false
   | some mvarDecl => mvarDecl.userName.isAnonymous
 
-def assignLevel (m : MetavarContext) (mvarId : MVarId) (val : Level) : MetavarContext :=
-  { m with lAssignment := m.lAssignment.insert mvarId val, usedAssignment := true }
-
-def assignExpr (m : MetavarContext) (mvarId : MVarId) (val : Expr) : MetavarContext :=
-  { m with eAssignment := m.eAssignment.insert mvarId val, usedAssignment := true }
-
-def assignDelayed (m : MetavarContext) (mvarId : MVarId) (fvars : Array Expr) (val : Expr) : MetavarContext :=
-  { m with dAssignment := m.dAssignment.insert mvarId { fvars, val }, usedAssignment := true }
-
-def eraseDelayed (m : MetavarContext) (mvarId : MVarId) : MetavarContext :=
-  { m with dAssignment := m.dAssignment.erase mvarId, usedAssignment := true }
-
 def incDepth (mctx : MetavarContext) : MetavarContext :=
   { mctx with depth := mctx.depth + 1 }
-
-/-
-Notes on artificial eta-expanded terms due to metavariables.
-We try avoid synthetic terms such as `((fun x y => t) a b)` in the output produced by the elaborator.
-This kind of term may be generated when instantiating metavariable assignments.
-This module tries to avoid their generation because they often introduce unnecessary dependencies and
-may affect automation.
-
-When elaborating terms, we use metavariables to represent "holes". Each hole has a context which includes
-all free variables that may be used to "fill" the hole. Suppose, we create a metavariable (hole) `?m : Nat` in a context
-containing `(x : Nat) (y : Nat) (b : Bool)`, then we can assign terms such as `x + y` to `?m` since `x` and `y`
-are in the context used to create `?m`. Now, suppose we have the term `?m + 1` and we want to create the lambda expression
-`fun x => ?m + 1`. This term is not correct since we may assign to `?m` a term containing `x`.
-We address this issue by create a synthetic metavariable `?n : Nat → Nat` and adding the delayed assignment
-`?n #[x] := ?m`, and the term `fun x => ?n x + 1`. When we later assign a term `t[x]` to `?m`, `fun x => t[x]` is assigned to
-`?n`, and if we substitute it at `fun x => ?n x + 1`, we produce `fun x => ((fun x => t[x]) x) + 1`.
-To avoid this term eta-expanded term, we apply beta-reduction when instantiating metavariable assignments in this module.
-This operation is performed at `instantiateExprMVars`, `elimMVarDeps`, and `levelMVarToParam`.
--/
-
-partial def instantiateLevelMVars [Monad m] [MonadMCtx m] : Level → m Level
-  | lvl@(Level.succ lvl₁ _)      => return Level.updateSucc! lvl (← instantiateLevelMVars lvl₁)
-  | lvl@(Level.max lvl₁ lvl₂ _)  => return Level.updateMax! lvl (← instantiateLevelMVars lvl₁) (← instantiateLevelMVars lvl₂)
-  | lvl@(Level.imax lvl₁ lvl₂ _) => return Level.updateIMax! lvl (← instantiateLevelMVars lvl₁) (← instantiateLevelMVars lvl₂)
-  | lvl@(Level.mvar mvarId _)    => do
-    match (← getLevelMVarAssignment? mvarId) with
-    | some newLvl =>
-      if !newLvl.hasMVar then pure newLvl
-      else do
-        let newLvl' ← instantiateLevelMVars newLvl
-        modifyMCtx fun mctx => mctx.assignLevel mvarId newLvl'
-        pure newLvl'
-    | none        => pure lvl
-  | lvl => pure lvl
-
-/-- instantiateExprMVars main function -/
-partial def instantiateExprMVars [Monad m] [MonadMCtx m] [STWorld ω m] [MonadLiftT (ST ω) m] (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
-  if !e.hasMVar then
-    pure e
-  else checkCache { val := e : ExprStructEq } fun _ => do match e with
-    | Expr.proj _ _ s _    => return e.updateProj! (← instantiateExprMVars s)
-    | Expr.forallE _ d b _ => return e.updateForallE! (← instantiateExprMVars d) (← instantiateExprMVars b)
-    | Expr.lam _ d b _     => return e.updateLambdaE! (← instantiateExprMVars d) (← instantiateExprMVars b)
-    | Expr.letE _ t v b _  => return e.updateLet! (← instantiateExprMVars t) (← instantiateExprMVars v) (← instantiateExprMVars b)
-    | Expr.const _ lvls _  => return e.updateConst! (← lvls.mapM instantiateLevelMVars)
-    | Expr.sort lvl _      => return e.updateSort! (← instantiateLevelMVars lvl)
-    | Expr.mdata _ b _     => return e.updateMData! (← instantiateExprMVars b)
-    | Expr.app ..          => e.withApp fun f args => do
-      let instArgs (f : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
-        let args ← args.mapM instantiateExprMVars
-        pure (mkAppN f args)
-      let instApp : MonadCacheT ExprStructEq Expr m Expr := do
-        let wasMVar := f.isMVar
-        let f ← instantiateExprMVars f
-        if wasMVar && f.isLambda then
-          /- Some of the arguments in args are irrelevant after we beta reduce. -/
-          instantiateExprMVars (f.betaRev args.reverse)
-        else
-          instArgs f
-      match f with
-      | Expr.mvar mvarId _ =>
-        match (← getDelayedMVarAssignment? mvarId) with
-        | none => instApp
-        | some { fvars, val, .. } =>
-          /-
-             Apply "delayed substitution" (i.e., delayed assignment + application).
-             That is, `f` is some metavariable `?m`, that is delayed assigned to `val`.
-             If after instantiating `val`, we obtain `newVal`, and `newVal` does not contain
-             metavariables, we replace the free variables `fvars` in `newVal` with the first
-             `fvars.size` elements of `args`. -/
-          if fvars.size > args.size then
-            /- We don't have sufficient arguments for instantiating the free variables `fvars`.
-               This can only happy if a tactic or elaboration function is not implemented correctly.
-               We decided to not use `panic!` here and report it as an error in the frontend
-               when we are checking for unassigned metavariables in an elaborated term. -/
-            instArgs f
-          else
-            let newVal ← instantiateExprMVars val
-            if newVal.hasExprMVar then
-              instArgs f
-            else do
-              let args ← args.mapM instantiateExprMVars
-              /-
-                 Example: suppose we have
-                   `?m t1 t2 t3`
-                 That is, `f := ?m` and `args := #[t1, t2, t3]`
-                 Morever, `?m` is delayed assigned
-                   `?m #[x, y] := f x y`
-                 where, `fvars := #[x, y]` and `newVal := f x y`.
-                 After abstracting `newVal`, we have `f (Expr.bvar 0) (Expr.bvar 1)`.
-                 After `instantiaterRevRange 0 2 args`, we have `f t1 t2`.
-                 After `mkAppRange 2 3`, we have `f t1 t2 t3` -/
-              let newVal := newVal.abstract fvars
-              let result := newVal.instantiateRevRange 0 fvars.size args
-              let result := mkAppRange result fvars.size args.size args
-              pure result
-      | _ => instApp
-    | e@(Expr.mvar mvarId _)   => checkCache { val := e : ExprStructEq } fun _ => do
-      match (← getExprMVarAssignment? mvarId) with
-      | some newE => do
-        let newE' ← instantiateExprMVars newE
-        modifyMCtx fun mctx => mctx.assignExpr mvarId newE'
-        pure newE'
-      | none => pure e
-    | e => pure e
 
 instance : MonadMCtx (StateRefT MetavarContext (ST ω)) where
   getMCtx    := get
   modifyMCtx := modify
-
-def instantiateMVars (mctx : MetavarContext) (e : Expr) : Expr × MetavarContext :=
-  if !e.hasMVar then
-    (e, mctx)
-  else
-    let instantiate {ω} (e : Expr) : (MonadCacheT ExprStructEq Expr <| StateRefT MetavarContext (ST ω)) Expr :=
-      instantiateExprMVars e
-    runST fun _ => instantiate e |>.run |>.run mctx
-
-def instantiateLCtxMVars (mctx : MetavarContext) (lctx : LocalContext) : LocalContext × MetavarContext :=
-  lctx.foldl (init := ({}, mctx)) fun (lctx, mctx) ldecl =>
-     match ldecl with
-     | LocalDecl.cdecl _ fvarId userName type bi =>
-       let (type, mctx) := mctx.instantiateMVars type
-       (lctx.mkLocalDecl fvarId userName type bi, mctx)
-     | LocalDecl.ldecl _ fvarId userName type value nonDep =>
-       let (type, mctx)  := mctx.instantiateMVars type
-       let (value, mctx) := mctx.instantiateMVars value
-       (lctx.mkLetDecl fvarId userName type value nonDep, mctx)
-
-def instantiateMVarDeclMVars (mctx : MetavarContext) (mvarId : MVarId) : MetavarContext :=
-  let mvarDecl     := mctx.getDecl mvarId
-  let (lctx, mctx) := mctx.instantiateLCtxMVars mvarDecl.lctx
-  let (type, mctx) := mctx.instantiateMVars mvarDecl.type
-  { mctx with decls := mctx.decls.insert mvarId { mvarDecl with lctx, type } }
-
-namespace DependsOn
-
-structure State where
-  visited : ExprSet := {}
-  mctx    : MetavarContext
-
-private abbrev M := StateM State
-
-instance : MonadMCtx M where
-  getMCtx := return (← get).mctx
-  modifyMCtx f := modify fun s => { s with mctx := f s.mctx }
-
-private def shouldVisit (e : Expr) : M Bool := do
-  if !e.hasMVar && !e.hasFVar then
-    return false
-  else if (← get).visited.contains e then
-    return false
-  else
-    modify fun s => { s with visited := s.visited.insert e }
-    return true
-
-@[specialize] private partial def dep (pf : FVarId → Bool) (pm : MVarId →  Bool) (e : Expr) : M Bool :=
-  let rec
-    visit (e : Expr) : M Bool := do
-      if !(← shouldVisit e) then
-        pure false
-      else
-        visitMain e,
-    visitApp : Expr → M Bool
-      | Expr.app f a .. => visitApp f <||> visit a
-      | e => visit e,
-    visitMain : Expr → M Bool
-      | Expr.proj _ _ s _    => visit s
-      | Expr.forallE _ d b _ => visit d <||> visit b
-      | Expr.lam _ d b _     => visit d <||> visit b
-      | Expr.letE _ t v b _  => visit t <||> visit v <||> visit b
-      | Expr.mdata _ b _     => visit b
-      | e@(Expr.app ..)      => do
-        let f := e.getAppFn
-        if f.isMVar then
-          let e' ← modifyGet fun ⟨visited, mctx⟩ => let (e, mctx) := instantiateMVars mctx e; (e, ⟨visited, mctx⟩)
-          if e'.getAppFn != f then
-            visitMain e'
-          else if pm f.mvarId! then
-            return true
-          else
-            visitApp e
-        else
-          visitApp e
-      | Expr.mvar mvarId _   => do
-        match (← getExprMVarAssignment? mvarId) with
-        | some a => visit a
-        | none   =>
-          if pm mvarId then
-            return true
-          else
-            let lctx := (← getMCtx).getDecl mvarId |>.lctx
-            return lctx.any fun decl => pf decl.fvarId
-      | Expr.fvar fvarId _   => return pf fvarId
-      | _                    => pure false
-  visit e
-
-@[inline] partial def main (pf : FVarId → Bool) (pm : MVarId → Bool) (e : Expr) : M Bool :=
-  if !e.hasFVar && !e.hasMVar then pure false else dep pf pm e
-
-end DependsOn
-
-/--
-  Return `true` iff `e` depends on a free variable `x` s.t. `pf x` is `true`, or an unassigned metavariable `?m` s.t. `pm ?m` is true.
-  For each metavariable `?m` (that does not satisfy `pm` occurring in `x`
-  1- If `?m := t`, then we visit `t` looking for `x`
-  2- If `?m` is unassigned, then we consider the worst case and check whether `x` is in the local context of `?m`.
-     This case is a "may dependency". That is, we may assign a term `t` to `?m` s.t. `t` contains `x`. -/
-@[inline] def findExprDependsOn [Monad m] [MonadMCtx m] (e : Expr) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : m Bool := do
-  let (result, { mctx, .. }) := DependsOn.main pf pm e |>.run { mctx := (← getMCtx) }
-  setMCtx mctx
-  return result
-
-/--
-  Similar to `findExprDependsOn`, but checks the expressions in the given local declaration
-  depends on a free variable `x` s.t. `pf x` is `true` or an unassigned metavariable `?m` s.t. `pm ?m` is true. -/
-@[inline] def findLocalDeclDependsOn [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : m Bool := do
-  match localDecl with
-  | LocalDecl.cdecl (type := t) ..  => findExprDependsOn t pf pm
-  | LocalDecl.ldecl (type := t) (value := v) .. =>
-    let (result, { mctx, .. }) := (DependsOn.main pf pm t <||> DependsOn.main pf pm v).run { mctx := (← getMCtx) }
-    setMCtx mctx
-    return result
-
-def exprDependsOn [Monad m] [MonadMCtx m] (e : Expr) (fvarId : FVarId) : m Bool :=
-  findExprDependsOn e (fvarId == ·)
-
-def localDeclDependsOn [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (fvarId : FVarId) : m Bool :=
-  findLocalDeclDependsOn localDecl (fvarId == ·)
-
-/-- Similar to `exprDependsOn`, but `x` can be a free variable or an unassigned metavariable. -/
-def exprDependsOn' [Monad m] [MonadMCtx m] (e : Expr) (x : Expr) : m Bool :=
-  if x.isFVar then
-    findExprDependsOn e (x.fvarId! == ·)
-  else if x.isMVar then
-    findExprDependsOn e (pm := (x.mvarId! == ·))
-  else
-    return false
-
-/-- Similar to `localDeclDependsOn`, but `x` can be a free variable or an unassigned metavariable. -/
-def localDeclDependsOn' [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (x : Expr) : m Bool :=
-  if x.isFVar then
-    findLocalDeclDependsOn localDecl (x.fvarId! == ·)
-  else if x.isMVar then
-    findLocalDeclDependsOn localDecl (pm := (x.mvarId! == ·))
-  else
-    return false
 
 namespace MkBinding
 
@@ -1016,9 +1051,9 @@ mutual
           }
         match newMVarKind with
         | MetavarKind.syntheticOpaque =>
-          modify fun s => { s with mctx := assignDelayed s.mctx newMVarId (toRevert ++ nestedFVars) (mkAppN (mkMVar mvarId) nestedFVars) }
+          assignDelayedMVar newMVarId (toRevert ++ nestedFVars) (mkAppN (mkMVar mvarId) nestedFVars)
         | _                           =>
-          modify fun s => { s with mctx := assignExpr s.mctx mvarId result }
+          assignExprMVar mvarId result
         return (mkAppN result args, toRevert)
       if !mvarDecl.kind.isSyntheticOpaque then
         cont #[]
@@ -1209,7 +1244,7 @@ partial def visitLevel (u : Level) : M Level := do
       else
         let p ← mkParamName
         let p := mkLevelParam p
-        modify fun s => { s with mctx := s.mctx.assignLevel mvarId p }
+        assignLevelMVar mvarId p
         return p
 
 partial def main (e : Expr) : M Expr :=

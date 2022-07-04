@@ -417,8 +417,6 @@ def getDeclName? : TermElabM (Option Name) := return (← read).declName?
 def getLetRecsToLift : TermElabM (List LetRecToLift) := return (← get).letRecsToLift
 /-- Return the declaration of the given metavariable -/
 def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := return (← getMCtx).getDecl mvarId
-/-- Assign `mvarId := val`. It assumes `mvarId` it a valid universe level metavariable id. -/
-def assignLevelMVar (mvarId : MVarId) (val : Level) : TermElabM Unit := modifyThe Meta.State fun s => { s with mctx := s.mctx.assignLevel mvarId val }
 
 /-- Execute `x` with `declName? := name`. See `getDeclName? -/
 def withDeclName (name : Name) (x : TermElabM α) : TermElabM α :=
@@ -1529,7 +1527,7 @@ where
         if auto.isFVar then
           let localDecl ← getLocalDecl auto.fvarId!
           for x in xs do
-            if (← MetavarContext.localDeclDependsOn localDecl x.fvarId!) then
+            if (← localDeclDependsOn localDecl x.fvarId!) then
               throwError "invalid auto implicit argument '{auto}', it depends on explicitly provided argument '{x}'"
       return autos ++ xs
     | auto :: todo =>

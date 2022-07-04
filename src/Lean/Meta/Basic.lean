@@ -527,9 +527,6 @@ def isReadOnlyLevelMVar (mvarId : MVarId) : MetaM Bool := do
 def setMVarUserName (mvarId : MVarId) (newUserName : Name) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.setMVarUserName mvarId newUserName
 
-def assignExprMVar (mvarId : MVarId) (val : Expr) : MetaM Unit :=
-  modifyMCtx fun mctx => mctx.assignExpr mvarId val
-
 def throwUnknownFVar (fvarId : FVarId) : MetaM α :=
   throwError "unknown free variable '{mkFVar fvarId}'"
 
@@ -548,19 +545,6 @@ def getLocalDeclFromUserName (userName : Name) : MetaM LocalDecl := do
   match (← getLCtx).findFromUserName? userName with
   | some d => pure d
   | none   => throwError "unknown local declaration '{userName}'"
-
-def instantiateLevelMVars (u : Level) : MetaM Level :=
-  MetavarContext.instantiateLevelMVars u
-
-def instantiateMVars (e : Expr) : MetaM Expr :=
-  (MetavarContext.instantiateExprMVars e).run
-
-def instantiateLocalDeclMVars (localDecl : LocalDecl) : MetaM LocalDecl :=
-  match localDecl with
-  | LocalDecl.cdecl idx id n type bi  =>
-    return LocalDecl.cdecl idx id n (← instantiateMVars type) bi
-  | LocalDecl.ldecl idx id n type val nonDep =>
-    return LocalDecl.ldecl idx id n (← instantiateMVars type) (← instantiateMVars val) nonDep
 
 @[inline] def liftMkBindingM (x : MetavarContext.MkBindingM α) : MetaM α := do
   match x { lctx := (← getLCtx), mainModule := (← getEnv).mainModule } { mctx := (← getMCtx), ngen := (← getNGen), nextMacroScope := (← getThe Core.State).nextMacroScope } with
@@ -1210,15 +1194,6 @@ def normalizeLevel (u : Level) : MetaM Level := do
   let u ← instantiateLevelMVars u
   pure u.normalize
 
-/--
-  Add `mvarId := u` to the universe metavariable assignment.
-  This method does not check whether `mvarId` is already assigned, nor it checks whether
-  a cycle is being introduced.
-  This is a low-level API, and it is safer to use `isLevelDefEq (mkLevelMVar mvarId) u`.
--/
-def assignLevelMVar (mvarId : MVarId) (u : Level) : MetaM Unit := do
-  modifyMCtx fun mctx => mctx.assignLevel mvarId u
-
 /-- `whnf` with reducible transparency.-/
 def whnfR (e : Expr) : MetaM Expr :=
   withTransparency TransparencyMode.reducible <| whnf e
@@ -1269,22 +1244,6 @@ private partial def instantiateLambdaAux (ps : Array Expr) (i : Nat) (e : Expr) 
    It uses `whnf` to reduce `e` if it is not a lambda -/
 def instantiateLambda (e : Expr) (ps : Array Expr) : MetaM Expr :=
   instantiateLambdaAux ps 0 e
-
-/-- Return true iff `e` depends on the free variable `fvarId` -/
-def dependsOn (e : Expr) (fvarId : FVarId) : MetaM Bool :=
-  MetavarContext.exprDependsOn e fvarId
-
-/-- Return true iff `e` depends on the free variable `fvarId` -/
-def localDeclDependsOn (localDecl : LocalDecl) (fvarId : FVarId) : MetaM Bool :=
-  MetavarContext.localDeclDependsOn localDecl fvarId
-
-/-- Return true iff `e` depends on a free variable `x` s.t. `pf x`, or an unassigned metavariable `?m` s.t. `pm ?m` is true. -/
-def dependsOnPred (e : Expr) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : MetaM Bool :=
-  MetavarContext.findExprDependsOn e pf pm
-
-/-- Return true iff the local declaration `localDecl` depends on a free variable `x` s.t. `pf x`, an unassigned metavariable `?m` s.t. `pm ?m` is true. -/
-def localDeclDependsOnPred (localDecl : LocalDecl) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : MetaM Bool := do
-  MetavarContext.findLocalDeclDependsOn localDecl pf pm
 
 /-- Pretty-print the given expression. -/
 def ppExpr (e : Expr) : MetaM Format := do

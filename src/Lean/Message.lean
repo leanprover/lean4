@@ -78,7 +78,7 @@ partial def instantiateMVars (msg : MessageData) : MessageData :=
 where
   visit (msg : MessageData) (mctx : MetavarContext) : MessageData :=
     match msg with
-    | ofExpr e                  => ofExpr <| mctx.instantiateMVars e |>.1
+    | ofExpr e                  => ofExpr <| instantiateMVarsCore mctx e |>.1
     | withContext ctx msg       => withContext ctx  <| visit msg ctx.mctx
     | withNamingContext ctx msg => withNamingContext ctx <| visit msg mctx
     | nest n msg                => nest n <| visit msg mctx

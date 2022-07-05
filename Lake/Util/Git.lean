@@ -11,20 +11,24 @@ namespace Lake
 
 namespace Git
 
+def defaultRemote :=
+  "origin"
+
 def upstreamBranch :=
   "master"
 
 def isFullObjectName (rev : String) : Bool :=
   rev.length == 40 && rev.all fun c => c.isDigit || ('a' <= c && c <= 'f')
 
-def defaultRevision : Option String → String
-  | none => upstreamBranch
-  | some branch => branch
-
 def capture (args : Array String) (wd : Option FilePath := none) : LogIO String := do
   let out ← IO.Process.output {cmd := "git", args, cwd := wd}
   if out.exitCode != 0 then
-    logError s!"stdout:\n{out.stdout}\nstderr:\n{out.stderr}"
+    let mut log := ""
+    unless out.stdout.isEmpty do
+      log := log ++ s!"stdout:\n{out.stdout.trim}\n"
+    unless out.stderr.isEmpty do
+      log := log ++ s!"stderr:\n{out.stderr.trim}\n"
+    logError log.trim
     error <| "git exited with code " ++ toString out.exitCode
   return out.stdout
 
@@ -69,11 +73,8 @@ def clone (url : String) (repo : GitRepo) : LogIO PUnit  :=
 def quietInit (repo : GitRepo) : LogIO PUnit  :=
   repo.execGit #["init", "-q"]
 
-def fetch (repo : GitRepo) : LogIO PUnit  :=
-  repo.execGit #["fetch"]
-
-def pull (repo : GitRepo) : LogIO PUnit  :=
-  repo.execGit #["pull"]
+def fetch (repo : GitRepo) (remote := Git.defaultRemote) : LogIO PUnit  :=
+  repo.execGit #["fetch", remote]
 
 def checkoutBranch (branch : String) (repo : GitRepo) : LogIO PUnit :=
   repo.execGit #["checkout", "-B", branch]
@@ -86,16 +87,15 @@ def parseRevision (rev : String) (repo : GitRepo) : LogIO String := do
   pure rev.trim -- remove newline at end
 
 def headRevision (repo : GitRepo) : LogIO String :=
-  parseRevision "HEAD" repo
+  repo.parseRevision "HEAD"
 
-def parseOriginRevision (rev : String) (repo : GitRepo) : LogIO String := do
+def parseRemoteRevision (rev : String) (remote := Git.defaultRemote) (repo : GitRepo) : LogIO String := do
   if Git.isFullObjectName rev then return rev
-  repo.parseRevision ("origin/" ++ rev) <|> repo.parseRevision rev
+  repo.parseRevision (s!"{remote}/{rev}") <|> repo.parseRevision rev
     <|> error s!"cannot find revision {rev} in repository {repo}"
 
-def latestOriginRevision (branch : Option String) (repo : GitRepo) : LogIO String := do
-  repo.execGit #["fetch"]
-  parseOriginRevision (Git.defaultRevision branch) repo
+def findRemoteRevision (repo : GitRepo) (rev? : Option String := none)  (remote := Git.defaultRemote) : LogIO String := do
+  repo.fetch remote; repo.parseRemoteRevision (rev?.getD Git.upstreamBranch) remote
 
 def branchExists (rev : String) (repo : GitRepo) : LogIO Bool := do
   repo.testGit #["show-ref", "--verify", s!"refs/heads/{rev}"]

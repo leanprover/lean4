@@ -42,18 +42,18 @@ def loadPkg (config : LakeConfig) : LogIO Package := do
 def loadManifestMap (manifestFile : FilePath) : LogIO (Lean.NameMap PackageEntry) := do
   if let Except.ok contents ← IO.FS.readFile manifestFile  |>.toBaseIO then
     match Json.parse contents with
-      | Except.ok json =>
-        match fromJson? json with
-        | Except.ok (manifest : Manifest) =>
-          pure manifest.toMap
-        | Except.error e =>
-          logWarning s!"improperly formatted package manifest: {e}"
-          pure {}
+    | Except.ok json =>
+      match fromJson? json with
+      | Except.ok (manifest : Manifest) =>
+        return manifest.toMap
       | Except.error e =>
-        logWarning s!"invalid JSON in package manifest: {e}"
-        pure {}
+        logWarning s!"improperly formatted package manifest: {e}"
+        return {}
+    | Except.error e =>
+      logWarning s!"invalid JSON in package manifest: {e}"
+      return {}
   else
-    pure {}
+    return {}
 
 def loadWorkspace (config : LakeConfig) (updateDeps := false) : LogIO Workspace := do
   let pkg ← loadPkg config

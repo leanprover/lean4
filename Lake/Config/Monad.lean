@@ -104,7 +104,7 @@ variable [MonadLake m] [Functor m]
   (·.cc) <$> getLeanInstall
 
 @[inline] def getLeanCc? : m (Option String) :=
-  (fun lean => if lean.customCc then lean.cc.toString else none) <$> getLeanInstall
+  (·.leanCc?) <$> getLeanInstall
 
 /- ## Lake Install Helpers -/
 
@@ -147,13 +147,8 @@ Otherwise, it may fall back on whatever the default Lake instance is.
   return (← getSearchPath sharedLibPathEnvVar) ++ (← getLibPath)
 
 def getAugmentedEnv : LakeT BaseIO (Array (String × Option String)) :=
-  return #[
-    ("LAKE", (← getLake).toString),
-    ("LAKE_HOME", (← getLakeHome).toString),
-    ("LEAN_SYSROOT", (← getLeanSysroot).toString),
-    ("LEAN_AR", (← getLeanAr).toString),
-    ("LEAN_CC", ← getLeanCc?),
-    ("LEAN_PATH", (← getAugmentedLeanPath).toString),
-    ("LEAN_SRC_PATH", (← getAugmentedLeanSrcPath).toString),
-    (sharedLibPathEnvVar, (← getAugmentedLibPath).toString)
+  return mkInstallEnv (← getLeanInstall) (← getLakeInstall) ++ #[
+    ("LEAN_PATH", some (← getAugmentedLeanPath).toString),
+    ("LEAN_SRC_PATH", some (← getAugmentedLeanSrcPath).toString),
+    (sharedLibPathEnvVar, some (← getAugmentedLibPath).toString)
   ]

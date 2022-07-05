@@ -49,6 +49,10 @@ structure LeanInstall where
   customCc : Bool
   deriving Inhabited, Repr
 
+/-- The `LEAN_CC` of the Lean installation. -/
+def LeanInstall.leanCc? (self : LeanInstall) : Option String :=
+  if self.customCc then self.cc.toString else none
+
 /-- Standard path of `lake` in a Lake installation. -/
 def lakeExe (buildHome : FilePath) :=
   buildHome / "bin" / "lake" |>.withExtension FilePath.exeExtension
@@ -60,6 +64,16 @@ structure LakeInstall where
   oleanDir := home / "build" / "lib"
   lake := lakeExe <| home / "build"
   deriving Inhabited, Repr
+
+/-- Environment variable settings based on the given Lean and Lake installations. -/
+def mkInstallEnv (lean : LeanInstall) (lake : LakeInstall) : Array (String × Option String)  :=
+  #[
+    ("LAKE", lake.lake.toString),
+    ("LAKE_HOME", lake.home.toString),
+    ("LEAN_SYSROOT", lean.sysroot.toString),
+    ("LEAN_AR", lean.ar.toString),
+    ("LEAN_CC", lean.leanCc?)
+  ]
 
 /--
 Try to find the sysroot of the given `lean` command (if it exists)

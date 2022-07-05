@@ -228,8 +228,9 @@ def serve (config : LakeConfig) (args : Array String) : LogIO UInt32 := do
       let ctx := mkLakeContext ws config
       pure (← LakeT.run ctx getAugmentedEnv, ws.root.moreServerArgs)
     catch _ =>
+      let installEnv := mkInstallEnv config.leanInstall config.lakeInstall
       logWarning "package configuration has errors, falling back to plain `lean --server`"
-      pure (#[(invalidConfigEnvVar, "1")], #[])
+      pure (installEnv.push (invalidConfigEnvVar, "1"), #[])
   (← IO.Process.spawn {
     cmd := config.leanInstall.lean.toString
     args := #["--server"] ++ moreServerArgs ++ args

@@ -82,7 +82,7 @@ instance [FamilyDef PackageData f α]
 : FamilyDef BuildData (BuildInfo.key (.packageFacet p f)) α where
   family_key_eq_type := by unfold BuildData; simp
 
-instance [FamilyDef CustomData t α]
+instance [FamilyDef CustomData (p.name, t) α]
 : FamilyDef BuildData (BuildInfo.key (.customTarget p t)) α where
   family_key_eq_type := by unfold BuildData; simp
 

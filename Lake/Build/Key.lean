@@ -68,34 +68,34 @@ quickCmp k k' = Ordering.eq → k = k' := by
   | moduleFacet m f =>
     cases k'
     case moduleFacet m' f' =>
-      dsimp; split
-      next m_eq => intro f_eq; simp [eq_of_cmp m_eq, eq_of_cmp f_eq]
+      dsimp only; split
+      next m_eq => intro f_eq; rw [eq_of_cmp m_eq, eq_of_cmp f_eq]
       next => intro; contradiction
     all_goals (intro; contradiction)
   | packageFacet p f =>
     cases k'
     case packageFacet p' f' =>
-      dsimp; split
-      next p_eq => intro f_eq; simp [eq_of_cmp p_eq, eq_of_cmp f_eq]
+      dsimp only; split
+      next p_eq => intro f_eq; rw [eq_of_cmp p_eq, eq_of_cmp f_eq]
       next => intro; contradiction
     all_goals (intro; contradiction)
   | targetFacet p t f =>
     cases k'
     case targetFacet p' t' f' =>
-      dsimp; split
+      dsimp only; split
       next p_eq =>
         split
         next t_eq =>
           intro f_eq
-          simp [eq_of_cmp p_eq, eq_of_cmp t_eq, eq_of_cmp f_eq]
+          rw [eq_of_cmp p_eq, eq_of_cmp t_eq, eq_of_cmp f_eq]
         next => intro; contradiction
       next => intro; contradiction
     all_goals (intro; contradiction)
   | customTarget p t =>
     cases k'
     case customTarget p' t' =>
-      dsimp; split
-      next p_eq => intro t_eq; simp [eq_of_cmp p_eq, eq_of_cmp t_eq]
+      dsimp only; split
+      next p_eq => intro t_eq; rw [eq_of_cmp p_eq, eq_of_cmp t_eq]
       next => intro; contradiction
     all_goals (intro; contradiction)
 

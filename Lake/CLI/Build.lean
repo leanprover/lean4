@@ -60,8 +60,15 @@ def resolveExeTarget (exe : LeanExe) (facet : String) : Except CliError OpaqueTa
     throw <| CliError.unknownFacet "executable" facet
 
 def resolveTargetInPackage (ws : Workspace) (pkg : Package) (target : Name) (facet : String) : Except CliError OpaqueTarget :=
-  if let some target := pkg.findTargetConfig? target then
-    return pkg.customTarget target.name |>.target
+  if let some config := pkg.findTargetConfig? target then
+    if !facet.isEmpty then
+      throw <| CliError.invalidFacet target facet
+    else if h : pkg.name = config.package then
+      have : FamilyDef CustomData (pkg.name, config.name) (ActiveBuildTarget config.resultType) :=
+        ⟨by simp [h]⟩
+      return pkg.customTarget config.name |>.target
+    else
+      throw <| CliError.badTarget pkg.name target config.package config.name
   else if let some exe := pkg.findLeanExe? target then
     resolveExeTarget exe facet
   else if let some lib := pkg.findExternLib? target then
@@ -99,24 +106,31 @@ def resolvePackageTarget (ws : Workspace) (pkg : Package) (facet : String) : Exc
   else
     throw <| CliError.unknownFacet "package" facet
 
-def resolveTargetInWorkspace (ws : Workspace) (spec : String) (facet : String) : Except CliError OpaqueTarget :=
-  if let some (pkg, target) := ws.findTargetConfig? spec then
-    return pkg.customTarget target.name |>.target
-  else if let some exe := ws.findLeanExe? spec.toName then
+def resolveTargetInWorkspace (ws : Workspace) (target : Name) (facet : String) : Except CliError OpaqueTarget :=
+  if let some (pkg, config) := ws.findTargetConfig? target then
+    if !facet.isEmpty then
+      throw <| CliError.invalidFacet config.name facet
+    else if h : pkg.name = config.package then
+      have : FamilyDef CustomData (pkg.name, config.name) (ActiveBuildTarget config.resultType) :=
+        ⟨by simp [h]⟩
+      return pkg.customTarget config.name |>.target
+    else
+      throw <| CliError.badTarget pkg.name target config.package config.name
+  else if let some exe := ws.findLeanExe? target then
     resolveExeTarget exe facet
-  else if let some lib := ws.findExternLib? spec.toName then
+  else if let some lib := ws.findExternLib? target then
     if facet.isEmpty then
       return lib.target.withoutInfo
     else
-      throw <| CliError.invalidFacet spec facet
-  else if let some lib := ws.findLeanLib? spec.toName then
+      throw <| CliError.invalidFacet target facet
+  else if let some lib := ws.findLeanLib? target then
     resolveLibTarget lib facet
-  else if let some pkg := ws.findPackage? spec.toName then
+  else if let some pkg := ws.findPackage? target then
     resolvePackageTarget ws pkg facet
-  else if let some mod := ws.findModule? spec.toName then
+  else if let some mod := ws.findModule? target then
     resolveModuleTarget ws mod facet
   else
-    throw <| CliError.unknownTarget spec
+    throw <| CliError.unknownTarget target
 
 def resolveTargetBaseSpec (ws : Workspace) (spec : String) (facet := "") : Except CliError OpaqueTarget := do
   match spec.splitOn "/" with
@@ -133,7 +147,7 @@ def resolveTargetBaseSpec (ws : Workspace) (spec : String) (facet := "") : Excep
       else
         throw <| CliError.unknownModule mod
     else
-      resolveTargetInWorkspace ws spec facet
+      resolveTargetInWorkspace ws spec.toName facet
   | [pkgSpec, targetSpec] =>
     let pkgSpec := if pkgSpec.startsWith "@" then pkgSpec.drop 1 else pkgSpec
     let pkg ← parsePackageSpec ws pkgSpec

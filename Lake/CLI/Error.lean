@@ -22,9 +22,10 @@ inductive CliError
 | unknownModule (mod : Name)
 | unknownPackage (spec : String)
 | unknownFacet (type facet : String)
-| unknownTarget (spec : String)
+| unknownTarget (target : Name)
 | missingModule (pkg : Name) (mod : Name)
 | missingTarget (pkg : Name) (spec : String)
+| badTarget (pkg target cfgPkg cfgName : Name)
 | invalidTargetSpec (spec : String) (tooMany : Char)
 | invalidFacet (target : Name) (facet : String)
 /- Script CLI Error -/
@@ -51,9 +52,10 @@ def toString : CliError → String
 | unknownModule mod       => s!"unknown module `{mod.toString false}`"
 | unknownPackage spec     => s!"unknown package `{spec}`"
 | unknownFacet ty f       => s!"unknown {ty} facet `{f}`"
-| unknownTarget spec      => s!"unknown target `{spec}`"
+| unknownTarget t         => s!"unknown target `{t.toString false}`"
 | missingModule pkg mod   => s!"package '{pkg.toString false}' has no module '{mod.toString false}'"
 | missingTarget pkg spec  => s!"package '{pkg.toString false}' has no target '{spec}'"
+| badTarget p t p' t'     => s!"target registered as `{p.toString false}/{t.toString false}` but configured as `{p'.toString false}/{t'.toString false}` "
 | invalidTargetSpec s c   => s!"invalid script spec '{s}' (too many '{c}')"
 | invalidFacet t f        => s!"invalid facet `{f}`; target {t.toString false} has no facets"
 | unknownScript s         => s!"unknown script {s}"

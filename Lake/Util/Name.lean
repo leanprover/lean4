@@ -257,15 +257,17 @@ theorem eq_of_quickCmp :
 instance : EqOfCmp WfName WfName.quickCmp where
   eq_of_cmp h := WfName.eq_of_quickCmp h
 
-open Syntax in
-set_option linter.unusedVariables.patternVars false in -- false positive on `w`
+open Syntax
+
+def quoteNameFrom (ref : Syntax) : Name → Term
+| .anonymous => mkCIdentFrom ref ``anonymous
+| .str p s _ => mkApp (mkCIdentFrom ref ``mkStr)
+  #[quoteNameFrom ref p, quote s]
+| .num p v _ => mkApp (mkCIdentFrom ref ``mkNum)
+  #[quoteNameFrom ref p, quote v]
+
 protected def quoteFrom (ref : Syntax) : WfName → Term
-| ⟨n, w⟩ => match n with
-  | .anonymous => mkCIdentFrom ref ``anonymous
-  | .str p s _ => mkApp (mkCIdentFrom ref ``mkStr)
-    #[WfName.quoteFrom ref ⟨p, w.elimStr⟩, quote s]
-  | .num p v _ => mkApp (mkCIdentFrom ref ``mkNum)
-    #[WfName.quoteFrom ref ⟨p, w.elimNum⟩, quote v]
+| ⟨n, _⟩ => quoteNameFrom ref n
 
 instance : Quote WfName := ⟨WfName.quoteFrom Syntax.missing⟩
 
@@ -282,7 +284,7 @@ properties that help ensure certain features of Lake work as intended.
 -/
 scoped macro:max (name := wfNameLit) "&" noWs stx:name : term =>
   if let some nm := stx.raw.isNameLit? then
-    return WfName.quoteFrom stx <| WfName.ofName nm
+    return WfName.quoteNameFrom stx nm
   else
     Macro.throwErrorAt stx "ill-formed name literal"
 

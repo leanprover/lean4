@@ -44,13 +44,13 @@ as needed (via `target_data`).
 opaque TargetData (facet : WfName) : Type
 
 /--
-The open type family which maps a custom target's name to its build data
-in the Lake build store.
+The open type family which maps a custom target (package × target name) to
+its build data in the Lake build store.
 
 It is an open type, meaning additional mappings can be add lazily
 as needed (via `custom_data`).
 -/
-opaque CustomData (target : WfName) : Type
+opaque CustomData (target : WfName × WfName) : Type
 
 --------------------------------------------------------------------------------
 /-! ## Build Data                                                             -/
@@ -65,7 +65,7 @@ abbrev BuildData : BuildKey → Type
 | .moduleFacet _ f => ModuleData f
 | .packageFacet _ f => PackageData f
 | .targetFacet _ _ f => TargetData f
-| .customTarget _ t => CustomData t
+| .customTarget p t => CustomData (p, t)
 
 --------------------------------------------------------------------------------
 /-! ## Macros for Declaring Build Data                                        -/
@@ -75,26 +75,28 @@ abbrev BuildData : BuildKey → Type
 scoped macro (name := packageDataDecl) doc?:optional(Parser.Command.docComment)
 "package_data " id:ident " : " ty:term : command => do
   let dty := mkCIdentFrom (← getRef) ``PackageData
-  let key := WfName.quoteFrom id <| WfName.ofName <| id.getId
+  let key := WfName.quoteNameFrom id id.getId
   `($[$doc?]? family_def $id : $dty $key := $ty)
 
 /-- Macro for declaring new `ModuleData`. -/
 scoped macro (name := moduleDataDecl) doc?:optional(Parser.Command.docComment)
 "module_data " id:ident " : " ty:term : command => do
   let dty := mkCIdentFrom (← getRef) ``ModuleData
-  let key := WfName.quoteFrom id <| WfName.ofName <| id.getId
+  let key := WfName.quoteNameFrom id id.getId
   `($[$doc?]? family_def $id : $dty $key := $ty)
 
 /-- Macro for declaring new `TargetData`. -/
 scoped macro (name := targetDataDecl) doc?:optional(Parser.Command.docComment)
 "target_data " id:ident " : " ty:term : command => do
   let dty := mkCIdentFrom (← getRef) ``TargetData
-  let key := WfName.quoteFrom id <| WfName.ofName <| id.getId
+  let key := WfName.quoteNameFrom id id.getId
   `($[$doc?]? family_def $id : $dty $key := $ty)
 
 /-- Macro for declaring new `CustomData`. -/
 scoped macro (name := customDataDecl) doc?:optional(Parser.Command.docComment)
-"custom_data " id:ident " : " ty:term : command => do
+"custom_data " pkg:ident tgt:ident " : " ty:term : command => do
   let dty := mkCIdentFrom (← getRef) ``CustomData
-  let key := WfName.quoteFrom id <| WfName.ofName <| id.getId
-  `($[$doc?]? family_def $id : $dty $key := $ty)
+  let id := mkIdentFrom tgt (pkg.getId ++ tgt.getId)
+  let pkg := WfName.quoteNameFrom pkg pkg.getId
+  let tgt := WfName.quoteNameFrom tgt tgt.getId
+  `($[$doc?]? family_def $id : $dty ($pkg, $tgt) := $ty)

@@ -167,10 +167,9 @@ the initial set of Lake package facets (e.g., `extraDep`).
       error s!"do not know how to build package facet `{facet}`"
   | .customTarget pkg target =>
     if let some config := pkg.findTargetConfig? target then
-      if h : target = config.name then
-        have h' : FamilyDef CustomData target (ActiveBuildTarget config.resultType) :=
-          ⟨by simp [h]⟩
-        liftM <| cast (by rw [← h'.family_key_eq_type]) <| config.target.activate
+      if h : pkg.name = config.package ∧ target = config.name then
+        have h' : CustomData (pkg.name, target) = ActiveBuildTarget config.resultType := by simp [h]
+        liftM <| cast (by rw [← h']) <| config.target.activate
       else
         error "target's name in the configuration does not match the name it was registered with"
     else

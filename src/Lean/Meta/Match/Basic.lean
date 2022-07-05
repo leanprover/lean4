@@ -107,7 +107,7 @@ end Pattern
 partial def instantiatePatternMVars : Pattern → MetaM Pattern
   | Pattern.inaccessible e      => return Pattern.inaccessible (← instantiateMVars e)
   | Pattern.val e               => return Pattern.val (← instantiateMVars e)
-  | Pattern.ctor n us ps fields => return Pattern.ctor n us (← ps.mapM instantiateMVars) (← fields.mapM instantiatePatternMVars)
+  | Pattern.ctor n us ps fields => return Pattern.ctor n us (← ps.mapM fun p => instantiateMVars p) (← fields.mapM instantiatePatternMVars)
   | Pattern.as x p h            => return Pattern.as x (← instantiatePatternMVars p) h
   | Pattern.arrayLit t xs       => return Pattern.arrayLit (← instantiateMVars t) (← xs.mapM instantiatePatternMVars)
   | p                   => return p
@@ -123,7 +123,7 @@ def AltLHS.collectFVars (altLHS: AltLHS) : StateRefT CollectFVars.State MetaM Un
 
 def instantiateAltLHSMVars (altLHS : AltLHS) : MetaM AltLHS :=
   return { altLHS with
-    fvarDecls := (← altLHS.fvarDecls.mapM instantiateLocalDeclMVars),
+    fvarDecls := (← altLHS.fvarDecls.mapM fun d => instantiateLocalDeclMVars d),
     patterns  := (← altLHS.patterns.mapM instantiatePatternMVars)
   }
 

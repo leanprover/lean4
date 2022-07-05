@@ -30,8 +30,12 @@ structure State where
 abbrev M := StateM State
 
 instance : MonadMCtx M where
-  getMCtx := return (← get).mctx
-  modifyMCtx f := modify fun s => { s with mctx := f s.mctx }
+  getMCtx         := return (← get).mctx
+  modifyMCtx f    := modify fun s => { s with mctx := f s.mctx }
+  modifyGetMCtx f := modifyGet fun s => let (a, mctx) := f s.mctx; (a, { s with mctx })
+
+instance : MonadLift MCtxM M where
+  monadLift := liftMCtxM
 
 def mkFreshId : M Name := do
   let s ← get

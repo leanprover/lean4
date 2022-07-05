@@ -65,7 +65,7 @@ where
       withLocalDeclD minorName minorType fun minor => do
         let rhs    := if hasParams then mkAppN minor xs else mkApp minor (mkConst `Unit.unit)
         let minors := minors.push (minor, minorNumParams)
-        let fvarDecls ← lhs.fvarDecls.mapM instantiateLocalDeclMVars
+        let fvarDecls ← lhs.fvarDecls.mapM fun d => instantiateLocalDeclMVars d
         let alts   := { ref := lhs.ref, idx := idx, rhs := rhs, fvarDecls := fvarDecls, patterns := lhs.patterns : Alt } :: alts
         loop lhss alts minors
 

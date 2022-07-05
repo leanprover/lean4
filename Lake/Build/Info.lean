@@ -51,7 +51,7 @@ abbrev LeanLib.sharedBuildKey (self : LeanLib) : BuildKey :=
   .targetFacet self.pkg.name self.name sharedFacet
 
 abbrev LeanExe.buildKey (self : LeanExe) : BuildKey :=
-  .targetFacet self.pkg.name self.name facet
+  .targetFacet self.pkg.name self.name exeFacet
 
 abbrev ExternLib.staticBuildKey (self : ExternLib) : BuildKey :=
   .targetFacet self.pkg.name self.name staticFacet
@@ -94,7 +94,7 @@ instance [FamilyDef TargetData LeanLib.sharedFacet α]
 : FamilyDef BuildData (BuildInfo.key (.sharedLeanLib l)) α where
   family_key_eq_type := by unfold BuildData; simp
 
-instance [FamilyDef TargetData LeanExe.facet α]
+instance [FamilyDef TargetData LeanExe.exeFacet α]
 : FamilyDef BuildData (BuildInfo.key (.leanExe x)) α where
   family_key_eq_type := by unfold BuildData; simp
 
@@ -191,7 +191,7 @@ abbrev LeanLib.shared (self : LeanLib) : BuildInfo :=
   .sharedLeanLib self
 
 /-- Build info of the Lean executable. -/
-abbrev LeanExe.info (self : LeanExe) : BuildInfo :=
+abbrev LeanExe.exe (self : LeanExe) : BuildInfo :=
   .leanExe self
 
 /-- Build info of the external library's static binary. -/

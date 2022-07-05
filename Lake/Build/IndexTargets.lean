@@ -67,10 +67,10 @@ def LeanLib.buildModules (self : LeanLib) (facet : WfName)
 -- # Lean Executable Targets
 
 @[inline] protected def LeanExe.build (self : LeanExe) : BuildM ActiveFileTarget :=
-  self.info.build
+  self.exe.build
 
 @[inline] protected def LeanExe.target (self : LeanExe) : FileTarget :=
-  self.info.target.withInfo self.file
+  self.exe.target.withInfo self.file
 
 @[inline] protected def Package.exeTarget (self : Package) : FileTarget :=
   self.builtinExe.target

@@ -179,7 +179,7 @@ the initial set of Lake package facets (e.g., `extraDep`).
   | .sharedLeanLib lib =>
     mkTargetFacetBuild LeanLib.sharedFacet lib.recBuildShared
   | .leanExe exe =>
-    mkTargetFacetBuild LeanExe.facet exe.recBuild
+    mkTargetFacetBuild LeanExe.exeFacet exe.recBuild
   | .staticExternLib lib =>
     mkTargetFacetBuild ExternLib.staticFacet lib.target.activate
   | .sharedExternLib lib =>

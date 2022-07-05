@@ -74,7 +74,7 @@ package_data extraDep : ActiveOpaqueTarget
 
 abbrev LeanLib.staticFacet := &`leanLib.static
 abbrev LeanLib.sharedFacet := &`leanLib.shared
-abbrev LeanExe.facet := &`leanExe
+abbrev LeanExe.exeFacet := &`leanExe
 abbrev ExternLib.staticFacet := &`externLib.static
 abbrev ExternLib.sharedFacet := &`externLib.shared
 

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Lake.Util.Log
-import Lake.Util.Misc
+import Lake.Util.Lift
 
 open System
 namespace Lake

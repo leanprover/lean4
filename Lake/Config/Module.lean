@@ -67,12 +67,12 @@ abbrev pkg (self : Module) : Package :=
 @[inline] def oFile (self : Module) : FilePath :=
   Lean.modToFilePath self.pkg.irDir self.name "o"
 
-@[inline] def dynlibName (self : Module) : FilePath :=
+@[inline] def dynlibName (self : Module) : String :=
   -- NOTE: file name MUST be unique on Windows
   self.name.toStringWithSep "-"
 
 @[inline] def dynlibFile (self : Module) : FilePath :=
-  self.pkg.libDir / s!"lib{self.dynlibName}.{sharedLibExt}"
+  self.pkg.libDir / nameToSharedLib self.dynlibName
 
 @[inline] def buildType (self : Module) : BuildType :=
   self.lib.buildType

@@ -219,14 +219,14 @@ def printPaths (config : LakeConfig) (imports : List String := []) : MainM PUnit
     exit noConfigFileCode
 
 def env (cmd : String) (args : Array String := #[]) : LakeT IO UInt32 := do
-  IO.Process.spawn {cmd, args, env := ← getLeanEnv} >>= (·.wait)
+  IO.Process.spawn {cmd, args, env := ← getAugmentedEnv} >>= (·.wait)
 
 def serve (config : LakeConfig) (args : Array String) : LogIO UInt32 := do
   let (extraEnv, moreServerArgs) ←
     try
       let ws ← loadWorkspace config
       let ctx := mkLakeContext ws config
-      pure (← LakeT.run ctx getLeanEnv, ws.root.moreServerArgs)
+      pure (← LakeT.run ctx getAugmentedEnv, ws.root.moreServerArgs)
     catch _ =>
       logWarning "package configuration has errors, falling back to plain `lean --server`"
       pure (#[(invalidConfigEnvVar, "1")], #[])

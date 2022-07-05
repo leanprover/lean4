@@ -32,15 +32,10 @@ def proc (args : IO.Process.SpawnArgs) : BuildM PUnit := do
     logError s!"external command {args.cmd} exited with status {out.exitCode}"
     failure
 
-def getSearchPath (envVar : String) : IO SearchPath := do
-  match (← IO.getEnv envVar) with
-  | some path => pure <| SearchPath.parse path
-  | none => pure []
-
 def compileLeanModule (leanFile : FilePath)
 (oleanFile? ileanFile? cFile? : Option FilePath)
-(oleanPath : SearchPath := []) (rootDir : FilePath := ".")
-(dynlibs : Array FilePath := #[]) (dynlibPath : SearchPath := {})
+(leanPath : SearchPath := []) (rootDir : FilePath := ".")
+(dynlibs : Array String := #[]) (dynlibPath : SearchPath := {})
 (leanArgs : Array String := #[]) (lean : FilePath := "lean")
 : BuildM PUnit := do
   let mut args := leanArgs ++
@@ -56,19 +51,12 @@ def compileLeanModule (leanFile : FilePath)
     args := args ++ #["-c", cFile.toString]
   for dynlib in dynlibs do
     args := args.push s!"--load-dynlib={dynlib}"
-  let dynlibVar :=
-    if Platform.isWindows then
-      "PATH"
-    else if Platform.isOSX then
-      "DYLD_LIBRARY_PATH"
-    else
-      "LD_LIBRARY_PATH"
   proc {
     args
     cmd := lean.toString
     env := #[
-      ("LEAN_PATH", oleanPath.toString),
-      (dynlibVar, (← getSearchPath dynlibVar) ++ dynlibPath |>.toString)
+      ("LEAN_PATH", leanPath.toString),
+      (sharedLibPathEnvVar, (← getSearchPath sharedLibPathEnvVar) ++ dynlibPath |>.toString)
     ]
   }
 

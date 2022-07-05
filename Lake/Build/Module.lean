@@ -14,7 +14,7 @@ namespace Lake
 
 -- # Solo Module Targets
 
-def Module.soloTarget (mod : Module) (dynlibs : Array FilePath)
+def Module.soloTarget (mod : Module) (dynlibs : Array String)
 (dynlibPath : SearchPath) (depTarget : BuildTarget x) (leanOnly : Bool) : OpaqueTarget :=
   Target.opaque <| depTarget.bindOpaqueSync fun depTrace => do
     let argTrace : BuildTrace := pureHash mod.leanArgs
@@ -24,12 +24,12 @@ def Module.soloTarget (mod : Module) (dynlibs : Array FilePath)
     if leanOnly then
       unless modUpToDate do
         compileLeanModule mod.leanFile mod.oleanFile mod.ileanFile none
-          (← getOleanPath) mod.rootDir dynlibs dynlibPath mod.leanArgs (← getLean)
+          (← getLeanPath) mod.rootDir dynlibs dynlibPath mod.leanArgs (← getLean)
     else
       let cUpToDate ← modTrace.checkAgainstFile mod.cFile mod.cTraceFile
       unless modUpToDate && cUpToDate do
         compileLeanModule mod.leanFile mod.oleanFile mod.ileanFile mod.cFile
-          (← getOleanPath) mod.rootDir dynlibs dynlibPath mod.leanArgs (← getLean)
+          (← getLeanPath) mod.rootDir dynlibs dynlibPath mod.leanArgs (← getLean)
       modTrace.writeToFile mod.cTraceFile
     modTrace.writeToFile mod.traceFile
     return mixTrace (← computeTrace mod) depTrace
@@ -79,7 +79,9 @@ def recBuildExternalDynlibs (pkgs : Array Package)
       if let some parent := target.info.parent then
         libDirs := libDirs.push parent
       if let some stem := target.info.fileStem then
-        if stem.startsWith "lib" then
+        if Platform.isWindows then
+          targets := targets.push <| target.withInfo stem
+        else if stem.startsWith "lib" then
           targets := targets.push <| target.withInfo <| stem.drop 3
         else
           logWarning s!"external library `{target.info}` was skipped because it does not start with `lib`"
@@ -147,7 +149,7 @@ artifact.
     <| ← imports.mapM (·.leanBin.recBuild)
   let depTarget := Target.active <| ← extraDepTarget.mixOpaqueAsync
     <| ← dynlibsTarget.mixOpaqueAsync importTarget
-  let dynlibs := dynlibsTarget.info.map (FilePath.mk s!"lib{·}.{sharedLibExt}")
+  let dynlibs := dynlibsTarget.info.map toString
 
   -- Build Module
   let modTarget ← mod.soloTarget dynlibs libDirs.toList depTarget leanOnly |>.activate

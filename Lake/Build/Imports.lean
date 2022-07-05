@@ -53,4 +53,4 @@ def Package.buildImportsAndDeps (imports : List String) (self : Package) : Build
     let dynlibs ← dynlibTargets.mapM (·.build)
     let externLibs ← externLibTargets.mapM (·.build)
     -- Note: Lean wants the external library symbols before module symbols
-    return  externLibs ++ dynlibs
+    return externLibs ++ dynlibs

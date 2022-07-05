@@ -4,10 +4,13 @@ set -exo pipefail
 LAKE=${LAKE:-../../build/bin/lake}
 
 if [ "$OS" = Windows_NT ]; then
+LIB_PREFIX=
 SHARED_LIB_EXT=dll
 elif [ "`uname`" = Darwin ]; then
+LIB_PREFIX=lib
 SHARED_LIB_EXT=dylib
 else
+LIB_PREFIX=lib
 SHARED_LIB_EXT=so
 fi
 
@@ -38,8 +41,8 @@ $LAKE build a b
 $LAKE build foo:static
 $LAKE build bar:shared
 
-test -f ./build/lib/libFoo.a
-test -f ./build/lib/Bar.$SHARED_LIB_EXT
+test -f ./build/lib/${LIB_PREFIX}Foo.a
+test -f ./build/lib/${LIB_PREFIX}Bar.$SHARED_LIB_EXT
 
 $LAKE build bark | grep -m1 Bark!
 

@@ -5,7 +5,7 @@ Authors: Mac Malone
 -/
 import Lake.Util.Task
 import Lake.Util.OptionIO
-import Lake.Util.Misc
+import Lake.Util.Lift
 
 /-!
 This module Defines the asynchronous monadic interface for Lake.
@@ -84,10 +84,10 @@ instance : Async OptionIO BaseIO OptionIOTask where
 instance : Await Task Id := ⟨Task.get⟩
 
 instance : Await (EIOTask ε) (EIO ε) where
-  await x := IO.wait x >>= liftExcept
+  await x := IO.wait x >>= liftM
 
 instance : Await OptionIOTask OptionIO where
-  await x := IO.wait x >>= liftOption
+  await x := IO.wait x >>= liftM
 
 instance [Await k m] : Await (ExceptT ε k) (ExceptT ε m) where
   await x := ExceptT.mk <| await x.run
@@ -203,18 +203,12 @@ instance : ApplicativeAsync BaseIO BaseIOTask where
 
 instance [ApplicativeAsync n k] : ApplicativeAsync n (ExceptT ε k) where
   seqWithAsync f ka kb :=
-    let h xa xb : Except ε _ := Id.run <| ExceptT.run do
-      let a ← liftExcept xa
-      let b ← liftExcept xb
-      pure <| f a b
+    let h xa xb : Except ε _ := return f (← xa) (← xb)
     cast (by delta ExceptT; rfl) <| seqWithAsync (n := n) h ka kb
 
 instance [ApplicativeAsync n k] : ApplicativeAsync n (OptionT k) where
   seqWithAsync f ka kb :=
-    let h xa xb := Id.run <| OptionT.run do
-      let a ← liftOption xa
-      let b ← liftOption xb
-      pure <| f a b
+    let h xa xb : Option _ := return f (← xa) (← xb)
     cast (by delta OptionT; rfl) <| seqWithAsync (n := n) h ka kb
 
 --------------------------------------------------------------------------------

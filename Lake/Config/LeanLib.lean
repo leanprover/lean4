@@ -50,17 +50,17 @@ namespace LeanLib
 @[inline] def isBuildableModule (mod : Name) (self : LeanLib) : Bool :=
   self.config.isBuildableModule mod
 
-/-- The file name of the library's static binary (i.e., `lib{libName}.a`) -/
+/-- The file name of the library's static binary (i.e., its `.a`) -/
 @[inline] def staticLibFileName (self : LeanLib) : FilePath :=
-  s!"lib{self.config.libName}.a"
+  nameToStaticLib self.config.libName
 
 /-- The path to the static library in the package's `libDir`. -/
 @[inline] def staticLibFile (self : LeanLib) : FilePath :=
   self.pkg.libDir / self.staticLibFileName
 
-/-- The file name of the library's shared binary (i.e., its `dll`/`dylib`/`so`) . -/
+/-- The file name of the library's shared binary (i.e., its `dll`, `dylib`, or `so`) . -/
 @[inline] def sharedLibFileName (self : LeanLib) : FilePath :=
-  s!"{self.config.libName}.{sharedLibExt}"
+  nameToSharedLib self.config.libName
 
 /-- The path to the shared library in the package's `libDir`. -/
 @[inline] def sharedLibFile (self : LeanLib) : FilePath :=

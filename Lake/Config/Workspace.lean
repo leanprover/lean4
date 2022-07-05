@@ -108,6 +108,13 @@ def oleanPath (self : Workspace) : SearchPath :=
 def leanSrcPath (self : Workspace) : SearchPath :=
   self.packageList.map (·.srcDir)
 
+/--
+The shared library path of the workspace (e.g., for `--load-dynlib`).
+This is added to the `sharedLibPathEnvVar` by `lake env`.
+-/
+def libPath (self : Workspace) : SearchPath :=
+  self.packageList.map (·.libDir)
+
 /-- The `LeanPaths` of the workspace. -/
 def leanPaths (self : Workspace) : LeanPaths where
   oleanPath := self.packageList.map (·.oleanDir)

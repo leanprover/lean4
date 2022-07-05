@@ -3,14 +3,10 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lake.Util.NativeLib
+
 open System
 namespace Lake
-
-/-- The shared library file extension for the `Platform`. -/
-def sharedLibExt : String :=
-  if Platform.isWindows then "dll"
-  else if Platform.isOSX  then "dylib"
-  else "so"
 
 /-- Standard path of `lean` in Lean installation. -/
 def leanExe (sysroot : FilePath) :=

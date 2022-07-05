@@ -658,6 +658,10 @@ private partial def consumeImplicits (stx : Syntax) (e eType : Expr) (hasArgs : 
 private partial def resolveLValLoop (lval : LVal) (e eType : Expr) (previousExceptions : Array Exception) (hasArgs : Bool) : TermElabM (Expr × LValResolution) := do
   let (e, eType) ← consumeImplicits lval.getRef e eType hasArgs
   tryPostponeIfMVar eType
+  /- If `eType` is still a metavariable application, we try to apply default instances to "unblock" it. -/
+  if (← isMVarApp eType) then
+    synthesizeSyntheticMVarsUsingDefault
+  let eType ← instantiateMVars eType
   try
     let lvalRes ← resolveLValAux e eType lval
     return (e, lvalRes)

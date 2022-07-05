@@ -992,10 +992,13 @@ def tryPostpone : TermElabM Unit := do
   if (← read).mayPostpone then
     throwPostpone
 
+/-- Return `true` if `e` reduces (by unfolding only `[reducible]` declarations) to `?m ...` -/
+def isMVarApp (e : Expr) : TermElabM Bool :=
+  return (← whnfR e).getAppFn.isMVar
+
 /-- If `mayPostpone == true` and `e`'s head is a metavariable, throw `Exception.postpone`. -/
 def tryPostponeIfMVar (e : Expr) : TermElabM Unit := do
-  let e ← whnfR e
-  if e.getAppFn.isMVar then
+  if (← isMVarApp e) then
     tryPostpone
 
 /-- If `e? = some e`, then `tryPostponeIfMVar e`, otherwise it is just `tryPostpone`. -/

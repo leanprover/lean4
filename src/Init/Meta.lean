@@ -442,15 +442,43 @@ structure Module where
   header   : Syntax
   commands : Array Syntax
 
-/-- Expand all macros in the given syntax -/
-partial def expandMacros : Syntax → MacroM Syntax
-  | stx@(Syntax.node info k args) => do
-    match (← expandMacro? stx) with
-    | some stxNew => expandMacros stxNew
-    | none        => do
-      let args ← Macro.withIncRecDepth stx <| args.mapM expandMacros
-      pure <| Syntax.node info k args
-  | stx => pure stx
+/--
+  Expand macros in the given syntax.
+  A node with kind `k` is visited only if `p k` is true.
+
+  Note that the default value for `p` returns false for `by ...` nodes.
+  This is a "hack". The tactic framework abuses the macro system to implement extensible tactics.
+  For example, one can define
+  ```lean
+  syntax "my_trivial" : tactic -- extensible tactic
+
+  macro_rules | `(tactic| my_trivial) => `(tactic| decide)
+  macro_rules | `(tactic| my_trivial) => `(tactic| assumption)
+  ```
+  When the tactic evaluator finds the tactic `my_trivial`, it tries to evaluate the `macro_rule` expansions
+  until one "works", i.e., the macro expansion is evaluated without producing an exception.
+  We say this solution is a bit hackish because the term elaborator may invoke `expandMacros` with `(p := fun _ => true)`,
+  and expand the tactic macros as just macros. In the example above, `my_trivial` would be replaced with `assumption`,
+  `decide` would not be tried if `assumption` fails at tactic evaluation time.
+
+  We are considering two possible solutions for this issue:
+  1- A proper extensible tactic feature that does not rely on the macro system.
+
+  2- Typed macros that know the syntax categories they're working in. Then, we would be able to select which
+     syntatic categories are expanded by `expandMacros`.
+-/
+partial def expandMacros (stx : Syntax) (p : SyntaxNodeKind → Bool := fun k => k != `Lean.Parser.Term.byTactic) : MacroM Syntax :=
+  match stx with
+  | .node info k args => do
+    if p k then
+      match (← expandMacro? stx) with
+      | some stxNew => expandMacros stxNew
+      | none        => do
+        let args ← Macro.withIncRecDepth stx <| args.mapM expandMacros
+        return .node info k args
+    else
+      return stx
+  | stx => return stx
 
 /- Helper functions for processing Syntax programmatically -/
 

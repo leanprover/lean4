@@ -50,7 +50,9 @@ def Package.buildImportsAndDeps (imports : List String) (self : Package) : Build
     let dynlibTargets := bStore.collectModuleFacetArray Module.dynlibFacet
     let externLibTargets := bStore.collectSharedExternLibs
     importTargets.forM (·.buildOpaque)
-    let dynlibs ← dynlibTargets.mapM (·.build)
+    -- NOTE: Unix requires the full file name of the dynlib (Windows doesn't care)
+    let dynlibs ← dynlibTargets.mapM fun dynlib => do
+      return FilePath.mk <| nameToSharedLib (← dynlib.build).toString
     let externLibs ← externLibTargets.mapM (·.build)
-    -- Note: Lean wants the external library symbols before module symbols
+    -- NOTE: Lean wants the external library symbols before module symbols
     return externLibs ++ dynlibs

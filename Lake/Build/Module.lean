@@ -149,7 +149,8 @@ artifact.
     <| ← imports.mapM (·.leanBin.recBuild)
   let depTarget := Target.active <| ← extraDepTarget.mixOpaqueAsync
     <| ← dynlibsTarget.mixOpaqueAsync importTarget
-  let dynlibs := dynlibsTarget.info.map toString
+  -- NOTE: Unix requires the full file name of the dynlib (Windows doesn't care)
+  let dynlibs := dynlibsTarget.info.map (nameToSharedLib ·.toString)
 
   -- Build Module
   let modTarget ← mod.soloTarget dynlibs libDirs.toList depTarget leanOnly |>.activate

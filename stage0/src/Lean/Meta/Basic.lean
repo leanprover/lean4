@@ -291,8 +291,12 @@ instance : MonadLCtx MetaM where
   getLCtx := return (← read).lctx
 
 instance : MonadMCtx MetaM where
-  getMCtx    := return (← get).mctx
-  modifyMCtx f := modify fun s => { s with mctx := f s.mctx }
+  getMCtx         := return (← get).mctx
+  modifyMCtx f    := modify fun s => { s with mctx := f s.mctx }
+  modifyGetMCtx f := modifyGet fun s => let (a, mctx) := f s.mctx; (a, { s with mctx })
+
+instance : MonadLift MCtxM MetaM where
+  monadLift := liftMCtxM
 
 instance : MonadEnv MetaM where
   getEnv      := return (← getThe Core.State).env

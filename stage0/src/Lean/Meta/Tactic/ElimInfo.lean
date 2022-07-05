@@ -59,7 +59,7 @@ partial def addImplicitTargets (elimInfo : ElimInfo) (targets : Array Expr) : Me
   withNewMCtxDepth do
     let f ← mkConstWithFreshMVarLevels elimInfo.name
     let targets ← collect (← inferType f) 0 0 #[]
-    let targets ← targets.mapM instantiateMVars
+    let targets ← targets.mapM fun target => instantiateMVars target
     for target in targets do
       if (← hasAssignableMVar target) then
         throwError "failed to infer implicit target, it contains unresolved metavariables{indentExpr target}"

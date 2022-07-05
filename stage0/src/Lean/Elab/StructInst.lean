@@ -698,7 +698,7 @@ partial def getHierarchyDepth (struct : Struct) : Nat :=
     | FieldVal.nested struct => Nat.max max (getHierarchyDepth struct + 1)
     | _ => max
 
-partial def findDefaultMissing? [Monad m] [MonadMCtx m] (struct : Struct) : m (Option (Field Struct)) :=
+partial def findDefaultMissing? (struct : Struct) : MCtxM (Option (Field Struct)) :=
   struct.fields.findSomeM? fun field => do
    match field.val with
    | FieldVal.nested struct => findDefaultMissing? struct

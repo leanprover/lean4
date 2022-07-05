@@ -326,8 +326,8 @@ we would have a `LetRecToLift` containing:
 Note that `g` is not a free variable at `(let g : B := ?m₂; body)`. We recover the fact that
 `f` depends on `g` because it contains `m₂`
 -/
-private def mkInitialUsedFVarsMap [Monad m] [MonadMCtx m] (sectionVars : Array Expr) (mainFVarIds : Array FVarId) (letRecsToLift : Array LetRecToLift)
-    : m UsedFVarsMap := do
+private def mkInitialUsedFVarsMap (sectionVars : Array Expr) (mainFVarIds : Array FVarId) (letRecsToLift : Array LetRecToLift)
+    : MCtxM UsedFVarsMap := do
   let mut sectionVarSet := {}
   for var in sectionVars do
     sectionVarSet := sectionVarSet.insert var.fvarId!
@@ -423,9 +423,9 @@ end FixPoint
 
 abbrev FreeVarMap := FVarIdMap (Array FVarId)
 
-private def mkFreeVarMap [Monad m] [MonadMCtx m]
+private def mkFreeVarMap
     (sectionVars : Array Expr) (mainFVarIds : Array FVarId)
-    (recFVarIds : Array FVarId) (letRecsToLift : Array LetRecToLift) : m FreeVarMap := do
+    (recFVarIds : Array FVarId) (letRecsToLift : Array LetRecToLift) : MCtxM FreeVarMap := do
   let usedFVarsMap  ← mkInitialUsedFVarsMap sectionVars mainFVarIds letRecsToLift
   let letRecFVarIds := letRecsToLift.map fun toLift => toLift.fvarId
   let usedFVarsMap  := FixPoint.run letRecFVarIds usedFVarsMap

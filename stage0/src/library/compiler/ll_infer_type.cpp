@@ -62,6 +62,10 @@ class ll_infer_type_fn {
     expr infer_cases(expr const & e) {
         buffer<expr> args;
         get_app_args(e, args);
+        if (args.size() == 1) {
+            // This can happen for empty types. That is, the only argument is the major premise.
+            return mk_enf_object_type();
+        }
         lean_assert(args.size() >= 2);
         bool first = true;
         expr r     = *g_bot;

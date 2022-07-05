@@ -91,8 +91,12 @@ structure State where
 abbrev M := StateM State
 
 instance : MonadMCtx M where
-  getMCtx := return (← get).mctx
-  modifyMCtx f := modify fun s => { s with mctx := f s.mctx }
+  getMCtx         := return (← get).mctx
+  modifyMCtx f    := modify fun s => { s with mctx := f s.mctx }
+  modifyGetMCtx f := modifyGet fun s => let (a, mctx) := f s.mctx; (a, { s with mctx })
+
+instance : MonadLift MCtxM M where
+  monadLift := liftMCtxM
 
 partial def normLevel (u : Level) : M Level := do
   if !u.hasMVar then
@@ -142,7 +146,7 @@ partial def normExpr (e : Expr) : M Expr := do
 end MkTableKey
 
 /- Remark: `mkTableKey` assumes `e` does not contain assigned metavariables. -/
-def mkTableKey [Monad m] [MonadMCtx m] (e : Expr) : m Expr := do
+def mkTableKey (e : Expr) : MCtxM Expr := do
   let (r, s) := MkTableKey.normExpr e |>.run { mctx := (← getMCtx) }
   setMCtx s.mctx
   return r

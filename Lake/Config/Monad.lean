@@ -45,6 +45,8 @@ instance [MonadLake m] [Monad m] [MonadLiftT n m] : MonadLiftT (LakeT n) m where
 section
 variable [MonadLake m] [Functor m]
 
+/- ## Workspace Helpers -/
+
 @[inline] def findPackage? (name : Name) : m (Option Package) :=
   (·.findPackage? name) <$> getWorkspace
 
@@ -69,11 +71,13 @@ variable [MonadLake m] [Functor m]
 @[inline] def getLibPath : m SearchPath :=
   (·.libPath) <$> getWorkspace
 
+/- ## Lean Install Helpers -/
+
 @[inline] def getLeanSysroot : m FilePath :=
   (·.sysroot) <$> getLeanInstall
 
-@[inline] def getLeanLibDir : m FilePath :=
-  (·.libDir) <$> getLeanInstall
+@[inline] def getLeanSrcDir : m FilePath :=
+  (·.srcDir) <$> getLeanInstall
 
 @[inline] def getLeanOleanDir : m FilePath :=
   (·.oleanDir) <$> getLeanInstall
@@ -81,11 +85,17 @@ variable [MonadLake m] [Functor m]
 @[inline] def getLeanIncludeDir : m FilePath :=
   (·.includeDir) <$> getLeanInstall
 
+@[inline] def getLeanLibDir : m FilePath :=
+  (·.libDir) <$> getLeanInstall
+
 @[inline] def getLean : m FilePath :=
   (·.lean) <$> getLeanInstall
 
 @[inline] def getLeanc : m FilePath :=
   (·.leanc) <$> getLeanInstall
+
+@[inline] def getLeanSharedLib : m FilePath :=
+  (·.sharedLib) <$> getLeanInstall
 
 @[inline] def getLeanAr : m FilePath :=
   (·.ar) <$> getLeanInstall
@@ -93,33 +103,56 @@ variable [MonadLake m] [Functor m]
 @[inline] def getLeanCc : m FilePath :=
   (·.cc) <$> getLeanInstall
 
-@[inline] def getLake : m FilePath :=
-  (·.lake) <$> getLakeInstall
+@[inline] def getLeanCc? : m (Option String) :=
+  (fun lean => if lean.customCc then lean.cc.toString else none) <$> getLeanInstall
+
+/- ## Lake Install Helpers -/
 
 @[inline] def getLakeHome : m FilePath :=
   (·.home) <$> getLakeInstall
 
+@[inline] def getLakeSrcDir : m FilePath :=
+  (·.srcDir) <$> getLakeInstall
+
 @[inline] def getLakeOleanDir : m FilePath :=
   (·.oleanDir) <$> getLakeInstall
 
+@[inline] def getLake : m FilePath :=
+  (·.lake) <$> getLakeInstall
+
 end
 
-@[inline] def getAugmentedLeanPath : LakeT IO SearchPath := do
-  return (← getSearchPath "LEAN_PATH") ++ (← getLeanPath)
+/--
+Get `LEAN_PATH` augmented with the workspace's `leanPath` and Lake's `oleanDir`.
 
-@[inline] def getAugmentedLeanSrcPath : LakeT IO SearchPath := do
-  return (← getSearchPath "LEAN_SRC_PATH") ++ (← getLeanSrcPath)
+Including Lake's `oleanDir` at the end ensures that same Lake package being
+used to build is available to the environment (and thus, e.g., the Lean server).
+Otherwise, it may fall back on whatever the default Lake instance is.
+-/
+@[inline] def getAugmentedLeanPath : LakeT BaseIO SearchPath := do
+  return (← getSearchPath "LEAN_PATH") ++ (← getLeanPath) ++ [← getLakeOleanDir]
 
-@[inline] def getAugmentedLibPath : LakeT IO SearchPath := do
+/--
+Get `LEAN_SRC_PATH` augmented with the workspace's `leanSrcPath` and Lake's `srcDir`.
+
+Including Lake's `srcDir` at the end ensures that same Lake package being
+used to build is available to the environment (and thus, e.g., the Lean server).
+Otherwise, it may fall back on whatever the default Lake instance is.
+-/
+@[inline] def getAugmentedLeanSrcPath : LakeT BaseIO SearchPath := do
+  return (← getSearchPath "LEAN_SRC_PATH") ++ (← getLeanSrcPath) ++ [← getLakeSrcDir]
+
+/- Get `sharedLibPathEnv` augmented with the workspace's `libPath`. -/
+@[inline] def getAugmentedLibPath : LakeT BaseIO SearchPath := do
   return (← getSearchPath sharedLibPathEnvVar) ++ (← getLibPath)
 
-def getAugmentedEnv : LakeT IO (Array (String × Option String)) :=
+def getAugmentedEnv : LakeT BaseIO (Array (String × Option String)) :=
   return #[
     ("LAKE", (← getLake).toString),
     ("LAKE_HOME", (← getLakeHome).toString),
     ("LEAN_SYSROOT", (← getLeanSysroot).toString),
     ("LEAN_AR", (← getLeanAr).toString),
-    ("LEAN_CC", (← getLeanCc).toString),
+    ("LEAN_CC", ← getLeanCc?),
     ("LEAN_PATH", (← getAugmentedLeanPath).toString),
     ("LEAN_SRC_PATH", (← getAugmentedLeanSrcPath).toString),
     (sharedLibPathEnvVar, (← getAugmentedLibPath).toString)

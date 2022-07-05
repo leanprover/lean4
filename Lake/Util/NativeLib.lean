@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2021 Mac Malone. All rights reserved.
+Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
@@ -36,7 +36,7 @@ def sharedLibPathEnvVar :=
     "LD_LIBRARY_PATH"
 
 /-- Gets a `SearchPath` from an environment variable. -/
-def getSearchPath (envVar : String) : IO SearchPath := do
+def getSearchPath (envVar : String) : BaseIO SearchPath := do
   match (← IO.getEnv envVar) with
   | some path => pure <| SearchPath.parse path
   | none => pure []

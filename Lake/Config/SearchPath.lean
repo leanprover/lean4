@@ -15,7 +15,7 @@ uses when interpreting package configuration files.
 
 In order to use the Lean stdlib (e.g., `Init`),
 the executable needs the search path to include the directory
-with the stdlib's `.olean` files (e.g., from `<lean-home>/lib/lean`).
+with the stdlib's `.olean` files (e.g., from `<lean-sysroot>/lib/lean`).
 In order to use Lake's modules as well, the search path also
 needs to include Lake's `.olean` files (e.g., from `build`).
 

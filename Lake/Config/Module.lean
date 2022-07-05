@@ -46,26 +46,38 @@ abbrev pkg (self : Module) : Package :=
 @[inline] def rootDir (self : Module) : FilePath :=
   self.lib.rootDir
 
+@[inline] def filePath (dir : FilePath) (ext : String) (self : Module) : FilePath :=
+  Lean.modToFilePath dir self.name ext
+
+@[inline] def srcPath (ext : String) (self : Module) : FilePath :=
+  self.filePath self.lib.srcDir ext
+
 @[inline] def leanFile (self : Module) : FilePath :=
-  Lean.modToFilePath self.lib.srcDir self.name "lean"
+  self.srcPath "lean"
+
+@[inline] def leanLibPath (ext : String) (self : Module) : FilePath :=
+  self.filePath self.pkg.oleanDir ext
 
 @[inline] def oleanFile (self : Module) : FilePath :=
-  Lean.modToFilePath self.pkg.oleanDir self.name "olean"
+  self.leanLibPath "olean"
 
 @[inline] def ileanFile (self : Module) : FilePath :=
-  Lean.modToFilePath self.pkg.oleanDir self.name "ilean"
+  self.leanLibPath "ilean"
 
 @[inline] def traceFile (self : Module) : FilePath :=
-  Lean.modToFilePath self.pkg.oleanDir self.name "trace"
+  self.leanLibPath "trace"
+
+@[inline] def irPath (ext : String) (self : Module) : FilePath :=
+  self.filePath self.pkg.irDir ext
 
 @[inline] def cFile (self : Module) : FilePath :=
-  Lean.modToFilePath self.pkg.irDir self.name "c"
+  self.irPath "c"
 
 @[inline] def cTraceFile (self : Module) : FilePath :=
-  Lean.modToFilePath self.pkg.irDir self.name "c.trace"
+  self.irPath "c.trace"
 
 @[inline] def oFile (self : Module) : FilePath :=
-  Lean.modToFilePath self.pkg.irDir self.name "o"
+  self.irPath "o"
 
 @[inline] def dynlibName (self : Module) : String :=
   -- NOTE: file name MUST be unique on Windows

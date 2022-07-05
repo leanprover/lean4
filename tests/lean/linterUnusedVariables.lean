@@ -212,6 +212,9 @@ useArg usedMacroVariable a
 macro "doNotUseArg " name:declId arg:ident : command => `(def $name ($arg : α) : Nat := 3)
 doNotUseArg unusedMacroVariable b
 
+macro "ignoreArg " id:declId sig:declSig : command => `(opaque $id $sig)
+ignoreArg ignoredMacroVariable (x : UInt32) : UInt32
+
 
 theorem not_eq_zero_of_lt (h : b < a) : a ≠ 0 := by -- *not* unused
   cases a

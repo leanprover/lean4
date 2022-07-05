@@ -86,10 +86,12 @@ def unusedVariables : Linter := fun stx => do
     if !stxRange.contains range.start || localDecl.userName.hasMacroScopes then
       continue
 
+    -- check linter options
     let opts := decl.ci.options
     if !getLinterUnusedVariables opts then
       continue
 
+    -- collect ignore functions
     let mut ignoredPatternFns := #[
       isTopLevelDecl constDecls,
       matchesUnusedPattern,
@@ -112,11 +114,29 @@ def unusedVariables : Linter := fun stx => do
         isPatternVar
       ]
 
-    let some stack := findSyntaxStack? stx declStx
-      | continue
-    if ignoredPatternFns.any (· declStx stack) then
+    -- collect syntax versions from macro expansions
+    let mut stxVersions := #[stx]
+    for tree in infoTrees do
+      if let some macroExpansions ← collectMacroExpansions? range tree then
+        for exp in macroExpansions do
+          stxVersions := stxVersions.push exp.output
+
+    -- apply ignore functions to syntax stacks
+    let continue? ← stxVersions.foldlM (init := none) (fun (result : Option Bool ) stx => do
+      if result matches some true then
+        return true
+
+      let some stack := findSyntaxStack? stx declStx
+        | return result
+
+      if ignoredPatternFns.any (· declStx stack) then
+        return true
+      else
+        return false)
+    if continue? matches some true || continue? matches none then
       continue
 
+    -- publish warning if variable is unused
     if uses.isEmpty && !tacticFVarUses.contains id &&
         decl.aliases.all (match · with | .fvar id => !tacticFVarUses.contains id | _ => false) then
       publishMessage s!"unused variable `{localDecl.userName}`" range

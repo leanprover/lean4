@@ -20,6 +20,29 @@ do
   let messages := (← get).messages |>.add (mkMessageCore ctx.fileName ctx.fileMap content severity range.start range.stop)
   modify ({ · with messages := messages })
 
+def collectMacroExpansions? {m} [Monad m] (range : String.Range) (tree : Elab.InfoTree) : m <| Option <| List Elab.MacroExpansionInfo := do
+    if let .some <| .some result ← go then
+      return some result
+    else
+      return none
+where
+  go : m <| Option <| Option <| List Elab.MacroExpansionInfo := tree.visitM (postNode := fun _ i _ results => do
+    let results := results |>.filterMap id |>.filterMap id
+
+    -- we expect that at most one InfoTree child returns a result
+    if let results :: _ := results then
+      if let .ofMacroExpansionInfo i := i then
+        return some <| i :: results
+      else
+        return some results
+    else if i.contains range.start && i.contains (includeStop := true) range.stop then
+      if let .ofMacroExpansionInfo i := i then
+        return some [i]
+      else
+        return some []
+    else
+      return none)
+
 abbrev SyntaxStack := List (Syntax × Nat)
 
 partial def findSyntaxStack? (root child : Syntax) : Option SyntaxStack := Id.run <| do

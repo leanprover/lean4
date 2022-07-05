@@ -25,6 +25,105 @@ def getLinterUnusedVariables (o : Options) : Bool := o.get linter.unusedVariable
 def getLinterUnusedVariablesFunArgs (o : Options) : Bool := o.get linter.unusedVariables.funArgs.name (getLinterUnusedVariables o)
 def getLinterUnusedVariablesPatternVars (o : Options) : Bool := o.get linter.unusedVariables.patternVars.name (getLinterUnusedVariables o)
 
+
+builtin_initialize unusedVariablesIgnoreFnsRef : IO.Ref <| Array IgnoreFunction ← IO.mkRef #[]
+
+def addUnusedVariablesIgnoreFn (ignoreFn : IgnoreFunction) : IO Unit := do
+  (← unusedVariablesIgnoreFnsRef.get) |> (·.push ignoreFn) |> unusedVariablesIgnoreFnsRef.set
+
+def getUnusedVariablesIgnoreFns : IO <| Array IgnoreFunction :=
+  unusedVariablesIgnoreFnsRef.get
+
+
+-- matches unused variable pattern
+builtin_initialize addUnusedVariablesIgnoreFn (fun stx _ _ =>
+    stx.getId.toString.startsWith "_")
+
+-- is variable
+builtin_initialize addUnusedVariablesIgnoreFn (fun _ stack _ =>
+    stackMatches stack [`null, none, `null, ``Lean.Parser.Command.variable])
+
+-- is in structure
+builtin_initialize addUnusedVariablesIgnoreFn (fun _ stack _ =>
+  stackMatches stack [`null, none, `null, ``Lean.Parser.Command.structure])
+
+-- is in inductive
+builtin_initialize addUnusedVariablesIgnoreFn (fun _ stack _ =>
+  stackMatches stack [`null, none, `null, none, ``Lean.Parser.Command.inductive] &&
+  (stack.get? 3 |>.any fun (stx, pos) =>
+    pos == 0 &&
+    [``Lean.Parser.Command.optDeclSig, ``Lean.Parser.Command.declSig].any (stx.isOfKind ·)))
+
+-- in in constructor or structure binder
+builtin_initialize addUnusedVariablesIgnoreFn (fun _ stack _ =>
+  stackMatches stack [`null, none, `null, ``Lean.Parser.Command.optDeclSig, none] &&
+  (stack.get? 4 |>.any fun (stx, _) =>
+    [``Lean.Parser.Command.ctor, ``Lean.Parser.Command.structSimpleBinder].any (stx.isOfKind ·)))
+
+-- is in opaque or axiom
+builtin_initialize addUnusedVariablesIgnoreFn (fun _ stack _ =>
+  stackMatches stack [`null, none, `null, ``Lean.Parser.Command.declSig, none] &&
+  (stack.get? 4 |>.any fun (stx, _) =>
+    [``Lean.Parser.Command.opaque, ``Lean.Parser.Command.axiom].any (stx.isOfKind ·)))
+
+-- is in definition with foreign definition
+builtin_initialize addUnusedVariablesIgnoreFn (fun _ stack _ =>
+  stackMatches stack [`null, none, `null, none, none, ``Lean.Parser.Command.declaration] &&
+  (stack.get? 3 |>.any fun (stx, _) =>
+    stx.isOfKind ``Lean.Parser.Command.optDeclSig ||
+    stx.isOfKind ``Lean.Parser.Command.declSig) &&
+  (stack.get? 5 |>.any fun (stx, _) => Id.run <| do
+    let declModifiers := stx[0]
+    if !declModifiers.isOfKind ``Lean.Parser.Command.declModifiers then
+      return false
+    let termAttributes := declModifiers[1][0]
+    if !termAttributes.isOfKind ``Lean.Parser.Term.attributes then
+      return false
+    let termAttrInstance := termAttributes[1][0]
+    if !termAttrInstance.isOfKind ``Lean.Parser.Term.attrInstance then
+      return false
+
+    let attr := termAttrInstance[1]
+    if attr.isOfKind ``Lean.Parser.Attr.extern then
+      return true
+    else if attr.isOfKind ``Lean.Parser.Attr.simple then
+      return attr[0].getId == `implementedBy
+    else
+      return false))
+
+-- is in dependent arrow
+builtin_initialize addUnusedVariablesIgnoreFn (fun _ stack _ =>
+  stackMatches stack [`null, ``Lean.Parser.Term.explicitBinder, ``Lean.Parser.Term.depArrow])
+
+-- is in let declaration
+builtin_initialize addUnusedVariablesIgnoreFn (fun _ stack opts =>
+  !getLinterUnusedVariablesFunArgs opts &&
+  stackMatches stack [`null, none, `null, ``Lean.Parser.Term.letIdDecl, none] &&
+  (stack.get? 3 |>.any fun (_, pos) => pos == 1) &&
+  (stack.get? 5 |>.any fun (stx, _) => !stx.isOfKind ``Lean.Parser.Command.whereStructField))
+
+-- is in declaration signature
+builtin_initialize addUnusedVariablesIgnoreFn (fun _ stack opts =>
+  !getLinterUnusedVariablesFunArgs opts &&
+  stackMatches stack [`null, none, `null, none] &&
+  (stack.get? 3 |>.any fun (stx, pos) =>
+    pos == 0 &&
+    [``Lean.Parser.Command.optDeclSig, ``Lean.Parser.Command.declSig].any (stx.isOfKind ·)))
+
+-- is in function definition
+builtin_initialize addUnusedVariablesIgnoreFn (fun _ stack opts =>
+  !getLinterUnusedVariablesFunArgs opts &&
+  (stackMatches stack [`null, ``Lean.Parser.Term.basicFun] ||
+  stackMatches stack [`null, ``Lean.Parser.Term.paren, `null, ``Lean.Parser.Term.basicFun]))
+
+-- is pattern variable
+builtin_initialize addUnusedVariablesIgnoreFn (fun _ stack opts =>
+  !getLinterUnusedVariablesPatternVars opts &&
+  stack.any fun (stx, pos) =>
+    (stx.isOfKind ``Lean.Parser.Term.matchAlt && pos == 1) ||
+    (stx.isOfKind ``Lean.Parser.Tactic.inductionAltLHS && pos == 2))
+
+
 def unusedVariables : Linter := fun cmdStx => do
   -- NOTE: `messages` is local to the current command
   if (← get).messages.hasErrors then
@@ -74,6 +173,10 @@ def unusedVariables : Linter := fun cmdStx => do
         | _        => pure ()
       return s
 
+  -- collect ignore functions
+  let ignoreFns := (← getUnusedVariablesIgnoreFns)
+    |>.insertAt 0 (isTopLevelDecl constDecls)
+
   -- determine unused variables
   for (id, ⟨decl?, uses⟩) in vars.toList do
     -- process declaration
@@ -96,32 +199,9 @@ def unusedVariables : Linter := fun cmdStx => do
     if !getLinterUnusedVariables opts then
       continue
 
-    -- collect ignore functions
-    let mut ignoreFns := #[
-      isTopLevelDecl constDecls,
-      matchesUnusedPattern,
-      isVariable,
-      isInStructure,
-      isInInductive,
-      isInCtorOrStructBinder,
-      isInOpaqueOrAxiom,
-      isInDefWithForeignDefinition,
-      isInDepArrow
-    ]
-    if !getLinterUnusedVariablesFunArgs opts then
-      ignoreFns := ignoreFns.append #[
-        isInLetDeclaration,
-        isInDeclarationSignature,
-        isInFun
-      ]
-    if !getLinterUnusedVariablesPatternVars opts then
-      ignoreFns := ignoreFns.append #[
-        isPatternVar
-      ]
-
     -- evaluate ignore functions on original syntax
     if let some stack := findSyntaxStack? cmdStx declStx then
-      if ignoreFns.any (· declStx stack) then
+      if ignoreFns.any (· declStx stack opts) then
         continue
     else
       continue
@@ -131,7 +211,7 @@ def unusedVariables : Linter := fun cmdStx => do
       if let some macroExpansions ← collectMacroExpansions? range tree then
         return macroExpansions.any fun expansion =>
           if let some stack := findSyntaxStack? expansion.output declStx then
-            ignoreFns.any (· declStx stack)
+            ignoreFns.any (· declStx stack opts)
           else
             false
       else
@@ -149,74 +229,11 @@ where
       stx[0]
     else
       stx
-
-  isTopLevelDecl (constDecls : HashSet String.Range) (stx : Syntax) (stack : SyntaxStack) := Id.run <| do
+  isTopLevelDecl (constDecls : HashSet String.Range) : IgnoreFunction := fun stx stack _ => Id.run <| do
     let some declRange := stx.getRange?
       | false
     constDecls.contains declRange &&
     !stackMatches stack [``Lean.Parser.Term.letIdDecl]
-  matchesUnusedPattern (stx : Syntax) (_ : SyntaxStack) :=
-    stx.getId.toString.startsWith "_"
-  isVariable (_ : Syntax) (stack : SyntaxStack) :=
-    stackMatches stack [`null, none, `null, ``Lean.Parser.Command.variable]
-  isInStructure (_ : Syntax) (stack : SyntaxStack) :=
-    stackMatches stack [`null, none, `null, ``Lean.Parser.Command.structure]
-  isInInductive (_ : Syntax) (stack : SyntaxStack) :=
-    stackMatches stack [`null, none, `null, none, ``Lean.Parser.Command.inductive] &&
-    (stack.get? 3 |>.any fun (stx, pos) =>
-      pos == 0 &&
-      [``Lean.Parser.Command.optDeclSig, ``Lean.Parser.Command.declSig].any (stx.isOfKind ·))
-  isInCtorOrStructBinder (_ : Syntax) (stack : SyntaxStack) :=
-    stackMatches stack [`null, none, `null, ``Lean.Parser.Command.optDeclSig, none] &&
-    (stack.get? 4 |>.any fun (stx, _) =>
-      [``Lean.Parser.Command.ctor, ``Lean.Parser.Command.structSimpleBinder].any (stx.isOfKind ·))
-  isInOpaqueOrAxiom (_ : Syntax) (stack : SyntaxStack) :=
-    stackMatches stack [`null, none, `null, ``Lean.Parser.Command.declSig, none] &&
-    (stack.get? 4 |>.any fun (stx, _) =>
-      [``Lean.Parser.Command.opaque, ``Lean.Parser.Command.axiom].any (stx.isOfKind ·))
-  isInDefWithForeignDefinition (_ : Syntax) (stack : SyntaxStack) :=
-    stackMatches stack [`null, none, `null, none, none, ``Lean.Parser.Command.declaration] &&
-    (stack.get? 3 |>.any fun (stx, _) =>
-      stx.isOfKind ``Lean.Parser.Command.optDeclSig ||
-      stx.isOfKind ``Lean.Parser.Command.declSig) &&
-    (stack.get? 5 |>.any fun (stx, _) => Id.run <| do
-      let declModifiers := stx[0]
-      if !declModifiers.isOfKind ``Lean.Parser.Command.declModifiers then
-        return false
-      let termAttributes := declModifiers[1][0]
-      if !termAttributes.isOfKind ``Lean.Parser.Term.attributes then
-        return false
-      let termAttrInstance := termAttributes[1][0]
-      if !termAttrInstance.isOfKind ``Lean.Parser.Term.attrInstance then
-        return false
-
-      let attr := termAttrInstance[1]
-      if attr.isOfKind ``Lean.Parser.Attr.extern then
-        return true
-      else if attr.isOfKind ``Lean.Parser.Attr.simple then
-        return attr[0].getId == `implementedBy
-      else
-        return false)
-  isInDepArrow (_ : Syntax) (stack : SyntaxStack) :=
-    stackMatches stack [`null, ``Lean.Parser.Term.explicitBinder, ``Lean.Parser.Term.depArrow]
-
-  isInLetDeclaration (_ : Syntax) (stack : SyntaxStack) :=
-    stackMatches stack [`null, none, `null, ``Lean.Parser.Term.letIdDecl, none] &&
-    (stack.get? 3 |>.any fun (_, pos) => pos == 1) &&
-    (stack.get? 5 |>.any fun (stx, _) => !stx.isOfKind ``Lean.Parser.Command.whereStructField)
-  isInDeclarationSignature (_ : Syntax) (stack : SyntaxStack) :=
-    stackMatches stack [`null, none, `null, none] &&
-    (stack.get? 3 |>.any fun (stx, pos) =>
-      pos == 0 &&
-      [``Lean.Parser.Command.optDeclSig, ``Lean.Parser.Command.declSig].any (stx.isOfKind ·))
-  isInFun (_ : Syntax) (stack : SyntaxStack) :=
-    stackMatches stack [`null, ``Lean.Parser.Term.basicFun] ||
-    stackMatches stack [`null, ``Lean.Parser.Term.paren, `null, ``Lean.Parser.Term.basicFun]
-
-  isPatternVar (_ : Syntax) (stack : SyntaxStack) :=
-    stack.any fun (stx, pos) =>
-      (stx.isOfKind ``Lean.Parser.Term.matchAlt && pos == 1) ||
-      (stx.isOfKind ``Lean.Parser.Tactic.inductionAltLHS && pos == 2)
 
 builtin_initialize addLinter unusedVariables
 

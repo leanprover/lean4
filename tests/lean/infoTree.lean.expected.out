@@ -365,12 +365,16 @@
 def Nat.xor : Nat → Nat → Nat :=
 bitwise bne
 [Elab.info] command @ ⟨37, 0⟩-⟨38, 10⟩ @ Lean.Elab.Command.expandInCmd
-  command @ ⟨37, 0⟩†-⟨38, 10⟩† @ Lean.Elab.Command.elabSection
-  command @ ⟨37, 0⟩-⟨37, 8⟩ @ Lean.Elab.Command.elabOpen
-  command @ ⟨38, 0⟩-⟨38, 10⟩ @ Lean.Elab.Command.elabPrint
-    [.] `xor : none @ ⟨38, 7⟩-⟨38, 10⟩
-    xor : Nat → Nat → Nat @ ⟨38, 7⟩-⟨38, 10⟩
-  command @ ⟨37, 0⟩†-⟨38, 10⟩† @ Lean.Elab.Command.elabEnd
+  Macro expansion
+  open Nat in #print xor
+  ===>
+  failed to pretty print term (use 'set_option pp.rawOnError true' for raw representation)
+    command @ ⟨37, 0⟩†-⟨38, 10⟩† @ Lean.Elab.Command.elabSection
+    command @ ⟨37, 0⟩-⟨37, 8⟩ @ Lean.Elab.Command.elabOpen
+    command @ ⟨38, 0⟩-⟨38, 10⟩ @ Lean.Elab.Command.elabPrint
+      [.] `xor : none @ ⟨38, 7⟩-⟨38, 10⟩
+      xor : Nat → Nat → Nat @ ⟨38, 7⟩-⟨38, 10⟩
+    command @ ⟨37, 0⟩†-⟨38, 10⟩† @ Lean.Elab.Command.elabEnd
 infoTree.lean:41:0: error: expected identifier or term
 [Elab.info] command @ ⟨39, 0⟩-⟨39, 30⟩ @ no_elab
 infoTree.lean:44:0: error: expected stx

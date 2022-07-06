@@ -300,7 +300,10 @@ private def propagateExpectedType (arg : Arg) : M Unit := do
             unless fTypeBody.hasLooseBVars do
               unless (← hasOptAutoParams fTypeBody) do
                 trace[Elab.app.propagateExpectedType] "{expectedType} =?= {fTypeBody}"
-                if (← isDefEq expectedType fTypeBody) then
+                if (← isSyntheticMVar fTypeBody) then
+                  trace[Elab.app.propagateExpectedType] "{fTypeBody} is sythethic, skipping propagation"
+                  modify fun s => { s with propagateExpected := false }
+                else if (← isDefEq expectedType fTypeBody) then
                   /- Note that we only set `propagateExpected := false` when propagation has succeeded. -/
                   modify fun s => { s with propagateExpected := false }
 
@@ -326,9 +329,10 @@ private def finalize : M Expr := do
   match s.expectedType? with
   | none              => pure ()
   | some expectedType =>
-     trace[Elab.app.finalize] "expected type: {expectedType}"
-     -- Try to propagate expected type. Ignore if types are not definitionally equal, caller must handle it.
-     discard <| isDefEq expectedType eType
+     unless (← isSyntheticMVar eType) do
+       -- Try to propagate expected type. Ignore if types are not definitionally equal, caller must handle it.
+       trace[Elab.app.finalize] "expected type: {expectedType}"
+       discard <| isDefEq expectedType eType
   synthesizeAppInstMVars
   return e
 
@@ -353,12 +357,68 @@ private def hasArgsToProcess : M Bool := do
   let s ← get
   return !s.args.isEmpty || !s.namedArgs.isEmpty
 
-/- Return true if the next argument at `args` is of the form `_` -/
+/- Return `true` if the next argument at `args` is of the form `_` -/
 private def isNextArgHole : M Bool := do
   match (← get).args with
   | Arg.stx (Syntax.node _ ``Lean.Parser.Term.hole _) :: _ => pure true
   | _ => pure false
 
+/--
+  Return `true` if the next argument to be processed is the outparam of a local instance.
+  For example, suppose we have the class
+  ```lean
+  class Get (Cont : Type u) (Idx : Type v) (Elem : outParam (Type w)) where
+    get (xs : Cont) (i : Idx) : Elem
+  ```
+  And the current value of `fType` is
+  ```
+  {Cont : Type u_1} → {Idx : Type u_2} → {Elem : Type u_3} → [self : Get Cont Idx Elem] → Cont → Idx → Elem
+  ```
+  then the result returned by this method is `false` since `Cont` is not the output param of any local instance.
+  Now assume `fType` is
+  ```
+  {Elem : Type u_3} → [self : Get Cont Idx Elem] → Cont → Idx → Elem
+  ```
+  then, the method returns `true` because `Elem` is an output parameter for the local instance `[self : Get Cont Idx Elem]`.
+-/
+private partial def isNextOutParamOfLocalInstance : M Bool := do
+  let type := (← get).fType.bindingBody!
+  if (← hasLocalInstaceWithOutParams type) then
+    let x := mkFVar (← mkFreshFVarId)
+    isOutParamOfLocalInstance x (type.instantiate1 x)
+  else
+    return false
+where
+  /- (quick filter) Return true if `type` constains a binder `[C ...]` where `C` is a class containing outparams. -/
+  hasLocalInstaceWithOutParams (type : Expr) : CoreM Bool := do
+    let .forallE _ d b c := type | return false
+    if c.binderInfo.isInstImplicit then
+      if let .const declName .. := d.getAppFn then
+        if hasOutParams (← getEnv) declName then
+          return true
+    hasLocalInstaceWithOutParams b
+
+  isOutParamOfLocalInstance (x : Expr) (type : Expr) : MetaM Bool := do
+    let .forallE _ d b c := type | return false
+    if c.binderInfo.isInstImplicit then
+      if let .const declName .. := d.getAppFn then
+        if hasOutParams (← getEnv) declName then
+          let cType ← inferType d.getAppFn
+          if (← isOutParamOf x 0 d.getAppArgs cType) then
+            return true
+    isOutParamOfLocalInstance x b
+
+  isOutParamOf (x : Expr) (i : Nat) (args : Array Expr) (cType : Expr) : MetaM Bool := do
+    if h : i < args.size then
+      match (← whnf cType) with
+      | .forallE _ d b _ =>
+        let arg := args.get ⟨i, h⟩
+        if arg == x && d.isOutParam then
+          return true
+        isOutParamOf x (i+1) args b
+      | _ => return false
+    else
+      return false
 
 mutual
   /-
@@ -374,7 +434,10 @@ mutual
 
   private partial def addImplicitArg (argName : Name) : M Expr := do
     let argType ← getArgExpectedType
-    let arg ← mkFreshExprMVar argType
+    let arg ← if (← isNextOutParamOfLocalInstance) then
+      mkFreshExprMVar argType .synthetic
+    else
+      mkFreshExprMVar argType
     modify fun s => { s with toSetErrorCtx := s.toSetErrorCtx.push arg.mvarId! }
     addNewArg argName arg
     main

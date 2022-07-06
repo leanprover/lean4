@@ -71,10 +71,14 @@ private def synthesizePendingInstMVar (instMVar : MVarId) : TermElabM Bool :=
   If `mvar` can be synthesized, then assign `auxMVarId := (expandCoe eNew)`.
 -/
 private def synthesizePendingCoeInstMVar
-    (auxMVarId : MVarId) (errorMsgHeader? : Option String) (eNew : Expr) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Bool := do
+    (auxMVarId : MVarId) (errorMsgHeader? : Option String) (eNew : Expr) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) (postponeOnSyntheticCoe : Bool) : TermElabM Bool := do
   let instMVarId := eNew.appArg!.mvarId!
   withMVarContext instMVarId do
-    if (← isDefEq expectedType eType) then
+    let eType ← instantiateMVars eType
+    if postponeOnSyntheticCoe then
+      if (← isSyntheticMVar eType) then
+        return false
+    if (← withDefault (isDefEq expectedType eType)) then
       /- This case may seem counterintuitive since we created the coercion
          because the `isDefEq expectedType eType` test failed before.
          However, it may succeed here because we have more information, for example, metavariables
@@ -312,11 +316,11 @@ mutual
       reportUnsolvedGoals remainingGoals
 
   /-- Try to synthesize the given pending synthetic metavariable. -/
-  private partial def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool :=
+  private partial def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) (postponeOnError : Bool) (runTactics : Bool) (postponeOnSyntheticCoe : Bool) : TermElabM Bool :=
     withRef mvarSyntheticDecl.stx do
     match mvarSyntheticDecl.kind with
     | SyntheticMVarKind.typeClass => synthesizePendingInstMVar mvarSyntheticDecl.mvarId
-    | SyntheticMVarKind.coe header? eNew expectedType eType e f? => synthesizePendingCoeInstMVar mvarSyntheticDecl.mvarId header? eNew expectedType eType e f?
+    | SyntheticMVarKind.coe header? eNew expectedType eType e f? => synthesizePendingCoeInstMVar mvarSyntheticDecl.mvarId header? eNew expectedType eType e f? (postponeOnSyntheticCoe := postponeOnSyntheticCoe)
     -- NOTE: actual processing at `synthesizeSyntheticMVarsAux`
     | SyntheticMVarKind.postponed savedContext => resumePostponed savedContext mvarSyntheticDecl.stx mvarSyntheticDecl.mvarId postponeOnError
     | SyntheticMVarKind.tactic tacticCode savedContext =>
@@ -329,7 +333,7 @@ mutual
   /--
     Try to synthesize the current list of pending synthetic metavariables.
     Return `true` if at least one of them was synthesized. -/
-  private partial def synthesizeSyntheticMVarsStep (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool := do
+  private partial def synthesizeSyntheticMVarsStep (postponeOnError : Bool) (runTactics : Bool) (postponeOnSyntheticCoe : Bool) : TermElabM Bool := do
     let ctx ← read
     traceAtCmdPos `Elab.resuming fun _ =>
       m!"resuming synthetic metavariables, mayPostpone: {ctx.mayPostpone}, postponeOnError: {postponeOnError}"
@@ -343,7 +347,7 @@ mutual
     let remainingSyntheticMVars ← syntheticMVars.filterRevM fun mvarDecl => do
        -- We use `traceM` because we want to make sure the metavar local context is used to trace the message
        traceM `Elab.postpone (withMVarContext mvarDecl.mvarId do addMessageContext m!"resuming {mkMVar mvarDecl.mvarId}")
-       let succeeded ← synthesizeSyntheticMVar mvarDecl postponeOnError runTactics
+       let succeeded ← synthesizeSyntheticMVar mvarDecl postponeOnError runTactics postponeOnSyntheticCoe
        trace[Elab.postpone] if succeeded then format "succeeded" else format "not ready yet"
        pure !succeeded
     -- Merge new synthetic metavariables with `remainingSyntheticMVars`, i.e., metavariables that still couldn't be synthesized
@@ -367,7 +371,7 @@ mutual
     let rec loop (_ : Unit) : TermElabM Unit := do
       withRef (← getSomeSynthethicMVarsRef) <| withIncRecDepth do
         unless (← get).syntheticMVars.isEmpty do
-          if ← synthesizeSyntheticMVarsStep (postponeOnError := false) (runTactics := false) then
+          if ← synthesizeSyntheticMVarsStep (postponeOnError := false) (runTactics := false) (postponeOnSyntheticCoe := true) then
             loop ()
           else if !mayPostpone then
             /- Resume pending metavariables with "elaboration postponement" disabled.
@@ -386,13 +390,13 @@ mutual
                We the type of `x` may learn later its type and it may contain implicit and/or auto arguments.
                By disabling postponement, we are essentially giving up the opportunity of learning `x`s type
                and assume it does not have implict and/or auto arguments. -/
-            if ← withoutPostponing <| synthesizeSyntheticMVarsStep (postponeOnError := true) (runTactics := false) then
+            if ← withoutPostponing <| synthesizeSyntheticMVarsStep (postponeOnError := true) (runTactics := false) (postponeOnSyntheticCoe := true) then
               loop ()
             else if ← synthesizeUsingDefault then
               loop ()
-            else if ← withoutPostponing <| synthesizeSyntheticMVarsStep (postponeOnError := false) (runTactics := false) then
+            else if ← withoutPostponing <| synthesizeSyntheticMVarsStep (postponeOnError := false) (runTactics := false) (postponeOnSyntheticCoe := false) then
               loop ()
-            else if ← synthesizeSyntheticMVarsStep (postponeOnError := false) (runTactics := true) then
+            else if ← synthesizeSyntheticMVarsStep (postponeOnError := false) (runTactics := true) (postponeOnSyntheticCoe := true) then
               loop ()
             else
               reportStuckSyntheticMVars ignoreStuckTC

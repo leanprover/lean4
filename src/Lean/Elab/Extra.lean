@@ -292,11 +292,11 @@ def elabBinOp : TermElab :=  fun stx expectedType? => do
   trace[Elab.binop] "hasUncomparable: {r.hasUncomparable}, maxType: {r.max?}"
   if r.hasUncomparable || r.max?.isNone then
     let result ← toExpr tree
-    ensureHasType expectedType? result
+    ensureHasType expectedType? result (coeAtSyntheticMVar := false)
   else
     let result ← toExpr (← applyCoe tree r.max?.get!)
     trace[Elab.binop] "result: {result}"
-    ensureHasType expectedType? result
+    ensureHasType expectedType? result (coeAtSyntheticMVar := false)
 
 @[builtinTermElab binop_lazy]
 def elabBinOpLazy : TermElab := elabBinOp
@@ -324,7 +324,7 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
       let lhs ← toBoolIfNecessary lhs
       let rhs ← toBoolIfNecessary rhs
       let lhsType ← inferType lhs
-      let rhs ← ensureHasType lhsType rhs
+      let rhs ← ensureHasType lhsType rhs (coeAtSyntheticMVar := false)
       elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] expectedType? (explicit := false) (ellipsis := false)
     else
       let mut maxType := r.max?.get!
@@ -342,7 +342,7 @@ where
     if noProp then
       -- We use `withNewMCtxDepth` to make sure metavariables are not assigned
       if (← withNewMCtxDepth <| isDefEq (← inferType e) (mkSort levelZero)) then
-        return (← ensureHasType (Lean.mkConst ``Bool) e)
+        return (← ensureHasType (Lean.mkConst ``Bool) e (coeAtSyntheticMVar := false))
     return e
 
 @[builtinTermElab binrel] def elabBinRel : TermElab := elabBinRelCore false
@@ -404,7 +404,7 @@ def elabBinCalc : TermElab :=  fun stx expectedType? => do
         throwErrorAt stepStxs[i]! "invalid 'calc' step, step result is not a relation{indentExpr resultType}"
     | _ => throwErrorAt stepStxs[i]! "invalid 'calc' step, failed to synthesize `Trans` instance{indentExpr selfType}"
     pure ()
-  ensureHasType expectedType? result
+  ensureHasType expectedType? result (coeAtSyntheticMVar := false)
 
 @[builtinTermElab defaultOrOfNonempty]
 def elabDefaultOrNonempty : TermElab :=  fun stx expectedType? => do

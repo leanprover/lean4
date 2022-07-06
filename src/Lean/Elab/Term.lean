@@ -949,10 +949,14 @@ private def tryLiftAndCoe (errorMsgHeader? : Option String) (expectedType : Expr
 
   Argument `f?` is used only for generating error messages. -/
 def ensureHasTypeAux (expectedType? : Option Expr) (eType : Expr) (e : Expr)
-    (f? : Option Expr := none) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
+    (f? : Option Expr := none) (errorMsgHeader? : Option String := none) (coeAtSyntheticMVar : Bool := true) : TermElabM Expr := do
   match expectedType? with
   | none              => return e
   | some expectedType =>
+    if coeAtSyntheticMVar then
+      if (← isSyntheticMVar eType) && !(← read).inPattern && (← getEnv).contains ``Lean.Internal.coeM then
+        if !e.isAppOf ``OfNat.ofNat then
+          return (← mkCoe expectedType eType e f? errorMsgHeader?)
     if (← isDefEq eType expectedType) then
       return e
     else
@@ -961,12 +965,12 @@ def ensureHasTypeAux (expectedType? : Option Expr) (eType : Expr) (e : Expr)
 /--
   If `expectedType?` is `some t`, then ensure `t` and type of `e` are definitionally equal.
   If they are not, then try coercions. -/
-def ensureHasType (expectedType? : Option Expr) (e : Expr) (errorMsgHeader? : Option String := none) : TermElabM Expr :=
+def ensureHasType (expectedType? : Option Expr) (e : Expr) (errorMsgHeader? : Option String := none) (coeAtSyntheticMVar : Bool := true) : TermElabM Expr :=
   match expectedType? with
   | none => return e
   | _    => do
     let eType ← inferType e
-    ensureHasTypeAux expectedType? eType e none errorMsgHeader?
+    ensureHasTypeAux expectedType? eType e none errorMsgHeader? coeAtSyntheticMVar
 
 /--
   Create a synthetic sorry for the given expected type. If `expectedType? = none`, then a fresh

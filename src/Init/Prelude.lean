@@ -1208,8 +1208,8 @@ instance (p₁ p₂ : String.Pos) : Decidable (LT.lt p₁ p₂) :=
   stopPos  := s.endPos
 }
 
-unsafe def unsafeCast {α : Type u} {β : Type v} (a : α) : β :=
-  ULift.down.{max u v} (cast lcProof (ULift.up.{max u v} a))
+unsafe def unsafeCast {α : Sort u} {β : Sort v} (a : α) : β :=
+  PLift.down (ULift.down.{max u v} (cast lcProof (ULift.up.{max u v} (PLift.up a))))
 
 @[neverExtract, extern "lean_panic_fn"]
 opaque panicCore {α : Type u} [Inhabited α] (msg : String) : α

@@ -496,6 +496,16 @@ def getMVarDecl (mvarId : MVarId) : MetaM MetavarDecl := do
   | some d => pure d
   | none   => throwError "unknown metavariable '?{mvarId.name}'"
 
+def getMVarDeclKind (mvarId : MVarId) : MetaM MetavarKind :=
+  return (← getMVarDecl mvarId).kind
+
+/-- Reture `true` if `e` is a synthetic (or synthetic opaque) metavariable -/
+def isSyntheticMVar (e : Expr) : MetaM Bool := do
+  if e.isMVar then
+     return (← getMVarDeclKind e.mvarId!) matches .synthetic | .syntheticOpaque
+  else
+     return false
+
 def setMVarKind (mvarId : MVarId) (kind : MetavarKind) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.setMVarKind mvarId kind
 

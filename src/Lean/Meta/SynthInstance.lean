@@ -690,7 +690,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
           let (_, _, result) ← openAbstractMVarsResult result
           trace[Meta.synthInstance] "result {result}"
           let resultType ← inferType result
-          if (← withDefault <| isDefEq type resultType) then
+          if (← withDefault <| withAssignableSyntheticOpaque <| isDefEq type resultType) then
             let result ← instantiateMVars result
             /- We use `check` to propogate universe constraints implied by the `result`.
                Recall that we use `ignoreLevelMVarDepth := true` which allows universe metavariables in the current depth to be assigned,

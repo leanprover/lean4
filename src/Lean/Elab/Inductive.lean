@@ -12,6 +12,7 @@ import Lean.Meta.SizeOf
 import Lean.Meta.Injective
 import Lean.Meta.IndPredBelow
 import Lean.Elab.Command
+import Lean.Elab.ComputedFields
 import Lean.Elab.DefView
 import Lean.Elab.DeclUtil
 import Lean.Elab.Deriving.Basic
@@ -46,6 +47,12 @@ structure CtorView where
   type?     : Option Syntax
   deriving Inhabited
 
+structure ComputedFieldView where
+  ref       : Syntax
+  fieldId   : Name
+  type      : Syntax.Term
+  matchAlts : TSyntax ``Parser.Term.matchAlts
+
 structure InductiveView where
   ref             : Syntax
   declId          : Syntax
@@ -57,6 +64,7 @@ structure InductiveView where
   type?           : Option Syntax
   ctors           : Array CtorView
   derivingClasses : Array DerivingClassView
+  computedFields  : Array ComputedFieldView
   deriving Inhabited
 
 structure ElabHeaderResult where
@@ -798,6 +806,22 @@ private def applyDerivingHandlers (views : Array InductiveView) : CommandElabM U
             declNames := declNames.push view.declName
         classView.applyHandlers declNames
 
+private def applyComputedFields (indViews : Array InductiveView) : CommandElabM Unit := do
+  if indViews.all (·.computedFields.isEmpty) then return
+
+  let mut computedFields := #[]
+  let mut computedFieldDefs := #[]
+  for indView@{declName, ..} in indViews do
+    for {ref, fieldId, type, matchAlts ..} in indView.computedFields do
+      computedFieldDefs := computedFieldDefs.push <|
+        ← `(noncomputable def%$ref $(mkIdent <| `_root_ ++ declName ++ fieldId):ident : $type $matchAlts:matchAlts)
+    let computedFieldNames := indView.computedFields.map fun {fieldId, ..} => declName ++ fieldId
+    computedFields := computedFields.push (declName, computedFieldNames)
+  elabCommand <| ← `(set_option bootstrap.genMatcherCode false in mutual $computedFieldDefs* end)
+
+  liftTermElabM indViews[0]!.declName do
+    ComputedFields.setComputedFields computedFields
+
 def elabInductiveViews (views : Array InductiveView) : CommandElabM Unit := do
   let view0 := views[0]!
   let ref := view0.ref
@@ -807,6 +831,7 @@ def elabInductiveViews (views : Array InductiveView) : CommandElabM Unit := do
     Lean.Meta.IndPredBelow.mkBelow view0.declName
     for view in views do
       mkInjectiveTheorems view.declName
+  applyComputedFields views -- NOTE: any generated code before this line is invalid
   applyDerivingHandlers views
   runTermElabM view0.declName fun _ => withRef ref do
     for view in views do

@@ -1265,15 +1265,25 @@ private def isAssigned : Expr → MetaM Bool
   | Expr.mvar mvarId _ => isExprMVarAssigned mvarId
   | _                  => pure false
 
-private def isDelayedAssignedHead (tFn : Expr) (t : Expr) : MetaM Bool := do
-  match tFn with
-  | Expr.mvar mvarId _ =>
-    if (← isMVarDelayedAssigned mvarId) then
-      let tNew ← instantiateMVars t
-      return tNew != t
-    else
-      pure false
-  | _ => pure false
+private def expandDelayedAssigned? (t : Expr) : MetaM (Option Expr) := do
+  let tFn := t.getAppFn
+  if !tFn.isMVar then return none
+  let some { fvars, mvarIdPending } ← getDelayedMVarAssignment? tFn.mvarId! | return none
+  let tNew ← instantiateMVars t
+  if tNew != t then return some tNew
+  /-
+    If `assignSyntheticOpaque` is true, we must follow the delayed assignment.
+    Recall a delayed assignment `mvarId [xs] := mvarIdPending` is morally an assingment
+    `mvarId := fun xs => mvarIdPending` where `xs` are free variables in the scope of `mvarIdPending`,
+    but not in the scope of `mvarId`. We can only perform the abstraction when `mvarIdPending` has been fully synthesized.
+    That is, `instantiateMVars (mkMVar mvarIdPending)` does not contain any expression metavariables.
+    Here we just consume `fvar.size` arguments. That is, if `t` is of the form `mvarId as bs` where `as.size == fvars.size`,
+    we return `mvarIdPending bs`.
+   -/
+  unless (← getConfig).assignSyntheticOpaque do return none
+  let tArgs := t.getAppArgs
+  if tArgs.size < fvars.size then return none
+  return some (mkAppRange (mkMVar mvarIdPending) fvars.size tArgs.size tArgs)
 
 private def isSynthetic : Expr → MetaM Bool
   | Expr.mvar mvarId _ => do
@@ -1409,11 +1419,9 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
     else if (← isAssigned sFn) then
       let s ← instantiateMVars s
       isDefEqQuick t s
-    else if (← isDelayedAssignedHead tFn t) then
-      let t ← instantiateMVars t
+    else if let some t ← expandDelayedAssigned? t then
       isDefEqQuick t s
-    else if (← isDelayedAssignedHead sFn s) then
-      let s ← instantiateMVars s
+    else if let some s ← expandDelayedAssigned? s then
       isDefEqQuick t s
     /- Remark: we do not eagerly synthesize synthetic metavariables when the constraint is not stuck.
        Reason: we may fail to solve a constraint of the form `?x =?= A` when the synthesized instance

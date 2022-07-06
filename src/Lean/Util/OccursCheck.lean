@@ -26,7 +26,7 @@ where
       | some v => visit v
       | none   =>
         match (← getDelayedMVarAssignment? mvarId') with
-        | some d => visit d.val
+        | some d => visitMVar d.mvarIdPending
         | none   => return ()
 
   visit (e : Expr) : ExceptT Unit (StateT ExprSet m) Unit := do

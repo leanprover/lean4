@@ -691,7 +691,7 @@ partial def visit (e : Expr) : M Unit := do
         visit e'
       else
         match (← getDelayedMVarAssignment? mvarId) with
-        | some d => visit d.val
+        | some d => visit (mkMVar d.mvarIdPending)
         | none   => failure
     | _ => return ()
 

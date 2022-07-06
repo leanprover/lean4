@@ -26,7 +26,7 @@ partial def collectMVars (e : Expr) : StateRefT CollectMVars.State MetaM Unit :=
   for mvarId in s.result[resultSavedSize:] do
     match (← getDelayedMVarAssignment? mvarId) with
     | none   => pure ()
-    | some d => collectMVars d.val
+    | some d => collectMVars (mkMVar d.mvarIdPending)
 
 /-- Return metavariables in occuring the given expression. See `collectMVars` -/
 def getMVars (e : Expr) : MetaM (Array MVarId) := do

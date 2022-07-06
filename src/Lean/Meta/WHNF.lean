@@ -452,13 +452,13 @@ private def whnfDelayedAssigned? (f' : Expr) (e : Expr) : MetaM (Option Expr) :=
   if f'.isMVar then
     match (← getDelayedMVarAssignment? f'.mvarId!) with
     | none => return none
-    | some { fvars, val } =>
+    | some { fvars, mvarIdPending } =>
       let args := e.getAppArgs
       if fvars.size > args.size then
         -- Insufficient number of argument to expand delayed assignment
         return none
       else
-        let newVal ← instantiateMVars val
+        let newVal ← instantiateMVars (mkMVar mvarIdPending)
         if newVal.hasExprMVar then
            -- Delayed assignment still contains metavariables
            return none

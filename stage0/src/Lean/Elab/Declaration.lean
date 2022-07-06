@@ -94,12 +94,14 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
     match sortDeclLevelParams scopeLevelNames allUserLevelNames usedParams with
     | Except.error msg      => throwErrorAt stx msg
     | Except.ok levelParams =>
+      let type ← instantiateMVars type
       let decl := Declaration.axiomDecl {
         name        := declName,
         levelParams := levelParams,
         type        := type,
         isUnsafe    := modifiers.isUnsafe
       }
+      trace[Elab.axiom] "{declName} : {type}"
       Term.ensureNoUnassignedMVars decl
       addDecl decl
       withSaveInfoContext do  -- save new env
@@ -341,5 +343,8 @@ def expandInitCmd (builtin : Bool) : Macro := fun stx => do
 
 @[builtinMacro Lean.Parser.Command.«builtin_initialize»] def expandBuiltinInitialize : Macro :=
   expandInitCmd (builtin := true)
+
+builtin_initialize
+  registerTraceClass `Elab.axiom
 
 end Lean.Elab.Command

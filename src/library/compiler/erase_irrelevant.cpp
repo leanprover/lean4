@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/inductive.h"
 #include "library/compiler/util.h"
+#include "library/compiler/implemented_by_attribute.h"
 
 namespace lean {
 class erase_irrelevant_fn {
@@ -77,6 +78,13 @@ class erase_irrelevant_fn {
             return mk_enf_neutral();
         } else if (is_irrelevant(e)) {
             return mk_enf_neutral();
+        } else if (optional<name> n = get_implemented_by_attribute(env(), c)) {
+            if (has_inline_attribute(env(), *n)) {
+                // csimp ignores @[inline] after erasure, so inline it now
+                if (optional<expr> e3 = unfold_term(env(), mk_const(mk_cstage1_name(*n), const_levels(e))))
+                    return visit(*e3);
+            }
+            return visit(mk_const(*n, const_levels(e)));
         } else {
             return mk_constant(const_name(e));
         }
@@ -336,12 +344,26 @@ class erase_irrelevant_fn {
     expr visit_app(expr const & e) {
         buffer<expr> args;
         expr f = get_app_args(e, args);
-        if (is_constant(f)) {
+        while (is_constant(f)) {
             name const & fn = const_name(f);
             if (fn == get_lc_proof_name()) {
                 return mk_enf_neutral();
             } else if (fn == get_lc_unreachable_name()) {
                 return mk_enf_unreachable();
+            } else if (optional<name> n = get_implemented_by_attribute(env(), fn)) {
+                if (is_cases_on_recursor(env(), fn) || has_inline_attribute(env(), *n)) {
+                    // casesOn has a different representation in the LCNF than applications,
+                    // so we can't just replace the constant by the implementedBy override.
+                    // Additionally, csimp ignores inline annotation after erase so inline now.
+                    expr e2 = mk_app(mk_const(mk_cstage1_name(*n), const_levels(f)), to_list(args));
+                    if (optional<expr> e3 = unfold_app(env(), e2)) {
+                        return visit(*e3);
+                    } else {
+                        throw exception(sstream() << "code generation failed, unsupported implementedBy for '" << fn << "'");
+                    }
+                } else {
+                    f = mk_const(*n, const_levels(f));
+                }
             } else if (fn == get_decidable_is_true_name()) {
                 return mk_constant(get_bool_true_name());
             } else if (fn == get_decidable_is_false_name()) {
@@ -358,6 +380,8 @@ class erase_irrelevant_fn {
                 /* Decidable.decide is the "identify" function since Decidable and Bool have
                    the same runtime representation. */
                 return args[1];
+            } else {
+                break;
             }
         }
         return visit_app_default(f, args);

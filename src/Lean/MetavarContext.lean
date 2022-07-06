@@ -260,9 +260,7 @@ structure MetavarDecl where
   deriving Inhabited
 
 /--
-  A delayed assignment for a metavariable `?m`. It represents an assignment of the form
-  `?m := (fun fvars => val)`. The local context `lctx` provides the declarations for `fvars`.
-  Note that `fvars` may not be defined in the local context for `?m`.
+  A delayed assignment for a metavariable `?m`. It represents an assignment of the form `?m := (fun fvars => val)`.
 -/
 structure DelayedMetavarAssignment where
   fvars    : Array Expr
@@ -427,9 +425,6 @@ def assignExprMVar [MonadMCtx m] (mvarId : MVarId) (val : Expr) : m Unit :=
 def assignDelayedMVar [MonadMCtx m] (mvarId : MVarId) (fvars : Array Expr) (val : Expr) : m Unit :=
   modifyMCtx fun m => { m with dAssignment := m.dAssignment.insert mvarId { fvars, val }, usedAssignment := true }
 
-def eraseDelayedMVar [MonadMCtx m] (mvarId : MVarId) : m Unit :=
-  modifyMCtx fun m => { m with dAssignment := m.dAssignment.erase mvarId, usedAssignment := true }
-
 /-
 Notes on artificial eta-expanded terms due to metavariables.
 We try avoid synthetic terms such as `((fun x y => t) a b)` in the output produced by the elaborator.
@@ -491,7 +486,7 @@ partial def instantiateExprMVars [Monad m] [MonadMCtx m] [STWorld ω m] [MonadLi
       | Expr.mvar mvarId _ =>
         match (← getDelayedMVarAssignment? mvarId) with
         | none => instApp
-        | some { fvars, val, .. } =>
+        | some { fvars, val } =>
           /-
              Apply "delayed substitution" (i.e., delayed assignment + application).
              That is, `f` is some metavariable `?m`, that is delayed assigned to `val`.

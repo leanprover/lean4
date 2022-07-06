@@ -480,10 +480,10 @@ mutual
     let arg ← if (← isNextOutParamOfLocalInstanceAndResult) then
       let arg ← mkFreshExprMVar argType
       /- When the result type is an output parameter, we don't want to propagate the expected type.
-         So, we just mark `propagateExpected := true`.
+         So, we just mark `propagateExpected := false` to disable it.
          At `finalize`, we check whether `arg` is still unassigned and promote it to a `syntheticOpaque`
          to make sure it is not assigned but type inference until it is synthesized by type inference. -/
-      modify fun s => { s with resultTypeOutParam? := some arg.mvarId!, propagateExpected := true }
+      modify fun s => { s with resultTypeOutParam? := some arg.mvarId!, propagateExpected := false }
       pure arg
     else
       mkFreshExprMVar argType

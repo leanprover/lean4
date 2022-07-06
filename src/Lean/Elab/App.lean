@@ -110,7 +110,7 @@ structure State where
   instMVars            : Array MVarId := #[] -- metavariables for the instance implicit arguments that have already been processed
   -- The following field is used to implement the `propagateExpectedType` heuristic.
   propagateExpected    : Bool  -- true when expectedType has not been propagated yet
-  resultTypeIsOutParam : Bool := false
+  resultTypeOutParam?  : Option MVarId := none
 
 abbrev M := ReaderT Context (StateRefT State TermElabM)
 
@@ -318,7 +318,6 @@ private def propagateExpectedType (arg : Arg) : M Unit := do
                   /- Note that we only set `propagateExpected := false` when propagation has succeeded. -/
                   modify fun s => { s with propagateExpected := false }
 
-
 /- This method execute after all application arguments have been processed. -/
 private def finalize : M Expr := do
   let s ← get
@@ -340,7 +339,24 @@ private def finalize : M Expr := do
   match s.expectedType? with
   | none              => pure ()
   | some expectedType =>
-    if s.resultTypeIsOutParam then
+    let shouldCreateCoe ← do
+      /- Recall that `resultTypeOutParam? = some mvarId` if the function result type is the output parameter
+         of a local instance. The value of this parameter may be inferable using other arguments. For example,
+         suppose we have
+         ```lean
+         def add_one {X} [Trait X] [One (Trait.R X)] [HAdd X (Trait.R X) X] (x : X) : X := x + (One.one : (Trait.R X))
+         ```
+         from test `948.lean`. There are multiple ways to infer `X`, and we don't want to mark it as `syntheticOpaque`.
+      -/
+      if let some outParamMVarId := s.resultTypeOutParam? then
+        if (← isExprMVarAssigned outParamMVarId) then
+          pure false
+        else
+          setMVarKind outParamMVarId .syntheticOpaque
+          pure true
+      else
+        pure false
+    if shouldCreateCoe then
       e ← mkCoe expectedType eType e
     else
       -- Try to propagate expected type. Ignore if types are not definitionally equal, caller must handle it.
@@ -462,12 +478,13 @@ mutual
   private partial def addImplicitArg (argName : Name) : M Expr := do
     let argType ← getArgExpectedType
     let arg ← if (← isNextOutParamOfLocalInstanceAndResult) then
+      let arg ← mkFreshExprMVar argType
       /- When the result type is an output parameter, we don't want to propagate the expected type.
-         So, we just mark `propagateExpected := true`. -/
-      modify fun s => { s with resultTypeIsOutParam := true, propagateExpected := true }
-      /- We mark the metavariable as synthetic because we want to postpone the coercion to be created
-         until it has been synthesized. See `synthesizePendingCoeInstMVar`. -/
-      mkFreshExprMVar argType .syntheticOpaque
+         So, we just mark `propagateExpected := true`.
+         At `finalize`, we check whether `arg` is still unassigned and promote it to a `syntheticOpaque`
+         to make sure it is not assigned but type inference until it is synthesized by type inference. -/
+      modify fun s => { s with resultTypeOutParam? := some arg.mvarId!, propagateExpected := true }
+      pure arg
     else
       mkFreshExprMVar argType
     modify fun s => { s with toSetErrorCtx := s.toSetErrorCtx.push arg.mvarId! }

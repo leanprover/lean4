@@ -71,7 +71,7 @@ partial def setAux : PersistentArrayNode α → USize → USize → α → Persi
     let j     := div2Shift i shift
     let i     := mod2Shift i shift
     let shift := shift - initShift
-    node $ cs.modify j.toNat $ fun c => setAux c i shift a
+    node <| cs.modify j.toNat fun c => setAux c i shift a
   | leaf cs, i, _,     a => leaf (cs.set! i.toNat a)
 
 def set (t : PersistentArray α) (i : Nat) (a : α) : PersistentArray α :=
@@ -85,7 +85,7 @@ def set (t : PersistentArray α) (i : Nat) (a : α) : PersistentArray α :=
     let j     := div2Shift i shift
     let i     := mod2Shift i shift
     let shift := shift - initShift
-    node $ cs.modify j.toNat $ fun c => modifyAux f c i shift
+    node <| cs.modify j.toNat fun c => modifyAux f c i shift
   | leaf cs, i, _     => leaf (cs.modify i.toNat f)
 
 @[specialize] def modify [Inhabited α] (t : PersistentArray α) (i : Nat) (f : α → α) : PersistentArray α :=
@@ -109,9 +109,9 @@ partial def insertNewLeaf : PersistentArrayNode α → USize → USize → Array
       let i     := mod2Shift i shift
       let shift := shift - initShift
       if j.toNat < cs.size then
-         node $ cs.modify j.toNat fun c => insertNewLeaf c i shift a
+         node <| cs.modify j.toNat fun c => insertNewLeaf c i shift a
       else
-         node $ cs.push $ mkNewPath shift a
+         node <| cs.push <| mkNewPath shift a
   | n, _, _, _ => n -- unreachable
 
 def mkNewTail (t : PersistentArray α) : PersistentArray α :=

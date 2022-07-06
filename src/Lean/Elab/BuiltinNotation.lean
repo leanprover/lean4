@@ -304,7 +304,8 @@ See the Chapter "Quantifiers and Equality" in the manual "Theorem Proving in Lea
   let expectedType? ← tryPostponeIfHasMVars? expectedType?
   match stx with
   | `($heqStx ▸ $hStx) => do
-     let mut heq ← elabTerm heqStx none
+     synthesizeSyntheticMVars
+     let mut heq ← withSynthesize <| elabTerm heqStx none
      let heqType ← inferType heq
      let heqType ← instantiateMVars heqType
      match (← Meta.matchEq? heqType) with
@@ -322,7 +323,7 @@ See the Chapter "Quantifiers and Equality" in the manual "Theorem Proving in Lea
          unless expectedAbst.hasLooseBVars do
            expectedAbst ← kabstract expectedType lhs
            unless expectedAbst.hasLooseBVars do
-             throwError "invalid `▸` notation, expected result type of cast is {indentExpr expectedType}\n.However, the equality {indentExpr heq}\nof type {indentExpr heqType}\ndoes not contain the expected result type on either the left or the right hand side"
+             throwError "invalid `▸` notation, expected result type of cast is {indentExpr expectedType}\nhowever, the equality {indentExpr heq}\nof type {indentExpr heqType}\ndoes not contain the expected result type on either the left or the right hand side"
            heq ← mkEqSymm heq
            (lhs, rhs) := (rhs, lhs)
          let hExpectedType := expectedAbst.instantiate1 lhs

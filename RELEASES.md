@@ -55,6 +55,18 @@ Unreleased
     | n+1 => (n+1) * Nat.fact n
   end Nat
   ```
+* Add support for computed fields in inductives. Example:
+  ```lean
+  inductive Exp
+    | var (i : Nat)
+    | app (a b : Exp)
+  with
+    hash : Exp → Nat
+      | .var i => i
+      | .app a b => a.hash * b.hash + 1
+  ```
+  The result of the `Exp.hash` function is then stored as an extra "computed" field in the `.var` and `.app` constructors;
+  `Exp.hash` accesses this field and thus runs in constant time (even on dag-like values).
 
 * Update Lake to v3.2.1. See the [v3.2.1 release notes](https://github.com/leanprover/lake/releases/tag/v3.2.1) for detailed changes.
 

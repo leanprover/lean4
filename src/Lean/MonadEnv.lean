@@ -97,6 +97,11 @@ def mkConstWithLevelParams [Monad m] [MonadEnv m] [MonadError m] (constName : Na
   let info ← getConstInfo constName
   return mkConst constName (info.levelParams.map mkLevelParam)
 
+def getConstInfoDefn [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m DefinitionVal := do
+  match (← getConstInfo constName) with
+  | ConstantInfo.defnInfo v => pure v
+  | _                       => throwError "'{mkConst constName}' is not a definition"
+
 def getConstInfoInduct [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m InductiveVal := do
   match (← getConstInfo constName) with
   | ConstantInfo.inductInfo v => pure v

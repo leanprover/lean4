@@ -98,10 +98,10 @@ partial def normLevel (u : Level) : M Level := do
   if !u.hasMVar then
     return u
   else match u with
-    | Level.succ v _      => return u.updateSucc! (← normLevel v)
-    | Level.max v w _     => return u.updateMax! (← normLevel v) (← normLevel w)
-    | Level.imax v w _    => return u.updateIMax! (← normLevel v) (← normLevel w)
-    | Level.mvar mvarId _ =>
+    | Level.succ v      => return u.updateSucc! (← normLevel v)
+    | Level.max v w     => return u.updateMax! (← normLevel v) (← normLevel w)
+    | Level.imax v w    => return u.updateIMax! (← normLevel v) (← normLevel w)
+    | Level.mvar mvarId =>
       if !(← isLevelMVarAssignable mvarId) then
         return u
       else

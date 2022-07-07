@@ -160,8 +160,8 @@ private def getIndicesPos (declName : Name) (xs : Array Expr) (majorPos numIndic
 
 private def getMotiveLevel (declName : Name) (motiveResultType : Expr) : MetaM Level :=
   match motiveResultType with
-  | Expr.sort u@(Level.zero _) _    => pure u
-  | Expr.sort u@(Level.param _ _) _ => pure u
+  | Expr.sort u@(Level.zero) _    => pure u
+  | Expr.sort u@(Level.param _) _ => pure u
   | _                               =>
     throwError "invalid user defined recursor '{declName}', motive result sort must be Prop or (Sort u) where u is a universe level parameter"
 

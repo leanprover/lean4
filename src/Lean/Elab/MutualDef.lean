@@ -740,9 +740,9 @@ partial def checkForHiddenUnivLevels (allUserLevelNames : List Name) (preDefs : 
       -- Otherwise, we try to produce an error message containing the expression with the offending universe
       let rec visitLevel (u : Level) : ReaderT Expr TermElabM Unit := do
         match u with
-        | .succ u _ => visitLevel u
-        | .imax u v _ | .max u v _ => visitLevel u; visitLevel v
-        | .param n _ =>
+        | .succ u => visitLevel u
+        | .imax u v | .max u v => visitLevel u; visitLevel v
+        | .param n =>
           unless sTypes.visitedLevel.contains u || allUserLevelNames.contains n do
             let parent ← withOptions (fun o => pp.universes.set o true) do addMessageContext m!"{indentExpr (← read)}"
             let body ← withOptions (fun o => pp.letVarTypes.setIfNotSet (pp.funBinderTypes.setIfNotSet o true) true) do addMessageContext m!"{indentExpr preDef.value}"

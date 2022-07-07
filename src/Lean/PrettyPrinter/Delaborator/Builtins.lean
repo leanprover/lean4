@@ -52,8 +52,8 @@ def delabMVar : Delab := do
 def delabSort : Delab := do
   let Expr.sort l _ ← getExpr | unreachable!
   match l with
-  | Level.zero _ => `(Prop)
-  | Level.succ (Level.zero _) _ => `(Type)
+  | Level.zero => `(Prop)
+  | Level.succ .zero => `(Type)
   | _ => match l.dec with
     | some l' => `(Type $(Level.quote l' max_prec))
     | none    => `(Sort $(Level.quote l max_prec))

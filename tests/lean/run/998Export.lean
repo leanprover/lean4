@@ -65,15 +65,15 @@ def exportLevel (L : Level) : ExportM Nat := do
   match (← get).levels.map.find? L with
   | some i => pure i
   | none => match L with
-    | Level.zero _ => pure 0
-    | Level.succ l _ =>
+    | Level.zero => pure 0
+    | Level.succ l =>
       let i ← alloc L; IO.println s!"{i} #US {← exportLevel l}"; pure i
-    | Level.max l₁ l₂ _ =>
+    | Level.max l₁ l₂ =>
       let i ← alloc L; IO.println s!"{i} #UM {← exportLevel l₁} {← exportLevel l₂}"; pure i
-    | Level.imax l₁ l₂ _ =>
+    | Level.imax l₁ l₂ =>
       let i ← alloc L; IO.println s!"{i} #UIM {← exportLevel l₁} {← exportLevel l₂}"; pure i
-    | Level.param n _ =>
+    | Level.param n =>
       let i ← alloc L; IO.println s!"{i} #UP {← exportName n}"; pure i
-    | Level.mvar n _ => unreachable!
+    | Level.mvar n => unreachable!
 
 attribute [simp] exportLevel

@@ -126,7 +126,7 @@ def synthesizeAppInstMVars : M Unit := do
   let s ← get
   let instMVars := s.instMVars
   modify fun s => { s with instMVars := #[] }
-  Lean.Elab.Term.synthesizeAppInstMVars instMVars s.f
+  Term.synthesizeAppInstMVars instMVars s.f
 
 /- fType may become a forallE after we synthesize pending metavariables. -/
 private def synthesizePendingAndNormalizeFunType : M Unit := do

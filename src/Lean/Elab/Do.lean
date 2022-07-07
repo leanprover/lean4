@@ -1385,11 +1385,11 @@ mutual
       let doForDecls := doForDecls.eraseIdx 1
       let body := doFor[3]
       withFreshMacroScope do
-        let toStreamFn ← withRef ys ``(toStream)
         /- Recall that `@` (explicit) disables `coeAtOutParam`.
            We used `@` at `Stream` functions to make sure `coeAtOutParam` is not used. -/
+        let toStreamFn ← withRef ys `(@toStream _ _ _)
         let auxDo ←
-          `(do let mut s := @$toStreamFn:ident _ _ _ $ys
+          `(do let mut s := $toStreamFn:term $ys
                for $doForDecls:doForDecl,* do
                  match @Stream.next? _ _ _ s with
                  | none => break

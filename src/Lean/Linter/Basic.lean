@@ -99,7 +99,7 @@ def unusedVariables : Linter := fun stx => do
       isInStructure,
       isInInductive,
       isInCtorOrStructBinder,
-      isInConstantOrAxiom,
+      isInOpaqueOrAxiom,
       isInDefWithForeignDefinition,
       isInDepArrow
     ]
@@ -169,7 +169,7 @@ where
     stackMatches stack [`null, none, `null, ``Lean.Parser.Command.optDeclSig, none] &&
     (stack.get? 4 |>.any fun (stx, _) =>
       [``Lean.Parser.Command.ctor, ``Lean.Parser.Command.structSimpleBinder].any (stx.isOfKind ·))
-  isInConstantOrAxiom (_ : Syntax) (stack : SyntaxStack) :=
+  isInOpaqueOrAxiom (_ : Syntax) (stack : SyntaxStack) :=
     stackMatches stack [`null, none, `null, ``Lean.Parser.Command.declSig, none] &&
     (stack.get? 4 |>.any fun (stx, _) =>
       [``Lean.Parser.Command.opaque, ``Lean.Parser.Command.axiom].any (stx.isOfKind ·))

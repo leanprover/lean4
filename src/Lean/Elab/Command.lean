@@ -190,7 +190,7 @@ instance : MonadLog CommandElabM where
     let msg := { msg with data := MessageData.withNamingContext { currNamespace := currNamespace, openDecls := openDecls } msg.data }
     modify fun s => { s with messages := s.messages.add msg }
 
-def runLinters (stx : Syntax) : CommandElabM Unit := do
+def runLinters (stx : Syntax) : CommandElabM Unit := do profileitM Exception "linting" (← getOptions) do
   let linters ← lintersRef.get
   unless linters.isEmpty do
     for linter in linters do

@@ -106,11 +106,9 @@ private def getBinderIds (ids : Syntax) : TermElabM (Array Syntax) :=
 
 private def matchBinder (stx : Syntax) : TermElabM (Array BinderView) := do
   let k := stx.getKind
-  if k == ``Lean.Parser.Term.simpleBinder then
-    -- binderIdent+ >> optType
-    let ids ← getBinderIds stx[0]
-    let optType := stx[1]
-    ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := expandOptType id optType, bi := BinderInfo.default }
+  if stx.isIdent || k == ``hole then
+    -- binderIdent
+    pure #[{ id := (← expandBinderIdent stx), type := mkHole stx, bi := BinderInfo.default }]
   else if k == ``Lean.Parser.Term.explicitBinder then
     -- `(` binderIdent+ binderType (binderDefault <|> binderTactic)? `)`
     let ids ← getBinderIds stx[1]
@@ -191,7 +189,7 @@ def elabBindersEx {α} (binders : Array Syntax) (k : Array (Syntax × Expr) → 
       elabBindersAux binders k
 
 /--
-  Elaborate the given binders (i.e., `Syntax` objects for `simpleBinder <|> bracketedBinder`),
+  Elaborate the given binders (i.e., `Syntax` objects for `bracketedBinder`),
   update the local context, set of local instances, reset instance chache (if needed), and then
   execute `k` with the updated context.
   The local context will only be included inside `k`.
@@ -205,6 +203,18 @@ def elabBinders (binders : Array Syntax) (k : Array Expr → TermElabM α) : Ter
 /-- Same as `elabBinder` with a single binder.-/
 def elabBinder {α} (binder : Syntax) (x : Expr → TermElabM α) : TermElabM α :=
   elabBinders #[binder] fun fvars => x fvars[0]!
+
+def expandSimpleBinderWithType (type : Term) (binder : Syntax) : MacroM Syntax :=
+  if binder.isOfKind ``hole || binder.isIdent then
+    `(bracketedBinder| ($binder : $type))
+  else
+    Macro.throwErrorAt type "unexpected type ascription"
+
+@[builtinMacro Lean.Parser.Term.forall] def expandForall : Macro
+  | `(forall $binders* : $ty, $term) => do
+    let binders ← binders.mapM (expandSimpleBinderWithType ty)
+    `(forall $binders*, $term)
+  | _ => Macro.throwUnsupported
 
 @[builtinTermElab «forall»] def elabForall : TermElab := fun stx _ =>
   match stx with
@@ -286,17 +296,13 @@ partial def expandFunBinders (binders : Array Syntax) (body : Syntax) : MacroM (
         let (binders, newBody, _) ← loop body (i+1) (newBinders.push $ mkExplicitBinder major (mkHole binder))
         let newBody ← `(match $major:ident with | $pattern => $newBody)
         pure (binders, newBody, true)
-      match binder with
-      | Syntax.node _ ``Lean.Parser.Term.implicitBinder _       => loop body (i+1) (newBinders.push binder)
-      | Syntax.node _ ``Lean.Parser.Term.strictImplicitBinder _ => loop body (i+1) (newBinders.push binder)
-      | Syntax.node _ ``Lean.Parser.Term.instBinder _           => loop body (i+1) (newBinders.push binder)
-      | Syntax.node _ ``Lean.Parser.Term.explicitBinder _       => loop body (i+1) (newBinders.push binder)
-      | Syntax.node _ ``Lean.Parser.Term.simpleBinder _         => loop body (i+1) (newBinders.push binder)
-      | Syntax.node _ ``Lean.Parser.Term.hole _ =>
-        let ident ← mkFreshIdent binder
-        let type := binder
-        loop body (i+1) (newBinders.push <| mkExplicitBinder ident type)
-      | Syntax.node _ ``Lean.Parser.Term.paren _    =>
+      match binder.getKind with
+      | ``Lean.Parser.Term.implicitBinder
+      | ``Lean.Parser.Term.strictImplicitBinder
+      | ``Lean.Parser.Term.instBinder
+      | ``Lean.Parser.Term.explicitBinder
+      | ``Lean.Parser.Term.hole | `ident => loop body (i+1) (newBinders.push binder)
+      | ``Lean.Parser.Term.paren =>
         -- `(` (termParser >> parenSpecial)? `)`
         -- parenSpecial := (tupleTail <|> typeAscription)?
         let binderBody := binder[1]
@@ -327,9 +333,6 @@ partial def expandFunBinders (binders : Array Syntax) (body : Syntax) : MacroM (
             match (← getFunBinderIds? term) with
             | some idents => loop body (i+1) (newBinders ++ idents.map (fun ident => mkExplicitBinder ident type))
             | none        => processAsPattern ()
-      | Syntax.ident .. =>
-        let type  := mkHole binder
-        loop body (i+1) (newBinders.push <| mkExplicitBinder binder type)
       | _ => processAsPattern ()
     else
       pure (newBinders, body, false)
@@ -541,7 +544,10 @@ def expandMatchAltsWhereDecls (matchAltsWhereDecls : Syntax) : MacroM Syntax :=
   loop (getMatchAltsNumPatterns matchAlts) #[]
 
 @[builtinMacro Lean.Parser.Term.fun] partial def expandFun : Macro
-  | `(fun $binders* => $body) => do
+  | `(fun $binders* : $ty => $body) => do
+    let binders ← binders.mapM (expandSimpleBinderWithType ty)
+    `(fun $binders* => $body)
+  | `(fun $binders* => $body) => do  -- if there is a type ascription, we assume all binders are already simple
     let (binders, body, expandedPattern) ← expandFunBinders binders body
     if expandedPattern then
       `(fun $binders* => $body)
@@ -552,7 +558,7 @@ def expandMatchAltsWhereDecls (matchAltsWhereDecls : Syntax) : MacroM Syntax :=
 
 open Lean.Elab.Term.Quotation in
 @[builtinQuotPrecheck Lean.Parser.Term.fun] def precheckFun : Precheck
-  | `(fun $binders* => $body) => do
+  | `(fun $binders* $[: $ty?]? => $body) => do
     let (binders, body, _) ← liftMacroM <| expandFunBinders binders body
     let mut ids := #[]
     for b in binders do

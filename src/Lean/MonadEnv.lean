@@ -9,6 +9,7 @@ import Lean.Declaration
 import Lean.Log
 import Lean.Util.FindExpr
 import Lean.AuxRecursor
+import Lean.Compiler.Util
 
 namespace Lean
 
@@ -156,6 +157,14 @@ def compileDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (decl : D
   | Except.ok env   => setEnv env
   | Except.error (KernelException.other msg) =>
     checkUnsupported decl -- Generate nicer error message for unsupported recursors and axioms
+    throwError msg
+  | Except.error ex =>
+    throwKernelException ex
+
+def compileDecls [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (decls : List Name) : m Unit := do
+  match (← getEnv).compileDecls (← getOptions) decls with
+  | Except.ok env   => setEnv env
+  | Except.error (KernelException.other msg) =>
     throwError msg
   | Except.error ex =>
     throwKernelException ex

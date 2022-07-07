@@ -24,10 +24,10 @@ mutual
     else collect u { s with visitedLevel := s.visitedLevel.insert u }
 
   partial def collect : Level → Visitor
-    | Level.succ v _    => visitLevel v
-    | Level.max u v _   => visitLevel v ∘ visitLevel u
-    | Level.imax u v _  => visitLevel v ∘ visitLevel u
-    | Level.param n _   => fun s => { s with params := s.params.push n }
+    | Level.succ v    => visitLevel v
+    | Level.max u v   => visitLevel v ∘ visitLevel u
+    | Level.imax u v  => visitLevel v ∘ visitLevel u
+    | Level.param n   => fun s => { s with params := s.params.push n }
     | _                 => id
 end
 

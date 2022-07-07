@@ -14,17 +14,17 @@ namespace Lean.Meta
   Return true iff `lvl` occurs in `max u_1 ... u_n` and `lvl != u_i` for all `i in [1, n]`.
   That is, `lvl` is a proper level subterm of some `u_i`. -/
 private def strictOccursMax (lvl : Level) : Level → Bool
-  | Level.max u v _ => visit u || visit v
+  | Level.max u v => visit u || visit v
   | _               => false
 where
   visit : Level → Bool
-    | Level.max u v _ => visit u || visit v
+    | Level.max u v => visit u || visit v
     | u               => u != lvl && lvl.occurs u
 
 /-- `mkMaxArgsDiff mvarId (max u_1 ... (mvar mvarId) ... u_n) v` => `max v u_1 ... u_n` -/
 private def mkMaxArgsDiff (mvarId : MVarId) : Level → Level → Level
-  | Level.max u v _,     acc => mkMaxArgsDiff mvarId v <| mkMaxArgsDiff mvarId u acc
-  | l@(Level.mvar id _), acc => if id != mvarId then mkLevelMax' acc l else acc
+  | Level.max u v,     acc => mkMaxArgsDiff mvarId v <| mkMaxArgsDiff mvarId u acc
+  | l@(Level.mvar id), acc => if id != mvarId then mkLevelMax' acc l else acc
   | l,                   acc => mkLevelMax' acc l
 
 /--
@@ -43,14 +43,14 @@ private def postponeIsLevelDefEq (lhs : Level) (rhs : Level) : MetaM Unit := do
 
 private def isMVarWithGreaterDepth (v : Level) (mvarId : MVarId) : MetaM Bool :=
   match v with
-  | Level.mvar mvarId' _ => return (← getLevelMVarDepth mvarId') > (← getLevelMVarDepth mvarId)
+  | Level.mvar mvarId' => return (← getLevelMVarDepth mvarId') > (← getLevelMVarDepth mvarId)
   | _ => return false
 
 mutual
 
   private partial def solve (u v : Level) : MetaM LBool := do
     match u, v with
-    | Level.mvar mvarId _, _ =>
+    | Level.mvar mvarId, _ =>
       if (← isReadOnlyLevelMVar mvarId) then
         return LBool.undef
       else if (← getConfig).ignoreLevelMVarDepth && (← isMVarWithGreaterDepth v mvarId) then
@@ -67,12 +67,12 @@ mutual
       else
         return LBool.undef
     | _, Level.mvar .. => return LBool.undef -- Let `solve v u` to handle this case
-    | Level.zero _, Level.max v₁ v₂ _ =>
+    | Level.zero, Level.max v₁ v₂ =>
       Bool.toLBool <$> (isLevelDefEqAux levelZero v₁ <&&> isLevelDefEqAux levelZero v₂)
-    | Level.zero _, Level.imax _ v₂ _ =>
+    | Level.zero, Level.imax _ v₂ =>
       Bool.toLBool <$> isLevelDefEqAux levelZero v₂
-    | Level.zero _, Level.succ .. => return LBool.false
-    | Level.succ u _, v =>
+    | Level.zero, Level.succ .. => return LBool.false
+    | Level.succ u, v =>
       if v.isParam then
         return LBool.false
       else if u.isMVar && u.occurs v then
@@ -85,7 +85,7 @@ mutual
 
   @[export lean_is_level_def_eq]
   partial def isLevelDefEqAuxImpl : Level → Level → MetaM Bool
-    | Level.succ lhs _, Level.succ rhs _ => isLevelDefEqAux lhs rhs
+    | Level.succ lhs, Level.succ rhs => isLevelDefEqAux lhs rhs
     | lhs, rhs => do
       if lhs.getLevelOffset == rhs.getLevelOffset then
         return lhs.getOffset == rhs.getOffset

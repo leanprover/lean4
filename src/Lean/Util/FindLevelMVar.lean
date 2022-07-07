@@ -30,12 +30,12 @@ mutual
     if s.isSome || !l.hasMVar then s else mainLevel p l s
 
   partial def mainLevel (p : MVarId → Bool) : Level → Visitor
-    | Level.zero _        => id
-    | Level.succ l _      => visitLevel p l
-    | Level.max l₁ l₂ _   => visitLevel p l₁ ∘ visitLevel p l₂
-    | Level.imax l₁ l₂ _  => visitLevel p l₁ ∘ visitLevel p l₂
-    | Level.param _ _     => id
-    | Level.mvar mvarId _ => fun s => if p mvarId then some mvarId else s
+    | Level.zero        => id
+    | Level.succ l      => visitLevel p l
+    | Level.max l₁ l₂   => visitLevel p l₁ ∘ visitLevel p l₂
+    | Level.imax l₁ l₂  => visitLevel p l₁ ∘ visitLevel p l₂
+    | Level.param _     => id
+    | Level.mvar mvarId => fun s => if p mvarId then some mvarId else s
 end
 
 end FindLevelMVar

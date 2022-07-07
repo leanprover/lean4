@@ -206,8 +206,8 @@ private def isAlwaysZero : Level → Bool
   | .mvar ..    => false
   | .param ..   => false
   | .succ ..    => false
-  | .max u v _  => isAlwaysZero u && isAlwaysZero v
-  | .imax _ u _ => isAlwaysZero u
+  | .max u v    => isAlwaysZero u && isAlwaysZero v
+  | .imax _ u   => isAlwaysZero u
 
 /--
   `isArrowProp type n` is an "approximate" predicate which returns `LBool.true`

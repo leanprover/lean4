@@ -642,7 +642,7 @@ private def updateResultingUniverse (fieldInfos : Array StructFieldInfo) (type :
   let rOffset : Nat   := r.getOffset
   let r       : Level := r.getLevelOffset
   match r with
-  | Level.mvar mvarId _ =>
+  | Level.mvar mvarId =>
     let us ← collectUniversesFromFields r rOffset fieldInfos
     let rNew := mkResultUniverse us rOffset
     assignLevelMVar mvarId rNew

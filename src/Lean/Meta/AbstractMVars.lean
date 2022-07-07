@@ -47,12 +47,12 @@ private partial def abstractLevelMVars (u : Level) : M Level := do
     return u
   else
     match u with
-    | Level.zero _        => return u
-    | Level.param _ _     => return u
-    | Level.succ v _      => return u.updateSucc! (← abstractLevelMVars v)
-    | Level.max v w _     => return u.updateMax! (← abstractLevelMVars v) (← abstractLevelMVars w)
-    | Level.imax v w _    => return u.updateIMax! (← abstractLevelMVars v) (← abstractLevelMVars w)
-    | Level.mvar mvarId _ =>
+    | Level.zero        => return u
+    | Level.param _     => return u
+    | Level.succ v      => return u.updateSucc! (← abstractLevelMVars v)
+    | Level.max v w     => return u.updateMax! (← abstractLevelMVars v) (← abstractLevelMVars w)
+    | Level.imax v w    => return u.updateIMax! (← abstractLevelMVars v) (← abstractLevelMVars w)
+    | Level.mvar mvarId =>
       let s ← get
       let depth := s.mctx.getLevelDepth mvarId;
       if depth != s.mctx.depth then

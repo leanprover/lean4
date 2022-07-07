@@ -365,12 +365,12 @@ def isExprMVarAssignable [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool := d
 
 /-- Return true iff the given level contains an assigned metavariable. -/
 def hasAssignedLevelMVar [Monad m] [MonadMCtx m] : Level → m Bool
-  | Level.succ lvl _       => pure lvl.hasMVar <&&> hasAssignedLevelMVar lvl
-  | Level.max lvl₁ lvl₂ _  => (pure lvl₁.hasMVar <&&> hasAssignedLevelMVar lvl₁) <||> (pure lvl₂.hasMVar <&&> hasAssignedLevelMVar lvl₂)
-  | Level.imax lvl₁ lvl₂ _ => (pure lvl₁.hasMVar <&&> hasAssignedLevelMVar lvl₁) <||> (pure lvl₂.hasMVar <&&> hasAssignedLevelMVar lvl₂)
-  | Level.mvar mvarId _    => isLevelMVarAssigned mvarId
-  | Level.zero _           => pure false
-  | Level.param _ _        => pure false
+  | Level.succ lvl       => pure lvl.hasMVar <&&> hasAssignedLevelMVar lvl
+  | Level.max lvl₁ lvl₂  => (pure lvl₁.hasMVar <&&> hasAssignedLevelMVar lvl₁) <||> (pure lvl₂.hasMVar <&&> hasAssignedLevelMVar lvl₂)
+  | Level.imax lvl₁ lvl₂ => (pure lvl₁.hasMVar <&&> hasAssignedLevelMVar lvl₁) <||> (pure lvl₂.hasMVar <&&> hasAssignedLevelMVar lvl₂)
+  | Level.mvar mvarId    => isLevelMVarAssigned mvarId
+  | Level.zero           => pure false
+  | Level.param _        => pure false
 
 /-- Return `true` iff expression contains assigned (level/expr) metavariables or delayed assigned mvars -/
 def hasAssignedMVar [Monad m] [MonadMCtx m] : Expr → m Bool
@@ -389,12 +389,12 @@ def hasAssignedMVar [Monad m] [MonadMCtx m] : Expr → m Bool
 
 /-- Return true iff the given level contains a metavariable that can be assigned. -/
 def hasAssignableLevelMVar [Monad m] [MonadMCtx m] : Level → m Bool
-  | Level.succ lvl _       => pure lvl.hasMVar <&&> hasAssignableLevelMVar lvl
-  | Level.max lvl₁ lvl₂ _  => (pure lvl₁.hasMVar <&&> hasAssignableLevelMVar lvl₁) <||> (pure lvl₂.hasMVar <&&> hasAssignableLevelMVar lvl₂)
-  | Level.imax lvl₁ lvl₂ _ => (pure lvl₁.hasMVar <&&> hasAssignableLevelMVar lvl₁) <||> (pure lvl₂.hasMVar <&&> hasAssignableLevelMVar lvl₂)
-  | Level.mvar mvarId _    => isLevelMVarAssignable mvarId
-  | Level.zero _           => return false
-  | Level.param _ _        => return false
+  | Level.succ lvl       => pure lvl.hasMVar <&&> hasAssignableLevelMVar lvl
+  | Level.max lvl₁ lvl₂  => (pure lvl₁.hasMVar <&&> hasAssignableLevelMVar lvl₁) <||> (pure lvl₂.hasMVar <&&> hasAssignableLevelMVar lvl₂)
+  | Level.imax lvl₁ lvl₂ => (pure lvl₁.hasMVar <&&> hasAssignableLevelMVar lvl₁) <||> (pure lvl₂.hasMVar <&&> hasAssignableLevelMVar lvl₂)
+  | Level.mvar mvarId    => isLevelMVarAssignable mvarId
+  | Level.zero           => return false
+  | Level.param _        => return false
 
 /-- Return `true` iff expression contains a metavariable that can be assigned. -/
 def hasAssignableMVar [Monad m] [MonadMCtx m] : Expr → m Bool
@@ -445,10 +445,10 @@ To avoid this term eta-expanded term, we apply beta-reduction when instantiating
 This operation is performed at `instantiateExprMVars`, `elimMVarDeps`, and `levelMVarToParam`.
 -/
 partial def instantiateLevelMVars [Monad m] [MonadMCtx m] : Level → m Level
-  | lvl@(Level.succ lvl₁ _)      => return Level.updateSucc! lvl (← instantiateLevelMVars lvl₁)
-  | lvl@(Level.max lvl₁ lvl₂ _)  => return Level.updateMax! lvl (← instantiateLevelMVars lvl₁) (← instantiateLevelMVars lvl₂)
-  | lvl@(Level.imax lvl₁ lvl₂ _) => return Level.updateIMax! lvl (← instantiateLevelMVars lvl₁) (← instantiateLevelMVars lvl₂)
-  | lvl@(Level.mvar mvarId _)    => do
+  | lvl@(Level.succ lvl₁)      => return Level.updateSucc! lvl (← instantiateLevelMVars lvl₁)
+  | lvl@(Level.max lvl₁ lvl₂)  => return Level.updateMax! lvl (← instantiateLevelMVars lvl₁) (← instantiateLevelMVars lvl₂)
+  | lvl@(Level.imax lvl₁ lvl₂) => return Level.updateIMax! lvl (← instantiateLevelMVars lvl₁) (← instantiateLevelMVars lvl₂)
+  | lvl@(Level.mvar mvarId)    => do
     match (← getLevelMVarAssignment? mvarId) with
     | some newLvl =>
       if !newLvl.hasMVar then pure newLvl
@@ -1219,12 +1219,12 @@ partial def mkParamName : M Name := do
 
 partial def visitLevel (u : Level) : M Level := do
   match u with
-  | Level.succ v _      => return u.updateSucc! (← visitLevel v)
-  | Level.max v₁ v₂ _   => return u.updateMax! (← visitLevel v₁) (← visitLevel v₂)
-  | Level.imax v₁ v₂ _  => return u.updateIMax! (← visitLevel v₁) (← visitLevel v₂)
-  | Level.zero _        => return u
+  | Level.succ v      => return u.updateSucc! (← visitLevel v)
+  | Level.max v₁ v₂   => return u.updateMax! (← visitLevel v₁) (← visitLevel v₂)
+  | Level.imax v₁ v₂  => return u.updateIMax! (← visitLevel v₁) (← visitLevel v₂)
+  | Level.zero        => return u
   | Level.param ..      => return u
-  | Level.mvar mvarId _ =>
+  | Level.mvar mvarId =>
     match (← getLevelMVarAssignment? mvarId) with
     | some v => visitLevel v
     | none   =>

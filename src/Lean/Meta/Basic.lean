@@ -1360,7 +1360,7 @@ private def mkLeveErrorMessageCore (header : String) (entry : PostponedEntry) : 
     withLCtx ctx.lctx ctx.localInstances do
       let s   := entry.lhs.collectMVars entry.rhs.collectMVars
       /- `p u` is true if it contains a universe metavariable in `s` -/
-      let p (u : Level) := u.any fun | Level.mvar m _ => s.contains m | _ => false
+      let p (u : Level) := u.any fun | Level.mvar m => s.contains m | _ => false
       let lhs := exposeRelevantUniverses (← instantiateMVars ctx.lhs) p
       let rhs := exposeRelevantUniverses (← instantiateMVars ctx.rhs) p
       try

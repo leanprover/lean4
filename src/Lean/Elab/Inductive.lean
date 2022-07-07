@@ -397,7 +397,7 @@ def shouldInferResultUniverse (u : Level) : TermElabM (Option MVarId) := do
   let u ← instantiateLevelMVars u
   if u.hasMVar then
     match u.getLevelOffset with
-    | Level.mvar mvarId _ => return some mvarId
+    | Level.mvar mvarId => return some mvarId
     | _ =>
       throwError "cannot infer resulting universe level of inductive datatype, given level contains metavariables {mkSort u}, provide universe explicitly"
   else
@@ -447,11 +447,11 @@ def accLevel (u : Level) (r : Level) (rOffset : Nat) : OptionT (StateT (Array Le
 where
   go (u : Level) (rOffset : Nat) : OptionT (StateT (Array Level) Id) Unit := do
     match u, rOffset with
-    | .max u v _,  rOffset   => go u rOffset; go v rOffset
-    | .imax u v _, rOffset   => go u rOffset; go v rOffset
-    | .zero _,     _         => return ()
-    | .succ u _,   rOffset+1 => go u rOffset
-    | u,           rOffset   =>
+    | .max u v,  rOffset   => go u rOffset; go v rOffset
+    | .imax u v, rOffset   => go u rOffset; go v rOffset
+    | .zero,     _         => return ()
+    | .succ u,   rOffset+1 => go u rOffset
+    | u,         rOffset   =>
       if rOffset == 0 && u == r then
         return ()
       else if r.occurs u  then
@@ -546,8 +546,8 @@ private def checkResultingUniverses (views : Array InductiveView) (numParams : N
           let v := (← instantiateLevelMVars (← getLevel type)).normalize
           let rec check (v' : Level) (u' : Level) : TermElabM Unit :=
             match v', u' with
-            | .succ v' _, .succ u' _ => check v' u'
-            | .mvar id _, .param ..  =>
+            | .succ v', .succ u' => check v' u'
+            | .mvar id, .param ..  =>
               /- Special case:
                  The constructor parameter `v` is at unverse level `?v+k` and
                  the resulting inductive universe level is `u'+k`, where `u'` is a parameter (or zero).
@@ -563,7 +563,7 @@ private def checkResultingUniverses (views : Array InductiveView) (numParams : N
                  -----------------------------------------------------------
               -/
               assignLevelMVar id u'
-            | .mvar id _, .zero _    => assignLevelMVar id u' -- TODO: merge with previous case
+            | .mvar id, .zero => assignLevelMVar id u' -- TODO: merge with previous case
             | _, _ =>
               unless u.geq v do
                 let mut msg := m!"invalid universe level in constructor '{ctor.name}', parameter"

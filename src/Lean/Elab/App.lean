@@ -612,7 +612,7 @@ private def propagateExpectedTypeFor (f : Expr) : TermElabM Bool :=
   | _ => return true
 
 def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
-    (expectedType? : Option Expr) (explicit ellipsis coeAtOutParam : Bool) : TermElabM Expr := do
+    (expectedType? : Option Expr) (explicit ellipsis : Bool) (coeAtOutParam := true) : TermElabM Expr := do
   -- Coercions must be available to use this flag.
   -- If `@` is used (i.e., `explicit = true`), we disable `coeAtOutParam`.
   let coeAtOutParam := ((← getEnv).contains ``Lean.Internal.coeM) && coeAtOutParam && !explicit
@@ -802,7 +802,7 @@ private partial def mkBaseProjections (baseStructName : Name) (structName : Name
     let mut e := e
     for projFunName in path do
       let projFn ← mkConst projFunName
-      e ← elabAppArgs projFn #[{ name := `self, val := Arg.expr e }] (args := #[]) (expectedType? := none) (explicit := false) (ellipsis := false) (coeAtOutParam := true)
+      e ← elabAppArgs projFn #[{ name := `self, val := Arg.expr e }] (args := #[]) (expectedType? := none) (explicit := false) (ellipsis := false)
     return e
 
 private def typeMatchesBaseName (type : Expr) (baseName : Name) : MetaM Bool := do
@@ -856,7 +856,7 @@ private def addLValArg (baseName : Name) (fullName : Name) (e : Expr) (args : Ar
 private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit ellipsis : Bool)
     (f : Expr) (lvals : List LVal) : TermElabM Expr :=
   let rec loop : Expr → List LVal → TermElabM Expr
-  | f, []          => elabAppArgs f namedArgs args expectedType? explicit ellipsis (coeAtOutParam := true)
+  | f, []          => elabAppArgs f namedArgs args expectedType? explicit ellipsis
   | f, lval::lvals => do
     if let LVal.fieldName (ref := fieldStx) (targetStx := targetStx) .. := lval then
       addDotCompletionInfo targetStx f expectedType? fieldStx
@@ -876,9 +876,9 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
         let projFn ← addTermInfo lval.getRef projFn
         if lvals.isEmpty then
           let namedArgs ← addNamedArg namedArgs { name := `self, val := Arg.expr f }
-          elabAppArgs projFn namedArgs args expectedType? explicit ellipsis (coeAtOutParam := true)
+          elabAppArgs projFn namedArgs args expectedType? explicit ellipsis
         else
-          let f ← elabAppArgs projFn #[{ name := `self, val := Arg.expr f }] #[] (expectedType? := none) (explicit := false) (ellipsis := false) (coeAtOutParam := true)
+          let f ← elabAppArgs projFn #[{ name := `self, val := Arg.expr f }] #[] (expectedType? := none) (explicit := false) (ellipsis := false)
           loop f lvals
       else
         unreachable!
@@ -889,18 +889,18 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
       if lvals.isEmpty then
         let projFnType ← inferType projFn
         let (args, namedArgs) ← addLValArg baseStructName constName f args namedArgs projFnType
-        elabAppArgs projFn namedArgs args expectedType? explicit ellipsis (coeAtOutParam := true)
+        elabAppArgs projFn namedArgs args expectedType? explicit ellipsis
       else
-        let f ← elabAppArgs projFn #[] #[Arg.expr f] (expectedType? := none) (explicit := false) (ellipsis := false) (coeAtOutParam := true)
+        let f ← elabAppArgs projFn #[] #[Arg.expr f] (expectedType? := none) (explicit := false) (ellipsis := false)
         loop f lvals
     | LValResolution.localRec baseName fullName fvar =>
       let fvar ← addTermInfo lval.getRef fvar
       if lvals.isEmpty then
         let fvarType ← inferType fvar
         let (args, namedArgs) ← addLValArg baseName fullName f args namedArgs fvarType
-        elabAppArgs fvar namedArgs args expectedType? explicit ellipsis (coeAtOutParam := true)
+        elabAppArgs fvar namedArgs args expectedType? explicit ellipsis
       else
-        let f ← elabAppArgs fvar #[] #[Arg.expr f] (expectedType? := none) (explicit := false) (ellipsis := false) (coeAtOutParam := true)
+        let f ← elabAppArgs fvar #[] #[Arg.expr f] (expectedType? := none) (explicit := false) (ellipsis := false)
         loop f lvals
     | LValResolution.getOp fullName idx =>
       let getOpFn ← mkConst fullName
@@ -908,10 +908,10 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
       if lvals.isEmpty then
         let namedArgs ← addNamedArg namedArgs { name := `self, val := Arg.expr f }
         let namedArgs ← addNamedArg namedArgs { name := `idx,  val := Arg.stx idx }
-        elabAppArgs getOpFn namedArgs args expectedType? explicit ellipsis (coeAtOutParam := true)
+        elabAppArgs getOpFn namedArgs args expectedType? explicit ellipsis
       else
         let f ← elabAppArgs getOpFn #[{ name := `self, val := Arg.expr f }, { name := `idx, val := Arg.stx idx }]
-                            #[] (expectedType? := none) (explicit := false) (ellipsis := false) (coeAtOutParam := true)
+                            #[] (expectedType? := none) (explicit := false) (ellipsis := false)
         loop f lvals
   loop f lvals
 

@@ -444,7 +444,7 @@ def reduceProj? (e : Expr) : MetaM (Option Expr) := do
   | Expr.proj _ i c _ => project? c i
   | _                 => return none
 
-/-
+/--
   Auxiliary method for reducing terms of the form `?m t_1 ... t_n` where `?m` is delayed assigned.
   Recall that we can only expand a delayed assignment when all holes/metavariables in the assigned value have been "filled".
 -/
@@ -452,13 +452,13 @@ private def whnfDelayedAssigned? (f' : Expr) (e : Expr) : MetaM (Option Expr) :=
   if f'.isMVar then
     match (← getDelayedMVarAssignment? f'.mvarId!) with
     | none => return none
-    | some { fvars := fvars, val := val, .. } =>
+    | some { fvars, mvarIdPending } =>
       let args := e.getAppArgs
       if fvars.size > args.size then
         -- Insufficient number of argument to expand delayed assignment
         return none
       else
-        let newVal ← instantiateMVars val
+        let newVal ← instantiateMVars (mkMVar mvarIdPending)
         if newVal.hasExprMVar then
            -- Delayed assignment still contains metavariables
            return none

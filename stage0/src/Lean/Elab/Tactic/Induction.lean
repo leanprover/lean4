@@ -127,7 +127,7 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
           throwError "insufficient number of targets for '{elimInfo.name}'"
         let target := ctx.targets[s.targetPos]!
         let expectedType ← getArgExpectedType
-        let target ← withConfig (fun cfg => { cfg with assignSyntheticOpaque := true }) do Term.ensureHasType expectedType target
+        let target ← withAssignableSyntheticOpaque <| Term.ensureHasType expectedType target
         modify fun s => { s with targetPos := s.targetPos + 1 }
         addNewArg target
       else match c.binderInfo with

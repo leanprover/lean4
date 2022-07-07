@@ -74,7 +74,10 @@ private def synthesizePendingCoeInstMVar
     (auxMVarId : MVarId) (errorMsgHeader? : Option String) (eNew : Expr) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Bool := do
   let instMVarId := eNew.appArg!.mvarId!
   withMVarContext instMVarId do
-    if (← isDefEq expectedType eType) then
+    let eType ← instantiateMVars eType
+    if (← isSyntheticMVar eType) then
+      return false
+    if (← withDefault <| isDefEq expectedType eType) then
       /- This case may seem counterintuitive since we created the coercion
          because the `isDefEq expectedType eType` test failed before.
          However, it may succeed here because we have more information, for example, metavariables
@@ -168,8 +171,13 @@ where
       let candidate ← mkConstWithFreshMVarLevels defaultInstance
       let (mvars, bis, _) ← forallMetaTelescopeReducing (← inferType candidate)
       let candidate := mkAppN candidate mvars
-      if (← isDefEqGuarded (mkMVar mvarId) candidate) then
+      trace[Elab.defaultInstance] "{toString (mkMVar mvarId)}, {mkMVar mvarId} : {← inferType (mkMVar mvarId)} =?= {candidate} : {← inferType candidate}"
+      /- The `coeAtOutParam` feature may mark output parameters of local instances as `syntheticOpaque`.
+         This kind of parameter is not assignable by default. We use `withAssignableSyntheticOpaque` to workaround this behavior
+         when processing default instances. TODO: try to avoid `withAssignableSyntheticOpaque`. -/
+      if (← withAssignableSyntheticOpaque <| isDefEqGuarded (mkMVar mvarId) candidate) then
         -- Succeeded. Collect new TC problems
+        trace[Elab.defaultInstance] "isDefEq worked {mkMVar mvarId} : {← inferType (mkMVar mvarId)} =?= {candidate} : {← inferType candidate}"
         let mut pending := []
         for i in [:bis.size] do
           if bis[i]! == BinderInfo.instImplicit then

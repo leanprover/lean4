@@ -38,7 +38,7 @@ def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (mayPostpo
     let eType ← inferType e
     -- We allow synthetic opaque metavars to be assigned in the following step since the `isDefEq` is not really
     -- part of the elaboration, but part of the tactic. See issue #492
-    unless (← withAssignableSyntheticOpaque do isDefEq eType expectedType) do
+    unless (← withAssignableSyntheticOpaque <| isDefEq eType expectedType) do
       Term.throwTypeMismatchError none expectedType eType e
     return e
 

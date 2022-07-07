@@ -796,6 +796,8 @@ where
             return preDef
           else
             return { preDef with value := (← eraseAuxDiscr preDef.value) }
+        for preDef in preDefs do
+          trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
         checkForHiddenUnivLevels allUserLevelNames preDefs
         addPreDefinitions preDefs hints
         processDeriving headers

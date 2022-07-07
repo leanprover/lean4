@@ -260,13 +260,14 @@ structure MetavarDecl where
   deriving Inhabited
 
 /--
-  A delayed assignment for a metavariable `?m`. It represents an assignment of the form
-  `?m := (fun fvars => val)`. The local context `lctx` provides the declarations for `fvars`.
-  Note that `fvars` may not be defined in the local context for `?m`.
+  A delayed assignment for a metavariable `?m`. It represents an assignment of the form `?m := (fun fvars => (mkMVar mvarIdPending))`.
+  `mvarIdPending` is a `syntheticOpaque` metavariable that has not been synthesized yet. The delayed assignment becomes a real one
+  as soon as `mvarIdPending` has been fully synthesized.
+  `fvars` are variables in the `mvarIdPending` local context.
 -/
 structure DelayedMetavarAssignment where
-  fvars    : Array Expr
-  val      : Expr
+  fvars         : Array Expr
+  mvarIdPending : MVarId
 
 open Std (HashMap PersistentHashMap)
 
@@ -328,9 +329,7 @@ def getDelayedMVarAssignment? [Monad m] [MonadMCtx m] (mvarId : MVarId) : m (Opt
    If `mvarId₁` is not delayed assigned then return `mvarId₁` -/
 partial def getDelayedMVarRoot [Monad m] [MonadMCtx m] (mvarId : MVarId) : m MVarId := do
   match (← getDelayedMVarAssignment? mvarId) with
-  | some d => match d.val.getAppFn with
-    | Expr.mvar mvarId _ => getDelayedMVarRoot mvarId
-    | _                  => return mvarId
+  | some d => getDelayedMVarRoot d.mvarIdPending
   | none   => return mvarId
 
 def isLevelMVarAssigned [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool := do
@@ -424,11 +423,8 @@ def assignLevelMVar [MonadMCtx m] (mvarId : MVarId) (val : Level) : m Unit :=
 def assignExprMVar [MonadMCtx m] (mvarId : MVarId) (val : Expr) : m Unit :=
   modifyMCtx fun m => { m with eAssignment := m.eAssignment.insert mvarId val, usedAssignment := true }
 
-def assignDelayedMVar [MonadMCtx m] (mvarId : MVarId) (fvars : Array Expr) (val : Expr) : m Unit :=
-  modifyMCtx fun m => { m with dAssignment := m.dAssignment.insert mvarId { fvars, val }, usedAssignment := true }
-
-def eraseDelayedMVar [MonadMCtx m] (mvarId : MVarId) : m Unit :=
-  modifyMCtx fun m => { m with dAssignment := m.dAssignment.erase mvarId, usedAssignment := true }
+def assignDelayedMVar [MonadMCtx m] (mvarId : MVarId) (fvars : Array Expr) (mvarIdPending : MVarId) : m Unit :=
+  modifyMCtx fun m => { m with dAssignment := m.dAssignment.insert mvarId { fvars, mvarIdPending }, usedAssignment := true }
 
 /-
 Notes on artificial eta-expanded terms due to metavariables.
@@ -491,7 +487,7 @@ partial def instantiateExprMVars [Monad m] [MonadMCtx m] [STWorld ω m] [MonadLi
       | Expr.mvar mvarId _ =>
         match (← getDelayedMVarAssignment? mvarId) with
         | none => instApp
-        | some { fvars, val, .. } =>
+        | some { fvars, mvarIdPending } =>
           /-
              Apply "delayed substitution" (i.e., delayed assignment + application).
              That is, `f` is some metavariable `?m`, that is delayed assigned to `val`.
@@ -505,7 +501,7 @@ partial def instantiateExprMVars [Monad m] [MonadMCtx m] [STWorld ω m] [MonadLi
                when we are checking for unassigned metavariables in an elaborated term. -/
             instArgs f
           else
-            let newVal ← instantiateExprMVars val
+            let newVal ← instantiateExprMVars (mkMVar mvarIdPending)
             if newVal.hasExprMVar then
               instArgs f
             else do
@@ -1023,43 +1019,37 @@ mutual
           That being said, we should try this approach as soon as we have an extensive test suite.
       -/
       let newMVarKind := if !(← isExprMVarAssignable mvarId) then MetavarKind.syntheticOpaque else mvarDecl.kind
-      /- If `mvarId` is the lhs of a delayed assignment `?m #[x_1, ... x_n] := val`,
-         then `nestedFVars` is `#[x_1, ..., x_n]`.
-         In this case, we produce a new `syntheticOpaque` metavariable `?n` and a delayed assignment
-         ```
-         ?n #[y_1, ..., y_m, x_1, ... x_n] := ?m x_1 ... x_n
-         ```
-         where `#[y_1, ..., y_m]` is `toRevert` after `collectForwardDeps`.
-
-         Remark: `newMVarKind != MetavarKind.syntheticOpaque ==> nestedFVars == #[]`
-      -/
-      let rec cont (nestedFVars : Array Expr) : M (Expr × Array Expr) := do
-        let args ← args.mapM (visit xs)
-        -- Note that `toRevert` only contains free variables since it is the result of `getInScope`
-        let toRevert ← collectForwardDeps mvarLCtx toRevert
-        let newMVarLCtx   := reduceLocalContext mvarLCtx toRevert
-        let newLocalInsts := mvarDecl.localInstances.filter fun inst => toRevert.all fun x => inst.fvar != x
-        -- Remark: we must reset the before processing `mkAuxMVarType` because `toRevert` may not be equal to `xs`
-        let newMVarType ← withFreshCache do mkAuxMVarType mvarLCtx toRevert newMVarKind mvarDecl.type
-        let newMVarId    := { name := (← get).ngen.curr }
-        let newMVar      := mkMVar newMVarId
-        let result       := mkMVarApp mvarLCtx newMVar toRevert newMVarKind
-        let numScopeArgs := mvarDecl.numScopeArgs + result.getAppNumArgs
-        modify fun s => { s with
-            mctx := s.mctx.addExprMVarDecl newMVarId Name.anonymous newMVarLCtx newLocalInsts newMVarType newMVarKind numScopeArgs,
-            ngen := s.ngen.next
-          }
-        match newMVarKind with
-        | MetavarKind.syntheticOpaque =>
-          assignDelayedMVar newMVarId (toRevert ++ nestedFVars) (mkAppN (mkMVar mvarId) nestedFVars)
-        | _                           =>
-          assignExprMVar mvarId result
-        return (mkAppN result args, toRevert)
+      let args ← args.mapM (visit xs)
+      let toRevert ← collectForwardDeps mvarLCtx toRevert
+      let newMVarLCtx   := reduceLocalContext mvarLCtx toRevert
+      -- Note that `toRevert` only contains free variables since it is the result of `getInScope`
+      let newLocalInsts := mvarDecl.localInstances.filter fun inst => toRevert.all fun x => inst.fvar != x
+      -- Remark: we must reset the before processing `mkAuxMVarType` because `toRevert` may not be equal to `xs`
+      let newMVarType ← withFreshCache do mkAuxMVarType mvarLCtx toRevert newMVarKind mvarDecl.type
+      let newMVarId    := { name := (← get).ngen.curr }
+      let newMVar      := mkMVar newMVarId
+      let result       := mkMVarApp mvarLCtx newMVar toRevert newMVarKind
+      let numScopeArgs := mvarDecl.numScopeArgs + result.getAppNumArgs
+      modify fun s => { s with
+          mctx := s.mctx.addExprMVarDecl newMVarId Name.anonymous newMVarLCtx newLocalInsts newMVarType newMVarKind numScopeArgs,
+          ngen := s.ngen.next
+        }
       if !mvarDecl.kind.isSyntheticOpaque then
-        cont #[]
-      else match (← getDelayedMVarAssignment? mvarId) with
-      | none => cont #[]
-      | some { fvars, .. } => cont fvars
+        assignExprMVar mvarId result
+      else
+        /- If `mvarId` is the lhs of a delayed assignment `?m #[x_1, ... x_n] := ?mvarPending`,
+           then `nestedFVars` is `#[x_1, ..., x_n]`.
+           In this case, `newMVarId` is also `syntheticOpaque` and we add the delayed assignment delayed assignment
+           ```
+           ?newMVar #[y_1, ..., y_m, x_1, ... x_n] := ?m
+           ```
+           where `#[y_1, ..., y_m]` is `toRevert` after `collectForwardDeps`.
+        -/
+        let (mvarIdPending, nestedFVars) ← match (← getDelayedMVarAssignment? mvarId) with
+          | none => pure (mvarId, #[])
+          | some { fvars, mvarIdPending } => pure (mvarIdPending, fvars)
+        assignDelayedMVar newMVarId (toRevert ++ nestedFVars) mvarIdPending
+      return (mkAppN result args, toRevert)
 
   private partial def elimApp (xs : Array Expr) (f : Expr) (args : Array Expr) : M Expr := do
     match f with

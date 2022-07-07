@@ -83,22 +83,36 @@ def synthesizeAppInstMVars (instMVars : Array MVarId) (app : Expr) : TermElabM U
 
 namespace ElabAppArgs
 
+structure Context where
+  /--
+   `true` if `..` was used
+  -/
+  ellipsis      : Bool  --
+  /--
+   `true` if `@` modifier was used
+  -/
+  explicit      : Bool
+  /--
+    `true` if we should add a "coercion placeholder" at the result if its type is an `outParam` of some local instance.
+    We also mark the type variable as a `syntheticOpaque
+  -/
+  coeAtOutParam : Bool
+
 /- Auxiliary structure for elaborating the application `f args namedArgs`. -/
 structure State where
-  explicit          : Bool -- true if `@` modifier was used
-  f                 : Expr
-  fType             : Expr
-  args              : List Arg            -- remaining regular arguments
-  namedArgs         : List NamedArg       -- remaining named arguments to be processed
-  ellipsis          : Bool := false
-  expectedType?     : Option Expr
-  etaArgs           : Array Expr   := #[]
-  toSetErrorCtx     : Array MVarId := #[] -- metavariables that we need the set the error context using the application being built
-  instMVars         : Array MVarId := #[] -- metavariables for the instance implicit arguments that have already been processed
+  f                    : Expr
+  fType                : Expr
+  args                 : List Arg            -- remaining regular arguments
+  namedArgs            : List NamedArg       -- remaining named arguments to be processed
+  expectedType?        : Option Expr
+  etaArgs              : Array Expr   := #[]
+  toSetErrorCtx        : Array MVarId := #[] -- metavariables that we need the set the error context using the application being built
+  instMVars            : Array MVarId := #[] -- metavariables for the instance implicit arguments that have already been processed
   -- The following field is used to implement the `propagateExpectedType` heuristic.
-  propagateExpected : Bool  -- true when expectedType has not been propagated yet
+  propagateExpected    : Bool  -- true when expectedType has not been propagated yet
+  resultTypeOutParam?  : Option MVarId := none
 
-abbrev M := StateRefT State TermElabM
+abbrev M := ReaderT Context (StateRefT State TermElabM)
 
 /- Add the given metavariable to the collection of metavariables associated with instance-implicit arguments. -/
 private def addInstMVar (mvarId : MVarId) : M Unit :=
@@ -112,7 +126,7 @@ def synthesizeAppInstMVars : M Unit := do
   let s ← get
   let instMVars := s.instMVars
   modify fun s => { s with instMVars := #[] }
-  Lean.Elab.Term.synthesizeAppInstMVars instMVars s.f
+  Term.synthesizeAppInstMVars instMVars s.f
 
 /- fType may become a forallE after we synthesize pending metavariables. -/
 private def synthesizePendingAndNormalizeFunType : M Unit := do
@@ -294,7 +308,7 @@ private def propagateExpectedType (arg : Arg) : M Unit := do
         else
           let numRemainingArgs := s.args.length
           trace[Elab.app.propagateExpectedType] "etaArgs.size: {s.etaArgs.size}, numRemainingArgs: {numRemainingArgs}, fType: {s.fType}"
-          match getForallBody s.explicit numRemainingArgs s.namedArgs s.fType with
+          match getForallBody (← read).explicit numRemainingArgs s.namedArgs s.fType with
           | none           => pure ()
           | some fTypeBody =>
             unless fTypeBody.hasLooseBVars do
@@ -303,7 +317,6 @@ private def propagateExpectedType (arg : Arg) : M Unit := do
                 if (← isDefEq expectedType fTypeBody) then
                   /- Note that we only set `propagateExpected := false` when propagation has succeeded. -/
                   modify fun s => { s with propagateExpected := false }
-
 
 /- This method execute after all application arguments have been processed. -/
 private def finalize : M Expr := do
@@ -326,9 +339,31 @@ private def finalize : M Expr := do
   match s.expectedType? with
   | none              => pure ()
   | some expectedType =>
-     trace[Elab.app.finalize] "expected type: {expectedType}"
-     -- Try to propagate expected type. Ignore if types are not definitionally equal, caller must handle it.
-     discard <| isDefEq expectedType eType
+    let shouldCreateCoe ← do
+      /- Recall that `resultTypeOutParam? = some mvarId` if the function result type is the output parameter
+         of a local instance. The value of this parameter may be inferable using other arguments. For example,
+         suppose we have
+         ```lean
+         def add_one {X} [Trait X] [One (Trait.R X)] [HAdd X (Trait.R X) X] (x : X) : X := x + (One.one : (Trait.R X))
+         ```
+         from test `948.lean`. There are multiple ways to infer `X`, and we don't want to mark it as `syntheticOpaque`.
+      -/
+      if let some outParamMVarId := s.resultTypeOutParam? then
+        /- If `eType != mkMVar outParamMVarId`, then the
+           function is partially applied, and we do not create coercion placeholder. -/
+        if !(← isExprMVarAssigned outParamMVarId) && eType.isMVar && eType.mvarId! == outParamMVarId then
+          setMVarKind outParamMVarId .syntheticOpaque
+          pure true
+        else
+          pure false
+      else
+        pure false
+    if shouldCreateCoe then
+      e ← mkCoe expectedType eType e
+    else
+      -- Try to propagate expected type. Ignore if types are not definitionally equal, caller must handle it.
+      trace[Elab.app.finalize] "expected type: {expectedType}"
+      discard <| isDefEq expectedType eType
   synthesizeAppInstMVars
   return e
 
@@ -353,12 +388,82 @@ private def hasArgsToProcess : M Bool := do
   let s ← get
   return !s.args.isEmpty || !s.namedArgs.isEmpty
 
-/- Return true if the next argument at `args` is of the form `_` -/
+/- Return `true` if the next argument at `args` is of the form `_` -/
 private def isNextArgHole : M Bool := do
   match (← get).args with
   | Arg.stx (Syntax.node _ ``Lean.Parser.Term.hole _) :: _ => pure true
   | _ => pure false
 
+/--
+  Return `true` if the next argument to be processed is the outparam of a local instance, and it the result type
+  of the function.
+
+  For example, suppose we have the class
+  ```lean
+  class Get (Cont : Type u) (Idx : Type v) (Elem : outParam (Type w)) where
+    get (xs : Cont) (i : Idx) : Elem
+  ```
+  And the current value of `fType` is
+  ```
+  {Cont : Type u_1} → {Idx : Type u_2} → {Elem : Type u_3} → [self : Get Cont Idx Elem] → Cont → Idx → Elem
+  ```
+  then the result returned by this method is `false` since `Cont` is not the output param of any local instance.
+  Now assume `fType` is
+  ```
+  {Elem : Type u_3} → [self : Get Cont Idx Elem] → Cont → Idx → Elem
+  ```
+  then, the method returns `true` because `Elem` is an output parameter for the local instance `[self : Get Cont Idx Elem]`.
+
+  Remark: if `coeAtOutParam` is `false`, this method returns `false`.
+-/
+private partial def isNextOutParamOfLocalInstanceAndResult : M Bool := do
+  if !(← read).coeAtOutParam then
+    return false
+  let type := (← get).fType.bindingBody!
+  unless isResultType type 0 do
+    return false
+  if (← hasLocalInstaceWithOutParams type) then
+    let x := mkFVar (← mkFreshFVarId)
+    isOutParamOfLocalInstance x (type.instantiate1 x)
+  else
+    return false
+where
+  isResultType (type : Expr) (i : Nat) : Bool :=
+    match type with
+    | .forallE _ _ b _ => isResultType b (i + 1)
+    | .bvar idx _      => idx == i
+    | _                => false
+
+  /- (quick filter) Return true if `type` constains a binder `[C ...]` where `C` is a class containing outparams. -/
+  hasLocalInstaceWithOutParams (type : Expr) : CoreM Bool := do
+    let .forallE _ d b c := type | return false
+    if c.binderInfo.isInstImplicit then
+      if let .const declName .. := d.getAppFn then
+        if hasOutParams (← getEnv) declName then
+          return true
+    hasLocalInstaceWithOutParams b
+
+  isOutParamOfLocalInstance (x : Expr) (type : Expr) : MetaM Bool := do
+    let .forallE _ d b c := type | return false
+    if c.binderInfo.isInstImplicit then
+      if let .const declName .. := d.getAppFn then
+        if hasOutParams (← getEnv) declName then
+          let cType ← inferType d.getAppFn
+          if (← isOutParamOf x 0 d.getAppArgs cType) then
+            return true
+    isOutParamOfLocalInstance x b
+
+  isOutParamOf (x : Expr) (i : Nat) (args : Array Expr) (cType : Expr) : MetaM Bool := do
+    if h : i < args.size then
+      match (← whnf cType) with
+      | .forallE _ d b _ =>
+        let arg := args.get ⟨i, h⟩
+        if arg == x && d.isOutParam then
+          return true
+        isOutParamOf x (i+1) args b
+      | _ => return false
+    else
+      return false
 
 mutual
   /-
@@ -374,7 +479,16 @@ mutual
 
   private partial def addImplicitArg (argName : Name) : M Expr := do
     let argType ← getArgExpectedType
-    let arg ← mkFreshExprMVar argType
+    let arg ← if (← isNextOutParamOfLocalInstanceAndResult) then
+      let arg ← mkFreshExprMVar argType
+      /- When the result type is an output parameter, we don't want to propagate the expected type.
+         So, we just mark `propagateExpected := false` to disable it.
+         At `finalize`, we check whether `arg` is still unassigned and promote it to a `syntheticOpaque`
+         to make sure it is not assigned but type inference until it is synthesized by type inference. -/
+      modify fun s => { s with resultTypeOutParam? := some arg.mvarId!, propagateExpected := false }
+      pure arg
+    else
+      mkFreshExprMVar argType
     modify fun s => { s with toSetErrorCtx := s.toSetErrorCtx.push arg.mvarId! }
     addNewArg argName arg
     main
@@ -383,8 +497,7 @@ mutual
     Process a `fType` of the form `(x : A) → B x`.
     This method assume `fType` is a function type -/
   private partial def processExplictArg (argName : Name) : M Expr := do
-    let s ← get
-    match s.args with
+    match (← get).args with
     | arg::args =>
       propagateExpectedType arg
       modify fun s => { s with args }
@@ -392,7 +505,7 @@ mutual
       main
     | _ =>
       let argType ← getArgExpectedType
-      match s.explicit, argType.getOptParamDefault?, argType.getAutoParamTactic? with
+      match (← read).explicit, argType.getOptParamDefault?, argType.getAutoParamTactic? with
       | false, some defVal, _  => addNewArg argName defVal; main
       | false, _, some (Expr.const tacticDecl _ _) =>
         let env ← getEnv
@@ -409,15 +522,15 @@ mutual
       | false, _, some _ =>
         throwError "invalid autoParam, argument must be a constant"
       | _, _, _ =>
-        if !s.namedArgs.isEmpty then
+        if !(← get).namedArgs.isEmpty then
           if (← anyNamedArgDependsOnCurrent) then
             addImplicitArg argName
           else
             addEtaArg argName
-        else if !s.explicit then
+        else if !(← read).explicit then
           if (← fTypeHasOptAutoParams) then
             addEtaArg argName
-          else if (← get).ellipsis then
+          else if (← read).ellipsis then
             addImplicitArg argName
           else
             finalize
@@ -428,7 +541,7 @@ mutual
     Process a `fType` of the form `{x : A} → B x`.
     This method assume `fType` is a function type -/
   private partial def processImplicitArg (argName : Name) : M Expr := do
-    if (← get).explicit then
+    if (← read).explicit then
       processExplictArg argName
     else
       addImplicitArg argName
@@ -437,7 +550,7 @@ mutual
     Process a `fType` of the form `{{x : A}} → B x`.
     This method assume `fType` is a function type -/
   private partial def processStrictImplicitArg (argName : Name) : M Expr := do
-    if (← get).explicit then
+    if (← read).explicit then
       processExplictArg argName
     else if (← hasArgsToProcess) then
       addImplicitArg argName
@@ -448,7 +561,7 @@ mutual
     Process a `fType` of the form `[x : A] → B x`.
     This method assume `fType` is a function type -/
   private partial def processInstImplicitArg (argName : Name) : M Expr := do
-    if (← get).explicit then
+    if (← read).explicit then
       if (← isNextArgHole) then
         /- Recall that if '@' has been used, and the argument is '_', then we still use type class resolution -/
         let arg ← mkFreshExprMVar (← getArgExpectedType) MetavarKind.synthetic
@@ -499,16 +612,18 @@ private def propagateExpectedTypeFor (f : Expr) : TermElabM Bool :=
   | _ => return true
 
 def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
-    (expectedType? : Option Expr) (explicit ellipsis : Bool) : TermElabM Expr := do
+    (expectedType? : Option Expr) (explicit ellipsis : Bool) (coeAtOutParam := true) : TermElabM Expr := do
+  -- Coercions must be available to use this flag.
+  -- If `@` is used (i.e., `explicit = true`), we disable `coeAtOutParam`.
+  let coeAtOutParam := ((← getEnv).contains ``Lean.Internal.coeM) && coeAtOutParam && !explicit
   let fType ← inferType f
   let fType ← instantiateMVars fType
   trace[Elab.app.args] "explicit: {explicit}, {f} : {fType}"
   unless namedArgs.isEmpty && args.isEmpty do
     tryPostponeIfMVar fType
-  ElabAppArgs.main.run' {
+  ElabAppArgs.main.run { explicit, ellipsis, coeAtOutParam } |>.run' {
     args := args.toList
-    expectedType? := expectedType?
-    explicit, ellipsis, f, fType
+    expectedType?, f, fType
     namedArgs := namedArgs.toList
     propagateExpected := (← propagateExpectedTypeFor f)
   }

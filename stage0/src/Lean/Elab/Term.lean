@@ -691,7 +691,7 @@ partial def visit (e : Expr) : M Unit := do
         visit e'
       else
         match (← getDelayedMVarAssignment? mvarId) with
-        | some d => visit d.val
+        | some d => visit (mkMVar d.mvarIdPending)
         | none   => failure
     | _ => return ()
 
@@ -818,7 +818,7 @@ private def tryCoe (errorMsgHeader? : Option String) (expectedType : Expr) (eTyp
     return e
   else match (← tryCoeThunk? expectedType eType e) with
     | some r => return r
-    | none   => mkCoe expectedType eType e f? errorMsgHeader?
+    | none   => trace[Elab.coe] "adding coercion for {e} : {eType} =?= {expectedType}"; mkCoe expectedType eType e f? errorMsgHeader?
 
 /-- Return `some (m, α)` if `type` can be reduced to an application of the form `m α` using `[reducible]` transparency. -/
 def isTypeApp? (type : Expr) : TermElabM (Option (Expr × Expr)) := do

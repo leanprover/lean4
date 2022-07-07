@@ -1043,7 +1043,7 @@ lean_dec(x_25);
 x_40 = lean_ctor_get(x_39, 1);
 lean_inc(x_40);
 lean_dec(x_39);
-x_41 = l_Lean_occursCheck_visit___rarg(x_1, x_2, x_3, x_40, x_38);
+x_41 = l_Lean_occursCheck_visitMVar___rarg(x_1, x_2, x_3, x_40, x_38);
 return x_41;
 }
 }

@@ -690,7 +690,10 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
           let (_, _, result) ← openAbstractMVarsResult result
           trace[Meta.synthInstance] "result {result}"
           let resultType ← inferType result
-          if (← withDefault <| isDefEq type resultType) then
+          /- Output parameters of local instances may be marked as `syntheticOpaque` by the application-elaborator.
+             We use `withAssignableSyntheticOpaque` to make sure this kind of parameter can be assigned by the following `isDefEq`.
+             TODO: rewrite this check to avoid `withAssignableSyntheticOpaque`. -/
+          if (← withDefault <| withAssignableSyntheticOpaque <| isDefEq type resultType) then
             let result ← instantiateMVars result
             /- We use `check` to propogate universe constraints implied by the `result`.
                Recall that we use `ignoreLevelMVarDepth := true` which allows universe metavariables in the current depth to be assigned,

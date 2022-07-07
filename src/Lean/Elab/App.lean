@@ -718,17 +718,13 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     -- search local context first, then environment
     let searchCtx : Unit → TermElabM LValResolution := fun _ => do
       let fullName := Name.mkStr structName fieldName
-      let currNamespace ← getCurrNamespace
-      let localName := fullName.replacePrefix currNamespace Name.anonymous
-      let lctx ← getLCtx
-      match lctx.findFromUserName? localName with
-      | some localDecl =>
+      for localDecl in (← getLCtx) do
         if localDecl.binderInfo == BinderInfo.auxDecl then
-          /- LVal notation is being used to make a "local" recursive call. -/
-          return LValResolution.localRec structName fullName localDecl.toExpr
-        else
-          searchEnv ()
-      | none => searchEnv ()
+          if let some localDeclFullName := (← read).auxDeclToFullName.find? localDecl.fvarId then
+            if fullName == (privateToUserName? localDeclFullName).getD localDeclFullName then
+              /- LVal notation is being used to make a "local" recursive call. -/
+              return LValResolution.localRec structName fullName localDecl.toExpr
+      searchEnv ()
     if isStructure env structName then
       match findField? env structName (Name.mkSimple fieldName) with
       | some baseStructName => return LValResolution.projFn baseStructName structName (Name.mkSimple fieldName)

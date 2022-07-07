@@ -166,13 +166,17 @@ end Tactic
 namespace Term
 
 structure Context where
-  declName?       : Option Name     := none
-  macroStack      : MacroStack      := []
+  declName? : Option Name := none
+  /--
+    Map `.auxDecl` local declarations used to encode recursive declarations to their full-names.
+  -/
+  auxDeclToFullName : FVarIdMap Name  := {}
+  macroStack        : MacroStack      := []
   /--
      When `mayPostpone == true`, an elaboration function may interrupt its execution by throwing `Exception.postpone`.
      The function `elabTerm` catches this exception and creates fresh synthetic metavariable `?m`, stores `?m` in
      the list of pending synthetic metavariables, and returns `?m`. -/
-  mayPostpone     : Bool            := true
+  mayPostpone : Bool := true
   /--
      When `errToSorry` is set to true, the method `elabTerm` catches
      exceptions and converts them into synthetic `sorry`s.
@@ -181,7 +185,7 @@ structure Context where
      `errToSorry` remains `false` for all elaboration functions invoked by `F`.
      That is, it is safe to transition `errToSorry` from `true` to `false`, but
      we must not set `errToSorry` to `true` when it is currently set to `false`. -/
-  errToSorry      : Bool            := true
+  errToSorry : Bool := true
   /--
      When `autoBoundImplicit` is set to true, instead of producing
      an "unknown identifier" error for unbound variables, we generate an
@@ -431,6 +435,15 @@ def withLevelNames (levelNames : List Name) (x : TermElabM α) : TermElabM α :=
   let levelNamesSaved ← getLevelNames
   setLevelNames levelNames
   try x finally setLevelNames levelNamesSaved
+
+/--
+  Declare an auxiliary local declaration `shortDeclName : type` for elaborating recursive declaration `declName`,
+  update the mapping `auxDeclToFullName`, and then execute `k`.
+-/
+def withAuxDecl (shortDeclName : Name) (type : Expr) (declName : Name) (k : Expr → TermElabM α) : TermElabM α :=
+  withLocalDecl shortDeclName BinderInfo.auxDecl type fun x =>
+    withReader (fun ctx => { ctx with auxDeclToFullName := ctx.auxDeclToFullName.insert x.fvarId! declName }) do
+      k x
 
 /--
   Execute `x` without converting errors (i.e., exceptions) to `sorry` applications.

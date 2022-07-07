@@ -66,7 +66,7 @@ private partial def withAuxLocalDecls {α} (views : Array LetRecDeclView) (k : A
   let rec loop (i : Nat) (fvars : Array Expr) : TermElabM α :=
     if h : i < views.size then
       let view := views.get ⟨i, h⟩
-      withLocalDecl view.shortDeclName BinderInfo.auxDecl view.type fun fvar => loop (i+1) (fvars.push fvar)
+      withAuxDecl view.shortDeclName view.type view.declName fun fvar => loop (i+1) (fvars.push fvar)
     else
       k fvars
   loop 0 #[]

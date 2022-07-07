@@ -92,7 +92,7 @@ where
   go (t : Tree β) (acc : List (Nat × β)) : List (Nat × β) :=
     match t with
     | leaf => acc
-    | node l k v r => l.go ((k, v) :: r.go acc)
+    | node l k v r => go l ((k, v) :: go r acc)
 
 /-!
 We now prove that `t.toList` and `t.toListTR` return the same list.

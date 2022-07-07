@@ -156,7 +156,7 @@ private partial def withFunLocalDecls {α} (headers : Array DefViewElabHeader) (
       if header.modifiers.isNonrec then
         loop (i+1) fvars
       else
-        withLocalDecl header.shortDeclName BinderInfo.auxDecl header.type fun fvar => loop (i+1) (fvars.push fvar)
+        withAuxDecl header.shortDeclName header.type header.declName fun fvar => loop (i+1) (fvars.push fvar)
     else
       k fvars
   loop 0 #[]

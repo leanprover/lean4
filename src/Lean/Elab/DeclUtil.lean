@@ -58,8 +58,8 @@ def mkFreshInstanceName (env : Environment) (nextIdx : Nat) : Name :=
 
 def isFreshInstanceName (name : Name) : Bool :=
   match name with
-  | Name.str _ s _ => "_instance".isPrefixOf s
-  | _              => false
+  | .str _ s => "_instance".isPrefixOf s
+  | _        => false
 
 /--
   Sort the given list of `usedParams` using the following order:

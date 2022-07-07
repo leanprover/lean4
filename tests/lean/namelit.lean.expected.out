@@ -1,8 +1,8 @@
-Lean.Name.mkStr Lean.Name.anonymous "foo" : Lean.Name
-Lean.Name.mkStr (Lean.Name.mkStr Lean.Name.anonymous "foo") "bla" : Lean.Name
-Lean.Name.mkStr Lean.Name.anonymous "foo bla" : Lean.Name
-Lean.Name.mkStr (Lean.Name.mkStr Lean.Name.anonymous "foo bla") "hello world" : Lean.Name
-Lean.Name.mkStr (Lean.Name.mkStr (Lean.Name.mkStr Lean.Name.anonymous "foo bla") "boo") "hello world" : Lean.Name
-Lean.Name.mkStr (Lean.Name.mkStr Lean.Name.anonymous "foo") "hello" : Lean.Name
-Lean.Name.mkStr Lean.Name.anonymous "hello" : Lean.Name
-Lean.Name.mkStr (Lean.Name.mkStr Lean.Name.anonymous "hello") "world !!!" : Lean.Name
+Lean.Name.str Lean.Name.anonymous "foo" : Lean.Name
+Lean.Name.str (Lean.Name.str Lean.Name.anonymous "foo") "bla" : Lean.Name
+Lean.Name.str Lean.Name.anonymous "foo bla" : Lean.Name
+Lean.Name.str (Lean.Name.str Lean.Name.anonymous "foo bla") "hello world" : Lean.Name
+Lean.Name.str (Lean.Name.str (Lean.Name.str Lean.Name.anonymous "foo bla") "boo") "hello world" : Lean.Name
+Lean.Name.str (Lean.Name.str Lean.Name.anonymous "foo") "hello" : Lean.Name
+Lean.Name.str Lean.Name.anonymous "hello" : Lean.Name
+Lean.Name.str (Lean.Name.str Lean.Name.anonymous "hello") "world !!!" : Lean.Name

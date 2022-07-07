@@ -95,7 +95,7 @@ private def getMajorPosIfAuxRecursor? (declName : Name) (majorPos? : Option Nat)
     let env ← getEnv
     if !isAuxRecursor env declName then pure none
     else match declName with
-    | Name.str p s _ =>
+    | .str p s =>
       if s != recOnSuffix && s != casesOnSuffix && s != brecOnSuffix then
         pure none
       else do

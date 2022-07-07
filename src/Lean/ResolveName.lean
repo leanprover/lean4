@@ -71,7 +71,7 @@ private def resolveQualifiedName (env : Environment) (ns : Name) (id : Name) : L
 
 /- Check surrounding namespaces -/
 private def resolveUsingNamespace (env : Environment) (id : Name) : Name → List Name
-  | ns@(Name.str p _ _) =>
+  | ns@(.str p _) =>
     match resolveQualifiedName env ns id with
     | []          => resolveUsingNamespace env id p
     | resolvedIds => resolvedIds
@@ -118,7 +118,7 @@ def resolveGlobalName (env : Environment) (ns : Name) (openDecls : List OpenDecl
   let extractionResult := extractMacroScopes id
   let rec loop (id : Name) (projs : List String) : List (Name × List String) :=
     match id with
-    | Name.str p s _ =>
+    | .str p s =>
       -- NOTE: we assume that macro scopes always belong to the projected constant, not the projections
       let id := { extractionResult with name := id }.review
       match resolveUsingNamespace env id ns with
@@ -141,9 +141,9 @@ def resolveGlobalName (env : Environment) (ns : Name) (openDecls : List OpenDecl
 /- Namespace resolution -/
 
 def resolveNamespaceUsingScope? (env : Environment) (n : Name) : Name → Option Name
-  | Name.anonymous      => if env.isNamespace n then some n else none
-  | ns@(Name.str p _ _) => if env.isNamespace (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingScope? env n p
-  | _                   => unreachable!
+  | .anonymous    => if env.isNamespace n then some n else none
+  | ns@(.str p _) => if env.isNamespace (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingScope? env n p
+  | _             => unreachable!
 
 def resolveNamespaceUsingOpenDecls (env : Environment) (n : Name) : List OpenDecl → List Name
   | []                          => []

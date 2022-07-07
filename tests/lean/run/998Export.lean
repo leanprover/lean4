@@ -55,9 +55,9 @@ def exportName (n : Name) : ExportM Nat := do
   match (← get).names.map.find? n with
   | some i => pure i
   | none => match n with
-    | Name.anonymous => pure 0
-    | Name.num p a _ => let i ← alloc n; IO.println s!"{i} #NI {← exportName p} {a}"; pure i
-    | Name.str p s _ => let i ← alloc n; IO.println s!"{i} #NS {← exportName p} {s}"; pure i
+    | .anonymous => pure 0
+    | .num p a => let i ← alloc n; IO.println s!"{i} #NI {← exportName p} {a}"; pure i
+    | .str p s => let i ← alloc n; IO.println s!"{i} #NS {← exportName p} {s}"; pure i
 
 attribute [simp] exportName
 

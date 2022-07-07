@@ -1747,16 +1747,16 @@ namespace Lean
 /- Hierarchical names -/
 inductive Name where
   | anonymous : Name
-  | str : Name → String → UInt64 → Name
-  | num : Name → Nat → UInt64 → Name
+  | str : Name → String → Name
+  | num : Name → Nat → Name
+with
+  @[computedField] hash : Name → UInt64
+    | .anonymous => .ofNatCore 1723 (by decide)
+    | .str p s => mixHash p.hash s.hash
+    | .num p v => mixHash p.hash (dite (LT.lt v UInt64.size) (fun h => UInt64.ofNatCore v h) (fun _ => UInt64.ofNatCore 17 (by decide)))
 
 instance : Inhabited Name where
   default := Name.anonymous
-
-protected def Name.hash : Name → UInt64
-  | Name.anonymous => UInt64.ofNatCore 1723 (by decide)
-  | Name.str _ _ h => h
-  | Name.num _ _ h => h
 
 instance : Hashable Name where
   hash := Name.hash
@@ -1764,30 +1764,30 @@ instance : Hashable Name where
 namespace Name
 
 @[export lean_name_mk_string]
-def mkStr (p : Name) (s : String) : Name :=
-  Name.str p s (mixHash (hash p) (hash s))
+abbrev mkStr (p : Name) (s : String) : Name :=
+  Name.str p s
 
 @[export lean_name_mk_numeral]
-def mkNum (p : Name) (v : Nat) : Name :=
-  Name.num p v (mixHash (hash p) (dite (LT.lt v UInt64.size) (fun h => UInt64.ofNatCore v h) (fun _ => UInt64.ofNatCore 17 (by decide))))
+abbrev mkNum (p : Name) (v : Nat) : Name :=
+  Name.num p v
 
-def mkSimple (s : String) : Name :=
+abbrev mkSimple (s : String) : Name :=
   mkStr Name.anonymous s
 
 @[extern "lean_name_eq"]
 protected def beq : (@& Name) → (@& Name) → Bool
-  | anonymous,   anonymous   => true
-  | str p₁ s₁ _, str p₂ s₂ _ => and (BEq.beq s₁ s₂) (Name.beq p₁ p₂)
-  | num p₁ n₁ _, num p₂ n₂ _ => and (BEq.beq n₁ n₂) (Name.beq p₁ p₂)
-  | _,           _           => false
+  | anonymous, anonymous => true
+  | str p₁ s₁, str p₂ s₂ => and (BEq.beq s₁ s₂) (Name.beq p₁ p₂)
+  | num p₁ n₁, num p₂ n₂ => and (BEq.beq n₁ n₂) (Name.beq p₁ p₂)
+  | _,         _         => false
 
 instance : BEq Name where
   beq := Name.beq
 
 protected def append : Name → Name → Name
   | n, anonymous => n
-  | n, str p s _ => Name.mkStr (Name.append n p) s
-  | n, num p d _ => Name.mkNum (Name.append n p) d
+  | n, str p s => Name.mkStr (Name.append n p) s
+  | n, num p d => Name.mkNum (Name.append n p) d
 
 instance : Append Name where
   append := Name.append
@@ -2143,16 +2143,16 @@ The delimiter `_hyg` is used just to improve the `hasMacroScopes` performance.
 -/
 
 def Name.hasMacroScopes : Name → Bool
-  | str _ s _   => beq s "_hyg"
-  | num p _   _ => hasMacroScopes p
-  | _           => false
+  | str _ s => beq s "_hyg"
+  | num p _ => hasMacroScopes p
+  | _       => false
 
 private def eraseMacroScopesAux : Name → Name
-  | Name.str p s _   => match beq s "_@" with
+  | .str p s   => match beq s "_@" with
     | true  => p
     | false => eraseMacroScopesAux p
-  | Name.num p _ _   => eraseMacroScopesAux p
-  | Name.anonymous   => Name.anonymous
+  | .num p _   => eraseMacroScopesAux p
+  | .anonymous => Name.anonymous
 
 @[export lean_erase_macro_scopes]
 def Name.eraseMacroScopes (n : Name) : Name :=
@@ -2161,8 +2161,8 @@ def Name.eraseMacroScopes (n : Name) : Name :=
   | false => n
 
 private def simpMacroScopesAux : Name → Name
-  | Name.num p i _ => Name.mkNum (simpMacroScopesAux p) i
-  | n              => eraseMacroScopesAux n
+  | .num p i => Name.mkNum (simpMacroScopesAux p) i
+  | n        => eraseMacroScopesAux n
 
 /- Helper function we use to create binder names that do not need to be unique. -/
 @[export lean_simp_macro_scopes]
@@ -2188,30 +2188,30 @@ def MacroScopesView.review (view : MacroScopesView) : Name :=
     view.scopes.foldl Name.mkNum base
 
 private def assembleParts : List Name → Name → Name
-  | List.nil,                      acc => acc
-  | List.cons (Name.str _ s _) ps, acc => assembleParts ps (Name.mkStr acc s)
-  | List.cons (Name.num _ n _) ps, acc => assembleParts ps (Name.mkNum acc n)
-  | _,                             _   => panic "Error: unreachable @ assembleParts"
+  | .nil,                acc => acc
+  | .cons (.str _ s) ps, acc => assembleParts ps (Name.mkStr acc s)
+  | .cons (.num _ n) ps, acc => assembleParts ps (Name.mkNum acc n)
+  | _,                   _   => panic "Error: unreachable @ assembleParts"
 
 private def extractImported (scps : List MacroScope) (mainModule : Name) : Name → List Name → MacroScopesView
-  | n@(Name.str p str _), parts =>
+  | n@(Name.str p str), parts =>
     match beq str "_@" with
     | true  => { name := p, mainModule := mainModule, imported := assembleParts parts Name.anonymous, scopes := scps }
     | false => extractImported scps mainModule p (List.cons n parts)
-  | n@(Name.num p _ _), parts => extractImported scps mainModule p (List.cons n parts)
+  | n@(Name.num p _), parts => extractImported scps mainModule p (List.cons n parts)
   | _,                    _     => panic "Error: unreachable @ extractImported"
 
 private def extractMainModule (scps : List MacroScope) : Name → List Name → MacroScopesView
-  | n@(Name.str p str _), parts =>
+  | n@(Name.str p str), parts =>
     match beq str "_@" with
     | true  => { name := p, mainModule := assembleParts parts Name.anonymous, imported := Name.anonymous, scopes := scps }
     | false => extractMainModule scps p (List.cons n parts)
-  | n@(Name.num _ _ _), acc => extractImported scps (assembleParts acc Name.anonymous) n List.nil
+  | n@(Name.num _ _), acc => extractImported scps (assembleParts acc Name.anonymous) n List.nil
   | _,                    _   => panic "Error: unreachable @ extractMainModule"
 
 private def extractMacroScopesAux : Name → List MacroScope → MacroScopesView
-  | Name.num p scp _, acc => extractMacroScopesAux p (List.cons scp acc)
-  | Name.str p _   _, acc => extractMainModule acc p List.nil -- str must be "_hyg"
+  | Name.num p scp, acc => extractMacroScopesAux p (List.cons scp acc)
+  | Name.str p _  , acc => extractMainModule acc p List.nil -- str must be "_hyg"
   | _,                _   => panic "Error: unreachable @ extractMacroScopesAux"
 
 /--

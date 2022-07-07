@@ -425,8 +425,8 @@ private def expandParentFields (s : Struct) : TermElabM Struct := do
         else match getPathToBaseStructure? env baseStructName s.structName with
           | some path =>
             let path := path.map fun funName => match funName with
-              | .str _ s _ => .fieldName ref (Name.mkSimple s)
-              | _              => unreachable!
+              | .str _ s => .fieldName ref (Name.mkSimple s)
+              | _        => unreachable!
             return { field with lhs := path ++ field.lhs }
           | _ => throwErrorAt ref "failed to access field '{fieldName}' in parent structure"
     | _ => return field

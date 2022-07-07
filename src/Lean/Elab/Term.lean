@@ -1650,7 +1650,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
     match findLocalDecl? givenNameView (skipAuxDecl := not projs.isEmpty) with
     | some decl => some (decl.toExpr, projs)
     | none => match n with
-      | .str pre s _ => loop pre (s::projs)
+      | .str pre s => loop pre (s::projs)
       | _ => none
   return loop view.name []
 

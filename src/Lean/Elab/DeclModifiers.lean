@@ -171,7 +171,7 @@ def mkDeclName (currNamespace : Name) (modifiers : Modifiers) (shortName : Name)
     throwError "atomic identifier expected '{shortName}'"
   let declName := if isRootName then { view with name := name.replacePrefix `_root_ Name.anonymous }.review else currNamespace ++ shortName
   if isRootName then
-    let .str p s _ := name | throwError "invalid declaration name '{name}'"
+    let .str p s := name | throwError "invalid declaration name '{name}'"
     shortName := Name.mkSimple s
     currNamespace := p.replacePrefix `_root_ Name.anonymous
   checkIfShadowingStructureField declName
@@ -179,7 +179,7 @@ def mkDeclName (currNamespace : Name) (modifiers : Modifiers) (shortName : Name)
   match modifiers.visibility with
   | Visibility.protected =>
     match currNamespace with
-    | Name.str _ s _ => pure (declName, Name.mkSimple s ++ shortName)
+    | .str _ s => pure (declName, Name.mkSimple s ++ shortName)
     | _ => throwError "protected declarations must be in a namespace"
   | _ => pure (declName, shortName)
 

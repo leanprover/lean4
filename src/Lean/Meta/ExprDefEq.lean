@@ -1249,8 +1249,8 @@ private def unfoldNonProjFnDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : Met
   11- Otherwise, unfold `t` and `s` and continue.
   Remark: 9&10&11 are implemented by `unfoldComparingHeadsDefEq` -/
 private def isDefEqDelta (t s : Expr) : MetaM LBool := do
-  let tInfo? ← isDeltaCandidate? t.getAppFn
-  let sInfo? ← isDeltaCandidate? s.getAppFn
+  let tInfo? ← isDeltaCandidate? t
+  let sInfo? ← isDeltaCandidate? s
   match tInfo?, sInfo? with
   | none,       none       => pure LBool.undef
   | some tInfo, none       => unfold t (pure LBool.undef) fun t => isDefEqLeft tInfo.name t s
@@ -1603,6 +1603,20 @@ private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
     else
       return false
 
+/-
+  The `whnf` procedure has support for unfolding class projections when the
+  transparency mode is set to `.instances`. This method ensures the behavior
+  of `whnf` and `isDefEq` is consistent in this transparency mode.
+-/
+private def isDefEqProjInst (t : Expr) (s : Expr) : MetaM LBool := do
+  if (← getTransparency) != .instances then return .undef
+  let t? ← unfoldProjInstWhenIntances? t
+  let s? ← unfoldProjInstWhenIntances? s
+  if t?.isSome || s?.isSome then
+    toLBoolM <| Meta.isExprDefEqAux (t?.getD t) (s?.getD s)
+  else
+    return .undef
+
 private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
   if (← (isDefEqEta t s <||> isDefEqEta s t)) then return true
   -- TODO: investigate whether this is the place for putting this check
@@ -1622,6 +1636,7 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
     else if (← pure t.isApp <&&> pure s.isApp <&&> isDefEqApp t s) then
       return true
     else
+      whenUndefDo (isDefEqProjInst t s) do
       whenUndefDo (isDefEqStringLit t s) do
       if (← isDefEqUnitLike t s) then return true else
       isDefEqOnFailure t s

@@ -1279,7 +1279,16 @@ private def expandDelayedAssigned? (t : Expr) : MetaM (Option Expr) := do
     That is, `instantiateMVars (mkMVar mvarIdPending)` does not contain any expression metavariables.
     Here we just consume `fvar.size` arguments. That is, if `t` is of the form `mvarId as bs` where `as.size == fvars.size`,
     we return `mvarIdPending bs`.
-   -/
+
+    TODO: improve this transformation. Here is a possible improvement.
+    Assume `t` is of the form `?m as` where `as` represent the arguments, and we are trying to solve
+    `?m as =?= s[as]` where `s[as]` represents a term containing occurrences of `as`.
+    We could try to compute the solution as usual `?m := fun ys => s[as/ys]`
+    We also have the delayed assignment `?m [xs] := ?n`, where `xs` are variables in the scope of `?n`,
+    and this delayed assignment is morally `?m := fun xs => ?n`.
+    Thus, we can reduce `?m as =?= s[as]` to `?n =?= s[as/xs]`, and solve it using `?n`'s local context.
+    This is more precise than simplying droping the arguments `as`.
+  -/
   unless (← getConfig).assignSyntheticOpaque do return none
   let tArgs := t.getAppArgs
   if tArgs.size < fvars.size then return none

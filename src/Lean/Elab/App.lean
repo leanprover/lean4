@@ -349,11 +349,13 @@ private def finalize : M Expr := do
          from test `948.lean`. There are multiple ways to infer `X`, and we don't want to mark it as `syntheticOpaque`.
       -/
       if let some outParamMVarId := s.resultTypeOutParam? then
-        if (← isExprMVarAssigned outParamMVarId) then
-          pure false
-        else
+        /- If `eType != mkMVar outParamMVarId`, then the
+           function is partially applied, and we do not create coercion placeholder. -/
+        if !(← isExprMVarAssigned outParamMVarId) && eType.isMVar && eType.mvarId! == outParamMVarId then
           setMVarKind outParamMVarId .syntheticOpaque
           pure true
+        else
+          pure false
       else
         pure false
     if shouldCreateCoe then

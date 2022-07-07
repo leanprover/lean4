@@ -695,13 +695,13 @@ def getNamespaceSet (env : Environment) : NameSSet :=
   namespacesExt.getState env
 
 private def isNamespaceName : Name → Bool
-  | Name.str Name.anonymous _ _ => true
-  | Name.str p _ _              => isNamespaceName p
-  | _                           => false
+  | .str .anonymous _ => true
+  | .str p _          => isNamespaceName p
+  | _                 => false
 
 private def registerNamePrefixes : Environment → Name → Environment
-  | env, Name.str p _ _ => if isNamespaceName p then registerNamePrefixes (registerNamespace env p) p else env
-  | env, _              => env
+  | env, .str p _ => if isNamespaceName p then registerNamePrefixes (registerNamespace env p) p else env
+  | env, _        => env
 
 @[export lean_environment_add]
 def add (env : Environment) (cinfo : ConstantInfo) : Environment :=

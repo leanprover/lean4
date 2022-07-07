@@ -656,7 +656,7 @@ def delabProj : Delab := do
 @[builtinDelab app]
 def delabProjectionApp : Delab := whenPPOption getPPStructureProjections $ do
   let e@(Expr.app fn _ _) ← getExpr | failure
-  let Expr.const c@(Name.str _ f _) _ _ ← pure fn.getAppFn | failure
+  let .const c@(.str _ f) _ _ ← pure fn.getAppFn | failure
   let env ← getEnv
   let some info ← pure $ env.getProjectionFnInfo? c | failure
   -- can't use with classes since the instance parameter is implicit
@@ -768,18 +768,18 @@ def delabDo : Delab := whenPPOption getPPNotation do
   `(do $items:doSeqItem*)
 
 def reifyName : Expr → DelabM Name
-  | Expr.const ``Lean.Name.anonymous .. => return Name.anonymous
-  | Expr.app (Expr.app (Expr.const ``Lean.Name.mkStr ..) n _) (Expr.lit (Literal.strVal s) _) _ => return (← reifyName n).mkStr s
-  | Expr.app (Expr.app (Expr.const ``Lean.Name.mkNum ..) n _) (Expr.lit (Literal.natVal i) _) _ => return (← reifyName n).mkNum i
+  | .const ``Lean.Name.anonymous .. => return Name.anonymous
+  | .app (.app (.const ``Lean.Name.str ..) n _) (.lit (.strVal s) _) _ => return (← reifyName n).mkStr s
+  | .app (.app (.const ``Lean.Name.num ..) n _) (.lit (.natVal i) _) _ => return (← reifyName n).mkNum i
   | _ => failure
 
-@[builtinDelab app.Lean.Name.mkStr]
+@[builtinDelab app.Lean.Name.str]
 def delabNameMkStr : Delab := whenPPOption getPPNotation do
   let n ← reifyName (← getExpr)
   -- not guaranteed to be a syntactically valid name, but usually more helpful than the explicit version
   return mkNode ``Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{n}"]
 
-@[builtinDelab app.Lean.Name.mkNum]
+@[builtinDelab app.Lean.Name.num]
 def delabNameMkNum : Delab := delabNameMkStr
 
 end Lean.PrettyPrinter.Delaborator

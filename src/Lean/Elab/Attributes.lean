@@ -49,7 +49,7 @@ def elabAttr [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMa
   let attrName ← if attr.getKind == ``Parser.Attr.simple then
     pure attr[0].getId.eraseMacroScopes
   else match attr.getKind with
-    | Name.str _ s _ => pure <| Name.mkSimple s
+    | .str _ s => pure <| Name.mkSimple s
     | _ => throwErrorAt attr  "unknown attribute"
   unless isAttribute (← getEnv) attrName do
     throwError "unknown attribute [{attrName}]"

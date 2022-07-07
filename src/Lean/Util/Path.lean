@@ -20,9 +20,9 @@ def modToFilePath (base : FilePath) (mod : Name) (ext : String) : FilePath :=
   go mod |>.withExtension ext
 where
   go : Name → FilePath
-  | Name.str p h _ => go p / h
+  | Name.str p h => go p / h
   | Name.anonymous => base
-  | Name.num _ _ _ => panic! "ill-formed import"
+  | Name.num _ _ => panic! "ill-formed import"
 
 /-- A `.olean' search path. -/
 abbrev SearchPath := System.SearchPath

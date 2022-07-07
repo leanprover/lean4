@@ -75,8 +75,8 @@ def checkSyntaxNodeKind [Monad m] [MonadEnv m] [MonadError m] (k : Name) : m Nam
   else throwError "failed"
 
 def checkSyntaxNodeKindAtNamespaces [Monad m] [MonadEnv m] [MonadError m] (k : Name) : Name → m Name
-  | n@(Name.str p _ _) => checkSyntaxNodeKind (n ++ k) <|> checkSyntaxNodeKindAtNamespaces k p
-  | Name.anonymous     => checkSyntaxNodeKind k
+  | n@(.str p _) => checkSyntaxNodeKind (n ++ k) <|> checkSyntaxNodeKindAtNamespaces k p
+  | .anonymous   => checkSyntaxNodeKind k
   | _ => throwError "failed"
 
 def checkSyntaxNodeKindAtCurrentNamespaces (k : Name) : AttrM Name := do

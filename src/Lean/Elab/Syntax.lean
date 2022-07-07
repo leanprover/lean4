@@ -240,7 +240,7 @@ open Lean.Parser.Term hiding macroArg
 open Lean.Parser.Command
 
 private def declareSyntaxCatQuotParser (catName : Name) : CommandElabM Unit := do
-  if let Name.str _ suffix _ := catName then
+  if let .str _ suffix := catName then
     let quotSymbol := "`(" ++ suffix ++ "|"
     let name := catName ++ `quot
     let cmd ← `(
@@ -297,7 +297,7 @@ where
 
   appendCatName (str : String) :=
     match catName with
-    | Name.str _ s _ => s ++ str
+    | .str _ s => s ++ str
     | _ => str
 
 /- We assume a new syntax can be treated as an atom when it starts and ends with a token.

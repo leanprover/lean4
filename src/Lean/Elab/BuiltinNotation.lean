@@ -99,7 +99,7 @@ private def elabParserMacroAux (prec e : Term) (withAnonymousAntiquot : Bool) : 
   let (some declName) ← getDeclName?
     | throwError "invalid `leading_parser` macro, it must be used in definitions"
   match extractMacroScopes declName with
-  | { name := Name.str _ s _, .. } =>
+  | { name := .str _ s, .. } =>
     let kind := quote declName
     let s    := quote s
     ``(withAntiquot (mkAntiquot $s $kind $(quote withAnonymousAntiquot)) (leadingNode $kind $prec $e))

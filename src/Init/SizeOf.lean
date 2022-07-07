@@ -66,17 +66,17 @@ namespace Lean
    an opaque function for computing the hashcode field. -/
 protected noncomputable def Name.sizeOf : Name → Nat
   | anonymous => 1
-  | str p s _ => 1 + Name.sizeOf p + sizeOf s
-  | num p n _ => 1 + Name.sizeOf p + sizeOf n
+  | str p s   => 1 + Name.sizeOf p + sizeOf s
+  | num p n   => 1 + Name.sizeOf p + sizeOf n
 
 noncomputable instance : SizeOf Name where
   sizeOf n := n.sizeOf
 
 @[simp] theorem Name.anonymous.sizeOf_spec : sizeOf anonymous = 1 :=
   rfl
-@[simp] theorem Name.str.sizeOf_spec (p : Name) (s : String) (h : UInt64) : sizeOf (str p s h) = 1 + sizeOf p + sizeOf s :=
+@[simp] theorem Name.str.sizeOf_spec (p : Name) (s : String) : sizeOf (str p s) = 1 + sizeOf p + sizeOf s :=
   rfl
-@[simp] theorem Name.num.sizeOf_spec (p : Name) (n : Nat) (h : UInt64) : sizeOf (num p n h) = 1 + sizeOf p + sizeOf n :=
+@[simp] theorem Name.num.sizeOf_spec (p : Name) (n : Nat) : sizeOf (num p n) = 1 + sizeOf p + sizeOf n :=
   rfl
 
 deriving instance SizeOf for Syntax

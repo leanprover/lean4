@@ -130,7 +130,7 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
         let target ← withAssignableSyntheticOpaque <| Term.ensureHasType expectedType target
         modify fun s => { s with targetPos := s.targetPos + 1 }
         addNewArg target
-      else match c.binderInfo with
+      else match c with
         | BinderInfo.implicit =>
           let arg ← mkFreshExprMVar (← getArgExpectedType)
           addNewArg arg

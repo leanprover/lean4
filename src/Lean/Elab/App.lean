@@ -249,11 +249,11 @@ private def fTypeHasOptAutoParams : M Bool := do
    See `propagateExpectedType`.
    Remark: `(explicit : Bool) == true` when `@` modifier is used. -/
 private partial def getForallBody (explicit : Bool) : Nat → List NamedArg → Expr → Option Expr
-  | i, namedArgs, type@(Expr.forallE n d b c) =>
+  | i, namedArgs, type@(Expr.forallE n d b bi) =>
     match namedArgs.find? fun (namedArg : NamedArg) => namedArg.name == n with
     | some _ => getForallBody explicit i (eraseNamedArgCore namedArgs n) b
     | none =>
-      if !explicit && !c.binderInfo.isExplicit then
+      if !explicit && !bi.isExplicit then
         getForallBody explicit i namedArgs b
       else if i > 0 then
         getForallBody explicit (i-1) namedArgs b
@@ -462,21 +462,21 @@ where
   isResultType (type : Expr) (i : Nat) : Bool :=
     match type with
     | .forallE _ _ b _ => isResultType b (i + 1)
-    | .bvar idx _      => idx == i
+    | .bvar idx        => idx == i
     | _                => false
 
   /- (quick filter) Return true if `type` constains a binder `[C ...]` where `C` is a class containing outparams. -/
   hasLocalInstaceWithOutParams (type : Expr) : CoreM Bool := do
-    let .forallE _ d b c := type | return false
-    if c.binderInfo.isInstImplicit then
+    let .forallE _ d b bi := type | return false
+    if bi.isInstImplicit then
       if let .const declName .. := d.getAppFn then
         if hasOutParams (← getEnv) declName then
           return true
     hasLocalInstaceWithOutParams b
 
   isOutParamOfLocalInstance (x : Expr) (type : Expr) : MetaM Bool := do
-    let .forallE _ d b c := type | return false
-    if c.binderInfo.isInstImplicit then
+    let .forallE _ d b bi := type | return false
+    if bi.isInstImplicit then
       if let .const declName .. := d.getAppFn then
         if hasOutParams (← getEnv) declName then
           let cType ← inferType d.getAppFn
@@ -538,7 +538,7 @@ mutual
       let argType ← getArgExpectedType
       match (← read).explicit, argType.getOptParamDefault?, argType.getAutoParamTactic? with
       | false, some defVal, _  => addNewArg argName defVal; main
-      | false, _, some (Expr.const tacticDecl _ _) =>
+      | false, _, some (Expr.const tacticDecl _) =>
         let env ← getEnv
         let opts ← getOptions
         match evalSyntaxConstant env opts tacticDecl with
@@ -773,12 +773,12 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
 private partial def consumeImplicits (stx : Syntax) (e eType : Expr) (hasArgs : Bool) : TermElabM (Expr × Expr) := do
   let eType ← whnfCore eType
   match eType with
-  | .forallE _ d b c =>
-    if c.binderInfo.isImplicit || (hasArgs && c.binderInfo.isStrictImplicit) then
+  | .forallE _ d b bi =>
+    if bi.isImplicit || (hasArgs && bi.isStrictImplicit) then
       let mvar ← mkFreshExprMVar d
       registerMVarErrorHoleInfo mvar.mvarId! stx
       consumeImplicits stx (mkApp e mvar) (b.instantiate1 mvar) hasArgs
-    else if c.binderInfo.isInstImplicit then
+    else if bi.isInstImplicit then
       let mvar ← mkInstMVar d
       let r := mkApp e mvar
       registerMVarErrorImplicitArgInfo mvar.mvarId! stx r

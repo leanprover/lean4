@@ -36,12 +36,12 @@ instance [ReduceEval α] : ReduceEval (Option α) where
 
 instance : ReduceEval String where
   reduceEval e := do
-    let Expr.lit (Literal.strVal s) _ ← whnf e | throwFailedToEval e
+    let Expr.lit (Literal.strVal s) ← whnf e | throwFailedToEval e
     pure s
 
 private partial def evalName (e : Expr) : MetaM Name := do
   let e ← whnf e
-  let Expr.const c _ _ ← pure e.getAppFn | throwFailedToEval e
+  let Expr.const c _ ← pure e.getAppFn | throwFailedToEval e
   let nargs := e.getAppNumArgs
   if      c == ``Lean.Name.anonymous && nargs == 0 then pure Name.anonymous
   else if c == ``Lean.Name.str && nargs == 2 then do

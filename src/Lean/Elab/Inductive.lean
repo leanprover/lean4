@@ -204,7 +204,7 @@ where
   go (type : Expr) (acc : Array Name) : Array Name :=
     match type with
     | .forallE n _ b _ => go b (acc.push n)
-    | .mdata _ b _     => go b acc
+    | .mdata _ b       => go b acc
     | _ => acc
 
 /--
@@ -217,11 +217,11 @@ where
   go (type : Expr) (i : Nat) : Expr :=
     if i < newNames.size then
       match type with
-      | .forallE n d b data =>
+      | .forallE n d b bi =>
         if n.hasMacroScopes then
-          mkForall newNames[i]! data.binderInfo d (go b (i+1))
+          mkForall newNames[i]! bi d (go b (i+1))
         else
-          mkForall n data.binderInfo d (go b (i+1))
+          mkForall n bi d (go b (i+1))
       | _ => type
     else
       type
@@ -386,8 +386,8 @@ private def getResultingUniverse : List InductiveType → TermElabM Level
   | indType :: _ => forallTelescopeReducing indType.type fun _ r => do
     let r ← whnfD r
     match r with
-    | Expr.sort u _ => return u
-    | _             => throwError "unexpected inductive type resulting type{indentExpr r}"
+    | Expr.sort u => return u
+    | _           => throwError "unexpected inductive type resulting type{indentExpr r}"
 
 /--
   Return `some ?m` if `u` is of the form `?m + k`.

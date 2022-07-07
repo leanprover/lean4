@@ -237,12 +237,12 @@ where
     unless (← get).1.contains addr do
       modify fun (s, c) => (s.insert addr, c+1)
       match e with
-      | Expr.proj _ _ s _    => visit s
+      | Expr.proj _ _ s      => visit s
       | Expr.forallE _ d b _ => visit d; visit b
       | Expr.lam _ d b _     => visit d; visit b
       | Expr.letE _ t v b _  => visit t; visit v; visit b
-      | Expr.app f a _       => visit f; visit a
-      | Expr.mdata _ b _     => visit b
+      | Expr.app f a         => visit f; visit a
+      | Expr.mdata _ b       => visit b
       | _ => return ()
 
 @[implementedBy Expr.dagSizeUnsafe]

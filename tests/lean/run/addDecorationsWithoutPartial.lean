@@ -29,10 +29,10 @@ unsafe def replaceUnsafeM (size : USize) (e : Expr) (f? : (e' : Expr) → sizeOf
       | none      => match e with
         | Expr.forallE _ d b _   => cache i e <| e.updateForallE! (← visit d) (← visit b)
         | Expr.lam _ d b _       => cache i e <| e.updateLambdaE! (← visit d) (← visit b)
-        | Expr.mdata _ b _       => cache i e <| e.updateMData! (← visit b)
+        | Expr.mdata _ b         => cache i e <| e.updateMData! (← visit b)
         | Expr.letE _ t v b _    => cache i e <| e.updateLet! (← visit t) (← visit v) (← visit b)
-        | Expr.app f a _         => cache i e <| e.updateApp! (← visit f) (← visit a)
-        | Expr.proj _ _ b _      => cache i e <| e.updateProj! (← visit b)
+        | Expr.app f a           => cache i e <| e.updateApp! (← visit f) (← visit a)
+        | Expr.proj _ _ b        => cache i e <| e.updateProj! (← visit b)
         | e                      => pure e
   visit e
 
@@ -56,10 +56,10 @@ def replace' (e0 : Expr) (f? : (e : Expr) → sizeOf e ≤ sizeOf e0 → Option 
     | none      => match e with
       | Expr.forallE _ d b _   => let d := go d (dec h); let b := go b (dec h); e.updateForallE! d b
       | Expr.lam _ d b _       => let d := go d (dec h); let b := go b (dec h); e.updateLambdaE! d b
-      | Expr.mdata _ b _       => let b := go b (dec h); e.updateMData! b
+      | Expr.mdata _ b         => let b := go b (dec h); e.updateMData! b
       | Expr.letE _ t v b _    => let t := go t (dec h); let v := go v (dec h); let b := go b (dec h); e.updateLet! t v b
-      | Expr.app f a _         => let f := go f (dec h); let a := go a (dec h); e.updateApp! f a
-      | Expr.proj _ _ b _      => let b := go b (dec h); e.updateProj! b
+      | Expr.app f a           => let f := go f (dec h); let a := go a (dec h); e.updateApp! f a
+      | Expr.proj _ _ b        => let b := go b (dec h); e.updateProj! b
       | e                      => e
   go e0 (Nat.le_refl ..)
 end Expr

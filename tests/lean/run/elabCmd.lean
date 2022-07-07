@@ -14,7 +14,7 @@ let env ← getEnv;
 
 def elabAnonCtor (args : Array (TSyntax `term)) (τ : Expr) : TermElabM Expr :=
   match τ.getAppFn with
-  | Expr.const C _ _ => do
+  | Expr.const C _ => do
     let ctors ← getCtors C;
     (match ctors with
     | [c] => do

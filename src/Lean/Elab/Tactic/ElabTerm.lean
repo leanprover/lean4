@@ -191,8 +191,8 @@ def getFVarId (id : Syntax) : TacticM FVarId := withRef id do
   let e ← withMainContext do
     elabTermForApply id (mayPostpone := false)
   match e with
-  | Expr.fvar fvarId _ => return fvarId
-  | _                  => throwError "unexpected term '{e}'; expected single reference to variable"
+  | Expr.fvar fvarId => return fvarId
+  | _                => throwError "unexpected term '{e}'; expected single reference to variable"
 
 def getFVarIds (ids : Array Syntax) : TacticM (Array FVarId) := do
   withMainContext do ids.mapM getFVarId
@@ -224,7 +224,7 @@ def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId
   withMainContext do
     let e ← elabTerm stx none
     match e with
-    | Expr.fvar fvarId _ => pure fvarId
+    | Expr.fvar fvarId => pure fvarId
     | _ =>
       let type ← inferType e
       let intro (userName : Name) (preserveBinderNames : Bool) : TacticM FVarId := do

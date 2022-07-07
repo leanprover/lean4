@@ -23,7 +23,7 @@ def traverseLambdaWithPos
   where visit (fvars : Array Expr) (p : Pos) :  Expr → M Expr
     | (Expr.lam n d b c) => do
       let d ← f p.pushBindingDomain <| d.instantiateRev fvars
-      withLocalDecl n c.binderInfo d fun x =>
+      withLocalDecl n c d fun x =>
         visit (fvars.push x) p.pushBindingBody b
     | e => do
       let body ← f p <| e.instantiateRev fvars
@@ -35,7 +35,7 @@ def traverseForallWithPos
   where visit fvars (p : Pos): Expr → M Expr
     | (Expr.forallE n d b c) => do
       let d ← f p.pushBindingDomain <| d.instantiateRev fvars
-      withLocalDecl n c.binderInfo d fun x =>
+      withLocalDecl n c d fun x =>
         visit (fvars.push x) p.pushBindingBody b
     | e   => do
       let body ← f p <| e.instantiateRev fvars
@@ -64,8 +64,8 @@ def traverseChildrenWithPos (visit : Pos → Expr → M Expr) (p : Pos) (e: Expr
   | Expr.lam ..        => traverseLambdaWithPos   visit p e
   | Expr.letE ..       => traverseLetWithPos      visit p e
   | Expr.app ..        => Expr.traverseAppWithPos visit p e
-  | Expr.mdata _ b _   => e.updateMData! <$> visit p b
-  | Expr.proj _ _ b _  => e.updateProj! <$> visit p.pushProj b
+  | Expr.mdata _ b     => e.updateMData! <$> visit p b
+  | Expr.proj _ _ b    => e.updateProj! <$> visit p.pushProj b
   | _                  => pure e
 
 /-- Given an expression `fun (x₁ : α₁) ... (xₙ : αₙ) => b`, will run

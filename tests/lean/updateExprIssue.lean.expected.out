@@ -2,29 +2,29 @@
 [init]
 def sefFn (x_1 : obj) (x_2 : obj) : obj :=
   case x_1 : obj of
-  Lean.Expr.bvar →
+  Lean.Expr.bvar._impl →
     ret x_1
-  Lean.Expr.fvar →
+  Lean.Expr.fvar._impl →
     ret x_1
-  Lean.Expr.mvar →
+  Lean.Expr.mvar._impl →
     ret x_1
-  Lean.Expr.sort →
+  Lean.Expr.sort._impl →
     ret x_1
-  Lean.Expr.const →
+  Lean.Expr.const._impl →
     ret x_1
-  Lean.Expr.app →
+  Lean.Expr.app._impl →
     let x_3 : obj := proj[1] x_1;
     let x_4 : obj := Lean.Expr.updateApp x_1 x_2 x_3 ◾;
     ret x_4
-  Lean.Expr.lam →
+  Lean.Expr.lam._impl →
     ret x_1
-  Lean.Expr.forallE →
+  Lean.Expr.forallE._impl →
     ret x_1
-  Lean.Expr.letE →
+  Lean.Expr.letE._impl →
     ret x_1
-  Lean.Expr.lit →
+  Lean.Expr.lit._impl →
     ret x_1
-  Lean.Expr.mdata →
+  Lean.Expr.mdata._impl →
     ret x_1
-  Lean.Expr.proj →
+  Lean.Expr.proj._impl →
     ret x_1

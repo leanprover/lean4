@@ -187,7 +187,7 @@ private def substDiscrEqs (mvarId : MVarId) (fvarSubst : FVarSubst) (discrEqs : 
   let mut mvarId := mvarId
   let mut fvarSubst := fvarSubst
   for fvarId in discrEqs do
-    if let .fvar fvarId _ := fvarSubst.apply (mkFVar fvarId) then
+    if let .fvar fvarId := fvarSubst.apply (mkFVar fvarId) then
       let (fvarId, mvarId') ← heqToEq mvarId fvarId
       match (← substCore? mvarId' fvarId (symm := false) fvarSubst) with
       | some (fvarSubst', mvarId') => mvarId := mvarId'; fvarSubst := fvarSubst'

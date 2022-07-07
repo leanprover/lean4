@@ -16,14 +16,14 @@ mutual
     if s.isSome || !e.hasLevelMVar then s else main p e s
 
   partial def main (p : MVarId → Bool) : Expr → Visitor
-    | Expr.sort l _        => visitLevel p l
-    | Expr.const _ ls _    => ls.foldr (init := id) fun l acc => visitLevel p l ∘ acc
+    | Expr.sort l          => visitLevel p l
+    | Expr.const _ ls      => ls.foldr (init := id) fun l acc => visitLevel p l ∘ acc
     | Expr.forallE _ d b _ => visit p b ∘ visit p d
     | Expr.lam _ d b _     => visit p b ∘ visit p d
     | Expr.letE _ t v b _  => visit p b ∘ visit p v ∘ visit p t
-    | Expr.app f a _       => visit p a ∘ visit p f
-    | Expr.mdata _ b _     => visit p b
-    | Expr.proj _ _ e _    => visit p e
+    | Expr.app f a         => visit p a ∘ visit p f
+    | Expr.mdata _ b       => visit p b
+    | Expr.proj _ _ e      => visit p e
     | _                    => id
 
   partial def visitLevel (p : MVarId → Bool) (l : Level) : Visitor := fun s =>

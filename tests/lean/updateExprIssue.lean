@@ -14,5 +14,5 @@ unsafe def tst1 : MetaM Unit := do
 set_option trace.compiler.ir.init true
 def sefFn (e : Expr) (f : Expr) : Expr :=
   match e with
-  | .app _ a _ => e.updateApp! f a
+  | .app _ a => e.updateApp! f a
   | _ => e

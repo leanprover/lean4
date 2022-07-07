@@ -114,7 +114,7 @@ def addDefaultInstance (declName : Name) (prio : Nat := 0) : MetaM Unit := do
   | some info =>
     forallTelescopeReducing info.type fun _ type => do
       match type.getAppFn with
-      | Expr.const className _ _ =>
+      | Expr.const className _ =>
         unless isClass (← getEnv) className do
           throwError "invalid default instance '{declName}', it has type '({className} ...)', but {className}' is not a type class"
         setEnv <| defaultInstanceExtension.addEntry (← getEnv) { className := className, instanceName := declName, priority := prio }

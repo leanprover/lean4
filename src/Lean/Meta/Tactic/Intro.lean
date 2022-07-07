@@ -38,8 +38,8 @@ namespace Lean.Meta
       let type   := type.instantiateRevRange j fvars.size fvars
       let type   := type.headBeta
       let fvarId ← mkFreshFVarId
-      let (n, s) ← mkName lctx n c.binderInfo.isExplicit s
-      let lctx   := lctx.mkLocalDecl fvarId n type c.binderInfo
+      let (n, s) ← mkName lctx n c.isExplicit s
+      let lctx   := lctx.mkLocalDecl fvarId n type c
       let fvar   := mkFVar fvarId
       let fvars  := fvars.push fvar
       loop i lctx fvars j s body
@@ -123,7 +123,7 @@ abbrev intro1P (mvarId : MVarId) : MetaM (FVarId × MVarId) :=
 private def getIntrosSize : Expr → Nat
   | Expr.forallE _ _ b _ => getIntrosSize b + 1
   | Expr.letE _ _ _ b _  => getIntrosSize b + 1
-  | Expr.mdata _ b _     => getIntrosSize b
+  | Expr.mdata _ b       => getIntrosSize b
   | _                    => 0
 
 def intros (mvarId : MVarId) : MetaM (Array FVarId × MVarId) := do

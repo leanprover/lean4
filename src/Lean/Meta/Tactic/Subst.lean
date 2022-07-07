@@ -26,7 +26,7 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
       let a ← instantiateMVars <| if symm then rhs else lhs
       let b ← instantiateMVars <| if symm then lhs else rhs
       match a with
-      | Expr.fvar aFVarId _ => do
+      | Expr.fvar aFVarId => do
         let aFVarIdOriginal := aFVarId
         trace[Meta.Tactic.subst] "substituting {a} (id: {aFVarId.name}) with {b}"
         if (← exprDependsOn b aFVarId) then

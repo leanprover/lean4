@@ -25,7 +25,7 @@ partial def casesOnStuckLHS (mvarId : MVarId) : MetaM (Array MVarId) := do
 where
   findFVar? (e : Expr) : MetaM (Option FVarId) := do
     match e.getAppFn with
-    | Expr.proj _ _ e _ => findFVar? e
+    | Expr.proj _ _ e => findFVar? e
     | f =>
       if !f.isConst then
         return none

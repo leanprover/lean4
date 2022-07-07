@@ -611,7 +611,9 @@ private def propagateExpectedTypeFor (f : Expr) : TermElabM Bool :=
 
 def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
     (expectedType? : Option Expr) (explicit ellipsis coeAtOutParam : Bool) : TermElabM Expr := do
-  let coeAtOutParam := ((← getEnv).contains ``Lean.Internal.coeM) && coeAtOutParam -- Coercions must be available to use this flag
+  -- Coercions must be available to use this flag.
+  -- If `@` is used (i.e., `explicit = true`), we disable `coeAtOutParam`.
+  let coeAtOutParam := ((← getEnv).contains ``Lean.Internal.coeM) && coeAtOutParam && !explicit
   let fType ← inferType f
   let fType ← instantiateMVars fType
   trace[Elab.app.args] "explicit: {explicit}, {f} : {fType}"

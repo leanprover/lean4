@@ -1386,10 +1386,12 @@ mutual
       let body := doFor[3]
       withFreshMacroScope do
         let toStreamFn ← withRef ys ``(toStream)
+        /- Recall that `@` (explicit) disables `coeAtOutParam`.
+           We used `@` at `Stream` functions to make sure `coeAtOutParam` is not used. -/
         let auxDo ←
-          `(do let mut s := $toStreamFn:ident $ys
+          `(do let mut s := @$toStreamFn:ident _ _ _ $ys
                for $doForDecls:doForDecl,* do
-                 match Stream.next? s with
+                 match @Stream.next? _ _ _ s with
                  | none => break
                  | some ($y, s') =>
                    s := s'

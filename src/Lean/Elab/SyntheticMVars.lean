@@ -172,6 +172,9 @@ where
       let (mvars, bis, _) ← forallMetaTelescopeReducing (← inferType candidate)
       let candidate := mkAppN candidate mvars
       trace[Elab.defaultInstance] "{toString (mkMVar mvarId)}, {mkMVar mvarId} : {← inferType (mkMVar mvarId)} =?= {candidate} : {← inferType candidate}"
+      /- The `coeAtOutParam` feature may mark output parameters of local instances as `syntheticOpaque`.
+         This kind of parameter is not assignable by default. We use `withAssignableSyntheticOpaque` to workaround this behavior
+         when processing default instances. TODO: try to avoid `withAssignableSyntheticOpaque`. -/
       if (← withAssignableSyntheticOpaque <| isDefEqGuarded (mkMVar mvarId) candidate) then
         -- Succeeded. Collect new TC problems
         trace[Elab.defaultInstance] "isDefEq worked {mkMVar mvarId} : {← inferType (mkMVar mvarId)} =?= {candidate} : {← inferType candidate}"

@@ -109,19 +109,6 @@ private def processVar (idStx : Syntax) : M Syntax := do
   modify fun s => { s with vars := s.vars.push idStx, found := s.found.insert id }
   return idStx
 
-private def nameToPattern : Name → TermElabM Term
-  | Name.anonymous => `(Name.anonymous)
-  | Name.str p s _ => do let p ← nameToPattern p; `(Name.str $p $(quote s) _)
-  | Name.num p n _ => do let p ← nameToPattern p; `(Name.num $p $(quote n) _)
-
-private def quotedNameToPattern (stx : Syntax) : TermElabM Syntax :=
-  match stx[0].isNameLit? with
-  | some val => nameToPattern val
-  | none     => throwIllFormedSyntax
-
-private def doubleQuotedNameToPattern (stx : Syntax) : TermElabM Syntax := do
-  nameToPattern (← resolveGlobalConstNoOverloadWithInfo stx[2])
-
 private def samePatternsVariables (startingAt : Nat) (s₁ s₂ : State) : Bool :=
   if h : s₁.vars.size = s₂.vars.size then
     Array.isEqvAux s₁.vars s₂.vars h (.==.) startingAt
@@ -191,14 +178,8 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
     return stx
   else if k == charLitKind then
     return stx
-  else if k == ``Lean.Parser.Term.quotedName then
-    /- Quoted names have an elaboration function associated with them, and they will not be macro expanded.
-      Note that macro expansion is not a good option since it produces a term using the smart constructors `Name.mkStr`, `Name.mkNum`
-      instead of the constructors `Name.str` and `Name.num` -/
-    quotedNameToPattern stx
-  else if k == ``Lean.Parser.Term.doubleQuotedName then
-    /- Similar to previous case -/
-    doubleQuotedNameToPattern stx
+  else if k == ``Lean.Parser.Term.quotedName || k == ``Lean.Parser.Term.doubleQuotedName then
+    return stx
   else if k == choiceKind then
     /- Remark: If there are `Term.structInst` alternatives, we keep only them. This is a hack to get rid of
        Set-like notation in patterns. Recall that in Mathlib `{a, b}` can be a set with two elements or the

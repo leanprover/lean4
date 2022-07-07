@@ -39,13 +39,13 @@ instance : AndThen Visitor where
   | {found := true,  result := true} => {found := true, result := x != y}
 
 def visit (x : FVarId) : Expr → Visitor
-  | Expr.fvar y _        => visitFVar y x
-  | Expr.app f a _       => visit x a >> visit x f
+  | Expr.fvar y          => visitFVar y x
+  | Expr.app f a         => visit x a >> visit x f
   | Expr.lam _ d b _     => visit x d >> visit x b
   | Expr.forallE _ d b _ => visit x d >> visit x b
   | Expr.letE _ t v b _  => visit x t >> visit x v >> visit x b
-  | Expr.mdata _ e _     => visit x e
-  | Expr.proj _ _ e _    => visit x e
+  | Expr.mdata _ e       => visit x e
+  | Expr.proj _ _ e      => visit x e
   | _                    => skip
 
 end atMostOnce

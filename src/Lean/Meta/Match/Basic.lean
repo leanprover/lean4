@@ -230,8 +230,8 @@ partial def replaceFVarId (fvarId : FVarId) (ex : Example) : Example → Example
 partial def applyFVarSubst (s : FVarSubst) : Example → Example
   | var fvarId =>
     match s.get fvarId with
-    | Expr.fvar fvarId' _ => var fvarId'
-    | _                   => underscore
+    | Expr.fvar fvarId' => var fvarId'
+    | _                 => underscore
   | ctor n exs   => ctor n $ exs.map (applyFVarSubst s)
   | arrayLit exs => arrayLit $ exs.map (applyFVarSubst s)
   | ex           => ex
@@ -306,8 +306,8 @@ partial def toPattern (e : Expr) : MetaM Pattern := do
       if let some e := isNamedPattern? e then
         let p ← toPattern <| e.getArg! 2
         match e.getArg! 1, e.getArg! 3 with
-        | Expr.fvar x _, Expr.fvar h _ => return Pattern.as x p h
-        | _,             _               => throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
+        | Expr.fvar x, Expr.fvar h => return Pattern.as x p h
+        | _,           _   => throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
       else if isMatchValue e then
         return Pattern.val e
       else if e.isFVar then

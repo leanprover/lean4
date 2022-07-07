@@ -38,14 +38,14 @@ mutual
     else main e { s with visitedExpr := s.visitedExpr.insert e }
 
   partial def main : Expr → Visitor
-    | Expr.proj _ _ s _    => visitExpr s
+    | Expr.proj _ _ s      => visitExpr s
     | Expr.forallE _ d b _ => visitExpr b ∘ visitExpr d
     | Expr.lam _ d b _     => visitExpr b ∘ visitExpr d
     | Expr.letE _ t v b _  => visitExpr b ∘ visitExpr v ∘ visitExpr t
-    | Expr.app f a _       => visitExpr a ∘ visitExpr f
-    | Expr.mdata _ b _     => visitExpr b
-    | Expr.const _ us _    => fun s => us.foldl (fun s u => visitLevel u s) s
-    | Expr.sort u _        => visitLevel u
+    | Expr.app f a         => visitExpr a ∘ visitExpr f
+    | Expr.mdata _ b       => visitExpr b
+    | Expr.const _ us      => fun s => us.foldl (fun s u => visitLevel u s) s
+    | Expr.sort u          => visitLevel u
     | _                    => id
 end
 

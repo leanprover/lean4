@@ -39,8 +39,8 @@ private partial def consumeImplicitPrefix (e : Expr) (k : Expr → MetaM α) : M
   match e with
   | Expr.forallE n d b c =>
     -- We do not consume instance implicit arguments because the user probably wants be aware of this dependency
-    if c.binderInfo == BinderInfo.implicit then
-      withLocalDecl n c.binderInfo d fun arg =>
+    if c == .implicit then
+      withLocalDecl n c d fun arg =>
         consumeImplicitPrefix (b.instantiate1 arg) k
     else
       k e
@@ -342,7 +342,7 @@ private partial def getDotCompletionTypeNames (type : Expr) : MetaM NameSet :=
   return (← visit type |>.run {}).2
 where
   visit (type : Expr) : StateRefT NameSet MetaM Unit := do
-    let .const typeName _ _ := type.getAppFn | return ()
+    let .const typeName _ := type.getAppFn | return ()
     modify fun s => s.insert typeName
     if isStructure (← getEnv) typeName then
       for parentName in getAllParentStructures (← getEnv) typeName do

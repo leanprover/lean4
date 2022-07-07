@@ -63,7 +63,7 @@ def isAuxDef (constName : Name) : MetaM Bool := do
 
 @[inline] private def matchConstAux {α} (e : Expr) (failK : Unit → MetaM α) (k : ConstantInfo → List Level → MetaM α) : MetaM α :=
   match e with
-  | Expr.const name lvls _ => do
+  | Expr.const name lvls => do
     let (some cinfo) ← getConst? name | failK ()
     k cinfo lvls
   | _ => failK ()
@@ -78,24 +78,24 @@ private def getFirstCtor (d : Name) : MetaM (Option Name) := do
 
 private def mkNullaryCtor (type : Expr) (nparams : Nat) : MetaM (Option Expr) := do
   match type.getAppFn with
-  | Expr.const d lvls _ =>
+  | Expr.const d lvls =>
     let (some ctor) ← getFirstCtor d | pure none
     return mkAppN (mkConst ctor lvls) (type.getAppArgs.shrink nparams)
   | _ =>
     return none
 
 def toCtorIfLit : Expr → Expr
-  | Expr.lit (Literal.natVal v) _ =>
+  | Expr.lit (Literal.natVal v) =>
     if v == 0 then mkConst `Nat.zero
     else mkApp (mkConst `Nat.succ) (mkRawNatLit (v-1))
-  | Expr.lit (Literal.strVal v) _ =>
+  | Expr.lit (Literal.strVal v) =>
     mkApp (mkConst `String.mk) (toExpr v.toList)
   | e => e
 
 private def getRecRuleFor (recVal : RecursorVal) (major : Expr) : Option RecursorRule :=
   match major.getAppFn with
-  | Expr.const fn _ _ => recVal.rules.find? fun r => r.ctor == fn
-  | _                 => none
+  | Expr.const fn _ => recVal.rules.find? fun r => r.ctor == fn
+  | _               => none
 
 private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM Expr := do
   let majorType ← inferType major
@@ -152,7 +152,7 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
     if !majorTypeI.isConstOf inductName then
       return major
     match majorType.getAppFn with
-    | Expr.const d us _ =>
+    | Expr.const d us =>
       if (← whnfD (← inferType majorType)) == mkSort levelZero then
         return major -- We do not perform eta for propositions, see implementation in the kernel
       else
@@ -206,7 +206,7 @@ private def reduceQuotRec (recVal  : QuotVal) (recLvls : List Level) (recArgs : 
       let major := recArgs.get ⟨majorPos, h⟩
       let major ← whnf major
       match major with
-      | Expr.app (Expr.app (Expr.app (Expr.const majorFn _ _) _ _) _ _) majorArg _ => do
+      | Expr.app (Expr.app (Expr.app (Expr.const majorFn _) _) _) majorArg => do
         let some (ConstantInfo.quotInfo { kind := QuotKind.ctor, .. }) ← getConstNoEx? majorFn | failK ()
         let f := recArgs[argPos]!
         let r := mkApp f majorArg
@@ -254,24 +254,24 @@ mutual
   /-- Return `some (Expr.mvar mvarId)` if metavariable `mvarId` is blocking reduction. -/
   partial def getStuckMVar? (e : Expr) : MetaM (Option MVarId) := do
     match e with
-    | Expr.mdata _ e _       => getStuckMVar? e
-    | Expr.proj _ _ e _      => getStuckMVar? (← whnf e)
+    | Expr.mdata _ e  => getStuckMVar? e
+    | Expr.proj _ _ e => getStuckMVar? (← whnf e)
     | Expr.mvar .. => do
       let e ← instantiateMVars e
       match e with
-      | Expr.mvar mvarId _ => pure (some mvarId)
+      | Expr.mvar mvarId => pure (some mvarId)
       | _ => getStuckMVar? e
     | Expr.app f .. =>
       let f := f.getAppFn
       match f with
-      | Expr.mvar mvarId _   => return some mvarId
-      | Expr.const fName _ _ =>
+      | Expr.mvar mvarId   => return some mvarId
+      | Expr.const fName _ =>
         let cinfo? ← getConstNoEx? fName
         match cinfo? with
         | some $ ConstantInfo.recInfo recVal  => isRecStuck? recVal e.getAppArgs
         | some $ ConstantInfo.quotInfo recVal => isQuotRecStuck? recVal e.getAppArgs
         | _                                => return none
-      | Expr.proj _ _ e _ => getStuckMVar? (← whnf e)
+      | Expr.proj _ _ e => getStuckMVar? (← whnf e)
       | _ => return none
     | _ => return none
 end
@@ -292,8 +292,8 @@ end
   | Expr.const ..      => k e
   | Expr.app ..        => k e
   | Expr.proj ..       => k e
-  | Expr.mdata _ e _   => whnfEasyCases e k
-  | Expr.fvar fvarId _ =>
+  | Expr.mdata _ e     => whnfEasyCases e k
+  | Expr.fvar fvarId   =>
     let decl ← getLocalDecl fvarId
     match decl with
     | LocalDecl.cdecl .. => return e
@@ -305,7 +305,7 @@ end
         if cfg.trackZeta then
           modify fun s => { s with zetaFVarIds := s.zetaFVarIds.insert fvarId }
         whnfEasyCases v k
-  | Expr.mvar mvarId _ =>
+  | Expr.mvar mvarId   =>
     match (← getExprMVarAssignment? mvarId) with
     | some v => whnfEasyCases v k
     | none   => return e
@@ -400,7 +400,7 @@ private def whnfMatcher (e : Expr) : MetaM Expr := do
 
 def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
   match e.getAppFn with
-  | Expr.const declName declLevels _ =>
+  | Expr.const declName declLevels =>
     let some info ← getMatcherInfo? declName
       | return ReduceMatcherResult.notMatcher
     let args := e.getAppArgs
@@ -441,8 +441,8 @@ def project? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
 /-- Reduce kernel projection `Expr.proj ..` expression. -/
 def reduceProj? (e : Expr) : MetaM (Option Expr) := do
   match e with
-  | Expr.proj _ i c _ => project? c i
-  | _                 => return none
+  | Expr.proj _ i c => project? c i
+  | _               => return none
 
 /--
   Auxiliary method for reducing terms of the form `?m t_1 ... t_n` where `?m` is delayed assigned.
@@ -511,7 +511,7 @@ where
                 else
                   return e
               | _ => return e
-      | Expr.proj _ i c _ =>
+      | Expr.proj _ i c =>
         let c ← if deltaAtProj then whnf c else whnfCore c
         match (← projectCore? c i) with
         | some e => go e
@@ -556,8 +556,8 @@ where
     | Expr.letE n t v b _ => withLetDecl n t (← go v) fun x => do mkLetFVars #[x] (← go (b.instantiate1 x))
     | Expr.lam .. => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← go b)
     | Expr.app f a .. => return mkApp (← go f) (← go a)
-    | Expr.proj _ _ s _ => return e.updateProj! (← go s)
-    | Expr.mdata _ b _  =>
+    | Expr.proj _ _ s => return e.updateProj! (← go s)
+    | Expr.mdata _ b  =>
       if let some m := smartUnfoldingMatch? e then
         goMatch m
       else
@@ -613,7 +613,7 @@ mutual
   /-- Unfold definition using "smart unfolding" if possible. -/
   partial def unfoldDefinition? (e : Expr) : MetaM (Option Expr) :=
     match e with
-    | Expr.app f _ _ =>
+    | Expr.app f _ =>
       matchConstAux f.getAppFn (fun _ => unfoldProjInstWhenIntances? e) fun fInfo fLvls => do
         if fInfo.levelParams.length != fLvls.length then
           return none
@@ -681,7 +681,7 @@ mutual
                 unfoldDefault ()
           else
             unfoldDefault ()
-    | Expr.const declName lvls _ => do
+    | Expr.const declName lvls => do
       if smartUnfolding.get (← getOptions) && (← getEnv).contains (mkSmartUnfoldingNameFor declName) then
         return none
       else
@@ -737,7 +737,7 @@ unsafe def reduceNatNativeUnsafe (constName : Name) : MetaM Nat := evalConstChec
 
 def reduceNative? (e : Expr) : MetaM (Option Expr) :=
   match e with
-  | Expr.app (Expr.const fName _ _) (Expr.const argName _ _) _ =>
+  | Expr.app (Expr.const fName _) (Expr.const argName _) =>
     if fName == ``Lean.reduceBool then do
       return toExpr (← reduceBoolNative argName)
     else if fName == ``Lean.reduceNat then do
@@ -750,9 +750,9 @@ def reduceNative? (e : Expr) : MetaM (Option Expr) :=
 @[inline] def withNatValue {α} (a : Expr) (k : Nat → MetaM (Option α)) : MetaM (Option α) := do
   let a ← whnf a
   match a with
-  | Expr.const `Nat.zero _ _      => k 0
-  | Expr.lit (Literal.natVal v) _ => k v
-  | _                             => return none
+  | Expr.const `Nat.zero _      => k 0
+  | Expr.lit (Literal.natVal v) => k v
+  | _                           => return none
 
 def reduceUnaryNatOp (f : Nat → Nat) (a : Expr) : MetaM (Option Expr) :=
   withNatValue a fun a =>
@@ -773,12 +773,12 @@ def reduceNat? (e : Expr) : MetaM (Option Expr) :=
   if e.hasFVar || e.hasMVar then
     return none
   else match e with
-    | Expr.app (Expr.const fn _ _) a _                  =>
+    | Expr.app (Expr.const fn _) a                =>
       if fn == ``Nat.succ then
         reduceUnaryNatOp Nat.succ a
       else
         return none
-    | Expr.app (Expr.app (Expr.const fn _ _) a1 _) a2 _ =>
+    | Expr.app (Expr.app (Expr.const fn _) a1) a2 =>
       if fn == ``Nat.add then reduceBinNatOp Nat.add a1 a2
       else if fn == ``Nat.sub then reduceBinNatOp Nat.sub a1 a2
       else if fn == ``Nat.mul then reduceBinNatOp Nat.mul a1 a2

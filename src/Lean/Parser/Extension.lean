@@ -250,17 +250,17 @@ unsafe def mkParserOfConstantUnsafe (constName : Name) (compileParserDescr : Par
   | none      => throw ↑s!"unknown constant '{constName}'"
   | some info =>
     match info.type with
-    | Expr.const `Lean.Parser.TrailingParser _ _ =>
+    | Expr.const `Lean.Parser.TrailingParser _ =>
       let p ← IO.ofExcept $ env.evalConst Parser opts constName
       pure ⟨false, p⟩
-    | Expr.const `Lean.Parser.Parser _ _ =>
+    | Expr.const `Lean.Parser.Parser _ =>
       let p ← IO.ofExcept $ env.evalConst Parser opts constName
       pure ⟨true, p⟩
-    | Expr.const `Lean.ParserDescr _ _ =>
+    | Expr.const `Lean.ParserDescr _ =>
       let d ← IO.ofExcept $ env.evalConst ParserDescr opts constName
       let p ← compileParserDescr d
       pure ⟨true, p⟩
-    | Expr.const `Lean.TrailingParserDescr _ _ =>
+    | Expr.const `Lean.TrailingParserDescr _ =>
       let d ← IO.ofExcept $ env.evalConst TrailingParserDescr opts constName
       let p ← compileParserDescr d
       pure ⟨false, p⟩
@@ -485,9 +485,9 @@ private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
   unless kind == AttributeKind.global do throwError "invalid attribute '{attrName}', must be global"
   let decl ← getConstInfo declName
   match decl.type with
-  | Expr.const `Lean.Parser.TrailingParser _ _ =>
+  | Expr.const `Lean.Parser.TrailingParser _ =>
     declareTrailingBuiltinParser catName declName prio
-  | Expr.const `Lean.Parser.Parser _ _ =>
+  | Expr.const `Lean.Parser.Parser _ =>
     declareLeadingBuiltinParser catName declName prio
   | _ => throwError "unexpected parser type at '{declName}' (`Parser` or `TrailingParser` expected)"
   if let some doc ← findDocString? (← getEnv) declName then

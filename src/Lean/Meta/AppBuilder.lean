@@ -205,9 +205,9 @@ private partial def mkAppMArgs (f : Expr) (fType : Expr) (xs : Array Expr) : Met
     if i >= xs.size then
       mkAppMFinal `mkAppM f args instMVars
     else match type with
-      | Expr.forallE n d b c =>
+      | Expr.forallE n d b bi =>
         let d  := d.instantiateRevRange j args.size args
-        match c.binderInfo with
+        match bi with
         | BinderInfo.implicit     =>
           let mvar ← mkFreshExprMVar d MetavarKind.natural n
           loop b i j (args.push mvar) instMVars
@@ -265,12 +265,12 @@ def mkAppM' (f : Expr) (xs : Array Expr) : MetaM Expr := do
     return r
 
 private partial def mkAppOptMAux (f : Expr) (xs : Array (Option Expr)) : Nat → Array Expr → Nat → Array MVarId → Expr → MetaM Expr
-  | i, args, j, instMVars, Expr.forallE n d b c => do
+  | i, args, j, instMVars, Expr.forallE n d b bi => do
     let d  := d.instantiateRevRange j args.size args
     if h : i < xs.size then
       match xs.get ⟨i, h⟩ with
       | none =>
-        match c.binderInfo with
+        match bi with
         | BinderInfo.instImplicit => do
           let mvar ← mkFreshExprMVar d MetavarKind.synthetic n
           mkAppOptMAux f xs (i+1) (args.push mvar) j (instMVars.push mvar.mvarId!) b
@@ -332,7 +332,7 @@ def mkEqNDRec (motive h1 h2 : Expr) : MetaM Expr := do
       let u2 ← getLevel α
       let motiveType ← infer motive
       match motiveType with
-      | Expr.forallE _ _ (Expr.sort u1 _) _ =>
+      | Expr.forallE _ _ (Expr.sort u1) _ =>
         return mkAppN (mkConst ``Eq.ndrec [u1, u2]) #[α, a, motive, h1, b, h2]
       | _ => throwAppBuilderException ``Eq.ndrec ("invalid motive" ++ indentExpr motive)
 
@@ -347,7 +347,7 @@ def mkEqRec (motive h1 h2 : Expr) : MetaM Expr := do
       let u2 ← getLevel α
       let motiveType ← infer motive
       match motiveType with
-      | Expr.forallE _ _ (Expr.forallE _ _ (Expr.sort u1 _) _) _ =>
+      | Expr.forallE _ _ (Expr.forallE _ _ (Expr.sort u1) _) _ =>
         return mkAppN (mkConst ``Eq.rec [u1, u2]) #[α, a, motive, h1, b, h2]
       | _ =>
         throwAppBuilderException ``Eq.rec ("invalid motive" ++ indentExpr motive)
@@ -379,7 +379,7 @@ partial def mkProjection (s : Expr) (fieldName : Name) : MetaM Expr := do
   let type ← inferType s
   let type ← whnf type
   match type.getAppFn with
-  | Expr.const structName us _ =>
+  | Expr.const structName us =>
     let env ← getEnv
     unless isStructure env structName do
       throwAppBuilderException `mkProjection ("structure expected" ++ hasTypeMsg s type)

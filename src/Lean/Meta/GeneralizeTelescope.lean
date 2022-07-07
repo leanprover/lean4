@@ -38,7 +38,7 @@ partial def generalizeTelescopeAux {α} (k : Array Expr → MetaM α)
         let entries ← updateTypes e x entries (i+1)
         generalizeTelescopeAux k entries (i+1) (fvars.push x)
     match entries.get ⟨i, h⟩ with
-    | ⟨e@(.fvar fvarId _), type, false⟩ =>
+    | ⟨e@(.fvar fvarId), type, false⟩ =>
       let localDecl ← getLocalDecl fvarId
       match localDecl with
       | .cdecl .. => generalizeTelescopeAux k entries (i+1) (fvars.push e)

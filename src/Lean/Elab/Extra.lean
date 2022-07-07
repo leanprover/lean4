@@ -171,7 +171,7 @@ private def isUnknow : Expr → Bool
   | Expr.mvar ..        => true
   | Expr.app f ..       => isUnknow f
   | Expr.letE _ _ _ b _ => isUnknow b
-  | Expr.mdata _ b _    => isUnknow b
+  | Expr.mdata _ b      => isUnknow b
   | _                   => false
 
 private def analyze (t : Tree) (expectedType? : Option Expr) : TermElabM AnalyzeResult := do

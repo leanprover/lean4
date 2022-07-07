@@ -236,7 +236,7 @@ where
     match (← resolveId? stx "pattern") with
     | none   => processVar stx
     | some f => match f with
-      | Expr.const fName _ _ =>
+      | Expr.const fName _ =>
         match (← getEnv).find? fName with
         | some (ConstantInfo.ctorInfo _) => processCtor stx
         | some _ =>
@@ -296,7 +296,7 @@ where
       | `($fId:ident)  => pure (fId, false)
       | `(@$fId:ident) => pure (fId, true)
       | _              => throwError "identifier expected"
-    let some (Expr.const fName _ _) ← resolveId? fId "pattern" (withInfo := true) | throwCtorExpected
+    let some (Expr.const fName _) ← resolveId? fId "pattern" (withInfo := true) | throwCtorExpected
     let fInfo ← getConstInfo fName
     let paramDecls ← forallTelescopeReducing fInfo.type fun xs _ => xs.mapM fun x => do
       let d ← getFVarLocalDecl x

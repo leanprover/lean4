@@ -73,12 +73,12 @@ def addAsVar (e : Expr) : M LinearExpr := do
 
 partial def toLinearExpr (e : Expr) : M LinearExpr := do
   match e with
-  | Expr.lit (Literal.natVal n) _ => return num n
-  | Expr.mdata _ e _              => toLinearExpr e
-  | Expr.const ``Nat.zero ..      => return num 0
-  | Expr.app ..                   => visit e
-  | Expr.mvar ..                  => visit e
-  | _                             => addAsVar e
+  | Expr.lit (Literal.natVal n) => return num n
+  | Expr.mdata _ e              => toLinearExpr e
+  | Expr.const ``Nat.zero ..    => return num 0
+  | Expr.app ..                 => visit e
+  | Expr.mvar ..                => visit e
+  | _                           => addAsVar e
 where
   visit (e : Expr) : M LinearExpr := do
     let f := e.getAppFn

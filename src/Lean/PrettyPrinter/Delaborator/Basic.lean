@@ -118,24 +118,24 @@ unsafe def mkDelabAttribute : IO (KeyedDeclsAttribute Delab) :=
 def getExprKind : DelabM Name := do
   let e ← getExpr
   pure $ match e with
-  | Expr.bvar _ _        => `bvar
-  | Expr.fvar _ _        => `fvar
-  | Expr.mvar _ _        => `mvar
-  | Expr.sort _ _        => `sort
-  | Expr.const c _ _     =>
+  | Expr.bvar _          => `bvar
+  | Expr.fvar _          => `fvar
+  | Expr.mvar _          => `mvar
+  | Expr.sort _          => `sort
+  | Expr.const c _       =>
     -- we identify constants as "nullary applications" to reduce special casing
     `app ++ c
-  | Expr.app fn _ _      => match fn.getAppFn with
-    | Expr.const c _ _ => `app ++ c
+  | Expr.app fn _        => match fn.getAppFn with
+    | Expr.const c _   => `app ++ c
     | _                => `app
   | Expr.lam _ _ _ _     => `lam
   | Expr.forallE _ _ _ _ => `forallE
   | Expr.letE _ _ _ _ _  => `letE
-  | Expr.lit _ _         => `lit
-  | Expr.mdata m _ _     => match m.entries with
+  | Expr.lit _           => `lit
+  | Expr.mdata m _       => match m.entries with
     | [(key, _)] => `mdata ++ key
     | _   => `mdata
-  | Expr.proj _ _ _ _    => `proj
+  | Expr.proj _ _ _      => `proj
 
 def getOptionsAtCurrPos : DelabM Options := do
   let ctx ← read
@@ -187,7 +187,7 @@ def getUnusedName (suggestion : Name) (body : Expr) : DelabM Name := do
 where
   bodyUsesSuggestion (lctx : LocalContext) (suggestion' : Name) : Bool :=
     Option.isSome <| body.find? fun
-      | Expr.fvar fvarId _ =>
+      | Expr.fvar fvarId =>
         match lctx.find? fvarId with
         | none      => false
         | some decl => decl.userName == suggestion'

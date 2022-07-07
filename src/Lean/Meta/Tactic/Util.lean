@@ -86,7 +86,7 @@ where
     let e ← instantiateMVars e
     let visit : StateRefT FVarIdHashSet MetaM FVarIdHashSet := do
       e.forEach fun
-        | Expr.fvar fvarId _ => modify fun s => s.erase fvarId
+        | Expr.fvar fvarId => modify fun s => s.erase fvarId
         | _ => pure ()
       get
     visit |>.run' candidates

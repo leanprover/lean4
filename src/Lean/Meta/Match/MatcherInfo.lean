@@ -135,7 +135,7 @@ structure MatcherApp where
 
 def matchMatcherApp? [Monad m] [MonadEnv m] (e : Expr) : m (Option MatcherApp) := do
   match e.getAppFn with
-  | Expr.const declName declLevels _ =>
+  | Expr.const declName declLevels =>
     match (← getMatcherInfo? declName) with
     | none => return none
     | some info =>

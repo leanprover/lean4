@@ -27,7 +27,7 @@ def MVarRenaming.apply (s : MVarRenaming) (e : Expr) : Expr :=
   if !e.hasMVar then e
   else if s.map.isEmpty then e
   else e.replace fun e => match e with
-    | Expr.mvar mvarId _ => match s.map.find? mvarId with
+    | Expr.mvar mvarId => match s.map.find? mvarId with
       | none           => e
       | some newMVarId => mkMVar newMVarId
     | _ => none

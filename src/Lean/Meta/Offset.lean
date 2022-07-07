@@ -25,8 +25,8 @@ def isNatProjInst (declName : Name) (numArgs : Nat) : Bool :=
   Evaluate simple `Nat` expressions.
   Remark: this method assumes the given expression has type `Nat`. -/
 partial def evalNat : Expr → OptionT MetaM Nat
-  | Expr.lit (Literal.natVal n) _ => return n
-  | Expr.mdata _ e _              => evalNat e
+  | Expr.lit (Literal.natVal n)   => return n
+  | Expr.mdata _ e                => evalNat e
   | Expr.const `Nat.zero ..       => return 0
   | e@(Expr.app ..)               => visit e
   | e@(Expr.mvar ..)              => visit e
@@ -36,7 +36,7 @@ where
     let f := e.getAppFn
     match f with
     | Expr.mvar .. => withInstantiatedMVars e evalNat
-    | Expr.const c _ _ =>
+    | Expr.const c _ =>
       let nargs := e.getAppNumArgs
       if c == ``Nat.succ && nargs == 1 then
         let v ← evalNat (e.getArg! 0)
@@ -61,11 +61,11 @@ where
 
 /- Quick function for converting `e` into `s + k` s.t. `e` is definitionally equal to `Nat.add s k`. -/
 private partial def getOffsetAux : Expr → Bool → OptionT MetaM (Expr × Nat)
-  | e@(Expr.app _ a _), top => do
+  | e@(Expr.app _ a), top => do
     let f := e.getAppFn
     match f with
     | Expr.mvar .. => withInstantiatedMVars e (getOffsetAux · top)
-    | Expr.const c _ _ =>
+    | Expr.const c _ =>
       let nargs := e.getAppNumArgs
       if c == ``Nat.succ && nargs == 1 then
         let (s, k) ← getOffsetAux a false
@@ -84,11 +84,11 @@ private def getOffset (e : Expr) : OptionT MetaM (Expr × Nat) :=
   getOffsetAux e true
 
 private partial def isOffset : Expr → OptionT MetaM (Expr × Nat)
-  | e@(Expr.app _ _ _) =>
+  | e@(Expr.app _ _) =>
     let f := e.getAppFn
     match f with
     | Expr.mvar .. => withInstantiatedMVars e isOffset
-    | Expr.const c _ _ =>
+    | Expr.const c _ =>
       let nargs := e.getAppNumArgs
       if (c == ``Nat.succ && nargs == 1) || (c == ``Nat.add && nargs == 2) || (c == ``Add.add && nargs == 4) || (c == ``HAdd.hAdd && nargs == 6) then
         getOffset e

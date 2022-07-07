@@ -26,8 +26,8 @@ private def expandSimpleMatch (stx : Syntax) (discr : Term) (lhsVar : Ident) (rh
 private def mkUserNameFor (e : Expr) : TermElabM Name := do
   match e with
   /- Remark: we use `mkFreshUserName` to make sure we don't add a variable to the local context that can be resolved to `e`. -/
-  | Expr.fvar fvarId _ => mkFreshUserName ((← getLocalDecl fvarId).userName)
-  | _                  => mkFreshBinderName
+  | Expr.fvar fvarId => mkFreshUserName ((← getLocalDecl fvarId).userName)
+  | _                => mkFreshBinderName
 
 
 /--
@@ -59,7 +59,7 @@ def isAtomicDiscr? (discr : Syntax) : TermElabM (Option Expr) := do
 private def elabAtomicDiscr (discr : Syntax) : TermElabM Expr := do
   let term := discr[1]
   match (← isAtomicDiscr? term) with
-  | some e@(Expr.fvar fvarId _) =>
+  | some e@(Expr.fvar fvarId) =>
     let localDecl ← getLocalDecl fvarId
     if !isAuxDiscrName localDecl.userName then
       addTermInfo discr e -- it is not an auxiliary local created by `expandNonAtomicDiscrs?`
@@ -536,7 +536,7 @@ where
   processInaccessible (e : Expr) : M Expr := do
     let e' ← erasePatternRefAnnotations e
     match e' with
-    | Expr.fvar _      _ =>
+    | Expr.fvar _ =>
       if (← isExplicitPatternVar e') then
         processVar e
       else
@@ -582,8 +582,8 @@ private partial def toPattern (e : Expr) : MetaM Pattern := do
       if let some e := Match.isNamedPattern? e then
         let p ← toPattern <| e.getArg! 2
         match e.getArg! 1, e.getArg! 3 with
-        | Expr.fvar x _, Expr.fvar h _ => return Pattern.as x p h
-        | _,             _             => throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
+        | Expr.fvar x, Expr.fvar h => return Pattern.as x p h
+        | _,           _           => throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
       else if isMatchValue e then
         return Pattern.val e
       else if e.isFVar then
@@ -615,13 +615,13 @@ private partial def topSort (patternVars : Array Expr) : TermElabM (Array Expr) 
 where
   visit (e : Expr) : TopSortM Unit := do
     match e with
-    | Expr.proj _ _ e _    => visit e
+    | Expr.proj _ _ e      => visit e
     | Expr.forallE _ d b _ => visit d; visit b
     | Expr.lam _ d b _     => visit d; visit b
     | Expr.letE _ t v b _  => visit t; visit v; visit b
-    | Expr.app f a _       => visit f; visit a
-    | Expr.mdata _ b _     => visit b
-    | Expr.mvar mvarId _   =>
+    | Expr.app f a         => visit f; visit a
+    | Expr.mdata _ b       => visit b
+    | Expr.mvar mvarId     =>
       let v ← instantiateMVars e
       if !v.isMVar then
         visit v
@@ -631,7 +631,7 @@ where
           let mvarDecl ← getMVarDecl mvarId
           visit mvarDecl.type
           modify fun s => { s with result := s.result.push e }
-    | Expr.fvar fvarId _   =>
+    | Expr.fvar fvarId    =>
       if patternVars.contains e then
         unless (← get).visitedFVars.contains fvarId do
           modify fun s => { s with visitedFVars := s.visitedFVars.insert fvarId }
@@ -652,9 +652,9 @@ where
     | .forallE n d b _  => withLocalDecl n b.binderInfo (← go d) fun x => do mkForallFVars #[x] (← go (b.instantiate1 x))
     | .lam n d b _      => withLocalDecl n b.binderInfo (← go d) fun x => do mkLambdaFVars #[x] (← go (b.instantiate1 x))
     | .letE n t v b ..  => withLetDecl n (← go t) (← go v) fun x => do mkLetFVars #[x] (← go (b.instantiate1 x))
-    | .app f a _        => return mkApp (← go f) (← go a)
-    | .proj _ _ b _     => return p.updateProj! (← go b)
-    | .mdata k b _      =>
+    | .app f a          => return mkApp (← go f) (← go a)
+    | .proj _ _ b       => return p.updateProj! (← go b)
+    | .mdata k b        =>
       if inaccessible? p |>.isSome then
         return mkMData k (← withReader (fun _ => false) (go b))
       else if let some (stx, p) := patternWithRef? p then
@@ -1229,7 +1229,7 @@ private def isPatternVar (stx : Syntax) : TermElabM Bool := do
   match (← resolveId? stx "pattern") with
   | none   => return isAtomicIdent stx
   | some f => match f with
-    | Expr.const fName _ _ =>
+    | Expr.const fName _ =>
       match (← getEnv).find? fName with
       | some (ConstantInfo.ctorInfo _) => return false
       | some _                         => return !hasMatchPatternAttribute (← getEnv) fName

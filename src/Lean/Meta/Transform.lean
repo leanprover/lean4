@@ -46,8 +46,8 @@ partial def transform {m} [Monad m] [MonadLiftT CoreM m] [MonadControlT CoreM m]
         | Expr.lam _ d b _     => visitPost (e.updateLambdaE! (← visit d) (← visit b))
         | Expr.letE _ t v b _  => visitPost (e.updateLet! (← visit t) (← visit v) (← visit b))
         | Expr.app ..          => e.withApp fun f args => do visitPost (mkAppN (← visit f) (← args.mapM visit))
-        | Expr.mdata _ b _     => visitPost (e.updateMData! (← visit b))
-        | Expr.proj _ _ b _    => visitPost (e.updateProj! (← visit b))
+        | Expr.mdata _ b       => visitPost (e.updateMData! (← visit b))
+        | Expr.proj _ _ b      => visitPost (e.updateProj! (← visit b))
         | _                    => visitPost e
   visit input |>.run
 
@@ -78,13 +78,13 @@ partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
       let rec visitLambda (fvars : Array Expr) (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
         match e with
         | Expr.lam n d b c =>
-          withLocalDecl n c.binderInfo (← visit (d.instantiateRev fvars)) fun x =>
+          withLocalDecl n c (← visit (d.instantiateRev fvars)) fun x =>
             visitLambda (fvars.push x) b
         | e => visitPost (← mkLambdaFVars (usedLetOnly := usedLetOnly) fvars (← visit (e.instantiateRev fvars)))
       let rec visitForall (fvars : Array Expr) (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
         match e with
         | Expr.forallE n d b c =>
-          withLocalDecl n c.binderInfo (← visit (d.instantiateRev fvars)) fun x =>
+          withLocalDecl n c (← visit (d.instantiateRev fvars)) fun x =>
             visitForall (fvars.push x) b
         | e => visitPost (← mkForallFVars (usedLetOnly := usedLetOnly) fvars (← visit (e.instantiateRev fvars)))
       let rec visitLet (fvars : Array Expr) (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
@@ -103,15 +103,15 @@ partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
         | Expr.lam ..        => visitLambda #[] e
         | Expr.letE ..       => visitLet #[] e
         | Expr.app ..        => visitApp e
-        | Expr.mdata _ b _   => visitPost (e.updateMData! (← visit b))
-        | Expr.proj _ _ b _  => visitPost (e.updateProj! (← visit b))
+        | Expr.mdata _ b     => visitPost (e.updateMData! (← visit b))
+        | Expr.proj _ _ b    => visitPost (e.updateProj! (← visit b))
         | _                  => visitPost e
   visit input |>.run
 
 def zetaReduce (e : Expr) : MetaM Expr := do
   let pre (e : Expr) : MetaM TransformStep := do
     match e with
-    | Expr.fvar fvarId _ =>
+    | Expr.fvar fvarId =>
       match (← getLCtx).find? fvarId with
       | none => return TransformStep.done e
       | some localDecl =>

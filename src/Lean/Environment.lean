@@ -744,14 +744,14 @@ unsafe def evalConstCheck (α) (env : Environment) (opts : Options) (typeName : 
   | none      => throw ("unknown constant '" ++ toString constName ++ "'")
   | some info =>
     match info.type with
-    | Expr.const c _ _ =>
+    | Expr.const c _ =>
       if c != typeName then throwUnexpectedType typeName constName
       else env.evalConst α opts constName
     | _ => throwUnexpectedType typeName constName
 
 def hasUnsafe (env : Environment) (e : Expr) : Bool :=
   let c? := e.find? fun e => match e with
-    | Expr.const c _ _ =>
+    | Expr.const c _ =>
       match env.find? c with
       | some cinfo => cinfo.isUnsafe
       | none       => false

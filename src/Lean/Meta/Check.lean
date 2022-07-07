@@ -32,7 +32,7 @@ private def getFunctionDomain (f : Expr) : MetaM (Expr × BinderInfo) := do
   let fType ← inferType f
   let fType ← whnfD fType
   match fType with
-  | Expr.forallE _ d _ c => return (d, c.binderInfo)
+  | Expr.forallE _ d _ c => return (d, c)
   | _                    => throwFunctionExpected f
 
 /-
@@ -152,10 +152,10 @@ where
       | .forallE ..      => checkForall e
       | .lam ..          => checkLambdaLet e
       | .letE ..         => checkLambdaLet e
-      | .const c lvls _  => checkConstant c lvls
-      | .app f a _       => check f; check a; checkApp f a
-      | .mdata _ e _     => check e
-      | .proj _ _ e _    => check e
+      | .const c lvls    => checkConstant c lvls
+      | .app f a         => check f; check a; checkApp f a
+      | .mdata _ e       => check e
+      | .proj _ _ e      => check e
       | _                => return ()
 
   checkLambdaLet (e : Expr) : MonadCacheT ExprStructEq Unit MetaM Unit :=

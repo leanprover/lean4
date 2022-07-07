@@ -33,13 +33,13 @@ match env.find? ctorName with
 private def constructorApp? (e : Expr) : MetaM (Option (ConstructorVal × Expr × Array Expr)) := do
 let env ← getEnv
 match e with
-| Expr.lit (Literal.natVal n) _ =>
+| Expr.lit (Literal.natVal n) =>
    if n == 0 then getConstructorVal `Nat.zero (mkConst `Nat.zero) #[] else getConstructorVal `Nat.succ (mkConst `Nat.succ) #[mkNatLit (n-1)]
 | _ =>
   let fn := e.getAppFn
   match fn with
-  | Expr.const n _ _ => getConstructorVal n fn e.getAppArgs
-  | _                => pure none
+  | Expr.const n _ => getConstructorVal n fn e.getAppArgs
+  | _              => pure none
 
 /- Convert expression using auxiliary hints `inaccessible` and `val` into a pattern -/
 partial def mkPattern : Expr → MetaM Pattern

@@ -1387,9 +1387,9 @@ mutual
       withFreshMacroScope do
         /- Recall that `@` (explicit) disables `coeAtOutParam`.
            We used `@` at `Stream` functions to make sure `coeAtOutParam` is not used. -/
-        let toStreamFn ← withRef ys `(@toStream _ _ _)
+        let toStreamApp ← withRef ys `(@toStream _ _ _ $ys)
         let auxDo ←
-          `(do let mut s := $toStreamFn:term $ys
+          `(do let mut s := $toStreamApp:term
                for $doForDecls:doForDecl,* do
                  match @Stream.next? _ _ _ s with
                  | none => break

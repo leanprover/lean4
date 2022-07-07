@@ -85,8 +85,8 @@ private def isMultiConstant? (views : Array DefView) : Option (List Name) :=
   if views.size == 1 &&
      views[0]!.kind == DefKind.opaque &&
      views[0]!.binders.getArgs.size > 0 &&
-     views[0]!.binders.getArgs.all (·.getKind == ``Parser.Term.simpleBinder) then
-    some <| (views[0]!.binders.getArgs.toList.map (fun stx => stx[0].getArgs.toList.map (·.getId))).join
+     views[0]!.binders.getArgs.all (·.isIdent) then
+    some (views[0]!.binders.getArgs.toList.map (·.getId))
   else
     none
 

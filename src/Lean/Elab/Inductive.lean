@@ -49,6 +49,7 @@ structure CtorView where
 
 structure ComputedFieldView where
   ref       : Syntax
+  modifiers : Syntax
   fieldId   : Name
   type      : Syntax.Term
   matchAlts : TSyntax ``Parser.Term.matchAlts
@@ -812,9 +813,16 @@ private def applyComputedFields (indViews : Array InductiveView) : CommandElabM 
   let mut computedFields := #[]
   let mut computedFieldDefs := #[]
   for indView@{declName, ..} in indViews do
-    for {ref, fieldId, type, matchAlts ..} in indView.computedFields do
-      computedFieldDefs := computedFieldDefs.push <|
-        ← `(noncomputable def%$ref $(mkIdent <| `_root_ ++ declName ++ fieldId):ident : $type $matchAlts:matchAlts)
+    for {ref, fieldId, type, matchAlts, modifiers, ..} in indView.computedFields do
+      computedFieldDefs := computedFieldDefs.push <| ← do
+        let modifiers ← match modifiers with
+          | `(Lean.Parser.Command.declModifiersT| $[$doc:docComment]? $[$attrs:attributes]? $[$vis]? $[noncomputable]?) =>
+            `(Lean.Parser.Command.declModifiersT| $[$doc]? $[$attrs]? $[$vis]? noncomputable)
+          | _ => do
+            withRef modifiers do logError "unsupported modifiers for computed field"
+            `(Parser.Command.declModifiersT| noncomputable)
+        `($(⟨modifiers⟩):declModifiers
+          def%$ref $(mkIdent <| `_root_ ++ declName ++ fieldId):ident : $type $matchAlts:matchAlts)
     let computedFieldNames := indView.computedFields.map fun {fieldId, ..} => declName ++ fieldId
     computedFields := computedFields.push (declName, computedFieldNames)
   elabCommand <| ← `(set_option bootstrap.genMatcherCode false in mutual $computedFieldDefs* end)

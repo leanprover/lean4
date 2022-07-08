@@ -26,9 +26,9 @@ private partial def antiquote (vars : Array Syntax) : Syntax → Syntax
 
 /- Convert `notation` command lhs item into a `syntax` command item -/
 def expandNotationItemIntoSyntaxItem : TSyntax ``notationItem → MacroM (TSyntax `stx)
-  | `(notationItem| $id:ident$[:$prec?]?) => `(stx| term $[:$prec?]?)
-  | `(notationItem| $s:str)               => `(stx| $s:str)
-  | _                                     => Macro.throwUnsupported
+  | `(notationItem| $_:ident$[:$prec?]?) => `(stx| term $[:$prec?]?)
+  | `(notationItem| $s:str)              => `(stx| $s:str)
+  | _                                    => Macro.throwUnsupported
 
 /- Convert `notation` command lhs item into a pattern element -/
 def expandNotationItemIntoPattern (stx : Syntax) : MacroM Syntax :=

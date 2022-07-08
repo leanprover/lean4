@@ -181,7 +181,6 @@ where
     let localDecl ← getLocalDecl h
     if localDecl.isLet then
       throwTacticEx `subst mvarId m!"variable '{mkFVar h}' is a let-declaration"
-    let mctx ← getMCtx
     let lctx ← getLCtx
     let some (fvarId, symm) ← lctx.findDeclM? fun localDecl => do
        if localDecl.isAuxDecl then

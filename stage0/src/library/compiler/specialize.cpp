@@ -513,10 +513,10 @@ class specialize_fn {
                 /* We specialize this kind of argument if they are constructor applications or literals.
                    Remark: it is not feasible to invoke whnf since it may consume a lot of time. */
                 break; // We have disabled this kind of argument
-                w = find(args[i]);
-                if (is_constructor_app(env(), w) || is_lit(w))
-                    return true;
-                break;
+                // w = find(args[i]);
+                // if (is_constructor_app(env(), w) || is_lit(w))
+                //     return true;
+                // break;
             case spec_arg_kind::Other:
                 break;
             }
@@ -674,6 +674,13 @@ class specialize_fn {
         lean_assert(is_constant(fn));
         buffer<spec_arg_kind> kinds;
         get_arg_kinds(const_name(fn), kinds);
+        lean_trace(name({"compiler", "spec_candidate"}),
+                   tout() << "kinds for " << const_name(fn) << ":";
+                   for (auto kind : kinds) {
+                       tout() << " " << to_str(kind);
+                   }
+                   tout() << "\n";
+            );
         bool has_attr   = has_specialize_attribute(const_name(fn));
         dep_collector collect(m_lctx, ctx);
         unsigned sz     = std::min(kinds.size(), args.size());
@@ -1077,13 +1084,18 @@ class specialize_fn {
 
         optional<name> new_fn_name;
         expr key;
-        /* When `m_params.size > 1`, it is not safe to reuse cached specialization.
+        /* When `m_params.size > 0`, it is not safe to reuse cached specialization, because we don't know at reuse time
+           whether `m_params` will be compatible or not. See issue #1292 for problematic example.
+           The two `filterMap` occurrences produce the same key using `get_closed`, but the first one has `m_params.size == 1`
+           and the second `m_params.size == 0`. The first one is reusing the `none` outside the lambda. It is a sily reuse,
+           but the bug could happen with a more complex term.
+
            See test `tests/lean/run/specbug.lean`.
-           This is a bit hackish, but should not produce increase the generated code size too much.
+           This is a bit hackish, but should not increase the generated code size too much.
            On Dec 20 2020, before this fix, 5246 specializations were reused, but only 11 had `m_params.size > 1`.
            This file will be deleted. So, it is not worth designing a better caching scheme.
            TODO: when we reimplement this module in Lean, we should have a better caching heuristic. */
-        if (gcache_enabled && ctx.m_params.size() <= 1) {
+        if (gcache_enabled && ctx.m_params.size() == 0) {
             key = mk_app(fn, gcache_key_args);
             if (optional<name> it = get_cached_specialization(env(), key)) {
                 lean_trace(name({"compiler", "specialize"}), tout() << "get_cached_specialization [" << ctx.m_params.size() << "]: " << *it << "\n";
@@ -1093,7 +1105,7 @@ class specialize_fn {
                                tout() << ">> [" << i << "]: " << trace_pp_expr(tc.infer(x)) << "\n";
                                i++;
                            }
-                           tout() << trace_pp_expr(key) << "\n";);
+                           tout() << ">> key: " << trace_pp_expr(key) << "\n";);
                 // std::cerr << *it << " " << ctx.m_vars.size() << " " << ctx.m_params.size() << "\n";
                 new_fn_name = *it;
             }
@@ -1121,7 +1133,9 @@ class specialize_fn {
                 }
                 m_st.env() = update_spec_info(env(), new_decls);
             }
-            if (gcache_enabled) {
+
+            /* It is only safe to cache when `m_params.size == 0`. See comment above. */
+            if (gcache_enabled && ctx.m_params.size() == 0) {
                 lean_trace(name({"compiler", "specialize"}), tout() << "get_cached_specialization [" << ctx.m_params.size() << "] UPDATE " << *new_fn_name << "\n";
                            unsigned i = 0;
                            type_checker tc(m_st, m_lctx);
@@ -1129,7 +1143,7 @@ class specialize_fn {
                                tout() << ">> [" << i << "]: " << trace_pp_expr(tc.infer(x)) << "\n";
                                i++;
                            }
-                           tout()  << trace_pp_expr(key) << "\n";);
+                           tout()  << ">> key: " << trace_pp_expr(key) << "\n";);
                 m_st.env() = cache_specialization(env(), key, *new_fn_name);
             }
         }

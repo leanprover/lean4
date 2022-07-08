@@ -1386,7 +1386,7 @@ mutual
       let body := doFor[3]
       withFreshMacroScope do
         /- Recall that `@` (explicit) disables `coeAtOutParam`.
-           We used `@` at `Stream` functions to make sure `coeAtOutParam` is not used. -/
+           We used `@` at `Stream` functions to make sure `resultIsOutParamSupport` is not used. -/
         let toStreamApp ← withRef ys `(@toStream _ _ _ $ys)
         let auxDo ←
           `(do let mut s := $toStreamApp:term

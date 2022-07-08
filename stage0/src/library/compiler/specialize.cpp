@@ -948,6 +948,10 @@ class specialize_fn {
         code = m_lctx.mk_lambda(new_let_decls, code);
         code = abstract_spec_ctx(ctx, code);
         lean_trace(name("compiler", "spec_info"), tout() << "specialized code " << n << "\n" << trace_pp_expr(code) << "\n";);
+        if (has_fvar(code)) {
+            /* This is yet another temporary hack. It addresses an assertion violation triggered by test 1293.lean for issue #1293 */
+            return optional<comp_decl>();
+        }
         lean_assert(!has_fvar(code));
         /* We add the auxiliary declaration `n` as a "meta" axiom to the environment.
            This is a hack to make sure we can use `csimp` to simplify `code` and

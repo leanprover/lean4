@@ -93,32 +93,70 @@ structure Context where
   -/
   explicit      : Bool
   /--
-    `true` if we should add a "coercion placeholder" at the result if its type is an `outParam` of some local instance.
-    We also mark the type variable as a `syntheticOpaque
+    If the result type of an application is the `outParam` of some local instance, then special support may be needed
+    because type class resolution interacts poorly with coercions in this kind of situation.
+    This flag enables the special support.
+
+    The idea is quite simple, if the result type is the `outParam` of some local instance, we simply
+    execute `synthesizeSyntheticMVarsUsingDefault`. We added this feature to make sure examples as follows
+    are correctly elaborated.
+    ```lean
+    class GetElem (Cont : Type u) (Idx : Type v) (Elem : outParam (Type w)) where
+      getElem (xs : Cont) (i : Idx) : Elem
+
+    export GetElem (getElem)
+
+    instance : GetElem (Array α) Nat α where
+      getElem xs i := xs.get ⟨i, sorry⟩
+
+    opaque f : Option Bool → Bool
+    opaque g : Bool → Bool
+
+    def bad (xs : Array Bool) : Bool :=
+      let x := getElem xs 0
+      f x && g x
+    ```
+    Without the special support, Lean fails at `g x` saying `x` has type `Option Bool` but is expected to have type `Bool`.
+    From the users point of view this is a bug, since `let x := getElem xs 0` clearly constraints `x` to be `Bool`, but
+    we only obtain this information after we apply the `OfNat` default instance for `0`.
+
+    Before converging to this solution, we have tried to create a "coercion placeholder" when `resultIsOutParamSupport = true`,
+    but it did not work well in practice. For example, it failed in the example above.
   -/
-  coeAtOutParam : Bool
+  resultIsOutParamSupport : Bool
 
 /- Auxiliary structure for elaborating the application `f args namedArgs`. -/
 structure State where
   f                    : Expr
   fType                : Expr
-  args                 : List Arg            -- remaining regular arguments
-  namedArgs            : List NamedArg       -- remaining named arguments to be processed
+  /-- Remaining regular arguments. -/
+  args                 : List Arg
+  /-- remaining named arguments to be processed. -/
+  namedArgs            : List NamedArg
   expectedType?        : Option Expr
   etaArgs              : Array Expr   := #[]
-  toSetErrorCtx        : Array MVarId := #[] -- metavariables that we need the set the error context using the application being built
-  instMVars            : Array MVarId := #[] -- metavariables for the instance implicit arguments that have already been processed
-  -- The following field is used to implement the `propagateExpectedType` heuristic.
-  propagateExpected    : Bool  -- true when expectedType has not been propagated yet
+  /-- Metavariables that we need the set the error context using the application being built. -/
+  toSetErrorCtx        : Array MVarId := #[]
+  /-- Metavariables for the instance implicit arguments that have already been processed. -/
+  instMVars            : Array MVarId := #[]
+  /--
+    The following field is used to implement the `propagateExpectedType` heuristic.
+    It is set to `true` true when `expectedType` still has to be propagated.
+  -/
+  propagateExpected    : Bool
+  /--
+    If the result type may be the `outParam` of some local instance.
+    See comment at `Context.resultIsOutParamSupport`
+   -/
   resultTypeOutParam?  : Option MVarId := none
 
 abbrev M := ReaderT Context (StateRefT State TermElabM)
 
-/- Add the given metavariable to the collection of metavariables associated with instance-implicit arguments. -/
+/-- Add the given metavariable to the collection of metavariables associated with instance-implicit arguments. -/
 private def addInstMVar (mvarId : MVarId) : M Unit :=
   modify fun s => { s with instMVars := s.instMVars.push mvarId }
 
-/-
+/--
   Try to synthesize metavariables are `instMVars` using type class resolution.
   The ones that cannot be synthesized yet are registered.
   Remark: we use this method before trying to apply coercions to function. -/
@@ -128,7 +166,7 @@ def synthesizeAppInstMVars : M Unit := do
   modify fun s => { s with instMVars := #[] }
   Term.synthesizeAppInstMVars instMVars s.f
 
-/- fType may become a forallE after we synthesize pending metavariables. -/
+/-- fType may become a forallE after we synthesize pending metavariables. -/
 private def synthesizePendingAndNormalizeFunType : M Unit := do
   synthesizeAppInstMVars
   synthesizeSyntheticMVars
@@ -150,27 +188,27 @@ private def synthesizePendingAndNormalizeFunType : M Unit := do
           throwInvalidNamedArg namedArg none
       throwError "function expected at{indentExpr s.f}\nterm has type{indentExpr fType}"
 
-/- Normalize and return the function type. -/
+/-- Normalize and return the function type. -/
 private def normalizeFunType : M Expr := do
   let s ← get
   let fType ← whnfForall s.fType
   modify fun s => { s with fType }
   return fType
 
-/- Return the binder name at `fType`. This method assumes `fType` is a function type. -/
+/-- Return the binder name at `fType`. This method assumes `fType` is a function type. -/
 private def getBindingName : M Name := return (← get).fType.bindingName!
 
-/- Return the next argument expected type. This method assumes `fType` is a function type. -/
+/-- Return the next argument expected type. This method assumes `fType` is a function type. -/
 private def getArgExpectedType : M Expr := return (← get).fType.bindingDomain!
 
 def eraseNamedArgCore (namedArgs : List NamedArg) (binderName : Name) : List NamedArg :=
   namedArgs.filter (·.name != binderName)
 
-/- Remove named argument with name `binderName` from `namedArgs`. -/
+/-- Remove named argument with name `binderName` from `namedArgs`. -/
 def eraseNamedArg (binderName : Name) : M Unit :=
   modify fun s => { s with namedArgs := eraseNamedArgCore s.namedArgs binderName }
 
-/-
+/--
   Add a new argument to the result. That is, `f := f arg`, update `fType`.
   This method assumes `fType` is a function type. -/
 private def addNewArg (argName : Name) (arg : Expr) : M Unit := do
@@ -180,7 +218,7 @@ private def addNewArg (argName : Name) (arg : Expr) : M Unit := do
     if let some mvarErrorInfo ← getMVarErrorInfo? mvarId then
       registerMVarErrorInfo { mvarErrorInfo with argName? := argName }
 
-/-
+/--
   Elaborate the given `Arg` and add it to the result. See `addNewArg`.
   Recall that, `Arg` may be wrapping an already elaborated `Expr`. -/
 private def elabAndAddNewArg (argName : Name) (arg : Arg) : M Unit := do
@@ -195,20 +233,20 @@ private def elabAndAddNewArg (argName : Name) (arg : Arg) : M Unit := do
     let arg ← withRef stx <| ensureArgType s.f val expectedType
     addNewArg argName arg
 
-/- Return true if the given type contains `OptParam` or `AutoParams` -/
+/-- Return true if the given type contains `OptParam` or `AutoParams` -/
 private def hasOptAutoParams (type : Expr) : M Bool := do
   forallTelescopeReducing type fun xs _ =>
     xs.anyM fun x => do
       let xType ← inferType x
       return xType.getOptParamDefault?.isSome || xType.getAutoParamTactic?.isSome
 
-/- Return true if `fType` contains `OptParam` or `AutoParams` -/
+/-- Return true if `fType` contains `OptParam` or `AutoParams` -/
 private def fTypeHasOptAutoParams : M Bool := do
   hasOptAutoParams (← get).fType
 
-/- Auxiliary function for retrieving the resulting type of a function application.
+/--
+   Auxiliary function for retrieving the resulting type of a function application.
    See `propagateExpectedType`.
-
    Remark: `(explicit : Bool) == true` when `@` modifier is used. -/
 private partial def getForallBody (explicit : Bool) : Nat → List NamedArg → Expr → Option Expr
   | i, namedArgs, type@(Expr.forallE n d b c) =>
@@ -235,7 +273,7 @@ private def shouldPropagateExpectedTypeFor (nextArg : Arg) : Bool :=
     stx.getKind != ``Lean.Parser.Term.syntheticHole &&
     stx.getKind != ``Lean.Parser.Term.byTactic
 
-/-
+/--
   Auxiliary method for propagating the expected type. We call it as soon as we find the first explict
   argument. The goal is to propagate the expected type in applications of functions such as
   ```lean
@@ -318,7 +356,7 @@ private def propagateExpectedType (arg : Arg) : M Unit := do
                   /- Note that we only set `propagateExpected := false` when propagation has succeeded. -/
                   modify fun s => { s with propagateExpected := false }
 
-/- This method execute after all application arguments have been processed. -/
+/-- This method execute after all application arguments have been processed. -/
 private def finalize : M Expr := do
   let s ← get
   let mut e := s.f
@@ -336,38 +374,37 @@ private def finalize : M Expr := do
   -/
   let eType ← inferType e
   trace[Elab.app.finalize] "after etaArgs, {e} : {eType}"
+  let defaultCont (e : Expr) : M Expr := do
+    synthesizeAppInstMVars
+    return e
   match s.expectedType? with
-  | none              => pure ()
+  | none              => defaultCont e
   | some expectedType =>
-    let shouldCreateCoe ← do
-      /- Recall that `resultTypeOutParam? = some mvarId` if the function result type is the output parameter
-         of a local instance. The value of this parameter may be inferable using other arguments. For example,
-         suppose we have
-         ```lean
-         def add_one {X} [Trait X] [One (Trait.R X)] [HAdd X (Trait.R X) X] (x : X) : X := x + (One.one : (Trait.R X))
-         ```
-         from test `948.lean`. There are multiple ways to infer `X`, and we don't want to mark it as `syntheticOpaque`.
-      -/
-      if let some outParamMVarId := s.resultTypeOutParam? then
-        /- If `eType != mkMVar outParamMVarId`, then the
-           function is partially applied, and we do not create coercion placeholder. -/
-        if !(← isExprMVarAssigned outParamMVarId) && eType.isMVar && eType.mvarId! == outParamMVarId then
-          setMVarKind outParamMVarId .syntheticOpaque
-          pure true
-        else
-          pure false
+    /- Recall that `resultTypeOutParam? = some mvarId` if the function result type is the output parameter
+       of a local instance. The value of this parameter may be inferable using other arguments. For example,
+       suppose we have
+       ```lean
+       def add_one {X} [Trait X] [One (Trait.R X)] [HAdd X (Trait.R X) X] (x : X) : X := x + (One.one : (Trait.R X))
+       ```
+       from test `948.lean`. There are multiple ways to infer `X`, and we don't want to mark it as `syntheticOpaque`.
+    -/
+    if let some outParamMVarId := s.resultTypeOutParam? then
+      synthesizeAppInstMVars
+      /- If `eType != mkMVar outParamMVarId`, then the
+         function is partially applied, and we do not apply default instances. -/
+      if !(← isExprMVarAssigned outParamMVarId) && eType.isMVar && eType.mvarId! == outParamMVarId then
+        synthesizeSyntheticMVarsUsingDefault
+        return e
       else
-        pure false
-    if shouldCreateCoe then
-      e ← mkCoe expectedType eType e
+        return e
     else
       -- Try to propagate expected type. Ignore if types are not definitionally equal, caller must handle it.
       trace[Elab.app.finalize] "expected type: {expectedType}"
       discard <| isDefEq expectedType eType
-  synthesizeAppInstMVars
-  return e
+      synthesizeAppInstMVars
+      return e
 
-/- Return true if there is a named argument that depends on the next argument. -/
+/-- Return `true` if there is a named argument that depends on the next argument. -/
 private def anyNamedArgDependsOnCurrent : M Bool := do
   let s ← get
   if s.namedArgs.isEmpty then
@@ -383,12 +420,12 @@ private def anyNamedArgDependsOnCurrent : M Bool := do
       return false
 
 
-/- Return true if there are regular or named arguments to be processed. -/
+/-- Return `true` if there are regular or named arguments to be processed. -/
 private def hasArgsToProcess : M Bool := do
   let s ← get
   return !s.args.isEmpty || !s.namedArgs.isEmpty
 
-/- Return `true` if the next argument at `args` is of the form `_` -/
+/-- Return `true` if the next argument at `args` is of the form `_` -/
 private def isNextArgHole : M Bool := do
   match (← get).args with
   | Arg.stx (Syntax.node _ ``Lean.Parser.Term.hole _) :: _ => pure true
@@ -417,7 +454,7 @@ private def isNextArgHole : M Bool := do
   Remark: if `coeAtOutParam` is `false`, this method returns `false`.
 -/
 private partial def isNextOutParamOfLocalInstanceAndResult : M Bool := do
-  if !(← read).coeAtOutParam then
+  if !(← read).resultIsOutParamSupport then
     return false
   let type := (← get).fType.bindingBody!
   unless isResultType type 0 do
@@ -483,8 +520,8 @@ mutual
       let arg ← mkFreshExprMVar argType
       /- When the result type is an output parameter, we don't want to propagate the expected type.
          So, we just mark `propagateExpected := false` to disable it.
-         At `finalize`, we check whether `arg` is still unassigned and promote it to a `syntheticOpaque`
-         to make sure it is not assigned but type inference until it is synthesized by type inference. -/
+         At `finalize`, we check whether `arg` is still unassigned, if it is, we apply default instances,
+         and try to synthesize pending mvars. -/
       modify fun s => { s with resultTypeOutParam? := some arg.mvarId!, propagateExpected := false }
       pure arg
     else
@@ -612,16 +649,16 @@ private def propagateExpectedTypeFor (f : Expr) : TermElabM Bool :=
   | _ => return true
 
 def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
-    (expectedType? : Option Expr) (explicit ellipsis : Bool) (coeAtOutParam := true) : TermElabM Expr := do
+    (expectedType? : Option Expr) (explicit ellipsis : Bool) (resultIsOutParamSupport := true) : TermElabM Expr := do
   -- Coercions must be available to use this flag.
-  -- If `@` is used (i.e., `explicit = true`), we disable `coeAtOutParam`.
-  let coeAtOutParam := ((← getEnv).contains ``Lean.Internal.coeM) && coeAtOutParam && !explicit
+  -- If `@` is used (i.e., `explicit = true`), we disable `resultIsOutParamSupport`.
+  let resultIsOutParamSupport := ((← getEnv).contains ``Lean.Internal.coeM) && resultIsOutParamSupport && !explicit
   let fType ← inferType f
   let fType ← instantiateMVars fType
   trace[Elab.app.args] "explicit: {explicit}, {f} : {fType}"
   unless namedArgs.isEmpty && args.isEmpty do
     tryPostponeIfMVar fType
-  ElabAppArgs.main.run { explicit, ellipsis, coeAtOutParam } |>.run' {
+  ElabAppArgs.main.run { explicit, ellipsis, resultIsOutParamSupport } |>.run' {
     args := args.toList
     expectedType?, f, fType
     namedArgs := namedArgs.toList

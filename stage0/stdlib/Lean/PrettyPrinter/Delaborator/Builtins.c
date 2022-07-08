@@ -302,6 +302,7 @@ static lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabSigma___c
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabCond___lambda__1___closed__2;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_reifyName___closed__4;
 static lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabLam___closed__1;
+LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_PrettyPrinter_Delaborator_unexpandStructureInstance___spec__7(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabPSigma___closed__3;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabNamedPattern___closed__1;
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_delabAppMatch___spec__12(lean_object*);
@@ -706,6 +707,7 @@ static lean_object* l_Lean_PrettyPrinter_Delaborator_delabProj___closed__1;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabMVar___closed__1;
 lean_object* l_List_redLength___rarg(lean_object*);
 static lean_object* l_Array_mapIdxM_map___at___private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_delabPatterns___spec__5___closed__1;
+LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_PrettyPrinter_Delaborator_unexpandStructureInstance___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabLetFun___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabOfNat___closed__2;
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_PrettyPrinter_Delaborator_delabForall___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -9143,6 +9145,30 @@ return x_57;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_PrettyPrinter_Delaborator_unexpandStructureInstance___spec__7(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; 
+x_5 = lean_usize_dec_lt(x_3, x_2);
+if (x_5 == 0)
+{
+return x_4;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; 
+x_6 = lean_array_uget(x_4, x_3);
+x_7 = lean_unsigned_to_nat(0u);
+x_8 = lean_array_uset(x_4, x_3, x_7);
+x_9 = 1;
+x_10 = lean_usize_add(x_3, x_9);
+x_11 = lean_array_uset(x_8, x_3, x_6);
+x_3 = x_10;
+x_4 = x_11;
+goto _start;
+}
+}
+}
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_unexpandStructureInstance___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -9627,7 +9653,7 @@ x_53 = lean_usize_of_nat(x_52);
 lean_dec(x_52);
 x_54 = 0;
 x_55 = l_Lean_PrettyPrinter_Delaborator_unexpandStructureInstance___lambda__3___closed__12;
-x_56 = l_Array_mapMUnsafe_map___at_Lean_PrettyPrinter_Delaborator_unexpandStructureInstance___spec__5(x_55, x_53, x_54, x_41);
+x_56 = l_Array_mapMUnsafe_map___at_Lean_PrettyPrinter_Delaborator_unexpandStructureInstance___spec__7(x_55, x_53, x_54, x_41);
 x_57 = l_Lean_PrettyPrinter_Delaborator_delabConst___closed__12;
 x_58 = l_Lean_mkSepArray(x_56, x_57);
 lean_dec(x_56);
@@ -9712,7 +9738,7 @@ x_94 = lean_usize_of_nat(x_93);
 lean_dec(x_93);
 x_95 = 0;
 x_96 = l_Lean_PrettyPrinter_Delaborator_unexpandStructureInstance___lambda__3___closed__12;
-x_97 = l_Array_mapMUnsafe_map___at_Lean_PrettyPrinter_Delaborator_unexpandStructureInstance___spec__5(x_96, x_94, x_95, x_41);
+x_97 = l_Array_mapMUnsafe_map___at_Lean_PrettyPrinter_Delaborator_unexpandStructureInstance___spec__7(x_96, x_94, x_95, x_41);
 x_98 = l_Lean_PrettyPrinter_Delaborator_delabConst___closed__12;
 x_99 = l_Lean_mkSepArray(x_97, x_98);
 lean_dec(x_97);
@@ -9916,6 +9942,19 @@ lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_17;
+}
+}
+LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_PrettyPrinter_Delaborator_unexpandStructureInstance___spec__7___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+size_t x_5; size_t x_6; lean_object* x_7; 
+x_5 = lean_unbox_usize(x_2);
+lean_dec(x_2);
+x_6 = lean_unbox_usize(x_3);
+lean_dec(x_3);
+x_7 = l_Array_mapMUnsafe_map___at_Lean_PrettyPrinter_Delaborator_unexpandStructureInstance___spec__7(x_1, x_5, x_6, x_4);
+lean_dec(x_1);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_unexpandStructureInstance___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {

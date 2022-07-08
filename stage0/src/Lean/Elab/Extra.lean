@@ -38,9 +38,13 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
         catch _ =>
           tryPostpone; throwError "failed to construct 'ForIn' instance for collection{indentExpr colType}\nand monad{indentExpr m}"
         match (← trySynthInstance forInInstance) with
-        | LOption.some _   =>
+        | LOption.some inst =>
           let forInFn ← mkConst ``forIn
-          elabAppArgs forInFn #[] #[Arg.stx col, Arg.stx init, Arg.stx body] expectedType? (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
+          elabAppArgs forInFn
+            (namedArgs := #[{ name := `m, val := Arg.expr m}, { name := `α, val := Arg.expr elemType }, { name := `self, val := Arg.expr inst }])
+            (args := #[Arg.stx col, Arg.stx init, Arg.stx body])
+            (expectedType? := expectedType?)
+            (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
         | LOption.undef    => tryPostpone; throwForInFailure forInInstance
         | LOption.none     => throwForInFailure forInInstance
   | _ => throwUnsupportedSyntax
@@ -62,9 +66,13 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
           catch _ =>
             tryPostpone; throwError "failed to construct `ForIn'` instance for collection{indentExpr colType}\nand monad{indentExpr m}"
         match (← trySynthInstance forInInstance) with
-        | LOption.some _   =>
+        | LOption.some inst  =>
           let forInFn ← mkConst ``forIn'
-          elabAppArgs forInFn #[] #[Arg.expr colFVar, Arg.stx init, Arg.stx body] expectedType? (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
+          elabAppArgs forInFn
+            (namedArgs := #[{ name := `m, val := Arg.expr m}, { name := `α, val := Arg.expr elemType}, { name := `self, val := Arg.expr inst }])
+            (args := #[Arg.expr colFVar, Arg.stx init, Arg.stx body])
+            (expectedType? := expectedType?)
+            (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
         | LOption.undef    => tryPostpone; throwForInFailure forInInstance
         | LOption.none     => throwForInFailure forInInstance
   | _ => throwUnsupportedSyntax

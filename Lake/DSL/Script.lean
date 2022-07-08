@@ -11,17 +11,17 @@ namespace Lake.DSL
 open Lean Parser Command
 
 syntax scriptDeclSpec :=
-  ident (ppSpace "(" ident+ ")")? (declValSimple <|> declValDo)
+  ident (ppSpace "(" ident (" : " term)? ")")? (declValSimple <|> declValDo)
 
 scoped syntax (name := scriptDecl)
 (docComment)? "script " scriptDeclSpec : command
 
 @[macro scriptDecl]
 def expandScriptDecl : Macro
-| `($[$doc?]? script $id:ident $[($args?*)]? do $seq $[$wds?]?) => do
-  let args := args?.getD (α := Array FunBinder) #[← `(Term.hole|_)]
-  `($[$doc?]? @[«script»] def $id : ScriptFn := fun $args* => do $seq $[$wds?]?)
-| `($[$doc?]? script $id:ident $[($args?*)]? := $defn $[$wds?]?) => do
-  let args := args?.getD (α := Array FunBinder) #[← `(Term.hole|_)]
-  `($[$doc?]? @[«script»] def $id : ScriptFn := fun $args* => $defn $[$wds?]?)
+| `($[$doc?]? script $id:ident $[($args? $[: $ty??]?)]? do $seq $[$wds?]?) => do
+  `($[$doc?]? script $id:ident $[($args? $[: $ty??]?)]? := do $seq $[$wds?]?)
+| `($[$doc?]? script $id:ident $[($args? $[: $ty??]?)]? := $defn $[$wds?]?) => do
+  let args := args?.getD (α := Syntax.Term) (← `(_))
+  let ty := ty??.bind (·) |>.getD (← `(_))
+  `($[$doc?]? @[«script»] def $id : ScriptFn := fun ($args : $ty) => $defn $[$wds?]?)
 | stx => Macro.throwErrorAt stx "ill-formed script declaration"

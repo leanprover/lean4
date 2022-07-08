@@ -20,8 +20,8 @@ jobs:
         include:
           - name: Nix Linux
             os: ubuntu-latest
-          - name: Nix macOS
-            os: macos-latest
+          #- name: Nix macOS
+          #  os: macos-latest
       # complete all jobs
       fail-fast: false
     name: ${{ matrix.name }}

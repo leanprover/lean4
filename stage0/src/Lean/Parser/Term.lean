@@ -131,9 +131,8 @@ Note that we did not add a `explicitShortBinder` parser since `(α) → α → �
 -/
 @[builtinTermParser] def depArrow := leading_parser:25 bracketedBinder true >> unicodeSymbol " → " " -> " >> termParser
 
-def simpleBinder := leading_parser many1 binderIdent >> optType
 @[builtinTermParser]
-def «forall» := leading_parser:leadPrec unicodeSymbol "∀" "forall" >> many1 (ppSpace >> (simpleBinder <|> bracketedBinder)) >> ", " >> termParser
+def «forall» := leading_parser:leadPrec unicodeSymbol "∀" "forall" >> many1 (ppSpace >> (binderIdent <|> bracketedBinder)) >> optType >> ", " >> termParser
 
 def matchAlt (rhsParser : Parser := termParser) : Parser :=
   leading_parser (withAnonymousAntiquot := false)
@@ -162,10 +161,9 @@ def motive := leading_parser atomic ("(" >> nonReservedSymbol "motive" >> " := "
 
 def funImplicitBinder := withAntiquot (mkAntiquot "implicitBinder" ``implicitBinder) <| atomic (lookahead ("{" >> many1 binderIdent >> (symbol " : " <|> "}"))) >> implicitBinder
 def funStrictImplicitBinder := atomic (lookahead (strictImplicitLeftBracket >> many1 binderIdent >> (symbol " : " <|> strictImplicitRightBracket))) >> strictImplicitBinder
-def funSimpleBinder   := withAntiquot (mkAntiquot "simpleBinder" ``simpleBinder) <| atomic (lookahead (many1 binderIdent >> " : ")) >> simpleBinder
-def funBinder : Parser := withAntiquot (mkAntiquot "funBinder" `Lean.Parser.Term.funBinder (isPseudoKind := true)) (funStrictImplicitBinder <|> funImplicitBinder <|> instBinder <|> funSimpleBinder <|> termParser maxPrec)
+def funBinder : Parser := withAntiquot (mkAntiquot "funBinder" `Lean.Parser.Term.funBinder (isPseudoKind := true)) (funStrictImplicitBinder <|> funImplicitBinder <|> instBinder <|> termParser maxPrec)
 -- NOTE: we disable anonymous antiquotations to ensure that `fun $b => ...` remains a `term` antiquotation
-def basicFun : Parser := leading_parser (withAnonymousAntiquot := false) ppGroup (many1 (ppSpace >> funBinder) >> " =>") >> ppSpace >> termParser
+def basicFun : Parser := leading_parser (withAnonymousAntiquot := false) ppGroup (many1 (ppSpace >> funBinder) >> optType >> " =>") >> ppSpace >> termParser
 @[builtinTermParser] def «fun» := leading_parser:maxPrec ppAllowUngrouped >> unicodeSymbol "λ" "fun" >> (basicFun <|> matchAlts)
 
 def optExprPrecedence := optional (atomic ":" >> termParser maxPrec)
@@ -179,11 +177,7 @@ def withAnonymousAntiquot := leading_parser atomic ("(" >> nonReservedSymbol "wi
 -- note that we cannot use ```"``"``` as a new token either because it would break `precheckedQuot`
 @[builtinTermParser] def doubleQuotedName := leading_parser "`" >> checkNoWsBefore >> rawCh '`' (trailingWs := false) >> ident
 
--- same shape and (antiquotation) kind as `simpleBinder`
-def simpleBinderWithoutType := nodeWithAntiquot "simpleBinder" ``simpleBinder (anonymous := true)
-  (many1 binderIdent >> pushNone)
-
-def letIdBinder := withAntiquot (mkAntiquot "letIdBinder" `Lean.Parser.Term.letIdBinder (isPseudoKind := true)) (simpleBinderWithoutType <|> bracketedBinder)
+def letIdBinder := withAntiquot (mkAntiquot "letIdBinder" `Lean.Parser.Term.letIdBinder (isPseudoKind := true)) (binderIdent <|> bracketedBinder)
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
 def letIdLhs    : Parser := ident >> notFollowedBy (checkNoWsBefore "" >> "[") "space is required before instance '[...]' binders to distinguish them from array updates `let x[i] := e; ...`" >> many (ppSpace >> letIdBinder) >> optType
 def letIdDecl   := leading_parser (withAnonymousAntiquot := false) atomic (letIdLhs >> " := ") >> termParser
@@ -210,7 +204,7 @@ def letDecl     := leading_parser (withAnonymousAntiquot := false) notFollowedBy
 @[builtinTermParser] def «let_tmp» := leading_parser:leadPrec withPosition ("let_tmp " >> letDecl) >> optSemicolon termParser
 
 instance : Coe (TSyntax ``letIdBinder) (TSyntax ``funBinder) where
-  coe stx := ⟨stx⟩  -- `simpleBinderWithoutType` prevents using a proper quotation for this
+  coe stx := ⟨stx⟩
 
 -- like `let_fun` but with optional name
 def haveIdLhs    := optional (ident >> many (ppSpace >> letIdBinder)) >> optType

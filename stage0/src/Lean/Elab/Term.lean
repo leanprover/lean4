@@ -166,13 +166,17 @@ end Tactic
 namespace Term
 
 structure Context where
-  declName?       : Option Name     := none
-  macroStack      : MacroStack      := []
+  declName? : Option Name := none
+  /--
+    Map `.auxDecl` local declarations used to encode recursive declarations to their full-names.
+  -/
+  auxDeclToFullName : FVarIdMap Name  := {}
+  macroStack        : MacroStack      := []
   /--
      When `mayPostpone == true`, an elaboration function may interrupt its execution by throwing `Exception.postpone`.
      The function `elabTerm` catches this exception and creates fresh synthetic metavariable `?m`, stores `?m` in
      the list of pending synthetic metavariables, and returns `?m`. -/
-  mayPostpone     : Bool            := true
+  mayPostpone : Bool := true
   /--
      When `errToSorry` is set to true, the method `elabTerm` catches
      exceptions and converts them into synthetic `sorry`s.
@@ -181,7 +185,7 @@ structure Context where
      `errToSorry` remains `false` for all elaboration functions invoked by `F`.
      That is, it is safe to transition `errToSorry` from `true` to `false`, but
      we must not set `errToSorry` to `true` when it is currently set to `false`. -/
-  errToSorry      : Bool            := true
+  errToSorry : Bool := true
   /--
      When `autoBoundImplicit` is set to true, instead of producing
      an "unknown identifier" error for unbound variables, we generate an
@@ -431,6 +435,15 @@ def withLevelNames (levelNames : List Name) (x : TermElabM α) : TermElabM α :=
   let levelNamesSaved ← getLevelNames
   setLevelNames levelNames
   try x finally setLevelNames levelNamesSaved
+
+/--
+  Declare an auxiliary local declaration `shortDeclName : type` for elaborating recursive declaration `declName`,
+  update the mapping `auxDeclToFullName`, and then execute `k`.
+-/
+def withAuxDecl (shortDeclName : Name) (type : Expr) (declName : Name) (k : Expr → TermElabM α) : TermElabM α :=
+  withLocalDecl shortDeclName BinderInfo.auxDecl type fun x =>
+    withReader (fun ctx => { ctx with auxDeclToFullName := ctx.auxDeclToFullName.insert x.fvarId! declName }) do
+      k x
 
 /--
   Execute `x` without converting errors (i.e., exceptions) to `sorry` applications.
@@ -1567,25 +1580,96 @@ def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
 
 def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
   let lctx ← getLCtx
+  let auxDeclToFullName := (← read).auxDeclToFullName
+  let currNamespace ← getCurrNamespace
   let view := extractMacroScopes n
-  let rec loop (n : Name) (projs : List String) :=
-    match lctx.findFromUserName? { view with name := n }.review with
-    | some decl =>
-      if decl.isAuxDecl && !projs.isEmpty then
-        /- We do not consider dot notation for local decls corresponding to recursive functions being defined.
-           The following example would not be elaborated correctly without this case.
-           ```
-            def foo.aux := 1
-            def foo : Nat → Nat
-              | n => foo.aux -- should not be interpreted as `(foo).bar`
-           ```
-         -/
-        none
+  /- Simple case. "Match" function for regular local declarations. -/
+  let matchLocaDecl? (localDecl : LocalDecl) (givenName : Name) : Option LocalDecl := do
+    guard (localDecl.userName == givenName)
+    return localDecl
+  /- "Match" function for auxiliary declarations that correspond to recursive definitions being defined. -/
+  let matchAuxRecDecl? (localDecl : LocalDecl) (fullDeclName : Name) (givenNameView : MacroScopesView) : Option LocalDecl := do
+    let fullDeclView := extractMacroScopes fullDeclName
+    /- First cleanup private name annotations -/
+    let fullDeclView := { fullDeclView with name := (privateToUserName? fullDeclView.name).getD fullDeclView.name }
+    let fullDeclName := fullDeclView.review
+    let localDeclNameView := extractMacroScopes localDecl.userName
+    /- If the current namespace is a prefix of the full declaration name,
+       we use a relaxed matching test where we must satisfy the following conditions
+       - The local declaration is a suffix of the given name.
+       - The given name is a suffix of the full declaration.
+
+       Recall the `let rec`/`where` declaration naming convention. For example, suppose we have
+       ```
+       def Foo.Bla.f ... :=
+         ... go ...
+       where
+          go ... := ...
+       ```
+       The current namespace is `Foo.Bla`, and the full name for `go` is `Foo.Bla.f.g`, but we want to
+       refer to it using just `go`. It is also accepted to refer to it using `f.go`, `Bla.f.go`, etc.
+
+    -/
+    if currNamespace.isPrefixOf fullDeclName then
+      /- Relaxed mode that allows us to access `let rec` declarations using shorter names -/
+      guard (localDeclNameView.isSuffixOf givenNameView)
+      guard (givenNameView.isSuffixOf fullDeclView)
+      return localDecl
+    else
+      /-
+         This case is only reachable when using mutual declarations. It is the standard
+         algorithm we using at `resolveGlobalName` for processing namespaces.
+
+         The current solution also has a limitation when using `def _root_` in a mutual block.
+         The non `def _root_` declarations may update the namespace. See the following example:
+         ```
+         mutual
+           def Foo.f ... := ...
+           def _root_.g ... := ...
+             let rec h := ...
+             ...
+         end
+         ```
+         `def Foo.f` updates the namespace. Then, even when processing `def _root_.g ...`
+         the condition `currNamespace.isPrefixOf fullDeclName` does not hold.
+         This is not a big problem because we are planning to modify how we handle the mutual block in the future.
+      -/
+      let rec go (ns : Name) : Option LocalDecl := do
+        if { givenNameView with name := ns ++ givenNameView.name }.review == fullDeclName then
+          return localDecl
+        match ns with
+        | .str pre .. => go pre
+        | _ => failure
+      return (← go currNamespace)
+  /- Traverse the local context backwards looking for match `givenNameView`.
+     If `skipAuxDecl` we ignore `auxDecl` local declarations. -/
+  let findLocalDecl? (givenNameView : MacroScopesView) (skipAuxDecl : Bool) : Option LocalDecl :=
+    let givenName := givenNameView.review
+    lctx.decls.findSomeRev? fun localDecl? => do
+      let localDecl ← localDecl?
+      if localDecl.binderInfo == .auxDecl then
+        guard (not skipAuxDecl)
+        if let some fullDeclName := auxDeclToFullName.find? localDecl.fvarId then
+          matchAuxRecDecl? localDecl fullDeclName givenNameView
+        else
+          matchLocaDecl? localDecl givenName
       else
-        some (decl.toExpr, projs)
-    | none      => match n with
-      | Name.str pre s _ => loop pre (s::projs)
-      | _                => none
+        matchLocaDecl? localDecl givenName
+  let rec loop (n : Name) (projs : List String) :=
+    let givenNameView := { view with name := n }
+    /- We do not consider dot notation for local decls corresponding to recursive functions being defined.
+       The following example would not be elaborated correctly without this case.
+       ```
+        def foo.aux := 1
+        def foo : Nat → Nat
+          | n => foo.aux -- should not be interpreted as `(foo).bar`
+       ```
+    -/
+    match findLocalDecl? givenNameView (skipAuxDecl := not projs.isEmpty) with
+    | some decl => some (decl.toExpr, projs)
+    | none => match n with
+      | .str pre s _ => loop pre (s::projs)
+      | _ => none
   return loop view.name []
 
 /-- Return true iff `stx` is a `Syntax.ident`, and it is a local variable. -/

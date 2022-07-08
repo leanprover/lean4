@@ -1907,7 +1907,7 @@ x_11 = l_Lean_Elab_Tactic_getMainGoal(x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_
 if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_12; 
-x_12 = lean_ctor_get(x_4, 6);
+x_12 = lean_ctor_get(x_4, 7);
 lean_inc(x_12);
 if (lean_obj_tag(x_12) == 0)
 {

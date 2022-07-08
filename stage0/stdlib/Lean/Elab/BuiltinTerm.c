@@ -3643,7 +3643,7 @@ x_14 = l_Lean_Name_isAnonymous(x_13);
 if (x_14 == 0)
 {
 uint8_t x_15; 
-x_15 = lean_ctor_get_uint8(x_3, sizeof(void*)*7 + 6);
+x_15 = lean_ctor_get_uint8(x_3, sizeof(void*)*8 + 6);
 if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
@@ -4214,7 +4214,7 @@ return x_149;
 else
 {
 uint8_t x_150; 
-x_150 = lean_ctor_get_uint8(x_3, sizeof(void*)*7 + 6);
+x_150 = lean_ctor_get_uint8(x_3, sizeof(void*)*8 + 6);
 if (x_150 == 0)
 {
 uint8_t x_151; lean_object* x_152; lean_object* x_153; lean_object* x_154; lean_object* x_155; lean_object* x_156; uint8_t x_157; 
@@ -7140,7 +7140,7 @@ _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
 x_9 = lean_ctor_get(x_6, 5);
-x_10 = lean_ctor_get(x_2, 1);
+x_10 = lean_ctor_get(x_2, 2);
 lean_inc(x_10);
 lean_inc(x_10);
 x_11 = l_Lean_Elab_getBetterRef(x_9, x_10);
@@ -16397,7 +16397,7 @@ _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
 x_9 = lean_ctor_get(x_6, 5);
-x_10 = lean_ctor_get(x_2, 1);
+x_10 = lean_ctor_get(x_2, 2);
 lean_inc(x_10);
 lean_inc(x_10);
 x_11 = l_Lean_Elab_getBetterRef(x_9, x_10);

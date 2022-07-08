@@ -380,13 +380,13 @@ theorem decide_false_eq_false (h : Decidable False) : @decide False h = false :=
   decide p (h := d)
 
 theorem toBoolUsing_eq_true {p : Prop} (d : Decidable p) (h : p) : toBoolUsing d = true :=
-  decide_eq_true (s := d) h
+  decide_eq_true (inst := d) h
 
 theorem ofBoolUsing_eq_true {p : Prop} {d : Decidable p} (h : toBoolUsing d = true) : p :=
-  of_decide_eq_true (s := d) h
+  of_decide_eq_true (inst := d) h
 
 theorem ofBoolUsing_eq_false {p : Prop} {d : Decidable p} (h : toBoolUsing d = false) : ¬ p :=
-  of_decide_eq_false (s := d) h
+  of_decide_eq_false (inst := d) h
 
 instance : Decidable True :=
   isTrue trivial

@@ -206,7 +206,7 @@ where
     extra state, and return it. Otherwise, we just return `stx`. -/
   go : Syntax → StateT (Array Ident) MacroM Syntax
     | stx@`(($(_))) => pure stx
-    | stx@`(·) => withFreshMacroScope do
+    | `(·) => withFreshMacroScope do
       let id : Ident ← `(a)
       modify fun s => s.push id
       pure id

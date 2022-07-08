@@ -172,14 +172,14 @@ private def elabHeader (views : Array InductiveView) : TermElabM (Array ElabHead
 private partial def withInductiveLocalDecls (rs : Array ElabHeaderResult) (x : Array Expr → Array Expr → TermElabM α) : TermElabM α := do
   let namesAndTypes ← rs.mapM fun r => do
     let type ← mkTypeFor r
-    pure (r.view.shortDeclName, type)
+    pure (r.view.declName, r.view.shortDeclName, type)
   let r0     := rs[0]!
   let params := r0.params
   withLCtx r0.lctx r0.localInsts <| withRef r0.view.ref do
     let rec loop (i : Nat) (indFVars : Array Expr) := do
       if h : i < namesAndTypes.size then
-        let (id, type) := namesAndTypes.get ⟨i, h⟩
-        withLocalDecl id BinderInfo.auxDecl type fun indFVar => loop (i+1) (indFVars.push indFVar)
+        let (declName, shortDeclName, type) := namesAndTypes.get ⟨i, h⟩
+        Term.withAuxDecl shortDeclName type declName fun indFVar => loop (i+1) (indFVars.push indFVar)
       else
         x params indFVars
     loop 0 #[]

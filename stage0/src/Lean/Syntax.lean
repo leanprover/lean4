@@ -425,9 +425,9 @@ def getAntiquotTerm (stx : Syntax) : Syntax :=
 
 /-- Return kind of parser expected at this antiquotation, and whether it is a "pseudo" kind (see `mkAntiquot`). -/
 def antiquotKind? : Syntax → Option (SyntaxNodeKind × Bool)
-  | Syntax.node _ (Name.str (Name.str k "pseudo" _) "antiquot" _) args => (k, true)
-  | Syntax.node _ (Name.str k                       "antiquot" _) args => (k, false)
-  | _                                                                  => none
+  | Syntax.node _ (Name.str (Name.str k "pseudo" _) "antiquot" _) _ => (k, true)
+  | Syntax.node _ (Name.str k                       "antiquot" _) _ => (k, false)
+  | _                                                               => none
 
 def antiquotKinds (stx : Syntax) : List (SyntaxNodeKind × Bool) :=
   if stx.isOfKind choiceKind then

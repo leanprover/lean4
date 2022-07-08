@@ -281,10 +281,11 @@ abbrev DecidableRel {α : Sort u} (r : α → α → Prop) :=
 abbrev DecidableEq (α : Sort u) :=
   (a b : α) → Decidable (Eq a b)
 
-def decEq {α : Sort u} [s : DecidableEq α] (a b : α) : Decidable (Eq a b) :=
-  s a b
+def decEq {α : Sort u} [inst : DecidableEq α] (a b : α) : Decidable (Eq a b) :=
+  inst a b
 
-theorem decide_eq_true : [s : Decidable p] → p → Eq (decide p) true
+set_option linter.unusedVariables false in
+theorem decide_eq_true : [inst : Decidable p] → p → Eq (decide p) true
   | isTrue  _, _   => rfl
   | isFalse h₁, h₂ => absurd h₂ h₁
 
@@ -292,18 +293,18 @@ theorem decide_eq_false : [Decidable p] → Not p → Eq (decide p) false
   | isTrue  h₁, h₂ => absurd h₁ h₂
   | isFalse _, _   => rfl
 
-theorem of_decide_eq_true [s : Decidable p] : Eq (decide p) true → p := fun h =>
-  match (generalizing := false) s with
+theorem of_decide_eq_true [inst : Decidable p] : Eq (decide p) true → p := fun h =>
+  match (generalizing := false) inst with
   | isTrue  h₁ => h₁
   | isFalse h₁ => absurd h (ne_true_of_eq_false (decide_eq_false h₁))
 
-theorem of_decide_eq_false [s : Decidable p] : Eq (decide p) false → Not p := fun h =>
-  match (generalizing := false) s with
+theorem of_decide_eq_false [inst : Decidable p] : Eq (decide p) false → Not p := fun h =>
+  match (generalizing := false) inst with
   | isTrue  h₁ => absurd h (ne_false_of_eq_true (decide_eq_true h₁))
   | isFalse h₁ => h₁
 
-theorem of_decide_eq_self_eq_true [s : DecidableEq α] (a : α) : Eq (decide (Eq a a)) true :=
-  match (generalizing := false) s a a with
+theorem of_decide_eq_self_eq_true [inst : DecidableEq α] (a : α) : Eq (decide (Eq a a)) true :=
+  match (generalizing := false) inst a a with
   | isTrue  _  => rfl
   | isFalse h₁ => absurd rfl h₁
 

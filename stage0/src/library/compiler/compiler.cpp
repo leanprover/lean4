@@ -33,10 +33,8 @@ Author: Leonardo de Moura
 #include "library/compiler/ir.h"
 
 namespace lean {
-static name * g_codegen = nullptr;
 static name * g_extract_closed = nullptr;
 
-bool is_codegen_enabled(options const & opts) { return opts.get_bool(*g_codegen, true); }
 bool is_extract_closed_enabled(options const & opts) { return opts.get_bool(*g_extract_closed, true); }
 
 static name get_real_name(name const & n) {
@@ -171,9 +169,6 @@ bool is_matcher(environment const & env, comp_decls const & ds) {
 }
 
 environment compile(environment const & env, options const & opts, names cs) {
-    if (!is_codegen_enabled(opts))
-        return env;
-
     /* Do not generate code for irrelevant decls */
     cs = filter(cs, [&](name const & c) { return !is_irrelevant_type(env, env.get(c).get_type());});
     if (empty(cs)) return env;
@@ -288,11 +283,8 @@ extern "C" LEAN_EXPORT object * lean_compile_decl(object * env, object * opts, o
 }
 
 void initialize_compiler() {
-    g_codegen        = new name("codegen");
-    mark_persistent(g_codegen->raw());
     g_extract_closed = new name{"compiler", "extract_closed"};
     mark_persistent(g_extract_closed->raw());
-    register_bool_option(*g_codegen, true, "(compiler) enable/disable code generation");
     register_bool_option(*g_extract_closed, true, "(compiler) enable/disable closed term caching");
     register_trace_class("compiler");
     register_trace_class({"compiler", "input"});
@@ -335,7 +327,6 @@ void initialize_compiler() {
 }
 
 void finalize_compiler() {
-    delete g_codegen;
     delete g_extract_closed;
 }
 }

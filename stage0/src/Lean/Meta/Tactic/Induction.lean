@@ -134,7 +134,6 @@ def induction (mvarId : MVarId) (majorFVarId : FVarId) (recursorName : Name) (gi
         match paramPos? with
         | none          => pure ()
         | some paramPos => if paramPos ≥ majorTypeArgs.size then throwTacticEx `induction mvarId m!"major premise type is ill-formed{indentExpr majorType}"
-      let mctx ← getMCtx
       let indices ← recursorInfo.indicesPos.toArray.mapM fun idxPos => do
         if idxPos ≥ majorTypeArgs.size then throwTacticEx `induction mvarId m!"major premise type is ill-formed{indentExpr majorType}"
         let idx := majorTypeArgs.get! idxPos

@@ -375,13 +375,16 @@ def notFollowedBy.parenthesizer (_ : Parenthesizer) : Parenthesizer :=
 def andthen.parenthesizer (p1 p2 : Parenthesizer) : Parenthesizer :=
   p2 *> p1
 
-@[combinatorParenthesizer Lean.Parser.node]
-def node.parenthesizer (k : SyntaxNodeKind) (p : Parenthesizer) : Parenthesizer := do
+def checkKind (k : SyntaxNodeKind) : Parenthesizer := do
   let stx ← getCur
   if k != stx.getKind then
     trace[PrettyPrinter.parenthesize.backtrack] "unexpected node kind '{stx.getKind}', expected '{k}'"
     -- HACK; see `orelse.parenthesizer`
     throwBacktrack
+
+@[combinatorParenthesizer Lean.Parser.node]
+def node.parenthesizer (k : SyntaxNodeKind) (p : Parenthesizer) : Parenthesizer := do
+  checkKind k
   visitArgs p
 
 @[combinatorParenthesizer Lean.Parser.checkPrec]
@@ -399,11 +402,7 @@ def leadingNode.parenthesizer (k : SyntaxNodeKind) (prec : Nat) (p : Parenthesiz
 
 @[combinatorParenthesizer Lean.Parser.trailingNode]
 def trailingNode.parenthesizer (k : SyntaxNodeKind) (prec lhsPrec : Nat) (p : Parenthesizer) : Parenthesizer := do
-  let stx ← getCur
-  if k != stx.getKind then
-    trace[PrettyPrinter.parenthesize.backtrack] "unexpected node kind '{stx.getKind}', expected '{k}'"
-    -- HACK; see `orelse.parenthesizer`
-    throwBacktrack
+  checkKind k
   visitArgs do
     p
     addPrecCheck prec
@@ -420,7 +419,7 @@ def trailingNode.parenthesizer (k : SyntaxNodeKind) (prec lhsPrec : Nat) (p : Pa
 @[combinatorParenthesizer Lean.Parser.symbolNoAntiquot] def symbolNoAntiquot.parenthesizer (_sym : String) := visitToken
 @[combinatorParenthesizer Lean.Parser.unicodeSymbolNoAntiquot] def unicodeSymbolNoAntiquot.parenthesizer (_sym _asciiSym : String) := visitToken
 
-@[combinatorParenthesizer Lean.Parser.identNoAntiquot] def identNoAntiquot.parenthesizer := visitToken
+@[combinatorParenthesizer Lean.Parser.identNoAntiquot] def identNoAntiquot.parenthesizer := do checkKind identKind; visitToken
 @[combinatorParenthesizer Lean.Parser.rawIdentNoAntiquot] def rawIdentNoAntiquot.parenthesizer := visitToken
 @[combinatorParenthesizer Lean.Parser.identEq] def identEq.parenthesizer (_id : Name) := visitToken
 @[combinatorParenthesizer Lean.Parser.nonReservedSymbolNoAntiquot] def nonReservedSymbolNoAntiquot.parenthesizer (_sym : String) (_includeIdent : Bool) := visitToken

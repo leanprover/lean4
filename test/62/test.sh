@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
+# skip if no elan found
+command -v elan > /dev/null || (echo "elan not found; skipping test"; exit 0)
+
 ./clean.sh
 lake +leanprover/lean4:4.0.0-m3 new foo
 cd foo

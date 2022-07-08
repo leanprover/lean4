@@ -175,6 +175,7 @@ static lean_object* l___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Lean_El
 extern lean_object* l_Lean_instInhabitedName;
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_reduceMatcher_x3f___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_pop(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_binderInfo(lean_object*);
@@ -415,7 +416,7 @@ _start:
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_7 = l___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Lean_Elab_WF_getCodomainLevel___closed__1;
 x_8 = l___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Lean_Elab_WF_getCodomainLevel___closed__2;
-x_9 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_setMVarUserNamesAt___spec__3___rarg(x_1, x_7, x_8, x_2, x_3, x_4, x_5, x_6);
+x_9 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_reduceMatcher_x3f___spec__3___rarg(x_1, x_7, x_8, x_2, x_3, x_4, x_5, x_6);
 return x_9;
 }
 }

@@ -42,7 +42,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_WF_packDomain_packApplications(lean_object*
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Elab_WF_packDomain_packApplications_visit___spec__4___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_maxRecDepthErrorMessage;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-lean_object* l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_WF_packDomain___spec__4___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalDeclImp___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_lambdaTelescope___at___private_Lean_Meta_Eqns_0__Lean_Meta_mkSimpleEqThm___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -103,7 +102,6 @@ lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint
 LEAN_EXPORT lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Elab_WF_packDomain_packApplications_visitApp___spec__2(lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
-lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_setMVarUserNamesAt___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_WF_PackDomain_0__Lean_Elab_WF_mkTupleElems___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_Elab_WF_packDomain___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_packDomain_isAppOfPreDef_x3f___lambda__1___boxed(lean_object*, lean_object*);
@@ -137,6 +135,7 @@ size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Range_forIn_loop___at_Lean_Elab_WF_packDomain___spec__4___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_WF_packDomain___spec__4___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isLambda(lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_PackDomain_0__Lean_Elab_WF_mkPSigmaCasesOn_go___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_mkUnaryArg_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDefinition_WF_PackDomain_0__Lean_Elab_WF_mkTupleElems___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -184,6 +183,7 @@ static lean_object* l_panic___at___private_Lean_Elab_PreDefinition_WF_PackDomain
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_packDomain___spec__2___lambda__2___closed__2;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_reduceMatcher_x3f___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_packDomain_packApplications_visit___lambda__2(uint64_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at_Lean_Elab_WF_packDomain_packApplications_visit___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_WF_packDomain_isAppOfPreDef_x3f___lambda__1(lean_object*, lean_object*);
@@ -6046,7 +6046,7 @@ x_19 = l_Array_forInUnsafe_loop___at_Lean_Elab_WF_packDomain___spec__2___lambda_
 x_20 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_20, 0, x_18);
 lean_ctor_set(x_20, 1, x_19);
-x_21 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_20, x_6, x_7, x_8, x_9, x_10);
+x_21 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_20, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -6220,7 +6220,7 @@ x_9 = lean_ctor_get(x_5, 5);
 x_10 = l_Lean_replaceRef(x_1, x_9);
 lean_dec(x_9);
 lean_ctor_set(x_5, 5, x_10);
-x_11 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_2, x_3, x_4, x_5, x_6, x_7);
+x_11 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_5);
 return x_11;
 }
@@ -6264,7 +6264,7 @@ lean_ctor_set(x_24, 7, x_19);
 lean_ctor_set(x_24, 8, x_20);
 lean_ctor_set(x_24, 9, x_21);
 lean_ctor_set(x_24, 10, x_22);
-x_25 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_2, x_3, x_4, x_24, x_6, x_7);
+x_25 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_2, x_3, x_4, x_24, x_6, x_7);
 lean_dec(x_24);
 return x_25;
 }
@@ -6426,7 +6426,7 @@ lean_closure_set(x_23, 4, x_4);
 lean_closure_set(x_23, 5, x_5);
 lean_closure_set(x_23, 6, x_15);
 x_24 = l_Std_Range_forIn_loop___at_Lean_Elab_WF_packDomain___spec__4___lambda__2___closed__1;
-x_25 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_setMVarUserNamesAt___spec__3___rarg(x_21, x_24, x_23, x_8, x_9, x_10, x_11, x_22);
+x_25 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_reduceMatcher_x3f___spec__3___rarg(x_21, x_24, x_23, x_8, x_9, x_10, x_11, x_22);
 return x_25;
 }
 else

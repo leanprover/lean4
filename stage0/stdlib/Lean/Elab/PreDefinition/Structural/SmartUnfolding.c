@@ -25,7 +25,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Structural_addSma
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-lean_object* l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_extract___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_lambdaTelescope___at___private_Lean_Meta_Eqns_0__Lean_Meta_mkSimpleEqThm___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_addSmartUnfoldingDefAux_visit___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -66,6 +65,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Structural_addSmartUnfoldingDefAux_visit(le
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___at_Lean_Elab_Structural_addSmartUnfoldingDefAux_visit___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_addSmartUnfoldingDefAux_visit___closed__1;
 size_t lean_usize_of_nat(lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Structural_addSmartUnfoldingDefAux_visit___spec__6___lambda__3___closed__4;
 static lean_object* l_Lean_Elab_Structural_addSmartUnfoldingDefAux___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_addSmartUnfoldingDefAux_visit___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1100,7 +1100,7 @@ x_22 = l_Array_forInUnsafe_loop___at_Lean_Elab_Structural_addSmartUnfoldingDefAu
 x_23 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_23, 0, x_21);
 lean_ctor_set(x_23, 1, x_22);
-x_24 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_23, x_8, x_9, x_10, x_11, x_12);
+x_24 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_23, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);

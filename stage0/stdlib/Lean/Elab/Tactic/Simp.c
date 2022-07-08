@@ -65,7 +65,6 @@ lean_object* l_List_filterMap___at_Lean_resolveGlobalConst___spec__1(lean_object
 static lean_object* l_Lean_Elab_Tactic_tacticToDischarge___closed__18;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Simp_0__Lean_Elab_Tactic_mkDischargeWrapper___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_tacticToDischarge___closed__5;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSimpAll___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_simpLocation_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -189,6 +188,7 @@ static lean_object* l_Lean_Elab_Tactic_mkSimpContext___lambda__3___closed__2;
 uint8_t l_Lean_Expr_hasExprMVar(lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSimpAll___closed__4;
 lean_object* l_Lean_Meta_getNondepPropHyps(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_elabDSimpConfigCore___closed__3;
@@ -4262,7 +4262,7 @@ x_31 = l___private_Lean_Elab_Tactic_Simp_0__Lean_Elab_Tactic_addDeclToUnfoldOrTh
 x_32 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_32, 0, x_30);
 lean_ctor_set(x_32, 1, x_31);
-x_33 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_32, x_6, x_7, x_8, x_9, x_27);
+x_33 = l_Lean_throwError___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__3(x_32, x_6, x_7, x_8, x_9, x_27);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);

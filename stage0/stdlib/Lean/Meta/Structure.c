@@ -16,11 +16,11 @@ extern "C" {
 static lean_object* l_Lean_Meta_getStructureName___closed__3;
 lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Lean_Meta_getStructureName___closed__4;
-lean_object* l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_getStructureName___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getStructureName___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_getStructureName___closed__1;
+lean_object* l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_getStructureName___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_getStructureName___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_getStructureName___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -168,7 +168,7 @@ x_18 = l_Lean_Meta_getStructureName___closed__6;
 x_19 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set(x_19, 1, x_18);
-x_20 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_19, x_2, x_3, x_4, x_5, x_12);
+x_20 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_19, x_2, x_3, x_4, x_5, x_12);
 x_21 = !lean_is_exclusive(x_20);
 if (x_21 == 0)
 {
@@ -220,7 +220,7 @@ x_32 = l_Lean_Meta_getStructureName___closed__6;
 x_33 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_33, 0, x_31);
 lean_ctor_set(x_33, 1, x_32);
-x_34 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_33, x_2, x_3, x_4, x_5, x_26);
+x_34 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_33, x_2, x_3, x_4, x_5, x_26);
 x_35 = lean_ctor_get(x_34, 0);
 lean_inc(x_35);
 x_36 = lean_ctor_get(x_34, 1);

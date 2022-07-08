@@ -143,7 +143,6 @@ LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_Elab_Tactic_eva
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalDecide_declRange___closed__5;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalExact_declRange___closed__7;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalRename_declRange___closed__6;
-lean_object* l_Lean_throwError___at___private_Lean_Elab_Term_0__Lean_Elab_Term_applyAttributesCore___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalWithUnfoldingAll_declRange___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_refineCore___lambda__4(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalRefine_x27_declRange___closed__1;
@@ -336,6 +335,7 @@ static lean_object* l_Lean_Elab_Tactic_evalSpecialize___closed__4;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalApply_declRange___closed__7;
 static lean_object* l_Lean_Elab_Tactic_evalExact___closed__5;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalWithReducibleAndInstances_declRange___closed__5;
+lean_object* l_Lean_throwError___at_Lean_Elab_Term_synthesizeInstMVarCore___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isFVar(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalApply___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalRefine_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -9376,7 +9376,7 @@ x_14 = l_Lean_Elab_Tactic_evalRename___lambda__1___closed__4;
 x_15 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_15, 0, x_13);
 lean_ctor_set(x_15, 1, x_14);
-x_16 = l_Lean_throwError___at___private_Lean_Elab_Term_0__Lean_Elab_Term_applyAttributesCore___spec__1(x_15, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+x_16 = l_Lean_throwError___at_Lean_Elab_Term_synthesizeInstMVarCore___spec__4(x_15, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 x_17 = !lean_is_exclusive(x_16);
 if (x_17 == 0)
 {

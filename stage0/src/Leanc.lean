@@ -33,7 +33,7 @@ Interesting options:
     match arg with
     | "--print-cflags" =>
       IO.println <| " ".intercalate (cflags.map rootify |>.toList)
-      return 0
+      return (0 : UInt32) -- TODO: remove type annotation after we make sure `for in` propagate `do`-block result type
     | "--print-ldflags" =>
       IO.println <| " ".intercalate ((cflags ++ ldflags).map rootify |>.toList)
       return 0

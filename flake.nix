@@ -30,13 +30,17 @@
       };
       cli = leanPkgs.buildLeanPackage {
         name = "Lake.Main";
+        executableName = "lake";
         deps = [ project ];
+        linkFlags = pkgs.lib.optional pkgs.stdenv.isLinux "-rdynamic";
         inherit src;
       };
     in
     {
-      packages.${packageName} = project;
-      packages.cli = cli.executable;
+      packages = project // {
+        inherit (leanPkgs) lean;
+
+        cli = cli.executable;
 
       defaultPackage = self.packages.${system}.cli;
 
@@ -46,12 +50,6 @@
 
       defaultApp = self.apps.${system}.lake;
 
-      # `nix develop`
-      devShell = pkgs.mkShell {
-        buildInputs = with pkgs; [
-          leanPkgs.lean
-        ];
-        LEAN_PATH = "${leanPkgs.Lean.modRoot}:${project.modRoot}";
-      };
+      inherit (project) devShell;
     });
 }

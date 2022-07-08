@@ -3,12 +3,11 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lean.Elab.Command
-import Lake.Util.EvalTerm
+import Lean.Parser.Command
 import Lake.DSL.Extensions
 
 namespace Lake.DSL
-open Lean Meta Elab Command
+open Lean Parser Command
 
 syntax fromPath :=
   term
@@ -16,34 +15,27 @@ syntax fromPath :=
 syntax fromGit :=
   &" git " term:max ("@" term:max)? ("/" term)?
 
-syntax fromClause :=
-  fromGit <|> fromPath
-
 syntax depSpec :=
-  ident " from " fromClause (" with " term)?
+  ident " from " (fromGit <|> fromPath) (" with " term)?
 
-def evalDepSpec : Syntax → TermElabM Dependency
-| `(depSpec| $name:ident from git $url $[@ $rev?]? $[/ $path?]? $[with $args?:term]?) => do
-  let url ← evalTerm String url
-  let rev ←
-    match rev? with
-    | some rev => some <$> evalTerm String rev
-    | none => pure none
-  let path ←
-    match path? with
-    | some path => evalTerm System.FilePath path
-    | none => pure "."
-  let args ← match args? with
-    | some args => evalTerm (List String) args
-    | none => pure []
-  return {name := name.getId, src := Source.git url rev, dir := path, args}
-| `(depSpec| $name:ident from $path:term $[with $args?:term]?) => do
-  let path ← evalTerm System.FilePath path
-  let args ← match args? with
-    | some args => evalTerm (List String) args
-    | none => pure []
-  return {name := name.getId, src := Source.path path, args}
-| _ => throwUnsupportedSyntax
+def expandDepSpec : TSyntax ``depSpec → MacroM Command
+| `(depSpec| $name:ident from git $url $[@ $rev?]? $[/ $path?]? $[with $opts?]?) => do
+  let rev ← match rev? with | some rev => `(some $rev) | none => `(none)
+  let path ← match path? with | some path => `(some $path) | none => `(none)
+  let opts := opts?.getD <| ← `({})
+  `(@[packageDep] def $name : Dependency := {
+    name := $(quote name.getId),
+    src := Source.git $url $rev $path,
+    options := $opts
+  })
+| `(depSpec| $name:ident from $path:term $[with $opts?]?) => do
+  let opts := opts?.getD <| ← `({})
+  `(@[packageDep] def $name : Dependency := {
+    name :=  $(quote name.getId),
+    src := Source.path $path,
+    options := $opts
+  })
+| _ => Macro.throwUnsupported
 
 /--
 Adds a mew package dependency to the workspace. Has two forms:
@@ -61,6 +53,5 @@ The elements of both the `from` and `with` clauses are proper terms so
 normal computation is supported within them (though parentheses made be
 required to disambiguate the syntax).
 -/
-scoped elab (name := requireDecl) "require " spec:depSpec : command => do
-  let dep ← runTermElabM none <| fun _ => evalDepSpec spec
-  modifyEnv (depsExt.modifyState · (·.push dep))
+scoped macro (name := requireDecl) "require " spec:depSpec : command =>
+  expandDepSpec spec

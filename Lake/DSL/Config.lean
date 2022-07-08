@@ -16,10 +16,10 @@ outside Lakefile elaboration (e.g., when editing).
 opaque dummyDir : System.FilePath
 
 /--
-A dummy default constant for `__args__` to make it type check
+A dummy default constant for `get_config` to make it type check
 outside Lakefile elaboration (e.g., when editing).
 -/
-opaque dummyArgs : List String
+opaque dummyGetConfig? : Name → Option String
 
 /--
 A macro that expands to the path of package's directory
@@ -39,17 +39,22 @@ def elabDirConst : TermElab := fun stx expectedType? => do
   withMacroExpansion stx exp <| elabTerm exp expectedType?
 
 /--
-A macro that expands to the configuration arguments passed
-via the Lake command line during the Lakefile's elaboration.
--/
-scoped syntax (name := argsConst) "__args__" :term
+A macro that expands to the specified configuration option (or `none`,
+if not the option has not been set) during the Lakefile's elaboration.
 
-@[termElab argsConst]
-def elabArgsConst : TermElab := fun stx expectedType? => do
-  let exp :=
-    if let some args := argsExt.getState (← getEnv) then
-      quote (k := `term) args
-    else
-      -- `id` app forces Lean to show macro's doc rather than the constant's
-      Syntax.mkApp (mkCIdentFrom stx ``id) #[mkCIdentFrom stx ``dummyArgs]
-  withMacroExpansion stx exp <| elabTerm exp expectedType?
+Configuration arguments are set either via the Lake CLI (by the `-K` option)
+or via the `with` clause in a `require` statement.
+-/
+scoped syntax (name := getConfig) "get_config? " ident :term
+
+@[termElab getConfig]
+def elabGetConfig : TermElab := fun stx expectedType? => do
+  match stx with
+  | `(getConfig| get_config? $key) =>
+    let exp :=
+      if let some opts := optsExt.getState (← getEnv) then
+        quote (k := `term) <| opts.find? key.getId
+      else
+        Syntax.mkApp (mkCIdentFrom stx ``dummyGetConfig?) #[quote key.getId]
+    withMacroExpansion stx exp <| elabTerm exp expectedType?
+  | _ => throwUnsupportedSyntax

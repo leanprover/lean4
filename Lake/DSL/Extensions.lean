@@ -10,11 +10,8 @@ open Lean
 
 namespace Lake
 
-initialize depsExt : EnvExtension (Array Dependency) ←
-  registerEnvExtension (pure #[])
-
 initialize dirExt : EnvExtension (Option System.FilePath) ←
   registerEnvExtension (pure none)
 
-initialize argsExt : EnvExtension (Option (List String)) ←
+initialize optsExt : EnvExtension (Option (NameMap String)) ←
   registerEnvExtension (pure none)

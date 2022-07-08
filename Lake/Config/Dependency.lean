@@ -3,6 +3,7 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
+import Lean.Data.Name
 
 namespace Lake
 open Lean System
@@ -17,7 +18,7 @@ In Lake, dependency sources currently come into flavors:
 -/
 inductive Source where
 | path (dir : FilePath)
-| git (url : String) (rev : Option String)
+| git (url : String) (rev : Option String) (subDir : Option FilePath)
 deriving Inhabited, Repr
 
 /-- A `Dependency` of a package. -/
@@ -33,13 +34,8 @@ structure Dependency where
   -/
   src  : Source
   /--
-  The subdirectory of the dependency's source where
-  the dependency's package configuration is located.
-  -/
-  dir  : FilePath := "."
-  /--
   Arguments to pass to the dependency's package configuration.
   -/
-  args : List String := []
+  options : NameMap String := {}
 
-deriving Inhabited, Repr
+deriving Inhabited

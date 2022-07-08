@@ -38,10 +38,10 @@ def processHeader (header : Syntax) (opts : Options) (trustLevel : UInt32)
     modify (·.add { fileName := inputCtx.fileName, data := toString e, pos })
     mkEmptyEnvironment
 
-/-- Lake `Lean.Environment.evalConstCheck` but with plain universe-polymorphic `Except`. -/
+/-- Like `Lean.Environment.evalConstCheck` but with plain universe-polymorphic `Except`. -/
 unsafe def evalConstCheck (α) (env : Environment) (opts : Options) (type : Name) (const : Name) : Except String α :=
   match env.find? const with
-  | none  => throw (s!"unknown constant '{const}'")
+  | none => throw s!"unknown constant '{const}'"
   | some info =>
     match info.type with
     | Expr.const c _ _ =>
@@ -57,7 +57,7 @@ where
 namespace Package
 
 /-- Unsafe implementation of `load`. -/
-unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
+unsafe def loadUnsafe (dir : FilePath) (configOpts : NameMap String)
 (configFile := dir / defaultConfigFile) (leanOpts := Options.empty)
 : LogIO Package := do
 
@@ -70,7 +70,7 @@ unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
 
   -- Configure Extensions
   let env := dirExt.setState env dir
-  let env := argsExt.setState env args
+  let env := optsExt.setState env configOpts
 
   -- Elaborate File
   let commandState := Elab.Command.mkState env messages leanOpts
@@ -81,82 +81,89 @@ unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
     | MessageSeverity.warning     => logWarning (← msg.toString)
     | MessageSeverity.error       => logError (← msg.toString)
 
-  -- Extract Configuration
+   -- Extract Configuration
+  if s.commandState.messages.hasErrors then
+    error s!"package configuration `{configFile}` has errors"
+
+  -- Load Package Configuration
   let env := s.commandState.env
-  if !s.commandState.messages.hasErrors then
+  let pkgDeclName ←
     match packageAttr.ext.getState env |>.toList with
     | [] => error s!"configuration file is missing a `package` declaration"
-    | [pkgDeclName] =>
-      -- Load Package Configuration
-      let config ← IO.ofExcept <| Id.run <| ExceptT.run <|
-        env.evalConstCheck PackageConfig leanOpts ``PackageConfig pkgDeclName
-      if config.extraDepTarget.isSome then
-        logWarning <| "`extraDepTarget` has been deprecated. " ++
-          "Try to use a custom target or raise an issue about your use case."
-      -- Tag Load Helpers
-      let mkTagMap {α} (attr) (f : Name → IO α) : IO (NameMap α) :=
-        attr.ext.getState env |>.foldM (init := {}) fun map declName =>
-          return map.insert declName <| ← f declName
-      let mkDTagMap {β} (attr : TagAttribute) (f : (n : WfName) → IO (β n)) : IO (DNameMap β) :=
-        attr.ext.getState env |>.foldM (init := {}) fun map declName =>
-          let declName := WfName.ofName declName
-          return map.insert declName <| ← f declName
-      let evalConst (α typeName declName) : IO α :=
-        IO.ofExcept (evalConstCheck α env leanOpts typeName declName)
-      let evalConstMap {α β} (f : α → β) (declName) : IO β :=
-        match env.evalConst α leanOpts declName with
-        | .ok a => pure <| f a
-        | .error e => throw <| IO.userError e
-       -- Load Target & Script Configurations
-      let scripts ← mkTagMap scriptAttr fun declName => do
-        let fn ← IO.ofExcept <| evalConstCheck ScriptFn env leanOpts ``ScriptFn declName
-        return {fn, doc? := (← findDocString? env declName)}
-      let leanLibConfigs ← mkTagMap leanLibAttr
-        (evalConst LeanLibConfig ``LeanLibConfig)
-      let leanExeConfigs ← mkTagMap leanExeAttr
-        (evalConst LeanExeConfig ``LeanExeConfig)
-      let externLibConfigs ← mkTagMap externLibAttr
-        (evalConst ExternLibConfig ``ExternLibConfig)
-      let opaqueModuleFacetConfigs ← mkDTagMap moduleFacetAttr fun name => do
-        match evalConstCheck ModuleFacetDecl env leanOpts ``ModuleFacetDecl name with
-        | .ok decl =>
-          if h : name = decl.name then
-            return OpaqueModuleFacetConfig.mk (h ▸ decl.config)
-          else
-            error s!"Facet was defined as `{decl.1}`, but was registered as `{name}`"
-        | .error e => throw <| IO.userError e
-      let opaquePackageFacetConfigs ← mkDTagMap packageFacetAttr fun name => do
-        match evalConstCheck PackageFacetDecl env leanOpts ``PackageFacetDecl name with
-        | .ok decl =>
-          if h : name = decl.name then
-            return OpaquePackageFacetConfig.mk (h ▸ decl.config)
-          else
-            error s!"Facet was defined as `{decl.1}`, but was registered as `{name}`"
-        | .error e => throw <| IO.userError e
-      let opaqueTargetConfigs ← mkTagMap targetAttr
-        (evalConstMap OpaqueTargetConfig.mk)
-      let defaultTargets :=
-        defaultTargetAttr.ext.getState env |>.fold (init := #[]) fun arr name =>
-          arr.push <| WfName.ofName name
-      -- Construct the Package
-      if leanLibConfigs.isEmpty && leanExeConfigs.isEmpty && config.defaultFacet ≠ .none then
-        logWarning <| "Package targets are deprecated. " ++
-          "Add a `lean_exe` and/or `lean_lib` default target to the package instead."
-      return {
-        dir, config, scripts,
-        dependencies := depsExt.getState env,
-        leanLibConfigs, leanExeConfigs, externLibConfigs,
-        opaqueModuleFacetConfigs, opaquePackageFacetConfigs, opaqueTargetConfigs,
-        defaultTargets
-      }
+    | [name] => pure name
     | _ => error s!"configuration file has multiple `package` declarations"
-  else
-    error s!"package configuration `{configFile}` has errors"
+  let config ← IO.ofExcept <|
+    evalConstCheck PackageConfig env leanOpts ``PackageConfig pkgDeclName
+  if config.extraDepTarget.isSome then
+    logWarning <| "`extraDepTarget` has been deprecated. " ++
+      "Try to use a custom target or raise an issue about your use case."
+
+  -- Tag Load Helpers
+  let mkTagMap {α} (attr) (f : Name → IO α) : IO (NameMap α) :=
+    attr.ext.getState env |>.foldM (init := {}) fun map declName =>
+      return map.insert declName <| ← f declName
+  let mkDTagMap {β} (attr : TagAttribute) (f : (n : WfName) → IO (β n)) : IO (DNameMap β) :=
+    attr.ext.getState env |>.foldM (init := {}) fun map declName =>
+      let declName := WfName.ofName declName
+      return map.insert declName <| ← f declName
+  let evalConst (α typeName declName) : IO α :=
+    IO.ofExcept (evalConstCheck α env leanOpts typeName declName)
+  let evalConstMap {α β} (f : α → β) (declName) : IO β :=
+    match env.evalConst α leanOpts declName with
+    | .ok a => pure <| f a
+    | .error e => throw <| IO.userError e
+
+  -- Load Dependency, Script, Facet, & Target Configurations
+  let dependencies ←
+    packageDepAttr.ext.getState env |>.foldM (init := #[]) fun arr name => do
+      return arr.push <| ← evalConst Dependency ``Dependency name
+  let scripts ← mkTagMap scriptAttr fun declName => do
+    let fn ← IO.ofExcept <| evalConstCheck ScriptFn env leanOpts ``ScriptFn declName
+    return {fn, doc? := (← findDocString? env declName)}
+  let leanLibConfigs ← mkTagMap leanLibAttr
+    (evalConst LeanLibConfig ``LeanLibConfig)
+  let leanExeConfigs ← mkTagMap leanExeAttr
+    (evalConst LeanExeConfig ``LeanExeConfig)
+  let externLibConfigs ← mkTagMap externLibAttr
+    (evalConst ExternLibConfig ``ExternLibConfig)
+  let opaqueModuleFacetConfigs ← mkDTagMap moduleFacetAttr fun name => do
+    match evalConstCheck ModuleFacetDecl env leanOpts ``ModuleFacetDecl name with
+    | .ok decl =>
+      if h : name = decl.name then
+        return OpaqueModuleFacetConfig.mk (h ▸ decl.config)
+      else
+        error s!"Facet was defined as `{decl.name}`, but was registered as `{name}`"
+    | .error e => throw <| IO.userError e
+  let opaquePackageFacetConfigs ← mkDTagMap packageFacetAttr fun name => do
+    match evalConstCheck PackageFacetDecl env leanOpts ``PackageFacetDecl name with
+    | .ok decl =>
+      if h : name = decl.name then
+        return OpaquePackageFacetConfig.mk (h ▸ decl.config)
+      else
+        error s!"Facet was defined as `{decl.name}`, but was registered as `{name}`"
+    | .error e => throw <| IO.userError e
+  let opaqueTargetConfigs ← mkTagMap targetAttr
+    (evalConstMap OpaqueTargetConfig.mk)
+  let defaultTargets :=
+    defaultTargetAttr.ext.getState env |>.fold (init := #[]) fun arr name =>
+      arr.push <| WfName.ofName name
+
+  -- Construct the Package
+  if leanLibConfigs.isEmpty && leanExeConfigs.isEmpty && config.defaultFacet ≠ .none then
+    logWarning <| "Package targets are deprecated. " ++
+      "Add a `lean_exe` and/or `lean_lib` default target to the package instead."
+  return {
+    dir, config, scripts, dependencies,
+    leanLibConfigs, leanExeConfigs, externLibConfigs,
+    opaqueModuleFacetConfigs, opaquePackageFacetConfigs, opaqueTargetConfigs,
+    defaultTargets
+  }
+
 
 /--
 Load the package located in
 the given directory with the given configuration file.
 -/
 @[implementedBy loadUnsafe]
-opaque load (dir : FilePath) (args : List String := [])
-(configFile := dir / defaultConfigFile) (leanOpts := Options.empty) : LogIO Package
+opaque load (dir : FilePath) (configOpts : NameMap String)
+(configFile := dir / defaultConfigFile) (leanOpts := Options.empty)  : LogIO Package

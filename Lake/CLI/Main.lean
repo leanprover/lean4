@@ -33,11 +33,11 @@ structure LakeConfig where
   configFile : FilePath := defaultConfigFile
   leanInstall : LeanInstall
   lakeInstall : LakeInstall
-  args : List String := []
+  options : NameMap String := {}
 
 def loadPkg (config : LakeConfig) : LogIO Package := do
   setupLeanSearchPath config.leanInstall config.lakeInstall
-  Package.load config.rootDir config.args (config.rootDir / config.configFile)
+  Package.load config.rootDir config.options (config.rootDir / config.configFile)
 
 def loadManifestMap (manifestFile : FilePath) : LogIO (Lean.NameMap PackageEntry) := do
   if let Except.ok contents ← IO.FS.readFile manifestFile  |>.toBaseIO then
@@ -72,6 +72,7 @@ structure LakeOptions where
   configFile : FilePath := defaultConfigFile
   leanInstall? : Option LeanInstall := none
   lakeInstall? : Option LakeInstall := none
+  configOptions : NameMap String := {}
   subArgs : List String := []
   wantsHelp : Bool := false
 
@@ -111,12 +112,13 @@ def getInstall (opts : LakeOptions) : Except CliError (LeanInstall × LakeInstal
   return (← getLeanInstall opts, ← getLakeInstall opts)
 
 /-- Make a `LakeConfig` from a `LakeOptions`. -/
-def mkLakeConfig (opts : LakeOptions) (args : List String := []) : Except CliError LakeConfig := do
+def mkLakeConfig (opts : LakeOptions) : Except CliError LakeConfig := do
   let (leanInstall, lakeInstall) ← getInstall opts
   return {
     rootDir := opts.rootDir,
     configFile := opts.configFile,
-    leanInstall, lakeInstall, args
+    leanInstall, lakeInstall,
+    options := opts.configOptions
   }
 
 /-- Make a Lake `Context` from a `Workspace` and `LakeConfig`. -/
@@ -154,10 +156,21 @@ def noArgsRem (act : CliStateM α) : CliM α := do
 
 -- ## Option Parsing
 
+def setConfigOption (kvPair : String) : CliM PUnit :=
+  let pos := kvPair.posOf '='
+  let (key, val) :=
+    if pos = kvPair.endPos then
+      (kvPair.toName, "")
+    else
+      (kvPair.extract 0 pos |>.toName, kvPair.extract (kvPair.next pos) kvPair.endPos)
+  modifyThe LakeOptions fun opts =>
+    {opts with configOptions := opts.configOptions.insert key val}
+
 def shortOption : (opt : Char) → CliM PUnit
 | 'h' => modifyThe LakeOptions ({· with wantsHelp := true})
 | 'd' => do let rootDir ← takeOptArg "-d" "path"; modifyThe LakeOptions ({· with rootDir})
 | 'f' => do let configFile ← takeOptArg "-f" "path"; modifyThe LakeOptions ({· with configFile})
+| 'K' => do setConfigOption <| ← takeOptArg "-K" "key-value pair"
 | opt => throw <| CliError.unknownShortOption opt
 
 def longOption : (opt : String) → CliM PUnit
@@ -256,7 +269,7 @@ def script : (cmd : String) → CliM PUnit
         IO.println s!"{pkgName}/{scriptName}"
 | "run" => do
   processOptions lakeOption
-  let spec ← takeArg "script spec"; let args ← takeArgs
+  let spec ← takeArg "script name"; let args ← takeArgs
   let config ← mkLakeConfig (← getThe LakeOptions)
   let ws ← loadWorkspace config
   let (pkg, scriptName) ← parseScriptSpec ws spec
@@ -270,7 +283,7 @@ def script : (cmd : String) → CliM PUnit
     throw <| CliError.unknownScript scriptName
 | "doc" => do
   processOptions lakeOption
-  let spec ← takeArg "script spec"
+  let spec ← takeArg "script name"
   let config ← mkLakeConfig (← getThe LakeOptions)
   noArgsRem do
     let ws ← loadWorkspace config
@@ -308,7 +321,7 @@ def command : (cmd : String) → CliM PUnit
 | "build" => do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let config ← mkLakeConfig opts opts.subArgs
+  let config ← mkLakeConfig opts
   let ws ← loadWorkspace config
   let targetSpecs ← takeArgs
   let target ← show Except _ _ from do
@@ -322,7 +335,7 @@ def command : (cmd : String) → CliM PUnit
 | "update" => do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let config ← mkLakeConfig opts opts.subArgs
+  let config ← mkLakeConfig opts
   noArgsRem <| discard <| loadWorkspace config (updateDeps := true)
 | "print-paths" => do
   processOptions lakeOption
@@ -331,7 +344,7 @@ def command : (cmd : String) → CliM PUnit
 | "clean" => do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let config ← mkLakeConfig opts opts.subArgs
+  let config ← mkLakeConfig opts
   noArgsRem <| (← loadPkg config).clean
 | "script" => do
   if let some cmd ← takeArg? then

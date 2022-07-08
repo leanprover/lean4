@@ -11,6 +11,9 @@ namespace Lake
 initialize packageAttr : TagAttribute ←
   registerTagAttribute `package "mark a definition as a Lake package configuration"
 
+initialize packageDepAttr : TagAttribute ←
+  registerTagAttribute `packageDep "mark a definition as a Lake package dependency"
+
 initialize scriptAttr : TagAttribute ←
   registerTagAttribute `script "mark a definition as a Lake script"
 

@@ -19,6 +19,7 @@ OPTIONS:
   --dir, -d=file        use the package configuration in a specific directory
   --file, -f=file       use a specific file for the package configuration
   --lean=cmd            specify the `lean` command used by Lake
+  -K key[=value]        set the configuration file option named key
 
 COMMANDS:
   new <name> [<temp>]   create a Lean package in a new directory
@@ -60,7 +61,7 @@ def helpBuild :=
 "Build targets
 
 USAGE:
-  lake build [<targets>...] [-- <args>...]
+  lake build [<targets>...]
 
 A target is specified with a string of the form:
 
@@ -96,18 +97,16 @@ TARGET EXAMPLES:        build the ...
   :exe                  root package's executable
 
 A bare `build` command will build the default facet of the root package.
-Arguments to the `Packager` itself can be specified with `args`.
 Package dependencies are not updated during a build."
 
 def helpUpdate :=
 "Update dependencies
 
 USAGE:
-  lake update [-- <args>...]
+  lake update
 
 This command sets up the directory with the package's dependencies
 (i.e., `packagesDir`, which is, by default, `lean_packages`).
-Passes `args` to the `Packager` if specified.
 
 For each (transitive) git dependency, the specified commit is checked out
 into a sub-directory of `packagesDir`. Already checked out dependencies are
@@ -122,10 +121,9 @@ def helpClean :=
 "Remove build outputs
 
 USAGE:
-  lake clean [-- <args>...]
+  lake clean
 
-Deletes the build directory of the package.
-Arguments to the  `Packager` itself can be specified with `args`."
+Deletes the build directory of the package."
 
 def helpScriptCli :=
 "Manage Lake scripts

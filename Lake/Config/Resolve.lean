@@ -81,11 +81,11 @@ def materializeDep (ws : Workspace)
 (pkg : Package) (dep : Dependency) (shouldUpdate := true) : ResolveM FilePath :=
   match dep.src with
   | Source.path dir => return pkg.dir / dir
-  | Source.git url rev? => do
+  | Source.git url rev? subDir? => do
     let name := dep.name.toString (escape := false)
-    let depDir := ws.packagesDir / name
-    materializeGitPkg name depDir url rev? shouldUpdate
-    return depDir
+    let gitDir := ws.packagesDir / name
+    materializeGitPkg name gitDir url rev? shouldUpdate
+    return match subDir? with | some subDir => gitDir / subDir | none => gitDir
 
 /--
 Resolves a `Dependency` relative to the given `Package`
@@ -94,7 +94,7 @@ in the same `Workspace`, downloading and/or updating it as necessary.
 def resolveDep (ws : Workspace)
 (pkg : Package) (dep : Dependency) (shouldUpdate := true) : ResolveM Package := do
   let dir ← materializeDep ws pkg dep shouldUpdate
-  let depPkg ← Package.load (dir / dep.dir) dep.args
+  let depPkg ← Package.load dir dep.options
   unless depPkg.name == dep.name do
     throw <| IO.userError <|
       s!"{pkg.name} (in {pkg.dir}) depends on {dep.name}, " ++

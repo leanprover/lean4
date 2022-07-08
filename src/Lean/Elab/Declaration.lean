@@ -143,7 +143,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Comm
     classes ← getOptDerivingClasses decl[5]
   else
     computedFields ← (decl[5].getOptional?.map (·[1].getArgs) |>.getD #[]).mapM fun cf => withRef cf do
-      return { ref := cf, fieldId := cf[0].getId, type := cf[2], matchAlts := cf[3] }
+      return { ref := cf, modifiers := cf[0], fieldId := cf[1].getId, type := cf[3], matchAlts := cf[4] }
     classes ← getOptDerivingClasses decl[6]
   return {
     ref             := decl

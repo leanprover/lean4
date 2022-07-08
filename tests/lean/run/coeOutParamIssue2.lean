@@ -1,3 +1,4 @@
+namespace Ex
 class GetElem (Cont : Type u) (Idx : Type v) (Elem : outParam (Type w)) where
   getElem (xs : Cont) (i : Idx) : Elem
 
@@ -12,3 +13,4 @@ opaque g : Bool → Bool
 def bad (xs : Array Bool) : Bool :=
   let x := getElem xs 0
   f x && g x
+end Ex

@@ -21,13 +21,14 @@ inductive CliError
 /- Build CLI Errors -/
 | unknownModule (mod : Name)
 | unknownPackage (spec : String)
-| unknownFacet (type facet : String)
+| unknownFacet (type : String) (facet : Name)
 | unknownTarget (target : Name)
 | missingModule (pkg : Name) (mod : Name)
 | missingTarget (pkg : Name) (spec : String)
 | badTarget (pkg target cfgPkg cfgName : Name)
+| nonTargetFacet (type : String) (facet : Name)
 | invalidTargetSpec (spec : String) (tooMany : Char)
-| invalidFacet (target : Name) (facet : String)
+| invalidFacet (target : Name) (facet : Name)
 /- Script CLI Error -/
 | unknownScript (script : String)
 | missingScriptDoc (script : String)
@@ -51,13 +52,14 @@ def toString : CliError → String
 | unknownTemplate spec    => s!"unknown package template `{spec}`"
 | unknownModule mod       => s!"unknown module `{mod.toString false}`"
 | unknownPackage spec     => s!"unknown package `{spec}`"
-| unknownFacet ty f       => s!"unknown {ty} facet `{f}`"
+| unknownFacet ty f       => s!"unknown {ty} facet `{f.toString false}`"
 | unknownTarget t         => s!"unknown target `{t.toString false}`"
 | missingModule pkg mod   => s!"package '{pkg.toString false}' has no module '{mod.toString false}'"
 | missingTarget pkg spec  => s!"package '{pkg.toString false}' has no target '{spec}'"
 | badTarget p t p' t'     => s!"target registered as `{p.toString false}/{t.toString false}` but configured as `{p'.toString false}/{t'.toString false}` "
+| nonTargetFacet t f      => s!"{t} facet `{f.toString false}` is not a buildable target"
 | invalidTargetSpec s c   => s!"invalid script spec '{s}' (too many '{c}')"
-| invalidFacet t f        => s!"invalid facet `{f}`; target {t.toString false} has no facets"
+| invalidFacet t f        => s!"invalid facet `{f.toString false}`; target {t.toString false} has no facets"
 | unknownScript s         => s!"unknown script {s}"
 | missingScriptDoc s      => s!"no documentation provided for `{s}`"
 | invalidScriptSpec s     => s!"invalid script spec '{s}' (too many '/')"

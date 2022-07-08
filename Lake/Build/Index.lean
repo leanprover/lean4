@@ -15,7 +15,7 @@ The Lake build index is the complete map of Lake build keys to
 Lake build functions, which is used by Lake to build any Lake build info.
 
 This module contains the definitions used to formalize this concept,
-and it leverages the index to perform topological-based recursive builds.
+and it leverages the index to perform topologically-based recursive builds.
 -/
 
 open Std Lean
@@ -133,6 +133,7 @@ the initial set of Lake package facets (e.g., `extraDep`).
         target ← target.mixOpaqueAsync (← depPkg.extraDep.recBuild)
     target.mixOpaqueAsync <| ← pkg.extraDepTarget.activate
   )
+
 /-!
 ## Topologically-based Recursive Build Using the Index
 -/
@@ -145,24 +146,16 @@ the initial set of Lake package facets (e.g., `extraDep`).
     if let some build := moduleBuildMap.find? facet then
       build mod
     else if let some config := (← getWorkspace).findModuleFacetConfig? facet then
-      if h : facet = config.name then
-        have : FamilyDef ModuleData facet (ActiveBuildTarget config.resultType) :=
-          ⟨by simp [h]⟩
-        mkModuleFacetBuild config.build mod
-      else
-        error "module facet's name in the configuration does not match the name it was registered with"
+      have := config.familyDef
+      mkModuleFacetBuild config.build mod
     else
       error s!"do not know how to build module facet `{facet}`"
   | .packageFacet pkg facet =>
     if let some build := packageBuildMap.find? facet then
       build pkg
-    else if let some config := pkg.findPackageFacetConfig? facet then
-      if h : facet = config.name then
-        have : FamilyDef PackageData facet (ActiveBuildTarget config.resultType) :=
-          ⟨by simp [h]⟩
-        mkPackageFacetBuild config.build pkg
-      else
-        error "package facet's name in the configuration does not match the name it was registered with"
+    else if let some config := (← getWorkspace).findPackageFacetConfig? facet then
+      have := config.familyDef
+      mkPackageFacetBuild config.build pkg
     else
       error s!"do not know how to build package facet `{facet}`"
   | .customTarget pkg target =>

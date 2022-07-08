@@ -27,9 +27,9 @@ partial def forEachNoduleIn [Monad m] [MonadLiftT IO m]
 (dir : FilePath) (f : WfName → m PUnit) : m PUnit := do
   for entry in (← dir.readDir) do
     if (← liftM (m := IO) <| entry.path.isDir) then
-      f entry.fileName
+      f <| WfName.ofString <| entry.fileName
     else if entry.path.extension == some "lean" then
-      f <| FilePath.withExtension entry.fileName "" |>.toString
+      f <| WfName.ofString <| FilePath.withExtension entry.fileName "" |>.toString
 
 namespace Glob
 

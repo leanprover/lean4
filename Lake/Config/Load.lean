@@ -6,8 +6,7 @@ Authors: Mac Malone
 import Lean.Elab.Frontend
 import Lake.DSL.Attributes
 import Lake.DSL.Extensions
-import Lake.Config.ModuleFacetConfig
-import Lake.Config.PackageFacetConfig
+import Lake.Config.FacetConfig
 import Lake.Config.TargetConfig
 
 namespace Lake
@@ -38,6 +37,22 @@ def processHeader (header : Syntax) (opts : Options) (trustLevel : UInt32)
     let pos := inputCtx.fileMap.toPosition <| header.getPos?.getD 0
     modify (·.add { fileName := inputCtx.fileName, data := toString e, pos })
     mkEmptyEnvironment
+
+/-- Lake `Lean.Environment.evalConstCheck` but with plain universe-polymorphic `Except`. -/
+unsafe def evalConstCheck (α) (env : Environment) (opts : Options) (type : Name) (const : Name) : Except String α :=
+  match env.find? const with
+  | none  => throw (s!"unknown constant '{const}'")
+  | some info =>
+    match info.type with
+    | Expr.const c _ _ =>
+      if c != type then
+        throwUnexpectedType
+      else
+        env.evalConst α opts const
+    | _ => throwUnexpectedType
+where
+  throwUnexpectedType : Except String α :=
+    throw s!"unexpected type at '{const}', `{type}` expected"
 
 namespace Package
 
@@ -82,16 +97,19 @@ unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
       let mkTagMap {α} (attr) (f : Name → IO α) : IO (NameMap α) :=
         attr.ext.getState env |>.foldM (init := {}) fun map declName =>
           return map.insert declName <| ← f declName
+      let mkDTagMap {β} (attr : TagAttribute) (f : (n : WfName) → IO (β n)) : IO (DNameMap β) :=
+        attr.ext.getState env |>.foldM (init := {}) fun map declName =>
+          let declName := WfName.ofName declName
+          return map.insert declName <| ← f declName
       let evalConst (α typeName declName) : IO α :=
-        IO.ofExcept (env.evalConstCheck α leanOpts typeName declName).run.run
+        IO.ofExcept (evalConstCheck α env leanOpts typeName declName)
       let evalConstMap {α β} (f : α → β) (declName) : IO β :=
         match env.evalConst α leanOpts declName with
         | .ok a => pure <| f a
         | .error e => throw <| IO.userError e
        -- Load Target & Script Configurations
       let scripts ← mkTagMap scriptAttr fun declName => do
-        let fn ← IO.ofExcept <| Id.run <| ExceptT.run <|
-          env.evalConstCheck ScriptFn leanOpts ``ScriptFn declName
+        let fn ← IO.ofExcept <| evalConstCheck ScriptFn env leanOpts ``ScriptFn declName
         return {fn, doc? := (← findDocString? env declName)}
       let leanLibConfigs ← mkTagMap leanLibAttr
         (evalConst LeanLibConfig ``LeanLibConfig)
@@ -99,13 +117,27 @@ unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
         (evalConst LeanExeConfig ``LeanExeConfig)
       let externLibConfigs ← mkTagMap externLibAttr
         (evalConst ExternLibConfig ``ExternLibConfig)
-      let opaqueModuleFacetConfigs ← mkTagMap moduleFacetAttr
-        (evalConstMap OpaqueModuleFacetConfig.mk)
-      let opaquePackageFacetConfigs ← mkTagMap packageFacetAttr
-        (evalConstMap OpaquePackageFacetConfig.mk)
+      let opaqueModuleFacetConfigs ← mkDTagMap moduleFacetAttr fun name => do
+        match evalConstCheck ModuleFacetDecl env leanOpts ``ModuleFacetDecl name with
+        | .ok decl =>
+          if h : name = decl.name then
+            return OpaqueModuleFacetConfig.mk (h ▸ decl.config)
+          else
+            error s!"Facet was defined as `{decl.1}`, but was registered as `{name}`"
+        | .error e => throw <| IO.userError e
+      let opaquePackageFacetConfigs ← mkDTagMap packageFacetAttr fun name => do
+        match evalConstCheck PackageFacetDecl env leanOpts ``PackageFacetDecl name with
+        | .ok decl =>
+          if h : name = decl.name then
+            return OpaquePackageFacetConfig.mk (h ▸ decl.config)
+          else
+            error s!"Facet was defined as `{decl.1}`, but was registered as `{name}`"
+        | .error e => throw <| IO.userError e
       let opaqueTargetConfigs ← mkTagMap targetAttr
         (evalConstMap OpaqueTargetConfig.mk)
-      let defaultTargets := defaultTargetAttr.ext.getState env |>.toArray
+      let defaultTargets :=
+        defaultTargetAttr.ext.getState env |>.fold (init := #[]) fun arr name =>
+          arr.push <| WfName.ofName name
       -- Construct the Package
       if leanLibConfigs.isEmpty && leanExeConfigs.isEmpty && config.defaultFacet ≠ .none then
         logWarning <| "Package targets are deprecated. " ++

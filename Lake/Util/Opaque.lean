@@ -3,6 +3,7 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lake.Util.Binder
 import Lean.Parser.Command
 
 /-!
@@ -16,19 +17,19 @@ namespace Lake
 open Lean Parser Command
 
 macro (name := declareOpaqueType)
-doc?:optional(docComment)  "declare_opaque_type " id:ident : command =>
+doc?:optional(docComment)  "declare_opaque_type " id:ident dbs:declBinder* : command => do
+  let (bs, args) ← expandBinders dbs
   let nonemptyTypeId := id.getId.modifyBase (· ++ `nonemptyType)
-  let type := mkIdentFrom id <| nonemptyTypeId.modifyBase (· ++ `type)
-  let prop := mkIdentFrom id <| nonemptyTypeId.modifyBase (· ++ `property)
   let nonemptyType := mkIdentFrom id nonemptyTypeId
+  let nonemptyTypeApp := Syntax.mkApp nonemptyType args
   `(
-  opaque $nonemptyType : NonemptyType.{0}
-  $[$doc?:docComment]? def $id : Type := $type
-  instance : Nonempty $id := $prop
+  opaque $nonemptyType $[$bs]* : NonemptyType.{0}
+  $[$doc?:docComment]? def $id $[$bs]* : Type := $nonemptyTypeApp |>.type
+  instance : Nonempty $(Syntax.mkApp id args) :=  $nonemptyTypeApp |>.property
   )
 
 macro (name := hydrateOpaqueType)
-"hydrate_opaque_type " oty:ident ty:ident : command =>
+"hydrate_opaque_type " oty:ident ty:ident args:ident* : command =>
   let mk := mkIdent `mk
   let unsafeMk := mkIdent `unsafeMk
   let get := mkIdent `get
@@ -36,16 +37,16 @@ macro (name := hydrateOpaqueType)
   let get_mk := mkIdent `get_mk
   `(
   namespace $oty
-  unsafe def $unsafeMk : $ty → $oty := unsafeCast
-  @[implementedBy $unsafeMk] opaque $mk : $ty → $oty
+  unsafe def $unsafeMk : $ty $args* → $oty $args* := unsafeCast
+  @[implementedBy $unsafeMk] opaque $mk : $ty $args* → $oty $args*
+  instance : Coe ($ty $args*) ($oty $args*) := ⟨$mk⟩
 
-  unsafe def $unsafeGet : $oty → $ty := unsafeCast
-  @[implementedBy $unsafeGet] opaque $get : $oty → $ty
+  unsafe def $unsafeGet : $oty $args* → $ty $args* := unsafeCast
+  @[implementedBy $unsafeGet] opaque $get $[{$args}]* : $oty $args* → $ty $args*
+  instance : Coe ($oty $args*) ($ty $args*) := ⟨$get⟩
 
-  instance : Coe $ty $oty := ⟨$mk⟩
-  instance : Inhabited $oty := ⟨$mk default⟩
-  instance : Coe $oty $ty := ⟨$get⟩
+  instance [Inhabited ($ty $args*)] : Inhabited ($oty $args*) := ⟨$mk default⟩
 
-  @[simp] axiom $get_mk {x : $ty} : $get ($mk x) = x
+  @[simp] axiom $get_mk $[{$args}]* {x : $ty $args*} : $get ($mk x) = x
   end $oty
   )

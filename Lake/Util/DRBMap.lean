@@ -15,6 +15,9 @@ defined in `Std.Data.RBMap` module of the Lean core. Most of the code is
 copied directly from there with only minor edits.
 -/
 
+instance inhabitedOfEmptyCollection [EmptyCollection α] : Inhabited α where
+  default := {}
+
 @[specialize] def RBNode.dFind {α : Type u} {β : α → Type v}
 (cmp : α → α → Ordering) [h : EqOfCmpWrt α β cmp] : RBNode α β → (k : α) → Option (β k)
   | leaf,             _ => none

@@ -10,6 +10,7 @@ import Lake.Config.ExternLibConfig
 import Lake.Config.WorkspaceConfig
 import Lake.Config.Dependency
 import Lake.Config.Script
+import Lake.Util.DRBMap
 
 open Std System
 
@@ -237,6 +238,8 @@ end PackageConfig
 -- # Package
 --------------------------------------------------------------------------------
 
+abbrev DNameMap α := DRBMap WfName α WfName.quickCmp
+
 /-- A Lake package -- its location plus its configuration. -/
 structure Package where
   /-- The path to the package's directory. -/
@@ -256,16 +259,16 @@ structure Package where
   /-- External library targets for the package. -/
   externLibConfigs : NameMap ExternLibConfig := {}
   /-- (Opaque references to) module facets defined in the package. -/
-  opaqueModuleFacetConfigs : NameMap OpaqueModuleFacetConfig := {}
+  opaqueModuleFacetConfigs : DNameMap OpaqueModuleFacetConfig := {}
   /-- (Opaque references to) module facets defined in the package. -/
-  opaquePackageFacetConfigs : NameMap OpaquePackageFacetConfig := {}
+  opaquePackageFacetConfigs : DNameMap OpaquePackageFacetConfig := {}
   /-- (Opaque references to) targets defined in the package. -/
   opaqueTargetConfigs : NameMap OpaqueTargetConfig := {}
   /--
   The names of the package's targets to build by default
   (i.e., on a bare `lake build` of the package).
   -/
-  defaultTargets : Array Name := #[]
+  defaultTargets : Array WfName := #[]
   deriving Inhabited
 
 hydrate_opaque_type OpaquePackage Package

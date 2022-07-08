@@ -161,8 +161,6 @@ def ofName : Name → WfName
 def ofString (str : String) : WfName :=
   str.splitOn "." |>.foldl (fun n p => mkStr n p.trim) anonymous
 
-instance : Coe String WfName := ⟨ofString⟩
-
 @[inline] protected def toString (escape := true) : WfName → String
 | ⟨n, _⟩ => n.toString escape
 

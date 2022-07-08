@@ -80,7 +80,7 @@ def «example»        := leading_parser "example" >> ppIndent declSig >> declVa
 def ctor             := leading_parser "\n| " >> ppIndent (declModifiers true >> ident >> optDeclSig)
 def derivingClasses  := sepBy1 (group (ident >> optional (" with " >> Term.structInst))) ", "
 def optDeriving      := leading_parser optional (ppLine >> atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
-def computedField    := leading_parser ident >> " : " >> termParser >> Term.matchAlts
+def computedField    := leading_parser declModifiers true >> ident >> " : " >> termParser >> Term.matchAlts
 def computedFields   := leading_parser "with" >> manyIndent (ppLine >> ppGroup computedField)
 def «inductive»      := leading_parser "inductive " >> declId >> optDeclSig >> optional (symbol " :=" <|> " where") >>
   many ctor >> optional (ppDedent ppLine >> computedFields) >> optDeriving

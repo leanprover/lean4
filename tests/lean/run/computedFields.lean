@@ -3,9 +3,9 @@ inductive Exp
   | var (i : UInt32)
   | app (a b : Exp)
 with
-  hash : Exp → UInt64
+  /-- Computes the hash -/ @[simp] protected hash : Exp → UInt64
     | .var i => Hashable.hash i
-    | .app a b => mixHash (hash a) (b.hash)
+    | .app a b => mixHash a.hash b.hash
     | .hole => 32
 
 def dagLikeTerm : Nat → Exp

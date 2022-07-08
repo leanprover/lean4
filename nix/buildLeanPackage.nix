@@ -1,9 +1,9 @@
 { lean, lean-leanDeps ? lean, lean-final ? lean, leanc,
   stdenv, lib, coreutils, gnused, writeShellScriptBin, bash, lean-emacs, lean-vscode, nix, substituteAll, symlinkJoin, linkFarmFromDrvs,
-  runCommand, gmp, darwin, ... }:
+  runCommand, gmp, darwin, mkShell, ... }:
 let lean-final' = lean-final; in
 lib.makeOverridable (
-{ name, src, fullSrc ? src,
+{ name, src, fullSrc ? src, srcPrefix ? "",
   # Lean dependencies. Each entry should be an output of buildLeanPackage.
   deps ? [ lean.Lean ],
   # Static library dependencies. Each derivation `static` should contain a static library in the directory `${static}`.
@@ -280,4 +280,11 @@ in rec {
   emacs-dev = makeEmacsWrapper "emacs-dev" "${lean-emacs}/bin/emacs" lean-dev;
   emacs-path-dev = makeEmacsWrapper "emacs-path-dev" "emacs" lean-dev;
   vscode-dev = makeVSCodeWrapper "vscode-dev" lean-dev;
+
+  devShell = mkShell {
+    buildInputs = [ nix ];
+    shellHook = ''
+      export LEAN_SRC_PATH="$PWD/${srcPrefix}"
+    '';
+  };
 })

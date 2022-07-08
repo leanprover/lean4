@@ -88,6 +88,7 @@ rec {
       } ({
         src = ../src;
         fullSrc = ../.;
+        srcPrefix = "src";
         inherit debug;
       } // args);
       Init' = build { name = "Init"; deps = []; };

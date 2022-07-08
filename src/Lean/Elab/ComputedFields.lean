@@ -135,6 +135,9 @@ def overrideComputedFields : M Unit := do
   let {name, levelParams, ctors, compFields, compFieldVars, lparams, params, indices, val ..} ← read
   withLocalDeclD `x (mkAppN (mkConst (name ++ `_impl) lparams) (params ++ indices)) fun xImpl => do
   for cfn in compFields, cf in compFieldVars do
+    if isExtern (← getEnv) cfn then
+      compileDecls [cfn]
+      continue
     let cases ← ctors.toArray.mapM fun ctor => do
       forallTelescope (← inferType (mkAppN (mkConst ctor lparams) params)) fun fields _ => do
       if ← isScalarField ctor then
@@ -199,5 +202,6 @@ def setComputedFields (computedFields : Array (Name × Array Name)) : MetaM Unit
     for ctor in ind.ctors do
       toCompile := toCompile.push (ctor ++ `_override)
     for fieldName in computedFields do
-      toCompile := toCompile.push <| fieldName ++ `_override
+      unless isExtern (← getEnv) fieldName do
+        toCompile := toCompile.push <| fieldName ++ `_override
   compileDecls toCompile.toList

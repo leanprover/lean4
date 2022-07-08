@@ -71,7 +71,7 @@ variable [Monad m] [MonadBuildStore m]
 def recBuildExternalDynlibs (pkgs : Array Package)
 [MonadLog m] : IndexT m (Array ActiveFileTarget × Array FilePath) := do
   let mut libDirs := #[]
-  let mut targets := #[]
+  let mut targets : Array ActiveFileTarget := #[]
   for pkg in pkgs do
     libDirs := libDirs.push pkg.libDir
     let externLibTargets ← pkg.externLibs.mapM (·.shared.recBuild)

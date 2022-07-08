@@ -189,6 +189,18 @@ def insert (s : NameHashSet) (n : Name) := Std.HashSet.insert s n
 def contains (s : NameHashSet) (n : Name) : Bool := Std.HashSet.contains s n
 end NameHashSet
 
+def MacroScopesView.isPrefixOf (v₁ v₂ : MacroScopesView) : Bool :=
+  v₁.name.isPrefixOf v₂.name &&
+  v₁.scopes == v₂.scopes &&
+  v₁.mainModule == v₂.mainModule &&
+  v₁.imported == v₂.imported
+
+def MacroScopesView.isSuffixOf (v₁ v₂ : MacroScopesView) : Bool :=
+  v₁.name.isSuffixOf v₂.name &&
+  v₁.scopes == v₂.scopes &&
+  v₁.mainModule == v₂.mainModule &&
+  v₁.imported == v₂.imported
+
 end Lean
 
 open Lean

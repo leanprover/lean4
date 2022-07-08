@@ -1,6 +1,15 @@
 Unreleased
 ---------
 
+* Better support for qualified names in recursive declarations. The following is now supported:
+  ```lean
+  namespace Nat
+    def fact : Nat → Nat
+    | 0 => 1
+    | n+1 => (n+1) * Nat.fact n
+  end Nat
+  ```
+
 * Update Lake to v3.2.1. See the [v3.2.1 release notes](https://github.com/leanprover/lake/releases/tag/v3.2.1) for detailed changes.
 
 * Update array access notation. Now, given `a : Array α`, `a[i]` never "panics" at runtime and `i : Fin a.size`.

@@ -16,7 +16,7 @@ def _root_.g (x : Nat) :=
 def _root_.Boo.g (x : Nat) :=
   match x with
   | 0 => 1
-  | x+1 => 3*g x
+  | x+1 => 3 * Boo.g x
 
 protected def _root_.h (x : Nat) := x -- Error
 

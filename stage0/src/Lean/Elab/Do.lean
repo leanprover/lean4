@@ -49,7 +49,7 @@ private def letDeclArgHasBinders (letDeclArg : Syntax) : Bool :=
   else if k == ``Lean.Parser.Term.letEqnsDecl then
     true
   else if k == ``Lean.Parser.Term.letIdDecl then
-    -- letIdLhs := ident >> checkWsBefore "expected space before binders" >> many (ppSpace >> (simpleBinderWithoutType <|> bracketedBinder)) >> optType
+    -- letIdLhs := ident >> checkWsBefore "expected space before binders" >> many (ppSpace >> letIdBinder)) >> optType
     let binders := letDeclArg[1]
     binders.getNumArgs > 0
   else
@@ -615,7 +615,7 @@ def getDoHaveVars (doHave : Syntax) : TermElabM (Array Var) := do
   let arg := doHave[1][0]
   if arg.getKind == ``Lean.Parser.Term.haveIdDecl then
     -- haveIdDecl := leading_parser atomic (haveIdLhs >> " := ") >> termParser
-    -- haveIdLhs := optional (ident >> many (ppSpace >> (simpleBinderWithoutType <|> bracketedBinder))) >> optType
+    -- haveIdLhs := optional (ident >> many (ppSpace >> letIdBinder)) >> optType
     return #[← getHaveIdLhsVar arg[0]]
   else if arg.getKind == ``Lean.Parser.Term.letPatDecl then
     getLetPatDeclVars arg

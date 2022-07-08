@@ -39,24 +39,18 @@ instance : Coe Hole BinderIdent where
 instance : Coe Ident BinderIdent where
   coe s := ⟨s.raw⟩
 
-abbrev SimpleBinder := TSyntax ``Term.simpleBinder
 abbrev BracketedBinder := TSyntax ``Term.bracketedBinder
 abbrev FunBinder := TSyntax ``Term.funBinder
 
-instance : Coe BinderIdent SimpleBinder where
-  coe s := ⟨s.raw⟩
-
-instance : Coe SimpleBinder FunBinder where
+instance : Coe BinderIdent FunBinder where
   coe s := ⟨s.raw⟩
 
 @[runParserAttributeHooks]
-def declBinder := Term.simpleBinderWithoutType <|> Term.bracketedBinder
-abbrev DeclBinder := TSyntax ``declBinder
+def binder := Term.binderIdent <|> Term.bracketedBinder
 
-abbrev Binder := TSyntax [``Term.simpleBinder, ``Term.bracketedBinder]
-
-instance : Coe DeclBinder Binder where
-  coe s := ⟨s.raw⟩
+abbrev Binder := TSyntax ``binder
+instance : Coe Binder (TSyntax [identKind, ``Term.hole, ``Term.bracketedBinder]) where
+  coe stx := ⟨stx.raw⟩
 
 abbrev BinderModifier := TSyntax [``Term.binderTactic, ``Term.binderDefault]
 
@@ -102,15 +96,9 @@ def expandBinderModifier (optBinderModifier : Syntax) : Option BinderModifier :=
 
 def matchBinder (stx : Syntax) : MacroM (Array BinderSyntaxView) := do
   let k := stx.getKind
-  if k == ``Lean.Parser.Term.simpleBinder then
-    -- binderIdent+ >> optType
-    let ids ← getBinderIds stx[0]
-    let optType := stx[1]
-    ids.mapM fun id => return {
-      id := (← expandBinderIdent id),
-      type := expandOptType id optType,
-      info := .default
-    }
+  if stx.isIdent || k == ``Term.hole then
+    -- binderIdent
+    return #[{ id := (← expandBinderIdent stx), type := mkHoleFrom stx, info := .default }]
   else if k == ``Lean.Parser.Term.explicitBinder then
     -- `(` binderIdent+ binderType (binderDefault <|> binderTactic)? `)`
     let ids ← getBinderIds stx[1]
@@ -153,16 +141,16 @@ def matchBinder (stx : Syntax) : MacroM (Array BinderSyntaxView) := do
 def BinderSyntaxView.mkBinder : BinderSyntaxView → MacroM Binder
 | {id, type, info, modifier?} => do
   match info with
-  | .default        => `(declBinder| ($id : $type $[$modifier?]?))
-  | .implicit       => `(declBinder| {$id : $type})
-  | .strictImplicit => `(declBinder| ⦃$id : $type⦄)
-  | .instImplicit   => `(declBinder| [$id : $type])
+  | .default        => `(binder| ($id : $type $[$modifier?]?))
+  | .implicit       => `(binder| {$id : $type})
+  | .strictImplicit => `(binder| ⦃$id : $type⦄)
+  | .instImplicit   => `(binder| [$id : $type])
   | _               => unreachable!
 
 def BinderSyntaxView.mkArgument : BinderSyntaxView → MacroM NamedArgument
 | {id, ..} => `(Term.namedArgument| ($id := $id))
 
-def expandBinders (dbs : Array DeclBinder) : MacroM (Array Binder × Array Term) := do
+def expandBinders (dbs : Array Binder) : MacroM (Array Binder × Array Term) := do
   let mut bs := #[]
   let mut args : Array Term := #[]
   for db in dbs do

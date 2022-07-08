@@ -17,8 +17,8 @@ namespace Lake
 open Lean Parser Command
 
 macro (name := declareOpaqueType)
-doc?:optional(docComment)  "declare_opaque_type " id:ident dbs:declBinder* : command => do
-  let (bs, args) ← expandBinders dbs
+doc?:optional(docComment)  "declare_opaque_type " id:ident bs:binder* : command => do
+  let (bs, args) ← expandBinders bs
   let nonemptyTypeId := id.getId.modifyBase (· ++ `nonemptyType)
   let nonemptyType := mkIdentFrom id nonemptyTypeId
   let nonemptyTypeApp := Syntax.mkApp nonemptyType args

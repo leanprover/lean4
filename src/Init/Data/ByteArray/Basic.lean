@@ -39,7 +39,7 @@ def size : (@& ByteArray) → Nat
 
 @[extern "lean_byte_array_uget"]
 def uget : (a : @& ByteArray) → (i : USize) → i.toNat < a.size → UInt8
-  | ⟨bs⟩, i, h => bs.uget i h
+  | ⟨bs⟩, i, h => bs[i]
 
 @[extern "lean_byte_array_get"]
 def get! : (@& ByteArray) → (@& Nat) → UInt8

@@ -41,6 +41,9 @@ def singleton (v : α) : Array α :=
 def uget (a : @& Array α) (i : USize) (h : i.toNat < a.size) : α :=
   a[i.toNat]
 
+instance : GetElem (Array α) USize α fun xs i => LT.lt i.toNat xs.size where
+  getElem xs i h := xs.uget i h
+
 def back [Inhabited α] (a : Array α) : α :=
   a.get! (a.size - 1)
 

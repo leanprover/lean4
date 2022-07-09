@@ -665,7 +665,6 @@ inductive LValResolution where
   | projIdx  (structName : Name) (idx : Nat)
   | const    (baseStructName : Name) (structName : Name) (constName : Name)
   | localRec (baseName : Name) (fullName : Name) (fvar : Expr)
-  | getOp    (fullName : Name) (idx : Syntax)
 
 private def throwLValError (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α :=
   throwError "{msg}{indentExpr e}\nhas type{indentExpr eType}"
@@ -762,18 +761,11 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       | none                => searchCtx ()
     else
       searchCtx ()
-  | some structName, LVal.getOp _ idx kind =>
-    let env ← getEnv
-    let fullName := Name.mkStr structName kind.opName
-    match env.find? fullName with
-    | some _ => return LValResolution.getOp fullName idx
-    | none   => throwLValError e eType m!"invalid [..] notation because environment does not contain '{fullName}'"
   | none, LVal.fieldName _ _ (some suffix) _ =>
     if e.isConst then
       throwUnknownConstant (e.constName! ++ suffix)
     else
       throwInvalidFieldNotation e eType
-  | _, LVal.getOp .. => throwInvalidFieldNotation e eType
   | _, _ => throwInvalidFieldNotation e eType
 
 /- whnfCore + implicit consumption.
@@ -929,17 +921,6 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
       else
         let f ← elabAppArgs fvar #[] #[Arg.expr f] (expectedType? := none) (explicit := false) (ellipsis := false)
         loop f lvals
-    | LValResolution.getOp fullName idx =>
-      let getOpFn ← mkConst fullName
-      let getOpFn ← addTermInfo lval.getRef getOpFn
-      if lvals.isEmpty then
-        let namedArgs ← addNamedArg namedArgs { name := `self, val := Arg.expr f }
-        let namedArgs ← addNamedArg namedArgs { name := `idx,  val := Arg.stx idx }
-        elabAppArgs getOpFn namedArgs args expectedType? explicit ellipsis
-      else
-        let f ← elabAppArgs getOpFn #[{ name := `self, val := Arg.expr f }, { name := `idx, val := Arg.stx idx }]
-                            #[] (expectedType? := none) (explicit := false) (ellipsis := false)
-        loop f lvals
   loop f lvals
 
 private def elabAppLVals (f : Expr) (lvals : List LVal) (namedArgs : Array NamedArg) (args : Array Arg)
@@ -1045,9 +1026,6 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     | `($e |>.$idx:fieldIdx) => elabFieldIdx e idx
     | `($(e).$field:ident) => elabFieldName e field
     | `($e |>.$field:ident) => elabFieldName e field
-    | `($e[%$bracket $idx]) => elabAppFn e (LVal.getOp bracket idx .safe :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
-    | `($e[%$bracket $idx]!) => elabAppFn e (LVal.getOp bracket idx .panic :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
-    | `($e[%$bracket $idx]?) => elabAppFn e (LVal.getOp bracket idx .optional :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
     | `($_:ident@$_:term) =>
       throwError "unexpected occurrence of named pattern"
     | `($id:ident) => do
@@ -1179,9 +1157,6 @@ private def elabAtom : TermElab := fun stx expectedType? => do
 
 @[builtinTermElab choice] def elabChoice : TermElab := elabAtom
 @[builtinTermElab proj] def elabProj : TermElab := elabAtom
-@[builtinTermElab arrayRef] def elabArrayRef : TermElab := elabAtom
-@[builtinTermElab arrayRefOpt] def elabArrayRefOpt : TermElab := elabAtom
-@[builtinTermElab arrayRefPanic] def elabArrayRefPanic : TermElab := elabAtom
 
 builtin_initialize
   registerTraceClass `Elab.app

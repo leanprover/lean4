@@ -65,7 +65,7 @@ private def expandNonAtomicExplicitSources (stx : Syntax) : TermElabM (Option Sy
       return none
     if sources.any (·.isMissing) then
       throwAbortTerm
-    go sources.toList #[]
+    return some (← go sources.toList #[])
 where
   go (sources : List Syntax) (sourcesNew : Array Syntax) : TermElabM Syntax := do
     match sources with

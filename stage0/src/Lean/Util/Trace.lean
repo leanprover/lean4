@@ -157,7 +157,7 @@ private def withNestedTracesFinalizer [Monad m] [MonadTrace m] (ref : Syntax) (c
   modifyTraces fun traces =>
     if traces.size == 0 then
       currTraces
-    else if traces.size == 1 && traces[0].msg.isNest then
+    else if traces.size == 1 && traces[0]!.msg.isNest then
       currTraces ++ traces -- No nest of nest
     else
       let d := traces.foldl (init := MessageData.nil) fun d elem =>

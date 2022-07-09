@@ -93,6 +93,7 @@ static lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNo
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__5;
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__30;
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__28;
+static lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_removeParenthesesAux___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__2___closed__3;
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__6;
@@ -116,6 +117,7 @@ static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__29;
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__62;
 LEAN_EXPORT lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_Elab_Command_mkSimpleDelab___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__54;
+lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___lambda__1___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -127,8 +129,8 @@ static lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Com
 lean_object* l_Lean_Syntax_getHeadInfo(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_antiquote___boxed(lean_object*, lean_object*);
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__74;
+static lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__5;
 static lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_antiquote___closed__2;
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__50;
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__48;
@@ -136,6 +138,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Command_expandNotation_declRange___
 static lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__2___closed__34;
 static lean_object* l_Lean_Elab_Command_expandNotationItemIntoSyntaxItem___closed__7;
 lean_object* l_Nat_repr(lean_object*);
+static lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__8;
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__23;
 static lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__2___closed__31;
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__44;
@@ -162,10 +165,10 @@ static lean_object* l___regBuiltin_Lean_Elab_Command_expandNotation_declRange___
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__7;
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__71;
 static lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__2___closed__18;
+lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__63;
 static lean_object* l___regBuiltin_Lean_Elab_Command_expandNotation_declRange___closed__7;
 static lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__2___closed__15;
-extern lean_object* l_Lean_instInhabitedSyntax;
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__20;
 static lean_object* l___regBuiltin_Lean_Elab_Command_expandNotation___closed__2;
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__32;
@@ -194,6 +197,7 @@ static lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNo
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__16;
 static lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__3;
 lean_object* l_Lean_Syntax_mkNumLit(lean_object*, lean_object*);
+static lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__7;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__2___closed__30;
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__49;
@@ -209,6 +213,7 @@ static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__14;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___spec__5(lean_object*, size_t, size_t, lean_object*);
 extern lean_object* l_Lean_Elab_macroAttribute;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_panic___at_Lean_expandExplicitBindersAux_loop___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_hasDuplicateAntiquot___lambda__1___boxed(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1912,6 +1917,43 @@ return x_3;
 static lean_object* _init_l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__4() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("Init.Util", 9);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__5() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("getElem!", 8);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__6() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_1 = l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__4;
+x_2 = l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__5;
+x_3 = lean_unsigned_to_nat(62u);
+x_4 = lean_unsigned_to_nat(36u);
+x_5 = l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__6;
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+return x_6;
+}
+}
+static lean_object* _init_l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__8() {
+_start:
+{
 uint8_t x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = 1;
 x_2 = lean_box(x_1);
@@ -1923,107 +1965,107 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; uint8_t x_34; 
-x_34 = !lean_is_exclusive(x_4);
-if (x_34 == 0)
+lean_object* x_6; uint8_t x_38; 
+x_38 = !lean_is_exclusive(x_4);
+if (x_38 == 0)
 {
-lean_object* x_35; lean_object* x_36; uint8_t x_37; 
-x_35 = lean_ctor_get(x_4, 1);
-x_36 = lean_ctor_get(x_4, 0);
-lean_dec(x_36);
-x_37 = l_Lean_Syntax_isAntiquot(x_3);
-if (x_37 == 0)
+lean_object* x_39; lean_object* x_40; uint8_t x_41; 
+x_39 = lean_ctor_get(x_4, 1);
+x_40 = lean_ctor_get(x_4, 0);
+lean_dec(x_40);
+x_41 = l_Lean_Syntax_isAntiquot(x_3);
+if (x_41 == 0)
 {
 lean_inc(x_1);
 lean_ctor_set(x_4, 0, x_1);
 x_6 = x_4;
-goto block_33;
+goto block_37;
 }
 else
 {
-lean_object* x_38; lean_object* x_39; uint8_t x_40; 
-x_38 = l_Lean_Syntax_getAntiquotTerm(x_3);
-x_39 = l_Lean_Syntax_getId(x_38);
-lean_dec(x_38);
-x_40 = l_Lean_NameSet_contains(x_35, x_39);
-if (x_40 == 0)
+lean_object* x_42; lean_object* x_43; uint8_t x_44; 
+x_42 = l_Lean_Syntax_getAntiquotTerm(x_3);
+x_43 = l_Lean_Syntax_getId(x_42);
+lean_dec(x_42);
+x_44 = l_Lean_NameSet_contains(x_39, x_43);
+if (x_44 == 0)
 {
-lean_object* x_41; lean_object* x_42; 
-x_41 = lean_box(0);
-x_42 = l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_35, x_39, x_41);
+lean_object* x_45; lean_object* x_46; 
+x_45 = lean_box(0);
+x_46 = l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_39, x_43, x_45);
 lean_inc(x_1);
-lean_ctor_set(x_4, 1, x_42);
+lean_ctor_set(x_4, 1, x_46);
 lean_ctor_set(x_4, 0, x_1);
 x_6 = x_4;
-goto block_33;
+goto block_37;
 }
 else
 {
-lean_object* x_43; lean_object* x_44; 
-lean_dec(x_39);
+lean_object* x_47; lean_object* x_48; 
+lean_dec(x_43);
 lean_dec(x_3);
 lean_dec(x_1);
-x_43 = l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__4;
-lean_ctor_set(x_4, 0, x_43);
-x_44 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_44, 0, x_4);
-return x_44;
+x_47 = l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__8;
+lean_ctor_set(x_4, 0, x_47);
+x_48 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_48, 0, x_4);
+return x_48;
 }
 }
 }
 else
 {
-lean_object* x_45; uint8_t x_46; 
-x_45 = lean_ctor_get(x_4, 1);
-lean_inc(x_45);
+lean_object* x_49; uint8_t x_50; 
+x_49 = lean_ctor_get(x_4, 1);
+lean_inc(x_49);
 lean_dec(x_4);
-x_46 = l_Lean_Syntax_isAntiquot(x_3);
-if (x_46 == 0)
-{
-lean_object* x_47; 
-lean_inc(x_1);
-x_47 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_47, 0, x_1);
-lean_ctor_set(x_47, 1, x_45);
-x_6 = x_47;
-goto block_33;
-}
-else
-{
-lean_object* x_48; lean_object* x_49; uint8_t x_50; 
-x_48 = l_Lean_Syntax_getAntiquotTerm(x_3);
-x_49 = l_Lean_Syntax_getId(x_48);
-lean_dec(x_48);
-x_50 = l_Lean_NameSet_contains(x_45, x_49);
+x_50 = l_Lean_Syntax_isAntiquot(x_3);
 if (x_50 == 0)
 {
-lean_object* x_51; lean_object* x_52; lean_object* x_53; 
-x_51 = lean_box(0);
-x_52 = l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_45, x_49, x_51);
+lean_object* x_51; 
 lean_inc(x_1);
-x_53 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_53, 0, x_1);
-lean_ctor_set(x_53, 1, x_52);
-x_6 = x_53;
-goto block_33;
+x_51 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_51, 0, x_1);
+lean_ctor_set(x_51, 1, x_49);
+x_6 = x_51;
+goto block_37;
 }
 else
 {
-lean_object* x_54; lean_object* x_55; lean_object* x_56; 
-lean_dec(x_49);
+lean_object* x_52; lean_object* x_53; uint8_t x_54; 
+x_52 = l_Lean_Syntax_getAntiquotTerm(x_3);
+x_53 = l_Lean_Syntax_getId(x_52);
+lean_dec(x_52);
+x_54 = l_Lean_NameSet_contains(x_49, x_53);
+if (x_54 == 0)
+{
+lean_object* x_55; lean_object* x_56; lean_object* x_57; 
+x_55 = lean_box(0);
+x_56 = l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_49, x_53, x_55);
+lean_inc(x_1);
+x_57 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_57, 0, x_1);
+lean_ctor_set(x_57, 1, x_56);
+x_6 = x_57;
+goto block_37;
+}
+else
+{
+lean_object* x_58; lean_object* x_59; lean_object* x_60; 
+lean_dec(x_53);
 lean_dec(x_3);
 lean_dec(x_1);
-x_54 = l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__4;
-x_55 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_55, 0, x_54);
-lean_ctor_set(x_55, 1, x_45);
-x_56 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_56, 0, x_55);
-return x_56;
+x_58 = l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__8;
+x_59 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_59, 0, x_58);
+lean_ctor_set(x_59, 1, x_49);
+x_60 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_60, 0, x_59);
+return x_60;
 }
 }
 }
-block_33:
+block_37:
 {
 lean_object* x_7; 
 x_7 = l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__1;
@@ -2058,14 +2100,30 @@ goto block_22;
 }
 else
 {
-lean_object* x_27; lean_object* x_28; lean_object* x_29; 
-x_27 = l_Lean_instInhabitedSyntax;
+lean_object* x_27; lean_object* x_28; uint8_t x_29; 
+x_27 = lean_array_get_size(x_9);
 x_28 = lean_unsigned_to_nat(0u);
-x_29 = lean_array_get(x_27, x_9, x_28);
+x_29 = lean_nat_dec_lt(x_28, x_27);
+lean_dec(x_27);
+if (x_29 == 0)
+{
+lean_object* x_30; lean_object* x_31; 
 lean_dec(x_9);
-x_3 = x_29;
+x_30 = l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__7;
+x_31 = l_panic___at_Lean_expandExplicitBindersAux_loop___spec__1(x_30);
+x_3 = x_31;
 x_4 = x_6;
 goto _start;
+}
+else
+{
+lean_object* x_33; 
+x_33 = lean_array_fget(x_9, x_28);
+lean_dec(x_9);
+x_3 = x_33;
+x_4 = x_6;
+goto _start;
+}
 }
 }
 block_22:
@@ -2107,12 +2165,12 @@ return x_21;
 }
 else
 {
-lean_object* x_31; lean_object* x_32; 
+lean_object* x_35; lean_object* x_36; 
 lean_dec(x_3);
 lean_dec(x_1);
-x_31 = lean_box(0);
-x_32 = lean_apply_2(x_7, x_6, x_31);
-return x_32;
+x_35 = lean_box(0);
+x_36 = lean_apply_2(x_7, x_6, x_35);
+return x_36;
 }
 }
 }
@@ -7184,6 +7242,14 @@ l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAnt
 lean_mark_persistent(l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__3);
 l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__4 = _init_l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__4();
 lean_mark_persistent(l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__4);
+l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__5 = _init_l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__5();
+lean_mark_persistent(l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__5);
+l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__6 = _init_l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__6();
+lean_mark_persistent(l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__6);
+l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__7 = _init_l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__7();
+lean_mark_persistent(l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__7);
+l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__8 = _init_l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__8();
+lean_mark_persistent(l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__8);
 l_Lean_Elab_Command_hasDuplicateAntiquot___closed__1 = _init_l_Lean_Elab_Command_hasDuplicateAntiquot___closed__1();
 lean_mark_persistent(l_Lean_Elab_Command_hasDuplicateAntiquot___closed__1);
 l_Lean_Elab_Command_hasDuplicateAntiquot___closed__2 = _init_l_Lean_Elab_Command_hasDuplicateAntiquot___closed__2();

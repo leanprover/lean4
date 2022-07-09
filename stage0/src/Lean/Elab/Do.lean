@@ -1475,7 +1475,7 @@ mutual
   partial def doTryToCode (doTry : Syntax) (doElems: List Syntax) : M CodeBlock := do
     let tryCode ← doSeqToCode (getDoSeqElems doTry[1])
     let optFinally := doTry[3]
-    let catches ← doTry[2].getArgs.mapM fun catchStx => do
+    let catches ← doTry[2].getArgs.mapM fun catchStx : Syntax => do
       if catchStx.getKind == ``Lean.Parser.Term.doCatch then
         let x       := catchStx[1]
         if x.isIdent then

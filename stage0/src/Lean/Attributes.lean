@@ -77,12 +77,12 @@ def Attribute.Builtin.ensureNoArgs (stx : Syntax) : AttrM Unit := do
 def Attribute.Builtin.getIdent? (stx : Syntax) : AttrM (Option Syntax) := do
   if stx.getKind == `Lean.Parser.Attr.simple then
     if !stx[1].isNone && stx[1][0].isIdent then
-      return stx[1][0]
+      return some stx[1][0]
     else
       return none
   /- We handle `macro` here because it is handled by the generic `KeyedDeclsAttribute -/
   else if stx.getKind == `Lean.Parser.Attr.«macro» || stx.getKind == `Lean.Parser.Attr.«export» then
-    return stx[1]
+    return some stx[1]
   else
     throwErrorAt stx "unexpected attribute argument"
 

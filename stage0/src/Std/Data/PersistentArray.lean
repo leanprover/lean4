@@ -54,8 +54,8 @@ abbrev div2Shift (i : USize) (shift : USize) : USize := i.shiftRight shift
 abbrev mod2Shift (i : USize) (shift : USize) : USize := USize.land i ((USize.shiftLeft 1 shift) - 1)
 
 partial def getAux [Inhabited α] : PersistentArrayNode α → USize → USize → α
-  | node cs, i, shift => getAux (cs.get! (div2Shift i shift).toNat) (mod2Shift i shift) (shift - initShift)
-  | leaf cs, i, _     => cs.get! i.toNat
+  | node cs, i, shift => getAux cs[(div2Shift i shift).toNat]! (mod2Shift i shift) (shift - initShift)
+  | leaf cs, i, _     => cs[i.toNat]!
 
 def get! [Inhabited α] (t : PersistentArray α) (i : Nat) : α :=
   if i >= t.tailOff then
@@ -65,6 +65,10 @@ def get! [Inhabited α] (t : PersistentArray α) (i : Nat) : α :=
 
 def getOp [Inhabited α] (self : PersistentArray α) (idx : Nat) : α :=
   self.get! idx
+
+-- TODO: remove [Inhabited α]
+instance [Inhabited α] : GetElem (PersistentArray α) Nat α fun as i => i < as.size where
+  getElem xs i _ := xs.get! i
 
 partial def setAux : PersistentArrayNode α → USize → USize → α → PersistentArrayNode α
   | node cs, i, shift, a =>

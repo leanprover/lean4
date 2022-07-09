@@ -58,6 +58,9 @@ def get? (ds : FloatArray) (i : Nat) : Option Float :=
 @[inline] def getOp (self : FloatArray) (idx : Nat) : Float :=
   self.get! idx
 
+instance : GetElem FloatArray Nat Float fun xs i => LT.lt i xs.size where
+  getElem xs i h := xs.get ⟨i, h⟩
+
 @[extern "lean_float_array_uset"]
 def uset : (a : FloatArray) → (i : USize) → Float → i.toNat < a.size → FloatArray
   | ⟨ds⟩, i, v, h => ⟨ds.uset i v h⟩

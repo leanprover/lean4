@@ -384,7 +384,7 @@ def unsetTrailing (stx : Syntax) : Syntax :=
 
 @[specialize] private partial def updateFirst {α} [Inhabited α] (a : Array α) (f : α → Option α) (i : Nat) : Option (Array α) :=
   if h : i < a.size then
-    let v := a[⟨i, h⟩]
+    let v := a[i]
     match f v with
     | some v => some <| a.set ⟨i, h⟩ v
     | none   => updateFirst a f (i+1)
@@ -1001,13 +1001,14 @@ open Lean
 
 private partial def filterSepElemsMAux {m : Type → Type} [Monad m] (a : Array Syntax) (p : Syntax → m Bool) (i : Nat) (acc : Array Syntax) : m (Array Syntax) := do
   if h : i < a.size then
-    let stx := a[⟨i, h⟩]
+    let stx := a[i]
     if (← p stx) then
       if acc.isEmpty then
         filterSepElemsMAux a p (i+2) (acc.push stx)
       else if hz : i ≠ 0 then
         have : i.pred < i := Nat.pred_lt hz
-        let sepStx := a[⟨i.pred, Nat.lt_trans this h⟩]
+        have : i.pred < a.size := Nat.lt_trans this h
+        let sepStx := a[i.pred]
         filterSepElemsMAux a p (i+2) ((acc.push sepStx).push stx)
       else
         filterSepElemsMAux a p (i+2) (acc.push stx)
@@ -1024,7 +1025,7 @@ def filterSepElems (a : Array Syntax) (p : Syntax → Bool) : Array Syntax :=
 
 private partial def mapSepElemsMAux {m : Type → Type} [Monad m] (a : Array Syntax) (f : Syntax → m Syntax) (i : Nat) (acc : Array Syntax) : m (Array Syntax) := do
   if h : i < a.size then
-    let stx := a[⟨i, h⟩]
+    let stx := a[i]
     if i % 2 == 0 then do
       let stx ← f stx
       mapSepElemsMAux a f (i+1) (acc.push stx)

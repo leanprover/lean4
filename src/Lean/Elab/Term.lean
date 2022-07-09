@@ -1797,7 +1797,7 @@ def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : S
   `(Nat.succ $(← exprToSyntax e))
   ```
 -/
-def exprToSyntax (e : Expr) : TermElabM Term := do
+def exprToSyntax (e : Expr) : TermElabM Term := withFreshMacroScope do
   let result ← `(?m)
   let eType ← inferType e
   let mvar ← elabTerm result eType

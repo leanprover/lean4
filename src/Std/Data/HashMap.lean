@@ -64,6 +64,7 @@ def findEntry? [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option (
     let ⟨i, h⟩ := mkIdx buckets.property (hash a |>.toUSize)
     (buckets.val.uget i h).findEntry? a
 
+set_option linter.unusedVariables false in
 def find? [beq : BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option β :=
   match m with
   | ⟨_, buckets⟩ =>
@@ -94,6 +95,7 @@ def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapI
   { size    := size,
     buckets := moveEntries 0 buckets.val new_buckets }
 
+set_option linter.unusedVariables false in
 @[inline] def insert [beq : BEq α] [Hashable α] (m : HashMapImp α β) (a : α) (b : β) : HashMapImp α β × Bool :=
   match m with
   | ⟨size, buckets⟩ =>

@@ -459,6 +459,7 @@ infoTree.lean:44:0: error: expected stx
   _uniq.902 (isBinder := true) : B -> B @ ⟨50, 4⟩-⟨50, 6⟩
   _uniq.903 (isBinder := true) : B @ ⟨50, 8⟩-⟨50, 9⟩
   B.mk (B.pair _uniq.903) : B @ ⟨50, 22⟩-⟨50, 32⟩ @ Lean.Elab.Term.StructInst.elabStructInst
+    _uniq.903 : B @ ⟨50, 24⟩-⟨50, 25⟩
     B.pair _uniq.903 : Prod.{0 0} A A @ ⟨50, 24⟩-⟨50, 25⟩† @ Lean.Elab.Term.elabProj
       [.] `b : some Prod.{0 0} A A @ ⟨50, 24⟩-⟨50, 25⟩
       _uniq.903 : B @ ⟨50, 24⟩-⟨50, 25⟩

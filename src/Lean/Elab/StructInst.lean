@@ -113,6 +113,7 @@ private def getStructSource (structStx : Syntax) : TermElabM Source :=
     else if implicitSource[0].isNone then
       let sources ← explicitSource[0].getSepArgs.mapM fun stx => do
         let some src ← isLocalIdent? stx | unreachable!
+        addTermInfo' stx src
         let srcType ← whnf (← inferType src)
         tryPostponeIfMVar srcType
         let structName ← getStructureName srcType

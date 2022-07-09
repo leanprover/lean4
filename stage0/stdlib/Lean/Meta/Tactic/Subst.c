@@ -244,6 +244,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_heqToEq___boxed(lean_object*, lean_object*,
 LEAN_EXPORT lean_object* l_Lean_Meta_subst_substEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_substCore___lambda__21___closed__12;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_subst_findEq___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_substCore___lambda__14___closed__7;
 lean_object* l_Lean_Meta_mkEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_substCore___lambda__20___closed__4;
 static lean_object* l_Lean_Meta_substCore___lambda__2___closed__5;
@@ -290,7 +291,7 @@ static lean_object* _init_l_Nat_foldM_loop___at_Lean_Meta_substCore___spec__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_from_bytes("index out of bounds", 19);
 return x_1;
 }
 }
@@ -2160,12 +2161,20 @@ return x_1;
 static lean_object* _init_l_Lean_Meta_substCore___lambda__14___closed__6() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_substCore___lambda__14___closed__7() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_substCore___lambda__14___closed__4;
 x_2 = l_Lean_Meta_substCore___lambda__14___closed__5;
 x_3 = lean_unsigned_to_nat(64u);
 x_4 = lean_unsigned_to_nat(22u);
-x_5 = l_Nat_foldM_loop___at_Lean_Meta_substCore___spec__1___closed__3;
+x_5 = l_Lean_Meta_substCore___lambda__14___closed__6;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -2230,7 +2239,7 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_111 = l_Lean_Meta_substCore___lambda__14___closed__6;
+x_111 = l_Lean_Meta_substCore___lambda__14___closed__7;
 x_112 = l_panic___at_Lean_Meta_substCore___spec__4(x_111, x_16, x_17, x_18, x_19, x_31);
 return x_112;
 }
@@ -5977,7 +5986,7 @@ x_1 = l_Lean_Meta_substCore___lambda__14___closed__4;
 x_2 = l_Lean_Meta_subst_substEq___lambda__1___closed__1;
 x_3 = lean_unsigned_to_nat(157u);
 x_4 = lean_unsigned_to_nat(55u);
-x_5 = l_Nat_foldM_loop___at_Lean_Meta_substCore___spec__1___closed__3;
+x_5 = l_Lean_Meta_substCore___lambda__14___closed__6;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -11733,6 +11742,8 @@ l_Lean_Meta_substCore___lambda__14___closed__5 = _init_l_Lean_Meta_substCore___l
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__14___closed__5);
 l_Lean_Meta_substCore___lambda__14___closed__6 = _init_l_Lean_Meta_substCore___lambda__14___closed__6();
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__14___closed__6);
+l_Lean_Meta_substCore___lambda__14___closed__7 = _init_l_Lean_Meta_substCore___lambda__14___closed__7();
+lean_mark_persistent(l_Lean_Meta_substCore___lambda__14___closed__7);
 l_Lean_Meta_substCore___lambda__17___closed__1 = _init_l_Lean_Meta_substCore___lambda__17___closed__1();
 lean_mark_persistent(l_Lean_Meta_substCore___lambda__17___closed__1);
 l_Lean_Meta_substCore___lambda__17___closed__2 = _init_l_Lean_Meta_substCore___lambda__17___closed__2();

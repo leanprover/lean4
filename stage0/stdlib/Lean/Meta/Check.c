@@ -52,6 +52,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_addPPExplicitToExposeDiff_hasExplicitDiff_x
 static lean_object* l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__11;
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Meta_addPPExplicitToExposeDiff_visit___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_levelParams(lean_object*);
 static lean_object* l_Lean_Meta_isTypeCorrect___closed__3;
@@ -835,12 +836,20 @@ return x_1;
 static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__3() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("index out of bounds", 19);
+return x_1;
+}
+}
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__4() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__1;
 x_2 = l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__2;
 x_3 = lean_unsigned_to_nat(62u);
 x_4 = lean_unsigned_to_nat(36u);
-x_5 = l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__3;
+x_5 = l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -876,7 +885,7 @@ lean_dec(x_27);
 if (x_26 == 0)
 {
 lean_object* x_29; lean_object* x_30; 
-x_29 = l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__3;
+x_29 = l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__4;
 x_30 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_29);
 if (x_28 == 0)
 {
@@ -1082,7 +1091,7 @@ x_69 = lean_array_fget(x_23, x_2);
 if (x_28 == 0)
 {
 lean_object* x_70; lean_object* x_71; lean_object* x_72; 
-x_70 = l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__3;
+x_70 = l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__4;
 x_71 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_70);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -1295,7 +1304,7 @@ lean_dec(x_113);
 if (x_112 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
-x_115 = l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__3;
+x_115 = l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__4;
 x_116 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_115);
 if (x_114 == 0)
 {
@@ -1511,7 +1520,7 @@ x_159 = lean_array_fget(x_109, x_2);
 if (x_114 == 0)
 {
 lean_object* x_160; lean_object* x_161; lean_object* x_162; 
-x_160 = l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__3;
+x_160 = l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__4;
 x_161 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_160);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -2376,7 +2385,7 @@ x_155 = lean_nat_dec_lt(x_7, x_4);
 if (x_155 == 0)
 {
 lean_object* x_156; lean_object* x_157; 
-x_156 = l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__3;
+x_156 = l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__4;
 x_157 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_156);
 x_29 = x_157;
 goto block_154;
@@ -2464,7 +2473,7 @@ lean_dec(x_76);
 if (x_75 == 0)
 {
 lean_object* x_78; lean_object* x_79; 
-x_78 = l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__3;
+x_78 = l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__4;
 x_79 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_78);
 if (x_77 == 0)
 {
@@ -2620,7 +2629,7 @@ x_114 = lean_array_fget(x_2, x_7);
 if (x_77 == 0)
 {
 lean_object* x_115; lean_object* x_116; lean_object* x_117; 
-x_115 = l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__3;
+x_115 = l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__4;
 x_116 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_115);
 lean_inc(x_14);
 lean_inc(x_13);
@@ -7191,6 +7200,8 @@ l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1_
 lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__2);
 l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__3 = _init_l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__3();
 lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__3);
+l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__4 = _init_l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__4();
+lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__1___closed__4);
 l_Lean_Meta_addPPExplicitToExposeDiff_visit___lambda__1___closed__1 = _init_l_Lean_Meta_addPPExplicitToExposeDiff_visit___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_Meta_addPPExplicitToExposeDiff_visit___lambda__1___closed__1);
 l_Lean_Meta_addPPExplicitToExposeDiff_hasExplicitDiff_x3f___closed__1 = _init_l_Lean_Meta_addPPExplicitToExposeDiff_hasExplicitDiff_x3f___closed__1();

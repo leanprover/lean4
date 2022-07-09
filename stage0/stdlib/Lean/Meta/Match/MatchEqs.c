@@ -431,6 +431,7 @@ uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
 extern lean_object* l_Lean_Meta_Match_matchEqnsExt;
 static lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_convertCastEqRec_go___closed__8;
 lean_object* l_Lean_Meta_SavedState_restore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_transform_visit_visitForall___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_convertTemplate___spec__10___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_convertCastEqRec___spec__8___lambda__6___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_convertCastEqRec_go___spec__3___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -780,7 +781,7 @@ static lean_object* _init_l_Lean_Meta_casesOnStuckLHS_findFVar_x3f___lambda__1__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_from_bytes("index out of bounds", 19);
 return x_1;
 }
 }
@@ -2156,14 +2157,9 @@ return x_1;
 static lean_object* _init_l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__1;
-x_2 = l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__2;
-x_3 = lean_unsigned_to_nat(97u);
-x_4 = lean_unsigned_to_nat(47u);
-x_5 = l_Lean_Meta_casesOnStuckLHS_findFVar_x3f___lambda__1___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__4() {
@@ -2172,9 +2168,22 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__1;
 x_2 = l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__2;
+x_3 = lean_unsigned_to_nat(97u);
+x_4 = lean_unsigned_to_nat(47u);
+x_5 = l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__3;
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+return x_6;
+}
+}
+static lean_object* _init_l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_1 = l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__1;
+x_2 = l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__2;
 x_3 = lean_unsigned_to_nat(99u);
 x_4 = lean_unsigned_to_nat(49u);
-x_5 = l_Lean_Meta_casesOnStuckLHS_findFVar_x3f___lambda__1___closed__3;
+x_5 = l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -2283,7 +2292,7 @@ if (lean_obj_tag(x_40) == 0)
 lean_object* x_41; lean_object* x_42; 
 lean_dec(x_27);
 lean_dec(x_26);
-x_41 = l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__3;
+x_41 = l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__4;
 lean_inc(x_15);
 lean_inc(x_14);
 lean_inc(x_13);
@@ -2354,7 +2363,7 @@ lean_dec(x_51);
 lean_dec(x_50);
 lean_dec(x_27);
 lean_dec(x_26);
-x_53 = l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__4;
+x_53 = l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__5;
 lean_inc(x_15);
 lean_inc(x_14);
 lean_inc(x_13);
@@ -23070,7 +23079,7 @@ x_1 = l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__1;
 x_2 = l_Std_Range_forIn_loop___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_convertCastEqRec___spec__6___closed__1;
 x_3 = lean_unsigned_to_nat(525u);
 x_4 = lean_unsigned_to_nat(70u);
-x_5 = l_Lean_Meta_casesOnStuckLHS_findFVar_x3f___lambda__1___closed__3;
+x_5 = l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -24960,7 +24969,7 @@ x_1 = l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__1;
 x_2 = l_Std_Range_forIn_loop___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_convertCastEqRec___spec__6___closed__1;
 x_3 = lean_unsigned_to_nat(514u);
 x_4 = lean_unsigned_to_nat(75u);
-x_5 = l_Lean_Meta_casesOnStuckLHS_findFVar_x3f___lambda__1___closed__3;
+x_5 = l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -38184,6 +38193,8 @@ l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__3 = _init_l
 lean_mark_persistent(l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__3);
 l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__4 = _init_l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__4();
 lean_mark_persistent(l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__4);
+l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__5 = _init_l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__5();
+lean_mark_persistent(l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__5);
 l_Lean_Meta_Match_forallAltTelescope_go___rarg___closed__1 = _init_l_Lean_Meta_Match_forallAltTelescope_go___rarg___closed__1();
 lean_mark_persistent(l_Lean_Meta_Match_forallAltTelescope_go___rarg___closed__1);
 l_Lean_Meta_Match_forallAltTelescope_go___rarg___closed__2 = _init_l_Lean_Meta_Match_forallAltTelescope_go___rarg___closed__2();

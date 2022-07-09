@@ -202,6 +202,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__3(
 static lean_object* l_Lean_Meta_mkHCongrWithArity_mkProof___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__5;
 static lean_object* l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__3;
 lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkHCongrWithArity_mkProof___closed__5;
@@ -574,7 +575,7 @@ static lean_object* _init_l_Lean_Meta_mkHCongrWithArity_withNewEqs_loop___rarg__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_from_bytes("index out of bounds", 19);
 return x_1;
 }
 }
@@ -4701,17 +4702,25 @@ return x_1;
 static lean_object* _init_l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__3() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__4() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__1;
 x_2 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__2;
 x_3 = lean_unsigned_to_nat(142u);
 x_4 = lean_unsigned_to_nat(61u);
-x_5 = l_Lean_Meta_mkHCongrWithArity_withNewEqs_loop___rarg___closed__5;
+x_5 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
-static lean_object* _init_l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__4() {
+static lean_object* _init_l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -4857,7 +4866,7 @@ lean_dec(x_11);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_1);
-x_16 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__3;
+x_16 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__4;
 x_17 = l_panic___at_Lean_Meta_whnfCore_go___spec__1(x_16, x_6, x_7, x_8, x_9, x_14);
 return x_17;
 }
@@ -4996,7 +5005,7 @@ lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; uint
 x_50 = lean_ctor_get(x_23, 1);
 lean_inc(x_50);
 lean_dec(x_23);
-x_51 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__4;
+x_51 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__5;
 lean_inc(x_21);
 x_52 = lean_array_push(x_51, x_21);
 lean_inc(x_11);
@@ -6286,7 +6295,7 @@ lean_inc(x_23);
 x_24 = lean_ctor_get(x_22, 1);
 lean_inc(x_24);
 lean_dec(x_22);
-x_25 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__4;
+x_25 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__5;
 x_26 = lean_array_push(x_25, x_5);
 x_27 = lean_array_push(x_26, x_6);
 x_28 = l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__3___closed__4;
@@ -6460,7 +6469,7 @@ x_1 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__1;
 x_2 = l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__4___closed__1;
 x_3 = lean_unsigned_to_nat(262u);
 x_4 = lean_unsigned_to_nat(39u);
-x_5 = l_Lean_Meta_mkHCongrWithArity_withNewEqs_loop___rarg___closed__5;
+x_5 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -6473,7 +6482,7 @@ x_1 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__1;
 x_2 = l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__4___closed__1;
 x_3 = lean_unsigned_to_nat(261u);
 x_4 = lean_unsigned_to_nat(30u);
-x_5 = l_Lean_Meta_mkHCongrWithArity_withNewEqs_loop___rarg___closed__5;
+x_5 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -6717,7 +6726,7 @@ lean_dec(x_12);
 x_15 = l_Lean_Expr_bindingBody_x21(x_5);
 x_16 = l_Lean_Expr_bindingBody_x21(x_15);
 lean_dec(x_15);
-x_17 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__4;
+x_17 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__5;
 x_18 = lean_array_push(x_17, x_13);
 lean_inc(x_4);
 x_19 = lean_array_push(x_18, x_4);
@@ -6794,7 +6803,7 @@ x_1 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__1;
 x_2 = l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__4___closed__1;
 x_3 = lean_unsigned_to_nat(256u);
 x_4 = lean_unsigned_to_nat(43u);
-x_5 = l_Lean_Meta_mkHCongrWithArity_withNewEqs_loop___rarg___closed__5;
+x_5 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -7026,7 +7035,7 @@ x_1 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__1;
 x_2 = l_Lean_Meta_mkCongrSimpCore_x3f_mk_x3f_go___closed__1;
 x_3 = lean_unsigned_to_nat(234u);
 x_4 = lean_unsigned_to_nat(43u);
-x_5 = l_Lean_Meta_mkHCongrWithArity_withNewEqs_loop___rarg___closed__5;
+x_5 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -7039,7 +7048,7 @@ x_1 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__1;
 x_2 = l_Lean_Meta_mkCongrSimpCore_x3f_mk_x3f_go___closed__1;
 x_3 = lean_unsigned_to_nat(233u);
 x_4 = lean_unsigned_to_nat(34u);
-x_5 = l_Lean_Meta_mkHCongrWithArity_withNewEqs_loop___rarg___closed__5;
+x_5 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -8344,6 +8353,8 @@ l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__3 = _init_l
 lean_mark_persistent(l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__3);
 l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__4 = _init_l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__4();
 lean_mark_persistent(l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__4);
+l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__5 = _init_l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__5();
+lean_mark_persistent(l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__5);
 l_Array_forInUnsafe_loop___at___private_Lean_Meta_CongrTheorems_0__Lean_Meta_shouldUseSubsingletonInst___spec__1___closed__1 = _init_l_Array_forInUnsafe_loop___at___private_Lean_Meta_CongrTheorems_0__Lean_Meta_shouldUseSubsingletonInst___spec__1___closed__1();
 lean_mark_persistent(l_Array_forInUnsafe_loop___at___private_Lean_Meta_CongrTheorems_0__Lean_Meta_shouldUseSubsingletonInst___spec__1___closed__1);
 l_Array_forInUnsafe_loop___at___private_Lean_Meta_CongrTheorems_0__Lean_Meta_shouldUseSubsingletonInst___spec__1___closed__2 = _init_l_Array_forInUnsafe_loop___at___private_Lean_Meta_CongrTheorems_0__Lean_Meta_shouldUseSubsingletonInst___spec__1___closed__2();

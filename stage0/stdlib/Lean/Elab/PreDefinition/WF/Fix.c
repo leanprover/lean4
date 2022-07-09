@@ -21,6 +21,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at___private_Lean_Elab_PreDef
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_replaceRecApps_processRec___closed__1;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_replaceRecApps_loop___spec__7___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__8;
 size_t lean_usize_add(size_t, size_t);
 lean_object* l_Lean_addTrace___at___private_Lean_Elab_Term_0__Lean_Elab_Term_tryCoe___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_HasConstCache_containsUnsafe(lean_object*, lean_object*, lean_object*);
@@ -975,7 +976,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+x_1 = lean_mk_string_from_bytes("index out of bounds", 19);
 return x_1;
 }
 }
@@ -7377,17 +7378,25 @@ return x_1;
 static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__6() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__7() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__4;
 x_2 = l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__5;
 x_3 = lean_unsigned_to_nat(147u);
 x_4 = lean_unsigned_to_nat(49u);
-x_5 = l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_replaceRecApps_processRec___closed__4;
+x_5 = l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__6;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
-static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__7() {
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -7497,7 +7506,7 @@ lean_dec(x_39);
 lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
-x_42 = l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__6;
+x_42 = l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__7;
 x_43 = l_panic___at___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___spec__1(x_42, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 return x_43;
 }
@@ -7522,7 +7531,7 @@ lean_dec(x_39);
 lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
-x_46 = l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__6;
+x_46 = l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__7;
 x_47 = l_panic___at___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___spec__1(x_46, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 return x_47;
 }
@@ -7540,7 +7549,7 @@ lean_dec(x_39);
 lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
-x_49 = l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__6;
+x_49 = l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__7;
 x_50 = l_panic___at___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___spec__1(x_49, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 return x_50;
 }
@@ -7719,7 +7728,7 @@ if (lean_is_scalar(x_45)) {
 lean_ctor_set(x_85, 0, x_73);
 lean_ctor_set(x_85, 1, x_84);
 x_86 = l_Lean_mkConst(x_14, x_85);
-x_87 = l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__7;
+x_87 = l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__8;
 x_88 = lean_array_push(x_87, x_60);
 x_89 = lean_array_push(x_88, x_61);
 x_90 = lean_array_push(x_89, x_72);
@@ -7761,7 +7770,7 @@ if (lean_is_scalar(x_45)) {
 lean_ctor_set(x_100, 0, x_73);
 lean_ctor_set(x_100, 1, x_99);
 x_101 = l_Lean_mkConst(x_14, x_100);
-x_102 = l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__7;
+x_102 = l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__8;
 x_103 = lean_array_push(x_102, x_60);
 x_104 = lean_array_push(x_103, x_61);
 x_105 = lean_array_push(x_104, x_72);
@@ -7846,7 +7855,7 @@ if (lean_is_scalar(x_45)) {
 lean_ctor_set(x_122, 0, x_73);
 lean_ctor_set(x_122, 1, x_121);
 x_123 = l_Lean_mkConst(x_14, x_122);
-x_124 = l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__7;
+x_124 = l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__8;
 x_125 = lean_array_push(x_124, x_60);
 x_126 = lean_array_push(x_125, x_61);
 x_127 = lean_array_push(x_126, x_72);
@@ -7888,7 +7897,7 @@ if (lean_is_scalar(x_45)) {
 lean_ctor_set(x_137, 0, x_73);
 lean_ctor_set(x_137, 1, x_136);
 x_138 = l_Lean_mkConst(x_14, x_137);
-x_139 = l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__7;
+x_139 = l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__8;
 x_140 = lean_array_push(x_139, x_60);
 x_141 = lean_array_push(x_140, x_61);
 x_142 = lean_array_push(x_141, x_72);
@@ -8034,7 +8043,7 @@ lean_dec(x_39);
 lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
-x_172 = l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__6;
+x_172 = l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__7;
 x_173 = l_panic___at___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___spec__1(x_172, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 return x_173;
 }
@@ -9132,6 +9141,8 @@ l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn_
 lean_mark_persistent(l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__6);
 l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__7 = _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__7();
 lean_mark_persistent(l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__7);
+l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__8 = _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__8();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__8);
 l_Lean_Elab_WF_mkFix___lambda__1___closed__1 = _init_l_Lean_Elab_WF_mkFix___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_Elab_WF_mkFix___lambda__1___closed__1);
 l_Lean_Elab_WF_mkFix___lambda__1___closed__2 = _init_l_Lean_Elab_WF_mkFix___lambda__1___closed__2();

@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+static lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__10;
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Lean_Expr_litValue_x21(lean_object*);
@@ -1194,12 +1195,20 @@ return x_1;
 static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__9() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("index out of bounds", 19);
+return x_1;
+}
+}
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__10() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__7;
 x_2 = l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__8;
 x_3 = lean_unsigned_to_nat(62u);
 x_4 = lean_unsigned_to_nat(36u);
-x_5 = l_Lean_Meta_ACLt_lt_lexSameCtor___closed__3;
+x_5 = l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__9;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -1225,7 +1234,7 @@ x_108 = lean_nat_dec_lt(x_9, x_6);
 if (x_108 == 0)
 {
 lean_object* x_109; lean_object* x_110; uint8_t x_111; 
-x_109 = l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__9;
+x_109 = l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__10;
 x_110 = l_panic___at_Lean_Meta_ACLt_lt_ltApp___spec__1(x_109);
 x_111 = l_Lean_Meta_ParamInfo_isInstImplicit(x_110);
 lean_dec(x_110);
@@ -1452,7 +1461,7 @@ x_58 = lean_nat_dec_lt(x_9, x_4);
 if (x_57 == 0)
 {
 lean_object* x_59; lean_object* x_60; 
-x_59 = l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__9;
+x_59 = l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__10;
 x_60 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_59);
 if (x_58 == 0)
 {
@@ -1605,7 +1614,7 @@ x_83 = lean_array_fget(x_1, x_9);
 if (x_58 == 0)
 {
 lean_object* x_84; lean_object* x_85; lean_object* x_86; 
-x_84 = l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__9;
+x_84 = l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__10;
 x_85 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_84);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -1804,7 +1813,7 @@ x_55 = lean_nat_dec_lt(x_7, x_4);
 if (x_54 == 0)
 {
 lean_object* x_56; lean_object* x_57; 
-x_56 = l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__9;
+x_56 = l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__10;
 x_57 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_56);
 if (x_55 == 0)
 {
@@ -1957,7 +1966,7 @@ x_80 = lean_array_fget(x_1, x_7);
 if (x_55 == 0)
 {
 lean_object* x_81; lean_object* x_82; lean_object* x_83; 
-x_81 = l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__9;
+x_81 = l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__10;
 x_82 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_81);
 lean_inc(x_14);
 lean_inc(x_13);
@@ -3079,7 +3088,7 @@ x_58 = lean_nat_dec_lt(x_8, x_5);
 if (x_58 == 0)
 {
 lean_object* x_59; lean_object* x_60; uint8_t x_61; 
-x_59 = l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__9;
+x_59 = l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__10;
 x_60 = l_panic___at_Lean_Meta_ACLt_lt_ltApp___spec__1(x_59);
 x_61 = l_Lean_Meta_ParamInfo_isInstImplicit(x_60);
 lean_dec(x_60);
@@ -3169,7 +3178,7 @@ x_31 = lean_nat_dec_lt(x_8, x_3);
 if (x_31 == 0)
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; 
-x_32 = l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__9;
+x_32 = l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__10;
 x_33 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_32);
 lean_inc(x_15);
 lean_inc(x_14);
@@ -3371,7 +3380,7 @@ x_20 = lean_nat_dec_lt(x_6, x_3);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; 
-x_21 = l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__9;
+x_21 = l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__10;
 x_22 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_21);
 lean_inc(x_13);
 lean_inc(x_12);
@@ -4475,6 +4484,8 @@ l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__8 = _ini
 lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__8);
 l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__9 = _init_l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__9();
 lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__9);
+l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__10 = _init_l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__10();
+lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__10);
 l_Lean_Meta_ACLt_lt_ltApp___lambda__2___closed__1 = _init_l_Lean_Meta_ACLt_lt_ltApp___lambda__2___closed__1();
 lean_mark_persistent(l_Lean_Meta_ACLt_lt_ltApp___lambda__2___closed__1);
 l_Lean_Meta_ACLt_lt_ltApp___closed__1 = _init_l_Lean_Meta_ACLt_lt_ltApp___closed__1();

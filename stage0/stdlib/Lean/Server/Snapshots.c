@@ -16,8 +16,8 @@ extern "C" {
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_msgLog___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_Snapshots_Snapshot_diagnostics___spec__3___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__5;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__3;
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_compileNextCmd___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -29,13 +29,11 @@ static lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots_
 static lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__3;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_parseAhead_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__1;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_parseAhead_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__2;
 static lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree___closed__2;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_Snapshots_Snapshot_diagnostics___spec__4(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__14;
@@ -50,6 +48,7 @@ LEAN_EXPORT lean_object* l_IO_withStderr___at_Lean_Server_Snapshots_compileNextC
 lean_object* l_IO_FS_Stream_ofBuffer(lean_object*);
 lean_object* lean_get_set_stderr(lean_object*, lean_object*);
 static lean_object* l_IO_FS_withIsolatedStreams___at_Lean_Server_Snapshots_compileNextCmd___spec__1___closed__1;
+static lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__4;
 static lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_6____closed__2;
 LEAN_EXPORT lean_object* l_IO_withStdin___at_Lean_Server_Snapshots_compileNextCmd___spec__3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__5;
@@ -65,6 +64,7 @@ static lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree___closed__6;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__7;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+static lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__1;
 LEAN_EXPORT lean_object* l_Std_PersistentArray_mapMAux___at_Lean_Server_Snapshots_Snapshot_diagnostics___spec__2(lean_object*);
 lean_object* l_Std_PersistentArray_get_x21___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_from_utf8_unchecked(lean_object*);
@@ -76,14 +76,14 @@ extern lean_object* l_Lean_instInhabitedMessage;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Snapshots_compileNextCmd___closed__6;
-static lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__5;
+static lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__3;
 lean_object* l_Lean_Elab_Command_withLogging(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_firstFrontendMacroScope;
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot;
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_endPos___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_6_(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_Widget_InteractiveDiagnostic_toDiagnostic(lean_object*);
@@ -92,8 +92,10 @@ LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_parseNextCmd(lean_object*, lean
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_isAtEnd___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_compileNextCmd___lambda__3(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
+static lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__6;
 lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_instInhabitedInfoTree;
+static lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__2;
 uint8_t l_String_isEmpty(lean_object*);
 uint8_t l_Lean_Parser_isExitCommand(lean_object*);
 static lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__12;
@@ -112,7 +114,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_endPos(lean_object*);
 static lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__8;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Snapshots_compileNextCmd___closed__1;
-static lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__4;
 LEAN_EXPORT lean_object* l_panic___at_Lean_Server_Snapshots_Snapshot_infoTree___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_compileNextCmd___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
@@ -126,7 +127,6 @@ uint8_t l_Lean_Parser_isEOI(lean_object*);
 static lean_object* l_Lean_Server_Snapshots_compileNextCmd___closed__2;
 static lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_Snapshots_Snapshot_diagnostics___spec__4___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__6;
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_compileNextCmd_withNewInteractiveDiags(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree___closed__3;
 static lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__13;
@@ -992,7 +992,7 @@ lean_dec(x_2);
 return x_15;
 }
 }
-static lean_object* _init_l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__1() {
+static lean_object* _init_l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1000,17 +1000,17 @@ x_1 = lean_mk_string_from_bytes("server", 6);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__2() {
+static lean_object* _init_l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__1;
+x_2 = l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__3() {
+static lean_object* _init_l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1018,17 +1018,17 @@ x_1 = lean_mk_string_from_bytes("stderrAsMessages", 16);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__4() {
+static lean_object* _init_l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__2;
-x_2 = l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__3;
+x_1 = l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__2;
+x_2 = l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__3;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__5() {
+static lean_object* _init_l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -1036,13 +1036,13 @@ x_1 = lean_mk_string_from_bytes("(server) capture output to the Lean stderr chan
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__6() {
+static lean_object* _init_l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__6() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = 1;
-x_2 = l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__1;
-x_3 = l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__5;
+x_2 = l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__1;
+x_3 = l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__5;
 x_4 = lean_box(x_1);
 x_5 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_5, 0, x_4);
@@ -1051,12 +1051,12 @@ lean_ctor_set(x_5, 2, x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__4;
-x_3 = l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__6;
+x_2 = l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__4;
+x_3 = l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__6;
 x_4 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_6____spec__1(x_2, x_3, x_1);
 return x_4;
 }
@@ -2629,19 +2629,19 @@ l_Lean_Server_Snapshots_Snapshot_infoTree___closed__5 = _init_l_Lean_Server_Snap
 lean_mark_persistent(l_Lean_Server_Snapshots_Snapshot_infoTree___closed__5);
 l_Lean_Server_Snapshots_Snapshot_infoTree___closed__6 = _init_l_Lean_Server_Snapshots_Snapshot_infoTree___closed__6();
 lean_mark_persistent(l_Lean_Server_Snapshots_Snapshot_infoTree___closed__6);
-l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__1 = _init_l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__1();
-lean_mark_persistent(l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__1);
-l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__2 = _init_l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__2();
-lean_mark_persistent(l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__2);
-l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__3 = _init_l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__3();
-lean_mark_persistent(l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__3);
-l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__4 = _init_l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__4();
-lean_mark_persistent(l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__4);
-l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__5 = _init_l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__5();
-lean_mark_persistent(l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__5);
-l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__6 = _init_l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__6();
-lean_mark_persistent(l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358____closed__6);
-if (builtin) {res = l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_358_(lean_io_mk_world());
+l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__1 = _init_l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__1();
+lean_mark_persistent(l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__1);
+l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__2 = _init_l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__2();
+lean_mark_persistent(l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__2);
+l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__3 = _init_l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__3();
+lean_mark_persistent(l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__3);
+l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__4 = _init_l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__4();
+lean_mark_persistent(l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__4);
+l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__5 = _init_l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__5();
+lean_mark_persistent(l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__5);
+l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__6 = _init_l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__6();
+lean_mark_persistent(l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370____closed__6);
+if (builtin) {res = l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_370_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Server_Snapshots_server_stderrAsMessages = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Server_Snapshots_server_stderrAsMessages);

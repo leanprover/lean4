@@ -32,6 +32,7 @@ COMMANDS:
   run <script>          shorthand for `lake script run`
   serve                 start the Lean language server
   env <cmd> [<args>...] execute a command in the workspace's environment
+  exe <exe> [<args>...] build an exe and run it in the workspace's environment
 
 See `lake help <command>` for more information on a specific command."
 
@@ -176,14 +177,38 @@ with the package configuration's `moreServerArgs` field and `args`.
 "
 
 def helpEnv :=
-"Execute a command in the package's environment
+"Execute a command in the workspace's environment
 
 USAGE:
   lake env <cmd> [<args>...]
 
-Spawns a new process executing `cmd` with the given `args` and
-with the `LEAN_PATH` environment variable set to include the `.olean`
-directories of the package."
+Spawns a new process executing `cmd` with the given `args` and with
+the environment set based on the workspace configuration and the detected
+Lean/Lake installations.
+
+Specifically, this command sets the following environment variables:
+
+  LAKE                  set to the detected Lake executable
+  LAKE_HOME             set to the detected Lake home
+  LEAN_SYSROOT          set to the detected Lean sysroot
+  LEAN_AR               set to the detected Lean `ar` binary
+  LEAN_CC               set to the detected `cc` (if not using bundled one)
+  LEAN_PATH             adds the workspace's library directories
+  LEAN_SRC_PATH         adds the workspace's source directories
+  PATH                  adds the workspace's library directories (Windows)
+  DYLD_LIBRARY_PATH     adds the workspace's library directories (MacOS)
+  LD_LIBRARY_PATH       adds the workspace's library directories (other Unix)"
+
+def helpExe :=
+"Build an executable target and run it in the workspace's environment
+
+USAGE:
+  lake exe <exe-target> [<args>...]
+
+Looks for the executable target in the workspace (see `lake help build` to
+learn how to specify targets), builds it if it is out of date, and then runs
+it with the given `args` in the workspace's environment (see `lake help env`
+for how the environment is set)."
 
 def helpScript : (cmd : String) → String
 | "list"      => helpScriptList
@@ -202,4 +227,5 @@ def help : (cmd : String) → String
 | "run"       => helpScriptRun
 | "serve"     => helpServe
 | "env"       => helpEnv
+| "exe"       => helpExe
 | _           => usage

@@ -1,5 +1,9 @@
-set -e
+set -ex
+
+LAKE=${LAKE:-../../build/bin/lake}
 
 ./clean.sh
-./package.sh
-./build/bin/hello
+
+$LAKE exe hello
+$LAKE exe hello Bob Bill
+build/bin/hello

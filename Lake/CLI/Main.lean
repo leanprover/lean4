@@ -241,6 +241,15 @@ def serve (config : LakeConfig) (args : Array String) : LogIO UInt32 := do
     env := extraEnv
   }).wait
 
+def exe (name : Name) (args  : Array String := #[]) : LakeT IO UInt32 := do
+  let ws ← getWorkspace
+  if let some exe := ws.findLeanExe? name then
+    let ctx ← mkBuildContext ws (← getLeanInstall) (← getLakeInstall)
+    let exeFile ← (exe.build >>= (·.build)).run MonadLog.eio ctx
+    env exeFile.toString args
+  else
+    error s!"unknown executable `{name}`"
+
 def parseScriptSpec (ws : Workspace) (spec : String) : Except CliError (Package × String) :=
   match spec.splitOn "/" with
   | [script] => return (ws.root, script)
@@ -329,16 +338,6 @@ protected def init : CliM PUnit := do
   let template ← parseTemplateSpec <| (← takeArg?).getD ""
   noArgsRem <| init pkgName template
 
-protected def script : CliM PUnit := do
-  if let some cmd ← takeArg? then
-    processLeadingOptions lakeOption -- between `lake script <cmd>` and args
-    if (← getWantsHelp) then
-      IO.println <| helpScript cmd
-    else
-      scriptCli cmd
-  else
-    throw <| CliError.missingCommand
-
 protected def build : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
@@ -369,6 +368,16 @@ protected def clean : CliM PUnit := do
   let config ← mkLakeConfig (← getThe LakeOptions)
   noArgsRem (← loadPkg config).clean
 
+protected def script : CliM PUnit := do
+  if let some cmd ← takeArg? then
+    processLeadingOptions lakeOption -- between `lake script <cmd>` and args
+    if (← getWantsHelp) then
+      IO.println <| helpScript cmd
+    else
+      scriptCli cmd
+  else
+    throw <| CliError.missingCommand
+
 protected def serve : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
@@ -382,6 +391,13 @@ protected def env : CliM PUnit := do
   let ws ← loadWorkspace config
   let ctx := mkLakeContext ws config
   exit <| ← (env cmd args.toArray).run ctx
+
+protected def exe : CliM PUnit := do
+  let exeName ← takeArg "executable name"; let args ← takeArgs
+  let config ← mkLakeConfig (← getThe LakeOptions)
+  let ws ← loadWorkspace config
+  let ctx := mkLakeContext ws config
+  exit <| ← (exe exeName args.toArray).run ctx
 
 protected def selfCheck : CliM PUnit := do
   processOptions lakeOption
@@ -404,6 +420,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "run"         => lake.script.run
 | "serve"       => lake.serve
 | "env"         => lake.env
+| "exe"         => lake.exe
 | "self-check"  => lake.selfCheck
 | "help"        => lake.help
 | cmd           => throw <| CliError.unknownCommand cmd

@@ -3,7 +3,6 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-
 import Lake.Config.Load
 import Lake.Config.SearchPath
 import Lake.Config.InstallPath
@@ -22,22 +21,24 @@ open Lean (Json toJson fromJson?)
 
 namespace Lake
 
-def Package.clean (self : Package) : IO PUnit := do
-  if (← self.buildDir.pathExists) then
-    IO.FS.removeDirAll self.buildDir
-
 -- # Loading Lake Config
 
 structure LakeConfig where
-  rootDir : FilePath := "."
-  configFile : FilePath := defaultConfigFile
+  rootDir : FilePath
+  configFile : FilePath
   leanInstall : LeanInstall
   lakeInstall : LakeInstall
-  options : NameMap String := {}
+  options : NameMap String
+
+/-- Make a Lake `Context` from a `Workspace` and `LakeConfig`. -/
+def mkLakeContext (ws : Workspace) (config : LakeConfig) : Context where
+  lean := config.leanInstall
+  lake := config.lakeInstall
+  opaqueWs := ws
 
 def loadPkg (config : LakeConfig) : LogIO Package := do
   setupLeanSearchPath config.leanInstall config.lakeInstall
-  Package.load config.rootDir config.options (config.rootDir / config.configFile)
+  Package.load config.rootDir config.options config.configFile
 
 def loadManifestMap (manifestFile : FilePath) : LogIO (Lean.NameMap PackageEntry) := do
   if let Except.ok contents ← IO.FS.readFile manifestFile  |>.toBaseIO then
@@ -67,6 +68,8 @@ def loadWorkspace (config : LakeConfig) (updateDeps := false) : LogIO Workspace 
 
 -- # CLI
 
+-- ## General options for top-level `lake`
+
 structure LakeOptions where
   rootDir : FilePath := "."
   configFile : FilePath := defaultConfigFile
@@ -76,62 +79,43 @@ structure LakeOptions where
   subArgs : List String := []
   wantsHelp : Bool := false
 
+/-- Get the Lean installation. Error if missing. -/
+def LakeOptions.getLeanInstall (opts : LakeOptions) : Except CliError LeanInstall :=
+  match opts.leanInstall? with
+  | none => .error CliError.unknownLeanInstall
+  | some lean => .ok lean
+
+/-- Get the Lake installation. Error if missing. -/
+def LakeOptions.getLakeInstall (opts : LakeOptions) : Except CliError LakeInstall :=
+  match opts.lakeInstall? with
+  | none => .error CliError.unknownLakeInstall
+  | some lake => .ok lake
+
+/-- Get the Lean and Lake installation. Error if either is missing. -/
+def LakeOptions.getInstall (opts : LakeOptions) : Except CliError (LeanInstall × LakeInstall) := do
+  return (← opts.getLeanInstall, ← opts.getLakeInstall)
+
+/-- Make a `LakeConfig` from a `LakeOptions`. -/
+def mkLakeConfig (opts : LakeOptions) : Except CliError LakeConfig :=
+  return {
+    rootDir := opts.rootDir,
+    configFile := opts.rootDir / opts.configFile,
+    leanInstall := ← opts.getLeanInstall,
+    lakeInstall := ← opts.getLakeInstall,
+    options := opts.configOptions
+  }
+
+-- ## Monad
+
 abbrev CliMainM := ExceptT CliError MainM
 abbrev CliStateM := StateT LakeOptions CliMainM
 abbrev CliM := ArgsT CliStateM
 
-namespace Cli
-
--- ## Option Management
-
-def getWantsHelp : CliStateM Bool :=
-  (·.wantsHelp) <$> get
-
-def setLean (lean : String) : CliStateM PUnit := do
-  let leanInstall? ← findLeanCmdInstall? lean
-  modify ({·  with leanInstall?})
-
--- ## Other Option Helpers
-
-/-- Get the Lean installation. Error if missing. -/
-def getLeanInstall (opts : LakeOptions) : Except CliError LeanInstall := do
-  if let some leanInstall := opts.leanInstall? then
-    return leanInstall
-  else
-    throw CliError.unknownLeanInstall
-
-/-- Get the Lake installation. Error if missing. -/
-def getLakeInstall (opts : LakeOptions) : Except CliError LakeInstall := do
-  if let some lakeInstall := opts.lakeInstall? then
-    return lakeInstall
-  else
-    throw CliError.unknownLakeInstall
-
-/-- Get the Lean and Lake installation. Error if either is missing. -/
-def getInstall (opts : LakeOptions) : Except CliError (LeanInstall × LakeInstall) := do
-  return (← getLeanInstall opts, ← getLakeInstall opts)
-
-/-- Make a `LakeConfig` from a `LakeOptions`. -/
-def mkLakeConfig (opts : LakeOptions) : Except CliError LakeConfig := do
-  let (leanInstall, lakeInstall) ← getInstall opts
-  return {
-    rootDir := opts.rootDir,
-    configFile := opts.configFile,
-    leanInstall, lakeInstall,
-    options := opts.configOptions
-  }
-
-/-- Make a Lake `Context` from a `Workspace` and `LakeConfig`. -/
-def mkLakeContext (ws : Workspace) (config : LakeConfig) : Context where
-  lean := config.leanInstall
-  lake := config.lakeInstall
-  opaqueWs := ws
-
-/-- Load configuration using CLI state and run the `LakeT` action. -/
-def runLakeT [MonadLiftT m CliStateM] (x : LakeT m α) : CliStateM α := do
-  let config ← mkLakeConfig (← get)
-  let ws ← loadWorkspace config
-  liftM <| x.run <| mkLakeContext ws config
+def CliM.run (self : CliM α) (args : List String) : BaseIO ExitCode := do
+  let (leanInstall?, lakeInstall?) ← findInstall?
+  let main := self args |>.run' {leanInstall?, lakeInstall?}
+  let main := main.run >>= fun | .ok a => pure a | .error e => error e.toString
+  main.run
 
 -- ## Argument Parsing
 
@@ -156,6 +140,13 @@ def noArgsRem (act : CliStateM α) : CliM α := do
 
 -- ## Option Parsing
 
+def getWantsHelp : CliStateM Bool :=
+  (·.wantsHelp) <$> get
+
+def setLean (lean : String) : CliStateM PUnit := do
+  let leanInstall? ← findLeanCmdInstall? lean
+  modify ({·  with leanInstall?})
+
 def setConfigOption (kvPair : String) : CliM PUnit :=
   let pos := kvPair.posOf '='
   let (key, val) :=
@@ -166,14 +157,14 @@ def setConfigOption (kvPair : String) : CliM PUnit :=
   modifyThe LakeOptions fun opts =>
     {opts with configOptions := opts.configOptions.insert key val}
 
-def shortOption : (opt : Char) → CliM PUnit
+def lakeShortOption : (opt : Char) → CliM PUnit
 | 'h' => modifyThe LakeOptions ({· with wantsHelp := true})
 | 'd' => do let rootDir ← takeOptArg "-d" "path"; modifyThe LakeOptions ({· with rootDir})
 | 'f' => do let configFile ← takeOptArg "-f" "path"; modifyThe LakeOptions ({· with configFile})
 | 'K' => do setConfigOption <| ← takeOptArg "-K" "key-value pair"
 | opt => throw <| CliError.unknownShortOption opt
 
-def longOption : (opt : String) → CliM PUnit
+def lakeLongOption : (opt : String) → CliM PUnit
 | "--help"  => modifyThe LakeOptions ({· with wantsHelp := true})
 | "--dir"   => do let rootDir ← takeOptArg "--dir" "path"; modifyThe LakeOptions ({· with rootDir})
 | "--file"  => do let configFile ← takeOptArg "--file" "path"; modifyThe LakeOptions ({· with configFile})
@@ -183,12 +174,12 @@ def longOption : (opt : String) → CliM PUnit
 
 def lakeOption :=
   option {
-    short := shortOption
-    long := longOption
-    longShort := shortOptionWithArg shortOption
+    short := lakeShortOption
+    long := lakeLongOption
+    longShort := shortOptionWithArg lakeShortOption
   }
 
--- ## Commands
+-- ## Actions
 
 /-- Verify the Lean version Lake was built with matches that of the give Lean installation. -/
 def verifyLeanVersion (leanInstall : LeanInstall) : Except CliError PUnit := do
@@ -199,7 +190,7 @@ def verifyLeanVersion (leanInstall : LeanInstall) : Except CliError PUnit := do
 def verifyInstall (opts : LakeOptions) : ExceptT CliError MainM PUnit := do
   IO.println s!"Lean:\n{repr <| opts.leanInstall?}"
   IO.println s!"Lake:\n{repr <| opts.lakeInstall?}"
-  let (leanInstall, _) ← getInstall opts
+  let (leanInstall, _) ← opts.getInstall
   verifyLeanVersion leanInstall
 
 /-- Exit code to return if `print-paths` cannot find the config file. -/
@@ -256,8 +247,23 @@ def parseScriptSpec (ws : Workspace) (spec : String) : Except CliError (Package 
   | [pkg, script] => return (← parsePackageSpec ws pkg, script)
   | _ => throw <| CliError.invalidScriptSpec spec
 
-def script : (cmd : String) → CliM PUnit
-| "list" => do
+def parseTemplateSpec (spec : String) : Except CliError InitTemplate :=
+  if spec.isEmpty then
+    pure default
+  else if let some tmp := InitTemplate.parse? spec then
+    pure tmp
+  else
+    throw <| CliError.unknownTemplate spec
+
+-- ## Commands
+
+namespace lake
+
+-- ### `lake script` CLI
+
+namespace script
+
+protected def list : CliM PUnit := do
   processOptions lakeOption
   let config ← mkLakeConfig (← getThe LakeOptions)
   noArgsRem do
@@ -267,7 +273,8 @@ def script : (cmd : String) → CliM PUnit
       pkg.scripts.forM fun name _ =>
         let scriptName := name.toString (escape := false)
         IO.println s!"{pkgName}/{scriptName}"
-| "run" => do
+
+protected nonrec def run : CliM PUnit := do
   processOptions lakeOption
   let spec ← takeArg "script name"; let args ← takeArgs
   let config ← mkLakeConfig (← getThe LakeOptions)
@@ -281,7 +288,8 @@ def script : (cmd : String) → CliM PUnit
     }
   else do
     throw <| CliError.unknownScript scriptName
-| "doc" => do
+
+protected def doc : CliM PUnit := do
   processOptions lakeOption
   let spec ← takeArg "script name"
   let config ← mkLakeConfig (← getThe LakeOptions)
@@ -294,31 +302,44 @@ def script : (cmd : String) → CliM PUnit
       | none => throw <| CliError.missingScriptDoc scriptName
     else
       throw <| CliError.unknownScript scriptName
-| "help" => do
+
+protected def help : CliM PUnit := do
   IO.println <| helpScript <| (← takeArg?).getD ""
-| cmd =>
-  throw <| CliError.unknownCommand cmd
 
-def parseTemplateSpec (spec : String) : Except CliError InitTemplate :=
-  if spec.isEmpty then
-    pure default
-  else if let some tmp := InitTemplate.parse? spec then
-    pure tmp
-  else
-    throw <| CliError.unknownTemplate spec
+end script
 
-def command : (cmd : String) → CliM PUnit
-| "new" => do
+def scriptCli : (cmd : String) → CliM PUnit
+| "list"  => script.list
+| "run"   => script.run
+| "doc"   => script.doc
+| "help"  => script.help
+| cmd     => throw <| CliError.unknownCommand cmd
+
+-- ### `lake` CLI
+
+protected def new : CliM PUnit := do
   processOptions lakeOption
   let pkgName ← takeArg "package name"
   let template ← parseTemplateSpec <| (← takeArg?).getD ""
   noArgsRem <| new pkgName template
-| "init" => do
+
+protected def init : CliM PUnit := do
   processOptions lakeOption
   let pkgName ← takeArg "package name"
   let template ← parseTemplateSpec <| (← takeArg?).getD ""
   noArgsRem <| init pkgName template
-| "build" => do
+
+protected def script : CliM PUnit := do
+  if let some cmd ← takeArg? then
+    processLeadingOptions lakeOption -- between `lake script <cmd>` and args
+    if (← getWantsHelp) then
+      IO.println <| helpScript cmd
+    else
+      scriptCli cmd
+  else
+    throw <| CliError.missingCommand
+
+protected def build : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let config ← mkLakeConfig opts
@@ -332,72 +353,76 @@ def command : (cmd : String) → CliM PUnit
       return Target.collectOpaqueList targets
   let ctx ← mkBuildContext ws config.leanInstall config.lakeInstall
   BuildM.run MonadLog.io ctx target.build
-| "update" => do
+
+protected def update : CliM PUnit := do
   processOptions lakeOption
-  let opts ← getThe LakeOptions
-  let config ← mkLakeConfig opts
+  let config ← mkLakeConfig (← getThe LakeOptions)
   noArgsRem <| discard <| loadWorkspace config (updateDeps := true)
-| "print-paths" => do
+
+protected def printPaths : CliM PUnit := do
   processOptions lakeOption
   let config ← mkLakeConfig (← getThe LakeOptions)
   printPaths config (← takeArgs)
-| "clean" => do
+
+protected def clean : CliM PUnit := do
   processOptions lakeOption
-  let opts ← getThe LakeOptions
-  let config ← mkLakeConfig opts
-  noArgsRem <| (← loadPkg config).clean
-| "script" => do
-  if let some cmd ← takeArg? then
-    processLeadingOptions lakeOption -- between command and args
-    if (← getWantsHelp) then
-      IO.println <| helpScript cmd
-    else
-      script cmd
-  else
-    throw <| CliError.missingCommand
-| "serve" => do
+  let config ← mkLakeConfig (← getThe LakeOptions)
+  noArgsRem (← loadPkg config).clean
+
+protected def serve : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let args := opts.subArgs.toArray
   let config ← mkLakeConfig opts
   noArgsRem do exit <| ← serve config args
-| "env" => do
+
+protected def env : CliM PUnit := do
   let cmd ← takeArg "command"; let args ← takeArgs
-  exit <| ← runLakeT <| env cmd args.toArray
-| "self-check"  => do
+  let config ← mkLakeConfig (← getThe LakeOptions)
+  let ws ← loadWorkspace config
+  let ctx := mkLakeContext ws config
+  exit <| ← (env cmd args.toArray).run ctx
+
+protected def selfCheck : CliM PUnit := do
   processOptions lakeOption
   noArgsRem <| verifyInstall (← getThe LakeOptions)
-| "help" => do
-  IO.println <| help <| (← takeArg?).getD ""
-| cmd =>
-  throw <| CliError.unknownCommand cmd
 
-def processArgs : CliM PUnit := do
+protected def help : CliM PUnit := do
+  IO.println <| help <| (← takeArg?).getD ""
+
+end lake
+
+def lakeCli : (cmd : String) → CliM PUnit
+| "new"         => lake.new
+| "init"        => lake.init
+| "build"       => lake.build
+| "update"      => lake.update
+| "print-paths" => lake.printPaths
+| "clean"       => lake.clean
+| "script"      => lake.script
+| "serve"       => lake.serve
+| "env"         => lake.env
+| "self-check"  => lake.selfCheck
+| "help"        => lake.help
+| cmd           => throw <| CliError.unknownCommand cmd
+
+def lake : CliM PUnit := do
   match (← getArgs) with
   | [] => IO.println usage
   | ["--version"] => IO.println uiVersionString
   | _ => -- normal CLI
     processLeadingOptions lakeOption -- between `lake` and command
     if let some cmd ← takeArg? then
-      processLeadingOptions lakeOption -- between command and args
+      processLeadingOptions lakeOption -- between `lake <cmd>` and args
       if (← getWantsHelp) then
         IO.println <| help cmd
       else
-        command cmd
+        lakeCli cmd
     else
       if (← getWantsHelp) then
         IO.println usage
       else
         throw <| CliError.missingCommand
 
-end Cli
-
-open Cli in
-def CliM.run (self : CliM α) (args : List String) : BaseIO UInt32 := do
-  let (leanInstall?, lakeInstall?) ← findInstall?
-  let main := self args |>.run' {leanInstall?, lakeInstall?}
-  let main := main.run >>= fun | .ok a => pure a | .error e => error e.toString
-  main.run
-
-def cli (args : List String) : BaseIO UInt32 :=
-  Cli.processArgs.run args
+def cli (args : List String) : BaseIO ExitCode :=
+  (lake).run args

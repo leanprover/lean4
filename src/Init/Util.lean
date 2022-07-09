@@ -59,10 +59,10 @@ def withPtrEq {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () =
 def withPtrAddr {α : Type u} {β : Type v} (a : α) (k : USize → β) (h : ∀ u₁ u₂, k u₁ = k u₂) : β := k 0
 
 @[inline] def getElem! [GetElem Cont Idx Elem Dom] [Inhabited Elem] (xs : Cont) (i : Idx) [Decidable (Dom xs i)] : Elem :=
-  if h : _ then getElem xs i h else unreachable!
+  if h : _ then getElem xs i h else panic! "index out of bounds"
 
 @[inline] def getElem? [GetElem Cont Idx Elem Dom] (xs : Cont) (i : Idx) [Decidable (Dom xs i)] : Option Elem :=
   if h : _ then some (getElem xs i h) else none
 
-macro:max (priority := high) x:term noWs "[" i:term "]" noWs "?" : term => `(getElem? $x $i) -- TODO: remove priority
-macro:max (priority := high) x:term noWs "[" i:term "]" noWs "!" : term => `(getElem! $x $i) -- TODO: remove priority
+macro:max x:term noWs "[" i:term "]" noWs "?" : term => `(getElem? $x $i)
+macro:max x:term noWs "[" i:term "]" noWs "!" : term => `(getElem! $x $i)

@@ -56,7 +56,7 @@ protected def mod : Fin n → Fin n → Fin n
 protected def div : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a / b) % n, mlt h⟩
 
-protected def modn : Fin n → Nat → Fin n
+def modn : Fin n → Nat → Fin n
   | ⟨a, h⟩, m => ⟨(a % m) % n, mlt h⟩
 
 def land : Fin n → Fin n → Fin n
@@ -100,9 +100,6 @@ instance : ShiftLeft (Fin n) where
 instance : ShiftRight (Fin n) where
   shiftRight := Fin.shiftRight
 
-instance : HMod (Fin n) Nat (Fin n) where
-  hMod := Fin.modn
-
 instance : OfNat (Fin (no_index (n+1))) i where
   ofNat := Fin.ofNat i
 
@@ -112,7 +109,7 @@ instance : Inhabited (Fin (no_index (n+1))) where
 theorem val_ne_of_ne {i j : Fin n} (h : i ≠ j) : val i ≠ val j :=
   fun h' => absurd (eq_of_val_eq h') h
 
-theorem modn_lt : ∀ {m : Nat} (i : Fin n), m > 0 → (i % m).val < m
+theorem modn_lt : ∀ {m : Nat} (i : Fin n), m > 0 → (modn i m).val < m
   | _, ⟨_, _⟩, hp =>  Nat.lt_of_le_of_lt (mod_le _ _) (mod_lt _ hp)
 
 end Fin

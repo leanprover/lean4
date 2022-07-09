@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Fin_instHModFinNat(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_ofNat(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_elim0___boxed(lean_object*, lean_object*);
@@ -515,15 +514,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Fin_shiftRight___boxed), 3, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Fin_instHModFinNat(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Fin_modn___boxed), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }

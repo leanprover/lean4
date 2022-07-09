@@ -539,7 +539,7 @@ private partial def compileStxMatch (discrs : List Term) (alts : List Alt) : Ter
         withFreshMacroScope $ compileStxMatch (newDiscrs ++ discrs) yesAlts.toList)
       (no := withFreshMacroScope $ compileStxMatch (discr::discrs) nonExhaustiveAlts.toList)
     for d in floatedLetDecls do
-      stx ← `(let_delayed $(⟨d⟩):letDecl; $stx)
+      stx ← `(let_delayed $d:letDecl; $stx)
     `(let discr := $discr; $stx)
   | _, _ => unreachable!
 

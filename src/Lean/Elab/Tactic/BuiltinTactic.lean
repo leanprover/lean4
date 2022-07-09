@@ -222,7 +222,7 @@ where
       return (fvars, [mvarId])
     withMainContext do
       for stx in ids, fvar in fvars do
-        Term.addLocalVarInfo stx.raw (mkFVar fvar)
+        Term.addLocalVarInfo stx (mkFVar fvar)
   | _ => throwUnsupportedSyntax
 
 @[builtinTactic Lean.Parser.Tactic.revert] def evalRevert : Tactic := fun stx =>

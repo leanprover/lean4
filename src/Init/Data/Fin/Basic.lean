@@ -112,6 +112,13 @@ theorem val_ne_of_ne {i j : Fin n} (h : i ≠ j) : val i ≠ val j :=
 theorem modn_lt : ∀ {m : Nat} (i : Fin n), m > 0 → (modn i m).val < m
   | _, ⟨_, _⟩, hp =>  Nat.lt_of_le_of_lt (mod_le _ _) (mod_lt _ hp)
 
+theorem val_lt_of_le (i : Fin b) (h : b ≤ n) : i.val < n :=
+  Nat.lt_of_lt_of_le i.isLt h
+
 end Fin
 
-open Fin
+instance [GetElem Cont Nat Elem Dom] : GetElem Cont (Fin n) Elem fun xs i => Dom xs i where
+  getElem xs i h := getElem xs i.1 h
+
+macro_rules
+  | `(tactic| get_elem_tactic_trivial) => `(tactic| apply Fin.val_lt_of_le; (first | assumption | simp (config := { arith := true })); done)

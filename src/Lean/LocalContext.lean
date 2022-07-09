@@ -326,13 +326,13 @@ instance : ForIn m LocalContext LocalDecl where
 
 partial def isSubPrefixOfAux (a₁ a₂ : PArray (Option LocalDecl)) (exceptFVars : Array Expr) (i j : Nat) : Bool :=
   if i < a₁.size then
-    match a₁[i] with
+    match a₁[i]! with
     | none       => isSubPrefixOfAux a₁ a₂ exceptFVars (i+1) j
     | some decl₁ =>
       if exceptFVars.any fun fvar => fvar.fvarId! == decl₁.fvarId then
         isSubPrefixOfAux a₁ a₂ exceptFVars (i+1) j
       else if j < a₂.size then
-        match a₂[j] with
+        match a₂[j]! with
         | none       => isSubPrefixOfAux a₁ a₂ exceptFVars i (j+1)
         | some decl₂ => if decl₁.fvarId == decl₂.fvarId then isSubPrefixOfAux a₁ a₂ exceptFVars (i+1) (j+1) else isSubPrefixOfAux a₁ a₂ exceptFVars i (j+1)
       else false
@@ -395,7 +395,7 @@ def sanitizeNames (lctx : LocalContext) : StateM NameSanitizerState LocalContext
   if !getSanitizeNames st.options then pure lctx else
     StateT.run' (s := ({} : NameSet)) <|
       lctx.decls.size.foldRevM (init := lctx) fun i lctx => do
-        match lctx.decls[i] with
+        match lctx.decls[i]! with
         | none      => pure lctx
         | some decl =>
           if decl.userName.hasMacroScopes || (← get).contains decl.userName then do

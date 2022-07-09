@@ -1229,6 +1229,11 @@ def panic {α : Type u} [Inhabited α] (msg : String) : α :=
 -- TODO: this be applied directly to `Inhabited`'s definition when we remove the above workaround
 attribute [nospecialize] Inhabited
 
+class GetElem (Cont : Type u) (Idx : Type v) (Elem : outParam (Type w)) (Dom : outParam (Cont → Idx → Prop)) where
+  getElem (xs : Cont) (i : Idx) (h : Dom xs i) : Elem
+
+export GetElem (getElem)
+
 /-
 The Compiler has special support for arrays.
 They are implemented using dynamic arrays: https://en.wikipedia.org/wiki/Dynamic_array
@@ -1269,6 +1274,9 @@ abbrev Array.getOp {α : Type u} (self : Array α) (idx : Fin self.size) : α :=
 
 abbrev Array.getOp! {α : Type u} [Inhabited α] (self : Array α) (idx : Nat) : α :=
   self.get! idx
+
+instance : GetElem (Array α) Nat α fun xs i => LT.lt i xs.size where
+  getElem xs i h := xs.get ⟨i, h⟩
 
 @[extern "lean_array_push"]
 def Array.push {α : Type u} (a : Array α) (v : α) : Array α := {
@@ -1912,6 +1920,9 @@ def getArg (stx : Syntax) (i : Nat) : Syntax :=
 -- Add `stx[i]` as sugar for `stx.getArg i`
 @[inline] def getOp (self : Syntax) (idx : Nat) : Syntax :=
   self.getArg idx
+
+instance : GetElem Syntax Nat Syntax fun _ _ => True where
+  getElem stx i _ := stx.getArg i
 
 def getArgs (stx : Syntax) : Array Syntax :=
   match stx with

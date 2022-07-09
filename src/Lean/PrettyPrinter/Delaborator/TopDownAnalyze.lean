@@ -326,7 +326,7 @@ partial def canBottomUp (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 
         inspectOutParams args[i]! mvars[i]!
       else if bInfos[i]! == BinderInfo.default then
         if ← isTrivialBottomUp args[i]! then tryUnify args[i]! mvars[i]!
-        else if ← typeUnknown mvars[i]! <&&> canBottomUp args[i]! mvars[i]! fuel then tryUnify args[i]! mvars[i]!
+        else if ← typeUnknown mvars[i]! <&&> canBottomUp args[i]! (some mvars[i]!) fuel then tryUnify args[i]! mvars[i]!
     if ← (pure (isHBinOp e) <&&> (valUnknown mvars[0]! <||> valUnknown mvars[1]!)) then tryUnify mvars[0]! mvars[1]!
     if mvar?.isSome then tryUnify resultType (← inferType mvar?.get!)
     return !(← valUnknown resultType)

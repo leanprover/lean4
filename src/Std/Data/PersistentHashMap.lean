@@ -106,8 +106,8 @@ partial def insertAux [BEq α] [Hashable α] : Node α β → USize → USize �
       | ⟨Node.collision keys vals heq, _⟩ =>
         let rec traverse (i : Nat) (entries : Node α β) : Node α β :=
           if h : i < keys.size then
-            let k := keys[⟨i, h⟩]
-            let v := vals[⟨i, heq ▸ h⟩]
+            let k := keys[i]
+            let v := vals[i]'(heq ▸ h)
             let h := hash k |>.toUSize
             let h := div2Shift h (shift * (depth - 1))
             traverse (i+1) (insertAux entries h depth k v)
@@ -129,8 +129,8 @@ def insert {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → �
 
 partial def findAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : keys.size = vals.size) (i : Nat) (k : α) : Option β :=
   if h : i < keys.size then
-    let k' := keys[⟨i, h⟩]
-    if k == k' then some vals[⟨i, by rw [←heq]; assumption⟩]
+    let k' := keys[i]
+    if k == k' then some (vals[i]'(by rw [←heq]; assumption))
     else findAtAux keys vals heq (i+1) k
   else none
 
@@ -149,6 +149,9 @@ def find? {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → Op
 @[inline] def getOp {_ : BEq α} {_ : Hashable α} (self : PersistentHashMap α β) (idx : α) : Option β :=
   self.find? idx
 
+instance {_ : BEq α} {_ : Hashable α} : GetElem (PersistentHashMap α β) α (Option β) fun _ _ => True where
+  getElem m i _ := m.find? i
+
 @[inline] def findD {_ : BEq α} {_ : Hashable α} (m : PersistentHashMap α β) (a : α) (b₀ : β) : β :=
   (m.find? a).getD b₀
 
@@ -159,8 +162,8 @@ def find? {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → Op
 
 partial def findEntryAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : keys.size = vals.size) (i : Nat) (k : α) : Option (α × β) :=
   if h : i < keys.size then
-    let k' := keys[⟨i, h⟩]
-    if k == k' then some (k', vals[⟨i, by rw [←heq]; assumption⟩])
+    let k' := keys[i]
+    if k == k' then some (k', vals[i]'(by rw [←heq]; assumption))
     else findEntryAtAux keys vals heq (i+1) k
   else none
 
@@ -178,7 +181,7 @@ def findEntry? {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α �
 
 partial def containsAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : keys.size = vals.size) (i : Nat) (k : α) : Bool :=
   if h : i < keys.size then
-    let k' := keys[⟨i, h⟩]
+    let k' := keys[i]
     if k == k' then true
     else containsAtAux keys vals heq (i+1) k
   else false
@@ -197,7 +200,7 @@ def contains [BEq α] [Hashable α] : PersistentHashMap α β → α → Bool
 
 partial def isUnaryEntries (a : Array (Entry α β (Node α β))) (i : Nat) (acc : Option (α × β)) : Option (α × β) :=
   if h : i < a.size then
-    match a[⟨i, h⟩] with
+    match a[i] with
     | Entry.null      => isUnaryEntries a (i+1) acc
     | Entry.ref _     => none
     | Entry.entry k v =>
@@ -211,7 +214,8 @@ def isUnaryNode : Node α β → Option (α × β)
   | Node.collision keys vals heq =>
     if h : 1 = keys.size then
       have : 0 < keys.size := by rw [←h]; decide
-      some (keys[⟨0, this⟩], vals[⟨0, by rw [←heq]; assumption⟩])
+      have : 0 < vals.size := by rw [←heq]; assumption
+      some (keys[0], vals[0])
     else
       none
 
@@ -253,8 +257,8 @@ variable {σ : Type w}
   | Node.collision keys vals heq, acc =>
     let rec traverse (i : Nat) (acc : σ) : m σ := do
       if h : i < keys.size then
-        let k := keys[⟨i, h⟩]
-        let v := vals[⟨i, heq ▸ h⟩]
+        let k := keys[i]
+        let v := vals[i]'(heq ▸ h)
         traverse (i+1) (← f acc k v)
       else
         pure acc

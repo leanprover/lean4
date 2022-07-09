@@ -193,7 +193,7 @@ def interpExpr : Expr → M Value
     | none   => do
       let s ← get
       match ctx.decls.findIdx? (fun decl => decl.name == fid) with
-      | some idx => pure s.funVals[idx]
+      | some idx => pure s.funVals[idx]!
       | none     => pure top
   | _ => pure top
 
@@ -273,14 +273,14 @@ def inferStep : M Bool := do
     match ctx.decls[idx]! with
     | Decl.fdecl (xs := ys) (body := b) .. => do
       let s ← get
-      let currVals := s.funVals[idx]
+      let currVals := s.funVals[idx]!
       withReader (fun ctx => { ctx with currFnIdx := idx }) do
         ys.forM fun y => updateVarAssignment y.x top
         interpFnBody b
         let s ← get
-        let newVals := s.funVals[idx]
+        let newVals := s.funVals[idx]!
         pure (modified || currVals != newVals)
-    | Decl.extern _ _ _ _ => pure modified
+    | Decl.extern .. => pure modified
 
 partial def inferMain : M Unit := do
   let modified ← inferStep
@@ -324,7 +324,7 @@ def elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
   let assignments := s.assignments
   modify fun s =>
     let env := decls.size.fold (init := s.env) fun i env =>
-      addFunctionSummary env decls[i]!.name funVals[i]
+      addFunctionSummary env decls[i]!.name funVals[i]!
     { s with env := env }
   return decls.mapIdx fun i decl => elimDead assignments[i]! decl
 

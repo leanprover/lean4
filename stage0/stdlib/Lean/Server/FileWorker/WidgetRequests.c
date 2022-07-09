@@ -45,7 +45,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_registerBuiltinRpcProcedure___at_Lean_Wid
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
-lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_toJsonRpcEncodingPacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_517____rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
 lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_toJsonRpcEncodingPacket____x40_Lean_Widget_InteractiveGoal___hyg_414____rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instInhabitedInfoPopup___closed__1;
@@ -120,7 +119,6 @@ LEAN_EXPORT lean_object* l_Lean_Widget_initFn____x40_Lean_Server_FileWorker_Widg
 LEAN_EXPORT lean_object* l_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_1272_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_411_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_wrapRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_1961____spec__3(lean_object*, lean_object*);
-lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_toJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_582____rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Widget_getInteractiveDiagnostics___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodingInfoPopupRpcEncodingPacket___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerBuiltinRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_411____spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -128,6 +126,7 @@ LEAN_EXPORT lean_object* l_ExceptT_bindCont___at_Lean_Widget_instRpcEncodingGetG
 static lean_object* l_Lean_Server_registerBuiltinRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_411____spec__1___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Widget_getInteractiveDiagnostics___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_wrapRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_411____spec__2(lean_object*, lean_object*);
+lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_toJsonRpcEncodingPacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_532____rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instToJsonRpcEncodingPacket__7___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_wrapRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_411____spec__2___closed__24;
 lean_object* l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_toJsonLineRange____x40_Lean_Data_Lsp_Extra___hyg_1865_(lean_object*);
@@ -183,6 +182,7 @@ static lean_object* l_Lean_Widget_instToJsonGetInteractiveDiagnosticsParams___cl
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_toJsonRpcEncodingPacket____x40_Lean_Server_FileWorker_WidgetRequests___hyg_689____rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ExceptT_bindCont___at_Lean_Widget_instRpcEncodingInfoPopupRpcEncodingPacket___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ExceptT_bindCont___at_Lean_Widget_instRpcEncodingGetGoToLocationParamsRpcEncodingPacket___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_toJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_594____rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Widget_instRpcEncodingInteractiveGoalsRpcEncodingPacket___rarg(lean_object*);
 lean_object* l_Lean_Server_instRpcEncoding___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodingInfoPopupRpcEncodingPacket___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -284,6 +284,7 @@ static lean_object* l_Lean_Server_wrapRpcProcedure___at_Lean_Widget_initFn____x4
 LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodingMsgToInteractiveRpcEncodingPacket___rarg___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_wrapRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_1234____spec__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodingGetGoToLocationParamsRpcEncodingPacket___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_toJsonRpcEncodingPacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_1642____rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_1961____lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_fromJsonRpcEncodingPacket____x40_Lean_Server_FileWorker_WidgetRequests___hyg_569____rarg___closed__2;
 lean_object* lean_io_initializing(lean_object*);
@@ -316,7 +317,6 @@ LEAN_EXPORT lean_object* l_ExceptT_bindCont___at_Lean_Widget_instRpcEncodingInfo
 LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodingGetGoToLocationParamsRpcEncodingPacket___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Info_lctx(lean_object*);
 static lean_object* l_Lean_Server_wrapRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_1272____spec__2___closed__4;
-lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_toJsonRpcEncodingPacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_1627____rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_fromJsonRpcEncodingPacket____x40_Lean_Server_FileWorker_WidgetRequests___hyg_93____rarg___closed__1;
 static lean_object* l_Lean_Server_wrapRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_1253____spec__2___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_toJsonRpcEncodingPacket____x40_Lean_Server_FileWorker_WidgetRequests___hyg_1744____rarg(lean_object*, lean_object*, lean_object*);
@@ -1010,7 +1010,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Server_wrapRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_411____spec__2___closed__14;
-x_2 = lean_alloc_closure((void*)(l___private_Lean_Widget_TaggedText_0__Lean_Widget_toJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_582____rarg), 2, 1);
+x_2 = lean_alloc_closure((void*)(l___private_Lean_Widget_TaggedText_0__Lean_Widget_toJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_594____rarg), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1134,7 +1134,7 @@ x_2 = l_Lean_Server_wrapRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_
 x_3 = l_Lean_Server_wrapRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_411____spec__2___closed__26;
 x_4 = l_Lean_Server_wrapRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_411____spec__2___closed__16;
 x_5 = l_Lean_Lsp_instToJsonRpcRef;
-x_6 = lean_alloc_closure((void*)(l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_toJsonRpcEncodingPacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_517____rarg), 6, 5);
+x_6 = lean_alloc_closure((void*)(l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_toJsonRpcEncodingPacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_532____rarg), 6, 5);
 lean_closure_set(x_6, 0, x_1);
 lean_closure_set(x_6, 1, x_2);
 lean_closure_set(x_6, 2, x_3);
@@ -1148,7 +1148,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Server_wrapRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_411____spec__2___closed__27;
-x_2 = lean_alloc_closure((void*)(l___private_Lean_Widget_TaggedText_0__Lean_Widget_toJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_582____rarg), 2, 1);
+x_2 = lean_alloc_closure((void*)(l___private_Lean_Widget_TaggedText_0__Lean_Widget_toJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_594____rarg), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -4369,7 +4369,7 @@ x_4 = l_Lean_Server_wrapRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_
 x_5 = l_Lean_Server_wrapRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_411____spec__2___closed__28;
 x_6 = l_Lean_Server_wrapRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_1547____spec__2___closed__4;
 x_7 = l_Lean_Server_wrapRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_1547____spec__2___closed__5;
-x_8 = lean_alloc_closure((void*)(l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_toJsonRpcEncodingPacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_1627____rarg), 8, 7);
+x_8 = lean_alloc_closure((void*)(l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_toJsonRpcEncodingPacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_1642____rarg), 8, 7);
 lean_closure_set(x_8, 0, x_1);
 lean_closure_set(x_8, 1, x_2);
 lean_closure_set(x_8, 2, x_3);

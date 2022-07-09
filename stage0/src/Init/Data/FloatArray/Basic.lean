@@ -39,7 +39,7 @@ def size : (@& FloatArray) → Nat
 
 @[extern "lean_float_array_uget"]
 def uget : (a : @& FloatArray) → (i : USize) → i.toNat < a.size → Float
-  | ⟨ds⟩, i, h => ds.uget i h
+  | ⟨ds⟩, i, h => ds[i]
 
 @[extern "lean_float_array_fget"]
 def get : (ds : @& FloatArray) → (@& Fin ds.size) → Float
@@ -54,9 +54,6 @@ def get? (ds : FloatArray) (i : Nat) : Option Float :=
     ds.get ⟨i, h⟩
   else
     none
-
-@[inline] def getOp (self : FloatArray) (idx : Nat) : Float :=
-  self.get! idx
 
 instance : GetElem FloatArray Nat Float fun xs i => LT.lt i xs.size where
   getElem xs i h := xs.get ⟨i, h⟩

@@ -88,7 +88,6 @@ LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe_fold___rarg___lambda__1___box
 lean_object* lean_mk_empty_float_array(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_forInUnsafe(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe_fold___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_getOp___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_get_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe_fold___at_FloatArray_foldl___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -96,7 +95,6 @@ LEAN_EXPORT lean_object* l_List_toStringAux___at_instToStringFloatArray___spec__
 double lean_float_array_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_uset___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_float_array_fset(lean_object*, lean_object*, double);
-LEAN_EXPORT double l_FloatArray_getOp(lean_object*, lean_object*);
 double lean_float_array_uget(lean_object*, size_t);
 static lean_object* l_List_toString___at_instToStringFloatArray___spec__1___closed__3;
 LEAN_EXPORT lean_object* l_FloatArray_forInUnsafe_loop___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -250,25 +248,6 @@ x_3 = l_FloatArray_get_x3f(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
-}
-}
-LEAN_EXPORT double l_FloatArray_getOp(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-double x_3; 
-x_3 = lean_float_array_get(x_1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_FloatArray_getOp___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-double x_3; lean_object* x_4; 
-x_3 = l_FloatArray_getOp(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-x_4 = lean_box_float(x_3);
-return x_4;
 }
 }
 LEAN_EXPORT double l_FloatArray_instGetElemFloatArrayNatFloatLtInstLTNatSize(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

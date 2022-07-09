@@ -63,9 +63,6 @@ def get! [Inhabited α] (t : PersistentArray α) (i : Nat) : α :=
   else
     getAux t.root (USize.ofNat i) t.shift
 
-def getOp [Inhabited α] (self : PersistentArray α) (idx : Nat) : α :=
-  self.get! idx
-
 -- TODO: remove [Inhabited α]
 instance [Inhabited α] : GetElem (PersistentArray α) Nat α fun as i => i < as.size where
   getElem xs i _ := xs.get! i

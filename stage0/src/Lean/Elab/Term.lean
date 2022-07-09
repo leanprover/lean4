@@ -375,9 +375,9 @@ builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermEl
 /--
   Auxiliary datatatype for presenting a Lean lvalue modifier.
   We represent a unelaborated lvalue as a `Syntax` (or `Expr`) and `List LVal`.
-  Example: `a.foo[i].1` is represented as the `Syntax` `a` and the list
-  `[LVal.fieldName "foo", LVal.getOp i, LVal.fieldIdx 1]`.
-  Recall that the notation `a[i]` is not just for accessing arrays in Lean. -/
+  Example: `a.foo.1` is represented as the `Syntax` `a` and the list
+  `[LVal.fieldName "foo", LVal.fieldIdx 1]`.
+-/
 inductive LVal where
   | fieldIdx  (ref : Syntax) (i : Nat)
     /- Field `suffix?` is for producing better error messages because `x.y` may be a field access or a hierachical/composite name.

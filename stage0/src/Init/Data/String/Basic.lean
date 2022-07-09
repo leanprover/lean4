@@ -66,9 +66,6 @@ private def utf8GetAux? : List Char → Pos → Pos → Option Char
 def get? : (@& String) → (@& Pos) → Option Char
   | ⟨s⟩, p => utf8GetAux? s 0 p
 
-abbrev getOp? (self : String) (idx : Pos) : Option Char :=
-  self.get? idx
-
 /--
   Similar to `get`, but produces a panic error message if `p` is not a valid `String.Pos`.
 -/
@@ -76,9 +73,6 @@ abbrev getOp? (self : String) (idx : Pos) : Option Char :=
 def get! (s : @& String) (p : @& Pos) : Char :=
   match s with
   | ⟨s⟩ => utf8GetAux s 0 p
-
-abbrev getOp! (self : String) (idx : Pos) : Char :=
-  self.get! idx
 
 private def utf8SetAux (c' : Char) : List Char → Pos → Pos → List Char
   | [],    _, _ => []

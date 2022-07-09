@@ -1225,7 +1225,6 @@ partial def visitLevel (u : Level) : M Level := do
   | Level.zero _        => return u
   | Level.param ..      => return u
   | Level.mvar mvarId _ =>
-    let s ← get
     match (← getLevelMVarAssignment? mvarId) with
     | some v => visitLevel v
     | none   =>

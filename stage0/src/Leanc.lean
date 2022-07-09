@@ -20,7 +20,7 @@ Interesting options:
     | none      => pure <| (← IO.appDir).parent.get!
   let rootify s := s.replace "ROOT" root.toString
 
-  let compileOnly := args.contains "-c"
+  -- let compileOnly := args.contains "-c"
   let linkStatic := !args.contains "-shared"
 
   -- We assume that the CMake variables do not contain escaped spaces
@@ -33,7 +33,7 @@ Interesting options:
     match arg with
     | "--print-cflags" =>
       IO.println <| " ".intercalate (cflags.map rootify |>.toList)
-      return (0 : UInt32) -- TODO: remove type annotation after we make sure `for in` propagate `do`-block result type
+      return 0
     | "--print-ldflags" =>
       IO.println <| " ".intercalate ((cflags ++ ldflags).map rootify |>.toList)
       return 0

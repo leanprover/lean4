@@ -180,7 +180,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
     let mut found := false
     for varDecl in varDecls do
       if let some (ids, ty?, annot?) :=
-        match (varDecl : TSyntax ``Parser.Term.bracketedBinder) with
+        match varDecl with
         | `(bracketedBinder|($ids* $[: $ty?]? $(annot?)?)) => some (ids, ty?, annot?)
         | `(bracketedBinder|{$ids* $[: $ty?]?})            => some (ids, ty?, none)
         | `(bracketedBinder|[$id : $ty])                   => some (#[id], some ty, none)

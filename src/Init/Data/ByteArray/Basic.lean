@@ -49,9 +49,6 @@ def get! : (@& ByteArray) → (@& Nat) → UInt8
 def get : (a : @& ByteArray) → (@& Fin a.size) → UInt8
   | ⟨bs⟩, i => bs.get i
 
-@[inline] def getOp (self : ByteArray) (idx : Nat) : UInt8 :=
-  self.get! idx
-
 instance : GetElem ByteArray Nat UInt8 fun xs i => LT.lt i xs.size where
   getElem xs i h := xs.get ⟨i, h⟩
 

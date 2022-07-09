@@ -47,9 +47,6 @@ def back [Inhabited α] (a : Array α) : α :=
 def get? (a : Array α) (i : Nat) : Option α :=
   if h : i < a.size then some a[i] else none
 
-abbrev getOp? (self : Array α) (idx : Nat) : Option α :=
-  self.get? idx
-
 def back? (a : Array α) : Option α :=
   a.get? (a.size - 1)
 

@@ -178,9 +178,6 @@ def insert' (m : HashMap α β) (a : α) (b : β) : HashMap α β × Bool :=
   | some b => b
   | none   => panic! "key is not in the map"
 
-@[inline] def getOp (self : HashMap α β) (idx : α) : Option β :=
-  self.find? idx
-
 instance : GetElem (HashMap α β) α (Option β) fun _ _ => True where
   getElem m k _ := m.find? k
 

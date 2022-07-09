@@ -1269,12 +1269,6 @@ def Array.get {α : Type u} (a : @& Array α) (i : @& Fin a.size) : α :=
 def Array.get! {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
   Array.getD a i default
 
-abbrev Array.getOp {α : Type u} (self : Array α) (idx : Fin self.size) : α :=
-  self.get idx
-
-abbrev Array.getOp! {α : Type u} [Inhabited α] (self : Array α) (idx : Nat) : α :=
-  self.get! idx
-
 instance : GetElem (Array α) Nat α fun xs i => LT.lt i xs.size where
   getElem xs i h := xs.get ⟨i, h⟩
 
@@ -1916,10 +1910,6 @@ def getArg (stx : Syntax) (i : Nat) : Syntax :=
   match stx with
   | Syntax.node _ _ args => args.getD i Syntax.missing
   | _                    => Syntax.missing
-
--- Add `stx[i]` as sugar for `stx.getArg i`
-@[inline] def getOp (self : Syntax) (idx : Nat) : Syntax :=
-  self.getArg idx
 
 instance : GetElem Syntax Nat Syntax fun _ _ => True where
   getElem stx i _ := stx.getArg i

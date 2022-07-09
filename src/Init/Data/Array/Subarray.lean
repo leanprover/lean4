@@ -29,9 +29,6 @@ def get (s : Subarray α) (i : Fin s.size) : α :=
    exact Nat.add_lt_of_lt_sub this
   s.as[s.start + i.val]
 
-abbrev getOp (self : Subarray α) (idx : Fin self.size) : α :=
-  self.get idx
-
 instance : GetElem (Subarray α) Nat α fun xs i => i < xs.size where
   getElem xs i h := xs.get ⟨i, h⟩
 
@@ -40,9 +37,6 @@ instance : GetElem (Subarray α) Nat α fun xs i => i < xs.size where
 
 abbrev get! [Inhabited α] (s : Subarray α) (i : Nat) : α :=
   getD s i default
-
-abbrev getOp! [Inhabited α] (self : Subarray α) (idx : Nat) : α :=
-  self.get! idx
 
 def popFront (s : Subarray α) : Subarray α :=
   if h : s.start < s.stop then

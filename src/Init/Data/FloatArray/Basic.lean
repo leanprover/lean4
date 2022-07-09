@@ -55,9 +55,6 @@ def get? (ds : FloatArray) (i : Nat) : Option Float :=
   else
     none
 
-@[inline] def getOp (self : FloatArray) (idx : Nat) : Float :=
-  self.get! idx
-
 instance : GetElem FloatArray Nat Float fun xs i => LT.lt i xs.size where
   getElem xs i h := xs.get ⟨i, h⟩
 

@@ -26,7 +26,7 @@ def tst3 (n : Nat) (expected : UInt32) : IO Unit := do
   let bs := mkByteArray n
   let mut sum := 0
   for i in [:bs.size] do
-    sum := sum + bs[i].toUInt32
+    sum := sum + bs[i]!.toUInt32
   assert! sum == expected
   IO.println sum
 

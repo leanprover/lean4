@@ -251,7 +251,7 @@ partial def delab : Delab := do
   let stx ← delabFor k <|> (liftM $ show MetaM _ from throwError "don't know how to delaborate '{k}'")
   if ← getPPOption getPPAnalyzeTypeAscriptions <&&> getPPOption getPPAnalysisNeedsType <&&> pure !e.isMData then
     let typeStx ← withType delab
-    `(($stx:term : $typeStx:term)) >>= annotateCurPos
+    `(($stx : $typeStx)) >>= annotateCurPos
   else
     return stx
 

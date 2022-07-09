@@ -927,7 +927,7 @@ where
             return mkHole ref
           else
             let id := mkIdentFrom ref localDecl.userName
-            `(?$id:ident)
+            `(?$id)
         else
           return mkHole ref
       let altViews  := altViews.map fun altView => { altView with patterns := wildcards ++ altView.patterns }
@@ -1148,7 +1148,7 @@ private def expandNonAtomicDiscrs? (matchStx : Syntax) : TermElabM (Option Synta
               throwError "unexpected internal auxiliary discriminant name"
             let discrNew := discr.setArg 1 d
             let r ← loop discrs (discrsNew.push discrNew) foundFVars
-            `(let $d:ident := $term; $r)
+            `(let $d := $term; $r)
           match (← isAtomicDiscr? term) with
           | some x  => if x.isFVar then loop discrs (discrsNew.push discr) (foundFVars.insert x.fvarId!) else addAux
           | none    => addAux
@@ -1252,7 +1252,7 @@ matched on in dependent variables' types. Use `match (generalizing := true) ...`
 enforce this. -/
 @[builtinTermElab «match»] def elabMatch : TermElab := fun stx expectedType? => do
   match stx with
-  | `(match $discr:term with | $y:ident => $rhs:term) =>
+  | `(match $discr:term with | $y:ident => $rhs) =>
      if (← isPatternVar y) then expandSimpleMatch stx discr y rhs expectedType? else elabMatchDefault stx expectedType?
   | _ => elabMatchDefault stx expectedType?
 where
@@ -1286,7 +1286,7 @@ e.g. because it has no constructors. -/
       elabMatchAux none #[discr] #[] mkNullNode expectedType
     | _ =>
       let d ← mkAuxDiscr
-      let stxNew ← `(let $d:ident := $discrExpr; nomatch $d:ident)
+      let stxNew ← `(let $d := $discrExpr; nomatch $d)
       withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
   | _ => throwUnsupportedSyntax
 

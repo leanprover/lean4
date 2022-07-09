@@ -256,12 +256,12 @@ where
         unless stx.isOfKind ``Lean.Parser.Command.declaration do
           return (syms, stxs')
         if let some stxRange := stx.getRange? then
-          let (name, selection) : String × Syntax := match stx with
-            | `($_:declModifiers $_:attrKind instance $[$np:namedPrio]? $[$id:ident$[.{$ls,*}]?]? $sig:declSig $_) =>
+          let (name, selection) := match stx with
+            | `($_:declModifiers $_:attrKind instance $[$np:namedPrio]? $[$id$[.{$ls,*}]?]? $sig:declSig $_) =>
               ((·.getId.toString) <$> id |>.getD s!"instance {sig.raw.reprint.getD ""}", id.map (·.raw) |>.getD sig)
             | _ =>
               match stx.getArg 1 |>.getArg 1 with
-              | `(declId|$id:ident$[.{$ls,*}]?) => (id.raw.getId.toString, id)
+              | `(declId|$id$[.{$ls,*}]?) => (id.raw.getId.toString, id)
               | _ =>
                 let stx10 : Syntax := (stx.getArg 1).getArg 0 -- TODO: stx[1][0] times out
                 (stx10.isIdOrAtom?.getD "<unknown>", stx10)

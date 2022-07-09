@@ -233,7 +233,7 @@ def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStruct
     let fieldPos ← nextExtraPos
     let fieldId := annotatePos fieldPos fieldId
     addFieldInfo fieldPos (s.induct ++ fieldName) fieldName fieldId fieldVals[idx]!
-    let field ← `(structInstField|$fieldId:ident := $(stx[1][idx]):term)
+    let field ← `(structInstField|$fieldId:ident := $(stx[1][idx]))
     fields := fields.push field
   let tyStx ← withType do
     if (← getPPOption getPPStructureInstanceType) then delab >>= pure ∘ some else pure none
@@ -262,7 +262,7 @@ def delabAppImplicit : Delab := do
       let arg ← getExpr
       let opts ← getOptions
       let mkNamedArg (name : Name) (argStx : Syntax) : DelabM Syntax := do
-        `(Parser.Term.namedArgument| ($(mkIdent name):ident := $argStx:term))
+        `(Parser.Term.namedArgument| ($(mkIdent name) := $argStx))
       let argStx? : Option Syntax ←
         if ← getPPOption getPPAnalysisSkip then pure none
         else if ← getPPOption getPPAnalysisHole then `(_)
@@ -395,7 +395,7 @@ def delabAppMatch : Delab := whenPPOption getPPNotation <| whenPPOption getPPMat
         if let some hName := st.info.discrInfos[idx]!.hName? then
           -- TODO: we should check whether the corresponding binder name, matches `hName`.
           -- If it does not we should pretty print this `match` as a regular application.
-          return { st with discrs := st.discrs.push (← `(matchDiscr| $(mkIdent hName):ident : $discr:term)) }
+          return { st with discrs := st.discrs.push (← `(matchDiscr| $(mkIdent hName) : $discr)) }
         else
           return { st with discrs := st.discrs.push (← `(matchDiscr| $discr:term)) }
       else if st.rhss.size < st.info.altNumParams.size then

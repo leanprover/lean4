@@ -28,6 +28,8 @@ COMMANDS:
   update                update dependencies
   clean                 remove build outputs
   script                manage and run workspace scripts
+  scripts               shorthand for `lake script list`
+  run <script>          shorthand for `lake script run`
   serve                 start the Lean language server
   env <cmd> [<args>...] execute a command in the workspace's environment
 
@@ -196,6 +198,8 @@ def help : (cmd : String) → String
 | "update"    => helpUpdate
 | "clean"     => helpClean
 | "script"    => helpScriptCli
+| "scripts"   => helpScriptList
+| "run"       => helpScriptRun
 | "serve"     => helpServe
 | "env"       => helpEnv
 | _           => usage

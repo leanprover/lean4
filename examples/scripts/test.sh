@@ -1,7 +1,9 @@
 set -ex
-${LAKE:-../../build/bin/lake} script list
-${LAKE:-../../build/bin/lake} script run scripts/greet
-${LAKE:-../../build/bin/lake} script run greet me
-${LAKE:-../../build/bin/lake} script doc greet
-${LAKE:-../../build/bin/lake} script run nonexistant && false || true
-${LAKE:-../../build/bin/lake} script doc nonexistant && false || true
+LAKE=${LAKE:-../../build/bin/lake}
+$LAKE script list
+$LAKE run scripts/greet
+$LAKE script run greet me
+$LAKE script doc greet
+$LAKE script run nonexistant && false || true
+$LAKE script doc nonexistant && false || true
+$LAKE scripts

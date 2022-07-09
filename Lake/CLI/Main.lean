@@ -400,6 +400,8 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "print-paths" => lake.printPaths
 | "clean"       => lake.clean
 | "script"      => lake.script
+| "scripts"     => lake.script.list
+| "run"         => lake.script.run
 | "serve"       => lake.serve
 | "env"         => lake.env
 | "self-check"  => lake.selfCheck

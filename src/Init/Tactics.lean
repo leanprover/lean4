@@ -205,7 +205,7 @@ syntax (name := rewriteSeq) "rewrite " (config)? rwRuleSeq (location)? : tactic
 -/
 macro (name := rwSeq) rw:"rw " c:(config)? s:rwRuleSeq l:(location)? : tactic =>
   match s with
-  | `(rwRuleSeq| [%$lbrak $rs:rwRule,* ]%$rbrak) =>
+  | `(rwRuleSeq| [%$lbrak $rs,* ]%$rbrak) =>
     -- We show the `rfl` state on `]`
     `(tactic| rewrite%$rw $(c)? [%$lbrak $rs,*] $(l)?; try (with_reducible rfl%$rbrak))
   | _ => Macro.throwUnsupported
@@ -280,7 +280,7 @@ macro "have " d:haveDecl : tactic => `(refine_lift have $d:haveDecl; ?_)
 /--
 `have h := e` adds the hypothesis `h : t` if `e : t`.
 -/
-macro (priority := high) "have" x:ident " := " p:term : tactic => `(have $x:ident : _ := $p)
+macro (priority := high) "have" x:ident " := " p:term : tactic => `(have $x : _ := $p)
 /--
 Given a main goal `ctx |- t`, `suffices h : t' from e` replaces the main goal with `ctx |- t'`,
 `e` must have type `t` in the context `ctx, h : t'`.
@@ -288,7 +288,7 @@ Given a main goal `ctx |- t`, `suffices h : t' from e` replaces the main goal wi
 The variant `suffices h : t' by tac` is a shorthand for `suffices h : t' from by tac`.
 If `h :` is omitted, the name `this` is used.
  -/
-macro "suffices " d:sufficesDecl : tactic => `(refine_lift suffices $d:sufficesDecl; ?_)
+macro "suffices " d:sufficesDecl : tactic => `(refine_lift suffices $d; ?_)
 /--
 `let h : t := e` adds the hypothesis `h : t := e` to the current goal if `e` a term of type `t`.
 If `t` is omitted, it will be inferred.
@@ -300,15 +300,15 @@ macro "let " d:letDecl : tactic => `(refine_lift let $d:letDecl; ?_)
 `show t` finds the first goal whose target unifies with `t`. It makes that the main goal,
  performs the unification, and replaces the target with the unified version of `t`.
 -/
-macro "show " e:term : tactic => `(refine_lift show $e:term from ?_) -- TODO: fix, see comment
+macro "show " e:term : tactic => `(refine_lift show $e from ?_) -- TODO: fix, see comment
 syntax (name := letrec) withPosition(atomic("let " &"rec ") letRecDecls) : tactic
 macro_rules
-  | `(tactic| let rec $d:letRecDecls) => `(tactic| refine_lift let rec $d:letRecDecls; ?_)
+  | `(tactic| let rec $d) => `(tactic| refine_lift let rec $d; ?_)
 
 -- Similar to `refineLift`, but using `refine'`
 macro "refine_lift' " e:term : tactic => `(focus (refine' no_implicit_lambda% $e; rotate_right))
 macro "have' " d:haveDecl : tactic => `(refine_lift' have $d:haveDecl; ?_)
-macro (priority := high) "have'" x:ident " := " p:term : tactic => `(have' $x:ident : _ := $p)
+macro (priority := high) "have'" x:ident " := " p:term : tactic => `(have' $x : _ := $p)
 macro "let' " d:letDecl : tactic => `(refine_lift' let $d:letDecl; ?_)
 
 syntax inductionAltLHS := "| " (("@"? ident) <|> "_") (ident <|> "_")*
@@ -397,7 +397,7 @@ macro_rules | `(tactic| trivial) => `(tactic| decide)
 macro_rules | `(tactic| trivial) => `(tactic| apply True.intro)
 macro_rules | `(tactic| trivial) => `(tactic| apply And.intro <;> trivial)
 
-macro "unhygienic " t:tacticSeq : tactic => `(set_option tactic.hygienic false in $t:tacticSeq)
+macro "unhygienic " t:tacticSeq : tactic => `(set_option tactic.hygienic false in $t)
 
 /-- `fail msg` is a tactic that always fail and produces an error using the given message. -/
 syntax (name := fail) "fail " (str)? : tactic

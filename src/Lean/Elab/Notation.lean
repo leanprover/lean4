@@ -94,7 +94,7 @@ def mkSimpleDelab (attrKind : TSyntax ``attrKind) (pat qrhs : Term) : OptionT Ma
   -- The reference is attached to the syntactic representation of the called function itself, not the entire function application
   let lhs ← `($$f:ident)
   let lhs := Syntax.mkApp lhs (.mk args)
-  `(@[$attrKind:attrKind appUnexpander $(mkIdent c):ident]
+  `(@[$attrKind appUnexpander $(mkIdent c)]
     aux_def unexpand $(mkIdent c) : Lean.PrettyPrinter.Unexpander := fun
       | `($lhs) => withRef f `($pat)
       | _       => throw ())
@@ -123,7 +123,7 @@ private def expandNotationAux (ref : Syntax)
      So, we must include current namespace when we create a pattern for the following `macro_rules` commands. -/
   let fullName := currNamespace ++ name
   let pat : Term := ⟨mkNode fullName patArgs⟩
-  let stxDecl ← `($attrKind:attrKind syntax $[: $prec?]? (name := $(mkIdent name)) (priority := $(quote prio):num) $[$syntaxParts]* : $cat)
+  let stxDecl ← `($attrKind:attrKind syntax $[: $prec?]? (name := $(mkIdent name)) (priority := $(quote prio)) $[$syntaxParts]* : $cat)
   let macroDecl ← `(macro_rules | `($pat) => ``($qrhs))
   let macroDecls ←
     if isLocalAttrKind attrKind then

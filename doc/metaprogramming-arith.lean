@@ -18,9 +18,9 @@ syntax "`[Arith| " arith "]" : term
 macro_rules
   | `(`[Arith| $s:str]) => `(Arith.symbol $s)
   | `(`[Arith| $num:num]) => `(Arith.int $num)
-  | `(`[Arith| $x:arith + $y:arith]) => `(Arith.add `[Arith| $x] `[Arith| $y])
-  | `(`[Arith| $x:arith * $y:arith]) => `(Arith.mul `[Arith| $x] `[Arith| $y])
-  | `(`[Arith| ($x:arith)]) => `(`[Arith| $x])
+  | `(`[Arith| $x + $y]) => `(Arith.add `[Arith| $x] `[Arith| $y])
+  | `(`[Arith| $x * $y]) => `(Arith.mul `[Arith| $x] `[Arith| $y])
+  | `(`[Arith| ($x)]) => `(`[Arith| $x])
 
 #check `[Arith| "x" * "y"]  -- mul
 -- Arith.mul (Arith.symbol "x") (Arith.symbol "y")

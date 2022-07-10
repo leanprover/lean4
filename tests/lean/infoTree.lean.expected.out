@@ -297,13 +297,13 @@
       Nat : Type @ ⟨27, 45⟩-⟨27, 48⟩
   f3 (isBinder := true) : Nat × Array (Array Nat) → Array Nat @ ⟨27, 4⟩-⟨27, 6⟩
   s (isBinder := true) : Nat × Array (Array Nat) @ ⟨27, 8⟩-⟨27, 9⟩
-  Array.push (getElem! s.snd 1) s.fst : Array Nat @ ⟨28, 2⟩-⟨28, 18⟩ @ Lean.Elab.Term.elabApp
-    getElem! s.snd 1 : Array Nat @ ⟨28, 2⟩-⟨28, 9⟩ @ «_aux_Init_Util___macroRules_term__[_]_!_1»
+  Array.push s.snd[1]! s.fst : Array Nat @ ⟨28, 2⟩-⟨28, 18⟩ @ Lean.Elab.Term.elabApp
+    s.snd[1]! : Array Nat @ ⟨28, 2⟩-⟨28, 9⟩ @ «_aux_Init_Util___macroRules_term__[_]_!_1»
       Macro expansion
       s.2[1]!
       ===>
       getElem!✝ s.2 1
-        getElem! s.snd 1 : Array Nat @ ⟨28, 2⟩†-⟨28, 7⟩ @ Lean.Elab.Term.elabApp
+        s.snd[1]! : Array Nat @ ⟨28, 2⟩†-⟨28, 7⟩ @ Lean.Elab.Term.elabApp
           [.] `getElem!._@.infoTree._hyg.139 : none @ ⟨28, 2⟩†-⟨28, 9⟩†
           @getElem! : {Cont Idx Elem : Type} →
             {Dom : Cont → Idx → Prop} →
@@ -315,7 +315,7 @@
             s : Nat × Array (Array Nat) @ ⟨28, 2⟩-⟨28, 3⟩
             @Prod.snd : {α β : Type} → α × β → β @ ⟨28, 4⟩-⟨28, 5⟩
           1 : Nat @ ⟨28, 6⟩-⟨28, 7⟩ @ Lean.Elab.Term.elabNumLit
-    [.] getElem! s.snd 1 : Array Nat @ ⟨28, 2⟩-⟨28, 9⟩ : some Array.{0} Nat
+    [.] s.snd[1]! : Array Nat @ ⟨28, 2⟩-⟨28, 9⟩ : some Array.{0} Nat
     @Array.push : {α : Type} → Array α → α → Array α @ ⟨28, 10⟩-⟨28, 14⟩
     s.fst : Nat @ ⟨28, 15⟩-⟨28, 18⟩ @ Lean.Elab.Term.elabProj
       [.] `s : some ?_uniq.1071 @ ⟨28, 15⟩-⟨28, 16⟩

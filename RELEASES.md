@@ -20,6 +20,21 @@ Unreleased
   Two other notations were introduced: `a[i]!` and `a[i]?`, For `a[i]!`, a panic error message is produced at
   runtime if `i` is not a valid index. `a[i]?` has type `Option α`, and `a[i]?` evaluates to `none` if the
   index `i` is not valid.
+  The three new notations are defined as follows:
+  ```lean
+  @[inline] def getElem' [GetElem Cont Idx Elem Dom] (xs : Cont) (i : Idx) (h : Dom xs i) : Elem :=
+  getElem xs i h
+
+  @[inline] def getElem! [GetElem Cont Idx Elem Dom] [Inhabited Elem] (xs : Cont) (i : Idx) [Decidable (Dom xs i)] : Elem :=
+    if h : _ then getElem xs i h else panic! "index out of bounds"
+
+  @[inline] def getElem? [GetElem Cont Idx Elem Dom] (xs : Cont) (i : Idx) [Decidable (Dom xs i)] : Option Elem :=
+    if h : _ then some (getElem xs i h) else none
+
+  macro:max x:term noWs "[" i:term "]" noWs "?" : term => `(getElem? $x $i)
+  macro:max x:term noWs "[" i:term "]" noWs "!" : term => `(getElem! $x $i)
+  macro x:term noWs "[" i:term "]'" h:term:max : term => `(getElem' $x $i $h)
+  ```
   See discussion on [Zulip](https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/String.2EgetOp/near/287855425).
   Examples:
   ```lean
@@ -44,6 +59,38 @@ Unreleased
     a[0] + a[1] -- Ok
 
   example (a : Array Int) (i : USize) (h : i.toNat < a.size) : Int :=
+    a[i] -- Ok
+  ```
+  The `get_tactic_tactic` is defined as
+  ```lean
+  macro "get_elem_tactic" : tactic =>
+    `(first
+      | get_elem_tactic_trivial
+      | fail "failed to prove index is valid, ..."
+     )
+  ```
+  The `get_elem_tactic_trivial` auxiliary tactic can be extended by using `macro_rules`. By default, it tries `trivial`, `simp_arith`, and a special case for `Fin`. In the future, it will also try `linarith`.
+  You can extend `get_elem_tactic_trivial` using `my_tactic` as follows
+  ```lean
+  macro_rules
+  | `(tactic| get_elem_tactic_trivial) => `(tactic| my_tactic)
+  ```
+  Note that `Idx`'s type in `GetElem` does not depend on `Cont`. So, you cannot write the instance `instance : GetElem (Array α) (Fin ??) α fun xs i => ...`, but the Lean library comes equipped with the following auxiliary instance:
+  ```lean
+  instance [GetElem Cont Nat Elem Dom] : GetElem Cont (Fin n) Elem fun xs i => Dom xs i where
+    getElem xs i h := getElem xs i.1 h
+  ```
+  and helper tactic
+  ```lean
+  macro_rules
+  | `(tactic| get_elem_tactic_trivial) => `(tactic| apply Fin.val_lt_of_le; get_elem_tactic_trivial; done)
+  ```
+  Example:
+  ```lean
+  example (a : Array Nat) (i : Fin a.size) :=
+    a[i] -- Ok
+
+  example (a : Array Nat) (h : n ≤ a.size) (i : Fin n) :=
     a[i] -- Ok
   ```
 

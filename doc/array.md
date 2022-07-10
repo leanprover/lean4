@@ -43,6 +43,11 @@ def f (a : Array Nat) (i : Fin a.size) :=
   a[i] + a[i]
 ```
 Note that the index `i` has type `Fin a.size`, i.e., it is natural number less than `a.size`.
+You can also write
+```lean
+def f (a : Array Nat) (i : Nat) (h  : i < a.size) :=
+  a[i] + a[i]
+```
 The bracket operator is whitespace sensitive.
 
 ```lean

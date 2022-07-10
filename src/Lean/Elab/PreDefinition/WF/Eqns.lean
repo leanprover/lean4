@@ -169,7 +169,7 @@ private partial def mkProof (declName : Name) (info : EqnInfo) (type : Expr) : M
         go mvarId
       else if let some mvarId ← whnfReducibleLHS? mvarId then
         go mvarId
-      else match (← simpTargetStar mvarId {}) with
+      else match (← simpTargetStar mvarId { config.dsimp := false }) with
         | TacticResultCNM.closed => return ()
         | TacticResultCNM.modified mvarId => go mvarId
         | TacticResultCNM.noChange =>

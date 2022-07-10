@@ -107,7 +107,8 @@ partial def insertAux [BEq α] [Hashable α] : Node α β → USize → USize �
         let rec traverse (i : Nat) (entries : Node α β) : Node α β :=
           if h : i < keys.size then
             let k := keys[i]
-            let v := vals[i]'(heq ▸ h)
+            have : i < vals.size := heq ▸ h
+            let v := vals[i]
             let h := hash k |>.toUSize
             let h := div2Shift h (shift * (depth - 1))
             traverse (i+1) (insertAux entries h depth k v)
@@ -130,7 +131,8 @@ def insert {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → �
 partial def findAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : keys.size = vals.size) (i : Nat) (k : α) : Option β :=
   if h : i < keys.size then
     let k' := keys[i]
-    if k == k' then some (vals[i]'(by rw [←heq]; assumption))
+    have : i < vals.size := by rw [←heq]; assumption
+    if k == k' then some vals[i]
     else findAtAux keys vals heq (i+1) k
   else none
 
@@ -160,7 +162,8 @@ instance {_ : BEq α} {_ : Hashable α} : GetElem (PersistentHashMap α β) α (
 partial def findEntryAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : keys.size = vals.size) (i : Nat) (k : α) : Option (α × β) :=
   if h : i < keys.size then
     let k' := keys[i]
-    if k == k' then some (k', vals[i]'(by rw [←heq]; assumption))
+    have : i < vals.size := by rw [←heq]; assumption
+    if k == k' then some (k', vals[i])
     else findEntryAtAux keys vals heq (i+1) k
   else none
 
@@ -255,7 +258,8 @@ variable {σ : Type w}
     let rec traverse (i : Nat) (acc : σ) : m σ := do
       if h : i < keys.size then
         let k := keys[i]
-        let v := vals[i]'(heq ▸ h)
+        have : i < vals.size := heq ▸ h
+        let v := vals[i]
         traverse (i+1) (← f acc k v)
       else
         pure acc

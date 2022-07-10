@@ -1192,6 +1192,11 @@ structure Config where
   decide            : Bool := true
   arith             : Bool := false
   autoUnfold        : Bool := false
+  /--
+    If `dsimp := true`, then switches to `dsimp` on dependent arguments where there is no congruence theorem that allows
+    `simp` to visit them. If `dsimp := false`, then argument is not visited.
+  -/
+  dsimp             : Bool := true
   deriving Inhabited, BEq, Repr
 
 -- Configuration object for `simp_all`

@@ -442,4 +442,8 @@ macro "get_elem_tactic" : tactic =>
 
 macro:max x:term noWs "[" i:term "]" : term => `(getElem $x $i (by get_elem_tactic))
 
-macro x:term noWs "[" i:term "]'" h:term:max : term => `(getElem $x $i $h)
+/-- Helper declaration for the unexpander -/
+@[inline] def getElem' [GetElem Cont Idx Elem Dom] (xs : Cont) (i : Idx) (h : Dom xs i) : Elem :=
+  getElem xs i h
+
+macro x:term noWs "[" i:term "]'" h:term:max : term => `(getElem' $x $i $h)

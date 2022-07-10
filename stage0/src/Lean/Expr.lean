@@ -1073,17 +1073,17 @@ def updateApp (e : Expr) (newFn : Expr) (newArg : Expr) (h : e.isApp) : Expr :=
   mkApp newFn newArg
 
 @[inline] def updateApp! (e : Expr) (newFn : Expr) (newArg : Expr) : Expr :=
-  match e with
-  | app fn arg c => updateApp (app fn arg c) newFn newArg rfl
-  | _            => panic! "application expected"
+  match h : e with
+  | app .. => updateApp e newFn newArg (h ▸ rfl)
+  | _      => panic! "application expected"
 
 @[extern "lean_expr_update_const"]
 def updateConst (e : Expr) (newLevels : List Level) (h : e.isConst) : Expr :=
   mkConst e.constName! newLevels
 
 @[inline] def updateConst! (e : Expr) (newLevels : List Level) : Expr :=
-  match e with
-  | const n ls c => updateConst (const n ls c) newLevels rfl
+  match h : e with
+  | const .. => updateConst e newLevels (h ▸ rfl)
   | _            => panic! "constant expected"
 
 @[extern "lean_expr_update_sort"]
@@ -1091,58 +1091,58 @@ def updateSort (e : Expr) (newLevel : Level) (h : e.isSort) : Expr :=
   mkSort newLevel
 
 @[inline] def updateSort! (e : Expr) (newLevel : Level) : Expr :=
-  match e with
-  | sort l c => updateSort (sort l c) newLevel rfl
+  match h : e with
+  | sort .. => updateSort e newLevel (h ▸ rfl)
   | _        => panic! "level expected"
 
 @[extern "lean_expr_update_proj"]
 def updateProj (e : Expr) (newExpr : Expr) (h : e.isProj) : Expr :=
   match e with
-  | proj s i _ _ => mkProj s i newExpr
-  | _            => e -- unreachable because of `h`
+  | proj s i .. => mkProj s i newExpr
+  | _           => e -- unreachable because of `h`
 
 @[extern "lean_expr_update_mdata"]
 def updateMData (e : Expr) (newExpr : Expr) (h : e.isMData) : Expr :=
   match e with
-  | mdata d _ _ => mkMData d newExpr
-  | _           => e -- unreachable because of `h`
+  | mdata d .. => mkMData d newExpr
+  | _          => e -- unreachable because of `h`
 
 @[inline] def updateMData! (e : Expr) (newExpr : Expr) : Expr :=
-  match e with
-  | mdata d e c => updateMData (mdata d e c) newExpr rfl
-  | _           => panic! "mdata expected"
+  match h : e with
+  | mdata .. => updateMData e newExpr (h ▸ rfl)
+  | _        => panic! "mdata expected"
 
 @[inline] def updateProj! (e : Expr) (newExpr : Expr) : Expr :=
-  match e with
-  | proj s i e c => updateProj (proj s i e c) newExpr rfl
-  | _            => panic! "proj expected"
+  match h : e with
+  | proj .. => updateProj e newExpr (h ▸ rfl)
+  | _       => panic! "proj expected"
 
 @[extern "lean_expr_update_forall"]
 def updateForall (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) (h : e.isForall) : Expr :=
   mkForall e.bindingName! newBinfo newDomain newBody
 
 @[inline] def updateForall! (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) : Expr :=
-  match e with
-  | forallE n d b c => updateForall (forallE n d b c) newBinfo newDomain newBody rfl
-  | _               => panic! "forall expected"
+  match h : e with
+  | forallE .. => updateForall e newBinfo newDomain newBody (h ▸ rfl)
+  | _          => panic! "forall expected"
 
 @[inline] def updateForallE! (e : Expr) (newDomain : Expr) (newBody : Expr) : Expr :=
-  match e with
-  | forallE n d b c => updateForall (forallE n d b c) c.binderInfo newDomain newBody rfl
-  | _               => panic! "forall expected"
+  match h : e with
+  | forallE _ _ _ c => updateForall e c.binderInfo newDomain newBody (h ▸ rfl)
+  | _          => panic! "forall expected"
 
 @[extern "lean_expr_update_lambda"]
 def updateLambda (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) (h : e.isLambda) : Expr :=
   mkLambda e.bindingName! newBinfo newDomain newBody
 
 @[inline] def updateLambda! (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) : Expr :=
-  match e with
-  | lam n d b c => updateLambda (lam n d b c) newBinfo newDomain newBody rfl
-  | _           => panic! "lambda expected"
+  match h : e with
+  | lam .. => updateLambda e newBinfo newDomain newBody (h ▸ rfl)
+  | _      => panic! "lambda expected"
 
 @[inline] def updateLambdaE! (e : Expr) (newDomain : Expr) (newBody : Expr) : Expr :=
-  match e with
-  | lam n d b c => updateLambda (lam n d b c) c.binderInfo newDomain newBody rfl
+  match h : e with
+  | lam _ _ _ c => updateLambda e c.binderInfo newDomain newBody (h ▸ rfl)
   | _           => panic! "lambda expected"
 
 @[extern "lean_expr_update_let"]
@@ -1150,9 +1150,9 @@ def updateLet (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) (h : 
   mkLet e.letName! newType newVal newBody
 
 @[inline] def updateLet! (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) : Expr :=
-  match e with
-  | letE n t v b c => updateLet (letE n t v b c) newType newVal newBody rfl
-  | _              => panic! "let expression expected"
+  match h : e with
+  | letE .. => updateLet e newType newVal newBody (h ▸ rfl)
+  | _       => panic! "let expression expected"
 
 def updateFn : Expr → Expr → Expr
   | e@(app f a _), g => e.updateApp! (updateFn f g) a

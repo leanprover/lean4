@@ -13,7 +13,7 @@ def getSimpMatchContext : MetaM Simp.Context :=
    return {
       simpTheorems   := {}
       congrTheorems := (← getSimpCongrTheorems)
-      config        := Simp.neutralConfig
+      config        := { Simp.neutralConfig with dsimp := false }
    }
 
 def simpMatch (e : Expr) : MetaM Simp.Result := do

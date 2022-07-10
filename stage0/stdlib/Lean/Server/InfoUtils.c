@@ -13325,7 +13325,6 @@ if (x_18 == 0)
 lean_object* x_19; uint8_t x_20; lean_object* x_21; 
 x_19 = lean_ctor_get(x_17, 0);
 x_20 = l_Lean_Expr_hasSorry(x_19);
-lean_dec(x_19);
 x_21 = lean_box(x_20);
 lean_ctor_set(x_17, 0, x_21);
 return x_17;
@@ -13339,7 +13338,6 @@ lean_inc(x_23);
 lean_inc(x_22);
 lean_dec(x_17);
 x_24 = l_Lean_Expr_hasSorry(x_22);
-lean_dec(x_22);
 x_25 = lean_box(x_24);
 x_26 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_26, 0, x_25);

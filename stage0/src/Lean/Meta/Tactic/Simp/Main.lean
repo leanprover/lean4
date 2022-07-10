@@ -174,6 +174,8 @@ private partial def reduce (e : Expr) : SimpM Expr := withIncRecDepth do
 
 private partial def dsimp (e : Expr) : M Expr := do
   let cfg ← getConfig
+  unless cfg.dsimp do
+    return e
   let pre (e : Expr) : M TransformStep := do
     if let Step.visit r ← rewritePre e (fun _ => pure none) (rflOnly := true) then
       if r.expr != e then

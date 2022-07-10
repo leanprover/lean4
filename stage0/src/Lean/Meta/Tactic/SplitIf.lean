@@ -20,7 +20,7 @@ builtin_initialize ext : LazyInitExtension MetaM Simp.Context ←
     return {
       simpTheorems  := #[s]
       congrTheorems := (← getSimpCongrTheorems)
-      config        := Simp.neutralConfig
+      config        := { Simp.neutralConfig with dsimp := false }
     }
 
 /--

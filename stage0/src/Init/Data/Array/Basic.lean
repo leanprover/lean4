@@ -763,7 +763,8 @@ theorem toArrayLit_eq (a : Array α) (n : Nat) (hsz : a.size = n) : a = toArrayL
 def isPrefixOfAux [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) (i : Nat) : Bool :=
   if h : i < as.size then
     let a := as[i]
-    let b := bs[i]'(Nat.lt_of_lt_of_le h hle)
+    have : i < bs.size := Nat.lt_of_lt_of_le h hle
+    let b := bs[i]
     if a == b then
       isPrefixOfAux as bs hle (i+1)
     else

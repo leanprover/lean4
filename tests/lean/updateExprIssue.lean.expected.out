@@ -13,9 +13,24 @@ def sefFn (x_1 : obj) (x_2 : obj) : obj :=
   Lean.Expr.const._impl →
     ret x_1
   Lean.Expr.app._impl →
-    let x_3 : obj := proj[1] x_1;
-    let x_4 : obj := Lean.Expr.updateApp x_1 x_2 x_3 ◾;
-    ret x_4
+    let x_3 : obj := proj[0] x_1;
+    let x_4 : obj := proj[1] x_1;
+    let x_5 : usize := ptrAddrUnsafe ◾ x_3;
+    let x_6 : usize := ptrAddrUnsafe ◾ x_2;
+    let x_7 : u8 := USize.decEq x_5 x_6;
+    case x_7 : obj of
+    Bool.false →
+      let x_8 : obj := Lean.Expr.app._override x_2 x_4;
+      ret x_8
+    Bool.true →
+      let x_9 : usize := ptrAddrUnsafe ◾ x_4;
+      let x_10 : u8 := USize.decEq x_9 x_9;
+      case x_10 : obj of
+      Bool.false →
+        let x_11 : obj := Lean.Expr.app._override x_2 x_4;
+        ret x_11
+      Bool.true →
+        ret x_1
   Lean.Expr.lam._impl →
     ret x_1
   Lean.Expr.forallE._impl →

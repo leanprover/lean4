@@ -9,12 +9,12 @@ namespace Lean.Meta
 
 private def canUnfoldDefault (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
   match cfg.transparency with
-  | TransparencyMode.all => return true
-  | TransparencyMode.default => return !(← isIrreducible info.name)
+  | .all => return true
+  | .default => return !(← isIrreducible info.name)
   | m =>
     if (← isReducible info.name) then
       return true
-    else if m == TransparencyMode.instances && isGlobalInstance (← getEnv) info.name then
+    else if m == .instances && isGlobalInstance (← getEnv) info.name then
       return true
     else
       return false
@@ -27,19 +27,17 @@ def canUnfold (info : ConstantInfo) : MetaM Bool := do
     canUnfoldDefault ctx.config info
 
 def getConst? (constName : Name) : MetaM (Option ConstantInfo) := do
-  let env ← getEnv
-  match env.find? constName with
-  | some (info@(ConstantInfo.thmInfo _))  => getTheoremInfo info
-  | some (info@(ConstantInfo.defnInfo _)) => if (← canUnfold info) then return info else return none
-  | some info                             => pure (some info)
-  | none                                  => throwUnknownConstant constName
+  match (← getEnv).find? constName with
+  | some (info@(.thmInfo _))  => getTheoremInfo info
+  | some (info@(.defnInfo _)) => if (← canUnfold info) then return info else return none
+  | some info                 => return some info
+  | none                      => throwUnknownConstant constName
 
 def getConstNoEx? (constName : Name) : MetaM (Option ConstantInfo) := do
-  let env ← getEnv
-  match env.find? constName with
-  | some (info@(ConstantInfo.thmInfo _))  => getTheoremInfo info
-  | some (info@(ConstantInfo.defnInfo _)) => if (← canUnfold info) then return info else return none
-  | some info                             => pure (some info)
-  | none                                  => pure none
+  match (← getEnv).find? constName with
+  | some (info@(.thmInfo _))  => getTheoremInfo info
+  | some (info@(.defnInfo _)) => if (← canUnfold info) then return info else return none
+  | some info                 => return some info
+  | none                      => return none
 
 end Meta

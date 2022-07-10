@@ -16,20 +16,20 @@ mutual
 
 private partial def visitBinder (fn : Expr → MetaM Bool) : Array Expr → Nat → Expr → M Unit
   | fvars, j, Expr.lam n d b c => do
-    let d := d.instantiateRevRange j fvars.size fvars;
-    visit fn d;
+    let d := d.instantiateRevRange j fvars.size fvars
+    visit fn d
     withLocalDecl n c.binderInfo d fun x =>
       visitBinder fn (fvars.push x) j b
   | fvars, j, Expr.forallE n d b c => do
-    let d := d.instantiateRevRange j fvars.size fvars;
-    visit fn d;
+    let d := d.instantiateRevRange j fvars.size fvars
+    visit fn d
     withLocalDecl n c.binderInfo d fun x =>
       visitBinder fn (fvars.push x) j b
   | fvars, j, Expr.letE n t v b _ => do
-    let t := t.instantiateRevRange j fvars.size fvars;
-    visit fn t;
-    let v := v.instantiateRevRange j fvars.size fvars;
-    visit fn v;
+    let t := t.instantiateRevRange j fvars.size fvars
+    visit fn t
+    let v := v.instantiateRevRange j fvars.size fvars
+    visit fn v
     withLetDecl n t v fun x =>
       visitBinder fn (fvars.push x) j b
   | fvars, j, e => visit fn $ e.instantiateRevRange j fvars.size fvars
@@ -38,13 +38,13 @@ partial def visit (fn : Expr → MetaM Bool) (e : Expr) : M Unit :=
   checkCache e fun _ => do
     if (← liftM (fn e)) then
       match e with
-      | Expr.forallE _ _ _ _   => visitBinder fn #[] 0 e
-      | Expr.lam _ _ _ _       => visitBinder fn #[] 0 e
-      | Expr.letE _ _ _ _ _    => visitBinder fn #[] 0 e
-      | Expr.app f a _         => visit fn f; visit fn a
-      | Expr.mdata _ b _       => visit fn b
-      | Expr.proj _ _ b _      => visit fn b
-      | _                      => pure ()
+      | .forallE ..   => visitBinder fn #[] 0 e
+      | .lam ..       => visitBinder fn #[] 0 e
+      | .letE ..      => visitBinder fn #[] 0 e
+      | .app f a _    => visit fn f; visit fn a
+      | .mdata _ b _  => visit fn b
+      | .proj _ _ b _ => visit fn b
+      | _             => return ()
 
 end
 
@@ -58,7 +58,7 @@ def forEachExpr' (e : Expr) (f : Expr → MetaM Bool) : MetaM Unit :=
 def forEachExpr (e : Expr) (f : Expr → MetaM Unit) : MetaM Unit :=
   forEachExpr' e fun e => do
     f e
-    pure true
+    return true
 
 /-- Return true iff `x` is a metavariable with an anonymous user facing name. -/
 private def shouldInferBinderName (x : Expr) : MetaM Bool := do

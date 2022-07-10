@@ -271,14 +271,9 @@ environment compile(environment const & env, options const & opts, names cs) {
     return compile_ir(new_env, opts, ds);
 }
 
-extern "C" object* lean_get_decl_names_for_code_gen(object *);
-names get_decl_names_for_code_gen(declaration const & decl) {
-    return names(lean_get_decl_names_for_code_gen(decl.to_obj_arg()));
-}
-
-extern "C" LEAN_EXPORT object * lean_compile_decl(object * env, object * opts, object * decl) {
+extern "C" LEAN_EXPORT object * lean_compile_decls(object * env, object * opts, object * decls) {
     return catch_kernel_exceptions<environment>([&]() {
-            return compile(environment(env), options(opts, true), get_decl_names_for_code_gen(declaration(decl, true)));
+            return compile(environment(env), options(opts, true), names(decls, true));
         });
 }
 

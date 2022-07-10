@@ -311,7 +311,7 @@ static lean_object* l_Lean_Server_registerRpcProcedure___lambda__3___closed__13;
 lean_object* l_Lean_Server_RequestM_asTask___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_handleRpcCallUnsafe___lambda__3___closed__16;
 static lean_object* l_Lean_Server_registerRpcProcedure___lambda__1___closed__10;
-lean_object* lean_compile_decl(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Environment_compileDecl(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_334____spec__1___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_PersistentHashMap_containsAtAux___at_Lean_Server_registerBuiltinRpcProcedure___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_1289____closed__6;
@@ -5375,7 +5375,8 @@ lean_inc(x_8);
 lean_dec(x_6);
 x_9 = lean_ctor_get(x_2, 2);
 lean_inc(x_9);
-x_10 = lean_compile_decl(x_8, x_9, x_1);
+lean_inc(x_1);
+x_10 = l_Lean_Environment_compileDecl(x_8, x_9, x_1);
 lean_dec(x_9);
 if (lean_obj_tag(x_10) == 0)
 {

@@ -687,7 +687,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Term_
 static lean_object* l_Lean_Elab_Term_quoteAutoTactic___closed__11;
 LEAN_EXPORT lean_object* l_Lean_mkFreshId___at___private_Lean_Elab_Binders_0__Lean_Elab_Term_FunBinders_elabFunBinderViews___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Term_elabLetDecl(lean_object*);
-lean_object* lean_compile_decl(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Environment_compileDecl(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalContextImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabLetDecl___closed__3;
 uint8_t l_Std_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(lean_object*);
@@ -4085,7 +4085,8 @@ lean_inc(x_12);
 lean_dec(x_10);
 x_13 = lean_ctor_get(x_6, 2);
 lean_inc(x_13);
-x_14 = lean_compile_decl(x_12, x_13, x_1);
+lean_inc(x_1);
+x_14 = l_Lean_Environment_compileDecl(x_12, x_13, x_1);
 lean_dec(x_13);
 if (lean_obj_tag(x_14) == 0)
 {

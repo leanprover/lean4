@@ -253,7 +253,7 @@ LEAN_EXPORT lean_object* l_Lean_compileDecl___at_Lean_Meta_mkAuxDefinition___spe
 static lean_object* l_Lean_Meta_Closure_collectExprAux___closed__4;
 LEAN_EXPORT lean_object* l_Nat_foldRev_loop___at_Lean_Meta_Closure_mkForall___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Meta_mkAuxDefinition___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_compile_decl(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Environment_compileDecl(lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(lean_object*);
 static lean_object* l_Lean_Meta_Closure_collectExprAux___closed__12;
 LEAN_EXPORT lean_object* l_Lean_Meta_Closure_collectExpr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -14012,7 +14012,8 @@ lean_inc(x_10);
 lean_dec(x_8);
 x_11 = lean_ctor_get(x_4, 2);
 lean_inc(x_11);
-x_12 = lean_compile_decl(x_10, x_11, x_1);
+lean_inc(x_1);
+x_12 = l_Lean_Environment_compileDecl(x_10, x_11, x_1);
 lean_dec(x_11);
 if (lean_obj_tag(x_12) == 0)
 {

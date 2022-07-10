@@ -143,40 +143,45 @@ def checkApp (f a : Expr) : MetaM Unit := do
       throwAppTypeMismatch f a
   | _ => throwFunctionExpected (mkApp f a)
 
-private partial def checkAux : Expr → MetaM Unit
-  | e@(Expr.forallE ..)  => checkForall e
-  | e@(Expr.lam ..)      => checkLambdaLet e
-  | e@(Expr.letE ..)     => checkLambdaLet e
-  | Expr.const c lvls _  => checkConstant c lvls
-  | Expr.app f a _       => do checkAux f; checkAux a; checkApp f a
-  | Expr.mdata _ e _     => checkAux e
-  | Expr.proj _ _ e _    => checkAux e
-  | _                    => pure ()
+private partial def checkAux (e : Expr) : MetaM Unit := do
+  check e |>.run
 where
-  checkLambdaLet (e : Expr) : MetaM Unit :=
+  check (e : Expr) : MonadCacheT ExprStructEq Unit MetaM Unit :=
+    checkCache { val := e : ExprStructEq } fun _ => do
+      match e with
+      | .forallE ..      => checkForall e
+      | .lam ..          => checkLambdaLet e
+      | .letE ..         => checkLambdaLet e
+      | .const c lvls _  => checkConstant c lvls
+      | .app f a _       => check f; check a; checkApp f a
+      | .mdata _ e _     => check e
+      | .proj _ _ e _    => check e
+      | _                => return ()
+
+  checkLambdaLet (e : Expr) : MonadCacheT ExprStructEq Unit MetaM Unit :=
     lambdaLetTelescope e fun xs b => do
       xs.forM fun x => do
         let xDecl ← getFVarLocalDecl x;
         match xDecl with
         | LocalDecl.cdecl (type := t) .. =>
           ensureType t
-          checkAux t
+          check t
         | LocalDecl.ldecl (type := t) (value := v) .. =>
           ensureType t
-          checkAux t
+          check t
           let vType ← inferType v
           unless (← isDefEq t vType) do throwLetTypeMismatchMessage x.fvarId!
-          checkAux v
-      checkAux b
+          check v
+      check b
 
-  checkForall (e : Expr) : MetaM Unit :=
+  checkForall (e : Expr) : MonadCacheT ExprStructEq Unit MetaM Unit :=
     forallTelescope e fun xs b => do
       xs.forM fun x => do
         let xDecl ← getFVarLocalDecl x
         ensureType xDecl.type
-        checkAux xDecl.type
+        check xDecl.type
       ensureType b
-      checkAux b
+      check b
 
 def check (e : Expr) : MetaM Unit :=
   traceCtx `Meta.check do

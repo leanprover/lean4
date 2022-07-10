@@ -20,3 +20,12 @@ def f5 (i : Nat) (h : i < n) :=
 
 def f6 (i : Nat) :=
   a[i]!
+
+def f7 (i : Nat) :=
+  a[i]?
+
+#print f2
+#print f3
+#print f5
+#print f6
+#print f7

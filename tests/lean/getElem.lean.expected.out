@@ -6,3 +6,13 @@ getElem.lean:2:2-2:6: error: failed to prove index is valid, possible solutions:
 a : Array Nat
 i : Nat
 ⊢ i < Array.size a
+def f2 : (a : Array Nat) → Fin (Array.size a) → Nat :=
+fun a i => a[i]
+def f3 : {n : Nat} → (a : Array Nat) → n ≤ Array.size a → Fin n → Nat :=
+fun {n} a h i => a[i]
+def f5 : (i : Nat) → i < n → Nat :=
+fun i h => a[i]'(_ : i < Array.size a)
+def f6 : Nat → Nat :=
+fun i => a[i]!
+def f7 : Nat → Option Nat :=
+fun i => a[i]?

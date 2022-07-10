@@ -160,6 +160,22 @@ macro "calc " steps:withPosition(calcStep+) : tactic => `(exact calc $steps*)
   | `($f [$k] $sep)  => `($f $k $sep)
   | _                => throw ()
 
+@[appUnexpander GetElem.getElem] def unexpandGetElem : Lean.PrettyPrinter.Unexpander
+  | `(getElem $array $index $_) => `($array[$index])
+  | _ => throw ()
+
+@[appUnexpander getElem!] def unexpandGetElem! : Lean.PrettyPrinter.Unexpander
+  | `(getElem! $array $index) => `($array[$index]!)
+  | _ => throw ()
+
+@[appUnexpander getElem?] def unexpandGetElem? : Lean.PrettyPrinter.Unexpander
+  | `(getElem? $array $index) => `($array[$index]?)
+  | _ => throw ()
+
+@[appUnexpander getElem'] def unexpandGetElem' : Lean.PrettyPrinter.Unexpander
+  | `(getElem' $array $index $h) => `($array[$index]'$h)
+  | _ => throw ()
+
 /--
 Apply function extensionality and introduce new hypotheses.
 The tactic `funext` will keep applying new the `funext` lemma until the goal target is not reducible to

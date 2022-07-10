@@ -31,6 +31,8 @@ extern "C" object * lean_level_mk_max(obj_arg, obj_arg);
 extern "C" object * lean_level_mk_imax(obj_arg, obj_arg);
 extern "C" object * lean_level_mk_max_simp(obj_arg, obj_arg);
 extern "C" object * lean_level_mk_imax_simp(obj_arg, obj_arg);
+extern "C" object * lean_level_simp_max(obj_arg, obj_arg, obj_arg);
+extern "C" object * lean_level_simp_imax(obj_arg, obj_arg, obj_arg);
 
 level mk_succ(level const & l) { return level(lean_level_mk_succ(l.to_obj_arg())); }
 level mk_max_core(level const & l1, level const & l2) { return level(lean_level_mk_max(l1.to_obj_arg(), l2.to_obj_arg())); }
@@ -303,8 +305,7 @@ extern "C" LEAN_EXPORT object * lean_level_update_succ(obj_arg l, obj_arg new_ar
 
 extern "C" LEAN_EXPORT object * lean_level_update_max(obj_arg l, obj_arg new_lhs, obj_arg new_rhs) {
     if (max_lhs(TO_REF(level, l)).raw() == new_lhs && max_rhs(TO_REF(level, l)).raw() == new_rhs) {
-        lean_dec(new_lhs); lean_dec(new_rhs);
-        return l;
+        return lean_level_simp_max(new_lhs, new_rhs, l);
     } else {
         lean_dec_ref(l);
         return lean_level_mk_max_simp(new_lhs, new_rhs);
@@ -313,8 +314,7 @@ extern "C" LEAN_EXPORT object * lean_level_update_max(obj_arg l, obj_arg new_lhs
 
 extern "C" LEAN_EXPORT object * lean_level_update_imax(obj_arg l, obj_arg new_lhs, obj_arg new_rhs) {
     if (imax_lhs(TO_REF(level, l)).raw() == new_lhs && imax_rhs(TO_REF(level, l)).raw() == new_rhs) {
-        lean_dec(new_lhs); lean_dec(new_rhs);
-        return l;
+        return lean_level_simp_imax(new_lhs, new_rhs, l);
     } else {
         lean_dec_ref(l);
         return lean_level_mk_imax_simp(new_lhs, new_rhs);

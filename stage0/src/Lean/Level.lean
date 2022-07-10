@@ -477,9 +477,7 @@ instance : Quote Level `level where
 
 end Level
 
-/- Similar to `mkLevelMax`, but applies cheap simplifications -/
-@[export lean_level_mk_max_simp]
-def mkLevelMax' (u v : Level) : Level :=
+@[inline] private def mkLevelMaxCore (u v : Level) (elseK : Unit → Level) : Level :=
   let subsumes (u v : Level) : Bool :=
     if v.isExplicit && u.getOffset ≥ v.getOffset then true
     else match u with
@@ -493,16 +491,32 @@ def mkLevelMax' (u v : Level) : Level :=
   else if u.getLevelOffset == v.getLevelOffset then
     if u.getOffset ≥ v.getOffset then u else v
   else
-    mkLevelMax u v
+    elseK ()
 
-/- Similar to `mkLevelIMax`, but applies cheap simplifications -/
-@[export lean_level_mk_imax_simp]
-def mkLevelIMax' (u v : Level) : Level :=
+/- Similar to `mkLevelMax`, but applies cheap simplifications -/
+@[export lean_level_mk_max_simp]
+def mkLevelMax' (u v : Level) : Level :=
+  mkLevelMaxCore u v fun _ => mkLevelMax u v
+
+@[export lean_level_simp_max]
+def simpLevelMax' (u v : Level) (d : Level) : Level :=
+  mkLevelMaxCore u v fun _ => d
+
+@[inline] private def mkLevelIMaxCore (u v : Level) (elseK : Unit → Level) : Level :=
   if v.isNeverZero then mkLevelMax' u v
   else if v.isZero then v
   else if u.isZero then v
   else if u == v then u
-  else mkLevelIMax u v
+  else elseK ()
+
+/- Similar to `mkLevelIMax`, but applies cheap simplifications -/
+@[export lean_level_mk_imax_simp]
+def mkLevelIMax' (u v : Level) : Level :=
+  mkLevelIMaxCore u v fun _ => mkLevelIMax u v
+
+@[export lean_level_simp_imax]
+def simpLevelIMax' (u v : Level) (d : Level) :=
+  mkLevelIMaxCore u v fun _ => d
 
 namespace Level
 
@@ -520,27 +534,27 @@ def updateSucc (lvl : Level) (newLvl : Level) (h : lvl.isSucc) : Level :=
   mkLevelSucc newLvl
 
 @[inline] def updateSucc! (lvl : Level) (newLvl : Level) : Level :=
-match lvl with
-  | succ lvl d => updateSucc (succ lvl d) newLvl rfl
-  | _          => panic! "succ level expected"
+match h : lvl with
+  | succ .. => updateSucc lvl newLvl (h ▸ rfl)
+  | _       => panic! "succ level expected"
 
 @[extern "lean_level_update_max"]
 def updateMax (lvl : Level) (newLhs : Level) (newRhs : Level) (h : lvl.isMax) : Level :=
   mkLevelMax' newLhs newRhs
 
 @[inline] def updateMax! (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=
-  match lvl with
-  | max lhs rhs d => updateMax (max lhs rhs d) newLhs newRhs rfl
-  | _             => panic! "max level expected"
+  match h : lvl with
+  | max .. => updateMax lvl newLhs newRhs (h ▸ rfl)
+  | _      => panic! "max level expected"
 
 @[extern "lean_level_update_imax"]
 def updateIMax (lvl : Level) (newLhs : Level) (newRhs : Level) (h : lvl.isIMax) : Level :=
   mkLevelIMax' newLhs newRhs
 
 @[inline] def updateIMax! (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=
-  match lvl with
-  | imax lhs rhs d => updateIMax (imax lhs rhs d) newLhs newRhs rfl
-  | _              => panic! "imax level expected"
+  match h : lvl with
+  | imax .. => updateIMax lvl newLhs newRhs (h ▸ rfl)
+  | _       => panic! "imax level expected"
 
 def mkNaryMax : List Level → Level
   | []    => levelZero

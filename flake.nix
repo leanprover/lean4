@@ -41,6 +41,7 @@
         inherit (leanPkgs) lean;
 
         cli = cli.executable;
+      };
 
       defaultPackage = self.packages.${system}.cli;
 

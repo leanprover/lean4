@@ -61,7 +61,7 @@ Unreleased
   example (a : Array Int) (i : USize) (h : i.toNat < a.size) : Int :=
     a[i] -- Ok
   ```
-  The `get_tactic_tactic` is defined as
+  The `get_elem_tactic` is defined as
   ```lean
   macro "get_elem_tactic" : tactic =>
     `(first
@@ -69,7 +69,7 @@ Unreleased
       | fail "failed to prove index is valid, ..."
      )
   ```
-  The `get_elem_tactic_trivial` auxiliary tactic can be extended by using `macro_rules`. By default, it tries `trivial`, `simp_arith`, and a special case for `Fin`. In the future, it will also try `linarith`.
+  The `get_elem_tactic_trivial` auxiliary tactic can be extended using `macro_rules`. By default, it tries `trivial`, `simp_arith`, and a special case for `Fin`. In the future, it will also try `linarith`.
   You can extend `get_elem_tactic_trivial` using `my_tactic` as follows
   ```lean
   macro_rules

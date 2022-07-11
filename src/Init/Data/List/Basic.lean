@@ -14,6 +14,9 @@ variable {α : Type u} {β : Type v} {γ : Type w}
 
 namespace List
 
+instance : GetElem (List α) Nat α fun as i => i < as.length where
+  getElem as i h := as.get ⟨i, h⟩
+
 theorem length_add_eq_lengthTRAux (as : List α) (n : Nat) : as.length + n = as.lengthTRAux n := by
   induction as generalizing n with
   | nil  => simp [length, lengthTRAux]

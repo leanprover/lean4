@@ -209,7 +209,7 @@ private def getStructName (expectedType? : Option Expr) (sourceView : Source) : 
   | some expectedType =>
     let expectedType ← whnf expectedType
     match expectedType.getAppFn with
-    | Expr.const constName _ _ =>
+    | Expr.const constName _ =>
       unless isStructure (← getEnv) constName do
         throwError "invalid \{...} notation, structure type expected{indentExpr expectedType}"
       return constName
@@ -425,8 +425,8 @@ private def expandParentFields (s : Struct) : TermElabM Struct := do
         else match getPathToBaseStructure? env baseStructName s.structName with
           | some path =>
             let path := path.map fun funName => match funName with
-              | .str _ s _ => .fieldName ref (Name.mkSimple s)
-              | _              => unreachable!
+              | .str _ s => .fieldName ref (Name.mkSimple s)
+              | _        => unreachable!
             return { field with lhs := path ++ field.lhs }
           | _ => throwErrorAt ref "failed to access field '{fieldName}' in parent structure"
     | _ => return field
@@ -559,7 +559,7 @@ private def mkCtorHeaderAux : Nat → Expr → Expr → Array MVarId → Array (
   | n+1, type, ctorFn, instMVars, params => do
     match (← whnfForall type) with
     | .forallE paramName d b c =>
-      match c.binderInfo with
+      match c with
       | .instImplicit =>
         let a ← mkFreshExprMVar d .synthetic
         mkCtorHeaderAux n (b.instantiate1 a) (mkApp ctorFn a) (instMVars.push a.mvarId!) (params.push (paramName, a))
@@ -705,8 +705,8 @@ partial def findDefaultMissing? [Monad m] [MonadMCtx m] (struct : Struct) : m (O
    | _ => match field.expr? with
      | none      => unreachable!
      | some expr => match defaultMissing? expr with
-       | some (.mvar mvarId _) => return if (← isExprMVarAssigned mvarId) then none else some field
-       | _                     => return none
+       | some (.mvar mvarId) => return if (← isExprMVarAssigned mvarId) then none else some field
+       | _                   => return none
 
 def getFieldName (field : Field Struct) : Name :=
   match field.lhs with
@@ -727,7 +727,7 @@ def getFieldValue? (struct : Struct) (fieldName : Name) : Option Expr :=
 
 partial def mkDefaultValueAux? (struct : Struct) : Expr → TermElabM (Option Expr)
   | .lam n d b c => withRef struct.ref do
-    if c.binderInfo.isExplicit then
+    if c.isExplicit then
       let fieldName := n
       match getFieldValue? struct fieldName with
       | none     => return none
@@ -764,7 +764,7 @@ partial def reduce (structNames : Array Name) (e : Expr) : MetaM Expr := do
   | .lam ..       => lambdaLetTelescope e fun xs b => do mkLambdaFVars xs (← reduce structNames b)
   | .forallE ..   => forallTelescope e fun xs b => do mkForallFVars xs (← reduce structNames b)
   | .letE ..      => lambdaLetTelescope e fun xs b => do mkLetFVars xs (← reduce structNames b)
-  | .proj _ i b _ =>
+  | .proj _ i b   =>
     match (← Meta.project? b i) with
     | some r => reduce structNames r
     | none   => return e.updateProj! (← reduce structNames b)
@@ -780,13 +780,13 @@ partial def reduce (structNames : Array Name) (e : Expr) : MetaM Expr := do
       else
         let args ← e.getAppArgs.mapM (reduce structNames)
         return mkAppN f' args
-  | .mdata _ b _ =>
+  | .mdata _ b =>
     let b ← reduce structNames b
     if (defaultMissing? e).isSome && !b.isMVar then
       return b
     else
       return e.updateMData! b
-  | .mvar mvarId _ =>
+  | .mvar mvarId =>
     match (← getExprMVarAssignment? mvarId) with
     | some val => if val.isMVar then pure val else reduce structNames val
     | none     => return e
@@ -828,7 +828,7 @@ partial def step (struct : Struct) : M Unit :=
           | none      => unreachable!
           | some expr =>
             match defaultMissing? expr with
-            | some (.mvar mvarId _) =>
+            | some (.mvar mvarId) =>
               unless (← isExprMVarAssigned mvarId) do
                 let ctx ← read
                 if (← withRef field.ref <| tryToSynthesizeDefault ctx.structs ctx.allStructNames ctx.maxDistance (getFieldName field) mvarId) then

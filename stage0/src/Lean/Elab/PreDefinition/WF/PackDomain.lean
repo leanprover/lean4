@@ -131,16 +131,16 @@ where
         checkCache { val := e : ExprStructEq } fun _ => Meta.withIncRecDepth do
           match e with
           | Expr.lam n d b c =>
-            withLocalDecl n c.binderInfo (← visit d) fun x => do
+            withLocalDecl n c (← visit d) fun x => do
               mkLambdaFVars (usedLetOnly := false) #[x] (← visit (b.instantiate1 x))
           | Expr.forallE n d b c =>
-            withLocalDecl n c.binderInfo (← visit d) fun x => do
+            withLocalDecl n c (← visit d) fun x => do
               mkForallFVars (usedLetOnly := false) #[x] (← visit (b.instantiate1 x))
           | Expr.letE n t v b _  =>
             withLetDecl n (← visit t) (← visit v) fun x => do
               mkLambdaFVars (usedLetOnly := false) #[x] (← visit (b.instantiate1 x))
           | Expr.proj n i s .. => return mkProj n i (← visit s)
-          | Expr.mdata d b _   => return mkMData d (← visit b)
+          | Expr.mdata d b     => return mkMData d (← visit b)
           | Expr.app ..        => visitApp e
           | Expr.const ..      => visitApp e
           | e                  => return e,

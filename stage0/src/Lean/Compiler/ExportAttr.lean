@@ -12,9 +12,9 @@ private def isValidCppId (id : String) : Bool :=
   first.isAlpha  && (id.toSubstring.drop 1).all (fun c => c.isAlpha || c.isDigit || c == '_')
 
 private def isValidCppName : Name → Bool
-  | Name.str Name.anonymous s _ => isValidCppId s
-  | Name.str p s _              => isValidCppId s && isValidCppName p
-  | _                           => false
+  | .str .anonymous s => isValidCppId s
+  | .str p s          => isValidCppId s && isValidCppName p
+  | _                 => false
 
 builtin_initialize exportAttr : ParametricAttribute Name ←
   registerParametricAttribute {

@@ -87,7 +87,7 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
         let a ← instantiateMVars a
         let b ← instantiateMVars b
         match a, b with
-        | Expr.fvar aFVarId _, Expr.fvar bFVarId _ =>
+        | Expr.fvar aFVarId, Expr.fvar bFVarId =>
           /- x = y -/
           let aDecl ← getLocalDecl aFVarId
           let bDecl ← getLocalDecl bFVarId

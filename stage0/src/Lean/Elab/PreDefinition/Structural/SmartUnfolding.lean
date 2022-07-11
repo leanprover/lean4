@@ -32,8 +32,8 @@ where
     | Expr.forallE .. => forallTelescope e fun xs b => do mkForallFVars xs (← visit b)
     | Expr.letE n type val body _ =>
       withLetDecl n type (← visit val) fun x => do mkLetFVars #[x] (← visit (body.instantiate1 x))
-    | Expr.mdata d b _   => return mkMData d (← visit b)
-    | Expr.proj n i s _  => return mkProj n i (← visit s)
+    | Expr.mdata d b     => return mkMData d (← visit b)
+    | Expr.proj n i s    => return mkProj n i (← visit s)
     | Expr.app .. =>
       let processApp (e : Expr) : MetaM Expr :=
         e.withApp fun f args =>

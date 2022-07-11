@@ -37,13 +37,13 @@ where
     else
       modify fun s => s.insert e
       match e with
-      | Expr.proj _ _ s _    => visit s
+      | Expr.proj _ _ s      => visit s
       | Expr.forallE _ d b _ => visit d; visit b
       | Expr.lam _ d b _     => visit d; visit b
       | Expr.letE _ t v b _  => visit t; visit v; visit b
-      | Expr.mdata _ b _     => visit b
-      | Expr.app f a _       => visit f; visit a
-      | Expr.mvar mvarId _   => visitMVar mvarId
+      | Expr.mdata _ b       => visit b
+      | Expr.app f a         => visit f; visit a
+      | Expr.mvar mvarId     => visitMVar mvarId
       | _                    => return ()
 
 end Lean

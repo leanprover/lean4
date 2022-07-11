@@ -21,11 +21,11 @@ private partial def toBelowAux (C : Expr) (belowDict : Expr) (arg : Expr) (F : E
   let belowDict ← whnf belowDict
   trace[Elab.definition.structural] "belowDict: {belowDict}, arg: {arg}"
   match belowDict with
-  | Expr.app (Expr.app (Expr.const `PProd _ _) d1 _) d2 _ =>
+  | .app (.app (.const `PProd _) d1) d2 =>
     (do toBelowAux C d1 arg (← mkAppM `PProd.fst #[F]))
     <|>
     (do toBelowAux C d2 arg (← mkAppM `PProd.snd #[F]))
-  | Expr.app (Expr.app (Expr.const `And _ _) d1 _) d2 _ =>
+  | .app (.app (.const `And _) d1) d2 =>
     (do toBelowAux C d1 arg (← mkAppM `And.left #[F]))
     <|>
     (do toBelowAux C d2 arg (← mkAppM `And.right #[F]))
@@ -37,7 +37,7 @@ private partial def toBelowAux (C : Expr) (belowDict : Expr) (arg : Expr) (F : E
     let argTailArgs := argArgs.extract (n - xs.size) n
     let belowDict := belowDict.replaceFVars xs argTailArgs
     match belowDict with
-    | Expr.app belowDictFun belowDictArg _ =>
+    | .app belowDictFun belowDictArg =>
       unless belowDictFun.getAppFn == C do throwToBelowFailed
       unless ← isDefEq belowDictArg arg do throwToBelowFailed
       pure (mkAppN F argTailArgs)
@@ -105,21 +105,21 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
       return e
     match e with
     | Expr.lam n d b c =>
-      withLocalDecl n c.binderInfo (← loop below d) fun x => do
+      withLocalDecl n c (← loop below d) fun x => do
         mkLambdaFVars #[x] (← loop below (b.instantiate1 x))
     | Expr.forallE n d b c =>
-      withLocalDecl n c.binderInfo (← loop below d) fun x => do
+      withLocalDecl n c (← loop below d) fun x => do
         mkForallFVars #[x] (← loop below (b.instantiate1 x))
     | Expr.letE n type val body _ =>
       withLetDecl n (← loop below type) (← loop below val) fun x => do
         mkLetFVars #[x] (← loop below (body.instantiate1 x)) (usedLetOnly := false)
-    | Expr.mdata d b _   =>
+    | Expr.mdata d b     =>
       if let some _ := getRecAppSyntax? e then
         loop below b
       else
         return mkMData d (← loop below b)
-    | Expr.proj n i e _  => return mkProj n i (← loop below e)
-    | Expr.app _ _ _ =>
+    | Expr.proj n i e    => return mkProj n i (← loop below e)
+    | Expr.app _ _ =>
       let processApp (e : Expr) : StateRefT (HasConstCache recFnName) M Expr :=
         e.withApp fun f args => do
           if f.isConstOf recFnName then

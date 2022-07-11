@@ -490,7 +490,7 @@ def getMVarErrorInfo? (mvarId : MVarId) : TermElabM (Option MVarErrorInfo) := do
 
 def registerCustomErrorIfMVar (e : Expr) (ref : Syntax) (msgData : MessageData) : TermElabM Unit :=
   match e.getAppFn with
-  | Expr.mvar mvarId _ => registerMVarErrorCustomInfo mvarId ref msgData
+  | Expr.mvar mvarId => registerMVarErrorCustomInfo mvarId ref msgData
   | _ => pure ()
 
 /-
@@ -673,9 +673,9 @@ partial def visit (e : Expr) : M Unit := do
     | Expr.forallE _ d b _   => visit d; visit b
     | Expr.lam _ d b _       => visit d; visit b
     | Expr.letE _ t v b _    => visit t; visit v; visit b
-    | Expr.app f a _         => visit f; visit a
-    | Expr.mdata _ b _       => visit b
-    | Expr.proj _ _ b _      => visit b
+    | Expr.app f a           => visit f; visit a
+    | Expr.mdata _ b         => visit b
+    | Expr.proj _ _ b        => visit b
     | Expr.fvar fvarId ..    =>
       match (← getLocalDecl fvarId) with
       | LocalDecl.cdecl .. => return ()
@@ -771,7 +771,7 @@ def synthesizeCoeInstMVarCore (instMVar : MVarId) : TermElabM Bool := do
 -/
 def tryCoeThunk? (expectedType : Expr) (eType : Expr) (e : Expr) : TermElabM (Option Expr) := do
   match expectedType with
-  | Expr.app (Expr.const ``Thunk u _) arg _ =>
+  | Expr.app (Expr.const ``Thunk u) arg =>
     if (← isDefEq eType arg) then
       return some (mkApp2 (mkConst ``Thunk.mk u) arg (mkSimpleThunk e))
     else
@@ -819,8 +819,8 @@ private def tryCoe (errorMsgHeader? : Option String) (expectedType : Expr) (eTyp
 def isTypeApp? (type : Expr) : TermElabM (Option (Expr × Expr)) := do
   let type ← withReducible <| whnf type
   match type with
-  | Expr.app m α _ => return some ((← instantiateMVars m), (← instantiateMVars α))
-  | _              => return none
+  | Expr.app m α => return some ((← instantiateMVars m), (← instantiateMVars α))
+  | _            => return none
 
 /-- Helper method used to implement auto-lift and coercions -/
 private def synthesizeInst (type : Expr) : TermElabM Expr := do
@@ -1092,7 +1092,7 @@ partial def removeSaveInfoAnnotation (e : Expr) : Expr :=
 -/
 def isTacticOrPostponedHole? (e : Expr) : TermElabM (Option MVarId) := do
   match e with
-  | Expr.mvar mvarId _ =>
+  | Expr.mvar mvarId =>
     match (← getSyntheticMVarDecl? mvarId) with
     | some { kind := SyntheticMVarKind.tactic .., .. }    => return mvarId
     | some { kind := SyntheticMVarKind.postponed .., .. } => return mvarId
@@ -1262,7 +1262,7 @@ private def useImplicitLambda? (stx : Syntax) (expectedType? : Option Expr) : Te
         let expectedType ← whnfForall expectedType
         match expectedType with
         | Expr.forallE _ _ _ c =>
-          if c.binderInfo.isImplicit || c.binderInfo.isInstImplicit then
+          if c.isImplicit || c.isInstImplicit then
             return some expectedType
           else
             return none
@@ -1299,11 +1299,11 @@ private partial def elabImplicitLambda (stx : Syntax) (catchExPostpone : Bool) (
 where
   loop
     | type@(Expr.forallE n d b c), fvars =>
-      if c.binderInfo.isExplicit then
+      if c.isExplicit then
         elabImplicitLambdaAux stx catchExPostpone type fvars
       else withFreshMacroScope do
         let n ← MonadQuotation.addMacroScope n
-        withLocalDecl n c.binderInfo d fun fvar => do
+        withLocalDecl n c d fun fvar => do
           let type ← whnfForall (b.instantiate1 fvar)
           loop type (fvars.push fvar)
     | type, fvars =>
@@ -1650,7 +1650,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
     match findLocalDecl? givenNameView (skipAuxDecl := not projs.isEmpty) with
     | some decl => some (decl.toExpr, projs)
     | none => match n with
-      | .str pre s _ => loop pre (s::projs)
+      | .str pre s => loop pre (s::projs)
       | _ => none
   return loop view.name []
 

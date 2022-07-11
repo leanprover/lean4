@@ -39,13 +39,13 @@ instance : AndThen Visitor where
   | {found := true,  result := true} => {found := true, result := x != y}
 
 def visit (x : FVarId) : Expr → Visitor
-  | Expr.fvar y _        => visitFVar y x
-  | Expr.app f a _       => visit x a >> visit x f
+  | Expr.fvar y          => visitFVar y x
+  | Expr.app f a         => visit x a >> visit x f
   | Expr.lam _ d b _     => visit x d >> visit x b
   | Expr.forallE _ d b _ => visit x d >> visit x b
   | Expr.letE _ t v b _  => visit x t >> visit x v >> visit x b
-  | Expr.mdata _ e _     => visit x e
-  | Expr.proj _ _ e _    => visit x e
+  | Expr.mdata _ e       => visit x e
+  | Expr.proj _ _ e      => visit x e
   | _                    => skip
 
 end atMostOnce
@@ -65,9 +65,9 @@ def mkEagerLambdaLiftingName (n : Name) (idx : Nat) : Name :=
 
 @[export lean_is_eager_lambda_lifting_name]
 def isEagerLambdaLiftingName : Name → Bool
-  | Name.str p s _ => "_elambda".isPrefixOf s || isEagerLambdaLiftingName p
-  | Name.num p _ _ => isEagerLambdaLiftingName p
-  | _              => false
+  | .str p s => "_elambda".isPrefixOf s || isEagerLambdaLiftingName p
+  | .num p _ => isEagerLambdaLiftingName p
+  | _        => false
 
 /-- Return the name of new definitions in the a given declaration.
     Here we consider only declarations we generate code for.
@@ -97,7 +97,7 @@ def mkUnsafeRecName (declName : Name) : Name :=
 /-- Return `some _` if the given name was created using `mkUnsafeRecName` -/
 @[export lean_is_unsafe_rec_name]
 def isUnsafeRecName? : Name → Option Name
-  | Name.str n "_unsafe_rec" _ => some n
+  | .str n "_unsafe_rec" => some n
   | _ => none
 
 end Compiler

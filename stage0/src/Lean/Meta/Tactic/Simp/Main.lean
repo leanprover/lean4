@@ -199,7 +199,7 @@ partial def lambdaTelescopeDSimp (e : Expr) (k : Array Expr → Expr → M α) :
 where
   go (xs : Array Expr) (e : Expr) : M α := do
     match e with
-    | .lam n d b c => withLocalDecl n c.binderInfo (← dsimp d) fun x => go (xs.push x) (b.instantiate1 x)
+    | .lam n d b c => withLocalDecl n c (← dsimp d) fun x => go (xs.push x) (b.instantiate1 x)
     | e => k xs e
 
 inductive SimpLetCase where
@@ -283,7 +283,7 @@ where
 
   simpStep (e : Expr) : M Result := do
     match e with
-    | Expr.mdata m e _ => let r ← simp e; return { r with expr := mkMData m r.expr }
+    | Expr.mdata m e   => let r ← simp e; return { r with expr := mkMData m r.expr }
     | Expr.proj ..     => simpProj e
     | Expr.app ..      => simpApp e
     | Expr.lam ..      => simpLambda e

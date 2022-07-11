@@ -89,10 +89,10 @@ where
         | Expr.forallE _ d b _   => visit d; visit b
         | Expr.lam _ d b _       => visit d; visit b
         | Expr.letE _ t v b _    => visit t; visit v; visit b
-        | Expr.app f a _         => visit f; visit a
-        | Expr.mdata _ b _       => visit b
-        | Expr.proj _ _ b _      => visit b
-        | Expr.fvar fvarId _     => if (← isMarked fvarId) then unmark fvarId
+        | Expr.app f a           => visit f; visit a
+        | Expr.mdata _ b         => visit b
+        | Expr.proj _ _ b        => visit b
+        | Expr.fvar fvarId       => if (← isMarked fvarId) then unmark fvarId
         | _                      => pure ()
 
 def fixpointStep : M Unit := do

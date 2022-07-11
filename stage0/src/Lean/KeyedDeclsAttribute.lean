@@ -120,7 +120,7 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name) : IO (KeyedDe
         let key ← df.evalKey true stx
         let decl ← getConstInfo declName
         match decl.type with
-        | Expr.const c _ _ =>
+        | Expr.const c _ =>
           if c != df.valueTypeName then throwError "unexpected type at '{declName}', '{df.valueTypeName}' expected"
           else
             /- builtin_initialize @addBuiltin $(mkConst valueTypeName) $(mkConst attrDeclName) $(key) $(declName) $(mkConst declName) -/

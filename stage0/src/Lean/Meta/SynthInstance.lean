@@ -98,10 +98,10 @@ partial def normLevel (u : Level) : M Level := do
   if !u.hasMVar then
     return u
   else match u with
-    | Level.succ v _      => return u.updateSucc! (← normLevel v)
-    | Level.max v w _     => return u.updateMax! (← normLevel v) (← normLevel w)
-    | Level.imax v w _    => return u.updateIMax! (← normLevel v) (← normLevel w)
-    | Level.mvar mvarId _ =>
+    | Level.succ v      => return u.updateSucc! (← normLevel v)
+    | Level.max v w     => return u.updateMax! (← normLevel v) (← normLevel w)
+    | Level.imax v w    => return u.updateIMax! (← normLevel v) (← normLevel w)
+    | Level.mvar mvarId =>
       if !(← isLevelMVarAssignable mvarId) then
         return u
       else
@@ -118,15 +118,15 @@ partial def normExpr (e : Expr) : M Expr := do
   if !e.hasMVar then
     pure e
   else match e with
-    | Expr.const _ us _    => return e.updateConst! (← us.mapM normLevel)
-    | Expr.sort u _        => return e.updateSort! (← normLevel u)
-    | Expr.app f a _       => return e.updateApp! (← normExpr f) (← normExpr a)
+    | Expr.const _ us      => return e.updateConst! (← us.mapM normLevel)
+    | Expr.sort u          => return e.updateSort! (← normLevel u)
+    | Expr.app f a         => return e.updateApp! (← normExpr f) (← normExpr a)
     | Expr.letE _ t v b _  => return e.updateLet! (← normExpr t) (← normExpr v) (← normExpr b)
     | Expr.forallE _ d b _ => return e.updateForallE! (← normExpr d) (← normExpr b)
     | Expr.lam _ d b _     => return e.updateLambdaE! (← normExpr d) (← normExpr b)
-    | Expr.mdata _ b _     => return e.updateMData! (← normExpr b)
-    | Expr.proj _ _ b _    => return e.updateProj! (← normExpr b)
-    | Expr.mvar mvarId _   =>
+    | Expr.mdata _ b       => return e.updateMData! (← normExpr b)
+    | Expr.proj _ _ b      => return e.updateProj! (← normExpr b)
+    | Expr.mvar mvarId     =>
       if !(← isExprMVarAssignable mvarId) then
         return e
       else
@@ -201,7 +201,7 @@ def getInstances (type : Expr) : MetaM (Array Expr) := do
       let result := result.insertionSort fun e₁ e₂ => e₁.priority < e₂.priority
       let erasedInstances ← getErasedInstances
       let result ← result.filterMapM fun e => match e.val with
-        | Expr.const constName us _ =>
+        | Expr.const constName us =>
           if erasedInstances.contains constName then
             return none
           else
@@ -272,13 +272,13 @@ structure SubgoalsResult where
 
 private partial def getSubgoalsAux (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array Expr)
     : Array Expr → Nat → List Expr → Expr → Expr → MetaM SubgoalsResult
-  | args, j, subgoals, instVal, Expr.forallE _ d b c => do
+  | args, j, subgoals, instVal, Expr.forallE _ d b bi => do
     let d        := d.instantiateRevRange j args.size args
     let mvarType ← mkForallFVars xs d
     let mvar     ← mkFreshExprMVarAt lctx localInsts mvarType
     let arg      := mkAppN mvar xs
     let instVal  := mkApp instVal arg
-    let subgoals := if c.binderInfo.isInstImplicit then mvar::subgoals else subgoals
+    let subgoals := if bi.isInstImplicit then mvar::subgoals else subgoals
     let args     := args.push (mkAppN mvar xs)
     getSubgoalsAux lctx localInsts xs args j subgoals instVal b
   | args, j, subgoals, instVal, type => do
@@ -308,7 +308,7 @@ def getSubgoals (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array 
   let instType ← inferType inst
   let result ← getSubgoalsAux lctx localInsts xs #[] 0 [] inst instType
   match inst.getAppFn with
-  | Expr.const constName _ _ =>
+  | Expr.const constName _ =>
     let env ← getEnv
     if hasInferTCGoalsRLAttribute env constName then
       return result
@@ -644,7 +644,7 @@ private partial def preprocessArgs (type : Expr) (i : Nat) (args : Array Expr) :
 private def preprocessOutParam (type : Expr) : MetaM Expr :=
   forallTelescope type fun xs typeBody => do
     match typeBody.getAppFn with
-    | c@(Expr.const constName _ _) =>
+    | c@(Expr.const constName _) =>
       let env ← getEnv
       if !hasOutParams env constName then
         return type

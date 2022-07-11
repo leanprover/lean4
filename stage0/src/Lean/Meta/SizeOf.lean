@@ -340,7 +340,7 @@ mutual
     | none => throwFailed
     | some (fName, us) =>
       let thmLevelParams ← us.mapM fun
-        | Level.param n _ => return n
+        | Level.param n => return n
         | _ => throwFailed
       let thmName  := fName.appendAfter "_eq"
       if (← getEnv).contains thmName then

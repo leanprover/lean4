@@ -32,7 +32,6 @@ static lean_object* l_Lean_SubExpr_Pos_depth___closed__1;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_SubExpr_Pos_instOrdPos___closed__1;
-uint64_t lean_uint64_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_asNat(lean_object*);
 static lean_object* l___private_Lean_SubExpr_0__Lean_SubExpr_Pos_ofStringCoord___closed__3;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -80,7 +79,7 @@ LEAN_EXPORT lean_object* l___private_Lean_SubExpr_0__Lean_SubExpr_Pos_ofStringCo
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushLetBody___boxed(lean_object*);
 static lean_object* l_Lean_SubExpr_Pos_typeCoord___closed__1;
-static uint64_t l_Lean_instInhabitedSubExpr___closed__1;
+static lean_object* l_Lean_instInhabitedSubExpr___closed__1;
 LEAN_EXPORT lean_object* l_Lean_SubExpr_isRoot___boxed(lean_object*);
 static lean_object* l_Lean_SubExpr_Pos_append___closed__1;
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_fromString_x3f(lean_object*);
@@ -103,6 +102,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_SubExpr_Pos_ofArray
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_all___boxed(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_SubExpr_Pos_instToJsonPos___closed__2;
+lean_object* l_Lean_Expr_bvar___override(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_traverseAppWithPos(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_foldlM___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_SubExpr_Pos_instToJsonPos___closed__1;
@@ -138,7 +138,6 @@ LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushAppArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_foldl___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_panic___at_Lean_TSyntax_getNat___spec__1(lean_object*);
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
-static lean_object* l_Lean_instInhabitedSubExpr___closed__3;
 static lean_object* l___private_Lean_SubExpr_0__Lean_SubExpr_Pos_ofStringCoord___closed__7;
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_foldrM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
@@ -1650,32 +1649,20 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static uint64_t _init_l_Lean_instInhabitedSubExpr___closed__1() {
+static lean_object* _init_l_Lean_instInhabitedSubExpr___closed__1() {
 _start:
 {
-lean_object* x_1; uint64_t x_2; 
+lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_uint64_of_nat(x_1);
+x_2 = l_Lean_Expr_bvar___override(x_1);
 return x_2;
 }
 }
 static lean_object* _init_l_Lean_instInhabitedSubExpr___closed__2() {
 _start:
 {
-lean_object* x_1; uint64_t x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_instInhabitedSubExpr___closed__1;
-x_3 = lean_alloc_ctor(0, 1, 8);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint64(x_3, sizeof(void*)*1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_instInhabitedSubExpr___closed__3() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_instInhabitedSubExpr___closed__2;
+x_1 = l_Lean_instInhabitedSubExpr___closed__1;
 x_2 = l_Lean_SubExpr_Pos_root;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1687,7 +1674,7 @@ static lean_object* _init_l_Lean_instInhabitedSubExpr() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_instInhabitedSubExpr___closed__3;
+x_1 = l_Lean_instInhabitedSubExpr___closed__2;
 return x_1;
 }
 }
@@ -1889,10 +1876,9 @@ lean_mark_persistent(l_Lean_SubExpr_Pos_instToJsonPos___closed__2);
 l_Lean_SubExpr_Pos_instToJsonPos = _init_l_Lean_SubExpr_Pos_instToJsonPos();
 lean_mark_persistent(l_Lean_SubExpr_Pos_instToJsonPos);
 l_Lean_instInhabitedSubExpr___closed__1 = _init_l_Lean_instInhabitedSubExpr___closed__1();
+lean_mark_persistent(l_Lean_instInhabitedSubExpr___closed__1);
 l_Lean_instInhabitedSubExpr___closed__2 = _init_l_Lean_instInhabitedSubExpr___closed__2();
 lean_mark_persistent(l_Lean_instInhabitedSubExpr___closed__2);
-l_Lean_instInhabitedSubExpr___closed__3 = _init_l_Lean_instInhabitedSubExpr___closed__3();
-lean_mark_persistent(l_Lean_instInhabitedSubExpr___closed__3);
 l_Lean_instInhabitedSubExpr = _init_l_Lean_instInhabitedSubExpr();
 lean_mark_persistent(l_Lean_instInhabitedSubExpr);
 return lean_io_result_mk_ok(lean_box(0));

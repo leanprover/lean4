@@ -159,7 +159,7 @@ private def ignoreArg (a : Expr) (i : Nat) (infos : Array ParamInfo) : MetaM Boo
     isProof a
 
 private partial def pushArgsAux (infos : Array ParamInfo) : Nat → Expr → Array Expr → MetaM (Array Expr)
-  | i, Expr.app f a _, todo => do
+  | i, Expr.app f a, todo => do
     if (← ignoreArg a i infos) then
       pushArgsAux infos (i-1) f (todo.push tmpStar)
     else
@@ -280,8 +280,8 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key �
       let todo ← pushArgsAux info.paramInfo (nargs-1) e todo
       return (k, todo)
     match fn with
-    | Expr.lit v _       => return (Key.lit v, todo)
-    | Expr.const c _ _   =>
+    | Expr.lit v         => return (Key.lit v, todo)
+    | Expr.const c _     =>
       unless root do
         if (← shouldAddAsStar c e) then
           return (Key.star, todo)
@@ -289,10 +289,10 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key �
       push (Key.const c nargs) nargs
     | Expr.proj s i a .. =>
       return (Key.proj s i, todo.push a)
-    | Expr.fvar fvarId _ =>
+    | Expr.fvar fvarId   =>
       let nargs := e.getAppNumArgs
       push (Key.fvar fvarId nargs) nargs
-    | Expr.mvar mvarId _ =>
+    | Expr.mvar mvarId   =>
       if mvarId == tmpMVarId then
         -- We use `tmp to mark implicit arguments and proofs
         return (Key.star, todo)
@@ -368,8 +368,8 @@ def insert [BEq α] (d : DiscrTree α) (e : Expr) (v : α) : MetaM (DiscrTree α
 private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Expr) := do
   let e ← whnfDT e root
   match e.getAppFn with
-  | Expr.lit v _       => return (Key.lit v, #[])
-  | Expr.const c _ _   =>
+  | Expr.lit v         => return (Key.lit v, #[])
+  | Expr.const c _     =>
     if (← getConfig).isDefEqStuckEx && e.hasExprMVar then
       if (← isReducible c) then
         /- `e` is a term `c ...` s.t. `c` is reducible and `e` has metavariables, but it was not unfolded.
@@ -400,10 +400,10 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Ex
         Meta.throwIsDefEqStuck
     let nargs := e.getAppNumArgs
     return (Key.const c nargs, e.getAppRevArgs)
-  | Expr.fvar fvarId _ =>
+  | Expr.fvar fvarId   =>
     let nargs := e.getAppNumArgs
     return (Key.fvar fvarId nargs, e.getAppRevArgs)
-  | Expr.mvar mvarId _ =>
+  | Expr.mvar mvarId   =>
     if isMatch then
       return (Key.other, #[])
     else do

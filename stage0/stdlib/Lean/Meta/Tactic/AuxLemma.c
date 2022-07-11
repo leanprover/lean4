@@ -15,9 +15,9 @@ extern "C" {
 #endif
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_addDecl___at_Lean_Meta_mkAuxLemma___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_log___at_Lean_Meta_mkAuxLemma___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_setInlineAttribute___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_Meta_mkAuxLemma___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwKernelException___at_Lean_Meta_mkAuxLemma___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_registerExt___rarg(lean_object*, lean_object*);
@@ -50,6 +50,7 @@ LEAN_EXPORT lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_Meta_mkAuxL
 static lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_Meta_mkAuxLemma___spec__9___closed__1;
 LEAN_EXPORT lean_object* l_Lean_logAt___at_Lean_Meta_mkAuxLemma___spec__7(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KernelException_toMessageData(lean_object*, lean_object*);
+lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_50____closed__1;
@@ -95,7 +96,6 @@ static lean_object* l_Lean_Meta_mkAuxLemma___closed__9;
 static lean_object* l_Lean_Meta_mkAuxLemma___closed__10;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 static lean_object* l_Lean_addDecl___at_Lean_Meta_mkAuxLemma___spec__4___closed__1;
 lean_object* l_instHashableProd___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_Meta_mkAuxLemma___spec__1(lean_object*, lean_object*);
@@ -1963,7 +1963,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Meta_mkAuxLemma___closed__2;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -2098,7 +2098,7 @@ x_19 = l_Lean_Name_append(x_17, x_18);
 lean_dec(x_17);
 x_20 = lean_ctor_get(x_16, 0);
 lean_inc(x_20);
-x_21 = lean_name_mk_numeral(x_19, x_20);
+x_21 = l_Lean_Name_num___override(x_19, x_20);
 lean_inc(x_2);
 lean_inc(x_1);
 lean_inc(x_21);
@@ -2647,7 +2647,7 @@ x_171 = l_Lean_Name_append(x_169, x_170);
 lean_dec(x_169);
 x_172 = lean_ctor_get(x_168, 0);
 lean_inc(x_172);
-x_173 = lean_name_mk_numeral(x_171, x_172);
+x_173 = l_Lean_Name_num___override(x_171, x_172);
 lean_inc(x_2);
 lean_inc(x_1);
 lean_inc(x_173);

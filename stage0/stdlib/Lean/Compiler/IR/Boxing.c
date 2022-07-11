@@ -22,8 +22,8 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_IR_ExplicitBoxing_getS
 LEAN_EXPORT lean_object* l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExplicitBoxing_castResultIfNeeded___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExplicitBoxing_addBoxedVersions(lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_IR_ExplicitBoxing_mkBoxedName___closed__1;
@@ -178,7 +178,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_IR_ExplicitBoxing_mkBoxedName___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -733,7 +733,7 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_6 = l_Lean_IR_ExplicitBoxing_mkBoxedName___closed__1;
-x_7 = lean_name_mk_string(x_1, x_6);
+x_7 = l_Lean_Name_str___override(x_1, x_6);
 x_8 = l_Lean_IR_Decl_getInfo(x_2);
 x_9 = lean_box(7);
 x_10 = lean_alloc_ctor(0, 5, 0);
@@ -2099,7 +2099,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_IR_ExplicitBoxing_mkCast___closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -4109,7 +4109,7 @@ else
 {
 lean_object* x_173; lean_object* x_174; lean_object* x_175; lean_object* x_176; uint8_t x_177; 
 x_173 = l_Lean_IR_ExplicitBoxing_mkBoxedName___closed__1;
-x_174 = lean_name_mk_string(x_150, x_173);
+x_174 = l_Lean_Name_str___override(x_150, x_173);
 x_175 = lean_ctor_get(x_160, 0);
 lean_inc(x_175);
 x_176 = lean_ctor_get(x_160, 1);
@@ -4224,7 +4224,7 @@ else
 {
 lean_object* x_207; lean_object* x_208; lean_object* x_209; lean_object* x_210; lean_object* x_211; lean_object* x_212; lean_object* x_213; lean_object* x_214; lean_object* x_215; lean_object* x_216; lean_object* x_217; 
 x_207 = l_Lean_IR_ExplicitBoxing_mkBoxedName___closed__1;
-x_208 = lean_name_mk_string(x_187, x_207);
+x_208 = l_Lean_Name_str___override(x_187, x_207);
 x_209 = lean_ctor_get(x_197, 0);
 lean_inc(x_209);
 x_210 = lean_ctor_get(x_197, 1);

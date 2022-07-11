@@ -24,12 +24,12 @@ namespace Lean.Meta
 private def collectDeps (fvars : Array Expr) (e : Expr) : Array Nat :=
   let rec visit (e : Expr) (deps : Array Nat) : Array Nat :=
     match e with
-    | .app f a _       => whenHasVar e deps (visit a ∘ visit f)
+    | .app f a         => whenHasVar e deps (visit a ∘ visit f)
     | .forallE _ d b _ => whenHasVar e deps (visit b ∘ visit d)
     | .lam _ d b _     => whenHasVar e deps (visit b ∘ visit d)
     | .letE _ t v b _  => whenHasVar e deps (visit b ∘ visit v ∘ visit t)
-    | .proj _ _ e _    => visit e deps
-    | .mdata _ e _     => visit e deps
+    | .proj _ _ e      => visit e deps
+    | .mdata _ e       => visit e deps
     | .fvar ..         =>
       match fvars.indexOf? e with
       | none   => deps

@@ -87,8 +87,8 @@ def caseValues (mvarId : MVarId) (fvarId : FVarId) (values : Array Expr) (hNameP
       appendTagSuffix thenSubgoal.mvarId ((`case).appendIndexAfter i)
       let thenMVarId ← hs.foldlM
         (fun thenMVarId h => match thenSubgoal.subst.get h with
-          | Expr.fvar fvarId _ => tryClear thenMVarId fvarId
-          | _                  => pure thenMVarId)
+          | Expr.fvar fvarId => tryClear thenMVarId fvarId
+          | _                => pure thenMVarId)
         thenSubgoal.mvarId
       let subgoals ← if substNewEqs then
          let (subst, mvarId) ← substCore thenMVarId thenSubgoal.newH false thenSubgoal.subst true

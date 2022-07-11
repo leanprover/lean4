@@ -22,9 +22,9 @@ LEAN_EXPORT lean_object* l_coeSortToCoeTail(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_coeOfDep(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instCoeTail___rarg(lean_object*, lean_object*);
 static lean_object* l_coeNotation___closed__9;
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_coeSortToCoeTail___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_coeOfTCOfTail(lean_object*, lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_coeOfHTCT___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_coeOfTC___rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_decPropToBool___rarg(uint8_t);
@@ -91,7 +91,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_coeNotation___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -109,7 +109,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_coeNotation___closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -145,7 +145,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_coeNotation___closed__7;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }

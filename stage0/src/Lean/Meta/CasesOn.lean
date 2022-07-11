@@ -24,7 +24,7 @@ structure CasesOnApp where
 /-- Return `some c` if `e` is a `casesOn` application. -/
 def toCasesOnApp? (e : Expr) : MetaM (Option CasesOnApp) := do
   let f := e.getAppFn
-  let .const declName us _ := f | return none
+  let .const declName us := f | return none
   unless isCasesOnRecursor (← getEnv) declName do return none
   let indName := declName.getPrefix
   let .inductInfo info ← getConstInfo indName | return none

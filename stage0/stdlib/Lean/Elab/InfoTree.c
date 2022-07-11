@@ -28,7 +28,6 @@ static lean_object* l_Std_PersistentArray_findSomeMAux___at_Lean_Elab_InfoTree_f
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__2;
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Elab_resolveGlobalConstWithInfos___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint64_t lean_uint64_of_nat(lean_object*);
 lean_object* l_Lean_resolveGlobalConst___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_TermInfo_format___lambda__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_withMacroExpansionInfo___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -257,6 +256,7 @@ LEAN_EXPORT lean_object* l_Std_PersistentArray_mapMAux___at_Lean_Elab_withSaveIn
 size_t lean_usize_mul(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_PersistentArray_mapMAux___at_Lean_Elab_withSaveInfoContext___spec__2___rarg___lambda__2(lean_object*);
 static lean_object* l_Lean_Elab_ContextInfo_ppGoals___closed__2;
+lean_object* l_Lean_Expr_bvar___override(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_getInfoTrees(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_InfoTree_0__Lean_Elab_formatStxRange(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_getInfoHoleIdAssignment_x3f___rarg(lean_object*, lean_object*, lean_object*);
@@ -389,7 +389,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_pushInfoTree(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_withMacroExpansionInfo___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_withMacroExpansionInfo(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentArray_mapMAux___at_Lean_Elab_withSaveInfoContext___spec__2(lean_object*);
-static uint64_t l_Lean_Elab_instInhabitedTermInfo___closed__6;
+static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_assignInfoHoleId___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_pushInfoTree___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_prefixJoin___at_Lean_Elab_ContextInfo_ppGoals___spec__2(lean_object*, lean_object*);
@@ -436,7 +436,6 @@ extern lean_object* l_instInhabitedPUnit;
 lean_object* l_Lean_Syntax_formatStxAux(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_ContextInfo_saveNoFileMap___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__7;
-static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Elab_CompletionInfo_stx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_ContextInfo_saveNoFileMap___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedFieldInfo;
@@ -1027,35 +1026,23 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static uint64_t _init_l_Lean_Elab_instInhabitedTermInfo___closed__6() {
+static lean_object* _init_l_Lean_Elab_instInhabitedTermInfo___closed__6() {
 _start:
 {
-lean_object* x_1; uint64_t x_2; 
+lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_uint64_of_nat(x_1);
+x_2 = l_Lean_Expr_bvar___override(x_1);
 return x_2;
 }
 }
 static lean_object* _init_l_Lean_Elab_instInhabitedTermInfo___closed__7() {
 _start:
 {
-lean_object* x_1; uint64_t x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_Elab_instInhabitedTermInfo___closed__6;
-x_3 = lean_alloc_ctor(0, 1, 8);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint64(x_3, sizeof(void*)*1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Elab_instInhabitedTermInfo___closed__8() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Elab_instInhabitedElabInfo___closed__1;
 x_3 = l_Lean_Elab_instInhabitedTermInfo___closed__5;
-x_4 = l_Lean_Elab_instInhabitedTermInfo___closed__7;
+x_4 = l_Lean_Elab_instInhabitedTermInfo___closed__6;
 x_5 = 0;
 x_6 = lean_alloc_ctor(0, 4, 1);
 lean_ctor_set(x_6, 0, x_2);
@@ -1070,7 +1057,7 @@ static lean_object* _init_l_Lean_Elab_instInhabitedTermInfo() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_instInhabitedTermInfo___closed__8;
+x_1 = l_Lean_Elab_instInhabitedTermInfo___closed__7;
 return x_1;
 }
 }
@@ -1118,7 +1105,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Elab_instInhabitedTermInfo___closed__5;
-x_3 = l_Lean_Elab_instInhabitedTermInfo___closed__7;
+x_3 = l_Lean_Elab_instInhabitedTermInfo___closed__6;
 x_4 = lean_box(0);
 x_5 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_5, 0, x_1);
@@ -9273,10 +9260,9 @@ lean_mark_persistent(l_Lean_Elab_instInhabitedTermInfo___closed__4);
 l_Lean_Elab_instInhabitedTermInfo___closed__5 = _init_l_Lean_Elab_instInhabitedTermInfo___closed__5();
 lean_mark_persistent(l_Lean_Elab_instInhabitedTermInfo___closed__5);
 l_Lean_Elab_instInhabitedTermInfo___closed__6 = _init_l_Lean_Elab_instInhabitedTermInfo___closed__6();
+lean_mark_persistent(l_Lean_Elab_instInhabitedTermInfo___closed__6);
 l_Lean_Elab_instInhabitedTermInfo___closed__7 = _init_l_Lean_Elab_instInhabitedTermInfo___closed__7();
 lean_mark_persistent(l_Lean_Elab_instInhabitedTermInfo___closed__7);
-l_Lean_Elab_instInhabitedTermInfo___closed__8 = _init_l_Lean_Elab_instInhabitedTermInfo___closed__8();
-lean_mark_persistent(l_Lean_Elab_instInhabitedTermInfo___closed__8);
 l_Lean_Elab_instInhabitedTermInfo = _init_l_Lean_Elab_instInhabitedTermInfo();
 lean_mark_persistent(l_Lean_Elab_instInhabitedTermInfo);
 l_Lean_Elab_instInhabitedCommandInfo = _init_l_Lean_Elab_instInhabitedCommandInfo();

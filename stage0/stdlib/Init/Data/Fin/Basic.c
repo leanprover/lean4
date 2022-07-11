@@ -16,8 +16,8 @@ extern "C" {
 static lean_object* l___aux__Init__Data__Fin__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__1;
 static lean_object* l___aux__Init__Data__Fin__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__20;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_ofNat(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_elim0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_land(lean_object*, lean_object*, lean_object*);
@@ -634,7 +634,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l___aux__Init__Data__Fin__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -652,7 +652,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l___aux__Init__Data__Fin__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -670,7 +670,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___aux__Init__Data__Fin__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__4;
 x_2 = l___aux__Init__Data__Fin__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__5;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -688,7 +688,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___aux__Init__Data__Fin__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__6;
 x_2 = l___aux__Init__Data__Fin__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__7;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -706,7 +706,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___aux__Init__Data__Fin__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__8;
 x_2 = l___aux__Init__Data__Fin__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__9;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -724,7 +724,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l___aux__Init__Data__Fin__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__11;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -742,7 +742,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___aux__Init__Data__Fin__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__8;
 x_2 = l___aux__Init__Data__Fin__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__13;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -791,7 +791,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l___aux__Init__Data__Fin__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__18;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -809,7 +809,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___aux__Init__Data__Fin__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__19;
 x_2 = l___aux__Init__Data__Fin__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__20;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -885,7 +885,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___aux__Init__Data__Fin__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__8;
 x_2 = l___aux__Init__Data__Fin__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__28;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }

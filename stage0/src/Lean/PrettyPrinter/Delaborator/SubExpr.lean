@@ -56,11 +56,11 @@ def withBindingBody (n : Name) (x : m α) : m α := do
     descend (e.bindingBody!.instantiate1 fvar) 1 x
 
 def withProj (x : m α) : m α := do
-  let Expr.proj _ _ e _ ← getExpr | unreachable!
+  let Expr.proj _ _ e ← getExpr | unreachable!
   descend e 0 x
 
 def withMDataExpr (x : m α) : m α := do
-  let Expr.mdata _ e _ ← getExpr | unreachable!
+  let Expr.mdata _ e ← getExpr | unreachable!
   withTheReader SubExpr (fun ctx => { ctx with expr := e }) x
 
 def withLetVarType (x : m α) : m α := do

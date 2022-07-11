@@ -695,13 +695,13 @@ def getNamespaceSet (env : Environment) : NameSSet :=
   namespacesExt.getState env
 
 private def isNamespaceName : Name → Bool
-  | Name.str Name.anonymous _ _ => true
-  | Name.str p _ _              => isNamespaceName p
-  | _                           => false
+  | .str .anonymous _ => true
+  | .str p _          => isNamespaceName p
+  | _                 => false
 
 private def registerNamePrefixes : Environment → Name → Environment
-  | env, Name.str p _ _ => if isNamespaceName p then registerNamePrefixes (registerNamespace env p) p else env
-  | env, _              => env
+  | env, .str p _ => if isNamespaceName p then registerNamePrefixes (registerNamespace env p) p else env
+  | env, _        => env
 
 @[export lean_environment_add]
 def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
@@ -744,14 +744,14 @@ unsafe def evalConstCheck (α) (env : Environment) (opts : Options) (typeName : 
   | none      => throw ("unknown constant '" ++ toString constName ++ "'")
   | some info =>
     match info.type with
-    | Expr.const c _ _ =>
+    | Expr.const c _ =>
       if c != typeName then throwUnexpectedType typeName constName
       else env.evalConst α opts constName
     | _ => throwUnexpectedType typeName constName
 
 def hasUnsafe (env : Environment) (e : Expr) : Bool :=
   let c? := e.find? fun e => match e with
-    | Expr.const c _ _ =>
+    | Expr.const c _ =>
       match env.find? c with
       | some cinfo => cinfo.isUnsafe
       | none       => false

@@ -52,7 +52,7 @@ def apply (s : FVarSubst) (e : Expr) : Expr :=
   if s.map.isEmpty then e
   else if !e.hasFVar then e
   else e.replace fun e => match e with
-    | Expr.fvar fvarId _ => match s.map.find? fvarId with
+    | Expr.fvar fvarId => match s.map.find? fvarId with
       | none   => e
       | some v => v
     | _ => none

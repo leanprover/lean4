@@ -49,7 +49,7 @@ where
     else
       let visit {ω} : StateRefT IndexSet (ST ω) Unit :=
         e.forEach fun
-          | Expr.fvar fvarId _ =>
+          | Expr.fvar fvarId =>
             match localInst2Index.find? fvarId with
             | some idx => modify (·.insert idx)
             | none => pure ()

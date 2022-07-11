@@ -67,9 +67,9 @@ partial def addImplicitTargets (elimInfo : ElimInfo) (targets : Array Expr) : Me
 where
   collect (type : Expr) (argIdx targetIdx : Nat) (targets' : Array Expr) : MetaM (Array Expr) := do
     match (← whnfD type) with
-    | Expr.forallE _ d b c =>
+    | Expr.forallE _ d b bi =>
       if elimInfo.targetsPos.contains argIdx then
-        if c.binderInfo.isExplicit then
+        if bi.isExplicit then
           unless targetIdx < targets.size do
             throwError "insufficient number of targets for '{elimInfo.name}'"
           let target := targets[targetIdx]!

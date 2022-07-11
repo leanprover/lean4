@@ -30,8 +30,8 @@ private def addScope (isNewNamespace : Bool) (isNoncomputable : Bool) (header : 
     activateScoped newNamespace
 
 private def addScopes (isNewNamespace : Bool) (isNoncomputable : Bool) : Name → CommandElabM Unit
-  | Name.anonymous => pure ()
-  | Name.str p header _ => do
+  | .anonymous => pure ()
+  | .str p header => do
     addScopes isNewNamespace isNoncomputable p
     let currNamespace ← getCurrNamespace
     addScope isNewNamespace isNoncomputable header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace)
@@ -55,9 +55,9 @@ private def checkAnonymousScope : List Scope → Bool
   | _                           => false
 
 private def checkEndHeader : Name → List Scope → Bool
-  | Name.anonymous, _                             => true
-  | Name.str p s _, { header := h, .. } :: scopes => h == s && checkEndHeader p scopes
-  | _,              _                             => false
+  | .anonymous, _                             => true
+  | .str p s,   { header := h, .. } :: scopes => h == s && checkEndHeader p scopes
+  | _,          _                             => false
 
 @[builtinCommandElab «namespace»] def elabNamespace : CommandElab := fun stx =>
   match stx with

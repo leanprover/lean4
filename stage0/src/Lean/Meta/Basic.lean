@@ -690,13 +690,13 @@ private partial def isClassQuick? : Expr → MetaM (LOption Name)
   | Expr.letE ..         => pure LOption.undef
   | Expr.proj ..         => pure LOption.undef
   | Expr.forallE _ _ b _ => isClassQuick? b
-  | Expr.mdata _ e _     => isClassQuick? e
-  | Expr.const n _ _     => isClassQuickConst? n
-  | Expr.mvar mvarId _   => do
+  | Expr.mdata _ e       => isClassQuick? e
+  | Expr.const n _       => isClassQuickConst? n
+  | Expr.mvar mvarId     => do
     match (← getExprMVarAssignment? mvarId) with
     | some val => isClassQuick? val
     | none     => pure LOption.none
-  | Expr.app f _ _       =>
+  | Expr.app f _         =>
     match f.getAppFn with
     | Expr.const n .. => isClassQuickConst? n
     | Expr.lam ..     => pure LOption.undef
@@ -798,11 +798,11 @@ mutual
       (k                 : Array Expr → Expr → MetaM α) : MetaM α := do
     let rec process (lctx : LocalContext) (fvars : Array Expr) (j : Nat) (type : Expr) : MetaM α := do
       match type with
-      | Expr.forallE n d b c =>
+      | Expr.forallE n d b bi =>
         if fvarsSizeLtMaxFVars fvars maxFVars? then
           let d     := d.instantiateRevRange j fvars.size fvars
           let fvarId ← mkFreshFVarId
-          let lctx  := lctx.mkLocalDecl fvarId n d c.binderInfo
+          let lctx  := lctx.mkLocalDecl fvarId n d bi
           let fvar  := mkFVar fvarId
           let fvars := fvars.push fvar
           process lctx fvars j b
@@ -840,13 +840,13 @@ mutual
       forallTelescopeReducingAux type none fun _ type => do
         let env ← getEnv
         match type.getAppFn with
-        | Expr.const c _ _ => do
+        | Expr.const c _ => do
           if isClass env c then
             return some c
           else
             -- make sure abbreviations are unfolded
             match (← whnf type).getAppFn with
-            | Expr.const c _ _ => return if isClass env c then some c else none
+            | Expr.const c _ => return if isClass env c then some c else none
             | _ => return none
         | _ => return none
 
@@ -910,10 +910,10 @@ private partial def lambdaTelescopeImp (e : Expr) (consumeLet : Bool) (k : Array
 where
   process (consumeLet : Bool) (lctx : LocalContext) (fvars : Array Expr) (j : Nat) (e : Expr) : MetaM α := do
     match consumeLet, e with
-    | _, Expr.lam n d b c =>
+    | _, Expr.lam n d b bi =>
       let d := d.instantiateRevRange j fvars.size fvars
       let fvarId ← mkFreshFVarId
-      let lctx := lctx.mkLocalDecl fvarId n d c.binderInfo
+      let lctx := lctx.mkLocalDecl fvarId n d bi
       let fvar := mkFVar fvarId
       process consumeLet lctx (fvars.push fvar) j b
     | true, Expr.letE n t v b _ => do
@@ -958,12 +958,12 @@ where
       return (mvars, bis, type)
     else
       match type with
-      | Expr.forallE n d b c =>
+      | Expr.forallE n d b bi =>
         let d  := d.instantiateRevRange j mvars.size mvars
-        let k  := if c.binderInfo.isInstImplicit then  MetavarKind.synthetic else kind
+        let k  := if bi.isInstImplicit then  MetavarKind.synthetic else kind
         let mvar ← mkFreshExprMVar d k n
         let mvars := mvars.push mvar
-        let bis   := bis.push c.binderInfo
+        let bis   := bis.push bi
         process mvars bis j b
       | _ =>
         let type := type.instantiateRevRange j mvars.size mvars;
@@ -1008,11 +1008,11 @@ where
       finalize ()
     else
       match type with
-      | Expr.lam _ d b c =>
+      | Expr.lam _ d b bi =>
         let d     := d.instantiateRevRange j mvars.size mvars
         let mvar ← mkFreshExprMVar d
         let mvars := mvars.push mvar
-        let bis   := bis.push c.binderInfo
+        let bis   := bis.push bi
         process mvars bis j b
       | _ => finalize ()
 
@@ -1348,9 +1348,9 @@ def getResetPostponed : MetaM (PersistentArray PostponedEntry) := do
 /-- Annotate any constant and sort in `e` that satisfies `p` with `pp.universes true` -/
 private def exposeRelevantUniverses (e : Expr) (p : Level → Bool) : Expr :=
   e.replace fun
-    | Expr.const _ us _ => if us.any p then some (e.setPPUniverses true) else none
-    | Expr.sort u _     => if p u then some (e.setPPUniverses true) else none
-    | _                 => none
+    | Expr.const _ us => if us.any p then some (e.setPPUniverses true) else none
+    | Expr.sort u     => if p u then some (e.setPPUniverses true) else none
+    | _               => none
 
 private def mkLeveErrorMessageCore (header : String) (entry : PostponedEntry) : MetaM MessageData := do
   match entry.ctx? with
@@ -1360,7 +1360,7 @@ private def mkLeveErrorMessageCore (header : String) (entry : PostponedEntry) : 
     withLCtx ctx.lctx ctx.localInstances do
       let s   := entry.lhs.collectMVars entry.rhs.collectMVars
       /- `p u` is true if it contains a universe metavariable in `s` -/
-      let p (u : Level) := u.any fun | Level.mvar m _ => s.contains m | _ => false
+      let p (u : Level) := u.any fun | Level.mvar m => s.contains m | _ => false
       let lhs := exposeRelevantUniverses (← instantiateMVars ctx.lhs) p
       let rhs := exposeRelevantUniverses (← instantiateMVars ctx.rhs) p
       try

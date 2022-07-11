@@ -106,7 +106,7 @@ where
   | _,    ctx,       withNamingContext nCtx d => go nCtx ctx d
   | nCtx, ctx,       tagged t d               => do
     -- We postfix trace contexts with `_traceCtx` in order to detect them in messages.
-    if let Name.str cls "_traceCtx" _ := t then
+    if let .str cls "_traceCtx" := t then
       -- When interactive trace exploration is possible, we hide traces which can otherwise
       -- take significant resources to pretty-print.
       if hasWidgets then

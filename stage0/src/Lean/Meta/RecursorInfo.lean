@@ -95,7 +95,7 @@ private def getMajorPosIfAuxRecursor? (declName : Name) (majorPos? : Option Nat)
     let env ← getEnv
     if !isAuxRecursor env declName then pure none
     else match declName with
-    | Name.str p s _ =>
+    | .str p s =>
       if s != recOnSuffix && s != casesOnSuffix && s != brecOnSuffix then
         pure none
       else do
@@ -160,9 +160,9 @@ private def getIndicesPos (declName : Name) (xs : Array Expr) (majorPos numIndic
 
 private def getMotiveLevel (declName : Name) (motiveResultType : Expr) : MetaM Level :=
   match motiveResultType with
-  | Expr.sort u@(Level.zero _) _    => pure u
-  | Expr.sort u@(Level.param _ _) _ => pure u
-  | _                               =>
+  | Expr.sort u@(Level.zero)    => pure u
+  | Expr.sort u@(Level.param _) => pure u
+  | _                           =>
     throwError "invalid user defined recursor '{declName}', motive result sort must be Prop or (Sort u) where u is a universe level parameter"
 
 private def getUnivLevelPos (declName : Name) (lparams : List Name) (motiveLvl : Level) (Ilevels : List Level) : MetaM (List RecursorUnivLevelPos) := do
@@ -214,7 +214,7 @@ private def mkRecursorInfoAux (cinfo : ConstantInfo) (majorPos? : Option Nat) : 
     let majorType ← inferType major
     majorType.withApp fun I Iargs =>
     match I with
-    | Expr.const Iname Ilevels _ => do
+    | Expr.const Iname Ilevels => do
       let paramsPos ← getParamsPos declName xs numParams Iargs
       let indicesPos ← getIndicesPos declName xs majorPos numIndices Iargs
       let motiveType ← inferType motive

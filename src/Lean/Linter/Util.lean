@@ -20,9 +20,16 @@ do
   let messages := (← get).messages |>.add (mkMessageCore ctx.fileName ctx.fileMap content severity range.start range.stop)
   modify ({ · with messages := messages })
 
+/-- Go upwards through the given `tree` starting from the smallest node that
+contains the given `range` and collect all `MacroExpansionInfo`s on the way up.
+The result is `some []` if no `MacroExpansionInfo` was found on the way and
+`none` if no `InfoTree` node was found that covers the given `range`.
+
+Return the result reversed, s.t. the macro expansion that would be applied to
+the original syntax first is the first element of the returned list. -/
 def collectMacroExpansions? {m} [Monad m] (range : String.Range) (tree : Elab.InfoTree) : m <| Option <| List Elab.MacroExpansionInfo := do
     if let .some <| .some result ← go then
-      return some result
+      return some result.reverse
     else
       return none
 where
@@ -43,8 +50,15 @@ where
     else
       return none)
 
+/-- List of `Syntax` nodes in which each succeeding element is the parent of
+the current. The associated index is the index of the preceding element in the
+list of children of the current element. -/
 abbrev SyntaxStack := List (Syntax × Nat)
 
+/-- Go upwards through the given `root` syntax starting from `child` and
+collect all `Syntax` nodes on the way up.
+
+Return `none` if the `child` is not found in `root`. -/
 partial def findSyntaxStack? (root child : Syntax) : Option SyntaxStack := Id.run <| do
   let some childRange := child.getRange?
     | none
@@ -63,6 +77,8 @@ partial def findSyntaxStack? (root child : Syntax) : Option SyntaxStack := Id.ru
     return none
   go [] root
 
+/-- Compare the `SyntaxNodeKind`s in `pattern` to those of the `Syntax`
+elements in `stack`. Return `false` if `stack` is shorter than `pattern`. -/
 def stackMatches (stack : SyntaxStack) (pattern : List $ Option SyntaxNodeKind) : Bool :=
   stack.length >= pattern.length &&
   (stack

@@ -23,11 +23,12 @@ deriving Inhabited, Repr
 
 instance : Coe Name Glob := ⟨Glob.one⟩
 
-partial def forEachNoduleIn [Monad m] [MonadLiftT IO m]
+partial def forEachModuleIn [Monad m] [MonadLiftT IO m]
 (dir : FilePath) (f : WfName → m PUnit) : m PUnit := do
   for entry in (← dir.readDir) do
     if (← liftM (m := IO) <| entry.path.isDir) then
-      f <| WfName.ofString <| entry.fileName
+      let n := WfName.ofString <| entry.fileName
+      f n *> forEachModuleIn entry.path (f <| n ++ ·)
     else if entry.path.extension == some "lean" then
       f <| WfName.ofString <| FilePath.withExtension entry.fileName "" |>.toString
 
@@ -38,10 +39,12 @@ def «matches» (m : Name) : (self : Glob) → Bool
 | submodules n => n.isPrefixOf m && n != m
 | andSubmodules n => n.isPrefixOf m
 
-def forEachModuleIn [Monad m] [MonadLiftT IO m]
+nonrec def forEachModuleIn [Monad m] [MonadLiftT IO m]
 (dir : FilePath) (f : WfName → m PUnit) : (self : Glob) → m PUnit
 | one n => f (WfName.ofName n)
-| submodules n => forEachNoduleIn (Lean.modToFilePath dir n "") f
+| submodules n =>
+  let n := WfName.ofName n
+  forEachModuleIn (Lean.modToFilePath dir n "") (f <| n ++ ·)
 | andSubmodules n =>
-  f (WfName.ofName n) *>
-  forEachNoduleIn (Lean.modToFilePath dir n "") f
+  let n := WfName.ofName n
+  f n *> forEachModuleIn (Lean.modToFilePath dir n "") (f <| n ++ ·)

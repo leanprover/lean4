@@ -12,7 +12,7 @@ test: check-lake test-ci test-bootstrap test-bootstrapped
 
 test-ci: test-tests test-examples
 
-test-tests: test-49 test-50 test-62 test-75 test-84
+test-tests: test-49 test-50 test-62 test-75 test-84 test-102
 
 test-examples: test-init test-hello test-deps\
 	test-git test-ffi test-targets test-precompile test-scripts
@@ -21,7 +21,7 @@ test-bootstrapped: test-boostrapped-hello
 
 clean: clean-build clean-tests clean-examples
 
-clean-tests: clean-62 clean-84
+clean-tests: clean-62 clean-84 clean-102
 
 clean-examples: clean-init clean-hello clean-deps\
 	clean-git clean-ffi clean-targets clean-precompile clean-bootstrap
@@ -137,3 +137,9 @@ clean-84:
 
 test-84:
 	cd test/84 && ./test.sh
+
+clean-102:
+	cd test/102 && ./clean.sh
+
+test-102:
+	cd test/102 && ./test.sh

@@ -166,7 +166,7 @@ private partial def isDefEqArgsFirstPass
     (paramInfo : Array ParamInfo) (args₁ args₂ : Array Expr) : MetaM (Option (Array Nat)) := do
   let rec loop (i : Nat) (postponed : Array Nat) := do
     if h : i < paramInfo.size then
-      let info := paramInfo.get ⟨i, h⟩
+      let info := paramInfo[i]
       let a₁ := args₁[i]!
       let a₂ := args₂[i]!
       if !info.isExplicit then
@@ -197,8 +197,9 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
     let (some postponed) ← isDefEqArgsFirstPass finfo.paramInfo args₁ args₂ | pure false
     let rec processOtherArgs (i : Nat) : MetaM Bool := do
       if h₁ : i < args₁.size then
-        let a₁ := args₁.get ⟨i, h₁⟩
-        let a₂ := args₂.get ⟨i, Eq.subst h h₁⟩
+        let a₁ := args₁[i]
+        have : i < args₂.size := h ▸ h₁
+        let a₂ := args₂[i]
         if (← Meta.isExprDefEqAux a₁ a₂) then
           processOtherArgs (i+1)
         else

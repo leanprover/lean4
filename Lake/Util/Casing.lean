@@ -13,7 +13,7 @@ def toUpperCamelCaseString (str : String) : String :=
 
 /-- Converts a snake case, kebab case, or lower camel case `Name` to upper camel case. -/
 def toUpperCamelCase (name : Name) : Name :=
-  if let Name.str p s _ := name then
+  if let Name.str p s := name then
     Name.mkStr (toUpperCamelCase p) <| toUpperCamelCaseString s
   else
     name

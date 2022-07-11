@@ -11,9 +11,9 @@ namespace Lake
 /-- A custom target's declarative configuration. -/
 structure TargetConfig where
   /-- The name of the target. -/
-  name : WfName
+  name : Name
   /-- The name of the target's package. -/
-  package : WfName
+  package : Name
   /-- The type of the target's build result. -/
   resultType : Type
   /-- The target's build function. -/
@@ -21,11 +21,11 @@ structure TargetConfig where
   /-- Proof that target's build result is the correctly typed target.-/
   data_eq_target : CustomData (package, name) = ActiveBuildTarget resultType
 
-family_def _nil_ : CustomData (&`✝, &`✝) := ActiveOpaqueTarget
+family_def _nil_ : CustomData (.anonymous, .anonymous) := ActiveOpaqueTarget
 
 instance : Inhabited TargetConfig := ⟨{
-  name := &`✝
-  package := &`✝
+  name := .anonymous
+  package := .anonymous
   resultType := PUnit
   target := default
   data_eq_target := family_key_eq_type

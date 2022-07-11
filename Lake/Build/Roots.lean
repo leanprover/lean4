@@ -90,7 +90,7 @@ def LeanExe.recBuild (self : LeanExe) : IndexT m ActiveFileTarget := do
     for facet in mod.nativeFacets do
       arr := arr.push <| Target.active <| ← recBuild <| mod.facet facet.name
     return arr
-  let deps := (← recBuild <| self.pkg.facet &`deps).push self.pkg
+  let deps := (← recBuild <| self.pkg.facet `deps).push self.pkg
   for dep in deps do for lib in dep.externLibs do
     linkTargets := linkTargets.push <| Target.active <| ← lib.static.recBuild
   leanExeTarget self.file linkTargets self.linkArgs |>.activate

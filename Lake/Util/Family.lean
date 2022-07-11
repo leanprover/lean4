@@ -33,7 +33,7 @@ In this approach, to define an open type family, one first defines an `opaque`
 type function with a single argument that serves as the key:
 
 ```lean
-opaque FooFam (key : WfName) : Type
+opaque FooFam (key : Name) : Type
 ```
 
 Note that, unlike Haskell, the key need not be a type. Lean's dependent type
@@ -43,21 +43,21 @@ we can use data as an index as well.
 Then, to add a mapping to this family, one defines an axioms:
 
 ```lean
-axiom FooFam.bar : FooFam &`bar = Nat
+axiom FooFam.bar : FooFam `bar = Nat
 ```
 
 To finish, one also defines an instance of the `FamilyDef` type class
 defined in this module using the axiom like so:
 
 ```lean
-instance : FamilyDef FooFam &`bar Nat := ⟨FooFam.bar⟩
+instance : FamilyDef FooFam `bar Nat := ⟨FooFam.bar⟩
 ```
 
 This module provides a `family_def` macro to define both the axiom and the
 instance in one go like so:
 
 ```lean
-family_def bar : FooFam &`bar := Nat
+family_def bar : FooFam `bar := Nat
 ```
 
 ## Type Inference
@@ -69,18 +69,18 @@ FamilyDef {α : Type u} (Fam : α → Type v) (a : α) (β : outParam $ Type v) 
 ```
 
 The key part being that `β` is an `outParam` so Lean's type class synthesis will
-smartly infer the defined type `Nat` when given the key of ``&`bar``. Thus, if
+smartly infer the defined type `Nat` when given the key of `` `bar``. Thus, if
 we have a function define like so:
 
 ```
 def foo (key : α) [FamilyDef FooFam key β] : β := ...
 ```
 
-Lean will smartly infer that the type of ``foo &`bar`` is `Nat`.
+Lean will smartly infer that the type of ``foo `bar`` is `Nat`.
 
 However, filling in the right hand side of `foo` is not quite so easy.
-``FooFam &`bar = Nat`` is only true propositionally, so we have to manually
-`cast` a `Nat` to ``FooFam &`bar``and provide the proof (and the same is true
+``FooFam `bar = Nat`` is only true propositionally, so we have to manually
+`cast` a `Nat` to ``FooFam `bar``and provide the proof (and the same is true
 vice versa). Thus, this module provides two definitions, `toFamily : β → Fam a`
 and `ofFamily : Fam a → β`, to help with this conversion.
 
@@ -89,21 +89,21 @@ and `ofFamily : Fam a → β`, to help with this conversion.
 Putting this all together, one can do something like the following:
 
 ```lean
-opaque FooFam (key : WfName) : Type
+opaque FooFam (key : Name) : Type
 
-abbrev FooMap := DRBMap WfName FooFam WfName.quickCmp
-def FooMap.insert (self : FooMap) (key : WfName) [FamilyDef FooFam key α] (a : α) : FooMap :=
+abbrev FooMap := DRBMap Name FooFam Name.quickCmp
+def FooMap.insert (self : FooMap) (key : Name) [FamilyDef FooFam key α] (a : α) : FooMap :=
   DRBMap.insert self key (toFamily a)
-def FooMap.find? (self : FooMap) (key : WfName) [FamilyDef FooFam key α] : Option α :=
+def FooMap.find? (self : FooMap) (key : Name) [FamilyDef FooFam key α] : Option α :=
   ofFamily <$> DRBMap.find? self key
 
-family_def bar : FooFam &`bar := Nat
-family_def baz : FooFam &`baz := String
+family_def bar : FooFam `bar := Nat
+family_def baz : FooFam `baz := String
 def foo := Id.run do
   let mut map : FooMap := {}
-  map := map.insert &`bar 5
-  map := map.insert &`baz "str"
-  return map.find? &`bar
+  map := map.insert `bar 5
+  map := map.insert `baz "str"
+  return map.find? `bar
 
 #eval foo -- 5
 ```
@@ -116,8 +116,8 @@ keys. Since mappings are defined through axioms, Lean WILL NOT catch violations
 of this rule itself, so extra care must be taken when defining mappings.
 
 In Lake, this is solved by having its open type families be indexed by a
-`WfName` and defining each mapping using a name literal `name` and the
-declaration ``axiom Fam.name : Fam &`name = α`` thus causing a name clash
+`Name` and defining each mapping using a name literal `name` and the
+declaration ``axiom Fam.name : Fam `name = α`` thus causing a name clash
 if two keys overlap and thereby producing an error.
 -/
 

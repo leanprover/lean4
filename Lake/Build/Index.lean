@@ -27,21 +27,21 @@ namespace Lake
 
 /-- A map from module facet names to build functions. -/
 abbrev ModuleBuildMap (m : Type → Type v) :=
-  DRBMap WfName (cmp := WfName.quickCmp) fun k =>
+  DRBMap Name (cmp := Name.quickCmp) fun k =>
     Module → IndexBuildFn m → m (ModuleData k)
 
 @[inline] def ModuleBuildMap.empty : ModuleBuildMap m := DRBMap.empty
 
 /-- A map from package facet names to build functions. -/
 abbrev PackageBuildMap (m : Type → Type v) :=
-  DRBMap WfName (cmp := WfName.quickCmp) fun k =>
+  DRBMap Name (cmp := Name.quickCmp) fun k =>
     Package → IndexBuildFn m → m (PackageData k)
 
 @[inline] def PackageBuildMap.empty : PackageBuildMap m := DRBMap.empty
 
 /-- A map from target facet names to build functions. -/
 abbrev TargetBuildMap (m : Type → Type v) :=
-  DRBMap WfName (cmp := WfName.quickCmp) fun k =>
+  DRBMap Name (cmp := Name.quickCmp) fun k =>
     Package → IndexBuildFn m → m (PackageData k)
 
 @[inline] def TargetBuildMap.empty : PackageBuildMap m := DRBMap.empty
@@ -54,7 +54,7 @@ abbrev TargetBuildMap (m : Type → Type v) :=
 Converts a conveniently typed module facet build function into its
 dynamically typed equivalent.
 -/
-@[inline] def mkModuleFacetBuild {facet : WfName} (build : Module → IndexT m α)
+@[inline] def mkModuleFacetBuild {facet : Name} (build : Module → IndexT m α)
 [h : FamilyDef ModuleData facet α] : Module → IndexT m (ModuleData facet) :=
   cast (by rw [← h.family_key_eq_type]) build
 
@@ -62,7 +62,7 @@ dynamically typed equivalent.
 Converts a conveniently typed package facet build function into its
 dynamically typed equivalent.
 -/
-@[inline] def mkPackageFacetBuild {facet : WfName} (build : Package → IndexT m α)
+@[inline] def mkPackageFacetBuild {facet : Name} (build : Package → IndexT m α)
 [h : FamilyDef PackageData facet α] : Package → IndexT m (PackageData facet) :=
   cast (by rw [← h.family_key_eq_type]) build
 
@@ -70,7 +70,7 @@ dynamically typed equivalent.
 Converts a conveniently typed target facet build function into its
 dynamically typed equivalent.
 -/
-@[inline] def mkTargetFacetBuild (facet : WfName) (build : IndexT m α)
+@[inline] def mkTargetFacetBuild (facet : Name) (build : IndexT m α)
 [h : FamilyDef TargetData facet α] : IndexT m (TargetData facet) :=
   cast (by rw [← h.family_key_eq_type]) build
 
@@ -111,12 +111,12 @@ the initial set of Lake package facets (e.g., `extraDep`).
   have : MonadLift BuildM m := ⟨liftM⟩
   PackageBuildMap.empty (m := m)
   -- Compute the package's transitive dependencies
-  |>.insert &`deps (mkPackageFacetBuild <| fun pkg => do
+  |>.insert `deps (mkPackageFacetBuild <| fun pkg => do
     let mut deps := #[]
     let mut depSet := PackageSet.empty
     for dep in pkg.dependencies do
       if let some depPkg ← findPackage? dep.name then
-        for depDepPkg in (← recBuild <| depPkg.facet &`deps) do
+        for depDepPkg in (← recBuild <| depPkg.facet `deps) do
           unless depSet.contains depDepPkg do
             deps := deps.push depDepPkg
             depSet := depSet.insert depDepPkg
@@ -126,7 +126,7 @@ the initial set of Lake package facets (e.g., `extraDep`).
     return deps
   )
   -- Build the `extraDepTarget` for the package and its transitive dependencies
-  |>.insert &`extraDep (mkPackageFacetBuild <| fun pkg => do
+  |>.insert `extraDep (mkPackageFacetBuild <| fun pkg => do
     let mut target := ActiveTarget.nil
     for dep in pkg.dependencies do
       if let some depPkg ← findPackage? dep.name then

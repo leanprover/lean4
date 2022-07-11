@@ -87,11 +87,11 @@ def findExternLib? (name : Name) (self : Workspace) : Option ExternLib :=
   self.packageArray.findSome? fun pkg => pkg.findExternLib? name
 
 /-- Try to find a module facet configuration in the workspace with the given name. -/
-def findModuleFacetConfig? (name : WfName) (self : Workspace) : Option (ModuleFacetConfig name) :=
+def findModuleFacetConfig? (name : Name) (self : Workspace) : Option (ModuleFacetConfig name) :=
   self.packageArray.findSome? fun pkg => pkg.findModuleFacetConfig? name
 
 /-- Try to find a package facet configuration in the workspace with the given name. -/
-def findPackageFacetConfig? (name : WfName) (self : Workspace) : Option (PackageFacetConfig name) :=
+def findPackageFacetConfig? (name : Name) (self : Workspace) : Option (PackageFacetConfig name) :=
   self.packageArray.findSome? fun pkg => pkg.findPackageFacetConfig? name
 
 /-- Try to find a target configuration in the workspace with the given name. -/

@@ -47,12 +47,33 @@ theorem Nat.eq_of_compare
 {n n' : Nat} : compare n n' = Ordering.eq → n = n' := by
   simp only [compare]; exact eq_of_compareOfLessAndEq
 
+@[simp]
+theorem Nat.compare_iff_eq
+{n n' : Nat} : compare n n' = Ordering.eq ↔ n = n' := by
+  refine ⟨eq_of_compare, fun h => ?_⟩
+  simp [h, compare, compareOfLessAndEq]
+
 instance : EqOfCmp Nat compare where
   eq_of_cmp h := Nat.eq_of_compare h
 
 theorem String.eq_of_compare
 {s s' : String} : compare s s' = Ordering.eq → s = s' := by
   simp only [compare]; exact eq_of_compareOfLessAndEq
+
+theorem List.lt_irrefl [LT α] (irrefl_α : ∀ a : α, ¬ a < a)
+: (a : List α) → ¬ a < a
+  | _, .head _ _ h => irrefl_α _ h
+  | _, .tail _ _ h3 => lt_irrefl irrefl_α _ h3
+
+@[simp]
+theorem String.lt_irrefl (s : String) : ¬ s < s :=
+  List.lt_irrefl (fun c => Nat.lt_irrefl c.1.1) _
+
+@[simp]
+theorem String.compare_iff_eq
+{n n' : String} : compare n n' = Ordering.eq ↔ n = n' := by
+  refine ⟨eq_of_compare, fun h => ?_⟩
+  simp [h, compare, compareOfLessAndEq]
 
 instance : EqOfCmp String compare where
   eq_of_cmp h := String.eq_of_compare h

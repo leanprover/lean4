@@ -9,7 +9,7 @@ import Lake.Build.Store
 namespace Lake
 
 /-- A facet's declarative configuration. -/
-structure FacetConfig (DataFam : WfName → Type u) (BuildFn : Type u → Type v) (name : WfName) where
+structure FacetConfig (DataFam : Name → Type u) (BuildFn : Type u → Type v) (name : Name) where
   /-- The type of the target's build result. -/
   resultType : Type u
   /-- The facet's build function. -/
@@ -52,8 +52,8 @@ def familyDefTarget (cfg : FacetConfig Fam Fn name)
 end FacetConfig
 
 /-- A dependently typed configuration based on its registered name. -/
-structure NamedConfigDecl (β : WfName → Type u) where
-  name : WfName
+structure NamedConfigDecl (β : Name → Type u) where
+  name : Name
   config : β name
 
 --------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ abbrev ModuleFacetConfig := FacetConfig ModuleData (FacetBuildFn Module)
 hydrate_opaque_type OpaqueModuleFacetConfig ModuleFacetConfig name
 
 /-- Try to find a module facet configuration in the package with the given name . -/
-def Package.findModuleFacetConfig? (name : WfName) (self : Package) : Option (ModuleFacetConfig name) :=
+def Package.findModuleFacetConfig? (name : Name) (self : Package) : Option (ModuleFacetConfig name) :=
   self.opaqueModuleFacetConfigs.find? name |>.map (·.get)
 
 /-- A module facet declaration from a configuration file. -/
@@ -76,7 +76,7 @@ abbrev PackageFacetConfig := FacetConfig PackageData (FacetBuildFn Package)
 hydrate_opaque_type OpaquePackageFacetConfig PackageFacetConfig name
 
 /-- Try to find a package configuration in the package with the given name . -/
-def Package.findPackageFacetConfig? (name : WfName) (self : Package) : Option (PackageFacetConfig name) :=
+def Package.findPackageFacetConfig? (name : Name) (self : Package) : Option (PackageFacetConfig name) :=
   self.opaquePackageFacetConfigs.find? name |>.map (·.get)
 
 /-- A package facet declaration from a configuration file. -/

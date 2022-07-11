@@ -238,7 +238,7 @@ end PackageConfig
 -- # Package
 --------------------------------------------------------------------------------
 
-abbrev DNameMap α := DRBMap WfName α WfName.quickCmp
+abbrev DNameMap α := DRBMap Name α Lean.Name.quickCmp
 
 /-- A Lake package -- its location plus its configuration. -/
 structure Package where
@@ -247,7 +247,7 @@ structure Package where
   /-- The package's user-defined configuration. -/
   config : PackageConfig
   /-- The package's well-formed name. -/
-  name : WfName := WfName.ofName config.name
+  name : Name := config.name
   /-- Scripts for the package. -/
   scripts : NameMap Script := {}
   /- An `Array` of the package's dependencies. -/
@@ -268,7 +268,7 @@ structure Package where
   The names of the package's targets to build by default
   (i.e., on a bare `lake build` of the package).
   -/
-  defaultTargets : Array WfName := #[]
+  defaultTargets : Array Name := #[]
   deriving Inhabited
 
 hydrate_opaque_type OpaquePackage Package

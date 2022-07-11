@@ -44,7 +44,7 @@ unsafe def evalConstCheck (α) (env : Environment) (opts : Options) (type : Name
   | none => throw s!"unknown constant '{const}'"
   | some info =>
     match info.type with
-    | Expr.const c _ _ =>
+    | Expr.const c _ =>
       if c != type then
         throwUnexpectedType
       else
@@ -102,9 +102,8 @@ unsafe def loadUnsafe (dir : FilePath) (configOpts : NameMap String)
   let mkTagMap {α} (attr) (f : Name → IO α) : IO (NameMap α) :=
     attr.ext.getState env |>.foldM (init := {}) fun map declName =>
       return map.insert declName <| ← f declName
-  let mkDTagMap {β} (attr : TagAttribute) (f : (n : WfName) → IO (β n)) : IO (DNameMap β) :=
+  let mkDTagMap {β} (attr : TagAttribute) (f : (n : Name) → IO (β n)) : IO (DNameMap β) :=
     attr.ext.getState env |>.foldM (init := {}) fun map declName =>
-      let declName := WfName.ofName declName
       return map.insert declName <| ← f declName
   let evalConst (α typeName declName) : IO α :=
     IO.ofExcept (evalConstCheck α env leanOpts typeName declName)
@@ -146,7 +145,7 @@ unsafe def loadUnsafe (dir : FilePath) (configOpts : NameMap String)
     (evalConstMap OpaqueTargetConfig.mk)
   let defaultTargets :=
     defaultTargetAttr.ext.getState env |>.fold (init := #[]) fun arr name =>
-      arr.push <| WfName.ofName name
+      arr.push name
 
   -- Construct the Package
   if leanLibConfigs.isEmpty && leanExeConfigs.isEmpty && config.defaultFacet ≠ .none then

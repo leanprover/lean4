@@ -21,7 +21,7 @@ for the `lean.imports` facet or an active build target for `lean.c`.
 It is an open type, meaning additional mappings can be add lazily
 as needed (via `module_data`).
 -/
-opaque ModuleData (facet : WfName) : Type
+opaque ModuleData (facet : Name) : Type
 
 /--
 The open type family which maps a package facet's name to it build data
@@ -31,7 +31,7 @@ for the facet `deps`.
 It is an open type, meaning additional mappings can be add lazily
 as needed (via `package_data`).
 -/
-opaque PackageData (facet : WfName) : Type
+opaque PackageData (facet : Name) : Type
 
 /--
 The open type family which maps a (builtin) Lake target's (e.g., `extern_lib`)
@@ -41,7 +41,7 @@ the `externLib.static` facet.
 It is an open type, meaning additional mappings can be add lazily
 as needed (via `target_data`).
 -/
-opaque TargetData (facet : WfName) : Type
+opaque TargetData (facet : Name) : Type
 
 /--
 The open type family which maps a custom target (package × target name) to
@@ -50,7 +50,7 @@ its build data in the Lake build store.
 It is an open type, meaning additional mappings can be add lazily
 as needed (via `custom_data`).
 -/
-opaque CustomData (target : WfName × WfName) : Type
+opaque CustomData (target : Name × Name) : Type
 
 --------------------------------------------------------------------------------
 /-! ## Build Data                                                             -/
@@ -75,21 +75,21 @@ abbrev BuildData : BuildKey → Type
 scoped macro (name := packageDataDecl) doc?:optional(Parser.Command.docComment)
 "package_data " id:ident " : " ty:term : command => do
   let dty := mkCIdentFrom (← getRef) ``PackageData
-  let key := WfName.quoteNameFrom id id.getId
+  let key := Lake.quoteNameFrom id id.getId
   `($[$doc?]? family_def $id : $dty $key := $ty)
 
 /-- Macro for declaring new `ModuleData`. -/
 scoped macro (name := moduleDataDecl) doc?:optional(Parser.Command.docComment)
 "module_data " id:ident " : " ty:term : command => do
   let dty := mkCIdentFrom (← getRef) ``ModuleData
-  let key := WfName.quoteNameFrom id id.getId
+  let key := Lake.quoteNameFrom id id.getId
   `($[$doc?]? family_def $id : $dty $key := $ty)
 
 /-- Macro for declaring new `TargetData`. -/
 scoped macro (name := targetDataDecl) doc?:optional(Parser.Command.docComment)
 "target_data " id:ident " : " ty:term : command => do
   let dty := mkCIdentFrom (← getRef) ``TargetData
-  let key := WfName.quoteNameFrom id id.getId
+  let key := Lake.quoteNameFrom id id.getId
   `($[$doc?]? family_def $id : $dty $key := $ty)
 
 /-- Macro for declaring new `CustomData`. -/
@@ -97,6 +97,6 @@ scoped macro (name := customDataDecl) doc?:optional(Parser.Command.docComment)
 "custom_data " pkg:ident tgt:ident " : " ty:term : command => do
   let dty := mkCIdentFrom (← getRef) ``CustomData
   let id := mkIdentFrom tgt (pkg.getId ++ tgt.getId)
-  let pkg := WfName.quoteNameFrom pkg pkg.getId
-  let tgt := WfName.quoteNameFrom tgt tgt.getId
+  let pkg := Lake.quoteNameFrom pkg pkg.getId
+  let tgt := Lake.quoteNameFrom pkg tgt.getId
   `($[$doc?]? family_def $id : $dty ($pkg, $tgt) := $ty)

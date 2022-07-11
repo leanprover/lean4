@@ -9,10 +9,10 @@ namespace Lake
 
 /-- The type of keys in the Lake build store. -/
 inductive BuildKey
-| moduleFacet (module : WfName) (facet : WfName)
-| packageFacet (package : WfName) (facet : WfName)
-| targetFacet (package : WfName) (target : WfName) (facet : WfName)
-| customTarget (package : WfName) (target : WfName)
+| moduleFacet (module : Name) (facet : Name)
+| packageFacet (package : Name) (facet : Name)
+| targetFacet (package : Name) (target : Name) (facet : Name)
+| customTarget (package : Name) (target : Name)
 deriving Inhabited, Repr, DecidableEq, Hashable
 
 namespace BuildKey

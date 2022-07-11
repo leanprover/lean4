@@ -12,12 +12,12 @@ open Std System
 /-- A buildable Lean module of a `LeanLib`. -/
 structure Module where
   lib : LeanLib
-  name : WfName
+  name : Name
   /--
   The name of the module as a key.
   Used to create private modules (e.g., executable roots).
   -/
-  keyName : WfName := name
+  keyName : Name := name
   deriving Inhabited
 
 abbrev ModuleSet := RBTree Module (·.name.quickCmp ·.name)
@@ -28,7 +28,6 @@ abbrev ModuleMap (α) := RBMap Module α (·.name.quickCmp ·.name)
 
 /-- Locate the named module in the library (if it is buildable and local to it). -/
 def LeanLib.findModule? (mod : Name) (self : LeanLib) : Option Module :=
-  let mod := WfName.ofName mod
   if self.isBuildableModule mod then some {lib := self, name := mod} else none
 
 /-- Get an `Array` of the library's modules. -/
@@ -81,7 +80,7 @@ abbrev pkg (self : Module) : Package :=
 
 @[inline] def dynlibName (self : Module) : String :=
   -- NOTE: file name MUST be unique on Windows
-  self.name.toStringWithSep "-"
+  self.name.toStringWithSep "-" (escape := true)
 
 @[inline] def dynlibFile (self : Module) : FilePath :=
   self.pkg.libDir / nameToSharedLib self.dynlibName

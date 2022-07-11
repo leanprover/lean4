@@ -25,18 +25,18 @@ def parsePackageSpec (ws : Workspace) (spec : String) : Except CliError Package 
     | none => throw <| CliError.unknownPackage spec
 
 open Module in
-def resolveModuleTarget (ws : Workspace) (mod : Module) (facet : WfName) : Except CliError OpaqueTarget :=
-  if facet.isAnonymous || facet == &`bin  then
+def resolveModuleTarget (ws : Workspace) (mod : Module) (facet : Name) : Except CliError OpaqueTarget :=
+  if facet.isAnonymous || facet == `bin  then
     return mod.facetTarget leanBinFacet
-  else if facet == &`ilean then
+  else if facet == `ilean then
     return mod.facetTarget ileanFacet
-  else if facet == &`olean then
+  else if facet == `olean then
     return mod.facetTarget oleanFacet
-  else if facet == &`c then
+  else if facet == `c then
     return mod.facetTarget cFacet
-  else if facet == &`o then
+  else if facet == `o then
     return mod.facetTarget oFacet
-  else if facet == &`dynlib then
+  else if facet == `dynlib then
     return mod.facetTarget dynlibFacet
   else if let some config := ws.findModuleFacetConfig? facet then
     if let some (.up ⟨_, h⟩) := config.result_eq_target? then
@@ -47,23 +47,23 @@ def resolveModuleTarget (ws : Workspace) (mod : Module) (facet : WfName) : Excep
   else
     throw <| CliError.unknownFacet "module" facet
 
-def resolveLibTarget (lib : LeanLib) (facet : WfName) : Except CliError OpaqueTarget :=
-  if facet.isAnonymous || facet == &`lean then
+def resolveLibTarget (lib : LeanLib) (facet : Name) : Except CliError OpaqueTarget :=
+  if facet.isAnonymous || facet == `lean then
     return lib.leanTarget
-  else if facet == &`static then
+  else if facet == `static then
     return lib.staticLibTarget |>.withoutInfo
-  else if facet == &`shared then
+  else if facet == `shared then
     return lib.sharedLibTarget |>.withoutInfo
   else
     throw <| CliError.unknownFacet "library" facet
 
-def resolveExeTarget (exe : LeanExe) (facet : WfName) : Except CliError OpaqueTarget :=
-  if facet.isAnonymous || facet == &`exe then
+def resolveExeTarget (exe : LeanExe) (facet : Name) : Except CliError OpaqueTarget :=
+  if facet.isAnonymous || facet == `exe then
     return exe.target |>.withoutInfo
   else
     throw <| CliError.unknownFacet "executable" facet
 
-def resolveTargetInPackage (ws : Workspace) (pkg : Package) (target : WfName) (facet : WfName) : Except CliError OpaqueTarget :=
+def resolveTargetInPackage (ws : Workspace) (pkg : Package) (target : Name) (facet : Name) : Except CliError OpaqueTarget :=
   if let some config := pkg.findTargetConfig? target then
     if !facet.isAnonymous then
       throw <| CliError.invalidFacet target facet
@@ -94,16 +94,16 @@ def resolveDefaultPackageTarget (ws : Workspace) (pkg : Package) : Except CliErr
     return Target.collectOpaqueArray <| ←
       pkg.defaultTargets.mapM (resolveTargetInPackage ws pkg · .anonymous)
 
-def resolvePackageTarget (ws : Workspace) (pkg : Package) (facet : WfName) : Except CliError OpaqueTarget :=
+def resolvePackageTarget (ws : Workspace) (pkg : Package) (facet : Name) : Except CliError OpaqueTarget :=
   if facet.isAnonymous then
     resolveDefaultPackageTarget ws pkg
-  else if facet == &`exe then
+  else if facet == `exe then
     return pkg.exeTarget.withoutInfo
-  else if facet == &`staticLib then
+  else if facet == `staticLib then
     return pkg.staticLibTarget.withoutInfo
-  else if facet == &`sharedLib then
+  else if facet == `sharedLib then
     return pkg.sharedLibTarget.withoutInfo
-  else if facet == &`leanLib then
+  else if facet == `leanLib then
     return pkg.leanLibTarget.withoutInfo
   else if let some config := ws.findPackageFacetConfig? facet then
     if let some (.up ⟨_, h⟩) := config.result_eq_target? then
@@ -114,7 +114,7 @@ def resolvePackageTarget (ws : Workspace) (pkg : Package) (facet : WfName) : Exc
   else
     throw <| CliError.unknownFacet "package" facet
 
-def resolveTargetInWorkspace (ws : Workspace) (target : Name) (facet : WfName) : Except CliError OpaqueTarget :=
+def resolveTargetInWorkspace (ws : Workspace) (target : Name) (facet : Name) : Except CliError OpaqueTarget :=
   if let some (pkg, config) := ws.findTargetConfig? target then
     if !facet.isAnonymous then
       throw <| CliError.invalidFacet config.name facet
@@ -140,7 +140,7 @@ def resolveTargetInWorkspace (ws : Workspace) (target : Name) (facet : WfName) :
   else
     throw <| CliError.unknownTarget target
 
-def resolveTargetBaseSpec (ws : Workspace) (spec : String) (facet : WfName) : Except CliError OpaqueTarget := do
+def resolveTargetBaseSpec (ws : Workspace) (spec : String) (facet : Name) : Except CliError OpaqueTarget := do
   match spec.splitOn "/" with
   | [spec] =>
     if spec.isEmpty then
@@ -166,7 +166,7 @@ def resolveTargetBaseSpec (ws : Workspace) (spec : String) (facet : WfName) : Ex
       else
         throw <| CliError.unknownModule mod
     else
-      resolveTargetInPackage ws pkg (WfName.ofName targetSpec) facet
+      resolveTargetInPackage ws pkg targetSpec facet
   | _ =>
     throw <| CliError.invalidTargetSpec spec '/'
 
@@ -175,6 +175,6 @@ def parseTargetSpec (ws : Workspace) (spec : String) : Except CliError OpaqueTar
   | [spec] =>
     resolveTargetBaseSpec ws spec .anonymous
   | [rootSpec, facet] =>
-    resolveTargetBaseSpec ws rootSpec (WfName.ofString facet)
+    resolveTargetBaseSpec ws rootSpec (Name.ofString facet)
   | _ =>
     throw <| CliError.invalidTargetSpec spec ':'

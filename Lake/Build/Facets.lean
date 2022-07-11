@@ -22,7 +22,7 @@ namespace Lake
 /-- A module facet name along with proof of its data type. -/
 structure ModuleFacet (α) where
   /-- The name of the module facet. -/
-  name : WfName
+  name : Name
   /-- Proof that module's facet build result is of type α. -/
   data_eq : ModuleData name = α
   deriving Repr
@@ -30,16 +30,16 @@ structure ModuleFacet (α) where
 instance (facet : ModuleFacet α) : FamilyDef ModuleData facet.name α :=
   ⟨facet.data_eq⟩
 
-instance [FamilyDef ModuleData facet α] : CoeDep WfName facet (ModuleFacet α) :=
+instance [FamilyDef ModuleData facet α] : CoeDep Name facet (ModuleFacet α) :=
   ⟨facet, family_key_eq_type⟩
 
 namespace Module
-abbrev leanBinFacet  := &`lean.bin
-abbrev oleanFacet    := &`olean
-abbrev ileanFacet    := &`ilean
-abbrev cFacet        := &`lean.c
-abbrev oFacet        := &`lean.o
-abbrev dynlibFacet   := &`dynlib
+abbrev leanBinFacet  := `lean.bin
+abbrev oleanFacet    := `olean
+abbrev ileanFacet    := `ilean
+abbrev cFacet        := `lean.c
+abbrev oFacet        := `lean.o
+abbrev dynlibFacet   := `dynlib
 end Module
 
 /--
@@ -72,11 +72,11 @@ package_data extraDep : ActiveOpaqueTarget
 
 -- ## Target Facets
 
-abbrev LeanLib.staticFacet := &`leanLib.static
-abbrev LeanLib.sharedFacet := &`leanLib.shared
-abbrev LeanExe.exeFacet := &`leanExe
-abbrev ExternLib.staticFacet := &`externLib.static
-abbrev ExternLib.sharedFacet := &`externLib.shared
+abbrev LeanLib.staticFacet := `leanLib.static
+abbrev LeanLib.sharedFacet := `leanLib.shared
+abbrev LeanExe.exeFacet := `leanExe
+abbrev ExternLib.staticFacet := `externLib.static
+abbrev ExternLib.sharedFacet := `externLib.shared
 
 /-- A Lean library's static binary. -/
 target_data leanLib.static : ActiveFileTarget

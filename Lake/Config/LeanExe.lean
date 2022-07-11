@@ -41,8 +41,8 @@ def LeanExeConfig.toLeanLibConfig (self : LeanExeConfig) : LeanLibConfig where
 namespace LeanExe
 
 /- The executable's well-formed name. -/
-@[inline] def name (self : LeanExe) : WfName :=
-  WfName.ofName self.config.name
+@[inline] def name (self : LeanExe) : Name :=
+  self.config.name
 
 /-- Converts the executable into a library with a single module (the root). -/
 @[inline] def toLeanLib (self : LeanExe) : LeanLib :=
@@ -51,8 +51,8 @@ namespace LeanExe
 /-- The executable's root module. -/
 @[inline] def root (self : LeanExe) : Module where
   lib := self.toLeanLib
-  name := WfName.ofName self.config.root
-  keyName := WfName.ofName self.pkg.name |>.appendName self.config.root
+  name := self.config.root
+  keyName := self.pkg.name ++ self.config.root
 
 /- Return the the root module if the name matches, otherwise return none. -/
 def isRoot? (name : Name) (self : LeanExe) : Option Module :=

@@ -32,7 +32,7 @@ set_option linter.unusedVariables false
 
 /-- Derive an array of built module facets from the store. -/
 def collectModuleFacetArray (self : BuildStore)
-(facet : WfName) [FamilyDef ModuleData facet α] : Array α := Id.run do
+(facet : Name) [FamilyDef ModuleData facet α] : Array α := Id.run do
   let mut res : Array α := #[]
   for ⟨k, v⟩ in self do
     match k with
@@ -45,7 +45,7 @@ def collectModuleFacetArray (self : BuildStore)
 
 /-- Derive a map of module names to built facets from the store. -/
 def collectModuleFacetMap (self : BuildStore)
-(facet : WfName) [FamilyDef ModuleData facet α] : NameMap α := Id.run do
+(facet : Name) [FamilyDef ModuleData facet α] : NameMap α := Id.run do
   let mut res := Lean.mkNameMap α
   for ⟨k, v⟩ in self do
     match k with
@@ -58,7 +58,7 @@ def collectModuleFacetMap (self : BuildStore)
 
 /-- Derive an array of built package facets from the store. -/
 def collectPackageFacetArray (self : BuildStore)
-(facet : WfName) [FamilyDef PackageData facet α] : Array α := Id.run do
+(facet : Name) [FamilyDef PackageData facet α] : Array α := Id.run do
   let mut res : Array α := #[]
   for ⟨k, v⟩ in self do
     match k with
@@ -71,7 +71,7 @@ def collectPackageFacetArray (self : BuildStore)
 
 /-- Derive an array of built target facets from the store. -/
 def collectTargetFacetArray (self : BuildStore)
-(facet : WfName) [FamilyDef TargetData facet α] : Array α := Id.run do
+(facet : Name) [FamilyDef TargetData facet α] : Array α := Id.run do
   let mut res : Array α := #[]
   for ⟨k, v⟩ in self do
     match k with
@@ -84,5 +84,5 @@ def collectTargetFacetArray (self : BuildStore)
 
 /-- Derive an array of built external shared libraries from the store. -/
 def collectSharedExternLibs (self : BuildStore)
-[FamilyDef TargetData &`externLib.shared α] : Array α :=
-  self.collectTargetFacetArray &`externLib.shared
+[FamilyDef TargetData `externLib.shared α] : Array α :=
+  self.collectTargetFacetArray `externLib.shared

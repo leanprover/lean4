@@ -20,14 +20,14 @@ namespace Lake
 
 /-- The type of Lake's build info. -/
 inductive BuildInfo
-| moduleFacet (module : Module) (facet : WfName)
-| packageFacet (package : Package) (facet : WfName)
+| moduleFacet (module : Module) (facet : Name)
+| packageFacet (package : Package) (facet : Name)
 | staticLeanLib (lib : LeanLib)
 | sharedLeanLib (lib : LeanLib)
 | leanExe (exe : LeanExe)
 | staticExternLib (lib : ExternLib)
 | sharedExternLib (lib : ExternLib)
-| customTarget (package : Package) (target : WfName)
+| customTarget (package : Package) (target : Name)
 
 --------------------------------------------------------------------------------
 /-! ## Build Info & Keys                                                      -/
@@ -35,13 +35,13 @@ inductive BuildInfo
 
 /-! ### Build Key Helper Constructors -/
 
-abbrev Module.facetBuildKey (facet : WfName) (self : Module) : BuildKey :=
+abbrev Module.facetBuildKey (facet : Name) (self : Module) : BuildKey :=
   .moduleFacet self.keyName facet
 
-abbrev Package.facetBuildKey (facet : WfName) (self : Package) : BuildKey :=
+abbrev Package.facetBuildKey (facet : Name) (self : Package) : BuildKey :=
   .packageFacet self.name facet
 
-abbrev Package.targetBuildKey (target : WfName) (self : Package) : BuildKey :=
+abbrev Package.targetBuildKey (target : Name) (self : Package) : BuildKey :=
   .customTarget self.name target
 
 abbrev LeanLib.staticBuildKey (self : LeanLib) : BuildKey :=
@@ -136,7 +136,7 @@ Defined here because they need to import configurations, whereas the definitions
 there need to be imported by configurations.
 -/
 
-abbrev Module.importFacet := &`lean.imports
+abbrev Module.importFacet := `lean.imports
 
 /-- The direct × transitive imports of the Lean module. -/
 module_data lean.imports : Array Module × Array Module
@@ -155,7 +155,7 @@ and target facets.
 namespace Module
 
 /-- Build info for the module's specified facet. -/
-abbrev facet (facet : WfName) (self : Module) : BuildInfo :=
+abbrev facet (facet : Name) (self : Module) : BuildInfo :=
   .moduleFacet self facet
 
 variable (self : Module)
@@ -171,15 +171,15 @@ abbrev dynlib   := self.facet dynlibFacet
 end Module
 
 /-- Build info for the package's specified facet. -/
-abbrev Package.facet (facet : WfName) (self : Package) : BuildInfo :=
+abbrev Package.facet (facet : Name) (self : Package) : BuildInfo :=
   .packageFacet self facet
 
 /-- Build info for the package's `extraDepTarget`. -/
 abbrev Package.extraDep (self : Package) : BuildInfo :=
-  self.facet &`extraDep
+  self.facet `extraDep
 
 /-- Build info for a custom package target. -/
-abbrev Package.customTarget (target : WfName) (self : Package) : BuildInfo :=
+abbrev Package.customTarget (target : Name) (self : Package) : BuildInfo :=
   .customTarget self target
 
 /-- Build info of the Lean library's static binary. -/

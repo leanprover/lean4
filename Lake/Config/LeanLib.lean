@@ -31,8 +31,8 @@ structure LeanLib where
 namespace LeanLib
 
 /- The library's well-formed name. -/
-@[inline] def name (self : LeanLib) : WfName :=
-  WfName.ofName self.config.name
+@[inline] def name (self : LeanLib) : Name :=
+  self.config.name
 
 /- The package's `srcDir` joined with the library's `srcDir`. -/
 @[inline] def srcDir (self : LeanLib) : FilePath :=

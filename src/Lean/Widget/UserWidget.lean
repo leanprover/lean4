@@ -7,6 +7,7 @@ Authors: E.W.Ayers
 import Lean.Widget.Basic
 import Lean.Data.Json
 import Lean.Environment
+import Lean.Elab.Eval
 import Lean.Server
 
 open Lean
@@ -145,10 +146,8 @@ def saveWidgetInfo [Monad m] [MonadEnv m] [MonadError m] [MonadInfoTree m] (widg
 
 syntax (name := widgetCmd) "#widget " ident term : command
 
-private unsafe def  evalJsonUnsafe (stx : Syntax) : TermElabM Json := do
-  let e ← Term.elabTerm stx (mkConst ``Json)
-  let e ← Meta.instantiateMVars e
-  Term.evalExpr Json ``Json e
+private unsafe def evalJsonUnsafe (stx : Syntax) : TermElabM Json := do
+  Term.evalTerm Json (mkConst ``Json) stx
 
 @[implementedBy evalJsonUnsafe]
 private opaque evalJson (stx : Syntax) : TermElabM Json

@@ -19,7 +19,7 @@ Unreleased
   class GetElem (Cont : Type u) (Idx : Type v) (Elem : outParam (Type w)) (Dom : outParam (Cont → Idx → Prop)) where
     getElem (xs : Cont) (i : Idx) (h : Dom xs i) : Elem
   ```
-  The notation `a[i]` is not defined as follows
+  The notation `a[i]` is now defined as follows
   ```lean
   macro:max x:term noWs "[" i:term "]" : term => `(getElem $x $i (by get_elem_tactic))
   ```

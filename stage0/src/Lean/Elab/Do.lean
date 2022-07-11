@@ -100,7 +100,7 @@ private def mkUnknownMonadResult : MetaM ExtractMonadResult := do
 private partial def extractBind (expectedType? : Option Expr) : TermElabM ExtractMonadResult := do
   let some expectedType := expectedType? | mkUnknownMonadResult
   let extractStep? (type : Expr) : MetaM (Option ExtractMonadResult) := do
-    let .app m returnType _ := type | return none
+    let .app m returnType := type | return none
     try
       let bindInstType ← mkAppM ``Bind #[m]
       discard <| Meta.synthInstance bindInstType

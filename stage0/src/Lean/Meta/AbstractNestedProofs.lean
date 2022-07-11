@@ -57,9 +57,9 @@ partial def visit (e : Expr) : M Expr := do
         | Expr.lam _ _ _ _     => lambdaLetTelescope e fun xs b => visitBinders xs do mkLambdaFVars xs (← visit b) (usedLetOnly := false)
         | Expr.letE _ _ _ _ _  => lambdaLetTelescope e fun xs b => visitBinders xs do mkLambdaFVars xs (← visit b) (usedLetOnly := false)
         | Expr.forallE _ _ _ _ => forallTelescope e fun xs b => visitBinders xs do mkForallFVars xs (← visit b)
-        | Expr.mdata _ b _     => return e.updateMData! (← visit b)
-        | Expr.proj _ _ b _    => return e.updateProj! (← visit b)
-        | Expr.app _ _ _       => e.withApp fun f args => return mkAppN f (← args.mapM visit)
+        | Expr.mdata _ b       => return e.updateMData! (← visit b)
+        | Expr.proj _ _ b      => return e.updateProj! (← visit b)
+        | Expr.app _ _         => e.withApp fun f args => return mkAppN f (← args.mapM visit)
         | _                    => pure e
 
 end AbstractNestedProofs

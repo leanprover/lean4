@@ -29,6 +29,7 @@ static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_
 static lean_object* l_Lean_Meta_DiscrTree_instReprKey___closed__1;
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_312____closed__11;
 LEAN_EXPORT uint8_t l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_beqKey____x40_Lean_Meta_DiscrTreeTypes___hyg_89_(lean_object*, lean_object*);
+uint64_t l_Lean_Name_hash___override(lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_reprLiteral____x40_Lean_Expr___hyg_109_(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_312____closed__19;
 static lean_object* l_Lean_Meta_DiscrTree_root___default___closed__1;
@@ -36,7 +37,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_Discr
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_312____closed__2;
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_312____closed__27;
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_312____closed__9;
-uint64_t l_Lean_Name_hash(lean_object*);
 static lean_object* l_Lean_Meta_DiscrTree_root___default___closed__3;
 lean_object* l_Nat_repr(lean_object*);
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_312____closed__4;
@@ -926,7 +926,7 @@ lean_object* x_2; lean_object* x_3; uint64_t x_4; uint64_t x_5; uint64_t x_6; ui
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = 5237;
-x_5 = l_Lean_Name_hash(x_2);
+x_5 = l_Lean_Name_hash___override(x_2);
 x_6 = lean_uint64_of_nat(x_3);
 x_7 = lean_uint64_mix_hash(x_5, x_6);
 x_8 = lean_uint64_mix_hash(x_4, x_7);
@@ -977,7 +977,7 @@ lean_object* x_23; lean_object* x_24; uint64_t x_25; uint64_t x_26; uint64_t x_2
 x_23 = lean_ctor_get(x_1, 0);
 x_24 = lean_ctor_get(x_1, 1);
 x_25 = 11;
-x_26 = l_Lean_Name_hash(x_23);
+x_26 = l_Lean_Name_hash___override(x_23);
 x_27 = lean_uint64_of_nat(x_24);
 x_28 = lean_uint64_mix_hash(x_26, x_27);
 x_29 = lean_uint64_mix_hash(x_25, x_28);

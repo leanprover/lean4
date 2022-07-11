@@ -89,8 +89,8 @@ private def isDone (p : Problem) : Bool :=
 /-- Return true if the next element on the `p.vars` list is a variable. -/
 private def isNextVar (p : Problem) : Bool :=
   match p.vars with
-  | Expr.fvar _ _ :: _ => true
-  | _                  => false
+  | Expr.fvar _ :: _ => true
+  | _                => false
 
 private def hasAsPattern (p : Problem) : Bool :=
   p.alts.any fun alt => match alt.patterns with
@@ -249,12 +249,12 @@ def isAltVar (fvarId : FVarId) : M Bool := do
 
 def expandIfVar (e : Expr) : M Expr := do
   match e with
-  | Expr.fvar _ _ => return (← get).fvarSubst.apply e
-  | _             => return e
+  | Expr.fvar _ => return (← get).fvarSubst.apply e
+  | _           => return e
 
 def occurs (fvarId : FVarId) (v : Expr) : Bool :=
   Option.isSome <| v.find? fun e => match e with
-     | Expr.fvar fvarId' _ => fvarId == fvarId'
+     | Expr.fvar fvarId' => fvarId == fvarId'
      | _=> false
 
 def assign (fvarId : FVarId) (v : Expr) : M Bool := do
@@ -330,10 +330,10 @@ partial def unify (a : Expr) (b : Expr) : M Bool := do
     if a != a' || b != b' then
       unify a' b'
     else match a, b with
-      | Expr.fvar aFvarId _, Expr.fvar bFVarId _ => assign aFvarId b <||> assign bFVarId a
-      | Expr.fvar aFvarId _, b => assign aFvarId b
-      | a, Expr.fvar bFVarId _ => assign bFVarId a
-      | Expr.app aFn aArg _, Expr.app bFn bArg _ => unify aFn bFn <&&> unify aArg bArg
+      | Expr.fvar aFvarId, Expr.fvar bFVarId => assign aFvarId b <||> assign bFVarId a
+      | Expr.fvar aFvarId, b => assign aFvarId b
+      | a, Expr.fvar bFVarId => assign bFVarId a
+      | Expr.app aFn aArg, Expr.app bFn bArg => unify aFn bFn <&&> unify aArg bArg
       | _, _ => return false
 
 end Unify
@@ -372,15 +372,15 @@ private def expandVarIntoCtor? (alt : Alt) (fvarId : FVarId) (ctorName : Name) :
         let patterns    := alt.patterns.map fun p => p.applyFVarSubst subst
         let rhs         := subst.apply alt.rhs
         let ctorFieldPatterns := ctorFields.toList.map fun ctorField => match subst.get ctorField.fvarId! with
-          | e@(Expr.fvar fvarId _) => if inLocalDecls newAltDecls fvarId then Pattern.var fvarId else Pattern.inaccessible e
-          | e                      => Pattern.inaccessible e
+          | e@(Expr.fvar fvarId) => if inLocalDecls newAltDecls fvarId then Pattern.var fvarId else Pattern.inaccessible e
+          | e                    => Pattern.inaccessible e
         return some { alt with fvarDecls := newAltDecls, rhs := rhs, patterns := ctorFieldPatterns ++ patterns }
 
 private def getInductiveVal? (x : Expr) : MetaM (Option InductiveVal) := do
   let xType ← inferType x
   let xType ← whnfD xType
   match xType.getAppFn with
-  | Expr.const constName _ _ =>
+  | Expr.const constName _ =>
     let cinfo ← getConstInfo constName
     match cinfo with
     | ConstantInfo.inductInfo val => return some val
@@ -471,8 +471,8 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
         let newVars  := fields ++ xs
         let newVars  := newVars.map fun x => x.applyFVarSubst subst
         let subex    := Example.ctor subgoal.ctorName <| fields.map fun field => match field with
-          | Expr.fvar fvarId _ => Example.var fvarId
-          | _                  => Example.underscore -- This case can happen due to dependent elimination
+          | Expr.fvar fvarId => Example.var fvarId
+          | _                => Example.underscore -- This case can happen due to dependent elimination
         let examples := p.examples.map <| Example.replaceFVarId x.fvarId! subex
         let examples := examples.map <| Example.applyFVarSubst subst
         let newAlts  := p.alts.filter fun alt => match alt.patterns with
@@ -625,9 +625,9 @@ private def processArrayLit (p : Problem) : MetaM (Array Problem) := do
 
 private def expandNatValuePattern (p : Problem) : Problem :=
   let alts := p.alts.map fun alt => match alt.patterns with
-    | Pattern.val (Expr.lit (Literal.natVal 0) _) :: ps     => { alt with patterns := Pattern.ctor `Nat.zero [] [] [] :: ps }
-    | Pattern.val (Expr.lit (Literal.natVal (n+1)) _) :: ps => { alt with patterns := Pattern.ctor `Nat.succ [] [] [Pattern.val (mkRawNatLit n)] :: ps }
-    | _                                                     => alt
+    | Pattern.val (Expr.lit (Literal.natVal 0)) :: ps     => { alt with patterns := Pattern.ctor `Nat.zero [] [] [] :: ps }
+    | Pattern.val (Expr.lit (Literal.natVal (n+1))) :: ps => { alt with patterns := Pattern.ctor `Nat.succ [] [] [Pattern.val (mkRawNatLit n)] :: ps }
+    | _                                                   => alt
   { p with alts := alts }
 
 private def traceStep (msg : String) : StateRefT State MetaM Unit := do

@@ -248,10 +248,10 @@ private def instantiateMVarsAtLetRecToLift (toLift : LetRecToLift) : TermElabM L
 
 private def typeHasRecFun (type : Expr) (funFVars : Array Expr) (letRecsToLift : List LetRecToLift) : Option FVarId :=
   let occ? := type.find? fun e => match e with
-    | Expr.fvar fvarId _ => funFVars.contains e || letRecsToLift.any fun toLift => toLift.fvarId == fvarId
+    | Expr.fvar fvarId => funFVars.contains e || letRecsToLift.any fun toLift => toLift.fvarId == fvarId
     | _ => false
   match occ? with
-  | some (Expr.fvar fvarId _) => some fvarId
+  | some (Expr.fvar fvarId) => some fvarId
   | _ => none
 
 private def getFunName (fvarId : FVarId) (letRecsToLift : List LetRecToLift) : TermElabM Name := do
@@ -565,7 +565,7 @@ def insertReplacementForLetRecs (r : Replacement) (letRecClosures : List LetRecC
 
 def Replacement.apply (r : Replacement) (e : Expr) : Expr :=
   e.replace fun e => match e with
-    | Expr.fvar fvarId _ => match r.find? fvarId with
+    | Expr.fvar fvarId => match r.find? fvarId with
       | some c => some c
       | _      => none
     | _ => none
@@ -740,9 +740,9 @@ partial def checkForHiddenUnivLevels (allUserLevelNames : List Name) (preDefs : 
       -- Otherwise, we try to produce an error message containing the expression with the offending universe
       let rec visitLevel (u : Level) : ReaderT Expr TermElabM Unit := do
         match u with
-        | .succ u _ => visitLevel u
-        | .imax u v _ | .max u v _ => visitLevel u; visitLevel v
-        | .param n _ =>
+        | .succ u => visitLevel u
+        | .imax u v | .max u v => visitLevel u; visitLevel v
+        | .param n =>
           unless sTypes.visitedLevel.contains u || allUserLevelNames.contains n do
             let parent ← withOptions (fun o => pp.universes.set o true) do addMessageContext m!"{indentExpr (← read)}"
             let body ← withOptions (fun o => pp.letVarTypes.setIfNotSet (pp.funBinderTypes.setIfNotSet o true) true) do addMessageContext m!"{indentExpr preDef.value}"
@@ -751,13 +751,13 @@ partial def checkForHiddenUnivLevels (allUserLevelNames : List Name) (preDefs : 
       let rec visit (e : Expr) : ReaderT Expr (MonadCacheT ExprStructEq Unit TermElabM) Unit := do
         checkCache { val := e : ExprStructEq } fun _ => do
           match e with
-          | .forallE n d b c | .lam n d b c => visit d e; withLocalDecl n c.binderInfo d fun x => visit (b.instantiate1 x) e
+          | .forallE n d b c | .lam n d b c => visit d e; withLocalDecl n c d fun x => visit (b.instantiate1 x) e
           | .letE n t v b _  => visit t e; visit v e; withLetDecl n t v fun x => visit (b.instantiate1 x) e
           | .app ..        => e.withApp fun f args => do visit f e; args.forM fun arg => visit arg e
-          | .mdata _ b _   => visit b e
-          | .proj _ _ b _  => visit b e
-          | .sort u _      => visitLevel u (← read)
-          | .const _ us _  => us.forM (visitLevel · (← read))
+          | .mdata _ b     => visit b e
+          | .proj _ _ b    => visit b e
+          | .sort u        => visitLevel u (← read)
+          | .const _ us    => us.forM (visitLevel · (← read))
           | _              => pure ()
       visit preDef.value preDef.value |>.run {}
     for preDef in preDefs do

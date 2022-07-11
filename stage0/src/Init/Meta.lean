@@ -99,16 +99,16 @@ namespace Name
 
 def getRoot : Name → Name
   | anonymous             => anonymous
-  | n@(str anonymous _ _) => n
-  | n@(num anonymous _ _) => n
-  | str n _ _             => getRoot n
-  | num n _ _             => getRoot n
+  | n@(str anonymous _) => n
+  | n@(num anonymous _) => n
+  | str n _             => getRoot n
+  | num n _             => getRoot n
 
 @[export lean_is_inaccessible_user_name]
 def isInaccessibleUserName : Name → Bool
-  | Name.str _ s _   => s.contains '✝' || s == "_inaccessible"
-  | Name.num p _   _ => isInaccessibleUserName p
-  | _                => false
+  | Name.str _ s   => s.contains '✝' || s == "_inaccessible"
+  | Name.num p _   => isInaccessibleUserName p
+  | _              => false
 
 def escapePart (s : String) : Option String :=
   if s.length > 0 && isIdFirst (s.get 0) && (s.toSubstring.drop 1).all isIdRest then s
@@ -118,11 +118,11 @@ def escapePart (s : String) : Option String :=
 -- NOTE: does not roundtrip even with `escape = true` if name is anonymous or contains numeric part or `idEndEscape`
 variable (sep : String) (escape : Bool)
 def toStringWithSep : Name → String
-  | anonymous         => "[anonymous]"
-  | str anonymous s _ => maybeEscape s
-  | num anonymous v _ => toString v
-  | str n s _         => toStringWithSep n ++ sep ++ maybeEscape s
-  | num n v _         => toStringWithSep n ++ sep ++ Nat.repr v
+  | anonymous       => "[anonymous]"
+  | str anonymous s => maybeEscape s
+  | num anonymous v => toString v
+  | str n s         => toStringWithSep n ++ sep ++ maybeEscape s
+  | num n v         => toStringWithSep n ++ sep ++ Nat.repr v
 where
   maybeEscape s := if escape then escapePart s |>.getD s else s
 
@@ -131,7 +131,7 @@ protected def toString (n : Name) (escape := true) : String :=
   toStringWithSep "." (escape && !n.isInaccessibleUserName && !n.hasMacroScopes && !maybePseudoSyntax) n
 where
   maybePseudoSyntax :=
-    if let Name.str _ s _ := n.getRoot then
+    if let .str _ s := n.getRoot then
       -- could be pseudo-syntax for loose bvar or universe mvar, output as is
       "#".isPrefixOf s || "?".isPrefixOf s
     else
@@ -148,8 +148,8 @@ private def hasNum : Name → Bool
 protected def reprPrec (n : Name) (prec : Nat) : Std.Format :=
   match n with
   | anonymous => Std.Format.text "Lean.Name.anonymous"
-  | num p i _ => Repr.addAppParen ("Lean.Name.mkNum " ++ Name.reprPrec p max_prec ++ " " ++ repr i) prec
-  | str p s _ =>
+  | num p i => Repr.addAppParen ("Lean.Name.mkNum " ++ Name.reprPrec p max_prec ++ " " ++ repr i) prec
+  | str p s =>
     if p.hasNum then
       Repr.addAppParen ("Lean.Name.mkStr " ++ Name.reprPrec p max_prec ++ " " ++ repr s) prec
     else
@@ -161,23 +161,23 @@ instance : Repr Name where
 deriving instance Repr for Syntax
 
 def capitalize : Name → Name
-  | Name.str p s _ => Name.mkStr p s.capitalize
-  | n              => n
+  | .str p s => .str p s.capitalize
+  | n        => n
 
 def replacePrefix : Name → Name → Name → Name
-  | anonymous,     anonymous, newP => newP
-  | anonymous,     _,         _    => anonymous
-  | n@(str p s _), queryP,    newP => if n == queryP then newP else Name.mkStr (p.replacePrefix queryP newP) s
-  | n@(num p s _), queryP,    newP => if n == queryP then newP else Name.mkNum (p.replacePrefix queryP newP) s
+  | anonymous,   anonymous, newP => newP
+  | anonymous,   _,         _    => anonymous
+  | n@(str p s), queryP,    newP => if n == queryP then newP else Name.mkStr (p.replacePrefix queryP newP) s
+  | n@(num p s), queryP,    newP => if n == queryP then newP else Name.mkNum (p.replacePrefix queryP newP) s
 
 /--
   `eraseSuffix? n s` return `n'` if `n` is of the form `n == n' ++ s`.
 -/
 def eraseSuffix? : Name → Name → Option Name
-  | n,         anonymous   => some n
-  | str p s _, str p' s' _ => if s == s' then eraseSuffix? p p' else none
-  | num p s _, num p' s' _ => if s == s' then eraseSuffix? p p' else none
-  | _,         _           => none
+  | n,       anonymous => some n
+  | str p s, str p' s' => if s == s' then eraseSuffix? p p' else none
+  | num p s, num p' s' => if s == s' then eraseSuffix? p p' else none
+  | _,       _         => none
 
 /-- Remove macros scopes, apply `f`, and put them back -/
 @[inline] def modifyBase (n : Name) (f : Name → Name) : Name :=
@@ -190,21 +190,32 @@ def eraseSuffix? : Name → Name → Option Name
 @[export lean_name_append_after]
 def appendAfter (n : Name) (suffix : String) : Name :=
   n.modifyBase fun
-    | str p s _ => Name.mkStr p (s ++ suffix)
-    | n         => Name.mkStr n suffix
+    | str p s => Name.mkStr p (s ++ suffix)
+    | n       => Name.mkStr n suffix
 
 @[export lean_name_append_index_after]
 def appendIndexAfter (n : Name) (idx : Nat) : Name :=
   n.modifyBase fun
-    | str p s _ => Name.mkStr p (s ++ "_" ++ toString idx)
-    | n         => Name.mkStr n ("_" ++ toString idx)
+    | str p s => Name.mkStr p (s ++ "_" ++ toString idx)
+    | n       => Name.mkStr n ("_" ++ toString idx)
 
 @[export lean_name_append_before]
 def appendBefore (n : Name) (pre : String) : Name :=
   n.modifyBase fun
     | anonymous => Name.mkStr anonymous pre
-    | str p s _ => Name.mkStr p (pre ++ s)
-    | num p n _ => Name.mkNum (Name.mkStr p pre) n
+    | str p s => Name.mkStr p (pre ++ s)
+    | num p n => Name.mkNum (Name.mkStr p pre) n
+
+protected theorem beq_iff_eq {m n : Name} : m == n ↔ m = n := by
+  show m.beq n ↔ _
+  induction m generalizing n <;> cases n <;> simp_all [Name.beq, And.comm]
+
+instance : LawfulBEq Name where
+  eq_of_beq := Name.beq_iff_eq.1
+  rfl := Name.beq_iff_eq.2 rfl
+
+instance : DecidableEq Name :=
+  fun a b => if h : a == b then .isTrue (by simp_all) else .isFalse (by simp_all)
 
 end Name
 
@@ -920,15 +931,15 @@ instance : Quote Substring := ⟨fun s => Syntax.mkCApp `String.toSubstring #[qu
 -- in contrast to `Name.toString`, we can, and want to be, precise here
 private def getEscapedNameParts? (acc : List String) : Name → Option (List String)
   | Name.anonymous => if acc.isEmpty then none else some acc
-  | Name.str n s _ => do
+  | Name.str n s => do
     let s ← Name.escapePart s
     getEscapedNameParts? (s::acc) n
-  | Name.num _ _ _ => none
+  | Name.num _ _ => none
 
 def quoteNameMk : Name → Term
   | Name.anonymous => mkCIdent ``Name.anonymous
-  | Name.str n s _ => Syntax.mkCApp ``Name.mkStr #[quoteNameMk n, quote s]
-  | Name.num n i _ => Syntax.mkCApp ``Name.mkNum #[quoteNameMk n, quote i]
+  | Name.str n s => Syntax.mkCApp ``Name.mkStr #[quoteNameMk n, quote s]
+  | Name.num n i => Syntax.mkCApp ``Name.mkNum #[quoteNameMk n, quote i]
 
 instance : Quote Name `term where
   quote n := match getEscapedNameParts? [] n with

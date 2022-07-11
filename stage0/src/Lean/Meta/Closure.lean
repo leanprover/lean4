@@ -152,12 +152,12 @@ def mkNewLevelParam (u : Level) : ClosureM Level := do
   pure $ mkLevelParam p
 
 partial def collectLevelAux : Level → ClosureM Level
-  | u@(Level.succ v _)   => return u.updateSucc! (← visitLevel collectLevelAux v)
-  | u@(Level.max v w _)  => return u.updateMax! (← visitLevel collectLevelAux v) (← visitLevel collectLevelAux w)
-  | u@(Level.imax v w _) => return u.updateIMax! (← visitLevel collectLevelAux v) (← visitLevel collectLevelAux w)
+  | u@(Level.succ v)   => return u.updateSucc! (← visitLevel collectLevelAux v)
+  | u@(Level.max v w)  => return u.updateMax! (← visitLevel collectLevelAux v) (← visitLevel collectLevelAux w)
+  | u@(Level.imax v w) => return u.updateIMax! (← visitLevel collectLevelAux v) (← visitLevel collectLevelAux w)
   | u@(Level.mvar ..)    => mkNewLevelParam u
   | u@(Level.param ..)   => mkNewLevelParam u
-  | u@(Level.zero _)     => pure u
+  | u@(Level.zero)     => pure u
 
 def collectLevel (u : Level) : ClosureM Level := do
   -- u ← instantiateLevelMVars u
@@ -188,15 +188,15 @@ def pushToProcess (elem : ToProcessElement) : ClosureM Unit :=
 partial def collectExprAux (e : Expr) : ClosureM Expr := do
   let collect (e : Expr) := visitExpr collectExprAux e
   match e with
-  | Expr.proj _ _ s _    => return e.updateProj! (← collect s)
+  | Expr.proj _ _ s      => return e.updateProj! (← collect s)
   | Expr.forallE _ d b _ => return e.updateForallE! (← collect d) (← collect b)
   | Expr.lam _ d b _     => return e.updateLambdaE! (← collect d) (← collect b)
   | Expr.letE _ t v b _  => return e.updateLet! (← collect t) (← collect v) (← collect b)
-  | Expr.app f a _       => return e.updateApp! (← collect f) (← collect a)
-  | Expr.mdata _ b _     => return e.updateMData! (← collect b)
-  | Expr.sort u _        => return e.updateSort! (← collectLevel u)
-  | Expr.const _ us _    => return e.updateConst! (← us.mapM collectLevel)
-  | Expr.mvar mvarId _   =>
+  | Expr.app f a         => return e.updateApp! (← collect f) (← collect a)
+  | Expr.mdata _ b       => return e.updateMData! (← collect b)
+  | Expr.sort u          => return e.updateSort! (← collectLevel u)
+  | Expr.const _ us      => return e.updateConst! (← us.mapM collectLevel)
+  | Expr.mvar mvarId     =>
     let mvarDecl ← getMVarDecl mvarId
     let type ← preprocess mvarDecl.type
     let type ← collect type
@@ -207,7 +207,7 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
       exprMVarArgs          := s.exprMVarArgs.push e
     }
     return mkFVar newFVarId
-  | Expr.fvar fvarId _ =>
+  | Expr.fvar fvarId =>
     match (← read).zeta, (← getLocalDecl fvarId).value? with
     | true, some value => collect (← preprocess value)
     | _,    _          =>

@@ -181,7 +181,7 @@ private def elimAuxIndices (s₁ : GeneralizeIndicesSubgoal) (s₂ : Array Cases
   s₂.mapM fun s => do
     indicesFVarIds.foldlM (init := s) fun s indexFVarId =>
       match s.subst.get indexFVarId with
-      | Expr.fvar indexFVarId' _ =>
+      | Expr.fvar indexFVarId' =>
         (do let mvarId ← clear s.mvarId indexFVarId'; pure { s with mvarId := mvarId, subst := s.subst.erase indexFVarId })
         <|>
         (pure s)

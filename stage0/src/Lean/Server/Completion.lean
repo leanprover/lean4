@@ -39,8 +39,8 @@ private partial def consumeImplicitPrefix (e : Expr) (k : Expr → MetaM α) : M
   match e with
   | Expr.forallE n d b c =>
     -- We do not consume instance implicit arguments because the user probably wants be aware of this dependency
-    if c.binderInfo == BinderInfo.implicit then
-      withLocalDecl n c.binderInfo d fun arg =>
+    if c == .implicit then
+      withLocalDecl n c d fun arg =>
         consumeImplicitPrefix (b.instantiate1 arg) k
     else
       k e
@@ -124,7 +124,7 @@ private def runM (ctx : ContextInfo) (lctx : LocalContext) (x : M Unit) : IO (Op
 
 private def matchAtomic (id : Name) (declName : Name) : Option Float :=
   match id, declName with
-  | Name.str Name.anonymous s₁ _, Name.str Name.anonymous s₂ _ => fuzzyMatchScoreWithThreshold? s₁ s₂
+  | .str .anonymous s₁, .str .anonymous s₂ => fuzzyMatchScoreWithThreshold? s₁ s₂
   | _, _ => none
 
 private def normPrivateName (declName : Name) : MetaM Name := do
@@ -157,7 +157,7 @@ private def matchDecl? (ns : Name) (id : Name) (danglingDot : Bool) (declName : 
         return none
     else if !danglingDot then
       match id, declName with
-      | Name.str p₁ s₁ _, Name.str p₂ s₂ _ =>
+      | .str p₁ s₁, .str p₂ s₂ =>
         if p₁ == p₂  then
           return fuzzyMatchScoreWithThreshold? s₁ s₂ |>.map (s₂, ·)
         else
@@ -175,7 +175,7 @@ private partial def truncate (id : Name) (newLen : Nat) : Name :=
      match id with
      | Name.anonymous => (id, 0)
      | Name.num ..    => unreachable!
-     | Name.str p s _ =>
+     | .str p s =>
        let (p', len) := go p
        if len + 1 >= newLen then
          (p', len)
@@ -200,7 +200,7 @@ def matchNamespace (ns : Name) (nsFragment : Name) (danglingDot : Bool) : Option
       none
   else
     match ns, nsFragment with
-    | Name.str p₁ s₁ _, Name.str p₂ s₂ _ =>
+    | .str p₁ s₁, .str p₂ s₂ =>
       if p₁ == p₂ then fuzzyMatchScoreWithThreshold? s₂ s₁ else none
     | _, _ => none
 
@@ -304,7 +304,7 @@ private def idCompletionCore (ctx : ContextInfo) (id : Name) (hoverInfo : HoverI
         | _ => return ()
     searchAlias ctx.currNamespace
   -- Search keywords
-  if let Name.str Name.anonymous s _ := id then
+  if let .str .anonymous s := id then
     let keywords := Parser.getTokenTable env
     for keyword in keywords.findPrefix s do
       addKeywordCompletionItem keyword
@@ -342,7 +342,7 @@ private partial def getDotCompletionTypeNames (type : Expr) : MetaM NameSet :=
   return (← visit type |>.run {}).2
 where
   visit (type : Expr) : StateRefT NameSet MetaM Unit := do
-    let .const typeName _ _ := type.getAppFn | return ()
+    let .const typeName _ := type.getAppFn | return ()
     modify fun s => s.insert typeName
     if isStructure (← getEnv) typeName then
       for parentName in getAllParentStructures (← getEnv) typeName do

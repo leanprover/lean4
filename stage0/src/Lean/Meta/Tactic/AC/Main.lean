@@ -57,8 +57,8 @@ inductive PreExpr
 | op (lhs rhs : PreExpr)
 | var (e : Expr)
 
-@[matchPattern] def bin {x₁ x₂} (op l r : Expr) :=
-  Expr.app (Expr.app op l x₁) r x₂
+@[matchPattern] def bin (op l r : Expr) :=
+  Expr.app (Expr.app op l) r
 
 def toACExpr (op l r : Expr) : MetaM (Array Expr × ACExpr) := do
   let (preExpr, vars) ←

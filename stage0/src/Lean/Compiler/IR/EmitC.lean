@@ -72,9 +72,9 @@ def toCName (n : Name) : M String := do
   let env ← getEnv;
   -- TODO: we should support simple export names only
   match getExportNameFor env n with
-  | some (Name.str Name.anonymous s _) => pure s
-  | some _                             => throwInvalidExportName n
-  | none                               => if n == `main then pure leanMainFn else pure n.mangle
+  | some (.str .anonymous s) => pure s
+  | some _                   => throwInvalidExportName n
+  | none                     => if n == `main then pure leanMainFn else pure n.mangle
 
 def emitCName (n : Name) : M Unit :=
   toCName n >>= emit
@@ -83,9 +83,9 @@ def toCInitName (n : Name) : M String := do
   let env ← getEnv;
   -- TODO: we should support simple export names only
   match getExportNameFor env n with
-  | some (Name.str Name.anonymous s _) => return "_init_" ++ s
-  | some _                             => throwInvalidExportName n
-  | none                               => pure ("_init_" ++ n.mangle)
+  | some (.str .anonymous s) => return "_init_" ++ s
+  | some _                   => throwInvalidExportName n
+  | none                     => pure ("_init_" ++ n.mangle)
 
 def emitCInitName (n : Name) : M Unit :=
   toCInitName n >>= emit

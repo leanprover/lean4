@@ -19,12 +19,12 @@ def maybeAddBlockImplicit (ident : Syntax) : DelabM Syntax := do
   if ← getPPOption getPPAnalysisBlockImplicit then `(@$ident:ident) else pure ident
 
 def unfoldMDatas : Expr → Expr
-  | Expr.mdata _ e _ => unfoldMDatas e
-  | e                => e
+  | Expr.mdata _ e => unfoldMDatas e
+  | e              => e
 
 @[builtinDelab fvar]
 def delabFVar : Delab := do
-let Expr.fvar id _ ← getExpr | unreachable!
+let Expr.fvar id ← getExpr | unreachable!
 try
   let l ← getLocalDecl id
   maybeAddBlockImplicit (mkIdent l.userName)
@@ -35,12 +35,12 @@ catch _ =>
 -- loose bound variable, use pseudo syntax
 @[builtinDelab bvar]
 def delabBVar : Delab := do
-  let Expr.bvar idx _ ← getExpr | unreachable!
+  let Expr.bvar idx ← getExpr | unreachable!
   pure $ mkIdent $ Name.mkSimple $ "#" ++ toString idx
 
 @[builtinDelab mvar]
 def delabMVar : Delab := do
-  let Expr.mvar n _ ← getExpr | unreachable!
+  let Expr.mvar n ← getExpr | unreachable!
   let mvarDecl ← getMVarDecl n
   let n :=
     match mvarDecl.userName with
@@ -50,10 +50,10 @@ def delabMVar : Delab := do
 
 @[builtinDelab sort]
 def delabSort : Delab := do
-  let Expr.sort l _ ← getExpr | unreachable!
+  let Expr.sort l ← getExpr | unreachable!
   match l with
-  | Level.zero _ => `(Prop)
-  | Level.succ (Level.zero _) _ => `(Type)
+  | Level.zero => `(Prop)
+  | Level.succ .zero => `(Type)
   | _ => match l.dec with
     | some l' => `(Type $(Level.quote l' max_prec))
     | none    => `(Sort $(Level.quote l max_prec))
@@ -87,7 +87,7 @@ where
 
 -- NOTE: not a registered delaborator, as `const` is never called (see [delab] description)
 def delabConst : Delab := do
-  let Expr.const c₀ ls _ ← getExpr | unreachable!
+  let Expr.const c₀ ls ← getExpr | unreachable!
   let c₀ := if (← getPPOption getPPPrivateNames) then c₀ else (privateToUserName? c₀).getD c₀
 
   let mut c ← unresolveNameGlobal c₀
@@ -374,7 +374,7 @@ def delabAppMatch : Delab := whenPPOption getPPNotation <| whenPPOption getPPMat
   -- incrementally fill `AppMatchState` from arguments
   let st ← withAppFnArgs
     (do
-      let (Expr.const c us _) ← getExpr | failure
+      let (Expr.const c us) ← getExpr | failure
       let (some info) ← getMatcherInfo? c | failure
       return { matcherTy := (← getConstInfo c).instantiateTypeLevelParams us, info := info : AppMatchState })
     (fun st => do
@@ -605,7 +605,7 @@ def delabLetE : Delab := do
 
 @[builtinDelab lit]
 def delabLit : Delab := do
-  let Expr.lit l _ ← getExpr | unreachable!
+  let Expr.lit l ← getExpr | unreachable!
   match l with
   | Literal.natVal n => pure $ quote n
   | Literal.strVal s => pure $ quote s
@@ -613,7 +613,7 @@ def delabLit : Delab := do
 -- `@OfNat.ofNat _ n _` ~> `n`
 @[builtinDelab app.OfNat.ofNat]
 def delabOfNat : Delab := whenPPOption getPPCoercions do
-  let (Expr.app (Expr.app _ (Expr.lit (Literal.natVal n) _) _) _ _) ← getExpr | failure
+  let .app (.app _ (.lit (.natVal n))) _ ← getExpr | failure
   return quote n
 
 -- `@OfDecimal.ofDecimal _ _ m s e` ~> `m*10^(sign * e)` where `sign == 1` if `s = false` and `sign = -1` if `s = true`
@@ -621,11 +621,11 @@ def delabOfNat : Delab := whenPPOption getPPCoercions do
 def delabOfScientific : Delab := whenPPOption getPPCoercions do
   let expr ← getExpr
   guard <| expr.getAppNumArgs == 5
-  let Expr.lit (Literal.natVal m) _ ← pure (expr.getArg! 2) | failure
-  let Expr.lit (Literal.natVal e) _ ← pure (expr.getArg! 4) | failure
+  let .lit (.natVal m) ← pure (expr.getArg! 2) | failure
+  let .lit (.natVal e) ← pure (expr.getArg! 4) | failure
   let s ← match expr.getArg! 3 with
-    | Expr.const ``Bool.true _ _  => pure true
-    | Expr.const ``Bool.false _ _ => pure false
+    | Expr.const ``Bool.true _  => pure true
+    | Expr.const ``Bool.false _ => pure false
     | _ => failure
   let str  := toString m
   if s && e == str.length then
@@ -644,7 +644,7 @@ function.
 -/
 @[builtinDelab proj]
 def delabProj : Delab := do
-  let Expr.proj _ idx _ _ ← getExpr | unreachable!
+  let Expr.proj _ idx _ ← getExpr | unreachable!
   let e ← withProj delab
   -- not perfectly authentic: elaborates to the `idx`-th named projection
   -- function (e.g. `e.1` is `Prod.fst e`), which unfolds to the actual
@@ -655,8 +655,8 @@ def delabProj : Delab := do
 /-- Delaborate a call to a projection function such as `Prod.fst`. -/
 @[builtinDelab app]
 def delabProjectionApp : Delab := whenPPOption getPPStructureProjections $ do
-  let e@(Expr.app fn _ _) ← getExpr | failure
-  let Expr.const c@(Name.str _ f _) _ _ ← pure fn.getAppFn | failure
+  let e@(Expr.app fn _) ← getExpr | failure
+  let .const c@(.str _ f) _ ← pure fn.getAppFn | failure
   let env ← getEnv
   let some info ← pure $ env.getProjectionFnInfo? c | failure
   -- can't use with classes since the instance parameter is implicit
@@ -768,18 +768,18 @@ def delabDo : Delab := whenPPOption getPPNotation do
   `(do $items:doSeqItem*)
 
 def reifyName : Expr → DelabM Name
-  | Expr.const ``Lean.Name.anonymous .. => return Name.anonymous
-  | Expr.app (Expr.app (Expr.const ``Lean.Name.mkStr ..) n _) (Expr.lit (Literal.strVal s) _) _ => return (← reifyName n).mkStr s
-  | Expr.app (Expr.app (Expr.const ``Lean.Name.mkNum ..) n _) (Expr.lit (Literal.natVal i) _) _ => return (← reifyName n).mkNum i
+  | .const ``Lean.Name.anonymous .. => return Name.anonymous
+  | .app (.app (.const ``Lean.Name.str ..) n) (.lit (.strVal s)) => return (← reifyName n).mkStr s
+  | .app (.app (.const ``Lean.Name.num ..) n) (.lit (.natVal i)) => return (← reifyName n).mkNum i
   | _ => failure
 
-@[builtinDelab app.Lean.Name.mkStr]
+@[builtinDelab app.Lean.Name.str]
 def delabNameMkStr : Delab := whenPPOption getPPNotation do
   let n ← reifyName (← getExpr)
   -- not guaranteed to be a syntactically valid name, but usually more helpful than the explicit version
   return mkNode ``Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{n}"]
 
-@[builtinDelab app.Lean.Name.mkNum]
+@[builtinDelab app.Lean.Name.num]
 def delabNameMkNum : Delab := delabNameMkStr
 
 end Lean.PrettyPrinter.Delaborator

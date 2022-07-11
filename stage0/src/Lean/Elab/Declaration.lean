@@ -17,12 +17,12 @@ open TSyntax.Compat
 
 private def ensureValidNamespace (name : Name) : MacroM Unit := do
   match name with
-  | Name.str p s _ =>
+  | .str p s =>
     if s == "_root_" then
       Macro.throwError s!"invalid namespace '{name}', '_root_' is a reserved namespace"
     ensureValidNamespace p
-  | Name.num _ .. => Macro.throwError s!"invalid namespace '{name}', it must not contain numeric parts"
-  | Name.anonymous => return ()
+  | .num .. => Macro.throwError s!"invalid namespace '{name}', it must not contain numeric parts"
+  | .anonymous => return ()
 
 /-- Auxiliary function for `expandDeclNamespace?` -/
 private def expandDeclIdNamespace? (declId : Syntax) : MacroM (Option (Name × Syntax)) := do
@@ -32,8 +32,8 @@ private def expandDeclIdNamespace? (declId : Syntax) : MacroM (Option (Name × S
     return none
   let scpView := extractMacroScopes id
   match scpView.name with
-  | Name.str Name.anonymous _ _ => return none
-  | Name.str pre s _            =>
+  | .str .anonymous _ => return none
+  | .str pre s        =>
     ensureValidNamespace pre
     let nameNew := { scpView with name := Name.mkSimple s }.review
     -- preserve "original" info, if any, so that hover etc. on the namespaced

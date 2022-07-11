@@ -34,17 +34,17 @@ def mkPrivateName (env : Environment) (n : Name) : Name :=
   Name.mkNum (privateHeader ++ env.mainModule) 0 ++ n
 
 def isPrivateName : Name → Bool
-  | n@(Name.str p _ _) => n == privateHeader || isPrivateName p
-  | Name.num p _ _     => isPrivateName p
-  | _                  => false
+  | n@(.str p _) => n == privateHeader || isPrivateName p
+  | .num p _     => isPrivateName p
+  | _            => false
 
 @[export lean_is_private_name]
 def isPrivateNameExport (n : Name) : Bool :=
   isPrivateName n
 
 private def privateToUserNameAux : Name → Name
-  | Name.str p s _ => Name.mkStr (privateToUserNameAux p) s
-  | _              => Name.anonymous
+  | .str p s => Name.mkStr (privateToUserNameAux p) s
+  | _        => Name.anonymous
 
 @[export lean_private_to_user_name]
 def privateToUserName? (n : Name) : Option Name :=
@@ -57,8 +57,8 @@ def isPrivateNameFromImportedModule (env : Environment) (n : Name) : Bool :=
   | _ => false
 
 private def privatePrefixAux : Name → Name
-  | Name.str p _ _ => privatePrefixAux p
-  | n              => n
+  | .str p _ => privatePrefixAux p
+  | n        => n
 
 @[export lean_private_prefix]
 def privatePrefix? (n : Name) : Option Name :=

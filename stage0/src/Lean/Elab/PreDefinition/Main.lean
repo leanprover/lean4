@@ -33,7 +33,7 @@ private def addAndCompilePartial (preDefs : Array PreDefinition) (useSorry := fa
 
 private def isNonRecursive (preDef : PreDefinition) : Bool :=
   Option.isNone $ preDef.value.find? fun
-    | Expr.const declName _ _ => preDef.declName == declName
+    | Expr.const declName _ => preDef.declName == declName
     | _ => false
 
 private def partitionPreDefs (preDefs : Array PreDefinition) : Array (Array PreDefinition) :=

@@ -38,6 +38,7 @@ LEAN_EXPORT lean_object* l_Lean_Expr_head(lean_object*);
 static lean_object* l___private_Lean_HeadIndex_0__Lean_reprHeadIndex____x40_Lean_HeadIndex___hyg_278____closed__3;
 static lean_object* l___private_Lean_HeadIndex_0__Lean_reprHeadIndex____x40_Lean_HeadIndex___hyg_278____closed__14;
 static lean_object* l___private_Lean_HeadIndex_0__Lean_reprHeadIndex____x40_Lean_HeadIndex___hyg_278____closed__33;
+uint64_t l_Lean_Name_hash___override(lean_object*);
 static lean_object* l___private_Lean_HeadIndex_0__Lean_reprHeadIndex____x40_Lean_HeadIndex___hyg_278____closed__30;
 static lean_object* l___private_Lean_HeadIndex_0__Lean_reprHeadIndex____x40_Lean_HeadIndex___hyg_278____closed__5;
 LEAN_EXPORT lean_object* l_Lean_HeadIndex_HeadIndex_hash___boxed(lean_object*);
@@ -46,7 +47,6 @@ static lean_object* l___private_Lean_HeadIndex_0__Lean_reprHeadIndex____x40_Lean
 static lean_object* l___private_Lean_HeadIndex_0__Lean_reprHeadIndex____x40_Lean_HeadIndex___hyg_278____closed__15;
 static lean_object* l_Lean_HeadIndex_instHashableHeadIndex___closed__1;
 LEAN_EXPORT uint64_t l_Lean_HeadIndex_HeadIndex_hash(lean_object*);
-uint64_t l_Lean_Name_hash(lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 static lean_object* l___private_Lean_HeadIndex_0__Lean_reprHeadIndex____x40_Lean_HeadIndex___hyg_278____closed__29;
 LEAN_EXPORT lean_object* l_Lean_Expr_headNumArgs(lean_object*);
@@ -1001,7 +1001,7 @@ case 2:
 lean_object* x_10; uint64_t x_11; uint64_t x_12; uint64_t x_13; 
 x_10 = lean_ctor_get(x_1, 0);
 x_11 = 17;
-x_12 = l_Lean_Name_hash(x_10);
+x_12 = l_Lean_Name_hash___override(x_10);
 x_13 = lean_uint64_mix_hash(x_11, x_12);
 return x_13;
 }
@@ -1011,7 +1011,7 @@ lean_object* x_14; lean_object* x_15; uint64_t x_16; uint64_t x_17; uint64_t x_1
 x_14 = lean_ctor_get(x_1, 0);
 x_15 = lean_ctor_get(x_1, 1);
 x_16 = 19;
-x_17 = l_Lean_Name_hash(x_14);
+x_17 = l_Lean_Name_hash___override(x_14);
 x_18 = lean_uint64_of_nat(x_15);
 x_19 = lean_uint64_mix_hash(x_17, x_18);
 x_20 = lean_uint64_mix_hash(x_16, x_19);

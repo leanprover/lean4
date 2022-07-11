@@ -54,8 +54,8 @@ def resetTraceState {m} [MonadTrace m] : m Unit :=
   modifyTraceState (fun _ => {})
 
 private def checkTraceOptionAux (opts : Options) : Name → Bool
-  | n@(Name.str p _ _) => opts.getBool n || (!opts.contains n && checkTraceOptionAux opts p)
-  | _                  => false
+  | n@(.str p _) => opts.getBool n || (!opts.contains n && checkTraceOptionAux opts p)
+  | _            => false
 
 def checkTraceOption (opts : Options) (cls : Name) : Bool :=
   if opts.isEmpty then false

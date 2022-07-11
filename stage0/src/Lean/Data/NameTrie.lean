@@ -34,8 +34,8 @@ private def toKey (n : Name) : List NamePart :=
   loop n []
 where
   loop
-    | Name.str p s _, parts   => loop p (NamePart.str s :: parts)
-    | Name.num p n _, parts   => loop p (NamePart.num n :: parts)
+    | Name.str p s,   parts => loop p (NamePart.str s :: parts)
+    | Name.num p n,   parts => loop p (NamePart.num n :: parts)
     | Name.anonymous, parts => parts
 
 def NameTrie.insert (t : NameTrie β) (n : Name) (b : β) : NameTrie β :=

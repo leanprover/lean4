@@ -157,7 +157,7 @@ open SubExpr in
 `SubExpr.Pos` argument for tracking subexpression position. -/
 def Expr.traverseAppWithPos {M} [Monad M] (visit : Pos → Expr → M Expr) (p : Pos) (e : Expr) : M Expr :=
   match e with
-  | Expr.app f a _ =>
+  | Expr.app f a =>
     e.updateApp!
       <$> traverseAppWithPos visit p.pushAppFn f
       <*> visit p.pushAppArg a

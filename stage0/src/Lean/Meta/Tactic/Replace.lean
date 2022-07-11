@@ -111,7 +111,7 @@ def changeLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (checkD
       let (_, mvarId) ← introNP mvarId numReverted
       pure mvarId
     match target with
-    | Expr.forallE n d b c => do check d; finalize (mkForall n c.binderInfo typeNew b)
+    | Expr.forallE n d b c => do check d; finalize (mkForall n c typeNew b)
     | Expr.letE n t v b _  => do check t; finalize (mkLet n typeNew v b)
     | _ => throwTacticEx `changeHypothesis mvarId "unexpected auxiliary target"
 

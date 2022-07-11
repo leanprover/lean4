@@ -367,7 +367,7 @@ namespace Syntax
 
 -- quotation node kinds are formed from a unique quotation name plus "quot"
 def isQuot : Syntax → Bool
-  | Syntax.node _ (Name.str _ "quot" _)         _ => true
+  | Syntax.node _ (Name.str _ "quot")           _ => true
   | Syntax.node _ `Lean.Parser.Term.dynamicQuot _ => true
   | _                                             => false
 
@@ -380,8 +380,8 @@ def getQuotContent (stx : Syntax) : Syntax :=
 
 -- antiquotation node kinds are formed from the original node kind (if any) plus "antiquot"
 def isAntiquot : Syntax → Bool
-  | Syntax.node _ (Name.str _ "antiquot" _) _ => true
-  | _                                         => false
+  | .node _ (.str _ "antiquot") _ => true
+  | _                             => false
 
 def isAntiquots (stx : Syntax) : Bool :=
   stx.isAntiquot || (stx.isOfKind choiceKind && stx.getNumArgs > 0 && stx.getArgs.all isAntiquot)
@@ -425,9 +425,9 @@ def getAntiquotTerm (stx : Syntax) : Syntax :=
 
 /-- Return kind of parser expected at this antiquotation, and whether it is a "pseudo" kind (see `mkAntiquot`). -/
 def antiquotKind? : Syntax → Option (SyntaxNodeKind × Bool)
-  | Syntax.node _ (Name.str (Name.str k "pseudo" _) "antiquot" _) _ => (k, true)
-  | Syntax.node _ (Name.str k                       "antiquot" _) _ => (k, false)
-  | _                                                               => none
+  | .node _ (.str (.str k "pseudo") "antiquot") _ => (k, true)
+  | .node _ (.str k                 "antiquot") _ => (k, false)
+  | _                                             => none
 
 def antiquotKinds (stx : Syntax) : List (SyntaxNodeKind × Bool) :=
   if stx.isOfKind choiceKind then
@@ -439,7 +439,7 @@ def antiquotKinds (stx : Syntax) : List (SyntaxNodeKind × Bool) :=
 
 -- An "antiquotation splice" is something like `$[...]?` or `$[...]*`.
 def antiquotSpliceKind? : Syntax → Option SyntaxNodeKind
-  | Syntax.node _ (Name.str k "antiquot_scope" _) _ => some k
+  | .node _ (.str k "antiquot_scope") _ => some k
   | _ => none
 
 def isAntiquotSplice (stx : Syntax) : Bool :=
@@ -461,7 +461,7 @@ def mkAntiquotSpliceNode (kind : SyntaxNodeKind) (contents : Array Syntax) (suff
 
 -- `$x,*` etc.
 def antiquotSuffixSplice? : Syntax → Option SyntaxNodeKind
-  | Syntax.node _ (Name.str k "antiquot_suffix_splice" _) _ => some k
+  | .node _ (.str k "antiquot_suffix_splice") _ => some k
   | _ => none
 
 def isAntiquotSuffixSplice (stx : Syntax) : Bool :=

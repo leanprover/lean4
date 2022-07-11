@@ -55,7 +55,7 @@ def fixLevelParams (preDefs : Array PreDefinition) (scopeLevelNames allUserLevel
   let us := levelParams.map mkLevelParam
   let fixExpr (e : Expr) : Expr :=
     e.replace fun c => match c with
-      | Expr.const declName _ _ => if preDefs.any fun preDef => preDef.declName == declName then some $ Lean.mkConst declName us else none
+      | Expr.const declName _ => if preDefs.any fun preDef => preDef.declName == declName then some $ Lean.mkConst declName us else none
       | _ => none
   return preDefs.map fun preDef =>
     { preDef with
@@ -173,7 +173,7 @@ def addAndCompilePartialRec (preDefs : Array PreDefinition) : TermElabM Unit := 
       { preDef with
         declName  := Compiler.mkUnsafeRecName preDef.declName
         value     := preDef.value.replace fun e => match e with
-          | Expr.const declName us _ =>
+          | Expr.const declName us =>
             if preDefs.any fun preDef => preDef.declName == declName then
               some <| mkConst (Compiler.mkUnsafeRecName declName) us
             else

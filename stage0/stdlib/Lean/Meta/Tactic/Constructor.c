@@ -15,9 +15,8 @@ extern "C" {
 #endif
 static lean_object* l_Lean_Meta_existsIntro___lambda__2___closed__5;
 static lean_object* l_Lean_Meta_existsIntro___lambda__2___closed__3;
-lean_object* l_Lean_mkSort(lean_object*);
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_constructor___lambda__2___closed__1;
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_existsIntro___closed__2;
 static lean_object* l_Lean_Meta_existsIntro___closed__1;
 static lean_object* l_Lean_Meta_existsIntro___lambda__2___closed__1;
@@ -42,28 +41,29 @@ static lean_object* l_Lean_Meta_constructor___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_constructor___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_constructor___lambda__2___closed__4;
 static lean_object* l_Lean_Meta_constructor___lambda__1___closed__3;
+lean_object* l_Lean_Expr_sort___override(lean_object*);
 lean_object* l_Lean_Meta_getMVarType_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_existsIntro___lambda__1___closed__4;
 static lean_object* l_Lean_Meta_constructor___lambda__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_constructor___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_existsIntro___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_checkNotAssigned(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_existsIntro___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Meta_constructor___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_mkApp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_existsIntro___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_existsIntro___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_existsIntro___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_constructor___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_ofSubarray___rarg(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_existsIntro___lambda__1___closed__3;
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
-lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_existsIntro___lambda__2___closed__6;
 static lean_object* l_Lean_Meta_constructor___lambda__2___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_existsIntro(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -97,7 +97,7 @@ x_13 = lean_ctor_get(x_4, 1);
 lean_inc(x_13);
 lean_dec(x_4);
 lean_inc(x_2);
-x_14 = l_Lean_mkConst(x_12, x_2);
+x_14 = l_Lean_Expr_const___override(x_12, x_2);
 x_15 = 0;
 lean_inc(x_9);
 lean_inc(x_8);
@@ -479,7 +479,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Meta_constructor___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -512,7 +512,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_levelZero;
-x_2 = l_Lean_mkSort(x_1);
+x_2 = l_Lean_Expr_sort___override(x_1);
 return x_2;
 }
 }
@@ -553,7 +553,7 @@ lean_inc(x_13);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
 lean_dec(x_13);
-x_15 = l_Lean_mkConst(x_14, x_2);
+x_15 = l_Lean_Expr_const___override(x_14, x_2);
 x_16 = lean_unsigned_to_nat(0u);
 x_17 = l_Lean_Expr_getAppNumArgsAux(x_3, x_16);
 x_18 = l_Lean_Meta_existsIntro___lambda__1___closed__1;
@@ -623,7 +623,7 @@ lean_object* x_42; lean_object* x_43; uint8_t x_44; lean_object* x_45;
 x_42 = lean_ctor_get(x_41, 1);
 lean_inc(x_42);
 lean_dec(x_41);
-x_43 = l_Lean_mkApp(x_40, x_4);
+x_43 = l_Lean_Expr_app___override(x_40, x_4);
 x_44 = 0;
 lean_inc(x_11);
 lean_inc(x_10);
@@ -1249,7 +1249,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Meta_existsIntro___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }

@@ -47,12 +47,12 @@ private partial def abstractLevelMVars (u : Level) : M Level := do
     return u
   else
     match u with
-    | Level.zero _        => return u
-    | Level.param _ _     => return u
-    | Level.succ v _      => return u.updateSucc! (← abstractLevelMVars v)
-    | Level.max v w _     => return u.updateMax! (← abstractLevelMVars v) (← abstractLevelMVars w)
-    | Level.imax v w _    => return u.updateIMax! (← abstractLevelMVars v) (← abstractLevelMVars w)
-    | Level.mvar mvarId _ =>
+    | Level.zero        => return u
+    | Level.param _     => return u
+    | Level.succ v      => return u.updateSucc! (← abstractLevelMVars v)
+    | Level.max v w     => return u.updateMax! (← abstractLevelMVars v) (← abstractLevelMVars w)
+    | Level.imax v w    => return u.updateIMax! (← abstractLevelMVars v) (← abstractLevelMVars w)
+    | Level.mvar mvarId =>
       let s ← get
       let depth := s.mctx.getLevelDepth mvarId;
       if depth != s.mctx.depth then
@@ -71,18 +71,18 @@ partial def abstractExprMVars (e : Expr) : M Expr := do
     return e
   else
     match e with
-    | e@(Expr.lit _ _)         => return e
-    | e@(Expr.bvar _ _)        => return e
-    | e@(Expr.fvar _ _)        => return e
-    | e@(Expr.sort u _)        => return e.updateSort! (← abstractLevelMVars u)
-    | e@(Expr.const _ us _)    => return e.updateConst! (← us.mapM abstractLevelMVars)
-    | e@(Expr.proj _ _ s _)    => return e.updateProj! (← abstractExprMVars s)
-    | e@(Expr.app f a _)       => return e.updateApp! (← abstractExprMVars f) (← abstractExprMVars a)
-    | e@(Expr.mdata _ b _)     => return e.updateMData! (← abstractExprMVars b)
+    | e@(Expr.lit _)           => return e
+    | e@(Expr.bvar _)          => return e
+    | e@(Expr.fvar _)          => return e
+    | e@(Expr.sort u)          => return e.updateSort! (← abstractLevelMVars u)
+    | e@(Expr.const _ us)      => return e.updateConst! (← us.mapM abstractLevelMVars)
+    | e@(Expr.proj _ _ s)      => return e.updateProj! (← abstractExprMVars s)
+    | e@(Expr.app f a)         => return e.updateApp! (← abstractExprMVars f) (← abstractExprMVars a)
+    | e@(Expr.mdata _ b)       => return e.updateMData! (← abstractExprMVars b)
     | e@(Expr.lam _ d b _)     => return e.updateLambdaE! (← abstractExprMVars d) (← abstractExprMVars b)
     | e@(Expr.forallE _ d b _) => return e.updateForallE! (← abstractExprMVars d) (← abstractExprMVars b)
     | e@(Expr.letE _ t v b _)  => return e.updateLet! (← abstractExprMVars t) (← abstractExprMVars v) (← abstractExprMVars b)
-    | e@(Expr.mvar mvarId _)   =>
+    | e@(Expr.mvar mvarId)     =>
       let decl := (← getMCtx).getDecl mvarId
       if decl.depth != (← getMCtx).depth then
         return e

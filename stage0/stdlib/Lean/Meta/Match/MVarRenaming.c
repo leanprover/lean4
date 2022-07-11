@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_mkMVar(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_apply(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_insert(lean_object*, lean_object*, lean_object*);
@@ -22,6 +21,7 @@ LEAN_EXPORT lean_object* l_Std_RBNode_insert___at_Lean_Meta_MVarRenaming_insert_
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_apply___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_MVarRenaming_isEmpty(lean_object*);
 lean_object* l_Std_RBNode_setBlack___rarg(lean_object*);
+lean_object* l_Lean_Expr_mvar___override(lean_object*);
 static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_map___default;
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
@@ -2716,7 +2716,7 @@ if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; 
 x_7 = lean_ctor_get(x_4, 0);
-x_8 = l_Lean_mkMVar(x_7);
+x_8 = l_Lean_Expr_mvar___override(x_7);
 lean_ctor_set(x_4, 0, x_8);
 return x_4;
 }
@@ -2726,7 +2726,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11;
 x_9 = lean_ctor_get(x_4, 0);
 lean_inc(x_9);
 lean_dec(x_4);
-x_10 = l_Lean_mkMVar(x_9);
+x_10 = l_Lean_Expr_mvar___override(x_9);
 x_11 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
 return x_11;

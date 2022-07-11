@@ -27,8 +27,8 @@ LEAN_EXPORT lean_object* l_Lean_Option_register(lean_object*);
 static lean_object* l_Lean_Option_commandRegister__builtin__option___x3a___x3a_x3d_____closed__17;
 static lean_object* l_Lean_Option_commandRegister__builtin__option___x3a___x3a_x3d_____closed__8;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Option_commandRegister__builtin__option___x3a___x3a_x3d_____closed__4;
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option___x3a___x3a_x3d____1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__option___x3a___x3a_x3d____1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_OptionDecl_group___default;
@@ -1035,7 +1035,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_setOptionFromString___closed__4;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -1053,7 +1053,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_setOptionFromString___closed__6;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -1148,7 +1148,7 @@ x_15 = lean_ctor_get(x_10, 0);
 lean_inc(x_15);
 lean_dec(x_10);
 x_16 = lean_box(0);
-x_17 = lean_name_mk_string(x_16, x_14);
+x_17 = l_Lean_Name_str___override(x_16, x_14);
 lean_inc(x_17);
 x_18 = l_Lean_getOptionDefaulValue(x_17, x_3);
 if (lean_obj_tag(x_18) == 0)
@@ -1721,7 +1721,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_withInPattern___rarg___lambda__1___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -2071,7 +2071,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Option_commandRegister__builtin__option___x3a___x3a_x3d_____closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -2089,7 +2089,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Option_commandRegister__builtin__option___x3a___x3a_x3d_____closed__2;
 x_2 = l_Lean_Option_commandRegister__builtin__option___x3a___x3a_x3d_____closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -2107,7 +2107,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Option_commandRegister__builtin__option___x3a___x3a_x3d_____closed__4;
 x_2 = l_Lean_Option_commandRegister__builtin__option___x3a___x3a_x3d_____closed__5;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -2125,7 +2125,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Option_commandRegister__builtin__option___x3a___x3a_x3d_____closed__7;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -2161,7 +2161,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Option_commandRegister__builtin__option___x3a___x3a_x3d_____closed__11;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -2235,7 +2235,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Option_commandRegister__builtin__option___x3a___x3a_x3d_____closed__18;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -2347,7 +2347,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Option_commandRegister__builtin__option___x3a___x3a_x3d_____closed__2;
 x_2 = l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option___x3a___x3a_x3d____1___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -2365,7 +2365,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option___x3a___x3a_x3d____1___closed__2;
 x_2 = l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option___x3a___x3a_x3d____1___closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -2383,7 +2383,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option___x3a___x3a_x3d____1___closed__4;
 x_2 = l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option___x3a___x3a_x3d____1___closed__5;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -2401,7 +2401,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option___x3a___x3a_x3d____1___closed__7;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -2433,7 +2433,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option___x3a___x3a_x3d____1___closed__2;
 x_2 = l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option___x3a___x3a_x3d____1___closed__10;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -2451,7 +2451,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option___x3a___x3a_x3d____1___closed__11;
 x_2 = l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option___x3a___x3a_x3d____1___closed__12;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -2477,7 +2477,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option___x3a___x3a_x3d____1___closed__11;
 x_2 = l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option___x3a___x3a_x3d____1___closed__15;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -2585,7 +2585,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option___x3a___x3a_x3d____1___closed__11;
 x_2 = l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option___x3a___x3a_x3d____1___closed__26;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -2603,7 +2603,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option___x3a___x3a_x3d____1___closed__11;
 x_2 = l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option___x3a___x3a_x3d____1___closed__28;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -2621,7 +2621,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option___x3a___x3a_x3d____1___closed__11;
 x_2 = l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option___x3a___x3a_x3d____1___closed__30;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -2670,7 +2670,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Option_commandRegister__builtin__option___x3a___x3a_x3d_____closed__4;
 x_2 = l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option___x3a___x3a_x3d____1___closed__35;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -2731,7 +2731,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option___x3a___x3a_x3d____1___closed__11;
 x_2 = l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option___x3a___x3a_x3d____1___closed__41;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -3207,7 +3207,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Option_commandRegister__builtin__option___x3a___x3a_x3d_____closed__4;
 x_2 = l_Lean_Option_commandRegister__option___x3a___x3a_x3d_____closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -3335,7 +3335,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option___x3a___x3a_x3d____1___closed__4;
 x_2 = l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__option___x3a___x3a_x3d____1___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }

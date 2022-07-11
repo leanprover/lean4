@@ -373,7 +373,7 @@ where
   go? (e : Expr) : TermElabM (Option Expr) := do
     match e with
     | Expr.lam n d b c =>
-      if c.binderInfo.isExplicit then
+      if c.isExplicit then
         match fieldMap.find? n with
         | none => failed
         | some val =>
@@ -446,7 +446,7 @@ where
 
   mkCompositeField (parentType : Expr) (fieldMap : FieldMap) : TermElabM Expr := do
     let env ← getEnv
-    let Expr.const parentStructName us _ ← pure parentType.getAppFn | unreachable!
+    let Expr.const parentStructName us ← pure parentType.getAppFn | unreachable!
     let parentCtor := getStructureCtor env parentStructName
     let mut result := mkAppN (mkConst parentCtor.name us) parentType.getAppArgs
     for fieldName in getStructureFields env parentStructName do
@@ -570,8 +570,8 @@ where
 private def getResultUniverse (type : Expr) : TermElabM Level := do
   let type ← whnf type
   match type with
-  | Expr.sort u _ => pure u
-  | _             => throwError "unexpected structure resulting type"
+  | Expr.sort u => pure u
+  | _           => throwError "unexpected structure resulting type"
 
 private def collectUsed (params : Array Expr) (fieldInfos : Array StructFieldInfo) : StateRefT CollectFVars.State MetaM Unit := do
   params.forM fun p => do
@@ -642,7 +642,7 @@ private def updateResultingUniverse (fieldInfos : Array StructFieldInfo) (type :
   let rOffset : Nat   := r.getOffset
   let r       : Level := r.getLevelOffset
   match r with
-  | Level.mvar mvarId _ =>
+  | Level.mvar mvarId =>
     let us ← collectUniversesFromFields r rOffset fieldInfos
     let rNew := mkResultUniverse us rOffset
     assignLevelMVar mvarId rNew
@@ -746,13 +746,13 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
   let structName := view.declName
   let sourceFieldNames := getStructureFieldsFlattened env structName
   let structType := mkAppN (Lean.mkConst structName (levelParams.map mkLevelParam)) params
-  let Expr.const parentStructName _  _ ← pure parentType.getAppFn | unreachable!
+  let Expr.const parentStructName _ ← pure parentType.getAppFn | unreachable!
   let binfo := if view.isClass && isClass env parentStructName then BinderInfo.instImplicit else BinderInfo.default
   withLocalDecl `self binfo structType fun source => do
     let declType ← instantiateMVars (← mkForallFVars params (← mkForallFVars #[source] parentType))
     let declType := declType.inferImplicit params.size true
     let rec copyFields (parentType : Expr) : MetaM Expr := do
-      let Expr.const parentStructName us _ ← pure parentType.getAppFn | unreachable!
+      let Expr.const parentStructName us ← pure parentType.getAppFn | unreachable!
       let parentCtor := getStructureCtor env parentStructName
       let mut result := mkAppN (mkConst parentCtor.name us) parentType.getAppArgs
       for fieldName in getStructureFields env parentStructName do

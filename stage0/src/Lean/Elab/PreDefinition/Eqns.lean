@@ -20,7 +20,7 @@ structure EqnInfoCore where
 
 partial def expand : Expr → Expr
   | Expr.letE _ _ v b _ => expand (b.instantiate1 v)
-  | Expr.mdata _ b _    => expand b
+  | Expr.mdata _ b      => expand b
   | e => e
 
 def expandRHS? (mvarId : MVarId) : MetaM (Option MVarId) := do
@@ -115,7 +115,7 @@ def simpEqnType (eqnType : Expr) : MetaM Expr := do
     for y in ys.reverse do
       trace[Elab.definition] ">> simpEqnType: {← inferType y}, {type}"
       if proofVars.contains y.fvarId! then
-        let some (_, Expr.fvar fvarId _, rhs) ← matchEq? (← inferType y) | throwError "unexpected hypothesis in altenative{indentExpr eqnType}"
+        let some (_, Expr.fvar fvarId, rhs) ← matchEq? (← inferType y) | throwError "unexpected hypothesis in altenative{indentExpr eqnType}"
         eliminated := eliminated.insert fvarId
         type := type.replaceFVarId fvarId rhs
       else if eliminated.contains y.fvarId! then
@@ -250,10 +250,10 @@ def removeUnusedEqnHypotheses (declType declValue : Expr) : CoreM (Expr × Expr)
 where
   go (type value : Expr) (xs : Array Expr) (lctx : LocalContext) : CoreM (Expr × Expr) := do
     match value with
-    | .lam n d b i =>
+    | .lam n d b bi =>
       let d := d.instantiateRev xs
       let fvarId ← mkFreshFVarId
-      go (type.bindingBody!) b (xs.push (mkFVar fvarId)) (lctx.mkLocalDecl fvarId n d i.binderInfo)
+      go (type.bindingBody!) b (xs.push (mkFVar fvarId)) (lctx.mkLocalDecl fvarId n d bi)
     | _ =>
       let type  := type.instantiateRev xs
       let value := value.instantiateRev xs
@@ -286,7 +286,7 @@ private partial def whnfAux (e : Expr) : MetaM Expr := do
   let e ← whnfI e -- Must reduce instances too, otherwise it will not be able to reduce `(Nat.rec ... ... (OfNat.ofNat 0))`
   let f := e.getAppFn
   match f with
-  | Expr.proj _ _ s _ => return mkAppN (f.updateProj! (← whnfAux s)) e.getAppArgs
+  | Expr.proj _ _ s => return mkAppN (f.updateProj! (← whnfAux s)) e.getAppArgs
   | _ => return e
 
 /-- Apply `whnfR` to lhs, return `none` if `lhs` was not modified -/

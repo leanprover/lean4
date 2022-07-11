@@ -103,7 +103,7 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
       let mut fieldTp := fieldTp
       if isOptField fieldName then
         if !fieldTp.isAppOf ``Option then
-          throwError "optional field '{fieldName}' has type{indentD m!"{fieldTp}"}\nbut is expected to have type{indentD "Option _"}"
+          throwError "optional field '{fieldName}' has type{indentD m!"{fieldTp}"}\nbut is expected to have type{indentD "Option _"}" --"
         fieldTp := fieldTp.getArg! 0
 
       -- postulate that the field has an encoding and remember the encoding's binder name

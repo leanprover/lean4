@@ -52,7 +52,7 @@ def isRec [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
 
 @[inline] def matchConst [Monad m] [MonadEnv m] (e : Expr) (failK : Unit → m α) (k : ConstantInfo → List Level → m α) : m α := do
   match e with
-  | Expr.const constName us _ => do
+  | Expr.const constName us => do
     match (← getEnv).find? constName with
     | some cinfo => k cinfo us
     | none       => failK ()

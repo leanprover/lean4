@@ -431,8 +431,7 @@ macro "‹" type:term "›" : term => `((by assumption : $type))
 syntax "get_elem_tactic_trivial" : tactic -- extensible tactic
 
 macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| trivial)
-macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| decide)
-macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| assumption)
+macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| simp (config := { arith := true }); done)
 
 macro "get_elem_tactic" : tactic =>
   `(first

@@ -38,11 +38,11 @@ partial def generalizeTelescopeAux {α} (k : Array Expr → MetaM α)
         let entries ← updateTypes e x entries (i+1)
         generalizeTelescopeAux k entries (i+1) (fvars.push x)
     match entries.get ⟨i, h⟩ with
-    | ⟨e@(Expr.fvar fvarId _), type, false⟩ =>
+    | ⟨e@(.fvar fvarId _), type, false⟩ =>
       let localDecl ← getLocalDecl fvarId
       match localDecl with
-      | LocalDecl.cdecl .. => generalizeTelescopeAux k entries (i+1) (fvars.push e)
-      | LocalDecl.ldecl .. => replace localDecl.userName e type
+      | .cdecl .. => generalizeTelescopeAux k entries (i+1) (fvars.push e)
+      | .ldecl .. => replace localDecl.userName e type
     | ⟨e, type, modified⟩ =>
       if modified then
         unless (← isTypeCorrect type) do

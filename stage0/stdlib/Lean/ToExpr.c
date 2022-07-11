@@ -661,7 +661,7 @@ static lean_object* _init_l_Lean_Name_toExprAux___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mkStr", 5);
+x_1 = lean_mk_string_from_bytes("str", 3);
 return x_1;
 }
 }
@@ -689,7 +689,7 @@ static lean_object* _init_l_Lean_Name_toExprAux___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mkNum", 5);
+x_1 = lean_mk_string_from_bytes("num", 3);
 return x_1;
 }
 }

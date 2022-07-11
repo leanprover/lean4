@@ -149,14 +149,6 @@ namespace Environment
 @[extern "lean_add_decl"]
 opaque addDecl (env : Environment) (decl : @& Declaration) : Except KernelException Environment
 
-/- Compile the given declaration, it assumes the declaration has already been added to the environment using `addDecl`. -/
-@[extern "lean_compile_decl"]
-opaque compileDecl (env : Environment) (opt : @& Options) (decl : @& Declaration) : Except KernelException Environment
-
-def addAndCompile (env : Environment) (opt : Options) (decl : Declaration) : Except KernelException Environment := do
-  let env ← addDecl env decl
-  compileDecl env opt decl
-
 end Environment
 
 /- Interface for managing environment extensions. -/

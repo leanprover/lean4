@@ -76,6 +76,7 @@ def unusedVariables : Linter := fun cmdStx => do
 
   -- determine unused variables
   for (id, ⟨decl?, uses⟩) in vars.toList do
+    -- process declaration
     let some decl := decl?
       | continue
     let declStx := skipDeclIdIfPresent decl.stx
@@ -85,6 +86,10 @@ def unusedVariables : Linter := fun cmdStx => do
       | continue
     if !cmdStxRange.contains range.start || localDecl.userName.hasMacroScopes then
       continue
+
+    -- check if variable is used
+    if !uses.isEmpty || tacticFVarUses.contains id || decl.aliases.any (match · with | .fvar id => tacticFVarUses.contains id | _ => false) then
+        continue
 
     -- check linter options
     let opts := decl.ci.options
@@ -134,10 +139,8 @@ def unusedVariables : Linter := fun cmdStx => do
     then
       continue
 
-    -- publish warning if variable is unused
-    if uses.isEmpty && !tacticFVarUses.contains id &&
-        decl.aliases.all (match · with | .fvar id => !tacticFVarUses.contains id | _ => false) then
-      publishMessage s!"unused variable `{localDecl.userName}`" range
+    -- publish warning if variable is unused and not ignored
+    publishMessage s!"unused variable `{localDecl.userName}`" range
 
   return ()
 where

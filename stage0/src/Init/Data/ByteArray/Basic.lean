@@ -49,8 +49,11 @@ def get! : (@& ByteArray) → (@& Nat) → UInt8
 def get : (a : @& ByteArray) → (@& Fin a.size) → UInt8
   | ⟨bs⟩, i => bs.get i
 
-instance : GetElem ByteArray Nat UInt8 fun xs i => LT.lt i xs.size where
+instance : GetElem ByteArray Nat UInt8 fun xs i => i < xs.size where
   getElem xs i h := xs.get ⟨i, h⟩
+
+instance : GetElem ByteArray USize UInt8 fun xs i => i.val < xs.size where
+  getElem xs i h := xs.uget i h
 
 @[extern "lean_byte_array_set"]
 def set! : ByteArray → (@& Nat) → UInt8 → ByteArray

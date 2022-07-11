@@ -3052,7 +3052,6 @@ x_19 = lean_ctor_get(x_17, 0);
 lean_inc(x_19);
 lean_dec(x_17);
 x_20 = l_Lean_Environment_addAndCompile(x_19, x_8, x_15);
-lean_dec(x_15);
 if (lean_obj_tag(x_20) == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 

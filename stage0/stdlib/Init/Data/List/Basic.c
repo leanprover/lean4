@@ -23,6 +23,7 @@ LEAN_EXPORT lean_object* l_List_replicateTR_loop___rarg(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_List_isEqv(lean_object*);
 LEAN_EXPORT lean_object* l_List_beq___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_mapTRAux_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_get___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_contains(lean_object*);
 LEAN_EXPORT lean_object* l_List_notElem___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_any___rarg___boxed(lean_object*, lean_object*);
@@ -63,6 +64,7 @@ LEAN_EXPORT lean_object* l_List_foldr___at_List_any___spec__1___rarg___boxed(lea
 LEAN_EXPORT uint8_t l_List_isEqv___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_List_minimum_x3f___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_List_range(lean_object*);
+LEAN_EXPORT lean_object* l_List_instGetElemListNatLtInstLTNatLength___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_zipWith___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_filter___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldr___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -122,6 +124,7 @@ LEAN_EXPORT lean_object* l_List_append(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_beq_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_set_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_enum___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_List_instGetElemListNatLtInstLTNatLength(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_length_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_min___at_List_minimum_x3f___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_min___at_List_minimum_x3f___spec__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -193,6 +196,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_replicate_matc
 LEAN_EXPORT lean_object* l_List_filter(lean_object*);
 LEAN_EXPORT lean_object* l_List_span(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_erase_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_instGetElemListNatLtInstLTNatLength___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_eraseDupsAux___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_isEmpty_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_bind(lean_object*, lean_object*);
@@ -252,6 +256,31 @@ LEAN_EXPORT lean_object* l_List_elem(lean_object*);
 LEAN_EXPORT lean_object* l_List_instForAllListDecidableLeInstLEList___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_iotaTR_go_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_partition___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_instGetElemListNatLtInstLTNatLength___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_List_get___rarg(x_1, x_2);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_List_instGetElemListNatLtInstLTNatLength(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_List_instGetElemListNatLtInstLTNatLength___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_List_instGetElemListNatLtInstLTNatLength___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_List_instGetElemListNatLtInstLTNatLength___rarg(x_1, x_2, x_3);
+lean_dec(x_1);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_length_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {

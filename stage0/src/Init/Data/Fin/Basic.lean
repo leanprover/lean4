@@ -121,4 +121,4 @@ instance [GetElem Cont Nat Elem Dom] : GetElem Cont (Fin n) Elem fun xs i => Dom
   getElem xs i h := getElem xs i.1 h
 
 macro_rules
-  | `(tactic| get_elem_tactic_trivial) => `(tactic| apply Fin.val_lt_of_le; (first | assumption | simp (config := { arith := true })); done)
+  | `(tactic| get_elem_tactic_trivial) => `(tactic| apply Fin.val_lt_of_le; get_elem_tactic_trivial; done)

@@ -1316,21 +1316,43 @@ private def isLetFVar (fvarId : FVarId) : MetaM Bool := do
   let decl ← getLocalDecl fvarId
   pure decl.isLet
 
+/--
+  Helper method for implementing `isDefEqProofIrrel`. Execute `k` with a transparency setting
+  that is at least as strong as `.default`. This is important for modules that use the `.reducible`
+  setting (e.g., `simp`, `rw`, etc). We added this feature to address issue #1302.
+  ```lean
+  @[simp] theorem get_cons_zero {as : List α} : (a :: as).get ⟨0, Nat.zero_lt_succ _⟩ = a := rfl
+
+  example (a b c : α) : [a, b, c].get ⟨0, by simp⟩ = a := by simp
+  ```
+  In the example above `simp` fails to use `get_cons_zero` because it fails to establish that
+  the proof objects are definitionally equal using proof irrelevance. In this example,
+  the propositions are
+  ```lean
+  0 < Nat.succ (List.length [b, c]) =?= 0 < Nat.succ (Nat.succ (Nat.succ 0))
+  ```
+  So, unless we can unfold `List.length`, it fails.
+
+  Remark: if this becomes a performance bottleneck, we should add a flag to control when it is used.
+  Then, we can enable the flag only when applying `simp` and `rw` theorems.
+-/
+private def withProofIrrelTransparency (k : MetaM α) : MetaM α :=
+  withAtLeastTransparency .default k
+
 private def isDefEqProofIrrel (t s : Expr) : MetaM LBool := do
   if (← getConfig).proofIrrelevance then
-    let status ← isProofQuick t
-    match status with
+    match (← isProofQuick t) with
     | LBool.false =>
       pure LBool.undef
     | LBool.true  =>
       let tType ← inferType t
       let sType ← inferType s
-      toLBoolM <| Meta.isExprDefEqAux tType sType
+      toLBoolM <| withProofIrrelTransparency <| Meta.isExprDefEqAux tType sType
     | LBool.undef =>
       let tType ← inferType t
       if (← isProp tType) then
         let sType ← inferType s
-        toLBoolM <| Meta.isExprDefEqAux tType sType
+        toLBoolM <| withProofIrrelTransparency <| Meta.isExprDefEqAux tType sType
       else
         pure LBool.undef
   else

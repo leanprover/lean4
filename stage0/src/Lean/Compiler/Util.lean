@@ -5,7 +5,9 @@ Authors: Leonardo de Moura
 -/
 import Lean.Environment
 
-namespace Lean.Compiler
+namespace Lean
+
+namespace Compiler
 
 def neutralExpr : Expr       := mkConst `_neutral
 def unreachableExpr : Expr   := mkConst `_unreachable
@@ -70,8 +72,7 @@ def isEagerLambdaLiftingName : Name → Bool
 /-- Return the name of new definitions in the a given declaration.
     Here we consider only declarations we generate code for.
     We use this definition to implement `add_and_compile`. -/
-@[export lean_get_decl_names_for_code_gen]
-private def getDeclNamesForCodeGen : Declaration → List Name
+def getDeclNamesForCodeGen : Declaration → List Name
   | Declaration.defnDecl { name := n, .. }   => [n]
   | Declaration.mutualDefnDecl defs          => defs.map fun d => d.name
   | Declaration.opaqueDecl { name := n, .. } => [n]
@@ -99,4 +100,24 @@ def isUnsafeRecName? : Name → Option Name
   | Name.str n "_unsafe_rec" _ => some n
   | _ => none
 
-end Lean.Compiler
+end Compiler
+
+namespace Environment
+
+/-
+Compile the given block of mutual declarations.
+Assumes the declarations have already been added to the environment using `addDecl`.
+-/
+@[extern "lean_compile_decls"]
+opaque compileDecls (env : Environment) (opt : @& Options) (decls : @& List Name) : Except KernelException Environment
+
+/- Compile the given declaration, it assumes the declaration has already been added to the environment using `addDecl`. -/
+def compileDecl (env : Environment) (opt : @& Options) (decl : @& Declaration) : Except KernelException Environment :=
+  compileDecls env opt (Compiler.getDeclNamesForCodeGen decl)
+
+
+def addAndCompile (env : Environment) (opt : Options) (decl : Declaration) : Except KernelException Environment := do
+  let env ← addDecl env decl
+  compileDecl env opt decl
+
+end Environment

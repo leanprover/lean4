@@ -41,7 +41,7 @@ def singleton (v : α) : Array α :=
 def uget (a : @& Array α) (i : USize) (h : i.toNat < a.size) : α :=
   a[i.toNat]
 
-instance : GetElem (Array α) USize α fun xs i => LT.lt i.toNat xs.size where
+instance : GetElem (Array α) USize α fun xs i => i.toNat < xs.size where
   getElem xs i h := xs.uget i h
 
 def back [Inhabited α] (a : Array α) : α :=
@@ -719,46 +719,29 @@ def toListLitAux (a : Array α) (n : Nat) (hsz : a.size = n) : ∀ (i : Nat), i 
 def toArrayLit (a : Array α) (n : Nat) (hsz : a.size = n) : Array α :=
   List.toArray <| toListLitAux a n hsz n (hsz ▸ Nat.le_refl _) []
 
-theorem toArrayLit_eq (a : Array α) (n : Nat) (hsz : a.size = n) : a = toArrayLit a n hsz :=
-  -- TODO: this is painful to prove without proper automation
-  sorry
-  /-
-  First, we need to prove
-  ∀ i j acc, i ≤ a.size → (toListLitAux a n hsz (i+1) hi acc).index j = if j < i then a.getLit j hsz _ else acc.index (j - i)
-  by induction
+theorem ext' {as bs : Array α} (h : as.data = bs.data) : as = bs := by
+  cases as; cases bs; simp at h; rw [h]
 
-  Base case is trivial
-  (j : Nat) (acc : List α) (hi : 0 ≤ a.size)
-       |- (toListLitAux a n hsz 0 hi acc).index j = if j < 0 then a.getLit j hsz _ else acc.index (j - 0)
-  ...  |- acc.index j = acc.index j
+theorem toArrayAux_eq (as : List α) (acc : Array α) : (as.toArrayAux acc).data = acc.data ++ as := by
+  induction as generalizing acc <;> simp [*, List.toArrayAux, Array.push, List.append_assoc, List.concat_eq_append]
 
-  Induction
+theorem data_toArray (as : List α) : as.toArray.data = as := by
+  simp [List.toArray, toArrayAux_eq, Array.mkEmpty]
 
-  (j : Nat) (acc : List α) (hi : i+1 ≤ a.size)
-        |- (toListLitAux a n hsz (i+1) hi acc).index j = if j < i + 1 then a.getLit j hsz _ else acc.index (j - (i + 1))
-    ... |- (toListLitAux a n hsz i hi' (a.getLit i hsz _ :: acc)).index j = if j < i + 1 then a.getLit j hsz _ else acc.index (j - (i + 1))  * by def
-    ... |- if j < i     then a.getLit j hsz _ else (a.getLit i hsz _ :: acc).index (j-i)    * by induction hypothesis
-           =
-           if j < i + 1 then a.getLit j hsz _ else acc.index (j - (i + 1))
-  If j < i, then both are a.getLit j hsz _
-  If j = i, then lhs reduces else-branch to (a.getLit i hsz _) and rhs is then-brachn (a.getLit i hsz _)
-  If j >= i + 1, we use
-     - j - i >= 1 > 0
-     - (a::as).index k = as.index (k-1) If k > 0
-     - j - (i + 1) = (j - i) - 1
-     Then lhs = (a.getLit i hsz _ :: acc).index (j-i) = acc.index (j-i-1) = acc.index (j-(i+1)) = rhs
+theorem toArrayLit_eq (as : Array α) (n : Nat) (hsz : as.size = n) : as = toArrayLit as n hsz := by
+  apply ext'
+  simp [toArrayLit, data_toArray]
+  have hle : n ≤ as.size := hsz ▸ Nat.le_refl _
+  have hge : as.size ≤ n := hsz ▸ Nat.le_refl _
+  have := go n hle
+  rw [List.drop_eq_nil_of_le hge] at this
+  rw [this]
+where
+  getLit_eq (as : Array α) (i : Nat) (h₁ : as.size = n) (h₂ : i < n) : as.getLit i h₁ h₂ = getElem as.data i ((id (α := as.data.length = n) h₁) ▸ h₂) :=
+    rfl
 
-  With this proof, we have
-
-  ∀ j, j < n → (toListLitAux a n hsz n _ []).index j = a.getLit j hsz _
-
-  We also need
-
-  - (toListLitAux a n hsz n _ []).length = n
-  - j < n -> (List.toArray as).getLit j _ _ = as.index j
-
-  Then using Array.extLit, we have that a = List.toArray <| toListLitAux a n hsz n _ []
-  -/
+  go (i : Nat) (hi : i ≤ as.size) : toListLitAux as n hsz i hi (as.data.drop i) = as.data := by
+    cases i <;> simp [getLit_eq, List.get_drop_eq_drop, toListLitAux, List.drop, go]
 
 def isPrefixOfAux [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) (i : Nat) : Bool :=
   if h : i < as.size then

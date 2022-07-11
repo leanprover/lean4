@@ -22,18 +22,19 @@ namespace Lean.Meta
   if e.hasFVar then k deps else deps
 
 private def collectDeps (fvars : Array Expr) (e : Expr) : Array Nat :=
-  let rec visit : Expr → Array Nat → Array Nat
-    | e@(Expr.app f a _),       deps => whenHasVar e deps (visit a ∘ visit f)
-    | e@(Expr.forallE _ d b _), deps => whenHasVar e deps (visit b ∘ visit d)
-    | e@(Expr.lam _ d b _),     deps => whenHasVar e deps (visit b ∘ visit d)
-    | e@(Expr.letE _ t v b _),  deps => whenHasVar e deps (visit b ∘ visit v ∘ visit t)
-    | Expr.proj _ _ e _,        deps => visit e deps
-    | Expr.mdata _ e _,         deps => visit e deps
-    | e@(Expr.fvar _ _),        deps =>
+  let rec visit (e : Expr) (deps : Array Nat) : Array Nat :=
+    match e with
+    | .app f a _       => whenHasVar e deps (visit a ∘ visit f)
+    | .forallE _ d b _ => whenHasVar e deps (visit b ∘ visit d)
+    | .lam _ d b _     => whenHasVar e deps (visit b ∘ visit d)
+    | .letE _ t v b _  => whenHasVar e deps (visit b ∘ visit v ∘ visit t)
+    | .proj _ _ e _    => visit e deps
+    | .mdata _ e _     => visit e deps
+    | .fvar ..         =>
       match fvars.indexOf? e with
       | none   => deps
       | some i => if deps.contains i.val then deps else deps.push i.val
-    | _,                        deps => deps
+    | _ => deps
   let deps := visit e #[]
   deps.qsort (fun i j => i < j)
 
@@ -44,7 +45,8 @@ private def updateHasFwdDeps (pinfo : Array ParamInfo) (backDeps : Array Nat) : 
   else
     -- update hasFwdDeps fields
     pinfo.mapIdx fun i info =>
-      if info.hasFwdDeps then info
+      if info.hasFwdDeps then
+        info
       else if backDeps.contains i then
         { info with hasFwdDeps := true }
       else

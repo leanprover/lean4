@@ -561,9 +561,9 @@ instance [BEq α] [LawfulBEq α] : LawfulBEq (List α) where
       cases bs with
       | nil => intro h; contradiction
       | cons b bs =>
-        simp [BEq.beq, List.beq]
+        simp [show (a::as == b::bs) = (a == b && as == bs) from rfl]
         intro ⟨h₁, h₂⟩
-        exact ⟨eq_of_beq h₁, ih h₂⟩
+        exact ⟨h₁, ih h₂⟩
   rfl {as} := by
     induction as with
     | nil => rfl

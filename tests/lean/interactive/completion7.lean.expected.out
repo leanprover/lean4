@@ -52,7 +52,8 @@
 {"textDocument": {"uri": "file://completion7.lean"},
  "position": {"line": 2, "character": 11}}
 {"items":
- [{"label": "intro", "kind": 4, "detail": "a → b → a ∧ b"},
+ [{"label": "comm", "kind": 3, "detail": "a ∧ b ↔ b ∧ a"},
+  {"label": "intro", "kind": 4, "detail": "a → b → a ∧ b"},
   {"label": "left", "kind": 5, "detail": "a ∧ b → a"},
   {"label": "right", "kind": 5, "detail": "a ∧ b → b"}],
  "isIncomplete": true}

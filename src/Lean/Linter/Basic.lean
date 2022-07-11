@@ -129,7 +129,7 @@ def unusedVariables : Linter := fun cmdStx => do
     -- evaluate ignore functions on macro expansion outputs
     if ← infoTrees.anyM fun tree => do
       if let some macroExpansions ← collectMacroExpansions? range tree then
-        return macroExpansions.reverse.any fun expansion =>
+        return macroExpansions.any fun expansion =>
           if let some stack := findSyntaxStack? expansion.output declStx then
             ignoreFns.any (· declStx stack)
           else

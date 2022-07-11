@@ -32,6 +32,11 @@ This file implements the computed fields feature by simulating it via
 namespace Lean.Elab.ComputedFields
 open Meta
 
+builtin_initialize computedFieldAttr : TagAttribute ←
+  registerTagAttribute `computedField "Marks a function as a computed field of an inductive" fun _ => do
+    unless (← getOptions).getBool `elaboratingComputedFields do
+      throwError "The @[computedField] attribute can only be used in the with-block of an inductive"
+
 def mkUnsafeCastTo (expectedType : Expr) (e : Expr) : MetaM Expr :=
   mkAppOptM ``unsafeCast #[none, expectedType, e]
 
@@ -190,6 +195,9 @@ and the names of the associated computed fields.
 -/
 def setComputedFields (computedFields : Array (Name × Array Name)) : MetaM Unit := do
   for (indName, computedFieldNames) in computedFields do
+    for computedFieldName in computedFieldNames do
+      unless computedFieldAttr.hasTag (← getEnv) computedFieldName do
+        logError m!"'{computedFieldName}' must be tagged with @[computedField]"
     mkComputedFieldOverrides indName computedFieldNames
 
   -- Once all the implementedBy infrastructure is set up, compile everything.

@@ -825,7 +825,11 @@ private def applyComputedFields (indViews : Array InductiveView) : CommandElabM 
           def%$ref $(mkIdent <| `_root_ ++ declName ++ fieldId):ident : $type $matchAlts:matchAlts)
     let computedFieldNames := indView.computedFields.map fun {fieldId, ..} => declName ++ fieldId
     computedFields := computedFields.push (declName, computedFieldNames)
-  elabCommand <| ← `(set_option bootstrap.genMatcherCode false in mutual $computedFieldDefs* end)
+  withScope (fun scope => { scope with
+      opts := scope.opts
+        |>.setBool `bootstrap.genMatcherCode false
+        |>.setBool `elaboratingComputedFields true}) <|
+    elabCommand <| ← `(mutual $computedFieldDefs* end)
 
   liftTermElabM indViews[0]!.declName do
     ComputedFields.setComputedFields computedFields

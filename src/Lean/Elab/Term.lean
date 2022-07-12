@@ -50,6 +50,7 @@ inductive SyntheticMVarKind where
     tactic (tacticCode : Syntax) (ctx : SavedContext)
   | /-- Metavariable represents a hole whose elaboration has been postponed. -/
     postponed (ctx : SavedContext)
+  deriving Inhabited
 
 instance : ToString SyntheticMVarKind where
   toString
@@ -59,9 +60,9 @@ instance : ToString SyntheticMVarKind where
     | .postponed .. => "postponed"
 
 structure SyntheticMVarDecl where
-  mvarId : MVarId
   stx : Syntax
   kind : SyntheticMVarKind
+  deriving Inhabited
 
 /--
   We can optionally associate an error context with a metavariable (see `MVarErrorInfo`).
@@ -114,7 +115,8 @@ structure LetRecToLift where
 -/
 structure State where
   levelNames        : List Name       := []
-  syntheticMVars    : List SyntheticMVarDecl := []
+  syntheticMVars    : MVarIdMap SyntheticMVarDecl := {}
+  pendingMVars      : List MVarId := {}
   mvarErrorInfos    : MVarIdMap MVarErrorInfo := {}
   letRecsToLift     : List LetRecToLift := []
   infoState         : InfoState := {}
@@ -468,7 +470,7 @@ def withMacroExpansion (beforeStx afterStx : Syntax) (x : TermElabM α) : TermEl
   Add the given metavariable to the list of pending synthetic metavariables.
   The method `synthesizeSyntheticMVars` is used to process the metavariables on this list. -/
 def registerSyntheticMVar (stx : Syntax) (mvarId : MVarId) (kind : SyntheticMVarKind) : TermElabM Unit := do
-  modify fun s => { s with syntheticMVars := { mvarId, stx, kind } :: s.syntheticMVars }
+  modify fun s => { s with syntheticMVars := s.syntheticMVars.insert mvarId { stx, kind }, pendingMVars := mvarId :: s.pendingMVars }
 
 def registerSyntheticMVarWithCurrRef (mvarId : MVarId) (kind : SyntheticMVarKind) : TermElabM Unit := do
   registerSyntheticMVar (← getRef) mvarId kind
@@ -1052,7 +1054,7 @@ private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : Term
   return mvar
 
 def getSyntheticMVarDecl? (mvarId : MVarId) : TermElabM (Option SyntheticMVarDecl) :=
-  return (← get).syntheticMVars.find? fun d => d.mvarId == mvarId
+  return (← get).syntheticMVars.find? mvarId
 
 /--
   Create an auxiliary annotation to make sure we create a `Info` even if `e` is a metavariable.
@@ -1357,17 +1359,6 @@ def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := tr
 def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (implicitLambda := true) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
   let e ← elabTerm stx expectedType? catchExPostpone implicitLambda
   withRef stx <| ensureHasType expectedType? e errorMsgHeader?
-
-/--
-  Execute `x` and then restore `syntheticMVars`, `levelNames`, `mvarErrorInfos`, and `letRecsToLift`.
-  We use this combinator when we don't want the pending problems created by `x` to persist after its execution. -/
-def withoutPending (x : TermElabM α) : TermElabM α := do
-  let saved ← get
-  try
-    x
-  finally
-    modify fun s => { s with syntheticMVars := saved.syntheticMVars, levelNames := saved.levelNames,
-                             letRecsToLift := saved.letRecsToLift, mvarErrorInfos := saved.mvarErrorInfos }
 
 /-- Execute `x` and return `some` if no new errors were recorded or exceptions was thrown. Otherwise, return `none` -/
 def commitIfNoErrors? (x : TermElabM α) : TermElabM (Option α) := do

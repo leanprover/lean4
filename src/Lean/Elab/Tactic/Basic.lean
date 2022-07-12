@@ -79,8 +79,8 @@ def getUnsolvedGoals : TacticM (List MVarId) := do
 
 def run (mvarId : MVarId) (x : TacticM Unit) : TermElabM (List MVarId) :=
   withMVarContext mvarId do
-   let savedSyntheticMVars := (← get).syntheticMVars
-   modify fun s => { s with syntheticMVars := [] }
+   let pendingMVarsSaved := (← get).pendingMVars
+   modify fun s => { s with pendingMVars := [] }
    let aux : TacticM (List MVarId) :=
      /- Important: the following `try` does not backtrack the state.
         This is intentional because we don't want to backtrack the error messages when we catch the "abort internal exception"
@@ -93,9 +93,9 @@ def run (mvarId : MVarId) (x : TacticM Unit) : TermElabM (List MVarId) :=
        else
          throw ex
    try
-     aux.runCore' { elaborator := Name.anonymous } { goals := [mvarId] }
+     aux.runCore' { elaborator := .anonymous } { goals := [mvarId] }
    finally
-     modify fun s => { s with syntheticMVars := savedSyntheticMVars }
+     modify fun s => { s with pendingMVars := pendingMVarsSaved }
 
 protected def saveState : TacticM SavedState :=
   return { term := (← Term.saveState), tactic := (← get) }

@@ -137,8 +137,22 @@ structure ParamInfo where
   -/
   isDecInst      : Bool       := false
   /--
+    `higherOrderOutParam` is true if this parameter is a higher-order output parameter
+    of local instance.
+    Example:
+    ```
+    getElem :
+      {Cont : Type u_1} → {Idx : Type u_2} → {Elem : Type u_3} →
+      {Dom : Cont → Idx → Prop} → [self : GetElem Cont Idx Elem Dom] →
+      (xs : Cont) → (i : Idx) → Dom xs i → Elem
+    ```
+    This flag is true for the parameter `Dom` because it is output parameter of
+    `[self : GetElem Cont Idx Elem Dom]`
+   -/
+  higherOrderOutParam : Bool  := false
+  /--
     `dependsOnHigherOrderOutParam` is true if the type of this parameter depends on
-    the higher-order output parameter of a previour local instance.
+    the higher-order output parameter of a previous local instance.
     Example:
     ```
     getElem :

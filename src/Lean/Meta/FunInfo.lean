@@ -56,7 +56,7 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
     let fnType ← inferType fn
     withTransparency TransparencyMode.default do
       forallBoundedTelescope fnType maxArgs? fun fvars type => do
-        let mut pinfo := #[]
+        let mut paramInfo := #[]
         let mut higherOrderOutParams : FVarIdSet := {}
         for i in [:fvars.size] do
           let fvar := fvars[i]!
@@ -65,8 +65,8 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
           let dependsOnHigherOrderOutParam :=
             !higherOrderOutParams.isEmpty
             && Option.isSome (decl.type.find? fun e => e.isFVar && higherOrderOutParams.contains e.fvarId!)
-          pinfo := updateHasFwdDeps pinfo backDeps
-          pinfo := pinfo.push {
+          paramInfo := updateHasFwdDeps paramInfo backDeps
+          paramInfo := paramInfo.push {
             backDeps, dependsOnHigherOrderOutParam
             binderInfo := decl.binderInfo
             isProp     := (← isProp decl.type)
@@ -81,12 +81,13 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
                   for i in [:args.size] do
                     if outParamPositions.contains i then
                       let arg := args[i]!
-                      if fvars.contains arg then
+                      if let some idx := fvars.indexOf? arg then
                         if (← whnf (← inferType arg)).isForall then
+                          paramInfo := paramInfo.modify idx fun info => { info with higherOrderOutParam := true }
                           higherOrderOutParams := higherOrderOutParams.insert arg.fvarId!
         let resultDeps := collectDeps fvars type
-        pinfo := updateHasFwdDeps pinfo resultDeps
-        pure { resultDeps := resultDeps, paramInfo := pinfo }
+        paramInfo := updateHasFwdDeps paramInfo resultDeps
+        return { resultDeps, paramInfo }
 
 def getFunInfo (fn : Expr) : MetaM FunInfo :=
   getFunInfoAux fn none

@@ -19,7 +19,7 @@ namespace Lean.Widget
 The editor can use the `Lean.Widget.getWidgetSource` RPC method to
 get this object.
 
-See the [tutorial](doc/widgets.md) above this declaration for more information on
+See the [manual entry](doc/widgets.md) above this declaration for more information on
 how to use the widgets system.
 
 -/
@@ -63,9 +63,9 @@ instance : Inhabited (WidgetSourceRegistry) := inferInstanceAs (Inhabited (Persi
 builtin_initialize userWidgetRegistry : MapDeclarationExtension UserWidget ← mkMapDeclarationExtension `widgetRegistry
 builtin_initialize widgetSourceRegistry : WidgetSourceRegistry ←
   registerSimplePersistentEnvExtension {
-    name          := `widgetSourceRegistry,
-    addImportedFn := fun xss => xss.foldl (Array.foldl (fun s n => s.insert n.1 n.2)) ∅,
-    addEntryFn    := fun s n => s.insert n.1 n.2 ,
+    name          := `widgetSourceRegistry
+    addImportedFn := fun xss => xss.foldl (Array.foldl (fun s n => s.insert n.1 n.2)) ∅
+    addEntryFn    := fun s n => s.insert n.1 n.2
     toArrayFn     := fun es => es.toArray
   }
 
@@ -86,9 +86,9 @@ opaque attributeImpl : AttributeImpl
 
 builtin_initialize registerBuiltinAttribute attributeImpl
 
-
-
+/-- Input for `getWidgetSource` RPC. -/
 structure GetWidgetSourceParams where
+  /-- The hash of the sourcetext to retrieve. -/
   hash: UInt64
   pos : Lean.Lsp.TextDocumentPositionParams
   deriving ToJson, FromJson
@@ -123,11 +123,15 @@ def widgetInfoAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos) : List
         failure
     | _, _, _ => none
 
+/-- UserWidget accompanied by component props. -/
 structure UserWidgetInstance extends UserWidget where
+  /-- Arguments to be fed to the widget's main component. -/
   props : Json
+  /-- The location of the widget instance in the Lean file. -/
   range? : Option Lsp.Range
   deriving ToJson, FromJson
 
+/-- Output of `getWidgets` RPC.-/
 structure GetWidgetsResponse where
   widgets : Array UserWidgetInstance
   deriving ToJson, FromJson
@@ -140,40 +144,44 @@ def getWidgets (args : Lean.Lsp.TextDocumentPositionParams) : RequestM (RequestT
   let filemap := doc.meta.text
   let pos := filemap.lspPosToUtf8Pos args.position
   withWaitFindSnapAtPos args fun snap => do
-      let env := snap.env
-      let ws := widgetInfoAt? filemap snap.infoTree pos
-      let ws ← ws.toArray.mapM (fun (w : UserWidgetInfo) => do
-        let some widget := userWidgetRegistry.find? env w.widgetId
-          | throw <| RequestError.mk .invalidParams s!"No registered user-widget with id {w.widgetId}"
-        return {
-          widget with
-          props := w.props,
-          range? := String.Range.toLspRange filemap <$> Syntax.getRange? w.stx,
-        })
-      return {widgets := ws}
+    let env := snap.env
+    let ws := widgetInfoAt? filemap snap.infoTree pos
+    let ws ← ws.toArray.mapM (fun (w : UserWidgetInfo) => do
+      let some widget := userWidgetRegistry.find? env w.widgetId
+        | throw <| RequestError.mk .invalidParams s!"No registered user-widget with id {w.widgetId}"
+      return {
+        widget with
+        props := w.props
+        range? := String.Range.toLspRange filemap <$> Syntax.getRange? w.stx
+      })
+    return {widgets := ws}
 
-/-- Save a user-widget instance to the infotree. -/
+/-- Save a user-widget instance to the infotree.
+    The given `widgetId` should be the declaration name of the widget definition. -/
 def saveWidgetInfo [Monad m] [MonadEnv m] [MonadError m] [MonadInfoTree m] (widgetId : Name) (props : Json) (stx : Syntax):  m Unit := do
   let info := Info.ofUserWidgetInfo {
-    widgetId := widgetId,
-    props := props,
-    stx := stx,
+    widgetId := widgetId
+    props := props
+    stx := stx
   }
   pushInfoLeaf info
 
-/-!  # Widget command -/
+/-!  # Widget command
+
+Use `#widget <widgetname> <props>` to display a widget.
+-/
 
 syntax (name := widgetCmd) "#widget " ident term : command
 
 open Lean Lean.Meta Lean.Elab Lean.Elab.Term in
-private unsafe def  evalJsonUnsafe (stx : Syntax) : TermElabM Json := do
-  let j ← Lean.Elab.Term.evalTerm Json (mkConst ``Json) stx
-  return j
+private unsafe def evalJsonUnsafe (stx : Syntax) : TermElabM Json :=
+  Lean.Elab.Term.evalTerm Json (mkConst ``Json) stx
 
 @[implementedBy evalJsonUnsafe]
 private opaque evalJson (stx : Syntax) : TermElabM Json
 
 open Elab Command in
+
 /-- Use this to place a widget. Useful for debugging widgets. -/
 @[commandElab widgetCmd] def elabWidgetCmd : CommandElab := fun
   | stx@`(#widget $id:ident $props) => do

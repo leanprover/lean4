@@ -7,8 +7,8 @@ Authors: E.W.Ayers
 import Lean.Widget.Basic
 import Lean.Data.Json
 import Lean.Environment
-import Lean.Elab.Eval
 import Lean.Server
+import Lean.Elab.Eval
 
 open Lean
 
@@ -24,51 +24,72 @@ how to use the widgets system.
 
 -/
 structure WidgetSource where
-  /-- Unique identifier for the widget. -/
-  widgetSourceId : Name
   /-- Sourcetext of the code to run.-/
   sourcetext : String
-  hash : String := toString <| hash sourcetext
   deriving Inhabited, ToJson, FromJson
 
-namespace WidgetSource
+/-- Use this structure and the `@[widget]` attribute to define your own widgets.
 
-builtin_initialize widgetSourceRegistry : MapDeclarationExtension WidgetSource ← mkMapDeclarationExtension `widgetSourceRegistry
+```lean
+@[widget]
+def rubiks : UserWidgetDefinition :=
+  { name := "Rubiks cube app"
+    javascript := include_str ...
+  }
+```
+-/
+structure UserWidgetDefinition where
+  /-- Pretty name of user widget to display to the user. -/
+  name : String
+  /-- An ESmodule that exports a react component to render. -/
+  javascript: String
+  deriving Inhabited, ToJson, FromJson
+
+structure UserWidget where
+  id : Name
+  /-- Pretty name of widget to display to the user.-/
+  name : String
+  javascriptHash: UInt64
+  deriving Inhabited, ToJson, FromJson
+
+private def WidgetSourceRegistry := SimplePersistentEnvExtension
+    (UInt64 × WidgetSource)
+    (Std.RBMap UInt64 WidgetSource compare)
+
+instance : Inhabited (Std.RBMap UInt64 WidgetSource compare) := ⟨∅⟩
+instance : Inhabited (WidgetSourceRegistry) := inferInstanceAs (Inhabited (PersistentEnvExtension _ _ (List _ × _)))
+
+-- Mapping widgetSourceId to hash of sourcetext
+builtin_initialize userWidgetRegistry : MapDeclarationExtension UserWidget ← mkMapDeclarationExtension `widgetRegistry
+builtin_initialize widgetSourceRegistry : WidgetSourceRegistry ←
+  registerSimplePersistentEnvExtension {
+    name          := `widgetSourceRegistry,
+    addImportedFn := fun xss => xss.foldl (Array.foldl (fun s n => s.insert n.1 n.2)) ∅,
+    addEntryFn    := fun s n => s.insert n.1 n.2 ,
+    toArrayFn     := fun es => es.toArray
+  }
 
 private unsafe def attributeImplUnsafe : AttributeImpl where
-  name := `widgetSource
+  name := `widget
   descr := "Mark a string as static code that can be loaded by a widget handler."
   applicationTime := AttributeApplicationTime.afterCompilation
   add decl _stx _kind := do
     let env ← getEnv
-    let value ← evalConstCheck String ``String decl
-    setEnv <| widgetSourceRegistry.insert env decl {widgetSourceId := decl, sourcetext := value}
+    let defn ← evalConstCheck UserWidgetDefinition ``UserWidgetDefinition decl
+    let javascriptHash := hash defn.javascript
+    let env := userWidgetRegistry.insert env decl {id := decl, name := defn.name, javascriptHash}
+    let env := widgetSourceRegistry.addEntry env (javascriptHash, {sourcetext := defn.javascript})
+    setEnv <| env
 
 @[implementedBy attributeImplUnsafe]
 opaque attributeImpl : AttributeImpl
 
-/-- Find the WidgetSource for given widget id. -/
-protected def find? (env : Environment) (id : Name) : Option WidgetSource :=
-  widgetSourceRegistry.find? env id
-
-/-- Returns true if the environment contains the given widget id. -/
-protected def contains (env : Environment) (id : Name) : Bool :=
-  widgetSourceRegistry.contains env id
-
-open Lean.Server in
-/-- Gets the hash of the static javascript string for the given widget id, or throws if
-there is no static javascript registered. -/
-def getHash [Monad m] [MonadExcept RequestError m] (env : Environment) (id : Name) : m String := do
-  let some j := WidgetSource.find? env id
-    | throw <| RequestError.mk .invalidParams s!"getHash: No source found for {id}."
-  return j.hash
-
 builtin_initialize registerBuiltinAttribute attributeImpl
 
-end WidgetSource
+
 
 structure GetWidgetSourceParams where
-  widgetSourceId : Name
+  hash: UInt64
   pos : Lean.Lsp.TextDocumentPositionParams
   deriving ToJson, FromJson
 
@@ -79,10 +100,10 @@ open RequestM in
 def getWidgetSource (args : GetWidgetSourceParams) : RequestM (RequestTask WidgetSource) :=
   RequestM.withWaitFindSnapAtPos args.pos fun snap => do
     let env := snap.cmdState.env
-    if let some w := WidgetSource.find? env args.widgetSourceId then
+    if let some w := widgetSourceRegistry.getState env |>.find? args.hash then
       return w
     else
-      throw <| RequestError.mk .invalidParams s!"No registered user-widget with id {args.widgetSourceId}"
+      throw <| RequestError.mk .invalidParams s!"No registered user-widget with hash {args.hash}"
 
 open Lean Elab
 
@@ -102,15 +123,13 @@ def widgetInfoAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos) : List
         failure
     | _, _, _ => none
 
-structure UserWidget where
-  widgetSourceId : Name
-  hash : String
+structure UserWidgetInstance extends UserWidget where
   props : Json
   range? : Option Lsp.Range
   deriving ToJson, FromJson
 
 structure GetWidgetsResponse where
-  widgets : Array UserWidget
+  widgets : Array UserWidgetInstance
   deriving ToJson, FromJson
 
 open RequestM in
@@ -123,20 +142,20 @@ def getWidgets (args : Lean.Lsp.TextDocumentPositionParams) : RequestM (RequestT
   withWaitFindSnapAtPos args fun snap => do
       let env := snap.env
       let ws := widgetInfoAt? filemap snap.infoTree pos
-      let ws ← ws.toArray.mapM (fun w => do
-        let hash ← WidgetSource.getHash env w.widgetSourceId
+      let ws ← ws.toArray.mapM (fun (w : UserWidgetInfo) => do
+        let some widget := userWidgetRegistry.find? env w.widgetId
+          | throw <| RequestError.mk .invalidParams s!"No registered user-widget with id {w.widgetId}"
         return {
-          widgetSourceId := w.widgetSourceId,
-          hash := hash,
+          widget with
           props := w.props,
           range? := String.Range.toLspRange filemap <$> Syntax.getRange? w.stx,
         })
       return {widgets := ws}
 
 /-- Save a user-widget instance to the infotree. -/
-def saveWidgetInfo [Monad m] [MonadEnv m] [MonadError m] [MonadInfoTree m] (widgetSourceId : Name) (props : Json) (stx : Syntax):  m Unit := do
+def saveWidgetInfo [Monad m] [MonadEnv m] [MonadError m] [MonadInfoTree m] (widgetId : Name) (props : Json) (stx : Syntax):  m Unit := do
   let info := Info.ofUserWidgetInfo {
-    widgetSourceId := widgetSourceId,
+    widgetId := widgetId,
     props := props,
     stx := stx,
   }
@@ -146,8 +165,10 @@ def saveWidgetInfo [Monad m] [MonadEnv m] [MonadError m] [MonadInfoTree m] (widg
 
 syntax (name := widgetCmd) "#widget " ident term : command
 
-private unsafe def evalJsonUnsafe (stx : Syntax) : TermElabM Json := do
-  Term.evalTerm Json (mkConst ``Json) stx
+open Lean Lean.Meta Lean.Elab Lean.Elab.Term in
+private unsafe def  evalJsonUnsafe (stx : Syntax) : TermElabM Json := do
+  let j ← Lean.Elab.Term.evalTerm Json (mkConst ``Json) stx
+  return j
 
 @[implementedBy evalJsonUnsafe]
 private opaque evalJson (stx : Syntax) : TermElabM Json
@@ -158,7 +179,6 @@ open Elab Command in
   | stx@`(#widget $id:ident $props) => do
     let props : Json ← runTermElabM none (fun _ => evalJson props)
     saveWidgetInfo id.getId props stx
-    return ()
   | _ => throwUnsupportedSyntax
 
 end Lean.Widget

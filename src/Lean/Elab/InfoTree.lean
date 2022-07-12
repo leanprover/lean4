@@ -121,7 +121,7 @@ You can learn about user widgets at `src/Lean/Widget/UserWidget`
 structure UserWidgetInfo where
   stx : Syntax
   /-- Id of `WidgetSource` object to use. -/
-  widgetSourceId : Name
+  widgetId : Name
   /-- Json representing the props to be loaded in to the component. -/
   props : Json
   deriving Inhabited
@@ -299,7 +299,7 @@ def MacroExpansionInfo.format (ctx : ContextInfo) (info : MacroExpansionInfo) : 
   return f!"Macro expansion\n{stx}\n===>\n{output}"
 
 def UserWidgetInfo.format (info : UserWidgetInfo) : Format :=
-  f!"UserWidget {info.widgetSourceId}\n{Std.ToFormat.format info.props}"
+  f!"UserWidget {info.widgetId}\n{Std.ToFormat.format info.props}"
 
 def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofTacticInfo i         => i.format ctx

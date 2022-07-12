@@ -18,8 +18,8 @@ structure LeanLibConfig extends LeanConfig where
   name : Name
 
   /--
-  The subdirectory of the package containing the library's Lean source files.
-  Defaults to the package's `srcDir`.
+  The subdirectory of the package's source directory containing the library's
+  Lean source files. Defaults simply to said `srcDir`.
 
   (This will be passed to `lean` as the `-R` option.)
   -/

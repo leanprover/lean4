@@ -11,6 +11,7 @@ Each `lakefile.lean` includes a `package` declaration (akin to `main`) which def
 
 * [Getting Lake](#getting-lake)
 * [Creating and Building a Package](#creating-and-building-a-package)
+* [Glossary of Terms](#glossary-of-terms)
 * [Package Configuration Options](#package-configuration-options)
 * [Defining Build Targets](#defining-build-targets)
   + [Lean Libraries](#lean-libraries)
@@ -97,6 +98,31 @@ Hello, world!
 
 Examples of different package configurations can be found in the [`examples`](examples) folder of this repository. You can also specified a particular configuration file template when using `lake init` or `lake new` to control what files Lake creates. See `lake help init` or `lake help new` for details.
 
+## Glossary of Terms
+
+Lake uses a lot of terms common in software development -- like workspace, package, library, executable, target, etc. -- and some more esoteric onces -- like facet. However, whether common or not these terms mean different things to different people, so it is important to elucidiate how Lake defines these terms:
+
+* A **package** is the **fundamental unit of code distribution in Lake**.  Packages can be sourced from the local file system or downloaded from the web (e.g., via Git). The `package` declaration in package's lakefile names it and [defines its basic properties](#package-configuration-options).
+
+* A **lakefile** is the Lean file that configures a package. It defines how to view, edit, build, and run the code within it and specifies what other packages it may require in order to do so.
+
+* A **dependency** is a package required by another package and the package requiring it is its **dependent**. See the [Adding Dependencies section](#adding-dependencies) for details on how to specify dependencies.
+
+* A **workspace** is the **broadest organizational unit in Lake**. It bundles together a package (termed the **root**), its transitive dependencies, and Lake's environment. Every package can operate as the root of a workspace and the workspace will derive its configuration from this root.
+
+* A **module** is **the smallest unit of code visible to Lake's build system**. It is generally represented by a Lean source file and a set of binary libraries (i.e., a Lean `olean` and `ilean` plus a system shared library if `precompileModules` is turned on). Modules can import one another in order to use each other's code and Lake exists primarily to facilitate this process.
+
+* A **(Lean) library** is a collection of modules that share a single configuration. Its modules are defined by its source directory, a set of **module roots**, and a set of **module globs**.  See the [Lean Libraries section](#lean-libraries) for more details.
+
+* A **Lean binary executable** is a binary executable (i.e., a program a user can run on their computer without Lean installed) built from a Lean module termed its **root** (which should have a `main` definition). See the [Binary Executables section](#binary-executables) for more details.
+
+* An **external library** is a native (static) library built from foreign code (e.g., C) that is required by a package's Lean code in order to function (e.g., because it uses `@[extern]` to invoke a written in the foreign language). An `extern_lib` target is used to inform Lake of such a requirement and instruct Lake on how to build requisite library. Lake then automatically links the external library when appropriate to give the Lean code access to the foreign functions (or, more technically, the foreign symbols) it needs. See the [External Libraries section](#external-libraries) for more details.
+
+* A **target** is the **fundamental build unit of Lake**. A package can defining any number of targets. Each target has a name, which is used to instruct Lake to build the target (e.g., through `lake buld <target>`) and to keep track internally of a target's build status.  Lake defines a set of builtin target types -- [Lean libraries](#lean-libraries), [binary executables](#binary-executables), and [external libraries](#external-libraries) -- but a user can [define their own custom targets as well](#custom-targets). Complex types (e.g., packages, libraries, modules) have multiple facets, each of which count as separate buildable targets. See the [Defining Build Targets section](#defining-build-targets) for more details.
+
+
+* A **facet** is a element built from another organizational unit (e.g., a package, module, library, etc.). For instance, Lake produces `olean`, `ilean`, `c`, and `o` files all from a single module. Each of these components are thus termed a *facet* of the module. Similarly, Lake can build both static and shared binaries from a library. Thus libraries have both `static` and `shared` facets. Lake also allows users to define their own custom facets to build from modules and packages, but this feature is currently experimental and not yet documented.
+
 ## Package Configuration Options
 
 Lake provides a large assortment of configuration options for packages.
@@ -142,6 +168,7 @@ lean_lib «target-name» {
 
 **Configuration Options**
 
+* `srcDir`: The subdirectory of the package' source directory containing the library's source files. Defaults simply to said `srcDir`. (This will be passed to `lean` as the `-R` option.)
 * `roots`: The root module(s) of the library. Submodules of these roots (e.g., `Lib.Foo` of `Lib`) are considered part of the library. Defaults to a single root of the library's upper camel case name.
 * `globs`: An `Array` of module `Glob`s to build for the library. Defaults to a `Glob.one` of each of the library's  `roots`. Submodule globs build every source file within their directory. Local imports of glob'ed files (i.e., fellow modules of the workspace) are also recursively built.
 * `libName`: The name of the library. Used as a base for the file names of its static and dynamic binaries. Defaults to the upper camel case name of the target.

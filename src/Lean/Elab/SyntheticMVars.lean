@@ -309,6 +309,13 @@ private def processPostponedUniverseContraints : TermElabM Unit := do
   unless (← processPostponed (mayPostpone := false) (exceptionOnFailure := true)) do
     throwStuckAtUniverseCnstr
 
+/--
+  Remove `mvarId` from the `syntheticMVars` table. We use this method after
+  the metavariable has been synthesized.
+-/
+private def markAsResolved (mvarId : MVarId) : TermElabM Unit :=
+  modify fun s => { s with syntheticMVars := s.syntheticMVars.erase mvarId }
+
 mutual
 
   partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
@@ -351,18 +358,16 @@ mutual
     -- Recall that `pendingMVars` is a list where head is the most recent pending synthetic metavariable.
     -- We use `filterRevM` instead of `filterM` to make sure we process the synthetic metavariables using the order they were created.
     -- It would not be incorrect to use `filterM`.
-    let remainingSyntheticMVars ← pendingMVars.filterRevM fun mvarId => do
+    let remainingPendingMVars ← pendingMVars.filterRevM fun mvarId => do
        -- We use `traceM` because we want to make sure the metavar local context is used to trace the message
        traceM `Elab.postpone (withMVarContext mvarId do addMessageContext m!"resuming {mkMVar mvarId}")
        let succeeded ← synthesizeSyntheticMVar mvarId postponeOnError runTactics
-       if succeeded then
-         /- Entry is not needed anymore since metavariable was successfully synthesized. -/
-         modify fun s => { s with syntheticMVars := s.syntheticMVars.erase mvarId }
+       if succeeded then markAsResolved mvarId
        trace[Elab.postpone] if succeeded then format "succeeded" else format "not ready yet"
        pure !succeeded
-    -- Merge new synthetic metavariables with `remainingSyntheticMVars`, i.e., metavariables that still couldn't be synthesized
-    modify fun s => { s with pendingMVars := s.pendingMVars ++ remainingSyntheticMVars }
-    return numSyntheticMVars != remainingSyntheticMVars.length
+    -- Merge new synthetic metavariables with `remainingPendingMVars`, i.e., metavariables that still couldn't be synthesized
+    modify fun s => { s with pendingMVars := s.pendingMVars ++ remainingPendingMVars }
+    return numSyntheticMVars != remainingPendingMVars.length
 
   /--
     Try to process pending synthetic metavariables. If `mayPostpone == false`,
@@ -455,6 +460,14 @@ private partial def withSynthesizeImp {α} (k : TermElabM α) (mayPostpone : Boo
 def elabTermAndSynthesize (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
   withRef stx do
     instantiateMVars (← withSynthesize <| elabTerm stx expectedType?)
+
+def runPendingTacticsAt (e : Expr) : TermElabM Unit := do
+  for mvarId in (← getMVars e) do
+    let mvarId ← getDelayedMVarRoot mvarId
+    if let some { kind := .tactic tacticCode savedContext, .. } ← getSyntheticMVarDecl? mvarId then
+      withSavedContext savedContext do
+        runTactic mvarId tacticCode
+        markAsResolved mvarId
 
 builtin_initialize
   registerTraceClass `Elab.resume

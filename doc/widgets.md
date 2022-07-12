@@ -11,12 +11,18 @@ dependent on JavaScript. However the primary use case is the web-based infoview 
 You can write your own user-widgets using the `@[widgetSource]` attribute:
 
 ```lean
-@[widgetSource]
-def widget1 : String := `
-  import * as React from "react";
+import Lean
+open Lean Widget
+
+@[widget]
+def widget1 : UserWidgetDefinition := {
+  name := "my fancy widget"
+  javascript := "
+  import * as React from 'react';
   export default function (props) {
-    return React.createElement("p", {}, "hello")
-  }`
+    return React.createElement('p', {}, 'hello')
+  }"
+}
 ```
 
 This JavaScript text must include `import * as React from "react"` in the imports and may not use JSX.
@@ -27,32 +33,5 @@ components such as `InteractiveMessage` to display `MessageData` interactively.
 
 ## Using Lake to build your widgets
 
-For larger projects, you can use lake to create files that will be used as `widgetSource`.
-Here is an example lakefile snippet that sets this up.
-Your npm javascript project lives in a subfolder called `./widget` whose build process generates a single file `widget/dist/index.js`.
-
-```lean
--- ./lakefile.lean
-
-def jsTarget (pkgDir : FilePath) : FileTarget :=
-  let jsFile := pkgDir / "widget/dist/index.js"
-  let srcFiles := inputFileTarget <| pkgDir / "widget/src/index.tsx"
-  fileTargetWithDep jsFile srcFiles fun _srcFile => do
-    proc {
-      cmd := "npm"
-      args := #["install"]
-      cwd := some <| pkgDir / "widget"
-    }
-    proc {
-      cmd := "npm"
-      args := #["run", "build"]
-      cwd := some <| pkgDir / "widget"
-    }
-
-package MyPackage (pkgDir) {
-  extraDepTarget := jsTarget pkgDir |>.withoutInfo
-  ...
-}
-
-...
-```
+For larger projects, you can use Lake to create files that will be used as `widgetSource`.
+To learn how to do this, please view the readme of the [WidgetsMinimal sample](https://github.com/leanprover/lean4-samples/tree/main/WidgetsMinimal) ([todo] merge sample).

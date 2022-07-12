@@ -23,7 +23,7 @@ private def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) (errToSo
   It is used to implement `synthesizeSyntheticMVars`. -/
 private def resumePostponed (savedContext : SavedContext) (stx : Syntax) (mvarId : MVarId) (postponeOnError : Bool) : TermElabM Bool :=
   withRef stx <| withMVarContext mvarId do
-    let s ← get
+    let s ← saveState
     try
       withSavedContext savedContext do
         let mvarDecl     ← getMVarDecl mvarId
@@ -42,13 +42,13 @@ private def resumePostponed (savedContext : SavedContext) (stx : Syntax) (mvarId
     catch
      | ex@(.internal id _) =>
        if id == postponeExceptionId then
-         set s
+         s.restore (restoreInfo := true)
          return false
        else
          throw ex
      | ex@(.error ..) =>
        if postponeOnError then
-         set s
+         s.restore (restoreInfo := true)
          return false
        else
          logException ex

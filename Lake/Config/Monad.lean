@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Config.Context
-import Lake.Config.InstallPath
 import Lake.Config.Workspace
 
 open System
@@ -12,40 +11,37 @@ open Lean (Name)
 
 namespace Lake
 
+abbrev MonadLakeEnv (m : Type → Type u) :=
+  MonadReaderOf Lake.Env m
+
+abbrev MonadWorkspace (m : Type → Type u) :=
+  MonadReaderOf Workspace m
+
+abbrev MonadLake (m : Type → Type u) :=
+  MonadReaderOf Context m
+
 deriving instance Inhabited for Context
 
-class MonadLake (m : Type → Type u) where
-  getLeanInstall : m LeanInstall
-  getLakeInstall : m LakeInstall
-  getWorkspace : m Workspace
-
-export MonadLake (getLeanInstall getLakeInstall getWorkspace)
-
-instance [MonadLift m n] [MonadLake m] : MonadLake n where
-  getLeanInstall := liftM (m := m) <| getLeanInstall
-  getLakeInstall := liftM (m := m) <| getLakeInstall
-  getWorkspace := liftM (m := m) <| getWorkspace
+/-- Make a `Lake.Context` from a `Workspace`. -/
+def mkLakeContext (ws : Workspace) : Context where
+  opaqueWs := ws
 
 @[inline] def Context.workspace (self : Context) :=
   self.opaqueWs.get
 
-instance [Monad m] : MonadLake (LakeT m) where
-  getLeanInstall := (·.lean) <$> read
-  getLakeInstall := (·.lake) <$> read
-  getWorkspace := (·.workspace) <$> read
-
-instance [MonadLake m] [Monad m] [MonadLiftT n m] : MonadLiftT (LakeT n) m where
-  monadLift x := do
-    liftM <| x {
-      lean := ← getLeanInstall
-      lake := ← getLakeInstall
-      opaqueWs := ← getWorkspace
-    }
+instance [MonadLake m] [Functor m] : MonadWorkspace m where
+  read := (·.workspace) <$> read
 
 section
-variable [MonadLake m] [Functor m]
+variable [MonadWorkspace m] [Functor m]
+
+instance : MonadLakeEnv m where
+  read := (·.env) <$> read
 
 /- ## Workspace Helpers -/
+
+@[inline] def getWorkspace : m Workspace :=
+  read
 
 @[inline] def findPackage? (name : Name) : m (Option Package) :=
   (·.findPackage? name) <$> getWorkspace
@@ -62,16 +58,48 @@ variable [MonadLake m] [Functor m]
 @[inline] def findExternLib? (mod : Name) : m (Option ExternLib) :=
   (·.findExternLib? mod) <$> getWorkspace
 
+/-- Get the `leanPath` of the `Workspace`. -/
 @[inline] def getLeanPath : m SearchPath :=
-  (·.oleanPath) <$> getWorkspace
+  (·.leanPath) <$> getWorkspace
 
+/-- Get the `leanSrcPath` of the `Workspace`. -/
 @[inline] def getLeanSrcPath : m SearchPath :=
   (·.leanSrcPath) <$> getWorkspace
 
+/-- Get the `libPath` value of the `Workspace`. -/
 @[inline] def getLibPath : m SearchPath :=
   (·.libPath) <$> getWorkspace
 
-/- ## Lean Install Helpers -/
+/-- Get the `augmentedLeanPath` of the `Workspace`. -/
+@[inline] def getAugmentedLeanPath : m SearchPath :=
+  (·.augmentedLeanPath) <$> getWorkspace
+
+/-- Get the `augmentedLeanSrcPath` value of the `Workspace`. -/
+@[inline] def getAugmentedLeanSrcPath  : m SearchPath :=
+  (·.augmentedLeanSrcPath) <$> getWorkspace
+
+/-- Get the `augmentedSharedLibPath` value of the `Workspace`. -/
+@[inline] def getAugmentedSharedLibPath  : m SearchPath :=
+  (·.augmentedSharedLibPath) <$> getWorkspace
+
+/-- Get the `augmentedEnvVars` of the `Workspace`. -/
+@[inline]  def getAugmentedEnv : m (Array (String × Option String)) :=
+  (·.augmentedEnvVars) <$> getWorkspace
+
+end
+
+section
+variable [MonadLakeEnv m] [Functor m]
+
+/- ## Environment Helpers -/
+
+@[inline] def getLakeEnv : m Lake.Env :=
+  read
+
+/- ### Lean Install Helpers -/
+
+@[inline] def getLeanInstall : m LeanInstall :=
+  (·.lean) <$> getLakeEnv
 
 @[inline] def getLeanSysroot : m FilePath :=
   (·.sysroot) <$> getLeanInstall
@@ -79,14 +107,15 @@ variable [MonadLake m] [Functor m]
 @[inline] def getLeanSrcDir : m FilePath :=
   (·.srcDir) <$> getLeanInstall
 
-@[inline] def getLeanOleanDir : m FilePath :=
-  (·.oleanDir) <$> getLeanInstall
+/-- Get the `leanLibDir` of the detected `LeanInstall`. -/
+@[inline] def getLeanLibDir : m FilePath :=
+  (·.leanLibDir) <$> getLeanInstall
 
 @[inline] def getLeanIncludeDir : m FilePath :=
   (·.includeDir) <$> getLeanInstall
 
-@[inline] def getLeanLibDir : m FilePath :=
-  (·.libDir) <$> getLeanInstall
+@[inline] def getLeanSystemLibDir : m FilePath :=
+  (·.systemLibDir) <$> getLeanInstall
 
 @[inline] def getLean : m FilePath :=
   (·.lean) <$> getLeanInstall
@@ -106,7 +135,10 @@ variable [MonadLake m] [Functor m]
 @[inline] def getLeanCc? : m (Option String) :=
   (·.leanCc?) <$> getLeanInstall
 
-/- ## Lake Install Helpers -/
+/- ### Lake Install Helpers -/
+
+@[inline] def getLakeInstall : m LakeInstall :=
+  (·.lake) <$> getLakeEnv
 
 @[inline] def getLakeHome : m FilePath :=
   (·.home) <$> getLakeInstall
@@ -114,41 +146,24 @@ variable [MonadLake m] [Functor m]
 @[inline] def getLakeSrcDir : m FilePath :=
   (·.srcDir) <$> getLakeInstall
 
-@[inline] def getLakeOleanDir : m FilePath :=
-  (·.oleanDir) <$> getLakeInstall
+@[inline] def getLakeLibDir : m FilePath :=
+  (·.libDir) <$> getLakeInstall
 
 @[inline] def getLake : m FilePath :=
   (·.lake) <$> getLakeInstall
 
+/- ### Search Path Helpers -/
+
+/-- Get the detected `LEAN_PATH` value of the Lake environment. -/
+@[inline] def getEnvLeanPath : m SearchPath :=
+  (·.leanPath) <$> getLakeEnv
+
+/-- Get the detected `LEAN_SRC_PATH` value of the Lake environment. -/
+@[inline] def getEnvLeanSrcPath : m SearchPath :=
+  (·.leanSrcPath) <$> getLakeEnv
+
+/-- Get the detected `sharedLibPathEnvVar` value of the Lake environment. -/
+@[inline] def getEnvSharedLibPath : m SearchPath :=
+  (·.sharedLibPath) <$> getLakeEnv
+
 end
-
-/--
-Get `LEAN_PATH` augmented with the workspace's `leanPath` and Lake's `oleanDir`.
-
-Including Lake's `oleanDir` at the end ensures that same Lake package being
-used to build is available to the environment (and thus, e.g., the Lean server).
-Otherwise, it may fall back on whatever the default Lake instance is.
--/
-@[inline] def getAugmentedLeanPath : LakeT BaseIO SearchPath := do
-  return (← getSearchPath "LEAN_PATH") ++ (← getLeanPath) ++ [← getLakeOleanDir]
-
-/--
-Get `LEAN_SRC_PATH` augmented with the workspace's `leanSrcPath` and Lake's `srcDir`.
-
-Including Lake's `srcDir` at the end ensures that same Lake package being
-used to build is available to the environment (and thus, e.g., the Lean server).
-Otherwise, it may fall back on whatever the default Lake instance is.
--/
-@[inline] def getAugmentedLeanSrcPath : LakeT BaseIO SearchPath := do
-  return (← getSearchPath "LEAN_SRC_PATH") ++ (← getLeanSrcPath) ++ [← getLakeSrcDir]
-
-/- Get `sharedLibPathEnv` augmented with the workspace's `libPath`. -/
-@[inline] def getAugmentedLibPath : LakeT BaseIO SearchPath := do
-  return (← getSearchPath sharedLibPathEnvVar) ++ (← getLibPath)
-
-def getAugmentedEnv : LakeT BaseIO (Array (String × Option String)) :=
-  return mkInstallEnv (← getLeanInstall) (← getLakeInstall) ++ #[
-    ("LEAN_PATH", some (← getAugmentedLeanPath).toString),
-    ("LEAN_SRC_PATH", some (← getAugmentedLeanSrcPath).toString),
-    (sharedLibPathEnvVar, some (← getAugmentedLibPath).toString)
-  ]

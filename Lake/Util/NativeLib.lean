@@ -34,9 +34,3 @@ def sharedLibPathEnvVar :=
     "DYLD_LIBRARY_PATH"
   else
     "LD_LIBRARY_PATH"
-
-/-- Gets a `SearchPath` from an environment variable. -/
-def getSearchPath (envVar : String) : BaseIO SearchPath := do
-  match (← IO.getEnv envVar) with
-  | some path => pure <| SearchPath.parse path
-  | none => pure []

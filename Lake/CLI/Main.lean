@@ -4,8 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Config.Load
-import Lake.Config.SearchPath
-import Lake.Config.InstallPath
 import Lake.Config.Manifest
 import Lake.Config.Resolve
 import Lake.Util.Error
@@ -21,23 +19,16 @@ open Lean (Json toJson fromJson?)
 
 namespace Lake
 
--- # Loading Lake Config
+-- # Loading a Workspace
 
-structure LakeConfig where
+structure LoadConfig where
+  env : Lake.Env
   rootDir : FilePath
   configFile : FilePath
-  leanInstall : LeanInstall
-  lakeInstall : LakeInstall
   options : NameMap String
 
-/-- Make a Lake `Context` from a `Workspace` and `LakeConfig`. -/
-def mkLakeContext (ws : Workspace) (config : LakeConfig) : Context where
-  lean := config.leanInstall
-  lake := config.lakeInstall
-  opaqueWs := ws
-
-def loadPkg (config : LakeConfig) : LogIO Package := do
-  setupLeanSearchPath config.leanInstall config.lakeInstall
+def loadPkg (config : LoadConfig) : LogIO Package := do
+  Lean.searchPathRef.set config.env.leanSearchPath
   Package.load config.rootDir config.options config.configFile
 
 def loadManifestMap (manifestFile : FilePath) : LogIO (Lean.NameMap PackageEntry) := do
@@ -56,14 +47,14 @@ def loadManifestMap (manifestFile : FilePath) : LogIO (Lean.NameMap PackageEntry
   else
     return {}
 
-def loadWorkspace (config : LakeConfig) (updateDeps := false) : LogIO Workspace := do
-  let pkg ← loadPkg config
-  let ws := Workspace.ofPackage pkg
+def loadWorkspace (config : LoadConfig) (updateDeps := false) : LogIO Workspace := do
+  let root ← loadPkg config
+  let ws : Workspace := {root, env := config.env}
   let manifestMap ← loadManifestMap ws.manifestFile
-  let (packageMap, resolvedMap) ← resolveDeps ws pkg updateDeps |>.run manifestMap
+  let (packageMap, resolvedMap) ← resolveDeps ws root updateDeps |>.run manifestMap
   unless resolvedMap.isEmpty do
     IO.FS.writeFile ws.manifestFile <| Json.pretty <| toJson <| Manifest.fromMap resolvedMap
-  let packageMap := packageMap.insert pkg.name pkg
+  let packageMap := packageMap.insert root.name root
   return {ws with packageMap}
 
 -- # CLI
@@ -95,15 +86,20 @@ def LakeOptions.getLakeInstall (opts : LakeOptions) : Except CliError LakeInstal
 def LakeOptions.getInstall (opts : LakeOptions) : Except CliError (LeanInstall × LakeInstall) := do
   return (← opts.getLeanInstall, ← opts.getLakeInstall)
 
-/-- Make a `LakeConfig` from a `LakeOptions`. -/
-def mkLakeConfig (opts : LakeOptions) : Except CliError LakeConfig :=
+/-- Compute the Lake environment based on `opts`. Error if an install is missing. -/
+def LakeOptions.computeEnv (opts : LakeOptions) : EIO CliError Lake.Env := do
+  Env.compute (← opts.getLakeInstall) (← opts.getLeanInstall)
+
+/-- Make a `LoadConfig` from a `LakeOptions`. -/
+def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
   return {
     rootDir := opts.rootDir,
     configFile := opts.rootDir / opts.configFile,
-    leanInstall := ← opts.getLeanInstall,
-    lakeInstall := ← opts.getLakeInstall,
+    env := ← opts.computeEnv
     options := opts.configOptions
   }
+
+export LakeOptions (mkLoadConfig)
 
 -- ## Monad
 
@@ -209,14 +205,14 @@ If no configuration file exists, exit silently with `noConfigFileCode` (i.e, 2).
 
 The `print-paths` command is used internally by Lean 4 server.
 -/
-def printPaths (config : LakeConfig) (imports : List String := []) : MainM PUnit := do
+def printPaths (config : LoadConfig) (imports : List String := []) : MainM PUnit := do
   let configFile := config.rootDir / config.configFile
   if (← configFile.pathExists) then
     if (← IO.getEnv invalidConfigEnvVar) matches some .. then
       IO.eprintln s!"Error parsing '{configFile}'.  Please restart the lean server after fixing the Lake configuration file."
       exit 1
     let ws ← loadWorkspace config
-    let ctx ← mkBuildContext ws config.leanInstall config.lakeInstall
+    let ctx ← mkBuildContext ws
     let dynlibs ← ws.root.buildImportsAndDeps imports |>.run MonadLog.eio ctx
     IO.println <| Json.compress <| toJson {ws.leanPaths with loadDynlibPaths := dynlibs}
   else
@@ -225,18 +221,17 @@ def printPaths (config : LakeConfig) (imports : List String := []) : MainM PUnit
 def env (cmd : String) (args : Array String := #[]) : LakeT IO UInt32 := do
   IO.Process.spawn {cmd, args, env := ← getAugmentedEnv} >>= (·.wait)
 
-def serve (config : LakeConfig) (args : Array String) : LogIO UInt32 := do
+def serve (config : LoadConfig) (args : Array String) : LogIO UInt32 := do
   let (extraEnv, moreServerArgs) ←
     try
       let ws ← loadWorkspace config
-      let ctx := mkLakeContext ws config
+      let ctx := mkLakeContext ws
       pure (← LakeT.run ctx getAugmentedEnv, ws.root.moreServerArgs)
     catch _ =>
-      let installEnv := mkInstallEnv config.leanInstall config.lakeInstall
       logWarning "package configuration has errors, falling back to plain `lean --server`"
-      pure (installEnv.push (invalidConfigEnvVar, "1"), #[])
+      pure (config.env.installVars.push (invalidConfigEnvVar, "1"), #[])
   (← IO.Process.spawn {
-    cmd := config.leanInstall.lean.toString
+    cmd := config.env.lean.lean.toString
     args := #["--server"] ++ moreServerArgs ++ args
     env := extraEnv
   }).wait
@@ -244,7 +239,7 @@ def serve (config : LakeConfig) (args : Array String) : LogIO UInt32 := do
 def exe (name : Name) (args  : Array String := #[]) : LakeT IO UInt32 := do
   let ws ← getWorkspace
   if let some exe := ws.findLeanExe? name then
-    let ctx ← mkBuildContext ws (← getLeanInstall) (← getLakeInstall)
+    let ctx ← mkBuildContext ws
     let exeFile ← (exe.build >>= (·.build)).run MonadLog.eio ctx
     env exeFile.toString args
   else
@@ -274,7 +269,7 @@ namespace script
 
 protected def list : CliM PUnit := do
   processOptions lakeOption
-  let config ← mkLakeConfig (← getThe LakeOptions)
+  let config ← mkLoadConfig (← getThe LakeOptions)
   noArgsRem do
     let ws ← loadWorkspace config
     ws.packageMap.forM fun _ pkg => do
@@ -286,13 +281,11 @@ protected def list : CliM PUnit := do
 protected nonrec def run : CliM PUnit := do
   processOptions lakeOption
   let spec ← takeArg "script name"; let args ← takeArgs
-  let config ← mkLakeConfig (← getThe LakeOptions)
+  let config ← mkLoadConfig (← getThe LakeOptions)
   let ws ← loadWorkspace config
   let (pkg, scriptName) ← parseScriptSpec ws spec
   if let some script := pkg.scripts.find? scriptName then
     exit <| ← script.run args |>.run {
-      lean := config.leanInstall,
-      lake := config.lakeInstall,
       opaqueWs := ws
     }
   else do
@@ -301,7 +294,7 @@ protected nonrec def run : CliM PUnit := do
 protected def doc : CliM PUnit := do
   processOptions lakeOption
   let spec ← takeArg "script name"
-  let config ← mkLakeConfig (← getThe LakeOptions)
+  let config ← mkLoadConfig (← getThe LakeOptions)
   noArgsRem do
     let ws ← loadWorkspace config
     let (pkg, scriptName) ← parseScriptSpec ws spec
@@ -341,7 +334,7 @@ protected def init : CliM PUnit := do
 protected def build : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let config ← mkLakeConfig opts
+  let config ← mkLoadConfig opts
   let ws ← loadWorkspace config
   let targetSpecs ← takeArgs
   let target ← show Except _ _ from do
@@ -350,22 +343,22 @@ protected def build : CliM PUnit := do
       resolveDefaultPackageTarget ws ws.root
     else
       return Target.collectOpaqueList targets
-  let ctx ← mkBuildContext ws config.leanInstall config.lakeInstall
+  let ctx ← mkBuildContext ws
   BuildM.run MonadLog.io ctx target.build
 
 protected def update : CliM PUnit := do
   processOptions lakeOption
-  let config ← mkLakeConfig (← getThe LakeOptions)
+  let config ← mkLoadConfig (← getThe LakeOptions)
   noArgsRem <| discard <| loadWorkspace config (updateDeps := true)
 
 protected def printPaths : CliM PUnit := do
   processOptions lakeOption
-  let config ← mkLakeConfig (← getThe LakeOptions)
+  let config ← mkLoadConfig (← getThe LakeOptions)
   printPaths config (← takeArgs)
 
 protected def clean : CliM PUnit := do
   processOptions lakeOption
-  let config ← mkLakeConfig (← getThe LakeOptions)
+  let config ← mkLoadConfig (← getThe LakeOptions)
   noArgsRem (← loadPkg config).clean
 
 protected def script : CliM PUnit := do
@@ -382,21 +375,21 @@ protected def serve : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let args := opts.subArgs.toArray
-  let config ← mkLakeConfig opts
+  let config ← mkLoadConfig opts
   noArgsRem do exit <| ← serve config args
 
 protected def env : CliM PUnit := do
   let cmd ← takeArg "command"; let args ← takeArgs
-  let config ← mkLakeConfig (← getThe LakeOptions)
+  let config ← mkLoadConfig (← getThe LakeOptions)
   let ws ← loadWorkspace config
-  let ctx := mkLakeContext ws config
+  let ctx := mkLakeContext ws
   exit <| ← (env cmd args.toArray).run ctx
 
 protected def exe : CliM PUnit := do
   let exeName ← takeArg "executable name"; let args ← takeArgs
-  let config ← mkLakeConfig (← getThe LakeOptions)
+  let config ← mkLoadConfig (← getThe LakeOptions)
   let ws ← loadWorkspace config
-  let ctx := mkLakeContext ws config
+  let ctx := mkLakeContext ws
   exit <| ← (exe exeName args.toArray).run ctx
 
 protected def selfCheck : CliM PUnit := do

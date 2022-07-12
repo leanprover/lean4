@@ -6,6 +6,7 @@ Authors: Mac Malone
 import Lean.Util.Paths
 import Lake.Config.FacetConfig
 import Lake.Config.TargetConfig
+import Lake.Config.Env
 
 open System
 open Lean (LeanPaths)
@@ -19,6 +20,8 @@ def manifestFileName := "manifest.json"
 structure Workspace where
   /-- The root package of the workspace. -/
   root : Package
+  /-- The detect `Lake.Env` of the workspace. -/
+  env : Lake.Env
   /-- Name-package map of packages within the workspace. -/
   packageMap : NameMap Package := {}
   deriving Inhabited
@@ -26,10 +29,6 @@ structure Workspace where
 hydrate_opaque_type OpaqueWorkspace Workspace
 
 namespace Workspace
-
-/-- Create a `Workspace` from a package using its directory and `WorkspaceConfig`. -/
-def ofPackage (pkg : Package) : Workspace :=
-  {root := pkg}
 
 /-- The path to the workspace's directory (i.e., the directory of the root package). -/
 def dir (self : Workspace) : FilePath :=
@@ -100,7 +99,7 @@ def findTargetConfig? (name : Name) (self : Workspace) : Option (Package × Targ
   self.packageArray.findSome? fun pkg => pkg.findTargetConfig? name <&> (⟨pkg, ·⟩)
 
 /-- The `LEAN_PATH` of the workspace. -/
-def oleanPath (self : Workspace) : SearchPath :=
+def leanPath (self : Workspace) : SearchPath :=
   self.packageList.map (·.oleanDir)
 
 /-- The `LEAN_SRC_PATH` of the workspace. -/
@@ -118,3 +117,43 @@ def libPath (self : Workspace) : SearchPath :=
 def leanPaths (self : Workspace) : LeanPaths where
   oleanPath := self.packageList.map (·.oleanDir)
   srcPath := self.packageList.map (·.srcDir)
+
+/--
+Rhe detected `LEAN_PATH` of the environment
+augmented with the workspace's `leanPath` and Lake's `libDir`.
+
+We include Lake's `oleanDir` at the end to ensure that same Lake package being
+used to build is available to the environment (and thus, e.g., the Lean server).
+Otherwise, it may fall back on whatever the default Lake instance is.
+-/
+def augmentedLeanPath (self : Workspace) : SearchPath :=
+  self.env.leanPath ++ self.leanPath ++ [self.env.lake.libDir]
+
+/--
+The detected `LEAN_SRC_PATH` of the environment
+augmented with the workspace's `leanSrcPath` and Lake's `srcDir`.
+
+We include Lake's `srcDir` at the end to ensure that same Lake package being
+used to build is available to the environment (and thus, e.g., the Lean server).
+Otherwise, it may fall back on whatever the default Lake instance is.
+-/
+def augmentedLeanSrcPath (self : Workspace) : SearchPath :=
+  self.env.leanSrcPath ++ self.leanSrcPath ++ [self.env.lake.srcDir]
+
+/-
+The detected `sharedLibPathEnv` value of the environment
+augmented with the workspace's `libPath`.
+-/
+def augmentedSharedLibPath (self : Workspace) : SearchPath :=
+  self.env.sharedLibPath ++ self.libPath
+
+/--
+The detected environment augmented with the Workspace's paths.
+These are the settings use by `lake env` / `Lake.env` to run executables.
+-/
+def augmentedEnvVars (self : Workspace) : Array (String × Option String) :=
+  self.env.installVars ++ #[
+    ("LEAN_PATH", some self.augmentedLeanPath.toString),
+    ("LEAN_SRC_PATH", some self.augmentedLeanSrcPath.toString),
+    (sharedLibPathEnvVar, some self.augmentedSharedLibPath.toString)
+  ]

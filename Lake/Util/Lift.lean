@@ -30,3 +30,6 @@ instance [Monad m] [Alternative m] [MonadLiftT n m] : MonadLiftT (OptionT n) m w
 
 instance [Monad m] [MonadExceptOf ε m] [MonadLiftT n m] : MonadLiftT (ExceptT ε n) m where
   monadLift act := act.run >>= liftM
+
+instance [Monad m] [MonadExceptOf ε m] [MonadLiftT BaseIO m] : MonadLiftT (EIO ε) m where
+  monadLift act := act.toBaseIO >>= liftM

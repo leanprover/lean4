@@ -11,8 +11,6 @@ namespace Lake
 
 /-- A Lake configuration. -/
 structure Context where
-  lean : LeanInstall
-  lake : LakeInstall
   opaqueWs : OpaqueWorkspace
 
 /-- A transformer to equip a monad with a `Lake.Context`. -/

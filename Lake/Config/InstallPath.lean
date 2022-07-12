@@ -38,9 +38,9 @@ structure LeanInstall where
   sysroot : FilePath
   githash : String
   srcDir := sysroot / "src" / "lean"
-  oleanDir := sysroot / "lib" / "lean"
+  leanLibDir := sysroot / "lib" / "lean"
   includeDir := sysroot / "include"
-  libDir := sysroot / "lib"
+  systemLibDir := sysroot / "lib"
   lean := leanExe sysroot
   leanc := leancExe sysroot
   sharedLib := leanSharedLib sysroot
@@ -61,19 +61,9 @@ def lakeExe (buildHome : FilePath) :=
 structure LakeInstall where
   home : FilePath
   srcDir := home
-  oleanDir := home / "build" / "lib"
+  libDir := home / "build" / "lib"
   lake := lakeExe <| home / "build"
   deriving Inhabited, Repr
-
-/-- Environment variable settings based on the given Lean and Lake installations. -/
-def mkInstallEnv (lean : LeanInstall) (lake : LakeInstall) : Array (String × Option String)  :=
-  #[
-    ("LAKE", lake.lake.toString),
-    ("LAKE_HOME", lake.home.toString),
-    ("LEAN_SYSROOT", lean.sysroot.toString),
-    ("LEAN_AR", lean.ar.toString),
-    ("LEAN_CC", lean.leanCc?)
-  ]
 
 /--
 Try to find the sysroot of the given `lean` command (if it exists)
@@ -95,9 +85,10 @@ def findLeanSysroot? (lean := "lean") : BaseIO (Option FilePath) := do
 /--
 Construct the `LeanInstall` object for the given Lean sysroot.
 
-Does two things:
+Does the following:
 1. Invokes `lean` to find out its `githash`.
 2. Finds the  `ar` and `cc` to use with Lean.
+3. Computes the sub-paths of the Lean install.
 
 For (1), if the invocation fails, `githash` is set to the empty string.
 
@@ -106,10 +97,17 @@ Otherwise, if Lean is packaged with an `llvm-ar` and/or `clang`, use them.
 If not, use the `ar` and/or `cc` in the system's `PATH`. This last step is
 needed because internal builds of Lean do not bundle these tools
 (unlike user-facing releases).
+
 We also track whether `LEAN_CC` was set to determine whether it should
 be set in the future for `lake env`. This is because if `LEAN_CC` was not set,
-it needs to remain not set for `leanc` to work (even setting it to the bundled
-compiler will break it -- see https://github.com/leanprover/lean4/issues/1281).
+it needs to remain not set for `leanc` to work.
+Even setting it to the bundled compiler will break `leanc` -- see
+[leanprover/lean4#1281](https://github.com/leanprover/lean4/issues/1281).
+
+For (3), it assumes that the Lean installation is organized the normal way.
+That is, with its binaries located in `<lean-sysroot>/bin`, its
+Lean libraries in `<lean-sysroot>/lib/lean`, and its system libraries in
+`<lean-sysroot>/lib`.
 -/
 def LeanInstall.get (sysroot : FilePath) : BaseIO LeanInstall := do
   let (cc, customCc) ← findCc
@@ -144,11 +142,8 @@ where
 
 /--
 Try to find the installation of the given `lean` command
-by calling `findLeanCmdHome?`.
-
-It assumes that the Lean installation is setup the normal way.
-That is, with its binaries located in `<lean-home>/bin` and its
-libraries and `.olean` files located in `<lean-home>/lib/lean`.
+by calling `findLeanCmdHome?`. See `LeanInstall.get` for how it assumes the
+Lean install is organized.
 -/
 def findLeanCmdInstall? (lean := "lean") : BaseIO (Option LeanInstall) :=
   OptionT.run do LeanInstall.get (← findLeanSysroot? lean)
@@ -173,13 +168,9 @@ def lakePackageHome? (lake : FilePath) : Option FilePath := do
   (← (← lake.parent).parent).parent
 
 /--
-Try to find Lean's installation by
-first checking the `LEAN_SYSROOT` environment variable
-and then by trying `findLeanCmdHome?`.
-
-It assumes that the Lean installation is setup the normal way.
-That is, with its binaries located in `<lean-home>/bin` and its
-libraries and `.olean` files located in `<lean-home>/lib/lean`.
+Try to find Lean's installation by first checking the
+`LEAN_SYSROOT` environment variable and then by trying `findLeanCmdHome?`.
+See `LeanInstall.get` for how it assumes the Lean install is organized.
 -/
 def findLeanInstall? : BaseIO (Option LeanInstall) := do
   if let some sysroot ← IO.getEnv "LEAN_SYSROOT" then
@@ -193,7 +184,7 @@ Try to find Lake's installation by
 first checking the `LAKE_HOME` environment variable
 and then by trying the `lakePackageHome?` of the running executable.
 
-It assumes that the Lake installation is setup the same way it is built.
+It assumes that the Lake installation is organized the same way it is built.
 That is, with its binary located at `<lake-home>/build/bin/lake` and its static
 library and `.olean` files in `<lake-home>/build/lib`, and its source files
 located directly in `<lake-home>`.
@@ -227,8 +218,8 @@ def findInstall? : BaseIO (Option LeanInstall × Option LakeInstall) := do
       some {
         home,
         srcDir := lean.srcDir / "lake",
-        oleanDir := lean.oleanDir,
-        lake := lakeExe lean.sysroot
+        libDir := lean.leanLibDir,
+        lake := lakeExe home
       }
     )
   else

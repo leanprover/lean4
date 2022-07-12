@@ -37,7 +37,7 @@ private def ensureArgType (f : Expr) (arg : Expr) (expectedType : Expr) : TermEl
   try
     ensureHasTypeAux expectedType argType arg f
   catch
-    | ex@(Exception.error ..) =>
+    | ex@(.error ..) =>
       if (← read).errToSorry then
         exceptionToSorry ex expectedType
       else
@@ -249,7 +249,7 @@ private def fTypeHasOptAutoParams : M Bool := do
    See `propagateExpectedType`.
    Remark: `(explicit : Bool) == true` when `@` modifier is used. -/
 private partial def getForallBody (explicit : Bool) : Nat → List NamedArg → Expr → Option Expr
-  | i, namedArgs, type@(Expr.forallE n d b bi) =>
+  | i, namedArgs, type@(.forallE n d b bi) =>
     match namedArgs.find? fun (namedArg : NamedArg) => namedArg.name == n with
     | some _ => getForallBody explicit i (eraseNamedArgCore namedArgs n) b
     | none =>
@@ -538,7 +538,7 @@ mutual
       let argType ← getArgExpectedType
       match (← read).explicit, argType.getOptParamDefault?, argType.getAutoParamTactic? with
       | false, some defVal, _  => addNewArg argName defVal; main
-      | false, _, some (Expr.const tacticDecl _) =>
+      | false, _, some (.const tacticDecl _) =>
         let env ← getEnv
         let opts ← getOptions
         match evalSyntaxConstant env opts tacticDecl with
@@ -998,7 +998,7 @@ where
         throwError "invalid dotted identifier notation, unknown identifier `{idNew}` from expected type{indentExpr expectedType}"
       return idNew
     catch
-      | ex@(.error _ _) =>
+      | ex@(.error ..) =>
         match (← unfoldDefinition? resultType) with
         | some resultType => go (← whnfCore resultType) expectedType (previousExceptions.push ex)
         | none       =>
@@ -1107,8 +1107,8 @@ private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array A
     else if successes.size > 1 then
       let msgs : Array MessageData ← successes.mapM fun success => do
         match success with
-        | EStateM.Result.ok e s => withMCtx s.meta.meta.mctx <| withEnv s.meta.core.env do addMessageContext m!"{e} : {← inferType e}"
-        | _                     => unreachable!
+        | .ok e s => withMCtx s.meta.meta.mctx <| withEnv s.meta.core.env do addMessageContext m!"{e} : {← inferType e}"
+        | _       => unreachable!
       throwErrorAt f "ambiguous, possible interpretations {toMessageList msgs}"
     else
       withRef f <| mergeFailures candidates

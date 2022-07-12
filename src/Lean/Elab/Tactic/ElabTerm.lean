@@ -224,7 +224,7 @@ def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId
   withMainContext do
     let e ← elabTerm stx none
     match e with
-    | Expr.fvar fvarId => pure fvarId
+    | .fvar fvarId => pure fvarId
     | _ =>
       let type ← inferType e
       let intro (userName : Name) (preserveBinderNames : Bool) : TacticM FVarId := do

@@ -283,7 +283,7 @@ def observing (x : TermElabM α) : TermElabM (TermElabResult α) := do
     | ex@(.error ..) =>
       let sNew ← saveState
       s.restore (restoreInfo := true)
-      return EStateM.Result.error ex sNew
+      return .error ex sNew
     | ex@(.internal id _) =>
       if id == postponeExceptionId then
         s.restore (restoreInfo := true)
@@ -344,7 +344,7 @@ def withoutModifyingElabMetaStateWithInfo (x : TermElabM α) : TermElabM α := d
   let s ← get
   let sMeta ← getThe Meta.State
   try
-     withSaveInfoContext x
+    withSaveInfoContext x
   finally
     modify ({ s with infoState := ·.infoState })
     set sMeta

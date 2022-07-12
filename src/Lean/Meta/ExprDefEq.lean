@@ -250,8 +250,15 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
     unless (← withAtLeastTransparency TransparencyMode.default <| Meta.isExprDefEqAux a₁ a₂) do
       return false
   for i in postponedHO do
-    unless (← Meta.isExprDefEqAux args₁[i]! args₂[i]!) do
-      return false
+    let a₁   := args₁[i]!
+    let a₂   := args₂[i]!
+    let info := finfo.paramInfo[i]!
+    if info.isInstImplicit then
+      unless (← withAtLeastTransparency TransparencyMode.default <| Meta.isExprDefEqAux a₁ a₂) do
+       return false
+    else
+      unless (← Meta.isExprDefEqAux a₁ a₂) do
+        return false
   return true
 
 /--

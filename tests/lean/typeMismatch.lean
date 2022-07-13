@@ -8,5 +8,5 @@ IO.println ""
 
 open Lean
 
-def test (x : Expr) : MetaM Unit :=
+def test2 (x : Expr) : MetaM Unit :=
 Meta.isDefEq x x

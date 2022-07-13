@@ -777,9 +777,14 @@ where
     withFunLocalDecls headers fun funFVars => do
       for view in views, funFVar in funFVars do
         addLocalVarInfo view.declId funFVar
-      let values ← elabFunValues headers
-      Term.synthesizeSyntheticMVarsNoPostponing
-      let values ← values.mapM (instantiateMVars ·)
+      let values ←
+        try
+          let values ← elabFunValues headers
+          Term.synthesizeSyntheticMVarsNoPostponing
+          values.mapM (instantiateMVars ·)
+        catch ex =>
+          logException ex
+          headers.mapM fun header => mkSorry header.type (synthetic := true)
       let headers ← headers.mapM instantiateMVarsAtHeader
       let letRecsToLift ← getLetRecsToLift
       let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift

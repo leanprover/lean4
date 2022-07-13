@@ -38,15 +38,15 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
         catch _ =>
           tryPostpone; throwError "failed to construct 'ForIn' instance for collection{indentExpr colType}\nand monad{indentExpr m}"
         match (← trySynthInstance forInInstance) with
-        | LOption.some inst =>
+        | .some inst =>
           let forInFn ← mkConst ``forIn
           elabAppArgs forInFn
             (namedArgs := #[{ name := `m, val := Arg.expr m}, { name := `α, val := Arg.expr elemType }, { name := `self, val := Arg.expr inst }])
             (args := #[Arg.stx col, Arg.stx init, Arg.stx body])
             (expectedType? := expectedType?)
             (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
-        | LOption.undef    => tryPostpone; throwForInFailure forInInstance
-        | LOption.none     => throwForInFailure forInInstance
+        | .undef    => tryPostpone; throwForInFailure forInInstance
+        | .none     => throwForInFailure forInInstance
   | _ => throwUnsupportedSyntax
 
 @[builtinTermElab forInMacro'] def elabForIn' : TermElab :=  fun stx expectedType? => do
@@ -66,15 +66,15 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
           catch _ =>
             tryPostpone; throwError "failed to construct `ForIn'` instance for collection{indentExpr colType}\nand monad{indentExpr m}"
         match (← trySynthInstance forInInstance) with
-        | LOption.some inst  =>
+        | .some inst  =>
           let forInFn ← mkConst ``forIn'
           elabAppArgs forInFn
             (namedArgs := #[{ name := `m, val := Arg.expr m}, { name := `α, val := Arg.expr elemType}, { name := `self, val := Arg.expr inst }])
             (args := #[Arg.expr colFVar, Arg.stx init, Arg.stx body])
             (expectedType? := expectedType?)
             (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
-        | LOption.undef    => tryPostpone; throwForInFailure forInInstance
-        | LOption.none     => throwForInFailure forInInstance
+        | .undef    => tryPostpone; throwForInFailure forInInstance
+        | .none     => throwForInFailure forInInstance
   | _ => throwUnsupportedSyntax
 
 namespace BinOp
@@ -157,9 +157,9 @@ private def hasCoe (fromType toType : Expr) : TermElabM Bool := do
     let v ← getLevel toType
     let coeInstType := mkAppN (Lean.mkConst ``CoeHTCT [u, v]) #[fromType, toType]
     match ← trySynthInstance coeInstType (some (maxCoeSize.get (← getOptions))) with
-    | LOption.some _ => return true
-    | LOption.none   => return false
-    | LOption.undef  => return false -- TODO: should we do something smarter here?
+    | .some _ => return true
+    | .none   => return false
+    | .undef  => return false -- TODO: should we do something smarter here?
   else
     return false
 
@@ -168,10 +168,10 @@ private structure AnalyzeResult where
   hasUncomparable : Bool := false -- `true` if there are two types `α` and `β` where we don't have coercions in any direction.
 
 private def isUnknow : Expr → Bool
-  | Expr.mvar ..        => true
-  | Expr.app f ..       => isUnknow f
-  | Expr.letE _ _ _ b _ => isUnknow b
-  | Expr.mdata _ b      => isUnknow b
+  | .mvar ..        => true
+  | .app f _        => isUnknow f
+  | .letE _ _ _ b _ => isUnknow b
+  | .mdata _ b      => isUnknow b
   | _                   => false
 
 private def analyze (t : Tree) (expectedType? : Option Expr) : TermElabM AnalyzeResult := do

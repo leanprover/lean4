@@ -9461,7 +9461,7 @@ lean_dec(x_13);
 x_15 = lean_st_ref_get(x_4, x_14);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
-x_17 = lean_ctor_get(x_16, 4);
+x_17 = lean_ctor_get(x_16, 5);
 lean_inc(x_17);
 lean_dec(x_16);
 x_18 = lean_ctor_get_uint8(x_17, sizeof(void*)*2);
@@ -10176,7 +10176,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_BuiltinTerm_0__Lean_Elab_Term_mkS
 _start:
 {
 lean_object* x_9; lean_object* x_10; 
-lean_inc(x_1);
 x_9 = l_Lean_Elab_Term_isTacticOrPostponedHole_x3f(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);

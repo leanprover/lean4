@@ -10674,7 +10674,7 @@ lean_dec(x_13);
 x_15 = lean_st_ref_get(x_4, x_14);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
-x_17 = lean_ctor_get(x_16, 4);
+x_17 = lean_ctor_get(x_16, 5);
 lean_inc(x_17);
 lean_dec(x_16);
 x_18 = lean_ctor_get_uint8(x_17, sizeof(void*)*2);

@@ -133,7 +133,51 @@ def isEtaUnassignedMVar (e : Expr) : MetaM Bool := do
       pure true
   | _   => pure false
 
-/-
+private def trySynthPending (e : Expr) : MetaM Bool := do
+  let mvarId? ← getStuckMVar? e
+  match mvarId? with
+  | some mvarId => Meta.synthPending mvarId
+  | none        => pure false
+
+/--
+  Result type for `isDefEqArgsFirstPass`.
+-/
+inductive DefEqArgsFirstPassResult where
+  | /--
+      Failed to establish that explicit arguments are def-eq.
+      Remark: higher output parameters, and parameters that depend on them
+      are postponed.
+    -/
+    failed
+  | /--
+      Succeeded. The array `postponedImplicit` contains the position
+      of the implicit arguments for which def-eq has been postponed.
+      `postponedHO` contains the higher order output parameters, and parameters
+      that depend on them. They should be processed after the implict ones.
+      `postponedHO` is used to handle applications involving functions that
+      contain higher order output parameters. Example:
+      ```lean
+      getElem :
+        {Cont : Type u_1} → {Idx : Type u_2} → {Elem : Type u_3} →
+        {Dom : Cont → Idx → Prop} → [self : GetElem Cont Idx Elem Dom] →
+        (xs : Cont) → (i : Idx) → (h : Dom xs i) → Elem
+      ```
+      The argumengs `Dom` and `h` must be processed after all implicit arguments
+      otherwise higher-order unification problems are generated. See issue #1299,
+      when trying to solve
+      ```
+      getElem ?a ?i ?h =?= getElem a i (Fin.val_lt_of_le i ...)
+      ```
+      we have to solve the constraint
+      ```
+      ?Dom a i.val =?= LT.lt i.val (Array.size a)
+      ```
+      by solving after the instance has been synthesized, we reduce this constraint to
+      a simple check.
+    -/
+    ok (postponedImplicit : Array Nat) (postponedHO : Array Nat)
+
+/--
   First pass for `isDefEqArgs`. We unify explicit arguments, *and* easy cases
   Here, we say a case is easy if it is of the form
 
@@ -161,67 +205,61 @@ def isEtaUnassignedMVar (e : Expr) : MetaM Bool := do
   introduce counter intuitive behavior.
 
   Pre: `paramInfo.size <= args₁.size = args₂.size`
+
+  See `DefEqArgsFirstPassResult` for additional information.
 -/
-private partial def isDefEqArgsFirstPass
-    (paramInfo : Array ParamInfo) (args₁ args₂ : Array Expr) : MetaM (Option (Array Nat)) := do
-  let rec loop (i : Nat) (postponed : Array Nat) := do
-    if h : i < paramInfo.size then
-      let info := paramInfo[i]
-      let a₁ := args₁[i]!
-      let a₂ := args₂[i]!
-      if !info.isExplicit then
-        if (← isEtaUnassignedMVar a₁ <||> isEtaUnassignedMVar a₂) then
-          if (← Meta.isExprDefEqAux a₁ a₂) then
-            loop (i+1) postponed
-          else
-            pure none
-        else
-          loop (i+1) (postponed.push i)
-      else if (← Meta.isExprDefEqAux a₁ a₂) then
-        loop (i+1) postponed
-      else
-        pure none
+private def isDefEqArgsFirstPass
+    (paramInfo : Array ParamInfo) (args₁ args₂ : Array Expr) : MetaM DefEqArgsFirstPassResult := do
+  let mut postponedImplicit := #[]
+  let mut postponedHO := #[]
+  for i in [:paramInfo.size] do
+    let info := paramInfo[i]!
+    let a₁ := args₁[i]!
+    let a₂ := args₂[i]!
+    if info.dependsOnHigherOrderOutParam || info.higherOrderOutParam then
+      trace[Meta.isDefEq] "found messy {a₁} =?= {a₂}"
+      postponedHO := postponedHO.push i
+    else if info.isExplicit then
+      unless (← Meta.isExprDefEqAux a₁ a₂) do
+        return .failed
+    else if (← isEtaUnassignedMVar a₁ <||> isEtaUnassignedMVar a₂) then
+      unless (← Meta.isExprDefEqAux a₁ a₂) do
+        return .failed
     else
-      pure (some postponed)
-  loop 0 #[]
+      postponedImplicit := postponedImplicit.push i
+  return .ok postponedImplicit postponedHO
 
-private def trySynthPending (e : Expr) : MetaM Bool := do
-  let mvarId? ← getStuckMVar? e
-  match mvarId? with
-  | some mvarId => Meta.synthPending mvarId
-  | none        => pure false
-
-private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : MetaM Bool :=
-  if h : args₁.size = args₂.size then do
-    let finfo ← getFunInfoNArgs f args₁.size
-    let (some postponed) ← isDefEqArgsFirstPass finfo.paramInfo args₁ args₂ | pure false
-    let rec processOtherArgs (i : Nat) : MetaM Bool := do
-      if h₁ : i < args₁.size then
-        let a₁ := args₁[i]
-        have : i < args₂.size := h ▸ h₁
-        let a₂ := args₂[i]
-        if (← Meta.isExprDefEqAux a₁ a₂) then
-          processOtherArgs (i+1)
-        else
-          pure false
-      else
-        pure true
-    if (← processOtherArgs finfo.paramInfo.size) then
-      postponed.allM fun i => do
-        /- Second pass: unify implicit arguments.
-           In the second pass, we make sure we are unfolding at
-           least non reducible definitions (default setting). -/
-        let a₁   := args₁[i]!
-        let a₂   := args₂[i]!
-        let info := finfo.paramInfo[i]!
-        if info.isInstImplicit then
-          discard <| trySynthPending a₁
-          discard <| trySynthPending a₂
-        withAtLeastTransparency TransparencyMode.default <| Meta.isExprDefEqAux a₁ a₂
+private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : MetaM Bool := do
+  unless args₁.size == args₂.size do return false
+  let finfo ← getFunInfoNArgs f args₁.size
+  let .ok postponedImplicit postponedHO ← isDefEqArgsFirstPass finfo.paramInfo args₁ args₂ | pure false
+  -- finfo.paramInfo.size may be smaller than args₁.size
+  for i in [finfo.paramInfo.size:args₁.size] do
+    unless (← Meta.isExprDefEqAux args₁[i]! args₂[i]!) do
+      return false
+  for i in postponedImplicit do
+    /- Second pass: unify implicit arguments.
+       In the second pass, we make sure we are unfolding at
+       least non reducible definitions (default setting). -/
+    let a₁   := args₁[i]!
+    let a₂   := args₂[i]!
+    let info := finfo.paramInfo[i]!
+    if info.isInstImplicit then
+      discard <| trySynthPending a₁
+      discard <| trySynthPending a₂
+    unless (← withAtLeastTransparency TransparencyMode.default <| Meta.isExprDefEqAux a₁ a₂) do
+      return false
+  for i in postponedHO do
+    let a₁   := args₁[i]!
+    let a₂   := args₂[i]!
+    let info := finfo.paramInfo[i]!
+    if info.isInstImplicit then
+      unless (← withAtLeastTransparency TransparencyMode.default <| Meta.isExprDefEqAux a₁ a₂) do
+       return false
     else
-      pure false
-  else
-    pure false
+      unless (← Meta.isExprDefEqAux a₁ a₂) do
+        return false
+  return true
 
 /--
   Check whether the types of the free variables at `fvars` are

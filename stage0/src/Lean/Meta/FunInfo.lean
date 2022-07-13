@@ -9,9 +9,8 @@ import Lean.Meta.InferType
 namespace Lean.Meta
 
 @[inline] private def checkFunInfoCache (fn : Expr) (maxArgs? : Option Nat) (k : MetaM FunInfo) : MetaM FunInfo := do
-  let s ← get
   let t ← getTransparency
-  match s.cache.funInfo.find? ⟨t, fn, maxArgs?⟩ with
+  match (← get).cache.funInfo.find? ⟨t, fn, maxArgs?⟩ with
   | some finfo => pure finfo
   | none       => do
     let finfo ← k
@@ -57,21 +56,38 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
     let fnType ← inferType fn
     withTransparency TransparencyMode.default do
       forallBoundedTelescope fnType maxArgs? fun fvars type => do
-        let mut pinfo := #[]
+        let mut paramInfo := #[]
+        let mut higherOrderOutParams : FVarIdSet := {}
         for i in [:fvars.size] do
           let fvar := fvars[i]!
           let decl ← getFVarLocalDecl fvar
           let backDeps := collectDeps fvars decl.type
-          pinfo := updateHasFwdDeps pinfo backDeps
-          pinfo := pinfo.push {
-            backDeps     := backDeps
-            binderInfo   := decl.binderInfo
-            isProp       := (← isProp decl.type)
-            isDecInst    := (← forallTelescopeReducing decl.type fun _ type => return type.isAppOf ``Decidable)
+          let dependsOnHigherOrderOutParam :=
+            !higherOrderOutParams.isEmpty
+            && Option.isSome (decl.type.find? fun e => e.isFVar && higherOrderOutParams.contains e.fvarId!)
+          paramInfo := updateHasFwdDeps paramInfo backDeps
+          paramInfo := paramInfo.push {
+            backDeps, dependsOnHigherOrderOutParam
+            binderInfo := decl.binderInfo
+            isProp     := (← isProp decl.type)
+            isDecInst  := (← forallTelescopeReducing decl.type fun _ type => return type.isAppOf ``Decidable)
           }
+          if decl.binderInfo == .instImplicit then
+            /- Collect higher order output parameters of this class -/
+            if let some className ← isClass? decl.type then
+              if let some outParamPositions := getOutParamPositions? (← getEnv) className then
+                unless outParamPositions.isEmpty do
+                  let args := decl.type.getAppArgs
+                  for i in [:args.size] do
+                    if outParamPositions.contains i then
+                      let arg := args[i]!
+                      if let some idx := fvars.indexOf? arg then
+                        if (← whnf (← inferType arg)).isForall then
+                          paramInfo := paramInfo.modify idx fun info => { info with higherOrderOutParam := true }
+                          higherOrderOutParams := higherOrderOutParams.insert arg.fvarId!
         let resultDeps := collectDeps fvars type
-        pinfo := updateHasFwdDeps pinfo resultDeps
-        pure { resultDeps := resultDeps, paramInfo := pinfo }
+        paramInfo := updateHasFwdDeps paramInfo resultDeps
+        return { resultDeps, paramInfo }
 
 def getFunInfo (fn : Expr) : MetaM FunInfo :=
   getFunInfoAux fn none

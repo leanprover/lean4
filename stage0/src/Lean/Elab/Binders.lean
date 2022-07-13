@@ -45,8 +45,8 @@ structure BinderView where
   bi : BinderInfo
 
 partial def quoteAutoTactic : Syntax → TermElabM Syntax
-  | stx@(Syntax.ident _ _ _ _) => throwErrorAt stx "invalid auto tactic, identifier is not allowed"
-  | stx@(Syntax.node _ k args)   => do
+  | stx@(.ident ..) => throwErrorAt stx "invalid auto tactic, identifier is not allowed"
+  | stx@(.node _ k args) => do
     if stx.isAntiquot then
       throwErrorAt stx "invalid auto tactic, antiquotation is not allowed"
     else
@@ -58,8 +58,8 @@ partial def quoteAutoTactic : Syntax → TermElabM Syntax
           let quotedArg ← quoteAutoTactic arg
           quotedArgs ← `(Array.push $quotedArgs $quotedArg)
       `(Syntax.node SourceInfo.none $(quote k) $quotedArgs)
-  | Syntax.atom _ val => `(mkAtom $(quote val))
-  | Syntax.missing    => throwError "invalid auto tactic, tactic is missing"
+  | .atom _ val => `(mkAtom $(quote val))
+  | .missing    => throwError "invalid auto tactic, tactic is missing"
 
 def declareTacticSyntax (tactic : Syntax) : TermElabM Name :=
   withFreshMacroScope do
@@ -108,28 +108,28 @@ private def matchBinder (stx : Syntax) : TermElabM (Array BinderView) := do
   let k := stx.getKind
   if stx.isIdent || k == ``hole then
     -- binderIdent
-    pure #[{ id := (← expandBinderIdent stx), type := mkHole stx, bi := BinderInfo.default }]
+    return #[{ id := (← expandBinderIdent stx), type := mkHole stx, bi := .default }]
   else if k == ``Lean.Parser.Term.explicitBinder then
     -- `(` binderIdent+ binderType (binderDefault <|> binderTactic)? `)`
     let ids ← getBinderIds stx[1]
     let type        := stx[2]
     let optModifier := stx[3]
-    ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := (← expandBinderModifier (expandBinderType id type) optModifier), bi := BinderInfo.default }
+    ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := (← expandBinderModifier (expandBinderType id type) optModifier), bi := .default }
   else if k == ``Lean.Parser.Term.implicitBinder then
     -- `{` binderIdent+ binderType `}`
     let ids ← getBinderIds stx[1]
     let type := stx[2]
-    ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := expandBinderType id type, bi := BinderInfo.implicit }
+    ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := expandBinderType id type, bi := .implicit }
   else if k == ``Lean.Parser.Term.strictImplicitBinder then
     -- `⦃` binderIdent+ binderType `⦄`
     let ids ← getBinderIds stx[1]
     let type := stx[2]
-    ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := expandBinderType id type, bi := BinderInfo.strictImplicit }
+    ids.mapM fun id => do pure { id := (← expandBinderIdent id), type := expandBinderType id type, bi := .strictImplicit }
   else if k == ``Lean.Parser.Term.instBinder then
     -- `[` optIdent type `]`
     let id ← expandOptIdent stx[1]
     let type := stx[2]
-    pure #[ { id := id, type := type, bi := BinderInfo.instImplicit } ]
+    return #[ { id := id, type := type, bi := .instImplicit } ]
   else
     throwUnsupportedSyntax
 
@@ -149,11 +149,11 @@ register_builtin_option checkBinderAnnotations : Bool := {
   descr    := "check whether type is a class instance whenever the binder annotation `[...]` is used"
 }
 
-private partial def elabBinderViews {α} (binderViews : Array BinderView) (fvars : Array (Syntax × Expr)) (k : Array (Syntax × Expr) → TermElabM α)
+private partial def elabBinderViews (binderViews : Array BinderView) (fvars : Array (Syntax × Expr)) (k : Array (Syntax × Expr) → TermElabM α)
     : TermElabM α :=
   let rec loop (i : Nat) (fvars : Array (Syntax × Expr)) : TermElabM α := do
     if h : i < binderViews.size then
-      let binderView := binderViews.get ⟨i, h⟩
+      let binderView := binderViews[i]
       ensureAtomicBinderName binderView
       let type ← elabType binderView.type
       registerFailedToInferBinderTypeInfo type binderView.type
@@ -167,10 +167,10 @@ private partial def elabBinderViews {α} (binderViews : Array BinderView) (fvars
       k fvars
   loop 0 fvars
 
-private partial def elabBindersAux {α} (binders : Array Syntax) (k : Array (Syntax × Expr) → TermElabM α) : TermElabM α :=
+private partial def elabBindersAux (binders : Array Syntax) (k : Array (Syntax × Expr) → TermElabM α) : TermElabM α :=
   let rec loop (i : Nat) (fvars : Array (Syntax × Expr)) : TermElabM α := do
     if h : i < binders.size then
-      let binderViews ← matchBinder (binders.get ⟨i, h⟩)
+      let binderViews ← matchBinder binders[i]
       elabBinderViews binderViews fvars <| loop (i+1)
     else
       k fvars
@@ -181,7 +181,7 @@ private partial def elabBindersAux {α} (binders : Array Syntax) (k : Array (Syn
   `elabBinders(Ex)` automatically adds binder info nodes for the produced fvars, but storing the syntax nodes
   might be necessary when later adding the same binders back to the local context so that info nodes can
   manually be added for the new fvars; see `MutualDef` for an example. -/
-def elabBindersEx {α} (binders : Array Syntax) (k : Array (Syntax × Expr) → TermElabM α) : TermElabM α :=
+def elabBindersEx (binders : Array Syntax) (k : Array (Syntax × Expr) → TermElabM α) : TermElabM α :=
   universeConstraintsCheckpoint do
     if binders.isEmpty then
       k #[]
@@ -201,7 +201,7 @@ def elabBinders (binders : Array Syntax) (k : Array Expr → TermElabM α) : Ter
   elabBindersEx binders (fun fvars => k (fvars.map (·.2)))
 
 /-- Same as `elabBinder` with a single binder.-/
-def elabBinder {α} (binder : Syntax) (x : Expr → TermElabM α) : TermElabM α :=
+def elabBinder (binder : Syntax) (x : Expr → TermElabM α) : TermElabM α :=
   elabBinders #[binder] fun fvars => x fvars[0]!
 
 def expandSimpleBinderWithType (type : Term) (binder : Syntax) : MacroM Syntax :=
@@ -289,7 +289,7 @@ private partial def getFunBinderIds? (stx : Syntax) : OptionT MacroM (Array Synt
 partial def expandFunBinders (binders : Array Syntax) (body : Syntax) : MacroM (Array Syntax × Syntax × Bool) :=
   let rec loop (body : Syntax) (i : Nat) (newBinders : Array Syntax) := do
     if h : i < binders.size then
-      let binder := binders.get ⟨i, h⟩
+      let binder := binders[i]
       let processAsPattern : Unit → MacroM (Array Syntax × Syntax × Bool) := fun _ => do
         let pattern := binder
         let major ← mkFreshIdent binder
@@ -352,19 +352,19 @@ private def propagateExpectedType (fvar : Expr) (fvarType : Expr) (s : State) : 
   | some expectedType =>
     let expectedType ← whnfForall expectedType
     match expectedType with
-    | Expr.forallE _ d b _ =>
+    | .forallE _ d b _ =>
       discard <| isDefEq fvarType d
       let b := b.instantiate1 fvar
-      pure { s with expectedType? := some b }
+      return { s with expectedType? := some b }
     | _ =>
-      pure { s with expectedType? := none }
+      return { s with expectedType? := none }
 
 private partial def elabFunBinderViews (binderViews : Array BinderView) (i : Nat) (s : State) : TermElabM State := do
   if h : i < binderViews.size then
-    let binderView := binderViews.get ⟨i, h⟩
+    let binderView := binderViews[i]
     ensureAtomicBinderName binderView
     withRef binderView.type <| withLCtx s.lctx s.localInsts do
-      let type       ← elabType binderView.type
+      let type ← elabType binderView.type
       registerFailedToInferBinderTypeInfo type binderView.type
       let fvarId ← mkFreshFVarId
       let fvar  := mkFVar fvarId
@@ -378,19 +378,19 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) (i : Nat
       let lctx  := s.lctx.mkLocalDecl fvarId binderView.id.getId type binderView.bi
       addTermInfo' (lctx? := some lctx) (isBinder := true) binderView.id fvar
       let s ← withRef binderView.id <| propagateExpectedType fvar type s
-      let s := { s with lctx := lctx }
+      let s := { s with lctx }
       match (← isClass? type) with
       | none           => elabFunBinderViews binderViews (i+1) s
       | some className =>
         resettingSynthInstanceCache do
-          let localInsts := s.localInsts.push { className := className, fvar := mkFVar fvarId }
-          elabFunBinderViews binderViews (i+1) { s with localInsts := localInsts }
+          let localInsts := s.localInsts.push { className, fvar := mkFVar fvarId }
+          elabFunBinderViews binderViews (i+1) { s with localInsts }
   else
     pure s
 
 partial def elabFunBindersAux (binders : Array Syntax) (i : Nat) (s : State) : TermElabM State := do
   if h : i < binders.size then
-    let binderViews ← matchBinder (binders.get ⟨i, h⟩)
+    let binderViews ← matchBinder binders[i]
     let s ← elabFunBinderViews binderViews 0 s
     elabFunBindersAux binders (i+1) s
   else
@@ -398,13 +398,13 @@ partial def elabFunBindersAux (binders : Array Syntax) (i : Nat) (s : State) : T
 
 end FunBinders
 
-def elabFunBinders {α} (binders : Array Syntax) (expectedType? : Option Expr) (x : Array Expr → Option Expr → TermElabM α) : TermElabM α :=
+def elabFunBinders (binders : Array Syntax) (expectedType? : Option Expr) (x : Array Expr → Option Expr → TermElabM α) : TermElabM α :=
   if binders.isEmpty then
     x #[] expectedType?
   else do
     let lctx ← getLCtx
     let localInsts ← getLocalInstances
-    let s ← FunBinders.elabFunBindersAux binders 0 { lctx := lctx, localInsts := localInsts, expectedType? := expectedType? }
+    let s ← FunBinders.elabFunBindersAux binders 0 { lctx, localInsts, expectedType? }
     resettingSynthInstanceCacheWhen (s.localInsts.size > localInsts.size) <| withLCtx s.lctx s.localInsts <|
       x s.fvars s.expectedType?
 
@@ -650,7 +650,7 @@ def mkLetIdDeclView (letIdDecl : Syntax) : LetIdDeclView :=
   let optType := letIdDecl[2]
   let type    := expandOptType id optType
   let value   := letIdDecl[4]
-  { id := id, binders := binders, type := type, value := value }
+  { id, binders, type, value }
 
 def expandLetEqnsDecl (letDecl : Syntax) : MacroM Syntax := do
   let ref       := letDecl
@@ -662,8 +662,8 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : B
   let letDecl := stx[1][0]
   let body    := stx[3]
   if letDecl.getKind == ``Lean.Parser.Term.letIdDecl then
-    let { id := id, binders := binders, type := type, value := val } := mkLetIdDeclView letDecl
-    elabLetDeclAux id binders type val body expectedType? useLetExpr elabBodyFirst usedLetOnly
+    let { id, binders, type, value } := mkLetIdDeclView letDecl
+    elabLetDeclAux id binders type value body expectedType? useLetExpr elabBodyFirst usedLetOnly
   else if letDecl.getKind == ``Lean.Parser.Term.letPatDecl then
     -- node `Lean.Parser.Term.letPatDecl  $ try (termParser >> pushNone >> optType >> " := ") >> termParser
     if elabBodyFirst then

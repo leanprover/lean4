@@ -114,7 +114,7 @@ structure Result where
 partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) : TermElabM Result := do
   let rec loop : M Unit := do
     match (← getFType) with
-    | Expr.forallE binderName _ _ c =>
+    | .forallE binderName _ _ c =>
       let ctx ← read
       let argPos := (← get).argPos
       if ctx.elimInfo.motivePos == argPos then
@@ -131,13 +131,13 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
         modify fun s => { s with targetPos := s.targetPos + 1 }
         addNewArg target
       else match c with
-        | BinderInfo.implicit =>
+        | .implicit =>
           let arg ← mkFreshExprMVar (← getArgExpectedType)
           addNewArg arg
-        | BinderInfo.strictImplicit =>
+        | .strictImplicit =>
           let arg ← mkFreshExprMVar (← getArgExpectedType)
           addNewArg arg
-        | BinderInfo.instImplicit =>
+        | .instImplicit =>
           let arg ← mkFreshExprMVar (← getArgExpectedType) (kind := MetavarKind.synthetic) (userName := appendTag tag binderName)
           modify fun s => { s with insts := s.insts.push arg.mvarId! }
           addNewArg arg

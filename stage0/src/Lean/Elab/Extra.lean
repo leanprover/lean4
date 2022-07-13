@@ -38,15 +38,15 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
         catch _ =>
           tryPostpone; throwError "failed to construct 'ForIn' instance for collection{indentExpr colType}\nand monad{indentExpr m}"
         match (← trySynthInstance forInInstance) with
-        | LOption.some inst =>
+        | .some inst =>
           let forInFn ← mkConst ``forIn
           elabAppArgs forInFn
             (namedArgs := #[{ name := `m, val := Arg.expr m}, { name := `α, val := Arg.expr elemType }, { name := `self, val := Arg.expr inst }])
             (args := #[Arg.stx col, Arg.stx init, Arg.stx body])
             (expectedType? := expectedType?)
             (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
-        | LOption.undef    => tryPostpone; throwForInFailure forInInstance
-        | LOption.none     => throwForInFailure forInInstance
+        | .undef    => tryPostpone; throwForInFailure forInInstance
+        | .none     => throwForInFailure forInInstance
   | _ => throwUnsupportedSyntax
 
 @[builtinTermElab forInMacro'] def elabForIn' : TermElab :=  fun stx expectedType? => do
@@ -66,15 +66,15 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
           catch _ =>
             tryPostpone; throwError "failed to construct `ForIn'` instance for collection{indentExpr colType}\nand monad{indentExpr m}"
         match (← trySynthInstance forInInstance) with
-        | LOption.some inst  =>
+        | .some inst  =>
           let forInFn ← mkConst ``forIn'
           elabAppArgs forInFn
             (namedArgs := #[{ name := `m, val := Arg.expr m}, { name := `α, val := Arg.expr elemType}, { name := `self, val := Arg.expr inst }])
             (args := #[Arg.expr colFVar, Arg.stx init, Arg.stx body])
             (expectedType? := expectedType?)
             (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
-        | LOption.undef    => tryPostpone; throwForInFailure forInInstance
-        | LOption.none     => throwForInFailure forInInstance
+        | .undef    => tryPostpone; throwForInFailure forInInstance
+        | .none     => throwForInFailure forInInstance
   | _ => throwUnsupportedSyntax
 
 namespace BinOp
@@ -157,9 +157,9 @@ private def hasCoe (fromType toType : Expr) : TermElabM Bool := do
     let v ← getLevel toType
     let coeInstType := mkAppN (Lean.mkConst ``CoeHTCT [u, v]) #[fromType, toType]
     match ← trySynthInstance coeInstType (some (maxCoeSize.get (← getOptions))) with
-    | LOption.some _ => return true
-    | LOption.none   => return false
-    | LOption.undef  => return false -- TODO: should we do something smarter here?
+    | .some _ => return true
+    | .none   => return false
+    | .undef  => return false -- TODO: should we do something smarter here?
   else
     return false
 
@@ -168,10 +168,10 @@ private structure AnalyzeResult where
   hasUncomparable : Bool := false -- `true` if there are two types `α` and `β` where we don't have coercions in any direction.
 
 private def isUnknow : Expr → Bool
-  | Expr.mvar ..        => true
-  | Expr.app f ..       => isUnknow f
-  | Expr.letE _ _ _ b _ => isUnknow b
-  | Expr.mdata _ b      => isUnknow b
+  | .mvar ..        => true
+  | .app f _        => isUnknow f
+  | .letE _ _ _ b _ => isUnknow b
+  | .mdata _ b      => isUnknow b
   | _                   => false
 
 private def analyze (t : Tree) (expectedType? : Option Expr) : TermElabM AnalyzeResult := do
@@ -205,11 +205,11 @@ where
 private def mkOp (f : Expr) (lhs rhs : Expr) : TermElabM Expr :=
   elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] (expectedType? := none) (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
 
-private def toExpr (t : Tree) : TermElabM Expr := do
+private def toExprCore (t : Tree) : TermElabM Expr := do
   match t with
-  | Tree.term _ e               => return e
-  | Tree.op ref true f lhs rhs  => withRef ref <| mkOp f (← toExpr lhs) (← mkFunUnit (← toExpr rhs))
-  | Tree.op ref false f lhs rhs => withRef ref <| mkOp f (← toExpr lhs) (← toExpr rhs)
+  | .term _ e               => return e
+  | .op ref true f lhs rhs  => withRef ref <| mkOp f (← toExprCore lhs) (← mkFunUnit (← toExprCore rhs))
+  | .op ref false f lhs rhs => withRef ref <| mkOp f (← toExprCore lhs) (← toExprCore rhs)
 
 private def getResultingType : Expr → Expr
   | .forallE _ _ b _ => getResultingType b
@@ -256,55 +256,88 @@ private def hasHeterogeneousDefaultInstances (f : Expr) (maxType : Expr) (lhs : 
   return false
 
 /--
-  Try to coerce elements in the `t` to `maxType` when needed.
-  If the type of an element in `t` is unknown we only coerce it to `maxType` if `maxType` does not have heterogeneous
-  default instances. This extra check is approximated by `hasHeterogeneousDefaultInstances`.
+  Return `true` if polymorphic function `f` has a homogenous instance of `maxType`.
+  The coercions to `maxType` only makes sense if such instance exists.
 
-  Remark: If `maxType` does not implement heterogeneous default instances, we do want to assign unknown types `?m` to
-  `maxType` because it produces better type information propagation. Our test suite has many tests that would break if
-  we don't do this. For example, consider the term
-  ```
-  eq_of_isEqvAux a b hsz (i+1) (Nat.succ_le_of_lt h) heqv.2
-  ```
-  `Nat.succ_le_of_lt h` type depends on `i+1`, but `i+1` only reduces to `Nat.succ i` if we know that `1` is a `Nat`.
-  There are several other examples like that in our test suite, and one can find them by just replacing the
-  `← hasHeterogeneousDefaultInstances f maxType lhs` test with `true`
-
-
-  Remark: if `hasHeterogeneousDefaultInstances` implementation is not good enough we should refine it in the future.
+  For example, suppose `maxType` is `Int`, and `f` is `HPow.hPow`. Then,
+  adding coercions to `maxType` only make sense if we have an instance `HPow Int Int Int`.
 -/
-private def applyCoe (t : Tree) (maxType : Expr) : TermElabM Tree := do
-  go t none false
-where
-  go (t : Tree) (f? : Option Expr) (lhs : Bool) : TermElabM Tree := do
-    match t with
-    | Tree.op ref lazy f lhs rhs => return Tree.op ref lazy f (← go lhs f true) (← go rhs f false)
-    | Tree.term ref e       =>
-      let type ← instantiateMVars (← inferType e)
-      trace[Elab.binop] "visiting {e} : {type} =?= {maxType}"
-      if isUnknow type then
-        if let some f := f? then
-          if (← hasHeterogeneousDefaultInstances f maxType lhs) then
-            -- See comment at `hasHeterogeneousDefaultInstances`
-            return t
-      if (← isDefEqGuarded maxType type) then
-        return t
-      else
-        trace[Elab.binop] "added coercion: {e} : {type} => {maxType}"
-        withRef ref <| return Tree.term ref (← mkCoe maxType type e)
+private def hasHomogeneousInstance (f : Expr) (maxType : Expr) : MetaM Bool := do
+  let .const fName .. := f | return false
+  let className := fName.getPrefix
+  try
+    let inst ← mkAppM className #[maxType, maxType, maxType]
+    return (← trySynthInstance inst) matches .some _
+  catch _ =>
+    return false
+
+mutual
+  /--
+    Try to coerce elements in the `t` to `maxType` when needed.
+    If the type of an element in `t` is unknown we only coerce it to `maxType` if `maxType` does not have heterogeneous
+    default instances. This extra check is approximated by `hasHeterogeneousDefaultInstances`.
+
+    Remark: If `maxType` does not implement heterogeneous default instances, we do want to assign unknown types `?m` to
+    `maxType` because it produces better type information propagation. Our test suite has many tests that would break if
+    we don't do this. For example, consider the term
+    ```
+    eq_of_isEqvAux a b hsz (i+1) (Nat.succ_le_of_lt h) heqv.2
+    ```
+    `Nat.succ_le_of_lt h` type depends on `i+1`, but `i+1` only reduces to `Nat.succ i` if we know that `1` is a `Nat`.
+    There are several other examples like that in our test suite, and one can find them by just replacing the
+    `← hasHeterogeneousDefaultInstances f maxType lhs` test with `true`
+
+
+    Remark: if `hasHeterogeneousDefaultInstances` implementation is not good enough we should refine it in the future.
+  -/
+  private partial def applyCoe (t : Tree) (maxType : Expr) (isPred : Bool) : TermElabM Tree := do
+    go t none false isPred
+  where
+    go (t : Tree) (f? : Option Expr) (lhs : Bool) (isPred : Bool) : TermElabM Tree := do
+      match t with
+      | .op ref lazy f lhs rhs =>
+        /-
+          We only keep applying coercions to `maxType` if `f` is predicate or
+          `f` has a homogenous instance with `maxType`. See `hasHomogeneousInstance` for additional details.
+
+          Remark: We assume `binrel%` elaborator is only used with homogenous predicates.
+        -/
+        if (← pure isPred <||> hasHomogeneousInstance f maxType) then
+          return Tree.op ref lazy f (← go lhs f true false) (← go rhs f false false)
+        else
+          let lhs ← toExpr lhs none
+          let rhs ← toExpr rhs none
+          return Tree.term ref (← mkOp f lhs rhs)
+      | .term ref e       =>
+        let type ← instantiateMVars (← inferType e)
+        trace[Elab.binop] "visiting {e} : {type} =?= {maxType}"
+        if isUnknow type then
+          if let some f := f? then
+            if (← hasHeterogeneousDefaultInstances f maxType lhs) then
+              -- See comment at `hasHeterogeneousDefaultInstances`
+              return t
+        if (← isDefEqGuarded maxType type) then
+          return t
+        else
+          trace[Elab.binop] "added coercion: {e} : {type} => {maxType}"
+          withRef ref <| return Tree.term ref (← mkCoe maxType type e)
+
+  private partial def toExpr (tree : Tree) (expectedType? : Option Expr) : TermElabM Expr := do
+    let r ← analyze tree expectedType?
+    trace[Elab.binop] "hasUncomparable: {r.hasUncomparable}, maxType: {r.max?}"
+    if r.hasUncomparable || r.max?.isNone then
+      let result ← toExprCore tree
+      ensureHasType expectedType? result
+    else
+      let result ← toExprCore (← applyCoe tree r.max?.get! (isPred := false))
+      trace[Elab.binop] "result: {result}"
+      ensureHasType expectedType? result
+
+end
 
 @[builtinTermElab binop]
 def elabBinOp : TermElab :=  fun stx expectedType? => do
-  let tree ← toTree stx
-  let r    ← analyze tree expectedType?
-  trace[Elab.binop] "hasUncomparable: {r.hasUncomparable}, maxType: {r.max?}"
-  if r.hasUncomparable || r.max?.isNone then
-    let result ← toExpr tree
-    ensureHasType expectedType? result
-  else
-    let result ← toExpr (← applyCoe tree r.max?.get!)
-    trace[Elab.binop] "result: {result}"
-    ensureHasType expectedType? result
+  toExpr (← toTree stx) expectedType?
 
 @[builtinTermElab binop_lazy]
 def elabBinOpLazy : TermElab := elabBinOp
@@ -327,8 +360,8 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
     trace[Elab.binrel] "hasUncomparable: {r.hasUncomparable}, maxType: {r.max?}"
     if r.hasUncomparable || r.max?.isNone then
       -- Use default elaboration strategy + `toBoolIfNecessary`
-      let lhs ← toExpr lhs
-      let rhs ← toExpr rhs
+      let lhs ← toExprCore lhs
+      let rhs ← toExprCore rhs
       let lhs ← toBoolIfNecessary lhs
       let rhs ← toBoolIfNecessary rhs
       let lhsType ← inferType lhs
@@ -340,7 +373,7 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
       if noProp then
         if (← withNewMCtxDepth <| isDefEq maxType (mkSort levelZero)) then
           maxType := Lean.mkConst ``Bool
-      let result ← toExpr (← applyCoe tree maxType)
+      let result ← toExprCore (← applyCoe tree maxType (isPred := true))
       trace[Elab.binrel] "result: {result}"
       return result
   | none   => throwUnknownConstant stx[1].getId

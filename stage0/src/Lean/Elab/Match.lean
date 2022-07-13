@@ -1086,14 +1086,16 @@ private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax
       -/
       withRef altLHS.ref do
         for d in altLHS.fvarDecls do
-            if d.hasExprMVar then
+          if d.hasExprMVar then
+            tryPostpone
             withExistingLocalDecls altLHS.fvarDecls do
-              tryPostpone
-              throwMVarError m!"invalid match-expression, type of pattern variable '{d.toExpr}' contains metavariables{indentExpr d.type}"
+              runPendingTacticsAt d.type
+              if (← instantiateMVars d.type).hasExprMVar then
+                throwMVarError m!"invalid match-expression, type of pattern variable '{d.toExpr}' contains metavariables{indentExpr d.type}"
         for p in altLHS.patterns do
-          if p.hasExprMVar then
+          if (← Match.instantiatePatternMVars p).hasExprMVar then
+            tryPostpone
             withExistingLocalDecls altLHS.fvarDecls do
-              tryPostpone
               throwMVarError m!"invalid match-expression, pattern contains metavariables{indentExpr (← p.toExpr)}"
         pure altLHS
     return (discrs, matchType, altLHSS, isDep, rhss)

@@ -1,0 +1,8 @@
+1301.lean:2:23-2:26: error: tactic 'tacticTac' has not been implemented
+a : True
+1301.lean:5:32-5:35: error: tactic 'tacticTac' has not been implemented
+a' : True ∧ True
+1301.lean:9:25-9:29: error: elaboration function for 'termTerm' has not been implemented
+  term
+def b : Nat → Nat :=
+sorryAx (Nat → Nat) true

@@ -22,7 +22,7 @@ kw:"module_facet " sig:simpleDeclSig : command => do
     let attr ← withRef kw `(Term.attrInstance| moduleFacet)
     let attrs := #[attr] ++ expandAttrs attrs?
     let axm := mkIdentFrom id <| ``ModuleData ++ id.getId
-    let name := Lake.quoteNameFrom id id.getId
+    let name := Name.quoteFrom id id.getId
     `(module_data $id : ActiveBuildTarget $ty
       $[$doc?]? @[$attrs,*] def $id : ModuleFacetDecl := {
         name := $name
@@ -43,7 +43,7 @@ kw:"package_facet " sig:simpleDeclSig : command => do
     let attr ← withRef kw `(Term.attrInstance| packageFacet)
     let attrs := #[attr] ++ expandAttrs attrs?
     let axm := mkIdentFrom id <| ``PackageData ++ id.getId
-    let name := Lake.quoteNameFrom id id.getId
+    let name := Name.quoteFrom id id.getId
     `(package_data $id : ActiveBuildTarget $ty
       $[$doc?]? @[$attrs,*] def $id : PackageFacetDecl := {
         name := $name
@@ -64,7 +64,7 @@ kw:"target " sig:simpleDeclSig : command => do
     let attr ← withRef kw `(Term.attrInstance| target)
     let attrs := #[attr] ++ expandAttrs attrs?
     let axm := mkIdentFrom id <| ``CustomData ++ id.getId
-    let name := Lake.quoteNameFrom id id.getId
+    let name := Name.quoteFrom id id.getId
     let pkgName := mkIdentFrom id `_package.name
     `(family_def $id : CustomData ($pkgName, $name) := ActiveBuildTarget $ty
       $[$doc?]? @[$attrs,*] def $id : TargetConfig := {

@@ -99,5 +99,6 @@ quickCmp k k' = Ordering.eq → k = k' := by
       next => intro; contradiction
     all_goals (intro; contradiction)
 
-instance : EqOfCmp BuildKey quickCmp where
+instance : LawfulCmpEq BuildKey quickCmp where
   eq_of_cmp := eq_of_quickCmp
+  cmp_rfl {k} := by cases k <;> simp [quickCmp]

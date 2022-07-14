@@ -75,21 +75,21 @@ abbrev BuildData : BuildKey → Type
 scoped macro (name := packageDataDecl) doc?:optional(Parser.Command.docComment)
 "package_data " id:ident " : " ty:term : command => do
   let dty := mkCIdentFrom (← getRef) ``PackageData
-  let key := Lake.quoteNameFrom id id.getId
+  let key := Name.quoteFrom id id.getId
   `($[$doc?]? family_def $id : $dty $key := $ty)
 
 /-- Macro for declaring new `ModuleData`. -/
 scoped macro (name := moduleDataDecl) doc?:optional(Parser.Command.docComment)
 "module_data " id:ident " : " ty:term : command => do
   let dty := mkCIdentFrom (← getRef) ``ModuleData
-  let key := Lake.quoteNameFrom id id.getId
+  let key := Name.quoteFrom id id.getId
   `($[$doc?]? family_def $id : $dty $key := $ty)
 
 /-- Macro for declaring new `TargetData`. -/
 scoped macro (name := targetDataDecl) doc?:optional(Parser.Command.docComment)
 "target_data " id:ident " : " ty:term : command => do
   let dty := mkCIdentFrom (← getRef) ``TargetData
-  let key := Lake.quoteNameFrom id id.getId
+  let key := Name.quoteFrom id id.getId
   `($[$doc?]? family_def $id : $dty $key := $ty)
 
 /-- Macro for declaring new `CustomData`. -/
@@ -97,6 +97,6 @@ scoped macro (name := customDataDecl) doc?:optional(Parser.Command.docComment)
 "custom_data " pkg:ident tgt:ident " : " ty:term : command => do
   let dty := mkCIdentFrom (← getRef) ``CustomData
   let id := mkIdentFrom tgt (pkg.getId ++ tgt.getId)
-  let pkg := Lake.quoteNameFrom pkg pkg.getId
-  let tgt := Lake.quoteNameFrom pkg tgt.getId
+  let pkg := Name.quoteFrom pkg pkg.getId
+  let tgt := Name.quoteFrom pkg tgt.getId
   `($[$doc?]? family_def $id : $dty ($pkg, $tgt) := $ty)

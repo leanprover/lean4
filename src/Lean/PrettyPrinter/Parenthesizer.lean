@@ -533,9 +533,11 @@ def parenthesize (parenthesizer : Parenthesizer) (stx : Syntax) : CoreM Syntax :
       pure st.stxTrav.cur)
     (fun _ => throwError "parenthesize: uncaught backtrack exception")
 
-def parenthesizeTerm := parenthesize $ categoryParser.parenthesizer `term 0
-def parenthesizeTactic := parenthesize $ categoryParser.parenthesizer `tactic 0
-def parenthesizeCommand := parenthesize $ categoryParser.parenthesizer `command 0
+def parenthesizeCategory (cat : Name) := parenthesize <| categoryParser.parenthesizer cat 0
+
+def parenthesizeTerm := parenthesizeCategory `term
+def parenthesizeTactic := parenthesizeCategory `tactic
+def parenthesizeCommand := parenthesizeCategory `command
 
 builtin_initialize registerTraceClass `PrettyPrinter.parenthesize
 

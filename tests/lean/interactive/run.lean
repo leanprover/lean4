@@ -81,7 +81,6 @@ partial def main (args : List String) : IO Unit := do
             IO.eprintln (toJson diag.param)
           requestNo := requestNo + 1
         | "widgets" =>
-          -- [todo] dedup with RPC
           if rpcSessionId.isNone then
             Ipc.writeRequest ⟨requestNo, "$/lean/rpc/connect",  RpcConnectParams.mk uri⟩
             let r ← Ipc.readResponseAs requestNo RpcConnected
@@ -110,28 +109,6 @@ partial def main (args : List String) : IO Unit := do
             let resp ← Ipc.readResponseAs requestNo Lean.Widget.WidgetSource
             IO.eprintln (toJson resp.result)
             requestNo := requestNo + 1
-        | "RPC" =>
-          if rpcSessionId.isNone then
-            Ipc.writeRequest ⟨requestNo, "$/lean/rpc/connect",  RpcConnectParams.mk uri⟩
-            let r ← Ipc.readResponseAs requestNo RpcConnected
-            rpcSessionId := some r.result.sessionId
-            requestNo := requestNo + 1
-          let (method, params) ← liftExcept <| Except.mapError IO.userError <| Lean.Parsec.run (Prod.mk <$> ident <*> Json.Parser.any) params
-          let tdpp : TextDocumentPositionParams := {textDocument := { uri := uri}, position := pos}
-          -- hack for getWidgets which needs an explicit pos param.
-          let params := if method == `Lean.Widget.getWidgets then (toJson tdpp) else params
-          IO.eprintln (method, params)
-          let ps : RpcCallParams := {
-            textDocument := {uri := uri},
-            position := pos,
-            sessionId := rpcSessionId.get!,
-            method := method,
-            params := params,
-          }
-          Ipc.writeRequest ⟨requestNo, "$/lean/rpc/call", ps⟩
-          let response ← Ipc.readResponseAs requestNo Json
-          IO.eprintln response.result
-          requestNo := requestNo + 1
         | _ =>
           let Except.ok params ← pure <| Json.parse params
             | throw <| IO.userError s!"failed to parse {params}"

@@ -6,7 +6,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 import Lake.Util.Git
 import Lake.Config.Package
 import Lake.Config.Workspace
-import Lake.Config.Load
+import Lake.Load.Config
 
 namespace Lake
 open Git System

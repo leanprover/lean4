@@ -8,15 +8,13 @@ import Lake.DSL.Attributes
 import Lake.DSL.Extensions
 import Lake.Config.FacetConfig
 import Lake.Config.TargetConfig
+import Lake.Load.Config
 
 namespace Lake
 open Lean System
 
 /-- Main module `Name` of a Lake configuration file. -/
 def configModuleName : Name := `lakefile
-
-/-- The default name of the Lake configuration file (i.e., `lakefile.lean`). -/
-def defaultConfigFile : FilePath := "lakefile.lean"
 
 deriving instance BEq, Hashable for Import
 

@@ -4,9 +4,8 @@ open Lean
 open Lean.Lsp
 open Lean.JsonRpc
 
-def word : Parsec String := Parsec.many1Chars (
-      Parsec.digit <|> Parsec.asciiLetter <|> Parsec.pchar '_'
-    )
+def word : Parsec String :=
+  Parsec.many1Chars <| Parsec.digit <|> Parsec.asciiLetter <|> Parsec.pchar '_'
 
 def ident : Parsec Name := do
   let head ← word

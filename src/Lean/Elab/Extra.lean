@@ -211,10 +211,6 @@ private def toExprCore (t : Tree) : TermElabM Expr := do
   | .op ref true f lhs rhs  => withRef ref <| mkOp f (← toExprCore lhs) (← mkFunUnit (← toExprCore rhs))
   | .op ref false f lhs rhs => withRef ref <| mkOp f (← toExprCore lhs) (← toExprCore rhs)
 
-private def getResultingType : Expr → Expr
-  | .forallE _ _ b _ => getResultingType b
-  | e => e
-
 /--
   Auxiliary function to decide whether we should coerce `f`'s argument to `maxType` or not.
   - `f` is a binary operator.
@@ -245,14 +241,11 @@ private def hasHeterogeneousDefaultInstances (f : Expr) (maxType : Expr) (lhs : 
   let className := fName.getPrefix
   let defInstances ← getDefaultInstances className
   if defInstances.length ≤ 1 then return false
-  for (instName, _) in (← getDefaultInstances className) do
-    let instInfo ← getConstInfo instName
-    let type := getResultingType instInfo.type
-    if type.getAppNumArgs >= 3 then
-      if lhs then
-        return type.appFn!.appArg!.isAppOf typeName
-      else
-        return type.appFn!.appArg!.appArg!.isAppOf typeName
+  for (instName, _) in defInstances do
+    if let .app (.app (.app _heteroClass lhsType) rhsType) _resultType :=
+        (← getConstInfo instName).type.getForallBody then
+      if  lhs && rhsType.isAppOf typeName then return true
+      if !lhs && lhsType.isAppOf typeName then return true
   return false
 
 /--

@@ -259,18 +259,6 @@ register_builtin_option showPartialSyntaxErrors : Bool := {
   descr    := "show elaboration errors from partial syntax trees (i.e. after parser recovery)"
 }
 
-def withLogging (x : CommandElabM Unit) : CommandElabM Unit := do
-  try
-    x
-  catch ex => match ex with
-    | Exception.error _ _     => logException ex
-    | Exception.internal id _ =>
-      if isAbortExceptionId id then
-        pure ()
-      else
-        let idName ← liftIO <| id.getName;
-        logError m!"internal exception {idName}"
-
 builtin_initialize registerTraceClass `Elab.command
 
 partial def elabCommand (stx : Syntax) : CommandElabM Unit := do

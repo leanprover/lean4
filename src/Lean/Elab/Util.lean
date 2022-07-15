@@ -204,6 +204,10 @@ def logException [Monad m] [MonadLog m] [AddMessageContext m] [MonadLiftT IO m] 
       let name ← id.getName
       logError m!"internal exception: {name}"
 
+def withLogging [Monad m] [MonadLog m] [MonadExcept Exception m] [AddMessageContext m] [MonadLiftT IO m]
+    (x : m Unit) : m Unit := do
+  try x catch ex => logException ex
+
 @[inline] def trace [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] (cls : Name) (msg : Unit → MessageData) : m Unit := do
   if checkTraceOption (← getOptions) cls then
     logTrace cls (msg ())

@@ -46,10 +46,9 @@ def materializeGitPkg (name : String) (dir : FilePath)
     if shouldUpdate then
       if (← repo.dirExists) then
         if url = entry.url then
-          if shouldUpdate then
-            updateGitPkg repo rev?
+          updateGitPkg repo rev?
         else
-          logInfo s!"{name}: URL changed, deleting {dir} and cloning again"
+          logInfo s!"{name}: URL has changed; deleting {dir} and cloning again"
           IO.FS.removeDirAll dir
           cloneGitPkg repo url rev?
       else
@@ -59,15 +58,27 @@ def materializeGitPkg (name : String) (dir : FilePath)
     else
       if (← repo.dirExists) then
         if url = entry.url then
-          updateGitPkg repo entry.rev
+          /-
+          Do not update (fetch remote) if already on revision
+          Avoids errors when offline e.g. [leanprover/lake#104][104]
+          [104]: https://github.com/leanprover/lake/issues/104
+          -/
+          unless (← repo.headRevision) = entry.rev do
+            updateGitPkg repo entry.rev
+        else
+          logWarning <| s!"{name}: URL has changed; " ++
+            "still using old package, use `lake update` to update"
       else
         cloneGitPkg repo entry.url entry.rev
   else
     if (← repo.dirExists) then
       if shouldUpdate then
-        logInfo s!"{name}: no manifest entry, deleting {dir} and cloning again"
+        logInfo s!"{name}: no manifest entry; deleting {dir} and cloning again"
         IO.FS.removeDirAll dir
         cloneGitPkg repo url rev?
+      else
+        logWarning <| s!"{name}: no manifest entry; " ++
+          "still using old package, use `lake update` to update"
     else
       cloneGitPkg repo url rev?
     let rev ← repo.headRevision

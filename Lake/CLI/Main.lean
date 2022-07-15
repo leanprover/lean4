@@ -53,7 +53,8 @@ def loadWorkspace (config : LoadConfig) (updateDeps := false) : LogIO Workspace 
   let manifestMap ← loadManifestMap ws.manifestFile
   let (packageMap, resolvedMap) ← resolveDeps ws root updateDeps |>.run manifestMap
   unless resolvedMap.isEmpty do
-    IO.FS.writeFile ws.manifestFile <| Json.pretty <| toJson <| Manifest.fromMap resolvedMap
+    let json := Json.pretty <| toJson <| Manifest.fromMap resolvedMap
+    IO.FS.writeFile ws.manifestFile <| json.push '\n'
   let packageMap := packageMap.insert root.name root
   return {ws with packageMap}
 

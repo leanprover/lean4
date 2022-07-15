@@ -91,10 +91,10 @@ def headRevision (repo : GitRepo) : LogIO String :=
 
 def parseRemoteRevision (rev : String) (remote := Git.defaultRemote) (repo : GitRepo) : LogIO String := do
   if Git.isFullObjectName rev then return rev
-  repo.parseRevision (s!"{remote}/{rev}") <|> repo.parseRevision rev
+  repo.parseRevision s!"{remote}/{rev}" <|> repo.parseRevision rev
     <|> error s!"cannot find revision {rev} in repository {repo}"
 
-def findRemoteRevision (repo : GitRepo) (rev? : Option String := none)  (remote := Git.defaultRemote) : LogIO String := do
+def findRemoteRevision (repo : GitRepo) (rev? : Option String := none) (remote := Git.defaultRemote) : LogIO String := do
   repo.fetch remote; repo.parseRemoteRevision (rev?.getD Git.upstreamBranch) remote
 
 def branchExists (rev : String) (repo : GitRepo) : LogIO Bool := do

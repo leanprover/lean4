@@ -1,3 +1,2 @@
-625.lean:7:25-7:36: error: unknown constant 'foo'
-foo x
+sorry
 foo.{1} x

@@ -1,2 +1,2 @@
-class_def_must_fail.lean:2:13-2:16: error: invalid 'class', declaration 'Foo' must be inductive datatype, structure, or constant
-class_def_must_fail.lean:7:18-7:21: error: invalid 'class', declaration 'Bla' must be inductive datatype, structure, or constant
+class_def_must_fail.lean:2:2-2:7: error: invalid 'class', declaration 'Foo' must be inductive datatype, structure, or constant
+class_def_must_fail.lean:7:11-7:16: error: invalid 'class', declaration 'Bla' must be inductive datatype, structure, or constant

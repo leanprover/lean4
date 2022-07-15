@@ -617,6 +617,7 @@ private def applyAttributesCore
     (declName : Name) (attrs : Array Attribute)
     (applicationTime? : Option AttributeApplicationTime) : TermElabM Unit :=
   for attr in attrs do
+    withRef attr.stx do withLogging do
     let env ← getEnv
     match getAttributeImpl env attr.name with
     | Except.error errMsg => throwError errMsg

@@ -11,4 +11,4 @@ heapSort.lean:102:4-102:13: warning: declaration uses 'sorry'
     | some x =>
       let_fun this := (_ : BinaryHeap.size (BinaryHeap.popMax a) < BinaryHeap.size a);
       Array.heapSort.loop lt (BinaryHeap.popMax a) (Array.push out x)
-heapSort.lean:178:17-178:39: warning: declaration uses 'sorry'
+heapSort.lean:178:11-178:15: warning: declaration uses 'sorry'

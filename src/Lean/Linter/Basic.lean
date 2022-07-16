@@ -26,48 +26,45 @@ def getLinterUnusedVariablesFunArgs (o : Options) : Bool := o.get linter.unusedV
 def getLinterUnusedVariablesPatternVars (o : Options) : Bool := o.get linter.unusedVariables.patternVars.name (getLinterUnusedVariables o)
 
 
-builtin_initialize unusedVariablesIgnoreFnsRef : IO.Ref <| Array IgnoreFunction ← IO.mkRef #[]
+builtin_initialize builtinUnusedVariablesIgnoreFnsRef : IO.Ref <| Array IgnoreFunction ← IO.mkRef #[]
 
-def addUnusedVariablesIgnoreFn (ignoreFn : IgnoreFunction) : IO Unit := do
-  (← unusedVariablesIgnoreFnsRef.get) |> (·.push ignoreFn) |> unusedVariablesIgnoreFnsRef.set
-
-def getUnusedVariablesIgnoreFns : IO <| Array IgnoreFunction :=
-  unusedVariablesIgnoreFnsRef.get
+def addBuiltinUnusedVariablesIgnoreFn (ignoreFn : IgnoreFunction) : IO Unit := do
+  (← builtinUnusedVariablesIgnoreFnsRef.get) |> (·.push ignoreFn) |> builtinUnusedVariablesIgnoreFnsRef.set
 
 
--- matches unused variable pattern
-builtin_initialize addUnusedVariablesIgnoreFn (fun stx _ _ =>
+-- matches builtinUnused variable pattern
+builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun stx _ _ =>
     stx.getId.toString.startsWith "_")
 
 -- is variable
-builtin_initialize addUnusedVariablesIgnoreFn (fun _ stack _ =>
+builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
     stackMatches stack [`null, none, `null, ``Lean.Parser.Command.variable])
 
 -- is in structure
-builtin_initialize addUnusedVariablesIgnoreFn (fun _ stack _ =>
+builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
   stackMatches stack [`null, none, `null, ``Lean.Parser.Command.structure])
 
 -- is in inductive
-builtin_initialize addUnusedVariablesIgnoreFn (fun _ stack _ =>
+builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
   stackMatches stack [`null, none, `null, none, ``Lean.Parser.Command.inductive] &&
   (stack.get? 3 |>.any fun (stx, pos) =>
     pos == 0 &&
     [``Lean.Parser.Command.optDeclSig, ``Lean.Parser.Command.declSig].any (stx.isOfKind ·)))
 
 -- in in constructor or structure binder
-builtin_initialize addUnusedVariablesIgnoreFn (fun _ stack _ =>
+builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
   stackMatches stack [`null, none, `null, ``Lean.Parser.Command.optDeclSig, none] &&
   (stack.get? 4 |>.any fun (stx, _) =>
     [``Lean.Parser.Command.ctor, ``Lean.Parser.Command.structSimpleBinder].any (stx.isOfKind ·)))
 
 -- is in opaque or axiom
-builtin_initialize addUnusedVariablesIgnoreFn (fun _ stack _ =>
+builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
   stackMatches stack [`null, none, `null, ``Lean.Parser.Command.declSig, none] &&
   (stack.get? 4 |>.any fun (stx, _) =>
     [``Lean.Parser.Command.opaque, ``Lean.Parser.Command.axiom].any (stx.isOfKind ·)))
 
 -- is in definition with foreign definition
-builtin_initialize addUnusedVariablesIgnoreFn (fun _ stack _ =>
+builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
   stackMatches stack [`null, none, `null, none, none, ``Lean.Parser.Command.declaration] &&
   (stack.get? 3 |>.any fun (stx, _) =>
     stx.isOfKind ``Lean.Parser.Command.optDeclSig ||
@@ -92,18 +89,18 @@ builtin_initialize addUnusedVariablesIgnoreFn (fun _ stack _ =>
       return false))
 
 -- is in dependent arrow
-builtin_initialize addUnusedVariablesIgnoreFn (fun _ stack _ =>
+builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
   stackMatches stack [`null, ``Lean.Parser.Term.explicitBinder, ``Lean.Parser.Term.depArrow])
 
 -- is in let declaration
-builtin_initialize addUnusedVariablesIgnoreFn (fun _ stack opts =>
+builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack opts =>
   !getLinterUnusedVariablesFunArgs opts &&
   stackMatches stack [`null, none, `null, ``Lean.Parser.Term.letIdDecl, none] &&
   (stack.get? 3 |>.any fun (_, pos) => pos == 1) &&
   (stack.get? 5 |>.any fun (stx, _) => !stx.isOfKind ``Lean.Parser.Command.whereStructField))
 
 -- is in declaration signature
-builtin_initialize addUnusedVariablesIgnoreFn (fun _ stack opts =>
+builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack opts =>
   !getLinterUnusedVariablesFunArgs opts &&
   stackMatches stack [`null, none, `null, none] &&
   (stack.get? 3 |>.any fun (stx, pos) =>
@@ -111,17 +108,46 @@ builtin_initialize addUnusedVariablesIgnoreFn (fun _ stack opts =>
     [``Lean.Parser.Command.optDeclSig, ``Lean.Parser.Command.declSig].any (stx.isOfKind ·)))
 
 -- is in function definition
-builtin_initialize addUnusedVariablesIgnoreFn (fun _ stack opts =>
+builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack opts =>
   !getLinterUnusedVariablesFunArgs opts &&
   (stackMatches stack [`null, ``Lean.Parser.Term.basicFun] ||
   stackMatches stack [`null, ``Lean.Parser.Term.paren, `null, ``Lean.Parser.Term.basicFun]))
 
 -- is pattern variable
-builtin_initialize addUnusedVariablesIgnoreFn (fun _ stack opts =>
+builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack opts =>
   !getLinterUnusedVariablesPatternVars opts &&
   stack.any fun (stx, pos) =>
     (stx.isOfKind ``Lean.Parser.Term.matchAlt && pos == 1) ||
     (stx.isOfKind ``Lean.Parser.Tactic.inductionAltLHS && pos == 2))
+
+
+builtin_initialize unusedVariablesIgnoreFnsExt : SimplePersistentEnvExtension Name Unit ←
+  registerSimplePersistentEnvExtension {
+    name          := `unusedVariablesIgnoreFns
+    addEntryFn    := fun _ _ => ()
+    addImportedFn := fun _ => ()
+  }
+
+builtin_initialize
+  registerBuiltinAttribute {
+    name  := `unusedVariablesIgnoreFn
+    descr := "Marks a function of type `Lean.Linter.IgnoreFunction` for suppressing unused variable warnings"
+    add   := fun decl stx kind => do
+      Attribute.Builtin.ensureNoArgs stx
+      unless kind == AttributeKind.global do throwError "invalid attribute 'unusedVariablesIgnoreFn', must be global"
+      unless (← getConstInfo decl).type.isConstOf ``IgnoreFunction do
+        throwError "invalid attribute 'unusedVariablesIgnoreFn', must be of type `Lean.Linter.IgnoreFunction`"
+      let env ← getEnv
+      setEnv <| unusedVariablesIgnoreFnsExt.addEntry env decl
+  }
+
+unsafe def getUnusedVariablesIgnoreFnsImpl : CoreM (Array IgnoreFunction) := do
+  let ents := unusedVariablesIgnoreFnsExt.getEntries (← getEnv)
+  let ents ← ents.mapM (evalConstCheck IgnoreFunction ``IgnoreFunction)
+  return (← builtinUnusedVariablesIgnoreFnsRef.get) ++ ents
+
+@[implementedBy getUnusedVariablesIgnoreFnsImpl]
+opaque getUnusedVariablesIgnoreFns : CoreM (Array IgnoreFunction)
 
 
 def unusedVariables : Linter := fun cmdStx => do
@@ -174,7 +200,7 @@ def unusedVariables : Linter := fun cmdStx => do
       return s
 
   -- collect ignore functions
-  let ignoreFns := (← getUnusedVariablesIgnoreFns)
+  let ignoreFns := (← Elab.Command.liftCoreM getUnusedVariablesIgnoreFns)
     |>.insertAt 0 (isTopLevelDecl constDecls)
 
   -- determine unused variables

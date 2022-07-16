@@ -19,7 +19,7 @@ Resolves a `Dependency` relative to the given `Package`
 in the same `Workspace`, downloading and/or updating it as necessary.
 -/
 def resolveDep (ws : Workspace)
-(pkg : Package) (dep : Dependency) (shouldUpdate := true) : ResolveM Package := do
+(pkg : Package) (dep : Dependency) (shouldUpdate := true) : ManifestM Package := do
   let dir ← materializeDep ws.packagesDir pkg.dir dep shouldUpdate
   let depPkg ← Package.load dir dep.options
   unless depPkg.name == dep.name do
@@ -33,7 +33,7 @@ Resolves the package's dependencies,
 downloading and/or updating them as necessary.
 -/
 def resolveDeps (ws : Workspace) (pkg : Package)
-(shouldUpdate := true) : ResolveM (NameMap Package) := do
+(shouldUpdate := true) : ManifestM (NameMap Package) := do
   let resolve dep resolve := do
     let pkg ← resolveDep ws pkg dep shouldUpdate
     pkg.dependencies.forM fun dep => discard <| resolve dep

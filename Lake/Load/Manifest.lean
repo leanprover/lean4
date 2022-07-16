@@ -5,7 +5,7 @@ Authors: Mac Malone
 -/
 import Lean.Data.Json
 
-open Lean
+open System Lean
 
 namespace Lake
 
@@ -18,15 +18,72 @@ structure PackageEntry where
 
 /-- Manifest file format. -/
 structure Manifest where
-  version : Nat := 1
-  packages : Array PackageEntry
-  deriving Inhabited, Repr, FromJson, ToJson
+  map : NameMap PackageEntry
 
 namespace Manifest
 
-def toMap (self : Manifest) : NameMap PackageEntry :=
-  self.packages.foldl (fun map entry => map.insert entry.name entry) {}
+/-- Current version of the manifest format. -/
+def version : Nat :=
+  1
 
-def fromMap (map : NameMap PackageEntry) : Manifest := {
-  packages := map.fold (fun a _ v => a.push v) #[]
-}
+def empty : Manifest :=
+  ⟨{}⟩
+
+instance : EmptyCollection Manifest := ⟨Manifest.empty⟩
+
+def isEmpty (self : Manifest) : Bool :=
+  self.map.isEmpty
+
+def ofMap (map : NameMap PackageEntry) : Manifest :=
+  ⟨map⟩
+
+def toMap (self : Manifest) : NameMap PackageEntry :=
+  self.map
+
+def ofArray (entries : Array PackageEntry) : Manifest :=
+  ofMap (entries.foldl (fun map entry => map.insert entry.name entry) {})
+
+def toArray (self : Manifest) : Array PackageEntry :=
+  self.toMap.fold (fun a _ v => a.push v) #[]
+
+def find? (packageName : Name) (self : Manifest) : Option PackageEntry :=
+  self.map.find? packageName
+
+def insert (entry : PackageEntry) (self : Manifest) : Manifest :=
+  ⟨self.map.insert entry.name entry⟩
+
+protected def toJson (self : Manifest) : Json :=
+  Json.mkObj [
+    ("version", version),
+    ("packages", toJson self.toArray)
+  ]
+
+instance : ToJson Manifest := ⟨Manifest.toJson⟩
+
+protected def fromJson? (json : Json) : Except String Manifest := do
+  let ver ← (← json.getObjVal? "version").getNat?
+  match ver with
+  | 1 =>
+    let packages : Array PackageEntry ←
+      (← (← json.getObjVal? "packages").getArr?).mapM fromJson?
+    return ofArray packages
+  | v =>
+    throw s!"unknown manifest version `{v}`"
+
+instance : FromJson Manifest := ⟨Manifest.fromJson?⟩
+
+def loadFromFile (manifestFile : FilePath) : IO Manifest := do
+  let contents ← IO.FS.readFile manifestFile
+  match Json.parse contents with
+  | .ok json =>
+    match fromJson? json with
+    | .ok manifest =>
+      return manifest
+    | .error e =>
+      throw <| IO.userError <| s!"improperly formatted manifest: {e}"
+  | .error e =>
+    throw <| IO.userError <| s!"invalid JSON in manifest: {e}"
+
+def saveToFile (self : Manifest) (manifestFile : FilePath) : IO PUnit := do
+  let jsonString := Json.pretty self.toJson
+  IO.FS.writeFile manifestFile <| jsonString.push '\n'

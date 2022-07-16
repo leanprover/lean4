@@ -11,7 +11,7 @@ open Std System Lean
 
 namespace Lake
 
-abbrev ResolveM := StateT (NameMap PackageEntry) <| LogIO
+abbrev ManifestM := StateT Manifest <| LogIO
 
 /-- Update the Git package in `repo` to `rev` if not already at it. -/
 def updateGitPkg (repo : GitRepo) (rev? : Option String) : LogIO PUnit := do
@@ -36,7 +36,7 @@ Attempts to reproduce the `PackageEntry` in the manifest (if one exists) unless
 and saves the result to the manifest.
 -/
 def materializeGitPkg (name : String) (dir : FilePath)
-(url : String) (rev? : Option String) (shouldUpdate := true) : ResolveM PUnit := do
+(url : String) (rev? : Option String) (shouldUpdate := true) : ManifestM PUnit := do
   let repo := GitRepo.mk dir
   if let some entry := (← get).find? name then
     if shouldUpdate then
@@ -50,7 +50,7 @@ def materializeGitPkg (name : String) (dir : FilePath)
       else
         cloneGitPkg repo url rev?
       let rev ← repo.headRevision
-      modify (·.insert name {entry with url, rev})
+      modify (·.insert {entry with url, rev})
     else
       if (← repo.dirExists) then
         if url = entry.url then
@@ -78,7 +78,7 @@ def materializeGitPkg (name : String) (dir : FilePath)
     else
       cloneGitPkg repo url rev?
     let rev ← repo.headRevision
-    modify (·.insert name {name, url, rev})
+    modify (·.insert {name, url, rev})
 
 /--
 Materializes a `Dependency`, downloading nd/or updating it as necessary.
@@ -86,7 +86,7 @@ Local dependencies are materialized relative to `localRoot` and remote
 dependencies are stored in `packagesDir`.
 -/
 def materializeDep (packagesDir localRoot : FilePath)
-(dep : Dependency) (shouldUpdate := true) : ResolveM FilePath :=
+(dep : Dependency) (shouldUpdate := true) : ManifestM FilePath :=
   match dep.src with
   | Source.path dir => return localRoot / dir
   | Source.git url rev? subDir? => do

@@ -319,7 +319,7 @@ protected def printPaths : CliM PUnit := do
 protected def clean : CliM PUnit := do
   processOptions lakeOption
   let config ← mkLoadConfig (← getThe LakeOptions)
-  noArgsRem (← loadPkg config).clean
+  noArgsRem (← loadWorkspace config).root.clean
 
 protected def script : CliM PUnit := do
   if let some cmd ← takeArg? then

@@ -8,7 +8,7 @@ declare_syntax_cat arith
 
 syntax num : arith  -- int for Arith.int
 syntax str : arith  -- strings for Arith.symbol
-syntax:60  arith:60 "+" arith:61 : arith  -- Arith.add
+syntax:60 arith:60 "+" arith:61 : arith  -- Arith.add
 syntax:70 arith:70 "*" arith:71 : arith  -- Arith.mul
 syntax "(" arith ")" : arith  -- parenthesized expressions
 

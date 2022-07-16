@@ -104,7 +104,7 @@ rec {
       Std  = attachSharedLib leanshared Std'  // { allExternalDeps = [ Init ]; };
       Lean = attachSharedLib leanshared Lean' // { allExternalDeps = [ Init Std ]; };
       stdlib = [ Init Std Lean ];
-      modDepsFiles = symlinkJoin { name = "modDepsFiles"; paths = map (l: l.modDepsFile) stdlib; };
+      modDepsFiles = symlinkJoin { name = "modDepsFiles"; paths = map (l: l.modDepsFile) (stdlib ++ [ Leanc ]); };
       iTree = symlinkJoin { name = "ileans"; paths = map (l: l.iTree) stdlib; };
       extlib = stdlib;  # TODO: add Lake
       Leanc = build { name = "Leanc"; src = lean-bin-tools-unwrapped.leanc_src; deps = stdlib; };

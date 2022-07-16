@@ -78,8 +78,7 @@ jobs:
       - name: Build
         run: |
           # .o files are not a runtime dependency on macOS because of lack of thin archives
-          # leanc_src is required for building Leanc-deps
-          nix build $NIX_BUILD_ARGS .#stage0 .#stage1.lean-all .#lean-bin-tools-unwrapped.leanc_src .#Lean.oTree .#iTree .#modDepsFiles -o push-build
+          nix build $NIX_BUILD_ARGS .#stage0 .#stage1.lean-all .#Lean.oTree .#iTree .#modDepsFiles -o push-build
       - name: Test
         run: |
           nix build $NIX_BUILD_ARGS .#test -o push-test

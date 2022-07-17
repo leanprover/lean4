@@ -48,7 +48,7 @@ Note that we use `(by simp)` to prove that `a₂ :: as ≠ []` in the recursive 
 -/
 def List.last : (as : List α) → as ≠ [] → α
   | [a],         _ => a
-  | a₁::a₂:: as, _ => (a₂::as).last (by simp)
+  | _::a₂:: as, _ => (a₂::as).last (by simp)
 
 /-!
 We use the function `List.last` to prove the following theorem that says that if a list `as` is not empty,

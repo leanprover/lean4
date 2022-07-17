@@ -8,22 +8,28 @@ import Lean.Level
 
 namespace Lean
 
+/-- Literal values for `Expr`. -/
 inductive Literal where
-  | natVal (val : Nat)
-  | strVal (val : String)
+  | /-- Natural number literal -/
+    natVal (val : Nat)
+  | /-- String literal -/
+    strVal (val : String)
   deriving Inhabited, BEq, Repr
 
 protected def Literal.hash : Literal → UInt64
-  | Literal.natVal v => hash v
-  | Literal.strVal v => hash v
+  | .natVal v => hash v
+  | .strVal v => hash v
 
 instance : Hashable Literal := ⟨Literal.hash⟩
 
+/--
+  Total order on `Expr` literal values.
+  Natural number values are smaller than string literal values. -/
 def Literal.lt : Literal → Literal → Bool
-  | Literal.natVal _,  Literal.strVal _  => true
-  | Literal.natVal v₁, Literal.natVal v₂ => v₁ < v₂
-  | Literal.strVal v₁, Literal.strVal v₂ => v₁ < v₂
-  | _,                 _                 => false
+  | .natVal _,  .strVal _  => true
+  | .natVal v₁, .natVal v₂ => v₁ < v₂
+  | .strVal v₁, .strVal v₂ => v₁ < v₂
+  | _,                 _   => false
 
 instance : LT Literal := ⟨fun a b => a.lt b⟩
 
@@ -56,32 +62,59 @@ def bar ⦃x : Nat⦄ : Nat := x
 See also the Lean manual: https://leanprover.github.io/lean4/doc/expressions.html#implicit-arguments
 -/
 inductive BinderInfo where
-  | default | implicit | strictImplicit | instImplicit | auxDecl
+  | /-- Default binder annotation, e.g. `(x : α)` -/
+   default
+  | /-- Implicit binder annotation, e.g., `{x : α}` -/
+    implicit
+  | /-- Strict implict binder annotation, e.g., `{{ x : α  }}` -/
+    strictImplicit
+  | /-- Local instance binder annotataion, e.g., `[Decidable α]` -/
+    instImplicit
+  | /--
+      Auxiliary declarations used by Lean when elaborating recursive declarations.
+      When defining a function such as
+      ```
+      def f : Nat → Nat
+        | 0 => 1
+        | x+1 => (x+1)*f x
+      ```
+      Lean adds a local declaration `f : Nat → Nat` to the local context (`LocalContext`)
+      with `BinderInfo` set to `auxDecl`.
+      This local declaration is later removed by the termination checker.
+    -/
+    auxDecl
   deriving Inhabited, BEq, Repr
 
 def BinderInfo.hash : BinderInfo → UInt64
-  | BinderInfo.default        => 947
-  | BinderInfo.implicit       => 1019
-  | BinderInfo.strictImplicit => 1087
-  | BinderInfo.instImplicit   => 1153
-  | BinderInfo.auxDecl        => 1229
+  | .default        => 947
+  | .implicit       => 1019
+  | .strictImplicit => 1087
+  | .instImplicit   => 1153
+  | .auxDecl        => 1229
 
+/--
+  Return `true` if the given `BinderInfo` does not correspond to an implicit binder annotation
+  (i.e., `implicit`, `strictImplicit`, or `instImplicit`).
+-/
 def BinderInfo.isExplicit : BinderInfo → Bool
-  | BinderInfo.implicit       => false
-  | BinderInfo.strictImplicit => false
-  | BinderInfo.instImplicit   => false
-  | _                         => true
+  | .implicit       => false
+  | .strictImplicit => false
+  | .instImplicit   => false
+  | _               => true
 
 instance : Hashable BinderInfo := ⟨BinderInfo.hash⟩
 
+/-- Return `true` if the given `BinderInfo` is an instance implicit annotation (e.g., `[Decidable α]`) -/
 def BinderInfo.isInstImplicit : BinderInfo → Bool
   | BinderInfo.instImplicit => true
   | _                       => false
 
+/-- Return `true` if the given `BinderInfo` is a regular implicit annotation (e.g., `{α : Type u}`) -/
 def BinderInfo.isImplicit : BinderInfo → Bool
   | BinderInfo.implicit => true
   | _                   => false
 
+/-- Return `true` if the given `BinderInfo` is a strict implicit annotation (e.g., `{{α : Type u}}`) -/
 def BinderInfo.isStrictImplicit : BinderInfo → Bool
   | BinderInfo.strictImplicit => true
   | _                         => false
@@ -105,6 +138,9 @@ abbrev MData.empty : MData := {}
    binderInfo     : 3-bits -- encoding of BinderInfo
    approxDepth    : 8-bits -- the approximate depth is used to minimize the number of hash collisions
    looseBVarRange : 16-bits
+
+ Remark: this is mostly an internal datastructure used to implement `Expr`,
+ most will never have to use it.
 -/
 def Expr.Data := UInt64
 
@@ -211,6 +247,14 @@ instance : Repr Expr.Data where
 
 open Expr
 
+/--
+  The unique free variable identifier. It is just a hierarchical name,
+  but we wrap it in `FVarId` to make sure they don't get mixed up with `MVarId`.
+
+  This is not the user-facing name for a free variable. This information is stored
+  in the local context (`LocalContext`). The unique identifiers are generated using
+  a `NameGenerator`.
+-/
 structure FVarId where
   name : Name
   deriving Inhabited, BEq, Hashable
@@ -218,14 +262,24 @@ structure FVarId where
 instance : Repr FVarId where
   reprPrec n p := reprPrec n.name p
 
+/--
+  A set of unique free variable identifiers.
+  This is a persistent data structure implemented using red-black trees. -/
 def FVarIdSet := Std.RBTree FVarId (Name.quickCmp ·.name ·.name)
   deriving Inhabited, EmptyCollection
 
 instance : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (Std.RBTree ..) ..)
 
+/--
+  A set of unique free variable identifiers implemented using hashtables.
+  Hashtables are faster than red-black trees if they are used linearly.
+  They are not persistent data-structures. -/
 def FVarIdHashSet := Std.HashSet FVarId
   deriving Inhabited, EmptyCollection
 
+/--
+  A mapping from free variable identifiers to values of type `α`.
+  This is a persistent data structure implemented using red-black trees. -/
 def FVarIdMap (α : Type) := Std.RBMap FVarId α (Name.quickCmp ·.name ·.name)
 
 instance : EmptyCollection (FVarIdMap α) := inferInstanceAs (EmptyCollection (Std.RBMap ..))
@@ -233,21 +287,131 @@ instance : EmptyCollection (FVarIdMap α) := inferInstanceAs (EmptyCollection (S
 instance : Inhabited (FVarIdMap α) where
   default := {}
 
-/- We use the `E` suffix (short for `Expr`) to avoid collision with keywords.
-   We considered using «...», but it is too inconvenient to use. -/
+/--
+  Lean expressions. This datastructure is used in the kernel and
+  elaborator. Howewer, expressions sent to the kernel should not
+  contain metavariables.
+
+  Remark: we use the `E` suffix (short for `Expr`) to avoid collision with keywords.
+  We considered using «...», but it is too inconvenient to use. -/
 inductive Expr where
-  | bvar    : Nat → Expr                       -- bound variables
-  | fvar    : FVarId → Expr                    -- free variables
-  | mvar    : MVarId → Expr                    -- meta variables
-  | sort    : Level → Expr                     -- Sort
-  | const   : Name → List Level → Expr         -- constants
-  | app     : Expr → Expr → Expr               -- application
-  | lam     : Name → Expr → Expr → BinderInfo → Expr        -- lambda abstraction
-  | forallE : Name → Expr → Expr → BinderInfo → Expr        -- (dependent) arrow
-  | letE    : Name → Expr → Expr → Expr → Bool → Expr -- let expressions
-  | lit     : Literal → Expr                   -- literals
-  | mdata   : MData → Expr → Expr              -- metadata
-  | proj    : Name → Nat → Expr → Expr         -- projection
+  | /--
+    Bound variables. The natural number is the "de Bruijn" index
+    for the bound variable. See https://en.wikipedia.org/wiki/De_Bruijn_index for additional information.
+    Example, the expression `fun x : Nat => forall y : Nat, x = y`
+    ```lean
+    .lam `x (.const `Nat [])
+      (.forall `y (.const `Nat [])
+        (.app (.app (.app (.const `Eq [.succ .zero]) (.const `Nat [])) (.bvar 1)) (.bvar 0))
+        .default)
+      .default
+    ```
+   -/
+    bvar (deBruijnIndex : Nat)
+  | /--
+     Free variable. Lean uses the locally nameless approach.
+     See https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.2479&rep=rep1&type=pdf for additional details.
+     When "visiting" the body of a binding expression (`lam`, `forallE`, or `letE`), bound variables
+     are converted into free variables using a unique identifier, and their user-facing name, type,
+     value (for `LetE`), and binder annotation are stored in the `LocalContext`.
+     -/
+    fvar (fvarId : FVarId)
+  | /--
+     Metavariables are used to represent "holes" in expressions, and goals in the
+     tactic framework. Metavariable declarations are stored in the `MetavarContext`.
+     Metavariables are used during elaboration, and are not allowed in the kernel,
+     or in the code generator.
+    -/
+    mvar (mvarId : MVarId)
+  | /--
+     `Type u`, `Sort u`, `Prop`.    -
+     - `Prop` is represented as `.sort .zero`,
+     - `Sort u` as ``.sort (.param `u)``, and
+     - `Type u` as ``.sort (.succ (.param `u))``
+    -/
+    sort (u : Level)
+  | /--
+    A (universe polymorphic) constant. For example,
+    `@Eq.{1}` is represented as ``.const `Eq [.succ .zero]``, and
+    `@Array.map.{0, 0}` is represented as ``.cons `Array.map [.zero, .zero]``.
+   -/
+    const (declName : Name) (us : List Level)
+  | /--
+     Function application. `Nat.succ Nat.zero` is represented as
+     ```
+     .app (.const `Nat.succ []) (.const .zero [])
+     ```
+    -/
+    app (fn : Expr) (arg : Expr)
+  | /--
+     Lambda abstraction (aka anonymous functions).
+     `fun x : Nat => x` is represented as
+      ```
+      .lam `x (.const `Nat []) (.bvar 0) .default
+      ```
+    -/
+    lam (binderName : Name) (binderType : Expr) (body : Expr) (binderInfo : BinderInfo)
+  | /--
+     A dependent arrow (aka forall-expression). It is also used to represent non-dependent arrows.
+     Examples:
+     - `forall x : Prop, x ∧ x` is represented as
+       ```
+       .forallE `x (.sort .zero) (.app (.app (.const `And []) (.bvar 0)) (.bvar 0)) .default
+       ```
+     - `Nat → Bool` as
+       ```
+       .forallE `a (.const `Nat []) (.const `Bool []) .default
+       ```
+    -/
+    forallE (binderName : Name) (binderType : Expr) (body : Expr) (binderInfo : BinderInfo)
+  | /--
+     Let-expressions. The field `nonDep` is not currently used, but will be used in the future
+     by the code generator (and possibly `simp`) to track whether a let-expression is non-dependent
+     or not. Given an environment, metavariable context, and local context, we say a let-expression
+     `let x : t := v; e` is non-dependent when it is equivalent to `(fun x : t => e) v`.
+     Here is an example of a dependent let-expression
+     `let n : Nat := 2; fun (a : Array Nat n) (b : Array Nat 2) => a = b` is type correct, but
+     `(fun (n : Nat) (a : Array Nat n) (b : Array Nat 2) => a = b) 2` is not.
+     The let-expression `let x : Nat := 2; Nat.succ x` is represented as
+     ```
+     .letE `x (.const `Nat []) (.lit (.natVal 2)) (.bvar 0) true
+     ```
+    -/
+    letE (declName : Name) (type : Expr) (value : Expr) (body : Expr) (nonDep : Bool)
+  | /--
+     Natural number and string literal values. They are not really needed, but provide a more
+     compact representation in memory for these two kinds of literals, and are used to implement
+     efficient reduction in the elaborator and kernel.
+     The "raw" natural number `2` can be represented as `.lit (.natVal 2)`. Note that, it is
+     definitionally equal to
+     ```
+     .app (.const `Nat.succ []) (.app (.const `Nat.succ []) (.const `Nat.zero []))
+     ```
+    -/
+    lit     : Literal → Expr
+  | /--
+     Metadata (aka annotations). We use annotations to provide hints to the pretty-printer,
+     store references to `Syntax` nodes, position information, and save information for
+     elaboration procedures (e.g., we use the `inaccessible` annotation during elaboration to
+     mark `Expr`s that correspond to inaccessible patterns).
+     Note that `.mdata data e` is definitionally equal to `e`.
+    -/
+    mdata (data : MData) (expr : Expr)
+  | /--
+    Projection-expressions. They are redundant, but are used to create more compact
+    terms, speedup reduction, and implement eta for structures.
+    The type of `struct` must be an structure-like inductive type. That is, it has only one
+    constructor, is not recursive, and it is not an inductive predicate. The kernel and elaborators
+    check whether the `typeName` matches the type of `struct`, and whether the (zero-based) index
+    is valid (i.e., it is smaller than the numbef of constructor fields).
+    When exporting Lean developments to other systems, `proj` can be replaced with `typeName`.`rec`
+    applications.
+    Example, given `a : Nat x Bool`, `a.1` is represented as
+    ```
+    .proj `Prod 0 a
+    ```
+    -/
+    proj (typeName : Name) (idx : Nat) (struct : Expr)
 with
   @[computedField, extern c inline "lean_ctor_get_uint64(#1, lean_ctor_num_objs(#1)*sizeof(void*))"]
   data : @& Expr → Data
@@ -299,6 +463,7 @@ deriving Inhabited, Repr
 
 namespace Expr
 
+/-- The constructor name for the given expression. This is used for debugging purposes. -/
 def ctorName : Expr → String
   | bvar ..    => "bvar"
   | fvar ..    => "fvar"
@@ -318,37 +483,68 @@ protected def hash (e : Expr) : UInt64 :=
 
 instance : Hashable Expr := ⟨Expr.hash⟩
 
+/--
+  Return `true` if `e` contains free variables.
+  This is a constant time operation.
+ -/
 def hasFVar (e : Expr) : Bool :=
   e.data.hasFVar
 
+/--
+  Return `true` if `e` contains expression metavariables.
+  This is a constant time operation.
+ -/
 def hasExprMVar (e : Expr) : Bool :=
   e.data.hasExprMVar
 
+/--
+  Return `true` if `e` contains universe (aka `Level`) metavariables.
+  This is a constant time operation.
+ -/
 def hasLevelMVar (e : Expr) : Bool :=
   e.data.hasLevelMVar
 
-/-- Does the expression contain level or expression metavariables?-/
+/--
+  Does the expression contain level (aka universe) or expression metavariables?
+  This is a constant time operation.
+-/
 def hasMVar (e : Expr) : Bool :=
   let d := e.data
   d.hasExprMVar || d.hasLevelMVar
 
+/--
+  Return true if `e` contains universe level parameters.
+  This is a constant time operation.
+-/
 def hasLevelParam (e : Expr) : Bool :=
   e.data.hasLevelParam
 
+/--
+  Return the approximated depth of an expression. This information is used to compute
+  the expression hash code, and speedup comparisons.
+  This is a constant time operation. We say it is approximate because it maxes out at `255`.
+-/
 def approxDepth (e : Expr) : UInt32 :=
   e.data.approxDepth.toUInt32
 
-/-- The range of de-Bruijn variables that are loose.
-That is, bvars that are not bound by a binder.
-For example, `bvar i` has range `i + 1` and
-an expression with no loose bvars has range `0`.
+/--
+  The range of de-Bruijn variables that are loose.
+  That is, bvars that are not bound by a binder.
+  For example, `bvar i` has range `i + 1` and
+  an expression with no loose bvars has range `0`.
 -/
 def looseBVarRange (e : Expr) : Nat :=
   e.data.looseBVarRange.toNat
 
+/--
+TODO: obsolete
+-/
 def binderInfo (e : Expr) : BinderInfo :=
   e.data.binderInfo
 
+/-!
+  Export functions.
+-/
 @[export lean_expr_hash] def hashEx : Expr → UInt64 := hash
 @[export lean_expr_has_fvar] def hasFVarEx : Expr → Bool := hasFVar
 @[export lean_expr_has_expr_mvar] def hasExprMVarEx : Expr → Bool := hasExprMVar

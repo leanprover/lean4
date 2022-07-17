@@ -53,7 +53,7 @@ namespace Lean.Meta
 
              `whnf` instantiates metavariables, and consumes `MData`, but it also expands the `let`.
           -/
-          let newType := (← instantiateMVars type).consumeMDataAndTypeAnnotations
+          let newType := (← instantiateMVars type).cleanupAnnotations
           if newType.isForall || newType.isLet then
             loop (i+1) lctx fvars fvars.size s newType
           else

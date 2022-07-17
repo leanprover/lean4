@@ -103,7 +103,7 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
         binders := binders.push (← `(bracketedBinder| ( $fieldEncId:ident )))
         let stx ← PrettyPrinter.delab fieldTp
         binders := binders.push
-          (← `(bracketedBinder| [ $(mkIdent ``Lean.Server.RpcEncoding) $stx $fieldEncId:ident ]))
+          (← `(bracketedBinder| [ RpcEncoding $stx $fieldEncId:ident ]))
         fieldEncIds' ← fieldEncIds'.insert fieldTp fieldEncId
         uniqFieldEncIds := uniqFieldEncIds.push fieldEncId
       | some fid => fieldEncId := fid
@@ -129,9 +129,9 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
 
       protected structure $packetId:ident where
         $[($fieldIds : $fieldEncIds)]*
-        deriving $(mkIdent ``FromJson), $(mkIdent ``ToJson)
+        deriving FromJson, ToJson
 
-      instance : $(mkIdent ``RpcEncoding) $typeId $packetAppliedId where
+      instance : RpcEncoding $typeId $packetAppliedId where
         rpcEncode a := return {
           $[$encInits],*
         }
@@ -175,7 +175,7 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
                           uniqEncArgTypes := acc.uniqEncArgTypes.push tid
                           binders := acc.binders.append #[
                             (← `(bracketedBinder| ( $(mkIdent tid):ident ))),
-                            (← `(bracketedBinder| [ $(mkIdent ``Lean.Server.RpcEncoding) $argTpStx $(mkIdent tid):ident ]))
+                            (← `(bracketedBinder| [ RpcEncoding $argTpStx $(mkIdent tid):ident ]))
                           ] }
     return acc
 
@@ -223,9 +223,9 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
 
         protected inductive $(mkIdent packetNm) where
           $[$(st.ctors):ctor]*
-          deriving $(mkIdent ``FromJson), $(mkIdent ``ToJson)
+          deriving FromJson, ToJson
 
-        instance : $(mkIdent ``RpcEncoding) $typeId $packetAppliedId where
+        instance : RpcEncoding $typeId $packetAppliedId where
           rpcEncode := fun x => match x with
             $[$(st.encodes):matchAlt]*
           rpcDecode := fun x => match x with
@@ -256,7 +256,7 @@ private def deriveInstance (typeName : Name) : CommandElabM Bool := do
         -- only look for encodings for `Type` parameters
         if !(← inferType param).isType then continue
         binders := binders.push
-          (← `(bracketedBinder| [ $(mkIdent ``Lean.Server.RpcEncoding) $(mkIdent paramNm) _ ]))
+          (← `(bracketedBinder| [ RpcEncoding $(mkIdent paramNm) _ ]))
 
       return #[
         ← `(section),

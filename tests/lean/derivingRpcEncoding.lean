@@ -37,6 +37,7 @@ structure Bar where
   fooJson : FooJson
   deriving RpcEncoding, Inhabited
 
+#print Bar.RpcEncodingPacket
 #check instRpcEncodingBarRpcEncodingPacket
 #eval test Bar default
 
@@ -59,6 +60,7 @@ structure FooGeneric (α : Type) where
   b? : Option α
   deriving RpcEncoding, Inhabited
 
+#print FooGeneric.RpcEncodingPacket
 #check instRpcEncodingFooGenericRpcEncodingPacket
 #eval test (FooGeneric Nat) default
 #eval test (FooGeneric Nat) { a := 3, b? := some 42 }
@@ -75,6 +77,15 @@ inductive FooInductive (α : Type) where
   | b : (n : Nat) → (a : α) → (m : Nat) → FooInductive α
   deriving RpcEncoding, Inhabited
 
+#print FooInductive.RpcEncodingPacket
 #check instRpcEncodingFooInductiveRpcEncodingPacket
 #eval test (FooInductive BazInductive) (.a default default)
 #eval test (FooInductive BazInductive) (.b 42 default default)
+
+inductive FooNested (α : Type) where
+  | a : α → Array (FooNested α) → FooNested α
+  deriving RpcEncoding, Inhabited
+
+#print FooNested.RpcEncodingPacket
+#check @FooNested.RpcEncodingPacket.a
+#eval test (FooNested BazInductive) (.a default #[default])

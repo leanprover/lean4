@@ -1,0 +1,30 @@
+instRpcEncodingWithRpcRefFooRefRpcRef : RpcEncoding (WithRpcRef FooRef) Lsp.RpcRef
+ok: {"p": "0"}
+instRpcEncodingBarRpcEncodingPacket : (fooRef : Type) →
+  [inst : RpcEncoding (WithRpcRef FooRef) fooRef] →
+    (fooJson : Type) → [inst : RpcEncoding FooJson fooJson] → RpcEncoding Bar (RpcEncodingPacket✝ fooRef fooJson)
+ok: {"fooRef": {"p": "0"}, "fooJson": {"s": ""}}
+instRpcEncodingBarTransRpcEncodingPacket : (bar : Type) →
+  [inst : RpcEncoding Bar bar] → RpcEncoding BarTrans (RpcEncodingPacket✝ bar)
+ok: {"bar": {"fooRef": {"p": "0"}, "fooJson": {"s": ""}}}
+instRpcEncodingBazRpcEncodingPacket : (arr : Type) →
+  [inst : RpcEncoding (Array String) arr] → RpcEncoding Baz (RpcEncodingPacket✝ arr)
+ok: {"arr": []}
+instRpcEncodingFooGenericRpcEncodingPacket : (α a : Type) →
+  [inst : RpcEncoding α a] → RpcEncoding (FooGeneric α) (RpcEncodingPacket✝ a)
+ok: {"a": 0}
+ok: {"b": 42, "a": 3}
+instRpcEncodingBazInductiveRpcEncodingPacket : (_rpcEnc : Type) →
+  [inst : RpcEncoding (Array Bar) _rpcEnc] → RpcEncoding BazInductive (RpcEncodingPacket✝ _rpcEnc)
+ok: {"baz":
+ [{"fooRef": {"p": "0"}, "fooJson": {"s": ""}},
+  {"fooRef": {"p": "1"}, "fooJson": {"s": ""}}]}
+instRpcEncodingFooInductiveRpcEncodingPacket : (α _rpcEnc : Type) →
+  [inst : RpcEncoding α _rpcEnc] →
+    (_rpcEnc_1 : Type) →
+      [inst : RpcEncoding (WithRpcRef FooRef) _rpcEnc_1] →
+        (_rpcEnc_2 : Type) →
+          [inst : RpcEncoding Nat _rpcEnc_2] →
+            RpcEncoding (FooInductive α) (RpcEncodingPacket✝ _rpcEnc _rpcEnc_1 _rpcEnc_2)
+ok: {"a": [{"baz": []}, {"p": "0"}]}
+ok: {"b": [42, {"baz": []}, 0]}

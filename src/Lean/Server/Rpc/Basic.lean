@@ -46,8 +46,8 @@ class RpcEncoding (α : Type) (β : outParam Type) where
   rpcDecode {m : Type → Type} [Monad m] [MonadRpcSession m] : β → ExceptT String m α
 export RpcEncoding (rpcEncode rpcDecode)
 
-instance : Inhabited (RpcEncoding α β) where
-  default := { rpcEncode := fun _ => throw "unreachable", rpcDecode := fun _ => throw "unreachable" }
+instance : Nonempty (RpcEncoding α β) :=
+  ⟨{ rpcEncode := fun _ => throw "unreachable", rpcDecode := fun _ => throw "unreachable" }⟩
 
 instance [FromJson α] [ToJson α] : RpcEncoding α α where
   rpcEncode := pure

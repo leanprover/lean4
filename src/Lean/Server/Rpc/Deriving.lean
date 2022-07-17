@@ -20,26 +20,14 @@ private def deriveWithRefInstance (typeNm : Name) : CommandElabM Bool := do
   -- TODO(WN): check that `typeNm` is not a scalar type
   let typeId := mkIdent typeNm
   let cmds ← `(
-    section
-    variable {m : Type → Type}
-    unsafe def encodeUnsafe [Monad m] [MonadRpcSession m] (r : WithRpcRef $typeId:ident) : m Lsp.RpcRef :=
-      WithRpcRef.encodeUnsafe $(quote typeNm) r
+    unsafe def unsafeInst : RpcEncoding (WithRpcRef $typeId:ident) Lsp.RpcRef where
+      rpcEncode := WithRpcRef.encodeUnsafe $(quote typeNm)
+      rpcDecode := WithRpcRef.decodeUnsafeAs $typeId:ident $(quote typeNm)
 
-    @[implementedBy encodeUnsafe]
-    opaque encode [Monad m] [MonadRpcSession m] (r : WithRpcRef $typeId:ident) : m Lsp.RpcRef :=
-      pure ⟨0⟩
-
-    unsafe def decodeUnsafe [Monad m] [MonadRpcSession m] (r : Lsp.RpcRef) : ExceptT String m (WithRpcRef $typeId:ident) :=
-      WithRpcRef.decodeUnsafeAs $typeId:ident $(quote typeNm) r
-
-    @[implementedBy decodeUnsafe]
-    opaque decode [Monad m] [MonadRpcSession m] (r : Lsp.RpcRef) : ExceptT String m (WithRpcRef $typeId:ident) :=
-      throw "unreachable"
-
-    instance : RpcEncoding (WithRpcRef $typeId:ident) Lsp.RpcRef :=
-      { rpcEncode := encode
-        rpcDecode := decode }
-    end
+    @[implementedBy unsafeInst]
+    instance : RpcEncoding (WithRpcRef $typeId:ident) Lsp.RpcRef where
+      rpcEncode r := pure ⟨0⟩
+      rpcDecode r := throw "unreachable"
   )
   elabCommand cmds
   return true

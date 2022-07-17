@@ -37,7 +37,7 @@ partial def MessageData.hasSorry : MessageData → Bool
   | group msg         => msg.hasSorry
   | compose msg₁ msg₂ => msg₁.hasSorry || msg₂.hasSorry
   | tagged _ msg      => msg.hasSorry
-  | node msgs         => msgs.any hasSorry
+  | trace _ msg msgs _ => msg.hasSorry || msgs.any hasSorry
   | _                 => false
 
 partial def MessageData.hasSyntheticSorry (msg : MessageData) : Bool :=
@@ -51,7 +51,7 @@ where
   | group msg               => visit msg
   | compose msg₁ msg₂       => visit msg₁ || visit msg₂
   | tagged _ msg            => visit msg
-  | node msgs               => msgs.any hasSyntheticSorry
+  | trace _ msg msgs _      => msg.hasSyntheticSorry || msgs.any hasSyntheticSorry
   | _                       => false
 
 def Exception.hasSyntheticSorry : Exception → Bool

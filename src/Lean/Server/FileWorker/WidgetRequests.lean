@@ -136,4 +136,13 @@ builtin_initialize
       i.ctx.runMetaM ti.lctx <|
         locationLinksFromDecl rc.srcSearchPath rc.doc.meta.uri nm none
 
+def lazyTraceChildrenToInteractive (children : WithRpcRef LazyTraceChildren) :
+    RequestM (RequestTask (Array (TaggedText MsgEmbed))) :=
+  RequestM.asTask do
+    let ⟨indent, children⟩ := children
+    children.mapM fun ⟨child⟩ =>
+      msgToInteractive child (hasWidgets := true) (indent := indent)
+
+builtin_initialize registerBuiltinRpcProcedure ``lazyTraceChildrenToInteractive _ _ lazyTraceChildrenToInteractive
+
 end Lean.Widget

@@ -11,10 +11,21 @@ import Lean.Widget.InteractiveGoal
 namespace Lean.Widget
 open Lsp Server
 
+inductive StrictOrLazy (α β : Type) : Type
+  | strict : α → StrictOrLazy α β
+  | lazy : β → StrictOrLazy α β
+  deriving Inhabited, RpcEncodable
+
+structure LazyTraceChildren where
+  indent : Nat
+  children : Array (WithRpcRef MessageData)
+  deriving Std.TypeName
+
 inductive MsgEmbed where
   | expr : CodeWithInfos → MsgEmbed
   | goal : InteractiveGoal → MsgEmbed
-  | lazyTrace : Nat → Name → WithRpcRef MessageData → MsgEmbed
+  | trace (indent : Nat) (cls : Name) (msg : TaggedText MsgEmbed) (collapsed : Bool)
+      (children : StrictOrLazy (Array (TaggedText MsgEmbed)) (WithRpcRef LazyTraceChildren))
   deriving Inhabited, RpcEncodable
 
 /-- We embed objects in LSP diagnostics by storing them in the tag of an empty subtree (`text ""`).
@@ -32,9 +43,9 @@ def toDiagnostic (diag : InteractiveDiagnostic) : Lsp.Diagnostic :=
 where
   prettyTt (tt : TaggedText MsgEmbed) : String :=
     let tt : TaggedText MsgEmbed := tt.rewrite fun
-      | expr tt,         _     => TaggedText.text tt.stripTags
-      | goal g,          _     => TaggedText.text (toString g.pretty)
-      | lazyTrace _ _ _, subTt => subTt
+      | .expr tt,           _ => .text tt.stripTags
+      | .goal g,            _ => .text (toString g.pretty)
+      | .trace ..,          _ => .text "(trace)"
     tt.stripTags
 
 end InteractiveDiagnostic
@@ -50,9 +61,9 @@ private inductive EmbedFmt
   | goal (ctx : Elab.ContextInfo) (lctx : LocalContext) (g : MVarId)
   | /-- Some messages (in particular, traces) are too costly to print eagerly. Instead, we allow
     the user to expand sub-traces interactively. -/
-    lazyTrace (nCtx : NamingContext) (ctx? : Option MessageDataContext) (cls : Name) (m : MessageData)
-  | /-- Ignore any tags in this subtree. -/
-    ignoreTags
+    trace (cls : Name) (msg : Format) (collapsed : Bool)
+      (children : StrictOrLazy (Array Format) (Array MessageData))
+  | /-- Ignore any tags in this subtree. -/ ignoreTags
   deriving Inhabited
 
 private abbrev MsgFmtM := StateT (Array EmbedFmt) IO
@@ -60,7 +71,7 @@ private abbrev MsgFmtM := StateT (Array EmbedFmt) IO
 open MessageData in
 /-- We first build a `Nat`-tagged `Format` with the most shallow tag, if any,
 in every branch indexing into the array of embedded objects. -/
-private partial def msgToInteractiveAux (msgData : MessageData) (hasWidgets : Bool) : IO (Format × Array EmbedFmt) :=
+private partial def msgToInteractiveAux (msgData : MessageData) : IO (Format × Array EmbedFmt) :=
   go { currNamespace := Name.anonymous, openDecls := [] } none msgData #[]
 where
   pushEmbed (e : EmbedFmt) : MsgFmtM Nat :=
@@ -96,45 +107,50 @@ where
   | nCtx, some ctx,  ofGoal mvarId            => withIgnoreTags <| ppGoal (mkPPContext nCtx ctx) mvarId
   | nCtx, _,         withContext ctx d        => go nCtx ctx d
   | _,    ctx,       withNamingContext nCtx d => go nCtx ctx d
-  | nCtx, ctx,       tagged t d               => do
-    -- We postfix trace contexts with `_traceCtx` in order to detect them in messages.
-    if let .str cls "_traceCtx" := t then
-      -- When interactive trace exploration is possible, we hide traces which can otherwise
-      -- take significant resources to pretty-print.
-      if hasWidgets then
-        let f ← pushEmbed <| EmbedFmt.lazyTrace nCtx ctx cls d
-        return Format.tag f s!"[{cls}] (trace hidden)"
-      else
-        go nCtx ctx d
-    else
-      go nCtx ctx d
+  | nCtx, ctx,       tagged _ d               => go nCtx ctx d
   | nCtx, ctx,       nest n d                 => Format.nest n <$> go nCtx ctx d
   | nCtx, ctx,       compose d₁ d₂            => do let d₁ ← go nCtx ctx d₁; let d₂ ← go nCtx ctx d₂; pure $ d₁ ++ d₂
   | nCtx, ctx,       group d                  => Format.group <$> go nCtx ctx d
-  | nCtx, ctx,       node ds                  => Format.nest 2 <$> ds.foldlM (fun r d => do let d ← go nCtx ctx d; pure $ r ++ Format.line ++ d) Format.nil
+  | nCtx, ctx,       .trace cls header children collapsed => do
+    let header := (← go nCtx ctx header).nest 4
+    let nodes ←
+      if collapsed && !children.isEmpty then
+        let children := children.map fun child =>
+          MessageData.withNamingContext nCtx <|
+            match ctx with
+            | some ctx => MessageData.withContext ctx child
+            | none     => child
+        pure (.lazy children)
+      else
+        pure (.strict (← children.mapM (go nCtx ctx)))
+    let e := .trace cls header collapsed nodes
+    pure (.tag (← pushEmbed e) ".\n")
 
 partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent : Nat := 0) : IO (TaggedText MsgEmbed) := do
-  let (fmt, embeds) ← msgToInteractiveAux msgData hasWidgets
-  let tt := TaggedText.prettyTagged fmt indent
+  if !hasWidgets then
+    return (TaggedText.prettyTagged (← msgData.format)).rewrite fun _ tt => .text tt.stripTags
+  let (fmt, embeds) ← msgToInteractiveAux msgData
   /- Here we rewrite a `TaggedText Nat` corresponding to a whole `MessageData` into one where
   the tags are `TaggedText MsgEmbed`s corresponding to embedded objects with their subtree
   empty (`text ""`). In other words, we terminate the `MsgEmbed`-tagged -tree at embedded objects
   and store the pretty-printed embed (which can itself be a `TaggedText`) in the tag. -/
-  tt.rewriteM fun (n, col) subTt =>
-    match embeds.get! n with
-    | EmbedFmt.expr ctx infos =>
-      let subTt' := tagExprInfos ctx infos subTt
-      return TaggedText.tag (MsgEmbed.expr subTt') (TaggedText.text subTt.stripTags)
-    | EmbedFmt.goal _   _    _ =>
-      -- TODO(WN): use InteractiveGoal types here
-      unreachable!
-    | EmbedFmt.lazyTrace nCtx ctx? cls m =>
-      let msg :=
-        match ctx? with
-        | some ctx => MessageData.withNamingContext nCtx <| MessageData.withContext ctx m
-        | none     => MessageData.withNamingContext nCtx m
-      return TaggedText.tag (MsgEmbed.lazyTrace col cls ⟨msg⟩) (TaggedText.text subTt.stripTags)
-    | EmbedFmt.ignoreTags => return TaggedText.text subTt.stripTags
+  let rec fmtToTT (fmt : Format) (indent : Nat) : TaggedText MsgEmbed :=
+    (TaggedText.prettyTagged fmt indent).rewrite fun (n, col) tt =>
+      match embeds[n]! with
+        | .expr ctx infos =>
+          .tag (.expr (tagExprInfos ctx infos tt)) default
+        | .goal _ _ _ =>
+          -- TODO(WN): use InteractiveGoal types here
+          unreachable!
+        | .trace cls msg collapsed children =>
+          let col := col + tt.stripTags.length - 2
+          let children :=
+            match children with
+              | .lazy children => .lazy ⟨{indent := col+2, children := children.map .mk}⟩
+              | .strict children => .strict (children.map (fmtToTT · (col+2)))
+          .tag (.trace indent cls (fmtToTT msg col) collapsed children) default
+        | .ignoreTags => .text tt.stripTags
+  return fmtToTT fmt indent
 
 /-- Transform a Lean Message concerning the given text into an LSP Diagnostic. -/
 def msgToInteractiveDiagnostic (text : FileMap) (m : Message) (hasWidgets : Bool) : IO InteractiveDiagnostic := do

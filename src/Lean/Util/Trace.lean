@@ -5,7 +5,6 @@ Authors: Sebastian Ullrich, Leonardo de Moura
 -/
 import Lean.Message
 import Lean.MonadEnv
-universe u
 
 namespace Lean
 
@@ -21,16 +20,6 @@ structure TraceState where
   traces  : PersistentArray TraceElem := {}
   deriving Inhabited
 
-namespace TraceState
-
-private def toFormat (traces : PersistentArray TraceElem) (sep : Format) : IO Format :=
-  traces.size.foldM
-    (fun i r => do
-      let curr ← (traces.get! i).msg.format
-      return if i > 0 then r ++ sep ++ curr else r ++ curr)
-    Format.nil
-
-end TraceState
 
 class MonadTrace (m : Type → Type) where
   modifyTraceState : (TraceState → TraceState) → m Unit
@@ -45,10 +34,8 @@ instance (m n) [MonadLift m n] [MonadTrace m] : MonadTrace n where
 variable {α : Type} {m : Type → Type} [Monad m] [MonadTrace m]
 
 def printTraces {m} [Monad m] [MonadTrace m] [MonadLiftT IO m] : m Unit := do
-  let traceState ← getTraceState
-  traceState.traces.forM fun m => do
-    let d ← m.msg.format
-    IO.println d
+  for {msg, ..} in (← getTraceState).traces do
+    IO.println (← msg.format)
 
 def resetTraceState {m} [MonadTrace m] : m Unit :=
   modifyTraceState (fun _ => {})
@@ -90,7 +77,7 @@ private def addNode (oldTraces : PersistentArray TraceElem) (cls : Name) (ref : 
     if traces.isEmpty then
       oldTraces
     else
-      let d := MessageData.tagged (cls ++ `_traceCtx) (MessageData.node (traces.toArray.map fun elem => elem.msg))
+      let d := .trace cls "" (traces.toArray.map fun elem => elem.msg) (collapsed := true)
       oldTraces.push { ref := ref, msg := d }
 
 private def getResetTraces : m (PersistentArray TraceElem) := do
@@ -110,13 +97,13 @@ def addRawTrace (msg : MessageData) : m Unit := do
   let ref ← getRef
   let msg ← addMessageContext msg
   let msg := addTraceOptions msg
-  modifyTraces fun traces => traces.push { ref, msg }
+  modifyTraces (·.push { ref, msg })
 
 def addTrace (cls : Name) (msg : MessageData) : m Unit := do
   let ref ← getRef
   let msg ← addMessageContext msg
   let msg := addTraceOptions msg
-  modifyTraces fun traces => traces.push { ref := ref, msg := MessageData.tagged (cls ++ `_traceMsg) m!"[{cls}] {msg}" }
+  modifyTraces (·.push { ref, msg := .trace cls msg #[] })
 
 @[inline] def trace (cls : Name) (msg : Unit → MessageData) : m Unit := do
   if (← isTracingEnabledFor cls) then
@@ -137,9 +124,30 @@ def addTrace (cls : Name) (msg : MessageData) : m Unit := do
     let oldCurrTraces ← getResetTraces
     try ctx finally addNode oldCurrTraces cls ref
 
--- TODO: delete after fix old frontend
-def MonadTracer.trace (cls : Name) (msg : Unit → MessageData) : m Unit :=
-  Lean.trace cls msg
+private def addTraceNode (oldTraces : PersistentArray TraceElem)
+    (cls : Name) (ref : Syntax) (msg : MessageData) (collapsed : Bool) : m Unit :=
+  withRef ref do
+  let msg ← addMessageContext msg
+  let msg := addTraceOptions msg
+  modifyTraces fun newTraces =>
+    oldTraces.push { ref, msg := .trace cls msg (newTraces.toArray.map (·.msg)) collapsed }
+
+def withTraceNode [MonadExcept ε m] (cls : Name) (msg : Except ε α → m MessageData) (k : m α)
+    (collapsed := true) : m α := do
+  if !(← isTracingEnabledFor cls) then
+    k
+  else
+    let ref ← getRef
+    let oldTraces ← getResetTraces
+    let res ← observing k
+    addTraceNode oldTraces cls ref (← msg res) collapsed
+    MonadExcept.ofExcept res
+
+def withTraceNode' [MonadExcept Exception m] (cls : Name) (k : m (α × MessageData)) (collapsed := true) : m α :=
+  let msg := fun
+    | .ok (_, msg) => return msg
+    | .error err => return err.toMessageData
+  Prod.fst <$> withTraceNode cls msg k collapsed
 
 end
 

@@ -54,7 +54,8 @@ inductive MessageData where
   /- Tagged sections. `Name` should be viewed as a "kind", and is used by `MessageData` inspector functions.
      Example: an inspector that tries to find "definitional equality failures" may look for the tag "DefEqFailure". -/
   | tagged            : Name → MessageData → MessageData
-  | node              : Array MessageData → MessageData
+  | trace (cls : Name) (msg : MessageData) (children : Array MessageData)
+    (collapsed : Bool := false)
   deriving Inhabited
 
 namespace MessageData
@@ -67,7 +68,6 @@ partial def isEmpty : MessageData → Bool
   | group m => m.isEmpty
   | compose m₁ m₂ => m₁.isEmpty && m₂.isEmpty
   | tagged _ m => m.isEmpty
-  | node ms => ms.all (·.isEmpty)
   | _ => false
 
 /- Instantiate metavariables occurring in nexted `ofExpr` constructors.
@@ -85,7 +85,7 @@ where
     | group msg                 => group <| visit msg mctx
     | compose msg₁ msg₂         => compose (visit msg₁ mctx) <| visit msg₂ mctx
     | tagged n msg              => tagged n <| visit msg mctx
-    | node msgs                 => node <| msgs.map (visit · mctx)
+    | trace cls msg msgs c      => trace cls (visit msg mctx) (msgs.map (visit · mctx)) c
     | _                         => msg
 
 variable (p : Name → Bool) in
@@ -96,7 +96,7 @@ partial def hasTag : MessageData → Bool
   | group msg               => hasTag msg
   | compose msg₁ msg₂       => hasTag msg₁ || hasTag msg₂
   | tagged n msg            => p n || hasTag msg
-  | node msgs               => msgs.any hasTag
+  | trace cls msg msgs _    => p cls || hasTag msg || msgs.any hasTag
   | _                       => false
 
 def nil : MessageData :=
@@ -127,18 +127,14 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
   | nCtx, some ctx,  ofGoal mvarId            => ppGoal (mkPPContext nCtx ctx) mvarId
   | nCtx, _,         withContext ctx d        => formatAux nCtx ctx d
   | _,    ctx,       withNamingContext nCtx d => formatAux nCtx ctx d
-  | nCtx, ctx,       tagged t d               =>
-    /- Messages starting a trace context have their tags postfixed with `_traceCtx` so that
-    we can detect them later. Here, we do so in order to print the trace context class. -/
-    if let .str cls "_traceCtx" := t then do
-      let d₁ ← formatAux nCtx ctx d
-      return f!"[{cls}] {d₁}"
-    else
-      formatAux nCtx ctx d
+  | nCtx, ctx,       tagged _ d               => formatAux nCtx ctx d
   | nCtx, ctx,       nest n d                 => Format.nest n <$> formatAux nCtx ctx d
   | nCtx, ctx,       compose d₁ d₂            => return (← formatAux nCtx ctx d₁) ++ (← formatAux nCtx ctx d₂)
   | nCtx, ctx,       group d                  => Format.group <$> formatAux nCtx ctx d
-  | nCtx, ctx,       node ds                  => Format.nest 2 <$> ds.foldlM (fun r d => return r ++ Format.line ++ (← formatAux nCtx ctx d)) Format.nil
+  | nCtx, ctx,       trace cls header children _ => do
+    let msg := f!"[{cls}] {(← formatAux nCtx ctx header).nest 2}"
+    let children ← children.mapM (formatAux nCtx ctx)
+    return .nest 2 (.joinSep (msg::children.toList) "\n")
 
 protected def format (msgData : MessageData) : IO Format :=
   formatAux { currNamespace := Name.anonymous, openDecls := [] } none msgData

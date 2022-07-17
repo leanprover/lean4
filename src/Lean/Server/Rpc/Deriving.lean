@@ -122,12 +122,12 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
     -- helpers for type name syntax
     let paramIds ← params.mapM fun p => return mkIdent (← getFVarLocalDecl p).userName
     let typeId := Syntax.mkApp (← `(@$(mkIdent indVal.name))) paramIds
-    let packetId ← mkIdent <$> mkFreshUserName `RpcEncodingPacket
+    let packetId := mkIdent <| indVal.name ++ `RpcEncodingPacket
     let packetAppliedId := Syntax.mkApp packetId uniqFieldEncIds
 
     `(variable $binders*
 
-      structure $packetId:ident where
+      protected structure $packetId:ident where
         $[($fieldIds : $fieldEncIds)]*
         deriving $(mkIdent ``FromJson), $(mkIdent ``ToJson)
 
@@ -169,7 +169,7 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
         throwError "cross-argument dependencies are not supported ({arg} : {argTp})"
 
       if (← acc.encArgTypes.getMatch argTp).isEmpty then
-        let tid ← mkFreshUserName `_rpcEnc
+        let tid ← mkFreshUserName (← getFVarLocalDecl arg).userName
         let argTpStx ← PrettyPrinter.delab argTp
         acc := { acc with encArgTypes := ← acc.encArgTypes.insert argTp tid
                           uniqEncArgTypes := acc.uniqEncArgTypes.push tid
@@ -185,7 +185,7 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
     fun ts => do
       trace[Elab.Deriving.RpcEncoding] m!"RpcEncoding type binders : {ts}"
 
-      let packetNm ← mkFreshUserName `RpcEncodingPacket
+      let packetNm := indVal.name ++ `RpcEncodingPacket
       let st ← foldWithConstructors indVal params (init := st) fun acc ctor argVars _ => do
         -- create the constructor
         let mut pktCtorTp := Lean.mkConst packetNm
@@ -221,7 +221,7 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
 
       `(variable $st.binders*
 
-        inductive $(mkIdent packetNm) where
+        protected inductive $(mkIdent packetNm) where
           $[$(st.ctors):ctor]*
           deriving $(mkIdent ``FromJson), $(mkIdent ``ToJson)
 
@@ -277,8 +277,7 @@ private unsafe def dispatchDeriveInstanceUnsafe (declNames : Array Name) (args? 
     return false
   let args ←
     if let some args := args? then
-      let n ← liftCoreM <| mkFreshUserName `_args
-      liftTermElabM (some n) do
+      liftTermElabM none do
         let argsT := mkConst ``DerivingParams
         let args ← elabTerm args argsT
         evalExpr' DerivingParams ``DerivingParams args

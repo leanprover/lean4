@@ -216,12 +216,15 @@ private def deriveInstance (typeName : Name) : CommandElabM Bool := do
 
       for param in params do
         let paramNm := (← getFVarLocalDecl param).userName
-        paramBinders := paramBinders.push (← `(bracketedBinder| ($(mkIdent paramNm))))
+        let ty ← PrettyPrinter.delab (← inferType param)
+        paramBinders := paramBinders.push (← `(bracketedBinder| ($(mkIdent paramNm) : $ty)))
+        let packet := mkIdent (← mkFreshUserName (paramNm.appendAfter "Packet"))
         -- only look for encodings for `Type` parameters
         if (← inferType param).isType then
-          let packet := mkIdent (← mkFreshUserName (paramNm.appendAfter "Packet"))
           packetParamBinders := packetParamBinders.push (← `(bracketedBinder| ($packet : Type)))
           encInstBinders := encInstBinders.push (← `(bracketedBinder| [RpcEncoding $(mkIdent paramNm) $packet]))
+        else
+          packetParamBinders := packetParamBinders.push paramBinders.back --(← `(bracketedBinder| ($packet : $ty)))
 
       return (paramBinders, packetParamBinders, encInstBinders)
 

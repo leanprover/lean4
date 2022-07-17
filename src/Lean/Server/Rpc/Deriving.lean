@@ -25,7 +25,9 @@ private def deriveWithRefInstance (typeNm : Name) : CommandElabM Bool := do
       rpcDecode := WithRpcRef.decodeUnsafeAs $typeId:ident $(quote typeNm)
 
     @[implementedBy unsafeInst]
-    instance : RpcEncoding (WithRpcRef $typeId:ident) Lsp.RpcRef := default
+    opaque inst : RpcEncoding (WithRpcRef $typeId) Lsp.RpcRef
+
+    instance : RpcEncoding (WithRpcRef $typeId) Lsp.RpcRef := inst
   )
   elabCommand cmds
   return true

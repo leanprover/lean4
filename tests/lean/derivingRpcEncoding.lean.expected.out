@@ -39,3 +39,5 @@ FooNested.RpcEncodingPacket.a : {αPacket : Type} →
 @FooNested.RpcEncodingPacket.a : {αPacket : Type} →
   αPacket → Array (FooNested.RpcEncodingPacket αPacket) → FooNested.RpcEncodingPacket αPacket
 ok: {"a": [{"baz": []}, [{"a": [{"baz": []}, []]}]]}
+instRpcEncodingFooParamRpcEncodingPacket : (n : Nat) → RpcEncoding (FooParam n) (FooParam.RpcEncodingPacket n)
+ok: {"a": 42}

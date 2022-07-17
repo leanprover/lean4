@@ -89,3 +89,10 @@ inductive FooNested (α : Type) where
 #print FooNested.RpcEncodingPacket
 #check @FooNested.RpcEncodingPacket.a
 #eval test (FooNested BazInductive) (.a default #[default])
+
+inductive FooParam (n : Nat) where
+  | a : Nat → FooParam n
+  deriving RpcEncoding, Inhabited
+
+#check instRpcEncodingFooParamRpcEncodingPacket
+#eval test (FooParam 10) (.a 42)

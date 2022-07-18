@@ -144,16 +144,13 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
   let recInstTp := mkApp2 (mkConst ``RpcEncoding) (mkAppN (mkConst indVal.name) params) pktCtorTp
   withLocalDecl `inst .instImplicit recInstTp fun _ => do
   let st ← foldWithConstructors indVal params (init := { : CtorState }) fun acc ctor argVars _ => do
-    let mut pktCtorTp := pktCtorTp
     -- create the constructor
-    for arg in argVars.reverse do
-      let argTp ← inferType arg
-      let encTp ← getRpcPacketFor argTp
-      pktCtorTp := mkForall (← getFVarLocalDecl arg).userName BinderInfo.default encTp pktCtorTp
-    -- TODO(WN): this relies on delab printing non-macro-scoped user names in non-dependent foralls
-    -- to generate the expected JSON encoding
-    let pktCtorTpStx ← PrettyPrinter.delab pktCtorTp
-    let pktCtor ← `(Lean.Parser.Command.ctor| | $(mkIdent ctor.getString!):ident : $pktCtorTpStx:term)
+    let fieldStxs ← argVars.mapM fun arg => do
+      let packetTp ← getRpcPacketFor (← inferType arg)
+      let tyStx ← PrettyPrinter.delab packetTp
+      let name := (← getFVarLocalDecl arg).userName
+      `(bracketedBinder| ($(mkIdent name) : $tyStx))
+    let pktCtor ← `(Parser.Command.ctor| | $(mkIdent ctor.getString!):ident $[$fieldStxs]* : $(mkIdent packetNm))
 
     -- create encoder and decoder match arms
     let nms ← argVars.mapM fun _ => mkIdent <$> mkFreshBinderName

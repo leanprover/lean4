@@ -11,7 +11,7 @@ namespace Lean.Meta
 
 /--
 When the goal `mvarId` is an inductive datatype,
-`constructor` calls `apply` with the first constructor.
+`constructor` calls `apply` with the first matching constructor.
 -/
 def constructor (mvarId : MVarId) (cfg : ApplyConfig := {}) : MetaM (List MVarId) := do
   withMVarContext mvarId do

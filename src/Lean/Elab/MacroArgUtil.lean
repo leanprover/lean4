@@ -61,7 +61,7 @@ where
             pure <| (← Parser.getSyntaxKindOfParserAlias? id).getD Name.anonymous
           else
             throwError "unknown parser declaration/category/alias '{id}'"
-      pure ⟨Syntax.mkAntiquotNode kind term⟩
+      pure ⟨Syntax.mkAntiquotNode kind term (name := kind.getString?)⟩
     | stx, term => do
       -- can't match against `` `(stx| ($stxs*)) `` as `*` is interpreted as the `stx` operator
       if stx.raw.isOfKind ``Parser.Syntax.paren then

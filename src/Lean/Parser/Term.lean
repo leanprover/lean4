@@ -131,6 +131,8 @@ Note that we did not add a `explicitShortBinder` parser since `(α) → α → �
 -/
 @[builtinTermParser] def depArrow := leading_parser:25 bracketedBinder true >> unicodeSymbol " → " " -> " >> termParser
 
+@[builtinTermParser] def mapsTo := leading_parser:25 bracketedBinder true >> unicodeSymbol " ↦ " " |-> " >> termParser
+
 @[builtinTermParser]
 def «forall» := leading_parser:leadPrec unicodeSymbol "∀" "forall" >> many1 (ppSpace >> (binderIdent <|> bracketedBinder)) >> optType >> ", " >> termParser
 

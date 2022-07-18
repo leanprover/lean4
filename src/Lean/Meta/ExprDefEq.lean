@@ -1333,15 +1333,6 @@ private def expandDelayedAssigned? (t : Expr) : MetaM (Option Expr) := do
   if tArgs.size < fvars.size then return none
   return some (mkAppRange (mkMVar mvarIdPending) fvars.size tArgs.size tArgs)
 
-private def isSynthetic : Expr → MetaM Bool
-  | Expr.mvar mvarId => do
-    let mvarDecl ← getMVarDecl mvarId
-    match mvarDecl.kind with
-    | MetavarKind.synthetic       => pure true
-    | MetavarKind.syntheticOpaque => pure true
-    | MetavarKind.natural         => pure false
-  | _                  => pure false
-
 private def isAssignable : Expr → MetaM Bool
   | Expr.mvar mvarId => do let b ← isReadOnlyOrSyntheticOpaqueExprMVar mvarId; pure (!b)
   | _                => pure false

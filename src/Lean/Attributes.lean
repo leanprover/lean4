@@ -28,7 +28,7 @@ structure AttributeImplCore where
 For example: `attribute [local myattr, scoped yourattr, theirattr]`.
 
 This is used to indicate how an attribute should be scoped.
-- local means that the attribute should only be applied in the current scope and forgotten once the namespace is closed.
+- local means that the attribute should only be applied in the current scope and forgotten once the current section, namespace, or file is closed.
 - scoped means that the attribute should only be applied while the namespace is open.
 - global means that the attribute should always be applied.
 

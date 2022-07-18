@@ -52,12 +52,9 @@ structure UserWidget where
   javascriptHash: UInt64
   deriving Inhabited, ToJson, FromJson
 
-private def WidgetSourceRegistry := SimplePersistentEnvExtension
+private abbrev WidgetSourceRegistry := SimplePersistentEnvExtension
     (UInt64 × WidgetSource)
     (Std.RBMap UInt64 WidgetSource compare)
-
-local instance : Inhabited (Std.RBMap UInt64 WidgetSource compare) := ⟨∅⟩
-local instance : Inhabited (WidgetSourceRegistry) := inferInstanceAs (Inhabited (PersistentEnvExtension _ _ (List _ × _)))
 
 -- Mapping widgetSourceId to hash of sourcetext
 builtin_initialize userWidgetRegistry : MapDeclarationExtension UserWidget ← mkMapDeclarationExtension `widgetRegistry

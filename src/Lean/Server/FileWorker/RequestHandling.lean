@@ -237,18 +237,10 @@ open Parser.Command in
 partial def handleDocumentSymbol (_ : DocumentSymbolParams)
     : RequestM (RequestTask DocumentSymbolResult) := do
   let doc ← readDoc
-  mapTask (← doc.cmdSnaps.waitHead?) fun _ => do
-    let ⟨cmdSnaps, e?⟩ ← doc.cmdSnaps.getFinishedPrefix
-    let mut stxs := cmdSnaps.map (·.stx)
-    match e? with
-    | some ElabTaskError.aborted =>
-      throw RequestError.fileChanged
-    | some (ElabTaskError.ioError e) =>
-      throw (e : RequestError)
-    | _ => pure ()
-
-    let lastSnap := cmdSnaps.getLast!  -- see `waitHead?` above
-    stxs := stxs ++ (← parseAhead doc.meta.mkInputContext lastSnap).toList
+  -- bad: we have to wait on elaboration of the entire file before we can report document symbols
+  let t ← doc.cmdSnaps.waitAll
+  mapTask t fun (snaps, _) => do
+    let mut stxs := snaps.map (·.stx)
     let (syms, _) := toDocumentSymbols doc.meta.text stxs
     return { syms := syms.toArray }
 where

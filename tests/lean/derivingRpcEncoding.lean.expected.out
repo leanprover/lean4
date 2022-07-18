@@ -53,3 +53,4 @@ constructors:
 UnusedStruct.RpcEncodingPacket.mk : UnusedStruct.RpcEncodingPacket
 instRpcEncodingUnusedStruct : (α : Type) → RpcEncoding (UnusedStruct α) UnusedStruct.RpcEncodingPacket
 ok: {}
+Except.error "no inductive constructor matched"

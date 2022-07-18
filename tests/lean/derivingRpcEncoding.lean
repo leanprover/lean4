@@ -111,3 +111,6 @@ structure UnusedStruct (α : Type)
 #print UnusedStruct.RpcEncodingPacket
 #check instRpcEncodingUnusedStruct
 #eval test (UnusedStruct NoRpcEncoding) default
+
+deriving instance Repr, RpcEncoding for Empty
+#eval M.run do rpcDecode (α := Empty) (← fromJson? .null)

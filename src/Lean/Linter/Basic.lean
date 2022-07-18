@@ -6,7 +6,7 @@ import Lean.Server.References
 import Std.Data.HashMap
 
 namespace Lean.Linter
-open Lean.Server Std
+open Lean.Elab.Command Lean.Server Std
 
 register_builtin_option linter.unusedVariables : Bool := {
   defValue := true,
@@ -141,13 +141,13 @@ builtin_initialize
       setEnv <| unusedVariablesIgnoreFnsExt.addEntry env decl
   }
 
-unsafe def getUnusedVariablesIgnoreFnsImpl : CoreM (Array IgnoreFunction) := do
+unsafe def getUnusedVariablesIgnoreFnsImpl : CommandElabM (Array IgnoreFunction) := do
   let ents := unusedVariablesIgnoreFnsExt.getEntries (← getEnv)
   let ents ← ents.mapM (evalConstCheck IgnoreFunction ``IgnoreFunction)
   return (← builtinUnusedVariablesIgnoreFnsRef.get) ++ ents
 
 @[implementedBy getUnusedVariablesIgnoreFnsImpl]
-opaque getUnusedVariablesIgnoreFns : CoreM (Array IgnoreFunction)
+opaque getUnusedVariablesIgnoreFns : CommandElabM (Array IgnoreFunction)
 
 
 def unusedVariables : Linter := fun cmdStx => do
@@ -200,7 +200,7 @@ def unusedVariables : Linter := fun cmdStx => do
       return s
 
   -- collect ignore functions
-  let ignoreFns := (← Elab.Command.liftCoreM getUnusedVariablesIgnoreFns)
+  let ignoreFns := (← getUnusedVariablesIgnoreFns)
     |>.insertAt 0 (isTopLevelDecl constDecls)
 
   -- determine unused variables

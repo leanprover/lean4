@@ -1,4 +1,3 @@
-import Lean.Util.Trace
 import Lean
 
 set_option linter.all true

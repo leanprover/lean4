@@ -4,34 +4,34 @@ protected inductive Bar.RpcEncodingPacket : Type
 number of parameters: 0
 constructors:
 Bar.RpcEncodingPacket.mk : Lsp.RpcRef → FooJson → Bar.RpcEncodingPacket
-instRpcEncodingBarRpcEncodingPacket : RpcEncoding Bar Bar.RpcEncodingPacket
+instRpcEncodingBar : RpcEncoding Bar Bar.RpcEncodingPacket
 ok: {"fooRef": {"p": "0"}, "fooJson": {"s": ""}}
-instRpcEncodingBarTransRpcEncodingPacket : RpcEncoding BarTrans BarTrans.RpcEncodingPacket
+instRpcEncodingBarTrans : RpcEncoding BarTrans BarTrans.RpcEncodingPacket
 ok: {"bar": {"fooRef": {"p": "0"}, "fooJson": {"s": ""}}}
-instRpcEncodingBazRpcEncodingPacket : RpcEncoding Baz Baz.RpcEncodingPacket
+instRpcEncodingBaz : RpcEncoding Baz Baz.RpcEncodingPacket
 ok: {"arr": []}
 protected inductive FooGeneric.RpcEncodingPacket : Type → Type
 number of parameters: 1
 constructors:
 FooGeneric.RpcEncodingPacket.mk : {αPacket : Type} → αPacket → Option αPacket → FooGeneric.RpcEncodingPacket αPacket
-instRpcEncodingFooGenericRpcEncodingPacket : (α αPacket : Type) →
+instRpcEncodingFooGeneric : (α αPacket : Type) →
   [inst : RpcEncoding α αPacket] → RpcEncoding (FooGeneric α) (FooGeneric.RpcEncodingPacket αPacket)
 ok: {"a": 0}
 ok: {"b": 42, "a": 3}
-instRpcEncodingBazInductiveRpcEncodingPacket : RpcEncoding BazInductive BazInductive.RpcEncodingPacket
+instRpcEncodingBazInductive : RpcEncoding BazInductive BazInductive.RpcEncodingPacket
 ok: {"baz":
  [{"fooRef": {"p": "0"}, "fooJson": {"s": ""}},
   {"fooRef": {"p": "1"}, "fooJson": {"s": ""}}]}
-inductive FooInductive.RpcEncodingPacket : Type → Type
+protected inductive FooInductive.RpcEncodingPacket : Type → Type
 number of parameters: 1
 constructors:
 FooInductive.RpcEncodingPacket.a : {αPacket : Type} → αPacket → Lsp.RpcRef → FooInductive.RpcEncodingPacket αPacket
 FooInductive.RpcEncodingPacket.b : {αPacket : Type} → Nat → αPacket → Nat → FooInductive.RpcEncodingPacket αPacket
-instRpcEncodingFooInductiveRpcEncodingPacket : (α αPacket : Type) →
+instRpcEncodingFooInductive : (α αPacket : Type) →
   [inst : RpcEncoding α αPacket] → RpcEncoding (FooInductive α) (FooInductive.RpcEncodingPacket αPacket)
 ok: {"a": [{"baz": []}, {"p": "0"}]}
 ok: {"b": [42, {"baz": []}, 0]}
-inductive FooNested.RpcEncodingPacket : Type → Type
+protected inductive FooNested.RpcEncodingPacket : Type → Type
 number of parameters: 1
 constructors:
 FooNested.RpcEncodingPacket.a : {αPacket : Type} →
@@ -39,5 +39,17 @@ FooNested.RpcEncodingPacket.a : {αPacket : Type} →
 @FooNested.RpcEncodingPacket.a : {αPacket : Type} →
   αPacket → Array (FooNested.RpcEncodingPacket αPacket) → FooNested.RpcEncodingPacket αPacket
 ok: {"a": [{"baz": []}, [{"a": [{"baz": []}, []]}]]}
-instRpcEncodingFooParamRpcEncodingPacket : (n : Nat) → RpcEncoding (FooParam n) (FooParam.RpcEncodingPacket n)
+instRpcEncodingFooParam : (n : Nat) → RpcEncoding (FooParam n) FooParam.RpcEncodingPacket
 ok: {"a": 42}
+protected inductive Unused.RpcEncodingPacket : Type
+number of parameters: 0
+constructors:
+Unused.RpcEncodingPacket.a : Unused.RpcEncodingPacket
+instRpcEncodingUnused : (α : Type) → RpcEncoding (Unused α) Unused.RpcEncodingPacket
+ok: "a"
+protected inductive UnusedStruct.RpcEncodingPacket : Type
+number of parameters: 0
+constructors:
+UnusedStruct.RpcEncodingPacket.mk : UnusedStruct.RpcEncodingPacket
+instRpcEncodingUnusedStruct : (α : Type) → RpcEncoding (UnusedStruct α) UnusedStruct.RpcEncodingPacket
+ok: {}

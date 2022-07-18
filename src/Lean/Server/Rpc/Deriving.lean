@@ -80,14 +80,8 @@ private def getRpcPacketFor (ty : Expr) : MetaM Expr := do
 
 private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr)
     (paramBinders packetParamBinders encInstBinders : Array (TSyntax ``Parser.Term.bracketedBinder)) : TermElabM Command := do
-  let packetParamNames := packetParamBinders.map fun
-    | `(bracketedBinder| ($t:ident : $_)) => t
-    | _ => unreachable!
   withFields indVal params fun fields => do
     trace[Elab.Deriving.RpcEncoding] "for structure {indVal.name} with params {params}"
-    -- Postulate that every field have a rpc encoding, storing the encoding type ident
-    -- in `fieldEncIds`. When multiple fields have the same type, we reuse the encoding type
-    -- as otherwise typeclass synthesis fails.
     let mut binders := #[]
     let mut fieldIds := #[]
     let mut fieldEncTypeStxs := #[]
@@ -111,16 +105,19 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
     let paramIds ← params.mapM fun p => return mkIdent (← getFVarLocalDecl p).userName
     let typeId := Syntax.mkApp (← `(@$(mkIdent indVal.name))) paramIds
     let packetId := mkIdent <| indVal.name ++ `RpcEncodingPacket
-    let packetAppliedId := Syntax.mkApp packetId packetParamNames
+    let packetAppliedId ← `($packetId ..)
+    let instId := mkIdent (`_root_ ++ indVal.name.appendBefore "instRpcEncoding")
 
-    `(protected structure $packetId:ident $packetParamBinders* where
+    `(variable $packetParamBinders* in
+      protected structure $packetId:ident where
         $[($fieldIds : $fieldEncTypeStxs)]*
         deriving FromJson, ToJson
 
       variable $(paramBinders ++ packetParamBinders ++ encInstBinders)* in
-      instance : RpcEncoding $typeId $packetAppliedId where
-        rpcEncode a := return { $[$encInits],* }
-        rpcDecode a := return { $[$decInits],* }
+      @[instance] def $instId := show RpcEncoding $typeId $packetAppliedId from {
+        rpcEncode := fun a => return { $[$encInits],* }
+        rpcDecode := fun a => return { $[$decInits],* }
+      }
     )
 
 private structure CtorState where
@@ -132,22 +129,18 @@ private structure CtorState where
   decodes : Array (TSyntax ``Parser.Term.matchAlt) := #[]
 
 private def matchF := Lean.Parser.Term.matchAlt (rhsParser := Lean.Parser.termParser)
-private def deriveInductiveInstance (indVal : InductiveVal) (params packetParams : Array Expr)
+private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr)
     (paramBinders packetParamBinders encInstBinders : Array (TSyntax ``Parser.Term.bracketedBinder)) : TermElabM Command := do
   trace[Elab.Deriving.RpcEncoding] "for inductive {indVal.name} with params {params}"
-  let packetParamNames := packetParamBinders.map fun
-    | `(bracketedBinder| ($t:ident : $_)) => t
-    | _ => unreachable!
-
   withoutModifyingEnv do
   let packetNm := indVal.name ++ `RpcEncodingPacket
   addDecl <| .axiomDecl {
     name := packetNm
     levelParams := []
-    type := ← mkForallFVars packetParams (mkSort levelOne)
+    type := mkSort levelOne
     isUnsafe := true
   }
-  let pktCtorTp := mkAppN (mkConst packetNm) packetParams
+  let pktCtorTp := mkConst packetNm
   let recInstTp := mkApp2 (mkConst ``RpcEncoding) (mkAppN (mkConst indVal.name) params) pktCtorTp
   withLocalDecl `inst .instImplicit recInstTp fun _ => do
   let st ← foldWithConstructors indVal params (init := { : CtorState }) fun acc ctor argVars _ => do
@@ -180,14 +173,16 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params packetParams
   -- helpers for type name syntax
   let paramIds ← params.mapM fun p => return mkIdent (← getFVarLocalDecl p).userName
   let typeId := Syntax.mkApp (← `(@$(mkIdent indVal.name))) paramIds
-  let packetId := Syntax.mkApp (mkIdent packetNm) packetParamNames
+  let packetId ← `($(mkIdent packetNm) ..)
+  let instId := mkIdent (`_root_ ++ indVal.name.appendBefore "instRpcEncoding")
 
-  `(inductive $(mkIdent packetNm) $packetParamBinders:bracketedBinder* where
+  `(variable $packetParamBinders:bracketedBinder* in
+    protected inductive $(mkIdent packetNm) where
       $[$(st.ctors):ctor]*
       deriving FromJson, ToJson
 
     variable $(paramBinders ++ packetParamBinders ++ encInstBinders)* in
-    partial instance : RpcEncoding $typeId $packetId :=
+    @[instance] partial def $instId := show RpcEncoding $typeId $packetId from
       { rpcEncode, rpcDecode }
     where
       rpcEncode {m} [Monad m] [MonadRpcSession m] (x : $typeId) : ExceptT String m $packetId :=
@@ -226,18 +221,17 @@ private def deriveInstance (typeName : Name) : CommandElabM Bool := do
           packetParamBinders := packetParamBinders.push (← `(bracketedBinder| ($packet : Type)))
           encInstBinders := encInstBinders.push (← `(bracketedBinder| [RpcEncoding $(mkIdent paramNm) $packet]))
         else
-          packetParamBinders := packetParamBinders.push paramBinders.back --(← `(bracketedBinder| ($packet : $ty)))
+          packetParamBinders := packetParamBinders.push paramBinders.back
 
       return (paramBinders, packetParamBinders, encInstBinders)
 
   elabCommand <| ← liftTermElabM none do
     Term.elabBinders (paramBinders ++ packetParamBinders ++ encInstBinders) fun locals => do
       let params := locals[:paramBinders.size]
-      let packetParams := locals[paramBinders.size:paramBinders.size+packetParamBinders.size]
       if isStructure (← getEnv) typeName then
           deriveStructureInstance indVal params paramBinders packetParamBinders encInstBinders
       else
-          deriveInductiveInstance indVal params packetParams paramBinders packetParamBinders encInstBinders
+          deriveInductiveInstance indVal params paramBinders packetParamBinders encInstBinders
 
   return true
 

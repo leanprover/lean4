@@ -38,21 +38,21 @@ structure Bar where
   deriving RpcEncoding, Inhabited
 
 #print Bar.RpcEncodingPacket
-#check instRpcEncodingBarRpcEncodingPacket
+#check instRpcEncodingBar
 #eval test Bar default
 
 structure BarTrans where
   bar : Bar
   deriving RpcEncoding, Inhabited
 
-#check instRpcEncodingBarTransRpcEncodingPacket
+#check instRpcEncodingBarTrans
 #eval test BarTrans default
 
 structure Baz where
   arr : Array String -- non-constant field
   deriving RpcEncoding, Inhabited
 
-#check instRpcEncodingBazRpcEncodingPacket
+#check instRpcEncodingBaz
 #eval test Baz default
 
 structure FooGeneric (α : Type) where
@@ -61,7 +61,7 @@ structure FooGeneric (α : Type) where
   deriving RpcEncoding, Inhabited
 
 #print FooGeneric.RpcEncodingPacket
-#check instRpcEncodingFooGenericRpcEncodingPacket
+#check instRpcEncodingFooGeneric
 #eval test (FooGeneric Nat) default
 #eval test (FooGeneric Nat) { a := 3, b? := some 42 }
 
@@ -69,7 +69,7 @@ inductive BazInductive
   | baz (arr : Array Bar)
   deriving RpcEncoding, Inhabited
 
-#check instRpcEncodingBazInductiveRpcEncodingPacket
+#check instRpcEncodingBazInductive
 #eval test BazInductive ⟨#[default, default]⟩
 
 inductive FooInductive (α : Type) where
@@ -78,7 +78,7 @@ inductive FooInductive (α : Type) where
   deriving RpcEncoding, Inhabited
 
 #print FooInductive.RpcEncodingPacket
-#check instRpcEncodingFooInductiveRpcEncodingPacket
+#check instRpcEncodingFooInductive
 #eval test (FooInductive BazInductive) (.a default default)
 #eval test (FooInductive BazInductive) (.b 42 default default)
 
@@ -94,5 +94,20 @@ inductive FooParam (n : Nat) where
   | a : Nat → FooParam n
   deriving RpcEncoding, Inhabited
 
-#check instRpcEncodingFooParamRpcEncodingPacket
+#check instRpcEncodingFooParam
 #eval test (FooParam 10) (.a 42)
+
+inductive Unused (α : Type) | a
+  deriving RpcEncoding, Inhabited
+
+#print Unused.RpcEncodingPacket
+#check instRpcEncodingUnused
+structure NoRpcEncoding
+#eval test (Unused NoRpcEncoding) default
+
+structure UnusedStruct (α : Type)
+  deriving RpcEncoding, Inhabited
+
+#print UnusedStruct.RpcEncodingPacket
+#check instRpcEncodingUnusedStruct
+#eval test (UnusedStruct NoRpcEncoding) default

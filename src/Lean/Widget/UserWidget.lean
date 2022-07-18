@@ -56,8 +56,8 @@ private def WidgetSourceRegistry := SimplePersistentEnvExtension
     (UInt64 × WidgetSource)
     (Std.RBMap UInt64 WidgetSource compare)
 
-instance : Inhabited (Std.RBMap UInt64 WidgetSource compare) := ⟨∅⟩
-instance : Inhabited (WidgetSourceRegistry) := inferInstanceAs (Inhabited (PersistentEnvExtension _ _ (List _ × _)))
+local instance : Inhabited (Std.RBMap UInt64 WidgetSource compare) := ⟨∅⟩
+local instance : Inhabited (WidgetSourceRegistry) := inferInstanceAs (Inhabited (PersistentEnvExtension _ _ (List _ × _)))
 
 -- Mapping widgetSourceId to hash of sourcetext
 builtin_initialize userWidgetRegistry : MapDeclarationExtension UserWidget ← mkMapDeclarationExtension `widgetRegistry

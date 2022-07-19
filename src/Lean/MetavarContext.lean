@@ -218,6 +218,10 @@ very simple unification and/or non-nested TC. So, if the "app builder" becomes a
 we may solve the issue by implementing `isDefEqCheap` that never invokes TC and uses tmp metavars.
 -/
 
+/--
+The LocalInstance stores information that the kernel does not care about, but is still
+important to carry for user-facing reasons about local instances in the LocalContext.
+-/
 structure LocalInstance where
   className : Name
   fvar      : Expr
@@ -264,6 +268,8 @@ structure MetavarDecl where
   `mvarIdPending` is a `syntheticOpaque` metavariable that has not been synthesized yet. The delayed assignment becomes a real one
   as soon as `mvarIdPending` has been fully synthesized.
   `fvars` are variables in the `mvarIdPending` local context.
+
+  See `instantiateLevelMVars` for the rationale of delayed assignments.
 -/
 structure DelayedMetavarAssignment where
   fvars         : Array Expr

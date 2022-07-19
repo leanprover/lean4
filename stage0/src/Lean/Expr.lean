@@ -53,7 +53,7 @@ This can be set to
 The difference between implicit `{}` and strict-implicit `⦃⦄` is how
 implicit arguments are treated that are *not* followed by explicit arguments.
 `{}` arguments are applied eagerly, while `⦃⦄` arguments are left partially applied:
-```lean
+```lean4
 def foo {x : Nat} : Nat := x
 def bar ⦃x : Nat⦄ : Nat := x
 #check foo -- foo : Nat
@@ -72,17 +72,17 @@ inductive BinderInfo where
   | /-- Local instance binder annotataion, e.g., `[Decidable α]` -/
     instImplicit
   | /--
-Auxiliary declarations used by Lean when elaborating recursive declarations.
-When defining a function such as
-```
-     def f : Nat → Nat
-       | 0 => 1
-       | x+1 => (x+1)*f x
-```
-Lean adds a local declaration `f : Nat → Nat` to the local context (`LocalContext`)
-with `BinderInfo` set to `auxDecl`.
-This local declaration is later removed by the termination checker.
--/
+    Auxiliary declarations used by Lean when elaborating recursive declarations.
+    When defining a function such as
+    ```
+         def f : Nat → Nat
+           | 0 => 1
+           | x+1 => (x+1)*f x
+    ```
+    Lean adds a local declaration `f : Nat → Nat` to the local context (`LocalContext`)
+    with `BinderInfo` set to `auxDecl`.
+    This local declaration is later removed by the termination checker.
+    -/
     auxDecl
   deriving Inhabited, BEq, Repr
 
@@ -297,127 +297,127 @@ Remark: we use the `E` suffix (short for `Expr`) to avoid collision with keyword
 We considered using «...», but it is too inconvenient to use. -/
 inductive Expr where
   | /--
-Bound variables. The natural number is the "de Bruijn" index
-for the bound variable. See https://en.wikipedia.org/wiki/De_Bruijn_index for additional information.
-Example, the expression `fun x : Nat => forall y : Nat, x = y`
-```lean
-.lam `x (.const `Nat [])
-  (.forall `y (.const `Nat [])
-    (.app (.app (.app (.const `Eq [.succ .zero])
-                (.const `Nat [])) (.bvar 1))
-          (.bvar 0))
-    .default)
-  .default
-```
--/
+    Bound variables. The natural number is the "de Bruijn" index
+    for the bound variable. See https://en.wikipedia.org/wiki/De_Bruijn_index for additional information.
+    Example, the expression `fun x : Nat => forall y : Nat, x = y`
+    ```lean
+    .lam `x (.const `Nat [])
+      (.forall `y (.const `Nat [])
+        (.app (.app (.app (.const `Eq [.succ .zero])
+                    (.const `Nat [])) (.bvar 1))
+              (.bvar 0))
+        .default)
+      .default
+    ```
+    -/
     bvar (deBruijnIndex : Nat)
   | /--
-Free variable. Lean uses the locally nameless approach.
-See https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.2479&rep=rep1&type=pdf for additional details.
-When "visiting" the body of a binding expression (`lam`, `forallE`, or `letE`), bound variables
-are converted into free variables using a unique identifier, and their user-facing name, type,
-value (for `LetE`), and binder annotation are stored in the `LocalContext`.
--/
+    Free variable. Lean uses the locally nameless approach.
+    See https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.2479&rep=rep1&type=pdf for additional details.
+    When "visiting" the body of a binding expression (`lam`, `forallE`, or `letE`), bound variables
+    are converted into free variables using a unique identifier, and their user-facing name, type,
+    value (for `LetE`), and binder annotation are stored in the `LocalContext`.
+    -/
     fvar (fvarId : FVarId)
   | /--
-Metavariables are used to represent "holes" in expressions, and goals in the
-tactic framework. Metavariable declarations are stored in the `MetavarContext`.
-Metavariables are used during elaboration, and are not allowed in the kernel,
-or in the code generator.
+    Metavariables are used to represent "holes" in expressions, and goals in the
+    tactic framework. Metavariable declarations are stored in the `MetavarContext`.
+    Metavariables are used during elaboration, and are not allowed in the kernel,
+    or in the code generator.
     -/
     mvar (mvarId : MVarId)
   | /--
-`Type u`, `Sort u`, `Prop`.    -
-- `Prop` is represented as `.sort .zero`,
-- `Sort u` as ``.sort (.param `u)``, and
-- `Type u` as ``.sort (.succ (.param `u))``
--/
+    `Type u`, `Sort u`, `Prop`.    -
+    - `Prop` is represented as `.sort .zero`,
+    - `Sort u` as ``.sort (.param `u)``, and
+    - `Type u` as ``.sort (.succ (.param `u))``
+    -/
     sort (u : Level)
   | /--
-A (universe polymorphic) constant. For example,
-`@Eq.{1}` is represented as ``.const `Eq [.succ .zero]``, and
-`@Array.map.{0, 0}` is represented as ``.cons `Array.map [.zero, .zero]``.
--/
+    A (universe polymorphic) constant. For example,
+    `@Eq.{1}` is represented as ``.const `Eq [.succ .zero]``, and
+    `@Array.map.{0, 0}` is represented as ``.cons `Array.map [.zero, .zero]``.
+    -/
     const (declName : Name) (us : List Level)
   | /--
-Function application. `Nat.succ Nat.zero` is represented as
-```lean
-.app (.const `Nat.succ []) (.const .zero [])
-```
--/
+    Function application. `Nat.succ Nat.zero` is represented as
+    ```lean4
+    .app (.const `Nat.succ []) (.const .zero [])
+    ```
+    -/
     app (fn : Expr) (arg : Expr)
   | /--
-Lambda abstraction (aka anonymous functions).
-- `fun x : Nat => x` is represented as
-```lean
-.lam `x (.const `Nat []) (.bvar 0) .default
-```
--/
+    Lambda abstraction (aka anonymous functions).
+    - `fun x : Nat => x` is represented as
+    ```lean4
+    .lam `x (.const `Nat []) (.bvar 0) .default
+    ```
+    -/
     lam (binderName : Name) (binderType : Expr) (body : Expr) (binderInfo : BinderInfo)
   | /--
-A dependent arrow (aka forall-expression). It is also used to represent non-dependent arrows.
-Examples:
+    A dependent arrow (aka forall-expression). It is also used to represent non-dependent arrows.
+    Examples:
 
-- `forall x : Prop, x ∧ x` is represented as
-```lean
-.forallE `x
-   (.sort .zero)
-   (.app (.app (.const `And []) (.bvar 0)) (.bvar 0))
-   .default
-```
-- `Nat → Bool` as
-```lean
-.forallE `a (.const `Nat []) (.const `Bool []) .default
-```
--/
+    - `forall x : Prop, x ∧ x` is represented as
+    ```lean4
+    .forallE `x
+       (.sort .zero)
+       (.app (.app (.const `And []) (.bvar 0)) (.bvar 0))
+       .default
+    ```
+    - `Nat → Bool` as
+    ```lean4
+    .forallE `a (.const `Nat []) (.const `Bool []) .default
+    ```
+    -/
     forallE (binderName : Name) (binderType : Expr) (body : Expr) (binderInfo : BinderInfo)
   | /--
-Let-expressions. The field `nonDep` is not currently used, but will be used in the future
-by the code generator (and possibly `simp`) to track whether a let-expression is non-dependent
-or not. Given an environment, metavariable context, and local context, we say a let-expression
-`let x : t := v; e` is non-dependent when it is equivalent to `(fun x : t => e) v`.
-Here is an example of a dependent let-expression
-`let n : Nat := 2; fun (a : Array Nat n) (b : Array Nat 2) => a = b` is type correct, but
-`(fun (n : Nat) (a : Array Nat n) (b : Array Nat 2) => a = b) 2` is not.
-The let-expression `let x : Nat := 2; Nat.succ x` is represented as
-```
-.letE `x (.const `Nat []) (.lit (.natVal 2)) (.bvar 0) true
-```
--/
+    Let-expressions. The field `nonDep` is not currently used, but will be used in the future
+    by the code generator (and possibly `simp`) to track whether a let-expression is non-dependent
+    or not. Given an environment, metavariable context, and local context, we say a let-expression
+    `let x : t := v; e` is non-dependent when it is equivalent to `(fun x : t => e) v`.
+    Here is an example of a dependent let-expression
+    `let n : Nat := 2; fun (a : Array Nat n) (b : Array Nat 2) => a = b` is type correct, but
+    `(fun (n : Nat) (a : Array Nat n) (b : Array Nat 2) => a = b) 2` is not.
+    The let-expression `let x : Nat := 2; Nat.succ x` is represented as
+    ```
+    .letE `x (.const `Nat []) (.lit (.natVal 2)) (.bvar 0) true
+    ```
+    -/
     letE (declName : Name) (type : Expr) (value : Expr) (body : Expr) (nonDep : Bool)
   | /--
-Natural number and string literal values. They are not really needed, but provide a more
-compact representation in memory for these two kinds of literals, and are used to implement
-efficient reduction in the elaborator and kernel.
-The "raw" natural number `2` can be represented as `.lit (.natVal 2)`. Note that, it is
-definitionally equal to
-```
-.app (.const `Nat.succ []) (.app (.const `Nat.succ []) (.const `Nat.zero []))
-```
--/
+    Natural number and string literal values. They are not really needed, but provide a more
+    compact representation in memory for these two kinds of literals, and are used to implement
+    efficient reduction in the elaborator and kernel.
+    The "raw" natural number `2` can be represented as `.lit (.natVal 2)`. Note that, it is
+    definitionally equal to
+    ```lean4
+    .app (.const `Nat.succ []) (.app (.const `Nat.succ []) (.const `Nat.zero []))
+    ```
+    -/
     lit     : Literal → Expr
   | /--
-Metadata (aka annotations). We use annotations to provide hints to the pretty-printer,
-store references to `Syntax` nodes, position information, and save information for
-elaboration procedures (e.g., we use the `inaccessible` annotation during elaboration to
-mark `Expr`s that correspond to inaccessible patterns).
-Note that `.mdata data e` is definitionally equal to `e`.
--/
+    Metadata (aka annotations). We use annotations to provide hints to the pretty-printer,
+    store references to `Syntax` nodes, position information, and save information for
+    elaboration procedures (e.g., we use the `inaccessible` annotation during elaboration to
+    mark `Expr`s that correspond to inaccessible patterns).
+    Note that `.mdata data e` is definitionally equal to `e`.
+    -/
     mdata (data : MData) (expr : Expr)
   | /--
-Projection-expressions. They are redundant, but are used to create more compact
-terms, speedup reduction, and implement eta for structures.
-The type of `struct` must be an structure-like inductive type. That is, it has only one
-constructor, is not recursive, and it is not an inductive predicate. The kernel and elaborators
-check whether the `typeName` matches the type of `struct`, and whether the (zero-based) index
-is valid (i.e., it is smaller than the numbef of constructor fields).
-When exporting Lean developments to other systems, `proj` can be replaced with `typeName`.`rec`
-applications.
-Example, given `a : Nat x Bool`, `a.1` is represented as
-```
-.proj `Prod 0 a
-```
--/
+    Projection-expressions. They are redundant, but are used to create more compact
+    terms, speedup reduction, and implement eta for structures.
+    The type of `struct` must be an structure-like inductive type. That is, it has only one
+    constructor, is not recursive, and it is not an inductive predicate. The kernel and elaborators
+    check whether the `typeName` matches the type of `struct`, and whether the (zero-based) index
+    is valid (i.e., it is smaller than the numbef of constructor fields).
+    When exporting Lean developments to other systems, `proj` can be replaced with `typeName`.`rec`
+    applications.
+    Example, given `a : Nat x Bool`, `a.1` is represented as
+    ```lean4
+    .proj `Prod 0 a
+    ```
+    -/
     proj (typeName : Name) (idx : Nat) (struct : Expr)
 with
   @[computedField, extern c inline "lean_ctor_get_uint64(#1, lean_ctor_num_objs(#1)*sizeof(void*))"]

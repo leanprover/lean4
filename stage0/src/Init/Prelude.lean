@@ -1844,20 +1844,20 @@ end Name
 /-- Source information of tokens. -/
 inductive SourceInfo where
   | /--
-Token from original input with whitespace and position information.
-`leading` will be inferred after parsing by `Syntax.updateLeading`. During parsing,
-it is not at all clear what the preceding token was, especially with backtracking.
--/
+    Token from original input with whitespace and position information.
+    `leading` will be inferred after parsing by `Syntax.updateLeading`. During parsing,
+    it is not at all clear what the preceding token was, especially with backtracking.
+    -/
    original (leading : Substring) (pos : String.Pos) (trailing : Substring) (endPos : String.Pos)
   | /--
-Synthesized token (e.g. from a quotation) annotated with a span from the original source.
-In the delaborator, we "misuse" this constructor to store synthetic positions identifying
-subterms.
--/
+    Synthesized token (e.g. from a quotation) annotated with a span from the original source.
+    In the delaborator, we "misuse" this constructor to store synthetic positions identifying
+    subterms.
+    -/
     synthetic (pos : String.Pos) (endPos : String.Pos)
   | /--
-Synthesized token without position information.
--/
+    Synthesized token without position information.
+    -/
     protected none
 
 instance : Inhabited SourceInfo := ⟨SourceInfo.none⟩
@@ -1882,25 +1882,26 @@ Syntax objects used by the parser, macro expander, delaborator, etc.
 inductive Syntax where
   | missing : Syntax
   | /--
-Node in the syntax tree.
+    Node in the syntax tree.
 
-The `info` field is used by the delaborator
-to store the position of the subexpression
-corresponding to this node.
-The parser sets the `info` field to `none`.
+    The `info` field is used by the delaborator
+    to store the position of the subexpression
+    corresponding to this node.
+    The parser sets the `info` field to `none`.
 
-(Remark: the `node` constructor
-did not have an `info` field in previous versions.
-This caused a bug in the interactive widgets,
-where the popup for `a + b` was the same as for `a`.
-The delaborator used to associate subexpressions
-with pretty-printed syntax by setting
-the (string) position of the first atom/identifier
-to the (expression) position of the subexpression.
-For example, both `a` and `a + b`
-have the same first identifier,
-and so their infos got mixed up.)
-  -/ node   (info : SourceInfo) (kind : SyntaxNodeKind) (args : Array Syntax) : Syntax
+    (Remark: the `node` constructor
+    did not have an `info` field in previous versions.
+    This caused a bug in the interactive widgets,
+    where the popup for `a + b` was the same as for `a`.
+    The delaborator used to associate subexpressions
+    with pretty-printed syntax by setting
+    the (string) position of the first atom/identifier
+    to the (expression) position of the subexpression.
+    For example, both `a` and `a + b`
+    have the same first identifier,
+    and so their infos got mixed up.)
+    -/ 
+    node   (info : SourceInfo) (kind : SyntaxNodeKind) (args : Array Syntax) : Syntax
   | atom   (info : SourceInfo) (val : String) : Syntax
   | ident  (info : SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List (Prod Name (List String))) : Syntax
 
@@ -2144,10 +2145,11 @@ def replaceRef (ref : Syntax) (oldRef : Syntax) : Syntax :=
     introduced symbol, which results in better error positions than not applying
     any position. -/
 class MonadQuotation (m : Type → Type) extends MonadRef m where
-  -- Get the fresh scope of the current macro invocation
+  /-- Get the fresh scope of the current macro invocation -/
   getCurrMacroScope : m MacroScope
   getMainModule     : m Name
-  /- Execute action in a new macro invocation context. This transformer should be
+  /-- 
+     Execute action in a new macro invocation context. This transformer should be
      used at all places that morally qualify as the beginning of a "macro call",
      e.g. `elabCommand` and `elabTerm` in the case of the elaborator. However, it
      can also be used internally inside a "macro" if identifiers introduced by

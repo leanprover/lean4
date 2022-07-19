@@ -38,6 +38,7 @@ static lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNo
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__2___closed__36;
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__53;
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__42;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_expandNotation___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5901,7 +5902,7 @@ static lean_object* _init_l___private_Lean_Elab_Notation_0__Lean_Elab_Command_ex
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(9u);
+x_1 = lean_unsigned_to_nat(10u);
 x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
@@ -5911,6 +5912,16 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__2___closed__34;
+x_2 = l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__2___closed__3;
+x_3 = lean_array_push(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__2___closed__36() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__2___closed__35;
 x_2 = l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__2___closed__3;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
@@ -6069,7 +6080,7 @@ x_170 = l_Lean_Elab_Command_expandNotationItemIntoSyntaxItem___lambda__1___close
 x_171 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_171, 0, x_127);
 lean_ctor_set(x_171, 1, x_170);
-x_172 = l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__2___closed__35;
+x_172 = l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__2___closed__36;
 lean_inc(x_7);
 x_173 = lean_array_push(x_172, x_7);
 x_174 = lean_array_push(x_173, x_130);
@@ -7496,6 +7507,8 @@ l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__
 lean_mark_persistent(l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__2___closed__34);
 l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__2___closed__35 = _init_l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__2___closed__35();
 lean_mark_persistent(l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__2___closed__35);
+l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__2___closed__36 = _init_l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__2___closed__36();
+lean_mark_persistent(l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__2___closed__36);
 l_Lean_Elab_Command_expandNotation___closed__1 = _init_l_Lean_Elab_Command_expandNotation___closed__1();
 lean_mark_persistent(l_Lean_Elab_Command_expandNotation___closed__1);
 l_Lean_Elab_Command_expandNotation___closed__2 = _init_l_Lean_Elab_Command_expandNotation___closed__2();

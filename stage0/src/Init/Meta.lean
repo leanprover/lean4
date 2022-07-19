@@ -1061,6 +1061,12 @@ def SepArray.getElems (sa : SepArray sep) : Array Syntax :=
 def TSepArray.getElems (sa : TSepArray k sep) : TSyntaxArray k :=
   .mk sa.elemsAndSeps.getSepElems
 
+def TSepArray.push (sa : TSepArray k sep) (e : TSyntax k) : TSepArray k sep :=
+  if sa.elemsAndSeps.isEmpty then
+    { elemsAndSeps := #[e] }
+  else 
+    { elemsAndSeps := sa.elemsAndSeps.push (mkAtom sep) |>.push e }
+
 /-
 We use `CoeTail` here instead of `Coe` to avoid a "loop" when computing `CoeTC`.
 The "loop" is interrupted using the maximum instance size threshold, but it is a performance bottleneck.

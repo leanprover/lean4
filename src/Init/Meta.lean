@@ -1067,6 +1067,12 @@ def TSepArray.push (sa : TSepArray k sep) (e : TSyntax k) : TSepArray k sep :=
   else 
     { elemsAndSeps := sa.elemsAndSeps.push (mkAtom sep) |>.push e }
 
+instance : EmptyCollection (SepArray sep) where
+  emptyCollection := ⟨∅⟩
+
+instance : EmptyCollection (TSepArray sep k) where
+  emptyCollection := ⟨∅⟩
+
 /-
 We use `CoeTail` here instead of `Coe` to avoid a "loop" when computing `CoeTC`.
 The "loop" is interrupted using the maximum instance size threshold, but it is a performance bottleneck.

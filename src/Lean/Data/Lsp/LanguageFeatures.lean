@@ -226,11 +226,13 @@ structure SymbolInformation where
   deriving ToJson
 
 inductive SemanticTokenType where
+  -- Used by Lean
   | keyword
   | «variable»
   | property
   | function
-  /-
+  /- Other types included by default in the LSP specification.
+  Not used by the Lean core, but useful to users extending the Lean server. -/
   | «namespace»
   | type
   | «class»
@@ -249,19 +251,23 @@ inductive SemanticTokenType where
   | number
   | regexp
   | operator
-  -/
+  | decorator
 
+-- must be in the same order as the constructors
 def SemanticTokenType.names : Array String :=
-  #["keyword", "variable", "property", "function"]
+  #["keyword", "variable", "property", "function", "namespace", "type", "class",
+    "enum", "interface", "struct", "typeParameter", "parameter", "enumMember",
+    "event", "method", "macro", "modifier", "comment", "string", "number",
+    "regexp", "operator", "decorator"]
 
--- must be the correct index in `names`
-def SemanticTokenType.toNat : SemanticTokenType → Nat
-  | keyword    => 0
-  | «variable» => 1
-  | property   => 2
-  | function   => 3
+def SemanticTokenType.toNat (type : SemanticTokenType) : Nat :=
+  type.toCtorIdx
 
-/-
+/--
+The semantic token modifiers included by default in the LSP specification.
+Not used by the Lean core, but implementing them here allows them to be
+utilized by users extending the Lean server.
+-/
 inductive SemanticTokenModifier where
   | declaration
   | definition
@@ -273,7 +279,14 @@ inductive SemanticTokenModifier where
   | modification
   | documentation
   | defaultLibrary
--/
+
+-- must be in the same order as the constructors
+def SemanticTokenModifier.names : Array String :=
+  #["declaration", "definition", "readonly", "static", "deprecated", "abstract",
+    "async", "modification", "documentation", "defaultLibrary"]
+
+def SemanticTokenModifier.toNat (modifier : SemanticTokenType) : Nat :=
+  modifier.toCtorIdx
 
 structure SemanticTokensLegend where
   tokenTypes : Array String
@@ -298,7 +311,7 @@ structure SemanticTokensRangeParams where
   deriving FromJson, ToJson
 
 structure SemanticTokens where
-  -- resultId?: string;
+  resultId? : Option String := none
   data : Array Nat
   deriving FromJson, ToJson
 

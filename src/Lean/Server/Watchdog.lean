@@ -682,7 +682,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
   semanticTokensProvider? := some {
     legend := {
       tokenTypes     := SemanticTokenType.names
-      tokenModifiers := #[]
+      tokenModifiers := SemanticTokenModifier.names
     }
     full  := true
     range := true

@@ -104,17 +104,15 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
     -- helpers for type name syntax
     let paramIds ← params.mapM fun p => return mkIdent (← getFVarLocalDecl p).userName
     let typeId := Syntax.mkApp (← `(@$(mkIdent indVal.name))) paramIds
-    let packetId := mkIdent <| indVal.name ++ `RpcEncodingPacket
-    let packetAppliedId ← `($packetId ..)
     let instId := mkIdent (`_root_ ++ indVal.name.appendBefore "instRpcEncoding")
 
     `(variable $packetParamBinders* in
-      protected structure $packetId:ident where
+      structure RpcEncodingPacket where
         $[($fieldIds : $fieldEncTypeStxs)]*
         deriving FromJson, ToJson
 
       variable $(paramBinders ++ packetParamBinders ++ encInstBinders)* in
-      @[instance] def $instId := show RpcEncoding $typeId $packetAppliedId from {
+      @[instance] def $instId := show RpcEncoding $typeId (RpcEncodingPacket ..) from {
         rpcEncode := fun a => return { $[$encInits],* }
         rpcDecode := fun a => return { $[$decInits],* }
       }
@@ -133,7 +131,7 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
     (paramBinders packetParamBinders encInstBinders : Array (TSyntax ``Parser.Term.bracketedBinder)) : TermElabM Command := do
   trace[Elab.Deriving.RpcEncoding] "for inductive {indVal.name} with params {params}"
   withoutModifyingEnv do
-  let packetNm := indVal.name ++ `RpcEncodingPacket
+  let packetNm := (← `(RpcEncodingPacket)).1.getId
   addDecl <| .axiomDecl {
     name := packetNm
     levelParams := []
@@ -150,7 +148,7 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
       let tyStx ← PrettyPrinter.delab packetTp
       let name := (← getFVarLocalDecl arg).userName
       `(bracketedBinder| ($(mkIdent name) : $tyStx))
-    let pktCtor ← `(Parser.Command.ctor| | $(mkIdent ctor.getString!):ident $[$fieldStxs]* : $(mkIdent packetNm))
+    let pktCtor ← `(Parser.Command.ctor| | $(mkIdent ctor.getString!):ident $[$fieldStxs]* : RpcEncodingPacket)
 
     -- create encoder and decoder match arms
     let nms ← argVars.mapM fun _ => mkIdent <$> mkFreshBinderName
@@ -170,23 +168,22 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
   -- helpers for type name syntax
   let paramIds ← params.mapM fun p => return mkIdent (← getFVarLocalDecl p).userName
   let typeId := Syntax.mkApp (← `(@$(mkIdent indVal.name))) paramIds
-  let packetId ← `($(mkIdent packetNm) ..)
   let instId := mkIdent (`_root_ ++ indVal.name.appendBefore "instRpcEncoding")
 
   `(variable $packetParamBinders:bracketedBinder* in
-    protected inductive $(mkIdent packetNm) where
+    inductive RpcEncodingPacket where
       $[$(st.ctors):ctor]*
       deriving FromJson, ToJson
 
     variable $(paramBinders ++ packetParamBinders ++ encInstBinders)* in
-    @[instance] partial def $instId := show RpcEncoding $typeId $packetId from
+    @[instance] partial def $instId := show RpcEncoding $typeId (RpcEncodingPacket ..) from
       { rpcEncode, rpcDecode }
     where
-      rpcEncode {m} [Monad m] [MonadRpcSession m] (x : $typeId) : ExceptT String m $packetId :=
-        have inst : RpcEncoding $typeId $packetId := { rpcEncode, rpcDecode }
+      rpcEncode {m} [Monad m] [MonadRpcSession m] (x : $typeId) : ExceptT String m (RpcEncodingPacket ..) :=
+        have inst : RpcEncoding $typeId (RpcEncodingPacket ..) := { rpcEncode, rpcDecode }
         match x with $[$(st.encodes):matchAlt]*
-      rpcDecode {m} [Monad m] [MonadRpcSession m] (x : $packetId) : ExceptT String m $typeId :=
-        have inst : RpcEncoding $typeId $packetId := { rpcEncode, rpcDecode }
+      rpcDecode {m} [Monad m] [MonadRpcSession m] (x : RpcEncodingPacket ..) : ExceptT String m $typeId :=
+        have inst : RpcEncoding $typeId (RpcEncodingPacket ..) := { rpcEncode, rpcDecode }
         match x with $[$(st.decodes):matchAlt]*
   )
 

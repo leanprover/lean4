@@ -172,7 +172,7 @@ def lazyPure (fn : Unit → α) : IO α :=
 If `nBytes = 0`, return immediately with an empty buffer. -/
 @[extern "lean_io_get_random_bytes"] opaque getRandomBytes (nBytes : USize) : IO ByteArray
 
-def sleep (ms : UInt32) : IO Unit :=
+def sleep (ms : UInt32) : BaseIO Unit :=
   -- TODO: add a proper primitive for IO.sleep
   fun s => dbgSleep ms fun _ => EStateM.Result.ok () s
 

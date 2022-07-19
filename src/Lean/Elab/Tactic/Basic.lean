@@ -348,6 +348,8 @@ def closeMainGoal (val : Expr) (checkUnassigned := true): TacticM Unit := do
     replaceMainGoal mvarIds
     pure a
 
+/-- Get the mvarid of the main goal, run the given `tactic`,
+then set the new goals to be the resulting goal list.-/
 @[inline] def liftMetaTactic (tactic : MVarId → MetaM (List MVarId)) : TacticM Unit :=
   liftMetaTacticAux fun mvarId => do
     let gs ← tactic mvarId

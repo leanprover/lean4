@@ -13,7 +13,6 @@ import Lean.Elab.DeclarationRange
 namespace Lean.Elab.Command
 
 open Meta
-open TSyntax.Compat
 
 private def ensureValidNamespace (name : Name) : MacroM Unit := do
   match name with
@@ -143,7 +142,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Comm
     classes ← getOptDerivingClasses decl[5]
   else
     computedFields ← (decl[5].getOptional?.map (·[1].getArgs) |>.getD #[]).mapM fun cf => withRef cf do
-      return { ref := cf, modifiers := cf[0], fieldId := cf[1].getId, type := cf[3], matchAlts := cf[4] }
+      return { ref := cf, modifiers := cf[0], fieldId := cf[1].getId, type := ⟨cf[3]⟩, matchAlts := ⟨cf[4]⟩ }
     classes ← getOptDerivingClasses decl[6]
   return {
     ref             := decl
@@ -180,7 +179,7 @@ def elabDeclaration : CommandElab := fun stx => do
   match (← liftMacroM <| expandDeclNamespace? stx) with
   | some (ns, newStx) => do
     let ns := mkIdentFrom stx ns
-    let newStx ← `(namespace $ns:ident $newStx end $ns:ident)
+    let newStx ← `(namespace $ns:ident $(⟨newStx⟩) end $ns:ident)
     withMacroExpansion stx newStx <| elabCommand newStx
   | none => do
     let decl     := stx[1]
@@ -260,7 +259,7 @@ def expandMutualNamespace : Macro := fun stx => do
   | some ns =>
     let ns := mkIdentFrom stx ns
     let stxNew := stx.setArg 1 (mkNullNode elemsNew)
-    `(namespace $ns:ident $stxNew end $ns:ident)
+    `(namespace $ns:ident $(⟨stxNew⟩) end $ns:ident)
   | none => Macro.throwUnsupported
 
 @[builtinMacro Lean.Parser.Command.mutual]
@@ -329,7 +328,7 @@ def elabMutual : CommandElab := fun stx => do
 
 @[builtinMacro Lean.Parser.Command.«initialize»] def expandInitialize : Macro
   | stx@`($declModifiers:declModifiers $kw:initializeKeyword $[$id? : $type? ←]? $doSeq) => do
-    let attrId := mkIdentFrom stx <| if kw.raw.isToken "initialize" then `init else `builtinInit
+    let attrId := mkIdentFrom stx <| if kw.raw[0].isToken "initialize" then `init else `builtinInit
     if let (some id, some type) := (id?, type?) then
       let `(Parser.Command.declModifiersT| $[$doc?:docComment]? $[@[$attrs?,*]]? $(vis?)? $[unsafe%$unsafe?]?) := stx[0]
         | Macro.throwErrorAt declModifiers "invalid initialization command, unexpected modifiers"

@@ -4,7 +4,7 @@
  [{"label": "insertAt",
    "kind": 3,
    "documentation":
-   {"value": "Insert element `a` at position `i`.\n  Pre: `i < as.size` ",
+   {"value": "Insert element `a` at position `i`.\nPre: `i < as.size` ",
     "kind": "markdown"},
    "detail": "Array α → Nat → α → Array α"},
   {"label": "insertAtAux",

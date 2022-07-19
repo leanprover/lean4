@@ -8,7 +8,7 @@
    "kind": 3,
    "documentation":
    {"value":
-    "Free compacted regions of imports. No live references to imported objects may exist at the time of invocation; in\n  particular, `env` should be the last reference to any `Environment` derived from these imports. ",
+    "Free compacted regions of imports. No live references to imported objects may exist at the time of invocation; in\nparticular, `env` should be the last reference to any `Environment` derived from these imports. ",
     "kind": "markdown"},
    "detail": "Lean.Environment → IO Unit"}],
  "isIncomplete": true}

@@ -9,7 +9,11 @@ import Lean.Meta.Tactic.Apply
 
 namespace Lean.Meta
 
-def constructor (mvarId : MVarId) : MetaM (List MVarId) := do
+/--
+When the goal `mvarId` is an inductive datatype,
+`constructor` calls `apply` with the first matching constructor.
+-/
+def constructor (mvarId : MVarId) (cfg : ApplyConfig := {}) : MetaM (List MVarId) := do
   withMVarContext mvarId do
     checkNotAssigned mvarId `constructor
     let target ← getMVarType' mvarId
@@ -18,7 +22,7 @@ def constructor (mvarId : MVarId) : MetaM (List MVarId) := do
       fun ival us => do
         for ctor in ival.ctors do
           try
-            return ← apply mvarId (Lean.mkConst ctor us)
+            return ← apply mvarId (Lean.mkConst ctor us) cfg
           catch _ =>
             pure ()
         throwTacticEx `constructor mvarId "no applicable constructor found"

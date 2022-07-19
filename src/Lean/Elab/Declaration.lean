@@ -327,35 +327,21 @@ def elabMutual : CommandElab := fun stx => do
     for attrName in toErase do
       Attribute.erase declName attrName
 
-def expandInitCmd (builtin : Bool) : Macro := fun stx => do
-  let optVisibility := stx[0]
-  let optHeader     := stx[2]
-  let doSeq         := stx[3]
-  let attrId        := mkIdentFrom stx <| if builtin then `builtinInit else `init
-  if optHeader.isNone then
-    unless optVisibility.isNone do
-      Macro.throwError "invalid initialization command, 'visibility' modifer is not allowed"
-    `(@[$attrId:ident]def initFn : IO Unit := do $doSeq)
-  else
-    let id   := optHeader[0]
-    let type := optHeader[1][1]
-    if optVisibility.isNone then
+@[builtinMacro Lean.Parser.Command.«initialize»] def expandInitialize : Macro
+  | stx@`($declModifiers:declModifiers $kw:initializeKeyword $[$id? : $type? ←]? $doSeq) => do
+    let attrId := mkIdentFrom stx <| if kw.raw.isToken "initialize" then `init else `builtinInit
+    if let (some id, some type) := (id?, type?) then
+      let `(Parser.Command.declModifiersT| $[$doc?:docComment]? $[@[$attrs?,*]]? $(vis?)? $[unsafe%$unsafe?]?) := stx[0]
+        | Macro.throwErrorAt declModifiers "invalid initialization command, unexpected modifiers"
+      let declModifiers ← `(Parser.Command.declModifiersT| $[$doc?:docComment]? @[$attrId:ident initFn, $(attrs?.getD ∅),*] $(vis?)? $[unsafe%$unsafe?]?)
       `(def initFn : IO $type := do $doSeq
-        @[$attrId:ident initFn] opaque $id : $type)
-    else if optVisibility[0].getKind == ``Parser.Command.private then
-      `(def initFn : IO $type := do $doSeq
-        @[$attrId:ident initFn] private opaque $id : $type)
-    else if optVisibility[0].getKind == ``Parser.Command.protected then
-      `(def initFn : IO $type := do $doSeq
-        @[$attrId:ident initFn] protected opaque $id : $type)
+        $(⟨declModifiers⟩):declModifiers opaque $id : $type)
     else
-      Macro.throwError "unexpected visibility annotation"
-
-@[builtinMacro Lean.Parser.Command.«initialize»] def expandInitialize : Macro :=
-  expandInitCmd (builtin := false)
-
-@[builtinMacro Lean.Parser.Command.«builtin_initialize»] def expandBuiltinInitialize : Macro :=
-  expandInitCmd (builtin := true)
+      if let `(Parser.Command.declModifiersT| ) := declModifiers then
+        `(@[$attrId:ident] def initFn : IO Unit := do $doSeq)
+      else
+        Macro.throwErrorAt declModifiers "invalid initialization command, unexpected modifiers"
+  | _ => Macro.throwUnsupported
 
 builtin_initialize
   registerTraceClass `Elab.axiom

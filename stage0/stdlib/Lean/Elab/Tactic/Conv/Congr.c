@@ -143,6 +143,7 @@ static lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Elab_Tactic_Conv_
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_Tactic_Conv_selectIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Conv_evalLhs___rarg___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalLhs_declRange___closed__4;
+lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalLhs___boxed(lean_object*);
 lean_object* l_Lean_throwError___at___private_Lean_Elab_Tactic_Basic_0__Lean_Elab_Tactic_evalTacticUsing_loop___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -200,7 +201,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_extLetBodyCongr_x3f___lambda__3
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalCongr___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalCongr___boxed(lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalExt_declRange(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalArg_declRange___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalArg_declRange___closed__2;
@@ -1417,7 +1417,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_10 = lean_unsigned_to_nat(0u);
-x_11 = l_Lean_Expr_getAppNumArgsAux(x_2, x_10);
+x_11 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_2, x_10);
 x_12 = l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_Tactic_Conv_congrApp___closed__1;
 lean_inc(x_11);
 x_13 = lean_mk_array(x_11, x_12);

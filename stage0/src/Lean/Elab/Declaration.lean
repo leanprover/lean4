@@ -183,16 +183,19 @@ def elabDeclaration : CommandElab := fun stx => do
     let newStx ← `(namespace $ns:ident $newStx end $ns:ident)
     withMacroExpansion stx newStx <| elabCommand newStx
   | none => do
-    let modifiers ← elabModifiers stx[0]
     let decl     := stx[1]
     let declKind := decl.getKind
     if declKind == ``Lean.Parser.Command.«axiom» then
+      let modifiers ← elabModifiers stx[0]
       elabAxiom modifiers decl
     else if declKind == ``Lean.Parser.Command.«inductive» then
+      let modifiers ← elabModifiers stx[0]
       elabInductive modifiers decl
     else if declKind == ``Lean.Parser.Command.classInductive then
+      let modifiers ← elabModifiers stx[0]
       elabClassInductive modifiers decl
     else if declKind == ``Lean.Parser.Command.«structure» then
+      let modifiers ← elabModifiers stx[0]
       elabStructure modifiers decl
     else if isDefLike decl then
       elabMutualDef #[stx] (getTerminationHints stx)
@@ -310,9 +313,10 @@ def elabMutual : CommandElab := fun stx => do
   for attrKindStx in stx[2].getSepArgs do
     if attrKindStx.getKind == ``Lean.Parser.Command.eraseAttr then
       let attrName := attrKindStx[1].getId.eraseMacroScopes
-      unless isAttribute (← getEnv) attrName do
-        throwError "unknown attribute [{attrName}]"
-      toErase := toErase.push attrName
+      if isAttribute (← getEnv) attrName then
+        toErase := toErase.push attrName
+      else
+        logErrorAt attrKindStx "unknown attribute [{attrName}]"
     else
       attrInsts := attrInsts.push attrKindStx
   let attrs ← elabAttrs attrInsts

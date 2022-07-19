@@ -388,6 +388,7 @@ LEAN_EXPORT lean_object* l_Std_PersistentHashMap_insertAux___at___private_Lean_S
 LEAN_EXPORT uint8_t l_Std_PersistentArray_anyMAux___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncoding_deriveInductiveInstance___spec__28(lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncoding_deriveInductiveInstance___spec__35___closed__1;
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Server_RpcEncoding_foldWithConstructors___spec__1___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_insertAux___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncoding_deriveStructureInstance___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncoding_deriveWithRefInstance___closed__153;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncoding_deriveInductiveInstance___lambda__4___closed__6;
@@ -576,7 +577,6 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_RpcEncoding_w
 extern lean_object* l_Lean_Meta_DiscrTree_instInhabitedKey;
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncoding_deriveWithRefInstance___closed__2;
-lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncoding_deriveStructureInstance___spec__17___closed__1;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncoding_deriveWithRefInstance___closed__236;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncoding_deriveStructureInstance___spec__15___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7638,7 +7638,7 @@ _start:
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_16 = lean_unsigned_to_nat(0u);
-x_17 = l_Lean_Expr_getAppNumArgsAux(x_7, x_16);
+x_17 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_7, x_16);
 x_18 = lean_nat_sub(x_17, x_16);
 lean_dec(x_17);
 x_19 = lean_unsigned_to_nat(1u);

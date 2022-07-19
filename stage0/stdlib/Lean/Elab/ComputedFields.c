@@ -162,6 +162,7 @@ static lean_object* l_Lean_getConstInfoCtor___at_Lean_Elab_ComputedFields_isScal
 static lean_object* l_Lean_getConstInfo___at_Lean_Elab_ComputedFields_overrideCasesOn___spec__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_ComputedFields_validateComputedFields___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panic___at_Lean_Expr_getRevArg_x21___spec__1(lean_object*);
+lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_ComputedFields_overrideConstructors___spec__8(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at_Lean_Elab_ComputedFields_overrideCasesOn___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -231,7 +232,6 @@ LEAN_EXPORT lean_object* l_Lean_log___at_Lean_Elab_ComputedFields_setComputedFie
 lean_object* l_List_redLength___rarg(lean_object*);
 lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getLocalDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_ComputedFields_overrideCasesOn___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_abstractRange___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2598,7 +2598,7 @@ x_50 = l_Lean_Expr_instantiateLevelParamsCore_visit___at_Lean_Expr_instantiateLe
 lean_dec(x_49);
 lean_dec(x_47);
 x_51 = lean_unsigned_to_nat(0u);
-x_52 = l_Lean_Expr_getAppNumArgsAux(x_27, x_51);
+x_52 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_27, x_51);
 x_53 = l_Lean_Elab_ComputedFields_getComputedFieldValue___closed__3;
 lean_inc(x_52);
 x_54 = lean_mk_array(x_52, x_53);
@@ -3332,7 +3332,7 @@ x_14 = l_List_mapM___at_Lean_Elab_ComputedFields_mkImplType___spec__2___lambda__
 x_15 = l_Lean_Name_append(x_1, x_14);
 x_16 = l_Lean_Expr_const___override(x_15, x_2);
 x_17 = lean_unsigned_to_nat(0u);
-x_18 = l_Lean_Expr_getAppNumArgsAux(x_7, x_17);
+x_18 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_7, x_17);
 x_19 = l_Lean_Elab_ComputedFields_getComputedFieldValue___closed__3;
 lean_inc(x_18);
 x_20 = lean_mk_array(x_18, x_19);

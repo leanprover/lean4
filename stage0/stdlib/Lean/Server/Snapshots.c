@@ -19,6 +19,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_Snapshots_Snaps
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_compileNextCmd___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_withLogging___at_Lean_Elab_Command_elabCommand___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Server_Snapshots_compileNextCmd_withNewInteractiveDiags___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static uint32_t l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__6;
@@ -79,7 +80,6 @@ lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Snapshots_compileNextCmd___closed__6;
 static lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_373____closed__3;
-lean_object* l_Lean_Elab_Command_withLogging(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree___closed__9;
@@ -1651,7 +1651,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_compileNextCmd___lambda__2(lean
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Lean_Elab_Command_withLogging(x_1, x_2, x_3, x_4);
+x_5 = l_Lean_Elab_withLogging___at_Lean_Elab_Command_elabCommand___spec__2(x_1, x_2, x_3, x_4);
 if (lean_obj_tag(x_5) == 0)
 {
 uint8_t x_6; 

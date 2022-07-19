@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Lean_initializing(lean_object*);
 static lean_object* l_Lean_Server_handleLspRequest___closed__1;
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -124,7 +125,6 @@ lean_object* l_instBEq___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_withWaitFindSnap___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_readDoc___boxed(lean_object*, lean_object*);
-lean_object* lean_io_initializing(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_bindWaitFindSnap(lean_object*);
 static lean_object* l_Lean_Server_parseRequestParams___rarg___closed__3;
 static lean_object* l_Lean_Server_chainLspRequestHandler___lambda__1___closed__2;
@@ -2122,7 +2122,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler(lean_object* x_
 _start:
 {
 lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-x_9 = lean_io_initializing(x_8);
+x_9 = l_Lean_initializing(x_8);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 x_11 = lean_unbox(x_10);
@@ -2905,7 +2905,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_chainLspRequestHandler(lean_object* x_1, 
 _start:
 {
 lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-x_9 = lean_io_initializing(x_8);
+x_9 = l_Lean_initializing(x_8);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 x_11 = lean_unbox(x_10);

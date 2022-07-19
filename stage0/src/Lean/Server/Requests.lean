@@ -132,7 +132,7 @@ structure RequestHandler where
 builtin_initialize requestHandlers : IO.Ref (Std.PersistentHashMap String RequestHandler) ←
   IO.mkRef {}
 
-/-- NB: This method may only be called in `builtin_initialize` blocks.
+/-- NB: This method may only be called in `initialize` blocks (user or builtin).
 
 A registration consists of:
 - a type of JSON-parsable request data `paramType`
@@ -148,7 +148,7 @@ def registerLspRequestHandler (method : String)
     paramType [FromJson paramType] [FileSource paramType]
     respType [ToJson respType]
     (handler : paramType → RequestM (RequestTask respType)) : IO Unit := do
-  if !(← IO.initializing) then
+  if !(← Lean.initializing) then
     throw <| IO.userError s!"Failed to register LSP request handler for '{method}': only possible during initialization"
   if (← requestHandlers.get).contains method then
     throw <| IO.userError s!"Failed to register LSP request handler for '{method}': already registered"
@@ -164,7 +164,7 @@ def registerLspRequestHandler (method : String)
 def lookupLspRequestHandler (method : String) : IO (Option RequestHandler) :=
   return (← requestHandlers.get).find? method
 
-/-- NB: This method may only be called in `builtin_initialize` blocks.
+/-- NB: This method may only be called in `initialize` blocks (user or builtin).
 
 Register another handler to invoke after the last one registered for a method.
 At least one handler for the method must have already been registered to perform
@@ -175,7 +175,7 @@ def chainLspRequestHandler (method : String)
     paramType [FromJson paramType]
     respType [FromJson respType] [ToJson respType]
     (handler : paramType → RequestTask respType → RequestM (RequestTask respType)) : IO Unit := do
-  if !(← IO.initializing) then
+  if !(← Lean.initializing) then
     throw <| IO.userError s!"Failed to chain LSP request handler for '{method}': only possible during initialization"
   if let some oldHandler ← lookupLspRequestHandler method then
     let handle := fun j => do

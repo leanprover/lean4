@@ -530,7 +530,7 @@ def format (formatter : Formatter) (stx : Syntax) : CoreM Format := do
       pure $ Format.fill $ st.stack.get! 0)
     (fun _ => throwError "format: uncaught backtrack exception")
 
-def formatCategory (cat : Name) := format $ categoryFormatter cat
+def formatCategory (cat : Name) := format <| categoryFormatter cat
 
 def formatTerm := formatCategory `term
 def formatTactic := formatCategory `tactic

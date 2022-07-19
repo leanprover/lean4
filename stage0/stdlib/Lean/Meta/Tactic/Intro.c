@@ -72,6 +72,7 @@ lean_object* l_Lean_addTrace___rarg(lean_object*, lean_object*, lean_object*, le
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_monadNameGeneratorLift___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_instantiateMVars___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
 lean_object* l_Lean_Expr_headBeta(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop___rarg___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop(lean_object*);
@@ -131,7 +132,6 @@ static lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_lo
 static lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop___rarg___lambda__2___closed__17;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop___rarg___lambda__2___closed__2;
-lean_object* l_Lean_Expr_consumeMDataAndTypeAnnotations(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_getIntrosSize___boxed(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop___rarg___lambda__2___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Meta_intro1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -412,7 +412,7 @@ lean_inc(x_19);
 x_20 = lean_ctor_get(x_18, 1);
 lean_inc(x_20);
 lean_dec(x_18);
-x_21 = l_Lean_Expr_consumeMDataAndTypeAnnotations(x_19);
+x_21 = l_Lean_Expr_cleanupAnnotations(x_19);
 x_22 = l_Lean_Expr_isForall(x_21);
 if (x_22 == 0)
 {

@@ -34,6 +34,7 @@ static lean_object* l_Lean_Meta_Linear_isLinearCnstr___closed__17;
 static lean_object* l_Lean_Meta_Linear_isLinearCnstr___closed__9;
 static lean_object* l_Lean_Meta_Linear_isLinearCnstr___closed__8;
 static lean_object* l_Lean_Meta_Linear_isLinearTerm___closed__12;
+lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Linear_isLinearCnstr___closed__15;
 static lean_object* l_Lean_Meta_Linear_isLinearCnstr___closed__22;
 static lean_object* l_Lean_Meta_Linear_isLinearTerm___closed__1;
@@ -46,7 +47,6 @@ static lean_object* l_Lean_Meta_Linear_isLinearCnstr___closed__18;
 static lean_object* l_Lean_Meta_Linear_isLinearCnstr___closed__6;
 static lean_object* l_Lean_Meta_Linear_isLinearTerm___closed__7;
 static lean_object* l_Lean_Meta_Linear_isLinearTerm___closed__16;
-lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Linear_isLinearCnstr___closed__10;
 static lean_object* l_Lean_Meta_Linear_isLinearCnstr___closed__20;
 static lean_object* l_Lean_Meta_Linear_isLinearTerm___closed__11;
@@ -542,7 +542,7 @@ else
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
 x_21 = lean_unsigned_to_nat(0u);
-x_22 = l_Lean_Expr_getAppNumArgsAux(x_1, x_21);
+x_22 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_21);
 x_23 = lean_unsigned_to_nat(1u);
 x_24 = lean_nat_dec_eq(x_22, x_23);
 lean_dec(x_22);

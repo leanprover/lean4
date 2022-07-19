@@ -15,6 +15,7 @@ extern "C" {
 #endif
 static lean_object* l_Lean_Server_registerRpcProcedure___lambda__1___closed__7;
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_find_x3f___at___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_handleRpcCallUnsafe___spec__1(lean_object*, lean_object*);
+lean_object* l_Lean_initializing(lean_object*);
 lean_object* l_Lean_throwError___at_Lean_KeyedDeclsAttribute_ExtensionState_erase___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_isRecCore(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_handleRpcCallUnsafe___closed__2;
@@ -1714,7 +1715,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Serve
 _start:
 {
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_4 = lean_io_initializing(x_3);
+x_4 = l_Lean_initializing(x_3);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 x_6 = lean_unbox(x_5);

@@ -96,7 +96,7 @@ def expandOptDocComment? [Monad m] [MonadError m] (optDocComment : Syntax) : m (
 
 section Methods
 
-variable [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m]
+variable [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadLiftT IO m]
 
 def elabModifiers (stx : Syntax) : m Modifiers := do
   let docCommentStx := stx[0]

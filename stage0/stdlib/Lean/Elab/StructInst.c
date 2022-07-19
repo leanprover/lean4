@@ -376,6 +376,7 @@ LEAN_EXPORT lean_object* l_panic___at___private_Lean_Elab_StructInst_0__Lean_Ela
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_StructInst_DefaultFields_getFieldName___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_StructInst_DefaultFields_getHierarchyDepth(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_expandNonAtomicExplicitSources___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_elabModifyOp___closed__2;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_expandNumLitFields___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_mkSourcesWithSyntax___closed__1;
@@ -558,7 +559,6 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Term_StructInst_expandStructIn
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getSepArgs(lean_object*);
 static lean_object* l_Lean_Elab_Term_StructInst_throwFailedToElabField___rarg___closed__2;
-lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_StructInst_formatField___closed__1;
 static lean_object* l_Lean_Elab_Term_StructInst_expandStructInstFieldAbbrev___lambda__1___closed__10;
 lean_object* l_List_find_x3f___rarg(lean_object*, lean_object*);
@@ -17593,7 +17593,7 @@ lean_ctor_set(x_322, 0, x_320);
 lean_ctor_set(x_322, 1, x_321);
 lean_ctor_set(x_322, 2, x_319);
 x_323 = lean_unsigned_to_nat(0u);
-x_324 = l_Lean_Expr_getAppNumArgsAux(x_251, x_323);
+x_324 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_251, x_323);
 x_325 = lean_nat_sub(x_324, x_323);
 lean_dec(x_324);
 x_326 = lean_unsigned_to_nat(1u);
@@ -17966,7 +17966,7 @@ lean_ctor_set(x_432, 0, x_430);
 lean_ctor_set(x_432, 1, x_431);
 lean_ctor_set(x_432, 2, x_429);
 x_433 = lean_unsigned_to_nat(0u);
-x_434 = l_Lean_Expr_getAppNumArgsAux(x_251, x_433);
+x_434 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_251, x_433);
 x_435 = lean_nat_sub(x_434, x_433);
 lean_dec(x_434);
 x_436 = lean_unsigned_to_nat(1u);
@@ -21205,7 +21205,7 @@ if (x_35 == 0)
 {
 lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; size_t x_44; size_t x_45; lean_object* x_46; 
 x_36 = lean_unsigned_to_nat(0u);
-x_37 = l_Lean_Expr_getAppNumArgsAux(x_2, x_36);
+x_37 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_2, x_36);
 x_38 = l_Lean_Elab_Term_StructInst_DefaultFields_reduce___closed__1;
 lean_inc(x_37);
 x_39 = lean_mk_array(x_37, x_38);
@@ -21273,7 +21273,7 @@ else
 {
 lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; uint8_t x_62; lean_object* x_63; 
 x_58 = lean_unsigned_to_nat(0u);
-x_59 = l_Lean_Expr_getAppNumArgsAux(x_2, x_58);
+x_59 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_2, x_58);
 x_60 = lean_mk_empty_array_with_capacity(x_59);
 lean_dec(x_59);
 x_61 = l___private_Lean_Expr_0__Lean_Expr_getAppRevArgsAux(x_2, x_60);

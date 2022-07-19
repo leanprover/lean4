@@ -8,22 +8,29 @@ import Lean.Level
 
 namespace Lean
 
+/-- Literal values for `Expr`. -/
 inductive Literal where
-  | natVal (val : Nat)
-  | strVal (val : String)
+  | /-- Natural number literal -/
+    natVal (val : Nat)
+  | /-- String literal -/
+    strVal (val : String)
   deriving Inhabited, BEq, Repr
 
 protected def Literal.hash : Literal → UInt64
-  | Literal.natVal v => hash v
-  | Literal.strVal v => hash v
+  | .natVal v => hash v
+  | .strVal v => hash v
 
 instance : Hashable Literal := ⟨Literal.hash⟩
 
+/--
+Total order on `Expr` literal values.
+Natural number values are smaller than string literal values.
+-/
 def Literal.lt : Literal → Literal → Bool
-  | Literal.natVal _,  Literal.strVal _  => true
-  | Literal.natVal v₁, Literal.natVal v₂ => v₁ < v₂
-  | Literal.strVal v₁, Literal.strVal v₂ => v₁ < v₂
-  | _,                 _                 => false
+  | .natVal _,  .strVal _  => true
+  | .natVal v₁, .natVal v₂ => v₁ < v₂
+  | .strVal v₁, .strVal v₂ => v₁ < v₂
+  | _,                 _   => false
 
 instance : LT Literal := ⟨fun a b => a.lt b⟩
 
@@ -56,32 +63,59 @@ def bar ⦃x : Nat⦄ : Nat := x
 See also the Lean manual: https://leanprover.github.io/lean4/doc/expressions.html#implicit-arguments
 -/
 inductive BinderInfo where
-  | default | implicit | strictImplicit | instImplicit | auxDecl
+  | /-- Default binder annotation, e.g. `(x : α)` -/
+   default
+  | /-- Implicit binder annotation, e.g., `{x : α}` -/
+    implicit
+  | /-- Strict implict binder annotation, e.g., `{{ x : α  }}` -/
+    strictImplicit
+  | /-- Local instance binder annotataion, e.g., `[Decidable α]` -/
+    instImplicit
+  | /--
+Auxiliary declarations used by Lean when elaborating recursive declarations.
+When defining a function such as
+```
+     def f : Nat → Nat
+       | 0 => 1
+       | x+1 => (x+1)*f x
+```
+Lean adds a local declaration `f : Nat → Nat` to the local context (`LocalContext`)
+with `BinderInfo` set to `auxDecl`.
+This local declaration is later removed by the termination checker.
+-/
+    auxDecl
   deriving Inhabited, BEq, Repr
 
 def BinderInfo.hash : BinderInfo → UInt64
-  | BinderInfo.default        => 947
-  | BinderInfo.implicit       => 1019
-  | BinderInfo.strictImplicit => 1087
-  | BinderInfo.instImplicit   => 1153
-  | BinderInfo.auxDecl        => 1229
+  | .default        => 947
+  | .implicit       => 1019
+  | .strictImplicit => 1087
+  | .instImplicit   => 1153
+  | .auxDecl        => 1229
 
+/--
+Return `true` if the given `BinderInfo` does not correspond to an implicit binder annotation
+(i.e., `implicit`, `strictImplicit`, or `instImplicit`).
+-/
 def BinderInfo.isExplicit : BinderInfo → Bool
-  | BinderInfo.implicit       => false
-  | BinderInfo.strictImplicit => false
-  | BinderInfo.instImplicit   => false
-  | _                         => true
+  | .implicit       => false
+  | .strictImplicit => false
+  | .instImplicit   => false
+  | _               => true
 
 instance : Hashable BinderInfo := ⟨BinderInfo.hash⟩
 
+/-- Return `true` if the given `BinderInfo` is an instance implicit annotation (e.g., `[Decidable α]`) -/
 def BinderInfo.isInstImplicit : BinderInfo → Bool
   | BinderInfo.instImplicit => true
   | _                       => false
 
+/-- Return `true` if the given `BinderInfo` is a regular implicit annotation (e.g., `{α : Type u}`) -/
 def BinderInfo.isImplicit : BinderInfo → Bool
   | BinderInfo.implicit => true
   | _                   => false
 
+/-- Return `true` if the given `BinderInfo` is a strict implicit annotation (e.g., `{{α : Type u}}`) -/
 def BinderInfo.isStrictImplicit : BinderInfo → Bool
   | BinderInfo.strictImplicit => true
   | _                         => false
@@ -95,16 +129,19 @@ abbrev MData := KVMap
 abbrev MData.empty : MData := {}
 
 /--
- Cached hash code, cached results, and other data for `Expr`.
-   hash           : 32-bits
-   hasFVar        : 1-bit -- does it contain free variables?
-   hasExprMVar    : 1-bit -- does it contain metavariables?
-   hasLevelMVar   : 1-bit -- does it contain level metavariables?
-   hasLevelParam  : 1-bit -- does it contain level parameters?
-   nonDepLet      : 1-bit -- internal flag, for tracking whether let x := v; b is equivalent to (fun x => b) v
-   binderInfo     : 3-bits -- encoding of BinderInfo
-   approxDepth    : 8-bits -- the approximate depth is used to minimize the number of hash collisions
-   looseBVarRange : 16-bits
+Cached hash code, cached results, and other data for `Expr`.
+-  hash           : 32-bits
+-  hasFVar        : 1-bit -- does it contain free variables?
+-  hasExprMVar    : 1-bit -- does it contain metavariables?
+-  hasLevelMVar   : 1-bit -- does it contain level metavariables?
+-  hasLevelParam  : 1-bit -- does it contain level parameters?
+-  nonDepLet      : 1-bit -- internal flag, for tracking whether let x := v; b is equivalent to (fun x => b) v
+-  binderInfo     : 3-bits -- encoding of BinderInfo -- TODO remove
+-  approxDepth    : 8-bits -- the approximate depth is used to minimize the number of hash collisions
+-  looseBVarRange : 16-bits
+
+Remark: this is mostly an internal datastructure used to implement `Expr`,
+most will never have to use it.
 -/
 def Expr.Data := UInt64
 
@@ -211,6 +248,14 @@ instance : Repr Expr.Data where
 
 open Expr
 
+/--
+The unique free variable identifier. It is just a hierarchical name,
+but we wrap it in `FVarId` to make sure they don't get mixed up with `MVarId`.
+
+This is not the user-facing name for a free variable. This information is stored
+in the local context (`LocalContext`). The unique identifiers are generated using
+a `NameGenerator`.
+-/
 structure FVarId where
   name : Name
   deriving Inhabited, BEq, Hashable
@@ -218,14 +263,24 @@ structure FVarId where
 instance : Repr FVarId where
   reprPrec n p := reprPrec n.name p
 
+/--
+A set of unique free variable identifiers.
+This is a persistent data structure implemented using red-black trees. -/
 def FVarIdSet := Std.RBTree FVarId (Name.quickCmp ·.name ·.name)
   deriving Inhabited, EmptyCollection
 
 instance : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (Std.RBTree ..) ..)
 
+/--
+A set of unique free variable identifiers implemented using hashtables.
+Hashtables are faster than red-black trees if they are used linearly.
+They are not persistent data-structures. -/
 def FVarIdHashSet := Std.HashSet FVarId
   deriving Inhabited, EmptyCollection
 
+/--
+A mapping from free variable identifiers to values of type `α`.
+This is a persistent data structure implemented using red-black trees. -/
 def FVarIdMap (α : Type) := Std.RBMap FVarId α (Name.quickCmp ·.name ·.name)
 
 instance : EmptyCollection (FVarIdMap α) := inferInstanceAs (EmptyCollection (Std.RBMap ..))
@@ -233,21 +288,137 @@ instance : EmptyCollection (FVarIdMap α) := inferInstanceAs (EmptyCollection (S
 instance : Inhabited (FVarIdMap α) where
   default := {}
 
-/- We use the `E` suffix (short for `Expr`) to avoid collision with keywords.
-   We considered using «...», but it is too inconvenient to use. -/
+/--
+Lean expressions. This datastructure is used in the kernel and
+elaborator. Howewer, expressions sent to the kernel should not
+contain metavariables.
+
+Remark: we use the `E` suffix (short for `Expr`) to avoid collision with keywords.
+We considered using «...», but it is too inconvenient to use. -/
 inductive Expr where
-  | bvar    : Nat → Expr                       -- bound variables
-  | fvar    : FVarId → Expr                    -- free variables
-  | mvar    : MVarId → Expr                    -- meta variables
-  | sort    : Level → Expr                     -- Sort
-  | const   : Name → List Level → Expr         -- constants
-  | app     : Expr → Expr → Expr               -- application
-  | lam     : Name → Expr → Expr → BinderInfo → Expr        -- lambda abstraction
-  | forallE : Name → Expr → Expr → BinderInfo → Expr        -- (dependent) arrow
-  | letE    : Name → Expr → Expr → Expr → Bool → Expr -- let expressions
-  | lit     : Literal → Expr                   -- literals
-  | mdata   : MData → Expr → Expr              -- metadata
-  | proj    : Name → Nat → Expr → Expr         -- projection
+  | /--
+Bound variables. The natural number is the "de Bruijn" index
+for the bound variable. See https://en.wikipedia.org/wiki/De_Bruijn_index for additional information.
+Example, the expression `fun x : Nat => forall y : Nat, x = y`
+```lean
+.lam `x (.const `Nat [])
+  (.forall `y (.const `Nat [])
+    (.app (.app (.app (.const `Eq [.succ .zero])
+                (.const `Nat [])) (.bvar 1))
+          (.bvar 0))
+    .default)
+  .default
+```
+-/
+    bvar (deBruijnIndex : Nat)
+  | /--
+Free variable. Lean uses the locally nameless approach.
+See https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.2479&rep=rep1&type=pdf for additional details.
+When "visiting" the body of a binding expression (`lam`, `forallE`, or `letE`), bound variables
+are converted into free variables using a unique identifier, and their user-facing name, type,
+value (for `LetE`), and binder annotation are stored in the `LocalContext`.
+-/
+    fvar (fvarId : FVarId)
+  | /--
+Metavariables are used to represent "holes" in expressions, and goals in the
+tactic framework. Metavariable declarations are stored in the `MetavarContext`.
+Metavariables are used during elaboration, and are not allowed in the kernel,
+or in the code generator.
+    -/
+    mvar (mvarId : MVarId)
+  | /--
+`Type u`, `Sort u`, `Prop`.    -
+- `Prop` is represented as `.sort .zero`,
+- `Sort u` as ``.sort (.param `u)``, and
+- `Type u` as ``.sort (.succ (.param `u))``
+-/
+    sort (u : Level)
+  | /--
+A (universe polymorphic) constant. For example,
+`@Eq.{1}` is represented as ``.const `Eq [.succ .zero]``, and
+`@Array.map.{0, 0}` is represented as ``.cons `Array.map [.zero, .zero]``.
+-/
+    const (declName : Name) (us : List Level)
+  | /--
+Function application. `Nat.succ Nat.zero` is represented as
+```lean
+.app (.const `Nat.succ []) (.const .zero [])
+```
+-/
+    app (fn : Expr) (arg : Expr)
+  | /--
+Lambda abstraction (aka anonymous functions).
+- `fun x : Nat => x` is represented as
+```lean
+.lam `x (.const `Nat []) (.bvar 0) .default
+```
+-/
+    lam (binderName : Name) (binderType : Expr) (body : Expr) (binderInfo : BinderInfo)
+  | /--
+A dependent arrow (aka forall-expression). It is also used to represent non-dependent arrows.
+Examples:
+
+- `forall x : Prop, x ∧ x` is represented as
+```lean
+.forallE `x
+   (.sort .zero)
+   (.app (.app (.const `And []) (.bvar 0)) (.bvar 0))
+   .default
+```
+- `Nat → Bool` as
+```lean
+.forallE `a (.const `Nat []) (.const `Bool []) .default
+```
+-/
+    forallE (binderName : Name) (binderType : Expr) (body : Expr) (binderInfo : BinderInfo)
+  | /--
+Let-expressions. The field `nonDep` is not currently used, but will be used in the future
+by the code generator (and possibly `simp`) to track whether a let-expression is non-dependent
+or not. Given an environment, metavariable context, and local context, we say a let-expression
+`let x : t := v; e` is non-dependent when it is equivalent to `(fun x : t => e) v`.
+Here is an example of a dependent let-expression
+`let n : Nat := 2; fun (a : Array Nat n) (b : Array Nat 2) => a = b` is type correct, but
+`(fun (n : Nat) (a : Array Nat n) (b : Array Nat 2) => a = b) 2` is not.
+The let-expression `let x : Nat := 2; Nat.succ x` is represented as
+```
+.letE `x (.const `Nat []) (.lit (.natVal 2)) (.bvar 0) true
+```
+-/
+    letE (declName : Name) (type : Expr) (value : Expr) (body : Expr) (nonDep : Bool)
+  | /--
+Natural number and string literal values. They are not really needed, but provide a more
+compact representation in memory for these two kinds of literals, and are used to implement
+efficient reduction in the elaborator and kernel.
+The "raw" natural number `2` can be represented as `.lit (.natVal 2)`. Note that, it is
+definitionally equal to
+```
+.app (.const `Nat.succ []) (.app (.const `Nat.succ []) (.const `Nat.zero []))
+```
+-/
+    lit     : Literal → Expr
+  | /--
+Metadata (aka annotations). We use annotations to provide hints to the pretty-printer,
+store references to `Syntax` nodes, position information, and save information for
+elaboration procedures (e.g., we use the `inaccessible` annotation during elaboration to
+mark `Expr`s that correspond to inaccessible patterns).
+Note that `.mdata data e` is definitionally equal to `e`.
+-/
+    mdata (data : MData) (expr : Expr)
+  | /--
+Projection-expressions. They are redundant, but are used to create more compact
+terms, speedup reduction, and implement eta for structures.
+The type of `struct` must be an structure-like inductive type. That is, it has only one
+constructor, is not recursive, and it is not an inductive predicate. The kernel and elaborators
+check whether the `typeName` matches the type of `struct`, and whether the (zero-based) index
+is valid (i.e., it is smaller than the numbef of constructor fields).
+When exporting Lean developments to other systems, `proj` can be replaced with `typeName`.`rec`
+applications.
+Example, given `a : Nat x Bool`, `a.1` is represented as
+```
+.proj `Prod 0 a
+```
+-/
+    proj (typeName : Name) (idx : Nat) (struct : Expr)
 with
   @[computedField, extern c inline "lean_ctor_get_uint64(#1, lean_ctor_num_objs(#1)*sizeof(void*))"]
   data : @& Expr → Data
@@ -299,6 +470,7 @@ deriving Inhabited, Repr
 
 namespace Expr
 
+/-- The constructor name for the given expression. This is used for debugging purposes. -/
 def ctorName : Expr → String
   | bvar ..    => "bvar"
   | fvar ..    => "fvar"
@@ -318,27 +490,52 @@ protected def hash (e : Expr) : UInt64 :=
 
 instance : Hashable Expr := ⟨Expr.hash⟩
 
+/--
+Return `true` if `e` contains free variables.
+This is a constant time operation.
+-/
 def hasFVar (e : Expr) : Bool :=
   e.data.hasFVar
 
+/--
+Return `true` if `e` contains expression metavariables.
+This is a constant time operation.
+-/
 def hasExprMVar (e : Expr) : Bool :=
   e.data.hasExprMVar
 
+/--
+Return `true` if `e` contains universe (aka `Level`) metavariables.
+This is a constant time operation.
+-/
 def hasLevelMVar (e : Expr) : Bool :=
   e.data.hasLevelMVar
 
-/-- Does the expression contain level or expression metavariables?-/
+/--
+Does the expression contain level (aka universe) or expression metavariables?
+This is a constant time operation.
+-/
 def hasMVar (e : Expr) : Bool :=
   let d := e.data
   d.hasExprMVar || d.hasLevelMVar
 
+/--
+Return true if `e` contains universe level parameters.
+This is a constant time operation.
+-/
 def hasLevelParam (e : Expr) : Bool :=
   e.data.hasLevelParam
 
+/--
+Return the approximated depth of an expression. This information is used to compute
+the expression hash code, and speedup comparisons.
+This is a constant time operation. We say it is approximate because it maxes out at `255`.
+-/
 def approxDepth (e : Expr) : UInt32 :=
   e.data.approxDepth.toUInt32
 
-/-- The range of de-Bruijn variables that are loose.
+/--
+The range of de-Bruijn variables that are loose.
 That is, bvars that are not bound by a binder.
 For example, `bvar i` has range `i + 1` and
 an expression with no loose bvars has range `0`.
@@ -346,9 +543,15 @@ an expression with no loose bvars has range `0`.
 def looseBVarRange (e : Expr) : Nat :=
   e.data.looseBVarRange.toNat
 
+/--
+Return the binder information if `e` is a lambda or forall expression, and `.default` otherwise.
+-/
 def binderInfo (e : Expr) : BinderInfo :=
   e.data.binderInfo
 
+/-!
+Export functions.
+-/
 @[export lean_expr_hash] def hashEx : Expr → UInt64 := hash
 @[export lean_expr_has_fvar] def hasFVarEx : Expr → Bool := hasFVar
 @[export lean_expr_has_expr_mvar] def hasExprMVarEx : Expr → Bool := hasExprMVar
@@ -360,53 +563,85 @@ def binderInfo (e : Expr) : BinderInfo :=
 
 end Expr
 
-def mkConst (n : Name) (lvls : List Level := []) : Expr :=
-  Expr.const n lvls
+/-- `mkConst declName us` return `.const declName us`. -/
+def mkConst (declName : Name) (us : List Level := []) : Expr :=
+  .const declName us
 
+/-- Return the type of a literal value. -/
 def Literal.type : Literal → Expr
-  | Literal.natVal _ => mkConst `Nat
-  | Literal.strVal _ => mkConst `String
+  | .natVal _ => mkConst `Nat
+  | .strVal _ => mkConst `String
 
 @[export lean_lit_type]
 def Literal.typeEx : Literal → Expr := Literal.type
 
+/-- `.bvar idx` is now the preferred form. -/
 def mkBVar (idx : Nat) : Expr :=
-  Expr.bvar idx
+  .bvar idx
 
-def mkSort (lvl : Level) : Expr :=
-  Expr.sort lvl
+/-- `.sort u` is now the preferred form. -/
+def mkSort (u : Level) : Expr :=
+  .sort u
 
+/--
+`.fvar fvarId` is now the preferred form.
+This function is seldom used, free variables are often automatically created using the
+telescope functions (e.g., `forallTelescope` and `lambdaTelescope`) at `MetaM`.
+-/
 def mkFVar (fvarId : FVarId) : Expr :=
-  Expr.fvar fvarId
+  .fvar fvarId
 
-def mkMVar (fvarId : MVarId) : Expr :=
-  Expr.mvar fvarId
+/--
+`.mvar mvarId` is now the preferred form.
+This function is seldom used, metavariables are often created using functions such
+as `mkFresheExprMVar` at `MetaM`.
+-/
+def mkMVar (mvarId : MVarId) : Expr :=
+  .mvar mvarId
 
+/--
+`.mdata m e` is now the preferred form.
+-/
 def mkMData (m : MData) (e : Expr) : Expr :=
-  Expr.mdata m e
+  .mdata m e
 
-def mkProj (s : Name) (i : Nat) (e : Expr) : Expr :=
-  Expr.proj s i e
+/--
+`.proj structName idx struct` is now the preferred form.
+-/
+def mkProj (structName : Name) (idx : Nat) (struct : Expr) : Expr :=
+  .proj structName idx struct
 
+/--
+`.app f a` is now the preferred form.
+-/
 def mkApp (f a : Expr) : Expr :=
-  Expr.app f a
+  .app f a
 
+/--
+`.lam x t b bi` is now the preferred form.
+-/
 def mkLambda (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
-  Expr.lam x t b bi
+  .lam x t b bi
 
+/--
+`.forallE x t b bi` is now the preferred form.
+-/
 def mkForall (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
-  Expr.forallE x t b bi
+  .forallE x t b bi
 
 /-- Return `Unit -> type`. Do not confuse with `Thunk type` -/
 def mkSimpleThunkType (type : Expr) : Expr :=
-  mkForall Name.anonymous BinderInfo.default (Lean.mkConst `Unit) type
+  mkForall Name.anonymous .default (mkConst `Unit) type
 
 /-- Return `fun (_ : Unit), e` -/
 def mkSimpleThunk (type : Expr) : Expr :=
-  mkLambda `_ BinderInfo.default (Lean.mkConst `Unit) type
+  mkLambda `_ BinderInfo.default (mkConst `Unit) type
 
+/--
+`.letE x t v b nonDep` is now the preferred form.
+-/
 def mkLet (x : Name) (t : Expr) (v : Expr) (b : Expr) (nonDep : Bool := false) : Expr :=
-  Expr.letE x t v b nonDep
+  .letE x t v b nonDep
 
 def mkAppB (f a b : Expr) := mkApp (mkApp f a) b
 def mkApp2 (f a b : Expr) := mkAppB f a b
@@ -419,18 +654,32 @@ def mkApp8 (f a b c d e₁ e₂ e₃ e₄ : Expr) := mkApp4 (mkApp4 f a b c d) e
 def mkApp9 (f a b c d e₁ e₂ e₃ e₄ e₅ : Expr) := mkApp5 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅
 def mkApp10 (f a b c d e₁ e₂ e₃ e₄ e₅ e₆ : Expr) := mkApp6 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅ e₆
 
+/--
+`.lit l` is now the preferred form.
+-/
 def mkLit (l : Literal) : Expr :=
-  Expr.lit l
+  .lit l
 
+/--
+Return the "raw" natural number `.lit (.natVal n)`.
+This is not the default representation used by the Lean frontend.
+See `mkNatLit`.
+-/
 def mkRawNatLit (n : Nat) : Expr :=
-  mkLit (Literal.natVal n)
+  mkLit (.natVal n)
 
+/--
+Return a natural number literal used in the frontend. It is a `OfNat.ofNat` application.
+Recall that all theorems and definitions containing numeric literals are encoded using
+`OfNat.ofNat` applications in the frontend.
+-/
 def mkNatLit (n : Nat) : Expr :=
   let r := mkRawNatLit n
   mkApp3 (mkConst ``OfNat.ofNat [levelZero]) (mkConst ``Nat) r (mkApp (mkConst ``instOfNatNat) r)
 
+/-- Return the string literal `.lit (.strVal s)` -/
 def mkStrLit (s : String) : Expr :=
-  mkLit (Literal.strVal s)
+  mkLit (.strVal s)
 
 @[export lean_expr_mk_bvar] def mkBVarEx : Nat → Expr := mkBVar
 @[export lean_expr_mk_fvar] def mkFVarEx : FVarId → Expr := mkFVar
@@ -465,14 +714,18 @@ namespace Expr
 @[extern "lean_expr_dbg_to_string"]
 opaque dbgToString (e : @& Expr) : String
 
+/-- A total order for expressions. We say it is quick because it first compares the hashcodes. -/
 @[extern "lean_expr_quick_lt"]
 opaque quickLt (a : @& Expr) (b : @& Expr) : Bool
 
+/-- A total order for expressions that takes the structure into account (e.g., variable names). -/
 @[extern "lean_expr_lt"]
 opaque lt (a : @& Expr) (b : @& Expr) : Bool
 
-/-- Return true iff `a` and `b` are alpha equivalent.
-   Binder annotations are ignored. -/
+/--
+Return true iff `a` and `b` are alpha equivalent.
+Binder annotations are ignored.
+-/
 @[extern "lean_expr_eqv"]
 opaque eqv (a : @& Expr) (b : @& Expr) : Bool
 
@@ -482,88 +735,118 @@ instance : BEq Expr where
 protected unsafe def ptrEq (a b : Expr) : Bool :=
   ptrAddrUnsafe a == ptrAddrUnsafe b
 
-/- Return true iff `a` and `b` are equal.
-   Binder names and annotations are taking into account. -/
+/--
+Return true iff `a` and `b` are equal.
+Binder names and annotations are taking into account.
+-/
 @[extern "lean_expr_equal"]
 opaque equal (a : @& Expr) (b : @& Expr) : Bool
 
+/-- Return `true` if the given expression is a `.sort ..` -/
 def isSort : Expr → Bool
   | sort .. => true
   | _       => false
 
+/-- Return `true` if the given expression is of the form `.sort (.succ ..)`. -/
 def isType : Expr → Bool
-  | sort (Level.succ ..) => true
+  | sort (.succ ..) => true
   | _ => false
 
+/-- Return `true` if the given expression is a `.sort .zero` -/
 def isProp : Expr → Bool
-  | sort (Level.zero ..) => true
+  | sort (.zero ..) => true
   | _ => false
 
+/-- Return `true` if the given expression is a bound variable. -/
 def isBVar : Expr → Bool
   | bvar .. => true
   | _       => false
 
+/-- Return `true` if the given expression is a metavariable. -/
 def isMVar : Expr → Bool
   | mvar .. => true
   | _       => false
 
+/-- Return `true` if the given expression is a free variable. -/
 def isFVar : Expr → Bool
   | fvar .. => true
   | _       => false
 
+/-- Return `true` if the given expression is an application. -/
 def isApp : Expr → Bool
   | app .. => true
   | _      => false
 
+/-- Return `true` if the given expression is a projection `.proj ..` -/
 def isProj : Expr → Bool
   | proj ..  => true
   | _        => false
 
+/-- Return `true` if the given expression is a constant. -/
 def isConst : Expr → Bool
   | const .. => true
   | _        => false
 
+/--
+Return `true` if the given expression is a constant of the give name.
+Examples:
+- `` (.const `Nat []).isConstOf `Nat `` is `true`
+- `` (.const `Nat []).isConstOf `False `` is `false`
+-/
 def isConstOf : Expr → Name → Bool
   | const n .., m => n == m
   | _,          _ => false
 
+/-- Return `true` if the given expression is a forall-expression aka (dependent) arrow. -/
 def isForall : Expr → Bool
   | forallE .. => true
   | _          => false
 
+/-- Return `true` if the given expression is a lambda abstraction aka anonymous function. -/
 def isLambda : Expr → Bool
   | lam .. => true
   | _      => false
 
+/-- Return `true` if the given expression is a forall or lambda expression. -/
 def isBinding : Expr → Bool
   | lam ..     => true
   | forallE .. => true
   | _          => false
 
+/-- Return `true` if the given expression is a let-expression. -/
 def isLet : Expr → Bool
   | letE .. => true
   | _       => false
 
+/-- Return `true` if the given expression is a metadata. -/
 def isMData : Expr → Bool
   | mdata .. => true
   | _        => false
 
+/-- Return `true` if the given expression is a literal value. -/
 def isLit : Expr → Bool
   | lit .. => true
   | _      => false
 
+/--
+Return the "body" of a forall expression.
+Example: let `e` be the representation for `forall (p : Prop) (q : Prop), p ∧ q`, then
+`getForallBody e` returns ``.app (.app (.const `And []) (.bvar 1)) (.bvar 0)``
+-/
 def getForallBody : Expr → Expr
   | forallE _ _ b .. => getForallBody b
   | e                => e
 
-/-- If the given expression is a sequence of
+/--
+If the given expression is a sequence of
 function applications `f a₁ .. aₙ`, return `f`.
-Otherwise return the input expression. -/
+Otherwise return the input expression.
+-/
 def getAppFn : Expr → Expr
   | app f _ => getAppFn f
   | e         => e
 
-def getAppNumArgsAux : Expr → Nat → Nat
+private def getAppNumArgsAux : Expr → Nat → Nat
   | app f _, n => getAppNumArgsAux f (n+1)
   | _,       n => n
 
@@ -637,8 +920,10 @@ def isAppOf (e : Expr) (n : Name) : Bool :=
   | const c _ => c == n
   | _           => false
 
-/-- Given `f a₁ ... aᵢ`, returns true if `f` is a constant
-with name `n` and has the correct number of arguments. -/
+/--
+Given `f a₁ ... aᵢ`, returns true if `f` is a constant
+with name `n` and has the correct number of arguments.
+-/
 def isAppOfArity : Expr → Name → Nat → Bool
   | const c _, n, 0   => c == n
   | app f _,   n, a+1 => isAppOfArity f n a
@@ -771,7 +1056,10 @@ def projIdx! : Expr → Nat
 def hasLooseBVars (e : Expr) : Bool :=
   e.looseBVarRange > 0
 
-/- Remark: the following function assumes `e` does not have loose bound variables. -/
+/--
+Return `true` if `e` is a non-dependent arrow.
+Remark: the following function assumes `e` does not have loose bound variables.
+-/
 def isArrow (e : Expr) : Bool :=
   match e with
   | forallE _ _ b _ => !b.hasLooseBVars
@@ -787,11 +1075,12 @@ def hasLooseBVarInExplicitDomain : Expr → Nat → Bool → Bool
   | e, bvarIdx, tryRange => tryRange && hasLooseBVar e bvarIdx
 
 /--
-  Lower the loose bound variables `>= s` in `e` by `d`.
-  That is, a loose bound variable `bvar i`.
-  `i >= s` is mapped into `bvar (i-d)`.
+Lower the loose bound variables `>= s` in `e` by `d`.
+That is, a loose bound variable `bvar i`.
+`i >= s` is mapped into `bvar (i-d)`.
 
-  Remark: if `s < d`, then result is `e` -/
+Remark: if `s < d`, then result is `e`
+-/
 @[extern "lean_expr_lower_loose_bvars"]
 opaque lowerLooseBVars (e : @& Expr) (s d : @& Nat) : Expr
 
@@ -801,12 +1090,12 @@ opaque lowerLooseBVars (e : @& Expr) (s d : @& Nat) : Expr
 opaque liftLooseBVars (e : @& Expr) (s d : @& Nat) : Expr
 
 /--
-  `inferImplicit e numParams considerRange` updates the first `numParams` parameter binder annotations of the `e` forall type.
-  It marks any parameter with an explicit binder annotation if there is another explicit arguments that depends on it or
-  the resulting type if `considerRange == true`.
+`inferImplicit e numParams considerRange` updates the first `numParams` parameter binder annotations of the `e` forall type.
+It marks any parameter with an explicit binder annotation if there is another explicit arguments that depends on it or
+the resulting type if `considerRange == true`.
 
-  Remark: we use this function to infer the bind annotations of inductive datatype constructors, and structure projections.
-  When the `{}` annotation is used in these commands, we set `considerRange == false`.
+Remark: we use this function to infer the bind annotations of inductive datatype constructors, and structure projections.
+When the `{}` annotation is used in these commands, we set `considerRange == false`.
 -/
 def inferImplicit : Expr → Nat → Bool → Expr
   | Expr.forallE n d b bi, i+1, considerRange =>
@@ -816,8 +1105,10 @@ def inferImplicit : Expr → Nat → Bool → Expr
   | e, 0, _ => e
   | e, _, _ => e
 
-/-- Instantiate the loose bound variables in `e` using `subst`.
-    That is, a loose `Expr.bvar i` is replaced with `subst[i]`. -/
+/--
+Instantiate the loose bound variables in `e` using `subst`.
+That is, a loose `Expr.bvar i` is replaced with `subst[i]`.
+-/
 @[extern "lean_expr_instantiate"]
 opaque instantiate (e : @& Expr) (subst : @& Array Expr) : Expr
 
@@ -828,13 +1119,17 @@ opaque instantiate1 (e : @& Expr) (subst : @& Expr) : Expr
 @[extern "lean_expr_instantiate_rev"]
 opaque instantiateRev (e : @& Expr) (subst : @& Array Expr) : Expr
 
-/-- Similar to `instantiate`, but consider only the variables `xs` in the range `[beginIdx, endIdx)`.
-    Function panics if `beginIdx <= endIdx <= xs.size` does not hold. -/
+/--
+Similar to `instantiate`, but consider only the variables `xs` in the range `[beginIdx, endIdx)`.
+Function panics if `beginIdx <= endIdx <= xs.size` does not hold.
+-/
 @[extern "lean_expr_instantiate_range"]
 opaque instantiateRange (e : @& Expr) (beginIdx endIdx : @& Nat) (xs : @& Array Expr) : Expr
 
-/-- Similar to `instantiateRev`, but consider only the variables `xs` in the range `[beginIdx, endIdx)`.
-    Function panics if `beginIdx <= endIdx <= xs.size` does not hold. -/
+/--
+Similar to `instantiateRev`, but consider only the variables `xs` in the range `[beginIdx, endIdx)`.
+Function panics if `beginIdx <= endIdx <= xs.size` does not hold.
+-/
 @[extern "lean_expr_instantiate_rev_range"]
 opaque instantiateRevRange (e : @& Expr) (beginIdx endIdx : @& Nat) (xs : @& Array Expr) : Expr
 
@@ -887,7 +1182,7 @@ abbrev ExprSet := HashSet Expr
 abbrev PersistentExprSet := PHashSet Expr
 abbrev PExprSet := PersistentExprSet
 
-/- Auxiliary type for forcing `==` to be structural equality for `Expr` -/
+/-- Auxiliary type for forcing `==` to be structural equality for `Expr` -/
 structure ExprStructEq where
   val : Expr
   deriving Inhabited
@@ -924,19 +1219,19 @@ def mkAppRevRange (f : Expr) (beginIdx endIdx : Nat) (revArgs : Array Expr) : Ex
   mkAppRevRangeAux revArgs beginIdx f endIdx
 
 /--
-  If `f` is a lambda expression, than "beta-reduce" it using `revArgs`.
-  This function is often used with `getAppRev` or `withAppRev`.
-  Examples:
-  - `betaRev (fun x y => t x y) #[]` ==> `fun x y => t x y`
-  - `betaRev (fun x y => t x y) #[a]` ==> `fun y => t a y`
-  - `betaRev (fun x y => t x y) #[a, b]` ==> `t b a`
-  - `betaRev (fun x y => t x y) #[a, b, c, d]` ==> `t d c b a`
-  Suppose `t` is `(fun x y => t x y) a b c d`, then
-  `args := t.getAppRev` is `#[d, c, b, a]`,
-  and `betaRev (fun x y => t x y) #[d, c, b, a]` is `t a b c d`.
+If `f` is a lambda expression, than "beta-reduce" it using `revArgs`.
+This function is often used with `getAppRev` or `withAppRev`.
+Examples:
+- `betaRev (fun x y => t x y) #[]` ==> `fun x y => t x y`
+- `betaRev (fun x y => t x y) #[a]` ==> `fun y => t a y`
+- `betaRev (fun x y => t x y) #[a, b]` ==> `t b a`
+- `betaRev (fun x y => t x y) #[a, b, c, d]` ==> `t d c b a`
+Suppose `t` is `(fun x y => t x y) a b c d`, then
+`args := t.getAppRev` is `#[d, c, b, a]`,
+and `betaRev (fun x y => t x y) #[d, c, b, a]` is `t a b c d`.
 
-  If `useZeta` is true, the function also performs zeta-reduction (reduction of let binders) to create further
-  opportunities for beta reduction.
+If `useZeta` is true, the function also performs zeta-reduction (reduction of let binders) to create further
+opportunities for beta reduction.
 -/
 partial def betaRev (f : Expr) (revArgs : Array Expr) (useZeta := false) (preserveMData := false) : Expr :=
   if revArgs.size == 0 then f
@@ -967,11 +1262,20 @@ partial def betaRev (f : Expr) (revArgs : Array Expr) (useZeta := false) (preser
         mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
     go f 0
 
-/-- Apply the given arguments to `f`, beta-reducing if `f` is a
-lambda expression. See docstring for `betaRev` for examples. -/
+/--
+Apply the given arguments to `f`, beta-reducing if `f` is a
+lambda expression. See docstring for `betaRev` for examples.
+-/
 def beta (f : Expr) (args : Array Expr) : Expr :=
   betaRev f args.reverse
 
+/--
+Return true if the given expression is the function of an expression that is target for (head) beta reduction.
+If `useZeta = true`, then `let`-expressions are visited. That is, it assumes
+that zeta-reduction (aka let-expansion) is going to be used.
+
+See `isHeadBetaTarget`.
+-/
 def isHeadBetaTargetFn (useZeta : Bool) : Expr → Bool
   | Expr.lam ..         => true
   | Expr.letE _ _ _ b _ => useZeta && isHeadBetaTargetFn useZeta b
@@ -983,6 +1287,11 @@ def headBeta (e : Expr) : Expr :=
   let f := e.getAppFn
   if f.isHeadBetaTargetFn false then betaRev f e.getAppRevArgs else e
 
+/--
+Return true if the given expression is a target for (head) beta reduction.
+If `useZeta = true`, then `let`-expressions are visited. That is, it assumes
+that zeta-reduction (aka let-expansion) is going to be used.
+-/
 def isHeadBetaTarget (e : Expr) (useZeta := false) : Bool :=
   e.getAppFn.isHeadBetaTargetFn useZeta
 
@@ -996,12 +1305,13 @@ private def etaExpandedAux : Expr → Nat → Option Expr
   | e,           n => etaExpandedBody e n 0
 
 /--
-  If `e` is of the form `(fun x₁ ... xₙ => f x₁ ... xₙ)` and `f` does not contain `x₁`, ..., `xₙ`,
-  then return `some f`. Otherwise, return `none`.
+If `e` is of the form `(fun x₁ ... xₙ => f x₁ ... xₙ)` and `f` does not contain `x₁`, ..., `xₙ`,
+then return `some f`. Otherwise, return `none`.
 
-  It assumes `e` does not have loose bound variables.
+It assumes `e` does not have loose bound variables.
 
-  Remark: `ₙ` may be 0 -/
+Remark: `ₙ` may be 0
+-/
 def etaExpanded? (e : Expr) : Option Expr :=
   etaExpandedAux e 0
 
@@ -1010,28 +1320,40 @@ def etaExpandedStrict? : Expr → Option Expr
   | lam _ _ b _ => etaExpandedAux b 1
   | _           => none
 
+/-- Return `some e'` if `e` is of the form `optParam _ e'` -/
 def getOptParamDefault? (e : Expr) : Option Expr :=
   if e.isAppOfArity ``optParam 2 then
     some e.appArg!
   else
     none
 
+/-- Return `some e'` if `e` is of the form `autoParam _ e'` -/
 def getAutoParamTactic? (e : Expr) : Option Expr :=
   if e.isAppOfArity ``autoParam 2 then
     some e.appArg!
   else
     none
 
+/-- Return `true` if `e` is of the form `outParam _` -/
 @[export lean_is_out_param]
 def isOutParam (e : Expr) : Bool :=
   e.isAppOfArity ``outParam 1
 
+/-- Return `true` if `e` is of the form `optParam _ _` -/
 def isOptParam (e : Expr) : Bool :=
   e.isAppOfArity ``optParam 2
 
+/-- Return `true` if `e` is of the form `autoParam _ _` -/
 def isAutoParam (e : Expr) : Bool :=
   e.isAppOfArity ``autoParam 2
 
+/--
+Remove `outParam`, `optParam`, and `autoParam` applications/annotations from `e`.
+Note that it does not remove nested annotations.
+Examples:
+- Given `e` of the form `outParam (optParam Nat b)`, `consumeTypeAnnotations e = b`.
+- Given `e` of the form `Nat → outParam (optParam Nat b)`, `consumeTypeAnnotations e = e`.
+-/
 @[export lean_expr_consume_type_annotations]
 partial def consumeTypeAnnotations (e : Expr) : Expr :=
   if e.isOptParam || e.isAutoParam then
@@ -1041,9 +1363,16 @@ partial def consumeTypeAnnotations (e : Expr) : Expr :=
   else
     e
 
-partial def consumeMDataAndTypeAnnotations (e : Expr) : Expr :=
+/--
+Remove metadata annotations and `outParam`, `optParam`, and `autoParam` applications/annotations from `e`.
+Note that it does not remove nested annotations.
+Examples:
+- Given `e` of the form `outParam (optParam Nat b)`, `cleanupAnnotations e = b`.
+- Given `e` of the form `Nat → outParam (optParam Nat b)`, `cleanupAnnotations e = e`.
+-/
+partial def cleanupAnnotations (e : Expr) : Expr :=
   let e' := e.consumeMData.consumeTypeAnnotations
-  if e' == e then e else consumeMDataAndTypeAnnotations e'
+  if e' == e then e else cleanupAnnotations e'
 
 /-- Return true iff `e` contains a free variable which statisfies `p`. -/
 @[inline] def hasAnyFVar (e : Expr) (p : FVarId → Bool) : Bool :=
@@ -1059,17 +1388,20 @@ partial def consumeMDataAndTypeAnnotations (e : Expr) : Expr :=
     | _                      => false
   visit e
 
+/-- Return `true` if `e` contains the given free variable. -/
 def containsFVar (e : Expr) (fvarId : FVarId) : Bool :=
   e.hasAnyFVar (· == fvarId)
 
-/- The update functions here are defined using C code. They will try to avoid
-   allocating new values using pointer equality.
-   The hypotheses `(h : e.is...)` are used to ensure Lean will not crash
-   at runtime.
-   The `update*!` functions are inlined and provide a convenient way of using the
-   update proofs without providing proofs.
-   Note that if they are used under a match-expression, the compiler will eliminate
-   the double-match. -/
+/-!
+The update functions here are defined using C code. They will try to avoid
+allocating new values using pointer equality.
+The hypotheses `(h : e.is...)` are used to ensure Lean will not crash
+at runtime.
+The `update*!` functions are inlined and provide a convenient way of using the
+update proofs without providing proofs.
+Note that if they are used under a match-expression, the compiler will eliminate
+the double-match.
+-/
 
 @[extern "lean_expr_update_app"]
 def updateApp (e : Expr) (newFn : Expr) (newArg : Expr) (h : e.isApp) : Expr :=
@@ -1161,6 +1493,9 @@ def updateFn : Expr → Expr → Expr
   | e@(app f a), g => e.updateApp! (updateFn f g) a
   | _,           g => g
 
+/--
+Eta reduction. If `e` is of the form `(fun x => f x)`, then return `f`.
+-/
 partial def eta (e : Expr) : Expr :=
   match e with
   | Expr.lam _ d b _ =>
@@ -1174,8 +1509,9 @@ partial def eta (e : Expr) : Expr :=
     | _ => e.updateLambdaE! d b'
   | _ => e
 
-/- Instantiate level parameters -/
-
+/--
+Instantiate level parameters
+-/
 @[inline] def instantiateLevelParamsCore (s : Name → Option Level) (e : Expr) : Expr :=
   let rec @[specialize] visit (e : Expr) : Expr :=
     if !e.hasLevelParam then e
@@ -1195,6 +1531,10 @@ private def getParamSubst : List Name → List Level → Name → Option Level
   | p::ps, u::us, p' => if p == p' then some u else getParamSubst ps us p'
   | _,     _,     _  => none
 
+/--
+Instantiate univeres level parameters names `paramNames` with `lvls` in `e`.
+If the two lists have different length, the smallest one is used.
+-/
 def instantiateLevelParams (e : Expr) (paramNames : List Name) (lvls : List Level) : Expr :=
   instantiateLevelParamsCore (getParamSubst paramNames lvls) e
 
@@ -1207,23 +1547,38 @@ private partial def getParamSubstArray (ps : Array Name) (us : Array Level) (p' 
     else none
   else none
 
+/--
+Instantiate univeres level parameters names `paramNames` with `lvls` in `e`.
+If the two arrays have different length, the smallest one is used.
+-/
 def instantiateLevelParamsArray (e : Expr) (paramNames : Array Name) (lvls : Array Level) : Expr :=
   instantiateLevelParamsCore (fun p => getParamSubstArray paramNames lvls p 0) e
 
-/-- Annotate `e` with the given option. -/
+/--
+Annotate `e` with the given option.
+The information is stored using metadata around `e`.
+-/
 def setOption (e : Expr) (optionName : Name) [KVMap.Value α] (val : α) : Expr :=
   mkMData (MData.empty.set optionName val) e
 
-/-- Annotate `e` with `pp.explicit := true`
-   The delaborator uses `pp` options. -/
+/--
+Annotate `e` with `pp.explicit := flag`
+The delaborator uses `pp` options.
+-/
 def setPPExplicit (e : Expr) (flag : Bool) :=
   e.setOption `pp.explicit flag
 
+/--
+Annotate `e` with `pp.universes := flag`
+The delaborator uses `pp` options.
+-/
 def setPPUniverses (e : Expr) (flag : Bool) :=
   e.setOption `pp.universes flag
 
-/-- If `e` is an application `f a_1 ... a_n` annotate `f`, `a_1` ... `a_n` with `pp.explicit := false`,
-   and annotate `e` with `pp.explicit := true`. -/
+/--
+If `e` is an application `f a_1 ... a_n` annotate `f`, `a_1` ... `a_n` with `pp.explicit := false`,
+and annotate `e` with `pp.explicit := true`.
+-/
 def setAppPPExplicit (e : Expr) : Expr :=
   match e with
   | app .. =>
@@ -1232,8 +1587,10 @@ def setAppPPExplicit (e : Expr) : Expr :=
     mkAppN f args |>.setPPExplicit true
   | _      => e
 
-/-- Similar for `setAppPPExplicit`, but only annotate children with `pp.explicit := false` if
-   `e` does not contain metavariables. -/
+/--
+Similar for `setAppPPExplicit`, but only annotate children with `pp.explicit := false` if
+`e` does not contain metavariables.
+-/
 def setAppPPExplicitForExposingMVars (e : Expr) : Expr :=
   match e with
   | app .. =>
@@ -1244,40 +1601,60 @@ def setAppPPExplicitForExposingMVars (e : Expr) : Expr :=
 
 end Expr
 
+/--
+Annotate `e` with the given annotation name `kind`.
+It uses metadata to store the annotation.
+-/
 def mkAnnotation (kind : Name) (e : Expr) : Expr :=
   mkMData (KVMap.empty.insert kind (DataValue.ofBool true)) e
 
+/--
+Return `some e'` if `e = mkAnnotation kind e'`
+-/
 def annotation? (kind : Name) (e : Expr) : Option Expr :=
   match e with
   | .mdata d b => if d.size == 1 && d.getBool kind false then some b else none
   | _          => none
 
+/--
+Annotate `e` with the `let_fun` annotation. This annotation is used as hint for the delaborator.
+If `e` is of the form `(fun x : t => b) v`, then `mkLetFunAnnotation e` is delaborated at
+`let_fun x : t := v; b`
+-/
 def mkLetFunAnnotation (e : Expr) : Expr :=
   mkAnnotation `let_fun e
 
+/--
+Return `some e'` if `e = mkLetFunAnnotation e'`
+-/
 def letFunAnnotation? (e : Expr) : Option Expr :=
   annotation? `let_fun e
 
+/--
+Return true if `e = mkLetFunAnnotation e'`, and `e'` is of the form `(fun x : t => b) v`
+-/
 def isLetFun (e : Expr) : Bool :=
   match letFunAnnotation? e with
   | none   => false
   | some e => e.isApp && e.appFn!.isLambda
 
 /--
-  Auxiliary annotation used to mark terms marked with the "inaccessible" annotation `.(t)` and
-  `_` in patterns. -/
+Auxiliary annotation used to mark terms marked with the "inaccessible" annotation `.(t)` and
+`_` in patterns.
+-/
 def mkInaccessible (e : Expr) : Expr :=
   mkAnnotation `_inaccessible e
 
+/-- Return `some e'` if `e = mkInaccessible e'`. -/
 def inaccessible? (e : Expr) : Option Expr :=
   annotation? `_inaccessible e
 
 private def patternRefAnnotationKey := `_patWithRef
 
 /--
-  During elaboration expressions corresponding to pattern matching terms
-  are annotated with `Syntax` objects. This function returns `some (stx, p')` if
-  `p` is the pattern `p'` annotated with `stx`
+During elaboration expressions corresponding to pattern matching terms
+are annotated with `Syntax` objects. This function returns `some (stx, p')` if
+`p` is the pattern `p'` annotated with `stx`
 -/
 def patternWithRef? (p : Expr) : Option (Syntax × Expr) :=
   match p with
@@ -1288,8 +1665,8 @@ def patternWithRef? (p : Expr) : Option (Syntax × Expr) :=
   | _                => none
 
 /--
-  Annotate the pattern `p` with `stx`. This is an auxiliary annotation
-  for producing better hover information.
+Annotate the pattern `p` with `stx`. This is an auxiliary annotation
+for producing better hover information.
 -/
 def mkPatternWithRef (p : Expr) (stx : Syntax) : Expr :=
   if patternWithRef? p |>.isSome then
@@ -1307,12 +1684,14 @@ def patternAnnotation? (e : Expr) : Option Expr :=
     none
 
 /--
-  Annotate `e` with the LHS annotation. The delaborator displays
-  expressions of the form `lhs = rhs` as `lhs` when they have this annotation.
+Annotate `e` with the LHS annotation. The delaborator displays
+expressions of the form `lhs = rhs` as `lhs` when they have this annotation.
+This is used to implement the infoview for the `conv` mode.
 -/
 def mkLHSGoal (e : Expr) : Expr :=
   mkAnnotation `_lhsGoal e
 
+/-- Return `some lhs` if `e = mkLHGoal e'`, where `e'` is of the form `lhs = rhs`. -/
 def isLHSGoal? (e : Expr) : Option Expr :=
   match annotation? `_lhsGoal e with
   | none => none
@@ -1322,15 +1701,27 @@ def isLHSGoal? (e : Expr) : Option Expr :=
     else
       none
 
-def mkFreshFVarId {m : Type → Type} [Monad m] [MonadNameGenerator m] : m FVarId :=
+/--
+Polymorphic operation for generating unique/fresh free variable identifiers.
+It is available in any monad `m` that implements the inferface `MonadNameGenerator`.
+-/
+def mkFreshFVarId [Monad m] [MonadNameGenerator m] : m FVarId :=
   return { name := (← mkFreshId) }
 
-def mkFreshMVarId {m : Type → Type} [Monad m] [MonadNameGenerator m] : m MVarId :=
+/--
+Polymorphic operation for generating unique/fresh metavariable identifiers.
+It is available in any monad `m` that implements the inferface `MonadNameGenerator`.
+-/
+def mkFreshMVarId [Monad m] [MonadNameGenerator m] : m MVarId :=
   return { name := (← mkFreshId) }
 
+/-- Return `Not p` -/
 def mkNot (p : Expr) : Expr := mkApp (mkConst ``Not) p
+/-- Return `p ∨ q` -/
 def mkOr (p q : Expr) : Expr := mkApp2 (mkConst ``Or) p q
+/-- Return `p ∧ q` -/
 def mkAnd (p q : Expr) : Expr := mkApp2 (mkConst ``And) p q
+/-- Return `Classical.em p` -/
 def mkEM (p : Expr) : Expr := mkApp (mkConst ``Classical.em) p
 
 end Lean

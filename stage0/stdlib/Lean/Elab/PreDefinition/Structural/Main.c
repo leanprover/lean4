@@ -70,6 +70,7 @@ static lean_object* l_Lean_setEnv___at___private_Lean_Elab_PreDefinition_Structu
 lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_structuralRecursion___closed__6;
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimRecursion___closed__3;
+lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_structuralRecursion___closed__3;
@@ -102,7 +103,6 @@ static lean_object* l_Lean_setEnv___at___private_Lean_Elab_PreDefinition_Structu
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_getFixedPrefix___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Structural_mkBRecOn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_getFixedPrefix___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 static lean_object* l_Lean_setEnv___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimRecursion___spec__2___closed__7;
 lean_object* l_Lean_Elab_addNonRec___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_setEnv___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimRecursion___spec__2___closed__3;
@@ -900,7 +900,7 @@ else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; uint8_t x_53; 
 x_15 = lean_unsigned_to_nat(0u);
-x_16 = l_Lean_Expr_getAppNumArgsAux(x_5, x_15);
+x_16 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_5, x_15);
 x_17 = l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_getFixedPrefix___lambda__2___closed__1;
 lean_inc(x_16);
 x_18 = lean_mk_array(x_16, x_17);
@@ -3061,9 +3061,7 @@ lean_dec(x_50);
 x_52 = lean_array_push(x_46, x_27);
 x_53 = 1;
 x_54 = l_Lean_Elab_applyAttributesOf(x_52, x_53, x_2, x_3, x_4, x_5, x_6, x_7, x_51);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
+lean_dec(x_6);
 lean_dec(x_52);
 return x_54;
 }

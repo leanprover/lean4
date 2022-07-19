@@ -59,6 +59,7 @@ LEAN_EXPORT lean_object* l_Std_HashMapImp_find_x3f___at_Lean_Meta_reduce_visit__
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
 lean_object* l_panic___at_Lean_Expr_getRevArg_x21___spec__1(lean_object*);
+lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_reduce_visit___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_reduce_visit___lambda__4___closed__4;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
@@ -83,7 +84,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_reduce___boxed(lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_Meta_reduce_visit___lambda__4(lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_AssocList_contains___at_Lean_Meta_reduce_visit___spec__11___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_insert___at_Lean_Meta_reduce_visit___spec__10(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at_Lean_Meta_reduce_visit___spec__6___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -1618,7 +1618,7 @@ x_20 = lean_ctor_get(x_18, 1);
 lean_inc(x_20);
 lean_dec(x_18);
 x_21 = lean_unsigned_to_nat(0u);
-x_22 = l_Lean_Expr_getAppNumArgsAux(x_15, x_21);
+x_22 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_15, x_21);
 lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);

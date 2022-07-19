@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_List_reverse___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Util___hyg_6_(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_findSyntaxStack_x3f_go___lambda__2___closed__3;
@@ -20,6 +21,7 @@ static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Util___hyg_6____clos
 uint8_t l___private_Lean_Server_InfoUtils_0__String_beqRange____x40_Lean_Server_InfoUtils___hyg_75_(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
+lean_object* l_Lean_Elab_InfoTree_visitM_go___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_range(lean_object*);
 lean_object* l_List_zipWith___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_stackMatches___boxed(lean_object*, lean_object*);
@@ -30,7 +32,9 @@ LEAN_EXPORT uint8_t l_Lean_Linter_stackMatches___lambda__1(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Lean_Linter_publishMessage___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Linter_stackMatches(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Util___hyg_6____closed__3;
+static lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__2___closed__1;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Util___hyg_6____closed__5;
+LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_findSyntaxStack_x3f_go___lambda__2___closed__2;
 lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_6____spec__1(lean_object*, lean_object*, lean_object*);
 uint8_t l_String_Range_contains(lean_object*, lean_object*, uint8_t);
@@ -38,25 +42,36 @@ lean_object* lean_st_ref_take(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_linter_all;
 static lean_object* l_Lean_Linter_findSyntaxStack_x3f_go___lambda__2___closed__1;
 lean_object* l_Lean_Elab_mkMessageCore(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
+uint8_t l_Lean_Elab_Info_contains(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Linter_findSyntaxStack_x3f_go___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_findSyntaxStack_x3f_go___lambda__1(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Util___hyg_6____closed__7;
 LEAN_EXPORT lean_object* l_Lean_Linter_publishMessage(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_findSyntaxStack_x3f(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_findSyntaxStack_x3f_go___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_filterMap___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__1(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Linter_getLinterAll(lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Util___hyg_6____closed__1;
 uint8_t l_List_foldr___at_List_and___spec__1(uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_findSyntaxStack_x3f_go___lambda__1___boxed(lean_object*);
 lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getNumArgs(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_filterMap___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_stackMatches___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getRange_x3f(lean_object*, uint8_t);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_findSyntaxStack_x3f_go___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Linter_findSyntaxStack_x3f_go___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_getLinterAll___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
@@ -64,7 +79,10 @@ LEAN_EXPORT lean_object* l_Lean_Linter_findSyntaxStack_x3f_go___lambda__2(lean_o
 lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Linter_findSyntaxStack_x3f_go___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Util___hyg_6____closed__4;
+LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__3(lean_object*);
 static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_Util___hyg_6____closed__1() {
 _start:
 {
@@ -322,6 +340,475 @@ x_8 = l_Lean_Linter_publishMessage(x_1, x_2, x_7, x_4, x_5, x_6);
 lean_dec(x_5);
 lean_dec(x_2);
 return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_List_filterMap___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__1(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_2; 
+x_2 = lean_box(0);
+return x_2;
+}
+else
+{
+lean_object* x_3; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_4; 
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+lean_dec(x_1);
+x_1 = x_4;
+goto _start;
+}
+else
+{
+uint8_t x_6; 
+x_6 = !lean_is_exclusive(x_1);
+if (x_6 == 0)
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_7 = lean_ctor_get(x_1, 1);
+x_8 = lean_ctor_get(x_1, 0);
+lean_dec(x_8);
+x_9 = lean_ctor_get(x_3, 0);
+lean_inc(x_9);
+lean_dec(x_3);
+x_10 = l_List_filterMap___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__1(x_7);
+lean_ctor_set(x_1, 1, x_10);
+lean_ctor_set(x_1, 0, x_9);
+return x_1;
+}
+else
+{
+lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_11 = lean_ctor_get(x_1, 1);
+lean_inc(x_11);
+lean_dec(x_1);
+x_12 = lean_ctor_get(x_3, 0);
+lean_inc(x_12);
+lean_dec(x_3);
+x_13 = l_List_filterMap___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__1(x_11);
+x_14 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_14, 0, x_12);
+lean_ctor_set(x_14, 1, x_13);
+return x_14;
+}
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_List_filterMap___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__2(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_2; 
+x_2 = lean_box(0);
+return x_2;
+}
+else
+{
+lean_object* x_3; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_4; 
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+lean_dec(x_1);
+x_1 = x_4;
+goto _start;
+}
+else
+{
+uint8_t x_6; 
+x_6 = !lean_is_exclusive(x_1);
+if (x_6 == 0)
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_7 = lean_ctor_get(x_1, 1);
+x_8 = lean_ctor_get(x_1, 0);
+lean_dec(x_8);
+x_9 = lean_ctor_get(x_3, 0);
+lean_inc(x_9);
+lean_dec(x_3);
+x_10 = l_List_filterMap___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__2(x_7);
+lean_ctor_set(x_1, 1, x_10);
+lean_ctor_set(x_1, 0, x_9);
+return x_1;
+}
+else
+{
+lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_11 = lean_ctor_get(x_1, 1);
+lean_inc(x_11);
+lean_dec(x_1);
+x_12 = lean_ctor_get(x_3, 0);
+lean_inc(x_12);
+lean_dec(x_3);
+x_13 = l_List_filterMap___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__2(x_11);
+x_14 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_14, 0, x_12);
+lean_ctor_set(x_14, 1, x_13);
+return x_14;
+}
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__3___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; lean_object* x_7; 
+x_6 = lean_box(0);
+x_7 = l_Lean_Elab_InfoTree_visitM_go___rarg(x_1, x_3, x_4, x_6, x_5);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__3(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_Elab_InfoTree_visitM___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__3___rarg___boxed), 5, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_5 = lean_ctor_get(x_1, 0);
+lean_inc(x_5);
+lean_dec(x_1);
+x_6 = lean_ctor_get(x_5, 1);
+lean_inc(x_6);
+lean_dec(x_5);
+x_7 = lean_box(0);
+x_8 = lean_apply_2(x_6, lean_box(0), x_7);
+return x_8;
+}
+}
+static lean_object* _init_l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__2___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; lean_object* x_9; 
+x_8 = l_List_filterMap___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__1(x_7);
+x_9 = l_List_filterMap___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__2(x_8);
+if (lean_obj_tag(x_9) == 0)
+{
+lean_object* x_10; uint8_t x_11; uint8_t x_12; 
+x_10 = lean_ctor_get(x_1, 0);
+x_11 = 0;
+x_12 = l_Lean_Elab_Info_contains(x_5, x_10, x_11);
+if (x_12 == 0)
+{
+lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+x_13 = lean_ctor_get(x_2, 0);
+lean_inc(x_13);
+lean_dec(x_2);
+x_14 = lean_ctor_get(x_13, 1);
+lean_inc(x_14);
+lean_dec(x_13);
+x_15 = lean_apply_2(x_14, lean_box(0), x_3);
+return x_15;
+}
+else
+{
+lean_object* x_16; uint8_t x_17; uint8_t x_18; 
+x_16 = lean_ctor_get(x_1, 1);
+x_17 = 1;
+x_18 = l_Lean_Elab_Info_contains(x_5, x_16, x_17);
+if (x_18 == 0)
+{
+lean_object* x_19; lean_object* x_20; lean_object* x_21; 
+x_19 = lean_ctor_get(x_2, 0);
+lean_inc(x_19);
+lean_dec(x_2);
+x_20 = lean_ctor_get(x_19, 1);
+lean_inc(x_20);
+lean_dec(x_19);
+x_21 = lean_apply_2(x_20, lean_box(0), x_3);
+return x_21;
+}
+else
+{
+lean_dec(x_3);
+if (lean_obj_tag(x_5) == 3)
+{
+lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
+x_22 = lean_ctor_get(x_5, 0);
+x_23 = lean_ctor_get(x_2, 0);
+lean_inc(x_23);
+lean_dec(x_2);
+x_24 = lean_ctor_get(x_23, 1);
+lean_inc(x_24);
+lean_dec(x_23);
+x_25 = lean_box(0);
+lean_inc(x_22);
+x_26 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_26, 0, x_22);
+lean_ctor_set(x_26, 1, x_25);
+x_27 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_27, 0, x_26);
+x_28 = lean_apply_2(x_24, lean_box(0), x_27);
+return x_28;
+}
+else
+{
+lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
+x_29 = lean_ctor_get(x_2, 0);
+lean_inc(x_29);
+lean_dec(x_2);
+x_30 = lean_ctor_get(x_29, 1);
+lean_inc(x_30);
+lean_dec(x_29);
+x_31 = l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__2___closed__1;
+x_32 = lean_apply_2(x_30, lean_box(0), x_31);
+return x_32;
+}
+}
+}
+}
+else
+{
+lean_dec(x_3);
+if (lean_obj_tag(x_5) == 3)
+{
+uint8_t x_33; 
+x_33 = !lean_is_exclusive(x_9);
+if (x_33 == 0)
+{
+lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
+x_34 = lean_ctor_get(x_9, 0);
+x_35 = lean_ctor_get(x_9, 1);
+lean_dec(x_35);
+x_36 = lean_ctor_get(x_5, 0);
+x_37 = lean_ctor_get(x_2, 0);
+lean_inc(x_37);
+lean_dec(x_2);
+x_38 = lean_ctor_get(x_37, 1);
+lean_inc(x_38);
+lean_dec(x_37);
+lean_inc(x_36);
+lean_ctor_set(x_9, 1, x_34);
+lean_ctor_set(x_9, 0, x_36);
+x_39 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_39, 0, x_9);
+x_40 = lean_apply_2(x_38, lean_box(0), x_39);
+return x_40;
+}
+else
+{
+lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; 
+x_41 = lean_ctor_get(x_9, 0);
+lean_inc(x_41);
+lean_dec(x_9);
+x_42 = lean_ctor_get(x_5, 0);
+x_43 = lean_ctor_get(x_2, 0);
+lean_inc(x_43);
+lean_dec(x_2);
+x_44 = lean_ctor_get(x_43, 1);
+lean_inc(x_44);
+lean_dec(x_43);
+lean_inc(x_42);
+x_45 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_45, 0, x_42);
+lean_ctor_set(x_45, 1, x_41);
+x_46 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_46, 0, x_45);
+x_47 = lean_apply_2(x_44, lean_box(0), x_46);
+return x_47;
+}
+}
+else
+{
+lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; 
+x_48 = lean_ctor_get(x_9, 0);
+lean_inc(x_48);
+lean_dec(x_9);
+x_49 = lean_ctor_get(x_2, 0);
+lean_inc(x_49);
+lean_dec(x_2);
+x_50 = lean_ctor_get(x_49, 1);
+lean_inc(x_50);
+lean_dec(x_49);
+x_51 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_51, 0, x_48);
+x_52 = lean_apply_2(x_50, lean_box(0), x_51);
+return x_52;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_4 = lean_box(0);
+lean_inc(x_1);
+x_5 = lean_alloc_closure((void*)(l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__1___boxed), 4, 1);
+lean_closure_set(x_5, 0, x_1);
+lean_inc(x_1);
+x_6 = lean_alloc_closure((void*)(l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__2___boxed), 7, 3);
+lean_closure_set(x_6, 0, x_2);
+lean_closure_set(x_6, 1, x_1);
+lean_closure_set(x_6, 2, x_4);
+x_7 = l_Lean_Elab_InfoTree_visitM___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__3___rarg(x_1, x_4, x_5, x_6, x_3);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_Linter_collectMacroExpansions_x3f_go___rarg), 3, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__3___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_Elab_InfoTree_visitM___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__3___rarg(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_2);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__1(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_1);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f___rarg___lambda__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_2) == 0)
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+lean_dec(x_1);
+x_4 = lean_ctor_get(x_3, 1);
+lean_inc(x_4);
+lean_dec(x_3);
+x_5 = lean_box(0);
+x_6 = lean_apply_2(x_4, lean_box(0), x_5);
+return x_6;
+}
+else
+{
+lean_object* x_7; 
+x_7 = lean_ctor_get(x_2, 0);
+lean_inc(x_7);
+lean_dec(x_2);
+if (lean_obj_tag(x_7) == 0)
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
+lean_dec(x_1);
+x_9 = lean_ctor_get(x_8, 1);
+lean_inc(x_9);
+lean_dec(x_8);
+x_10 = lean_box(0);
+x_11 = lean_apply_2(x_9, lean_box(0), x_10);
+return x_11;
+}
+else
+{
+uint8_t x_12; 
+x_12 = !lean_is_exclusive(x_7);
+if (x_12 == 0)
+{
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_13 = lean_ctor_get(x_7, 0);
+x_14 = lean_ctor_get(x_1, 0);
+lean_inc(x_14);
+lean_dec(x_1);
+x_15 = lean_ctor_get(x_14, 1);
+lean_inc(x_15);
+lean_dec(x_14);
+x_16 = l_List_reverse___rarg(x_13);
+lean_ctor_set(x_7, 0, x_16);
+x_17 = lean_apply_2(x_15, lean_box(0), x_7);
+return x_17;
+}
+else
+{
+lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
+x_18 = lean_ctor_get(x_7, 0);
+lean_inc(x_18);
+lean_dec(x_7);
+x_19 = lean_ctor_get(x_1, 0);
+lean_inc(x_19);
+lean_dec(x_1);
+x_20 = lean_ctor_get(x_19, 1);
+lean_inc(x_20);
+lean_dec(x_19);
+x_21 = l_List_reverse___rarg(x_18);
+x_22 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_22, 0, x_21);
+x_23 = lean_apply_2(x_20, lean_box(0), x_22);
+return x_23;
+}
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+lean_inc(x_1);
+x_5 = l_Lean_Linter_collectMacroExpansions_x3f_go___rarg(x_1, x_2, x_3);
+x_6 = lean_alloc_closure((void*)(l_Lean_Linter_collectMacroExpansions_x3f___rarg___lambda__1), 2, 1);
+lean_closure_set(x_6, 0, x_1);
+x_7 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_5, x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_Linter_collectMacroExpansions_x3f___rarg), 3, 0);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Linter_findSyntaxStack_x3f_go___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -812,7 +1299,9 @@ if (lean_io_result_is_error(res)) return res;
 l_Lean_Linter_linter_all = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Linter_linter_all);
 lean_dec_ref(res);
-}l_Lean_Linter_findSyntaxStack_x3f_go___lambda__2___closed__1 = _init_l_Lean_Linter_findSyntaxStack_x3f_go___lambda__2___closed__1();
+}l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__2___closed__1 = _init_l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__2___closed__1();
+lean_mark_persistent(l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__2___closed__1);
+l_Lean_Linter_findSyntaxStack_x3f_go___lambda__2___closed__1 = _init_l_Lean_Linter_findSyntaxStack_x3f_go___lambda__2___closed__1();
 lean_mark_persistent(l_Lean_Linter_findSyntaxStack_x3f_go___lambda__2___closed__1);
 l_Lean_Linter_findSyntaxStack_x3f_go___lambda__2___closed__2 = _init_l_Lean_Linter_findSyntaxStack_x3f_go___lambda__2___closed__2();
 lean_mark_persistent(l_Lean_Linter_findSyntaxStack_x3f_go___lambda__2___closed__2);

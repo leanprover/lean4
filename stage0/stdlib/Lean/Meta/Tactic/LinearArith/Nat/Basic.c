@@ -111,6 +111,7 @@ lean_object* l_panic___at_Lean_Expr_getRevArg_x21___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__Lean_Meta_Linear_Nat_reprExpr____x40_Lean_Meta_Tactic_LinearArith_Nat_Basic___hyg_4_(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__Lean_Meta_Linear_Nat_reprExprCnstr____x40_Lean_Meta_Tactic_LinearArith_Nat_Basic___hyg_267____closed__29;
 static lean_object* l_Lean_Meta_Linear_Nat_reflTrue___closed__6;
+lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__Lean_Meta_Linear_Nat_reprExpr____x40_Lean_Meta_Tactic_LinearArith_Nat_Basic___hyg_4____closed__1;
 lean_object* l_Nat_repr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Nat_ToLinear_toLinearExpr_visit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -163,7 +164,6 @@ static lean_object* l_Lean_Meta_Linear_Nat_ToLinear_toLinearCnstr_x3f___closed__
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__Lean_Meta_Linear_Nat_reprExpr____x40_Lean_Meta_Tactic_LinearArith_Nat_Basic___hyg_4____closed__10;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__Lean_Meta_Linear_Nat_reprExprCnstr____x40_Lean_Meta_Tactic_LinearArith_Nat_Basic___hyg_267____boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__Lean_Meta_Linear_Nat_reprExprCnstr____x40_Lean_Meta_Tactic_LinearArith_Nat_Basic___hyg_267____closed__1;
 static lean_object* l_Lean_Meta_Linear_Nat_reflTrue___closed__3;
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
@@ -3133,7 +3133,7 @@ x_15 = lean_ctor_get(x_8, 0);
 lean_inc(x_15);
 lean_dec(x_8);
 x_16 = lean_unsigned_to_nat(0u);
-x_17 = l_Lean_Expr_getAppNumArgsAux(x_1, x_16);
+x_17 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_16);
 x_103 = l_Lean_Meta_Linear_Nat_ToLinear_toLinearExpr_visit___closed__4;
 x_104 = lean_name_eq(x_15, x_103);
 if (x_104 == 0)
@@ -4342,7 +4342,7 @@ x_22 = lean_ctor_get(x_8, 0);
 lean_inc(x_22);
 lean_dec(x_8);
 x_23 = lean_unsigned_to_nat(0u);
-x_24 = l_Lean_Expr_getAppNumArgsAux(x_1, x_23);
+x_24 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_23);
 x_191 = l_Lean_Meta_Linear_Nat_ToLinear_toLinearCnstr_x3f___closed__17;
 x_192 = lean_name_eq(x_22, x_191);
 if (x_192 == 0)

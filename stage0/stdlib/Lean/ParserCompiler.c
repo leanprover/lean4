@@ -214,6 +214,7 @@ LEAN_EXPORT lean_object* l_Lean_ParserCompiler_compileParserExpr___rarg___lambda
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__14___at_Lean_ParserCompiler_compileParserExpr___spec__15___rarg(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__24___at_Lean_ParserCompiler_compileParserExpr___spec__25___rarg(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ParserCompiler_compileParserExpr___rarg___closed__16;
+lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__27___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_compileParserExpr___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_replaceParserTy___rarg___lambda__1(lean_object*, lean_object*);
@@ -304,7 +305,6 @@ LEAN_EXPORT lean_object* l_Lean_ParserCompiler_compileParserExpr___rarg___lambda
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__28___boxed(lean_object**);
 static lean_object* l_Lean_ParserCompiler_registerParserCompiler___rarg___lambda__1___closed__10;
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__45(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_compileParserExpr___spec__23(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_compileParserExpr___spec__48(lean_object*);
@@ -1288,7 +1288,7 @@ else
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
 lean_dec(x_11);
 x_28 = lean_unsigned_to_nat(0u);
-x_29 = l_Lean_Expr_getAppNumArgsAux(x_9, x_28);
+x_29 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_9, x_28);
 x_30 = lean_nat_sub(x_29, x_28);
 lean_dec(x_29);
 x_31 = lean_unsigned_to_nat(1u);
@@ -1359,7 +1359,7 @@ else
 lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; 
 lean_dec(x_11);
 x_48 = lean_unsigned_to_nat(0u);
-x_49 = l_Lean_Expr_getAppNumArgsAux(x_9, x_48);
+x_49 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_9, x_48);
 x_50 = lean_nat_sub(x_49, x_48);
 lean_dec(x_49);
 x_51 = lean_unsigned_to_nat(1u);
@@ -1430,7 +1430,7 @@ else
 lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; 
 lean_dec(x_11);
 x_68 = lean_unsigned_to_nat(0u);
-x_69 = l_Lean_Expr_getAppNumArgsAux(x_9, x_68);
+x_69 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_9, x_68);
 x_70 = lean_nat_sub(x_69, x_68);
 lean_dec(x_69);
 x_71 = lean_unsigned_to_nat(1u);
@@ -1501,7 +1501,7 @@ else
 lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; 
 lean_dec(x_11);
 x_88 = lean_unsigned_to_nat(0u);
-x_89 = l_Lean_Expr_getAppNumArgsAux(x_9, x_88);
+x_89 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_9, x_88);
 x_90 = lean_unsigned_to_nat(1u);
 x_91 = lean_nat_sub(x_89, x_90);
 lean_dec(x_89);
@@ -1518,7 +1518,7 @@ else
 lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; 
 lean_dec(x_11);
 x_95 = lean_unsigned_to_nat(0u);
-x_96 = l_Lean_Expr_getAppNumArgsAux(x_9, x_95);
+x_96 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_9, x_95);
 x_97 = lean_unsigned_to_nat(1u);
 x_98 = lean_nat_sub(x_96, x_97);
 lean_dec(x_96);
@@ -21619,7 +21619,7 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = l_Lean_Expr_getAppNumArgsAux(x_1, x_13);
+x_14 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_13);
 x_15 = l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__2___closed__1;
 lean_inc(x_14);
 x_16 = lean_mk_array(x_14, x_15);
@@ -22296,7 +22296,7 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = l_Lean_Expr_getAppNumArgsAux(x_1, x_13);
+x_14 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_13);
 x_15 = l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__2___closed__1;
 lean_inc(x_14);
 x_16 = lean_mk_array(x_14, x_15);
@@ -22434,7 +22434,7 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = l_Lean_Expr_getAppNumArgsAux(x_1, x_13);
+x_14 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_13);
 x_15 = l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__2___closed__1;
 lean_inc(x_14);
 x_16 = lean_mk_array(x_14, x_15);
@@ -23059,7 +23059,7 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = l_Lean_Expr_getAppNumArgsAux(x_1, x_13);
+x_14 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_13);
 x_15 = l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__2___closed__1;
 lean_inc(x_14);
 x_16 = lean_mk_array(x_14, x_15);
@@ -23197,7 +23197,7 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = l_Lean_Expr_getAppNumArgsAux(x_1, x_13);
+x_14 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_13);
 x_15 = l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__2___closed__1;
 lean_inc(x_14);
 x_16 = lean_mk_array(x_14, x_15);
@@ -23822,7 +23822,7 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = l_Lean_Expr_getAppNumArgsAux(x_1, x_13);
+x_14 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_13);
 x_15 = l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__2___closed__1;
 lean_inc(x_14);
 x_16 = lean_mk_array(x_14, x_15);
@@ -23960,7 +23960,7 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = l_Lean_Expr_getAppNumArgsAux(x_1, x_13);
+x_14 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_13);
 x_15 = l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__2___closed__1;
 lean_inc(x_14);
 x_16 = lean_mk_array(x_14, x_15);
@@ -24585,7 +24585,7 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = l_Lean_Expr_getAppNumArgsAux(x_1, x_13);
+x_14 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_13);
 x_15 = l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__2___closed__1;
 lean_inc(x_14);
 x_16 = lean_mk_array(x_14, x_15);
@@ -24723,7 +24723,7 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = l_Lean_Expr_getAppNumArgsAux(x_1, x_13);
+x_14 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_13);
 x_15 = l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__2___closed__1;
 lean_inc(x_14);
 x_16 = lean_mk_array(x_14, x_15);
@@ -25348,7 +25348,7 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = l_Lean_Expr_getAppNumArgsAux(x_1, x_13);
+x_14 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_13);
 x_15 = l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__2___closed__1;
 lean_inc(x_14);
 x_16 = lean_mk_array(x_14, x_15);
@@ -25542,7 +25542,7 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = l_Lean_Expr_getAppNumArgsAux(x_1, x_13);
+x_14 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_13);
 x_15 = l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__2___closed__1;
 lean_inc(x_14);
 x_16 = lean_mk_array(x_14, x_15);
@@ -26167,7 +26167,7 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = l_Lean_Expr_getAppNumArgsAux(x_1, x_13);
+x_14 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_13);
 x_15 = l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__2___closed__1;
 lean_inc(x_14);
 x_16 = lean_mk_array(x_14, x_15);
@@ -26305,7 +26305,7 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = l_Lean_Expr_getAppNumArgsAux(x_1, x_13);
+x_14 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_13);
 x_15 = l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__2___closed__1;
 lean_inc(x_14);
 x_16 = lean_mk_array(x_14, x_15);
@@ -26930,7 +26930,7 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = l_Lean_Expr_getAppNumArgsAux(x_1, x_13);
+x_14 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_13);
 x_15 = l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__2___closed__1;
 lean_inc(x_14);
 x_16 = lean_mk_array(x_14, x_15);
@@ -27068,7 +27068,7 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = l_Lean_Expr_getAppNumArgsAux(x_1, x_13);
+x_14 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_13);
 x_15 = l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__2___closed__1;
 lean_inc(x_14);
 x_16 = lean_mk_array(x_14, x_15);
@@ -27693,7 +27693,7 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = l_Lean_Expr_getAppNumArgsAux(x_1, x_13);
+x_14 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_13);
 x_15 = l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__2___closed__1;
 lean_inc(x_14);
 x_16 = lean_mk_array(x_14, x_15);
@@ -27831,7 +27831,7 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = l_Lean_Expr_getAppNumArgsAux(x_1, x_13);
+x_14 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_13);
 x_15 = l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__2___closed__1;
 lean_inc(x_14);
 x_16 = lean_mk_array(x_14, x_15);
@@ -28456,7 +28456,7 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = l_Lean_Expr_getAppNumArgsAux(x_1, x_13);
+x_14 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_13);
 x_15 = l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__2___closed__1;
 lean_inc(x_14);
 x_16 = lean_mk_array(x_14, x_15);
@@ -28594,7 +28594,7 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = l_Lean_Expr_getAppNumArgsAux(x_1, x_13);
+x_14 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_13);
 x_15 = l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__2___closed__1;
 lean_inc(x_14);
 x_16 = lean_mk_array(x_14, x_15);
@@ -29219,7 +29219,7 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = l_Lean_Expr_getAppNumArgsAux(x_1, x_13);
+x_14 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_13);
 x_15 = l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__2___closed__1;
 lean_inc(x_14);
 x_16 = lean_mk_array(x_14, x_15);

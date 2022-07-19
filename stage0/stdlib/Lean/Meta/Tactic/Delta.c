@@ -26,13 +26,13 @@ lean_object* l_Lean_Meta_withMVarContext___at___private_Lean_Meta_SynthInstance_
 lean_object* l_Lean_Meta_getMVarType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_deltaLocalDecl___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_name(lean_object*);
+lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 uint8_t l_Lean_ConstantInfo_hasValue(lean_object*);
 lean_object* l_Lean_Core_instantiateValueLevelParams(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppRevArgsAux(lean_object*, lean_object*);
 lean_object* l_Lean_Core_transform___at_Lean_Core_betaReduce___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_delta_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_changeLocalDecl(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_checkNotAssigned(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_deltaTarget___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_betaRev(lean_object*, lean_object*, uint8_t, uint8_t);
@@ -158,7 +158,7 @@ if (x_31 == 0)
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; uint8_t x_36; uint8_t x_37; lean_object* x_38; 
 x_32 = lean_ctor_get(x_30, 0);
-x_33 = l_Lean_Expr_getAppNumArgsAux(x_1, x_25);
+x_33 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_25);
 x_34 = lean_mk_empty_array_with_capacity(x_33);
 lean_dec(x_33);
 x_35 = l___private_Lean_Expr_0__Lean_Expr_getAppRevArgsAux(x_1, x_34);
@@ -178,7 +178,7 @@ x_40 = lean_ctor_get(x_30, 1);
 lean_inc(x_40);
 lean_inc(x_39);
 lean_dec(x_30);
-x_41 = l_Lean_Expr_getAppNumArgsAux(x_1, x_25);
+x_41 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_25);
 x_42 = lean_mk_empty_array_with_capacity(x_41);
 lean_dec(x_41);
 x_43 = l___private_Lean_Expr_0__Lean_Expr_getAppRevArgsAux(x_1, x_42);
@@ -275,7 +275,7 @@ if (lean_is_exclusive(x_61)) {
  lean_dec_ref(x_61);
  x_64 = lean_box(0);
 }
-x_65 = l_Lean_Expr_getAppNumArgsAux(x_1, x_56);
+x_65 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_56);
 x_66 = lean_mk_empty_array_with_capacity(x_65);
 lean_dec(x_65);
 x_67 = l___private_Lean_Expr_0__Lean_Expr_getAppRevArgsAux(x_1, x_66);
@@ -418,7 +418,7 @@ if (lean_is_exclusive(x_96)) {
  lean_dec_ref(x_96);
  x_99 = lean_box(0);
 }
-x_100 = l_Lean_Expr_getAppNumArgsAux(x_1, x_90);
+x_100 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_90);
 x_101 = lean_mk_empty_array_with_capacity(x_100);
 lean_dec(x_100);
 x_102 = l___private_Lean_Expr_0__Lean_Expr_getAppRevArgsAux(x_1, x_101);

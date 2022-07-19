@@ -95,6 +95,7 @@ LEAN_EXPORT lean_object* l_Std_HashMapImp_moveEntries___at___private_Lean_Meta_C
 lean_object* l_panic___at_Lean_Expr_getRevArg_x21___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkAux_checkForall___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_throwLetTypeMismatchMessage___spec__2(lean_object*);
+lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_LocalDecl_binderInfo(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
@@ -126,7 +127,6 @@ lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at___privat
 static lean_object* l_Lean_Meta_addPPExplicitToExposeDiff___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Meta_isTypeCorrect___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_mkHashMap___at___private_Lean_Meta_Check_0__Lean_Meta_checkAux___spec__1___boxed(lean_object*);
-lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_0__Lean_addNode___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__13(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getLocalDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_equal(lean_object*, lean_object*);
@@ -2138,8 +2138,8 @@ else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 x_14 = lean_unsigned_to_nat(0u);
-x_15 = l_Lean_Expr_getAppNumArgsAux(x_1, x_14);
-x_16 = l_Lean_Expr_getAppNumArgsAux(x_2, x_14);
+x_15 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_14);
+x_16 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_2, x_14);
 x_17 = lean_nat_dec_eq(x_15, x_16);
 if (x_17 == 0)
 {

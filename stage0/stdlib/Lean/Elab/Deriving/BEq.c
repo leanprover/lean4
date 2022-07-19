@@ -54,6 +54,7 @@ LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_BEq_mkMa
 static lean_object* l_Lean_Elab_Deriving_BEq_mkMatch_mkElseAlt___closed__1;
 lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
+lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__20(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_BEq_mkMatch_mkElseAlt___closed__13;
 LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_BEq_mkAuxFunction___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_BEq_mkMutualBlock___closed__7;
@@ -160,7 +161,6 @@ lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkBEqEnumFun___closed__16;
 static lean_object* l_List_forIn_loop___at_Lean_Elab_Deriving_BEq_mkMatch_mkAlts___spec__5___lambda__1___closed__14;
 static lean_object* l_Lean_Elab_Deriving_BEq_mkAuxFunction___lambda__1___closed__13;
-lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__16(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_Deriving_BEq_mkBEqInstanceHandler___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_loop___at_Lean_Elab_Deriving_BEq_mkMatch_mkAlts___spec__5___lambda__1___closed__15;
 static lean_object* l_Lean_Elab_Deriving_BEq_mkAuxFunction___lambda__1___closed__21;
@@ -6898,7 +6898,7 @@ x_111 = 0;
 x_112 = lean_usize_of_nat(x_104);
 lean_dec(x_104);
 x_113 = lean_box(0);
-x_114 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__16(x_102, x_111, x_112, x_113, x_2, x_3, x_103);
+x_114 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__20(x_102, x_111, x_112, x_113, x_2, x_3, x_103);
 lean_dec(x_102);
 if (lean_obj_tag(x_114) == 0)
 {
@@ -7002,7 +7002,7 @@ x_138 = 0;
 x_139 = lean_usize_of_nat(x_129);
 lean_dec(x_129);
 x_140 = lean_box(0);
-x_141 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__16(x_127, x_138, x_139, x_140, x_2, x_3, x_128);
+x_141 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__20(x_127, x_138, x_139, x_140, x_2, x_3, x_128);
 lean_dec(x_127);
 if (lean_obj_tag(x_141) == 0)
 {
@@ -7237,7 +7237,7 @@ x_35 = 0;
 x_36 = lean_usize_of_nat(x_28);
 lean_dec(x_28);
 x_37 = lean_box(0);
-x_38 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__16(x_26, x_35, x_36, x_37, x_2, x_3, x_27);
+x_38 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__20(x_26, x_35, x_36, x_37, x_2, x_3, x_27);
 lean_dec(x_26);
 if (lean_obj_tag(x_38) == 0)
 {
@@ -7341,7 +7341,7 @@ x_62 = 0;
 x_63 = lean_usize_of_nat(x_53);
 lean_dec(x_53);
 x_64 = lean_box(0);
-x_65 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__16(x_51, x_62, x_63, x_64, x_2, x_3, x_52);
+x_65 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__20(x_51, x_62, x_63, x_64, x_2, x_3, x_52);
 lean_dec(x_51);
 if (lean_obj_tag(x_65) == 0)
 {

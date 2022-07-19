@@ -30,10 +30,10 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Structural_instInhabit
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_instInhabitedM___closed__2;
 static lean_object* l_Lean_Elab_Structural_instInhabitedM___closed__1;
+lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_recArgHasLooseBVarsAt___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Structural_instInhabitedM___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_State_addMatchers___default;
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_run(lean_object*);
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -277,7 +277,7 @@ else
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_unsigned_to_nat(0u);
-x_7 = l_Lean_Expr_getAppNumArgsAux(x_3, x_6);
+x_7 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_3, x_6);
 x_8 = lean_nat_dec_lt(x_2, x_7);
 if (x_8 == 0)
 {

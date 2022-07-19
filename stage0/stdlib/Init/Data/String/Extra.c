@@ -25,14 +25,17 @@ LEAN_EXPORT lean_object* l_String_toNat_x21___lambda__1(lean_object*, uint32_t);
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at___aux__Init__Notation______macroRules__precMax__1___spec__1(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__2___closed__1;
+uint8_t l_String_Iterator_atEnd(lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__2___closed__6;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__24;
+LEAN_EXPORT lean_object* l_String_Iterator_foldUntil(lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__16;
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__7;
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__10;
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__20;
+LEAN_EXPORT lean_object* l_String_Iterator_find(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__2(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_from_utf8_unchecked(lean_object*);
@@ -43,12 +46,14 @@ static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__t
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__22;
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__28;
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__14;
+LEAN_EXPORT lean_object* l_String_Iterator_foldUntil___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_String_isNat(lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__29;
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__25;
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__2___closed__3;
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__6;
+lean_object* l_String_Iterator_next(lean_object*);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__1;
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__13;
@@ -56,6 +61,7 @@ static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__t
 lean_object* lean_string_to_utf8(lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__2;
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__21;
+uint32_t l_String_Iterator_curr(lean_object*);
 LEAN_EXPORT lean_object* l_String_toNat_x21___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_String_foldlAux_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__3;
@@ -935,6 +941,94 @@ lean_ctor_set(x_77, 1, x_44);
 return x_77;
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_String_Iterator_find(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; 
+x_3 = l_String_Iterator_atEnd(x_1);
+if (x_3 == 0)
+{
+uint32_t x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_4 = l_String_Iterator_curr(x_1);
+x_5 = lean_box_uint32(x_4);
+lean_inc(x_2);
+x_6 = lean_apply_1(x_2, x_5);
+x_7 = lean_unbox(x_6);
+lean_dec(x_6);
+if (x_7 == 0)
+{
+lean_object* x_8; 
+x_8 = l_String_Iterator_next(x_1);
+x_1 = x_8;
+goto _start;
+}
+else
+{
+lean_dec(x_2);
+return x_1;
+}
+}
+else
+{
+lean_dec(x_2);
+return x_1;
+}
+}
+}
+LEAN_EXPORT lean_object* l_String_Iterator_foldUntil___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; 
+x_4 = l_String_Iterator_atEnd(x_1);
+if (x_4 == 0)
+{
+uint32_t x_5; lean_object* x_6; lean_object* x_7; 
+x_5 = l_String_Iterator_curr(x_1);
+x_6 = lean_box_uint32(x_5);
+lean_inc(x_3);
+lean_inc(x_2);
+x_7 = lean_apply_2(x_3, x_2, x_6);
+if (lean_obj_tag(x_7) == 0)
+{
+lean_object* x_8; 
+lean_dec(x_3);
+x_8 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_8, 0, x_2);
+lean_ctor_set(x_8, 1, x_1);
+return x_8;
+}
+else
+{
+lean_object* x_9; lean_object* x_10; 
+lean_dec(x_2);
+x_9 = lean_ctor_get(x_7, 0);
+lean_inc(x_9);
+lean_dec(x_7);
+x_10 = l_String_Iterator_next(x_1);
+x_1 = x_10;
+x_2 = x_9;
+goto _start;
+}
+}
+else
+{
+lean_object* x_12; 
+lean_dec(x_3);
+x_12 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_12, 0, x_2);
+lean_ctor_set(x_12, 1, x_1);
+return x_12;
+}
+}
+}
+LEAN_EXPORT lean_object* l_String_Iterator_foldUntil(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_String_Iterator_foldUntil___rarg), 3, 0);
+return x_2;
 }
 }
 lean_object* initialize_Init_Control_Except(uint8_t builtin, lean_object*);

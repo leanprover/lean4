@@ -11,11 +11,48 @@ namespace Lean
 private builtin_initialize builtinDocStrings : IO.Ref (NameMap String) ← IO.mkRef {}
 private builtin_initialize docStringExt : MapDeclarationExtension String ← mkMapDeclarationExtension `docstring
 
+private def findLeadingSpacesSize (s : String) : Nat :=     
+  let it := s.iter
+  let it := it.find (· == '\n') |>.next
+  let (min, it) := it.foldUntil 0 fun num c => if c == ' ' || c == '\t' then some (num + 1) else none
+  findNextLine it min 
+where 
+  consumeSpaces (it : String.Iterator) (curr min : Nat) : Nat :=
+    if it.atEnd then min
+    else if it.curr == ' ' || it.curr == '\t' then consumeSpaces it.next (curr + 1) min
+    else findNextLine it.next (Nat.min curr min)
+  findNextLine (it : String.Iterator) (min : Nat) : Nat :=
+    if it.atEnd then min
+    else if it.curr == '\n' then consumeSpaces it.next 0 min 
+    else findNextLine it.next min 
+
+private def removeNumLeadingSpaces (n : Nat) (s : String) : String :=
+  consumeSpaces n s.iter ""
+where
+  consumeSpaces (n : Nat) (it : String.Iterator) (r : String) : String :=
+     match n with
+     | 0 => saveLine it r
+     | n+1 =>
+       if it.atEnd then r 
+       else if it.curr == ' ' || it.curr == '\t' then consumeSpaces n it.next r 
+       else saveLine it r
+  saveLine (it : String.Iterator) (r : String) : String :=
+    if it.atEnd then r
+    else if it.curr == '\n' then consumeSpaces n it.next (r.push '\n')
+    else saveLine it.next (r.push it.curr)  
+termination_by 
+  consumeSpaces n it r => (it, 1) 
+  saveLine it r => (it, 0)
+
+private def removeLeadingSpaces (s : String) : String := 
+  let n := findLeadingSpacesSize s
+  if n == 0 then s else removeNumLeadingSpaces n s
+
 def addBuiltinDocString (declName : Name) (docString : String) : IO Unit :=
-  builtinDocStrings.modify (·.insert declName docString)
+  builtinDocStrings.modify (·.insert declName (removeLeadingSpaces docString))
 
 def addDocString [MonadEnv m] (declName : Name) (docString : String) : m Unit :=
-  modifyEnv fun env => docStringExt.insert env declName docString
+  modifyEnv fun env => docStringExt.insert env declName (removeLeadingSpaces docString)
 
 def addDocString' [Monad m] [MonadEnv m] (declName : Name) (docString? : Option String) : m Unit :=
   match docString? with

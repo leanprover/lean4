@@ -1744,11 +1744,40 @@ instance : Hashable String where
 
 namespace Lean
 
-/- Hierarchical names -/
+/--
+Hierarchical names. We use hierarchical names to name declarations and
+for creating unique identifiers for free variables and metavariables.
+
+You can create hierarchical names using the following quotation notation.
+```
+`Lean.Meta.whnf
+```
+It is short for `.str (.str (.str .anonymous "Lean") "Meta") "whnf"`
+You can use double quotes to request Lean to statically check whether the name
+corresponds to a Lean declaration in scope.
+```
+``Lean.Meta.whnf
+```
+If the name is not in scope, Lean will report an error.
+-/
 inductive Name where
-  | anonymous : Name
-  | str : Name → String → Name
-  | num : Name → Nat → Name
+  | /-- The "anonymous" name. -/
+    anonymous : Name
+  | /--
+A string name. The name `Lean.Meta.run` is represented at
+```lean
+.str (.str (.str .anonymous "Lean") "Meta") "run"
+```
+-/
+    str (pre : Name) (str : String)
+  | /--
+A numerical name. This kind of name is used, for example, to create hierarchical names for
+free variables and metavariables. The identifier `_uniq.231` is represented as
+```lean
+.num (.str .anonymous "_uniq") 231
+```
+-/
+    num (pre : Name) (i : Nat)
 with
   @[computedField] hash : Name → UInt64
     | .anonymous => .ofNatCore 1723 (by decide)
@@ -1763,14 +1792,23 @@ instance : Hashable Name where
 
 namespace Name
 
+/--
+`.str p s` is now the preferred form.
+-/
 @[export lean_name_mk_string]
 abbrev mkStr (p : Name) (s : String) : Name :=
   Name.str p s
 
+/--
+`.num p v` is now the preferred form.
+-/
 @[export lean_name_mk_numeral]
 abbrev mkNum (p : Name) (v : Nat) : Name :=
   Name.num p v
 
+/--
+Short for `.str .anonymous s`.
+-/
 abbrev mkSimple (s : String) : Name :=
   mkStr Name.anonymous s
 
@@ -1784,6 +1822,13 @@ protected def beq : (@& Name) → (@& Name) → Bool
 instance : BEq Name where
   beq := Name.beq
 
+/--
+Append two hierarchical names. Example:
+```lean
+`Lean.Meta ++ `Tactic.simp
+```
+return `Lean.Meta.Tactic.simp`
+-/
 protected def append : Name → Name → Name
   | n, anonymous => n
   | n, str p s => Name.mkStr (Name.append n p) s
@@ -1798,18 +1843,22 @@ end Name
 
 /-- Source information of tokens. -/
 inductive SourceInfo where
-  /-
-    Token from original input with whitespace and position information.
-    `leading` will be inferred after parsing by `Syntax.updateLeading`. During parsing,
-    it is not at all clear what the preceding token was, especially with backtracking. -/
-  | original (leading : Substring) (pos : String.Pos) (trailing : Substring) (endPos : String.Pos)
-  /-
-    Synthesized token (e.g. from a quotation) annotated with a span from the original source.
-    In the delaborator, we "misuse" this constructor to store synthetic positions identifying
-    subterms. -/
-  | synthetic (pos : String.Pos) (endPos : String.Pos)
-  /- Synthesized token without position information. -/
-  | protected none
+  | /--
+Token from original input with whitespace and position information.
+`leading` will be inferred after parsing by `Syntax.updateLeading`. During parsing,
+it is not at all clear what the preceding token was, especially with backtracking.
+-/
+   original (leading : Substring) (pos : String.Pos) (trailing : Substring) (endPos : String.Pos)
+  | /--
+Synthesized token (e.g. from a quotation) annotated with a span from the original source.
+In the delaborator, we "misuse" this constructor to store synthetic positions identifying
+subterms.
+-/
+    synthetic (pos : String.Pos) (endPos : String.Pos)
+  | /--
+Synthesized token without position information.
+-/
+    protected none
 
 instance : Inhabited SourceInfo := ⟨SourceInfo.none⟩
 
@@ -1833,24 +1882,24 @@ Syntax objects used by the parser, macro expander, delaborator, etc.
 inductive Syntax where
   | missing : Syntax
   | /--
-  Node in the syntax tree.
+Node in the syntax tree.
 
-  The `info` field is used by the delaborator
-  to store the position of the subexpression
-  corresponding to this node.
-  The parser sets the `info` field to `none`.
+The `info` field is used by the delaborator
+to store the position of the subexpression
+corresponding to this node.
+The parser sets the `info` field to `none`.
 
-  (Remark: the `node` constructor
-  did not have an `info` field in previous versions.
-  This caused a bug in the interactive widgets,
-  where the popup for `a + b` was the same as for `a`.
-  The delaborator used to associate subexpressions
-  with pretty-printed syntax by setting
-  the (string) position of the first atom/identifier
-  to the (expression) position of the subexpression.
-  For example, both `a` and `a + b`
-  have the same first identifier,
-  and so their infos got mixed up.)
+(Remark: the `node` constructor
+did not have an `info` field in previous versions.
+This caused a bug in the interactive widgets,
+where the popup for `a + b` was the same as for `a`.
+The delaborator used to associate subexpressions
+with pretty-printed syntax by setting
+the (string) position of the first atom/identifier
+to the (expression) position of the subexpression.
+For example, both `a` and `a + b`
+have the same first identifier,
+and so their infos got mixed up.)
   -/ node   (info : SourceInfo) (kind : SyntaxNodeKind) (args : Array Syntax) : Syntax
   | atom   (info : SourceInfo) (val : String) : Syntax
   | ident  (info : SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List (Prod Name (List String))) : Syntax
@@ -1858,11 +1907,11 @@ inductive Syntax where
 def SyntaxNodeKinds := List SyntaxNodeKind
 
 /--
-  A `Syntax` value of one of the given syntax kinds.
-  Note that while syntax quotations produce/expect `TSyntax` values of the correct kinds,
-  this is not otherwise enforced and can easily be circumvented by direct use of the constructor.
-  The namespace `TSyntax.Compat` can be opened to expose a general coercion from `Syntax` to any
-  `TSyntax ks` for porting older code. -/
+A `Syntax` value of one of the given syntax kinds.
+Note that while syntax quotations produce/expect `TSyntax` values of the correct kinds,
+this is not otherwise enforced and can easily be circumvented by direct use of the constructor.
+The namespace `TSyntax.Compat` can be opened to expose a general coercion from `Syntax` to any
+`TSyntax ks` for porting older code. -/
 structure TSyntax (ks : SyntaxNodeKinds) where
   raw : Syntax
 
@@ -1872,7 +1921,7 @@ instance : Inhabited Syntax where
 instance : Inhabited (TSyntax ks) where
   default := ⟨default⟩
 
-/- Builtin kinds -/
+/-! Builtin kinds -/
 abbrev choiceKind : SyntaxNodeKind := `choice
 abbrev nullKind : SyntaxNodeKind := `null
 abbrev groupKind : SyntaxNodeKind := `group

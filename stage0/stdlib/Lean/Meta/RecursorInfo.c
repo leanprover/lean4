@@ -171,6 +171,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Meta_RecursorInfo
 static lean_object* l_Lean_Meta_RecursorInfo_instToStringRecursorInfo___closed__4;
 lean_object* l_Lean_ConstantInfo_name(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoForKernelRec(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 uint8_t l_Lean_LocalDecl_binderInfo(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
@@ -239,7 +240,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Meta_RecursorInfo
 lean_object* l_List_redLength___rarg(lean_object*);
 static lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getProduceMotiveAndRecursive___closed__1;
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Attribute_Recursor_getMajorPos___closed__6;
 static lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___closed__5;
 static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getParamsPos___spec__2___closed__7;
@@ -5489,7 +5489,7 @@ _start:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_11 = lean_unsigned_to_nat(0u);
-x_12 = l_Lean_Expr_getAppNumArgsAux(x_5, x_11);
+x_12 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_5, x_11);
 x_13 = l_Std_Range_forIn_loop___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getProduceMotiveAndRecursive___spec__3___lambda__1___closed__1;
 lean_inc(x_12);
 x_14 = lean_mk_array(x_12, x_13);
@@ -6834,7 +6834,7 @@ x_19 = lean_ctor_get(x_17, 1);
 lean_inc(x_19);
 lean_dec(x_17);
 x_20 = lean_unsigned_to_nat(0u);
-x_21 = l_Lean_Expr_getAppNumArgsAux(x_18, x_20);
+x_21 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_18, x_20);
 x_22 = l_Std_Range_forIn_loop___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getProduceMotiveAndRecursive___spec__3___lambda__1___closed__1;
 lean_inc(x_21);
 x_23 = lean_mk_array(x_21, x_22);
@@ -8928,7 +8928,7 @@ _start:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_11 = lean_unsigned_to_nat(0u);
-x_12 = l_Lean_Expr_getAppNumArgsAux(x_5, x_11);
+x_12 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_5, x_11);
 x_13 = l_Std_Range_forIn_loop___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getProduceMotiveAndRecursive___spec__3___lambda__1___closed__1;
 lean_inc(x_12);
 x_14 = lean_mk_array(x_12, x_13);

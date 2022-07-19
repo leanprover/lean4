@@ -107,6 +107,7 @@ lean_object* l_panic___at_Lean_Expr_getRevArg_x21___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Lean_Elab_WF_getCodomainsLevel___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Lean_Elab_WF_post_mkNewArg___spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Lean_Elab_WF_post_mkNewArg___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Lean_Elab_WF_packValues_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_WF_withFixedPrefix___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Lean_Elab_WF_getCodomainsLevel___spec__1___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -149,7 +150,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Le
 lean_object* l_Lean_Meta_Cases_cases(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_withFixedPrefix_go___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_packMutual___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bindingName_x21(lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Lean_Elab_WF_getCodomainsLevel___spec__1___lambda__2___closed__6;
@@ -1812,7 +1812,7 @@ else
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; uint8_t x_51; uint8_t x_52; uint8_t x_53; lean_object* x_54; 
 x_35 = lean_unsigned_to_nat(0u);
-x_36 = l_Lean_Expr_getAppNumArgsAux(x_28, x_35);
+x_36 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_28, x_35);
 x_37 = l___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Lean_Elab_WF_mkNewCoDomain_go___closed__7;
 lean_inc(x_36);
 x_38 = lean_mk_array(x_36, x_37);
@@ -3267,7 +3267,7 @@ x_17 = lean_ctor_get(x_15, 1);
 lean_inc(x_17);
 lean_dec(x_15);
 x_18 = lean_unsigned_to_nat(0u);
-x_19 = l_Lean_Expr_getAppNumArgsAux(x_16, x_18);
+x_19 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_16, x_18);
 x_20 = l___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Lean_Elab_WF_mkNewCoDomain_go___closed__7;
 lean_inc(x_19);
 x_21 = lean_mk_array(x_19, x_20);
@@ -3396,7 +3396,7 @@ lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean
 x_21 = lean_ctor_get(x_18, 0);
 lean_inc(x_21);
 lean_dec(x_18);
-x_22 = l_Lean_Expr_getAppNumArgsAux(x_2, x_17);
+x_22 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_2, x_17);
 x_23 = l___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Lean_Elab_WF_mkNewCoDomain_go___closed__7;
 lean_inc(x_22);
 x_24 = lean_mk_array(x_22, x_23);
@@ -3517,7 +3517,7 @@ _start:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
 x_11 = lean_unsigned_to_nat(0u);
-x_12 = l_Lean_Expr_getAppNumArgsAux(x_5, x_11);
+x_12 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_5, x_11);
 x_13 = lean_unsigned_to_nat(1u);
 x_14 = lean_nat_add(x_1, x_13);
 x_15 = lean_nat_dec_eq(x_12, x_14);

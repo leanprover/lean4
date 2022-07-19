@@ -209,6 +209,7 @@ static lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_mkCustomEliminator___s
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_mkCustomEliminator___spec__18___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_getElimInfo___lambda__2___closed__2;
 lean_object* l_Lean_markUsedAssignment___at___private_Lean_Meta_Basic_0__Lean_Meta_isClassQuick_x3f___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_getCustomEliminator_x3f___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_reprCustomEliminator____x40_Lean_Meta_Tactic_ElimInfo___hyg_1429____spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_getElimInfo___spec__7___boxed(lean_object*, lean_object*, lean_object*);
@@ -322,7 +323,6 @@ LEAN_EXPORT uint8_t l_Array_contains___at_Lean_Meta_addImplicitTargets_collect__
 static lean_object* l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_reprCustomEliminator____x40_Lean_Meta_Tactic_ElimInfo___hyg_1429____closed__6;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_reprElimInfo____x40_Lean_Meta_Tactic_ElimInfo___hyg_122____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_getElimInfo___spec__6___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_ElimInfo___hyg_2150____lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 extern uint8_t l_instInhabitedBool;
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_insertAux_traverse___at_Lean_Meta_addCustomEliminatorEntry___spec__4(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2228,7 +2228,7 @@ _start:
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_30; uint8_t x_46; 
 x_10 = l_Lean_Expr_getAppFn(x_4);
 x_11 = lean_unsigned_to_nat(0u);
-x_12 = l_Lean_Expr_getAppNumArgsAux(x_4, x_11);
+x_12 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_4, x_11);
 x_13 = l_Lean_Meta_getElimInfo___lambda__4___closed__1;
 lean_inc(x_12);
 x_14 = lean_mk_array(x_12, x_13);

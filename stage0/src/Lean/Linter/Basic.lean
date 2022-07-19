@@ -25,12 +25,12 @@ def getLinterUnusedVariables (o : Options) : Bool := o.get linter.unusedVariable
 def getLinterUnusedVariablesFunArgs (o : Options) : Bool := o.get linter.unusedVariables.funArgs.name (getLinterUnusedVariables o)
 def getLinterUnusedVariablesPatternVars (o : Options) : Bool := o.get linter.unusedVariables.patternVars.name (getLinterUnusedVariables o)
 
-def unusedVariables : Linter := fun stx => do
+def unusedVariables : Linter := fun cmdStx => do
   -- NOTE: `messages` is local to the current command
   if (← get).messages.hasErrors then
     return
 
-  let some stxRange := stx.getRange?
+  let some cmdStxRange := cmdStx.getRange?
     | pure ()
 
   let infoTrees := (← get).infoState.trees.toArray
@@ -40,7 +40,7 @@ def unusedVariables : Linter := fun stx => do
     return
 
   -- collect references
-  let refs := findModuleRefs fileMap infoTrees
+  let refs := findModuleRefs fileMap infoTrees (allowSimultaneousBinderUse := true)
 
   let mut vars : HashMap FVarId RefInfo := .empty
   let mut constDecls : HashSet String.Range := .empty
@@ -76,6 +76,7 @@ def unusedVariables : Linter := fun stx => do
 
   -- determine unused variables
   for (id, ⟨decl?, uses⟩) in vars.toList do
+    -- process declaration
     let some decl := decl?
       | continue
     let declStx := skipDeclIdIfPresent decl.stx
@@ -83,43 +84,63 @@ def unusedVariables : Linter := fun stx => do
       | continue
     let some localDecl := decl.info.lctx.find? id
       | continue
-    if !stxRange.contains range.start || localDecl.userName.hasMacroScopes then
+    if !cmdStxRange.contains range.start || localDecl.userName.hasMacroScopes then
       continue
 
+    -- check if variable is used
+    if !uses.isEmpty || tacticFVarUses.contains id || decl.aliases.any (match · with | .fvar id => tacticFVarUses.contains id | _ => false) then
+        continue
+
+    -- check linter options
     let opts := decl.ci.options
     if !getLinterUnusedVariables opts then
       continue
 
-    let mut ignoredPatternFns := #[
+    -- collect ignore functions
+    let mut ignoreFns := #[
       isTopLevelDecl constDecls,
       matchesUnusedPattern,
       isVariable,
       isInStructure,
       isInInductive,
       isInCtorOrStructBinder,
-      isInConstantOrAxiom,
+      isInOpaqueOrAxiom,
       isInDefWithForeignDefinition,
       isInDepArrow
     ]
     if !getLinterUnusedVariablesFunArgs opts then
-      ignoredPatternFns := ignoredPatternFns.append #[
+      ignoreFns := ignoreFns.append #[
         isInLetDeclaration,
         isInDeclarationSignature,
         isInFun
       ]
     if !getLinterUnusedVariablesPatternVars opts then
-      ignoredPatternFns := ignoredPatternFns.append #[
+      ignoreFns := ignoreFns.append #[
         isPatternVar
       ]
 
-    let some stack := findSyntaxStack? stx declStx
-      | continue
-    if ignoredPatternFns.any (· declStx stack) then
+    -- evaluate ignore functions on original syntax
+    if let some stack := findSyntaxStack? cmdStx declStx then
+      if ignoreFns.any (· declStx stack) then
+        continue
+    else
       continue
 
-    if uses.isEmpty && !tacticFVarUses.contains id &&
-        decl.aliases.all (match · with | .fvar id => !tacticFVarUses.contains id | _ => false) then
-      publishMessage s!"unused variable `{localDecl.userName}`" range
+    -- evaluate ignore functions on macro expansion outputs
+    if ← infoTrees.anyM fun tree => do
+      if let some macroExpansions ← collectMacroExpansions? range tree then
+        return macroExpansions.any fun expansion =>
+          if let some stack := findSyntaxStack? expansion.output declStx then
+            ignoreFns.any (· declStx stack)
+          else
+            false
+      else
+        return false
+    then
+      continue
+
+    -- publish warning if variable is unused and not ignored
+    publishMessage s!"unused variable `{localDecl.userName}`" range
 
   return ()
 where
@@ -149,7 +170,7 @@ where
     stackMatches stack [`null, none, `null, ``Lean.Parser.Command.optDeclSig, none] &&
     (stack.get? 4 |>.any fun (stx, _) =>
       [``Lean.Parser.Command.ctor, ``Lean.Parser.Command.structSimpleBinder].any (stx.isOfKind ·))
-  isInConstantOrAxiom (_ : Syntax) (stack : SyntaxStack) :=
+  isInOpaqueOrAxiom (_ : Syntax) (stack : SyntaxStack) :=
     stackMatches stack [`null, none, `null, ``Lean.Parser.Command.declSig, none] &&
     (stack.get? 4 |>.any fun (stx, _) =>
       [``Lean.Parser.Command.opaque, ``Lean.Parser.Command.axiom].any (stx.isOfKind ·))

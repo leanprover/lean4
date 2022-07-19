@@ -118,6 +118,7 @@ uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_hasBadParamDep_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_throwStructuralFailed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___at___private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_hasBadIndexDep_x3f___spec__3(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Structural_findRecArg_go___spec__10___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 static lean_object* l_Lean_Elab_Structural_findRecArg_go___rarg___closed__10;
@@ -167,7 +168,6 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Elab_PreDefi
 static lean_object* l_Lean_addTrace___at_Lean_Elab_Structural_findRecArg_go___spec__12___closed__8;
 static lean_object* l_Lean_addTrace___at_Lean_Elab_Structural_findRecArg_go___spec__12___closed__2;
 lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_indexOfAux___at___private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_getIndexMinPos___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_addTrace___at_Lean_Elab_Structural_findRecArg_go___spec__12___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___at___private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_hasBadIndexDep_x3f___spec__11(lean_object*, lean_object*, lean_object*);
@@ -5375,7 +5375,7 @@ block_210:
 lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_164; lean_object* x_185; uint8_t x_186; 
 lean_dec(x_55);
 x_56 = lean_unsigned_to_nat(0u);
-x_57 = l_Lean_Expr_getAppNumArgsAux(x_22, x_56);
+x_57 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_22, x_56);
 x_58 = l_Lean_Elab_Structural_findRecArg_go___rarg___lambda__3___closed__1;
 lean_inc(x_57);
 x_59 = lean_mk_array(x_57, x_58);
@@ -9335,7 +9335,7 @@ lean_inc(x_24);
 lean_dec(x_19);
 x_25 = lean_nat_add(x_24, x_20);
 lean_dec(x_20);
-x_26 = l_Lean_Expr_getAppNumArgsAux(x_3, x_21);
+x_26 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_3, x_21);
 x_27 = lean_nat_dec_eq(x_25, x_26);
 lean_dec(x_25);
 if (x_27 == 0)
@@ -9514,7 +9514,7 @@ lean_inc(x_64);
 lean_dec(x_58);
 x_65 = lean_nat_add(x_64, x_59);
 lean_dec(x_59);
-x_66 = l_Lean_Expr_getAppNumArgsAux(x_3, x_60);
+x_66 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_3, x_60);
 x_67 = lean_nat_dec_eq(x_65, x_66);
 lean_dec(x_65);
 if (x_67 == 0)

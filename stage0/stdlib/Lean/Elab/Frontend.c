@@ -77,7 +77,7 @@ static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_828____cl
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_828____closed__2;
 lean_object* l_Std_HashMap_ofList___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__5(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profileitM___at_Lean_Elab_Frontend_processCommand___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Server_findModuleRefs(lean_object*, lean_object*, uint8_t);
+lean_object* l_Lean_Server_findModuleRefs(lean_object*, lean_object*, uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_elabCommandAtFrontend___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Parser_isExitCommand(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_getInputContext(lean_object*, lean_object*, lean_object*);
@@ -2368,7 +2368,7 @@ lean_dec(x_16);
 x_25 = l_Std_PersistentArray_toArray___rarg(x_24);
 x_26 = l_Lean_FileMap_ofString(x_5);
 x_27 = 0;
-x_28 = l_Lean_Server_findModuleRefs(x_26, x_25, x_27);
+x_28 = l_Lean_Server_findModuleRefs(x_26, x_25, x_27, x_27);
 lean_dec(x_25);
 x_29 = l_Std_HashMap_toList___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__1(x_28);
 x_30 = lean_box(0);

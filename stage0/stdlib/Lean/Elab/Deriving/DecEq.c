@@ -85,6 +85,7 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_DecEq_mkDecEqEnum___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch___closed__2;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__2___closed__16;
+lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__20(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__2___closed__47;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkDecEqEnum___closed__15;
@@ -115,7 +116,6 @@ static lean_object* l_Lean_Elab_Deriving_DecEq_mkEnumOfNat_mkDecTree___closed__5
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkDecEqHeader___closed__2;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__3___closed__11;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkDecEqHeader___closed__1;
-lean_object* l_Lean_addTrace___at_Lean_Elab_Command_elabCommand___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkEnumOfNat___lambda__1___closed__3;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkDecEqEnum___closed__33;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__1___closed__12;
@@ -125,6 +125,7 @@ static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__1
 lean_object* lean_string_utf8_byte_size(lean_object*);
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkDecEqEnum___closed__5;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__2___closed__30;
+lean_object* l_Lean_addTrace___at_Lean_Elab_Command_elabCommand___spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__2___closed__18;
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Elab_Deriving_DecEq_mkEnumOfNatThm___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -158,7 +159,6 @@ static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__2
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__1___closed__19;
 static lean_object* l_Lean_getConstInfoCtor___at_Lean_Elab_Deriving_DecEq_mkMatch_mkAlts___spec__1___closed__1;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkDecEqEnum___closed__43;
-lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at_Lean_Elab_Command_elabCommand___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkDecEqEnum___closed__32;
 LEAN_EXPORT lean_object* l_Lean_isEnumType___at_Lean_Elab_Deriving_DecEq_mkDecEqInstanceHandler___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__3___closed__9;
@@ -272,7 +272,6 @@ static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__2
 LEAN_EXPORT lean_object* l_Lean_getConstInfoCtor___at_Lean_Elab_Deriving_DecEq_mkMatch_mkAlts___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__1___closed__21;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__2___closed__51;
-lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__16(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__2___closed__46;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_DecEq_mkDecEqEnum(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -310,6 +309,7 @@ static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__3
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkAuxFunction___closed__22;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_DecEq_mkMatch_mkAlts___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__1___closed__25;
+lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at_Lean_Elab_Command_elabCommand___spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_DecEq_mkDecEqEnum___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkDecEqEnum___closed__61;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__2___closed__32;
@@ -6679,7 +6679,7 @@ x_23 = 0;
 x_24 = lean_usize_of_nat(x_15);
 lean_dec(x_15);
 x_25 = lean_box(0);
-x_26 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__16(x_13, x_23, x_24, x_25, x_2, x_3, x_14);
+x_26 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__20(x_13, x_23, x_24, x_25, x_2, x_3, x_14);
 lean_dec(x_13);
 if (lean_obj_tag(x_26) == 0)
 {
@@ -6784,7 +6784,7 @@ x_51 = 0;
 x_52 = lean_usize_of_nat(x_41);
 lean_dec(x_41);
 x_53 = lean_box(0);
-x_54 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__16(x_39, x_51, x_52, x_53, x_2, x_3, x_40);
+x_54 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__20(x_39, x_51, x_52, x_53, x_2, x_3, x_40);
 lean_dec(x_39);
 if (lean_obj_tag(x_54) == 0)
 {
@@ -9236,7 +9236,7 @@ lean_object* x_364; lean_object* x_365; lean_object* x_366; lean_object* x_367; 
 x_364 = lean_ctor_get(x_358, 1);
 lean_inc(x_364);
 lean_dec(x_358);
-x_365 = l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at_Lean_Elab_Command_elabCommand___spec__3(x_345, x_2, x_3, x_364);
+x_365 = l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at_Lean_Elab_Command_elabCommand___spec__7(x_345, x_2, x_3, x_364);
 x_366 = lean_ctor_get(x_365, 0);
 lean_inc(x_366);
 x_367 = lean_ctor_get(x_365, 1);
@@ -9270,7 +9270,7 @@ x_352 = l_Lean_Elab_Deriving_DecEq_mkDecEqCmds___closed__10;
 x_353 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_353, 0, x_351);
 lean_ctor_set(x_353, 1, x_352);
-x_354 = l_Lean_addTrace___at_Lean_Elab_Command_elabCommand___spec__4(x_345, x_353, x_2, x_3, x_347);
+x_354 = l_Lean_addTrace___at_Lean_Elab_Command_elabCommand___spec__8(x_345, x_353, x_2, x_3, x_347);
 x_355 = lean_ctor_get(x_354, 1);
 lean_inc(x_355);
 lean_dec(x_354);

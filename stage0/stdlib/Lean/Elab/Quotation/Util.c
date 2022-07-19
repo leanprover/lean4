@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 uint8_t l_Lean_Syntax_isQuot(lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Elab_Term_addAutoBoundImplicits_go___spec__50(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 uint8_t l_Lean_Syntax_isTokenAntiquot(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -38,7 +39,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_initFn____x40_Lean_Elab_Quot
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_getPatternsVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Elab_Term_Quotation_getPatternVars___closed__6;
-lean_object* l_Lean_throwError___at___private_Lean_Elab_Term_0__Lean_Elab_Term_applyAttributesCore___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_getPatternVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Term_Quotation_getAntiquotationIds___spec__2___closed__10;
 static lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Term_Quotation_getAntiquotationIds___spec__2___closed__11;
@@ -167,7 +167,7 @@ x_11 = lean_ctor_get(x_7, 5);
 x_12 = l_Lean_replaceRef(x_1, x_11);
 lean_dec(x_11);
 lean_ctor_set(x_7, 5, x_12);
-x_13 = l_Lean_throwError___at___private_Lean_Elab_Term_0__Lean_Elab_Term_applyAttributesCore___spec__1(x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+x_13 = l_Lean_throwError___at_Lean_Elab_Term_addAutoBoundImplicits_go___spec__50(x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_7);
 return x_13;
 }
@@ -211,7 +211,7 @@ lean_ctor_set(x_26, 7, x_21);
 lean_ctor_set(x_26, 8, x_22);
 lean_ctor_set(x_26, 9, x_23);
 lean_ctor_set(x_26, 10, x_24);
-x_27 = l_Lean_throwError___at___private_Lean_Elab_Term_0__Lean_Elab_Term_applyAttributesCore___spec__1(x_2, x_3, x_4, x_5, x_6, x_26, x_8, x_9);
+x_27 = l_Lean_throwError___at_Lean_Elab_Term_addAutoBoundImplicits_go___spec__50(x_2, x_3, x_4, x_5, x_6, x_26, x_8, x_9);
 lean_dec(x_26);
 return x_27;
 }

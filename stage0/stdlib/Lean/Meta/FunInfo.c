@@ -75,6 +75,7 @@ lean_object* l_panic___at_Lean_Expr_getRevArg_x21___spec__1(lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__6___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Std_RBNode_insert___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__1(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
+lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_LocalDecl_binderInfo(lean_object*);
 LEAN_EXPORT lean_object* l_Std_RBNode_findCore___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__5___boxed(lean_object*, lean_object*);
@@ -112,7 +113,6 @@ LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_FunInfo
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Meta_FunInfo_0__Lean_Meta_collectDeps_visit___spec__3(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_FunInfo_0__Lean_Meta_collectDeps(lean_object*, lean_object*);
 static lean_object* l_Std_PersistentHashMap_insert___at___private_Lean_Meta_FunInfo_0__Lean_Meta_checkFunInfoCache___spec__4___closed__1;
-lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_le(size_t, size_t);
@@ -5861,7 +5861,7 @@ x_67 = l_Array_isEmpty___rarg(x_66);
 if (x_67 == 0)
 {
 lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; 
-x_68 = l_Lean_Expr_getAppNumArgsAux(x_33, x_16);
+x_68 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_33, x_16);
 x_69 = l_Std_Range_forIn_loop___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__6___closed__2;
 lean_inc(x_68);
 x_70 = lean_mk_array(x_68, x_69);
@@ -6496,7 +6496,7 @@ x_66 = l_Array_isEmpty___rarg(x_65);
 if (x_66 == 0)
 {
 lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; 
-x_67 = l_Lean_Expr_getAppNumArgsAux(x_32, x_15);
+x_67 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_32, x_15);
 x_68 = l_Std_Range_forIn_loop___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__6___closed__2;
 lean_inc(x_67);
 x_69 = lean_mk_array(x_67, x_68);

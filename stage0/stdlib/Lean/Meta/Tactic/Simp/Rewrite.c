@@ -163,6 +163,7 @@ static lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_rewritePost___s
 static lean_object* l___private_Lean_Meta_Tactic_Simp_Rewrite_0__Lean_Meta_Simp_tryTheoremCore_go___lambda__7___closed__2;
 LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_Meta_Simp_tryTheoremWithExtraArgs_x3f___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_synthesizeArgs___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_rewriteUsingDecide_x3f___closed__3;
 lean_object* l_Nat_repr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_synthesizeArgs_synthesizeInstance___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -231,7 +232,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Simp_rewritePost(lean_object*, lean_object*
 static lean_object* l_Lean_Meta_Simp_synthesizeArgs_synthesizeInstance___closed__10;
 lean_object* l_Lean_Meta_trySynthInstance(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 extern uint8_t l_instInhabitedBool;
 lean_object* l_Lean_Meta_Linear_simp_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
@@ -9308,8 +9308,8 @@ lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; uint
 x_37 = lean_ctor_get(x_34, 1);
 x_38 = lean_ctor_get(x_34, 0);
 lean_dec(x_38);
-x_39 = l_Lean_Expr_getAppNumArgsAux(x_32, x_33);
-x_40 = l_Lean_Expr_getAppNumArgsAux(x_1, x_33);
+x_39 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_32, x_33);
+x_40 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_33);
 x_41 = lean_nat_dec_lt(x_39, x_40);
 if (x_41 == 0)
 {
@@ -9349,8 +9349,8 @@ lean_object* x_44; lean_object* x_45; lean_object* x_46; uint8_t x_47;
 x_44 = lean_ctor_get(x_34, 1);
 lean_inc(x_44);
 lean_dec(x_34);
-x_45 = l_Lean_Expr_getAppNumArgsAux(x_32, x_33);
-x_46 = l_Lean_Expr_getAppNumArgsAux(x_1, x_33);
+x_45 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_32, x_33);
+x_46 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_33);
 x_47 = lean_nat_dec_lt(x_45, x_46);
 if (x_47 == 0)
 {
@@ -14649,7 +14649,7 @@ if (x_22 == 0)
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; uint8_t x_33; 
 x_23 = lean_ctor_get(x_13, 0);
 x_24 = lean_unsigned_to_nat(0u);
-x_25 = l_Lean_Expr_getAppNumArgsAux(x_1, x_24);
+x_25 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_24);
 x_26 = l_Lean_Meta_matchMatcherApp_x3f___at_Lean_Meta_Simp_simpMatch_x3f___spec__1___closed__1;
 lean_inc(x_25);
 x_27 = lean_mk_array(x_25, x_26);
@@ -14759,7 +14759,7 @@ x_59 = lean_ctor_get(x_13, 0);
 lean_inc(x_59);
 lean_dec(x_13);
 x_60 = lean_unsigned_to_nat(0u);
-x_61 = l_Lean_Expr_getAppNumArgsAux(x_1, x_60);
+x_61 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_60);
 x_62 = l_Lean_Meta_matchMatcherApp_x3f___at_Lean_Meta_Simp_simpMatch_x3f___spec__1___closed__1;
 lean_inc(x_61);
 x_63 = lean_mk_array(x_61, x_62);
@@ -14882,7 +14882,7 @@ if (lean_is_exclusive(x_13)) {
  x_99 = lean_box(0);
 }
 x_100 = lean_unsigned_to_nat(0u);
-x_101 = l_Lean_Expr_getAppNumArgsAux(x_1, x_100);
+x_101 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_100);
 x_102 = l_Lean_Meta_matchMatcherApp_x3f___at_Lean_Meta_Simp_simpMatch_x3f___spec__1___closed__1;
 lean_inc(x_101);
 x_103 = lean_mk_array(x_101, x_102);

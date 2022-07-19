@@ -496,6 +496,7 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabProjectionApp___l
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabSigmaCore___lambda__3___closed__1;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabMVar___closed__5;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_maybeAddBlockImplicit___closed__9;
+lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__1;
 extern lean_object* l_Lean_PrettyPrinter_Delaborator_delabAttribute;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabForall___lambda__2(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -724,7 +725,6 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabDoElems_prependAn
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PrettyPrinter_Delaborator_hasIdent(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapIdxM_map___at___private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_delabPatterns___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 static lean_object* l_Array_foldrMUnsafe_fold___at_Lean_PrettyPrinter_Delaborator_delabForall___spec__1___closed__1;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabSigmaCore___lambda__1___closed__7;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_withMDatasOptions(lean_object*);
@@ -5667,7 +5667,7 @@ lean_inc(x_10);
 lean_dec(x_8);
 x_11 = l_Lean_Expr_getAppFn(x_9);
 x_12 = lean_unsigned_to_nat(0u);
-x_13 = l_Lean_Expr_getAppNumArgsAux(x_9, x_12);
+x_13 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_9, x_12);
 x_14 = l_Lean_PrettyPrinter_Delaborator_getParamKinds___closed__1;
 lean_inc(x_13);
 x_15 = lean_mk_array(x_13, x_14);
@@ -7397,7 +7397,7 @@ x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec(x_12);
 x_15 = lean_unsigned_to_nat(0u);
-x_16 = l_Lean_Expr_getAppNumArgsAux(x_10, x_15);
+x_16 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_10, x_15);
 x_17 = l_Lean_SubExpr_Pos_pushNaryFn(x_16, x_13);
 lean_dec(x_13);
 lean_dec(x_16);
@@ -7494,7 +7494,7 @@ x_12 = lean_ctor_get(x_10, 1);
 lean_inc(x_12);
 lean_dec(x_10);
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = l_Lean_Expr_getAppNumArgsAux(x_11, x_13);
+x_14 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_11, x_13);
 x_15 = l_Lean_PrettyPrinter_Delaborator_getParamKinds___closed__1;
 lean_inc(x_14);
 x_16 = lean_mk_array(x_14, x_15);
@@ -7851,7 +7851,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_10 = lean_unsigned_to_nat(0u);
-x_11 = l_Lean_Expr_getAppNumArgsAux(x_1, x_10);
+x_11 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_10);
 x_12 = l_Lean_PrettyPrinter_Delaborator_unresolveNameGlobal___lambda__1___closed__1;
 x_13 = lean_unsigned_to_nat(1u);
 lean_inc(x_8);
@@ -9681,7 +9681,7 @@ block_136:
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; 
 x_30 = lean_unsigned_to_nat(0u);
-x_31 = l_Lean_Expr_getAppNumArgsAux(x_11, x_30);
+x_31 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_11, x_30);
 x_32 = l_Lean_PrettyPrinter_Delaborator_getParamKinds___closed__1;
 lean_inc(x_31);
 x_33 = lean_mk_array(x_31, x_32);
@@ -25202,7 +25202,7 @@ _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; 
 x_9 = lean_unsigned_to_nat(0u);
-x_10 = l_Lean_Expr_getAppNumArgsAux(x_1, x_9);
+x_10 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_9);
 x_11 = lean_unsigned_to_nat(5u);
 x_12 = lean_nat_dec_eq(x_10, x_11);
 if (x_12 == 0)
@@ -26334,7 +26334,7 @@ if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; uint8_t x_28; lean_object* x_29; 
 x_23 = lean_unsigned_to_nat(0u);
-x_24 = l_Lean_Expr_getAppNumArgsAux(x_1, x_23);
+x_24 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_23);
 x_25 = lean_ctor_get(x_21, 1);
 lean_inc(x_25);
 lean_dec(x_21);
@@ -27107,7 +27107,7 @@ _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; 
 x_9 = lean_unsigned_to_nat(0u);
-x_10 = l_Lean_Expr_getAppNumArgsAux(x_1, x_9);
+x_10 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_9);
 x_11 = lean_unsigned_to_nat(5u);
 x_12 = lean_nat_dec_eq(x_10, x_11);
 lean_dec(x_10);
@@ -27515,7 +27515,7 @@ _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; 
 x_9 = lean_unsigned_to_nat(0u);
-x_10 = l_Lean_Expr_getAppNumArgsAux(x_1, x_9);
+x_10 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_9);
 x_11 = lean_unsigned_to_nat(4u);
 x_12 = lean_nat_dec_eq(x_10, x_11);
 lean_dec(x_10);
@@ -27928,7 +27928,7 @@ x_12 = lean_ctor_get(x_10, 1);
 lean_inc(x_12);
 lean_dec(x_10);
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = l_Lean_Expr_getAppNumArgsAux(x_11, x_13);
+x_14 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_11, x_13);
 lean_dec(x_11);
 x_15 = lean_unsigned_to_nat(4u);
 x_16 = lean_nat_dec_eq(x_14, x_15);
@@ -28997,7 +28997,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; 
 x_10 = lean_unsigned_to_nat(0u);
-x_11 = l_Lean_Expr_getAppNumArgsAux(x_2, x_10);
+x_11 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_2, x_10);
 x_12 = lean_unsigned_to_nat(2u);
 x_13 = lean_nat_dec_eq(x_11, x_12);
 lean_dec(x_11);
@@ -30257,7 +30257,7 @@ else
 {
 lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; uint8_t x_86; lean_object* x_87; 
 x_77 = lean_unsigned_to_nat(0u);
-x_78 = l_Lean_Expr_getAppNumArgsAux(x_9, x_77);
+x_78 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_9, x_77);
 x_79 = l_Lean_PrettyPrinter_Delaborator_getParamKinds___closed__1;
 lean_inc(x_78);
 x_80 = lean_mk_array(x_78, x_79);

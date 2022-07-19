@@ -459,7 +459,6 @@ static lean_object* l___regBuiltin_Lean_Elab_Command_elabEnd___closed__1;
 lean_object* lean_expr_dbg_to_string(lean_object*);
 static lean_object* l_Lean_Elab_Command_elabEvalUnsafe___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Command_expandInCmd_declRange___closed__6;
-lean_object* l_Lean_Elab_logException___at_Lean_Elab_Command_withLogging___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_BuiltinCommand_0__Lean_Elab_Command_mkRunMetaEval___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabChoice(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabEnd___closed__4;
@@ -715,7 +714,6 @@ static lean_object* l___regBuiltin_Lean_Elab_Command_elabNonComputableSection___
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabNamespace_declRange___closed__7;
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_log___at_Lean_Elab_Command_withLogging___spec__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Command_elabNamespace(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabEvalUnsafe___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -813,6 +811,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabEnd___lambda__1___boxed(lean_ob
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenScoped___at_Lean_Elab_Command_elabOpen___spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_BuiltinCommand_0__Lean_Elab_Command_replaceBinderAnnotation___spec__2___closed__4;
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabEnd_declRange___closed__1;
+lean_object* l_Lean_log___at_Lean_Elab_Command_elabCommand___spec__5(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MonadQuotation_addMacroScope___at_Lean_Elab_Command_elabVariable___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabCheckCore___closed__4;
 static lean_object* l_Lean_Elab_Command_elabEnd___lambda__1___closed__1;
@@ -832,6 +831,7 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Command_elabUniverse(lean_obje
 static lean_object* l_Lean_Elab_Command_elabEvalUnsafe___lambda__8___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabVariable___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_hasNoErrorMessages___boxed(lean_object*);
+lean_object* l_Lean_Elab_logException___at_Lean_Elab_Command_elabCommand___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_indentExpr(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_BuiltinCommand_0__Lean_Elab_Command_addScope___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_BuiltinCommand_0__Lean_Elab_Command_replaceBinderAnnotation___spec__2___lambda__2___closed__6;
@@ -15422,7 +15422,7 @@ lean_inc(x_86);
 lean_dec(x_79);
 lean_inc(x_3);
 lean_inc(x_2);
-x_87 = l_Lean_Elab_logException___at_Lean_Elab_Command_withLogging___spec__1(x_85, x_2, x_3, x_86);
+x_87 = l_Lean_Elab_logException___at_Lean_Elab_Command_elabCommand___spec__3(x_85, x_2, x_3, x_86);
 if (lean_obj_tag(x_87) == 0)
 {
 lean_object* x_88; uint8_t x_89; 
@@ -15477,7 +15477,7 @@ lean_ctor_set(x_99, 0, x_97);
 x_100 = 2;
 lean_inc(x_3);
 lean_inc(x_2);
-x_101 = l_Lean_log___at_Lean_Elab_Command_withLogging___spec__3(x_99, x_100, x_2, x_3, x_98);
+x_101 = l_Lean_log___at_Lean_Elab_Command_elabCommand___spec__5(x_99, x_100, x_2, x_3, x_98);
 x_102 = lean_ctor_get(x_101, 1);
 lean_inc(x_102);
 lean_dec(x_101);
@@ -15531,7 +15531,7 @@ lean_ctor_set(x_114, 0, x_112);
 x_115 = 2;
 lean_inc(x_3);
 lean_inc(x_2);
-x_116 = l_Lean_log___at_Lean_Elab_Command_withLogging___spec__3(x_114, x_115, x_2, x_3, x_113);
+x_116 = l_Lean_log___at_Lean_Elab_Command_elabCommand___spec__5(x_114, x_115, x_2, x_3, x_113);
 x_117 = lean_ctor_get(x_116, 1);
 lean_inc(x_117);
 lean_dec(x_116);
@@ -15803,7 +15803,7 @@ lean_inc(x_192);
 lean_dec(x_185);
 lean_inc(x_3);
 lean_inc(x_2);
-x_193 = l_Lean_Elab_logException___at_Lean_Elab_Command_withLogging___spec__1(x_191, x_2, x_3, x_192);
+x_193 = l_Lean_Elab_logException___at_Lean_Elab_Command_elabCommand___spec__3(x_191, x_2, x_3, x_192);
 if (lean_obj_tag(x_193) == 0)
 {
 lean_object* x_194; uint8_t x_195; 
@@ -15861,7 +15861,7 @@ lean_ctor_set(x_204, 0, x_202);
 x_205 = 2;
 lean_inc(x_3);
 lean_inc(x_2);
-x_206 = l_Lean_log___at_Lean_Elab_Command_withLogging___spec__3(x_204, x_205, x_2, x_3, x_203);
+x_206 = l_Lean_log___at_Lean_Elab_Command_elabCommand___spec__5(x_204, x_205, x_2, x_3, x_203);
 x_207 = lean_ctor_get(x_206, 1);
 lean_inc(x_207);
 lean_dec(x_206);

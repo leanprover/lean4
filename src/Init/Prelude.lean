@@ -864,7 +864,7 @@ instance : Inhabited UInt8 where
   default := UInt8.ofNatCore 0 (by decide)
 
 def UInt16.size : Nat := 65536
-/-- Unsigned, 16-bit integer. -/
+/-- Unsigned 16-bit integer. -/
 structure UInt16 where
   val : Fin UInt16.size
 
@@ -971,7 +971,7 @@ theorem usize_size_eq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073
   | _, Or.inr rfl => Or.inr (by decide)
 
 /-- A USize is an unsigned integer with the size of a word
-for the platform's arctitecture.
+for the platform's architecture.
 
 For example, if running on a 32-bit machine, USize is equivalent to UInt32.
 Or on a 64-bit machine, UInt64.

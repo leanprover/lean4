@@ -318,6 +318,9 @@ instance : ForIn m LocalContext LocalDecl where
 @[inline] def foldr (lctx : LocalContext) (f : LocalDecl → β → β) (init : β) : β :=
   Id.run <| lctx.foldrM f init
 
+def size (lctx : LocalContext) : Nat :=
+  lctx.foldl (fun n _ => n+1) 0
+
 @[inline] def findDecl? (lctx : LocalContext) (f : LocalDecl → Option β) : Option β :=
   Id.run <| lctx.findDeclM? f
 

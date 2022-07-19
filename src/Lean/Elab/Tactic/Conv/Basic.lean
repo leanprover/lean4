@@ -12,6 +12,8 @@ import Lean.Elab.Tactic.BuiltinTactic
 namespace Lean.Elab.Tactic.Conv
 open Meta
 
+/-- Given `lhs`, returns a pair of metavariables `(?rhs, ?newGoal)`
+where `?newGoal : lhs = ?rhs`.-/
 def mkConvGoalFor (lhs : Expr) : MetaM (Expr × Expr) := do
   let lhsType ← inferType lhs
   let rhs ← mkFreshExprMVar lhsType
@@ -25,6 +27,9 @@ def markAsConvGoal (mvarId : MVarId) : MetaM MVarId := do
     return mvarId -- it is already tagged as LHS goal
   replaceTargetDefEq mvarId (mkLHSGoal (← getMVarType mvarId))
 
+/-- Given `lhs`, runs the `conv` tactic with the goal `⊢ lhs = ?rhs`.
+`conv` should produce no remaining goals that are not solvable with refl.
+Returns a pair of instantiated expressions `(?rhs, ?p)` where `?p : lhs = ?rhs`. -/
 def convert (lhs : Expr) (conv : TacticM Unit) : TacticM (Expr × Expr) := do
   let (rhs, newGoal) ← mkConvGoalFor lhs
   let savedGoals ← getGoals

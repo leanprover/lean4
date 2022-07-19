@@ -66,4 +66,21 @@ theorem Iterator.sizeOf_next_lt_of_atEnd (i : String.Iterator) (h : ¬ i.atEnd =
 
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply String.Iterator.sizeOf_next_lt_of_atEnd; assumption)
 
+namespace Iterator
+
+@[specialize] def find (it : Iterator) (p : Char → Bool) : Iterator :=
+  if it.atEnd then it
+  else if p it.curr then it
+  else find it.next p
+
+@[specialize] def foldUntil (it : Iterator) (init : α) (f : α → Char → Option α) : α × Iterator :=
+  if it.atEnd then 
+    (init, it)
+  else if let some a := f init it.curr then 
+    foldUntil it.next a f
+  else
+    (init, it)
+
+end Iterator
+
 end String

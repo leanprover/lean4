@@ -8,7 +8,9 @@ import Lean.Meta.AppBuilder
 
 namespace Lean
 
-abbrev SizeT := Nat 
+abbrev SizeT := UInt64 
+
+def mkHeartbeats (n: Nat): SizeT := UInt64.ofNat n
 
 @[extern "lean_mk_cases_on"] opaque mkCasesOnImp (maxHeartbeats: SizeT) (env : Environment) (declName : @& Name) : Except KernelException Environment
 @[extern "lean_mk_rec_on"] opaque mkRecOnImp (maxHeartbeats: SizeT) (env : Environment) (declName : @& Name) : Except KernelException Environment
@@ -42,7 +44,7 @@ def mkNoConfusionEnum (enumName : Name) : MetaM Unit := do
   else
     -- `noConfusionEnum` was not defined yet, so we use `mkNoConfusionCore`
     let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
-    mkNoConfusionCore maxHeartbeats enumName
+    mkNoConfusionCore (mkHeartbeats maxHeartbeats) enumName
 where
 
   mkToCtorIdx : MetaM Unit := do
@@ -110,7 +112,7 @@ where
       let declValue ← mkLambdaFVars #[P, x, y, h] (← mkAppOptM ``noConfusionEnum #[none, none, none, toCtorIdx, P, x, y, h])
       let declName  := Name.mkStr enumName "noConfusion"
       let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
-      addAndCompile maxHeartbeats <| Declaration.defnDecl {
+      addAndCompile (mkHeartbeats maxHeartbeats) <| Declaration.defnDecl {
         name        := declName
         levelParams := v :: info.levelParams
         type        := declType
@@ -126,6 +128,6 @@ def mkNoConfusion (declName : Name) : MetaM Unit := do
   if (← isEnumType declName) then
     mkNoConfusionEnum declName
   else
-    mkNoConfusionCore maxHeartbeats declName
+    mkNoConfusionCore (mkHeartbeats maxHeartbeats) declName
 
 end Lean

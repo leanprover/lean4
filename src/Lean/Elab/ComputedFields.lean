@@ -79,7 +79,7 @@ def validateComputedFields : M Unit := do
 def mkImplType : M Unit := do
   let {name, isUnsafe, type, ctors, levelParams, numParams, lparams, params, compFieldVars, ..} ← read
   let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
-  addDecl maxHeartbeats <| .inductDecl levelParams numParams
+  addDecl (mkHeartbeats maxHeartbeats) <| .inductDecl levelParams numParams
     (isUnsafe := isUnsafe) -- Note: inlining is disabled with unsafe inductives
     [{ name := name ++ `_impl, type,
        ctors := ← ctors.mapM fun ctor => do
@@ -92,7 +92,7 @@ def overrideCasesOn : M Unit := do
   let {name, numIndices, ctors, lparams, params, compFieldVars, ..} ← read
   let casesOn ← getConstInfoDefn (mkCasesOnName name)
   let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
-  mkCasesOn maxHeartbeats (name ++ `_impl)
+  mkCasesOn (mkHeartbeats maxHeartbeats) (name ++ `_impl)
   let value ←
     forallTelescope (← instantiateForall casesOn.type params) fun xs constMotive => do
       let (indices, major, minors) := (xs[1:numIndices+1].toArray,
@@ -111,7 +111,7 @@ def overrideCasesOn : M Unit := do
             mkLambdaFVars ((if ← isScalarField ctor then #[] else compFieldVars) ++ args)
               (← mkUnsafeCastTo constMotive (mkAppN minor args)))
   let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
-  addDecl maxHeartbeats <| .defnDecl { casesOn with
+  addDecl (mkHeartbeats maxHeartbeats) <| .defnDecl { casesOn with
     name := mkCasesOnName name ++ `_override
     value
     hints := .opaque
@@ -128,7 +128,7 @@ def overrideConstructors : M Unit := do
     let computedFieldVals ← if ← isScalarField ctor then pure #[] else
       compFields.mapM (getComputedFieldValue · ctorTerm)
     let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
-    addDecl maxHeartbeats <| .defnDecl {
+    addDecl (mkHeartbeats maxHeartbeats) <| .defnDecl {
       name := ctor ++ `_override
       levelParams
       type := ← inferType (mkConst ctor lparams)
@@ -146,7 +146,7 @@ def overrideComputedFields : M Unit := do
   for cfn in compFields, cf in compFieldVars do
     let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
     if isExtern (← getEnv) cfn then
-      compileDecls maxHeartbeats [cfn]
+      compileDecls (mkHeartbeats maxHeartbeats) [cfn]
       continue
     let cases ← ctors.toArray.mapM fun ctor => do
       forallTelescope (← inferType (mkAppN (mkConst ctor lparams) params)) fun fields _ => do
@@ -156,7 +156,7 @@ def overrideComputedFields : M Unit := do
       else
         mkLambdaFVars (compFieldVars ++ fields) cf
     let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
-    addDecl maxHeartbeats <| .defnDecl {
+    addDecl (mkHeartbeats maxHeartbeats) <| .defnDecl {
       name := cfn ++ `_override
       levelParams
       type := ← mkForallFVars (params ++ indices ++ #[val]) (← inferType cf)
@@ -208,7 +208,7 @@ def setComputedFields (computedFields : Array (Name × Array Name)) : MetaM Unit
 
   -- Once all the implementedBy infrastructure is set up, compile everything.
   let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
-  compileDecls maxHeartbeats <| computedFields.toList.map fun (indName, _) =>
+  compileDecls (mkHeartbeats maxHeartbeats) <| computedFields.toList.map fun (indName, _) =>
     mkCasesOnName indName ++ `_override
 
   let mut toCompile := #[]
@@ -220,4 +220,4 @@ def setComputedFields (computedFields : Array (Name × Array Name)) : MetaM Unit
       unless isExtern (← getEnv) fieldName do
         toCompile := toCompile.push <| fieldName ++ `_override
   let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
-  compileDecls maxHeartbeats toCompile.toList
+  compileDecls (mkHeartbeats maxHeartbeats) toCompile.toList

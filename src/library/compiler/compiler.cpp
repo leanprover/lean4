@@ -271,8 +271,8 @@ environment compile(environment const & env, options const & opts, names cs) {
     return compile_ir(new_env, opts, ds);
 }
 
-extern "C" LEAN_EXPORT object * lean_compile_decls(object *maxHeartbeats, object * env, object * opts, object * decls) {
-    return catch_kernel_exceptions<environment>(lean_unbox(maxHeartbeats), [&]() {
+extern "C" LEAN_EXPORT object * lean_compile_decls(uint64_t maxHeartbeats, object * env, object * opts, object * decls) {
+    return catch_kernel_exceptions<environment>(maxHeartbeats, [&]() {
             return compile(environment(env), options(opts, true), names(decls, true));
         });
 }

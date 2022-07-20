@@ -188,18 +188,18 @@ private def processAsPattern (p : Problem) : MetaM Problem :=
       match alt.patterns with
       | Pattern.as fvarId p h :: ps =>
         /- We used to use `checkAndReplaceFVarId` here, but `x` and `fvarId` may have different types
-           when dependent types are beind used. Let's consider the repro for issue #471
-           ```
-            inductive vec : Nat → Type
-            | nil : vec 0
-            | cons : Int → vec n → vec n.succ
+          when dependent types are beind used. Let's consider the repro for issue #471
+          ```
+          inductive vec : Nat → Type
+          | nil : vec 0
+          | cons : Int → vec n → vec n.succ
 
-            def vec_len : vec n → Nat
-            | vec.nil => 0
-            | x@(vec.cons h t) => vec_len t + 1
+          def vec_len : vec n → Nat
+          | vec.nil => 0
+          | x@(vec.cons h t) => vec_len t + 1
 
-           ```
-           we reach the state
+          ```
+          we reach the state
           ```
             [Meta.Match.match] remaining variables: [x✝:(vec n✝)]
             alternatives:
@@ -297,7 +297,7 @@ def assign (fvarId : FVarId) (v : Expr) : M Bool := do
         The first step is a variable-transition which replaces `β` with `β✝` in the first and third alternatives.
         The constraint `β✝ === α` in the second alternative is lost. Note that `α` is not an alternative variable.
         After applying the variable-transition step twice, we reach the following state
-        ``lean
+        ```lean
         [Meta.Match.match] remaining variables: [f✝:(Arrow β✝ γ✝), g✝:(Arrow α β✝)]
         alternatives:
           [g:(Arrow α β✝)] |- [(Arrow.id .(β✝)), g] => h_1 β✝ g

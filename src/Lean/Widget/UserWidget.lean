@@ -53,8 +53,8 @@ structure UserWidget where
   deriving Inhabited, ToJson, FromJson
 
 private abbrev WidgetSourceRegistry := SimplePersistentEnvExtension
-    (UInt64 × WidgetSource)
-    (Std.RBMap UInt64 WidgetSource compare)
+    (UInt64 × Name)
+    (Std.RBMap UInt64 Name compare)
 
 -- Mapping widgetSourceId to hash of sourcetext
 builtin_initialize userWidgetRegistry : MapDeclarationExtension UserWidget ← mkMapDeclarationExtension `widgetRegistry
@@ -66,20 +66,25 @@ builtin_initialize widgetSourceRegistry : WidgetSourceRegistry ←
     toArrayFn     := fun es => es.toArray
   }
 
-private unsafe def attributeImplUnsafe : AttributeImpl where
+private unsafe def getUserWidgetDefinitionUnsafe
+  (decl : Name) : CoreM UserWidgetDefinition :=
+  evalConstCheck UserWidgetDefinition ``UserWidgetDefinition decl
+
+@[implementedBy getUserWidgetDefinitionUnsafe]
+private opaque getUserWidgetDefinition
+  (decl : Name) : CoreM UserWidgetDefinition
+
+private def attributeImpl : AttributeImpl where
   name := `widget
   descr := "Mark a string as static code that can be loaded by a widget handler."
   applicationTime := AttributeApplicationTime.afterCompilation
   add decl _stx _kind := do
     let env ← getEnv
-    let defn ← evalConstCheck UserWidgetDefinition ``UserWidgetDefinition decl
+    let defn ← getUserWidgetDefinition decl
     let javascriptHash := hash defn.javascript
     let env := userWidgetRegistry.insert env decl {id := decl, name := defn.name, javascriptHash}
-    let env := widgetSourceRegistry.addEntry env (javascriptHash, {sourcetext := defn.javascript})
+    let env := widgetSourceRegistry.addEntry env (javascriptHash, decl)
     setEnv <| env
-
-@[implementedBy attributeImplUnsafe]
-opaque attributeImpl : AttributeImpl
 
 builtin_initialize registerBuiltinAttribute attributeImpl
 
@@ -90,15 +95,14 @@ structure GetWidgetSourceParams where
   pos : Lean.Lsp.TextDocumentPositionParams
   deriving ToJson, FromJson
 
-open Lean.Server Lean
-
-open RequestM in
+open Lean.Server Lean RequestM in
 @[serverRpcMethod]
 def getWidgetSource (args : GetWidgetSourceParams) : RequestM (RequestTask WidgetSource) :=
   RequestM.withWaitFindSnapAtPos args.pos fun snap => do
     let env := snap.cmdState.env
-    if let some w := widgetSourceRegistry.getState env |>.find? args.hash then
-      return w
+    if let some id := widgetSourceRegistry.getState env |>.find? args.hash then
+      let d ← Lean.Server.RequestM.runCore snap <| getUserWidgetDefinition id
+      return {sourcetext := d.javascript}
     else
       throw <| RequestError.mk .invalidParams s!"No registered user-widget with hash {args.hash}"
 
@@ -133,7 +137,7 @@ structure GetWidgetsResponse where
   widgets : Array UserWidgetInstance
   deriving ToJson, FromJson
 
-open RequestM in
+open Lean Server RequestM in
 /-- Get the `UserWidget`s present at a particular position. -/
 @[serverRpcMethod]
 def getWidgets (args : Lean.Lsp.TextDocumentPositionParams) : RequestM (RequestTask (GetWidgetsResponse)) := do

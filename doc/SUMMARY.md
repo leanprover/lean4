@@ -65,6 +65,7 @@
 - [Frequently Asked Questions](./faq.md)
 - [Significant Changes from Lean 3](./lean3changes.md)
 - [Syntax Highlighting Lean in LaTeX](./syntax_highlight_in_latex.md)
+- [User Widgets](./widgets.md)
 
 # Development
 

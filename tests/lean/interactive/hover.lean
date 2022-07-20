@@ -26,7 +26,7 @@ example : True := by
 
 /-- My way better tactic -/
 macro_rules
-  | `(tactic| mytac $[only]? $e) => `(apply $e)
+  | `(tactic| mytac $[only]? $e) => `(tactic| apply $e)
 
 example : True := by
   mytac only True.intro

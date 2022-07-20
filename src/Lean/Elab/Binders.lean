@@ -71,8 +71,9 @@ def declareTacticSyntax (tactic : Syntax) : TermElabM Name :=
     trace[Elab.autoParam] value
     let decl := Declaration.defnDecl { name, levelParams := [], type, value, hints := .opaque,
                                        safety := DefinitionSafety.safe }
-    addDecl decl
-    compileDecl decl
+    let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+    addDecl maxHeartbeats decl
+    compileDecl maxHeartbeats decl
     return name
 
 /-

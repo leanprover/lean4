@@ -128,10 +128,10 @@ def getConstInfoRec [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m
         | _ => failK ()
       | _ => failK ()
 
-def addDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] [MonadLog m] [AddMessageContext m] (decl : Declaration) : m Unit := do
+def addDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] [MonadLog m] [AddMessageContext m] (maxHeartbeats: SizeT) (decl : Declaration) : m Unit := do
   if !(← MonadLog.hasErrors) && decl.hasSorry then
     logWarning "declaration uses 'sorry'"
-  match (← getEnv).addDecl decl with
+  match (← getEnv).addDecl maxHeartbeats decl with
   | Except.ok    env => setEnv env
   | Except.error ex  => throwKernelException ex
 
@@ -152,8 +152,8 @@ private def checkUnsupported [Monad m] [MonadEnv m] [MonadError m] (decl : Decla
     | some (Expr.const declName ..) => throwError "code generator does not support recursor '{declName}' yet, consider using 'match ... with' and/or structural recursion"
     | _ => pure ()
 
-def compileDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (decl : Declaration) : m Unit := do
-  match (← getEnv).compileDecl (← getOptions) decl with
+def compileDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (maxHeartbeats: SizeT) (decl : Declaration) : m Unit := do
+  match (← getEnv).compileDecl maxHeartbeats (← getOptions) decl with
   | Except.ok env   => setEnv env
   | Except.error (KernelException.other msg) =>
     checkUnsupported decl -- Generate nicer error message for unsupported recursors and axioms
@@ -161,17 +161,17 @@ def compileDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (decl : D
   | Except.error ex =>
     throwKernelException ex
 
-def compileDecls [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (decls : List Name) : m Unit := do
-  match (← getEnv).compileDecls (← getOptions) decls with
+def compileDecls [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (maxHeartbeats: SizeT) (decls : List Name) : m Unit := do
+  match (← getEnv).compileDecls maxHeartbeats (← getOptions) decls with
   | Except.ok env   => setEnv env
   | Except.error (KernelException.other msg) =>
     throwError msg
   | Except.error ex =>
     throwKernelException ex
 
-def addAndCompile [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] [MonadLog m] [AddMessageContext m] (decl : Declaration) : m Unit := do
-  addDecl decl;
-  compileDecl decl
+def addAndCompile [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] [MonadLog m] [AddMessageContext m] (maxHeartbeats: SizeT) (decl : Declaration) : m Unit := do
+  addDecl maxHeartbeats decl;
+  compileDecl maxHeartbeats decl
 
 unsafe def evalConst [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (α) (constName : Name) : m α := do
   ofExcept <| (← getEnv).evalConst α (← getOptions) constName

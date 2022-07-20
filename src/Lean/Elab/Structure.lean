@@ -695,7 +695,8 @@ private opaque mkProjections (maxHeartbeats: SizeT) (env : Environment) (structN
 
 private def addProjections (structName : Name) (projs : List Name) (isClass : Bool) : TermElabM Unit := do
   let env ← getEnv
-  match mkProjections env structName projs isClass with
+  let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+  match mkProjections maxHeartbeats env structName projs isClass with
   | Except.ok env   => setEnv env
   | Except.error ex => throwKernelException ex
 
@@ -727,8 +728,9 @@ private def mkAuxConstructions (declName : Name) : TermElabM Unit := do
   let hasUnit := env.contains `PUnit
   let hasEq   := env.contains `Eq
   let hasHEq  := env.contains `HEq
-  mkRecOn declName
-  if hasUnit then mkCasesOn declName
+  let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+  mkRecOn maxHeartbeats declName
+  if hasUnit then mkCasesOn maxHeartbeats declName
   if hasUnit && hasEq && hasHEq then mkNoConfusion declName
 
 private def addDefaults (lctx : LocalContext) (defaultAuxDecls : Array (Name × Expr × Expr)) : TermElabM Unit := do
@@ -772,7 +774,8 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
       return result
     let declVal ← instantiateMVars (← mkLambdaFVars params (← mkLambdaFVars #[source] (← copyFields parentType)))
     let declName := structName ++ mkToParentName (← getStructureName parentType) fun n => !env.contains (structName ++ n)
-    addAndCompile <| Declaration.defnDecl {
+    let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+    addAndCompile maxHeartbeats <| Declaration.defnDecl {
       name        := declName
       levelParams := levelParams
       type        := declType
@@ -818,7 +821,8 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
         let indType := { name := view.declName, type := type, ctors := [ctor] : InductiveType }
         let decl    := Declaration.inductDecl levelParams params.size [indType] view.modifiers.isUnsafe
         Term.ensureNoUnassignedMVars decl
-        addDecl decl
+        let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+        addDecl maxHeartbeats decl
         let projNames := (fieldInfos.filter fun (info : StructFieldInfo) => !info.isFromParent).toList.map fun (info : StructFieldInfo) => info.declName
         addProjections view.declName projNames view.isClass
         registerStructure view.declName fieldInfos

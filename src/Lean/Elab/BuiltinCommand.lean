@@ -115,7 +115,10 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
   n[1].forArgsM addUnivLevel
 
 @[builtinCommandElab «init_quot»] def elabInitQuot : CommandElab := fun _ => do
-  match (← getEnv).addDecl Declaration.quotDecl with
+  -- FIXME: CommandElabM does not have CoreM?
+  -- let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+  let maxHeartbeats := 0
+  match (← getEnv).addDecl maxHeartbeats Declaration.quotDecl with
   | Except.ok env   => setEnv env
   | Except.error ex => throwError (ex.toMessageData (← getOptions))
 
@@ -321,7 +324,9 @@ unsafe def elabEvalUnsafe : CommandElab
         safety      := DefinitionSafety.unsafe
       }
       Term.ensureNoUnassignedMVars decl
-      addAndCompile decl
+      -- | FIXME: no CoreM here
+      let maxHeartbeats := 0
+      addAndCompile maxHeartbeats decl
     -- Elaborate `term`
     let elabEvalTerm : TermElabM Expr := do
       let e ← Term.elabTerm term none

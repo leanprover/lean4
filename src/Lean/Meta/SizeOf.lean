@@ -138,7 +138,8 @@ partial def mkSizeOfFn (recName : Name) (declName : Name): MetaM Unit := do
         let val := mkAppN val (minors ++ indices ++ #[major])
         trace[Meta.sizeOf] "val: {val}"
         let sizeOfValue ← mkLambdaFVars sizeOfParams val
-        addDecl <| Declaration.defnDecl {
+        let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+        addDecl maxHeartbeats <| Declaration.defnDecl {
           name        := declName
           levelParams := levelParams
           type        := sizeOfType
@@ -366,7 +367,8 @@ mutual
               let thmValue ← mkSizeOfAuxLemmaProof info lhsNew
               let thmValue ← mkLambdaFVars thmParams thmValue
               trace[Meta.sizeOf] "thmValue: {thmValue}"
-              addDecl <| Declaration.thmDecl {
+              let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+              addDecl maxHeartbeats <| Declaration.thmDecl {
                 name        := thmName
                 levelParams := thmLevelParams
                 type        := thmType
@@ -435,7 +437,8 @@ private def mkSizeOfSpecTheorem (indInfo : InductiveVal) (sizeOfFns : Array Name
         mkEqRefl rhs
       let thmValue ← mkLambdaFVars thmParams thmValue
       trace[Meta.sizeOf] "sizeOf spec theorem: {thmName}"
-      addDecl <| Declaration.thmDecl {
+      let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+      addDecl maxHeartbeats <| Declaration.thmDecl {
         name        := thmName
         levelParams := ctorInfo.levelParams
         type        := thmType
@@ -480,7 +483,8 @@ def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
               let instDeclName := indTypeName ++ `_sizeOf_inst
               let instDeclType ← mkForallFVars (xs ++ localInsts) sizeOfIndType
               let instDeclValue ← mkLambdaFVars (xs ++ localInsts) sizeOfMk
-              addDecl <| Declaration.defnDecl {
+              let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+              addDecl maxHeartbeats <| Declaration.defnDecl {
                 name        := instDeclName
                 levelParams := indInfo.levelParams
                 type        := instDeclType

@@ -20,18 +20,18 @@ abbrev SizeT := Nat
 
 variable [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m]
 
-@[inline] private def adaptFn (f : Environment → SizeT → Name → Except KernelException Environment) (maxHeartbeats: SizeT) (declName : Name) : m Unit := do
-  match f (← getEnv) declName with
+@[inline] private def adaptFn (f : SizeT → Environment → Name → Except KernelException Environment) (maxHeartbeats: SizeT) (declName : Name) : m Unit := do
+  match f maxHeartbeats (← getEnv) declName with
   | Except.ok env   => modifyEnv fun _ => env
   | Except.error ex => throwKernelException ex
 
-def mkCasesOn (maxHeartbeats: @&SizeT) (declName : Name) : m Unit := adaptFn mkCasesOnImp declName maxHeartbeats
-def mkRecOn (maxHeartbeats: @&SizeT)  (declName : Name) : m Unit := adaptFn mkRecOnImp declName maxHeartbeats
-def mkNoConfusionCore (maxHeartbeats: @&SizeT) (declName : Name) : m Unit := adaptFn mkNoConfusionCoreImp declName maxHeartbeats
-def mkBelow (maxHeartbeats: @&SizeT) (declName : Name) : m Unit := adaptFn mkBelowImp declName maxHeartbeats
-def mkIBelow (maxHeartbeats: @&SizeT) (declName : Name) : m Unit := adaptFn mkIBelowImp declName maxHeartbeats
-def mkBRecOn (maxHeartbeats: @&SizeT) (declName : Name) : m Unit := adaptFn mkBRecOnImp declName maxHeartbeats
-def mkBInductionOn (maxHeartbeats: @&SizeT) (declName : Name) : m Unit := adaptFn mkBInductionOnImp declName maxHeartbeats
+def mkCasesOn (maxHeartbeats: @&SizeT) (declName : Name) : m Unit := adaptFn mkCasesOnImp maxHeartbeats declName 
+def mkRecOn (maxHeartbeats: @&SizeT)  (declName : Name) : m Unit := adaptFn mkRecOnImp maxHeartbeats declName 
+def mkNoConfusionCore (maxHeartbeats: @&SizeT) (declName : Name) : m Unit := adaptFn mkNoConfusionCoreImp maxHeartbeats declName 
+def mkBelow (maxHeartbeats: @&SizeT) (declName : Name) : m Unit := adaptFn mkBelowImp maxHeartbeats declName 
+def mkIBelow (maxHeartbeats: @&SizeT) (declName : Name) : m Unit := adaptFn mkIBelowImp maxHeartbeats declName 
+def mkBRecOn (maxHeartbeats: @&SizeT) (declName : Name) : m Unit := adaptFn mkBRecOnImp maxHeartbeats declName 
+def mkBInductionOn (maxHeartbeats: @&SizeT) (declName : Name) : m Unit := adaptFn mkBInductionOnImp maxHeartbeats declName 
 open Meta
 
 def mkNoConfusionEnum (enumName : Name) : MetaM Unit := do
@@ -41,7 +41,8 @@ def mkNoConfusionEnum (enumName : Name) : MetaM Unit := do
     mkNoConfusion
   else
     -- `noConfusionEnum` was not defined yet, so we use `mkNoConfusionCore`
-    mkNoConfusionCore enumName
+    let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+    mkNoConfusionCore maxHeartbeats enumName
 where
 
   mkToCtorIdx : MetaM Unit := do
@@ -58,7 +59,8 @@ where
     withLocalDeclD `x enumType fun x => do
       let motive ← mkLambdaFVars #[x] natType
       let declValue ← mkLambdaFVars #[x] <| mkAppN (mkApp2 (mkConst (mkCasesOnName enumName) (levelOne::us)) motive x) minors
-      addAndCompile <| Declaration.defnDecl {
+      let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+      addAndCompile maxHeartbeats <| Declaration.defnDecl {
         name        := declName
         levelParams := info.levelParams
         type        := declType
@@ -81,7 +83,8 @@ where
       let declType  ← mkForallFVars #[P, x, y] sortV
       let declValue ← mkLambdaFVars #[P, x, y] (← mkAppM ``noConfusionTypeEnum #[toCtorIdx, P, x, y])
       let declName  := Name.mkStr enumName "noConfusionType"
-      addAndCompile <| Declaration.defnDecl {
+      let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+      addAndCompile maxHeartbeats <| Declaration.defnDecl {
         name        := declName
         levelParams := v :: info.levelParams
         type        := declType
@@ -106,7 +109,8 @@ where
       let declType  ← mkForallFVars #[P, x, y, h] (mkApp3 noConfusionType P x y)
       let declValue ← mkLambdaFVars #[P, x, y, h] (← mkAppOptM ``noConfusionEnum #[none, none, none, toCtorIdx, P, x, y, h])
       let declName  := Name.mkStr enumName "noConfusion"
-      addAndCompile <| Declaration.defnDecl {
+      let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+      addAndCompile maxHeartbeats <| Declaration.defnDecl {
         name        := declName
         levelParams := v :: info.levelParams
         type        := declType
@@ -118,9 +122,10 @@ where
       modifyEnv fun env => markNoConfusion env declName
 
 def mkNoConfusion (declName : Name) : MetaM Unit := do
+  let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
   if (← isEnumType declName) then
     mkNoConfusionEnum declName
   else
-    mkNoConfusionCore declName
+    mkNoConfusionCore maxHeartbeats declName
 
 end Lean

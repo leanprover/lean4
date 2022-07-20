@@ -125,7 +125,8 @@ partial def mkEnumOfNat (declName : Name) : MetaM Unit := do
         mkApp4 cond enumType (mkApp2 (mkConst ``Nat.ble) (mkRawNatLit mid) n) highBranch lowBranch
     let value ← mkLambdaFVars #[n] (mkDecTree 0 ctors.size)
     let type ← mkArrow (mkConst ``Nat) enumType
-    addAndCompile <| Declaration.defnDecl {
+    let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+    addAndCompile maxHeartbeats <| Declaration.defnDecl {
       name := Name.mkStr declName "ofNat"
       levelParams := []
       safety := DefinitionSafety.safe
@@ -150,7 +151,8 @@ def mkEnumOfNatThm (declName : Name) : MetaM Unit := do
       value := mkApp value (mkApp rflEnum (mkConst ctor))
     value ← mkLambdaFVars #[x] value
     let type ← mkForallFVars #[x] resultType
-    addAndCompile <| Declaration.thmDecl {
+    let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+    addAndCompile maxHeartbeats <| Declaration.thmDecl {
       name := Name.mkStr declName "ofNat_toCtorIdx"
       levelParams := []
       value, type

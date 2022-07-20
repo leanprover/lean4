@@ -76,15 +76,18 @@ def abstractNestedProofs (preDef : PreDefinition) : MetaM PreDefinition :=
 
 /- Auxiliary method for (temporarily) adding pre definition as an axiom -/
 def addAsAxiom (preDef : PreDefinition) : MetaM Unit := do
+  let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
   withRef preDef.ref do
-    addDecl <| Declaration.axiomDecl { name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, isUnsafe := preDef.modifiers.isUnsafe }
+    let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+    addDecl maxHeartbeats <| Declaration.axiomDecl { name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, isUnsafe := preDef.modifiers.isUnsafe }
 
 private def shouldGenCodeFor (preDef : PreDefinition) : Bool :=
   !preDef.kind.isTheorem && !preDef.modifiers.isNoncomputable
 
 private def compileDecl (decl : Declaration) : TermElabM Bool := do
+  let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
   try
-    Lean.compileDecl decl
+    Lean.compileDecl maxHeartbeats decl
   catch ex =>
     if (← read).isNoncomputableSection then
       return false
@@ -118,7 +121,8 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List N
           hints := ReducibilityHints.regular (getMaxHeight (← getEnv) preDef.value + 1)
           safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe,
           all }
-    addDecl decl
+    let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+    addDecl maxHeartbeats decl
     withSaveInfoContext do  -- save new env
       addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
@@ -157,7 +161,8 @@ def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSaf
         hints       := ReducibilityHints.opaque
         safety, all
       }
-    addDecl decl
+    let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+    addDecl maxHeartbeats decl
     withSaveInfoContext do  -- save new env
       for preDef in preDefs do
         addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)

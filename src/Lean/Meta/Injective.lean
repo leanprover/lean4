@@ -102,7 +102,8 @@ private def mkInjectiveTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
     | return ()
   let value ← mkInjectiveTheoremValue ctorVal.name type
   let name := mkInjectiveTheoremNameFor ctorVal.name
-  addDecl <| Declaration.thmDecl {
+  let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+  addDecl maxHeartbeats <| Declaration.thmDecl {
     name
     levelParams := ctorVal.levelParams
     type        := (← instantiateMVars type)
@@ -133,7 +134,8 @@ private def mkInjectiveEqTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
     | return ()
   let value ← mkInjectiveEqTheoremValue ctorVal.name type
   let name := mkInjectiveEqTheoremNameFor ctorVal.name
-  addDecl <| Declaration.thmDecl {
+  let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+  addDecl maxHeartbeats <| Declaration.thmDecl {
     name
     levelParams := ctorVal.levelParams
     type        := (← instantiateMVars type)

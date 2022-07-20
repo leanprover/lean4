@@ -112,7 +112,8 @@ def registerRpcProcedure (method : Name) : CoreM Unit := do
     let stx ← ``(wrapRpcProcedure $(quote method) _ _ $(mkIdent method))
     let c ← Lean.Elab.Term.elabTerm stx procT
     instantiateMVars c
-  addAndCompile <| Declaration.defnDecl {
+  let maxHeartbeats := (<- read).maxHeartbeats
+  addAndCompile maxHeartbeats <| Declaration.defnDecl {
         name        := wrappedName
         type        := procT
         value       := proc

@@ -103,12 +103,13 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
       }
       trace[Elab.axiom] "{declName} : {type}"
       Term.ensureNoUnassignedMVars decl
-      addDecl decl
+      let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+      addDecl maxHeartbeats decl
       withSaveInfoContext do  -- save new env
         Term.addTermInfo' declId (← mkConstWithLevelParams declName) (isBinder := true)
       Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterTypeChecking
       if isExtern (← getEnv) declName then
-        compileDecl decl
+        compileDecl maxHeartbeats decl
       Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterCompilation
 
 /-

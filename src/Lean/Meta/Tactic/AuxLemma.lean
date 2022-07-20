@@ -26,9 +26,11 @@ builtin_initialize auxLemmasExt : EnvExtension AuxLemmas ← registerEnvExtensio
 def mkAuxLemma (levelParams : List Name) (type : Expr) (value : Expr) : MetaM Name := do
   let env ← getEnv
   let s := auxLemmasExt.getState env
+  -- let maxHeartbeats : Core.Context ← hoist read
+  let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
   let mkNewAuxLemma := do
     let auxName := Name.mkNum (env.mainModule ++ `_auxLemma) s.idx
-    addDecl <| Declaration.thmDecl {
+    addDecl maxHeartbeats <| Declaration.thmDecl {
       name := auxName
       levelParams, type, value
     }

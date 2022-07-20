@@ -101,7 +101,8 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
           type := ty, value := value, hints := ReducibilityHints.opaque, safety := DefinitionSafety.safe
         }
         let env ← getEnv
-        let env ← match env.addAndCompile {} decl with
+        let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+        let env ← match env.addAndCompile maxHeartbeats {} decl with
           | Except.ok    env => pure env
           | Except.error kex => do throwError (← (kex.toMessageData {}).toString)
         setEnv <| ctx.combinatorAttr.setDeclFor env c c'

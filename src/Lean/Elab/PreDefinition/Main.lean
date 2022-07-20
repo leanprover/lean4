@@ -86,7 +86,9 @@ private def addAsAxioms (preDefs : Array PreDefinition) : TermElabM Unit := do
       type        := preDef.type,
       isUnsafe    := preDef.modifiers.isUnsafe
     }
-    addDecl decl
+
+    let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+    addDecl maxHeartbeats decl
     withSaveInfoContext do  -- save new env
       addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking

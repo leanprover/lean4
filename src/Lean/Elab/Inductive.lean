@@ -634,6 +634,7 @@ private def replaceIndFVarsWithConsts (views : Array InductiveView) (indFVars : 
     return { indType with ctors }
 
 private def mkAuxConstructions (views : Array InductiveView) : TermElabM Unit := do
+  let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
   let env ← getEnv
   let hasEq   := env.contains ``Eq
   let hasHEq  := env.contains ``HEq
@@ -641,15 +642,15 @@ private def mkAuxConstructions (views : Array InductiveView) : TermElabM Unit :=
   let hasProd := env.contains ``Prod
   for view in views do
     let n := view.declName
-    mkRecOn n
-    if hasUnit then mkCasesOn n
+    mkRecOn maxHeartbeats n
+    if hasUnit then mkCasesOn maxHeartbeats n
     if hasUnit && hasEq && hasHEq then mkNoConfusion n
-    if hasUnit && hasProd then mkBelow n
-    if hasUnit && hasProd then mkIBelow n
+    if hasUnit && hasProd then mkBelow maxHeartbeats n
+    if hasUnit && hasProd then mkIBelow maxHeartbeats n
   for view in views do
     let n := view.declName;
-    if hasUnit && hasProd then mkBRecOn n
-    if hasUnit && hasProd then mkBInductionOn n
+    if hasUnit && hasProd then mkBRecOn maxHeartbeats n
+    if hasUnit && hasProd then mkBInductionOn maxHeartbeats n
 
 private def getArity (indType : InductiveType) : MetaM Nat :=
   forallTelescopeReducing indType.type fun xs _ => return xs.size
@@ -784,7 +785,8 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
           let indTypes ← replaceIndFVarsWithConsts views indFVars levelParams numVars numParams indTypes
           let decl := Declaration.inductDecl levelParams numParams indTypes isUnsafe
           Term.ensureNoUnassignedMVars decl
-          addDecl decl
+          let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+          addDecl maxHeartbeats decl
           mkAuxConstructions views
     withSaveInfoContext do  -- save new env
       for view in views do

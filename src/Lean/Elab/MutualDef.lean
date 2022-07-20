@@ -701,7 +701,8 @@ def processDefDeriving (className : Name) (declName : Name) : TermElabM Bool := 
     let instTypeNew := mkApp result.instType.appFn! (Lean.mkConst declName (info.levelParams.map mkLevelParam))
     Meta.check instTypeNew
     let instName ← liftMacroM <| mkUnusedBaseName (declName.appendBefore "inst" |>.appendAfter className.getString!)
-    addAndCompile <| Declaration.defnDecl {
+    let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+    addAndCompile maxHeartbeats <| Declaration.defnDecl {
       name        := instName
       levelParams := info.levelParams
       type        := (← instantiateMVars instTypeNew)

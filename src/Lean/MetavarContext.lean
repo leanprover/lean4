@@ -257,7 +257,7 @@ structure MetavarDecl where
   lctx           : LocalContext
   type           : Expr
   depth          : Nat /--
-    The nesting depth of this metavariable. We do not want a
+    The nesting depth of this metavariable. We do not want
     unification subproblems to influence the results of parent
     problems. The depth keeps track of this information and ensures
     that unification subproblems cannot leak information out, by unifying

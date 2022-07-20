@@ -27,13 +27,14 @@ variable [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m]
   | Except.ok env   => modifyEnv fun _ => env
   | Except.error ex => throwKernelException ex
 
-def mkCasesOn (maxHeartbeats: @&SizeT) (declName : Name) : m Unit := adaptFn mkCasesOnImp maxHeartbeats declName 
-def mkRecOn (maxHeartbeats: @&SizeT)  (declName : Name) : m Unit := adaptFn mkRecOnImp maxHeartbeats declName 
-def mkNoConfusionCore (maxHeartbeats: @&SizeT) (declName : Name) : m Unit := adaptFn mkNoConfusionCoreImp maxHeartbeats declName 
-def mkBelow (maxHeartbeats: @&SizeT) (declName : Name) : m Unit := adaptFn mkBelowImp maxHeartbeats declName 
-def mkIBelow (maxHeartbeats: @&SizeT) (declName : Name) : m Unit := adaptFn mkIBelowImp maxHeartbeats declName 
-def mkBRecOn (maxHeartbeats: @&SizeT) (declName : Name) : m Unit := adaptFn mkBRecOnImp maxHeartbeats declName 
-def mkBInductionOn (maxHeartbeats: @&SizeT) (declName : Name) : m Unit := adaptFn mkBInductionOnImp maxHeartbeats declName 
+def mkCasesOn (maxHeartbeats: SizeT) (declName : Name) : m Unit := adaptFn mkCasesOnImp maxHeartbeats declName 
+def mkRecOn (maxHeartbeats: SizeT)  (declName : Name) : m Unit := adaptFn mkRecOnImp maxHeartbeats declName 
+def mkNoConfusionCore (maxHeartbeats: SizeT) (declName : Name) : m Unit := adaptFn mkNoConfusionCoreImp maxHeartbeats declName 
+def mkBelow (maxHeartbeats: SizeT) (declName : Name) : m Unit := adaptFn mkBelowImp maxHeartbeats declName 
+def mkIBelow (maxHeartbeats: SizeT) (declName : Name) : m Unit := adaptFn mkIBelowImp maxHeartbeats declName 
+def mkBRecOn (maxHeartbeats: SizeT) (declName : Name) : m Unit := adaptFn mkBRecOnImp maxHeartbeats declName 
+def mkBInductionOn (maxHeartbeats: SizeT) (declName : Name) : m Unit := adaptFn mkBInductionOnImp maxHeartbeats declName 
+
 open Meta
 
 def mkNoConfusionEnum (enumName : Name) : MetaM Unit := do

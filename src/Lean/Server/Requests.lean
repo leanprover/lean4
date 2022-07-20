@@ -134,6 +134,25 @@ def withWaitFindSnapAtPos
     (notFoundX := throw <| RequestError.mk .invalidParams s!"no snapshot found at {lspPos}")
     f
 
+open Lean Elab Command in
+/-- Use the command state in the given snapshot to run a `CommandElabM`.-/
+def runCommand (snap : Snapshots.Snapshot) (c : CommandElabM α) : RequestM α := do
+  let r ← read
+  let ctx : Command.Context := {
+    fileName := r.doc.meta.uri,
+    fileMap := r.doc.meta.text,
+    tacticCache? := snap.tacticCache,
+  }
+  let ea ← c.run ctx |>.run snap.cmdState |> EIO.toIO'
+  match ea with
+  | Except.ok (a, _s) => return a
+  | Except.error ex => do
+    throw <| RequestError.internalError <|← ex.toMessageData.toString
+
+/-- Run a `CoreM` using the data in the given snapshot.-/
+def runCore (snap : Snapshots.Snapshot) (c : CoreM α) : RequestM α :=
+  runCommand snap <| Lean.Elab.Command.liftCoreM c
+
 end RequestM
 
 /-! # The global request handlers table -/

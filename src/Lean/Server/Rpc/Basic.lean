@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
-import Lean.Data.Lsp.Extra
+import Lean.Data.Json
+import Std.Dynamic
 
 /-! Allows LSP clients to make Remote Procedure Calls to the server.
 
@@ -15,98 +16,113 @@ For example, the client can format an `Expr` without transporting the whole `Env
 All RPC requests are relative to an open file and an RPC session for that file. The client must
 first connect to the session using `$/lean/rpc/connect`. -/
 
+namespace Lean.Lsp
+
+/-- An object which RPC clients can refer to without marshalling. -/
+structure RpcRef where
+  /- NOTE(WN): It is important for this to be a single-field structure
+  in order to deserialize as an `Object` on the JS side. -/
+  p : USize
+  deriving BEq, Hashable, FromJson, ToJson
+
+instance : ToString RpcRef where
+  toString r := toString r.p
+
+end Lean.Lsp
+
 namespace Lean.Server
+open Std
 
-/-- Monads with an RPC session in their state. -/
-class MonadRpcSession (m : Type → Type) where
-  rpcStoreRef (typeName : Name) (obj : NonScalar) : m Lsp.RpcRef
-  rpcGetRef (r : Lsp.RpcRef) : m (Option (Name × NonScalar))
-  rpcReleaseRef (r : Lsp.RpcRef) : m Bool
-export MonadRpcSession (rpcStoreRef rpcGetRef rpcReleaseRef)
+structure RpcObjectStore : Type where
+  /-- Objects that are being kept alive for the RPC client, together with their type names,
+  mapped to by their RPC reference.
 
-instance {m n : Type → Type} [MonadLift m n] [MonadRpcSession m] : MonadRpcSession n where
-  rpcStoreRef typeName obj := liftM (rpcStoreRef typeName obj : m _)
-  rpcGetRef r              := liftM (rpcGetRef r : m _)
-  rpcReleaseRef r          := liftM (rpcReleaseRef r : m _)
+  Note that we may currently have multiple references to the same object. It is only disposed
+  of once all of those are gone. This simplifies the client a bit as it can drop every reference
+  received separately. -/
+  aliveRefs : Std.PersistentHashMap Lsp.RpcRef Dynamic := {}
+  /-- Value to use for the next `RpcRef`. It is monotonically increasing to avoid any possible
+  bugs resulting from its reuse. -/
+  nextRef   : USize := 0
 
-set_option linter.unusedVariables false in
-def RpcEncodable (α : Type) : Type := default
-def RpcEncodable.rpcEncode := 0
-def RpcEncodable.rpcDecode := 0
+def rpcStoreRef (any : Dynamic) : StateM RpcObjectStore Lsp.RpcRef := do
+  let st ← get
+  set { st with
+    aliveRefs := st.aliveRefs.insert ⟨st.nextRef⟩ any
+    nextRef := st.nextRef + 1
+  }
+  return ⟨st.nextRef⟩
 
-/-- `RpcEncoding α β` means that `α` may participate in RPC calls with its on-the-wire LSP encoding
-being `β`. This is useful when `α` contains fields which must be marshalled in a special way. In
-particular, we encode `WithRpcRef` fields as opaque references rather than send their content.
+def rpcGetRef (r : Lsp.RpcRef) : ReaderT RpcObjectStore Id (Option Dynamic) :=
+  return (← read).aliveRefs.find? r
 
-Structures with `From/ToJson` use JSON as their `RpcEncoding`. Structures containing
-non-JSON-serializable fields can be auto-encoded in two ways:
-- `deriving RpcEncoding` acts like `From/ToJson` but marshalls any `WithRpcRef` fields
+def rpcReleaseRef (r : Lsp.RpcRef) : StateM RpcObjectStore Bool := do
+  let st ← get
+  if st.aliveRefs.contains r then
+    set { st with aliveRefs := st.aliveRefs.erase r }
+    return true
+  else
+    return false
+
+/--
+`RpcEncodable α` means that `α` can be serialized in the RPC system of the Lean server.
+This is required when `α` contains fields which should be serialized as an RPC reference
+instead of being sent in full.
+The type wrapper `WithRpcRef` is used for these fields which should be sent as
+a reference.
+
+- Any type with `FromJson` and `ToJson` instance is automatically `RpcEncodable`.
+- If a type has an `Std.Dynamic` instance, then `WithRpcRef` can be used for its references.
+- `deriving RpcEncodable` acts like `FromJson`/`ToJson` but marshalls any `WithRpcRef` fields
   as `Lsp.RpcRef`s.
-- `deriving RpcEncoding with { withRef := true }` generates an encoding for
-  `WithRpcRef TheType`. -/
--- TODO(WN): for Lean.js, have third parameter defining the client-side structure;
--- or, compile `WithRpcRef` to "opaque reference" on the client
-class RpcEncoding (α : Type) (β : outParam Type) where
-  rpcEncode {m : Type → Type} [Monad m] [MonadRpcSession m] : α → ExceptT String m β
-  rpcDecode {m : Type → Type} [Monad m] [MonadRpcSession m] : β → ExceptT String m α
-export RpcEncoding (rpcEncode rpcDecode)
+-/
+-- TODO(WN): for Lean.js, compile `WithRpcRef` to "opaque reference" on the client
+class RpcEncodable (α : Type) where
+  rpcEncode : α → StateM RpcObjectStore Json
+  rpcDecode : Json → ExceptT String (ReaderT RpcObjectStore Id) α
+export RpcEncodable (rpcEncode rpcDecode)
 
-instance : Nonempty (RpcEncoding α β) :=
-  ⟨{ rpcEncode := fun _ => throw "unreachable", rpcDecode := fun _ => throw "unreachable" }⟩
+instance : Nonempty (RpcEncodable α) :=
+  ⟨{ rpcEncode := default, rpcDecode := default }⟩
 
-instance [FromJson α] [ToJson α] : RpcEncoding α α where
-  rpcEncode := pure
-  rpcDecode := pure
+instance [FromJson α] [ToJson α] : RpcEncodable α where
+  rpcEncode a := return toJson a
+  rpcDecode j := ofExcept (fromJson? j)
 
-instance [RpcEncoding α β] : RpcEncoding (Option α) (Option β) where
-  rpcEncode v := match v with
-    | none => pure none
-    | some v => some <$> rpcEncode v
-  rpcDecode v := match v with
-    | none => pure none
-    | some v => some <$> rpcDecode v
+instance [RpcEncodable α] : RpcEncodable (Option α) where
+  rpcEncode v := toJson <$> v.mapM rpcEncode
+  rpcDecode j := do Option.mapM rpcDecode (← fromJson? j)
 
--- TODO(WN): instance [RpcEncoding α β] [Traversable t] : RpcEncoding (t α) (t β)
-instance [RpcEncoding α β] : RpcEncoding (Array α) (Array β) where
-  rpcEncode a := a.mapM rpcEncode
-  rpcDecode b := b.mapM rpcDecode
+-- TODO(WN): instance [RpcEncodable α β] [Traversable t] : RpcEncodable (t α) (t β)
 
-instance [RpcEncoding α α'] [RpcEncoding β β'] : RpcEncoding (α × β) (α' × β') where
-  rpcEncode := fun (a, b) => do
-    let a' ← rpcEncode a
-    let b' ← rpcEncode b
-    return (a', b')
-  rpcDecode := fun (a', b') => do
-    let a ← rpcDecode a'
-    let b ← rpcDecode b'
-    return (a, b)
+instance [RpcEncodable α] : RpcEncodable (Array α) where
+  rpcEncode a := toJson <$> a.mapM rpcEncode
+  rpcDecode b := do Array.mapM rpcDecode (← fromJson? b)
 
-structure RpcEncoding.DerivingParams where
-  withRef : Bool := false
+instance [RpcEncodable α] [RpcEncodable β] : RpcEncodable (α × β) where
+  rpcEncode := fun (a, b) => return toJson (← rpcEncode a, ← rpcEncode b)
+  rpcDecode j := do
+    let (a, b) ← fromJson? j
+    return (← rpcDecode a, ← rpcDecode b)
 
 /-- Marks fields to encode as opaque references in LSP packets. -/
 structure WithRpcRef (α : Type u) where
   val : α
   deriving Inhabited
 
-namespace WithRpcRef
+instance [TypeName α] : RpcEncodable (WithRpcRef α) :=
+  { rpcEncode, rpcDecode }
+where
+  -- separate definitions to prevent inlining
+  rpcEncode r := toJson <$> rpcStoreRef (.mk r.val)
+  rpcDecode j := do
+    let r ← fromJson? j
+    match (← rpcGetRef r) with
+      | none => throw s!"RPC reference '{r}' is not valid"
+      | some any =>
+        if let some obj := any.get? α then
+          return ⟨obj⟩
+        else
+          throw s!"RPC call type mismatch in reference '{r}'\nexpected '{TypeName.typeName α}', got '{any.typeName}'"
 
-variable {m : Type → Type} [Monad m] [MonadRpcSession m]
-
-/-- This is unsafe because we must ensure that:
-- the stored `NonScalar` is never used to access the value as a type other than `α`
-- the type `α` is not a scalar -/
-protected unsafe def encodeUnsafe [Monad m] (typeName : Name) (r : WithRpcRef α) : m Lsp.RpcRef := do
-  let obj := @unsafeCast α NonScalar r.val
-  rpcStoreRef typeName obj
-
-protected unsafe def decodeUnsafeAs (α) (typeName : Name) (r : Lsp.RpcRef) : ExceptT String m (WithRpcRef α) := do
-  match (← rpcGetRef r) with
-    | none => throw s!"RPC reference '{r}' is not valid"
-    | some (nm, obj) =>
-      if nm != typeName then
-        throw s!"RPC call type mismatch in reference '{r}'\nexpected '{typeName}', got '{nm}'"
-      return WithRpcRef.mk <| @unsafeCast NonScalar α obj
-
-end WithRpcRef
 end Lean.Server

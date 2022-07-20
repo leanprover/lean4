@@ -42,8 +42,15 @@ unsafe def ptrAddrUnsafe {α : Type u} (a : @& α) : USize := 0
 @[inline] unsafe def withPtrAddrUnsafe {α : Type u} {β : Type v} (a : α) (k : USize → β) (h : ∀ u₁ u₂, k u₁ = k u₂) : β :=
   k (ptrAddrUnsafe a)
 
+@[inline] unsafe def ptrEq (a b : α) : Bool := ptrAddrUnsafe a == ptrAddrUnsafe b
+
+unsafe def ptrEqList : (as bs : List α) → Bool
+  | [], [] => true
+  | a::as, b::bs => if ptrEq a b then ptrEqList as bs else false
+  | _, _ => false
+
 @[inline] unsafe def withPtrEqUnsafe {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
-  if ptrAddrUnsafe a == ptrAddrUnsafe b then true else k ()
+  if ptrEq a b then true else k ()
 
 @[implementedBy withPtrEqUnsafe]
 def withPtrEq {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () = true) : Bool := k ()

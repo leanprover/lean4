@@ -242,14 +242,10 @@ def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId
   match stx with
   | `(tactic| rename $typeStx:term => $h:ident) => do
     withMainContext do
-      /- Remark: we must not use `withoutModifyingState` because we may miss errors message.
-         For example, suppose the following `elabTerm` logs an error during elaboration.
-         In this scenario, the term `type` contains a synthetic `sorry`, and the error
-         message `"failed to find ..."` is not logged by the outer loop.
-         By using `withoutModifyingStateWithInfoAndMessages`, we ensure that
-         the messages and the info trees are preserved while the rest of the
-         state is backtracked. -/
-      let fvarId ← withoutModifyingStateWithInfoAndMessages <| withNewMCtxDepth do
+      /- Remark: we also use `withoutRecover` to make sure `elabTerm` does not succeed
+         using `sorryAx`, and we get `"failed to find ..."` which will not be logged because
+         it contains synthetic sorry's -/
+      let fvarId ← withoutModifyingState <| withNewMCtxDepth <| withoutRecover do
         let type ← elabTerm typeStx none (mayPostpone := true)
         let fvarId? ← (← getLCtx).findDeclRevM? fun localDecl => do
           if (← isDefEq type localDecl.type) then return localDecl.fvarId else return none

@@ -60,7 +60,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeI
 LEAN_EXPORT lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solve(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solveSelfMax(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addTrace___at_Lean_Meta_processPostponed_loop___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_level_mk_max_simp(lean_object*, lean_object*);
+lean_object* l_Lean_mkLevelMax_x27(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_mkMaxArgsDiff___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwIsDefEqStuck___rarg(lean_object*);
 lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
@@ -224,7 +224,7 @@ lean_dec(x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; 
-x_10 = lean_level_mk_max_simp(x_3, x_2);
+x_10 = l_Lean_mkLevelMax_x27(x_3, x_2);
 return x_10;
 }
 else
@@ -236,7 +236,7 @@ return x_3;
 default: 
 {
 lean_object* x_11; 
-x_11 = lean_level_mk_max_simp(x_3, x_2);
+x_11 = l_Lean_mkLevelMax_x27(x_3, x_2);
 return x_11;
 }
 }

@@ -82,8 +82,18 @@ def wrapRpcProcedure (method : Name) paramType respType
     RequestM.mapTask t fun
       | Except.error e => throw e
       | Except.ok ret => do
-        let act := rpcEncode (α := respType) (β := respLspType) (m := StateM FileWorker.RpcSession) ret
-        return toJson (← seshRef.modifyGet act.run)⟩
+        let act : StateM FileWorker.RpcSession (Except String respLspType) := do
+          let s ← get
+          match ← rpcEncode (α := respType) (β := respLspType) (m := StateM FileWorker.RpcSession) ret with
+            | .ok x => return .ok x
+            | .error e => set s; return .error e
+        match ← seshRef.modifyGet act.run with
+          | .ok x => return toJson x
+          | .error e =>
+            throwThe RequestError {
+              code := JsonRpc.ErrorCode.invalidParams
+              message := s!"Cannot encode result of RPC call '{method}'\n{e}"
+            }⟩
 
 def registerBuiltinRpcProcedure (method : Name) paramType respType
     {paramLspType} [RpcEncoding paramType paramLspType] [FromJson paramLspType]

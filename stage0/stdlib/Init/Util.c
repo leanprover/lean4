@@ -41,6 +41,7 @@ lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at___aux__Init__Notation______ma
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Util______macroRules__term_____x5b___x5d___x3f__1___closed__2;
+LEAN_EXPORT uint8_t l_ptrEqList___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_withPtrEqDecEq___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 static lean_object* l___aux__Init__Util______macroRules__term_____x5b___x5d___x3f__1___closed__9;
@@ -103,13 +104,18 @@ static lean_object* l_getElem_x21___rarg___closed__4;
 LEAN_EXPORT lean_object* l_panicWithPos(lean_object*);
 LEAN_EXPORT lean_object* l_panicWithPosWithDecl(lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Util______macroRules__term_____x5b___x5d___x21__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ptrEqList(lean_object*);
+LEAN_EXPORT lean_object* l_ptrEq(lean_object*);
 LEAN_EXPORT lean_object* l_panicWithPosWithDecl___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ptrEqList___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_panic___rarg(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Util______macroRules__term_____x5b___x5d___x3f__1___closed__7;
 static lean_object* l_term_____x5b___x5d___x3f___closed__19;
 LEAN_EXPORT lean_object* l_getElem_x3f___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl___closed__1;
+LEAN_EXPORT uint8_t l_ptrEq___rarg(lean_object*, lean_object*);
 static lean_object* l_term_____x5b___x5d___x3f___closed__14;
+LEAN_EXPORT lean_object* l_ptrEq___rarg___boxed(lean_object*, lean_object*);
 static lean_object* l_term_____x5b___x5d___x3f___closed__22;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_getElem_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -380,6 +386,106 @@ lean_dec(x_1);
 return x_4;
 }
 }
+LEAN_EXPORT uint8_t l_ptrEq___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+size_t x_3; size_t x_4; uint8_t x_5; 
+x_3 = lean_ptr_addr(x_1);
+x_4 = lean_ptr_addr(x_2);
+x_5 = lean_usize_dec_eq(x_3, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_ptrEq(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_ptrEq___rarg___boxed), 2, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_ptrEq___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_ptrEq___rarg(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT uint8_t l_ptrEqList___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+if (lean_obj_tag(x_2) == 0)
+{
+uint8_t x_3; 
+x_3 = 1;
+return x_3;
+}
+else
+{
+uint8_t x_4; 
+x_4 = 0;
+return x_4;
+}
+}
+else
+{
+if (lean_obj_tag(x_2) == 0)
+{
+uint8_t x_5; 
+x_5 = 0;
+return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; uint8_t x_12; 
+x_6 = lean_ctor_get(x_1, 0);
+x_7 = lean_ctor_get(x_1, 1);
+x_8 = lean_ctor_get(x_2, 0);
+x_9 = lean_ctor_get(x_2, 1);
+x_10 = lean_ptr_addr(x_6);
+x_11 = lean_ptr_addr(x_8);
+x_12 = lean_usize_dec_eq(x_10, x_11);
+if (x_12 == 0)
+{
+uint8_t x_13; 
+x_13 = 0;
+return x_13;
+}
+else
+{
+x_1 = x_7;
+x_2 = x_9;
+goto _start;
+}
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_ptrEqList(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_ptrEqList___rarg___boxed), 2, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_ptrEqList___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_ptrEqList___rarg(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_withPtrEqUnsafe___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -494,7 +600,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_getElem_x21___rarg___closed__1;
 x_2 = l_getElem_x21___rarg___closed__2;
-x_3 = lean_unsigned_to_nat(62u);
+x_3 = lean_unsigned_to_nat(69u);
 x_4 = lean_unsigned_to_nat(36u);
 x_5 = l_getElem_x21___rarg___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

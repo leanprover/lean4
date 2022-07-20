@@ -83,22 +83,6 @@ def parseNextCmd (inputCtx : Parser.InputContext) (snap : Snapshot) : IO Syntax 
     Parser.parseCommand inputCtx pmctx snap.mpState snap.msgLog
   return cmdStx
 
-/--
-  Parse remaining file without elaboration. NOTE that doing so can lead to parse errors or even wrong syntax objects,
-  so it should only be done for reporting preliminary results! -/
-partial def parseAhead (inputCtx : Parser.InputContext) (snap : Snapshot) : IO (Array Syntax) := do
-  let cmdState := snap.cmdState
-  let scope := cmdState.scopes.head!
-  let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
-  go inputCtx pmctx snap.mpState #[]
-  where
-    go inputCtx pmctx cmdParserState stxs := do
-      let (cmdStx, cmdParserState, _) := Parser.parseCommand inputCtx pmctx cmdParserState snap.msgLog
-      if Parser.isEOI cmdStx || Parser.isExitCommand cmdStx then
-        return stxs.push cmdStx
-      else
-        go inputCtx pmctx cmdParserState (stxs.push cmdStx)
-
 register_builtin_option server.stderrAsMessages : Bool := {
   defValue := true
   group    := "server"

@@ -131,68 +131,85 @@ def mkInitialTacticInfo (stx : Syntax) : TacticM (TacticM Info) := do
   withInfoContext x (← mkInitialTacticInfo stx)
 
 /-
-Important: we must define `evalTacticUsing` and `expandTacticMacroFns` before we define
+Important: we must define `evalTactic` before we define
 the instance `MonadExcept` for `TacticM` since it backtracks the state including error messages,
 and this is bad when rethrowing the exception at the `catch` block in these methods.
 We marked these places with a `(*)` in these methods.
 -/
 
-private def evalTacticUsing (s : SavedState) (stx : Syntax) (tactics : List (KeyedDeclsAttribute.AttributeEntry Tactic)) : TacticM Unit := do
-  let rec loop
-    | []              => throwErrorAt stx "unexpected syntax {indentD stx}"
-    | evalFn::evalFns => do
-      try
-        withReader ({ · with elaborator := evalFn.declName }) <| withTacticInfoContext stx <| evalFn.value stx
-      catch
-      | ex@(.error ..) =>
-        match evalFns with
-        | []      => throw ex -- (*)
-        | evalFns => s.restore; loop evalFns
-      | ex@(.internal id _) =>
+/--
+  Auxiliary datastructure for capturing exceptions at `evalTactic`.
+-/
+inductive EvalTacticFailure where
+  | /-- Exceptions ≠ AbortException -/ 
+    exception (ex : Exception)
+  | /-- 
+      `abort` exceptions are used when exceptions have already been logged at the message Log.
+      Thus, we save the whole state here to make sure we don't lose them.
+    -/ 
+    abort (s : SavedState)
+
+partial def evalTactic (stx : Syntax) : TacticM Unit :=
+  withRef stx <| withIncRecDepth <| withFreshMacroScope <| match stx with
+    | .node _ k _    =>
+      if k == nullKind then
+        -- Macro writers create a sequence of tactics `t₁ ... tₙ` using `mkNullNode #[t₁, ..., tₙ]`
+        stx.getArgs.forM evalTactic
+      else do
+        trace[Elab.step] "{stx}"
+        let evalFns := tacticElabAttribute.getEntries (← getEnv) stx.getKind
+        let macros  := macroAttribute.getEntries (← getEnv) stx.getKind
+        if evalFns.isEmpty && macros.isEmpty then
+          throwErrorAt stx "tactic '{stx.getKind}' has not been implemented"
+        let s ← Tactic.saveState
+        expandEval s macros evalFns #[]
+    | .missing => pure ()
+    | _ => throwError m!"unexpected tactic{indentD stx}"
+where 
+   throwExs (failures : Array EvalTacticFailure) : TacticM Unit := do
+     let exs := failures.filterMap fun | .abort _ => none | .exception ex => some ex
+     if exs.isEmpty then
+       if let some (.abort s) := failures.find? fun | .abort _ => true | _ => false then
+         s.restore
+         throwAbortTactic
+       else
+         throwErrorAt stx "unexpected syntax {indentD stx}" 
+     else if h : 0 < exs.size then
+       throw exs[0] -- (*)
+     else
+       withRef stx do throwErrorWithNestedErrors "tactic failed" exs -- (*)
+
+    @[inline] handleEx (s : SavedState) (failures : Array EvalTacticFailure) (ex : Exception) (k : Array EvalTacticFailure → TacticM Unit) := do
+      match ex with
+      | .error .. => s.restore; k (failures.push (.exception ex))
+      | .internal id _ =>
         if id == unsupportedSyntaxExceptionId then
-          s.restore; loop evalFns
+          -- We do not store `unsupportedSyntaxExceptionId`, see throwExs
+          s.restore; k failures
+        else if id == abortTacticExceptionId then
+          let failures := failures.push (.abort (← Tactic.saveState))
+          s.restore; k failures
         else
-          throw ex
-  loop tactics
+          throw ex -- (*)
 
-mutual
-
-  partial def expandTacticMacroFns (s : SavedState) (stx : Syntax) (macros : List (KeyedDeclsAttribute.AttributeEntry Macro)) : TacticM Unit :=
-    let rec loop
-      | []    => throwErrorAt stx "tactic '{stx.getKind}' has not been implemented"
-      | m::ms => do
+    expandEval (s : SavedState) (macros : List _) (evalFns : List _) (failures : Array EvalTacticFailure) : TacticM Unit := 
+      match macros with 
+      | [] => eval s evalFns failures
+      | m :: ms =>
         try
           withReader ({ · with elaborator := m.declName }) do
             withTacticInfoContext stx do
               let stx' ← adaptMacro m.value stx
               evalTactic stx'
-        catch ex =>
-          if ms.isEmpty then throw ex -- (*)
-          s.restore; loop ms
-    loop macros
+        catch ex => handleEx s failures ex (expandEval s ms evalFns)
 
-  partial def expandTacticMacro (s : SavedState) (stx : Syntax) : TacticM Unit := do
-    expandTacticMacroFns s stx (macroAttribute.getEntries (← getEnv) stx.getKind)
-
-  partial def evalTacticAux (stx : Syntax) : TacticM Unit :=
-    withRef stx <| withIncRecDepth <| withFreshMacroScope <| match stx with
-      | .node _ k _    =>
-        if k == nullKind then
-          -- Macro writers create a sequence of tactics `t₁ ... tₙ` using `mkNullNode #[t₁, ..., tₙ]`
-          stx.getArgs.forM evalTactic
-        else do
-          trace[Elab.step] "{stx}"
-          let s ← Tactic.saveState
-          match tacticElabAttribute.getEntries (← getEnv) stx.getKind with
-          | []      => expandTacticMacro s stx
-          | evalFns => evalTacticUsing s stx evalFns
-      | .missing => pure ()
-      | _ => throwError m!"unexpected tactic{indentD stx}"
-
-  partial def evalTactic (stx : Syntax) : TacticM Unit :=
-    evalTacticAux stx
-
-end
+    eval (s : SavedState) (evalFns : List _) (failures : Array EvalTacticFailure) : TacticM Unit := do
+      match evalFns with
+      | []              => throwExs failures
+      | evalFn::evalFns => do
+        try
+          withReader ({ · with elaborator := evalFn.declName }) <| withTacticInfoContext stx <| evalFn.value stx
+        catch ex => handleEx s failures ex (eval s evalFns)
 
 def throwNoGoalsToBeSolved : TacticM α :=
   throwError "no goals to be solved"

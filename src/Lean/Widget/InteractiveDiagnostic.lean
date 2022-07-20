@@ -15,14 +15,14 @@ inductive MsgEmbed where
   | expr : CodeWithInfos → MsgEmbed
   | goal : InteractiveGoal → MsgEmbed
   | lazyTrace : Nat → Name → WithRpcRef MessageData → MsgEmbed
-  deriving Inhabited, RpcEncoding
+  deriving Inhabited, RpcEncodable
 
 /-- We embed objects in LSP diagnostics by storing them in the tag of an empty subtree (`text ""`).
 In other words, we terminate the `MsgEmbed`-tagged tree at embedded objects and instead store
 the pretty-printed embed (which can itself be a `TaggedText`) in the tag. -/
 abbrev InteractiveDiagnostic := Lsp.DiagnosticWith (TaggedText MsgEmbed)
 
-deriving instance RpcEncoding for Lsp.DiagnosticWith
+deriving instance RpcEncodable for Lsp.DiagnosticWith
 
 namespace InteractiveDiagnostic
 open MsgEmbed

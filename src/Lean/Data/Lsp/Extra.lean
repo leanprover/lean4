@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 import Lean.Data.Lsp.Basic
+import Lean.Server.Rpc.Basic
 
 /-! This file contains Lean-specific extensions to LSP. See the structures below for which
 additional requests and notifications are supported. -/
@@ -86,16 +87,6 @@ structure PlainTermGoal where
   goal : String
   range : Range
   deriving FromJson, ToJson
-
-/-- An object which RPC clients can refer to without marshalling. -/
-structure RpcRef where
-  /- NOTE(WN): It is important for this to be a single-field structure
-  in order to deserialize as an `Object` on the JS side. -/
-  p : USize
-  deriving BEq, Hashable, FromJson, ToJson
-
-instance : ToString RpcRef where
-  toString r := toString r.p
 
 /-- `$/lean/rpc/connect` client->server request.
 

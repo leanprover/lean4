@@ -1,29 +1,27 @@
-instRpcEncodingWithRpcRefFooRefRpcRef : RpcEncoding (WithRpcRef FooRef) Lsp.RpcRef
+instTypeNameFooRef : Std.TypeName FooRef
 ok: {"p": "0"}
-instRpcEncodingBar : RpcEncoding Bar RpcEncodingPacket✝
+instRpcEncodableBar : RpcEncodable Bar
 ok: {"fooRef": {"p": "0"}, "fooJson": {"s": ""}}
-instRpcEncodingBarTrans : RpcEncoding BarTrans RpcEncodingPacket✝
+instRpcEncodableBarTrans : RpcEncodable BarTrans
 ok: {"bar": {"fooRef": {"p": "0"}, "fooJson": {"s": ""}}}
-instRpcEncodingBaz : RpcEncoding Baz RpcEncodingPacket✝
+instRpcEncodableBaz : RpcEncodable Baz
 ok: {"arr": []}
-instRpcEncodingFooGeneric : (α αPacket : Type) →
-  [inst : RpcEncoding α αPacket] → RpcEncoding (FooGeneric α) (RpcEncodingPacket✝ αPacket)
+@instRpcEncodableFooGeneric : {α : Type} → [inst : RpcEncodable α] → RpcEncodable (FooGeneric α)
 ok: {"a": 0}
 ok: {"b": 42, "a": 3}
-instRpcEncodingBazInductive : RpcEncoding BazInductive RpcEncodingPacket✝
+instRpcEncodableBazInductive : RpcEncodable BazInductive
 ok: {"baz":
  {"arr":
   [{"fooRef": {"p": "0"}, "fooJson": {"s": ""}},
    {"fooRef": {"p": "1"}, "fooJson": {"s": ""}}]}}
-instRpcEncodingFooInductive : (α αPacket : Type) →
-  [inst : RpcEncoding α αPacket] → RpcEncoding (FooInductive α) (RpcEncodingPacket✝ αPacket)
+@instRpcEncodableFooInductive : {α : Type} → [inst : RpcEncodable α] → RpcEncodable (FooInductive α)
 ok: {"a": [{"baz": {"arr": []}}, {"p": "0"}]}
 ok: {"b": {"n": 42, "m": 0, "a": {"baz": {"arr": []}}}}
 ok: {"a": [{"baz": {"arr": []}}, [{"a": [{"baz": {"arr": []}}, []]}]]}
-instRpcEncodingFooParam : (n : Nat) → RpcEncoding (FooParam n) RpcEncodingPacket✝
+@instRpcEncodableFooParam : {n : Nat} → RpcEncodable (FooParam n)
 ok: {"a": 42}
-instRpcEncodingUnused : (α : Type) → RpcEncoding (Unused α) RpcEncodingPacket✝
+@instRpcEncodableUnused : {α : Type} → RpcEncodable (Unused α)
 ok: "a"
-instRpcEncodingUnusedStruct : (α : Type) → RpcEncoding (UnusedStruct α) RpcEncodingPacket✝
+@instRpcEncodableUnusedStruct : {α : Type} → RpcEncodable (UnusedStruct α)
 ok: {}
 Except.error "no inductive constructor matched"

@@ -201,7 +201,7 @@ def Declaration.isUnsafeInductiveDeclEx : Declaration → Bool
 structure InductiveVal extends ConstantVal where
   /-- Number of parameters. A parameter is an argument to the defined type that is fixed over constructors.  
   An example of this is the `α : Type` argument in the vector constructors
-  `nil: Vector α  0` and `cons : α → Vector α n → Vector α (n+1)`.
+  `nil : Vector α 0` and `cons : α → Vector α n → Vector α (n+1)`.
 
   The intuition is that the inductive type must exhibit _parametric polymorphism_ over the inductive
   parameter, as opposed to _ad-hoc polymorphism_.

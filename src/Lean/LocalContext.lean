@@ -15,7 +15,14 @@ Each declaration comes with
 - `fvarId` the unique id of the free variables
 - `userName` the pretty-printable name of the variable
 - `type` the type.
-A `cdecl` is a local variable, a `ldecl` is a let-bound free variable with a `value : Expr`.
+A `cdecl` is a local variable (the `c` stands for 'c'onstant declaration for legacy reasons) with no value,
+and an `ldecl` is a let-bound free variable with a `value : Expr`.
+
+The flag `nonDep` on an `ldecl` tracks whether `let x := v; b` is equivalent to `(fun x => b) v`.
+This is always equal if the let-binding is non-dependent. An example where these are inequivalent is
+the case where
+`let n : Nat := 2; fun (a : Array Nat n) (b : Array Nat 2) => a = b` is type correct, but
+`(fun (n : Nat) (a : Array Nat n) (b : Array Nat 2) => a = b) 2` is not.
 -/
 inductive LocalDecl where
   | cdecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo)
@@ -104,9 +111,11 @@ end LocalDecl
 
 open Std (PersistentHashMap PersistentArray PArray)
 
-/-- A LocalContext is an ordered set of local variable declarations.
-It is used to store the free variables (also known as local constants) that
-are in scope.
+/-- A LocalContext is an ordered set of local variable declarations,
+where the order is maintained by the `decls` array. The array has `Option LocalDecl`
+entries, since we erase local declarations by setting the array index to `.none`.
+
+The LocalContext is used to store the free variables (also known as local constants) that are in scope.
 
 When inspecting a goal or expected type in the infoview, the local
 context is all of the variables above the `⊢` symbol.

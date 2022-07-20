@@ -2,7 +2,13 @@
  "position": {"line": 2, "character": 10}}
 {"items":
  [{"label": "False", "kind": 22, "detail": "Prop"},
-  {"label": "Fin", "kind": 22, "detail": "Nat → Type"},
+  {"label": "Fin",
+   "kind": 22,
+   "documentation":
+   {"value":
+    "`Fin n` is a natural number `i` with the constraint that `0 ≤ i < n`. ",
+    "kind": "markdown"},
+   "detail": "Nat → Type"},
   {"label": "Float", "kind": 22, "detail": "Type"},
   {"label": "FloatArray", "kind": 22, "detail": "Type"},
   {"label": "FloatSpec", "kind": 22, "detail": "Type 1"},

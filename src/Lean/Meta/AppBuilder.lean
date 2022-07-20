@@ -102,6 +102,7 @@ def mkEqTrans (h₁ h₂ : Expr) : MetaM Expr := do
     | none, _ => throwAppBuilderException ``Eq.trans ("equality proof expected" ++ hasTypeMsg h₁ hType₁)
     | _, none => throwAppBuilderException ``Eq.trans ("equality proof expected" ++ hasTypeMsg h₂ hType₂)
 
+/-- Given `HEq a b`, makes `HEq b a`.  -/
 def mkHEqSymm (h : Expr) : MetaM Expr := do
   if h.isAppOf ``HEq.refl then
     return h
@@ -114,6 +115,7 @@ def mkHEqSymm (h : Expr) : MetaM Expr := do
     | none =>
       throwAppBuilderException ``HEq.symm ("heterogeneous equality proof expected" ++ hasTypeMsg h hType)
 
+/-- Given `HEq a b`, `HEq b c`, makes `HEq a c`. -/
 def mkHEqTrans (h₁ h₂ : Expr) : MetaM Expr := do
   if h₁.isAppOf ``HEq.refl then
     return h₂
@@ -129,6 +131,7 @@ def mkHEqTrans (h₁ h₂ : Expr) : MetaM Expr := do
     | none, _ => throwAppBuilderException ``HEq.trans ("heterogeneous equality proof expected" ++ hasTypeMsg h₁ hType₁)
     | _, none => throwAppBuilderException ``HEq.trans ("heterogeneous equality proof expected" ++ hasTypeMsg h₂ hType₂)
 
+/-- Given `Eq a b`, makes `HEq a b`. -/
 def mkEqOfHEq (h : Expr) : MetaM Expr := do
   let hType ← infer h
   match hType.heq? with
@@ -140,6 +143,7 @@ def mkEqOfHEq (h : Expr) : MetaM Expr := do
   | _ =>
     throwAppBuilderException ``HEq.trans m!"heterogeneous equality proof expected{indentExpr h}"
 
+/-- Given `f : α → β` and `h : a = b`, makes `f a = f b`.-/
 def mkCongrArg (f h : Expr) : MetaM Expr := do
   if h.isAppOf ``Eq.refl then
     mkEqRefl (mkApp f h.appArg!)
@@ -154,6 +158,7 @@ def mkCongrArg (f h : Expr) : MetaM Expr := do
     | none, _ => throwAppBuilderException ``congrArg ("non-dependent function expected" ++ hasTypeMsg f fType)
     | _, none => throwAppBuilderException ``congrArg ("equality proof expected" ++ hasTypeMsg h hType)
 
+/-- Given `h : f = g` and `a : α`, makes `f a = g a`.-/
 def mkCongrFun (h a : Expr) : MetaM Expr := do
   if h.isAppOf ``Eq.refl then
     mkEqRefl (mkApp h.appArg! a)
@@ -171,6 +176,7 @@ def mkCongrFun (h a : Expr) : MetaM Expr := do
       | _ => throwAppBuilderException ``congrFun ("equality proof between functions expected" ++ hasTypeMsg h hType)
     | _ => throwAppBuilderException ``congrFun ("equality proof expected" ++ hasTypeMsg h hType)
 
+/-- Given `f = g` and `a = b`, makes `f a = g b`. -/
 def mkCongr (h₁ h₂ : Expr) : MetaM Expr := do
   if h₁.isAppOf ``Eq.refl then
     mkCongrArg h₁.appArg! h₂
@@ -369,6 +375,7 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
       let u ← getLevel target
       return mkAppN (mkConst (Name.mkStr v.name "noConfusion") (u :: us)) (α.getAppArgs ++ #[target, a, b, h])
 
+/-- Given a `monad` and `e : α`, makes `pure e`.-/
 def mkPure (monad : Expr) (e : Expr) : MetaM Expr :=
   mkAppOptM ``Pure.pure #[monad, none, none, e]
 

@@ -107,7 +107,7 @@ open Lean Elab
 /--
   Try to retrieve the `UserWidgetInfo` at a particular position.
 -/
-def widgetInfoAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos) : List UserWidgetInfo :=
+def widgetInfosAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos) : List UserWidgetInfo :=
   t.deepestNodes fun
     | _ctx, i@(Info.ofUserWidgetInfo wi), _cs => do
       if let (some pos, some tailPos) := (i.pos?, i.tailPos?) then
@@ -142,7 +142,7 @@ def getWidgets (args : Lean.Lsp.TextDocumentPositionParams) : RequestM (RequestT
   let pos := filemap.lspPosToUtf8Pos args.position
   withWaitFindSnapAtPos args fun snap => do
     let env := snap.env
-    let ws := widgetInfoAt? filemap snap.infoTree pos
+    let ws := widgetInfosAt? filemap snap.infoTree pos
     let ws ← ws.toArray.mapM (fun (w : UserWidgetInfo) => do
       let some widget := userWidgetRegistry.find? env w.widgetId
         | throw <| RequestError.mk .invalidParams s!"No registered user-widget with id {w.widgetId}"

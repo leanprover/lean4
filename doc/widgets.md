@@ -1,7 +1,7 @@
 # The user-widgets system
 
 Proving is an inherently interactive task. Lots of mathematical objects that we use are visual in nature.
-The user-widget system lets users associate React components with the lean document which are then rendered in the Lean VSCode infoview.
+The user-widget system lets users associate React components with the Lean document which are then rendered in the Lean VSCode infoview.
 
 There is nothing about the RPC calls presented here that make the user-widgets system
 dependent on JavaScript. However the primary use case is the web-based infoview in VSCode.

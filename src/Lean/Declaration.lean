@@ -220,7 +220,7 @@ structure InductiveVal extends ConstantVal where
   isRec : Bool
   /-- Whether the definition is flagged as unsafe. -/
   isUnsafe : Bool
-  /-- An of inductive type called reflexive if it has at least one constructor that takes as an argument a function returning the
+  /-- An inductive type is called reflexive if it has at least one constructor that takes as an argument a function returning the
   same type we are defining.
   Consider the type: 
   ```

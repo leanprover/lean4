@@ -8,29 +8,30 @@ import Lean.Meta.AppBuilder
 
 namespace Lean
 
-@[extern "lean_mk_cases_on"] opaque mkCasesOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_rec_on"] opaque mkRecOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_no_confusion"] opaque mkNoConfusionCoreImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_below"] opaque mkBelowImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_ibelow"] opaque mkIBelowImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_brec_on"] opaque mkBRecOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_binduction_on"] opaque mkBInductionOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
+abbrev SizeT := Nat 
+
+@[extern "lean_mk_cases_on"] opaque mkCasesOnImp (maxHeartbeats: SizeT) (env : Environment) (declName : @& Name) : Except KernelException Environment
+@[extern "lean_mk_rec_on"] opaque mkRecOnImp (maxHeartbeats: SizeT) (env : Environment) (declName : @& Name) : Except KernelException Environment
+@[extern "lean_mk_no_confusion"] opaque mkNoConfusionCoreImp (maxHeartbeats: SizeT) (env : Environment) (declName : @& Name) : Except KernelException Environment
+@[extern "lean_mk_below"] opaque mkBelowImp (maxHeartbeats: SizeT) (env : Environment) (declName : @& Name) : Except KernelException Environment
+@[extern "lean_mk_ibelow"] opaque mkIBelowImp (maxHeartbeats: SizeT) (env : Environment) (declName : @& Name) : Except KernelException Environment
+@[extern "lean_mk_brec_on"] opaque mkBRecOnImp (maxHeartbeats: SizeT) (env : Environment) (declName : @& Name) : Except KernelException Environment
+@[extern "lean_mk_binduction_on"] opaque mkBInductionOnImp (maxHeartbeats: SizeT) (env : Environment) (declName : @& Name) : Except KernelException Environment
 
 variable [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m]
 
-@[inline] private def adaptFn (f : Environment → Name → Except KernelException Environment) (declName : Name) : m Unit := do
+@[inline] private def adaptFn (f : Environment → SizeT → Name → Except KernelException Environment) (maxHeartbeats: SizeT) (declName : Name) : m Unit := do
   match f (← getEnv) declName with
   | Except.ok env   => modifyEnv fun _ => env
   | Except.error ex => throwKernelException ex
 
-def mkCasesOn (declName : Name) : m Unit := adaptFn mkCasesOnImp declName
-def mkRecOn (declName : Name) : m Unit := adaptFn mkRecOnImp declName
-def mkNoConfusionCore (declName : Name) : m Unit := adaptFn mkNoConfusionCoreImp declName
-def mkBelow (declName : Name) : m Unit := adaptFn mkBelowImp declName
-def mkIBelow (declName : Name) : m Unit := adaptFn mkIBelowImp declName
-def mkBRecOn (declName : Name) : m Unit := adaptFn mkBRecOnImp declName
-def mkBInductionOn (declName : Name) : m Unit := adaptFn mkBInductionOnImp declName
-
+def mkCasesOn (maxHeartbeats: @&SizeT) (declName : Name) : m Unit := adaptFn mkCasesOnImp declName maxHeartbeats
+def mkRecOn (maxHeartbeats: @&SizeT)  (declName : Name) : m Unit := adaptFn mkRecOnImp declName maxHeartbeats
+def mkNoConfusionCore (maxHeartbeats: @&SizeT) (declName : Name) : m Unit := adaptFn mkNoConfusionCoreImp declName maxHeartbeats
+def mkBelow (maxHeartbeats: @&SizeT) (declName : Name) : m Unit := adaptFn mkBelowImp declName maxHeartbeats
+def mkIBelow (maxHeartbeats: @&SizeT) (declName : Name) : m Unit := adaptFn mkIBelowImp declName maxHeartbeats
+def mkBRecOn (maxHeartbeats: @&SizeT) (declName : Name) : m Unit := adaptFn mkBRecOnImp declName maxHeartbeats
+def mkBInductionOn (maxHeartbeats: @&SizeT) (declName : Name) : m Unit := adaptFn mkBInductionOnImp declName maxHeartbeats
 open Meta
 
 def mkNoConfusionEnum (enumName : Name) : MetaM Unit := do

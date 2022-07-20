@@ -688,8 +688,10 @@ private def mkCtor (view : StructView) (levelParams : List Name) (params : Array
   let type := type.inferImplicit params.size true
   pure { name := view.ctor.declName, type }
 
+abbrev SizeT := Nat
+
 @[extern "lean_mk_projections"]
-private opaque mkProjections (env : Environment) (structName : Name) (projs : List Name) (isClass : Bool) : Except KernelException Environment
+private opaque mkProjections (maxHeartbeats: SizeT) (env : Environment) (structName : Name) (projs : List Name) (isClass : Bool) : Except KernelException Environment
 
 private def addProjections (structName : Name) (projs : List Name) (isClass : Bool) : TermElabM Unit := do
   let env ← getEnv

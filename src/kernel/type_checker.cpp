@@ -20,6 +20,9 @@ Author: Leonardo de Moura
 #include "kernel/quot.h"
 #include "kernel/inductive.h"
 
+static int64_t NUM_DEBUG_PRINT_HEARTBEATS = 0;
+static const int64_t MAX_DEBUG_PRINT_HEARTBEATS = 1e5;
+
 namespace lean {
 static name * g_kernel_fresh = nullptr;
 static expr * g_dont_care    = nullptr;
@@ -340,6 +343,12 @@ bool type_checker::is_prop(expr const & e) {
 /** \brief Apply normalizer extensions to \c e.
     If `cheap == true`, then we don't perform delta-reduction when reducing major premise. */
 optional<expr> type_checker::reduce_recursor(expr const & e, bool cheap_rec, bool cheap_proj) {
+  if (NUM_DEBUG_PRINT_HEARTBEATS++ == MAX_DEBUG_PRINT_HEARTBEATS) {
+    std::cerr <<  "reduce_recursor [" << e << "]\n";
+    NUM_DEBUG_PRINT_HEARTBEATS = 0;
+    getchar();
+  }
+
     if (env().is_quot_initialized()) {
         if (optional<expr> r = quot_reduce_rec(e, [&](expr const & e) { return whnf(e); })) {
             return r;
@@ -403,7 +412,12 @@ static bool is_let_fvar(local_ctx const & lctx, expr const & e) {
     If `cheap == true`, then we don't perform delta-reduction when reducing major premise of recursors and projections.
     We also do not cache results. */
 expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
-    check_system("whnf");
+
+  if (NUM_DEBUG_PRINT_HEARTBEATS++ == MAX_DEBUG_PRINT_HEARTBEATS) {
+    std::cerr <<  "whnf_core [" << e << "]\n";
+    NUM_DEBUG_PRINT_HEARTBEATS = 0;
+    getchar();
+  }
 
     // handle easy cases
     switch (e.kind()) {

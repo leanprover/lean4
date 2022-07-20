@@ -18,9 +18,9 @@ environment old_mk_ibelow(environment const & env, name const & n);
 environment old_mk_brec_on(environment const & env, name const & n);
 environment old_mk_binduction_on(environment const & env, name const & n);
 
-environment mk_below(environment const & env, name const & n);
-environment mk_ibelow(environment const & env, name const & n);
+environment mk_below(obj_arg maxHeartbeats, environment const & env, name const & n);
+environment mk_ibelow(obj_arg maxHeartbeats, environment const & env, name const & n);
 
-environment mk_brec_on(environment const & env, name const & n);
-environment mk_binduction_on(environment const & env, name const & n);
+environment mk_brec_on(obj_arg maxHeartbeats, environment const & env, name const & n);
+environment mk_binduction_on(obj_arg maxHeartbeats, environment const & env, name const & n);
 }

@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/environment.h"
 #include "kernel/local_ctx.h"
+#include "runtime/interrupt.h"
 
 namespace lean {
 /** \brief Base class for all kernel exceptions. */
@@ -162,7 +163,9 @@ inductive KernelException
 ```
 */
 template<typename A>
-object * catch_kernel_exceptions(std::function<A()> const & f) {
+object * catch_kernel_exceptions(size_t max_heartbeat, std::function<A()> const & f) {
+    set_max_heartbeat(max_heartbeat);
+    std::cerr << "[catch_kernel_exceptions(max_heartbeat=" << max_heartbeat << ")]\n"; getchar();
     try {
         A a = f();
         return mk_cnstr(1, a).steal();

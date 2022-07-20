@@ -239,7 +239,7 @@ environment mk_no_confusion(environment const & env, name const & n) {
     return add_protected(new_env, no_confusion_name);
 }
 
-extern "C" LEAN_EXPORT object * lean_mk_no_confusion(object * env, object * n) {
-    return catch_kernel_exceptions<environment>([&]() { return mk_no_confusion(environment(env), name(n, true)); });
+extern "C" LEAN_EXPORT object * lean_mk_no_confusion(size_t max_heartbeat, object * env, object * n) {
+    return catch_kernel_exceptions<environment>(max_heartbeat, [&]() { return mk_no_confusion(environment(env), name(n, true)); });
 }
 }

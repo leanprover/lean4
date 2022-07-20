@@ -30,7 +30,7 @@ def mkToJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
           let (isOptField, nm) := mkJsonField field
           if isOptField then ``(opt $nm $(mkIdent <| header.targetNames[0]! ++ field))
           else ``([($nm, toJson $(mkIdent <| header.targetNames[0]! ++ field))])
-        let cmd ← `(private def $(mkIdent ctx.auxFunNames[0]!):ident $header.binders:bracketedBinder* :=
+        let cmd ← `(private def $(mkIdent ctx.auxFunNames[0]!):ident $header.binders:bracketedBinder* : Json :=
           mkObj <| List.join [$fields,*])
         return #[cmd] ++ (← mkInstanceCmds ctx ``ToJson declNames)
       cmds.forM elabCommand
@@ -63,9 +63,9 @@ def mkToJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
           if ctx.usePartial then
             let letDecls ← mkLocalInstanceLetDecls ctx ``ToJson header.argNames
             let auxTerm ← mkLet letDecls auxTerm
-            `(private partial def $toJsonFuncId:ident $header.binders:bracketedBinder* := $auxTerm)
+            `(private partial def $toJsonFuncId:ident $header.binders:bracketedBinder* : Json := $auxTerm)
           else
-            `(private def $toJsonFuncId:ident $header.binders:bracketedBinder* := $auxTerm)
+            `(private def $toJsonFuncId:ident $header.binders:bracketedBinder* : Json := $auxTerm)
         return #[auxCmd] ++ (← mkInstanceCmds ctx ``ToJson declNames)
       cmds.forM elabCommand
       return true

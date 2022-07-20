@@ -24,6 +24,17 @@ structure AttributeImplCore where
   applicationTime := AttributeApplicationTime.afterTypeChecking
   deriving Inhabited
 
+/-- You can tag attributes with the 'local' or 'scoped' kind.
+For example: `attribute [local myattr, scoped yourattr, theirattr]`.
+
+This is used to indicate how an attribute should be scoped.
+- local means that the attribute should only be applied in the current scope and forgotten once the current section, namespace, or file is closed.
+- scoped means that the attribute should only be applied while the namespace is open.
+- global means that the attribute should always be applied.
+
+Note that the attribute handler (`AttributeImpl.add`) is responsible for interpreting the kind and
+making sure that these kinds are respected.
+-/
 inductive AttributeKind
   | «global» | «local» | «scoped»
   deriving BEq, Inhabited

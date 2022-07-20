@@ -732,9 +732,6 @@ opaque eqv (a : @& Expr) (b : @& Expr) : Bool
 instance : BEq Expr where
   beq := Expr.eqv
 
-protected unsafe def ptrEq (a b : Expr) : Bool :=
-  ptrAddrUnsafe a == ptrAddrUnsafe b
-
 /--
 Return true iff `a` and `b` are equal.
 Binder names and annotations are taking into account.
@@ -1393,101 +1390,120 @@ def containsFVar (e : Expr) (fvarId : FVarId) : Bool :=
   e.hasAnyFVar (· == fvarId)
 
 /-!
-The update functions here are defined using C code. They will try to avoid
-allocating new values using pointer equality.
-The hypotheses `(h : e.is...)` are used to ensure Lean will not crash
-at runtime.
-The `update*!` functions are inlined and provide a convenient way of using the
-update proofs without providing proofs.
-Note that if they are used under a match-expression, the compiler will eliminate
-the double-match.
+The update functions try to avoid allocating new values using pointer equality.
+Note that if the `update*!` functions are used under a match-expression,
+the compiler will eliminate the double-match.
 -/
 
-@[extern "lean_expr_update_app"]
-def updateApp (e : Expr) (newFn : Expr) (newArg : Expr) (h : e.isApp) : Expr :=
-  mkApp newFn newArg
-
-@[inline] def updateApp! (e : Expr) (newFn : Expr) (newArg : Expr) : Expr :=
-  match h : e with
-  | app .. => updateApp e newFn newArg (h ▸ rfl)
-  | _      => panic! "application expected"
-
-@[extern "lean_expr_update_const"]
-def updateConst (e : Expr) (newLevels : List Level) (h : e.isConst) : Expr :=
-  mkConst e.constName! newLevels
-
-@[inline] def updateConst! (e : Expr) (newLevels : List Level) : Expr :=
-  match h : e with
-  | const .. => updateConst e newLevels (h ▸ rfl)
-  | _            => panic! "constant expected"
-
-@[extern "lean_expr_update_sort"]
-def updateSort (e : Expr) (newLevel : Level) (h : e.isSort) : Expr :=
-  mkSort newLevel
-
-@[inline] def updateSort! (e : Expr) (newLevel : Level) : Expr :=
-  match h : e with
-  | sort .. => updateSort e newLevel (h ▸ rfl)
-  | _        => panic! "level expected"
-
-@[extern "lean_expr_update_proj"]
-def updateProj (e : Expr) (newExpr : Expr) (h : e.isProj) : Expr :=
+@[inline] private unsafe def updateApp!Impl (e : Expr) (newFn : Expr) (newArg : Expr) : Expr :=
   match e with
-  | proj s i .. => mkProj s i newExpr
-  | _           => e -- unreachable because of `h`
+  | app fn arg => if ptrEq fn newFn && ptrEq arg newArg then e else mkApp newFn newArg
+  | _          => panic! "application expected"
 
-@[extern "lean_expr_update_mdata"]
-def updateMData (e : Expr) (newExpr : Expr) (h : e.isMData) : Expr :=
+@[implementedBy updateApp!Impl]
+def updateApp! (e : Expr) (newFn : Expr) (newArg : Expr) : Expr :=
   match e with
-  | mdata d .. => mkMData d newExpr
-  | _          => e -- unreachable because of `h`
+  | app _ _ => mkApp newFn newArg
+  | _       => panic! "application expected"
 
-@[inline] def updateMData! (e : Expr) (newExpr : Expr) : Expr :=
-  match h : e with
-  | mdata .. => updateMData e newExpr (h ▸ rfl)
-  | _        => panic! "mdata expected"
+@[inline] private unsafe def updateConst!Impl (e : Expr) (newLevels : List Level) : Expr :=
+  match e with
+  | const n ls => if ptrEqList ls newLevels then e else mkConst n newLevels
+  | _          => panic! "constant expected"
 
-@[inline] def updateProj! (e : Expr) (newExpr : Expr) : Expr :=
-  match h : e with
-  | proj .. => updateProj e newExpr (h ▸ rfl)
-  | _       => panic! "proj expected"
+@[implementedBy updateConst!Impl]
+def updateConst! (e : Expr) (newLevels : List Level) : Expr :=
+  match e with
+  | const n _ => mkConst n newLevels
+  | _         => panic! "constant expected"
 
-@[extern "lean_expr_update_forall"]
-def updateForall (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) (h : e.isForall) : Expr :=
-  mkForall e.bindingName! newBinfo newDomain newBody
+@[inline] private unsafe def updateSort!Impl (e : Expr) (u' : Level) : Expr :=
+  match e with
+  | sort u => if ptrEq u u' then e else mkSort u'
+  | _      => panic! "level expected"
 
-@[inline] def updateForall! (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) : Expr :=
-  match h : e with
-  | forallE .. => updateForall e newBinfo newDomain newBody (h ▸ rfl)
-  | _          => panic! "forall expected"
+@[implementedBy updateSort!Impl]
+def updateSort! (e : Expr) (newLevel : Level) : Expr :=
+  match e with
+  | sort _ => mkSort newLevel
+  | _      => panic! "level expected"
 
-@[inline] def updateForallE! (e : Expr) (newDomain : Expr) (newBody : Expr) : Expr :=
-  match h : e with
-  | forallE _ _ _ c => updateForall e c newDomain newBody (h ▸ rfl)
+@[inline] private unsafe def updateMData!Impl (e : Expr) (newExpr : Expr) : Expr :=
+  match e with
+  | mdata d a => if ptrEq a newExpr then e else mkMData d newExpr
+  | _         => panic! "mdata expected"
+
+@[implementedBy updateMData!Impl]
+def updateMData! (e : Expr) (newExpr : Expr) : Expr :=
+  match e with
+  | mdata d _ => mkMData d newExpr
+  | _         => panic! "mdata expected"
+
+@[inline] private unsafe def updateProj!Impl (e : Expr) (newExpr : Expr) : Expr :=
+  match e with
+  | proj s i a => if ptrEq a newExpr then e else mkProj s i newExpr
+  | _          => panic! "proj expected"
+
+@[implementedBy updateProj!Impl]
+def updateProj! (e : Expr) (newExpr : Expr) : Expr :=
+  match e with
+  | proj s i _ => mkProj s i newExpr
+  | _          => panic! "proj expected"
+
+@[inline] private unsafe def updateForall!Impl (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) : Expr :=
+  match e with
+  | forallE n d b bi =>
+    if ptrEq d newDomain && ptrEq b newBody && bi == newBinfo then
+      e
+    else
+      mkForall n newBinfo newDomain newBody
   | _               => panic! "forall expected"
 
-@[extern "lean_expr_update_lambda"]
-def updateLambda (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) (h : e.isLambda) : Expr :=
-  mkLambda e.bindingName! newBinfo newDomain newBody
+@[implementedBy updateForall!Impl]
+def updateForall! (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) : Expr :=
+  match e with
+  | forallE n _ _ _ => mkForall n newBinfo newDomain newBody
+  | _               => panic! "forall expected"
 
-@[inline] def updateLambda! (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) : Expr :=
-  match h : e with
-  | lam .. => updateLambda e newBinfo newDomain newBody (h ▸ rfl)
-  | _      => panic! "lambda expected"
+@[inline] def updateForallE! (e : Expr) (newDomain : Expr) (newBody : Expr) : Expr :=
+  match e with
+  | forallE n d b bi => updateForall! (forallE n d b bi) bi newDomain newBody
+  | _                => panic! "forall expected"
 
-@[inline] def updateLambdaE! (e : Expr) (newDomain : Expr) (newBody : Expr) : Expr :=
-  match h : e with
-  | lam _ _ _ c => updateLambda e c newDomain newBody (h ▸ rfl)
+@[inline] private unsafe def updateLambda!Impl (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) : Expr :=
+  match e with
+  | lam n d b bi =>
+    if ptrEq d newDomain && ptrEq b newBody && bi == newBinfo then
+      e
+    else
+      mkLambda n newBinfo newDomain newBody
   | _           => panic! "lambda expected"
 
-@[extern "lean_expr_update_let"]
-def updateLet (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) (h : e.isLet) : Expr :=
-  mkLet e.letName! newType newVal newBody
+@[implementedBy updateLambda!Impl]
+def updateLambda! (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) : Expr :=
+  match e with
+  | lam n _ _ _ => mkLambda n newBinfo newDomain newBody
+  | _           => panic! "lambda expected"
 
-@[inline] def updateLet! (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) : Expr :=
-  match h : e with
-  | letE .. => updateLet e newType newVal newBody (h ▸ rfl)
-  | _       => panic! "let expression expected"
+@[inline] def updateLambdaE! (e : Expr) (newDomain : Expr) (newBody : Expr) : Expr :=
+  match e with
+  | lam n d b bi => updateLambda! (lam n d b bi) bi newDomain newBody
+  | _            => panic! "lambda expected"
+
+@[inline] private unsafe def updateLet!Impl (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) : Expr :=
+  match e with
+  | letE n t v b nonDep =>
+    if ptrEq t newType && ptrEq v newVal && ptrEq b newBody then
+      e
+    else
+      letE n newType newVal newBody nonDep
+  | _              => panic! "let expression expected"
+
+@[implementedBy updateLet!Impl]
+def updateLet! (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) : Expr :=
+  match e with
+  | letE n _ _ _ c => letE n newType newVal newBody c
+  | _              => panic! "let expression expected"
 
 def updateFn : Expr → Expr → Expr
   | e@(app f a), g => e.updateApp! (updateFn f g) a

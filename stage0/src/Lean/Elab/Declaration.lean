@@ -13,7 +13,6 @@ import Lean.Elab.DeclarationRange
 namespace Lean.Elab.Command
 
 open Meta
-open TSyntax.Compat
 
 private def ensureValidNamespace (name : Name) : MacroM Unit := do
   match name with
@@ -143,7 +142,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Comm
     classes ← getOptDerivingClasses decl[5]
   else
     computedFields ← (decl[5].getOptional?.map (·[1].getArgs) |>.getD #[]).mapM fun cf => withRef cf do
-      return { ref := cf, modifiers := cf[0], fieldId := cf[1].getId, type := cf[3], matchAlts := cf[4] }
+      return { ref := cf, modifiers := cf[0], fieldId := cf[1].getId, type := ⟨cf[3]⟩, matchAlts := ⟨cf[4]⟩ }
     classes ← getOptDerivingClasses decl[6]
   return {
     ref             := decl
@@ -180,7 +179,7 @@ def elabDeclaration : CommandElab := fun stx => do
   match (← liftMacroM <| expandDeclNamespace? stx) with
   | some (ns, newStx) => do
     let ns := mkIdentFrom stx ns
-    let newStx ← `(namespace $ns:ident $newStx end $ns:ident)
+    let newStx ← `(namespace $ns:ident $(⟨newStx⟩) end $ns:ident)
     withMacroExpansion stx newStx <| elabCommand newStx
   | none => do
     let decl     := stx[1]
@@ -260,7 +259,7 @@ def expandMutualNamespace : Macro := fun stx => do
   | some ns =>
     let ns := mkIdentFrom stx ns
     let stxNew := stx.setArg 1 (mkNullNode elemsNew)
-    `(namespace $ns:ident $stxNew end $ns:ident)
+    `(namespace $ns:ident $(⟨stxNew⟩) end $ns:ident)
   | none => Macro.throwUnsupported
 
 @[builtinMacro Lean.Parser.Command.mutual]
@@ -327,35 +326,21 @@ def elabMutual : CommandElab := fun stx => do
     for attrName in toErase do
       Attribute.erase declName attrName
 
-def expandInitCmd (builtin : Bool) : Macro := fun stx => do
-  let optVisibility := stx[0]
-  let optHeader     := stx[2]
-  let doSeq         := stx[3]
-  let attrId        := mkIdentFrom stx <| if builtin then `builtinInit else `init
-  if optHeader.isNone then
-    unless optVisibility.isNone do
-      Macro.throwError "invalid initialization command, 'visibility' modifer is not allowed"
-    `(@[$attrId:ident]def initFn : IO Unit := do $doSeq)
-  else
-    let id   := optHeader[0]
-    let type := optHeader[1][1]
-    if optVisibility.isNone then
+@[builtinMacro Lean.Parser.Command.«initialize»] def expandInitialize : Macro
+  | stx@`($declModifiers:declModifiers $kw:initializeKeyword $[$id? : $type? ←]? $doSeq) => do
+    let attrId := mkIdentFrom stx <| if kw.raw[0].isToken "initialize" then `init else `builtinInit
+    if let (some id, some type) := (id?, type?) then
+      let `(Parser.Command.declModifiersT| $[$doc?:docComment]? $[@[$attrs?,*]]? $(vis?)? $[unsafe%$unsafe?]?) := stx[0]
+        | Macro.throwErrorAt declModifiers "invalid initialization command, unexpected modifiers"
+      let declModifiers ← `(Parser.Command.declModifiersT| $[$doc?:docComment]? @[$attrId:ident initFn, $(attrs?.getD ∅),*] $(vis?)? $[unsafe%$unsafe?]?)
       `(def initFn : IO $type := do $doSeq
-        @[$attrId:ident initFn] opaque $id : $type)
-    else if optVisibility[0].getKind == ``Parser.Command.private then
-      `(def initFn : IO $type := do $doSeq
-        @[$attrId:ident initFn] private opaque $id : $type)
-    else if optVisibility[0].getKind == ``Parser.Command.protected then
-      `(def initFn : IO $type := do $doSeq
-        @[$attrId:ident initFn] protected opaque $id : $type)
+        $(⟨declModifiers⟩):declModifiers opaque $id : $type)
     else
-      Macro.throwError "unexpected visibility annotation"
-
-@[builtinMacro Lean.Parser.Command.«initialize»] def expandInitialize : Macro :=
-  expandInitCmd (builtin := false)
-
-@[builtinMacro Lean.Parser.Command.«builtin_initialize»] def expandBuiltinInitialize : Macro :=
-  expandInitCmd (builtin := true)
+      if let `(Parser.Command.declModifiersT| ) := declModifiers then
+        `(@[$attrId:ident] def initFn : IO Unit := do $doSeq)
+      else
+        Macro.throwErrorAt declModifiers "invalid initialization command, unexpected modifiers"
+  | _ => Macro.throwUnsupported
 
 builtin_initialize
   registerTraceClass `Elab.axiom

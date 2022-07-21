@@ -193,4 +193,7 @@ instance : ForM m (List α) α where
 @[simp] theorem forM_cons [Monad m] (f : α → m PUnit) (a : α) (as : List α) : forM (a::as) f = f a >>= fun _ => forM as f :=
   rfl
 
+instance : Functor List where
+  map := List.map
+
 end List

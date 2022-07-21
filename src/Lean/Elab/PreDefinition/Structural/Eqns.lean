@@ -71,7 +71,7 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
     thmNames := thmNames.push name
     let value ← mkProof info.declName type
     let (type, value) ← removeUnusedEqnHypotheses type value
-    let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+    let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure (UInt64.ofNat ((<- read).maxHeartbeats)))
     addDecl maxHeartbeats <| Declaration.thmDecl {
       name, type, value
       levelParams := info.levelParams

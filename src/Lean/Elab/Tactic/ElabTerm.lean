@@ -285,7 +285,7 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
 
 private def mkNativeAuxDecl (baseName : Name) (type value : Expr) : TermElabM Name := do
   let auxName ← Term.mkAuxName baseName
-  let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+  let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure (UInt64.ofNat ((<- read).maxHeartbeats)))
   let decl := Declaration.defnDecl {
     name := auxName, levelParams := [], type, value
     hints := .abbrev

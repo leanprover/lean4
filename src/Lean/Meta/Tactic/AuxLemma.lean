@@ -30,7 +30,7 @@ def mkAuxLemma (levelParams : List Name) (type : Expr) (value : Expr) : MetaM Na
   let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
   let mkNewAuxLemma := do
     let auxName := Name.mkNum (env.mainModule ++ `_auxLemma) s.idx
-    addDecl maxHeartbeats <| Declaration.thmDecl {
+    addDecl (UInt64.ofNat maxHeartbeats) <| Declaration.thmDecl {
       name := auxName
       levelParams, type, value
     }

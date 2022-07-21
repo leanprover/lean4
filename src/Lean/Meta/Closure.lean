@@ -358,9 +358,9 @@ def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zeta : Bool := f
     safety      := if env.hasUnsafe result.type || env.hasUnsafe result.value then DefinitionSafety.unsafe else DefinitionSafety.safe
   }
   let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
-  addDecl maxHeartbeats decl
+  addDecl (UInt64.ofNat maxHeartbeats) decl
   if compile then
-    compileDecl maxHeartbeats decl
+    compileDecl (UInt64.ofNat maxHeartbeats) decl
   return mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
 
 /-- Similar to `mkAuxDefinition`, but infers the type of `value`. -/

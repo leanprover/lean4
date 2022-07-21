@@ -18,12 +18,12 @@ namespace Lean
 namespace Core
 
 register_builtin_option maxHeartbeats : Nat := {
-  defValue := 200000
+  defValue := 1 -- 200000
   descr := "maximum amount of heartbeats per command. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit"
 }
 
-def getMaxHeartbeats (opts : Options) : Nat :=
-  maxHeartbeats.get opts * 1000
+-- def getMaxHeartbeats (opts : Options) : Nat :=
+--   maxHeartbeats.get opts * 1000
 
 abbrev InstantiateLevelCache := Std.PersistentHashMap Name (List Level × Expr)
 
@@ -53,7 +53,7 @@ structure Context where
   currNamespace  : Name := Name.anonymous
   openDecls      : List OpenDecl := []
   initHeartbeats : Nat := 0
-  maxHeartbeats  : Nat := getMaxHeartbeats options
+  maxHeartbeats  : Nat := 9876 -- getMaxHeartbeats options
   currMacroScope : MacroScope := firstFrontendMacroScope
 
 /-- CoreM is a monad for manipulating the Lean environment.

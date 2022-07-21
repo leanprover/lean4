@@ -18,7 +18,7 @@ unsafe def evalExprCore (α) (value : Expr) (checkType : Expr → MetaM Unit) (s
        safety
     }
     let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
-    addAndCompile maxHeartbeats decl
+    addAndCompile (UInt64.ofNat maxHeartbeats) decl
     evalConst α name
 
 unsafe def evalExpr' (α) (typeName : Name) (value : Expr) (safety := DefinitionSafety.safe) : MetaM α :=

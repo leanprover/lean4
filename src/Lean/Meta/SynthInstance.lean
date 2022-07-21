@@ -25,8 +25,8 @@ register_builtin_option synthInstance.maxSize : Nat := {
 }
 namespace SynthInstance
 
-def getMaxHeartbeats (opts : Options) : Nat :=
-  synthInstance.maxHeartbeats.get opts * 1000
+-- def getMaxHeartbeats (opts : Options) : Nat :=
+--   synthInstance.maxHeartbeats.get opts * 1000
 
 open Std (HashMap)
 
@@ -159,7 +159,7 @@ structure TableEntry where
 
 structure Context where
   maxResultSize : Nat
-  maxHeartbeats : Nat
+  maxHeartbeats : Nat := 6543
 
 /-
   Remark: the SynthInstance.State is not really an extension of `Meta.State`.
@@ -588,7 +588,8 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
        newSubgoal (← getMCtx) key mvar Waiter.root
        synth
      try
-       action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {}
+       let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
+       action.run { maxResultSize := maxResultSize, maxHeartbeats := maxHeartbeats } |>.run' {}
      catch ex =>
        if ex.isMaxHeartbeat then
          throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}"

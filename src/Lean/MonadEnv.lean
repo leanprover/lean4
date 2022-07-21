@@ -128,7 +128,7 @@ def getConstInfoRec [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m
         | _ => failK ()
       | _ => failK ()
 
-def addDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] [MonadLog m] [AddMessageContext m] (maxHeartbeats: SizeT) (decl : Declaration) : m Unit := do
+def addDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] [MonadLog m] [AddMessageContext m] (maxHeartbeats: UInt64) (decl : Declaration) : m Unit := do
   if !(← MonadLog.hasErrors) && decl.hasSorry then
     logWarning "declaration uses 'sorry'"
   match (← getEnv).addDecl maxHeartbeats decl with
@@ -152,7 +152,7 @@ private def checkUnsupported [Monad m] [MonadEnv m] [MonadError m] (decl : Decla
     | some (Expr.const declName ..) => throwError "code generator does not support recursor '{declName}' yet, consider using 'match ... with' and/or structural recursion"
     | _ => pure ()
 
-def compileDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (maxHeartbeats: SizeT) (decl : Declaration) : m Unit := do
+def compileDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (maxHeartbeats: UInt64) (decl : Declaration) : m Unit := do
   match (← getEnv).compileDecl maxHeartbeats (← getOptions) decl with
   | Except.ok env   => setEnv env
   | Except.error (KernelException.other msg) =>
@@ -161,7 +161,7 @@ def compileDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (maxHeart
   | Except.error ex =>
     throwKernelException ex
 
-def compileDecls [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (maxHeartbeats: SizeT) (decls : List Name) : m Unit := do
+def compileDecls [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (maxHeartbeats: UInt64) (decls : List Name) : m Unit := do
   match (← getEnv).compileDecls maxHeartbeats (← getOptions) decls with
   | Except.ok env   => setEnv env
   | Except.error (KernelException.other msg) =>
@@ -169,7 +169,7 @@ def compileDecls [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (maxHear
   | Except.error ex =>
     throwKernelException ex
 
-def addAndCompile [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] [MonadLog m] [AddMessageContext m] (maxHeartbeats: SizeT) (decl : Declaration) : m Unit := do
+def addAndCompile [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] [MonadLog m] [AddMessageContext m] (maxHeartbeats: UInt64) (decl : Declaration) : m Unit := do
   addDecl maxHeartbeats decl;
   compileDecl maxHeartbeats decl
 

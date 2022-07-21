@@ -68,7 +68,7 @@ private def mkSimpleEqThm (declName : Name) : MetaM (Option Name) := do
       let value ← mkLambdaFVars xs (← mkEqRefl lhs)
       let name := mkPrivateName (← getEnv) declName ++ `_eq_1
       let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
-      addDecl maxHeartbeats <| Declaration.thmDecl {
+      addDecl (UInt64.ofNat maxHeartbeats) <| Declaration.thmDecl {
         name, type, value
         levelParams := info.levelParams
       }

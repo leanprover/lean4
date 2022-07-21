@@ -18,7 +18,10 @@ void inc_heartbeat() { g_heartbeat++; }
 
 void reset_heartbeat() { g_heartbeat = 0; }
 
-void set_max_heartbeat(size_t max) { g_max_heartbeat = max; }
+void set_max_heartbeat(size_t max) { 
+    g_max_heartbeat = max;
+    std::cerr << "interrup.cpp:set_max_heartbeat[" << g_max_heartbeat << "]\n"; getchar(); 
+}
 
 size_t get_max_heartbeat() { return g_max_heartbeat; }
 

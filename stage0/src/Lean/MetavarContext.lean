@@ -420,6 +420,12 @@ def hasAssignableMVar [Monad m] [MonadMCtx m] : Expr → m Bool
 def assignLevelMVar [MonadMCtx m] (mvarId : MVarId) (val : Level) : m Unit :=
   modifyMCtx fun m => { m with lAssignment := m.lAssignment.insert mvarId val, usedAssignment := true }
 
+/--
+Add `mvarId := x` to the metavariable assignment.
+This method does not check whether `mvarId` is already assigned, nor it checks whether
+a cycle is being introduced, or whether the expression has the right type.
+This is a low-level API, and it is safer to use `isDefEq (mkMVar mvarId) x`.
+-/
 def assignExprMVar [MonadMCtx m] (mvarId : MVarId) (val : Expr) : m Unit :=
   modifyMCtx fun m => { m with eAssignment := m.eAssignment.insert mvarId val, usedAssignment := true }
 

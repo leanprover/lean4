@@ -19,6 +19,7 @@ namespace Lean.Meta
   | none => p? (← whnf e)
   | s    => return s
 
+/-- Matches `e` with `lhs = (rhs : α)` and returns `(α, lhs, rhs)`. -/
 def matchEq? (e : Expr) : MetaM (Option (Expr × Expr × Expr)) :=
   matchHelper? e fun e => return Expr.eq? e
 

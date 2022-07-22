@@ -109,7 +109,7 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
 }
 
 
-extern "C" LEAN_EXPORT object * lean_mk_projections(uint64_t maxHeartbeats, object * env, object * struct_name, object * proj_infos, uint8 inst_implicit) {
+extern "C" LEAN_EXPORT object * lean_mk_projections(object *max_heartbeat_ptr, object * env, object * struct_name, object * proj_infos, uint8 inst_implicit) {
     environment new_env(env);
     name n(struct_name);
     list_ref<name> ps(proj_infos);
@@ -117,7 +117,7 @@ extern "C" LEAN_EXPORT object * lean_mk_projections(uint64_t maxHeartbeats, obje
     for (auto p : ps) {
         proj_names.push_back(p);
     }
-    return catch_kernel_exceptions<environment>(maxHeartbeats,
+    return catch_kernel_exceptions<environment>(max_heartbeat_ptr,
         [&]() { return mk_projections(new_env, n, proj_names, inst_implicit != 0); });
 }
 

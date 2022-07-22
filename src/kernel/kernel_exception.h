@@ -163,9 +163,9 @@ inductive KernelException
 ```
 */
 template<typename A>
-object * catch_kernel_exceptions(uint64_t max_heartbeat, std::function<A()> const & f) {
-    std::cerr << "[catch_kernel_exceptions(max_heartbeat=" << max_heartbeat << ")]\n"; getchar();
-    set_max_heartbeat(max_heartbeat);
+object * catch_kernel_exceptions(object *max_heartbeat, std::function<A()> const & f) {
+    assert(lean_is_scalar(max_heartbeat) && "heartbeat expected to be small Nat");
+    set_max_heartbeat(lean_unbox(max_heartbeat));
     try {
         A a = f();
         return mk_cnstr(1, a).steal();

@@ -809,13 +809,12 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (E
     }
     trace[Meta.Match.debug] "{name} : {result.type} := {result.value}"
     let addMatcher : MatcherInfo → MetaM Unit := fun mi => do
-      let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure (UInt64.ofNat ((<- read).maxHeartbeats)))
-      addDecl maxHeartbeats decl
+      addDecl (← Core.getMaxHeartbeats) decl
       modifyEnv fun env => matcherExt.modifyState env fun s => s.insert (result.value, compile) name
       addMatcherInfo name mi
       setInlineAttribute name
       if compile then
-        compileDecl maxHeartbeats decl
+        compileDecl (← Core.getMaxHeartbeats) decl
     return (mkMatcherConst name, some addMatcher)
 
 structure MkMatcherInput where

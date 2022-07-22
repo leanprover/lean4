@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.Basic
+import Lean.CoreM
 
 namespace Lean.Meta
 
@@ -26,11 +27,9 @@ builtin_initialize auxLemmasExt : EnvExtension AuxLemmas ← registerEnvExtensio
 def mkAuxLemma (levelParams : List Name) (type : Expr) (value : Expr) : MetaM Name := do
   let env ← getEnv
   let s := auxLemmasExt.getState env
-  -- let maxHeartbeats : Core.Context ← hoist read
-  let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
   let mkNewAuxLemma := do
     let auxName := Name.mkNum (env.mainModule ++ `_auxLemma) s.idx
-    addDecl (UInt64.ofNat maxHeartbeats) <| Declaration.thmDecl {
+    addDecl (← Core.getMaxHeartbeats) <| Declaration.thmDecl {
       name := auxName
       levelParams, type, value
     }

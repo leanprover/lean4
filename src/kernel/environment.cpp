@@ -245,8 +245,8 @@ environment environment::add(declaration const & d, bool check) const {
     lean_unreachable();
 }
 
-extern "C" LEAN_EXPORT object * lean_add_decl(uint64_t maxHeartbeats, object * env, object * decl) {
-    return catch_kernel_exceptions<environment>(maxHeartbeats, [&]() {
+extern "C" LEAN_EXPORT object * lean_add_decl(object *max_heartbeat, object * env, object * decl) {
+    return catch_kernel_exceptions<environment>(max_heartbeat, [&]() {
             return environment(env).add(declaration(decl, true));
         });
 }

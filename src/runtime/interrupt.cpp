@@ -19,8 +19,8 @@ void inc_heartbeat() { g_heartbeat++; }
 void reset_heartbeat() { g_heartbeat = 0; }
 
 void set_max_heartbeat(size_t max) { 
-    g_max_heartbeat = max;
-    std::cerr << "interrup.cpp:set_max_heartbeat[" << g_max_heartbeat << "]\n"; getchar(); 
+  // std::cerr << "set_max_heartbeat[" << max << "]\n";
+  g_max_heartbeat = max;
 }
 
 size_t get_max_heartbeat() { return g_max_heartbeat; }
@@ -30,19 +30,10 @@ void set_max_heartbeat_thousands(unsigned max) { g_max_heartbeat = static_cast<s
 scope_heartbeat::scope_heartbeat(size_t max):flet<size_t>(g_heartbeat, max) {}
 scope_max_heartbeat::scope_max_heartbeat(size_t max):flet<size_t>(g_max_heartbeat, max) {}
 
-static const int MAX_PRINT_BEATS = 1e5;
-static int NUM_PRINT_BEATS = 0;
-
 void check_heartbeat() {
     inc_heartbeat();
     if (g_max_heartbeat > 0 && g_heartbeat > g_max_heartbeat)
         throw heartbeat_exception();
-
-    if (NUM_PRINT_BEATS++ == MAX_PRINT_BEATS) {
-        NUM_PRINT_BEATS = 0;
-        std::cerr << "g_heartbeat [" << g_heartbeat << "] g_max_heartbeat [" << g_max_heartbeat << "]\n";
-        getchar();
-    }
 }
 
 LEAN_THREAD_VALUE(atomic_bool *, g_interrupt_flag, nullptr);

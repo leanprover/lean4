@@ -188,7 +188,7 @@ environment mk_cases_on(environment const & env, name const & n) {
     return add_protected(new_env, cases_on_name);
 }
 
-extern "C" LEAN_EXPORT object * lean_mk_cases_on(size_t max_heartbeats, object * env, object * n) {
-    return catch_kernel_exceptions<environment>(max_heartbeats, [&]() { return mk_cases_on(environment(env), name(n, true)); });
+extern "C" LEAN_EXPORT object * lean_mk_cases_on(object *max_heartbeat, object * env, object * n) {
+    return catch_kernel_exceptions<environment>(max_heartbeat, [&]() { return mk_cases_on(environment(env), name(n, true)); });
 }
 }

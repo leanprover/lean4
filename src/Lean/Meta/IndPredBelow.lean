@@ -580,17 +580,14 @@ def mkBelow (declName : Name) : MetaM Unit := do
     if x.isRec then
       let ctx ← IndPredBelow.mkContext declName
       let decl ← IndPredBelow.mkBelowDecl ctx
-      let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
-      addDecl (mkHeartbeats maxHeartbeats) decl
+      addDecl  (← Core.getMaxHeartbeats) decl
       trace[Meta.IndPredBelow] "added {ctx.belowNames}"
-      ctx.belowNames.forM (fun name => do 
-        let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
-        Lean.mkCasesOn (mkHeartbeats maxHeartbeats) name)
+      ctx.belowNames.forM (fun name => do
+        Lean.mkCasesOn  (← Core.getMaxHeartbeats) name)
       for i in [:ctx.typeInfos.size] do
         try
-          let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
           let decl ← IndPredBelow.mkBrecOnDecl ctx i
-          addDecl (mkHeartbeats maxHeartbeats) decl
+          addDecl  (← Core.getMaxHeartbeats) decl
         catch e => trace[Meta.IndPredBelow] "failed to prove brecOn for {ctx.belowNames[i]!}\n{e.toMessageData}"
     else trace[Meta.IndPredBelow] "Not recursive"
   else trace[Meta.IndPredBelow] "Not inductive predicate"

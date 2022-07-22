@@ -120,8 +120,7 @@ def declareBuiltin (forDecl : Name) (value : Expr) : CoreM Unit := do
   let type := mkApp (mkConst `IO) (mkConst `Unit)
   let decl := Declaration.defnDecl { name, levelParams := [], type, value, hints := ReducibilityHints.opaque,
                                      safety := DefinitionSafety.safe }
-  let maxHeartbeats := (← read).maxHeartbeats
-  match (← getEnv).addAndCompile (UInt64.ofNat maxHeartbeats) {} decl with
+  match (← getEnv).addAndCompile (← readThe Core.Context).maxHeartbeats {} decl with
   -- TODO: pretty print error
   | Except.error e => do
     let msg ← (e.toMessageData {}).toString

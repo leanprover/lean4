@@ -147,7 +147,7 @@ namespace Environment
 
 /- Type check given declaration and add it to the environment -/
 @[extern "lean_add_decl"]
-opaque addDecl (maxHeartbats: UInt64) (env : Environment) (decl : @& Declaration) : Except KernelException Environment
+opaque addDecl (maxHeartbats: Nat) (env : Environment) (decl : @& Declaration) : Except KernelException Environment
 
 end Environment
 

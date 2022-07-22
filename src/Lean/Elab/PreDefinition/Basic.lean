@@ -75,19 +75,16 @@ def abstractNestedProofs (preDef : PreDefinition) : MetaM PreDefinition :=
     pure { preDef with value := value }
 
 /- Auxiliary method for (temporarily) adding pre definition as an axiom -/
-def addAsAxiom (preDef : PreDefinition) : MetaM Unit := do
-  let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure (UInt64.ofNat ((<- read).maxHeartbeats)))
+def addAsAxiom (preDef : PreDefinition) : MetaM Unit :=
   withRef preDef.ref do
-    let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure (UInt64.ofNat ((<- read).maxHeartbeats)))
-    addDecl maxHeartbeats <| Declaration.axiomDecl { name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, isUnsafe := preDef.modifiers.isUnsafe }
+    addDecl (← Core.getMaxHeartbeats) <| Declaration.axiomDecl { name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, isUnsafe := preDef.modifiers.isUnsafe }
 
 private def shouldGenCodeFor (preDef : PreDefinition) : Bool :=
   !preDef.kind.isTheorem && !preDef.modifiers.isNoncomputable
 
 private def compileDecl (decl : Declaration) : TermElabM Bool := do
-  let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure (UInt64.ofNat ((<- read).maxHeartbeats)))
   try
-    Lean.compileDecl maxHeartbeats decl
+    Lean.compileDecl (← Core.getMaxHeartbeats) decl
   catch ex =>
     if (← read).isNoncomputableSection then
       return false
@@ -121,8 +118,7 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List N
           hints := ReducibilityHints.regular (getMaxHeight (← getEnv) preDef.value + 1)
           safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe,
           all }
-    let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure (UInt64.ofNat ((<- read).maxHeartbeats)))
-    addDecl maxHeartbeats decl
+    addDecl (← Core.getMaxHeartbeats) decl
     withSaveInfoContext do  -- save new env
       addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
@@ -161,8 +157,7 @@ def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSaf
         hints       := ReducibilityHints.opaque
         safety, all
       }
-    let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure (UInt64.ofNat ((<- read).maxHeartbeats)))
-    addDecl maxHeartbeats decl
+    addDecl (← Core.getMaxHeartbeats) decl
     withSaveInfoContext do  -- save new env
       for preDef in preDefs do
         addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)

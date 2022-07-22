@@ -358,19 +358,19 @@ environment mk_binduction_on(environment const & env, name const & n) {
     return mk_brec_on(env, n, true);
 }
 
-extern "C" LEAN_EXPORT object * lean_mk_below(uint64_t maxHeartbeats, object * env, object * n) {
-    return catch_kernel_exceptions<environment>(maxHeartbeats, [&]() { return mk_below(environment(env), name(n, true)); });
+extern "C" LEAN_EXPORT object * lean_mk_below(object *max_heartbeat, object * env, object * n) {
+    return catch_kernel_exceptions<environment>(max_heartbeat, [&]() { return mk_below(environment(env), name(n, true)); });
 }
 
-extern "C" LEAN_EXPORT object * lean_mk_ibelow(uint64_t maxHeartbeats, object * env, object * n) {
-    return catch_kernel_exceptions<environment>(maxHeartbeats, [&]() { return mk_ibelow(environment(env), name(n, true)); });
+extern "C" LEAN_EXPORT object * lean_mk_ibelow(object *max_heartbeat, object * env, object * n) {
+    return catch_kernel_exceptions<environment>(max_heartbeat, [&]() { return mk_ibelow(environment(env), name(n, true)); });
 }
 
-extern "C" LEAN_EXPORT object * lean_mk_brec_on(uint64_t maxHeartbeats, object * env, object * n) {
-    return catch_kernel_exceptions<environment>(maxHeartbeats, [&]() { return mk_brec_on(environment(env), name(n, true)); });
+extern "C" LEAN_EXPORT object * lean_mk_brec_on(object *max_heartbeat, object * env, object * n) {
+    return catch_kernel_exceptions<environment>(max_heartbeat, [&]() { return mk_brec_on(environment(env), name(n, true)); });
 }
 
-extern "C" LEAN_EXPORT object * lean_mk_binduction_on(uint64_t maxHeartbeats, object * env, object * n) {
-    return catch_kernel_exceptions<environment>(maxHeartbeats, [&]() { return mk_binduction_on(environment(env), name(n, true)); });
+extern "C" LEAN_EXPORT object * lean_mk_binduction_on(object *max_heartbeat, object * env, object * n) {
+    return catch_kernel_exceptions<environment>(max_heartbeat, [&]() { return mk_binduction_on(environment(env), name(n, true)); });
 }
 }

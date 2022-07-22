@@ -366,8 +366,7 @@ def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := withLCtx {
       let type ← mkForallFVars xs type
       let value ← mkLambdaFVars xs (← instantiateMVars goal)
       let name := baseName ++ `_unfold
-      let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure (UInt64.ofNat ((<- read).maxHeartbeats)))
-      addDecl maxHeartbeats <| Declaration.thmDecl {
+      addDecl (← Core.getMaxHeartbeats) <| Declaration.thmDecl {
         name, type, value
         levelParams := info.levelParams
       }

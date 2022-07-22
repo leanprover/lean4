@@ -62,7 +62,7 @@ environment mk_rec_on(environment const & env, name const & n) {
     return add_protected(new_env, rec_on_name);
 }
 
-extern "C" LEAN_EXPORT object * lean_mk_rec_on(uint64_t maxHeartbeats, object * env, object * n) {
-    return catch_kernel_exceptions<environment>(maxHeartbeats, [&]() { return mk_rec_on(environment(env), name(n, true)); });
+extern "C" LEAN_EXPORT object * lean_mk_rec_on(object *max_heartbeat, object * env, object * n) {
+    return catch_kernel_exceptions<environment>(max_heartbeat, [&]() { return mk_rec_on(environment(env), name(n, true)); });
 }
 }

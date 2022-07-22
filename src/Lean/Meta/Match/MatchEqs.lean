@@ -659,8 +659,8 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
           let thmType ← mkForallFVars (params ++ #[motive] ++ ys ++ alts) thmType
           let thmType ← unfoldNamedPattern thmType
           let thmVal ← proveCondEqThm matchDeclName thmType
-          let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure (UInt64.ofNat ((<- read).maxHeartbeats)))
-          addDecl maxHeartbeats <| Declaration.thmDecl {
+  
+          addDecl (← Core.getMaxHeartbeats) <| Declaration.thmDecl {
             name        := thmName
             levelParams := constInfo.levelParams
             type        := thmType
@@ -683,8 +683,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
       let template := template.headBeta
       let splitterVal ← mkLambdaFVars splitterParams (← mkSplitterProof matchDeclName template alts altsNew splitterAltNumParams altArgMasks)
       let splitterName := baseName ++ `splitter
-      let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure (UInt64.ofNat ((<- read).maxHeartbeats)))
-      addAndCompile maxHeartbeats <| Declaration.defnDecl {
+      addAndCompile (← Core.getMaxHeartbeats) <| Declaration.defnDecl {
         name        := splitterName
         levelParams := constInfo.levelParams
         type        := splitterType

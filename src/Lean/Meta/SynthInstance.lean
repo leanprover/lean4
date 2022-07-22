@@ -25,8 +25,8 @@ register_builtin_option synthInstance.maxSize : Nat := {
 }
 namespace SynthInstance
 
--- def getMaxHeartbeats (opts : Options) : Nat :=
---   synthInstance.maxHeartbeats.get opts * 1000
+def getMaxHeartbeats (opts : Options) : Nat :=
+   synthInstance.maxHeartbeats.get opts * 1000
 
 open Std (HashMap)
 
@@ -588,8 +588,8 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
        newSubgoal (← getMCtx) key mvar Waiter.root
        synth
      try
-       let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
-       action.run { maxResultSize := maxResultSize, maxHeartbeats := maxHeartbeats } |>.run' {}
+       -- bollu: will this be correctly scoped?
+       action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {}
      catch ex =>
        if ex.isMaxHeartbeat then
          throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}"

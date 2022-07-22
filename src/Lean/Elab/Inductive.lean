@@ -634,7 +634,6 @@ private def replaceIndFVarsWithConsts (views : Array InductiveView) (indFVars : 
     return { indType with ctors }
 
 private def mkAuxConstructions (views : Array InductiveView) : TermElabM Unit := do
-  let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
   let env ← getEnv
   let hasEq   := env.contains ``Eq
   let hasHEq  := env.contains ``HEq
@@ -642,15 +641,15 @@ private def mkAuxConstructions (views : Array InductiveView) : TermElabM Unit :=
   let hasProd := env.contains ``Prod
   for view in views do
     let n := view.declName
-    mkRecOn (mkHeartbeats maxHeartbeats) n
-    if hasUnit then mkCasesOn (mkHeartbeats maxHeartbeats) n
+    mkRecOn (← Core.getMaxHeartbeats) n
+    if hasUnit then mkCasesOn (← Core.getMaxHeartbeats) n
     if hasUnit && hasEq && hasHEq then mkNoConfusion n
-    if hasUnit && hasProd then mkBelow (mkHeartbeats maxHeartbeats) n
-    if hasUnit && hasProd then mkIBelow (mkHeartbeats maxHeartbeats) n
+    if hasUnit && hasProd then mkBelow (← Core.getMaxHeartbeats) n
+    if hasUnit && hasProd then mkIBelow (← Core.getMaxHeartbeats) n
   for view in views do
     let n := view.declName;
-    if hasUnit && hasProd then mkBRecOn (mkHeartbeats maxHeartbeats) n
-    if hasUnit && hasProd then mkBInductionOn (mkHeartbeats maxHeartbeats) n
+    if hasUnit && hasProd then mkBRecOn (← Core.getMaxHeartbeats) n
+    if hasUnit && hasProd then mkBInductionOn (← Core.getMaxHeartbeats) n
 
 private def getArity (indType : InductiveType) : MetaM Nat :=
   forallTelescopeReducing indType.type fun xs _ => return xs.size
@@ -785,8 +784,7 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
           let indTypes ← replaceIndFVarsWithConsts views indFVars levelParams numVars numParams indTypes
           let decl := Declaration.inductDecl levelParams numParams indTypes isUnsafe
           Term.ensureNoUnassignedMVars decl
-          let maxHeartbeats <- controlAt CoreM (fun runInBase => do pure ((<- read).maxHeartbeats))
-          addDecl (mkHeartbeats maxHeartbeats) decl
+          addDecl (← Core.getMaxHeartbeats) decl
           mkAuxConstructions views
     withSaveInfoContext do  -- save new env
       for view in views do

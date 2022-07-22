@@ -50,15 +50,15 @@ structure Config where
   /--
     If `foApprox` is set to true, and some `aᵢ` is not a free variable,
     then we use first-order unification
-     ```
-       ?m a_1 ... a_i a_{i+1} ... a_{i+k} =?= f b_1 ... b_k
-     ```
-     reduces to
-     ```
-       ?m a_1 ... a_i =?= f
-       a_{i+1}        =?= b_1
-       ...
-       a_{i+k}        =?= b_k
+    ```
+      ?m a_1 ... a_i a_{i+1} ... a_{i+k} =?= f b_1 ... b_k
+    ```
+    reduces to
+    ```
+      ?m a_1 ... a_i =?= f
+      a_{i+1}        =?= b_1
+      ...
+      a_{i+k}        =?= b_k
     ```
   -/
   foApprox           : Bool := false

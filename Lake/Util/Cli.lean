@@ -10,7 +10,7 @@ namespace Lake
 Defines the abstract CLI interface for Lake.
 -/
 
--- # Types
+/-! # Types -/
 
 def ArgList := List String
 
@@ -33,7 +33,7 @@ structure OptionHandlers (m : Type u → Type v) (α : Type u) where
   /-- Process a long short option (ex. `-long`, `-xarg`, `-xyz`). -/
   longShort : String → m α
 
--- # Utilities
+/-! # Utilities -/
 
 variable [Monad m] [MonadStateOf ArgList m]
 

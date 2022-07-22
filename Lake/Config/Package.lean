@@ -17,7 +17,7 @@ open Std System Lean
 namespace Lake
 
 --------------------------------------------------------------------------------
--- # Defaults
+/-! # Defaults -/
 --------------------------------------------------------------------------------
 
 /-- The default setting for a `PackageConfig`'s `buildDir` option. -/
@@ -39,10 +39,10 @@ def defaultIrDir : FilePath := "ir"
 def defaultBinRoot : Name := `Main
 
 --------------------------------------------------------------------------------
--- # PackageFacet
+/-! # PackageFacet -/
 --------------------------------------------------------------------------------
 
-/- A buildable component of a `Package`. -/
+/-- A buildable component of a `Package`. -/
 inductive PackageFacet
 | /-- The package's binary executable. -/ exe
 | /-- The package's static library. -/ staticLib
@@ -53,7 +53,7 @@ deriving BEq, DecidableEq, Repr
 instance : Inhabited PackageFacet := ⟨PackageFacet.exe⟩
 
 --------------------------------------------------------------------------------
--- # PackageConfig
+/-! # PackageConfig -/
 --------------------------------------------------------------------------------
 
 /-- A `Package`'s declarative configuration. -/
@@ -235,7 +235,7 @@ def toLeanExeConfig (self : PackageConfig) : LeanExeConfig where
 end PackageConfig
 
 --------------------------------------------------------------------------------
--- # Package
+/-! # Package -/
 --------------------------------------------------------------------------------
 
 abbrev DNameMap α := DRBMap Name α Lean.Name.quickCmp
@@ -250,7 +250,7 @@ structure Package where
   configEnv : Environment
   /-- The Lean `Options` the package configuration was elaborated with. -/
   leanOpts : Options
-  /- (Opaque references to) the package's direct dependencies. -/
+  /-- (Opaque references to) the package's direct dependencies. -/
   opaqueDeps : Array OpaquePackage := #[]
   /-- Lean library configurations for the package. -/
   leanLibConfigs : NameMap LeanLibConfig := {}
@@ -284,7 +284,7 @@ namespace Package
 @[inline] def name (self : Package) : Name :=
   self.config.name
 
-  /- An `Array` of the package's direct dependencies. -/
+/-- An `Array` of the package's direct dependencies. -/
 @[inline] def deps (self : Package) : Array Package  :=
   self.opaqueDeps.map (·.get)
 
@@ -324,7 +324,7 @@ namespace Package
 @[inline] def oleanDir (self : Package) : FilePath :=
   self.buildDir / self.config.oleanDir
 
-/- The package's `buildType` configuration. -/
+/-- The package's `buildType` configuration. -/
 @[inline] def buildType (self : Package) : BuildType :=
   self.config.buildType
 
@@ -332,7 +332,7 @@ namespace Package
 @[inline] def moreLeanArgs (self : Package) : Array String :=
   self.config.moreLeanArgs
 
-/- The package's `moreLeancArgs` configuration. -/
+/-- The package's `moreLeancArgs` configuration. -/
 @[inline] def moreLeancArgs (self : Package) : Array String :=
   self.config.moreLeancArgs
 

@@ -40,7 +40,7 @@ unsafe def unsafeEvalTerm (α) [ToExpr α] (term : Syntax) : TermElabM α := do
 @[implementedBy unsafeEvalTerm]
 opaque evalTerm (α) [ToExpr α] (term : Syntax) : TermElabM α
 
--- ## ToExpr Instances
+/-! ## ToExpr Instances -/
 
 instance : ToExpr System.FilePath where
   toExpr p := mkApp (mkConst ``System.FilePath.mk) (toExpr p.toString)

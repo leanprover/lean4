@@ -8,7 +8,7 @@ open System
 namespace Lake
 
 --------------------------------------------------------------------------------
--- # Utilities
+/-! # Utilities -/
 --------------------------------------------------------------------------------
 
 class CheckExists.{u} (i : Type u) where
@@ -21,7 +21,7 @@ instance : CheckExists FilePath where
   checkExists := FilePath.pathExists
 
 --------------------------------------------------------------------------------
--- # Trace Abstraction
+/-! # Trace Abstraction -/
 --------------------------------------------------------------------------------
 
 class ComputeTrace.{u,v,w} (i : Type u) (m : outParam $ Type v → Type w) (t : Type v) where
@@ -71,7 +71,7 @@ instance [Monad m] : ComputeTrace (Array i) m t := ⟨computeArrayTrace⟩
 end
 
 --------------------------------------------------------------------------------
--- # Hash Trace
+/-! # Hash Trace -/
 --------------------------------------------------------------------------------
 
 /--
@@ -135,7 +135,7 @@ instance [ComputeHash α m] [Monad m] : ComputeHash (Array α) m where
   computeHash ar := ar.foldlM (fun b a => Hash.mix b <$> computeHash a) Hash.nil
 
 --------------------------------------------------------------------------------
--- # Modification Time (MTime) Trace
+/-! # Modification Time (MTime) Trace -/
 --------------------------------------------------------------------------------
 
 open IO.FS (SystemTime)
@@ -175,7 +175,7 @@ def checkIfNewer [GetMTime i] (info : i) (depMTime : MTime) : IO Bool := do
   try pure ((← getMTime info) >= depMTime) catch _ => pure false
 
 --------------------------------------------------------------------------------
--- # Lake Build Trace (Hash + MTIme)
+/-! # Lake Build Trace (Hash + MTIme) -/
 --------------------------------------------------------------------------------
 
 /-- Trace used for common Lake targets. Combines `Hash` and `MTime`. -/

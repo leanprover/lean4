@@ -38,7 +38,7 @@ variable [MonadWorkspace m] [Functor m]
 instance : MonadLakeEnv m where
   read := (·.lakeEnv) <$> read
 
-/- ## Workspace Helpers -/
+/-! ## Workspace Helpers -/
 
 @[inline] def getWorkspace : m Workspace :=
   read
@@ -91,12 +91,12 @@ end
 section
 variable [MonadLakeEnv m] [Functor m]
 
-/- ## Environment Helpers -/
+/-! ## Environment Helpers -/
 
 @[inline] def getLakeEnv : m Lake.Env :=
   read
 
-/- ### Lean Install Helpers -/
+/-! ### Lean Install Helpers -/
 
 @[inline] def getLeanInstall : m LeanInstall :=
   (·.lean) <$> getLakeEnv
@@ -135,7 +135,7 @@ variable [MonadLakeEnv m] [Functor m]
 @[inline] def getLeanCc? : m (Option String) :=
   (·.leanCc?) <$> getLeanInstall
 
-/- ### Lake Install Helpers -/
+/-! ### Lake Install Helpers -/
 
 @[inline] def getLakeInstall : m LakeInstall :=
   (·.lake) <$> getLakeEnv
@@ -152,7 +152,7 @@ variable [MonadLakeEnv m] [Functor m]
 @[inline] def getLake : m FilePath :=
   (·.lake) <$> getLakeInstall
 
-/- ### Search Path Helpers -/
+/-! ### Search Path Helpers -/
 
 /-- Get the detected `LEAN_PATH` value of the Lake environment. -/
 @[inline] def getEnvLeanPath : m SearchPath :=

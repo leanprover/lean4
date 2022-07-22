@@ -40,7 +40,7 @@ def LeanExeConfig.toLeanLibConfig (self : LeanExeConfig) : LeanLibConfig where
 
 namespace LeanExe
 
-/- The executable's well-formed name. -/
+/-- The executable's well-formed name. -/
 @[inline] def name (self : LeanExe) : Name :=
   self.config.name
 
@@ -54,7 +54,7 @@ namespace LeanExe
   name := self.config.root
   keyName := self.pkg.name ++ self.config.root
 
-/- Return the the root module if the name matches, otherwise return none. -/
+/-- Return the the root module if the name matches, otherwise return none. -/
 def isRoot? (name : Name) (self : LeanExe) : Option Module :=
   if name == self.config.root then some self.root else none
 

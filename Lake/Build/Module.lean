@@ -12,7 +12,7 @@ open System
 
 namespace Lake
 
--- # Solo Module Targets
+/-! # Solo Module Targets -/
 
 def Module.soloTarget (mod : Module) (dynlibs : Array String)
 (dynlibPath : SearchPath) (depTarget : BuildTarget x) (leanOnly : Bool) : OpaqueTarget :=
@@ -62,7 +62,7 @@ def Module.mkDynlibTarget (self : Module) (linkTargets : Array FileTarget)
         let args := links.map toString ++ libDirs.map (s!"-L{·}") ++ libFiles.map (s!"-l{·}")
         compileSharedLib self.dynlibFile args (← getLeanc)
 
--- # Recursive Building
+/-! # Recursive Building -/
 
 section
 variable [Monad m] [MonadBuildStore m]

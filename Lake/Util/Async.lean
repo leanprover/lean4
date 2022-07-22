@@ -22,28 +22,28 @@ between these monads and combining them in different ways.
 namespace Lake
 
 --------------------------------------------------------------------------------
--- # Async / Await Abstraction
+/-! # Async / Await Abstraction -/
 --------------------------------------------------------------------------------
 
 class Sync (m : Type u → Type v) (n : outParam $ Type u' → Type w) (k : outParam $ Type u → Type u') where
-  /- Run the monadic action as a synchronous task. -/
+  /-- Run the monadic action as a synchronous task. -/
   sync : m α → n (k α)
 
 export Sync (sync)
 
 class Async (m : Type u → Type v) (n : outParam $ Type u' → Type w) (k : outParam $ Type u → Type u') where
-  /- Run the monadic action as an asynchronous task. -/
+  /-- Run the monadic action as an asynchronous task. -/
   async : m α → n (k α)
 
 export Async (async)
 
 class Await (k : Type u → Type v) (m : outParam $ Type u → Type w)  where
-  /- Wait for an (a)synchronous task to finish. -/
+  /-- Wait for an (a)synchronous task to finish. -/
   await : k α → m α
 
 export Await (await)
 
--- ## Standard Instances
+/-! ## Standard Instances -/
 
 instance : Sync Id Id Task := ⟨Task.pure⟩
 instance : Sync BaseIO BaseIO BaseIOTask := ⟨Functor.map Task.pure⟩
@@ -96,7 +96,7 @@ instance [Await k m] : Await (OptionT k) (OptionT m) where
   await x := OptionT.mk <| await x.run
 
 --------------------------------------------------------------------------------
--- # Combinators
+/-! # Combinators -/
 --------------------------------------------------------------------------------
 
 class BindSync (m : Type u → Type v) (n : outParam $ Type u' → Type w) (k : outParam $ Type u → Type u') where
@@ -141,7 +141,7 @@ extends SeqAsync n k, SeqLeftAsync n k, SeqRightAsync n k, SeqWithAsync n k wher
   seqLeftAsync  := seqWithAsync fun a _ => a
   seqRightAsync := seqWithAsync fun _ b => b
 
--- ## Standard Instances
+/-! ## Standard Instances -/
 
 instance : BindSync Id Id Task := ⟨flip Task.map⟩
 instance : BindSync BaseIO BaseIO BaseIOTask := ⟨flip BaseIO.mapTask⟩
@@ -212,10 +212,10 @@ instance [ApplicativeAsync n k] : ApplicativeAsync n (OptionT k) where
     cast (by delta OptionT; rfl) <| seqWithAsync (n := n) h ka kb
 
 --------------------------------------------------------------------------------
--- #  List/Array Utilities
+/-! #  List/Array Utilities -/
 --------------------------------------------------------------------------------
 
--- ## Sequencing (A)synchronous Tasks
+/-! ## Sequencing (A)synchronous Tasks -/
 
 /-- Combine all (a)synchronous tasks in a `List` from right to left into a single task ending `last`. -/
 def seqLeftList1Async [SeqLeftAsync n k] [Monad n] (last : (k α)) : (tasks : List (k α)) → n (k α)
@@ -246,7 +246,7 @@ def seqRightArrayAsync [SeqRightAsync n k] [Monad n] [Pure k] (tasks : Array (k 
   else
     return (pure ())
 
--- ## Folding (A)synchronous Tasks
+/-! ## Folding (A)synchronous Tasks -/
 
 variable [SeqWithAsync n k] [Monad n] [Pure k]
 

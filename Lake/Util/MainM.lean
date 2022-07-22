@@ -21,7 +21,7 @@ instance : MonadLift BaseIO MainM := inferInstanceAs (MonadLift BaseIO (EIO Exit
 
 namespace MainM
 
--- # Basics
+/-! # Basics -/
 
 @[inline] protected def mk (x : EIO ExitCode α) : MainM α :=
   x
@@ -35,7 +35,7 @@ namespace MainM
 protected def run (self : MainM α) : BaseIO ExitCode :=
   self.toBaseIO.map fun | Except.ok _ => 0 | Except.error rc => rc
 
--- # Exits
+/-! # Exits -/
 
 /-- Exit with given return code. -/
 protected def exit (rc : ExitCode) : MainM α :=
@@ -63,7 +63,7 @@ instance : Alternative MainM where
   failure := MainM.failure
   orElse := MainM.orElse
 
--- # Logging and IO
+/-! # Logging and IO -/
 
 instance : MonadLog MainM := MonadLog.eio
 

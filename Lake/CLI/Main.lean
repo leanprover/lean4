@@ -19,7 +19,7 @@ open Lean (Json toJson fromJson?)
 
 namespace Lake
 
--- ## General options for top-level `lake`
+/-! ## General options for top-level `lake` -/
 
 structure LakeOptions where
   rootDir : FilePath := "."
@@ -64,7 +64,7 @@ def LakeOptions.mkLoadConfig
 
 export LakeOptions (mkLoadConfig)
 
--- ## Monad
+/-! ## Monad -/
 
 abbrev CliMainM := ExceptT CliError MainM
 abbrev CliStateM := StateT LakeOptions CliMainM
@@ -76,7 +76,7 @@ def CliM.run (self : CliM α) (args : List String) : BaseIO ExitCode := do
   let main := main.run >>= fun | .ok a => pure a | .error e => error e.toString
   main.run
 
--- ## Argument Parsing
+/-! ## Argument Parsing -/
 
 def takeArg (arg : String) : CliM String := do
   match (← takeArg?) with
@@ -97,7 +97,7 @@ def noArgsRem (act : CliStateM α) : CliM α := do
   if args.isEmpty then act else
     throw <| CliError.unexpectedArguments args
 
--- ## Option Parsing
+/-! ## Option Parsing -/
 
 def getWantsHelp : CliStateM Bool :=
   (·.wantsHelp) <$> get
@@ -138,7 +138,7 @@ def lakeOption :=
     longShort := shortOptionWithArg lakeShortOption
   }
 
--- ## Actions
+/-! ## Actions -/
 
 /-- Verify the Lean version Lake was built with matches that of the give Lean installation. -/
 def verifyLeanVersion (leanInstall : LeanInstall) : Except CliError PUnit := do
@@ -222,11 +222,11 @@ def parseTemplateSpec (spec : String) : Except CliError InitTemplate :=
   else
     throw <| CliError.unknownTemplate spec
 
--- ## Commands
+/-! ## Commands -/
 
 namespace lake
 
--- ### `lake script` CLI
+/-! ### `lake script` CLI -/
 
 namespace script
 
@@ -280,7 +280,7 @@ def scriptCli : (cmd : String) → CliM PUnit
 | "help"  => script.help
 | cmd     => throw <| CliError.unknownCommand cmd
 
--- ### `lake` CLI
+/-! ### `lake` CLI -/
 
 protected def new : CliM PUnit := do
   processOptions lakeOption

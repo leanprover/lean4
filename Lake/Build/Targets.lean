@@ -9,7 +9,7 @@ import Lake.Build.TargetTypes
 open System
 namespace Lake
 
--- # General Utilities
+/-! # General Utilities -/
 
 def inputFileTarget (path : FilePath) : FileTarget :=
   Target.mk path <| async (m := BuildM) <| computeTrace path
@@ -42,7 +42,7 @@ def fileTargetWithDepArray (file : FilePath) (depTargets : Array (BuildTarget i)
 (build : Array i → BuildM PUnit) (extraDepTrace : BuildM _ := pure BuildTrace.nil) : FileTarget :=
   fileTargetWithDep file (Target.collectArray depTargets) build extraDepTrace
 
--- # Specific Targets
+/-! # Specific Targets -/
 
 def oFileTarget (oFile : FilePath) (srcTarget : FileTarget)
 (args : Array String := #[]) (compiler : FilePath := "c++") : FileTarget :=

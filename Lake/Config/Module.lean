@@ -106,7 +106,7 @@ abbrev pkg (self : Module) : Package :=
 @[inline] def isLeanOnly (self : Module) : Bool :=
   self.pkg.isLeanOnly && !self.shouldPrecompile
 
--- ## Trace Helpers
+/-! ## Trace Helpers -/
 
 protected def getMTime (self : Module) : IO MTime := do
   return mixTrace (← getMTime self.oleanFile) (← getMTime self.ileanFile)

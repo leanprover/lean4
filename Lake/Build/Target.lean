@@ -10,7 +10,7 @@ open System
 namespace Lake
 
 --------------------------------------------------------------------------------
--- # Active Targets
+/-! # Active Targets -/
 --------------------------------------------------------------------------------
 
 structure ActiveTarget.{u,v,w} (i : Type u) (k : Type v → Type w) (t : Type v) where
@@ -93,7 +93,7 @@ end
 end ActiveTarget
 
 --------------------------------------------------------------------------------
--- # Inactive Target
+/-! # Inactive Target -/
 --------------------------------------------------------------------------------
 
 structure Target.{u,v,v',w} (i : Type u) (n : Type v → Type w) (k : Type v' → Type v) (t : Type v') where

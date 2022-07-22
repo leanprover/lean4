@@ -13,7 +13,7 @@ namespace Lake.DSL
 open Lean Parser Command
 
 --------------------------------------------------------------------------------
--- # Lean Library & Executable Targets
+/-! # Lean Library & Executable Targets -/
 --------------------------------------------------------------------------------
 
 /--
@@ -57,7 +57,7 @@ doc?:optional(docComment) attrs?:optional(Term.attributes)
   mkConfigStructDecl none doc? attrs ty sig
 
 --------------------------------------------------------------------------------
--- # External Library Target
+/-! # External Library Target -/
 --------------------------------------------------------------------------------
 
 syntax externLibDeclSpec :=

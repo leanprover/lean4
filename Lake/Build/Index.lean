@@ -195,12 +195,12 @@ and a topological / suspending scheduler and return the dynamic result.
 
 end
 
-/- Build the given Lake target using the given Lake build store. -/
+/-- Build the given Lake target using the given Lake build store. -/
 @[inline] def BuildInfo.buildIn (store : BuildStore) (self : BuildInfo)
 [FamilyDef BuildData self.key α] : BuildM α := do
   failOnBuildCycle <| ← EStateT.run' (m := BuildM) store <| buildIndexTop self
 
-/- Build the given Lake target in a fresh build store. -/
+/-- Build the given Lake target in a fresh build store. -/
 @[inline] def BuildInfo.build (self : BuildInfo) [FamilyDef BuildData self.key α] : BuildM α :=
   buildIn BuildStore.empty self
 

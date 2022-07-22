@@ -25,7 +25,7 @@ structure ExternLib where
 
 namespace ExternLib
 
-/- The library's well-formed name. -/
+/-- The library's well-formed name. -/
 @[inline] def name (self : ExternLib) : Name :=
   self.config.name
 

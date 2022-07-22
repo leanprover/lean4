@@ -10,7 +10,7 @@ open System
 namespace Lake
 
 --------------------------------------------------------------------------------
--- # Build Targets
+/-! # Build Targets -/
 --------------------------------------------------------------------------------
 
 /-- A Lake build target. -/
@@ -49,7 +49,7 @@ abbrev bindOpaqueSync (self : ActiveBuildTarget i) (f : BuildTrace → BuildM β
 end ActiveBuildTarget
 
 --------------------------------------------------------------------------------
--- # File Targets
+/-! # File Targets -/
 --------------------------------------------------------------------------------
 
 /-- A `BuildTarget` that produces a file. -/
@@ -59,7 +59,7 @@ abbrev FileTarget := BuildTarget FilePath
 abbrev ActiveFileTarget := ActiveBuildTarget FilePath
 
 --------------------------------------------------------------------------------
--- # Opaque Targets
+/-! # Opaque Targets -/
 --------------------------------------------------------------------------------
 
 /-- A `BuildTarget` with no artifact information. -/

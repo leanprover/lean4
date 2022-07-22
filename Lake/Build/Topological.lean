@@ -19,7 +19,7 @@ This is called a suspending scheduler in *Build systems à la carte*.
 open Std
 namespace Lake
 
--- ## Abstractions
+/-! ## Abstractions -/
 
 /-- A dependently typed object builder. -/
 abbrev DBuildFn.{u,v,w} (ι : Type u) (β : ι → Type v) (m : Type v → Type w) :=
@@ -36,7 +36,7 @@ abbrev RecBuildFn ι α m := DRecBuildFn ι (fun _ => α) m
 abbrev CycleT (κ) :=
   ExceptT (List κ)
 
--- ## Algorithm
+/-! ## Algorithm -/
 
 /-- Auxiliary function for `buildTop`. -/
 @[specialize] partial def buildTopCore [BEq κ] [Monad m] [MonadDStore κ β m]

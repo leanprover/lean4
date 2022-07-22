@@ -17,7 +17,7 @@ import said configurations for `BuildInfo`.
 
 namespace Lake
 
--- ## Module Facets
+/-! ## Module Facets -/
 
 /-- A module facet name along with proof of its data type. -/
 structure ModuleFacet (α) where
@@ -65,12 +65,12 @@ module_data lean.o : ActiveFileTarget
 /-- Shared library for `--load-dynlib` -/
 module_data dynlib : ActiveFileTarget
 
--- ## Package Facets
+/-! ## Package Facets -/
 
 /-- The package's `extraDepTarget`. -/
 package_data extraDep : ActiveOpaqueTarget
 
--- ## Target Facets
+/-! ## Target Facets -/
 
 abbrev LeanLib.staticFacet := `leanLib.static
 abbrev LeanLib.sharedFacet := `leanLib.shared

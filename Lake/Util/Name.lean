@@ -12,7 +12,7 @@ namespace Lake
 
 export Lean (Name NameMap)
 
--- # Name Helpers
+/-! # Name Helpers -/
 
 namespace Name
 open Lean.Name

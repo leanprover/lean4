@@ -12,7 +12,7 @@ inductive LogLevel
 | warning
 | error
 
--- # Class
+/-! # Class -/
 
 class MonadLog (m : Type u → Type v) where
   log (message : String) (level : LogLevel) : m PUnit
@@ -58,7 +58,7 @@ protected def error [Alternative m] [MonadLog m] (msg : String) : m α :=
 
 end MonadLog
 
--- # Transformers
+/-! # Transformers -/
 
 abbrev MonadLogT (m : Type u → Type v) (n : Type v → Type w) :=
    ReaderT (MonadLog m) n

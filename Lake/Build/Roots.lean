@@ -11,7 +11,7 @@ namespace Lake
 
 variable [Monad m] [MonadLiftT BuildM m] [MonadBuildStore m]
 
--- # Build Static Lib
+/-! # Build Static Lib -/
 
 /-- Build and collect the specified facet of the library's local modules. -/
 @[specialize] def LeanLib.recBuildLocalModules
@@ -37,7 +37,7 @@ def LeanLib.recBuildStatic (self : LeanLib) : IndexT m ActiveFileTarget := do
   let oTargets := (← self.recBuildLocalModules self.nativeFacets).map Target.active
   staticLibTarget self.staticLibFile oTargets |>.activate
 
--- # Build Shared Lib
+/-! # Build Shared Lib -/
 
 /--
 Build and collect the local object files and external libraries
@@ -78,7 +78,7 @@ def LeanLib.recBuildShared (self : LeanLib) : IndexT m ActiveFileTarget := do
   let linkTargets := (← self.recBuildLinks self.nativeFacets).map Target.active
   leanSharedLibTarget self.sharedLibFile linkTargets self.linkArgs |>.activate
 
--- # Build Executable
+/-! # Build Executable -/
 
 @[specialize] protected
 def LeanExe.recBuild (self : LeanExe) : IndexT m ActiveFileTarget := do

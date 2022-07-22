@@ -90,9 +90,10 @@
 {"textDocument": {"uri": "file://plainGoal.lean"},
  "position": {"line": 76, "character": 29}}
 {"rendered":
- "```lean\nt a n✝ : Nat\n: t * (a + n✝) = t * a + t * n✝\n⊢ t * (a + n✝) + t = t * a + t * Nat.succ n✝\n```\n---\n```lean\nt a n✝ : Nat\n: t * (a + n✝) = t * a + t * n✝\n⊢ t * (a + n✝) + t = t * a + (t * n✝ + t)\n```",
+ "```lean\nt a n✝ : Nat\n: t * (a + n✝) = t * a + t * n✝\n⊢ t * (a + n✝) + t = t * a + t * Nat.succ n✝\n```\n---\n```lean\nt a n✝ : Nat\n: t * (a + n✝) = t * a + t * n✝\n⊢ t * (a + n✝) + t = t * a + (t * n✝ + t)\n```\n---\n```lean\nt a n✝ : Nat\n: t * (a + n✝) = t * a + t * n✝\n⊢ t * (a + n✝) + t = t * a + (t * n✝ + t)\n```",
  "goals":
  ["t a n✝ : Nat\n: t * (a + n✝) = t * a + t * n✝\n⊢ t * (a + n✝) + t = t * a + t * Nat.succ n✝",
+  "t a n✝ : Nat\n: t * (a + n✝) = t * a + t * n✝\n⊢ t * (a + n✝) + t = t * a + (t * n✝ + t)",
   "t a n✝ : Nat\n: t * (a + n✝) = t * a + t * n✝\n⊢ t * (a + n✝) + t = t * a + (t * n✝ + t)"]}
 {"textDocument": {"uri": "file://plainGoal.lean"},
  "position": {"line": 80, "character": 53}}

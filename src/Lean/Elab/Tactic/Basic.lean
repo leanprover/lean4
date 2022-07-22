@@ -172,6 +172,7 @@ where
     @[inline] handleEx (s : SavedState) (failures : Array EvalTacticFailure) (ex : Exception) (k : Array EvalTacticFailure → TacticM Unit) := do
       match ex with
       | .error .. =>
+        trace[Elab.tactic.backtrack] ex.toMessageData
         let failures := failures.push ⟨ex, ← Tactic.saveState⟩
         s.restore (restoreInfo := true); k failures
       | .internal id _ =>
@@ -179,6 +180,8 @@ where
           -- We do not store `unsupportedSyntaxExceptionId`, see throwExs
           s.restore (restoreInfo := true); k failures
         else if id == abortTacticExceptionId then
+          for msg in (← Core.getMessageLog).toList do
+            trace[Elab.tactic.backtrack] msg.data
           let failures := failures.push ⟨ex, ← Tactic.saveState⟩
           s.restore (restoreInfo := true); k failures
         else
@@ -417,5 +420,6 @@ def withCaseRef [Monad m] [MonadRef m] (arrow body : Syntax) (x : m α) : m α :
   withRef (mkNullNode #[arrow, body]) x
 
 builtin_initialize registerTraceClass `Elab.tactic
+builtin_initialize registerTraceClass `Elab.tactic.backtrack
 
 end Lean.Elab.Tactic

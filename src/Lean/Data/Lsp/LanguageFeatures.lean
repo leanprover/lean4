@@ -265,9 +265,9 @@ def SemanticTokenType.toNat (type : SemanticTokenType) : Nat :=
   type.toCtorIdx
 
 -- sanity check
-theorem SemanticTokenType.names_toNat_eq_toJson {v : SemanticTokenType} :
-names[v.toNat]?.map (toString <| toJson ·) = some (toString <| toJson v) := by
-  cases v <;> (dsimp only [toNat, toCtorIdx, names]; native_decide)
+example {v : SemanticTokenType} : open SemanticTokenType in
+    names[v.toNat]?.map (toString <| toJson ·) = some (toString <| toJson v) := by
+  cases v <;> native_decide
 
 /--
 The semantic token modifiers included by default in the LSP specification.
@@ -296,9 +296,9 @@ def SemanticTokenModifier.toNat (modifier : SemanticTokenModifier) : Nat :=
   modifier.toCtorIdx
 
 -- sanity check
-theorem SemanticTokenModifier.names_toNat_eq_toJson {v : SemanticTokenModifier} :
-names[v.toNat]?.map (toString <| toJson ·) = some (toString <| toJson v) := by
-  cases v <;> (dsimp only [toNat, toCtorIdx, names]; native_decide)
+example {v : SemanticTokenModifier} : open SemanticTokenModifier in
+    names[v.toNat]?.map (toString <| toJson ·) = some (toString <| toJson v) := by
+  cases v <;> native_decide
 
 structure SemanticTokensLegend where
   tokenTypes : Array String

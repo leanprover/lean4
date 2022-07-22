@@ -153,6 +153,7 @@ builtin_initialize
   register_parser_alias                                                 declVal
   register_parser_alias                                                 optDeclSig
   register_parser_alias                                                 openDecl
+  register_parser_alias                                                 docComment
 
 end Command
 

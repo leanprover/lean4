@@ -7,7 +7,7 @@ import Lake.Util.DRBMap
 import Lake.Util.Family
 import Lake.Util.Store
 
-open Std
+open Std Lean
 namespace Lake
 
 instance [Monad m] [EqOfCmpWrt κ β cmp] : MonadDStore κ β (StateT (DRBMap κ β cmp) m) where
@@ -17,6 +17,9 @@ instance [Monad m] [EqOfCmpWrt κ β cmp] : MonadDStore κ β (StateT (DRBMap κ
 instance [Monad m] : MonadStore κ α (StateT (RBMap κ α cmp) m) where
   fetch? k := return (← get).find? k
   store k a := modify (·.insert k a)
+
+instance [Monad m] : MonadStore Name α (StateT (NameMap α) m) :=
+  inferInstanceAs (MonadStore _ _ (StateT (RBMap ..) _))
 
 @[inline] instance [MonadDStore κ β m] [t : FamilyDef β k α] : MonadStore1 k α m where
   fetch? := cast (by rw [t.family_key_eq_type]) <| fetch? (m := m) k

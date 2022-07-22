@@ -4,9 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.DSL.Attributes
-import Lake.Config.FacetConfig
-import Lake.Config.TargetConfig
-import Lake.Load.Elab
+import Lake.Config.Workspace
 
 namespace Lake
 open Lean System
@@ -63,7 +61,7 @@ def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := 
   let env := self.configEnv; let opts := self.leanOpts
 
   -- Load Script, Facet, & Target Configurations
-  let scripts ← mkTagMap env scriptAttr fun name => do
+  let scripts : NameMap Script ← mkTagMap env scriptAttr fun name => do
     let fn ← IO.ofExcept <| evalConstCheck env opts ScriptFn ``ScriptFn name
     return {fn, doc? := (← findDocString? env name)}
   let leanLibConfigs ← IO.ofExcept <| mkTagMap env leanLibAttr fun name =>
@@ -72,22 +70,6 @@ def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := 
     evalConstCheck env opts LeanExeConfig ``LeanExeConfig name
   let externLibConfigs ← IO.ofExcept <| mkTagMap env externLibAttr fun name =>
     evalConstCheck env opts ExternLibConfig ``ExternLibConfig name
-  let opaqueModuleFacetConfigs ← mkDTagMap env moduleFacetAttr fun name => do
-    match evalConstCheck env opts  ModuleFacetDecl ``ModuleFacetDecl name with
-    | .ok decl =>
-      if h : name = decl.name then
-        return OpaqueModuleFacetConfig.mk (h ▸ decl.config)
-      else
-        error s!"facet was defined as `{decl.name}`, but was registered as `{name}`"
-    | .error e => error e
-  let opaquePackageFacetConfigs ← mkDTagMap env packageFacetAttr fun name => do
-    match evalConstCheck env opts  PackageFacetDecl ``PackageFacetDecl name with
-    | .ok decl =>
-      if h : name = decl.name then
-        return OpaquePackageFacetConfig.mk (h ▸ decl.config)
-      else
-        error s!"facet was defined as `{decl.name}`, but was registered as `{name}`"
-    | .error e => error e
   let opaqueTargetConfigs ← mkTagMap env targetAttr fun declName =>
     match evalConstCheck env opts TargetConfig ``TargetConfig declName with
     | .ok a => pure <| OpaqueTargetConfig.mk a
@@ -106,6 +88,29 @@ def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := 
   return {self with
     opaqueDeps := deps.map (.mk ·)
     leanLibConfigs, leanExeConfigs, externLibConfigs
-    opaqueModuleFacetConfigs, opaquePackageFacetConfigs, opaqueTargetConfigs
-    defaultTargets, scripts
+    opaqueTargetConfigs, defaultTargets, scripts
   }
+
+/--
+Load module/package facets into a `Workspace` from a configuration environment.
+-/
+def Workspace.loadFacets
+(env : Environment) (opts : Options) (self : Workspace) : LogIO Workspace := do
+  let mut ws := self
+  for name in moduleFacetAttr.ext.getState env do
+    match evalConstCheck env opts ModuleFacetDecl ``ModuleFacetDecl name with
+    | .ok decl =>
+      if h : name = decl.name then
+        ws := ws.addModuleFacetConfig <| h ▸ decl.config
+      else
+        error s!"facet was defined as `{decl.name}`, but was registered as `{name}`"
+    | .error e => error e
+  for name in packageFacetAttr.ext.getState env do
+    match evalConstCheck env opts PackageFacetDecl ``PackageFacetDecl name with
+    | .ok decl =>
+      if h : name = decl.name then
+        ws := ws.addPackageFacetConfig <| h ▸ decl.config
+      else
+        error s!"facet was defined as `{decl.name}`, but was registered as `{name}`"
+    | .error e => error e
+  return ws

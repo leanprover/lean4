@@ -62,10 +62,6 @@ structure NamedConfigDecl (β : Name → Type u) where
 abbrev ModuleFacetConfig := FacetConfig ModuleData (FacetBuildFn Module)
 hydrate_opaque_type OpaqueModuleFacetConfig ModuleFacetConfig name
 
-/-- Try to find a module facet configuration in the package with the given name . -/
-def Package.findModuleFacetConfig? (name : Name) (self : Package) : Option (ModuleFacetConfig name) :=
-  self.opaqueModuleFacetConfigs.find? name |>.map (·.get)
-
 /-- A module facet declaration from a configuration file. -/
 abbrev ModuleFacetDecl := NamedConfigDecl ModuleFacetConfig
 
@@ -74,10 +70,6 @@ abbrev ModuleFacetDecl := NamedConfigDecl ModuleFacetConfig
 /-- A package facet's declarative configuration. -/
 abbrev PackageFacetConfig := FacetConfig PackageData (FacetBuildFn Package)
 hydrate_opaque_type OpaquePackageFacetConfig PackageFacetConfig name
-
-/-- Try to find a package configuration in the package with the given name . -/
-def Package.findPackageFacetConfig? (name : Name) (self : Package) : Option (PackageFacetConfig name) :=
-  self.opaquePackageFacetConfigs.find? name |>.map (·.get)
 
 /-- A package facet declaration from a configuration file. -/
 abbrev PackageFacetDecl := NamedConfigDecl PackageFacetConfig

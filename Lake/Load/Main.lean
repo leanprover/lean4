@@ -5,10 +5,11 @@ Authors: Mac Malone
 -/
 import Lake.Util.EStateT
 import Lake.Util.StoreInsts
-import Lake.Load.Package
-import Lake.Load.Materialize
 import Lake.Config.Workspace
 import Lake.Build.Topological
+import Lake.Load.Materialize
+import Lake.Load.Package
+import Lake.Load.Elab
 
 open System Lean
 
@@ -34,11 +35,15 @@ Resolves the package's dependencies,
 downloading and/or updating them as necessary.
 -/
 def resolveDeps (ws : Workspace) (pkg : Package) (leanOpts : Options)
-(deps : Array Dependency) (shouldUpdate := true) : ManifestM (Array Package × NameMap Package) := do
-  let (res, map) ← EStateT.run (Std.mkRBMap _ _ Name.quickCmp) <| deps.mapM fun dep =>
+(deps : Array Dependency) (shouldUpdate := true) : ManifestM (Workspace × Array Package) := do
+  have : MonadStore Name Package (StateT Workspace ManifestM) := {
+    fetch? := fun name => return (← get).findPackage? name
+    store := fun _ pkg => modify (·.addPackage pkg)
+  }
+  let (res, ws) ← EStateT.run ws <| deps.mapM fun dep =>
     buildTop (·.2.name) recResolveDep (pkg, dep)
   match res with
-  | Except.ok deps => return (deps, map)
+  | Except.ok deps => return (ws, deps)
   | Except.error cycle => do
     let cycle := cycle.map (s!"  {·}")
     error s!"dependency cycle detected:\n{"\n".intercalate cycle}"
@@ -53,6 +58,7 @@ where
         s!"but resolved dependency has name {depPkg.name} (in {dir})"
     let depDeps ← IO.ofExcept <| loadDeps depPkg.configEnv leanOpts
     let depDepPkgs ← depDeps.mapM fun dep => resolve (depPkg, dep)
+    set (← (← get).loadFacets depPkg.configEnv depPkg.leanOpts)
     let depPkg ← depPkg.finalize depDepPkgs
     return depPkg
 
@@ -66,10 +72,11 @@ def loadWorkspace (config : LoadConfig) : LogIO Workspace := do
   let ws : Workspace := {root, lakeEnv := config.env}
   let deps ← IO.ofExcept <| loadDeps root.configEnv config.leanOpts
   let manifest ← Manifest.loadFromFile ws.manifestFile |>.catchExceptions fun _ => pure {}
-  let ((deps, packageMap), manifest) ← resolveDeps ws root
+  let ((ws, deps), manifest) ← resolveDeps ws root
     config.leanOpts deps config.updateDeps |>.run manifest
   unless manifest.isEmpty do
     manifest.saveToFile ws.manifestFile
+  let ws ← ws.loadFacets root.configEnv root.leanOpts
   let root ← root.finalize deps
-  let packageMap := packageMap.insert root.name root
+  let packageMap := ws.packageMap.insert root.name root
   return {ws with root, packageMap}

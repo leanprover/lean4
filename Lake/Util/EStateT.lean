@@ -13,10 +13,10 @@ abbrev EStateT.{u,v} (ε : Type u) (σ : Type u) (m : Type u → Type v) :=
 namespace EStateT
 variable {ε : Type u} {σ : Type u} {m : Type u → Type v}
 
-@[inline] def run (init : σ) (self : EStateT ε σ m ω) : m (Except ε ω × σ) :=
+@[inline] def run (init : σ) (self : EStateT ε σ m α) : m (Except ε α × σ) :=
   ExceptT.run self |>.run init
 
-@[inline] def run' [Functor m] (init : σ) (self : EStateT ε σ m ω) : m (Except ε ω) :=
+@[inline] def run' [Functor m] (init : σ) (self : EStateT ε σ m α) : m (Except ε α) :=
   ExceptT.run self |>.run' init
 
 end EStateT

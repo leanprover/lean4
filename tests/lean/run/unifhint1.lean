@@ -16,6 +16,7 @@ instance : CoeSort Magma.{u} (Type u) where
 def mul {s : Magma} (a b : s) : s :=
   s.mul a b
 
+/-- hi -/
 unif_hint (s : Magma) where
   s =?= Nat.Magma |- s.α =?= Nat
 

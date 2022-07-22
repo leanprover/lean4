@@ -27,7 +27,7 @@ abbrev reprStr [Repr α] (a : α) : String :=
 abbrev reprArg [Repr α] (a : α) : Format :=
   reprPrec a max_prec
 
-/- Auxiliary class for marking types that should be considered atomic by `Repr` methods.
+/-- Auxiliary class for marking types that should be considered atomic by `Repr` methods.
    We use it at `Repr (List α)` to decide whether `bracketFill` should be used or not. -/
 class ReprAtom (α : Type u)
 

@@ -16,7 +16,7 @@ import Lean.Elab.DeclarationRange
 namespace Lean.Elab
 open Lean.Parser.Term
 
-/- DefView after elaborating the header. -/
+/-- `DefView` after elaborating the header. -/
 structure DefViewElabHeader where
   ref           : Syntax
   modifiers     : Modifiers
@@ -263,7 +263,7 @@ private def getFunName (fvarId : FVarId) (letRecsToLift : List LetRecToLift) : T
     | none   => throwError "unknown function"
     | some n => pure n
 
-/-
+/--
 Ensures that the of let-rec definition types do not contain functions being defined.
 In principle, this test can be improved. We could perform it after we separate the set of functions is strongly connected components.
 However, this extra complication doesn't seem worth it.
@@ -278,10 +278,10 @@ private def checkLetRecsToLiftTypes (funVars : Array Expr) (letRecsToLift : List
 
 namespace MutualClosure
 
-/- A mapping from FVarId to Set of FVarIds. -/
+/-- A mapping from FVarId to Set of FVarIds. -/
 abbrev UsedFVarsMap := FVarIdMap FVarIdSet
 
-/-
+/--
 Create the `UsedFVarsMap` mapping that takes the variable id for the mutually recursive functions being defined to the set of
 free variables in its definition.
 
@@ -348,7 +348,7 @@ private def mkInitialUsedFVarsMap [Monad m] [MonadMCtx m] (sectionVars : Array E
     usedFVarMap := usedFVarMap.insert toLift.fvarId set
   return usedFVarMap
 
-/-
+/-!
 The let-recs may invoke each other. Example:
 ```
 let rec
@@ -456,7 +456,7 @@ private def preprocess (e : Expr) : TermElabM Expr := do
   Meta.check e
   pure e
 
-/- Push free variables in `s` to `toProcess` if they are not already there. -/
+/-- Push free variables in `s` to `toProcess` if they are not already there. -/
 private def pushNewVars (toProcess : Array FVarId) (s : CollectFVars.State) : Array FVarId :=
   s.fvarSet.fold (init := toProcess) fun toProcess fvarId =>
     if toProcess.contains fvarId then toProcess else toProcess.push fvarId
@@ -551,7 +551,7 @@ private def mkLetRecClosures (sectionVars : Array Expr) (mainFVarIds : Array FVa
     result := result.push (← mkLetRecClosureFor toLift (freeVarMap.find? toLift.fvarId).get!)
   return result.toList
 
-/- Mapping from FVarId of mutually recursive functions being defined to "closure" expression. -/
+/-- Mapping from FVarId of mutually recursive functions being defined to "closure" expression. -/
 abbrev Replacement := FVarIdMap Expr
 
 def insertReplacementForMainFns (r : Replacement) (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mainFVars : Array Expr) : Replacement :=
@@ -610,7 +610,7 @@ def getModifiersForLetRecs (mainHeaders : Array DefViewElabHeader) : Modifiers :
   isUnsafe        := mainHeaders.any fun h => h.modifiers.isUnsafe
 }
 
-/-
+/--
 - `sectionVars`:   The section variables used in the `mutual` block.
 - `mainHeaders`:   The elaborated header of the top-level definitions being defined by the mutual block.
 - `mainFVars`:     The auxiliary variables used to represent the top-level definitions being defined by the mutual block.

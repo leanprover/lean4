@@ -166,7 +166,7 @@ private def matchDecl? (ns : Name) (id : Name) (danglingDot : Bool) (declName : 
     else
       return none
 
-/-
+/--
   Truncate the given identifier and make sure it has length `≤ newLength`.
   This function assumes `id` does not contain `Name.num` constructors.
 -/

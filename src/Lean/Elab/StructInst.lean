@@ -254,8 +254,8 @@ def Field.isSimple {σ} : Field σ → Bool
   | _                  => false
 
 inductive Struct where
-  /- Remark: the field `params` is use for default value propagation. It is initially empty, and then set at `elabStruct`. -/
-  | mk (ref : Syntax) (structName : Name) (params : Array (Name × Expr)) (fields : List (Field Struct)) (source : Source)
+  | /-- Remark: the field `params` is use for default value propagation. It is initially empty, and then set at `elabStruct`. -/
+    mk (ref : Syntax) (structName : Name) (params : Array (Name × Expr)) (fields : List (Field Struct)) (source : Source)
   deriving Inhabited
 
 abbrev Fields := List (Field Struct)
@@ -393,7 +393,7 @@ private def expandNumLitFields (s : Struct) : TermElabM Struct :=
         else return { field with lhs := .fieldName ref fieldNames[idx - 1]! :: rest }
       | _ => return field
 
-/- For example, consider the following structures:
+/-- For example, consider the following structures:
    ```
    structure A where
      x : Nat

@@ -26,7 +26,7 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
 @[builtinTermElab «type»] def elabTypeStx : TermElab := fun stx _ =>
   return mkSort (mkLevelSucc (← elabOptLevel stx[1]))
 
-/-
+/-!
  the method `resolveName` adds a completion point for it using the given
     expected type. Thus, we propagate the expected type if `stx[0]` is an identifier.
     It doesn't "hurt" if the identifier can be resolved because the expected type is not used in this case.
@@ -205,7 +205,7 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
   | some val => return mkApp (Lean.mkConst ``Char.ofNat) (mkRawNatLit val.toNat)
   | none     => throwIllFormedSyntax
 
-/- A literal of type `Name`. -/
+/-- A literal of type `Name`. -/
 @[builtinTermElab quotedName] def elabQuotedName : TermElab := fun stx _ =>
   match stx[0].isNameLit? with
   | some val => pure $ toExpr val

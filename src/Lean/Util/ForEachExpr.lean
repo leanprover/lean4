@@ -7,7 +7,7 @@ import Lean.Expr
 import Lean.Util.MonadCache
 
 namespace Lean
-/-
+/-!
 Remark: we cannot use the caching trick used at `FindExpr` and `ReplaceExpr` because they
 may visit the same expression multiple times if they are stored in different memory
 addresses. Note that the following code is parametric in a monad `m`.

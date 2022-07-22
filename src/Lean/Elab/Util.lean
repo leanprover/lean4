@@ -8,6 +8,7 @@ import Lean.Parser.Syntax
 import Lean.Parser.Extension
 import Lean.KeyedDeclsAttribute
 import Lean.Elab.Exception
+import Lean.Elab.InfoTree
 import Lean.DocString
 import Lean.DeclarationRange
 import Lean.Compiler.InitAttr
@@ -44,7 +45,7 @@ structure MacroStackElem where
 
 abbrev MacroStack := List MacroStackElem
 
-/- If `ref` does not have position information, then try to use macroStack -/
+/-- If `ref` does not have position information, then try to use macroStack -/
 def getBetterRef (ref : Syntax) (macroStack : MacroStack) : Syntax :=
   match ref.getPos? with
   | some _ => ref

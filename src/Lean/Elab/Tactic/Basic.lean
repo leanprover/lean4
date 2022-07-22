@@ -19,7 +19,7 @@ import Lean.Elab.Binders
 namespace Lean.Elab
 open Meta
 
-/- Assign `mvarId := sorry` -/
+/-- Assign `mvarId := sorry` -/
 def admitGoal (mvarId : MVarId) : MetaM Unit :=
   withMVarContext mvarId do
     let mvarType ← inferType (mkMVar mvarId)
@@ -130,7 +130,7 @@ def mkInitialTacticInfo (stx : Syntax) : TacticM (TacticM Info) := do
 @[inline] def withTacticInfoContext (stx : Syntax) (x : TacticM α) : TacticM α := do
   withInfoContext x (← mkInitialTacticInfo stx)
 
-/-
+/-!
 Important: we must define `evalTactic` before we define
 the instance `MonadExcept` for `TacticM` since it backtracks the state including error messages,
 and this is bad when rethrowing the exception at the `catch` block in these methods.
@@ -160,7 +160,7 @@ partial def evalTactic (stx : Syntax) : TacticM Unit :=
         expandEval s macros evalFns #[]
     | .missing => pure ()
     | _ => throwError m!"unexpected tactic{indentD stx}"
-where 
+where
    throwExs (failures : Array EvalTacticFailure) : TacticM Unit := do
      if let some fail := failures[0]? then
        -- Recall that `failures[0]` is the highest priority evalFn/macro
@@ -187,8 +187,8 @@ where
         else
           throw ex -- (*)
 
-    expandEval (s : SavedState) (macros : List _) (evalFns : List _) (failures : Array EvalTacticFailure) : TacticM Unit := 
-      match macros with 
+    expandEval (s : SavedState) (macros : List _) (evalFns : List _) (failures : Array EvalTacticFailure) : TacticM Unit :=
+      match macros with
       | [] => eval s evalFns failures
       | m :: ms =>
         try
@@ -229,7 +229,7 @@ def focusAndDone (tactic : TacticM α) : TacticM α :=
     done
     pure a
 
-/- Close the main goal using the given tactic. If it fails, log the error and `admit` -/
+/-- Close the main goal using the given tactic. If it fails, log the error and `admit` -/
 def closeUsingOrAdmit (tac : TacticM Unit) : TacticM Unit := do
   /- Important: we must define `closeUsingOrAdmit` before we define
      the instance `MonadExcept` for `TacticM` since it backtracks the state including error messages. -/
@@ -270,7 +270,7 @@ instance : Alternative TacticM where
   failure := fun {_} => throwError "failed"
   orElse  := Tactic.orElse
 
-/-
+/--
   Save the current tactic state for a token `stx`.
   This method is a no-op if `stx` has no position information.
   We use this method to save the tactic state at punctuation such as `;`
@@ -279,7 +279,7 @@ def saveTacticInfoForToken (stx : Syntax) : TacticM Unit := do
   unless stx.getPos?.isNone do
     withTacticInfoContext stx (pure ())
 
-/- Elaborate `x` with `stx` on the macro stack -/
+/-- Elaborate `x` with `stx` on the macro stack -/
 @[inline]
 def withMacroExpansion (beforeStx afterStx : Syntax) (x : TacticM α) : TacticM α :=
   withMacroExpansionInfo beforeStx afterStx do

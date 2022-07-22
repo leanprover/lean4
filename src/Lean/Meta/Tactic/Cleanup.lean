@@ -44,7 +44,7 @@ where
       modify fun (_, s) => (true, s.insert fvarId)
       addDeps fvarId
 
-  /- We include `p` in the used-set, if `p` is a proposition that contains a `x` that is in the used-set. -/
+  /-- We include `p` in the used-set, if `p` is a proposition that contains a `x` that is in the used-set. -/
   collectPropsStep : StateRefT (Bool × FVarIdSet) MetaM Unit := do
     let usedSet := (← get).2
     for localDecl in (← getLCtx) do

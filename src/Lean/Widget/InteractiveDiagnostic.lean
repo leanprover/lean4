@@ -53,14 +53,14 @@ private def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPCo
 }
 
 private inductive EmbedFmt
-  /- Tags denote `Info` objects. -/
-  | expr (ctx : Elab.ContextInfo) (infos : Std.RBMap Nat Elab.Info compare)
+  | /-- Tags denote `Info` objects. -/
+    expr (ctx : Elab.ContextInfo) (infos : Std.RBMap Nat Elab.Info compare)
   | goal (ctx : Elab.ContextInfo) (lctx : LocalContext) (g : MVarId)
-  /- Some messages (in particular, traces) are too costly to print eagerly. Instead, we allow
-  the user to expand sub-traces interactively. -/
-  | lazyTrace (nCtx : NamingContext) (ctx? : Option MessageDataContext) (cls : Name) (m : MessageData)
-  /- Ignore any tags in this subtree. -/
-  | ignoreTags
+  | /-- Some messages (in particular, traces) are too costly to print eagerly. Instead, we allow
+    the user to expand sub-traces interactively. -/
+    lazyTrace (nCtx : NamingContext) (ctx? : Option MessageDataContext) (cls : Name) (m : MessageData)
+  | /-- Ignore any tags in this subtree. -/
+    ignoreTags
   deriving Inhabited
 
 private abbrev MsgFmtM := StateT (Array EmbedFmt) IO

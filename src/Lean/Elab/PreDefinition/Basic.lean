@@ -74,7 +74,7 @@ def abstractNestedProofs (preDef : PreDefinition) : MetaM PreDefinition :=
     let value ← Meta.abstractNestedProofs preDef.declName preDef.value
     pure { preDef with value := value }
 
-/- Auxiliary method for (temporarily) adding pre definition as an axiom -/
+/-- Auxiliary method for (temporarily) adding pre definition as an axiom -/
 def addAsAxiom (preDef : PreDefinition) : MetaM Unit := do
   withRef preDef.ref do
     addDecl <| Declaration.axiomDecl { name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, isUnsafe := preDef.modifiers.isUnsafe }

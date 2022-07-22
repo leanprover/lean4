@@ -65,7 +65,7 @@ where
       let fields ← fields.mapM visit
       pure $ mkAppN (mkConst ctorName us) (params ++ fields).toArray
 
-/- Apply the free variable substitution `s` to the given pattern -/
+/-- Apply the free variable substitution `s` to the given pattern -/
 partial def applyFVarSubst (s : FVarSubst) : Pattern → Pattern
   | inaccessible e  => inaccessible $ s.apply e
   | ctor n us ps fs => ctor n us (ps.map s.apply) $ fs.map (applyFVarSubst s)
@@ -157,7 +157,7 @@ def replaceFVarId (fvarId : FVarId) (v : Expr) (alt : Alt) : Alt :=
       decls.map $ replaceFVarIdAtLocalDecl fvarId v,
     rhs       := alt.rhs.replaceFVarId fvarId v }
 
-/-
+/--
   Similar to `checkAndReplaceFVarId`, but ensures type of `v` is definitionally equal to type of `fvarId`.
   This extra check is necessary when performing dependent elimination and inaccessible terms have been used.
   For example, consider the following code fragment:

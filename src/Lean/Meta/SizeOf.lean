@@ -190,7 +190,7 @@ def mkSizeOfSpecLemmaInstance (ctorApp : Expr) : MetaM Expr :=
     let lemmaArgMask := lemmaArgMask ++ ctorFields.toArray.map some
     mkAppOptM lemmaName lemmaArgMask
 
-/- SizeOf spec theorem for nested inductive types -/
+/-! # SizeOf spec theorem for nested inductive types -/
 namespace SizeOfSpecNested
 
 structure Context where
@@ -259,13 +259,14 @@ mutual
     let sizeOfBaseArgs := lhsArgs[:lhsArgs.size - info.numIndices - 1]
     let indicesMajor := lhsArgs[lhsArgs.size - info.numIndices - 1:]
     let sizeOfLevels := lhs.getAppFn.constLevels!
-    /- Auxiliary function for constructing an `_sizeOf_<idx>` for `ys`,
-       where `ys` are the indices + major.
-       Recall that if `info.name` is part of a mutually inductive declaration, then the resulting application
-       is not necessarily a `lhs.getAppFn` application.
-       The result is an application of one of the `(← read),sizeOfFns` functions.
-       We use this auxiliary function to builtin the motive of the recursor. -/
-    let rec mkSizeOf (ys : Array Expr) : M Expr := do
+    let rec
+      /-- Auxiliary function for constructing an `_sizeOf_<idx>` for `ys`,
+        where `ys` are the indices + major.
+        Recall that if `info.name` is part of a mutually inductive declaration, then the resulting application
+        is not necessarily a `lhs.getAppFn` application.
+        The result is an application of one of the `(← read),sizeOfFns` functions.
+        We use this auxiliary function to builtin the motive of the recursor. -/
+      mkSizeOf (ys : Array Expr) : M Expr := do
       for sizeOfFn in (← read).sizeOfFns do
         let candidate := mkAppN (mkAppN (mkConst sizeOfFn sizeOfLevels) sizeOfBaseArgs) ys
         if (← isTypeCorrect candidate) then

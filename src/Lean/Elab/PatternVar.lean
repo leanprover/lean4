@@ -13,7 +13,7 @@ open Meta
 
 abbrev PatternVar := Syntax  -- TODO: should be `Ident`
 
-/-
+/-!
   Patterns define new local variables.
   This module collect them and preprocess `_` occurring in patterns.
   Recall that an `_` may represent anonymous variables or inaccessible terms
@@ -49,7 +49,7 @@ private def throwCtorExpected {α} : M α :=
 private def throwInvalidPattern {α} : M α :=
   throwError "invalid pattern"
 
-/-
+/-!
 An application in a pattern can be
 
 1- A constructor application
@@ -231,7 +231,7 @@ where
   processCtor (stx : Syntax) : M Syntax := do
     processCtorAppCore stx #[] #[] false
 
-  /- Check whether `stx` is a pattern variable or constructor-like (i.e., constructor or constant tagged with `[matchPattern]` attribute) -/
+  /-- Check whether `stx` is a pattern variable or constructor-like (i.e., constructor or constant tagged with `[matchPattern]` attribute) -/
   processId (stx : Syntax) : M Syntax := do
     match (← resolveId? stx "pattern") with
     | none   => processVar stx
@@ -324,7 +324,7 @@ def collectPatternVars (alt : MatchAltView) : TermElabM (Array PatternVar × Mat
   let (alt, s) ← (CollectPatternVars.main alt).run {}
   return (s.vars, alt)
 
-/- Return the pattern variables in the given pattern.
+/-- Return the pattern variables in the given pattern.
    Remark: this method is not used by the main `match` elaborator, but in the precheck hook and other macros (e.g., at `Do.lean`). -/
 def getPatternVars (patternStx : Syntax) : TermElabM (Array PatternVar) := do
   let patternStx ← liftMacroM <| expandMacros patternStx

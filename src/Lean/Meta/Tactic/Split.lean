@@ -152,7 +152,7 @@ private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : N
     let (discrEqs, mvarId') ← introNP mvarId' discrs.size
     return (discrs', discrEqs, mvarId')
 where
-  /-
+  /--
     - `eqs` are free variables `h_eq : discr = discrVar`. `eqs.size == discrs.size`
     - `altEqs` are free variables of the form `h_altEq : discr = pattern`. `altEqs.size = numDiscrEqs ≤ discrs.size`
     This method executes `k altEqsNew subst` where

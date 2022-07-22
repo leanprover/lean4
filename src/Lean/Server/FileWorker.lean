@@ -65,7 +65,8 @@ structure WorkerContext where
   initParams       : InitializeParams
   clientHasWidgets : Bool
 
-/- Asynchronous snapshot elaboration. -/
+/-! # Asynchronous snapshot elaboration -/
+
 section Elab
   structure AsyncElabState where
     snaps : Array Snapshot

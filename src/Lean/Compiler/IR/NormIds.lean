@@ -29,7 +29,7 @@ partial def checkDecl : Decl → M Bool
 
 end UniqueIds
 
-/- Return true if variable, parameter and join point ids are unique -/
+/-- Return true if variable, parameter and join point ids are unique -/
 def Decl.uniqueIds (d : Decl) : Bool :=
   (UniqueIds.checkDecl d).run' {}
 
@@ -119,11 +119,11 @@ def normDecl (d : Decl) : N Decl :=
 
 end NormalizeIds
 
-/- Create a declaration equivalent to `d` s.t. `d.normalizeIds.uniqueIds == true` -/
+/-- Create a declaration equivalent to `d` s.t. `d.normalizeIds.uniqueIds == true` -/
 def Decl.normalizeIds (d : Decl) : Decl :=
   (NormalizeIds.normDecl d {}).run' 1
 
-/- Apply a function `f : VarId → VarId` to variable occurrences.
+/-! Apply a function `f : VarId → VarId` to variable occurrences.
    The following functions assume the IR code does not have variable shadowing. -/
 namespace MapVars
 
@@ -171,7 +171,7 @@ end MapVars
 @[inline] def FnBody.mapVars (f : VarId → VarId) (b : FnBody) : FnBody :=
   MapVars.mapFnBody f b
 
-/- Replace `x` with `y` in `b`. This function assumes `b` does not shadow `x` -/
+/-- Replace `x` with `y` in `b`. This function assumes `b` does not shadow `x` -/
 def FnBody.replaceVar (x y : VarId) (b : FnBody) : FnBody :=
   b.mapVars fun z => if x == z then y else z
 

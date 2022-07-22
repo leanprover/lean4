@@ -11,7 +11,7 @@ import Init.Util
 universe u
 
 namespace List
-/- The following functions can't be defined at `Init.Data.List.Basic`, because they depend on `Init.Util`,
+/-! The following functions can't be defined at `Init.Data.List.Basic`, because they depend on `Init.Util`,
    and `Init.Util` depends on `Init.Data.List.Basic`. -/
 
 def get! [Inhabited α] : List α → Nat → α

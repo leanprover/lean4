@@ -64,7 +64,7 @@ def toolchain :=
 @[extern c inline "LEAN_IS_STAGE0"]
 opaque Internal.isStage0 (u : Unit) : Bool
 
-/- Valid identifier names -/
+/-- Valid identifier names -/
 def isGreek (c : Char) : Bool :=
   0x391 ≤ c.val && c.val ≤ 0x3dd
 
@@ -448,7 +448,7 @@ end Syntax
 @[inline] def mkNode (k : SyntaxNodeKind) (args : Array Syntax) : TSyntax k :=
   ⟨Syntax.node SourceInfo.none k args⟩
 
-/- Syntax objects for a Lean module. -/
+/-- Syntax objects for a Lean module. -/
 structure Module where
   header   : Syntax
   commands : Array Syntax
@@ -491,7 +491,7 @@ partial def expandMacros (stx : Syntax) (p : SyntaxNodeKind → Bool := fun k =>
       return stx
   | stx => return stx
 
-/- Helper functions for processing Syntax programmatically -/
+/-! # Helper functions for processing Syntax programmatically -/
 
 /--
   Create an identifier copying the position from `src`.
@@ -588,7 +588,7 @@ def mkScientificLit (val : String) (info := SourceInfo.none) : TSyntax scientifi
 def mkNameLit (val : String) (info := SourceInfo.none) : NameLit :=
   mkLit nameLitKind val info
 
-/- Recall that we don't have special Syntax constructors for storing numeric and string atoms.
+/-! Recall that we don't have special Syntax constructors for storing numeric and string atoms.
    The idea is to have an extensible approach where embedded DSLs may have new kind of atoms and/or
    different ways of representing them. So, our atoms contain just the parsed string.
    The main Lean parser uses the kind `numLitKind` for storing natural numbers that can be encoded
@@ -966,7 +966,7 @@ instance Option.hasQuote {α : Type} [Quote α `term] : Quote (Option α) `term 
     | (some x) => Syntax.mkCApp ``some #[quote x]
 
 
-/- Evaluator for `prec` DSL -/
+/-- Evaluator for `prec` DSL -/
 def evalPrec (stx : Syntax) : MacroM Nat :=
   Macro.withIncRecDepth stx do
     let stx ← expandMacros stx
@@ -982,7 +982,7 @@ macro_rules
 
 macro "eval_prec " p:prec:max : term => return quote (k := `term) (← evalPrec p)
 
-/- Evaluator for `prio` DSL -/
+/-- Evaluator for `prio` DSL -/
 def evalPrio (stx : Syntax) : MacroM Nat :=
   Macro.withIncRecDepth stx do
     let stx ← expandMacros stx
@@ -1064,7 +1064,7 @@ def TSepArray.getElems (sa : TSepArray k sep) : TSyntaxArray k :=
 def TSepArray.push (sa : TSepArray k sep) (e : TSyntax k) : TSepArray k sep :=
   if sa.elemsAndSeps.isEmpty then
     { elemsAndSeps := #[e] }
-  else 
+  else
     { elemsAndSeps := sa.elemsAndSeps.push (mkAtom sep) |>.push e }
 
 instance : EmptyCollection (SepArray sep) where
@@ -1106,7 +1106,8 @@ set_option linter.unusedVariables.funArgs false in
   For example, the tactic will *not* be invoked during type class resolution. -/
 abbrev autoParam.{u} (α : Sort u) (tactic : Lean.Syntax) : Sort u := α
 
-/- Helper functions for manipulating interpolated strings -/
+/-! # Helper functions for manipulating interpolated strings -/
+
 namespace Lean.Syntax
 
 private def decodeInterpStrQuotedChar (s : String) (i : String.Pos) : Option (Char × String.Pos) := do

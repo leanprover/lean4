@@ -61,7 +61,7 @@ structure LocationLink where
 
 -- NOTE: Diagnostic defined in Diagnostics.lean
 
-/- NOTE: No specific commands are specified by LSP, hence
+/-- NOTE: No specific commands are specified by LSP, hence
 possible commands need to be announced as capabilities. -/
 structure Command where
   title : String

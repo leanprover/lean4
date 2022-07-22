@@ -173,65 +173,65 @@ variable {α : Type u} {le : α → α → Bool}
 @[inline] def isEmpty : BinomialHeap α le → Bool
   | ⟨b, _⟩ => BinomialHeapImp.isEmpty b
 
-/- O(1) -/
+/-- O(1) -/
 @[inline] def singleton (a : α) : BinomialHeap α le :=
   ⟨BinomialHeapImp.singleton a, WellFormed.singleton a⟩
 
-/- O(log n) -/
+/-- O(log n) -/
 @[inline] def merge : BinomialHeap α le → BinomialHeap α le → BinomialHeap α le
   | ⟨b₁, h₁⟩, ⟨b₂, h₂⟩ => ⟨BinomialHeapImp.merge le b₁ b₂, WellFormed.merge b₁ b₂ h₁ h₂⟩
 
-/- O(log n) -/
+/-- O(log n) -/
 @[inline] def insert (a : α) (h : BinomialHeap α le) : BinomialHeap α le :=
   merge (singleton a) h
 
-/- O(n log n) -/
+/-- O(n log n) -/
 def ofList (le : α → α → Bool) (as : List α) : BinomialHeap α le :=
   as.foldl (flip insert) empty
 
-/- O(n log n) -/
+/-- O(n log n) -/
 def ofArray (le : α → α → Bool) (as : Array α) : BinomialHeap α le :=
   as.foldl (flip insert) empty
 
-/- O(log n) -/
+/-- O(log n) -/
 @[inline] def deleteMin : BinomialHeap α le → Option (α × BinomialHeap α le)
   | ⟨b, h⟩ =>
     match eq: BinomialHeapImp.deleteMin le b with
     | none => none
     | some (a, tl) => some (a, ⟨tl, WellFormed.deleteMin a b tl h eq⟩)
 
-/- O(log n) -/
+/-- O(log n) -/
 @[inline] def head [Inhabited α] : BinomialHeap α le → α
   | ⟨b, _⟩ => BinomialHeapImp.head le b
 
-/- O(log n) -/
+/-- O(log n) -/
 @[inline] def head? : BinomialHeap α le → Option α
   | ⟨b, _⟩ => BinomialHeapImp.head? le b
 
-/- O(log n) -/
+/-- O(log n) -/
 @[inline] def tail? : BinomialHeap α le → Option (BinomialHeap α le)
   | ⟨b, h⟩ =>
     match eq: BinomialHeapImp.tail? le b with
     | none => none
     | some tl => some ⟨tl, WellFormed.tail? b tl h eq⟩
 
-/- O(log n) -/
+/-- O(log n) -/
 @[inline] def tail : BinomialHeap α le → BinomialHeap α le
   | ⟨b, h⟩ => ⟨BinomialHeapImp.tail le b, WellFormed.tail b h⟩
 
-/- O(n log n) -/
+/-- O(n log n) -/
 @[inline] def toList : BinomialHeap α le → List α
   | ⟨b, _⟩ => BinomialHeapImp.toList le b
 
-/- O(n log n) -/
+/-- O(n log n) -/
 @[inline] def toArray : BinomialHeap α le → Array α
   | ⟨b, _⟩ => BinomialHeapImp.toArray le b
 
-/- O(n) -/
+/-- O(n) -/
 @[inline] def toListUnordered : BinomialHeap α le → List α
   | ⟨b, _⟩ => BinomialHeapImp.toListUnordered b
 
-/- O(n) -/
+/-- O(n) -/
 @[inline] def toArrayUnordered : BinomialHeap α le → Array α
   | ⟨b, _⟩ => BinomialHeapImp.toArrayUnordered b
 

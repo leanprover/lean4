@@ -107,7 +107,7 @@ private def checkMotive (declName : Name) (motive : Expr) (motiveArgs : Array Ex
   unless motive.isFVar && motiveArgs.all Expr.isFVar do
     throwError "invalid user defined recursor '{declName}', result type must be of the form (C t), where C is a bound variable, and t is a (possibly empty) sequence of bound variables"
 
-/- Compute number of parameters for (user-defined) recursor.
+/-- Compute number of parameters for (user-defined) recursor.
    We assume a parameter is anything that occurs before the motive -/
 private partial def getNumParams (xs : Array Expr) (motive : Expr) (i : Nat) : Nat :=
   if h : i < xs.size then

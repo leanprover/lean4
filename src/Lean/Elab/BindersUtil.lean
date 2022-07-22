@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Parser.Term
 
 namespace Lean.Elab.Term
-/-
+/--
   Recall that
   ```
   def typeSpec := leading_parser " : " >> termParser
@@ -21,7 +21,7 @@ def expandOptType (ref : Syntax) (optType : Syntax) : Syntax :=
 
 open Lean.Parser.Term
 
-/- Helper function for `expandEqnsIntoMatch` -/
+/-- Helper function for `expandEqnsIntoMatch` -/
 def getMatchAltsNumPatterns (matchAlts : Syntax) : Nat :=
   let alt0 := matchAlts[0][0]
   let pats := alt0[1][0].getSepArgs

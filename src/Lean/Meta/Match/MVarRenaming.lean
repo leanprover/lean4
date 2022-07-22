@@ -7,7 +7,7 @@ import Lean.Util.ReplaceExpr
 
 namespace Lean.Meta
 
-/- A mapping from MVarId to MVarId -/
+/-- A mapping from MVarId to MVarId -/
 structure MVarRenaming where
   map : MVarIdMap MVarId := {}
 

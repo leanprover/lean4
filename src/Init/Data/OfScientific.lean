@@ -8,7 +8,7 @@ import Init.Meta
 import Init.Data.Float
 import Init.Data.Nat
 
-/- For decimal and scientific numbers (e.g., `1.23`, `3.12e10`).
+/-- For decimal and scientific numbers (e.g., `1.23`, `3.12e10`).
    Examples:
    - `OfScientific.ofScientific 123 true 2`    represents `1.23`
    - `OfScientific.ofScientific 121 false 100` represents `121e100`
@@ -31,8 +31,8 @@ protected opaque Float.ofScientific (m : Nat) (s : Bool) (e : Nat) : Float :=
   else
     Float.ofBinaryScientific (m * 5^e) e
 
-/-
-  The `OfScientifi Float` must have priority higher than `mid` since
+/--
+  The `OfScientific Float` must have priority higher than `mid` since
   the default instance `Neg Int` has `mid` priority.
   ```
   #check -42.0 -- must be Float

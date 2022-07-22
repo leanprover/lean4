@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Std.Data.HashMap
 namespace Lean.SCC
-/-
+/-!
   Very simple implementation of Tarjan's SCC algorithm.
   Performance is not a goal here since we use this module to
   compiler mutually recursive definitions, where each function

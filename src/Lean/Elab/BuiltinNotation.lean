@@ -242,7 +242,7 @@ where
     | _ => Term.expandCDot? stx
 
 
-/-
+/--
   Try to expand `·` notation.
   Recall that in Lean the `·` notation must be surrounded by parentheses.
   We may change this is the future, but right now, here are valid examples

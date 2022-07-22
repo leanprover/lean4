@@ -19,6 +19,9 @@ instance : MonadError IO where
 instance : MonadError (EIO String) where
   error msg := throw msg
 
+instance : MonadError (Except String) where
+  error msg := throw msg
+
 /--
 Perform an EIO action.
 If it throws an error, invoke `error` with its string representation.

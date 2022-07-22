@@ -36,7 +36,7 @@ section
 variable [MonadWorkspace m] [Functor m]
 
 instance : MonadLakeEnv m where
-  read := (·.env) <$> read
+  read := (·.lakeEnv) <$> read
 
 /- ## Workspace Helpers -/
 

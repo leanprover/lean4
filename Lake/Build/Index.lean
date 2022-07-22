@@ -114,23 +114,21 @@ the initial set of Lake package facets (e.g., `extraDep`).
   |>.insert `deps (mkPackageFacetBuild <| fun pkg => do
     let mut deps := #[]
     let mut depSet := PackageSet.empty
-    for dep in pkg.dependencies do
-      if let some depPkg ← findPackage? dep.name then
-        for depDepPkg in (← recBuild <| depPkg.facet `deps) do
-          unless depSet.contains depDepPkg do
-            deps := deps.push depDepPkg
-            depSet := depSet.insert depDepPkg
-        unless depSet.contains depPkg do
-          deps := deps.push depPkg
-          depSet := depSet.insert depPkg
+    for dep in pkg.deps do
+      for depDep in (← recBuild <| dep.facet `deps) do
+        unless depSet.contains depDep do
+          deps := deps.push depDep
+          depSet := depSet.insert depDep
+      unless depSet.contains dep do
+        deps := deps.push dep
+        depSet := depSet.insert dep
     return deps
   )
   -- Build the `extraDepTarget` for the package and its transitive dependencies
   |>.insert `extraDep (mkPackageFacetBuild <| fun pkg => do
     let mut target := ActiveTarget.nil
-    for dep in pkg.dependencies do
-      if let some depPkg ← findPackage? dep.name then
-        target ← target.mixOpaqueAsync (← depPkg.extraDep.recBuild)
+    for dep in pkg.deps do
+      target ← target.mixOpaqueAsync (← dep.extraDep.recBuild)
     target.mixOpaqueAsync <| ← pkg.extraDepTarget.activate
   )
 

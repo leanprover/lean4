@@ -36,7 +36,7 @@ def configModuleName : Name := `lakefile
 
 /-- Elaborate `configFile` with the given package directory and options. -/
 def elabConfigFile (pkgDir : FilePath) (configOpts : NameMap String)
-(configFile := pkgDir / defaultConfigFile) (leanOpts := Options.empty) : LogIO Environment := do
+(leanOpts := Options.empty) (configFile := pkgDir / defaultConfigFile) : LogIO Environment := do
 
   -- Read file and initialize environment
   let input ← IO.FS.readFile configFile

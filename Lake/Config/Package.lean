@@ -12,7 +12,7 @@ import Lake.Config.Dependency
 import Lake.Config.Script
 import Lake.Util.DRBMap
 
-open Std System
+open Std System Lean
 
 namespace Lake
 
@@ -246,12 +246,12 @@ structure Package where
   dir : FilePath
   /-- The package's user-defined configuration. -/
   config : PackageConfig
-  /-- The package's well-formed name. -/
-  name : Name := config.name
-  /-- Scripts for the package. -/
-  scripts : NameMap Script := {}
-  /- An `Array` of the package's dependencies. -/
-  dependencies : Array Dependency := #[]
+  /-- The elaboration environment of the package's configuration file. -/
+  configEnv : Environment
+  /-- The Lean `Options` the package configuration was elaborated with. -/
+  leanOpts : Options
+  /- (Opaque references to) the package's direct dependencies. -/
+  opaqueDeps : Array OpaquePackage := #[]
   /-- Lean library configurations for the package. -/
   leanLibConfigs : NameMap LeanLibConfig := {}
   /-- Lean binary executable configurations for the package. -/
@@ -269,14 +269,24 @@ structure Package where
   (i.e., on a bare `lake build` of the package).
   -/
   defaultTargets : Array Name := #[]
+  /-- Scripts for the package. -/
+  scripts : NameMap Script := {}
   deriving Inhabited
 
 hydrate_opaque_type OpaquePackage Package
 
-abbrev PackageSet := RBTree Package (·.name.quickCmp ·.name)
+abbrev PackageSet := RBTree Package (·.config.name.quickCmp ·.config.name)
 @[inline] def PackageSet.empty : PackageSet := RBTree.empty
 
 namespace Package
+
+/-- The package's name. -/
+@[inline] def name (self : Package) : Name :=
+  self.config.name
+
+  /- An `Array` of the package's direct dependencies. -/
+@[inline] def deps (self : Package) : Array Package  :=
+  self.opaqueDeps.map (·.get)
 
 /-- The package's `extraDepTarget` configuration. -/
 @[inline] def extraDepTarget (self : Package) : OpaqueTarget :=

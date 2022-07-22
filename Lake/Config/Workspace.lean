@@ -21,7 +21,7 @@ structure Workspace where
   /-- The root package of the workspace. -/
   root : Package
   /-- The detect `Lake.Env` of the workspace. -/
-  env : Lake.Env
+  lakeEnv : Lake.Env
   /-- Name-package map of packages within the workspace. -/
   packageMap : NameMap Package := {}
   deriving Inhabited
@@ -127,7 +127,7 @@ used to build is available to the environment (and thus, e.g., the Lean server).
 Otherwise, it may fall back on whatever the default Lake instance is.
 -/
 def augmentedLeanPath (self : Workspace) : SearchPath :=
-  self.env.leanPath ++ self.leanPath ++ [self.env.lake.libDir]
+  self.lakeEnv.leanPath ++ self.leanPath ++ [self.lakeEnv.lake.libDir]
 
 /--
 The detected `LEAN_SRC_PATH` of the environment
@@ -138,21 +138,21 @@ used to build is available to the environment (and thus, e.g., the Lean server).
 Otherwise, it may fall back on whatever the default Lake instance is.
 -/
 def augmentedLeanSrcPath (self : Workspace) : SearchPath :=
-  self.env.leanSrcPath ++ self.leanSrcPath ++ [self.env.lake.srcDir]
+  self.lakeEnv.leanSrcPath ++ self.leanSrcPath ++ [self.lakeEnv.lake.srcDir]
 
 /-
 The detected `sharedLibPathEnv` value of the environment
 augmented with the workspace's `libPath`.
 -/
 def augmentedSharedLibPath (self : Workspace) : SearchPath :=
-  self.env.sharedLibPath ++ self.libPath
+  self.lakeEnv.sharedLibPath ++ self.libPath
 
 /--
 The detected environment augmented with the Workspace's paths.
 These are the settings use by `lake env` / `Lake.env` to run executables.
 -/
 def augmentedEnvVars (self : Workspace) : Array (String × Option String) :=
-  self.env.installVars ++ #[
+  self.lakeEnv.installVars ++ #[
     ("LEAN_PATH", some self.augmentedLeanPath.toString),
     ("LEAN_SRC_PATH", some self.augmentedLeanSrcPath.toString),
     (sharedLibPathEnvVar, some self.augmentedSharedLibPath.toString)

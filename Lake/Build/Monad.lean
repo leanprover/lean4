@@ -13,7 +13,7 @@ namespace Lake
 deriving instance Inhabited for BuildContext
 
 def mkBuildContext (ws : Workspace) : IO BuildContext := do
-  let lean := ws.env.lean
+  let lean := ws.lakeEnv.lean
   let leanTrace :=
     if lean.githash.isEmpty then
       mixTrace (← computeTrace lean.lean) (← computeTrace lean.sharedLib)

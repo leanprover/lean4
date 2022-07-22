@@ -26,7 +26,7 @@ structure LakeOptions where
   configFile : FilePath := defaultConfigFile
   leanInstall? : Option LeanInstall := none
   lakeInstall? : Option LakeInstall := none
-  configOptions : NameMap String := {}
+  configOpts : NameMap String := {}
   subArgs : List String := []
   wantsHelp : Bool := false
 
@@ -51,12 +51,15 @@ def LakeOptions.computeEnv (opts : LakeOptions) : EIO CliError Lake.Env := do
   Env.compute (← opts.getLakeInstall) (← opts.getLeanInstall)
 
 /-- Make a `LoadConfig` from a `LakeOptions`. -/
-def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
+def LakeOptions.mkLoadConfig
+(opts : LakeOptions) (updateDeps := false) : EIO CliError LoadConfig :=
   return {
-    rootDir := opts.rootDir,
-    configFile := opts.rootDir / opts.configFile,
     env := ← opts.computeEnv
-    options := opts.configOptions
+    rootDir := opts.rootDir
+    configFile := opts.rootDir / opts.configFile
+    configOpts := opts.configOpts
+    leanOpts := Lean.Options.empty
+    updateDeps
   }
 
 export LakeOptions (mkLoadConfig)
@@ -103,7 +106,7 @@ def setLean (lean : String) : CliStateM PUnit := do
   let leanInstall? ← findLeanCmdInstall? lean
   modify ({·  with leanInstall?})
 
-def setConfigOption (kvPair : String) : CliM PUnit :=
+def setConfigOpt (kvPair : String) : CliM PUnit :=
   let pos := kvPair.posOf '='
   let (key, val) :=
     if pos = kvPair.endPos then
@@ -111,13 +114,13 @@ def setConfigOption (kvPair : String) : CliM PUnit :=
     else
       (kvPair.extract 0 pos |>.toName, kvPair.extract (kvPair.next pos) kvPair.endPos)
   modifyThe LakeOptions fun opts =>
-    {opts with configOptions := opts.configOptions.insert key val}
+    {opts with configOpts := opts.configOpts.insert key val}
 
 def lakeShortOption : (opt : Char) → CliM PUnit
 | 'h' => modifyThe LakeOptions ({· with wantsHelp := true})
 | 'd' => do let rootDir ← takeOptArg "-d" "path"; modifyThe LakeOptions ({· with rootDir})
 | 'f' => do let configFile ← takeOptArg "-f" "path"; modifyThe LakeOptions ({· with configFile})
-| 'K' => do setConfigOption <| ← takeOptArg "-K" "key-value pair"
+| 'K' => do setConfigOpt <| ← takeOptArg "-K" "key-value pair"
 | opt => throw <| CliError.unknownShortOption opt
 
 def lakeLongOption : (opt : String) → CliM PUnit
@@ -308,8 +311,8 @@ protected def build : CliM PUnit := do
 
 protected def update : CliM PUnit := do
   processOptions lakeOption
-  let config ← mkLoadConfig (← getThe LakeOptions)
-  noArgsRem <| discard <| loadWorkspace config (updateDeps := true)
+  let config ← mkLoadConfig (← getThe LakeOptions) (updateDeps := true)
+  noArgsRem <| discard <| loadWorkspace config
 
 protected def printPaths : CliM PUnit := do
   processOptions lakeOption

@@ -21,9 +21,18 @@
    "kind": 7,
    "detail":
    "(Type u₁ → Type u₂) →\n  (ρ : Type u) → (α : outParam (Type v)) → outParam (Membership α ρ) → Type (max (max (max u (u₁ + 1)) u₂) v)"},
-  {"label": "ForInStep", "kind": 22, "detail": "Type u → Type u"},
+  {"label": "ForInStep",
+   "kind": 22,
+   "documentation":
+   {"value": "Auxiliary type used to compile `for x in xs` notation. ",
+    "kind": "markdown"},
+   "detail": "Type u → Type u"},
   {"label": "ForM",
    "kind": 7,
+   "documentation":
+   {"value":
+    "Typeclass for the polymorphic `forM` operation described in the \"do unchained\" paper.\nRemark:\n- `γ` is a \"container\" type of elements of type `α`.\n- `α` is treated as an output parameter by the typeclass resolution procedure.\n  That is, it tries to find an instance using only `m` and `γ`.\n",
+    "kind": "markdown"},
    "detail":
    "(Type u → Type v) → Type w₁ → outParam (Type w₂) → Type (max (max (max (u + 1) v) w₁) w₂)"},
   {"label": "Function", "kind": 9, "detail": "namespace"},

@@ -48,7 +48,7 @@ structure Context where
 structure SavedState where
   term   : Term.SavedState
   tactic : State
-
+  
 abbrev TacticM := ReaderT Context $ StateRefT State TermElabM
 abbrev Tactic  := Syntax → TacticM Unit
 
@@ -142,7 +142,7 @@ We marked these places with a `(*)` in these methods.
 -/
 inductive EvalTacticFailure where
   | /-- Exceptions ≠ AbortException -/ 
-    exception (ex : Exception)
+    exception (s : SavedState) (ex : Exception)
   | /-- 
       `abort` exceptions are used when exceptions have already been logged at the message Log.
       Thus, we save the whole state here to make sure we don't lose them.
@@ -167,21 +167,23 @@ partial def evalTactic (stx : Syntax) : TacticM Unit :=
     | _ => throwError m!"unexpected tactic{indentD stx}"
 where 
    throwExs (failures : Array EvalTacticFailure) : TacticM Unit := do
-     let exs := failures.filterMap fun | .abort _ => none | .exception ex => some ex
-     if exs.isEmpty then
+     let exs := failures.filterMap fun | .abort _ => none | .exception s ex => some (s, ex)
+     if h : 0 < exs.size then
+       -- Recall that `exs[0]` is the highest priority evalFn/macro
+       exs[0].1.restore (restoreInfo := true)
+       throw exs[0].2 -- (*)
+     else
        if let some (.abort s) := failures.find? fun | .abort _ => true | _ => false then
          s.restore (restoreInfo := true)
          throwAbortTactic
        else
          throwErrorAt stx "unexpected syntax {indentD stx}" 
-     else if h : 0 < exs.size then
-       throw exs[0] -- (*)
-     else
-       withRef stx do throwErrorWithNestedErrors "tactic failed" exs -- (*)
 
     @[inline] handleEx (s : SavedState) (failures : Array EvalTacticFailure) (ex : Exception) (k : Array EvalTacticFailure → TacticM Unit) := do
       match ex with
-      | .error .. => s.restore (restoreInfo := true); k (failures.push (.exception ex))
+      | .error .. => 
+        let failures := failures.push (.exception (← Tactic.saveState) ex)
+        s.restore (restoreInfo := true); k failures
       | .internal id _ =>
         if id == unsupportedSyntaxExceptionId then
           -- We do not store `unsupportedSyntaxExceptionId`, see throwExs

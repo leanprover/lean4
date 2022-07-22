@@ -316,6 +316,7 @@ theorem of_decide_eq_self_eq_true [inst : DecidableEq α] (a : α) : Eq (decide 
    | true, true   => isTrue rfl
 
 class BEq (α : Type u) where
+  /-- Boolean equality. -/
   beq : α → α → Bool
 
 open BEq (beq)
@@ -379,6 +380,7 @@ instance [dp : Decidable p] : Decidable (Not p) :=
   | true  => false
   | false => true
 
+/-- The type of natural numbers. `0`, `1`, `2`, ...-/
 inductive Nat where
   | zero : Nat
   | succ (n : Nat) : Nat
@@ -799,12 +801,15 @@ instance : Sub Nat where
 @[extern "lean_system_platform_nbits"] opaque System.Platform.getNumBits : Unit → Subtype fun (n : Nat) => Or (Eq n 32) (Eq n 64) :=
   fun _ => ⟨64, Or.inr rfl⟩ -- inhabitant
 
+/-- Gets the word size of the platform.
+That is, whether the platform is 64 or 32 bits. -/
 def System.Platform.numBits : Nat :=
   (getNumBits ()).val
 
 theorem System.Platform.numBits_eq : Or (Eq numBits 32) (Eq numBits 64) :=
   (getNumBits ()).property
 
+/-- `Fin n` is a natural number `i` with the constraint that `0 ≤ i < n`. -/
 structure Fin (n : Nat) where
   val  : Nat
   isLt : LT.lt val n
@@ -834,6 +839,7 @@ instance Fin.decLt {n} (a b : Fin n) : Decidable (LT.lt a b)  := Nat.decLt ..
 instance Fin.decLe {n} (a b : Fin n) : Decidable (LE.le a b) := Nat.decLe ..
 
 def UInt8.size : Nat := 256
+/-- Unsigned 8-bit integer. -/
 structure UInt8 where
   val : Fin UInt8.size
 
@@ -858,6 +864,7 @@ instance : Inhabited UInt8 where
   default := UInt8.ofNatCore 0 (by decide)
 
 def UInt16.size : Nat := 65536
+/-- Unsigned 16-bit integer. -/
 structure UInt16 where
   val : Fin UInt16.size
 
@@ -882,6 +889,7 @@ instance : Inhabited UInt16 where
   default := UInt16.ofNatCore 0 (by decide)
 
 def UInt32.size : Nat := 4294967296
+/-- Unsigned, 32-bit integer. -/
 structure UInt32 where
   val : Fin UInt32.size
 
@@ -930,6 +938,7 @@ instance (a b : UInt32) : Decidable (LT.lt a b) := UInt32.decLt a b
 instance (a b : UInt32) : Decidable (LE.le a b) := UInt32.decLe a b
 
 def UInt64.size : Nat := 18446744073709551616
+/-- Unsigned, 64-bit integer. -/
 structure UInt64 where
   val : Fin UInt64.size
 
@@ -961,6 +970,12 @@ theorem usize_size_eq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073
   | _, Or.inl rfl => Or.inl (by decide)
   | _, Or.inr rfl => Or.inr (by decide)
 
+/-- A USize is an unsigned integer with the size of a word
+for the platform's architecture.
+
+For example, if running on a 32-bit machine, USize is equivalent to UInt32.
+Or on a 64-bit machine, UInt64.
+-/
 structure USize where
   val : Fin USize.size
 

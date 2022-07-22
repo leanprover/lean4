@@ -100,8 +100,8 @@ def run (mvarId : MVarId) (x : TacticM Unit) : TermElabM (List MVarId) :=
 protected def saveState : TacticM SavedState :=
   return { term := (← Term.saveState), tactic := (← get) }
 
-def SavedState.restore (b : SavedState) : TacticM Unit := do
-  b.term.restore
+def SavedState.restore (b : SavedState) (restoreInfo := false) : TacticM Unit := do
+  b.term.restore restoreInfo
   set b.tactic
 
 protected def getCurrMacroScope : TacticM MacroScope := do pure (← readThe Core.Context).currMacroScope
@@ -170,7 +170,7 @@ where
      let exs := failures.filterMap fun | .abort _ => none | .exception ex => some ex
      if exs.isEmpty then
        if let some (.abort s) := failures.find? fun | .abort _ => true | _ => false then
-         s.restore
+         s.restore (restoreInfo := true)
          throwAbortTactic
        else
          throwErrorAt stx "unexpected syntax {indentD stx}" 
@@ -181,14 +181,14 @@ where
 
     @[inline] handleEx (s : SavedState) (failures : Array EvalTacticFailure) (ex : Exception) (k : Array EvalTacticFailure → TacticM Unit) := do
       match ex with
-      | .error .. => s.restore; k (failures.push (.exception ex))
+      | .error .. => s.restore (restoreInfo := true); k (failures.push (.exception ex))
       | .internal id _ =>
         if id == unsupportedSyntaxExceptionId then
           -- We do not store `unsupportedSyntaxExceptionId`, see throwExs
-          s.restore; k failures
+          s.restore (restoreInfo := true); k failures
         else if id == abortTacticExceptionId then
           let failures := failures.push (.abort (← Tactic.saveState))
-          s.restore; k failures
+          s.restore (restoreInfo := true); k failures
         else
           throw ex -- (*)
 
@@ -365,6 +365,8 @@ def closeMainGoal (val : Expr) (checkUnassigned := true): TacticM Unit := do
     replaceMainGoal mvarIds
     pure a
 
+/-- Get the mvarid of the main goal, run the given `tactic`,
+then set the new goals to be the resulting goal list.-/
 @[inline] def liftMetaTactic (tactic : MVarId → MetaM (List MVarId)) : TacticM Unit :=
   liftMetaTacticAux fun mvarId => do
     let gs ← tactic mvarId

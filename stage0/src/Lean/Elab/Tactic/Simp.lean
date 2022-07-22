@@ -126,11 +126,11 @@ inductive ResolveSimpIdResult where
   | ext  (ext : SimpExtension)
 
 /--
-  Elaborate extra simp theorems provided to `simp`. `stx` is of the `simpTheorem,*`
+  Elaborate extra simp theorems provided to `simp`. `stx` is of the form `"[" simpTheorem,* "]"`
   If `eraseLocal == true`, then we consider local declarations when resolving names for erased theorems (`- id`),
   this option only makes sense for `simp_all`.
 -/
-private def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Bool) (kind : SimpKind) : TacticM ElabSimpArgsResult := do
+def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Bool) (kind : SimpKind) : TacticM ElabSimpArgsResult := do
   if stx.isNone then
     return { ctx }
   else

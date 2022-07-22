@@ -252,6 +252,7 @@ inductive SemanticTokenType where
   | regexp
   | operator
   | decorator
+  deriving ToJson, FromJson
 
 -- must be in the same order as the constructors
 def SemanticTokenType.names : Array String :=
@@ -262,6 +263,11 @@ def SemanticTokenType.names : Array String :=
 
 def SemanticTokenType.toNat (type : SemanticTokenType) : Nat :=
   type.toCtorIdx
+
+-- sanity check
+example {v : SemanticTokenType} : open SemanticTokenType in
+    names[v.toNat]?.map (toString <| toJson ·) = some (toString <| toJson v) := by
+  cases v <;> native_decide
 
 /--
 The semantic token modifiers included by default in the LSP specification.
@@ -279,14 +285,20 @@ inductive SemanticTokenModifier where
   | modification
   | documentation
   | defaultLibrary
+  deriving ToJson, FromJson
 
 -- must be in the same order as the constructors
 def SemanticTokenModifier.names : Array String :=
   #["declaration", "definition", "readonly", "static", "deprecated", "abstract",
     "async", "modification", "documentation", "defaultLibrary"]
 
-def SemanticTokenModifier.toNat (modifier : SemanticTokenType) : Nat :=
+def SemanticTokenModifier.toNat (modifier : SemanticTokenModifier) : Nat :=
   modifier.toCtorIdx
+
+-- sanity check
+example {v : SemanticTokenModifier} : open SemanticTokenModifier in
+    names[v.toNat]?.map (toString <| toJson ·) = some (toString <| toJson v) := by
+  cases v <;> native_decide
 
 structure SemanticTokensLegend where
   tokenTypes : Array String

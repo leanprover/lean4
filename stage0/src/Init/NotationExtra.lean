@@ -262,6 +262,11 @@ syntax "repeat " doSeq : doElem
 macro_rules
   | `(doElem| repeat $seq) => `(doElem| for _ in Loop.mk do $seq)
 
+syntax "while " ident " : " termBeforeDo " do " doSeq : doElem
+
+macro_rules
+  | `(doElem| while $h : $cond do $seq) => `(doElem| repeat if $h : $cond then $seq else break)
+
 syntax "while " termBeforeDo " do " doSeq : doElem
 
 macro_rules

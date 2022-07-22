@@ -107,7 +107,7 @@ export MonadWithOptions (withOptions)
 instance [MonadFunctor m n] [MonadWithOptions m] : MonadWithOptions n where
   withOptions f x := monadMap (m := m) (withOptions f) x
 
-/- Remark: `_inPattern` is an internal option for communicating to the delaborator that
+/-! Remark: `_inPattern` is an internal option for communicating to the delaborator that
    the term being delaborated should be treated as a pattern. -/
 
 def withInPattern [MonadWithOptions m] (x : m α) : m α :=

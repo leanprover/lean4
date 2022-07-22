@@ -207,7 +207,7 @@ macro_rules
       `(let y := %[ $[$y],* | $k ]
         %[ $[$z],* | y ])
 
-/-
+/--
   Expands
   ```
   class abbrev C <params> := D_1, ..., D_n
@@ -241,7 +241,7 @@ macro_rules
   | `(tactic| solve $[| $ts]* ) => `(tactic| focus first $[| ($ts); done]*)
 
 namespace Lean
-/- `repeat` and `while` notation -/
+/-! # `repeat` and `while` notation -/
 
 inductive Loop where
   | mk

@@ -21,7 +21,7 @@ namespace Lean.Elab.Command
 open Meta
 open TSyntax.Compat
 
-/- Recall that the `structure command syntax is
+/-! Recall that the `structure command syntax is
 ```
 leading_parser (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> optional (" := " >> optional structCtor >> structFields)
 ```

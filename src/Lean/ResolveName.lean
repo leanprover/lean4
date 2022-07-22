@@ -29,14 +29,14 @@ builtin_initialize aliasExtension : SimplePersistentEnvExtension AliasEntry Alia
     addImportedFn := fun es => mkStateFromImportedEntries addAliasEntry {} es |>.switch
   }
 
-/- Add alias `a` for `e` -/
+/-- Add alias `a` for `e` -/
 @[export lean_add_alias] def addAlias (env : Environment) (a : Name) (e : Name) : Environment :=
   aliasExtension.addEntry env (a, e)
 
 def getAliasState (env : Environment) : AliasState :=
   aliasExtension.getState env
 
-/-
+/--
   Retrieve aliases for `a`. If `skipProtected` is `true`, then the resulting list only includes
   declarations that are not marked as `proctected`.
 -/
@@ -53,10 +53,10 @@ def getAliases (env : Environment) (a : Name) (skipProtected : Bool) : List Name
 def getRevAliases (env : Environment) (e : Name) : List Name :=
   (aliasExtension.getState env).fold (fun as a es => if List.contains es e then a :: as else as) []
 
-/- Global name resolution -/
+/-! # Global name resolution -/
 namespace ResolveName
 
-/- Check whether `ns ++ id` is a valid namepace name and/or there are aliases names `ns ++ id`. -/
+/-- Check whether `ns ++ id` is a valid namepace name and/or there are aliases names `ns ++ id`. -/
 private def resolveQualifiedName (env : Environment) (ns : Name) (id : Name) : List Name :=
   let resolvedId    := ns ++ id
   -- We ignore protected aliases if `id` is atomic.
@@ -69,7 +69,7 @@ private def resolveQualifiedName (env : Environment) (ns : Name) (id : Name) : L
     if env.contains resolvedIdPrv then resolvedIdPrv :: resolvedIds
     else resolvedIds
 
-/- Check surrounding namespaces -/
+/-- Check surrounding namespaces -/
 private def resolveUsingNamespace (env : Environment) (id : Name) : Name → List Name
   | ns@(.str p _) =>
     match resolveQualifiedName env ns id with
@@ -77,7 +77,7 @@ private def resolveUsingNamespace (env : Environment) (id : Name) : Name → Lis
     | resolvedIds => resolvedIds
   | _ => []
 
-/- Check exact name -/
+/-- Check exact name -/
 private def resolveExact (env : Environment) (id : Name) : Option Name :=
   if id.isAtomic then none
   else
@@ -90,7 +90,7 @@ private def resolveExact (env : Environment) (id : Name) : Option Name :=
       if env.contains resolvedIdPrv then some resolvedIdPrv
       else none
 
-/- Check `OpenDecl`s -/
+/-- Check `OpenDecl`s -/
 private def resolveOpenDecls (env : Environment) (id : Name) : List OpenDecl → List Name → List Name
   | [], resolvedIds => resolvedIds
   | OpenDecl.simple ns exs :: openDecls, resolvedIds =>
@@ -138,7 +138,7 @@ def resolveGlobalName (env : Environment) (ns : Name) (openDecls : List OpenDecl
     | _ => []
   loop extractionResult.name []
 
-/- Namespace resolution -/
+/-! # Namespace resolution -/
 
 def resolveNamespaceUsingScope? (env : Environment) (n : Name) : Name → Option Name
   | .anonymous    => if env.isNamespace n then some n else none

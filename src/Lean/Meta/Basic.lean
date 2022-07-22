@@ -19,7 +19,7 @@ import Lean.Meta.DiscrTreeTypes
 import Lean.Eval
 import Lean.CoreM
 
-/-
+/-!
 This module provides four (mutually dependent) goodies that are needed for building the elaborator and tactic frameworks.
 1- Weak head normal form computation with support for metavariables and transparency modes.
 2- Definitionally equality checking with support for metavariables (aka unification modulo definitional equality).
@@ -424,7 +424,7 @@ def useEtaStruct (inductName : Name) : MetaM Bool := do
   | .all  => return true
   | .notClasses => return !isClass (← getEnv) inductName
 
-/- WARNING: The following 4 constants are a hack for simulating forward declarations.
+/-! WARNING: The following 4 constants are a hack for simulating forward declarations.
    They are defined later using the `export` attribute. This is hackish because we
    have to hard-code the true arity of these definitions here, and make sure the C names match.
    We have used another hack based on `IO.Ref`s in the past, it was safer but less efficient. -/
@@ -481,7 +481,7 @@ def mkFreshTypeMVar (kind := MetavarKind.natural) (userName := Name.anonymous) :
   let u ← mkFreshLevelMVar
   mkFreshExprMVar (mkSort u) kind userName
 
-/- Low-level version of `MkFreshExprMVar` which allows users to create/reserve a `mvarId` using `mkFreshId`, and then later create
+/-- Low-level version of `MkFreshExprMVar` which allows users to create/reserve a `mvarId` using `mkFreshId`, and then later create
    the metavar using this method. -/
 private def mkFreshExprMVarWithIdCore (mvarId : MVarId) (type : Expr)
     (kind : MetavarKind := MetavarKind.natural) (userName : Name := Name.anonymous) (numScopeArgs : Nat := 0)
@@ -537,7 +537,7 @@ def isSyntheticMVar (e : Expr) : MetaM Bool := do
 def setMVarKind (mvarId : MVarId) (kind : MetavarKind) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.setMVarKind mvarId kind
 
-/- Update the type of the given metavariable. This function assumes the new type is
+/-- Update the type of the given metavariable. This function assumes the new type is
    definitionally equal to the current one -/
 def setMVarType (mvarId : MVarId) (type : Expr) : MetaM Unit := do
   modifyMCtx fun mctx => mctx.setMVarType mvarId type
@@ -690,7 +690,7 @@ private def getDefInfoTemp (info : ConstantInfo) : MetaM (Option ConstantInfo) :
     else
       return none
 
-/- Remark: we later define `getConst?` at `GetConst.lean` after we define `Instances.lean`.
+/-- Remark: we later define `getConst?` at `GetConst.lean` after we define `Instances.lean`.
    This method is only used to implement `isClassQuickConst?`.
    It is very similar to `getConst?`, but it returns none when `TransparencyMode.instances` and
    `constName` is an instance. This difference should be irrelevant for `isClassQuickConst?`. -/
@@ -1265,7 +1265,7 @@ private partial def instantiateForallAux (ps : Array Expr) (i : Nat) (e : Expr) 
   else
     pure e
 
-/- Given `e` of the form `forall (a_1 : A_1) ... (a_n : A_n), B[a_1, ..., a_n]` and `p_1 : A_1, ... p_n : A_n`, return `B[p_1, ..., p_n]`. -/
+/-- Given `e` of the form `forall (a_1 : A_1) ... (a_n : A_n), B[a_1, ..., a_n]` and `p_1 : A_1, ... p_n : A_n`, return `B[p_1, ..., p_n]`. -/
 def instantiateForall (e : Expr) (ps : Array Expr) : MetaM Expr :=
   instantiateForallAux ps 0 e
 
@@ -1278,7 +1278,7 @@ private partial def instantiateLambdaAux (ps : Array Expr) (i : Nat) (e : Expr) 
   else
     pure e
 
-/- Given `e` of the form `fun (a_1 : A_1) ... (a_n : A_n) => t[a_1, ..., a_n]` and `p_1 : A_1, ... p_n : A_n`, return `t[p_1, ..., p_n]`.
+/-- Given `e` of the form `fun (a_1 : A_1) ... (a_n : A_n) => t[a_1, ..., a_n]` and `p_1 : A_1, ... p_n : A_n`, return `t[p_1, ..., p_n]`.
    It uses `whnf` to reduce `e` if it is not a lambda -/
 def instantiateLambda (e : Expr) (ps : Array Expr) : MetaM Expr :=
   instantiateLambdaAux ps 0 e

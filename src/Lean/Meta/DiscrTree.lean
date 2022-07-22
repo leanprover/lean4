@@ -10,7 +10,7 @@ import Lean.Meta.WHNF
 import Lean.Meta.Match.MatcherInfo
 
 namespace Lean.Meta.DiscrTree
-/-
+/-!
   (Imperfect) discrimination trees.
   We use a hybrid representation.
   - A `PersistentHashMap` for the root node which usually contains many children.
@@ -108,7 +108,7 @@ partial def format [ToFormat α] (d : DiscrTree α) : Format :=
 
 instance [ToFormat α] : ToFormat (DiscrTree α) := ⟨format⟩
 
-/- The discrimination tree ignores implicit arguments and proofs.
+/-- The discrimination tree ignores implicit arguments and proofs.
    We use the following auxiliary id as a "mark". -/
 private def tmpMVarId : MVarId := { name := `_discr_tree_tmp }
 private def tmpStar := mkMVar tmpMVarId
@@ -205,7 +205,7 @@ private def isOffset (fName : Name) (e : Expr) : MetaM Bool := do
   else
     return fName == ``Nat.succ && e.getAppNumArgs == 1
 
-/-
+/--
   TODO: add hook for users adding their own functions for controlling `shouldAddAsStar`
   Different `DiscrTree` users may populate this set using, for example, attributes.
 

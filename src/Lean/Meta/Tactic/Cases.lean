@@ -155,7 +155,7 @@ private def mkCasesContext? (majorFVarId : FVarId) : MetaM (Option Context) := d
           }
         | _ => pure none
 
-/-
+/--
 We say the major premise has independent indices IF
 1- its type is *not* an indexed inductive family, OR
 2- its type is an indexed inductive family, but all indices are distinct free variables, and
@@ -187,7 +187,7 @@ private def elimAuxIndices (s₁ : GeneralizeIndicesSubgoal) (s₂ : Array Cases
         (pure s)
       | _ => pure s
 
-/-
+/--
   Convert `s` into an array of `CasesSubgoal`, by attaching the corresponding constructor name,
   and adding the substitution `majorFVarId -> ctor_i us params fields` into each subgoal. -/
 private def toCasesSubgoals (s : Array InductionSubgoal) (ctorNames : Array Name) (majorFVarId : FVarId) (us : List Level) (params : Array Expr)

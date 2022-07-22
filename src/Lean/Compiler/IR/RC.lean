@@ -8,7 +8,7 @@ import Lean.Compiler.IR.CompilerM
 import Lean.Compiler.IR.LiveVars
 
 namespace Lean.IR.ExplicitRC
-/- Insert explicit RC instructions. So, it assumes the input code does not contain `inc` nor `dec` instructions.
+/-! Insert explicit RC instructions. So, it assumes the input code does not contain `inc` nor `dec` instructions.
    This transformation is applied before lower level optimizations
    that introduce the instructions `release` and `set`
 -/
@@ -74,12 +74,12 @@ private def addDecForAlt (ctx : Context) (caseLiveVars altLiveVars : LiveVarSet)
   caseLiveVars.fold (init := b) fun b x =>
     if !altLiveVars.contains x && mustConsume ctx x then addDec ctx x b else b
 
-/- `isFirstOcc xs x i = true` if `xs[i]` is the first occurrence of `xs[i]` in `xs` -/
+/-- `isFirstOcc xs x i = true` if `xs[i]` is the first occurrence of `xs[i]` in `xs` -/
 private def isFirstOcc (xs : Array Arg) (i : Nat) : Bool :=
   let x := xs[i]!
   i.all fun j => xs[j]! != x
 
-/- Return true if `x` also occurs in `ys` in a position that is not consumed.
+/-- Return true if `x` also occurs in `ys` in a position that is not consumed.
    That is, it is also passed as a borrow reference. -/
 private def isBorrowParamAux (x : VarId) (ys : Array Arg) (consumeParamPred : Nat → Bool) : Bool :=
   ys.size.any fun i =>
@@ -91,7 +91,7 @@ private def isBorrowParamAux (x : VarId) (ys : Array Arg) (consumeParamPred : Na
 private def isBorrowParam (x : VarId) (ys : Array Arg) (ps : Array Param) : Bool :=
   isBorrowParamAux x ys fun i => not ps[i]!.borrow
 
-/-
+/--
 Return `n`, the number of times `x` is consumed.
 - `ys` is a sequence of instruction parameters where we search for `x`.
 - `consumeParamPred i = true` if parameter `i` is consumed.
@@ -124,7 +124,7 @@ private def addIncBeforeAux (ctx : Context) (xs : Array Arg) (consumeParamPred :
 private def addIncBefore (ctx : Context) (xs : Array Arg) (ps : Array Param) (b : FnBody) (liveVarsAfter : LiveVarSet) : FnBody :=
   addIncBeforeAux ctx xs (fun i => not ps[i]!.borrow) b liveVarsAfter
 
-/- See `addIncBeforeAux`/`addIncBefore` for the procedure that inserts `inc` operations before an application.  -/
+/-- See `addIncBeforeAux`/`addIncBefore` for the procedure that inserts `inc` operations before an application.  -/
 private def addDecAfterFullApp (ctx : Context) (xs : Array Arg) (ps : Array Param) (b : FnBody) (bLiveVars : LiveVarSet) : FnBody :=
 xs.size.fold (init := b) fun i b =>
   match xs[i]! with
@@ -141,7 +141,7 @@ xs.size.fold (init := b) fun i b =>
 private def addIncBeforeConsumeAll (ctx : Context) (xs : Array Arg) (b : FnBody) (liveVarsAfter : LiveVarSet) : FnBody :=
   addIncBeforeAux ctx xs (fun _ => true) b liveVarsAfter
 
-/- Add `dec` instructions for parameters that are references, are not alive in `b`, and are not borrow.
+/-- Add `dec` instructions for parameters that are references, are not alive in `b`, and are not borrow.
    That is, we must make sure these parameters are consumed. -/
 private def addDecForDeadParams (ctx : Context) (ps : Array Param) (b : FnBody) (bLiveVars : LiveVarSet) : FnBody :=
   ps.foldl (init := b) fun b p =>
@@ -151,14 +151,14 @@ private def isPersistent : Expr → Bool
   | Expr.fap _ xs => xs.isEmpty -- all global constants are persistent objects
   | _             => false
 
-/- We do not need to consume the projection of a variable that is not consumed -/
+/-- We do not need to consume the projection of a variable that is not consumed -/
 private def consumeExpr (m : VarMap) : Expr → Bool
   | Expr.proj _ x   => match m.find? x with
     | some info => info.consume
     | none      => true
   | _     => true
 
-/- Return true iff `v` at runtime is a scalar value stored in a tagged pointer.
+/-- Return true iff `v` at runtime is a scalar value stored in a tagged pointer.
    We do not need RC operations for this kind of value. -/
 private def isScalarBoxedInTaggedPtr (v : Expr) : Bool :=
   match v with

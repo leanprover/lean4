@@ -10,7 +10,7 @@ import Lean.Util.FoldConsts
 import Lean.Meta.Basic
 import Lean.Meta.Check
 
-/-
+/-!
 
 This module provides functions for "closing" open terms and
 creating auxiliary definitions. Here, we say a term is "open" if

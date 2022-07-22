@@ -5,9 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Elab.App
 
-/-
-Auxiliary elaboration functions: AKA custom elaborators
--/
+/-! # Auxiliary elaboration functions: AKA custom elaborators -/
 
 namespace Lean.Elab.Term
 open Meta
@@ -78,7 +76,7 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
   | _ => throwUnsupportedSyntax
 
 namespace BinOp
-/-
+/-!
 
 The elaborator for `binop%` terms works as follows:
 

@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.InferType
 
-/-
+/-!
 This is not the Kernel type checker, but an auxiliary method for checking
 whether terms produced by tactics and `isDefEq` are type correct.
 -/
@@ -35,8 +35,8 @@ private def getFunctionDomain (f : Expr) : MetaM (Expr × BinderInfo) := do
   | Expr.forallE _ d _ c => return (d, c)
   | _                    => throwFunctionExpected f
 
-/-
-Given to expressions `a` and `b`, this method tries to annotate terms with `pp.explicit := true` to
+/--
+Given two expressions `a` and `b`, this method tries to annotate terms with `pp.explicit := true` to
 expose "implicit" differences. For example, suppose `a` and `b` are of the form
 ```lean
 @HashMap Nat Nat eqInst hasInst1
@@ -111,7 +111,7 @@ where
            return some (as.set! i ai, bs.set! i bi)
     return none
 
-/-
+/--
   Return error message "has type{givenType}\nbut is expected to have type{expectedType}"
 -/
 def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr) : MetaM MessageData := do

@@ -12,7 +12,7 @@ open Lean.Syntax
 open Lean.Parser.Term hiding macroArg
 open Lean.Parser.Command
 
-/- Wrap all occurrences of the given `ident` nodes in antiquotations -/
+/-- Wrap all occurrences of the given `ident` nodes in antiquotations -/
 private partial def antiquote (vars : Array Syntax) : Syntax → Syntax
   | stx => match stx with
   | `($id:ident) =>
@@ -24,13 +24,13 @@ private partial def antiquote (vars : Array Syntax) : Syntax → Syntax
     | Syntax.node i k args => Syntax.node i k (args.map (antiquote vars))
     | stx => stx
 
-/- Convert `notation` command lhs item into a `syntax` command item -/
+/-- Convert `notation` command lhs item into a `syntax` command item -/
 def expandNotationItemIntoSyntaxItem : TSyntax ``notationItem → MacroM (TSyntax `stx)
   | `(notationItem| $_:ident$[:$prec?]?) => `(stx| term $[:$prec?]?)
   | `(notationItem| $s:str)              => `(stx| $s:str)
   | _                                    => Macro.throwUnsupported
 
-/- Convert `notation` command lhs item into a pattern element -/
+/-- Convert `notation` command lhs item into a pattern element -/
 def expandNotationItemIntoPattern (stx : Syntax) : MacroM Syntax :=
   let k := stx.getKind
   if k == `Lean.Parser.Command.identPrec then

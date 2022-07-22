@@ -23,8 +23,8 @@ inductive Format where
   | nest (indent : Int) : Format → Format
   | append              : Format → Format → Format
   | group               : Format → (behavior : FlattenBehavior := FlattenBehavior.allOrNone) → Format
-  /- Used for associating auxiliary information (e.g. `Expr`s) with `Format` objects. -/
-  | tag                 : Nat → Format → Format
+  | /-- Used for associating auxiliary information (e.g. `Expr`s) with `Format` objects. -/
+    tag                 : Nat → Format → Format
   deriving Inhabited
 
 namespace Format

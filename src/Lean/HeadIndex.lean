@@ -51,7 +51,7 @@ private def headNumArgsAux : Expr → Nat → Nat
 def headNumArgs (e : Expr) : Nat :=
   headNumArgsAux e 0
 
-/-
+/--
   Quick version that may fail if it "hits" a loose bound variable.
   This can happen, for example, if the input expression is of the form.
   ```
@@ -73,7 +73,7 @@ private def toHeadIndexQuick? : Expr → Option HeadIndex
   | mdata _ e               => toHeadIndexQuick? e
   | _                       => none
 
-/-
+/--
   Slower version of `toHeadIndexQuick?` that "expands" let-declarations to make
   sure we never hit a loose bound variable.
   The performance of the `letE` alternative can be improved, but this function should not be in the hotpath

@@ -78,7 +78,7 @@ structure DidCloseTextDocumentParams where
 
 -- TODO: TextDocumentSyncClientCapabilities
 
-/- NOTE: This is defined twice in the spec. The latter version has more fields. -/
+/-- NOTE: This is defined twice in the spec. The latter version has more fields. -/
 structure TextDocumentSyncOptions where
   openClose : Bool
   change : TextDocumentSyncKind

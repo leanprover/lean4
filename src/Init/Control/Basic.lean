@@ -217,7 +217,7 @@ def control {m : Type u → Type v} {n : Type u → Type w} [MonadControlT m n] 
     (f : ({β : Type u} → n β → m (stM m n β)) → m (stM m n α)) : n α :=
   controlAt m f
 
-/-
+/--
   Typeclass for the polymorphic `forM` operation described in the "do unchained" paper.
   Remark:
   - `γ` is a "container" type of elements of type `α`.

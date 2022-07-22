@@ -59,7 +59,7 @@ where
         failure
     | _ => failure
 
-/- Quick function for converting `e` into `s + k` s.t. `e` is definitionally equal to `Nat.add s k`. -/
+/-- Quick function for converting `e` into `s + k` s.t. `e` is definitionally equal to `Nat.add s k`. -/
 private partial def getOffsetAux : Expr → Bool → OptionT MetaM (Expr × Nat)
   | e@(Expr.app _ a), top => do
     let f := e.getAppFn

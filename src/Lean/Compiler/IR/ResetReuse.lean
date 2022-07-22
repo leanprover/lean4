@@ -8,11 +8,11 @@ import Lean.Compiler.IR.LiveVars
 import Lean.Compiler.IR.Format
 
 namespace Lean.IR.ResetReuse
-/- Remark: the insertResetReuse transformation is applied before we have
+/-! Remark: the insertResetReuse transformation is applied before we have
    inserted `inc/dec` instructions, and perfomed lower level optimizations
    that introduce the instructions `release` and `set`. -/
 
-/- Remark: the functions `S`, `D` and `R` defined here implement the
+/-! Remark: the functions `S`, `D` and `R` defined here implement the
   corresponding functions in the paper "Counting Immutable Beans"
 
   Here are the main differences:
@@ -50,7 +50,7 @@ private partial def S (w : VarId) (c : CtorInfo) : FnBody → FnBody
       (instr, b) := b.split
       instr.setBody (S w c b)
 
-/- We use `Context` to track join points in scope. -/
+/-- We use `Context` to track join points in scope. -/
 abbrev M := ReaderT LocalContext (StateT Index Id)
 
 private def mkFresh : M VarId := do
@@ -77,7 +77,7 @@ private def isCtorUsing (b : FnBody) (x : VarId) : Bool :=
   | (FnBody.vdecl _ _ (Expr.ctor _ ys) _) => argsContainsVar ys x
   | _ => false
 
-/- Given `Dmain b`, the resulting pair `(new_b, flag)` contains the new body `new_b`,
+/-- Given `Dmain b`, the resulting pair `(new_b, flag)` contains the new body `new_b`,
    and `flag == true` if `x` is live in `b`.
 
    Note that, in the function `D` defined in the paper, for each `let x := e; F`,

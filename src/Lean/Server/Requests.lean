@@ -121,7 +121,7 @@ def bindWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
 
 end RequestM
 
-/- The global request handlers table. -/
+/-! # The global request handlers table -/
 section HandlerTable
 open Lsp
 

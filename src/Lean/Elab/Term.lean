@@ -382,9 +382,9 @@ builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermEl
 -/
 inductive LVal where
   | fieldIdx  (ref : Syntax) (i : Nat)
-    /- Field `suffix?` is for producing better error messages because `x.y` may be a field access or a hierachical/composite name.
+  | /-- Field `suffix?` is for producing better error messages because `x.y` may be a field access or a hierachical/composite name.
        `ref` is the syntax object representing the field. `targetStx` is the target object being accessed. -/
-  | fieldName (ref : Syntax) (name : String) (suffix? : Option Name) (targetStx : Syntax)
+    fieldName (ref : Syntax) (name : String) (suffix? : Option Name) (targetStx : Syntax)
 
 def LVal.getRef : LVal → Syntax
   | .fieldIdx ref _    => ref
@@ -461,12 +461,12 @@ def liftLevelM (x : LevelElabM α) : TermElabM α := do
 def elabLevel (stx : Syntax) : TermElabM Level :=
   liftLevelM <| Level.elabLevel stx
 
-/- Elaborate `x` with `stx` on the macro stack -/
+/-- Elaborate `x` with `stx` on the macro stack -/
 def withMacroExpansion (beforeStx afterStx : Syntax) (x : TermElabM α) : TermElabM α :=
   withMacroExpansionInfo beforeStx afterStx do
     withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
-/-
+/--
   Add the given metavariable to the list of pending synthetic metavariables.
   The method `synthesizeSyntheticMVars` is used to process the metavariables on this list. -/
 def registerSyntheticMVar (stx : Syntax) (mvarId : MVarId) (kind : SyntheticMVarKind) : TermElabM Unit := do
@@ -495,7 +495,7 @@ def registerCustomErrorIfMVar (e : Expr) (ref : Syntax) (msgData : MessageData) 
   | Expr.mvar mvarId => registerMVarErrorCustomInfo mvarId ref msgData
   | _ => pure ()
 
-/-
+/--
   Auxiliary method for reporting errors of the form "... contains metavariables ...".
   This kind of error is thrown, for example, at `Match.lean` where elaboration
   cannot continue if there are metavariables in patterns.
@@ -571,7 +571,7 @@ def ensureNoUnassignedMVars (decl : Declaration) : TermElabM Unit := do
   if (← logUnassignedUsingErrorInfos pendingMVarIds) then
     throwAbortCommand
 
-/-
+/--
   Execute `x` without allowing it to postpone elaboration tasks.
   That is, `tryPostpone` is a noop. -/
 def withoutPostponing (x : TermElabM α) : TermElabM α :=
@@ -1126,7 +1126,7 @@ def withInfoContext' (stx : Syntax) (x : TermElabM Expr) (mkInfo : Expr → Term
   else
     Elab.withInfoContext' x mkInfo
 
-/-
+/--
   Helper function for `elabTerm` is tries the registered elaboration functions for `stxNode` kind until it finds one that supports the syntax or
   an error is found. -/
 private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool)
@@ -1312,7 +1312,7 @@ where
     | type, fvars =>
       elabImplicitLambdaAux stx catchExPostpone type fvars
 
-/- Main loop for `elabTerm` -/
+/-- Main loop for `elabTerm` -/
 private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone : Bool) (implicitLambda : Bool) : Syntax → TermElabM Expr
   | .missing => mkSyntheticSorryFor expectedType?
   | stx => withFreshMacroScope <| withIncRecDepth do
@@ -1544,7 +1544,7 @@ def mkAuxName (suffix : Name) : TermElabM Name := do
 
 builtin_initialize registerTraceClass `Elab.letrec
 
-/- Return true if mvarId is an auxiliary metavariable created for compiling `let rec` or it
+/-- Return true if mvarId is an auxiliary metavariable created for compiling `let rec` or it
    is delayed assigned to one. -/
 def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
   trace[Elab.letrec] "mvarId: {mkMVar mvarId} letrecMVars: {(← get).letRecsToLift.map (mkMVar $ ·.mvarId)}"

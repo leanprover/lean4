@@ -12,7 +12,7 @@ def SourceInfo.updateTrailing (trailing : Substring) : SourceInfo → SourceInfo
   | SourceInfo.original leading pos _ endPos => SourceInfo.original leading pos trailing endPos
   | info                                     => info
 
-/- Syntax AST -/
+/-! # Syntax AST -/
 
 inductive IsNode : Syntax → Prop where
   | mk (info : SourceInfo) (kind : SyntaxNodeKind) (args : Array Syntax) : IsNode (Syntax.node info kind args)
@@ -123,7 +123,7 @@ private def updateInfo : SourceInfo → String.Pos → String.Pos → SourceInfo
 private def chooseNiceTrailStop (trail : Substring) : String.Pos :=
 trail.startPos + trail.posOf '\n'
 
-/- Remark: the State `String.Pos` is the `SourceInfo.trailing.stopPos` of the previous token,
+/-- Remark: the State `String.Pos` is the `SourceInfo.trailing.stopPos` of the previous token,
    or the beginning of the String. -/
 @[inline]
 private def updateLeadingAux : Syntax → StateM String.Pos (Option Syntax)

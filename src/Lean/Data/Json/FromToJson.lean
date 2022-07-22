@@ -88,7 +88,7 @@ instance : FromJson Name where
 instance : ToJson Name where
   toJson n := toString n
 
-/- Note that `USize`s and `UInt64`s are stored as strings because JavaScript
+/-- Note that `USize`s and `UInt64`s are stored as strings because JavaScript
 cannot represent 64-bit numbers. -/
 def bignumFromJson? (j : Json) : Except String Nat := do
   let s ← j.getStr?

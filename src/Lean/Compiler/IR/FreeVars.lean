@@ -8,7 +8,7 @@ import Lean.Compiler.IR.Basic
 namespace Lean.IR
 
 namespace MaxIndex
-/- Compute the maximum index `M` used in a declaration.
+/-! Compute the maximum index `M` used in a declaration.
    We `M` to initialize the fresh index generator used to create fresh
    variable and join point names.
 
@@ -85,7 +85,7 @@ def Decl.maxIndex (d : Decl) : Index :=
   MaxIndex.collectDecl d 0
 
 namespace FreeIndices
-/- We say a variable (join point) index (aka name) is free in a function body
+/-! We say a variable (join point) index (aka name) is free in a function body
    if there isn't a `FnBody.vdecl` (`Fnbody.jdecl`) binding it. -/
 
 abbrev Collector := IndexSet → IndexSet → IndexSet
@@ -177,7 +177,7 @@ def FnBody.freeIndices (b : FnBody) : IndexSet :=
   b.collectFreeIndices {}
 
 namespace HasIndex
-/- In principle, we can check whether a function body `b` contains an index `i` using
+/-! In principle, we can check whether a function body `b` contains an index `i` using
    `b.freeIndices.contains i`, but it is more efficient to avoid the construction
    of the set of freeIndices and just search whether `i` occurs in `b` or not.
 -/

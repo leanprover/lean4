@@ -11,7 +11,7 @@ import Init.Data.Nat.Div
 import Init.Data.List.Basic
 open Nat
 
-/- the Type, coercions, and notation -/
+/-! # the Type, coercions, and notation -/
 
 inductive Int : Type where
   | ofNat   : Nat → Int
@@ -62,7 +62,7 @@ protected def mul (m n : @& Int) : Int :=
   | negSucc m, ofNat n   => negOfNat (succ m * n)
   | negSucc m, negSucc n => ofNat (succ m * succ n)
 
-/-
+/--
   The `Neg Int` default instance must have priority higher than `low` since
   the default instance `OfNat Nat n` has `low` priority.
   ```

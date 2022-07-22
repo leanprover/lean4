@@ -86,9 +86,9 @@ theorem congr {α : Sort u} {β : Sort v} {f₁ f₂ : α → β} {a₁ a₂ : �
 theorem congrFun {α : Sort u} {β : α → Sort v} {f g : (x : α) →  β x} (h : Eq f g) (a : α) : Eq (f a) (g a) :=
   h ▸ rfl
 
-/-
+/-!
 Initialize the Quotient Module, which effectively adds the following definitions:
-
+```
 opaque Quot {α : Sort u} (r : α → α → Prop) : Sort u
 
 opaque Quot.mk {α : Sort u} (r : α → α → Prop) (a : α) : Quot r
@@ -98,6 +98,7 @@ opaque Quot.lift {α : Sort u} {r : α → α → Prop} {β : Sort v} (f : α �
 
 opaque Quot.ind {α : Sort u} {r : α → α → Prop} {β : Quot r → Prop} :
   (∀ a : α, β (Quot.mk r a)) → ∀ q : Quot r, β q
+```
 -/
 init_quot
 
@@ -156,7 +157,7 @@ inductive Bool : Type where
 
 export Bool (false true)
 
-/- Remark: Subtype must take a Sort instead of Type because of the axiom strongIndefiniteDescription. -/
+/-- Remark: Subtype must take a Sort instead of Type because of the axiom strongIndefiniteDescription. -/
 structure Subtype {α : Sort u} (p : α → Prop) where
   val : α
   property : p val
@@ -175,7 +176,7 @@ set_option linter.unusedVariables.funArgs false in
 /-- Auxiliary Declaration used to implement the named patterns `x@h:p` -/
 @[reducible] def namedPattern {α : Sort u} (x a : α) (h : Eq x a) : α := a
 
-/- Auxiliary axiom used to implement `sorry`. -/
+/-- Auxiliary axiom used to implement `sorry`. -/
 @[extern "lean_sorry", neverExtract]
 axiom sorryAx (α : Sort u) (synthetic := false) : α
 
@@ -236,14 +237,14 @@ deriving instance Inhabited for Bool
 structure PLift (α : Sort u) : Type u where
   up :: (down : α)
 
-/- Bijection between α and PLift α -/
+/-- Bijection between α and PLift α -/
 theorem PLift.up_down {α : Sort u} : ∀ (b : PLift α), Eq (up (down b)) b
   | up _ => rfl
 
 theorem PLift.down_up {α : Sort u} (a : α) : Eq (down (up a)) a :=
   rfl
 
-/- Pointed types -/
+/-- Pointed types -/
 def NonemptyType := Subtype fun α : Type u => Nonempty α
 
 abbrev NonemptyType.type (type : NonemptyType.{u}) : Type u :=
@@ -256,7 +257,7 @@ instance : Inhabited NonemptyType.{u} where
 structure ULift.{r, s} (α : Type s) : Type (max s r) where
   up :: (down : α)
 
-/- Bijection between α and ULift.{v} α -/
+/-- Bijection between α and ULift.{v} α -/
 theorem ULift.up_down {α : Type u} : ∀ (b : ULift.{v} α), Eq (up (down b)) b
   | up _ => rfl
 
@@ -329,7 +330,7 @@ instance [DecidableEq α] : BEq α where
 @[macroInline] def dite {α : Sort u} (c : Prop) [h : Decidable c] (t : c → α) (e : Not c → α) : α :=
   Decidable.casesOn (motive := fun _ => α) h e t
 
-/- if-then-else -/
+/-! # if-then-else -/
 
 @[macroInline] def ite {α : Sort u} (c : Prop) [h : Decidable c] (t e : α) : α :=
   Decidable.casesOn (motive := fun _ => α) h (fun _ => e) (fun _ => t)
@@ -359,7 +360,7 @@ instance [dp : Decidable p] : Decidable (Not p) :=
   | isTrue hp  => isFalse (absurd hp)
   | isFalse hp => isTrue hp
 
-/- Boolean operators -/
+/-! # Boolean operators -/
 
 @[macroInline] def cond {α : Type u} (c : Bool) (x y : α) : α :=
   match c with
@@ -388,7 +389,7 @@ inductive Nat where
 instance : Inhabited Nat where
   default := Nat.zero
 
-/- For numeric literals notation -/
+/-- For numeric literals notation -/
 class OfNat (α : Type u) (_ : Nat) where
   ofNat : α
 
@@ -1229,7 +1230,7 @@ unsafe def unsafeCast {α : Sort u} {β : Sort v} (a : α) : β :=
 @[neverExtract, extern "lean_panic_fn"]
 opaque panicCore {α : Type u} [Inhabited α] (msg : String) : α
 
-/-
+/--
   This is workaround for `panic` occurring in monadic code. See issue #695.
   The `panicCore` definition cannot be specialized since it is an extern.
   When `panic` occurs in monadic code, the `Inhabited α` parameter depends on a `[inst : Monad m]` instance.
@@ -1249,7 +1250,7 @@ class GetElem (Cont : Type u) (Idx : Type v) (Elem : outParam (Type w)) (Dom : o
 
 export GetElem (getElem)
 
-/-
+/--
 The Compiler has special support for arrays.
 They are implemented using dynamic arrays: https://en.wikipedia.org/wiki/Dynamic_array
 -/
@@ -1259,7 +1260,7 @@ structure Array (α : Type u) where
 attribute [extern "lean_array_data"] Array.data
 attribute [extern "lean_array_mk"] Array.mk
 
-/- The parameter `c` is the initial capacity -/
+/-- The parameter `c` is the initial capacity -/
 @[extern "lean_mk_empty_array_with_capacity"]
 def Array.mkEmpty {α : Type u} (c : @& Nat) : Array α := {
   data := List.nil
@@ -1279,7 +1280,7 @@ def Array.get {α : Type u} (a : @& Array α) (i : @& Fin a.size) : α :=
 @[inline] abbrev Array.getD (a : Array α) (i : Nat) (v₀ : α) : α :=
   dite (LT.lt i a.size) (fun h => a.get ⟨i, h⟩) (fun _ => v₀)
 
-/- "Comfortable" version of `fget`. It performs a bound check at runtime. -/
+/-- "Comfortable" version of `fget`. It performs a bound check at runtime. -/
 @[extern "lean_array_get"]
 def Array.get! {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
   Array.getD a i default
@@ -1577,14 +1578,14 @@ instance {ρ : Type u} {m : Type u → Type v} [Monad m] : MonadWithReaderOf ρ 
     In contrast to the Haskell implementation, we use overlapping instances to derive instances
     automatically from `monadLift`. -/
 class MonadStateOf (σ : Type u) (m : Type u → Type v) where
-  /- Obtain the top-most State of a Monad stack. -/
+  /-- Obtain the top-most State of a Monad stack. -/
   get : m σ
-  /- Set the top-most State of a Monad stack. -/
+  /-- Set the top-most State of a Monad stack. -/
   set : σ → m PUnit
-  /- Map the top-most State of a Monad stack.
+  /-- Map the top-most State of a Monad stack.
 
-     Note: `modifyGet f` may be preferable to `do s <- get; let (a, s) := f s; put s; pure a`
-     because the latter does not use the State linearly (without sufficient inlining). -/
+  Note: `modifyGet f` may be preferable to `do s <- get; let (a, s) := f s; put s; pure a`
+  because the latter does not use the State linearly (without sufficient inlining). -/
   modifyGet {α : Type u} : (σ → Prod α σ) → m α
 
 export MonadStateOf (set)
@@ -1730,7 +1731,7 @@ instance {δ} [Backtrackable δ σ] : MonadExceptOf ε (EStateM ε σ) where
 
 @[inline] def dummyRestore : σ → PUnit → σ := fun s _ => s
 
-/- Dummy default instance -/
+/-- Dummy default instance -/
 instance nonBacktrackable : Backtrackable PUnit σ where
   save    := dummySave
   restore := dummyRestore
@@ -1854,7 +1855,7 @@ instance : Append Name where
 
 end Name
 
-/- Syntax -/
+/-! # Syntax -/
 
 /-- Source information of tokens. -/
 inductive SourceInfo where
@@ -1889,7 +1890,7 @@ end SourceInfo
 
 abbrev SyntaxNodeKind := Name
 
-/- Syntax AST -/
+/-! # Syntax AST -/
 
 /--
 Syntax objects used by the parser, macro expander, delaborator, etc.
@@ -1915,7 +1916,7 @@ inductive Syntax where
     For example, both `a` and `a + b`
     have the same first identifier,
     and so their infos got mixed up.)
-    -/ 
+    -/
     node   (info : SourceInfo) (kind : SyntaxNodeKind) (args : Array Syntax) : Syntax
   | atom   (info : SourceInfo) (val : String) : Syntax
   | ident  (info : SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List (Prod Name (List String))) : Syntax
@@ -2098,7 +2099,7 @@ def mkAtom (val : String) : Syntax :=
 def mkAtomFrom (src : Syntax) (val : String) : Syntax :=
   Syntax.atom (SourceInfo.fromRef src) val
 
-/- Parser descriptions -/
+/-! # Parser descriptions -/
 
 inductive ParserDescr where
   | const  (name : Name)
@@ -2119,7 +2120,7 @@ instance : Inhabited ParserDescr where
 
 abbrev TrailingParserDescr := ParserDescr
 
-/-
+/-!
 Runtime support for making quotation terms auto-hygienic, by mangling identifiers
 introduced by them with a "macro scope" supplied by the context. Details to appear in a
 paper soon.
@@ -2163,7 +2164,7 @@ class MonadQuotation (m : Type → Type) extends MonadRef m where
   /-- Get the fresh scope of the current macro invocation -/
   getCurrMacroScope : m MacroScope
   getMainModule     : m Name
-  /-- 
+  /--
      Execute action in a new macro invocation context. This transformer should be
      used at all places that morally qualify as the beginning of a "macro call",
      e.g. `elabCommand` and `elabTerm` in the case of the elaborator. However, it
@@ -2187,7 +2188,7 @@ instance {m n : Type → Type} [MonadFunctor m n] [MonadLift m n] [MonadQuotatio
   getMainModule       := liftM (m := m) getMainModule
   withFreshMacroScope := monadMap (m := m) withFreshMacroScope
 
-/-
+/-!
 We represent a name with macro scopes as
 ```
 <actual name>._@.(<module_name>.<scopes>)*.<module_name>._hyg.<scopes>
@@ -2230,7 +2231,7 @@ private def simpMacroScopesAux : Name → Name
   | .num p i => Name.mkNum (simpMacroScopesAux p) i
   | n        => eraseMacroScopesAux n
 
-/- Helper function we use to create binder names that do not need to be unique. -/
+/-- Helper function we use to create binder names that do not need to be unique. -/
 @[export lean_simp_macro_scopes]
 def Name.simpMacroScopes (n : Name) : Name :=
   match n.hasMacroScopes with
@@ -2341,7 +2342,7 @@ end Syntax
 
 namespace Macro
 
-/- References -/
+/-- References -/
 private opaque MethodsRefPointed : NonemptyType.{0}
 
 private def MethodsRef : Type := MethodsRefPointed.type

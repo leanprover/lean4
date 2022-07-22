@@ -43,12 +43,12 @@ structure Context where
 
 abbrev M := ReaderT Context $ StateRefT State MetaM
 
-/- Return true if `fvarId` is marked as an hidden inaccessible or inaccessible proposition -/
+/-- Return true if `fvarId` is marked as an hidden inaccessible or inaccessible proposition -/
 def isMarked (fvarId : FVarId) : M Bool := do
   let s ← get
   return s.hiddenInaccessible.contains fvarId || s.hiddenInaccessibleProp.contains fvarId
 
-/- If `fvarId` isMarked, then unmark it. -/
+/-- If `fvarId` isMarked, then unmark it. -/
 def unmark (fvarId : FVarId) : M Unit := do
   modify fun s => {
     hiddenInaccessible     := s.hiddenInaccessible.erase fvarId
@@ -63,7 +63,7 @@ def moveToHiddeProp (fvarId : FVarId) : M Unit := do
     modified               := true
   }
 
-/- Return true if the given local declaration has a "visible dependency", that is, it contains
+/-- Return true if the given local declaration has a "visible dependency", that is, it contains
    a free variable that is `hiddenInaccessible`
 
    Recall that hiddenInaccessibleProps are visible, only their names are hidden -/
@@ -71,14 +71,14 @@ def hasVisibleDep (localDecl : LocalDecl) : M Bool := do
   let s ← get
   findLocalDeclDependsOn localDecl (!s.hiddenInaccessible.contains ·)
 
-/- Return true if the given local declaration has a "nonvisible dependency", that is, it contains
+/-- Return true if the given local declaration has a "nonvisible dependency", that is, it contains
    a free variable that is `hiddenInaccessible` or `hiddenInaccessibleProp` -/
 def hasInaccessibleNameDep (localDecl : LocalDecl) : M Bool := do
   let s ← get
   findLocalDeclDependsOn localDecl fun fvarId =>
     s.hiddenInaccessible.contains fvarId || s.hiddenInaccessibleProp.contains fvarId
 
-/- If `e` is visible, then any inaccessible in `e` marked as hidden should be unmarked. -/
+/-- If `e` is visible, then any inaccessible in `e` marked as hidden should be unmarked. -/
 partial def visitVisibleExpr (e : Expr) : M Unit := do
   visit (← instantiateMVars e) |>.run
 where
@@ -128,7 +128,7 @@ private def getInitialHiddenInaccessible (propOnly : Bool) : MetaM FVarIdSet := 
         return r.insert localDecl.fvarId
     return r
 
-/-
+/--
 If pp.inaccessibleNames == false, then collect two sets of `FVarId`s : `hiddenInaccessible` and `hiddenInaccessibleProp`
 1- `hiddenInaccessible` contains `FVarId`s of free variables with inaccessible names that
     a) are not propositions or

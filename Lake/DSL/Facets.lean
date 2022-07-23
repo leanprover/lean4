@@ -6,6 +6,7 @@ Authors: Mac Malone
 import Lake.DSL.DeclUtil
 import Lake.Config.FacetConfig
 import Lake.Config.TargetConfig
+import Lake.Build.Index
 
 /-!
 Macros for declaring custom facets and targets.
@@ -21,17 +22,11 @@ kw:"module_facet " sig:simpleDeclSig : command => do
   | `(simpleDeclSig| $id:ident : $ty := $defn $[$wds?]?) =>
     let attr ← withRef kw `(Term.attrInstance| moduleFacet)
     let attrs := #[attr] ++ expandAttrs attrs?
-    let axm := mkIdentFrom id <| ``ModuleData ++ id.getId
     let name := Name.quoteFrom id id.getId
     `(module_data $id : ActiveBuildTarget $ty
       $[$doc?]? @[$attrs,*] def $id : ModuleFacetDecl := {
         name := $name
-        config := {
-          resultType := ActiveBuildTarget $ty
-          build := $defn
-          data_eq_result := $axm
-          result_eq_target? := some (.up ⟨$ty, rfl⟩)
-        }
+        config := Lake.mkFacetTargetConfig $defn
       })
   | stx => Macro.throwErrorAt stx "ill-formed module facet declaration"
 
@@ -42,17 +37,11 @@ kw:"package_facet " sig:simpleDeclSig : command => do
   | `(simpleDeclSig| $id:ident : $ty := $defn $[$wds?]?) =>
     let attr ← withRef kw `(Term.attrInstance| packageFacet)
     let attrs := #[attr] ++ expandAttrs attrs?
-    let axm := mkIdentFrom id <| ``PackageData ++ id.getId
     let name := Name.quoteFrom id id.getId
     `(package_data $id : ActiveBuildTarget $ty
       $[$doc?]? @[$attrs,*] def $id : PackageFacetDecl := {
         name := $name
-        config := {
-          resultType := ActiveBuildTarget $ty
-          build := $defn
-          data_eq_result := $axm
-          result_eq_target? := some (.up ⟨$ty, rfl⟩)
-        }
+        config := Lake.mkFacetTargetConfig $defn
       })
   | stx => Macro.throwErrorAt stx "ill-formed package facet declaration"
 

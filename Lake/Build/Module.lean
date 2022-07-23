@@ -4,9 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Mac Malone
 -/
 import Lean.Elab.Import
-import Lake.Build.Info
-import Lake.Build.Store
-import Lake.Build.Targets
+import Lake.Build.Index
 
 open System
 
@@ -64,12 +62,9 @@ def Module.mkDynlibTarget (self : Module) (linkTargets : Array FileTarget)
 
 /-! # Recursive Building -/
 
-section
-variable [Monad m] [MonadBuildStore m]
-
 /-- Compute library directories and build external library targets of the given packages. -/
 def recBuildExternalDynlibs (pkgs : Array Package)
-[MonadLog m] : IndexT m (Array ActiveFileTarget × Array FilePath) := do
+: IndexBuildM (Array ActiveFileTarget × Array FilePath) := do
   let mut libDirs := #[]
   let mut targets : Array ActiveFileTarget := #[]
   for pkg in pkgs do
@@ -90,8 +85,8 @@ def recBuildExternalDynlibs (pkgs : Array Package)
   return (targets, libDirs)
 
 /-- Build the dynlibs of all imports. -/
-@[specialize] def recBuildDynlibs (pkg : Package) (imports : Array Module)
-[MonadLog m] : IndexT m (Array ActiveFileTarget × Array ActiveFileTarget × Array FilePath) := do
+def recBuildDynlibs (pkg : Package) (imports : Array Module)
+: IndexBuildM (Array ActiveFileTarget × Array ActiveFileTarget × Array FilePath) := do
   let mut pkgs := #[]
   let mut pkgSet := PackageSet.empty.insert pkg
   let mut targets := #[]
@@ -103,8 +98,8 @@ def recBuildExternalDynlibs (pkgs : Array Package)
   return (targets, ← recBuildExternalDynlibs <| pkgs.push pkg)
 
 /-- Build the dynlibs of the imports that want precompilation (and *their* imports). -/
-@[specialize] def recBuildPrecompileDynlibs (pkg : Package) (imports : Array Module)
-[MonadLog m] : IndexT m (Array ActiveFileTarget × Array ActiveFileTarget × Array FilePath) := do
+def recBuildPrecompileDynlibs (pkg : Package) (imports : Array Module)
+: IndexBuildM (Array ActiveFileTarget × Array ActiveFileTarget × Array FilePath) := do
   let mut pkgs := #[]
   let mut pkgSet := PackageSet.empty.insert pkg
   let mut modSet := ModuleSet.empty
@@ -134,9 +129,8 @@ optionally outputting a `.c` file if the modules' is not lean-only or the
 requested artifact is `c`. Returns an active target producing the requested
 artifact.
 -/
-@[specialize] def Module.recBuildLean (mod : Module) (art : LeanArtifact)
-: IndexT m (ActiveBuildTarget (if art = .leanBin then PUnit else FilePath)) := do
-  have : MonadLift BuildM m := ⟨liftM⟩
+def Module.recBuildLean (mod : Module) (art : LeanArtifact)
+: IndexBuildM (ActiveBuildTarget (if art = .leanBin then PUnit else FilePath)) := do
   let leanOnly := mod.isLeanOnly ∧ art ≠ .c
 
   -- Compute and build dependencies
@@ -176,14 +170,38 @@ artifact.
     | .ilean => ileanTarget
     | .c => cTarget
 
+/-- The `ModuleFacetConfig` for the builtin `leanBinFacet`. -/
+def Module.leanBinFacetConfig : ModuleFacetConfig leanBinFacet :=
+  mkFacetTargetConfig (·.recBuildLean .leanBin)
+
+/-- The `ModuleFacetConfig` for the builtin `oleanFacet`. -/
+def Module.oleanFacetConfig : ModuleFacetConfig oleanFacet :=
+  mkFacetTargetConfig (·.recBuildLean .olean)
+
+/-- The `ModuleFacetConfig` for the builtin `ileanFacet`. -/
+def Module.ileanFacetConfig : ModuleFacetConfig ileanFacet :=
+  mkFacetTargetConfig (·.recBuildLean .ilean)
+
+/-- The `ModuleFacetConfig` for the builtin `cFacet`. -/
+def Module.cFacetConfig : ModuleFacetConfig cFacet :=
+  mkFacetTargetConfig (·.recBuildLean .c)
+
+/--
+Recursively build the module's object file from its C file produced by `lean`.
+-/
+def Module.recBuildLeanO (self : Module) : IndexBuildM ActiveFileTarget := do
+  self.mkOTarget (Target.active (← self.c.recBuild)) |>.activate
+
+/-- The `ModuleFacetConfig` for the builtin `oFacet`. -/
+def Module.oFacetConfig : ModuleFacetConfig oFacet :=
+  mkFacetTargetConfig (·.recBuildLeanO)
 
 /--
 Recursively parse the Lean files of a module and its imports
 building an `Array` product of its direct and transitive local imports.
 -/
-@[specialize] def Module.recParseImports (mod : Module)
-: IndexT m (Array Module × Array Module) := do
-  have : MonadLift BuildM m := ⟨liftM⟩
+def Module.recParseImports (mod : Module)
+: IndexBuildM (Array Module × Array Module) := do
   let mut transImports := #[]
   let mut directImports := #[]
   let mut importSet := ModuleSet.empty
@@ -202,15 +220,36 @@ building an `Array` product of its direct and transitive local imports.
       directImports := directImports.push mod
   return (directImports, transImports)
 
+/-- The `ModuleFacetConfig` for the builtin `importFacet`. -/
+def Module.importFacetConfig : ModuleFacetConfig importFacet :=
+  mkFacetConfig (·.recParseImports)
+
 /--
 Recursively build the shared library of a module (e.g., for `--load-dynlib`).
 -/
-@[specialize] def Module.recBuildDynlib (mod : Module)
-: IndexT m ActiveFileTarget := do
-  have : MonadLift BuildM m := ⟨liftM⟩
+def Module.recBuildDynlib (mod : Module) : IndexBuildM ActiveFileTarget := do
   let (_, transImports) ← mod.imports.recBuild
   let linkTargets ← mod.nativeFacets.mapM fun facet => do
     return Target.active <| ← recBuild <| mod.facet facet.name
   let (modTargets, pkgTargets, libDirs) ← recBuildDynlibs mod.pkg transImports
   let libTargets := modTargets ++ pkgTargets |>.map Target.active
   mod.mkDynlibTarget linkTargets libDirs libTargets |>.activate
+
+/-- The `ModuleFacetConfig` for the builtin `dynlibFacet`. -/
+def Module.dynlibFacetConfig : ModuleFacetConfig dynlibFacet :=
+  mkFacetTargetConfig (·.recBuildDynlib)
+
+open Module in
+/--
+A name-configuration map for the initial set of
+Lake module facets (e.g., `lean.{imports, c, o, dynlib]`).
+-/
+def initModuleFacetConfigs : DNameMap ModuleFacetConfig :=
+  DNameMap.empty
+  |>.insert importFacet importFacetConfig
+  |>.insert leanBinFacet leanBinFacetConfig
+  |>.insert oleanFacet oleanFacetConfig
+  |>.insert ileanFacet ileanFacetConfig
+  |>.insert cFacet cFacetConfig
+  |>.insert oFacet oFacetConfig
+  |>.insert dynlibFacet dynlibFacetConfig

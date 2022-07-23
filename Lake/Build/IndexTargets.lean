@@ -10,25 +10,14 @@ open Lean hiding SearchPath
 
 namespace Lake
 
-/-! # Module Facet Targets -/
+/-! ## Module Facet Targets -/
 
+/-- An opaque target thats build the module facet in a fresh build store. -/
 @[inline] def Module.facetTarget (facet : Name) (self : Module)
 [FamilyDef ModuleData facet (ActiveBuildTarget α)] : OpaqueTarget :=
   self.facet facet |>.target
 
-@[inline] def Module.oleanTarget (self : Module) : FileTarget :=
-  self.facetTarget oleanFacet |>.withInfo self.oleanFile
-
-@[inline] def Module.ileanTarget (self : Module) : FileTarget :=
-  self.facetTarget ileanFacet |>.withInfo self.ileanFile
-
-@[inline] def Module.cTarget (self : Module) : FileTarget :=
-  self.facetTarget cFacet |>.withInfo self.cFile
-
-@[inline] def Module.oTarget (self : Module) : FileTarget :=
-  self.facetTarget oFacet |>.withInfo self.oFile
-
-/-! # Pure Lean Lib Targets -/
+/-! ## Pure Lean Lib Targets -/
 
 /--
 Build the `extraDepTarget` of a package and its (transitive) dependencies
@@ -50,7 +39,7 @@ def LeanLib.buildModules (self : LeanLib) (facet : Name)
 @[inline] protected def Package.leanLibTarget (self : Package) : OpaqueTarget :=
   self.builtinLib.leanTarget
 
-/-! # Native Lean Lib Targets -/
+/-! ## Native Lean Lib Targets -/
 
 @[inline] protected def LeanLib.staticLibTarget (self : LeanLib) : FileTarget :=
   self.static.target.withInfo self.sharedLibFile
@@ -64,10 +53,13 @@ def LeanLib.buildModules (self : LeanLib) (facet : Name)
 @[inline] protected def Package.sharedLibTarget (self : Package) : FileTarget :=
   self.builtinLib.sharedLibTarget
 
-/-! # Lean Executable Targets -/
+/-! ## Lean Executable Targets -/
 
 @[inline] protected def LeanExe.build (self : LeanExe) : BuildM ActiveFileTarget :=
   self.exe.build
+
+@[inline] protected def LeanExe.recBuild (self : LeanExe) : IndexBuildM ActiveFileTarget :=
+  self.exe.recBuild
 
 @[inline] protected def LeanExe.target (self : LeanExe) : FileTarget :=
   self.exe.target.withInfo self.file

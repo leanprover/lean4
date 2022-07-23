@@ -9,14 +9,11 @@ import Lake.Build.Targets
 
 namespace Lake
 
-variable [Monad m] [MonadLiftT BuildM m] [MonadBuildStore m]
-
 /-! # Build Static Lib -/
 
 /-- Build and collect the specified facet of the library's local modules. -/
-@[specialize] def LeanLib.recBuildLocalModules
-(facets : Array (ModuleFacet α)) (self : LeanLib) : IndexT m (Array α) := do
-  have : MonadLift BuildM m := ⟨liftM⟩
+def LeanLib.recBuildLocalModules
+(facets : Array (ModuleFacet α)) (self : LeanLib) : IndexT RecBuildM (Array α) := do
   let mut results := #[]
   let mut modSet := ModuleSet.empty
   let mods ← self.getModuleArray
@@ -31,9 +28,7 @@ variable [Monad m] [MonadLiftT BuildM m] [MonadBuildStore m]
           modSet := modSet.insert mod
   return results
 
-@[specialize] protected
-def LeanLib.recBuildStatic (self : LeanLib) : IndexT m ActiveFileTarget := do
-  have : MonadLift BuildM m := ⟨liftM⟩
+protected def LeanLib.recBuildStatic (self : LeanLib) : IndexT RecBuildM ActiveFileTarget := do
   let oTargets := (← self.recBuildLocalModules self.nativeFacets).map Target.active
   staticLibTarget self.staticLibFile oTargets |>.activate
 
@@ -43,10 +38,9 @@ def LeanLib.recBuildStatic (self : LeanLib) : IndexT m ActiveFileTarget := do
 Build and collect the local object files and external libraries
 of a library and its modules' imports.
 -/
-@[specialize] def LeanLib.recBuildLinks
+def LeanLib.recBuildLinks
 (facets : Array (ModuleFacet ActiveFileTarget)) (self : LeanLib)
-: IndexT m (Array ActiveFileTarget) := do
-  have : MonadLift BuildM m := ⟨liftM⟩
+: IndexT RecBuildM (Array ActiveFileTarget) := do
   -- Build and collect modules
   let mut pkgs := #[]
   let mut pkgSet := PackageSet.empty
@@ -72,17 +66,13 @@ of a library and its modules' imports.
       targets := targets.push target
   return targets
 
-@[specialize] protected
-def LeanLib.recBuildShared (self : LeanLib) : IndexT m ActiveFileTarget := do
-  have : MonadLift BuildM m := ⟨liftM⟩
+protected def LeanLib.recBuildShared (self : LeanLib) : IndexT RecBuildM ActiveFileTarget := do
   let linkTargets := (← self.recBuildLinks self.nativeFacets).map Target.active
   leanSharedLibTarget self.sharedLibFile linkTargets self.linkArgs |>.activate
 
 /-! # Build Executable -/
 
-@[specialize] protected
-def LeanExe.recBuild (self : LeanExe) : IndexT m ActiveFileTarget := do
-  have : MonadLift BuildM m := ⟨liftM⟩
+protected def LeanExe.recBuildExe (self : LeanExe) : IndexT RecBuildM ActiveFileTarget := do
   let (_, imports) ← self.root.imports.recBuild
   let linkTargets := #[Target.active <| ← self.root.o.recBuild]
   let mut linkTargets ← imports.foldlM (init := linkTargets) fun arr mod => do

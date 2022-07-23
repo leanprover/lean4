@@ -7,6 +7,8 @@ import Lake.Util.EStateT
 import Lake.Util.StoreInsts
 import Lake.Config.Workspace
 import Lake.Build.Topological
+import Lake.Build.Module
+import Lake.Build.Package
 import Lake.Load.Materialize
 import Lake.Load.Package
 import Lake.Load.Elab
@@ -69,7 +71,11 @@ elaborating its configuration file and resolve its dependencies.
 def loadWorkspace (config : LoadConfig) : LogIO Workspace := do
   Lean.searchPathRef.set config.env.leanSearchPath
   let root ← loadPkg config.rootDir config.configOpts config.leanOpts config.configFile
-  let ws : Workspace := {root, lakeEnv := config.env}
+  let ws : Workspace := {
+    root, lakeEnv := config.env
+    moduleFacetConfigs := initModuleFacetConfigs
+    packageFacetConfigs := initPackageFacetConfigs
+  }
   let deps ← IO.ofExcept <| loadDeps root.configEnv config.leanOpts
   let manifest ← Manifest.loadFromFile ws.manifestFile |>.catchExceptions fun _ => pure {}
   let ((ws, deps), manifest) ← resolveDeps ws root

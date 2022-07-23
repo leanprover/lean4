@@ -38,12 +38,10 @@ def resolveModuleTarget (ws : Workspace) (mod : Module) (facet : Name) : Except 
     return mod.facetTarget oFacet
   else if facet == `dynlib then
     return mod.facetTarget dynlibFacet
-  else if let some config := ws.findModuleFacetConfig? facet then
-    if let some (.up ⟨_, h⟩) := config.result_eq_target? then
-      have := config.familyDefTarget h
-      return mod.facetTarget facet
-    else
-      throw <| CliError.nonTargetFacet "module" facet
+  else if let some config := ws.findModuleFacetConfig? facet then do
+    let some target := config.toTarget? (mod.facet facet) rfl
+      | throw <| CliError.nonTargetFacet "module" facet
+    return target
   else
     throw <| CliError.unknownFacet "module" facet
 
@@ -105,12 +103,10 @@ def resolvePackageTarget (ws : Workspace) (pkg : Package) (facet : Name) : Excep
     return pkg.sharedLibTarget.withoutInfo
   else if facet == `leanLib then
     return pkg.leanLibTarget.withoutInfo
-  else if let some config := ws.findPackageFacetConfig? facet then
-    if let some (.up ⟨_, h⟩) := config.result_eq_target? then
-      have := config.familyDefTarget h
-      return pkg.facet facet |>.target
-    else
-      throw <| CliError.nonTargetFacet "package" facet
+  else if let some config := ws.findPackageFacetConfig? facet then do
+    let some target := config.toTarget? (pkg.facet facet) rfl
+      | throw <| CliError.nonTargetFacet "package" facet
+    return target
   else
     throw <| CliError.unknownFacet "package" facet
 

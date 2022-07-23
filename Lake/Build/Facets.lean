@@ -11,7 +11,7 @@ import Lake.Build.TargetTypes
 
 This module declares most of the builtin facets an targets and
 their build data builtin facets and targets. Some of these definitions
-are needed for  configurations, so we define them here before we need to
+are needed for configurations, so we define them here before we need to
 import said configurations for `BuildInfo`.
 -/
 
@@ -33,62 +33,59 @@ instance (facet : ModuleFacet α) : FamilyDef ModuleData facet.name α :=
 instance [FamilyDef ModuleData facet α] : CoeDep Name facet (ModuleFacet α) :=
   ⟨facet, family_key_eq_type⟩
 
-namespace Module
-abbrev leanBinFacet  := `lean.bin
-abbrev oleanFacet    := `olean
-abbrev ileanFacet    := `ilean
-abbrev cFacet        := `lean.c
-abbrev oFacet        := `lean.o
-abbrev dynlibFacet   := `dynlib
-end Module
-
 /--
 The core compilation / elaboration of the Lean file via `lean`,
 which produce the Lean binaries of the module (i.e., `olean` and `ilean`).
 It is thus the facet used by default for building imports of a module.
 Also, if the module is not lean-only, it produces `c` files as well.
 -/
+abbrev Module.leanBinFacet  := `lean.bin
 module_data lean.bin : ActiveOpaqueTarget
 
 /-- The `olean` file produced by `lean`  -/
+abbrev Module.oleanFacet  := `olean
 module_data olean : ActiveFileTarget
 
 /-- The `ilean` file produced by `lean` -/
+abbrev Module.ileanFacet := `ilean
 module_data ilean : ActiveFileTarget
 
 /-- The C file built from the Lean file via `lean` -/
+abbrev Module.cFacet := `lean.c
 module_data lean.c : ActiveFileTarget
 
 /-- The object file built from `lean.c` -/
+abbrev Module.oFacet := `lean.o
 module_data lean.o : ActiveFileTarget
 
 /-- Shared library for `--load-dynlib` -/
+abbrev Module.dynlibFacet := `dynlib
 module_data dynlib : ActiveFileTarget
 
 /-! ## Package Facets -/
 
-/-- The package's `extraDepTarget`. -/
+/-- The package's `extraDepTarget` mixed with its transitive dependencies `extraDepTarget`. -/
+abbrev Package.extraDepFacet := `extraDep
 package_data extraDep : ActiveOpaqueTarget
 
 /-! ## Target Facets -/
 
-abbrev LeanLib.staticFacet := `leanLib.static
-abbrev LeanLib.sharedFacet := `leanLib.shared
-abbrev LeanExe.exeFacet := `leanExe
-abbrev ExternLib.staticFacet := `externLib.static
-abbrev ExternLib.sharedFacet := `externLib.shared
-
 /-- A Lean library's static binary. -/
+abbrev LeanLib.staticFacet := `leanLib.static
 target_data leanLib.static : ActiveFileTarget
 
 /-- A Lean library's shared binary. -/
+abbrev LeanLib.sharedFacet := `leanLib.shared
 target_data leanLib.shared : ActiveFileTarget
 
 /-- A Lean binary executable. -/
+abbrev LeanExe.exeFacet := `leanExe
 target_data leanExe : ActiveFileTarget
 
 /-- A external library's static binary. -/
+abbrev ExternLib.staticFacet := `externLib.static
 target_data externLib.static : ActiveFileTarget
 
 /-- A external library's shared binary. -/
+abbrev ExternLib.sharedFacet := `externLib.shared
 target_data externLib.shared : ActiveFileTarget

@@ -17,7 +17,7 @@ namespace Lake
 def manifestFileName := "manifest.json"
 
 /-- A Lake workspace -- the top-level package directory. -/
-structure Workspace where
+structure Workspace : Type where
   /-- The root package of the workspace. -/
   root : Package
   /-- The detect `Lake.Env` of the workspace. -/
@@ -28,12 +28,12 @@ structure Workspace where
   Name-configuration map of (opaque references to)
   module facets defined in the workspace.
   -/
-  opaqueModuleFacetConfigs : DNameMap OpaqueModuleFacetConfig := {}
+  moduleFacetConfigs : DNameMap ModuleFacetConfig := {}
   /--
   Name-configuration map of (opaque references to)
   module facets defined in the workspace.
   -/
-  opaquePackageFacetConfigs : DNameMap OpaquePackageFacetConfig := {}
+  packageFacetConfigs : DNameMap PackageFacetConfig := {}
   deriving Inhabited
 
 hydrate_opaque_type OpaqueWorkspace Workspace
@@ -102,23 +102,19 @@ def findTargetConfig? (name : Name) (self : Workspace) : Option (Package × Targ
 
 /-- Add a module facet to the workspace. -/
 def addModuleFacetConfig (cfg : ModuleFacetConfig name) (self : Workspace) : Workspace :=
-  {self with opaqueModuleFacetConfigs := self.opaqueModuleFacetConfigs.insert cfg.name (.mk cfg)}
+  {self with moduleFacetConfigs := self.moduleFacetConfigs.insert cfg.name cfg}
 
 /-- Try to find a module facet configuration in the workspace with the given name. -/
 def findModuleFacetConfig? (name : Name) (self : Workspace) : Option (ModuleFacetConfig name) :=
-  match self.opaqueModuleFacetConfigs.find? name with
-  | some cfg => cfg.get
-  | none  => none
+  self.moduleFacetConfigs.find? name
 
 /-- Add a package facet to the workspace. -/
 def addPackageFacetConfig (cfg : PackageFacetConfig name) (self : Workspace) : Workspace :=
-  {self with opaquePackageFacetConfigs := self.opaquePackageFacetConfigs.insert cfg.name (.mk cfg)}
+  {self with packageFacetConfigs := self.packageFacetConfigs.insert cfg.name cfg}
 
 /-- Try to find a package facet configuration in the workspace with the given name. -/
 def findPackageFacetConfig? (name : Name) (self : Workspace) : Option (PackageFacetConfig name) :=
-  match self.opaquePackageFacetConfigs.find? name with
-  | some cfg => cfg.get
-  | none  => none
+  self.packageFacetConfigs.find? name
 
 /-- The `LEAN_PATH` of the workspace. -/
 def leanPath (self : Workspace) : SearchPath :=

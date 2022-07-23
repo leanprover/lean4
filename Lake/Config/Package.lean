@@ -239,6 +239,7 @@ end PackageConfig
 --------------------------------------------------------------------------------
 
 abbrev DNameMap α := DRBMap Name α Lean.Name.quickCmp
+@[inline] def DNameMap.empty : DNameMap α := DRBMap.empty
 
 /-- A Lake package -- its location plus its configuration. -/
 structure Package where

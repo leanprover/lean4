@@ -118,6 +118,9 @@ abbrev IndexBuildFn (m : Type → Type v) :=
 /-- A transformer to equip a monad with a build function for the Lake index. -/
 abbrev IndexT (m : Type → Type v) := EquipT (IndexBuildFn m) m
 
+/-- The monad for build functions that are part of the index. -/
+abbrev IndexBuildM := IndexT RecBuildM
+
 /-- Build the given info using the Lake build index. -/
 @[inline] def BuildInfo.recBuild (self : BuildInfo) [FamilyDef BuildData self.key α] : IndexT m α :=
   fun build => cast (by simp) <| build self
@@ -136,12 +139,12 @@ Defined here because they need to import configurations, whereas the definitions
 there need to be imported by configurations.
 -/
 
-abbrev Module.importFacet := `lean.imports
-
 /-- The direct × transitive imports of the Lean module. -/
+abbrev Module.importFacet := `lean.imports
 module_data lean.imports : Array Module × Array Module
 
 /-- The package's complete array of transitive dependencies. -/
+abbrev Package.depsFacet := `deps
 package_data deps : Array Package
 
 
@@ -174,7 +177,7 @@ end Module
 abbrev Package.facet (facet : Name) (self : Package) : BuildInfo :=
   .packageFacet self facet
 
-/-- Build info for the package's `extraDepTarget`. -/
+/-- Build info for the package and its dependencies collective `extraDepTarget`. -/
 abbrev Package.extraDep (self : Package) : BuildInfo :=
   self.facet `extraDep
 

@@ -9,6 +9,8 @@ import Lake.Util.Error
 import Lake.Util.OptionIO
 import Lake.Config.Context
 import Lake.Build.Trace
+import Lake.Build.Store
+import Lake.Build.Topological
 
 open System
 namespace Lake
@@ -29,8 +31,17 @@ abbrev BuildT := ReaderT BuildContext
 /-- The monad for the Lake build manager. -/
 abbrev SchedulerM := BuildT <| LogT BaseIO
 
-/-- The monad for Lake builds. -/
+/-- The core monad for Lake builds. -/
 abbrev BuildM := BuildT <| MonadLogT BaseIO OptionIO
+
+/-- A transformer to equip a monad with a Lake build store. -/
+abbrev BuildStoreT := StateT BuildStore
+
+/-- A transformer for monads that may encounter a build cycle. -/
+abbrev BuildCycleT := CycleT BuildKey
+
+/-- A recursive build of a Lake build store that may encounter a cycle. -/
+abbrev RecBuildM := BuildCycleT <| BuildStoreT BuildM
 
 instance : MonadError BuildM := ⟨MonadLog.error⟩
 instance : MonadLift IO BuildM := ⟨MonadError.runIO⟩

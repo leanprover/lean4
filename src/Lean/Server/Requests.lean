@@ -124,10 +124,10 @@ def bindWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
 
 /-- Helper for running an Rpc request at a particular snapshot. -/
 def withWaitFindSnapAtPos
-  (lspPos : Lean.Lsp.TextDocumentPositionParams)
+  (lspPos : Lean.Lsp.Position)
   (f : Snapshots.Snapshot → RequestM α): RequestM (RequestTask α) := do
   let doc ← readDoc
-  let pos := doc.meta.text.lspPosToUtf8Pos lspPos.position
+  let pos := doc.meta.text.lspPosToUtf8Pos lspPos
   withWaitFindSnap
     doc
     (fun s => s.endPos >= pos)

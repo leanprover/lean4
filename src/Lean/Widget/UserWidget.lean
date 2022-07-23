@@ -92,7 +92,7 @@ builtin_initialize registerBuiltinAttribute attributeImpl
 structure GetWidgetSourceParams where
   /-- The hash of the sourcetext to retrieve. -/
   hash: UInt64
-  pos : Lean.Lsp.TextDocumentPositionParams
+  pos : Lean.Lsp.Position
   deriving ToJson, FromJson
 
 open Lean.Server Lean RequestM in
@@ -140,10 +140,10 @@ structure GetWidgetsResponse where
 open Lean Server RequestM in
 /-- Get the `UserWidget`s present at a particular position. -/
 @[serverRpcMethod]
-def getWidgets (args : Lean.Lsp.TextDocumentPositionParams) : RequestM (RequestTask (GetWidgetsResponse)) := do
+def getWidgets (args : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResponse)) := do
   let doc ← readDoc
   let filemap := doc.meta.text
-  let pos := filemap.lspPosToUtf8Pos args.position
+  let pos := filemap.lspPosToUtf8Pos args
   withWaitFindSnapAtPos args fun snap => do
     let env := snap.env
     let ws := widgetInfosAt? filemap snap.infoTree pos

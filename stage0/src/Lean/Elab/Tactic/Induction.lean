@@ -68,7 +68,7 @@ def evalAlt (mvarId : MVarId) (alt : Syntax) (remainingGoals : Array MVarId) : T
       closeUsingOrAdmit (withTacticInfoContext alt (evalTactic rhs))
       return remainingGoals
 
-/-
+/-!
   Helper method for creating an user-defined eliminator/recursor application.
 -/
 namespace ElimApp
@@ -90,9 +90,9 @@ abbrev M := ReaderT Context $ StateRefT State TermElabM
 private def addNewArg (arg : Expr) : M Unit :=
   modify fun s => { s with argPos := s.argPos+1, f := mkApp s.f arg, fType := s.fType.bindingBody!.instantiate1 arg }
 
-/- Return the binder name at `fType`. This method assumes `fType` is a function type. -/
+/-- Return the binder name at `fType`. This method assumes `fType` is a function type. -/
 private def getBindingName : M Name := return (← get).fType.bindingName!
-/- Return the next argument expected type. This method assumes `fType` is a function type. -/
+/-- Return the next argument expected type. This method assumes `fType` is a function type. -/
 private def getArgExpectedType : M Expr := return (← get).fType.bindingDomain!
 
 private def getFType : M Expr := do
@@ -164,7 +164,7 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
   let alts ← s.alts.filterM fun alt => return !(← isExprMVarAssigned alt.2)
   return { elimApp := (← instantiateMVars s.f), alts, others := others }
 
-/- Given a goal `... targets ... |- C[targets]` associated with `mvarId`, assign
+/-- Given a goal `... targets ... |- C[targets]` associated with `mvarId`, assign
   `motiveArg := fun targets => C[targets]` -/
 def setMotiveArg (mvarId : MVarId) (motiveArg : MVarId) (targets : Array FVarId) : MetaM Unit := do
   let type ← inferType (mkMVar mvarId)
@@ -441,7 +441,7 @@ private def expandCases? (induction : Syntax) : Option Syntax := do
   let inductionAlts' ← expandInductionAlts? optInductionAlts[0]
   return induction.setArg 3 (mkNullNode #[inductionAlts'])
 
-/-
+/--
   We may have at most one `| _ => ...` (wildcard alternative), and it must not set variable names.
   The idea is to make sure users do not write unstructured tactics. -/
 private def checkAltsOfOptInductionAlts (optInductionAlts : Syntax) : TacticM Unit :=

@@ -81,7 +81,7 @@ def getGlobalInstancesIndex : CoreM (DiscrTree InstanceEntry) :=
 def getErasedInstances : CoreM (Std.PHashSet Name) :=
   return Meta.instanceExtension.getState (← getEnv) |>.erased
 
-/- Default instance support -/
+/-! # Default instance support -/
 
 structure DefaultInstanceEntry where
   className    : Name

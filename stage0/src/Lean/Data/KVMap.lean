@@ -53,7 +53,7 @@ instance : Coe Int DataValue    := ⟨DataValue.ofInt⟩
 instance : Coe Syntax DataValue := ⟨DataValue.ofSyntax⟩
 
 
-/- Remark: we do not use RBMap here because we need to manipulate KVMap objects in
+/-- Remark: we do not use RBMap here because we need to manipulate KVMap objects in
    C++ and RBMap is implemented in Lean. So, we use just a List until we can
    generate C++ code from Lean code. -/
 structure KVMap where

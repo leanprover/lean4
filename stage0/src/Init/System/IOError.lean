@@ -10,7 +10,7 @@ import Init.Data.UInt
 import Init.Data.ToString.Basic
 import Init.Data.String.Basic
 
-/-
+/--
 Imitate the structure of IOErrorType in Haskell:
 https://hackage.haskell.org/package/base-4.12.0.0/docs/System-IO-Error.html#t:IOErrorType
 -/

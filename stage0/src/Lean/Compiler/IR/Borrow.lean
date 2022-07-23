@@ -29,7 +29,7 @@ abbrev OwnedSet := Std.HashMap Key Unit
 def OwnedSet.insert (s : OwnedSet) (k : OwnedSet.Key) : OwnedSet := Std.HashMap.insert s k ()
 def OwnedSet.contains (s : OwnedSet) (k : OwnedSet.Key) : Bool   := Std.HashMap.contains s k
 
-/- We perform borrow inference in a block of mutually recursive functions.
+/-! We perform borrow inference in a block of mutually recursive functions.
    Join points are viewed as local functions, and are identified using
    their local id + the name of the surrounding function.
    We keep a mapping from function and joint points to parameters (`Array Param`).
@@ -63,11 +63,11 @@ instance : ToFormat ParamMap := ⟨ParamMap.fmt⟩
 instance : ToString ParamMap := ⟨fun m => Format.pretty (format m)⟩
 
 namespace InitParamMap
-/- Mark parameters that take a reference as borrow -/
+/-- Mark parameters that take a reference as borrow -/
 def initBorrow (ps : Array Param) : Array Param :=
   ps.map fun p => { p with borrow := p.ty.isObj }
 
-/- We do perform borrow inference for constants marked as `export`.
+/-- We do perform borrow inference for constants marked as `export`.
    Reason: we current write wrappers in C++ for using exported functions.
    These wrappers use smart pointers such as `object_ref`.
    When writing a new wrapper we need to know whether an argument is a borrow
@@ -100,7 +100,7 @@ end InitParamMap
 def mkInitParamMap (env : Environment) (decls : Array Decl) : ParamMap :=
 (InitParamMap.visitDecls env decls *> get).run' {}
 
-/- Apply the inferred borrow annotations stored at `ParamMap` to a block of mutually
+/-! Apply the inferred borrow annotations stored at `ParamMap` to a block of mutually
    recursive functions. -/
 namespace ApplyParamMap
 
@@ -141,7 +141,7 @@ structure BorrowInfCtx where
   paramSet : IndexSet := {} -- Set of all function parameters in scope. This is used to implement the heuristic at `ownArgsUsingParams`
 
 structure BorrowInfState where
-  /- Set of variables that must be `owned`. -/
+  /-- Set of variables that must be `owned`. -/
   owned    : OwnedSet := {}
   modified : Bool     := false
   paramMap : ParamMap
@@ -174,7 +174,7 @@ def isOwned (x : VarId) : M Bool := do
   let s      ← get
   return s.owned.contains (currFn, x.idx)
 
-/- Updates `map[k]` using the current set of `owned` variables. -/
+/-- Updates `map[k]` using the current set of `owned` variables. -/
 def updateParamMap (k : ParamMap.Key) : M Unit := do
   let s ← get
   match s.paramMap.find? k with
@@ -202,14 +202,14 @@ def getParamInfo (k : ParamMap.Key) : M (Array Param) := do
       | none      => unreachable!
     | _ => unreachable!
 
-/- For each ps[i], if ps[i] is owned, then mark xs[i] as owned. -/
+/-- For each ps[i], if ps[i] is owned, then mark xs[i] as owned. -/
 def ownArgsUsingParams (xs : Array Arg) (ps : Array Param) : M Unit :=
   xs.size.forM fun i => do
     let x := xs[i]!
     let p := ps[i]!
     unless p.borrow do ownArg x
 
-/- For each xs[i], if xs[i] is owned, then mark ps[i] as owned.
+/-- For each xs[i], if xs[i] is owned, then mark ps[i] as owned.
    We use this action to preserve tail calls. That is, if we have
    a tail call `f xs`, if the i-th parameter is borrowed, but `xs[i]` is owned
    we would have to insert a `dec xs[i]` after `f xs` and consequently
@@ -222,7 +222,7 @@ def ownParamsUsingArgs (xs : Array Arg) (ps : Array Param) : M Unit :=
     | Arg.var x => if (← isOwned x) then ownVar p.x
     | _         => pure ()
 
-/- Mark `xs[i]` as owned if it is one of the parameters `ps`.
+/-- Mark `xs[i]` as owned if it is one of the parameters `ps`.
    We use this action to mark function parameters that are being "packed" inside constructors.
    This is a heuristic, and is not related with the effectiveness of the reset/reuse optimization.
    It is useful for code such as
@@ -287,7 +287,7 @@ partial def collectDecl : Decl → M Unit
       updateParamMap (ParamMap.Key.decl f)
   | _ => pure ()
 
-/- Keep executing `x` until it reaches a fixpoint -/
+/-- Keep executing `x` until it reaches a fixpoint -/
 @[inline] partial def whileModifing (x : M Unit) : M Unit := do
   modify fun s => { s with modified := false }
   x

@@ -85,7 +85,7 @@ unsafe def ObjectPersistentSet.find? (s : ObjectPersistentSet) (o : Object) : Op
 unsafe def ObjectPersistentSet.insert (s : ObjectPersistentSet) (o : Object) : ObjectPersistentSet :=
   @PersistentHashSet.insert Object ⟨Object.eq⟩ ⟨Object.hash⟩ s o
 
-/- Internally `State` is implemented as a pair `ObjectMap` and `ObjectSet` -/
+/-- Internally `State` is implemented as a pair `ObjectMap` and `ObjectSet` -/
 opaque StatePointed : NonemptyType
 abbrev State : Type u := StatePointed.type
 @[extern "lean_sharecommon_mk_state"]
@@ -93,7 +93,7 @@ opaque mkState : Unit → State := fun _ => Classical.choice StatePointed.proper
 def State.empty : State := mkState ()
 instance State.inhabited : Inhabited State := ⟨State.empty⟩
 
-/- Internally `PersistentState` is implemented as a pair `ObjectPersistentMap` and `ObjectPersistentSet` -/
+/-- Internally `PersistentState` is implemented as a pair `ObjectPersistentMap` and `ObjectPersistentSet` -/
 opaque PersistentStatePointed : NonemptyType
 abbrev PersistentState : Type u := PersistentStatePointed.type
 @[extern "lean_sharecommon_mk_pstate"]

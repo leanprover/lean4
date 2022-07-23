@@ -10,7 +10,7 @@ import Lean.Meta.Tactic.Util
 
 namespace Lean.Meta
 
-/-
+/--
   Compute the number of expected arguments and whether the result type is of the form
   (?m ...) where ?m is an unassigned metavariable.
 -/

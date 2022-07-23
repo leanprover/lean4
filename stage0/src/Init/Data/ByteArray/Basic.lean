@@ -102,7 +102,7 @@ partial def toList (bs : ByteArray) : List UInt8 :=
       none
   loop start
 
-/-
+/--
   We claim this unsafe implementation is correct because an array cannot have more than `usizeSz` elements in our runtime.
   This is similar to the `Array` version.
 
@@ -120,7 +120,7 @@ partial def toList (bs : ByteArray) : List UInt8 :=
       pure b
   loop 0 b
 
-/- Reference implementation for `forIn` -/
+/-- Reference implementation for `forIn` -/
 @[implementedBy ByteArray.forInUnsafe]
 protected def forIn {β : Type v} {m : Type v → Type w} [Monad m] (as : ByteArray) (b : β) (f : UInt8 → β → m (ForInStep β)) : m β :=
   let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
@@ -138,10 +138,8 @@ protected def forIn {β : Type v} {m : Type v → Type w} [Monad m] (as : ByteAr
 instance : ForIn m ByteArray UInt8 where
   forIn := ByteArray.forIn
 
-/-
-  See comment at forInUnsafe
-  TODO: avoid code duplication.
--/
+/-- See comment at `forInUnsafe` -/
+-- TODO: avoid code duplication.
 @[inline]
 unsafe def foldlMUnsafe {β : Type v} {m : Type v → Type w} [Monad m] (f : β → UInt8 → m β) (init : β) (as : ByteArray) (start := 0) (stop := as.size) : m β :=
   let rec @[specialize] fold (i : USize) (stop : USize) (b : β) : m β := do
@@ -157,7 +155,7 @@ unsafe def foldlMUnsafe {β : Type v} {m : Type v → Type w} [Monad m] (f : β 
   else
     pure init
 
-/- Reference implementation for `foldlM` -/
+/-- Reference implementation for `foldlM` -/
 @[implementedBy foldlMUnsafe]
 def foldlM {β : Type v} {m : Type v → Type w} [Monad m] (f : β → UInt8 → m β) (init : β) (as : ByteArray) (start := 0) (stop := as.size) : m β :=
   let fold (stop : Nat) (h : stop ≤ as.size) :=

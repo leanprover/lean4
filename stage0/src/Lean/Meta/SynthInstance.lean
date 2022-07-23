@@ -60,7 +60,7 @@ def Waiter.isRoot : Waiter → Bool
   | Waiter.consumerNode _ => false
   | Waiter.root           => true
 
-/-
+/-!
   In tabled resolution, we creating a mapping from goals (e.g., `Coe Nat ?x`) to
   answers and waiters. Waiters are consumer nodes that are waiting for answers for a
   particular node.
@@ -141,7 +141,7 @@ partial def normExpr (e : Expr) : M Expr := do
 
 end MkTableKey
 
-/- Remark: `mkTableKey` assumes `e` does not contain assigned metavariables. -/
+/-- Remark: `mkTableKey` assumes `e` does not contain assigned metavariables. -/
 def mkTableKey [Monad m] [MonadMCtx m] (e : Expr) : m Expr := do
   let (r, s) := MkTableKey.normExpr e |>.run { mctx := (← getMCtx) }
   setMCtx s.mctx
@@ -161,7 +161,7 @@ structure Context where
   maxResultSize : Nat
   maxHeartbeats : Nat
 
-/-
+/--
   Remark: the SynthInstance.State is not really an extension of `Meta.State`.
   The field `postponed` is not needed, and the field `mctx` is misleading since
   `synthInstance` methods operate over different `MetavarContext`s simultaneously.
@@ -259,7 +259,7 @@ def mkTableKeyFor (mctx : MetavarContext) (mvar : Expr) : SynthM Expr :=
     let mvarType ← instantiateMVars mvarType
     mkTableKey mvarType
 
-/- See `getSubgoals` and `getSubgoalsAux`
+/-- See `getSubgoals` and `getSubgoalsAux`
 
    We use the parameter `j` to reduce the number of `instantiate*` invocations.
    It is the same approach we use at `forallTelescope` and `lambdaTelescope`.
@@ -597,7 +597,7 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
 
 end SynthInstance
 
-/-
+/-!
 Type class parameters can be annotated with `outParam` annotations.
 
 Given `C a_1 ... a_n`, we replace `a_i` with a fresh metavariable `?m_i` IF
@@ -656,7 +656,7 @@ private def preprocessOutParam (type : Expr) : MetaM Expr :=
     | _ =>
       return type
 
-/-
+/-!
   Remark: when `maxResultSize? == none`, the configuration option `synthInstance.maxResultSize` is used.
   Remark: we use a different option for controlling the maximum result size for coercions.
 -/

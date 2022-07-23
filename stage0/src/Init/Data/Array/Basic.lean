@@ -34,7 +34,7 @@ def isEmpty (a : Array α) : Bool :=
 def singleton (v : α) : Array α :=
   mkArray 1 v
 
-/- Low-level version of `fget` which is as fast as a C array read.
+/-- Low-level version of `fget` which is as fast as a C array read.
    `Fin` values are represented as tag pointers in the Lean runtime. Thus,
    `fget` may be slightly slower than `uget`. -/
 @[extern "lean_array_uget"]
@@ -64,7 +64,7 @@ abbrev getLit {α : Type u} {n : Nat} (a : Array α) (i : Nat) (h₁ : a.size = 
 @[simp] theorem size_push (a : Array α) (v : α) : (push a v).size = a.size + 1 :=
   List.length_concat ..
 
-/- Low-level version of `fset` which is as fast as a C array fset.
+/-- Low-level version of `fset` which is as fast as a C array fset.
    `Fin` values are represented as tag pointers in the Lean runtime. Thus,
    `fset` may be slightly slower than `uset`. -/
 @[extern "lean_array_uset"]
@@ -141,7 +141,7 @@ def modify (a : Array α) (i : Nat) (f : α → α) : Array α :=
 def modifyOp (self : Array α) (idx : Nat) (f : α → α) : Array α :=
   self.modify idx f
 
-/-
+/--
   We claim this unsafe implementation is correct because an array cannot have more than `usizeSz` elements in our runtime.
 
   This kind of low level trick can be removed with a little bit of compiler support. For example, if the compiler simplifies `as.size < usizeSz` to true. -/
@@ -157,7 +157,7 @@ def modifyOp (self : Array α) (idx : Nat) (f : α → α) : Array α :=
       pure b
   loop 0 b
 
-/- Reference implementation for `forIn` -/
+/-- Reference implementation for `forIn` -/
 @[implementedBy Array.forInUnsafe]
 protected def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
   let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
@@ -175,7 +175,7 @@ protected def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m
 instance : ForIn m (Array α) α where
   forIn := Array.forIn
 
-/- See comment at forInUnsafe -/
+/-- See comment at `forInUnsafe` -/
 @[inline]
 unsafe def foldlMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (as : Array α) (start := 0) (stop := as.size) : m β :=
   let rec @[specialize] fold (i : USize) (stop : USize) (b : β) : m β := do
@@ -191,7 +191,7 @@ unsafe def foldlMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Mon
   else
     pure init
 
-/- Reference implementation for `foldlM` -/
+/-- Reference implementation for `foldlM` -/
 @[implementedBy foldlMUnsafe]
 def foldlM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (as : Array α) (start := 0) (stop := as.size) : m β :=
   let fold (stop : Nat) (h : stop ≤ as.size) :=
@@ -210,7 +210,7 @@ def foldlM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β
   else
     fold as.size (Nat.le_refl _)
 
-/- See comment at forInUnsafe -/
+/-- See comment at `forInUnsafe` -/
 @[inline]
 unsafe def foldrMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → β → m β) (init : β) (as : Array α) (start := as.size) (stop := 0) : m β :=
   let rec @[specialize] fold (i : USize) (stop : USize) (b : β) : m β := do
@@ -228,7 +228,7 @@ unsafe def foldrMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Mon
   else
     pure init
 
-/- Reference implementation for `foldrM` -/
+/-- Reference implementation for `foldrM` -/
 @[implementedBy foldrMUnsafe]
 def foldrM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → β → m β) (init : β) (as : Array α) (start := as.size) (stop := 0) : m β :=
   let rec fold (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
@@ -249,7 +249,7 @@ def foldrM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α
   else
     pure init
 
-/- See comment at forInUnsafe -/
+/-- See comment at `forInUnsafe` -/
 @[inline]
 unsafe def mapMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m β) (as : Array α) : m (Array β) :=
   let sz := USize.ofNat as.size
@@ -266,7 +266,7 @@ unsafe def mapMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad
      pure (unsafeCast r)
   unsafeCast <| map 0 (unsafeCast as)
 
-/- Reference implementation for `mapM` -/
+/-- Reference implementation for `mapM` -/
 @[implementedBy mapMUnsafe]
 def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m β) (as : Array α) : m (Array β) :=
   as.foldlM (fun bs a => do let b ← f a; pure (bs.push b)) (mkEmpty as.size)

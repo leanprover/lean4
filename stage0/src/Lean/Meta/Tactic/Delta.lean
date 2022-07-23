@@ -16,7 +16,7 @@ def delta? (e : Expr) (p : Name → Bool := fun _ => true) : CoreM (Option Expr)
     else
       return none
 
-/- Low-level delta expansion. It is used to implement equation lemmas and elimination principles for recursive definitions. -/
+/-- Low-level delta expansion. It is used to implement equation lemmas and elimination principles for recursive definitions. -/
 def deltaExpand (e : Expr) (p : Name → Bool) : CoreM Expr :=
   Core.transform e fun e => do
     match (← delta? e p) with

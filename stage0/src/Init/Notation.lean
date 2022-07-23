@@ -37,7 +37,7 @@ macro "lead" : prec => `(1022) -- precedence used for terms not supposed to be u
 macro "(" p:prec ")" : prec => return p
 macro "min"  : prec => `(10)   -- minimum precedence used in term parsers
 macro "min1" : prec => `(11)   -- `(min+1) we can only `min+1` after `Meta.lean`
-/-
+/--
   `max:prec` as a term. It is equivalent to `eval_prec max` for `eval_prec` defined at `Meta.lean`.
   We use `max_prec` to workaround bootstrapping issues. -/
 macro "max_prec" : term => `(1024)
@@ -61,10 +61,10 @@ macro_rules
   | `(stx| $p ?) => `(stx| optional($p))
   | `(stx| $p₁ <|> $p₂) => `(stx| orelse($p₁, $p₂))
 
-/- Comma-separated sequence. -/
+/-- Comma-separated sequence. -/
 macro:arg x:stx:max ",*"   : stx => `(stx| sepBy($x, ",", ", "))
 macro:arg x:stx:max ",+"   : stx => `(stx| sepBy1($x, ",", ", "))
-/- Comma-separated sequence with optional trailing comma. -/
+/-- Comma-separated sequence with optional trailing comma. -/
 macro:arg x:stx:max ",*,?" : stx => `(stx| sepBy($x, ",", ", ", allowTrailingSep))
 macro:arg x:stx:max ",+,?" : stx => `(stx| sepBy1($x, ",", ", ", allowTrailingSep))
 
@@ -89,7 +89,7 @@ infixr:80 " ^ "   => HPow.hPow
 infixl:65 " ++ "  => HAppend.hAppend
 prefix:100 "-"    => Neg.neg
 prefix:100 "~~~"  => Complement.complement
-/-
+/-!
   Remark: the infix commands above ensure a delaborator is generated for each relations.
   We redefine the macros below to be able to use the auxiliary `binop%` elaboration helper for binary operators.
   It addresses issue #382. -/
@@ -113,7 +113,7 @@ infix:50 " ≥ "  => GE.ge
 infix:50 " > "  => GT.gt
 infix:50 " = "  => Eq
 infix:50 " == " => BEq.beq
-/-
+/-!
   Remark: the infix commands above ensure a delaborator is generated for each relations.
   We redefine the macros below to be able to use the auxiliary `binrel%` elaboration helper for binary relations.
   It has better support for applying coercions. For example, suppose we have `binrel% Eq n i` where `n : Nat` and
@@ -189,7 +189,7 @@ macro_rules
   | `($a |> $f $args*) => `($f $args* $a)
   | `($a |> $f)        => `($f $a)
 
--- Haskell-like pipe <|
+/-- Haskell-like pipe `<|` -/
 -- Note that we have a whitespace after `$` to avoid an ambiguity with the antiquotations.
 syntax:min term atomic(" $" ws) term:min : term
 
@@ -203,7 +203,7 @@ macro_rules
   | `({ $x : $type // $p }) => ``(Subtype (fun ($x:ident : $type) => $p))
   | `({ $x // $p })         => ``(Subtype (fun ($x:ident : _) => $p))
 
-/-
+/--
   `without_expected_type t` instructs Lean to elaborate `t` without an expected type.
   Recall that terms such as `match ... with ...` and `⟨...⟩` will postpone elaboration until
   expected type is known. So, `without_expected_type` is not effective in this case. -/

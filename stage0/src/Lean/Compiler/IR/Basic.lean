@@ -7,7 +7,7 @@ import Lean.Data.KVMap
 import Lean.Data.Name
 import Lean.Data.Format
 import Lean.Compiler.ExternAttr
-/-
+/-!
 Implements (extended) λPure and λRc proposed in the article
 "Counting Immutable Beans", Sebastian Ullrich and Leonardo de Moura.
 
@@ -17,15 +17,15 @@ above are implemented in Lean.
 -/
 namespace Lean.IR
 
-/- Function identifier -/
+/-- Function identifier -/
 abbrev FunId := Name
 abbrev Index := Nat
-/- Variable identifier -/
+/-- Variable identifier -/
 structure VarId where
   idx : Index
   deriving Inhabited
 
-/- Join point identifier -/
+/-- Join point identifier -/
 structure JoinPointId where
   idx : Index
   deriving Inhabited
@@ -45,7 +45,7 @@ instance : Hashable JoinPointId := ⟨fun a => hash a.idx⟩
 abbrev MData := KVMap
 abbrev MData.empty : MData := {}
 
-/- Low Level IR types. Most are self explanatory.
+/-- Low Level IR types. Most are self explanatory.
 
    - `usize` represents the C++ `size_t` Type. We have it here
       because it is 32-bit in 32-bit machines, and 64-bit in 64-bit machines,
@@ -130,7 +130,7 @@ def isUnion : IRType → Bool
 
 end IRType
 
-/- Arguments to applications, constructors, etc.
+/-- Arguments to applications, constructors, etc.
    We use `irrelevant` for Lean types, propositions and proofs that have been erased.
    Recall that for a Function `f`, we also generate `f._rarg` which does not take
    `irrelevant` arguments. However, `f._rarg` is only safe to be used in full applications. -/
@@ -159,7 +159,7 @@ def LitVal.beq : LitVal → LitVal → Bool
 
 instance : BEq LitVal := ⟨LitVal.beq⟩
 
-/- Constructor information.
+/-- Constructor information.
 
    - `name` is the Name of the Constructor in Lean.
    - `cidx` is the Constructor index (aka tag).
@@ -191,36 +191,36 @@ def CtorInfo.isScalar (info : CtorInfo) : Bool :=
   !info.isRef
 
 inductive Expr where
-  /- We use `ctor` mainly for constructing Lean object/tobject values `lean_ctor_object` in the runtime.
-     This instruction is also used to creat `struct` and `union` return values.
-     For `union`, only `i.cidx` is relevant. For `struct`, `i` is irrelevant. -/
-  | ctor (i : CtorInfo) (ys : Array Arg)
+  | /-- We use `ctor` mainly for constructing Lean object/tobject values `lean_ctor_object` in the runtime.
+    This instruction is also used to creat `struct` and `union` return values.
+    For `union`, only `i.cidx` is relevant. For `struct`, `i` is irrelevant. -/
+    ctor (i : CtorInfo) (ys : Array Arg)
   | reset (n : Nat) (x : VarId)
-  /- `reuse x in ctor_i ys` instruction in the paper. -/
-  | reuse (x : VarId) (i : CtorInfo) (updtHeader : Bool) (ys : Array Arg)
-  /- Extract the `tobject` value at Position `sizeof(void*)*i` from `x`.
-     We also use `proj` for extracting fields from `struct` return values, and casting `union` return values. -/
-  | proj (i : Nat) (x : VarId)
-  /- Extract the `Usize` value at Position `sizeof(void*)*i` from `x`. -/
-  | uproj (i : Nat) (x : VarId)
-  /- Extract the scalar value at Position `sizeof(void*)*n + offset` from `x`. -/
-  | sproj (n : Nat) (offset : Nat) (x : VarId)
-  /- Full application. -/
-  | fap (c : FunId) (ys : Array Arg)
-  /- Partial application that creates a `pap` value (aka closure in our nonstandard terminology). -/
-  | pap (c : FunId) (ys : Array Arg)
-  /- Application. `x` must be a `pap` value. -/
-  | ap  (x : VarId) (ys : Array Arg)
-  /- Given `x : ty` where `ty` is a scalar type, this operation returns a value of Type `tobject`.
+  | /-- `reuse x in ctor_i ys` instruction in the paper. -/
+    reuse (x : VarId) (i : CtorInfo) (updtHeader : Bool) (ys : Array Arg)
+  | /-- Extract the `tobject` value at Position `sizeof(void*)*i` from `x`.
+    We also use `proj` for extracting fields from `struct` return values, and casting `union` return values. -/
+    proj (i : Nat) (x : VarId)
+  | /-- Extract the `Usize` value at Position `sizeof(void*)*i` from `x`. -/
+    uproj (i : Nat) (x : VarId)
+  | /-- Extract the scalar value at Position `sizeof(void*)*n + offset` from `x`. -/
+    sproj (n : Nat) (offset : Nat) (x : VarId)
+  | /-- Full application. -/
+    fap (c : FunId) (ys : Array Arg)
+  | /-- Partial application that creates a `pap` value (aka closure in our nonstandard terminology). -/
+    pap (c : FunId) (ys : Array Arg)
+  | /-- Application. `x` must be a `pap` value. -/
+    ap  (x : VarId) (ys : Array Arg)
+  | /-- Given `x : ty` where `ty` is a scalar type, this operation returns a value of Type `tobject`.
      For small scalar values, the Result is a tagged pointer, and no memory allocation is performed. -/
-  | box (ty : IRType) (x : VarId)
-  /- Given `x : [t]object`, obtain the scalar value. -/
-  | unbox (x : VarId)
+    box (ty : IRType) (x : VarId)
+  | /-- Given `x : [t]object`, obtain the scalar value. -/
+    unbox (x : VarId)
   | lit (v : LitVal)
-  /- Return `1 : uint8` Iff `RC(x) > 1` -/
-  | isShared (x : VarId)
-  /- Return `1 : uint8` Iff `x : tobject` is a tagged pointer (storing a scalar value). -/
-  | isTaggedPtr (x : VarId)
+  | /-- Return `1 : uint8` Iff `RC(x) > 1` -/
+    isShared (x : VarId)
+  | /-- Return `1 : uint8` Iff `x : tobject` is a tagged pointer (storing a scalar value). -/
+    isTaggedPtr (x : VarId)
 
 @[export lean_ir_mk_ctor_expr]  def mkCtorExpr (n : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat) (ys : Array Arg) : Expr :=
   Expr.ctor ⟨n, cidx, size, usize, ssize⟩ ys
@@ -247,31 +247,31 @@ inductive AltCore (FnBody : Type) : Type where
   | default (b : FnBody) : AltCore FnBody
 
 inductive FnBody where
-  /- `let x : ty := e; b` -/
-  | vdecl (x : VarId) (ty : IRType) (e : Expr) (b : FnBody)
-  /- Join point Declaration `block_j (xs) := e; b` -/
-  | jdecl (j : JoinPointId) (xs : Array Param) (v : FnBody) (b : FnBody)
-  /- Store `y` at Position `sizeof(void*)*i` in `x`. `x` must be a Constructor object and `RC(x)` must be 1.
-     This operation is not part of λPure is only used during optimization. -/
-  | set (x : VarId) (i : Nat) (y : Arg) (b : FnBody)
+  | /-- `let x : ty := e; b` -/
+    vdecl (x : VarId) (ty : IRType) (e : Expr) (b : FnBody)
+  | /-- Join point Declaration `block_j (xs) := e; b` -/
+    jdecl (j : JoinPointId) (xs : Array Param) (v : FnBody) (b : FnBody)
+  | /-- Store `y` at Position `sizeof(void*)*i` in `x`. `x` must be a Constructor object and `RC(x)` must be 1.
+    This operation is not part of λPure is only used during optimization. -/
+    set (x : VarId) (i : Nat) (y : Arg) (b : FnBody)
   | setTag (x : VarId) (cidx : Nat) (b : FnBody)
-  /- Store `y : Usize` at Position `sizeof(void*)*i` in `x`. `x` must be a Constructor object and `RC(x)` must be 1. -/
-  | uset (x : VarId) (i : Nat) (y : VarId) (b : FnBody)
-  /- Store `y : ty` at Position `sizeof(void*)*i + offset` in `x`. `x` must be a Constructor object and `RC(x)` must be 1.
+  | /-- Store `y : Usize` at Position `sizeof(void*)*i` in `x`. `x` must be a Constructor object and `RC(x)` must be 1. -/
+    uset (x : VarId) (i : Nat) (y : VarId) (b : FnBody)
+  | /-- Store `y : ty` at Position `sizeof(void*)*i + offset` in `x`. `x` must be a Constructor object and `RC(x)` must be 1.
      `ty` must not be `object`, `tobject`, `irrelevant` nor `Usize`. -/
-  | sset (x : VarId) (i : Nat) (offset : Nat) (y : VarId) (ty : IRType) (b : FnBody)
-  /- RC increment for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not.
+    sset (x : VarId) (i : Nat) (offset : Nat) (y : VarId) (ty : IRType) (b : FnBody)
+  | /-- RC increment for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not.
      If `persistent == true` then `x` is statically known to be a persistent object. -/
-  | inc (x : VarId) (n : Nat) (c : Bool) (persistent : Bool) (b : FnBody)
-  /- RC decrement for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not.
+    inc (x : VarId) (n : Nat) (c : Bool) (persistent : Bool) (b : FnBody)
+  | /-- RC decrement for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not.
      If `persistent == true` then `x` is statically known to be a persistent object. -/
-  | dec (x : VarId) (n : Nat) (c : Bool) (persistent : Bool) (b : FnBody)
+    dec (x : VarId) (n : Nat) (c : Bool) (persistent : Bool) (b : FnBody)
   | del (x : VarId) (b : FnBody)
   | mdata (d : MData) (b : FnBody)
   | case (tid : Name) (x : VarId) (xType : IRType) (cs : Array (AltCore FnBody))
   | ret (x : Arg)
-  /- Jump to join point `j` -/
-  | jmp (j : JoinPointId) (ys : Array Arg)
+  | /-- Jump to join point `j` -/
+    jmp (j : JoinPointId) (ys : Array Arg)
   | unreachable
 
 instance : Inhabited FnBody := ⟨FnBody.unreachable⟩
@@ -331,7 +331,7 @@ def FnBody.setBody : FnBody → FnBody → FnBody
 @[inline] def FnBody.resetBody (b : FnBody) : FnBody :=
   b.setBody FnBody.nil
 
-/- If b is a non terminal, then return a pair `(c, b')` s.t. `b == c <;> b'`,
+/-- If b is a non terminal, then return a pair `(c, b')` s.t. `b == c <;> b'`,
    and c.body == FnBody.nil -/
 @[inline] def FnBody.split (b : FnBody) : FnBody × FnBody :=
   let b' := b.body

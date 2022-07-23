@@ -234,9 +234,9 @@ elab_stx_quot Parser.Term.doElem.quot
 elab_stx_quot Parser.Term.dynamicQuot
 elab_stx_quot Parser.Command.quot
 
-/- match -/
+/-! # match -/
 
--- an "alternative" of patterns plus right-hand side
+/-- an "alternative" of patterns plus right-hand side -/
 private abbrev Alt := List Term × Term
 
 /--
@@ -244,45 +244,45 @@ private abbrev Alt := List Term × Term
   alternative. This datatype describes what kind of check this involves, which helps other patterns decide if
   they are covered by the same check and don't have to be checked again (see also `MatchResult`). -/
 inductive HeadCheck where
-  -- match step that always succeeds: _, x, `($x), ...
-  | unconditional
-  -- match step based on kind and, optionally, arity of discriminant
-  -- If `arity` is given, that number of new discriminants is introduced. `covered` patterns should then introduce the
-  -- same number of new patterns.
-  -- We actually check the arity at run time only in the case of `null` nodes since it should otherwise by implied by
-  -- the node kind.
-  -- without arity: `($x:k)
-  -- with arity: any quotation without an antiquotation head pattern
-  | shape (k : List SyntaxNodeKind) (arity : Option Nat)
-  -- Match step that succeeds on `null` nodes of arity at least `numPrefix + numSuffix`, introducing discriminants
-  -- for the first `numPrefix` children, one `null` node for those in between, and for the `numSuffix` last children.
-  -- example: `([$x, $xs,*, $y]) is `slice 2 2`
-  | slice (numPrefix numSuffix : Nat)
-  -- other, complicated match step that will probably only cover identical patterns
-  -- example: antiquotation splices `($[...]*)
-  | other (pat : Syntax)
+  | /-- match step that always succeeds: _, x, `($x), ... -/
+    unconditional
+  | /-- match step based on kind and, optionally, arity of discriminant
+    If `arity` is given, that number of new discriminants is introduced. `covered` patterns should then introduce the
+    same number of new patterns.
+    We actually check the arity at run time only in the case of `null` nodes since it should otherwise by implied by
+    the node kind.
+    without arity: `($x:k)
+    with arity: any quotation without an antiquotation head pattern -/
+    shape (k : List SyntaxNodeKind) (arity : Option Nat)
+  | /-- Match step that succeeds on `null` nodes of arity at least `numPrefix + numSuffix`, introducing discriminants
+    for the first `numPrefix` children, one `null` node for those in between, and for the `numSuffix` last children.
+    example: `([$x, $xs,*, $y]) is `slice 2 2` -/
+    slice (numPrefix numSuffix : Nat)
+  | /-- other, complicated match step that will probably only cover identical patterns
+    example: antiquotation splices `($[...]*) -/
+    other (pat : Syntax)
 
 open HeadCheck
 
 /-- Describe whether a pattern is covered by a head check (induced by the pattern itself or a different pattern). -/
 inductive MatchResult where
-  -- Pattern agrees with head check, remove and transform remaining alternative.
-  -- If `exhaustive` is `false`, *also* include unchanged alternative in the "no" branch.
-  | covered (f : Alt → TermElabM Alt) (exhaustive : Bool)
-  -- Pattern disagrees with head check, include in "no" branch only
-  | uncovered
-  -- Pattern is not quite sure yet; include unchanged in both branches
-  | undecided
+  | /-- Pattern agrees with head check, remove and transform remaining alternative.
+    If `exhaustive` is `false`, *also* include unchanged alternative in the "no" branch. -/
+    covered (f : Alt → TermElabM Alt) (exhaustive : Bool)
+  | /-- Pattern disagrees with head check, include in "no" branch only -/
+    uncovered
+  | /-- Pattern is not quite sure yet; include unchanged in both branches -/
+    undecided
 
 open MatchResult
 
 /-- All necessary information on a pattern head. -/
 structure HeadInfo where
-  -- check induced by the pattern
+  /-- check induced by the pattern -/
   check : HeadCheck
-  -- compute compatibility of pattern with given head check
+  /-- compute compatibility of pattern with given head check -/
   onMatch (taken : HeadCheck) : MatchResult
-  -- actually run the specified head check, with the discriminant bound to `discr`
+  /-- actually run the specified head check, with the discriminant bound to `discr` -/
   doMatch (yes : (newDiscrs : List Term) → TermElabM Term) (no : TermElabM Term) : TermElabM Term
 
 /-- Adapt alternatives that do not introduce new discriminants in `doMatch`, but are covered by those that do so. -/
@@ -475,7 +475,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
           | r             => r }
     | _               => throwErrorAt pat "match (syntax) : unexpected pattern kind {pat}"
 
--- Bind right-hand side to new `let_delayed` decl in order to prevent code duplication
+/-- Bind right-hand side to new `let_delayed` decl in order to prevent code duplication -/
 private def deduplicate (floatedLetDecls : Array Syntax) : Alt → TermElabM (Array Syntax × Alt)
   -- NOTE: new macro scope so that introduced bindings do not collide
   | (pats, rhs) => do

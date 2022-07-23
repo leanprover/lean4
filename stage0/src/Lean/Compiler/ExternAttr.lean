@@ -17,7 +17,7 @@ inductive ExternEntry where
   | standard (backend : Name) (fn : String)
   | foreign  (backend : Name) (fn : String)
 
-/-
+/--
 - `@[extern]`
    encoding: ```.entries = [adhoc `all]```
 - `@[extern "level_hash"]`
@@ -123,7 +123,7 @@ def getExternEntryFor (d : ExternAttrData) (backend : Name) : Option ExternEntry
 def isExtern (env : Environment) (fn : Name) : Bool :=
   getExternAttrData env fn |>.isSome
 
-/- We say a Lean function marked as `[extern "<c_fn_nane>"]` is for all backends, and it is implemented using `extern "C"`.
+/-- We say a Lean function marked as `[extern "<c_fn_nane>"]` is for all backends, and it is implemented using `extern "C"`.
    Thus, there is no name mangling. -/
 def isExternC (env : Environment) (fn : Name) : Bool :=
   match getExternAttrData env fn with

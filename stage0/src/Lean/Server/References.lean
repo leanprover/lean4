@@ -13,7 +13,7 @@ import Lean.Server.Utils
 import Lean.Server.InfoUtils
 import Lean.Server.Snapshots
 
-/- Representing collected and deduplicated definitions and usages -/
+/-! # Representing collected and deduplicated definitions and usages -/
 
 namespace Lean.Server
 open Lsp Lean.Elab Std
@@ -127,7 +127,7 @@ def load (path : System.FilePath) : IO Ilean := do
     | Except.error msg => throwServerError s!"Failed to load ilean at {path}: {msg}"
 
 end Ilean
-/- Collecting and deduplicating definitions and usages -/
+/-! # Collecting and deduplicating definitions and usages -/
 
 def identOf : Info → Option (RefIdent × Bool)
   | Info.ofTermInfo ti => match ti.expr with
@@ -220,7 +220,7 @@ def findModuleRefs (text : FileMap) (trees : Array InfoTree) (localVars : Bool :
       | _ => true
   refs.foldl (init := HashMap.empty) fun m ref => m.addRef ref
 
-/- Collecting and maintaining reference info from different sources -/
+/-! # Collecting and maintaining reference info from different sources -/
 
 structure References where
   /-- References loaded from ilean files -/

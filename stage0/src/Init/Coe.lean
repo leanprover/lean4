@@ -15,11 +15,11 @@ class Coe (α : Sort u) (β : Sort v) where
 class CoeTC (α : Sort u) (β : Sort v) where
   coe : α → β
 
-/- Expensive coercion that can only appear at the beginning of a sequence of coercions. -/
+/-- Expensive coercion that can only appear at the beginning of a sequence of coercions. -/
 class CoeHead (α : Sort u) (β : Sort v) where
   coe : α → β
 
-/- Expensive coercion that can only appear at the end of a sequence of coercions. -/
+/-- Expensive coercion that can only appear at the end of a sequence of coercions. -/
 class CoeTail (α : Sort u) (β : Sort v) where
   coe : α → β
 
@@ -30,7 +30,7 @@ class CoeHTCT (α : Sort u) (β : Sort v) where
 class CoeDep (α : Sort u) (_ : α) (β : Sort v) where
   coe : β
 
-/- Combines CoeHead, CoeTC, CoeTail, CoeDep -/
+/-- Combines CoeHead, CoeTC, CoeTail, CoeDep -/
 class CoeT (α : Sort u) (_ : α) (β : Sort v) where
   coe : β
 
@@ -81,7 +81,7 @@ instance coeId {α : Sort u} (a : α) : CoeT α a α where
 instance coeSortToCoeTail [inst : CoeSort α β] : CoeTail α β where
   coe := inst.coe
 
-/- Basic instances -/
+/-! # Basic instances -/
 
 @[inline] instance boolToProp : Coe Bool Prop where
   coe b := Eq b true
@@ -98,7 +98,7 @@ instance optionCoe {α : Type u} : CoeTail α (Option α) where
 instance subtypeCoe {α : Sort u} {p : α → Prop} : CoeHead (Subtype p) α where
   coe v := v.val
 
-/- Coe bridge -/
+/-! # Coe bridge -/
 
 -- Helper definition used by the elaborator. It is not meant to be used directly by users
 @[inline] def Lean.Internal.liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u} [MonadLiftT m n] [∀ a, CoeT α a β] [Monad n] (x : m α) : n β := do

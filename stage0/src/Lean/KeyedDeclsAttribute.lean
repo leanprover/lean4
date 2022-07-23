@@ -44,7 +44,7 @@ structure OLeanEntry where
   deriving Inhabited
 
 structure AttributeEntry (γ : Type) extends OLeanEntry where
-  /- Recall that we cannot store `γ` into .olean files because it is a closure.
+  /-- Recall that we cannot store `γ` into .olean files because it is a closure.
      Given `OLeanEntry.declName`, we convert it into a `γ` by using the unsafe function `evalConstCheck`. -/
   value : γ
 

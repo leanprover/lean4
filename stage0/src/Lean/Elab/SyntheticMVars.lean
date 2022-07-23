@@ -203,7 +203,7 @@ where
     let some mvarIds ← synthesizeSomeUsingDefault? mvarIds | return false
     synthesizePending mvarIds
 
-/- Used to implement `synthesizeUsingDefault`. This method only consider default instances with the given priority. -/
+/-- Used to implement `synthesizeUsingDefault`. This method only consider default instances with the given priority. -/
 private def synthesizeSomeUsingDefaultPrio (prio : Nat) : TermElabM Bool := do
   let rec visit (pendingMVars : List MVarId) (pendingMVarsNew : List MVarId) : TermElabM Bool := do
     match pendingMVars with
@@ -423,7 +423,7 @@ end
 def synthesizeSyntheticMVarsNoPostponing (ignoreStuckTC := false) : TermElabM Unit :=
   synthesizeSyntheticMVars (mayPostpone := false) (ignoreStuckTC := ignoreStuckTC)
 
-/- Keep invoking `synthesizeUsingDefault` until it returns false. -/
+/-- Keep invoking `synthesizeUsingDefault` until it returns false. -/
 private partial def synthesizeUsingDefaultLoop : TermElabM Unit := do
   if (← synthesizeUsingDefault) then
     synthesizeSyntheticMVars (mayPostpone := true)

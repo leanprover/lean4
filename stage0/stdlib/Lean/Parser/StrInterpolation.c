@@ -442,7 +442,7 @@ return x_12;
 else
 {
 uint8_t x_13; lean_object* x_14; 
-x_13 = 0;
+x_13 = 1;
 x_14 = l_Lean_Parser_orelseFnCore(x_5, x_1, x_13, x_2, x_3);
 return x_14;
 }

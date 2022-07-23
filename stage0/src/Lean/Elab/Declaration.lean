@@ -201,7 +201,7 @@ def elabDeclaration : CommandElab := fun stx => do
     else
       throwError "unexpected declaration"
 
-/- Return true if all elements of the mutual-block are inductive declarations. -/
+/-- Return true if all elements of the mutual-block are inductive declarations. -/
 private def isMutualInductive (stx : Syntax) : Bool :=
   stx[1].getArgs.all fun elem =>
     let decl     := elem[1]
@@ -214,7 +214,7 @@ private def elabMutualInductive (elems : Array Syntax) : CommandElabM Unit := do
      inductiveSyntaxToView modifiers stx[1]
   elabInductiveViews views
 
-/- Return true if all elements of the mutual-block are definitions/theorems/abbrevs. -/
+/-- Return true if all elements of the mutual-block are definitions/theorems/abbrevs. -/
 private def isMutualDef (stx : Syntax) : Bool :=
   stx[1].getArgs.all fun elem =>
     let decl := elem[1]

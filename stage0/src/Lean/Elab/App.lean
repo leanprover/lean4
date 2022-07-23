@@ -53,7 +53,7 @@ private def mkProjAndCheck (structName : Name) (idx : Nat) (e : Expr) : MetaM Ex
       throwError "invalid projection, the expression{indentExpr e}\nis a proposition and has type{indentExpr eType}\nbut the projected value is not, it has type{indentExpr rType}"
   return r
 
-/-
+/--
   Relevant definitions:
   ```
   class CoeFun (α : Sort u) (γ : α → outParam (Sort v))
@@ -125,7 +125,7 @@ structure Context where
   -/
   resultIsOutParamSupport : Bool
 
-/- Auxiliary structure for elaborating the application `f args namedArgs`. -/
+/-- Auxiliary structure for elaborating the application `f args namedArgs`. -/
 structure State where
   f                    : Expr
   fType                : Expr
@@ -465,7 +465,7 @@ where
     | .bvar idx        => idx == i
     | _                => false
 
-  /- (quick filter) Return true if `type` constains a binder `[C ...]` where `C` is a class containing outparams. -/
+  /-- (quick filter) Return true if `type` constains a binder `[C ...]` where `C` is a class containing outparams. -/
   hasLocalInstaceWithOutParams (type : Expr) : CoreM Bool := do
     let .forallE _ d b bi := type | return false
     if bi.isInstImplicit then
@@ -497,7 +497,7 @@ where
       return false
 
 mutual
-  /-
+  /--
     Create a fresh local variable with the current binder name and argument type, add it to `etaArgs` and `f`,
     and then execute the main loop.-/
   private partial def addEtaArg (argName : Name) : M Expr := do
@@ -524,7 +524,7 @@ mutual
     addNewArg argName arg
     main
 
-  /-
+  /--
     Process a `fType` of the form `(x : A) → B x`.
     This method assume `fType` is a function type -/
   private partial def processExplictArg (argName : Name) : M Expr := do
@@ -568,7 +568,7 @@ mutual
         else
           finalize
 
-  /-
+  /--
     Process a `fType` of the form `{x : A} → B x`.
     This method assume `fType` is a function type -/
   private partial def processImplicitArg (argName : Name) : M Expr := do
@@ -577,7 +577,7 @@ mutual
     else
       addImplicitArg argName
 
-  /-
+  /--
     Process a `fType` of the form `{{x : A}} → B x`.
     This method assume `fType` is a function type -/
   private partial def processStrictImplicitArg (argName : Name) : M Expr := do
@@ -588,7 +588,7 @@ mutual
     else
       finalize
 
-  /-
+  /--
     Process a `fType` of the form `[x : A] → B x`.
     This method assume `fType` is a function type -/
   private partial def processInstImplicitArg (argName : Name) : M Expr := do
@@ -608,7 +608,7 @@ mutual
       addNewArg argName arg
       main
 
-  /- Elaborate function application arguments. -/
+  /-- Elaborate function application arguments. -/
   partial def main : M Expr := do
     let fType ← normalizeFunType
     if fType.isForall then
@@ -768,7 +768,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       throwInvalidFieldNotation e eType
   | _, _ => throwInvalidFieldNotation e eType
 
-/- whnfCore + implicit consumption.
+/-- whnfCore + implicit consumption.
    Example: given `e` with `eType := {α : Type} → (fun β => List β) α `, it produces `(e ?m, List ?m)` where `?m` is fresh metavariable. -/
 private partial def consumeImplicits (stx : Syntax) (e eType : Expr) (hasArgs : Bool) : TermElabM (Expr × Expr) := do
   let eType ← whnfCore eType
@@ -832,7 +832,7 @@ private def typeMatchesBaseName (type : Expr) (baseName : Name) : MetaM Bool := 
   else
     return (← whnfR type).isAppOf baseName
 
-/- Auxiliary method for field notation. It tries to add `e` as a new argument to `args` or `namedArgs`.
+/-- Auxiliary method for field notation. It tries to add `e` as a new argument to `args` or `namedArgs`.
    This method first finds the parameter with a type of the form `(baseName ...)`.
    When the parameter is found, if it an explicit one and `args` is big enough, we add `e` to `args`.
    Otherwise, if there isn't another parameter with the same name, we add `e` to `namedArgs`.
@@ -932,8 +932,8 @@ private def elabAppLVals (f : Expr) (lvals : List LVal) (namedArgs : Array Named
 def elabExplicitUnivs (lvls : Array Syntax) : TermElabM (List Level) := do
   lvls.foldrM (init := []) fun stx lvls => return (← elabLevel stx)::lvls
 
-/-
-Interaction between `errToSorry` and `observing`.
+/-!
+# Interaction between `errToSorry` and `observing`.
 
 - The method `elabTerm` catches exceptions, log them, and returns a synthetic sorry (IF `ctx.errToSorry` == true).
 

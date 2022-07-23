@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Util
-// Imports: Init Lean.Util.Trace Lean.Parser.Syntax Lean.Parser.Extension Lean.KeyedDeclsAttribute Lean.Elab.Exception Lean.DocString Lean.DeclarationRange Lean.Compiler.InitAttr Lean.Log
+// Imports: Init Lean.Util.Trace Lean.Parser.Syntax Lean.Parser.Extension Lean.KeyedDeclsAttribute Lean.Elab.Exception Lean.Elab.InfoTree Lean.DocString Lean.DeclarationRange Lean.Compiler.InitAttr Lean.Log
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4458,6 +4458,7 @@ lean_object* initialize_Lean_Parser_Syntax(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Parser_Extension(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_KeyedDeclsAttribute(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Exception(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_InfoTree(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_DocString(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_DeclarationRange(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_InitAttr(uint8_t builtin, lean_object*);
@@ -4483,6 +4484,9 @@ res = initialize_Lean_KeyedDeclsAttribute(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Exception(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_InfoTree(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_DocString(builtin, lean_io_mk_world());

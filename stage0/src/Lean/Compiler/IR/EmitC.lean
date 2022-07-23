@@ -530,7 +530,7 @@ def paramEqArg (p : Param) (x : Arg) : Bool :=
   | Arg.var x => p.x == x
   | _ => false
 
-/-
+/--
 Given `[p_0, ..., p_{n-1}]`, `[y_0, ..., y_{n-1}]`, representing the assignments
 ```
 p_0 := y_0,

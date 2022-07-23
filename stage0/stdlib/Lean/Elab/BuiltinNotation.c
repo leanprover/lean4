@@ -354,6 +354,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Term_elabParen_declRange___closed__
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Term_elabAnonymousCtor___spec__3___closed__3;
 static lean_object* l_Lean_Elab_Term_elabAnonymousCtor___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_expandHave___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___regBuiltin_Lean_Elab_Term_expandParen_docString___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Term_elabCDotFunctionAlias_x3f___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_expandDbgTrace_declRange___closed__3;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Term_expandSuffices(lean_object*);
@@ -680,6 +681,7 @@ static lean_object* l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_elab
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabParen_declRange___closed__4;
 static lean_object* l_Lean_Elab_Term_elabSorry___closed__9;
 static lean_object* l_Lean_Elab_Term_elabBorrowed___closed__1;
+LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Term_expandParen_docString(lean_object*);
 static lean_object* l_Lean_Elab_Term_elabSubst___lambda__8___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Term_elabCDotFunctionAlias_x3f___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Elab_Term_elabCDotFunctionAlias_x3f___spec__4___closed__1;
@@ -1545,7 +1547,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_Range_forIn_loop___at_Lean_Elab_Term_elabAnonymousCtor___spec__3___closed__1;
 x_2 = l_Std_Range_forIn_loop___at_Lean_Elab_Term_elabAnonymousCtor___spec__3___closed__2;
-x_3 = lean_unsigned_to_nat(69u);
+x_3 = lean_unsigned_to_nat(70u);
 x_4 = lean_unsigned_to_nat(36u);
 x_5 = l_Std_Range_forIn_loop___at_Lean_Elab_Term_elabAnonymousCtor___spec__3___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -16671,6 +16673,24 @@ x_6 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_5, x_1);
 return x_6;
 }
 }
+static lean_object* _init_l___regBuiltin_Lean_Elab_Term_expandParen_docString___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("Try to expand `·` notation.\nRecall that in Lean the `·` notation must be surrounded by parentheses.\nWe may change this is the future, but right now, here are valid examples\n- `(· + 1)`\n- `(f ⟨·, 1⟩ ·)`\n- `(· + ·)`\n- `(f · a b)` ", 240);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Term_expandParen_docString(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l___regBuiltin_Lean_Elab_Term_expandParen___closed__2;
+x_3 = l___regBuiltin_Lean_Elab_Term_expandParen_docString___closed__1;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
+}
+}
 static lean_object* _init_l___regBuiltin_Lean_Elab_Term_expandParen_declRange___closed__1() {
 _start:
 {
@@ -21820,6 +21840,11 @@ lean_mark_persistent(l___regBuiltin_Lean_Elab_Term_expandParen___closed__2);
 l___regBuiltin_Lean_Elab_Term_expandParen___closed__3 = _init_l___regBuiltin_Lean_Elab_Term_expandParen___closed__3();
 lean_mark_persistent(l___regBuiltin_Lean_Elab_Term_expandParen___closed__3);
 res = l___regBuiltin_Lean_Elab_Term_expandParen(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l___regBuiltin_Lean_Elab_Term_expandParen_docString___closed__1 = _init_l___regBuiltin_Lean_Elab_Term_expandParen_docString___closed__1();
+lean_mark_persistent(l___regBuiltin_Lean_Elab_Term_expandParen_docString___closed__1);
+res = l___regBuiltin_Lean_Elab_Term_expandParen_docString(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___regBuiltin_Lean_Elab_Term_expandParen_declRange___closed__1 = _init_l___regBuiltin_Lean_Elab_Term_expandParen_declRange___closed__1();

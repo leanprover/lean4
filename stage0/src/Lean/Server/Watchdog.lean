@@ -83,21 +83,21 @@ section Utils
 
   /-- Events that worker-specific tasks signal to the main thread. -/
   inductive WorkerEvent where
-    /- A synthetic event signalling that the grouped edits should be processed. -/
-    | processGroupedEdits
+    | /-- A synthetic event signalling that the grouped edits should be processed. -/
+      processGroupedEdits
     | terminated
     | crashed (e : IO.Error)
     | ioError (e : IO.Error)
 
   inductive WorkerState where
-    /- The watchdog can detect a crashed file worker in two places: When trying to send a message to the file worker
-       and when reading a request reply.
-       In the latter case, the forwarding task terminates and delegates a `crashed` event to the main task.
-       Then, in both cases, the file worker has its state set to `crashed` and requests that are in-flight are errored.
-       Upon receiving the next packet for that file worker, the file worker is restarted and the packet is forwarded
-       to it. If the crash was detected while writing a packet, we queue that packet until the next packet for the file
-       worker arrives. -/
-    | crashed (queuedMsgs : Array JsonRpc.Message)
+    | /-- The watchdog can detect a crashed file worker in two places: When trying to send a message to the file worker
+      and when reading a request reply.
+      In the latter case, the forwarding task terminates and delegates a `crashed` event to the main task.
+      Then, in both cases, the file worker has its state set to `crashed` and requests that are in-flight are errored.
+      Upon receiving the next packet for that file worker, the file worker is restarted and the packet is forwarded
+      to it. If the crash was detected while writing a packet, we queue that packet until the next packet for the file
+      worker arrives. -/
+      crashed (queuedMsgs : Array JsonRpc.Message)
     | running
 
   abbrev PendingRequestMap := RBMap RequestID JsonRpc.Message compare

@@ -13,7 +13,7 @@ import Lean.Util.FindExpr
 import Lean.Util.Profile
 
 namespace Lean
-/- Opaque environment extension state. -/
+/-- Opaque environment extension state. -/
 opaque EnvExtensionStateSpec : (α : Type) × Inhabited α := ⟨Unit, ⟨()⟩⟩
 def EnvExtensionState : Type := EnvExtensionStateSpec.fst
 instance : Inhabited EnvExtensionState := EnvExtensionStateSpec.snd
@@ -44,12 +44,12 @@ opaque CompactedRegion.isMemoryMapped : CompactedRegion → Bool
 @[extern "lean_compacted_region_free"]
 unsafe opaque CompactedRegion.free : CompactedRegion → IO Unit
 
-/- Opaque persistent environment extension entry. -/
+/-- Opaque persistent environment extension entry. -/
 opaque EnvExtensionEntrySpec : NonemptyType.{0}
 def EnvExtensionEntry : Type := EnvExtensionEntrySpec.type
 instance : Nonempty EnvExtensionEntry := EnvExtensionEntrySpec.property
 
-/- Content of a .olean file.
+/-- Content of a .olean file.
    We use `compact.cpp` to generate the image of this object in disk. -/
 structure ModuleData where
   imports    : Array Import
@@ -57,7 +57,7 @@ structure ModuleData where
   entries    : Array (Name × Array EnvExtensionEntry)
   deriving Inhabited
 
-/- Environment fields that are not used often. -/
+/-- Environment fields that are not used often. -/
 structure EnvironmentHeader where
   trustLevel   : UInt32       := 0
   quotInit     : Bool         := false
@@ -145,13 +145,13 @@ inductive KernelException where
 
 namespace Environment
 
-/- Type check given declaration and add it to the environment -/
+/-- Type check given declaration and add it to the environment -/
 @[extern "lean_add_decl"]
 opaque addDecl (env : Environment) (decl : @& Declaration) : Except KernelException Environment
 
 end Environment
 
-/- Interface for managing environment extensions. -/
+/-- Interface for managing environment extensions. -/
 structure EnvExtensionInterface where
   ext              : Type → Type
   inhabitedExt {σ} : Inhabited σ → Inhabited (ext σ)
@@ -174,7 +174,7 @@ instance : Inhabited EnvExtensionInterface where
     mkInitialExtStates   := pure #[]
   }
 
-/- Unsafe implementation of `EnvExtensionInterface` -/
+/-! # Unsafe implementation of `EnvExtensionInterface` -/
 namespace EnvExtensionInterfaceUnsafe
 
 structure Ext (σ : Type) where
@@ -272,7 +272,7 @@ def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ 
 def getState {σ : Type} [Inhabited σ] (ext : EnvExtension σ) (env : Environment) : σ := EnvExtensionInterfaceImp.getState ext env
 end EnvExtension
 
-/- Environment extensions can only be registered during initialization.
+/-- Environment extensions can only be registered during initialization.
    Reasons:
    1- Our implementation assumes the number of extensions does not change after an environment object is created.
    2- We do not use any synchronization primitive to access `envExtensionsRef`.
@@ -304,7 +304,7 @@ structure ImportM.Context where
 
 abbrev ImportM := ReaderT Lean.ImportM.Context IO
 
-/- An environment extension with support for storing/retrieving entries from a .olean file.
+/-- An environment extension with support for storing/retrieving entries from a .olean file.
    - α is the type of the entries that are stored in .olean files.
    - β is the type of values used to update the state.
    - σ is the actual state.
@@ -396,8 +396,7 @@ unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ]
 @[implementedBy registerPersistentEnvExtensionUnsafe]
 opaque registerPersistentEnvExtension {α β σ : Type} [Inhabited σ] (descr : PersistentEnvExtensionDescr α β σ) : IO (PersistentEnvExtension α β σ)
 
-/- Simple PersistentEnvExtension that implements exportEntriesFn using a list of entries. -/
-
+/-- Simple `PersistentEnvExtension` that implements `exportEntriesFn` using a list of entries. -/
 def SimplePersistentEnvExtension (α σ : Type) := PersistentEnvExtension α α (List α × σ)
 
 @[specialize] def mkStateFromImportedEntries {α σ : Type} (addEntryFn : σ → α → σ) (initState : σ) (as : Array (Array α)) : σ :=
@@ -761,7 +760,7 @@ def hasUnsafe (env : Environment) (e : Expr) : Bool :=
 end Environment
 
 namespace Kernel
-/- Kernel API -/
+/-! # Kernel API -/
 
 /--
   Kernel isDefEq predicate. We use it mainly for debugging purposes.

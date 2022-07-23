@@ -1,6 +1,8 @@
 Unreleased
 ---------
 
+* [Relaxed antiquotation parsing](https://github.com/leanprover/lean4/pull/1272) further reduces the need for explicit `$x:p` antiquotation kind annotations.
+
 * Add support for computed fields in inductives. Example:
   ```lean
   inductive Exp

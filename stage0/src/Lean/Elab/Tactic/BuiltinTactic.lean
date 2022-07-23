@@ -64,7 +64,7 @@ where
     else
       return result ++ acc
 
-/- Evaluate `many (group (tactic >> optional ";")) -/
+/-- Evaluate `many (group (tactic >> optional ";")) -/
 def evalManyTacticOptSemi (stx : Syntax) : TacticM Unit := do
   for seqElem in (← addCheckpoints stx.getArgs) do
     evalTactic seqElem[0]

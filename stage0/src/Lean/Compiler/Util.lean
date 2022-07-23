@@ -57,7 +57,7 @@ def atMostOnce (e : Expr) (x : FVarId) : Bool :=
   let {result := result, ..} := visit x e {found := false, result := true}
   result
 
-/- Helper functions for creating auxiliary names used in compiler passes. -/
+/-! Helper functions for creating auxiliary names used in compiler passes. -/
 
 @[export lean_mk_eager_lambda_lifting_name]
 def mkEagerLambdaLiftingName (n : Name) (idx : Nat) : Name :=
@@ -104,14 +104,14 @@ end Compiler
 
 namespace Environment
 
-/-
+/--
 Compile the given block of mutual declarations.
 Assumes the declarations have already been added to the environment using `addDecl`.
 -/
 @[extern "lean_compile_decls"]
 opaque compileDecls (env : Environment) (opt : @& Options) (decls : @& List Name) : Except KernelException Environment
 
-/- Compile the given declaration, it assumes the declaration has already been added to the environment using `addDecl`. -/
+/-- Compile the given declaration, it assumes the declaration has already been added to the environment using `addDecl`. -/
 def compileDecl (env : Environment) (opt : @& Options) (decl : @& Declaration) : Except KernelException Environment :=
   compileDecls env opt (Compiler.getDeclNamesForCodeGen decl)
 

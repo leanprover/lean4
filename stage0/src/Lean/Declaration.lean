@@ -121,7 +121,7 @@ structure TheoremVal extends ConstantVal where
   all : List Name := [name]
   deriving Inhabited
 
-/- Value for an opaque constant declaration `opaque x : t := e` -/
+/-- Value for an opaque constant declaration `opaque x : t := e` -/
 structure OpaqueVal extends ConstantVal where
   value : Expr
   isUnsafe : Bool

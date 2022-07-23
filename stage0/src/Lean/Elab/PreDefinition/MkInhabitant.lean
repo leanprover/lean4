@@ -31,7 +31,6 @@ private def mkFnInhabitant? (xs : Array Expr) (type : Expr) (useOfNonempty : Boo
   loop xs.size type
 
 /- TODO: add a global IO.Ref to let users customize/extend this procedure -/
-
 def mkInhabitantFor (declName : Name) (xs : Array Expr) (type : Expr) : MetaM Expr := do
   let go? (useOfNonempty : Bool) : MetaM (Option Expr) := do
     match (← mkInhabitant? type useOfNonempty) with

@@ -1010,7 +1010,7 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 x_43 = l_Lean_Parser_Tactic_unknown___elambda__1___closed__9;
-x_44 = 0;
+x_44 = 1;
 x_45 = l_Lean_Parser_orelseFnCore(x_4, x_43, x_44, x_1, x_2);
 return x_45;
 }
@@ -1713,7 +1713,7 @@ _start:
 lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = l_Lean_Parser_Tactic_matchRhs___elambda__1___closed__4;
 x_4 = l_Lean_Parser_Tactic_matchRhs___elambda__1___closed__3;
-x_5 = 1;
+x_5 = 2;
 x_6 = l_Lean_Parser_orelseFnCore(x_3, x_4, x_5, x_1, x_2);
 return x_6;
 }
@@ -2284,14 +2284,15 @@ goto block_59;
 }
 else
 {
-lean_object* x_86; 
+uint8_t x_86; lean_object* x_87; 
 lean_dec(x_36);
 lean_dec(x_24);
 lean_dec(x_21);
 lean_dec(x_18);
 lean_dec(x_16);
-x_86 = l_Lean_Parser_orelseFnCore(x_34, x_32, x_11, x_1, x_2);
-return x_86;
+x_86 = 1;
+x_87 = l_Lean_Parser_orelseFnCore(x_34, x_32, x_86, x_1, x_2);
+return x_87;
 }
 }
 }
@@ -3387,7 +3388,7 @@ else
 uint8_t x_58; lean_object* x_59; 
 lean_dec(x_17);
 lean_dec(x_6);
-x_58 = 0;
+x_58 = 1;
 x_59 = l_Lean_Parser_orelseFnCore(x_15, x_13, x_58, x_1, x_2);
 return x_59;
 }
@@ -4005,7 +4006,7 @@ else
 lean_object* x_36; uint8_t x_37; lean_object* x_38; 
 lean_dec(x_6);
 x_36 = l_Lean_Parser_Tactic_decide___elambda__1___closed__8;
-x_37 = 0;
+x_37 = 1;
 x_38 = l_Lean_Parser_orelseFnCore(x_4, x_36, x_37, x_1, x_2);
 return x_38;
 }
@@ -4594,7 +4595,7 @@ else
 lean_object* x_36; uint8_t x_37; lean_object* x_38; 
 lean_dec(x_6);
 x_36 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__9;
-x_37 = 0;
+x_37 = 1;
 x_38 = l_Lean_Parser_orelseFnCore(x_4, x_36, x_37, x_1, x_2);
 return x_38;
 }

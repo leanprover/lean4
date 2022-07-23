@@ -12,7 +12,7 @@ import Lean.Compiler.IR.FreeVars
 import Lean.Compiler.IR.ElimDeadVars
 
 namespace Lean.IR.ExplicitBoxing
-/-
+/-!
 Add explicit boxing and unboxing instructions.
 Recall that the Lean to λ_pure compiler produces code without these instructions.
 
@@ -74,7 +74,7 @@ def addBoxedVersions (env : Environment) (decls : Array Decl) : Array Decl :=
     if requiresBoxedVersion env decl then newDecls.push (mkBoxedVersion decl) else newDecls
   decls ++ boxedDecls
 
-/- Infer scrutinee type using `case` alternatives.
+/-- Infer scrutinee type using `case` alternatives.
    This can be done whenever `alts` does not contain an `Alt.default _` value. -/
 def getScrutineeType (alts : Array Alt) : IRType :=
   let isScalar :=
@@ -103,7 +103,7 @@ structure BoxingContext where
 
 structure BoxingState where
   nextIdx : Index
-  /- We create auxiliary declarations when boxing constant and literals.
+  /-- We create auxiliary declarations when boxing constant and literals.
      The idea is to avoid code such as
      ```
      let x1 := Uint64.inhabited;
@@ -155,7 +155,7 @@ def getDecl (fid : FunId) : M Decl := do
 @[inline] def withJDecl {α : Type} (j : JoinPointId) (xs : Array Param) (v : FnBody) (k : M α) : M α :=
   withReader (fun ctx => { ctx with localCtx := ctx.localCtx.addJP j xs v }) k
 
-/- If `x` declaration is of the form `x := Expr.lit _` or `x := Expr.fap c #[]`,
+/-- If `x` declaration is of the form `x := Expr.lit _` or `x := Expr.fap c #[]`,
    and `x`'s type is not cheap to box (e.g., it is `UInt64), then return its value. -/
 private def isExpensiveConstantValueBoxing (x : VarId) (xType : IRType) : M (Option Expr) :=
   if !xType.isScalar then
@@ -173,7 +173,7 @@ private def isExpensiveConstantValueBoxing (x : VarId) (xType : IRType) : M (Opt
         | _ => return none
       | _ => return none
 
-/- Auxiliary function used by castVarIfNeeded.
+/-- Auxiliary function used by castVarIfNeeded.
    It is used when the expected type does not match `xType`.
    If `xType` is scalar, then we need to "box" it. Otherwise, we need to "unbox" it. -/
 def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do

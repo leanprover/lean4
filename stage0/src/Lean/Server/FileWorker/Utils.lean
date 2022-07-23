@@ -50,7 +50,7 @@ and parser state after each command so that edits can be applied
 without recompiling code appearing earlier in the file. -/
 structure EditableDocument where
   meta       : DocumentMeta
-  /- State snapshots after header and each command. -/
+  /-- State snapshots after header and each command. -/
   cmdSnaps   : AsyncList ElabTaskError Snapshot
   cancelTk   : CancelToken
 

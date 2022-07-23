@@ -128,7 +128,7 @@ namespace Do
 
 abbrev Var := Syntax  -- TODO: should be `Ident`
 
-/- A `doMatch` alternative. `vars` is the array of variables declared by `patterns`. -/
+/-- A `doMatch` alternative. `vars` is the array of variables declared by `patterns`. -/
 structure Alt (σ : Type) where
   ref : Syntax
   vars : Array Var
@@ -136,7 +136,7 @@ structure Alt (σ : Type) where
   rhs : σ
   deriving Inhabited
 
-/-
+/--
   Auxiliary datastructure for representing a `do` code block, and compiling "reassignments" (e.g., `x := x + 1`).
   We convert `Code` into a `Syntax` term representing the:
   - `do`-block, or
@@ -187,22 +187,22 @@ structure Alt (σ : Type) where
 inductive Code where
   | decl         (xs : Array Var) (doElem : Syntax) (k : Code)
   | reassign     (xs : Array Var) (doElem : Syntax) (k : Code)
-  /- The Boolean value in `params` indicates whether we should use `(x : typeof! x)` when generating term Syntax or not -/
-  | joinpoint    (name : Name) (params : Array (Var × Bool)) (body : Code) (k : Code)
+  | /-- The Boolean value in `params` indicates whether we should use `(x : typeof! x)` when generating term Syntax or not -/
+    joinpoint    (name : Name) (params : Array (Var × Bool)) (body : Code) (k : Code)
   | seq          (action : Syntax) (k : Code)
   | action       (action : Syntax)
   | «break»      (ref : Syntax)
   | «continue»   (ref : Syntax)
   | «return»     (ref : Syntax) (val : Syntax)
-  /- Recall that an if-then-else may declare a variable using `optIdent` for the branches `thenBranch` and `elseBranch`. We store the variable name at `var?`. -/
-  | ite          (ref : Syntax) (h? : Option Var) (optIdent : Syntax) (cond : Syntax) (thenBranch : Code) (elseBranch : Code)
+  | /-- Recall that an if-then-else may declare a variable using `optIdent` for the branches `thenBranch` and `elseBranch`. We store the variable name at `var?`. -/
+    ite          (ref : Syntax) (h? : Option Var) (optIdent : Syntax) (cond : Syntax) (thenBranch : Code) (elseBranch : Code)
   | «match»      (ref : Syntax) (gen : Syntax) (discrs : Syntax) (optMotive : Syntax) (alts : Array (Alt Code))
   | jmp          (ref : Syntax) (jpName : Name) (args : Array Syntax)
   deriving Inhabited
 
 abbrev VarSet := Std.RBMap Name Syntax Name.cmp
 
-/- A code block, and the collection of variables updated by it. -/
+/-- A code block, and the collection of variables updated by it. -/
 structure CodeBlock where
   code  : Code
   uvars : VarSet := {} -- set of variables updated by `code`
@@ -231,7 +231,7 @@ partial def CodeBlocl.toMessageData (codeBlock : CodeBlock) : MessageData :=
       ++ alts.foldl (init := m!"") fun acc alt => acc ++ m!"\n| {alt.patterns} => {loop alt.rhs}"
   loop codeBlock.code
 
-/- Return true if the give code contains an exit point that satisfies `p` -/
+/-- Return true if the give code contains an exit point that satisfies `p` -/
 partial def hasExitPointPred (c : Code) (p : Code → Bool) : Bool :=
   let rec loop : Code → Bool
     | Code.decl _ _ k           => loop k
@@ -278,7 +278,7 @@ def mkAuxDeclFor {m} [Monad m] [MonadQuotation m] (e : Syntax) (mkCont : Syntax 
   let k ← mkCont y
   return Code.decl #[y] doElem k
 
-/- Convert `action _ e` instructions in `c` into `let y ← e; jmp _ jp (xs y)`. -/
+/-- Convert `action _ e` instructions in `c` into `let y ← e; jmp _ jp (xs y)`. -/
 partial def convertTerminalActionIntoJmp (code : Code) (jp : Name) (xs : Array Var) : MacroM Code :=
   let rec loop : Code → MacroM Code
     | Code.decl xs stx k           => return Code.decl xs stx (← loop k)
@@ -334,7 +334,7 @@ def eraseOptVar (rs : VarSet) (x? : Option Var) : VarSet :=
   | none   => rs
   | some x => rs.insert x.getId x
 
-/- Create a new jointpoint for `c`, and jump to it with the variables `rs` -/
+/-- Create a new jointpoint for `c`, and jump to it with the variables `rs` -/
 def mkSimpleJmp (ref : Syntax) (rs : VarSet) (c : Code) : StateRefT (Array JPDecl) TermElabM Code := do
   let xs := varSetToArray rs
   let jp ← addFreshJP (xs.map fun x => (x, true)) c
@@ -344,7 +344,7 @@ def mkSimpleJmp (ref : Syntax) (rs : VarSet) (c : Code) : StateRefT (Array JPDec
   else
     return Code.jmp ref jp xs
 
-/- Create a new joinpoint that takes `rs` and `val` as arguments. `val` must be syntax representing a pure value.
+/-- Create a new joinpoint that takes `rs` and `val` as arguments. `val` must be syntax representing a pure value.
    The body of the joinpoint is created using `mkJPBody yFresh`, where `yFresh`
    is a fresh variable created by this method. -/
 def mkJmp (ref : Syntax) (rs : VarSet) (val : Syntax) (mkJPBody : Syntax → MacroM Code) : StateRefT (Array JPDecl) TermElabM Code := do
@@ -357,7 +357,7 @@ def mkJmp (ref : Syntax) (rs : VarSet) (val : Syntax) (mkJPBody : Syntax → Mac
   let jp ← addFreshJP ps jpBody
   return Code.jmp ref jp args
 
-/- `pullExitPointsAux rs c` auxiliary method for `pullExitPoints`, `rs` is the set of update variable in the current path.  -/
+/-- `pullExitPointsAux rs c` auxiliary method for `pullExitPoints`, `rs` is the set of update variable in the current path.  -/
 partial def pullExitPointsAux : VarSet → Code → StateRefT (Array JPDecl) TermElabM Code
   | rs, Code.decl xs stx k           => return Code.decl xs stx (← pullExitPointsAux (eraseVars rs xs) k)
   | rs, Code.reassign xs stx k       => return Code.reassign xs stx (← pullExitPointsAux (insertVars rs xs) k)
@@ -375,7 +375,7 @@ partial def pullExitPointsAux : VarSet → Code → StateRefT (Array JPDecl) Ter
       let ref := e
       mkJmp ref rs y (fun yFresh => return Code.action (← ``(Pure.pure $yFresh)))
 
-/-
+/--
 Auxiliary operation for adding new variables to the collection of updated variables in a CodeBlock.
 When a new variable is not already in the collection, but is shadowed by some declaration in `c`,
 we create auxiliary join points to make sure we preserve the semantics of the code block.
@@ -458,7 +458,7 @@ partial def extendUpdatedVarsAux (c : Code) (ws : VarSet) : TermElabM Code :=
     | c => return  c
   update c
 
-/-
+/--
 Extend the set of updated variables. It assumes `ws` is a super set of `c.uvars`.
 We **cannot** simply update the field `c.uvars`, because `c` may have shadowed some variable in `ws`.
 See discussion at `pullExitPoints`.
@@ -473,7 +473,7 @@ partial def extendUpdatedVars (c : CodeBlock) (ws : VarSet) : TermElabM CodeBloc
 private def union (s₁ s₂ : VarSet) : VarSet :=
   s₁.fold (·.insert ·) s₂
 
-/-
+/--
 Given two code blocks `c₁` and `c₂`, make sure they have the same set of updated variables.
 Let `ws` the union of the updated variables in `c₁‵ and ‵c₂`.
 We use `extendUpdatedVars c₁ ws` and `extendUpdatedVars c₂ ws`
@@ -484,7 +484,7 @@ def homogenize (c₁ c₂ : CodeBlock) : TermElabM (CodeBlock × CodeBlock) := d
   let c₂ ← extendUpdatedVars c₂ ws
   pure (c₁, c₂)
 
-/-
+/--
 Extending code blocks with variable declarations: `let x : t := v` and `let x : t ← v`.
 We remove `x` from the collection of updated varibles.
 Remark: `stx` is the syntax for the declaration (e.g., `letDecl`), and `xs` are the variables
@@ -496,7 +496,7 @@ def mkVarDeclCore (xs : Array Var) (stx : Syntax) (c : CodeBlock) : CodeBlock :=
   uvars := eraseVars c.uvars xs
 }
 
-/-
+/--
 Extending code blocks with reassignments: `x : t := v` and `x : t ← v`.
 Remark: `stx` is the syntax for the declaration (e.g., `letDecl`), and `xs` are the variables
 declared by it. It is an array because we have let-declarations that declare multiple variables.
@@ -554,7 +554,7 @@ def mkMatch (ref : Syntax) (genParam : Syntax) (discrs : Syntax) (optMotive : Sy
     return { ref := alt.ref, vars := alt.vars, patterns := alt.patterns, rhs := rhs.code : Alt Code }
   return { code := Code.«match» ref genParam discrs optMotive alts, uvars := ws }
 
-/- Return a code block that executes `terminal` and then `k` with the value produced by `terminal`.
+/-- Return a code block that executes `terminal` and then `k` with the value produced by `terminal`.
    This method assumes `terminal` is a terminal -/
 def concat (terminal : CodeBlock) (kRef : Syntax) (y? : Option Var) (k : CodeBlock) : TermElabM CodeBlock := do
   unless hasTerminalAction terminal.code do
@@ -669,7 +669,7 @@ def mkDoSeq (doElems : Array Syntax) : Syntax :=
 def mkSingletonDoSeq (doElem : Syntax) : Syntax :=
   mkDoSeq #[doElem]
 
-/-
+/--
   If the given syntax is a `doIf`, return an equivalente `doIf` that has an `else` but no `else if`s or `if let`s.  -/
 private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := match stx with
   | `(doElem|if $_:doIfProp then $_ else $_) => pure none
@@ -694,7 +694,7 @@ structure DoIfView where
   thenBranch : Syntax
   elseBranch : Syntax
 
-/- This method assumes `expandDoIf?` is not applicable. -/
+/-- This method assumes `expandDoIf?` is not applicable. -/
 private def mkDoIfView (doIf : Syntax) : MacroM DoIfView := do
   pure {
     ref        := doIf,
@@ -704,7 +704,7 @@ private def mkDoIfView (doIf : Syntax) : MacroM DoIfView := do
     elseBranch := doIf[5][1]
   }
 
-/-
+/--
 We use `MProd` instead of `Prod` to group values when expanding the
 `do` notation. `MProd` is a universe monomorphic product.
 The motivation is to generate simpler universe constraints in code
@@ -722,7 +722,7 @@ private def mkTuple (elems : Array Syntax) : MacroM Syntax := do
     elems.extract 0 (elems.size - 1) |>.foldrM (init := elems.back) fun elem tuple =>
       ``(MProd.mk $elem $tuple)
 
-/- Return `some action` if `doElem` is a `doExpr <action>`-/
+/-- Return `some action` if `doElem` is a `doExpr <action>`-/
 def isDoExpr? (doElem : Syntax) : Option Syntax :=
   if doElem.getKind == ``Lean.Parser.Term.doExpr then
     some doElem[0]
@@ -764,7 +764,7 @@ where
         `(let $a:ident := $x.1; let x := $x.2; $rest)
       | _ => unreachable!
 
-/-
+/-!
 The procedure `ToTerm.run` converts a `CodeBlock` into a `Syntax` term.
 We use this method to convert
 1- The `CodeBlock` for a root `do ...` term into a `Syntax` term. This kind of
@@ -1037,7 +1037,7 @@ partial def toTerm (c : Code) : M Syntax := do
 def run (code : Code) (m : Syntax) (returnType : Syntax) (uvars : Array Var := #[]) (kind := Kind.regular) : MacroM Syntax :=
   toTerm code { m, returnType, kind, uvars }
 
-/- Given
+/-- Given
    - `a` is true if the code block has a `Code.action _` exit point
    - `r` is true if the code block has a `Code.return _ _` exit point
    - `bc` is true if the code block has a `Code.break _` or `Code.continue _` exit point
@@ -1057,7 +1057,7 @@ def mkNestedKind (a r bc : Bool) : Kind :=
 def mkNestedTerm (code : Code) (m : Syntax) (returnType : Syntax) (uvars : Array Var) (a r bc : Bool) : MacroM Syntax := do
   ToTerm.run code m returnType uvars (mkNestedKind a r bc)
 
-/- Given a term `term` produced by `ToTerm.run`, pattern match on its result.
+/-- Given a term `term` produced by `ToTerm.run`, pattern match on its result.
    See comment at the beginning of the `ToTerm` namespace.
 
    - `a` is true if the code block has a `Code.action _` exit point
@@ -1208,7 +1208,7 @@ def checkLetArrowRHS (doElem : Syntax) : M Unit := do
      kind == ``Lean.Parser.Term.doReassignArrow then
     throwErrorAt doElem "invalid kind of value '{kind}' in an assignment"
 
-/- Generate `CodeBlock` for `doReturn` which is of the form
+/-- Generate `CodeBlock` for `doReturn` which is of the form
    ```
    "return " >> optional termParser
    ```
@@ -1240,7 +1240,7 @@ def tryCatchPred (tryCode : CodeBlock) (catches : Array Catch) (finallyCode? : O
   | some finallyCode => p finallyCode.code
 
 mutual
-  /- "Concatenate" `c` with `doSeqToCode doElems` -/
+  /-- "Concatenate" `c` with `doSeqToCode doElems` -/
   partial def concatWith (c : CodeBlock) (doElems : List Syntax) : M CodeBlock :=
     match doElems with
     | [] => pure c
@@ -1249,7 +1249,7 @@ mutual
       let ref := nextDoElem
       concat c ref none k
 
-  /- Generate `CodeBlock` for `doLetArrow; doElems`
+  /-- Generate `CodeBlock` for `doLetArrow; doElems`
      `doLetArrow` is of the form
      ```
      "let " >> optional "mut " >> (doIdDecl <|> doPatDecl)
@@ -1304,7 +1304,7 @@ mutual
     let auxDo ← `(do let discr := $val; match discr with | $pattern:term => $contSeq | _ => $elseSeq)
     doSeqToCode <| getDoSeqElems (getDoSeq auxDo)
 
-  /- Generate `CodeBlock` for `doReassignArrow; doElems`
+  /-- Generate `CodeBlock` for `doReassignArrow; doElems`
      `doReassignArrow` is of the form
      ```
      (doIdDecl <|> doPatDecl)
@@ -1329,7 +1329,7 @@ mutual
     else
       throwError "unexpected kind of 'do' reassignment"
 
-  /- Generate `CodeBlock` for `doIf; doElems`
+  /-- Generate `CodeBlock` for `doIf; doElems`
      `doIf` is of the form
      ```
      "if " >> optIdent >> termParser >> " then " >> doSeq
@@ -1343,7 +1343,7 @@ mutual
     let ite ← mkIte view.ref view.optIdent view.cond thenBranch elseBranch
     concatWith ite doElems
 
-  /- Generate `CodeBlock` for `doUnless; doElems`
+  /-- Generate `CodeBlock` for `doUnless; doElems`
      `doUnless` is of the form
      ```
      "unless " >> termParser >> "do " >> doSeq
@@ -1355,7 +1355,7 @@ mutual
     let unlessCode ← liftMacroM <| mkUnless cond body
     concatWith unlessCode doElems
 
-  /- Generate `CodeBlock` for `doFor; doElems`
+  /-- Generate `CodeBlock` for `doFor; doElems`
      `doFor` is of the form
      ```
      def doForDecl := leading_parser termParser >> " in " >> withForbidden "do" termParser

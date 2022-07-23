@@ -244,7 +244,7 @@ structure GoalsAtResult where
   -- for overlapping goals, only keep those of the highest reported priority
   priority   : Nat
 
-/-
+/--
   Try to retrieve `TacticInfo` for `hoverPos`.
   We retrieve all `TacticInfo` nodes s.t. `hoverPos` is inside the node's range plus trailing whitespace.
   We usually prefer the innermost such nodes so that for composite tactics such as `induction`, we show the nested proofs' states.

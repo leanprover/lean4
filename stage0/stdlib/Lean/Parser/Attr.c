@@ -1465,7 +1465,7 @@ else
 lean_object* x_34; uint8_t x_35; lean_object* x_36; 
 lean_dec(x_4);
 x_34 = l_Lean_Parser_Attr_simple___elambda__1___closed__18;
-x_35 = 0;
+x_35 = 1;
 x_36 = l_Lean_Parser_orelseFnCore(x_6, x_34, x_35, x_1, x_2);
 return x_36;
 }
@@ -2241,7 +2241,7 @@ else
 {
 uint8_t x_57; lean_object* x_58; 
 lean_dec(x_16);
-x_57 = 0;
+x_57 = 1;
 x_58 = l_Lean_Parser_orelseFnCore(x_14, x_12, x_57, x_1, x_2);
 return x_58;
 }
@@ -2945,7 +2945,7 @@ else
 lean_object* x_52; uint8_t x_53; lean_object* x_54; 
 lean_dec(x_6);
 x_52 = l_Lean_Parser_Attr_export___elambda__1___closed__10;
-x_53 = 0;
+x_53 = 1;
 x_54 = l_Lean_Parser_orelseFnCore(x_4, x_52, x_53, x_1, x_2);
 return x_54;
 }
@@ -3638,7 +3638,7 @@ else
 {
 uint8_t x_57; lean_object* x_58; 
 lean_dec(x_16);
-x_57 = 0;
+x_57 = 1;
 x_58 = l_Lean_Parser_orelseFnCore(x_14, x_12, x_57, x_1, x_2);
 return x_58;
 }
@@ -4256,7 +4256,7 @@ else
 lean_object* x_36; uint8_t x_37; lean_object* x_38; 
 lean_dec(x_6);
 x_36 = l_Lean_Parser_Attr_class___elambda__1___closed__8;
-x_37 = 0;
+x_37 = 1;
 x_38 = l_Lean_Parser_orelseFnCore(x_4, x_36, x_37, x_1, x_2);
 return x_38;
 }
@@ -4925,7 +4925,7 @@ lean_object* x_54; uint8_t x_55; lean_object* x_56;
 lean_dec(x_8);
 lean_dec(x_4);
 x_54 = l_Lean_Parser_Attr_instance___elambda__1___closed__10;
-x_55 = 0;
+x_55 = 1;
 x_56 = l_Lean_Parser_orelseFnCore(x_6, x_54, x_55, x_1, x_2);
 return x_56;
 }
@@ -5649,7 +5649,7 @@ lean_object* x_54; uint8_t x_55; lean_object* x_56;
 lean_dec(x_8);
 lean_dec(x_4);
 x_54 = l_Lean_Parser_Attr_defaultInstance___elambda__1___closed__10;
-x_55 = 0;
+x_55 = 1;
 x_56 = l_Lean_Parser_orelseFnCore(x_6, x_54, x_55, x_1, x_2);
 return x_56;
 }
@@ -6368,7 +6368,7 @@ lean_object* x_44; uint8_t x_45; lean_object* x_46;
 lean_dec(x_6);
 lean_dec(x_4);
 x_44 = l_Lean_Parser_Attr_externEntry___elambda__1___closed__16;
-x_45 = 0;
+x_45 = 1;
 x_46 = l_Lean_Parser_orelseFnCore(x_8, x_44, x_45, x_1, x_2);
 return x_46;
 }
@@ -6801,7 +6801,7 @@ lean_dec(x_10);
 lean_dec(x_6);
 lean_dec(x_4);
 x_53 = l_Lean_Parser_Attr_extern___elambda__1___closed__13;
-x_54 = 0;
+x_54 = 1;
 x_55 = l_Lean_Parser_orelseFnCore(x_8, x_53, x_54, x_1, x_2);
 return x_55;
 }

@@ -8,7 +8,7 @@ import Lean.Data.Options
 import Lean.Data.Format
 
 namespace Lean
-/- Remark: `MonadQuotation` class is part of the `Init` package and loaded by default since it is used in the builtin command `macro`. -/
+/-! Remark: `MonadQuotation` class is part of the `Init` package and loaded by default since it is used in the builtin command `macro`. -/
 
 structure Unhygienic.Context where
   ref   : Syntax

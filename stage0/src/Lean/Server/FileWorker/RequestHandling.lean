@@ -298,7 +298,8 @@ def noHighlightKinds : Array SyntaxNodeKind := #[
   ``Lean.Parser.Term.prop,
   -- not really keywords
   `antiquotName,
-  ``Lean.Parser.Command.docComment]
+  ``Lean.Parser.Command.docComment,
+  ``Lean.Parser.Command.moduleDoc]
 
 structure SemanticTokensContext where
   beginPos  : String.Pos

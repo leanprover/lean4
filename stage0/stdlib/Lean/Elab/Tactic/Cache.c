@@ -114,9 +114,9 @@ LEAN_EXPORT lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_L
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_tactic_dbg__cache;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalCheckpoint___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalCheckpoint_declRange___closed__3;
+lean_object* l_Lean_Option_register___at_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_7____spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalCheckpoint___closed__4;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
-lean_object* l_Lean_Option_register___at_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_6____spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalCheckpoint___closed__8;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalCheckpoint___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalCheckpoint_declRange___closed__7;
@@ -214,7 +214,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Lean_Elab_Tactic_initFn____x40_Lean_Elab_Tactic_Cache___hyg_16____closed__4;
 x_3 = l_Lean_Elab_Tactic_initFn____x40_Lean_Elab_Tactic_Cache___hyg_16____closed__6;
-x_4 = l_Lean_Option_register___at_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_6____spec__1(x_2, x_3, x_1);
+x_4 = l_Lean_Option_register___at_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_7____spec__1(x_2, x_3, x_1);
 return x_4;
 }
 }

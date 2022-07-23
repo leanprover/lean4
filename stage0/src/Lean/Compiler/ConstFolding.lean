@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Expr
 import Lean.Compiler.Util
 
-/- Constant folding for primitives that have special runtime support. -/
+/-! Constant folding for primitives that have special runtime support. -/
 
 namespace Lean.Compiler
 

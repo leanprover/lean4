@@ -50,7 +50,7 @@ def letIdDeclNoBinders := node `Lean.Parser.Term.letIdDecl $ atomic (ident >> pu
 @[builtinDoElemParser] def doReassign      := leading_parser notFollowedByRedefinedTermToken >> (letIdDeclNoBinders <|> letPatDecl)
 @[builtinDoElemParser] def doReassignArrow := leading_parser notFollowedByRedefinedTermToken >> withPosition (doIdDecl <|> doPatDecl)
 @[builtinDoElemParser] def doHave     := leading_parser "have " >> Term.haveDecl
-/-
+/--
 In `do` blocks, we support `if` without an `else`. Thus, we use indentation to prevent examples such as
 ```
 if c_1 then
@@ -108,7 +108,7 @@ def doFinally    := leading_parser "finally " >> doSeq
 @[builtinDoElemParser] def doDbgTrace  := leading_parser:leadPrec "dbg_trace " >> ((interpolatedStr termParser) <|> termParser)
 @[builtinDoElemParser] def doAssert    := leading_parser:leadPrec "assert! " >> termParser
 
-/-
+/--
 We use `notFollowedBy` to avoid counterintuitive behavior.
 
 For example, the `if`-term parser

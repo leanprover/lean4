@@ -75,7 +75,7 @@ def declareTacticSyntax (tactic : Syntax) : TermElabM Name :=
     compileDecl decl
     return name
 
-/-
+/--
 Expand `optional (binderTactic <|> binderDefault)`
 def binderTactic  := leading_parser " := " >> " by " >> tacticParser
 def binderDefault := leading_parser " := " >> termParser
@@ -419,7 +419,7 @@ def expandWhereDeclsOpt (whereDeclsOpt : Syntax) (body : Syntax) : MacroM Syntax
   else
     expandWhereDecls whereDeclsOpt[0] body
 
-/- Helper function for `expandMatchAltsIntoMatch` -/
+/-- Helper function for `expandMatchAltsIntoMatch` -/
 private def expandMatchAltsIntoMatchAux (matchAlts : Syntax) (matchTactic : Bool) : Nat → Array Syntax → MacroM Syntax
   | 0,   discrs => do
     if matchTactic then
@@ -583,7 +583,7 @@ open Lean.Elab.Term.Quotation in
       mkLambdaFVars xs e
   | _ => throwUnsupportedSyntax
 
-/- If `useLetExpr` is true, then a kernel let-expression `let x : type := val; body` is created.
+/-- If `useLetExpr` is true, then a kernel let-expression `let x : type := val; body` is created.
    Otherwise, we create a term of the form `(fun (x : type) => body) val`
 
    The default elaboration order is `binders`, `typeStx`, `valStx`, and `body`.

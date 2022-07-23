@@ -7,7 +7,7 @@ import Lean.Meta.Tactic.Injection
 
 namespace Lean.Meta
 
-/- Convert heterogeneous equality into a homegeneous one -/
+/-- Convert heterogeneous equality into a homegeneous one -/
 private def heqToEq' (mvarId : MVarId) (eqDecl : LocalDecl) : MetaM MVarId := do
   /- Convert heterogeneous equality into a homegeneous one -/
   let prf    ← mkEqOfHEq (mkFVar eqDecl.fvarId)

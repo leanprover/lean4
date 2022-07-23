@@ -74,11 +74,11 @@ abbrev mkAtom (info : SourceInfo) (val : String) : Syntax :=
 abbrev mkIdent (info : SourceInfo) (rawVal : Substring) (val : Name) : Syntax :=
   Syntax.ident info rawVal val []
 
-/- Return character after position `pos` -/
+/-- Return character after position `pos` -/
 def getNext (input : String) (pos : String.Pos) : Char :=
   input.get (input.next pos)
 
-/- Maximal (and function application) precedence.
+/-- Maximal (and function application) precedence.
    In the standard lean language, no parser has precedence higher than `maxPrec`.
 
    Note that nothing prevents users from using a higher precedence, but we strongly
@@ -109,7 +109,7 @@ abbrev SyntaxNodeKindSet := Std.PersistentHashMap SyntaxNodeKind Unit
 def SyntaxNodeKindSet.insert (s : SyntaxNodeKindSet) (k : SyntaxNodeKind) : SyntaxNodeKindSet :=
   Std.PersistentHashMap.insert s k ()
 
-/-
+/--
   Input string and related data. Recall that the `FileMap` is a helper structure for mapping
   `String.Pos` in the input string to line/column information.  -/
 structure InputContext where
@@ -410,14 +410,14 @@ def errorAtSavedPosFn (msg : String) (delta : Bool) : ParserFn := fun c s =>
     match s with
     | ⟨stack, lhsPrec, _, cache, _⟩ => ⟨stack.push Syntax.missing, lhsPrec, pos, cache, some { unexpected := msg }⟩
 
-/- Generate an error at the position saved with the `withPosition` combinator.
+/-- Generate an error at the position saved with the `withPosition` combinator.
    If `delta == true`, then it reports at saved position+1.
    This useful to make sure a parser consumed at least one character.  -/
 @[inline] def errorAtSavedPos (msg : String) (delta : Bool) : Parser := {
   fn := errorAtSavedPosFn msg delta
 }
 
-/- Succeeds if `c.prec <= prec` -/
+/-- Succeeds if `c.prec <= prec` -/
 def checkPrecFn (prec : Nat) : ParserFn := fun c s =>
   if c.prec <= prec then s
   else s.mkUnexpectedError "unexpected token at this precedence level; consider parenthesizing the term"
@@ -427,7 +427,7 @@ def checkPrecFn (prec : Nat) : ParserFn := fun c s =>
   fn   := checkPrecFn prec
 }
 
-/- Succeeds if `c.lhsPrec >= prec` -/
+/-- Succeeds if `c.lhsPrec >= prec` -/
 def checkLhsPrecFn (prec : Nat) : ParserFn := fun _ s =>
   if s.lhsPrec >= prec then s
   else s.mkUnexpectedError "unexpected token at this precedence level; consider parenthesizing the term"
@@ -485,9 +485,14 @@ def mergeOrElseErrors (s : ParserState) (error1 : Error) (iniPos : String.Pos) (
     else s
   | other => other
 
--- When `mergeAntiquots` is true, if `p` parses an antiquotation, we try `q` as well and return a choice node if they
--- both return antiquotations
-def orelseFnCore (p q : ParserFn) (mergeAntiquots : Bool) : ParserFn := fun c s => Id.run do
+-- When `p` in `p <|> q` parses exactly one antiquotation, ...
+inductive OrElseOnAntiquotBehavior where
+  | acceptLhs    -- return it
+  | takeLongest  -- return result of `q` instead if it made more progress
+  | merge        -- ... and create choice node if both made the same progress
+  deriving BEq
+
+def orelseFnCore (p q : ParserFn) (antiquotBehavior := OrElseOnAntiquotBehavior.merge) : ParserFn := fun c s => Id.run do
   let s0     := s
   let iniSz  := s.stackSize
   let iniPos := s.pos
@@ -500,17 +505,24 @@ def orelseFnCore (p q : ParserFn) (mergeAntiquots : Bool) : ParserFn := fun c s 
       s
   | none =>
     let back := s.stxStack.back
-    if mergeAntiquots && back.isAntiquots then
+    if antiquotBehavior != .acceptLhs && s.stackSize == iniSz + 1 && back.isAntiquots then
       let s' := q c s0
-      if !s'.hasError && s'.stxStack.back.isAntiquot then
-        if back.isOfKind choiceKind then
-          s := { s with stxStack := s.stxStack.pop ++ back.getArgs }
-        s := s.pushSyntax s'.stxStack.back
-        s := s.mkNode choiceKind iniSz
+      if !s'.hasError then
+        -- If `q` made more progress than `p`, we prefer its result.
+        -- Thus `(structInstField| $id := $val) is interpreted as
+        -- `(structInstField| $id:ident := $val:term), not
+        -- `(structInstField| $id:structInstField <ERROR: expected ')'>.
+        if s'.pos > s.pos then
+          return s'
+        else if antiquotBehavior == .merge && s'.stackSize == iniSz + 1 && s'.stxStack.back.isAntiquot then
+          if back.isOfKind choiceKind then
+            s := { s with stxStack := s.stxStack.pop ++ back.getArgs }
+          s := s.pushSyntax s'.stxStack.back
+          s := s.mkNode choiceKind iniSz
     s
 
 @[inline] def orelseFn (p q : ParserFn) : ParserFn :=
-  orelseFnCore (mergeAntiquots := true) p q
+  orelseFnCore p q
 
 @[noinline] def orelseInfo (p q : ParserInfo) : ParserInfo := {
   collectTokens := p.collectTokens ∘ q.collectTokens,
@@ -680,7 +692,7 @@ def sepBy1Fn (allowTrailingSep : Bool) (p : ParserFn) (sep : ParserFn) : ParserF
   fn   := sepBy1Fn allowTrailingSep p.fn sep.fn
 }
 
-/- Apply `f` to the syntax object produced by `p` -/
+/-- Apply `f` to the syntax object produced by `p` -/
 def withResultOfFn (p : ParserFn) (f : Syntax → Syntax) : ParserFn := fun c s =>
   let s := p c s
   if s.hasError then s
@@ -745,7 +757,7 @@ partial def finishCommentBlock (nesting : Nat) : ParserFn := fun c s =>
 where
   eoi s := s.mkUnexpectedError "unterminated comment"
 
-/- Consume whitespace and comments -/
+/-- Consume whitespace and comments -/
 partial def whitespace : ParserFn := fun c s =>
   let input := c.input
   let i     := s.pos
@@ -1107,7 +1119,7 @@ def peekToken (c : ParserContext) (s : ParserState) : ParserState × Except Pars
   else
     peekTokenAux c s
 
-/- Treat keywords as identifiers. -/
+/-- Treat keywords as identifiers. -/
 def rawIdentFn : ParserFn := fun c s =>
   let input := c.input
   let i     := s.pos
@@ -1561,25 +1573,11 @@ structure PrattParsingTables where
 
 instance : Inhabited PrattParsingTables := ⟨{}⟩
 
-/-
+/--
   The type `leadingIdentBehavior` specifies how the parsing table
   lookup function behaves for identifiers.  The function `prattParser`
   uses two tables `leadingTable` and `trailingTable`. They map tokens
   to parsers.
-
-  - `LeadingIdentBehavior.default`: if the leading token
-    is an identifier, then `prattParser` just executes the parsers
-    associated with the auxiliary token "ident".
-
-  - `LeadingIdentBehavior.symbol`: if the leading token is
-    an identifier `<foo>`, and there are parsers `P` associated with
-    the toek `<foo>`, then it executes `P`. Otherwise, it executes
-    only the parsers associated with the auxiliary token "ident".
-
-  - `LeadingIdentBehavior.both`: if the leading token
-    an identifier `<foo>`, the it executes the parsers associated
-    with token `<foo>` and parsers associated with the auxiliary
-    token "ident".
 
   We use `LeadingIdentBehavior.symbol` and `LeadingIdentBehavior.both`
   and `nonReservedSymbol` parser to implement the `tactic` parsers.
@@ -1588,11 +1586,21 @@ instance : Inhabited PrattParsingTables := ⟨{}⟩
   may still use these symbols as identifiers (e.g., naming a
   function).
 -/
-
 inductive LeadingIdentBehavior where
-  | default
-  | symbol
-  | both
+  | /-- `LeadingIdentBehavior.default`: if the leading token
+    is an identifier, then `prattParser` just executes the parsers
+    associated with the auxiliary token "ident". -/
+    default
+  | /-- `LeadingIdentBehavior.symbol`: if the leading token is
+    an identifier `<foo>`, and there are parsers `P` associated with
+    the toek `<foo>`, then it executes `P`. Otherwise, it executes
+    only the parsers associated with the auxiliary token "ident". -/
+    symbol
+  | /-- `LeadingIdentBehavior.both`: if the leading token
+    an identifier `<foo>`, the it executes the parsers associated
+    with token `<foo>` and parsers associated with the auxiliary
+    token "ident". -/
+    both
   deriving Inhabited, BEq, Repr
 
 /--
@@ -1661,9 +1669,9 @@ def categoryParser (catName : Name) (prec : Nat) : Parser := {
 @[inline] def termParser (prec : Nat := 0) : Parser :=
   categoryParser `term prec
 
-/- ============== -/
-/- Antiquotations -/
-/- ============== -/
+-- ==================
+/-! # Antiquotations -/
+-- ==================
 
 /-- Fail if previous token is immediately followed by ':'. -/
 def checkNoImmediateColon : Parser := {
@@ -1744,11 +1752,14 @@ def mkAntiquot (name : String) (kind : SyntaxNodeKind) (anonymous := true) (isPs
     checkNoWsBefore "no space before spliced term" >> antiquotExpr >>
     nameP
 
-@[inline] def withAntiquotFn (antiquotP p : ParserFn) : ParserFn := fun c s =>
+@[inline] def withAntiquotFn (antiquotP p : ParserFn) (isCatAntiquot := false) : ParserFn := fun c s =>
   -- fast check that is false in most cases
   if c.input.get s.pos == '$' then
-    -- do not allow antiquotation choice nodes here as `antiquotP` is the strictly more general antiquotation than any in `p`
-    orelseFnCore (mergeAntiquots := false) antiquotP p c s
+    -- Do not allow antiquotation choice nodes here as `antiquotP` is the strictly more general
+    -- antiquotation than any in `p`.
+    -- If it is a category antiquotation, do not backtrack into the category at all as that would
+    -- run *all* parsers of the category, and trailing parsers will later be applied anyway.
+    orelseFnCore (antiquotBehavior := if isCatAntiquot then .acceptLhs else .takeLongest) antiquotP p c s
   else
     p c s
 
@@ -1796,9 +1807,9 @@ def withAntiquotSpliceAndSuffix (kind : SyntaxNodeKind) (p suffix : Parser) :=
 def nodeWithAntiquot (name : String) (kind : SyntaxNodeKind) (p : Parser) (anonymous := false) : Parser :=
   withAntiquot (mkAntiquot name kind anonymous) $ node kind p
 
-/- ===================== -/
-/- End of Antiquotations -/
-/- ===================== -/
+-- =========================
+/-! # End of Antiquotations -/
+-- =========================
 
 def sepByElemParser (p : Parser) (sep : String) : Parser :=
   withAntiquotSpliceAndSuffix `sepBy p (symbol (sep.trim ++ "*"))
@@ -1837,7 +1848,7 @@ def leadingParserAux (kind : Name) (tables : PrattParsingTables) (behavior : Lea
   mkResult s iniSz
 
 @[inline] def leadingParser (kind : Name) (tables : PrattParsingTables) (behavior : LeadingIdentBehavior) (antiquotParser : ParserFn) : ParserFn :=
-  withAntiquotFn antiquotParser (leadingParserAux kind tables behavior)
+  withAntiquotFn (isCatAntiquot := true) antiquotParser (leadingParserAux kind tables behavior)
 
 def trailingLoopStep (tables : PrattParsingTables) (left : Syntax) (ps : List (Parser × Nat)) : ParserFn := fun c s =>
   longestMatchFn left (ps ++ tables.trailingParsers) c s

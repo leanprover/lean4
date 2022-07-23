@@ -6,10 +6,10 @@ Authors: Leonardo de Moura
 import Lean.Compiler.InitAttr
 import Lean.Compiler.IR.CompilerM
 
-/- Helper functions for backend code generators -/
+/-! # Helper functions for backend code generators -/
 
 namespace Lean.IR
-/- Return true iff `b` is of the form `let x := g ys; ret x` -/
+/-- Return true iff `b` is of the form `let x := g ys; ret x` -/
 def isTailCallTo (g : Name) (b : FnBody) : Bool :=
   match b with
   | FnBody.vdecl x _ (Expr.fap f _) (FnBody.ret (Arg.var y)) => x == y && f == g
@@ -62,7 +62,7 @@ def collectParams (ps : Array Param) : Collector :=
 @[inline] def collectJP (j : JoinPointId) (xs : Array Param) : Collector
   | (vs, js) => (vs, js.insert j xs)
 
-/- `collectFnBody` assumes the variables in -/
+/-- `collectFnBody` assumes the variables in -/
 partial def collectFnBody : FnBody → Collector
   | FnBody.vdecl x t _ b    => collectVar x t ∘ collectFnBody b
   | FnBody.jdecl j xs v b   => collectJP j xs ∘ collectParams xs ∘ collectFnBody v ∘ collectFnBody b
@@ -75,7 +75,7 @@ def collectDecl : Decl → Collector
 
 end CollectMaps
 
-/- Return a pair `(v, j)`, where `v` is a mapping from variable/parameter to type,
+/-- Return a pair `(v, j)`, where `v` is a mapping from variable/parameter to type,
    and `j` is a mapping from join point to parameters.
    This function assumes `d` has normalized indexes (see `normids.lean`). -/
 def mkVarJPMaps (d : Decl) : VarTypeMap × JPParamsMap :=

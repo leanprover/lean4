@@ -70,7 +70,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_runCommandElabM___rarg___boxed(lea
 static lean_object* l_Lean_Elab_Frontend_processCommand___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_processCommand(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Frontend_runCommandElabM___rarg___closed__2;
-lean_object* l___private_Lean_Server_References_0__Lean_Server_toJsonIlean____x40_Lean_Server_References___hyg_876_(lean_object*);
+lean_object* l___private_Lean_Server_References_0__Lean_Server_toJsonIlean____x40_Lean_Server_References___hyg_877_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_updateCmdPos___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profileitM___at_Lean_Elab_Frontend_processCommand___spec__1(lean_object*);
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_828____closed__8;
@@ -2379,7 +2379,7 @@ x_34 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_34, 0, x_33);
 lean_ctor_set(x_34, 1, x_6);
 lean_ctor_set(x_34, 2, x_32);
-x_35 = l___private_Lean_Server_References_0__Lean_Server_toJsonIlean____x40_Lean_Server_References___hyg_876_(x_34);
+x_35 = l___private_Lean_Server_References_0__Lean_Server_toJsonIlean____x40_Lean_Server_References___hyg_877_(x_34);
 x_36 = l_Lean_Json_compress(x_35);
 x_37 = l_IO_FS_writeFile(x_23, x_36, x_22);
 lean_dec(x_36);

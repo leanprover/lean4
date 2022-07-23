@@ -7,7 +7,7 @@ import Lean.Expr
 
 namespace Lean.Meta
 
-/- See file `DiscrTree.lean` for the actual implementation and documentation. -/
+/-! See file `DiscrTree.lean` for the actual implementation and documentation. -/
 
 namespace DiscrTree
 

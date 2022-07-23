@@ -23,7 +23,7 @@ instance : ToFormat Attribute where
      | AttributeKind.scoped => "scoped "
    Format.bracket "@[" f!"{kindStr}{attr.name}{toString attr.stx}" "]"
 
-/-
+/--
   ```
   attrKind := leading_parser optional («scoped» <|> «local»)
   ```

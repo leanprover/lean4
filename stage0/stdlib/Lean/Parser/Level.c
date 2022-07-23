@@ -892,7 +892,7 @@ else
 {
 uint8_t x_69; lean_object* x_70; 
 lean_dec(x_19);
-x_69 = 0;
+x_69 = 1;
 x_70 = l_Lean_Parser_orelseFnCore(x_17, x_15, x_69, x_1, x_2);
 return x_70;
 }
@@ -1825,7 +1825,7 @@ else
 uint8_t x_58; lean_object* x_59; 
 lean_dec(x_17);
 lean_dec(x_6);
-x_58 = 0;
+x_58 = 1;
 x_59 = l_Lean_Parser_orelseFnCore(x_15, x_13, x_58, x_1, x_2);
 return x_59;
 }
@@ -2608,7 +2608,7 @@ lean_object* x_54; uint8_t x_55; lean_object* x_56;
 lean_dec(x_8);
 lean_dec(x_4);
 x_54 = l_Lean_Parser_Level_imax___elambda__1___closed__9;
-x_55 = 0;
+x_55 = 1;
 x_56 = l_Lean_Parser_orelseFnCore(x_6, x_54, x_55, x_1, x_2);
 return x_56;
 }
@@ -3234,7 +3234,7 @@ else
 lean_object* x_36; uint8_t x_37; lean_object* x_38; 
 lean_dec(x_6);
 x_36 = l_Lean_Parser_Level_hole___elambda__1___closed__9;
-x_37 = 0;
+x_37 = 1;
 x_38 = l_Lean_Parser_orelseFnCore(x_4, x_36, x_37, x_1, x_2);
 return x_38;
 }

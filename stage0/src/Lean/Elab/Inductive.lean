@@ -173,7 +173,7 @@ private def elabHeader (views : Array InductiveView) : TermElabM (Array ElabHead
     checkHeaders rs numParams 0 none
   return rs
 
-/- Create a local declaration for each inductive type in `rs`, and execute `x params indFVars`, where `params` are the inductive type parameters and
+/-- Create a local declaration for each inductive type in `rs`, and execute `x params indFVars`, where `params` are the inductive type parameters and
    `indFVars` are the new local declarations.
    We use the local context/instances and parameters of rs[0].
    Note that this method is executed after we executed `checkHeaders` and established all
@@ -295,7 +295,7 @@ private def withExplicitToImplicit (xs : Array Expr) (k : TermElabM α) : TermEl
       toImplicit := toImplicit.push (x.fvarId!, BinderInfo.implicit)
   withNewBinderInfos toImplicit k
 
-/-
+/--
   Elaborate constructor types.
 
   Remark: we check whether the resulting type is correct, and the parameter occurrences are consistent, but
@@ -615,7 +615,7 @@ private def mkIndFVar2Const (views : Array InductiveView) (indFVars : Array Expr
     m := m.insert indFVar (mkConst view.declName levelParams)
   return m
 
-/- Remark: `numVars <= numParams`. `numVars` is the number of context `variables` used in the inductive declaration,
+/-- Remark: `numVars <= numParams`. `numVars` is the number of context `variables` used in the inductive declaration,
    and `numParams` is `numVars` + number of explicit parameters provided in the declaration. -/
 private def replaceIndFVarsWithConsts (views : Array InductiveView) (indFVars : Array Expr) (levelNames : List Name)
     (numVars : Nat) (numParams : Nat) (indTypes : List InductiveType) : TermElabM (List InductiveType) :=

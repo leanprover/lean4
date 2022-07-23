@@ -5,11 +5,11 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.Basic
 
-/- Helper methods for inductive datatypes -/
+/-! # Helper methods for inductive datatypes -/
 
 namespace Lean.Meta
 
-/- Return true if the types of the given constructors are compatible. -/
+/-- Return true if the types of the given constructors are compatible. -/
 def compatibleCtors (ctorName₁ ctorName₂ : Name) : MetaM Bool := do
   let ctorInfo₁ ← getConstInfoCtor ctorName₁
   let ctorInfo₂ ← getConstInfoCtor ctorName₂

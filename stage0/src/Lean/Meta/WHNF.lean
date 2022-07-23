@@ -15,11 +15,11 @@ import Lean.Meta.Match.MatchPatternAttr
 
 namespace Lean.Meta
 
-/- ===========================
-   Smart unfolding support
-   =========================== -/
+-- ===========================
+/-! # Smart unfolding support -/
+-- ===========================
 
-/-
+/--
 Forward declaration. It is defined in the module `src/Lean/Elab/PreDefinition/Structural/Eqns.lean`.
 It is possible to avoid this hack if we move `Structural.EqnInfo` and `Structural.eqnInfoExt`
 to this module.
@@ -54,9 +54,10 @@ def markSmartUnfoldingMatchAlt (e : Expr) : Expr :=
 def smartUnfoldingMatchAlt? (e : Expr) : Option Expr :=
   annotation? `sunfoldMatchAlt e
 
-/- ===========================
-   Helper methods
-   =========================== -/
+-- ===========================
+/-! # Helper methods -/
+-- ===========================
+
 def isAuxDef (constName : Name) : MetaM Bool := do
   let env ← getEnv
   return isAuxRecursor env constName || isNoConfusion env constName
@@ -68,9 +69,9 @@ def isAuxDef (constName : Name) : MetaM Bool := do
     k cinfo lvls
   | _ => failK ()
 
-/- ===========================
-   Helper functions for reducing recursors
-   =========================== -/
+-- ===========================
+/-! # Helper functions for reducing recursors -/
+-- ===========================
 
 private def getFirstCtor (d : Name) : MetaM (Option Name) := do
   let some (ConstantInfo.inductInfo { ctors := ctor::_, ..}) ← getConstNoEx? d | pure none
@@ -195,9 +196,9 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
   else
     failK ()
 
-/- ===========================
-   Helper functions for reducing Quot.lift and Quot.ind
-   =========================== -/
+-- ===========================
+/-! # Helper functions for reducing Quot.lift and Quot.ind -/
+-- ===========================
 
 /-- Auxiliary function for reducing `Quot.lift` and `Quot.ind` applications. -/
 private def reduceQuotRec (recVal  : QuotVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
@@ -220,9 +221,9 @@ private def reduceQuotRec (recVal  : QuotVal) (recLvls : List Level) (recArgs : 
   | QuotKind.ind  => process 4 3
   | _             => failK ()
 
-/- ===========================
-   Helper function for extracting "stuck term"
-   =========================== -/
+-- ===========================
+/-! # Helper function for extracting "stuck term" -/
+-- ===========================
 
 mutual
   private partial def isRecStuck? (recVal : RecursorVal) (recArgs : Array Expr) : MetaM (Option MVarId) :=
@@ -275,9 +276,9 @@ mutual
     | _ => return none
 end
 
-/- ===========================
-   Weak Head Normal Form auxiliary combinators
-   =========================== -/
+-- ===========================
+/-! # Weak Head Normal Form auxiliary combinators -/
+-- ===========================
 
 /-- Auxiliary combinator for handling easy WHNF cases. It takes a function for handling the "hard" cases as an argument -/
 @[specialize] partial def whnfEasyCases (e : Expr) (k : Expr → MetaM Expr) : MetaM Expr := do

@@ -78,7 +78,7 @@ instance : ToJson ErrorCode := ⟨fun
   | ErrorCode.workerExited        => (-32901 : Int)
   | ErrorCode.workerCrashed        => (-32902 : Int)⟩
 
-/- Uses separate constructors for notifications and errors because client and server
+/-- Uses separate constructors for notifications and errors because client and server
 behavior is expected to be wildly different for both. -/
 inductive Message where
   | request (id : RequestID) (method : String) (params? : Option Structured)

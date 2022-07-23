@@ -61,7 +61,7 @@ LEAN_EXPORT lean_object* l_Std_AssocList_replace___at_Lean_IR_UnreachableBranche
 static lean_object* l_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_964____closed__5;
 size_t lean_usize_sub(size_t, size_t);
 lean_object* lean_environment_find(lean_object*, lean_object*);
-lean_object* l___private_Lean_Compiler_IR_Basic_0__Lean_IR_reprCtorInfo____x40_Lean_Compiler_IR_Basic___hyg_763_(lean_object*, lean_object*);
+lean_object* l___private_Lean_Compiler_IR_Basic_0__Lean_IR_reprCtorInfo____x40_Lean_Compiler_IR_Basic___hyg_764_(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_UnreachableBranches_reprValue____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_40____closed__41;
 static lean_object* l_Lean_IR_UnreachableBranches_Value_format___closed__1;
 static lean_object* l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_UnreachableBranches_reprValue____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_40____closed__13;
@@ -922,7 +922,7 @@ lean_inc(x_16);
 lean_dec(x_1);
 x_17 = lean_unsigned_to_nat(1024u);
 x_18 = lean_nat_dec_le(x_17, x_2);
-x_19 = l___private_Lean_Compiler_IR_Basic_0__Lean_IR_reprCtorInfo____x40_Lean_Compiler_IR_Basic___hyg_763_(x_15, x_17);
+x_19 = l___private_Lean_Compiler_IR_Basic_0__Lean_IR_reprCtorInfo____x40_Lean_Compiler_IR_Basic___hyg_764_(x_15, x_17);
 x_20 = l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_UnreachableBranches_reprValue____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_40____closed__17;
 x_21 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
@@ -2112,7 +2112,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Nat_foldAux___at_Lean_IR_UnreachableBranches_Value_merge___spec__2___closed__1;
 x_2 = l_Nat_foldAux___at_Lean_IR_UnreachableBranches_Value_merge___spec__2___closed__2;
-x_3 = lean_unsigned_to_nat(69u);
+x_3 = lean_unsigned_to_nat(70u);
 x_4 = lean_unsigned_to_nat(36u);
 x_5 = l_Nat_foldAux___at_Lean_IR_UnreachableBranches_Value_merge___spec__2___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

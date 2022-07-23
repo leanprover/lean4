@@ -183,7 +183,7 @@ def mkDeclName (currNamespace : Name) (modifiers : Modifiers) (shortName : Name)
     | _ => throwError "protected declarations must be in a namespace"
   | _ => pure (declName, shortName)
 
-/-
+/--
   `declId` is of the form
   ```
   leading_parser ident >> optional (".{" >> sepBy1 ident ", " >> "}")

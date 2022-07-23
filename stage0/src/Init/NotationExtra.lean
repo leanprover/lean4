@@ -64,15 +64,15 @@ def expandBrackedBinders (combinatorDeclName : Name) (bracketedExplicitBinders :
 syntax unifConstraint := term (" =?= " <|> " ≟ ") term
 syntax unifConstraintElem := colGe unifConstraint ", "?
 
-syntax attrKind "unif_hint " (ident)? bracketedBinder* " where " withPosition(unifConstraintElem*) ("|-" <|> "⊢ ") unifConstraint : command
+syntax (docComment)? attrKind "unif_hint " (ident)? bracketedBinder* " where " withPosition(unifConstraintElem*) ("|-" <|> "⊢ ") unifConstraint : command
 
 macro_rules
-  | `($kind:attrKind unif_hint $(n)? $bs:bracketedBinder* where $[$cs₁:term ≟ $cs₂]* |- $t₁:term ≟ $t₂) => do
+  | `($[$doc?:docComment]? $kind:attrKind unif_hint $(n)? $bs* where $[$cs₁:term ≟ $cs₂]* |- $t₁:term ≟ $t₂) => do
     let mut body ← `($t₁ = $t₂)
     for (c₁, c₂) in cs₁.zip cs₂ |>.reverse do
       body ← `($c₁ = $c₂ → $body)
     let hint : Ident ← `(hint)
-    `(@[$kind:attrKind unificationHint] def $(n.getD hint):ident $bs:bracketedBinder* : Sort _ := $body)
+    `($[$doc?:docComment]? @[$kind:attrKind unificationHint] def $(n.getD hint) $bs:bracketedBinder* : Sort _ := $body)
 end Lean
 
 open Lean
@@ -207,7 +207,7 @@ macro_rules
       `(let y := %[ $[$y],* | $k ]
         %[ $[$z],* | y ])
 
-/-
+/--
   Expands
   ```
   class abbrev C <params> := D_1, ..., D_n
@@ -241,7 +241,7 @@ macro_rules
   | `(tactic| solve $[| $ts]* ) => `(tactic| focus first $[| ($ts); done]*)
 
 namespace Lean
-/- `repeat` and `while` notation -/
+/-! # `repeat` and `while` notation -/
 
 inductive Loop where
   | mk

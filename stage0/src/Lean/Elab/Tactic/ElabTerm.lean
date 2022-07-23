@@ -14,7 +14,7 @@ import Lean.Elab.SyntheticMVars
 namespace Lean.Elab.Tactic
 open Meta
 
-/- `elabTerm` for Tactics and basic tactics that use it. -/
+/-! # `elabTerm` for Tactics and basic tactics that use it. -/
 
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) (mayPostpone := false) : TacticM Expr := do
   /- If error recovery is disabled, we disable `Term.withoutErrToSorry` -/
@@ -42,7 +42,7 @@ def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (mayPostpo
       Term.throwTypeMismatchError none expectedType eType e
     return e
 
-/- Try to close main goal using `x target`, where `target` is the type of the main goal.  -/
+/-- Try to close main goal using `x target`, where `target` is the type of the main goal.  -/
 def closeMainGoalUsing (x : Expr → TacticM Expr) (checkUnassigned := true) : TacticM Unit :=
   withMainContext do
     closeMainGoal (checkUnassigned := checkUnassigned) (← x (← getMainTarget))
@@ -81,7 +81,7 @@ def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : 
   tagUntaggedGoals (← getMainTag) tagSuffix newMVarIds
   pure (val, newMVarIds)
 
-/- If `allowNaturalHoles == true`, then we allow the resultant expression to contain unassigned "natural" metavariables.
+/-- If `allowNaturalHoles == true`, then we allow the resultant expression to contain unassigned "natural" metavariables.
    Recall that "natutal" metavariables are created for explicit holes `_` and implicit arguments. They are meant to be
    filled by typing constraints.
    "Synthetic" metavariables are meant to be filled by tactics and are usually created using the synthetic hole notation `?<hole-name>`. -/

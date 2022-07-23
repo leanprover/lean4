@@ -8,7 +8,7 @@ import Lean.Parser.Syntax
 import Lean.Elab.Util
 
 namespace Lean.Elab.Term
-/-
+/--
 Expand `optional «precedence»` where
  «precedence» := leading_parser " : " >> precedenceParser -/
 def expandOptPrecedence (stx : Syntax) : MacroM (Option Nat) :=
@@ -33,7 +33,7 @@ structure ToParserDescrContext where
   catName  : Name
   first    : Bool
   leftRec  : Bool -- true iff left recursion is allowed
-  /- See comment at `Parser.ParserCategory`. -/
+  /-- See comment at `Parser.ParserCategory`. -/
   behavior : Parser.LeadingIdentBehavior
 
 abbrev ToParserDescrM := ReaderT ToParserDescrContext (StateRefT (Option Nat) TermElabM)
@@ -126,7 +126,7 @@ where
       | some stxNew => process stxNew
       | none => throwErrorAt stx "unexpected syntax kind of category `syntax`: {kind}"
 
-  /- Sequence (aka NullNode) -/
+  /-- Sequence (aka NullNode) -/
   processSeq (stx : Syntax) := do
     let args := stx.getArgs
     if (← checkLeftRec stx[0]) then
@@ -300,7 +300,7 @@ where
     | .str _ s => s ++ str
     | _ => str
 
-/- We assume a new syntax can be treated as an atom when it starts and ends with a token.
+/-- We assume a new syntax can be treated as an atom when it starts and ends with a token.
    Here are examples of atom-like syntax.
    ```
    syntax "(" term ")" : term

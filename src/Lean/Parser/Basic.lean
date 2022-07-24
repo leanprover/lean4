@@ -6,7 +6,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 import Lean.Data.Trie
 import Lean.Data.Position
 import Lean.Syntax
-import Lean.ToExpr
 import Lean.Environment
 import Lean.Message
 

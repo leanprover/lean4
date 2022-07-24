@@ -114,7 +114,7 @@ private partial def quoteSyntax : Syntax → TermElabM Term
       match stx[0] with
       | Syntax.atom _ val => `(Syntax.atom (Option.getD (getHeadInfo? $(getAntiquotTerm stx)) info) $(quote val))
       | _                 => throwErrorAt stx "expected token"
-    else if isAntiquotSuffixSplice stx && !isEscapedAntiquot stx then
+    else if isAntiquotSuffixSplice stx && !isEscapedAntiquot (getCanonicalAntiquot (getAntiquotSuffixSpliceInner stx)) then
       -- splices must occur in a `many` node
       throwErrorAt stx "unexpected antiquotation splice"
     else if isAntiquotSplice stx && !isEscapedAntiquot stx then
@@ -125,7 +125,7 @@ private partial def quoteSyntax : Syntax → TermElabM Term
       let mut args := ArrayStxBuilder.empty
       let appendName := if (← getEnv).contains ``Array.append then ``Array.append else ``Array.appendCore
       for arg in stx.getArgs do
-        if k == nullKind && isAntiquotSuffixSplice arg then
+        if k == nullKind && isAntiquotSuffixSplice arg && !isEscapedAntiquot (getCanonicalAntiquot (getAntiquotSuffixSpliceInner arg)) then
           let antiquot := getAntiquotSuffixSpliceInner arg
           let ks := antiquotKinds antiquot |>.map (·.1)
           let val := getAntiquotTerm (getCanonicalAntiquot antiquot)
@@ -139,7 +139,7 @@ private partial def quoteSyntax : Syntax → TermElabM Term
               let sep := quote <| getSepFromSplice arg
               `(@TSepArray.elemsAndSeps $(quote ks) $sep $val)
             | k         => throwErrorAt arg "invalid antiquotation suffix splice kind '{k}'"
-        else if k == nullKind && isAntiquotSplice arg then
+        else if k == nullKind && isAntiquotSplice arg && !isEscapedAntiquot arg then
           let k := antiquotSpliceKind? arg
           let (arg, bindLets) ← floatOutAntiquotTerms arg |>.run pure
           let inner ← (getAntiquotSpliceContents arg).mapM quoteSyntax

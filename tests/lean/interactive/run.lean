@@ -15,7 +15,6 @@ def ident : Parsec Name := do
 partial def main (args : List String) : IO Unit := do
   let uri := s!"file://{args.head!}"
   Ipc.runWith (←IO.appPath) #["--server"] do
-    let hIn ← Ipc.stdin
     let capabilities := {
       textDocument? := some {
         completion? := some {
@@ -85,20 +84,19 @@ partial def main (args : List String) : IO Unit := do
             let r ← Ipc.readResponseAs requestNo RpcConnected
             rpcSessionId := some r.result.sessionId
             requestNo := requestNo + 1
-          let tdpp : TextDocumentPositionParams := {textDocument := {uri := uri}, position := pos }
           let ps : RpcCallParams := {
             textDocument := {uri := uri},
             position := pos,
             sessionId := rpcSessionId.get!,
             method := `Lean.Widget.getWidgets,
-            params := toJson tdpp,
+            params := toJson pos,
           }
           Ipc.writeRequest ⟨requestNo, "$/lean/rpc/call", ps⟩
           let response ← Ipc.readResponseAs requestNo Lean.Widget.GetWidgetsResponse
           requestNo := requestNo + 1
           IO.eprintln (toJson response.result)
           for w in response.result.widgets do
-            let params : Lean.Widget.GetWidgetSourceParams := { pos := tdpp, hash := w.javascriptHash }
+            let params : Lean.Widget.GetWidgetSourceParams := { pos, hash := w.javascriptHash }
             let ps : RpcCallParams := {
               ps with
               method := `Lean.Widget.getWidgetSource,
@@ -113,13 +111,12 @@ partial def main (args : List String) : IO Unit := do
             | throw <| IO.userError s!"failed to parse {params}"
           let params := params.setObjVal! "textDocument" (toJson { uri := uri : TextDocumentIdentifier })
           -- TODO: correctly compute in presence of Unicode
-          let column := ws.endPos + "--"
           let params := params.setObjVal! "position" (toJson pos)
           IO.eprintln params
           Ipc.writeRequest ⟨requestNo, method, params⟩
           let rec readFirstResponse := do
             match ← Ipc.readMessage with
-            | resp@(Message.response id r) =>
+            | Message.response id r =>
               assert! id == requestNo
               return r
             | Message.notification .. => readFirstResponse

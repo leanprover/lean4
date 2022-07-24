@@ -94,6 +94,7 @@ private:
     bool is_def_eq_core(expr const & t, expr const & s);
     /** \brief Like \c check, but ignores undefined universes */
     expr check_ignore_undefined_universes(expr const & e);
+    optional<expr> try_unfold_proj_app(expr const & e);
 
     template<typename F> optional<expr> reduce_bin_nat_op(F const & f, expr const & e);
     template<typename F> optional<expr> reduce_bin_nat_pred(F const & f, expr const & e);

@@ -49,8 +49,42 @@ fun x =>
         throw ()
     else
       let discr_2 := Lean.Syntax.getArg discr 0;
-      let discr := Lean.Syntax.getArg discr 1;
-      throw ()
+      if Lean.Syntax.isOfKind discr_2 `Lean.Parser.Term.app = true then
+        let discr_3 := Lean.Syntax.getArg discr_2 0;
+        bif false || Lean.Syntax.isOfKind discr_3 `ident then
+          let discr_4 := Lean.Syntax.getArg discr_2 1;
+          if Lean.Syntax.matchesNull discr_4 2 = true then
+            let discr_5 := Lean.Syntax.getArg discr_4 0;
+            let discr_6 := Lean.Syntax.getArg discr_4 1;
+            let discr := Lean.Syntax.getArg discr 1;
+            let moreArgs := Lean.TSyntaxArray.mk (Lean.Syntax.getArgs discr);
+            let rhs := { raw := discr_6 };
+            let lhs := { raw := discr_5 };
+            let f := { raw := discr_3 };
+            Lean.withRef f.raw do
+              let info ← Lean.MonadRef.mkInfoFromRefPos
+              let _ ← Lean.getCurrMacroScope
+              let _ ← Lean.getMainModule
+              pure
+                  { raw :=
+                        Lean.Syntax.node Lean.SourceInfo.none `Lean.Parser.Term.app
+                          #[Lean.Syntax.node Lean.SourceInfo.none `«term_+++_»
+                              #[lhs.raw, Lean.Syntax.atom info "+++", rhs.raw],
+                            Lean.Syntax.node Lean.SourceInfo.none `null
+                              (Array.append #[] (Lean.TSyntaxArray.raw moreArgs))] }.raw
+          else
+            let discr_5 := Lean.Syntax.getArg discr_2 1;
+            let discr := Lean.Syntax.getArg discr 1;
+            throw ()
+        else
+          let discr_4 := Lean.Syntax.getArg discr_2 0;
+          let discr_5 := Lean.Syntax.getArg discr_2 1;
+          let discr := Lean.Syntax.getArg discr 1;
+          throw ()
+      else
+        let discr_3 := Lean.Syntax.getArg discr 0;
+        let discr := Lean.Syntax.getArg discr 1;
+        throw ()
   else
     let discr := x;
     throw ()

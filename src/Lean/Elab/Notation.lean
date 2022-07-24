@@ -96,8 +96,10 @@ def mkSimpleDelab (attrKind : TSyntax ``attrKind) (pat qrhs : Term) : OptionT Ma
   let lhs := Syntax.mkApp lhs (.mk args)
   `(@[$attrKind appUnexpander $(mkIdent c)]
     aux_def unexpand $(mkIdent c) : Lean.PrettyPrinter.Unexpander := fun
-      | `($lhs) => withRef f `($pat)
-      | _       => throw ())
+      | `($lhs)             => withRef f `($pat)
+      -- must be a separate case as the LHS and RHS above might not be `app` nodes
+      | `($lhs $$moreArgs*) => withRef f `($pat $$moreArgs*)
+      | _                   => throw ())
 
 private def isLocalAttrKind (attrKind : Syntax) : Bool :=
   match attrKind with

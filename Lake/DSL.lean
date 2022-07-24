@@ -12,3 +12,4 @@ import Lake.DSL.Script
 import Lake.DSL.Require
 import Lake.DSL.Targets
 import Lake.DSL.Facets
+import Lake.DSL.Meta

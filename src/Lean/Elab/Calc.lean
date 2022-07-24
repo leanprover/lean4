@@ -12,11 +12,27 @@ open Meta
   Decompose `e` into `(r, a, b)`.
 
   Remark: it assumes the last two arguments are explicit. -/
-private def relation? (e : Expr) : MetaM (Option (Expr × Expr × Expr)) :=
+def getCalcRelation? (e : Expr) : MetaM (Option (Expr × Expr × Expr)) :=
   if e.getAppNumArgs < 2 then
     return none
   else
     return some (e.appFn!.appFn!, e.appFn!.appArg!, e.appArg!)
+
+def mkCalcTrans (result resultType step stepType : Expr) : MetaM (Expr × Expr) := do
+  let some (r, a, b) ← getCalcRelation? resultType | unreachable!
+  let some (s, _, c) ← getCalcRelation? (← instantiateMVars stepType) | unreachable!
+  let (α, β, γ)       := (← inferType a, ← inferType b, ← inferType c)
+  let (u_1, u_2, u_3) := (← getLevel α, ← getLevel β, ← getLevel γ)
+  let t ← mkFreshExprMVar (← mkArrow α (← mkArrow γ (mkSort levelZero)))
+  let selfType := mkAppN (Lean.mkConst ``Trans [u_1, u_2, u_3]) #[α, β, γ, r, s, t]
+  match (← trySynthInstance selfType) with
+  | LOption.some self =>
+    let result := mkAppN (Lean.mkConst ``Trans.trans [u_1, u_2, u_3]) #[α, β, γ, r, s, t, self, a, b, c, result, step]
+    let resultType := (← instantiateMVars (← inferType result)).headBeta
+    unless (← getCalcRelation? resultType).isSome do
+      throwError "invalid 'calc' step, step result is not a relation{indentExpr resultType}"
+    return (result, resultType)
+  | _ => throwError "invalid 'calc' step, failed to synthesize `Trans` instance{indentExpr selfType}"
 
 /--
   Elaborate `calc`-steps
@@ -26,10 +42,10 @@ def elabCalcSteps (steps : Array Syntax) : TermElabM Expr := do
   let mut types  := #[]
   for step in steps do
     let type  ← elabType step[0]
-    let some (_, lhs, _) ← relation? type |
+    let some (_, lhs, _) ← getCalcRelation? type |
       throwErrorAt step[0] "invalid 'calc' step, relation expected{indentExpr type}"
     if types.size > 0 then
-      let some (_, _, prevRhs) ← relation? types.back | unreachable!
+      let some (_, _, prevRhs) ← getCalcRelation? types.back | unreachable!
       unless (← isDefEqGuarded lhs prevRhs) do
         throwErrorAt step[0] "invalid 'calc' step, left-hand-side is {indentD m!"{lhs} : {← inferType lhs}"}\nprevious right-hand-side is{indentD m!"{prevRhs} : {← inferType prevRhs}"}"
     types := types.push type
@@ -39,20 +55,7 @@ def elabCalcSteps (steps : Array Syntax) : TermElabM Expr := do
   let mut result := proofs[0]!
   let mut resultType := types[0]!
   for i in [1:proofs.size] do
-    let some (r, a, b) ← relation? resultType | unreachable!
-    let some (s, _, c) ← relation? (← instantiateMVars types[i]!) | unreachable!
-    let (α, β, γ)       := (← inferType a, ← inferType b, ← inferType c)
-    let (u_1, u_2, u_3) := (← getLevel α, ← getLevel β, ← getLevel γ)
-    let t ← mkFreshExprMVar (← mkArrow α (← mkArrow γ (mkSort levelZero)))
-    let selfType := mkAppN (Lean.mkConst ``Trans [u_1, u_2, u_3]) #[α, β, γ, r, s, t]
-    match (← trySynthInstance selfType) with
-    | LOption.some self =>
-      result := mkAppN (Lean.mkConst ``Trans.trans [u_1, u_2, u_3]) #[α, β, γ, r, s, t, self, a, b, c, result, proofs[i]!]
-      resultType := (← instantiateMVars (← inferType result)).headBeta
-      unless (← relation? resultType).isSome do
-        throwErrorAt steps[i]! "invalid 'calc' step, step result is not a relation{indentExpr resultType}"
-    | _ => throwErrorAt steps[i]! "invalid 'calc' step, failed to synthesize `Trans` instance{indentExpr selfType}"
-    pure ()
+    (result, resultType) ← withRef steps[i]! <| mkCalcTrans result resultType proofs[i]! types[i]!
   return result
 
 /-- Step-wise reasoning over transitive relations.

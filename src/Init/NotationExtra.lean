@@ -88,8 +88,7 @@ macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBrackedBi
 syntax calcStep := ppIndent(colGe term " := " withPosition(term))
 syntax (name := calc) "calc" ppLine withPosition(calcStep) ppLine withPosition((calcStep ppLine)*) : term
 
-macro "calc " ppLine step1:withPosition(calcStep) ppLine steps:withPosition((calcStep ppLine)*) : tactic =>
-  `(exact calc $step1 $steps*)
+syntax (name := calcTactic) "calc" ppLine withPosition(calcStep) ppLine withPosition((calcStep ppLine)*) : tactic
 
 @[appUnexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `(())

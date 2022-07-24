@@ -64,9 +64,12 @@ def filterOldMVars (mvarIds : Array MVarId) (mvarCounterSaved : Nat) : MetaM (Ar
     return r
   | _ => throwUnsupportedSyntax
 
-def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : Name) (allowNaturalHoles := false) : TacticM (Expr × List MVarId) := do
+/--
+  Execute `k`, and collect new "holes" in the resulting expression.
+-/
+def withCollectingNewGoalsFrom (k : TacticM Expr) (tagSuffix : Name) (allowNaturalHoles := false) : TacticM (Expr × List MVarId) := do
   let mvarCounterSaved := (← getMCtx).mvarCounter
-  let val ← elabTermEnsuringType stx expectedType?
+  let val ← k
   let newMVarIds ← getMVarsNoDelayed val
   /- ignore let-rec auxiliary variables, they are synthesized automatically later -/
   let newMVarIds ← newMVarIds.filterM fun mvarId => return !(← Term.isLetRecAuxMVar mvarId)
@@ -79,7 +82,10 @@ def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : 
     logUnassignedAndAbort naturalMVarIds
     pure syntheticMVarIds.toList
   tagUntaggedGoals (← getMainTag) tagSuffix newMVarIds
-  pure (val, newMVarIds)
+  return (val, newMVarIds)
+
+def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : Name) (allowNaturalHoles := false) : TacticM (Expr × List MVarId) := do
+  withCollectingNewGoalsFrom (elabTermEnsuringType stx expectedType?) tagSuffix allowNaturalHoles
 
 /-- If `allowNaturalHoles == true`, then we allow the resultant expression to contain unassigned "natural" metavariables.
    Recall that "natutal" metavariables are created for explicit holes `_` and implicit arguments. They are meant to be

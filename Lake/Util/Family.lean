@@ -11,11 +11,11 @@ import Lean.Parser.Command
 This module contains utilities for defining **open type families** in Lean.
 
 The concept of type families originated in Haskell with the paper
-(*Type checking with open type functions*](https://doi.org/10.1145/1411204.1411215)
-by Schrijvers *et al.* and is essentially just a fancy name for a function from
-an input *index* to an output type. However, it tends to imply some additional
-restrictions on syntax or functionality as opposed to a proper type function.
-The design here has some such limitations so the name was similarly adopted.
+[*Type checking with open type functions*][1] by Schrijvers *et al.* and
+is essentially just a fancy name for a function from an input *index* to an
+output type. However, it tends to imply some additional restrictions on syntax
+or functionality as opposed to a proper type function.The design here has some
+such limitations so the name was similarly adopted.
 
 Type families come in two forms: open and closed.
 A *closed* type family is an ordinary total function.
@@ -26,6 +26,8 @@ Lean does not (currently) directly support open type families.
 However, it does support type class *functional dependencies* (via `outParam`),
 and simple open type families can be modeled through functional dependencies,
 which is what we do here.
+
+[1]: https://doi.org/10.1145/1411204.1411215
 
 ## Defining Families
 
@@ -116,15 +118,16 @@ keys. Since mappings are defined through axioms, Lean WILL NOT catch violations
 of this rule itself, so extra care must be taken when defining mappings.
 
 In Lake, this is solved by having its open type families be indexed by a
-`Name` and defining each mapping using a name literal `name` and the
+`Lean.Name` and defining each mapping using a name literal `name` and the
 declaration ``axiom Fam.name : Fam `name = α`` thus causing a name clash
 if two keys overlap and thereby producing an error.
 -/
 
 open Lean
+
 namespace Lake
 
-/-! ## API Documentation -/
+/-! ## API -/
 
 /--
 Defines a single mapping of the **open type family** `Fam`, namely `Fam a = β`.

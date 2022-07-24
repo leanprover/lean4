@@ -8,14 +8,6 @@ import Lake.CLI.Error
 
 namespace Lake
 
-def Package.defaultTarget (self : Package) : OpaqueTarget :=
-  match self.defaultFacet with
-  | .exe => self.exeTarget.withoutInfo
-  | .staticLib => self.staticLibTarget.withoutInfo
-  | .sharedLib => self.sharedLibTarget.withoutInfo
-  | .leanLib => self.leanLibTarget.withoutInfo
-  | .none => Target.nil
-
 def parsePackageSpec (ws : Workspace) (spec : String) : Except CliError Package :=
   if spec.isEmpty then
     return ws.root
@@ -86,23 +78,12 @@ def resolveTargetInPackage (ws : Workspace) (pkg : Package) (target : Name) (fac
     throw <| CliError.missingTarget pkg.name (target.toString false)
 
 def resolveDefaultPackageTarget (ws : Workspace) (pkg : Package) : Except CliError OpaqueTarget :=
-  if pkg.defaultTargets.isEmpty then
-    return pkg.defaultTarget
-  else
-    return Target.collectOpaqueArray <| ←
-      pkg.defaultTargets.mapM (resolveTargetInPackage ws pkg · .anonymous)
+  return Target.collectOpaqueArray <| ←
+    pkg.defaultTargets.mapM (resolveTargetInPackage ws pkg · .anonymous)
 
 def resolvePackageTarget (ws : Workspace) (pkg : Package) (facet : Name) : Except CliError OpaqueTarget :=
   if facet.isAnonymous then
     resolveDefaultPackageTarget ws pkg
-  else if facet == `exe then
-    return pkg.exeTarget.withoutInfo
-  else if facet == `staticLib then
-    return pkg.staticLibTarget.withoutInfo
-  else if facet == `sharedLib then
-    return pkg.sharedLibTarget.withoutInfo
-  else if facet == `leanLib then
-    return pkg.leanLibTarget.withoutInfo
   else if let some config := ws.findPackageFacetConfig? facet then do
     let some target := config.toTarget? (pkg.facet facet) rfl
       | throw <| CliError.nonTargetFacet "package" facet

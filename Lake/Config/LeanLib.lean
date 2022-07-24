@@ -20,10 +20,6 @@ structure LeanLib where
 @[inline] def Package.leanLibs (self : Package) : Array LeanLib :=
   self.leanLibConfigs.fold (fun a _ v => a.push (⟨self, v⟩)) #[]
 
-/-- The Lean library built into the package. -/
-@[inline] def Package.builtinLib (self : Package) : LeanLib :=
-  ⟨self, self.builtinLibConfig⟩
-
 /-- Try to find a Lean library in the package with the given name. -/
 @[inline] def Package.findLeanLib? (name : Name) (self : Package) : Option LeanLib :=
   self.leanLibConfigs.find? name |>.map (⟨self, ·⟩)

@@ -1,8 +1,7 @@
 import Lake
 open Lake DSL
 
-package scripts where
-  defaultFacet := .none
+package scripts
 
 /--
 Display a greeting

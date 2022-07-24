@@ -5,8 +5,8 @@ set -euxo pipefail
 command -v elan > /dev/null || (echo "elan not found; skipping test"; exit 0)
 
 ./clean.sh
-lake +leanprover/lean4:4.0.0-m3 new foo
+lake +leanprover/lean4:nightly-2022-06-30 new foo
 cd foo
-lake +leanprover/lean4:4.0.0-m3 build | grep -m1 foo
+lake +leanprover/lean4:nightly-2022-06-30 build | grep -m1 foo
 cp ../../../lean-toolchain lean-toolchain
 ${LAKE:-../../../build/bin/lake} build | grep -m1 foo

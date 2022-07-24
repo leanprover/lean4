@@ -20,10 +20,6 @@ structure LeanExe where
 @[inline] def Package.leanExes (self : Package) : Array LeanExe :=
   self.leanExeConfigs.fold (fun a _ v => a.push (⟨self, v⟩)) #[]
 
-/-- The Lean executable built into the package. -/
-@[inline] def Package.builtinExe (self : Package) : LeanExe :=
-  ⟨self, self.builtinExeConfig⟩
-
 /-- Try to find a Lean executable in the package with the given name. -/
 @[inline] def Package.findLeanExe? (name : Name) (self : Package) : Option LeanExe :=
   self.leanExeConfigs.find? name |>.map (⟨self, ·⟩)
@@ -86,6 +82,4 @@ end LeanExe
 /-- Locate the named module in the package (if it is buildable and local to it). -/
 def Package.findModule? (mod : Name) (self : Package) : Option Module :=
   self.leanLibs.findSome? (·.findModule? mod) <|>
-  self.leanExes.findSome? (·.isRoot? mod) <|>
-  self.builtinLib.findModule? mod <|>
-  self.builtinExe.isRoot? mod
+  self.leanExes.findSome? (·.isRoot? mod)

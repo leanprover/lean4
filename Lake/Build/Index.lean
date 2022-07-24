@@ -122,22 +122,13 @@ export BuildInfo (build buildIn)
 @[inline] protected def LeanLib.leanTarget (self : LeanLib) : OpaqueTarget :=
   self.lean.target
 
-@[inline] protected def Package.leanLibTarget (self : Package) : OpaqueTarget :=
-  self.builtinLib.leanTarget
-
 /-! ### Native Lean Lib Targets -/
 
 @[inline] protected def LeanLib.staticLibTarget (self : LeanLib) : FileTarget :=
   self.static.target.withInfo self.sharedLibFile
 
-@[inline] protected def Package.staticLibTarget (self : Package) : FileTarget :=
-  self.builtinLib.staticLibTarget
-
 @[inline] protected def LeanLib.sharedLibTarget (self : LeanLib) : FileTarget :=
   self.shared.target.withInfo self.sharedLibFile
-
-@[inline] protected def Package.sharedLibTarget (self : Package) : FileTarget :=
-  self.builtinLib.sharedLibTarget
 
 /-! ### Lean Executable Targets -/
 
@@ -149,6 +140,3 @@ export BuildInfo (build buildIn)
 
 @[inline] protected def LeanExe.target (self : LeanExe) : FileTarget :=
   self.exe.target.withInfo self.file
-
-@[inline] protected def Package.exeTarget (self : Package) : FileTarget :=
-  self.builtinExe.target

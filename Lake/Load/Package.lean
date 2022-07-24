@@ -80,9 +80,6 @@ def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := 
   if self.config.extraDepTarget.isSome then
     logWarning <| "`extraDepTarget` has been deprecated. " ++
       "Try to use a custom target or raise an issue about your use case."
-  if leanLibConfigs.isEmpty && leanExeConfigs.isEmpty && self.defaultFacet ≠ .none then
-    logWarning <| "Package targets are deprecated. " ++
-      "Add a `lean_exe` and/or `lean_lib` default target to the package instead."
 
   -- Fill in the Package
   return {self with

@@ -5,9 +5,6 @@ Authors: Mac Malone
 -/
 import Lake.Build.Index
 
-open Std System
-open Lean hiding SearchPath
-
 namespace Lake
 
 /-! ## Module Facet Targets -/
@@ -19,22 +16,8 @@ namespace Lake
 
 /-! ## Pure Lean Lib Targets -/
 
-/--
-Build the `extraDepTarget` of a package and its (transitive) dependencies
-and then build the target `facet` of library's modules recursively, constructing
-a single opaque target for the whole build.
--/
-def LeanLib.buildModules (self : LeanLib) (facet : Name)
-[FamilyDef ModuleData facet (ActiveBuildTarget α)] : SchedulerM Job := do
-  let buildMods : BuildM _ := do
-    let mods ← self.getModuleArray
-    let modTargets ← failOnBuildCycle <| ← EStateT.run' BuildStore.empty
-      <| mods.mapM fun mod => buildIndexTop <| mod.facet facet
-    (·.task) <$> ActiveTarget.collectOpaqueArray modTargets
-  buildMods.catchFailure fun _ => pure <| failure
-
 @[inline] protected def LeanLib.leanTarget (self : LeanLib) : OpaqueTarget :=
-  Target.opaque <| self.buildModules Module.leanBinFacet
+  self.lean.target
 
 @[inline] protected def Package.leanLibTarget (self : Package) : OpaqueTarget :=
   self.builtinLib.leanTarget

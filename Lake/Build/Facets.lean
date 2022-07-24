@@ -70,6 +70,10 @@ package_data extraDep : ActiveOpaqueTarget
 
 /-! ## Target Facets -/
 
+/-- A Lean library's Lean libraries. -/
+abbrev LeanLib.leanFacet := `leanLib.lean
+target_data leanLib.lean : ActiveOpaqueTarget
+
 /-- A Lean library's static binary. -/
 abbrev LeanLib.staticFacet := `leanLib.static
 target_data leanLib.static : ActiveFileTarget

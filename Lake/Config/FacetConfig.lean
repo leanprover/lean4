@@ -13,7 +13,7 @@ structure FacetConfig (DataFam : Name → Type) (ι : Type) (name : Name) : Type
   /-- The facet's build (function). -/
   build : ι → IndexBuildM (DataFam name)
   /-- Is this facet a buildable target? -/
-  toTarget? : (info : BuildInfo) → BuildData info.key = DataFam name → Option (OpaqueTarget.{0})
+  toTarget? : (info : BuildInfo) → BuildData info.key = DataFam name → Option OpaqueTarget
   deriving Inhabited
 
 protected abbrev FacetConfig.name (_ : FacetConfig DataFam ι name) := name

@@ -22,6 +22,7 @@ namespace Lake
 inductive BuildInfo
 | moduleFacet (module : Module) (facet : Name)
 | packageFacet (package : Package) (facet : Name)
+| leanLib (lib : LeanLib)
 | staticLeanLib (lib : LeanLib)
 | sharedLeanLib (lib : LeanLib)
 | leanExe (exe : LeanExe)
@@ -44,6 +45,9 @@ abbrev Package.facetBuildKey (facet : Name) (self : Package) : BuildKey :=
 abbrev Package.targetBuildKey (target : Name) (self : Package) : BuildKey :=
   .customTarget self.name target
 
+abbrev LeanLib.leanBuildKey (self : LeanLib) : BuildKey :=
+  .targetFacet self.pkg.name self.name leanFacet
+
 abbrev LeanLib.staticBuildKey (self : LeanLib) : BuildKey :=
   .targetFacet self.pkg.name self.name staticFacet
 
@@ -65,6 +69,7 @@ abbrev ExternLib.sharedBuildKey (self : ExternLib) : BuildKey :=
 abbrev BuildInfo.key : (self : BuildInfo) → BuildKey
 | moduleFacet m f => m.facetBuildKey f
 | packageFacet p f => p.facetBuildKey f
+| leanLib l => l.leanBuildKey
 | staticLeanLib l => l.staticBuildKey
 | sharedLeanLib l => l.sharedBuildKey
 | leanExe x => x.buildKey
@@ -84,6 +89,10 @@ instance [FamilyDef PackageData f α]
 
 instance [FamilyDef CustomData (p.name, t) α]
 : FamilyDef BuildData (BuildInfo.key (.customTarget p t)) α where
+  family_key_eq_type := by unfold BuildData; simp
+
+instance [FamilyDef TargetData LeanLib.leanFacet α]
+: FamilyDef BuildData (BuildInfo.key (.leanLib l)) α where
   family_key_eq_type := by unfold BuildData; simp
 
 instance [FamilyDef TargetData LeanLib.staticFacet α]
@@ -184,6 +193,10 @@ abbrev Package.extraDep (self : Package) : BuildInfo :=
 /-- Build info for a custom package target. -/
 abbrev Package.customTarget (target : Name) (self : Package) : BuildInfo :=
   .customTarget self target
+
+/-- Build info of the Lean library's Lean binaries. -/
+abbrev LeanLib.lean (self : LeanLib) : BuildInfo :=
+  .leanLib self
 
 /-- Build info of the Lean library's static binary. -/
 abbrev LeanLib.static (self : LeanLib) : BuildInfo :=

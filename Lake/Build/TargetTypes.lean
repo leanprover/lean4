@@ -63,10 +63,10 @@ abbrev ActiveFileTarget := ActiveBuildTarget FilePath
 --------------------------------------------------------------------------------
 
 /-- A `BuildTarget` with no artifact information. -/
-abbrev OpaqueTarget := BuildTarget PUnit
+abbrev OpaqueTarget := BuildTarget Unit
 
 /-- An `ActiveBuildTarget` with no artifact information. -/
-abbrev ActiveOpaqueTarget := ActiveBuildTarget PUnit
+abbrev ActiveOpaqueTarget := ActiveBuildTarget Unit
 
 namespace OpaqueTarget
 

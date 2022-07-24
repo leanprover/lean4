@@ -28,7 +28,13 @@ def LeanLib.recBuildLocalModules
           modSet := modSet.insert mod
   return results
 
-protected def LeanLib.recBuildStatic (self : LeanLib) : IndexT RecBuildM ActiveFileTarget := do
+protected def LeanLib.recBuildLean
+(self : LeanLib) : IndexT RecBuildM ActiveOpaqueTarget := do
+  ActiveTarget.collectOpaqueArray (i := PUnit) <|
+    ← self.recBuildLocalModules #[Module.leanBinFacet]
+
+protected def LeanLib.recBuildStatic
+(self : LeanLib) : IndexT RecBuildM ActiveFileTarget := do
   let oTargets := (← self.recBuildLocalModules self.nativeFacets).map Target.active
   staticLibTarget self.staticLibFile oTargets |>.activate
 
@@ -38,8 +44,7 @@ protected def LeanLib.recBuildStatic (self : LeanLib) : IndexT RecBuildM ActiveF
 Build and collect the local object files and external libraries
 of a library and its modules' imports.
 -/
-def LeanLib.recBuildLinks
-(facets : Array (ModuleFacet ActiveFileTarget)) (self : LeanLib)
+def LeanLib.recBuildLinks (self : LeanLib)
 : IndexT RecBuildM (Array ActiveFileTarget) := do
   -- Build and collect modules
   let mut pkgs := #[]
@@ -56,7 +61,7 @@ def LeanLib.recBuildLinks
             pkgSet := pkgSet.insert mod.pkg
             pkgs := pkgs.push mod.pkg
         if self.isLocalModule mod.name then
-          for facet in facets do
+          for facet in self.nativeFacets do
             targets := targets.push <| ← recBuild <| mod.facet facet.name
         modSet := modSet.insert mod
   -- Build and collect external library targets
@@ -66,13 +71,15 @@ def LeanLib.recBuildLinks
       targets := targets.push target
   return targets
 
-protected def LeanLib.recBuildShared (self : LeanLib) : IndexT RecBuildM ActiveFileTarget := do
-  let linkTargets := (← self.recBuildLinks self.nativeFacets).map Target.active
+protected def LeanLib.recBuildShared
+(self : LeanLib) : IndexT RecBuildM ActiveFileTarget := do
+  let linkTargets := (← self.recBuildLinks).map Target.active
   leanSharedLibTarget self.sharedLibFile linkTargets self.linkArgs |>.activate
 
 /-! # Build Executable -/
 
-protected def LeanExe.recBuildExe (self : LeanExe) : IndexT RecBuildM ActiveFileTarget := do
+protected def LeanExe.recBuildExe
+(self : LeanExe) : IndexT RecBuildM ActiveFileTarget := do
   let (_, imports) ← self.root.imports.recBuild
   let linkTargets := #[Target.active <| ← self.root.o.recBuild]
   let mut linkTargets ← imports.foldlM (init := linkTargets) fun arr mod => do

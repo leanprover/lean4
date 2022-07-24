@@ -404,7 +404,9 @@ relation implementing the typeclass `Trans`. Instead of repeating the right-
 hand sides, subsequent left-hand sides can be replaced with `_`. -/
 @[builtinTermElab «calc»]
 def elabBinCalc : TermElab :=  fun stx expectedType? => do
-  let stepStxs := stx[1].getArgs
+  let step1Stx := stx[1]
+  let stepStxs := stx[2].getArgs
+  let stepStxs := #[step1Stx] ++ stepStxs
   let mut proofs := #[]
   let mut types  := #[]
   for stepStx in stepStxs do

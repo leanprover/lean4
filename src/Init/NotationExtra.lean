@@ -86,9 +86,10 @@ macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBrackedBi
 
 -- enforce indentation of calc steps so we know when to stop parsing them
 syntax calcStep := ppIndent(colGe term " := " withPosition(term))
-syntax (name := calc) "calc" ppLine withPosition((calcStep ppLine)+) : term
+syntax (name := calc) "calc" ppLine withPosition(calcStep) ppLine withPosition((calcStep ppLine)*) : term
 
-macro "calc " steps:withPosition(calcStep+) : tactic => `(exact calc $steps*)
+macro "calc " ppLine step1:withPosition(calcStep) ppLine steps:withPosition((calcStep ppLine)*) : tactic =>
+  `(exact calc $step1 $steps*)
 
 @[appUnexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `(())

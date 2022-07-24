@@ -18,11 +18,4 @@ structure Foo where
   q : Option Bool
   r : Option Bool
   s : Option Bool
-  t : Option Bool
-  u : Option Bool
-  v : Option Bool
-  w : Option Bool
-  x : Option Bool
-  y : Option Bool
-  z : Option Bool
 deriving Repr

@@ -155,7 +155,9 @@ def resolveTargetBaseSpec (ws : Workspace) (spec : String) (facet : Name) : Exce
   | [pkgSpec, targetSpec] =>
     let pkgSpec := if pkgSpec.startsWith "@" then pkgSpec.drop 1 else pkgSpec
     let pkg ← parsePackageSpec ws pkgSpec
-    if targetSpec.startsWith "+" then
+    if targetSpec.isEmpty then
+      resolvePackageTarget ws pkg facet
+    else if targetSpec.startsWith "+" then
       let mod := targetSpec.drop 1 |>.toName
       if let some mod := pkg.findModule? mod then
         resolveModuleTarget ws mod facet

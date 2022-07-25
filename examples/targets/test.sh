@@ -27,7 +27,7 @@ $LAKE build Bar:o
 
 test -f ./build/ir/Bar.o
 
-$LAKE build
+$LAKE build targets/
 
 ./build/bin/c
 test -f ./build/lib/Foo.olean

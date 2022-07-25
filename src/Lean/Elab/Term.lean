@@ -587,14 +587,14 @@ def mkExplicitBinder (ident : Syntax) (type : Syntax) : Syntax :=
   The method returns the updated expression and new `nextParamIdx`.
 
   Remark: we make sure the generated parameter names do not clash with the universe at `ctx.levelNames`. -/
-def levelMVarToParam (e : Expr) (nextParamIdx : Nat := 1) (except : MVarId → Bool := fun _ => false) : TermElabM (Expr × Nat) := do
+def levelMVarToParam (e : Expr) (nextParamIdx : Nat := 1) (except : LMVarId → Bool := fun _ => false) : TermElabM (Expr × Nat) := do
   let levelNames ← getLevelNames
   let r := (← getMCtx).levelMVarToParam (fun n => levelNames.elem n) except e `u nextParamIdx
   setMCtx r.mctx
   return (r.expr, r.nextParamIdx)
 
 /-- Variant of `levelMVarToParam` where `nextParamIdx` is stored in a state monad. -/
-def levelMVarToParam' (e : Expr) (except : MVarId → Bool := fun _ => false) : StateRefT Nat TermElabM Expr := do
+def levelMVarToParam' (e : Expr) (except : LMVarId → Bool := fun _ => false) : StateRefT Nat TermElabM Expr := do
   let nextParamIdx ← get
   let (e, nextParamIdx) ← levelMVarToParam e nextParamIdx except
   set nextParamIdx

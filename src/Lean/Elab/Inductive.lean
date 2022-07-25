@@ -393,7 +393,7 @@ private def getResultingUniverse : List InductiveType → TermElabM Level
   Return `some ?m` if `u` is of the form `?m + k`.
   Return none if `u` does not contain universe metavariables.
   Throw exception otherwise. -/
-def shouldInferResultUniverse (u : Level) : TermElabM (Option MVarId) := do
+def shouldInferResultUniverse (u : Level) : TermElabM (Option LMVarId) := do
   let u ← instantiateLevelMVars u
   if u.hasMVar then
     match u.getLevelOffset with
@@ -407,7 +407,7 @@ def shouldInferResultUniverse (u : Level) : TermElabM (Option MVarId) := do
   Convert universe metavariables into new parameters. It skips `univToInfer?` (the inductive datatype resulting universe) because
   it should be inferred later using `inferResultingUniverse`.
 -/
-private def levelMVarToParam (indTypes : List InductiveType) (univToInfer? : Option MVarId) : TermElabM (List InductiveType) :=
+private def levelMVarToParam (indTypes : List InductiveType) (univToInfer? : Option LMVarId) : TermElabM (List InductiveType) :=
   go |>.run' 1
 where
   levelMVarToParam' (type : Expr) : StateRefT Nat TermElabM Expr := do

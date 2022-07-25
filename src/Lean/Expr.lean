@@ -288,6 +288,28 @@ instance : EmptyCollection (FVarIdMap α) := inferInstanceAs (EmptyCollection (S
 instance : Inhabited (FVarIdMap α) where
   default := {}
 
+/-- Universe metavariable Id   -/
+structure MVarId where
+  name : Name
+  deriving Inhabited, BEq, Hashable, Repr
+
+instance : Repr MVarId where
+  reprPrec n p := reprPrec n.name p
+
+def MVarIdSet := Std.RBTree MVarId (Name.quickCmp ·.name ·.name)
+  deriving Inhabited, EmptyCollection
+
+instance : ForIn m MVarIdSet MVarId := inferInstanceAs (ForIn _ (Std.RBTree ..) ..)
+
+def MVarIdMap (α : Type) := Std.RBMap MVarId α (Name.quickCmp ·.name ·.name)
+
+instance : EmptyCollection (MVarIdMap α) := inferInstanceAs (EmptyCollection (Std.RBMap ..))
+
+instance : ForIn m (MVarIdMap α) (MVarId × α) := inferInstanceAs (ForIn _ (Std.RBMap ..) ..)
+
+instance : Inhabited (MVarIdMap α) where
+  default := {}
+
 /--
 Lean expressions. This datastructure is used in the kernel and
 elaborator. Howewer, expressions sent to the kernel should not
@@ -1729,6 +1751,13 @@ Polymorphic operation for generating unique/fresh metavariable identifiers.
 It is available in any monad `m` that implements the inferface `MonadNameGenerator`.
 -/
 def mkFreshMVarId [Monad m] [MonadNameGenerator m] : m MVarId :=
+  return { name := (← mkFreshId) }
+
+/--
+Polymorphic operation for generating unique/fresh universe metavariable identifiers.
+It is available in any monad `m` that implements the inferface `MonadNameGenerator`.
+-/
+def mkFreshLMVarId [Monad m] [MonadNameGenerator m] : m LMVarId :=
   return { name := (← mkFreshId) }
 
 /-- Return `Not p` -/

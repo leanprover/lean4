@@ -61,25 +61,29 @@ instance : Repr Level.Data where
 
 open Level
 
-structure MVarId where
+/-- Universe level metavariable Id   -/
+structure LevelMVarId where
   name : Name
   deriving Inhabited, BEq, Hashable, Repr
 
-instance : Repr MVarId where
+/-- Short for `LevelMVarId` -/
+abbrev LMVarId := LevelMVarId
+
+instance : Repr LMVarId where
   reprPrec n p := reprPrec n.name p
 
-def MVarIdSet := Std.RBTree MVarId (Name.quickCmp ·.name ·.name)
+def LMVarIdSet := Std.RBTree LMVarId (Name.quickCmp ·.name ·.name)
   deriving Inhabited, EmptyCollection
 
-instance : ForIn m MVarIdSet MVarId := inferInstanceAs (ForIn _ (Std.RBTree ..) ..)
+instance : ForIn m LMVarIdSet LMVarId := inferInstanceAs (ForIn _ (Std.RBTree ..) ..)
 
-def MVarIdMap (α : Type) := Std.RBMap MVarId α (Name.quickCmp ·.name ·.name)
+def LMVarIdMap (α : Type) := Std.RBMap LMVarId α (Name.quickCmp ·.name ·.name)
 
-instance : EmptyCollection (MVarIdMap α) := inferInstanceAs (EmptyCollection (Std.RBMap ..))
+instance : EmptyCollection (LMVarIdMap α) := inferInstanceAs (EmptyCollection (Std.RBMap ..))
 
-instance : ForIn m (MVarIdMap α) (MVarId × α) := inferInstanceAs (ForIn _ (Std.RBMap ..) ..)
+instance : ForIn m (LMVarIdMap α) (LMVarId × α) := inferInstanceAs (ForIn _ (Std.RBMap ..) ..)
 
-instance : Inhabited (MVarIdMap α) where
+instance : Inhabited (LMVarIdMap α) where
   default := {}
 
 inductive Level where
@@ -88,7 +92,7 @@ inductive Level where
   | max    : Level → Level → Level
   | imax   : Level → Level → Level
   | param  : Name → Level
-  | mvar   : MVarId → Level
+  | mvar   : LMVarId → Level
 with
   @[computedField] data : Level → Data
     | .zero => mkData 2221 0 false false
@@ -128,7 +132,7 @@ end Level
 def levelZero :=
   Level.zero
 
-def mkLevelMVar (mvarId : MVarId) :=
+def mkLevelMVar (mvarId : LMVarId) :=
   Level.mvar mvarId
 
 def mkLevelParam (name : Name) :=
@@ -147,7 +151,7 @@ def levelOne := mkLevelSucc levelZero
 
 @[export lean_level_mk_zero] def mkLevelZeroEx : Unit → Level := fun _ => levelZero
 @[export lean_level_mk_succ] def mkLevelSuccEx : Level → Level := mkLevelSucc
-@[export lean_level_mk_mvar] def mkLevelMVarEx : MVarId → Level := mkLevelMVar
+@[export lean_level_mk_mvar] def mkLevelMVarEx : LMVarId → Level := mkLevelMVar
 @[export lean_level_mk_param] def mkLevelParamEx : Name → Level := mkLevelParam
 @[export lean_level_mk_max] def mkLevelMaxEx : Level → Level → Level := mkLevelMax
 @[export lean_level_mk_imax] def mkLevelIMaxEx : Level → Level → Level := mkLevelIMax
@@ -183,7 +187,7 @@ def isMVar : Level → Bool
   | mvar .. => true
   | _       => false
 
-def mvarId! : Level → MVarId
+def mvarId! : Level → LMVarId
   | mvar mvarId => mvarId
   | _           => panic! "metavariable expected"
 
@@ -599,7 +603,7 @@ abbrev LevelSet := HashSet Level
 abbrev PersistentLevelSet := PHashSet Level
 abbrev PLevelSet := PersistentLevelSet
 
-def Level.collectMVars (u : Level) (s : MVarIdSet := {}) : MVarIdSet :=
+def Level.collectMVars (u : Level) (s : LMVarIdSet := {}) : LMVarIdSet :=
   match u with
   | succ v   => collectMVars v s
   | max u v  => collectMVars u (collectMVars v s)

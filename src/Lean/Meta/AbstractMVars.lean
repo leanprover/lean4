@@ -24,7 +24,7 @@ structure State where
   nextParamIdx : Nat := 0
   paramNames   : Array Name := #[]
   fvars        : Array Expr  := #[]
-  lmap         : HashMap MVarId Level := {}
+  lmap         : HashMap LMVarId Level := {}
   emap         : HashMap MVarId Expr  := {}
 
 abbrev M := StateM State

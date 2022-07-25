@@ -9,13 +9,13 @@ namespace Lean
 
 namespace FindLevelMVar
 
-abbrev Visitor := Option MVarId → Option MVarId
+abbrev Visitor := Option LMVarId → Option LMVarId
 
 mutual
-  partial def visit (p : MVarId → Bool) (e : Expr) : Visitor := fun s =>
+  partial def visit (p : LMVarId → Bool) (e : Expr) : Visitor := fun s =>
     if s.isSome || !e.hasLevelMVar then s else main p e s
 
-  partial def main (p : MVarId → Bool) : Expr → Visitor
+  partial def main (p : LMVarId → Bool) : Expr → Visitor
     | Expr.sort l          => visitLevel p l
     | Expr.const _ ls      => ls.foldr (init := id) fun l acc => visitLevel p l ∘ acc
     | Expr.forallE _ d b _ => visit p b ∘ visit p d
@@ -26,10 +26,10 @@ mutual
     | Expr.proj _ _ e      => visit p e
     | _                    => id
 
-  partial def visitLevel (p : MVarId → Bool) (l : Level) : Visitor := fun s =>
+  partial def visitLevel (p : LMVarId → Bool) (l : Level) : Visitor := fun s =>
     if s.isSome || !l.hasMVar then s else mainLevel p l s
 
-  partial def mainLevel (p : MVarId → Bool) : Level → Visitor
+  partial def mainLevel (p : LMVarId → Bool) : Level → Visitor
     | Level.zero        => id
     | Level.succ l      => visitLevel p l
     | Level.max l₁ l₂   => visitLevel p l₁ ∘ visitLevel p l₂
@@ -40,7 +40,7 @@ end
 
 end FindLevelMVar
 
-@[inline] def Expr.findLevelMVar? (e : Expr) (p : MVarId → Bool) : Option MVarId :=
+@[inline] def Expr.findLevelMVar? (e : Expr) (p : LMVarId → Bool) : Option LMVarId :=
   FindLevelMVar.main p e none
 
 end Lean

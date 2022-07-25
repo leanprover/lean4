@@ -1,6 +1,9 @@
 Unreleased
 ---------
 
+* Add type `LevelMVarId` (and abbreviation `LMVarId`) for universe level metavariable ids.
+  Motivation: prevent meta-programmers from mixing up universe and expression metavariable ids.
+
 * Improve `calc` term and tactic. See [issue #1342](https://github.com/leanprover/lean4/issues/1342).
 
 * [Relaxed antiquotation parsing](https://github.com/leanprover/lean4/pull/1272) further reduces the need for explicit `$x:p` antiquotation kind annotations.

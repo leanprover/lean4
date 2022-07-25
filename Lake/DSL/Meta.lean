@@ -14,6 +14,18 @@ namespace Lake.DSL
 open Lean Elab Command
 
 /--
+The `do` command syntax groups multiple similarly indented commands together.
+The group can then be passed to another command that usually only accepts a
+single command (e.g., `meta if`).
+-/
+syntax cmdDo := ("do" many1Indent(command)) <|> command
+
+def expandCmdDo : TSyntax ``cmdDo → Array Command
+| `(cmdDo|do $cmds*) => cmds
+| `(cmdDo|$cmd:command) => #[cmd]
+| _ => #[]
+
+/--
 The `meta if` command has two forms:
 
 ```lean
@@ -31,17 +43,19 @@ only available on specific platforms:
 ```lean
 meta if System.Platform.isWindows then
 extern_lib winOnlyLib := ...
-else if System.Platform.isOSX then
+else meta if System.Platform.isOSX then
 extern_lib macOnlyLib := ...
 else
 extern_lib linuxOnlyLib := ...
 ```
 -/
 scoped syntax (name := metaIf)
-"meta " "if " term " then " command (" else " command)? : command
+"meta " "if " term " then " cmdDo (" else " cmdDo)? : command
 
 elab_rules : command | `(meta if $c then $t $[else $e?]?) => do
   if (← withRef c <| runTermElabM none <| fun _ => evalTerm Bool c) then
-    withMacroExpansion (← getRef) t <| elabCommand t
+    let cmd := mkNullNode (expandCmdDo t)
+    withMacroExpansion (← getRef) cmd <| elabCommand cmd
   else if let some e := e? then
-    withMacroExpansion (← getRef) e <| elabCommand e
+    let cmd := mkNullNode (expandCmdDo e)
+    withMacroExpansion (← getRef) cmd <| elabCommand cmd

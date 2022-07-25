@@ -49,12 +49,17 @@ scoped syntax (name := getConfig) "get_config? " ident :term
 
 @[termElab getConfig]
 def elabGetConfig : TermElab := fun stx expectedType? => do
+  tryPostponeIfNoneOrMVar expectedType?
   match stx with
-  | `(getConfig| get_config? $key) =>
-    let exp :=
+  | `(getConfig| get_config? $key) => do
+    let exp : Term ← show TermElabM Term from do
       if let some opts := optsExt.getState (← getEnv) then
-        quote (k := `term) <| opts.find? key.getId
+        if let some val := opts.find? key.getId then
+          `(some $(Syntax.mkStrLit val <| SourceInfo.fromRef (← getRef)))
+        else
+          -- Make sure `none` is properly typed
+          `((none : Option String))
       else
-        Syntax.mkApp (mkCIdentFrom stx ``dummyGetConfig?) #[quote key.getId]
+        return Syntax.mkApp (mkCIdentFrom stx ``dummyGetConfig?) #[quote key.getId]
     withMacroExpansion stx exp <| elabTerm exp expectedType?
   | _ => throwUnsupportedSyntax

@@ -105,7 +105,18 @@ unsafe def mkElabAttribute (γ) (attrDeclName attrBuiltinName attrName : Name) (
     name          := attrName
     descr         := kind ++ " elaborator"
     valueTypeName := typeName
-    evalKey       := fun _ stx => syntaxNodeKindOfAttrParam parserNamespace stx
+    evalKey       := fun _ stx => do
+      let kind ← syntaxNodeKindOfAttrParam parserNamespace stx
+      /- Recall that a `SyntaxNodeKind` is often the name of the paser, but this is not always true, and we much check it. -/
+      if (← getEnv).contains kind && (← getInfoState).enabled then
+        pushInfoLeaf <| Info.ofTermInfo {
+          elaborator    := .anonymous
+          lctx          := {}
+          expr          := mkConst kind
+          stx           := stx[1]
+          expectedType? := none
+        }
+      return kind
     onAdded       := fun builtin declName => do
       if builtin then
       if let some doc ← findDocString? (← getEnv) declName then

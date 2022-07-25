@@ -73,8 +73,8 @@ builtin_initialize externAttr : ParametricAttribute ExternAttrData ←
   }
 
 @[export lean_get_extern_attr_data]
-def getExternAttrData (env : Environment) (n : Name) : Option ExternAttrData :=
-  externAttr.getParam env n
+def getExternAttrData? (env : Environment) (n : Name) : Option ExternAttrData :=
+  externAttr.getParam? env n
 
 private def parseOptNum : Nat → String.Iterator → Nat → String.Iterator × Nat
   | 0,   it, r => (it, r)
@@ -121,18 +121,18 @@ def getExternEntryFor (d : ExternAttrData) (backend : Name) : Option ExternEntry
   getExternEntryForAux backend d.entries
 
 def isExtern (env : Environment) (fn : Name) : Bool :=
-  getExternAttrData env fn |>.isSome
+  getExternAttrData? env fn |>.isSome
 
 /-- We say a Lean function marked as `[extern "<c_fn_nane>"]` is for all backends, and it is implemented using `extern "C"`.
    Thus, there is no name mangling. -/
 def isExternC (env : Environment) (fn : Name) : Bool :=
-  match getExternAttrData env fn with
+  match getExternAttrData? env fn with
   | some { entries := [ ExternEntry.standard `all _ ], .. } => true
   | _ => false
 
 def getExternNameFor (env : Environment) (backend : Name) (fn : Name) : Option String := do
-  let data ← getExternAttrData env fn
-  let entry ← getExternEntryFor data backend
+  let data? ← getExternAttrData? env fn
+  let entry ← getExternEntryFor data? backend
   match entry with
   | ExternEntry.standard _ n => pure n
   | ExternEntry.foreign _ n  => pure n
@@ -144,7 +144,7 @@ private def getExternConstArity (declName : Name) : CoreM Nat := do
     let (arity, _) ← (Meta.forallTelescopeReducing cinfo.type fun xs _ => pure xs.size : MetaM Nat).run
     return arity
   let env ← getEnv
-  match getExternAttrData env declName with
+  match getExternAttrData? env declName with
   | none      => fromSignature ()
   | some data => match data.arity? with
     | some arity => return arity

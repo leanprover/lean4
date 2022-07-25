@@ -239,3 +239,5 @@ declare_syntax_cat rawStx
 
 instance : Coe Syntax (TSyntax `rawStx) where
   coe stx := ⟨stx⟩
+
+syntax (name := deprecated) "deprecated " (ident)? : attr

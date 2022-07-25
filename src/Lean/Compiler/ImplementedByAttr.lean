@@ -29,8 +29,8 @@ builtin_initialize implementedByAttr : ParametricAttribute Name ← registerPara
 }
 
 @[export lean_get_implemented_by]
-def getImplementedBy (env : Environment) (declName : Name) : Option Name :=
-  implementedByAttr.getParam env declName
+def getImplementedBy? (env : Environment) (declName : Name) : Option Name :=
+  implementedByAttr.getParam? env declName
 
 def setImplementedBy (env : Environment) (declName : Name) (impName : Name) : Except String Environment :=
   implementedByAttr.setParam env declName impName

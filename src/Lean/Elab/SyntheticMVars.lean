@@ -322,11 +322,19 @@ mutual
     /- Recall, `tacticCode` is the whole `by ...` expression. -/
     let code := tacticCode[1]
     instantiateMVarDeclMVars mvarId
-    let remainingGoals ← withInfoHole mvarId <| Tactic.run mvarId do
-       withTacticInfoContext tacticCode (evalTactic code)
-       synthesizeSyntheticMVars (mayPostpone := false)
-    unless remainingGoals.isEmpty do
-      reportUnsolvedGoals remainingGoals
+    try
+      let remainingGoals ← withInfoHole mvarId <| Tactic.run mvarId do
+         withTacticInfoContext tacticCode (evalTactic code)
+         synthesizeSyntheticMVars (mayPostpone := false)
+      unless remainingGoals.isEmpty do
+        reportUnsolvedGoals remainingGoals
+    catch ex =>
+      if (← read).errToSorry then
+        for mvarId in (← getMVars (mkMVar mvarId)) do
+          mvarId.admit
+        logException ex
+      else
+        throw ex
 
   /-- Try to synthesize the given pending synthetic metavariable. -/
   private partial def synthesizeSyntheticMVar (mvarId : MVarId) (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool := do

@@ -2,8 +2,3 @@
 1074b.lean:11:43-11:53: error: tactic 'assumption' failed
 a n : Term
 ⊢ Brx (sorryAx Term true)
-1074b.lean:11:9-11:55: error: unsolved goals
-case id
-a n z✝ : Term
-: Brx z✝
-⊢ True ∧ Brx (sorryAx Term true)

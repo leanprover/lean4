@@ -17,3 +17,8 @@ instance : FooClass Baz where
   mkFoo := fun a => match a with
     | .a => return 0
     | .b => return 1
+
+instance : FooClass Baz where
+  mkFoo := @fun
+    | _, _, .a => return 1
+    | _, _, .b => return 2

@@ -14,7 +14,6 @@ jobs:
         uses: fkirc/skip-duplicate-actions@v4
         with:
           concurrent_skipping: 'same_content_newer'
-          skip_after_successful_duplicate: 'true'
           paths_ignore: '["README.md", "LICENSE"]'
 
   build:

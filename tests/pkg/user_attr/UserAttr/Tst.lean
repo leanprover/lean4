@@ -15,8 +15,8 @@ def hasBlaAttr (declName : Name) : CoreM Bool :=
 #eval hasBlaAttr ``id
 
 open Lean in
-def getFooAttrInfo? (declName : Name) : CoreM (Option (Nat × Bool)) := 
-  return fooAttr.getParam (← getEnv) declName
+def getFooAttrInfo? (declName : Name) : CoreM (Option (Nat × Bool)) :=
+  return fooAttr.getParam? (← getEnv) declName
 
 #eval getFooAttrInfo? ``f
 #eval getFooAttrInfo? ``h1
@@ -44,7 +44,7 @@ example : f x = id (x + 2) := by
 @[simp low, my_simp low]
 axiom expand_mul_add (x y z : Nat) : x * (y + z) = x * y + x * y
 @[simp high, my_simp high]
-axiom expand_add_mul (x y z : Nat) : (x + y) * z = x * z + y * z 
+axiom expand_add_mul (x y z : Nat) : (x + y) * z = x * z + y * z
 @[simp, my_simp]
 axiom lassoc_add (x y z : Nat) : x + (y + z) = x + y + z
 

@@ -179,7 +179,7 @@ def elabDeclaration : CommandElab := fun stx => do
   match (← liftMacroM <| expandDeclNamespace? stx) with
   | some (ns, newStx) => do
     let ns := mkIdentFrom stx ns
-    let newStx ← `(namespace $ns:ident $(⟨newStx⟩) end $ns:ident)
+    let newStx ← `(namespace $ns $(⟨newStx⟩) end $ns)
     withMacroExpansion stx newStx <| elabCommand newStx
   | none => do
     let decl     := stx[1]
@@ -259,7 +259,7 @@ def expandMutualNamespace : Macro := fun stx => do
   | some ns =>
     let ns := mkIdentFrom stx ns
     let stxNew := stx.setArg 1 (mkNullNode elemsNew)
-    `(namespace $ns:ident $(⟨stxNew⟩) end $ns:ident)
+    `(namespace $ns $(⟨stxNew⟩) end $ns)
   | none => Macro.throwUnsupported
 
 @[builtinMacro Lean.Parser.Command.mutual]

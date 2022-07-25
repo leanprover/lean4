@@ -84,7 +84,7 @@ namespace  MkTableKey
 
 structure State where
   nextIdx : Nat := 0
-  lmap    : HashMap MVarId Level := {}
+  lmap    : HashMap LMVarId Level := {}
   emap    : HashMap MVarId Expr := {}
   mctx    : MetavarContext
 

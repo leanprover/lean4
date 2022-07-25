@@ -149,7 +149,8 @@ private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr :=
   return mvar
 
 /-- `by tac` constructs a term of the expected type by running the tactic(s) `tac`. -/
-@[builtinTermElab byTactic] def elabByTactic : TermElab := fun stx expectedType? =>
+@[builtinTermElab byTactic] def elabByTactic : TermElab := fun stx expectedType? => do
+  tryPostponeIfNoneOrMVar expectedType?
   match expectedType? with
   | some expectedType => mkTacticMVar expectedType stx
   | none => throwError ("invalid 'by' tactic, expected type has not been provided")

@@ -230,6 +230,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitDeclAux___lambda__2(lean_object*, l
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_toCInitName(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_overwriteParam___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitTailCall___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_ParametricAttribute_getParam_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitTag___closed__1;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitTailCall(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_getDecls(lean_object*);
@@ -456,7 +457,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitC_isTailCall___boxed(lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitBoxFn___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitFileHeader___closed__22;
 static lean_object* l_Lean_IR_EmitC_emitFileFooter___closed__1;
-lean_object* l_Lean_ParametricAttribute_getParam___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_foldlAux_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitFileHeader___closed__18;
 uint8_t l_Lean_IR_ExplicitBoxing_isBoxedName(lean_object*);
@@ -1298,7 +1298,7 @@ x_7 = lean_ctor_get(x_4, 1);
 x_8 = l_Lean_instInhabitedName;
 x_9 = l_Lean_IR_EmitC_toCName___closed__1;
 lean_inc(x_1);
-x_10 = l_Lean_ParametricAttribute_getParam___rarg(x_8, x_9, x_6, x_1);
+x_10 = l_Lean_ParametricAttribute_getParam_x3f___rarg(x_8, x_9, x_6, x_1);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_11; uint8_t x_12; 
@@ -1373,7 +1373,7 @@ lean_dec(x_4);
 x_23 = l_Lean_instInhabitedName;
 x_24 = l_Lean_IR_EmitC_toCName___closed__1;
 lean_inc(x_1);
-x_25 = l_Lean_ParametricAttribute_getParam___rarg(x_23, x_24, x_21, x_1);
+x_25 = l_Lean_ParametricAttribute_getParam_x3f___rarg(x_23, x_24, x_21, x_1);
 if (lean_obj_tag(x_25) == 0)
 {
 lean_object* x_26; uint8_t x_27; 
@@ -1545,7 +1545,7 @@ x_7 = lean_ctor_get(x_4, 1);
 x_8 = l_Lean_instInhabitedName;
 x_9 = l_Lean_IR_EmitC_toCName___closed__1;
 lean_inc(x_1);
-x_10 = l_Lean_ParametricAttribute_getParam___rarg(x_8, x_9, x_6, x_1);
+x_10 = l_Lean_ParametricAttribute_getParam_x3f___rarg(x_8, x_9, x_6, x_1);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -1612,7 +1612,7 @@ lean_dec(x_4);
 x_24 = l_Lean_instInhabitedName;
 x_25 = l_Lean_IR_EmitC_toCName___closed__1;
 lean_inc(x_1);
-x_26 = l_Lean_ParametricAttribute_getParam___rarg(x_24, x_25, x_22, x_1);
+x_26 = l_Lean_ParametricAttribute_getParam_x3f___rarg(x_24, x_25, x_22, x_1);
 if (lean_obj_tag(x_26) == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 

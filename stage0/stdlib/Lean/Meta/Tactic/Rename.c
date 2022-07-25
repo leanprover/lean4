@@ -90,7 +90,6 @@ lean_object* x_30; lean_object* x_31;
 x_30 = lean_ctor_get(x_28, 0);
 lean_dec(x_30);
 x_31 = l_Lean_Expr_mvarId_x21(x_26);
-lean_dec(x_26);
 lean_ctor_set(x_28, 0, x_31);
 return x_28;
 }
@@ -101,7 +100,6 @@ x_32 = lean_ctor_get(x_28, 1);
 lean_inc(x_32);
 lean_dec(x_28);
 x_33 = l_Lean_Expr_mvarId_x21(x_26);
-lean_dec(x_26);
 x_34 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_34, 0, x_33);
 lean_ctor_set(x_34, 1, x_32);

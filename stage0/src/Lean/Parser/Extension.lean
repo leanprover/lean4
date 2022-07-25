@@ -622,6 +622,9 @@ def withOpenDeclFn (p : ParserFn) : ParserFn := fun c s =>
   fn   := withOpenDeclFn  p.fn
 }
 
+def ParserContext.resolveName (ctx : ParserContext) (id : Name) : List (Name × List String) :=
+  ResolveName.resolveGlobalName ctx.env ctx.currNamespace ctx.openDecls id
+
 def parserOfStackFn (offset : Nat) : ParserFn := fun ctx s => Id.run do
   let stack := s.stxStack
   if stack.size < offset + 1 then

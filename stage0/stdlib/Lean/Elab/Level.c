@@ -35,7 +35,6 @@ LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_Elab_Level_instMonadOptionsLev
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__16;
 static lean_object* l_Lean_Elab_Level_instMonadRefLevelElabM___closed__4;
 size_t lean_usize_sub(size_t, size_t);
-LEAN_EXPORT lean_object* l_Lean_mkFreshMVarId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_instMonadRefLevelElabM___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -61,6 +60,7 @@ static lean_object* l_Lean_Elab_Level_elabLevel___closed__6;
 lean_object* l_Lean_Syntax_isNatLit_x3f(lean_object*);
 uint8_t l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_instMonadOptionsLevelElabM___closed__2;
+LEAN_EXPORT lean_object* l_Lean_mkFreshLMVarId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_instMonadOptionsLevelElabM___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Option_get___at_Std_Format_pretty_x27___spec__1(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -120,6 +120,7 @@ static lean_object* l_Lean_Elab_Level_elabLevel___closed__15;
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__18;
 lean_object* l_Lean_throwError___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___closed__2;
+LEAN_EXPORT lean_object* l_Lean_mkFreshLMVarId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___closed__5;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___at_Lean_Elab_Level_elabLevel___spec__3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___lambda__1(lean_object*, lean_object*);
@@ -127,7 +128,6 @@ static lean_object* l_Lean_Elab_Level_instMonadRefLevelElabM___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_instAddMessageContextLevelElabM___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_read___at_Lean_Elab_Level_instMonadOptionsLevelElabM___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___closed__1;
-LEAN_EXPORT lean_object* l_Lean_mkFreshMVarId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_instMonadRefLevelElabM___closed__1;
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__26;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___at_Lean_Elab_Level_elabLevel___spec__3___boxed(lean_object*, lean_object*, lean_object*);
@@ -627,7 +627,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_mkFreshId___at_Lean_Elab_Level_mkFreshLe
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_mkFreshMVarId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_mkFreshLMVarId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
@@ -656,7 +656,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Level_mkFreshLevelMVar(lean_object* x_1, le
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
-x_3 = l_Lean_mkFreshMVarId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1(x_1, x_2);
+x_3 = l_Lean_mkFreshLMVarId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1(x_1, x_2);
 x_4 = !lean_is_exclusive(x_3);
 if (x_4 == 0)
 {
@@ -748,11 +748,11 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_mkFreshMVarId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_mkFreshLMVarId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_mkFreshMVarId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1(x_1, x_2);
+x_3 = l_Lean_mkFreshLMVarId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1(x_1, x_2);
 lean_dec(x_1);
 return x_3;
 }

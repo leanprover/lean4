@@ -3208,6 +3208,7 @@ lean_inc(x_19);
 x_20 = lean_ctor_get(x_18, 1);
 lean_inc(x_20);
 lean_dec(x_18);
+lean_inc(x_14);
 x_21 = l_Lean_Expr_mvarId_x21(x_14);
 x_22 = lean_alloc_closure((void*)(l_Lean_Elab_Term_runTactic), 9, 2);
 lean_closure_set(x_22, 0, x_21);
@@ -7209,39 +7210,75 @@ lean_inc(x_111);
 lean_dec(x_109);
 if (x_2 == 0)
 {
-lean_object* x_140; 
-lean_dec(x_110);
-x_140 = lean_box(0);
-x_112 = x_140;
-goto block_139;
-}
-else
-{
-if (lean_obj_tag(x_110) == 0)
+uint8_t x_140; 
+x_140 = lean_unbox(x_28);
+if (x_140 == 0)
 {
 lean_object* x_141; 
+lean_dec(x_110);
 x_141 = lean_box(0);
 x_112 = x_141;
 goto block_139;
 }
 else
 {
-lean_object* x_142; lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; 
+if (lean_obj_tag(x_110) == 0)
+{
+lean_object* x_142; 
+x_142 = lean_box(0);
+x_112 = x_142;
+goto block_139;
+}
+else
+{
+lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; 
 lean_dec(x_110);
 lean_dec(x_32);
 lean_dec(x_29);
-x_142 = l_Lean_Syntax_getId(x_108);
+x_143 = l_Lean_Syntax_getId(x_108);
 lean_dec(x_108);
-x_143 = l_Lean_Meta_SimpTheorems_eraseCore(x_30, x_142);
-x_144 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_144, 0, x_143);
-lean_ctor_set(x_144, 1, x_31);
+x_144 = l_Lean_Meta_SimpTheorems_eraseCore(x_30, x_143);
 x_145 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_145, 0, x_28);
-lean_ctor_set(x_145, 1, x_144);
-x_146 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_146, 0, x_145);
-x_20 = x_146;
+lean_ctor_set(x_145, 0, x_144);
+lean_ctor_set(x_145, 1, x_31);
+x_146 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_146, 0, x_28);
+lean_ctor_set(x_146, 1, x_145);
+x_147 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_147, 0, x_146);
+x_20 = x_147;
+x_21 = x_111;
+goto block_26;
+}
+}
+}
+else
+{
+if (lean_obj_tag(x_110) == 0)
+{
+lean_object* x_148; 
+x_148 = lean_box(0);
+x_112 = x_148;
+goto block_139;
+}
+else
+{
+lean_object* x_149; lean_object* x_150; lean_object* x_151; lean_object* x_152; lean_object* x_153; 
+lean_dec(x_110);
+lean_dec(x_32);
+lean_dec(x_29);
+x_149 = l_Lean_Syntax_getId(x_108);
+lean_dec(x_108);
+x_150 = l_Lean_Meta_SimpTheorems_eraseCore(x_30, x_149);
+x_151 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_151, 0, x_150);
+lean_ctor_set(x_151, 1, x_31);
+x_152 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_152, 0, x_28);
+lean_ctor_set(x_152, 1, x_151);
+x_153 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_153, 0, x_152);
+x_20 = x_153;
 x_21 = x_111;
 goto block_26;
 }
@@ -7876,39 +7913,75 @@ lean_inc(x_111);
 lean_dec(x_109);
 if (x_2 == 0)
 {
-lean_object* x_140; 
-lean_dec(x_110);
-x_140 = lean_box(0);
-x_112 = x_140;
-goto block_139;
-}
-else
-{
-if (lean_obj_tag(x_110) == 0)
+uint8_t x_140; 
+x_140 = lean_unbox(x_28);
+if (x_140 == 0)
 {
 lean_object* x_141; 
+lean_dec(x_110);
 x_141 = lean_box(0);
 x_112 = x_141;
 goto block_139;
 }
 else
 {
-lean_object* x_142; lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; 
+if (lean_obj_tag(x_110) == 0)
+{
+lean_object* x_142; 
+x_142 = lean_box(0);
+x_112 = x_142;
+goto block_139;
+}
+else
+{
+lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; 
 lean_dec(x_110);
 lean_dec(x_32);
 lean_dec(x_29);
-x_142 = l_Lean_Syntax_getId(x_108);
+x_143 = l_Lean_Syntax_getId(x_108);
 lean_dec(x_108);
-x_143 = l_Lean_Meta_SimpTheorems_eraseCore(x_30, x_142);
-x_144 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_144, 0, x_143);
-lean_ctor_set(x_144, 1, x_31);
+x_144 = l_Lean_Meta_SimpTheorems_eraseCore(x_30, x_143);
 x_145 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_145, 0, x_28);
-lean_ctor_set(x_145, 1, x_144);
-x_146 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_146, 0, x_145);
-x_20 = x_146;
+lean_ctor_set(x_145, 0, x_144);
+lean_ctor_set(x_145, 1, x_31);
+x_146 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_146, 0, x_28);
+lean_ctor_set(x_146, 1, x_145);
+x_147 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_147, 0, x_146);
+x_20 = x_147;
+x_21 = x_111;
+goto block_26;
+}
+}
+}
+else
+{
+if (lean_obj_tag(x_110) == 0)
+{
+lean_object* x_148; 
+x_148 = lean_box(0);
+x_112 = x_148;
+goto block_139;
+}
+else
+{
+lean_object* x_149; lean_object* x_150; lean_object* x_151; lean_object* x_152; lean_object* x_153; 
+lean_dec(x_110);
+lean_dec(x_32);
+lean_dec(x_29);
+x_149 = l_Lean_Syntax_getId(x_108);
+lean_dec(x_108);
+x_150 = l_Lean_Meta_SimpTheorems_eraseCore(x_30, x_149);
+x_151 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_151, 0, x_150);
+lean_ctor_set(x_151, 1, x_31);
+x_152 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_152, 0, x_28);
+lean_ctor_set(x_152, 1, x_151);
+x_153 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_153, 0, x_152);
+x_20 = x_153;
 x_21 = x_111;
 goto block_26;
 }

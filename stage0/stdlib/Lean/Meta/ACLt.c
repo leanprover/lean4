@@ -943,7 +943,6 @@ x_18 = lean_ctor_get(x_1, 0);
 lean_inc(x_18);
 lean_dec(x_1);
 x_19 = l_Lean_Expr_mvarId_x21(x_2);
-lean_dec(x_2);
 x_20 = l_Lean_Name_lt(x_18, x_19);
 lean_dec(x_19);
 lean_dec(x_18);

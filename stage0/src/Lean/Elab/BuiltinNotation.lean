@@ -75,23 +75,23 @@ are turned into a new anonymous constructor application. For example,
 
 @[builtinMacro Lean.Parser.Term.show] def expandShow : Macro := fun stx =>
   match stx with
-  | `(show $type from $val)            => let thisId := mkIdentFrom stx `this; `(let_fun $thisId : $type := $val; $thisId)
-  | `(show $type by%$b $tac:tacticSeq) => `(show $type from by%$b $tac:tacticSeq)
-  | _                                  => Macro.throwUnsupported
+  | `(show $type from $val)  => let thisId := mkIdentFrom stx `this; `(let_fun $thisId : $type := $val; $thisId)
+  | `(show $type by%$b $tac) => `(show $type from by%$b $tac)
+  | _                        => Macro.throwUnsupported
 
 @[builtinMacro Lean.Parser.Term.have] def expandHave : Macro := fun stx =>
   let thisId := mkIdentFrom stx `this
   match stx with
   | `(have $x $bs* $[: $type]? := $val; $body)            => `(let_fun $x $bs* $[: $type]? := $val; $body)
-  | `(have $[: $type]? := $val; $body)                    => `(have $thisId:ident $[: $type]? := $val; $body)
-  | `(have $x $bs* $[: $type]? $alts:matchAlts; $body)    => `(let_fun $x $bs* $[: $type]? $alts:matchAlts; $body)
-  | `(have $[: $type]? $alts:matchAlts; $body)            => `(have $thisId:ident $[: $type]? $alts:matchAlts; $body)
+  | `(have $[: $type]? := $val; $body)                    => `(have $thisId $[: $type]? := $val; $body)
+  | `(have $x $bs* $[: $type]? $alts; $body)              => `(let_fun $x $bs* $[: $type]? $alts; $body)
+  | `(have $[: $type]? $alts:matchAlts; $body)            => `(have $thisId $[: $type]? $alts:matchAlts; $body)
   | `(have $pattern:term $[: $type]? := $val:term; $body) => `(let_fun $pattern:term $[: $type]? := $val:term ; $body)
-  | _                                                          => Macro.throwUnsupported
+  | _                                                     => Macro.throwUnsupported
 
 @[builtinMacro Lean.Parser.Term.suffices] def expandSuffices : Macro
   | `(suffices $[$x :]? $type from $val; $body)            => `(have $[$x]? : $type := $body; $val)
-  | `(suffices $[$x :]? $type by%$b $tac:tacticSeq; $body) => `(have $[$x]? : $type := $body; by%$b $tac:tacticSeq)
+  | `(suffices $[$x :]? $type by%$b $tac:tacticSeq; $body) => `(have $[$x]? : $type := $body; by%$b $tac)
   | _                                                           => Macro.throwUnsupported
 
 open Lean.Parser in
@@ -224,12 +224,12 @@ def elabCDotFunctionAlias? (stx : Term) : TermElabM (Option Expr) := do
   let some stx ← liftMacroM <| expandCDotArg? stx | pure none
   let stx ← liftMacroM <| expandMacros stx
   match stx with
-  | `(fun $binders* => $f:ident $args*) =>
+  | `(fun $binders* => $f $args*) =>
     if binders == args then
       try Term.resolveId? f catch _ => return none
     else
       return none
-  | `(fun $binders* => binop% $f:ident $a $b) =>
+  | `(fun $binders* => binop% $f $a $b) =>
     if binders == #[a, b] then
       try Term.resolveId? f catch _ => return none
     else

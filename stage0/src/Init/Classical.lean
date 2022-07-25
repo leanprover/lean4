@@ -129,14 +129,14 @@ theorem byContradiction {p : Prop} (h : ¬p → False) : p :=
 syntax "by_cases" (atomic(ident ":"))? term : tactic
 
 macro_rules
-  | `(tactic| by_cases $h:ident : $e:term) =>
+  | `(tactic| by_cases $h : $e) =>
     `(tactic|
-      cases em $e:term with
-      | inl $h:ident => _
-      | inr $h:ident => _)
-  | `(tactic| by_cases $e:term) =>
+      cases em $e with
+      | inl $h => _
+      | inr $h => _)
+  | `(tactic| by_cases $e) =>
     `(tactic|
-      cases em $e:term with
+      cases em $e with
       | inl h => _
       | inr h => _)
 

@@ -459,7 +459,7 @@ def mkFreshExprMVarAt
   mkFreshExprMVarAtCore (← mkFreshMVarId) lctx localInsts type kind userName numScopeArgs
 
 def mkFreshLevelMVar : MetaM Level := do
-  let mvarId ← mkFreshMVarId
+  let mvarId ← mkFreshLMVarId
   modifyMCtx fun mctx => mctx.addLevelMVarDecl mvarId;
   return mkLevelMVar mvarId
 
@@ -551,12 +551,12 @@ def isReadOnlyOrSyntheticOpaqueExprMVar (mvarId : MVarId) : MetaM Bool := do
   | MetavarKind.syntheticOpaque => return !(← getConfig).assignSyntheticOpaque
   | _ => return mvarDecl.depth != (← getMCtx).depth
 
-def getLevelMVarDepth (mvarId : MVarId) : MetaM Nat := do
+def getLevelMVarDepth (mvarId : LMVarId) : MetaM Nat := do
   match (← getMCtx).findLevelDepth? mvarId with
   | some depth => return depth
   | _          => throwError "unknown universe metavariable '?{mvarId.name}'"
 
-def isReadOnlyLevelMVar (mvarId : MVarId) : MetaM Bool := do
+def isReadOnlyLevelMVar (mvarId : LMVarId) : MetaM Bool := do
   if (← getConfig).ignoreLevelMVarDepth then
     return false
   else

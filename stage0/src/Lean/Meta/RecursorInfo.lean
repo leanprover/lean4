@@ -265,7 +265,7 @@ builtin_initialize recursorAttribute : ParametricAttribute Nat ←
   }
 
 def getMajorPos? (env : Environment) (declName : Name) : Option Nat :=
-  recursorAttribute.getParam env declName
+  recursorAttribute.getParam? env declName
 
 def mkRecursorInfo (declName : Name) (majorPos? : Option Nat := none) : MetaM RecursorInfo := do
   let cinfo ← getConstInfo declName

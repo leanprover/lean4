@@ -12,15 +12,36 @@ inductive InlineAttributeKind where
   | inline | noinline | macroInline | inlineIfReduce
   deriving Inhabited, BEq
 
+/--
+  This is an approximate test for testing whether `declName` can be annotated with the `[macroInline]` attribute or not.
+-/
+private def isValidMacroInline (declName : Name) : CoreM Bool := do
+  let .defnInfo info ← getConstInfo declName
+    | return false
+  unless info.all.length = 1 do
+    -- We do not allow `[macroInline]` attributes at mutual recursive definitions
+    return false
+  let env ← getEnv
+  let isRec (declName' : Name) : Bool :=
+    isBRecOnRecursor env declName' ||
+    declName' == ``WellFounded.fix ||
+    declName' == declName ++ `_unary -- Auxiliary declaration created by `WF` module
+  if Option.isSome <| info.value.find? fun e => e.isConst && isRec e.constName! then
+    -- It contains a `brecOn` or `WellFounded.fix` application. So, it should be recursvie
+    return false
+  return true
+
 builtin_initialize inlineAttrs : EnumAttributes InlineAttributeKind ←
   registerEnumAttributes `inlineAttrs
     [(`inline, "mark definition to always be inlined", InlineAttributeKind.inline),
      (`inlineIfReduce, "mark definition to be inlined when resultant term after reduction is not a `cases_on` application", InlineAttributeKind.inlineIfReduce),
      (`noinline, "mark definition to never be inlined", InlineAttributeKind.noinline),
      (`macroInline, "mark definition to always be inlined before ANF conversion", InlineAttributeKind.macroInline)]
-    (fun declName _ => do
-      let env ← getEnv
-      ofExcept <| checkIsDefinition env declName)
+    fun declName kind => do
+      ofExcept <| checkIsDefinition (← getEnv) declName
+      if kind matches .macroInline then
+        unless (← isValidMacroInline declName) do
+          throwError "invalid use of `[macro_inline]` attribute at `{declName}`, it is not supported in this kind of declaration, declaration must be a non-recursive definition"
 
 private partial def hasInlineAttrAux (env : Environment) (kind : InlineAttributeKind) (n : Name) : Bool :=
   /- We never inline auxiliary declarations created by eager lambda lifting -/

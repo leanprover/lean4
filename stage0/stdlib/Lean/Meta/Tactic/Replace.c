@@ -280,7 +280,6 @@ lean_object* x_42; lean_object* x_43;
 x_42 = lean_ctor_get(x_40, 0);
 lean_dec(x_42);
 x_43 = l_Lean_Expr_mvarId_x21(x_16);
-lean_dec(x_16);
 lean_ctor_set(x_40, 0, x_43);
 return x_40;
 }
@@ -291,7 +290,6 @@ x_44 = lean_ctor_get(x_40, 1);
 lean_inc(x_44);
 lean_dec(x_40);
 x_45 = l_Lean_Expr_mvarId_x21(x_16);
-lean_dec(x_16);
 x_46 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_46, 0, x_45);
 lean_ctor_set(x_46, 1, x_44);
@@ -593,7 +591,6 @@ lean_object* x_27; lean_object* x_28;
 x_27 = lean_ctor_get(x_25, 0);
 lean_dec(x_27);
 x_28 = l_Lean_Expr_mvarId_x21(x_20);
-lean_dec(x_20);
 lean_ctor_set(x_25, 0, x_28);
 return x_25;
 }
@@ -604,7 +601,6 @@ x_29 = lean_ctor_get(x_25, 1);
 lean_inc(x_29);
 lean_dec(x_25);
 x_30 = l_Lean_Expr_mvarId_x21(x_20);
-lean_dec(x_20);
 x_31 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_31, 0, x_30);
 lean_ctor_set(x_31, 1, x_29);
@@ -741,7 +737,6 @@ if (lean_is_exclusive(x_52)) {
  x_54 = lean_box(0);
 }
 x_55 = l_Lean_Expr_mvarId_x21(x_47);
-lean_dec(x_47);
 if (lean_is_scalar(x_54)) {
  x_56 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -2939,7 +2934,6 @@ lean_object* x_30; lean_object* x_31;
 x_30 = lean_ctor_get(x_28, 0);
 lean_dec(x_30);
 x_31 = l_Lean_Expr_mvarId_x21(x_26);
-lean_dec(x_26);
 lean_ctor_set(x_28, 0, x_31);
 return x_28;
 }
@@ -2950,7 +2944,6 @@ x_32 = lean_ctor_get(x_28, 1);
 lean_inc(x_32);
 lean_dec(x_28);
 x_33 = l_Lean_Expr_mvarId_x21(x_26);
-lean_dec(x_26);
 x_34 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_34, 0, x_33);
 lean_ctor_set(x_34, 1, x_32);
@@ -3009,7 +3002,6 @@ lean_object* x_55; lean_object* x_56;
 x_55 = lean_ctor_get(x_53, 0);
 lean_dec(x_55);
 x_56 = l_Lean_Expr_mvarId_x21(x_51);
-lean_dec(x_51);
 lean_ctor_set(x_53, 0, x_56);
 return x_53;
 }
@@ -3020,7 +3012,6 @@ x_57 = lean_ctor_get(x_53, 1);
 lean_inc(x_57);
 lean_dec(x_53);
 x_58 = l_Lean_Expr_mvarId_x21(x_51);
-lean_dec(x_51);
 x_59 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_59, 0, x_58);
 lean_ctor_set(x_59, 1, x_57);
@@ -3074,7 +3065,6 @@ if (lean_is_exclusive(x_75)) {
  x_77 = lean_box(0);
 }
 x_78 = l_Lean_Expr_mvarId_x21(x_73);
-lean_dec(x_73);
 if (lean_is_scalar(x_77)) {
  x_79 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -3144,7 +3134,6 @@ if (lean_is_exclusive(x_97)) {
  x_99 = lean_box(0);
 }
 x_100 = l_Lean_Expr_mvarId_x21(x_95);
-lean_dec(x_95);
 if (lean_is_scalar(x_99)) {
  x_101 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -3226,7 +3215,6 @@ if (lean_is_exclusive(x_119)) {
  x_121 = lean_box(0);
 }
 x_122 = l_Lean_Expr_mvarId_x21(x_117);
-lean_dec(x_117);
 if (lean_is_scalar(x_121)) {
  x_123 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -3306,7 +3294,6 @@ if (lean_is_exclusive(x_142)) {
  x_144 = lean_box(0);
 }
 x_145 = l_Lean_Expr_mvarId_x21(x_140);
-lean_dec(x_140);
 if (lean_is_scalar(x_144)) {
  x_146 = lean_alloc_ctor(0, 2, 0);
 } else {

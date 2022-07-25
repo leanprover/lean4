@@ -22,7 +22,7 @@ where
     | u               => u != lvl && lvl.occurs u
 
 /-- `mkMaxArgsDiff mvarId (max u_1 ... (mvar mvarId) ... u_n) v` => `max v u_1 ... u_n` -/
-private def mkMaxArgsDiff (mvarId : MVarId) : Level → Level → Level
+private def mkMaxArgsDiff (mvarId : LMVarId) : Level → Level → Level
   | Level.max u v,     acc => mkMaxArgsDiff mvarId v <| mkMaxArgsDiff mvarId u acc
   | l@(Level.mvar id), acc => if id != mvarId then mkLevelMax' acc l else acc
   | l,                   acc => mkLevelMax' acc l
@@ -30,7 +30,7 @@ private def mkMaxArgsDiff (mvarId : MVarId) : Level → Level → Level
 /--
   Solve `?m =?= max ?m v` by creating a fresh metavariable `?n`
   and assigning `?m := max ?n v` -/
-private def solveSelfMax (mvarId : MVarId) (v : Level) : MetaM Unit := do
+private def solveSelfMax (mvarId : LMVarId) (v : Level) : MetaM Unit := do
   assert! v.isMax
   let n ← mkFreshLevelMVar
   assignLevelMVar mvarId <| mkMaxArgsDiff mvarId v n
@@ -41,7 +41,7 @@ private def postponeIsLevelDefEq (lhs : Level) (rhs : Level) : MetaM Unit := do
   trace[Meta.isLevelDefEq.stuck] "{lhs} =?= {rhs}"
   modifyPostponed fun postponed => postponed.push { lhs := lhs, rhs := rhs, ref := ref, ctx? := ctx.defEqCtx? }
 
-private def isMVarWithGreaterDepth (v : Level) (mvarId : MVarId) : MetaM Bool :=
+private def isMVarWithGreaterDepth (v : Level) (mvarId : LMVarId) : MetaM Bool :=
   match v with
   | Level.mvar mvarId' => return (← getLevelMVarDepth mvarId') > (← getLevelMVarDepth mvarId)
   | _ => return false

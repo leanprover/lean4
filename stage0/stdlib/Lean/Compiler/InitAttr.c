@@ -77,6 +77,7 @@ LEAN_EXPORT lean_object* l_Lean_resolveGlobalConstCore___at_Lean_registerInitAtt
 LEAN_EXPORT lean_object* l_IO_ofExcept___at_Lean_registerInitAttrUnsafe___spec__12___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_get_init_fn_name_for(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_toString(lean_object*, lean_object*);
+lean_object* l_Lean_ParametricAttribute_getParam_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_isIOUnitInitFnCore(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_setEnv___at_Lean_declareBuiltin___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__3;
@@ -136,7 +137,6 @@ lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_addAndCompile(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 static lean_object* l_Lean_declareBuiltin___closed__7;
-lean_object* l_Lean_ParametricAttribute_getParam___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_regularInitAttr;
 LEAN_EXPORT uint8_t l_Lean_isIOUnitInitFn(lean_object*, lean_object*);
 static lean_object* l_Lean_resolveGlobalConst___at_Lean_registerInitAttrUnsafe___spec__5___closed__2;
@@ -2436,7 +2436,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = l_Lean_instInhabitedName;
-x_5 = l_Lean_ParametricAttribute_getParam___rarg(x_4, x_2, x_1, x_3);
+x_5 = l_Lean_ParametricAttribute_getParam_x3f___rarg(x_4, x_2, x_1, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; 
@@ -2563,7 +2563,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = l_Lean_instInhabitedName;
-x_5 = l_Lean_ParametricAttribute_getParam___rarg(x_4, x_2, x_1, x_3);
+x_5 = l_Lean_ParametricAttribute_getParam_x3f___rarg(x_4, x_2, x_1, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 uint8_t x_6; 

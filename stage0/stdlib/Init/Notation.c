@@ -17,6 +17,7 @@ LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__Bind__bind__1(le
 static lean_object* l_precMax___closed__5;
 static lean_object* l_stx___x3c_x7c_x3e_____closed__4;
 static lean_object* l_term___u2218_____closed__3;
+LEAN_EXPORT lean_object* l_Lean_deprecated;
 static lean_object* l_precMin1___closed__1;
 static lean_object* l_term___x3c_x3c_x3c_____closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__termIfLet___x3a_x3d__Then__Else____1___closed__10;
@@ -86,6 +87,7 @@ static lean_object* l___aux__Init__Notation______macroRules__stx___x2c_x2b__1___
 static lean_object* l_stx___x3c_x7c_x3e_____closed__2;
 static lean_object* l_term___xd7_____closed__5;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__Bind__bind__1___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_deprecated___closed__2;
 static lean_object* l_Lean_termThis___closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3e____1___closed__1;
 static lean_object* l___aux__Init__Notation______macroRules__term___x2a____1___closed__3;
@@ -128,6 +130,7 @@ static lean_object* l_term___x3e_x3d_____closed__2;
 LEAN_EXPORT lean_object* l_Lean_instCoeSyntaxNodeKindSyntaxNodeKinds(lean_object*);
 LEAN_EXPORT lean_object* l_term___x3e_x3e_x3d__;
 static lean_object* l___aux__Init__Notation______macroRules__term___x2b_x2b____1___closed__1;
+static lean_object* l_Lean_deprecated___closed__1;
 static lean_object* l_term___x7c_x7c_x7c_____closed__1;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___x2a____1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_prio_x28___x29___closed__6;
@@ -270,6 +273,7 @@ static lean_object* l___aux__Init__Notation______macroRules__term___x5e____1___c
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___x5e_x5e_x5e____2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__Function__comp__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___x24_______closed__3;
+static lean_object* l_Lean_deprecated___closed__6;
 static lean_object* l_term___x5e_x5e_x5e_____closed__6;
 static lean_object* l_term___x3c_x24_x3e_____closed__1;
 static lean_object* l___aux__Init__Notation______macroRules__stx___x2c_x2a__1___closed__1;
@@ -1077,6 +1081,7 @@ static lean_object* l___aux__Init__Notation______macroRules__term___x5e_x5e_x5e_
 static lean_object* l_term___u2209_____closed__4;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c____1___closed__3;
 static lean_object* l_stx___x2b___closed__3;
+static lean_object* l_Lean_deprecated___closed__5;
 static lean_object* l_term___x2b_____closed__5;
 static lean_object* l_boolIfThenElse___closed__11;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3e_x3e_x3e____1___closed__8;
@@ -1125,6 +1130,7 @@ static lean_object* l___aux__Init__Notation______macroRules__stx_x21____1___clos
 static lean_object* l_term___x3c_x2a_x3e_____closed__1;
 static lean_object* l_term___u2218_____closed__1;
 LEAN_EXPORT lean_object* l_term___x7c_x3e__;
+static lean_object* l_Lean_deprecated___closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__term___u2208____1___closed__9;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3e_x3d____1___closed__4;
 static lean_object* l_precArg___closed__2;
@@ -1251,6 +1257,7 @@ static lean_object* l_stx___x2c_x2b_x2c_x3f___closed__2;
 static lean_object* l_term___x7c_x3e_____closed__4;
 static lean_object* l___aux__Init__Notation______macroRules__term_x2d____1___closed__3;
 static lean_object* l_term___x5e_x5e_x5e_____closed__4;
+static lean_object* l_Lean_deprecated___closed__4;
 static lean_object* l_Lean_Parser_Syntax_subPrec___closed__2;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term_x7e_x7e_x7e____1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term_x5b___x5d___closed__2;
@@ -1294,6 +1301,7 @@ static lean_object* l_term___x3d_____closed__3;
 static lean_object* l_Lean_rawStx_quot___closed__12;
 static lean_object* l_term___x7c_x3e_____closed__6;
 static lean_object* l_term___x3c_x7c_____closed__4;
+static lean_object* l_Lean_deprecated___closed__7;
 static lean_object* l_term_x7b___x3a___x2f_x2f___x7d___closed__14;
 static lean_object* l___aux__Init__Notation______macroRules__term___u2218____1___closed__10;
 static lean_object* l_termDepIfThenElse___closed__5;
@@ -30942,6 +30950,92 @@ lean_dec(x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Lean_deprecated___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("deprecated", 10);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_deprecated___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Syntax_addPrec___closed__2;
+x_2 = l_Lean_deprecated___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_deprecated___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("deprecated ", 11);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_deprecated___closed__4() {
+_start:
+{
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
+x_1 = l_Lean_deprecated___closed__3;
+x_2 = 0;
+x_3 = lean_alloc_ctor(6, 1, 1);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_deprecated___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___aux__Init__Notation______macroRules__stx___x3f__1___closed__4;
+x_2 = l_termDepIfThenElse___closed__11;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_deprecated___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Syntax_addPrec___closed__10;
+x_2 = l_Lean_deprecated___closed__4;
+x_3 = l_Lean_deprecated___closed__5;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_deprecated___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_deprecated___closed__2;
+x_2 = lean_unsigned_to_nat(1022u);
+x_3 = l_Lean_deprecated___closed__6;
+x_4 = lean_alloc_ctor(3, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_deprecated() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_deprecated___closed__7;
+return x_1;
+}
+}
 lean_object* initialize_Init_Prelude(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Coe(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -33261,6 +33355,22 @@ l_Lean_rawStx_quot___closed__12 = _init_l_Lean_rawStx_quot___closed__12();
 lean_mark_persistent(l_Lean_rawStx_quot___closed__12);
 l_Lean_rawStx_quot = _init_l_Lean_rawStx_quot();
 lean_mark_persistent(l_Lean_rawStx_quot);
+l_Lean_deprecated___closed__1 = _init_l_Lean_deprecated___closed__1();
+lean_mark_persistent(l_Lean_deprecated___closed__1);
+l_Lean_deprecated___closed__2 = _init_l_Lean_deprecated___closed__2();
+lean_mark_persistent(l_Lean_deprecated___closed__2);
+l_Lean_deprecated___closed__3 = _init_l_Lean_deprecated___closed__3();
+lean_mark_persistent(l_Lean_deprecated___closed__3);
+l_Lean_deprecated___closed__4 = _init_l_Lean_deprecated___closed__4();
+lean_mark_persistent(l_Lean_deprecated___closed__4);
+l_Lean_deprecated___closed__5 = _init_l_Lean_deprecated___closed__5();
+lean_mark_persistent(l_Lean_deprecated___closed__5);
+l_Lean_deprecated___closed__6 = _init_l_Lean_deprecated___closed__6();
+lean_mark_persistent(l_Lean_deprecated___closed__6);
+l_Lean_deprecated___closed__7 = _init_l_Lean_deprecated___closed__7();
+lean_mark_persistent(l_Lean_deprecated___closed__7);
+l_Lean_deprecated = _init_l_Lean_deprecated();
+lean_mark_persistent(l_Lean_deprecated);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

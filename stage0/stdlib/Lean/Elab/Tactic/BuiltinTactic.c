@@ -23724,6 +23724,7 @@ lean_inc(x_20);
 x_21 = lean_ctor_get(x_19, 1);
 lean_inc(x_21);
 lean_dec(x_19);
+lean_inc(x_20);
 x_22 = l_Lean_Expr_mvarId_x21(x_20);
 x_23 = lean_array_get_size(x_5);
 x_24 = lean_usize_of_nat(x_23);

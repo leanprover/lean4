@@ -6,12 +6,8 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 import Lean.Data.Trie
 import Lean.Data.Position
 import Lean.Syntax
-import Lean.ToExpr
 import Lean.Environment
-import Lean.Attributes
 import Lean.Message
-import Lean.Compiler.InitAttr
-import Lean.ResolveName
 
 /-!
 # Basic Lean parser infrastructure
@@ -134,9 +130,6 @@ structure ParserContext extends InputContext, ParserModuleContext where
   suppressInsideQuot : Bool := false
   savedPos?          : Option String.Pos := none
   forbiddenTk?       : Option Token := none
-
-def ParserContext.resolveName (ctx : ParserContext) (id : Name) : List (Name × List String) :=
-  ResolveName.resolveGlobalName ctx.env ctx.currNamespace ctx.openDecls id
 
 structure Error where
   unexpected : String := ""

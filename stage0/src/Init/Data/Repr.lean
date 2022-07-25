@@ -64,15 +64,19 @@ instance [Repr α] : Repr (ULift.{v} α) where
 instance : Repr Unit where
   reprPrec _ _ := "()"
 
+protected def Option.repr [Repr α] : Option α → Nat → Format
+  | none,    _   => "none"
+  | some a, prec => Repr.addAppParen ("some " ++ reprArg a) prec
+
 instance [Repr α] : Repr (Option α) where
-  reprPrec
-    | none,    _   => "none"
-    | some a, prec => Repr.addAppParen ("some " ++ reprArg a) prec
+  reprPrec := Option.repr
+
+protected def Sum.repr [Repr α] [Repr β] : Sum α β → Nat → Format
+  | Sum.inl a, prec => Repr.addAppParen ("Sum.inl " ++ reprArg a) prec
+  | Sum.inr b, prec => Repr.addAppParen ("Sum.inr " ++ reprArg b) prec
 
 instance [Repr α] [Repr β] : Repr (Sum α β) where
-  reprPrec
-    | Sum.inl a, prec => Repr.addAppParen ("Sum.inl " ++ reprArg a) prec
-    | Sum.inr b, prec => Repr.addAppParen ("Sum.inr " ++ reprArg b) prec
+  reprPrec := Sum.repr
 
 class ReprTuple (α : Type u) where
   reprTuple : α → List Format → List Format
@@ -85,8 +89,11 @@ instance [Repr α] : ReprTuple α where
 instance [Repr α] [ReprTuple β] : ReprTuple (α × β) where
   reprTuple | (a, b), xs => reprTuple b (repr a :: xs)
 
+protected def Prod.repr [Repr α] [ReprTuple β] : α × β → Nat → Format
+  | (a, b), _ => Format.bracket "(" (Format.joinSep (reprTuple b [repr a]).reverse ("," ++ Format.line)) ")"
+
 instance [Repr α] [ReprTuple β] : Repr (α × β) where
-  reprPrec | (a, b), _ => Format.bracket "(" (Format.joinSep (reprTuple b [repr a]).reverse ("," ++ Format.line)) ")"
+  reprPrec := Prod.repr
 
 instance {β : α → Type v} [Repr α] [(x : α) → Repr (β x)] : Repr (Sigma β) where
   reprPrec | ⟨a, b⟩, _ => Format.bracket "⟨" (repr a ++ ", " ++ repr b) "⟩"
@@ -227,19 +234,23 @@ instance : Repr UInt64 where
 instance : Repr USize where
   reprPrec n _ := repr n.toNat
 
+protected def List.repr [Repr α] (a : List α) (n : Nat) : Format :=
+  let _ : ToFormat α := ⟨repr⟩
+  match a, n with
+  | [], _ => "[]"
+  | as, _ => Format.bracket "[" (Format.joinSep as ("," ++ Format.line)) "]"
+
 instance [Repr α] : Repr (List α) where
-  reprPrec a n :=
-    let _ : ToFormat α := ⟨repr⟩
-    match a, n with
-    | [], _ => "[]"
-    | as, _ => Format.bracket "[" (Format.joinSep as ("," ++ Format.line)) "]"
+  reprPrec := List.repr
+
+protected def List.repr' [Repr α] [ReprAtom α] (a : List α) (n : Nat) : Format :=
+  let _ : ToFormat α := ⟨repr⟩
+  match a, n with
+  | [], _ => "[]"
+  | as, _ => Format.bracketFill "[" (Format.joinSep as ("," ++ Format.line)) "]"
 
 instance [Repr α] [ReprAtom α] : Repr (List α) where
-  reprPrec a n :=
-    let _ : ToFormat α := ⟨repr⟩
-    match a, n with
-    | [], _ => "[]"
-    | as, _ => Format.bracketFill "[" (Format.joinSep as ("," ++ Format.line)) "]"
+  reprPrec := List.repr'
 
 instance : ReprAtom Bool   := ⟨⟩
 instance : ReprAtom Nat    := ⟨⟩

@@ -1357,7 +1357,6 @@ if (x_34 == 0)
 lean_object* x_35; lean_object* x_36; lean_object* x_37; 
 x_35 = lean_ctor_get(x_27, 0);
 x_36 = l_Lean_Expr_mvarId_x21(x_35);
-lean_dec(x_35);
 x_37 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_37, 0, x_36);
 lean_ctor_set(x_37, 1, x_22);
@@ -1371,7 +1370,6 @@ x_38 = lean_ctor_get(x_27, 0);
 lean_inc(x_38);
 lean_dec(x_27);
 x_39 = l_Lean_Expr_mvarId_x21(x_38);
-lean_dec(x_38);
 x_40 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_40, 0, x_39);
 lean_ctor_set(x_40, 1, x_22);
@@ -1397,7 +1395,6 @@ if (lean_is_exclusive(x_27)) {
  x_44 = lean_box(0);
 }
 x_45 = l_Lean_Expr_mvarId_x21(x_43);
-lean_dec(x_43);
 x_46 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_46, 0, x_45);
 lean_ctor_set(x_46, 1, x_22);

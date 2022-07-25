@@ -186,6 +186,7 @@ uint8_t l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_beqRange____x40_Lean_Data_Ls
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Lsp_instToJsonRefInfo___spec__1(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Server_dedupReferences___closed__4;
 LEAN_EXPORT uint8_t l_Lean_Lsp_RefInfo_contains___lambda__1(lean_object*);
+static lean_object* l_Lean_Server_instInhabitedReference___closed__22;
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Server_References_referringTo___spec__5___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMapImp_moveEntries___at_Lean_Server_dedupReferences___spec__7(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_dedupReferences___closed__8;
@@ -578,25 +579,38 @@ return x_3;
 static lean_object* _init_l_Lean_Server_instInhabitedReference___closed__15() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_Server_instInhabitedReference___closed__14;
-x_3 = l_Lean_Server_instInhabitedReference___closed__7;
-x_4 = 0;
-x_5 = lean_alloc_ctor(0, 8, 1);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_1);
-lean_ctor_set(x_5, 2, x_2);
-lean_ctor_set(x_5, 3, x_2);
-lean_ctor_set(x_5, 4, x_3);
-lean_ctor_set(x_5, 5, x_2);
-lean_ctor_set(x_5, 6, x_2);
-lean_ctor_set(x_5, 7, x_2);
-lean_ctor_set_uint8(x_5, sizeof(void*)*8, x_4);
-return x_5;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Server_instInhabitedReference___closed__6;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Server_instInhabitedReference___closed__16() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = l_Lean_Server_instInhabitedReference___closed__14;
+x_3 = l_Lean_Server_instInhabitedReference___closed__15;
+x_4 = l_Lean_Server_instInhabitedReference___closed__7;
+x_5 = 0;
+x_6 = lean_alloc_ctor(0, 8, 1);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_1);
+lean_ctor_set(x_6, 2, x_2);
+lean_ctor_set(x_6, 3, x_3);
+lean_ctor_set(x_6, 4, x_4);
+lean_ctor_set(x_6, 5, x_2);
+lean_ctor_set(x_6, 6, x_3);
+lean_ctor_set(x_6, 7, x_3);
+lean_ctor_set_uint8(x_6, sizeof(void*)*8, x_5);
+return x_6;
+}
+}
+static lean_object* _init_l_Lean_Server_instInhabitedReference___closed__17() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -608,16 +622,16 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Server_instInhabitedReference___closed__17() {
+static lean_object* _init_l_Lean_Server_instInhabitedReference___closed__18() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Server_instInhabitedReference___closed__11;
 x_3 = l_Lean_Server_instInhabitedReference___closed__13;
-x_4 = l_Lean_Server_instInhabitedReference___closed__15;
+x_4 = l_Lean_Server_instInhabitedReference___closed__16;
 x_5 = lean_box(0);
-x_6 = l_Lean_Server_instInhabitedReference___closed__16;
+x_6 = l_Lean_Server_instInhabitedReference___closed__17;
 x_7 = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(x_7, 0, x_2);
 lean_ctor_set(x_7, 1, x_3);
@@ -629,7 +643,7 @@ lean_ctor_set(x_7, 6, x_6);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Server_instInhabitedReference___closed__18() {
+static lean_object* _init_l_Lean_Server_instInhabitedReference___closed__19() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -641,13 +655,13 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Server_instInhabitedReference___closed__19() {
+static lean_object* _init_l_Lean_Server_instInhabitedReference___closed__20() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Server_instInhabitedReference___closed__18;
-x_3 = l_Lean_Server_instInhabitedReference___closed__15;
+x_2 = l_Lean_Server_instInhabitedReference___closed__19;
+x_3 = l_Lean_Server_instInhabitedReference___closed__16;
 x_4 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_4, 0, x_2);
 lean_ctor_set(x_4, 1, x_3);
@@ -657,17 +671,17 @@ lean_ctor_set(x_4, 4, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Server_instInhabitedReference___closed__20() {
+static lean_object* _init_l_Lean_Server_instInhabitedReference___closed__21() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Server_instInhabitedReference___closed__19;
+x_1 = l_Lean_Server_instInhabitedReference___closed__20;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Server_instInhabitedReference___closed__21() {
+static lean_object* _init_l_Lean_Server_instInhabitedReference___closed__22() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
@@ -675,8 +689,8 @@ x_1 = l_Lean_Server_instInhabitedReference___closed__1;
 x_2 = l_Lean_Server_Reference_aliases___default___closed__1;
 x_3 = l_Lean_Server_instInhabitedReference___closed__3;
 x_4 = lean_box(0);
-x_5 = l_Lean_Server_instInhabitedReference___closed__17;
-x_6 = l_Lean_Server_instInhabitedReference___closed__20;
+x_5 = l_Lean_Server_instInhabitedReference___closed__18;
+x_6 = l_Lean_Server_instInhabitedReference___closed__21;
 x_7 = 0;
 x_8 = lean_alloc_ctor(0, 6, 1);
 lean_ctor_set(x_8, 0, x_1);
@@ -693,7 +707,7 @@ static lean_object* _init_l_Lean_Server_instInhabitedReference() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Server_instInhabitedReference___closed__21;
+x_1 = l_Lean_Server_instInhabitedReference___closed__22;
 return x_1;
 }
 }
@@ -11763,6 +11777,8 @@ l_Lean_Server_instInhabitedReference___closed__20 = _init_l_Lean_Server_instInha
 lean_mark_persistent(l_Lean_Server_instInhabitedReference___closed__20);
 l_Lean_Server_instInhabitedReference___closed__21 = _init_l_Lean_Server_instInhabitedReference___closed__21();
 lean_mark_persistent(l_Lean_Server_instInhabitedReference___closed__21);
+l_Lean_Server_instInhabitedReference___closed__22 = _init_l_Lean_Server_instInhabitedReference___closed__22();
+lean_mark_persistent(l_Lean_Server_instInhabitedReference___closed__22);
 l_Lean_Server_instInhabitedReference = _init_l_Lean_Server_instInhabitedReference();
 lean_mark_persistent(l_Lean_Server_instInhabitedReference);
 l_Lean_Server_RefInfo_empty___closed__1 = _init_l_Lean_Server_RefInfo_empty___closed__1();

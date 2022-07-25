@@ -128,7 +128,7 @@ inductive ResolveSimpIdResult where
 /--
   Elaborate extra simp theorems provided to `simp`. `stx` is of the form `"[" simpTheorem,* "]"`
   If `eraseLocal == true`, then we consider local declarations when resolving names for erased theorems (`- id`),
-  this option only makes sense for `simp_all`.
+  this option only makes sense for `simp_all` or `*` is used.
 -/
 def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Bool) (kind : SimpKind) : TacticM ElabSimpArgsResult := do
   if stx.isNone then
@@ -147,7 +147,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Bool) (kind :
       let mut starArg   := false
       for arg in stx[1].getSepArgs do
         if arg.getKind == ``Lean.Parser.Tactic.simpErase then
-          if eraseLocal && (← Term.isLocalIdent? arg[1]).isSome then
+          if (eraseLocal || starArg) && (← Term.isLocalIdent? arg[1]).isSome then
             -- We use `eraseCore` because the simp theorem for the hypothesis was not added yet
             thms := thms.eraseCore arg[1].getId
           else

@@ -228,6 +228,7 @@ LEAN_EXPORT lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_Linter_unus
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_67____closed__2;
 static lean_object* l_Lean_Linter_unusedVariables_isInCtorOrStructBinder___rarg___closed__9;
 LEAN_EXPORT lean_object* l_Lean_ForEachExpr_visit___at_Lean_Linter_unusedVariables___spec__19___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint64_t l___private_Lean_Expr_0__Lean_hashMVarId____x40_Lean_Expr___hyg_2054_(lean_object*);
 lean_object* l_Lean_Linter_findSyntaxStack_x3f(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Linter_unusedVariables_isInDefWithForeignDefinition___rarg___lambda__3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Linter_unusedVariables_isVariable___rarg(lean_object*);
@@ -245,7 +246,6 @@ LEAN_EXPORT lean_object* l_Lean_Linter_getLinterUnusedVariables___boxed(lean_obj
 LEAN_EXPORT uint8_t l_Lean_Linter_unusedVariables_isInOpaqueOrAxiom___rarg(lean_object*);
 size_t lean_usize_modn(size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_linter_unusedVariables;
-uint64_t l___private_Lean_Level_0__Lean_hashMVarId____x40_Lean_Level___hyg_478_(lean_object*);
 LEAN_EXPORT uint8_t l_Std_HashMapImp_contains___at_Lean_Linter_unusedVariables___spec__15(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSetImp_moveEntries___at_Lean_Linter_unusedVariables___spec__5(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_insert___at_Lean_Linter_unusedVariables___spec__8(lean_object*, lean_object*, lean_object*);
@@ -4131,7 +4131,7 @@ _start:
 lean_object* x_3; lean_object* x_4; uint64_t x_5; size_t x_6; size_t x_7; lean_object* x_8; uint8_t x_9; 
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_array_get_size(x_3);
-x_5 = l___private_Lean_Level_0__Lean_hashMVarId____x40_Lean_Level___hyg_478_(x_2);
+x_5 = l___private_Lean_Expr_0__Lean_hashMVarId____x40_Lean_Expr___hyg_2054_(x_2);
 x_6 = lean_uint64_to_usize(x_5);
 x_7 = lean_usize_modn(x_6, x_4);
 lean_dec(x_4);

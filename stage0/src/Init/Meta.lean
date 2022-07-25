@@ -1253,7 +1253,7 @@ end Meta
 namespace Parser.Tactic
 
 macro "erw " s:rwRuleSeq loc:(location)? : tactic =>
-  `(rw (config := { transparency := Lean.Meta.TransparencyMode.default }) $s:rwRuleSeq $[$loc:location]?)
+  `(rw (config := { transparency := Lean.Meta.TransparencyMode.default }) $s $(loc)?)
 
 syntax simpAllKind := atomic("(" &"all") " := " &"true" ")"
 syntax dsimpKind   := atomic("(" &"dsimp") " := " &"true" ")"
@@ -1261,18 +1261,18 @@ syntax dsimpKind   := atomic("(" &"dsimp") " := " &"true" ")"
 macro "declare_simp_like_tactic" opt:((simpAllKind <|> dsimpKind)?) tacName:ident tacToken:str updateCfg:term : command => do
   let (kind, tkn, stx) ←
     if opt.raw.isNone then
-      pure (← `(``simp), ← `("simp "), ← `(syntax (name := $tacName:ident) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic))
+      pure (← `(``simp), ← `("simp "), ← `(syntax (name := $tacName) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic))
     else if opt.raw[0].getKind == ``simpAllKind then
-      pure (← `(``simpAll), ← `("simp_all "), ← `(syntax (name := $tacName:ident) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic))
+      pure (← `(``simpAll), ← `("simp_all "), ← `(syntax (name := $tacName) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic))
     else
-      pure (← `(``dsimp), ← `("dsimp "), ← `(syntax (name := $tacName:ident) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? (location)? : tactic))
+      pure (← `(``dsimp), ← `("dsimp "), ← `(syntax (name := $tacName) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? (location)? : tactic))
   `($stx:command
-    @[macro $tacName:ident] def expandSimp : Macro := fun s => do
+    @[macro $tacName] def expandSimp : Macro := fun s => do
       let c ← match s[1][0] with
-        | `(config| (config := $$c:term)) => `(config| (config := $updateCfg:term $$c))
-        | _ => `(config| (config := $updateCfg:term {}))
-      let s := s.setKind $kind:term
-      let s := s.setArg 0 (mkAtomFrom s[0] $tkn:term)
+        | `(config| (config := $$c)) => `(config| (config := $updateCfg $$c))
+        | _ => `(config| (config := $updateCfg {}))
+      let s := s.setKind $kind
+      let s := s.setArg 0 (mkAtomFrom s[0] $tkn)
       let r := s.setArg 1 (mkNullNode #[c])
       return r)
 

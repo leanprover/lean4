@@ -4635,6 +4635,7 @@ lean_inc(x_17);
 x_18 = lean_ctor_get(x_16, 1);
 lean_inc(x_18);
 lean_dec(x_16);
+lean_inc(x_17);
 x_19 = l_Lean_Meta_isSyntheticMVar(x_17, x_11, x_12, x_13, x_14, x_18);
 if (lean_obj_tag(x_19) == 0)
 {
@@ -4740,7 +4741,6 @@ _start:
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_15 = l_Lean_Expr_appArg_x21(x_3);
 x_16 = l_Lean_Expr_mvarId_x21(x_15);
-lean_dec(x_15);
 lean_inc(x_16);
 x_17 = lean_alloc_closure((void*)(l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizePendingCoeInstMVar___lambda__4), 15, 8);
 lean_closure_set(x_17, 0, x_5);
@@ -6544,7 +6544,6 @@ if (x_30 == 0)
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
 x_31 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_22);
 x_32 = l_Lean_Expr_mvarId_x21(x_31);
-lean_dec(x_31);
 x_33 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_33, 0, x_32);
 lean_ctor_set(x_33, 1, x_8);
@@ -6560,7 +6559,6 @@ else
 lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
 x_36 = lean_array_fget(x_1, x_5);
 x_37 = l_Lean_Expr_mvarId_x21(x_36);
-lean_dec(x_36);
 x_38 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_38, 0, x_37);
 lean_ctor_set(x_38, 1, x_8);
@@ -6602,7 +6600,6 @@ lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean
 x_49 = l_Std_Range_forIn_loop___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizeUsingDefaultPrio_synthesizeUsingDefaultInstance___spec__1___closed__4;
 x_50 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_49);
 x_51 = l_Lean_Expr_mvarId_x21(x_50);
-lean_dec(x_50);
 x_52 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_52, 0, x_51);
 lean_ctor_set(x_52, 1, x_8);
@@ -6618,7 +6615,6 @@ else
 lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; 
 x_55 = lean_array_fget(x_1, x_5);
 x_56 = l_Lean_Expr_mvarId_x21(x_55);
-lean_dec(x_55);
 x_57 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_57, 0, x_56);
 lean_ctor_set(x_57, 1, x_8);
@@ -9686,7 +9682,6 @@ lean_dec(x_23);
 x_36 = l_Lean_Expr_appArg_x21(x_31);
 lean_dec(x_31);
 x_37 = l_Lean_Expr_mvarId_x21(x_36);
-lean_dec(x_36);
 lean_inc(x_37);
 x_38 = lean_alloc_closure((void*)(l_Lean_Elab_Term_reportStuckSyntheticMVar___lambda__2), 13, 6);
 lean_closure_set(x_38, 0, x_37);
@@ -9800,7 +9795,6 @@ lean_dec(x_23);
 x_64 = l_Lean_Expr_appArg_x21(x_59);
 lean_dec(x_59);
 x_65 = l_Lean_Expr_mvarId_x21(x_64);
-lean_dec(x_64);
 lean_inc(x_65);
 x_66 = lean_alloc_closure((void*)(l_Lean_Elab_Term_reportStuckSyntheticMVar___lambda__2), 13, 6);
 lean_closure_set(x_66, 0, x_65);
@@ -9946,7 +9940,6 @@ lean_dec(x_73);
 x_98 = l_Lean_Expr_appArg_x21(x_93);
 lean_dec(x_93);
 x_99 = l_Lean_Expr_mvarId_x21(x_98);
-lean_dec(x_98);
 lean_inc(x_99);
 x_100 = lean_alloc_closure((void*)(l_Lean_Elab_Term_reportStuckSyntheticMVar___lambda__2), 13, 6);
 lean_closure_set(x_100, 0, x_99);

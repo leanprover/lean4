@@ -618,6 +618,7 @@ lean_inc(x_69);
 x_70 = lean_ctor_get(x_68, 1);
 lean_inc(x_70);
 lean_dec(x_68);
+lean_inc(x_65);
 x_71 = l_Lean_Expr_mvarId_x21(x_65);
 x_72 = lean_array_push(x_50, x_69);
 x_73 = lean_box(0);

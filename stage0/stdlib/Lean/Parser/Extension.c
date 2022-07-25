@@ -239,7 +239,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_ParserExtension_instInhabitedState;
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_insertAux___at___private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore___spec__5(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_mkRawNatLit(lean_object*);
 LEAN_EXPORT lean_object* l_List_forM___at___private_Lean_Parser_Extension_0__Lean_Parser_ParserAttribute_add___spec__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Parser_ParserContext_resolveName(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Parser_ParserContext_resolveName(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_mkParserOfConstantUnsafe(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerAttributeOfBuilder(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_registerAlias___closed__2;
@@ -387,6 +387,7 @@ static lean_object* l_Lean_Parser_registerAliasCore___rarg___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_ParserAttribute_add___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_registerAliasCore___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_getTokenTable(lean_object*);
+lean_object* l_Lean_ResolveName_resolveGlobalName(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_mkCategoryAntiquotParserFn(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_getParserPriority___closed__2;
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3641____closed__1;
@@ -13576,6 +13577,24 @@ lean_ctor_set(x_8, 0, x_5);
 lean_ctor_set(x_8, 1, x_7);
 return x_8;
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Parser_ParserContext_resolveName(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_3 = lean_ctor_get(x_1, 1);
+lean_inc(x_3);
+lean_dec(x_1);
+x_4 = lean_ctor_get(x_3, 0);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_3, 2);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_3, 3);
+lean_inc(x_6);
+lean_dec(x_3);
+x_7 = l_Lean_ResolveName_resolveGlobalName(x_4, x_5, x_6, x_2);
+return x_7;
 }
 }
 static lean_object* _init_l_Lean_Parser_parserOfStackFn___lambda__1___closed__1() {

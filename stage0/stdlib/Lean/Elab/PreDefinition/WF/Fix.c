@@ -606,6 +606,7 @@ lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
 lean_dec(x_11);
+lean_inc(x_12);
 x_14 = l_Lean_Expr_mvarId_x21(x_12);
 lean_inc(x_8);
 lean_inc(x_7);

@@ -39,7 +39,7 @@ uint8_t l_Lean_Expr_hasMVar(lean_object*);
 uint8_t l_Std_RBNode_isRed___rarg(lean_object*);
 static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__4;
 LEAN_EXPORT lean_object* l_Std_RBNode_find___at_Lean_Meta_MVarRenaming_find_x3f___spec__1___boxed(lean_object*, lean_object*);
-lean_object* l_panic___at_Lean_Level_mvarId_x21___spec__1(lean_object*);
+lean_object* l_panic___at_Lean_Expr_mvarId_x21___spec__1(lean_object*);
 static lean_object* _init_l_Lean_Meta_MVarRenaming_map___default() {
 _start:
 {
@@ -189,7 +189,7 @@ if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = l_Lean_Meta_MVarRenaming_find_x21___closed__4;
-x_5 = l_panic___at_Lean_Level_mvarId_x21___spec__1(x_4);
+x_5 = l_panic___at_Lean_Expr_mvarId_x21___spec__1(x_4);
 return x_5;
 }
 else

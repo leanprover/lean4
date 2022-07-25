@@ -122,7 +122,7 @@ private partial def extractBind (expectedType? : Option Expr) : TermElabM Extrac
           | none => return none
   match (← extract? expectedType) with
   | some r => return r
-  | none   => throwError "invalid 'do' notation, expected type is not a monad application{indentExpr expectedType}\nYou can use the `do` notation in pure code by writing `Id.run do` instead of `do`, where `Id` is the identity monad."
+  | none   => throwError "invalid `do` notation, expected type is not a monad application{indentExpr expectedType}\nYou can use the `do` notation in pure code by writing `Id.run do` instead of `do`, where `Id` is the identity monad."
 
 namespace Do
 
@@ -558,7 +558,7 @@ def mkMatch (ref : Syntax) (genParam : Syntax) (discrs : Syntax) (optMotive : Sy
    This method assumes `terminal` is a terminal -/
 def concat (terminal : CodeBlock) (kRef : Syntax) (y? : Option Var) (k : CodeBlock) : TermElabM CodeBlock := do
   unless hasTerminalAction terminal.code do
-    throwErrorAt kRef "'do' element is unreachable"
+    throwErrorAt kRef "`do` element is unreachable"
   let (terminal, k) ← homogenize terminal k
   let xs := varSetToArray k.uvars
   let y ← match y? with | some y => pure y | none => `(y)
@@ -652,7 +652,7 @@ def getDoLetArrowVars (doLetArrow : Syntax) : TermElabM (Array Var) := do
   else if decl.getKind == ``Lean.Parser.Term.doPatDecl then
     getDoPatDeclVars decl
   else
-    throwError "unexpected kind of 'do' declaration"
+    throwError "unexpected kind of `do` declaration"
 
 def getDoReassignVars (doReassign : Syntax) : TermElabM (Array Var) := do
   let arg := doReassign[0]
@@ -955,16 +955,16 @@ def declToTerm (decl : Syntax) (k : Syntax) : M Syntax := withRef decl <| withFr
       | some action =>
         let action ← withRef action `(($action : $((← read).m) $type))
         ``(Bind.bind $action (fun ($id:ident : $type) => $k))
-      | none        => Macro.throwErrorAt decl "unexpected kind of 'do' declaration"
+      | none        => Macro.throwErrorAt decl "unexpected kind of `do` declaration"
     else
-      Macro.throwErrorAt decl "unexpected kind of 'do' declaration"
+      Macro.throwErrorAt decl "unexpected kind of `do` declaration"
   else if kind == ``Lean.Parser.Term.doHave then
     -- The `have` term is of the form  `"have " >> haveDecl >> optSemicolon termParser`
     let args := decl.getArgs
     let args := args ++ #[mkNullNode /- optional ';' -/, k]
     return mkNode `Lean.Parser.Term.«have» args
   else
-    Macro.throwErrorAt decl "unexpected kind of 'do' declaration"
+    Macro.throwErrorAt decl "unexpected kind of `do` declaration"
 
 def reassignToTerm (reassign : Syntax) (k : Syntax) : MacroM Syntax := withRef reassign <| withFreshMacroScope do
   match reassign with
@@ -972,7 +972,7 @@ def reassignToTerm (reassign : Syntax) (k : Syntax) : MacroM Syntax := withRef r
   | `(doElem| $e:term  := $rhs) => `(let $e:term  := ensure_type_of% $e $(quote "invalid reassignment, value") $rhs; $k)
   | _ =>
     -- Note that `doReassignArrow` is expanded by `doReassignArrowToCode
-    Macro.throwErrorAt reassign "unexpected kind of 'do' reassignment"
+    Macro.throwErrorAt reassign "unexpected kind of `do` reassignment"
 
 def mkIte (optIdent : Syntax) (cond : Syntax) (thenBranch : Syntax) (elseBranch : Syntax) : MacroM Syntax := do
   if optIdent.isNone then
@@ -1136,7 +1136,7 @@ def withNewMutableVars {α} (newVars : Array Var) (mutable : Bool) (x : M α) : 
 
 def checkReassignable (xs : Array Var) : M Unit := do
   let throwInvalidReassignment (x : Name) : M Unit :=
-    throwError "'{x.simpMacroScopes}' cannot be reassigned"
+    throwError "`{x.simpMacroScopes}` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intent to mutate but define `{x.simpMacroScopes}`, consider using `let {x.simpMacroScopes}` instead"
   let ctx ← read
   for x in xs do
     unless ctx.mutableVars.contains x.getId do
@@ -1144,7 +1144,7 @@ def checkReassignable (xs : Array Var) : M Unit := do
 
 def checkNotShadowingMutable (xs : Array Var) : M Unit := do
   let throwInvalidShadowing (x : Name) : M Unit :=
-    throwError "mutable variable '{x.simpMacroScopes}' cannot be shadowed"
+    throwError "mutable variable `{x.simpMacroScopes}` cannot be shadowed"
   let ctx ← read
   for x in xs do
     if ctx.mutableVars.contains x.getId then
@@ -1166,11 +1166,11 @@ def mkForInBody  (_ : Syntax) (forInBody : CodeBlock) : M ToForInTermResult := d
 
 def ensureInsideFor : M Unit :=
   unless (← read).insideFor do
-    throwError "invalid 'do' element, it must be inside 'for'"
+    throwError "invalid `do` element, it must be inside `for`"
 
 def ensureEOS (doElems : List Syntax) : M Unit :=
   unless doElems.isEmpty do
-    throwError "must be last element in a 'do' sequence"
+    throwError "must be last element in a `do` sequence"
 
 private partial def expandLiftMethodAux (inQuot : Bool) (inBinder : Bool) : Syntax → StateT (List Syntax) M Syntax
   | stx@(Syntax.node i k args) =>
@@ -1206,7 +1206,7 @@ def checkLetArrowRHS (doElem : Syntax) : M Unit := do
      kind == ``Lean.Parser.Term.doHave ||
      kind == ``Lean.Parser.Term.doReassign ||
      kind == ``Lean.Parser.Term.doReassignArrow then
-    throwErrorAt doElem "invalid kind of value '{kind}' in an assignment"
+    throwErrorAt doElem "invalid kind of value `{kind}` in an assignment"
 
 /-- Generate `CodeBlock` for `doReturn` which is of the form
    ```
@@ -1287,13 +1287,13 @@ mutual
         doSeqToCode <| getDoSeqElems (getDoSeq auxDo) ++ doElems
       else
         if isMutableLet doLetArrow then
-          throwError "'mut' is currently not supported in let-decls with 'else' case"
+          throwError "`mut` is currently not supported in let-decls with `else` case"
         let contSeq := mkDoSeq doElems.toArray
         let elseSeq := mkSingletonDoSeq optElse[1]
         let auxDo ← `(do let discr ← $doElem; match discr with | $pattern:term => $contSeq | _ => $elseSeq)
         doSeqToCode <| getDoSeqElems (getDoSeq auxDo)
     else
-      throwError "unexpected kind of 'do' declaration"
+      throwError "unexpected kind of `do` declaration"
 
   partial def doLetElseToCode (doLetElse : Syntax) (doElems : List Syntax) : M CodeBlock := do
     -- "let " >> termParser >> " := " >> termParser >> checkColGt >> " | " >> doElemParser
@@ -1327,7 +1327,7 @@ mutual
       else
         throwError "reassignment with `|` (i.e., \"else clause\") is not currently supported"
     else
-      throwError "unexpected kind of 'do' reassignment"
+      throwError "unexpected kind of `do` reassignment"
 
   /-- Generate `CodeBlock` for `doIf; doElems`
      `doIf` is of the form
@@ -1427,8 +1427,8 @@ mutual
         let auxDo ← `(do let r ← $forInTerm:term;
                          $uvarsTuple:term := r.2;
                          match r.1 with
-                         | none => Pure.pure (ensure_expected_type% "type mismatch, 'for'" PUnit.unit)
-                         | some a => return ensure_expected_type% "type mismatch, 'for'" a)
+                         | none => Pure.pure (ensure_expected_type% "type mismatch, `for`" PUnit.unit)
+                         | some a => return ensure_expected_type% "type mismatch, `for`" a)
         doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
       else
         let forInBody ← liftMacroM <| destructTuple uvars (← `(r)) forInBody
@@ -1439,7 +1439,7 @@ mutual
         if doElems.isEmpty then
           let auxDo ← `(do let r ← $forInTerm:term;
                            $uvarsTuple:term := r;
-                           Pure.pure (ensure_expected_type% "type mismatch, 'for'" PUnit.unit))
+                           Pure.pure (ensure_expected_type% "type mismatch, `for`" PUnit.unit))
           doSeqToCode <| getDoSeqElems (getDoSeq auxDo)
         else
           let auxDo ← `(do let r ← $forInTerm:term; $uvarsTuple:term := r)
@@ -1490,10 +1490,10 @@ mutual
         let c ← doSeqToCode (getDoSeqElems (getDoSeq auxDo))
         return { x := x, codeBlock := c, optType := mkNullNode : Catch }
       else
-        throwError "unexpected kind of 'catch'"
+        throwError "unexpected kind of `catch`"
     let finallyCode? ← if optFinally.isNone then pure none else some <$> doSeqToCode (getDoSeqElems optFinally[0][1])
     if catches.isEmpty && finallyCode?.isNone then
-      throwError "invalid 'try', it must have a 'catch' or 'finally'"
+      throwError "invalid `try`, it must have a `catch` or `finally`"
     let ctx ← read
     let ws    := getTryCatchUpdatedVars tryCode catches finallyCode?
     let uvars := varSetToArray ws
@@ -1515,9 +1515,9 @@ mutual
       | none             => pure term
       | some finallyCode => withRef optFinally do
         unless finallyCode.uvars.isEmpty do
-          throwError "'finally' currently does not support reassignments"
+          throwError "`finally` currently does not support reassignments"
         if hasBreakContinueReturn finallyCode.code then
-          throwError "'finally' currently does 'return', 'break', nor 'continue'"
+          throwError "`finally` currently does `return`, `break`, nor `continue`"
         let finallyTerm ← liftMacroM <| ToTerm.run finallyCode.code ctx.m ctx.returnType {} ToTerm.Kind.regular
         ``(tryFinally $term $finallyTerm)
     let doElemsNew ← liftMacroM <| ToTerm.matchNestedTermResult term uvars a r bc
@@ -1526,7 +1526,7 @@ mutual
   partial def doSeqToCode : List Syntax → M CodeBlock
     | [] => do liftMacroM mkPureUnitAction
     | doElem::doElems => withIncRecDepth <| withRef doElem do
-      checkMaxHeartbeats "'do'-expander"
+      checkMaxHeartbeats "`do`-expander"
       match (← liftMacroM <| expandMacro? doElem) with
       | some doElem => doSeqToCode (doElem::doElems)
       | none =>

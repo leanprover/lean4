@@ -4759,7 +4759,6 @@ x_24 = lean_array_get_size(x_3);
 x_25 = lean_nat_dec_lt(x_8, x_24);
 lean_dec(x_24);
 x_26 = l_Lean_Expr_mvarId_x21(x_21);
-lean_dec(x_21);
 x_27 = lean_nat_add(x_8, x_13);
 if (x_23 == 0)
 {

@@ -307,6 +307,7 @@ static lean_object* l_Lean_Elab_Term_Do_ToTerm_actionTerminalToTerm___closed__7;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_expandDoIf_x3f___lambda__1(lean_object*);
 static lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_doForToCode___lambda__3___closed__20;
 static lean_object* l___regBuiltin_Lean_Elab_Term_expandTermUnless_declRange___closed__5;
+static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__7;
 static lean_object* l_Lean_Elab_Term_Do_ToTerm_returnToTerm___closed__24;
 static lean_object* l_Lean_Elab_Term_Do_CodeBlocl_toMessageData_loop___closed__21;
 static lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_mkPureUnit___closed__8;
@@ -874,7 +875,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_toDoElem(lea
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_ToCodeBlock_expandLiftMethodAux___spec__5(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_pullExitPointsAux___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Do_ToTerm_breakToTerm___closed__15;
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_initFn____x40_Lean_Elab_Do___hyg_33862_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_initFn____x40_Lean_Elab_Do___hyg_33874_(lean_object*);
 static lean_object* l_Lean_Elab_Term_Do_pullExitPointsAux___lambda__1___closed__9;
 static lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_doSeqToCode___closed__3;
 static lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_doReassignArrowToCode___closed__3;
@@ -1155,6 +1156,7 @@ static lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_doSeqToCode___closed__7;
 static lean_object* l_Lean_Elab_Term_Do_ToTerm_declToTerm___closed__3;
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Elab_Term_Do_attachJPs___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Term_Do_mkJmp___spec__8___rarg(lean_object*);
+static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__5;
 static lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_doForToCode___lambda__3___closed__15;
 static lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_liftMethodForbiddenBinder___closed__8;
 static lean_object* l___regBuiltin_Lean_Elab_Term_Do_elabDo___closed__1;
@@ -1330,6 +1332,7 @@ LEAN_EXPORT lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Elab_Term_Do_ToCode
 static lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_doTryToCode___lambda__2___closed__5;
 static lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_doForToCode___lambda__3___closed__31;
 static lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_destructTuple_destruct___closed__1;
+static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_tryCatchPred(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_doSeqToCode___closed__15;
 static lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_doTryToCode___lambda__2___closed__3;
@@ -1361,6 +1364,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Term_
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_ToCodeBlock_expandLiftMethodAux___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_destructTuple_destruct___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Term_expandTermReturn_declRange___closed__3;
+static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__8;
 lean_object* l_Lean_Elab_getBetterRef(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Do_mkAuxDeclFor___rarg___lambda__1___closed__3;
 static lean_object* l_Lean_Elab_Term_Do_ToTerm_actionTerminalToTerm___closed__6;
@@ -3014,7 +3018,7 @@ static lean_object* _init_l___private_Lean_Elab_Do_0__Lean_Elab_Term_extractBind
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid 'do' notation, expected type is not a monad application", 63);
+x_1 = lean_mk_string_from_bytes("invalid `do` notation, expected type is not a monad application", 63);
 return x_1;
 }
 }
@@ -12367,7 +12371,7 @@ static lean_object* _init_l_Lean_Elab_Term_Do_concat___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'do' element is unreachable", 27);
+x_1 = lean_mk_string_from_bytes("`do` element is unreachable", 27);
 return x_1;
 }
 }
@@ -13283,7 +13287,7 @@ static lean_object* _init_l_Lean_Elab_Term_Do_getDoLetArrowVars___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected kind of 'do' declaration", 35);
+x_1 = lean_mk_string_from_bytes("unexpected kind of `do` declaration", 35);
 return x_1;
 }
 }
@@ -23274,7 +23278,7 @@ static lean_object* _init_l_Lean_Elab_Term_Do_ToTerm_reassignToTerm___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected kind of 'do' reassignment", 36);
+x_1 = lean_mk_string_from_bytes("unexpected kind of `do` reassignment", 36);
 return x_1;
 }
 }
@@ -28533,7 +28537,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCode
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'", 1);
+x_1 = lean_mk_string_from_bytes("`", 1);
 return x_1;
 }
 }
@@ -28550,7 +28554,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCode
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' cannot be reassigned", 22);
+x_1 = lean_mk_string_from_bytes("` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intent to mutate but define `", 121);
 return x_1;
 }
 }
@@ -28559,6 +28563,40 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__3;
+x_2 = l_Lean_stringToMessageData(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__5() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("`, consider using `let ", 23);
+return x_1;
+}
+}
+static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__5;
+x_2 = l_Lean_stringToMessageData(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__7() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("` instead", 9);
+return x_1;
+}
+}
+static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__7;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -28587,11 +28625,12 @@ lean_dec(x_16);
 x_19 = l_Std_RBNode_find___at_Lean_Elab_Term_Do_extendUpdatedVarsAux_update___spec__1(x_17, x_18);
 if (lean_obj_tag(x_19) == 0)
 {
-lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
+lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; 
 x_20 = lean_simp_macro_scopes(x_18);
 x_21 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_21, 0, x_20);
 x_22 = l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__2;
+lean_inc(x_21);
 x_23 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_23, 0, x_22);
 lean_ctor_set(x_23, 1, x_21);
@@ -28599,27 +28638,42 @@ x_24 = l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassign
 x_25 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_25, 0, x_23);
 lean_ctor_set(x_25, 1, x_24);
-x_26 = l_Lean_throwError___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__1(x_25, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
-x_27 = lean_ctor_get(x_26, 0);
-lean_inc(x_27);
-x_28 = lean_ctor_get(x_26, 1);
-lean_inc(x_28);
-lean_dec(x_26);
-x_29 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_29, 0, x_27);
-lean_ctor_set(x_29, 1, x_28);
-return x_29;
+lean_inc(x_21);
+x_26 = lean_alloc_ctor(10, 2, 0);
+lean_ctor_set(x_26, 0, x_25);
+lean_ctor_set(x_26, 1, x_21);
+x_27 = l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__6;
+x_28 = lean_alloc_ctor(10, 2, 0);
+lean_ctor_set(x_28, 0, x_26);
+lean_ctor_set(x_28, 1, x_27);
+x_29 = lean_alloc_ctor(10, 2, 0);
+lean_ctor_set(x_29, 0, x_28);
+lean_ctor_set(x_29, 1, x_21);
+x_30 = l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__8;
+x_31 = lean_alloc_ctor(10, 2, 0);
+lean_ctor_set(x_31, 0, x_29);
+lean_ctor_set(x_31, 1, x_30);
+x_32 = l_Lean_throwError___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__1(x_31, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
+x_33 = lean_ctor_get(x_32, 0);
+lean_inc(x_33);
+x_34 = lean_ctor_get(x_32, 1);
+lean_inc(x_34);
+lean_dec(x_32);
+x_35 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_35, 0, x_33);
+lean_ctor_set(x_35, 1, x_34);
+return x_35;
 }
 else
 {
-size_t x_30; size_t x_31; lean_object* x_32; 
+size_t x_36; size_t x_37; lean_object* x_38; 
 lean_dec(x_19);
 lean_dec(x_18);
-x_30 = 1;
-x_31 = lean_usize_add(x_4, x_30);
-x_32 = lean_box(0);
-x_4 = x_31;
-x_5 = x_32;
+x_36 = 1;
+x_37 = lean_usize_add(x_4, x_36);
+x_38 = lean_box(0);
+x_4 = x_37;
+x_5 = x_38;
 goto _start;
 }
 }
@@ -28717,7 +28771,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCode
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mutable variable '", 18);
+x_1 = lean_mk_string_from_bytes("mutable variable `", 18);
 return x_1;
 }
 }
@@ -28734,7 +28788,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCode
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' cannot be shadowed", 20);
+x_1 = lean_mk_string_from_bytes("` cannot be shadowed", 20);
 return x_1;
 }
 }
@@ -29625,7 +29679,7 @@ static lean_object* _init_l_Lean_Elab_Term_Do_ToCodeBlock_ensureInsideFor___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid 'do' element, it must be inside 'for'", 45);
+x_1 = lean_mk_string_from_bytes("invalid `do` element, it must be inside `for`", 45);
 return x_1;
 }
 }
@@ -29680,7 +29734,7 @@ static lean_object* _init_l_Lean_Elab_Term_Do_ToCodeBlock_ensureEOS___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("must be last element in a 'do' sequence", 39);
+x_1 = lean_mk_string_from_bytes("must be last element in a `do` sequence", 39);
 return x_1;
 }
 }
@@ -31327,7 +31381,7 @@ static lean_object* _init_l_Lean_Elab_Term_Do_ToCodeBlock_checkLetArrowRHS___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid kind of value '", 23);
+x_1 = lean_mk_string_from_bytes("invalid kind of value `", 23);
 return x_1;
 }
 }
@@ -31344,7 +31398,7 @@ static lean_object* _init_l_Lean_Elab_Term_Do_ToCodeBlock_checkLetArrowRHS___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("' in an assignment", 18);
+x_1 = lean_mk_string_from_bytes("` in an assignment", 18);
 return x_1;
 }
 }
@@ -32688,7 +32742,7 @@ static lean_object* _init_l_Lean_Elab_Term_Do_ToCodeBlock_doSeqToCode___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'do'-expander", 13);
+x_1 = lean_mk_string_from_bytes("`do`-expander", 13);
 return x_1;
 }
 }
@@ -34188,7 +34242,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Do_ToCodeBl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected kind of 'catch'", 26);
+x_1 = lean_mk_string_from_bytes("unexpected kind of `catch`", 26);
 return x_1;
 }
 }
@@ -35744,7 +35798,7 @@ static lean_object* _init_l_Lean_Elab_Term_Do_ToCodeBlock_doTryToCode___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'finally' currently does 'return', 'break', nor 'continue'", 58);
+x_1 = lean_mk_string_from_bytes("`finally` currently does `return`, `break`, nor `continue`", 58);
 return x_1;
 }
 }
@@ -35831,7 +35885,7 @@ static lean_object* _init_l_Lean_Elab_Term_Do_ToCodeBlock_doTryToCode___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'finally' currently does not support reassignments", 50);
+x_1 = lean_mk_string_from_bytes("`finally` currently does not support reassignments", 50);
 return x_1;
 }
 }
@@ -36238,7 +36292,7 @@ static lean_object* _init_l_Lean_Elab_Term_Do_ToCodeBlock_doTryToCode___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid 'try', it must have a 'catch' or 'finally'", 50);
+x_1 = lean_mk_string_from_bytes("invalid `try`, it must have a `catch` or `finally`", 50);
 return x_1;
 }
 }
@@ -37321,7 +37375,7 @@ static lean_object* _init_l_Lean_Elab_Term_Do_ToCodeBlock_doForToCode___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\"type mismatch, 'for'\"", 22);
+x_1 = lean_mk_string_from_bytes("\"type mismatch, `for`\"", 22);
 return x_1;
 }
 }
@@ -42800,7 +42854,7 @@ static lean_object* _init_l_Lean_Elab_Term_Do_ToCodeBlock_doLetArrowToCode___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("'mut' is currently not supported in let-decls with 'else' case", 62);
+x_1 = lean_mk_string_from_bytes("`mut` is currently not supported in let-decls with `else` case", 62);
 return x_1;
 }
 }
@@ -44194,7 +44248,7 @@ x_4 = l_Lean_addBuiltinDeclarationRanges(x_2, x_3, x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_initFn____x40_Lean_Elab_Do___hyg_33862_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_initFn____x40_Lean_Elab_Do___hyg_33874_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -45935,6 +45989,14 @@ l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___
 lean_mark_persistent(l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__3);
 l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__4 = _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__4();
 lean_mark_persistent(l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__4);
+l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__5 = _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__5();
+lean_mark_persistent(l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__5);
+l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__6 = _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__6();
+lean_mark_persistent(l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__6);
+l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__7 = _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__7();
+lean_mark_persistent(l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__7);
+l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__8 = _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__8();
+lean_mark_persistent(l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkReassignable___spec__2___closed__8);
 l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkNotShadowingMutable___spec__1___closed__1 = _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkNotShadowingMutable___spec__1___closed__1();
 lean_mark_persistent(l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkNotShadowingMutable___spec__1___closed__1);
 l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkNotShadowingMutable___spec__1___closed__2 = _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_ToCodeBlock_checkNotShadowingMutable___spec__1___closed__2();
@@ -46241,7 +46303,7 @@ lean_mark_persistent(l___regBuiltin_Lean_Elab_Term_Do_elabDo_declRange___closed_
 res = l___regBuiltin_Lean_Elab_Term_Do_elabDo_declRange(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l_Lean_Elab_Term_initFn____x40_Lean_Elab_Do___hyg_33862_(lean_io_mk_world());
+res = l_Lean_Elab_Term_initFn____x40_Lean_Elab_Do___hyg_33874_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___regBuiltin_Lean_Elab_Term_expandTermFor___closed__1 = _init_l___regBuiltin_Lean_Elab_Term_expandTermFor___closed__1();

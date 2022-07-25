@@ -274,10 +274,10 @@ open Std (HashMap PersistentHashMap)
 structure MetavarContext where
   depth          : Nat := 0
   mvarCounter    : Nat := 0 -- Counter for setting the field `index` at `MetavarDecl`
-  lDepth         : PersistentHashMap MVarId Nat := {}
+  lDepth         : PersistentHashMap LMVarId Nat := {}
   decls          : PersistentHashMap MVarId MetavarDecl := {}
   userNames      : PersistentHashMap Name MVarId := {}
-  lAssignment    : PersistentHashMap MVarId Level := {}
+  lAssignment    : PersistentHashMap LMVarId Level := {}
   eAssignment    : PersistentHashMap MVarId Expr := {}
   dAssignment    : PersistentHashMap MVarId DelayedMetavarAssignment := {}
   usedAssignment : Bool := false
@@ -298,7 +298,7 @@ def markUsedAssignment [MonadMCtx m] : m Unit :=
 abbrev setMCtx [MonadMCtx m] (mctx' : MetavarContext) : m Unit :=
   modifyMCtx fun mctx => { mctx' with usedAssignment := mctx'.usedAssignment || mctx.usedAssignment }
 
-abbrev getLevelMVarAssignment? [Monad m] [MonadMCtx m] (mvarId : MVarId) : m (Option Level) := do
+abbrev getLevelMVarAssignment? [Monad m] [MonadMCtx m] (mvarId : LMVarId) : m (Option Level) := do
   let result? := (← getMCtx).lAssignment.find? mvarId
   if result?.isSome then
     markUsedAssignment
@@ -332,7 +332,7 @@ partial def getDelayedMVarRoot [Monad m] [MonadMCtx m] (mvarId : MVarId) : m MVa
   | some d => getDelayedMVarRoot d.mvarIdPending
   | none   => return mvarId
 
-def isLevelMVarAssigned [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool := do
+def isLevelMVarAssigned [Monad m] [MonadMCtx m] (mvarId : LMVarId) : m Bool := do
   markUsedAssignment
   return (← getMCtx).lAssignment.contains mvarId
 
@@ -345,7 +345,7 @@ def isMVarDelayedAssigned [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool := 
   markUsedAssignment
   return (← getMCtx).dAssignment.contains mvarId
 
-def isLevelMVarAssignable [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool := do
+def isLevelMVarAssignable [Monad m] [MonadMCtx m] (mvarId : LMVarId) : m Bool := do
   markUsedAssignment
   let mctx ← getMCtx
   match mctx.lDepth.find? mvarId with
@@ -417,7 +417,7 @@ def hasAssignableMVar [Monad m] [MonadMCtx m] : Expr → m Bool
   a cycle is being introduced.
   This is a low-level API, and it is safer to use `isLevelDefEq (mkLevelMVar mvarId) u`.
 -/
-def assignLevelMVar [MonadMCtx m] (mvarId : MVarId) (val : Level) : m Unit :=
+def assignLevelMVar [MonadMCtx m] (mvarId : LMVarId) (val : Level) : m Unit :=
   modifyMCtx fun m => { m with lAssignment := m.lAssignment.insert mvarId val, usedAssignment := true }
 
 /--
@@ -742,7 +742,7 @@ def addExprMVarDeclExp (mctx : MetavarContext) (mvarId : MVarId) (userName : Nam
 /-- Low level API for adding/declaring universe level metavariable declarations.
    It is used to implement actions in the monads `MetaM`, `ElabM` and `TacticM`.
    It should not be used directly since the argument `(mvarId : MVarId)` is assumed to be "unique". -/
-def addLevelMVarDecl (mctx : MetavarContext) (mvarId : MVarId) : MetavarContext :=
+def addLevelMVarDecl (mctx : MetavarContext) (mvarId : LMVarId) : MetavarContext :=
   { mctx with lDepth := mctx.lDepth.insert mvarId mctx.depth }
 
 def findDecl? (mctx : MetavarContext) (mvarId : MVarId) : Option MetavarDecl :=
@@ -782,10 +782,10 @@ def setMVarType (mctx : MetavarContext) (mvarId : MVarId) (type : Expr) : Metava
   let decl := mctx.getDecl mvarId
   { mctx with decls := mctx.decls.insert mvarId { decl with type := type } }
 
-def findLevelDepth? (mctx : MetavarContext) (mvarId : MVarId) : Option Nat :=
+def findLevelDepth? (mctx : MetavarContext) (mvarId : LMVarId) : Option Nat :=
   mctx.lDepth.find? mvarId
 
-def getLevelDepth (mctx : MetavarContext) (mvarId : MVarId) : Nat :=
+def getLevelDepth (mctx : MetavarContext) (mvarId : LMVarId) : Nat :=
   match mctx.findLevelDepth? mvarId with
   | some d => d
   | none   => panic! "unknown metavariable"
@@ -1194,7 +1194,7 @@ namespace LevelMVarToParam
 structure Context where
   paramNamePrefix : Name
   alreadyUsedPred : Name → Bool
-  except          : MVarId → Bool
+  except          : LMVarId → Bool
 
 structure State where
   mctx         : MetavarContext
@@ -1275,7 +1275,7 @@ structure UnivMVarParamResult where
   nextParamIdx  : Nat
   expr          : Expr
 
-def levelMVarToParam (mctx : MetavarContext) (alreadyUsedPred : Name → Bool) (except : MVarId → Bool) (e : Expr) (paramNamePrefix : Name := `u) (nextParamIdx : Nat := 1)
+def levelMVarToParam (mctx : MetavarContext) (alreadyUsedPred : Name → Bool) (except : LMVarId → Bool) (e : Expr) (paramNamePrefix : Name := `u) (nextParamIdx : Nat := 1)
     : UnivMVarParamResult :=
   let (e, s) := LevelMVarToParam.main e { except, paramNamePrefix, alreadyUsedPred } { mctx, nextParamIdx }
   { mctx          := s.mctx

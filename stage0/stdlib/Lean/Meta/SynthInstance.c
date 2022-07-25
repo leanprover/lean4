@@ -138,6 +138,7 @@ LEAN_EXPORT lean_object* l_Std_HashMapImp_expand___at_Lean_Meta_SynthInstance_ne
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_SynthInstance___hyg_36____closed__3;
 lean_object* l_Std_HashMap_insert___at___private_Lean_Meta_AbstractMVars_0__Lean_Meta_AbstractMVars_abstractLevelMVars___spec__3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_getInstances___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__9;
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_Meta_AbstractMVars_abstractExprMVars___spec__2(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_insertAux_traverse___at_Lean_Meta_synthInstance_x3f___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -500,6 +501,7 @@ LEAN_EXPORT lean_object* l_Std_PersistentHashMap_insert___at_Lean_Meta_synthInst
 LEAN_EXPORT lean_object* lean_synth_pending(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_Meta_SynthInstance_newSubgoal___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___lambda__3___closed__1;
+lean_object* l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_openAbstractMVarsResult(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_synthInstance_x3f___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_mkAnswer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -544,7 +546,6 @@ static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_SynthInstance_getIn
 LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_initFn____x40_Lean_Meta_SynthInstance___hyg_75____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_SynthInstance_consume___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
-lean_object* l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_synthInstance_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_getDecl(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__5;
@@ -915,25 +916,38 @@ return x_3;
 static lean_object* _init_l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__6() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__4;
-x_3 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__5;
-x_4 = 0;
-x_5 = lean_alloc_ctor(0, 8, 1);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_1);
-lean_ctor_set(x_5, 2, x_2);
-lean_ctor_set(x_5, 3, x_2);
-lean_ctor_set(x_5, 4, x_3);
-lean_ctor_set(x_5, 5, x_2);
-lean_ctor_set(x_5, 6, x_2);
-lean_ctor_set(x_5, 7, x_2);
-lean_ctor_set_uint8(x_5, sizeof(void*)*8, x_4);
-return x_5;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__3;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__4;
+x_3 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__5;
+x_4 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__6;
+x_5 = 0;
+x_6 = lean_alloc_ctor(0, 8, 1);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_1);
+lean_ctor_set(x_6, 2, x_2);
+lean_ctor_set(x_6, 3, x_3);
+lean_ctor_set(x_6, 4, x_4);
+lean_ctor_set(x_6, 5, x_2);
+lean_ctor_set(x_6, 6, x_3);
+lean_ctor_set(x_6, 7, x_3);
+lean_ctor_set_uint8(x_6, sizeof(void*)*8, x_5);
+return x_6;
+}
+}
+static lean_object* _init_l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -942,13 +956,13 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8() {
+static lean_object* _init_l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__1;
-x_2 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__6;
-x_3 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7;
+x_2 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7;
+x_3 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8;
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_5, 0, x_1);
@@ -963,7 +977,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode()
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8;
+x_1 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__9;
 return x_1;
 }
 }
@@ -973,7 +987,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__1;
-x_3 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__6;
+x_3 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7;
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_5, 0, x_2);
@@ -3340,7 +3354,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_instInhabitedAnswer___closed
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7;
+x_1 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__1;
 x_4 = lean_alloc_ctor(0, 3, 0);
@@ -3376,7 +3390,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_TableEntry_answers___default
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7;
+x_1 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8;
 return x_1;
 }
 }
@@ -3392,7 +3406,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_State_generatorStack___defau
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7;
+x_1 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8;
 return x_1;
 }
 }
@@ -3400,7 +3414,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_State_resumeStack___default(
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7;
+x_1 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8;
 return x_1;
 }
 }
@@ -3966,7 +3980,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
-x_11 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7;
+x_11 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8;
 x_12 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_12, 0, x_11);
 lean_ctor_set(x_12, 1, x_9);
@@ -3988,7 +4002,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
-x_15 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7;
+x_15 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8;
 x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
 lean_ctor_set(x_16, 1, x_9);
@@ -4001,7 +4015,7 @@ x_17 = lean_usize_of_nat(x_3);
 lean_dec(x_3);
 x_18 = lean_usize_of_nat(x_4);
 lean_dec(x_4);
-x_19 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7;
+x_19 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8;
 x_20 = l_Array_foldlMUnsafe_fold___at_Lean_Meta_SynthInstance_getInstances___spec__5(x_1, x_2, x_17, x_18, x_19, x_5, x_6, x_7, x_8, x_9);
 return x_20;
 }
@@ -4560,7 +4574,7 @@ lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 1);
 lean_inc(x_10);
 lean_dec(x_8);
-x_11 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__1(x_9, x_3, x_4, x_5, x_6, x_10);
+x_11 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2(x_9, x_3, x_4, x_5, x_6, x_10);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 1);
@@ -5643,7 +5657,7 @@ lean_inc(x_21);
 lean_dec(x_13);
 x_22 = l_Lean_Meta_SynthInstance_newSubgoal___lambda__3___closed__1;
 x_23 = lean_array_push(x_22, x_3);
-x_24 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7;
+x_24 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8;
 x_25 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_25, 0, x_23);
 lean_ctor_set(x_25, 1, x_24);
@@ -6975,7 +6989,7 @@ x_12 = lean_ctor_get(x_10, 1);
 lean_inc(x_12);
 lean_dec(x_10);
 x_13 = lean_box(0);
-x_14 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7;
+x_14 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8;
 x_15 = lean_unsigned_to_nat(0u);
 lean_inc(x_8);
 lean_inc(x_4);
@@ -9814,7 +9828,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_tryResolveCore(lean_object* x
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_8 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__1(x_1, x_3, x_4, x_5, x_6, x_7);
+x_8 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2(x_1, x_3, x_4, x_5, x_6, x_7);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 1);
@@ -12287,7 +12301,7 @@ goto block_62;
 block_38:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_27; lean_object* x_28; lean_object* x_29; uint8_t x_30; 
-x_10 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__1(x_1, x_4, x_5, x_6, x_7, x_9);
+x_10 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2(x_1, x_4, x_5, x_6, x_7, x_9);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 x_12 = lean_ctor_get(x_10, 1);
@@ -14608,7 +14622,7 @@ lean_inc(x_8);
 x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
 lean_dec(x_7);
-x_10 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__1(x_8, x_2, x_3, x_4, x_5, x_9);
+x_10 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2(x_8, x_2, x_3, x_4, x_5, x_9);
 x_11 = !lean_is_exclusive(x_10);
 if (x_11 == 0)
 {
@@ -19643,7 +19657,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7;
+x_2 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8;
 x_3 = l_Lean_Meta_SynthInstance_MkTableKey_State_lmap___default___closed__1;
 x_4 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_4, 0, x_1);
@@ -21651,7 +21665,7 @@ _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = 0;
-x_2 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7;
+x_2 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8;
 x_3 = lean_box(x_1);
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_3);
@@ -23487,7 +23501,7 @@ lean_dec(x_2);
 x_57 = lean_ctor_get(x_24, 1);
 lean_inc(x_57);
 lean_dec(x_24);
-x_58 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__1(x_1, x_6, x_7, x_8, x_9, x_57);
+x_58 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2(x_1, x_6, x_7, x_8, x_9, x_57);
 x_59 = lean_ctor_get(x_58, 0);
 lean_inc(x_59);
 x_60 = lean_ctor_get(x_58, 1);
@@ -23721,7 +23735,7 @@ lean_dec(x_2);
 x_122 = lean_ctor_get(x_89, 1);
 lean_inc(x_122);
 lean_dec(x_89);
-x_123 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__1(x_1, x_6, x_7, x_8, x_9, x_122);
+x_123 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2(x_1, x_6, x_7, x_8, x_9, x_122);
 x_124 = lean_ctor_get(x_123, 0);
 lean_inc(x_124);
 x_125 = lean_ctor_get(x_123, 1);
@@ -23897,7 +23911,7 @@ lean_ctor_set_uint8(x_12, 4, x_14);
 lean_ctor_set_uint8(x_12, 5, x_16);
 lean_ctor_set_uint8(x_12, 11, x_14);
 lean_ctor_set_uint8(x_12, 13, x_17);
-x_18 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__1(x_1, x_3, x_4, x_5, x_6, x_7);
+x_18 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2(x_1, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_184; lean_object* x_185; 
@@ -24664,7 +24678,7 @@ lean_ctor_set_uint8(x_200, 11, x_196);
 lean_ctor_set_uint8(x_200, 12, x_195);
 lean_ctor_set_uint8(x_200, 13, x_199);
 lean_ctor_set(x_3, 0, x_200);
-x_201 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__1(x_1, x_3, x_4, x_5, x_6, x_7);
+x_201 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2(x_1, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_293; lean_object* x_294; 
@@ -25151,7 +25165,7 @@ lean_ctor_set(x_317, 2, x_300);
 lean_ctor_set(x_317, 3, x_301);
 lean_ctor_set(x_317, 4, x_302);
 lean_ctor_set(x_317, 5, x_303);
-x_318 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__1(x_1, x_317, x_4, x_5, x_6, x_7);
+x_318 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2(x_1, x_317, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_410; lean_object* x_411; 
@@ -27821,6 +27835,8 @@ l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7 = _init_l_Lean_
 lean_mark_persistent(l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7);
 l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8 = _init_l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8();
 lean_mark_persistent(l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8);
+l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__9 = _init_l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__9();
+lean_mark_persistent(l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__9);
 l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode = _init_l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode();
 lean_mark_persistent(l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode);
 l_Lean_Meta_SynthInstance_instInhabitedConsumerNode___closed__1 = _init_l_Lean_Meta_SynthInstance_instInhabitedConsumerNode___closed__1();

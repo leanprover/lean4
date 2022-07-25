@@ -95,7 +95,7 @@ def simpIfLocalDecl (mvarId : MVarId) (fvarId : FVarId) : MetaM MVarId := do
     unreachable!
 
 def splitIfTarget? (mvarId : MVarId) (hName? : Option Name := none) : MetaM (Option (ByCasesSubgoal × ByCasesSubgoal)) := commitWhenSome? do
-  if let some (s₁, s₂) ← splitIfAt? mvarId (← getMVarType mvarId) hName? then
+  if let some (s₁, s₂) ← splitIfAt? mvarId (← mvarId.getType) hName? then
     let mvarId₁ ← simpIfTarget s₁.mvarId
     let mvarId₂ ← simpIfTarget s₂.mvarId
     if s₁.mvarId == mvarId₁ && s₂.mvarId == mvarId₂ then
@@ -106,7 +106,7 @@ def splitIfTarget? (mvarId : MVarId) (hName? : Option Name := none) : MetaM (Opt
     return none
 
 def splitIfLocalDecl? (mvarId : MVarId) (fvarId : FVarId) (hName? : Option Name := none) : MetaM (Option (MVarId × MVarId)) := commitWhenSome? do
-  withMVarContext mvarId do
+  mvarId.withContext do
     if let some (s₁, s₂) ← splitIfAt? mvarId (← inferType (mkFVar fvarId)) hName? then
       let mvarId₁ ← simpIfLocalDecl s₁.mvarId fvarId
       let mvarId₂ ← simpIfLocalDecl s₂.mvarId fvarId

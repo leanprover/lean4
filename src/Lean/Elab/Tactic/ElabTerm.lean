@@ -76,8 +76,8 @@ def withCollectingNewGoalsFrom (k : TacticM Expr) (tagSuffix : Name) (allowNatur
   let newMVarIds ← if allowNaturalHoles then
     pure newMVarIds.toList
   else
-    let naturalMVarIds ← newMVarIds.filterM fun mvarId => return (← getMVarDecl mvarId).kind.isNatural
-    let syntheticMVarIds ← newMVarIds.filterM fun mvarId => return !(← getMVarDecl mvarId).kind.isNatural
+    let naturalMVarIds ← newMVarIds.filterM fun mvarId => return (← mvarId.getKind).isNatural
+    let syntheticMVarIds ← newMVarIds.filterM fun mvarId => return !(← mvarId.getKind).isNatural
     let naturalMVarIds ← filterOldMVars naturalMVarIds mvarCounterSaved
     logUnassignedAndAbort naturalMVarIds
     pure syntheticMVarIds.toList
@@ -99,7 +99,7 @@ def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : Ta
     unless val == mkMVar mvarId do
       if val.findMVar? (· == mvarId) matches some _ then
         throwError "'refine' tactic failed, value{indentExpr val}\ndepends on the main goal metavariable '{mkMVar mvarId}'"
-      assignExprMVar mvarId val
+      mvarId.assign val
     replaceMainGoal mvarIds'
 
 @[builtinTactic «refine»] def evalRefine : Tactic := fun stx =>
@@ -119,9 +119,9 @@ def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : Ta
     let h := e.getAppFn
     if h.isFVar then
       let localDecl ← getLocalDecl h.fvarId!
-      let mvarId ← assert (← getMainGoal) localDecl.userName (← inferType e).headBeta e
-      let (_, mvarId) ← intro1P mvarId
-      let mvarId ← tryClear mvarId h.fvarId!
+      let mvarId ← (← getMainGoal).assert localDecl.userName (← inferType e).headBeta e
+      let (_, mvarId) ← mvarId.intro1P
+      let mvarId ← mvarId.tryClear h.fvarId!
       replaceMainGoal (mvarId :: mvarIds')
     else
       throwError "'specialize' requires a term of the form `h x_1 .. x_n` where `h` appears in the local context"
@@ -205,12 +205,12 @@ def getFVarIds (ids : Array Syntax) : TacticM (Array FVarId) := do
 
 @[builtinTactic Lean.Parser.Tactic.apply] def evalApply : Tactic := fun stx =>
   match stx with
-  | `(tactic| apply $e) => evalApplyLikeTactic Meta.apply e
+  | `(tactic| apply $e) => evalApplyLikeTactic (·.apply) e
   | _ => throwUnsupportedSyntax
 
 @[builtinTactic Lean.Parser.Tactic.constructor] def evalConstructor : Tactic := fun _ =>
   withMainContext do
-    let mvarIds'  ← Meta.constructor (← getMainGoal)
+    let mvarIds' ← (← getMainGoal).constructor
     Term.synthesizeSyntheticMVarsNoPostponing
     replaceMainGoal mvarIds'
 
@@ -236,7 +236,7 @@ def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId
       let intro (userName : Name) (preserveBinderNames : Bool) : TacticM FVarId := do
         let mvarId ← getMainGoal
         let (fvarId, mvarId) ← liftMetaM do
-          let mvarId ← Meta.assert mvarId userName type e
+          let mvarId ← mvarId.assert userName type e
           Meta.intro1Core mvarId preserveBinderNames
         replaceMainGoal [mvarId]
         return fvarId
@@ -258,7 +258,7 @@ def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId
         match fvarId? with
         | none => throwError "failed to find a hypothesis with type{indentExpr type}"
         | some fvarId => return fvarId
-      replaceMainGoal [← rename (← getMainGoal) fvarId h.getId]
+      replaceMainGoal [← (← getMainGoal).rename fvarId h.getId]
   | _ => throwUnsupportedSyntax
 
 /--

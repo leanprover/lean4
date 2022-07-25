@@ -4,7 +4,7 @@ open Lean Meta
 #eval do
   let e ← withLetDecl `y (mkConst ``Nat) (mkConst ``Nat.zero) fun y => do
     let m ← mkFreshExprMVar (mkConst ``Nat)
-    assignExprMVar m.mvarId! y
+    m.mvarId!.assign y
     let e := mkApp2 (mkConst ``Nat.add) m y
     -- goal: construct λ y, e
     dbg_trace (← ppExpr (← mkLambdaFVars #[y] e)) -- doesn't work: creates let
@@ -17,7 +17,7 @@ open Lean Meta
 #eval
   withLetDecl `y (mkConst ``Nat) (mkConst ``Nat.zero) fun y => do
     let m ← mkFreshExprMVar (mkConst ``Nat)
-    assignExprMVar m.mvarId! y
+    m.mvarId!.assign y
     let e := mkApp2 (mkConst ``Nat.add) m y
     -- goal: construct λ y, e
      dbg_trace (← instantiateMVars <| -- doesn't work: contains free variable
@@ -31,6 +31,6 @@ open Lean Meta
     dbg_trace (← ppExpr (← abstract e #[y]))
     let e ← instantiateMVars <| -- doesn't work: contains free variable
       mkLambda `y BinderInfo.default (mkConst ``Nat) (← abstract e #[y])
-    assignExprMVar m.mvarId! (mkApp2 (mkConst ``Nat.add) y y)
+    m.mvarId!.assign (mkApp2 (mkConst ``Nat.add) y y)
     return (e, m)
   dbg_trace (← ppExpr (← instantiateMVars e))

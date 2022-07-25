@@ -8,24 +8,17 @@ import Lean.Meta.Tactic.Clear
 
 namespace Lean.Meta
 
-/--
-  Auxiliary tactic for cleaning the local context. It removes local declarations (aka hypotheses) that are *not* relevant.
-  We say a variable `x` is "relevant" if
-  - It occurs in the target type, or
-  - There is a relevant variable `y` that depends on `x`, or
-  - The type of `x` is a proposition and it depends on a relevant variable `y`.
--/
-partial def cleanup (mvarId : MVarId) : MetaM MVarId := do
-  withMVarContext mvarId do
-    checkNotAssigned mvarId `cleanup
+private partial def cleanupCore (mvarId : MVarId) : MetaM MVarId := do
+  mvarId.withContext do
+    mvarId.checkNotAssigned `cleanup
     let used ← collectUsed |>.run' (false, {})
     let mut lctx ← getLCtx
     for localDecl in lctx do
       unless used.contains localDecl.fvarId do
         lctx := lctx.erase localDecl.fvarId
     let localInsts := (← getLocalInstances).filter fun inst => used.contains inst.fvar.fvarId!
-    let mvarNew ← mkFreshExprMVarAt lctx localInsts (← instantiateMVars (← getMVarType mvarId)) MetavarKind.syntheticOpaque (← getMVarTag mvarId)
-    assignExprMVar mvarId mvarNew
+    let mvarNew ← mkFreshExprMVarAt lctx localInsts (← instantiateMVars (← mvarId.getType)) .syntheticOpaque (← mvarId.getTag)
+    mvarId.assign mvarNew
     return mvarNew.mvarId!
 where
   addUsedFVars (e : Expr) : StateRefT (Bool × FVarIdSet) MetaM Unit := do
@@ -59,8 +52,22 @@ where
       collectProps
 
   collectUsed : StateRefT (Bool × FVarIdSet) MetaM FVarIdSet := do
-    addUsedFVars (← instantiateMVars (← getMVarType mvarId))
+    addUsedFVars (← instantiateMVars (← mvarId.getType))
     collectProps
     return (← get).2
+
+/--
+  Auxiliary tactic for cleaning the local context. It removes local declarations (aka hypotheses) that are *not* relevant.
+  We say a variable `x` is "relevant" if
+  - It occurs in the target type, or
+  - There is a relevant variable `y` that depends on `x`, or
+  - The type of `x` is a proposition and it depends on a relevant variable `y`.
+-/
+abbrev _root_.Lean.MVarId.cleanup (mvarId : MVarId) : MetaM MVarId := do
+  cleanupCore mvarId
+
+@[deprecated MVarId.cleanup]
+abbrev cleanup (mvarId : MVarId) : MetaM MVarId := do
+  mvarId.cleanup
 
 end Lean.Meta

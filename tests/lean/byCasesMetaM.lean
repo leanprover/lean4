@@ -7,7 +7,7 @@ open Lean.Meta in
 def test : MetaM Unit := do
   let type := (← getConstInfo ``ex).type
   let mvar ← mkFreshExprMVar type
-  let (#[p, q, h], mvarId) ← introNP mvar.mvarId! 3 | throwError "unexpected"
+  let (#[p, q, h], mvarId) ← mvar.mvarId!.introNP 3 | throwError "unexpected"
   trace[Meta.debug] "{MessageData.ofGoal mvarId}"
   let (s₁, s₂) ← byCases mvarId (mkFVar p) `hAux
   trace[Meta.debug] "{MessageData.ofGoal s₁.mvarId}\n------\n{MessageData.ofGoal s₂.mvarId}"

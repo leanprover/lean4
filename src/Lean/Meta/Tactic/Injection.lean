@@ -25,8 +25,8 @@ inductive InjectionResultCore where
   | subgoal (mvarId : MVarId) (numNewEqs : Nat)
 
 def injectionCore (mvarId : MVarId) (fvarId : FVarId) : MetaM InjectionResultCore :=
-  withMVarContext mvarId do
-    checkNotAssigned mvarId `injection
+  mvarId.withContext do
+    mvarId.checkNotAssigned `injection
     let decl ← getLocalDecl fvarId
     let type ← whnf decl.type
     let go (type prf : Expr) : MetaM InjectionResultCore := do
@@ -35,13 +35,13 @@ def injectionCore (mvarId : MVarId) (fvarId : FVarId) : MetaM InjectionResultCor
       | some (_, a, b) =>
         let a ← whnf a
         let b ← whnf b
-        let target ← getMVarType mvarId
+        let target ← mvarId.getType
         let env ← getEnv
         match a.isConstructorApp? env, b.isConstructorApp? env with
         | some aCtor, some bCtor =>
           let val ← mkNoConfusion target prf
           if aCtor.name != bCtor.name then
-            assignExprMVar mvarId val
+            mvarId.assign val
             return InjectionResultCore.solved
           else
             let valType ← inferType val
@@ -49,10 +49,10 @@ def injectionCore (mvarId : MVarId) (fvarId : FVarId) : MetaM InjectionResultCor
             match valType with
             | Expr.forallE _ newTarget _ _ =>
               let newTarget := newTarget.headBeta
-              let tag ← getMVarTag mvarId
+              let tag ← mvarId.getTag
               let newMVar ← mkFreshExprSyntheticOpaqueMVar newTarget tag
-              assignExprMVar mvarId (mkApp val newMVar)
-              let mvarId ← tryClear newMVar.mvarId! fvarId
+              mvarId.assign (mkApp val newMVar)
+              let mvarId ← newMVar.mvarId!.tryClear fvarId
               /- Recall that `noConfusion` does not include equalities for
                  propositions since they are trivial due to proof irrelevance. -/
               let numPropFields ← getCtorNumPropFields aCtor
@@ -78,11 +78,11 @@ def injectionIntro (mvarId : MVarId) (numEqs : Nat) (newNames : List Name) (tryT
     | 0, mvarId, fvarIds, remainingNames =>
       return InjectionResult.subgoal mvarId fvarIds remainingNames
     | n+1, mvarId, fvarIds, name::remainingNames => do
-      let (fvarId, mvarId) ← intro mvarId name
+      let (fvarId, mvarId) ← mvarId.intro name
       let (fvarId, mvarId) ← heqToEq mvarId fvarId tryToClear
       go n mvarId (fvarIds.push fvarId) remainingNames
     | n+1, mvarId, fvarIds, [] => do
-      let (fvarId, mvarId) ← intro1 mvarId
+      let (fvarId, mvarId) ← mvarId.intro1
       let (fvarId, mvarId) ← heqToEq mvarId fvarId tryToClear
       go n mvarId (fvarIds.push fvarId) []
   go numEqs mvarId #[] newNames
@@ -93,7 +93,7 @@ def injection (mvarId : MVarId) (fvarId : FVarId) (newNames : List Name := []) :
   | InjectionResultCore.subgoal mvarId numEqs => injectionIntro mvarId numEqs newNames
 
 partial def injections (mvarId : MVarId) (maxDepth : Nat := 5) : MetaM (Option MVarId) :=
-  withMVarContext mvarId do
+  mvarId.withContext do
     let fvarIds := (← getLCtx).getFVarIds
     go maxDepth fvarIds.toList mvarId
 where
@@ -112,7 +112,7 @@ where
             match (← injection mvarId fvarId) with
             | InjectionResult.solved  => return none
             | InjectionResult.subgoal mvarId newEqs _ =>
-              withMVarContext mvarId <| go d (newEqs.toList ++ fvarIds) mvarId
+              mvarId.withContext <| go d (newEqs.toList ++ fvarIds) mvarId
           catch _ => cont
       else cont
 

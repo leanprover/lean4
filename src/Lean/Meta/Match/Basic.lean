@@ -263,7 +263,7 @@ structure Problem where
   deriving Inhabited
 
 def withGoalOf {α} (p : Problem) (x : MetaM α) : MetaM α :=
-  withMVarContext p.mvarId x
+  p.mvarId.withContext x
 
 def Problem.toMessageData (p : Problem) : MetaM MessageData :=
   withGoalOf p do

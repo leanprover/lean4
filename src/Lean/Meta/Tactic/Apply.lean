@@ -35,18 +35,18 @@ def synthAppInstances (tacticName : Name) (mvarId : MVarId) (newMVars : Array Ex
         throwTacticEx tacticName mvarId "failed to assign synthesized instance"
 
 def appendParentTag (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo) : MetaM Unit := do
-  let parentTag ← getMVarTag mvarId
+  let parentTag ← mvarId.getTag
   if newMVars.size == 1 then
     -- if there is only one subgoal, we inherit the parent tag
-    setMVarTag newMVars[0]!.mvarId! parentTag
+    newMVars[0]!.mvarId!.setTag parentTag
   else
     unless parentTag.isAnonymous do
       newMVars.size.forM fun i => do
-        let newMVarId := newMVars[i]!.mvarId!
-        unless (← isExprMVarAssigned newMVarId) do
+        let mvarIdNew := newMVars[i]!.mvarId!
+        unless (← mvarIdNew.isAssigned) do
           unless binderInfos[i]!.isInstImplicit do
-            let currTag ← getMVarTag newMVarId
-            setMVarTag newMVarId (appendTag parentTag currTag)
+            let currTag ← mvarIdNew.getTag
+            mvarIdNew.setTag (appendTag parentTag currTag)
 
 def postprocessAppMVars (tacticName : Name) (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo) : MetaM Unit := do
   synthAppInstances tacticName mvarId newMVars binderInfos
@@ -92,10 +92,13 @@ private def reorderGoals (mvars : Array Expr) : ApplyNewGoals → MetaM (List MV
 structure ApplyConfig where
   newGoals := ApplyNewGoals.nonDependentFirst
 
-def apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := {}) : MetaM (List MVarId) :=
-  withMVarContext mvarId do
-    checkNotAssigned mvarId `apply
-    let targetType ← getMVarType mvarId
+/--
+Close the give goal using `apply e`.
+-/
+def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := {}) : MetaM (List MVarId) :=
+  mvarId.withContext do
+    mvarId.checkNotAssigned `apply
+    let targetType ← mvarId.getType
     let eType      ← inferType e
     let mut (numArgs, hasMVarHead) ← getExpectedNumArgsAux eType
     unless hasMVarHead do
@@ -105,23 +108,27 @@ def apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := {}) : MetaM (List M
     unless (← isDefEq eType targetType) do throwApplyError mvarId eType targetType
     postprocessAppMVars `apply mvarId newMVars binderInfos
     let e ← instantiateMVars e
-    assignExprMVar mvarId (mkAppN e newMVars)
-    let newMVars ← newMVars.filterM fun mvar => not <$> isExprMVarAssigned mvar.mvarId!
+    mvarId.assign (mkAppN e newMVars)
+    let newMVars ← newMVars.filterM fun mvar => not <$> mvar.mvarId!.isAssigned
     let otherMVarIds ← getMVarsNoDelayed e
     let newMVarIds ← reorderGoals newMVars cfg.newGoals
     let otherMVarIds := otherMVarIds.filter fun mvarId => !newMVarIds.contains mvarId
     let result := newMVarIds ++ otherMVarIds.toList
-    result.forM headBetaMVarType
+    result.forM (·.headBetaType)
     return result
 
-partial def splitAnd (mvarId : MVarId) : MetaM (List MVarId) :=
-  withMVarContext mvarId do
-    checkNotAssigned mvarId `splitAnd
-    let type ← getMVarType' mvarId
+@[deprecated MVarId.apply]
+def apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := {}) : MetaM (List MVarId) :=
+  mvarId.apply e cfg
+
+partial def splitAndCore (mvarId : MVarId) : MetaM (List MVarId) :=
+  mvarId.withContext do
+    mvarId.checkNotAssigned `splitAnd
+    let type ← mvarId.getType'
     if !type.isAppOfArity ``And 2 then
       return [mvarId]
     else
-      let tag ← getMVarTag mvarId
+      let tag ← mvarId.getTag
       let rec go (type : Expr) : StateRefT (Array MVarId) MetaM Expr := do
         let type ← whnf type
         if type.isAppOfArity ``And 2 then
@@ -134,21 +141,31 @@ partial def splitAnd (mvarId : MVarId) : MetaM (List MVarId) :=
           modify fun s => s.push mvar.mvarId!
           return mvar
       let (val, s) ← go type |>.run #[]
-      assignExprMVar mvarId val
+      mvarId.assign val
       return s.toList
 
+/--
+Apply `And.intro` as much as possible to goal `mvarId`.
+-/
+abbrev _root_.Lean.MVarId.splitAnd (mvarId : MVarId) : MetaM (List MVarId) :=
+  splitAndCore mvarId
+
+@[deprecated MVarId.splitAnd]
+def splitAnd (mvarId : MVarId) : MetaM (List MVarId) :=
+  mvarId.splitAnd
+
 def applyRefl (mvarId : MVarId) (msg : MessageData := "refl failed") : MetaM Unit :=
-  withMVarContext mvarId do
-    let some [] ← observing? do apply mvarId (mkConst ``Eq.refl [← mkFreshLevelMVar])
+  mvarId.withContext do
+    let some [] ← observing? do mvarId.apply (mkConst ``Eq.refl [← mkFreshLevelMVar])
       | throwTacticEx `refl mvarId msg
 
 def exfalso (mvarId : MVarId) : MetaM MVarId :=
-  withMVarContext mvarId do
-    checkNotAssigned mvarId `exfalso
-    let target ← instantiateMVars (← getMVarType mvarId)
+  mvarId.withContext do
+    mvarId.checkNotAssigned `exfalso
+    let target ← instantiateMVars (← mvarId.getType)
     let u ← getLevel target
-    let mvarIdNew ← mkFreshExprSyntheticOpaqueMVar (mkConst ``False) (tag := (← getMVarTag mvarId))
-    assignExprMVar mvarId (mkApp2 (mkConst ``False.elim [u]) target mvarIdNew)
+    let mvarIdNew ← mkFreshExprSyntheticOpaqueMVar (mkConst ``False) (tag := (← mvarId.getTag))
+    mvarId.assign (mkApp2 (mkConst ``False.elim [u]) target mvarIdNew)
     return mvarIdNew.mvarId!
 
 end Lean.Meta

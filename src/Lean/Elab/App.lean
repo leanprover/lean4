@@ -386,7 +386,7 @@ private def finalize : M Expr := do
     synthesizeAppInstMVars
     /- If `eType != mkMVar outParamMVarId`, then the
        function is partially applied, and we do not apply default instances. -/
-    if !(← isExprMVarAssigned outParamMVarId) && eType.isMVar && eType.mvarId! == outParamMVarId then
+    if !(← outParamMVarId.isAssigned) && eType.isMVar && eType.mvarId! == outParamMVarId then
       synthesizeSyntheticMVarsUsingDefault
       return e
     else

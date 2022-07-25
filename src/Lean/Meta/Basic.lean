@@ -516,40 +516,68 @@ def shouldReduceAll : MetaM Bool :=
 def shouldReduceReducibleOnly : MetaM Bool :=
   return (← getTransparency) == TransparencyMode.reducible
 
-def findMVarDecl? (mvarId : MVarId) : MetaM (Option MetavarDecl) :=
+def _root_.Lean.MVarId.findDecl? (mvarId : MVarId) : MetaM (Option MetavarDecl) :=
   return (← getMCtx).findDecl? mvarId
 
-def getMVarDecl (mvarId : MVarId) : MetaM MetavarDecl := do
-  match (← findMVarDecl? mvarId) with
+@[deprecated MVarId.findDecl?]
+def findMVarDecl? (mvarId : MVarId) : MetaM (Option MetavarDecl) :=
+  mvarId.findDecl?
+
+def _root_.Lean.MVarId.getDecl (mvarId : MVarId) : MetaM MetavarDecl := do
+  match (← mvarId.findDecl?) with
   | some d => pure d
   | none   => throwError "unknown metavariable '?{mvarId.name}'"
 
+@[deprecated MVarId.getDecl]
+def getMVarDecl (mvarId : MVarId) : MetaM MetavarDecl := do
+  mvarId.getDecl
+
+def _root_.Lean.MVarId.getKind (mvarId : MVarId) : MetaM MetavarKind :=
+  return (← mvarId.getDecl).kind
+
+@[deprecated MVarId.getKind]
 def getMVarDeclKind (mvarId : MVarId) : MetaM MetavarKind :=
-  return (← getMVarDecl mvarId).kind
+  mvarId.getKind
 
 /-- Reture `true` if `e` is a synthetic (or synthetic opaque) metavariable -/
 def isSyntheticMVar (e : Expr) : MetaM Bool := do
   if e.isMVar then
-     return (← getMVarDeclKind e.mvarId!) matches .synthetic | .syntheticOpaque
+     return (← e.mvarId!.getKind) matches .synthetic | .syntheticOpaque
   else
      return false
 
-def setMVarKind (mvarId : MVarId) (kind : MetavarKind) : MetaM Unit :=
+def _root_.Lean.MVarId.setKind (mvarId : MVarId) (kind : MetavarKind) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.setMVarKind mvarId kind
+
+@[deprecated MVarId.setKind]
+def setMVarKind (mvarId : MVarId) (kind : MetavarKind) : MetaM Unit :=
+  mvarId.setKind kind
 
 /-- Update the type of the given metavariable. This function assumes the new type is
    definitionally equal to the current one -/
-def setMVarType (mvarId : MVarId) (type : Expr) : MetaM Unit := do
+def _root_.Lean.MVarId.setType (mvarId : MVarId) (type : Expr) : MetaM Unit := do
   modifyMCtx fun mctx => mctx.setMVarType mvarId type
 
-def isReadOnlyExprMVar (mvarId : MVarId) : MetaM Bool := do
-  return (← getMVarDecl mvarId).depth != (← getMCtx).depth
+@[deprecated MVarId.setType]
+def setMVarType (mvarId : MVarId) (type : Expr) : MetaM Unit := do
+  mvarId.setType type
 
-def isReadOnlyOrSyntheticOpaqueExprMVar (mvarId : MVarId) : MetaM Bool := do
-  let mvarDecl ← getMVarDecl mvarId
+def _root_.Lean.MVarId.isReadOnly (mvarId : MVarId) : MetaM Bool := do
+  return (← mvarId.getDecl).depth != (← getMCtx).depth
+
+@[deprecated MVarId.isReadOnly]
+def isReadOnlyExprMVar (mvarId : MVarId) : MetaM Bool := do
+  mvarId.isReadOnly
+
+def _root_.Lean.MVarId.isReadOnlyOrSyntheticOpaque (mvarId : MVarId) : MetaM Bool := do
+  let mvarDecl ← mvarId.getDecl
   match mvarDecl.kind with
   | MetavarKind.syntheticOpaque => return !(← getConfig).assignSyntheticOpaque
   | _ => return mvarDecl.depth != (← getMCtx).depth
+
+@[deprecated MVarId.isReadOnlyOrSyntheticOpaque]
+def isReadOnlyOrSyntheticOpaqueExprMVar (mvarId : MVarId) : MetaM Bool := do
+  mvarId.isReadOnlyOrSyntheticOpaque
 
 def getLevelMVarDepth (mvarId : LMVarId) : MetaM Nat := do
   match (← getMCtx).findLevelDepth? mvarId with
@@ -562,8 +590,12 @@ def isReadOnlyLevelMVar (mvarId : LMVarId) : MetaM Bool := do
   else
     return (← getLevelMVarDepth mvarId) != (← getMCtx).depth
 
-def setMVarUserName (mvarId : MVarId) (newUserName : Name) : MetaM Unit :=
+def _root_.Lean.MVarId.setUserName (mvarId : MVarId) (newUserName : Name) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.setMVarUserName mvarId newUserName
+
+@[deprecated MVarId.setUserName]
+def setMVarUserName (mvarId : MVarId) (userNameNew : Name) : MetaM Unit :=
+  mvarId.setUserName userNameNew
 
 def throwUnknownFVar (fvarId : FVarId) : MetaM α :=
   throwError "unknown free variable '{mkFVar fvarId}'"
@@ -1184,15 +1216,19 @@ def withLCtx (lctx : LocalContext) (localInsts : LocalInstances) : n α → n α
   mapMetaM <| withLocalContextImp lctx localInsts
 
 private def withMVarContextImp (mvarId : MVarId) (x : MetaM α) : MetaM α := do
-  let mvarDecl ← getMVarDecl mvarId
+  let mvarDecl ← mvarId.getDecl
   withLocalContextImp mvarDecl.lctx mvarDecl.localInstances x
 
 /--
   Execute `x` using the given metavariable `LocalContext` and `LocalInstances`.
   The type class resolution cache is flushed when executing `x` if its `LocalInstances` are
   different from the current ones. -/
-def withMVarContext (mvarId : MVarId) : n α → n α :=
+def _root_.Lean.MVarId.withContext (mvarId : MVarId) : n α → n α :=
   mapMetaM <| withMVarContextImp mvarId
+
+@[deprecated MVarId.withContext]
+def withMVarContext (mvarId : MVarId) : n α → n α :=
+  mvarId.withContext
 
 private def withMCtxImp (mctx : MetavarContext) (x : MetaM α) : MetaM α := do
   let mctx' ← getMCtx

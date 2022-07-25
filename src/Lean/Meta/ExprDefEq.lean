@@ -125,9 +125,9 @@ def isDefEqStringLit (s t : Expr) : MetaM LBool := do
 def isEtaUnassignedMVar (e : Expr) : MetaM Bool := do
   match e.etaExpanded? with
   | some (Expr.mvar mvarId) =>
-    if (← isReadOnlyOrSyntheticOpaqueExprMVar mvarId) then
+    if (← mvarId.isReadOnlyOrSyntheticOpaque) then
       pure false
-    else if (← isExprMVarAssigned mvarId) then
+    else if (← mvarId.isAssigned) then
       pure false
     else
       pure true
@@ -324,7 +324,7 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
       let vType ← inferType v
       if (← withTransparency TransparencyMode.default <| Meta.isExprDefEqAux mvarType vType) then
         trace[Meta.isDefEq.assign.final] "{mvar} := {v}"
-        assignExprMVar mvar.mvarId! v
+        mvar.mvarId!.assign v
         pure true
       else
         trace[Meta.isDefEq.assign.typeMismatch] "{mvar} : {mvarType} := {v} : {vType}"
@@ -655,7 +655,7 @@ private def addAssignmentInfo (msg : MessageData) : CheckAssignmentM MessageData
   return m!"{msg} @ {mkMVar ctx.mvarId} {ctx.fvars} := {ctx.rhs}"
 
 @[inline] def run (x : CheckAssignmentM Expr) (mvarId : MVarId) (fvars : Array Expr) (hasCtxLocals : Bool) (v : Expr) : MetaM (Option Expr) := do
-  let mvarDecl ← getMVarDecl mvarId
+  let mvarDecl ← mvarId.getDecl
   let ctx := { mvarId := mvarId, mvarDecl := mvarDecl, fvars := fvars, hasCtxLocals := hasCtxLocals, rhs := v : Context }
   let x : CheckAssignmentM (Option Expr) :=
     catchInternalIds [outOfScopeExceptionId, checkAssignmentExceptionId]
@@ -689,7 +689,7 @@ mutual
     else match (← getExprMVarAssignment? mvarId) with
       | some v => check v
       | none   =>
-        match (← findMVarDecl? mvarId) with
+        match (← mvarId.findDecl?) with
         | none          => throwUnknownMVar mvarId
         | some mvarDecl =>
           if ctx.hasCtxLocals then
@@ -733,7 +733,7 @@ mutual
               let localInsts := mvarDecl.localInstances.filter fun localInst => toErase.contains localInst.fvar.fvarId!
               let mvarType ← check mvarDecl.type
               let newMVar ← mkAuxMVar lctx localInsts mvarType mvarDecl.numScopeArgs
-              assignExprMVar mvarId newMVar
+              mvarId.assign newMVar
               pure newMVar
             else
               traceM `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx <| addAssignmentInfo (mkMVar mvarId)
@@ -771,7 +771,7 @@ mutual
           (fun ex => do
             if !f.isMVar then
               throw ex
-            else if (← isMVarDelayedAssigned f.mvarId!) then
+            else if (← f.mvarId!.isDelayedAssigned) then
               throw ex
             else
               let eType ← inferType e
@@ -878,7 +878,7 @@ def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (O
   if !v.hasExprMVar && !v.hasFVar then
     pure (some v)
   else
-    let mvarDecl ← getMVarDecl mvarId
+    let mvarDecl ← mvarId.getDecl
     let hasCtxLocals := fvars.any fun fvar => mvarDecl.lctx.containsFVar fvar
     let ctx ← read
     let mctx ← getMCtx
@@ -949,7 +949,7 @@ private def simpAssignmentArg (arg : Expr) : MetaM Expr := do
 /-- Assign `mvar := fun a_1 ... a_{numArgs} => v`.
    We use it at `processConstApprox` and `isDefEqMVarSelf` -/
 private def assignConst (mvar : Expr) (numArgs : Nat) (v : Expr) : MetaM Bool := do
-  let mvarDecl ← getMVarDecl mvar.mvarId!
+  let mvarDecl ← mvar.mvarId!.getDecl
   forallBoundedTelescope mvarDecl.type numArgs fun xs _ => do
     if xs.size != numArgs then
       pure false
@@ -981,7 +981,7 @@ private partial def processConstApprox (mvar : Expr) (args : Array Expr) (patter
   let rec defaultCase : MetaM Bool := assignConst mvar args.size v
   let cfg ← getConfig
   let mvarId := mvar.mvarId!
-  let mvarDecl ← getMVarDecl mvarId
+  let mvarDecl ← mvarId.getDecl
   let numArgs := args.size
   if mvarDecl.numScopeArgs != numArgs && !cfg.constApprox then
     return false
@@ -1022,7 +1022,7 @@ private partial def processAssignment (mvarApp : Expr) (v : Expr) : MetaM Bool :
   traceCtx `Meta.isDefEq.assign do
     trace[Meta.isDefEq.assign] "{mvarApp} := {v}"
     let mvar := mvarApp.getAppFn
-    let mvarDecl ← getMVarDecl mvar.mvarId!
+    let mvarDecl ← mvar.mvarId!.getDecl
     let rec process (i : Nat) (args : Array Expr) (v : Expr) := do
       let cfg ← getConfig
       let useFOApprox (args : Array Expr) : MetaM Bool :=
@@ -1302,7 +1302,7 @@ private def isDefEqDelta (t s : Expr) : MetaM LBool := do
       unfoldNonProjFnDefEq tInfo sInfo t s
 
 private def isAssigned : Expr → MetaM Bool
-  | Expr.mvar mvarId => isExprMVarAssigned mvarId
+  | Expr.mvar mvarId => mvarId.isAssigned
   | _                => pure false
 
 private def expandDelayedAssigned? (t : Expr) : MetaM (Option Expr) := do
@@ -1335,7 +1335,7 @@ private def expandDelayedAssigned? (t : Expr) : MetaM (Option Expr) := do
   return some (mkAppRange (mkMVar mvarIdPending) fvars.size tArgs.size tArgs)
 
 private def isAssignable : Expr → MetaM Bool
-  | Expr.mvar mvarId => do let b ← isReadOnlyOrSyntheticOpaqueExprMVar mvarId; pure (!b)
+  | Expr.mvar mvarId => do let b ← mvarId.isReadOnlyOrSyntheticOpaque; pure (!b)
   | _                => pure false
 
 private def etaEq (t s : Expr) : Bool :=
@@ -1403,7 +1403,7 @@ private def isDefEqMVarSelf (mvar : Expr) (args₁ args₂ : Array Expr) : MetaM
   else
     let cfg ← getConfig
     let mvarId := mvar.mvarId!
-    let mvarDecl ← getMVarDecl mvarId
+    let mvarDecl ← mvarId.getDecl
     if mvarDecl.numScopeArgs == args₁.size || cfg.constApprox then
       let type ← inferType (mkAppN mvar args₁)
       let auxMVar ← mkAuxMVar mvarDecl.lctx mvarDecl.localInstances type

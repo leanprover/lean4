@@ -28,10 +28,10 @@ structure Contradiction.Config where
   Return `true` iff the goal has been closed.
 -/
 private def nestedFalseElim (mvarId : MVarId) : MetaM Bool := do
-  let target ← getMVarType mvarId
+  let target ← mvarId.getType
   if let some falseElim := target.find? fun e => e.isAppOfArity ``False.elim 2 && !e.appArg!.hasLooseBVars then
     let falseProof := falseElim.appArg!
-    assignExprMVar mvarId (← mkFalseElim (← getMVarType mvarId) falseProof)
+    mvarId.assign (← mkFalseElim (← mvarId.getType) falseProof)
     return true
   else
     return false
@@ -62,7 +62,7 @@ partial def elim (mvarId : MVarId) (fvarId : FVarId) : M Bool := do
     trace[Meta.Tactic.contradiction] "elimEmptyInductive, number subgoals: {subgoals.size}"
     for subgoal in subgoals do
       -- If one of the fields is uninhabited, then we are done
-      let found ← withMVarContext subgoal.mvarId do
+      let found ← subgoal.mvarId.withContext do
         for field in subgoal.fields do
           let field := subgoal.subst.apply field
           if field.isFVar then
@@ -77,7 +77,7 @@ partial def elim (mvarId : MVarId) (fvarId : FVarId) : M Bool := do
 end ElimEmptyInductive
 
 private def elimEmptyInductive (mvarId : MVarId) (fvarId : FVarId) (fuel : Nat) : MetaM Bool := do
-  withMVarContext mvarId do
+  mvarId.withContext do
     if (← isElimEmptyInductiveCandidate fvarId) then
       commitWhen do
         ElimEmptyInductive.elim (← exfalso mvarId) fvarId |>.run' fuel
@@ -139,16 +139,16 @@ private def processGenDiseq (mvarId : MVarId) (localDecl : LocalDecl) : MetaM Bo
     let falseProof ← instantiateMVars (mkAppN localDecl.toExpr args)
     if (← hasAssignableMVar falseProof) then
       return none
-    return some (← mkFalseElim (← getMVarType mvarId) falseProof)
+    return some (← mkFalseElim (← mvarId.getType) falseProof)
   if let some val := val? then
-    assignExprMVar mvarId val
+    mvarId.assign val
     return true
   else
     return false
 
 def contradictionCore (mvarId : MVarId) (config : Contradiction.Config) : MetaM Bool := do
-  withMVarContext mvarId do
-    checkNotAssigned mvarId `contradiction
+  mvarId.withContext do
+    mvarId.checkNotAssigned `contradiction
     if (← nestedFalseElim mvarId) then
       return true
     for localDecl in (← getLCtx) do
@@ -156,12 +156,12 @@ def contradictionCore (mvarId : MVarId) (config : Contradiction.Config) : MetaM 
         -- (h : ¬ p) (h' : p)
         if let some p ← matchNot? localDecl.type then
           if let some pFVarId ← findLocalDeclWithType? p then
-            assignExprMVar mvarId (← mkAbsurd (← getMVarType mvarId) (mkFVar pFVarId) localDecl.toExpr)
+            mvarId.assign (← mkAbsurd (← mvarId.getType) (mkFVar pFVarId) localDecl.toExpr)
             return true
         -- (h : x ≠ x)
         if let some (_, lhs, rhs) ← matchNe? localDecl.type then
           if (← isDefEq lhs rhs) then
-            assignExprMVar mvarId (← mkAbsurd (← getMVarType mvarId) (← mkEqRefl lhs) localDecl.toExpr)
+            mvarId.assign (← mkAbsurd (←  mvarId.getType) (← mkEqRefl lhs) localDecl.toExpr)
             return true
         let mut isEq := false
         -- (h : ctor₁ ... = ctor₂ ...)
@@ -170,7 +170,7 @@ def contradictionCore (mvarId : MVarId) (config : Contradiction.Config) : MetaM 
           if let some lhsCtor ← matchConstructorApp? lhs then
           if let some rhsCtor ← matchConstructorApp? rhs then
           if lhsCtor.name != rhsCtor.name then
-            assignExprMVar mvarId (← mkNoConfusion (← getMVarType mvarId) localDecl.toExpr)
+            mvarId.assign (← mkNoConfusion (← mvarId.getType) localDecl.toExpr)
             return true
         let mut isHEq := false
         -- (h : HEq (ctor₁ ...) (ctor₂ ...))
@@ -180,7 +180,7 @@ def contradictionCore (mvarId : MVarId) (config : Contradiction.Config) : MetaM 
           if let some rhsCtor ← matchConstructorApp? rhs then
           if lhsCtor.name != rhsCtor.name then
             if (← isDefEq α β) then
-              assignExprMVar mvarId (← mkNoConfusion (← getMVarType mvarId) (← mkEqOfHEq localDecl.toExpr))
+              mvarId.assign (← mkNoConfusion (← mvarId.getType) (← mkEqOfHEq localDecl.toExpr))
               return true
         -- (h : p) s.t. `decide p` evaluates to `false`
         if config.useDecide && !localDecl.type.hasFVar then
@@ -191,7 +191,7 @@ def contradictionCore (mvarId : MVarId) (config : Contradiction.Config) : MetaM 
               let r ← withDefault <| whnf d
               if r.isConstOf ``false then
                 let hn := mkAppN (mkConst ``of_decide_eq_false) <| d.getAppArgs.push (← mkEqRefl d)
-                assignExprMVar mvarId (← mkAbsurd (← getMVarType mvarId) localDecl.toExpr hn)
+                mvarId.assign (← mkAbsurd (← mvarId.getType) localDecl.toExpr hn)
                 return true
             catch _ =>
               pure ()

@@ -197,7 +197,7 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
   | Expr.sort u          => return e.updateSort! (← collectLevel u)
   | Expr.const _ us      => return e.updateConst! (← us.mapM collectLevel)
   | Expr.mvar mvarId     =>
-    let mvarDecl ← getMVarDecl mvarId
+    let mvarDecl ← mvarId.getDecl
     let type ← preprocess mvarDecl.type
     let type ← collect type
     let newFVarId ← mkFreshFVarId

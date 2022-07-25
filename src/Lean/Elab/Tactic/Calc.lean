@@ -43,5 +43,5 @@ def evalCalc : Tactic := fun stx => do
         return val
     let val ← instantiateMVars val
     let mvarId ← getMainGoal
-    assignExprMVar mvarId val
+    mvarId.assign val
     replaceMainGoal mvarIds

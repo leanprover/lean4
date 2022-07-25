@@ -84,8 +84,8 @@ private def solveEqOfCtorEq (ctorName : Name) (mvarId : MVarId) (h : FVarId) : M
   match (← injection mvarId h) with
   | InjectionResult.solved => unreachable!
   | InjectionResult.subgoal mvarId .. =>
-    (← splitAnd mvarId).forM fun mvarId =>
-      unless (← assumptionCore mvarId) do
+    (←  mvarId.splitAnd).forM fun mvarId =>
+      unless (← mvarId.assumptionCore) do
         throwInjectiveTheoremFailure ctorName mvarId
 
 private def mkInjectiveTheoremValue (ctorName : Name) (targetType : Expr) : MetaM Expr :=
@@ -118,10 +118,10 @@ private def mkInjectiveEqTheoremType? (ctorVal : ConstructorVal) : MetaM (Option
 private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : MetaM Expr := do
   forallTelescopeReducing targetType fun xs type => do
     let mvar ← mkFreshExprSyntheticOpaqueMVar type
-    let [mvarId₁, mvarId₂] ← apply mvar.mvarId! (mkConst ``Eq.propIntro)
+    let [mvarId₁, mvarId₂] ← mvar.mvarId!.apply (mkConst ``Eq.propIntro)
       | throwError "unexpected number of subgoals when proving injective theorem for constructor '{ctorName}'"
-    let (h, mvarId₁) ← intro1 mvarId₁
-    let (_, mvarId₂) ← intro1 mvarId₂
+    let (h, mvarId₁) ← mvarId₁.intro1
+    let (_, mvarId₂) ← mvarId₂.intro1
     solveEqOfCtorEq ctorName mvarId₁ h
     let mvarId₂ ← casesAnd mvarId₂
     if let some mvarId₂ ← substEqs mvarId₂ then

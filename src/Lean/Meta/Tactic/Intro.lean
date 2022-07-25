@@ -8,9 +8,9 @@ import Lean.Meta.Tactic.Util
 namespace Lean.Meta
 
 @[inline] private partial def introNImp {σ} (mvarId : MVarId) (n : Nat) (mkName : LocalContext → Name → Bool → σ → MetaM (Name × σ)) (s : σ)
-    : MetaM (Array FVarId × MVarId) := withMVarContext mvarId do
-  checkNotAssigned mvarId `introN
-  let mvarType ← getMVarType mvarId
+    : MetaM (Array FVarId × MVarId) := mvarId.withContext do
+  mvarId.checkNotAssigned `introN
+  let mvarType ← mvarId.getType
   let lctx ← getLCtx
   let rec @[specialize] loop (i : Nat) (lctx : LocalContext) (fvars : Array Expr) (j : Nat) (s : σ) (type : Expr) : MetaM (Array Expr × MVarId) := do
     match i, type with
@@ -18,13 +18,13 @@ namespace Lean.Meta
       let type := type.instantiateRevRange j fvars.size fvars
       withReader (fun ctx => { ctx with lctx := lctx }) do
         withNewLocalInstances fvars j do
-          let tag     ← getMVarTag mvarId
+          let tag     ← mvarId.getTag
           let type := type.headBeta
           let newMVar ← mkFreshExprSyntheticOpaqueMVar type tag
           let newVal  ← mkLambdaFVars fvars newMVar
-          assignExprMVar mvarId newVal
+          mvarId.assign newVal
           return (fvars, newMVar.mvarId!)
-    | i+1, Expr.letE n type val body _ =>
+    | i+1, .letE n type val body _ =>
       let type   := type.instantiateRevRange j fvars.size fvars
       let type   := type.headBeta
       let val    := val.instantiateRevRange j fvars.size fvars
@@ -34,7 +34,7 @@ namespace Lean.Meta
       let fvar   := mkFVar fvarId
       let fvars  := fvars.push fvar
       loop i lctx fvars j s body
-    | i+1, Expr.forallE n type body c =>
+    | i+1, .forallE n type body c =>
       let type   := type.instantiateRevRange j fvars.size fvars
       let type   := type.headBeta
       let fvarId ← mkFreshFVarId
@@ -100,39 +100,82 @@ def introNCore (mvarId : MVarId) (n : Nat) (givenNames : List Name) (useNamesFor
   else
     introNImp mvarId n (mkAuxNameImp preserveBinderNames hygienic useNamesForExplicitOnly) givenNames
 
-abbrev introN (mvarId : MVarId) (n : Nat) (givenNames : List Name := []) (useNamesForExplicitOnly := false) : MetaM (Array FVarId × MVarId) :=
+/--
+Introduce `n` binders in the goal `mvarId`.
+-/
+abbrev _root_.Lean.MVarId.introN (mvarId : MVarId) (n : Nat) (givenNames : List Name := []) (useNamesForExplicitOnly := false) : MetaM (Array FVarId × MVarId) :=
   introNCore mvarId n givenNames (useNamesForExplicitOnly := useNamesForExplicitOnly) (preserveBinderNames := false)
 
-abbrev introNP (mvarId : MVarId) (n : Nat) : MetaM (Array FVarId × MVarId) :=
+@[deprecated MVarId.introN]
+abbrev introN (mvarId : MVarId) (n : Nat) (givenNames : List Name := []) (useNamesForExplicitOnly := false) : MetaM (Array FVarId × MVarId) :=
+  mvarId.introN n givenNames useNamesForExplicitOnly
+
+/--
+Introduce `n` binders in the goal `mvarId`. The new hypotheses are named using the binder names.
+The suffix `P` stands for "preserving`.
+-/
+abbrev _root_.Lean.MVarId.introNP (mvarId : MVarId) (n : Nat) : MetaM (Array FVarId × MVarId) :=
   introNCore mvarId n [] (useNamesForExplicitOnly := false) (preserveBinderNames := true)
 
-def intro (mvarId : MVarId) (name : Name) : MetaM (FVarId × MVarId) := do
-  let (fvarIds, mvarId) ← introN mvarId 1 [name]
+@[deprecated MVarId.introNP]
+abbrev introNP (mvarId : MVarId) (n : Nat) : MetaM (Array FVarId × MVarId) :=
+  mvarId.introNP n
+
+/--
+Introduce one binder using `name` as the the new hypothesis name.
+-/
+def _root_.Lean.MVarId.intro (mvarId : MVarId) (name : Name) : MetaM (FVarId × MVarId) := do
+  let (fvarIds, mvarId) ← mvarId.introN 1 [name]
   return (fvarIds[0]!, mvarId)
+
+@[deprecated MVarId.intro]
+def intro (mvarId : MVarId) (name : Name) : MetaM (FVarId × MVarId) := do
+  mvarId.intro name
 
 def intro1Core (mvarId : MVarId) (preserveBinderNames : Bool) : MetaM (FVarId × MVarId) := do
   let (fvarIds, mvarId) ← introNCore mvarId 1 [] (useNamesForExplicitOnly := false) preserveBinderNames
   return (fvarIds[0]!, mvarId)
 
-abbrev intro1 (mvarId : MVarId) : MetaM (FVarId × MVarId) :=
+/--
+Introduce one binder.
+-/
+abbrev _root_.Lean.MVarId.intro1 (mvarId : MVarId) : MetaM (FVarId × MVarId) :=
   intro1Core mvarId false
 
-abbrev intro1P (mvarId : MVarId) : MetaM (FVarId × MVarId) :=
+@[deprecated MVarId.intro1]
+abbrev intro1 (mvarId : MVarId) : MetaM (FVarId × MVarId) :=
+  mvarId.intro1
+
+/--
+Introduce one binder. The new hypothesis is named using the binder name.
+-/
+abbrev _root_.Lean.MVarId.intro1P (mvarId : MVarId) : MetaM (FVarId × MVarId) :=
   intro1Core mvarId true
 
-private def getIntrosSize : Expr → Nat
-  | Expr.forallE _ _ b _ => getIntrosSize b + 1
-  | Expr.letE _ _ _ b _  => getIntrosSize b + 1
-  | Expr.mdata _ b       => getIntrosSize b
-  | _                    => 0
+@[deprecated MVarId.intro1P]
+abbrev intro1P (mvarId : MVarId) : MetaM (FVarId × MVarId) :=
+  mvarId.intro1P
 
-def intros (mvarId : MVarId) : MetaM (Array FVarId × MVarId) := do
-  let type ← Meta.getMVarType mvarId
+private def getIntrosSize : Expr → Nat
+  | .forallE _ _ b _ => getIntrosSize b + 1
+  | .letE _ _ _ b _  => getIntrosSize b + 1
+  | .mdata _ b       => getIntrosSize b
+  | _                => 0
+
+/--
+Introduce as many binders as possible without unfolding definitions.
+-/
+def _root_.Lean.MVarId.intros (mvarId : MVarId) : MetaM (Array FVarId × MVarId) := do
+  let type ← mvarId.getType
   let type ← instantiateMVars type
   let n := getIntrosSize type
   if n == 0 then
     return (#[], mvarId)
   else
-    Meta.introN mvarId n
+    mvarId.introN n
+
+@[deprecated MVarId.intros]
+def intros (mvarId : MVarId) : MetaM (Array FVarId × MVarId) := do
+  mvarId.intros
 
 end Lean.Meta

@@ -296,7 +296,7 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key �
       if mvarId == tmpMVarId then
         -- We use `tmp to mark implicit arguments and proofs
         return (Key.star, todo)
-      else if (← isReadOnlyOrSyntheticOpaqueExprMVar mvarId) then
+      else if (← mvarId.isReadOnlyOrSyntheticOpaque) then
         return (Key.other, todo)
       else
         return (Key.star, todo)
@@ -424,7 +424,7 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Ex
           This is incorrect because it is equivalent to saying that there is no solution even if
           the caller assigns `?m` and try again. -/
         return (Key.star, #[])
-      else if (← isReadOnlyOrSyntheticOpaqueExprMVar mvarId) then
+      else if (← mvarId.isReadOnlyOrSyntheticOpaque) then
         return (Key.other, #[])
       else
         return (Key.star, #[])

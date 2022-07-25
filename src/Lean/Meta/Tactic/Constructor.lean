@@ -10,27 +10,31 @@ import Lean.Meta.Tactic.Apply
 namespace Lean.Meta
 
 /--
-When the goal `mvarId` is an inductive datatype,
+When the goal `mvarId` type is an inductive datatype,
 `constructor` calls `apply` with the first matching constructor.
 -/
-def constructor (mvarId : MVarId) (cfg : ApplyConfig := {}) : MetaM (List MVarId) := do
-  withMVarContext mvarId do
-    checkNotAssigned mvarId `constructor
-    let target ← getMVarType' mvarId
+def _root_.Lean.MVarId.constructor (mvarId : MVarId) (cfg : ApplyConfig := {}) : MetaM (List MVarId) := do
+  mvarId.withContext do
+    mvarId.checkNotAssigned `constructor
+    let target ← mvarId.getType'
     matchConstInduct target.getAppFn
       (fun _ => throwTacticEx `constructor mvarId "target is not an inductive datatype")
       fun ival us => do
         for ctor in ival.ctors do
           try
-            return ← apply mvarId (Lean.mkConst ctor us) cfg
+            return ← mvarId.apply (Lean.mkConst ctor us) cfg
           catch _ =>
             pure ()
         throwTacticEx `constructor mvarId "no applicable constructor found"
 
-def existsIntro (mvarId : MVarId) (w : Expr) : MetaM MVarId := do
-  withMVarContext mvarId do
-    checkNotAssigned mvarId `exists
-    let target ← getMVarType' mvarId
+@[deprecated MVarId.constructor]
+def constructor (mvarId : MVarId) (cfg : ApplyConfig := {}) : MetaM (List MVarId) := do
+  mvarId.constructor cfg
+
+def _root_.Lean.MVarId.existsIntro (mvarId : MVarId) (w : Expr) : MetaM MVarId := do
+  mvarId.withContext do
+    mvarId.checkNotAssigned `exists
+    let target ← mvarId.getType'
     matchConstStruct target.getAppFn
       (fun _ => throwTacticEx `exists mvarId "target is not an inductive datatype with one constructor")
       fun _ us cval => do
@@ -41,8 +45,12 @@ def existsIntro (mvarId : MVarId) (w : Expr) : MetaM MVarId := do
         let (mvars, _, _) ← forallMetaTelescopeReducing ctorType (some (cval.numFields-2))
         let f := mkAppN ctor mvars
         checkApp f w
-        let [mvarId] ← apply mvarId <| mkApp f w
+        let [mvarId] ← mvarId.apply <| mkApp f w
           | throwTacticEx `exists mvarId "unexpected number of subgoals"
         pure mvarId
+
+@[deprecated MVarId.existsIntro]
+def existsIntro (mvarId : MVarId) (w : Expr) : MetaM MVarId := do
+  mvarId.existsIntro w
 
 end Lean.Meta

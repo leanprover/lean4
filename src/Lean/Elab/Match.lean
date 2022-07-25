@@ -529,7 +529,7 @@ where
       return mkInaccessible (← eraseInaccessibleAnnotations e)
     else
       if e'.isMVar then
-        setMVarTag e'.mvarId! (← read).userName
+        e'.mvarId!.setTag (← read).userName
       modify fun s => { s with patternVars := s.patternVars.push e' }
       return e
 

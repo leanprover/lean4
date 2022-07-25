@@ -42,7 +42,7 @@ private partial def unpackUnary (preDef : PreDefinition) (prefixSize : Nat) (mva
   let mut mvarId := mvarId
   for localDecl in (← Term.getMVarDecl mvarId).lctx, varName in varNames[:prefixSize] do
     unless localDecl.userName == varName do
-      mvarId ← rename mvarId localDecl.fvarId varName
+      mvarId ← mvarId.rename localDecl.fvarId varName
   let numPackedArgs := varNames.size - prefixSize
   let rec go (i : Nat) (mvarId : MVarId) (fvarId : FVarId) : TermElabM MVarId := do
     trace[Elab.definition.wf] "i: {i}, varNames: {varNames}, goal: {mvarId}"
@@ -50,7 +50,7 @@ private partial def unpackUnary (preDef : PreDefinition) (prefixSize : Nat) (mva
       let #[s] ← cases mvarId fvarId #[{ varNames := [varNames[prefixSize + i]!] }] | unreachable!
       go (i+1) s.mvarId s.fields[1]!.fvarId!
     else
-      rename mvarId fvarId varNames.back
+      mvarId.rename fvarId varNames.back
   go 0 mvarId fvarId
 
 def getNumCandidateArgs (fixedPrefixSize : Nat) (preDefs : Array PreDefinition) : MetaM (Array Nat) := do
@@ -115,16 +115,16 @@ where
   go (expectedType : Expr) (elements : Array TerminationByElement) : TermElabM α :=
     withDeclName unaryPreDefName <| withRef (getRefFromElems elements) do
       let mainMVarId := (← mkFreshExprSyntheticOpaqueMVar expectedType).mvarId!
-      let [fMVarId, wfRelMVarId, _] ← apply mainMVarId (← mkConstWithFreshMVarLevels ``invImage) | throwError "failed to apply 'invImage'"
-      let (d, fMVarId) ← intro1 fMVarId
+      let [fMVarId, wfRelMVarId, _] ← mainMVarId.apply (← mkConstWithFreshMVarLevels ``invImage) | throwError "failed to apply 'invImage'"
+      let (d, fMVarId) ← fMVarId.intro1
       let subgoals ← unpackMutual preDefs fMVarId d
       for (d, mvarId) in subgoals, element in elements, preDef in preDefs do
         let mvarId ← unpackUnary preDef fixedPrefixSize mvarId d element
-        withMVarContext mvarId do
-          let value ← Term.withSynthesize <| elabTermEnsuringType element.body (← getMVarType mvarId)
-          assignExprMVar mvarId value
+        mvarId.withContext do
+          let value ← Term.withSynthesize <| elabTermEnsuringType element.body (← mvarId.getType)
+          mvarId.assign value
       let wfRelVal ← synthInstance (← inferType (mkMVar wfRelMVarId))
-      assignExprMVar wfRelMVarId wfRelVal
+      wfRelMVarId.assign wfRelVal
       k (← instantiateMVars (mkMVar mainMVarId))
 
   generateElements (numArgs : Array Nat) (argCombination : Array Nat) : TermElabM (Array TerminationByElement) := do

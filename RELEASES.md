@@ -1,6 +1,10 @@
 Unreleased
 ---------
 
+* Improve `MVarId` methods discoverability. See [issue #1346](https://github.com/leanprover/lean4/issues/1346).
+  We still have to add similar methods for `FVarId`, `LVarId`, `Expr`, and other objects.
+  Many existing methods have been marked as deprecated.
+
 * Add attribute `[deprecated]` for marking deprecated declarations. Examples:
   ```lean
   def g (x : Nat) := x + 1

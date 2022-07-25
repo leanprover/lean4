@@ -11,18 +11,26 @@ import Lean.Meta.PPGoal
 namespace Lean.Meta
 
 /-- Aka user name -/
-def getMVarTag (mvarId : MVarId) : MetaM Name :=
-  return (← getMVarDecl mvarId).userName
+def _root_.Lean.MVarId.getTag (mvarId : MVarId) : MetaM Name :=
+  return (← mvarId.getDecl).userName
 
-def setMVarTag (mvarId : MVarId) (tag : Name) : MetaM Unit := do
+@[deprecated MVarId.getTag]
+def getMVarTag (mvarId : MVarId) : MetaM Name :=
+  mvarId.getTag
+
+def _root_.Lean.MVarId.setTag (mvarId : MVarId) (tag : Name) : MetaM Unit := do
   modify fun s => { s with mctx := s.mctx.setMVarUserName mvarId tag }
+
+@[deprecated MVarId.setTag]
+def setMVarTag (mvarId : MVarId) (tag : Name) : MetaM Unit := do
+  mvarId.setTag tag
 
 def appendTag (tag : Name) (suffix : Name) : Name :=
   tag.modifyBase (· ++ suffix.eraseMacroScopes)
 
 def appendTagSuffix (mvarId : MVarId) (suffix : Name) : MetaM Unit := do
-  let tag ← getMVarTag mvarId
-  setMVarTag mvarId (appendTag tag suffix)
+  let tag ← mvarId.getTag
+  mvarId.setTag (appendTag tag suffix)
 
 def mkFreshExprSyntheticOpaqueMVar (type : Expr) (tag : Name := Name.anonymous) : MetaM Expr :=
   mkFreshExprMVar type MetavarKind.syntheticOpaque tag
@@ -36,33 +44,64 @@ def throwTacticEx (tacticName : Name) (mvarId : MVarId) (msg : MessageData) : Me
 def throwNestedTacticEx {α} (tacticName : Name) (ex : Exception) : MetaM α := do
   throwError "tactic '{tacticName}' failed, nested error:\n{ex.toMessageData}"
 
-def checkNotAssigned (mvarId : MVarId) (tacticName : Name) : MetaM Unit := do
-  if (← isExprMVarAssigned mvarId) then
+/--
+Throw error message if `mvarId` is already assigned.
+-/
+def _root_.Lean.MVarId.checkNotAssigned (mvarId : MVarId) (tacticName : Name) : MetaM Unit := do
+  if (← mvarId.isAssigned) then
     throwTacticEx tacticName mvarId "metavariable has already been assigned"
 
-def getMVarType (mvarId : MVarId) : MetaM Expr :=
-  return (← getMVarDecl mvarId).type
+@[deprecated MVarId.checkNotAssigned]
+def checkNotAssigned (mvarId : MVarId) (tacticName : Name) : MetaM Unit := do
+  mvarId.checkNotAssigned tacticName
 
+def _root_.Lean.MVarId.getType (mvarId : MVarId) : MetaM Expr :=
+  return (← mvarId.getDecl).type
+
+@[deprecated MVarId.getType]
+def getMVarType (mvarId : MVarId) : MetaM Expr :=
+  mvarId.getType
+
+def _root_.Lean.MVarId.getType' (mvarId : MVarId) : MetaM Expr := do
+  whnf (← instantiateMVars (← mvarId.getType))
+
+@[deprecated MVarId.getType']
 def getMVarType' (mvarId : MVarId) : MetaM Expr := do
-  whnf (← instantiateMVars (← getMVarDecl mvarId).type)
+  mvarId.getType'
 
 builtin_initialize registerTraceClass `Meta.Tactic
 
 /-- Assign `mvarId` to `sorryAx` -/
-def admit (mvarId : MVarId) (synthetic := true) : MetaM Unit :=
-  withMVarContext mvarId do
-    checkNotAssigned mvarId `admit
-    let mvarType ← getMVarType mvarId
+def _root_.Lean.MVarId.admit (mvarId : MVarId) (synthetic := true) : MetaM Unit :=
+  mvarId.withContext do
+    mvarId.checkNotAssigned `admit
+    let mvarType ← mvarId.getType
     let val ← mkSorry mvarType synthetic
-    assignExprMVar mvarId val
+    mvarId.assign val
+
+@[deprecated MVarId.admit]
+def admit (mvarId : MVarId) (synthetic := true) : MetaM Unit :=
+  mvarId.admit synthetic
 
 /-- Beta reduce the metavariable type head -/
+def _root_.Lean.MVarId.headBetaType (mvarId : MVarId) : MetaM Unit := do
+  mvarId.setType (← mvarId.getType).headBeta
+
+@[deprecated MVarId.headBetaType]
 def headBetaMVarType (mvarId : MVarId) : MetaM Unit := do
-  setMVarType mvarId (← getMVarType mvarId).headBeta
+  mvarId.headBetaType
 
 /-- Collect nondependent hypotheses that are propositions. -/
-def getNondepPropHyps (mvarId : MVarId) : MetaM (Array FVarId) :=
-  withMVarContext mvarId do
+def _root_.Lean.MVarId.getNondepPropHyps (mvarId : MVarId) : MetaM (Array FVarId) :=
+  let removeDeps (e : Expr) (candidates : FVarIdHashSet) : MetaM FVarIdHashSet := do
+    let e ← instantiateMVars e
+    let visit : StateRefT FVarIdHashSet MetaM FVarIdHashSet := do
+      e.forEach fun
+        | Expr.fvar fvarId => modify fun s => s.erase fvarId
+        | _ => pure ()
+      get
+    visit |>.run' candidates
+  mvarId.withContext do
     let mut candidates : FVarIdHashSet := {}
     for localDecl in (← getLCtx) do
       unless localDecl.isAuxDecl do
@@ -72,7 +111,7 @@ def getNondepPropHyps (mvarId : MVarId) : MetaM (Array FVarId) :=
         | some value => candidates ← removeDeps value candidates
         if (← isProp localDecl.type) && !localDecl.hasValue then
           candidates := candidates.insert localDecl.fvarId
-    candidates ← removeDeps (← getMVarType mvarId) candidates
+    candidates ← removeDeps (← mvarId.getType) candidates
     if candidates.isEmpty then
       return #[]
     else
@@ -81,15 +120,10 @@ def getNondepPropHyps (mvarId : MVarId) : MetaM (Array FVarId) :=
         if candidates.contains localDecl.fvarId then
           result := result.push localDecl.fvarId
       return result
-where
-  removeDeps (e : Expr) (candidates : FVarIdHashSet) : MetaM FVarIdHashSet := do
-    let e ← instantiateMVars e
-    let visit : StateRefT FVarIdHashSet MetaM FVarIdHashSet := do
-      e.forEach fun
-        | Expr.fvar fvarId => modify fun s => s.erase fvarId
-        | _ => pure ()
-      get
-    visit |>.run' candidates
+
+@[deprecated MVarId.getNondepPropHyps]
+def getNondepPropHyps (mvarId : MVarId) : MetaM (Array FVarId) :=
+  mvarId.getNondepPropHyps
 
 partial def saturate (mvarId : MVarId) (x : MVarId → MetaM (Option (List MVarId))) : MetaM (List MVarId) := do
   let (_, r) ← go mvarId |>.run #[]

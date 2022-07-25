@@ -29,8 +29,8 @@ where
       | some r => return r
       | none => return Simp.Step.visit { expr := e }
 
-def simpMatchTarget (mvarId : MVarId) : MetaM MVarId := withMVarContext mvarId do
-  let target ← instantiateMVars (← getMVarType mvarId)
+def simpMatchTarget (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
+  let target ← instantiateMVars (← mvarId.getType)
   let r ← simpMatch target
   applySimpResultToTarget mvarId target r
 
@@ -51,12 +51,12 @@ where
       return Simp.Step.visit { expr := e }
 
 private def simpMatchTargetCore (mvarId : MVarId) (matchDeclName : Name) (matchEqDeclName : Name) : MetaM MVarId := do
-  withMVarContext mvarId do
-    let target ← instantiateMVars (← getMVarType mvarId)
+  mvarId.withContext do
+    let target ← instantiateMVars (← mvarId.getType)
     let r ← simpMatchCore matchDeclName matchEqDeclName target
     match r.proof? with
-    | some proof => replaceTargetEq mvarId r.expr proof
-    | none => replaceTargetDefEq mvarId r.expr
+    | some proof => mvarId.replaceTargetEq r.expr proof
+    | none => mvarId.replaceTargetDefEq r.expr
 
 private partial def withEqs (lhs rhs : Array Expr) (k : Array Expr → Array Expr → MetaM α) : MetaM α := do
   go 0 #[] #[]
@@ -99,7 +99,7 @@ where
     ⊢ g x = 2 * x + 1
     ```
 -/
-private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : Name) (motiveType : Expr) (discrs : Array Expr) : MetaM (Array FVarId × Array FVarId × MVarId) := withMVarContext mvarId do
+private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : Name) (motiveType : Expr) (discrs : Array Expr) : MetaM (Array FVarId × Array FVarId × MVarId) := mvarId.withContext do
   if discrs.all (·.isFVar) then
     return (discrs.map (·.fvarId!), #[], mvarId)
   let some matcherInfo ← getMatcherInfo? matcherDeclName | unreachable!
@@ -138,18 +138,18 @@ private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : N
             altsNew := altsNew.push altNew
           return .done { matcherApp with alts := altsNew }.toExpr
         transform (← instantiateMVars e) pre
-      let targetNew ← mkNewTarget (← getMVarType mvarId)
+      let targetNew ← mkNewTarget (← mvarId.getType)
       unless (← foundRef.get) do
         throwError "'applyMatchSplitter' failed, did not find discriminants"
       let targetNew ← mkForallFVars (discrVars ++ eqs) targetNew
       unless (← isTypeCorrect targetNew) do
         throwError "'applyMatchSplitter' failed, failed to generalize target"
       return (targetNew, rfls)
-    let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew (← getMVarTag mvarId)
+    let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew (← mvarId.getTag)
     trace[Meta.Tactic.split] "targetNew:\n{mvarNew.mvarId!}"
-    assignExprMVar mvarId (mkAppN (mkAppN mvarNew discrs) rfls)
-    let (discrs', mvarId') ← introNP mvarNew.mvarId! discrs.size
-    let (discrEqs, mvarId') ← introNP mvarId' discrs.size
+    mvarId.assign (mkAppN (mkAppN mvarNew discrs) rfls)
+    let (discrs', mvarId') ← mvarNew.mvarId!.introNP discrs.size
+    let (discrEqs, mvarId') ← mvarId'.introNP discrs.size
     return (discrs', discrEqs, mvarId')
 where
   /--
@@ -183,7 +183,7 @@ where
         k altEqsNew subst
     go 0 #[] #[]
 
-private def substDiscrEqs (mvarId : MVarId) (fvarSubst : FVarSubst) (discrEqs : Array FVarId) : MetaM MVarId := withMVarContext mvarId do
+private def substDiscrEqs (mvarId : MVarId) (fvarSubst : FVarSubst) (discrEqs : Array FVarId) : MetaM MVarId := mvarId.withContext do
   let mut mvarId := mvarId
   let mut fvarSubst := fvarSubst
   for fvarId in discrEqs do
@@ -208,14 +208,14 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
   let (discrFVarIds, discrEqs, mvarId) ← generalizeMatchDiscrs mvarId matcherDeclName motiveType discrs
   trace[Meta.Tactic.split] "after generalizeMatchDiscrs\n{mvarId}"
   let mvarId ← generalizeTargetsEq mvarId motiveType (discrFVarIds.map mkFVar)
-  withMVarContext mvarId do trace[Meta.Tactic.split] "discrEqs after generalizeTargetsEq: {discrEqs.map mkFVar}"
+  mvarId.withContext do trace[Meta.Tactic.split] "discrEqs after generalizeTargetsEq: {discrEqs.map mkFVar}"
   trace[Meta.Tactic.split] "after generalize\n{mvarId}"
   let numEqs := discrs.size
-  let (discrFVarIdsNew, mvarId) ← introN mvarId discrs.size
+  let (discrFVarIdsNew, mvarId) ← mvarId.introN discrs.size
   trace[Meta.Tactic.split] "after introN\n{mvarId}"
   let discrsNew := discrFVarIdsNew.map mkFVar
-  let mvarType ← getMVarType mvarId
-  let elimUniv ← withMVarContext mvarId <| getLevel mvarType
+  let mvarType ← mvarId.getType
+  let elimUniv ← mvarId.withContext <| getLevel mvarType
   let us ← if let some uElimPos := info.uElimPos? then
     pure <| us.set! uElimPos elimUniv
   else
@@ -223,17 +223,17 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
       throwError "match-splitter can only eliminate into `Prop`"
     pure us
   let splitter := mkAppN (mkConst matchEqns.splitterName us.toList) params
-  withMVarContext mvarId do
+  mvarId.withContext do
     let motive ← mkLambdaFVars discrsNew mvarType
     let splitter := mkAppN (mkApp splitter motive) discrsNew
     check splitter
     trace[Meta.Tactic.split] "after check splitter"
-    let mvarIds ← apply mvarId splitter
+    let mvarIds ← mvarId.apply splitter
     unless mvarIds.length == matchEqns.size do
       throwError "'applyMatchSplitter' failed, unexpected number of goals created after applying splitter for '{matcherDeclName}'."
     let (_, mvarIds) ← mvarIds.foldlM (init := (0, [])) fun (i, mvarIds) mvarId => do
       let numParams := matchEqns.splitterAltNumParams[i]!
-      let (_, mvarId) ← introN mvarId numParams
+      let (_, mvarId) ← mvarId.introN numParams
       trace[Meta.Tactic.split] "before unifyEqs\n{mvarId}"
       match (← Cases.unifyEqs? (numEqs + info.getNumDiscrEqs) mvarId {}) with
       | none   => return (i+1, mvarIds) -- case was solved
@@ -289,7 +289,7 @@ end Split
 open Split
 
 partial def splitTarget? (mvarId : MVarId) (splitIte := true) : MetaM (Option (List MVarId)) := commitWhenSome? do
-  let target ← instantiateMVars (← getMVarType mvarId)
+  let target ← instantiateMVars (← mvarId.getType)
   let rec go (badCases : ExprSet) : MetaM (Option (List MVarId)) := do
     if let some e := findSplit? (← getEnv) target splitIte badCases then
       if e.isIte || e.isDIte then
@@ -305,15 +305,15 @@ partial def splitTarget? (mvarId : MVarId) (splitIte := true) : MetaM (Option (L
   go {}
 
 def splitLocalDecl? (mvarId : MVarId) (fvarId : FVarId) : MetaM (Option (List MVarId)) := commitWhenSome? do
-  withMVarContext mvarId do
+  mvarId.withContext do
     if let some e := findSplit? (← getEnv) (← instantiateMVars (← inferType (mkFVar fvarId))) then
       if e.isIte || e.isDIte then
         return (← splitIfLocalDecl? mvarId fvarId).map fun (mvarId₁, mvarId₂) => [mvarId₁, mvarId₂]
       else
-        let (fvarIds, mvarId) ← revert mvarId #[fvarId]
+        let (fvarIds, mvarId) ← mvarId.revert #[fvarId]
         let num := fvarIds.size
         let mvarIds ← splitMatch mvarId e
-        let mvarIds ← mvarIds.mapM fun mvarId => return (← introNP mvarId num).2
+        let mvarIds ← mvarIds.mapM fun mvarId => return (← mvarId.introNP num).2
         return some mvarIds
     else
       return none

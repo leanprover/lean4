@@ -49,7 +49,7 @@ private partial def mkPSigmaCasesOn (y : Expr) (codomain : Expr) (xs : Array Exp
       go s.mvarId s.fields[1]!.fvarId! (ys.push s.fields[0]!)
     else
       let ys := ys.push (mkFVar y)
-      assignExprMVar mvarId (value.replaceFVars xs ys)
+      mvarId.assign (value.replaceFVars xs ys)
   go mvar.mvarId! y.fvarId! #[]
   instantiateMVars mvar
 

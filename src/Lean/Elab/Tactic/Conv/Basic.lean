@@ -22,10 +22,10 @@ def mkConvGoalFor (lhs : Expr) : MetaM (Expr × Expr) := do
   return (rhs, newGoal)
 
 def markAsConvGoal (mvarId : MVarId) : MetaM MVarId := do
-  let target ← getMVarType mvarId
+  let target ← mvarId.getType
   if isLHSGoal? target |>.isSome then
     return mvarId -- it is already tagged as LHS goal
-  replaceTargetDefEq mvarId (mkLHSGoal (← getMVarType mvarId))
+  mvarId.replaceTargetDefEq (mkLHSGoal (← mvarId.getType))
 
 /-- Given `lhs`, runs the `conv` tactic with the goal `⊢ lhs = ?rhs`.
 `conv` should produce no remaining goals that are not solvable with refl.
@@ -50,8 +50,8 @@ def convert (lhs : Expr) (conv : TacticM Unit) : TacticM (Expr × Expr) := do
   return (← instantiateMVars rhs, ← instantiateMVars newGoal)
 
 def getLhsRhsCore (mvarId : MVarId) : MetaM (Expr × Expr) :=
-  withMVarContext mvarId do
-    let some (_, lhs, rhs) ← matchEq? (← getMVarType mvarId) | throwError "invalid 'conv' goal"
+  mvarId.withContext do
+    let some (_, lhs, rhs) ← matchEq? (← mvarId.getType) | throwError "invalid 'conv' goal"
     return (lhs, rhs)
 
 def getLhsRhs : TacticM (Expr × Expr) := do
@@ -67,14 +67,14 @@ def getRhs : TacticM Expr :=
 def updateLhs (lhs' : Expr) (h : Expr) : TacticM Unit := do
   let rhs ← getRhs
   let newGoal ← mkFreshExprSyntheticOpaqueMVar (mkLHSGoal (← mkEq lhs' rhs))
-  assignExprMVar (← getMainGoal) (← mkEqTrans h newGoal)
+  (← getMainGoal).assign (← mkEqTrans h newGoal)
   replaceMainGoal [newGoal.mvarId!]
 
 /-- Replace `lhs` with the definitionally equal `lhs'`. -/
 def changeLhs (lhs' : Expr) : TacticM Unit := do
   let rhs ← getRhs
   liftMetaTactic1 fun mvarId => do
-    replaceTargetDefEq mvarId (mkLHSGoal (← mkEq lhs' rhs))
+    mvarId.replaceTargetDefEq (mkLHSGoal (← mkEq lhs' rhs))
 
 @[builtinTactic Lean.Parser.Tactic.Conv.whnf] def evalWhnf : Tactic := fun _ =>
    withMainContext do
@@ -115,11 +115,11 @@ def changeLhs (lhs' : Expr) : TacticM Unit := do
 
 /-- Mark goals of the form `⊢ a = ?m ..` with the conv goal annotation -/
 def remarkAsConvGoal : TacticM Unit := do
-  let newGoals ← (← getUnsolvedGoals).mapM fun mvarId => withMVarContext mvarId do
-    let target ← getMVarType mvarId
+  let newGoals ← (← getUnsolvedGoals).mapM fun mvarId => mvarId.withContext do
+    let target ← mvarId.getType
     if let some (_, _, rhs) ← matchEq? target then
       if rhs.getAppFn.isMVar then
-        replaceTargetDefEq mvarId (mkLHSGoal target)
+        mvarId.replaceTargetDefEq (mkLHSGoal target)
       else
         return mvarId
     else
@@ -135,20 +135,20 @@ def remarkAsConvGoal : TacticM Unit := do
   let target ← getMainTarget
   if let some _ := isLHSGoal? target then
     liftMetaTactic1 fun mvarId =>
-      replaceTargetDefEq mvarId target.mdataExpr!
+      mvarId.replaceTargetDefEq target.mdataExpr!
   focus do evalTactic seq; remarkAsConvGoal
 
 private def convTarget (conv : Syntax) : TacticM Unit := withMainContext do
    let target ← getMainTarget
    let (targetNew, proof) ← convert target (withTacticInfoContext (← getRef) (evalTactic conv))
-   liftMetaTactic1 fun mvarId => replaceTargetEq mvarId targetNew proof
+   liftMetaTactic1 fun mvarId => mvarId.replaceTargetEq targetNew proof
    evalTactic (← `(tactic| try rfl))
 
 private def convLocalDecl (conv : Syntax) (hUserName : Name) : TacticM Unit := withMainContext do
    let localDecl ← getLocalDeclFromUserName hUserName
    let (typeNew, proof) ← convert localDecl.type (withTacticInfoContext (← getRef) (evalTactic conv))
    liftMetaTactic1 fun mvarId =>
-     return some (← replaceLocalDecl mvarId localDecl.fvarId typeNew proof).mvarId
+     return some (← mvarId.replaceLocalDecl localDecl.fvarId typeNew proof).mvarId
 
 @[builtinTactic Lean.Parser.Tactic.Conv.conv] def evalConv : Tactic := fun stx => do
   match stx with

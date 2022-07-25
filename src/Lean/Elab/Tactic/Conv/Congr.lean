@@ -40,11 +40,11 @@ private def congrApp (mvarId : MVarId) (lhs rhs : Expr) (addImplicitArgs := fals
     let proof ← r.getProof
     unless (← isDefEqGuarded rhs r.expr) do
       throwError "invalid 'congr' conv tactic, failed to resolve{indentExpr rhs}\n=?={indentExpr r.expr}"
-    assignExprMVar mvarId proof
+    mvarId.assign proof
     return newGoals.toList
 
 private def congrImplies (mvarId : MVarId) : MetaM (List MVarId) := do
-  let [mvarId₁, mvarId₂, _, _] ← apply mvarId (← mkConstWithFreshMVarLevels ``implies_congr) | throwError "'apply implies_congr' unexpected result"
+  let [mvarId₁, mvarId₂, _, _] ← mvarId.apply (← mkConstWithFreshMVarLevels ``implies_congr) | throwError "'apply implies_congr' unexpected result"
   let mvarId₁ ← markAsConvGoal mvarId₁
   let mvarId₂ ← markAsConvGoal mvarId₂
   return [mvarId₁, mvarId₂]
@@ -57,7 +57,7 @@ def isImplies (e : Expr) : MetaM Bool :=
     return false
 
 def congr (mvarId : MVarId) (addImplicitArgs := false) : MetaM (List (Option MVarId)) :=
-  withMVarContext mvarId do
+  mvarId.withContext do
     let (lhs, rhs) ← getLhsRhsCore mvarId
     let lhs := (← instantiateMVars lhs).consumeMData
     if (← isImplies lhs) then
@@ -131,18 +131,18 @@ def extLetBodyCongr? (mvarId : MVarId) (lhs rhs : Expr) : MetaM (Option MVarId) 
       let arg ← mkLambdaFVars #[x] mvarNew
       return (arg, mvarNew.mvarId!)
     let val := mkApp6 (mkConst ``let_body_congr [u₁, u₂]) t β f f' v arg
-    assignExprMVar mvarId val
+    mvarId.assign val
     return some (← markAsConvGoal mvarId')
   | _ => return none
 
 private def extCore (mvarId : MVarId) (userName? : Option Name) : MetaM MVarId :=
-   withMVarContext mvarId do
+   mvarId.withContext do
      let userNames := if let some userName := userName? then [userName] else []
      let (lhs, rhs) ← getLhsRhsCore mvarId
      let lhs ← instantiateMVars lhs
      if lhs.isForall then
-       let [mvarId, _] ← apply mvarId (← mkConstWithFreshMVarLevels ``forall_congr) | throwError "'apply forall_congr' unexpected result"
-       let (_, mvarId) ← introN mvarId 1 userNames
+       let [mvarId, _] ← mvarId.apply (← mkConstWithFreshMVarLevels ``forall_congr) | throwError "'apply forall_congr' unexpected result"
+       let (_, mvarId) ← mvarId.introN 1 userNames
        markAsConvGoal mvarId
      else if let some mvarId ← extLetBodyCongr? mvarId lhs rhs then
        return mvarId
@@ -150,8 +150,8 @@ private def extCore (mvarId : MVarId) (userName? : Option Name) : MetaM MVarId :
        let lhsType ← whnfD (← inferType lhs)
        unless lhsType.isForall do
          throwError "invalid 'ext' conv tactic, function or arrow expected{indentD m!"{lhs} : {lhsType}"}"
-       let [mvarId] ← apply mvarId (← mkConstWithFreshMVarLevels ``funext) | throwError "'apply funext' unexpected result"
-       let (_, mvarId) ← introN mvarId 1 userNames
+       let [mvarId] ← mvarId.apply (← mkConstWithFreshMVarLevels ``funext) | throwError "'apply funext' unexpected result"
+       let (_, mvarId) ← mvarId.introN 1 userNames
        markAsConvGoal mvarId
 
 private def ext (userName? : Option Name) : TacticM Unit := do

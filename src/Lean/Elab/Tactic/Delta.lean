@@ -16,7 +16,7 @@ def deltaLocalDecl (declName : Name) (fvarId : FVarId) : TacticM Unit := do
   let typeNew ← deltaExpand localDecl.type (· == declName)
   if typeNew == localDecl.type then
     throwTacticEx `delta mvarId m!"did not delta reduce '{declName}' at '{localDecl.userName}'"
-  replaceMainGoal [← replaceLocalDeclDefEq mvarId fvarId typeNew]
+  replaceMainGoal [← mvarId.replaceLocalDeclDefEq fvarId typeNew]
 
 def deltaTarget (declName : Name) : TacticM Unit := do
   let mvarId ← getMainGoal
@@ -24,7 +24,7 @@ def deltaTarget (declName : Name) : TacticM Unit := do
   let targetNew ← deltaExpand target (· == declName)
   if targetNew == target then
     throwTacticEx `delta mvarId m!"did not delta reduce '{declName}'"
-  replaceMainGoal [← replaceTargetDefEq mvarId targetNew]
+  replaceMainGoal [← mvarId.replaceTargetDefEq targetNew]
 
 /--
   "delta " ident (location)?

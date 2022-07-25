@@ -562,7 +562,7 @@ def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) (extraMsg? : Op
     -- To sort the errors by position use
     -- let sortedErrors := errors.qsort fun e₁ e₂ => e₁.ref.getPos?.getD 0 < e₂.ref.getPos?.getD 0
     for error in errors do
-      withMVarContext error.mvarId do
+      error.mvarId.withContext do
         error.logError extraMsg?
     return hasNewErrors
 
@@ -717,7 +717,7 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
   let result ← trySynthInstance type maxResultSize?
   match result with
   | LOption.some val =>
-    if (← isExprMVarAssigned instMVar) then
+    if (← instMVar.isAssigned) then
       let oldVal ← instantiateMVars (mkMVar instMVar)
       unless (← isDefEq oldVal val) do
         if (← containsPendingMVar oldVal <||> containsPendingMVar val) then
@@ -1485,7 +1485,7 @@ where
     match mvarIds with
     | [] => return result
     | mvarId :: mvarIds => do
-      if (← isExprMVarAssigned mvarId) then
+      if (← mvarId.isAssigned) then
         go mvarIds result
       else if result.contains (mkMVar mvarId) || except mvarId then
         go mvarIds result
@@ -1778,7 +1778,7 @@ def exprToSyntax (e : Expr) : TermElabM Term := withFreshMacroScope do
   let result ← `(?m)
   let eType ← inferType e
   let mvar ← elabTerm result eType
-  assignExprMVar mvar.mvarId! e
+  mvar.mvarId!.assign e
   return result
 
 end Term

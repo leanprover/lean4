@@ -12,8 +12,8 @@ private def heqToEq' (mvarId : MVarId) (eqDecl : LocalDecl) : MetaM MVarId := do
   /- Convert heterogeneous equality into a homegeneous one -/
   let prf    ← mkEqOfHEq (mkFVar eqDecl.fvarId)
   let aEqb   ← whnf (← inferType prf)
-  let mvarId ← assert mvarId eqDecl.userName aEqb prf
-  clear mvarId eqDecl.fvarId
+  let mvarId ← mvarId.assert eqDecl.userName aEqb prf
+  mvarId.clear eqDecl.fvarId
 
 structure UnifyEqResult where
   mvarId    : MVarId
@@ -38,7 +38,7 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
              (acyclic : MVarId → Expr → MetaM Bool := fun _ _ => return false)
              (caseName? : Option Name := none)
              : MetaM (Option UnifyEqResult) := do
-  withMVarContext mvarId do
+   mvarId.withContext do
     let eqDecl ← getLocalDecl eqFVarId
     if eqDecl.type.isHEq then
       let mvarId ← heqToEq' mvarId eqDecl
@@ -58,7 +58,7 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
             return some { mvarId, subst }
           else if (← isDefEq a b) then
             /- Skip equality -/
-            return some { mvarId := (← clear mvarId eqFVarId), subst }
+            return some { mvarId := (←  mvarId.clear eqFVarId), subst }
           else if (← acyclic mvarId (mkFVar eqFVarId)) then
             return none -- this alternative has been solved
           else
@@ -77,8 +77,8 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
               /- Reduced lhs/rhs of current equality -/
               let prf := mkFVar eqFVarId
               let aEqb'  ← mkEq a' b'
-              let mvarId ← assert mvarId eqDecl.userName aEqb' prf
-              let mvarId ← clear mvarId eqFVarId
+              let mvarId ← mvarId.assert eqDecl.userName aEqb' prf
+              let mvarId ←  mvarId.clear eqFVarId
               return some { mvarId, subst, numNewEqs := 1 }
             else
               match caseName? with
@@ -97,7 +97,7 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
         | a, b              =>
           if (← isDefEq a b) then
             /- Skip equality -/
-            return some { mvarId := (← clear mvarId eqFVarId), subst }
+            return some { mvarId := (← mvarId.clear eqFVarId), subst }
           else
             injection a b
 

@@ -25,7 +25,7 @@ private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
   trace[Elab.definition.structural.eqns] "proving: {type}"
   withNewMCtxDepth do
     let main ← mkFreshExprSyntheticOpaqueMVar type
-    let (_, mvarId) ← intros main.mvarId!
+    let (_, mvarId) ← main.mvarId!.intros
     unless (← tryURefl mvarId) do -- catch easy cases
       go (← deltaLHS mvarId)
     instantiateMVars main

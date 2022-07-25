@@ -127,7 +127,7 @@ partial def normExpr (e : Expr) : M Expr := do
     | Expr.mdata _ b       => return e.updateMData! (← normExpr b)
     | Expr.proj _ _ b      => return e.updateProj! (← normExpr b)
     | Expr.mvar mvarId     =>
-      if !(← isExprMVarAssignable mvarId) then
+      if !(← mvarId.isAssignable) then
         return e
       else
         let s ← get
@@ -749,8 +749,8 @@ def synthInstance (type : Expr) (maxResultSize? : Option Nat := none) : MetaM Ex
     (fun _ => throwError "failed to synthesize{indentExpr type}")
 
 @[export lean_synth_pending]
-private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth <| withMVarContext mvarId do
-  let mvarDecl ← getMVarDecl mvarId
+private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth <| mvarId.withContext do
+  let mvarDecl ← mvarId.getDecl
   match mvarDecl.kind with
   | MetavarKind.syntheticOpaque =>
     return false
@@ -773,10 +773,10 @@ private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth <|
           | none     =>
             return false
           | some val =>
-            if (← isExprMVarAssigned mvarId) then
+            if (← mvarId.isAssigned) then
               return false
             else
-              assignExprMVar mvarId val
+              mvarId.assign val
               return true
 
 builtin_initialize

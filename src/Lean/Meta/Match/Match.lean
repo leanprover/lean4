@@ -76,7 +76,7 @@ def assignGoalOf (p : Problem) (e : Expr) : MetaM Unit :=
     let eType ← inferType e
     unless (← isDefEq mvarType eType) do
       throwError "dependent elimination failed, type mismatch when solving alternative with type{indentExpr eType}\nbut expected{indentExpr mvarType}"
-    assignExprMVar p.mvarId e
+    p.mvarId.assign e
 
 structure State where
   used            : Std.HashSet Nat := {} -- used alternatives
@@ -173,7 +173,7 @@ private def processLeaf (p : Problem) : StateRefT State MetaM Unit := do
     /- TODO: allow users to configure which tactic is used to close leaves. -/
     unless (← contradictionCore p.mvarId {}) do
       trace[Meta.Match.match] "missing alternative"
-      admit p.mvarId
+      p.mvarId.admit
       modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
   | alt :: _ =>
     -- TODO: check whether we have unassigned metavars in rhs
@@ -465,7 +465,7 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
     match subgoals? with
     | none          => return #[{ p with vars := xs }]
     | some subgoals =>
-      subgoals.mapM fun subgoal => withMVarContext subgoal.mvarId do
+      subgoals.mapM fun subgoal => subgoal.mvarId.withContext do
         let subst    := subgoal.subst
         let fields   := subgoal.fields.toList
         let newVars  := fields ++ xs

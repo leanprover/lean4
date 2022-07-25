@@ -1,6 +1,11 @@
 Unreleased
 ---------
 
+* "jump-to-definition" now works for function names embedded in the following attributes
+  `@[implementedBy funName]`, `@[tactic parserName]`, `@[termElab parserName]`, `@[commandElab parserName]`,
+  `@[builtinTactic parserName]`, `@[builtinTermElab parserName]`, and `@[builtinCommandElab parserName]`.
+   See [issue #1350](https://github.com/leanprover/lean4/issues/1350).
+
 * Improve `MVarId` methods discoverability. See [issue #1346](https://github.com/leanprover/lean4/issues/1346).
   We still have to add similar methods for `FVarId`, `LVarId`, `Expr`, and other objects.
   Many existing methods have been marked as deprecated.

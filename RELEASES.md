@@ -14,13 +14,17 @@ Unreleased
   ```lean
   def g (x : Nat) := x + 1
 
-  -- Whenever `f` is used, a warning message is generated suggestiong to use `g` instead.
+  -- Whenever `f` is used, a warning message is generated suggesting to use `g` instead.
   @[deprecated g]
   def f (x : Nat) := x + 1
+
+  #check f 0 -- warning: `f` has been deprecated, use `g` instead
 
   -- Whenever `h` is used, a warning message is generated.
   @[deprecated]
   def h (x : Nat) := x + 1
+
+  #check h 0 -- warning: `h` has been deprecated
   ```
 
 * Add type `LevelMVarId` (and abbreviation `LMVarId`) for universe level metavariable ids.

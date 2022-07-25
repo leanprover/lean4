@@ -178,7 +178,7 @@ private def expandWhereStructInst : Macro
   | `(Parser.Command.whereStructInst|where $[$decls:letDecl];* $[$whereDecls?:whereDecls]?) => do
     let letIdDecls ← decls.mapM fun stx => match stx with
       | `(letDecl|$_decl:letPatDecl) => Macro.throwErrorAt stx "patterns are not allowed here"
-      | `(letDecl|$decl:letEqnsDecl) => expandLetEqnsDecl decl
+      | `(letDecl|$decl:letEqnsDecl) => expandLetEqnsDecl decl (useExplicit := false)
       | `(letDecl|$decl:letIdDecl)   => pure decl
       | _                            => Macro.throwUnsupported
     let structInstFields ← letIdDecls.mapM fun

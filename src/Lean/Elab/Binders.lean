@@ -469,6 +469,13 @@ private def expandMatchAltsIntoMatchAux (matchAlts : Syntax) (isTactic : Bool) (
   ```
   We use `useExplicit = false` when we are elaborating the `fun | ... => ... | ...` notation. See issue #1132.
   If `@fun` is used with this notation, the we set `useExplicit = true`.
+  We also use `useExplicit = false` when processing `instance ... where` notation declarations. The motivation is to have compact declarations such as
+  ```
+  instance [Alternative m] : MonadLiftT Option m where
+  monadLift -- We don't want to provide the implicit arguments of `monadLift` here. One should use `monadLift := @fun ...` if they want to provide them.
+    | some a => pure a
+    | none => failure
+  ```
 
   Remark: we add `@` at discriminants to make sure we don't consume implicit arguments, and to make the behavior consistent with `fun`.
   Example:
@@ -650,10 +657,10 @@ def mkLetIdDeclView (letIdDecl : Syntax) : LetIdDeclView :=
   let value   := letIdDecl[4]
   { id, binders, type, value }
 
-def expandLetEqnsDecl (letDecl : Syntax) : MacroM Syntax := do
+def expandLetEqnsDecl (letDecl : Syntax) (useExplicit := true) : MacroM Syntax := do
   let ref       := letDecl
   let matchAlts := letDecl[3]
-  let val ← expandMatchAltsIntoMatch ref matchAlts
+  let val ← expandMatchAltsIntoMatch ref matchAlts (useExplicit := useExplicit)
   return mkNode `Lean.Parser.Term.letIdDecl #[letDecl[0], letDecl[1], letDecl[2], mkAtomFrom ref " := ", val]
 
 def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : Bool) (elabBodyFirst : Bool) (usedLetOnly : Bool) : TermElabM Expr := do

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Attributes
 import Lean.Declaration
 import Lean.MonadEnv
+import Lean.Elab.InfoTree
 
 namespace Lean.Compiler
 
@@ -14,8 +15,8 @@ builtin_initialize implementedByAttr : ParametricAttribute Name ← registerPara
   descr := "name of the Lean (probably unsafe) function that implements opaque constant"
   getParam := fun declName stx => do
     let decl ← getConstInfo declName
-    let fnName ← Attribute.Builtin.getIdent stx
-    let fnName ← resolveGlobalConstNoOverload fnName
+    let fnNameStx ← Attribute.Builtin.getIdent stx
+    let fnName ← Elab.resolveGlobalConstNoOverloadWithInfo fnNameStx
     let fnDecl ← getConstInfo fnName
     unless decl.levelParams.length == fnDecl.levelParams.length do
       throwError "invalid 'implementedBy' argument '{fnName}', '{fnName}' has {fnDecl.levelParams.length} universe level parameter(s), but '{declName}' has {decl.levelParams.length}"

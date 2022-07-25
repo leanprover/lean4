@@ -5,7 +5,7 @@ Authors: Mac Malone
 -/
 import Lake.Build.Monad
 import Lake.Build.Actions
-import Lake.Build.IndexTargets
+import Lake.Build.Index
 import Lake.Build.Module
 import Lake.Build.Package
 import Lake.Build.Imports

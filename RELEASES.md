@@ -1,6 +1,19 @@
 Unreleased
 ---------
 
+* Add attribute `[deprecated]` for marking deprecated declarations. Examples:
+  ```lean
+  def g (x : Nat) := x + 1
+
+  -- Whenever `f` is used, a warning message is generated suggestiong to use `g` instead.
+  @[deprecated g]
+  def f (x : Nat) := x + 1
+
+  -- Whenever `h` is used, a warning message is generated.
+  @[deprecated]
+  def h (x : Nat) := x + 1
+  ```
+
 * Add type `LevelMVarId` (and abbreviation `LMVarId`) for universe level metavariable ids.
   Motivation: prevent meta-programmers from mixing up universe and expression metavariable ids.
 

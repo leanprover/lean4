@@ -120,7 +120,6 @@ structure State where
   pendingMVars      : List MVarId := {}
   mvarErrorInfos    : MVarIdMap MVarErrorInfo := {}
   letRecsToLift     : List LetRecToLift := []
-  infoState         : InfoState := {}
   deriving Inhabited
 
 end Term
@@ -250,12 +249,12 @@ protected def saveState : TermElabM SavedState :=
 
 def SavedState.restore (s : SavedState) (restoreInfo : Bool := false) : TermElabM Unit := do
   let traceState ← getTraceState -- We never backtrack trace message
-  let infoState := (← get).infoState -- We also do not backtrack the info nodes when `restoreInfo == false`
+  let infoState ← getInfoState -- We also do not backtrack the info nodes when `restoreInfo == false`
   s.meta.restore
   set s.elab
   setTraceState traceState
   unless restoreInfo do
-    modify fun s => { s with infoState }
+    setInfoState infoState
 
 instance : MonadBacktrack SavedState TermElabM where
   saveState      := Term.saveState
@@ -330,16 +329,12 @@ instance : AddErrorMessageContext TermElabM where
     let msg ← addMacroStack msg ctx.macroStack
     pure (ref, msg)
 
-instance : MonadInfoTree TermElabM where
-  getInfoState      := return (← get).infoState
-  modifyInfoState f := modify fun s => { s with infoState := f s.infoState }
-
 /--
   Execute `x` but discard changes performed at `Term.State` and `Meta.State`.
-  Recall that the environment is at `Core.State`. Thus, any updates to it will
+  Recall that the `Environment` and `InfoState` are at `Core.State`. Thus, any updates to it will
   be preserved. This method is useful for performing computations where all
   metavariable must be resolved or discarded.
-  The info trees are not discarded, however, and wrapped in `InfoTree.Context`
+  The `InfoTree`s are not discarded, however, and wrapped in `InfoTree.Context`
   to store their metavariable context. -/
 def withoutModifyingElabMetaStateWithInfo (x : TermElabM α) : TermElabM α := do
   let s ← get
@@ -347,7 +342,7 @@ def withoutModifyingElabMetaStateWithInfo (x : TermElabM α) : TermElabM α := d
   try
     withSaveInfoContext x
   finally
-    modify ({ s with infoState := ·.infoState })
+    set s
     set sMeta
 
 /--
@@ -358,7 +353,7 @@ private def withoutModifyingStateWithInfoAndMessagesImpl (x : TermElabM α) : Te
   try
     withSaveInfoContext x
   finally
-    let saved := { saved with elab.infoState := (← get).infoState, meta.core.messages := (← getThe Core.State).messages }
+    let saved := { saved with meta.core.infoState := (← getInfoState), meta.core.messages := (← getThe Core.State).messages }
     restoreState saved
 
 /--

@@ -163,4 +163,7 @@ instance [MonadLift m n] [MonadInfoTree m] : MonadInfoTree n where
   getInfoState      := liftM (getInfoState : m _)
   modifyInfoState f := liftM (modifyInfoState f : m _)
 
+def setInfoState [MonadInfoTree m] (s : InfoState) : m Unit :=
+  modifyInfoState fun _ => s
+
 end Lean.Elab

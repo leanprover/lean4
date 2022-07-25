@@ -13,6 +13,7 @@ import Lean.InternalExceptionId
 import Lean.Eval
 import Lean.MonadEnv
 import Lean.ResolveName
+import Lean.Elab.InfoTree.Types
 
 namespace Lean
 namespace Core
@@ -35,16 +36,19 @@ structure Cache where
 /-- State for the CoreM monad. -/
 structure State where
   env             : Environment
-  nextMacroScope  : MacroScope    := firstFrontendMacroScope + 1
-  ngen            : NameGenerator := {}
-  traceState      : TraceState    := {}
-  cache           : Cache         := {}
-  messages        : MessageLog := {}
+  nextMacroScope  : MacroScope     := firstFrontendMacroScope + 1
+  ngen            : NameGenerator  := {}
+  traceState      : TraceState     := {}
+  cache           : Cache          := {}
+  messages        : MessageLog     := {}
+  infoState       : Elab.InfoState := {}
   deriving Inhabited
 
 /-- Context for the CoreM monad. -/
 structure Context where
+  /-- Name of the file being compiled. -/
   fileName       : String
+  /-- Auxiliary datastructure for converting `String.Pos` into Line/Column number. -/
   fileMap        : FileMap
   options        : Options := {}
   currRecDepth   : Nat := 0
@@ -112,8 +116,12 @@ instance : MonadQuotation CoreM where
   getMainModule       := return (← get).env.mainModule
   withFreshMacroScope := Core.withFreshMacroScope
 
+instance : Elab.MonadInfoTree CoreM where
+  getInfoState      := return (← get).infoState
+  modifyInfoState f := modify fun s => { s with infoState := f s.infoState }
+
 @[inline] def modifyCache (f : Cache → Cache) : CoreM Unit :=
-  modify fun ⟨env, next, ngen, trace, cache, messages⟩ => ⟨env, next, ngen, trace, f cache, messages⟩
+  modify fun ⟨env, next, ngen, trace, cache, messages, infoState⟩ => ⟨env, next, ngen, trace, f cache, messages, infoState⟩
 
 @[inline] def modifyInstLevelTypeCache (f : InstantiateLevelCache → InstantiateLevelCache) : CoreM Unit :=
   modifyCache fun ⟨c₁, c₂⟩ => ⟨f c₁, c₂⟩
@@ -150,7 +158,7 @@ instance : MonadTrace CoreM where
 
 /-- Restore backtrackable parts of the state. -/
 def restore (b : State) : CoreM Unit :=
-  modify fun s => { s with env := b.env, messages := b.messages }
+  modify fun s => { s with env := b.env, messages := b.messages, infoState := b.infoState }
 
 private def mkFreshNameImp (n : Name) : CoreM Name := do
   let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })

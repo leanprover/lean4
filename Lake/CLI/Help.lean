@@ -73,21 +73,15 @@ A target is specified with a string of the form:
 The optional `@` and `+` markers can be used to disambiguate packages
 and modules from other kinds of targets (i.e., executables and libraries).
 
-PACKAGE FACETS:         build the package's ...
-  exe                   binary executable
-  leanLib               Lean library (*.olean and *.ilean files)
-  staticLib             static library
-  sharedLib             shared library
-
 LIBRARY FACETS:         build the library's ...
-  lean                  Lean binaries (*.olean and *.ilean files)
-  static                static binary
-  shared                shared binary
+  lean (default)        Lean binaries (*.olean and *.ilean files)
+  static                static binary (*.a file)
+  shared                shared binary (*.so, *.dll, or *.dylib file)
 
 MODULE FACETS:          build the module's ...
-  [default]             Lean binaries (*.olean and *.ilean files)
-  c                     *.c file
-  o                     *.o file (of the *.c file)
+  bin (default)         Lean binaries (*.olean and *.ilean files)
+  c                     C file produced by `lean`
+  o                     *.o object file (of its `lean.c` C file)
   dynlib                shared library (e.g., for `--load-dynlib`)
 
 TARGET EXAMPLES:        build the ...
@@ -95,9 +89,7 @@ TARGET EXAMPLES:        build the ...
   @a                    default target(s) of package `a`
   +A                    olean and .ilean files of module `A`
   a/b                   default facet of target `b` of package `a`
-  a/+A:c                c file of module `A` of package `a`
-  @a:leanLib            lean library of package `a`
-  :exe                  root package's executable
+  a/+A:c           C file of module `A` of package `a`
 
 A bare `build` command will build the default facet of the root package.
 Package dependencies are not updated during a build."

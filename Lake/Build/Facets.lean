@@ -39,11 +39,11 @@ which produce the Lean binaries of the module (i.e., `olean` and `ilean`).
 It is thus the facet used by default for building imports of a module.
 Also, if the module is not lean-only, it produces `c` files as well.
 -/
-abbrev Module.leanBinFacet  := `lean.bin
-module_data lean.bin : ActiveOpaqueTarget
+abbrev Module.leanBinFacet := `bin
+module_data bin : ActiveOpaqueTarget
 
 /-- The `olean` file produced by `lean`  -/
-abbrev Module.oleanFacet  := `olean
+abbrev Module.oleanFacet := `olean
 module_data olean : ActiveFileTarget
 
 /-- The `ilean` file produced by `lean` -/
@@ -51,12 +51,12 @@ abbrev Module.ileanFacet := `ilean
 module_data ilean : ActiveFileTarget
 
 /-- The C file built from the Lean file via `lean` -/
-abbrev Module.cFacet := `lean.c
-module_data lean.c : ActiveFileTarget
+abbrev Module.cFacet := `c
+module_data c : ActiveFileTarget
 
 /-- The object file built from `lean.c` -/
-abbrev Module.oFacet := `lean.o
-module_data lean.o : ActiveFileTarget
+abbrev Module.oFacet := `o
+module_data o : ActiveFileTarget
 
 /-- Shared library for `--load-dynlib` -/
 abbrev Module.dynlibFacet := `dynlib

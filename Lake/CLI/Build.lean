@@ -18,18 +18,8 @@ def parsePackageSpec (ws : Workspace) (spec : String) : Except CliError Package 
 
 open Module in
 def resolveModuleTarget (ws : Workspace) (mod : Module) (facet : Name) : Except CliError OpaqueTarget :=
-  if facet.isAnonymous || facet == `bin  then
+  if facet.isAnonymous then
     return mod.facetTarget leanBinFacet
-  else if facet == `ilean then
-    return mod.facetTarget ileanFacet
-  else if facet == `olean then
-    return mod.facetTarget oleanFacet
-  else if facet == `c then
-    return mod.facetTarget cFacet
-  else if facet == `o then
-    return mod.facetTarget oFacet
-  else if facet == `dynlib then
-    return mod.facetTarget dynlibFacet
   else if let some config := ws.findModuleFacetConfig? facet then do
     let some target := config.toTarget? (mod.facet facet) rfl
       | throw <| CliError.nonTargetFacet "module" facet

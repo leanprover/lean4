@@ -22,6 +22,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__10;
 static lean_object* l_Lean_Elab_Tactic_evalSplit___lambda__2___closed__1;
 static lean_object* l_Lean_Elab_Tactic_evalSplit___lambda__6___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__12;
+lean_object* l_Lean_MVarId_getNondepPropHyps(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Elab_Tactic_withMainContext___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSplit(lean_object*);
@@ -42,7 +43,6 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_evalSpli
 lean_object* l_Lean_Elab_Tactic_expandOptLocation(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__7;
-lean_object* l_Lean_Meta_getNondepPropHyps(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSplit_declRange___closed__4;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSplit_declRange(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalSplit___closed__1;
@@ -427,7 +427,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_11);
-x_13 = l_Lean_Meta_getNondepPropHyps(x_11, x_5, x_6, x_7, x_8, x_12);
+x_13 = l_Lean_MVarId_getNondepPropHyps(x_11, x_5, x_6, x_7, x_8, x_12);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; size_t x_17; size_t x_18; lean_object* x_19; lean_object* x_20; 

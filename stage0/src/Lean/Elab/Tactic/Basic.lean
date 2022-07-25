@@ -21,9 +21,9 @@ open Meta
 
 /-- Assign `mvarId := sorry` -/
 def admitGoal (mvarId : MVarId) : MetaM Unit :=
-  withMVarContext mvarId do
+  mvarId.withContext do
     let mvarType ← inferType (mkMVar mvarId)
-    assignExprMVar mvarId (← mkSorry mvarType (synthetic := true))
+    mvarId.assign (← mkSorry mvarType (synthetic := true))
 
 def goalsToMessageData (goals : List MVarId) : MessageData :=
   MessageData.joinSep (goals.map MessageData.ofGoal) m!"\n\n"
@@ -48,7 +48,7 @@ structure Context where
 structure SavedState where
   term   : Term.SavedState
   tactic : State
-  
+
 abbrev TacticM := ReaderT Context $ StateRefT State TermElabM
 abbrev Tactic  := Syntax → TacticM Unit
 
@@ -64,7 +64,7 @@ def setGoals (mvarIds : List MVarId) : TacticM Unit :=
 
 def pruneSolvedGoals : TacticM Unit := do
   let gs ← getGoals
-  let gs ← gs.filterM fun g => not <$> isExprMVarAssigned g
+  let gs ← gs.filterM fun g => not <$> g.isAssigned
   setGoals gs
 
 def getUnsolvedGoals : TacticM (List MVarId) := do
@@ -78,7 +78,7 @@ def getUnsolvedGoals : TacticM (List MVarId) := do
   Prod.fst <$> x.runCore ctx s
 
 def run (mvarId : MVarId) (x : TacticM Unit) : TermElabM (List MVarId) :=
-  withMVarContext mvarId do
+  mvarId.withContext do
    let pendingMVarsSaved := (← get).pendingMVars
    modify fun s => { s with pendingMVars := [] }
    let aux : TacticM (List MVarId) :=
@@ -304,7 +304,7 @@ where
   loop : List MVarId → TacticM MVarId
     | [] => throwNoGoalsToBeSolved
     | mvarId :: mvarIds => do
-      if (← isExprMVarAssigned mvarId) then
+      if (← mvarId.isAssigned) then
         loop mvarIds
       else
         setGoals (mvarId :: mvarIds)
@@ -312,7 +312,7 @@ where
 
 /-- Return the main goal metavariable declaration. -/
 def getMainDecl : TacticM MetavarDecl := do
-  getMVarDecl (← getMainGoal)
+  (← getMainGoal).getDecl
 
 /-- Return the main goal tag. -/
 def getMainTag : TacticM Name :=
@@ -324,7 +324,7 @@ def getMainTarget : TacticM Expr := do
 
 /-- Execute `x` using the main goal local context and instances -/
 def withMainContext (x : TacticM α) : TacticM α := do
-  withMVarContext (← getMainGoal) x
+  (← getMainGoal).withContext x
 
 /-- Evaluate `tac` at `mvarId`, and return the list of resulting subgoals. -/
 def evalTacticAt (tac : Syntax) (mvarId : MVarId) : TacticM (List MVarId) := do
@@ -348,7 +348,7 @@ def ensureHasNoMVars (e : Expr) : TacticM Unit := do
 def closeMainGoal (val : Expr) (checkUnassigned := true): TacticM Unit := do
   if checkUnassigned then
     ensureHasNoMVars val
-  assignExprMVar (← getMainGoal) val
+  (← getMainGoal).assign val
   replaceMainGoal []
 
 @[inline] def liftMetaMAtMain (x : MVarId → MetaM α) : TacticM α := do

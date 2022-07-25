@@ -17,7 +17,7 @@ namespace Lean.Meta
   Helper method for `proveCondEqThm`. Given a goal of the form `C.rec ... xMajor = rhs`,
   apply `cases xMajor`. -/
 partial def casesOnStuckLHS (mvarId : MVarId) : MetaM (Array MVarId) := do
-  let target ← getMVarType mvarId
+  let target ← mvarId.getType
   if let some (_, lhs, _) ← matchEq? target then
     if let some fvarId ← findFVar? lhs then
       return (← cases mvarId fvarId).map fun s => s.mvarId
@@ -196,7 +196,7 @@ partial def trySubstVarsAndContradiction (mvarId : MVarId) : MetaM Bool :=
 
 private def processNextEq : M Bool := do
   let s ← get
-  withMVarContext s.mvarId do
+  s.mvarId.withContext do
     -- If the goal is contradictory, the hypothesis is redundant.
     if (← contradiction s.mvarId) then
       return false
@@ -256,11 +256,11 @@ end SimpH
 private partial def simpH? (h : Expr) (numEqs : Nat) : MetaM (Option Expr) := withDefault do
   let numVars ← forallTelescope h fun ys _ => pure (ys.size - numEqs)
   let mvarId := (← mkFreshExprSyntheticOpaqueMVar h).mvarId!
-  let (xs, mvarId) ← introN mvarId numVars
-  let (eqs, mvarId) ← introN mvarId numEqs
+  let (xs, mvarId) ← mvarId.introN numVars
+  let (eqs, mvarId) ← mvarId.introN numEqs
   let (r, s) ← SimpH.go |>.run { mvarId, xs := xs.toList, eqs := eqs.toList }
   if r then
-    withMVarContext s.mvarId do
+    s.mvarId.withContext do
       let eqs := s.eqsNew.reverse.toArray.map mkFVar
       let mut r ← mkForallFVars eqs (mkConst ``False)
       /- We only include variables in `xs` if there is a dependency. -/
@@ -273,7 +273,7 @@ private partial def simpH? (h : Expr) (numEqs : Nat) : MetaM (Option Expr) := wi
   else
     return none
 
-private def substSomeVar (mvarId : MVarId) : MetaM (Array MVarId) := withMVarContext mvarId do
+private def substSomeVar (mvarId : MVarId) : MetaM (Array MVarId) := mvarId.withContext do
   for localDecl in (← getLCtx) do
     if let some (_, lhs, rhs) ← matchEq? localDecl.type then
       if lhs.isFVar then
@@ -291,13 +291,13 @@ partial def proveCondEqThm (matchDeclName : Name) (type : Expr) : MetaM Expr := 
   forallTelescope type fun ys target => do
     let mvar0  ← mkFreshExprSyntheticOpaqueMVar target
     trace[Meta.Match.matchEqs] "proveCondEqThm {mvar0.mvarId!}"
-    let mvarId ← deltaTarget mvar0.mvarId! (· == matchDeclName)
+    let mvarId ← mvar0.mvarId!.deltaTarget (· == matchDeclName)
     withDefault <| go mvarId 0
     mkLambdaFVars ys (← instantiateMVars mvar0)
 where
   go (mvarId : MVarId) (depth : Nat) : MetaM Unit := withIncRecDepth do
     trace[Meta.Match.matchEqs] "proveCondEqThm.go {mvarId}"
-    let mvarId' ← modifyTargetEqLHS mvarId whnfCore
+    let mvarId' ← mvarId.modifyTargetEqLHS whnfCore
     let mvarId := mvarId'
     let subgoals ←
       (do applyRefl mvarId; return #[])
@@ -347,7 +347,7 @@ private def injectionAnyCandidate? (type : Expr) : MetaM (Option (Expr × Expr))
   return none
 
 private def injectionAny (mvarId : MVarId) : MetaM InjectionAnyResult :=
-  withMVarContext mvarId do
+  mvarId.withContext do
     for localDecl in (← getLCtx) do
       if let some (lhs, rhs) ← injectionAnyCandidate? localDecl.type then
         unless (← isDefEq lhs rhs) do
@@ -580,9 +580,9 @@ where
     | InjectionAnyResult.subgoal mvarId => proveSubgoalLoop mvarId
 
   proveSubgoal (mvarId : MVarId) : MetaM Unit := do
-    trace[Meta.Match.matchEqs] "subgoal {mkMVar mvarId}, {repr (← getMVarDecl mvarId).kind}, {← isExprMVarAssigned mvarId}\n{MessageData.ofGoal mvarId}"
-    let (_, mvarId) ← intros mvarId
-    let mvarId ← tryClearMany mvarId (alts.map (·.fvarId!))
+    trace[Meta.Match.matchEqs] "subgoal {mkMVar mvarId}, {repr (← mvarId.getDecl).kind}, {← mvarId.isAssigned}\n{MessageData.ofGoal mvarId}"
+    let (_, mvarId) ← mvarId.intros
+    let mvarId ← mvarId.tryClearMany (alts.map (·.fvarId!))
     proveSubgoalLoop mvarId
 
 /--

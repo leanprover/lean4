@@ -207,9 +207,9 @@ def mkCongr (h₁ h₂ : Expr) : MetaM Expr := do
 
 private def mkAppMFinal (methodName : Name) (f : Expr) (args : Array Expr) (instMVars : Array MVarId) : MetaM Expr := do
   instMVars.forM fun mvarId => do
-    let mvarDecl ← getMVarDecl mvarId
+    let mvarDecl ← mvarId.getDecl
     let mvarVal  ← synthInstance mvarDecl.type
-    assignExprMVar mvarId mvarVal
+    mvarId.assign mvarVal
   let result ← instantiateMVars (mkAppN f args)
   if (← hasAssignableMVar result) then throwAppBuilderException methodName ("result contains metavariables" ++ indentExpr result)
   return result

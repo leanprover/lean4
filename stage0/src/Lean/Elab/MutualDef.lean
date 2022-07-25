@@ -525,7 +525,7 @@ private def mkLetRecClosureFor (toLift : LetRecToLift) (freeVars : Array FVarId)
     let type := Closure.mkForall s.localDecls <| Closure.mkForall s.newLetDecls type
     let val  := Closure.mkLambda s.localDecls <| Closure.mkLambda s.newLetDecls val
     let c    := mkAppN (Lean.mkConst toLift.declName) s.exprArgs
-    assignExprMVar toLift.mvarId c
+    toLift.mvarId.assign c
     return {
       ref        := toLift.ref
       localDecls := s.newLocalDecls

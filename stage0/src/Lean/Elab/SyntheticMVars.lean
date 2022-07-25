@@ -22,7 +22,7 @@ private def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) (errToSo
   It returns `true` if it succeeded, and `false` otherwise.
   It is used to implement `synthesizeSyntheticMVars`. -/
 private def resumePostponed (savedContext : SavedContext) (stx : Syntax) (mvarId : MVarId) (postponeOnError : Bool) : TermElabM Bool :=
-  withRef stx <| withMVarContext mvarId do
+  withRef stx <| mvarId.withContext do
     let s ← saveState
     try
       withSavedContext savedContext do
@@ -35,7 +35,7 @@ private def resumePostponed (savedContext : SavedContext) (stx : Syntax) (mvarId
           let result ← withRef stx <| ensureHasType expectedType result
           /- We must perform `occursCheck` here since `result` may contain `mvarId` when it has synthetic `sorry`s. -/
           if (← occursCheck mvarId result) then
-            assignExprMVar mvarId result
+            mvarId.assign result
             return true
           else
             return false
@@ -58,7 +58,7 @@ private def resumePostponed (savedContext : SavedContext) (stx : Syntax) (mvarId
   Similar to `synthesizeInstMVarCore`, but makes sure that `instMVar` local context and instances
   are used. It also logs any error message produced. -/
 private def synthesizePendingInstMVar (instMVar : MVarId) : TermElabM Bool :=
-  withMVarContext instMVar do
+  instMVar.withContext do
     try
       synthesizeInstMVarCore instMVar
     catch
@@ -73,7 +73,7 @@ private def synthesizePendingInstMVar (instMVar : MVarId) : TermElabM Bool :=
 private def synthesizePendingCoeInstMVar
     (auxMVarId : MVarId) (errorMsgHeader? : Option String) (eNew : Expr) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Bool := do
   let instMVarId := eNew.appArg!.mvarId!
-  withMVarContext instMVarId do
+  instMVarId.withContext do
     let eType ← instantiateMVars eType
     if (← isSyntheticMVar eType) then
       return false
@@ -83,7 +83,7 @@ private def synthesizePendingCoeInstMVar
          However, it may succeed here because we have more information, for example, metavariables
          occurring at `expectedType` and `eType` may have been assigned. -/
       if (← occursCheck auxMVarId e) then
-        assignExprMVar auxMVarId e
+        auxMVarId.assign e
         return true
       else
         return false
@@ -91,7 +91,7 @@ private def synthesizePendingCoeInstMVar
       if (← synthesizeCoeInstMVarCore instMVarId) then
         let eNew ← expandCoe eNew
         if (← occursCheck auxMVarId eNew) then
-          assignExprMVar auxMVarId eNew
+          auxMVarId.assign eNew
           return true
       return false
     catch
@@ -125,8 +125,8 @@ private def synthesizePendingCoeInstMVar
   Instead of performing a backtracking search that considers all pending metavariables, we improved the `binrel%` elaborator.
 -/
 private partial def synthesizeUsingDefaultPrio (mvarId : MVarId) (prio : Nat) : TermElabM Bool :=
-  withMVarContext mvarId do
-    let mvarType := (← Meta.getMVarDecl mvarId).type
+  mvarId.withContext do
+    let mvarType ← mvarId.getType
     match (← isClass? mvarType) with
     | none => return false
     | some className =>
@@ -146,7 +146,7 @@ where
     return false
 
   synthesizePendingInstMVar' (mvarId : MVarId) : TermElabM Bool :=
-    commitWhen <| withMVarContext mvarId do
+    commitWhen <| mvarId.withContext do
       try
         synthesizeInstMVarCore mvarId
       catch _ =>
@@ -240,13 +240,13 @@ def reportStuckSyntheticMVar (mvarId : MVarId) (ignoreStuckTC := false) : TermEl
     match mvarSyntheticDecl.kind with
     | .typeClass =>
       unless ignoreStuckTC do
-        withMVarContext mvarId do
+         mvarId.withContext do
           let mvarDecl ← getMVarDecl mvarId
           unless (← MonadLog.hasErrors) do
             throwError "typeclass instance problem is stuck, it is often due to metavariables{indentExpr mvarDecl.type}"
     | .coe header eNew expectedType eType e f? =>
       let mvarId := eNew.appArg!.mvarId!
-      withMVarContext mvarId do
+      mvarId.withContext do
         let mvarDecl ← getMVarDecl mvarId
         throwTypeMismatchError header expectedType eType e f? (some ("failed to create type class instance for " ++ indentExpr mvarDecl.type))
     | _ => unreachable! -- TODO handle other cases.
@@ -360,7 +360,7 @@ mutual
     -- It would not be incorrect to use `filterM`.
     let remainingPendingMVars ← pendingMVars.filterRevM fun mvarId => do
        -- We use `traceM` because we want to make sure the metavar local context is used to trace the message
-       traceM `Elab.postpone (withMVarContext mvarId do addMessageContext m!"resuming {mkMVar mvarId}")
+       traceM `Elab.postpone (mvarId.withContext do addMessageContext m!"resuming {mkMVar mvarId}")
        let succeeded ← synthesizeSyntheticMVar mvarId postponeOnError runTactics
        if succeeded then markAsResolved mvarId
        trace[Elab.postpone] if succeeded then format "succeeded" else format "not ready yet"

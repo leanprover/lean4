@@ -705,7 +705,7 @@ partial def findDefaultMissing? [Monad m] [MonadMCtx m] (struct : Struct) : m (O
    | _ => match field.expr? with
      | none      => unreachable!
      | some expr => match defaultMissing? expr with
-       | some (.mvar mvarId) => return if (← isExprMVarAssigned mvarId) then none else some field
+       | some (.mvar mvarId) => return if (← mvarId.isAssigned) then none else some field
        | _                   => return none
 
 def getFieldName (field : Field Struct) : Name :=
@@ -811,7 +811,7 @@ partial def tryToSynthesizeDefault (structs : Array Struct) (allStructNames : Ar
           | none   =>
             let mvarDecl ← getMVarDecl mvarId
             let val ← ensureHasType mvarDecl.type val
-            assignExprMVar mvarId val
+            mvarId.assign val
             return true
       | _ => loop (i+1) dist
     else
@@ -829,7 +829,7 @@ partial def step (struct : Struct) : M Unit :=
           | some expr =>
             match defaultMissing? expr with
             | some (.mvar mvarId) =>
-              unless (← isExprMVarAssigned mvarId) do
+              unless (← mvarId.isAssigned) do
                 let ctx ← read
                 if (← withRef field.ref <| tryToSynthesizeDefault ctx.structs ctx.allStructNames ctx.maxDistance (getFieldName field) mvarId) then
                   modify fun _ => { progress := true }

@@ -25,10 +25,10 @@ structure CaseValueSubgoal where
   Remark: `subst` field of the second subgoal is equal to the input `subst`. -/
 private def caseValueAux (mvarId : MVarId) (fvarId : FVarId) (value : Expr) (hName : Name := `h) (subst : FVarSubst := {})
     : MetaM (CaseValueSubgoal × CaseValueSubgoal) :=
-  withMVarContext mvarId do
-    let tag ← getMVarTag mvarId
-    checkNotAssigned mvarId `caseValue
-    let target ← getMVarType mvarId
+  mvarId.withContext do
+    let tag ← mvarId.getTag
+    mvarId.checkNotAssigned `caseValue
+    let target ← mvarId.getType
     let xEqValue ← mkEq (mkFVar fvarId) (foldPatValue value)
     let xNeqValue := mkApp (mkConst `Not) xEqValue
     let thenTarget := Lean.mkForall hName BinderInfo.default xEqValue  target
@@ -36,14 +36,14 @@ private def caseValueAux (mvarId : MVarId) (fvarId : FVarId) (value : Expr) (hNa
     let thenMVar ← mkFreshExprSyntheticOpaqueMVar thenTarget tag
     let elseMVar ← mkFreshExprSyntheticOpaqueMVar elseTarget tag
     let val ← mkAppOptM `dite #[none, xEqValue, none, thenMVar, elseMVar]
-    assignExprMVar mvarId val
-    let (elseH, elseMVarId) ← intro1P elseMVar.mvarId!
+    mvarId.assign val
+    let (elseH, elseMVarId) ← elseMVar.mvarId!.intro1P
     let elseSubgoal := { mvarId := elseMVarId, newH := elseH, subst := subst : CaseValueSubgoal }
-    let (thenH, thenMVarId) ← intro1P thenMVar.mvarId!
+    let (thenH, thenMVarId) ← thenMVar.mvarId!.intro1P
     let symm   := false
     let clearH := false
     let (thenSubst, thenMVarId) ← substCore thenMVarId thenH symm subst clearH
-    withMVarContext thenMVarId do
+    thenMVarId.withContext do
       trace[Meta] "subst domain: {thenSubst.domain.map (·.name)}"
       let thenH := (thenSubst.get thenH).fvarId!
       trace[Meta] "searching for decl"
@@ -87,7 +87,7 @@ def caseValues (mvarId : MVarId) (fvarId : FVarId) (values : Array Expr) (hNameP
       appendTagSuffix thenSubgoal.mvarId ((`case).appendIndexAfter i)
       let thenMVarId ← hs.foldlM
         (fun thenMVarId h => match thenSubgoal.subst.get h with
-          | Expr.fvar fvarId => tryClear thenMVarId fvarId
+          | Expr.fvar fvarId => thenMVarId.tryClear fvarId
           | _                => pure thenMVarId)
         thenSubgoal.mvarId
       let subgoals ← if substNewEqs then

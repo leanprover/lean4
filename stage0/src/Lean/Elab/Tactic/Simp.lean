@@ -266,7 +266,7 @@ def simpLocation (ctx : Simp.Context) (discharge? : Option Simp.Discharge := non
       go fvarIds simplifyTarget fvarIdToLemmaId
   | Location.wildcard =>
     withMainContext do
-      go (← getNondepPropHyps (← getMainGoal)) (simplifyTarget := true) fvarIdToLemmaId
+      go (← (← getMainGoal).getNondepPropHyps) (simplifyTarget := true) fvarIdToLemmaId
 where
   go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) (fvarIdToLemmaId : Lean.Meta.FVarIdToLemmaId) : TacticM Unit := do
     let mvarId ← getMainGoal
@@ -297,7 +297,7 @@ def dsimpLocation (ctx : Simp.Context) (loc : Location) : TacticM Unit := do
       go fvarIds simplifyTarget
   | Location.wildcard =>
     withMainContext do
-      go (← getNondepPropHyps (← getMainGoal)) (simplifyTarget := true)
+      go (← (← getMainGoal).getNondepPropHyps) (simplifyTarget := true)
 where
   go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) : TacticM Unit := do
     let mvarId ← getMainGoal

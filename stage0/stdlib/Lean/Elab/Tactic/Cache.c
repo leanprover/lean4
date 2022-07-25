@@ -52,6 +52,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalCheckpoint_declRange___c
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalCheckpoint___closed__3;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_Elab_Tactic_evalCheckpoint___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MVarId_getDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Cache_0__Lean_Elab_Tactic_equivMVarDecl___boxed(lean_object*, lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
 static lean_object* l___private_Lean_Elab_Tactic_Cache_0__Lean_Elab_Tactic_findCache_x3f___closed__1;
@@ -106,7 +107,6 @@ lean_object* l_Lean_MetavarContext_findDecl_x3f(lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Cache_0__Lean_Elab_Tactic_dbg__cache_x27___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalCheckpoint(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_getMVarDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalCheckpoint_declRange___closed__5;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalCheckpoint_declRange(lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_findAux___at___private_Lean_Elab_Tactic_Cache_0__Lean_Elab_Tactic_dbg__cache_x27___spec__2(lean_object*, size_t, lean_object*);
@@ -768,7 +768,7 @@ x_34 = lean_ctor_get(x_21, 0);
 lean_inc(x_34);
 lean_dec(x_21);
 lean_inc(x_2);
-x_35 = l_Lean_Meta_getMVarDecl(x_2, x_9, x_10, x_11, x_12, x_18);
+x_35 = l_Lean_MVarId_getDecl(x_2, x_9, x_10, x_11, x_12, x_18);
 if (lean_obj_tag(x_35) == 0)
 {
 uint8_t x_36; 

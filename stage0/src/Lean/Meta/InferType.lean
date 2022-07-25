@@ -128,11 +128,11 @@ def getLevel (type : Expr) : MetaM Level := do
   match typeType with
   | Expr.sort lvl     => return lvl
   | Expr.mvar mvarId  =>
-    if (← isReadOnlyOrSyntheticOpaqueExprMVar mvarId) then
+    if (← mvarId.isReadOnlyOrSyntheticOpaque) then
       throwTypeExcepted type
     else
       let lvl ← mkFreshLevelMVar
-      assignExprMVar mvarId (mkSort lvl)
+      mvarId.assign (mkSort lvl)
       return lvl
   | _ => throwTypeExcepted type
 

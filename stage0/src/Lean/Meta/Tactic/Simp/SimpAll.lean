@@ -28,8 +28,8 @@ structure State where
 abbrev M := StateRefT State MetaM
 
 private def initEntries : M Unit := do
-  let hs ← withMVarContext (← get).mvarId do getPropHyps
-  let hsNonDeps ← getNondepPropHyps (← get).mvarId
+  let hs ←  (← get).mvarId.withContext do getPropHyps
+  let hsNonDeps ← (← get).mvarId.getNondepPropHyps
   let mut simpThms := (← get).ctx.simpTheorems
   for h in hs do
     let localDecl ← getLocalDecl h
@@ -114,15 +114,15 @@ def main : M (Option MVarId) := do
   else
     let mvarId := (← get).mvarId
     let entries := (← get).entries
-    let (_, mvarId) ← assertHypotheses mvarId <| entries.filterMap fun e =>
+    let (_, mvarId) ← mvarId.assertHypotheses <| entries.filterMap fun e =>
       -- Do not assert `True` hypotheses
       if e.type.isConstOf ``True then none else some { userName := e.userName, type := e.type, value := e.proof }
-    tryClearMany mvarId (entries.map fun e => e.fvarId)
+    mvarId.tryClearMany (entries.map fun e => e.fvarId)
 
 end SimpAll
 
 def simpAll (mvarId : MVarId) (ctx : Simp.Context) : MetaM (Option MVarId) := do
-  withMVarContext mvarId do
+  mvarId.withContext do
     SimpAll.main.run' { mvarId := mvarId, ctx := ctx }
 
 end Lean.Meta

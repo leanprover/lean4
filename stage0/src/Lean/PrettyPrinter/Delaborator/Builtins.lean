@@ -41,7 +41,7 @@ def delabBVar : Delab := do
 @[builtinDelab mvar]
 def delabMVar : Delab := do
   let Expr.mvar n ← getExpr | unreachable!
-  let mvarDecl ← getMVarDecl n
+  let mvarDecl ← n.getDecl
   let n :=
     match mvarDecl.userName with
     | Name.anonymous => n.name.replacePrefix `_uniq `m

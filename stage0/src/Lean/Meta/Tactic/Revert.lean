@@ -7,11 +7,14 @@ import Lean.Meta.Tactic.Clear
 
 namespace Lean.Meta
 
-def revert (mvarId : MVarId) (fvarIds : Array FVarId) (preserveOrder : Bool := false) : MetaM (Array FVarId × MVarId) := do
+/--
+Revert free variables `fvarIds` at goal `mvarId`.
+-/
+def _root_.Lean.MVarId.revert (mvarId : MVarId) (fvarIds : Array FVarId) (preserveOrder : Bool := false) : MetaM (Array FVarId × MVarId) := do
   if fvarIds.isEmpty then
     pure (#[], mvarId)
-  else withMVarContext mvarId do
-    checkNotAssigned mvarId `revert
+  else mvarId.withContext do
+    mvarId.checkNotAssigned `revert
     for fvarId in fvarIds do
       if (← getLocalDecl fvarId) |>.isAuxDecl then
         throwError "failed to revert {mkFVar fvarId}, it is an auxiliary declaration created to represent recursive definitions"
@@ -22,22 +25,26 @@ def revert (mvarId : MVarId) (fvarIds : Array FVarId) (preserveOrder : Bool := f
     let mut toRevertNew := #[]
     for x in toRevert do
       if (← getLocalDecl x.fvarId!) |>.isAuxDecl then
-        mvarId ← clear mvarId x.fvarId!
+        mvarId ← mvarId.clear x.fvarId!
       else
         toRevertNew := toRevertNew.push x
-    let tag ← getMVarTag mvarId
+    let tag ← mvarId.getTag
     -- TODO: the following code can be optimized because `MetavarContext.revert` will compute `collectDeps` again.
     -- We should factor out the relevat part
 
     -- Set metavariable kind to natural to make sure `revert` will assign it.
-    setMVarKind mvarId MetavarKind.natural
+    mvarId.setKind .natural
     let (e, toRevert) ←
       try
         liftMkBindingM <| MetavarContext.revert toRevertNew mvarId preserveOrder
       finally
-        setMVarKind mvarId MetavarKind.syntheticOpaque
+        mvarId.setKind .syntheticOpaque
     let mvar := e.getAppFn
-    setMVarTag mvar.mvarId! tag
+    mvar.mvarId!.setTag tag
     return (toRevert.map Expr.fvarId!, mvar.mvarId!)
+
+@[deprecated MVarId.revert]
+def revert (mvarId : MVarId) (fvarIds : Array FVarId) (preserveOrder : Bool := false) : MetaM (Array FVarId × MVarId) := do
+  mvarId.revert fvarIds preserveOrder
 
 end Lean.Meta

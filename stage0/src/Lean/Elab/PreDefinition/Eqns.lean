@@ -24,18 +24,18 @@ partial def expand : Expr → Expr
   | e => e
 
 def expandRHS? (mvarId : MVarId) : MetaM (Option MVarId) := do
-  let target ← getMVarType' mvarId
+  let target ← mvarId.getType'
   let some (_, lhs, rhs) := target.eq? | return none
   unless rhs.isLet || rhs.isMData do return none
-  return some (← replaceTargetDefEq mvarId (← mkEq lhs (expand rhs)))
+  return some (← mvarId.replaceTargetDefEq (← mkEq lhs (expand rhs)))
 
 def funext? (mvarId : MVarId) : MetaM (Option MVarId) := do
-  let target ← getMVarType' mvarId
+  let target ← mvarId.getType'
   let some (_, _, rhs) := target.eq? | return none
   unless rhs.isLambda do return none
   commitWhenSome? do
-    let [mvarId] ← apply mvarId (← mkConstWithFreshMVarLevels ``funext) | return none
-    let (_, mvarId) ← intro1 mvarId
+    let [mvarId] ← mvarId.apply (← mkConstWithFreshMVarLevels ``funext) | return none
+    let (_, mvarId) ← mvarId.intro1
     return some mvarId
 
 def simpMatch? (mvarId : MVarId) : MetaM (Option MVarId) := do
@@ -76,7 +76,7 @@ private def findMatchToSplit? (env : Environment) (e : Expr) (declNames : Array 
         return Expr.FindStep.visit
 
 partial def splitMatch? (mvarId : MVarId) (declNames : Array Name) : MetaM (Option (List MVarId)) := commitWhenSome? do
-  let target ← getMVarType' mvarId
+  let target ← mvarId.getType'
   let rec go (badCases : ExprSet) : MetaM (Option (List MVarId)) := do
     if let some e := findMatchToSplit? (← getEnv) target declNames badCases then
       try
@@ -145,8 +145,8 @@ where
       ST.Prim.Ref.get ref
     runST (go e)
 
-private partial def saveEqn (mvarId : MVarId) : StateRefT (Array Expr) MetaM Unit := withMVarContext mvarId do
-  let target ← getMVarType' mvarId
+private partial def saveEqn (mvarId : MVarId) : StateRefT (Array Expr) MetaM Unit := mvarId.withContext do
+  let target ← mvarId.getType'
   let fvarState := collectFVars {} target
   let fvarState ← (← getLCtx).foldrM (init := fvarState) fun decl fvarState => do
     if fvarState.fvarSet.contains decl.fvarId then
@@ -229,7 +229,7 @@ where
 /-    if let some mvarId ← funext? mvarId then
         return (← go mvarId) -/
 
-    if (← shouldUseSimpMatch (← getMVarType' mvarId)) then
+    if (← shouldUseSimpMatch (← mvarId.getType')) then
       if let some mvarId ← simpMatch? mvarId then
         return (← go mvarId)
 
@@ -270,32 +270,32 @@ where
         return (lctx.mkForall xsNew type, lctx.mkLambda xsNew value)
 
 /-- Delta reduce the equation left-hand-side -/
-def deltaLHS (mvarId : MVarId) : MetaM MVarId := withMVarContext mvarId do
-  let target ← getMVarType' mvarId
+def deltaLHS (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
+  let target ← mvarId.getType'
   let some (_, lhs, rhs) := target.eq? | throwTacticEx `deltaLHS mvarId "equality expected"
   let some lhs ← delta? lhs | throwTacticEx `deltaLHS mvarId "failed to delta reduce lhs"
-  replaceTargetDefEq mvarId (← mkEq lhs rhs)
+  mvarId.replaceTargetDefEq (← mkEq lhs rhs)
 
-def deltaRHS? (mvarId : MVarId) (declName : Name) : MetaM (Option MVarId) := withMVarContext mvarId do
-  let target ← getMVarType' mvarId
+def deltaRHS? (mvarId : MVarId) (declName : Name) : MetaM (Option MVarId) := mvarId.withContext do
+  let target ← mvarId.getType'
   let some (_, lhs, rhs) := target.eq? | return none
   let some rhs ← delta? rhs.consumeMData (· == declName) | return none
-  replaceTargetDefEq mvarId (← mkEq lhs rhs)
+  mvarId.replaceTargetDefEq (← mkEq lhs rhs)
 
 private partial def whnfAux (e : Expr) : MetaM Expr := do
   let e ← whnfI e -- Must reduce instances too, otherwise it will not be able to reduce `(Nat.rec ... ... (OfNat.ofNat 0))`
   let f := e.getAppFn
   match f with
-  | Expr.proj _ _ s => return mkAppN (f.updateProj! (← whnfAux s)) e.getAppArgs
+  | .proj _ _ s => return mkAppN (f.updateProj! (← whnfAux s)) e.getAppArgs
   | _ => return e
 
 /-- Apply `whnfR` to lhs, return `none` if `lhs` was not modified -/
-def whnfReducibleLHS? (mvarId : MVarId) : MetaM (Option MVarId) := withMVarContext mvarId do
-  let target ← getMVarType' mvarId
+def whnfReducibleLHS? (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.withContext do
+  let target ← mvarId.getType'
   let some (_, lhs, rhs) := target.eq? | return none
   let lhs' ← whnfAux lhs
   if lhs' != lhs then
-    return some (← replaceTargetDefEq mvarId (← mkEq lhs' rhs))
+    return some (← mvarId.replaceTargetDefEq (← mkEq lhs' rhs))
   else
     return none
 
@@ -325,12 +325,12 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
   let tryEqns (mvarId : MVarId) : MetaM Bool :=
     eqs.anyM fun eq => commitWhen do
       try
-        let subgoals ← apply mvarId (← mkConstWithFreshMVarLevels eq)
+        let subgoals ← mvarId.apply (← mkConstWithFreshMVarLevels eq)
         subgoals.allM fun subgoal => do
-          if (← isExprMVarAssigned subgoal) then
+          if (← subgoal.isAssigned) then
             return true -- Subgoal was already solved. This can happen when there are dependencies between the subgoals
           else
-            assumptionCore subgoal
+            subgoal.assumptionCore
       catch _ =>
         return false
   let rec go (mvarId : MVarId) : MetaM Unit := do
@@ -340,7 +340,7 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
     -- else if let some mvarId ← funext? mvarId then
     --  go mvarId
 
-    if (← shouldUseSimpMatch (← getMVarType' mvarId)) then
+    if (← shouldUseSimpMatch (← mvarId.getType')) then
       if let some mvarId ← simpMatch? mvarId then
         return (← go mvarId)
 

@@ -25,7 +25,7 @@ private def applyDefaultDecrTactic (mvarId : MVarId) : TermElabM Unit := do
 private def mkDecreasingProof (decreasingProp : Expr) (decrTactic? : Option Syntax) : TermElabM Expr := do
   let mvar ← mkFreshExprSyntheticOpaqueMVar decreasingProp
   let mvarId := mvar.mvarId!
-  let mvarId ← cleanup mvarId
+  let mvarId ← mvarId.cleanup
   match decrTactic? with
   | none => applyDefaultDecrTactic mvarId
   | some decrTactic =>

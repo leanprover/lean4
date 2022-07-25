@@ -89,12 +89,12 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
           withLCtx mvarDecl.lctx mvarDecl.localInstances do
             throwError "synthetic hole has already been defined and assigned to value incompatible with the current context{indentExpr val}"
       | none =>
-        if (← isMVarDelayedAssigned mvarId) then
+        if (← mvarId.isDelayedAssigned) then
           -- We can try to improve this case if needed.
           throwError "synthetic hole has already beend defined and delayed assigned with an incompatible local context"
         else if lctx.isSubPrefixOf mvarDecl.lctx then
           let mvarNew ← mkNewHole ()
-          assignExprMVar mvarId mvarNew
+          mvarId.assign mvarNew
           return mvarNew
         else
           throwError "synthetic hole has already been defined with an incompatible local context"
@@ -107,7 +107,7 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
      | none =>
        let e ← elabTerm e none
        let mvar ← mkFreshExprMVar (← inferType e) MetavarKind.syntheticOpaque n.getId
-       assignExprMVar mvar.mvarId! e
+       mvar.mvarId!.assign e
        -- We use `mkSaveInfoAnnotation` to make sure the info trees for `e` are saved even if `b` is a metavariable.
        return mkSaveInfoAnnotation (← elabTerm b expectedType?)
   | _ => throwUnsupportedSyntax

@@ -40,7 +40,7 @@ private def dbg_cache' (cacheRef : IO.Ref Cache) (pos : String.Pos) (mvarId : MV
 
 private def findCache? (cacheRef : IO.Ref Cache) (mvarId : MVarId) (stx : Syntax) (pos : String.Pos) : TacticM (Option Snapshot) := do
   let some s := (← cacheRef.get).pre.find? { mvarId, pos } | do dbg_cache "cache key not found"; return none
-  let mvarDecl ← getMVarDecl mvarId
+  let mvarDecl ← mvarId.getDecl
   let some mvarDeclOld := s.meta.mctx.findDecl? mvarId | return none
   if equivMVarDecl mvarDecl mvarDeclOld then
     if stx == s.stx then

@@ -18,7 +18,7 @@ private def isTarget (lhs rhs : Expr) : MetaM Bool := do
   Close the given goal if `h` is a proof for an equality such as `as = a :: as`.
   Inductive datatypes in Lean are acyclic.
 -/
-def acyclic (mvarId : MVarId) (h : Expr) : MetaM Bool := withMVarContext mvarId do
+def acyclic (mvarId : MVarId) (h : Expr) : MetaM Bool := mvarId.withContext do
   let type ← whnfD (← inferType h)
   trace[Meta.Tactic.acyclic] "type: {type}"
   let some (_, lhs, rhs) := type.eq? | return false
@@ -42,7 +42,7 @@ where
         let heq ← mkCongrArg sizeOf_lhs.appFn! (← mkEqSymm h)
         let hlt_self ← mkAppM ``Nat.lt_of_lt_of_eq #[hlt, heq]
         let hlt_irrelf ← mkAppM ``Nat.lt_irrefl #[sizeOf_lhs]
-        assignExprMVar mvarId (← mkFalseElim (← getMVarType mvarId) (mkApp hlt_irrelf hlt_self))
+        mvarId.assign (← mkFalseElim (← mvarId.getType) (mkApp hlt_irrelf hlt_self))
         trace[Meta.Tactic.acyclic] "succeeded"
         return true
     catch ex =>

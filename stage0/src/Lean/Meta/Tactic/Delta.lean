@@ -23,14 +23,28 @@ def deltaExpand (e : Expr) (p : Name → Bool) : CoreM Expr :=
     | some e' => return TransformStep.visit e'
     | none    => return TransformStep.visit e
 
-def deltaTarget (mvarId : MVarId) (p : Name → Bool) : MetaM MVarId :=
-  withMVarContext mvarId do
-    checkNotAssigned mvarId `delta
-    change mvarId (← deltaExpand (← getMVarType mvarId) p) (checkDefEq := false)
+/--
+Delta expand declarations that satisfy `p` at `mvarId` type.
+-/
+def _root_.Lean.MVarId.deltaTarget (mvarId : MVarId) (p : Name → Bool) : MetaM MVarId :=
+  mvarId.withContext do
+    mvarId.checkNotAssigned `delta
+    mvarId.change (← deltaExpand (← mvarId.getType) p) (checkDefEq := false)
 
+@[deprecated MVarId.deltaTarget]
+def deltaTarget (mvarId : MVarId) (p : Name → Bool) : MetaM MVarId :=
+  mvarId.deltaTarget p
+
+/--
+Delta expand declarations that satisfy `p` at `fvarId` type.
+-/
+def _root_.Lean.MVarId.deltaLocalDecl (mvarId : MVarId) (fvarId : FVarId) (p : Name → Bool) : MetaM MVarId :=
+  mvarId.withContext do
+    mvarId.checkNotAssigned `delta
+    mvarId.changeLocalDecl fvarId (← deltaExpand (← mvarId.getType) p) (checkDefEq := false)
+
+@[deprecated MVarId.deltaLocalDecl]
 def deltaLocalDecl (mvarId : MVarId) (fvarId : FVarId) (p : Name → Bool) : MetaM MVarId :=
-  withMVarContext mvarId do
-    checkNotAssigned mvarId `delta
-    changeLocalDecl mvarId fvarId (← deltaExpand (← getMVarType mvarId) p) (checkDefEq := false)
+  mvarId.deltaLocalDecl fvarId p
 
 end Lean.Meta

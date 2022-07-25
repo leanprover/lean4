@@ -233,9 +233,9 @@ def mkBelowDecl (ctx : Context) : MetaM Declaration := do
 partial def backwardsChaining (m : MVarId) (depth : Nat) : MetaM Bool := do
   if depth = 0 then return false
   else
-    withMVarContext m do
+    m.withContext do
     let lctx ← getLCtx
-    let mTy ← getMVarType m
+    let mTy ← m.getType
     lctx.anyM fun localDecl =>
       if localDecl.isAuxDecl then
         return false
@@ -243,9 +243,9 @@ partial def backwardsChaining (m : MVarId) (depth : Nat) : MetaM Bool := do
         commitWhen do
         let (mvars, _, t) ← forallMetaTelescope localDecl.type
         if ←isDefEq mTy t then
-          assignExprMVar m (mkAppN localDecl.toExpr mvars)
+          m.assign (mkAppN localDecl.toExpr mvars)
           mvars.allM fun v =>
-            isExprMVarAssigned v.mvarId! <||> backwardsChaining v.mvarId! (depth - 1)
+            v.mvarId!.isAssigned <||> backwardsChaining v.mvarId! (depth - 1)
         else return false
 
 partial def proveBrecOn (ctx : Context) (indVal : InductiveVal) (type : Expr) : MetaM Expr := do
@@ -260,16 +260,16 @@ partial def proveBrecOn (ctx : Context) (indVal : InductiveVal) (type : Expr) : 
   instantiateMVars main
 where
   intros (m : MVarId) : MetaM (MVarId × BrecOnVariables) := do
-    let (params, m) ← introNP m indVal.numParams
-    let (motives, m) ← introNP m ctx.motives.size
-    let (indices, m) ← introNP m indVal.numIndices
-    let (witness, m) ← intro1P m
-    let (indHyps, m) ← introNP m ctx.motives.size
+    let (params, m) ← m.introNP indVal.numParams
+    let (motives, m) ← m.introNP ctx.motives.size
+    let (indices, m) ← m.introNP indVal.numIndices
+    let (witness, m) ← m.intro1P
+    let (indHyps, m) ← m.introNP ctx.motives.size
     return (m, ⟨params, motives, indices, witness, indHyps⟩)
 
   applyIH (m : MVarId) (vars : BrecOnVariables) : MetaM (List MVarId) := do
     match (← vars.indHyps.findSomeM?
-      fun ih => do try pure <| some <| (←apply m $ mkFVar ih) catch _ => pure none) with
+      fun ih => do try pure <| some <| (← m.apply <| mkFVar ih) catch _ => pure none) with
     | some goals => pure goals
     | none => throwError "cannot apply induction hypothesis: {MessageData.ofGoal m}"
 
@@ -287,30 +287,30 @@ where
       then levelZero::levelParams
       else levelParams
     let recursor := mkAppN (mkConst recursorInfo.name $ recLevels) $ params ++ motives
-    apply m recursor
+    m.apply recursor
 
   applyCtors (ms : List MVarId) : MetaM $ List MVarId := do
     let mss ← ms.toArray.mapIdxM fun _ m => do
       let m ← introNPRec m
-      (← getMVarType m).withApp fun below args =>
-      withMVarContext m do
+      (← m.getType).withApp fun below args =>
+      m.withContext do
         args.back.withApp fun ctor _ => do
         let ctorName := ctor.constName!.updatePrefix below.constName!
         let ctor := mkConst ctorName below.constLevels!
         let ctorInfo ← getConstInfoCtor ctorName
         let (mvars, _, _) ← forallMetaTelescope ctorInfo.type
         let ctor := mkAppN ctor mvars
-        apply m ctor
+        m.apply ctor
     return mss.foldr List.append []
 
   introNPRec (m : MVarId) : MetaM MVarId := do
-    if (← getMVarType m).isForall then introNPRec (←intro1P m).2 else return m
+    if (← m.getType).isForall then introNPRec (← m.intro1P).2 else return m
 
   closeGoal (maxDepth : Nat) (m : MVarId) : MetaM Unit := do
-    unless (← isExprMVarAssigned m) do
+    unless (← m.isAssigned) do
       let m ← introNPRec m
       unless (← backwardsChaining m maxDepth) do
-        withMVarContext m do
+        m.withContext do
         throwError "couldn't solve by backwards chaining ({``maxBackwardChainingDepth} = {maxDepth}): {MessageData.ofGoal m}"
 
 def mkBrecOnDecl (ctx : Context) (idx : Nat) : MetaM Declaration := do

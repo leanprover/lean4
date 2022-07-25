@@ -8,10 +8,19 @@ import Lean.Meta.Tactic.Util
 
 namespace Lean.Meta
 
-def refl (mvarId : MVarId) : MetaM Unit := do
-  withMVarContext mvarId do
-    checkNotAssigned mvarId `apply
-    let targetType ← getMVarType' mvarId
+private def useKernel (lhs rhs : Expr) : MetaM Bool := do
+  if lhs.hasFVar || lhs.hasMVar || rhs.hasFVar || rhs.hasMVar then
+    return false
+  else
+    return (← getTransparency) matches TransparencyMode.default | TransparencyMode.all
+
+/--
+Close given goal using `Eq.refl`.
+-/
+def _root_.Lean.MVarId.refl (mvarId : MVarId) : MetaM Unit := do
+  mvarId.withContext do
+    mvarId.checkNotAssigned `refl
+    let targetType ← mvarId.getType'
     unless targetType.isAppOfArity ``Eq 3 do
       throwTacticEx `rfl mvarId m!"equality expected{indentExpr targetType}"
     let lhs ← instantiateMVars targetType.appFn!.appArg!
@@ -24,12 +33,10 @@ def refl (mvarId : MVarId) : MetaM Unit := do
       throwTacticEx `rfl mvarId m!"equality lhs{indentExpr lhs}\nis not definitionally equal to rhs{indentExpr rhs}"
     let us := targetType.getAppFn.constLevels!
     let α := targetType.appFn!.appFn!.appArg!
-    assignExprMVar mvarId (mkApp2 (mkConst ``Eq.refl  us) α lhs)
-where
-  useKernel (lhs rhs : Expr) : MetaM Bool := do
-    if lhs.hasFVar || lhs.hasMVar || rhs.hasFVar || rhs.hasMVar then
-      return false
-    else
-      return (← getTransparency) matches TransparencyMode.default | TransparencyMode.all
+    mvarId.assign (mkApp2 (mkConst ``Eq.refl  us) α lhs)
+
+@[deprecated MVarId.refl]
+def refl (mvarId : MVarId) : MetaM Unit := do
+  mvarId.refl
 
 end Lean.Meta

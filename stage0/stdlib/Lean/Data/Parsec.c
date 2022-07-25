@@ -21,10 +21,12 @@ LEAN_EXPORT lean_object* l_Lean_Parsec_instAlternativeParsec___lambda__2(lean_ob
 LEAN_EXPORT lean_object* l_Lean_Parsec_orElse(lean_object*);
 static lean_object* l_Lean_Parsec_instMonadParsec___closed__8;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_object* l_Lean_Parsec_run___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parsec_instInhabitedParsec(lean_object*);
 static lean_object* l_Lean_Parsec_instMonadParsec___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Parsec_expectedEndOfInput;
 LEAN_EXPORT lean_object* l_Lean_Parsec_many1___rarg(lean_object*, lean_object*);
+extern lean_object* l_Std_Format_defWidth;
 static lean_object* l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Parsec_instAlternativeParsec;
 LEAN_EXPORT lean_object* l_Lean_Parsec_instMonadParsec___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -40,6 +42,7 @@ LEAN_EXPORT lean_object* l_Lean_Parsec_pchar(uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_satisfy(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_eof(lean_object*);
 static lean_object* l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__6;
+static lean_object* l_Lean_Parsec_run___rarg___closed__1;
 static lean_object* l_Lean_Parsec_instAlternativeParsec___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parsec_digit(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_many(lean_object*);
@@ -64,6 +67,8 @@ static lean_object* l_Lean_Parsec_instMonadParsec___closed__1;
 static lean_object* l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Parsec_bind___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_many___rarg(lean_object*, lean_object*);
+lean_object* lean_format_pretty(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Parsec_run___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Parsec_instInhabitedParsec___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parsec_attempt___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_instMonadParsec;
@@ -98,6 +103,7 @@ static lean_object* l_Lean_Parsec_satisfy___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parsec_instMonadParsec___lambda__3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_instReprParseResult(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_instMonadParsec___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Parsec_run(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_unexpectedEndOfInput;
 static lean_object* l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__1;
@@ -1405,6 +1411,80 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Parsec_instAlternativeParsec___closed__3;
 return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parsec_run___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("offset ", 7);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parsec_run___rarg___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes(": ", 2);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Parsec_run___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set(x_4, 1, x_3);
+x_5 = lean_apply_1(x_1, x_4);
+if (lean_obj_tag(x_5) == 0)
+{
+lean_object* x_6; lean_object* x_7; 
+x_6 = lean_ctor_get(x_5, 1);
+lean_inc(x_6);
+lean_dec(x_5);
+x_7 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_7, 0, x_6);
+return x_7;
+}
+else
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+x_8 = lean_ctor_get(x_5, 0);
+lean_inc(x_8);
+x_9 = lean_ctor_get(x_5, 1);
+lean_inc(x_9);
+lean_dec(x_5);
+x_10 = lean_ctor_get(x_8, 1);
+lean_inc(x_10);
+lean_dec(x_8);
+x_11 = l_Nat_repr(x_10);
+x_12 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_12, 0, x_11);
+x_13 = l_Std_Format_defWidth;
+x_14 = lean_format_pretty(x_12, x_13);
+x_15 = l_Lean_Parsec_run___rarg___closed__1;
+x_16 = lean_string_append(x_15, x_14);
+lean_dec(x_14);
+x_17 = l_Lean_Parsec_run___rarg___closed__2;
+x_18 = lean_string_append(x_16, x_17);
+x_19 = lean_string_append(x_18, x_9);
+lean_dec(x_9);
+x_20 = l_Lean_Parsec_instInhabitedParsec___rarg___closed__1;
+x_21 = lean_string_append(x_19, x_20);
+x_22 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_22, 0, x_21);
+return x_22;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Parsec_run(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_Parsec_run___rarg), 2, 0);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Parsec_expectedEndOfInput___closed__1() {
@@ -2935,6 +3015,10 @@ l_Lean_Parsec_instAlternativeParsec___closed__3 = _init_l_Lean_Parsec_instAltern
 lean_mark_persistent(l_Lean_Parsec_instAlternativeParsec___closed__3);
 l_Lean_Parsec_instAlternativeParsec = _init_l_Lean_Parsec_instAlternativeParsec();
 lean_mark_persistent(l_Lean_Parsec_instAlternativeParsec);
+l_Lean_Parsec_run___rarg___closed__1 = _init_l_Lean_Parsec_run___rarg___closed__1();
+lean_mark_persistent(l_Lean_Parsec_run___rarg___closed__1);
+l_Lean_Parsec_run___rarg___closed__2 = _init_l_Lean_Parsec_run___rarg___closed__2();
+lean_mark_persistent(l_Lean_Parsec_run___rarg___closed__2);
 l_Lean_Parsec_expectedEndOfInput___closed__1 = _init_l_Lean_Parsec_expectedEndOfInput___closed__1();
 lean_mark_persistent(l_Lean_Parsec_expectedEndOfInput___closed__1);
 l_Lean_Parsec_expectedEndOfInput = _init_l_Lean_Parsec_expectedEndOfInput();

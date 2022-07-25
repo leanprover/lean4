@@ -148,13 +148,14 @@ def liftCoreM (x : CoreM α) : CommandElabM α := do
   let heartbeats ← IO.getNumHeartbeats
   let Eα := Except Exception α
   let x : CoreM Eα := try let a ← x; pure <| Except.ok a catch ex => pure <| Except.error ex
-  let x : EIO Exception (Eα × Core.State) := (ReaderT.run x (mkCoreContext ctx s heartbeats)).run { env := s.env, ngen := s.ngen, traceState := s.traceState, messages := {} }
+  let x : EIO Exception (Eα × Core.State) := (ReaderT.run x (mkCoreContext ctx s heartbeats)).run { env := s.env, ngen := s.ngen, traceState := s.traceState, messages := {}, infoState.enabled := s.infoState.enabled }
   let (ea, coreS) ← liftM x
   modify fun s => { s with
     env := coreS.env
     ngen := coreS.ngen
-    messages   := addTraceAsMessagesCore ctx (s.messages ++ coreS.messages) coreS.traceState
+    messages := addTraceAsMessagesCore ctx (s.messages ++ coreS.messages) coreS.traceState
     traceState := coreS.traceState
+    infoState.trees := s.infoState.trees.append coreS.infoState.trees
   }
   match ea with
   | Except.ok a    => pure a
@@ -352,11 +353,6 @@ private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) 
     isNoncomputableSection := scope.isNoncomputable
     tacticCache?           := ctx.tacticCache? }
 
-private def mkTermState (scope : Scope) (s : State) : Term.State := {
-  levelNames        := scope.levelNames
-  infoState.enabled := s.infoState.enabled
-}
-
 def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandElabM α := do
   let ctx ← read
   let s   ← get
@@ -366,15 +362,15 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
   -- We execute `x` with an empty message log. Thus, `x` cannot modify/view messages produced by previous commands.
   -- This is useful for implementing `runTermElabM` where we use `Term.resetMessageLog`
   let x : TermElabM _  := withSaveInfoContext x
-  let x : MetaM _      := (observing x).run (mkTermContext ctx s declName?) (mkTermState scope s)
+  let x : MetaM _      := (observing x).run (mkTermContext ctx s declName?) { levelNames := scope.levelNames }
   let x : CoreM _      := x.run mkMetaContext {}
-  let x : EIO _ _      := x.run (mkCoreContext ctx s heartbeats) { env := s.env, ngen := s.ngen, nextMacroScope := s.nextMacroScope }
-  let (((ea, termS), _), coreS) ← liftEIO x
+  let x : EIO _ _      := x.run (mkCoreContext ctx s heartbeats) { env := s.env, ngen := s.ngen, nextMacroScope := s.nextMacroScope, infoState.enabled := s.infoState.enabled }
+  let (((ea, _), _), coreS) ← liftEIO x
   modify fun s => { s with
     env             := coreS.env
     nextMacroScope  := coreS.nextMacroScope
     ngen            := coreS.ngen
-    infoState.trees := s.infoState.trees.append termS.infoState.trees
+    infoState.trees := s.infoState.trees.append coreS.infoState.trees
     messages        := addTraceAsMessagesCore ctx (s.messages ++ coreS.messages) coreS.traceState
   }
   match ea with

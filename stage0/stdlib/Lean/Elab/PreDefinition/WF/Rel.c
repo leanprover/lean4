@@ -10027,12 +10027,6 @@ lean_inc(x_20);
 lean_dec(x_12);
 x_21 = 0;
 x_22 = l_Lean_Elab_Term_SavedState_restore(x_10, x_21, x_2, x_3, x_4, x_5, x_6, x_7, x_20);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
 x_23 = !lean_is_exclusive(x_22);
 if (x_23 == 0)
 {
@@ -10127,12 +10121,6 @@ lean_inc(x_25);
 lean_dec(x_17);
 x_26 = 0;
 x_27 = l_Lean_Elab_Term_SavedState_restore(x_15, x_26, x_7, x_8, x_9, x_10, x_11, x_12, x_25);
-lean_dec(x_12);
-lean_dec(x_11);
-lean_dec(x_10);
-lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_7);
 x_28 = !lean_is_exclusive(x_27);
 if (x_28 == 0)
 {

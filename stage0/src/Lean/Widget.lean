@@ -8,3 +8,4 @@ import Lean.Widget.InteractiveCode
 import Lean.Widget.InteractiveDiagnostic
 import Lean.Widget.InteractiveGoal
 import Lean.Widget.TaggedText
+import Lean.Widget.UserWidget

@@ -627,6 +627,10 @@ def getLocalDecl (fvarId : FVarId) : MetaM LocalDecl := do
 def _root_.Lean.FVarId.getType (fvarId : FVarId) : MetaM Expr :=
   return (← fvarId.getDecl).type
 
+/-- Return the binder information for the given free variable. -/
+def _root_.Lean.FVarId.getBinderInfo (fvarId : FVarId) : MetaM BinderInfo :=
+  return (← fvarId.getDecl).binderInfo
+
 /-- Return `some value` if the given free variable is a let-declaration, and `none` otherwise. -/
 def _root_.Lean.FVarId.getValue? (fvarId : FVarId) : MetaM (Option Expr) :=
   return (← fvarId.getDecl).value?
@@ -1160,6 +1164,18 @@ private def withNewBinderInfosImp (bs : Array (FVarId × BinderInfo)) (k : MetaM
 
 def withNewBinderInfos (bs : Array (FVarId × BinderInfo)) (k : n α) : n α :=
   mapMetaM (fun k => withNewBinderInfosImp bs k) k
+
+/--
+ Execute `k` using a local context where any `x` in `xs` that is tagged as
+ instance implicit is treated as a regular implicit. -/
+def withInstImplicitAsImplict (xs : Array Expr) (k : MetaM α) : MetaM α := do
+  let newBinderInfos ← xs.filterMapM fun x => do
+    let bi ← x.fvarId!.getBinderInfo
+    if bi == .instImplicit then
+      return some (x.fvarId!, .implicit)
+    else
+      return none
+  withNewBinderInfos newBinderInfos k
 
 private def withLetDeclImp (n : Name) (type : Expr) (val : Expr) (k : Expr → MetaM α) : MetaM α := do
   let fvarId ← mkFreshFVarId

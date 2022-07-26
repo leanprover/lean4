@@ -8,6 +8,37 @@ import Lake.CLI.Error
 
 namespace Lake
 
+/-! ## Build Target Specifiers -/
+
+structure BuildSpec where
+  info : BuildInfo
+  getJob : BuildData info.key → Job
+
+/-- Get the `Job` associated with some `ActiveBuildTarget` `BuildData`. -/
+@[inline] def BuildData.toJob
+[FamilyDef BuildData k (ActiveBuildTarget α)] (data : BuildData k) : Job :=
+  ofFamily data |>.task
+
+@[inline] def mkBuildSpec (info : BuildInfo)
+[FamilyDef BuildData info.key (ActiveBuildTarget α)] : BuildSpec :=
+  {info, getJob := BuildData.toJob}
+
+@[inline] def mkConfigBuildSpec (facetType : String)
+(info : BuildInfo) (config : FacetConfig Fam ι facet) (h : BuildData info.key = Fam facet)
+: Except CliError BuildSpec := do
+  let some getJob := config.getJob?
+    | throw <| CliError.nonTargetFacet facetType facet
+  return {info, getJob := h ▸ getJob}
+
+def BuildSpec.build (self : BuildSpec) : RecBuildM Job := do
+  return self.getJob <| ← buildIndexTop' self.info
+
+def buildSpecs (specs : Array BuildSpec) : BuildM PUnit := do
+  let jobs ← RecBuildM.run do specs.mapM (·.build)
+  jobs.forM (discard <| liftM <| await ·)
+
+/-! ## Parsing CLI Build Target Specifiers -/
+
 def parsePackageSpec (ws : Workspace) (spec : String) : Except CliError Package :=
   if spec.isEmpty then
     return ws.root
@@ -17,49 +48,57 @@ def parsePackageSpec (ws : Workspace) (spec : String) : Except CliError Package 
     | none => throw <| CliError.unknownPackage spec
 
 open Module in
-def resolveModuleTarget (ws : Workspace) (mod : Module) (facet : Name) : Except CliError OpaqueTarget :=
+def resolveModuleTarget (ws : Workspace) (mod : Module) (facet : Name) : Except CliError BuildSpec :=
   if facet.isAnonymous then
-    return mod.facetTarget leanBinFacet
+    return mkBuildSpec <| mod.facet leanBinFacet
   else if let some config := ws.findModuleFacetConfig? facet then do
-    let some target := config.toTarget? (mod.facet facet) rfl
-      | throw <| CliError.nonTargetFacet "module" facet
-    return target
+    mkConfigBuildSpec "module" (mod.facet facet) config rfl
   else
     throw <| CliError.unknownFacet "module" facet
 
-def resolveLibTarget (lib : LeanLib) (facet : Name) : Except CliError OpaqueTarget :=
-  if facet.isAnonymous || facet == `lean then
-    return lib.leanTarget
-  else if facet == `static then
-    return lib.staticLibTarget |>.withoutInfo
-  else if facet == `shared then
-    return lib.sharedLibTarget |>.withoutInfo
+def resolveLibTarget (lib : LeanLib) (facet : Name) : Except CliError BuildSpec :=
+  if facet.isAnonymous || facet = `lean then
+    return mkBuildSpec lib.lean
+  else if facet = `static then
+    return mkBuildSpec lib.static
+  else if facet = `shared then
+    return mkBuildSpec lib.shared
   else
     throw <| CliError.unknownFacet "library" facet
 
-def resolveExeTarget (exe : LeanExe) (facet : Name) : Except CliError OpaqueTarget :=
+def resolveExeTarget (exe : LeanExe) (facet : Name) : Except CliError BuildSpec :=
   if facet.isAnonymous || facet == `exe then
-    return exe.target |>.withoutInfo
+    return mkBuildSpec exe.exe
   else
     throw <| CliError.unknownFacet "executable" facet
 
-def resolveTargetInPackage (ws : Workspace) (pkg : Package) (target : Name) (facet : Name) : Except CliError OpaqueTarget :=
+def resolveExternLibTarget (lib : ExternLib) (facet : Name) : Except CliError BuildSpec :=
+  if facet.isAnonymous || facet = `static then
+    return mkBuildSpec lib.static
+  else if facet = `shared then
+    return mkBuildSpec lib.shared
+  else
+    throw <| CliError.unknownFacet "external library" facet
+
+def resolveCustomTarget (pkg : Package)
+(target facet : Name) (config : TargetConfig) : Except CliError BuildSpec :=
+  if !facet.isAnonymous then
+    throw <| CliError.invalidFacet target facet
+  else if h : pkg.name = config.package then
+    have : FamilyDef CustomData (pkg.name, config.name) (ActiveBuildTarget config.resultType) :=
+      ⟨by simp [h]⟩
+    return mkBuildSpec <| pkg.customTarget config.name
+  else
+    throw <| CliError.badTarget pkg.name target config.package config.name
+
+def resolveTargetInPackage (ws : Workspace)
+(pkg : Package) (target facet : Name) : Except CliError BuildSpec :=
   if let some config := pkg.findTargetConfig? target then
-    if !facet.isAnonymous then
-      throw <| CliError.invalidFacet target facet
-    else if h : pkg.name = config.package then
-      have : FamilyDef CustomData (pkg.name, config.name) (ActiveBuildTarget config.resultType) :=
-        ⟨by simp [h]⟩
-      return pkg.customTarget config.name |>.target
-    else
-      throw <| CliError.badTarget pkg.name target config.package config.name
+    resolveCustomTarget pkg target facet config
   else if let some exe := pkg.findLeanExe? target then
     resolveExeTarget exe facet
   else if let some lib := pkg.findExternLib? target then
-    if facet.isAnonymous then
-      return lib.target.withoutInfo
-    else
-      throw <| CliError.invalidFacet target facet
+    resolveExternLibTarget lib facet
   else if let some lib := pkg.findLeanLib? target then
     resolveLibTarget lib facet
   else if let some mod := pkg.findModule? target then
@@ -67,47 +106,36 @@ def resolveTargetInPackage (ws : Workspace) (pkg : Package) (target : Name) (fac
   else
     throw <| CliError.missingTarget pkg.name (target.toString false)
 
-def resolveDefaultPackageTarget (ws : Workspace) (pkg : Package) : Except CliError OpaqueTarget :=
-  return Target.collectOpaqueArray <| ←
-    pkg.defaultTargets.mapM (resolveTargetInPackage ws pkg · .anonymous)
+def resolveDefaultPackageTarget (ws : Workspace) (pkg : Package) : Except CliError (Array BuildSpec) :=
+  pkg.defaultTargets.mapM (resolveTargetInPackage ws pkg · .anonymous)
 
-def resolvePackageTarget (ws : Workspace) (pkg : Package) (facet : Name) : Except CliError OpaqueTarget :=
+def resolvePackageTarget (ws : Workspace) (pkg : Package) (facet : Name) : Except CliError (Array BuildSpec) :=
   if facet.isAnonymous then
     resolveDefaultPackageTarget ws pkg
   else if let some config := ws.findPackageFacetConfig? facet then do
-    let some target := config.toTarget? (pkg.facet facet) rfl
-      | throw <| CliError.nonTargetFacet "package" facet
-    return target
+    Array.singleton <$> mkConfigBuildSpec "package" (pkg.facet facet) config rfl
   else
     throw <| CliError.unknownFacet "package" facet
 
-def resolveTargetInWorkspace (ws : Workspace) (target : Name) (facet : Name) : Except CliError OpaqueTarget :=
+def resolveTargetInWorkspace (ws : Workspace)
+(target : Name) (facet : Name) : Except CliError (Array BuildSpec) :=
   if let some (pkg, config) := ws.findTargetConfig? target then
-    if !facet.isAnonymous then
-      throw <| CliError.invalidFacet config.name facet
-    else if h : pkg.name = config.package then
-      have : FamilyDef CustomData (pkg.name, config.name) (ActiveBuildTarget config.resultType) :=
-        ⟨by simp [h]⟩
-      return pkg.customTarget config.name |>.target
-    else
-      throw <| CliError.badTarget pkg.name target config.package config.name
+    Array.singleton <$> resolveCustomTarget pkg target facet config
   else if let some exe := ws.findLeanExe? target then
-    resolveExeTarget exe facet
+    Array.singleton <$> resolveExeTarget exe facet
   else if let some lib := ws.findExternLib? target then
-    if facet.isAnonymous then
-      return lib.target.withoutInfo
-    else
-      throw <| CliError.invalidFacet target facet
+    Array.singleton <$> resolveExternLibTarget lib facet
   else if let some lib := ws.findLeanLib? target then
-    resolveLibTarget lib facet
+    Array.singleton <$> resolveLibTarget lib facet
   else if let some pkg := ws.findPackage? target then
     resolvePackageTarget ws pkg facet
   else if let some mod := ws.findModule? target then
-    resolveModuleTarget ws mod facet
+    Array.singleton <$> resolveModuleTarget ws mod facet
   else
     throw <| CliError.unknownTarget target
 
-def resolveTargetBaseSpec (ws : Workspace) (spec : String) (facet : Name) : Except CliError OpaqueTarget := do
+def resolveTargetBaseSpec
+(ws : Workspace) (spec : String) (facet : Name) : Except CliError (Array BuildSpec) := do
   match spec.splitOn "/" with
   | [spec] =>
     if spec.isEmpty then
@@ -118,7 +146,7 @@ def resolveTargetBaseSpec (ws : Workspace) (spec : String) (facet : Name) : Exce
     else if spec.startsWith "+" then
       let mod := spec.drop 1 |>.toName
       if let some mod := ws.findModule? mod then
-        resolveModuleTarget ws mod facet
+        Array.singleton <$> resolveModuleTarget ws mod facet
       else
         throw <| CliError.unknownModule mod
     else
@@ -131,19 +159,27 @@ def resolveTargetBaseSpec (ws : Workspace) (spec : String) (facet : Name) : Exce
     else if targetSpec.startsWith "+" then
       let mod := targetSpec.drop 1 |>.toName
       if let some mod := pkg.findModule? mod then
-        resolveModuleTarget ws mod facet
+        Array.singleton <$> resolveModuleTarget ws mod facet
       else
         throw <| CliError.unknownModule mod
     else
-      resolveTargetInPackage ws pkg targetSpec facet
+      Array.singleton <$> resolveTargetInPackage ws pkg targetSpec facet
   | _ =>
     throw <| CliError.invalidTargetSpec spec '/'
 
-def parseTargetSpec (ws : Workspace) (spec : String) : Except CliError OpaqueTarget := do
+def parseTargetSpec (ws : Workspace) (spec : String) : Except CliError (Array BuildSpec) := do
   match spec.splitOn ":" with
   | [spec] =>
     resolveTargetBaseSpec ws spec .anonymous
   | [rootSpec, facet] =>
-    resolveTargetBaseSpec ws rootSpec (Name.ofString facet)
+    resolveTargetBaseSpec ws rootSpec facet.toName
   | _ =>
     throw <| CliError.invalidTargetSpec spec ':'
+
+def parseTargetSpecs (ws : Workspace) (specs : List String) : Except CliError (Array BuildSpec) := do
+  let mut results := #[]
+  for spec in specs do
+    results := results ++ (← parseTargetSpec ws spec)
+  if results.isEmpty then
+    results ← resolveDefaultPackageTarget ws ws.root
+  return results

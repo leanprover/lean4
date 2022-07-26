@@ -300,14 +300,9 @@ protected def build : CliM PUnit := do
   let config ← mkLoadConfig opts
   let ws ← loadWorkspace config
   let targetSpecs ← takeArgs
-  let target ← show Except _ _ from do
-    let targets ← targetSpecs.mapM <| parseTargetSpec ws
-    if targets.isEmpty then
-      resolveDefaultPackageTarget ws ws.root
-    else
-      return Target.collectOpaqueList targets
+  let specs ← parseTargetSpecs ws targetSpecs
   let ctx ← mkBuildContext ws
-  BuildM.run MonadLog.io ctx target.build
+  BuildM.run MonadLog.io ctx <| buildSpecs specs
 
 protected def update : CliM PUnit := do
   processOptions lakeOption

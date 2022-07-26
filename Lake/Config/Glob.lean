@@ -27,10 +27,10 @@ partial def forEachModuleIn [Monad m] [MonadLiftT IO m]
 (dir : FilePath) (f : Name → m PUnit) : m PUnit := do
   for entry in (← dir.readDir) do
     if (← liftM (m := IO) <| entry.path.isDir) then
-      let n := Name.ofString <| entry.fileName
+      let n := entry.fileName.toName
       f n *> forEachModuleIn entry.path (f <| n ++ ·)
     else if entry.path.extension == some "lean" then
-      f <| Name.ofString <| FilePath.withExtension entry.fileName "" |>.toString
+      f <| FilePath.withExtension entry.fileName "" |>.toString.toName
 
 namespace Glob
 

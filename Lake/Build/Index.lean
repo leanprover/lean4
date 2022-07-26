@@ -5,7 +5,6 @@ Authors: Mac Malone
 -/
 import Lake.Build.Roots
 import Lake.Build.Topological
-import Lake.Util.EStateT
 
 /-!
 # The Lake Build Index
@@ -82,17 +81,12 @@ and a topological / suspending scheduler and return the dynamic result.
 [FamilyDef BuildData info.key α] : RecBuildM α := do
   cast (by simp) <| buildIndexTop' info
 
-/-- Build the given Lake target using the given Lake build store. -/
-@[inline] def BuildInfo.buildIn
-(store : BuildStore) (self : BuildInfo) [FamilyDef BuildData self.key α] : BuildM α := do
-  failOnBuildCycle <| ← EStateT.run' store <| buildIndexTop self
-
 /-- Build the given Lake target in a fresh build store. -/
-@[macroInline] def BuildInfo.build
+@[inline] def BuildInfo.build
 (self : BuildInfo) [FamilyDef BuildData self.key α] : BuildM α :=
-  buildIn BuildStore.empty self
+  buildIndexTop self |>.run
 
-export BuildInfo (build buildIn)
+export BuildInfo (build)
 
 /-! ## Targets Using the Build Index -/
 
@@ -105,10 +99,7 @@ export BuildInfo (build buildIn)
 @[inline] def mkFacetTargetConfig (build : ι → IndexBuildM (ActiveBuildTarget α))
 [h : FamilyDef Fam facet (ActiveBuildTarget α)] : FacetConfig Fam ι facet where
   build := cast (by rw [← h.family_key_eq_type]) build
-  toTarget? := fun info key_eq_type =>
-    have : FamilyDef BuildData info.key (ActiveBuildTarget α) :=
-      ⟨h.family_key_eq_type ▸ key_eq_type⟩
-    info.target
+  getJob? := some (fun data => let_fun target := ofFamily data; target.task)
 
 /-! ### Module Facet Targets -/
 

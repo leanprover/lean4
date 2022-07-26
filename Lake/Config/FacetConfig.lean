@@ -12,8 +12,8 @@ namespace Lake
 structure FacetConfig (DataFam : Name → Type) (ι : Type) (name : Name) : Type where
   /-- The facet's build (function). -/
   build : ι → IndexBuildM (DataFam name)
-  /-- Is this facet a buildable target? -/
-  toTarget? : (info : BuildInfo) → BuildData info.key = DataFam name → Option OpaqueTarget
+  /-- Does this facet produce an associated asynchronous job? -/
+  getJob? : Option (DataFam name → Job)
   deriving Inhabited
 
 protected abbrev FacetConfig.name (_ : FacetConfig DataFam ι name) := name
@@ -22,7 +22,7 @@ protected abbrev FacetConfig.name (_ : FacetConfig DataFam ι name) := name
 @[inline] def mkFacetConfig (build : ι → IndexBuildM α)
 [h : FamilyDef Fam facet α] : FacetConfig Fam ι facet where
   build := cast (by rw [← h.family_key_eq_type]) build
-  toTarget? := fun _ _ => none
+  getJob? := none
 
 /-- A dependently typed configuration based on its registered name. -/
 structure NamedConfigDecl (β : Name → Type u) where

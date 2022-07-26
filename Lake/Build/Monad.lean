@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 import Lake.Config.Monad
 import Lake.Build.Context
+import Lake.Util.EStateT
 
 open System
 
@@ -29,3 +30,18 @@ def failOnBuildCycle [ToString k] : Except (List k) α → BuildM α
 | Except.error cycle => do
   let cycle := cycle.map (s!"  {·}")
   error s!"build cycle detected:\n{"\n".intercalate cycle}"
+
+/--
+Run the recursive build in the given build store.
+If a cycle is encountered, log it and then fail.
+-/
+@[inline] def RecBuildM.runIn (store : BuildStore) (build : RecBuildM α) : BuildM (α × BuildStore) := do
+  let (res, store) ← EStateT.run store build
+  return (← failOnBuildCycle res, store)
+
+/--
+Run the recursive build in a fresh build store.
+If a cycle is encountered, log it and then fail.
+-/
+@[inline] def RecBuildM.run (build : RecBuildM α) : BuildM α := do
+  (·.1) <$> build.runIn {}

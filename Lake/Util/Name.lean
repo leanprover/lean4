@@ -17,9 +17,6 @@ export Lean (Name NameMap)
 namespace Name
 open Lean.Name
 
-def ofString (str : String) : Name :=
-  str.splitOn "." |>.foldl (fun n p => .str n p.trim) .anonymous
-
 @[simp] protected theorem beq_false (m n : Name) : (m == n) = false ↔ ¬ (m = n) := by
   rw [← beq_iff_eq m n]; cases m == n <;> simp
 

@@ -40,12 +40,11 @@ def Package.buildImportsAndDeps (imports : List String) (self : Package) : Build
   else
     -- build local imports from list
     let mods := (← getWorkspace).processImportList imports
-    let (res, bStore) ← EStateT.run BuildStore.empty <| mods.mapM fun mod =>
+    let (importTargets, bStore) ← RecBuildM.runIn {} <| mods.mapM fun mod =>
       if mod.shouldPrecompile then
         buildIndexTop mod.dynlib <&> (·.withoutInfo)
       else
         buildIndexTop mod.leanBin
-    let importTargets ← failOnBuildCycle res
     let dynlibTargets := bStore.collectModuleFacetArray Module.dynlibFacet
     let externLibTargets := bStore.collectSharedExternLibs
     importTargets.forM (·.buildOpaque)

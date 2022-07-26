@@ -131,7 +131,7 @@ abbrev IndexT (m : Type → Type v) := EquipT (IndexBuildFn m) m
 abbrev IndexBuildM := IndexT RecBuildM
 
 /-- Build the given info using the Lake build index. -/
-@[inline] def BuildInfo.recBuild (self : BuildInfo) [FamilyDef BuildData self.key α] : IndexT m α :=
+@[inline] def BuildInfo.recBuild (self : BuildInfo) [FamilyDef BuildData self.key α] : IndexBuildM α :=
   fun build => cast (by simp) <| build self
 
 export BuildInfo (recBuild)

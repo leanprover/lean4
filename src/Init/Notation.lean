@@ -240,4 +240,7 @@ declare_syntax_cat rawStx
 instance : Coe Syntax (TSyntax `rawStx) where
   coe stx := ⟨stx⟩
 
+/-- `with_annotate_term stx e` annotates the lexical range of `stx : Syntax` with term info for `e`. -/
+scoped syntax (name := withAnnotateTerm) "with_annotate_term " rawStx ppSpace term : term
+
 syntax (name := deprecated) "deprecated " (ident)? : attr

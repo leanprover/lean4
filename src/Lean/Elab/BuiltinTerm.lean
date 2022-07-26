@@ -279,4 +279,10 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
   withTheReader Core.Context (fun ctx => { ctx with maxRecDepth := maxRecDepth.get options, options := options }) do
     elabTerm stx[4] expectedType?
 
+@[builtinTermElab withAnnotateTerm] def elabWithAnnotateTerm : TermElab := fun stx expectedType? => do
+  match stx with
+  | `(with_annotate_term $stx $e) =>
+    withInfoContext' stx (elabTerm e expectedType?) (mkTermInfo .anonymous (expectedType? := expectedType?) stx)
+  | _ => throwUnsupportedSyntax
+
 end Lean.Elab.Term

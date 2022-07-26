@@ -1,6 +1,8 @@
 Unreleased
 ---------
 
+* Add option `warningAsError`. When set to true, warning messages are treated as errors.
+
 * Support dotted notation and named arguments in patterns. Example:
   ```lean
   def getForallBinderType (e : Expr) : Expr :=

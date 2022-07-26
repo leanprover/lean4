@@ -1,6 +1,14 @@
 Unreleased
 ---------
 
+* Support dotted notation and named arguments in patterns. Example:
+  ```lean
+  def getForallBinderType (e : Expr) : Expr :=
+    match e with
+    | .forallE (binderType := type) .. => type
+    | _ => panic! "forall expected"
+  ```
+
 * "jump-to-definition" now works for function names embedded in the following attributes
   `@[implementedBy funName]`, `@[tactic parserName]`, `@[termElab parserName]`, `@[commandElab parserName]`,
   `@[builtinTactic parserName]`, `@[builtinTermElab parserName]`, and `@[builtinCommandElab parserName]`.

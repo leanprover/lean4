@@ -219,12 +219,13 @@ where
   processCtorApp (stx : Syntax) : M Syntax := do
     let (f, namedArgs, args, ellipsis) ← expandApp stx true
     if f.getKind == ``Parser.Term.dotIdent then
-      unless namedArgs.isEmpty do
-        throwError "invalid dotted notation in a pattern, named arguments are not supported yet"
+      let namedArgsNew ← namedArgs.mapM fun
+        | { ref, name, val := Arg.stx arg } => withRef ref do `(Lean.Parser.Term.namedArgument| ($(mkIdentFrom ref name) := $(← collect arg)))
+        | _ => unreachable!
       let mut argsNew ← args.mapM fun | Arg.stx arg => collect arg | _ => unreachable!
       if ellipsis then
         argsNew := argsNew.push (mkNode ``Parser.Term.ellipsis #[mkAtomFrom stx ".."])
-      return Syntax.mkApp f argsNew
+      return Syntax.mkApp f (namedArgsNew ++ argsNew)
     else
       processCtorAppCore f namedArgs args ellipsis
 

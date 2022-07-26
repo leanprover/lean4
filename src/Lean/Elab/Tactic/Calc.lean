@@ -18,7 +18,7 @@ def elabCalcSteps (steps : Array Syntax) : TacticM Expr := do
 where
   go : TermElabM Expr := do
     let e ← Term.elabCalcSteps steps
-    Term.synthesizeSyntheticMVars
+    Term.synthesizeSyntheticMVars (mayPostpone := false)
     instantiateMVars e
 
 @[builtinTactic calcTactic]

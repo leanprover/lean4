@@ -100,31 +100,10 @@ export BuildInfo (build)
   build := cast (by rw [← h.family_key_eq_type]) build
   getJob? := some (fun data => let_fun target := ofFamily data; target.task)
 
-/-! ### Module Facet Targets -/
-
-/-- An opaque target thats build the module facet in a fresh build store. -/
-@[inline] def Module.facetTarget (facet : Name) (self : Module)
-[FamilyDef ModuleData facet (ActiveBuildTarget α)] : OpaqueTarget :=
-  self.facet facet |>.target
-
-/-! ### Lean Library Targets -/
-
-@[inline] protected def LeanLib.leanTarget (self : LeanLib) : OpaqueTarget :=
-  self.lean.target
-
-@[inline] protected def LeanLib.staticLibTarget (self : LeanLib) : FileTarget :=
-  self.static.target.withInfo self.sharedLibFile
-
-@[inline] protected def LeanLib.sharedLibTarget (self : LeanLib) : FileTarget :=
-  self.shared.target.withInfo self.sharedLibFile
-
-/-! ### Lean Executable Targets -/
+/-! ### Lean Executable Builds -/
 
 @[inline] protected def LeanExe.build (self : LeanExe) : BuildM ActiveFileTarget :=
   self.exe.build
 
 @[inline] protected def LeanExe.recBuild (self : LeanExe) : IndexBuildM ActiveFileTarget :=
   self.exe.recBuild
-
-@[inline] protected def LeanExe.target (self : LeanExe) : FileTarget :=
-  self.exe.target.withInfo self.file

@@ -761,7 +761,7 @@ where
     try
       let (fvarId, mvarId) ← mvarId.intro1
       mvarId.withContext do
-        let localDecl ← getLocalDecl fvarId
+        let localDecl ← fvarId.getDecl
         if localDecl.type.isEq || localDecl.type.isHEq then
           if let some { mvarId, .. } ← unifyEq? mvarId fvarId {} then
             go? mvarId
@@ -872,7 +872,7 @@ def applySimpResultToProp (mvarId : MVarId) (proof : Expr) (prop : Expr) (r : Si
         return some (proof, r.expr)
 
 def applySimpResultToFVarId (mvarId : MVarId) (fvarId : FVarId) (r : Simp.Result) (mayCloseGoal : Bool) : MetaM (Option (Expr × Expr)) := do
-  let localDecl ← getLocalDecl fvarId
+  let localDecl ← fvarId.getDecl
   applySimpResultToProp mvarId (mkFVar fvarId) localDecl.type r mayCloseGoal
 
 /--
@@ -888,7 +888,7 @@ def applySimpResultToLocalDeclCore (mvarId : MVarId) (fvarId : FVarId) (r : Opti
   match r with
   | none => return none
   | some (value, type') =>
-    let localDecl ← getLocalDecl fvarId
+    let localDecl ← fvarId.getDecl
     if localDecl.type != type' then
       let mvarId ← mvarId.assert localDecl.userName type' value
       let mvarId ← mvarId.tryClear localDecl.fvarId
@@ -915,8 +915,7 @@ def applySimpResultToLocalDecl (mvarId : MVarId) (fvarId : FVarId) (r : Simp.Res
 def simpLocalDecl (mvarId : MVarId) (fvarId : FVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (mayCloseGoal := true) : MetaM (Option (FVarId × MVarId)) := do
   mvarId.withContext do
     mvarId.checkNotAssigned `simp
-    let localDecl ← getLocalDecl fvarId
-    let type ← instantiateMVars localDecl.type
+    let type ← instantiateMVars (← fvarId.getType)
     applySimpResultToLocalDeclCore mvarId fvarId (← simpStep mvarId (mkFVar fvarId) type ctx discharge? mayCloseGoal)
 
 abbrev FVarIdToLemmaId := FVarIdMap Name
@@ -928,7 +927,7 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Di
     let mut toAssert := #[]
     let mut replaced := #[]
     for fvarId in fvarIdsToSimp do
-      let localDecl ← getLocalDecl fvarId
+      let localDecl ← fvarId.getDecl
       let type ← instantiateMVars localDecl.type
       let ctx ← match fvarIdToLemmaId.find? localDecl.fvarId with
         | none => pure ctx
@@ -958,7 +957,7 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Di
 def simpTargetStar (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) : MetaM TacticResultCNM := mvarId.withContext do
   let mut ctx := ctx
   for h in (← getPropHyps) do
-    let localDecl ← getLocalDecl h
+    let localDecl ← h.getDecl
     let proof  := localDecl.toExpr
     let simpTheorems ← ctx.simpTheorems.addTheorem proof
     ctx := { ctx with simpTheorems }
@@ -975,8 +974,7 @@ def dsimpGoal (mvarId : MVarId) (ctx : Simp.Context) (simplifyTarget : Bool := t
     mvarId.checkNotAssigned `simp
     let mut mvarId := mvarId
     for fvarId in fvarIdsToSimp do
-      let localDecl ← getLocalDecl fvarId
-      let type ← instantiateMVars localDecl.type
+      let type ← instantiateMVars (← fvarId.getType)
       let typeNew ← dsimp type ctx
       if typeNew.isConstOf ``False then
         mvarId.assign (← mkFalseElim (← mvarId.getType) (mkFVar fvarId))

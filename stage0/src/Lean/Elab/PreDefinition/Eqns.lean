@@ -196,7 +196,7 @@ where
     let mut fvarIds := fvarIds
     for fvarId in usedFVarIds do
       unless fvarIdSet.contains fvarId do
-        (fvarIdSet, fvarIds) ← pushDecl fvarIdSet fvarIds (← getLocalDecl fvarId)
+        (fvarIdSet, fvarIds) ← pushDecl fvarIdSet fvarIds (← fvarId.getDecl)
     return (fvarIdSet, fvarIds)
 
 /--

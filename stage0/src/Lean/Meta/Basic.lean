@@ -600,16 +600,47 @@ def setMVarUserName (mvarId : MVarId) (userNameNew : Name) : MetaM Unit :=
 def throwUnknownFVar (fvarId : FVarId) : MetaM α :=
   throwError "unknown free variable '{mkFVar fvarId}'"
 
-def findLocalDecl? (fvarId : FVarId) : MetaM (Option LocalDecl) :=
+/--
+Return `some decl` if `fvarId` is declared in the current local context.
+-/
+def _root_.Lean.FVarId.findDecl? (fvarId : FVarId) : MetaM (Option LocalDecl) :=
   return (← getLCtx).find? fvarId
 
-def getLocalDecl (fvarId : FVarId) : MetaM LocalDecl := do
+@[deprecated FVarId.findDecl?]
+def findLocalDecl? (fvarId : FVarId) : MetaM (Option LocalDecl) :=
+  fvarId.findDecl?
+
+/--
+  Return the local declaration for the given free variable.
+  Throw an exception if local declaration is not in the current local context.
+-/
+def _root_.Lean.FVarId.getDecl (fvarId : FVarId) : MetaM LocalDecl := do
   match (← getLCtx).find? fvarId with
   | some d => pure d
   | none   => throwUnknownFVar fvarId
 
+@[deprecated FVarId.getDecl]
+def getLocalDecl (fvarId : FVarId) : MetaM LocalDecl := do
+  fvarId.getDecl
+
+/-- Return the type of the given free variable. -/
+def _root_.Lean.FVarId.getType (fvarId : FVarId) : MetaM Expr :=
+  return (← fvarId.getDecl).type
+
+/-- Return `some value` if the given free variable is a let-declaration, and `none` otherwise. -/
+def _root_.Lean.FVarId.getValue? (fvarId : FVarId) : MetaM (Option Expr) :=
+  return (← fvarId.getDecl).value?
+
+/-- Return the user-facing name for the given free variable. -/
+def _root_.Lean.FVarId.getUserName (fvarId : FVarId) : MetaM Name :=
+  return (← fvarId.getDecl).userName
+
+/-- Return `true` is the free variable is a let-variable. -/
+def _root_.Lean.FVarId.isLetVar (fvarId : FVarId) : MetaM Bool :=
+  return (← fvarId.getDecl).isLet
+
 def getFVarLocalDecl (fvar : Expr) : MetaM LocalDecl :=
-  getLocalDecl fvar.fvarId!
+  fvar.fvarId!.getDecl
 
 def getLocalDeclFromUserName (userName : Name) : MetaM LocalDecl := do
   match (← getLCtx).findFromUserName? userName with
@@ -1004,7 +1035,7 @@ def lambdaTelescope (e : Expr) (k : Array Expr → Expr → n α) : n α :=
 def getParamNames (declName : Name) : MetaM (Array Name) := do
   forallTelescopeReducing (← getConstInfo declName).type fun xs _ => do
     xs.mapM fun x => do
-      let localDecl ← getLocalDecl x.fvarId!
+      let localDecl ← x.fvarId!.getDecl
       pure localDecl.userName
 
 -- `kind` specifies the metavariable kind for metavariables not corresponding to instance implicit `[ ... ]` arguments.

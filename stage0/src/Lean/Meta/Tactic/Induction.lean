@@ -126,7 +126,7 @@ def _root_.Lean.MVarId.induction (mvarId : MVarId) (majorFVarId : FVarId) (recur
   mvarId.withContext do
     trace[Meta.Tactic.induction] "initial\n{MessageData.ofGoal mvarId}"
     mvarId.checkNotAssigned `induction
-    let majorLocalDecl ← getLocalDecl majorFVarId
+    let majorLocalDecl ← majorFVarId.getDecl
     let recursorInfo ← mkRecursorInfo recursorName
     let some majorType ← whnfUntil majorLocalDecl.type recursorInfo.typeName | throwUnexpectedMajorType mvarId majorLocalDecl.type
     majorType.withApp fun _ majorTypeArgs => do
@@ -148,7 +148,7 @@ def _root_.Lean.MVarId.induction (mvarId : MVarId) (majorFVarId : FVarId) (recur
           -- If arg is also and index and a variable occurring after `idx`, we need to make sure it doesn't depend on `idx`.
           -- Note that if `arg` is not a variable, we will fail anyway when we visit it.
           if i > idxPos && recursorInfo.indicesPos.contains i && arg.isFVar then
-            let idxDecl ← getLocalDecl idx.fvarId!
+            let idxDecl ← idx.fvarId!.getDecl
             if (← localDeclDependsOn idxDecl arg.fvarId!) then
               throwTacticEx `induction mvarId m!"'{idx}' is an index in major premise, but it depends on index occurring at position #{i+1}"
         pure idx
@@ -177,7 +177,7 @@ def _root_.Lean.MVarId.induction (mvarId : MVarId) (majorFVarId : FVarId) (recur
         let target ← mvarId.getType
         let targetLevel ← getLevel target
         let targetLevel ← normalizeLevel targetLevel
-        let majorLocalDecl ← getLocalDecl majorFVarId
+        let majorLocalDecl ← majorFVarId.getDecl
         let some majorType ← whnfUntil majorLocalDecl.type recursorInfo.typeName | throwUnexpectedMajorType mvarId majorLocalDecl.type
         majorType.withApp fun majorTypeFn majorTypeArgs => do
           match majorTypeFn with

@@ -31,7 +31,7 @@ private partial def unpackMutual (preDefs : Array PreDefinition) (mvarId : MVarI
 
 private partial def unpackUnary (preDef : PreDefinition) (prefixSize : Nat) (mvarId : MVarId) (fvarId : FVarId) (element : TerminationByElement) : TermElabM MVarId := do
   let varNames ← lambdaTelescope preDef.value fun xs _ => do
-    let mut varNames ← xs.mapM fun x => return (← getLocalDecl x.fvarId!).userName
+    let mut varNames ← xs.mapM fun x => x.fvarId!.getUserName
     if element.vars.size > varNames.size then
       throwErrorAt element.vars[varNames.size]! "too many variable names"
     for i in [:element.vars.size] do

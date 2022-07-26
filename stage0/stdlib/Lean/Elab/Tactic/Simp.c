@@ -311,7 +311,6 @@ static lean_object* l___private_Lean_Elab_Tactic_Simp_0__Lean_Elab_Tactic_addDec
 static lean_object* l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_Tactic_elabSimpArgs___spec__3___closed__2;
 lean_object* l_Lean_Expr_eta(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSimp_declRange___closed__6;
-lean_object* l_Lean_Meta_getLocalDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSimp___closed__1;
 LEAN_EXPORT lean_object* l_Lean_withoutModifyingState___at_Lean_Elab_Tactic_elabSimpConfigCore___spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
@@ -352,6 +351,7 @@ lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMe
 LEAN_EXPORT lean_object* l_Lean_Elab_resolveGlobalConstNoOverloadWithInfo___at_Lean_Elab_Tactic_elabSimpArgs___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_elabSimpArgs___closed__2;
 uint8_t l_Lean_Syntax_isNone(lean_object*);
+lean_object* l_Lean_FVarId_getDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getFVarIds(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_mkSimpContext___spec__1___closed__2;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
@@ -8861,7 +8861,7 @@ lean_object* x_19; lean_object* x_20; lean_object* x_21;
 x_19 = lean_ctor_get(x_5, 0);
 x_20 = lean_ctor_get(x_5, 1);
 lean_inc(x_10);
-x_21 = l_Lean_Meta_getLocalDecl(x_17, x_10, x_11, x_12, x_13, x_14);
+x_21 = l_Lean_FVarId_getDecl(x_17, x_10, x_11, x_12, x_13, x_14);
 if (lean_obj_tag(x_21) == 0)
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; 
@@ -8992,7 +8992,7 @@ lean_inc(x_52);
 lean_inc(x_51);
 lean_dec(x_5);
 lean_inc(x_10);
-x_53 = l_Lean_Meta_getLocalDecl(x_17, x_10, x_11, x_12, x_13, x_14);
+x_53 = l_Lean_FVarId_getDecl(x_17, x_10, x_11, x_12, x_13, x_14);
 if (lean_obj_tag(x_53) == 0)
 {
 lean_object* x_54; lean_object* x_55; lean_object* x_56; uint8_t x_57; 
@@ -9153,7 +9153,7 @@ lean_object* x_18; lean_object* x_19; lean_object* x_20;
 x_18 = lean_ctor_get(x_4, 0);
 x_19 = lean_ctor_get(x_4, 1);
 lean_inc(x_9);
-x_20 = l_Lean_Meta_getLocalDecl(x_16, x_9, x_10, x_11, x_12, x_13);
+x_20 = l_Lean_FVarId_getDecl(x_16, x_9, x_10, x_11, x_12, x_13);
 if (lean_obj_tag(x_20) == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
@@ -9284,7 +9284,7 @@ lean_inc(x_51);
 lean_inc(x_50);
 lean_dec(x_4);
 lean_inc(x_9);
-x_52 = l_Lean_Meta_getLocalDecl(x_16, x_9, x_10, x_11, x_12, x_13);
+x_52 = l_Lean_FVarId_getDecl(x_16, x_9, x_10, x_11, x_12, x_13);
 if (lean_obj_tag(x_52) == 0)
 {
 lean_object* x_53; lean_object* x_54; lean_object* x_55; uint8_t x_56; 

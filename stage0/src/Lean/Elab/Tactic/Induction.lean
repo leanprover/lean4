@@ -206,7 +206,7 @@ private def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Ar
     let mut i := 0
     let altVars := getAltVars altStx
     for fvarId in fvarIds do
-      if !useNamesForExplicitOnly || (← getLocalDecl fvarId).binderInfo.isExplicit then
+      if !useNamesForExplicitOnly || (← fvarId.getDecl).binderInfo.isExplicit then
         if i < altVars.size then
           Term.addLocalVarInfo altVars[i]! (mkFVar fvarId)
           i := i + 1
@@ -485,7 +485,7 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
 
 private def shouldGeneralizeTarget (e : Expr) : MetaM Bool := do
   if let .fvar fvarId .. := e then
-    return (← getLocalDecl fvarId).hasValue -- must generalize let-decls
+    return (←  fvarId.getDecl).hasValue -- must generalize let-decls
   else
     return true
 

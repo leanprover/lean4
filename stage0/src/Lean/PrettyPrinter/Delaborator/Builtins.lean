@@ -24,13 +24,13 @@ def unfoldMDatas : Expr → Expr
 
 @[builtinDelab fvar]
 def delabFVar : Delab := do
-let Expr.fvar id ← getExpr | unreachable!
+let Expr.fvar fvarId ← getExpr | unreachable!
 try
-  let l ← getLocalDecl id
+  let l ← fvarId.getDecl
   maybeAddBlockImplicit (mkIdent l.userName)
 catch _ =>
   -- loose free variable, use internal name
-  maybeAddBlockImplicit $ mkIdent id.name
+  maybeAddBlockImplicit <| mkIdent fvarId.name
 
 -- loose bound variable, use pseudo syntax
 @[builtinDelab bvar]
@@ -146,7 +146,7 @@ partial def getParamKinds : DelabM (Array ParamKind) := do
     withTransparency TransparencyMode.all do
       forallTelescopeArgs e.getAppFn e.getAppArgs fun params _ => do
         params.mapM fun param => do
-          let l ← getLocalDecl param.fvarId!
+          let l ← param.fvarId!.getDecl
           pure { name := l.userName, bInfo := l.binderInfo, defVal := l.type.getOptParamDefault?, isAutoParam := l.type.isAutoParam }
   catch _ => pure #[] -- recall that expr may be nonsensical
 where

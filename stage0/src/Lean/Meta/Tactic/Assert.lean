@@ -78,7 +78,7 @@ def _root_.Lean.MVarId.assertAfter (mvarId : MVarId) (fvarId : FVarId) (userName
     mvarId.checkNotAssigned `assertAfter
     let tag        ← mvarId.getTag
     let target     ← mvarId.getType
-    let localDecl  ← getLocalDecl fvarId
+    let localDecl  ← fvarId.getDecl
     let lctx       ← getLCtx
     let localInsts ← getLocalInstances
     let fvarIds := lctx.foldl (init := #[]) (start := localDecl.index+1) fun fvarIds decl => fvarIds.push decl.fvarId

@@ -38,8 +38,7 @@ private def nestedFalseElim (mvarId : MVarId) : MetaM Bool := do
 
 -- We only consider inductives with no constructors and indexed families
 private def isElimEmptyInductiveCandidate (fvarId : FVarId) : MetaM Bool := do
-  let localDecl ← getLocalDecl fvarId
-  let type ← whnfD localDecl.type
+  let type ← whnfD (← fvarId.getType)
   matchConstInduct type.getAppFn (fun _ => pure false) fun info _ => do
     return info.ctors.length == 0 || info.numIndices > 0
 

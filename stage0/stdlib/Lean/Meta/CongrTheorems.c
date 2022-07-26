@@ -184,7 +184,6 @@ static lean_object* l_Lean_Meta_mkHCongrWithArity_withNewEqs_loop___rarg___close
 LEAN_EXPORT lean_object* l_Lean_Meta_mkHCongrWithArity___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bindingName_x21(lean_object*);
 static lean_object* l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__4___closed__2;
-lean_object* l_Lean_Meta_getLocalDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isMVar(lean_object*);
@@ -216,6 +215,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_CongrArgKind_noConfusion___rarg___lambda__1___boxed(lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_FVarId_getDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkCongrSimpCore_x3f_mk_x3f_go___closed__1;
 lean_object* l_Lean_Meta_FunInfo_getArity(lean_object*);
@@ -7249,7 +7249,7 @@ lean_dec(x_21);
 lean_inc(x_19);
 x_22 = l_Lean_Expr_fvarId_x21(x_19);
 lean_inc(x_9);
-x_23 = l_Lean_Meta_getLocalDecl(x_22, x_9, x_10, x_11, x_12, x_13);
+x_23 = l_Lean_FVarId_getDecl(x_22, x_9, x_10, x_11, x_12, x_13);
 if (lean_obj_tag(x_23) == 0)
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
@@ -7548,7 +7548,7 @@ lean_dec(x_91);
 lean_dec(x_86);
 x_93 = l_Lean_Expr_fvarId_x21(x_19);
 lean_inc(x_9);
-x_94 = l_Lean_Meta_getLocalDecl(x_93, x_9, x_10, x_11, x_12, x_87);
+x_94 = l_Lean_FVarId_getDecl(x_93, x_9, x_10, x_11, x_12, x_87);
 if (lean_obj_tag(x_94) == 0)
 {
 lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; uint8_t x_99; lean_object* x_100; 

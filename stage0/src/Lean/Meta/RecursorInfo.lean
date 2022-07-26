@@ -141,7 +141,7 @@ private def getParamsPos (declName : Name) (xs : Array Expr) (numParams : Nat) (
     match (← Iargs.findIdxM? fun Iarg => isDefEq Iarg x) with
     | some j => paramsPos := paramsPos.push (some j)
     | none   => do
-      let localDecl ← getLocalDecl x.fvarId!
+      let localDecl ← x.fvarId!.getDecl
       if localDecl.binderInfo.isInstImplicit then
         paramsPos := paramsPos.push none
       else

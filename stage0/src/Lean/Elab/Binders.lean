@@ -419,65 +419,65 @@ def expandWhereDeclsOpt (whereDeclsOpt : Syntax) (body : Syntax) : MacroM Syntax
   else
     expandWhereDecls whereDeclsOpt[0] body
 
-/-- Helper function for `expandMatchAltsIntoMatch` -/
-private def expandMatchAltsIntoMatchAux (matchAlts : Syntax) (matchTactic : Bool) : Nat → Array Syntax → MacroM Syntax
+/--
+ Helper function for `expandMatchAltsIntoMatch`.
+-/
+private def expandMatchAltsIntoMatchAux (matchAlts : Syntax) (isTactic : Bool) (useExplicit : Bool) : Nat → Array Syntax → MacroM Syntax
   | 0,   discrs => do
-    if matchTactic then
+    if isTactic then
       `(tactic|match $[$discrs:term],* with $matchAlts:matchAlts)
     else
       `(match $[$discrs:term],* with $matchAlts:matchAlts)
   | n+1, discrs => withFreshMacroScope do
     let x ← mkAuxFunDiscr -- Recall that identifiers created with `mkAuxFunDiscr` are cleared by the `match` elaborator
     let d ← `(@$x:ident) -- See comment below
-    let body ← expandMatchAltsIntoMatchAux matchAlts matchTactic n (discrs.push d)
-    if matchTactic then
+    let body ← expandMatchAltsIntoMatchAux matchAlts isTactic useExplicit n (discrs.push d)
+    if isTactic then
       `(tactic| intro $x:term; $body:tactic)
+    else if useExplicit then
+      `(@fun $x => $body)
     else
-      /-
-        We used to use a `@` before `fun`. It was added before we had support for discriminant refinement in Lean.
-        Consider the following example, without `@` and discriminant refinement, we would not be able to elaborate it.
-        ```
-        def Vec.reverse (v : Vec α n) : Vec α n :=
-          let rec loop : {n m : Nat} → Vec α n → Vec α m → Vec α (n + m)
-            | _, _, nil,       w => Nat.zero_add .. ▸ w
-            | _, _, cons a as, w => Nat.add_assoc .. ▸ loop as (Nat.add_comm .. ▸ cons a w)
-          loop v nil
-        ```
-        We now have discriminant refinement, by removing the `@` we can write the less verbose.
-        ```
-        def Vec.reverse (v : Vec α n) : Vec α n :=
-          let rec loop : {n m : Nat} → Vec α n → Vec α m → Vec α (n + m)
-            | nil,       w => Nat.zero_add .. ▸ w
-            | cons a as, w => Nat.add_assoc .. ▸ loop as (Nat.add_comm .. ▸ cons a w)
-          loop v nil
-        ```
-        Moreover, we address issue #1132. https://github.com/leanprover/lean4/issues/1132
-      -/
       `(fun $x => $body)
 
 /--
   Expand `matchAlts` syntax into a full `match`-expression.
-  Example
-    ```
-    | 0, true => alt_1
-    | i, _    => alt_2
-    ```
-    expands into (for tactic == false)
-    ```
-    fun x_1 x_2 =>
-    match @x_1, @x_2 with
-    | 0, true => alt_1
-    | i, _    => alt_2
-    ```
-    and (for tactic == true)
-    ```
-    intro x_1; intro x_2;
-    match @x_1, @x_2 with
-    | 0, true => alt_1
-    | i, _    => alt_2
-    ```
+  Example:
+  ```
+  | 0, true => alt_1
+  | i, _    => alt_2
+  ```
+  expands into (for tactic == false)
+  ```
+  fun x_1 x_2 =>
+  match @x_1, @x_2 with
+  | 0, true => alt_1
+  | i, _    => alt_2
+  ```
+  and (for tactic == true)
+  ```
+  intro x_1; intro x_2;
+  match @x_1, @x_2 with
+  | 0, true => alt_1
+  | i, _    => alt_2
+  ```
 
-  Remark: we add `@` to make sure we don't consume implicit arguments, and to make the behavior consistent with `fun`.
+  If `useExplicit = true`, we add a `@` before `fun` to disable implicit lambdas. We disable them when processing `let` and `let rec` declarations
+  to make sure the behavior is consistent with top-level declarations where we can write
+  ```
+  def f : {α : Type} → α → α
+    | _, a => a
+  ```
+  We use `useExplicit = false` when we are elaborating the `fun | ... => ... | ...` notation. See issue #1132.
+  If `@fun` is used with this notation, the we set `useExplicit = true`.
+  We also use `useExplicit = false` when processing `instance ... where` notation declarations. The motivation is to have compact declarations such as
+  ```
+  instance [Alternative m] : MonadLiftT Option m where
+  monadLift -- We don't want to provide the implicit arguments of `monadLift` here. One should use `monadLift := @fun ...` if they want to provide them.
+    | some a => pure a
+    | none => failure
+  ```
+
+  Remark: we add `@` at discriminants to make sure we don't consume implicit arguments, and to make the behavior consistent with `fun`.
   Example:
   ```
   inductive T : Type 1 :=
@@ -491,39 +491,39 @@ private def expandMatchAltsIntoMatchAux (matchAlts : Syntax) (matchTactic : Bool
   ```
   The two definitions should be elaborated without errors and be equivalent.
  -/
-def expandMatchAltsIntoMatch (ref : Syntax) (matchAlts : Syntax) (tactic := false) : MacroM Syntax :=
-  withRef ref <| expandMatchAltsIntoMatchAux matchAlts tactic (getMatchAltsNumPatterns matchAlts) #[]
+def expandMatchAltsIntoMatch (ref : Syntax) (matchAlts : Syntax) (useExplicit := true) : MacroM Syntax :=
+  withRef ref <| expandMatchAltsIntoMatchAux matchAlts (isTactic := false) (useExplicit := useExplicit) (getMatchAltsNumPatterns matchAlts) #[]
 
 def expandMatchAltsIntoMatchTactic (ref : Syntax) (matchAlts : Syntax) : MacroM Syntax :=
-  withRef ref <| expandMatchAltsIntoMatchAux matchAlts true (getMatchAltsNumPatterns matchAlts) #[]
+  withRef ref <| expandMatchAltsIntoMatchAux matchAlts (isTactic := true) (useExplicit := false) (getMatchAltsNumPatterns matchAlts) #[]
 
 /--
   Similar to `expandMatchAltsIntoMatch`, but supports an optional `where` clause.
 
   Expand `matchAltsWhereDecls` into `let rec` + `match`-expression.
   Example
-    ```
-    | 0, true => ... f 0 ...
-    | i, _    => ... f i + g i ...
-    where
-      f x := g x + 1
+  ```
+  | 0, true => ... f 0 ...
+  | i, _    => ... f i + g i ...
+  where
+    f x := g x + 1
 
+    g : Nat → Nat
+      | 0   => 1
+      | x+1 => f x
+  ```
+  expands into
+  ```
+  fux x_1 x_2 =>
+    let rec
+      f x := g x + 1,
       g : Nat → Nat
         | 0   => 1
         | x+1 => f x
-    ```
-    expands into
-    ```
-    fux x_1 x_2 =>
-      let rec
-        f x := g x + 1,
-        g : Nat → Nat
-          | 0   => 1
-          | x+1 => f x
-      match x_1, x_2 with
-      | 0, true => ... f 0 ...
-      | i, _    => ... f i + g i ...
-    ```
+    match x_1, x_2 with
+    | 0, true => ... f 0 ...
+    | i, _    => ... f i + g i ...
+  ```
 -/
 def expandMatchAltsWhereDecls (matchAltsWhereDecls : Syntax) : MacroM Syntax :=
   let matchAlts     := matchAltsWhereDecls[0]
@@ -543,7 +543,7 @@ def expandMatchAltsWhereDecls (matchAltsWhereDecls : Syntax) : MacroM Syntax :=
       `(@fun $d:ident => $body)
   loop (getMatchAltsNumPatterns matchAlts) #[]
 
-@[builtinMacro Lean.Parser.Term.fun] partial def expandFun : Macro
+@[builtinMacro Parser.Term.fun] partial def expandFun : Macro
   | `(fun $binders* : $ty => $body) => do
     let binders ← binders.mapM (expandSimpleBinderWithType ty)
     `(fun $binders* => $body)
@@ -553,7 +553,12 @@ def expandMatchAltsWhereDecls (matchAltsWhereDecls : Syntax) : MacroM Syntax :=
       `(fun $binders* => $body)
     else
       Macro.throwUnsupported
-  | stx@`(fun $m:matchAlts) => expandMatchAltsIntoMatch stx m
+  | stx@`(fun $m:matchAlts) => expandMatchAltsIntoMatch stx m (useExplicit := false)
+  | _ => Macro.throwUnsupported
+
+@[builtinMacro Parser.Term.explicit] partial def expandExplicitFun : Macro := fun stx =>
+  match stx with
+  | `(@fun $m:matchAlts) => expandMatchAltsIntoMatch stx[1] m (useExplicit := true)
   | _ => Macro.throwUnsupported
 
 open Lean.Elab.Term.Quotation in
@@ -652,10 +657,10 @@ def mkLetIdDeclView (letIdDecl : Syntax) : LetIdDeclView :=
   let value   := letIdDecl[4]
   { id, binders, type, value }
 
-def expandLetEqnsDecl (letDecl : Syntax) : MacroM Syntax := do
+def expandLetEqnsDecl (letDecl : Syntax) (useExplicit := true) : MacroM Syntax := do
   let ref       := letDecl
   let matchAlts := letDecl[3]
-  let val ← expandMatchAltsIntoMatch ref matchAlts
+  let val ← expandMatchAltsIntoMatch ref matchAlts (useExplicit := useExplicit)
   return mkNode `Lean.Parser.Term.letIdDecl #[letDecl[0], letDecl[1], letDecl[2], mkAtomFrom ref " := ", val]
 
 def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : Bool) (elabBodyFirst : Bool) (usedLetOnly : Bool) : TermElabM Expr := do

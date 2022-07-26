@@ -328,7 +328,7 @@ private partial def isDefEqToAppOf (e : Expr) (declName : Name) : MetaM Bool := 
 private def isDotCompletionMethod (typeName : Name) (info : ConstantInfo) : MetaM Bool :=
   forallTelescopeReducing info.type fun xs _ => do
     for x in xs do
-      let localDecl ← getLocalDecl x.fvarId!
+      let localDecl ← x.fvarId!.getDecl
       let type := localDecl.type.consumeMData
       if (← isDefEqToAppOf type typeName) then
         return true

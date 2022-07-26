@@ -57,10 +57,10 @@ static lean_object* l_Array_forInUnsafe_loop___at_Lean_MVarId_revert___spec__1__
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_Expr_fvar___override(lean_object*);
 static lean_object* l_Lean_MVarId_revert___lambda__2___closed__4;
-lean_object* l_Lean_Meta_getLocalDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_environment_main_module(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_FVarId_getDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_revert___lambda__2___closed__3;
 lean_object* l_Lean_MVarId_setKind(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_MVarId_revert___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -127,7 +127,7 @@ lean_dec(x_4);
 x_12 = lean_array_uget(x_1, x_3);
 lean_inc(x_5);
 lean_inc(x_12);
-x_13 = l_Lean_Meta_getLocalDecl(x_12, x_5, x_6, x_7, x_8, x_9);
+x_13 = l_Lean_FVarId_getDecl(x_12, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; uint8_t x_16; 
@@ -244,7 +244,7 @@ lean_inc(x_12);
 x_16 = l_Lean_Expr_fvarId_x21(x_12);
 lean_inc(x_5);
 lean_inc(x_16);
-x_17 = l_Lean_Meta_getLocalDecl(x_16, x_5, x_6, x_7, x_8, x_9);
+x_17 = l_Lean_FVarId_getDecl(x_16, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; uint8_t x_20; 
@@ -365,7 +365,7 @@ lean_inc(x_12);
 x_41 = l_Lean_Expr_fvarId_x21(x_12);
 lean_inc(x_5);
 lean_inc(x_41);
-x_42 = l_Lean_Meta_getLocalDecl(x_41, x_5, x_6, x_7, x_8, x_9);
+x_42 = l_Lean_FVarId_getDecl(x_41, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_42) == 0)
 {
 lean_object* x_43; lean_object* x_44; uint8_t x_45; 

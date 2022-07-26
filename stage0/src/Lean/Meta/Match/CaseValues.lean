@@ -47,7 +47,7 @@ private def caseValueAux (mvarId : MVarId) (fvarId : FVarId) (value : Expr) (hNa
       trace[Meta] "subst domain: {thenSubst.domain.map (·.name)}"
       let thenH := (thenSubst.get thenH).fvarId!
       trace[Meta] "searching for decl"
-      let _ ← getLocalDecl thenH
+      let _ ← thenH.getDecl
       trace[Meta] "found decl"
     let thenSubgoal := { mvarId := thenMVarId, newH := (thenSubst.get thenH).fvarId!, subst := thenSubst : CaseValueSubgoal }
     pure (thenSubgoal, elseSubgoal)

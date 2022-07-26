@@ -3054,7 +3054,7 @@ lean_inc(x_52);
 lean_dec(x_50);
 x_53 = lean_unsigned_to_nat(3u);
 x_54 = l_Lean_Syntax_getArg(x_14, x_53);
-x_55 = 0;
+x_55 = 1;
 x_56 = lean_box(x_55);
 x_57 = lean_alloc_closure((void*)(l_Lean_Elab_Term_expandMatchAltsIntoMatch___boxed), 5, 3);
 lean_closure_set(x_57, 0, x_14);

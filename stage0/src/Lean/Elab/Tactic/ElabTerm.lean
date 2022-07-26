@@ -118,7 +118,7 @@ def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : Ta
     let (e, mvarIds') ← elabTermWithHoles e none `specialize (allowNaturalHoles := true)
     let h := e.getAppFn
     if h.isFVar then
-      let localDecl ← getLocalDecl h.fvarId!
+      let localDecl ← h.fvarId!.getDecl
       let mvarId ← (← getMainGoal).assert localDecl.userName (← inferType e).headBeta e
       let (_, mvarId) ← mvarId.intro1P
       let mvarId ← mvarId.tryClear h.fvarId!

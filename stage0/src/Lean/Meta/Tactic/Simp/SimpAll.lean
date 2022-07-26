@@ -32,7 +32,7 @@ private def initEntries : M Unit := do
   let hsNonDeps ← (← get).mvarId.getNondepPropHyps
   let mut simpThms := (← get).ctx.simpTheorems
   for h in hs do
-    let localDecl ← getLocalDecl h
+    let localDecl ← h.getDecl
     unless simpThms.isErased localDecl.userName do
       let fvarId := localDecl.fvarId
       let proof  := localDecl.toExpr

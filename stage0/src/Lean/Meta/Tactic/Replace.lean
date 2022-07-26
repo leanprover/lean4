@@ -60,7 +60,7 @@ def replaceTargetDefEq (mvarId : MVarId) (targetNew : Expr) : MetaM MVarId :=
 
 private def replaceLocalDeclCore (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (eqProof : Expr) : MetaM AssertAfterResult :=
   mvarId.withContext do
-    let localDecl ← getLocalDecl fvarId
+    let localDecl ← fvarId.getDecl
     let typeNewPr ← mkEqMP eqProof (mkFVar fvarId)
     -- `typeNew` may contain variables that occur after `fvarId`.
     -- Thus, we use the auxiliary function `findMaxFVar` to ensure `typeNew` is well-formed at the position we are inserting it.
@@ -73,7 +73,7 @@ where
   findMaxFVar (e : Expr) : StateRefT LocalDecl MetaM Unit :=
     e.forEach' fun e => do
       if e.isFVar then
-        let localDecl' ← getLocalDecl e.fvarId!
+        let localDecl' ← e.fvarId!.getDecl
         modify fun localDecl => if localDecl'.index > localDecl.index then localDecl' else localDecl
         return false
       else

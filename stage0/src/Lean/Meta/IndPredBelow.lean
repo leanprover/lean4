@@ -201,7 +201,7 @@ where
         withLocalDecl (←copyVarName binder.fvarId!) binder.binderInfo newDomain k
 
   copyVarName (oldName : FVarId) : MetaM Name := do
-    let binderDecl ← getLocalDecl oldName
+    let binderDecl ← oldName.getDecl
     mkFreshUserName binderDecl.userName
 
 def mkConstructor (ctx : Context) (i : Nat) (ctor : Name) : MetaM Constructor := do

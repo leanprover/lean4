@@ -122,7 +122,7 @@ private partial def processSumCasesOn (x F val : Expr) (k : (x : Expr) → (F : 
     let args := val.getAppArgs
     let α := args[0]!
     let β := args[1]!
-    let FDecl ← getLocalDecl F.fvarId!
+    let FDecl ← F.fvarId!.getDecl
     let (motiveNew, u) ← lambdaTelescope args[2]! fun xs type => do
       let type ← mkArrow (FDecl.type.replaceFVar x xs[0]!) type
       return (← mkLambdaFVars xs type, ← getLevel type)
@@ -147,7 +147,7 @@ private partial def processPSigmaCasesOn (x F val : Expr) (k : (F : Expr) → (v
     let [_, u, v] := val.getAppFn.constLevels! | unreachable!
     let α := args[0]!
     let β := args[1]!
-    let FDecl ← getLocalDecl F.fvarId!
+    let FDecl ← F.fvarId!.getDecl
     let (motiveNew, w) ← lambdaTelescope args[2]! fun xs type => do
       let type ← mkArrow (FDecl.type.replaceFVar x xs[0]!) type
       return (← mkLambdaFVars xs type, ← getLevel type)
@@ -173,7 +173,7 @@ def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (wfRel : Expr) (dec
     let motive ← mkLambdaFVars #[x] type
     let rel := mkProj ``WellFoundedRelation 0 wfRel
     let wf  := mkProj ``WellFoundedRelation 1 wfRel
-    let varName := (← getLocalDecl x.fvarId!).userName -- See comment below.
+    let varName ← x.fvarId!.getUserName -- See comment below.
     return (mkApp4 (mkConst ``WellFounded.fix [u, v]) α motive rel wf, varName)
   forallBoundedTelescope (← whnf (← inferType wfFix)).bindingDomain! (some 2) fun xs _ => do
     let x   := xs[0]!

@@ -330,11 +330,17 @@ partial def unify (a : Expr) (b : Expr) : M Bool := do
     if a != a' || b != b' then
       unify a' b'
     else match a, b with
-      | Expr.fvar aFvarId, Expr.fvar bFVarId => assign aFvarId b <||> assign bFVarId a
-      | Expr.fvar aFvarId, b => assign aFvarId b
-      | a, Expr.fvar bFVarId => assign bFVarId a
-      | Expr.app aFn aArg, Expr.app bFn bArg => unify aFn bFn <&&> unify aArg bArg
-      | _, _ => return false
+      | .fvar aFvarId, .fvar bFVarId => assign aFvarId b <||> assign bFVarId a
+      | .fvar aFvarId, b => assign aFvarId b
+      | a, .fvar bFVarId => assign bFVarId a
+      | .app aFn aArg, .app bFn bArg => unify aFn bFn <&&> unify aArg bArg
+      | _, _ =>
+        let a' := (← get).fvarSubst.apply a
+        let b' := (← get).fvarSubst.apply b
+        if a != a' || b != b' then
+          unify a' b'
+        else
+          return false
 
 end Unify
 
@@ -357,10 +363,13 @@ private def expandVarIntoCtor? (alt : Alt) (fvarId : FVarId) (ctorName : Name) :
     let (ctorLevels, ctorParams) ← getInductiveUniverseAndParams expectedType
     let ctor := mkAppN (mkConst ctorName ctorLevels) ctorParams
     let ctorType ← inferType ctor
+    -- TODO: try to rewrite this code using metavariables using `isDefEq` instead of `unify?`, and then
+    -- convert unassigned metavariables to fresh free variables.
+    -- Reason: `unify?` is too buggy
     forallTelescopeReducing ctorType fun ctorFields resultType => do
       let ctor := mkAppN ctor ctorFields
       let alt  := alt.replaceFVarId fvarId ctor
-      let ctorFieldDecls ← ctorFields.mapM fun ctorField => getLocalDecl ctorField.fvarId!
+      let ctorFieldDecls ← ctorFields.mapM fun ctorField => ctorField.fvarId!.getDecl
       let newAltDecls := ctorFieldDecls.toList ++ alt.fvarDecls
       trace[Meta.Match.unify] "expandVarIntoCtor? {mkFVar fvarId} : {expectedType}, ctor: {ctor}, resultType: {resultType}"
       let subst? ← unify? newAltDecls resultType expectedType
@@ -573,7 +582,7 @@ private def collectArraySizes (p : Problem) : Array Nat :=
 
 private def expandVarIntoArrayLit (alt : Alt) (fvarId : FVarId) (arrayElemType : Expr) (arraySize : Nat) : MetaM Alt :=
   withExistingLocalDecls alt.fvarDecls do
-    let fvarDecl ← getLocalDecl fvarId
+    let fvarDecl ← fvarId.getDecl
     let varNamePrefix := fvarDecl.userName
     let rec loop (n : Nat) (newVars : Array Expr) := do
       match n with
@@ -583,7 +592,7 @@ private def expandVarIntoArrayLit (alt : Alt) (fvarId : FVarId) (arrayElemType :
       | 0 =>
         let arrayLit ← mkArrayLit arrayElemType newVars.toList
         let alt := alt.replaceFVarId fvarId arrayLit
-        let newDecls ← newVars.toList.mapM fun newVar => getLocalDecl newVar.fvarId!
+        let newDecls ← newVars.toList.mapM fun newVar => newVar.fvarId!.getDecl
         let newPatterns := newVars.toList.map fun newVar => Pattern.var newVar.fvarId!
         return { alt with fvarDecls := newDecls ++ alt.fvarDecls, patterns := newPatterns ++ alt.patterns }
     loop arraySize #[]

@@ -19,7 +19,7 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
     let tag ← mvarId.getTag
     mvarId.checkNotAssigned `subst
     let hFVarIdOriginal := hFVarId
-    let hLocalDecl ← getLocalDecl hFVarId
+    let hLocalDecl ← hFVarId.getDecl
     match (← matchEq? hLocalDecl.type) with
     | none => throwTacticEx `subst mvarId "argument must be an equality proof"
     | some (_, lhs, rhs) => do
@@ -59,7 +59,7 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
           mvarId.withContext do
             let mvarDecl   ← mvarId.getDecl
             let type   := mvarDecl.type
-            let hLocalDecl ← getLocalDecl hFVarId
+            let hLocalDecl ← hFVarId.getDecl
             match (← matchEq? hLocalDecl.type) with
             | none => unreachable!
             | some (_, lhs, rhs) => do
@@ -121,7 +121,7 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
 -/
 def heqToEq (mvarId : MVarId) (fvarId : FVarId) (tryToClear : Bool := true) : MetaM (FVarId × MVarId) :=
   mvarId.withContext do
-   let decl ← getLocalDecl fvarId
+   let decl ← fvarId.getDecl
    let type ← whnf decl.type
    match type.heq? with
    | none              => pure (fvarId, mvarId)
@@ -139,10 +139,10 @@ def heqToEq (mvarId : MVarId) (fvarId : FVarId) (tryToClear : Bool := true) : Me
 
 partial def subst (mvarId : MVarId) (h : FVarId) : MetaM MVarId :=
   mvarId.withContext do
-    let localDecl ← getLocalDecl h
-    match (← matchEq? localDecl.type) with
+    let type ← h.getType
+    match (← matchEq? type) with
     | some _ => substEq mvarId h
-    | none => match (← matchHEq? localDecl.type) with
+    | none => match (← matchHEq? type) with
       | some _ =>
         let (h', mvarId') ← heqToEq mvarId h
         if mvarId == mvarId' then
@@ -153,7 +153,7 @@ partial def subst (mvarId : MVarId) (h : FVarId) : MetaM MVarId :=
 where
   /-- Give `h : Eq α a b`, try to apply `substCore` -/
   substEq (mvarId : MVarId) (h : FVarId) : MetaM MVarId := mvarId.withContext do
-    let localDecl ← getLocalDecl h
+    let localDecl ← h.getDecl
     let some (_, lhs, rhs) ← matchEq? localDecl.type | unreachable!
     let substReduced (newType : Expr) (symm : Bool) : MetaM MVarId := do
       let mvarId ← mvarId.assert localDecl.userName newType (mkFVar h)
@@ -178,7 +178,7 @@ where
 
   /-- Try to find an equation of the form `heq : h = rhs` or `heq : lhs = h` -/
   findEq (mvarId : MVarId) (h : FVarId) : MetaM MVarId := mvarId.withContext do
-    let localDecl ← getLocalDecl h
+    let localDecl ← h.getDecl
     if localDecl.isLet then
       throwTacticEx `subst mvarId m!"variable '{mkFVar h}' is a let-declaration"
     let lctx ← getLCtx

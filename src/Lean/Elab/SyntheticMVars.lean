@@ -234,6 +234,10 @@ private def synthesizeUsingDefault : TermElabM Bool := do
       return true
   return false
 
+/--
+We use this method to report typeclass (and coercion) resolution problems that are "stuck".
+That is, there is nothing else to do, and we don't have enough information to synthesize them using TC resolution.
+-/
 def reportStuckSyntheticMVar (mvarId : MVarId) (ignoreStuckTC := false) : TermElabM Unit := do
   let some mvarSyntheticDecl ← getSyntheticMVarDecl? mvarId | return ()
   withRef mvarSyntheticDecl.stx do
@@ -318,6 +322,9 @@ private def markAsResolved (mvarId : MVarId) : TermElabM Unit :=
 
 mutual
 
+  /--
+  Try to synthesize a term `val` using the tactic code `tacticCode`, and then assign `mvarId := val`.
+  -/
   partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
     /- Recall, `tacticCode` is the whole `by ...` expression. -/
     let code := tacticCode[1]
@@ -469,6 +476,11 @@ def elabTermAndSynthesize (stx : Syntax) (expectedType? : Option Expr) : TermEla
   withRef stx do
     instantiateMVars (← withSynthesize <| elabTerm stx expectedType?)
 
+/--
+Collect unassigned metavariables at `e` that have associated tactic blocks, and then execute them using `runTactic`.
+We use this method at the `match .. with` elaborator when it cannot be postponed anymore, but it is still waiting
+the result of a tactic block.
+-/
 def runPendingTacticsAt (e : Expr) : TermElabM Unit := do
   for mvarId in (← getMVars e) do
     let mvarId ← getDelayedMVarRoot mvarId

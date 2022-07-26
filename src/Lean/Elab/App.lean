@@ -20,9 +20,10 @@ builtin_initialize elabWithoutExpectedTypeAttr : TagAttribute ←
 def hasElabWithoutExpectedType (env : Environment) (declName : Name) : Bool :=
   elabWithoutExpectedTypeAttr.hasTag env declName
 
-instance : ToString Arg := ⟨fun
-  | .stx  val => toString val
-  | .expr val => toString val⟩
+instance : ToString Arg where
+  toString
+    | .stx  val => toString val
+    | .expr val => toString val
 
 instance : ToString NamedArg where
   toString s := "(" ++ toString s.name ++ " := " ++ toString s.val ++ ")"
@@ -33,9 +34,8 @@ def throwInvalidNamedArg (namedArg : NamedArg) (fn? : Option Name) : TermElabM �
     | none    => throwError "invalid argument name '{namedArg.name}' for function"
 
 private def ensureArgType (f : Expr) (arg : Expr) (expectedType : Expr) : TermElabM Expr := do
-  let argType ← inferType arg
   try
-    ensureHasTypeAux expectedType argType arg f
+    ensureHasTypeAux expectedType (← inferType arg) arg f
   catch
     | ex@(.error ..) =>
       if (← read).errToSorry then
@@ -307,9 +307,9 @@ private def shouldPropagateExpectedTypeFor (nextArg : Arg) : Bool :=
     a) The resultant type does not contain any type metavariable.
     b) The resultant type contains a nontype metavariable.
 
-    These two conditions would restrict the method to simple functions that are "morally" in
-    the Hindley&Milner fragment.
-    If users need to disable expected type propagation, we can add an attribute `[elabWithoutExpectedType]`.
+  These two conditions would restrict the method to simple functions that are "morally" in
+  the Hindley&Milner fragment.
+  If users need to disable expected type propagation, we can add an attribute `[elabWithoutExpectedType]`.
 -/
 private def propagateExpectedType (arg : Arg) : M Unit := do
   if shouldPropagateExpectedTypeFor arg then
@@ -356,7 +356,7 @@ private def propagateExpectedType (arg : Arg) : M Unit := do
                   /- Note that we only set `propagateExpected := false` when propagation has succeeded. -/
                   modify fun s => { s with propagateExpected := false }
 
-/-- This method execute after all application arguments have been processed. -/
+/-- This method executes after all application arguments have been processed. -/
 private def finalize : M Expr := do
   let s ← get
   let mut e := s.f
@@ -445,7 +445,7 @@ private def isNextArgHole : M Bool := do
   ```
   then, the method returns `true` because `Elem` is an output parameter for the local instance `[self : Get Cont Idx Elem]`.
 
-  Remark: if `coeAtOutParam` is `false`, this method returns `false`.
+  Remark: if `resultIsOutParamSupport` is `false`, this method returns `false`.
 -/
 private partial def isNextOutParamOfLocalInstanceAndResult : M Bool := do
   if !(← read).resultIsOutParamSupport then
@@ -642,6 +642,20 @@ private def propagateExpectedTypeFor (f : Expr) : TermElabM Bool :=
   | some declName => return !hasElabWithoutExpectedType (← getEnv) declName
   | _ => return true
 
+/--
+Elaborate a `f`-application using `namedArgs` and `args` as the arguments.
+- `expectedType?` the expected type if available. It is used to propagate typing information only. This method does **not** ensure the result has this type.
+- `explicit = true` when notation `@` is used, and implicit arguments are assumed to be provided at `namedArgs` and `args`.
+- `ellipsis = true` when notation `..` is used. That is, we add `_` for missing arguments.
+- `resultIsOutParamSupport` is used to control whether special support is used when processing applications of functions that return
+   output parameter of some local instance. Example:
+   ```
+   GetElem.getElem : {Cont : Type u_1} → {Idx : Type u_2} → {Elem : Type u_3} → {Dom : Cont → Idx → Prop} → [self : GetElem Cont Idx Elem Dom] → (xs : Cont) → (i : Idx) → Dom xs i → Elem
+   ```
+   The result type `Elem` is the output parameter of the local instance `self`.
+   When this parameter is set to `true`, we execute `synthesizeSyntheticMVarsUsingDefault`. For additional details, see comment at
+   `ElabAppArgs.resultIsOutParam`.
+-/
 def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
     (expectedType? : Option Expr) (explicit ellipsis : Bool) (resultIsOutParamSupport := true) : TermElabM Expr := do
   -- Coercions must be available to use this flag.
@@ -1066,6 +1080,7 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
           if overloaded then ensureHasType expectedType? e else return e
         return acc.push s
 
+/-- Return the successful candidates. Recall we have Syntax `choice` nodes and overloaded symbols when we open multiple namespaces. -/
 private def getSuccesses (candidates : Array (TermElabResult Expr)) : TermElabM (Array (TermElabResult Expr)) := do
   let r₁ := candidates.filter fun | EStateM.Result.ok .. => true | _ => false
   if r₁.size ≤ 1 then return r₁
@@ -1092,6 +1107,10 @@ private def getSuccesses (candidates : Array (TermElabResult Expr)) : TermElabM 
     | _ => return false
   if r₂.size == 0 then return r₁ else return r₂
 
+/--
+  Throw an error message that describes why each possible interpretation for the overloaded notation and symbols did not work.
+  We use a nested error message to aggregate the exceptions produced by each failure.
+-/
 private def mergeFailures (failures : Array (TermElabResult Expr)) : TermElabM α := do
   let exs := failures.map fun | .error ex _ => ex | _ => unreachable!
   throwErrorWithNestedErrors "overloaded" exs
@@ -1113,6 +1132,14 @@ private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array A
     else
       withRef f <| mergeFailures candidates
 
+/--
+  We annotate recursive applications with their `Syntax` node to make sure we can produce error messages with
+  correct position information at `WF` and `Structural`.
+-/
+-- TODO: It is overkill to store the whole `Syntax` object, and we have to make sure we erase it later.
+-- We should store only the position information in the future.
+-- Recall that we will need to have a compact way of storing position information in the future anyway, if we
+-- want to support debugging information
 private def annotateIfRec (stx : Syntax) (e : Expr) : TermElabM Expr := do
   if (← read).saveRecAppSyntax then
     let resultFn := e.getAppFn

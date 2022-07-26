@@ -134,6 +134,17 @@ structure State where
   /-- remaining named arguments to be processed. -/
   namedArgs            : List NamedArg
   expectedType?        : Option Expr
+  /--
+    When named arguments are provided and explicit arguments occurring before them are missing,
+    the elaborator eta-expands the declaration. For example,
+    ```
+    def f (x y : Nat) := x + y
+    #check f (y := 5)
+    -- fun x => f x 5
+    ```
+    `etaArgs` stores the fresh free variables for implementing the eta-expansion.
+    When `..` is used, eta-expansion is disabled, and missing arguments are treated as `_`.
+  -/
   etaArgs              : Array Expr   := #[]
   /-- Metavariables that we need the set the error context using the application being built. -/
   toSetErrorCtx        : Array MVarId := #[]
@@ -556,13 +567,15 @@ mutual
         if !(← get).namedArgs.isEmpty then
           if (← anyNamedArgDependsOnCurrent) then
             addImplicitArg argName
+          else if (← read).ellipsis then
+            addImplicitArg argName
           else
             addEtaArg argName
         else if !(← read).explicit then
-          if (← fTypeHasOptAutoParams) then
-            addEtaArg argName
-          else if (← read).ellipsis then
+          if (← read).ellipsis then
             addImplicitArg argName
+          else if (← fTypeHasOptAutoParams) then
+            addEtaArg argName
           else
             finalize
         else
@@ -663,7 +676,9 @@ def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
   let resultIsOutParamSupport := ((← getEnv).contains ``Lean.Internal.coeM) && resultIsOutParamSupport && !explicit
   let fType ← inferType f
   let fType ← instantiateMVars fType
-  trace[Elab.app.args] "explicit: {explicit}, {f} : {fType}"
+  trace[Elab.app.args] "explicit: {explicit}, ellipsis: {ellipsis}, {f} : {fType}"
+  trace[Elab.app.args] "namedArgs: {namedArgs}"
+  trace[Elab.app.args] "args: {args}"
   unless namedArgs.isEmpty && args.isEmpty do
     tryPostponeIfMVar fType
   ElabAppArgs.main.run { explicit, ellipsis, resultIsOutParamSupport } |>.run' {

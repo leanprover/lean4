@@ -1,3 +1,10 @@
+syntheticHolesAsPatterns.lean:8:30-8:31: error: don't know how to synthesize placeholder
+context:
+α β : Type
+a✝ : α
+x : Fam2 α β
+a n : Nat
+⊢ Nat
 syntheticHolesAsPatterns.lean:7:30-7:31: error: don't know how to synthesize placeholder
 context:
 α✝ β : Type
@@ -6,19 +13,6 @@ x : Fam2 α✝ β
 α : Type
 a : α
 ⊢ α
-syntheticHolesAsPatterns.lean:8:30-8:31: error: don't know how to synthesize placeholder
-context:
-α β : Type
-a✝ : α
-x : Fam2 α β
-a n : Nat
-⊢ Nat
-syntheticHolesAsPatterns.lean:13:18-13:19: error: don't know how to synthesize placeholder
-context:
-α β : Type
-x : Fam2 α β
-n a : Nat
-⊢ Nat
 syntheticHolesAsPatterns.lean:12:18-12:19: error: don't know how to synthesize placeholder
 context:
 α✝ β : Type
@@ -26,3 +20,9 @@ x : Fam2 α✝ β
 α : Type
 a : α
 ⊢ α
+syntheticHolesAsPatterns.lean:13:18-13:19: error: don't know how to synthesize placeholder
+context:
+α β : Type
+x : Fam2 α β
+n a : Nat
+⊢ Nat

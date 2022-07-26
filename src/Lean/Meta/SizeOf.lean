@@ -9,7 +9,7 @@ import Lean.Meta.Instances
 namespace Lean.Meta
 
 /-- Create `SizeOf` local instances for applicable parameters, and execute `k` using them. -/
-private partial def mkLocalInstances {α} (params : Array Expr) (k : Array Expr → MetaM α) : MetaM α :=
+private partial def mkLocalInstances (params : Array Expr) (k : Array Expr → MetaM α) : MetaM α :=
   loop 0 #[]
 where
   loop (i : Nat) (insts : Array Expr) : MetaM α := do
@@ -60,7 +60,7 @@ private def isRecField? (motiveFVars : Array Expr) (minorFVars : Array Expr) (fv
     idx := idx + 1
   return none
 
-private partial def mkSizeOfMotives {α} (motiveFVars : Array Expr) (k : Array Expr → MetaM α) : MetaM α :=
+private partial def mkSizeOfMotives (motiveFVars : Array Expr) (k : Array Expr → MetaM α) : MetaM α :=
   loop 0 #[]
 where
   loop (i : Nat) (motives : Array Expr) : MetaM α := do
@@ -91,7 +91,7 @@ private partial def mkSizeOfRecFieldFormIH (ih : Expr) : MetaM Expr := do
   else
      return ih
 
-private partial def mkSizeOfMinors {α} (motiveFVars : Array Expr) (minorFVars : Array Expr) (minorFVars' : Array Expr) (k : Array Expr → MetaM α) : MetaM α :=
+private partial def mkSizeOfMinors (motiveFVars : Array Expr) (minorFVars : Array Expr) (minorFVars' : Array Expr) (k : Array Expr → MetaM α) : MetaM α :=
   assert! minorFVars.size == minorFVars'.size
   loop 0 #[]
 where
@@ -133,19 +133,22 @@ partial def mkSizeOfFn (recName : Name) (declName : Name): MetaM Unit := do
       let val := mkAppN recFn (params ++ motives)
       forallBoundedTelescope (← inferType val) recInfo.numMinors fun minorFVars' _ =>
       mkSizeOfMinors motiveFVars minorFVars minorFVars' fun minors => do
-        let sizeOfParams := params ++ localInsts ++ indices ++ #[major]
-        let sizeOfType ← mkForallFVars sizeOfParams nat
-        let val := mkAppN val (minors ++ indices ++ #[major])
-        trace[Meta.sizeOf] "val: {val}"
-        let sizeOfValue ← mkLambdaFVars sizeOfParams val
-        addDecl <| Declaration.defnDecl {
-          name        := declName
-          levelParams := levelParams
-          type        := sizeOfType
-          value       := sizeOfValue
-          safety      := DefinitionSafety.safe
-          hints       := ReducibilityHints.abbrev
-        }
+        withInstImplicitAsImplict params do
+          let sizeOfParams := params ++ localInsts ++ indices ++ #[major]
+          let sizeOfType ← mkForallFVars sizeOfParams nat
+          let val := mkAppN val (minors ++ indices ++ #[major])
+          let sizeOfValue ← mkLambdaFVars sizeOfParams val
+          trace[Meta.sizeOf] "declName: {declName}"
+          trace[Meta.sizeOf] "type: {sizeOfType}"
+          trace[Meta.sizeOf] "val: {sizeOfValue}"
+          addDecl <| Declaration.defnDecl {
+            name        := declName
+            levelParams := levelParams
+            type        := sizeOfType
+            value       := sizeOfValue
+            safety      := DefinitionSafety.safe
+            hints       := ReducibilityHints.abbrev
+          }
 
 /--
   Create `sizeOf` functions for all inductive datatypes in the mutual inductive declaration containing `typeName`
@@ -430,12 +433,16 @@ private def mkSizeOfSpecTheorem (indInfo : InductiveVal) (sizeOfFns : Array Name
       let thmType ← mkForallFVars thmParams target
       let thmValue ← if indInfo.isNested then
         SizeOfSpecNested.main lhs rhs |>.run {
-          indInfo := indInfo, sizeOfFns := sizeOfFns, ctorName := ctorName, params := params, localInsts := localInsts, recMap := recMap
+          indInfo, sizeOfFns, ctorName, params, localInsts, recMap
         }
       else
         mkEqRefl rhs
       let thmValue ← mkLambdaFVars thmParams thmValue
-      trace[Meta.sizeOf] "sizeOf spec theorem: {thmName}"
+      trace[Meta.sizeOf] "sizeOf spec theorem name: {thmName}"
+      trace[Meta.sizeOf] "sizeOf spec theorem type: {thmType}"
+      trace[Meta.sizeOf] "sizeOf spec theorem value: {thmValue}"
+      unless (← isDefEq (← inferType thmValue) thmType) do
+        throwError "type mismatch"
       addDecl <| Declaration.thmDecl {
         name        := thmName
         levelParams := ctorInfo.levelParams
@@ -470,26 +477,28 @@ def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
         let indInfo ← getConstInfoInduct indTypeName
         forallTelescopeReducing indInfo.type fun xs _ =>
           let params := xs[:indInfo.numParams]
-          let indices := xs[indInfo.numParams:]
-          mkLocalInstances params fun localInsts => do
-            let us := indInfo.levelParams.map mkLevelParam
-            let indType := mkAppN (mkConst indTypeName us) xs
-            let sizeOfIndType ← mkAppM ``SizeOf #[indType]
-            withLocalDeclD `m indType fun m => do
-              let v ← mkLambdaFVars #[m] <| mkAppN (mkConst fn us) (params ++ localInsts ++ indices ++ #[m])
-              let sizeOfMk ← mkAppM ``SizeOf.mk #[v]
-              let instDeclName := indTypeName ++ `_sizeOf_inst
-              let instDeclType ← mkForallFVars (xs ++ localInsts) sizeOfIndType
-              let instDeclValue ← mkLambdaFVars (xs ++ localInsts) sizeOfMk
-              addDecl <| Declaration.defnDecl {
-                name        := instDeclName
-                levelParams := indInfo.levelParams
-                type        := instDeclType
-                value       := instDeclValue
-                safety      := DefinitionSafety.safe
-                hints       := ReducibilityHints.abbrev
-              }
-              addInstance instDeclName AttributeKind.global (eval_prio default)
+          withInstImplicitAsImplict params do
+            let indices := xs[indInfo.numParams:]
+            mkLocalInstances params fun localInsts => do
+              let us := indInfo.levelParams.map mkLevelParam
+              let indType := mkAppN (mkConst indTypeName us) xs
+              let sizeOfIndType ← mkAppM ``SizeOf #[indType]
+              withLocalDeclD `m indType fun m => do
+                let v ← mkLambdaFVars #[m] <| mkAppN (mkConst fn us) (params ++ localInsts ++ indices ++ #[m])
+                let sizeOfMk ← mkAppM ``SizeOf.mk #[v]
+                let instDeclName := indTypeName ++ `_sizeOf_inst
+                let instDeclType ← mkForallFVars (xs ++ localInsts) sizeOfIndType
+                let instDeclValue ← mkLambdaFVars (xs ++ localInsts) sizeOfMk
+                trace[Meta.sizeOf] ">> {instDeclName} : {instDeclType}"
+                addDecl <| Declaration.defnDecl {
+                  name        := instDeclName
+                  levelParams := indInfo.levelParams
+                  type        := instDeclType
+                  value       := instDeclValue
+                  safety      := .safe
+                  hints       := .abbrev
+                }
+                addInstance instDeclName AttributeKind.global (eval_prio default)
       if genSizeOfSpec.get (← getOptions) then
         mkSizeOfSpecTheorems indInfo.all.toArray fns recMap
 

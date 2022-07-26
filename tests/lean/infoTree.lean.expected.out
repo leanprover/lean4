@@ -405,85 +405,85 @@ infoTree.lean:44:0: error: expected stx
   Nat : Type @ ⟨45, 14⟩-⟨45, 17⟩ @ Lean.Elab.Term.elabIdent
     [.] `Nat : some Sort.{?_uniq} @ ⟨45, 14⟩-⟨45, 17⟩
     Nat : Type @ ⟨45, 14⟩-⟨45, 17⟩
-  _uniq.1182 (isBinder := true) : Nat @ ⟨45, 8⟩-⟨45, 9⟩
+  _uniq.1209 (isBinder := true) : Nat @ ⟨45, 8⟩-⟨45, 9⟩
   Nat : Type @ ⟨45, 14⟩-⟨45, 17⟩ @ Lean.Elab.Term.elabIdent
     [.] `Nat : some Sort.{?_uniq} @ ⟨45, 14⟩-⟨45, 17⟩
     Nat : Type @ ⟨45, 14⟩-⟨45, 17⟩
-  _uniq.1184 (isBinder := true) : Nat @ ⟨45, 10⟩-⟨45, 11⟩
-  Eq.{1} Nat _uniq.1182 _uniq.1182 : Prop @ ⟨45, 21⟩-⟨45, 26⟩ @ «_aux_Init_Notation___macroRules_term_=__2»
+  _uniq.1211 (isBinder := true) : Nat @ ⟨45, 10⟩-⟨45, 11⟩
+  Eq.{1} Nat _uniq.1209 _uniq.1209 : Prop @ ⟨45, 21⟩-⟨45, 26⟩ @ «_aux_Init_Notation___macroRules_term_=__2»
     Macro expansion
     («term_=_» `x "=" `x)
     ===>
     (Term.binrel "binrel%" `Eq._@.infoTree._hyg.182 `x `x)
-      Eq.{1} Nat _uniq.1182 _uniq.1182 : Prop @ ⟨45, 21⟩†-⟨45, 26⟩ @ Lean.Elab.Term.BinOp.elabBinRel
+      Eq.{1} Nat _uniq.1209 _uniq.1209 : Prop @ ⟨45, 21⟩†-⟨45, 26⟩ @ Lean.Elab.Term.BinOp.elabBinRel
         [.] `Eq._@.infoTree._hyg.182 : none @ ⟨45, 21⟩†-⟨45, 26⟩†
-        _uniq.1182 : Nat @ ⟨45, 21⟩-⟨45, 22⟩ @ Lean.Elab.Term.elabIdent
+        _uniq.1209 : Nat @ ⟨45, 21⟩-⟨45, 22⟩ @ Lean.Elab.Term.elabIdent
           [.] `x : none @ ⟨45, 21⟩-⟨45, 22⟩
-          _uniq.1182 : Nat @ ⟨45, 21⟩-⟨45, 22⟩
-        _uniq.1182 : Nat @ ⟨45, 25⟩-⟨45, 26⟩ @ Lean.Elab.Term.elabIdent
+          _uniq.1209 : Nat @ ⟨45, 21⟩-⟨45, 22⟩
+        _uniq.1209 : Nat @ ⟨45, 25⟩-⟨45, 26⟩ @ Lean.Elab.Term.elabIdent
           [.] `x : none @ ⟨45, 25⟩-⟨45, 26⟩
-          _uniq.1182 : Nat @ ⟨45, 25⟩-⟨45, 26⟩
-  _uniq.1188 (isBinder := true) : forall (x : Nat), Nat -> (Eq.{1} Nat x x) @ ⟨45, 4⟩-⟨45, 6⟩
-  _uniq.1189 (isBinder := true) : Nat @ ⟨45, 8⟩-⟨45, 9⟩
-  _uniq.1190 (isBinder := true) : Nat @ ⟨45, 10⟩-⟨45, 11⟩
-  (fun (f7 : forall (x : Nat), Nat -> (Eq.{1} Nat x x)) => [mdata _recApp: f7 _uniq.1189 _uniq.1190]) f6.f7 : Eq.{1} Nat _uniq.1189 _uniq.1189 @ ⟨46, 2⟩-⟨47, 8⟩ @ Lean.Elab.Term.elabLetRec
+          _uniq.1209 : Nat @ ⟨45, 25⟩-⟨45, 26⟩
+  _uniq.1215 (isBinder := true) : forall (x : Nat), Nat -> (Eq.{1} Nat x x) @ ⟨45, 4⟩-⟨45, 6⟩
+  _uniq.1216 (isBinder := true) : Nat @ ⟨45, 8⟩-⟨45, 9⟩
+  _uniq.1217 (isBinder := true) : Nat @ ⟨45, 10⟩-⟨45, 11⟩
+  (fun (f7 : forall (x : Nat), Nat -> (Eq.{1} Nat x x)) => [mdata _recApp: f7 _uniq.1216 _uniq.1217]) f6.f7 : Eq.{1} Nat _uniq.1216 _uniq.1216 @ ⟨46, 2⟩-⟨47, 8⟩ @ Lean.Elab.Term.elabLetRec
     Nat : Type @ ⟨46, 20⟩-⟨46, 23⟩ @ Lean.Elab.Term.elabIdent
       [.] `Nat : some Sort.{?_uniq} @ ⟨46, 20⟩-⟨46, 23⟩
       Nat : Type @ ⟨46, 20⟩-⟨46, 23⟩
-    _uniq.1192 (isBinder := true) : Nat @ ⟨46, 14⟩-⟨46, 15⟩
+    _uniq.1219 (isBinder := true) : Nat @ ⟨46, 14⟩-⟨46, 15⟩
     Nat : Type @ ⟨46, 20⟩-⟨46, 23⟩ @ Lean.Elab.Term.elabIdent
       [.] `Nat : some Sort.{?_uniq} @ ⟨46, 20⟩-⟨46, 23⟩
       Nat : Type @ ⟨46, 20⟩-⟨46, 23⟩
-    _uniq.1194 (isBinder := true) : Nat @ ⟨46, 16⟩-⟨46, 17⟩
-    Eq.{1} Nat _uniq.1192 _uniq.1192 : Prop @ ⟨46, 27⟩-⟨46, 32⟩ @ «_aux_Init_Notation___macroRules_term_=__2»
+    _uniq.1221 (isBinder := true) : Nat @ ⟨46, 16⟩-⟨46, 17⟩
+    Eq.{1} Nat _uniq.1219 _uniq.1219 : Prop @ ⟨46, 27⟩-⟨46, 32⟩ @ «_aux_Init_Notation___macroRules_term_=__2»
       Macro expansion
       («term_=_» `x "=" `x)
       ===>
       (Term.binrel "binrel%" `Eq._@.infoTree._hyg.190 `x `x)
-        Eq.{1} Nat _uniq.1192 _uniq.1192 : Prop @ ⟨46, 27⟩†-⟨46, 32⟩ @ Lean.Elab.Term.BinOp.elabBinRel
+        Eq.{1} Nat _uniq.1219 _uniq.1219 : Prop @ ⟨46, 27⟩†-⟨46, 32⟩ @ Lean.Elab.Term.BinOp.elabBinRel
           [.] `Eq._@.infoTree._hyg.190 : none @ ⟨46, 27⟩†-⟨46, 32⟩†
-          _uniq.1192 : Nat @ ⟨46, 27⟩-⟨46, 28⟩ @ Lean.Elab.Term.elabIdent
+          _uniq.1219 : Nat @ ⟨46, 27⟩-⟨46, 28⟩ @ Lean.Elab.Term.elabIdent
             [.] `x : none @ ⟨46, 27⟩-⟨46, 28⟩
-            _uniq.1192 : Nat @ ⟨46, 27⟩-⟨46, 28⟩
-          _uniq.1192 : Nat @ ⟨46, 31⟩-⟨46, 32⟩ @ Lean.Elab.Term.elabIdent
+            _uniq.1219 : Nat @ ⟨46, 27⟩-⟨46, 28⟩
+          _uniq.1219 : Nat @ ⟨46, 31⟩-⟨46, 32⟩ @ Lean.Elab.Term.elabIdent
             [.] `x : none @ ⟨46, 31⟩-⟨46, 32⟩
-            _uniq.1192 : Nat @ ⟨46, 31⟩-⟨46, 32⟩
-    _uniq.1199 (isBinder := true) : forall (x : Nat), Nat -> (Eq.{1} Nat x x) @ ⟨46, 10⟩-⟨46, 12⟩
-    _uniq.1200 (isBinder := true) : Nat @ ⟨46, 14⟩-⟨46, 15⟩
-    _uniq.1201 (isBinder := true) : Nat @ ⟨46, 16⟩-⟨46, 17⟩
-    Eq.refl.{1} Nat _uniq.1200 : Eq.{1} Nat _uniq.1200 _uniq.1200 @ ⟨46, 36⟩-⟨46, 45⟩ @ Lean.Elab.Term.elabApp
-      [.] `Eq.refl : some Eq.{?_uniq} Nat _uniq.1200 _uniq.1200 @ ⟨46, 36⟩-⟨46, 43⟩
+            _uniq.1219 : Nat @ ⟨46, 31⟩-⟨46, 32⟩
+    _uniq.1226 (isBinder := true) : forall (x : Nat), Nat -> (Eq.{1} Nat x x) @ ⟨46, 10⟩-⟨46, 12⟩
+    _uniq.1227 (isBinder := true) : Nat @ ⟨46, 14⟩-⟨46, 15⟩
+    _uniq.1228 (isBinder := true) : Nat @ ⟨46, 16⟩-⟨46, 17⟩
+    Eq.refl.{1} Nat _uniq.1227 : Eq.{1} Nat _uniq.1227 _uniq.1227 @ ⟨46, 36⟩-⟨46, 45⟩ @ Lean.Elab.Term.elabApp
+      [.] `Eq.refl : some Eq.{?_uniq} Nat _uniq.1227 _uniq.1227 @ ⟨46, 36⟩-⟨46, 43⟩
       Eq.refl.{1} : forall {α : Type} (a : α), Eq.{1} α a a @ ⟨46, 36⟩-⟨46, 43⟩
-      _uniq.1200 : Nat @ ⟨46, 44⟩-⟨46, 45⟩ @ Lean.Elab.Term.elabIdent
+      _uniq.1227 : Nat @ ⟨46, 44⟩-⟨46, 45⟩ @ Lean.Elab.Term.elabIdent
         [.] `x : some ?_uniq @ ⟨46, 44⟩-⟨46, 45⟩
-        _uniq.1200 : Nat @ ⟨46, 44⟩-⟨46, 45⟩
-    [mdata _recApp: _uniq.1199 _uniq.1189 _uniq.1190] : Eq.{1} Nat _uniq.1189 _uniq.1189 @ ⟨47, 2⟩-⟨47, 8⟩ @ Lean.Elab.Term.elabApp
-      [.] `f7 : some Eq.{1} Nat _uniq.1189 _uniq.1189 @ ⟨47, 2⟩-⟨47, 4⟩
-      _uniq.1199 : forall (x : Nat), Nat -> (Eq.{1} Nat x x) @ ⟨47, 2⟩-⟨47, 4⟩
-      _uniq.1189 : Nat @ ⟨47, 5⟩-⟨47, 6⟩ @ Lean.Elab.Term.elabIdent
+        _uniq.1227 : Nat @ ⟨46, 44⟩-⟨46, 45⟩
+    [mdata _recApp: _uniq.1226 _uniq.1216 _uniq.1217] : Eq.{1} Nat _uniq.1216 _uniq.1216 @ ⟨47, 2⟩-⟨47, 8⟩ @ Lean.Elab.Term.elabApp
+      [.] `f7 : some Eq.{1} Nat _uniq.1216 _uniq.1216 @ ⟨47, 2⟩-⟨47, 4⟩
+      _uniq.1226 : forall (x : Nat), Nat -> (Eq.{1} Nat x x) @ ⟨47, 2⟩-⟨47, 4⟩
+      _uniq.1216 : Nat @ ⟨47, 5⟩-⟨47, 6⟩ @ Lean.Elab.Term.elabIdent
         [.] `x : some Nat @ ⟨47, 5⟩-⟨47, 6⟩
-        _uniq.1189 : Nat @ ⟨47, 5⟩-⟨47, 6⟩
-      _uniq.1190 : Nat @ ⟨47, 7⟩-⟨47, 8⟩ @ Lean.Elab.Term.elabIdent
+        _uniq.1216 : Nat @ ⟨47, 5⟩-⟨47, 6⟩
+      _uniq.1217 : Nat @ ⟨47, 7⟩-⟨47, 8⟩ @ Lean.Elab.Term.elabIdent
         [.] `y : some Nat @ ⟨47, 7⟩-⟨47, 8⟩
-        _uniq.1190 : Nat @ ⟨47, 7⟩-⟨47, 8⟩
+        _uniq.1217 : Nat @ ⟨47, 7⟩-⟨47, 8⟩
   f6.f7 (isBinder := true) : forall (x : Nat), Nat -> (Eq.{1} Nat x x) @ ⟨46, 10⟩-⟨46, 12⟩
   f6 (isBinder := true) : forall (x : Nat), Nat -> (Eq.{1} Nat x x) @ ⟨45, 4⟩-⟨45, 6⟩
 [Elab.info] command @ ⟨50, 0⟩-⟨50, 32⟩ @ Lean.Elab.Command.elabDeclaration
   B : Type @ ⟨50, 12⟩-⟨50, 13⟩ @ Lean.Elab.Term.elabIdent
     [.] `B : some Sort.{?_uniq} @ ⟨50, 12⟩-⟨50, 13⟩
     B : Type @ ⟨50, 12⟩-⟨50, 13⟩
-  _uniq.1224 (isBinder := true) : B @ ⟨50, 8⟩-⟨50, 9⟩
+  _uniq.1251 (isBinder := true) : B @ ⟨50, 8⟩-⟨50, 9⟩
   B : Type @ ⟨50, 17⟩-⟨50, 18⟩ @ Lean.Elab.Term.elabIdent
     [.] `B : some Sort.{?_uniq} @ ⟨50, 17⟩-⟨50, 18⟩
     B : Type @ ⟨50, 17⟩-⟨50, 18⟩
-  _uniq.1226 (isBinder := true) : B -> B @ ⟨50, 4⟩-⟨50, 6⟩
-  _uniq.1227 (isBinder := true) : B @ ⟨50, 8⟩-⟨50, 9⟩
-  B.mk (B.pair _uniq.1227) : B @ ⟨50, 22⟩-⟨50, 32⟩ @ Lean.Elab.Term.StructInst.elabStructInst
-    _uniq.1227 : B @ ⟨50, 24⟩-⟨50, 25⟩
-    B.pair _uniq.1227 : Prod.{0 0} A A @ ⟨50, 24⟩-⟨50, 25⟩† @ Lean.Elab.Term.elabProj
+  _uniq.1253 (isBinder := true) : B -> B @ ⟨50, 4⟩-⟨50, 6⟩
+  _uniq.1254 (isBinder := true) : B @ ⟨50, 8⟩-⟨50, 9⟩
+  B.mk (B.pair _uniq.1254) : B @ ⟨50, 22⟩-⟨50, 32⟩ @ Lean.Elab.Term.StructInst.elabStructInst
+    _uniq.1254 : B @ ⟨50, 24⟩-⟨50, 25⟩
+    B.pair _uniq.1254 : Prod.{0 0} A A @ ⟨50, 24⟩-⟨50, 25⟩† @ Lean.Elab.Term.elabProj
       [.] `b : some Prod.{0 0} A A @ ⟨50, 24⟩-⟨50, 25⟩
-      _uniq.1227 : B @ ⟨50, 24⟩-⟨50, 25⟩
-      [.] _uniq.1227 : B @ ⟨50, 24⟩-⟨50, 25⟩ : some Prod.{0 0} A A
+      _uniq.1254 : B @ ⟨50, 24⟩-⟨50, 25⟩
+      [.] _uniq.1254 : B @ ⟨50, 24⟩-⟨50, 25⟩ : some Prod.{0 0} A A
       B.pair : B -> (Prod.{0 0} A A) @ ⟨50, 24⟩†-⟨50, 25⟩†
-    pair : Prod.{0 0} A A := B.pair _uniq.1227 @ ⟨50, 22⟩†-⟨50, 32⟩
+    pair : Prod.{0 0} A A := B.pair _uniq.1254 @ ⟨50, 22⟩†-⟨50, 32⟩
   f7 (isBinder := true) : B -> B @ ⟨50, 4⟩-⟨50, 6⟩

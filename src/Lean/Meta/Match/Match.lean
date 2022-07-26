@@ -330,11 +330,17 @@ partial def unify (a : Expr) (b : Expr) : M Bool := do
     if a != a' || b != b' then
       unify a' b'
     else match a, b with
-      | Expr.fvar aFvarId, Expr.fvar bFVarId => assign aFvarId b <||> assign bFVarId a
-      | Expr.fvar aFvarId, b => assign aFvarId b
-      | a, Expr.fvar bFVarId => assign bFVarId a
-      | Expr.app aFn aArg, Expr.app bFn bArg => unify aFn bFn <&&> unify aArg bArg
-      | _, _ => return false
+      | .fvar aFvarId, .fvar bFVarId => assign aFvarId b <||> assign bFVarId a
+      | .fvar aFvarId, b => assign aFvarId b
+      | a, .fvar bFVarId => assign bFVarId a
+      | .app aFn aArg, .app bFn bArg => unify aFn bFn <&&> unify aArg bArg
+      | _, _ =>
+        let a' := (← get).fvarSubst.apply a
+        let b' := (← get).fvarSubst.apply b
+        if a != a' || b != b' then
+          unify a' b'
+        else
+          return false
 
 end Unify
 
@@ -357,6 +363,9 @@ private def expandVarIntoCtor? (alt : Alt) (fvarId : FVarId) (ctorName : Name) :
     let (ctorLevels, ctorParams) ← getInductiveUniverseAndParams expectedType
     let ctor := mkAppN (mkConst ctorName ctorLevels) ctorParams
     let ctorType ← inferType ctor
+    -- TODO: try to rewrite this code using metavariables using `isDefEq` instead of `unify?`, and then
+    -- convert unassigned metavariables to fresh free variables.
+    -- Reason: `unify?` is too buggy
     forallTelescopeReducing ctorType fun ctorFields resultType => do
       let ctor := mkAppN ctor ctorFields
       let alt  := alt.replaceFVarId fvarId ctor

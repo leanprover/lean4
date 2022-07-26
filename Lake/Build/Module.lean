@@ -69,8 +69,8 @@ def recBuildExternalDynlibs (pkgs : Array Package)
   let mut targets : Array ActiveFileTarget := #[]
   for pkg in pkgs do
     libDirs := libDirs.push pkg.libDir
-    let externLibTargets ← pkg.externLibs.mapM (·.shared.recBuild)
-    for target in externLibTargets do
+    for lib in pkg.externLibs do
+      let target ← lib.shared.recBuild
       if let some parent := target.info.parent then
         libDirs := libDirs.push parent
       if let some stem := target.info.fileStem then

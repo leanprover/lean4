@@ -9,6 +9,7 @@ import Lake.Config.Workspace
 import Lake.Build.Topological
 import Lake.Build.Module
 import Lake.Build.Package
+import Lake.Build.Library
 import Lake.Load.Materialize
 import Lake.Load.Package
 import Lake.Load.Elab
@@ -19,7 +20,7 @@ namespace Lake
 
 /--
 Elaborate a package configuration file and
-construct a bare `Package` from its `PackageConfig` file.
+construct a bare `Package` from its `PackageConfig` definition.
 -/
 def loadPkg (dir : FilePath) (configOpts : NameMap String)
 (leanOpts := Options.empty) (configFile := dir / defaultConfigFile) : LogIO Package := do
@@ -60,7 +61,7 @@ where
         s!"but resolved dependency has name {depPkg.name} (in {dir})"
     let depDeps ← IO.ofExcept <| loadDeps depPkg.configEnv leanOpts
     let depDepPkgs ← depDeps.mapM fun dep => resolve (depPkg, dep)
-    set (← (← get).loadFacets depPkg.configEnv depPkg.leanOpts)
+    set (← IO.ofExcept <| (← get).addFacetsFromEnv depPkg.configEnv depPkg.leanOpts)
     let depPkg ← depPkg.finalize depDepPkgs
     return depPkg
 
@@ -75,6 +76,7 @@ def loadWorkspace (config : LoadConfig) : LogIO Workspace := do
     root, lakeEnv := config.env
     moduleFacetConfigs := initModuleFacetConfigs
     packageFacetConfigs := initPackageFacetConfigs
+    libraryFacetConfigs := initLibraryFacetConfigs
   }
   let deps ← IO.ofExcept <| loadDeps root.configEnv config.leanOpts
   let manifest ← Manifest.loadFromFile ws.manifestFile |>.catchExceptions fun _ => pure {}
@@ -82,7 +84,7 @@ def loadWorkspace (config : LoadConfig) : LogIO Workspace := do
     config.leanOpts deps config.updateDeps |>.run manifest
   unless manifest.isEmpty do
     manifest.saveToFile ws.manifestFile
-  let ws ← ws.loadFacets root.configEnv root.leanOpts
+  let ws ← IO.ofExcept <| ws.addFacetsFromEnv root.configEnv root.leanOpts
   let root ← root.finalize deps
   let packageMap := ws.packageMap.insert root.name root
   return {ws with root, packageMap}

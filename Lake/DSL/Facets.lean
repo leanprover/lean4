@@ -45,6 +45,21 @@ kw:"package_facet " sig:simpleDeclSig : command => do
       })
   | stx => Macro.throwErrorAt stx "ill-formed package facet declaration"
 
+scoped macro (name := libraryFacetDecl)
+doc?:optional(docComment) attrs?:optional(Term.attributes)
+kw:"library_facet " sig:simpleDeclSig : command => do
+  match sig with
+  | `(simpleDeclSig| $id:ident : $ty := $defn $[$wds?]?) =>
+    let attr ← withRef kw `(Term.attrInstance| libraryFacet)
+    let attrs := #[attr] ++ expandAttrs attrs?
+    let name := Name.quoteFrom id id.getId
+    `(library_data $id : ActiveBuildTarget $ty
+      $[$doc?]? @[$attrs,*] def $id : LibraryFacetDecl := {
+        name := $name
+        config := Lake.mkFacetTargetConfig $defn
+      })
+  | stx => Macro.throwErrorAt stx "ill-formed library facet declaration"
+
 scoped macro (name := targetDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
 kw:"target " sig:simpleDeclSig : command => do

@@ -8,4 +8,5 @@ import Lake.Build.Actions
 import Lake.Build.Index
 import Lake.Build.Module
 import Lake.Build.Package
+import Lake.Build.Library
 import Lake.Build.Imports

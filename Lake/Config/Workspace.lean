@@ -24,16 +24,12 @@ structure Workspace : Type where
   lakeEnv : Lake.Env
   /-- Name-package map of packages within the workspace. -/
   packageMap : NameMap Package := {}
-  /--
-  Name-configuration map of (opaque references to)
-  module facets defined in the workspace.
-  -/
-  moduleFacetConfigs : DNameMap ModuleFacetConfig := {}
-  /--
-  Name-configuration map of (opaque references to)
-  module facets defined in the workspace.
-  -/
-  packageFacetConfigs : DNameMap PackageFacetConfig := {}
+  /-- Name-configuration map of module facets defined in the workspace. -/
+  moduleFacetConfigs : DNameMap ModuleFacetConfig
+  /-- Name-configuration map of package facets defined in the workspace. -/
+  packageFacetConfigs : DNameMap PackageFacetConfig
+  /-- Name-configuration map of library facets defined in the workspace. -/
+  libraryFacetConfigs : DNameMap LibraryFacetConfig
   deriving Inhabited
 
 hydrate_opaque_type OpaqueWorkspace Workspace
@@ -115,6 +111,14 @@ def addPackageFacetConfig (cfg : PackageFacetConfig name) (self : Workspace) : W
 /-- Try to find a package facet configuration in the workspace with the given name. -/
 def findPackageFacetConfig? (name : Name) (self : Workspace) : Option (PackageFacetConfig name) :=
   self.packageFacetConfigs.find? name
+
+/-- Add a library facet to the workspace. -/
+def addLibraryFacetConfig (cfg : LibraryFacetConfig name) (self : Workspace) : Workspace :=
+  {self with libraryFacetConfigs := self.libraryFacetConfigs.insert cfg.name cfg}
+
+/-- Try to find a library facet configuration in the workspace with the given name. -/
+def findLibraryFacetConfig? (name : Name) (self : Workspace) : Option (LibraryFacetConfig name) :=
+  self.libraryFacetConfigs.find? name
 
 /-- The `LEAN_PATH` of the workspace. -/
 def leanPath (self : Workspace) : SearchPath :=

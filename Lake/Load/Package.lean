@@ -6,6 +6,11 @@ Authors: Mac Malone
 import Lake.DSL.Attributes
 import Lake.Config.Workspace
 
+/-!
+This module contains definitions to load configuration objects from
+a package configuration file (e.g., `lakefile.lean`).
+-/
+
 namespace Lake
 open Lean System
 
@@ -91,8 +96,8 @@ def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := 
 /--
 Load module/package facets into a `Workspace` from a configuration environment.
 -/
-def Workspace.loadFacets
-(env : Environment) (opts : Options) (self : Workspace) : LogIO Workspace := do
+def Workspace.addFacetsFromEnv
+(env : Environment) (opts : Options) (self : Workspace) : Except String Workspace := do
   let mut ws := self
   for name in moduleFacetAttr.ext.getState env do
     match evalConstCheck env opts ModuleFacetDecl ``ModuleFacetDecl name with
@@ -107,6 +112,14 @@ def Workspace.loadFacets
     | .ok decl =>
       if h : name = decl.name then
         ws := ws.addPackageFacetConfig <| h ▸ decl.config
+      else
+        error s!"facet was defined as `{decl.name}`, but was registered as `{name}`"
+    | .error e => error e
+  for name in libraryFacetAttr.ext.getState env do
+    match evalConstCheck env opts LibraryFacetDecl ``LibraryFacetDecl name with
+    | .ok decl =>
+      if h : name = decl.name then
+        ws := ws.addLibraryFacetConfig <| h ▸ decl.config
       else
         error s!"facet was defined as `{decl.name}`, but was registered as `{name}`"
     | .error e => error e

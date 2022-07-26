@@ -40,3 +40,9 @@ abbrev PackageFacetConfig := FacetConfig PackageData Package
 
 /-- A package facet declaration from a configuration file. -/
 abbrev PackageFacetDecl := NamedConfigDecl PackageFacetConfig
+
+/-- A library facet's declarative configuration. -/
+abbrev LibraryFacetConfig := FacetConfig LibraryData LeanLib
+
+/-- A library facet declaration from a configuration file. -/
+abbrev LibraryFacetDecl := NamedConfigDecl LibraryFacetConfig

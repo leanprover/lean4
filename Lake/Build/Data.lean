@@ -14,7 +14,7 @@ namespace Lake
 --------------------------------------------------------------------------------
 
 /--
-The open type family which maps a module facet's name to it build data
+The open type family which maps a module facet's name to its build data
 in the Lake build store. For example, a transitive × direct import pair
 for the `lean.imports` facet or an active build target for `lean.c`.
 
@@ -24,7 +24,7 @@ as needed (via `module_data`).
 opaque ModuleData (facet : Name) : Type
 
 /--
-The open type family which maps a package facet's name to it build data
+The open type family which maps a package facet's name to its build data
 in the Lake build store. For example, a transitive dependencies of the package
 for the facet `deps`.
 
@@ -42,6 +42,19 @@ It is an open type, meaning additional mappings can be add lazily
 as needed (via `target_data`).
 -/
 opaque TargetData (facet : Name) : Type
+
+/-
+The open type family which maps a library facet's name to its build data
+in the Lake build store. For example, an active build target for the `static`
+facet.
+
+It is an open type, meaning additional mappings can be add lazily
+as needed (via `library_data`).
+-/
+abbrev LibraryData (facet : Name) := TargetData (`leanLib ++ facet)
+
+instance [h : FamilyDef TargetData (`leanLib ++ facet) α] : FamilyDef LibraryData facet α :=
+  ⟨h.family_key_eq_type⟩
 
 /--
 The open type family which maps a custom target (package × target name) to
@@ -84,6 +97,14 @@ scoped macro (name := moduleDataDecl) doc?:optional(Parser.Command.docComment)
   let dty := mkCIdentFrom (← getRef) ``ModuleData
   let key := Name.quoteFrom id id.getId
   `($[$doc?]? family_def $id : $dty $key := $ty)
+
+/-- Macro for declaring new `TargetData` for libraries. -/
+scoped macro (name := libraryDataDecl) doc?:optional(Parser.Command.docComment)
+"library_data " id:ident " : " ty:term : command => do
+  let dty := mkCIdentFrom (← getRef) ``TargetData
+  let key := Name.quoteFrom id id.getId
+  let id := mkIdentFrom id <| id.getId.modifyBase (`leanLib ++ ·)
+  `($[$doc?]? family_def $id : $dty (`leanLib ++ $key) := $ty)
 
 /-- Macro for declaring new `TargetData`. -/
 scoped macro (name := targetDataDecl) doc?:optional(Parser.Command.docComment)

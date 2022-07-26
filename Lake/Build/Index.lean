@@ -3,7 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Build.Roots
+import Lake.Build.Executable
 import Lake.Build.Topological
 
 /-!
@@ -51,12 +51,11 @@ def recBuildWithIndex : (info : BuildInfo) → IndexBuildM (BuildData info.key)
       error "target's name in the configuration does not match the name it was registered with"
   else
       error s!"could not build `{target}` of `{pkg.name}` -- target not found"
-| .leanLib lib =>
-  mkTargetFacetBuild LeanLib.leanFacet lib.recBuildLean
-| .staticLeanLib lib =>
-  mkTargetFacetBuild LeanLib.staticFacet lib.recBuildStatic
-| .sharedLeanLib lib =>
-  mkTargetFacetBuild LeanLib.sharedFacet lib.recBuildShared
+| .libraryFacet lib facet => do
+  if let some config := (← getWorkspace).findLibraryFacetConfig? facet then
+    config.build lib
+  else
+    error s!"do not know how to build library facet `{facet}`"
 | .leanExe exe =>
   mkTargetFacetBuild LeanExe.exeFacet exe.recBuildExe
 | .staticExternLib lib =>
@@ -108,12 +107,10 @@ export BuildInfo (build)
 [FamilyDef ModuleData facet (ActiveBuildTarget α)] : OpaqueTarget :=
   self.facet facet |>.target
 
-/-! ### Pure Lean Lib Targets -/
+/-! ### Lean Library Targets -/
 
 @[inline] protected def LeanLib.leanTarget (self : LeanLib) : OpaqueTarget :=
   self.lean.target
-
-/-! ### Native Lean Lib Targets -/
 
 @[inline] protected def LeanLib.staticLibTarget (self : LeanLib) : FileTarget :=
   self.static.target.withInfo self.sharedLibFile

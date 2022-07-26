@@ -3,13 +3,11 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Build.Info
-import Lake.Build.Store
-import Lake.Build.Targets
+import Lake.Build.Index
 
 namespace Lake
 
-/-! # Build Static Lib -/
+/-! # Build Lean & Static Lib -/
 
 /-- Build and collect the specified facet of the library's local modules. -/
 def LeanLib.recBuildLocalModules
@@ -33,10 +31,18 @@ protected def LeanLib.recBuildLean
   ActiveTarget.collectOpaqueArray (i := PUnit) <|
     ← self.recBuildLocalModules #[Module.leanBinFacet]
 
+/-- The `LibraryFacetConfig` for the builtin `leanFacet`. -/
+def LeanLib.leanFacetConfig : LibraryFacetConfig leanFacet :=
+  mkFacetTargetConfig (·.recBuildLean)
+
 protected def LeanLib.recBuildStatic
 (self : LeanLib) : IndexT RecBuildM ActiveFileTarget := do
   let oTargets := (← self.recBuildLocalModules self.nativeFacets).map Target.active
   staticLibTarget self.staticLibFile oTargets |>.activate
+
+/-- The `LibraryFacetConfig` for the builtin `staticFacet`. -/
+def LeanLib.staticFacetConfig : LibraryFacetConfig staticFacet :=
+  mkFacetTargetConfig (·.recBuildStatic)
 
 /-! # Build Shared Lib -/
 
@@ -76,18 +82,17 @@ protected def LeanLib.recBuildShared
   let linkTargets := (← self.recBuildLinks).map Target.active
   leanSharedLibTarget self.sharedLibFile linkTargets self.linkArgs |>.activate
 
-/-! # Build Executable -/
+/-- The `LibraryFacetConfig` for the builtin `sharedFacet`. -/
+def LeanLib.sharedFacetConfig : LibraryFacetConfig sharedFacet :=
+  mkFacetTargetConfig (·.recBuildShared)
 
-protected def LeanExe.recBuildExe
-(self : LeanExe) : IndexT RecBuildM ActiveFileTarget := do
-  let (_, imports) ← self.root.imports.recBuild
-  let linkTargets := #[Target.active <| ← self.root.o.recBuild]
-  let mut linkTargets ← imports.foldlM (init := linkTargets) fun arr mod => do
-    let mut arr := arr
-    for facet in mod.nativeFacets do
-      arr := arr.push <| Target.active <| ← recBuild <| mod.facet facet.name
-    return arr
-  let deps := (← recBuild <| self.pkg.facet `deps).push self.pkg
-  for dep in deps do for lib in dep.externLibs do
-    linkTargets := linkTargets.push <| Target.active <| ← lib.static.recBuild
-  leanExeTarget self.file linkTargets self.linkArgs |>.activate
+open LeanLib in
+/--
+A library facet name to build function map that contains builders for
+the initial set of Lake package facets (e.g., `lean`, `static`, and `shared`).
+-/
+def initLibraryFacetConfigs : DNameMap LibraryFacetConfig :=
+  DNameMap.empty
+  |>.insert leanFacet leanFacetConfig
+  |>.insert staticFacet staticFacetConfig
+  |>.insert sharedFacet sharedFacetConfig

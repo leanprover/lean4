@@ -3,7 +3,7 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Build
+import Lake.Build.Index
 import Lake.CLI.Error
 
 namespace Lake
@@ -56,13 +56,11 @@ def resolveModuleTarget (ws : Workspace) (mod : Module) (facet : Name) : Except 
   else
     throw <| CliError.unknownFacet "module" facet
 
-def resolveLibTarget (lib : LeanLib) (facet : Name) : Except CliError BuildSpec :=
-  if facet.isAnonymous || facet = `lean then
+def resolveLibTarget (ws : Workspace) (lib : LeanLib) (facet : Name) : Except CliError BuildSpec :=
+  if facet.isAnonymous then
     return mkBuildSpec lib.lean
-  else if facet = `static then
-    return mkBuildSpec lib.static
-  else if facet = `shared then
-    return mkBuildSpec lib.shared
+  else if let some config := ws.findLibraryFacetConfig? facet then do
+    mkConfigBuildSpec "library" (lib.facet facet) config rfl
   else
     throw <| CliError.unknownFacet "library" facet
 
@@ -100,7 +98,7 @@ def resolveTargetInPackage (ws : Workspace)
   else if let some lib := pkg.findExternLib? target then
     resolveExternLibTarget lib facet
   else if let some lib := pkg.findLeanLib? target then
-    resolveLibTarget lib facet
+    resolveLibTarget ws lib facet
   else if let some mod := pkg.findModule? target then
     resolveModuleTarget ws mod facet
   else
@@ -126,7 +124,7 @@ def resolveTargetInWorkspace (ws : Workspace)
   else if let some lib := ws.findExternLib? target then
     Array.singleton <$> resolveExternLibTarget lib facet
   else if let some lib := ws.findLeanLib? target then
-    Array.singleton <$> resolveLibTarget lib facet
+    Array.singleton <$> resolveLibTarget ws lib facet
   else if let some pkg := ws.findPackage? target then
     resolvePackageTarget ws pkg facet
   else if let some mod := ws.findModule? target then

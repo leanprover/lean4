@@ -71,16 +71,16 @@ package_data extraDep : ActiveOpaqueTarget
 /-! ## Target Facets -/
 
 /-- A Lean library's Lean libraries. -/
-abbrev LeanLib.leanFacet := `leanLib.lean
-target_data leanLib.lean : ActiveOpaqueTarget
+abbrev LeanLib.leanFacet := `lean
+library_data lean : ActiveOpaqueTarget
 
 /-- A Lean library's static binary. -/
-abbrev LeanLib.staticFacet := `leanLib.static
-target_data leanLib.static : ActiveFileTarget
+abbrev LeanLib.staticFacet := `static
+library_data static : ActiveFileTarget
 
 /-- A Lean library's shared binary. -/
-abbrev LeanLib.sharedFacet := `leanLib.shared
-target_data leanLib.shared : ActiveFileTarget
+abbrev LeanLib.sharedFacet := `shared
+library_data shared : ActiveFileTarget
 
 /-- A Lean binary executable. -/
 abbrev LeanExe.exeFacet := `leanExe

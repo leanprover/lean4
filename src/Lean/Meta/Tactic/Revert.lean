@@ -16,7 +16,7 @@ def _root_.Lean.MVarId.revert (mvarId : MVarId) (fvarIds : Array FVarId) (preser
   else mvarId.withContext do
     mvarId.checkNotAssigned `revert
     for fvarId in fvarIds do
-      if (← getLocalDecl fvarId) |>.isAuxDecl then
+      if (← fvarId.getDecl) |>.isAuxDecl then
         throwError "failed to revert {mkFVar fvarId}, it is an auxiliary declaration created to represent recursive definitions"
     let fvars := fvarIds.map mkFVar
     let toRevert ← collectForwardDeps fvars preserveOrder
@@ -24,7 +24,7 @@ def _root_.Lean.MVarId.revert (mvarId : MVarId) (fvarIds : Array FVarId) (preser
     let mut mvarId      := mvarId
     let mut toRevertNew := #[]
     for x in toRevert do
-      if (← getLocalDecl x.fvarId!) |>.isAuxDecl then
+      if (← x.fvarId!.getDecl).isAuxDecl then
         mvarId ← mvarId.clear x.fvarId!
       else
         toRevertNew := toRevertNew.push x

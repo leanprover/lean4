@@ -22,7 +22,7 @@ partial def mkGeneralizationForbiddenSet (targets : Array Expr) (forbidden : FVa
   loop todo.toList s.fvarSet
 where
   visit (fvarId : FVarId) (todo : List FVarId) (s : FVarIdSet) : MetaM (List FVarId × FVarIdSet) := do
-    let localDecl ← getLocalDecl fvarId
+    let localDecl ← fvarId.getDecl
     let mut s' := collectFVars {} (← instantiateMVars localDecl.type)
     if let some val := localDecl.value? then
       s' := collectFVars s' (← instantiateMVars val)

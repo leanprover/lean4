@@ -27,7 +27,7 @@ inductive InjectionResultCore where
 def injectionCore (mvarId : MVarId) (fvarId : FVarId) : MetaM InjectionResultCore :=
   mvarId.withContext do
     mvarId.checkNotAssigned `injection
-    let decl ← getLocalDecl fvarId
+    let decl ← fvarId.getDecl
     let type ← whnf decl.type
     let go (type prf : Expr) : MetaM InjectionResultCore := do
       match type.eq? with
@@ -103,7 +103,7 @@ where
     | d+1, fvarId :: fvarIds, mvarId => do
       let cont := do
         go (d+1) fvarIds mvarId
-      if let some (_, lhs, rhs) ← matchEqHEq? (← getLocalDecl fvarId).type then
+      if let some (_, lhs, rhs) ← matchEqHEq? (← fvarId.getType) then
         let lhs ← whnf lhs
         let rhs ← whnf rhs
         if lhs.isNatLit && rhs.isNatLit then cont

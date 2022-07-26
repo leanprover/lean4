@@ -294,7 +294,7 @@ end
   | Expr.proj ..       => k e
   | Expr.mdata _ e     => whnfEasyCases e k
   | Expr.fvar fvarId   =>
-    let decl ← getLocalDecl fvarId
+    let decl ← fvarId.getDecl
     match decl with
     | LocalDecl.cdecl .. => return e
     | LocalDecl.ldecl (value := v) (nonDep := nonDep) .. =>

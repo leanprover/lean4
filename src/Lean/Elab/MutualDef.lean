@@ -268,13 +268,13 @@ private def typeHasRecFun (type : Expr) (funFVars : Array Expr) (letRecsToLift :
   | _ => none
 
 private def getFunName (fvarId : FVarId) (letRecsToLift : List LetRecToLift) : TermElabM Name := do
-  match (← findLocalDecl? fvarId) with
-  | some decl => pure decl.userName
+  match (← fvarId.findDecl?) with
+  | some decl => return decl.userName
   | none =>
     /- Recall that the FVarId of nested let-recs are not in the current local context. -/
     match letRecsToLift.findSome? fun toLift => if toLift.fvarId == fvarId then some toLift.shortDeclName else none with
     | none   => throwError "unknown function"
-    | some n => pure n
+    | some n => return n
 
 /--
 Ensures that the of let-rec definition types do not contain functions being defined.
@@ -490,7 +490,7 @@ private partial def mkClosureForAux (toProcess : Array FVarId) : StateRefT Closu
   | some fvarId =>
     trace[Elab.definition.mkClosure] "toProcess: {toProcess.map mkFVar}, maxVar: {mkFVar fvarId}"
     let toProcess := toProcess.erase fvarId
-    let localDecl ← getLocalDecl fvarId
+    let localDecl ← fvarId.getDecl
     match localDecl with
     | .cdecl _ _ userName type bi =>
       let toProcess ← pushLocalDecl toProcess fvarId userName type bi

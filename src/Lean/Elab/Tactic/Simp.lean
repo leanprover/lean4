@@ -232,7 +232,7 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp) (ig
     let hs ← getPropHyps
     let mut fvarIdToLemmaId := {}
     for h in hs do
-      let localDecl ← getLocalDecl h
+      let localDecl ← h.getDecl
       unless simpTheorems.isErased localDecl.userName do
         let fvarId := localDecl.fvarId
         let proof  := localDecl.toExpr

@@ -39,7 +39,7 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
              (caseName? : Option Name := none)
              : MetaM (Option UnifyEqResult) := do
    mvarId.withContext do
-    let eqDecl ← getLocalDecl eqFVarId
+    let eqDecl ← eqFVarId.getDecl
     if eqDecl.type.isHEq then
       let mvarId ← heqToEq' mvarId eqDecl
       return some { mvarId, subst, numNewEqs := 1 }
@@ -89,8 +89,8 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
         match a, b with
         | Expr.fvar aFVarId, Expr.fvar bFVarId =>
           /- x = y -/
-          let aDecl ← getLocalDecl aFVarId
-          let bDecl ← getLocalDecl bFVarId
+          let aDecl ← aFVarId.getDecl
+          let bDecl ← bFVarId.getDecl
           substEq (aDecl.index < bDecl.index)
         | Expr.fvar .., _   => /- x = t -/ substEq (symm := false)
         | _, Expr.fvar ..   => /- t = x -/ substEq (symm := true)

@@ -43,8 +43,8 @@ private partial def mkPSigmaCasesOn (y : Expr) (codomain : Expr) (xs : Array Exp
   let mvar ← mkFreshExprSyntheticOpaqueMVar codomain
   let rec go (mvarId : MVarId) (y : FVarId) (ys : Array Expr) : MetaM Unit := do
     if ys.size < xs.size - 1 then
-      let xDecl  ← getLocalDecl xs[ys.size]!.fvarId!
-      let xDecl' ← getLocalDecl xs[ys.size + 1]!.fvarId!
+      let xDecl  ← xs[ys.size]!.fvarId!.getDecl
+      let xDecl' ← xs[ys.size + 1]!.fvarId!.getDecl
       let #[s] ← cases mvarId y #[{ varNames := [xDecl.userName, xDecl'.userName] }] | unreachable!
       go s.mvarId s.fields[1]!.fvarId! (ys.push s.fields[0]!)
     else

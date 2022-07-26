@@ -20,7 +20,7 @@ def mkInductArgNames (indVal : InductiveVal) : TermElabM (Array Name) := do
   forallTelescopeReducing indVal.type fun xs _ => do
     let mut argNames := #[]
     for x in xs do
-      let localDecl ← getLocalDecl x.fvarId!
+      let localDecl ← x.fvarId!.getDecl
       let paramName ← mkFreshUserName localDecl.userName.eraseMacroScopes
       argNames := argNames.push paramName
     pure argNames

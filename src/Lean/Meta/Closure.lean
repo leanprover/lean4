@@ -208,7 +208,7 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
     }
     return mkFVar newFVarId
   | Expr.fvar fvarId =>
-    match (← read).zeta, (← getLocalDecl fvarId).value? with
+    match (← read).zeta, (← fvarId.getValue?) with
     | true, some value => collect (← preprocess value)
     | _,    _          =>
       let newFVarId ← mkFreshFVarId
@@ -254,13 +254,12 @@ partial def process : ClosureM Unit := do
   match (← pickNextToProcess?) with
   | none => pure ()
   | some ⟨fvarId, newFVarId⟩ =>
-    let localDecl ← getLocalDecl fvarId
-    match localDecl with
-    | LocalDecl.cdecl _ _ userName type bi =>
+    match (← fvarId.getDecl) with
+    | .cdecl _ _ userName type bi =>
       pushLocalDecl newFVarId userName type bi
       pushFVarArg (mkFVar fvarId)
       process
-    | LocalDecl.ldecl _ _ userName type val _ =>
+    | .ldecl _ _ userName type val _ =>
       let zetaFVarIds ← getZetaFVarIds
       if !zetaFVarIds.contains fvarId then
         /- Non-dependent let-decl

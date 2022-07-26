@@ -496,7 +496,7 @@ where
                 -- Replace args[6:6+i] with `motiveTypeArgsNew`
                 for j in [:i] do
                   altTypeNewAbst := (← kabstract altTypeNewAbst argsNew[6+j]!).instantiate1 motiveTypeArgsNew[j]!
-                let localDecl ← getLocalDecl motiveTypeArg.fvarId!
+                let localDecl ← motiveTypeArg.fvarId!.getDecl
                 withLocalDecl localDecl.userName localDecl.binderInfo altTypeNewAbst fun motiveTypeArgNew =>
                   go (i+1) (motiveTypeArgsNew.push motiveTypeArgNew)
               else

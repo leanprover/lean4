@@ -369,7 +369,7 @@ private def expandVarIntoCtor? (alt : Alt) (fvarId : FVarId) (ctorName : Name) :
     forallTelescopeReducing ctorType fun ctorFields resultType => do
       let ctor := mkAppN ctor ctorFields
       let alt  := alt.replaceFVarId fvarId ctor
-      let ctorFieldDecls ← ctorFields.mapM fun ctorField => getLocalDecl ctorField.fvarId!
+      let ctorFieldDecls ← ctorFields.mapM fun ctorField => ctorField.fvarId!.getDecl
       let newAltDecls := ctorFieldDecls.toList ++ alt.fvarDecls
       trace[Meta.Match.unify] "expandVarIntoCtor? {mkFVar fvarId} : {expectedType}, ctor: {ctor}, resultType: {resultType}"
       let subst? ← unify? newAltDecls resultType expectedType
@@ -582,7 +582,7 @@ private def collectArraySizes (p : Problem) : Array Nat :=
 
 private def expandVarIntoArrayLit (alt : Alt) (fvarId : FVarId) (arrayElemType : Expr) (arraySize : Nat) : MetaM Alt :=
   withExistingLocalDecls alt.fvarDecls do
-    let fvarDecl ← getLocalDecl fvarId
+    let fvarDecl ← fvarId.getDecl
     let varNamePrefix := fvarDecl.userName
     let rec loop (n : Nat) (newVars : Array Expr) := do
       match n with
@@ -592,7 +592,7 @@ private def expandVarIntoArrayLit (alt : Alt) (fvarId : FVarId) (arrayElemType :
       | 0 =>
         let arrayLit ← mkArrayLit arrayElemType newVars.toList
         let alt := alt.replaceFVarId fvarId arrayLit
-        let newDecls ← newVars.toList.mapM fun newVar => getLocalDecl newVar.fvarId!
+        let newDecls ← newVars.toList.mapM fun newVar => newVar.fvarId!.getDecl
         let newPatterns := newVars.toList.map fun newVar => Pattern.var newVar.fvarId!
         return { alt with fvarDecls := newDecls ++ alt.fvarDecls, patterns := newPatterns ++ alt.patterns }
     loop arraySize #[]

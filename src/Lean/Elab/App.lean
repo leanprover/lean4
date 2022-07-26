@@ -418,7 +418,7 @@ private def anyNamedArgDependsOnCurrent : M Bool := do
     forallTelescopeReducing s.fType fun xs _ => do
       let curr := xs[0]!
       for i in [1:xs.size] do
-        let xDecl ← getLocalDecl xs[i]!.fvarId!
+        let xDecl ← xs[i]!.fvarId!.getDecl
         if s.namedArgs.any fun arg => arg.name == xDecl.userName then
           if (← localDeclDependsOn xDecl curr.fvarId!) then
             return true
@@ -874,7 +874,7 @@ private def addLValArg (baseName : Name) (fullName : Name) (e : Expr) (args : Ar
     let mut remainingNamedArgs := namedArgs
     for i in [:xs.size] do
       let x := xs[i]!
-      let xDecl ← getLocalDecl x.fvarId!
+      let xDecl ← x.fvarId!.getDecl
       /- If there is named argument with name `xDecl.userName`, then we skip it. -/
       match remainingNamedArgs.findIdx? (fun namedArg => namedArg.name == xDecl.userName) with
       | some idx =>
@@ -892,7 +892,7 @@ private def addLValArg (baseName : Name) (fullName : Name) (e : Expr) (args : Ar
              if there isn't an argument with the same name occurring before it. -/
           for j in [:i] do
             let prev := xs[j]!
-            let prevDecl ← getLocalDecl prev.fvarId!
+            let prevDecl ← prev.fvarId!.getDecl
             if prevDecl.userName == xDecl.userName then
               throwError "invalid field notation, function '{fullName}' has argument with the expected type{indentExpr type}\nbut it cannot be used"
           return (args, namedArgs.push { name := xDecl.userName, val := Arg.expr e })
@@ -1159,7 +1159,7 @@ private def annotateIfRec (stx : Syntax) (e : Expr) : TermElabM Expr := do
   if (← read).saveRecAppSyntax then
     let resultFn := e.getAppFn
     if resultFn.isFVar then
-      let localDecl ← getLocalDecl resultFn.fvarId!
+      let localDecl ← resultFn.fvarId!.getDecl
       if localDecl.isAuxDecl then
         return mkRecAppWithSyntax e stx
   return e

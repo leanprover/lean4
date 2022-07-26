@@ -12,7 +12,7 @@ open Meta
 
 def deltaLocalDecl (declName : Name) (fvarId : FVarId) : TacticM Unit := do
   let mvarId ← getMainGoal
-  let localDecl ← getLocalDecl fvarId
+  let localDecl ← fvarId.getDecl
   let typeNew ← deltaExpand localDecl.type (· == declName)
   if typeNew == localDecl.type then
     throwTacticEx `delta mvarId m!"did not delta reduce '{declName}' at '{localDecl.userName}'"

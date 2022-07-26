@@ -26,8 +26,8 @@ private def expandSimpleMatch (stx : Syntax) (discr : Term) (lhsVar : Ident) (rh
 private def mkUserNameFor (e : Expr) : TermElabM Name := do
   match e with
   /- Remark: we use `mkFreshUserName` to make sure we don't add a variable to the local context that can be resolved to `e`. -/
-  | Expr.fvar fvarId => mkFreshUserName ((← getLocalDecl fvarId).userName)
-  | _                => mkFreshBinderName
+  | .fvar fvarId => mkFreshUserName (← fvarId.getUserName)
+  | _            => mkFreshBinderName
 
 
 /--
@@ -60,7 +60,7 @@ private def elabAtomicDiscr (discr : Syntax) : TermElabM Expr := do
   let term := discr[1]
   match (← isAtomicDiscr? term) with
   | some e@(Expr.fvar fvarId) =>
-    let localDecl ← getLocalDecl fvarId
+    let localDecl ← fvarId.getDecl
     if !isAuxDiscrName localDecl.userName then
       addTermInfo discr e -- it is not an auxiliary local created by `expandNonAtomicDiscrs?`
     else
@@ -635,8 +635,7 @@ where
       if patternVars.contains e then
         unless (← get).visitedFVars.contains fvarId do
           modify fun s => { s with visitedFVars := s.visitedFVars.insert fvarId }
-          let localDecl ← getLocalDecl fvarId
-          visit localDecl.type
+          visit (← fvarId.getType)
           modify fun s => { s with result := s.result.push e }
     | _ => return ()
 
@@ -689,7 +688,7 @@ partial def main (patternVarDecls : Array PatternVarDecl) (ps : Array Expr) (mat
   withTheReader Meta.Context (fun ctx => { ctx with lctx := lctx }) do
     check packed
     unpack packed fun patternVars patterns matchType => do
-      let localDecls ← patternVars.mapM fun x => getLocalDecl x.fvarId!
+      let localDecls ← patternVars.mapM fun x => x.fvarId!.getDecl
       trace[Elab.match] "patternVars: {patternVars}, matchType: {matchType}"
       k localDecls (← patterns.mapM fun p => toPattern p) matchType
 where
@@ -878,7 +877,7 @@ private def generalize (discrs : Array Discr) (matchType : Expr) (altViews : Arr
           -- For example, if `ys` contains `#[h, h]`, we want to make sure `mkFreshUsername is applied to the first `h`,
           -- since it is already shadowed by the second.
           let ysUserNames ← ys.foldrM (init := #[]) fun ys ysUserNames => do
-            let yDecl ← getLocalDecl ys.fvarId!
+            let yDecl ← ys.fvarId!.getDecl
             let mut yUserName := yDecl.userName
             if ysUserNames.contains yUserName then
               yUserName ← mkFreshUserName yUserName
@@ -922,7 +921,7 @@ where
       trace[Elab.match] "new indices to add as discriminants: {indices}"
       let wildcards ← indices.mapM fun index => do
         if index.isFVar then
-          let localDecl ← getLocalDecl index.fvarId!
+          let localDecl ← index.fvarId!.getDecl
           if localDecl.userName.hasMacroScopes then
             return mkHole ref
           else
@@ -981,7 +980,7 @@ where
     let mut toAdd := #[]
     for fvarId in s.fvarSet.toList do
       unless containsFVar discrs fvarId || containsFVar indices fvarId do
-        let localDecl ← getLocalDecl fvarId
+        let localDecl ← fvarId.getDecl
         for indexFVarId in indicesFVar do
           if (← localDeclDependsOn localDecl indexFVarId) then
             toAdd := toAdd.push fvarId

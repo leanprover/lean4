@@ -87,7 +87,7 @@ def generalizeIndices (mvarId : MVarId) (fvarId : FVarId) : MetaM GeneralizeIndi
     let lctx       ← getLCtx
     let localInsts ← getLocalInstances
     mvarId.checkNotAssigned `generalizeIndices
-    let fvarDecl ← getLocalDecl fvarId
+    let fvarDecl ← fvarId.getDecl
     let type ← whnf fvarDecl.type
     type.withApp fun f args => matchConstInduct f (fun _ => throwTacticEx `generalizeIndices mvarId "inductive type expected") fun val _ => do
       unless val.numIndices > 0 do throwTacticEx `generalizeIndices mvarId "indexed inductive type expected"
@@ -140,7 +140,7 @@ private def mkCasesContext? (majorFVarId : FVarId) : MetaM (Option Context) := d
   if !env.contains `Eq || !env.contains `HEq then
     pure none
   else
-    let majorDecl ← getLocalDecl majorFVarId
+    let majorDecl ← majorFVarId.getDecl
     let majorType ← whnf majorDecl.type
     majorType.withApp fun f args => matchConstInduct f (fun _ => pure none) fun ival _ =>
       if args.size != ival.numIndices + ival.numParams then pure none

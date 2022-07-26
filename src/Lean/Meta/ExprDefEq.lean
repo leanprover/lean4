@@ -399,7 +399,7 @@ where
         | Expr.mdata _ b         => visit b
         | Expr.proj _ _ b        => visit b
         | Expr.fvar fvarId       =>
-          let localDecl ← getLocalDecl fvarId
+          let localDecl ← fvarId.getDecl
           if localDecl.isLet && localDecl.index > (← read) then
             modify fun s => s.insert localDecl.fvarId
         | _ => pure ()
@@ -930,14 +930,13 @@ private partial def processAssignmentFOApprox (mvar : Expr) (args : Array Expr) 
         | some v => loop v
   loop v
 
-private partial def simpAssignmentArgAux : Expr → MetaM Expr
-  | Expr.mdata _ e       => simpAssignmentArgAux e
-  | e@(Expr.fvar fvarId) => do
-    let decl ← getLocalDecl fvarId
-    match decl.value? with
-    | some value => simpAssignmentArgAux value
-    | _          => pure e
-  | e => pure e
+private partial def simpAssignmentArgAux (e : Expr) : MetaM Expr := do
+  match e with
+  | .mdata _ e   => simpAssignmentArgAux e
+  | .fvar fvarId =>
+    let some value ← fvarId.getValue? | return e
+    simpAssignmentArgAux value
+  | _ => return e
 
 /-- Auxiliary procedure for processing `?m a₁ ... aₙ =?= v`.
    We apply it to each `aᵢ`. It instantiates assigned metavariables if `aᵢ` is of the form `f[?n] b₁ ... bₘ`,
@@ -1343,10 +1342,6 @@ private def etaEq (t s : Expr) : Bool :=
   | some t => t == s
   | none   => false
 
-private def isLetFVar (fvarId : FVarId) : MetaM Bool := do
-  let decl ← getLocalDecl fvarId
-  pure decl.isLet
-
 /--
   Helper method for implementing `isDefEqProofIrrel`. Execute `k` with a transparency setting
   that is at least as strong as `.default`. This is important for modules that use the `.reducible`
@@ -1422,17 +1417,17 @@ private partial def isDefEqQuick (t s : Expr) : MetaM LBool :=
   let t := consumeLet t
   let s := consumeLet s
   match t, s with
-  | Expr.lit  l₁,      Expr.lit l₂       => return (l₁ == l₂).toLBool
-  | Expr.sort u,       Expr.sort v       => toLBoolM <| isLevelDefEqAux u v
-  | Expr.lam ..,         Expr.lam ..         => if t == s then pure LBool.true else toLBoolM <| isDefEqBinding t s
-  | Expr.forallE ..,     Expr.forallE ..     => if t == s then pure LBool.true else toLBoolM <| isDefEqBinding t s
+  | .lit  l₁,      .lit l₂     => return (l₁ == l₂).toLBool
+  | .sort u,       .sort v     => toLBoolM <| isLevelDefEqAux u v
+  | .lam ..,       .lam ..     => if t == s then pure LBool.true else toLBoolM <| isDefEqBinding t s
+  | .forallE ..,   .forallE .. => if t == s then pure LBool.true else toLBoolM <| isDefEqBinding t s
   -- | Expr.mdata _ t _,    s                   => isDefEqQuick t s
   -- | t,                   Expr.mdata _ s _    => isDefEqQuick t s
-  | Expr.fvar fvarId₁, Expr.fvar fvarId₂ => do
-    if (← isLetFVar fvarId₁ <||> isLetFVar fvarId₂) then
-      pure LBool.undef
+  | .fvar fvarId₁, .fvar fvarId₂ => do
+    if (← fvarId₁.isLetVar <||> fvarId₂.isLetVar) then
+      return LBool.undef
     else if fvarId₁ == fvarId₂ then
-      pure LBool.true
+      return LBool.true
     else
       isDefEqProofIrrel t s
   | t, s =>

@@ -150,7 +150,7 @@ open ResetReuse
 
 def Decl.insertResetReuse (d : Decl) : Decl :=
   match d with
-  | Decl.fdecl (body := b) ..=>
+  | .fdecl (body := b) ..=>
     let nextIndex := d.maxIndex + 1
     let bNew      := (R b {}).run' nextIndex
     d.updateBody! bNew

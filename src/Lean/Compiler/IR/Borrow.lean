@@ -90,7 +90,7 @@ partial def visitFnBody (fnid : FunId) : FnBody → StateM ParamMap Unit
 
 def visitDecls (env : Environment) (decls : Array Decl) : StateM ParamMap Unit :=
   decls.forM fun decl => match decl with
-    | Decl.fdecl (f := f) (xs := xs) (body := b) .. => do
+    | .fdecl (f := f) (xs := xs) (body := b) .. => do
       let exported := isExport env f
       modify fun m => m.insert (ParamMap.Key.decl f) (initBorrowIfNotExported exported xs)
       visitFnBody f b
@@ -281,7 +281,7 @@ partial def collectFnBody : FnBody → M Unit
   | e                      => do unless e.isTerminal do collectFnBody e.body
 
 partial def collectDecl : Decl → M Unit
-  | Decl.fdecl (f := f) (xs := ys) (body := b) .. =>
+  | .fdecl (f := f) (xs := ys) (body := b) .. =>
     withReader (fun ctx => let ctx := updateParamSet ctx ys; { ctx with currFn := f }) do
       collectFnBody b
       updateParamMap (ParamMap.Key.decl f)

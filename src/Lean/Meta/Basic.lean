@@ -1420,10 +1420,10 @@ end Methods
 
 def isInductivePredicate (declName : Name) : MetaM Bool := do
   match (← getEnv).find? declName with
-  | some (ConstantInfo.inductInfo { type := type, ..}) =>
+  | some (.inductInfo { type := type, ..}) =>
     forallTelescopeReducing type fun _ type => do
       match (← whnfD type) with
-      | Expr.sort u .. => return u == levelZero
+      | .sort u .. => return u == levelZero
       | _ => return false
   | _ => return false
 

@@ -673,7 +673,7 @@ mutual
     else
       let lctx := ctxMeta.lctx
       match lctx.findFVar? fvar with
-      | some (LocalDecl.ldecl (value := v) ..) => visit check v
+      | some (.ldecl (value := v) ..) => visit check v
       | _ =>
         if ctx.fvars.contains fvar then pure fvar
         else

@@ -678,7 +678,7 @@ partial def visit (e : Expr) : M Unit := do
     | .fvar fvarId ..    =>
       match (← fvarId.getDecl) with
       | .cdecl .. => return ()
-      | LocalDecl.ldecl (value := v) .. => visit v
+      | .ldecl (value := v) .. => visit v
     | .mvar mvarId ..    =>
       let e' ← instantiateMVars e
       if e' != e then

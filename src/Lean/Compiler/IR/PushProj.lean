@@ -40,7 +40,7 @@ partial def FnBody.pushProj (b : FnBody) : FnBody :=
   let (bs, term) := b.flatten
   let bs         := modifyJPs bs pushProj
   match term with
-  | FnBody.case tid x xType alts =>
+  | .case tid x xType alts =>
     let altsF      := alts.map fun alt => alt.body.freeIndices
     let (bs, alts) := pushProjs bs alts altsF #[] (mkIndexSet x.idx)
     let alts       := alts.map fun alt => alt.modifyBody pushProj
@@ -51,7 +51,7 @@ partial def FnBody.pushProj (b : FnBody) : FnBody :=
 /-- Push projections inside `case` branches. -/
 def Decl.pushProj (d : Decl) : Decl :=
   match d with
-  | Decl.fdecl (body := b) .. => d.updateBody! b.pushProj |>.normalizeIds
+  | .fdecl (body := b) .. => d.updateBody! b.pushProj |>.normalizeIds
   | other => other
 
 end Lean.IR

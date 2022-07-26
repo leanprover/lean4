@@ -18,14 +18,14 @@ def checkParams (ps : Array Param) : M Bool :=
   ps.allM fun p => checkId p.x.idx
 
 partial def checkFnBody : FnBody → M Bool
-  | FnBody.vdecl x _ _ b    => checkId x.idx <&&> checkFnBody b
-  | FnBody.jdecl j ys _ b   => checkId j.idx <&&> checkParams ys <&&> checkFnBody b
-  | FnBody.case _ _ _ alts  => alts.allM fun alt => checkFnBody alt.body
-  | b                       => if b.isTerminal then pure true else checkFnBody b.body
+  | .vdecl x _ _ b    => checkId x.idx <&&> checkFnBody b
+  | .jdecl j ys _ b   => checkId j.idx <&&> checkParams ys <&&> checkFnBody b
+  | .case _ _ _ alts  => alts.allM fun alt => checkFnBody alt.body
+  | b                 => if b.isTerminal then pure true else checkFnBody b.body
 
 partial def checkDecl : Decl → M Bool
-  | Decl.fdecl (xs := xs) (body := b) .. => checkParams xs <&&> checkFnBody b
-  | Decl.extern (xs := xs) .. => checkParams xs
+  | .fdecl (xs := xs) (body := b) .. => checkParams xs <&&> checkFnBody b
+  | .extern (xs := xs) .. => checkParams xs
 
 end UniqueIds
 

@@ -283,21 +283,21 @@ end
 /-- Auxiliary combinator for handling easy WHNF cases. It takes a function for handling the "hard" cases as an argument -/
 @[specialize] partial def whnfEasyCases (e : Expr) (k : Expr → MetaM Expr) : MetaM Expr := do
   match e with
-  | Expr.forallE ..    => return e
-  | Expr.lam ..        => return e
-  | Expr.sort ..       => return e
-  | Expr.lit ..        => return e
-  | Expr.bvar ..       => unreachable!
-  | Expr.letE ..       => k e
-  | Expr.const ..      => k e
-  | Expr.app ..        => k e
-  | Expr.proj ..       => k e
-  | Expr.mdata _ e     => whnfEasyCases e k
-  | Expr.fvar fvarId   =>
+  | .forallE ..    => return e
+  | .lam ..        => return e
+  | .sort ..       => return e
+  | .lit ..        => return e
+  | .bvar ..       => unreachable!
+  | .letE ..       => k e
+  | .const ..      => k e
+  | .app ..        => k e
+  | .proj ..       => k e
+  | .mdata _ e     => whnfEasyCases e k
+  | .fvar fvarId   =>
     let decl ← fvarId.getDecl
     match decl with
-    | LocalDecl.cdecl .. => return e
-    | LocalDecl.ldecl (value := v) (nonDep := nonDep) .. =>
+    | .cdecl .. => return e
+    | .ldecl (value := v) (nonDep := nonDep) .. =>
       let cfg ← getConfig
       if nonDep && !cfg.zetaNonDep then
         return e
@@ -305,7 +305,7 @@ end
         if cfg.trackZeta then
           modify fun s => { s with zetaFVarIds := s.zetaFVarIds.insert fvarId }
         whnfEasyCases v k
-  | Expr.mvar mvarId   =>
+  | .mvar mvarId   =>
     match (← getExprMVarAssignment? mvarId) with
     | some v => whnfEasyCases v k
     | none   => return e

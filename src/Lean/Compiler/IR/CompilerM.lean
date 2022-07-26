@@ -142,7 +142,7 @@ def getDecl' (n : Name) (decls : Array Decl) : CompilerM Decl := do
 @[export lean_decl_get_sorry_dep]
 def getSorryDep (env : Environment) (declName : Name) : Option Name :=
   match (declMapExt.getState env).find? declName with
-  | some (Decl.fdecl (info := { sorryDep? := dep?, .. }) ..) => dep?
+  | some (.fdecl (info := { sorryDep? := dep?, .. }) ..) => dep?
   | _ => none
 
 end IR

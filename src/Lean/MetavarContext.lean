@@ -676,8 +676,8 @@ end DependsOn
   depends on a free variable `x` s.t. `pf x` is `true` or an unassigned metavariable `?m` s.t. `pm ?m` is true. -/
 @[inline] def findLocalDeclDependsOn [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : m Bool := do
   match localDecl with
-  | LocalDecl.cdecl (type := t) ..  => findExprDependsOn t pf pm
-  | LocalDecl.ldecl (type := t) (value := v) .. =>
+  | .cdecl (type := t) ..  => findExprDependsOn t pf pm
+  | .ldecl (type := t) (value := v) .. =>
     let (result, { mctx, .. }) := (DependsOn.main pf pm t <||> DependsOn.main pf pm v).run { mctx := (← getMCtx) }
     setMCtx mctx
     return result

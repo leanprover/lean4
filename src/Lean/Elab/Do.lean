@@ -858,6 +858,17 @@ Example: suppose we want to support `repeat doSeq`. Assuming we have `repeat : m
 4- and then, convert it into a `doSeq` using `matchNestedTermResult ref (repeat $term) uvsar a r bc`
 
 -/
+
+/--
+Helper method for annotating `term` with the raw syntax `ref`.
+We use this method to implement finer-grained term infos for `do`-blocks.
+Note that we attach `term` position to token `with_annotate_term`. We do that
+to make sure if a coercion is created for `with_annotate_term ref term`, we
+get the position information for `term`.
+-/
+def annotate [Monad m] [MonadRef m] [MonadQuotation m] (ref : Syntax) (term : Syntax) : m Syntax :=
+  `(with_annotate_term%$term $ref $term)
+
 namespace ToTerm
 
 inductive Kind where
@@ -1029,7 +1040,7 @@ def mkJmp (ref : Syntax) (j : Name) (args : Array Syntax) : Syntax :=
 partial def toTerm (c : Code) : M Syntax := do
   let term ← go c
   if let some ref := c.getRef? then
-    `(with_annotate_term $ref $term)
+    annotate ref term
   else
     return term
 where
@@ -1441,11 +1452,11 @@ mutual
         let forInBody ← liftMacroM <| destructTuple uvars (← `(r)) forInBody
         let optType ← `(Option $((← read).returnType))
         let forInTerm ← if let some h := h? then
-          `(with_annotate_term $doFor
-            for_in'% $(xs) (MProd.mk (none : $optType) $uvarsTuple) fun $x $h (r : MProd $optType _) => let r := r.2; $forInBody)
+          annotate doFor
+            (← `(for_in'% $(xs) (MProd.mk (none : $optType) $uvarsTuple) fun $x $h (r : MProd $optType _) => let r := r.2; $forInBody))
         else
-          `(with_annotate_term $doFor
-            for_in% $(xs) (MProd.mk (none : $optType) $uvarsTuple) fun $x (r : MProd $optType _) => let r := r.2; $forInBody)
+          annotate doFor
+            (← `(for_in% $(xs) (MProd.mk (none : $optType) $uvarsTuple) fun $x (r : MProd $optType _) => let r := r.2; $forInBody))
         let auxDo ← `(do let r ← $forInTerm:term;
                          $uvarsTuple:term := r.2;
                          match r.1 with
@@ -1455,11 +1466,9 @@ mutual
       else
         let forInBody ← liftMacroM <| destructTuple uvars (← `(r)) forInBody
         let forInTerm ← if let some h := h? then
-          `(with_annotate_term $doFor
-            for_in'% $(xs) $uvarsTuple fun $x $h r => $forInBody)
+          annotate doFor (← `(for_in'% $(xs) $uvarsTuple fun $x $h r => $forInBody))
         else
-          `(with_annotate_term $doFor
-            for_in% $(xs) $uvarsTuple fun $x r => $forInBody)
+          annotate doFor (← `(for_in% $(xs) $uvarsTuple fun $x r => $forInBody))
         if doElems.isEmpty then
           let auxDo ← `(do let r ← $forInTerm:term;
                            $uvarsTuple:term := r;
@@ -1531,10 +1540,10 @@ mutual
     let term ← catches.foldlM (init := term) fun term «catch» => do
       let catchTerm ← toTerm «catch».codeBlock
       if catch.optType.isNone then
-        `(with_annotate_term $doTry MonadExcept.tryCatch $term (fun $(«catch».x):ident => $catchTerm))
+        annotate doTry (← ``(MonadExcept.tryCatch $term (fun $(«catch».x):ident => $catchTerm)))
       else
         let type := «catch».optType[1]
-        `(with_annotate_term $doTry tryCatchThe $type $term (fun $(«catch».x):ident => $catchTerm))
+        annotate doTry (← ``(tryCatchThe $type $term (fun $(«catch».x):ident => $catchTerm)))
     let term ← match finallyCode? with
       | none             => pure term
       | some finallyCode => withRef optFinally do
@@ -1543,7 +1552,7 @@ mutual
         if hasBreakContinueReturn finallyCode.code then
           throwError "`finally` currently does `return`, `break`, nor `continue`"
         let finallyTerm ← liftMacroM <| ToTerm.run finallyCode.code ctx.m ctx.returnType {} ToTerm.Kind.regular
-        `(with_annotate_term $doTry tryFinally $term $finallyTerm)
+        annotate doTry (← ``(tryFinally $term $finallyTerm))
     let doElemsNew ← liftMacroM <| ToTerm.matchNestedTermResult term uvars a r bc
     doSeqToCode (doElemsNew ++ doElems)
 

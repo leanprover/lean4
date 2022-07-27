@@ -53,7 +53,7 @@ This can be set to
 The difference between implicit `{}` and strict-implicit `⦃⦄` is how
 implicit arguments are treated that are *not* followed by explicit arguments.
 `{}` arguments are applied eagerly, while `⦃⦄` arguments are left partially applied:
-```lean4
+```
 def foo {x : Nat} : Nat := x
 def bar ⦃x : Nat⦄ : Nat := x
 #check foo -- foo : Nat
@@ -363,7 +363,7 @@ inductive Expr where
     const (declName : Name) (us : List Level)
   | /--
     Function application. `Nat.succ Nat.zero` is represented as
-    ```lean4
+    ```
     .app (.const `Nat.succ []) (.const .zero [])
     ```
     -/
@@ -371,7 +371,7 @@ inductive Expr where
   | /--
     Lambda abstraction (aka anonymous functions).
     - `fun x : Nat => x` is represented as
-    ```lean4
+    ```
     .lam `x (.const `Nat []) (.bvar 0) .default
     ```
     -/
@@ -379,16 +379,15 @@ inductive Expr where
   | /--
     A dependent arrow (aka forall-expression). It is also used to represent non-dependent arrows.
     Examples:
-
     - `forall x : Prop, x ∧ x` is represented as
-    ```lean4
+    ```
     .forallE `x
        (.sort .zero)
        (.app (.app (.const `And []) (.bvar 0)) (.bvar 0))
        .default
     ```
     - `Nat → Bool` as
-    ```lean4
+    ```
     .forallE `a (.const `Nat []) (.const `Bool []) .default
     ```
     -/
@@ -413,7 +412,7 @@ inductive Expr where
     efficient reduction in the elaborator and kernel.
     The "raw" natural number `2` can be represented as `.lit (.natVal 2)`. Note that, it is
     definitionally equal to
-    ```lean4
+    ```
     .app (.const `Nat.succ []) (.app (.const `Nat.succ []) (.const `Nat.zero []))
     ```
     -/
@@ -436,7 +435,7 @@ inductive Expr where
     When exporting Lean developments to other systems, `proj` can be replaced with `typeName`.`rec`
     applications.
     Example, given `a : Nat x Bool`, `a.1` is represented as
-    ```lean4
+    ```
     .proj `Prod 0 a
     ```
     -/

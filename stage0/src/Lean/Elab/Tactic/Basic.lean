@@ -29,7 +29,7 @@ def goalsToMessageData (goals : List MVarId) : MessageData :=
   MessageData.joinSep (goals.map MessageData.ofGoal) m!"\n\n"
 
 def Term.reportUnsolvedGoals (goals : List MVarId) : TermElabM Unit :=
-  withPPInaccessibleNames do
+  withPPShowLetValues <| withPPInaccessibleNames do
     logError <| MessageData.tagged `Tactic.unsolvedGoals <| m!"unsolved goals\n{goalsToMessageData goals}"
     goals.forM fun mvarId => admitGoal mvarId
 

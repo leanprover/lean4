@@ -3800,7 +3800,9 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Cleanup_0__Lean_Meta_clean
 _start:
 {
 lean_object* x_8; 
+lean_inc(x_6);
 lean_inc(x_5);
+lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_1);
 x_8 = l_Lean_MVarId_checkNotAssigned(x_1, x_2, x_3, x_4, x_5, x_6, x_7);

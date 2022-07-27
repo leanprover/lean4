@@ -54,11 +54,16 @@ def log (msgData : MessageData) (severity : MessageSeverity := MessageSeverity.e
   let ref ← MonadLog.getRef
   logAt ref msgData severity
 
+register_builtin_option warningAsError : Bool := {
+  defValue := false
+  descr    := "treat warnings as errors"
+}
+
 def logError (msgData : MessageData) : m Unit :=
   log msgData MessageSeverity.error
 
-def logWarning (msgData : MessageData) : m Unit :=
-  log msgData MessageSeverity.warning
+def logWarning [MonadOptions m] (msgData : MessageData) : m Unit := do
+  log msgData (if warningAsError.get (← getOptions) then .error else .warning)
 
 def logInfo (msgData : MessageData) : m Unit :=
   log msgData MessageSeverity.information

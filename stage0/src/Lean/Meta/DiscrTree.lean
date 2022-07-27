@@ -541,7 +541,7 @@ partial def getUnify (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
   withReducible do
     let (k, args) ← getUnifyKeyArgs e (root := true)
     match k with
-    | Key.star => d.root.foldlM (init := #[]) fun result k c => process k.arity #[] c result
+    | .star => d.root.foldlM (init := #[]) fun result k c => process k.arity #[] c result
     | _ =>
       let result := getStarResult d
       match d.root.find? k with
@@ -575,9 +575,9 @@ where
           | none   => return result
           | some c => process 0 (todo ++ args) c.2 result
         match k with
-        | Key.star  => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result
+        | .star  => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result
         -- See comment a `getMatch` regarding non-dependent arrows vs dependent arrows
-        | Key.arrow => visitNonStar Key.other #[] (← visitNonStar k args (← visitStar result))
-        | _         => visitNonStar k args (← visitStar result)
+        | .arrow => visitNonStar Key.other #[] (← visitNonStar k args (← visitStar result))
+        | _      => visitNonStar k args (← visitStar result)
 
 end Lean.Meta.DiscrTree

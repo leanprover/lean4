@@ -36,10 +36,11 @@ def mkFreshExprSyntheticOpaqueMVar (type : Expr) (tag : Name := Name.anonymous) 
   mkFreshExprMVar type MetavarKind.syntheticOpaque tag
 
 def throwTacticEx (tacticName : Name) (mvarId : MVarId) (msg : MessageData) : MetaM α :=
-  if msg.isEmpty then
-    throwError "tactic '{tacticName}' failed\n{mvarId}"
-  else
-    throwError "tactic '{tacticName}' failed, {msg}\n{mvarId}"
+  withPPForTacticGoal do
+    if msg.isEmpty then
+      throwError "tactic '{tacticName}' failed\n{mvarId}"
+    else
+      throwError "tactic '{tacticName}' failed, {msg}\n{mvarId}"
 
 def throwNestedTacticEx {α} (tacticName : Name) (ex : Exception) : MetaM α := do
   throwError "tactic '{tacticName}' failed, nested error:\n{ex.toMessageData}"

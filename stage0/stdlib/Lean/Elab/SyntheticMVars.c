@@ -367,7 +367,7 @@ lean_object* l_instHashableProd___rarg___boxed(lean_object*, lean_object*, lean_
 lean_object* l_Lean_Elab_Term_reportUnsolvedGoals(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_throwStuckAtUniverseCnstr___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_362_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_371_(uint8_t, uint8_t);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 lean_object* l_Lean_Elab_Term_throwTypeMismatchError___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSetImp_expand___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_throwStuckAtUniverseCnstr___spec__5(lean_object*, lean_object*);
@@ -6375,7 +6375,7 @@ x_23 = l_panic___at_Lean_Expr_bindingInfo_x21___spec__1(x_22);
 x_24 = lean_unbox(x_23);
 lean_dec(x_23);
 x_25 = 3;
-x_26 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_362_(x_24, x_25);
+x_26 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_371_(x_24, x_25);
 if (x_26 == 0)
 {
 lean_object* x_27; 
@@ -6430,7 +6430,7 @@ x_41 = lean_array_fget(x_2, x_5);
 x_42 = lean_unbox(x_41);
 lean_dec(x_41);
 x_43 = 3;
-x_44 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_362_(x_42, x_43);
+x_44 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_371_(x_42, x_43);
 if (x_44 == 0)
 {
 lean_object* x_45; 

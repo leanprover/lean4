@@ -103,6 +103,7 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
   let some mvarDecl := (← getMCtx).findDecl? mvarId
     | throwError "unknown goal {mvarId.name}"
   let ppAuxDecls := pp.auxDecls.get (← getOptions)
+  let showLetValues := pp.showLetValues.get (← getOptions)
   let lctx := mvarDecl.lctx
   let lctx : LocalContext := lctx.sanitizeNames.run' { options := (← getOptions) }
   withLCtx lctx mvarDecl.localInstances do
@@ -145,8 +146,8 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
             let varName := varName.simpMacroScopes
             hyps ← pushPending varNames prevType? hyps
             let type ← instantiateMVars type
-            let val ← instantiateMVars val
-            hyps ← addInteractiveHypothesisBundle hyps #[(varName, fvarId)] type val
+            let val? ← if showLetValues then pure (some (← instantiateMVars val)) else pure none
+            hyps ← addInteractiveHypothesisBundle hyps #[(varName, fvarId)] type val?
             varNames := #[]
             prevType? := none
     hyps ← pushPending varNames prevType? hyps

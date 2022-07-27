@@ -20,17 +20,37 @@ register_builtin_option pp.inaccessibleNames : Bool := {
   descr    := "display inaccessible declarations in the local context"
 }
 
+register_builtin_option pp.showLetValues : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "display let-declaration values in the info view"
+}
+
 def withPPInaccessibleNamesImp (flag : Bool) (x : MetaM α) : MetaM α :=
   withTheReader Core.Context (fun ctx => { ctx with options := pp.inaccessibleNames.setIfNotSet ctx.options flag }) x
 
 def withPPInaccessibleNames [MonadControlT MetaM m] [Monad m] (x : m α) (flag := true) : m α :=
   mapMetaM (withPPInaccessibleNamesImp flag) x
 
+def withPPShowLetValuesImp (flag : Bool) (x : MetaM α) : MetaM α :=
+  withTheReader Core.Context (fun ctx => { ctx with options := pp.showLetValues.setIfNotSet ctx.options flag }) x
+
+def withPPShowLetValues [MonadControlT MetaM m] [Monad m] (x : m α) (flag := true) : m α :=
+  mapMetaM (withPPShowLetValuesImp flag) x
+
+/--
+Set pretty-printing options (`pp.showLetValues = true` and `pp.inaccessibleNames = true`) for visualizing goals.
+-/
+def withPPForTacticGoal [MonadControlT MetaM m] [Monad m] (x : m α) : m α :=
+  withPPShowLetValues <| withPPInaccessibleNames x
+
 namespace ToHide
 
 structure State where
-  hiddenInaccessibleProp : FVarIdSet := {} -- FVarIds of Propostions with inaccessible names but containing only visible names. We show only their types
-  hiddenInaccessible     : FVarIdSet := {} -- FVarIds with inaccessible names, but not in hiddenInaccessibleProp
+  /-- FVarIds of Propostions with inaccessible names but containing only visible names. We show only their types -/
+  hiddenInaccessibleProp : FVarIdSet := {}
+  /-- FVarIds with inaccessible names, but not in hiddenInaccessibleProp -/
+  hiddenInaccessible     : FVarIdSet := {}
   modified               : Bool := false
 
 structure Context where
@@ -38,8 +58,9 @@ structure Context where
    If true we make a declaration "visible" if it has visible backward dependencies.
    Remark: recall that for the `Prop` case, the declaration is moved to `hiddenInaccessibleProp`
    -/
-  backwardDeps : Bool
-  goalTarget   : Expr
+  backwardDeps  : Bool
+  goalTarget    : Expr
+  showLetValues : Bool
 
 abbrev M := ReaderT Context $ StateRefT State MetaM
 
@@ -63,19 +84,26 @@ def moveToHiddeProp (fvarId : FVarId) : M Unit := do
     modified               := true
   }
 
+/-- Similar to `findLocalDeclDependsOn`, but it only considers `let`-values if `showLetValues = true` -/
+private def findDeps (localDecl : LocalDecl) (f : FVarId → Bool) : M Bool := do
+  if (← read).showLetValues then
+    findLocalDeclDependsOn localDecl f
+  else
+    findExprDependsOn localDecl.type f
+
 /-- Return true if the given local declaration has a "visible dependency", that is, it contains
    a free variable that is `hiddenInaccessible`
 
    Recall that hiddenInaccessibleProps are visible, only their names are hidden -/
 def hasVisibleDep (localDecl : LocalDecl) : M Bool := do
   let s ← get
-  findLocalDeclDependsOn localDecl (!s.hiddenInaccessible.contains ·)
+  findDeps localDecl (!s.hiddenInaccessible.contains ·)
 
 /-- Return true if the given local declaration has a "nonvisible dependency", that is, it contains
    a free variable that is `hiddenInaccessible` or `hiddenInaccessibleProp` -/
 def hasInaccessibleNameDep (localDecl : LocalDecl) : M Bool := do
   let s ← get
-  findLocalDeclDependsOn localDecl fun fvarId =>
+  findDeps localDecl fun fvarId =>
     s.hiddenInaccessible.contains fvarId || s.hiddenInaccessibleProp.contains fvarId
 
 /-- If `e` is visible, then any inaccessible in `e` marked as hidden should be unmarked. -/
@@ -86,14 +114,14 @@ where
     if e.hasFVar then
       checkCache e fun _ => do
         match e with
-        | Expr.forallE _ d b _   => visit d; visit b
-        | Expr.lam _ d b _       => visit d; visit b
-        | Expr.letE _ t v b _    => visit t; visit v; visit b
-        | Expr.app f a           => visit f; visit a
-        | Expr.mdata _ b         => visit b
-        | Expr.proj _ _ b        => visit b
-        | Expr.fvar fvarId       => if (← isMarked fvarId) then unmark fvarId
-        | _                      => pure ()
+        | .forallE _ d b _   => visit d; visit b
+        | .lam _ d b _       => visit d; visit b
+        | .letE _ t v b _    => visit t; visit v; visit b
+        | .app f a           => visit f; visit a
+        | .mdata _ b         => visit b
+        | .proj _ _ b        => visit b
+        | .fvar fvarId       => if (← isMarked fvarId) then unmark fvarId
+        | _                  => return ()
 
 def fixpointStep : M Unit := do
   visitVisibleExpr (← read).goalTarget -- The goal target is a visible forward dependency
@@ -109,8 +137,9 @@ def fixpointStep : M Unit := do
             moveToHiddeProp fvarId
     else
       visitVisibleExpr localDecl.type
-      let some value := localDecl.value? | return ()
-      visitVisibleExpr value
+      if (← read).showLetValues then
+        let some value := localDecl.value? | return ()
+        visitVisibleExpr value
 
 partial def fixpoint : M Unit := do
   modify fun s => { s with modified := false }
@@ -122,14 +151,15 @@ partial def fixpoint : M Unit := do
   Construct initial `FVarIdSet` containting free variables ids that have inaccessible user names.
 -/
 private def getInitialHiddenInaccessible (propOnly : Bool) : MetaM FVarIdSet := do
-  (← getLCtx).foldlM (init := {}) fun r localDecl => do
+  let mut r := {}
+  for localDecl in (← getLCtx) do
     if localDecl.userName.isInaccessibleUserName then
       if (← pure !propOnly <||> isProp localDecl.type) then
-        return r.insert localDecl.fvarId
-    return r
+        r := r.insert localDecl.fvarId
+  return r
 
 /--
-If pp.inaccessibleNames == false, then collect two sets of `FVarId`s : `hiddenInaccessible` and `hiddenInaccessibleProp`
+If `pp.inaccessibleNames == false`, then collect two sets of `FVarId`s : `hiddenInaccessible` and `hiddenInaccessibleProp`
 1- `hiddenInaccessible` contains `FVarId`s of free variables with inaccessible names that
     a) are not propositions or
     b) are propositions containing "visible" names.
@@ -147,14 +177,15 @@ goal from being littered with irrelevant names.
 
 -/
 def collect (goalTarget : Expr) : MetaM (FVarIdSet × FVarIdSet) := do
+  let showLetValues := pp.showLetValues.get (← getOptions)
   if pp.inaccessibleNames.get (← getOptions) then
     -- If `pp.inaccessibleNames == true`, we still must compute `hiddenInaccessibleProp`.
     let hiddenInaccessible ← getInitialHiddenInaccessible (propOnly := true)
-    let (_, s) ← fixpoint.run { backwardDeps := false, goalTarget } |>.run { hiddenInaccessible }
+    let (_, s) ← fixpoint.run { backwardDeps := false, goalTarget, showLetValues } |>.run { hiddenInaccessible }
     return ({}, s.hiddenInaccessible)
   else
     let hiddenInaccessible ← getInitialHiddenInaccessible (propOnly := false)
-    let (_, s) ← fixpoint.run { backwardDeps := true, goalTarget } |>.run { hiddenInaccessible }
+    let (_, s) ← fixpoint.run { backwardDeps := true, goalTarget, showLetValues } |>.run { hiddenInaccessible }
     return (s.hiddenInaccessible, s.hiddenInaccessibleProp)
 
 end ToHide
@@ -174,6 +205,7 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
   | none          => return "unknown goal"
   | some mvarDecl =>
     let indent         := 2 -- Use option
+    let showLetValues  := pp.showLetValues.get (← getOptions)
     let ppAuxDecls     := pp.auxDecls.get (← getOptions)
     let lctx           := mvarDecl.lctx
     let lctx           := lctx.sanitizeNames.run' { options := (← getOptions) }
@@ -201,7 +233,7 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
           return ([], none, fmt)
         else
           match localDecl with
-          | LocalDecl.cdecl _ _ varName type _   =>
+          | .cdecl _ _ varName type _   =>
             let varName := varName.simpMacroScopes
             let type ← instantiateMVars type
             if prevType? == none || prevType? == some type then
@@ -209,15 +241,18 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
             else do
               let fmt ← pushPending varNames prevType? fmt
               return ([varName], some type, fmt)
-          | LocalDecl.ldecl _ _ varName type val _ => do
+          | .ldecl _ _ varName type val _ => do
             let varName := varName.simpMacroScopes
             let fmt ← pushPending varNames prevType? fmt
             let fmt  := addLine fmt
             let type ← instantiateMVars type
-            let val  ← instantiateMVars val
             let typeFmt ← ppExpr type
-            let valFmt ← ppExpr val
-            let fmt  := fmt ++ (format varName ++ " : " ++ typeFmt ++ " :=" ++ Format.nest indent (Format.line ++ valFmt)).group
+            let mut fmtElem  := format varName ++ " : " ++ typeFmt
+            if showLetValues then
+              let val ← instantiateMVars val
+              let valFmt ← ppExpr val
+              fmtElem := fmtElem ++ " :=" ++ Format.nest indent (Format.line ++ valFmt)
+            let fmt := fmt ++ fmtElem.group
             return ([], none, fmt)
       let (varNames, type?, fmt) ← lctx.foldlM (init := ([], none, Format.nil)) fun (varNames, prevType?, fmt) (localDecl : LocalDecl) =>
          if !ppAuxDecls && localDecl.isAuxDecl || hidden.contains localDecl.fvarId then

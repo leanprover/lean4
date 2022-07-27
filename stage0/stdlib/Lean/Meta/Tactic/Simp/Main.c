@@ -691,7 +691,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_simp_congr
 static lean_object* l_Lean_Meta_Simp_simp_simpArrow___lambda__4___closed__9;
 lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_simp_simpForall___closed__8;
-uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_362_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_371_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_dsimpGoal___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentArray_findSomeRevMAux___at_Lean_Meta_Simp_dischargeUsingAssumption_x3f___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_simp_simpLoop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2086,7 +2086,7 @@ goto block_130;
 else
 {
 uint8_t x_144; 
-x_144 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_362_(x_134, x_134);
+x_144 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_371_(x_134, x_134);
 if (x_144 == 0)
 {
 lean_object* x_145; 
@@ -19212,7 +19212,7 @@ goto block_48;
 else
 {
 uint8_t x_134; 
-x_134 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_362_(x_120, x_120);
+x_134 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_371_(x_120, x_120);
 if (x_134 == 0)
 {
 lean_object* x_135; lean_object* x_136; lean_object* x_137; 
@@ -19383,7 +19383,7 @@ goto block_48;
 else
 {
 uint8_t x_181; 
-x_181 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_362_(x_167, x_167);
+x_181 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_371_(x_167, x_167);
 if (x_181 == 0)
 {
 lean_object* x_182; lean_object* x_183; lean_object* x_184; 
@@ -19581,7 +19581,7 @@ goto block_48;
 else
 {
 uint8_t x_235; 
-x_235 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_362_(x_221, x_221);
+x_235 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_371_(x_221, x_221);
 if (x_235 == 0)
 {
 lean_object* x_236; lean_object* x_237; lean_object* x_238; 
@@ -20164,7 +20164,7 @@ goto block_48;
 else
 {
 uint8_t x_384; 
-x_384 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_362_(x_370, x_370);
+x_384 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_371_(x_370, x_370);
 if (x_384 == 0)
 {
 lean_object* x_385; lean_object* x_386; lean_object* x_387; 
@@ -20736,7 +20736,7 @@ goto block_48;
 else
 {
 uint8_t x_520; 
-x_520 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_362_(x_506, x_506);
+x_520 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_371_(x_506, x_506);
 if (x_520 == 0)
 {
 lean_object* x_521; lean_object* x_522; lean_object* x_523; 
@@ -21346,7 +21346,7 @@ goto block_48;
 else
 {
 uint8_t x_663; 
-x_663 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_362_(x_649, x_649);
+x_663 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_371_(x_649, x_649);
 if (x_663 == 0)
 {
 lean_object* x_664; lean_object* x_665; lean_object* x_666; 
@@ -45583,7 +45583,9 @@ LEAN_EXPORT lean_object* l_Lean_Meta_simpTarget___lambda__1(lean_object* x_1, le
 _start:
 {
 lean_object* x_11; 
+lean_inc(x_9);
 lean_inc(x_8);
+lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_1);
 x_11 = l_Lean_MVarId_checkNotAssigned(x_1, x_2, x_6, x_7, x_8, x_9, x_10);
@@ -47748,7 +47750,9 @@ LEAN_EXPORT lean_object* l_Lean_Meta_simpLocalDecl___lambda__1(lean_object* x_1,
 _start:
 {
 lean_object* x_12; 
+lean_inc(x_10);
 lean_inc(x_9);
+lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_1);
 x_12 = l_Lean_MVarId_checkNotAssigned(x_1, x_2, x_7, x_8, x_9, x_10, x_11);
@@ -49347,7 +49351,9 @@ LEAN_EXPORT lean_object* l_Lean_Meta_simpGoal___lambda__3(lean_object* x_1, lean
 _start:
 {
 lean_object* x_13; 
+lean_inc(x_11);
 lean_inc(x_10);
+lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_1);
 x_13 = l_Lean_MVarId_checkNotAssigned(x_1, x_2, x_8, x_9, x_10, x_11, x_12);
@@ -51460,7 +51466,9 @@ LEAN_EXPORT lean_object* l_Lean_Meta_dsimpGoal___lambda__5(lean_object* x_1, lea
 _start:
 {
 lean_object* x_11; 
+lean_inc(x_9);
 lean_inc(x_8);
+lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_1);
 x_11 = l_Lean_MVarId_checkNotAssigned(x_1, x_2, x_6, x_7, x_8, x_9, x_10);

@@ -406,23 +406,23 @@ inductive Decl where
 namespace Decl
 
 def name : Decl → FunId
-  | Decl.fdecl f ..  => f
-  | Decl.extern f .. => f
+  | .fdecl f ..  => f
+  | .extern f .. => f
 
 def params : Decl → Array Param
-  | Decl.fdecl (xs := xs) ..  => xs
-  | Decl.extern (xs := xs) .. => xs
+  | .fdecl (xs := xs) ..  => xs
+  | .extern (xs := xs) .. => xs
 
 def resultType : Decl → IRType
-  | Decl.fdecl (type := t) ..  => t
-  | Decl.extern (type := t) .. => t
+  | .fdecl (type := t) ..  => t
+  | .extern (type := t) .. => t
 
 def isExtern : Decl → Bool
-  | Decl.extern .. => true
+  | .extern .. => true
   | _ => false
 
 def getInfo : Decl → DeclInfo
-  | Decl.fdecl (info := info) .. => info
+  | .fdecl (info := info) .. => info
   | _ => {}
 
 def updateBody! (d : Decl) (bNew : FnBody) : Decl :=

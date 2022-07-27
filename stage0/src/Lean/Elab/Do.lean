@@ -200,6 +200,19 @@ inductive Code where
   | jmp          (ref : Syntax) (jpName : Name) (args : Array Syntax)
   deriving Inhabited
 
+def Code.getRef? : Code → Option Syntax
+  | .decl _ doElem _     => doElem
+  | .reassign _ doElem _ => doElem
+  | .joinpoint ..        => none
+  | .seq a _             => a
+  | .action a            => a
+  | .break ref           => ref
+  | .continue ref        => ref
+  | .return ref _        => ref
+  | .ite ref ..          => ref
+  | .match ref ..        => ref
+  | .jmp ref ..          => ref
+
 abbrev VarSet := Std.RBMap Name Syntax Name.cmp
 
 /-- A code block, and the collection of variables updated by it. -/
@@ -845,6 +858,17 @@ Example: suppose we want to support `repeat doSeq`. Assuming we have `repeat : m
 4- and then, convert it into a `doSeq` using `matchNestedTermResult ref (repeat $term) uvsar a r bc`
 
 -/
+
+/--
+Helper method for annotating `term` with the raw syntax `ref`.
+We use this method to implement finer-grained term infos for `do`-blocks.
+Note that we attach `term` position to token `with_annotate_term`. We do that
+to make sure if a coercion is created for `with_annotate_term ref term`, we
+get the position information for `term`.
+-/
+def annotate [Monad m] [MonadRef m] [MonadQuotation m] (ref : Syntax) (term : Syntax) : m Syntax :=
+  `(with_annotate_term%$term $ref $term)
+
 namespace ToTerm
 
 inductive Kind where
@@ -1014,25 +1038,32 @@ def mkJmp (ref : Syntax) (j : Name) (args : Array Syntax) : Syntax :=
   Syntax.mkApp (mkIdentFrom ref j) args
 
 partial def toTerm (c : Code) : M Syntax := do
-  match c with
-  | Code.return ref val     => withRef ref <| returnToTerm val
-  | Code.continue ref       => withRef ref continueToTerm
-  | Code.break ref          => withRef ref breakToTerm
-  | Code.action e           => actionTerminalToTerm e
-  | Code.joinpoint j ps b k => mkJoinPoint j ps (← toTerm b) (← toTerm k)
-  | Code.jmp ref j args     => return mkJmp ref j args
-  | Code.decl _ stx k       => declToTerm stx (← toTerm k)
-  | Code.reassign _ stx k   => reassignToTerm stx (← toTerm k)
-  | Code.seq stx k          => seqToTerm stx (← toTerm k)
-  | Code.ite ref _ o c t e  => withRef ref <| do mkIte o c (← toTerm t) (← toTerm e)
-  | Code.«match» ref genParam discrs optMotive alts =>
-    let mut termAlts := #[]
-    for alt in alts do
-      let rhs ← toTerm alt.rhs
-      let termAlt := mkNode `Lean.Parser.Term.matchAlt #[mkAtomFrom alt.ref "|", mkNullNode #[alt.patterns], mkAtomFrom alt.ref "=>", rhs]
-      termAlts := termAlts.push termAlt
-    let termMatchAlts := mkNode `Lean.Parser.Term.matchAlts #[mkNullNode termAlts]
-    return mkNode `Lean.Parser.Term.«match» #[mkAtomFrom ref "match", genParam, optMotive, discrs, mkAtomFrom ref "with", termMatchAlts]
+  let term ← go c
+  if let some ref := c.getRef? then
+    annotate ref term
+  else
+    return term
+where
+  go (c : Code) : M Syntax := do
+    match c with
+    | Code.return ref val     => withRef ref <| returnToTerm val
+    | Code.continue ref       => withRef ref continueToTerm
+    | Code.break ref          => withRef ref breakToTerm
+    | Code.action e           => actionTerminalToTerm e
+    | Code.joinpoint j ps b k => mkJoinPoint j ps (← toTerm b) (← toTerm k)
+    | Code.jmp ref j args     => return mkJmp ref j args
+    | Code.decl _ stx k       => declToTerm stx (← toTerm k)
+    | Code.reassign _ stx k   => reassignToTerm stx (← toTerm k)
+    | Code.seq stx k          => seqToTerm stx (← toTerm k)
+    | Code.ite ref _ o c t e  => withRef ref <| do mkIte o c (← toTerm t) (← toTerm e)
+    | Code.«match» ref genParam discrs optMotive alts =>
+      let mut termAlts := #[]
+      for alt in alts do
+        let rhs ← toTerm alt.rhs
+        let termAlt := mkNode `Lean.Parser.Term.matchAlt #[mkAtomFrom alt.ref "|", mkNullNode #[alt.patterns], mkAtomFrom alt.ref "=>", rhs]
+        termAlts := termAlts.push termAlt
+      let termMatchAlts := mkNode `Lean.Parser.Term.matchAlts #[mkNullNode termAlts]
+      return mkNode `Lean.Parser.Term.«match» #[mkAtomFrom ref "match", genParam, optMotive, discrs, mkAtomFrom ref "with", termMatchAlts]
 
 def run (code : Code) (m : Syntax) (returnType : Syntax) (uvars : Array Var := #[]) (kind := Kind.regular) : MacroM Syntax :=
   toTerm code { m, returnType, kind, uvars }
@@ -1421,9 +1452,11 @@ mutual
         let forInBody ← liftMacroM <| destructTuple uvars (← `(r)) forInBody
         let optType ← `(Option $((← read).returnType))
         let forInTerm ← if let some h := h? then
-          `(for_in'% $(xs) (MProd.mk (none : $optType) $uvarsTuple) fun $x $h (r : MProd $optType _) => let r := r.2; $forInBody)
+          annotate doFor
+            (← `(for_in'% $(xs) (MProd.mk (none : $optType) $uvarsTuple) fun $x $h (r : MProd $optType _) => let r := r.2; $forInBody))
         else
-          `(for_in% $(xs) (MProd.mk (none : $optType) $uvarsTuple) fun $x (r : MProd $optType _) => let r := r.2; $forInBody)
+          annotate doFor
+            (← `(for_in% $(xs) (MProd.mk (none : $optType) $uvarsTuple) fun $x (r : MProd $optType _) => let r := r.2; $forInBody))
         let auxDo ← `(do let r ← $forInTerm:term;
                          $uvarsTuple:term := r.2;
                          match r.1 with
@@ -1433,9 +1466,9 @@ mutual
       else
         let forInBody ← liftMacroM <| destructTuple uvars (← `(r)) forInBody
         let forInTerm ← if let some h := h? then
-          `(for_in'% $(xs) $uvarsTuple fun $x $h r => $forInBody)
+          annotate doFor (← `(for_in'% $(xs) $uvarsTuple fun $x $h r => $forInBody))
         else
-          `(for_in% $(xs) $uvarsTuple fun $x r => $forInBody)
+          annotate doFor (← `(for_in% $(xs) $uvarsTuple fun $x r => $forInBody))
         if doElems.isEmpty then
           let auxDo ← `(do let r ← $forInTerm:term;
                            $uvarsTuple:term := r;
@@ -1507,10 +1540,10 @@ mutual
     let term ← catches.foldlM (init := term) fun term «catch» => do
       let catchTerm ← toTerm «catch».codeBlock
       if catch.optType.isNone then
-        ``(MonadExcept.tryCatch $term (fun $(«catch».x):ident => $catchTerm))
+        annotate doTry (← ``(MonadExcept.tryCatch $term (fun $(«catch».x):ident => $catchTerm)))
       else
         let type := «catch».optType[1]
-        ``(tryCatchThe $type $term (fun $(«catch».x):ident => $catchTerm))
+        annotate doTry (← ``(tryCatchThe $type $term (fun $(«catch».x):ident => $catchTerm)))
     let term ← match finallyCode? with
       | none             => pure term
       | some finallyCode => withRef optFinally do
@@ -1519,7 +1552,7 @@ mutual
         if hasBreakContinueReturn finallyCode.code then
           throwError "`finally` currently does `return`, `break`, nor `continue`"
         let finallyTerm ← liftMacroM <| ToTerm.run finallyCode.code ctx.m ctx.returnType {} ToTerm.Kind.regular
-        ``(tryFinally $term $finallyTerm)
+        annotate doTry (← ``(tryFinally $term $finallyTerm))
     let doElemsNew ← liftMacroM <| ToTerm.matchNestedTermResult term uvars a r bc
     doSeqToCode (doElemsNew ++ doElems)
 

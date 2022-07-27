@@ -1251,8 +1251,6 @@ _start:
 {
 lean_object* x_12; 
 x_12 = l_Lean_Elab_Tactic_evalUnfold_go___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-lean_dec(x_10);
-lean_dec(x_8);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);

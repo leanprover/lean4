@@ -14118,8 +14118,6 @@ lean_ctor_set(x_32, 0, x_30);
 lean_ctor_set(x_32, 1, x_31);
 x_33 = l_Lean_Elab_Tactic_evalAlt___lambda__2___closed__2;
 x_34 = l_Lean_Meta_throwTacticEx___rarg(x_33, x_12, x_32, x_6, x_7, x_8, x_9, x_25);
-lean_dec(x_9);
-lean_dec(x_7);
 return x_34;
 }
 else
@@ -14159,8 +14157,6 @@ lean_ctor_set(x_41, 0, x_39);
 lean_ctor_set(x_41, 1, x_40);
 x_42 = l_Lean_Elab_Tactic_evalAlt___lambda__2___closed__2;
 x_43 = l_Lean_Meta_throwTacticEx___rarg(x_42, x_12, x_41, x_6, x_7, x_8, x_9, x_25);
-lean_dec(x_9);
-lean_dec(x_7);
 return x_43;
 }
 }
@@ -14191,8 +14187,6 @@ lean_ctor_set(x_52, 0, x_50);
 lean_ctor_set(x_52, 1, x_51);
 x_53 = l_Lean_Elab_Tactic_evalAlt___lambda__2___closed__2;
 x_54 = l_Lean_Meta_throwTacticEx___rarg(x_53, x_12, x_52, x_6, x_7, x_8, x_9, x_45);
-lean_dec(x_9);
-lean_dec(x_7);
 return x_54;
 }
 else
@@ -14233,8 +14227,6 @@ lean_ctor_set(x_62, 0, x_60);
 lean_ctor_set(x_62, 1, x_61);
 x_63 = l_Lean_Elab_Tactic_evalAlt___lambda__2___closed__2;
 x_64 = l_Lean_Meta_throwTacticEx___rarg(x_63, x_12, x_62, x_6, x_7, x_8, x_9, x_45);
-lean_dec(x_9);
-lean_dec(x_7);
 return x_64;
 }
 }
@@ -14255,8 +14247,6 @@ lean_ctor_set(x_69, 0, x_67);
 lean_ctor_set(x_69, 1, x_68);
 x_70 = l_Lean_Elab_Tactic_evalAlt___lambda__2___closed__2;
 x_71 = l_Lean_Meta_throwTacticEx___rarg(x_70, x_12, x_69, x_6, x_7, x_8, x_9, x_19);
-lean_dec(x_9);
-lean_dec(x_7);
 return x_71;
 }
 }

@@ -26,13 +26,13 @@ abbrev M := ReaderT Environment (StateM NameSet)
   modify fun s => s.insert f
 
 partial def collectFnBody : FnBody → M Unit
-  | FnBody.vdecl _ _ v b   =>
+  | .vdecl _ _ v b   =>
     match v with
-    | Expr.fap f _ => collect f *> collectFnBody b
-    | Expr.pap f _ => collect f *> collectFnBody b
-    | _            => collectFnBody b
-  | FnBody.jdecl _ _ v b   => collectFnBody v *> collectFnBody b
-  | FnBody.case _ _ _ alts => alts.forM fun alt => collectFnBody alt.body
+    | .fap f _ => collect f *> collectFnBody b
+    | .pap f _ => collect f *> collectFnBody b
+    | _        => collectFnBody b
+  | .jdecl _ _ v b   => collectFnBody v *> collectFnBody b
+  | .case _ _ _ alts => alts.forM fun alt => collectFnBody alt.body
   | e => do unless e.isTerminal do collectFnBody e.body
 
 def collectInitDecl (fn : Name) : M Unit := do
@@ -42,8 +42,8 @@ def collectInitDecl (fn : Name) : M Unit := do
   | _           => pure ()
 
 def collectDecl : Decl → M NameSet
-  | Decl.fdecl (f := f) (body := b) .. => collectInitDecl f *> CollectUsedDecls.collectFnBody b *> get
-  | Decl.extern (f := f) .. => collectInitDecl f *> get
+  | .fdecl (f := f) (body := b) .. => collectInitDecl f *> CollectUsedDecls.collectFnBody b *> get
+  | .extern (f := f) .. => collectInitDecl f *> get
 
 end CollectUsedDecls
 
@@ -64,13 +64,13 @@ def collectParams (ps : Array Param) : Collector :=
 
 /-- `collectFnBody` assumes the variables in -/
 partial def collectFnBody : FnBody → Collector
-  | FnBody.vdecl x t _ b    => collectVar x t ∘ collectFnBody b
-  | FnBody.jdecl j xs v b   => collectJP j xs ∘ collectParams xs ∘ collectFnBody v ∘ collectFnBody b
-  | FnBody.case _ _ _ alts  => fun s => alts.foldl (fun s alt => collectFnBody alt.body s) s
-  | e                       => if e.isTerminal then id else collectFnBody e.body
+  | .vdecl x t _ b    => collectVar x t ∘ collectFnBody b
+  | .jdecl j xs v b   => collectJP j xs ∘ collectParams xs ∘ collectFnBody v ∘ collectFnBody b
+  | .case _ _ _ alts  => fun s => alts.foldl (fun s alt => collectFnBody alt.body s) s
+  | e                 => if e.isTerminal then id else collectFnBody e.body
 
 def collectDecl : Decl → Collector
-  | Decl.fdecl (xs := xs) (body := b) .. => collectParams xs ∘ collectFnBody b
+  | .fdecl (xs := xs) (body := b) .. => collectParams xs ∘ collectFnBody b
   | _ => id
 
 end CollectMaps

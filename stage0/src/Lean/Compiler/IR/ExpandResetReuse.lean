@@ -14,23 +14,23 @@ namespace CollectProjMap
 abbrev Collector := ProjMap → ProjMap
 @[inline] def collectVDecl (x : VarId) (v : Expr) : Collector := fun m =>
   match v with
-  | Expr.proj ..  => m.insert x v
-  | Expr.sproj .. => m.insert x v
-  | Expr.uproj .. => m.insert x v
-  | _             => m
+  | .proj ..  => m.insert x v
+  | .sproj .. => m.insert x v
+  | .uproj .. => m.insert x v
+  | _         => m
 
 partial def collectFnBody : FnBody → Collector
-  | FnBody.vdecl x _ v b   => collectVDecl x v ∘ collectFnBody b
-  | FnBody.jdecl _ _ v b   => collectFnBody v ∘ collectFnBody b
-  | FnBody.case _ _ _ alts => fun s => alts.foldl (fun s alt => collectFnBody alt.body s) s
-  | e                      => if e.isTerminal then id else collectFnBody e.body
+  | .vdecl x _ v b   => collectVDecl x v ∘ collectFnBody b
+  | .jdecl _ _ v b   => collectFnBody v ∘ collectFnBody b
+  | .case _ _ _ alts => fun s => alts.foldl (fun s alt => collectFnBody alt.body s) s
+  | e                => if e.isTerminal then id else collectFnBody e.body
 end CollectProjMap
 
 /-- Create a mapping from variables to projections.
    This function assumes variable ids have been normalized -/
 def mkProjMap (d : Decl) : ProjMap :=
   match d with
-  | Decl.fdecl (body := b) .. => CollectProjMap.collectFnBody b {}
+  | .fdecl (body := b) .. => CollectProjMap.collectFnBody b {}
   | _ => {}
 
 structure Context where
@@ -39,12 +39,12 @@ structure Context where
 /-- Return true iff `x` is consumed in all branches of the current block.
    Here consumption means the block contains a `dec x` or `reuse x ...`. -/
 partial def consumed (x : VarId) : FnBody → Bool
-  | FnBody.vdecl _ _ v b   =>
+  | .vdecl _ _ v b   =>
     match v with
     | Expr.reuse y _ _ _ => x == y || consumed x b
     | _                  => consumed x b
-  | FnBody.dec y _ _ _ b   => x == y || consumed x b
-  | FnBody.case _ _ _ alts => alts.all fun alt => consumed x alt.body
+  | .dec y _ _ _ b   => x == y || consumed x b
+  | .case _ _ _ alts => alts.all fun alt => consumed x alt.body
   | e => !e.isTerminal && consumed x e.body
 
 abbrev Mask := Array (Option VarId)
@@ -57,13 +57,13 @@ partial def eraseProjIncForAux (y : VarId) (bs : Array FnBody) (mask : Mask) (ke
   else
     let b := bs.back
     match b with
-    | (FnBody.vdecl _ _ (Expr.sproj _ _ _) _) => keepInstr b
-    | (FnBody.vdecl _ _ (Expr.uproj _ _) _)   => keepInstr b
-    | (FnBody.inc z n c p _) =>
+    | .vdecl _ _ (.sproj _ _ _) _ => keepInstr b
+    | .vdecl _ _ (.uproj _ _) _   => keepInstr b
+    | .inc z n c p _ =>
       if n == 0 then done () else
       let b' := bs[bs.size - 2]!
       match b' with
-      | (FnBody.vdecl w _ (Expr.proj i x) _) =>
+      | .vdecl w _ (.proj i x) _ =>
         if w == z && y == x then
           /- Found
              ```
@@ -264,7 +264,7 @@ partial def searchAndExpand : FnBody → Array FnBody → M FnBody
 
 def main (d : Decl) : Decl :=
   match d with
-  | Decl.fdecl (body := b) .. =>
+  | .fdecl (body := b) .. =>
     let m := mkProjMap d
     let nextIdx := d.maxIndex + 1
     let bNew := (searchAndExpand b #[] { projMap := m }).run' nextIdx

@@ -137,7 +137,7 @@ def emitFnDecls : M Unit := do
 def emitMainFn : M Unit := do
   let d ← getDecl `main
   match d with
-  | Decl.fdecl (xs := xs) .. => do
+  | .fdecl (xs := xs) .. => do
     unless xs.size == 2 || xs.size == 1 do throw "invalid main function, incorrect arity when generating code"
     let env ← getEnv
     let usesLeanAPI := usesModuleFrom env `Lean
@@ -644,7 +644,7 @@ def emitDeclAux (d : Decl) : M Unit := do
   withReader (fun ctx => { ctx with jpMap := jpMap }) do
   unless hasInitAttr env d.name do
     match d with
-    | Decl.fdecl (f := f) (xs := xs) (type := t) (body := b) .. =>
+    | .fdecl (f := f) (xs := xs) (type := t) (body := b) .. =>
       let baseName ← toCName f;
       if xs.size == 0 then
         emit "static "

@@ -327,7 +327,7 @@ def run (env : Environment) (decls : Array Decl) : Array Decl :=
   let ctx : BoxingContext := { decls := decls, env := env }
   let decls := decls.foldl (init := #[]) fun newDecls decl =>
     match decl with
-    | Decl.fdecl (f := f) (xs := xs) (type := t) (body := b) .. =>
+    | .fdecl (f := f) (xs := xs) (type := t) (body := b) .. =>
       let nextIdx  := decl.maxIndex + 1
       let (b, s)   := (withParams xs (visitFnBody b) { ctx with f := f, resultType := t }).run { nextIdx := nextIdx }
       let newDecls := newDecls ++ s.auxDecls

@@ -149,7 +149,7 @@ def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Optio
         let goals ← List.join <$> rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter, .. } =>
           let ci := if useAfter then { ci with mctx := ti.mctxAfter } else { ci with mctx := ti.mctxBefore }
           let goals := if useAfter then ti.goalsAfter else ti.goalsBefore
-          ci.runMetaM {} <| goals.mapM (fun g => Meta.withPPInaccessibleNames (Widget.goalToInteractive g))
+          ci.runMetaM {} <| goals.mapM (fun g => Meta.withPPForTacticGoal (Widget.goalToInteractive g))
         return some { goals := goals.toArray }
       else
         return none

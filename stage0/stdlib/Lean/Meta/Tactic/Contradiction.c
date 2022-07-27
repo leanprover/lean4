@@ -9490,7 +9490,9 @@ LEAN_EXPORT lean_object* l_Lean_Meta_contradictionCore___lambda__3(lean_object* 
 _start:
 {
 lean_object* x_10; 
+lean_inc(x_8);
 lean_inc(x_7);
+lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_1);
 x_10 = l_Lean_MVarId_checkNotAssigned(x_1, x_2, x_5, x_6, x_7, x_8, x_9);
@@ -9843,8 +9845,6 @@ lean_dec(x_8);
 x_12 = l_Lean_Meta_contradictionCore___closed__2;
 x_13 = l_Lean_Meta_contradiction___closed__2;
 x_14 = l_Lean_Meta_throwTacticEx___rarg(x_12, x_1, x_13, x_3, x_4, x_5, x_6, x_11);
-lean_dec(x_6);
-lean_dec(x_4);
 return x_14;
 }
 else

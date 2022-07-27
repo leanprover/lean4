@@ -1634,7 +1634,9 @@ LEAN_EXPORT lean_object* l_Lean_Meta_generalizeTargetsEq___lambda__4(lean_object
 _start:
 {
 lean_object* x_10; 
+lean_inc(x_8);
 lean_inc(x_7);
+lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_1);
 x_10 = l_Lean_MVarId_checkNotAssigned(x_1, x_2, x_5, x_6, x_7, x_8, x_9);
@@ -2488,43 +2490,67 @@ lean_dec(x_18);
 lean_dec(x_15);
 if (x_19 == 0)
 {
-lean_object* x_20; lean_object* x_21; uint8_t x_22; 
+lean_object* x_20; lean_object* x_21; 
+x_20 = l_Lean_Expr_withAppAux___at_Lean_Meta_generalizeIndices___spec__1___lambda__6___closed__3;
+lean_inc(x_13);
+lean_inc(x_12);
+lean_inc(x_11);
+lean_inc(x_10);
+lean_inc(x_5);
+x_21 = l_Lean_Meta_throwTacticEx___rarg(x_8, x_5, x_20, x_10, x_11, x_12, x_13, x_14);
+if (lean_obj_tag(x_21) == 0)
+{
+lean_object* x_22; lean_object* x_23; lean_object* x_24; 
+x_22 = lean_ctor_get(x_21, 0);
+lean_inc(x_22);
+x_23 = lean_ctor_get(x_21, 1);
+lean_inc(x_23);
+lean_dec(x_21);
+x_24 = l_Lean_Expr_withAppAux___at_Lean_Meta_generalizeIndices___spec__1___lambda__5(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_22, x_10, x_11, x_12, x_13, x_23);
+lean_dec(x_22);
+return x_24;
+}
+else
+{
+uint8_t x_25; 
+lean_dec(x_13);
+lean_dec(x_12);
+lean_dec(x_11);
+lean_dec(x_10);
 lean_dec(x_7);
 lean_dec(x_6);
+lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_20 = l_Lean_Expr_withAppAux___at_Lean_Meta_generalizeIndices___spec__1___lambda__6___closed__3;
-x_21 = l_Lean_Meta_throwTacticEx___rarg(x_8, x_5, x_20, x_10, x_11, x_12, x_13, x_14);
-lean_dec(x_13);
-lean_dec(x_11);
-x_22 = !lean_is_exclusive(x_21);
-if (x_22 == 0)
+x_25 = !lean_is_exclusive(x_21);
+if (x_25 == 0)
 {
 return x_21;
 }
 else
 {
-lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-x_23 = lean_ctor_get(x_21, 0);
-x_24 = lean_ctor_get(x_21, 1);
-lean_inc(x_24);
-lean_inc(x_23);
+lean_object* x_26; lean_object* x_27; lean_object* x_28; 
+x_26 = lean_ctor_get(x_21, 0);
+x_27 = lean_ctor_get(x_21, 1);
+lean_inc(x_27);
+lean_inc(x_26);
 lean_dec(x_21);
-x_25 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_25, 0, x_23);
-lean_ctor_set(x_25, 1, x_24);
-return x_25;
+x_28 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_28, 0, x_26);
+lean_ctor_set(x_28, 1, x_27);
+return x_28;
+}
 }
 }
 else
 {
-lean_object* x_26; lean_object* x_27; 
+lean_object* x_29; lean_object* x_30; 
 lean_dec(x_8);
-x_26 = lean_box(0);
-x_27 = l_Lean_Expr_withAppAux___at_Lean_Meta_generalizeIndices___spec__1___lambda__5(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_26, x_10, x_11, x_12, x_13, x_14);
-return x_27;
+x_29 = lean_box(0);
+x_30 = l_Lean_Expr_withAppAux___at_Lean_Meta_generalizeIndices___spec__1___lambda__5(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_29, x_10, x_11, x_12, x_13, x_14);
+return x_30;
 }
 }
 }
@@ -2614,8 +2640,6 @@ lean_dec(x_3);
 lean_dec(x_2);
 x_20 = l_Lean_Expr_withAppAux___at_Lean_Meta_generalizeIndices___spec__1___closed__3;
 x_21 = l_Lean_Meta_throwTacticEx___rarg(x_4, x_1, x_20, x_9, x_10, x_11, x_12, x_17);
-lean_dec(x_12);
-lean_dec(x_10);
 return x_21;
 }
 else
@@ -2637,92 +2661,113 @@ x_26 = lean_nat_dec_lt(x_25, x_24);
 lean_dec(x_24);
 if (x_26 == 0)
 {
-lean_object* x_27; lean_object* x_28; uint8_t x_29; 
+lean_object* x_27; lean_object* x_28; 
+x_27 = l_Lean_Expr_withAppAux___at_Lean_Meta_generalizeIndices___spec__1___closed__6;
+lean_inc(x_12);
+lean_inc(x_11);
+lean_inc(x_10);
+lean_inc(x_9);
+lean_inc(x_1);
+lean_inc(x_4);
+x_28 = l_Lean_Meta_throwTacticEx___rarg(x_4, x_1, x_27, x_9, x_10, x_11, x_12, x_17);
+if (lean_obj_tag(x_28) == 0)
+{
+lean_object* x_29; lean_object* x_30; lean_object* x_31; 
+x_29 = lean_ctor_get(x_28, 0);
+lean_inc(x_29);
+x_30 = lean_ctor_get(x_28, 1);
+lean_inc(x_30);
+lean_dec(x_28);
+x_31 = l_Lean_Expr_withAppAux___at_Lean_Meta_generalizeIndices___spec__1___lambda__6(x_7, x_23, x_6, x_5, x_1, x_2, x_3, x_4, x_29, x_9, x_10, x_11, x_12, x_30);
+return x_31;
+}
+else
+{
+uint8_t x_32; 
 lean_dec(x_23);
+lean_dec(x_12);
+lean_dec(x_11);
+lean_dec(x_10);
+lean_dec(x_9);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_27 = l_Lean_Expr_withAppAux___at_Lean_Meta_generalizeIndices___spec__1___closed__6;
-x_28 = l_Lean_Meta_throwTacticEx___rarg(x_4, x_1, x_27, x_9, x_10, x_11, x_12, x_17);
-lean_dec(x_12);
-lean_dec(x_10);
-x_29 = !lean_is_exclusive(x_28);
-if (x_29 == 0)
+lean_dec(x_1);
+x_32 = !lean_is_exclusive(x_28);
+if (x_32 == 0)
 {
 return x_28;
 }
 else
 {
-lean_object* x_30; lean_object* x_31; lean_object* x_32; 
-x_30 = lean_ctor_get(x_28, 0);
-x_31 = lean_ctor_get(x_28, 1);
-lean_inc(x_31);
-lean_inc(x_30);
+lean_object* x_33; lean_object* x_34; lean_object* x_35; 
+x_33 = lean_ctor_get(x_28, 0);
+x_34 = lean_ctor_get(x_28, 1);
+lean_inc(x_34);
+lean_inc(x_33);
 lean_dec(x_28);
-x_32 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_32, 0, x_30);
-lean_ctor_set(x_32, 1, x_31);
-return x_32;
+x_35 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_35, 0, x_33);
+lean_ctor_set(x_35, 1, x_34);
+return x_35;
 }
-}
-else
-{
-lean_object* x_33; lean_object* x_34; 
-x_33 = lean_box(0);
-x_34 = l_Lean_Expr_withAppAux___at_Lean_Meta_generalizeIndices___spec__1___lambda__6(x_7, x_23, x_6, x_5, x_1, x_2, x_3, x_4, x_33, x_9, x_10, x_11, x_12, x_17);
-return x_34;
 }
 }
 else
 {
-lean_object* x_35; lean_object* x_36; 
+lean_object* x_36; lean_object* x_37; 
+x_36 = lean_box(0);
+x_37 = l_Lean_Expr_withAppAux___at_Lean_Meta_generalizeIndices___spec__1___lambda__6(x_7, x_23, x_6, x_5, x_1, x_2, x_3, x_4, x_36, x_9, x_10, x_11, x_12, x_17);
+return x_37;
+}
+}
+else
+{
+lean_object* x_38; lean_object* x_39; 
 lean_dec(x_22);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_2);
-x_35 = l_Lean_Expr_withAppAux___at_Lean_Meta_generalizeIndices___spec__1___closed__3;
-x_36 = l_Lean_Meta_throwTacticEx___rarg(x_4, x_1, x_35, x_9, x_10, x_11, x_12, x_17);
-lean_dec(x_12);
-lean_dec(x_10);
-return x_36;
+x_38 = l_Lean_Expr_withAppAux___at_Lean_Meta_generalizeIndices___spec__1___closed__3;
+x_39 = l_Lean_Meta_throwTacticEx___rarg(x_4, x_1, x_38, x_9, x_10, x_11, x_12, x_17);
+return x_39;
 }
 }
 }
 case 5:
 {
-lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
-x_37 = lean_ctor_get(x_6, 0);
-lean_inc(x_37);
-x_38 = lean_ctor_get(x_6, 1);
-lean_inc(x_38);
+lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; 
+x_40 = lean_ctor_get(x_6, 0);
+lean_inc(x_40);
+x_41 = lean_ctor_get(x_6, 1);
+lean_inc(x_41);
 lean_dec(x_6);
-x_39 = lean_array_set(x_7, x_8, x_38);
-x_40 = lean_unsigned_to_nat(1u);
-x_41 = lean_nat_sub(x_8, x_40);
+x_42 = lean_array_set(x_7, x_8, x_41);
+x_43 = lean_unsigned_to_nat(1u);
+x_44 = lean_nat_sub(x_8, x_43);
 lean_dec(x_8);
-x_6 = x_37;
-x_7 = x_39;
-x_8 = x_41;
+x_6 = x_40;
+x_7 = x_42;
+x_8 = x_44;
 goto _start;
 }
 default: 
 {
-lean_object* x_43; lean_object* x_44; 
+lean_object* x_46; lean_object* x_47; 
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_2);
-x_43 = l_Lean_Expr_withAppAux___at_Lean_Meta_generalizeIndices___spec__1___closed__3;
-x_44 = l_Lean_Meta_throwTacticEx___rarg(x_4, x_1, x_43, x_9, x_10, x_11, x_12, x_13);
-lean_dec(x_12);
-lean_dec(x_10);
-return x_44;
+x_46 = l_Lean_Expr_withAppAux___at_Lean_Meta_generalizeIndices___spec__1___closed__3;
+x_47 = l_Lean_Meta_throwTacticEx___rarg(x_4, x_1, x_46, x_9, x_10, x_11, x_12, x_13);
+return x_47;
 }
 }
 }
@@ -2758,7 +2803,9 @@ x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
 lean_dec(x_9);
 x_12 = l_Lean_Meta_generalizeIndices___lambda__1___closed__2;
+lean_inc(x_6);
 lean_inc(x_5);
+lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_1);
 x_13 = l_Lean_MVarId_checkNotAssigned(x_1, x_12, x_3, x_4, x_5, x_6, x_11);
@@ -13453,7 +13500,9 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Cases_cases___lambda__2(lean_object* x_1, l
 _start:
 {
 lean_object* x_10; 
+lean_inc(x_8);
 lean_inc(x_7);
+lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_2);
 lean_inc(x_1);
@@ -13485,8 +13534,6 @@ lean_inc(x_14);
 lean_dec(x_12);
 x_15 = l_Lean_Meta_Cases_cases___lambda__2___closed__3;
 x_16 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_15, x_5, x_6, x_7, x_8, x_14);
-lean_dec(x_8);
-lean_dec(x_6);
 return x_16;
 }
 else

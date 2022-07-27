@@ -885,7 +885,9 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_assumptionCore___lambda__1(lean_object* x
 _start:
 {
 lean_object* x_8; 
+lean_inc(x_6);
 lean_inc(x_5);
+lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_1);
 x_8 = l_Lean_MVarId_checkNotAssigned(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
@@ -1167,8 +1169,6 @@ lean_dec(x_7);
 x_11 = l_Lean_MVarId_assumptionCore___closed__2;
 x_12 = l_Lean_MVarId_assumption___closed__3;
 x_13 = l_Lean_Meta_throwTacticEx___rarg(x_11, x_1, x_12, x_2, x_3, x_4, x_5, x_10);
-lean_dec(x_5);
-lean_dec(x_3);
 return x_13;
 }
 else

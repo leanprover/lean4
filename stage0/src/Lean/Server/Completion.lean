@@ -421,10 +421,10 @@ partial def find? (fileMap : FileMap) (hoverPos : String.Pos) (infoTree : InfoTr
   match infoTree.foldInfo (init := none) (choose fileMap hoverLine) with
   | some (hoverInfo, ctx, Info.ofCompletionInfo info) =>
     match info with
-    | CompletionInfo.dot info (expectedType? := expectedType?) .. => dotCompletion ctx info hoverInfo expectedType?
-    | CompletionInfo.id _   id danglingDot lctx expectedType? => idCompletion ctx lctx id hoverInfo danglingDot expectedType?
-    | CompletionInfo.option stx => optionCompletion ctx stx caps
-    | CompletionInfo.tactic .. => tacticCompletion ctx
+    | .dot info (expectedType? := expectedType?) .. => dotCompletion ctx info hoverInfo expectedType?
+    | .id _   id danglingDot lctx expectedType? => idCompletion ctx lctx id hoverInfo danglingDot expectedType?
+    | .option stx => optionCompletion ctx stx caps
+    | .tactic .. => tacticCompletion ctx
     | _ => return none
   | _ =>
     -- TODO try to extract id from `fileMap` and some `ContextInfo` from `InfoTree`

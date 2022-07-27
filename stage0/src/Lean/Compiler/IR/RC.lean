@@ -266,7 +266,7 @@ partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
 
 partial def visitDecl (env : Environment) (decls : Array Decl) (d : Decl) : Decl :=
   match d with
-  | Decl.fdecl (xs := xs) (body := b) .. =>
+  | .fdecl (xs := xs) (body := b) .. =>
     let ctx : Context  := { env := env, decls := decls }
     let ctx := updateVarInfoWithParams ctx xs
     let (b, bLiveVars) := visitFnBody b ctx

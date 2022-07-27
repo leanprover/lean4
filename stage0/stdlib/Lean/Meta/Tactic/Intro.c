@@ -222,8 +222,6 @@ lean_dec(x_1);
 x_16 = l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop___rarg___lambda__1___closed__2;
 x_17 = l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop___rarg___lambda__1___closed__5;
 x_18 = l_Lean_Meta_throwTacticEx___rarg(x_16, x_2, x_17, x_10, x_11, x_12, x_13, x_14);
-lean_dec(x_13);
-lean_dec(x_11);
 return x_18;
 }
 else
@@ -1353,7 +1351,9 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNI
 _start:
 {
 lean_object* x_11; 
+lean_inc(x_9);
 lean_inc(x_8);
+lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_1);
 x_11 = l_Lean_MVarId_checkNotAssigned(x_1, x_2, x_6, x_7, x_8, x_9, x_10);

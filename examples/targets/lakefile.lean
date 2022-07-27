@@ -17,11 +17,11 @@ lean_exe b
 lean_exe c
 
 @[defaultTarget]
-target meow : PUnit := Target.opaqueSync (m := BuildM) do
+target meow : PUnit := Target.mk <| sync (m := BuildM) do
   IO.FS.writeFile (_package.buildDir / "meow.txt") "Meow!"
   return default
 
-target bark : PUnit := Target.opaqueSync (m := BuildM) do
+target bark : PUnit := Target.mk <| sync (m := BuildM) do
   logInfo "Bark!"
   return default
 

@@ -415,7 +415,7 @@ macro doc?:(docComment)? "register_simp_attr" id:ident descr:str : command => do
   let str := id.getId.toString
   let idParser := mkIdentFrom id (`Parser.Attr ++ id.getId)
   `($[$doc?]? initialize ext : SimpExtension ← registerSimpAttr $(quote id.getId) $descr
-    syntax (name := $idParser:ident) $(quote str):str (Parser.Tactic.simpPre <|> Parser.Tactic.simpPost)? (prio)? : attr)
+    $[$doc?]? syntax (name := $idParser:ident) $(quote str):str (Parser.Tactic.simpPre <|> Parser.Tactic.simpPost)? (prio)? : attr)
 
 end Meta
 

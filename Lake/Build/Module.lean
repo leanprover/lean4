@@ -113,7 +113,9 @@ def Module.recBuildLean (mod : Module) (art : LeanArtifact)
       let dynlibPath := libDirs ++ externDynlibs.filterMap ( ·.1)
       -- NOTE: Lean wants the external library symbols before module symbols
       -- NOTE: Unix requires the full file name of the dynlib (Windows doesn't care)
-      let dynlibs := externDynlibs.map (.mk <| nameToSharedLib ·.2) ++ modDynlibs
+      let dynlibs :=
+        externDynlibs.map (.mk <| nameToSharedLib ·.2) ++
+        modDynlibs.map (.mk <| nameToSharedLib ·.toString)
       let trace ← buildModuleUnlessUpToDate mod dynlibPath.toList dynlibs depTrace leanOnly
       return ((), trace)
   let modTarget ← modTarget.activate

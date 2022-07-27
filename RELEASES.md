@@ -1,6 +1,10 @@
 Unreleased
 ---------
 
+* Add option `pp.showLetValues`. When set to `false`, the info view hides the value of `let`-variables in a goal.
+  By default, it is `true` when visualizing tactic goals, and `false` otherwise.
+  See [issue #1345](https://github.com/leanprover/lean4/issues/1345) for additional details.
+
 * Add option `warningAsError`. When set to true, warning messages are treated as errors.
 
 * Support dotted notation and named arguments in patterns. Example:

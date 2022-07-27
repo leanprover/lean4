@@ -173,7 +173,7 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
 
 @[builtinTactic traceState] def evalTraceState : Tactic := fun _ => do
   let gs ← getUnsolvedGoals
-  addRawTrace (goalsToMessageData gs)
+  withPPForTacticGoal <| addRawTrace (goalsToMessageData gs)
 
 @[builtinTactic traceMessage] def evalTraceMessage : Tactic := fun stx => do
   match stx[1].isStrLit? with

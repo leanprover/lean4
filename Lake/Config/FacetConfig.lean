@@ -24,6 +24,12 @@ protected abbrev FacetConfig.name (_ : FacetConfig DataFam ι name) := name
   build := cast (by rw [← h.family_key_eq_type]) build
   getJob? := none
 
+/-- A smart constructor for facet configurations that generate jobs for the CLI. -/
+@[inline] def mkFacetJobConfig (build : ι → IndexBuildM (BuildJob α))
+[h : FamilyDef Fam facet (BuildJob α)] : FacetConfig Fam ι facet where
+  build := cast (by rw [← h.family_key_eq_type]) build
+  getJob? := some fun data => discard <| ofFamily data
+
 /-- A dependently typed configuration based on its registered name. -/
 structure NamedConfigDecl (β : Name → Type u) where
   name : Name

@@ -93,12 +93,12 @@ def findExternLib? (name : Name) (self : Workspace) : Option ExternLib :=
   self.packageArray.findSome? fun pkg => pkg.findExternLib? name
 
 /-- Try to find a target configuration in the workspace with the given name. -/
-def findTargetConfig? (name : Name) (self : Workspace) : Option (Package × TargetConfig) :=
+def findTargetConfig? (name : Name) (self : Workspace) : Option ((pkg : Package) × TargetConfig pkg.name name) :=
   self.packageArray.findSome? fun pkg => pkg.findTargetConfig? name <&> (⟨pkg, ·⟩)
 
 /-- Add a module facet to the workspace. -/
 def addModuleFacetConfig (cfg : ModuleFacetConfig name) (self : Workspace) : Workspace :=
-  {self with moduleFacetConfigs := self.moduleFacetConfigs.insert cfg.name cfg}
+  {self with moduleFacetConfigs := self.moduleFacetConfigs.insert name cfg}
 
 /-- Try to find a module facet configuration in the workspace with the given name. -/
 def findModuleFacetConfig? (name : Name) (self : Workspace) : Option (ModuleFacetConfig name) :=
@@ -106,7 +106,7 @@ def findModuleFacetConfig? (name : Name) (self : Workspace) : Option (ModuleFace
 
 /-- Add a package facet to the workspace. -/
 def addPackageFacetConfig (cfg : PackageFacetConfig name) (self : Workspace) : Workspace :=
-  {self with packageFacetConfigs := self.packageFacetConfigs.insert cfg.name cfg}
+  {self with packageFacetConfigs := self.packageFacetConfigs.insert name cfg}
 
 /-- Try to find a package facet configuration in the workspace with the given name. -/
 def findPackageFacetConfig? (name : Name) (self : Workspace) : Option (PackageFacetConfig name) :=

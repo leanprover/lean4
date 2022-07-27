@@ -46,7 +46,6 @@ instance [EqOfCmp α cmp] : EqOfCmpWrt α f cmp where
 instance [EqOfCmpWrt α (fun a => a) cmp] : EqOfCmp α cmp where
   eq_of_cmp h := eq_of_cmp_wrt (f := fun a => a) h
 
-
 -- ## Basic Instances
 
 theorem eq_of_compareOfLessAndEq [LT α] [DecidableEq α] {a a' : α}
@@ -108,3 +107,20 @@ instance [LawfulCmpEq α cmp] : LawfulCmpEq (Option α) (Option.compareWith cmp)
     intro o
     unfold Option.compareWith
     cases o <;> simp
+
+def Prod.compareWith
+(cmpA : α → α → Ordering) (cmpB : β → β → Ordering)
+: (α × β) → (α × β) → Ordering :=
+  fun (a, b) (a', b') => match cmpA a a' with | .eq => cmpB b b' | ord => ord
+
+instance [EqOfCmp α cmpA] [EqOfCmp β cmpB]
+: EqOfCmp (α × β) (Prod.compareWith cmpA cmpB) where
+  eq_of_cmp := by
+    intro (a, b) (a', b')
+    dsimp only [Prod.compareWith]
+    split; next ha => intro hb; rw [eq_of_cmp ha, eq_of_cmp hb]
+    intros; contradiction
+
+instance [LawfulCmpEq α cmpA] [LawfulCmpEq β cmpB]
+: LawfulCmpEq (α × β) (Prod.compareWith cmpA cmpB) where
+  cmp_rfl := by simp [Prod.compareWith]

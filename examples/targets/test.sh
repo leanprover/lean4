@@ -47,3 +47,5 @@ test -f ./build/lib/${LIB_PREFIX}Bar.$SHARED_LIB_EXT
 $LAKE build bark | grep -m1 Bark!
 
 $LAKE build targets:print_name | grep -m1 targets
+
+$LAKE build targets:deps && exit 1 || true

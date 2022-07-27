@@ -25,8 +25,8 @@ inductive CliError
 | unknownTarget (target : Name)
 | missingModule (pkg : Name) (mod : Name)
 | missingTarget (pkg : Name) (spec : String)
-| badTarget (pkg target cfgPkg cfgName : Name)
-| nonTargetFacet (type : String) (facet : Name)
+| nonCliTarget (target : Name)
+| nonCliFacet (type : String) (facet : Name)
 | invalidTargetSpec (spec : String) (tooMany : Char)
 | invalidFacet (target : Name) (facet : Name)
 /- Script CLI Error -/
@@ -56,8 +56,8 @@ def toString : CliError → String
 | unknownTarget t         => s!"unknown target `{t.toString false}`"
 | missingModule pkg mod   => s!"package '{pkg.toString false}' has no module '{mod.toString false}'"
 | missingTarget pkg spec  => s!"package '{pkg.toString false}' has no target '{spec}'"
-| badTarget p t p' t'     => s!"target registered as `{p.toString false}/{t.toString false}` but configured as `{p'.toString false}/{t'.toString false}` "
-| nonTargetFacet t f      => s!"{t} facet `{f.toString false}` is not a buildable target"
+| nonCliTarget t          => s!"target `{t.toString false}` is not a buildable via `lake`"
+| nonCliFacet t f         => s!"{t} facet `{f.toString false}` is not a buildable via `lake`"
 | invalidTargetSpec s c   => s!"invalid script spec '{s}' (too many '{c}')"
 | invalidFacet t f        => s!"invalid facet `{f.toString false}`; target {t.toString false} has no facets"
 | unknownScript s         => s!"unknown script {s}"

@@ -9,34 +9,27 @@ import Lake.Build.Store
 namespace Lake
 
 /-- A custom target's declarative configuration. -/
-structure TargetConfig where
-  /-- The name of the target. -/
-  name : Name
-  /-- The name of the target's package. -/
-  package : Name
-  /-- The type of the target's build result. -/
-  resultType : Type
+structure TargetConfig (pkgName name : Name) : Type where
   /-- The target's build function. -/
-  target : BuildTarget resultType
-  /-- Proof that target's build result is the correctly typed target.-/
-  data_eq_target : CustomData (package, name) = BuildJob resultType
+  build : Package → IndexBuildM (CustomData (pkgName, name))
+  /-- Does this target produce an associated asynchronous job? -/
+  getJob? : Option (CustomData (pkgName, name) → Job Unit)
+  deriving Inhabited
 
-family_def _nil_ : CustomData (.anonymous, .anonymous) := BuildJob Unit
+/-- A smart constructor for target configurations that generate CLI targets. -/
+@[inline] def mkTargetJobConfig (build : Package → IndexBuildM (BuildJob α))
+[h : FamilyDef CustomData (pkgName, name) (BuildJob α)] : TargetConfig pkgName name where
+  build := cast (by rw [← h.family_key_eq_type]) build
+  getJob? := some fun data => discard <| ofFamily data
 
-instance : Inhabited TargetConfig := ⟨{
-  name := .anonymous
-  package := .anonymous
-  resultType := PUnit
-  target := default
-  data_eq_target := family_key_eq_type
-}⟩
+/-- A dependently typed configuration based on its registered package and name. -/
+structure TargetDecl where
+  pkg : Name
+  name : Name
+  config : TargetConfig pkg name
 
-hydrate_opaque_type OpaqueTargetConfig TargetConfig
-
-instance FamilyDefOfTargetConfig {cfg : TargetConfig}
-: FamilyDef CustomData (cfg.package, cfg.name) (BuildJob cfg.resultType) :=
-  ⟨cfg.data_eq_target⟩
+hydrate_opaque_type OpaqueTargetConfig TargetConfig pkgName name
 
 /-- Try to find a target configuration in the package with the given name . -/
-def Package.findTargetConfig? (name : Name) (self : Package) : Option TargetConfig :=
+def Package.findTargetConfig? (name : Name) (self : Package) : Option (TargetConfig self.name name) :=
   self.opaqueTargetConfigs.find? name |>.map (·.get)

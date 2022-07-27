@@ -125,7 +125,7 @@ deriving Inhabited
 /-! # Package -/
 --------------------------------------------------------------------------------
 
-abbrev DNameMap α := DRBMap Name α Lean.Name.quickCmp
+abbrev DNameMap α := DRBMap Name α Name.quickCmp
 @[inline] def DNameMap.empty : DNameMap α := DRBMap.empty
 
 /-- A Lake package -- its location plus its configuration. -/
@@ -147,7 +147,7 @@ structure Package where
   /-- External library targets for the package. -/
   externLibConfigs : NameMap ExternLibConfig := {}
   /-- (Opaque references to) targets defined in the package. -/
-  opaqueTargetConfigs : NameMap OpaqueTargetConfig := {}
+  opaqueTargetConfigs : DNameMap (OpaqueTargetConfig config.name) := {}
   /--
   The names of the package's targets to build by default
   (i.e., on a bare `lake build` of the package).
@@ -165,7 +165,7 @@ abbrev PackageSet := RBTree Package (·.config.name.quickCmp ·.config.name)
 namespace Package
 
 /-- The package's name. -/
-@[inline] def name (self : Package) : Name :=
+abbrev name (self : Package) : Name :=
   self.config.name
 
 /-- An `Array` of the package's direct dependencies. -/

@@ -44,13 +44,9 @@ def recBuildWithIndex : (info : BuildInfo) → IndexBuildM (BuildData info.key)
     error s!"do not know how to build package facet `{facet}`"
 | .customTarget pkg target =>
   if let some config := pkg.findTargetConfig? target then
-    if h : pkg.name = config.package ∧ target = config.name then
-      have h' : CustomData (pkg.name, target) = BuildJob config.resultType := by simp [h]
-      liftM <| cast (by rw [← h']) <| config.target.activate
-    else
-      error "target's name in the configuration does not match the name it was registered with"
+    config.build pkg
   else
-      error s!"could not build `{target}` of `{pkg.name}` -- target not found"
+    error s!"could not build `{target}` of `{pkg.name}` -- target not found"
 | .libraryFacet lib facet => do
   if let some config := (← getWorkspace).findLibraryFacetConfig? facet then
     config.build lib
@@ -97,12 +93,6 @@ export BuildInfo (build)
 @[inline] def BuildInfo.target (self : BuildInfo)
 [FamilyDef BuildData self.key (BuildJob α)] : BuildTarget α :=
   Target.mk <| self.build |>.catchFailure fun _ => pure failure
-
-/-- A smart constructor for facet configurations that generate CLI targets. -/
-@[inline] def mkFacetTargetConfig (build : ι → IndexBuildM (BuildJob α))
-[h : FamilyDef Fam facet (BuildJob α)] : FacetConfig Fam ι facet where
-  build := cast (by rw [← h.family_key_eq_type]) build
-  getJob? := some fun data => discard <| ofFamily data
 
 /-! ### Lean Executable Builds -/
 

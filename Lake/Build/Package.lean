@@ -3,7 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Build.Index
+import Lake.Build.Targets
 
 namespace Lake
 
@@ -34,7 +34,7 @@ def Package.recBuildExtraDepTargets (self : Package) : IndexBuildM (BuildJob Uni
 
 /-- The `PackageFacetConfig` for the builtin `dynlibFacet`. -/
 def Package.extraDepFacetConfig : PackageFacetConfig extraDepFacet :=
-  mkFacetTargetConfig (·.recBuildExtraDepTargets)
+  mkFacetJobConfig (·.recBuildExtraDepTargets)
 
 open Package in
 /--

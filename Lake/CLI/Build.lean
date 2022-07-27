@@ -27,15 +27,15 @@ structure BuildSpec where
 (info : BuildInfo) (config : FacetConfig Fam ι facet) (h : BuildData info.key = Fam facet)
 : Except CliError BuildSpec := do
   let some getJob := config.getJob?
-    | throw <| CliError.nonTargetFacet facetType facet
+    | throw <| CliError.nonCliFacet facetType facet
   return {info, getJob := h ▸ getJob}
 
-def BuildSpec.build (self : BuildSpec) : RecBuildM (Job Unit) := do
-  return self.getJob <| ← buildIndexTop' self.info
+def BuildSpec.build (self : BuildSpec) : RecBuildM (Job Unit) :=
+  self.getJob <$> buildIndexTop' self.info
 
 def buildSpecs (specs : Array BuildSpec) : BuildM PUnit := do
   let jobs ← RecBuildM.run do specs.mapM (·.build)
-  jobs.forM (discard <| liftM <| await ·)
+  jobs.forM (discard <| ·.await)
 
 /-! ## Parsing CLI Build Target Specifiers -/
 
@@ -79,15 +79,15 @@ def resolveExternLibTarget (lib : ExternLib) (facet : Name) : Except CliError Bu
     throw <| CliError.unknownFacet "external library" facet
 
 def resolveCustomTarget (pkg : Package)
-(target facet : Name) (config : TargetConfig) : Except CliError BuildSpec :=
+(name facet : Name) (config : TargetConfig pkg.name name) : Except CliError BuildSpec :=
   if !facet.isAnonymous then
-    throw <| CliError.invalidFacet target facet
-  else if h : pkg.name = config.package then
-    have : FamilyDef CustomData (pkg.name, config.name) (BuildJob config.resultType) :=
-      ⟨by simp [h]⟩
-    return mkBuildSpec <| pkg.customTarget config.name
-  else
-    throw <| CliError.badTarget pkg.name target config.package config.name
+    throw <| CliError.invalidFacet name facet
+  else do
+    let info := pkg.customTarget name
+    let some getJob := config.getJob?
+      | throw <| CliError.nonCliTarget name
+    have h : BuildData info.key = CustomData (pkg.name, name) := rfl
+    return {info, getJob := h ▸ getJob}
 
 def resolveTargetInPackage (ws : Workspace)
 (pkg : Package) (target facet : Name) : Except CliError BuildSpec :=
@@ -117,7 +117,7 @@ def resolvePackageTarget (ws : Workspace) (pkg : Package) (facet : Name) : Excep
 
 def resolveTargetInWorkspace (ws : Workspace)
 (target : Name) (facet : Name) : Except CliError (Array BuildSpec) :=
-  if let some (pkg, config) := ws.findTargetConfig? target then
+  if let some ⟨pkg, config⟩ := ws.findTargetConfig? target then
     Array.singleton <$> resolveCustomTarget pkg target facet config
   else if let some exe := ws.findLeanExe? target then
     Array.singleton <$> resolveExeTarget exe facet

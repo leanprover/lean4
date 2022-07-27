@@ -15,4 +15,4 @@ declare_opaque_type OpaquePackage
 declare_opaque_type OpaqueWorkspace
 
 /-- Opaque reference to a `TargetConfig` used for forward declaration. -/
-declare_opaque_type OpaqueTargetConfig
+declare_opaque_type OpaqueTargetConfig (pkgName name : Name)

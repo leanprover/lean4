@@ -75,9 +75,13 @@ def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := 
     evalConstCheck env opts LeanExeConfig ``LeanExeConfig name
   let externLibConfigs ← IO.ofExcept <| mkTagMap env externLibAttr fun name =>
     evalConstCheck env opts ExternLibConfig ``ExternLibConfig name
-  let opaqueTargetConfigs ← mkTagMap env targetAttr fun declName =>
-    match evalConstCheck env opts TargetConfig ``TargetConfig declName with
-    | .ok a => pure <| OpaqueTargetConfig.mk a
+  let opaqueTargetConfigs ← mkDTagMap env targetAttr fun name =>
+    match evalConstCheck env opts TargetDecl ``TargetDecl name with
+    | .ok decl =>
+      if h : decl.pkg = self.config.name ∧ decl.name = name then
+        return OpaqueTargetConfig.mk <| h.1 ▸ h.2 ▸ decl.config
+      else
+        error s!"target was defined as `{decl.pkg}/{decl.name}`, but was registered as `{self.name}/{name}`"
     | .error e => error e
   let defaultTargets := defaultTargetAttr.ext.getState env |>.fold (·.push ·) #[]
 
@@ -101,26 +105,14 @@ def Workspace.addFacetsFromEnv
   let mut ws := self
   for name in moduleFacetAttr.ext.getState env do
     match evalConstCheck env opts ModuleFacetDecl ``ModuleFacetDecl name with
-    | .ok decl =>
-      if h : name = decl.name then
-        ws := ws.addModuleFacetConfig <| h ▸ decl.config
-      else
-        error s!"facet was defined as `{decl.name}`, but was registered as `{name}`"
+    | .ok decl => ws := ws.addModuleFacetConfig <| decl.config
     | .error e => error e
   for name in packageFacetAttr.ext.getState env do
     match evalConstCheck env opts PackageFacetDecl ``PackageFacetDecl name with
-    | .ok decl =>
-      if h : name = decl.name then
-        ws := ws.addPackageFacetConfig <| h ▸ decl.config
-      else
-        error s!"facet was defined as `{decl.name}`, but was registered as `{name}`"
+    | .ok decl => ws := ws.addPackageFacetConfig <| decl.config
     | .error e => error e
   for name in libraryFacetAttr.ext.getState env do
     match evalConstCheck env opts LibraryFacetDecl ``LibraryFacetDecl name with
-    | .ok decl =>
-      if h : name = decl.name then
-        ws := ws.addLibraryFacetConfig <| h ▸ decl.config
-      else
-        error s!"facet was defined as `{decl.name}`, but was registered as `{name}`"
+    | .ok decl => ws := ws.addLibraryFacetConfig <| decl.config
     | .error e => error e
   return ws

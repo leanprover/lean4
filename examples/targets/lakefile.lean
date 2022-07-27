@@ -17,14 +17,14 @@ lean_exe b
 lean_exe c
 
 @[defaultTarget]
-target meow : PUnit := Target.mk <| sync (m := BuildM) do
-  IO.FS.writeFile (_package.buildDir / "meow.txt") "Meow!"
-  return default
+target meow : Unit := fun pkg => do
+  IO.FS.writeFile (pkg.buildDir / "meow.txt") "Meow!"
+  return .nil
 
-target bark : PUnit := Target.mk <| sync (m := BuildM) do
+target bark : Unit := fun _pkg => do
   logInfo "Bark!"
-  return default
+  return .nil
 
-package_facet print_name : PUnit := fun pkg => do
+package_facet print_name : Unit := fun pkg => do
   IO.println pkg.name
-  return BuildJob.nil
+  return .nil

@@ -18,3 +18,5 @@ instance : Monad BaseIOTask := inferInstanceAs <| Monad Task
 
 abbrev EIOTask ε := ExceptT ε BaseIOTask
 abbrev OptionIOTask := OptionT BaseIOTask
+
+instance : Inhabited (OptionIOTask α) := ⟨failure⟩

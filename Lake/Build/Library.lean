@@ -3,7 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Build.Index
+import Lake.Build.Targets
 
 namespace Lake
 
@@ -32,7 +32,7 @@ protected def LeanLib.recBuildLean
 
 /-- The `LibraryFacetConfig` for the builtin `leanFacet`. -/
 def LeanLib.leanFacetConfig : LibraryFacetConfig leanFacet :=
-  mkFacetTargetConfig (·.recBuildLean)
+  mkFacetJobConfig (·.recBuildLean)
 
 protected def LeanLib.recBuildStatic
 (self : LeanLib) : IndexBuildM (BuildJob FilePath) := do
@@ -41,7 +41,7 @@ protected def LeanLib.recBuildStatic
 
 /-- The `LibraryFacetConfig` for the builtin `staticFacet`. -/
 def LeanLib.staticFacetConfig : LibraryFacetConfig staticFacet :=
-  mkFacetTargetConfig (·.recBuildStatic)
+  mkFacetJobConfig (·.recBuildStatic)
 
 /-! # Build Shared Lib -/
 
@@ -83,7 +83,7 @@ protected def LeanLib.recBuildShared
 
 /-- The `LibraryFacetConfig` for the builtin `sharedFacet`. -/
 def LeanLib.sharedFacetConfig : LibraryFacetConfig sharedFacet :=
-  mkFacetTargetConfig (·.recBuildShared)
+  mkFacetJobConfig (·.recBuildShared)
 
 open LeanLib in
 /--

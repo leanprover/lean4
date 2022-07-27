@@ -26,7 +26,7 @@ kw:"module_facet " sig:simpleDeclSig : command => do
     `(module_data $id : BuildJob $ty
       $[$doc?]? @[$attrs,*] def $id : ModuleFacetDecl := {
         name := $name
-        config := Lake.mkFacetTargetConfig $defn
+        config := Lake.mkFacetJobConfig $defn
       })
   | stx => Macro.throwErrorAt stx "ill-formed module facet declaration"
 
@@ -41,7 +41,7 @@ kw:"package_facet " sig:simpleDeclSig : command => do
     `(package_data $id : BuildJob $ty
       $[$doc?]? @[$attrs,*] def $id : PackageFacetDecl := {
         name := $name
-        config := Lake.mkFacetTargetConfig $defn
+        config := Lake.mkFacetJobConfig $defn
       })
   | stx => Macro.throwErrorAt stx "ill-formed package facet declaration"
 
@@ -56,7 +56,7 @@ kw:"library_facet " sig:simpleDeclSig : command => do
     `(library_data $id : BuildJob $ty
       $[$doc?]? @[$attrs,*] def $id : LibraryFacetDecl := {
         name := $name
-        config := Lake.mkFacetTargetConfig $defn
+        config := Lake.mkFacetJobConfig $defn
       })
   | stx => Macro.throwErrorAt stx "ill-formed library facet declaration"
 
@@ -67,15 +67,12 @@ kw:"target " sig:simpleDeclSig : command => do
   | `(simpleDeclSig| $id:ident : $ty := $defn $[$wds?]?) =>
     let attr ← withRef kw `(Term.attrInstance| target)
     let attrs := #[attr] ++ expandAttrs attrs?
-    let axm := mkIdentFrom id <| ``CustomData ++ id.getId
     let name := Name.quoteFrom id id.getId
     let pkgName := mkIdentFrom id `_package.name
     `(family_def $id : CustomData ($pkgName, $name) := BuildJob $ty
-      $[$doc?]? @[$attrs,*] def $id : TargetConfig := {
+      $[$doc?]? @[$attrs,*] def $id : TargetDecl := {
+        pkg := $pkgName
         name := $name
-        package := $pkgName
-        resultType := $ty
-        target := $defn
-        data_eq_target := $axm
+        config := Lake.mkTargetJobConfig $defn
       })
   | stx => Macro.throwErrorAt stx "ill-formed target declaration"

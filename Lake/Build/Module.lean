@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Mac Malone
 -/
 import Lean.Elab.Import
-import Lake.Build.Index
+import Lake.Build.Targets
 
 open System
 
@@ -126,19 +126,19 @@ def Module.recBuildLean (mod : Module) (art : LeanArtifact)
 
 /-- The `ModuleFacetConfig` for the builtin `leanBinFacet`. -/
 def Module.leanBinFacetConfig : ModuleFacetConfig leanBinFacet :=
-  mkFacetTargetConfig (·.recBuildLean .leanBin)
+  mkFacetJobConfig (·.recBuildLean .leanBin)
 
 /-- The `ModuleFacetConfig` for the builtin `oleanFacet`. -/
 def Module.oleanFacetConfig : ModuleFacetConfig oleanFacet :=
-  mkFacetTargetConfig (·.recBuildLean .olean)
+  mkFacetJobConfig (·.recBuildLean .olean)
 
 /-- The `ModuleFacetConfig` for the builtin `ileanFacet`. -/
 def Module.ileanFacetConfig : ModuleFacetConfig ileanFacet :=
-  mkFacetTargetConfig (·.recBuildLean .ilean)
+  mkFacetJobConfig (·.recBuildLean .ilean)
 
 /-- The `ModuleFacetConfig` for the builtin `cFacet`. -/
 def Module.cFacetConfig : ModuleFacetConfig cFacet :=
-  mkFacetTargetConfig (·.recBuildLean .c)
+  mkFacetJobConfig (·.recBuildLean .c)
 
 /-- Recursively build the module's object file from its C file produced by `lean`. -/
 def Module.recBuildLeanO (self : Module) : IndexBuildM (BuildJob FilePath) := do
@@ -147,7 +147,7 @@ def Module.recBuildLeanO (self : Module) : IndexBuildM (BuildJob FilePath) := do
 
 /-- The `ModuleFacetConfig` for the builtin `oFacet`. -/
 def Module.oFacetConfig : ModuleFacetConfig oFacet :=
-  mkFacetTargetConfig (·.recBuildLeanO)
+  mkFacetJobConfig (·.recBuildLeanO)
 
 /--
 Recursively parse the Lean files of a module and its imports
@@ -220,7 +220,7 @@ def Module.recBuildDynlib (mod : Module) : IndexBuildM (BuildJob String) := do
 
 /-- The `ModuleFacetConfig` for the builtin `dynlibFacet`. -/
 def Module.dynlibFacetConfig : ModuleFacetConfig dynlibFacet :=
-  mkFacetTargetConfig (·.recBuildDynlib)
+  mkFacetJobConfig (·.recBuildDynlib)
 
 open Module in
 /--

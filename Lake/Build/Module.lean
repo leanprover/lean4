@@ -12,7 +12,7 @@ namespace Lake
 
 /-! # Solo Module Targets -/
 
-def buildModuleUnlessUpToDate (mod : Module)
+def Module.buildUnlessUpToDate (mod : Module)
 (dynlibPath : SearchPath) (dynlibs : Array FilePath)
 (depTrace : BuildTrace) (leanOnly : Bool) : BuildM BuildTrace := do
   let argTrace : BuildTrace := pureHash mod.leanArgs
@@ -31,23 +31,6 @@ def buildModuleUnlessUpToDate (mod : Module)
     modTrace.writeToFile mod.cTraceFile
   modTrace.writeToFile mod.traceFile
   return mixTrace (← computeTrace mod) depTrace
-
-def Module.mkOleanTarget (modTarget : BuildTarget x) (self : Module) : FileTarget :=
-  Target.mk <| modTarget.bindOpaqueSync fun depTrace =>
-    return (self.oleanFile, mixTrace (← computeTrace self.oleanFile) depTrace)
-
-def Module.mkIleanTarget (modTarget : BuildTarget x) (self : Module) : FileTarget :=
-  Target.mk <| modTarget.bindOpaqueSync fun depTrace =>
-    return (self.ileanFile, mixTrace (← computeTrace self.ileanFile) depTrace)
-
-def Module.mkCTarget (modTarget : BuildTarget x) (self : Module) : FileTarget :=
-  Target.mk <| modTarget.bindOpaqueSync fun _ =>
-    return (self.cFile, mixTrace (← computeTrace self.cFile) (← getLeanTrace))
-
-@[inline] def Module.mkOTarget (cTarget : FileTarget) (self : Module) : FileTarget :=
-  leanOFileTarget self.oFile cTarget self.leancArgs
-
-/-! # Recursive Building -/
 
 /-- Compute library directories and build external library targets of the given packages. -/
 def recBuildExternalDynlibs (pkgs : Array Package)
@@ -104,7 +87,7 @@ def Module.recBuildLean (mod : Module) (art : LeanArtifact)
   let modDynlibsTarget ← ActiveTarget.collectArray modTargets
 
   -- Build Module
-  let modTarget : OpaqueTarget := Target.mk do
+  let modTarget : ActiveOpaqueTarget ← show SchedulerM _ from do
     importTarget.bindOpaqueAsync fun importTrace => do
     modDynlibsTarget.bindAsync fun modDynlibs modTrace => do
     externDynlibsTarget.bindAsync fun externDynlibs externTrace => do
@@ -116,15 +99,16 @@ def Module.recBuildLean (mod : Module) (art : LeanArtifact)
       let dynlibs :=
         externDynlibs.map (.mk <| nameToSharedLib ·.2) ++
         modDynlibs.map (.mk <| nameToSharedLib ·.toString)
-      let trace ← buildModuleUnlessUpToDate mod dynlibPath.toList dynlibs depTrace leanOnly
+      let trace ← mod.buildUnlessUpToDate dynlibPath.toList dynlibs depTrace leanOnly
       return ((), trace)
-  let modTarget ← modTarget.activate
 
   -- Save All Resulting Targets & Return Requested One
   store mod.leanBin.key modTarget
-  let oleanTarget ← mod.mkOleanTarget (Target.active modTarget) |>.activate
+  let oleanTarget ← modTarget.bindOpaqueSync fun depTrace =>
+    return (mod.oleanFile, mixTrace (← computeTrace mod.oleanFile) depTrace)
   store mod.olean.key <| oleanTarget
-  let ileanTarget ← mod.mkIleanTarget (Target.active modTarget) |>.activate
+  let ileanTarget ← modTarget.bindOpaqueSync fun depTrace =>
+    return (mod.ileanFile, mixTrace (← computeTrace mod.ileanFile) depTrace)
   store mod.ilean.key <| ileanTarget
   if h : leanOnly then
     have : art ≠ .c := h.2
@@ -133,7 +117,8 @@ def Module.recBuildLean (mod : Module) (art : LeanArtifact)
     | .olean => oleanTarget
     | .ilean => ileanTarget
   else
-    let cTarget ← mod.mkCTarget (Target.active modTarget) |>.activate
+    let cTarget ← modTarget.bindOpaqueSync fun _ =>
+      return (mod.cFile, mixTrace (← computeTrace mod.cFile) (← getLeanTrace))
     store mod.c.key cTarget
     return match art with
     | .leanBin => modTarget
@@ -157,11 +142,10 @@ def Module.ileanFacetConfig : ModuleFacetConfig ileanFacet :=
 def Module.cFacetConfig : ModuleFacetConfig cFacet :=
   mkFacetTargetConfig (·.recBuildLean .c)
 
-/--
-Recursively build the module's object file from its C file produced by `lean`.
--/
+/-- Recursively build the module's object file from its C file produced by `lean`. -/
 def Module.recBuildLeanO (self : Module) : IndexBuildM ActiveFileTarget := do
-  self.mkOTarget (Target.active (← self.c.recBuild)) |>.activate
+  let cTarget := Target.active (← self.c.recBuild)
+  leanOFileTarget self.oFile cTarget self.leancArgs |>.activate
 
 /-- The `ModuleFacetConfig` for the builtin `oFacet`. -/
 def Module.oFacetConfig : ModuleFacetConfig oFacet :=
@@ -217,23 +201,24 @@ def Module.recBuildDynlib (mod : Module) : IndexBuildM ActiveFileTarget := do
   let linkTargets ← mod.nativeFacets.mapM (recBuild <| mod.facet ·.name)
   let (modTargets, externTargets, pkgLibDirs) ← recBuildDynlibs mod.pkg transImports
 
-  -- Build dynlib
+  -- Collect targets
   let linksTarget ← ActiveTarget.collectArray linkTargets
   let modDynlibsTarget ← ActiveTarget.collectArray modTargets
   let externDynlibsTarget : ActiveBuildTarget _  ← ActiveTarget.collectArray externTargets
-  let target : BuildTarget _ := Target.mk do
-    linksTarget.bindAsync fun links oTrace => do
-    modDynlibsTarget.bindAsync fun modDynlibs libTrace => do
-    externDynlibsTarget.bindSync fun externDynlibs externTrace => do
-      let libNames := modDynlibs ++ externDynlibs.map (.mk ·.2)
-      let libDirs := pkgLibDirs ++ externDynlibs.filterMap (·.1)
-      let depTrace := oTrace.mix <| libTrace.mix externTrace
-      let trace ← buildFileUnlessUpToDate mod.dynlibFile depTrace do
-        let args := links.map toString ++
-          libDirs.map (s!"-L{·}") ++ libNames.map (s!"-l{·}")
-        compileSharedLib mod.dynlibFile args (← getLeanc)
-      return (.mk mod.dynlibName, trace)
-  target.activate
+
+  -- Build dynlib
+  show SchedulerM _ from do
+  linksTarget.bindAsync fun links oTrace => do
+  modDynlibsTarget.bindAsync fun modDynlibs libTrace => do
+  externDynlibsTarget.bindSync fun externDynlibs externTrace => do
+    let libNames := modDynlibs ++ externDynlibs.map (.mk ·.2)
+    let libDirs := pkgLibDirs ++ externDynlibs.filterMap (·.1)
+    let depTrace := oTrace.mix <| libTrace.mix externTrace
+    let trace ← buildFileUnlessUpToDate mod.dynlibFile depTrace do
+      let args := links.map toString ++
+        libDirs.map (s!"-L{·}") ++ libNames.map (s!"-l{·}")
+      compileSharedLib mod.dynlibFile args (← getLeanc)
+    return (.mk mod.dynlibName, trace)
 
 /-- The `ModuleFacetConfig` for the builtin `dynlibFacet`. -/
 def Module.dynlibFacetConfig : ModuleFacetConfig dynlibFacet :=

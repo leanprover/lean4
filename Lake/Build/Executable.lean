@@ -12,7 +12,7 @@ namespace Lake
 /-! # Build Executable -/
 
 protected def LeanExe.recBuildExe
-(self : LeanExe) : IndexT RecBuildM ActiveFileTarget := do
+(self : LeanExe) : IndexBuildM ActiveFileTarget := do
   let (_, imports) ← self.root.imports.recBuild
   let linkTargets := #[Target.active <| ← self.root.o.recBuild]
   let mut linkTargets ← imports.foldlM (init := linkTargets) fun arr mod => do

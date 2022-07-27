@@ -11,7 +11,7 @@ namespace Lake
 
 /-- Build and collect the specified facet of the library's local modules. -/
 def LeanLib.recBuildLocalModules
-(facets : Array (ModuleFacet α)) (self : LeanLib) : IndexT RecBuildM (Array α) := do
+(facets : Array (ModuleFacet α)) (self : LeanLib) : IndexBuildM (Array α) := do
   let mut results := #[]
   let mut modSet := ModuleSet.empty
   let mods ← self.getModuleArray
@@ -27,7 +27,7 @@ def LeanLib.recBuildLocalModules
   return results
 
 protected def LeanLib.recBuildLean
-(self : LeanLib) : IndexT RecBuildM ActiveOpaqueTarget := do
+(self : LeanLib) : IndexBuildM ActiveOpaqueTarget := do
   ActiveTarget.collectOpaqueArray (ι := PUnit) <|
     ← self.recBuildLocalModules #[Module.leanBinFacet]
 
@@ -36,7 +36,7 @@ def LeanLib.leanFacetConfig : LibraryFacetConfig leanFacet :=
   mkFacetTargetConfig (·.recBuildLean)
 
 protected def LeanLib.recBuildStatic
-(self : LeanLib) : IndexT RecBuildM ActiveFileTarget := do
+(self : LeanLib) : IndexBuildM ActiveFileTarget := do
   let oTargets := (← self.recBuildLocalModules self.nativeFacets).map Target.active
   staticLibTarget self.staticLibFile oTargets |>.activate
 
@@ -50,8 +50,8 @@ def LeanLib.staticFacetConfig : LibraryFacetConfig staticFacet :=
 Build and collect the local object files and external libraries
 of a library and its modules' imports.
 -/
-def LeanLib.recBuildLinks (self : LeanLib)
-: IndexT RecBuildM (Array ActiveFileTarget) := do
+def LeanLib.recBuildLinks
+(self : LeanLib) : IndexBuildM (Array ActiveFileTarget) := do
   -- Build and collect modules
   let mut pkgs := #[]
   let mut pkgSet := PackageSet.empty
@@ -78,7 +78,7 @@ def LeanLib.recBuildLinks (self : LeanLib)
   return targets
 
 protected def LeanLib.recBuildShared
-(self : LeanLib) : IndexT RecBuildM ActiveFileTarget := do
+(self : LeanLib) : IndexBuildM ActiveFileTarget := do
   let linkTargets := (← self.recBuildLinks).map Target.active
   leanSharedLibTarget self.sharedLibFile linkTargets self.linkArgs |>.activate
 

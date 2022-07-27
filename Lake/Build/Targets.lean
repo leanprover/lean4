@@ -72,16 +72,16 @@ def leanSharedLibTarget (libFile : FilePath)
   fileTargetWithDepArray libFile linkTargets fun links => do
     compileSharedLib libFile (links.map toString ++ linkArgs) (← getLeanc)
 
-def cExeTarget (binFile : FilePath) (linkTargets : Array FileTarget)
+def cExeTarget (exeFile : FilePath) (linkTargets : Array FileTarget)
 (linkArgs : Array String := #[]) (linker : FilePath := "cc") : FileTarget :=
-   fileTargetWithDepArray binFile linkTargets (extraDepTrace := computeHash linkArgs) fun links => do
-    compileExe binFile links linkArgs linker
+  fileTargetWithDepArray exeFile linkTargets (extraDepTrace := computeHash linkArgs) fun links => do
+    compileExe exeFile links linkArgs linker
 
-def leanExeTarget (binFile : FilePath)
+def leanExeTarget (exeFile : FilePath)
 (linkTargets : Array FileTarget) (linkArgs : Array String := #[]) : FileTarget :=
-  fileTargetWithDepArray binFile linkTargets
+  fileTargetWithDepArray exeFile linkTargets
   (extraDepTrace := getLeanTrace <&> (·.mix <| pureHash linkArgs)) fun links => do
-    compileExe binFile links linkArgs (← getLeanc)
+    compileExe exeFile links linkArgs (← getLeanc)
 
 def staticToLeanSharedLibTarget (staticLibTarget : FileTarget) : FileTarget :=
   .mk <| staticLibTarget.bindSync fun staticLib staticTrace => do

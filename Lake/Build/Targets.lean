@@ -12,11 +12,11 @@ namespace Lake
 /-! # General Utilities -/
 
 def inputFileTarget (path : FilePath) : FileTarget :=
-  Target.mk path <| async (m := BuildM) <| computeTrace path
+  Target.mk <| async (m := BuildM) <| (path, ·) <$> computeTrace path
 
 instance : Coe FilePath FileTarget := ⟨inputFileTarget⟩
 
-def buildUnlessUpToDate [CheckExists i] [GetMTime i] (info : i)
+def buildUnlessUpToDate [CheckExists ι] [GetMTime ι] (info : ι)
 (depTrace : BuildTrace) (traceFile : FilePath) (build : BuildM PUnit) : BuildM PUnit := do
   let upToDate ← depTrace.checkAgainstFile info traceFile
   unless upToDate do
@@ -29,17 +29,19 @@ def buildFileUnlessUpToDate (file : FilePath)
   buildUnlessUpToDate file depTrace traceFile build
   computeTrace file
 
-def fileTargetWithDep (file : FilePath) (depTarget : BuildTarget i)
-(build : i → BuildM PUnit) (extraDepTrace : BuildM _ := pure BuildTrace.nil) : FileTarget :=
-  Target.mk file <| depTarget.bindSync fun depInfo depTrace => do
-    buildFileUnlessUpToDate file (depTrace.mix (← extraDepTrace)) <| build depInfo
+def fileTargetWithDep (file : FilePath) (depTarget : BuildTarget ι)
+(build : ι → BuildM PUnit) (extraDepTrace : BuildM _ := pure BuildTrace.nil) : FileTarget :=
+  Target.mk <| depTarget.bindSync fun depInfo depTrace => do
+    let depTrace := depTrace.mix (← extraDepTrace)
+    let trace ← buildFileUnlessUpToDate file depTrace <| build depInfo
+    return (file, trace)
 
-def fileTargetWithDepList (file : FilePath) (depTargets : List (BuildTarget i))
-(build : List i → BuildM PUnit) (extraDepTrace : BuildM _ := pure BuildTrace.nil) : FileTarget :=
+def fileTargetWithDepList (file : FilePath) (depTargets : List (BuildTarget ι))
+(build : List ι → BuildM PUnit) (extraDepTrace : BuildM _ := pure BuildTrace.nil) : FileTarget :=
   fileTargetWithDep file (Target.collectList depTargets) build extraDepTrace
 
-def fileTargetWithDepArray (file : FilePath) (depTargets : Array (BuildTarget i))
-(build : Array i → BuildM PUnit) (extraDepTrace : BuildM _ := pure BuildTrace.nil) : FileTarget :=
+def fileTargetWithDepArray (file : FilePath) (depTargets : Array (BuildTarget ι))
+(build : Array ι → BuildM PUnit) (extraDepTrace : BuildM _ := pure BuildTrace.nil) : FileTarget :=
   fileTargetWithDep file (Target.collectArray depTargets) build extraDepTrace
 
 /-! # Specific Targets -/
@@ -81,12 +83,26 @@ def leanExeTarget (binFile : FilePath)
   (extraDepTrace := getLeanTrace <&> (·.mix <| pureHash linkArgs)) fun links => do
     compileExe binFile links linkArgs (← getLeanc)
 
-def staticToLeanDynlibTarget (staticLibTarget : FileTarget) : FileTarget :=
-  let dynlib := staticLibTarget.info.withExtension sharedLibExt
-  fileTargetWithDep dynlib staticLibTarget fun lib => do
-    let args :=
-      if System.Platform.isOSX then
-        #[s!"-Wl,-force_load,{lib}"]
+def staticToLeanSharedLibTarget (staticLibTarget : FileTarget) : FileTarget :=
+  .mk <| staticLibTarget.bindSync fun staticLib staticTrace => do
+    let dynlib := staticLib.withExtension sharedLibExt
+    let trace ← buildFileUnlessUpToDate dynlib staticTrace do
+      let args :=
+        if System.Platform.isOSX then
+          #[s!"-Wl,-force_load,{staticLib}"]
+        else
+          #["-Wl,--whole-archive", staticLib.toString, "-Wl,--no-whole-archive"]
+      compileSharedLib dynlib args (← getLeanc)
+    return (dynlib, trace)
+
+def sharedToLeanDynlibTarget (sharedLibTarget : FileTarget) : DynlibTarget :=
+  .mk <| sharedLibTarget.bindSync fun sharedLib trace => do
+    if let some stem := sharedLib.fileStem then
+      if Platform.isWindows then
+        return ((sharedLib.parent, stem), trace)
+      else if stem.startsWith "lib" then
+        return ((sharedLib.parent, stem.drop 3), trace)
       else
-        #["-Wl,--whole-archive", lib.toString, "-Wl,--no-whole-archive"]
-    compileSharedLib dynlib args (← getLeanc)
+        error s!"shared library `{sharedLib}` does not start with `lib`; this is not supported on Unix"
+    else
+      error s!"shared library `{sharedLib}` has no file name"

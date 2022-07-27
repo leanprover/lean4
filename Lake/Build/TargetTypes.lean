@@ -21,12 +21,6 @@ abbrev ActiveBuildTarget i := ActiveTarget i BuildTask BuildTrace
 
 namespace BuildTarget
 
-abbrev mk (info : i) (task : SchedulerM Job) : BuildTarget i :=
-  Target.mk info task
-
-abbrev mk' (info : i) (task : BuildM Job) : BuildTarget i :=
-  Target.mk info <| task.catchFailure fun _ => pure failure
-
 abbrev activate (self : BuildTarget i) : SchedulerM (ActiveBuildTarget i) :=
   Target.activate self
 
@@ -55,8 +49,20 @@ end ActiveBuildTarget
 /-- A `BuildTarget` that produces a file. -/
 abbrev FileTarget := BuildTarget FilePath
 
+/--
+A `BuildTarget` that produces a dynamic/shared library for lining.
+Represented by an optional `-L` library directory × a `-l` library name.
+-/
+abbrev DynlibTarget := BuildTarget (Option FilePath × String)
+
 /-- An `ActiveBuildTarget` that produces a file. -/
 abbrev ActiveFileTarget := ActiveBuildTarget FilePath
+
+/--
+A `ActiveBuildTarget` that produces a dynamic/shared library for lining.
+Represented by an optional `-L` library directory × a `-l` library name.
+-/
+abbrev ActiveDynlibTarget := ActiveBuildTarget (Option FilePath × String)
 
 --------------------------------------------------------------------------------
 /-! # Opaque Targets -/

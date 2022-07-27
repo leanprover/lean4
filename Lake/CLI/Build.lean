@@ -17,7 +17,7 @@ structure BuildSpec where
 /-- Get the `Job` associated with some `ActiveBuildTarget` `BuildData`. -/
 @[inline] def BuildData.toJob
 [FamilyDef BuildData k (ActiveBuildTarget α)] (data : BuildData k) : Job :=
-  ofFamily data |>.task
+  ofFamily data |>.materializeAsync
 
 @[inline] def mkBuildSpec (info : BuildInfo)
 [FamilyDef BuildData info.key (ActiveBuildTarget α)] : BuildSpec :=

@@ -26,6 +26,7 @@ inductive BuildInfo
 | leanExe (exe : LeanExe)
 | staticExternLib (lib : ExternLib)
 | sharedExternLib (lib : ExternLib)
+| dynlibExternLib (lib : ExternLib)
 | customTarget (package : Package) (target : Name)
 
 --------------------------------------------------------------------------------
@@ -55,6 +56,9 @@ abbrev ExternLib.staticBuildKey (self : ExternLib) : BuildKey :=
 abbrev ExternLib.sharedBuildKey (self : ExternLib) : BuildKey :=
   .targetFacet self.pkg.name self.name sharedFacet
 
+abbrev ExternLib.dynlibBuildKey (self : ExternLib) : BuildKey :=
+  .targetFacet self.pkg.name self.name dynlibFacet
+
 /-! ### Build Info to Key -/
 
 /-- The key that identifies the build in the Lake build store. -/
@@ -65,6 +69,7 @@ abbrev BuildInfo.key : (self : BuildInfo) → BuildKey
 | leanExe x => x.buildKey
 | staticExternLib l => l.staticBuildKey
 | sharedExternLib l => l.sharedBuildKey
+| dynlibExternLib l => l.dynlibBuildKey
 | customTarget p t => p.targetBuildKey t
 
 /-! ### Instances for deducing data types of `BuildInfo` keys -/
@@ -95,6 +100,10 @@ instance [FamilyDef TargetData ExternLib.staticFacet α]
 
 instance [FamilyDef TargetData ExternLib.sharedFacet α]
 : FamilyDef BuildData (BuildInfo.key (.sharedExternLib l)) α where
+  family_key_eq_type := by unfold BuildData; simp
+
+instance [FamilyDef TargetData ExternLib.dynlibFacet α]
+: FamilyDef BuildData (BuildInfo.key (.dynlibExternLib l)) α where
   family_key_eq_type := by unfold BuildData; simp
 
 --------------------------------------------------------------------------------
@@ -203,3 +212,7 @@ abbrev ExternLib.static (self : ExternLib) : BuildInfo :=
 /-- Build info of the external library's shared binary. -/
 abbrev ExternLib.shared (self : ExternLib) : BuildInfo :=
   .sharedExternLib self
+
+/-- Build info of the external library's dynlib. -/
+abbrev ExternLib.dynlib (self : ExternLib) : BuildInfo :=
+  .dynlibExternLib self

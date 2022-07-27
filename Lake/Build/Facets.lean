@@ -93,3 +93,7 @@ target_data externLib.static : ActiveFileTarget
 /-- A external library's shared binary. -/
 abbrev ExternLib.sharedFacet := `externLib.shared
 target_data externLib.shared : ActiveFileTarget
+
+/-- A external library's dynlib. -/
+abbrev ExternLib.dynlibFacet := `externLib.dynlib
+target_data externLib.dynlib : ActiveDynlibTarget

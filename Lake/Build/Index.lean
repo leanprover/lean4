@@ -63,7 +63,11 @@ def recBuildWithIndex : (info : BuildInfo) → IndexBuildM (BuildData info.key)
 | .sharedExternLib lib =>
   mkTargetFacetBuild ExternLib.sharedFacet do
     let staticTarget := Target.active <| ← lib.static.recBuild
-    staticToLeanDynlibTarget staticTarget |>.activate
+    staticToLeanSharedLibTarget staticTarget |>.activate
+| .dynlibExternLib lib =>
+  mkTargetFacetBuild ExternLib.dynlibFacet do
+    let sharedTarget := Target.active <| ← lib.shared.recBuild
+    sharedToLeanDynlibTarget sharedTarget |>.activate
 
 /--
 Recursively build the given info using the Lake build index
@@ -91,14 +95,14 @@ export BuildInfo (build)
 
 /-- An opaque target that builds the info in a fresh build store. -/
 @[inline] def BuildInfo.target (self : BuildInfo)
-[FamilyDef BuildData self.key (ActiveBuildTarget α)] : OpaqueTarget :=
-  BuildTarget.mk' () <| self.build <&> (·.task)
+[FamilyDef BuildData self.key (ActiveBuildTarget α)] : BuildTarget α :=
+  Target.mk <| (self.build <&> (·.task)) |>.catchFailure fun _ => pure failure
 
 /-- A smart constructor for facet configurations that generate targets. -/
 @[inline] def mkFacetTargetConfig (build : ι → IndexBuildM (ActiveBuildTarget α))
 [h : FamilyDef Fam facet (ActiveBuildTarget α)] : FacetConfig Fam ι facet where
   build := cast (by rw [← h.family_key_eq_type]) build
-  getJob? := some (fun data => let_fun target := ofFamily data; target.task)
+  getJob? := some (fun data => let_fun target := ofFamily data; (·.2) <$> target.task)
 
 /-! ### Lean Executable Builds -/
 

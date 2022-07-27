@@ -28,7 +28,7 @@ def LeanLib.recBuildLocalModules
 
 protected def LeanLib.recBuildLean
 (self : LeanLib) : IndexT RecBuildM ActiveOpaqueTarget := do
-  ActiveTarget.collectOpaqueArray (i := PUnit) <|
+  ActiveTarget.collectOpaqueArray (ι := PUnit) <|
     ← self.recBuildLocalModules #[Module.leanBinFacet]
 
 /-- The `LibraryFacetConfig` for the builtin `leanFacet`. -/

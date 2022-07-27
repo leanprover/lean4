@@ -35,7 +35,7 @@ def proc (args : IO.Process.SpawnArgs) : BuildM PUnit := do
 def compileLeanModule (leanFile : FilePath)
 (oleanFile? ileanFile? cFile? : Option FilePath)
 (leanPath : SearchPath := []) (rootDir : FilePath := ".")
-(dynlibs : Array String := #[]) (dynlibPath : SearchPath := {})
+(dynlibs : Array FilePath := #[]) (dynlibPath : SearchPath := {})
 (leanArgs : Array String := #[]) (lean : FilePath := "lean")
 : BuildM PUnit := do
   let mut args := leanArgs ++

@@ -197,10 +197,39 @@ def letPatDecl  := leading_parser (withAnonymousAntiquot := false) atomic (termP
 def letEqnsDecl := leading_parser (withAnonymousAntiquot := false) letIdLhs >> (" := " <|> matchAlts)
 -- Remark: we disable anonymous antiquotations here to make sure anonymous antiquotations (e.g., `$x`) are not `letDecl`
 def letDecl     := leading_parser (withAnonymousAntiquot := false) notFollowedBy (nonReservedSymbol "rec") "rec" >> (letIdDecl <|> letPatDecl <|> letEqnsDecl)
+/--
+`let` is used to declare a local definition. Example:
+```
+let x := 1
+let y := x + 1
+x + y
+```
+Since functions are first class citizens in Lean, you can use `let` to declare local functions too.
+```
+let double := fun x => 2*x
+double (double 3)
+```
+For recursive definitions, you should use `let rec`.
+You can also perform pattern matching using `let`. For example, assume `p` has type `Nat × Nat`, then you can write
+```
+let (x, y) := p
+x + y
+```
+-/
 @[builtinTermParser] def «let» := leading_parser:leadPrec  withPosition ("let " >> letDecl) >> optSemicolon termParser
+/--
+`let_fun x := v; b` is syntax sugar for `(fun x => b) v`. It is very similar to `let x := v; b`, but they are not equivalent.
+In `let_fun`, the value `v` has been abstracted away and cannot be accessed in `b`.
+-/
 @[builtinTermParser] def «let_fun»     := leading_parser:leadPrec withPosition ((symbol "let_fun " <|> "let_λ") >> letDecl) >> optSemicolon termParser
+/--
+`let_delayed x := v; b` is similar to `let x := v; b`, but `b` is elaborated before `v`.
+-/
 @[builtinTermParser] def «let_delayed» := leading_parser:leadPrec withPosition ("let_delayed " >> letDecl) >> optSemicolon termParser
--- `let`-declaration that is only included in the elaborated term if variable is still there
+/--
+`let`-declaration that is only included in the elaborated term if variable is still there.
+It is often used when building macros.
+-/
 @[builtinTermParser] def «let_tmp» := leading_parser:leadPrec withPosition ("let_tmp " >> letDecl) >> optSemicolon termParser
 
 instance : Coe (TSyntax ``letIdBinder) (TSyntax ``funBinder) where

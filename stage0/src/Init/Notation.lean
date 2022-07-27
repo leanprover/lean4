@@ -9,9 +9,33 @@ prelude
 import Init.Prelude
 import Init.Coe
 
--- DSL for specifying parser precedences and priorities
+/-- Auxiliary type used to represent syntax categories. We mainly use them to attach doc strings to syntax categories. -/
+structure Lean.Parser.Category
+
+namespace Lean.Parser.Category
+
+/-- The command syntax category. -/
+def command : Category := {}
+/-- The term syntax category. -/
+def term : Category := {}
+/-- The tactic syntax category. -/
+def tactic : Category := {}
+/-- The syntax category for elements that can appear in the `do` notation. -/
+def doElem : Category := {}
+/-- The attribute syntax category. Declarations can be annotated with attributes using the `@[...]` notation. -/
+def attr : Category := {}
+/-- The syntax syntax category. This is the syntax category used to define syntax itself. -/
+def stx : Category := {}
+/-- The priority syntax category. Priorities are used in many different attributes. -/
+def prio : Category := {}
+/-- The precedence syntax category. Parsers have precedence in Lean. -/
+def prec : Category := {}
+
+end Lean.Parser.Category
 
 namespace Lean.Parser.Syntax
+
+/-! DSL for specifying parser precedences and priorities -/
 
 syntax:65 (name := addPrec) prec " + " prec:66 : prec
 syntax:65 (name := subPrec) prec " - " prec:66 : prec

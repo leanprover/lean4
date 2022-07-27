@@ -91,6 +91,7 @@ static lean_object* l_Lean_deprecated___closed__2;
 static lean_object* l_Lean_termThis___closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3e____1___closed__1;
 static lean_object* l___aux__Init__Notation______macroRules__term___x2a____1___closed__3;
+LEAN_EXPORT lean_object* l_Lean_Parser_Category_term;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3d_x3d____1___closed__1;
 LEAN_EXPORT lean_object* l_Lean___aux__Init__Notation______macroRules__Lean__termThis__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__term___u2218____1___closed__11;
@@ -118,6 +119,7 @@ static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x3d____2
 static lean_object* l_Lean_Parser_Syntax_addPrec___closed__1;
 static lean_object* l_term_x7b___x3a___x2f_x2f___x7d___closed__9;
 static lean_object* l_term___x7c_x7c_____closed__3;
+LEAN_EXPORT lean_object* l_Lean_Parser_Category_doElem;
 static lean_object* l_Lean_Parser_Syntax_addPrio___closed__4;
 static lean_object* l_term___x2d_____closed__2;
 static lean_object* l_term___x5e_x5e_x5e_____closed__5;
@@ -219,6 +221,7 @@ static lean_object* l___aux__Init__Notation______macroRules__term___x2b____1___c
 static lean_object* l___aux__Init__Notation______macroRules__term___x3d_x3d____1___closed__8;
 static lean_object* l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__6;
 static lean_object* l_termMax__prec___closed__4;
+LEAN_EXPORT lean_object* l_Lean_Parser_Category_prio;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__Prod__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__stx___x2b__1___closed__1;
 static lean_object* l_boolIfThenElse___closed__6;
@@ -300,6 +303,7 @@ static lean_object* l_term___u2208_____closed__6;
 static lean_object* l_Lean_rawStx_quot___closed__7;
 static lean_object* l_termDepIfThenElse___closed__7;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___u2218____1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Parser_Category_attr;
 static lean_object* l_Lean_termThis___closed__5;
 static lean_object* l_Lean___aux__Init__Notation______macroRules__term_x5b___x5d__1___closed__7;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__prioLow__1(lean_object*, lean_object*, lean_object*);
@@ -776,6 +780,7 @@ static lean_object* l_term___x26_x26_x26_____closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__2;
 static lean_object* l_term___x3c_____closed__4;
 static lean_object* l_termDepIfThenElse___closed__30;
+LEAN_EXPORT lean_object* l_Lean_Parser_Category_stx;
 static lean_object* l___aux__Init__Notation______macroRules__term___x26_x26____1___closed__6;
 static lean_object* l___aux__Init__Notation______macroRules__term___x25____1___closed__4;
 static lean_object* l_Lean_Parser_Syntax_addPrec___closed__10;
@@ -805,6 +810,7 @@ LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___u2227__
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x24_x3e____1___closed__4;
 LEAN_EXPORT lean_object* l_term___x2f_x5c__;
 static lean_object* l_term___x2b_x2b_____closed__2;
+LEAN_EXPORT lean_object* l_Lean_Parser_Category_prec;
 static lean_object* l_term___x3e_____closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__term_x7b___x3a___x2f_x2f___x7d__1___closed__1;
 static lean_object* l_term___x25_____closed__4;
@@ -872,6 +878,7 @@ static lean_object* l_termDepIfThenElse___closed__33;
 static lean_object* l_term___x2a_____closed__6;
 static lean_object* l_term___x3c_x2a_x3e_____closed__6;
 static lean_object* l_term_x2d_____closed__3;
+LEAN_EXPORT lean_object* l_Lean_Parser_Category_command;
 static lean_object* l_precMin___closed__4;
 static lean_object* l___aux__Init__Notation______macroRules__boolIfThenElse__1___closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__term___x26_x26_x26____1___closed__4;
@@ -916,6 +923,7 @@ static lean_object* l___aux__Init__Notation______macroRules__term___x3c____1___c
 static lean_object* l_boolIfThenElse___closed__12;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3d_x3d____2___closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x2a____1___closed__5;
+LEAN_EXPORT lean_object* l_Lean_Parser_Category_tactic;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__stx___x3c_x7c_x3e____1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__term___x3d_x3d____1___closed__9;
 static lean_object* l_stx___x2c_x2b___closed__2;
@@ -1387,6 +1395,70 @@ static lean_object* l_Lean_withAnnotateTerm___closed__5;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__SeqRight__seqRight__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__term___x2a____1___closed__7;
 LEAN_EXPORT lean_object* l_termWithout__expected__type__;
+static lean_object* _init_l_Lean_Parser_Category_command() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_box(0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parser_Category_term() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_box(0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parser_Category_tactic() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_box(0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parser_Category_doElem() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_box(0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parser_Category_attr() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_box(0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parser_Category_stx() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_box(0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parser_Category_prio() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_box(0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parser_Category_prec() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_box(0);
+return x_1;
+}
+}
 static lean_object* _init_l_Lean_Parser_Syntax_addPrec___closed__1() {
 _start:
 {
@@ -37053,6 +37125,22 @@ lean_dec_ref(res);
 res = initialize_Init_Coe(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Lean_Parser_Category_command = _init_l_Lean_Parser_Category_command();
+lean_mark_persistent(l_Lean_Parser_Category_command);
+l_Lean_Parser_Category_term = _init_l_Lean_Parser_Category_term();
+lean_mark_persistent(l_Lean_Parser_Category_term);
+l_Lean_Parser_Category_tactic = _init_l_Lean_Parser_Category_tactic();
+lean_mark_persistent(l_Lean_Parser_Category_tactic);
+l_Lean_Parser_Category_doElem = _init_l_Lean_Parser_Category_doElem();
+lean_mark_persistent(l_Lean_Parser_Category_doElem);
+l_Lean_Parser_Category_attr = _init_l_Lean_Parser_Category_attr();
+lean_mark_persistent(l_Lean_Parser_Category_attr);
+l_Lean_Parser_Category_stx = _init_l_Lean_Parser_Category_stx();
+lean_mark_persistent(l_Lean_Parser_Category_stx);
+l_Lean_Parser_Category_prio = _init_l_Lean_Parser_Category_prio();
+lean_mark_persistent(l_Lean_Parser_Category_prio);
+l_Lean_Parser_Category_prec = _init_l_Lean_Parser_Category_prec();
+lean_mark_persistent(l_Lean_Parser_Category_prec);
 l_Lean_Parser_Syntax_addPrec___closed__1 = _init_l_Lean_Parser_Syntax_addPrec___closed__1();
 lean_mark_persistent(l_Lean_Parser_Syntax_addPrec___closed__1);
 l_Lean_Parser_Syntax_addPrec___closed__2 = _init_l_Lean_Parser_Syntax_addPrec___closed__2();

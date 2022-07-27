@@ -73,16 +73,3 @@ abbrev OpaqueTarget := BuildTarget Unit
 
 /-- An `ActiveBuildTarget` with no artifact information. -/
 abbrev ActiveOpaqueTarget := ActiveBuildTarget Unit
-
-namespace OpaqueTarget
-
-abbrev mk (task : SchedulerM Job) : OpaqueTarget :=
-  Target.opaque task
-
-abbrev mk' (task : BuildM Job) : OpaqueTarget :=
-  Target.opaque <| task.catchFailure fun _ => pure failure
-
-abbrev async (act : BuildM BuildTrace) : OpaqueTarget :=
-  Target.opaqueAsync act
-
-end OpaqueTarget

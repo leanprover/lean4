@@ -19,7 +19,7 @@ namespace Lake
 abbrev BuildTask := OptionIOTask
 
 /-- A Lake build job. -/
-abbrev Job := BuildTask BuildTrace
+abbrev Job := BuildTask Unit
 
 /-- A Lake context with some additional caching for builds. -/
 structure BuildContext extends Context where

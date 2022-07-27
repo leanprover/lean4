@@ -42,12 +42,12 @@ def Package.buildImportsAndDeps (imports : List String) (self : Package) : Build
     let mods := (← getWorkspace).processImportList imports
     let (importTargets, bStore) ← RecBuildM.runIn {} <| mods.mapM fun mod =>
       if mod.shouldPrecompile then
-        buildIndexTop mod.dynlib <&> (·.withoutInfo)
+        (discard ·.task) <$> buildIndexTop mod.dynlib
       else
-        buildIndexTop mod.leanBin
+        (discard ·.task) <$> buildIndexTop mod.leanBin
     let dynlibTargets := bStore.collectModuleFacetArray Module.dynlibFacet
     let externLibTargets := bStore.collectSharedExternLibs
-    importTargets.forM (·.buildOpaque)
+    importTargets.forM (liftM <| await ·)
     -- NOTE: Unix requires the full file name of the dynlib (Windows doesn't care)
     let dynlibs ← dynlibTargets.mapM fun dynlib => do
       return FilePath.mk <| nameToSharedLib (← dynlib.build).toString

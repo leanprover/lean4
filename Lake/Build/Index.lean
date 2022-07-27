@@ -102,7 +102,7 @@ export BuildInfo (build)
 @[inline] def mkFacetTargetConfig (build : ι → IndexBuildM (ActiveBuildTarget α))
 [h : FamilyDef Fam facet (ActiveBuildTarget α)] : FacetConfig Fam ι facet where
   build := cast (by rw [← h.family_key_eq_type]) build
-  getJob? := some (fun data => let_fun target := ofFamily data; (·.2) <$> target.task)
+  getJob? := some fun data => discard <| ofFamily data
 
 /-! ### Lean Executable Builds -/
 

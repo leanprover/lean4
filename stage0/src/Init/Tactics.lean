@@ -416,7 +416,43 @@ macro "exists " es:term,+ : tactic =>
 end Tactic
 
 namespace Attr
--- simp attribute syntax
+/--
+Theorems tagged with the `simp` attribute are by the simplifier (i.e., the `simp` tactic, and its variants) to simplify
+expressions occurring in your goals.
+We call theorems tagged with the `simp` attribute "simp theorems" or "simp lemmas".
+Lean maintains a database/index containing all active simp theorems.
+Here is an example of a simp theorem.
+```lean
+@[simp] theorem ne_eq (a b : α) : (a ≠ b) = Not (a = b) := rfl
+```
+This simp theorem instructs the simplifier to replace instances of the term `a ≠ b` (e.g. `x + 0 ≠ y`) with `Not (a = b)`
+(e.g., `Not (x + 0 = y)`).
+The simplifier applies simp theorems in one direction only: if `A = B` is a simp theorem, then `simp`
+replaces `A`s with `B`s, but it doesn't replace `B`s with `A`s. Hence a simp theorem should have the
+property that its right-hand side is "simpler" than its left-hand side.
+In particular, `=` and `↔` should not be viewed as symmetric operators in this situation.
+The following would be a terrible simp theorem (if it were even allowed):
+```lean
+@[simp] lemma mul_right_inv_bad (a : G) : 1 = a * a⁻¹ := ...
+```
+Replacing 1 with a * a⁻¹ is not a sensible default direction to travel. Even worse would be a theorem
+that causes expressions to grow without bound, causing simp to loop forever.
+
+By default the simplifier applies `simp` theorems to an expression `e` after its sub-expressions have been simplified.
+We say it performs a bottom-up simplification. You can instruct the simplifier to apply a theorem before its sub-expressions
+have been simplified by using the modifier `↓`. Here is an example
+```lean
+@[simp↓] theorem not_and_eq (p q : Prop) : (¬ (p ∧ q)) = (¬p ∨ ¬q) :=
+```
+
+When multiple simp theorems are applicable, the simplifier uses the one with highest priority. If there are several with
+the same priority, it is uses the "most recent one". Example:
+```lean
+@[simp high] theorem cond_true (a b : α) : cond true a b = a := rfl
+@[simp low+1] theorem or_true (p : Prop) : (p ∨ True) = True := propext <| Iff.intro (fun _ => trivial) (fun _ => Or.inr trivial)
+@[simp 100] theorem ite_self {d : Decidable c} (a : α) : ite c a a = a := by cases d  <;> rfl
+```
+-/
 syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? (prio)? : attr
 end Attr
 

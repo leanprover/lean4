@@ -36,6 +36,7 @@ lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Widget_UserWidget_0__Lean_Widget_attributeImpl___elambda__1___boxed(lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
 static lean_object* l___private_Lean_Widget_UserWidget_0__Lean_Widget_attributeImpl___elambda__2___closed__2;
+lean_object* l_Lean_Elab_pushInfoLeaf___at_Lean_Elab_Command_elabMutualDef___spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_getWidgets___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_422____closed__4;
@@ -50,7 +51,6 @@ LEAN_EXPORT lean_object* l_Lean_Widget_instFromJsonGetWidgetsResponse;
 LEAN_EXPORT lean_object* l_Std_RBNode_ins___at_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_422____spec__2(lean_object*, uint64_t, lean_object*);
 static lean_object* l_Lean_Widget_widgetCmd___closed__7;
 static lean_object* l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_422____closed__2;
-lean_object* l_Lean_Elab_pushInfoLeaf___at_Lean_Elab_elabDeriving___spec__18(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_422____closed__1;
 static lean_object* l___private_Lean_Widget_UserWidget_0__Lean_Widget_evalJsonUnsafe___closed__1;
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
@@ -6527,7 +6527,7 @@ lean_ctor_set(x_7, 1, x_1);
 lean_ctor_set(x_7, 2, x_2);
 x_8 = lean_alloc_ctor(6, 1, 0);
 lean_ctor_set(x_8, 0, x_7);
-x_9 = l_Lean_Elab_pushInfoLeaf___at_Lean_Elab_elabDeriving___spec__18(x_8, x_4, x_5, x_6);
+x_9 = l_Lean_Elab_pushInfoLeaf___at_Lean_Elab_Command_elabMutualDef___spec__5(x_8, x_4, x_5, x_6);
 return x_9;
 }
 }

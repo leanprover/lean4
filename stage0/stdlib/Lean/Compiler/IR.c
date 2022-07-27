@@ -82,11 +82,11 @@ extern lean_object* l_Lean_IR_tracePrefixOptionName;
 lean_object* l_Lean_IR_Decl_elimDead(lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___lambda__2___closed__13;
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__2;
-lean_object* l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_57____spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_simpCase(lean_object*);
 lean_object* l_Lean_IR_Decl_expandResetReuse(lean_object*);
 lean_object* l_Lean_IR_elimDeadBranches(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_initFn____x40_Lean_Compiler_IR___hyg_6____closed__6;
+lean_object* l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_58____spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___lambda__1(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_updateSorryDep(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Compiler_IR_0__Lean_IR_compileAux___spec__5(size_t, size_t, lean_object*);
@@ -191,7 +191,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Lean_IR_initFn____x40_Lean_Compiler_IR___hyg_6____closed__4;
 x_3 = l_Lean_IR_initFn____x40_Lean_Compiler_IR___hyg_6____closed__7;
-x_4 = l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_57____spec__1(x_2, x_3, x_1);
+x_4 = l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_58____spec__1(x_2, x_3, x_1);
 return x_4;
 }
 }

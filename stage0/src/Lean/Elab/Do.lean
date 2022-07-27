@@ -1312,16 +1312,16 @@ mutual
       let optElse := decl[3]
       if optElse.isNone then withFreshMacroScope do
         let auxDo ← if isMutableLet doLetArrow then
-          `(do let discr ← $doElem; let mut $pattern:term := discr)
+          `(do let%$doLetArrow discr ← $doElem; let%$doLetArrow mut $pattern:term := discr)
         else
-          `(do let discr ← $doElem; let $pattern:term := discr)
+          `(do let%$doLetArrow discr ← $doElem; let%$doLetArrow $pattern:term := discr)
         doSeqToCode <| getDoSeqElems (getDoSeq auxDo) ++ doElems
       else
         if isMutableLet doLetArrow then
           throwError "`mut` is currently not supported in let-decls with `else` case"
         let contSeq := mkDoSeq doElems.toArray
         let elseSeq := mkSingletonDoSeq optElse[1]
-        let auxDo ← `(do let discr ← $doElem; match discr with | $pattern:term => $contSeq | _ => $elseSeq)
+        let auxDo ← `(do let%$doLetArrow discr ← $doElem; match%$doLetArrow discr with | $pattern:term => $contSeq | _ => $elseSeq)
         doSeqToCode <| getDoSeqElems (getDoSeq auxDo)
     else
       throwError "unexpected kind of `do` declaration"

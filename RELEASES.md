@@ -1,6 +1,10 @@
 Unreleased
 ---------
 
+* Throw an error message at parametric local instances such as `[Nat -> Decidable p]`. The type class resolution procedure
+  cannot use this kind of local instance because the parameter does not have a forward dependency.
+  This check can be disabled using `set_option checkBinderAnnotations false`.
+
 * Add option `pp.showLetValues`. When set to `false`, the info view hides the value of `let`-variables in a goal.
   By default, it is `true` when visualizing tactic goals, and `false` otherwise.
   See [issue #1345](https://github.com/leanprover/lean4/issues/1345) for additional details.

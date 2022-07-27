@@ -39,10 +39,11 @@ private def expandOptIdent (stx : Syntax) : TermElabM Syntax := do
   else
     return stx[0]
 
+/-- Auxiliary datatype for elaborating binders. -/
 structure BinderView where
-  id : Syntax
+  id   : Syntax
   type : Syntax
-  bi : BinderInfo
+  bi   : BinderInfo
 
 partial def quoteAutoTactic : Syntax → TermElabM Syntax
   | stx@(.ident ..) => throwErrorAt stx "invalid auto tactic, identifier is not allowed"
@@ -77,8 +78,10 @@ def declareTacticSyntax (tactic : Syntax) : TermElabM Name :=
 
 /--
 Expand `optional (binderTactic <|> binderDefault)`
+```
 def binderTactic  := leading_parser " := " >> " by " >> tacticParser
 def binderDefault := leading_parser " := " >> termParser
+```
 -/
 private def expandBinderModifier (type : Syntax) (optBinderModifier : Syntax) : TermElabM Syntax := do
   if optBinderModifier.isNone then
@@ -149,6 +152,13 @@ register_builtin_option checkBinderAnnotations : Bool := {
   descr    := "check whether type is a class instance whenever the binder annotation `[...]` is used"
 }
 
+/-- Throw an error if `type` is not a valid local instance. -/
+private partial def checkLocalInstanceParameters (type : Expr) : TermElabM Unit := do
+  let .forallE n d b bi ← whnf type | return ()
+  if !b.hasLooseBVar 0 then
+    throwError "invalid parametric local instance, parameter with type{indentExpr d}\ndoes not have forward dependencies, type class resolution cannot use this kind of local instance because it will not be able to infer a value for this parameter."
+  withLocalDecl n bi d fun x => checkLocalInstanceParameters (b.instantiate1 x)
+
 private partial def elabBinderViews (binderViews : Array BinderView) (fvars : Array (Syntax × Expr)) (k : Array (Syntax × Expr) → TermElabM α)
     : TermElabM α :=
   let rec loop (i : Nat) (fvars : Array (Syntax × Expr)) : TermElabM α := do
@@ -160,6 +170,7 @@ private partial def elabBinderViews (binderViews : Array BinderView) (fvars : Ar
       if binderView.bi.isInstImplicit && checkBinderAnnotations.get (← getOptions) then
         unless (← isClass? type).isSome do
           throwErrorAt binderView.type "invalid binder annotation, type is not a class instance{indentExpr type}\nuse the command `set_option checkBinderAnnotations false` to disable the check"
+        withRef binderView.type <| checkLocalInstanceParameters type
       withLocalDecl binderView.id.getId binderView.bi type fun fvar => do
         addLocalVarInfo binderView.id fvar
         loop (i+1) (fvars.push (binderView.id, fvar))

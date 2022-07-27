@@ -238,7 +238,6 @@ lean_object* l_List_redLength___rarg(lean_object*);
 lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_ComputedFields_overrideCasesOn___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Meta_abstractRange___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_ComputedFields_setComputedFields___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_setEnv___at_Lean_Elab_ComputedFields_mkImplType___spec__6___closed__11;
 LEAN_EXPORT lean_object* l_Lean_setImplementedBy___at_Lean_Elab_ComputedFields_overrideConstructors___spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -350,6 +349,7 @@ LEAN_EXPORT lean_object* l_Lean_throwKernelException___at_Lean_Elab_ComputedFiel
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_ComputedFields_setComputedFields___spec__3___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_ComputedFields_mkComputedFieldOverrides___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Expr_abstractRangeM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_add_decl(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logWarning___at_Lean_Elab_ComputedFields_mkImplType___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____lambda__1___closed__1() {
@@ -2318,7 +2318,7 @@ x_16 = l_Lean_Elab_ComputedFields_getComputedFieldValue___lambda__1___closed__6;
 x_17 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set(x_17, 1, x_16);
-x_18 = l_Lean_throwError___at_Lean_Meta_abstractRange___spec__1(x_17, x_4, x_5, x_6, x_7, x_8);
+x_18 = l_Lean_throwError___at_Lean_Expr_abstractRangeM___spec__1(x_17, x_4, x_5, x_6, x_7, x_8);
 return x_18;
 }
 }

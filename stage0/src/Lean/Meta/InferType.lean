@@ -168,7 +168,7 @@ private def inferMVarType (mvarId : MVarId) : MetaM Expr := do
 private def inferFVarType (fvarId : FVarId) : MetaM Expr := do
   match (← getLCtx).find? fvarId with
   | some d => return d.type
-  | none   => throwUnknownFVar fvarId
+  | none   => fvarId.throwUnknown
 
 @[inline] private def checkInferTypeCache (e : Expr) (inferType : MetaM Expr) : MetaM Expr := do
   match (← get).cache.inferType.find? e with

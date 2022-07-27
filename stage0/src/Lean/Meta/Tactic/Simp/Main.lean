@@ -668,7 +668,7 @@ where
           let hb? ← match rbx.proof? with
             | none => pure none
             | some h => pure (some (← mkLambdaFVars #[x] h))
-          let e' := mkLet n t rv.expr (← abstract rbx.expr #[x])
+          let e' := mkLet n t rv.expr (← rbx.expr.abstractM #[x])
           match rv.proof?, hb? with
           | none,   none   => return { expr := e' }
           | some h, none   => return { expr := e', proof? := some (← mkLetValCongr (← mkLambdaFVars #[x] rbx.expr) h) }
@@ -678,7 +678,7 @@ where
         withLocalDeclD n t fun x => do
           let bx := b.instantiate1 x
           let rbx ← simp bx
-          let e' := mkLet n t v' (← abstract rbx.expr #[x])
+          let e' := mkLet n t v' (← rbx.expr.abstractM #[x])
           match rbx.proof? with
           | none => return { expr := e' }
           | some h =>

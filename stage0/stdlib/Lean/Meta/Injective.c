@@ -134,7 +134,6 @@ lean_object* l_Lean_Meta_substEqs(lean_object*, lean_object*, lean_object*, lean
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1785_(lean_object*);
 lean_object* l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_58____spec__1(lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Meta_abstractRange___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkInjectiveTheoremNameFor___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheorem(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1785____closed__3;
@@ -181,6 +180,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiv
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_throwInjectiveTheoremFailure___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instInhabitedMetaM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Expr_abstractRangeM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Subarray_forInUnsafe_loop___at___private_Lean_Meta_Injective_0__Lean_Meta_mkAnd_x3f___spec__1___closed__1() {
 _start:
 {
@@ -3105,7 +3105,7 @@ x_22 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremTypeCore_x
 x_23 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_23, 0, x_21);
 lean_ctor_set(x_23, 1, x_22);
-x_24 = l_Lean_throwError___at_Lean_Meta_abstractRange___spec__1(x_23, x_4, x_5, x_6, x_7, x_18);
+x_24 = l_Lean_throwError___at_Lean_Expr_abstractRangeM___spec__1(x_23, x_4, x_5, x_6, x_7, x_18);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -3136,7 +3136,7 @@ x_30 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremTypeCore_x
 x_31 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_31, 0, x_29);
 lean_ctor_set(x_31, 1, x_30);
-x_32 = l_Lean_throwError___at_Lean_Meta_abstractRange___spec__1(x_31, x_4, x_5, x_6, x_7, x_26);
+x_32 = l_Lean_throwError___at_Lean_Expr_abstractRangeM___spec__1(x_31, x_4, x_5, x_6, x_7, x_26);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -3481,7 +3481,7 @@ x_94 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremTypeCore_x
 x_95 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_95, 0, x_93);
 lean_ctor_set(x_95, 1, x_94);
-x_96 = l_Lean_throwError___at_Lean_Meta_abstractRange___spec__1(x_95, x_4, x_5, x_6, x_7, x_90);
+x_96 = l_Lean_throwError___at_Lean_Expr_abstractRangeM___spec__1(x_95, x_4, x_5, x_6, x_7, x_90);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);

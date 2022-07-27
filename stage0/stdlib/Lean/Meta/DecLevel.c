@@ -51,6 +51,7 @@ LEAN_EXPORT uint8_t l_Lean_Meta_DecLevelContext_canAssignMVars___default;
 static lean_object* l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f___closed__8;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f___closed__4;
+lean_object* l_Lean_LMVarId_isReadOnly(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_addTrace___at___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f___spec__2___closed__4;
 static lean_object* l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f___closed__9;
 lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceOptions(lean_object*);
@@ -72,7 +73,6 @@ lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMe
 static lean_object* l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f___closed__6;
 static lean_object* l_Lean_Meta_decLevel___closed__3;
 lean_object* l_Lean_Level_mvar___override(lean_object*);
-lean_object* l_Lean_Meta_isReadOnlyLevelMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_markUsedAssignment___at___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f___spec__4___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_decLevel_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static uint8_t _init_l_Lean_Meta_DecLevelContext_canAssignMVars___default() {
@@ -1399,7 +1399,7 @@ if (lean_obj_tag(x_98) == 0)
 {
 lean_object* x_100; 
 lean_inc(x_97);
-x_100 = l_Lean_Meta_isReadOnlyLevelMVar(x_97, x_3, x_4, x_5, x_6, x_99);
+x_100 = l_Lean_LMVarId_isReadOnly(x_97, x_3, x_4, x_5, x_6, x_99);
 if (lean_obj_tag(x_100) == 0)
 {
 lean_object* x_101; uint8_t x_102; 

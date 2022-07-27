@@ -831,6 +831,7 @@ static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x2a_x3e_
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__HAdd__hAdd__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term_x7b___x3a___x2f_x2f___x7d___closed__7;
 static lean_object* l___aux__Init__Notation______macroRules__term___x26_x26_x26____1___closed__8;
+LEAN_EXPORT lean_object* l_Lean_Parser_Category_rawStx;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__precMin__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x24_x3e____1___closed__9;
 static lean_object* l_term___x5e_____closed__1;
@@ -36910,6 +36911,14 @@ x_1 = l_Lean_rawStx_quot___closed__12;
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_Parser_Category_rawStx() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_box(0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_instCoeSyntaxTSyntaxConsSyntaxNodeKindStrAnonymousNil(lean_object* x_1) {
 _start:
 {
@@ -39447,6 +39456,8 @@ l_Lean_rawStx_quot___closed__12 = _init_l_Lean_rawStx_quot___closed__12();
 lean_mark_persistent(l_Lean_rawStx_quot___closed__12);
 l_Lean_rawStx_quot = _init_l_Lean_rawStx_quot();
 lean_mark_persistent(l_Lean_rawStx_quot);
+l_Lean_Parser_Category_rawStx = _init_l_Lean_Parser_Category_rawStx();
+lean_mark_persistent(l_Lean_Parser_Category_rawStx);
 l_Lean_withAnnotateTerm___closed__1 = _init_l_Lean_withAnnotateTerm___closed__1();
 lean_mark_persistent(l_Lean_withAnnotateTerm___closed__1);
 l_Lean_withAnnotateTerm___closed__2 = _init_l_Lean_withAnnotateTerm___closed__2();

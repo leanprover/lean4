@@ -565,7 +565,6 @@ static lean_object* l___regBuiltin_Lean_Elab_Term_elabEnsureExpectedType___close
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabScientificLit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabWithAnnotateTerm___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_addOpenDecl___at_Lean_Elab_Term_elabOpen___spec__17(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Meta_abstractRange___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panic___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_resolveNameUsingNamespacesCore___spec__9(lean_object*);
 static lean_object* l_Lean_Elab_Term_elabWithAnnotateTerm___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabQuotedName___closed__5;
@@ -868,6 +867,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Term_elabNoImplicitLambda___closed_
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabBadCDot___closed__5;
 uint8_t l_Lean_Syntax_isIdent(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_BuiltinTerm_0__Lean_Elab_Term_mkTacticMVar___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Expr_abstractRangeM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabTypeOf___closed__1;
 static lean_object* _init_l_Lean_Elab_Term_elabProp___rarg___closed__1() {
 _start:
@@ -5111,7 +5111,7 @@ x_18 = l___private_Lean_Elab_BuiltinTerm_0__Lean_Elab_Term_getMVarFromUserName__
 x_19 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set(x_19, 1, x_18);
-x_20 = l_Lean_throwError___at_Lean_Meta_abstractRange___spec__1(x_19, x_2, x_3, x_4, x_5, x_11);
+x_20 = l_Lean_throwError___at_Lean_Expr_abstractRangeM___spec__1(x_19, x_2, x_3, x_4, x_5, x_11);
 return x_20;
 }
 else

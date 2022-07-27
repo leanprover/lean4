@@ -70,7 +70,7 @@ Is true if either the package or the library have `precompileModules` set.
   self.pkg.precompileModules || self.config.precompileModules
 
 /-- The library's `nativeFacets` configuration. -/
-@[inline] def nativeFacets (self : LeanLib) : Array (ModuleFacet ActiveFileTarget) :=
+@[inline] def nativeFacets (self : LeanLib) : Array (ModuleFacet (BuildJob FilePath)) :=
   self.config.nativeFacets
 
 /--

@@ -40,60 +40,60 @@ It is thus the facet used by default for building imports of a module.
 Also, if the module is not lean-only, it produces `c` files as well.
 -/
 abbrev Module.leanBinFacet := `bin
-module_data bin : ActiveOpaqueTarget
+module_data bin : BuildJob Unit
 
 /-- The `olean` file produced by `lean`  -/
 abbrev Module.oleanFacet := `olean
-module_data olean : ActiveFileTarget
+module_data olean : BuildJob FilePath
 
 /-- The `ilean` file produced by `lean` -/
 abbrev Module.ileanFacet := `ilean
-module_data ilean : ActiveFileTarget
+module_data ilean : BuildJob FilePath
 
 /-- The C file built from the Lean file via `lean` -/
 abbrev Module.cFacet := `c
-module_data c : ActiveFileTarget
+module_data c : BuildJob FilePath
 
 /-- The object file built from `lean.c` -/
 abbrev Module.oFacet := `o
-module_data o : ActiveFileTarget
+module_data o : BuildJob FilePath
 
-/-- Shared library for `--load-dynlib` -/
+/-- Shared library for `--load-dynlib`. Returns just the library name. -/
 abbrev Module.dynlibFacet := `dynlib
-module_data dynlib : ActiveFileTarget
+module_data dynlib : BuildJob String
 
 /-! ## Package Facets -/
 
 /-- The package's `extraDepTarget` mixed with its transitive dependencies `extraDepTarget`. -/
 abbrev Package.extraDepFacet := `extraDep
-package_data extraDep : ActiveOpaqueTarget
+package_data extraDep : BuildJob Unit
 
 /-! ## Target Facets -/
 
 /-- A Lean library's Lean libraries. -/
 abbrev LeanLib.leanFacet := `lean
-library_data lean : ActiveOpaqueTarget
+library_data lean : BuildJob Unit
 
 /-- A Lean library's static binary. -/
 abbrev LeanLib.staticFacet := `static
-library_data static : ActiveFileTarget
+library_data static : BuildJob FilePath
 
 /-- A Lean library's shared binary. -/
 abbrev LeanLib.sharedFacet := `shared
-library_data shared : ActiveFileTarget
+library_data shared : BuildJob FilePath
 
 /-- A Lean binary executable. -/
 abbrev LeanExe.exeFacet := `leanExe
-target_data leanExe : ActiveFileTarget
+target_data leanExe : BuildJob FilePath
 
 /-- A external library's static binary. -/
 abbrev ExternLib.staticFacet := `externLib.static
-target_data externLib.static : ActiveFileTarget
+target_data externLib.static : BuildJob FilePath
 
 /-- A external library's shared binary. -/
 abbrev ExternLib.sharedFacet := `externLib.shared
-target_data externLib.shared : ActiveFileTarget
+target_data externLib.shared : BuildJob FilePath
 
 /-- A external library's dynlib. -/
 abbrev ExternLib.dynlibFacet := `externLib.dynlib
-target_data externLib.dynlib : ActiveDynlibTarget
+target_data externLib.dynlib : BuildJob Dynlib

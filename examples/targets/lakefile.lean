@@ -27,4 +27,4 @@ target bark : PUnit := Target.mk <| sync (m := BuildM) do
 
 package_facet print_name : PUnit := fun pkg => do
   IO.println pkg.name
-  return ActiveTarget.nil
+  return BuildJob.nil

@@ -3,15 +3,16 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
-import Lake.Build.Monad
+import Lake.Build.Job
+import Lake.Config.Env
 
 namespace Lake
 open System
 
-def createParentDirs (path : FilePath) : IO PUnit := do
+def createParentDirs (path : FilePath) : IO Unit := do
   if let some dir := path.parent then IO.FS.createDirAll dir
 
-def proc (args : IO.Process.SpawnArgs) : BuildM PUnit := do
+def proc (args : IO.Process.SpawnArgs) : JobM Unit := do
   let envStr := String.join <| args.env.toList.filterMap fun (k, v) =>
     if k == "PATH" then none else some s!"{k}={v.getD ""} " -- PATH too big
   let cmdStr := " ".intercalate (args.cmd :: args.args.toList)
@@ -20,7 +21,7 @@ def proc (args : IO.Process.SpawnArgs) : BuildM PUnit := do
     | some cwd => s!"{cmdStr}    # in directory {cwd}"
     | none     => cmdStr
   let out ← IO.Process.output args
-  let logOutputWith (log : String → BuildM PUnit) := do
+  let logOutputWith (log : String → JobM PUnit) := do
     unless out.stdout.isEmpty do
       log s!"stdout:\n{out.stdout}"
     unless out.stderr.isEmpty do
@@ -37,7 +38,7 @@ def compileLeanModule (leanFile : FilePath)
 (leanPath : SearchPath := []) (rootDir : FilePath := ".")
 (dynlibs : Array FilePath := #[]) (dynlibPath : SearchPath := {})
 (leanArgs : Array String := #[]) (lean : FilePath := "lean")
-: BuildM PUnit := do
+: JobM PUnit := do
   let mut args := leanArgs ++
     #[leanFile.toString, "-R", rootDir.toString]
   if let some oleanFile := oleanFile? then
@@ -61,7 +62,7 @@ def compileLeanModule (leanFile : FilePath)
   }
 
 def compileO (oFile srcFile : FilePath)
-(moreArgs : Array String := #[]) (compiler : FilePath := "cc") : BuildM PUnit := do
+(moreArgs : Array String := #[]) (compiler : FilePath := "cc") : JobM Unit := do
   createParentDirs oFile
   proc {
     cmd := compiler.toString
@@ -69,7 +70,7 @@ def compileO (oFile srcFile : FilePath)
   }
 
 def compileStaticLib (libFile : FilePath)
-(oFiles : Array FilePath) (ar : FilePath := "ar") : BuildM PUnit := do
+(oFiles : Array FilePath) (ar : FilePath := "ar") : JobM Unit := do
   createParentDirs libFile
   proc {
     cmd := ar.toString
@@ -77,7 +78,7 @@ def compileStaticLib (libFile : FilePath)
   }
 
 def compileSharedLib (libFile : FilePath)
-(linkArgs : Array String) (linker : FilePath := "cc") : BuildM PUnit := do
+(linkArgs : Array String) (linker : FilePath := "cc") : JobM Unit := do
   createParentDirs libFile
   proc {
     cmd := linker.toString
@@ -85,7 +86,7 @@ def compileSharedLib (libFile : FilePath)
   }
 
 def compileExe (binFile : FilePath) (linkFiles : Array FilePath)
-(linkArgs : Array String := #[]) (linker : FilePath := "cc") : BuildM PUnit := do
+(linkArgs : Array String := #[]) (linker : FilePath := "cc") : JobM Unit := do
   createParentDirs binFile
   proc {
     cmd := linker.toString

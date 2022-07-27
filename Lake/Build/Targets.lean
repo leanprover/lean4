@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 import Lake.Build.Actions
 import Lake.Build.TargetTypes
+import Lake.Build.Monad
 
 open System
 namespace Lake

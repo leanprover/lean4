@@ -45,7 +45,7 @@ def recBuildWithIndex : (info : BuildInfo) → IndexBuildM (BuildData info.key)
 | .customTarget pkg target =>
   if let some config := pkg.findTargetConfig? target then
     if h : pkg.name = config.package ∧ target = config.name then
-      have h' : CustomData (pkg.name, target) = ActiveBuildTarget config.resultType := by simp [h]
+      have h' : CustomData (pkg.name, target) = BuildJob config.resultType := by simp [h]
       liftM <| cast (by rw [← h']) <| config.target.activate
     else
       error "target's name in the configuration does not match the name it was registered with"
@@ -95,19 +95,19 @@ export BuildInfo (build)
 
 /-- An opaque target that builds the info in a fresh build store. -/
 @[inline] def BuildInfo.target (self : BuildInfo)
-[FamilyDef BuildData self.key (ActiveBuildTarget α)] : BuildTarget α :=
-  Target.mk <| (self.build <&> (·.task)) |>.catchFailure fun _ => pure failure
+[FamilyDef BuildData self.key (BuildJob α)] : BuildTarget α :=
+  Target.mk <| self.build |>.catchFailure fun _ => pure failure
 
-/-- A smart constructor for facet configurations that generate targets. -/
-@[inline] def mkFacetTargetConfig (build : ι → IndexBuildM (ActiveBuildTarget α))
-[h : FamilyDef Fam facet (ActiveBuildTarget α)] : FacetConfig Fam ι facet where
+/-- A smart constructor for facet configurations that generate CLI targets. -/
+@[inline] def mkFacetTargetConfig (build : ι → IndexBuildM (BuildJob α))
+[h : FamilyDef Fam facet (BuildJob α)] : FacetConfig Fam ι facet where
   build := cast (by rw [← h.family_key_eq_type]) build
   getJob? := some fun data => discard <| ofFamily data
 
 /-! ### Lean Executable Builds -/
 
-@[inline] protected def LeanExe.build (self : LeanExe) : BuildM ActiveFileTarget :=
+@[inline] protected def LeanExe.build (self : LeanExe) : BuildM (BuildJob FilePath) :=
   self.exe.build
 
-@[inline] protected def LeanExe.recBuild (self : LeanExe) : IndexBuildM ActiveFileTarget :=
+@[inline] protected def LeanExe.recBuild (self : LeanExe) : IndexBuildM (BuildJob FilePath) :=
   self.exe.recBuild

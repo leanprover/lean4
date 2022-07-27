@@ -27,16 +27,15 @@ def LeanLib.recBuildLocalModules
   return results
 
 protected def LeanLib.recBuildLean
-(self : LeanLib) : IndexBuildM ActiveOpaqueTarget := do
-  ActiveTarget.collectOpaqueArray (ι := PUnit) <|
-    ← self.recBuildLocalModules #[Module.leanBinFacet]
+(self : LeanLib) : IndexBuildM (BuildJob Unit) := do
+  BuildJob.mixArray (α := Unit) <| ← self.recBuildLocalModules #[Module.leanBinFacet]
 
 /-- The `LibraryFacetConfig` for the builtin `leanFacet`. -/
 def LeanLib.leanFacetConfig : LibraryFacetConfig leanFacet :=
   mkFacetTargetConfig (·.recBuildLean)
 
 protected def LeanLib.recBuildStatic
-(self : LeanLib) : IndexBuildM ActiveFileTarget := do
+(self : LeanLib) : IndexBuildM (BuildJob FilePath) := do
   let oTargets := (← self.recBuildLocalModules self.nativeFacets).map Target.active
   staticLibTarget self.staticLibFile oTargets |>.activate
 
@@ -51,12 +50,12 @@ Build and collect the local object files and external libraries
 of a library and its modules' imports.
 -/
 def LeanLib.recBuildLinks
-(self : LeanLib) : IndexBuildM (Array ActiveFileTarget) := do
+(self : LeanLib) : IndexBuildM (Array (BuildJob FilePath)) := do
   -- Build and collect modules
+  let mut jobs := #[]
   let mut pkgs := #[]
   let mut pkgSet := PackageSet.empty
   let mut modSet := ModuleSet.empty
-  let mut targets := #[]
   let mods ← self.getModuleArray
   for mod in mods do
     let (_, mods) ← mod.imports.recBuild
@@ -68,19 +67,19 @@ def LeanLib.recBuildLinks
             pkgs := pkgs.push mod.pkg
         if self.isLocalModule mod.name then
           for facet in self.nativeFacets do
-            targets := targets.push <| ← recBuild <| mod.facet facet.name
+            jobs := jobs.push <| ← recBuild <| mod.facet facet.name
         modSet := modSet.insert mod
-  -- Build and collect external library targets
+  -- Build and collect external library jobs
   for pkg in pkgs do
-    let externLibTargets ← pkg.externLibs.mapM (·.shared.recBuild)
-    for target in externLibTargets do
-      targets := targets.push target
-  return targets
+    let externLibJobs ← pkg.externLibs.mapM (·.shared.recBuild)
+    for job in externLibJobs do
+      jobs := jobs.push job
+  return jobs
 
 protected def LeanLib.recBuildShared
-(self : LeanLib) : IndexBuildM ActiveFileTarget := do
-  let linkTargets := (← self.recBuildLinks).map Target.active
-  leanSharedLibTarget self.sharedLibFile linkTargets self.linkArgs |>.activate
+(self : LeanLib) : IndexBuildM (BuildJob FilePath) := do
+  let linkJobs := (← self.recBuildLinks).map Target.active
+  leanSharedLibTarget self.sharedLibFile linkJobs self.linkArgs |>.activate
 
 /-- The `LibraryFacetConfig` for the builtin `sharedFacet`. -/
 def LeanLib.sharedFacetConfig : LibraryFacetConfig sharedFacet :=

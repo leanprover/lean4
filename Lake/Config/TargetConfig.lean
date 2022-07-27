@@ -19,9 +19,9 @@ structure TargetConfig where
   /-- The target's build function. -/
   target : BuildTarget resultType
   /-- Proof that target's build result is the correctly typed target.-/
-  data_eq_target : CustomData (package, name) = ActiveBuildTarget resultType
+  data_eq_target : CustomData (package, name) = BuildJob resultType
 
-family_def _nil_ : CustomData (.anonymous, .anonymous) := ActiveOpaqueTarget
+family_def _nil_ : CustomData (.anonymous, .anonymous) := BuildJob Unit
 
 instance : Inhabited TargetConfig := ⟨{
   name := .anonymous
@@ -34,7 +34,7 @@ instance : Inhabited TargetConfig := ⟨{
 hydrate_opaque_type OpaqueTargetConfig TargetConfig
 
 instance FamilyDefOfTargetConfig {cfg : TargetConfig}
-: FamilyDef CustomData (cfg.package, cfg.name) (ActiveBuildTarget cfg.resultType) :=
+: FamilyDef CustomData (cfg.package, cfg.name) (BuildJob cfg.resultType) :=
   ⟨cfg.data_eq_target⟩
 
 /-- Try to find a target configuration in the package with the given name . -/

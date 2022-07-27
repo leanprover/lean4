@@ -13,7 +13,7 @@ structure FacetConfig (DataFam : Name → Type) (ι : Type) (name : Name) : Type
   /-- The facet's build (function). -/
   build : ι → IndexBuildM (DataFam name)
   /-- Does this facet produce an associated asynchronous job? -/
-  getJob? : Option (DataFam name → Job)
+  getJob? : Option (DataFam name → Job Unit)
   deriving Inhabited
 
 protected abbrev FacetConfig.name (_ : FacetConfig DataFam ι name) := name

@@ -12,15 +12,15 @@ namespace Lake
 
 structure BuildSpec where
   info : BuildInfo
-  getJob : BuildData info.key → Job
+  getJob : BuildData info.key → Job Unit
 
-/-- Get the `Job` associated with some `ActiveBuildTarget` `BuildData`. -/
+/-- Get the `Job` associated with some `BuildJob` `BuildData`. -/
 @[inline] def BuildData.toJob
-[FamilyDef BuildData k (ActiveBuildTarget α)] (data : BuildData k) : Job :=
+[FamilyDef BuildData k (BuildJob α)] (data : BuildData k) : Job Unit :=
   discard <| ofFamily data
 
 @[inline] def mkBuildSpec (info : BuildInfo)
-[FamilyDef BuildData info.key (ActiveBuildTarget α)] : BuildSpec :=
+[FamilyDef BuildData info.key (BuildJob α)] : BuildSpec :=
   {info, getJob := BuildData.toJob}
 
 @[inline] def mkConfigBuildSpec (facetType : String)
@@ -30,7 +30,7 @@ structure BuildSpec where
     | throw <| CliError.nonTargetFacet facetType facet
   return {info, getJob := h ▸ getJob}
 
-def BuildSpec.build (self : BuildSpec) : RecBuildM Job := do
+def BuildSpec.build (self : BuildSpec) : RecBuildM (Job Unit) := do
   return self.getJob <| ← buildIndexTop' self.info
 
 def buildSpecs (specs : Array BuildSpec) : BuildM PUnit := do
@@ -83,7 +83,7 @@ def resolveCustomTarget (pkg : Package)
   if !facet.isAnonymous then
     throw <| CliError.invalidFacet target facet
   else if h : pkg.name = config.package then
-    have : FamilyDef CustomData (pkg.name, config.name) (ActiveBuildTarget config.resultType) :=
+    have : FamilyDef CustomData (pkg.name, config.name) (BuildJob config.resultType) :=
       ⟨by simp [h]⟩
     return mkBuildSpec <| pkg.customTarget config.name
   else

@@ -66,7 +66,7 @@ structure LeanLibConfig extends LeanConfig where
   and shared libraries. Defaults to ``#[Module.oFacet]`` (i.e., the object file
   compiled from the Lean source).
   -/
-  nativeFacets : Array (ModuleFacet ActiveFileTarget) := #[Module.oFacet]
+  nativeFacets : Array (ModuleFacet (BuildJob FilePath)) := #[Module.oFacet]
 
 deriving Inhabited
 

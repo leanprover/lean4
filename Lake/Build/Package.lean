@@ -26,11 +26,11 @@ def Package.depsFacetConfig : PackageFacetConfig depsFacet :=
   mkFacetConfig (·.recComputeDeps)
 
 /-- Build the `extraDepTarget` for the package and its transitive dependencies. -/
-def Package.recBuildExtraDepTargets (self : Package) : IndexBuildM ActiveOpaqueTarget := do
-  let mut target := ActiveTarget.nil
+def Package.recBuildExtraDepTargets (self : Package) : IndexBuildM (BuildJob Unit) := do
+  let mut job := BuildJob.nil
   for dep in self.deps do
-    target ← target.mixOpaqueAsync (← dep.extraDep.recBuild)
-  target.mixOpaqueAsync <| ← self.extraDepTarget.activate
+    job ← job.mix (← dep.extraDep.recBuild)
+  job.mix <| ← self.extraDepTarget.activate
 
 /-- The `PackageFacetConfig` for the builtin `dynlibFacet`. -/
 def Package.extraDepFacetConfig : PackageFacetConfig extraDepFacet :=

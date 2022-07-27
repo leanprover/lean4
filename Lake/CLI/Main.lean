@@ -204,7 +204,7 @@ def exe (name : Name) (args  : Array String := #[]) : LakeT IO UInt32 := do
   let ws ← getWorkspace
   if let some exe := ws.findLeanExe? name then
     let ctx ← mkBuildContext ws
-    let exeFile ← (exe.build >>= (·.build)).run MonadLog.eio ctx
+    let exeFile ← (exe.build >>= (·.await)).run MonadLog.eio ctx
     env exeFile.toString args
   else
     error s!"unknown executable `{name}`"

@@ -100,7 +100,7 @@ abbrev pkg (self : Module) : Package :=
 @[inline] def shouldPrecompile (self : Module) : Bool :=
   self.lib.precompileModules
 
-@[inline] def nativeFacets (self : Module) : Array (ModuleFacet ActiveFileTarget) :=
+@[inline] def nativeFacets (self : Module) : Array (ModuleFacet (BuildJob FilePath)) :=
   self.lib.nativeFacets
 
 @[inline] def isLeanOnly (self : Module) : Bool :=

@@ -10,8 +10,6 @@ open System
 
 namespace Lake
 
-/-! # Solo Module Targets -/
-
 def Module.buildUnlessUpToDate (mod : Module)
 (dynlibPath : SearchPath) (dynlibs : Array FilePath)
 (depTrace : BuildTrace) (leanOnly : Bool) : BuildM BuildTrace := do
@@ -32,23 +30,23 @@ def Module.buildUnlessUpToDate (mod : Module)
   modTrace.writeToFile mod.traceFile
   return mixTrace (← computeTrace mod) depTrace
 
-/-- Compute library directories and build external library targets of the given packages. -/
+/-- Compute library directories and build external library Jobs of the given packages. -/
 def recBuildExternalDynlibs (pkgs : Array Package)
-: IndexBuildM (Array ActiveDynlibTarget × Array FilePath) := do
+: IndexBuildM (Array (BuildJob Dynlib) × Array FilePath) := do
   let mut libDirs := #[]
-  let mut targets : Array ActiveDynlibTarget := #[]
+  let mut Jobs : Array (BuildJob Dynlib) := #[]
   for pkg in pkgs do
     libDirs := libDirs.push pkg.libDir
-    targets := targets.append <| ← pkg.externLibs.mapM (·.dynlib.recBuild)
-  return (targets, libDirs)
+    Jobs := Jobs.append <| ← pkg.externLibs.mapM (·.dynlib.recBuild)
+  return (Jobs, libDirs)
 
 /-- Build the dynlibs of the imports that want precompilation (and *their* imports). -/
 def recBuildPrecompileDynlibs (pkg : Package) (imports : Array Module)
-: IndexBuildM (Array ActiveFileTarget × Array ActiveDynlibTarget × Array FilePath) := do
+: IndexBuildM (Array (BuildJob String) × Array (BuildJob Dynlib) × Array FilePath) := do
   let mut pkgs := #[]
   let mut pkgSet := PackageSet.empty.insert pkg
   let mut modSet := ModuleSet.empty
-  let mut targets := #[]
+  let mut Jobs := #[]
   for imp in imports do
     if imp.shouldPrecompile then
       let (_, transImports) ← imp.imports.recBuild
@@ -58,8 +56,8 @@ def recBuildPrecompileDynlibs (pkg : Package) (imports : Array Module)
           pkgs := pkgs.push mod.pkg
         unless modSet.contains mod do
           modSet := modSet.insert mod
-          targets := targets.push <| ← mod.dynlib.recBuild
-  return (targets, ← recBuildExternalDynlibs <| pkgs.push pkg)
+          Jobs := Jobs.push <| ← mod.dynlib.recBuild
+  return (Jobs, ← recBuildExternalDynlibs <| pkgs.push pkg)
 
 variable [MonadLiftT BuildM m]
 
@@ -71,60 +69,60 @@ deriving Inhabited, Repr, DecidableEq
 /--
 Recursively build a module and its (transitive, local) imports,
 optionally outputting a `.c` file if the modules' is not lean-only or the
-requested artifact is `c`. Returns an active target producing the requested
+requested artifact is `c`. Returns an build job producing the requested
 artifact.
 -/
 def Module.recBuildLean (mod : Module) (art : LeanArtifact)
-: IndexBuildM (ActiveBuildTarget (if art = .leanBin then PUnit else FilePath)) := do
+: IndexBuildM (BuildJob (if art = .leanBin then PUnit else FilePath)) := do
   let leanOnly := mod.isLeanOnly ∧ art ≠ .c
 
   -- Compute and build dependencies
-  let extraDepTarget ← mod.pkg.extraDep.recBuild
+  let extraDepJob ← mod.pkg.extraDep.recBuild
   let (imports, _) ← mod.imports.recBuild
-  let (modTargets, externTargets, libDirs) ← recBuildPrecompileDynlibs mod.pkg imports
-  let importTarget ← ActiveTarget.collectOpaqueArray <| ← imports.mapM (·.leanBin.recBuild)
-  let externDynlibsTarget ← ActiveTarget.collectArray externTargets
-  let modDynlibsTarget ← ActiveTarget.collectArray modTargets
+  let (modJobs, externJobs, libDirs) ← recBuildPrecompileDynlibs mod.pkg imports
+  let importJob ← BuildJob.mixArray <| ← imports.mapM (·.leanBin.recBuild)
+  let externDynlibsJob ← BuildJob.collectArray externJobs
+  let modDynlibsJob ← BuildJob.collectArray modJobs
 
   -- Build Module
-  let modTarget : ActiveOpaqueTarget ← show SchedulerM _ from do
-    importTarget.bindOpaqueAsync fun importTrace => do
-    modDynlibsTarget.bindAsync fun modDynlibs modTrace => do
-    externDynlibsTarget.bindAsync fun externDynlibs externTrace => do
-    extraDepTarget.bindOpaqueSync fun depTrace => do
+  let modJob : BuildJob Unit ← show SchedulerM _ from do
+    importJob.bindAsync fun _ importTrace => do
+    modDynlibsJob.bindAsync fun modDynlibs modTrace => do
+    externDynlibsJob.bindAsync fun externDynlibs externTrace => do
+    extraDepJob.bindSync fun _ depTrace => do
       let depTrace := importTrace.mix <| modTrace.mix <| externTrace.mix depTrace
       let dynlibPath := libDirs ++ externDynlibs.filterMap ( ·.1)
       -- NOTE: Lean wants the external library symbols before module symbols
       -- NOTE: Unix requires the full file name of the dynlib (Windows doesn't care)
       let dynlibs :=
         externDynlibs.map (.mk <| nameToSharedLib ·.2) ++
-        modDynlibs.map (.mk <| nameToSharedLib ·.toString)
+        modDynlibs.map (.mk <| nameToSharedLib ·)
       let trace ← mod.buildUnlessUpToDate dynlibPath.toList dynlibs depTrace leanOnly
       return ((), trace)
 
-  -- Save All Resulting Targets & Return Requested One
-  store mod.leanBin.key modTarget
-  let oleanTarget ← modTarget.bindOpaqueSync fun depTrace =>
+  -- Save All Resulting Jobs & Return Requested One
+  store mod.leanBin.key modJob
+  let oleanJob ← modJob.bindSync fun _ depTrace =>
     return (mod.oleanFile, mixTrace (← computeTrace mod.oleanFile) depTrace)
-  store mod.olean.key <| oleanTarget
-  let ileanTarget ← modTarget.bindOpaqueSync fun depTrace =>
+  store mod.olean.key <| oleanJob
+  let ileanJob ← modJob.bindSync fun _ depTrace =>
     return (mod.ileanFile, mixTrace (← computeTrace mod.ileanFile) depTrace)
-  store mod.ilean.key <| ileanTarget
+  store mod.ilean.key <| ileanJob
   if h : leanOnly then
     have : art ≠ .c := h.2
     return match art with
-    | .leanBin => modTarget
-    | .olean => oleanTarget
-    | .ilean => ileanTarget
+    | .leanBin => modJob
+    | .olean => oleanJob
+    | .ilean => ileanJob
   else
-    let cTarget ← modTarget.bindOpaqueSync fun _ =>
+    let cJob ← modJob.bindSync fun _  _ =>
       return (mod.cFile, mixTrace (← computeTrace mod.cFile) (← getLeanTrace))
-    store mod.c.key cTarget
+    store mod.c.key cJob
     return match art with
-    | .leanBin => modTarget
-    | .olean => oleanTarget
-    | .ilean => ileanTarget
-    | .c => cTarget
+    | .leanBin => modJob
+    | .olean => oleanJob
+    | .ilean => ileanJob
+    | .c => cJob
 
 /-- The `ModuleFacetConfig` for the builtin `leanBinFacet`. -/
 def Module.leanBinFacetConfig : ModuleFacetConfig leanBinFacet :=
@@ -143,9 +141,9 @@ def Module.cFacetConfig : ModuleFacetConfig cFacet :=
   mkFacetTargetConfig (·.recBuildLean .c)
 
 /-- Recursively build the module's object file from its C file produced by `lean`. -/
-def Module.recBuildLeanO (self : Module) : IndexBuildM ActiveFileTarget := do
-  let cTarget := Target.active (← self.c.recBuild)
-  leanOFileTarget self.oFile cTarget self.leancArgs |>.activate
+def Module.recBuildLeanO (self : Module) : IndexBuildM (BuildJob FilePath) := do
+  let cJob := Target.active (← self.c.recBuild)
+  leanOFileTarget self.oFile cJob self.leancArgs |>.activate
 
 /-- The `ModuleFacetConfig` for the builtin `oFacet`. -/
 def Module.oFacetConfig : ModuleFacetConfig oFacet :=
@@ -182,43 +180,43 @@ def Module.importFacetConfig : ModuleFacetConfig importFacet :=
 
 /-- Build the dynlibs of all imports. -/
 def recBuildDynlibs (pkg : Package) (imports : Array Module)
-: IndexBuildM (Array ActiveFileTarget × Array ActiveDynlibTarget × Array FilePath) := do
+: IndexBuildM (Array (BuildJob String) × Array (BuildJob Dynlib) × Array FilePath) := do
   let mut pkgs := #[]
   let mut pkgSet := PackageSet.empty.insert pkg
-  let mut targets := #[]
+  let mut Jobs := #[]
   for imp in imports do
     unless pkgSet.contains imp.pkg do
       pkgSet := pkgSet.insert imp.pkg
       pkgs := pkgs.push imp.pkg
-    targets := targets.push <| ← imp.dynlib.recBuild
-  return (targets, ← recBuildExternalDynlibs <| pkgs.push pkg)
+    Jobs := Jobs.push <| ← imp.dynlib.recBuild
+  return (Jobs, ← recBuildExternalDynlibs <| pkgs.push pkg)
 
 /-- Recursively build the shared library of a module (e.g., for `--load-dynlib`). -/
-def Module.recBuildDynlib (mod : Module) : IndexBuildM ActiveFileTarget := do
+def Module.recBuildDynlib (mod : Module) : IndexBuildM (BuildJob String) := do
 
   -- Compute dependencies
   let (_, transImports) ← mod.imports.recBuild
-  let linkTargets ← mod.nativeFacets.mapM (recBuild <| mod.facet ·.name)
-  let (modTargets, externTargets, pkgLibDirs) ← recBuildDynlibs mod.pkg transImports
+  let linkJobs ← mod.nativeFacets.mapM (recBuild <| mod.facet ·.name)
+  let (modJobs, externJobs, pkgLibDirs) ← recBuildDynlibs mod.pkg transImports
 
-  -- Collect targets
-  let linksTarget ← ActiveTarget.collectArray linkTargets
-  let modDynlibsTarget ← ActiveTarget.collectArray modTargets
-  let externDynlibsTarget : ActiveBuildTarget _  ← ActiveTarget.collectArray externTargets
+  -- Collect Jobs
+  let linksJob ← BuildJob.collectArray linkJobs
+  let modDynlibsJob ← BuildJob.collectArray modJobs
+  let externDynlibsJob ← BuildJob.collectArray externJobs
 
   -- Build dynlib
   show SchedulerM _ from do
-  linksTarget.bindAsync fun links oTrace => do
-  modDynlibsTarget.bindAsync fun modDynlibs libTrace => do
-  externDynlibsTarget.bindSync fun externDynlibs externTrace => do
-    let libNames := modDynlibs ++ externDynlibs.map (.mk ·.2)
+  linksJob.bindAsync fun links oTrace => do
+  modDynlibsJob.bindAsync fun modDynlibs libTrace => do
+  externDynlibsJob.bindSync fun externDynlibs externTrace => do
+    let libNames := modDynlibs ++ externDynlibs.map (·.2)
     let libDirs := pkgLibDirs ++ externDynlibs.filterMap (·.1)
     let depTrace := oTrace.mix <| libTrace.mix externTrace
     let trace ← buildFileUnlessUpToDate mod.dynlibFile depTrace do
       let args := links.map toString ++
         libDirs.map (s!"-L{·}") ++ libNames.map (s!"-l{·}")
       compileSharedLib mod.dynlibFile args (← getLeanc)
-    return (.mk mod.dynlibName, trace)
+    return (mod.dynlibName, trace)
 
 /-- The `ModuleFacetConfig` for the builtin `dynlibFacet`. -/
 def Module.dynlibFacetConfig : ModuleFacetConfig dynlibFacet :=

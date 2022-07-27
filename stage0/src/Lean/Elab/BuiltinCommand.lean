@@ -395,4 +395,11 @@ opaque elabEval : CommandElab
   | `($cmd₁ in $cmd₂) => `(section $cmd₁:command $cmd₂ end)
   | _                 => Macro.throwUnsupported
 
+@[builtinCommandElab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do
+  match stx with
+  | `($doc:docComment add_decl_doc $id) =>
+    let declName ← resolveGlobalConstNoOverload id
+    addDocString declName (← getDocStringText doc)
+  | _ => throwUnsupportedSyntax
+
 end Lean.Elab.Command

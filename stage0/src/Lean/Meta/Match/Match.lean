@@ -347,13 +347,13 @@ end Unify
 private def unify? (altFVarDecls : List LocalDecl) (a b : Expr) : MetaM (Option FVarSubst) := do
   trace[Meta.Match.unify] "altFVarDecls: {altFVarDecls.map fun d => d.userName}, {a} =?= {b}"
   let a ← instantiateMVars a
-    let b ← instantiateMVars b
-    let (r, s) ← Unify.unify a b { altFVarDecls := altFVarDecls} |>.run {}
-    if r then
-      return s.fvarSubst
-    else
-      trace[Meta.Match.unify] "failed to unify{indentExpr a}\nwith{indentExpr b}"
-      return none
+  let b ← instantiateMVars b
+  let (r, s) ← Unify.unify a b { altFVarDecls := altFVarDecls} |>.run {}
+  if r then
+    return s.fvarSubst
+  else
+    trace[Meta.Match.unify] "failed to unify{indentExpr a}\nwith{indentExpr b}"
+    return none
 
 private def expandVarIntoCtor? (alt : Alt) (fvarId : FVarId) (ctorName : Name) : MetaM (Option Alt) :=
   withExistingLocalDecls alt.fvarDecls do

@@ -256,13 +256,14 @@ structure MetavarDecl where
   userName       : Name := Name.anonymous
   lctx           : LocalContext
   type           : Expr
-  depth          : Nat /--
+  /--
     The nesting depth of this metavariable. We do not want
     unification subproblems to influence the results of parent
     problems. The depth keeps track of this information and ensures
     that unification subproblems cannot leak information out, by unifying
     based on depth.
   -/
+  depth          : Nat
   localInstances : LocalInstances
   kind           : MetavarKind
   numScopeArgs   : Nat := 0 -- See comment at `CheckAssignment` `Meta/ExprDefEq.lean`

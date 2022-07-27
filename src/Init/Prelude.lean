@@ -102,6 +102,47 @@ opaque Quot.ind {α : Sort u} {r : α → α → Prop} {β : Quot r → Prop} :
 -/
 init_quot
 
+/--
+Let `α` be any type, and let `r` be an equivalence relation on `α`.
+It is mathematically common to form the "quotient" `α / r`, that is, the type of elements of `α` "modulo" `r`.
+Set theoretically, one can view `α / r` as the set of equivalence classes of `α` modulo `r`.
+If `f : α → β` is any function that respects the equivalence relation in the sense that for every `x y : α`, `r x y` implies `f x = f y`,
+then f "lifts" to a function `f' : α / r → β` defined on each equivalence class `⟦x⟧` by `f' ⟦x⟧ = f x`.
+Lean extends the Calculus of Constructions with additional constants that perform exactly these constructions,
+and installs this last equation as a definitional reduction rule.
+
+Given a type `α` and any binary relation `r` on `α`, `Quot r` is a type. Note that `r` is not required to be
+an equilance relation. `Quot` is the basic building block used to construct later the type `Quotient`.
+-/
+add_decl_doc Quot
+
+/--
+Given a type `α` and any binary relation `r` on `α`, `Quot.mk` maps `α` to `Quot r`.
+So that if `r : α → α → Prop` and `a : α`, then `Quot.mk r a` is an element of `Quot r`.
+
+See `Quot`.
+-/
+add_decl_doc Quot.mk
+
+/--
+Given a type `α` and any binary relation `r` on `α`,
+`Quot.ind` says that every element of `Quot r` is of the form `Quot.mk r a`.
+
+See `Quot` and `Quot.lift`.
+-/
+add_decl_doc Quot.ind
+
+/--
+Given a type `α`, any binary relation `r` on `α`, a function `f : α → β`, and a proof `h`
+that `f` respects the relation `r`, then `Quot.lift f h` is the corresponding function on `Quot r`.
+
+The idea is that for each element `a` in `α`, the function `Quot.lift f h` maps `Quot.mk r a`
+(the `r`-class containing `a`) to `f a`, wherein `h` shows that this function is well defined.
+In fact, the computation principle is declared as a reduction rule.
+-/
+add_decl_doc Quot.lift
+
+
 inductive HEq : {α : Sort u} → α → {β : Sort u} → β → Prop where
   | refl (a : α) : HEq a a
 

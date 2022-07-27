@@ -43,7 +43,7 @@ private def postponeIsLevelDefEq (lhs : Level) (rhs : Level) : MetaM Unit := do
 
 private def isMVarWithGreaterDepth (v : Level) (mvarId : LMVarId) : MetaM Bool :=
   match v with
-  | Level.mvar mvarId' => return (← getLevelMVarDepth mvarId') > (← getLevelMVarDepth mvarId)
+  | Level.mvar mvarId' => return (← mvarId'.getLevel) > (← mvarId.getLevel)
   | _ => return false
 
 mutual
@@ -51,7 +51,7 @@ mutual
   private partial def solve (u v : Level) : MetaM LBool := do
     match u, v with
     | Level.mvar mvarId, _ =>
-      if (← isReadOnlyLevelMVar mvarId) then
+      if (← mvarId.isReadOnly) then
         return LBool.undef
       else if (← getConfig).ignoreLevelMVarDepth && (← isMVarWithGreaterDepth v mvarId) then
         -- If both `u` and `v` are both metavariables, but depth of v is greater, then we assign `v := u`.

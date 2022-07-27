@@ -137,6 +137,8 @@ def initializeKeyword := leading_parser "initialize " <|> "builtin_initialize "
 
 @[builtinCommandParser] def «in»  := trailing_parser withOpen (" in " >> commandParser)
 
+@[builtinCommandParser] def addDocString := leading_parser docComment >> "add_decl_doc" >> ident
+
 /--
   This is an auxiliary command for generation constructor injectivity theorems for inductive types defined at `Prelude.lean`.
   It is meant for bootstrapping purposes only. -/

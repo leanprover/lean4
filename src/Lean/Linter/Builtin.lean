@@ -27,7 +27,7 @@ def suspiciousUnexpanderPatterns : Linter := fun cmdStx => do
 
     if let some range := patHead.raw.getRange? then
       publishMessage
-        "Unexpanders should match the function name against an antiquotation `$_` so as to be independent of the specific pretty printing of the name."
+        "Unexpanders should match the function name against an antiquotation `$_` so as to be independent of the specific pretty printing of the name. [linter.suspiciousUnexpanderPatterns]"
         range
 
 builtin_initialize addLinter suspiciousUnexpanderPatterns

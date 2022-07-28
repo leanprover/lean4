@@ -183,10 +183,16 @@ where
       ensureType b
       check b
 
+/--
+Throw an exception if `e` is not type correct.
+-/
 def check (e : Expr) : MetaM Unit :=
   traceCtx `Meta.check do
     withTransparency TransparencyMode.all $ checkAux e
 
+/--
+Return true if `e` is type correct.
+-/
 def isTypeCorrect (e : Expr) : MetaM Bool := do
   try
     check e

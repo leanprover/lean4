@@ -219,8 +219,8 @@ we may solve the issue by implementing `isDefEqCheap` that never invokes TC and 
 -/
 
 /--
-The `LocalInstance` stores information necessary for user facing interactions:
-it stores the user facing name of the typeclass in `className`, and the
+`LocalInstance` represents a local typeclass instance registered by and for
+the elaborator. It stores the name of the typeclass in `className`, and the
 concrete typeclass instance in `fvar`. Note that the kernel does not care about
 this information, since typeclasses are entirely eliminated during elaboration.
 -/

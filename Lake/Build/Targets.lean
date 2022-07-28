@@ -47,44 +47,44 @@ def fileTargetWithDepArray (file : FilePath) (depTargets : Array (BuildTarget ι
 
 /-! # Specific Targets -/
 
-def oFileTarget (oFile : FilePath) (srcTarget : FileTarget)
+def oFileTarget (name : Name) (oFile : FilePath) (srcTarget : FileTarget)
 (args : Array String := #[]) (compiler : FilePath := "c++") : FileTarget :=
   fileTargetWithDep oFile srcTarget (extraDepTrace := computeHash args) fun srcFile => do
-    compileO oFile srcFile args compiler
+    compileO name oFile srcFile args compiler
 
-def leanOFileTarget (oFile : FilePath)
+def leanOFileTarget (name : Name) (oFile : FilePath)
 (srcTarget : FileTarget) (args : Array String := #[]) : FileTarget :=
   fileTargetWithDep oFile srcTarget (extraDepTrace := computeHash args) fun srcFile => do
-    compileO oFile srcFile args (← getLeanc)
+    compileO name oFile srcFile args (← getLeanc)
 
-def staticLibTarget (libFile : FilePath)
+def staticLibTarget (name : Name) (libFile : FilePath)
 (oFileTargets : Array FileTarget) (ar : Option FilePath := none) : FileTarget :=
   fileTargetWithDepArray libFile oFileTargets fun oFiles => do
-    compileStaticLib libFile oFiles (ar.getD (← getLeanAr))
+    compileStaticLib name libFile oFiles (ar.getD (← getLeanAr))
 
-def cSharedLibTarget (libFile : FilePath)
+def cSharedLibTarget (name : Name) (libFile : FilePath)
 (linkTargets : Array FileTarget) (linkArgs : Array String := #[])
 (linker : FilePath := "cc"): FileTarget :=
   fileTargetWithDepArray libFile linkTargets fun links => do
-    compileSharedLib libFile (links.map toString ++ linkArgs) linker
+    compileSharedLib name libFile (links.map toString ++ linkArgs) linker
 
-def leanSharedLibTarget (libFile : FilePath)
+def leanSharedLibTarget (name : Name) (libFile : FilePath)
 (linkTargets : Array FileTarget) (linkArgs : Array String := #[]) : FileTarget :=
   fileTargetWithDepArray libFile linkTargets fun links => do
-    compileSharedLib libFile (links.map toString ++ linkArgs) (← getLeanc)
+    compileSharedLib name libFile (links.map toString ++ linkArgs) (← getLeanc)
 
-def cExeTarget (exeFile : FilePath) (linkTargets : Array FileTarget)
+def cExeTarget (name : Name) (exeFile : FilePath) (linkTargets : Array FileTarget)
 (linkArgs : Array String := #[]) (linker : FilePath := "cc") : FileTarget :=
   fileTargetWithDepArray exeFile linkTargets (extraDepTrace := computeHash linkArgs) fun links => do
-    compileExe exeFile links linkArgs linker
+    compileExe name exeFile links linkArgs linker
 
-def leanExeTarget (exeFile : FilePath)
+def leanExeTarget (name : Name) (exeFile : FilePath)
 (linkTargets : Array FileTarget) (linkArgs : Array String := #[]) : FileTarget :=
   fileTargetWithDepArray exeFile linkTargets
   (extraDepTrace := getLeanTrace <&> (·.mix <| pureHash linkArgs)) fun links => do
-    compileExe exeFile links linkArgs (← getLeanc)
+    compileExe name exeFile links linkArgs (← getLeanc)
 
-def staticToLeanSharedLibTarget (staticLibTarget : FileTarget) : FileTarget :=
+def staticToLeanSharedLibTarget (name : Name) (staticLibTarget : FileTarget) : FileTarget :=
   .mk <| staticLibTarget.bindSync fun staticLib staticTrace => do
     let dynlib := staticLib.withExtension sharedLibExt
     let trace ← buildFileUnlessUpToDate dynlib staticTrace do
@@ -93,7 +93,7 @@ def staticToLeanSharedLibTarget (staticLibTarget : FileTarget) : FileTarget :=
           #[s!"-Wl,-force_load,{staticLib}"]
         else
           #["-Wl,--whole-archive", staticLib.toString, "-Wl,--no-whole-archive"]
-      compileSharedLib dynlib args (← getLeanc)
+      compileSharedLib name dynlib args (← getLeanc)
     return (dynlib, trace)
 
 def sharedToLeanDynlibTarget (sharedLibTarget : FileTarget) : DynlibTarget :=

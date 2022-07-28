@@ -7,6 +7,7 @@ import Lean.Util.Paths
 import Lake.Config.FacetConfig
 import Lake.Config.TargetConfig
 import Lake.Config.Env
+import Lake.Util.Log
 
 open System
 open Lean (LeanPaths)

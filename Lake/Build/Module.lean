@@ -19,12 +19,12 @@ def Module.buildUnlessUpToDate (mod : Module)
   let modUpToDate ← modTrace.checkAgainstFile mod mod.traceFile
   if leanOnly then
     unless modUpToDate do
-      compileLeanModule mod.leanFile mod.oleanFile mod.ileanFile none
+      compileLeanModule mod.name mod.leanFile mod.oleanFile mod.ileanFile none
         (← getLeanPath) mod.rootDir dynlibs dynlibPath mod.leanArgs (← getLean)
   else
     let cUpToDate ← modTrace.checkAgainstFile mod.cFile mod.cTraceFile
     unless modUpToDate && cUpToDate do
-      compileLeanModule mod.leanFile mod.oleanFile mod.ileanFile mod.cFile
+      compileLeanModule mod.name mod.leanFile mod.oleanFile mod.ileanFile mod.cFile
         (← getLeanPath) mod.rootDir dynlibs dynlibPath mod.leanArgs (← getLean)
     modTrace.writeToFile mod.cTraceFile
   modTrace.writeToFile mod.traceFile
@@ -143,7 +143,7 @@ def Module.cFacetConfig : ModuleFacetConfig cFacet :=
 /-- Recursively build the module's object file from its C file produced by `lean`. -/
 def Module.recBuildLeanO (self : Module) : IndexBuildM (BuildJob FilePath) := do
   let cJob := Target.active (← self.c.recBuild)
-  leanOFileTarget self.oFile cJob self.leancArgs |>.activate
+  leanOFileTarget self.name self.oFile cJob self.leancArgs |>.activate
 
 /-- The `ModuleFacetConfig` for the builtin `oFacet`. -/
 def Module.oFacetConfig : ModuleFacetConfig oFacet :=
@@ -215,7 +215,7 @@ def Module.recBuildDynlib (mod : Module) : IndexBuildM (BuildJob String) := do
     let trace ← buildFileUnlessUpToDate mod.dynlibFile depTrace do
       let args := links.map toString ++
         libDirs.map (s!"-L{·}") ++ libNames.map (s!"-l{·}")
-      compileSharedLib mod.dynlibFile args (← getLeanc)
+      compileSharedLib mod.name mod.dynlibFile args (← getLeanc)
     return (mod.dynlibName, trace)
 
 /-- The `ModuleFacetConfig` for the builtin `dynlibFacet`. -/

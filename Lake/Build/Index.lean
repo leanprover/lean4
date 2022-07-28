@@ -59,7 +59,7 @@ def recBuildWithIndex : (info : BuildInfo) → IndexBuildM (BuildData info.key)
 | .sharedExternLib lib =>
   mkTargetFacetBuild ExternLib.sharedFacet do
     let staticTarget := Target.active <| ← lib.static.recBuild
-    staticToLeanSharedLibTarget staticTarget |>.activate
+    staticToLeanSharedLibTarget lib.name staticTarget |>.activate
 | .dynlibExternLib lib =>
   mkTargetFacetBuild ExternLib.dynlibFacet do
     let sharedTarget := Target.active <| ← lib.shared.recBuild

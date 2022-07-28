@@ -30,6 +30,7 @@ structure LakeOptions where
   configOpts : NameMap String := {}
   subArgs : List String := []
   wantsHelp : Bool := false
+  verbosity : Verbosity := .normal
 
 /-- Get the Lean installation. Error if missing. -/
 def LakeOptions.getLeanInstall (opts : LakeOptions) : Except CliError LeanInstall :=
@@ -60,6 +61,7 @@ def LakeOptions.mkLoadConfig
     configFile := opts.rootDir / opts.configFile
     configOpts := opts.configOpts
     leanOpts := Lean.Options.empty
+    verbosity := opts.verbosity
     updateDeps
   }
 
@@ -76,6 +78,9 @@ def CliM.run (self : CliM α) (args : List String) : BaseIO ExitCode := do
   let main := self args |>.run' {leanInstall?, lakeInstall?}
   let main := main.run >>= fun | .ok a => pure a | .error e => error e.toString
   main.run
+
+instance : MonadLift LogIO CliStateM :=
+  ⟨fun x => do MainM.runLogIO x (← get).verbosity⟩
 
 /-! ## Argument Parsing -/
 
@@ -119,18 +124,22 @@ def setConfigOpt (kvPair : String) : CliM PUnit :=
 
 def lakeShortOption : (opt : Char) → CliM PUnit
 | 'h' => modifyThe LakeOptions ({· with wantsHelp := true})
+| 'q' => modifyThe LakeOptions ({· with verbosity := .quiet})
+| 'v' => modifyThe LakeOptions ({· with verbosity := .verbose})
 | 'd' => do let rootDir ← takeOptArg "-d" "path"; modifyThe LakeOptions ({· with rootDir})
 | 'f' => do let configFile ← takeOptArg "-f" "path"; modifyThe LakeOptions ({· with configFile})
 | 'K' => do setConfigOpt <| ← takeOptArg "-K" "key-value pair"
 | opt => throw <| CliError.unknownShortOption opt
 
 def lakeLongOption : (opt : String) → CliM PUnit
-| "--help"  => modifyThe LakeOptions ({· with wantsHelp := true})
-| "--dir"   => do let rootDir ← takeOptArg "--dir" "path"; modifyThe LakeOptions ({· with rootDir})
-| "--file"  => do let configFile ← takeOptArg "--file" "path"; modifyThe LakeOptions ({· with configFile})
-| "--lean"  => do setLean <| ← takeOptArg "--lean" "path or command"
-| "--"      => do let subArgs ← takeArgs; modifyThe LakeOptions ({· with subArgs})
-| opt       => throw <| CliError.unknownLongOption opt
+| "--help"    => modifyThe LakeOptions ({· with wantsHelp := true})
+| "--quiet"   => modifyThe LakeOptions ({· with verbosity := .quiet})
+| "--verbose" => modifyThe LakeOptions ({· with verbosity := .verbose})
+| "--dir"     => do let rootDir ← takeOptArg "--dir" "path"; modifyThe LakeOptions ({· with rootDir})
+| "--file"    => do let configFile ← takeOptArg "--file" "path"; modifyThe LakeOptions ({· with configFile})
+| "--lean"    => do setLean <| ← takeOptArg "--lean" "path or command"
+| "--"        => do let subArgs ← takeArgs; modifyThe LakeOptions ({· with subArgs})
+| opt         => throw <| CliError.unknownLongOption opt
 
 def lakeOption :=
   option {
@@ -175,9 +184,9 @@ def printPaths (config : LoadConfig) (imports : List String := []) : MainM PUnit
     if (← IO.getEnv invalidConfigEnvVar) matches some .. then
       IO.eprintln s!"Error parsing '{configFile}'.  Please restart the lean server after fixing the Lake configuration file."
       exit 1
-    let ws ← loadWorkspace config
+    let ws ← MainM.runLogIO (loadWorkspace config) config.verbosity
     let ctx ← mkBuildContext ws
-    let dynlibs ← ws.root.buildImportsAndDeps imports |>.run MonadLog.eio ctx
+    let dynlibs ← ws.root.buildImportsAndDeps imports |>.run (MonadLog.eio config.verbosity) ctx
     IO.println <| Json.compress <| toJson {ws.leanPaths with loadDynlibPaths := dynlibs}
   else
     exit noConfigFileCode
@@ -200,11 +209,11 @@ def serve (config : LoadConfig) (args : Array String) : LogIO UInt32 := do
     env := extraEnv
   }).wait
 
-def exe (name : Name) (args  : Array String := #[]) : LakeT IO UInt32 := do
+def exe (name : Name) (args  : Array String := #[]) (verbosity : Verbosity) : LakeT IO UInt32 := do
   let ws ← getWorkspace
   if let some exe := ws.findLeanExe? name then
     let ctx ← mkBuildContext ws
-    let exeFile ← (exe.build >>= (·.await)).run MonadLog.eio ctx
+    let exeFile ← (exe.build >>= (·.await)).run (MonadLog.eio verbosity) ctx
     env exeFile.toString args
   else
     error s!"unknown executable `{name}`"
@@ -287,13 +296,13 @@ protected def new : CliM PUnit := do
   processOptions lakeOption
   let pkgName ← takeArg "package name"
   let template ← parseTemplateSpec <| (← takeArg?).getD ""
-  noArgsRem <| new pkgName template
+  noArgsRem <| MainM.runLogIO (new pkgName template) (← getThe LakeOptions).verbosity
 
 protected def init : CliM PUnit := do
   processOptions lakeOption
   let pkgName ← takeArg "package name"
   let template ← parseTemplateSpec <| (← takeArg?).getD ""
-  noArgsRem <| init pkgName template
+  noArgsRem <| MainM.runLogIO (init pkgName template) (← getThe LakeOptions).verbosity
 
 protected def build : CliM PUnit := do
   processOptions lakeOption
@@ -303,7 +312,7 @@ protected def build : CliM PUnit := do
   let targetSpecs ← takeArgs
   let specs ← parseTargetSpecs ws targetSpecs
   let ctx ← mkBuildContext ws
-  BuildM.run MonadLog.io ctx <| buildSpecs specs
+  BuildM.run (MonadLog.io config.verbosity) ctx <| buildSpecs specs
 
 protected def update : CliM PUnit := do
   processOptions lakeOption
@@ -349,7 +358,7 @@ protected def exe : CliM PUnit := do
   let config ← mkLoadConfig (← getThe LakeOptions)
   let ws ← loadWorkspace config
   let ctx := mkLakeContext ws
-  exit <| ← (exe exeName args.toArray).run ctx
+  exit <| ← (exe exeName args.toArray config.verbosity).run ctx
 
 protected def selfCheck : CliM PUnit := do
   processOptions lakeOption

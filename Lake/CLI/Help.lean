@@ -18,6 +18,8 @@ OPTIONS:
   --help, -h            print help of the program or a command and exit
   --dir, -d=file        use the package configuration in a specific directory
   --file, -f=file       use a specific file for the package configuration
+  --quiet, -q           hide progress messages
+  --verbose, -v         show verbose information (command invocations)
   --lean=cmd            specify the `lean` command used by Lake
   -K key[=value]        set the configuration file option named key
 

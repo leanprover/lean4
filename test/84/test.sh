@@ -32,6 +32,6 @@ git commit -am 'second commit in a'
 popd
 
 pushd b
-$LAKE1 update
+$LAKE1 update -v
 git diff | grep -m1 manifest
 popd

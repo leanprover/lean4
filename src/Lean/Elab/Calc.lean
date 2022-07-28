@@ -18,16 +18,25 @@ def getCalcRelation? (e : Expr) : MetaM (Option (Expr × Expr × Expr)) :=
   else
     return some (e.appFn!.appFn!, e.appFn!.appArg!, e.appArg!)
 
+private def getRelUniv (r : Expr) : MetaM Level := do
+  let rType ← inferType r
+  forallTelescopeReducing rType fun _ sort => do
+    let .sort u ← whnf sort | throwError "unexpected relation type{indentExpr rType}"
+    return u
+
 def mkCalcTrans (result resultType step stepType : Expr) : MetaM (Expr × Expr) := do
   let some (r, a, b) ← getCalcRelation? resultType | unreachable!
   let some (s, _, c) ← getCalcRelation? (← instantiateMVars stepType) | unreachable!
+  let u ← getRelUniv r
+  let v ← getRelUniv s
   let (α, β, γ)       := (← inferType a, ← inferType b, ← inferType c)
   let (u_1, u_2, u_3) := (← getLevel α, ← getLevel β, ← getLevel γ)
-  let t ← mkFreshExprMVar (← mkArrow α (← mkArrow γ (mkSort levelZero)))
-  let selfType := mkAppN (Lean.mkConst ``Trans [u_1, u_2, u_3]) #[α, β, γ, r, s, t]
+  let w ← mkFreshLevelMVar
+  let t ← mkFreshExprMVar (← mkArrow α (← mkArrow γ (mkSort w)))
+  let selfType := mkAppN (Lean.mkConst ``Trans [u, v, w, u_1, u_2, u_3]) #[α, β, γ, r, s, t]
   match (← trySynthInstance selfType) with
-  | LOption.some self =>
-    let result := mkAppN (Lean.mkConst ``Trans.trans [u_1, u_2, u_3]) #[α, β, γ, r, s, t, self, a, b, c, result, step]
+  | .some self =>
+    let result := mkAppN (Lean.mkConst ``Trans.trans [u, v, w, u_1, u_2, u_3]) #[α, β, γ, r, s, t, self, a, b, c, result, step]
     let resultType := (← instantiateMVars (← inferType result)).headBeta
     unless (← getCalcRelation? resultType).isSome do
       throwError "invalid 'calc' step, step result is not a relation{indentExpr resultType}"

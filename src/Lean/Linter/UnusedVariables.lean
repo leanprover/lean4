@@ -151,6 +151,9 @@ opaque getUnusedVariablesIgnoreFns : CommandElabM (Array IgnoreFunction)
 
 
 def unusedVariables : Linter := fun cmdStx => do
+  unless getLinterUnusedVariables (← getOptions) do
+    return
+
   -- NOTE: `messages` is local to the current command
   if (← get).messages.hasErrors then
     return

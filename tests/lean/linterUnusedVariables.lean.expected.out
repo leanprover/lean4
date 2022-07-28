@@ -3,8 +3,8 @@ linterUnusedVariables.lean:15:21-15:22: warning: unused variable `x`
 linterUnusedVariables.lean:21:8-21:9: warning: unused variable `x`
 linterUnusedVariables.lean:28:2-28:3: warning: unused variable `x`
 linterUnusedVariables.lean:33:5-33:6: warning: unused variable `x`
-linterUnusedVariables.lean:38:2-38:3: warning: unused variable `f`
 linterUnusedVariables.lean:38:5-38:6: warning: unused variable `x`
+linterUnusedVariables.lean:38:2-38:3: warning: unused variable `f`
 linterUnusedVariables.lean:41:7-41:8: warning: unused variable `x`
 linterUnusedVariables.lean:44:8-44:9: warning: unused variable `x`
 linterUnusedVariables.lean:48:9-48:10: warning: unused variable `z`

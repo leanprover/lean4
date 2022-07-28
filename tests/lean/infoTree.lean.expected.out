@@ -472,18 +472,18 @@ infoTree.lean:44:0: error: expected stx
   B : Type @ ⟨50, 12⟩-⟨50, 13⟩ @ Lean.Elab.Term.elabIdent
     [.] `B : some Sort.{?_uniq} @ ⟨50, 12⟩-⟨50, 13⟩
     B : Type @ ⟨50, 12⟩-⟨50, 13⟩
-  _uniq.1237 (isBinder := true) : B @ ⟨50, 8⟩-⟨50, 9⟩
+  _uniq.1239 (isBinder := true) : B @ ⟨50, 8⟩-⟨50, 9⟩
   B : Type @ ⟨50, 17⟩-⟨50, 18⟩ @ Lean.Elab.Term.elabIdent
     [.] `B : some Sort.{?_uniq} @ ⟨50, 17⟩-⟨50, 18⟩
     B : Type @ ⟨50, 17⟩-⟨50, 18⟩
-  _uniq.1239 (isBinder := true) : B -> B @ ⟨50, 4⟩-⟨50, 6⟩
-  _uniq.1240 (isBinder := true) : B @ ⟨50, 8⟩-⟨50, 9⟩
-  B.mk (B.pair _uniq.1240) : B @ ⟨50, 22⟩-⟨50, 32⟩ @ Lean.Elab.Term.StructInst.elabStructInst
-    _uniq.1240 : B @ ⟨50, 24⟩-⟨50, 25⟩
-    B.pair _uniq.1240 : Prod.{0 0} A A @ ⟨50, 24⟩-⟨50, 25⟩† @ Lean.Elab.Term.elabProj
+  _uniq.1241 (isBinder := true) : B -> B @ ⟨50, 4⟩-⟨50, 6⟩
+  _uniq.1242 (isBinder := true) : B @ ⟨50, 8⟩-⟨50, 9⟩
+  B.mk (B.pair _uniq.1242) : B @ ⟨50, 22⟩-⟨50, 32⟩ @ Lean.Elab.Term.StructInst.elabStructInst
+    _uniq.1242 : B @ ⟨50, 24⟩-⟨50, 25⟩
+    B.pair _uniq.1242 : Prod.{0 0} A A @ ⟨50, 24⟩-⟨50, 25⟩† @ Lean.Elab.Term.elabProj
       [.] `b : some Prod.{0 0} A A @ ⟨50, 24⟩-⟨50, 25⟩
-      _uniq.1240 : B @ ⟨50, 24⟩-⟨50, 25⟩
-      [.] _uniq.1240 : B @ ⟨50, 24⟩-⟨50, 25⟩ : some Prod.{0 0} A A
+      _uniq.1242 : B @ ⟨50, 24⟩-⟨50, 25⟩
+      [.] _uniq.1242 : B @ ⟨50, 24⟩-⟨50, 25⟩ : some Prod.{0 0} A A
       B.pair : B -> (Prod.{0 0} A A) @ ⟨50, 24⟩†-⟨50, 25⟩†
-    pair : Prod.{0 0} A A := B.pair _uniq.1240 @ ⟨50, 22⟩†-⟨50, 32⟩
+    pair : Prod.{0 0} A A := B.pair _uniq.1242 @ ⟨50, 22⟩†-⟨50, 32⟩
   f7 (isBinder := true) : B -> B @ ⟨50, 4⟩-⟨50, 6⟩

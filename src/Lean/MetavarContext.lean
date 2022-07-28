@@ -218,6 +218,10 @@ very simple unification and/or non-nested TC. So, if the "app builder" becomes a
 we may solve the issue by implementing `isDefEqCheap` that never invokes TC and uses tmp metavars.
 -/
 
+/--
+The LocalInstance stores information that the kernel does not care about, but is still
+important to carry for user-facing reasons about local instances in the LocalContext.
+-/
 structure LocalInstance where
   className : Name
   fvar      : Expr
@@ -252,6 +256,13 @@ structure MetavarDecl where
   userName       : Name := Name.anonymous
   lctx           : LocalContext
   type           : Expr
+  /--
+    The nesting depth of this metavariable. We do not want
+    unification subproblems to influence the results of parent
+    problems. The depth keeps track of this information and ensures
+    that unification subproblems cannot leak information out, by unifying
+    based on depth.
+  -/
   depth          : Nat
   localInstances : LocalInstances
   kind           : MetavarKind
@@ -264,6 +275,12 @@ structure MetavarDecl where
   `mvarIdPending` is a `syntheticOpaque` metavariable that has not been synthesized yet. The delayed assignment becomes a real one
   as soon as `mvarIdPending` has been fully synthesized.
   `fvars` are variables in the `mvarIdPending` local context.
+
+  Recall that we use a locally nameless approach when dealing with binders. Suppose we are
+  trying to synthesize `?n` in the expression `e`, in the context of `(fun x => e)`.
+  The metavariable `?n` might depend on the bound variable `x`. However, since we are locally nameless,
+  the bound variable `x` is in fact represented by some free variable `fvar_x`. Thus, when we exit
+  the scope, we must rebind the value of `fvar_x` in `?n` to the de-bruijn index of the bound variable `x`.
 -/
 structure DelayedMetavarAssignment where
   fvars         : Array Expr

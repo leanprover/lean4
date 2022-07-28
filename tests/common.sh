@@ -27,8 +27,7 @@ function compile_lean {
 
 function exec_capture {
     # mvar suffixes like in `?m.123` are deterministic but prone to change on minor changes, so strip them
-    # also strip intermittent "building '/nix/store/..." messages
-    LEAN_BACKTRACE=0 "$@" 2>&1 | perl -pe 's/(\?(\w|_\w+))\.[0-9]+/\1/g;s!building '\''/nix/.*\n!!g' > "$f.produced.out"
+    LEAN_BACKTRACE=0 "$@" 2>&1 | perl -pe 's/(\?(\w|_\w+))\.[0-9]+/\1/g' > "$f.produced.out"
 }
 
 # Remark: `${var+x}` is a parameter expansion which evaluates to nothing if `var` is unset, and substitutes the string `x` otherwise.

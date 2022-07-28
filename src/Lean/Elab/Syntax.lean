@@ -53,6 +53,12 @@ def ensureUnaryOutput (x : Term × Nat) : Term :=
 @[inline] private def withNestedParser (x : ToParserDescr) : ToParserDescr := do
   withReader (fun ctx => { ctx with leftRec := false, first := false }) x
 
+/-- (Try to) a term info for the category `catName` at `ref`. -/
+def addCategoryInfo (ref : Syntax) (catName : Name) : TermElabM Unit := do
+    let declName := ``Lean.Parser.Category ++ catName
+    if (← getEnv).contains declName then
+      addTermInfo' ref (Lean.mkConst declName)
+
 def checkLeftRec (stx : Syntax) : ToParserDescrM Bool := do
   let ctx ← read
   unless ctx.first && stx.getKind == ``Lean.Parser.Syntax.cat do
@@ -60,6 +66,7 @@ def checkLeftRec (stx : Syntax) : ToParserDescrM Bool := do
   let cat := stx[0].getId.eraseMacroScopes
   unless cat == ctx.catName do
     return false
+  addCategoryInfo stx cat
   let prec? ← liftMacroM <| expandOptPrecedence stx[1]
   unless ctx.leftRec do
     throwErrorAt stx[3] "invalid occurrence of '{cat}', parser algorithm does not allow this form of left recursion"
@@ -86,12 +93,6 @@ def resolveParserName [Monad m] [MonadInfoTree m] [MonadResolveName m] [MonadEnv
         | Expr.const ``Lean.TrailingParserDescr _   => (c, true)
         | _                                         => none
   catch _ => return []
-
-/-- (Try to) a term info for the category `catName` at `ref`. -/
-def addCategoryInfo (ref : Syntax) (catName : Name) : TermElabM Unit := do
-    let declName := ``Lean.Parser.Category ++ catName
-    if (← getEnv).contains declName then
-      addTermInfo' ref (Lean.mkConst declName)
 
 open TSyntax.Compat in
 /--

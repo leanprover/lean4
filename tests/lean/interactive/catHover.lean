@@ -17,3 +17,6 @@ end Foo
 
 macro "boo " : term => `(0)
              --^ textDocument/hover
+
+syntax term " ++ " value : term
+       --^ textDocument/hover

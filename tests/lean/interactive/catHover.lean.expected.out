@@ -38,3 +38,11 @@
  {"value":
   "```lean\nLean.Parser.Category.term : Lean.Parser.Category\n```\n***\nThe term syntax category. ",
   "kind": "markdown"}}
+{"textDocument": {"uri": "file://catHover.lean"},
+ "position": {"line": 20, "character": 9}}
+{"range":
+ {"start": {"line": 20, "character": 7}, "end": {"line": 20, "character": 11}},
+ "contents":
+ {"value":
+  "```lean\nLean.Parser.Category.term : Lean.Parser.Category\n```\n***\nThe term syntax category. ",
+  "kind": "markdown"}}

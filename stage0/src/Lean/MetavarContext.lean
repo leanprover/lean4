@@ -280,7 +280,6 @@ structure MetavarContext where
   lAssignment    : PersistentHashMap LMVarId Level := {}
   eAssignment    : PersistentHashMap MVarId Expr := {}
   dAssignment    : PersistentHashMap MVarId DelayedMetavarAssignment := {}
-  usedAssignment : Bool := false
 
 class MonadMCtx (m : Type → Type) where
   getMCtx    : m MetavarContext
@@ -292,32 +291,20 @@ instance (m n) [MonadLift m n] [MonadMCtx m] : MonadMCtx n where
   getMCtx    := liftM (getMCtx : m _)
   modifyMCtx := fun f => liftM (modifyMCtx f : m _)
 
-def markUsedAssignment [MonadMCtx m] : m Unit :=
-  modifyMCtx fun mctx => { mctx with usedAssignment := true }
+abbrev setMCtx [MonadMCtx m] (mctx : MetavarContext) : m Unit :=
+  modifyMCtx fun _ => mctx
 
-abbrev setMCtx [MonadMCtx m] (mctx' : MetavarContext) : m Unit :=
-  modifyMCtx fun mctx => { mctx' with usedAssignment := mctx'.usedAssignment || mctx.usedAssignment }
-
-abbrev getLevelMVarAssignment? [Monad m] [MonadMCtx m] (mvarId : LMVarId) : m (Option Level) := do
-  let result? := (← getMCtx).lAssignment.find? mvarId
-  if result?.isSome then
-    markUsedAssignment
-  return result?
+abbrev getLevelMVarAssignment? [Monad m] [MonadMCtx m] (mvarId : LMVarId) : m (Option Level) :=
+  return (← getMCtx).lAssignment.find? mvarId
 
 def MetavarContext.getExprAssignmentCore? (m : MetavarContext) (mvarId : MVarId) : Option Expr :=
   m.eAssignment.find? mvarId
 
-def getExprMVarAssignment? [Monad m] [MonadMCtx m] (mvarId : MVarId) : m (Option Expr) := do
-  let result? := (← getMCtx).getExprAssignmentCore? mvarId
-  if result?.isSome then
-    markUsedAssignment
-  return result?
+def getExprMVarAssignment? [Monad m] [MonadMCtx m] (mvarId : MVarId) : m (Option Expr) :=
+  return (← getMCtx).getExprAssignmentCore? mvarId
 
-def getDelayedMVarAssignment? [Monad m] [MonadMCtx m] (mvarId : MVarId) : m (Option DelayedMetavarAssignment) := do
-  let result? := (← getMCtx).dAssignment.find? mvarId
-  if result?.isSome then
-    markUsedAssignment
-  return result?
+def getDelayedMVarAssignment? [Monad m] [MonadMCtx m] (mvarId : MVarId) : m (Option DelayedMetavarAssignment) :=
+  return (← getMCtx).dAssignment.find? mvarId
 
 /-- Given a sequence of delayed assignments
    ```
@@ -332,21 +319,18 @@ partial def getDelayedMVarRoot [Monad m] [MonadMCtx m] (mvarId : MVarId) : m MVa
   | some d => getDelayedMVarRoot d.mvarIdPending
   | none   => return mvarId
 
-def isLevelMVarAssigned [Monad m] [MonadMCtx m] (mvarId : LMVarId) : m Bool := do
-  markUsedAssignment
+def isLevelMVarAssigned [Monad m] [MonadMCtx m] (mvarId : LMVarId) : m Bool :=
   return (← getMCtx).lAssignment.contains mvarId
 
 /-- Return `true` if the give metavariable is already assigned. -/
-def _root_.Lean.MVarId.isAssigned [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool := do
-  markUsedAssignment
+def _root_.Lean.MVarId.isAssigned [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool :=
   return (← getMCtx).eAssignment.contains mvarId
 
 @[deprecated MVarId.isAssigned]
 def isExprMVarAssigned [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool := do
   mvarId.isAssigned
 
-def _root_.Lean.MVarId.isDelayedAssigned [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool := do
-  markUsedAssignment
+def _root_.Lean.MVarId.isDelayedAssigned [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool :=
   return (← getMCtx).dAssignment.contains mvarId
 
 @[deprecated MVarId.isDelayedAssigned]
@@ -354,7 +338,6 @@ def isMVarDelayedAssigned [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool := 
   mvarId.isDelayedAssigned
 
 def isLevelMVarAssignable [Monad m] [MonadMCtx m] (mvarId : LMVarId) : m Bool := do
-  markUsedAssignment
   let mctx ← getMCtx
   match mctx.lDepth.find? mvarId with
   | some d => return d == mctx.depth
@@ -366,7 +349,6 @@ def MetavarContext.getDecl (mctx : MetavarContext) (mvarId : MVarId) : MetavarDe
   | none      => panic! "unknown metavariable"
 
 def _root_.Lean.MVarId.isAssignable [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool := do
-  markUsedAssignment
   let mctx ← getMCtx
   let decl := mctx.getDecl mvarId
   return decl.depth == mctx.depth
@@ -430,7 +412,7 @@ def hasAssignableMVar [Monad m] [MonadMCtx m] : Expr → m Bool
   This is a low-level API, and it is safer to use `isLevelDefEq (mkLevelMVar mvarId) u`.
 -/
 def assignLevelMVar [MonadMCtx m] (mvarId : LMVarId) (val : Level) : m Unit :=
-  modifyMCtx fun m => { m with lAssignment := m.lAssignment.insert mvarId val, usedAssignment := true }
+  modifyMCtx fun m => { m with lAssignment := m.lAssignment.insert mvarId val }
 
 /--
 Add `mvarId := x` to the metavariable assignment.
@@ -439,14 +421,14 @@ a cycle is being introduced, or whether the expression has the right type.
 This is a low-level API, and it is safer to use `isDefEq (mkMVar mvarId) x`.
 -/
 def _root_.Lean.MVarId.assign [MonadMCtx m] (mvarId : MVarId) (val : Expr) : m Unit :=
-  modifyMCtx fun m => { m with eAssignment := m.eAssignment.insert mvarId val, usedAssignment := true }
+  modifyMCtx fun m => { m with eAssignment := m.eAssignment.insert mvarId val }
 
 @[deprecated MVarId.assign]
 def assignExprMVar [MonadMCtx m] (mvarId : MVarId) (val : Expr) : m Unit :=
   mvarId.assign val
 
 def assignDelayedMVar [MonadMCtx m] (mvarId : MVarId) (fvars : Array Expr) (mvarIdPending : MVarId) : m Unit :=
-  modifyMCtx fun m => { m with dAssignment := m.dAssignment.insert mvarId { fvars, mvarIdPending }, usedAssignment := true }
+  modifyMCtx fun m => { m with dAssignment := m.dAssignment.insert mvarId { fvars, mvarIdPending } }
 
 /--
 Notes on artificial eta-expanded terms due to metavariables.

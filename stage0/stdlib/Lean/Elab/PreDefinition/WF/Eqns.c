@@ -5137,7 +5137,7 @@ x_14 = lean_unbox(x_13);
 lean_dec(x_13);
 if (x_14 == 0)
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
+lean_object* x_15; lean_object* x_16; 
 x_15 = lean_ctor_get(x_12, 1);
 lean_inc(x_15);
 lean_dec(x_12);
@@ -5147,6 +5147,9 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_1);
 x_16 = l_Lean_Elab_Eqns_tryContradiction(x_1, x_7, x_8, x_9, x_10, x_15);
+if (lean_obj_tag(x_16) == 0)
+{
+lean_object* x_17; uint8_t x_18; 
 x_17 = lean_ctor_get(x_16, 0);
 lean_inc(x_17);
 x_18 = lean_unbox(x_17);
@@ -5810,27 +5813,59 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_136 = !lean_is_exclusive(x_12);
+x_136 = !lean_is_exclusive(x_16);
 if (x_136 == 0)
 {
-lean_object* x_137; lean_object* x_138; 
-x_137 = lean_ctor_get(x_12, 0);
-lean_dec(x_137);
-x_138 = lean_box(0);
-lean_ctor_set(x_12, 0, x_138);
+return x_16;
+}
+else
+{
+lean_object* x_137; lean_object* x_138; lean_object* x_139; 
+x_137 = lean_ctor_get(x_16, 0);
+x_138 = lean_ctor_get(x_16, 1);
+lean_inc(x_138);
+lean_inc(x_137);
+lean_dec(x_16);
+x_139 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_139, 0, x_137);
+lean_ctor_set(x_139, 1, x_138);
+return x_139;
+}
+}
+}
+else
+{
+uint8_t x_140; 
+lean_dec(x_10);
+lean_dec(x_9);
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+x_140 = !lean_is_exclusive(x_12);
+if (x_140 == 0)
+{
+lean_object* x_141; lean_object* x_142; 
+x_141 = lean_ctor_get(x_12, 0);
+lean_dec(x_141);
+x_142 = lean_box(0);
+lean_ctor_set(x_12, 0, x_142);
 return x_12;
 }
 else
 {
-lean_object* x_139; lean_object* x_140; lean_object* x_141; 
-x_139 = lean_ctor_get(x_12, 1);
-lean_inc(x_139);
+lean_object* x_143; lean_object* x_144; lean_object* x_145; 
+x_143 = lean_ctor_get(x_12, 1);
+lean_inc(x_143);
 lean_dec(x_12);
-x_140 = lean_box(0);
-x_141 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_141, 0, x_140);
-lean_ctor_set(x_141, 1, x_139);
-return x_141;
+x_144 = lean_box(0);
+x_145 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_145, 0, x_144);
+lean_ctor_set(x_145, 1, x_143);
+return x_145;
 }
 }
 }

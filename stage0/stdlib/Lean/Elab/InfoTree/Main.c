@@ -1870,14 +1870,13 @@ x_1 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__4;
 x_2 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__6;
 x_3 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__7;
 x_4 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__10;
-x_5 = lean_alloc_ctor(0, 7, 0);
+x_5 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
 lean_ctor_set(x_5, 2, x_3);
 lean_ctor_set(x_5, 3, x_1);
 lean_ctor_set(x_5, 4, x_1);
 lean_ctor_set(x_5, 5, x_4);
-lean_ctor_set(x_5, 6, x_4);
 return x_5;
 }
 }

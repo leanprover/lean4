@@ -235,8 +235,7 @@ structure Cache where
   synthInstance  : SynthInstanceCache := {}
   whnfDefault    : WhnfCache := {} -- cache for closed terms and `TransparencyMode.default`
   whnfAll        : WhnfCache := {} -- cache for closed terms and `TransparencyMode.all`
-  defEqDefault   : DefEqCache := {}
-  defEqAll       : DefEqCache := {}
+  defEq          : DefEqCache := {}
   deriving Inhabited
 
 /--
@@ -335,8 +334,7 @@ protected def saveState : MetaM SavedState :=
 /-- Restore backtrackable parts of the state. -/
 def SavedState.restore (b : SavedState) : MetaM Unit := do
   Core.restore b.core
-  setMCtx b.meta.mctx -- Recall that `setMCtx` propagate `usedAssignment`
-  modify fun s => { s with zetaFVarIds := b.meta.zetaFVarIds, postponed := b.meta.postponed }
+  modify fun s => { s with mctx := b.meta.mctx, zetaFVarIds := b.meta.zetaFVarIds, postponed := b.meta.postponed }
 
 instance : MonadBacktrack SavedState MetaM where
   saveState      := Meta.saveState
@@ -383,7 +381,10 @@ variable [MonadControlT MetaM n] [Monad n]
   modify fun ⟨mctx, cache, zetaFVarIds, postponed⟩ => ⟨mctx, f cache, zetaFVarIds, postponed⟩
 
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
-  modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6⟩
+  modifyCache fun ⟨ic, c1, c2, c3, c4, c5⟩ => ⟨f ic, c1, c2, c3, c4, c5⟩
+
+@[inline] def modifyDefEqCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
+  modifyCache fun ⟨c1, c2, c3, c4, c5, defeq⟩ => ⟨c1, c2, c3, c4, c5, f defeq⟩
 
 def getLocalInstances : MetaM LocalInstances :=
   return (← read).localInstances
@@ -1326,8 +1327,7 @@ private def withNewMCtxDepthImp (x : MetaM α) : MetaM α := do
   try
     x
   finally
-    setMCtx saved.mctx -- Recall that `setMCtx` propagate `usedAssignment`
-    modify fun s => { s with postponed := saved.postponed }
+    modify fun s => { s with mctx := saved.mctx, postponed := saved.postponed }
 
 /--
   Save cache and `MetavarContext`, bump the `MetavarContext` depth, execute `x`,
@@ -1625,6 +1625,16 @@ partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure :=
 -/
 @[specialize] def checkpointDefEq (x : MetaM Bool) (mayPostpone : Bool := true) : MetaM Bool := do
   let s ← saveState
+  /-
+    It is not safe to use the `isDefEq` cache between different `isDefEq` calls.
+    Reason: different configuration settings, and result depends on the state of the `MetavarContext`
+    We have tried in the past to track when the result was independent of the `MetavarContext` state
+    but it was not effective. It is more important to cache aggressively inside of a single `isDefEq`
+    call because some of the heuristics create many similar subproblems.
+    See issue #1102 for an example that triggers an exponential blowup if we don't use this more
+    aggresive form of caching.
+  -/
+  modifyDefEqCache fun _ => {}
   let postponed ← getResetPostponed
   try
     if (← x) then

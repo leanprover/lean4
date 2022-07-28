@@ -20,7 +20,6 @@ size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_resolveGlobalConst___at_Lean_Elab_elabDeriving___spec__10___closed__1;
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_defaultHandler___closed__4;
-lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Command_mkInstanceName___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_elabDeriving_declRange___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_registerBuiltinDerivingHandlerWithArgs___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -130,6 +129,7 @@ static lean_object* l_Lean_Elab_elabDeriving___closed__6;
 lean_object* l_panic___at___private_Init_Prelude_0__Lean_assembleParts___spec__1(lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalConstCore___at_Lean_Elab_elabDeriving___spec__12___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Command_mkInstanceName___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ResolveName_resolveGlobalName(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalConst___at_Lean_Elab_elabDeriving___spec__10(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -1401,7 +1401,7 @@ x_24 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_24, 0, x_23);
 x_25 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_25, 0, x_24);
-x_26 = l_Lean_throwErrorAt___at_Lean_Elab_Command_mkInstanceName___spec__2(x_1, x_25, x_2, x_3, x_7);
+x_26 = l_Lean_throwErrorAt___at_Lean_Elab_Command_mkInstanceName___spec__3(x_1, x_25, x_2, x_3, x_7);
 return x_26;
 }
 else
@@ -1472,7 +1472,7 @@ x_51 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_51, 0, x_50);
 x_52 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_52, 0, x_51);
-x_53 = l_Lean_throwErrorAt___at_Lean_Elab_Command_mkInstanceName___spec__2(x_1, x_52, x_2, x_3, x_34);
+x_53 = l_Lean_throwErrorAt___at_Lean_Elab_Command_mkInstanceName___spec__3(x_1, x_52, x_2, x_3, x_34);
 return x_53;
 }
 }

@@ -2742,6 +2742,7 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_38);
 x_57 = !lean_is_exclusive(x_56);
 if (x_57 == 0)
 {

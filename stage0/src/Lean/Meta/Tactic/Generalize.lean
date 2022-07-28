@@ -16,10 +16,11 @@ structure GeneralizeArg where
   hName? : Option Name := none
   deriving Inhabited
 
-partial def generalize
-    (mvarId : MVarId) (args : Array GeneralizeArg)
-    -- (pred : (parent? : Option Expr) → (e : Expr) → MetaM Bool := fun _ _ => return true)
-    : MetaM (Array FVarId × MVarId) :=
+/--
+Telescopic `generalize` tactic. It can simultaneously generalize many terms.
+It uses `kabstract` to occurrences of the terms that need to be generalized.
+-/
+private partial def generalizeCore (mvarId : MVarId) (args : Array GeneralizeArg) : MetaM (Array FVarId × MVarId) :=
   mvarId.withContext do
     mvarId.checkNotAssigned `generalize
     let tag ← mvarId.getTag
@@ -66,5 +67,16 @@ partial def generalize
       let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew tag
       mvarId.assign (mkAppN (mkAppN mvarNew es) rfls.toArray)
       mvarNew.mvarId!.introNP (args.size + rfls.length)
+
+/--
+Telescopic `generalize` tactic. It can simultaneously generalize many terms.
+It uses `kabstract` to occurrences of the terms that need to be generalized.
+-/
+def _root_.Lean.MVarId.generalize (mvarId : MVarId) (args : Array GeneralizeArg) : MetaM (Array FVarId × MVarId) :=
+  generalizeCore mvarId args
+
+@[deprecated MVarId.generalize]
+def generalize (mvarId : MVarId) (args : Array GeneralizeArg) : MetaM (Array FVarId × MVarId) :=
+  generalizeCore mvarId args
 
 end Lean.Meta

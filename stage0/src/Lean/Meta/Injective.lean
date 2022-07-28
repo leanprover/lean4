@@ -123,9 +123,9 @@ private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : Me
     let (h, mvarId₁) ← mvarId₁.intro1
     let (_, mvarId₂) ← mvarId₂.intro1
     solveEqOfCtorEq ctorName mvarId₁ h
-    let mvarId₂ ← casesAnd mvarId₂
-    if let some mvarId₂ ← substEqs mvarId₂ then
-      applyRefl mvarId₂ (injTheoremFailureHeader ctorName)
+    let mvarId₂ ← mvarId₂.casesAnd
+    if let some mvarId₂ ← mvarId₂.substEqs then
+      mvarId₂.applyRefl (injTheoremFailureHeader ctorName)
     mkLambdaFVars xs mvar
 
 private def mkInjectiveEqTheorem (ctorVal : ConstructorVal) : MetaM Unit := do

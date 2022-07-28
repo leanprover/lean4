@@ -512,7 +512,7 @@ x_11 = lean_unbox(x_10);
 lean_dec(x_10);
 if (x_11 == 0)
 {
-lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
+lean_object* x_12; lean_object* x_13; 
 x_12 = lean_ctor_get(x_9, 1);
 lean_inc(x_12);
 lean_dec(x_9);
@@ -522,6 +522,9 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_1);
 x_13 = l_Lean_Elab_Eqns_tryContradiction(x_1, x_4, x_5, x_6, x_7, x_12);
+if (lean_obj_tag(x_13) == 0)
+{
+lean_object* x_14; uint8_t x_15; 
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
 x_15 = lean_unbox(x_14);
@@ -1138,27 +1141,56 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
-x_133 = !lean_is_exclusive(x_9);
+x_133 = !lean_is_exclusive(x_13);
 if (x_133 == 0)
 {
-lean_object* x_134; lean_object* x_135; 
-x_134 = lean_ctor_get(x_9, 0);
-lean_dec(x_134);
-x_135 = lean_box(0);
-lean_ctor_set(x_9, 0, x_135);
+return x_13;
+}
+else
+{
+lean_object* x_134; lean_object* x_135; lean_object* x_136; 
+x_134 = lean_ctor_get(x_13, 0);
+x_135 = lean_ctor_get(x_13, 1);
+lean_inc(x_135);
+lean_inc(x_134);
+lean_dec(x_13);
+x_136 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_136, 0, x_134);
+lean_ctor_set(x_136, 1, x_135);
+return x_136;
+}
+}
+}
+else
+{
+uint8_t x_137; 
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_2);
+lean_dec(x_1);
+x_137 = !lean_is_exclusive(x_9);
+if (x_137 == 0)
+{
+lean_object* x_138; lean_object* x_139; 
+x_138 = lean_ctor_get(x_9, 0);
+lean_dec(x_138);
+x_139 = lean_box(0);
+lean_ctor_set(x_9, 0, x_139);
 return x_9;
 }
 else
 {
-lean_object* x_136; lean_object* x_137; lean_object* x_138; 
-x_136 = lean_ctor_get(x_9, 1);
-lean_inc(x_136);
+lean_object* x_140; lean_object* x_141; lean_object* x_142; 
+x_140 = lean_ctor_get(x_9, 1);
+lean_inc(x_140);
 lean_dec(x_9);
-x_137 = lean_box(0);
-x_138 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_138, 0, x_137);
-lean_ctor_set(x_138, 1, x_136);
-return x_138;
+x_141 = lean_box(0);
+x_142 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_142, 0, x_141);
+lean_ctor_set(x_142, 1, x_140);
+return x_142;
 }
 }
 }

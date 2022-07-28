@@ -250,6 +250,8 @@ lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
+lean_inc(x_6);
+lean_inc(x_5);
 x_15 = l_Lean_Elab_Tactic_elabTerm(x_1, x_2, x_14, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 if (lean_obj_tag(x_15) == 0)
 {
@@ -597,6 +599,8 @@ lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
+lean_inc(x_7);
+lean_inc(x_6);
 x_16 = l_Lean_Elab_Tactic_elabTerm(x_1, x_2, x_15, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 if (lean_obj_tag(x_16) == 0)
 {

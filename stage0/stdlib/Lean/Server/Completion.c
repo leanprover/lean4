@@ -888,6 +888,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
+lean_dec(x_8);
 x_14 = !lean_is_exclusive(x_13);
 if (x_14 == 0)
 {
@@ -922,6 +923,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
+lean_dec(x_8);
 x_21 = !lean_is_exclusive(x_20);
 if (x_21 == 0)
 {
@@ -974,6 +976,7 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
+lean_dec(x_9);
 x_15 = !lean_is_exclusive(x_14);
 if (x_15 == 0)
 {
@@ -1008,6 +1011,7 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
+lean_dec(x_9);
 x_22 = !lean_is_exclusive(x_21);
 if (x_22 == 0)
 {

@@ -80,7 +80,7 @@ private def selectIdx (tacticName : String) (mvarIds : List (Option MVarId)) (i 
         | none => pure ()
         | some mvarId =>
           if i != j then
-            applyRefl mvarId
+            mvarId.applyRefl
       match mvarIds.get ⟨i, h⟩ with
       | none => throwError "cannot select argument with forward dependencies"
       | some mvarId => replaceMainGoal [mvarId]

@@ -301,6 +301,8 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
+lean_inc(x_3);
+lean_inc(x_2);
 x_31 = l_Lean_Elab_Tactic_elabTermEnsuringType(x_15, x_29, x_30, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_28);
 if (lean_obj_tag(x_31) == 0)
 {

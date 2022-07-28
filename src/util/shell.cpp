@@ -525,6 +525,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
                 break;
             case 'R':
                 root_dir = optarg;
+                forwarded_args.push_back(string_ref("-R" + std::string(optarg)));
                 break;
             case 'M':
                 check_optarg("M");
@@ -533,12 +534,13 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
                 break;
             case 'T':
                 check_optarg("T");
-                forwarded_args.push_back(string_ref("-T" + std::string(optarg)));
                 opts = opts.update(get_timeout_opt_name(), static_cast<unsigned>(atoi(optarg)));
+                forwarded_args.push_back(string_ref("-T" + std::string(optarg)));
                 break;
             case 't':
                 check_optarg("t");
                 trust_lvl = atoi(optarg);
+                forwarded_args.push_back(string_ref("-t" + std::string(optarg)));
                 break;
             case 'q':
                 opts = opts.update(lean::get_verbose_opt_name(), false);

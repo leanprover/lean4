@@ -159,7 +159,7 @@ structure TableEntry where
 
 structure Context where
   maxResultSize : Nat
-  maxHeartbeats : Nat := 6543
+  maxHeartbeats : Nat
 
 /-
   Remark: the SynthInstance.State is not really an extension of `Meta.State`.

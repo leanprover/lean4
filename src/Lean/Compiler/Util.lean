@@ -117,10 +117,6 @@ opaque compileDecls (maxHeartbeats: Nat) (env : Environment) (opt : @& Options) 
 def compileDecl (maxHeartbeats: Nat) (env : Environment) (opt : @& Options) (decl : @& Declaration) : Except KernelException Environment :=
   compileDecls maxHeartbeats env opt (Compiler.getDeclNamesForCodeGen decl)
 
-@[extern "lean_log_42"]
-opaque log42 (num: UInt64) : UInt64
-
-
 def addAndCompile (maxHeartbeats: Nat) (env : Environment) (opt : Options) (decl : Declaration) : Except KernelException Environment := do
   let env ← addDecl maxHeartbeats env decl
   compileDecl maxHeartbeats env opt decl

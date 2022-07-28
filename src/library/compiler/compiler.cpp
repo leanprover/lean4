@@ -277,11 +277,6 @@ extern "C" LEAN_EXPORT object * lean_compile_decls(object *max_heartbeat, object
         });
 }
 
-extern "C" LEAN_EXPORT uint64_t lean_log_42(uint64_t num) {
-    std::cerr << "lean_log_42[" << num << "]\n";
-    return 42;
-}
-
 void initialize_compiler() {
     g_extract_closed = new name{"compiler", "extract_closed"};
     mark_persistent(g_extract_closed->raw());

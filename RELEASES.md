@@ -1,6 +1,15 @@
 Unreleased
 ---------
 
+* Accept unescaped keywords as inductive constructor names. Escaping can often be avoided at use sites via dot notation.
+  ```lean
+  inductive MyExpr
+    | let : ...
+
+  def f : MyExpr → MyExpr
+    | .let ... => .let ...
+  ```
+
 * Throw an error message at parametric local instances such as `[Nat -> Decidable p]`. The type class resolution procedure
   cannot use this kind of local instance because the parameter does not have a forward dependency.
   This check can be disabled using `set_option checkBinderAnnotations false`.

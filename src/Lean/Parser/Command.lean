@@ -77,7 +77,7 @@ def «instance»       := leading_parser Term.attrKind >> "instance" >> optNamed
 def «axiom»          := leading_parser "axiom " >> declId >> ppIndent declSig
 /- As `declSig` starts with a space, "example" does not need a trailing space. -/
 def «example»        := leading_parser "example" >> ppIndent declSig >> declVal
-def ctor             := leading_parser "\n| " >> ppIndent (declModifiers true >> ident >> optDeclSig)
+def ctor             := leading_parser "\n| " >> ppIndent (declModifiers true >> rawIdent >> optDeclSig)
 def derivingClasses  := sepBy1 (group (ident >> optional (" with " >> Term.structInst))) ", "
 def optDeriving      := leading_parser optional (ppLine >> atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
 def computedField    := leading_parser declModifiers true >> ident >> " : " >> termParser >> Term.matchAlts

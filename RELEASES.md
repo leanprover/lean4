@@ -1,6 +1,8 @@
 Unreleased
 ---------
 
+* `Trans` type class now accepts relations in `Type u`. See this [Zulip issue](https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/Calc.20mode/near/291214574).
+
 * Accept unescaped keywords as inductive constructor names. Escaping can often be avoided at use sites via dot notation.
   ```lean
   inductive MyExpr

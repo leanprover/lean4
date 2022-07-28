@@ -1,32 +1,32 @@
-linterUnusedVariables.lean:16:6-16:7: warning: unused variable `y`
-linterUnusedVariables.lean:15:21-15:22: warning: unused variable `x`
-linterUnusedVariables.lean:21:8-21:9: warning: unused variable `x`
-linterUnusedVariables.lean:28:2-28:3: warning: unused variable `x`
-linterUnusedVariables.lean:33:5-33:6: warning: unused variable `x`
-linterUnusedVariables.lean:38:5-38:6: warning: unused variable `x`
-linterUnusedVariables.lean:38:2-38:3: warning: unused variable `f`
-linterUnusedVariables.lean:41:7-41:8: warning: unused variable `x`
-linterUnusedVariables.lean:44:8-44:9: warning: unused variable `x`
-linterUnusedVariables.lean:48:9-48:10: warning: unused variable `z`
-linterUnusedVariables.lean:50:11-50:12: warning: unused variable `z`
-linterUnusedVariables.lean:55:14-55:15: warning: unused variable `y`
-linterUnusedVariables.lean:61:20-61:21: warning: unused variable `y`
-linterUnusedVariables.lean:66:34-66:38: warning: unused variable `inst`
-linterUnusedVariables.lean:108:6-108:7: warning: unused variable `y`
-linterUnusedVariables.lean:107:25-107:26: warning: unused variable `x`
-linterUnusedVariables.lean:114:6-114:7: warning: unused variable `a`
-linterUnusedVariables.lean:124:26-124:27: warning: unused variable `z`
-linterUnusedVariables.lean:132:9-132:10: warning: unused variable `h`
-linterUnusedVariables.lean:146:8-146:9: warning: unused variable `y`
-linterUnusedVariables.lean:150:7-150:8: warning: unused variable `x`
-linterUnusedVariables.lean:149:20-149:21: warning: unused variable `β`
-linterUnusedVariables.lean:160:6-160:7: warning: unused variable `s`
-linterUnusedVariables.lean:184:6-184:7: warning: unused variable `y`
-linterUnusedVariables.lean:191:19-191:20: warning: unused variable `x`
-linterUnusedVariables.lean:195:6-195:7: warning: unused variable `y`
-linterUnusedVariables.lean:200:6-200:7: warning: unused variable `y`
-linterUnusedVariables.lean:205:6-205:7: warning: unused variable `y`
-linterUnusedVariables.lean:213:32-213:33: warning: unused variable `b`
+linterUnusedVariables.lean:16:6-16:7: warning: unused variable `y` [linter.unusedVariables]
+linterUnusedVariables.lean:15:21-15:22: warning: unused variable `x` [linter.unusedVariables]
+linterUnusedVariables.lean:21:8-21:9: warning: unused variable `x` [linter.unusedVariables]
+linterUnusedVariables.lean:28:2-28:3: warning: unused variable `x` [linter.unusedVariables]
+linterUnusedVariables.lean:33:5-33:6: warning: unused variable `x` [linter.unusedVariables]
+linterUnusedVariables.lean:38:5-38:6: warning: unused variable `x` [linter.unusedVariables]
+linterUnusedVariables.lean:38:2-38:3: warning: unused variable `f` [linter.unusedVariables]
+linterUnusedVariables.lean:41:7-41:8: warning: unused variable `x` [linter.unusedVariables]
+linterUnusedVariables.lean:44:8-44:9: warning: unused variable `x` [linter.unusedVariables]
+linterUnusedVariables.lean:48:9-48:10: warning: unused variable `z` [linter.unusedVariables]
+linterUnusedVariables.lean:50:11-50:12: warning: unused variable `z` [linter.unusedVariables]
+linterUnusedVariables.lean:55:14-55:15: warning: unused variable `y` [linter.unusedVariables]
+linterUnusedVariables.lean:61:20-61:21: warning: unused variable `y` [linter.unusedVariables]
+linterUnusedVariables.lean:66:34-66:38: warning: unused variable `inst` [linter.unusedVariables]
+linterUnusedVariables.lean:108:6-108:7: warning: unused variable `y` [linter.unusedVariables]
+linterUnusedVariables.lean:107:25-107:26: warning: unused variable `x` [linter.unusedVariables]
+linterUnusedVariables.lean:114:6-114:7: warning: unused variable `a` [linter.unusedVariables]
+linterUnusedVariables.lean:124:26-124:27: warning: unused variable `z` [linter.unusedVariables]
+linterUnusedVariables.lean:132:9-132:10: warning: unused variable `h` [linter.unusedVariables]
+linterUnusedVariables.lean:146:8-146:9: warning: unused variable `y` [linter.unusedVariables]
+linterUnusedVariables.lean:150:7-150:8: warning: unused variable `x` [linter.unusedVariables]
+linterUnusedVariables.lean:149:20-149:21: warning: unused variable `β` [linter.unusedVariables]
+linterUnusedVariables.lean:160:6-160:7: warning: unused variable `s` [linter.unusedVariables]
+linterUnusedVariables.lean:184:6-184:7: warning: unused variable `y` [linter.unusedVariables]
+linterUnusedVariables.lean:191:19-191:20: warning: unused variable `x` [linter.unusedVariables]
+linterUnusedVariables.lean:195:6-195:7: warning: unused variable `y` [linter.unusedVariables]
+linterUnusedVariables.lean:200:6-200:7: warning: unused variable `y` [linter.unusedVariables]
+linterUnusedVariables.lean:205:6-205:7: warning: unused variable `y` [linter.unusedVariables]
+linterUnusedVariables.lean:213:32-213:33: warning: unused variable `b` [linter.unusedVariables]
 linterUnusedVariables.lean:225:27-225:28: error: don't know how to synthesize placeholder
 context:
 bar : ?m

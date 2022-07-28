@@ -249,7 +249,7 @@ def unusedVariables : Linter := fun cmdStx => do
       continue
 
     -- publish warning if variable is unused and not ignored
-    publishMessage s!"unused variable `{localDecl.userName}`" range
+    publishMessage s!"unused variable `{localDecl.userName}` [linter.unusedVariables]" range
 
   return ()
 where

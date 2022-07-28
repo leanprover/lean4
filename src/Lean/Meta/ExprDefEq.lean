@@ -1689,47 +1689,16 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
       if (← isDefEqUnitLike t s) then return true else
       isDefEqOnFailure t s
 
-/--
-  We only check DefEq cache if
-  - using default and all transparency modes, and
-  - smart unfolding is enabled, and
-  - proof irrelevance, eta for structures, and `zetaNonDep` are enabled
--/
-private def skipDefEqCache : MetaM Bool := do
-  match (← getConfig).transparency with
-  | .reducible => return true
-  | .instances => return true
-  | _ =>
-    unless smartUnfolding.get (← getOptions) do
-      return true
-    let cfg ← getConfig
-    return !(cfg.proofIrrelevance && cfg.etaStruct matches .all && cfg.zetaNonDep)
-
 private def mkCacheKey (t : Expr) (s : Expr) : Expr × Expr :=
   if Expr.quickLt t s then (t, s) else (s, t)
 
 private def getCachedResult (key : Expr × Expr) : MetaM LBool := do
-  let cache ← match (← getConfig).transparency with
-    | TransparencyMode.default => pure (← get).cache.defEqDefault
-    | TransparencyMode.all     => pure (← get).cache.defEqAll
-    | _                        => return .undef
-  match cache.find? key with
+  match (← get).cache.defEq.find? key with
   | some val => return val.toLBool
   | none => return .undef
 
 private def cacheResult (key : Expr × Expr) (result : Bool) : MetaM Unit := do
-  match (← getConfig).transparency with
-  | TransparencyMode.default => modify fun s => { s with cache.defEqDefault := s.cache.defEqDefault.insert key result }
-  | TransparencyMode.all     => modify fun s => { s with cache.defEqAll := s.cache.defEqAll.insert key result }
-  | _                        => pure ()
-
-private abbrev withResetUsedAssignment (k : MetaM α) : MetaM α := do
-  let usedAssignment := (← getMCtx).usedAssignment
-  modifyMCtx fun mctx => { mctx with usedAssignment := false }
-  try
-    k
-  finally
-    modifyMCtx fun mctx => { mctx with usedAssignment := usedAssignment || mctx.usedAssignment }
+  modifyDefEqCache fun c => c.insert key result
 
 @[export lean_is_expr_def_eq]
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecDepth do
@@ -1743,8 +1712,6 @@ partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecD
   let s' ← whnfCore s (deltaAtProj := false)
   if t != t' || s != s' then
     isExprDefEqAuxImpl t' s'
-  else if (← skipDefEqCache) then
-    isExprDefEqExpensive t s
   else
     /-
       TODO: check whether the following `instantiateMVar`s are expensive or not in practice.
@@ -1766,14 +1733,11 @@ partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecD
       trace[Meta.isDefEq.cache] "cache hit 'false' for {t} =?= {s}"
       return false
     | .undef =>
-      withResetUsedAssignment do
-        let result ← isExprDefEqExpensive t s
-        if numPostponed == (← getNumPostponed) && !(← getMCtx).usedAssignment then
-          -- It is only safe to cache the result if the mvars assignments have not been accessed/used,
-          -- and universe level variables have not been postponed.
-          trace[Meta.isDefEq.cache] "cache {result} for {t} =?= {s}"
-          cacheResult k result
-        return result
+      let result ← isExprDefEqExpensive t s
+      if numPostponed == (← getNumPostponed) then
+        trace[Meta.isDefEq.cache] "cache {result} for {t} =?= {s}"
+        cacheResult k result
+      return result
 
 builtin_initialize
   registerTraceClass `Meta.isDefEq

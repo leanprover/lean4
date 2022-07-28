@@ -269,7 +269,7 @@ structure MetavarDecl where
   as soon as `mvarIdPending` has been fully synthesized.
   `fvars` are variables in the `mvarIdPending` local context.
 
-  See `instantiateLevelMVars` for the rationale of delayed assignments.
+  See the comment below `assignDelayedMVar ` for the rationale of delayed assignments.
 -/
 structure DelayedMetavarAssignment where
   fvars         : Array Expr

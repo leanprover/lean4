@@ -171,7 +171,7 @@ private def processLeaf (p : Problem) : StateRefT State MetaM Unit := do
   match p.alts with
   | []       =>
     /- TODO: allow users to configure which tactic is used to close leaves. -/
-    unless (← contradictionCore p.mvarId {}) do
+    unless (← p.mvarId.contradictionCore {}) do
       trace[Meta.Match.match] "missing alternative"
       p.mvarId.admit
       modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
@@ -449,7 +449,7 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
     let subgoals? ← commitWhenSome? do
        let subgoals ←
          try
-           cases p.mvarId x.fvarId!
+           p.mvarId.cases x.fvarId!
          catch ex =>
            if p.alts.isEmpty then
              /- If we have no alternatives and dependent pattern matching fails, then a "missing cases" error is bettern than a "stuck" error message. -/

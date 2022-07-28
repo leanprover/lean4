@@ -204,7 +204,7 @@ partial def unifyEqs? (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) (case
     return some (mvarId, subst)
   else
     let (eqFVarId, mvarId) ← mvarId.intro1
-    if let some { mvarId, subst, numNewEqs } ← unifyEq? mvarId eqFVarId subst acyclic caseName? then
+    if let some { mvarId, subst, numNewEqs } ← unifyEq? mvarId eqFVarId subst MVarId.acyclic caseName? then
       unifyEqs? (numEqs - 1 + numNewEqs) mvarId subst caseName?
     else
       return none
@@ -254,45 +254,66 @@ def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNam
 
 end Cases
 
+/--
+Apply `casesOn` using the free variable `majorFVarId` as the major premise (aka discriminant).
+`giveNames` contains user-facing names for each alternative.
+-/
+def _root_.Lean.MVarId.cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) : MetaM (Array CasesSubgoal) :=
+  Cases.cases mvarId majorFVarId givenNames
+
+@[deprecated MVarId.cases]
 def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) : MetaM (Array CasesSubgoal) :=
   Cases.cases mvarId majorFVarId givenNames
 
-def casesRec (mvarId : MVarId) (p : LocalDecl → MetaM Bool) : MetaM (List MVarId) :=
+/--
+Keep applying `cases` on any hypothesis that satisfies `p`.
+-/
+def _root_.Lean.MVarId.casesRec (mvarId : MVarId) (p : LocalDecl → MetaM Bool) : MetaM (List MVarId) :=
   saturate mvarId fun mvarId =>
     mvarId.withContext do
       for localDecl in (← getLCtx) do
         if (← p localDecl) then
           let r? ← observing? do
-            let r ← cases mvarId localDecl.fvarId
+            let r ← mvarId.cases localDecl.fvarId
             return r.toList.map (·.mvarId)
           if r?.isSome then
             return r?
       return none
 
-def casesAnd (mvarId : MVarId) : MetaM MVarId := do
-  let mvarIds ← casesRec mvarId fun localDecl => return (← instantiateMVars localDecl.type).isAppOfArity ``And 2
+/--
+Applies `cases` (recursively) to any hypothesis of the form `h : p ∧ q`.
+-/
+def _root_.Lean.MVarId.casesAnd (mvarId : MVarId) : MetaM MVarId := do
+  let mvarIds ← mvarId.casesRec fun localDecl => return (← instantiateMVars localDecl.type).isAppOfArity ``And 2
   exactlyOne mvarIds
 
-def substEqs (mvarId : MVarId) : MetaM (Option MVarId) := do
-  let mvarIds ← casesRec mvarId fun localDecl => do
+/--
+Applies `cases` to any hypothesis of the form `h : r = s`.
+-/
+def _root_.Lean.MVarId.substEqs (mvarId : MVarId) : MetaM (Option MVarId) := do
+  let mvarIds ← mvarId.casesRec fun localDecl => do
     let type ← instantiateMVars localDecl.type
     return type.isEq || type.isHEq
   ensureAtMostOne mvarIds
 
+/-- Auxiliary structure for storing `byCases` tactic result. -/
 structure ByCasesSubgoal where
   mvarId : MVarId
   fvarId : FVarId
 
-def byCases (mvarId : MVarId) (p : Expr) (hName : Name := `h) : MetaM (ByCasesSubgoal × ByCasesSubgoal) := do
-  let mvarId ← mvarId.assert `hByCases (mkOr p (mkNot p)) (mkEM p)
-  let (fvarId, mvarId) ← mvarId.intro1
-  let #[s₁, s₂] ← cases mvarId fvarId #[{ varNames := [hName] }, { varNames := [hName] }] |
-    throwError "'byCases' tactic failed, unexpected number of subgoals"
-  return ((← toByCasesSubgoal s₁), (← toByCasesSubgoal s₂))
-where
-  toByCasesSubgoal (s : CasesSubgoal) : MetaM ByCasesSubgoal :=  do
+private def toByCasesSubgoal (s : CasesSubgoal) : MetaM ByCasesSubgoal :=  do
     let #[Expr.fvar fvarId ..] ← pure s.fields | throwError "'byCases' tactic failed, unexpected new hypothesis"
     return { mvarId := s.mvarId, fvarId }
+
+/--
+Split the goal in two subgoals: one containing the hypothesis `h : p` and another containing `h : ¬ p`.
+-/
+def _root_.Lean.MVarId.byCases (mvarId : MVarId) (p : Expr) (hName : Name := `h) : MetaM (ByCasesSubgoal × ByCasesSubgoal) := do
+  let mvarId ← mvarId.assert `hByCases (mkOr p (mkNot p)) (mkEM p)
+  let (fvarId, mvarId) ← mvarId.intro1
+  let #[s₁, s₂] ← mvarId.cases fvarId #[{ varNames := [hName] }, { varNames := [hName] }] |
+    throwError "'byCases' tactic failed, unexpected number of subgoals"
+  return ((← toByCasesSubgoal s₁), (← toByCasesSubgoal s₂))
 
 builtin_initialize registerTraceClass `Meta.Tactic.cases
 

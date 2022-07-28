@@ -20,7 +20,7 @@ partial def casesOnStuckLHS (mvarId : MVarId) : MetaM (Array MVarId) := do
   let target ← mvarId.getType
   if let some (_, lhs, _) ← matchEq? target then
     if let some fvarId ← findFVar? lhs then
-      return (← cases mvarId fvarId).map fun s => s.mvarId
+      return (←  mvarId.cases fvarId).map fun s => s.mvarId
   throwError "'casesOnStuckLHS' failed"
 where
   findFVar? (e : Expr) : MetaM (Option FVarId) := do
@@ -177,7 +177,7 @@ private def isDone : M Bool :=
 
 /-- Customized `contradiction` tactic for `simpH?` -/
 private def contradiction (mvarId : MVarId) : MetaM Bool :=
-  contradictionCore mvarId { genDiseq := false, emptyType := false }
+   mvarId.contradictionCore { genDiseq := false, emptyType := false }
 
 /--
   Auxiliary tactic that tries to replace as many variables as possible and then apply `contradiction`.
@@ -300,9 +300,9 @@ where
     let mvarId' ← mvarId.modifyTargetEqLHS whnfCore
     let mvarId := mvarId'
     let subgoals ←
-      (do applyRefl mvarId; return #[])
+      (do mvarId.applyRefl; return #[])
       <|>
-      (do contradiction mvarId { genDiseq := true }; return #[])
+      (do mvarId.contradiction { genDiseq := true }; return #[])
       <|>
       (casesOnStuckLHS mvarId)
       <|>
@@ -572,7 +572,7 @@ where
     | InjectionAnyResult.failed =>
       let mvarId' ← substVars mvarId
       if mvarId' == mvarId then
-        if (← contradictionCore mvarId {}) then
+        if (← mvarId.contradictionCore {}) then
           return ()
         throwError "failed to generate splitter for match auxiliary declaration '{matchDeclName}', unsolved subgoal:\n{MessageData.ofGoal mvarId}"
       else

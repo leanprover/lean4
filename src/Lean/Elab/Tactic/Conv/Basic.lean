@@ -38,7 +38,7 @@ def convert (lhs : Expr) (conv : TacticM Unit) : TacticM (Expr × Expr) := do
     conv
     for mvarId in (← getGoals) do
       try
-        applyRefl mvarId
+        mvarId.applyRefl
       catch _ =>
         pure ()
     pruneSolvedGoals

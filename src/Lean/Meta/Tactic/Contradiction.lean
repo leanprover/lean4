@@ -57,7 +57,7 @@ partial def elim (mvarId : MVarId) (fvarId : FVarId) : M Bool := do
   modify (· - 1)
   -- We only consider inductives with no constructors and indexed families
   commitWhen do
-    let subgoals ← try cases mvarId fvarId catch ex => trace[Meta.Tactic.contradiction] "{ex.toMessageData}"; return false
+    let subgoals ← try mvarId.cases fvarId catch ex => trace[Meta.Tactic.contradiction] "{ex.toMessageData}"; return false
     trace[Meta.Tactic.contradiction] "elimEmptyInductive, number subgoals: {subgoals.size}"
     for subgoal in subgoals do
       -- If one of the fields is uninhabited, then we are done
@@ -79,7 +79,7 @@ private def elimEmptyInductive (mvarId : MVarId) (fvarId : FVarId) (fuel : Nat) 
   mvarId.withContext do
     if (← isElimEmptyInductiveCandidate fvarId) then
       commitWhen do
-        ElimEmptyInductive.elim (← exfalso mvarId) fvarId |>.run' fuel
+        ElimEmptyInductive.elim (← mvarId.exfalso) fvarId |>.run' fuel
     else
       return false
 
@@ -145,7 +145,11 @@ private def processGenDiseq (mvarId : MVarId) (localDecl : LocalDecl) : MetaM Bo
   else
     return false
 
-def contradictionCore (mvarId : MVarId) (config : Contradiction.Config) : MetaM Bool := do
+/--
+Return `true` if goal `mvarId` has contradictory hypotheses.
+See `MVarId.contradiction` for the list of tests performed by this method.
+-/
+def _root_.Lean.MVarId.contradictionCore (mvarId : MVarId) (config : Contradiction.Config) : MetaM Bool := do
   mvarId.withContext do
     mvarId.checkNotAssigned `contradiction
     if (← nestedFalseElim mvarId) then
@@ -206,9 +210,24 @@ def contradictionCore (mvarId : MVarId) (config : Contradiction.Config) : MetaM 
             return true
     return false
 
-def contradiction (mvarId : MVarId) (config : Contradiction.Config := {}) : MetaM Unit :=
-  unless (← contradictionCore mvarId config) do
+/--
+Try to close the goal using "contradictions" such as
+- Contradictory hypotheses `h₁ : p` and `h₂ : ¬ p`.
+- Contradictory disequality `h : x ≠ x`.
+- Contradictory equality between different constructors, e.g., `h : List.nil = List.cons x xs`.
+- Empty inductive types, e.g., `x : Fin 0`.
+- Decidable propositions that evaluate to false, i.e., a hypothesis `h : p` s.t. `decide p` reduces to `false`.
+  This is only tried if `Config.useDecide = true`.
+
+Throw exception if goal failed to be closed.
+-/
+def _root_.Lean.MVarId.contradiction (mvarId : MVarId) (config : Contradiction.Config := {}) : MetaM Unit :=
+  unless (← mvarId.contradictionCore config) do
     throwTacticEx `contradiction mvarId ""
+
+@[deprecated MVarId.contradiction]
+def contradiction (mvarId : MVarId) (config : Contradiction.Config := {}) : MetaM Unit :=
+  mvarId.contradiction config
 
 builtin_initialize registerTraceClass `Meta.Tactic.contradiction
 

@@ -6,7 +6,8 @@ Authors: Leonardo de Moura
 import Lean.Meta.MatchUtil
 import Lean.Meta.Tactic.Simp.Main
 
-namespace Lean.Meta
+namespace Lean.MVarId
+open Meta
 
 private def isTarget (lhs rhs : Expr) : MetaM Bool := do
   if !lhs.isFVar || !lhs.occurs rhs then
@@ -52,4 +53,4 @@ where
 builtin_initialize
   registerTraceClass `Meta.Tactic.acyclic
 
-end Lean.Meta
+end Lean.MVarId

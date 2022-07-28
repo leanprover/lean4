@@ -67,7 +67,7 @@ private def findPattern? (pattern : AbstractMVarsResult) (e : Expr) : MetaM (Opt
     | none => throwError "'pattern' conv tactic failed, pattern was not found{indentExpr patternA.expr}"
     | some (mvarId', result) =>
       updateLhs result.expr (← result.getProof)
-      applyRefl (← getMainGoal)
+      (← getMainGoal).applyRefl
       replaceMainGoal [mvarId']
   | _ => throwUnsupportedSyntax
 

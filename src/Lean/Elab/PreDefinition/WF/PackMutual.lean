@@ -81,7 +81,7 @@ private partial def packValues (x : Expr) (codomain : Expr) (preDefValues : Arra
            #[{ varNames := [varNames[i]!] }, { varNames := [varNames[i+1]!] }]
          else
            #[{ varNames := [varNames[i]!] }]
-       let #[s₁, s₂] ← cases mvarId x (givenNames := givenNames) | unreachable!
+       let #[s₁, s₂] ← mvarId.cases x (givenNames := givenNames) | unreachable!
       s₁.mvarId.assign (mkApp preDefValues[i]! s₁.fields[0]!).headBeta
       go s₂.mvarId s₂.fields[0]!.fvarId! (i+1)
     else

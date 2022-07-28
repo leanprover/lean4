@@ -492,7 +492,7 @@ private def shouldGeneralizeTarget (e : Expr) : MetaM Bool := do
 private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
   if (← withMainContext <| exprs.anyM (shouldGeneralizeTarget ·)) then
     liftMetaTacticAux fun mvarId => do
-      let (fvarIds, mvarId) ← generalize mvarId (exprs.map fun expr => { expr })
+      let (fvarIds, mvarId) ← mvarId.generalize (exprs.map fun expr => { expr })
       return (fvarIds.map mkFVar, [mvarId])
   else
     return exprs
@@ -543,7 +543,7 @@ def elabCasesTargets (targets : Array Syntax) : TacticM (Array Expr) :=
     if (← withMainContext <| args.anyM fun arg => shouldGeneralizeTarget arg.expr <||> pure arg.hName?.isSome) then
       liftMetaTacticAux fun mvarId => do
         let argsToGeneralize ← args.filterM fun arg => shouldGeneralizeTarget arg.expr <||> pure arg.hName?.isSome
-        let (fvarIdsNew, mvarId) ← generalize mvarId argsToGeneralize
+        let (fvarIdsNew, mvarId) ← mvarId.generalize argsToGeneralize
         let mut result := #[]
         let mut j := 0
         for arg in args do

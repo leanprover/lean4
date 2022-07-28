@@ -9,7 +9,7 @@ def test : MetaM Unit := do
   let mvar ← mkFreshExprMVar type
   let (#[p, q, h], mvarId) ← mvar.mvarId!.introNP 3 | throwError "unexpected"
   trace[Meta.debug] "{MessageData.ofGoal mvarId}"
-  let (s₁, s₂) ← byCases mvarId (mkFVar p) `hAux
+  let (s₁, s₂) ← mvarId.byCases (mkFVar p) `hAux
   trace[Meta.debug] "{MessageData.ofGoal s₁.mvarId}\n------\n{MessageData.ofGoal s₂.mvarId}"
   return ()
 

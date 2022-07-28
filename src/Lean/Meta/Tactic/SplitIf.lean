@@ -72,7 +72,7 @@ def splitIfAt? (mvarId : MVarId) (e : Expr) (hName? : Option Name) : MetaM (Opti
       | none       => mkFreshUserName `h
       | some hName => pure hName
     trace[Meta.Tactic.splitIf] "splitting on {cond}"
-    return some (← byCases mvarId cond hName)
+    return some (←  mvarId.byCases cond hName)
   else
     return none
 

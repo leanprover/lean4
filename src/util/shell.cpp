@@ -509,6 +509,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
             case 's':
                 lean::lthread::set_thread_stack_size(
                         static_cast<size_t>((atoi(optarg) / 4) * 4) * static_cast<size_t>(1024));
+                forwarded_args.push_back(string_ref("-s" + std::string(optarg)));
                 break;
             case 'I':
                 use_stdin = true;
@@ -528,6 +529,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
             case 'M':
                 check_optarg("M");
                 opts = opts.update(get_max_memory_opt_name(), static_cast<unsigned>(atoi(optarg)));
+                forwarded_args.push_back(string_ref("-M" + std::string(optarg)));
                 break;
             case 'T':
                 check_optarg("T");

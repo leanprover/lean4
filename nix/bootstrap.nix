@@ -85,6 +85,7 @@ rec {
         # use same stage for retrieving dependencies
         lean-leanDeps = stage0;
         lean-final = self;
+        leanFlags = [ "-DwarningAsError=true" ];
       } ({
         src = ../src;
         fullSrc = ../.;

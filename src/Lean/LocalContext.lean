@@ -111,17 +111,24 @@ end LocalDecl
 
 open Std (PersistentHashMap PersistentArray PArray)
 
-/-- A LocalContext is an ordered set of local variable declarations,
-where the order is maintained by the `decls` array. The array has `Option LocalDecl`
-entries, since we erase local declarations by setting the array index to `.none`.
+/-- A LocalContext is an ordered map of `FVarIds` to `LocalDecl`s.
+The LocalContext is used to store the free variables (also known as local
+constants) that are in scope.
 
-The LocalContext is used to store the free variables (also known as local constants) that are in scope.
+The API of the LocalContext allows adding, querying for, and erasing these
+declarations by `FVarId`, as well as querying for these declarations by
+_insertion order_.
 
 When inspecting a goal or expected type in the infoview, the local
 context is all of the variables above the `⊢` symbol.
  -/
 structure LocalContext where
   fvarIdToDecl : PersistentHashMap FVarId LocalDecl := {}
+  /--
+  The order of declarations is maintained by the `decls` array. The array has
+  `(Option LocalDecl)` entries, since we erase local declarations by setting the
+  array index to `(.none`).
+  -/
   decls        : PersistentArray (Option LocalDecl) := {}
   deriving Inhabited
 

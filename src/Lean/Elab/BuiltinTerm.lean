@@ -150,10 +150,11 @@ private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr :=
 
 /-- `by tac` constructs a term of the expected type by running the tactic(s) `tac`. -/
 @[builtinTermElab byTactic] def elabByTactic : TermElab := fun stx expectedType? => do
-  tryPostponeIfNoneOrMVar expectedType?
   match expectedType? with
   | some expectedType => mkTacticMVar expectedType stx
-  | none => throwError ("invalid 'by' tactic, expected type has not been provided")
+  | none =>
+    tryPostpone
+    throwError ("invalid 'by' tactic, expected type has not been provided")
 
 @[builtinTermElab noImplicitLambda] def elabNoImplicitLambda : TermElab := fun stx expectedType? =>
   elabTerm stx[1] (mkNoImplicitLambdaAnnotation <$> expectedType?)

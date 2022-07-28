@@ -36,7 +36,7 @@ Run the recursive build in the given build store.
 If a cycle is encountered, log it and then fail.
 -/
 @[inline] def RecBuildM.runIn (store : BuildStore) (build : RecBuildM α) : BuildM (α × BuildStore) := do
-  let (res, store) ← EStateT.run store build
+  let (res, store) ← EStateT.run store <| ReaderT.run build []
   return (← failOnBuildCycle res, store)
 
 /--

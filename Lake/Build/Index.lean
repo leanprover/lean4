@@ -70,7 +70,7 @@ Recursively build the given info using the Lake build index
 and a topological / suspending scheduler.
 -/
 def buildIndexTop' (info : BuildInfo) : RecBuildM (BuildData info.key) :=
-  buildDTop BuildData BuildInfo.key recBuildWithIndex info
+  buildDTop BuildData BuildInfo.key info recBuildWithIndex
 
 /--
 Recursively build the given info using the Lake build index

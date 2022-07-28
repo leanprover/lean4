@@ -31,6 +31,9 @@ abbrev BuildM := BuildT <| MonadLogT BaseIO OptionIO
 /-- A transformer to equip a monad with a Lake build store. -/
 abbrev BuildStoreT := StateT BuildStore
 
+/-- A Lake build cycle. -/
+abbrev BuildCycle := Cycle BuildKey
+
 /-- A transformer for monads that may encounter a build cycle. -/
 abbrev BuildCycleT := CycleT BuildKey
 

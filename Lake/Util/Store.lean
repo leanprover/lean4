@@ -27,3 +27,12 @@ abbrev MonadStore κ α m := MonadDStore κ (fun _ => α) m
 instance [MonadLift m n] [MonadDStore κ β m] : MonadDStore κ β n where
   fetch? k := liftM (m := m) <| fetch? k
   store k a := liftM (m := m) <| store k a
+
+@[inline] def fetchOrCreate [Monad m]
+(key : κ) [MonadStore1 key α m] (create : m α) : m α := do
+  if let some val ← fetch? key then
+    return val
+  else
+    let val ← create
+    store key val
+    return val

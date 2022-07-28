@@ -44,7 +44,7 @@ def resolveDeps (ws : Workspace) (pkg : Package) (leanOpts : Options)
     store := fun _ pkg => modify (·.addPackage pkg)
   }
   let (res, ws) ← EStateT.run ws <| deps.mapM fun dep =>
-    buildTop (·.2.name) recResolveDep (pkg, dep)
+    buildTop (·.2.name) (pkg, dep) recResolveDep
   match res with
   | Except.ok deps => return (ws, deps)
   | Except.error cycle => do

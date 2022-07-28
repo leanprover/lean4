@@ -425,12 +425,15 @@ def withAuxDecl (shortDeclName : Name) (type : Expr) (declName : Name) (k : Expr
     withReader (fun ctx => { ctx with auxDeclToFullName := ctx.auxDeclToFullName.insert x.fvarId! declName }) do
       k x
 
+def withoutErrToSorryImp (x : TermElabM α) : TermElabM α :=
+  withReader (fun ctx => { ctx with errToSorry := false }) x
+
 /--
   Execute `x` without converting errors (i.e., exceptions) to `sorry` applications.
   Recall that when `errToSorry = true`, the method `elabTerm` catches exceptions and convert them into `sorry` applications.
 -/
-def withoutErrToSorry (x : TermElabM α) : TermElabM α :=
-  withReader (fun ctx => { ctx with errToSorry := false }) x
+def withoutErrToSorry [MonadFunctorT TermElabM m] : m α → m α :=
+  monadMap (m := TermElabM) withoutErrToSorryImp
 
 /-- For testing `TermElabM` methods. The #eval command will sign the error. -/
 def throwErrorIfErrors : TermElabM Unit := do

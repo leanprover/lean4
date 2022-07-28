@@ -531,6 +531,9 @@ protected def Subsingleton.helim {α β : Sort u} [h₁ : Subsingleton α] (h₂
   apply heq_of_eq
   apply Subsingleton.elim
 
+instance (α : Sort u) [Subsingleton α] : DecidableEq α 
+  | _, _ => isTrue (Subsingleton.allEq _ _)
+
 instance (p : Prop) : Subsingleton p :=
   ⟨fun a b => proofIrrel a b⟩
 

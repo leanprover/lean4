@@ -136,9 +136,10 @@ def intro1Core (mvarId : MVarId) (preserveBinderNames : Bool) : MetaM (FVarId ×
   let (fvarIds, mvarId) ← introNCore mvarId 1 [] (useNamesForExplicitOnly := false) preserveBinderNames
   return (fvarIds[0]!, mvarId)
 
-/--
-Introduce one binder.
--/
+/-- Introduce one object from the goal `mvarid`, without preserving the name used in the binder.
+Returns a pair made of the newly introduced variable (which will have an inaccessible name)
+and the new goal. This will fail if there is nothing to introduce, ie when the goal
+does not start with a forall, lambda or let. -/
 abbrev _root_.Lean.MVarId.intro1 (mvarId : MVarId) : MetaM (FVarId × MVarId) :=
   intro1Core mvarId false
 
@@ -146,9 +147,10 @@ abbrev _root_.Lean.MVarId.intro1 (mvarId : MVarId) : MetaM (FVarId × MVarId) :=
 abbrev intro1 (mvarId : MVarId) : MetaM (FVarId × MVarId) :=
   mvarId.intro1
 
-/--
-Introduce one binder. The new hypothesis is named using the binder name.
--/
+/-- Introduce one object from the goal `mvarid`, preserving the name used in the binder.
+Returns a pair made of the newly introduced variable and the new goal.
+This will fail if there is nothing to introduce, ie when the goal
+does not start with a forall, lambda or let. -/
 abbrev _root_.Lean.MVarId.intro1P (mvarId : MVarId) : MetaM (FVarId × MVarId) :=
   intro1Core mvarId true
 

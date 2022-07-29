@@ -290,9 +290,12 @@ def adaptExpander (exp : Syntax → TacticM Syntax) : Tactic := fun stx => do
   let stx' ← exp stx
   withMacroExpansion stx stx' $ evalTactic stx'
 
+/-- Add the given goals at the end of the current goals collection. -/
 def appendGoals (mvarIds : List MVarId) : TacticM Unit :=
   modify fun s => { s with goals := s.goals ++ mvarIds }
 
+/-- Discard the first goal and replace it by the given list of goals, 
+keeping the other goals. -/
 def replaceMainGoal (mvarIds : List MVarId) : TacticM Unit := do
   let (_ :: mvarIds') ← getGoals | throwNoGoalsToBeSolved
   modify fun _ => { goals := mvarIds ++ mvarIds' }

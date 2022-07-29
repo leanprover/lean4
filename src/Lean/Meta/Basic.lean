@@ -697,6 +697,8 @@ def _root_.Lean.FVarId.getUserName (fvarId : FVarId) : MetaM Name :=
 def _root_.Lean.FVarId.isLetVar (fvarId : FVarId) : MetaM Bool :=
   return (← fvarId.getDecl).isLet
 
+/-- Get the local declaration associated to the given `Expr` in the current local
+context. Fails if the given expression is not a fvar or if no such declaration exists. -/
 def getFVarLocalDecl (fvar : Expr) : MetaM LocalDecl :=
   fvar.fvarId!.getDecl
 

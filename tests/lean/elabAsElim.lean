@@ -75,3 +75,11 @@ protected def znum.bit1 : znum → znum
   | zero    => pos .one
   | pos n => pos (pos_num.bit1 n)
   | neg n => neg (num.casesOn (pos_num.pred' n) .one pos_num.bit1)
+
+example (h : False) : a = c :=
+  h.rec
+
+example (h : False) : a = c :=
+  h.elim
+
+

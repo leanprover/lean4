@@ -107,7 +107,11 @@ private def getBinderIds (ids : Syntax) : TermElabM (Array Syntax) :=
     else
       throwErrorAt id "identifier or `_` expected"
 
-private def matchBinder (stx : Syntax) : TermElabM (Array BinderView) := do
+/--
+Convert `stx` into an array of `BinderView`s.
+`stx` must be an indentifier, `_`, `explicitBinder`, `implicitBinder`, `strictImplicitBinder`, or `instBinder`.
+-/
+private def toBinderViews (stx : Syntax) : TermElabM (Array BinderView) := do
   let k := stx.getKind
   if stx.isIdent || k == ``hole then
     -- binderIdent
@@ -181,7 +185,7 @@ private partial def elabBinderViews (binderViews : Array BinderView) (fvars : Ar
 private partial def elabBindersAux (binders : Array Syntax) (k : Array (Syntax × Expr) → TermElabM α) : TermElabM α :=
   let rec loop (i : Nat) (fvars : Array (Syntax × Expr)) : TermElabM α := do
     if h : i < binders.size then
-      let binderViews ← matchBinder binders[i]
+      let binderViews ← toBinderViews binders[i]
       elabBinderViews binderViews fvars <| loop (i+1)
     else
       k fvars
@@ -215,6 +219,7 @@ def elabBinders (binders : Array Syntax) (k : Array Expr → TermElabM α) : Ter
 def elabBinder (binder : Syntax) (x : Expr → TermElabM α) : TermElabM α :=
   elabBinders #[binder] fun fvars => x fvars[0]!
 
+/-- If `binder` is a `_` or an identifier, return a `bracketedBinder` using `type` otherwise throw an exception. -/
 def expandSimpleBinderWithType (type : Term) (binder : Syntax) : MacroM Syntax :=
   if binder.isOfKind ``hole || binder.isIdent then
     `(bracketedBinder| ($binder : $type))
@@ -401,7 +406,7 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) (i : Nat
 
 partial def elabFunBindersAux (binders : Array Syntax) (i : Nat) (s : State) : TermElabM State := do
   if h : i < binders.size then
-    let binderViews ← matchBinder binders[i]
+    let binderViews ← toBinderViews binders[i]
     let s ← elabFunBinderViews binderViews 0 s
     elabFunBindersAux binders (i+1) s
   else
@@ -578,7 +583,7 @@ open Lean.Elab.Term.Quotation in
     let (binders, body, _) ← liftMacroM <| expandFunBinders binders body
     let mut ids := #[]
     for b in binders do
-      for v in ← matchBinder b do
+      for v in ← toBinderViews b do
         Quotation.withNewLocals ids <| precheck v.type
         ids := ids.push v.id.getId
     Quotation.withNewLocals ids <| precheck body

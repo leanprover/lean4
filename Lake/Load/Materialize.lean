@@ -50,8 +50,15 @@ def materializeGitPkg (name : String) (dir : FilePath)
       else
         cloneGitPkg repo url rev?
       let rev ← repo.headRevision
-      modify (·.insert {entry with url, rev})
+      modify (·.insert {entry with url, rev, inputRev? := rev?})
     else
+      if let some rev := rev? then
+        if let some inputRev := entry.inputRev? then
+          if inputRev ≠ rev then
+            logWarning <|
+              s!"{name}: revision `{inputRev}` listed in manifest " ++
+              s!"does not match `{rev}` listed in the configuration file; " ++
+              "you may wish to run `lake update` to update"
       if (← repo.dirExists) then
         if url = entry.url then
           /-
@@ -62,7 +69,8 @@ def materializeGitPkg (name : String) (dir : FilePath)
           unless (← repo.headRevision) = entry.rev do
             updateGitPkg repo entry.rev
         else
-          logWarning <| s!"{name}: URL has changed; " ++
+          logWarning <|
+            s!"{name}: URL has changed; " ++
             "still using old package, use `lake update` to update"
       else
         cloneGitPkg repo entry.url entry.rev
@@ -73,12 +81,13 @@ def materializeGitPkg (name : String) (dir : FilePath)
         IO.FS.removeDirAll dir
         cloneGitPkg repo url rev?
       else
-        logWarning <| s!"{name}: no manifest entry; " ++
+        logWarning <|
+          s!"{name}: no manifest entry; " ++
           "still using old package, use `lake update` to update"
     else
       cloneGitPkg repo url rev?
     let rev ← repo.headRevision
-    modify (·.insert {name, url, rev})
+    modify (·.insert {name, url, rev, inputRev? := rev?})
 
 /--
 Materializes a `Dependency`, downloading nd/or updating it as necessary.

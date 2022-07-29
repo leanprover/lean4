@@ -9,11 +9,15 @@ open System Lean
 
 namespace Lake
 
+/-- Current version of the manifest format. -/
+def Manifest.version : Nat := 2
+
 /-- An entry for a package in the manifest. -/
 structure PackageEntry where
   name : String
   url : String
   rev : String
+  inputRev? : Option String
   deriving Inhabited, Repr, FromJson, ToJson
 
 /-- Manifest file format. -/
@@ -21,10 +25,6 @@ structure Manifest where
   map : NameMap PackageEntry
 
 namespace Manifest
-
-/-- Current version of the manifest format. -/
-def version : Nat :=
-  1
 
 def empty : Manifest :=
   ⟨{}⟩
@@ -63,7 +63,7 @@ instance : ToJson Manifest := ⟨Manifest.toJson⟩
 protected def fromJson? (json : Json) : Except String Manifest := do
   let ver ← (← json.getObjVal? "version").getNat?
   match ver with
-  | 1 =>
+  | 1 | 2 =>
     let packages : Array PackageEntry ←
       (← (← json.getObjVal? "packages").getArr?).mapM fromJson?
     return ofArray packages

@@ -6,12 +6,17 @@ LAKE=${LAKE:-../../build/bin/lake}
 
 ./clean.sh
 
+# tests issues:
+# https://github.com/leanprover/lake/issues/84
+# https://github.com/leanprover/lake/issues/85
+
 $LAKE new a
 pushd a
 git add .
 git config user.name test
 git config user.email test@example.com
 git commit -am 'first commit in a'
+git tag init
 popd
 
 $LAKE new b
@@ -34,4 +39,10 @@ popd
 pushd b
 $LAKE1 update -v
 git diff | grep -m1 manifest
+if [ "`uname`" = Darwin ]; then
+  sed -i '' 's/master/init/g' lakefile.lean
+else
+  sed -i 's/master/init/g' lakefile.lean
+fi
+$LAKE1 build 2>&1 | grep -m1 init
 popd

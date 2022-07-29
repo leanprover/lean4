@@ -13,11 +13,6 @@ import Init.Coe
 namespace Except
 variable {ε : Type u}
 
-/-- Returns true if the value is `Except.ok`.-/
-def isOk : Except ε α → Bool
-  | Except.ok _ => true
-  | _ => false
-
 @[inline] protected def pure (a : α) : Except ε α :=
   Except.ok a
 
@@ -39,9 +34,12 @@ def isOk : Except ε α → Bool
   | Except.error err => Except.error err
   | Except.ok v      => f v
 
+/-- Returns true if the value is `Except.ok`, false otherwise. -/
 @[inline] protected def toBool : Except ε α → Bool
   | Except.ok _    => true
   | Except.error _ => false
+
+abbrev isOk : Except ε α → Bool := Except.toBool
 
 @[inline] protected def toOption : Except ε α → Option α
   | Except.ok a    => some a

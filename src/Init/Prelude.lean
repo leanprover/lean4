@@ -50,7 +50,7 @@ inductive PEmpty : Sort u where
 def Not (a : Prop) : Prop := a → False
 
 @[macroInline] def False.elim {C : Sort u} (h : False) : C :=
-  False.rec (fun _ => C) h
+  @False.rec (fun _ => C) h
 
 @[macroInline] def absurd {a : Prop} {b : Sort v} (h₁ : a) (h₂ : Not a) : b :=
   False.elim (h₂ h₁)

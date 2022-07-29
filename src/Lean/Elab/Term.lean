@@ -1047,7 +1047,7 @@ def withSavedContext (savedCtx : SavedContext) (x : TermElabM α) : TermElabM α
     withTheReader Core.Context (fun ctx => { ctx with options := savedCtx.options, openDecls := savedCtx.openDecls }) <|
       withLevelNames savedCtx.levelNames x
 
-private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
   trace[Elab.postpone] "{stx} : {expectedType?}"
   let mvar ← mkFreshExprMVar expectedType? MetavarKind.syntheticOpaque
   registerSyntheticMVar stx mvar.mvarId! (SyntheticMVarKind.postponed (← saveContext))

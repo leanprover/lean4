@@ -28,7 +28,9 @@ def f7 (xs : Vec α n) : Nat :=
 def f8 (xs : List Nat) : xs ≠ [] → xs.length > 0 :=
   @List.casesOn _ (motive := fun xs => xs ≠ [] → xs.length > 0) xs (by dsimp; intros; contradiction) (by dsimp; intros; simp_arith)
 
-set_option linter.unusedVariables false -- TODO: FIXME
+def f5' (xs : List Nat) (h : xs ≠ []) : xs.length > 0 :=
+  xs.casesOn (fun h => absurd rfl h) (fun _ _ _ => Nat.zero_lt_succ ..) h
+
 example (h₁ : a = b) (h₂ : b = c) : a = c :=
   Eq.rec h₂ h₁.symm
 

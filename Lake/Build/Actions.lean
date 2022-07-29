@@ -12,7 +12,7 @@ open System
 def createParentDirs (path : FilePath) : IO Unit := do
   if let some dir := path.parent then IO.FS.createDirAll dir
 
-def proc (args : IO.Process.SpawnArgs) : JobM Unit := do
+def proc (args : IO.Process.SpawnArgs) : BuildIO Unit := do
   let envStr := String.join <| args.env.toList.filterMap fun (k, v) =>
     if k == "PATH" then none else some s!"{k}={v.getD ""} " -- PATH too big
   let cmdStr := " ".intercalate (args.cmd :: args.args.toList)
@@ -21,7 +21,7 @@ def proc (args : IO.Process.SpawnArgs) : JobM Unit := do
     | some cwd => s!"{cmdStr}    # in directory {cwd}"
     | none     => cmdStr
   let out ← IO.Process.output args
-  let logOutputWith (log : String → JobM PUnit) := do
+  let logOutputWith (log : String → BuildIO PUnit) := do
     unless out.stdout.isEmpty do
       log s!"stdout:\n{out.stdout}"
     unless out.stderr.isEmpty do
@@ -33,12 +33,12 @@ def proc (args : IO.Process.SpawnArgs) : JobM Unit := do
     logError s!"external command {args.cmd} exited with status {out.exitCode}"
     failure
 
-def compileLeanModule (name : Name) (leanFile : FilePath)
+def compileLeanModule (name : String) (leanFile : FilePath)
 (oleanFile? ileanFile? cFile? : Option FilePath)
 (leanPath : SearchPath := []) (rootDir : FilePath := ".")
 (dynlibs : Array FilePath := #[]) (dynlibPath : SearchPath := {})
 (leanArgs : Array String := #[]) (lean : FilePath := "lean")
-: JobM PUnit := do
+: BuildIO PUnit := do
   logAuxInfo s!"Building {name}"
   let mut args := leanArgs ++
     #[leanFile.toString, "-R", rootDir.toString]
@@ -62,8 +62,8 @@ def compileLeanModule (name : Name) (leanFile : FilePath)
     ]
   }
 
-def compileO (name : Name) (oFile srcFile : FilePath)
-(moreArgs : Array String := #[]) (compiler : FilePath := "cc") : JobM Unit := do
+def compileO (name : String) (oFile srcFile : FilePath)
+(moreArgs : Array String := #[]) (compiler : FilePath := "cc") : BuildIO Unit := do
   logAuxInfo s!"Compiling {name}"
   createParentDirs oFile
   proc {
@@ -71,8 +71,8 @@ def compileO (name : Name) (oFile srcFile : FilePath)
     args := #["-c", "-o", oFile.toString, srcFile.toString] ++ moreArgs
   }
 
-def compileStaticLib (name : Name) (libFile : FilePath)
-(oFiles : Array FilePath) (ar : FilePath := "ar") : JobM Unit := do
+def compileStaticLib (name : String) (libFile : FilePath)
+(oFiles : Array FilePath) (ar : FilePath := "ar") : BuildIO Unit := do
   logAuxInfo s!"Linking {name}"
   createParentDirs libFile
   proc {
@@ -80,8 +80,8 @@ def compileStaticLib (name : Name) (libFile : FilePath)
     args := #["rcs", libFile.toString] ++ oFiles.map toString
   }
 
-def compileSharedLib (name : Name) (libFile : FilePath)
-(linkArgs : Array String) (linker : FilePath := "cc") : JobM Unit := do
+def compileSharedLib (name : String) (libFile : FilePath)
+(linkArgs : Array String) (linker : FilePath := "cc") : BuildIO Unit := do
   logAuxInfo s!"Linking {name}"
   createParentDirs libFile
   proc {
@@ -89,11 +89,55 @@ def compileSharedLib (name : Name) (libFile : FilePath)
     args := #["-shared", "-o", libFile.toString] ++ linkArgs
   }
 
-def compileExe (name : Name) (binFile : FilePath) (linkFiles : Array FilePath)
-(linkArgs : Array String := #[]) (linker : FilePath := "cc") : JobM Unit := do
+def compileExe (name : String) (binFile : FilePath) (linkFiles : Array FilePath)
+(linkArgs : Array String := #[]) (linker : FilePath := "cc") : BuildIO Unit := do
   logAuxInfo s!"Linking {name}"
   createParentDirs binFile
   proc {
     cmd := linker.toString
     args := #["-o", binFile.toString] ++ linkFiles.map toString ++ linkArgs
+  }
+
+/-- Download a file using `curl`, clobbering any existing file. -/
+def download (name : String) (url : String) (file : FilePath) : BuildIO PUnit := do
+  logAuxInfo s!"Downloading {name}"
+  if (← file.pathExists) then
+    IO.FS.removeFile file
+  else
+    createParentDirs file
+  let args :=
+    if (← getIsVerbose) then #[] else #["-s"]
+  proc {
+    cmd := "curl"
+    args := args ++ #["-o", file.toString, "-L", url]
+  }
+
+/-- Unpack an archive `file` using `tar` into the directory `dir`. -/
+def untar (name : String) (file : FilePath) (dir : FilePath) (gzip := true) : BuildIO PUnit := do
+  logAuxInfo s!"Unpacking {name}"
+  let mut opts := "-x"
+  if (← getIsVerbose) then
+    opts := opts.push 'v'
+  if gzip then
+    opts := opts.push 'z'
+  proc {
+    cmd := "tar",
+    args := #[opts, "-f", file.toString, "-C", dir.toString]
+  }
+
+/-- Pack a directory `dir` using `tar` into the archive `file`. -/
+def tar (name : String) (dir : FilePath) (file : FilePath)
+(gzip := true) (excludePaths : Array FilePath := #[]) : BuildIO PUnit := do
+  logAuxInfo s!"Packing {name}"
+  createParentDirs file
+  let mut args := #["-c"]
+  if gzip then
+    args := args.push "-z"
+  if (← getIsVerbose) then
+    args := args.push "-v"
+  for path in excludePaths do
+    args := args.push s!"--exclude={path}"
+  proc {
+    cmd := "tar"
+    args := args ++ #["-f", file.toString, "-C", dir.toString, "."]
   }

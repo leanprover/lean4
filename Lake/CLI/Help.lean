@@ -28,6 +28,7 @@ COMMANDS:
   init <name> [<temp>]  create a Lean package in the current directory
   build [<targets>...]  build targets
   update                update dependencies
+  upload <tag>          upload build artifacts to a GitHub release
   clean                 remove build outputs
   script                manage and run workspace scripts
   scripts               shorthand for `lake script list`
@@ -91,7 +92,8 @@ TARGET EXAMPLES:        build the ...
   @a                    default target(s) of package `a`
   +A                    olean and .ilean files of module `A`
   a/b                   default facet of target `b` of package `a`
-  a/+A:c           C file of module `A` of package `a`
+  a/+A:c                C file of module `A` of package `a`
+  :foo                  facet `foo` of the root package
 
 A bare `build` command will build the default facet of the root package.
 Package dependencies are not updated during a build."
@@ -113,6 +115,15 @@ version materialized is undefined. The specific revision of the resolved
 packages are cached in the `manifest.json` file of the `packagesDir`.
 
 No copy is made of local dependencies."
+
+def helpUpload :=
+"Upload build artifacts to a GitHub release
+
+USAGE:
+  lake upload <tag>
+
+Packs the root package's `buildDir` into a `tar.gz` archive using `tar` and
+then uploads the asset to the pre-existing GitHub release `tag` using `gh`."
 
 def helpClean :=
 "Remove build outputs
@@ -215,6 +226,7 @@ def help : (cmd : String) → String
 | "init"      => helpInit
 | "build"     => helpBuild
 | "update"    => helpUpdate
+| "upload"    => helpUpload
 | "clean"     => helpClean
 | "script"    => helpScriptCli
 | "scripts"   => helpScriptList

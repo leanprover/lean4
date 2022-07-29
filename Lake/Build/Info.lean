@@ -178,8 +178,12 @@ abbrev Package.facet (facet : Name) (self : Package) : BuildInfo :=
   .packageFacet self facet
 
 /-- Build info for the package and its dependencies collective `extraDepTarget`. -/
+abbrev Package.release (self : Package) : BuildInfo :=
+  self.facet releaseFacet
+
+/-- Build info for the package and its dependencies collective `extraDepTarget`. -/
 abbrev Package.extraDep (self : Package) : BuildInfo :=
-  self.facet `extraDep
+  self.facet extraDepFacet
 
 /-- Build info for a custom package target. -/
 abbrev Package.customTarget (target : Name) (self : Package) : BuildInfo :=

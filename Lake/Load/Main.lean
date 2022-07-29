@@ -18,16 +18,6 @@ open System Lean
 
 namespace Lake
 
-/--
-Elaborate a package configuration file and
-construct a bare `Package` from its `PackageConfig` definition.
--/
-def loadPkg (dir : FilePath) (configOpts : NameMap String)
-(leanOpts := Options.empty) (configFile := dir / defaultConfigFile) : LogIO Package := do
-  let configEnv ← elabConfigFile dir configOpts leanOpts configFile
-  let config ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv leanOpts
-  return {dir, config, configEnv, leanOpts}
-
 /-- Load the tagged `Dependency` definitions from a package configuration environment. -/
 def loadDeps (env : Environment) (opts : Options) : Except String (Array Dependency) := do
   packageDepAttr.ext.getState env |>.foldM (init := #[]) fun arr name => do
@@ -53,8 +43,13 @@ def resolveDeps (ws : Workspace) (pkg : Package) (leanOpts : Options)
 where
   recResolveDep info resolve := do
     let ⟨pkg, dep⟩ := info
-    let dir ← materializeDep ws.packagesDir pkg.dir dep shouldUpdate
-    let depPkg ← loadPkg dir dep.options leanOpts
+    let (dir, url?, tag?) ← materializeDep ws.packagesDir pkg.dir dep shouldUpdate
+    let configEnv ← elabConfigFile dir dep.options leanOpts (dir / defaultConfigFile)
+    let config ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv leanOpts
+    let depPkg : Package := {
+      dir, config, configEnv, leanOpts
+      remoteUrl? := url?, gitTag? := tag?
+    }
     unless depPkg.name = dep.name do
       error <|
         s!"{pkg.name} (in {pkg.dir}) depends on {dep.name}, " ++
@@ -71,7 +66,15 @@ elaborating its configuration file and resolve its dependencies.
 -/
 def loadWorkspace (config : LoadConfig) : LogIO Workspace := do
   Lean.searchPathRef.set config.env.leanSearchPath
-  let root ← loadPkg config.rootDir config.configOpts config.leanOpts config.configFile
+  let configEnv ← elabConfigFile config.rootDir config.configOpts config.leanOpts config.configFile
+  let pkgConfig ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv config.leanOpts
+  let repo := GitRepo.mk config.rootDir
+  let root : Package := {
+    configEnv, leanOpts := config.leanOpts
+    dir := config.rootDir, config := pkgConfig
+    remoteUrl? := ← repo.getFilteredRemoteUrl?
+    gitTag? := ← repo.findTag?
+  }
   let ws : Workspace := {
     root, lakeEnv := config.env
     moduleFacetConfigs := initModuleFacetConfigs

@@ -68,6 +68,10 @@ module_data dynlib : BuildJob String
 abbrev Package.extraDepFacet := `extraDep
 package_data extraDep : BuildJob Unit
 
+/-- The package's cloud build release. -/
+abbrev Package.releaseFacet := `release
+package_data release : BuildJob Unit
+
 /-! ## Target Facets -/
 
 /-- A Lean library's Lean libraries. -/

@@ -16,6 +16,15 @@ open Std System Lean
 
 namespace Lake
 
+/-- A string descriptor of the `System.Platform` OS (`windows`, `macOS`, or `linux`). -/
+def osDescriptor : String :=
+  if Platform.isWindows then
+    "windows"
+  else if Platform.isOSX then
+    "macOS"
+  else
+    "linux"
+
 --------------------------------------------------------------------------------
 /-! # Defaults -/
 --------------------------------------------------------------------------------
@@ -119,6 +128,26 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   -/
   binDir : FilePath := defaultBinDir
 
+  /--
+  The URL of the GitHub repository to upload and download releases of this package.
+  If `none` (the default), for downloads, Lake uses the URL the package was download
+  from (if it is a dependency) and for uploads, uses `gh`'s default.
+  -/
+  releaseRepo? : Option String := none
+
+  /--
+  The name of the release archive on GitHub.
+  If `none` (the default), uses the name of release's tag.
+  The archive's full file name should be `{name}-{osDescriptor}.tar.gz`.
+  -/
+  releaseArchive? : Option String := none
+
+  /--
+  Prefer downloading a prebuilt release (from GitHub) rather
+  than building this package from the source.
+  -/
+  preferReleaseBuild : Bool := false
+
 deriving Inhabited
 
 --------------------------------------------------------------------------------
@@ -138,6 +167,10 @@ structure Package where
   configEnv : Environment
   /-- The Lean `Options` the package configuration was elaborated with. -/
   leanOpts : Options
+  /-- The URL this package's Git remote. -/
+  remoteUrl? : Option String := none
+  /-- The Git tag of this package. -/
+  gitTag? : Option String := none
   /-- (Opaque references to) the package's direct dependencies. -/
   opaqueDeps : Array OpaquePackage := #[]
   /-- Lean library configurations for the package. -/
@@ -157,6 +190,8 @@ structure Package where
   scripts : NameMap Script := {}
   deriving Inhabited
 
+#check String.dropRight
+
 hydrate_opaque_type OpaquePackage Package
 
 abbrev PackageSet := RBTree Package (·.config.name.quickCmp ·.config.name)
@@ -175,6 +210,31 @@ abbrev name (self : Package) : Name :=
 /-- The package's `extraDepTarget` configuration. -/
 @[inline] def extraDepTarget (self : Package) : OpaqueTarget :=
   self.config.extraDepTarget.getD Target.nil
+
+/-- The package's `releaseRepo?` configuration. -/
+@[inline] def releaseRepo? (self : Package) : Option String :=
+  self.config.releaseRepo?
+
+/--
+The package's URL × tag release.
+Tries `releaseRepo?` first and then falls back to `remoteUrl?`.
+-/
+def release? (self : Package) : Option (String × String) := do
+  let url ← self.releaseRepo? <|> self.remoteUrl?
+  let tag ← self.gitTag?
+  return (url, tag)
+
+/-- The package's `releaseRepo?` with a fallback to `remoteUrl?`. -/
+@[inline] def remoteReleaseRepo? (self : Package) : Option String :=
+  self.config.releaseRepo? <|> self.remoteUrl?
+
+/-- The package's `releaseArchive?` configuration. -/
+@[inline] def releaseArchive? (self : Package) : Option String :=
+  self.config.releaseArchive?
+
+/-- The package's `preferReleaseBuild` configuration. -/
+@[inline] def preferReleaseBuild (self : Package) : Bool :=
+  self.config.preferReleaseBuild
 
 /-- The package's `precompileModules` configuration. -/
 @[inline] def precompileModules (self : Package) : Bool :=

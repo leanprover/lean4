@@ -17,14 +17,15 @@ def Module.buildUnlessUpToDate (mod : Module)
   let srcTrace : BuildTrace ← computeTrace mod.leanFile
   let modTrace := (← getLeanTrace).mix <| argTrace.mix <| srcTrace.mix depTrace
   let modUpToDate ← modTrace.checkAgainstFile mod mod.traceFile
+  let name := mod.name.toString
   if leanOnly then
     unless modUpToDate do
-      compileLeanModule mod.name mod.leanFile mod.oleanFile mod.ileanFile none
+      compileLeanModule name mod.leanFile mod.oleanFile mod.ileanFile none
         (← getLeanPath) mod.rootDir dynlibs dynlibPath mod.leanArgs (← getLean)
   else
     let cUpToDate ← modTrace.checkAgainstFile mod.cFile mod.cTraceFile
     unless modUpToDate && cUpToDate do
-      compileLeanModule mod.name mod.leanFile mod.oleanFile mod.ileanFile mod.cFile
+      compileLeanModule name mod.leanFile mod.oleanFile mod.ileanFile mod.cFile
         (← getLeanPath) mod.rootDir dynlibs dynlibPath mod.leanArgs (← getLean)
     modTrace.writeToFile mod.cTraceFile
   modTrace.writeToFile mod.traceFile
@@ -76,6 +77,14 @@ def Module.recBuildLean (mod : Module) (art : LeanArtifact)
 : IndexBuildM (BuildJob (if art = .leanBin then PUnit else FilePath)) := do
   let leanOnly := mod.isLeanOnly ∧ art ≠ .c
 
+  -- Fetch prebuilt module if desired
+  let isDepPkgModule := mod.pkg.name ≠ (← getWorkspace).root.name
+  let releaseJob ← do
+    if isDepPkgModule ∧ mod.pkg.preferReleaseBuild then
+      mod.pkg.release.recBuild
+    else
+      pure .nil
+
   -- Compute and build dependencies
   let extraDepJob ← mod.pkg.extraDep.recBuild
   let (imports, _) ← mod.imports.recBuild
@@ -86,6 +95,7 @@ def Module.recBuildLean (mod : Module) (art : LeanArtifact)
 
   -- Build Module
   let modJob : BuildJob Unit ← show SchedulerM _ from do
+    releaseJob.bindAsync fun _ _ => do
     importJob.bindAsync fun _ importTrace => do
     modDynlibsJob.bindAsync fun modDynlibs modTrace => do
     externDynlibsJob.bindAsync fun externDynlibs externTrace => do
@@ -143,7 +153,7 @@ def Module.cFacetConfig : ModuleFacetConfig cFacet :=
 /-- Recursively build the module's object file from its C file produced by `lean`. -/
 def Module.recBuildLeanO (self : Module) : IndexBuildM (BuildJob FilePath) := do
   let cJob := Target.active (← self.c.recBuild)
-  leanOFileTarget self.name self.oFile cJob self.leancArgs |>.activate
+  leanOFileTarget self.name.toString self.oFile cJob self.leancArgs |>.activate
 
 /-- The `ModuleFacetConfig` for the builtin `oFacet`. -/
 def Module.oFacetConfig : ModuleFacetConfig oFacet :=
@@ -176,7 +186,6 @@ def Module.recParseImports (mod : Module)
 /-- The `ModuleFacetConfig` for the builtin `importFacet`. -/
 def Module.importFacetConfig : ModuleFacetConfig importFacet :=
   mkFacetConfig (·.recParseImports)
-
 
 /-- Build the dynlibs of all imports. -/
 def recBuildDynlibs (pkg : Package) (imports : Array Module)
@@ -215,7 +224,7 @@ def Module.recBuildDynlib (mod : Module) : IndexBuildM (BuildJob String) := do
     let trace ← buildFileUnlessUpToDate mod.dynlibFile depTrace do
       let args := links.map toString ++
         libDirs.map (s!"-L{·}") ++ libNames.map (s!"-l{·}")
-      compileSharedLib mod.name mod.dynlibFile args (← getLeanc)
+      compileSharedLib mod.name.toString mod.dynlibFile args (← getLeanc)
     return (mod.dynlibName, trace)
 
 /-- The `ModuleFacetConfig` for the builtin `dynlibFacet`. -/

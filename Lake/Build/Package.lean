@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 import Lake.Build.Targets
 
+open System
 namespace Lake
 
 /-- Compute a topological ordering of the package's transitive dependencies. -/
@@ -36,6 +37,25 @@ def Package.recBuildExtraDepTargets (self : Package) : IndexBuildM (BuildJob Uni
 def Package.extraDepFacetConfig : PackageFacetConfig extraDepFacet :=
   mkFacetJobConfig (·.recBuildExtraDepTargets)
 
+/-- Download and unpack the package's prebuilt release archive (from GitHub). -/
+def Package.fetchRelease (self : Package) : SchedulerM (BuildJob Unit) := Job.async do
+  let some (repoUrl, tag) := self.release? | do
+    logWarning "wanted prebuilt release, but release repository and tag was not known"
+    return ((), .nil)
+  let archiveName := self.releaseArchive?.getD tag
+  let archiveFileName := s!"{archiveName}-{osDescriptor}.tar.gz"
+  let url := s!"{repoUrl}/releases/download/{tag}/{archiveFileName}"
+  let localArchiveFile := self.buildDir / archiveFileName
+  let logName := s!"{self.name}/{tag}/{archiveFileName}"
+  let trace ← buildFileUnlessUpToDate localArchiveFile (Hash.ofString url) do
+    download logName url localArchiveFile
+    untar logName localArchiveFile self.buildDir
+  return ((), trace)
+
+/-- The `PackageFacetConfig` for the builtin `releaseFacet`. -/
+def Package.releaseFacetConfig : PackageFacetConfig releaseFacet :=
+  mkFacetJobConfig (·.fetchRelease)
+
 open Package in
 /--
 A package facet name to build function map that contains builders for
@@ -45,3 +65,4 @@ def initPackageFacetConfigs : DNameMap PackageFacetConfig :=
   DNameMap.empty
   |>.insert depsFacet depsFacetConfig
   |>.insert extraDepFacet extraDepFacetConfig
+  |>.insert releaseFacet releaseFacetConfig

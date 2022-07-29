@@ -24,6 +24,9 @@ namespace Job
 @[inline] def nil : Job Unit :=
  pure ()
 
+@[inline] protected def async (act : JobM α) : SchedulerM (Job α) :=
+  async act
+
 @[inline] protected def await (self : Job α) : ResultM α :=
   await self
 

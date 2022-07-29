@@ -25,7 +25,7 @@ def cloneGitPkg (repo : GitRepo) (url : String) (rev? : Option String) : LogIO P
   logInfo s!"cloning {url} to {repo}"
   repo.clone url
   if let some rev := rev? then
-    let hash ← repo.parseRemoteRevision rev
+    let hash ← repo.resolveRemoteRevision rev
     repo.checkoutDetach hash
 
 /--
@@ -85,12 +85,19 @@ Materializes a `Dependency`, downloading nd/or updating it as necessary.
 Local dependencies are materialized relative to `localRoot` and remote
 dependencies are stored in `packagesDir`.
 -/
-def materializeDep (packagesDir localRoot : FilePath)
-(dep : Dependency) (shouldUpdate := true) : ManifestM FilePath :=
+def materializeDep (packagesDir localRoot : FilePath) (dep : Dependency)
+(shouldUpdate := true) : ManifestM (FilePath × Option String × Option String) :=
   match dep.src with
-  | Source.path dir => return localRoot / dir
+  | Source.path dir =>
+    return (localRoot / dir, none, none)
   | Source.git url rev? subDir? => do
     let name := dep.name.toString (escape := false)
     let gitDir := packagesDir / name
     materializeGitPkg name gitDir url rev? shouldUpdate
-    return match subDir? with | some subDir => gitDir / subDir | none => gitDir
+    let pkgDir :=
+      match subDir? with
+      | some subDir => gitDir / subDir
+      | none => gitDir
+    let tag? ← GitRepo.mk gitDir |>.findTag?
+    let url? := Git.filterUrl? url
+    return (pkgDir, url?, tag?)

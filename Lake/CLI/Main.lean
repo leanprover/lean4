@@ -82,6 +82,9 @@ def CliM.run (self : CliM α) (args : List String) : BaseIO ExitCode := do
 instance : MonadLift LogIO CliStateM :=
   ⟨fun x => do MainM.runLogIO x (← get).verbosity⟩
 
+instance : MonadLift OptionIO MainM where
+  monadLift x := x.adaptExcept (fun _ => 1)
+
 /-! ## Argument Parsing -/
 
 def takeArg (arg : String) : CliM String := do
@@ -218,6 +221,17 @@ def exe (name : Name) (args  : Array String := #[]) (verbosity : Verbosity) : La
   else
     error s!"unknown executable `{name}`"
 
+def uploadRelease (pkg : Package) (tag : String) : BuildIO Unit := do
+  let archiveName := pkg.releaseArchive?.getD tag
+  let archiveFileName := s!"{archiveName}-{osDescriptor}.tar.gz"
+  let archiveFile := pkg.buildDir / archiveFileName
+  let mut args := #["release", "upload", tag, archiveFile.toString]
+  if let some repo := pkg.releaseRepo? then
+    args := args.append #["-R", repo]
+  tar archiveFileName pkg.buildDir archiveFile (excludePaths := #["*.tar.gz", "*.tar.gz.trace"])
+  logAuxInfo s!"Uploading {tag}/{archiveFileName}"
+  proc {cmd := "gh", args}
+
 def parseScriptSpec (ws : Workspace) (spec : String) : Except CliError (Package × String) :=
   match spec.splitOn "/" with
   | [script] => return (ws.root, script)
@@ -296,13 +310,13 @@ protected def new : CliM PUnit := do
   processOptions lakeOption
   let pkgName ← takeArg "package name"
   let template ← parseTemplateSpec <| (← takeArg?).getD ""
-  noArgsRem <| MainM.runLogIO (new pkgName template) (← getThe LakeOptions).verbosity
+  noArgsRem do MainM.runLogIO (new pkgName template) (← getThe LakeOptions).verbosity
 
 protected def init : CliM PUnit := do
   processOptions lakeOption
   let pkgName ← takeArg "package name"
   let template ← parseTemplateSpec <| (← takeArg?).getD ""
-  noArgsRem <| MainM.runLogIO (init pkgName template) (← getThe LakeOptions).verbosity
+  noArgsRem do MainM.runLogIO (init pkgName template) (← getThe LakeOptions).verbosity
 
 protected def build : CliM PUnit := do
   processOptions lakeOption
@@ -317,7 +331,16 @@ protected def build : CliM PUnit := do
 protected def update : CliM PUnit := do
   processOptions lakeOption
   let config ← mkLoadConfig (← getThe LakeOptions) (updateDeps := true)
-  noArgsRem <| discard <| loadWorkspace config
+  noArgsRem do discard <| loadWorkspace config
+
+protected def upload : CliM PUnit := do
+  processOptions lakeOption
+  let tag ← takeArg "release tag"
+  let opts ← getThe LakeOptions
+  let config ← mkLoadConfig opts
+  let ws ← loadWorkspace config
+  noArgsRem do
+    liftM <| uploadRelease ws.root tag |>.run (MonadLog.io opts.verbosity)
 
 protected def printPaths : CliM PUnit := do
   processOptions lakeOption
@@ -327,7 +350,7 @@ protected def printPaths : CliM PUnit := do
 protected def clean : CliM PUnit := do
   processOptions lakeOption
   let config ← mkLoadConfig (← getThe LakeOptions)
-  noArgsRem (← loadWorkspace config).root.clean
+  noArgsRem do (← loadWorkspace config).root.clean
 
 protected def script : CliM PUnit := do
   if let some cmd ← takeArg? then
@@ -362,7 +385,7 @@ protected def exe : CliM PUnit := do
 
 protected def selfCheck : CliM PUnit := do
   processOptions lakeOption
-  noArgsRem <| verifyInstall (← getThe LakeOptions)
+  noArgsRem do verifyInstall (← getThe LakeOptions)
 
 protected def help : CliM PUnit := do
   IO.println <| help <| (← takeArg?).getD ""
@@ -374,6 +397,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "init"        => lake.init
 | "build"       => lake.build
 | "update"      => lake.update
+| "upload"      => lake.upload
 | "print-paths" => lake.printPaths
 | "clean"       => lake.clean
 | "script"      => lake.script

@@ -21,4 +21,4 @@ protected def LeanExe.recBuildExe
   let deps := (← recBuild <| self.pkg.facet `deps).push self.pkg
   for dep in deps do for lib in dep.externLibs do
     linkTargets := linkTargets.push <| Target.active <| ← lib.static.recBuild
-  leanExeTarget self.name self.file linkTargets self.linkArgs |>.activate
+  leanExeTarget self.name.toString self.file linkTargets self.linkArgs |>.activate

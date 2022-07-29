@@ -37,7 +37,7 @@ def LeanLib.leanFacetConfig : LibraryFacetConfig leanFacet :=
 protected def LeanLib.recBuildStatic
 (self : LeanLib) : IndexBuildM (BuildJob FilePath) := do
   let oTargets := (← self.recBuildLocalModules self.nativeFacets).map Target.active
-  staticLibTarget self.name self.staticLibFile oTargets |>.activate
+  staticLibTarget self.name.toString self.staticLibFile oTargets |>.activate
 
 /-- The `LibraryFacetConfig` for the builtin `staticFacet`. -/
 def LeanLib.staticFacetConfig : LibraryFacetConfig staticFacet :=
@@ -79,7 +79,7 @@ def LeanLib.recBuildLinks
 protected def LeanLib.recBuildShared
 (self : LeanLib) : IndexBuildM (BuildJob FilePath) := do
   let linkJobs := (← self.recBuildLinks).map Target.active
-  leanSharedLibTarget self.name self.sharedLibFile linkJobs self.linkArgs |>.activate
+  leanSharedLibTarget self.name.toString self.sharedLibFile linkJobs self.linkArgs |>.activate
 
 /-- The `LibraryFacetConfig` for the builtin `sharedFacet`. -/
 def LeanLib.sharedFacetConfig : LibraryFacetConfig sharedFacet :=

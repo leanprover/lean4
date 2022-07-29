@@ -219,6 +219,24 @@ existent in the current context, or else fails. -/
 @[builtinTermElab doubleQuotedName] def elabDoubleQuotedName : TermElab := fun stx _ =>
   return toExpr (← resolveGlobalConstNoOverloadWithInfo stx[2])
 
+/-- A macro which evaluates to the name of the currently elaborating declaration. -/
+@[builtinTermElab declName] def elabDeclName : TermElab := adaptExpander fun _ => do
+  let some declName ← getDeclName?
+    | throwError "invalid `decl_name%` macro, the declaration name is not available"
+  return (quote declName : Term)
+
+/--
+* `with_decl_name% id e` elaborates `e` in a context while changing the effective
+  declaration name to `id`.
+* `with_decl_name% ? id e` does the same, but resolves `id` as a new definition name
+  (appending the current namespaces).
+-/
+@[builtinTermElab Parser.Term.withDeclName] def elabWithDeclName : TermElab := fun stx expectedType? => do
+  let id := stx[2].getId
+  let id := if stx[1].isNone then id else (← getCurrNamespace) ++ id
+  let e := stx[3]
+  withMacroExpansion stx e <| withDeclName id <| elabTerm e expectedType?
+
 @[builtinTermElab typeOf] def elabTypeOf : TermElab := fun stx _ => do
   inferType (← elabTerm stx[1] none)
 

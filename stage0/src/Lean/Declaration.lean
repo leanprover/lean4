@@ -199,11 +199,18 @@ def Declaration.isUnsafeInductiveDeclEx : Declaration → Bool
     A series of checks are performed by the kernel to check whether a `inductiveDecls`
     is valid or not. -/
 structure InductiveVal extends ConstantVal where
-  /-- Number of parameters. A parameter is an argument to the defined type that is fixed over constructors.  -/
+  /-- Number of parameters. A parameter is an argument to the defined type that is fixed over constructors.  
+  An example of this is the `α : Type` argument in the vector constructors
+  `nil : Vector α 0` and `cons : α → Vector α n → Vector α (n+1)`.
+
+  The intuition is that the inductive type must exhibit _parametric polymorphism_ over the inductive
+  parameter, as opposed to _ad-hoc polymorphism_.
+  -/
   numParams : Nat
   /-- Number of indices. An index is an argument that varies over constructors.
 
-  An example of this is the `n : Nat` argument in the vector constructor `cons : α → Vector α n → Vector α (n+1)` -/
+  An example of this is the `n : Nat` argument in the vector constructor `cons : α → Vector α n → Vector α (n+1)`.
+  -/
   numIndices : Nat
   /-- List of all (including this one) inductive datatypes in the mutual declaration containing this one -/
   all : List Name
@@ -213,6 +220,19 @@ structure InductiveVal extends ConstantVal where
   isRec : Bool
   /-- Whether the definition is flagged as unsafe. -/
   isUnsafe : Bool
+  /-- An inductive type is called reflexive if it has at least one constructor that takes as an argument a function returning the
+  same type we are defining.
+  Consider the type: 
+  ```
+  inductive WideTree where 
+  | branch: (Nat -> WideTree) -> WideTree
+  | leaf: WideTree
+  ```
+  this is reflexive due to the presence of the `branch : (Nat -> WideTree) -> WideTree` constructor.
+
+  See also: 'Inductive Definitions in the system Coq Rules and Properties' by Christine Paulin-Mohring
+  Section 2.2, Definition 3
+  -/
   isReflexive : Bool
   /-- An inductive definition `T` is nested when there is a constructor with an argument `x : F T`,
    where `F : Type → Type` is some suitably behaved (ie strictly positive) function (Eg `Array T`, `List T`, `T × T`, ...). -/
@@ -291,7 +311,15 @@ structure RecursorVal extends ConstantVal where
   numMinors : Nat
   /-- A reduction for each Constructor -/
   rules : List RecursorRule
-  /-- It supports K-like reduction -/
+  /-- It supports K-like reduction.
+  A recursor is said to support K-like reduction if one can assume it behaves
+  like `Eq` under axiom `K` --- that is, it has one constructor, the constructor has 0 arguments,
+  and it is an inductive predicate (ie, it lives in Prop).
+
+  Examples of inductives with K-like reduction is `Eq`, `Acc`, and `And.intro`.
+  Non-examples are `exists` (where the constructor has arguments) and 
+    `Or.intro` (which has multiple constructors).
+  -/
   k : Bool
   isUnsafe : Bool
   deriving Inhabited

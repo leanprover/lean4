@@ -395,7 +395,13 @@ inductive Expr where
   | /--
     Let-expressions. The field `nonDep` is not currently used, but will be used in the future
     by the code generator (and possibly `simp`) to track whether a let-expression is non-dependent
-    or not. Given an environment, metavariable context, and local context, we say a let-expression
+    or not.
+
+    **IMPORTANT**: This flag is for "local" use only. That is, a module should not "trust" its value for any purpose.
+    In the intended use-case, the compiler will set this flag, and be responsible for maintaining it.
+    Other modules may not preserve its value while applying transformations.
+
+    Given an environment, metavariable context, and local context, we say a let-expression
     `let x : t := v; e` is non-dependent when it is equivalent to `(fun x : t => e) v`.
     Here is an example of a dependent let-expression
     `let n : Nat := 2; fun (a : Array Nat n) (b : Array Nat 2) => a = b` is type correct, but

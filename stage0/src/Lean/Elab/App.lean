@@ -5,6 +5,8 @@ Authors: Leonardo de Moura
 -/
 import Lean.Util.FindMVar
 import Lean.Parser.Term
+import Lean.Meta.KAbstract
+import Lean.Meta.Tactic.ElimInfo
 import Lean.Elab.Term
 import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
@@ -81,6 +83,23 @@ def synthesizeAppInstMVars (instMVars : Array MVarId) (app : Expr) : TermElabM U
       registerSyntheticMVarWithCurrRef mvarId SyntheticMVarKind.typeClass
       registerMVarErrorImplicitArgInfo mvarId (← getRef) app
 
+/-- Return `some namedArg` if `namedArgs` contains an entry for `binderName`. -/
+private def findBinderName? (namedArgs : List NamedArg) (binderName : Name) : Option NamedArg :=
+  namedArgs.find? fun namedArg => namedArg.name == binderName
+
+/-- Erase entry for `binderName` from `namedArgs`. -/
+def eraseNamedArg (namedArgs : List NamedArg) (binderName : Name) : List NamedArg :=
+  namedArgs.filter (·.name != binderName)
+
+/-- Return true if the given type contains `OptParam` or `AutoParams` -/
+private def hasOptAutoParams (type : Expr) : MetaM Bool := do
+  forallTelescopeReducing type fun xs _ =>
+    xs.anyM fun x => do
+      let xType ← inferType x
+      return xType.getOptParamDefault?.isSome || xType.getAutoParamTactic?.isSome
+
+
+/-! # Default application elaborator -/
 namespace ElabAppArgs
 
 structure Context where
@@ -212,12 +231,9 @@ private def getBindingName : M Name := return (← get).fType.bindingName!
 /-- Return the next argument expected type. This method assumes `fType` is a function type. -/
 private def getArgExpectedType : M Expr := return (← get).fType.bindingDomain!
 
-def eraseNamedArgCore (namedArgs : List NamedArg) (binderName : Name) : List NamedArg :=
-  namedArgs.filter (·.name != binderName)
-
 /-- Remove named argument with name `binderName` from `namedArgs`. -/
 def eraseNamedArg (binderName : Name) : M Unit :=
-  modify fun s => { s with namedArgs := eraseNamedArgCore s.namedArgs binderName }
+  modify fun s => { s with namedArgs := Term.eraseNamedArg s.namedArgs binderName }
 
 /--
   Add a new argument to the result. That is, `f := f arg`, update `fType`.
@@ -244,13 +260,6 @@ private def elabAndAddNewArg (argName : Name) (arg : Arg) : M Unit := do
     let arg ← withRef stx <| ensureArgType s.f val expectedType
     addNewArg argName arg
 
-/-- Return true if the given type contains `OptParam` or `AutoParams` -/
-private def hasOptAutoParams (type : Expr) : M Bool := do
-  forallTelescopeReducing type fun xs _ =>
-    xs.anyM fun x => do
-      let xType ← inferType x
-      return xType.getOptParamDefault?.isSome || xType.getAutoParamTactic?.isSome
-
 /-- Return true if `fType` contains `OptParam` or `AutoParams` -/
 private def fTypeHasOptAutoParams : M Bool := do
   hasOptAutoParams (← get).fType
@@ -261,8 +270,8 @@ private def fTypeHasOptAutoParams : M Bool := do
    Remark: `(explicit : Bool) == true` when `@` modifier is used. -/
 private partial def getForallBody (explicit : Bool) : Nat → List NamedArg → Expr → Option Expr
   | i, namedArgs, type@(.forallE n d b bi) =>
-    match namedArgs.find? fun (namedArg : NamedArg) => namedArg.name == n with
-    | some _ => getForallBody explicit i (eraseNamedArgCore namedArgs n) b
+    match findBinderName? namedArgs n with
+    | some _ => getForallBody explicit i (Term.eraseNamedArg namedArgs n) b
     | none =>
       if !explicit && !bi.isExplicit then
         getForallBody explicit i namedArgs b
@@ -628,7 +637,7 @@ mutual
       let binderName := fType.bindingName!
       let binfo := fType.bindingInfo!
       let s ← get
-      match s.namedArgs.find? fun (namedArg : NamedArg) => namedArg.name == binderName with
+      match findBinderName? s.namedArgs binderName with
       | some namedArg =>
         propagateExpectedType namedArg.val
         eraseNamedArg binderName
@@ -650,10 +659,197 @@ end
 
 end ElabAppArgs
 
+builtin_initialize elabAsElim : TagAttribute ←
+  registerTagAttribute
+    `elabAsElim
+    "instructs elaborator that the arguments of the function application should be elaborated as were an eliminator"
+   fun declName => do
+     let go : MetaM Unit := do
+       discard <| getElimInfo declName
+       let info ← getConstInfo declName
+       if (← hasOptAutoParams info.type) then
+         throwError "[elabAsElim] attribute cannot be used in declarations containing optional and auto parameters"
+     go.run' {} {}
+
+/-! # Eliminator-like function application elaborator -/
+namespace ElabElim
+
+/-- Context of the `elabAsElim` elaboration procedure. -/
+structure Context where
+  elimInfo : ElimInfo
+  expectedType : Expr
+
+/-- State of the `elabAsElim` elaboration procedure. -/
+structure State where
+  /-- The resultant expression being built. -/
+  f            : Expr
+  /-- `f : fType -/
+  fType        : Expr
+  /-- User-provided named arguments that still have to be processed. -/
+  namedArgs    : List NamedArg
+  /-- User-providedarguments that still have to be processed. -/
+  args         : List Arg
+  /-- Discriminants processed so far. -/
+  discrs       : Array Expr := #[]
+  /-- Instance implicit arguments collected so far. -/
+  instMVars    : Array MVarId := #[]
+  /-- Position of the next argument to be processed. We use it to decide whether the argument is the motive or a discriminant. -/
+  idx          : Nat := 0
+  /-- Store the metavariable used to represent the motive that will be computed at `finalize`. -/
+  motive?      : Option Expr := none
+
+abbrev M := ReaderT Context $ StateRefT State TermElabM
+
+def throwInsufficientDiscrs : M α :=
+  throwError "failed to elaborate eliminator, insufficient number of arguments"
+
+/-- Infer the `motive` using the expected type by `kabstract`ing the discriminants. -/
+def mkMotive (expectedType : Expr): M Expr := do
+  (← get).discrs.foldrM (init := expectedType) fun discr motive => do
+    let discr ← instantiateMVars discr
+    trace[Meta.debug] "discr: {discr}, motive: {motive}"
+    let motiveBody ← kabstract motive discr
+    /- We use `transform (usedLetOnly := true)` to eliminate unnecessary let-expressions. -/
+    let discrType ← transform (usedLetOnly := true) (← instantiateMVars (← inferType discr))
+    return Lean.mkLambda (← mkFreshBinderName) BinderInfo.default discrType motiveBody
+
+/-- If the eliminator is over-applied, we "revert" the extra arguments. -/
+def revertArgs (args : List Arg) (f : Expr) (expectedType : Expr) : TermElabM (Expr × Expr) :=
+  args.foldrM (init := (f, expectedType)) fun arg (f, expectedType) => do
+    let val ←
+      match arg with
+      | .expr val => pure val
+      | .stx stx => elabTerm stx none
+    let val ← instantiateMVars val
+    let expectedTypeBody ← kabstract expectedType val
+    /- We use `transform (usedLetOnly := true)` to eliminate unnecessary let-expressions. -/
+    let valType ← transform (usedLetOnly := true) (← instantiateMVars (← inferType val))
+    return (mkApp f val, mkForall (← mkFreshBinderName) BinderInfo.default valType expectedTypeBody)
+
+/--
+Contruct the resulting application after all discriminants have bee elaborated, and we have
+consumed as many given arguments as possible.
+-/
+def finalize : M Expr := do
+  unless (← get).discrs.size == (← read).elimInfo.targetsPos.size do
+    throwInsufficientDiscrs
+  unless (← get).namedArgs.isEmpty do
+    throwError "failed to elaborate eliminator, unused named arguments: {(← get).namedArgs.map (·.name)}"
+  let some motive := (← get).motive?
+    | throwError "failed to elaborate eliminator, insufficient number of arguments"
+  forallTelescope (← get).fType fun xs _ => do
+    let mut expectedType := (← read).expectedType
+    let mut f := (← get).f
+    if xs.size > 0 then
+      assert! (← get).args.isEmpty
+      try
+        expectedType ← instantiateForall expectedType xs
+      catch _ =>
+        throwError "failed to elaborate eliminator, insufficient number of arguments, expected type:{indentExpr expectedType}"
+    else
+      -- over-application, simulate `revert`
+      (f, expectedType) ← revertArgs (← get).args f expectedType
+    let result := mkAppN f xs
+    let motiveVal ← mkMotive expectedType
+    unless (← isDefEq motive motiveVal) do
+      throwError "failed to elaborate eliminator, invalid motive{indentExpr motiveVal}"
+    synthesizeAppInstMVars (← get).instMVars result
+    let result ← mkLambdaFVars xs (← instantiateMVars result)
+    return result
+
+/--
+Return the next argument to be processed.
+The result is `.none` if it is an implicit argument which was not provided using a named argument.
+The result is `.undef` if `args` is empty and `namedArgs` does contain an entry for `binderName`.
+-/
+def getNextArg? (binderName : Name) (binderInfo : BinderInfo) : M (LOption Arg) := do
+  match findBinderName? (← get).namedArgs binderName with
+  | some namedArg =>
+    modify fun s => { s with namedArgs := eraseNamedArg s.namedArgs binderName }
+    return .some namedArg.val
+  | none =>
+    if binderInfo.isExplicit then
+      match (← get).args with
+      | [] => return .undef
+      | arg :: args =>
+        modify fun s => { s with args }
+        return .some arg
+    else
+      return .none
+
+/-- Set the `motive` field in the state. -/
+def setMotive (motive : Expr) : M Unit :=
+  modify fun s => { s with motive? := motive }
+
+/-- Push the given expression into the `discrs` field in the state. -/
+def addDiscr (discr : Expr) : M Unit :=
+  modify fun s => { s with discrs := s.discrs.push discr }
+
+/-- Elaborate the given argument with the given expected type. -/
+private def elabArg (arg : Arg) (argExpectedType : Expr) : M Expr := do
+  match arg with
+  | Arg.expr val => ensureArgType (← get).f val argExpectedType
+  | Arg.stx stx  =>
+    let val ← elabTerm stx argExpectedType
+    withRef stx <| ensureArgType (← get).f val argExpectedType
+
+/-- Save information for producing error messages. -/
+def saveArgInfo (arg : Expr) (binderName : Name) : M Unit := do
+  if arg.isMVar then
+    let mvarId := arg.mvarId!
+    if let some mvarErrorInfo ← getMVarErrorInfo? mvarId then
+      registerMVarErrorInfo { mvarErrorInfo with argName? := binderName }
+
+/-- Create an implicit argument using the given `BinderInfo`. -/
+def mkImplicitArg (argExpectedType : Expr) (bi : BinderInfo) : M Expr := do
+  let arg ← mkFreshExprMVar argExpectedType (if bi.isInstImplicit then .synthetic else .natural)
+  if bi.isInstImplicit then
+    modify fun s => { s with instMVars := s.instMVars.push arg.mvarId! }
+  return arg
+
+/-- Main loop of the `elimAsElab` procedure. -/
+partial def main : M Expr := do
+  let .forallE binderName binderType body binderInfo ← whnfForall (← get).fType |
+    finalize
+  let addArgAndContinue (arg : Expr) : M Expr := do
+    modify fun s => { s with idx := s.idx + 1, f := mkApp s.f arg, fType := body.instantiate1 arg }
+    saveArgInfo arg binderName
+    main
+  let idx := (← get).idx
+  if (← read).elimInfo.motivePos == idx then
+    let motive ← mkImplicitArg binderType binderInfo
+    setMotive motive
+    addArgAndContinue motive
+  else if (← read).elimInfo.targetsPos.contains idx then
+    let discr ← match (← getNextArg? binderName binderInfo) with
+      | .some arg => elabArg arg binderType
+      | .undef => throwInsufficientDiscrs
+      | .none => mkImplicitArg binderType binderInfo
+    addDiscr discr
+    addArgAndContinue discr
+  else match (← getNextArg? binderName binderInfo) with
+    | .some (.stx stx) => addArgAndContinue (← postponeElabTerm stx binderType)
+    | .some (.expr val) => addArgAndContinue (← ensureArgType (← get).f val binderType)
+    | .undef => finalize
+    | .none => addArgAndContinue (← mkImplicitArg binderType binderInfo)
+
+end ElabElim
+
+/-- Return `true` if `declName` is a candidate for `ElabElim.main` elaboration. -/
+private def shouldElabAsElim (declName : Name) : CoreM Bool := do
+  if (← isRec declName) then return true
+  let env ← getEnv
+  if isCasesOnRecursor env declName then return true
+  if isBRecOnRecursor env declName then return true
+  if isRecOnRecursor env declName then return true
+  return elabAsElim.hasTag env declName
+
 private def propagateExpectedTypeFor (f : Expr) : TermElabM Bool :=
   match f.getAppFn.constName? with
   | some declName => return !hasElabWithoutExpectedType (← getEnv) declName
   | _ => return true
+
+/-! # Function application elaboration -/
 
 /--
 Elaborate a `f`-application using `namedArgs` and `args` as the arguments.
@@ -676,17 +872,52 @@ def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
   let resultIsOutParamSupport := ((← getEnv).contains ``Lean.Internal.coeM) && resultIsOutParamSupport && !explicit
   let fType ← inferType f
   let fType ← instantiateMVars fType
+  unless namedArgs.isEmpty && args.isEmpty do
+    tryPostponeIfMVar fType
   trace[Elab.app.args] "explicit: {explicit}, ellipsis: {ellipsis}, {f} : {fType}"
   trace[Elab.app.args] "namedArgs: {namedArgs}"
   trace[Elab.app.args] "args: {args}"
-  unless namedArgs.isEmpty && args.isEmpty do
-    tryPostponeIfMVar fType
-  ElabAppArgs.main.run { explicit, ellipsis, resultIsOutParamSupport } |>.run' {
-    args := args.toList
-    expectedType?, f, fType
-    namedArgs := namedArgs.toList
-    propagateExpected := (← propagateExpectedTypeFor f)
-  }
+  let go (namedArgs : Array NamedArg) (args : Array Arg) : TermElabM Expr := do
+    ElabAppArgs.main.run { explicit, ellipsis, resultIsOutParamSupport } |>.run' {
+      args := args.toList
+      expectedType?, f, fType
+      namedArgs := namedArgs.toList
+      propagateExpected := (← propagateExpectedTypeFor f)
+    }
+  if let some elimInfo ← elabAsElim? then
+    tryPostponeIfNoneOrMVar expectedType?
+    let some expectedType := expectedType? | throwError "failed to elaborate eliminator, expected type is not available"
+    let expectedType ← instantiateMVars expectedType
+    if expectedType.getAppFn.isMVar then throwError "failed to elaborate eliminator, expected type is not available"
+    ElabElim.main.run { elimInfo, expectedType } |>.run' {
+      f, fType
+      args := args.toList
+      namedArgs := namedArgs.toList
+    }
+  else
+    ElabAppArgs.main.run { explicit, ellipsis, resultIsOutParamSupport } |>.run' {
+      args := args.toList
+      expectedType?, f, fType
+      namedArgs := namedArgs.toList
+      propagateExpected := (← propagateExpectedTypeFor f)
+    }
+where
+  /-- Return `some info` if we should elaborate as an eliminator. -/
+  elabAsElim? : TermElabM (Option ElimInfo) := do
+    if explicit || ellipsis then return none
+    let .const declName _ := f | return none
+    unless (← shouldElabAsElim declName) do return none
+    let elimInfo ← getElimInfo declName
+    forallTelescopeReducing (← inferType f) fun xs _ => do
+      if h : elimInfo.motivePos < xs.size then
+        let x := xs[elimInfo.motivePos]
+        let localDecl ← x.fvarId!.getDecl
+        if findBinderName? namedArgs.toList localDecl.userName matches some _ then
+          -- motive has been explicitly provided, so we should use standard app elaborator
+          return none
+        return some elimInfo
+      else
+        return none
 
 /-- Auxiliary inductive datatype that represents the resolution of an `LVal`. -/
 inductive LValResolution where

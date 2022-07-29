@@ -50,7 +50,7 @@ inductive PEmpty : Sort u where
 def Not (a : Prop) : Prop := a → False
 
 @[macroInline] def False.elim {C : Sort u} (h : False) : C :=
-  False.rec (fun _ => C) h
+  @False.rec (fun _ => C) h
 
 @[macroInline] def absurd {a : Prop} {b : Sort v} (h₁ : a) (h₂ : Not a) : b :=
   False.elim (h₂ h₁)
@@ -451,15 +451,15 @@ class LT (α : Type u) where lt : α → α → Prop
   ite (LE.le a b) a b
 
 /-- Transitive chaining of proofs, used e.g. by `calc`. -/
-class Trans (r : α → β → Prop) (s : β → γ → Prop) (t : outParam (α → γ → Prop)) where
+class Trans (r : α → β → Sort u) (s : β → γ → Sort v) (t : outParam (α → γ → Sort w)) where
   trans : r a b → s b c → t a c
 
 export Trans (trans)
 
-instance (r : α → γ → Prop) : Trans Eq r r where
+instance (r : α → γ → Sort u) : Trans Eq r r where
   trans heq h' := heq ▸ h'
 
-instance (r : α → β → Prop) : Trans r Eq r where
+instance (r : α → β → Sort u) : Trans r Eq r where
   trans h' heq := heq ▸ h'
 
 class HAdd (α : Type u) (β : Type v) (γ : outParam (Type w)) where

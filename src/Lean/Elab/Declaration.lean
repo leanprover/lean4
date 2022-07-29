@@ -332,7 +332,7 @@ def elabMutual : CommandElab := fun stx => do
     if let (some id, some type) := (id?, type?) then
       let `(Parser.Command.declModifiersT| $[$doc?:docComment]? $[@[$attrs?,*]]? $(vis?)? $[unsafe%$unsafe?]?) := stx[0]
         | Macro.throwErrorAt declModifiers "invalid initialization command, unexpected modifiers"
-      `($[unsafe%$unsafe?]? def initFn : IO $type := do $doSeq
+      `($[unsafe%$unsafe?]? def initFn : IO $type := with_decl_name% ?$id do $doSeq
         $[$doc?:docComment]? @[$attrId:ident initFn, $(attrs?.getD ∅),*] $(vis?)? opaque $id : $type)
     else
       let `(Parser.Command.declModifiersT| ) := declModifiers

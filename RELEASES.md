@@ -1,7 +1,7 @@
 Unreleased
 ---------
 
-* Add `[elabAsElim]` attribute (it is called `elab_as_elimator` in Lean 3). Motivation: simplify the Mathlib port to Lean 4.
+* Add `[elabAsElim]` attribute (it is called `elab_as_eliminator` in Lean 3). Motivation: simplify the Mathlib port to Lean 4.
 
 * `Trans` type class now accepts relations in `Type u`. See this [Zulip issue](https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/Calc.20mode/near/291214574).
 

@@ -1047,7 +1047,12 @@ def withSavedContext (savedCtx : SavedContext) (x : TermElabM α) : TermElabM α
     withTheReader Core.Context (fun ctx => { ctx with options := savedCtx.options, openDecls := savedCtx.openDecls }) <|
       withLevelNames savedCtx.levelNames x
 
-def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+/--
+Delay the elaboration of `stx`, and return a fresh metavariable that works a placeholder.
+Remark: the caller is responsible for making sure the info tree is properly updated.
+This method is used only at `elabUsingElabFnsAux`.
+-/
+private def postponeElabTermCore (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
   trace[Elab.postpone] "{stx} : {expectedType?}"
   let mvar ← mkFreshExprMVar expectedType? MetavarKind.syntheticOpaque
   registerSyntheticMVar stx mvar.mvarId! (SyntheticMVarKind.postponed (← saveContext))
@@ -1126,6 +1131,15 @@ def withInfoContext' (stx : Syntax) (x : TermElabM Expr) (mkInfo : Expr → Term
     Elab.withInfoContext' x mkInfo
 
 /--
+Postpone the elaboration of `stx`, return a metavariable that acts as a placeholder, and
+ensures the info tree is updated and a hole id is introduced.
+When `stx` is elaborated, new info nodes are created and attached to the new hole id in the info tree.
+-/
+def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+  withInfoContext' stx (mkInfo := mkTermInfo .anonymous (expectedType? := expectedType?) stx) do
+    postponeElabTermCore stx expectedType?
+
+/--
   Helper function for `elabTerm` is tries the registered elaboration functions for `stxNode` kind until it finds one that supports the syntax or
   an error is found. -/
 private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool)
@@ -1164,7 +1178,7 @@ private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? :
                 wasteful because when we resume the elaboration of `((f.x a1).x a2).x a3`, we start it from scratch
                 and new metavariables are created for the nested functions. -/
               s.restore
-              postponeElabTerm stx expectedType?
+              postponeElabTermCore stx expectedType?
             else
               throw ex)
     catch ex => match ex with

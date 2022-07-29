@@ -16,6 +16,8 @@ open Meta
 
 /-! # `elabTerm` for Tactics and basic tactics that use it. -/
 
+/-- Elaborate `stx` in the current `MVarContext`. If given, the `expectedType` will be used to help
+elaboration but not enforced (use `elabTermEnsuringType` to enforce an expected type). -/
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) (mayPostpone := false) : TacticM Expr := do
   /- If error recovery is disabled, we disable `Term.withoutErrToSorry` -/
   if (← read).recover then
@@ -29,6 +31,8 @@ where
       Term.synthesizeSyntheticMVars mayPostpone
       instantiateMVars e
 
+/-- Elaborate `stx` in the current `MVarContext`. If given, the `expectedType` will be used to help
+elaboration and then a `TypeMismatchError` will be thrown if the elaborated type doesn't match.  -/
 def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (mayPostpone := false) : TacticM Expr := do
   let e ← elabTerm stx expectedType? mayPostpone
   -- We do use `Term.ensureExpectedType` because we don't want coercions being inserted here.

@@ -161,19 +161,19 @@ syntax (name := calcTactic) "calc" ppLine withPosition(calcStep) ppLine withPosi
   | _                => throw ()
 
 @[appUnexpander GetElem.getElem] def unexpandGetElem : Lean.PrettyPrinter.Unexpander
-  | `(getElem $array $index $_) => `($array[$index])
+  | `($_ $array $index $_) => `($array[$index])
   | _ => throw ()
 
 @[appUnexpander getElem!] def unexpandGetElem! : Lean.PrettyPrinter.Unexpander
-  | `(getElem! $array $index) => `($array[$index]!)
+  | `($_ $array $index) => `($array[$index]!)
   | _ => throw ()
 
 @[appUnexpander getElem?] def unexpandGetElem? : Lean.PrettyPrinter.Unexpander
-  | `(getElem? $array $index) => `($array[$index]?)
+  | `($_ $array $index) => `($array[$index]?)
   | _ => throw ()
 
 @[appUnexpander getElem'] def unexpandGetElem' : Lean.PrettyPrinter.Unexpander
-  | `(getElem' $array $index $h) => `($array[$index]'$h)
+  | `($_ $array $index $h) => `($array[$index]'$h)
   | _ => throw ()
 
 /--

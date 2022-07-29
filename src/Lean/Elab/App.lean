@@ -877,13 +877,6 @@ def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
   trace[Elab.app.args] "explicit: {explicit}, ellipsis: {ellipsis}, {f} : {fType}"
   trace[Elab.app.args] "namedArgs: {namedArgs}"
   trace[Elab.app.args] "args: {args}"
-  let go (namedArgs : Array NamedArg) (args : Array Arg) : TermElabM Expr := do
-    ElabAppArgs.main.run { explicit, ellipsis, resultIsOutParamSupport } |>.run' {
-      args := args.toList
-      expectedType?, f, fType
-      namedArgs := namedArgs.toList
-      propagateExpected := (← propagateExpectedTypeFor f)
-    }
   if let some elimInfo ← elabAsElim? then
     tryPostponeIfNoneOrMVar expectedType?
     let some expectedType := expectedType? | throwError "failed to elaborate eliminator, expected type is not available"

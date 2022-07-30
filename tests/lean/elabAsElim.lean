@@ -82,4 +82,9 @@ example (h : False) : a = c :=
 example (h : False) : a = c :=
   h.elim
 
+noncomputable def f : Nat → Nat :=
+  Nat.rec 0 (fun x _ => x)
+
+example : ∀ x, x ≥ 0 :=
+  Nat.rec (Nat.le_refl 0) (fun _ ih => Nat.le_succ_of_le ih)
 

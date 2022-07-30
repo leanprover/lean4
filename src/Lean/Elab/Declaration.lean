@@ -335,9 +335,9 @@ def elabMutual : CommandElab := fun stx => do
       `($[unsafe%$unsafe?]? def initFn : IO $type := with_decl_name% ?$id do $doSeq
         $[$doc?:docComment]? @[$attrId:ident initFn, $(attrs?.getD ∅),*] $(vis?)? opaque $id : $type)
     else
-      let `(Parser.Command.declModifiersT| ) := declModifiers
+      let `(Parser.Command.declModifiersT| $[$doc?:docComment]? ) := declModifiers
         | Macro.throwErrorAt declModifiers "invalid initialization command, unexpected modifiers"
-      `(@[$attrId:ident] def initFn : IO Unit := do $doSeq)
+      `($[$doc?:docComment]? @[$attrId:ident] def initFn : IO Unit := do $doSeq)
   | _ => Macro.throwUnsupported
 
 builtin_initialize

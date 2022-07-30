@@ -354,6 +354,7 @@
   f5 (isBinder := true) : Nat → B @ ⟨33, 4⟩-⟨33, 6⟩
   x (isBinder := true) : Nat @ ⟨33, 8⟩-⟨33, 9⟩
   { pair := ({ val := id }, { val := id }) } : B @ ⟨33, 24⟩-⟨35, 1⟩ @ Lean.Elab.Term.StructInst.elabStructInst
+    [.] `pair @ ⟨34, 2⟩-⟨34, 6⟩
     ({ val := id }, { val := id }) : A × A @ ⟨34, 10⟩-⟨34, 40⟩ @ Lean.Elab.Term.expandParen
       Macro expansion
       ({ val := id }, { val := id })
@@ -363,11 +364,13 @@
           [.] `Prod.mk._@.infoTree._hyg.156 : some Prod.{0 0} A A @ ⟨34, 10⟩†-⟨34, 40⟩†
           @Prod.mk : {α β : Type} → α → β → α × β @ ⟨34, 10⟩†-⟨34, 40⟩†
           { val := id } : A @ ⟨34, 11⟩-⟨34, 24⟩ @ Lean.Elab.Term.StructInst.elabStructInst
+            [.] `val @ ⟨34, 13⟩-⟨34, 16⟩
             id : Nat → Nat @ ⟨34, 20⟩-⟨34, 22⟩ @ Lean.Elab.Term.elabIdent
               [.] `id : some Nat -> Nat @ ⟨34, 20⟩-⟨34, 22⟩
               @id : {α : Type} → α → α @ ⟨34, 20⟩-⟨34, 22⟩
             val : Nat → Nat := id @ ⟨34, 13⟩-⟨34, 16⟩
           { val := id } : A @ ⟨34, 26⟩-⟨34, 39⟩ @ Lean.Elab.Term.StructInst.elabStructInst
+            [.] `val @ ⟨34, 28⟩-⟨34, 31⟩
             id : Nat → Nat @ ⟨34, 35⟩-⟨34, 37⟩ @ Lean.Elab.Term.elabIdent
               [.] `id : some Nat -> Nat @ ⟨34, 35⟩-⟨34, 37⟩
               @id : {α : Type} → α → α @ ⟨34, 35⟩-⟨34, 37⟩

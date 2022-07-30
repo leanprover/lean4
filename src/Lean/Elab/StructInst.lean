@@ -416,8 +416,9 @@ private def expandNumLitFields (s : Struct) : TermElabM Struct :=
 -/
 private def expandParentFields (s : Struct) : TermElabM Struct := do
   let env ← getEnv
-  s.modifyFieldsM fun fields => fields.mapM fun field => match field with
+  s.modifyFieldsM fun fields => fields.mapM fun field => do match field with
     | { lhs := .fieldName ref fieldName :: _,    .. } =>
+      addCompletionInfo <| CompletionInfo.fieldId ref fieldName (← getLCtx) s.structName
       match findField? env s.structName fieldName with
       | none => throwErrorAt ref "'{fieldName}' is not a field of structure '{s.structName}'"
       | some baseStructName =>

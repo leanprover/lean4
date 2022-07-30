@@ -1,10 +1,18 @@
 Unreleased
 ---------
 
+* Auto-completion for structure instance fields. Example:
+  ```lean
+  example : Nat × Nat := {
+    f -- HERE
+  }
+  ```
+  `fst` now appears in the list of auto-completion suggestions.
+
 * Auto-completion for dotted identifier notation. Example:
   ```lean
   example : Nat :=
-    .su
+    .su -- HERE
   ```
   `succ` now appears in the list of auto-completion suggestions.
 

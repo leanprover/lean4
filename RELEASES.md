@@ -1,6 +1,13 @@
 Unreleased
 ---------
 
+* Auto-completion for dotted identifier notation. Example:
+  ```lean
+  example : Nat :=
+    .su
+  ```
+  `succ` now appears in the list of auto-completion suggestions.
+
 * `nat_lit` is not needed anymore when declaring `OfNat` instances. See issues [#1389](https://github.com/leanprover/lean4/issues/1389) and [#875](https://github.com/leanprover/lean4/issues/875). Example:
   ```lean
   inductive Bit where

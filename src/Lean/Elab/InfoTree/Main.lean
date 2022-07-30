@@ -38,6 +38,7 @@ end ContextInfo
 def CompletionInfo.stx : CompletionInfo → Syntax
   | dot i .. => i.stx
   | id stx .. => stx
+  | dotId stx .. => stx
   | namespaceId stx => stx
   | option stx => stx
   | endSection stx .. => stx

@@ -1294,6 +1294,7 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     | `(@$_)     => throwUnsupportedSyntax -- invalid occurrence of `@`
     | `(_)       => throwError "placeholders '_' cannot be used where a function is expected"
     | `(.$id:ident) =>
+        addCompletionInfo <| CompletionInfo.dotId f id.getId (← getLCtx) expectedType?
         let fConst ← mkConst (← resolveDotName id expectedType?)
         let fConst ← addTermInfo f fConst
         let s ← observing do

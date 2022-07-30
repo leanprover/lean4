@@ -12,8 +12,8 @@ namespace Lean
 namespace ScopedEnvExtension
 
 inductive Entry (α : Type) where
-  | global   : α → Entry α
-  | «scoped» : Name → α → Entry α
+  | global : α → Entry α
+  | scoped : Name → α → Entry α
 
 structure State (σ : Type) where
   state        : σ

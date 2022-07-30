@@ -97,26 +97,26 @@ export ForIn' (forIn')
 
 /-- Auxiliary type used to compile `do` notation. -/
 inductive DoResultPRBC (α β σ : Type u) where
-  | «pure»     : α → σ → DoResultPRBC α β σ
-  | «return»   : β → σ → DoResultPRBC α β σ
-  | «break»    : σ → DoResultPRBC α β σ
-  | «continue» : σ → DoResultPRBC α β σ
+  | pure     : α → σ → DoResultPRBC α β σ
+  | return   : β → σ → DoResultPRBC α β σ
+  | break    : σ → DoResultPRBC α β σ
+  | continue : σ → DoResultPRBC α β σ
 
 /-- Auxiliary type used to compile `do` notation. -/
 inductive DoResultPR (α β σ : Type u) where
-  | «pure»     : α → σ → DoResultPR α β σ
-  | «return»   : β → σ → DoResultPR α β σ
+  | pure   : α → σ → DoResultPR α β σ
+  | return : β → σ → DoResultPR α β σ
 
 /-- Auxiliary type used to compile `do` notation. -/
 inductive DoResultBC (σ : Type u) where
-  | «break»    : σ → DoResultBC σ
-  | «continue» : σ → DoResultBC σ
+  | break    : σ → DoResultBC σ
+  | continue : σ → DoResultBC σ
 
 /-- Auxiliary type used to compile `do` notation. -/
 inductive DoResultSBC (α σ : Type u) where
-  | «pureReturn» : α → σ → DoResultSBC α σ
-  | «break»      : σ → DoResultSBC α σ
-  | «continue»   : σ → DoResultSBC α σ
+  | pureReturn : α → σ → DoResultSBC α σ
+  | break      : σ → DoResultSBC α σ
+  | continue   : σ → DoResultSBC α σ
 
 class HasEquiv  (α : Sort u) where
   Equiv : α → α → Sort v

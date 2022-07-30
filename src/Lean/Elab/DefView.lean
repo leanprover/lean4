@@ -16,22 +16,22 @@ import Lean.Elab.DeclUtil
 namespace Lean.Elab
 
 inductive DefKind where
-  | «def» | «theorem» | «example» | «opaque» | «abbrev»
+  | def | theorem | example | opaque | abbrev
   deriving Inhabited, BEq
 
 def DefKind.isTheorem : DefKind → Bool
-  | «theorem» => true
-  | _         => false
-
-def DefKind.isDefOrAbbrevOrOpaque : DefKind → Bool
-  | «def»    => true
-  | «opaque» => true
-  | «abbrev» => true
+  | .theorem => true
   | _        => false
 
+def DefKind.isDefOrAbbrevOrOpaque : DefKind → Bool
+  | .def    => true
+  | .opaque => true
+  | .abbrev => true
+  | _       => false
+
 def DefKind.isExample : DefKind → Bool
-  | «example» => true
-  | _         => false
+  | .example => true
+  | _        => false
 
 structure DefView where
   kind          : DefKind

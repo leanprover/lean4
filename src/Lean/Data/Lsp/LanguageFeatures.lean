@@ -20,10 +20,10 @@ structure CompletionOptions where
 
 inductive CompletionItemKind where
   | text | method | function | constructor | field
-  | «variable» | «class» | interface | module | property
+  | variable | class | interface | module | property
   | unit | value | enum | keyword | snippet
   | color | file | reference | folder | enumMember
-  | «constant» | struct | event | operator | typeParameter
+  | constant | struct | event | operator | typeParameter
   deriving Inhabited, DecidableEq, Repr
 
 instance : ToJson CompletionItemKind where
@@ -129,18 +129,18 @@ structure DocumentSymbolParams where
 inductive SymbolKind where
   | file
   | module
-  | «namespace»
+  | namespace
   | package
-  | «class»
+  | class
   | method
   | property
   | field
   | constructor
-  | «enum»
+  | enum
   | interface
   | function
-  | «variable»
-  | «constant»
+  | variable
+  | constant
   | string
   | number
   | boolean
@@ -228,14 +228,14 @@ structure SymbolInformation where
 inductive SemanticTokenType where
   -- Used by Lean
   | keyword
-  | «variable»
+  | variable
   | property
   | function
   /- Other types included by default in the LSP specification.
   Not used by the Lean core, but useful to users extending the Lean server. -/
-  | «namespace»
+  | namespace
   | type
-  | «class»
+  | class
   | enum
   | interface
   | struct
@@ -244,7 +244,7 @@ inductive SemanticTokenType where
   | enumMember
   | event
   | method
-  | «macro»
+  | macro
   | modifier
   | comment
   | string

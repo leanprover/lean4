@@ -31,9 +31,9 @@ Remark: the ReducibilityHints are not related to the attributes: reducible/irrel
 These attributes are used by the Elaborator. The ReducibilityHints are used by the kernel (and Elaborator).
 Moreover, the ReducibilityHints cannot be changed after a declaration is added to the kernel. -/
 inductive ReducibilityHints where
-  | «opaque» : ReducibilityHints
-  | «abbrev» : ReducibilityHints
-  | regular  : UInt32 → ReducibilityHints
+  | opaque  : ReducibilityHints
+  | abbrev  : ReducibilityHints
+  | regular : UInt32 → ReducibilityHints
   deriving Inhabited
 
 @[export lean_mk_reducibility_hints_regular]
@@ -49,15 +49,15 @@ def ReducibilityHints.getHeightEx (h : ReducibilityHints) : UInt32 :=
 namespace ReducibilityHints
 
 def lt : ReducibilityHints → ReducibilityHints → Bool
-  | «abbrev»,   «abbrev»   => false
-  | «abbrev»,   _          => true
-  | regular d₁, regular d₂ => d₁ < d₂
-  | regular _, «opaque»    => true
-  | _,          _          => false
+  | .abbrev,     .abbrev     => false
+  | .abbrev,     _           => true
+  | .regular d₁, .regular d₂ => d₁ < d₂
+  | .regular _,  .opaque     => true
+  | _,           _           => false
 
 def isAbbrev : ReducibilityHints → Bool
-  | «abbrev» => true
-  | _        => false
+  | .abbrev => true
+  | _       => false
 
 def isRegular : ReducibilityHints → Bool
   | regular .. => true
@@ -199,7 +199,7 @@ def Declaration.isUnsafeInductiveDeclEx : Declaration → Bool
     A series of checks are performed by the kernel to check whether a `inductiveDecls`
     is valid or not. -/
 structure InductiveVal extends ConstantVal where
-  /-- Number of parameters. A parameter is an argument to the defined type that is fixed over constructors.  
+  /-- Number of parameters. A parameter is an argument to the defined type that is fixed over constructors.
   An example of this is the `α : Type` argument in the vector constructors
   `nil : Vector α 0` and `cons : α → Vector α n → Vector α (n+1)`.
 
@@ -222,9 +222,9 @@ structure InductiveVal extends ConstantVal where
   isUnsafe : Bool
   /-- An inductive type is called reflexive if it has at least one constructor that takes as an argument a function returning the
   same type we are defining.
-  Consider the type: 
+  Consider the type:
   ```
-  inductive WideTree where 
+  inductive WideTree where
   | branch: (Nat -> WideTree) -> WideTree
   | leaf: WideTree
   ```
@@ -317,7 +317,7 @@ structure RecursorVal extends ConstantVal where
   and it is an inductive predicate (ie, it lives in Prop).
 
   Examples of inductives with K-like reduction is `Eq`, `Acc`, and `And.intro`.
-  Non-examples are `exists` (where the constructor has arguments) and 
+  Non-examples are `exists` (where the constructor has arguments) and
     `Or.intro` (which has multiple constructors).
   -/
   k : Bool

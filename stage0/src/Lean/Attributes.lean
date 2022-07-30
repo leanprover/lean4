@@ -36,14 +36,14 @@ Note that the attribute handler (`AttributeImpl.add`) is responsible for interpr
 making sure that these kinds are respected.
 -/
 inductive AttributeKind
-  | «global» | «local» | «scoped»
+  | global | «local» | «scoped»
   deriving BEq, Inhabited
 
 instance : ToString AttributeKind where
   toString
-    | AttributeKind.global => "global"
-    | AttributeKind.local  => "local"
-    | AttributeKind.scoped => "scoped"
+    | .global => "global"
+    | .local  => "local"
+    | .scoped => "scoped"
 
 structure AttributeImpl extends AttributeImplCore where
   /-- This is run when the attribute is applied to a declaration `decl`. `stx` is the syntax of the attribute including arguments. -/

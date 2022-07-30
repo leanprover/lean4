@@ -191,12 +191,12 @@ inductive Code where
     joinpoint    (name : Name) (params : Array (Var × Bool)) (body : Code) (k : Code)
   | seq          (action : Syntax) (k : Code)
   | action       (action : Syntax)
-  | «break»      (ref : Syntax)
-  | «continue»   (ref : Syntax)
-  | «return»     (ref : Syntax) (val : Syntax)
+  | break        (ref : Syntax)
+  | continue     (ref : Syntax)
+  | return       (ref : Syntax) (val : Syntax)
   | /-- Recall that an if-then-else may declare a variable using `optIdent` for the branches `thenBranch` and `elseBranch`. We store the variable name at `var?`. -/
     ite          (ref : Syntax) (h? : Option Var) (optIdent : Syntax) (cond : Syntax) (thenBranch : Code) (elseBranch : Code)
-  | «match»      (ref : Syntax) (gen : Syntax) (discrs : Syntax) (optMotive : Syntax) (alts : Array (Alt Code))
+  | match        (ref : Syntax) (gen : Syntax) (discrs : Syntax) (optMotive : Syntax) (alts : Array (Alt Code))
   | jmp          (ref : Syntax) (jpName : Name) (args : Array Syntax)
   deriving Inhabited
 

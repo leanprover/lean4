@@ -69,7 +69,6 @@ static lean_object* l_Lean_Elab_elabDeriving___closed__7;
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_elabDeriving___spec__19___closed__4;
 static lean_object* l_Lean_Elab_defaultHandler___closed__6;
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Elab_Command_expandDeclId___spec__13(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalContext_empty;
 lean_object* l_List_mapTRAux___at_Lean_resolveGlobalConstNoOverload___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_elabDeriving___closed__3;
@@ -88,6 +87,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_getOptDerivingC
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_elabDeriving___spec__5___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_elabDeriving___closed__2;
+lean_object* l_Lean_throwError___at_Lean_Elab_Command_expandDeclId___spec__12(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_sequenceMap_loop___at_Lean_Elab_elabDeriving___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_resolveGlobalConstNoOverloadWithInfo___at_Lean_Elab_elabDeriving___spec__8___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1028,7 +1028,7 @@ lean_object* x_11; lean_object* x_12;
 x_11 = lean_ctor_get(x_3, 6);
 lean_dec(x_11);
 lean_ctor_set(x_3, 6, x_9);
-x_12 = l_Lean_throwError___at_Lean_Elab_Command_expandDeclId___spec__13(x_2, x_3, x_4, x_8);
+x_12 = l_Lean_throwError___at_Lean_Elab_Command_expandDeclId___spec__12(x_2, x_3, x_4, x_8);
 return x_12;
 }
 else
@@ -1058,7 +1058,7 @@ lean_ctor_set(x_20, 4, x_17);
 lean_ctor_set(x_20, 5, x_18);
 lean_ctor_set(x_20, 6, x_9);
 lean_ctor_set(x_20, 7, x_19);
-x_21 = l_Lean_throwError___at_Lean_Elab_Command_expandDeclId___spec__13(x_2, x_20, x_4, x_8);
+x_21 = l_Lean_throwError___at_Lean_Elab_Command_expandDeclId___spec__12(x_2, x_20, x_4, x_8);
 return x_21;
 }
 }

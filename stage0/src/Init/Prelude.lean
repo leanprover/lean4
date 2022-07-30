@@ -50,16 +50,16 @@ inductive PEmpty : Sort u where
 def Not (a : Prop) : Prop := a → False
 
 @[macroInline] def False.elim {C : Sort u} (h : False) : C :=
-  @False.rec (fun _ => C) h
+  h.rec
 
 @[macroInline] def absurd {a : Prop} {b : Sort v} (h₁ : a) (h₂ : Not a) : b :=
-  False.elim (h₂ h₁)
+  (h₂ h₁).rec
 
 inductive Eq : α → α → Prop where
   | refl (a : α) : Eq a a
 
 @[simp] abbrev Eq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : motive a) {b : α} (h : Eq a b) : motive b :=
-  Eq.rec (motive := fun α _ => motive α) m h
+  h.rec m
 
 @[matchPattern] def rfl {α : Sort u} {a : α} : Eq a a := Eq.refl a
 
@@ -75,7 +75,7 @@ theorem Eq.trans {α : Sort u} {a b c : α} (h₁ : Eq a b) (h₂ : Eq b c) : Eq
   h₂ ▸ h₁
 
 @[macroInline] def cast {α β : Sort u} (h : Eq α β) (a : α) : β :=
-  Eq.rec (motive := fun α _ => α) a h
+  h.rec a
 
 theorem congrArg {α : Sort u} {β : Sort v} {a₁ a₂ : α} (f : α → β) (h : Eq a₁ a₂) : Eq (f a₁) (f a₂) :=
   h ▸ rfl
@@ -142,7 +142,6 @@ In fact, the computation principle is declared as a reduction rule.
 -/
 add_decl_doc Quot.lift
 
-
 inductive HEq : {α : Sort u} → α → {β : Sort u} → β → Prop where
   | refl (a : α) : HEq a a
 
@@ -151,10 +150,8 @@ inductive HEq : {α : Sort u} → α → {β : Sort u} → β → Prop where
 
 theorem eq_of_heq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=
   have : (α β : Sort u) → (a : α) → (b : β) → HEq a b → (h : Eq α β) → Eq (cast h a) b :=
-    fun α _ a _ h₁ =>
-      HEq.rec (motive := fun {β} (b : β) (_ : HEq a b) => (h₂ : Eq α β) → Eq (cast h₂ a) b)
-        (fun (_ : Eq α α) => rfl)
-        h₁
+    fun _ _ _ _ h₁ =>
+      h₁.rec (fun _ => rfl)
   this α α a a' h rfl
 
 structure Prod (α : Type u) (β : Type v) where
@@ -310,7 +307,7 @@ class inductive Decidable (p : Prop) where
   | isTrue  (h : p) : Decidable p
 
 @[inlineIfReduce, nospecialize] def Decidable.decide (p : Prop) [h : Decidable p] : Bool :=
-  Decidable.casesOn (motive := fun _ => Bool) h (fun _ => false) (fun _ => true)
+  h.casesOn (fun _ => false) (fun _ => true)
 
 export Decidable (isTrue isFalse decide)
 
@@ -369,12 +366,12 @@ instance [DecidableEq α] : BEq α where
 -- We use "dependent" if-then-else to be able to communicate the if-then-else condition
 -- to the branches
 @[macroInline] def dite {α : Sort u} (c : Prop) [h : Decidable c] (t : c → α) (e : Not c → α) : α :=
-  Decidable.casesOn (motive := fun _ => α) h e t
+  h.casesOn e t
 
 /-! # if-then-else -/
 
 @[macroInline] def ite {α : Sort u} (c : Prop) [h : Decidable c] (t e : α) : α :=
-  Decidable.casesOn (motive := fun _ => α) h (fun _ => e) (fun _ => t)
+  h.casesOn (fun _ => e) (fun _ => t)
 
 @[macroInline] instance {p q} [dp : Decidable p] [dq : Decidable q] : Decidable (And p q) :=
   match dp with

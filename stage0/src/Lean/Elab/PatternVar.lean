@@ -217,7 +217,7 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
 where
 
   processCtorApp (stx : Syntax) : M Syntax := do
-    let (f, namedArgs, args, ellipsis) ← expandApp stx true
+    let (f, namedArgs, args, ellipsis) ← expandApp stx
     if f.getKind == ``Parser.Term.dotIdent then
       let namedArgsNew ← namedArgs.mapM fun
         | { ref, name, val := Arg.stx arg } => withRef ref do `(Lean.Parser.Term.namedArgument| ($(mkIdentFrom ref name) := $(← collect arg)))

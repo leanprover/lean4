@@ -700,12 +700,9 @@ structure State where
 
 abbrev M := ReaderT Context $ StateRefT State TermElabM
 
-def throwInsufficientDiscrs : M α :=
-  throwError "failed to elaborate eliminator, insufficient number of arguments"
-
 /-- Infer the `motive` using the expected type by `kabstract`ing the discriminants. -/
-def mkMotive (expectedType : Expr): M Expr := do
-  (← get).discrs.foldrM (init := expectedType) fun discr motive => do
+def mkMotive (discrs : Array Expr) (expectedType : Expr): MetaM Expr := do
+  discrs.foldrM (init := expectedType) fun discr motive => do
     let discr ← instantiateMVars discr
     trace[Meta.debug] "discr: {discr}, motive: {motive}"
     let motiveBody ← kabstract motive discr
@@ -731,8 +728,6 @@ Contruct the resulting application after all discriminants have bee elaborated, 
 consumed as many given arguments as possible.
 -/
 def finalize : M Expr := do
-  unless (← get).discrs.size == (← read).elimInfo.targetsPos.size do
-    throwInsufficientDiscrs
   unless (← get).namedArgs.isEmpty do
     throwError "failed to elaborate eliminator, unused named arguments: {(← get).namedArgs.map (·.name)}"
   let some motive := (← get).motive?
@@ -750,7 +745,15 @@ def finalize : M Expr := do
       -- over-application, simulate `revert`
       (f, expectedType) ← revertArgs (← get).args f expectedType
     let result := mkAppN f xs
-    let motiveVal ← mkMotive expectedType
+    trace[Meta.debug] "result: {result}"
+    let mut discrs := (← get).discrs
+    let idx := (← get).idx
+    if (← get).discrs.size < (← read).elimInfo.targetsPos.size then
+      for i in [idx:idx + xs.size], x in xs do
+        if (← read).elimInfo.targetsPos.contains i then
+          discrs := discrs.push x
+    let motiveVal ← mkMotive discrs expectedType
+    trace[Meta.debug] "motiveVal: {motiveVal}"
     unless (← isDefEq motive motiveVal) do
       throwError "failed to elaborate eliminator, invalid motive{indentExpr motiveVal}"
     synthesizeAppInstMVars (← get).instMVars result
@@ -821,12 +824,10 @@ partial def main : M Expr := do
     setMotive motive
     addArgAndContinue motive
   else if (← read).elimInfo.targetsPos.contains idx then
-    let discr ← match (← getNextArg? binderName binderInfo) with
-      | .some arg => elabArg arg binderType
-      | .undef => throwInsufficientDiscrs
-      | .none => mkImplicitArg binderType binderInfo
-    addDiscr discr
-    addArgAndContinue discr
+    match (← getNextArg? binderName binderInfo) with
+    | .some arg => let discr ← elabArg arg binderType; addDiscr discr; addArgAndContinue discr
+    | .undef => finalize
+    | .none => let discr ← mkImplicitArg binderType binderInfo; addDiscr discr; addArgAndContinue discr
   else match (← getNextArg? binderName binderInfo) with
     | .some (.stx stx) => addArgAndContinue (← postponeElabTerm stx binderType)
     | .some (.expr val) => addArgAndContinue (← ensureArgType (← get).f val binderType)
@@ -877,13 +878,6 @@ def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
   trace[Elab.app.args] "explicit: {explicit}, ellipsis: {ellipsis}, {f} : {fType}"
   trace[Elab.app.args] "namedArgs: {namedArgs}"
   trace[Elab.app.args] "args: {args}"
-  let go (namedArgs : Array NamedArg) (args : Array Arg) : TermElabM Expr := do
-    ElabAppArgs.main.run { explicit, ellipsis, resultIsOutParamSupport } |>.run' {
-      args := args.toList
-      expectedType?, f, fType
-      namedArgs := namedArgs.toList
-      propagateExpected := (← propagateExpectedTypeFor f)
-    }
   if let some elimInfo ← elabAsElim? then
     tryPostponeIfNoneOrMVar expectedType?
     let some expectedType := expectedType? | throwError "failed to elaborate eliminator, expected type is not available"

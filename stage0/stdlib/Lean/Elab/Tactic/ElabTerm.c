@@ -243,6 +243,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalWithReducible___closed__
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalExact_declRange___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalNativeDecide___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalWithReducibleAndInstances_declRange___closed__2;
+lean_object* l_Lean_compileDecl___at_Lean_Elab_Term_declareTacticSyntax___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_Elab_Tactic_evalRename___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalWithReducibleAndInstances_declRange___closed__1;
 static lean_object* l_Lean_Elab_Tactic_evalRename___closed__3;
@@ -299,7 +300,6 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalWithUnfoldingAll___close
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalWithReducible___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalApply_declRange___closed__5;
-lean_object* l_Lean_compileDecl___at_Lean_Elab_Term_declareTacticSyntax___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalWithUnfoldingAll(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalApply_declRange___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_preprocessPropToDecide(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10441,7 +10441,7 @@ lean_object* x_22; lean_object* x_23;
 x_22 = lean_ctor_get(x_21, 1);
 lean_inc(x_22);
 lean_dec(x_21);
-x_23 = l_Lean_compileDecl___at_Lean_Elab_Term_declareTacticSyntax___spec__3(x_20, x_4, x_5, x_6, x_7, x_8, x_9, x_22);
+x_23 = l_Lean_compileDecl___at_Lean_Elab_Term_declareTacticSyntax___spec__4(x_20, x_4, x_5, x_6, x_7, x_8, x_9, x_22);
 if (lean_obj_tag(x_23) == 0)
 {
 uint8_t x_24; 

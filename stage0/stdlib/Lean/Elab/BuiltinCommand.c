@@ -4141,7 +4141,7 @@ if (x_14 == 0)
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_15 = lean_box(0);
 x_16 = l_List_mapTRAux___at_Lean_Elab_Command_elabEnd___spec__1(x_2, x_15);
-x_17 = lean_alloc_ctor(5, 2, 0);
+x_17 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_17, 0, x_3);
 lean_ctor_set(x_17, 1, x_16);
 x_18 = l_Lean_Elab_addCompletionInfo___at_Lean_Elab_Command_elabEnd___spec__2(x_17, x_5, x_6, x_7);
@@ -21607,7 +21607,7 @@ x_11 = lean_unsigned_to_nat(2u);
 x_12 = l_Array_toSubarray___rarg(x_9, x_10, x_11);
 x_13 = l_Array_ofSubarray___rarg(x_12);
 x_14 = l_Lean_Syntax_setArgs(x_7, x_13);
-x_15 = lean_alloc_ctor(4, 1, 0);
+x_15 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_15, 0, x_14);
 x_16 = l_Lean_Elab_addCompletionInfo___at_Lean_Elab_Command_elabEnd___spec__2(x_15, x_3, x_4, x_8);
 x_17 = lean_ctor_get(x_16, 1);

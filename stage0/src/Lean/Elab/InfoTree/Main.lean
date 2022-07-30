@@ -39,6 +39,7 @@ def CompletionInfo.stx : CompletionInfo → Syntax
   | dot i .. => i.stx
   | id stx .. => stx
   | dotId stx .. => stx
+  | fieldId stx .. => stx
   | namespaceId stx => stx
   | option stx => stx
   | endSection stx .. => stx

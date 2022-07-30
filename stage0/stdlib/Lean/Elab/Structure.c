@@ -826,7 +826,7 @@ static lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_elabFieldTypeValue___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_copyDefaultValue_x3f_go_x3f___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_copyNewFieldsFrom_copyFields_copy___rarg___lambda__5___boxed(lean_object**);
-LEAN_EXPORT lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_Structure___hyg_13050_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_Structure___hyg_13051_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_Structure___hyg_3406_(lean_object*);
 uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_reprStructFieldInfo____x40_Lean_Elab_Structure___hyg_531____closed__10;
@@ -30294,7 +30294,7 @@ lean_dec(x_8);
 return x_15;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_Structure___hyg_13050_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_Structure___hyg_13051_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -31021,7 +31021,7 @@ l_Lean_Elab_Command_elabStructure___closed__12 = _init_l_Lean_Elab_Command_elabS
 lean_mark_persistent(l_Lean_Elab_Command_elabStructure___closed__12);
 l_Lean_Elab_Command_elabStructure___closed__13 = _init_l_Lean_Elab_Command_elabStructure___closed__13();
 lean_mark_persistent(l_Lean_Elab_Command_elabStructure___closed__13);
-res = l_Lean_Elab_Command_initFn____x40_Lean_Elab_Structure___hyg_13050_(lean_io_mk_world());
+res = l_Lean_Elab_Command_initFn____x40_Lean_Elab_Structure___hyg_13051_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -654,7 +654,7 @@ x_14 = lean_unsigned_to_nat(2u);
 x_15 = l_Array_toSubarray___rarg(x_12, x_13, x_14);
 x_16 = l_Array_ofSubarray___rarg(x_15);
 x_17 = l_Lean_Syntax_setArgs(x_11, x_16);
-x_18 = lean_alloc_ctor(4, 1, 0);
+x_18 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_18, 0, x_17);
 lean_inc(x_1);
 x_19 = l_Lean_Elab_addCompletionInfo___rarg(x_1, x_2, x_18);

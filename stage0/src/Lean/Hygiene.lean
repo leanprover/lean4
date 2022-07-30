@@ -86,6 +86,7 @@ private partial def mkFreshInaccessibleUserName (userName : Name) (idx : Nat) : 
     modify fun s => { s with nameStem2Idx := s.nameStem2Idx.insert userName (idx+1) }
     pure userNameNew
 
+/-- Erase macro scopes from `userName` and add "tombstone" + superscript (or `._hyg`). -/
 def sanitizeName (userName : Name) : StateM NameSanitizerState Name := do
   let stem := userName.eraseMacroScopes;
   let idx  := (← get).nameStem2Idx.find? stem |>.getD 0

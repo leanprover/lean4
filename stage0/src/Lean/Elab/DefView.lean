@@ -44,8 +44,10 @@ structure DefView where
   deriving?     : Option (Array Syntax) := none
   deriving Inhabited
 
-namespace Command
+def DefView.isInstance (view : DefView) : Bool :=
+  view.modifiers.attrs.any fun attr => attr.name == `instance
 
+namespace Command
 open Meta
 
 def mkDefViewOfAbbrev (modifiers : Modifiers) (stx : Syntax) : DefView :=

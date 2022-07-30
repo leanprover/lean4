@@ -372,6 +372,15 @@ private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (hoverInfo : Hov
             if (← isDotCompletionMethod typeName c) then
               addCompletionItem c.name.getString! c.type expectedType? c.name (kind := (← getCompletionKindForDecl c)) 1
 
+private def dotIdCompletion (ctx : ContextInfo) (lctx : LocalContext) (id : Name) (hoverInfo : HoverInfo) (expectedType? : Option Expr) : IO (Option CompletionList) :=
+  runM ctx lctx do
+    let some expectedType := expectedType? | return ()
+    let resultTypeFn := (← instantiateMVars expectedType).cleanupAnnotations.getAppFn
+    let .const typeName .. := resultTypeFn.cleanupAnnotations | return ()
+    (← getEnv).constants.forM fun declName c => do
+      let some (label, score) ← matchDecl? typeName id (danglingDot := false) declName | pure ()
+      addCompletionItem label c.type expectedType? declName (← getCompletionKindForDecl c) score
+
 private def optionCompletion (ctx : ContextInfo) (stx : Syntax) (caps : ClientCapabilities) : IO (Option CompletionList) :=
   ctx.runMetaM {} do
     let (partialName, trailingDot) :=
@@ -423,6 +432,7 @@ partial def find? (fileMap : FileMap) (hoverPos : String.Pos) (infoTree : InfoTr
     match info with
     | .dot info (expectedType? := expectedType?) .. => dotCompletion ctx info hoverInfo expectedType?
     | .id _   id danglingDot lctx expectedType? => idCompletion ctx lctx id hoverInfo danglingDot expectedType?
+    | .dotId _  id lctx expectedType? => dotIdCompletion ctx lctx id hoverInfo expectedType?
     | .option stx => optionCompletion ctx stx caps
     | .tactic .. => tacticCompletion ctx
     | _ => return none

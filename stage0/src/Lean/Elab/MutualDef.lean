@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Parser.Term
 import Lean.Meta.Closure
 import Lean.Meta.Check
+import Lean.Meta.Transform
 import Lean.PrettyPrinter.Delaborator.Options
 import Lean.Elab.Command
 import Lean.Elab.Match
@@ -109,6 +110,22 @@ private def getPendindMVarErrorMessage (views : Array DefView) : String :=
   | none =>
     "\nwhen the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed"
 
+/--
+Convert terms of the form `OfNat <type> (OfNat.ofNat Nat <num> ..)` into `OfNat <type> <num>`.
+We use this method on instance declaration types.
+The motivation is to address a recurrent mistake when users forget to use `nat_lit` when declaring `OfNat` instances.
+See issues #1389 and #875
+-/
+private def cleanupOfNat (type : Expr) : MetaM Expr := do
+  Meta.transform type fun e => do
+    if !e.isAppOfArity ``OfNat 2 then return .visit e
+    let arg ← instantiateMVars e.appArg!
+    if !arg.isAppOfArity ``OfNat.ofNat 3 then return .visit e
+    let argArgs := arg.getAppArgs
+    if !argArgs[0]!.isConstOf ``Nat then return .visit e
+    let eNew := mkApp e.appFn! argArgs[1]!
+    return .done eNew
+
 /-- Elaborate only the declaration headers. We have to elaborate the headers first because we support mutually recursive declarations in Lean 4. -/
 private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHeader) := do
   let expandedDeclIds ← views.mapM fun view => withRef view.ref do
@@ -122,7 +139,7 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
         withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|
           elabBindersEx view.binders.getArgs fun xs => do
             let refForElabFunType := view.value
-            let type ← match view.type? with
+            let mut type ← match view.type? with
               | some typeStx =>
                 let type ← elabType typeStx
                 registerFailedToInferDefTypeInfo type typeStx
@@ -134,11 +151,13 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
                 registerFailedToInferDefTypeInfo type refForElabFunType
                 pure type
             Term.synthesizeSyntheticMVarsNoPostponing
+            if view.isInstance then
+              type ← cleanupOfNat type
             let (binderIds, xs) := xs.unzip
             -- TODO: add forbidden predicate using `shortDeclName` from `views`
             let xs ← addAutoBoundImplicits xs
-            let type ← mkForallFVars' xs type
-            let type ← instantiateMVars type
+            type ← mkForallFVars' xs type
+            type ← instantiateMVars type
             let levelNames ← getLevelNames
             if view.type?.isSome then
               let pendingMVarIds ← getMVars type

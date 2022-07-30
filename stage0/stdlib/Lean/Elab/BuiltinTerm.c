@@ -17371,7 +17371,7 @@ x_13 = lean_unsigned_to_nat(2u);
 x_14 = l_Array_toSubarray___rarg(x_11, x_12, x_13);
 x_15 = l_Array_ofSubarray___rarg(x_14);
 x_16 = l_Lean_Syntax_setArgs(x_10, x_15);
-x_17 = lean_alloc_ctor(3, 1, 0);
+x_17 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_17, 0, x_16);
 x_18 = l_Lean_Elab_addCompletionInfo___at_Lean_Elab_Term_addDotCompletionInfo___spec__1(x_17, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 x_19 = lean_ctor_get(x_18, 1);

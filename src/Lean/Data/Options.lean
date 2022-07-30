@@ -146,10 +146,10 @@ protected def register [KVMap.Value α] (name : Name) (decl : Lean.Option.Decl �
   registerOption name { defValue := KVMap.Value.toDataValue decl.defValue, group := decl.group, descr := decl.descr }
   return { name := name, defValue := decl.defValue }
 
-macro doc?:(docComment)? "register_builtin_option" name:ident " : " type:term " := " decl:term : command =>
+macro (name := registerBuiltinOption) doc?:(docComment)? "register_builtin_option" name:ident " : " type:term " := " decl:term : command =>
   `($[$doc?]? builtin_initialize $name : Lean.Option $type ← Lean.Option.register $(quote name.getId) $decl)
 
-macro doc?:(docComment)? "register_option" name:ident " : " type:term " := " decl:term : command =>
+macro (name := registerOption) doc?:(docComment)? "register_option" name:ident " : " type:term " := " decl:term : command =>
   `($[$doc?]? initialize $name : Lean.Option $type ← Lean.Option.register $(quote name.getId) $decl)
 
 end Option

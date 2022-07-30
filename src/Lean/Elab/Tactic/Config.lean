@@ -9,7 +9,7 @@ import Lean.Elab.SyntheticMVars
 
 namespace Lean.Elab.Tactic
 open Meta
-macro doc?:(docComment)? "declare_config_elab" elabName:ident type:ident : command =>
+macro (name := configElab) doc?:(docComment)? "declare_config_elab" elabName:ident type:ident : command =>
  `(unsafe def evalUnsafe (e : Expr) : TermElabM $type :=
     Meta.evalExpr' (safety := .unsafe) $type ``$type e
    @[implementedBy evalUnsafe] opaque eval (e : Expr) : TermElabM $type

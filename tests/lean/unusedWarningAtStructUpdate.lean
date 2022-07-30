@@ -1,4 +1,4 @@
-set_option linter.all true
+set_option linter.unusedVariables true
 
 structure Ctx where
   s : String

@@ -21,7 +21,7 @@ register_builtin_option linter.unusedVariables.patternVars : Bool := {
   descr := "enable the 'unused variables' linter to mark unused pattern variables"
 }
 
-def getLinterUnusedVariables (o : Options) : Bool := o.get linter.unusedVariables.name (getLinterAll o)
+def getLinterUnusedVariables (o : Options) : Bool := getLinterValue linter.unusedVariables o
 def getLinterUnusedVariablesFunArgs (o : Options) : Bool := o.get linter.unusedVariables.funArgs.name (getLinterUnusedVariables o)
 def getLinterUnusedVariablesPatternVars (o : Options) : Bool := o.get linter.unusedVariables.patternVars.name (getLinterUnusedVariables o)
 

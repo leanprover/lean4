@@ -273,6 +273,20 @@ def getUnit [Monoid α] : α :=
   1
 ```
 
+Because many users were forgetting the `nat_lit` when defining `OfNat` instances, Lean also accepts `OfNat` instance
+declarations not using `nat_lit`. Thus, the following is also accepted.
+```lean
+class Monoid (α : Type u) where
+  unit : α
+  op   : α → α → α
+
+instance [s : Monoid α] : OfNat α 1 where
+  ofNat := s.unit
+
+def getUnit [Monoid α] : α :=
+  1
+```
+
 ## Output parameters
 
 By default, Lean only tries to synthesize an instance `Inhabited T` when the term `T` is known and does not

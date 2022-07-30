@@ -1,6 +1,22 @@
 Unreleased
 ---------
 
+* `nat_lit` is not needed anymore when declaring `OfNat` instances. See issues [#1389](https://github.com/leanprover/lean4/issues/1389) and [#875](https://github.com/leanprover/lean4/issues/875). Example:
+  ```lean
+  inductive Bit where
+    | zero
+    | one
+
+  instance inst0 : OfNat Bit 0 where
+    ofNat := Bit.zero
+
+  instance : OfNat Bit 1 where
+    ofNat := Bit.one
+
+  example : Bit := 0
+  example : Bit := 1
+  ```
+
 * Add `[elabAsElim]` attribute (it is called `elab_as_eliminator` in Lean 3). Motivation: simplify the Mathlib port to Lean 4.
 
 * `Trans` type class now accepts relations in `Type u`. See this [Zulip issue](https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/Calc.20mode/near/291214574).

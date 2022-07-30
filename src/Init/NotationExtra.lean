@@ -216,7 +216,8 @@ macro_rules
   attribute [instance] C.mk
   ```
 -/
-syntax declModifiers "class " "abbrev " declId bracketedBinder* (":" term)?
+syntax (name := Lean.Parser.Command.classAbbrev)
+  declModifiers "class " "abbrev " declId bracketedBinder* (":" term)?
   ":=" withPosition(group(colGe term ","?)*) : command
 
 macro_rules

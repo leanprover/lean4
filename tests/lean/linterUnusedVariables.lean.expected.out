@@ -1,33 +1,33 @@
-linterUnusedVariables.lean:16:6-16:7: warning: unused variable `y` [linter.unusedVariables]
-linterUnusedVariables.lean:15:21-15:22: warning: unused variable `x` [linter.unusedVariables]
-linterUnusedVariables.lean:21:8-21:9: warning: unused variable `x` [linter.unusedVariables]
-linterUnusedVariables.lean:28:2-28:3: warning: unused variable `x` [linter.unusedVariables]
-linterUnusedVariables.lean:33:5-33:6: warning: unused variable `x` [linter.unusedVariables]
-linterUnusedVariables.lean:38:5-38:6: warning: unused variable `x` [linter.unusedVariables]
-linterUnusedVariables.lean:38:2-38:3: warning: unused variable `f` [linter.unusedVariables]
-linterUnusedVariables.lean:41:7-41:8: warning: unused variable `x` [linter.unusedVariables]
-linterUnusedVariables.lean:44:8-44:9: warning: unused variable `x` [linter.unusedVariables]
-linterUnusedVariables.lean:48:9-48:10: warning: unused variable `z` [linter.unusedVariables]
-linterUnusedVariables.lean:50:11-50:12: warning: unused variable `z` [linter.unusedVariables]
-linterUnusedVariables.lean:55:14-55:15: warning: unused variable `y` [linter.unusedVariables]
-linterUnusedVariables.lean:61:20-61:21: warning: unused variable `y` [linter.unusedVariables]
-linterUnusedVariables.lean:66:34-66:38: warning: unused variable `inst` [linter.unusedVariables]
-linterUnusedVariables.lean:108:6-108:7: warning: unused variable `y` [linter.unusedVariables]
-linterUnusedVariables.lean:107:25-107:26: warning: unused variable `x` [linter.unusedVariables]
-linterUnusedVariables.lean:114:6-114:7: warning: unused variable `a` [linter.unusedVariables]
-linterUnusedVariables.lean:124:26-124:27: warning: unused variable `z` [linter.unusedVariables]
-linterUnusedVariables.lean:132:9-132:10: warning: unused variable `h` [linter.unusedVariables]
-linterUnusedVariables.lean:146:8-146:9: warning: unused variable `y` [linter.unusedVariables]
-linterUnusedVariables.lean:150:7-150:8: warning: unused variable `x` [linter.unusedVariables]
-linterUnusedVariables.lean:149:20-149:21: warning: unused variable `β` [linter.unusedVariables]
-linterUnusedVariables.lean:160:6-160:7: warning: unused variable `s` [linter.unusedVariables]
-linterUnusedVariables.lean:184:6-184:7: warning: unused variable `y` [linter.unusedVariables]
-linterUnusedVariables.lean:191:19-191:20: warning: unused variable `x` [linter.unusedVariables]
-linterUnusedVariables.lean:195:6-195:7: warning: unused variable `y` [linter.unusedVariables]
-linterUnusedVariables.lean:200:6-200:7: warning: unused variable `y` [linter.unusedVariables]
-linterUnusedVariables.lean:205:6-205:7: warning: unused variable `y` [linter.unusedVariables]
-linterUnusedVariables.lean:213:32-213:33: warning: unused variable `b` [linter.unusedVariables]
-linterUnusedVariables.lean:225:27-225:28: error: don't know how to synthesize placeholder
+linterUnusedVariables.lean:17:6-17:7: warning: unused variable `y` [linter.unusedVariables]
+linterUnusedVariables.lean:16:21-16:22: warning: unused variable `x` [linter.unusedVariables]
+linterUnusedVariables.lean:22:8-22:9: warning: unused variable `x` [linter.unusedVariables]
+linterUnusedVariables.lean:29:2-29:3: warning: unused variable `x` [linter.unusedVariables]
+linterUnusedVariables.lean:34:5-34:6: warning: unused variable `x` [linter.unusedVariables]
+linterUnusedVariables.lean:39:5-39:6: warning: unused variable `x` [linter.unusedVariables]
+linterUnusedVariables.lean:39:2-39:3: warning: unused variable `f` [linter.unusedVariables]
+linterUnusedVariables.lean:42:7-42:8: warning: unused variable `x` [linter.unusedVariables]
+linterUnusedVariables.lean:45:8-45:9: warning: unused variable `x` [linter.unusedVariables]
+linterUnusedVariables.lean:49:9-49:10: warning: unused variable `z` [linter.unusedVariables]
+linterUnusedVariables.lean:51:11-51:12: warning: unused variable `z` [linter.unusedVariables]
+linterUnusedVariables.lean:56:14-56:15: warning: unused variable `y` [linter.unusedVariables]
+linterUnusedVariables.lean:62:20-62:21: warning: unused variable `y` [linter.unusedVariables]
+linterUnusedVariables.lean:67:34-67:38: warning: unused variable `inst` [linter.unusedVariables]
+linterUnusedVariables.lean:109:6-109:7: warning: unused variable `y` [linter.unusedVariables]
+linterUnusedVariables.lean:108:25-108:26: warning: unused variable `x` [linter.unusedVariables]
+linterUnusedVariables.lean:115:6-115:7: warning: unused variable `a` [linter.unusedVariables]
+linterUnusedVariables.lean:125:26-125:27: warning: unused variable `z` [linter.unusedVariables]
+linterUnusedVariables.lean:133:9-133:10: warning: unused variable `h` [linter.unusedVariables]
+linterUnusedVariables.lean:147:8-147:9: warning: unused variable `y` [linter.unusedVariables]
+linterUnusedVariables.lean:151:7-151:8: warning: unused variable `x` [linter.unusedVariables]
+linterUnusedVariables.lean:150:20-150:21: warning: unused variable `β` [linter.unusedVariables]
+linterUnusedVariables.lean:161:6-161:7: warning: unused variable `s` [linter.unusedVariables]
+linterUnusedVariables.lean:185:6-185:7: warning: unused variable `y` [linter.unusedVariables]
+linterUnusedVariables.lean:192:19-192:20: warning: unused variable `x` [linter.unusedVariables]
+linterUnusedVariables.lean:196:6-196:7: warning: unused variable `y` [linter.unusedVariables]
+linterUnusedVariables.lean:201:6-201:7: warning: unused variable `y` [linter.unusedVariables]
+linterUnusedVariables.lean:206:6-206:7: warning: unused variable `y` [linter.unusedVariables]
+linterUnusedVariables.lean:214:32-214:33: warning: unused variable `b` [linter.unusedVariables]
+linterUnusedVariables.lean:226:27-226:28: error: don't know how to synthesize placeholder
 context:
 bar : ?m
 bar' : Nat → Nat
@@ -36,10 +36,10 @@ bar' : Nat → Nat
 inst : ToString α
 a : Nat
 ⊢ Nat
-linterUnusedVariables.lean:226:0-226:7: warning: declaration uses 'sorry'
 linterUnusedVariables.lean:227:0-227:7: warning: declaration uses 'sorry'
-linterUnusedVariables.lean:230:0: error: expected '{' or tactic
-linterUnusedVariables.lean:228:27-228:29: error: unsolved goals
+linterUnusedVariables.lean:228:0-228:7: warning: declaration uses 'sorry'
+linterUnusedVariables.lean:231:0: error: expected '{' or tactic
+linterUnusedVariables.lean:229:27-229:29: error: unsolved goals
 bar : ?m
 bar' : Nat → Nat
 α : Type ?u

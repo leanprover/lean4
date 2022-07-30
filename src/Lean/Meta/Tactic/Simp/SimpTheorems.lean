@@ -415,7 +415,8 @@ def SimpTheoremsArray.isErased (thmsArray : SimpTheoremsArray) (thmId : Name) : 
 def SimpTheoremsArray.isDeclToUnfold (thmsArray : SimpTheoremsArray) (declName : Name) : Bool :=
   thmsArray.any fun thms => thms.isDeclToUnfold declName
 
-macro doc?:(docComment)? "register_simp_attr" id:ident descr:str : command => do
+macro (name := _root_.Lean.Parser.Command.registerSimpAttr) doc?:(docComment)?
+  "register_simp_attr" id:ident descr:str : command => do
   let str := id.getId.toString
   let idParser := mkIdentFrom id (`Parser.Attr ++ id.getId)
   `($[$doc?]? initialize ext : SimpExtension ← registerSimpAttr $(quote id.getId) $descr $(quote id.getId)

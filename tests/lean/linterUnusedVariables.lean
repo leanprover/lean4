@@ -1,8 +1,9 @@
 import Lean
 
+set_option linter.missingDocs false
 set_option linter.all true
 
-def explicitelyUsedVariable (x : Nat) : Nat :=
+def explicitlyUsedVariable (x : Nat) : Nat :=
   x
 
 theorem implicitlyUsedVariable : P ∧ Q → Q := by

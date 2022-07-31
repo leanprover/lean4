@@ -17,15 +17,25 @@ def findLocalDeclWithType? (type : Expr) : MetaM (Option FVarId) := do
     else
       return none
 
-def assumptionCore (mvarId : MVarId) : MetaM Bool :=
-  withMVarContext mvarId do
-    checkNotAssigned mvarId `assumption
-    match (← findLocalDeclWithType? (← getMVarType mvarId)) with
+/-- Return `true` if managed to close goal `mvarId` using an assumption. -/
+def _root_.Lean.MVarId.assumptionCore (mvarId : MVarId) : MetaM Bool :=
+  mvarId.withContext do
+    mvarId.checkNotAssigned `assumption
+    match (← findLocalDeclWithType? (← mvarId.getType)) with
     | none => return false
-    | some fvarId => assignExprMVar mvarId (mkFVar fvarId); return true
+    | some fvarId => mvarId.assign (mkFVar fvarId); return true
 
-def assumption (mvarId : MVarId) : MetaM Unit :=
-  unless (← assumptionCore mvarId) do
+@[deprecated MVarId.assumptionCore]
+def assumptionCore (mvarId : MVarId) : MetaM Bool :=
+  mvarId.assumptionCore
+
+/-- Close goal `mvarId` using an assumption. Throw error message if failed. -/
+def _root_.Lean.MVarId.assumption (mvarId : MVarId) : MetaM Unit :=
+  unless (← mvarId.assumptionCore) do
     throwTacticEx `assumption mvarId ""
+
+@[deprecated MVarId.assumption]
+def assumption (mvarId : MVarId) : MetaM Unit :=
+  mvarId.assumption
 
 end Lean.Meta

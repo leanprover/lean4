@@ -1979,7 +1979,6 @@ extern "C" LEAN_EXPORT obj_res lean_float_array_data(obj_arg a) {
     double * end   = it+sz;
     object ** dest = lean_array_cptr(r);
     for (; it != end; ++it, ++dest) {
-        lean_dec(*dest);
         *dest = lean_box_float(*it);
     }
     lean_dec(a);

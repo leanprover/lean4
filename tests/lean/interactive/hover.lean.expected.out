@@ -37,7 +37,7 @@
  "position": {"line": 39, "character": 2}}
 {"range":
  {"start": {"line": 39, "character": 2}, "end": {"line": 39, "character": 23}},
- "contents": {"value": "My ultimate tactic ", "kind": "markdown"}}
+ "contents": {"value": "My way better tactic ", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 46, "character": 7}}
 {"range":

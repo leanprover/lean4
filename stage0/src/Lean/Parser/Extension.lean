@@ -164,7 +164,7 @@ def ParserExtension.addEntryImpl (s : State) (e : Entry) : State :=
     | Except.ok categories => { s with categories := categories }
     | _ => unreachable!
 
-/- Parser aliases for making `ParserDescr` extensible -/
+/-- Parser aliases for making `ParserDescr` extensible -/
 inductive AliasValue (α : Type) where
   | const  (p : α)
   | unary  (p : α → α)
@@ -294,7 +294,7 @@ def mkParserOfConstant (categories : ParserCategories) (constName : Name) : Impo
   mkParserOfConstantAux constName (compileParserDescr categories)
 
 structure ParserAttributeHook where
-  /- Called after a parser attribute is applied to a declaration. -/
+  /-- Called after a parser attribute is applied to a declaration. -/
   postAdd (catName : Name) (declName : Name) (builtin : Bool) : AttrM Unit
 
 builtin_initialize parserAttributeHooks : IO.Ref (List ParserAttributeHook) ← IO.mkRef {}
@@ -358,7 +358,10 @@ def leadingIdentBehavior (env : Environment) (catName : Name) : LeadingIdentBeha
 unsafe def evalParserConstUnsafe (declName : Name) : ParserFn := fun ctx s => unsafeBaseIO do
   let categories := (parserExtension.getState ctx.env).categories
   match (← (mkParserOfConstant categories declName { env := ctx.env, opts := ctx.options }).toBaseIO) with
-  | .ok (_, p) => return p.fn ctx s
+  | .ok (_, p) =>
+    -- We should manually register `p`'s tokens before invoking it as it might not be part of any syntax category (yet)
+    let ctx := { ctx with tokens := p.info.collectTokens [] |>.foldl (fun tks tk => tks.insert tk tk) ctx.tokens }
+    return p.fn ctx s
   | .error e   => return s.mkUnexpectedError e.toString
 
 @[implementedBy evalParserConstUnsafe]
@@ -448,7 +451,7 @@ def mkParserContext (ictx : InputContext) (pmctx : ParserModuleContext) : Parser
 def mkParserState (input : String) : ParserState :=
   { cache := initCacheForInput input }
 
-/- convenience function for testing -/
+/-- convenience function for testing -/
 def runParserCategory (env : Environment) (catName : Name) (input : String) (fileName := "<input>") : Except String Syntax :=
   let c := mkParserContext (mkInputContext input fileName) { env := env, options := {} }
   let s := mkParserState input
@@ -496,7 +499,7 @@ private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
     declareBuiltin (declName ++ `declRange) (mkAppN (mkConst ``addBuiltinDeclarationRanges) #[toExpr declName, toExpr declRanges])
   runParserAttributeHooks catName declName (builtin := true)
 
-/-
+/--
 The parsing tables for builtin parsers are "stored" in the extracted source code.
 -/
 def registerBuiltinParserAttribute (attrName : Name) (catName : Name) (behavior := LeadingIdentBehavior.default) : IO Unit := do
@@ -536,7 +539,7 @@ def mkParserAttributeImpl (attrName : Name) (catName : Name) : AttributeImpl whe
   add declName stx attrKind := ParserAttribute.add attrName catName declName stx attrKind
   applicationTime           := AttributeApplicationTime.afterCompilation
 
-/- A builtin parser attribute that can be extended by users. -/
+/-- A builtin parser attribute that can be extended by users. -/
 def registerBuiltinDynamicParserAttribute (attrName : Name) (catName : Name) : IO Unit := do
   registerBuiltinAttribute (mkParserAttributeImpl attrName catName)
 
@@ -618,6 +621,9 @@ def withOpenDeclFn (p : ParserFn) : ParserFn := fun c s =>
   info := p.info
   fn   := withOpenDeclFn  p.fn
 }
+
+def ParserContext.resolveName (ctx : ParserContext) (id : Name) : List (Name × List String) :=
+  ResolveName.resolveGlobalName ctx.env ctx.currNamespace ctx.openDecls id
 
 def parserOfStackFn (offset : Nat) : ParserFn := fun ctx s => Id.run do
   let stack := s.stxStack

@@ -9,23 +9,32 @@ import Lean.Meta.ForEachExpr
 namespace Lean.Elab.Structural
 
 structure RecArgInfo where
-  /- `fixedParams ++ ys` are the arguments of the function we are trying to justify termination using structural recursion. -/
+  /-- `fixedParams ++ ys` are the arguments of the function we are trying to justify termination using structural recursion. -/
   fixedParams : Array Expr
-  ys          : Array Expr  -- recursion arguments
-  pos         : Nat         -- position in `ys` of the argument we are recursing on
-  indicesPos  : Array Nat   -- position in `ys` of the inductive datatype indices we are recursing on
-  indName     : Name        -- inductive datatype name of the argument we are recursing on
-  indLevels   : List Level  -- inductice datatype universe levels of the argument we are recursing on
-  indParams   : Array Expr  -- inductive datatype parameters of the argument we are recursing on
-  indIndices  : Array Expr  -- inductive datatype indices of the argument we are recursing on, it is equal to `indicesPos.map fun i => ys.get! i`
-  reflexive   : Bool        -- true if we are recursing over a reflexive inductive datatype
-  indPred     : Bool        -- true if the type is an inductive predicate
+  /-- recursion arguments -/
+  ys          : Array Expr
+  /-- position in `ys` of the argument we are recursing on -/
+  pos         : Nat
+  /-- position in `ys` of the inductive datatype indices we are recursing on -/
+  indicesPos  : Array Nat
+  /-- inductive datatype name of the argument we are recursing on -/
+  indName     : Name
+  /-- inductive datatype universe levels of the argument we are recursing on -/
+  indLevels   : List Level
+  /-- inductive datatype parameters of the argument we are recursing on -/
+  indParams   : Array Expr
+  /-- inductive datatype indices of the argument we are recursing on, it is equal to `indicesPos.map fun i => ys.get! i` -/
+  indIndices  : Array Expr
+  /-- true if we are recursing over a reflexive inductive datatype -/
+  reflexive   : Bool
+  /-- true if the type is an inductive predicate -/
+  indPred     : Bool
 
 def RecArgInfo.recArgPos (info : RecArgInfo) : Nat :=
   info.fixedParams.size + info.pos
 
 structure State where
-  /- As part of the inductive predicates case, we keep adding more and more discriminants from the
+  /-- As part of the inductive predicates case, we keep adding more and more discriminants from the
      local context and build up a bigger matcher application until we reach a fixed point.
      As a side-effect, this creates matchers. Here we capture all these side-effects, because
      the construction rolls back any changes done to the environment and the side-effects

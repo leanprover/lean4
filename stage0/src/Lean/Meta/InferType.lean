@@ -8,7 +8,7 @@ import Lean.Meta.Basic
 
 namespace Lean
 
-/-
+/--
 Auxiliary function for instantiating the loose bound variables in `e` with `args[start:stop]`.
 This function is similar to `instantiateRevRange`, but it applies beta-reduction when
 we instantiate a bound variable with a lambda expression.
@@ -128,11 +128,11 @@ def getLevel (type : Expr) : MetaM Level := do
   match typeType with
   | Expr.sort lvl     => return lvl
   | Expr.mvar mvarId  =>
-    if (← isReadOnlyOrSyntheticOpaqueExprMVar mvarId) then
+    if (← mvarId.isReadOnlyOrSyntheticOpaque) then
       throwTypeExcepted type
     else
       let lvl ← mkFreshLevelMVar
-      assignExprMVar mvarId (mkSort lvl)
+      mvarId.assign (mkSort lvl)
       return lvl
   | _ => throwTypeExcepted type
 
@@ -145,7 +145,7 @@ private def inferForallType (e : Expr) : MetaM Expr :=
       return mkLevelIMax' xTypeLvl lvl
     return mkSort lvl.normalize
 
-/- Infer type of lambda and let expressions -/
+/-- Infer type of lambda and let expressions -/
 private def inferLambdaType (e : Expr) : MetaM Expr :=
   lambdaLetTelescope e fun xs e => do
     let type ← inferType e
@@ -168,7 +168,7 @@ private def inferMVarType (mvarId : MVarId) : MetaM Expr := do
 private def inferFVarType (fvarId : FVarId) : MetaM Expr := do
   match (← getLCtx).find? fvarId with
   | some d => return d.type
-  | none   => throwUnknownFVar fvarId
+  | none   => fvarId.throwUnknown
 
 @[inline] private def checkInferTypeCache (e : Expr) (inferType : MetaM Expr) : MetaM Expr := do
   match (← get).cache.inferType.find? e with

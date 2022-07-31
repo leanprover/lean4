@@ -10,7 +10,7 @@ import Lean.Meta.WHNF
 import Lean.Meta.Match.MatcherInfo
 
 namespace Lean.Meta.DiscrTree
-/-
+/-!
   (Imperfect) discrimination trees.
   We use a hybrid representation.
   - A `PersistentHashMap` for the root node which usually contains many children.
@@ -108,7 +108,7 @@ partial def format [ToFormat α] (d : DiscrTree α) : Format :=
 
 instance [ToFormat α] : ToFormat (DiscrTree α) := ⟨format⟩
 
-/- The discrimination tree ignores implicit arguments and proofs.
+/-- The discrimination tree ignores implicit arguments and proofs.
    We use the following auxiliary id as a "mark". -/
 private def tmpMVarId : MVarId := { name := `_discr_tree_tmp }
 private def tmpStar := mkMVar tmpMVarId
@@ -205,7 +205,7 @@ private def isOffset (fName : Name) (e : Expr) : MetaM Bool := do
   else
     return fName == ``Nat.succ && e.getAppNumArgs == 1
 
-/-
+/--
   TODO: add hook for users adding their own functions for controlling `shouldAddAsStar`
   Different `DiscrTree` users may populate this set using, for example, attributes.
 
@@ -296,7 +296,7 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key �
       if mvarId == tmpMVarId then
         -- We use `tmp to mark implicit arguments and proofs
         return (Key.star, todo)
-      else if (← isReadOnlyOrSyntheticOpaqueExprMVar mvarId) then
+      else if (← mvarId.isReadOnlyOrSyntheticOpaque) then
         return (Key.other, todo)
       else
         return (Key.star, todo)
@@ -424,7 +424,7 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Ex
           This is incorrect because it is equivalent to saying that there is no solution even if
           the caller assigns `?m` and try again. -/
         return (Key.star, #[])
-      else if (← isReadOnlyOrSyntheticOpaqueExprMVar mvarId) then
+      else if (← mvarId.isReadOnlyOrSyntheticOpaque) then
         return (Key.other, #[])
       else
         return (Key.star, #[])
@@ -541,7 +541,7 @@ partial def getUnify (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
   withReducible do
     let (k, args) ← getUnifyKeyArgs e (root := true)
     match k with
-    | Key.star => d.root.foldlM (init := #[]) fun result k c => process k.arity #[] c result
+    | .star => d.root.foldlM (init := #[]) fun result k c => process k.arity #[] c result
     | _ =>
       let result := getStarResult d
       match d.root.find? k with
@@ -575,9 +575,9 @@ where
           | none   => return result
           | some c => process 0 (todo ++ args) c.2 result
         match k with
-        | Key.star  => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result
+        | .star  => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result
         -- See comment a `getMatch` regarding non-dependent arrows vs dependent arrows
-        | Key.arrow => visitNonStar Key.other #[] (← visitNonStar k args (← visitStar result))
-        | _         => visitNonStar k args (← visitStar result)
+        | .arrow => visitNonStar Key.other #[] (← visitNonStar k args (← visitStar result))
+        | _      => visitNonStar k args (← visitStar result)
 
 end Lean.Meta.DiscrTree

@@ -1,4 +1,4 @@
-import Lean.Util.Trace
+import Lean
 
 set_option linter.all true
 
@@ -229,3 +229,9 @@ example (a : Nat) : Nat := by
 
 theorem Fin.eqq_of_val_eq {n : Nat} : ∀ {x y : Fin n}, x.val = y.val → x = y
   | ⟨_, _⟩, _, rfl => rfl
+
+@[unusedVariablesIgnoreFn]
+def ignoreEverything : Lean.Linter.IgnoreFunction :=
+  fun _ _ _ => true
+
+def ignored (x : Nat) := 0

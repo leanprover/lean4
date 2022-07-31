@@ -47,24 +47,22 @@ syntax (name := paren) "(" convSeq ")" : conv
 syntax (name := convConvSeq) "conv " " => " convSeq : conv
 
 /-- `· conv` focuses on the main conv goal and tries to solve it using `s` -/
-macro dot:("·" <|> ".") s:convSeq : conv => `({%$dot ($s:convSeq) })
-macro "rw " c:(config)? s:rwRuleSeq : conv => `(rewrite $[$c:config]? $s:rwRuleSeq)
-macro "erw " s:rwRuleSeq : conv => `(rw (config := { transparency := Meta.TransparencyMode.default }) $s:rwRuleSeq)
+macro dot:("·" <|> ".") s:convSeq : conv => `({%$dot ($s) })
+macro "rw " c:(config)? s:rwRuleSeq : conv => `(rewrite $[$c]? $s)
+macro "erw " s:rwRuleSeq : conv => `(rw (config := { transparency := Meta.TransparencyMode.default }) $s)
 
 macro "args" : conv => `(congr)
 macro "left" : conv => `(lhs)
 macro "right" : conv => `(rhs)
-syntax "intro " (colGt ident)* : conv
-macro_rules
-  | `(conv| intro $[$xs:ident]*) => `(conv| ext $xs*)
+macro "intro " xs:(colGt ident)* : conv => `(conv| ext $xs*)
 
 syntax enterArg := ident <|> ("@"? num)
 syntax "enter " "[" (colGt enterArg),+ "]": conv
 macro_rules
   | `(conv| enter [$i:num]) => `(conv| arg $i)
-  | `(conv| enter [@$i:num]) => `(conv| arg @$i)
+  | `(conv| enter [@$i]) => `(conv| arg @$i)
   | `(conv| enter [$id:ident]) => `(conv| ext $id)
-  | `(conv| enter [$arg:enterArg, $args,*]) => `(conv| (enter [$arg]; enter [$args,*]))
+  | `(conv| enter [$arg, $args,*]) => `(conv| (enter [$arg]; enter [$args,*]))
 
 macro "skip" : conv => `(tactic => rfl)
 macro "done" : conv => `(tactic' => done)

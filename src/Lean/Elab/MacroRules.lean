@@ -11,7 +11,7 @@ open Lean.Syntax
 open Lean.Parser.Term hiding macroArg
 open Lean.Parser.Command
 
-/-
+/--
   Remark: `k` is the user provided kind with the current namespace included.
   Recall that syntax node kinds contain the current namespace.
 -/
@@ -35,7 +35,7 @@ def elabMacroRulesAux (doc? : Option (TSyntax ``docComment)) (attrKind : TSyntax
       else
         throwErrorAt alt "invalid macro_rules alternative, unexpected syntax node kind '{k'}'"
     | _ => throwUnsupportedSyntax
-  `($[$doc?:docComment]? @[$attrKind:attrKind macro $(Lean.mkIdent k)]
+  `($[$doc?:docComment]? @[$attrKind macro $(Lean.mkIdent k)]
     aux_def macroRules $(mkIdentFrom tk k) : Macro :=
      fun $alts:matchAlt* | _ => throw Lean.Macro.Exception.unsupportedSyntax)
 

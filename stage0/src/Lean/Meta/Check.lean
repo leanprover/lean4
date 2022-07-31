@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.InferType
 
-/-
+/-!
 This is not the Kernel type checker, but an auxiliary method for checking
 whether terms produced by tactics and `isDefEq` are type correct.
 -/
@@ -35,8 +35,8 @@ private def getFunctionDomain (f : Expr) : MetaM (Expr × BinderInfo) := do
   | Expr.forallE _ d _ c => return (d, c)
   | _                    => throwFunctionExpected f
 
-/-
-Given to expressions `a` and `b`, this method tries to annotate terms with `pp.explicit := true` to
+/--
+Given two expressions `a` and `b`, this method tries to annotate terms with `pp.explicit := true` to
 expose "implicit" differences. For example, suppose `a` and `b` are of the form
 ```lean
 @HashMap Nat Nat eqInst hasInst1
@@ -104,14 +104,14 @@ where
 
   hasExplicitDiff? (xs as bs : Array Expr) : MetaM (Option (Array Expr × Array Expr)) := do
     for i in [:xs.size] do
-      let localDecl ← getLocalDecl xs[i]!.fvarId!
+      let localDecl ← xs[i]!.fvarId!.getDecl
       if localDecl.binderInfo.isExplicit then
          unless (← isDefEq as[i]! bs[i]!) do
            let (ai, bi) ← visit as[i]! bs[i]!
            return some (as.set! i ai, bs.set! i bi)
     return none
 
-/-
+/--
   Return error message "has type{givenType}\nbut is expected to have type{expectedType}"
 -/
 def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr) : MetaM MessageData := do
@@ -163,10 +163,10 @@ where
       xs.forM fun x => do
         let xDecl ← getFVarLocalDecl x;
         match xDecl with
-        | LocalDecl.cdecl (type := t) .. =>
+        | .cdecl (type := t) .. =>
           ensureType t
           check t
-        | LocalDecl.ldecl (type := t) (value := v) .. =>
+        | .ldecl (type := t) (value := v) .. =>
           ensureType t
           check t
           let vType ← inferType v
@@ -183,10 +183,16 @@ where
       ensureType b
       check b
 
+/--
+Throw an exception if `e` is not type correct.
+-/
 def check (e : Expr) : MetaM Unit :=
   traceCtx `Meta.check do
     withTransparency TransparencyMode.all $ checkAux e
 
+/--
+Return true if `e` is type correct.
+-/
 def isTypeCorrect (e : Expr) : MetaM Bool := do
   try
     check e

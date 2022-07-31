@@ -10,7 +10,7 @@ import Lean.Util.FoldConsts
 import Lean.Meta.Basic
 import Lean.Meta.Check
 
-/-
+/-!
 
 This module provides functions for "closing" open terms and
 creating auxiliary definitions. Here, we say a term is "open" if
@@ -197,7 +197,7 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
   | Expr.sort u          => return e.updateSort! (← collectLevel u)
   | Expr.const _ us      => return e.updateConst! (← us.mapM collectLevel)
   | Expr.mvar mvarId     =>
-    let mvarDecl ← getMVarDecl mvarId
+    let mvarDecl ← mvarId.getDecl
     let type ← preprocess mvarDecl.type
     let type ← collect type
     let newFVarId ← mkFreshFVarId
@@ -208,7 +208,7 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
     }
     return mkFVar newFVarId
   | Expr.fvar fvarId =>
-    match (← read).zeta, (← getLocalDecl fvarId).value? with
+    match (← read).zeta, (← fvarId.getValue?) with
     | true, some value => collect (← preprocess value)
     | _,    _          =>
       let newFVarId ← mkFreshFVarId
@@ -254,13 +254,12 @@ partial def process : ClosureM Unit := do
   match (← pickNextToProcess?) with
   | none => pure ()
   | some ⟨fvarId, newFVarId⟩ =>
-    let localDecl ← getLocalDecl fvarId
-    match localDecl with
-    | LocalDecl.cdecl _ _ userName type bi =>
+    match (← fvarId.getDecl) with
+    | .cdecl _ _ userName type bi =>
       pushLocalDecl newFVarId userName type bi
       pushFVarArg (mkFVar fvarId)
       process
-    | LocalDecl.ldecl _ _ userName type val _ =>
+    | .ldecl _ _ userName type val _ =>
       let zetaFVarIds ← getZetaFVarIds
       if !zetaFVarIds.contains fvarId then
         /- Non-dependent let-decl

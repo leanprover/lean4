@@ -41,6 +41,9 @@ def isAuxRecursorWithSuffix (env : Environment) (declName : Name) (suffix : Name
 def isCasesOnRecursor (env : Environment) (declName : Name) : Bool :=
   isAuxRecursorWithSuffix env declName casesOnSuffix
 
+def isRecOnRecursor (env : Environment) (declName : Name) : Bool :=
+  isAuxRecursorWithSuffix env declName recOnSuffix
+
 def isBRecOnRecursor (env : Environment) (declName : Name) : Bool :=
   isAuxRecursorWithSuffix env declName brecOnSuffix
 

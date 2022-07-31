@@ -42,9 +42,12 @@ non-JSON-serializable fields can be auto-encoded in two ways:
 -- TODO(WN): for Lean.js, have third parameter defining the client-side structure;
 -- or, compile `WithRpcRef` to "opaque reference" on the client
 class RpcEncoding (α : Type) (β : outParam Type) where
-  rpcEncode {m : Type → Type} [Monad m] [MonadRpcSession m] : α → m β
+  rpcEncode {m : Type → Type} [Monad m] [MonadRpcSession m] : α → ExceptT String m β
   rpcDecode {m : Type → Type} [Monad m] [MonadRpcSession m] : β → ExceptT String m α
 export RpcEncoding (rpcEncode rpcDecode)
+
+instance : Nonempty (RpcEncoding α β) :=
+  ⟨{ rpcEncode := fun _ => throw "unreachable", rpcDecode := fun _ => throw "unreachable" }⟩
 
 instance [FromJson α] [ToJson α] : RpcEncoding α α where
   rpcEncode := pure

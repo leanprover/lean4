@@ -42,11 +42,11 @@ partial def visit (e : Expr) : M Expr := do
       let mut lctx ← getLCtx
       for x in xs do
         let xFVarId := x.fvarId!
-        let localDecl ← getLocalDecl xFVarId
+        let localDecl ← xFVarId.getDecl
         let type      ← visit localDecl.type
         let localDecl := localDecl.setType type
         let localDecl ← match localDecl.value? with
-           | some value => do let value ← visit value; pure $ localDecl.setValue value
+           | some value => let value ← visit value; pure <| localDecl.setValue value
            | none       => pure localDecl
         lctx :=lctx.modifyLocalDecl xFVarId fun _ => localDecl
       withLCtx lctx localInstances k
@@ -54,13 +54,13 @@ partial def visit (e : Expr) : M Expr := do
       if (← isNonTrivialProof e) then
         mkAuxLemma e
       else match e with
-        | Expr.lam _ _ _ _     => lambdaLetTelescope e fun xs b => visitBinders xs do mkLambdaFVars xs (← visit b) (usedLetOnly := false)
-        | Expr.letE _ _ _ _ _  => lambdaLetTelescope e fun xs b => visitBinders xs do mkLambdaFVars xs (← visit b) (usedLetOnly := false)
-        | Expr.forallE _ _ _ _ => forallTelescope e fun xs b => visitBinders xs do mkForallFVars xs (← visit b)
-        | Expr.mdata _ b       => return e.updateMData! (← visit b)
-        | Expr.proj _ _ b      => return e.updateProj! (← visit b)
-        | Expr.app _ _         => e.withApp fun f args => return mkAppN f (← args.mapM visit)
-        | _                    => pure e
+        | .lam ..      => lambdaLetTelescope e fun xs b => visitBinders xs do mkLambdaFVars xs (← visit b) (usedLetOnly := false)
+        | .letE ..     => lambdaLetTelescope e fun xs b => visitBinders xs do mkLambdaFVars xs (← visit b) (usedLetOnly := false)
+        | .forallE ..  => forallTelescope e fun xs b => visitBinders xs do mkForallFVars xs (← visit b)
+        | .mdata _ b   => return e.updateMData! (← visit b)
+        | .proj _ _ b  => return e.updateProj! (← visit b)
+        | .app ..      => e.withApp fun f args => return mkAppN f (← args.mapM visit)
+        | _            => pure e
 
 end AbstractNestedProofs
 

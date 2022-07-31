@@ -30,14 +30,14 @@ where
     else if let some g := (← get).localSorryMap.find? f then
       found g
     else match (← findDecl f) with
-      | Decl.fdecl (info := { sorryDep? := some g, .. }) .. => found g
+      | some (.fdecl (info := { sorryDep? := some g, .. }) ..) => found g
       | _ => return ()
 
 partial def visitFndBody (b : FnBody) : ExceptT Name M Unit := do
   match b with
-  | FnBody.vdecl _ _ v b   => visitExpr v; visitFndBody b
-  | FnBody.jdecl _ _ v b   => visitFndBody v; visitFndBody b
-  | FnBody.case _ _ _ alts => alts.forM fun alt => visitFndBody alt.body
+  | .vdecl _ _ v b   => visitExpr v; visitFndBody b
+  | .jdecl _ _ v b   => visitFndBody v; visitFndBody b
+  | .case _ _ _ alts => alts.forM fun alt => visitFndBody alt.body
   | _ =>
     unless b.isTerminal do
       let (_, b) := b.split
@@ -45,13 +45,13 @@ partial def visitFndBody (b : FnBody) : ExceptT Name M Unit := do
 
 def visitDecl (d : Decl) : M Unit := do
   match d with
-  | Decl.fdecl (f := f) (body := b) .. =>
+  | .fdecl (f := f) (body := b) .. =>
     match (← get).localSorryMap.find? f with
     | some _ => return ()
     | none =>
       match (← visitFndBody b |>.run) with
-      | Except.ok _    => return ()
-      | Except.error g =>
+      | .ok _    => return ()
+      | .error g =>
         modify fun s => {
           localSorryMap := s.localSorryMap.insert f g
           modified      := true

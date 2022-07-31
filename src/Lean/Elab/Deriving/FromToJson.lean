@@ -91,7 +91,7 @@ where
       let mut userNames := #[]
       for i in [:ctorInfo.numFields] do
         let x := xs[indVal.numParams + i]!
-        let localDecl ← getLocalDecl x.fvarId!
+        let localDecl ← x.fvarId!.getDecl
         if !localDecl.userName.hasMacroScopes then
           userNames := userNames.push localDecl.userName
         let a := mkIdent (← mkFreshUserName `a)
@@ -154,7 +154,7 @@ where
         let mut userNames := #[]
         for i in [:ctorInfo.numFields] do
           let x := xs[indVal.numParams + i]!
-          let localDecl ← getLocalDecl x.fvarId!
+          let localDecl ← x.fvarId!.getDecl
           if !localDecl.userName.hasMacroScopes then
             userNames := userNames.push localDecl.userName
           let a := mkIdent (← mkFreshUserName `a)

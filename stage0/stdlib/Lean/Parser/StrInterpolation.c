@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_828____at_Lean_Parser_ParserState_hasError___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ParserState_mkError(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_quotedCharCoreFn(lean_object*, lean_object*, lean_object*);
@@ -29,7 +30,6 @@ static lean_object* l_Lean_Parser_interpolatedStrFn_parse___closed__7;
 static lean_object* l_Lean_Parser_interpolatedStrFn_parse___closed__4;
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_interpolatedStr___elambda__1___closed__1;
-uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_803____at_Lean_Parser_ParserState_hasError___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ParserState_setPos(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_interpolatedStrFn_parse___closed__2;
 static lean_object* l_Lean_Parser_interpolatedStrFn___closed__1;
@@ -188,7 +188,7 @@ x_21 = lean_apply_2(x_1, x_5, x_20);
 x_22 = lean_ctor_get(x_21, 4);
 lean_inc(x_22);
 x_23 = lean_box(0);
-x_24 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_803____at_Lean_Parser_ParserState_hasError___spec__1(x_22, x_23);
+x_24 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_828____at_Lean_Parser_ParserState_hasError___spec__1(x_22, x_23);
 lean_dec(x_22);
 if (x_24 == 0)
 {
@@ -239,7 +239,7 @@ x_39 = l_Lean_Parser_quotedCharCoreFn(x_38, x_5, x_11);
 x_40 = lean_ctor_get(x_39, 4);
 lean_inc(x_40);
 x_41 = lean_box(0);
-x_42 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_803____at_Lean_Parser_ParserState_hasError___spec__1(x_40, x_41);
+x_42 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_828____at_Lean_Parser_ParserState_hasError___spec__1(x_40, x_41);
 lean_dec(x_40);
 if (x_42 == 0)
 {
@@ -442,7 +442,7 @@ return x_12;
 else
 {
 uint8_t x_13; lean_object* x_14; 
-x_13 = 0;
+x_13 = 1;
 x_14 = l_Lean_Parser_orelseFnCore(x_5, x_1, x_13, x_2, x_3);
 return x_14;
 }

@@ -146,30 +146,30 @@ def checkExpr (ty : IRType) : Expr → M Unit
   withReader (fun _ => { ctx with localCtx := localCtx }) k
 
 partial def checkFnBody : FnBody → M Unit
-  | FnBody.vdecl x t v b    => do
+  | .vdecl x t v b    => do
     checkExpr t v
     markVar x
     withReader (fun ctx => { ctx with localCtx := ctx.localCtx.addLocal x t v }) (checkFnBody b)
-  | FnBody.jdecl j ys v b => do
+  | .jdecl j ys v b => do
     markJP j
     withParams ys (checkFnBody v)
     withReader (fun ctx => { ctx with localCtx := ctx.localCtx.addJP j ys v }) (checkFnBody b)
-  | FnBody.set x _ y b      => checkVar x *> checkArg y *> checkFnBody b
-  | FnBody.uset x _ y b     => checkVar x *> checkVar y *> checkFnBody b
-  | FnBody.sset x _ _ y _ b => checkVar x *> checkVar y *> checkFnBody b
-  | FnBody.setTag x _ b     => checkVar x *> checkFnBody b
-  | FnBody.inc x _ _ _ b    => checkVar x *> checkFnBody b
-  | FnBody.dec x _ _ _ b    => checkVar x *> checkFnBody b
-  | FnBody.del x b          => checkVar x *> checkFnBody b
-  | FnBody.mdata _ b        => checkFnBody b
-  | FnBody.jmp j ys         => checkJP j *> checkArgs ys
-  | FnBody.ret x            => checkArg x
-  | FnBody.case _ x _ alts  => checkVar x *> alts.forM (fun alt => checkFnBody alt.body)
-  | FnBody.unreachable      => pure ()
+  | .set x _ y b      => checkVar x *> checkArg y *> checkFnBody b
+  | .uset x _ y b     => checkVar x *> checkVar y *> checkFnBody b
+  | .sset x _ _ y _ b => checkVar x *> checkVar y *> checkFnBody b
+  | .setTag x _ b     => checkVar x *> checkFnBody b
+  | .inc x _ _ _ b    => checkVar x *> checkFnBody b
+  | .dec x _ _ _ b    => checkVar x *> checkFnBody b
+  | .del x b          => checkVar x *> checkFnBody b
+  | .mdata _ b        => checkFnBody b
+  | .jmp j ys         => checkJP j *> checkArgs ys
+  | .ret x            => checkArg x
+  | .case _ x _ alts  => checkVar x *> alts.forM (fun alt => checkFnBody alt.body)
+  | .unreachable      => pure ()
 
 def checkDecl : Decl → M Unit
-  | Decl.fdecl (xs := xs) (body := b) .. => withParams xs (checkFnBody b)
-  | Decl.extern (xs := xs) .. => withParams xs (pure ())
+  | .fdecl (xs := xs) (body := b) .. => withParams xs (checkFnBody b)
+  | .extern (xs := xs) .. => withParams xs (pure ())
 
 end Checker
 

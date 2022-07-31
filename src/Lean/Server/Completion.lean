@@ -166,7 +166,7 @@ private def matchDecl? (ns : Name) (id : Name) (danglingDot : Bool) (declName : 
     else
       return none
 
-/-
+/--
   Truncate the given identifier and make sure it has length `≤ newLength`.
   This function assumes `id` does not contain `Name.num` constructors.
 -/
@@ -328,7 +328,7 @@ private partial def isDefEqToAppOf (e : Expr) (declName : Name) : MetaM Bool := 
 private def isDotCompletionMethod (typeName : Name) (info : ConstantInfo) : MetaM Bool :=
   forallTelescopeReducing info.type fun xs _ => do
     for x in xs do
-      let localDecl ← getLocalDecl x.fvarId!
+      let localDecl ← x.fvarId!.getDecl
       let type := localDecl.type.consumeMData
       if (← isDefEqToAppOf type typeName) then
         return true
@@ -371,6 +371,25 @@ private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (hoverInfo : Hov
           unless (← isBlackListed c.name) do
             if (← isDotCompletionMethod typeName c) then
               addCompletionItem c.name.getString! c.type expectedType? c.name (kind := (← getCompletionKindForDecl c)) 1
+
+private def dotIdCompletion (ctx : ContextInfo) (lctx : LocalContext) (id : Name) (expectedType? : Option Expr) : IO (Option CompletionList) :=
+  runM ctx lctx do
+    let some expectedType := expectedType? | return ()
+    let resultTypeFn := (← instantiateMVars expectedType).cleanupAnnotations.getAppFn
+    let .const typeName .. := resultTypeFn.cleanupAnnotations | return ()
+    (← getEnv).constants.forM fun declName c => do
+      let some (label, score) ← matchDecl? typeName id (danglingDot := false) declName | pure ()
+      addCompletionItem label c.type expectedType? declName (← getCompletionKindForDecl c) score
+
+private def fieldIdCompletion (ctx : ContextInfo) (lctx : LocalContext) (id : Name) (structName : Name) : IO (Option CompletionList) :=
+  runM ctx lctx do
+    let idStr := id.toString
+    let fieldNames := getStructureFieldsFlattened (← getEnv) structName (includeSubobjectFields := false)
+    for fieldName in fieldNames do
+      let .str _ fieldName := fieldName | continue
+      let some score := fuzzyMatchScoreWithThreshold? idStr fieldName | continue
+      let item := { label := fieldName, detail? := "field", documentation? := none, kind? := CompletionItemKind.field }
+      modify fun s => { s with itemsMain := s.itemsMain.push (item, score) }
 
 private def optionCompletion (ctx : ContextInfo) (stx : Syntax) (caps : ClientCapabilities) : IO (Option CompletionList) :=
   ctx.runMetaM {} do
@@ -421,10 +440,12 @@ partial def find? (fileMap : FileMap) (hoverPos : String.Pos) (infoTree : InfoTr
   match infoTree.foldInfo (init := none) (choose fileMap hoverLine) with
   | some (hoverInfo, ctx, Info.ofCompletionInfo info) =>
     match info with
-    | CompletionInfo.dot info (expectedType? := expectedType?) .. => dotCompletion ctx info hoverInfo expectedType?
-    | CompletionInfo.id _   id danglingDot lctx expectedType? => idCompletion ctx lctx id hoverInfo danglingDot expectedType?
-    | CompletionInfo.option stx => optionCompletion ctx stx caps
-    | CompletionInfo.tactic .. => tacticCompletion ctx
+    | .dot info (expectedType? := expectedType?) .. => dotCompletion ctx info hoverInfo expectedType?
+    | .id _   id danglingDot lctx expectedType? => idCompletion ctx lctx id hoverInfo danglingDot expectedType?
+    | .dotId _  id lctx expectedType? => dotIdCompletion ctx lctx id expectedType?
+    | .fieldId _ id lctx structName => fieldIdCompletion ctx lctx id structName
+    | .option stx => optionCompletion ctx stx caps
+    | .tactic .. => tacticCompletion ctx
     | _ => return none
   | _ =>
     -- TODO try to extract id from `fileMap` and some `ContextInfo` from `InfoTree`

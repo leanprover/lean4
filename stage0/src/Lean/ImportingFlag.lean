@@ -27,7 +27,7 @@ unsafe def enableInitializersExecution : IO Unit :=
 def isInitializerExecutionEnabled : IO Bool :=
   runInitializersRef.get
 
-/- We say Lean is "initializing" when it is executing `builtin_initialize` declarations or importing modules.
+/-- We say Lean is "initializing" when it is executing `builtin_initialize` declarations or importing modules.
    Recall that Lean excutes `initialize` declarations while importing modules. -/
 def initializing : IO Bool :=
   IO.initializing <||> importingRef.get

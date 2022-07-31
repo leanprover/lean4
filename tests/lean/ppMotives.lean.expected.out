@@ -27,4 +27,4 @@ fun x x_1 x_2 x_3 =>
 def fact : Nat → Nat :=
 fun n => Nat.recOn n 1 fun n acc => (n + 1) * acc
 def fact : Nat → Nat :=
-fun n => Nat.recOn (motive := fun n => Nat) n 1 fun n acc => (n + 1) * acc
+fun n => Nat.recOn (motive := fun x => Nat) n 1 fun n acc => (n + 1) * acc

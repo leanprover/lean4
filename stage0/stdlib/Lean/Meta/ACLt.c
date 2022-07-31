@@ -943,7 +943,6 @@ x_18 = lean_ctor_get(x_1, 0);
 lean_inc(x_18);
 lean_dec(x_1);
 x_19 = l_Lean_Expr_mvarId_x21(x_2);
-lean_dec(x_2);
 x_20 = l_Lean_Name_lt(x_18, x_19);
 lean_dec(x_19);
 lean_dec(x_18);
@@ -1206,7 +1205,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__7;
 x_2 = l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__8;
-x_3 = lean_unsigned_to_nat(62u);
+x_3 = lean_unsigned_to_nat(70u);
 x_4 = lean_unsigned_to_nat(36u);
 x_5 = l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_lt_ltApp___spec__2___closed__9;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

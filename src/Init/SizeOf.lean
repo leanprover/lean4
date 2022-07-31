@@ -6,19 +6,19 @@ Authors: Leonardo de Moura
 prelude
 import Init.Tactics
 
-/- SizeOf -/
+/-! # SizeOf -/
 
 class SizeOf (α : Sort u) where
   sizeOf : α → Nat
 
 export SizeOf (sizeOf)
 
-/-
+/-!
 Declare sizeOf instances and theorems for types declared before SizeOf.
 From now on, the inductive Compiler will automatically generate sizeOf instances and theorems.
 -/
 
-/- Every Type `α` has a default SizeOf instance that just returns 0 for every element of `α` -/
+/-- Every Type `α` has a default SizeOf instance that just returns 0 for every element of `α` -/
 protected def default.sizeOf (α : Sort u) : α → Nat
   | _ => 0
 
@@ -62,7 +62,7 @@ deriving instance SizeOf for EStateM.Result
 
 namespace Lean
 
-/- We manually define `Lean.Name` instance because we use
+/-- We manually define `Lean.Name` instance because we use
    an opaque function for computing the hashcode field. -/
 protected noncomputable def Name.sizeOf : Name → Nat
   | anonymous => 1

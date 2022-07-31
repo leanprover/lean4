@@ -8,7 +8,7 @@ import Lean.Compiler.IR.FreeVars
 
 namespace Lean.IR
 
-/- Remark: in the paper "Counting Immutable Beans" the concepts of
+/-! Remark: in the paper "Counting Immutable Beans" the concepts of
    free and live variables coincide because the paper does *not* consider
    join points. For example, consider the function body `B`
    ```
@@ -20,13 +20,13 @@ namespace Lean.IR
    block_1 (x : obj) : obj :=
    let z := ctor_0 x y;
    ret z
-   ``
+   ```
    The variable `y` is live in the function body `B` since it occurs in
    `block_1` which is "invoked" by `B`.
 -/
 
 namespace IsLive
-/-
+/--
   We use `State Context` instead of `ReaderT Context Id` because we remove
   non local joint points from `Context` whenever we visit them instead of
   maintaining a set of visited non local join points.
@@ -69,7 +69,7 @@ partial def visitFnBody (w : Index) : FnBody → M Bool
 
 end IsLive
 
-/- Return true if `x` is live in the function body `b` in the context `ctx`.
+/-- Return true if `x` is live in the function body `b` in the context `ctx`.
 
    Remark: the context only needs to contain all (free) join point declarations.
 

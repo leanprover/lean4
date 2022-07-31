@@ -10,14 +10,15 @@ import Init.Data.ToString.Basic
 universe u v
 set_option linter.unusedVariables.funArgs false
 
-/- debugging helper functions -/
+/-! # Debugging helper functions -/
+
 @[neverExtract, extern "lean_dbg_trace"]
 def dbgTrace {α : Type u} (s : String) (f : Unit → α) : α := f ()
 
 def dbgTraceVal {α : Type u} [ToString α] (a : α) : α :=
   dbgTrace (toString a) (fun _ => a)
 
-/- Display the given message if `a` is shared, that is, RC(a) > 1 -/
+/-- Display the given message if `a` is shared, that is, RC(a) > 1 -/
 @[neverExtract, extern "lean_dbg_trace_if_shared"]
 def dbgTraceIfShared {α : Type u} (s : String) (a : α) : α := a
 

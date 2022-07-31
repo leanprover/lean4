@@ -16,8 +16,8 @@ def Expr.collectFVars (e : Expr) : StateRefT CollectFVars.State MetaM Unit := do
 
 def LocalDecl.collectFVars (localDecl : LocalDecl) : StateRefT CollectFVars.State MetaM Unit := do
   match localDecl with
-  | LocalDecl.cdecl (type := type) .. => type.collectFVars
-  | LocalDecl.ldecl (type := type) (value := value) .. => type.collectFVars; value.collectFVars
+  | .cdecl (type := type) .. => type.collectFVars
+  | .ldecl (type := type) (value := value) .. => type.collectFVars; value.collectFVars
 
 /-- For each variable in `s.fvarSet`, include its dependencies. -/
 partial def CollectFVars.State.addDependencies (s : CollectFVars.State) : MetaM CollectFVars.State := do

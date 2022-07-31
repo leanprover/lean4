@@ -7,7 +7,7 @@ prelude
 import Init.Data.Array.Subarray
 import Init.Data.Range
 
-/-
+/-!
 Remark: we considered using the following alternative design
 ```
 structure Stream (α : Type u) where
@@ -22,7 +22,7 @@ The key problem is that the type `Stream α` "lives" in a universe higher than `
 This is a problem because we want to use `Stream`s in monadic code.
 -/
 
-/-
+/--
   Streams are used to implement parallel `for` statements.
   Example:
   ```

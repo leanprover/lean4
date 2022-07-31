@@ -67,7 +67,7 @@ where
           let x := xs[indVal.numParams + i]!
           let a := mkIdent (← mkFreshUserName `a)
           ctorArgs := ctorArgs.push a
-          let localDecl ← getLocalDecl x.fvarId!
+          let localDecl ← x.fvarId!.getDecl
           if localDecl.binderInfo.isExplicit then
             if (← inferType x).isAppOf indVal.name then
               rhs ← `($rhs ++ Format.line ++ $(mkIdent auxFunName):ident $a:ident max_prec)

@@ -166,6 +166,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitC_throwUnknownVar___rarg(lean_object*, le
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_EmitC_emitInitFn___spec__2(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitInitFn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_declareVars(lean_object*, uint8_t, lean_object*, lean_object*);
+uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_828____at_Lean_IR_IRType_beq___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitCtorSetArgs(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitUnbox___closed__1;
 uint8_t l_Lean_IR_IRType_isObj(lean_object*);
@@ -230,6 +231,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitDeclAux___lambda__2(lean_object*, l
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_toCInitName(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_overwriteParam___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitTailCall___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_ParametricAttribute_getParam_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitTag___closed__1;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitTailCall(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_getDecls(lean_object*);
@@ -274,7 +276,6 @@ static lean_object* l_Lean_IR_EmitC_emitFileHeader___closed__13;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_hasMainFn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitOffset___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_FnBody_isTerminal(lean_object*);
-uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_803____at_Lean_IR_IRType_beq___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitTailCall___lambda__2___closed__1;
 static lean_object* l_Lean_IR_EmitC_emitUnbox___closed__5;
 static lean_object* l_Lean_IR_EmitC_emitFileHeader___closed__23;
@@ -456,7 +457,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitC_isTailCall___boxed(lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitBoxFn___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitFileHeader___closed__22;
 static lean_object* l_Lean_IR_EmitC_emitFileFooter___closed__1;
-lean_object* l_Lean_ParametricAttribute_getParam___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_foldlAux_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitFileHeader___closed__18;
 uint8_t l_Lean_IR_ExplicitBoxing_isBoxedName(lean_object*);
@@ -1298,7 +1298,7 @@ x_7 = lean_ctor_get(x_4, 1);
 x_8 = l_Lean_instInhabitedName;
 x_9 = l_Lean_IR_EmitC_toCName___closed__1;
 lean_inc(x_1);
-x_10 = l_Lean_ParametricAttribute_getParam___rarg(x_8, x_9, x_6, x_1);
+x_10 = l_Lean_ParametricAttribute_getParam_x3f___rarg(x_8, x_9, x_6, x_1);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_11; uint8_t x_12; 
@@ -1373,7 +1373,7 @@ lean_dec(x_4);
 x_23 = l_Lean_instInhabitedName;
 x_24 = l_Lean_IR_EmitC_toCName___closed__1;
 lean_inc(x_1);
-x_25 = l_Lean_ParametricAttribute_getParam___rarg(x_23, x_24, x_21, x_1);
+x_25 = l_Lean_ParametricAttribute_getParam_x3f___rarg(x_23, x_24, x_21, x_1);
 if (lean_obj_tag(x_25) == 0)
 {
 lean_object* x_26; uint8_t x_27; 
@@ -1545,7 +1545,7 @@ x_7 = lean_ctor_get(x_4, 1);
 x_8 = l_Lean_instInhabitedName;
 x_9 = l_Lean_IR_EmitC_toCName___closed__1;
 lean_inc(x_1);
-x_10 = l_Lean_ParametricAttribute_getParam___rarg(x_8, x_9, x_6, x_1);
+x_10 = l_Lean_ParametricAttribute_getParam_x3f___rarg(x_8, x_9, x_6, x_1);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -1612,7 +1612,7 @@ lean_dec(x_4);
 x_24 = l_Lean_instInhabitedName;
 x_25 = l_Lean_IR_EmitC_toCName___closed__1;
 lean_inc(x_1);
-x_26 = l_Lean_ParametricAttribute_getParam___rarg(x_24, x_25, x_22, x_1);
+x_26 = l_Lean_ParametricAttribute_getParam_x3f___rarg(x_24, x_25, x_22, x_1);
 if (lean_obj_tag(x_26) == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
@@ -1782,7 +1782,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Nat_forM_loop___at_Lean_IR_EmitC_emitFnDeclAux___spec__1___lambda__1___closed__1;
 x_2 = l_Nat_forM_loop___at_Lean_IR_EmitC_emitFnDeclAux___spec__1___lambda__1___closed__2;
-x_3 = lean_unsigned_to_nat(62u);
+x_3 = lean_unsigned_to_nat(70u);
 x_4 = lean_unsigned_to_nat(36u);
 x_5 = l_Nat_forM_loop___at_Lean_IR_EmitC_emitFnDeclAux___spec__1___lambda__1___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -3029,7 +3029,7 @@ lean_dec(x_26);
 x_28 = l_Lean_Expr_constName_x3f(x_27);
 lean_dec(x_27);
 x_29 = l_Lean_IR_EmitC_emitMainFn___lambda__1___closed__4;
-x_30 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_803____at_Lean_IR_IRType_beq___spec__1(x_28, x_29);
+x_30 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_828____at_Lean_IR_IRType_beq___spec__1(x_28, x_29);
 lean_dec(x_28);
 if (x_30 == 0)
 {

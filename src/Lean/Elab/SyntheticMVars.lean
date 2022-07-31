@@ -22,7 +22,7 @@ private def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) (errToSo
   It returns `true` if it succeeded, and `false` otherwise.
   It is used to implement `synthesizeSyntheticMVars`. -/
 private def resumePostponed (savedContext : SavedContext) (stx : Syntax) (mvarId : MVarId) (postponeOnError : Bool) : TermElabM Bool :=
-  withRef stx <| withMVarContext mvarId do
+  withRef stx <| mvarId.withContext do
     let s ← saveState
     try
       withSavedContext savedContext do
@@ -35,7 +35,7 @@ private def resumePostponed (savedContext : SavedContext) (stx : Syntax) (mvarId
           let result ← withRef stx <| ensureHasType expectedType result
           /- We must perform `occursCheck` here since `result` may contain `mvarId` when it has synthetic `sorry`s. -/
           if (← occursCheck mvarId result) then
-            assignExprMVar mvarId result
+            mvarId.assign result
             return true
           else
             return false
@@ -58,7 +58,7 @@ private def resumePostponed (savedContext : SavedContext) (stx : Syntax) (mvarId
   Similar to `synthesizeInstMVarCore`, but makes sure that `instMVar` local context and instances
   are used. It also logs any error message produced. -/
 private def synthesizePendingInstMVar (instMVar : MVarId) : TermElabM Bool :=
-  withMVarContext instMVar do
+  instMVar.withContext do
     try
       synthesizeInstMVarCore instMVar
     catch
@@ -73,7 +73,7 @@ private def synthesizePendingInstMVar (instMVar : MVarId) : TermElabM Bool :=
 private def synthesizePendingCoeInstMVar
     (auxMVarId : MVarId) (errorMsgHeader? : Option String) (eNew : Expr) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Bool := do
   let instMVarId := eNew.appArg!.mvarId!
-  withMVarContext instMVarId do
+  instMVarId.withContext do
     let eType ← instantiateMVars eType
     if (← isSyntheticMVar eType) then
       return false
@@ -83,7 +83,7 @@ private def synthesizePendingCoeInstMVar
          However, it may succeed here because we have more information, for example, metavariables
          occurring at `expectedType` and `eType` may have been assigned. -/
       if (← occursCheck auxMVarId e) then
-        assignExprMVar auxMVarId e
+        auxMVarId.assign e
         return true
       else
         return false
@@ -91,7 +91,7 @@ private def synthesizePendingCoeInstMVar
       if (← synthesizeCoeInstMVarCore instMVarId) then
         let eNew ← expandCoe eNew
         if (← occursCheck auxMVarId eNew) then
-          assignExprMVar auxMVarId eNew
+          auxMVarId.assign eNew
           return true
       return false
     catch
@@ -125,8 +125,8 @@ private def synthesizePendingCoeInstMVar
   Instead of performing a backtracking search that considers all pending metavariables, we improved the `binrel%` elaborator.
 -/
 private partial def synthesizeUsingDefaultPrio (mvarId : MVarId) (prio : Nat) : TermElabM Bool :=
-  withMVarContext mvarId do
-    let mvarType := (← Meta.getMVarDecl mvarId).type
+  mvarId.withContext do
+    let mvarType ← mvarId.getType
     match (← isClass? mvarType) with
     | none => return false
     | some className =>
@@ -146,7 +146,7 @@ where
     return false
 
   synthesizePendingInstMVar' (mvarId : MVarId) : TermElabM Bool :=
-    commitWhen <| withMVarContext mvarId do
+    commitWhen <| mvarId.withContext do
       try
         synthesizeInstMVarCore mvarId
       catch _ =>
@@ -203,7 +203,7 @@ where
     let some mvarIds ← synthesizeSomeUsingDefault? mvarIds | return false
     synthesizePending mvarIds
 
-/- Used to implement `synthesizeUsingDefault`. This method only consider default instances with the given priority. -/
+/-- Used to implement `synthesizeUsingDefault`. This method only consider default instances with the given priority. -/
 private def synthesizeSomeUsingDefaultPrio (prio : Nat) : TermElabM Bool := do
   let rec visit (pendingMVars : List MVarId) (pendingMVarsNew : List MVarId) : TermElabM Bool := do
     match pendingMVars with
@@ -234,19 +234,23 @@ private def synthesizeUsingDefault : TermElabM Bool := do
       return true
   return false
 
+/--
+We use this method to report typeclass (and coercion) resolution problems that are "stuck".
+That is, there is nothing else to do, and we don't have enough information to synthesize them using TC resolution.
+-/
 def reportStuckSyntheticMVar (mvarId : MVarId) (ignoreStuckTC := false) : TermElabM Unit := do
   let some mvarSyntheticDecl ← getSyntheticMVarDecl? mvarId | return ()
   withRef mvarSyntheticDecl.stx do
     match mvarSyntheticDecl.kind with
     | .typeClass =>
       unless ignoreStuckTC do
-        withMVarContext mvarId do
+         mvarId.withContext do
           let mvarDecl ← getMVarDecl mvarId
           unless (← MonadLog.hasErrors) do
             throwError "typeclass instance problem is stuck, it is often due to metavariables{indentExpr mvarDecl.type}"
     | .coe header eNew expectedType eType e f? =>
       let mvarId := eNew.appArg!.mvarId!
-      withMVarContext mvarId do
+      mvarId.withContext do
         let mvarDecl ← getMVarDecl mvarId
         throwTypeMismatchError header expectedType eType e f? (some ("failed to create type class instance for " ++ indentExpr mvarDecl.type))
     | _ => unreachable! -- TODO handle other cases.
@@ -318,15 +322,40 @@ private def markAsResolved (mvarId : MVarId) : TermElabM Unit :=
 
 mutual
 
+  /--
+  Try to synthesize a term `val` using the tactic code `tacticCode`, and then assign `mvarId := val`.
+  -/
   partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
     /- Recall, `tacticCode` is the whole `by ...` expression. -/
     let code := tacticCode[1]
     instantiateMVarDeclMVars mvarId
-    let remainingGoals ← withInfoHole mvarId <| Tactic.run mvarId do
-       withTacticInfoContext tacticCode (evalTactic code)
-       synthesizeSyntheticMVars (mayPostpone := false)
-    unless remainingGoals.isEmpty do
-      reportUnsolvedGoals remainingGoals
+    /-
+    TODO: consider using `runPendingTacticsAt` at `mvarId` local context and target type.
+    Issue #1380 demonstrates that the goal may still contain pending metavariables.
+    It happens in the following scenario we have a term `foo A (by tac)` where `A` has been postponed
+    and contains nested `by ...` terms. The pending metavar list contains two metavariables: ?m1 (for `A`) and
+    `?m2` (for `by tac`). When `A` is resumed, it creates a new metavariable `?m3` for the nested `by ...` term in `A`.
+    `?m3` is after `?m2` in the to-do list. Then, we execute `by tac` for synthesizing `?m2`, but its type depends on
+    `?m3`. We have considered putting `?m3` at `?m2` place in the to-do list, but this is not super robust.
+    The ideal solution is to make sure a tactic "resolves" all pending metavariables nested in their local contex and target type
+    before starting tactic execution. The procedure would be a generalization of `runPendingTacticsAt`. We can try to combine
+    it with `instantiateMVarDeclMVars` to make sure we do not perform two traversals.
+    Regarding issue #1380, we addressed the issue by avoiding the elaboration postponement step. However, the same issue can happen
+    in more complicated scenarios.
+    -/
+    try
+      let remainingGoals ← withInfoHole mvarId <| Tactic.run mvarId do
+         withTacticInfoContext tacticCode (evalTactic code)
+         synthesizeSyntheticMVars (mayPostpone := false)
+      unless remainingGoals.isEmpty do
+        reportUnsolvedGoals remainingGoals
+    catch ex =>
+      if (← read).errToSorry then
+        for mvarId in (← getMVars (mkMVar mvarId)) do
+          mvarId.admit
+        logException ex
+      else
+        throw ex
 
   /-- Try to synthesize the given pending synthetic metavariable. -/
   private partial def synthesizeSyntheticMVar (mvarId : MVarId) (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool := do
@@ -360,7 +389,7 @@ mutual
     -- It would not be incorrect to use `filterM`.
     let remainingPendingMVars ← pendingMVars.filterRevM fun mvarId => do
        -- We use `traceM` because we want to make sure the metavar local context is used to trace the message
-       traceM `Elab.postpone (withMVarContext mvarId do addMessageContext m!"resuming {mkMVar mvarId}")
+       traceM `Elab.postpone (mvarId.withContext do addMessageContext m!"resuming {mkMVar mvarId}")
        let succeeded ← synthesizeSyntheticMVar mvarId postponeOnError runTactics
        if succeeded then markAsResolved mvarId
        trace[Elab.postpone] if succeeded then format "succeeded" else format "not ready yet"
@@ -423,7 +452,7 @@ end
 def synthesizeSyntheticMVarsNoPostponing (ignoreStuckTC := false) : TermElabM Unit :=
   synthesizeSyntheticMVars (mayPostpone := false) (ignoreStuckTC := ignoreStuckTC)
 
-/- Keep invoking `synthesizeUsingDefault` until it returns false. -/
+/-- Keep invoking `synthesizeUsingDefault` until it returns false. -/
 private partial def synthesizeUsingDefaultLoop : TermElabM Unit := do
   if (← synthesizeUsingDefault) then
     synthesizeSyntheticMVars (mayPostpone := true)
@@ -461,6 +490,11 @@ def elabTermAndSynthesize (stx : Syntax) (expectedType? : Option Expr) : TermEla
   withRef stx do
     instantiateMVars (← withSynthesize <| elabTerm stx expectedType?)
 
+/--
+Collect unassigned metavariables at `e` that have associated tactic blocks, and then execute them using `runTactic`.
+We use this method at the `match .. with` elaborator when it cannot be postponed anymore, but it is still waiting
+the result of a tactic block.
+-/
 def runPendingTacticsAt (e : Expr) : TermElabM Unit := do
   for mvarId in (← getMVars e) do
     let mvarId ← getDelayedMVarRoot mvarId

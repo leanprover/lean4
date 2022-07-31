@@ -205,7 +205,7 @@ syntax (name := rewriteSeq) "rewrite " (config)? rwRuleSeq (location)? : tactic
 -/
 macro (name := rwSeq) rw:"rw " c:(config)? s:rwRuleSeq l:(location)? : tactic =>
   match s with
-  | `(rwRuleSeq| [%$lbrak $rs:rwRule,* ]%$rbrak) =>
+  | `(rwRuleSeq| [%$lbrak $rs,* ]%$rbrak) =>
     -- We show the `rfl` state on `]`
     `(tactic| rewrite%$rw $(c)? [%$lbrak $rs,*] $(l)?; try (with_reducible rfl%$rbrak))
   | _ => Macro.throwUnsupported
@@ -280,7 +280,7 @@ macro "have " d:haveDecl : tactic => `(refine_lift have $d:haveDecl; ?_)
 /--
 `have h := e` adds the hypothesis `h : t` if `e : t`.
 -/
-macro (priority := high) "have" x:ident " := " p:term : tactic => `(have $x:ident : _ := $p)
+macro (priority := high) "have" x:ident " := " p:term : tactic => `(have $x : _ := $p)
 /--
 Given a main goal `ctx |- t`, `suffices h : t' from e` replaces the main goal with `ctx |- t'`,
 `e` must have type `t` in the context `ctx, h : t'`.
@@ -288,7 +288,7 @@ Given a main goal `ctx |- t`, `suffices h : t' from e` replaces the main goal wi
 The variant `suffices h : t' by tac` is a shorthand for `suffices h : t' from by tac`.
 If `h :` is omitted, the name `this` is used.
  -/
-macro "suffices " d:sufficesDecl : tactic => `(refine_lift suffices $d:sufficesDecl; ?_)
+macro "suffices " d:sufficesDecl : tactic => `(refine_lift suffices $d; ?_)
 /--
 `let h : t := e` adds the hypothesis `h : t := e` to the current goal if `e` a term of type `t`.
 If `t` is omitted, it will be inferred.
@@ -300,15 +300,15 @@ macro "let " d:letDecl : tactic => `(refine_lift let $d:letDecl; ?_)
 `show t` finds the first goal whose target unifies with `t`. It makes that the main goal,
  performs the unification, and replaces the target with the unified version of `t`.
 -/
-macro "show " e:term : tactic => `(refine_lift show $e:term from ?_) -- TODO: fix, see comment
+macro "show " e:term : tactic => `(refine_lift show $e from ?_) -- TODO: fix, see comment
 syntax (name := letrec) withPosition(atomic("let " &"rec ") letRecDecls) : tactic
 macro_rules
-  | `(tactic| let rec $d:letRecDecls) => `(tactic| refine_lift let rec $d:letRecDecls; ?_)
+  | `(tactic| let rec $d) => `(tactic| refine_lift let rec $d; ?_)
 
 -- Similar to `refineLift`, but using `refine'`
 macro "refine_lift' " e:term : tactic => `(focus (refine' no_implicit_lambda% $e; rotate_right))
 macro "have' " d:haveDecl : tactic => `(refine_lift' have $d:haveDecl; ?_)
-macro (priority := high) "have'" x:ident " := " p:term : tactic => `(have' $x:ident : _ := $p)
+macro (priority := high) "have'" x:ident " := " p:term : tactic => `(have' $x : _ := $p)
 macro "let' " d:letDecl : tactic => `(refine_lift' let $d:letDecl; ?_)
 
 syntax inductionAltLHS := "| " (("@"? ident) <|> "_") (ident <|> "_")*
@@ -397,7 +397,7 @@ macro_rules | `(tactic| trivial) => `(tactic| decide)
 macro_rules | `(tactic| trivial) => `(tactic| apply True.intro)
 macro_rules | `(tactic| trivial) => `(tactic| apply And.intro <;> trivial)
 
-macro "unhygienic " t:tacticSeq : tactic => `(set_option tactic.hygienic false in $t:tacticSeq)
+macro "unhygienic " t:tacticSeq : tactic => `(set_option tactic.hygienic false in $t)
 
 /-- `fail msg` is a tactic that always fail and produces an error using the given message. -/
 syntax (name := fail) "fail " (str)? : tactic
@@ -416,7 +416,43 @@ macro "exists " es:term,+ : tactic =>
 end Tactic
 
 namespace Attr
--- simp attribute syntax
+/--
+Theorems tagged with the `simp` attribute are by the simplifier (i.e., the `simp` tactic, and its variants) to simplify
+expressions occurring in your goals.
+We call theorems tagged with the `simp` attribute "simp theorems" or "simp lemmas".
+Lean maintains a database/index containing all active simp theorems.
+Here is an example of a simp theorem.
+```lean
+@[simp] theorem ne_eq (a b : α) : (a ≠ b) = Not (a = b) := rfl
+```
+This simp theorem instructs the simplifier to replace instances of the term `a ≠ b` (e.g. `x + 0 ≠ y`) with `Not (a = b)`
+(e.g., `Not (x + 0 = y)`).
+The simplifier applies simp theorems in one direction only: if `A = B` is a simp theorem, then `simp`
+replaces `A`s with `B`s, but it doesn't replace `B`s with `A`s. Hence a simp theorem should have the
+property that its right-hand side is "simpler" than its left-hand side.
+In particular, `=` and `↔` should not be viewed as symmetric operators in this situation.
+The following would be a terrible simp theorem (if it were even allowed):
+```lean
+@[simp] lemma mul_right_inv_bad (a : G) : 1 = a * a⁻¹ := ...
+```
+Replacing 1 with a * a⁻¹ is not a sensible default direction to travel. Even worse would be a theorem
+that causes expressions to grow without bound, causing simp to loop forever.
+
+By default the simplifier applies `simp` theorems to an expression `e` after its sub-expressions have been simplified.
+We say it performs a bottom-up simplification. You can instruct the simplifier to apply a theorem before its sub-expressions
+have been simplified by using the modifier `↓`. Here is an example
+```lean
+@[simp↓] theorem not_and_eq (p q : Prop) : (¬ (p ∧ q)) = (¬p ∨ ¬q) :=
+```
+
+When multiple simp theorems are applicable, the simplifier uses the one with highest priority. If there are several with
+the same priority, it is uses the "most recent one". Example:
+```lean
+@[simp high] theorem cond_true (a b : α) : cond true a b = a := rfl
+@[simp low+1] theorem or_true (p : Prop) : (p ∨ True) = True := propext <| Iff.intro (fun _ => trivial) (fun _ => Or.inr trivial)
+@[simp 100] theorem ite_self {d : Decidable c} (a : α) : ite c a a = a := by cases d  <;> rfl
+```
+-/
 syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? (prio)? : attr
 end Attr
 

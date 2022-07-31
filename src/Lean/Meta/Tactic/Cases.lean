@@ -43,19 +43,19 @@ private partial def withNewEqs (targets targetsNew : Array Expr) (k : Array Expr
   loop 0 #[] #[]
 
 def generalizeTargetsEq (mvarId : MVarId) (motiveType : Expr) (targets : Array Expr) : MetaM MVarId :=
-  withMVarContext mvarId do
-    checkNotAssigned mvarId `generalizeTargets
+  mvarId.withContext do
+    mvarId.checkNotAssigned `generalizeTargets
     let (typeNew, eqRefls) ←
       forallTelescopeReducing motiveType fun targetsNew _ => do
         unless targetsNew.size == targets.size do
           throwError "invalid number of targets #{targets.size}, motive expects #{targetsNew.size}"
         withNewEqs targets targetsNew fun eqs eqRefls => do
-          let type    ← getMVarType mvarId
+          let type    ← mvarId.getType
           let typeNew ← mkForallFVars eqs type
           let typeNew ← mkForallFVars targetsNew typeNew
           pure (typeNew, eqRefls)
-    let mvarNew ← mkFreshExprSyntheticOpaqueMVar typeNew (← getMVarTag mvarId)
-    assignExprMVar mvarId (mkAppN (mkAppN mvarNew targets) eqRefls)
+    let mvarNew ← mkFreshExprSyntheticOpaqueMVar typeNew (← mvarId.getTag)
+    mvarId.assign (mkAppN (mkAppN mvarNew targets) eqRefls)
     pure mvarNew.mvarId!
 
 structure GeneralizeIndicesSubgoal where
@@ -83,11 +83,11 @@ structure GeneralizeIndicesSubgoal where
   - `fvarId`: `h'` id
   - `numEqs`: number of equations in the target -/
 def generalizeIndices (mvarId : MVarId) (fvarId : FVarId) : MetaM GeneralizeIndicesSubgoal :=
-  withMVarContext mvarId do
+  mvarId.withContext do
     let lctx       ← getLCtx
     let localInsts ← getLocalInstances
-    checkNotAssigned mvarId `generalizeIndices
-    let fvarDecl ← getLocalDecl fvarId
+    mvarId.checkNotAssigned `generalizeIndices
+    let fvarDecl ← fvarId.getDecl
     let type ← whnf fvarDecl.type
     type.withApp fun f args => matchConstInduct f (fun _ => throwTacticEx `generalizeIndices mvarId "inductive type expected") fun val _ => do
       unless val.numIndices > 0 do throwTacticEx `generalizeIndices mvarId "indexed inductive type expected"
@@ -104,17 +104,17 @@ def generalizeIndices (mvarId : MVarId) (fvarId : FVarId) : MetaM GeneralizeIndi
       withLocalDeclD `h newEqType fun newEq => do
       let newEqs := newEqs.push newEq
       /- auxType `forall (j' : J) (h' : I A j'), j == j' -> h == h' -> target -/
-      let target  ← getMVarType mvarId
-      let tag     ← getMVarTag mvarId
+      let target  ← mvarId.getType
+      let tag     ← mvarId.getTag
       let auxType ← mkForallFVars newEqs target
       let auxType ← mkForallFVars #[h'] auxType
       let auxType ← mkForallFVars newIndices auxType
       let newMVar ← mkFreshExprMVarAt lctx localInsts auxType MetavarKind.syntheticOpaque tag
       /- assign mvarId := newMVar indices h refls -/
-      assignExprMVar mvarId (mkAppN (mkApp (mkAppN newMVar indices) fvarDecl.toExpr) newRefls)
-      let (indicesFVarIds, newMVarId) ← introNP newMVar.mvarId! newIndices.size
-      let (fvarId, newMVarId) ← intro1P newMVarId
-      pure {
+      mvarId.assign (mkAppN (mkApp (mkAppN newMVar indices) fvarDecl.toExpr) newRefls)
+      let (indicesFVarIds, newMVarId) ← newMVar.mvarId!.introNP newIndices.size
+      let (fvarId, newMVarId) ← newMVarId.intro1P
+      return {
         mvarId         := newMVarId,
         indicesFVarIds := indicesFVarIds,
         fvarId         := fvarId,
@@ -140,7 +140,7 @@ private def mkCasesContext? (majorFVarId : FVarId) : MetaM (Option Context) := d
   if !env.contains `Eq || !env.contains `HEq then
     pure none
   else
-    let majorDecl ← getLocalDecl majorFVarId
+    let majorDecl ← majorFVarId.getDecl
     let majorType ← whnf majorDecl.type
     majorType.withApp fun f args => matchConstInduct f (fun _ => pure none) fun ival _ =>
       if args.size != ival.numIndices + ival.numParams then pure none
@@ -155,7 +155,7 @@ private def mkCasesContext? (majorFVarId : FVarId) : MetaM (Option Context) := d
           }
         | _ => pure none
 
-/-
+/--
 We say the major premise has independent indices IF
 1- its type is *not* an indexed inductive family, OR
 2- its type is an indexed inductive family, but all indices are distinct free variables, and
@@ -182,12 +182,12 @@ private def elimAuxIndices (s₁ : GeneralizeIndicesSubgoal) (s₂ : Array Cases
     indicesFVarIds.foldlM (init := s) fun s indexFVarId =>
       match s.subst.get indexFVarId with
       | Expr.fvar indexFVarId' =>
-        (do let mvarId ← clear s.mvarId indexFVarId'; pure { s with mvarId := mvarId, subst := s.subst.erase indexFVarId })
+        (do let mvarId ← s.mvarId.clear indexFVarId'; pure { s with mvarId := mvarId, subst := s.subst.erase indexFVarId })
         <|>
         (pure s)
       | _ => pure s
 
-/-
+/--
   Convert `s` into an array of `CasesSubgoal`, by attaching the corresponding constructor name,
   and adding the substitution `majorFVarId -> ctor_i us params fields` into each subgoal. -/
 private def toCasesSubgoals (s : Array InductionSubgoal) (ctorNames : Array Name) (majorFVarId : FVarId) (us : List Level) (params : Array Expr)
@@ -203,8 +203,8 @@ partial def unifyEqs? (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) (case
   if numEqs == 0 then
     return some (mvarId, subst)
   else
-    let (eqFVarId, mvarId) ← intro1 mvarId
-    if let some { mvarId, subst, numNewEqs } ← unifyEq? mvarId eqFVarId subst acyclic caseName? then
+    let (eqFVarId, mvarId) ← mvarId.intro1
+    if let some { mvarId, subst, numNewEqs } ← unifyEq? mvarId eqFVarId subst MVarId.acyclic caseName? then
       unifyEqs? (numEqs - 1 + numNewEqs) mvarId subst caseName?
     else
       return none
@@ -221,19 +221,18 @@ private def unifyCasesEqs (numEqs : Nat) (subgoals : Array CasesSubgoal) : MetaM
       }
 
 private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames) (ctx : Context)
-    : MetaM (Array CasesSubgoal) := do
-  withMVarContext mvarId do
+    : MetaM (Array CasesSubgoal) := mvarId.withContext do
   let majorType ← inferType (mkFVar majorFVarId)
   let (us, params) ← getInductiveUniverseAndParams majorType
   let casesOn := mkCasesOnName ctx.inductiveVal.name
   let ctors   := ctx.inductiveVal.ctors.toArray
-  let s ← induction mvarId majorFVarId casesOn givenNames
+  let s ← mvarId.induction majorFVarId casesOn givenNames
   return toCasesSubgoals s ctors majorFVarId us params
 
 def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) : MetaM (Array CasesSubgoal) := do
   try
-    withMVarContext mvarId do
-      checkNotAssigned mvarId `cases
+    mvarId.withContext do
+      mvarId.checkNotAssigned `cases
       let context? ← mkCasesContext? majorFVarId
       match context? with
       | none     => throwTacticEx `cases mvarId "not applicable to the given hypothesis"
@@ -255,45 +254,66 @@ def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNam
 
 end Cases
 
+/--
+Apply `casesOn` using the free variable `majorFVarId` as the major premise (aka discriminant).
+`giveNames` contains user-facing names for each alternative.
+-/
+def _root_.Lean.MVarId.cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) : MetaM (Array CasesSubgoal) :=
+  Cases.cases mvarId majorFVarId givenNames
+
+@[deprecated MVarId.cases]
 def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) : MetaM (Array CasesSubgoal) :=
   Cases.cases mvarId majorFVarId givenNames
 
-def casesRec (mvarId : MVarId) (p : LocalDecl → MetaM Bool) : MetaM (List MVarId) :=
+/--
+Keep applying `cases` on any hypothesis that satisfies `p`.
+-/
+def _root_.Lean.MVarId.casesRec (mvarId : MVarId) (p : LocalDecl → MetaM Bool) : MetaM (List MVarId) :=
   saturate mvarId fun mvarId =>
-    withMVarContext mvarId do
+    mvarId.withContext do
       for localDecl in (← getLCtx) do
         if (← p localDecl) then
           let r? ← observing? do
-            let r ← cases mvarId localDecl.fvarId
+            let r ← mvarId.cases localDecl.fvarId
             return r.toList.map (·.mvarId)
           if r?.isSome then
             return r?
       return none
 
-def casesAnd (mvarId : MVarId) : MetaM MVarId := do
-  let mvarIds ← casesRec mvarId fun localDecl => return (← instantiateMVars localDecl.type).isAppOfArity ``And 2
+/--
+Applies `cases` (recursively) to any hypothesis of the form `h : p ∧ q`.
+-/
+def _root_.Lean.MVarId.casesAnd (mvarId : MVarId) : MetaM MVarId := do
+  let mvarIds ← mvarId.casesRec fun localDecl => return (← instantiateMVars localDecl.type).isAppOfArity ``And 2
   exactlyOne mvarIds
 
-def substEqs (mvarId : MVarId) : MetaM (Option MVarId) := do
-  let mvarIds ← casesRec mvarId fun localDecl => do
+/--
+Applies `cases` to any hypothesis of the form `h : r = s`.
+-/
+def _root_.Lean.MVarId.substEqs (mvarId : MVarId) : MetaM (Option MVarId) := do
+  let mvarIds ← mvarId.casesRec fun localDecl => do
     let type ← instantiateMVars localDecl.type
     return type.isEq || type.isHEq
   ensureAtMostOne mvarIds
 
+/-- Auxiliary structure for storing `byCases` tactic result. -/
 structure ByCasesSubgoal where
   mvarId : MVarId
   fvarId : FVarId
 
-def byCases (mvarId : MVarId) (p : Expr) (hName : Name := `h) : MetaM (ByCasesSubgoal × ByCasesSubgoal) := do
-  let mvarId ← assert mvarId `hByCases (mkOr p (mkNot p)) (mkEM p)
-  let (fvarId, mvarId) ← intro1 mvarId
-  let #[s₁, s₂] ← cases mvarId fvarId #[{ varNames := [hName] }, { varNames := [hName] }] |
-    throwError "'byCases' tactic failed, unexpected number of subgoals"
-  return ((← toByCasesSubgoal s₁), (← toByCasesSubgoal s₂))
-where
-  toByCasesSubgoal (s : CasesSubgoal) : MetaM ByCasesSubgoal :=  do
+private def toByCasesSubgoal (s : CasesSubgoal) : MetaM ByCasesSubgoal :=  do
     let #[Expr.fvar fvarId ..] ← pure s.fields | throwError "'byCases' tactic failed, unexpected new hypothesis"
     return { mvarId := s.mvarId, fvarId }
+
+/--
+Split the goal in two subgoals: one containing the hypothesis `h : p` and another containing `h : ¬ p`.
+-/
+def _root_.Lean.MVarId.byCases (mvarId : MVarId) (p : Expr) (hName : Name := `h) : MetaM (ByCasesSubgoal × ByCasesSubgoal) := do
+  let mvarId ← mvarId.assert `hByCases (mkOr p (mkNot p)) (mkEM p)
+  let (fvarId, mvarId) ← mvarId.intro1
+  let #[s₁, s₂] ← mvarId.cases fvarId #[{ varNames := [hName] }, { varNames := [hName] }] |
+    throwError "'byCases' tactic failed, unexpected number of subgoals"
+  return ((← toByCasesSubgoal s₁), (← toByCasesSubgoal s₂))
 
 builtin_initialize registerTraceClass `Meta.Tactic.cases
 

@@ -8,48 +8,48 @@ import Lean.Compiler.IR.NormIds
 import Lean.Compiler.IR.FreeVars
 
 namespace Lean.IR.ExpandResetReuse
-/- Mapping from variable to projections -/
+/-- Mapping from variable to projections -/
 abbrev ProjMap  := Std.HashMap VarId Expr
 namespace CollectProjMap
 abbrev Collector := ProjMap → ProjMap
 @[inline] def collectVDecl (x : VarId) (v : Expr) : Collector := fun m =>
   match v with
-  | Expr.proj ..  => m.insert x v
-  | Expr.sproj .. => m.insert x v
-  | Expr.uproj .. => m.insert x v
-  | _             => m
+  | .proj ..  => m.insert x v
+  | .sproj .. => m.insert x v
+  | .uproj .. => m.insert x v
+  | _         => m
 
 partial def collectFnBody : FnBody → Collector
-  | FnBody.vdecl x _ v b   => collectVDecl x v ∘ collectFnBody b
-  | FnBody.jdecl _ _ v b   => collectFnBody v ∘ collectFnBody b
-  | FnBody.case _ _ _ alts => fun s => alts.foldl (fun s alt => collectFnBody alt.body s) s
-  | e                      => if e.isTerminal then id else collectFnBody e.body
+  | .vdecl x _ v b   => collectVDecl x v ∘ collectFnBody b
+  | .jdecl _ _ v b   => collectFnBody v ∘ collectFnBody b
+  | .case _ _ _ alts => fun s => alts.foldl (fun s alt => collectFnBody alt.body s) s
+  | e                => if e.isTerminal then id else collectFnBody e.body
 end CollectProjMap
 
-/- Create a mapping from variables to projections.
+/-- Create a mapping from variables to projections.
    This function assumes variable ids have been normalized -/
 def mkProjMap (d : Decl) : ProjMap :=
   match d with
-  | Decl.fdecl (body := b) .. => CollectProjMap.collectFnBody b {}
+  | .fdecl (body := b) .. => CollectProjMap.collectFnBody b {}
   | _ => {}
 
 structure Context where
   projMap : ProjMap
 
-/- Return true iff `x` is consumed in all branches of the current block.
+/-- Return true iff `x` is consumed in all branches of the current block.
    Here consumption means the block contains a `dec x` or `reuse x ...`. -/
 partial def consumed (x : VarId) : FnBody → Bool
-  | FnBody.vdecl _ _ v b   =>
+  | .vdecl _ _ v b   =>
     match v with
     | Expr.reuse y _ _ _ => x == y || consumed x b
     | _                  => consumed x b
-  | FnBody.dec y _ _ _ b   => x == y || consumed x b
-  | FnBody.case _ _ _ alts => alts.all fun alt => consumed x alt.body
+  | .dec y _ _ _ b   => x == y || consumed x b
+  | .case _ _ _ alts => alts.all fun alt => consumed x alt.body
   | e => !e.isTerminal && consumed x e.body
 
 abbrev Mask := Array (Option VarId)
 
-/- Auxiliary function for eraseProjIncFor -/
+/-- Auxiliary function for eraseProjIncFor -/
 partial def eraseProjIncForAux (y : VarId) (bs : Array FnBody) (mask : Mask) (keep : Array FnBody) : Array FnBody × Mask :=
   let done (_ : Unit)        := (bs ++ keep.reverse, mask)
   let keepInstr (b : FnBody) := eraseProjIncForAux y bs.pop mask (keep.push b)
@@ -57,13 +57,13 @@ partial def eraseProjIncForAux (y : VarId) (bs : Array FnBody) (mask : Mask) (ke
   else
     let b := bs.back
     match b with
-    | (FnBody.vdecl _ _ (Expr.sproj _ _ _) _) => keepInstr b
-    | (FnBody.vdecl _ _ (Expr.uproj _ _) _)   => keepInstr b
-    | (FnBody.inc z n c p _) =>
+    | .vdecl _ _ (.sproj _ _ _) _ => keepInstr b
+    | .vdecl _ _ (.uproj _ _) _   => keepInstr b
+    | .inc z n c p _ =>
       if n == 0 then done () else
       let b' := bs[bs.size - 2]!
       match b' with
-      | (FnBody.vdecl w _ (Expr.proj i x) _) =>
+      | .vdecl w _ (.proj i x) _ =>
         if w == z && y == x then
           /- Found
              ```
@@ -81,12 +81,12 @@ partial def eraseProjIncForAux (y : VarId) (bs : Array FnBody) (mask : Mask) (ke
       | _ => done ()
     | _ => done ()
 
-/- Try to erase `inc` instructions on projections of `y` occurring in the tail of `bs`.
+/-- Try to erase `inc` instructions on projections of `y` occurring in the tail of `bs`.
    Return the updated `bs` and a bit mask specifying which `inc`s have been removed. -/
 def eraseProjIncFor (n : Nat) (y : VarId) (bs : Array FnBody) : Array FnBody × Mask :=
   eraseProjIncForAux y bs (mkArray n none) #[]
 
-/- Replace `reuse x ctor ...` with `ctor ...`, and remoce `dec x` -/
+/-- Replace `reuse x ctor ...` with `ctor ...`, and remoce `dec x` -/
 partial def reuseToCtor (x : VarId) : FnBody → FnBody
   | FnBody.dec y n c p b   =>
     if x == y then b -- n must be 1 since `x := reset ...`
@@ -109,7 +109,7 @@ partial def reuseToCtor (x : VarId) : FnBody → FnBody
       let b := reuseToCtor x b
       instr.setBody b
 
-/-
+/--
 replace
 ```
 x := reset y; b
@@ -143,7 +143,7 @@ def releaseUnreadFields (y : VarId) (mask : Mask) (b : FnBody) : M FnBody :=
 def setFields (y : VarId) (zs : Array Arg) (b : FnBody) : FnBody :=
   zs.size.fold (init := b) fun i b => FnBody.set y i (zs.get! i) b
 
-/- Given `set x[i] := y`, return true iff `y := proj[i] x` -/
+/-- Given `set x[i] := y`, return true iff `y := proj[i] x` -/
 def isSelfSet (ctx : Context) (x : VarId) (i : Nat) (y : Arg) : Bool :=
   match y with
   | Arg.var y =>
@@ -152,19 +152,19 @@ def isSelfSet (ctx : Context) (x : VarId) (i : Nat) (y : Arg) : Bool :=
     | _ => false
   | _ => false
 
-/- Given `uset x[i] := y`, return true iff `y := uproj[i] x` -/
+/-- Given `uset x[i] := y`, return true iff `y := uproj[i] x` -/
 def isSelfUSet (ctx : Context) (x : VarId) (i : Nat) (y : VarId) : Bool :=
   match ctx.projMap.find? y with
   | some (Expr.uproj j w) => j == i && w == x
   | _                     => false
 
-/- Given `sset x[n, i] := y`, return true iff `y := sproj[n, i] x` -/
+/-- Given `sset x[n, i] := y`, return true iff `y := sproj[n, i] x` -/
 def isSelfSSet (ctx : Context) (x : VarId) (n : Nat) (i : Nat) (y : VarId) : Bool :=
   match ctx.projMap.find? y with
   | some (Expr.sproj m j w) => n == m && j == i && w == x
   | _                       => false
 
-/- Remove unnecessary `set/uset/sset` operations -/
+/-- Remove unnecessary `set/uset/sset` operations -/
 partial def removeSelfSet (ctx : Context) : FnBody → FnBody
   | FnBody.set x i y b   =>
     if isSelfSet ctx x i y then removeSelfSet ctx b
@@ -208,7 +208,7 @@ partial def reuseToSet (ctx : Context) (x y : VarId) : FnBody → FnBody
       let b := reuseToSet ctx x y b
       instr.setBody b
 
-/-
+/--
 replace
 ```
 x := reset y; b
@@ -264,7 +264,7 @@ partial def searchAndExpand : FnBody → Array FnBody → M FnBody
 
 def main (d : Decl) : Decl :=
   match d with
-  | Decl.fdecl (body := b) .. =>
+  | .fdecl (body := b) .. =>
     let m := mkProjMap d
     let nextIdx := d.maxIndex + 1
     let bNew := (searchAndExpand b #[] { projMap := m }).run' nextIdx

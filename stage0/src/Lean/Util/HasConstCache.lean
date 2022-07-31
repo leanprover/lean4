@@ -11,7 +11,7 @@ structure HasConstCache (declName : Name) where
   cache : Std.HashMapImp Expr Bool := Std.mkHashMapImp
 
 unsafe def HasConstCache.containsUnsafe (e : Expr) : StateM (HasConstCache declName) Bool := do
-  if let some r := (← get).cache.find? (beq := ⟨Expr.ptrEq⟩) e then
+  if let some r := (← get).cache.find? (beq := ⟨ptrEq⟩) e then
     return r
   else
     match e with
@@ -25,7 +25,7 @@ unsafe def HasConstCache.containsUnsafe (e : Expr) : StateM (HasConstCache declN
     | _                  => return false
 where
   cache (e : Expr) (r : Bool) : StateM (HasConstCache declName) Bool := do
-    modify fun ⟨cache⟩ => ⟨cache.insert (beq := ⟨Expr.ptrEq⟩) e r |>.1⟩
+    modify fun ⟨cache⟩ => ⟨cache.insert (beq := ⟨ptrEq⟩) e r |>.1⟩
     return r
 
 /--

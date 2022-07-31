@@ -53,7 +53,7 @@ This can be set to
 The difference between implicit `{}` and strict-implicit `⦃⦄` is how
 implicit arguments are treated that are *not* followed by explicit arguments.
 `{}` arguments are applied eagerly, while `⦃⦄` arguments are left partially applied:
-```lean4
+```
 def foo {x : Nat} : Nat := x
 def bar ⦃x : Nat⦄ : Nat := x
 #check foo -- foo : Nat
@@ -131,14 +131,12 @@ abbrev MData.empty : MData := {}
 /--
 Cached hash code, cached results, and other data for `Expr`.
 -  hash           : 32-bits
+-  approxDepth    : 8-bits -- the approximate depth is used to minimize the number of hash collisions
 -  hasFVar        : 1-bit -- does it contain free variables?
 -  hasExprMVar    : 1-bit -- does it contain metavariables?
 -  hasLevelMVar   : 1-bit -- does it contain level metavariables?
 -  hasLevelParam  : 1-bit -- does it contain level parameters?
--  nonDepLet      : 1-bit -- internal flag, for tracking whether let x := v; b is equivalent to (fun x => b) v
--  binderInfo     : 3-bits -- encoding of BinderInfo -- TODO remove
--  approxDepth    : 8-bits -- the approximate depth is used to minimize the number of hash collisions
--  looseBVarRange : 16-bits
+-  looseBVarRange : 20-bits
 
 Remark: this is mostly an internal datastructure used to implement `Expr`,
 most will never have to use it.
@@ -155,59 +153,45 @@ instance : BEq Expr.Data where
   beq (a b : UInt64) := a == b
 
 def Expr.Data.approxDepth (c : Expr.Data) : UInt8 :=
-  ((c.shiftRight 40).land 255).toUInt8
+  ((c.shiftRight 32).land 255).toUInt8
 
 def Expr.Data.looseBVarRange (c : Expr.Data) : UInt32 :=
-  (c.shiftRight 48).toUInt32
+  (c.shiftRight 44).toUInt32
 
 def Expr.Data.hasFVar (c : Expr.Data) : Bool :=
-  ((c.shiftRight 32).land 1) == 1
+  ((c.shiftRight 40).land 1) == 1
 
 def Expr.Data.hasExprMVar (c : Expr.Data) : Bool :=
-  ((c.shiftRight 33).land 1) == 1
+  ((c.shiftRight 41).land 1) == 1
 
 def Expr.Data.hasLevelMVar (c : Expr.Data) : Bool :=
-  ((c.shiftRight 34).land 1) == 1
+  ((c.shiftRight 42).land 1) == 1
 
 def Expr.Data.hasLevelParam (c : Expr.Data) : Bool :=
-  ((c.shiftRight 35).land 1) == 1
-
-def Expr.Data.nonDepLet (c : Expr.Data) : Bool :=
-  ((c.shiftRight 36).land 1) == 1
-
-@[extern c inline "(uint8_t)((#1 << 24) >> 61)"]
-def Expr.Data.binderInfo (c : Expr.Data) : BinderInfo :=
-  let bi := (c.shiftLeft 24).shiftRight 61
-  if bi == 0 then BinderInfo.default
-  else if bi == 1 then BinderInfo.implicit
-  else if bi == 2 then BinderInfo.strictImplicit
-  else if bi == 3 then BinderInfo.instImplicit
-  else BinderInfo.auxDecl
+  ((c.shiftRight 43).land 1) == 1
 
 @[extern c inline "(uint64_t)#1"]
 def BinderInfo.toUInt64 : BinderInfo → UInt64
-  | BinderInfo.default        => 0
-  | BinderInfo.implicit       => 1
-  | BinderInfo.strictImplicit => 2
-  | BinderInfo.instImplicit   => 3
-  | BinderInfo.auxDecl        => 4
+  | .default        => 0
+  | .implicit       => 1
+  | .strictImplicit => 2
+  | .instImplicit   => 3
+  | .auxDecl        => 4
 
 def Expr.mkData
     (h : UInt64) (looseBVarRange : Nat := 0) (approxDepth : UInt32 := 0)
-    (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool := false) (bi : BinderInfo := BinderInfo.default) (nonDepLet : Bool := false)
+    (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool := false)
     : Expr.Data :=
   let approxDepth : UInt8 := if approxDepth > 255 then 255 else approxDepth.toUInt8
-  assert! (looseBVarRange ≤ Nat.pow 2 16 - 1)
+  assert! (looseBVarRange ≤ Nat.pow 2 20 - 1)
   let r : UInt64 :=
       h.toUInt32.toUInt64 +
-      hasFVar.toUInt64.shiftLeft 32 +
-      hasExprMVar.toUInt64.shiftLeft 33 +
-      hasLevelMVar.toUInt64.shiftLeft 34 +
-      hasLevelParam.toUInt64.shiftLeft 35 +
-      nonDepLet.toUInt64.shiftLeft 36 +
-      bi.toUInt64.shiftLeft 37 +
-      approxDepth.toUInt64.shiftLeft 40 +
-      looseBVarRange.toUInt64.shiftLeft 48
+      approxDepth.toUInt64.shiftLeft 32 +
+      hasFVar.toUInt64.shiftLeft 40 +
+      hasExprMVar.toUInt64.shiftLeft 41 +
+      hasLevelMVar.toUInt64.shiftLeft 42 +
+      hasLevelParam.toUInt64.shiftLeft 43 +
+      looseBVarRange.toUInt64.shiftLeft 44
   r
 
 /-- Optimized version of `Expr.mkData` for applications. -/
@@ -218,14 +202,14 @@ def Expr.mkData
   let hash           := mixHash fData aData
   let fData : UInt64 := fData
   let aData : UInt64 := aData
-  assert! (looseBVarRange ≤ (Nat.pow 2 16 - 1).toUInt32)
-  ((fData ||| aData) &&& ((15 : UInt64) <<< (32 : UInt64))) ||| hash.toUInt32.toUInt64 ||| (approxDepth.toUInt64 <<< (40 : UInt64)) ||| (looseBVarRange.toUInt64 <<< (48 : UInt64))
+  assert! (looseBVarRange ≤ (Nat.pow 2 20 - 1).toUInt32)
+  ((fData ||| aData) &&& ((15 : UInt64) <<< (40 : UInt64))) ||| hash.toUInt32.toUInt64 ||| (approxDepth.toUInt64 <<< (32 : UInt64)) ||| (looseBVarRange.toUInt64 <<< (44 : UInt64))
 
-@[inline] def Expr.mkDataForBinder (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt32) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) (bi : BinderInfo) : Expr.Data :=
-  Expr.mkData h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam bi false
+@[inline] def Expr.mkDataForBinder (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt32) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) : Expr.Data :=
+  Expr.mkData h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam
 
-@[inline] def Expr.mkDataForLet (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt32) (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) : Expr.Data :=
-  Expr.mkData h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam BinderInfo.default nonDepLet
+@[inline] def Expr.mkDataForLet (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt32) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) : Expr.Data :=
+  Expr.mkData h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam
 
 instance : Repr Expr.Data where
   reprPrec v prec := Id.run do
@@ -240,10 +224,6 @@ instance : Repr Expr.Data where
       r := r ++ " (hasExprMVar := " ++ toString v.hasExprMVar ++ ")"
     if v.hasLevelMVar then
       r := r ++ " (hasLevelMVar := " ++ toString v.hasLevelMVar ++ ")"
-    if v.nonDepLet then
-      r := r ++ " (nonDepLet := " ++ toString v.nonDepLet ++ ")"
-    if v.binderInfo == BinderInfo.default then
-      r := r ++ " (bi := " ++ toString (repr v.binderInfo) ++ ")"
     Repr.addAppParen r prec
 
 open Expr
@@ -286,6 +266,28 @@ def FVarIdMap (α : Type) := Std.RBMap FVarId α (Name.quickCmp ·.name ·.name)
 instance : EmptyCollection (FVarIdMap α) := inferInstanceAs (EmptyCollection (Std.RBMap ..))
 
 instance : Inhabited (FVarIdMap α) where
+  default := {}
+
+/-- Universe metavariable Id   -/
+structure MVarId where
+  name : Name
+  deriving Inhabited, BEq, Hashable, Repr
+
+instance : Repr MVarId where
+  reprPrec n p := reprPrec n.name p
+
+def MVarIdSet := Std.RBTree MVarId (Name.quickCmp ·.name ·.name)
+  deriving Inhabited, EmptyCollection
+
+instance : ForIn m MVarIdSet MVarId := inferInstanceAs (ForIn _ (Std.RBTree ..) ..)
+
+def MVarIdMap (α : Type) := Std.RBMap MVarId α (Name.quickCmp ·.name ·.name)
+
+instance : EmptyCollection (MVarIdMap α) := inferInstanceAs (EmptyCollection (Std.RBMap ..))
+
+instance : ForIn m (MVarIdMap α) (MVarId × α) := inferInstanceAs (ForIn _ (Std.RBMap ..) ..)
+
+instance : Inhabited (MVarIdMap α) where
   default := {}
 
 /--
@@ -341,7 +343,7 @@ inductive Expr where
     const (declName : Name) (us : List Level)
   | /--
     Function application. `Nat.succ Nat.zero` is represented as
-    ```lean4
+    ```
     .app (.const `Nat.succ []) (.const .zero [])
     ```
     -/
@@ -349,7 +351,7 @@ inductive Expr where
   | /--
     Lambda abstraction (aka anonymous functions).
     - `fun x : Nat => x` is represented as
-    ```lean4
+    ```
     .lam `x (.const `Nat []) (.bvar 0) .default
     ```
     -/
@@ -357,16 +359,15 @@ inductive Expr where
   | /--
     A dependent arrow (aka forall-expression). It is also used to represent non-dependent arrows.
     Examples:
-
     - `forall x : Prop, x ∧ x` is represented as
-    ```lean4
+    ```
     .forallE `x
        (.sort .zero)
        (.app (.app (.const `And []) (.bvar 0)) (.bvar 0))
        .default
     ```
     - `Nat → Bool` as
-    ```lean4
+    ```
     .forallE `a (.const `Nat []) (.const `Bool []) .default
     ```
     -/
@@ -374,7 +375,13 @@ inductive Expr where
   | /--
     Let-expressions. The field `nonDep` is not currently used, but will be used in the future
     by the code generator (and possibly `simp`) to track whether a let-expression is non-dependent
-    or not. Given an environment, metavariable context, and local context, we say a let-expression
+    or not.
+
+    **IMPORTANT**: This flag is for "local" use only. That is, a module should not "trust" its value for any purpose.
+    In the intended use-case, the compiler will set this flag, and be responsible for maintaining it.
+    Other modules may not preserve its value while applying transformations.
+
+    Given an environment, metavariable context, and local context, we say a let-expression
     `let x : t := v; e` is non-dependent when it is equivalent to `(fun x : t => e) v`.
     Here is an example of a dependent let-expression
     `let n : Nat := 2; fun (a : Array Nat n) (b : Array Nat 2) => a = b` is type correct, but
@@ -391,7 +398,7 @@ inductive Expr where
     efficient reduction in the elaborator and kernel.
     The "raw" natural number `2` can be represented as `.lit (.natVal 2)`. Note that, it is
     definitionally equal to
-    ```lean4
+    ```
     .app (.const `Nat.succ []) (.app (.const `Nat.succ []) (.const `Nat.zero []))
     ```
     -/
@@ -414,7 +421,7 @@ inductive Expr where
     When exporting Lean developments to other systems, `proj` can be replaced with `typeName`.`rec`
     applications.
     Example, given `a : Nat x Bool`, `a.1` is represented as
-    ```lean4
+    ```
     .proj `Prod 0 a
     ```
     -/
@@ -435,7 +442,7 @@ with
       mkData (mixHash d.toUInt64 <| mixHash (hash s) <| mixHash (hash i) e.data.hash)
           e.data.looseBVarRange.toNat d e.data.hasFVar e.data.hasExprMVar e.data.hasLevelMVar e.data.hasLevelParam
     | .app f a => mkAppData f.data a.data
-    | .lam _x t b bi =>
+    | .lam _ t b _ =>
       let d := (max t.data.approxDepth.toUInt32 b.data.approxDepth.toUInt32) + 1
       mkDataForBinder (mixHash d.toUInt64 <| mixHash t.data.hash b.data.hash)
         (max t.data.looseBVarRange.toNat (b.data.looseBVarRange.toNat - 1))
@@ -444,8 +451,7 @@ with
         (t.data.hasExprMVar || b.data.hasExprMVar)
         (t.data.hasLevelMVar || b.data.hasLevelMVar)
         (t.data.hasLevelParam || b.data.hasLevelParam)
-        bi
-    | .forallE _x t b bi =>
+    | .forallE _ t b _ =>
       let d := (max t.data.approxDepth.toUInt32 b.data.approxDepth.toUInt32) + 1
       mkDataForBinder (mixHash d.toUInt64 <| mixHash t.data.hash b.data.hash)
         (max t.data.looseBVarRange.toNat (b.data.looseBVarRange.toNat - 1))
@@ -454,8 +460,7 @@ with
         (t.data.hasExprMVar || b.data.hasExprMVar)
         (t.data.hasLevelMVar || b.data.hasLevelMVar)
         (t.data.hasLevelParam || b.data.hasLevelParam)
-        bi
-    | .letE _x t v b nonDep =>
+    | .letE _ t v b _ =>
       let d := (max (max t.data.approxDepth.toUInt32 v.data.approxDepth.toUInt32) b.data.approxDepth.toUInt32) + 1
       mkDataForLet (mixHash d.toUInt64 <| mixHash t.data.hash <| mixHash v.data.hash b.data.hash)
         (max (max t.data.looseBVarRange.toNat v.data.looseBVarRange.toNat) (b.data.looseBVarRange.toNat - 1))
@@ -464,7 +469,6 @@ with
         (t.data.hasExprMVar || v.data.hasExprMVar || b.data.hasExprMVar)
         (t.data.hasLevelMVar || v.data.hasLevelMVar || b.data.hasLevelMVar)
         (t.data.hasLevelParam || v.data.hasLevelParam || b.data.hasLevelParam)
-        nonDep
     | .lit l => mkData (mixHash 3 (hash l))
 deriving Inhabited, Repr
 
@@ -547,7 +551,10 @@ def looseBVarRange (e : Expr) : Nat :=
 Return the binder information if `e` is a lambda or forall expression, and `.default` otherwise.
 -/
 def binderInfo (e : Expr) : BinderInfo :=
-  e.data.binderInfo
+  match e with
+  | .forallE _ _ _ bi => bi
+  | .lam _ _ _ bi => bi
+  | _ => .default
 
 /-!
 Export functions.
@@ -1729,6 +1736,13 @@ Polymorphic operation for generating unique/fresh metavariable identifiers.
 It is available in any monad `m` that implements the inferface `MonadNameGenerator`.
 -/
 def mkFreshMVarId [Monad m] [MonadNameGenerator m] : m MVarId :=
+  return { name := (← mkFreshId) }
+
+/--
+Polymorphic operation for generating unique/fresh universe metavariable identifiers.
+It is available in any monad `m` that implements the inferface `MonadNameGenerator`.
+-/
+def mkFreshLMVarId [Monad m] [MonadNameGenerator m] : m LMVarId :=
   return { name := (← mkFreshId) }
 
 /-- Return `Not p` -/

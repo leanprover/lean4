@@ -10,17 +10,25 @@
    "detail": "Expr → Option Syntax"},
   {"label": "getReducibilityStatus",
    "kind": 3,
+   "documentation":
+   {"value": "Return the reducibility attribute for the given declaration. ",
+    "kind": "markdown"},
    "detail":
    "[inst : Monad m] → [inst : MonadEnv m] → Name → m ReducibilityStatus"},
-  {"label": "getReducibilityStatusImp",
-   "kind": 3,
-   "detail": "Environment → Name → ReducibilityStatus"},
   {"label": "getRef", "kind": 5, "detail": "[self : MonadRef m] → m Syntax"},
   {"label": "getRefPos",
    "kind": 3,
+   "documentation":
+   {"value":
+    "Return the position (as `String.pos`) associated with the current reference syntax (i.e., the syntax object returned by `getRef`.)\n",
+    "kind": "markdown"},
    "detail": "[inst : Monad m] → [inst : MonadLog m] → m String.Pos"},
   {"label": "getRefPosition",
    "kind": 3,
+   "documentation":
+   {"value":
+    "Return the line and column numbers associated with the current reference syntax (i.e., the syntax object returned by `getRef`.)\n",
+    "kind": "markdown"},
    "detail": "[inst : Monad m] → [inst : MonadLog m] → m Position"},
   {"label": "getRegularInitFnNameFor?",
    "kind": 3,
@@ -45,17 +53,25 @@
    "detail": "Expr → Option Syntax"},
   {"label": "getReducibilityStatus",
    "kind": 3,
+   "documentation":
+   {"value": "Return the reducibility attribute for the given declaration. ",
+    "kind": "markdown"},
    "detail":
    "[inst : Monad m] → [inst : MonadEnv m] → Name → m ReducibilityStatus"},
-  {"label": "getReducibilityStatusImp",
-   "kind": 3,
-   "detail": "Environment → Name → ReducibilityStatus"},
   {"label": "getRef", "kind": 5, "detail": "[self : MonadRef m] → m Syntax"},
   {"label": "getRefPos",
    "kind": 3,
+   "documentation":
+   {"value":
+    "Return the position (as `String.pos`) associated with the current reference syntax (i.e., the syntax object returned by `getRef`.)\n",
+    "kind": "markdown"},
    "detail": "[inst : Monad m] → [inst : MonadLog m] → m String.Pos"},
   {"label": "getRefPosition",
    "kind": 3,
+   "documentation":
+   {"value":
+    "Return the line and column numbers associated with the current reference syntax (i.e., the syntax object returned by `getRef`.)\n",
+    "kind": "markdown"},
    "detail": "[inst : Monad m] → [inst : MonadLog m] → m Position"},
   {"label": "getRegularInitFnNameFor?",
    "kind": 3,

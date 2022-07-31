@@ -61,25 +61,29 @@ instance : Repr Level.Data where
 
 open Level
 
-structure MVarId where
+/-- Universe level metavariable Id   -/
+structure LevelMVarId where
   name : Name
   deriving Inhabited, BEq, Hashable, Repr
 
-instance : Repr MVarId where
+/-- Short for `LevelMVarId` -/
+abbrev LMVarId := LevelMVarId
+
+instance : Repr LMVarId where
   reprPrec n p := reprPrec n.name p
 
-def MVarIdSet := Std.RBTree MVarId (Name.quickCmp ·.name ·.name)
+def LMVarIdSet := Std.RBTree LMVarId (Name.quickCmp ·.name ·.name)
   deriving Inhabited, EmptyCollection
 
-instance : ForIn m MVarIdSet MVarId := inferInstanceAs (ForIn _ (Std.RBTree ..) ..)
+instance : ForIn m LMVarIdSet LMVarId := inferInstanceAs (ForIn _ (Std.RBTree ..) ..)
 
-def MVarIdMap (α : Type) := Std.RBMap MVarId α (Name.quickCmp ·.name ·.name)
+def LMVarIdMap (α : Type) := Std.RBMap LMVarId α (Name.quickCmp ·.name ·.name)
 
-instance : EmptyCollection (MVarIdMap α) := inferInstanceAs (EmptyCollection (Std.RBMap ..))
+instance : EmptyCollection (LMVarIdMap α) := inferInstanceAs (EmptyCollection (Std.RBMap ..))
 
-instance : ForIn m (MVarIdMap α) (MVarId × α) := inferInstanceAs (ForIn _ (Std.RBMap ..) ..)
+instance : ForIn m (LMVarIdMap α) (LMVarId × α) := inferInstanceAs (ForIn _ (Std.RBMap ..) ..)
 
-instance : Inhabited (MVarIdMap α) where
+instance : Inhabited (LMVarIdMap α) where
   default := {}
 
 inductive Level where
@@ -88,7 +92,7 @@ inductive Level where
   | max    : Level → Level → Level
   | imax   : Level → Level → Level
   | param  : Name → Level
-  | mvar   : MVarId → Level
+  | mvar   : LMVarId → Level
 with
   @[computedField] data : Level → Data
     | .zero => mkData 2221 0 false false
@@ -128,7 +132,7 @@ end Level
 def levelZero :=
   Level.zero
 
-def mkLevelMVar (mvarId : MVarId) :=
+def mkLevelMVar (mvarId : LMVarId) :=
   Level.mvar mvarId
 
 def mkLevelParam (name : Name) :=
@@ -147,7 +151,7 @@ def levelOne := mkLevelSucc levelZero
 
 @[export lean_level_mk_zero] def mkLevelZeroEx : Unit → Level := fun _ => levelZero
 @[export lean_level_mk_succ] def mkLevelSuccEx : Level → Level := mkLevelSucc
-@[export lean_level_mk_mvar] def mkLevelMVarEx : MVarId → Level := mkLevelMVar
+@[export lean_level_mk_mvar] def mkLevelMVarEx : LMVarId → Level := mkLevelMVar
 @[export lean_level_mk_param] def mkLevelParamEx : Name → Level := mkLevelParam
 @[export lean_level_mk_max] def mkLevelMaxEx : Level → Level → Level := mkLevelMax
 @[export lean_level_mk_imax] def mkLevelIMaxEx : Level → Level → Level := mkLevelIMax
@@ -183,7 +187,7 @@ def isMVar : Level → Bool
   | mvar .. => true
   | _       => false
 
-def mvarId! : Level → MVarId
+def mvarId! : Level → LMVarId
   | mvar mvarId => mvarId
   | _           => panic! "metavariable expected"
 
@@ -493,11 +497,9 @@ end Level
     elseK ()
 
 /- Similar to `mkLevelMax`, but applies cheap simplifications -/
-@[export lean_level_mk_max_simp]
 def mkLevelMax' (u v : Level) : Level :=
   mkLevelMaxCore u v fun _ => mkLevelMax u v
 
-@[export lean_level_simp_max]
 def simpLevelMax' (u v : Level) (d : Level) : Level :=
   mkLevelMaxCore u v fun _ => d
 
@@ -509,51 +511,52 @@ def simpLevelMax' (u v : Level) (d : Level) : Level :=
   else elseK ()
 
 /- Similar to `mkLevelIMax`, but applies cheap simplifications -/
-@[export lean_level_mk_imax_simp]
 def mkLevelIMax' (u v : Level) : Level :=
   mkLevelIMaxCore u v fun _ => mkLevelIMax u v
 
-@[export lean_level_simp_imax]
 def simpLevelIMax' (u v : Level) (d : Level) :=
   mkLevelIMaxCore u v fun _ => d
 
 namespace Level
 
-/- The update functions here are defined using C code. They will try to avoid
-   allocating new values using pointer equality.
-   The hypotheses `(h : e.is...)` are used to ensure Lean will not crash
-   at runtime.
-   The `update*!` functions are inlined and provide a convenient way of using the
-   update proofs without providing proofs.
-   Note that if they are used under a match-expression, the compiler will eliminate
-   the double-match. -/
+/-!
+The update functions try to avoid allocating new values using pointer equality.
+Note that if the `update*!` functions are used under a match-expression,
+the compiler will eliminate the double-match.
+-/
 
-@[extern "lean_level_update_succ"]
-def updateSucc (lvl : Level) (newLvl : Level) (h : lvl.isSucc) : Level :=
-  mkLevelSucc newLvl
+@[inline] private unsafe def updateSucc!Impl (lvl : Level) (newLvl : Level) : Level :=
+  match lvl with
+  | succ l => if ptrEq l newLvl then lvl else mkLevelSucc newLvl
+  | _      => panic! "succ level expected"
 
-@[inline] def updateSucc! (lvl : Level) (newLvl : Level) : Level :=
-match h : lvl with
-  | succ .. => updateSucc lvl newLvl (h ▸ rfl)
-  | _       => panic! "succ level expected"
+@[implementedBy updateSucc!Impl]
+def updateSucc! (lvl : Level) (newLvl : Level) : Level :=
+  match lvl with
+  | succ _ => mkLevelSucc newLvl
+  | _      => panic! "succ level expected"
 
-@[extern "lean_level_update_max"]
-def updateMax (lvl : Level) (newLhs : Level) (newRhs : Level) (h : lvl.isMax) : Level :=
-  mkLevelMax' newLhs newRhs
+@[inline] private unsafe def updateMax!Impl (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=
+  match lvl with
+  | max lhs rhs => if ptrEq lhs newLhs && ptrEq rhs newRhs then simpLevelMax' newLhs newRhs lvl else mkLevelMax' newLhs newRhs
+  | _           => panic! "max level expected"
 
-@[inline] def updateMax! (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=
-  match h : lvl with
-  | max .. => updateMax lvl newLhs newRhs (h ▸ rfl)
-  | _      => panic! "max level expected"
+@[implementedBy updateMax!Impl]
+def updateMax! (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=
+  match lvl with
+  | max _ _ => mkLevelMax' newLhs newRhs
+  | _       => panic! "max level expected"
 
-@[extern "lean_level_update_imax"]
-def updateIMax (lvl : Level) (newLhs : Level) (newRhs : Level) (h : lvl.isIMax) : Level :=
-  mkLevelIMax' newLhs newRhs
+@[inline] private unsafe def updateIMax!Impl (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=
+  match lvl with
+  | imax lhs rhs => if ptrEq lhs newLhs && ptrEq rhs newRhs then simpLevelIMax' newLhs newRhs lvl else mkLevelIMax' newLhs newRhs
+  | _            => panic! "imax level expected"
 
-@[inline] def updateIMax! (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=
-  match h : lvl with
-  | imax .. => updateIMax lvl newLhs newRhs (h ▸ rfl)
-  | _       => panic! "imax level expected"
+@[implementedBy updateIMax!Impl]
+def updateIMax! (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=
+  match lvl with
+  | imax _ _ => mkLevelIMax' newLhs newRhs
+  | _        => panic! "imax level expected"
 
 def mkNaryMax : List Level → Level
   | []    => levelZero
@@ -600,7 +603,7 @@ abbrev LevelSet := HashSet Level
 abbrev PersistentLevelSet := PHashSet Level
 abbrev PLevelSet := PersistentLevelSet
 
-def Level.collectMVars (u : Level) (s : MVarIdSet := {}) : MVarIdSet :=
+def Level.collectMVars (u : Level) (s : LMVarIdSet := {}) : LMVarIdSet :=
   match u with
   | succ v   => collectMVars v s
   | max u v  => collectMVars u (collectMVars v s)

@@ -21,7 +21,7 @@ namespace Lean.Elab.Command
 open Meta
 open TSyntax.Compat
 
-/- Recall that the `structure command syntax is
+/-! Recall that the `structure command syntax is
 ```
 leading_parser (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> optional (" := " >> optional structCtor >> structFields)
 ```
@@ -500,7 +500,7 @@ private def elabFieldTypeValue (view : StructFieldView) : TermElabM (Option Expr
         Term.synthesizeSyntheticMVarsNoPostponing
         -- TODO: add forbidden predicate using `shortDeclName` from `view`
         let params ← Term.addAutoBoundImplicits params
-        let value ← Term.elabTerm valStx none
+        let value ← Term.withoutAutoBoundImplicit <| Term.elabTerm valStx none
         let value ← mkLambdaFVars params value
         return (none, value)
     | some typeStx =>
@@ -512,7 +512,7 @@ private def elabFieldTypeValue (view : StructFieldView) : TermElabM (Option Expr
         let type  ← mkForallFVars params type
         return (type, none)
       | some valStx =>
-        let value ← Term.elabTermEnsuringType valStx type
+        let value ← Term.withoutAutoBoundImplicit <| Term.elabTermEnsuringType valStx type
         Term.synthesizeSyntheticMVarsNoPostponing
         let type  ← mkForallFVars params type
         let value ← mkLambdaFVars params value
@@ -594,7 +594,7 @@ private def withUsed {α} (scopeVars : Array Expr) (params : Array Expr) (fieldI
   let (lctx, localInsts, vars) ← removeUnused scopeVars params fieldInfos
   withLCtx lctx localInsts <| k vars
 
-private def levelMVarToParam (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo) (univToInfer? : Option MVarId) : TermElabM (Array StructFieldInfo) :=
+private def levelMVarToParam (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo) (univToInfer? : Option LMVarId) : TermElabM (Array StructFieldInfo) :=
   go |>.run' 1
 where
   levelMVarToParam' (type : Expr) : StateRefT Nat TermElabM Expr := do

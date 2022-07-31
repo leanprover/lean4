@@ -7,6 +7,19 @@ import Lean.Expr
 
 namespace Lean
 
+/--
+Datastructure for representing the "head symbol" of an expression.
+It is the key of `KExprMap`.
+Examples:
+- The head of `f a` is `.const f`
+- The head of `let x := 1; f x` is `.const f`
+- The head of `fun x => fun` is `.lam`
+
+`HeadIndex` is a very simple index, and is used in situations where
+we want to find definitionally equal terms, but we want to minimize
+the search by checking only pairs of terms that have the same
+`HeadIndex`.
+-/
 inductive HeadIndex where
   | fvar (fvarId : FVarId)
   | mvar (mvarId : MVarId)
@@ -20,6 +33,7 @@ inductive HeadIndex where
 
 namespace HeadIndex
 
+/-- Hash code for a `HeadIndex` value. -/
 protected def HeadIndex.hash : HeadIndex → UInt64
   | fvar fvarId         => mixHash 11 <| hash fvarId
   | mvar mvarId         => mixHash 13 <| hash mvarId
@@ -36,22 +50,17 @@ end HeadIndex
 
 namespace Expr
 
-def head : Expr → Expr
-  | app f _        => head f
-  | letE _ _ _ b _ => head b
-  | mdata _ e      => head e
-  | e              => e
-
-private def headNumArgsAux : Expr → Nat → Nat
-  | app f _, n        => headNumArgsAux f (n + 1)
-  | letE _ _ _ b _, n => headNumArgsAux b n
-  | mdata _ e, n      => headNumArgsAux e n
+/-- Return the number of arguments in the given expression with respect to its `HeadIndex` -/
+def headNumArgs (e : Expr) : Nat :=
+  go e 0
+where
+  go : Expr → Nat → Nat
+  | app f _, n        => go f (n + 1)
+  | letE _ _ _ b _, n => go b n
+  | mdata _ e, n      => go e n
   | _, n              => n
 
-def headNumArgs (e : Expr) : Nat :=
-  headNumArgsAux e 0
-
-/-
+/--
   Quick version that may fail if it "hits" a loose bound variable.
   This can happen, for example, if the input expression is of the form.
   ```
@@ -65,15 +74,15 @@ private def toHeadIndexQuick? : Expr → Option HeadIndex
   | const constName _       => HeadIndex.const constName
   | proj structName idx _   => HeadIndex.proj structName idx
   | sort _                  => HeadIndex.sort
-  | lam _ _ _ _             => HeadIndex.lam
-  | forallE _ _ _ _         => HeadIndex.forallE
+  | lam ..                  => HeadIndex.lam
+  | forallE ..              => HeadIndex.forallE
   | lit v                   => HeadIndex.lit v
   | app f _                 => toHeadIndexQuick? f
   | letE _ _ _ b _          => toHeadIndexQuick? b
   | mdata _ e               => toHeadIndexQuick? e
   | _                       => none
 
-/-
+/--
   Slower version of `toHeadIndexQuick?` that "expands" let-declarations to make
   sure we never hit a loose bound variable.
   The performance of the `letE` alternative can be improved, but this function should not be in the hotpath
@@ -84,15 +93,18 @@ private partial def toHeadIndexSlow : Expr → HeadIndex
   | fvar fvarId             => HeadIndex.fvar fvarId
   | const constName _       => HeadIndex.const constName
   | proj structName idx _   => HeadIndex.proj structName idx
-  | sort _                 => HeadIndex.sort
-  | lam _ _ _ _             => HeadIndex.lam
-  | forallE _ _ _ _         => HeadIndex.forallE
+  | sort _                  => HeadIndex.sort
+  | lam ..                  => HeadIndex.lam
+  | forallE ..              => HeadIndex.forallE
   | lit v                   => HeadIndex.lit v
   | app f _                 => toHeadIndexSlow f
   | letE _ _ v b _          => toHeadIndexSlow (b.instantiate1 v)
   | mdata _ e               => toHeadIndexSlow e
   | _                       => panic! "unexpected expression kind"
 
+/--
+Convert the given expression into a `HeadIndex`.
+-/
 def toHeadIndex (e : Expr) : HeadIndex :=
   match toHeadIndexQuick? e with
   | some i => i

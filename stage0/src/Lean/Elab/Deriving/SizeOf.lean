@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Meta.SizeOf
 import Lean.Elab.Deriving.Basic
 
-/-
+/-!
 Remark: `SizeOf` instances are automatically generated. We add support for `deriving instance` for `SizeOf`
 just to be able to use them to define instances for types defined at `Prelude.lean`
 -/

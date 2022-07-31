@@ -90,7 +90,7 @@ theorem seqRight_eq_bind [Monad m] [LawfulMonad m] (x : m α) (y : m β) : x *> 
 theorem seqLeft_eq_bind [Monad m] [LawfulMonad m] (x : m α) (y : m β) : x <* y = x >>= fun a => y >>= fun _ => pure a := by
   rw [seqLeft_eq]; simp [map_eq_pure_bind, seq_eq_bind_map]
 
-/- Id -/
+/-! # Id -/
 
 namespace Id
 
@@ -103,7 +103,7 @@ instance : LawfulMonad Id := by
 
 end Id
 
-/- ExceptT -/
+/-! # ExceptT -/
 
 namespace ExceptT
 
@@ -179,7 +179,7 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (ExceptT ε m) where
 
 end ExceptT
 
-/- ReaderT -/
+/-! # ReaderT -/
 
 namespace ReaderT
 
@@ -225,12 +225,12 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (ReaderT ρ m) where
 
 end ReaderT
 
-/- StateRefT -/
+/-! # StateRefT -/
 
 instance [Monad m] [LawfulMonad m] : LawfulMonad (StateRefT' ω σ m) :=
   inferInstanceAs (LawfulMonad (ReaderT (ST.Ref ω σ) m))
 
-/- StateT -/
+/-! # StateT -/
 
 namespace StateT
 

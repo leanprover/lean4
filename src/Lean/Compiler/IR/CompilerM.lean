@@ -73,7 +73,7 @@ open Std (HashMap)
 
 abbrev DeclMap := SMap Name Decl
 
-/- Create an array of decls to be saved on .olean file.
+/-- Create an array of decls to be saved on .olean file.
    `decls` may contain duplicate entries, but we assume the one that occurs last is the most recent one. -/
 private def mkEntryArray (decls : List Decl) : Array Decl :=
   /- Remove duplicates by adding decls into a map -/
@@ -142,7 +142,7 @@ def getDecl' (n : Name) (decls : Array Decl) : CompilerM Decl := do
 @[export lean_decl_get_sorry_dep]
 def getSorryDep (env : Environment) (declName : Name) : Option Name :=
   match (declMapExt.getState env).find? declName with
-  | some (Decl.fdecl (info := { sorryDep? := dep?, .. }) ..) => dep?
+  | some (.fdecl (info := { sorryDep? := dep?, .. }) ..) => dep?
   | _ => none
 
 end IR

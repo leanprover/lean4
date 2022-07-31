@@ -219,6 +219,26 @@ class erase_irrelevant_fn {
                            binding_body(minor));
     }
 
+    expr elim_float_array_cases(buffer<expr> & args) {
+        lean_always_assert(args.size() == 3);
+        expr major       = visit(args[1]);
+        expr minor       = visit_minor(args[2]);
+        lean_always_assert(is_lambda(minor));
+        return
+            ::lean::mk_let(next_name(), mk_enf_object_type(), mk_app(mk_constant(get_float_array_data_name()), major),
+                           binding_body(minor));
+    }
+
+    expr elim_byte_array_cases(buffer<expr> & args) {
+        lean_always_assert(args.size() == 3);
+        expr major       = visit(args[1]);
+        expr minor       = visit_minor(args[2]);
+        lean_always_assert(is_lambda(minor));
+        return
+            ::lean::mk_let(next_name(), mk_enf_object_type(), mk_app(mk_constant(get_byte_array_data_name()), major),
+                           binding_body(minor));
+    }
+
     expr elim_uint_cases(name const & uint_name, buffer<expr> & args) {
         lean_always_assert(args.size() == 3);
         expr major = visit(args[1]);
@@ -254,6 +274,10 @@ class erase_irrelevant_fn {
             return elim_int_cases(args);
         } else if (I_name == get_array_name()) {
             return elim_array_cases(args);
+        } else if (I_name == get_float_array_name()) {
+            return elim_float_array_cases(args);
+        } else if (I_name == get_byte_array_name()) {
+            return elim_byte_array_cases(args);
         } else if (I_name == get_uint8_name() || I_name == get_uint16_name() || I_name == get_uint32_name() || I_name == get_uint64_name() || I_name == get_usize_name()) {
           return elim_uint_cases(I_name, args);
         } else if (I_name == get_decidable_name()) {

@@ -8,6 +8,7 @@ import Lean.Parser.Syntax
 import Lean.Parser.Extension
 import Lean.KeyedDeclsAttribute
 import Lean.Elab.Exception
+import Lean.Elab.InfoTree
 import Lean.DocString
 import Lean.DeclarationRange
 import Lean.Compiler.InitAttr
@@ -21,7 +22,7 @@ def Syntax.prettyPrint (stx : Syntax) : Format :=
   | none     => format stx
 
 def MacroScopesView.format (view : MacroScopesView) (mainModule : Name) : Format :=
-  Std.format $
+  Std.format <|
     if view.scopes.isEmpty then
       view.name
     else if view.mainModule == mainModule then
@@ -44,7 +45,7 @@ structure MacroStackElem where
 
 abbrev MacroStack := List MacroStackElem
 
-/- If `ref` does not have position information, then try to use macroStack -/
+/-- If `ref` does not have position information, then try to use macroStack -/
 def getBetterRef (ref : Syntax) (macroStack : MacroStack) : Syntax :=
   match ref.getPos? with
   | some _ => ref
@@ -104,7 +105,18 @@ unsafe def mkElabAttribute (γ) (attrDeclName attrBuiltinName attrName : Name) (
     name          := attrName
     descr         := kind ++ " elaborator"
     valueTypeName := typeName
-    evalKey       := fun _ stx => syntaxNodeKindOfAttrParam parserNamespace stx
+    evalKey       := fun _ stx => do
+      let kind ← syntaxNodeKindOfAttrParam parserNamespace stx
+      /- Recall that a `SyntaxNodeKind` is often the name of the paser, but this is not always true, and we much check it. -/
+      if (← getEnv).contains kind && (← getInfoState).enabled then
+        pushInfoLeaf <| Info.ofTermInfo {
+          elaborator    := .anonymous
+          lctx          := {}
+          expr          := mkConst kind
+          stx           := stx[1]
+          expectedType? := none
+        }
+      return kind
     onAdded       := fun builtin declName => do
       if builtin then
       if let some doc ← findDocString? (← getEnv) declName then
@@ -141,8 +153,8 @@ class MonadMacroAdapter (m : Type → Type) where
   setNextMacroScope                  : MacroScope → m Unit
 
 instance (m n) [MonadLift m n] [MonadMacroAdapter m] : MonadMacroAdapter n := {
-  getCurrMacroScope := liftM (MonadMacroAdapter.getCurrMacroScope : m _),
-  getNextMacroScope := liftM (MonadMacroAdapter.getNextMacroScope : m _),
+  getCurrMacroScope := liftM (MonadMacroAdapter.getCurrMacroScope : m _)
+  getNextMacroScope := liftM (MonadMacroAdapter.getNextMacroScope : m _)
   setNextMacroScope := fun s => liftM (MonadMacroAdapter.setNextMacroScope s : m _)
 }
 
@@ -175,10 +187,10 @@ def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEn
       throwMaxRecDepthAt ref
     else
       throwErrorAt ref msg
-  | EStateM.Result.ok a  s                                   =>
+  | EStateM.Result.ok a s =>
     MonadMacroAdapter.setNextMacroScope s.macroScope
     s.traceMsgs.reverse.forM fun (clsName, msg) => trace clsName fun _ => msg
-    pure a
+    return a
 
 @[inline] def adaptMacro {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m]  [MonadResolveName m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] (x : Macro) (stx : Syntax) : m Syntax :=
   liftMacroM (x stx)

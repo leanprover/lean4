@@ -243,7 +243,7 @@ where
     | Name.anonymous => false
 
 def mvarName (mvar : Expr) : MetaM Name :=
-  return (← getMVarDecl mvar.mvarId!).userName
+  return (←  mvar.mvarId!.getDecl).userName
 
 def containsBadMax : Level → Bool
   | Level.succ u ..   => containsBadMax u

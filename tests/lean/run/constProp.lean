@@ -56,10 +56,10 @@ instance : OfNat Expr n where
 
 inductive Stmt where
   | skip
-  | assign   (x : Var) (e : Expr)
-  | seq      (s₁ s₂ : Stmt)
-  | ite      (c : Expr) (e t : Stmt)
-  | «while»  (c : Expr) (b : Stmt)
+  | assign (x : Var) (e : Expr)
+  | seq    (s₁ s₂ : Stmt)
+  | ite    (c : Expr) (e t : Stmt)
+  | while  (c : Expr) (b : Stmt)
   deriving Repr
 
 infix:150 " ::= " => Stmt.assign

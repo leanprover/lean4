@@ -14,8 +14,10 @@ import Lean.Elab.SyntheticMVars
 namespace Lean.Elab.Tactic
 open Meta
 
-/- `elabTerm` for Tactics and basic tactics that use it. -/
+/-! # `elabTerm` for Tactics and basic tactics that use it. -/
 
+/-- Elaborate `stx` in the current `MVarContext`. If given, the `expectedType` will be used to help
+elaboration but not enforced (use `elabTermEnsuringType` to enforce an expected type). -/
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) (mayPostpone := false) : TacticM Expr := do
   /- If error recovery is disabled, we disable `Term.withoutErrToSorry` -/
   if (← read).recover then
@@ -29,6 +31,8 @@ where
       Term.synthesizeSyntheticMVars mayPostpone
       instantiateMVars e
 
+/-- Elaborate `stx` in the current `MVarContext`. If given, the `expectedType` will be used to help
+elaboration and then a `TypeMismatchError` will be thrown if the elaborated type doesn't match.  -/
 def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (mayPostpone := false) : TacticM Expr := do
   let e ← elabTerm stx expectedType? mayPostpone
   -- We do use `Term.ensureExpectedType` because we don't want coercions being inserted here.
@@ -42,7 +46,7 @@ def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (mayPostpo
       Term.throwTypeMismatchError none expectedType eType e
     return e
 
-/- Try to close main goal using `x target`, where `target` is the type of the main goal.  -/
+/-- Try to close main goal using `x target`, where `target` is the type of the main goal.  -/
 def closeMainGoalUsing (x : Expr → TacticM Expr) (checkUnassigned := true) : TacticM Unit :=
   withMainContext do
     closeMainGoal (checkUnassigned := checkUnassigned) (← x (← getMainTarget))
@@ -64,24 +68,30 @@ def filterOldMVars (mvarIds : Array MVarId) (mvarCounterSaved : Nat) : MetaM (Ar
     return r
   | _ => throwUnsupportedSyntax
 
-def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : Name) (allowNaturalHoles := false) : TacticM (Expr × List MVarId) := do
+/--
+  Execute `k`, and collect new "holes" in the resulting expression.
+-/
+def withCollectingNewGoalsFrom (k : TacticM Expr) (tagSuffix : Name) (allowNaturalHoles := false) : TacticM (Expr × List MVarId) := do
   let mvarCounterSaved := (← getMCtx).mvarCounter
-  let val ← elabTermEnsuringType stx expectedType?
+  let val ← k
   let newMVarIds ← getMVarsNoDelayed val
   /- ignore let-rec auxiliary variables, they are synthesized automatically later -/
   let newMVarIds ← newMVarIds.filterM fun mvarId => return !(← Term.isLetRecAuxMVar mvarId)
   let newMVarIds ← if allowNaturalHoles then
     pure newMVarIds.toList
   else
-    let naturalMVarIds ← newMVarIds.filterM fun mvarId => return (← getMVarDecl mvarId).kind.isNatural
-    let syntheticMVarIds ← newMVarIds.filterM fun mvarId => return !(← getMVarDecl mvarId).kind.isNatural
+    let naturalMVarIds ← newMVarIds.filterM fun mvarId => return (← mvarId.getKind).isNatural
+    let syntheticMVarIds ← newMVarIds.filterM fun mvarId => return !(← mvarId.getKind).isNatural
     let naturalMVarIds ← filterOldMVars naturalMVarIds mvarCounterSaved
     logUnassignedAndAbort naturalMVarIds
     pure syntheticMVarIds.toList
   tagUntaggedGoals (← getMainTag) tagSuffix newMVarIds
-  pure (val, newMVarIds)
+  return (val, newMVarIds)
 
-/- If `allowNaturalHoles == true`, then we allow the resultant expression to contain unassigned "natural" metavariables.
+def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : Name) (allowNaturalHoles := false) : TacticM (Expr × List MVarId) := do
+  withCollectingNewGoalsFrom (elabTermEnsuringType stx expectedType?) tagSuffix allowNaturalHoles
+
+/-- If `allowNaturalHoles == true`, then we allow the resultant expression to contain unassigned "natural" metavariables.
    Recall that "natutal" metavariables are created for explicit holes `_` and implicit arguments. They are meant to be
    filled by typing constraints.
    "Synthetic" metavariables are meant to be filled by tactics and are usually created using the synthetic hole notation `?<hole-name>`. -/
@@ -93,7 +103,7 @@ def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : Ta
     unless val == mkMVar mvarId do
       if val.findMVar? (· == mvarId) matches some _ then
         throwError "'refine' tactic failed, value{indentExpr val}\ndepends on the main goal metavariable '{mkMVar mvarId}'"
-      assignExprMVar mvarId val
+      mvarId.assign val
     replaceMainGoal mvarIds'
 
 @[builtinTactic «refine»] def evalRefine : Tactic := fun stx =>
@@ -112,10 +122,10 @@ def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : Ta
     let (e, mvarIds') ← elabTermWithHoles e none `specialize (allowNaturalHoles := true)
     let h := e.getAppFn
     if h.isFVar then
-      let localDecl ← getLocalDecl h.fvarId!
-      let mvarId ← assert (← getMainGoal) localDecl.userName (← inferType e).headBeta e
-      let (_, mvarId) ← intro1P mvarId
-      let mvarId ← tryClear mvarId h.fvarId!
+      let localDecl ← h.fvarId!.getDecl
+      let mvarId ← (← getMainGoal).assert localDecl.userName (← inferType e).headBeta e
+      let (_, mvarId) ← mvarId.intro1P
+      let mvarId ← mvarId.tryClear h.fvarId!
       replaceMainGoal (mvarId :: mvarIds')
     else
       throwError "'specialize' requires a term of the form `h x_1 .. x_n` where `h` appears in the local context"
@@ -199,12 +209,12 @@ def getFVarIds (ids : Array Syntax) : TacticM (Array FVarId) := do
 
 @[builtinTactic Lean.Parser.Tactic.apply] def evalApply : Tactic := fun stx =>
   match stx with
-  | `(tactic| apply $e) => evalApplyLikeTactic Meta.apply e
+  | `(tactic| apply $e) => evalApplyLikeTactic (·.apply) e
   | _ => throwUnsupportedSyntax
 
 @[builtinTactic Lean.Parser.Tactic.constructor] def evalConstructor : Tactic := fun _ =>
   withMainContext do
-    let mvarIds'  ← Meta.constructor (← getMainGoal)
+    let mvarIds' ← (← getMainGoal).constructor
     Term.synthesizeSyntheticMVarsNoPostponing
     replaceMainGoal mvarIds'
 
@@ -230,7 +240,7 @@ def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId
       let intro (userName : Name) (preserveBinderNames : Bool) : TacticM FVarId := do
         let mvarId ← getMainGoal
         let (fvarId, mvarId) ← liftMetaM do
-          let mvarId ← Meta.assert mvarId userName type e
+          let mvarId ← mvarId.assert userName type e
           Meta.intro1Core mvarId preserveBinderNames
         replaceMainGoal [mvarId]
         return fvarId
@@ -242,21 +252,17 @@ def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId
   match stx with
   | `(tactic| rename $typeStx:term => $h:ident) => do
     withMainContext do
-      /- Remark: we must not use `withoutModifyingState` because we may miss errors message.
-         For example, suppose the following `elabTerm` logs an error during elaboration.
-         In this scenario, the term `type` contains a synthetic `sorry`, and the error
-         message `"failed to find ..."` is not logged by the outer loop.
-         By using `withoutModifyingStateWithInfoAndMessages`, we ensure that
-         the messages and the info trees are preserved while the rest of the
-         state is backtracked. -/
-      let fvarId ← withoutModifyingStateWithInfoAndMessages <| withNewMCtxDepth do
+      /- Remark: we also use `withoutRecover` to make sure `elabTerm` does not succeed
+         using `sorryAx`, and we get `"failed to find ..."` which will not be logged because
+         it contains synthetic sorry's -/
+      let fvarId ← withoutModifyingState <| withNewMCtxDepth <| withoutRecover do
         let type ← elabTerm typeStx none (mayPostpone := true)
         let fvarId? ← (← getLCtx).findDeclRevM? fun localDecl => do
           if (← isDefEq type localDecl.type) then return localDecl.fvarId else return none
         match fvarId? with
         | none => throwError "failed to find a hypothesis with type{indentExpr type}"
         | some fvarId => return fvarId
-      replaceMainGoal [← rename (← getMainGoal) fvarId h.getId]
+      replaceMainGoal [← (← getMainGoal).rename fvarId h.getId]
   | _ => throwUnsupportedSyntax
 
 /--

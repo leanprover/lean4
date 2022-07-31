@@ -74,9 +74,9 @@ namespace Iterator
   else find it.next p
 
 @[specialize] def foldUntil (it : Iterator) (init : α) (f : α → Char → Option α) : α × Iterator :=
-  if it.atEnd then 
+  if it.atEnd then
     (init, it)
-  else if let some a := f init it.curr then 
+  else if let some a := f init it.curr then
     foldUntil it.next a f
   else
     (init, it)

@@ -71,7 +71,7 @@ partial def FnBody.simpCase (b : FnBody) : FnBody :=
   - Merge most common branches using `Alt.default`. -/
 def Decl.simpCase (d : Decl) : Decl :=
   match d with
-  | Decl.fdecl (body := b) .. => d.updateBody! b.simpCase
+  | .fdecl (body := b) .. => d.updateBody! b.simpCase
   | other => other
 
 end Lean.IR

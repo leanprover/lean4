@@ -828,6 +828,19 @@ void type_checker::cache_failure(expr const & t, expr const & s) {
         m_st->m_failure.insert(mk_pair(s, t));
 }
 
+/**
+\brief Return `some e'` if `e` is of the form `s.<idx> ...` where `s.<idx>` represents a projection,
+and `e` can be reduced using `whnf_core`.
+*/
+optional<expr> type_checker::try_unfold_proj_app(expr const & e) {
+    expr const & f = get_app_fn(e);
+    if (is_proj(f)) {
+        expr e_new = whnf_core(e);
+        return e_new != e ? optional<expr>(e_new) : none_expr();
+    }
+    return none_expr();
+}
+
 /** \brief Perform one lazy delta-reduction step.
      Return
      - l_true if t_n and s_n are definitionally equal.
@@ -841,9 +854,26 @@ auto type_checker::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reductio
     if (!d_t && !d_s) {
         return reduction_status::DefUnknown;
     } else if (d_t && !d_s) {
-        t_n = whnf_core(*unfold_definition(t_n), false, true);
+        /* If `s_n` is a projection application, we try to unfold it instead.
+           We added this extra test to address a perfomance issue at defeq tests such as
+           ```lean
+           expensive_term =?= instFoo.1 a
+           ```
+           Without this check, we would keep lazy unfolding `expensive_term` (e.g., it contains function
+           defined using well-founded recursion).
+        */
+        if (auto s_n_new = try_unfold_proj_app(s_n)) {
+            s_n = *s_n_new;
+        } else {
+            t_n = whnf_core(*unfold_definition(t_n), false, true);
+        }
     } else if (!d_t && d_s) {
-        s_n = whnf_core(*unfold_definition(s_n), false, true);
+        /* If `t_n` is a projection application, we try to unfold it instead. See comment above. */
+        if (auto t_n_new = try_unfold_proj_app(t_n)) {
+            t_n = *t_n_new;
+        } else {
+            s_n = whnf_core(*unfold_definition(s_n), false, true);
+        }
     } else {
         int c = compare(d_t->get_hints(), d_s->get_hints());
         if (c < 0) {

@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Data.Options
 
-/- Basic support for auto bound implicit local names -/
+/-! # Basic support for auto bound implicit local names -/
 
 namespace Lean.Elab
 
@@ -23,7 +23,7 @@ register_builtin_option relaxedAutoImplicit : Bool := {
 private def isValidAutoBoundSuffix (s : String) : Bool :=
   s.toSubstring.drop 1 |>.all fun c => c.isDigit || isSubScriptAlnum c || c == '_' || c == '\''
 
-/-
+/-!
 Remark: Issue #255 exposed a nasty interaction between macro scopes and auto-bound-implicit names.
 ```
 local notation "A" => id x

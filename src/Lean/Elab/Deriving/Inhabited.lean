@@ -56,7 +56,7 @@ where
           | _ => pure ()
       runST (fun _ => visit |>.run usedInstIdxs) |>.2
 
-  /- Create an `instance` command using the constructor `ctorName` with a hypothesis `Inhabited α` when `α` is one of the inductive type parameters
+  /-- Create an `instance` command using the constructor `ctorName` with a hypothesis `Inhabited α` when `α` is one of the inductive type parameters
      at position `i` and `i ∈ assumingParamIdxs`. -/
   mkInstanceCmdWith (assumingParamIdxs : IndexSet) : TermElabM Syntax := do
     let indVal ← getConstInfoInduct inductiveTypeName

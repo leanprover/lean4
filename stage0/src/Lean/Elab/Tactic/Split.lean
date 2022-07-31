@@ -29,7 +29,7 @@ open Meta
         return mvarIds
   | Location.wildcard =>
     liftMetaTactic fun mvarId => do
-      let fvarIds ← getNondepPropHyps mvarId
+      let fvarIds ← mvarId.getNondepPropHyps
       for fvarId in fvarIds do
         if let some mvarIds ← splitLocalDecl? mvarId fvarId then
           return mvarIds

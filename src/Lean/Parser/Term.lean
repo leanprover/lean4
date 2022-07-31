@@ -38,7 +38,7 @@ def tacticSeqBracketed : Parser :=
 def tacticSeq :=
   leading_parser tacticSeqBracketed <|> tacticSeq1Indented
 
-/- Raw sequence for quotation and grouping -/
+/-- Raw sequence for quotation and grouping -/
 def seq1 :=
   node `Lean.Parser.Tactic.seq1 $ sepBy1 tacticParser ";\n" (allowTrailingSep := true)
 
@@ -49,7 +49,7 @@ def semicolonOrLinebreak := ";" <|> checkLinebreakBefore >> pushNone
 
 namespace Term
 
-/- Built-in parsers -/
+/-! # Built-in parsers -/
 
 @[builtinTermParser] def byTactic := leading_parser:leadPrec ppAllowUngrouped >> "by " >> Tactic.tacticSeq
 
@@ -114,7 +114,7 @@ def instBinder := ppGroup $ leading_parser "[" >> optIdent >> termParser >> "]"
 def bracketedBinder (requireType := false) := withAntiquot (mkAntiquot "bracketedBinder" `Lean.Parser.Term.bracketedBinder (isPseudoKind := true)) <|
   explicitBinder requireType <|> strictImplicitBinder requireType <|> implicitBinder requireType <|> instBinder
 
-/-
+/--
 It is feasible to support dependent arrows such as `{α} → α → α` without sacrificing the quality of the error messages for the longer case.
 `{α} → α → α` would be short for `{α : Type} → α → α`
 Here is the encoding:
@@ -178,11 +178,11 @@ def withAnonymousAntiquot := leading_parser atomic ("(" >> nonReservedSymbol "wi
 @[builtinTermParser] def doubleQuotedName := leading_parser "`" >> checkNoWsBefore >> rawCh '`' (trailingWs := false) >> ident
 
 def letIdBinder := withAntiquot (mkAntiquot "letIdBinder" `Lean.Parser.Term.letIdBinder (isPseudoKind := true)) (binderIdent <|> bracketedBinder)
-/- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
+/-- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
 def letIdLhs    : Parser := ident >> notFollowedBy (checkNoWsBefore "" >> "[") "space is required before instance '[...]' binders to distinguish them from array updates `let x[i] := e; ...`" >> many (ppSpace >> letIdBinder) >> optType
 def letIdDecl   := leading_parser (withAnonymousAntiquot := false) atomic (letIdLhs >> " := ") >> termParser
 def letPatDecl  := leading_parser (withAnonymousAntiquot := false) atomic (termParser >> pushNone >> optType >> " := ") >> termParser
-/-
+/--
   Remark: the following `(" := " <|> matchAlts)` is a hack we use to produce a better error message at `letDecl`.
   Consider this following example
   ```
@@ -197,16 +197,45 @@ def letPatDecl  := leading_parser (withAnonymousAntiquot := false) atomic (termP
 def letEqnsDecl := leading_parser (withAnonymousAntiquot := false) letIdLhs >> (" := " <|> matchAlts)
 -- Remark: we disable anonymous antiquotations here to make sure anonymous antiquotations (e.g., `$x`) are not `letDecl`
 def letDecl     := leading_parser (withAnonymousAntiquot := false) notFollowedBy (nonReservedSymbol "rec") "rec" >> (letIdDecl <|> letPatDecl <|> letEqnsDecl)
+/--
+`let` is used to declare a local definition. Example:
+```
+let x := 1
+let y := x + 1
+x + y
+```
+Since functions are first class citizens in Lean, you can use `let` to declare local functions too.
+```
+let double := fun x => 2*x
+double (double 3)
+```
+For recursive definitions, you should use `let rec`.
+You can also perform pattern matching using `let`. For example, assume `p` has type `Nat × Nat`, then you can write
+```
+let (x, y) := p
+x + y
+```
+-/
 @[builtinTermParser] def «let» := leading_parser:leadPrec  withPosition ("let " >> letDecl) >> optSemicolon termParser
+/--
+`let_fun x := v; b` is syntax sugar for `(fun x => b) v`. It is very similar to `let x := v; b`, but they are not equivalent.
+In `let_fun`, the value `v` has been abstracted away and cannot be accessed in `b`.
+-/
 @[builtinTermParser] def «let_fun»     := leading_parser:leadPrec withPosition ((symbol "let_fun " <|> "let_λ") >> letDecl) >> optSemicolon termParser
+/--
+`let_delayed x := v; b` is similar to `let x := v; b`, but `b` is elaborated before `v`.
+-/
 @[builtinTermParser] def «let_delayed» := leading_parser:leadPrec withPosition ("let_delayed " >> letDecl) >> optSemicolon termParser
--- `let`-declaration that is only included in the elaborated term if variable is still there
+/--
+`let`-declaration that is only included in the elaborated term if variable is still there.
+It is often used when building macros.
+-/
 @[builtinTermParser] def «let_tmp» := leading_parser:leadPrec withPosition ("let_tmp " >> letDecl) >> optSemicolon termParser
 
 instance : Coe (TSyntax ``letIdBinder) (TSyntax ``funBinder) where
   coe stx := ⟨stx⟩
 
--- like `let_fun` but with optional name
+/-- like `let_fun` but with optional name -/
 def haveIdLhs    := optional (ident >> many (ppSpace >> letIdBinder)) >> optType
 def haveIdDecl   := leading_parser (withAnonymousAntiquot := false) atomic (haveIdLhs >> " := ") >> termParser
 def haveEqnsDecl := leading_parser (withAnonymousAntiquot := false) haveIdLhs >> matchAlts
@@ -241,6 +270,8 @@ def matchAltsWhereDecls := leading_parser matchAlts >> optional whereDecls
 @[builtinTermParser] def forInMacro := leading_parser "for_in% " >> termParser maxPrec >> termParser maxPrec >> termParser maxPrec
 @[builtinTermParser] def forInMacro' := leading_parser "for_in'% " >> termParser maxPrec >> termParser maxPrec >> termParser maxPrec
 
+@[builtinTermParser] def declName           := leading_parser "decl_name%"
+@[builtinTermParser] def withDeclName       := leading_parser "with_decl_name% " >> optional "?" >> ident >> termParser
 @[builtinTermParser] def typeOf             := leading_parser "type_of% " >> termParser maxPrec
 @[builtinTermParser] def ensureTypeOf       := leading_parser "ensure_type_of% " >> termParser maxPrec >> strLit >> termParser
 @[builtinTermParser] def ensureExpectedType := leading_parser "ensure_expected_type% " >> strLit >> termParser maxPrec

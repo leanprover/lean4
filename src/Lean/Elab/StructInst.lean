@@ -254,8 +254,8 @@ def Field.isSimple {σ} : Field σ → Bool
   | _                  => false
 
 inductive Struct where
-  /- Remark: the field `params` is use for default value propagation. It is initially empty, and then set at `elabStruct`. -/
-  | mk (ref : Syntax) (structName : Name) (params : Array (Name × Expr)) (fields : List (Field Struct)) (source : Source)
+  | /-- Remark: the field `params` is use for default value propagation. It is initially empty, and then set at `elabStruct`. -/
+    mk (ref : Syntax) (structName : Name) (params : Array (Name × Expr)) (fields : List (Field Struct)) (source : Source)
   deriving Inhabited
 
 abbrev Fields := List (Field Struct)
@@ -393,7 +393,7 @@ private def expandNumLitFields (s : Struct) : TermElabM Struct :=
         else return { field with lhs := .fieldName ref fieldNames[idx - 1]! :: rest }
       | _ => return field
 
-/- For example, consider the following structures:
+/-- For example, consider the following structures:
    ```
    structure A where
      x : Nat
@@ -416,8 +416,9 @@ private def expandNumLitFields (s : Struct) : TermElabM Struct :=
 -/
 private def expandParentFields (s : Struct) : TermElabM Struct := do
   let env ← getEnv
-  s.modifyFieldsM fun fields => fields.mapM fun field => match field with
+  s.modifyFieldsM fun fields => fields.mapM fun field => do match field with
     | { lhs := .fieldName ref fieldName :: _,    .. } =>
+      addCompletionInfo <| CompletionInfo.fieldId ref fieldName (← getLCtx) s.structName
       match findField? env s.structName fieldName with
       | none => throwErrorAt ref "'{fieldName}' is not a field of structure '{s.structName}'"
       | some baseStructName =>
@@ -607,32 +608,40 @@ def trySynthStructInstance? (s : Struct) (expectedType : Expr) : TermElabM (Opti
   else
     try synthInstance? expectedType catch _ => return none
 
-private partial def elabStruct (s : Struct) (expectedType? : Option Expr) : TermElabM (Expr × Struct) := withRef s.ref do
+structure ElabStructResult where
+  val       : Expr
+  struct    : Struct
+  instMVars : Array MVarId
+
+private partial def elabStruct (s : Struct) (expectedType? : Option Expr) : TermElabM ElabStructResult := withRef s.ref do
   let env ← getEnv
   let ctorVal := getStructureCtor env s.structName
   -- We store the parameters at the resulting `Struct`. We use this information during default value propagation.
   let { ctorFn, ctorFnType, params, .. } ← mkCtorHeader ctorVal expectedType?
-  let (e, _, fields) ← s.fields.foldlM (init := (ctorFn, ctorFnType, [])) fun (e, type, fields) field => do
+  let (e, _, fields, instMVars) ← s.fields.foldlM (init := (ctorFn, ctorFnType, [], #[])) fun (e, type, fields, instMVars) field => do
     match field.lhs with
     | [.fieldName ref fieldName] =>
       let type ← whnfForall type
       trace[Elab.struct] "elabStruct {field}, {type}"
       match type with
-      | .forallE _ d b _ =>
-        let cont (val : Expr) (field : Field Struct) : TermElabM (Expr × Expr × Fields) := do
+      | .forallE _ d b bi =>
+        let cont (val : Expr) (field : Field Struct) (instMVars := instMVars) : TermElabM (Expr × Expr × Fields × Array MVarId) := do
           pushInfoTree <| InfoTree.node (children := {}) <| Info.ofFieldInfo {
             projName := s.structName.append fieldName, fieldName, lctx := (← getLCtx), val, stx := ref }
           let e     := mkApp e val
           let type  := b.instantiate1 val
           let field := { field with expr? := some val }
-          return (e, type, field::fields)
+          return (e, type, field::fields, instMVars)
         match field.val with
         | .term stx => cont (← elabTermEnsuringType stx d.consumeTypeAnnotations) field
         | .nested s =>
           -- if all fields of `s` are marked as `default`, then try to synthesize instance
           match (← trySynthStructInstance? s d) with
           | some val => cont val { field with val := FieldVal.term (mkHole field.ref) }
-          | none     => let (val, sNew) ← elabStruct s (some d); let val ← ensureHasType d val; cont val { field with val := FieldVal.nested sNew }
+          | none     =>
+            let { val, struct := sNew, instMVars := instMVarsNew } ← elabStruct s (some d)
+            let val ← ensureHasType d val
+            cont val { field with val := FieldVal.nested sNew } (instMVars ++ instMVarsNew)
         | .default  =>
           match d.getAutoParamTactic? with
           | some (.const tacticDecl ..) =>
@@ -642,11 +651,15 @@ private partial def elabStruct (s : Struct) (expectedType? : Option Expr) : Term
               let stx ← `(by $tacticSyntax)
               cont (← elabTermEnsuringType stx (d.getArg! 0).consumeTypeAnnotations) field
           | _ =>
-            let val ← withRef field.ref <| mkFreshExprMVar (some d)
-            cont (markDefaultMissing val) field
+            if bi == .instImplicit then
+              let val ← withRef field.ref <| mkFreshExprMVar d .synthetic
+              cont val field (instMVars.push val.mvarId!)
+            else
+              let val ← withRef field.ref <| mkFreshExprMVar (some d)
+              cont (markDefaultMissing val) field
       | _ => withRef field.ref <| throwFailedToElabField fieldName s.structName m!"unexpected constructor type{indentExpr type}"
     | _ => throwErrorAt field.ref "unexpected unexpanded structure field"
-  return (e, s.setFields fields.reverse |>.setParams params)
+  return { val := e, struct := s.setFields fields.reverse |>.setParams params, instMVars }
 
 namespace DefaultFields
 
@@ -705,7 +718,7 @@ partial def findDefaultMissing? [Monad m] [MonadMCtx m] (struct : Struct) : m (O
    | _ => match field.expr? with
      | none      => unreachable!
      | some expr => match defaultMissing? expr with
-       | some (.mvar mvarId) => return if (← isExprMVarAssigned mvarId) then none else some field
+       | some (.mvar mvarId) => return if (← mvarId.isAssigned) then none else some field
        | _                   => return none
 
 def getFieldName (field : Field Struct) : Name :=
@@ -811,7 +824,7 @@ partial def tryToSynthesizeDefault (structs : Array Struct) (allStructNames : Ar
           | none   =>
             let mvarDecl ← getMVarDecl mvarId
             let val ← ensureHasType mvarDecl.type val
-            assignExprMVar mvarId val
+            mvarId.assign val
             return true
       | _ => loop (i+1) dist
     else
@@ -829,7 +842,7 @@ partial def step (struct : Struct) : M Unit :=
           | some expr =>
             match defaultMissing? expr with
             | some (.mvar mvarId) =>
-              unless (← isExprMVarAssigned mvarId) do
+              unless (← mvarId.isAssigned) do
                 let ctx ← read
                 if (← withRef field.ref <| tryToSynthesizeDefault ctx.structs ctx.allStructNames ctx.maxDistance (getFieldName field) mvarId) then
                   modify fun _ => { progress := true }
@@ -877,9 +890,10 @@ private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (sour
 
      TODO: investigate whether this design decision may have unintended side effects or produce confusing behavior.
   -/
-  let (r, struct) ← withSynthesize (mayPostpone := true) <| elabStruct struct expectedType?
+  let { val := r, struct, instMVars } ← withSynthesize (mayPostpone := true) <| elabStruct struct expectedType?
   trace[Elab.struct] "before propagate {r}"
   DefaultFields.propagate struct
+  synthesizeAppInstMVars instMVars r
   return r
 
 /-- Structure instance. `{ x := e, ... }` assigns `e` to field `x`, which may be

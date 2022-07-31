@@ -74,7 +74,7 @@ Lean provides ways of adding new objects to the environment. The following provi
 * ``axiom c : α`` :  declare a constant named ``c`` of type ``α``, it is postulating that `α` is not an empty type.
 * ``def c : α := v`` : defines ``c`` to denote ``v``, which should have type ``α``.
 * ``theorem c : p := v`` : similar to ``def``, but intended to be used when ``p`` is a proposition.
-* ``constant c : α (:= v)?`` : declares a opaque constant named ``c`` of type ``α``, the optional value `v` is must have type `α`
+* ``opaque c : α (:= v)?`` : declares a opaque constant named ``c`` of type ``α``, the optional value `v` is must have type `α`
   and can be viewed as a certificate that ``α`` is not an empty type. If the value is not provided, Lean tries to find one
   using a proceture based on type class resolution. The value `v` is hidden from the type checker. You can assume that
   Lean "forgets" `v` after type checking this kind of declaration.
@@ -89,8 +89,8 @@ Any of ``def``, ``theorem``, ``axiom``, or ``example`` can take a list of argume
 is interpreted as ``def foo : (a : α) → β := fun a : α => t``. Similarly, a theorem ``theorem foo (a : α) : p := t`` is interpreted as ``theorem foo : ∀ a : α, p := fun a : α => t``.
 
 ```lean
-constant c : Nat
-constant d : Nat
+opaque c : Nat
+opaque d : Nat
 axiom cd_eq : c = d
 
 def foo : Nat := 5

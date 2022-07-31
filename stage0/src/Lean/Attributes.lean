@@ -24,15 +24,26 @@ structure AttributeImplCore where
   applicationTime := AttributeApplicationTime.afterTypeChecking
   deriving Inhabited
 
+/-- You can tag attributes with the 'local' or 'scoped' kind.
+For example: `attribute [local myattr, scoped yourattr, theirattr]`.
+
+This is used to indicate how an attribute should be scoped.
+- local means that the attribute should only be applied in the current scope and forgotten once the current section, namespace, or file is closed.
+- scoped means that the attribute should only be applied while the namespace is open.
+- global means that the attribute should always be applied.
+
+Note that the attribute handler (`AttributeImpl.add`) is responsible for interpreting the kind and
+making sure that these kinds are respected.
+-/
 inductive AttributeKind
-  | «global» | «local» | «scoped»
+  | global | «local» | «scoped»
   deriving BEq, Inhabited
 
 instance : ToString AttributeKind where
   toString
-    | AttributeKind.global => "global"
-    | AttributeKind.local  => "local"
-    | AttributeKind.scoped => "scoped"
+    | .global => "global"
+    | .local  => "local"
+    | .scoped => "scoped"
 
 structure AttributeImpl extends AttributeImplCore where
   /-- This is run when the attribute is applied to a declaration `decl`. `stx` is the syntax of the attribute including arguments. -/
@@ -44,7 +55,7 @@ open Std (PersistentHashMap)
 
 builtin_initialize attributeMapRef : IO.Ref (PersistentHashMap Name AttributeImpl) ← IO.mkRef {}
 
-/- Low level attribute registration function. -/
+/-- Low level attribute registration function. -/
 def registerBuiltinAttribute (attr : AttributeImpl) : IO Unit := do
   let m ← attributeMapRef.get
   if m.contains attr.name then throw (IO.userError ("invalid builtin attribute declaration, '" ++ toString attr.name ++ "' has already been used"))
@@ -52,7 +63,7 @@ def registerBuiltinAttribute (attr : AttributeImpl) : IO Unit := do
     throw (IO.userError "failed to register attribute, attributes can only be registered during initialization")
   attributeMapRef.modify fun m => m.insert attr.name attr
 
-/-
+/-!
   Helper methods for decoding the parameters of builtin attributes that are defined before `Lean.Parser`.
   We have the following ones:
   ```
@@ -206,7 +217,7 @@ def registerParametricAttribute {α : Type} [Inhabited α] (impl : ParametricAtt
 
 namespace ParametricAttribute
 
-def getParam {α : Type} [Inhabited α] (attr : ParametricAttribute α) (env : Environment) (decl : Name) : Option α :=
+def getParam? {α : Type} [Inhabited α] (attr : ParametricAttribute α) (env : Environment) (decl : Name) : Option α :=
   match env.getModuleIdxFor? decl with
   | some modIdx =>
     match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1) with
@@ -224,7 +235,7 @@ def setParam {α : Type} (attr : ParametricAttribute α) (env : Environment) (de
 
 end ParametricAttribute
 
-/-
+/--
   Given a list `[a₁, ..., a_n]` of elements of type `α`, `EnumAttributes` provides an attribute `Attr_i` for
   associating a value `a_i` with an declaration. `α` is usually an enumeration type.
   Note that whenever we register an `EnumAttributes`, we create `n` attributes, but only one environment extension. -/
@@ -283,7 +294,7 @@ def setValue {α : Type} (attrs : EnumAttributes α) (env : Environment) (decl :
 
 end EnumAttributes
 
-/-
+/-!
   Attribute extension and builders. We use builders to implement attribute factories for parser categories.
 -/
 
@@ -360,12 +371,12 @@ builtin_initialize attributeExtension : AttributeExtension ←
     statsFn         := fun s => format "number of local entries: " ++ format s.newEntries.length
   }
 
-/- Return true iff `n` is the name of a registered attribute. -/
+/-- Return true iff `n` is the name of a registered attribute. -/
 @[export lean_is_attribute]
 def isBuiltinAttribute (n : Name) : IO Bool := do
   let m ← attributeMapRef.get; pure (m.contains n)
 
-/- Return the name of all registered attributes. -/
+/-- Return the name of all registered attributes. -/
 def getBuiltinAttributeNames : IO (List Name) :=
   return (← attributeMapRef.get).foldl (init := []) fun r n _ => n::r
 

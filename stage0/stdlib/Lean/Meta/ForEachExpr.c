@@ -42,6 +42,7 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 extern lean_object* l_Lean_levelZero;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_resetMVarUserNames___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MVarId_getDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -97,9 +98,9 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_setMVarUserNamesAt___s
 LEAN_EXPORT uint8_t l_Std_AssocList_contains___at_Lean_Meta_ForEachExpr_visit___spec__4(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_AssocList_find_x3f___at_Lean_Meta_ForEachExpr_visit___spec__2___boxed(lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_mkForallFVars_x27___spec__2(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forEachExpr_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_getMVarDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__5;
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__3;
@@ -108,7 +109,6 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_mkForallFVars_x27
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__2;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_resetMVarUserNames___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
-lean_object* l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLetDeclImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_mkHashMap___at_Lean_Meta_forEachExpr_x27___spec__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ForEachExpr_0__Lean_Meta_ForEachExpr_visitBinder___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2143,7 +2143,7 @@ lean_object* x_7; lean_object* x_8;
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
 lean_dec(x_1);
-x_8 = l_Lean_Meta_getMVarDecl(x_7, x_2, x_3, x_4, x_5, x_6);
+x_8 = l_Lean_MVarId_getDecl(x_7, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_8) == 0)
 {
 uint8_t x_9; 
@@ -2561,7 +2561,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__2;
 x_2 = l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__3;
-x_3 = lean_unsigned_to_nat(62u);
+x_3 = lean_unsigned_to_nat(70u);
 x_4 = lean_unsigned_to_nat(36u);
 x_5 = l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__4;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -2645,9 +2645,8 @@ else
 {
 lean_object* x_32; lean_object* x_33; 
 x_32 = l_Lean_Expr_mvarId_x21(x_27);
-lean_dec(x_27);
 lean_inc(x_32);
-x_33 = l_Lean_Meta_getMVarDecl(x_32, x_11, x_12, x_13, x_14, x_15);
+x_33 = l_Lean_MVarId_getDecl(x_32, x_11, x_12, x_13, x_14, x_15);
 if (lean_obj_tag(x_33) == 0)
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; uint8_t x_37; 
@@ -2954,7 +2953,7 @@ lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
 lean_dec(x_11);
-x_14 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__1(x_1, x_3, x_4, x_5, x_6, x_13);
+x_14 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2(x_1, x_3, x_4, x_5, x_6, x_13);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
 x_16 = lean_ctor_get(x_14, 1);

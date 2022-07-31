@@ -17,7 +17,7 @@ def addProtected (env : Environment) (n : Name) : Environment :=
 def isProtected (env : Environment) (n : Name) : Bool :=
   protectedExt.isTagged env n
 
-/- Private name support.
+/-! # Private name support.
 
    Suppose the user marks as declaration `n` as private. Then, we create
    the name: `_private.<module_name>.0 ++ n`.

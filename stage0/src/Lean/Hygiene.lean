@@ -8,7 +8,7 @@ import Lean.Data.Options
 import Lean.Data.Format
 
 namespace Lean
-/- Remark: `MonadQuotation` class is part of the `Init` package and loaded by default since it is used in the builtin command `macro`. -/
+/-! Remark: `MonadQuotation` class is part of the `Init` package and loaded by default since it is used in the builtin command `macro`. -/
 
 structure Unhygienic.Context where
   ref   : Syntax
@@ -86,6 +86,7 @@ private partial def mkFreshInaccessibleUserName (userName : Name) (idx : Nat) : 
     modify fun s => { s with nameStem2Idx := s.nameStem2Idx.insert userName (idx+1) }
     pure userNameNew
 
+/-- Erase macro scopes from `userName` and add "tombstone" + superscript (or `._hyg`). -/
 def sanitizeName (userName : Name) : StateM NameSanitizerState Name := do
   let stem := userName.eraseMacroScopes;
   let idx  := (← get).nameStem2Idx.find? stem |>.getD 0

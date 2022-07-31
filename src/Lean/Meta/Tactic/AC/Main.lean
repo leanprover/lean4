@@ -144,10 +144,10 @@ def rewriteUnnormalized (mvarId : MVarId) : MetaM Unit := do
       congrTheorems := (← getSimpCongrTheorems)
       config        := Simp.neutralConfig
     }
-  let tgt ← getMVarType mvarId
+  let tgt ← mvarId.getType
   let res ← Simp.main tgt simpCtx (methods := { post })
   let newGoal ← applySimpResultToTarget mvarId tgt res
-  applyRefl newGoal
+  newGoal.applyRefl
 where
   post (e : Expr) : SimpM Simp.Step := do
     let ctx ← read

@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
+#include "kernel/find_fn.h"
 #include "kernel/inductive.h"
 #include "kernel/instantiate.h"
 #include "kernel/kernel_exception.h"
@@ -129,6 +130,16 @@ struct unfold_macro_defs_fn : public replace_visitor {
     unfold_macro_defs_fn(environment const & env):m_env(env) {}
 
 
+    bool should_macro_inline(name const & n) {
+        if (!has_macro_inline_attribute(m_env, n)) return false;
+        auto info = m_env.get(n);
+        if (!info.has_value())
+            return false;
+        bool is_rec = static_cast<bool>(find(info.get_value(), [&](expr const & e, unsigned) { return is_const(e, n); }));
+        // We do not macro_inline recursive definitions. TODO: check that when setting the attribute.
+        return !is_rec;
+    }
+
     virtual expr visit_app(expr const & e) override {
         buffer<expr> args;
         expr const & fn = get_app_args(e, args);
@@ -141,7 +152,7 @@ struct unfold_macro_defs_fn : public replace_visitor {
         }
         if (is_constant(fn)) {
             name const & n = const_name(fn);
-            if (has_macro_inline_attribute(m_env, n)) {
+            if (should_macro_inline(n)) {
                 expr new_fn = instantiate_value_lparams(m_env.get(n), const_levels(fn));
                 std::reverse(args.begin(), args.end());
                 return visit(apply_beta(new_fn, args.size(), args.data()));
@@ -156,7 +167,7 @@ struct unfold_macro_defs_fn : public replace_visitor {
 
     virtual expr visit_constant(expr const & e) override {
         name const & n = const_name(e);
-        if (has_macro_inline_attribute(m_env, n)) {
+        if (should_macro_inline(n)) {
             return visit(instantiate_value_lparams(m_env.get(n), const_levels(e)));
         } else {
             return e;

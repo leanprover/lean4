@@ -7,13 +7,13 @@ import Lean.Meta.Tactic.Injection
 
 namespace Lean.Meta
 
-/- Convert heterogeneous equality into a homegeneous one -/
+/-- Convert heterogeneous equality into a homegeneous one -/
 private def heqToEq' (mvarId : MVarId) (eqDecl : LocalDecl) : MetaM MVarId := do
   /- Convert heterogeneous equality into a homegeneous one -/
   let prf    ← mkEqOfHEq (mkFVar eqDecl.fvarId)
   let aEqb   ← whnf (← inferType prf)
-  let mvarId ← assert mvarId eqDecl.userName aEqb prf
-  clear mvarId eqDecl.fvarId
+  let mvarId ← mvarId.assert eqDecl.userName aEqb prf
+  mvarId.clear eqDecl.fvarId
 
 structure UnifyEqResult where
   mvarId    : MVarId
@@ -38,8 +38,8 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
              (acyclic : MVarId → Expr → MetaM Bool := fun _ _ => return false)
              (caseName? : Option Name := none)
              : MetaM (Option UnifyEqResult) := do
-  withMVarContext mvarId do
-    let eqDecl ← getLocalDecl eqFVarId
+   mvarId.withContext do
+    let eqDecl ← eqFVarId.getDecl
     if eqDecl.type.isHEq then
       let mvarId ← heqToEq' mvarId eqDecl
       return some { mvarId, subst, numNewEqs := 1 }
@@ -58,7 +58,7 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
             return some { mvarId, subst }
           else if (← isDefEq a b) then
             /- Skip equality -/
-            return some { mvarId := (← clear mvarId eqFVarId), subst }
+            return some { mvarId := (←  mvarId.clear eqFVarId), subst }
           else if (← acyclic mvarId (mkFVar eqFVarId)) then
             return none -- this alternative has been solved
           else
@@ -77,8 +77,8 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
               /- Reduced lhs/rhs of current equality -/
               let prf := mkFVar eqFVarId
               let aEqb'  ← mkEq a' b'
-              let mvarId ← assert mvarId eqDecl.userName aEqb' prf
-              let mvarId ← clear mvarId eqFVarId
+              let mvarId ← mvarId.assert eqDecl.userName aEqb' prf
+              let mvarId ←  mvarId.clear eqFVarId
               return some { mvarId, subst, numNewEqs := 1 }
             else
               match caseName? with
@@ -89,15 +89,15 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
         match a, b with
         | Expr.fvar aFVarId, Expr.fvar bFVarId =>
           /- x = y -/
-          let aDecl ← getLocalDecl aFVarId
-          let bDecl ← getLocalDecl bFVarId
+          let aDecl ← aFVarId.getDecl
+          let bDecl ← bFVarId.getDecl
           substEq (aDecl.index < bDecl.index)
         | Expr.fvar .., _   => /- x = t -/ substEq (symm := false)
         | _, Expr.fvar ..   => /- t = x -/ substEq (symm := true)
         | a, b              =>
           if (← isDefEq a b) then
             /- Skip equality -/
-            return some { mvarId := (← clear mvarId eqFVarId), subst }
+            return some { mvarId := (← mvarId.clear eqFVarId), subst }
           else
             injection a b
 

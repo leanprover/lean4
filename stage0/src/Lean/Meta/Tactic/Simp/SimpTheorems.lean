@@ -333,7 +333,7 @@ def getSimpExtension? (attrName : Name) : IO (Option SimpExtension) :=
 def getSimpTheorems : CoreM SimpTheorems :=
   simpExtension.getTheorems
 
-/- Auxiliary method for adding a global declaration to a `SimpTheorems` datastructure. -/
+/-- Auxiliary method for adding a global declaration to a `SimpTheorems` datastructure. -/
 def SimpTheorems.addConst (s : SimpTheorems) (declName : Name) (post : Bool := true) (inv : Bool := false) (prio : Nat := eval_prio default) : MetaM SimpTheorems := do
   let s := { s with erased := s.erased.erase declName }
   let simpThms ← mkSimpTheoremsFromConst declName post inv prio
@@ -356,12 +356,12 @@ private def preprocessProof (val : Expr) (inv : Bool) : MetaM (Array Expr) := do
   let ps ← preprocess val type inv (isGlobal := false)
   return ps.toArray.map fun (val, _) => val
 
-/- Auxiliary method for creating simp theorems from a proof term `val`. -/
+/-- Auxiliary method for creating simp theorems from a proof term `val`. -/
 def mkSimpTheorems (levelParams : Array Name) (proof : Expr) (post : Bool := true) (inv : Bool := false) (prio : Nat := eval_prio default) (name? : Option Name := none): MetaM (Array SimpTheorem) :=
   withReducible do
     (← preprocessProof proof inv).mapM fun val => mkSimpTheoremCore val levelParams val post prio name?
 
-/- Auxiliary method for adding a local simp theorem to a `SimpTheorems` datastructure. -/
+/-- Auxiliary method for adding a local simp theorem to a `SimpTheorems` datastructure. -/
 def SimpTheorems.add (s : SimpTheorems) (levelParams : Array Name) (proof : Expr) (inv : Bool := false) (post : Bool := true) (prio : Nat := eval_prio default) (name? : Option Name := none): MetaM SimpTheorems := do
   if proof.isConst then
     s.addConst proof.constName! post inv prio
@@ -411,11 +411,11 @@ def SimpTheoremsArray.isErased (thmsArray : SimpTheoremsArray) (thmId : Name) : 
 def SimpTheoremsArray.isDeclToUnfold (thmsArray : SimpTheoremsArray) (declName : Name) : Bool :=
   thmsArray.any fun thms => thms.isDeclToUnfold declName
 
-macro "register_simp_attr" id:ident descr:str : command => do
+macro doc?:(docComment)? "register_simp_attr" id:ident descr:str : command => do
   let str := id.getId.toString
   let idParser := mkIdentFrom id (`Parser.Attr ++ id.getId)
-  `(initialize ext : SimpExtension ← registerSimpAttr $(quote id.getId) $descr
-    syntax (name := $idParser:ident) $(quote str):str (Parser.Tactic.simpPre <|> Parser.Tactic.simpPost)? (prio)? : attr)
+  `($[$doc?]? initialize ext : SimpExtension ← registerSimpAttr $(quote id.getId) $descr
+    $[$doc?]? syntax (name := $idParser:ident) $(quote str):str (Parser.Tactic.simpPre <|> Parser.Tactic.simpPost)? (prio)? : attr)
 
 end Meta
 

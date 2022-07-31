@@ -1,12 +1,20 @@
 import Lean.Data.Lsp
+import Lean.Widget
 open Lean
 open Lean.Lsp
 open Lean.JsonRpc
 
+def word : Parsec String :=
+  Parsec.many1Chars <| Parsec.digit <|> Parsec.asciiLetter <|> Parsec.pchar '_'
+
+def ident : Parsec Name := do
+  let head ← word
+  let xs ← Parsec.many1 (Parsec.pchar '.' *> word)
+  return xs.foldl Name.mkStr $ head
+
 partial def main (args : List String) : IO Unit := do
   let uri := s!"file://{args.head!}"
   Ipc.runWith (←IO.appPath) #["--server"] do
-    let hIn ← Ipc.stdin
     let capabilities := {
       textDocument? := some {
         completion? := some {
@@ -28,6 +36,7 @@ partial def main (args : List String) : IO Unit := do
     let mut lastActualLineNo := 0
     let mut versionNo : Nat := 2
     let mut requestNo : Nat := 2
+    let mut rpcSessionId : Option UInt64 := none
     for line in text.splitOn "\n" do
       match line.splitOn "--" with
       | [ws, directive] =>
@@ -69,18 +78,45 @@ partial def main (args : List String) : IO Unit := do
           for diag in diags do
             IO.eprintln (toJson diag.param)
           requestNo := requestNo + 1
+        | "widgets" =>
+          if rpcSessionId.isNone then
+            Ipc.writeRequest ⟨requestNo, "$/lean/rpc/connect",  RpcConnectParams.mk uri⟩
+            let r ← Ipc.readResponseAs requestNo RpcConnected
+            rpcSessionId := some r.result.sessionId
+            requestNo := requestNo + 1
+          let ps : RpcCallParams := {
+            textDocument := {uri := uri},
+            position := pos,
+            sessionId := rpcSessionId.get!,
+            method := `Lean.Widget.getWidgets,
+            params := toJson pos,
+          }
+          Ipc.writeRequest ⟨requestNo, "$/lean/rpc/call", ps⟩
+          let response ← Ipc.readResponseAs requestNo Lean.Widget.GetWidgetsResponse
+          requestNo := requestNo + 1
+          IO.eprintln (toJson response.result)
+          for w in response.result.widgets do
+            let params : Lean.Widget.GetWidgetSourceParams := { pos, hash := w.javascriptHash }
+            let ps : RpcCallParams := {
+              ps with
+              method := `Lean.Widget.getWidgetSource,
+              params := toJson params,
+            }
+            Ipc.writeRequest ⟨requestNo, "$/lean/rpc/call", ps⟩
+            let resp ← Ipc.readResponseAs requestNo Lean.Widget.WidgetSource
+            IO.eprintln (toJson resp.result)
+            requestNo := requestNo + 1
         | _ =>
           let Except.ok params ← pure <| Json.parse params
             | throw <| IO.userError s!"failed to parse {params}"
           let params := params.setObjVal! "textDocument" (toJson { uri := uri : TextDocumentIdentifier })
           -- TODO: correctly compute in presence of Unicode
-          let column := ws.endPos + "--"
           let params := params.setObjVal! "position" (toJson pos)
           IO.eprintln params
           Ipc.writeRequest ⟨requestNo, method, params⟩
           let rec readFirstResponse := do
             match ← Ipc.readMessage with
-            | resp@(Message.response id r) =>
+            | Message.response id r =>
               assert! id == requestNo
               return r
             | Message.notification .. => readFirstResponse

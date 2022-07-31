@@ -233,7 +233,7 @@ where
             | CongrArgKind.heq => unreachable!
             | CongrArgKind.fixedNoParam => unreachable!
             | CongrArgKind.eq =>
-              let localDecl ← getLocalDecl lhss[i]!.fvarId!
+              let localDecl ← lhss[i]!.fvarId!.getDecl
               withLocalDecl localDecl.userName localDecl.binderInfo localDecl.type fun rhs => do
               withLocalDeclD ((`e).appendIndexAfter (eqs.size+1)) (← mkEq lhss[i]! rhs) fun eq => do
                 go (i+1) (rhss.push rhs) (eqs.push eq) (hyps.push rhs |>.push eq)
@@ -244,7 +244,7 @@ where
               go (i+1) (rhss.push rhs) (eqs.push none) hyps
             | CongrArgKind.subsingletonInst =>
               let rhsType := (← inferType lhss[i]!).replaceFVars (lhss[:rhss.size]) rhss
-              withLocalDecl (← getLocalDecl lhss[i]!.fvarId!).userName BinderInfo.instImplicit rhsType fun rhs =>
+              withLocalDecl (← lhss[i]!.fvarId!.getDecl).userName BinderInfo.instImplicit rhsType fun rhs =>
                 go (i+1) (rhss.push rhs) (eqs.push none) (hyps.push rhs)
         return some (← go 0 #[] #[] #[])
     catch _ =>

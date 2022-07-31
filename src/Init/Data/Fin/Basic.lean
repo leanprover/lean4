@@ -44,7 +44,7 @@ protected def mul : Fin n → Fin n → Fin n
 protected def sub : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a + (n - b)) % n, mlt h⟩
 
-/-
+/-!
 Remark: mod/div/modn/land/lor can be defined without using (% n), but
 we are trying to minimize the number of Nat theorems
 needed to boostrap Lean.

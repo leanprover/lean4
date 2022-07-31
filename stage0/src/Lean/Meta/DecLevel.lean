@@ -22,7 +22,7 @@ private partial def decAux? : Level → ReaderT DecLevelContext MetaM (Option Le
     match (← getLevelMVarAssignment? mvarId) with
     | some u => decAux? u
     | none   =>
-      if (← isReadOnlyLevelMVar mvarId) || !(← read).canAssignMVars then
+      if (← mvarId.isReadOnly) || !(← read).canAssignMVars then
         return none
       else
         let u ← mkFreshLevelMVar
@@ -63,7 +63,7 @@ def decLevel (u : Level) : MetaM Level := do
   | some u => return u
   | none   => throwError "invalid universe level, {u} is not greater than 0"
 
-/- This method is useful for inferring universe level parameters for function that take arguments such as `{α : Type u}`.
+/-- This method is useful for inferring universe level parameters for function that take arguments such as `{α : Type u}`.
    Recall that `Type u` is `Sort (u+1)` in Lean. Thus, given `α`, we must infer its universe level,
    and then decrement 1 to obtain `u`. -/
 def getDecLevel (type : Expr) : MetaM Level := do

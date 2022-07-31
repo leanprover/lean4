@@ -149,7 +149,7 @@ def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Optio
         let goals ← List.join <$> rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter, .. } =>
           let ci := if useAfter then { ci with mctx := ti.mctxAfter } else { ci with mctx := ti.mctxBefore }
           let goals := if useAfter then ti.goalsAfter else ti.goalsBefore
-          ci.runMetaM {} <| goals.mapM (fun g => Meta.withPPInaccessibleNames (Widget.goalToInteractive g))
+          ci.runMetaM {} <| goals.mapM (fun g => Meta.withPPForTacticGoal (Widget.goalToInteractive g))
         return some { goals := goals.toArray }
       else
         return none
@@ -256,12 +256,12 @@ where
         unless stx.isOfKind ``Lean.Parser.Command.declaration do
           return (syms, stxs')
         if let some stxRange := stx.getRange? then
-          let (name, selection) : String × Syntax := match stx with
-            | `($_:declModifiers $_:attrKind instance $[$np:namedPrio]? $[$id:ident$[.{$ls,*}]?]? $sig:declSig $_) =>
+          let (name, selection) := match stx with
+            | `($_:declModifiers $_:attrKind instance $[$np:namedPrio]? $[$id$[.{$ls,*}]?]? $sig:declSig $_) =>
               ((·.getId.toString) <$> id |>.getD s!"instance {sig.raw.reprint.getD ""}", id.map (·.raw) |>.getD sig)
             | _ =>
               match stx.getArg 1 |>.getArg 1 with
-              | `(declId|$id:ident$[.{$ls,*}]?) => (id.raw.getId.toString, id)
+              | `(declId|$id$[.{$ls,*}]?) => (id.raw.getId.toString, id)
               | _ =>
                 let stx10 : Syntax := (stx.getArg 1).getArg 0 -- TODO: stx[1][0] times out
                 (stx10.isIdOrAtom?.getD "<unknown>", stx10)
@@ -298,7 +298,8 @@ def noHighlightKinds : Array SyntaxNodeKind := #[
   ``Lean.Parser.Term.prop,
   -- not really keywords
   `antiquotName,
-  ``Lean.Parser.Command.docComment]
+  ``Lean.Parser.Command.docComment,
+  ``Lean.Parser.Command.moduleDoc]
 
 structure SemanticTokensContext where
   beginPos  : String.Pos

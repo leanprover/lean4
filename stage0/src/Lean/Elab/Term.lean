@@ -5,6 +5,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 import Lean.ResolveName
 import Lean.Log
+import Lean.Deprecated
 import Lean.Util.Sorry
 import Lean.Util.ReplaceExpr
 import Lean.Structure
@@ -119,7 +120,6 @@ structure State where
   pendingMVars      : List MVarId := {}
   mvarErrorInfos    : MVarIdMap MVarErrorInfo := {}
   letRecsToLift     : List LetRecToLift := []
-  infoState         : InfoState := {}
   deriving Inhabited
 
 end Term
@@ -249,12 +249,12 @@ protected def saveState : TermElabM SavedState :=
 
 def SavedState.restore (s : SavedState) (restoreInfo : Bool := false) : TermElabM Unit := do
   let traceState ← getTraceState -- We never backtrack trace message
-  let infoState := (← get).infoState -- We also do not backtrack the info nodes when `restoreInfo == false`
+  let infoState ← getInfoState -- We also do not backtrack the info nodes when `restoreInfo == false`
   s.meta.restore
   set s.elab
   setTraceState traceState
   unless restoreInfo do
-    modify fun s => { s with infoState }
+    setInfoState infoState
 
 instance : MonadBacktrack SavedState TermElabM where
   saveState      := Term.saveState
@@ -329,16 +329,12 @@ instance : AddErrorMessageContext TermElabM where
     let msg ← addMacroStack msg ctx.macroStack
     pure (ref, msg)
 
-instance : MonadInfoTree TermElabM where
-  getInfoState      := return (← get).infoState
-  modifyInfoState f := modify fun s => { s with infoState := f s.infoState }
-
 /--
   Execute `x` but discard changes performed at `Term.State` and `Meta.State`.
-  Recall that the environment is at `Core.State`. Thus, any updates to it will
+  Recall that the `Environment` and `InfoState` are at `Core.State`. Thus, any updates to it will
   be preserved. This method is useful for performing computations where all
   metavariable must be resolved or discarded.
-  The info trees are not discarded, however, and wrapped in `InfoTree.Context`
+  The `InfoTree`s are not discarded, however, and wrapped in `InfoTree.Context`
   to store their metavariable context. -/
 def withoutModifyingElabMetaStateWithInfo (x : TermElabM α) : TermElabM α := do
   let s ← get
@@ -346,7 +342,7 @@ def withoutModifyingElabMetaStateWithInfo (x : TermElabM α) : TermElabM α := d
   try
     withSaveInfoContext x
   finally
-    modify ({ s with infoState := ·.infoState })
+    set s
     set sMeta
 
 /--
@@ -357,7 +353,7 @@ private def withoutModifyingStateWithInfoAndMessagesImpl (x : TermElabM α) : Te
   try
     withSaveInfoContext x
   finally
-    let saved := { saved with elab.infoState := (← get).infoState, meta.core.messages := (← getThe Core.State).messages }
+    let saved := { saved with meta.core.infoState := (← getInfoState), meta.core.messages := (← getThe Core.State).messages }
     restoreState saved
 
 /--
@@ -382,9 +378,9 @@ builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermEl
 -/
 inductive LVal where
   | fieldIdx  (ref : Syntax) (i : Nat)
-    /- Field `suffix?` is for producing better error messages because `x.y` may be a field access or a hierachical/composite name.
+  | /-- Field `suffix?` is for producing better error messages because `x.y` may be a field access or a hierachical/composite name.
        `ref` is the syntax object representing the field. `targetStx` is the target object being accessed. -/
-  | fieldName (ref : Syntax) (name : String) (suffix? : Option Name) (targetStx : Syntax)
+    fieldName (ref : Syntax) (name : String) (suffix? : Option Name) (targetStx : Syntax)
 
 def LVal.getRef : LVal → Syntax
   | .fieldIdx ref _    => ref
@@ -429,12 +425,15 @@ def withAuxDecl (shortDeclName : Name) (type : Expr) (declName : Name) (k : Expr
     withReader (fun ctx => { ctx with auxDeclToFullName := ctx.auxDeclToFullName.insert x.fvarId! declName }) do
       k x
 
+def withoutErrToSorryImp (x : TermElabM α) : TermElabM α :=
+  withReader (fun ctx => { ctx with errToSorry := false }) x
+
 /--
   Execute `x` without converting errors (i.e., exceptions) to `sorry` applications.
   Recall that when `errToSorry = true`, the method `elabTerm` catches exceptions and convert them into `sorry` applications.
 -/
-def withoutErrToSorry (x : TermElabM α) : TermElabM α :=
-  withReader (fun ctx => { ctx with errToSorry := false }) x
+def withoutErrToSorry [MonadFunctorT TermElabM m] : m α → m α :=
+  monadMap (m := TermElabM) withoutErrToSorryImp
 
 /-- For testing `TermElabM` methods. The #eval command will sign the error. -/
 def throwErrorIfErrors : TermElabM Unit := do
@@ -461,12 +460,12 @@ def liftLevelM (x : LevelElabM α) : TermElabM α := do
 def elabLevel (stx : Syntax) : TermElabM Level :=
   liftLevelM <| Level.elabLevel stx
 
-/- Elaborate `x` with `stx` on the macro stack -/
+/-- Elaborate `x` with `stx` on the macro stack -/
 def withMacroExpansion (beforeStx afterStx : Syntax) (x : TermElabM α) : TermElabM α :=
   withMacroExpansionInfo beforeStx afterStx do
     withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
-/-
+/--
   Add the given metavariable to the list of pending synthetic metavariables.
   The method `synthesizeSyntheticMVars` is used to process the metavariables on this list. -/
 def registerSyntheticMVar (stx : Syntax) (mvarId : MVarId) (kind : SyntheticMVarKind) : TermElabM Unit := do
@@ -495,7 +494,7 @@ def registerCustomErrorIfMVar (e : Expr) (ref : Syntax) (msgData : MessageData) 
   | Expr.mvar mvarId => registerMVarErrorCustomInfo mvarId ref msgData
   | _ => pure ()
 
-/-
+/--
   Auxiliary method for reporting errors of the form "... contains metavariables ...".
   This kind of error is thrown, for example, at `Match.lean` where elaboration
   cannot continue if there are metavariables in patterns.
@@ -561,7 +560,7 @@ def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) (extraMsg? : Op
     -- To sort the errors by position use
     -- let sortedErrors := errors.qsort fun e₁ e₂ => e₁.ref.getPos?.getD 0 < e₂.ref.getPos?.getD 0
     for error in errors do
-      withMVarContext error.mvarId do
+      error.mvarId.withContext do
         error.logError extraMsg?
     return hasNewErrors
 
@@ -571,7 +570,7 @@ def ensureNoUnassignedMVars (decl : Declaration) : TermElabM Unit := do
   if (← logUnassignedUsingErrorInfos pendingMVarIds) then
     throwAbortCommand
 
-/-
+/--
   Execute `x` without allowing it to postpone elaboration tasks.
   That is, `tryPostpone` is a noop. -/
 def withoutPostponing (x : TermElabM α) : TermElabM α :=
@@ -587,14 +586,14 @@ def mkExplicitBinder (ident : Syntax) (type : Syntax) : Syntax :=
   The method returns the updated expression and new `nextParamIdx`.
 
   Remark: we make sure the generated parameter names do not clash with the universe at `ctx.levelNames`. -/
-def levelMVarToParam (e : Expr) (nextParamIdx : Nat := 1) (except : MVarId → Bool := fun _ => false) : TermElabM (Expr × Nat) := do
+def levelMVarToParam (e : Expr) (nextParamIdx : Nat := 1) (except : LMVarId → Bool := fun _ => false) : TermElabM (Expr × Nat) := do
   let levelNames ← getLevelNames
   let r := (← getMCtx).levelMVarToParam (fun n => levelNames.elem n) except e `u nextParamIdx
   setMCtx r.mctx
   return (r.expr, r.nextParamIdx)
 
 /-- Variant of `levelMVarToParam` where `nextParamIdx` is stored in a state monad. -/
-def levelMVarToParam' (e : Expr) (except : MVarId → Bool := fun _ => false) : StateRefT Nat TermElabM Expr := do
+def levelMVarToParam' (e : Expr) (except : LMVarId → Bool := fun _ => false) : StateRefT Nat TermElabM Expr := do
   let nextParamIdx ← get
   let (e, nextParamIdx) ← levelMVarToParam e nextParamIdx except
   set nextParamIdx
@@ -680,9 +679,9 @@ partial def visit (e : Expr) : M Unit := do
     | .mdata _ b         => visit b
     | .proj _ _ b        => visit b
     | .fvar fvarId ..    =>
-      match (← getLocalDecl fvarId) with
+      match (← fvarId.getDecl) with
       | .cdecl .. => return ()
-      | LocalDecl.ldecl (value := v) .. => visit v
+      | .ldecl (value := v) .. => visit v
     | .mvar mvarId ..    =>
       let e' ← instantiateMVars e
       if e' != e then
@@ -716,7 +715,7 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
   let result ← trySynthInstance type maxResultSize?
   match result with
   | LOption.some val =>
-    if (← isExprMVarAssigned instMVar) then
+    if (← instMVar.isAssigned) then
       let oldVal ← instantiateMVars (mkMVar instMVar)
       unless (← isDefEq oldVal val) do
         if (← containsPendingMVar oldVal <||> containsPendingMVar val) then
@@ -850,13 +849,13 @@ Otherwise, we just use the basic `tryCoe`.
 
 Extensions for monads.
 
-1- Try to unify `n` and `m`. If it succeeds, then we use
-   ```
-   coeM {m : Type u → Type v} {α β : Type u} [∀ a, CoeT α a β] [Monad m] (x : m α) : m β
-   ```
-   `n` must be a `Monad` to use this one.
+1. Try to unify `n` and `m`. If it succeeds, then we use
+  ```
+  coeM {m : Type u → Type v} {α β : Type u} [∀ a, CoeT α a β] [Monad m] (x : m α) : m β
+  ```
+  `n` must be a `Monad` to use this one.
 
-2- If there is monad lift from `m` to `n` and we can unify `α` and `β`, we use
+2. If there is monad lift from `m` to `n` and we can unify `α` and `β`, we use
   ```
   liftM : ∀ {m : Type u_1 → Type u_2} {n : Type u_1 → Type u_3} [self : MonadLiftT m n] {α : Type u_1}, m α → n α
   ```
@@ -871,7 +870,7 @@ Extensions for monads.
 
   ```
 
-3- If there is a monad lif from `m` to `n` and a coercion from `α` to `β`, we use
+3. If there is a monad lif from `m` to `n` and a coercion from `α` to `β`, we use
   ```
   liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u} [MonadLiftT m n] [∀ a, CoeT α a β] [Monad n] (x : m α) : n β
   ```
@@ -1048,7 +1047,12 @@ def withSavedContext (savedCtx : SavedContext) (x : TermElabM α) : TermElabM α
     withTheReader Core.Context (fun ctx => { ctx with options := savedCtx.options, openDecls := savedCtx.openDecls }) <|
       withLevelNames savedCtx.levelNames x
 
-private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+/--
+Delay the elaboration of `stx`, and return a fresh metavariable that works a placeholder.
+Remark: the caller is responsible for making sure the info tree is properly updated.
+This method is used only at `elabUsingElabFnsAux`.
+-/
+private def postponeElabTermCore (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
   trace[Elab.postpone] "{stx} : {expectedType?}"
   let mvar ← mkFreshExprMVar expectedType? MetavarKind.syntheticOpaque
   registerSyntheticMVar stx mvar.mvarId! (SyntheticMVarKind.postponed (← saveContext))
@@ -1126,7 +1130,16 @@ def withInfoContext' (stx : Syntax) (x : TermElabM Expr) (mkInfo : Expr → Term
   else
     Elab.withInfoContext' x mkInfo
 
-/-
+/--
+Postpone the elaboration of `stx`, return a metavariable that acts as a placeholder, and
+ensures the info tree is updated and a hole id is introduced.
+When `stx` is elaborated, new info nodes are created and attached to the new hole id in the info tree.
+-/
+def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+  withInfoContext' stx (mkInfo := mkTermInfo .anonymous (expectedType? := expectedType?) stx) do
+    postponeElabTermCore stx expectedType?
+
+/--
   Helper function for `elabTerm` is tries the registered elaboration functions for `stxNode` kind until it finds one that supports the syntax or
   an error is found. -/
 private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool)
@@ -1165,7 +1178,7 @@ private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? :
                 wasteful because when we resume the elaboration of `((f.x a1).x a2).x a3`, we start it from scratch
                 and new metavariables are created for the nested functions. -/
               s.restore
-              postponeElabTerm stx expectedType?
+              postponeElabTermCore stx expectedType?
             else
               throw ex)
     catch ex => match ex with
@@ -1312,7 +1325,7 @@ where
     | type, fvars =>
       elabImplicitLambdaAux stx catchExPostpone type fvars
 
-/- Main loop for `elabTerm` -/
+/-- Main loop for `elabTerm` -/
 private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone : Bool) (implicitLambda : Bool) : Syntax → TermElabM Expr
   | .missing => mkSyntheticSorryFor expectedType?
   | stx => withFreshMacroScope <| withIncRecDepth do
@@ -1484,7 +1497,7 @@ where
     match mvarIds with
     | [] => return result
     | mvarId :: mvarIds => do
-      if (← isExprMVarAssigned mvarId) then
+      if (← mvarId.isAssigned) then
         go mvarIds result
       else if result.contains (mkMVar mvarId) || except mvarId then
         go mvarIds result
@@ -1515,7 +1528,7 @@ where
     | [] =>
       for auto in autos do
         if auto.isFVar then
-          let localDecl ← getLocalDecl auto.fvarId!
+          let localDecl ← auto.fvarId!.getDecl
           for x in xs do
             if (← localDeclDependsOn localDecl x.fvarId!) then
               throwError "invalid auto implicit argument '{auto}', it depends on explicitly provided argument '{x}'"
@@ -1544,7 +1557,7 @@ def mkAuxName (suffix : Name) : TermElabM Name := do
 
 builtin_initialize registerTraceClass `Elab.letrec
 
-/- Return true if mvarId is an auxiliary metavariable created for compiling `let rec` or it
+/-- Return true if mvarId is an auxiliary metavariable created for compiling `let rec` or it
    is delayed assigned to one. -/
 def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
   trace[Elab.letrec] "mvarId: {mkMVar mvarId} letrecMVars: {(← get).letRecsToLift.map (mkMVar $ ·.mvarId)}"
@@ -1561,7 +1574,34 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
   let matchLocaDecl? (localDecl : LocalDecl) (givenName : Name) : Option LocalDecl := do
     guard (localDecl.userName == givenName)
     return localDecl
-  /- "Match" function for auxiliary declarations that correspond to recursive definitions being defined. -/
+  /-
+  "Match" function for auxiliary declarations that correspond to recursive definitions being defined.
+  This function is used in the first-pass.
+  Note that we do not check for `localDecl.userName == giveName` in this pass as we do for regular local declarations.
+  Reason: consider the following example
+  ```
+    mutual
+      inductive Foo
+      | somefoo : Foo | bar : Bar → Foo → Foo
+      inductive Bar
+      | somebar : Bar| foobar : Foo → Bar → Bar
+    end
+
+    mutual
+      private def Foo.toString : Foo → String
+        | Foo.somefoo => go 2 ++ toString.go 2 ++ Foo.toString.go 2
+        | Foo.bar b f => toString f ++ Bar.toString b
+      where
+        go (x : Nat) := s!"foo {x}"
+
+      private def _root_.Ex2.Bar.toString : Bar → String
+        | Bar.somebar => "bar"
+        | Bar.foobar f b => Foo.toString f ++ Bar.toString b
+    end
+  ```
+  In the example above, we have two local declarations named `toString` in the local context, and
+  we want the `toString f` to be resolved to `Foo.toString f`
+  -/
   let matchAuxRecDecl? (localDecl : LocalDecl) (fullDeclName : Name) (givenNameView : MacroScopesView) : Option LocalDecl := do
     let fullDeclView := extractMacroScopes fullDeclName
     /- First cleanup private name annotations -/
@@ -1591,8 +1631,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
       return localDecl
     else
       /-
-         This case is only reachable when using mutual declarations. It is the standard
-         algorithm we using at `resolveGlobalName` for processing namespaces.
+         It is the standard algorithm we using at `resolveGlobalName` for processing namespaces.
 
          The current solution also has a limitation when using `def _root_` in a mutual block.
          The non `def _root_` declarations may update the namespace. See the following example:
@@ -1607,6 +1646,8 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
          `def Foo.f` updates the namespace. Then, even when processing `def _root_.g ...`
          the condition `currNamespace.isPrefixOf fullDeclName` does not hold.
          This is not a big problem because we are planning to modify how we handle the mutual block in the future.
+
+         Note that we don't check for `localDecl.userName == givenName` here.
       -/
       let rec go (ns : Name) : Option LocalDecl := do
         if { givenNameView with name := ns ++ givenNameView.name }.review == fullDeclName then
@@ -1619,7 +1660,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
      If `skipAuxDecl` we ignore `auxDecl` local declarations. -/
   let findLocalDecl? (givenNameView : MacroScopesView) (skipAuxDecl : Bool) : Option LocalDecl :=
     let givenName := givenNameView.review
-    lctx.decls.findSomeRev? fun localDecl? => do
+    let localDecl? := lctx.decls.findSomeRev? fun localDecl? => do
       let localDecl ← localDecl?
       if localDecl.binderInfo == .auxDecl then
         guard (not skipAuxDecl)
@@ -1628,6 +1669,14 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
         else
           matchLocaDecl? localDecl givenName
       else
+        matchLocaDecl? localDecl givenName
+    if localDecl?.isSome || skipAuxDecl then
+      localDecl?
+    else
+      -- Search auxDecls again trying an exact match of the given name
+      lctx.decls.findSomeRev? fun localDecl? => do
+        let localDecl ← localDecl?
+        guard (localDecl.binderInfo == .auxDecl)
         matchLocaDecl? localDecl givenName
   let rec loop (n : Name) (projs : List String) :=
     let givenNameView := { view with name := n }
@@ -1670,9 +1719,10 @@ def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM E
     return Lean.mkConst constName (explicitLevels ++ us)
 
 private def mkConsts (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
-  candidates.foldlM (init := []) fun result (constName, projs) => do
-    -- TODO: better suppor for `mkConst` failure. We may want to cache the failures, and report them if all candidates fail.
-   let const ← mkConst constName explicitLevels
+  candidates.foldlM (init := []) fun result (declName, projs) => do
+   -- TODO: better suppor for `mkConst` failure. We may want to cache the failures, and report them if all candidates fail.
+   checkDeprecated declName -- TODO: check is occurring too early if there are multiple alternatives. Fix if it is not ok in practice
+   let const ← mkConst declName explicitLevels
    return (const, projs) :: result
 
 def resolveName (stx : Syntax) (n : Name) (preresolved : List (Name × List String)) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × List String)) := do
@@ -1689,15 +1739,16 @@ def resolveName (stx : Syntax) (n : Name) (preresolved : List (Name × List Stri
     process (← resolveGlobalName n)
   else
     process preresolved
-where process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do
-  if candidates.isEmpty then
-    if (← read).autoBoundImplicit &&
-         !(← read).autoBoundImplicitForbidden n &&
-         isValidAutoBoundImplicitName n (relaxedAutoImplicit.get (← getOptions)) then
-      throwAutoBoundImplicitLocal n
-    else
-      throwError "unknown identifier '{Lean.mkConst n}'"
-  mkConsts candidates explicitLevels
+where
+  process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do
+    if candidates.isEmpty then
+      if (← read).autoBoundImplicit &&
+           !(← read).autoBoundImplicitForbidden n &&
+           isValidAutoBoundImplicitName n (relaxedAutoImplicit.get (← getOptions)) then
+        throwAutoBoundImplicitLocal n
+      else
+        throwError "unknown identifier '{Lean.mkConst n}'"
+    mkConsts candidates explicitLevels
 
 /--
   Similar to `resolveName`, but creates identifiers for the main part and each projection with position information derived from `ident`.
@@ -1705,7 +1756,7 @@ where process (candidates : List (Name × List String)) : TermElabM (List (Expr 
   `(v.head, id, [f₁, f₂])` where `id` is an identifier for `v.head`, and `f₁` and `f₂` are identifiers for fields `"bla"` and `"boo"`. -/
 def resolveName' (ident : Syntax) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × Syntax × List Syntax)) := do
   match ident with
-  | Syntax.ident _    _      n preresolved =>
+  | .ident _ _ n preresolved =>
     let r ← resolveName ident n preresolved explicitLevels expectedType?
     r.mapM fun (c, fields) => do
       let ids := ident.identComponents (nFields? := fields.length)
@@ -1714,7 +1765,7 @@ def resolveName' (ident : Syntax) (explicitLevels : List Level) (expectedType? :
 
 def resolveId? (stx : Syntax) (kind := "term") (withInfo := false) : TermElabM (Option Expr) :=
   match stx with
-  | Syntax.ident _ _ val preresolved => do
+  | .ident _ _ val preresolved => do
     let rs ← try resolveName stx val preresolved [] catch _ => pure []
     let rs := rs.filter fun ⟨_, projs⟩ => projs.isEmpty
     let fs := rs.map fun (f, _) => f
@@ -1775,7 +1826,7 @@ def exprToSyntax (e : Expr) : TermElabM Term := withFreshMacroScope do
   let result ← `(?m)
   let eType ← inferType e
   let mvar ← elabTerm result eType
-  assignExprMVar mvar.mvarId! e
+  mvar.mvarId!.assign e
   return result
 
 end Term

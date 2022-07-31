@@ -76,7 +76,7 @@ def assignGoalOf (p : Problem) (e : Expr) : MetaM Unit :=
     let eType ← inferType e
     unless (← isDefEq mvarType eType) do
       throwError "dependent elimination failed, type mismatch when solving alternative with type{indentExpr eType}\nbut expected{indentExpr mvarType}"
-    assignExprMVar p.mvarId e
+    p.mvarId.assign e
 
 structure State where
   used            : Std.HashSet Nat := {} -- used alternatives
@@ -171,9 +171,9 @@ private def processLeaf (p : Problem) : StateRefT State MetaM Unit := do
   match p.alts with
   | []       =>
     /- TODO: allow users to configure which tactic is used to close leaves. -/
-    unless (← contradictionCore p.mvarId {}) do
+    unless (← p.mvarId.contradictionCore {}) do
       trace[Meta.Match.match] "missing alternative"
-      admit p.mvarId
+      p.mvarId.admit
       modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
   | alt :: _ =>
     -- TODO: check whether we have unassigned metavars in rhs
@@ -188,18 +188,18 @@ private def processAsPattern (p : Problem) : MetaM Problem :=
       match alt.patterns with
       | Pattern.as fvarId p h :: ps =>
         /- We used to use `checkAndReplaceFVarId` here, but `x` and `fvarId` may have different types
-           when dependent types are beind used. Let's consider the repro for issue #471
-           ```
-            inductive vec : Nat → Type
-            | nil : vec 0
-            | cons : Int → vec n → vec n.succ
+          when dependent types are beind used. Let's consider the repro for issue #471
+          ```
+          inductive vec : Nat → Type
+          | nil : vec 0
+          | cons : Int → vec n → vec n.succ
 
-            def vec_len : vec n → Nat
-            | vec.nil => 0
-            | x@(vec.cons h t) => vec_len t + 1
+          def vec_len : vec n → Nat
+          | vec.nil => 0
+          | x@(vec.cons h t) => vec_len t + 1
 
-           ```
-           we reach the state
+          ```
+          we reach the state
           ```
             [Meta.Match.match] remaining variables: [x✝:(vec n✝)]
             alternatives:
@@ -297,7 +297,7 @@ def assign (fvarId : FVarId) (v : Expr) : M Bool := do
         The first step is a variable-transition which replaces `β` with `β✝` in the first and third alternatives.
         The constraint `β✝ === α` in the second alternative is lost. Note that `α` is not an alternative variable.
         After applying the variable-transition step twice, we reach the following state
-        ``lean
+        ```lean
         [Meta.Match.match] remaining variables: [f✝:(Arrow β✝ γ✝), g✝:(Arrow α β✝)]
         alternatives:
           [g:(Arrow α β✝)] |- [(Arrow.id .(β✝)), g] => h_1 β✝ g
@@ -330,24 +330,30 @@ partial def unify (a : Expr) (b : Expr) : M Bool := do
     if a != a' || b != b' then
       unify a' b'
     else match a, b with
-      | Expr.fvar aFvarId, Expr.fvar bFVarId => assign aFvarId b <||> assign bFVarId a
-      | Expr.fvar aFvarId, b => assign aFvarId b
-      | a, Expr.fvar bFVarId => assign bFVarId a
-      | Expr.app aFn aArg, Expr.app bFn bArg => unify aFn bFn <&&> unify aArg bArg
-      | _, _ => return false
+      | .fvar aFvarId, .fvar bFVarId => assign aFvarId b <||> assign bFVarId a
+      | .fvar aFvarId, b => assign aFvarId b
+      | a, .fvar bFVarId => assign bFVarId a
+      | .app aFn aArg, .app bFn bArg => unify aFn bFn <&&> unify aArg bArg
+      | _, _ =>
+        let a' := (← get).fvarSubst.apply a
+        let b' := (← get).fvarSubst.apply b
+        if a != a' || b != b' then
+          unify a' b'
+        else
+          return false
 
 end Unify
 
 private def unify? (altFVarDecls : List LocalDecl) (a b : Expr) : MetaM (Option FVarSubst) := do
   trace[Meta.Match.unify] "altFVarDecls: {altFVarDecls.map fun d => d.userName}, {a} =?= {b}"
   let a ← instantiateMVars a
-    let b ← instantiateMVars b
-    let (r, s) ← Unify.unify a b { altFVarDecls := altFVarDecls} |>.run {}
-    if r then
-      return s.fvarSubst
-    else
-      trace[Meta.Match.unify] "failed to unify{indentExpr a}\nwith{indentExpr b}"
-      return none
+  let b ← instantiateMVars b
+  let (r, s) ← Unify.unify a b { altFVarDecls := altFVarDecls} |>.run {}
+  if r then
+    return s.fvarSubst
+  else
+    trace[Meta.Match.unify] "failed to unify{indentExpr a}\nwith{indentExpr b}"
+    return none
 
 private def expandVarIntoCtor? (alt : Alt) (fvarId : FVarId) (ctorName : Name) : MetaM (Option Alt) :=
   withExistingLocalDecls alt.fvarDecls do
@@ -357,10 +363,13 @@ private def expandVarIntoCtor? (alt : Alt) (fvarId : FVarId) (ctorName : Name) :
     let (ctorLevels, ctorParams) ← getInductiveUniverseAndParams expectedType
     let ctor := mkAppN (mkConst ctorName ctorLevels) ctorParams
     let ctorType ← inferType ctor
+    -- TODO: try to rewrite this code using metavariables using `isDefEq` instead of `unify?`, and then
+    -- convert unassigned metavariables to fresh free variables.
+    -- Reason: `unify?` is too buggy
     forallTelescopeReducing ctorType fun ctorFields resultType => do
       let ctor := mkAppN ctor ctorFields
       let alt  := alt.replaceFVarId fvarId ctor
-      let ctorFieldDecls ← ctorFields.mapM fun ctorField => getLocalDecl ctorField.fvarId!
+      let ctorFieldDecls ← ctorFields.mapM fun ctorField => ctorField.fvarId!.getDecl
       let newAltDecls := ctorFieldDecls.toList ++ alt.fvarDecls
       trace[Meta.Match.unify] "expandVarIntoCtor? {mkFVar fvarId} : {expectedType}, ctor: {ctor}, resultType: {resultType}"
       let subst? ← unify? newAltDecls resultType expectedType
@@ -392,7 +401,7 @@ private def hasRecursiveType (x : Expr) : MetaM Bool := do
   | some val => return val.isRec
   | _        => return false
 
-/- Given `alt` s.t. the next pattern is an inaccessible pattern `e`,
+/-- Given `alt` s.t. the next pattern is an inaccessible pattern `e`,
    try to normalize `e` into a constructor application.
    If it is not a constructor, throw an error.
    Otherwise, if it is a constructor application of `ctorName`,
@@ -440,7 +449,7 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
     let subgoals? ← commitWhenSome? do
        let subgoals ←
          try
-           cases p.mvarId x.fvarId!
+           p.mvarId.cases x.fvarId!
          catch ex =>
            if p.alts.isEmpty then
              /- If we have no alternatives and dependent pattern matching fails, then a "missing cases" error is bettern than a "stuck" error message. -/
@@ -465,7 +474,7 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
     match subgoals? with
     | none          => return #[{ p with vars := xs }]
     | some subgoals =>
-      subgoals.mapM fun subgoal => withMVarContext subgoal.mvarId do
+      subgoals.mapM fun subgoal => subgoal.mvarId.withContext do
         let subst    := subgoal.subst
         let fields   := subgoal.fields.toList
         let newVars  := fields ++ xs
@@ -573,7 +582,7 @@ private def collectArraySizes (p : Problem) : Array Nat :=
 
 private def expandVarIntoArrayLit (alt : Alt) (fvarId : FVarId) (arrayElemType : Expr) (arraySize : Nat) : MetaM Alt :=
   withExistingLocalDecls alt.fvarDecls do
-    let fvarDecl ← getLocalDecl fvarId
+    let fvarDecl ← fvarId.getDecl
     let varNamePrefix := fvarDecl.userName
     let rec loop (n : Nat) (newVars : Array Expr) := do
       match n with
@@ -583,7 +592,7 @@ private def expandVarIntoArrayLit (alt : Alt) (fvarId : FVarId) (arrayElemType :
       | 0 =>
         let arrayLit ← mkArrayLit arrayElemType newVars.toList
         let alt := alt.replaceFVarId fvarId arrayLit
-        let newDecls ← newVars.toList.mapM fun newVar => getLocalDecl newVar.fvarId!
+        let newDecls ← newVars.toList.mapM fun newVar => newVar.fvarId!.getDecl
         let newPatterns := newVars.toList.map fun newVar => Pattern.var newVar.fvarId!
         return { alt with fvarDecls := newDecls ++ alt.fvarDecls, patterns := newPatterns ++ alt.patterns }
     loop arraySize #[]
@@ -688,7 +697,7 @@ private def moveToFront (p : Problem) (i : Nat) : Problem :=
 private partial def process (p : Problem) : StateRefT State MetaM Unit :=
   search 0
 where
-  /- If `p.vars` is empty, then we are done. Otherwise, we process `p.vars[0]`. -/
+  /-- If `p.vars` is empty, then we are done. Otherwise, we process `p.vars[0]`. -/
   tryToProcess (p : Problem) : StateRefT State MetaM Unit := withIncRecDepth do
     traceState p
     let isInductive ← isCurrVarInductive p
@@ -727,7 +736,7 @@ where
       checkNextPatternTypes p
       throwNonSupported p
 
-  /- Return `true` if `type` does not depend on the first `i` elements in `xs` -/
+  /-- Return `true` if `type` does not depend on the first `i` elements in `xs` -/
   checkVarDeps (xs : List Expr) (i : Nat) (type : Expr) : MetaM Bool := do
     match i, xs with
     | 0,   _     => return true
@@ -787,7 +796,7 @@ register_builtin_option bootstrap.genMatcherCode : Bool := {
 
 builtin_initialize matcherExt : EnvExtension (Std.PHashMap (Expr × Bool) Name) ← registerEnvExtension (pure {})
 
-/- Similar to `mkAuxDefinition`, but uses the cache `matcherExt`.
+/-- Similar to `mkAuxDefinition`, but uses the cache `matcherExt`.
    It also returns an Boolean that indicates whether a new matcher function was added to the environment or not. -/
 def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (Expr × Option (MatcherInfo → MetaM Unit)) := do
   trace[Meta.Match.debug] "{name} : {type} := {value}"
@@ -985,7 +994,7 @@ def getMkMatcherInputInContext (matcherApp : MatcherApp) : MetaM MkMatcherInput 
 
   return { matcherName, matchType, discrInfos := matcherInfo.discrInfos, lhss := lhss.toList }
 
-/- This function is only used for testing purposes -/
+/-- This function is only used for testing purposes -/
 def withMkMatcherInput (matcherName : Name) (k : MkMatcherInput → MetaM α) : MetaM α := do
   let some matcherInfo ← getMatcherInfo? matcherName | throwError "not a matcher: {matcherName}"
   let matcherConst ← getConstInfo matcherName
@@ -998,7 +1007,7 @@ def withMkMatcherInput (matcherName : Name) (k : MkMatcherInput → MetaM α) : 
 
 end Match
 
-/- Auxiliary function for MatcherApp.addArg -/
+/-- Auxiliary function for MatcherApp.addArg -/
 private partial def updateAlts (typeNew : Expr) (altNumParams : Array Nat) (alts : Array Expr) (i : Nat) : MetaM (Array Nat × Array Expr) := do
   if h : i < alts.size then
     let alt       := alts.get ⟨i, h⟩
@@ -1016,7 +1025,7 @@ private partial def updateAlts (typeNew : Expr) (altNumParams : Array Nat) (alts
   else
     return (altNumParams, alts)
 
-/- Given
+/-- Given
   - matcherApp `match_i As (fun xs => motive[xs]) discrs (fun ys_1 => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n => (alt_n : motive (C_n[ys_n]) remaining`, and
   - expression `e : B[discrs]`,
   Construct the term

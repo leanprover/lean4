@@ -48,7 +48,7 @@ inductive Term' (rep : Ty → Type) : Ty → Type
   | plus  : Term' rep .nat → Term' rep .nat → Term' rep .nat
   | lam   : (rep dom → Term' rep ran) → Term' rep (.fn dom ran)
   | app   : Term' rep (.fn dom ran) → Term' rep dom → Term' rep ran
-  | «let» : Term' rep ty₁ → (rep ty₁ → Term' rep ty₂) → Term' rep ty₂
+  | let   : Term' rep ty₁ → (rep ty₁ → Term' rep ty₂) → Term' rep ty₂
 
 /-!
 Lean accepts this definition because our embedded functions now merely take variables as
@@ -62,7 +62,6 @@ choices of `rep` type family
 -/
 
 open Ty (nat fn)
-open Term'
 
 namespace FirstTry
 
@@ -72,11 +71,11 @@ def Term (ty : Ty) := (rep : Ty → Type) → Term' rep ty
 In the next two example, note how each is written as a function over a `rep` choice,
 such that the specific choice has no impact on the structure of the term.
 -/
-def add : Term (fn nat (fn nat nat)) := fun rep =>
-  lam fun x => lam fun y => plus (var x) (var y)
+def add : Term (fn nat (fn nat nat)) := fun _rep =>
+  .lam fun x => .lam fun y => .plus (.var x) (.var y)
 
 def three_the_hard_way : Term nat := fun rep =>
-  app (app (add rep) (const 1)) (const 2)
+  .app (.app (add rep) (.const 1)) (.const 2)
 
 end FirstTry
 
@@ -90,10 +89,10 @@ we can completely hide `rep` in these examples.
 def Term (ty : Ty) := {rep : Ty → Type} → Term' rep ty
 
 def add : Term (fn nat (fn nat nat)) :=
-  lam fun x => lam fun y => plus (var x) (var y)
+  .lam fun x => .lam fun y => .plus (.var x) (.var y)
 
 def three_the_hard_way : Term nat :=
-  app (app add (const 1)) (const 2)
+  .app (.app add (.const 1)) (.const 2)
 
 /-!
 It may not be at all obvious that the PHOAS representation admits the crucial computable
@@ -107,12 +106,12 @@ pass beneath. For our current choice of `Unit` data, we always pass `()`.
 -/
 
 def countVars : Term' (fun _ => Unit) ty → Nat
-  | var h     => 1
-  | const n   => 0
-  | plus a b  => countVars a + countVars b
-  | app f a   => countVars f + countVars a
-  | lam b     => countVars (b ())
-  | «let» a b => countVars a + countVars (b ())
+  | .var _    => 1
+  | .const _  => 0
+  | .plus a b => countVars a + countVars b
+  | .app f a  => countVars f + countVars a
+  | .lam b    => countVars (b ())
+  | .let a b  => countVars a + countVars (b ())
 
 /-! We can now easily prove that `add` has two variables by using reflexivity -/
 
@@ -128,14 +127,14 @@ We also use the string interpolation available in Lean. For example, `s!"x_{i}"`
 -/
 def pretty (e : Term' (fun _ => String) ty) (i : Nat := 1) : String :=
   match e with
-  | var s     => s
-  | const n   => toString n
-  | app f a   => s!"({pretty f i} {pretty a i})"
-  | plus a b  => s!"({pretty a i} + {pretty b i})"
-  | lam f     =>
+  | .var s     => s
+  | .const n   => toString n
+  | .app f a   => s!"({pretty f i} {pretty a i})"
+  | .plus a b  => s!"({pretty a i} + {pretty b i})"
+  | .lam f     =>
     let x := s!"x_{i}"
     s!"(fun {x} => {pretty (f x) (i+1)})"
-  | «let» a b =>
+  | .let a b  =>
     let x := s!"x_{i}"
     s!"(let {x} := {pretty a i}; => {pretty (b x) (i+1)}"
 
@@ -151,12 +150,12 @@ new variables are added, but they are only tagged with their own term equivalent
 that this function squash is parameterized over a specific `rep` choice.
 -/
 def squash : Term' (Term' rep) ty → Term' rep ty
- | var e     => e
- | const n   => const n
- | plus a b  => plus (squash a) (squash b)
- | lam f     => lam fun x => squash (f (.var x))
- | app f a   => app (squash f) (squash a)
- | «let» a b => «let» (squash a) fun x => squash (b (.var x))
+ | .var e    => e
+ | .const n  => .const n
+ | .plus a b => .plus (squash a) (squash b)
+ | .lam f    => .lam fun x => squash (f (.var x))
+ | .app f a  => .app (squash f) (squash a)
+ | .let a b  => .let (squash a) fun x => squash (b (.var x))
 
 /-!
 To define the final substitution function over terms with single free variables, we define
@@ -181,7 +180,7 @@ We can view `Term1` as a term with hole. In the following example,
 the hole `_` is instantiated by `subst` with `three_the_hard_way`
 -/
 
-#eval pretty <| subst (fun x => plus (var x) (const 5)) three_the_hard_way
+#eval pretty <| subst (fun x => .plus (.var x) (.const 5)) three_the_hard_way
 
 /-!
 One further development, which may seem surprising at first,
@@ -192,12 +191,12 @@ The attribute `[simp]` instructs Lean to always try to unfold `denote` applicati
 the `simp` tactic. We also say this is a hint for the Lean term simplifier.
 -/
 @[simp] def denote : Term' Ty.denote ty → ty.denote
-  | var x     => x
-  | const n   => n
-  | plus a b  => denote a + denote b
-  | app f a   => denote f (denote a)
-  | lam f     => fun x => denote (f x)
-  | «let» a b => denote (b (denote a))
+  | .var x    => x
+  | .const n  => n
+  | .plus a b => denote a + denote b
+  | .app f a  => denote f (denote a)
+  | .lam f    => fun x => denote (f x)
+  | .let a b  => denote (b (denote a))
 
 example : denote three_the_hard_way = 3 :=
   rfl
@@ -213,15 +212,15 @@ We now define the constant folding optimization that traverses a term if replace
 `plus (const m) (const n)` with `const (n+m)`.
 -/
 @[simp] def constFold : Term' rep ty → Term' rep ty
-  | var x     => var x
-  | const n   => const n
-  | app f a   => app (constFold f) (constFold a)
-  | lam f     => lam fun x => constFold (f x)
-  | «let» a b => «let» (constFold a) fun x => constFold (b x)
-  | plus a b  =>
+  | .var x    => .var x
+  | .const n  => .const n
+  | .app f a  => .app (constFold f) (constFold a)
+  | .lam f    => .lam fun x => constFold (f x)
+  | .let a b  => .let (constFold a) fun x => constFold (b x)
+  | .plus a b =>
     match constFold a, constFold b with
-    | const n, const m => const (n+m)
-    | a',      b'      => plus a' b'
+    | .const n, .const m => .const (n+m)
+    | a',       b'       => .plus a' b'
 
 /-!
 The correctness of the `constFold` is proved using induction, case-analysis, and the term simplifier.

@@ -13,7 +13,7 @@ import Init.Data.Prod
 
 namespace Nat.Linear
 
-/--!
+/-!
   Helper definitions and theorems for constructing linear arithmetic proofs.
 -/
 

@@ -16,7 +16,7 @@ open Meta
 private def throwToBelowFailed : MetaM α :=
   throwError "toBelow failed"
 
-/- See toBelow -/
+/-- See `toBelow` -/
 private partial def toBelowAux (C : Expr) (belowDict : Expr) (arg : Expr) (F : Expr) : MetaM Expr := do
   let belowDict ← whnf belowDict
   trace[Elab.definition.structural] "belowDict: {belowDict}, arg: {arg}"
@@ -43,7 +43,7 @@ private partial def toBelowAux (C : Expr) (belowDict : Expr) (arg : Expr) (F : E
       pure (mkAppN F argTailArgs)
     | _ => throwToBelowFailed
 
-/- See toBelow -/
+/-- See `toBelow` -/
 private def withBelowDict (below : Expr) (numIndParams : Nat) (k : Expr → Expr → MetaM α) : MetaM α := do
   let belowType ← inferType below
   trace[Elab.definition.structural] "belowType: {belowType}"
@@ -59,7 +59,7 @@ private def withBelowDict (below : Expr) (numIndParams : Nat) (k : Expr → Expr
         let belowDict := mkAppN belowDict (args.extract (numIndParams + 1) args.size)
         k C belowDict
 
-/-
+/--
   `below` is a free variable with type of the form `I.below indParams motive indices major`,
   where `I` is the name of an inductive datatype.
 
@@ -148,7 +148,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
         if !recArgHasLooseBVarsAt recFnName recArgInfo.recArgPos e then
           processApp e
         else
-          /- Here is an example we currently not handle
+          /- Here is an example we currently do not handle
              ```
              def g (xs : List Nat) : Nat :=
              match xs with

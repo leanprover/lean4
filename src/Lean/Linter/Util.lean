@@ -85,4 +85,6 @@ def stackMatches (stack : SyntaxStack) (pattern : List $ Option SyntaxNodeKind) 
     |>.zipWith (fun (s, _) p => p |>.map (s.isOfKind ·) |>.getD true) pattern
     |>.all id)
 
+abbrev IgnoreFunction := Syntax → SyntaxStack → Options → Bool
+
 end Lean.Linter

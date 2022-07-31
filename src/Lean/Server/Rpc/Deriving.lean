@@ -20,9 +20,9 @@ private def deriveWithRefInstance (typeNm : Name) : CommandElabM Bool := do
   -- TODO(WN): check that `typeNm` is not a scalar type
   let typeId := mkIdent typeNm
   let cmds ← `(
-    unsafe def unsafeInst : RpcEncoding (WithRpcRef $typeId:ident) Lsp.RpcRef where
+    unsafe def unsafeInst : RpcEncoding (WithRpcRef $typeId) Lsp.RpcRef where
       rpcEncode := WithRpcRef.encodeUnsafe $(quote typeNm)
-      rpcDecode := WithRpcRef.decodeUnsafeAs $typeId:ident $(quote typeNm)
+      rpcDecode := WithRpcRef.decodeUnsafeAs $typeId $(quote typeNm)
 
     @[implementedBy unsafeInst]
     opaque inst : RpcEncoding (WithRpcRef $typeId) Lsp.RpcRef
@@ -97,7 +97,7 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
 
     -- helpers for field initialization syntax
     let fieldInits (func : Name) := fieldIds.mapM fun fid =>
-      `(Parser.Term.structInstField| $fid:ident := ← $(mkIdent func):ident a.$fid:ident)
+      `(Parser.Term.structInstField| $fid:ident := ← $(mkIdent func) a.$fid)
     let encInits ← fieldInits ``rpcEncode
     let decInits ← fieldInits ``rpcDecode
 

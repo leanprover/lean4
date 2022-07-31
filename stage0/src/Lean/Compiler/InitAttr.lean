@@ -76,7 +76,7 @@ builtin_initialize regularInitAttr : ParametricAttribute Name ← registerInitAt
 builtin_initialize builtinInitAttr : ParametricAttribute Name ← registerInitAttr `builtinInit false
 
 def getInitFnNameForCore? (env : Environment) (attr : ParametricAttribute Name) (fn : Name) : Option Name :=
-  match attr.getParam env fn with
+  match attr.getParam? env fn with
   | some Name.anonymous => none
   | some n              => some n
   | _                   => none
@@ -94,7 +94,7 @@ def getInitFnNameFor? (env : Environment) (fn : Name) : Option Name :=
   getBuiltinInitFnNameFor? env fn <|> getRegularInitFnNameFor? env fn
 
 def isIOUnitInitFnCore (env : Environment) (attr : ParametricAttribute Name) (fn : Name) : Bool :=
-  match attr.getParam env fn with
+  match attr.getParam? env fn with
   | some Name.anonymous => true
   | _ => false
 

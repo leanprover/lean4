@@ -26,7 +26,7 @@ namespace Nat
   | 0      => false
   | succ n => f (s - (succ n)) || anyAux f s n
 
-/- `any f n = true` iff there is `i in [0, n-1]` s.t. `f i = true` -/
+/-- `any f n = true` iff there is `i in [0, n-1]` s.t. `f i = true` -/
 @[inline] def any (f : Nat → Bool) (n : Nat) : Bool :=
   anyAux f n n
 
@@ -44,7 +44,7 @@ def blt (a b : Nat) : Bool :=
 
 attribute [simp] Nat.zero_le
 
-/- Helper "packing" theorems -/
+/-! # Helper "packing" theorems -/
 
 @[simp] theorem zero_eq : Nat.zero = 0 := rfl
 @[simp] theorem add_eq : Nat.add x y = x + y := rfl
@@ -53,7 +53,7 @@ attribute [simp] Nat.zero_le
 @[simp] theorem lt_eq : Nat.lt x y = (x < y) := rfl
 @[simp] theorem le_eq : Nat.le x y = (x ≤ y) := rfl
 
-/- Helper Bool relation theorems -/
+/-! # Helper Bool relation theorems -/
 
 @[simp] theorem beq_refl (a : Nat) : Nat.beq a a = true := by
   induction a with simp [Nat.beq]
@@ -75,7 +75,7 @@ instance : LawfulBEq Nat where
       have : ¬ ((a == b) = true) := fun h' => absurd (eq_of_beq h') h
       by simp [this])
 
-/- Nat.add theorems -/
+/-! # Nat.add theorems -/
 
 @[simp] protected theorem zero_add : ∀ (n : Nat), 0 + n = n
   | 0   => rfl
@@ -120,7 +120,7 @@ protected theorem add_right_cancel {n m k : Nat} (h : n + m = k + m) : n = k := 
   rw [Nat.add_comm n m, Nat.add_comm k m] at h
   apply Nat.add_left_cancel h
 
-/- Nat.mul theorems -/
+/-! # Nat.mul theorems -/
 
 @[simp] protected theorem mul_zero (n : Nat) : n * 0 = 0 :=
   rfl
@@ -168,7 +168,7 @@ protected theorem mul_assoc : ∀ (n m k : Nat), (n * m) * k = n * (m * k)
 protected theorem mul_left_comm (n m k : Nat) : n * (m * k) = m * (n * k) := by
   rw [← Nat.mul_assoc, Nat.mul_comm n m, Nat.mul_assoc]
 
-/- Inequalities -/
+/-! # Inequalities -/
 
 attribute [simp] Nat.le_refl
 
@@ -379,7 +379,7 @@ protected theorem le_of_add_le_add_right {a b c : Nat} : a + b ≤ c + b → a �
   rw [Nat.add_comm _ b, Nat.add_comm _ b]
   apply Nat.le_of_add_le_add_left
 
-/- Basic theorems for comparing numerals -/
+/-! # Basic theorems for comparing numerals -/
 
 theorem ctor_eq_zero : Nat.zero = 0 :=
   rfl
@@ -393,7 +393,7 @@ protected theorem zero_ne_one : 0 ≠ (1 : Nat) :=
 theorem succ_ne_zero (n : Nat) : succ n ≠ 0 :=
   fun h => Nat.noConfusion h
 
-/- mul + order -/
+/-! # mul + order -/
 
 theorem mul_le_mul_left {n m : Nat} (k : Nat) (h : n ≤ m) : k * n ≤ k * m :=
   match le.dest h with
@@ -429,7 +429,7 @@ protected theorem eq_of_mul_eq_mul_left {m k n : Nat} (hn : 0 < n) (h : n * m = 
 theorem eq_of_mul_eq_mul_right {n m k : Nat} (hm : 0 < m) (h : n * m = k * m) : n = k := by
   rw [Nat.mul_comm n m, Nat.mul_comm k m] at h; exact Nat.eq_of_mul_eq_mul_left hm h
 
-/- power -/
+/-! # power -/
 
 theorem pow_succ (n m : Nat) : n^(succ m) = n^m * n :=
   rfl
@@ -455,7 +455,7 @@ theorem pow_le_pow_of_le_right {n : Nat} (hx : n > 0) {i : Nat} : ∀ {j}, i ≤
 theorem pos_pow_of_pos {n : Nat} (m : Nat) (h : 0 < n) : 0 < n^m :=
   pow_le_pow_of_le_right h (Nat.zero_le _)
 
-/- min/max -/
+/-! # min/max -/
 
 protected def min (n m : Nat) : Nat :=
   if n ≤ m then n else m
@@ -463,7 +463,7 @@ protected def min (n m : Nat) : Nat :=
 protected def max (n m : Nat) : Nat :=
   if n ≤ m then m else n
 
-/- Auxiliary theorems for well-founded recursion -/
+/-! # Auxiliary theorems for well-founded recursion -/
 
 theorem not_eq_zero_of_lt (h : b < a) : a ≠ 0 := by
   cases a
@@ -473,7 +473,7 @@ theorem not_eq_zero_of_lt (h : b < a) : a ≠ 0 := by
 theorem pred_lt' {n m : Nat} (h : m < n) : pred n < n :=
   pred_lt (not_eq_zero_of_lt h)
 
-/- sub/pred theorems -/
+/-! # sub/pred theorems -/
 
 theorem add_sub_self_left (a b : Nat) : (a + b) - a = b := by
   induction a with
@@ -656,7 +656,7 @@ protected theorem mul_sub_right_distrib (n m k : Nat) : (n - m) * k = n * k - m 
 protected theorem mul_sub_left_distrib (n m k : Nat) : n * (m - k) = n * m - n * k := by
   rw [Nat.mul_comm, Nat.mul_sub_right_distrib, Nat.mul_comm m n, Nat.mul_comm n k]
 
-/- Helper normalization theorems -/
+/-! # Helper normalization theorems -/
 
 theorem not_le_eq (a b : Nat) : (¬ (a ≤ b)) = (b + 1 ≤ a) :=
   propext <| Iff.intro (fun h => Nat.gt_of_not_le h) (fun h => Nat.not_le_of_gt h)

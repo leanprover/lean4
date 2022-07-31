@@ -90,6 +90,7 @@ def Info.stx : Info → Syntax
   | ofFieldInfo i          => i.stx
   | ofCompletionInfo i     => i.stx
   | ofCustomInfo i         => i.stx
+  | ofUserWidgetInfo i     => i.stx
 
 def Info.lctx : Info → LocalContext
   | Info.ofTermInfo i  => i.lctx
@@ -244,7 +245,7 @@ structure GoalsAtResult where
   -- for overlapping goals, only keep those of the highest reported priority
   priority   : Nat
 
-/-
+/--
   Try to retrieve `TacticInfo` for `hoverPos`.
   We retrieve all `TacticInfo` nodes s.t. `hoverPos` is inside the node's range plus trailing whitespace.
   We usually prefer the innermost such nodes so that for composite tactics such as `induction`, we show the nested proofs' states.

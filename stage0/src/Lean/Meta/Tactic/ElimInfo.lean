@@ -44,7 +44,7 @@ def getElimInfo (declName : Name) : MetaM ElimInfo := do
     for i in [:xs.size] do
       let x := xs[i]!
       if x != motive && !targets.contains x then
-        let xDecl ← getLocalDecl x.fvarId!
+        let xDecl ← x.fvarId!.getDecl
         if xDecl.binderInfo.isExplicit then
           let numFields ← forallTelescopeReducing xDecl.type fun args _ => pure args.size
           altsInfo := altsInfo.push { name := xDecl.userName, numFields := numFields : ElimAltInfo }

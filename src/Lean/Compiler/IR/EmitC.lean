@@ -71,7 +71,7 @@ def throwInvalidExportName {α : Type} (n : Name) : M α :=
 def toCName (n : Name) : M String := do
   let env ← getEnv;
   -- TODO: we should support simple export names only
-  match getExportNameFor env n with
+  match getExportNameFor? env n with
   | some (.str .anonymous s) => pure s
   | some _                   => throwInvalidExportName n
   | none                     => if n == `main then pure leanMainFn else pure n.mangle
@@ -82,7 +82,7 @@ def emitCName (n : Name) : M Unit :=
 def toCInitName (n : Name) : M String := do
   let env ← getEnv;
   -- TODO: we should support simple export names only
-  match getExportNameFor env n with
+  match getExportNameFor? env n with
   | some (.str .anonymous s) => return "_init_" ++ s
   | some _                   => throwInvalidExportName n
   | none                     => pure ("_init_" ++ n.mangle)
@@ -137,7 +137,7 @@ def emitFnDecls : M Unit := do
 def emitMainFn : M Unit := do
   let d ← getDecl `main
   match d with
-  | Decl.fdecl (xs := xs) .. => do
+  | .fdecl (xs := xs) .. => do
     unless xs.size == 2 || xs.size == 1 do throw "invalid main function, incorrect arity when generating code"
     let env ← getEnv
     let usesLeanAPI := usesModuleFrom env `Lean
@@ -530,7 +530,7 @@ def paramEqArg (p : Param) (x : Arg) : Bool :=
   | Arg.var x => p.x == x
   | _ => false
 
-/-
+/--
 Given `[p_0, ..., p_{n-1}]`, `[y_0, ..., y_{n-1}]`, representing the assignments
 ```
 p_0 := y_0,
@@ -644,7 +644,7 @@ def emitDeclAux (d : Decl) : M Unit := do
   withReader (fun ctx => { ctx with jpMap := jpMap }) do
   unless hasInitAttr env d.name do
     match d with
-    | Decl.fdecl (f := f) (xs := xs) (type := t) (body := b) .. =>
+    | .fdecl (f := f) (xs := xs) (type := t) (body := b) .. =>
       let baseName ← toCName f;
       if xs.size == 0 then
         emit "static "

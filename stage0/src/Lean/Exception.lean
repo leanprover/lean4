@@ -10,7 +10,7 @@ import Lean.Util.MonadCache
 
 namespace Lean
 
-/- Exception type used in most Lean monads -/
+/-- Exception type used in most Lean monads -/
 inductive Exception where
   | error (ref : Syntax) (msg : MessageData)
   | internal (id : InternalExceptionId) (extra : KVMap := {})
@@ -25,7 +25,7 @@ def Exception.getRef : Exception → Syntax
 
 instance : Inhabited Exception := ⟨Exception.error default default⟩
 
-/- Similar to `AddMessageContext`, but for error messages.
+/-- Similar to `AddMessageContext`, but for error messages.
    The default instance just uses `AddMessageContext`.
    In error messages, we may want to provide additional information (e.g., macro expansion stack),
    and refine the `(ref : Syntax)`. -/

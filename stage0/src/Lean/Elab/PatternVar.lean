@@ -13,7 +13,7 @@ open Meta
 
 abbrev PatternVar := Syntax  -- TODO: should be `Ident`
 
-/-
+/-!
   Patterns define new local variables.
   This module collect them and preprocess `_` occurring in patterns.
   Recall that an `_` may represent anonymous variables or inaccessible terms
@@ -49,7 +49,7 @@ private def throwCtorExpected {α} : M α :=
 private def throwInvalidPattern {α} : M α :=
   throwError "invalid pattern"
 
-/-
+/-!
 An application in a pattern can be
 
 1- A constructor application
@@ -217,21 +217,22 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
 where
 
   processCtorApp (stx : Syntax) : M Syntax := do
-    let (f, namedArgs, args, ellipsis) ← expandApp stx true
+    let (f, namedArgs, args, ellipsis) ← expandApp stx
     if f.getKind == ``Parser.Term.dotIdent then
-      unless namedArgs.isEmpty do
-        throwError "invalid dotted notation in a pattern, named arguments are not supported yet"
+      let namedArgsNew ← namedArgs.mapM fun
+        | { ref, name, val := Arg.stx arg } => withRef ref do `(Lean.Parser.Term.namedArgument| ($(mkIdentFrom ref name) := $(← collect arg)))
+        | _ => unreachable!
       let mut argsNew ← args.mapM fun | Arg.stx arg => collect arg | _ => unreachable!
       if ellipsis then
         argsNew := argsNew.push (mkNode ``Parser.Term.ellipsis #[mkAtomFrom stx ".."])
-      return Syntax.mkApp f argsNew
+      return Syntax.mkApp f (namedArgsNew ++ argsNew)
     else
       processCtorAppCore f namedArgs args ellipsis
 
   processCtor (stx : Syntax) : M Syntax := do
     processCtorAppCore stx #[] #[] false
 
-  /- Check whether `stx` is a pattern variable or constructor-like (i.e., constructor or constant tagged with `[matchPattern]` attribute) -/
+  /-- Check whether `stx` is a pattern variable or constructor-like (i.e., constructor or constant tagged with `[matchPattern]` attribute) -/
   processId (stx : Syntax) : M Syntax := do
     match (← resolveId? stx "pattern") with
     | none   => processVar stx
@@ -324,7 +325,7 @@ def collectPatternVars (alt : MatchAltView) : TermElabM (Array PatternVar × Mat
   let (alt, s) ← (CollectPatternVars.main alt).run {}
   return (s.vars, alt)
 
-/- Return the pattern variables in the given pattern.
+/-- Return the pattern variables in the given pattern.
    Remark: this method is not used by the main `match` elaborator, but in the precheck hook and other macros (e.g., at `Do.lean`). -/
 def getPatternVars (patternStx : Syntax) : TermElabM (Array PatternVar) := do
   let patternStx ← liftMacroM <| expandMacros patternStx

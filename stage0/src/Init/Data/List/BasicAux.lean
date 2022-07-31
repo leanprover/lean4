@@ -11,7 +11,7 @@ import Init.Util
 universe u
 
 namespace List
-/- The following functions can't be defined at `Init.Data.List.Basic`, because they depend on `Init.Util`,
+/-! The following functions can't be defined at `Init.Data.List.Basic`, because they depend on `Init.Util`,
    and `Init.Util` depends on `Init.Data.List.Basic`. -/
 
 def get! [Inhabited α] : List α → Nat → α
@@ -162,6 +162,7 @@ theorem append_cancel_right {as bs cs : List α} (h : as ++ bs = cs ++ bs) : as 
     apply Nat.lt_trans ih
     simp_arith
 
+set_option linter.unusedVariables.funArgs false in  -- #1214
 theorem le_antisymm [LT α] [s : Antisymm (¬ · < · : α → α → Prop)] {as bs : List α} (h₁ : as ≤ bs) (h₂ : bs ≤ as) : as = bs :=
   match as, bs with
   | [],    []    => rfl

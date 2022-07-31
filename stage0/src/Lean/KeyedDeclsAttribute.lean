@@ -29,22 +29,26 @@ abbrev Key := Name
 
  Important: `mkConst valueTypeName` and `γ` must be definitionally equal. -/
 structure Def (γ : Type) where
-  builtinName   : Name := Name.anonymous  -- Builtin attribute name, if any (e.g., `builtinTermElab)
-  name          : Name    -- Attribute name (e.g., `termElab)
-  descr         : String  -- Attribute description
+  /-- Builtin attribute name, if any (e.g., `builtinTermElab) -/
+  builtinName   : Name := Name.anonymous
+  /-- Attribute name (e.g., `termElab) -/
+  name          : Name
+  /-- Attribute description -/
+  descr         : String
   valueTypeName : Name
-  -- Convert `Syntax` into a `Key`, the default implementation expects an identifier.
+  /-- Convert `Syntax` into a `Key`, the default implementation expects an identifier. -/
   evalKey (builtin : Bool) (stx : Syntax) : AttrM Key := Attribute.Builtin.getId stx
   onAdded (builtin : Bool) (declName : Name) : AttrM Unit := pure ()
   deriving Inhabited
 
 structure OLeanEntry where
   key      : Key
-  declName : Name -- Name of a declaration stored in the environment which has type `mkConst Def.valueTypeName`.
+  /-- Name of a declaration stored in the environment which has type `mkConst Def.valueTypeName`. -/
+  declName : Name
   deriving Inhabited
 
 structure AttributeEntry (γ : Type) extends OLeanEntry where
-  /- Recall that we cannot store `γ` into .olean files because it is a closure.
+  /-- Recall that we cannot store `γ` into .olean files because it is a closure.
      Given `OLeanEntry.declName`, we convert it into a `γ` by using the unsafe function `evalConstCheck`. -/
   value : γ
 

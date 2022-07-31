@@ -6,7 +6,7 @@ macro "obviously1" : tactic => `(exact sorryAx _)
 theorem result1 : False := by obviously1
 
 elab "obviously2" : tactic =>
-  liftMetaTactic1 (Meta.admit · *> pure none)
+  liftMetaTactic1 fun mvarId => mvarId.admit *> pure none
 
 theorem result2 : False := by obviously2
 

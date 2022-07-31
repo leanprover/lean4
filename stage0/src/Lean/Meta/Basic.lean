@@ -19,7 +19,7 @@ import Lean.Meta.DiscrTreeTypes
 import Lean.Eval
 import Lean.CoreM
 
-/-
+/-!
 This module provides four (mutually dependent) goodies that are needed for building the elaborator and tactic frameworks.
 1- Weak head normal form computation with support for metavariables and transparency modes.
 2- Definitionally equality checking with support for metavariables (aka unification modulo definitional equality).
@@ -50,15 +50,15 @@ structure Config where
   /--
     If `foApprox` is set to true, and some `aᵢ` is not a free variable,
     then we use first-order unification
-     ```
-       ?m a_1 ... a_i a_{i+1} ... a_{i+k} =?= f b_1 ... b_k
-     ```
-     reduces to
-     ```
-       ?m a_1 ... a_i =?= f
-       a_{i+1}        =?= b_1
-       ...
-       a_{i+k}        =?= b_k
+    ```
+      ?m a_1 ... a_i a_{i+1} ... a_{i+k} =?= f b_1 ... b_k
+    ```
+    reduces to
+    ```
+      ?m a_1 ... a_i =?= f
+      a_{i+1}        =?= b_1
+      ...
+      a_{i+k}        =?= b_k
     ```
   -/
   foApprox           : Bool := false
@@ -235,8 +235,7 @@ structure Cache where
   synthInstance  : SynthInstanceCache := {}
   whnfDefault    : WhnfCache := {} -- cache for closed terms and `TransparencyMode.default`
   whnfAll        : WhnfCache := {} -- cache for closed terms and `TransparencyMode.all`
-  defEqDefault   : DefEqCache := {}
-  defEqAll       : DefEqCache := {}
+  defEq          : DefEqCache := {}
   deriving Inhabited
 
 /--
@@ -335,8 +334,7 @@ protected def saveState : MetaM SavedState :=
 /-- Restore backtrackable parts of the state. -/
 def SavedState.restore (b : SavedState) : MetaM Unit := do
   Core.restore b.core
-  setMCtx b.meta.mctx -- Recall that `setMCtx` propagate `usedAssignment`
-  modify fun s => { s with zetaFVarIds := b.meta.zetaFVarIds, postponed := b.meta.postponed }
+  modify fun s => { s with mctx := b.meta.mctx, zetaFVarIds := b.meta.zetaFVarIds, postponed := b.meta.postponed }
 
 instance : MonadBacktrack SavedState MetaM where
   saveState      := Meta.saveState
@@ -383,7 +381,10 @@ variable [MonadControlT MetaM n] [Monad n]
   modify fun ⟨mctx, cache, zetaFVarIds, postponed⟩ => ⟨mctx, f cache, zetaFVarIds, postponed⟩
 
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
-  modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6⟩
+  modifyCache fun ⟨ic, c1, c2, c3, c4, c5⟩ => ⟨f ic, c1, c2, c3, c4, c5⟩
+
+@[inline] def modifyDefEqCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
+  modifyCache fun ⟨c1, c2, c3, c4, c5, defeq⟩ => ⟨c1, c2, c3, c4, c5, f defeq⟩
 
 def getLocalInstances : MetaM LocalInstances :=
   return (← read).localInstances
@@ -424,7 +425,7 @@ def useEtaStruct (inductName : Name) : MetaM Bool := do
   | .all  => return true
   | .notClasses => return !isClass (← getEnv) inductName
 
-/- WARNING: The following 4 constants are a hack for simulating forward declarations.
+/-! WARNING: The following 4 constants are a hack for simulating forward declarations.
    They are defined later using the `export` attribute. This is hackish because we
    have to hard-code the true arity of these definitions here, and make sure the C names match.
    We have used another hack based on `IO.Ref`s in the past, it was safer but less efficient. -/
@@ -459,7 +460,7 @@ def mkFreshExprMVarAt
   mkFreshExprMVarAtCore (← mkFreshMVarId) lctx localInsts type kind userName numScopeArgs
 
 def mkFreshLevelMVar : MetaM Level := do
-  let mvarId ← mkFreshMVarId
+  let mvarId ← mkFreshLMVarId
   modifyMCtx fun mctx => mctx.addLevelMVarDecl mvarId;
   return mkLevelMVar mvarId
 
@@ -481,7 +482,7 @@ def mkFreshTypeMVar (kind := MetavarKind.natural) (userName := Name.anonymous) :
   let u ← mkFreshLevelMVar
   mkFreshExprMVar (mkSort u) kind userName
 
-/- Low-level version of `MkFreshExprMVar` which allows users to create/reserve a `mvarId` using `mkFreshId`, and then later create
+/-- Low-level version of `MkFreshExprMVar` which allows users to create/reserve a `mvarId` using `mkFreshId`, and then later create
    the metavar using this method. -/
 private def mkFreshExprMVarWithIdCore (mvarId : MVarId) (type : Expr)
     (kind : MetavarKind := MetavarKind.natural) (userName : Name := Name.anonymous) (numScopeArgs : Nat := 0)
@@ -503,10 +504,15 @@ def mkFreshLevelMVars (num : Nat) : MetaM (List Level) :=
 def mkFreshLevelMVarsFor (info : ConstantInfo) : MetaM (List Level) :=
   mkFreshLevelMVars info.numLevelParams
 
+/--
+Create a constant with the given name and new universe metavariables.
+Example: ``mkConstWithFreshMVarLevels `Monad`` returns `@Monad.{?u, ?v}`
+-/
 def mkConstWithFreshMVarLevels (declName : Name) : MetaM Expr := do
   let info ← getConstInfo declName
   return mkConst declName (← mkFreshLevelMVarsFor info)
 
+/-- Return current transparency setting/mode. -/
 def getTransparency : MetaM TransparencyMode :=
   return (← getConfig).transparency
 
@@ -516,94 +522,240 @@ def shouldReduceAll : MetaM Bool :=
 def shouldReduceReducibleOnly : MetaM Bool :=
   return (← getTransparency) == TransparencyMode.reducible
 
-def findMVarDecl? (mvarId : MVarId) : MetaM (Option MetavarDecl) :=
+/--
+Return `some mvarDecl` where `mvarDecl` is `mvarId` declaration in the current metavariable context.
+Return `none` if `mvarId` has no declaration in the current metavariable context.
+-/
+def _root_.Lean.MVarId.findDecl? (mvarId : MVarId) : MetaM (Option MetavarDecl) :=
   return (← getMCtx).findDecl? mvarId
 
-def getMVarDecl (mvarId : MVarId) : MetaM MetavarDecl := do
-  match (← findMVarDecl? mvarId) with
+@[deprecated MVarId.findDecl?]
+def findMVarDecl? (mvarId : MVarId) : MetaM (Option MetavarDecl) :=
+  mvarId.findDecl?
+
+/--
+Return `mvarId` declaration in the current metavariable context.
+Throw an exception if `mvarId` is not declarated in the current metavariable context.
+-/
+def _root_.Lean.MVarId.getDecl (mvarId : MVarId) : MetaM MetavarDecl := do
+  match (← mvarId.findDecl?) with
   | some d => pure d
   | none   => throwError "unknown metavariable '?{mvarId.name}'"
 
+@[deprecated MVarId.getDecl]
+def getMVarDecl (mvarId : MVarId) : MetaM MetavarDecl := do
+  mvarId.getDecl
+
+/--
+Return `mvarId` kind. Throw an exception if `mvarId` is not declarated in the current metavariable context.
+-/
+def _root_.Lean.MVarId.getKind (mvarId : MVarId) : MetaM MetavarKind :=
+  return (← mvarId.getDecl).kind
+
+@[deprecated MVarId.getKind]
 def getMVarDeclKind (mvarId : MVarId) : MetaM MetavarKind :=
-  return (← getMVarDecl mvarId).kind
+  mvarId.getKind
 
 /-- Reture `true` if `e` is a synthetic (or synthetic opaque) metavariable -/
 def isSyntheticMVar (e : Expr) : MetaM Bool := do
   if e.isMVar then
-     return (← getMVarDeclKind e.mvarId!) matches .synthetic | .syntheticOpaque
+     return (← e.mvarId!.getKind) matches .synthetic | .syntheticOpaque
   else
      return false
 
-def setMVarKind (mvarId : MVarId) (kind : MetavarKind) : MetaM Unit :=
+/--
+Set `mvarId` kind in the current metavariable context.
+-/
+def _root_.Lean.MVarId.setKind (mvarId : MVarId) (kind : MetavarKind) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.setMVarKind mvarId kind
 
-/- Update the type of the given metavariable. This function assumes the new type is
+@[deprecated MVarId.setKind]
+def setMVarKind (mvarId : MVarId) (kind : MetavarKind) : MetaM Unit :=
+  mvarId.setKind kind
+
+/-- Update the type of the given metavariable. This function assumes the new type is
    definitionally equal to the current one -/
-def setMVarType (mvarId : MVarId) (type : Expr) : MetaM Unit := do
+def _root_.Lean.MVarId.setType (mvarId : MVarId) (type : Expr) : MetaM Unit := do
   modifyMCtx fun mctx => mctx.setMVarType mvarId type
 
-def isReadOnlyExprMVar (mvarId : MVarId) : MetaM Bool := do
-  return (← getMVarDecl mvarId).depth != (← getMCtx).depth
+@[deprecated MVarId.setType]
+def setMVarType (mvarId : MVarId) (type : Expr) : MetaM Unit := do
+  mvarId.setType type
 
-def isReadOnlyOrSyntheticOpaqueExprMVar (mvarId : MVarId) : MetaM Bool := do
-  let mvarDecl ← getMVarDecl mvarId
+/--
+Return true if the given metavariable is "read-only".
+That is, its `depth` is different from the current metavariable context depth.
+-/
+def _root_.Lean.MVarId.isReadOnly (mvarId : MVarId) : MetaM Bool := do
+  return (← mvarId.getDecl).depth != (← getMCtx).depth
+
+@[deprecated MVarId.isReadOnly]
+def isReadOnlyExprMVar (mvarId : MVarId) : MetaM Bool := do
+  mvarId.isReadOnly
+
+/--
+Return true if `mvarId.isReadOnly` return true or if `mvarId` is a synthetic opaque metavariable.
+
+Recall `isDefEq` will not assign a value to `mvarId` if `mvarId.isReadOnlyOrSyntheticOpaque`.
+-/
+def _root_.Lean.MVarId.isReadOnlyOrSyntheticOpaque (mvarId : MVarId) : MetaM Bool := do
+  let mvarDecl ← mvarId.getDecl
   match mvarDecl.kind with
   | MetavarKind.syntheticOpaque => return !(← getConfig).assignSyntheticOpaque
   | _ => return mvarDecl.depth != (← getMCtx).depth
 
-def getLevelMVarDepth (mvarId : MVarId) : MetaM Nat := do
+@[deprecated MVarId.isReadOnlyOrSyntheticOpaque]
+def isReadOnlyOrSyntheticOpaqueExprMVar (mvarId : MVarId) : MetaM Bool := do
+  mvarId.isReadOnlyOrSyntheticOpaque
+
+/--
+Return the level of the given universe level metavariable.
+-/
+def _root_.Lean.LMVarId.getLevel (mvarId : LMVarId) : MetaM Nat := do
   match (← getMCtx).findLevelDepth? mvarId with
   | some depth => return depth
   | _          => throwError "unknown universe metavariable '?{mvarId.name}'"
 
-def isReadOnlyLevelMVar (mvarId : MVarId) : MetaM Bool := do
+@[deprecated LMVarId.getLevel]
+def getLevelMVarDepth (mvarId : LMVarId) : MetaM Nat :=
+  mvarId.getLevel
+
+/--
+Return true if the given universe metavariable is "read-only".
+That is, its `depth` is different from the current metavariable context depth.
+-/
+def _root_.Lean.LMVarId.isReadOnly (mvarId : LMVarId) : MetaM Bool := do
   if (← getConfig).ignoreLevelMVarDepth then
     return false
   else
-    return (← getLevelMVarDepth mvarId) != (← getMCtx).depth
+    return (← mvarId.getLevel) != (← getMCtx).depth
 
-def setMVarUserName (mvarId : MVarId) (newUserName : Name) : MetaM Unit :=
+@[deprecated LMVarId.isReadOnly]
+def isReadOnlyLevelMVar (mvarId : LMVarId) : MetaM Bool := do
+  mvarId.isReadOnly
+
+/--
+Set the user-facing name for the given metavariable.
+-/
+def _root_.Lean.MVarId.setUserName (mvarId : MVarId) (newUserName : Name) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.setMVarUserName mvarId newUserName
 
-def throwUnknownFVar (fvarId : FVarId) : MetaM α :=
+@[deprecated MVarId.setUserName]
+def setMVarUserName (mvarId : MVarId) (userNameNew : Name) : MetaM Unit :=
+  mvarId.setUserName userNameNew
+
+/--
+Throw an exception saying `fvarId` is not declared in the current local context.
+-/
+def _root_.Lean.FVarId.throwUnknown (fvarId : FVarId) : MetaM α :=
   throwError "unknown free variable '{mkFVar fvarId}'"
 
-def findLocalDecl? (fvarId : FVarId) : MetaM (Option LocalDecl) :=
+@[deprecated FVarId.throwUnknown]
+def throwUnknownFVar (fvarId : FVarId) : MetaM α :=
+  fvarId.throwUnknown
+
+/--
+Return `some decl` if `fvarId` is declared in the current local context.
+-/
+def _root_.Lean.FVarId.findDecl? (fvarId : FVarId) : MetaM (Option LocalDecl) :=
   return (← getLCtx).find? fvarId
 
-def getLocalDecl (fvarId : FVarId) : MetaM LocalDecl := do
+@[deprecated FVarId.findDecl?]
+def findLocalDecl? (fvarId : FVarId) : MetaM (Option LocalDecl) :=
+  fvarId.findDecl?
+
+/--
+  Return the local declaration for the given free variable.
+  Throw an exception if local declaration is not in the current local context.
+-/
+def _root_.Lean.FVarId.getDecl (fvarId : FVarId) : MetaM LocalDecl := do
   match (← getLCtx).find? fvarId with
-  | some d => pure d
-  | none   => throwUnknownFVar fvarId
+  | some d => return d
+  | none   => fvarId.throwUnknown
 
+@[deprecated FVarId.getDecl]
+def getLocalDecl (fvarId : FVarId) : MetaM LocalDecl := do
+  fvarId.getDecl
+
+/-- Return the type of the given free variable. -/
+def _root_.Lean.FVarId.getType (fvarId : FVarId) : MetaM Expr :=
+  return (← fvarId.getDecl).type
+
+/-- Return the binder information for the given free variable. -/
+def _root_.Lean.FVarId.getBinderInfo (fvarId : FVarId) : MetaM BinderInfo :=
+  return (← fvarId.getDecl).binderInfo
+
+/-- Return `some value` if the given free variable is a let-declaration, and `none` otherwise. -/
+def _root_.Lean.FVarId.getValue? (fvarId : FVarId) : MetaM (Option Expr) :=
+  return (← fvarId.getDecl).value?
+
+/-- Return the user-facing name for the given free variable. -/
+def _root_.Lean.FVarId.getUserName (fvarId : FVarId) : MetaM Name :=
+  return (← fvarId.getDecl).userName
+
+/-- Return `true` is the free variable is a let-variable. -/
+def _root_.Lean.FVarId.isLetVar (fvarId : FVarId) : MetaM Bool :=
+  return (← fvarId.getDecl).isLet
+
+/-- Get the local declaration associated to the given `Expr` in the current local
+context. Fails if the given expression is not a fvar or if no such declaration exists. -/
 def getFVarLocalDecl (fvar : Expr) : MetaM LocalDecl :=
-  getLocalDecl fvar.fvarId!
+  fvar.fvarId!.getDecl
 
+/--
+Given a user-facing name for a free variable, return its declaration in the current local context.
+Throw an exception if free variable is not declared.
+-/
 def getLocalDeclFromUserName (userName : Name) : MetaM LocalDecl := do
   match (← getLCtx).findFromUserName? userName with
   | some d => pure d
   | none   => throwError "unknown local declaration '{userName}'"
 
+/--
+Lift a `MkBindingM` monadic action `x` to `MetaM`.
+-/
 @[inline] def liftMkBindingM (x : MetavarContext.MkBindingM α) : MetaM α := do
   match x { lctx := (← getLCtx), mainModule := (← getEnv).mainModule } { mctx := (← getMCtx), ngen := (← getNGen), nextMacroScope := (← getThe Core.State).nextMacroScope } with
-  | EStateM.Result.ok e sNew => do
+  | .ok e sNew => do
     setMCtx sNew.mctx
     modifyThe Core.State fun s => { s with ngen := sNew.ngen, nextMacroScope := sNew.nextMacroScope }
     pure e
-  | EStateM.Result.error (.revertFailure ..) sNew => do
+  | .error (.revertFailure ..) sNew => do
     setMCtx sNew.mctx
     modifyThe Core.State fun s => { s with ngen := sNew.ngen, nextMacroScope := sNew.nextMacroScope }
     throwError "failed to create binder due to failure when reverting variable dependencies"
 
-def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : MetaM Expr :=
+/--
+Similar to `abstracM` but consider only the first `min n xs.size` entries in `xs`
+
+It is also similar to `Expr.abstractRange`, but handles metavariables correctly.
+It uses `elimMVarDeps` to ensure `e` and the type of the free variables `xs` do not
+contain a metavariable `?m` s.t. local context of `?m` contains a free variable in `xs`.
+-/
+def _root_.Lean.Expr.abstractRangeM (e : Expr) (n : Nat) (xs : Array Expr) : MetaM Expr :=
   liftMkBindingM <| MetavarContext.abstractRange e n xs
 
-def abstract (e : Expr) (xs : Array Expr) : MetaM Expr :=
-  abstractRange e xs.size xs
+@[deprecated Expr.abstractRangeM]
+def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : MetaM Expr :=
+  e.abstractRangeM n xs
 
+/--
+Replace free (or meta) variables `xs` with loose bound variables.
+Similar to `Expr.abstract`, but handles metavariables correctly.
+-/
+def _root_.Lean.Expr.abstractM (e : Expr) (xs : Array Expr) : MetaM Expr :=
+  e.abstractRangeM xs.size xs
+
+@[deprecated Expr.abstractM]
+def abstract (e : Expr) (xs : Array Expr) : MetaM Expr :=
+  e.abstractM xs
+
+/--
+Collect forward dependencies for the free variables in `toRevert`.
+Recall that when reverting free variables `xs`, we must also revert their forward dependencies.
+-/
 def collectForwardDeps (toRevert : Array Expr) (preserveOrder : Bool) : MetaM (Array Expr) := do
   liftMkBindingM <| MetavarContext.collectForwardDeps toRevert preserveOrder
-
 
 /-- Takes an array `xs` of free variables or metavariables and a term `e` that may contain those variables, and abstracts and binds them as universal quantifiers.
 
@@ -633,6 +785,7 @@ def mkFunUnit (a : Expr) : MetaM Expr :=
 def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : MetaM Expr :=
   if xs.isEmpty then pure e else liftMkBindingM <| MetavarContext.elimMVarDeps xs e preserveOrder
 
+/-- `withConfig f x` executes `x` using the updated configuration object obtained by applying `f`. -/
 @[inline] def withConfig (f : Config → Config) : n α → n α :=
   mapMetaM <| withReader (fun ctx => { ctx with config := f ctx.config })
 
@@ -645,15 +798,25 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
 @[inline] def withTransparency (mode : TransparencyMode) : n α → n α :=
   mapMetaM <| withConfig (fun config => { config with transparency := mode })
 
+/-- `withDefault x` excutes `x` using the default transparency setting. -/
 @[inline] def withDefault (x : n α) : n α :=
   withTransparency TransparencyMode.default x
 
+/-- `withReducible x` excutes `x` using the reducible transparency setting. In this setting only definitions tagged as `[reducible]` are unfolded. -/
 @[inline] def withReducible (x : n α) : n α :=
   withTransparency TransparencyMode.reducible x
 
+/--
+`withReducibleAndInstances x` excutes `x` using the `.instances` transparency setting. In this setting only definitions tagged as `[reducible]`
+or type class instances are unfolded.
+-/
 @[inline] def withReducibleAndInstances (x : n α) : n α :=
   withTransparency TransparencyMode.instances x
 
+/--
+Execute `x` ensuring the transparency setting is at least `mode`.
+Recall that `.all > .default > .instances > .reducible`.
+-/
 @[inline] def withAtLeastTransparency (mode : TransparencyMode) (x : n α) : n α :=
   withConfig
     (fun config =>
@@ -690,7 +853,7 @@ private def getDefInfoTemp (info : ConstantInfo) : MetaM (Option ConstantInfo) :
     else
       return none
 
-/- Remark: we later define `getConst?` at `GetConst.lean` after we define `Instances.lean`.
+/-- Remark: we later define `getConst?` at `GetConst.lean` after we define `Instances.lean`.
    This method is only used to implement `isClassQuickConst?`.
    It is very similar to `getConst?`, but it returns none when `TransparencyMode.instances` and
    `constName` is an instance. This difference should be irrelevant for `isClassQuickConst?`. -/
@@ -703,37 +866,37 @@ private def getConstTemp? (constName : Name) : MetaM (Option ConstantInfo) := do
 
 private def isClassQuickConst? (constName : Name) : MetaM (LOption Name) := do
   if isClass (← getEnv) constName then
-    pure (LOption.some constName)
+    return .some constName
   else
     match (← getConstTemp? constName) with
-    | some (ConstantInfo.defnInfo ..) => pure LOption.undef -- We may be able to unfold the definition
-    | _ => pure LOption.none
+    | some (.defnInfo ..) => return .undef -- We may be able to unfold the definition
+    | _ => return .none
 
 private partial def isClassQuick? : Expr → MetaM (LOption Name)
-  | Expr.bvar ..         => pure LOption.none
-  | Expr.lit ..          => pure LOption.none
-  | Expr.fvar ..         => pure LOption.none
-  | Expr.sort ..         => pure LOption.none
-  | Expr.lam ..          => pure LOption.none
-  | Expr.letE ..         => pure LOption.undef
-  | Expr.proj ..         => pure LOption.undef
-  | Expr.forallE _ _ b _ => isClassQuick? b
-  | Expr.mdata _ e       => isClassQuick? e
-  | Expr.const n _       => isClassQuickConst? n
-  | Expr.mvar mvarId     => do
+  | .bvar ..         => return .none
+  | .lit ..          => return .none
+  | .fvar ..         => return .none
+  | .sort ..         => return .none
+  | .lam ..          => return .none
+  | .letE ..         => return .undef
+  | .proj ..         => return .undef
+  | .forallE _ _ b _ => isClassQuick? b
+  | .mdata _ e       => isClassQuick? e
+  | .const n _       => isClassQuickConst? n
+  | .mvar mvarId     => do
     match (← getExprMVarAssignment? mvarId) with
     | some val => isClassQuick? val
-    | none     => pure LOption.none
-  | Expr.app f _         =>
+    | none     => return .none
+  | .app f _         =>
     match f.getAppFn with
-    | Expr.const n .. => isClassQuickConst? n
-    | Expr.lam ..     => pure LOption.undef
-    | _              => pure LOption.none
+    | .const n .. => isClassQuickConst? n
+    | .lam ..     => return .undef
+    | _           => return .none
 
 def saveAndResetSynthInstanceCache : MetaM SynthInstanceCache := do
   let savedSythInstance := (← get).cache.synthInstance
   modifyCache fun c => { c with synthInstance := {} }
-  pure savedSythInstance
+  return savedSythInstance
 
 def restoreSynthInstanceCache (cache : SynthInstanceCache) : MetaM Unit :=
   modifyCache fun c => { c with synthInstance := cache }
@@ -753,7 +916,7 @@ private def withNewLocalInstanceImp (className : Name) (fvar : Expr) (k : MetaM 
   let localDecl ← getFVarLocalDecl fvar
   /- Recall that we use `auxDecl` binderInfo when compiling recursive declarations. -/
   match localDecl.binderInfo with
-  | BinderInfo.auxDecl => k
+  | .auxDecl => k
   | _ =>
     resettingSynthInstanceCache <|
       withReader
@@ -786,12 +949,12 @@ mutual
       let fvar := fvars.get ⟨i, h⟩
       let decl ← getFVarLocalDecl fvar
       match (← isClassQuick? decl.type) with
-      | LOption.none   => withNewLocalInstancesImp fvars (i+1) k
-      | LOption.undef  =>
+      | .none   => withNewLocalInstancesImp fvars (i+1) k
+      | .undef  =>
         match (← isClassExpensive? decl.type) with
         | none   => withNewLocalInstancesImp fvars (i+1) k
         | some c => withNewLocalInstance c fvar <| withNewLocalInstancesImp fvars (i+1) k
-      | LOption.some c => withNewLocalInstance c fvar <| withNewLocalInstancesImp fvars (i+1) k
+      | .some c => withNewLocalInstance c fvar <| withNewLocalInstancesImp fvars (i+1) k
     else
       k
 
@@ -826,7 +989,7 @@ mutual
       (k                 : Array Expr → Expr → MetaM α) : MetaM α := do
     let rec process (lctx : LocalContext) (fvars : Array Expr) (j : Nat) (type : Expr) : MetaM α := do
       match type with
-      | Expr.forallE n d b bi =>
+      | .forallE n d b bi =>
         if fvarsSizeLtMaxFVars fvars maxFVars? then
           let d     := d.instantiateRevRange j fvars.size fvars
           let fvarId ← mkFreshFVarId
@@ -868,21 +1031,21 @@ mutual
       forallTelescopeReducingAux type none fun _ type => do
         let env ← getEnv
         match type.getAppFn with
-        | Expr.const c _ => do
+        | .const c _ => do
           if isClass env c then
             return some c
           else
             -- make sure abbreviations are unfolded
             match (← whnf type).getAppFn with
-            | Expr.const c _ => return if isClass env c then some c else none
+            | .const c _ => return if isClass env c then some c else none
             | _ => return none
         | _ => return none
 
   private partial def isClassImp? (type : Expr) : MetaM (Option Name) := do
     match (← isClassQuick? type) with
-    | LOption.none   => pure none
-    | LOption.some c => pure (some c)
-    | LOption.undef  => isClassExpensive? type
+    | .none   => return none
+    | .some c => return (some c)
+    | .undef  => isClassExpensive? type
 
 end
 
@@ -897,7 +1060,7 @@ end
   ```
 -/
 def isClass? (type : Expr) : MetaM (Option Name) :=
-  try isClassImp? type catch _ => pure none
+  try isClassImp? type catch _ => return none
 
 private def withNewLocalInstancesImpAux (fvars : Array Expr) (j : Nat) : n α → n α :=
   mapMetaM <| withNewLocalInstancesImp fvars j
@@ -938,13 +1101,13 @@ private partial def lambdaTelescopeImp (e : Expr) (consumeLet : Bool) (k : Array
 where
   process (consumeLet : Bool) (lctx : LocalContext) (fvars : Array Expr) (j : Nat) (e : Expr) : MetaM α := do
     match consumeLet, e with
-    | _, Expr.lam n d b bi =>
+    | _, .lam n d b bi =>
       let d := d.instantiateRevRange j fvars.size fvars
       let fvarId ← mkFreshFVarId
       let lctx := lctx.mkLocalDecl fvarId n d bi
       let fvar := mkFVar fvarId
       process consumeLet lctx (fvars.push fvar) j b
-    | true, Expr.letE n t v b _ => do
+    | true, .letE n t v b _ => do
       let t := t.instantiateRevRange j fvars.size fvars
       let v := v.instantiateRevRange j fvars.size fvars
       let fvarId ← mkFreshFVarId
@@ -972,8 +1135,8 @@ def lambdaTelescope (e : Expr) (k : Array Expr → Expr → n α) : n α :=
 def getParamNames (declName : Name) : MetaM (Array Name) := do
   forallTelescopeReducing (← getConstInfo declName).type fun xs _ => do
     xs.mapM fun x => do
-      let localDecl ← getLocalDecl x.fvarId!
-      pure localDecl.userName
+      let localDecl ← x.fvarId!.getDecl
+      return localDecl.userName
 
 -- `kind` specifies the metavariable kind for metavariables not corresponding to instance implicit `[ ... ]` arguments.
 private partial def forallMetaTelescopeReducingAux
@@ -986,7 +1149,7 @@ where
       return (mvars, bis, type)
     else
       match type with
-      | Expr.forallE n d b bi =>
+      | .forallE n d b bi =>
         let d  := d.instantiateRevRange j mvars.size mvars
         let k  := if bi.isInstImplicit then  MetavarKind.synthetic else kind
         let mvar ← mkFreshExprMVar d k n
@@ -1031,12 +1194,12 @@ where
   process (mvars : Array Expr) (bis : Array BinderInfo) (j : Nat) (type : Expr) : MetaM (Array Expr × Array BinderInfo × Expr) := do
     let finalize : Unit → MetaM (Array Expr × Array BinderInfo × Expr) := fun _ => do
       let type := type.instantiateRevRange j mvars.size mvars
-      pure (mvars, bis, type)
+      return (mvars, bis, type)
     if maxMVars?.isEqSome mvars.size then
       finalize ()
     else
       match type with
-      | Expr.lam _ d b bi =>
+      | .lam _ d b bi =>
         let d     := d.instantiateRevRange j mvars.size mvars
         let mvar ← mkFreshExprMVar d
         let mvars := mvars.push mvar
@@ -1098,6 +1261,18 @@ private def withNewBinderInfosImp (bs : Array (FVarId × BinderInfo)) (k : MetaM
 def withNewBinderInfos (bs : Array (FVarId × BinderInfo)) (k : n α) : n α :=
   mapMetaM (fun k => withNewBinderInfosImp bs k) k
 
+/--
+ Execute `k` using a local context where any `x` in `xs` that is tagged as
+ instance implicit is treated as a regular implicit. -/
+def withInstImplicitAsImplict (xs : Array Expr) (k : MetaM α) : MetaM α := do
+  let newBinderInfos ← xs.filterMapM fun x => do
+    let bi ← x.fvarId!.getBinderInfo
+    if bi == .instImplicit then
+      return some (x.fvarId!, .implicit)
+    else
+      return none
+  withNewBinderInfos newBinderInfos k
+
 private def withLetDeclImp (n : Name) (type : Expr) (val : Expr) (k : Expr → MetaM α) : MetaM α := do
   let fvarId ← mkFreshFVarId
   let ctx ← read
@@ -1154,8 +1329,7 @@ private def withNewMCtxDepthImp (x : MetaM α) : MetaM α := do
   try
     x
   finally
-    setMCtx saved.mctx -- Recall that `setMCtx` propagate `usedAssignment`
-    modify fun s => { s with postponed := saved.postponed }
+    modify fun s => { s with mctx := saved.mctx, postponed := saved.postponed }
 
 /--
   Save cache and `MetavarContext`, bump the `MetavarContext` depth, execute `x`,
@@ -1184,15 +1358,19 @@ def withLCtx (lctx : LocalContext) (localInsts : LocalInstances) : n α → n α
   mapMetaM <| withLocalContextImp lctx localInsts
 
 private def withMVarContextImp (mvarId : MVarId) (x : MetaM α) : MetaM α := do
-  let mvarDecl ← getMVarDecl mvarId
+  let mvarDecl ← mvarId.getDecl
   withLocalContextImp mvarDecl.lctx mvarDecl.localInstances x
 
 /--
   Execute `x` using the given metavariable `LocalContext` and `LocalInstances`.
   The type class resolution cache is flushed when executing `x` if its `LocalInstances` are
   different from the current ones. -/
-def withMVarContext (mvarId : MVarId) : n α → n α :=
+def _root_.Lean.MVarId.withContext (mvarId : MVarId) : n α → n α :=
   mapMetaM <| withMVarContextImp mvarId
+
+@[deprecated MVarId.withContext]
+def withMVarContext (mvarId : MVarId) : n α → n α :=
+  mvarId.withContext
 
 private def withMCtxImp (mctx : MetavarContext) (x : MetaM α) : MetaM α := do
   let mctx' ← getMCtx
@@ -1253,19 +1431,19 @@ def whnfI (e : Expr) : MetaM Expr :=
 def setInlineAttribute (declName : Name) (kind := Compiler.InlineAttributeKind.inline): MetaM Unit := do
   let env ← getEnv
   match Compiler.setInlineAttribute env declName kind with
-  | Except.ok env    => setEnv env
-  | Except.error msg => throwError msg
+  | .ok env    => setEnv env
+  | .error msg => throwError msg
 
 private partial def instantiateForallAux (ps : Array Expr) (i : Nat) (e : Expr) : MetaM Expr := do
   if h : i < ps.size then
     let p := ps.get ⟨i, h⟩
     match (← whnf e) with
-    | Expr.forallE _ _ b _ => instantiateForallAux ps (i+1) (b.instantiate1 p)
-    | _                    => throwError "invalid instantiateForall, too many parameters"
+    | .forallE _ _ b _ => instantiateForallAux ps (i+1) (b.instantiate1 p)
+    | _                => throwError "invalid instantiateForall, too many parameters"
   else
-    pure e
+    return e
 
-/- Given `e` of the form `forall (a_1 : A_1) ... (a_n : A_n), B[a_1, ..., a_n]` and `p_1 : A_1, ... p_n : A_n`, return `B[p_1, ..., p_n]`. -/
+/-- Given `e` of the form `forall (a_1 : A_1) ... (a_n : A_n), B[a_1, ..., a_n]` and `p_1 : A_1, ... p_n : A_n`, return `B[p_1, ..., p_n]`. -/
 def instantiateForall (e : Expr) (ps : Array Expr) : MetaM Expr :=
   instantiateForallAux ps 0 e
 
@@ -1273,12 +1451,12 @@ private partial def instantiateLambdaAux (ps : Array Expr) (i : Nat) (e : Expr) 
   if h : i < ps.size then
     let p := ps.get ⟨i, h⟩
     match (← whnf e) with
-    | Expr.lam _ _ b _ => instantiateLambdaAux ps (i+1) (b.instantiate1 p)
-    | _                => throwError "invalid instantiateLambda, too many parameters"
+    | .lam _ _ b _ => instantiateLambdaAux ps (i+1) (b.instantiate1 p)
+    | _            => throwError "invalid instantiateLambda, too many parameters"
   else
-    pure e
+    return e
 
-/- Given `e` of the form `fun (a_1 : A_1) ... (a_n : A_n) => t[a_1, ..., a_n]` and `p_1 : A_1, ... p_n : A_n`, return `t[p_1, ..., p_n]`.
+/-- Given `e` of the form `fun (a_1 : A_1) ... (a_n : A_n) => t[a_1, ..., a_n]` and `p_1 : A_1, ... p_n : A_n`, return `t[p_1, ..., p_n]`.
    It uses `whnf` to reduce `e` if it is not a lambda -/
 def instantiateLambda (e : Expr) (ps : Array Expr) : MetaM Expr :=
   instantiateLambdaAux ps 0 e
@@ -1351,12 +1529,13 @@ def sortFVarIds (fvarIds : Array FVarId) : MetaM (Array FVarId) := do
 
 end Methods
 
+/-- Return `true` if `declName` is an inductive predicate. That is, `inductive` type in `Prop`. -/
 def isInductivePredicate (declName : Name) : MetaM Bool := do
   match (← getEnv).find? declName with
-  | some (ConstantInfo.inductInfo { type := type, ..}) =>
+  | some (.inductInfo { type := type, ..}) =>
     forallTelescopeReducing type fun _ type => do
       match (← whnfD type) with
-      | Expr.sort u .. => return u == levelZero
+      | .sort u .. => return u == levelZero
       | _ => return false
   | _ => return false
 
@@ -1376,9 +1555,9 @@ def getResetPostponed : MetaM (PersistentArray PostponedEntry) := do
 /-- Annotate any constant and sort in `e` that satisfies `p` with `pp.universes true` -/
 private def exposeRelevantUniverses (e : Expr) (p : Level → Bool) : Expr :=
   e.replace fun
-    | Expr.const _ us => if us.any p then some (e.setPPUniverses true) else none
-    | Expr.sort u     => if p u then some (e.setPPUniverses true) else none
-    | _               => none
+    | .const _ us => if us.any p then some (e.setPPUniverses true) else none
+    | .sort u     => if p u then some (e.setPPUniverses true) else none
+    | _           => none
 
 private def mkLeveErrorMessageCore (header : String) (entry : PostponedEntry) : MetaM MessageData := do
   match entry.ctx? with
@@ -1388,7 +1567,7 @@ private def mkLeveErrorMessageCore (header : String) (entry : PostponedEntry) : 
     withLCtx ctx.lctx ctx.localInstances do
       let s   := entry.lhs.collectMVars entry.rhs.collectMVars
       /- `p u` is true if it contains a universe metavariable in `s` -/
-      let p (u : Level) := u.any fun | Level.mvar m => s.contains m | _ => false
+      let p (u : Level) := u.any fun | .mvar m => s.contains m | _ => false
       let lhs := exposeRelevantUniverses (← instantiateMVars ctx.lhs) p
       let rhs := exposeRelevantUniverses (← instantiateMVars ctx.rhs) p
       try
@@ -1448,6 +1627,16 @@ partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure :=
 -/
 @[specialize] def checkpointDefEq (x : MetaM Bool) (mayPostpone : Bool := true) : MetaM Bool := do
   let s ← saveState
+  /-
+    It is not safe to use the `isDefEq` cache between different `isDefEq` calls.
+    Reason: different configuration settings, and result depends on the state of the `MetavarContext`
+    We have tried in the past to track when the result was independent of the `MetavarContext` state
+    but it was not effective. It is more important to cache aggressively inside of a single `isDefEq`
+    call because some of the heuristics create many similar subproblems.
+    See issue #1102 for an example that triggers an exponential blowup if we don't use this more
+    aggresive form of caching.
+  -/
+  modifyDefEqCache fun _ => {}
   let postponed ← getResetPostponed
   try
     if (← x) then
@@ -1474,6 +1663,7 @@ def isLevelDefEq (u v : Level) : MetaM Bool :=
     trace[Meta.isLevelDefEq] "{u} =?= {v} ... {if b then "success" else "failure"}"
     return b
 
+/-- See `isDefEq`. -/
 def isExprDefEq (t s : Expr) : MetaM Bool :=
   traceCtx `Meta.isDefEq <| withReader (fun ctx => { ctx with defEqCtx? := some { lhs := t, rhs := s, lctx := ctx.lctx, localInstances := ctx.localInstances } }) do
     let b ← checkpointDefEq (mayPostpone := true) <| Meta.isExprDefEqAux t s
@@ -1509,7 +1699,7 @@ def isDefEqNoConstantApprox (t s : Expr) : MetaM Bool :=
   Eta expand the given expression.
   Example:
   ```
-  etaExpand (mkConst `Nat.add)
+  etaExpand (mkConst ``Nat.add)
   ```
   produces `fun x y => Nat.add x y`
 -/

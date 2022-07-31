@@ -63,7 +63,7 @@ def forEachExpr (e : Expr) (f : Expr → MetaM Unit) : MetaM Unit :=
 /-- Return true iff `x` is a metavariable with an anonymous user facing name. -/
 private def shouldInferBinderName (x : Expr) : MetaM Bool := do
   match x with
-  | .mvar mvarId => return (← Meta.getMVarDecl mvarId).userName.isAnonymous
+  | .mvar mvarId => return (← mvarId.getDecl).userName.isAnonymous
   | _ => return false
 
 /--
@@ -82,7 +82,7 @@ def setMVarUserNamesAt (e : Expr) (isTarget : Array Expr) : MetaM (Array MVarId)
         let arg := args[i]!
         if arg.isMVar && isTarget.contains arg then
           let mvarId := arg.mvarId!
-          if (← Meta.getMVarDecl mvarId).userName.isAnonymous then
+          if (← mvarId.getDecl).userName.isAnonymous then
             forallBoundedTelescope (← inferType e.getAppFn) (some (i+1)) fun xs _ => do
               if i < xs.size then
                 let mvarId := arg.mvarId!

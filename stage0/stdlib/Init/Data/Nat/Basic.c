@@ -479,33 +479,25 @@ return x_7;
 static lean_object* _init_l_Nat_instTransNatLtInstLTNat() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
+return lean_box(0);
 }
 }
 static lean_object* _init_l_Nat_instTransNatLeInstLENat() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
+return lean_box(0);
 }
 }
 static lean_object* _init_l_Nat_instTransNatLtInstLTNatLeInstLENat() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
+return lean_box(0);
 }
 }
 static lean_object* _init_l_Nat_instTransNatLeInstLENatLtInstLTNat() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
+return lean_box(0);
 }
 }
 static lean_object* _init_l_Nat_instAntisymmNatLeInstLENat() {
@@ -715,13 +707,9 @@ res = initialize_Init_SimpLemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Nat_instTransNatLtInstLTNat = _init_l_Nat_instTransNatLtInstLTNat();
-lean_mark_persistent(l_Nat_instTransNatLtInstLTNat);
 l_Nat_instTransNatLeInstLENat = _init_l_Nat_instTransNatLeInstLENat();
-lean_mark_persistent(l_Nat_instTransNatLeInstLENat);
 l_Nat_instTransNatLtInstLTNatLeInstLENat = _init_l_Nat_instTransNatLtInstLTNatLeInstLENat();
-lean_mark_persistent(l_Nat_instTransNatLtInstLTNatLeInstLENat);
 l_Nat_instTransNatLeInstLENatLtInstLTNat = _init_l_Nat_instTransNatLeInstLENatLtInstLTNat();
-lean_mark_persistent(l_Nat_instTransNatLeInstLENatLtInstLTNat);
 l_Nat_instAntisymmNatLeInstLENat = _init_l_Nat_instAntisymmNatLeInstLENat();
 lean_mark_persistent(l_Nat_instAntisymmNatLeInstLENat);
 l_Nat_instAntisymmNatNotLtInstLTNat = _init_l_Nat_instAntisymmNatNotLtInstLTNat();

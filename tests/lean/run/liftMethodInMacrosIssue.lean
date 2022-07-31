@@ -19,7 +19,7 @@ else
 syntax term "<|||>" term : doElem
 
 macro_rules
-| `(doElem| $a:term <|||> $b:term) => `(doElem| if (← $a:term) then pure true else $b:term)
+| `(doElem| $a:term <|||> $b) => `(doElem| if (← $a) then pure true else $b:term)
 
 def tst2 : IO Bool := do
 pure true <|||> (← throw $ IO.userError "failed")

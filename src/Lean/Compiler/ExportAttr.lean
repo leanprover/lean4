@@ -28,12 +28,12 @@ builtin_initialize exportAttr : ParametricAttribute Name ←
   }
 
 @[export lean_get_export_name_for]
-def getExportNameFor (env : Environment) (n : Name) : Option Name :=
-  exportAttr.getParam env n
+def getExportNameFor? (env : Environment) (n : Name) : Option Name :=
+  exportAttr.getParam? env n
 
 def isExport (env : Environment) (n : Name) : Bool :=
   -- The main function morally is an exported function as well. In particular,
   -- it should not participate in borrow inference.
-  (getExportNameFor env n).isSome || n == `main
+  (getExportNameFor? env n).isSome || n == `main
 
 end Lean

@@ -36,8 +36,11 @@ abbrev PatternVar := Syntax  -- TODO: should be `Ident`
 -/
 namespace CollectPatternVars
 
+/-- State for the pattern variable collector monad. -/
 structure State where
+  /-- Pattern variables found so far. -/
   found     : NameSet := {}
+  /-- Pattern variables found so far as an array. It contains the order they were found. -/
   vars      : Array PatternVar := #[]
   deriving Inhabited
 
@@ -321,17 +324,27 @@ def main (alt : MatchAltView) : M MatchAltView := do
 
 end CollectPatternVars
 
+/--
+Collect pattern variables occurring in the `match`-alternative object views.
+It also returns the updated views.
+-/
 def collectPatternVars (alt : MatchAltView) : TermElabM (Array PatternVar × MatchAltView) := do
   let (alt, s) ← (CollectPatternVars.main alt).run {}
   return (s.vars, alt)
 
-/-- Return the pattern variables in the given pattern.
-   Remark: this method is not used by the main `match` elaborator, but in the precheck hook and other macros (e.g., at `Do.lean`). -/
+/--
+Return the pattern variables in the given pattern.
+Remark: this method is not used by the main `match` elaborator, but in the precheck hook and other macros (e.g., at `Do.lean`).
+-/
 def getPatternVars (patternStx : Syntax) : TermElabM (Array PatternVar) := do
   let patternStx ← liftMacroM <| expandMacros patternStx
   let (_, s) ← (CollectPatternVars.collect patternStx).run {}
   return s.vars
 
+/--
+Return the pattern variables occurring in the given patterns.
+This method is used in the `match` and `do` notation elaborators
+-/
 def getPatternsVars (patterns : Array Syntax) : TermElabM (Array PatternVar) := do
   let collect : CollectPatternVars.M Unit := do
     for pattern in patterns do

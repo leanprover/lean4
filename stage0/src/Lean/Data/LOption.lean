@@ -15,16 +15,16 @@ inductive LOption (α : Type u) where
 
 instance [ToString α] : ToString (LOption α) where
   toString
-    | LOption.none   => "none"
-    | LOption.undef  => "undef"
-    | LOption.some a => "(some " ++ toString a ++ ")"
+    | .none   => "none"
+    | .undef  => "undef"
+    | .some a => "(some " ++ toString a ++ ")"
 
 end Lean
 
 def Option.toLOption {α : Type u} : Option α → Lean.LOption α
-  | none   => Lean.LOption.none
-  | some a => Lean.LOption.some a
+  | none   => .none
+  | some a => .some a
 
 @[inline] def toLOptionM {α} {m : Type → Type} [Monad m] (x : m (Option α)) : m (Lean.LOption α) := do
   let b ← x
-  pure b.toLOption
+  return b.toLOption

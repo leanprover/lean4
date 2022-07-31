@@ -7,7 +7,9 @@ import Lean.Attributes
 
 namespace Lean
 
+/-- An entry for the persistent environment extension for declared type classes -/
 structure ClassEntry where
+  /-- Class name. -/
   name      : Name
   /--
     Position of the class `outParams`.
@@ -26,6 +28,7 @@ def lt (a b : ClassEntry) : Bool :=
 
 end ClassEntry
 
+/-- State of the type class environment extension. -/
 structure ClassState where
   outParamMap : SMap Name (Array Nat) := SMap.empty
   deriving Inhabited
@@ -35,12 +38,20 @@ namespace ClassState
 def addEntry (s : ClassState) (entry : ClassEntry) : ClassState :=
   { s with outParamMap := s.outParamMap.insert entry.name entry.outParams }
 
+/--
+Switch the state into persistent mode. We switch to this mode after
+we read all imported .olean files.
+Recall that we use a `SMap` for implementing the state of the type class environment extension.
+-/
 def switch (s : ClassState) : ClassState :=
   { s with outParamMap := s.outParamMap.switch }
 
 end ClassState
 
-/- TODO: add support for scoped instances -/
+/--
+Type class environment extension
+-/
+-- TODO: add support for scoped instances
 builtin_initialize classExtension : SimplePersistentEnvExtension ClassEntry ClassState ←
   registerSimplePersistentEnvExtension {
     name          := `classExt
@@ -48,16 +59,16 @@ builtin_initialize classExtension : SimplePersistentEnvExtension ClassEntry Clas
     addImportedFn := fun es => (mkStateFromImportedEntries ClassState.addEntry {} es).switch
   }
 
+/-- Return `true` if `n` is the name of type class in the given environment. -/
 @[export lean_is_class]
 def isClass (env : Environment) (n : Name) : Bool :=
   (classExtension.getState env).outParamMap.contains n
 
-/--
-  If `declName` is a class, return the position of its `outParams`.
--/
+/-- If `declName` is a class, return the position of its `outParams`. -/
 def getOutParamPositions? (env : Environment) (declName : Name) : Option (Array Nat) :=
   (classExtension.getState env).outParamMap.find? declName
 
+/-- Return `true` if the given `declName` is a type class with output parameters. -/
 @[export lean_has_out_params]
 def hasOutParams (env : Environment) (declName : Name) : Bool :=
   match getOutParamPositions? env declName with
@@ -90,6 +101,13 @@ private partial def checkOutParam (i : Nat) (outParamFVarIds : Array FVarId) (ou
       checkOutParam (i+1) outParamFVarIds outParams b
   | _ => return outParams
 
+/--
+Add a new type class with the given name to the environment.
+`declName` must not be the name of an existing type class,
+and it must be the name of constant in `env`.
+`declName` must be a inductive datatype or axiom.
+Recall that all structures are inductive datatypes.
+-/
 def addClass (env : Environment) (clsName : Name) : Except String Environment := do
   if isClass env clsName then
     throw s!"class has already been declared '{clsName}'"
@@ -99,24 +117,6 @@ def addClass (env : Environment) (clsName : Name) : Except String Environment :=
     throw s!"invalid 'class', declaration '{clsName}' must be inductive datatype, structure, or constant"
   let outParams ← checkOutParam 0 #[] #[] decl.type
   return classExtension.addEntry env { name := clsName, outParams }
-
-private def consumeNLambdas : Nat → Expr → Option Expr
-  | 0,   e            => some e
-  | i+1, .lam _ _ b _ => consumeNLambdas i b
-  | _,   _            => none
-
-partial def getClassName (env : Environment) : Expr → Option Name
-  | .forallE _ _ b _ => getClassName env b
-  | e                => do
-    let Expr.const c _ ← pure e.getAppFn | none
-    let info ← env.find? c
-    match info.value? with
-    | some val => do
-      let body ← consumeNLambdas e.getAppNumArgs val
-      getClassName env body
-    | none =>
-      if isClass env c then some c
-      else none
 
 builtin_initialize
   registerBuiltinAttribute {

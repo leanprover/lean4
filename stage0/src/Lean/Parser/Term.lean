@@ -284,6 +284,12 @@ def matchAltsWhereDecls := leading_parser matchAlts >> optional whereDecls
 
 @[builtinTermParser] def defaultOrOfNonempty   := leading_parser "default_or_ofNonempty% " >> optional "unsafe"
 
+/--
+Helper parser for marking `match`-alternatives that should not trigger errors if unused.
+We use them to implement `macro_rules` and `elab_rules`
+-/
+@[builtinTermParser] def noErrorIfUnused := leading_parser "no_error_if_unused%" >> termParser
+
 def namedArgument  := leading_parser (withAnonymousAntiquot := false) atomic ("(" >> ident >> " := ") >> termParser >> ")"
 def ellipsis       := leading_parser (withAnonymousAntiquot := false) ".."
 def argument       :=

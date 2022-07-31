@@ -82,6 +82,21 @@ def derivingClasses  := sepBy1 (group (ident >> optional (" with " >> Term.struc
 def optDeriving      := leading_parser optional (ppLine >> atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
 def computedField    := leading_parser declModifiers true >> ident >> " : " >> termParser >> Term.matchAlts
 def computedFields   := leading_parser "with" >> manyIndent (ppLine >> ppGroup computedField)
+/--
+In Lean, every concrete type other than the universes and every type constructor other than dependent arrows is
+an instance of a general family of type constructions known as inductive types.
+It is remarkable that it is possible to construct a substantial edifice of mathematics based on nothing more than the
+type universes, dependent arrow types, and inductive types; everything else follows from those.
+Intuitively, an inductive type is built up from a specified list of constructor. For example, `List α` is the list of elements of type `α`, and
+is defined as follows
+```
+inductive List (α : Type u) where
+| nil
+| cons (head : α) (tail : List α)
+```
+A list of elements of type `α` is either the empty list, `nil`, or an element `head : α` followed by a list `tail : List α`.
+For more information about [inductive types](https://leanprover.github.io/theorem_proving_in_lean4/inductive_types.html).
+-/
 def «inductive»      := leading_parser "inductive " >> declId >> optDeclSig >> optional (symbol " :=" <|> " where") >>
   many ctor >> optional (ppDedent ppLine >> computedFields) >> optDeriving
 def classInductive   := leading_parser atomic (group (symbol "class " >> "inductive ")) >> declId >> ppIndent optDeclSig >> optional (symbol " :=" <|> " where") >> many ctor >> optDeriving

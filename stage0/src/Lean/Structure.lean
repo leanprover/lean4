@@ -13,7 +13,8 @@ namespace Lean
 structure StructureFieldInfo where
   fieldName  : Name
   projFn     : Name
-  subobject? : Option Name -- It is `some parentStructName` if it is a subobject, and `parentStructName` is the name of the parent structure
+  /-- It is `some parentStructName` if it is a subobject, and `parentStructName` is the name of the parent structure -/
+  subobject? : Option Name
   binderInfo : BinderInfo
   autoParam? : Option Expr := none
   deriving Inhabited, Repr
@@ -167,7 +168,7 @@ def getDefaultFnForField? (env : Environment) (structName : Name) (fieldName : N
     let defFn := mkDefaultFnOfProjFn projName
     if env.contains defFn then defFn else none
   else
-    -- Check if we have a default function for a default values overriden by substructure.
+    -- Check if we have a default function for a default values overridden by substructure.
     let defFn := mkDefaultFnOfProjFn (structName ++ fieldName)
     if env.contains defFn then defFn else none
 
@@ -185,8 +186,9 @@ partial def getPathToBaseStructureAux (env : Environment) (baseStructName : Name
         | some projFn => getPathToBaseStructureAux env baseStructName parentStructName (projFn :: path)
 
 /--
-  If `baseStructName` is an ancestor structure for `structName`, then return a sequence of projection functions
-  to go from `structName` to `baseStructName`. -/
+If `baseStructName` is an ancestor structure for `structName`, then return a sequence of projection functions
+to go from `structName` to `baseStructName`.
+-/
 def getPathToBaseStructure? (env : Environment) (baseStructName : Name) (structName : Name) : Option (List Name) :=
   getPathToBaseStructureAux env baseStructName structName []
 

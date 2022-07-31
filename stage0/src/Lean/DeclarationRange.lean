@@ -9,6 +9,7 @@ import Lean.ToExpr
 
 namespace Lean
 
+/-- Store position information for declarations. -/
 structure DeclarationRange where
   pos          : Position
   /-- A precomputed UTF-16 `character` field as in `Lean.Lsp.Position`. We need to store this

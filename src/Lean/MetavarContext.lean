@@ -86,12 +86,12 @@ https://github.com/leanprover/lean/blob/92826917a252a6092cffaf5fc5f1acb1f8cef379
 
   b) Synthetic metavariables may still be assigned by unification,
      but whenever possible `isDefEq` will avoid the assignment. For example,
-     if we have the unification constaint `?m =?= ?n`, where `?m` is synthetic,
+     if we have the unification constraint `?m =?= ?n`, where `?m` is synthetic,
      but `?n` is not, `isDefEq` solves it by using the assignment `?n := ?m`.
      We use synthetic metavariables for type class resolution.
      Any module that creates synthetic metavariables, must also check
      whether they have been assigned by `isDefEq`, and then still synthesize
-     them, and check whether the sythesized result is compatible with the one
+     them, and check whether the synthesized result is compatible with the one
      assigned by `isDefEq`.
 
   c) SyntheticOpaque metavariables are never assigned by `isDefEq`.
@@ -141,7 +141,7 @@ Gruesome details:
 
   - Suppose, we have `t[?m]` and we want to create a let-expression by
   abstracting a let-decl free variable `x`, and the local context of
-  `?m` contatins `x`. Similarly to the previous case
+  `?m` contains `x`. Similarly to the previous case
   ```
   let x : T := v; t[?m]
   ```
@@ -177,7 +177,7 @@ trying to invoke TC again.
 
 In Lean4, we are using a simpler design for the `MetavarContext`.
 
-- No distinction betwen temporary and regular metavariables.
+- No distinction between temporary and regular metavariables.
 
 - Metavariables have a `depth` Nat field.
 

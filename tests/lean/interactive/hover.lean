@@ -160,3 +160,7 @@ def g (n : Nat) : Nat := g 0
 termination_by g n => n
 decreasing_by have n' := n; admit
                        --^ textDocument/hover
+
+@[inline]
+--^ textDocument/hover
+def one := 1

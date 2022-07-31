@@ -6,6 +6,21 @@ Author: Sebastian Ullrich, Leonardo de Moura
 import Lean.Data.Name
 import Lean.Data.Format
 
+/--
+A position range inside a string. This type is mostly in combination with syntax trees,
+as there might not be a single underlying string in this case that could be used for a `Substring`.
+-/
+protected structure String.Range where
+  start : String.Pos
+  stop  : String.Pos
+  deriving Inhabited, Repr, BEq, Hashable
+
+def String.Range.contains (r : String.Range) (pos : String.Pos) (includeStop := false) : Bool :=
+  r.start <= pos && (if includeStop then pos <= r.stop else pos < r.stop)
+
+def String.Range.includes (super sub : String.Range) : Bool :=
+  super.start <= sub.start && super.stop >= sub.stop
+
 namespace Lean
 
 def SourceInfo.updateTrailing (trailing : Substring) : SourceInfo → SourceInfo
@@ -282,6 +297,11 @@ def hasMissing (stx : Syntax) : Bool := Id.run do
       return true
   return false
 
+def getRange? (stx : Syntax) (originalOnly := false) : Option String.Range :=
+  match stx.getPos? originalOnly, stx.getTailPos? originalOnly with
+  | some start, some stop => some { start, stop }
+  | _,          _         => none
+
 /--
 Represents a cursor into a syntax tree that can be read, written, and advanced down/up/left/right.
 Indices are allowed to be out-of-bound, in which case `cur` is `Syntax.missing`.
@@ -479,6 +499,32 @@ def isTokenAntiquot (stx : Syntax) : Bool :=
 
 def isAnyAntiquot (stx : Syntax) : Bool :=
   stx.isAntiquot || stx.isAntiquotSplice || stx.isAntiquotSuffixSplice || stx.isTokenAntiquot
+
+/-- List of `Syntax` nodes in which each succeeding element is the parent of
+the current. The associated index is the index of the preceding element in the
+list of children of the current element. -/
+protected abbrev Stack := List (Syntax × Nat)
+
+/-- Return stack of syntax nodes satisfying `visit`, starting with such a node that also fulfills `accept` (default "is leaf"), and ending with the root. -/
+partial def findStack? (root : Syntax) (visit : Syntax → Bool) (accept : Syntax → Bool := fun stx => !stx.hasArgs) : Option Syntax.Stack :=
+  if visit root then go [] root else none
+where
+  go (stack : Syntax.Stack) (stx : Syntax) : Option Syntax.Stack := Id.run do
+    if accept stx then
+      return (stx, 0) :: stack  -- the first index is arbitrary as there is no preceding element
+    for i in [0:stx.getNumArgs] do
+      if visit stx[i] then
+        if let some stack := go ((stx, i) :: stack) stx[i] then
+          return stack
+    return none
+
+/-- Compare the `SyntaxNodeKind`s in `pattern` to those of the `Syntax`
+elements in `stack`. Return `false` if `stack` is shorter than `pattern`. -/
+def Stack.matches (stack : Syntax.Stack) (pattern : List $ Option SyntaxNodeKind) : Bool :=
+  stack.length >= pattern.length &&
+  (stack
+    |>.zipWith (fun (s, _) p => p |>.map (s.isOfKind ·) |>.getD true) pattern
+    |>.all id)
 
 end Syntax
 end Lean

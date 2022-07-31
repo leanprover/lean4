@@ -28,6 +28,7 @@ def getMaxHeartbeats (opts : Options) : Nat :=
 
 abbrev InstantiateLevelCache := Std.PersistentHashMap Name (List Level × Expr)
 
+/-- Cache for the `CoreM` monad -/
 structure Cache where
   instLevelType  : InstantiateLevelCache := {}
   instLevelValue : InstantiateLevelCache := {}
@@ -35,12 +36,19 @@ structure Cache where
 
 /-- State for the CoreM monad. -/
 structure State where
+  /-- Current environment. -/
   env             : Environment
+  /-- Next macro scope. We use macro scopes to avoid accidental name capture. -/
   nextMacroScope  : MacroScope     := firstFrontendMacroScope + 1
+  /-- Name generator for producing unique `FVarId`s, `MVarId`s, and `LMVarId`s -/
   ngen            : NameGenerator  := {}
+  /-- Trace messages -/
   traceState      : TraceState     := {}
+  /-- Cache for instantiating universe polymorphic declarations. -/
   cache           : Cache          := {}
+  /-- Message log. -/
   messages        : MessageLog     := {}
+  /-- Info tree. We have the info tree here because we want to update it while adding attributes. -/
   infoState       : Elab.InfoState := {}
   deriving Inhabited
 

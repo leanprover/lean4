@@ -309,7 +309,7 @@ private def accMax (result : Level) (prev : Level) (offset : Nat) : Level :=
 /- Auxiliary function used at `normalize`.
    Remarks:
    - `lvls` are sorted using `normLt`
-   - `extraK` is the outter offset of the `max` term. We will push it inside.
+   - `extraK` is the outer offset of the `max` term. We will push it inside.
    - `i` is the current array index
    - `prev + prevK` is the "previous" level that has not been added to `result` yet.
    - `result` is the accumulator
@@ -336,12 +336,13 @@ private partial def skipExplicit (lvls : Array Level) (i : Nat) : Nat :=
   else
     i
 
-/-
-  Auxiliary function for `normalize`.
-  `maxExplicit` is the maximum explicit universe level at `lvls`.
-  Return true if it finds a level with offset ≥ maxExplicit.
-  `i` starts at the first non explict level.
-  It assumes `lvls` has been sorted using `normLt`. -/
+/--
+Auxiliary function for `normalize`.
+`maxExplicit` is the maximum explicit universe level at `lvls`.
+Return true if it finds a level with offset ≥ maxExplicit.
+`i` starts at the first non explicit level.
+It assumes `lvls` has been sorted using `normLt`.
+-/
 private partial def isExplicitSubsumedAux (lvls : Array Level) (maxExplicit : Nat) (i : Nat) : Bool :=
   if h : i < lvls.size then
     let lvl := lvls.get ⟨i, h⟩
@@ -381,8 +382,10 @@ partial def normalize (l : Level) : Level :=
         addOffset (mkIMaxAux l₁ l₂) k
     | _ => unreachable!
 
-/- Return true if `u` and `v` denote the same level.
-   Check is currently incomplete. -/
+/--
+Return true if `u` and `v` denote the same level.
+Check is currently incomplete.
+-/
 def isEquiv (u v : Level) : Bool :=
   u == v || u.normalize == v.normalize
 

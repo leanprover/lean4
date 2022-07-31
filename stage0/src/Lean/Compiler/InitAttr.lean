@@ -32,10 +32,11 @@ unsafe opaque runModInit (mod : Name) : IO Bool
 @[extern "lean_run_init"]
 unsafe opaque runInit (env : @& Environment) (opts : @& Options) (decl initDecl : @& Name) : IO Unit
 
-unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) : IO (ParametricAttribute Name) :=
+unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) (ref : Name) : IO (ParametricAttribute Name) :=
   registerParametricAttribute {
-    name := attrName,
-    descr := "initialization procedure for global references",
+    ref := ref
+    name := attrName
+    descr := "initialization procedure for global references"
     getParam := fun declName stx => do
       let decl ← getConstInfo declName
       match (← Attribute.Builtin.getIdent? stx) with
@@ -70,7 +71,11 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) : IO
   }
 
 @[implementedBy registerInitAttrUnsafe]
-opaque registerInitAttr (attrName : Name) (runAfterImport : Bool) : IO (ParametricAttribute Name)
+private opaque registerInitAttrInner (attrName : Name) (runAfterImport : Bool) (ref : Name) : IO (ParametricAttribute Name)
+
+@[inline]
+def registerInitAttr (attrName : Name) (runAfterImport : Bool) (ref : Name := by exact decl_name%) : IO (ParametricAttribute Name) :=
+  registerInitAttrInner attrName runAfterImport ref
 
 builtin_initialize regularInitAttr : ParametricAttribute Name ← registerInitAttr `init true
 builtin_initialize builtinInitAttr : ParametricAttribute Name ← registerInitAttr `builtinInit false

@@ -19,6 +19,8 @@ instance : MonadLift ImportM AttrM where
   monadLift x := do liftM (m := IO) (x { env := (← getEnv), opts := (← getOptions) })
 
 structure AttributeImplCore where
+  /-- This is used as the target for go-to-definition queries for simple attributes -/
+  ref : Name := by exact decl_name%
   name : Name
   descr : String
   applicationTime := AttributeApplicationTime.afterTypeChecking
@@ -136,7 +138,8 @@ structure TagAttribute where
   ext  : PersistentEnvExtension Name Name NameSet
   deriving Inhabited
 
-def registerTagAttribute (name : Name) (descr : String) (validate : Name → AttrM Unit := fun _ => pure ()) : IO TagAttribute := do
+def registerTagAttribute (name : Name) (descr : String)
+    (validate : Name → AttrM Unit := fun _ => pure ()) (ref : Name := by exact decl_name%) : IO TagAttribute := do
   let ext : PersistentEnvExtension Name Name NameSet ← registerPersistentEnvExtension {
     name            := name
     mkInitial       := pure {}
@@ -148,6 +151,7 @@ def registerTagAttribute (name : Name) (descr : String) (validate : Name → Att
     statsFn         := fun s => "tag attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
   }
   let attrImpl : AttributeImpl := {
+    ref   := ref
     name  := name
     descr := descr
     add   := fun decl stx kind => do
@@ -184,6 +188,7 @@ structure ParametricAttribute (α : Type) where
   deriving Inhabited
 
 structure ParametricAttributeImpl (α : Type) extends AttributeImplCore where
+  /-- This is used as the target for go-to-definition queries for simple attributes -/
   getParam : Name → Syntax → AttrM α
   afterSet : Name → α → AttrM Unit := fun _ _ _ => pure ()
   afterImport : Array (Array (Name × α)) → ImportM Unit := fun _ => pure ()
@@ -200,6 +205,7 @@ def registerParametricAttribute {α : Type} [Inhabited α] (impl : ParametricAtt
     statsFn         := fun s => "parametric attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
   }
   let attrImpl : AttributeImpl := {
+    ref   := impl.ref
     name  := impl.name
     descr := impl.descr
     add   := fun decl stx kind => do
@@ -246,7 +252,8 @@ structure EnumAttributes (α : Type) where
 
 def registerEnumAttributes {α : Type} [Inhabited α] (extName : Name) (attrDescrs : List (Name × String × α))
     (validate : Name → α → AttrM Unit := fun _ _ => pure ())
-    (applicationTime := AttributeApplicationTime.afterTypeChecking) : IO (EnumAttributes α) := do
+    (applicationTime := AttributeApplicationTime.afterTypeChecking)
+    (ref : Name := by exact decl_name%) : IO (EnumAttributes α) := do
   let ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α) ← registerPersistentEnvExtension {
     name            := extName
     mkInitial       := pure {}
@@ -258,6 +265,7 @@ def registerEnumAttributes {α : Type} [Inhabited α] (extName : Name) (attrDesc
     statsFn         := fun s => "enumeration attribute extension" ++ Format.line ++ "number of local entries: " ++ format s.size
   }
   let attrs := attrDescrs.map fun (name, descr, val) => {
+    ref             := ref
     name            := name
     descr           := descr
     add             := fun decl stx kind => do
@@ -298,7 +306,7 @@ end EnumAttributes
   Attribute extension and builders. We use builders to implement attribute factories for parser categories.
 -/
 
-abbrev AttributeImplBuilder := List DataValue → Except String AttributeImpl
+abbrev AttributeImplBuilder := Name → List DataValue → Except String AttributeImpl
 abbrev AttributeImplBuilderTable := Std.HashMap Name AttributeImplBuilder
 
 builtin_initialize attributeImplBuilderTableRef : IO.Ref AttributeImplBuilderTable ← IO.mkRef {}
@@ -308,15 +316,15 @@ def registerAttributeImplBuilder (builderId : Name) (builder : AttributeImplBuil
   if table.contains builderId then throw (IO.userError ("attribute implementation builder '" ++ toString builderId ++ "' has already been declared"))
   attributeImplBuilderTableRef.modify fun table => table.insert builderId builder
 
-def mkAttributeImplOfBuilder (builderId : Name) (args : List DataValue) : IO AttributeImpl := do
+def mkAttributeImplOfBuilder (builderId ref : Name) (args : List DataValue) : IO AttributeImpl := do
   let table ← attributeImplBuilderTableRef.get
   match table.find? builderId with
   | none         => throw (IO.userError ("unknown attribute implementation builder '" ++ toString builderId ++ "'"))
-  | some builder => IO.ofExcept <| builder args
+  | some builder => IO.ofExcept <| builder ref args
 
 inductive AttributeExtensionOLeanEntry where
   | decl (declName : Name) -- `declName` has type `AttributeImpl`
-  | builder (builderId : Name) (args : List DataValue)
+  | builder (builderId ref : Name) (args : List DataValue)
 
 structure AttributeExtensionState where
   newEntries : List AttributeExtensionOLeanEntry := []
@@ -342,8 +350,8 @@ opaque mkAttributeImplOfConstant (env : Environment) (opts : Options) (declName 
 
 def mkAttributeImplOfEntry (env : Environment) (opts : Options) (e : AttributeExtensionOLeanEntry) : IO AttributeImpl :=
   match e with
-  | AttributeExtensionOLeanEntry.decl declName          => IO.ofExcept <| mkAttributeImplOfConstant env opts declName
-  | AttributeExtensionOLeanEntry.builder builderId args => mkAttributeImplOfBuilder builderId args
+  | .decl declName              => IO.ofExcept <| mkAttributeImplOfConstant env opts declName
+  | .builder builderId ref args => mkAttributeImplOfBuilder builderId ref args
 
 private def AttributeExtension.addImported (es : Array (Array AttributeExtensionOLeanEntry)) : ImportM AttributeExtensionState := do
   let ctx ← read
@@ -409,14 +417,14 @@ def registerAttributeOfDecl (env : Environment) (opts : Options) (attrDeclName :
   if isAttribute env attrImpl.name then
     throw ("invalid builtin attribute declaration, '" ++ toString attrImpl.name ++ "' has already been used")
   else
-    return attributeExtension.addEntry env (AttributeExtensionOLeanEntry.decl attrDeclName, attrImpl)
+    return attributeExtension.addEntry env (.decl attrDeclName, attrImpl)
 
-def registerAttributeOfBuilder (env : Environment) (builderId : Name) (args : List DataValue) : IO Environment := do
-  let attrImpl ← mkAttributeImplOfBuilder builderId args
+def registerAttributeOfBuilder (env : Environment) (builderId ref : Name) (args : List DataValue) : IO Environment := do
+  let attrImpl ← mkAttributeImplOfBuilder builderId ref args
   if isAttribute env attrImpl.name then
     throw (IO.userError ("invalid builtin attribute declaration, '" ++ toString attrImpl.name ++ "' has already been used"))
   else
-    return attributeExtension.addEntry env (AttributeExtensionOLeanEntry.builder builderId args, attrImpl)
+    return attributeExtension.addEntry env (.builder builderId ref args, attrImpl)
 
 def Attribute.add (declName : Name) (attrName : Name) (stx : Syntax) (kind := AttributeKind.global) : AttrM Unit := do
   let attr ← ofExcept <| getAttributeImpl (← getEnv) attrName

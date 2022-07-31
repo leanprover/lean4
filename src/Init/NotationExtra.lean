@@ -92,11 +92,9 @@ syntax (name := calcTactic) "calc" ppLine withPosition(calcStep) ppLine withPosi
 
 @[appUnexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `(())
-  | _       => throw ()
 
 @[appUnexpander List.nil] def unexpandListNil : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `([])
-  | _       => throw ()
 
 @[appUnexpander List.cons] def unexpandListCons : Lean.PrettyPrinter.Unexpander
   | `($(_) $x [])      => `([$x])

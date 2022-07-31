@@ -46,9 +46,9 @@ private def addParserCategoryCore (categories : ParserCategories) (catName : Nam
 
 /-- All builtin parser categories are Pratt's parsers -/
 
-private def addBuiltinParserCategory (catName : Name) (behavior : LeadingIdentBehavior) : IO Unit := do
+private def addBuiltinParserCategory (catName ref : Name) (behavior : LeadingIdentBehavior) : IO Unit := do
   let categories ← builtinParserCategoriesRef.get
-  let categories ← IO.ofExcept $ addParserCategoryCore categories catName { tables := {}, behavior := behavior}
+  let categories ← IO.ofExcept $ addParserCategoryCore categories catName { ref, behavior }
   builtinParserCategoriesRef.set categories
 
 namespace ParserExtension
@@ -56,21 +56,21 @@ namespace ParserExtension
 inductive OLeanEntry where
   | token     (val : Token) : OLeanEntry
   | kind      (val : SyntaxNodeKind) : OLeanEntry
-  | category  (catName : Name) (behavior : LeadingIdentBehavior)
+  | category  (catName : Name) (declName : Name) (behavior : LeadingIdentBehavior)
   | parser    (catName : Name) (declName : Name) (prio : Nat) : OLeanEntry
   deriving Inhabited
 
 inductive Entry where
   | token     (val : Token) : Entry
   | kind      (val : SyntaxNodeKind) : Entry
-  | category  (catName : Name) (behavior : LeadingIdentBehavior)
+  | category  (catName : Name) (declName : Name) (behavior : LeadingIdentBehavior)
   | parser    (catName : Name) (declName : Name) (leading : Bool) (p : Parser) (prio : Nat) : Entry
   deriving Inhabited
 
 def Entry.toOLeanEntry : Entry → OLeanEntry
   | token v             => OLeanEntry.token v
   | kind v              => OLeanEntry.kind v
-  | category c b        => OLeanEntry.category c b
+  | category c d b      => OLeanEntry.category c d b
   | parser c d _ _ prio => OLeanEntry.parser c d prio
 
 structure State where
@@ -102,40 +102,47 @@ def throwUnknownParserCategory {α} (catName : Name) : ExceptT String Id α :=
 abbrev getCategory (categories : ParserCategories) (catName : Name) : Option ParserCategory :=
   categories.find? catName
 
-def addLeadingParser (categories : ParserCategories) (catName : Name) (p : Parser) (prio : Nat) : Except String ParserCategories :=
+def addLeadingParser (categories : ParserCategories) (catName declName : Name) (p : Parser) (prio : Nat) : Except String ParserCategories :=
   match getCategory categories catName with
   | none     =>
     throwUnknownParserCategory catName
   | some cat =>
+    let kinds := cat.kinds.insert declName
     let addTokens (tks : List Token) : Except String ParserCategories :=
-      let tks    := tks.map fun tk => Name.mkSimple tk
-      let tables := tks.eraseDups.foldl (fun (tables : PrattParsingTables) tk => { tables with leadingTable := tables.leadingTable.insert tk (p, prio) }) cat.tables
-      pure $ categories.insert catName { cat with tables := tables }
+      let tks    := tks.map Name.mkSimple
+      let tables := tks.eraseDups.foldl (init := cat.tables) fun tables tk =>
+        { tables with leadingTable := tables.leadingTable.insert tk (p, prio) }
+      pure $ categories.insert catName { cat with kinds, tables }
     match p.info.firstTokens with
     | FirstTokens.tokens tks    => addTokens tks
     | FirstTokens.optTokens tks => addTokens tks
     | _ =>
       let tables := { cat.tables with leadingParsers := (p, prio) :: cat.tables.leadingParsers }
-      pure $ categories.insert catName { cat with tables := tables }
+      pure $ categories.insert catName { cat with kinds, tables }
 
 private def addTrailingParserAux (tables : PrattParsingTables) (p : TrailingParser) (prio : Nat) : PrattParsingTables :=
   let addTokens (tks : List Token) : PrattParsingTables :=
     let tks := tks.map fun tk => Name.mkSimple tk
-    tks.eraseDups.foldl (fun (tables : PrattParsingTables) tk => { tables with trailingTable := tables.trailingTable.insert tk (p, prio) }) tables
+    tks.eraseDups.foldl (init := tables) fun tables tk =>
+      { tables with trailingTable := tables.trailingTable.insert tk (p, prio) }
   match p.info.firstTokens with
   | FirstTokens.tokens tks    => addTokens tks
   | FirstTokens.optTokens tks => addTokens tks
   | _                         => { tables with trailingParsers := (p, prio) :: tables.trailingParsers }
 
-def addTrailingParser (categories : ParserCategories) (catName : Name) (p : TrailingParser) (prio : Nat) : Except String ParserCategories :=
+def addTrailingParser (categories : ParserCategories) (catName declName : Name) (p : TrailingParser) (prio : Nat) : Except String ParserCategories :=
   match getCategory categories catName with
   | none     => throwUnknownParserCategory catName
-  | some cat => pure $ categories.insert catName { cat with tables := addTrailingParserAux cat.tables p prio }
+  | some cat =>
+    let kinds := cat.kinds.insert declName
+    let tables := addTrailingParserAux cat.tables p prio
+    pure $ categories.insert catName { cat with kinds, tables }
 
-def addParser (categories : ParserCategories) (catName : Name) (_declName : Name) (leading : Bool) (p : Parser) (prio : Nat) : Except String ParserCategories :=
+def addParser (categories : ParserCategories) (catName declName : Name)
+    (leading : Bool) (p : Parser) (prio : Nat) : Except String ParserCategories := do
   match leading, p with
-  | true, p  => addLeadingParser categories catName p prio
-  | false, p => addTrailingParser categories catName p prio
+  | true, p  => addLeadingParser categories catName declName p prio
+  | false, p => addTrailingParser categories catName declName p prio
 
 def addParserTokens (tokenTable : TokenTable) (info : ParserInfo) : Except String TokenTable :=
   let newTokens := info.collectTokens []
@@ -151,17 +158,17 @@ def ParserExtension.addEntryImpl (s : State) (e : Entry) : State :=
   match e with
   | Entry.token tk =>
     match addTokenConfig s.tokens tk with
-    | Except.ok tokens => { s with tokens := tokens }
+    | Except.ok tokens => { s with tokens }
     | _                => unreachable!
   | Entry.kind k =>
     { s with kinds := s.kinds.insert k }
-  | Entry.category catName behavior =>
+  | Entry.category catName ref behavior =>
     if s.categories.contains catName then s
     else { s with
-           categories := s.categories.insert catName { tables := {}, behavior := behavior } }
+           categories := s.categories.insert catName { ref, behavior } }
   | Entry.parser catName declName leading parser prio =>
     match addParser s.categories catName declName leading parser prio with
-    | Except.ok categories => { s with categories := categories }
+    | Except.ok categories => { s with categories }
     | _ => unreachable!
 
 /-- Parser aliases for making `ParserDescr` extensible -/
@@ -325,9 +332,9 @@ builtin_initialize
   }
 
 private def ParserExtension.OLeanEntry.toEntry (s : State) : OLeanEntry → ImportM Entry
-  | token tk     => return Entry.token tk
-  | kind k       => return Entry.kind k
-  | category c l => return Entry.category c l
+  | token tk       => return Entry.token tk
+  | kind k         => return Entry.kind k
+  | category c d l => return Entry.category c d l
   | parser catName declName prio => do
     let (leading, p) ← mkParserOfConstant s.categories declName
     return Entry.parser catName declName leading p prio
@@ -344,11 +351,11 @@ builtin_initialize parserExtension : ParserExtension ←
 def isParserCategory (env : Environment) (catName : Name) : Bool :=
   (parserExtension.getState env).categories.contains catName
 
-def addParserCategory (env : Environment) (catName : Name) (behavior : LeadingIdentBehavior) : Except String Environment := do
+def addParserCategory (env : Environment) (catName declName : Name) (behavior : LeadingIdentBehavior) : Except String Environment := do
   if isParserCategory env catName then
     throwParserCategoryAlreadyDefined catName
   else
-    return parserExtension.addEntry env <| ParserExtension.Entry.category catName behavior
+    return parserExtension.addEntry env <| ParserExtension.Entry.category catName declName behavior
 
 def leadingIdentBehavior (env : Environment) (catName : Name) : LeadingIdentBehavior :=
   match getCategory (parserExtension.getState env).categories catName with
@@ -504,7 +511,7 @@ The parsing tables for builtin parsers are "stored" in the extracted source code
 -/
 def registerBuiltinParserAttribute (attrName : Name) (catName : Name)
     (behavior := LeadingIdentBehavior.default) (ref : Name := by exact decl_name%) : IO Unit := do
-  addBuiltinParserCategory catName behavior
+  addBuiltinParserCategory catName ref behavior
   registerBuiltinAttribute {
     ref             := ref
     name            := attrName
@@ -554,7 +561,7 @@ builtin_initialize
 
 def registerParserCategory (env : Environment) (attrName catName : Name)
     (behavior := LeadingIdentBehavior.default) (ref : Name := by exact decl_name%) : IO Environment := do
-  let env ← IO.ofExcept $ addParserCategory env catName behavior
+  let env ← IO.ofExcept $ addParserCategory env catName ref behavior
   registerAttributeOfBuilder env `parserAttr ref [DataValue.ofName attrName, DataValue.ofName catName]
 
 -- declare `termParser` here since it is used everywhere via antiquotations

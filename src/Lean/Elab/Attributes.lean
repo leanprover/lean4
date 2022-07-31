@@ -58,12 +58,9 @@ def elabAttr [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMa
   -- We don't want to create an info tree node from a simple attribute to the generic parser.
   let declTarget := if attrSyntaxNodeKind == ``Lean.Parser.Attr.simple then impl.ref else attrSyntaxNodeKind
   if (← getEnv).contains declTarget && (← getInfoState).enabled then
-    pushInfoLeaf <| Info.ofTermInfo {
-      elaborator    := .anonymous
-      lctx          := {}
-      expr          := mkConst declTarget
-      stx           := attrInstance[1][0] -- We want to associate the information to the first atom only
-      expectedType? := none
+    pushInfoLeaf <| .ofCommandInfo {
+      elaborator := declTarget  -- not truly an elaborator, but a sensible target for go-to-definition
+      stx        := attrInstance[1][0] -- We want to associate the information to the first atom only
     }
   /- The `AttrM` does not have sufficient information for expanding macros in `args`.
      So, we expand them before here before we invoke the attributer handlers implemented using `AttrM`. -/

@@ -46,9 +46,9 @@ private def addParserCategoryCore (categories : ParserCategories) (catName : Nam
 
 /-- All builtin parser categories are Pratt's parsers -/
 
-private def addBuiltinParserCategory (catName : Name) (behavior : LeadingIdentBehavior) : IO Unit := do
+private def addBuiltinParserCategory (catName ref : Name) (behavior : LeadingIdentBehavior) : IO Unit := do
   let categories ← builtinParserCategoriesRef.get
-  let categories ← IO.ofExcept $ addParserCategoryCore categories catName { behavior }
+  let categories ← IO.ofExcept $ addParserCategoryCore categories catName { ref, behavior }
   builtinParserCategoriesRef.set categories
 
 namespace ParserExtension
@@ -56,21 +56,21 @@ namespace ParserExtension
 inductive OLeanEntry where
   | token     (val : Token) : OLeanEntry
   | kind      (val : SyntaxNodeKind) : OLeanEntry
-  | category  (catName : Name) (behavior : LeadingIdentBehavior)
+  | category  (catName : Name) (declName : Name) (behavior : LeadingIdentBehavior)
   | parser    (catName : Name) (declName : Name) (prio : Nat) : OLeanEntry
   deriving Inhabited
 
 inductive Entry where
   | token     (val : Token) : Entry
   | kind      (val : SyntaxNodeKind) : Entry
-  | category  (catName : Name) (behavior : LeadingIdentBehavior)
+  | category  (catName : Name) (declName : Name) (behavior : LeadingIdentBehavior)
   | parser    (catName : Name) (declName : Name) (leading : Bool) (p : Parser) (prio : Nat) : Entry
   deriving Inhabited
 
 def Entry.toOLeanEntry : Entry → OLeanEntry
   | token v             => OLeanEntry.token v
   | kind v              => OLeanEntry.kind v
-  | category c b        => OLeanEntry.category c b
+  | category c d b      => OLeanEntry.category c d b
   | parser c d _ _ prio => OLeanEntry.parser c d prio
 
 structure State where
@@ -162,10 +162,10 @@ def ParserExtension.addEntryImpl (s : State) (e : Entry) : State :=
     | _                => unreachable!
   | Entry.kind k =>
     { s with kinds := s.kinds.insert k }
-  | Entry.category catName behavior =>
+  | Entry.category catName ref behavior =>
     if s.categories.contains catName then s
     else { s with
-           categories := s.categories.insert catName { behavior } }
+           categories := s.categories.insert catName { ref, behavior } }
   | Entry.parser catName declName leading parser prio =>
     match addParser s.categories catName declName leading parser prio with
     | Except.ok categories => { s with categories }
@@ -332,9 +332,9 @@ builtin_initialize
   }
 
 private def ParserExtension.OLeanEntry.toEntry (s : State) : OLeanEntry → ImportM Entry
-  | token tk     => return Entry.token tk
-  | kind k       => return Entry.kind k
-  | category c l => return Entry.category c l
+  | token tk       => return Entry.token tk
+  | kind k         => return Entry.kind k
+  | category c d l => return Entry.category c d l
   | parser catName declName prio => do
     let (leading, p) ← mkParserOfConstant s.categories declName
     return Entry.parser catName declName leading p prio
@@ -351,11 +351,11 @@ builtin_initialize parserExtension : ParserExtension ←
 def isParserCategory (env : Environment) (catName : Name) : Bool :=
   (parserExtension.getState env).categories.contains catName
 
-def addParserCategory (env : Environment) (catName : Name) (behavior : LeadingIdentBehavior) : Except String Environment := do
+def addParserCategory (env : Environment) (catName declName : Name) (behavior : LeadingIdentBehavior) : Except String Environment := do
   if isParserCategory env catName then
     throwParserCategoryAlreadyDefined catName
   else
-    return parserExtension.addEntry env <| ParserExtension.Entry.category catName behavior
+    return parserExtension.addEntry env <| ParserExtension.Entry.category catName declName behavior
 
 def leadingIdentBehavior (env : Environment) (catName : Name) : LeadingIdentBehavior :=
   match getCategory (parserExtension.getState env).categories catName with
@@ -511,7 +511,7 @@ The parsing tables for builtin parsers are "stored" in the extracted source code
 -/
 def registerBuiltinParserAttribute (attrName : Name) (catName : Name)
     (behavior := LeadingIdentBehavior.default) (ref : Name := by exact decl_name%) : IO Unit := do
-  addBuiltinParserCategory catName behavior
+  addBuiltinParserCategory catName ref behavior
   registerBuiltinAttribute {
     ref             := ref
     name            := attrName
@@ -561,7 +561,7 @@ builtin_initialize
 
 def registerParserCategory (env : Environment) (attrName catName : Name)
     (behavior := LeadingIdentBehavior.default) (ref : Name := by exact decl_name%) : IO Environment := do
-  let env ← IO.ofExcept $ addParserCategory env catName behavior
+  let env ← IO.ofExcept $ addParserCategory env catName ref behavior
   registerAttributeOfBuilder env `parserAttr ref [DataValue.ofName attrName, DataValue.ofName catName]
 
 -- declare `termParser` here since it is used everywhere via antiquotations

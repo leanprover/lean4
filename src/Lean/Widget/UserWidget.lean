@@ -95,16 +95,17 @@ structure GetWidgetSourceParams where
   pos : Lean.Lsp.Position
   deriving ToJson, FromJson
 
-open Lean.Server Lean RequestM in
+open Server in
 @[serverRpcMethod]
 def getWidgetSource (args : GetWidgetSourceParams) : RequestM (RequestTask WidgetSource) :=
   RequestM.withWaitFindSnapAtPos args.pos fun snap => do
-    let env := snap.cmdState.env
-    if let some id := widgetSourceRegistry.getState env |>.find? args.hash then
-      let d ← Lean.Server.RequestM.runCore snap <| getUserWidgetDefinition id
-      return {sourcetext := d.javascript}
-    else
-      throw <| RequestError.mk .invalidParams s!"No registered user-widget with hash {args.hash}"
+    RequestM.runCoreM snap do
+      let env ← getEnv
+      if let some id := widgetSourceRegistry.getState env |>.find? args.hash then
+        let d ← getUserWidgetDefinition id
+        return {sourcetext := d.javascript}
+      else
+        throwThe RequestError ⟨.invalidParams, s!"No registered user-widget with hash {args.hash}"⟩
 
 open Lean Elab
 

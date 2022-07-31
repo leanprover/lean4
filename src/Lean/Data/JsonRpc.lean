@@ -75,7 +75,7 @@ instance : ToJson ErrorCode := ⟨fun
   | ErrorCode.contentModified      => (-32801 : Int)
   | ErrorCode.requestCancelled     => (-32800 : Int)
   | ErrorCode.rpcNeedsReconnect    => (-32900 : Int)
-  | ErrorCode.workerExited        => (-32901 : Int)
+  | ErrorCode.workerExited         => (-32901 : Int)
   | ErrorCode.workerCrashed        => (-32902 : Int)⟩
 
 /-- Uses separate constructors for notifications and errors because client and server

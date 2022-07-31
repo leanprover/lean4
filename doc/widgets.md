@@ -1,37 +1,175 @@
 # The user-widgets system
 
-Proving is an inherently interactive task. Lots of mathematical objects that we use are visual in nature.
-The user-widget system lets users associate React components with the Lean document which are then rendered in the Lean VSCode infoview.
+Proving and programming are inherently interactive tasks. Lots of mathematical objects and data
+structures are visual in nature. *User widgets* let you associate custom interactive UIs with
+sections of a Lean document. User widgets are rendered in the Lean infoview.
 
-There is nothing about the RPC calls presented here that make the user-widgets system
-dependent on JavaScript. However the primary use case is the web-based infoview in VSCode.
+![Rubik's cube](images/widgets_rubiks.png)
 
-## How to write your own user-widgets
+## Trying it out
 
-You can write your own user-widgets using the `@[widgetSource]` attribute:
+To try it out, simply type in the following code and place your cursor over the `#widget` command.
 
 ```lean
 import Lean
 open Lean Widget
 
 @[widget]
-def widget1 : UserWidgetDefinition := {
-  name := "my fancy widget"
+def helloWidget : UserWidgetDefinition where
+  name := "Hello"
   javascript := "
-  import * as React from 'react';
-  export default function (props) {
-    return React.createElement('p', {}, 'hello')
-  }"
+    import * as React from 'react';
+    export default function(props) {
+      const name = props.name || 'world'
+      return React.createElement('p', {}, name + '!')
+    }"
+
+#widget helloWidget .null
+```
+
+If you want to dive into a full sample right away, check out [`Rubiks`](TODO merge). Below,
+we'll explain the system piece by piece.
+
+⚠️ WARNING: All of the user widget APIs are **unstable** and subject to breaking changes.
+
+## Widget sources and instances
+
+A *widget source* is a valid JavaScript [ESModule](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)
+which exports a [React component](https://reactjs.org/docs/components-and-props.html). To access
+React, the module must use `import * as React from 'react'`. Our first example of a widget source
+is of course the value of `helloWidget.javascript`.
+
+We can register a widget source with the `@[widget]` attribute, giving it a friendlier name
+in the `name` field. This is bundled together in a `UserWidgetDefinition`.
+
+A *widget instance* is then the identifier of a `UserWidgetDefinition` (so `` `helloWidget ``,
+not `"Hello"`) associated with a range of positions in the Lean source code. In our example,
+the `#widget` command places a widget instance with the entire line as its range. We can think
+of a widget instance as an instruction for the infoview: "when the user places their cursor here,
+please render the following widget".
+
+Every widget instance also contains a `props : Json` value. This value is passed as an argument
+to the React component. In our first invocation of `#widget`, we set it to `.null`. Try out what
+happens when you type in `#widget helloWidget (Json.mkObj [("name", "<your name here>")])`.
+
+💡 NOTE: The RPC system presented below does not depend on JavaScript. However the primary use case
+is the web-based infoview in VSCode.
+
+## Querying the Lean server
+
+The interesting functionality of user widgets comes from their ability to communicate with the Lean
+server. To see this in action, let's implement a `#check` command as a web input form. This example
+assumes some familiarity with React.
+
+The first thing we'll need is to create an *RPC method*. This is basically a Lean function callable
+from widget code (possibly remotely over the internet). Our method will take in the `name : Name`
+of a constant in the environment and return its type. By convention, we represent the input data
+as a `structure`. Since it will be sent over from JavaScript, we need `FromJson` and `ToJson`.
+We'll see below why the position field is needed.
+
+```lean
+structure GetTypeParams where
+  /-- Name of a constant to get the type of. -/
+  name : Name
+  /-- Position of our widget instance in the Lean file. -/
+  pos : Lsp.Position
+  deriving FromJson, ToJson
+```
+
+After its arguments, we define the `getType` method. Every RPC method executes in the `RequestM`
+monad and must return a `RequestTask α` where `α` is its "actual" return type. The `Task` is so
+that requests can be handled concurrently. A first guess for `α` might be `Expr`. However,
+expressions in general can be large objects which depend on an `Environment` and `LocalContext`.
+Thus we cannot directly serialize an `Expr` and send it to the widget. Instead, there are two
+options:
+- One is to send a *reference* which points to an object residing on the server. From JavaScript's
+  point of view, references are entirely opaque, but they can be sent back to other RPC methods for
+  further processing.
+- Two is to pretty-print the expression and send its textual representation called `CodeWithInfos`.
+  This representation contains extra data which the infoview uses for interactivity. We take this
+  strategy here.
+
+RPC methods execute in the context of a file, but not any particular `Environment` so they don't
+know about the available `def`initions and `theorem`s. Thus, we need to pass in a position at which
+we want to use the local `Environment`. This is why we store it in `GetTypeParams`. The `withWaitFindSnapAtPos`
+method launches a concurrent computation whose job is to find such an `Environment` and a bit
+more information for us, in the form of a `snap : Snapshot`. With this in hand, we can call
+`MetaM` procedures to find out the type of `name` and pretty-print it.
+
+```lean
+open Server RequestM in
+@[serverRpcMethod]
+def getType (params : GetTypeParams) : RequestM (RequestTask CodeWithInfos) :=
+  withWaitFindSnapAtPos params.pos fun snap => do
+    runTermElabM snap do
+      let name ← resolveGlobalConstNoOverloadCore params.id
+      let some c ← Meta.getConst? name
+        | throwThe RequestError ⟨.invalidParams, s!"no constant named '{name}'"⟩
+      Widget.ppExprTagged c.type
+```
+
+## Using infoview components
+
+Now that we have all we need on the server side, let's write the widget source. By importing
+`@leanprover/infoview`, widgets can render UI components used to implement the infoview itself.
+For example, the `<InteractiveCode>` component displays expressions with `term : type` tooltips
+as seen in the goal view. We will use it to implement our custom `#check` display.
+
+⚠️ WARNING: Like the other widget APIs, the infoview JS API is **unstable** and subject to breaking changes.
+
+The code below demonstrates useful parts of the API. To make RPC method calls, we use the `RpcContext`.
+The `useAsync` helper packs the results of a call into a `status` enum, the returned `val`ue in case
+the call was successful, and otherwise an `err`or. Based on the `status` we either display
+an `InteractiveCode`, or `mapRpcError` the error in order to turn it into a readable message.
+
+```javascript
+import * as React from 'react';
+const e = React.createElement;
+import { RpcContext, InteractiveCode, useAsync, mapRpcError } from '@leanprover/infoview';
+
+export default function(props) {
+  const rs = React.useContext(RpcContext)
+  const [name, setName] = React.useState('getType')
+
+  const [status, val, err] = useAsync(() =>
+    rs.call('getType', { id: name, pos: props.pos }), [name, rs, props.pos])
+
+  const type = status === 'fulfilled' ? val && e(InteractiveCode, {fmt: val})
+    : status === 'rejected' ? e('p', null, mapRpcError(err).message)
+      : e('p', null, 'Loading..')
+
+  const onChange = (event) => { setName(event.target.value) }
+  return e('div', null,
+    e('input', { value: name, onChange }),
+    ' : ',
+    type)
 }
 ```
 
-This JavaScript text must include `import * as React from "react"` in the imports and may not use JSX.
-The default export of the sourcetext must be a React component whose props are an RPC encoding.
-The React component may accept a props argument whose value will be determined for each particular widget instance (below).
-Widget sources may import the `@lean4/infoview` package ([todo] publish on NPM) in order to use
-components such as `InteractiveMessage` to display `MessageData` interactively.
+Finally we can try out the widget.
 
-## Using Lake to build your widgets
+```lean
+@[widget]
+def checkWidget : UserWidgetDefinition where
+  name := "#check as a service"
+  javascript := "<JS source above>"
 
-For larger projects, you can use Lake to create files that will be used as `widgetSource`.
-To learn how to do this, please view the readme of the [WidgetsMinimal sample](https://github.com/leanprover/lean4-samples/tree/main/WidgetsMinimal) ([todo] merge sample).
+#widget checkWidget .null
+```
+
+![`#check` as a service](images/widgets_caas.png)
+
+## Building widget sources
+
+While typing JavaScript inline is fine for a simple example, for real developments we want to use
+packages from NPM, a proper build system, and JSX. Thus, most actual widget sources are built with
+Lake and NPM. They consist of multiple files and may import libraries which don't work as ESModules
+by default. On the other hand a widget source is just a single string. Readers familiar with web
+development may already have guessed that to obtain such a string, we need a *bundler*. Two popular
+choices are [`rollup.js`](https://rollupjs.org/guide/en/) and [`esbuild`](https://esbuild.github.io/).
+If we go with `rollup.js`, to make a widget work with the infoview we need to:
+- Set [`output.format`](https://rollupjs.org/guide/en/#outputformat) to `'es'`.
+- [Externalize](https://rollupjs.org/guide/en/#external) `react`, `react-dom`, `@leanprover/infoview`.
+  These libraries are already loaded by the infoview so they should not be bundled.
+
+We provide a working build setup sample in [`Rubiks/rollup.config.js`](TODO merge).

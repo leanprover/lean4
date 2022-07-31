@@ -21717,7 +21717,7 @@ if (lean_obj_tag(x_15) == 0)
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; lean_object* x_24; lean_object* x_25; 
 x_16 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___lambda__1___closed__7;
 x_17 = l_panic___at___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___spec__1(x_16);
-x_18 = lean_ctor_get(x_17, 0);
+x_18 = lean_ctor_get(x_17, 2);
 lean_inc(x_18);
 lean_dec(x_17);
 x_19 = lean_ctor_get(x_18, 0);
@@ -21743,7 +21743,7 @@ if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; uint8_t x_33; lean_object* x_34; 
 x_27 = lean_ctor_get(x_15, 0);
-x_28 = lean_ctor_get(x_27, 0);
+x_28 = lean_ctor_get(x_27, 2);
 lean_inc(x_28);
 lean_dec(x_27);
 x_29 = lean_ctor_get(x_28, 0);
@@ -21766,7 +21766,7 @@ lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean
 x_35 = lean_ctor_get(x_15, 0);
 lean_inc(x_35);
 lean_dec(x_15);
-x_36 = lean_ctor_get(x_35, 0);
+x_36 = lean_ctor_get(x_35, 2);
 lean_inc(x_36);
 lean_dec(x_35);
 x_37 = lean_ctor_get(x_36, 0);
@@ -21811,7 +21811,7 @@ if (lean_obj_tag(x_52) == 0)
 lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; uint8_t x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; 
 x_53 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___lambda__1___closed__7;
 x_54 = l_panic___at___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___spec__1(x_53);
-x_55 = lean_ctor_get(x_54, 0);
+x_55 = lean_ctor_get(x_54, 2);
 lean_inc(x_55);
 lean_dec(x_54);
 x_56 = lean_ctor_get(x_55, 0);
@@ -21843,7 +21843,7 @@ if (lean_is_exclusive(x_52)) {
  lean_dec_ref(x_52);
  x_65 = lean_box(0);
 }
-x_66 = lean_ctor_get(x_64, 0);
+x_66 = lean_ctor_get(x_64, 2);
 lean_inc(x_66);
 lean_dec(x_64);
 x_67 = lean_ctor_get(x_66, 0);

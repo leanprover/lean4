@@ -1556,6 +1556,8 @@ instance : Inhabited (TokenMap α) := ⟨RBMap.empty⟩
 
 instance : EmptyCollection (TokenMap α) := ⟨RBMap.empty⟩
 
+instance : ForIn m (TokenMap α) (Name × List α) := inferInstanceAs (ForIn _ (RBMap ..) _)
+
 end TokenMap
 
 structure PrattParsingTables where

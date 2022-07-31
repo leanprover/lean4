@@ -146,6 +146,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_precheck___lambda__1(lean_ob
 static lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_elabPrecheckedQuot_declRange___closed__2;
 static lean_object* l_Lean_Elab_Term_Quotation_precheckParen___closed__4;
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_Term_Quotation_precheck_hasQuotedIdent___spec__1(lean_object*, size_t, size_t);
+static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Quotation_precheckApp___spec__1___closed__2;
 static lean_object* l_Lean_Elab_Term_Quotation_precheckApp___closed__4;
 static lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_elabPrecheckedQuot___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_mkPrecheckAttribute___lambda__2(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3459,6 +3460,14 @@ x_1 = lean_mk_string_from_bytes("namedArgument", 13);
 return x_1;
 }
 }
+static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Quotation_precheckApp___spec__1___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("ellipsis", 8);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Quotation_precheckApp___spec__1(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13) {
 _start:
 {
@@ -3493,7 +3502,16 @@ x_19 = l_Lean_Syntax_isOfKind(x_16, x_18);
 lean_dec(x_18);
 if (x_19 == 0)
 {
-lean_object* x_20; 
+lean_object* x_20; lean_object* x_21; uint8_t x_22; 
+x_20 = l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Quotation_precheckApp___spec__1___closed__2;
+lean_inc(x_1);
+x_21 = l_Lean_Name_str___override(x_1, x_20);
+lean_inc(x_16);
+x_22 = l_Lean_Syntax_isOfKind(x_16, x_21);
+lean_dec(x_21);
+if (x_22 == 0)
+{
+lean_object* x_23; 
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -3501,24 +3519,24 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
-x_20 = l_Lean_Elab_Term_Quotation_precheck(x_16, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
-if (lean_obj_tag(x_20) == 0)
+x_23 = l_Lean_Elab_Term_Quotation_precheck(x_16, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
+if (lean_obj_tag(x_23) == 0)
 {
-lean_object* x_21; size_t x_22; size_t x_23; lean_object* x_24; 
-x_21 = lean_ctor_get(x_20, 1);
-lean_inc(x_21);
-lean_dec(x_20);
-x_22 = 1;
-x_23 = lean_usize_add(x_4, x_22);
-x_24 = lean_box(0);
-x_4 = x_23;
-x_5 = x_24;
-x_13 = x_21;
+lean_object* x_24; size_t x_25; size_t x_26; lean_object* x_27; 
+x_24 = lean_ctor_get(x_23, 1);
+lean_inc(x_24);
+lean_dec(x_23);
+x_25 = 1;
+x_26 = lean_usize_add(x_4, x_25);
+x_27 = lean_box(0);
+x_4 = x_26;
+x_5 = x_27;
+x_13 = x_24;
 goto _start;
 }
 else
 {
-uint8_t x_26; 
+uint8_t x_29; 
 lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
@@ -3527,31 +3545,43 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_1);
-x_26 = !lean_is_exclusive(x_20);
-if (x_26 == 0)
+x_29 = !lean_is_exclusive(x_23);
+if (x_29 == 0)
 {
-return x_20;
-}
-else
-{
-lean_object* x_27; lean_object* x_28; lean_object* x_29; 
-x_27 = lean_ctor_get(x_20, 0);
-x_28 = lean_ctor_get(x_20, 1);
-lean_inc(x_28);
-lean_inc(x_27);
-lean_dec(x_20);
-x_29 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_29, 0, x_27);
-lean_ctor_set(x_29, 1, x_28);
-return x_29;
-}
-}
+return x_23;
 }
 else
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; 
-x_30 = lean_unsigned_to_nat(3u);
-x_31 = l_Lean_Syntax_getArg(x_16, x_30);
+x_30 = lean_ctor_get(x_23, 0);
+x_31 = lean_ctor_get(x_23, 1);
+lean_inc(x_31);
+lean_inc(x_30);
+lean_dec(x_23);
+x_32 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_32, 0, x_30);
+lean_ctor_set(x_32, 1, x_31);
+return x_32;
+}
+}
+}
+else
+{
+size_t x_33; size_t x_34; lean_object* x_35; 
+lean_dec(x_16);
+x_33 = 1;
+x_34 = lean_usize_add(x_4, x_33);
+x_35 = lean_box(0);
+x_4 = x_34;
+x_5 = x_35;
+goto _start;
+}
+}
+else
+{
+lean_object* x_37; lean_object* x_38; lean_object* x_39; 
+x_37 = lean_unsigned_to_nat(3u);
+x_38 = l_Lean_Syntax_getArg(x_16, x_37);
 lean_dec(x_16);
 lean_inc(x_12);
 lean_inc(x_11);
@@ -3560,24 +3590,24 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
-x_32 = l_Lean_Elab_Term_Quotation_precheck(x_31, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
-if (lean_obj_tag(x_32) == 0)
+x_39 = l_Lean_Elab_Term_Quotation_precheck(x_38, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
+if (lean_obj_tag(x_39) == 0)
 {
-lean_object* x_33; size_t x_34; size_t x_35; lean_object* x_36; 
-x_33 = lean_ctor_get(x_32, 1);
-lean_inc(x_33);
-lean_dec(x_32);
-x_34 = 1;
-x_35 = lean_usize_add(x_4, x_34);
-x_36 = lean_box(0);
-x_4 = x_35;
-x_5 = x_36;
-x_13 = x_33;
+lean_object* x_40; size_t x_41; size_t x_42; lean_object* x_43; 
+x_40 = lean_ctor_get(x_39, 1);
+lean_inc(x_40);
+lean_dec(x_39);
+x_41 = 1;
+x_42 = lean_usize_add(x_4, x_41);
+x_43 = lean_box(0);
+x_4 = x_42;
+x_5 = x_43;
+x_13 = x_40;
 goto _start;
 }
 else
 {
-uint8_t x_38; 
+uint8_t x_45; 
 lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
@@ -3586,23 +3616,23 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_1);
-x_38 = !lean_is_exclusive(x_32);
-if (x_38 == 0)
+x_45 = !lean_is_exclusive(x_39);
+if (x_45 == 0)
 {
-return x_32;
+return x_39;
 }
 else
 {
-lean_object* x_39; lean_object* x_40; lean_object* x_41; 
-x_39 = lean_ctor_get(x_32, 0);
-x_40 = lean_ctor_get(x_32, 1);
-lean_inc(x_40);
-lean_inc(x_39);
-lean_dec(x_32);
-x_41 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_41, 0, x_39);
-lean_ctor_set(x_41, 1, x_40);
-return x_41;
+lean_object* x_46; lean_object* x_47; lean_object* x_48; 
+x_46 = lean_ctor_get(x_39, 0);
+x_47 = lean_ctor_get(x_39, 1);
+lean_inc(x_47);
+lean_inc(x_46);
+lean_dec(x_39);
+x_48 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_48, 0, x_46);
+lean_ctor_set(x_48, 1, x_47);
+return x_48;
 }
 }
 }
@@ -5130,7 +5160,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_Quotation_elabPrechecked
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(139u);
+x_1 = lean_unsigned_to_nat(138u);
 x_2 = lean_unsigned_to_nat(34u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -5142,7 +5172,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_Quotation_elabPrechecked
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(142u);
+x_1 = lean_unsigned_to_nat(141u);
 x_2 = lean_unsigned_to_nat(60u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -5170,7 +5200,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_Quotation_elabPrechecked
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(139u);
+x_1 = lean_unsigned_to_nat(138u);
 x_2 = lean_unsigned_to_nat(38u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -5182,7 +5212,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_Quotation_elabPrechecked
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(139u);
+x_1 = lean_unsigned_to_nat(138u);
 x_2 = lean_unsigned_to_nat(56u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -5395,6 +5425,8 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Quotation_precheckApp___spec__1___closed__1 = _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Quotation_precheckApp___spec__1___closed__1();
 lean_mark_persistent(l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Quotation_precheckApp___spec__1___closed__1);
+l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Quotation_precheckApp___spec__1___closed__2 = _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Quotation_precheckApp___spec__1___closed__2();
+lean_mark_persistent(l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Quotation_precheckApp___spec__1___closed__2);
 l_Lean_Elab_Term_Quotation_precheckApp___closed__1 = _init_l_Lean_Elab_Term_Quotation_precheckApp___closed__1();
 lean_mark_persistent(l_Lean_Elab_Term_Quotation_precheckApp___closed__1);
 l_Lean_Elab_Term_Quotation_precheckApp___closed__2 = _init_l_Lean_Elab_Term_Quotation_precheckApp___closed__2();

@@ -37,7 +37,7 @@ def elabMacroRulesAux (doc? : Option (TSyntax ``docComment)) (attrKind : TSyntax
     | _ => throwUnsupportedSyntax
   `($[$doc?:docComment]? @[$attrKind macro $(Lean.mkIdent k)]
     aux_def macroRules $(mkIdentFrom tk k) : Macro :=
-     fun $alts:matchAlt* | _ => throw Lean.Macro.Exception.unsupportedSyntax)
+     fun $alts:matchAlt* | _ => no_error_if_unused% throw Lean.Macro.Exception.unsupportedSyntax)
 
 @[builtinCommandElab «macro_rules»] def elabMacroRules : CommandElab :=
   adaptExpander fun stx => match stx with

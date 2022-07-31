@@ -40,7 +40,7 @@ def tacticSeqBracketed : Parser :=
 def tacticSeq :=
   leading_parser tacticSeqBracketed <|> tacticSeq1Indented
 
-/-- Raw sequence for quotation and grouping -/
+/- Raw sequence for quotation and grouping -/
 def seq1 :=
   node `Lean.Parser.Tactic.seq1 $ sepBy1 tacticParser ";\n" (allowTrailingSep := true)
 
@@ -56,7 +56,7 @@ namespace Term
 /-- `by tac` constructs a term of the expected type by running the tactic(s) `tac`. -/
 @[builtinTermParser] def byTactic := leading_parser:leadPrec ppAllowUngrouped >> "by " >> Tactic.tacticSeq
 
-/--
+/-
   This is the same as `byTactic`, but it uses a different syntax kind. This is
   used by `show` and `suffices` instead of `byTactic` because these syntaxes don't
   support arbitrary terms where `byTactic` is accepted. Mathport uses this to e.g.
@@ -154,7 +154,7 @@ def instBinder := ppGroup $ leading_parser "[" >> optIdent >> termParser >> "]"
 def bracketedBinder (requireType := false) := withAntiquot (mkAntiquot "bracketedBinder" `Lean.Parser.Term.bracketedBinder (isPseudoKind := true)) <|
   explicitBinder requireType <|> strictImplicitBinder requireType <|> implicitBinder requireType <|> instBinder
 
-/--
+/-
 It is feasible to support dependent arrows such as `{α} → α → α` without sacrificing the quality of the error messages for the longer case.
 `{α} → α → α` would be short for `{α : Type} → α → α`
 Here is the encoding:
@@ -258,11 +258,11 @@ existent in the current context, or else fails.
 @[builtinTermParser] def doubleQuotedName := leading_parser "`" >> checkNoWsBefore >> rawCh '`' (trailingWs := false) >> ident
 
 def letIdBinder := withAntiquot (mkAntiquot "letIdBinder" `Lean.Parser.Term.letIdBinder (isPseudoKind := true)) (binderIdent <|> bracketedBinder)
-/-- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
+/- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
 def letIdLhs    : Parser := ident >> notFollowedBy (checkNoWsBefore "" >> "[") "space is required before instance '[...]' binders to distinguish them from array updates `let x[i] := e; ...`" >> many (ppSpace >> letIdBinder) >> optType
 def letIdDecl   := leading_parser (withAnonymousAntiquot := false) atomic (letIdLhs >> " := ") >> termParser
 def letPatDecl  := leading_parser (withAnonymousAntiquot := false) atomic (termParser >> pushNone >> optType >> " := ") >> termParser
-/--
+/-
   Remark: the following `(" := " <|> matchAlts)` is a hack we use to produce a better error message at `letDecl`.
   Consider this following example
   ```
@@ -312,7 +312,7 @@ It is often used when building macros.
 -/
 @[builtinTermParser] def «let_tmp» := leading_parser:leadPrec withPosition ("let_tmp " >> letDecl) >> optSemicolon termParser
 
-/-- like `let_fun` but with optional name -/
+/- like `let_fun` but with optional name -/
 def haveIdLhs    := optional (ident >> many (ppSpace >> letIdBinder)) >> optType
 def haveIdDecl   := leading_parser (withAnonymousAntiquot := false) atomic (haveIdLhs >> " := ") >> termParser
 def haveEqnsDecl := leading_parser (withAnonymousAntiquot := false) haveIdLhs >> matchAlts

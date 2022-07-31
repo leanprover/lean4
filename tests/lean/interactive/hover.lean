@@ -198,3 +198,6 @@ example : True ∧ False := by
 
 example : Nat := Id.run do (← 1)
                           --^ textDocument/hover
+
+#check (· + ·)
+      --^ textDocument/hover

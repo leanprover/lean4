@@ -84,12 +84,16 @@ def optSemicolon (p : Parser) : Parser := ppDedent $ semicolonOrLinebreak >> ppL
 @[builtinTermParser] def syntheticHole := leading_parser "?" >> (ident <|> hole)
 /-- A temporary placeholder for a missing proof or value. -/
 @[builtinTermParser] def «sorry» := leading_parser "sorry"
+/--
+A placeholder for an implicit lambda abstraction's variable. The lambda abstraction is scoped to the surrounding parentheses.
+For example, `(· + ·)` is equivalent to `fun x y => x + y`.
+-/
 @[builtinTermParser] def cdot   := leading_parser symbol "·" <|> "."
 def typeAscription := leading_parser " : " >> termParser
 def tupleTail      := leading_parser ", " >> sepBy1 termParser ", "
 def parenSpecial : Parser := optional (tupleTail <|> typeAscription)
 /--
-You can use parentheses for
+Parentheses, used for
 - Grouping expressions, e.g., `a * (b + c)`.
 - Creating tuples, e.g., `(a, b, c)` is notation for `Prod.mk a (Prod.mk b c)`.
 - Performing type ascription, e.g., `(0 : Int)` instructs Lean to process `0` as a value of type `Int`.
@@ -140,16 +144,23 @@ def optType : Parser := optional typeSpec
 `@e` for any term `e` also disables the insertion of implicit lambdas at this position.
 -/
 @[builtinTermParser] def explicit := leading_parser "@" >> termParser maxPrec
+/--
+`.(e)` marks an "inaccessible pattern", which does not influence evaluation of the pattern match, but may be necessary for type-checking.
+In contrast to regular patterns, `e` may be an arbitrary term of the appropriate type.
+-/
 @[builtinTermParser] def inaccessible := leading_parser ".(" >> termParser >> ")"
 def binderIdent : Parser  := ident <|> hole
 def binderType (requireType := false) : Parser := if requireType then node nullKind (" : " >> termParser) else optional (" : " >> termParser)
 def binderTactic  := leading_parser atomic (symbol " := " >> " by ") >> Tactic.tacticSeq
 def binderDefault := leading_parser " := " >> termParser
 def explicitBinder (requireType := false) := ppGroup $ leading_parser "(" >> many1 binderIdent >> binderType requireType >> optional (binderTactic <|> binderDefault) >> ")"
+/-- Implicit binder. In regular applications without `@`, it is automatically inserted and solved by unification whenever all explicit parameters before it are specified. -/
 def implicitBinder (requireType := false) := ppGroup $ leading_parser "{" >> many1 binderIdent >> binderType requireType >> "}"
 def strictImplicitLeftBracket := atomic (group (symbol "{" >> "{")) <|> "⦃"
 def strictImplicitRightBracket := atomic (group (symbol "}" >> "}")) <|> "⦄"
+/-- Strict-implicit binder. In contrast to `{ ... }` regular implicit binders, a strict-implicit binder is inserted automatically only when at least one subsequent explicit parameter is specified. -/
 def strictImplicitBinder (requireType := false) := ppGroup $ leading_parser strictImplicitLeftBracket >> many1 binderIdent >> binderType requireType >> strictImplicitRightBracket
+/-- Instance-implicit binder. In regular applications without `@`, it is automatically inserted and solved by typeclass inference of the specified class. -/
 def instBinder := ppGroup $ leading_parser "[" >> optIdent >> termParser >> "]"
 def bracketedBinder (requireType := false) := withAntiquot (mkAntiquot "bracketedBinder" `Lean.Parser.Term.bracketedBinder (isPseudoKind := true)) <|
   explicitBinder requireType <|> strictImplicitBinder requireType <|> implicitBinder requireType <|> instBinder
@@ -385,6 +396,15 @@ def argument       :=
 -- argument precedence is `arg` (i.e. does not accept `lead` precedence)
 @[builtinTermParser] def app      := trailing_parser:leadPrec:maxPrec many1 argument
 
+/--
+The *extended field notation* `e.f` is roughly short for `T.f e` where `T` is the type of `e`.
+More precisely,
+* if `e` is of a function type, `e.f` is translated to `Function.f (p := e)` where `p` is the first explicit parameter of function type
+* if `e` is of a named type `T ...` and there is a declaration `T.f` (possibly from `export`), `e.f` is translated to `T.f (p := e)` where
+  `p` is the first explicit parameter of type `T ...`
+* otherwise, if `e` is of a structure type, the above is repeated for every base type of the structure.
+
+The field index notation `e.i`, where `i` is a positive number, is short for accessing the `i`-th field (1-indexed) of `e` if it is of a structure type. -/
 @[builtinTermParser] def proj     := trailing_parser checkNoWsBefore >> "." >> checkNoWsBefore >> (fieldIdx <|> rawIdent)
 @[builtinTermParser] def completion := trailing_parser checkNoWsBefore >> "."
 @[builtinTermParser] def arrow    := trailing_parser checkPrec 25 >> unicodeSymbol " → " " -> " >> termParser 25

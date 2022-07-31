@@ -1612,7 +1612,8 @@ inductive LeadingIdentBehavior where
   The method `termParser prec` is equivalent to the method above.
 -/
 structure ParserCategory where
-  tables   : PrattParsingTables
+  kinds    : SyntaxNodeKindSet := {}
+  tables   : PrattParsingTables := {}
   behavior : LeadingIdentBehavior
   deriving Inhabited
 

@@ -103,6 +103,6 @@ jobs:
         if: matrix.name == 'Nix Linux' && github.ref == 'refs/heads/master' && github.event_name == 'push'
       - name: Fixup CCache Cache
         run: |
-          sudo chown -R $USER /nix/var/cache/ccache
+          sudo chown -R $USER /nix/var/cache
       - name: CCache stats
         run: CCACHE_DIR=/nix/var/cache/ccache nix run .#nixpkgs.ccache -- -s

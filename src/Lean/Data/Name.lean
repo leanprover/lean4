@@ -154,6 +154,9 @@ def contains (m : NameMap α) (n : Name) : Bool := Std.RBMap.contains m n
 
 @[inline] def find? (m : NameMap α) (n : Name) : Option α := Std.RBMap.find? m n
 
+instance : ForIn m (NameMap α) (Name × α) :=
+  inferInstanceAs (ForIn _ (Std.RBMap ..) ..)
+
 end NameMap
 
 def NameSet := RBTree Name Name.quickCmp

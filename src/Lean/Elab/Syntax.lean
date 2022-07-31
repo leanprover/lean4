@@ -272,9 +272,9 @@ private def declareSyntaxCatQuotParser (catName : Name) : CommandElabM Unit := d
     else
       Parser.LeadingIdentBehavior.symbol
   let attrName := catName.appendAfter "Parser"
-  setEnv (← Parser.registerParserCategory (← getEnv) attrName catName catBehavior)
-  let catDeclName := `_root_ ++ ``Lean.Parser.Category ++ catName
-  let cmd ← `($[$docString?]? def $(mkIdentFrom stx[2] catDeclName) : Lean.Parser.Category := {})
+  let catDeclName := ``Lean.Parser.Category ++ catName
+  setEnv (← Parser.registerParserCategory (← getEnv) attrName catName catBehavior catDeclName)
+  let cmd ← `($[$docString?]? def $(mkIdentFrom stx[2] (`_root_ ++ catDeclName)) : Lean.Parser.Category := {})
   declareSyntaxCatQuotParser catName
   elabCommand cmd
 

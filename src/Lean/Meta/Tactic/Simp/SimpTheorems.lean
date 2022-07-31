@@ -274,8 +274,10 @@ def addSimpTheorem (ext : SimpExtension) (declName : Name) (post : Bool) (inv : 
   for simpThm in simpThms do
     ext.add (SimpEntry.thm simpThm) attrKind
 
-def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension) : IO Unit :=
+def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension)
+    (ref : Name := by exact decl_name%) : IO Unit :=
   registerBuiltinAttribute {
+    ref   := ref
     name  := attrName
     descr := attrDescr
     applicationTime := AttributeApplicationTime.afterCompilation
@@ -319,9 +321,11 @@ abbrev SimpExtensionMap := Std.HashMap Name SimpExtension
 
 builtin_initialize simpExtensionMapRef : IO.Ref SimpExtensionMap ← IO.mkRef {}
 
-def registerSimpAttr (attrName : Name) (attrDescr : String) (extName : Name := attrName.appendAfter "Ext") : IO SimpExtension := do
+def registerSimpAttr (attrName : Name) (attrDescr : String)
+    (ref : Name := by exact decl_name%)
+    (extName : Name := attrName.appendAfter "Ext") : IO SimpExtension := do
   let ext ← mkSimpExt extName
-  mkSimpAttr attrName attrDescr ext -- Remark: it will fail if it is not performed during initialization
+  mkSimpAttr attrName attrDescr ext ref -- Remark: it will fail if it is not performed during initialization
   simpExtensionMapRef.modify fun map => map.insert attrName ext
   return ext
 
@@ -414,7 +418,7 @@ def SimpTheoremsArray.isDeclToUnfold (thmsArray : SimpTheoremsArray) (declName :
 macro doc?:(docComment)? "register_simp_attr" id:ident descr:str : command => do
   let str := id.getId.toString
   let idParser := mkIdentFrom id (`Parser.Attr ++ id.getId)
-  `($[$doc?]? initialize ext : SimpExtension ← registerSimpAttr $(quote id.getId) $descr
+  `($[$doc?]? initialize ext : SimpExtension ← registerSimpAttr $(quote id.getId) $descr $(quote id.getId)
     $[$doc?]? syntax (name := $idParser:ident) $(quote str):str (Parser.Tactic.simpPre <|> Parser.Tactic.simpPost)? (prio)? : attr)
 
 end Meta

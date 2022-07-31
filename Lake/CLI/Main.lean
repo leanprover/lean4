@@ -328,10 +328,19 @@ protected def build : CliM PUnit := do
   let ctx ← mkBuildContext ws
   BuildM.run (MonadLog.io config.verbosity) ctx <| buildSpecs specs
 
+protected def resolveDeps : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let config ← mkLoadConfig opts (updateDeps := false)
+  noArgsRem do
+    liftM <| discard <| (loadWorkspace config).run (MonadLog.io opts.verbosity)
+
 protected def update : CliM PUnit := do
   processOptions lakeOption
-  let config ← mkLoadConfig (← getThe LakeOptions) (updateDeps := true)
-  noArgsRem do discard <| loadWorkspace config
+  let opts ← getThe LakeOptions
+  let config ← mkLoadConfig opts (updateDeps := true)
+  noArgsRem do
+    liftM <| discard <| (loadWorkspace config).run (MonadLog.io opts.verbosity)
 
 protected def upload : CliM PUnit := do
   processOptions lakeOption
@@ -393,22 +402,23 @@ protected def help : CliM PUnit := do
 end lake
 
 def lakeCli : (cmd : String) → CliM PUnit
-| "new"         => lake.new
-| "init"        => lake.init
-| "build"       => lake.build
-| "update"      => lake.update
-| "upload"      => lake.upload
-| "print-paths" => lake.printPaths
-| "clean"       => lake.clean
-| "script"      => lake.script
-| "scripts"     => lake.script.list
-| "run"         => lake.script.run
-| "serve"       => lake.serve
-| "env"         => lake.env
-| "exe"         => lake.exe
-| "self-check"  => lake.selfCheck
-| "help"        => lake.help
-| cmd           => throw <| CliError.unknownCommand cmd
+| "new"           => lake.new
+| "init"          => lake.init
+| "build"         => lake.build
+| "update"        => lake.update
+| "resolve-deps"  => lake.resolveDeps
+| "upload"        => lake.upload
+| "print-paths"   => lake.printPaths
+| "clean"         => lake.clean
+| "script"        => lake.script
+| "scripts"       => lake.script.list
+| "run"           => lake.script.run
+| "serve"         => lake.serve
+| "env"           => lake.env
+| "exe"           => lake.exe
+| "self-check"    => lake.selfCheck
+| "help"          => lake.help
+| cmd             => throw <| CliError.unknownCommand cmd
 
 def lake : CliM PUnit := do
   match (← getArgs) with

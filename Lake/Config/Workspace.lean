@@ -14,9 +14,6 @@ open Lean (LeanPaths)
 
 namespace Lake
 
-/-- The file name of a workspace's package manifest (i.e., `manifest.json`). -/
-def manifestFileName := "manifest.json"
-
 /-- A Lake workspace -- the top-level package directory. -/
 structure Workspace : Type where
   /-- The root package of the workspace. -/

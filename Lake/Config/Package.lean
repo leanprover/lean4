@@ -16,6 +16,9 @@ open Std System Lean
 
 namespace Lake
 
+/-- The file name of a workspace's package manifest (i.e., `manifest.json`). -/
+def manifestFileName := "manifest.json"
+
 /-- A string descriptor of the `System.Platform` OS (`windows`, `macOS`, or `linux`). -/
 def osDescriptor : String :=
   if Platform.isWindows then
@@ -206,6 +209,10 @@ abbrev name (self : Package) : Name :=
 /-- An `Array` of the package's direct dependencies. -/
 @[inline] def deps (self : Package) : Array Package  :=
   self.opaqueDeps.map (·.get)
+
+/-- The package's JSON manifest of remote dependencies. -/
+def manifestFile (self : Package) : FilePath :=
+  self.dir / self.config.packagesDir / manifestFileName
 
 /-- The package's `extraDepTarget` configuration. -/
 @[inline] def extraDepTarget (self : Package) : OpaqueTarget :=

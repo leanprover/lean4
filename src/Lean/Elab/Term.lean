@@ -870,7 +870,7 @@ Extensions for monads.
 
   ```
 
-3. If there is a monad lif from `m` to `n` and a coercion from `α` to `β`, we use
+3. If there is a monad lift from `m` to `n` and a coercion from `α` to `β`, we use
   ```
   liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u} [MonadLiftT m n] [∀ a, CoeT α a β] [Monad n] (x : m α) : n β
   ```

@@ -308,8 +308,8 @@ def runParserAttributeHooks (catName : Name) (declName : Name) (builtin : Bool) 
 
 builtin_initialize
   registerBuiltinAttribute {
-    name  := `runBuiltinParserAttributeHooks,
-    descr := "explicitly run hooks normally activated by builtin parser attributes",
+    name  := `runBuiltinParserAttributeHooks
+    descr := "explicitly run hooks normally activated by builtin parser attributes"
     add   := fun decl stx _ => do
       Attribute.Builtin.ensureNoArgs stx
       runParserAttributeHooks Name.anonymous decl (builtin := true)
@@ -317,8 +317,8 @@ builtin_initialize
 
 builtin_initialize
   registerBuiltinAttribute {
-    name  := `runParserAttributeHooks,
-    descr := "explicitly run hooks normally activated by parser attributes",
+    name  := `runParserAttributeHooks
+    descr := "explicitly run hooks normally activated by parser attributes"
     add   := fun decl stx _ => do
       Attribute.Builtin.ensureNoArgs stx
       runParserAttributeHooks Name.anonymous decl (builtin := false)
@@ -502,13 +502,15 @@ private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
 /--
 The parsing tables for builtin parsers are "stored" in the extracted source code.
 -/
-def registerBuiltinParserAttribute (attrName : Name) (catName : Name) (behavior := LeadingIdentBehavior.default) : IO Unit := do
+def registerBuiltinParserAttribute (attrName : Name) (catName : Name)
+    (behavior := LeadingIdentBehavior.default) (ref : Name := by exact decl_name%) : IO Unit := do
   addBuiltinParserCategory catName behavior
   registerBuiltinAttribute {
-   name            := attrName,
-   descr           := "Builtin parser",
-   add             := fun declName stx kind => liftM $ BuiltinParserAttribute.add attrName catName declName stx kind,
-   applicationTime := AttributeApplicationTime.afterCompilation
+    ref             := ref
+    name            := attrName
+    descr           := "Builtin parser"
+    add             := fun declName stx kind => liftM $ BuiltinParserAttribute.add attrName catName declName stx kind
+    applicationTime := AttributeApplicationTime.afterCompilation
   }
 
 private def ParserAttribute.add (_attrName : Name) (catName : Name) (declName : Name) (stx : Syntax) (attrKind : AttributeKind) : AttrM Unit := do
@@ -533,25 +535,27 @@ private def ParserAttribute.add (_attrName : Name) (catName : Name) (declName : 
   | Except.ok _     => parserExtension.add entry attrKind
   runParserAttributeHooks catName declName (builtin := false)
 
-def mkParserAttributeImpl (attrName : Name) (catName : Name) : AttributeImpl where
+def mkParserAttributeImpl (attrName catName : Name) (ref : Name := by exact decl_name%) : AttributeImpl where
+  ref                       := ref
   name                      := attrName
   descr                     := "parser"
   add declName stx attrKind := ParserAttribute.add attrName catName declName stx attrKind
   applicationTime           := AttributeApplicationTime.afterCompilation
 
 /-- A builtin parser attribute that can be extended by users. -/
-def registerBuiltinDynamicParserAttribute (attrName : Name) (catName : Name) : IO Unit := do
-  registerBuiltinAttribute (mkParserAttributeImpl attrName catName)
+def registerBuiltinDynamicParserAttribute (attrName catName : Name) (ref : Name := by exact decl_name%) : IO Unit := do
+  registerBuiltinAttribute (mkParserAttributeImpl attrName catName ref)
 
 builtin_initialize
-  registerAttributeImplBuilder `parserAttr fun args =>
+  registerAttributeImplBuilder `parserAttr fun ref args =>
     match args with
-    | [DataValue.ofName attrName, DataValue.ofName catName] => pure $ mkParserAttributeImpl attrName catName
+    | [DataValue.ofName attrName, DataValue.ofName catName] => pure $ mkParserAttributeImpl attrName catName ref
     | _ => throw "invalid parser attribute implementation builder arguments"
 
-def registerParserCategory (env : Environment) (attrName : Name) (catName : Name) (behavior := LeadingIdentBehavior.default) : IO Environment := do
+def registerParserCategory (env : Environment) (attrName catName : Name)
+    (behavior := LeadingIdentBehavior.default) (ref : Name := by exact decl_name%) : IO Environment := do
   let env ← IO.ofExcept $ addParserCategory env catName behavior
-  registerAttributeOfBuilder env `parserAttr [DataValue.ofName attrName, DataValue.ofName catName]
+  registerAttributeOfBuilder env `parserAttr ref [DataValue.ofName attrName, DataValue.ofName catName]
 
 -- declare `termParser` here since it is used everywhere via antiquotations
 

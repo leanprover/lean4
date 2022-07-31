@@ -28,13 +28,13 @@ end Lean.Syntax
 #eval run $ do let a ← `(Nat.one); `($(a).b)
 #eval run $ do let a ← `(1 + 2); match a with | `($a + $b) => `($b + $a) | _ => pure miss
 #eval run $ do let a ← `(1 + 2); match a with | stx@`($a + $b) => `($stx + $a) | _ => pure miss
-#eval run $ do let a ← `(def foo := 1); match a with | `($f:command) => pure f | _ => pure miss
+#eval run $ do let a ← `(def foo := 1); match a with | `($f:command) => pure f
 #eval run $ do let a ← `(def foo := 1 def bar := 2); match a with | `($f:command $g:command) => `($g:command $f:command) | _ => pure ⟨Syntax.missing⟩
 
-#eval run $ do let a ← `(aa); match a with | `($_:ident) => pure 0 | `($_) => pure 1 | _ => pure 2
+#eval run $ do let a ← `(aa); match a with | `($_:ident) => pure 0 | `($_) => pure 1
 #eval match mkIdent `aa with | `(aa) => 0 | _ => 1
 #eval match mkIdent `aa with | `(ab) => 0 | _ => 1
-#eval run $ do let a ← `(1 + 2); match a with | `($id:ident) => pure 0 | `($e) => pure 1 | _ => pure 2
+#eval run $ do let a ← `(1 + 2); match a with | `($id:ident) => pure 0 | `($e) => pure 1
 #eval run $ do let params ← #[`(a), `((b : Nat))].mapM id; `(fun $params:term* => 1)
 #eval run $ do let a ← `(fun (a : Nat) b => c); match a with | `(fun $aa* => $e) => pure aa | _ => pure #[]
 #eval run $ do let a ← `(∀ a, c); match a with | `(∀ $id:ident, $e) => pure id | _ => pure ⟨a⟩

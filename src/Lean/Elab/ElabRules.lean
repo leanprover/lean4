@@ -47,22 +47,22 @@ def elabElabRulesAux (doc? : Option (TSyntax ``docComment)) (attrKind : TSyntax 
       `($[$doc?:docComment]? @[$attrKind:attrKind termElab $(← mkIdentFromRef k):ident]
         aux_def elabRules $(mkIdent k) : Lean.Elab.Term.TermElab :=
         fun stx expectedType? => Lean.Elab.Command.withExpectedType expectedType? fun $expId => match stx with
-          $alts:matchAlt* | _ => throwUnsupportedSyntax)
+          $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
     else
       throwErrorAt expId "syntax category '{catName}' does not support expected type specification"
   else if catName == `term then
     `($[$doc?:docComment]? @[$attrKind:attrKind termElab $(← mkIdentFromRef k):ident]
       aux_def elabRules $(mkIdent k) : Lean.Elab.Term.TermElab :=
       fun stx _ => match stx with
-        $alts:matchAlt* | _ => throwUnsupportedSyntax)
+        $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
   else if catName == `command then
     `($[$doc?:docComment]? @[$attrKind:attrKind commandElab $(← mkIdentFromRef k):ident]
       aux_def elabRules $(mkIdent k) : Lean.Elab.Command.CommandElab :=
-      fun $alts:matchAlt* | _ => throwUnsupportedSyntax)
+      fun $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
   else if catName == `tactic then
     `($[$doc?:docComment]? @[$attrKind:attrKind tactic $(← mkIdentFromRef k):ident]
       aux_def elabRules $(mkIdent k) : Lean.Elab.Tactic.Tactic :=
-      fun $alts:matchAlt* | _ => throwUnsupportedSyntax)
+      fun $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
   else
     -- We considered making the command extensible and support new user-defined categories. We think it is unnecessary.
     -- If users want this feature, they add their own `elab_rules` macro that uses this one as a fallback.

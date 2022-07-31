@@ -117,6 +117,7 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name) : IO (KeyedDe
   }
   unless df.builtinName.isAnonymous do
     registerBuiltinAttribute {
+      ref   := attrDeclName
       name  := df.builtinName
       descr := "(builtin) " ++ df.descr
       add   := fun declName stx kind => do
@@ -135,6 +136,7 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name) : IO (KeyedDe
       applicationTime := AttributeApplicationTime.afterCompilation
     }
   registerBuiltinAttribute {
+    ref             := attrDeclName
     name            := df.name
     descr           := df.descr
     erase           := fun declName => do

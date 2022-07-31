@@ -660,16 +660,15 @@ end
 end ElabAppArgs
 
 builtin_initialize elabAsElim : TagAttribute ←
-  registerTagAttribute
-    `elabAsElim
+  registerTagAttribute `elabAsElim
     "instructs elaborator that the arguments of the function application should be elaborated as were an eliminator"
-   fun declName => do
-     let go : MetaM Unit := do
-       discard <| getElimInfo declName
-       let info ← getConstInfo declName
-       if (← hasOptAutoParams info.type) then
-         throwError "[elabAsElim] attribute cannot be used in declarations containing optional and auto parameters"
-     go.run' {} {}
+    fun declName => do
+      let go : MetaM Unit := do
+        discard <| getElimInfo declName
+        let info ← getConstInfo declName
+        if (← hasOptAutoParams info.type) then
+          throwError "[elabAsElim] attribute cannot be used in declarations containing optional and auto parameters"
+      go.run' {} {}
 
 /-! # Eliminator-like function application elaborator -/
 namespace ElabElim

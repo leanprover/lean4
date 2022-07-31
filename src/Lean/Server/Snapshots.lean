@@ -71,6 +71,25 @@ def infoTree (s : Snapshot) : InfoTree :=
 def isAtEnd (s : Snapshot) : Bool :=
   Parser.isEOI s.stx || Parser.isExitCommand s.stx
 
+open Command in
+/-- Use the command state in the given snapshot to run a `CommandElabM`.-/
+def runCommandElabM (snap : Snapshot) (meta : DocumentMeta) (c : CommandElabM α) : EIO Exception α := do
+  let ctx : Command.Context := {
+    cmdPos := snap.beginPos,
+    fileName := meta.uri,
+    fileMap := meta.text,
+    tacticCache? := snap.tacticCache,
+  }
+  c.run ctx |>.run' snap.cmdState 
+
+/-- Run a `CoreM` computation using the data in the given snapshot.-/
+def runCoreM (snap : Snapshot) (meta : DocumentMeta) (c : CoreM α) : EIO Exception α :=
+  snap.runCommandElabM meta <| Command.liftCoreM c
+
+/-- Run a `TermElabM` computation using the data in the given snapshot.-/
+def runTermElabM (snap : Snapshot) (meta : DocumentMeta) (c : TermElabM α) : EIO Exception α :=
+  snap.runCommandElabM meta <| Command.liftTermElabM none c
+
 end Snapshot
 
 /-- Parses the next command occurring after the given snapshot

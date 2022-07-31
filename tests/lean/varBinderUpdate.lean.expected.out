@@ -1,0 +1,14 @@
+f Nat 5 : Nat
+g 5 : Nat
+f : (α : Type) → [inst : Add α] → α → α
+@g : {α : Type} → α → α
+f Nat 5 : Nat
+g 5 : Nat
+f : (α : Type) → α → α
+@g : {β : Type} → β → β
+varBinderUpdate.lean:25:10-25:11: error: redundant binder annotation update
+g : (α : Type) → (α → α) → α → α
+h : (α : Type) → {f : α → α} → α → α
+g Nat Bool 10 "hello" true : Nat × String × Bool
+varBinderUpdate.lean:51:10-51:11: error: cannot change the binder annotation of the previously declared local instance `i`
+varBinderUpdate.lean:59:10-59:11: error: cannot update binder annotation of variables with default values/tactics

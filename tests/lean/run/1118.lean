@@ -2,14 +2,14 @@ theorem CongrGood {x y: Nat}: x + y = y + x := by
   conv =>
     congr
     . rw [Nat.add_comm]
-    . skip
+    . rfl
 
 theorem CongrBad {x y: Nat}: x + y = y + x := by
   have I: True := True.intro;
   conv =>
     congr
     . rw [Nat.add_comm]
-    . skip
+    . rfl
 
 
 theorem CongrBad' {x y: Nat}: x + y = y + x := by
@@ -17,7 +17,7 @@ theorem CongrBad' {x y: Nat}: x + y = y + x := by
   conv =>
     congr
     . rw [Nat.add_comm]
-    . skip
+    . rfl
 
 theorem CongrBad'' {x y: Nat}: x + y = y + x := by
   let I: True := True.intro;
@@ -25,7 +25,7 @@ theorem CongrBad'' {x y: Nat}: x + y = y + x := by
   conv =>
     congr
     . rw [Nat.add_comm]
-    . skip
+    . rfl
 
 theorem CongrGood' {x y: Nat}: x + y = y + x := by
   cases x;
@@ -34,4 +34,4 @@ theorem CongrGood' {x y: Nat}: x + y = y + x := by
   conv =>
     congr
     . rw [Nat.add_comm]
-    . skip
+    . rfl

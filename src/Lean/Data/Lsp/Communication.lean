@@ -25,6 +25,18 @@ section
       let value := ": ".intercalate (value :: rest)
       some ⟨name, value⟩
 
+  /-- Returns true when the string is a Lean 3 request.
+  This means that the user is running a Lean 3 language client that
+  is not aware of Lean 4. In this case we should give a friendlier message. -/
+  private def isLean3Request (s : String) : Bool :=
+    let e : Except String Unit := (do
+      let j ← Json.parse s
+      let _ ← j.getObjVal? "command"
+      let _ ← j.getObjVal? "seq_num"
+      return ()
+    )
+    e.isOk
+
   private partial def readHeaderFields (h : FS.Stream) : IO (List (String × String)) := do
     let l ← h.getLine
     if (←h.isEof) then
@@ -36,7 +48,11 @@ section
       | some hf =>
         let tail ← readHeaderFields h
         pure (hf :: tail)
-      | none => throw $ userError s!"Invalid header field: {repr l}"
+      | none =>
+        if isLean3Request l then
+          throw $ userError s!"A Lean 3 request was received. Please ensure that your editor has a Lean 4 compatible extension installed. For VSCode, this is\n\n    https://github.com/leanprover/vscode-lean4 "
+        else
+          throw $ userError s!"Invalid header field: {repr l}"
 
   /-- Returns the Content-Length. -/
   private def readLspHeader (h : FS.Stream) : IO Nat := do

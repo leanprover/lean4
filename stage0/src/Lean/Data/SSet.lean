@@ -7,8 +7,7 @@ import Lean.Data.SMap
 
 namespace Lean
 
-/- Staged set. It is just a simple wrapper on top of Staged maps. -/
-
+/-- Staged set. It is just a simple wrapper on top of Staged maps. -/
 def SSet (α : Type u) [BEq α] [Hashable α] := SMap α Unit
 
 namespace SSet
@@ -27,7 +26,7 @@ abbrev contains (s : SSet α) (a : α) : Bool :=
 abbrev forM [Monad m] (s : SSet α) (f : α → m PUnit) : m PUnit :=
   SMap.forM s fun a _ => f a
 
-/- Move from stage 1 into stage 2. -/
+/-- Move from stage 1 into stage 2. -/
 abbrev switch (s : SSet α) : SSet α :=
   SMap.switch s
 

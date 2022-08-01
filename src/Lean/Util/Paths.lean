@@ -19,7 +19,7 @@ structure LeanPaths where
   loadDynlibPaths : Array FilePath := #[]
   deriving ToJson, FromJson
 
-def initSrcSearchPath (leanSysroot : FilePath) (sp : SearchPath := ∅) : IO SearchPath := do
+def initSrcSearchPath (_leanSysroot : FilePath) (sp : SearchPath := ∅) : IO SearchPath := do
   let srcSearchPath :=
     if let some p := (← IO.getEnv "LEAN_SRC_PATH") then
       System.SearchPath.parse p

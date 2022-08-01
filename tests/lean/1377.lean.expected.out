@@ -1,0 +1,2 @@
+1377.lean:3:2-3:5: warning: declaration uses 'sorry'
+foo.bar : Unit → {n : Nat} → Fin n → Fin n

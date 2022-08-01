@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Control.Lawful
 
-/-
+/-!
 The State monad transformer using CPS style.
 -/
 

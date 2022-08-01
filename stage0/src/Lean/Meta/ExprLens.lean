@@ -28,17 +28,17 @@ Mdata is ignored. An index of 3 is interpreted as the type of the expression. An
 
 See also `Lean.Meta.transform`, `Lean.Meta.traverseChildren`. -/
 private def lensCoord (g : Expr → M Expr) : Nat → Expr → M Expr
-  | 0, e@(Expr.app f a _)       => return e.updateApp! (← g f) a
-  | 1, e@(Expr.app f a _)       => return e.updateApp! f (← g a)
+  | 0, e@(Expr.app f a)         => return e.updateApp! (← g f) a
+  | 1, e@(Expr.app f a)         => return e.updateApp! f (← g a)
   | 0, e@(Expr.lam _ y b _)     => return e.updateLambdaE! (← g y) b
-  | 1,   (Expr.lam n y b c)     => withLocalDecl n c.binderInfo y fun x => do mkLambdaFVars #[x] <|← g <| b.instantiateRev #[x]
+  | 1,   (Expr.lam n y b c)     => withLocalDecl n c y fun x => do mkLambdaFVars #[x] <|← g <| b.instantiateRev #[x]
   | 0, e@(Expr.forallE _ y b _) => return e.updateForallE! (← g y) b
-  | 1,   (Expr.forallE n y b c) => withLocalDecl n c.binderInfo y fun x => do mkForallFVars #[x] <|← g <| b.instantiateRev #[x]
+  | 1,   (Expr.forallE n y b c) => withLocalDecl n c y fun x => do mkForallFVars #[x] <|← g <| b.instantiateRev #[x]
   | 0, e@(Expr.letE _ y a b _)  => return e.updateLet! (← g y) a b
   | 1, e@(Expr.letE _ y a b _)  => return e.updateLet! y (← g a) b
   | 2,   (Expr.letE n y a b _)  => withLetDecl n y a fun x => do mkLetFVars #[x] <|← g <| b.instantiateRev #[x]
-  | 0, e@(Expr.proj _ _ b _)    => e.updateProj! <$> g b
-  | n, e@(Expr.mdata _ a _)     => e.updateMData! <$> lensCoord g n a
+  | 0, e@(Expr.proj _ _ b)      => e.updateProj! <$> g b
+  | n, e@(Expr.mdata _ a)       => e.updateMData! <$> lensCoord g n a
   | 3, _                        => throwError "Lensing on types is not supported"
   | c, e                        => throwError "Invalid coordinate {c} for {e}"
 
@@ -57,17 +57,17 @@ The subexpression value passed to `k` is not instantiated with respect to the
 array of free variables. -/
 private def viewCoordAux (k : Array Expr → Expr → M α) (fvars: Array Expr) : Nat → Expr → M α
   | 3, _                      => throwError "Internal: Types should be handled by viewAux"
-  | 0, (Expr.app f _ _)       => k fvars f
-  | 1, (Expr.app _ a _)       => k fvars a
+  | 0, (Expr.app f _)         => k fvars f
+  | 1, (Expr.app _ a)         => k fvars a
   | 0, (Expr.lam _ y _ _)     => k fvars y
-  | 1, (Expr.lam n y b c)     => withLocalDecl n c.binderInfo (y.instantiateRev fvars) fun x => k (fvars.push x) b
+  | 1, (Expr.lam n y b c)     => withLocalDecl n c (y.instantiateRev fvars) fun x => k (fvars.push x) b
   | 0, (Expr.forallE _ y _ _) => k fvars y
-  | 1, (Expr.forallE n y b c) => withLocalDecl n c.binderInfo (y.instantiateRev fvars) fun x => k (fvars.push x) b
+  | 1, (Expr.forallE n y b c) => withLocalDecl n c (y.instantiateRev fvars) fun x => k (fvars.push x) b
   | 0, (Expr.letE _ y _ _ _)  => k fvars y
   | 1, (Expr.letE _ _ a _ _)  => k fvars a
   | 2, (Expr.letE n y a b _)  => withLetDecl n (y.instantiateRev fvars) (a.instantiateRev fvars) fun x => k (fvars.push x) b
-  | 0, (Expr.proj _ _ b _)    => k fvars b
-  | n, (Expr.mdata _ a _)     => viewCoordAux k fvars n a
+  | 0, (Expr.proj _ _ b)      => k fvars b
+  | n, (Expr.mdata _ a)       => viewCoordAux k fvars n a
   | c, e                      => throwError "Invalid coordinate {c} for {e}"
 
 private def viewAux (k : Array Expr → Expr → M α) (fvars : Array Expr) : List Nat → Expr → M α
@@ -123,8 +123,8 @@ variable {M} [Monad M] [MonadError M]
 /-- Get the raw subexpression without performing any instantiation. -/
 private def viewCoordRaw: Expr → Nat → M Expr
   | e                     , 3 => throwError "Can't viewRaw the type of {e}"
-  | (Expr.app f _ _)      , 0 => pure f
-  | (Expr.app _ a _)      , 1 => pure a
+  | (Expr.app f _)        , 0 => pure f
+  | (Expr.app _ a)        , 1 => pure a
   | (Expr.lam _ y _ _)    , 0 => pure y
   | (Expr.lam _ _ b _)    , 1 => pure b
   | (Expr.forallE _ y _ _), 0 => pure y
@@ -132,8 +132,8 @@ private def viewCoordRaw: Expr → Nat → M Expr
   | (Expr.letE _ y _ _ _) , 0 => pure y
   | (Expr.letE _ _ a _ _) , 1 => pure a
   | (Expr.letE _ _ _ b _) , 2 => pure b
-  | (Expr.proj _ _ b _)   , 0 => pure b
-  | (Expr.mdata _ a _)    , n => viewCoordRaw a n
+  | (Expr.proj _ _ b)     , 0 => pure b
+  | (Expr.mdata _ a)      , n => viewCoordRaw a n
   | e                     , c => throwError "Bad coordinate {c} for {e}"
 
 

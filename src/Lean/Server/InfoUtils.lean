@@ -39,6 +39,12 @@ where go
   | none, node .. => panic! "unexpected context-free info tree node"
   | _, hole .. => pure none
 
+/-- `InfoTree.visitM` specialized to `Unit` return type -/
+def InfoTree.visitM' [Monad m]
+    (preNode  : ContextInfo → Info → (children : Std.PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
+    (postNode : ContextInfo → Info → (children : Std.PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
+    (t : InfoTree) : m Unit := t.visitM preNode (fun ci i cs _ => postNode ci i cs) |> discard
+
 /--
   Visit nodes bottom-up, passing in a surrounding context (the innermost one) and the union of nested results (empty at leaves). -/
 def InfoTree.collectNodesBottomUp (p : ContextInfo → Info → Std.PersistentArray InfoTree → List α → List α) (i : InfoTree) : List α :=
@@ -90,6 +96,8 @@ def Info.stx : Info → Syntax
   | ofFieldInfo i          => i.stx
   | ofCompletionInfo i     => i.stx
   | ofCustomInfo i         => i.stx
+  | ofUserWidgetInfo i     => i.stx
+  | ofFVarAliasInfo _      => .missing
 
 def Info.lctx : Info → LocalContext
   | Info.ofTermInfo i  => i.lctx
@@ -142,19 +150,23 @@ def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextI
 
 /-- Find an info node, if any, which should be shown on hover/cursor at position `hoverPos`. -/
 partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (includeStop := false) (omitAppFns := false) : Option (ContextInfo × Info) := Id.run do
-  let results := t.visitM (m := Id) (postNode := fun ctx i _ results => do
+  let results := t.visitM (m := Id) (postNode := fun ctx info _ results => do
     let mut results := results.bind (·.getD [])
-    if omitAppFns && i.stx.isOfKind ``Parser.Term.app && i.stx[0].isIdent then
-      results := results.filter (·.2.2.stx != i.stx[0])
-    if results.isEmpty && (i matches Info.ofFieldInfo _ || i.toElabInfo?.isSome) && i.contains hoverPos includeStop then
-      let r := i.range?.get!
+    if omitAppFns && info.stx.isOfKind ``Parser.Term.app && info.stx[0].isIdent then
+      results := results.filter (·.2.2.stx != info.stx[0])
+    /-
+      Remark: we skip `info` nodes associated with the `nullKind` because some tactics (e.g., `rewrite`) attach auxiliary null nodes to control
+      which goal is displayed in the info views. See issue #1403
+    -/
+    if results.isEmpty && info.stx.getKind != nullKind && (info matches Info.ofFieldInfo _ || info.toElabInfo?.isSome) && info.contains hoverPos includeStop then
+      let r := info.range?.get!
       let priority :=
         if r.stop == hoverPos then
           0  -- prefer results directly *after* the hover position (only matters for `includeStop = true`; see #767)
-        else if i matches .ofTermInfo { expr := .fvar .., .. } then
+        else if info matches .ofTermInfo { expr := .fvar .., .. } then
           0  -- prefer results for constants over variables (which overlap at declaration names)
         else 1
-      [(priority, ctx, i)]
+      [(priority, ctx, info)]
     else
       results) |>.getD []
   let maxPrio? := results.map (·.1) |>.maximum?
@@ -201,11 +213,11 @@ where
   fmtTerm? : MetaM (Option Format) := do
     match i with
     | Info.ofTermInfo ti =>
-      let e ← Meta.instantiateMVars ti.expr
+      let e ← instantiateMVars ti.expr
       if e.isSort then
         -- Types of sorts are funny to look at in widgets, but ultimately not very helpful
         return none
-      let tp ← Meta.instantiateMVars (← Meta.inferType e)
+      let tp ← instantiateMVars (← Meta.inferType e)
       let tpFmt ← Meta.ppExpr tp
       if e.isConst then
         -- Recall that `ppExpr` adds a `@` if the constant has implicit arguments, and it is quite distracting
@@ -244,7 +256,7 @@ structure GoalsAtResult where
   -- for overlapping goals, only keep those of the highest reported priority
   priority   : Nat
 
-/-
+/--
   Try to retrieve `TacticInfo` for `hoverPos`.
   We retrieve all `TacticInfo` nodes s.t. `hoverPos` is inside the node's range plus trailing whitespace.
   We usually prefer the innermost such nodes so that for composite tactics such as `induction`, we show the nested proofs' states.
@@ -309,7 +321,7 @@ where go ci?
   | .context ci t => go ci t
   | .node i cs =>
     if let (some ci, .ofTermInfo ti) := (ci?, i) then do
-      let expr ← ti.runMetaM ci (Meta.instantiateMVars ti.expr)
+      let expr ← ti.runMetaM ci (instantiateMVars ti.expr)
       return expr.hasSorry
       -- we assume that `cs` are subterms of `ti.expr` and
       -- thus do not have to be checked as well

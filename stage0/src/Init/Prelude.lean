@@ -50,16 +50,16 @@ inductive PEmpty : Sort u where
 def Not (a : Prop) : Prop := a → False
 
 @[macroInline] def False.elim {C : Sort u} (h : False) : C :=
-  False.rec (fun _ => C) h
+  h.rec
 
 @[macroInline] def absurd {a : Prop} {b : Sort v} (h₁ : a) (h₂ : Not a) : b :=
-  False.elim (h₂ h₁)
+  (h₂ h₁).rec
 
 inductive Eq : α → α → Prop where
   | refl (a : α) : Eq a a
 
 @[simp] abbrev Eq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : motive a) {b : α} (h : Eq a b) : motive b :=
-  Eq.rec (motive := fun α _ => motive α) m h
+  h.rec m
 
 @[matchPattern] def rfl {α : Sort u} {a : α} : Eq a a := Eq.refl a
 
@@ -75,7 +75,7 @@ theorem Eq.trans {α : Sort u} {a b c : α} (h₁ : Eq a b) (h₂ : Eq b c) : Eq
   h₂ ▸ h₁
 
 @[macroInline] def cast {α β : Sort u} (h : Eq α β) (a : α) : β :=
-  Eq.rec (motive := fun α _ => α) a h
+  h.rec a
 
 theorem congrArg {α : Sort u} {β : Sort v} {a₁ a₂ : α} (f : α → β) (h : Eq a₁ a₂) : Eq (f a₁) (f a₂) :=
   h ▸ rfl
@@ -86,9 +86,9 @@ theorem congr {α : Sort u} {β : Sort v} {f₁ f₂ : α → β} {a₁ a₂ : �
 theorem congrFun {α : Sort u} {β : α → Sort v} {f g : (x : α) →  β x} (h : Eq f g) (a : α) : Eq (f a) (g a) :=
   h ▸ rfl
 
-/-
+/-!
 Initialize the Quotient Module, which effectively adds the following definitions:
-
+```
 opaque Quot {α : Sort u} (r : α → α → Prop) : Sort u
 
 opaque Quot.mk {α : Sort u} (r : α → α → Prop) (a : α) : Quot r
@@ -98,8 +98,49 @@ opaque Quot.lift {α : Sort u} {r : α → α → Prop} {β : Sort v} (f : α �
 
 opaque Quot.ind {α : Sort u} {r : α → α → Prop} {β : Quot r → Prop} :
   (∀ a : α, β (Quot.mk r a)) → ∀ q : Quot r, β q
+```
 -/
 init_quot
+
+/--
+Let `α` be any type, and let `r` be an equivalence relation on `α`.
+It is mathematically common to form the "quotient" `α / r`, that is, the type of elements of `α` "modulo" `r`.
+Set theoretically, one can view `α / r` as the set of equivalence classes of `α` modulo `r`.
+If `f : α → β` is any function that respects the equivalence relation in the sense that for every `x y : α`, `r x y` implies `f x = f y`,
+then f "lifts" to a function `f' : α / r → β` defined on each equivalence class `⟦x⟧` by `f' ⟦x⟧ = f x`.
+Lean extends the Calculus of Constructions with additional constants that perform exactly these constructions,
+and installs this last equation as a definitional reduction rule.
+
+Given a type `α` and any binary relation `r` on `α`, `Quot r` is a type. Note that `r` is not required to be
+an equilance relation. `Quot` is the basic building block used to construct later the type `Quotient`.
+-/
+add_decl_doc Quot
+
+/--
+Given a type `α` and any binary relation `r` on `α`, `Quot.mk` maps `α` to `Quot r`.
+So that if `r : α → α → Prop` and `a : α`, then `Quot.mk r a` is an element of `Quot r`.
+
+See `Quot`.
+-/
+add_decl_doc Quot.mk
+
+/--
+Given a type `α` and any binary relation `r` on `α`,
+`Quot.ind` says that every element of `Quot r` is of the form `Quot.mk r a`.
+
+See `Quot` and `Quot.lift`.
+-/
+add_decl_doc Quot.ind
+
+/--
+Given a type `α`, any binary relation `r` on `α`, a function `f : α → β`, and a proof `h`
+that `f` respects the relation `r`, then `Quot.lift f h` is the corresponding function on `Quot r`.
+
+The idea is that for each element `a` in `α`, the function `Quot.lift f h` maps `Quot.mk r a`
+(the `r`-class containing `a`) to `f a`, wherein `h` shows that this function is well defined.
+In fact, the computation principle is declared as a reduction rule.
+-/
+add_decl_doc Quot.lift
 
 inductive HEq : {α : Sort u} → α → {β : Sort u} → β → Prop where
   | refl (a : α) : HEq a a
@@ -109,10 +150,8 @@ inductive HEq : {α : Sort u} → α → {β : Sort u} → β → Prop where
 
 theorem eq_of_heq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=
   have : (α β : Sort u) → (a : α) → (b : β) → HEq a b → (h : Eq α β) → Eq (cast h a) b :=
-    fun α _ a _ h₁ =>
-      HEq.rec (motive := fun {β} (b : β) (_ : HEq a b) => (h₂ : Eq α β) → Eq (cast h₂ a) b)
-        (fun (_ : Eq α α) => rfl)
-        h₁
+    fun _ _ _ _ h₁ =>
+      h₁.rec (fun _ => rfl)
   this α α a a' h rfl
 
 structure Prod (α : Type u) (β : Type v) where
@@ -156,7 +195,7 @@ inductive Bool : Type where
 
 export Bool (false true)
 
-/- Remark: Subtype must take a Sort instead of Type because of the axiom strongIndefiniteDescription. -/
+/-- Remark: Subtype must take a Sort instead of Type because of the axiom strongIndefiniteDescription. -/
 structure Subtype {α : Sort u} (p : α → Prop) where
   val : α
   property : p val
@@ -175,7 +214,7 @@ set_option linter.unusedVariables.funArgs false in
 /-- Auxiliary Declaration used to implement the named patterns `x@h:p` -/
 @[reducible] def namedPattern {α : Sort u} (x a : α) (h : Eq x a) : α := a
 
-/- Auxiliary axiom used to implement `sorry`. -/
+/-- Auxiliary axiom used to implement `sorry`. -/
 @[extern "lean_sorry", neverExtract]
 axiom sorryAx (α : Sort u) (synthetic := false) : α
 
@@ -236,14 +275,14 @@ deriving instance Inhabited for Bool
 structure PLift (α : Sort u) : Type u where
   up :: (down : α)
 
-/- Bijection between α and PLift α -/
+/-- Bijection between α and PLift α -/
 theorem PLift.up_down {α : Sort u} : ∀ (b : PLift α), Eq (up (down b)) b
   | up _ => rfl
 
 theorem PLift.down_up {α : Sort u} (a : α) : Eq (down (up a)) a :=
   rfl
 
-/- Pointed types -/
+/-- Pointed types -/
 def NonemptyType := Subtype fun α : Type u => Nonempty α
 
 abbrev NonemptyType.type (type : NonemptyType.{u}) : Type u :=
@@ -256,7 +295,7 @@ instance : Inhabited NonemptyType.{u} where
 structure ULift.{r, s} (α : Type s) : Type (max s r) where
   up :: (down : α)
 
-/- Bijection between α and ULift.{v} α -/
+/-- Bijection between α and ULift.{v} α -/
 theorem ULift.up_down {α : Type u} : ∀ (b : ULift.{v} α), Eq (up (down b)) b
   | up _ => rfl
 
@@ -268,7 +307,7 @@ class inductive Decidable (p : Prop) where
   | isTrue  (h : p) : Decidable p
 
 @[inlineIfReduce, nospecialize] def Decidable.decide (p : Prop) [h : Decidable p] : Bool :=
-  Decidable.casesOn (motive := fun _ => Bool) h (fun _ => false) (fun _ => true)
+  h.casesOn (fun _ => false) (fun _ => true)
 
 export Decidable (isTrue isFalse decide)
 
@@ -281,10 +320,11 @@ abbrev DecidableRel {α : Sort u} (r : α → α → Prop) :=
 abbrev DecidableEq (α : Sort u) :=
   (a b : α) → Decidable (Eq a b)
 
-def decEq {α : Sort u} [s : DecidableEq α] (a b : α) : Decidable (Eq a b) :=
-  s a b
+def decEq {α : Sort u} [inst : DecidableEq α] (a b : α) : Decidable (Eq a b) :=
+  inst a b
 
-theorem decide_eq_true : [s : Decidable p] → p → Eq (decide p) true
+set_option linter.unusedVariables false in
+theorem decide_eq_true : [inst : Decidable p] → p → Eq (decide p) true
   | isTrue  _, _   => rfl
   | isFalse h₁, h₂ => absurd h₂ h₁
 
@@ -292,18 +332,18 @@ theorem decide_eq_false : [Decidable p] → Not p → Eq (decide p) false
   | isTrue  h₁, h₂ => absurd h₁ h₂
   | isFalse _, _   => rfl
 
-theorem of_decide_eq_true [s : Decidable p] : Eq (decide p) true → p := fun h =>
-  match (generalizing := false) s with
+theorem of_decide_eq_true [inst : Decidable p] : Eq (decide p) true → p := fun h =>
+  match (generalizing := false) inst with
   | isTrue  h₁ => h₁
   | isFalse h₁ => absurd h (ne_true_of_eq_false (decide_eq_false h₁))
 
-theorem of_decide_eq_false [s : Decidable p] : Eq (decide p) false → Not p := fun h =>
-  match (generalizing := false) s with
+theorem of_decide_eq_false [inst : Decidable p] : Eq (decide p) false → Not p := fun h =>
+  match (generalizing := false) inst with
   | isTrue  h₁ => absurd h (ne_false_of_eq_true (decide_eq_true h₁))
   | isFalse h₁ => h₁
 
-theorem of_decide_eq_self_eq_true [s : DecidableEq α] (a : α) : Eq (decide (Eq a a)) true :=
-  match (generalizing := false) s a a with
+theorem of_decide_eq_self_eq_true [inst : DecidableEq α] (a : α) : Eq (decide (Eq a a)) true :=
+  match (generalizing := false) inst a a with
   | isTrue  _  => rfl
   | isFalse h₁ => absurd rfl h₁
 
@@ -315,6 +355,7 @@ theorem of_decide_eq_self_eq_true [s : DecidableEq α] (a : α) : Eq (decide (Eq
    | true, true   => isTrue rfl
 
 class BEq (α : Type u) where
+  /-- Boolean equality. -/
   beq : α → α → Bool
 
 open BEq (beq)
@@ -325,12 +366,12 @@ instance [DecidableEq α] : BEq α where
 -- We use "dependent" if-then-else to be able to communicate the if-then-else condition
 -- to the branches
 @[macroInline] def dite {α : Sort u} (c : Prop) [h : Decidable c] (t : c → α) (e : Not c → α) : α :=
-  Decidable.casesOn (motive := fun _ => α) h e t
+  h.casesOn e t
 
-/- if-then-else -/
+/-! # if-then-else -/
 
 @[macroInline] def ite {α : Sort u} (c : Prop) [h : Decidable c] (t e : α) : α :=
-  Decidable.casesOn (motive := fun _ => α) h (fun _ => e) (fun _ => t)
+  h.casesOn (fun _ => e) (fun _ => t)
 
 @[macroInline] instance {p q} [dp : Decidable p] [dq : Decidable q] : Decidable (And p q) :=
   match dp with
@@ -357,7 +398,7 @@ instance [dp : Decidable p] : Decidable (Not p) :=
   | isTrue hp  => isFalse (absurd hp)
   | isFalse hp => isTrue hp
 
-/- Boolean operators -/
+/-! # Boolean operators -/
 
 @[macroInline] def cond {α : Type u} (c : Bool) (x y : α) : α :=
   match c with
@@ -378,6 +419,7 @@ instance [dp : Decidable p] : Decidable (Not p) :=
   | true  => false
   | false => true
 
+/-- The type of natural numbers. `0`, `1`, `2`, ...-/
 inductive Nat where
   | zero : Nat
   | succ (n : Nat) : Nat
@@ -385,7 +427,7 @@ inductive Nat where
 instance : Inhabited Nat where
   default := Nat.zero
 
-/- For numeric literals notation -/
+/-- For numeric literals notation -/
 class OfNat (α : Type u) (_ : Nat) where
   ofNat : α
 
@@ -406,15 +448,15 @@ class LT (α : Type u) where lt : α → α → Prop
   ite (LE.le a b) a b
 
 /-- Transitive chaining of proofs, used e.g. by `calc`. -/
-class Trans (r : α → β → Prop) (s : β → γ → Prop) (t : outParam (α → γ → Prop)) where
+class Trans (r : α → β → Sort u) (s : β → γ → Sort v) (t : outParam (α → γ → Sort w)) where
   trans : r a b → s b c → t a c
 
 export Trans (trans)
 
-instance (r : α → γ → Prop) : Trans Eq r r where
+instance (r : α → γ → Sort u) : Trans Eq r r where
   trans heq h' := heq ▸ h'
 
-instance (r : α → β → Prop) : Trans r Eq r where
+instance (r : α → β → Sort u) : Trans r Eq r where
   trans h' heq := heq ▸ h'
 
 class HAdd (α : Type u) (β : Type v) (γ : outParam (Type w)) where
@@ -747,6 +789,7 @@ protected theorem Nat.lt_irrefl (n : Nat) : Not (LT.lt n n) :=
 protected theorem Nat.lt_of_le_of_lt {n m k : Nat} (h₁ : LE.le n m) (h₂ : LT.lt m k) : LT.lt n k :=
   Nat.le_trans (Nat.succ_le_succ h₁) h₂
 
+set_option linter.unusedVariables.funArgs false in  -- #1214
 protected theorem Nat.le_antisymm {n m : Nat} (h₁ : LE.le n m) (h₂ : LE.le m n) : Eq n m :=
   match h₁ with
   | Nat.le.refl   => rfl
@@ -757,6 +800,7 @@ protected theorem Nat.lt_of_le_of_ne {n m : Nat} (h₁ : LE.le n m) (h₂ : Not 
   | Or.inl h₃ => h₃
   | Or.inr h₃ => absurd (Nat.le_antisymm h₁ h₃) h₂
 
+set_option linter.unusedVariables.funArgs false in  -- #1214
 theorem Nat.le_of_ble_eq_true (h : Eq (Nat.ble n m) true) : LE.le n m :=
   match n, m with
   | 0,      _      => Nat.zero_le _
@@ -798,12 +842,15 @@ instance : Sub Nat where
 @[extern "lean_system_platform_nbits"] opaque System.Platform.getNumBits : Unit → Subtype fun (n : Nat) => Or (Eq n 32) (Eq n 64) :=
   fun _ => ⟨64, Or.inr rfl⟩ -- inhabitant
 
+/-- Gets the word size of the platform.
+That is, whether the platform is 64 or 32 bits. -/
 def System.Platform.numBits : Nat :=
   (getNumBits ()).val
 
 theorem System.Platform.numBits_eq : Or (Eq numBits 32) (Eq numBits 64) :=
   (getNumBits ()).property
 
+/-- `Fin n` is a natural number `i` with the constraint that `0 ≤ i < n`. -/
 structure Fin (n : Nat) where
   val  : Nat
   isLt : LT.lt val n
@@ -833,6 +880,7 @@ instance Fin.decLt {n} (a b : Fin n) : Decidable (LT.lt a b)  := Nat.decLt ..
 instance Fin.decLe {n} (a b : Fin n) : Decidable (LE.le a b) := Nat.decLe ..
 
 def UInt8.size : Nat := 256
+/-- Unsigned 8-bit integer. -/
 structure UInt8 where
   val : Fin UInt8.size
 
@@ -857,6 +905,7 @@ instance : Inhabited UInt8 where
   default := UInt8.ofNatCore 0 (by decide)
 
 def UInt16.size : Nat := 65536
+/-- Unsigned 16-bit integer. -/
 structure UInt16 where
   val : Fin UInt16.size
 
@@ -881,6 +930,7 @@ instance : Inhabited UInt16 where
   default := UInt16.ofNatCore 0 (by decide)
 
 def UInt32.size : Nat := 4294967296
+/-- Unsigned, 32-bit integer. -/
 structure UInt32 where
   val : Fin UInt32.size
 
@@ -929,6 +979,7 @@ instance (a b : UInt32) : Decidable (LT.lt a b) := UInt32.decLt a b
 instance (a b : UInt32) : Decidable (LE.le a b) := UInt32.decLe a b
 
 def UInt64.size : Nat := 18446744073709551616
+/-- Unsigned, 64-bit integer. -/
 structure UInt64 where
   val : Fin UInt64.size
 
@@ -960,6 +1011,12 @@ theorem usize_size_eq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073
   | _, Or.inl rfl => Or.inl (by decide)
   | _, Or.inr rfl => Or.inr (by decide)
 
+/-- A USize is an unsigned integer with the size of a word
+for the platform's architecture.
+
+For example, if running on a 32-bit machine, USize is equivalent to UInt32.
+Or on a 64-bit machine, UInt64.
+-/
 structure USize where
   val : Fin USize.size
 
@@ -1207,13 +1264,13 @@ instance (p₁ p₂ : String.Pos) : Decidable (LT.lt p₁ p₂) :=
   stopPos  := s.endPos
 }
 
-unsafe def unsafeCast {α : Type u} {β : Type v} (a : α) : β :=
-  ULift.down.{max u v} (cast lcProof (ULift.up.{max u v} a))
+unsafe def unsafeCast {α : Sort u} {β : Sort v} (a : α) : β :=
+  PLift.down (ULift.down.{max u v} (cast lcProof (ULift.up.{max u v} (PLift.up a))))
 
 @[neverExtract, extern "lean_panic_fn"]
 opaque panicCore {α : Type u} [Inhabited α] (msg : String) : α
 
-/-
+/--
   This is workaround for `panic` occurring in monadic code. See issue #695.
   The `panicCore` definition cannot be specialized since it is an extern.
   When `panic` occurs in monadic code, the `Inhabited α` parameter depends on a `[inst : Monad m]` instance.
@@ -1228,7 +1285,12 @@ def panic {α : Type u} [Inhabited α] (msg : String) : α :=
 -- TODO: this be applied directly to `Inhabited`'s definition when we remove the above workaround
 attribute [nospecialize] Inhabited
 
-/-
+class GetElem (Cont : Type u) (Idx : Type v) (Elem : outParam (Type w)) (Dom : outParam (Cont → Idx → Prop)) where
+  getElem (xs : Cont) (i : Idx) (h : Dom xs i) : Elem
+
+export GetElem (getElem)
+
+/--
 The Compiler has special support for arrays.
 They are implemented using dynamic arrays: https://en.wikipedia.org/wiki/Dynamic_array
 -/
@@ -1238,7 +1300,7 @@ structure Array (α : Type u) where
 attribute [extern "lean_array_data"] Array.data
 attribute [extern "lean_array_mk"] Array.mk
 
-/- The parameter `c` is the initial capacity -/
+/-- The parameter `c` is the initial capacity -/
 @[extern "lean_mk_empty_array_with_capacity"]
 def Array.mkEmpty {α : Type u} (c : @& Nat) : Array α := {
   data := List.nil
@@ -1255,16 +1317,16 @@ def Array.size {α : Type u} (a : @& Array α) : Nat :=
 def Array.get {α : Type u} (a : @& Array α) (i : @& Fin a.size) : α :=
   a.data.get i
 
-@[inline] def Array.getD (a : Array α) (i : Nat) (v₀ : α) : α :=
+@[inline] abbrev Array.getD (a : Array α) (i : Nat) (v₀ : α) : α :=
   dite (LT.lt i a.size) (fun h => a.get ⟨i, h⟩) (fun _ => v₀)
 
-/- "Comfortable" version of `fget`. It performs a bound check at runtime. -/
+/-- "Comfortable" version of `fget`. It performs a bound check at runtime. -/
 @[extern "lean_array_get"]
 def Array.get! {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
   Array.getD a i default
 
-def Array.getOp {α : Type u} [Inhabited α] (self : Array α) (idx : Nat) : α :=
-  self.get! idx
+instance : GetElem (Array α) Nat α fun xs i => LT.lt i xs.size where
+  getElem xs i h := xs.get ⟨i, h⟩
 
 @[extern "lean_array_push"]
 def Array.push {α : Type u} (a : Array α) (v : α) : Array α := {
@@ -1556,14 +1618,14 @@ instance {ρ : Type u} {m : Type u → Type v} [Monad m] : MonadWithReaderOf ρ 
     In contrast to the Haskell implementation, we use overlapping instances to derive instances
     automatically from `monadLift`. -/
 class MonadStateOf (σ : Type u) (m : Type u → Type v) where
-  /- Obtain the top-most State of a Monad stack. -/
+  /-- Obtain the top-most State of a Monad stack. -/
   get : m σ
-  /- Set the top-most State of a Monad stack. -/
+  /-- Set the top-most State of a Monad stack. -/
   set : σ → m PUnit
-  /- Map the top-most State of a Monad stack.
+  /-- Map the top-most State of a Monad stack.
 
-     Note: `modifyGet f` may be preferable to `do s <- get; let (a, s) := f s; put s; pure a`
-     because the latter does not use the State linearly (without sufficient inlining). -/
+  Note: `modifyGet f` may be preferable to `do s <- get; let (a, s) := f s; put s; pure a`
+  because the latter does not use the State linearly (without sufficient inlining). -/
   modifyGet {α : Type u} : (σ → Prod α σ) → m α
 
 export MonadStateOf (set)
@@ -1709,7 +1771,7 @@ instance {δ} [Backtrackable δ σ] : MonadExceptOf ε (EStateM ε σ) where
 
 @[inline] def dummyRestore : σ → PUnit → σ := fun s _ => s
 
-/- Dummy default instance -/
+/-- Dummy default instance -/
 instance nonBacktrackable : Backtrackable PUnit σ where
   save    := dummySave
   restore := dummyRestore
@@ -1738,72 +1800,121 @@ instance : Hashable String where
 
 namespace Lean
 
-/- Hierarchical names -/
+/--
+Hierarchical names. We use hierarchical names to name declarations and
+for creating unique identifiers for free variables and metavariables.
+
+You can create hierarchical names using the following quotation notation.
+```
+`Lean.Meta.whnf
+```
+It is short for `.str (.str (.str .anonymous "Lean") "Meta") "whnf"`
+You can use double quotes to request Lean to statically check whether the name
+corresponds to a Lean declaration in scope.
+```
+``Lean.Meta.whnf
+```
+If the name is not in scope, Lean will report an error.
+-/
 inductive Name where
-  | anonymous : Name
-  | str : Name → String → UInt64 → Name
-  | num : Name → Nat → UInt64 → Name
+  | /-- The "anonymous" name. -/
+    anonymous : Name
+  | /--
+A string name. The name `Lean.Meta.run` is represented at
+```lean
+.str (.str (.str .anonymous "Lean") "Meta") "run"
+```
+-/
+    str (pre : Name) (str : String)
+  | /--
+A numerical name. This kind of name is used, for example, to create hierarchical names for
+free variables and metavariables. The identifier `_uniq.231` is represented as
+```lean
+.num (.str .anonymous "_uniq") 231
+```
+-/
+    num (pre : Name) (i : Nat)
+with
+  @[computedField] hash : Name → UInt64
+    | .anonymous => .ofNatCore 1723 (by decide)
+    | .str p s => mixHash p.hash s.hash
+    | .num p v => mixHash p.hash (dite (LT.lt v UInt64.size) (fun h => UInt64.ofNatCore v h) (fun _ => UInt64.ofNatCore 17 (by decide)))
 
 instance : Inhabited Name where
   default := Name.anonymous
-
-protected def Name.hash : Name → UInt64
-  | Name.anonymous => UInt64.ofNatCore 1723 (by decide)
-  | Name.str _ _ h => h
-  | Name.num _ _ h => h
 
 instance : Hashable Name where
   hash := Name.hash
 
 namespace Name
 
+/--
+`.str p s` is now the preferred form.
+-/
 @[export lean_name_mk_string]
-def mkStr (p : Name) (s : String) : Name :=
-  Name.str p s (mixHash (hash p) (hash s))
+abbrev mkStr (p : Name) (s : String) : Name :=
+  Name.str p s
 
+/--
+`.num p v` is now the preferred form.
+-/
 @[export lean_name_mk_numeral]
-def mkNum (p : Name) (v : Nat) : Name :=
-  Name.num p v (mixHash (hash p) (dite (LT.lt v UInt64.size) (fun h => UInt64.ofNatCore v h) (fun _ => UInt64.ofNatCore 17 (by decide))))
+abbrev mkNum (p : Name) (v : Nat) : Name :=
+  Name.num p v
 
-def mkSimple (s : String) : Name :=
+/--
+Short for `.str .anonymous s`.
+-/
+abbrev mkSimple (s : String) : Name :=
   mkStr Name.anonymous s
 
 @[extern "lean_name_eq"]
 protected def beq : (@& Name) → (@& Name) → Bool
-  | anonymous,   anonymous   => true
-  | str p₁ s₁ _, str p₂ s₂ _ => and (BEq.beq s₁ s₂) (Name.beq p₁ p₂)
-  | num p₁ n₁ _, num p₂ n₂ _ => and (BEq.beq n₁ n₂) (Name.beq p₁ p₂)
-  | _,           _           => false
+  | anonymous, anonymous => true
+  | str p₁ s₁, str p₂ s₂ => and (BEq.beq s₁ s₂) (Name.beq p₁ p₂)
+  | num p₁ n₁, num p₂ n₂ => and (BEq.beq n₁ n₂) (Name.beq p₁ p₂)
+  | _,         _         => false
 
 instance : BEq Name where
   beq := Name.beq
 
+/--
+Append two hierarchical names. Example:
+```lean
+`Lean.Meta ++ `Tactic.simp
+```
+return `Lean.Meta.Tactic.simp`
+-/
 protected def append : Name → Name → Name
   | n, anonymous => n
-  | n, str p s _ => Name.mkStr (Name.append n p) s
-  | n, num p d _ => Name.mkNum (Name.append n p) d
+  | n, str p s => Name.mkStr (Name.append n p) s
+  | n, num p d => Name.mkNum (Name.append n p) d
 
 instance : Append Name where
   append := Name.append
 
 end Name
 
-/- Syntax -/
+/-! # Syntax -/
 
 /-- Source information of tokens. -/
 inductive SourceInfo where
-  /-
+  | /--
     Token from original input with whitespace and position information.
     `leading` will be inferred after parsing by `Syntax.updateLeading`. During parsing,
-    it is not at all clear what the preceding token was, especially with backtracking. -/
-  | original (leading : Substring) (pos : String.Pos) (trailing : Substring) (endPos : String.Pos)
-  /-
+    it is not at all clear what the preceding token was, especially with backtracking.
+    -/
+   original (leading : Substring) (pos : String.Pos) (trailing : Substring) (endPos : String.Pos)
+  | /--
     Synthesized token (e.g. from a quotation) annotated with a span from the original source.
     In the delaborator, we "misuse" this constructor to store synthetic positions identifying
-    subterms. -/
-  | synthetic (pos : String.Pos) (endPos : String.Pos)
-  /- Synthesized token without position information. -/
-  | protected none
+    subterms.
+    -/
+    synthetic (pos : String.Pos) (endPos : String.Pos)
+  | /--
+    Synthesized token without position information.
+    -/
+    protected none
 
 instance : Inhabited SourceInfo := ⟨SourceInfo.none⟩
 
@@ -1819,7 +1930,7 @@ end SourceInfo
 
 abbrev SyntaxNodeKind := Name
 
-/- Syntax AST -/
+/-! # Syntax AST -/
 
 /--
 Syntax objects used by the parser, macro expander, delaborator, etc.
@@ -1827,36 +1938,37 @@ Syntax objects used by the parser, macro expander, delaborator, etc.
 inductive Syntax where
   | missing : Syntax
   | /--
-  Node in the syntax tree.
+    Node in the syntax tree.
 
-  The `info` field is used by the delaborator
-  to store the position of the subexpression
-  corresponding to this node.
-  The parser sets the `info` field to `none`.
+    The `info` field is used by the delaborator
+    to store the position of the subexpression
+    corresponding to this node.
+    The parser sets the `info` field to `none`.
 
-  (Remark: the `node` constructor
-  did not have an `info` field in previous versions.
-  This caused a bug in the interactive widgets,
-  where the popup for `a + b` was the same as for `a`.
-  The delaborator used to associate subexpressions
-  with pretty-printed syntax by setting
-  the (string) position of the first atom/identifier
-  to the (expression) position of the subexpression.
-  For example, both `a` and `a + b`
-  have the same first identifier,
-  and so their infos got mixed up.)
-  -/ node   (info : SourceInfo) (kind : SyntaxNodeKind) (args : Array Syntax) : Syntax
+    (Remark: the `node` constructor
+    did not have an `info` field in previous versions.
+    This caused a bug in the interactive widgets,
+    where the popup for `a + b` was the same as for `a`.
+    The delaborator used to associate subexpressions
+    with pretty-printed syntax by setting
+    the (string) position of the first atom/identifier
+    to the (expression) position of the subexpression.
+    For example, both `a` and `a + b`
+    have the same first identifier,
+    and so their infos got mixed up.)
+    -/
+    node   (info : SourceInfo) (kind : SyntaxNodeKind) (args : Array Syntax) : Syntax
   | atom   (info : SourceInfo) (val : String) : Syntax
   | ident  (info : SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List (Prod Name (List String))) : Syntax
 
 def SyntaxNodeKinds := List SyntaxNodeKind
 
 /--
-  A `Syntax` value of one of the given syntax kinds.
-  Note that while syntax quotations produce/expect `TSyntax` values of the correct kinds,
-  this is not otherwise enforced and can easily be circumvented by direct use of the constructor.
-  The namespace `TSyntax.Compat` can be opened to expose a general coercion from `Syntax` to any
-  `TSyntax ks` for porting older code. -/
+A `Syntax` value of one of the given syntax kinds.
+Note that while syntax quotations produce/expect `TSyntax` values of the correct kinds,
+this is not otherwise enforced and can easily be circumvented by direct use of the constructor.
+The namespace `TSyntax.Compat` can be opened to expose a general coercion from `Syntax` to any
+`TSyntax ks` for porting older code. -/
 structure TSyntax (ks : SyntaxNodeKinds) where
   raw : Syntax
 
@@ -1866,7 +1978,7 @@ instance : Inhabited Syntax where
 instance : Inhabited (TSyntax ks) where
   default := ⟨default⟩
 
-/- Builtin kinds -/
+/-! Builtin kinds -/
 abbrev choiceKind : SyntaxNodeKind := `choice
 abbrev nullKind : SyntaxNodeKind := `null
 abbrev groupKind : SyntaxNodeKind := `group
@@ -1905,9 +2017,8 @@ def getArg (stx : Syntax) (i : Nat) : Syntax :=
   | Syntax.node _ _ args => args.getD i Syntax.missing
   | _                    => Syntax.missing
 
--- Add `stx[i]` as sugar for `stx.getArg i`
-@[inline] def getOp (self : Syntax) (idx : Nat) : Syntax :=
-  self.getArg idx
+instance : GetElem Syntax Nat Syntax fun _ _ => True where
+  getElem stx i _ := stx.getArg i
 
 def getArgs (stx : Syntax) : Array Syntax :=
   match stx with
@@ -2028,7 +2139,7 @@ def mkAtom (val : String) : Syntax :=
 def mkAtomFrom (src : Syntax) (val : String) : Syntax :=
   Syntax.atom (SourceInfo.fromRef src) val
 
-/- Parser descriptions -/
+/-! # Parser descriptions -/
 
 inductive ParserDescr where
   | const  (name : Name)
@@ -2049,7 +2160,7 @@ instance : Inhabited ParserDescr where
 
 abbrev TrailingParserDescr := ParserDescr
 
-/-
+/-!
 Runtime support for making quotation terms auto-hygienic, by mangling identifiers
 introduced by them with a "macro scope" supplied by the context. Details to appear in a
 paper soon.
@@ -2090,10 +2201,11 @@ def replaceRef (ref : Syntax) (oldRef : Syntax) : Syntax :=
     introduced symbol, which results in better error positions than not applying
     any position. -/
 class MonadQuotation (m : Type → Type) extends MonadRef m where
-  -- Get the fresh scope of the current macro invocation
+  /-- Get the fresh scope of the current macro invocation -/
   getCurrMacroScope : m MacroScope
   getMainModule     : m Name
-  /- Execute action in a new macro invocation context. This transformer should be
+  /--
+     Execute action in a new macro invocation context. This transformer should be
      used at all places that morally qualify as the beginning of a "macro call",
      e.g. `elabCommand` and `elabTerm` in the case of the elaborator. However, it
      can also be used internally inside a "macro" if identifiers introduced by
@@ -2116,7 +2228,7 @@ instance {m n : Type → Type} [MonadFunctor m n] [MonadLift m n] [MonadQuotatio
   getMainModule       := liftM (m := m) getMainModule
   withFreshMacroScope := monadMap (m := m) withFreshMacroScope
 
-/-
+/-!
 We represent a name with macro scopes as
 ```
 <actual name>._@.(<module_name>.<scopes>)*.<module_name>._hyg.<scopes>
@@ -2138,16 +2250,16 @@ The delimiter `_hyg` is used just to improve the `hasMacroScopes` performance.
 -/
 
 def Name.hasMacroScopes : Name → Bool
-  | str _ s _   => beq s "_hyg"
-  | num p _   _ => hasMacroScopes p
-  | _           => false
+  | str _ s => beq s "_hyg"
+  | num p _ => hasMacroScopes p
+  | _       => false
 
 private def eraseMacroScopesAux : Name → Name
-  | Name.str p s _   => match beq s "_@" with
+  | .str p s   => match beq s "_@" with
     | true  => p
     | false => eraseMacroScopesAux p
-  | Name.num p _ _   => eraseMacroScopesAux p
-  | Name.anonymous   => Name.anonymous
+  | .num p _   => eraseMacroScopesAux p
+  | .anonymous => Name.anonymous
 
 @[export lean_erase_macro_scopes]
 def Name.eraseMacroScopes (n : Name) : Name :=
@@ -2156,10 +2268,10 @@ def Name.eraseMacroScopes (n : Name) : Name :=
   | false => n
 
 private def simpMacroScopesAux : Name → Name
-  | Name.num p i _ => Name.mkNum (simpMacroScopesAux p) i
-  | n              => eraseMacroScopesAux n
+  | .num p i => Name.mkNum (simpMacroScopesAux p) i
+  | n        => eraseMacroScopesAux n
 
-/- Helper function we use to create binder names that do not need to be unique. -/
+/-- Helper function we use to create binder names that do not need to be unique. -/
 @[export lean_simp_macro_scopes]
 def Name.simpMacroScopes (n : Name) : Name :=
   match n.hasMacroScopes with
@@ -2183,30 +2295,30 @@ def MacroScopesView.review (view : MacroScopesView) : Name :=
     view.scopes.foldl Name.mkNum base
 
 private def assembleParts : List Name → Name → Name
-  | List.nil,                      acc => acc
-  | List.cons (Name.str _ s _) ps, acc => assembleParts ps (Name.mkStr acc s)
-  | List.cons (Name.num _ n _) ps, acc => assembleParts ps (Name.mkNum acc n)
-  | _,                             _   => panic "Error: unreachable @ assembleParts"
+  | .nil,                acc => acc
+  | .cons (.str _ s) ps, acc => assembleParts ps (Name.mkStr acc s)
+  | .cons (.num _ n) ps, acc => assembleParts ps (Name.mkNum acc n)
+  | _,                   _   => panic "Error: unreachable @ assembleParts"
 
 private def extractImported (scps : List MacroScope) (mainModule : Name) : Name → List Name → MacroScopesView
-  | n@(Name.str p str _), parts =>
+  | n@(Name.str p str), parts =>
     match beq str "_@" with
     | true  => { name := p, mainModule := mainModule, imported := assembleParts parts Name.anonymous, scopes := scps }
     | false => extractImported scps mainModule p (List.cons n parts)
-  | n@(Name.num p _ _), parts => extractImported scps mainModule p (List.cons n parts)
+  | n@(Name.num p _), parts => extractImported scps mainModule p (List.cons n parts)
   | _,                    _     => panic "Error: unreachable @ extractImported"
 
 private def extractMainModule (scps : List MacroScope) : Name → List Name → MacroScopesView
-  | n@(Name.str p str _), parts =>
+  | n@(Name.str p str), parts =>
     match beq str "_@" with
     | true  => { name := p, mainModule := assembleParts parts Name.anonymous, imported := Name.anonymous, scopes := scps }
     | false => extractMainModule scps p (List.cons n parts)
-  | n@(Name.num _ _ _), acc => extractImported scps (assembleParts acc Name.anonymous) n List.nil
+  | n@(Name.num _ _), acc => extractImported scps (assembleParts acc Name.anonymous) n List.nil
   | _,                    _   => panic "Error: unreachable @ extractMainModule"
 
 private def extractMacroScopesAux : Name → List MacroScope → MacroScopesView
-  | Name.num p scp _, acc => extractMacroScopesAux p (List.cons scp acc)
-  | Name.str p _   _, acc => extractMainModule acc p List.nil -- str must be "_hyg"
+  | Name.num p scp, acc => extractMacroScopesAux p (List.cons scp acc)
+  | Name.str p _  , acc => extractMainModule acc p List.nil -- str must be "_hyg"
   | _,                _   => panic "Error: unreachable @ extractMacroScopesAux"
 
 /--
@@ -2270,7 +2382,7 @@ end Syntax
 
 namespace Macro
 
-/- References -/
+/-- References -/
 private opaque MethodsRefPointed : NonemptyType.{0}
 
 private def MethodsRef : Type := MethodsRefPointed.type

@@ -37,6 +37,9 @@ def methodNotFound (method : String) : RequestError :=
   { code := ErrorCode.methodNotFound
     message := s!"No request handler found for '{method}'" }
 
+def internalError (message : String) : RequestError :=
+  { code := ErrorCode.internalError, message := message }
+
 instance : Coe IO.Error RequestError where
   coe e := { code := ErrorCode.internalError
              message := toString e }
@@ -119,9 +122,40 @@ def bindWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
   let findTask ← doc.cmdSnaps.waitFind? p
   bindTask findTask <| waitFindSnapAux notFoundX x
 
+/-- Helper for running an Rpc request at a particular snapshot. -/
+def withWaitFindSnapAtPos
+  (lspPos : Lean.Lsp.Position)
+  (f : Snapshots.Snapshot → RequestM α): RequestM (RequestTask α) := do
+  let doc ← readDoc
+  let pos := doc.meta.text.lspPosToUtf8Pos lspPos
+  withWaitFindSnap
+    doc
+    (fun s => s.endPos >= pos)
+    (notFoundX := throw <| RequestError.mk .invalidParams s!"no snapshot found at {lspPos}")
+    f
+
+open Lean Elab Command in
+/-- Use the command state in the given snapshot to run a `CommandElabM`.-/
+def runCommand (snap : Snapshots.Snapshot) (c : CommandElabM α) : RequestM α := do
+  let r ← read
+  let ctx : Command.Context := {
+    fileName := r.doc.meta.uri,
+    fileMap := r.doc.meta.text,
+    tacticCache? := snap.tacticCache,
+  }
+  let ea ← c.run ctx |>.run snap.cmdState |> EIO.toIO'
+  match ea with
+  | Except.ok (a, _s) => return a
+  | Except.error ex => do
+    throw <| RequestError.internalError <|← ex.toMessageData.toString
+
+/-- Run a `CoreM` using the data in the given snapshot.-/
+def runCore (snap : Snapshots.Snapshot) (c : CoreM α) : RequestM α :=
+  runCommand snap <| Lean.Elab.Command.liftCoreM c
+
 end RequestM
 
-/- The global request handlers table. -/
+/-! # The global request handlers table -/
 section HandlerTable
 open Lsp
 
@@ -132,7 +166,7 @@ structure RequestHandler where
 builtin_initialize requestHandlers : IO.Ref (Std.PersistentHashMap String RequestHandler) ←
   IO.mkRef {}
 
-/-- NB: This method may only be called in `builtin_initialize` blocks.
+/-- NB: This method may only be called in `initialize` blocks (user or builtin).
 
 A registration consists of:
 - a type of JSON-parsable request data `paramType`
@@ -148,7 +182,7 @@ def registerLspRequestHandler (method : String)
     paramType [FromJson paramType] [FileSource paramType]
     respType [ToJson respType]
     (handler : paramType → RequestM (RequestTask respType)) : IO Unit := do
-  if !(← IO.initializing) then
+  if !(← Lean.initializing) then
     throw <| IO.userError s!"Failed to register LSP request handler for '{method}': only possible during initialization"
   if (← requestHandlers.get).contains method then
     throw <| IO.userError s!"Failed to register LSP request handler for '{method}': already registered"
@@ -164,7 +198,7 @@ def registerLspRequestHandler (method : String)
 def lookupLspRequestHandler (method : String) : IO (Option RequestHandler) :=
   return (← requestHandlers.get).find? method
 
-/-- NB: This method may only be called in `builtin_initialize` blocks.
+/-- NB: This method may only be called in `initialize` blocks (user or builtin).
 
 Register another handler to invoke after the last one registered for a method.
 At least one handler for the method must have already been registered to perform
@@ -175,7 +209,7 @@ def chainLspRequestHandler (method : String)
     paramType [FromJson paramType]
     respType [FromJson respType] [ToJson respType]
     (handler : paramType → RequestTask respType → RequestM (RequestTask respType)) : IO Unit := do
-  if !(← IO.initializing) then
+  if !(← Lean.initializing) then
     throw <| IO.userError s!"Failed to chain LSP request handler for '{method}': only possible during initialization"
   if let some oldHandler ← lookupLspRequestHandler method then
     let handle := fun j => do

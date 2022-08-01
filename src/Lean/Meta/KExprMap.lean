@@ -18,6 +18,7 @@ structure KExprMap (α : Type) where
   map : Std.PHashMap HeadIndex (Std.AssocList Expr α) := {}
   deriving Inhabited
 
+/-- Return `some v` if there is an entry `e ↦ v` in `m`. -/
 def KExprMap.find? (m : KExprMap α) (e : Expr) : MetaM (Option α) := do
   match m.map.find? e.toHeadIndex with
   | none => return none
@@ -36,6 +37,7 @@ private def updateList (ps : Std.AssocList Expr α) (e : Expr) (v : α) : MetaM 
     else
       return Std.AssocList.cons e' v' (← updateList ps e v)
 
+/-- Insert `e ↦ v` into `m` -/
 def KExprMap.insert (m : KExprMap α) (e : Expr) (v : α) : MetaM (KExprMap α) :=
   let k := e.toHeadIndex
   match m.map.find? k with

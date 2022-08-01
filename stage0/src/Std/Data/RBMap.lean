@@ -243,6 +243,8 @@ def RBMap (α : Type u) (β : Type v) (cmp : α → α → Ordering) : Type (max
 instance (α : Type u) (β : Type v) (cmp : α → α → Ordering) : EmptyCollection (RBMap α β cmp) :=
   ⟨RBMap.empty⟩
 
+instance (α : Type u) (β : Type v) (cmp : α → α → Ordering) : Inhabited (RBMap α β cmp) := ⟨∅⟩
+
 namespace RBMap
 variable {α : Type u} {β : Type v} {σ : Type w} {cmp : α → α → Ordering}
 

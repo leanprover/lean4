@@ -42,9 +42,9 @@ def getElimInfo (declName : Name) : MetaM ElimInfo := do
       | some targetPos => pure targetPos.val
     let mut altsInfo := #[]
     for i in [:xs.size] do
-      let x := xs[i]
+      let x := xs[i]!
       if x != motive && !targets.contains x then
-        let xDecl ← getLocalDecl x.fvarId!
+        let xDecl ← x.fvarId!.getDecl
         if xDecl.binderInfo.isExplicit then
           let numFields ← forallTelescopeReducing xDecl.type fun args _ => pure args.size
           altsInfo := altsInfo.push { name := xDecl.userName, numFields := numFields : ElimAltInfo }
@@ -67,12 +67,12 @@ partial def addImplicitTargets (elimInfo : ElimInfo) (targets : Array Expr) : Me
 where
   collect (type : Expr) (argIdx targetIdx : Nat) (targets' : Array Expr) : MetaM (Array Expr) := do
     match (← whnfD type) with
-    | Expr.forallE _ d b c =>
+    | Expr.forallE _ d b bi =>
       if elimInfo.targetsPos.contains argIdx then
-        if c.binderInfo.isExplicit then
+        if bi.isExplicit then
           unless targetIdx < targets.size do
             throwError "insufficient number of targets for '{elimInfo.name}'"
-          let target := targets[targetIdx]
+          let target := targets[targetIdx]!
           let targetType ← inferType target
           unless (← isDefEq d targetType) do
             throwError "target{indentExpr target}\n{← mkHasTypeButIsExpectedMsg targetType d}"
@@ -112,12 +112,12 @@ def mkCustomEliminator (declName : Name) : MetaM CustomEliminator := do
   forallTelescopeReducing info.type fun xs _ => do
     let mut typeNames := #[]
     for i in [:elimInfo.targetsPos.size] do
-      let targetPos := elimInfo.targetsPos[i]
-      let x := xs[targetPos]
+      let targetPos := elimInfo.targetsPos[i]!
+      let x := xs[targetPos]!
       /- Return true if there is another target that depends on `x`. -/
       let isImplicitTarget : MetaM Bool := do
         for j in [i+1:elimInfo.targetsPos.size] do
-          let y := xs[elimInfo.targetsPos[j]]
+          let y := xs[elimInfo.targetsPos[j]!]!
           let yType ← inferType y
           if (← dependsOn yType x.fvarId!) then
             return true

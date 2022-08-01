@@ -14,8 +14,8 @@
 extern "C" {
 #endif
 lean_object* l_Lean_stringToMessageData(lean_object*);
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__5;
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__3;
 static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__6;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -100,7 +100,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Meta_Linear_simp_x3f___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -118,7 +118,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_Linear_simp_x3f___closed__2;
 x_2 = l_Lean_Meta_Linear_simp_x3f___closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -136,7 +136,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_Linear_simp_x3f___closed__4;
 x_2 = l_Lean_Meta_Linear_simp_x3f___closed__5;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }

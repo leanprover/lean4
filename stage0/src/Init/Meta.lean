@@ -64,7 +64,7 @@ def toolchain :=
 @[extern c inline "LEAN_IS_STAGE0"]
 opaque Internal.isStage0 (u : Unit) : Bool
 
-/- Valid identifier names -/
+/-- Valid identifier names -/
 def isGreek (c : Char) : Bool :=
   0x391 ≤ c.val && c.val ≤ 0x3dd
 
@@ -99,30 +99,30 @@ namespace Name
 
 def getRoot : Name → Name
   | anonymous             => anonymous
-  | n@(str anonymous _ _) => n
-  | n@(num anonymous _ _) => n
-  | str n _ _             => getRoot n
-  | num n _ _             => getRoot n
+  | n@(str anonymous _) => n
+  | n@(num anonymous _) => n
+  | str n _             => getRoot n
+  | num n _             => getRoot n
 
 @[export lean_is_inaccessible_user_name]
 def isInaccessibleUserName : Name → Bool
-  | Name.str _ s _   => s.contains '✝' || s == "_inaccessible"
-  | Name.num p _   _ => isInaccessibleUserName p
-  | _                => false
+  | Name.str _ s   => s.contains '✝' || s == "_inaccessible"
+  | Name.num p _   => isInaccessibleUserName p
+  | _              => false
 
 def escapePart (s : String) : Option String :=
-  if s.length > 0 && isIdFirst s[0] && (s.toSubstring.drop 1).all isIdRest then s
+  if s.length > 0 && isIdFirst (s.get 0) && (s.toSubstring.drop 1).all isIdRest then s
   else if s.any isIdEndEscape then none
   else some <| idBeginEscape.toString ++ s ++ idEndEscape.toString
 
 -- NOTE: does not roundtrip even with `escape = true` if name is anonymous or contains numeric part or `idEndEscape`
 variable (sep : String) (escape : Bool)
 def toStringWithSep : Name → String
-  | anonymous         => "[anonymous]"
-  | str anonymous s _ => maybeEscape s
-  | num anonymous v _ => toString v
-  | str n s _         => toStringWithSep n ++ sep ++ maybeEscape s
-  | num n v _         => toStringWithSep n ++ sep ++ Nat.repr v
+  | anonymous       => "[anonymous]"
+  | str anonymous s => maybeEscape s
+  | num anonymous v => toString v
+  | str n s         => toStringWithSep n ++ sep ++ maybeEscape s
+  | num n v         => toStringWithSep n ++ sep ++ Nat.repr v
 where
   maybeEscape s := if escape then escapePart s |>.getD s else s
 
@@ -131,7 +131,7 @@ protected def toString (n : Name) (escape := true) : String :=
   toStringWithSep "." (escape && !n.isInaccessibleUserName && !n.hasMacroScopes && !maybePseudoSyntax) n
 where
   maybePseudoSyntax :=
-    if let Name.str _ s _ := n.getRoot then
+    if let .str _ s := n.getRoot then
       -- could be pseudo-syntax for loose bvar or universe mvar, output as is
       "#".isPrefixOf s || "?".isPrefixOf s
     else
@@ -148,8 +148,8 @@ private def hasNum : Name → Bool
 protected def reprPrec (n : Name) (prec : Nat) : Std.Format :=
   match n with
   | anonymous => Std.Format.text "Lean.Name.anonymous"
-  | num p i _ => Repr.addAppParen ("Lean.Name.mkNum " ++ Name.reprPrec p max_prec ++ " " ++ repr i) prec
-  | str p s _ =>
+  | num p i => Repr.addAppParen ("Lean.Name.mkNum " ++ Name.reprPrec p max_prec ++ " " ++ repr i) prec
+  | str p s =>
     if p.hasNum then
       Repr.addAppParen ("Lean.Name.mkStr " ++ Name.reprPrec p max_prec ++ " " ++ repr s) prec
     else
@@ -161,23 +161,23 @@ instance : Repr Name where
 deriving instance Repr for Syntax
 
 def capitalize : Name → Name
-  | Name.str p s _ => Name.mkStr p s.capitalize
-  | n              => n
+  | .str p s => .str p s.capitalize
+  | n        => n
 
 def replacePrefix : Name → Name → Name → Name
-  | anonymous,     anonymous, newP => newP
-  | anonymous,     _,         _    => anonymous
-  | n@(str p s _), queryP,    newP => if n == queryP then newP else Name.mkStr (p.replacePrefix queryP newP) s
-  | n@(num p s _), queryP,    newP => if n == queryP then newP else Name.mkNum (p.replacePrefix queryP newP) s
+  | anonymous,   anonymous, newP => newP
+  | anonymous,   _,         _    => anonymous
+  | n@(str p s), queryP,    newP => if n == queryP then newP else Name.mkStr (p.replacePrefix queryP newP) s
+  | n@(num p s), queryP,    newP => if n == queryP then newP else Name.mkNum (p.replacePrefix queryP newP) s
 
 /--
   `eraseSuffix? n s` return `n'` if `n` is of the form `n == n' ++ s`.
 -/
 def eraseSuffix? : Name → Name → Option Name
-  | n,         anonymous   => some n
-  | str p s _, str p' s' _ => if s == s' then eraseSuffix? p p' else none
-  | num p s _, num p' s' _ => if s == s' then eraseSuffix? p p' else none
-  | _,         _           => none
+  | n,       anonymous => some n
+  | str p s, str p' s' => if s == s' then eraseSuffix? p p' else none
+  | num p s, num p' s' => if s == s' then eraseSuffix? p p' else none
+  | _,       _         => none
 
 /-- Remove macros scopes, apply `f`, and put them back -/
 @[inline] def modifyBase (n : Name) (f : Name → Name) : Name :=
@@ -190,21 +190,32 @@ def eraseSuffix? : Name → Name → Option Name
 @[export lean_name_append_after]
 def appendAfter (n : Name) (suffix : String) : Name :=
   n.modifyBase fun
-    | str p s _ => Name.mkStr p (s ++ suffix)
-    | n         => Name.mkStr n suffix
+    | str p s => Name.mkStr p (s ++ suffix)
+    | n       => Name.mkStr n suffix
 
 @[export lean_name_append_index_after]
 def appendIndexAfter (n : Name) (idx : Nat) : Name :=
   n.modifyBase fun
-    | str p s _ => Name.mkStr p (s ++ "_" ++ toString idx)
-    | n         => Name.mkStr n ("_" ++ toString idx)
+    | str p s => Name.mkStr p (s ++ "_" ++ toString idx)
+    | n       => Name.mkStr n ("_" ++ toString idx)
 
 @[export lean_name_append_before]
 def appendBefore (n : Name) (pre : String) : Name :=
   n.modifyBase fun
     | anonymous => Name.mkStr anonymous pre
-    | str p s _ => Name.mkStr p (pre ++ s)
-    | num p n _ => Name.mkNum (Name.mkStr p pre) n
+    | str p s => Name.mkStr p (pre ++ s)
+    | num p n => Name.mkNum (Name.mkStr p pre) n
+
+protected theorem beq_iff_eq {m n : Name} : m == n ↔ m = n := by
+  show m.beq n ↔ _
+  induction m generalizing n <;> cases n <;> simp_all [Name.beq, And.comm]
+
+instance : LawfulBEq Name where
+  eq_of_beq := Name.beq_iff_eq.1
+  rfl := Name.beq_iff_eq.2 rfl
+
+instance : DecidableEq Name :=
+  fun a b => if h : a == b then .isTrue (by simp_all) else .isFalse (by simp_all)
 
 end Name
 
@@ -255,18 +266,19 @@ abbrev Ident := TSyntax identKind
 abbrev StrLit := TSyntax strLitKind
 abbrev CharLit := TSyntax charLitKind
 abbrev NameLit := TSyntax nameLitKind
+abbrev ScientificLit := TSyntax scientificLitKind
 abbrev NumLit := TSyntax numLitKind
 
 end Syntax
 
-export Syntax (Term Command Prec Prio Ident StrLit CharLit NameLit NumLit)
+export Syntax (Term Command Prec Prio Ident StrLit CharLit NameLit ScientificLit NumLit)
 
 namespace TSyntax
 
 instance : Coe (TSyntax [k]) (TSyntax (k :: ks)) where
   coe stx := ⟨stx⟩
 
-instance [Coe (TSyntax [k]) (TSyntax ks)] : Coe (TSyntax [k]) (TSyntax (k' :: ks)) where
+instance : Coe (TSyntax ks) (TSyntax (k' :: ks)) where
   coe stx := ⟨stx⟩
 
 instance : Coe Ident Term where
@@ -281,10 +293,19 @@ instance : Coe StrLit Term where
 instance : Coe NameLit Term where
   coe s := ⟨s.raw⟩
 
+instance : Coe ScientificLit Term where
+  coe s := ⟨s.raw⟩
+
 instance : Coe NumLit Term where
   coe s := ⟨s.raw⟩
 
 instance : Coe CharLit Term where
+  coe s := ⟨s.raw⟩
+
+instance : Coe Ident Syntax.Level where
+  coe s := ⟨s.raw⟩
+
+instance : Coe NumLit Prio where
   coe s := ⟨s.raw⟩
 
 instance : Coe NumLit Prec where
@@ -348,7 +369,7 @@ def getSubstring? (stx : Syntax) (withLeading := true) (withTrailing := true) : 
     none
   else
     let i := i - 1
-    let v := a[i]
+    let v := a[i]!
     match f v with
     | some v => some <| a.set! i v
     | none   => updateLast a f i
@@ -374,7 +395,7 @@ def unsetTrailing (stx : Syntax) : Syntax :=
 
 @[specialize] private partial def updateFirst {α} [Inhabited α] (a : Array α) (f : α → Option α) (i : Nat) : Option (Array α) :=
   if h : i < a.size then
-    let v := a.get ⟨i, h⟩;
+    let v := a[i]
     match f v with
     | some v => some <| a.set ⟨i, h⟩ v
     | none   => updateFirst a f (i+1)
@@ -427,22 +448,50 @@ end Syntax
 @[inline] def mkNode (k : SyntaxNodeKind) (args : Array Syntax) : TSyntax k :=
   ⟨Syntax.node SourceInfo.none k args⟩
 
-/- Syntax objects for a Lean module. -/
+/-- Syntax objects for a Lean module. -/
 structure Module where
   header   : Syntax
   commands : Array Syntax
 
-/-- Expand all macros in the given syntax -/
-partial def expandMacros : Syntax → MacroM Syntax
-  | stx@(Syntax.node info k args) => do
-    match (← expandMacro? stx) with
-    | some stxNew => expandMacros stxNew
-    | none        => do
-      let args ← Macro.withIncRecDepth stx <| args.mapM expandMacros
-      pure <| Syntax.node info k args
-  | stx => pure stx
+/--
+  Expand macros in the given syntax.
+  A node with kind `k` is visited only if `p k` is true.
 
-/- Helper functions for processing Syntax programmatically -/
+  Note that the default value for `p` returns false for `by ...` nodes.
+  This is a "hack". The tactic framework abuses the macro system to implement extensible tactics.
+  For example, one can define
+  ```lean
+  syntax "my_trivial" : tactic -- extensible tactic
+
+  macro_rules | `(tactic| my_trivial) => `(tactic| decide)
+  macro_rules | `(tactic| my_trivial) => `(tactic| assumption)
+  ```
+  When the tactic evaluator finds the tactic `my_trivial`, it tries to evaluate the `macro_rule` expansions
+  until one "works", i.e., the macro expansion is evaluated without producing an exception.
+  We say this solution is a bit hackish because the term elaborator may invoke `expandMacros` with `(p := fun _ => true)`,
+  and expand the tactic macros as just macros. In the example above, `my_trivial` would be replaced with `assumption`,
+  `decide` would not be tried if `assumption` fails at tactic evaluation time.
+
+  We are considering two possible solutions for this issue:
+  1- A proper extensible tactic feature that does not rely on the macro system.
+
+  2- Typed macros that know the syntax categories they're working in. Then, we would be able to select which
+     syntatic categories are expanded by `expandMacros`.
+-/
+partial def expandMacros (stx : Syntax) (p : SyntaxNodeKind → Bool := fun k => k != `Lean.Parser.Term.byTactic) : MacroM Syntax :=
+  match stx with
+  | .node info k args => do
+    if p k then
+      match (← expandMacro? stx) with
+      | some stxNew => expandMacros stxNew
+      | none        => do
+        let args ← Macro.withIncRecDepth stx <| args.mapM expandMacros
+        return .node info k args
+    else
+      return stx
+  | stx => return stx
+
+/-! # Helper functions for processing Syntax programmatically -/
 
 /--
   Create an identifier copying the position from `src`.
@@ -539,7 +588,7 @@ def mkScientificLit (val : String) (info := SourceInfo.none) : TSyntax scientifi
 def mkNameLit (val : String) (info := SourceInfo.none) : NameLit :=
   mkLit nameLitKind val info
 
-/- Recall that we don't have special Syntax constructors for storing numeric and string atoms.
+/-! Recall that we don't have special Syntax constructors for storing numeric and string atoms.
    The idea is to have an extensible approach where embedded DSLs may have new kind of atoms and/or
    different ways of representing them. So, our atoms contain just the parsed string.
    The main Lean parser uses the kind `numLitKind` for storing natural numbers that can be encoded
@@ -838,14 +887,23 @@ end Syntax
 
 namespace TSyntax
 
-def getNat (s : TSyntax numLitKind) : Nat :=
+def getNat (s : NumLit) : Nat :=
   s.raw.isNatLit?.get!
 
 def getId (s : Ident) : Name :=
   s.raw.getId
 
-def getString (s : TSyntax strLitKind) : String :=
+def getScientific (s : ScientificLit) : Nat × Bool × Nat :=
+  s.raw.isScientificLit?.get!
+
+def getString (s : StrLit) : String :=
   s.raw.isStrLit?.get!
+
+def getChar (s : CharLit) : Char :=
+  s.raw.isCharLit?.get!
+
+def getName (s : NameLit) : Name :=
+  s.raw.isNameLit?.get!
 
 namespace Compat
 
@@ -862,7 +920,7 @@ class Quote (α : Type) (k : SyntaxNodeKind := `term) where
 
 export Quote (quote)
 
-instance [Quote α k] [CoeHTCT (TSyntax k) (TSyntax [k'])]: Quote α k' := ⟨fun a => quote (k := k) a⟩
+instance [Quote α k] [CoeHTCT (TSyntax k) (TSyntax [k'])] : Quote α k' := ⟨fun a => quote (k := k) a⟩
 
 instance : Quote Term := ⟨id⟩
 instance : Quote Bool := ⟨fun | true => mkCIdent `Bool.true | false => mkCIdent `Bool.false⟩
@@ -873,15 +931,15 @@ instance : Quote Substring := ⟨fun s => Syntax.mkCApp `String.toSubstring #[qu
 -- in contrast to `Name.toString`, we can, and want to be, precise here
 private def getEscapedNameParts? (acc : List String) : Name → Option (List String)
   | Name.anonymous => if acc.isEmpty then none else some acc
-  | Name.str n s _ => do
+  | Name.str n s => do
     let s ← Name.escapePart s
     getEscapedNameParts? (s::acc) n
-  | Name.num _ _ _ => none
+  | Name.num _ _ => none
 
 def quoteNameMk : Name → Term
   | Name.anonymous => mkCIdent ``Name.anonymous
-  | Name.str n s _ => Syntax.mkCApp ``Name.mkStr #[quoteNameMk n, quote s]
-  | Name.num n i _ => Syntax.mkCApp ``Name.mkNum #[quoteNameMk n, quote i]
+  | Name.str n s => Syntax.mkCApp ``Name.mkStr #[quoteNameMk n, quote s]
+  | Name.num n i => Syntax.mkCApp ``Name.mkNum #[quoteNameMk n, quote i]
 
 instance : Quote Name `term where
   quote n := match getEscapedNameParts? [] n with
@@ -908,7 +966,7 @@ instance Option.hasQuote {α : Type} [Quote α `term] : Quote (Option α) `term 
     | (some x) => Syntax.mkCApp ``some #[quote x]
 
 
-/- Evaluator for `prec` DSL -/
+/-- Evaluator for `prec` DSL -/
 def evalPrec (stx : Syntax) : MacroM Nat :=
   Macro.withIncRecDepth stx do
     let stx ← expandMacros stx
@@ -924,7 +982,7 @@ macro_rules
 
 macro "eval_prec " p:prec:max : term => return quote (k := `term) (← evalPrec p)
 
-/- Evaluator for `prio` DSL -/
+/-- Evaluator for `prio` DSL -/
 def evalPrio (stx : Syntax) : MacroM Nat :=
   Macro.withIncRecDepth stx do
     let stx ← expandMacros stx
@@ -954,13 +1012,14 @@ open Lean
 
 private partial def filterSepElemsMAux {m : Type → Type} [Monad m] (a : Array Syntax) (p : Syntax → m Bool) (i : Nat) (acc : Array Syntax) : m (Array Syntax) := do
   if h : i < a.size then
-    let stx := a.get ⟨i, h⟩
+    let stx := a[i]
     if (← p stx) then
       if acc.isEmpty then
         filterSepElemsMAux a p (i+2) (acc.push stx)
       else if hz : i ≠ 0 then
         have : i.pred < i := Nat.pred_lt hz
-        let sepStx := a.get ⟨i.pred, Nat.lt_trans this h⟩
+        have : i.pred < a.size := Nat.lt_trans this h
+        let sepStx := a[i.pred]
         filterSepElemsMAux a p (i+2) ((acc.push sepStx).push stx)
       else
         filterSepElemsMAux a p (i+2) (acc.push stx)
@@ -977,7 +1036,7 @@ def filterSepElems (a : Array Syntax) (p : Syntax → Bool) : Array Syntax :=
 
 private partial def mapSepElemsMAux {m : Type → Type} [Monad m] (a : Array Syntax) (f : Syntax → m Syntax) (i : Nat) (acc : Array Syntax) : m (Array Syntax) := do
   if h : i < a.size then
-    let stx := a.get ⟨i, h⟩
+    let stx := a[i]
     if i % 2 == 0 then do
       let stx ← f stx
       mapSepElemsMAux a f (i+1) (acc.push stx)
@@ -1002,6 +1061,18 @@ def SepArray.getElems (sa : SepArray sep) : Array Syntax :=
 def TSepArray.getElems (sa : TSepArray k sep) : TSyntaxArray k :=
   .mk sa.elemsAndSeps.getSepElems
 
+def TSepArray.push (sa : TSepArray k sep) (e : TSyntax k) : TSepArray k sep :=
+  if sa.elemsAndSeps.isEmpty then
+    { elemsAndSeps := #[e] }
+  else
+    { elemsAndSeps := sa.elemsAndSeps.push (mkAtom sep) |>.push e }
+
+instance : EmptyCollection (SepArray sep) where
+  emptyCollection := ⟨∅⟩
+
+instance : EmptyCollection (TSepArray sep k) where
+  emptyCollection := ⟨∅⟩
+
 /-
 We use `CoeTail` here instead of `Coe` to avoid a "loop" when computing `CoeTC`.
 The "loop" is interrupted using the maximum instance size threshold, but it is a performance bottleneck.
@@ -1014,7 +1085,7 @@ instance : Coe (TSepArray k sep) (TSyntaxArray k) where
   coe := TSepArray.getElems
 
 instance [Coe (TSyntax k) (TSyntax k')] : Coe (TSyntaxArray k) (TSyntaxArray k') where
-  coe a := .mk a.raw
+  coe a := a.map Coe.coe
 
 instance : Coe (TSyntaxArray k) (Array Syntax) where
   coe a := a.raw
@@ -1035,7 +1106,8 @@ set_option linter.unusedVariables.funArgs false in
   For example, the tactic will *not* be invoked during type class resolution. -/
 abbrev autoParam.{u} (α : Sort u) (tactic : Lean.Syntax) : Sort u := α
 
-/- Helper functions for manipulating interpolated strings -/
+/-! # Helper functions for manipulating interpolated strings -/
+
 namespace Lean.Syntax
 
 private def decodeInterpStrQuotedChar (s : String) (i : String.Pos) : Option (Char × String.Pos) := do
@@ -1144,6 +1216,11 @@ structure Config where
   decide            : Bool := true
   arith             : Bool := false
   autoUnfold        : Bool := false
+  /--
+    If `dsimp := true`, then switches to `dsimp` on dependent arguments where there is no congruence theorem that allows
+    `simp` to visit them. If `dsimp := false`, then argument is not visited.
+  -/
+  dsimp             : Bool := true
   deriving Inhabited, BEq, Repr
 
 -- Configuration object for `simp_all`
@@ -1176,7 +1253,7 @@ end Meta
 namespace Parser.Tactic
 
 macro "erw " s:rwRuleSeq loc:(location)? : tactic =>
-  `(rw (config := { transparency := Lean.Meta.TransparencyMode.default }) $s:rwRuleSeq $[$loc:location]?)
+  `(rw (config := { transparency := Lean.Meta.TransparencyMode.default }) $s $(loc)?)
 
 syntax simpAllKind := atomic("(" &"all") " := " &"true" ")"
 syntax dsimpKind   := atomic("(" &"dsimp") " := " &"true" ")"
@@ -1184,18 +1261,18 @@ syntax dsimpKind   := atomic("(" &"dsimp") " := " &"true" ")"
 macro "declare_simp_like_tactic" opt:((simpAllKind <|> dsimpKind)?) tacName:ident tacToken:str updateCfg:term : command => do
   let (kind, tkn, stx) ←
     if opt.raw.isNone then
-      pure (← `(``simp), ← `("simp "), ← `(syntax (name := $tacName:ident) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic))
+      pure (← `(``simp), ← `("simp "), ← `(syntax (name := $tacName) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic))
     else if opt.raw[0].getKind == ``simpAllKind then
-      pure (← `(``simpAll), ← `("simp_all "), ← `(syntax (name := $tacName:ident) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic))
+      pure (← `(``simpAll), ← `("simp_all "), ← `(syntax (name := $tacName) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic))
     else
-      pure (← `(``dsimp), ← `("dsimp "), ← `(syntax (name := $tacName:ident) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? (location)? : tactic))
+      pure (← `(``dsimp), ← `("dsimp "), ← `(syntax (name := $tacName) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? (location)? : tactic))
   `($stx:command
-    @[macro $tacName:ident] def expandSimp : Macro := fun s => do
+    @[macro $tacName] def expandSimp : Macro := fun s => do
       let c ← match s[1][0] with
-        | `(config| (config := $$c:term)) => `(config| (config := $updateCfg:term $$c))
-        | _ => `(config| (config := $updateCfg:term {}))
-      let s := s.setKind $kind:term
-      let s := s.setArg 0 (mkAtomFrom s[0] $tkn:term)
+        | `(config| (config := $$c)) => `(config| (config := $updateCfg $$c))
+        | _ => `(config| (config := $updateCfg {}))
+      let s := s.setKind $kind
+      let s := s.setArg 0 (mkAtomFrom s[0] $tkn)
       let r := s.setArg 1 (mkNullNode #[c])
       return r)
 

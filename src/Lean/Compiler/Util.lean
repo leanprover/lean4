@@ -5,7 +5,9 @@ Authors: Leonardo de Moura
 -/
 import Lean.Environment
 
-namespace Lean.Compiler
+namespace Lean
+
+namespace Compiler
 
 def neutralExpr : Expr       := mkConst `_neutral
 def unreachableExpr : Expr   := mkConst `_unreachable
@@ -37,13 +39,13 @@ instance : AndThen Visitor where
   | {found := true,  result := true} => {found := true, result := x != y}
 
 def visit (x : FVarId) : Expr → Visitor
-  | Expr.fvar y _        => visitFVar y x
-  | Expr.app f a _       => visit x a >> visit x f
+  | Expr.fvar y          => visitFVar y x
+  | Expr.app f a         => visit x a >> visit x f
   | Expr.lam _ d b _     => visit x d >> visit x b
   | Expr.forallE _ d b _ => visit x d >> visit x b
   | Expr.letE _ t v b _  => visit x t >> visit x v >> visit x b
-  | Expr.mdata _ e _     => visit x e
-  | Expr.proj _ _ e _    => visit x e
+  | Expr.mdata _ e       => visit x e
+  | Expr.proj _ _ e      => visit x e
   | _                    => skip
 
 end atMostOnce
@@ -55,7 +57,7 @@ def atMostOnce (e : Expr) (x : FVarId) : Bool :=
   let {result := result, ..} := visit x e {found := false, result := true}
   result
 
-/- Helper functions for creating auxiliary names used in compiler passes. -/
+/-! Helper functions for creating auxiliary names used in compiler passes. -/
 
 @[export lean_mk_eager_lambda_lifting_name]
 def mkEagerLambdaLiftingName (n : Name) (idx : Nat) : Name :=
@@ -63,15 +65,14 @@ def mkEagerLambdaLiftingName (n : Name) (idx : Nat) : Name :=
 
 @[export lean_is_eager_lambda_lifting_name]
 def isEagerLambdaLiftingName : Name → Bool
-  | Name.str p s _ => "_elambda".isPrefixOf s || isEagerLambdaLiftingName p
-  | Name.num p _ _ => isEagerLambdaLiftingName p
-  | _              => false
+  | .str p s => "_elambda".isPrefixOf s || isEagerLambdaLiftingName p
+  | .num p _ => isEagerLambdaLiftingName p
+  | _        => false
 
 /-- Return the name of new definitions in the a given declaration.
     Here we consider only declarations we generate code for.
     We use this definition to implement `add_and_compile`. -/
-@[export lean_get_decl_names_for_code_gen]
-private def getDeclNamesForCodeGen : Declaration → List Name
+def getDeclNamesForCodeGen : Declaration → List Name
   | Declaration.defnDecl { name := n, .. }   => [n]
   | Declaration.mutualDefnDecl defs          => defs.map fun d => d.name
   | Declaration.opaqueDecl { name := n, .. } => [n]
@@ -96,7 +97,27 @@ def mkUnsafeRecName (declName : Name) : Name :=
 /-- Return `some _` if the given name was created using `mkUnsafeRecName` -/
 @[export lean_is_unsafe_rec_name]
 def isUnsafeRecName? : Name → Option Name
-  | Name.str n "_unsafe_rec" _ => some n
+  | .str n "_unsafe_rec" => some n
   | _ => none
 
-end Lean.Compiler
+end Compiler
+
+namespace Environment
+
+/--
+Compile the given block of mutual declarations.
+Assumes the declarations have already been added to the environment using `addDecl`.
+-/
+@[extern "lean_compile_decls"]
+opaque compileDecls (env : Environment) (opt : @& Options) (decls : @& List Name) : Except KernelException Environment
+
+/-- Compile the given declaration, it assumes the declaration has already been added to the environment using `addDecl`. -/
+def compileDecl (env : Environment) (opt : @& Options) (decl : @& Declaration) : Except KernelException Environment :=
+  compileDecls env opt (Compiler.getDeclNamesForCodeGen decl)
+
+
+def addAndCompile (env : Environment) (opt : Options) (decl : Declaration) : Except KernelException Environment := do
+  let env ← addDecl env decl
+  compileDecl env opt decl
+
+end Environment

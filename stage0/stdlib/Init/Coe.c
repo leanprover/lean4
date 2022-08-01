@@ -22,9 +22,9 @@ LEAN_EXPORT lean_object* l_coeSortToCoeTail(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_coeOfDep(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instCoeTail___rarg(lean_object*, lean_object*);
 static lean_object* l_coeNotation___closed__9;
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_coeSortToCoeTail___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_coeOfTCOfTail(lean_object*, lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_coeOfHTCT___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_coeOfTC___rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_decPropToBool___rarg(uint8_t);
@@ -73,6 +73,8 @@ LEAN_EXPORT lean_object* l_coeId___rarg___boxed(lean_object*);
 static lean_object* l_coeNotation___closed__1;
 static lean_object* l_coeNotation___closed__10;
 LEAN_EXPORT lean_object* l_instCoeTail(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_coeOfHeadOfTail___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_coeOfHeadOfTail(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_decPropToBool(lean_object*);
 LEAN_EXPORT lean_object* l_coeOfHeafOfTCOfTail(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_coeNotation___closed__1() {
@@ -89,7 +91,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_coeNotation___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -107,7 +109,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_coeNotation___closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -143,7 +145,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_coeNotation___closed__7;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -277,6 +279,23 @@ _start:
 {
 lean_object* x_4; 
 x_4 = lean_alloc_closure((void*)(l_coeOfTCOfTail___rarg), 3, 0);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_coeOfHeadOfTail___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_apply_1(x_1, x_3);
+x_5 = lean_apply_1(x_2, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_coeOfHeadOfTail(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_coeOfHeadOfTail___rarg), 3, 0);
 return x_4;
 }
 }

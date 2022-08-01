@@ -32,7 +32,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_get___boxed(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_insert___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_AssocList_foldlM___at_Lean_Meta_FVarSubst_domain___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_FVarSubst_contains(lean_object*, lean_object*);
-lean_object* l_Lean_mkFVar(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_map___default;
 uint8_t l_Std_AssocList_any___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_contains___boxed(lean_object*, lean_object*);
@@ -40,6 +39,7 @@ lean_object* l_Lean_Expr_replaceFVarId(lean_object*, lean_object*, lean_object*)
 LEAN_EXPORT lean_object* l_Std_AssocList_erase___at_Lean_Meta_FVarSubst_erase___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_get(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_fvar___override(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_insert___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instInhabitedFVarSubst;
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_empty;
@@ -351,7 +351,7 @@ x_3 = l_Std_AssocList_find_x3f___at_Lean_Meta_FVarSubst_find_x3f___spec__1(x_2, 
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; 
-x_4 = l_Lean_mkFVar(x_2);
+x_4 = l_Lean_Expr_fvar___override(x_2);
 return x_4;
 }
 else

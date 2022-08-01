@@ -1,0 +1,2 @@
+linterSuspiciousUnexpanderPatterns.lean:6:6-6:14: warning: Unexpanders should match the function name against an antiquotation `$_` so as to be independent of the specific pretty printing of the name. [linter.suspiciousUnexpanderPatterns]
+linterSuspiciousUnexpanderPatterns.lean:11:6-11:15: warning: Unexpanders should match the function name against an antiquotation `$_` so as to be independent of the specific pretty printing of the name. [linter.suspiciousUnexpanderPatterns]

@@ -11,14 +11,14 @@ open Lean.Syntax
 open Lean.Parser.Term hiding macroArg
 open Lean.Parser.Command
 
-/-
+/--
   Remark: `k` is the user provided kind with the current namespace included.
   Recall that syntax node kinds contain the current namespace.
 -/
 def elabMacroRulesAux (doc? : Option (TSyntax ``docComment)) (attrKind : TSyntax ``attrKind) (tk : Syntax) (k : SyntaxNodeKind) (alts : Array (TSyntax ``matchAlt)) : CommandElabM Syntax := do
   let alts ← alts.mapM fun (alt : TSyntax ``matchAlt) => match alt with
     | `(matchAltExpr| | $pats,* => $rhs) => do
-      let pat := pats.elemsAndSeps[0]
+      let pat := pats.elemsAndSeps[0]!
       if !pat.isQuot then
         throwUnsupportedSyntax
       let quoted := getQuotContent pat
@@ -35,9 +35,9 @@ def elabMacroRulesAux (doc? : Option (TSyntax ``docComment)) (attrKind : TSyntax
       else
         throwErrorAt alt "invalid macro_rules alternative, unexpected syntax node kind '{k'}'"
     | _ => throwUnsupportedSyntax
-  `($[$doc?:docComment]? @[$attrKind:attrKind macro $(Lean.mkIdent k)]
+  `($[$doc?:docComment]? @[$attrKind macro $(Lean.mkIdent k)]
     aux_def macroRules $(mkIdentFrom tk k) : Macro :=
-     fun $alts:matchAlt* | _ => throw Lean.Macro.Exception.unsupportedSyntax)
+     fun $alts:matchAlt* | _ => no_error_if_unused% throw Lean.Macro.Exception.unsupportedSyntax)
 
 @[builtinCommandElab «macro_rules»] def elabMacroRules : CommandElab :=
   adaptExpander fun stx => match stx with

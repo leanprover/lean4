@@ -54,8 +54,8 @@ def resetTraceState {m} [MonadTrace m] : m Unit :=
   modifyTraceState (fun _ => {})
 
 private def checkTraceOptionAux (opts : Options) : Name → Bool
-  | n@(Name.str p _ _) => opts.getBool n || (!opts.contains n && checkTraceOptionAux opts p)
-  | _                  => false
+  | n@(.str p _) => opts.getBool n || (!opts.contains n && checkTraceOptionAux opts p)
+  | _            => false
 
 def checkTraceOption (opts : Options) (cls : Name) : Bool :=
   if opts.isEmpty then false
@@ -157,7 +157,7 @@ private def withNestedTracesFinalizer [Monad m] [MonadTrace m] (ref : Syntax) (c
   modifyTraces fun traces =>
     if traces.size == 0 then
       currTraces
-    else if traces.size == 1 && traces[0].msg.isNest then
+    else if traces.size == 1 && traces[0]!.msg.isNest then
       currTraces ++ traces -- No nest of nest
     else
       let d := traces.foldl (init := MessageData.nil) fun d elem =>

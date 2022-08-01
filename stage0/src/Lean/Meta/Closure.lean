@@ -10,7 +10,7 @@ import Lean.Util.FoldConsts
 import Lean.Meta.Basic
 import Lean.Meta.Check
 
-/-
+/-!
 
 This module provides functions for "closing" open terms and
 creating auxiliary definitions. Here, we say a term is "open" if
@@ -152,12 +152,12 @@ def mkNewLevelParam (u : Level) : ClosureM Level := do
   pure $ mkLevelParam p
 
 partial def collectLevelAux : Level → ClosureM Level
-  | u@(Level.succ v _)   => return u.updateSucc! (← visitLevel collectLevelAux v)
-  | u@(Level.max v w _)  => return u.updateMax! (← visitLevel collectLevelAux v) (← visitLevel collectLevelAux w)
-  | u@(Level.imax v w _) => return u.updateIMax! (← visitLevel collectLevelAux v) (← visitLevel collectLevelAux w)
+  | u@(Level.succ v)   => return u.updateSucc! (← visitLevel collectLevelAux v)
+  | u@(Level.max v w)  => return u.updateMax! (← visitLevel collectLevelAux v) (← visitLevel collectLevelAux w)
+  | u@(Level.imax v w) => return u.updateIMax! (← visitLevel collectLevelAux v) (← visitLevel collectLevelAux w)
   | u@(Level.mvar ..)    => mkNewLevelParam u
   | u@(Level.param ..)   => mkNewLevelParam u
-  | u@(Level.zero _)     => pure u
+  | u@(Level.zero)     => pure u
 
 def collectLevel (u : Level) : ClosureM Level := do
   -- u ← instantiateLevelMVars u
@@ -188,16 +188,16 @@ def pushToProcess (elem : ToProcessElement) : ClosureM Unit :=
 partial def collectExprAux (e : Expr) : ClosureM Expr := do
   let collect (e : Expr) := visitExpr collectExprAux e
   match e with
-  | Expr.proj _ _ s _    => return e.updateProj! (← collect s)
+  | Expr.proj _ _ s      => return e.updateProj! (← collect s)
   | Expr.forallE _ d b _ => return e.updateForallE! (← collect d) (← collect b)
   | Expr.lam _ d b _     => return e.updateLambdaE! (← collect d) (← collect b)
   | Expr.letE _ t v b _  => return e.updateLet! (← collect t) (← collect v) (← collect b)
-  | Expr.app f a _       => return e.updateApp! (← collect f) (← collect a)
-  | Expr.mdata _ b _     => return e.updateMData! (← collect b)
-  | Expr.sort u _        => return e.updateSort! (← collectLevel u)
-  | Expr.const _ us _    => return e.updateConst! (← us.mapM collectLevel)
-  | Expr.mvar mvarId _   =>
-    let mvarDecl ← getMVarDecl mvarId
+  | Expr.app f a         => return e.updateApp! (← collect f) (← collect a)
+  | Expr.mdata _ b       => return e.updateMData! (← collect b)
+  | Expr.sort u          => return e.updateSort! (← collectLevel u)
+  | Expr.const _ us      => return e.updateConst! (← us.mapM collectLevel)
+  | Expr.mvar mvarId     =>
+    let mvarDecl ← mvarId.getDecl
     let type ← preprocess mvarDecl.type
     let type ← collect type
     let newFVarId ← mkFreshFVarId
@@ -207,8 +207,8 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
       exprMVarArgs          := s.exprMVarArgs.push e
     }
     return mkFVar newFVarId
-  | Expr.fvar fvarId _ =>
-    match (← read).zeta, (← getLocalDecl fvarId).value? with
+  | Expr.fvar fvarId =>
+    match (← read).zeta, (← fvarId.getValue?) with
     | true, some value => collect (← preprocess value)
     | _,    _          =>
       let newFVarId ← mkFreshFVarId
@@ -254,13 +254,12 @@ partial def process : ClosureM Unit := do
   match (← pickNextToProcess?) with
   | none => pure ()
   | some ⟨fvarId, newFVarId⟩ =>
-    let localDecl ← getLocalDecl fvarId
-    match localDecl with
-    | LocalDecl.cdecl _ _ userName type bi =>
+    match (← fvarId.getDecl) with
+    | .cdecl _ _ userName type bi =>
       pushLocalDecl newFVarId userName type bi
       pushFVarArg (mkFVar fvarId)
       process
-    | LocalDecl.ldecl _ _ userName type val _ =>
+    | .ldecl _ _ userName type val _ =>
       let zetaFVarIds ← getZetaFVarIds
       if !zetaFVarIds.contains fvarId then
         /- Non-dependent let-decl
@@ -287,7 +286,7 @@ partial def process : ClosureM Unit := do
   let xs := decls.map LocalDecl.toExpr
   let b  := b.abstract xs
   decls.size.foldRev (init := b) fun i b =>
-    let decl := decls[i]
+    let decl := decls[i]!
     match decl with
     | LocalDecl.cdecl _ _ n ty bi  =>
       let ty := ty.abstractRange i xs

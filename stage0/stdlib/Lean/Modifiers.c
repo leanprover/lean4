@@ -15,7 +15,7 @@ extern "C" {
 #endif
 LEAN_EXPORT uint8_t lean_is_protected(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_private_prefix(lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_privateHeader;
 static lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_4____closed__1;
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -27,6 +27,7 @@ LEAN_EXPORT lean_object* l_Lean_isPrivateName___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_isPrivateName(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_4____closed__2;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_4_(lean_object*);
+lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_add_protected(lean_object*, lean_object*);
 static lean_object* l_Lean_addProtected___closed__1;
 LEAN_EXPORT lean_object* l_Lean_protectedExt;
@@ -35,7 +36,6 @@ lean_object* lean_environment_main_module(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkPrivateName(lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Modifiers_0__Lean_privatePrefixAux(lean_object*);
-lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 lean_object* l_Lean_mkTagDeclarationExtension(lean_object*, lean_object*);
 uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isProtected___boxed(lean_object*, lean_object*);
@@ -58,7 +58,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_initFn____x40_Lean_Modifiers___hyg_4____closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -120,7 +120,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_privateHeader___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -140,7 +140,7 @@ x_3 = lean_environment_main_module(x_1);
 x_4 = l_Lean_privateHeader;
 x_5 = l_Lean_Name_append(x_4, x_3);
 x_6 = lean_unsigned_to_nat(0u);
-x_7 = lean_name_mk_numeral(x_5, x_6);
+x_7 = l_Lean_Name_num___override(x_5, x_6);
 x_8 = l_Lean_Name_append(x_7, x_2);
 lean_dec(x_7);
 return x_8;
@@ -224,7 +224,7 @@ x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
 lean_dec(x_1);
 x_4 = l___private_Lean_Modifiers_0__Lean_privateToUserNameAux(x_2);
-x_5 = lean_name_mk_string(x_4, x_3);
+x_5 = l_Lean_Name_str___override(x_4, x_3);
 return x_5;
 }
 else

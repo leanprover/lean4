@@ -8,9 +8,13 @@ import Lean.Elab.Tactic.ElabTerm
 
 namespace Lean.Elab.Tactic
 
+/-- Denotes a set of locations where a tactic should be applied for the main goal. See also `withLocation`. -/
 inductive Location where
-  | wildcard
-  | targets (hypotheses : Array Syntax) (type : Bool)
+  | /-- Apply the tactic everywhere. -/
+    wildcard
+  | /-- `hypotheses` are hypothesis names in the main goal that the tactic should be applied to.
+        If `type` is true, then the tactic should also be applied to the target type. -/
+    targets (hypotheses : Array Syntax) (type : Bool)
 
 /-
 Recall that
@@ -35,6 +39,9 @@ def expandOptLocation (stx : Syntax) : Location :=
 
 open Meta
 
+/-- Runs the given `atLocal` and `atTarget` methods on each of the locations selected by the given `loc`.
+If any of the selected tactic applications fail, it will call `failed` with the main goal mvar.
+ -/
 def withLocation (loc : Location) (atLocal : FVarId → TacticM Unit) (atTarget : TacticM Unit) (failed : MVarId → TacticM Unit) : TacticM Unit := do
   match loc with
   | Location.targets hyps type =>

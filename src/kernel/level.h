@@ -45,7 +45,9 @@ public:
     explicit level(b_obj_arg o, bool b):object_ref(o, b) {}
     level(level const & other):object_ref(other) {}
     level(level && other):object_ref(other) {}
-    level_kind kind() const { return static_cast<level_kind>(lean_ptr_tag(raw())); }
+    level_kind kind() const {
+      return lean_is_scalar(raw()) ? level_kind::Zero : static_cast<level_kind>(lean_ptr_tag(raw()));
+    }
     unsigned hash() const;
 
     level & operator=(level const & other) { object_ref::operator=(other); return *this; }

@@ -19,17 +19,17 @@ open Lean.PrettyPrinter.Parenthesizer
 open Lean.PrettyPrinter.Formatter
 
 builtin_initialize
-  register_parser_alias "ws" checkWsBefore { stackSz? := none }
-  register_parser_alias "noWs" checkNoWsBefore { stackSz? := none }
-  register_parser_alias "linebreak" checkLinebreakBefore { stackSz? := none }
+  register_parser_alias "ws" checkWsBefore { stackSz? := some 0 }
+  register_parser_alias "noWs" checkNoWsBefore { stackSz? := some 0 }
+  register_parser_alias "linebreak" checkLinebreakBefore { stackSz? := some 0 }
   register_parser_alias (kind := numLitKind) "num" numLit
   register_parser_alias (kind := strLitKind) "str" strLit
   register_parser_alias (kind := charLitKind) "char" charLit
   register_parser_alias (kind := nameLitKind) "name" nameLit
   register_parser_alias (kind := scientificLitKind) "scientific" scientificLit
   register_parser_alias (kind := identKind) "ident" ident
-  register_parser_alias "colGt" checkColGt { stackSz? := none }
-  register_parser_alias "colGe" checkColGe { stackSz? := none }
+  register_parser_alias "colGt" checkColGt { stackSz? := some 0 }
+  register_parser_alias "colGe" checkColGe { stackSz? := some 0 }
   register_parser_alias lookahead { stackSz? := some 0 }
   register_parser_alias atomic { stackSz? := none }
   register_parser_alias many

@@ -26,10 +26,10 @@ def expandExplicitBindersAux (combinator : Syntax) (idents : Array Syntax) (type
     match i with
     | 0   => pure acc
     | i+1 =>
-      let ident := idents[i][0]
+      let ident := idents[i]![0]
       let acc ← match ident.isIdent, type? with
         | true,  none      => `($combinator fun $ident => $acc)
-        | true,  some type => `($combinator fun $ident:ident : $type => $acc)
+        | true,  some type => `($combinator fun $ident : $type => $acc)
         | false, none      => `($combinator fun _ => $acc)
         | false, some type => `($combinator fun _ : $type => $acc)
       loop i acc
@@ -40,8 +40,8 @@ def expandBrackedBindersAux (combinator : Syntax) (binders : Array Syntax) (body
     match i with
     | 0   => pure acc
     | i+1 =>
-      let idents := binders[i][1].getArgs
-      let type   := binders[i][3]
+      let idents := binders[i]![1].getArgs
+      let type   := binders[i]![3]
       loop i (← expandExplicitBindersAux combinator idents (some type) acc)
   loop binders.size body
 
@@ -64,15 +64,15 @@ def expandBrackedBinders (combinatorDeclName : Name) (bracketedExplicitBinders :
 syntax unifConstraint := term (" =?= " <|> " ≟ ") term
 syntax unifConstraintElem := colGe unifConstraint ", "?
 
-syntax attrKind "unif_hint " (ident)? bracketedBinder* " where " withPosition(unifConstraintElem*) ("|-" <|> "⊢ ") unifConstraint : command
+syntax (docComment)? attrKind "unif_hint " (ident)? bracketedBinder* " where " withPosition(unifConstraintElem*) ("|-" <|> "⊢ ") unifConstraint : command
 
 macro_rules
-  | `($kind:attrKind unif_hint $(n)? $bs:bracketedBinder* where $[$cs₁:term ≟ $cs₂]* |- $t₁:term ≟ $t₂) => do
+  | `($[$doc?:docComment]? $kind:attrKind unif_hint $(n)? $bs* where $[$cs₁ ≟ $cs₂]* |- $t₁ ≟ $t₂) => do
     let mut body ← `($t₁ = $t₂)
     for (c₁, c₂) in cs₁.zip cs₂ |>.reverse do
       body ← `($c₁ = $c₂ → $body)
     let hint : Ident ← `(hint)
-    `(@[$kind:attrKind unificationHint] def $(n.getD hint):ident $bs:bracketedBinder* : Sort _ := $body)
+    `($[$doc?:docComment]? @[$kind unificationHint] def $(n.getD hint) $bs* : Sort _ := $body)
 end Lean
 
 open Lean
@@ -86,17 +86,55 @@ macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBrackedBi
 
 -- enforce indentation of calc steps so we know when to stop parsing them
 syntax calcStep := ppIndent(colGe term " := " withPosition(term))
-syntax (name := calc) "calc" ppLine withPosition((calcStep ppLine)+) : term
 
-macro "calc " steps:withPosition(calcStep+) : tactic => `(exact calc $steps*)
+/-- Step-wise reasoning over transitive relations.
+```
+calc
+  a = b := pab
+  b = c := pbc
+  ...
+  y = z := pyz
+```
+proves `a = z` from the given step-wise proofs. `=` can be replaced with any
+relation implementing the typeclass `Trans`. Instead of repeating the right-
+hand sides, subsequent left-hand sides can be replaced with `_`.
+
+`calc` has term mode and tactic mode variants. This is the term mode variant.
+
+See [Theorem Proving in Lean 4][tpil4] for more information.
+
+[tpil4]: https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#calculational-proofs
+-/
+syntax (name := calc) "calc" ppLine withPosition(calcStep) ppLine withPosition((calcStep ppLine)*) : term
+
+/-- Step-wise reasoning over transitive relations.
+```
+calc
+  a = b := pab
+  b = c := pbc
+  ...
+  y = z := pyz
+```
+proves `a = z` from the given step-wise proofs. `=` can be replaced with any
+relation implementing the typeclass `Trans`. Instead of repeating the right-
+hand sides, subsequent left-hand sides can be replaced with `_`.
+
+`calc` has term mode and tactic mode variants. This is the tactic mode variant,
+which supports an additional feature: it works even if the goal is `a = z'`
+for some other `z'`; in this case it will not close the goal but will instead
+leave a subgoal proving `z = z'`.
+
+See [Theorem Proving in Lean 4][tpil4] for more information.
+
+[tpil4]: https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#calculational-proofs
+-/
+syntax (name := calcTactic) "calc" ppLine withPosition(calcStep) ppLine withPosition((calcStep ppLine)*) : tactic
 
 @[appUnexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `(())
-  | _       => throw ()
 
 @[appUnexpander List.nil] def unexpandListNil : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `([])
-  | _       => throw ()
 
 @[appUnexpander List.cons] def unexpandListCons : Lean.PrettyPrinter.Unexpander
   | `($(_) $x [])      => `([$x])
@@ -160,6 +198,22 @@ macro "calc " steps:withPosition(calcStep+) : tactic => `(exact calc $steps*)
   | `($f [$k] $sep)  => `($f $k $sep)
   | _                => throw ()
 
+@[appUnexpander GetElem.getElem] def unexpandGetElem : Lean.PrettyPrinter.Unexpander
+  | `($_ $array $index $_) => `($array[$index])
+  | _ => throw ()
+
+@[appUnexpander getElem!] def unexpandGetElem! : Lean.PrettyPrinter.Unexpander
+  | `($_ $array $index) => `($array[$index]!)
+  | _ => throw ()
+
+@[appUnexpander getElem?] def unexpandGetElem? : Lean.PrettyPrinter.Unexpander
+  | `($_ $array $index) => `($array[$index]?)
+  | _ => throw ()
+
+@[appUnexpander getElem'] def unexpandGetElem' : Lean.PrettyPrinter.Unexpander
+  | `($_ $array $index $h) => `($array[$index]'$h)
+  | _ => throw ()
+
 /--
 Apply function extensionality and introduce new hypotheses.
 The tactic `funext` will keep applying new the `funext` lemma until the goal target is not reducible to
@@ -191,7 +245,7 @@ macro_rules
       `(let y := %[ $[$y],* | $k ]
         %[ $[$z],* | y ])
 
-/-
+/--
   Expands
   ```
   class abbrev C <params> := D_1, ..., D_n
@@ -202,19 +256,20 @@ macro_rules
   attribute [instance] C.mk
   ```
 -/
-syntax declModifiers "class " "abbrev " declId bracketedBinder* (":" term)?
+syntax (name := Lean.Parser.Command.classAbbrev)
+  declModifiers "class " "abbrev " declId bracketedBinder* (":" term)?
   ":=" withPosition(group(colGe term ","?)*) : command
 
 macro_rules
   | `($mods:declModifiers class abbrev $id $params* $[: $ty]? := $[ $parents $[,]? ]*) =>
     let ctor := mkIdentFrom id <| id.raw[0].getId.modifyBase (. ++ `mk)
-    `($mods:declModifiers class $id $params* extends $[$parents:term],* $[: $ty]?
+    `($mods:declModifiers class $id $params* extends $parents,* $[: $ty]?
       attribute [instance] $ctor)
 
 /-- `· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. -/
 syntax ("·" <|> ".") ppHardSpace many1Indent(tactic ";"? ppLine) : tactic
 macro_rules
-  | `(tactic| ·%$dot $[$tacs:tactic $[;%$sc]?]*) => `(tactic| {%$dot $[$tacs:tactic $[;%$sc]?]*})
+  | `(tactic| ·%$dot $[$tacs $[;%$sc]?]*) => `(tactic| {%$dot $[$tacs $[;%$sc]?]*})
 
 /--
   Similar to `first`, but succeeds only if one the given tactics solves the current goal.
@@ -225,7 +280,7 @@ macro_rules
   | `(tactic| solve $[| $ts]* ) => `(tactic| focus first $[| ($ts); done]*)
 
 namespace Lean
-/- `repeat` and `while` notation -/
+/-! # `repeat` and `while` notation -/
 
 inductive Loop where
   | mk
@@ -246,6 +301,11 @@ syntax "repeat " doSeq : doElem
 macro_rules
   | `(doElem| repeat $seq) => `(doElem| for _ in Loop.mk do $seq)
 
+syntax "while " ident " : " termBeforeDo " do " doSeq : doElem
+
+macro_rules
+  | `(doElem| while $h : $cond do $seq) => `(doElem| repeat if $h : $cond then $seq else break)
+
 syntax "while " termBeforeDo " do " doSeq : doElem
 
 macro_rules
@@ -254,7 +314,7 @@ macro_rules
 syntax "repeat " doSeq " until " term : doElem
 
 macro_rules
-  | `(doElem| repeat $seq until $cond) => `(doElem| repeat do $seq; if $cond then break)
+  | `(doElem| repeat $seq until $cond) => `(doElem| repeat do $seq:doSeq; if $cond then break)
 
 macro:50 e:term:51 " matches " p:sepBy1(term:51, "|") : term =>
   `(((match $e:term with | $[$p:term]|* => true | _ => false) : Bool))

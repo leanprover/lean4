@@ -16,17 +16,18 @@ structure GeneralizeArg where
   hName? : Option Name := none
   deriving Inhabited
 
-partial def generalize
-    (mvarId : MVarId) (args : Array GeneralizeArg)
-    -- (pred : (parent? : Option Expr) → (e : Expr) → MetaM Bool := fun _ _ => return true)
-    : MetaM (Array FVarId × MVarId) :=
-  withMVarContext mvarId do
-    checkNotAssigned mvarId `generalize
-    let tag ← getMVarTag mvarId
-    let target ← instantiateMVars (← getMVarType mvarId)
+/--
+Telescopic `generalize` tactic. It can simultaneously generalize many terms.
+It uses `kabstract` to occurrences of the terms that need to be generalized.
+-/
+private partial def generalizeCore (mvarId : MVarId) (args : Array GeneralizeArg) : MetaM (Array FVarId × MVarId) :=
+  mvarId.withContext do
+    mvarId.checkNotAssigned `generalize
+    let tag ← mvarId.getTag
+    let target ← instantiateMVars (← mvarId.getType)
     let rec go (i : Nat) : MetaM Expr := do
       if i < args.size then
-        let arg := args[i]
+        let arg := args[i]!
         let e ← instantiateMVars arg.expr
         let eType ← instantiateMVars (← inferType e)
         let type ← go (i+1)
@@ -40,21 +41,21 @@ partial def generalize
     let es := args.map (·.expr)
     if !args.any fun arg => arg.hName?.isSome then
       let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew tag
-      assignExprMVar mvarId (mkAppN mvarNew es)
-      introNP mvarNew.mvarId! args.size
+      mvarId.assign (mkAppN mvarNew es)
+      mvarNew.mvarId!.introNP args.size
     else
       let (rfls, targetNew) ← forallBoundedTelescope targetNew args.size fun xs type => do
         let rec go' (i : Nat) : MetaM (List Expr × Expr) := do
           if i < xs.size then
-            let arg := args[i]
+            let arg := args[i]!
             if let some hName := arg.hName? then
-              let xType ← inferType xs[i]
+              let xType ← inferType xs[i]!
               let e ← instantiateMVars arg.expr
               let eType ← instantiateMVars (← inferType e)
               let (hType, r) ← if (← isDefEq xType eType) then
-                pure (← mkEq e xs[i], ← mkEqRefl e)
+                pure (← mkEq e xs[i]!, ← mkEqRefl e)
               else
-                pure (← mkHEq e xs[i], ← mkHEqRefl e)
+                pure (← mkHEq e xs[i]!, ← mkHEqRefl e)
               let (rs, type) ← go' (i+1)
               return (r :: rs, mkForall hName BinderInfo.default hType type)
             else
@@ -64,7 +65,18 @@ partial def generalize
         let (rfls, type) ← go' 0
         return (rfls, ← mkForallFVars xs type)
       let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew tag
-      assignExprMVar mvarId (mkAppN (mkAppN mvarNew es) rfls.toArray)
-      introNP mvarNew.mvarId! (args.size + rfls.length)
+      mvarId.assign (mkAppN (mkAppN mvarNew es) rfls.toArray)
+      mvarNew.mvarId!.introNP (args.size + rfls.length)
+
+/--
+Telescopic `generalize` tactic. It can simultaneously generalize many terms.
+It uses `kabstract` to occurrences of the terms that need to be generalized.
+-/
+def _root_.Lean.MVarId.generalize (mvarId : MVarId) (args : Array GeneralizeArg) : MetaM (Array FVarId × MVarId) :=
+  generalizeCore mvarId args
+
+@[deprecated MVarId.generalize]
+def generalize (mvarId : MVarId) (args : Array GeneralizeArg) : MetaM (Array FVarId × MVarId) :=
+  generalizeCore mvarId args
 
 end Lean.Meta

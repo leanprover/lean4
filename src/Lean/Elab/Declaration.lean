@@ -13,16 +13,15 @@ import Lean.Elab.DeclarationRange
 namespace Lean.Elab.Command
 
 open Meta
-open TSyntax.Compat
 
 private def ensureValidNamespace (name : Name) : MacroM Unit := do
   match name with
-  | Name.str p s _ =>
+  | .str p s =>
     if s == "_root_" then
       Macro.throwError s!"invalid namespace '{name}', '_root_' is a reserved namespace"
     ensureValidNamespace p
-  | Name.num _ .. => Macro.throwError s!"invalid namespace '{name}', it must not contain numeric parts"
-  | Name.anonymous => return ()
+  | .num .. => Macro.throwError s!"invalid namespace '{name}', it must not contain numeric parts"
+  | .anonymous => return ()
 
 /-- Auxiliary function for `expandDeclNamespace?` -/
 private def expandDeclIdNamespace? (declId : Syntax) : MacroM (Option (Name × Syntax)) := do
@@ -32,8 +31,8 @@ private def expandDeclIdNamespace? (declId : Syntax) : MacroM (Option (Name × S
     return none
   let scpView := extractMacroScopes id
   match scpView.name with
-  | Name.str Name.anonymous _ _ => return none
-  | Name.str pre s _            =>
+  | .str .anonymous _ => return none
+  | .str pre s        =>
     ensureValidNamespace pre
     let nameNew := { scpView with name := Name.mkSimple s }.review
     -- preserve "original" info, if any, so that hover etc. on the namespaced
@@ -94,12 +93,14 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
     match sortDeclLevelParams scopeLevelNames allUserLevelNames usedParams with
     | Except.error msg      => throwErrorAt stx msg
     | Except.ok levelParams =>
+      let type ← instantiateMVars type
       let decl := Declaration.axiomDecl {
         name        := declName,
         levelParams := levelParams,
         type        := type,
         isUnsafe    := modifiers.isUnsafe
       }
+      trace[Elab.axiom] "{declName} : {type}"
       Term.ensureNoUnassignedMVars decl
       addDecl decl
       withSaveInfoContext do  -- save new env
@@ -134,13 +135,22 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Comm
     addDocString' ctorName ctorModifiers.docString?
     addAuxDeclarationRanges ctorName ctor ctor[2]
     return { ref := ctor, modifiers := ctorModifiers, declName := ctorName, binders := binders, type? := type? : CtorView }
-  let classes ← getOptDerivingClasses decl[5]
+  let mut computedFields := #[]
+  let mut classes := #[]
+  if decl.getNumArgs == 6 then
+    -- TODO: remove after stage0 update
+    classes ← getOptDerivingClasses decl[5]
+  else
+    computedFields ← (decl[5].getOptional?.map (·[1].getArgs) |>.getD #[]).mapM fun cf => withRef cf do
+      return { ref := cf, modifiers := cf[0], fieldId := cf[1].getId, type := ⟨cf[3]⟩, matchAlts := ⟨cf[4]⟩ }
+    classes ← getOptDerivingClasses decl[6]
   return {
     ref             := decl
     shortDeclName   := name
     derivingClasses := classes
     declId, modifiers, declName, levelNames
     binders, type?, ctors
+    computedFields
   }
 
 private def classInductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : CommandElabM InductiveView :=
@@ -160,7 +170,7 @@ def getTerminationHints (stx : Syntax) : TerminationHints :=
   let k := decl.getKind
   if k == ``Parser.Command.def || k == ``Parser.Command.theorem || k == ``Parser.Command.instance then
     let args := decl.getArgs
-    { terminationBy? := args[args.size - 2].getOptional?, decreasingBy? := args[args.size - 1].getOptional? }
+    { terminationBy? := args[args.size - 2]!.getOptional?, decreasingBy? := args[args.size - 1]!.getOptional? }
   else
     {}
 
@@ -169,26 +179,29 @@ def elabDeclaration : CommandElab := fun stx => do
   match (← liftMacroM <| expandDeclNamespace? stx) with
   | some (ns, newStx) => do
     let ns := mkIdentFrom stx ns
-    let newStx ← `(namespace $ns:ident $newStx end $ns:ident)
+    let newStx ← `(namespace $ns $(⟨newStx⟩) end $ns)
     withMacroExpansion stx newStx <| elabCommand newStx
   | none => do
-    let modifiers ← elabModifiers stx[0]
     let decl     := stx[1]
     let declKind := decl.getKind
     if declKind == ``Lean.Parser.Command.«axiom» then
+      let modifiers ← elabModifiers stx[0]
       elabAxiom modifiers decl
     else if declKind == ``Lean.Parser.Command.«inductive» then
+      let modifiers ← elabModifiers stx[0]
       elabInductive modifiers decl
     else if declKind == ``Lean.Parser.Command.classInductive then
+      let modifiers ← elabModifiers stx[0]
       elabClassInductive modifiers decl
     else if declKind == ``Lean.Parser.Command.«structure» then
+      let modifiers ← elabModifiers stx[0]
       elabStructure modifiers decl
     else if isDefLike decl then
       elabMutualDef #[stx] (getTerminationHints stx)
     else
       throwError "unexpected declaration"
 
-/- Return true if all elements of the mutual-block are inductive declarations. -/
+/-- Return true if all elements of the mutual-block are inductive declarations. -/
 private def isMutualInductive (stx : Syntax) : Bool :=
   stx[1].getArgs.all fun elem =>
     let decl     := elem[1]
@@ -201,7 +214,7 @@ private def elabMutualInductive (elems : Array Syntax) : CommandElabM Unit := do
      inductiveSyntaxToView modifiers stx[1]
   elabInductiveViews views
 
-/- Return true if all elements of the mutual-block are definitions/theorems/abbrevs. -/
+/-- Return true if all elements of the mutual-block are definitions/theorems/abbrevs. -/
 private def isMutualDef (stx : Syntax) : Bool :=
   stx[1].getArgs.all fun elem =>
     let decl := elem[1]
@@ -246,7 +259,7 @@ def expandMutualNamespace : Macro := fun stx => do
   | some ns =>
     let ns := mkIdentFrom stx ns
     let stxNew := stx.setArg 1 (mkNullNode elemsNew)
-    `(namespace $ns:ident $stxNew end $ns:ident)
+    `(namespace $ns $(⟨stxNew⟩) end $ns)
   | none => Macro.throwUnsupported
 
 @[builtinMacro Lean.Parser.Command.mutual]
@@ -299,9 +312,10 @@ def elabMutual : CommandElab := fun stx => do
   for attrKindStx in stx[2].getSepArgs do
     if attrKindStx.getKind == ``Lean.Parser.Command.eraseAttr then
       let attrName := attrKindStx[1].getId.eraseMacroScopes
-      unless isAttribute (← getEnv) attrName do
-        throwError "unknown attribute [{attrName}]"
-      toErase := toErase.push attrName
+      if isAttribute (← getEnv) attrName then
+        toErase := toErase.push attrName
+      else
+        logErrorAt attrKindStx "unknown attribute [{attrName}]"
     else
       attrInsts := attrInsts.push attrKindStx
   let attrs ← elabAttrs attrInsts
@@ -312,34 +326,21 @@ def elabMutual : CommandElab := fun stx => do
     for attrName in toErase do
       Attribute.erase declName attrName
 
-def expandInitCmd (builtin : Bool) : Macro := fun stx => do
-  let optVisibility := stx[0]
-  let optHeader     := stx[2]
-  let doSeq         := stx[3]
-  let attrId        := mkIdentFrom stx <| if builtin then `builtinInit else `init
-  if optHeader.isNone then
-    unless optVisibility.isNone do
-      Macro.throwError "invalid initialization command, 'visibility' modifer is not allowed"
-    `(@[$attrId:ident]def initFn : IO Unit := do $doSeq)
-  else
-    let id   := optHeader[0]
-    let type := optHeader[1][1]
-    if optVisibility.isNone then
-      `(def initFn : IO $type := do $doSeq
-        @[$attrId:ident initFn] opaque $id : $type)
-    else if optVisibility[0].getKind == ``Parser.Command.private then
-      `(def initFn : IO $type := do $doSeq
-        @[$attrId:ident initFn] private opaque $id : $type)
-    else if optVisibility[0].getKind == ``Parser.Command.protected then
-      `(def initFn : IO $type := do $doSeq
-        @[$attrId:ident initFn] protected opaque $id : $type)
+@[builtinMacro Lean.Parser.Command.«initialize»] def expandInitialize : Macro
+  | stx@`($declModifiers:declModifiers $kw:initializeKeyword $[$id? : $type? ←]? $doSeq) => do
+    let attrId := mkIdentFrom stx <| if kw.raw[0].isToken "initialize" then `init else `builtinInit
+    if let (some id, some type) := (id?, type?) then
+      let `(Parser.Command.declModifiersT| $[$doc?:docComment]? $[@[$attrs?,*]]? $(vis?)? $[unsafe%$unsafe?]?) := stx[0]
+        | Macro.throwErrorAt declModifiers "invalid initialization command, unexpected modifiers"
+      `($[unsafe%$unsafe?]? def initFn : IO $type := with_decl_name% ?$id do $doSeq
+        $[$doc?:docComment]? @[$attrId:ident initFn, $(attrs?.getD ∅),*] $(vis?)? opaque $id : $type)
     else
-      Macro.throwError "unexpected visibility annotation"
+      let `(Parser.Command.declModifiersT| $[$doc?:docComment]? ) := declModifiers
+        | Macro.throwErrorAt declModifiers "invalid initialization command, unexpected modifiers"
+      `($[$doc?:docComment]? @[$attrId:ident] def initFn : IO Unit := do $doSeq)
+  | _ => Macro.throwUnsupported
 
-@[builtinMacro Lean.Parser.Command.«initialize»] def expandInitialize : Macro :=
-  expandInitCmd (builtin := false)
-
-@[builtinMacro Lean.Parser.Command.«builtin_initialize»] def expandBuiltinInitialize : Macro :=
-  expandInitCmd (builtin := true)
+builtin_initialize
+  registerTraceClass `Elab.axiom
 
 end Lean.Elab.Command

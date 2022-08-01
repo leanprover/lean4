@@ -4,7 +4,7 @@ namespace Lean
 namespace Level
 
 def mkMax (xs : Array Level) : Level :=
-xs.foldl (start := 1) (init := xs[0]) mkLevelMax
+xs.foldl (start := 1) (init := xs[0]!) mkLevelMax
 
 #eval toString $ normalize $ mkLevelSucc $ mkLevelSucc $ mkMax #[levelZero, mkLevelParam `w, mkLevelSucc (mkLevelSucc (mkLevelSucc (mkLevelParam `z))), levelOne, mkLevelSucc (mkLevelSucc (mkLevelParam `x)), levelZero, mkLevelParam `x, mkLevelParam `y, mkLevelParam `x, mkLevelParam `z, mkLevelSucc levelOne, mkLevelParam `w, mkLevelSucc (mkLevelParam `x)]
 #eval toString $ normalize $ mkLevelMax levelZero (mkLevelParam `x)

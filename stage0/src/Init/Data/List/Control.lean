@@ -10,7 +10,7 @@ import Init.Data.List.Basic
 namespace List
 universe u v w u₁ u₂
 
-/-
+/-!
 Remark: we can define `mapM`, `mapM₂` and `forM` using `Applicative` instead of `Monad`.
 Example:
 ```
@@ -192,5 +192,8 @@ instance : ForM m (List α) α where
   rfl
 @[simp] theorem forM_cons [Monad m] (f : α → m PUnit) (a : α) (as : List α) : forM (a::as) f = f a >>= fun _ => forM as f :=
   rfl
+
+instance : Functor List where
+  map := List.map
 
 end List

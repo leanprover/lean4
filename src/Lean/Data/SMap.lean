@@ -11,7 +11,7 @@ namespace Lean
 
 open Std (HashMap PHashMap)
 
-/- Staged map for implementing the Environment. The idea is to store
+/-- Staged map for implementing the Environment. The idea is to store
    imported entries into a hashtable and local entries into a persistent hashtable.
 
    Hypotheses:
@@ -65,7 +65,7 @@ def empty : SMap α β := {}
   | ⟨true, m₁, _⟩, k   => m₁.contains k
   | ⟨false, m₁, m₂⟩, k => m₁.contains k || m₂.contains k
 
-/- Similar to `find?`, but searches for result in the hashmap first.
+/-- Similar to `find?`, but searches for result in the hashmap first.
    So, the result is correct only if we never "overwrite" `map₁` entries using `map₂`. -/
 @[specialize] def find?' : SMap α β → α → Option β
   | ⟨true, m₁, _⟩, k   => m₁.find? k
@@ -75,7 +75,7 @@ def forM [Monad m] (s : SMap α β) (f : α → β → m PUnit) : m PUnit := do
   s.map₁.forM f
   s.map₂.forM f
 
-/- Move from stage 1 into stage 2. -/
+/-- Move from stage 1 into stage 2. -/
 def switch (m : SMap α β) : SMap α β :=
   if m.stage₁ then { m with stage₁ := false } else m
 

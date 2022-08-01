@@ -34,10 +34,10 @@ unsafe def replaceUnsafeM (f? : Expr → Option Expr) (size : USize) (e : Expr) 
       | none      => match e with
         | Expr.forallE _ d b _   => cache i e <| e.updateForallE! (← visit d) (← visit b)
         | Expr.lam _ d b _       => cache i e <| e.updateLambdaE! (← visit d) (← visit b)
-        | Expr.mdata _ b _       => cache i e <| e.updateMData! (← visit b)
+        | Expr.mdata _ b         => cache i e <| e.updateMData! (← visit b)
         | Expr.letE _ t v b _    => cache i e <| e.updateLet! (← visit t) (← visit v) (← visit b)
-        | Expr.app f a _         => cache i e <| e.updateApp! (← visit f) (← visit a)
-        | Expr.proj _ _ b _      => cache i e <| e.updateProj! (← visit b)
+        | Expr.app f a           => cache i e <| e.updateApp! (← visit f) (← visit a)
+        | Expr.proj _ _ b        => cache i e <| e.updateProj! (← visit b)
         | e                      => pure e
   visit e
 
@@ -61,10 +61,10 @@ partial def replace (f? : Expr → Option Expr) (e : Expr) : Expr :=
   | none      => match e with
     | Expr.forallE _ d b _   => let d := replace f? d; let b := replace f? b; e.updateForallE! d b
     | Expr.lam _ d b _       => let d := replace f? d; let b := replace f? b; e.updateLambdaE! d b
-    | Expr.mdata _ b _       => let b := replace f? b; e.updateMData! b
+    | Expr.mdata _ b         => let b := replace f? b; e.updateMData! b
     | Expr.letE _ t v b _    => let t := replace f? t; let v := replace f? v; let b := replace f? b; e.updateLet! t v b
-    | Expr.app f a _         => let f := replace f? f; let a := replace f? a; e.updateApp! f a
-    | Expr.proj _ _ b _      => let b := replace f? b; e.updateProj! b
+    | Expr.app f a           => let f := replace f? f; let a := replace f? a; e.updateApp! f a
+    | Expr.proj _ _ b        => let b := replace f? b; e.updateProj! b
     | e                      => e
 end Expr
 

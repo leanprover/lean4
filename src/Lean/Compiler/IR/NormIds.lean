@@ -18,18 +18,18 @@ def checkParams (ps : Array Param) : M Bool :=
   ps.allM fun p => checkId p.x.idx
 
 partial def checkFnBody : FnBody → M Bool
-  | FnBody.vdecl x _ _ b    => checkId x.idx <&&> checkFnBody b
-  | FnBody.jdecl j ys _ b   => checkId j.idx <&&> checkParams ys <&&> checkFnBody b
-  | FnBody.case _ _ _ alts  => alts.allM fun alt => checkFnBody alt.body
-  | b                       => if b.isTerminal then pure true else checkFnBody b.body
+  | .vdecl x _ _ b    => checkId x.idx <&&> checkFnBody b
+  | .jdecl j ys _ b   => checkId j.idx <&&> checkParams ys <&&> checkFnBody b
+  | .case _ _ _ alts  => alts.allM fun alt => checkFnBody alt.body
+  | b                 => if b.isTerminal then pure true else checkFnBody b.body
 
 partial def checkDecl : Decl → M Bool
-  | Decl.fdecl (xs := xs) (body := b) .. => checkParams xs <&&> checkFnBody b
-  | Decl.extern (xs := xs) .. => checkParams xs
+  | .fdecl (xs := xs) (body := b) .. => checkParams xs <&&> checkFnBody b
+  | .extern (xs := xs) .. => checkParams xs
 
 end UniqueIds
 
-/- Return true if variable, parameter and join point ids are unique -/
+/-- Return true if variable, parameter and join point ids are unique -/
 def Decl.uniqueIds (d : Decl) : Bool :=
   (UniqueIds.checkDecl d).run' {}
 
@@ -119,11 +119,11 @@ def normDecl (d : Decl) : N Decl :=
 
 end NormalizeIds
 
-/- Create a declaration equivalent to `d` s.t. `d.normalizeIds.uniqueIds == true` -/
+/-- Create a declaration equivalent to `d` s.t. `d.normalizeIds.uniqueIds == true` -/
 def Decl.normalizeIds (d : Decl) : Decl :=
   (NormalizeIds.normDecl d {}).run' 1
 
-/- Apply a function `f : VarId → VarId` to variable occurrences.
+/-! Apply a function `f : VarId → VarId` to variable occurrences.
    The following functions assume the IR code does not have variable shadowing. -/
 namespace MapVars
 
@@ -171,7 +171,7 @@ end MapVars
 @[inline] def FnBody.mapVars (f : VarId → VarId) (b : FnBody) : FnBody :=
   MapVars.mapFnBody f b
 
-/- Replace `x` with `y` in `b`. This function assumes `b` does not shadow `x` -/
+/-- Replace `x` with `y` in `b`. This function assumes `b` does not shadow `x` -/
 def FnBody.replaceVar (x y : VarId) (b : FnBody) : FnBody :=
   b.mapVars fun z => if x == z then y else z
 

@@ -58,7 +58,7 @@ structure InitializeParams where
   rootUri? : Option String := none
   initializationOptions? : Option InitializationOptions := none
   capabilities : ClientCapabilities
-  /- If omitted, we default to off. -/
+  /-- If omitted, we default to off. -/
   trace : Trace := Trace.off
   workspaceFolders? : Option (Array WorkspaceFolder) := none
   deriving ToJson

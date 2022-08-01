@@ -80,15 +80,15 @@ where
         let infos := (← getFunInfoNArgs aFn aArgs.size).paramInfo
         for i in [:infos.size] do
           -- We ignore instance implicit arguments during comparison
-          if !infos[i].isInstImplicit then
-            if (← lt aArgs[i] bArgs[i]) then
+          if !infos[i]!.isInstImplicit then
+            if (← lt aArgs[i]! bArgs[i]!) then
               return true
-            else if (← lt bArgs[i] aArgs[i]) then
+            else if (← lt bArgs[i]! aArgs[i]!) then
               return false
         for i in [infos.size:aArgs.size] do
-          if (← lt aArgs[i] bArgs[i]) then
+          if (← lt aArgs[i]! bArgs[i]!) then
             return true
-          else if (← lt bArgs[i] aArgs[i]) then
+          else if (← lt bArgs[i]! aArgs[i]!) then
             return false
         return false
 
@@ -118,11 +118,11 @@ where
         let infos := (← getFunInfoNArgs f args.size).paramInfo
         for i in [:infos.size] do
           -- We ignore instance implicit arguments during comparison
-          if !infos[i].isInstImplicit then
-            if !(← lt args[i] b) then
+          if !infos[i]!.isInstImplicit then
+            if !(← lt args[i]! b) then
               return false
         for i in [infos.size:args.size] do
-          if !(← lt args[i] b) then
+          if !(← lt args[i]! b) then
             return false
         return true
     | Expr.lam _ d e ..     => lt d b <&&> lt e b

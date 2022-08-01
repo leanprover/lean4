@@ -16,22 +16,22 @@ import Lean.Elab.DeclUtil
 namespace Lean.Elab
 
 inductive DefKind where
-  | «def» | «theorem» | «example» | «opaque» | «abbrev»
+  | def | theorem | example | opaque | abbrev
   deriving Inhabited, BEq
 
 def DefKind.isTheorem : DefKind → Bool
-  | «theorem» => true
-  | _         => false
-
-def DefKind.isDefOrAbbrevOrOpaque : DefKind → Bool
-  | «def»    => true
-  | «opaque» => true
-  | «abbrev» => true
+  | .theorem => true
   | _        => false
 
+def DefKind.isDefOrAbbrevOrOpaque : DefKind → Bool
+  | .def    => true
+  | .opaque => true
+  | .abbrev => true
+  | _       => false
+
 def DefKind.isExample : DefKind → Bool
-  | «example» => true
-  | _         => false
+  | .example => true
+  | _        => false
 
 structure DefView where
   kind          : DefKind
@@ -44,8 +44,10 @@ structure DefView where
   deriving?     : Option (Array Syntax) := none
   deriving Inhabited
 
-namespace Command
+def DefView.isInstance (view : DefView) : Bool :=
+  view.modifiers.attrs.any fun attr => attr.name == `instance
 
+namespace Command
 open Meta
 
 def mkDefViewOfAbbrev (modifiers : Modifiers) (stx : Syntax) : DefView :=
@@ -91,8 +93,8 @@ def mkInstanceName (binders : Array Syntax) (type : Syntax) : CommandElabM Name 
         else if e.isSort then ref.modify (· ++ "Sort")
         else if e.isConst then
           match e.constName!.eraseMacroScopes with
-          | Name.str _ str _ =>
-              if str[0].isLower then
+          | .str _ str =>
+              if str.front.isLower then
                 ref.modify (· ++ str.capitalize)
               else
                 ref.modify (· ++ str)

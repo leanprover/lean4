@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Elab.DeclarationRange
 import Lean.DocString
 import Lean.Util.CollectLevelParams
+import Lean.Elab.Eval
 import Lean.Elab.Command
 import Lean.Elab.Open
 
@@ -29,8 +30,8 @@ private def addScope (isNewNamespace : Bool) (isNoncomputable : Bool) (header : 
     activateScoped newNamespace
 
 private def addScopes (isNewNamespace : Bool) (isNoncomputable : Bool) : Name → CommandElabM Unit
-  | Name.anonymous => pure ()
-  | Name.str p header _ => do
+  | .anonymous => pure ()
+  | .str p header => do
     addScopes isNewNamespace isNoncomputable p
     let currNamespace ← getCurrNamespace
     addScope isNewNamespace isNoncomputable header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace)
@@ -54,9 +55,9 @@ private def checkAnonymousScope : List Scope → Bool
   | _                           => false
 
 private def checkEndHeader : Name → List Scope → Bool
-  | Name.anonymous, _                             => true
-  | Name.str p s _, { header := h, .. } :: scopes => h == s && checkEndHeader p scopes
-  | _,              _                             => false
+  | .anonymous, _                             => true
+  | .str p s,   { header := h, .. } :: scopes => h == s && checkEndHeader p scopes
+  | _,          _                             => false
 
 @[builtinCommandElab «namespace»] def elabNamespace : CommandElab := fun stx =>
   match stx with
@@ -179,7 +180,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
     let mut found := false
     for varDecl in varDecls do
       if let some (ids, ty?, annot?) :=
-        match (varDecl : TSyntax ``Parser.Term.bracketedBinder) with
+        match varDecl with
         | `(bracketedBinder|($ids* $[: $ty?]? $(annot?)?)) => some (ids, ty?, annot?)
         | `(bracketedBinder|{$ids* $[: $ty?]?})            => some (ids, ty?, none)
         | `(bracketedBinder|[$id : $ty])                   => some (#[id], some ty, none)
@@ -305,14 +306,14 @@ private def mkRunEval (e : Expr) : MetaM Expr := do
 
 unsafe def elabEvalUnsafe : CommandElab
   | `(#eval%$tk $term) => do
-    let n := `_eval
+    let declName := `_eval
     let addAndCompile (value : Expr) : TermElabM Unit := do
       let (value, _) ← Term.levelMVarToParam (← instantiateMVars value)
       let type ← inferType value
       let us := collectLevelParams {} value |>.params
       let value ← instantiateMVars value
       let decl := Declaration.defnDecl {
-        name        := n
+        name        := declName
         levelParams := us.toList
         type        := type
         value       := value
@@ -321,6 +322,7 @@ unsafe def elabEvalUnsafe : CommandElab
       }
       Term.ensureNoUnassignedMVars decl
       addAndCompile decl
+    -- Elaborate `term`
     let elabEvalTerm : TermElabM Expr := do
       let e ← Term.elabTerm term none
       Term.synthesizeSyntheticMVarsNoPostponing
@@ -329,22 +331,37 @@ unsafe def elabEvalUnsafe : CommandElab
         mkDecide e
       else
         return e
-    let elabMetaEval : CommandElabM Unit := runTermElabM (some n) fun _ => do
-      let e ← mkRunMetaEval (← elabEvalTerm)
-      let env ← getEnv
-      let opts ← getOptions
-      let act ← try addAndCompile e; evalConst (Environment → Options → IO (String × Except IO.Error Environment)) n finally setEnv env
-      let (out, res) ← act env opts -- we execute `act` using the environment
-      logInfoAt tk out
-      match res with
-      | Except.error e => throwError e.toString
-      | Except.ok env  => do setEnv env; pure ()
-    let elabEval : CommandElabM Unit := runTermElabM (some n) fun _ => do
+    -- Evaluate using term using `MetaEval` class.
+    let elabMetaEval : CommandElabM Unit := do
+      -- act? is `some act` if elaborated `term` has type `CommandElabM α`
+      let act? ← runTermElabM (some declName) fun _ => do
+        let e ← elabEvalTerm
+        let eType ← instantiateMVars (← inferType e)
+        if eType.isAppOfArity ``CommandElabM 1 then
+          let mut stx ← Term.exprToSyntax e
+          unless (← isDefEq eType.appArg! (mkConst ``Unit)) do
+            stx ← `($stx >>= fun v => IO.println (repr v))
+          let act ← Lean.Elab.Term.evalTerm (CommandElabM Unit) (mkApp (mkConst ``CommandElabM) (mkConst ``Unit)) stx
+          pure <| some act
+        else
+          let e ← mkRunMetaEval e
+          let env ← getEnv
+          let opts ← getOptions
+          let act ← try addAndCompile e; evalConst (Environment → Options → IO (String × Except IO.Error Environment)) declName finally setEnv env
+          let (out, res) ← act env opts -- we execute `act` using the environment
+          logInfoAt tk out
+          match res with
+          | Except.error e => throwError e.toString
+          | Except.ok env  => do setEnv env; pure none
+      let some act := act? | return ()
+      act
+    -- Evaluate using term using `Eval` class.
+    let elabEval : CommandElabM Unit := runTermElabM (some declName) fun _ => do
       -- fall back to non-meta eval if MetaEval hasn't been defined yet
       -- modify e to `runEval e`
       let e ← mkRunEval (← elabEvalTerm)
       let env ← getEnv
-      let act ← try addAndCompile e; evalConst (IO (String × Except IO.Error Unit)) n finally setEnv env
+      let act ← try addAndCompile e; evalConst (IO (String × Except IO.Error Unit)) declName finally setEnv env
       let (out, res) ← liftM (m := IO) act
       logInfoAt tk out
       match res with
@@ -377,5 +394,12 @@ opaque elabEval : CommandElab
 @[builtinMacro Lean.Parser.Command.«in»] def expandInCmd : Macro
   | `($cmd₁ in $cmd₂) => `(section $cmd₁:command $cmd₂ end)
   | _                 => Macro.throwUnsupported
+
+@[builtinCommandElab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do
+  match stx with
+  | `($doc:docComment add_decl_doc $id) =>
+    let declName ← resolveGlobalConstNoOverload id
+    addDocString declName (← getDocStringText doc)
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Command

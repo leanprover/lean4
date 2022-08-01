@@ -85,9 +85,11 @@ rec {
         # use same stage for retrieving dependencies
         lean-leanDeps = stage0;
         lean-final = self;
+        leanFlags = [ "-DwarningAsError=true" ];
       } ({
         src = ../src;
         fullSrc = ../.;
+        srcPrefix = "src";
         inherit debug;
       } // args);
       Init' = build { name = "Init"; deps = []; };
@@ -103,9 +105,10 @@ rec {
       Std  = attachSharedLib leanshared Std'  // { allExternalDeps = [ Init ]; };
       Lean = attachSharedLib leanshared Lean' // { allExternalDeps = [ Init Std ]; };
       stdlib = [ Init Std Lean ];
+      modDepsFiles = symlinkJoin { name = "modDepsFiles"; paths = map (l: l.modDepsFile) (stdlib ++ [ Leanc ]); };
       iTree = symlinkJoin { name = "ileans"; paths = map (l: l.iTree) stdlib; };
       extlib = stdlib;  # TODO: add Lake
-      Leanc = build { name = "Leanc"; src = lean-bin-tools-unwrapped.leanc_src; deps = stdlib; linkFlags = ["-L${leanshared}"]; };
+      Leanc = build { name = "Leanc"; src = lean-bin-tools-unwrapped.leanc_src; deps = stdlib; };
       stdlibLinkFlags = "-L${Init.staticLib} -L${Std.staticLib} -L${Lean.staticLib} -L${leancpp}/lib/lean";
       leanshared = runCommand "leanshared" { buildInputs = [ stdenv.cc ]; libName = "libleanshared${stdenv.hostPlatform.extensions.sharedLibrary}"; } ''
         mkdir $out
@@ -116,7 +119,7 @@ rec {
       '';
       mods = Init.mods // Std.mods // Lean.mods;
       leanc = writeShellScriptBin "leanc" ''
-        LEAN_CC=${stdenv.cc}/bin/cc ${Leanc.executable.withSharedStdlib}/bin/leanc -I${lean-bin-tools-unwrapped}/include ${stdlibLinkFlags} -L${leanshared} "$@"
+        LEAN_CC=${stdenv.cc}/bin/cc ${Leanc.executable.override { withSharedStdlib = true; }}/bin/leanc -I${lean-bin-tools-unwrapped}/include ${stdlibLinkFlags} -L${leanshared} "$@"
       '';
       lean = runCommand "lean" { buildInputs = lib.optional stdenv.isDarwin darwin.cctools; } ''
         mkdir -p $out/bin

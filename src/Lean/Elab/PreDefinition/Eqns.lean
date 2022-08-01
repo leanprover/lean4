@@ -20,22 +20,22 @@ structure EqnInfoCore where
 
 partial def expand : Expr → Expr
   | Expr.letE _ _ v b _ => expand (b.instantiate1 v)
-  | Expr.mdata _ b _    => expand b
+  | Expr.mdata _ b      => expand b
   | e => e
 
 def expandRHS? (mvarId : MVarId) : MetaM (Option MVarId) := do
-  let target ← getMVarType' mvarId
+  let target ← mvarId.getType'
   let some (_, lhs, rhs) := target.eq? | return none
   unless rhs.isLet || rhs.isMData do return none
-  return some (← replaceTargetDefEq mvarId (← mkEq lhs (expand rhs)))
+  return some (← mvarId.replaceTargetDefEq (← mkEq lhs (expand rhs)))
 
 def funext? (mvarId : MVarId) : MetaM (Option MVarId) := do
-  let target ← getMVarType' mvarId
+  let target ← mvarId.getType'
   let some (_, _, rhs) := target.eq? | return none
   unless rhs.isLambda do return none
   commitWhenSome? do
-    let [mvarId] ← apply mvarId (← mkConstWithFreshMVarLevels ``funext) | return none
-    let (_, mvarId) ← intro1 mvarId
+    let [mvarId] ← mvarId.apply (← mkConstWithFreshMVarLevels ``funext) | return none
+    let (_, mvarId) ← mvarId.intro1
     return some mvarId
 
 def simpMatch? (mvarId : MVarId) : MetaM (Option MVarId) := do
@@ -55,7 +55,7 @@ private def findMatchToSplit? (env : Environment) (e : Expr) (declNames : Array 
       -- If none of the discriminants is a free variable, then it is not worth splitting the match
       let mut hasFVarDiscr := false
       for i in [info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
-        let discr := args[i]
+        let discr := args[i]!
         if discr.isFVar then
           hasFVarDiscr := true
           break
@@ -63,7 +63,7 @@ private def findMatchToSplit? (env : Environment) (e : Expr) (declNames : Array 
         return Expr.FindStep.visit
       -- At least one alternative must contain a `declNames` application with loose bound variables.
       for i in [info.getFirstAltPos : info.getFirstAltPos + info.numAlts] do
-        let alt := args[i]
+        let alt := args[i]!
         if Option.isSome <| alt.find? fun e => declNames.any e.isAppOf && e.hasLooseBVars then
           return Expr.FindStep.found
       return Expr.FindStep.visit
@@ -76,7 +76,7 @@ private def findMatchToSplit? (env : Environment) (e : Expr) (declNames : Array 
         return Expr.FindStep.visit
 
 partial def splitMatch? (mvarId : MVarId) (declNames : Array Name) : MetaM (Option (List MVarId)) := commitWhenSome? do
-  let target ← getMVarType' mvarId
+  let target ← mvarId.getType'
   let rec go (badCases : ExprSet) : MetaM (Option (List MVarId)) := do
     if let some e := findMatchToSplit? (← getEnv) target declNames badCases then
       try
@@ -101,7 +101,7 @@ private def lhsDependsOn (type : Expr) (fvarId : FVarId) : MetaM Bool :=
 /-- Try to close goal using `rfl` with smart unfolding turned off. -/
 def tryURefl (mvarId : MVarId) : MetaM Bool :=
   withOptions (smartUnfolding.set · false) do
-    try applyRefl mvarId; return true catch _ => return false
+    try mvarId.applyRefl; return true catch _ => return false
 
 /--
   Eliminate `namedPatterns` from equation, and trivial hypotheses.
@@ -115,7 +115,7 @@ def simpEqnType (eqnType : Expr) : MetaM Expr := do
     for y in ys.reverse do
       trace[Elab.definition] ">> simpEqnType: {← inferType y}, {type}"
       if proofVars.contains y.fvarId! then
-        let some (_, Expr.fvar fvarId _, rhs) ← matchEq? (← inferType y) | throwError "unexpected hypothesis in altenative{indentExpr eqnType}"
+        let some (_, Expr.fvar fvarId, rhs) ← matchEq? (← inferType y) | throwError "unexpected hypothesis in altenative{indentExpr eqnType}"
         eliminated := eliminated.insert fvarId
         type := type.replaceFVarId fvarId rhs
       else if eliminated.contains y.fvarId! then
@@ -145,8 +145,8 @@ where
       ST.Prim.Ref.get ref
     runST (go e)
 
-private partial def saveEqn (mvarId : MVarId) : StateRefT (Array Expr) MetaM Unit := withMVarContext mvarId do
-  let target ← getMVarType' mvarId
+private partial def saveEqn (mvarId : MVarId) : StateRefT (Array Expr) MetaM Unit := mvarId.withContext do
+  let target ← mvarId.getType'
   let fvarState := collectFVars {} target
   let fvarState ← (← getLCtx).foldrM (init := fvarState) fun decl fvarState => do
     if fvarState.fvarSet.contains decl.fvarId then
@@ -196,7 +196,7 @@ where
     let mut fvarIds := fvarIds
     for fvarId in usedFVarIds do
       unless fvarIdSet.contains fvarId do
-        (fvarIdSet, fvarIds) ← pushDecl fvarIdSet fvarIds (← getLocalDecl fvarId)
+        (fvarIdSet, fvarIds) ← pushDecl fvarIdSet fvarIds (← fvarId.getDecl)
     return (fvarIdSet, fvarIds)
 
 /--
@@ -229,7 +229,7 @@ where
 /-    if let some mvarId ← funext? mvarId then
         return (← go mvarId) -/
 
-    if (← shouldUseSimpMatch (← getMVarType' mvarId)) then
+    if (← shouldUseSimpMatch (← mvarId.getType')) then
       if let some mvarId ← simpMatch? mvarId then
         return (← go mvarId)
 
@@ -250,10 +250,10 @@ def removeUnusedEqnHypotheses (declType declValue : Expr) : CoreM (Expr × Expr)
 where
   go (type value : Expr) (xs : Array Expr) (lctx : LocalContext) : CoreM (Expr × Expr) := do
     match value with
-    | .lam n d b i =>
+    | .lam n d b bi =>
       let d := d.instantiateRev xs
       let fvarId ← mkFreshFVarId
-      go (type.bindingBody!) b (xs.push (mkFVar fvarId)) (lctx.mkLocalDecl fvarId n d i.binderInfo)
+      go (type.bindingBody!) b (xs.push (mkFVar fvarId)) (lctx.mkLocalDecl fvarId n d bi)
     | _ =>
       let type  := type.instantiateRev xs
       let value := value.instantiateRev xs
@@ -270,37 +270,37 @@ where
         return (lctx.mkForall xsNew type, lctx.mkLambda xsNew value)
 
 /-- Delta reduce the equation left-hand-side -/
-def deltaLHS (mvarId : MVarId) : MetaM MVarId := withMVarContext mvarId do
-  let target ← getMVarType' mvarId
+def deltaLHS (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
+  let target ← mvarId.getType'
   let some (_, lhs, rhs) := target.eq? | throwTacticEx `deltaLHS mvarId "equality expected"
   let some lhs ← delta? lhs | throwTacticEx `deltaLHS mvarId "failed to delta reduce lhs"
-  replaceTargetDefEq mvarId (← mkEq lhs rhs)
+  mvarId.replaceTargetDefEq (← mkEq lhs rhs)
 
-def deltaRHS? (mvarId : MVarId) (declName : Name) : MetaM (Option MVarId) := withMVarContext mvarId do
-  let target ← getMVarType' mvarId
+def deltaRHS? (mvarId : MVarId) (declName : Name) : MetaM (Option MVarId) := mvarId.withContext do
+  let target ← mvarId.getType'
   let some (_, lhs, rhs) := target.eq? | return none
   let some rhs ← delta? rhs.consumeMData (· == declName) | return none
-  replaceTargetDefEq mvarId (← mkEq lhs rhs)
+  mvarId.replaceTargetDefEq (← mkEq lhs rhs)
 
 private partial def whnfAux (e : Expr) : MetaM Expr := do
   let e ← whnfI e -- Must reduce instances too, otherwise it will not be able to reduce `(Nat.rec ... ... (OfNat.ofNat 0))`
   let f := e.getAppFn
   match f with
-  | Expr.proj _ _ s _ => return mkAppN (f.updateProj! (← whnfAux s)) e.getAppArgs
+  | .proj _ _ s => return mkAppN (f.updateProj! (← whnfAux s)) e.getAppArgs
   | _ => return e
 
 /-- Apply `whnfR` to lhs, return `none` if `lhs` was not modified -/
-def whnfReducibleLHS? (mvarId : MVarId) : MetaM (Option MVarId) := withMVarContext mvarId do
-  let target ← getMVarType' mvarId
+def whnfReducibleLHS? (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.withContext do
+  let target ← mvarId.getType'
   let some (_, lhs, rhs) := target.eq? | return none
   let lhs' ← whnfAux lhs
   if lhs' != lhs then
-    return some (← replaceTargetDefEq mvarId (← mkEq lhs' rhs))
+    return some (← mvarId.replaceTargetDefEq (← mkEq lhs' rhs))
   else
     return none
 
 def tryContradiction (mvarId : MVarId) : MetaM Bool := do
-  try contradiction mvarId { genDiseq := true }; return true catch _ => return false
+  mvarId.contradictionCore { genDiseq := true }
 
 structure UnfoldEqnExtState where
   map : Std.PHashMap Name Name := {}
@@ -325,12 +325,12 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
   let tryEqns (mvarId : MVarId) : MetaM Bool :=
     eqs.anyM fun eq => commitWhen do
       try
-        let subgoals ← apply mvarId (← mkConstWithFreshMVarLevels eq)
+        let subgoals ← mvarId.apply (← mkConstWithFreshMVarLevels eq)
         subgoals.allM fun subgoal => do
-          if (← isExprMVarAssigned subgoal) then
+          if (← subgoal.isAssigned) then
             return true -- Subgoal was already solved. This can happen when there are dependencies between the subgoals
           else
-            assumptionCore subgoal
+            subgoal.assumptionCore
       catch _ =>
         return false
   let rec go (mvarId : MVarId) : MetaM Unit := do
@@ -340,7 +340,7 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
     -- else if let some mvarId ← funext? mvarId then
     --  go mvarId
 
-    if (← shouldUseSimpMatch (← getMVarType' mvarId)) then
+    if (← shouldUseSimpMatch (← mvarId.getType')) then
       if let some mvarId ← simpMatch? mvarId then
         return (← go mvarId)
 

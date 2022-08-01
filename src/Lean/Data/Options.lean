@@ -107,7 +107,7 @@ export MonadWithOptions (withOptions)
 instance [MonadFunctor m n] [MonadWithOptions m] : MonadWithOptions n where
   withOptions f x := monadMap (m := m) (withOptions f) x
 
-/- Remark: `_inPattern` is an internal option for communicating to the delaborator that
+/-! Remark: `_inPattern` is an internal option for communicating to the delaborator that
    the term being delaborated should be treated as a pattern. -/
 
 def withInPattern [MonadWithOptions m] (x : m α) : m α :=
@@ -146,11 +146,11 @@ protected def register [KVMap.Value α] (name : Name) (decl : Lean.Option.Decl �
   registerOption name { defValue := KVMap.Value.toDataValue decl.defValue, group := decl.group, descr := decl.descr }
   return { name := name, defValue := decl.defValue }
 
-macro "register_builtin_option" name:ident " : " type:term " := " decl:term : command =>
-  `(builtin_initialize $name : Lean.Option $type ← Lean.Option.register $(quote name.getId) $decl)
+macro (name := registerBuiltinOption) doc?:(docComment)? "register_builtin_option" name:ident " : " type:term " := " decl:term : command =>
+  `($[$doc?]? builtin_initialize $name : Lean.Option $type ← Lean.Option.register $(quote name.getId) $decl)
 
-macro "register_option" name:ident " : " type:term " := " decl:term : command =>
-  `(initialize $name : Lean.Option $type ← Lean.Option.register $(quote name.getId) $decl)
+macro (name := registerOption) doc?:(docComment)? "register_option" name:ident " : " type:term " := " decl:term : command =>
+  `($[$doc?]? initialize $name : Lean.Option $type ← Lean.Option.register $(quote name.getId) $decl)
 
 end Option
 

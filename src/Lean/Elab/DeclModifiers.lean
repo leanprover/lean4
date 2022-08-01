@@ -12,6 +12,11 @@ import Lean.Elab.DeclUtil
 
 namespace Lean.Elab
 
+/--
+Ensure the environment does not contain a declaration with name `declName`.
+Recall that a private declaration cannot shadow a non-private one and vice-versa, although
+they internally have different names.
+-/
 def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m Unit := do
   let env ← getEnv
   if env.contains declName then
@@ -31,10 +36,11 @@ inductive Visibility where
   | regular | «protected» | «private»
   deriving Inhabited
 
-instance : ToString Visibility := ⟨fun
-  | Visibility.regular     => "regular"
-  | Visibility.«private»   => "private"
-  | Visibility.«protected» => "protected"⟩
+instance : ToString Visibility where
+  toString
+    | .regular   => "regular"
+    | .private   => "private"
+    | .protected => "protected"
 
 /-- Whether a declaration is default, partial or nonrec. -/
 inductive RecKind where
@@ -52,21 +58,22 @@ structure Modifiers where
   deriving Inhabited
 
 def Modifiers.isPrivate : Modifiers → Bool
-  | { visibility := Visibility.private, .. } => true
-  | _                                        => false
+  | { visibility := .private, .. } => true
+  | _                              => false
 
 def Modifiers.isProtected : Modifiers → Bool
-  | { visibility := Visibility.protected, .. } => true
-  | _                                          => false
+  | { visibility := .protected, .. } => true
+  | _                                => false
 
 def Modifiers.isPartial : Modifiers → Bool
-  | { recKind := RecKind.partial, .. } => true
-  | _                                  => false
+  | { recKind := .partial, .. } => true
+  | _                           => false
 
 def Modifiers.isNonrec : Modifiers → Bool
-  | { recKind := RecKind.nonrec, .. } => true
-  | _                                 => false
+  | { recKind := .nonrec, .. } => true
+  | _                          => false
 
+/-- Store `attr` in `modifiers` -/
 def Modifiers.addAttribute (modifiers : Modifiers) (attr : Attribute) : Modifiers :=
   { modifiers with attrs := modifiers.attrs.push attr }
 
@@ -76,9 +83,9 @@ instance : ToFormat Modifiers := ⟨fun m =>
      | some str => [f!"/--{str}-/"]
      | none     => [])
     ++ (match m.visibility with
-     | Visibility.regular   => []
-     | Visibility.protected => [f!"protected"]
-     | Visibility.private   => [f!"private"])
+     | .regular   => []
+     | .protected => [f!"protected"]
+     | .private   => [f!"private"])
     ++ (if m.isNoncomputable then [f!"noncomputable"] else [])
     ++ (match m.recKind with | RecKind.partial => [f!"partial"] | RecKind.nonrec => [f!"nonrec"] | _ => [])
     ++ (if m.isUnsafe then [f!"unsafe"] else [])
@@ -87,17 +94,21 @@ instance : ToFormat Modifiers := ⟨fun m =>
 
 instance : ToString Modifiers := ⟨toString ∘ format⟩
 
+/--
+Retrieve doc string from `stx` of the form `(docComment)?`.
+-/
 def expandOptDocComment? [Monad m] [MonadError m] (optDocComment : Syntax) : m (Option String) :=
   match optDocComment.getOptional? with
-  | none   => pure none
+  | none   => return none
   | some s => match s[1] with
-    | Syntax.atom _ val => pure (some (val.extract 0 (val.endPos - ⟨2⟩)))
-    | _                 => throwErrorAt s "unexpected doc string{indentD s[1]}"
+    | .atom _ val => return some (val.extract 0 (val.endPos - ⟨2⟩))
+    | _           => throwErrorAt s "unexpected doc string{indentD s[1]}"
 
 section Methods
 
-variable [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m]
+variable [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadInfoTree m] [MonadLiftT IO m]
 
+/-- Elaborate declaration modifiers (i.e., attributes, `partial`, `private`, `proctected`, `unsafe`, `noncomputable`, doc string)-/
 def elabModifiers (stx : Syntax) : m Modifiers := do
   let docCommentStx := stx[0]
   let attrsStx      := stx[1]
@@ -113,15 +124,13 @@ def elabModifiers (stx : Syntax) : m Modifiers := do
       RecKind.nonrec
   let docString? ← match docCommentStx.getOptional? with
     | none   => pure none
-    | some s => match s[1] with
-      | Syntax.atom _ val => pure (some (val.extract 0 (val.endPos - ⟨2⟩)))
-      | _                 => throwErrorAt s "unexpected doc string{indentD s[1]}"
+    | some s => pure (some (← getDocStringText ⟨s⟩))
   let visibility ← match visibilityStx.getOptional? with
     | none   => pure Visibility.regular
     | some v =>
       let kind := v.getKind
-      if kind == `Lean.Parser.Command.private then pure Visibility.private
-      else if kind == `Lean.Parser.Command.protected then pure Visibility.protected
+      if kind == ``Parser.Command.private then pure Visibility.private
+      else if kind == ``Parser.Command.protected then pure Visibility.protected
       else throwErrorAt v "unexpected visibility modifier"
   let attrs ← match attrsStx.getOptional? with
     | none       => pure #[]
@@ -132,19 +141,21 @@ def elabModifiers (stx : Syntax) : m Modifiers := do
     isNoncomputable := !noncompStx.isNone
   }
 
+/--
+Ensure the function has not already been declared, and apply the given visibility setting to `declName`.
+If `private`, return the updated name using our internal encoding for private names.
+If `protected`, register `declName` as protected in the environment.
+-/
 def applyVisibility (visibility : Visibility) (declName : Name) : m Name := do
   match visibility with
-  | Visibility.private =>
-    let env ← getEnv
-    let declName := mkPrivateName env declName
+  | .private =>
+    let declName := mkPrivateName (← getEnv) declName
     checkNotAlreadyDeclared declName
-    pure declName
-  | Visibility.protected =>
+    return declName
+  | .protected =>
     checkNotAlreadyDeclared declName
-    let env ← getEnv
-    let env := addProtected env declName
-    setEnv env
-    pure declName
+    modifyEnv fun env => addProtected env declName
+    return declName
   | _ =>
     checkNotAlreadyDeclared declName
     pure declName
@@ -171,7 +182,7 @@ def mkDeclName (currNamespace : Name) (modifiers : Modifiers) (shortName : Name)
     throwError "atomic identifier expected '{shortName}'"
   let declName := if isRootName then { view with name := name.replacePrefix `_root_ Name.anonymous }.review else currNamespace ++ shortName
   if isRootName then
-    let .str p s _ := name | throwError "invalid declaration name '{name}'"
+    let .str p s := name | throwError "invalid declaration name '{name}'"
     shortName := Name.mkSimple s
     currNamespace := p.replacePrefix `_root_ Name.anonymous
   checkIfShadowingStructureField declName
@@ -179,11 +190,11 @@ def mkDeclName (currNamespace : Name) (modifiers : Modifiers) (shortName : Name)
   match modifiers.visibility with
   | Visibility.protected =>
     match currNamespace with
-    | Name.str _ s _ => pure (declName, Name.mkSimple s ++ shortName)
+    | .str _ s => pure (declName, Name.mkSimple s ++ shortName)
     | _ => throwError "protected declarations must be in a namespace"
   | _ => pure (declName, shortName)
 
-/-
+/--
   `declId` is of the form
   ```
   leading_parser ident >> optional (".{" >> sepBy1 ident ", " >> "}")
@@ -198,11 +209,25 @@ def expandDeclIdCore (declId : Syntax) : Name × Syntax :=
     let optUnivDeclStx := declId[1]
     (id, optUnivDeclStx)
 
+/-- `expandDeclId` resulting type. -/
 structure ExpandDeclIdResult where
+  /-- Short name for recursively referring to the declaration. -/
   shortName  : Name
+  /-- Fully qualified name that will be used to name the declaration in the kernel. -/
   declName   : Name
+  /-- Universe parameter names provided using the `universe` command and `.{...}` notation. -/
   levelNames : List Name
 
+/--
+Given a declaration identifier (e.g., `ident (".{" ident,+ "}")?`) that may contain explicit universe parameters
+- Ensure the new universe parameters do not shadow universe parameters declared using `universe` command.
+- Create the fully qualified named for the declaration using the current namespace, and given `modifiers`
+- Create a short version for recursively referring to the declaration. Recall that the `protected` modifier affects the generation of the short name.
+
+The result also contains the universe parameters provided using `universe` command, and the `.{...}` notation.
+
+This commands also stores the doc string stored in `modifiers`.
+-/
 def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : Syntax) (modifiers : Modifiers) : m ExpandDeclIdResult := do
   -- ident >> optional (".{" >> sepBy1 ident ", " >> "}")
   let (shortName, optUnivDeclStx) := expandDeclIdCore declId

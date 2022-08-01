@@ -20,7 +20,7 @@ Interesting options:
     | none      => pure <| (← IO.appDir).parent.get!
   let rootify s := s.replace "ROOT" root.toString
 
-  let compileOnly := args.contains "-c"
+  -- let compileOnly := args.contains "-c"
   let linkStatic := !args.contains "-shared"
 
   -- We assume that the CMake variables do not contain escaped spaces

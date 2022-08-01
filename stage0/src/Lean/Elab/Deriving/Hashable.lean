@@ -38,14 +38,14 @@ where
         for _ in [:indVal.numParams] do
           ctorArgs := ctorArgs.push (← `(_))
         for i in [:ctorInfo.numFields] do
-          let x := xs[indVal.numParams + i]
+          let x := xs[indVal.numParams + i]!
           let a := mkIdent (← mkFreshUserName `a)
           ctorArgs := ctorArgs.push a
           let xTy ← whnf (← inferType x)
           match xTy.getAppFn with
           | .const declName .. =>
             match allIndVals.findIdx? (· == declName) with
-            | some x => rhs ← `(mixHash $rhs ($(mkIdent ctx.auxFunNames[x]) $a:ident))
+            | some x => rhs ← `(mixHash $rhs ($(mkIdent ctx.auxFunNames[x]!) $a:ident))
             | none => rhs ← `(mixHash $rhs (hash $a:ident))
           | _ => rhs ← `(mixHash $rhs (hash $a:ident))
         patterns := patterns.push (← `(@$(mkIdent ctorName):ident $ctorArgs:term*))
@@ -55,8 +55,8 @@ where
     return alts
 
 def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
-  let auxFunName := ctx.auxFunNames[i]
-  let indVal     := ctx.typeInfos[i]
+  let auxFunName := ctx.auxFunNames[i]!
+  let indVal     := ctx.typeInfos[i]!
   let header     ← mkHashableHeader indVal
   let body       ← mkMatch ctx header indVal
   let binders    := header.binders
@@ -73,7 +73,7 @@ def mkHashFuncs (ctx : Context) : TermElabM Syntax := do
   `(mutual $auxDefs:command* end)
 
 private def mkHashableInstanceCmds (declNames : Array Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext "hash" declNames[0]
+  let ctx ← mkContext "hash" declNames[0]!
   let cmds := #[← mkHashFuncs ctx] ++ (← mkInstanceCmds ctx `Hashable declNames)
   trace[Elab.Deriving.hashable] "\n{cmds}"
   return cmds

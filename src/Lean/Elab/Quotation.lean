@@ -54,13 +54,13 @@ partial def mkTuple : Array Syntax → TermElabM Syntax
   | #[e] => return e
   | es   => do
     let stx ← mkTuple (es.eraseIdx 0)
-    `(Prod.mk $(es[0]) $stx)
+    `(Prod.mk $(es[0]!) $stx)
 
 def resolveSectionVariable (sectionVars : NameMap Name) (id : Name) : List (Name × List String) :=
   -- decode macro scopes from name before recursion
   let extractionResult := extractMacroScopes id
   let rec loop : Name → List String → List (Name × List String)
-    | id@(Name.str p s _), projs =>
+    | id@(.str p s), projs =>
       -- NOTE: we assume that macro scopes always belong to the projected constant, not the projections
       let id := { extractionResult with name := id }.review
       match sectionVars.find? id with
@@ -114,7 +114,7 @@ private partial def quoteSyntax : Syntax → TermElabM Term
       match stx[0] with
       | Syntax.atom _ val => `(Syntax.atom (Option.getD (getHeadInfo? $(getAntiquotTerm stx)) info) $(quote val))
       | _                 => throwErrorAt stx "expected token"
-    else if isAntiquotSuffixSplice stx && !isEscapedAntiquot stx then
+    else if isAntiquotSuffixSplice stx && !isEscapedAntiquot (getCanonicalAntiquot (getAntiquotSuffixSpliceInner stx)) then
       -- splices must occur in a `many` node
       throwErrorAt stx "unexpected antiquotation splice"
     else if isAntiquotSplice stx && !isEscapedAntiquot stx then
@@ -125,7 +125,7 @@ private partial def quoteSyntax : Syntax → TermElabM Term
       let mut args := ArrayStxBuilder.empty
       let appendName := if (← getEnv).contains ``Array.append then ``Array.append else ``Array.appendCore
       for arg in stx.getArgs do
-        if k == nullKind && isAntiquotSuffixSplice arg then
+        if k == nullKind && isAntiquotSuffixSplice arg && !isEscapedAntiquot (getCanonicalAntiquot (getAntiquotSuffixSpliceInner arg)) then
           let antiquot := getAntiquotSuffixSpliceInner arg
           let ks := antiquotKinds antiquot |>.map (·.1)
           let val := getAntiquotTerm (getCanonicalAntiquot antiquot)
@@ -139,7 +139,7 @@ private partial def quoteSyntax : Syntax → TermElabM Term
               let sep := quote <| getSepFromSplice arg
               `(@TSepArray.elemsAndSeps $(quote ks) $sep $val)
             | k         => throwErrorAt arg "invalid antiquotation suffix splice kind '{k}'"
-        else if k == nullKind && isAntiquotSplice arg then
+        else if k == nullKind && isAntiquotSplice arg && !isEscapedAntiquot arg then
           let k := antiquotSpliceKind? arg
           let (arg, bindLets) ← floatOutAntiquotTerms arg |>.run pure
           let inner ← (getAntiquotSpliceContents arg).mapM quoteSyntax
@@ -152,7 +152,7 @@ private partial def quoteSyntax : Syntax → TermElabM Term
                 | $[_%$ids],*          => Array.empty)
             | _ =>
               let arr ← ids[:ids.size-1].foldrM (fun id arr => `(Array.zip $id:ident $arr)) ids.back
-              `(Array.map (fun $(← mkTuple ids) => $(inner[0])) $arr)
+              `(Array.map (fun $(← mkTuple ids) => $(inner[0]!)) $arr)
           let arr ← if k == `sepBy then
             `(mkSepArray $arr $(getSepStxFromSplice arg))
           else
@@ -179,7 +179,7 @@ def getQuotKind (stx : Syntax) : TermElabM SyntaxNodeKind := do
   | ``Parser.Term.attr.quot => pure `attr
   | ``Parser.Term.prio.quot => pure `prio
   | ``Parser.Term.doElem.quot => pure `doElem
-  | Name.str kind "quot" _ => return kind
+  | .str kind "quot" => return kind
   | ``dynamicQuot =>
     match (← resolveGlobalConst stx[1]) with
     | [parser] => pure parser
@@ -234,9 +234,9 @@ elab_stx_quot Parser.Term.doElem.quot
 elab_stx_quot Parser.Term.dynamicQuot
 elab_stx_quot Parser.Command.quot
 
-/- match -/
+/-! # match -/
 
--- an "alternative" of patterns plus right-hand side
+/-- an "alternative" of patterns plus right-hand side -/
 private abbrev Alt := List Term × Term
 
 /--
@@ -244,45 +244,45 @@ private abbrev Alt := List Term × Term
   alternative. This datatype describes what kind of check this involves, which helps other patterns decide if
   they are covered by the same check and don't have to be checked again (see also `MatchResult`). -/
 inductive HeadCheck where
-  -- match step that always succeeds: _, x, `($x), ...
-  | unconditional
-  -- match step based on kind and, optionally, arity of discriminant
-  -- If `arity` is given, that number of new discriminants is introduced. `covered` patterns should then introduce the
-  -- same number of new patterns.
-  -- We actually check the arity at run time only in the case of `null` nodes since it should otherwise by implied by
-  -- the node kind.
-  -- without arity: `($x:k)
-  -- with arity: any quotation without an antiquotation head pattern
-  | shape (k : List SyntaxNodeKind) (arity : Option Nat)
-  -- Match step that succeeds on `null` nodes of arity at least `numPrefix + numSuffix`, introducing discriminants
-  -- for the first `numPrefix` children, one `null` node for those in between, and for the `numSuffix` last children.
-  -- example: `([$x, $xs,*, $y]) is `slice 2 2`
-  | slice (numPrefix numSuffix : Nat)
-  -- other, complicated match step that will probably only cover identical patterns
-  -- example: antiquotation splices `($[...]*)
-  | other (pat : Syntax)
+  | /-- match step that always succeeds: _, x, `($x), ... -/
+    unconditional
+  | /-- match step based on kind and, optionally, arity of discriminant
+    If `arity` is given, that number of new discriminants is introduced. `covered` patterns should then introduce the
+    same number of new patterns.
+    We actually check the arity at run time only in the case of `null` nodes since it should otherwise by implied by
+    the node kind.
+    without arity: `($x:k)
+    with arity: any quotation without an antiquotation head pattern -/
+    shape (k : List SyntaxNodeKind) (arity : Option Nat)
+  | /-- Match step that succeeds on `null` nodes of arity at least `numPrefix + numSuffix`, introducing discriminants
+    for the first `numPrefix` children, one `null` node for those in between, and for the `numSuffix` last children.
+    example: `([$x, $xs,*, $y]) is `slice 2 2` -/
+    slice (numPrefix numSuffix : Nat)
+  | /-- other, complicated match step that will probably only cover identical patterns
+    example: antiquotation splices `($[...]*) -/
+    other (pat : Syntax)
 
 open HeadCheck
 
 /-- Describe whether a pattern is covered by a head check (induced by the pattern itself or a different pattern). -/
 inductive MatchResult where
-  -- Pattern agrees with head check, remove and transform remaining alternative.
-  -- If `exhaustive` is `false`, *also* include unchanged alternative in the "no" branch.
-  | covered (f : Alt → TermElabM Alt) (exhaustive : Bool)
-  -- Pattern disagrees with head check, include in "no" branch only
-  | uncovered
-  -- Pattern is not quite sure yet; include unchanged in both branches
-  | undecided
+  | /-- Pattern agrees with head check, remove and transform remaining alternative.
+    If `exhaustive` is `false`, *also* include unchanged alternative in the "no" branch. -/
+    covered (f : Alt → TermElabM Alt) (exhaustive : Bool)
+  | /-- Pattern disagrees with head check, include in "no" branch only -/
+    uncovered
+  | /-- Pattern is not quite sure yet; include unchanged in both branches -/
+    undecided
 
 open MatchResult
 
 /-- All necessary information on a pattern head. -/
 structure HeadInfo where
-  -- check induced by the pattern
+  /-- check induced by the pattern -/
   check : HeadCheck
-  -- compute compatibility of pattern with given head check
+  /-- compute compatibility of pattern with given head check -/
   onMatch (taken : HeadCheck) : MatchResult
-  -- actually run the specified head check, with the discriminant bound to `discr`
+  /-- actually run the specified head check, with the discriminant bound to `discr` -/
   doMatch (yes : (newDiscrs : List Term) → TermElabM Term) (no : TermElabM Term) : TermElabM Term
 
 /-- Adapt alternatives that do not introduce new discriminants in `doMatch`, but are covered by those that do so. -/
@@ -383,11 +383,13 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
                 yes ← `(let $id := tuples.map (fun $tuple => $id); $yes)
               `(tuples)
           let contents := if contents.size == 1
-            then contents[0]
+            then contents[0]!
             else mkNullNode contents
+          -- We use `no_error_if_unused%` in auxiliary `match`-syntax to avoid spurious error messages,
+          -- the outer `match` is checking for unused alternatives
           `(match ($(discrs).sequenceMap fun
-                | `($contents) => some $tuple
-                | _            => none) with
+                | `($contents) => no_error_if_unused% some $tuple
+                | _            => no_error_if_unused% none) with
               | some $resId => $yes
               | none => $no)
     }
@@ -475,7 +477,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
           | r             => r }
     | _               => throwErrorAt pat "match (syntax) : unexpected pattern kind {pat}"
 
--- Bind right-hand side to new `let_delayed` decl in order to prevent code duplication
+/-- Bind right-hand side to new `let_delayed` decl in order to prevent code duplication -/
 private def deduplicate (floatedLetDecls : Array Syntax) : Alt → TermElabM (Array Syntax × Alt)
   -- NOTE: new macro scope so that introduced bindings do not collide
   | (pats, rhs) => do
@@ -533,25 +535,87 @@ private partial def compileStxMatch (discrs : List Term) (alts : List Alt) : Ter
           -- group undecided alternatives in a new default case `| discr2, ... => match discr, discr2, ... with ...`
           let vars ← discrs.mapM fun _ => withFreshMacroScope `(discr)
           let pats := List.replicate newDiscrs.length (Unhygienic.run `(_)) ++ vars
-          let alts ← undecidedAlts.mapM fun alt => `(matchAltExpr| | $(alt.1.toArray),* => $(alt.2))
+          let alts ← undecidedAlts.mapM fun alt => `(matchAltExpr| | $(alt.1.toArray),* => no_error_if_unused% $(alt.2))
           let rhs  ← `(match discr, $[$(vars.toArray):term],* with $alts:matchAlt*)
           yesAlts := yesAlts.push (pats, rhs)
         withFreshMacroScope $ compileStxMatch (newDiscrs ++ discrs) yesAlts.toList)
       (no := withFreshMacroScope $ compileStxMatch (discr::discrs) nonExhaustiveAlts.toList)
     for d in floatedLetDecls do
-      stx ← `(let_delayed $(⟨d⟩):letDecl; $stx)
+      stx ← `(let_delayed $d:letDecl; $stx)
     `(let discr := $discr; $stx)
   | _, _ => unreachable!
 
+abbrev IdxSet := Std.HashSet Nat
+
+/--
+Given `rhss` the right-hand-sides of a `match`-syntax notation,
+We tag them with with fresh identifiers `alt_idx`. We use them to detect whether an alternative
+has been used or not.
+The result is a triple `(altIdxMap, ignoreIfUnused, rhssNew)` where
+- `altIdxMap` is a mapping from the `alt_idx` identifiers to right-hand-side indices.
+  That is, the map contains the entry `alt_idx ↦ i` if `alt_idx` was used to mark `rhss[i]`.
+- `i ∈ ignoreIfUnused` if `rhss[i]` is marked with `no_error_if_unused%`
+- `rhssNew` is the updated array of right-hand-sides.
+-/
+private def markRhss (rhss : Array Term) : TermElabM (NameMap Nat × IdxSet × Array Term) := do
+  let mut altIdxMap : NameMap Nat := {}
+  let mut ignoreIfUnused : IdxSet := {}
+  let mut rhssNew := #[]
+  for rhs in rhss do
+    match rhs with
+    | `(no_error_if_unused% $_ ) => ignoreIfUnused := ignoreIfUnused.insert rhssNew.size
+    | _ => pure ()
+    let (idx, rhs) ← withFreshMacroScope do
+      let idx ← `(alt_idx)
+      let rhs ← `(alt_idx $rhs)
+      return (idx, rhs)
+    altIdxMap := altIdxMap.insert idx.getId rhssNew.size
+    rhssNew := rhssNew.push rhs
+  return (altIdxMap, ignoreIfUnused, rhssNew)
+
+/--
+Given the mapping `idxMap` built using `markRhss`, and `stx` the resulting syntax after expanding `match`-syntax,
+return the pair `(stxNew, usedSet)`, where `stxNew` is `stx` after removing the `alt_idx` markers in `idxMap`,
+and `i ∈ usedSet` if `stx` contains an `alt_idx` s.t. `alt_idx ↦ i` is in `idxMap`.
+That is, `usedSet` contains the index of the used match-syntax right-hand-sides.
+-/
+private partial def findUsedAlts (stx : Syntax) (altIdxMap : NameMap Nat) : TermElabM (Syntax × IdxSet) := do
+  go stx |>.run {}
+where
+  go (stx : Syntax) : StateRefT IdxSet TermElabM Syntax := do
+    match stx with
+    | `($id:ident $rhs:term) =>
+      if let some idx := altIdxMap.find? id.getId then
+        modify fun s => s.insert idx
+        return rhs
+    | _ => pure ()
+    match stx with
+    | .node info kind cs => return .node info kind (← cs.mapM go)
+    | _ => return stx
+
+/--
+Check whether `stx` has unused alternatives, and remove the auxiliary `alt_idx` markers from it (see `markRhss`).
+The parameter `alts` provides position information for alternatives.
+`altIdxMap` and `ignoreIfUnused` are the map and set built using `markRhss`.
+-/
+private def checkUnusedAlts (stx : Syntax) (alts : Array Syntax) (altIdxMap : NameMap Nat) (ignoreIfUnused : IdxSet) : TermElabM Syntax := do
+  let (stx, used) ← findUsedAlts stx altIdxMap
+  for i in [:alts.size] do
+    unless used.contains i || ignoreIfUnused.contains i do
+      logErrorAt alts[i]! s!"redundant alternative #{i+1}"
+  return stx
+
 def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
   match stx with
-  | `(match $[$discrs:term],* with $[| $[$patss],* => $rhss]*) => do
+  | `(match $[$discrs:term],* with $[|%$alt $[$patss],* => $rhss]*) => do
     if !patss.any (·.any (fun
       | `($_@$pat) => pat.raw.isQuot
       | pat        => pat.raw.isQuot)) then
       -- no quotations => fall back to regular `match`
       throwUnsupportedSyntax
+    let (altIdxMap, ignoreIfUnused, rhss) ← markRhss rhss
     let stx ← compileStxMatch discrs.toList (patss.map (·.toList) |>.zip rhss).toList
+    let stx ← checkUnusedAlts stx alt altIdxMap ignoreIfUnused
     trace[Elab.match_syntax.result] "{stx}"
     return stx
   | _ => throwUnsupportedSyntax
@@ -575,6 +639,11 @@ def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
   they are not. -/
 @[builtinTermElab «match»] def elabMatchSyntax : TermElab :=
   adaptExpander match_syntax.expand
+
+@[builtinTermElab noErrorIfUnused] def elabNoErrorIfUnused : TermElab := fun stx expectedType? =>
+  match stx with
+  | `(no_error_if_unused% $term) => elabTerm term expectedType?
+  | _ => throwUnsupportedSyntax
 
 builtin_initialize
   registerTraceClass `Elab.match_syntax

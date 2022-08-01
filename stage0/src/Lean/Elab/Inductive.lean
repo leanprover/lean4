@@ -12,6 +12,7 @@ import Lean.Meta.SizeOf
 import Lean.Meta.Injective
 import Lean.Meta.IndPredBelow
 import Lean.Elab.Command
+import Lean.Elab.ComputedFields
 import Lean.Elab.DefView
 import Lean.Elab.DeclUtil
 import Lean.Elab.Deriving.Basic
@@ -46,6 +47,13 @@ structure CtorView where
   type?     : Option Syntax
   deriving Inhabited
 
+structure ComputedFieldView where
+  ref       : Syntax
+  modifiers : Syntax
+  fieldId   : Name
+  type      : Syntax.Term
+  matchAlts : TSyntax ``Parser.Term.matchAlts
+
 structure InductiveView where
   ref             : Syntax
   declId          : Syntax
@@ -57,6 +65,7 @@ structure InductiveView where
   type?           : Option Syntax
   ctors           : Array CtorView
   derivingClasses : Array DerivingClassView
+  computedFields  : Array ComputedFieldView
   deriving Inhabited
 
 structure ElabHeaderResult where
@@ -95,21 +104,21 @@ private partial def elabHeaderAux (views : Array InductiveView) (i : Nat) (acc :
       return acc
 
 private def checkNumParams (rs : Array ElabHeaderResult) : TermElabM Nat := do
-  let numParams := rs[0].params.size
+  let numParams := rs[0]!.params.size
   for r in rs do
     unless r.params.size == numParams do
       throwErrorAt r.view.ref "invalid inductive type, number of parameters mismatch in mutually inductive datatypes"
   return numParams
 
 private def checkUnsafe (rs : Array ElabHeaderResult) : TermElabM Unit := do
-  let isUnsafe := rs[0].view.modifiers.isUnsafe
+  let isUnsafe := rs[0]!.view.modifiers.isUnsafe
   for r in rs do
     unless r.view.modifiers.isUnsafe == isUnsafe do
       throwErrorAt r.view.ref "invalid inductive type, cannot mix unsafe and safe declarations in a mutually inductive datatypes"
 
 private def checkLevelNames (views : Array InductiveView) : TermElabM Unit := do
   if views.size > 1 then
-    let levelNames := views[0].levelNames
+    let levelNames := views[0]!.levelNames
     for view in views do
       unless view.levelNames == levelNames do
         throwErrorAt view.ref "invalid inductive type, universe parameters mismatch in mutually inductive datatypes"
@@ -153,7 +162,7 @@ private def checkHeader (r : ElabHeaderResult) (numParams : Nat) (firstType? : O
 -- Auxiliary function for checking whether the types in mutually inductive declaration are compatible.
 private partial def checkHeaders (rs : Array ElabHeaderResult) (numParams : Nat) (i : Nat) (firstType? : Option Expr) : TermElabM Unit := do
   if i < rs.size then
-    let type ← checkHeader rs[i] numParams firstType?
+    let type ← checkHeader rs[i]! numParams firstType?
     checkHeaders rs numParams (i+1) type
 
 private def elabHeader (views : Array InductiveView) : TermElabM (Array ElabHeaderResult) := do
@@ -164,7 +173,7 @@ private def elabHeader (views : Array InductiveView) : TermElabM (Array ElabHead
     checkHeaders rs numParams 0 none
   return rs
 
-/- Create a local declaration for each inductive type in `rs`, and execute `x params indFVars`, where `params` are the inductive type parameters and
+/-- Create a local declaration for each inductive type in `rs`, and execute `x params indFVars`, where `params` are the inductive type parameters and
    `indFVars` are the new local declarations.
    We use the local context/instances and parameters of rs[0].
    Note that this method is executed after we executed `checkHeaders` and established all
@@ -172,14 +181,14 @@ private def elabHeader (views : Array InductiveView) : TermElabM (Array ElabHead
 private partial def withInductiveLocalDecls (rs : Array ElabHeaderResult) (x : Array Expr → Array Expr → TermElabM α) : TermElabM α := do
   let namesAndTypes ← rs.mapM fun r => do
     let type ← mkTypeFor r
-    pure (r.view.shortDeclName, type)
-  let r0     := rs[0]
+    pure (r.view.declName, r.view.shortDeclName, type)
+  let r0     := rs[0]!
   let params := r0.params
   withLCtx r0.lctx r0.localInsts <| withRef r0.view.ref do
     let rec loop (i : Nat) (indFVars : Array Expr) := do
       if h : i < namesAndTypes.size then
-        let (id, type) := namesAndTypes.get ⟨i, h⟩
-        withLocalDecl id BinderInfo.auxDecl type fun indFVar => loop (i+1) (indFVars.push indFVar)
+        let (declName, shortDeclName, type) := namesAndTypes.get ⟨i, h⟩
+        Term.withAuxDecl shortDeclName type declName fun indFVar => loop (i+1) (indFVars.push indFVar)
       else
         x params indFVars
     loop 0 #[]
@@ -195,7 +204,7 @@ where
   go (type : Expr) (acc : Array Name) : Array Name :=
     match type with
     | .forallE n _ b _ => go b (acc.push n)
-    | .mdata _ b _     => go b acc
+    | .mdata _ b       => go b acc
     | _ => acc
 
 /--
@@ -208,11 +217,11 @@ where
   go (type : Expr) (i : Nat) : Expr :=
     if i < newNames.size then
       match type with
-      | .forallE n d b data =>
+      | .forallE n d b bi =>
         if n.hasMacroScopes then
-          mkForall newNames[i] data.binderInfo d (go b (i+1))
+          mkForall newNames[i]! bi d (go b (i+1))
         else
-          mkForall n data.binderInfo d (go b (i+1))
+          mkForall n bi d (go b (i+1))
       | _ => type
     else
       type
@@ -286,7 +295,7 @@ private def withExplicitToImplicit (xs : Array Expr) (k : TermElabM α) : TermEl
       toImplicit := toImplicit.push (x.fvarId!, BinderInfo.implicit)
   withNewBinderInfos toImplicit k
 
-/-
+/--
   Elaborate constructor types.
 
   Remark: we check whether the resulting type is correct, and the parameter occurrences are consistent, but
@@ -362,8 +371,8 @@ where
         unless args.size ≥ params.size do
           throwError "unexpected inductive type occurrence{indentExpr e}"
         for i in [:params.size] do
-          let param := params[i]
-          let arg := args[i]
+          let param := params[i]!
+          let arg := args[i]!
           unless (← isDefEq param arg) do
             throwError "inductive datatype parameter mismatch{indentExpr arg}\nexpected{indentExpr param}"
           args := args.set! i param
@@ -377,18 +386,18 @@ private def getResultingUniverse : List InductiveType → TermElabM Level
   | indType :: _ => forallTelescopeReducing indType.type fun _ r => do
     let r ← whnfD r
     match r with
-    | Expr.sort u _ => return u
-    | _             => throwError "unexpected inductive type resulting type{indentExpr r}"
+    | Expr.sort u => return u
+    | _           => throwError "unexpected inductive type resulting type{indentExpr r}"
 
 /--
   Return `some ?m` if `u` is of the form `?m + k`.
   Return none if `u` does not contain universe metavariables.
   Throw exception otherwise. -/
-def shouldInferResultUniverse (u : Level) : TermElabM (Option MVarId) := do
+def shouldInferResultUniverse (u : Level) : TermElabM (Option LMVarId) := do
   let u ← instantiateLevelMVars u
   if u.hasMVar then
     match u.getLevelOffset with
-    | Level.mvar mvarId _ => return some mvarId
+    | Level.mvar mvarId => return some mvarId
     | _ =>
       throwError "cannot infer resulting universe level of inductive datatype, given level contains metavariables {mkSort u}, provide universe explicitly"
   else
@@ -398,7 +407,7 @@ def shouldInferResultUniverse (u : Level) : TermElabM (Option MVarId) := do
   Convert universe metavariables into new parameters. It skips `univToInfer?` (the inductive datatype resulting universe) because
   it should be inferred later using `inferResultingUniverse`.
 -/
-private def levelMVarToParam (indTypes : List InductiveType) (univToInfer? : Option MVarId) : TermElabM (List InductiveType) :=
+private def levelMVarToParam (indTypes : List InductiveType) (univToInfer? : Option LMVarId) : TermElabM (List InductiveType) :=
   go |>.run' 1
 where
   levelMVarToParam' (type : Expr) : StateRefT Nat TermElabM Expr := do
@@ -438,11 +447,11 @@ def accLevel (u : Level) (r : Level) (rOffset : Nat) : OptionT (StateT (Array Le
 where
   go (u : Level) (rOffset : Nat) : OptionT (StateT (Array Level) Id) Unit := do
     match u, rOffset with
-    | .max u v _,  rOffset   => go u rOffset; go v rOffset
-    | .imax u v _, rOffset   => go u rOffset; go v rOffset
-    | .zero _,     _         => return ()
-    | .succ u _,   rOffset+1 => go u rOffset
-    | u,           rOffset   =>
+    | .max u v,  rOffset   => go u rOffset; go v rOffset
+    | .imax u v, rOffset   => go u rOffset; go v rOffset
+    | .zero,     _         => return ()
+    | .succ u,   rOffset+1 => go u rOffset
+    | u,         rOffset   =>
       if rOffset == 0 && u == r then
         return ()
       else if r.occurs u  then
@@ -537,8 +546,8 @@ private def checkResultingUniverses (views : Array InductiveView) (numParams : N
           let v := (← instantiateLevelMVars (← getLevel type)).normalize
           let rec check (v' : Level) (u' : Level) : TermElabM Unit :=
             match v', u' with
-            | .succ v' _, .succ u' _ => check v' u'
-            | .mvar id _, .param ..  =>
+            | .succ v', .succ u' => check v' u'
+            | .mvar id, .param ..  =>
               /- Special case:
                  The constructor parameter `v` is at unverse level `?v+k` and
                  the resulting inductive universe level is `u'+k`, where `u'` is a parameter (or zero).
@@ -554,7 +563,7 @@ private def checkResultingUniverses (views : Array InductiveView) (numParams : N
                  -----------------------------------------------------------
               -/
               assignLevelMVar id u'
-            | .mvar id _, .zero _    => assignLevelMVar id u' -- TODO: merge with previous case
+            | .mvar id, .zero => assignLevelMVar id u' -- TODO: merge with previous case
             | _, _ =>
               unless u.geq v do
                 let mut msg := m!"invalid universe level in constructor '{ctor.name}', parameter"
@@ -601,12 +610,12 @@ private def mkIndFVar2Const (views : Array InductiveView) (indFVars : Array Expr
   let levelParams := levelNames.map mkLevelParam;
   let mut m : ExprMap Expr := {}
   for i in [:views.size] do
-    let view    := views[i]
-    let indFVar := indFVars[i]
+    let view    := views[i]!
+    let indFVar := indFVars[i]!
     m := m.insert indFVar (mkConst view.declName levelParams)
   return m
 
-/- Remark: `numVars <= numParams`. `numVars` is the number of context `variables` used in the inductive declaration,
+/-- Remark: `numVars <= numParams`. `numVars` is the number of context `variables` used in the inductive declaration,
    and `numParams` is `numVars` + number of explicit parameters provided in the declaration. -/
 private def replaceIndFVarsWithConsts (views : Array InductiveView) (indFVars : Array Expr) (levelNames : List Name)
     (numVars : Nat) (numParams : Nat) (indTypes : List InductiveType) : TermElabM (List InductiveType) :=
@@ -669,7 +678,7 @@ private def computeFixedIndexBitMask (numParams : Nat) (indType : InductiveType)
         forallTelescopeReducing ctor.type fun xs type => do
           let typeArgs := type.getAppArgs
           for i in [numParams:arity] do
-            unless i < xs.size && xs[i] == typeArgs[i] do -- Remark: if we want to allow arguments to be rearranged, this test should be xs.contains typeArgs[i]
+            unless i < xs.size && xs[i]! == typeArgs[i]! do -- Remark: if we want to allow arguments to be rearranged, this test should be xs.contains typeArgs[i]
               maskRef.modify fun mask => mask.set! i false
           for x in xs[numParams:] do
             let xType ← inferType x
@@ -680,7 +689,7 @@ private def computeFixedIndexBitMask (numParams : Nat) (indType : InductiveType)
                   if i >= typeArgs.size then
                     maskRef.modify (resetMaskAt · i)
                   else
-                    unless eArgs[i] == typeArgs[i] do
+                    unless eArgs[i]! == typeArgs[i]! do
                       maskRef.modify (resetMaskAt · i)
         go ctors
     go indType.ctors
@@ -713,14 +722,14 @@ private partial def fixedIndicesToParams (numParams : Nat) (indTypes : Array Ind
   -- We process just a non-fixed prefix of the indices for now. Reason: we don't want to change the order.
   -- TODO: extend it in the future. For example, it should be reasonable to change
   -- the order of indices generated by the auto implicit feature.
-  let mask := masks[0]
-  forallBoundedTelescope indTypes[0].type numParams fun params type => do
+  let mask := masks[0]!
+  forallBoundedTelescope indTypes[0]!.type numParams fun params type => do
     let otherTypes ← indTypes[1:].toArray.mapM fun indType => do whnfD (← instantiateForall indType.type params)
     let ctorTypes ← indTypes.toList.mapM fun indType => indType.ctors.mapM fun ctor => do whnfD (← instantiateForall ctor.type params)
     let typesToCheck := otherTypes.toList ++ ctorTypes.join
     let rec go (i : Nat) (type : Expr) (typesToCheck : List Expr) : MetaM Nat := do
       if i < mask.size then
-        if !masks.all fun mask => i < mask.size && mask[i] then
+        if !masks.all fun mask => i < mask.size && mask[i]! then
            return i
         if !type.isForall then
           return i
@@ -736,7 +745,7 @@ private partial def fixedIndicesToParams (numParams : Nat) (indTypes : Array Ind
     go numParams type typesToCheck
 
 private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : TermElabM Unit := Term.withoutSavingRecAppSyntax do
-  let view0 := views[0]
+  let view0 := views[0]!
   let scopeLevelNames ← Term.getLevelNames
   checkLevelNames views
   let allUserLevelNames := view0.levelNames
@@ -747,9 +756,9 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
       trace[Elab.inductive] "indFVars: {indFVars}"
       let mut indTypesArray := #[]
       for i in [:views.size] do
-        let indFVar := indFVars[i]
-        Term.addLocalVarInfo views[i].declId indFVar
-        let r       := rs[i]
+        let indFVar := indFVars[i]!
+        Term.addLocalVarInfo views[i]!.declId indFVar
+        let r       := rs[i]!
         let type  ← mkForallFVars params r.type
         let ctors ← withExplicitToImplicit params (elabCtors indFVars indFVar params r)
         indTypesArray := indTypesArray.push { name := r.view.declName, type, ctors }
@@ -798,8 +807,35 @@ private def applyDerivingHandlers (views : Array InductiveView) : CommandElabM U
             declNames := declNames.push view.declName
         classView.applyHandlers declNames
 
+private def applyComputedFields (indViews : Array InductiveView) : CommandElabM Unit := do
+  if indViews.all (·.computedFields.isEmpty) then return
+
+  let mut computedFields := #[]
+  let mut computedFieldDefs := #[]
+  for indView@{declName, ..} in indViews do
+    for {ref, fieldId, type, matchAlts, modifiers, ..} in indView.computedFields do
+      computedFieldDefs := computedFieldDefs.push <| ← do
+        let modifiers ← match modifiers with
+          | `(Lean.Parser.Command.declModifiersT| $[$doc:docComment]? $[$attrs:attributes]? $[$vis]? $[noncomputable]?) =>
+            `(Lean.Parser.Command.declModifiersT| $[$doc]? $[$attrs]? $[$vis]? noncomputable)
+          | _ => do
+            withRef modifiers do logError "unsupported modifiers for computed field"
+            `(Parser.Command.declModifiersT| noncomputable)
+        `($(⟨modifiers⟩):declModifiers
+          def%$ref $(mkIdent <| `_root_ ++ declName ++ fieldId):ident : $type $matchAlts:matchAlts)
+    let computedFieldNames := indView.computedFields.map fun {fieldId, ..} => declName ++ fieldId
+    computedFields := computedFields.push (declName, computedFieldNames)
+  withScope (fun scope => { scope with
+      opts := scope.opts
+        |>.setBool `bootstrap.genMatcherCode false
+        |>.setBool `elaboratingComputedFields true}) <|
+    elabCommand <| ← `(mutual $computedFieldDefs* end)
+
+  liftTermElabM indViews[0]!.declName do
+    ComputedFields.setComputedFields computedFields
+
 def elabInductiveViews (views : Array InductiveView) : CommandElabM Unit := do
-  let view0 := views[0]
+  let view0 := views[0]!
   let ref := view0.ref
   runTermElabM view0.declName fun vars => withRef ref do
     mkInductiveDecl vars views
@@ -807,6 +843,7 @@ def elabInductiveViews (views : Array InductiveView) : CommandElabM Unit := do
     Lean.Meta.IndPredBelow.mkBelow view0.declName
     for view in views do
       mkInjectiveTheorems view.declName
+  applyComputedFields views -- NOTE: any generated code before this line is invalid
   applyDerivingHandlers views
   runTermElabM view0.declName fun _ => withRef ref do
     for view in views do

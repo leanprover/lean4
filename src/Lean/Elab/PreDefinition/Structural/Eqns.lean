@@ -25,7 +25,7 @@ private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
   trace[Elab.definition.structural.eqns] "proving: {type}"
   withNewMCtxDepth do
     let main ← mkFreshExprSyntheticOpaqueMVar type
-    let (_, mvarId) ← intros main.mvarId!
+    let (_, mvarId) ← main.mvarId!.intros
     unless (← tryURefl mvarId) do -- catch easy cases
       go (← deltaLHS mvarId)
     instantiateMVars main
@@ -65,8 +65,8 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
   let baseName := mkPrivateName (← getEnv) info.declName
   let mut thmNames := #[]
   for i in [: eqnTypes.size] do
-    let type := eqnTypes[i]
-    trace[Elab.definition.structural.eqns] "{eqnTypes[i]}"
+    let type := eqnTypes[i]!
+    trace[Elab.definition.structural.eqns] "{eqnTypes[i]!}"
     let name := baseName ++ (`_eq).appendIndexAfter (i+1)
     thmNames := thmNames.push name
     let value ← mkProof info.declName type

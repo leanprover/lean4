@@ -21,6 +21,9 @@ instance : Coe Name FVarId where
 instance : Coe Name MVarId where
   coe n := { name := n }
 
+instance : Coe Name LMVarId where
+  coe n := { name := n }
+
 def tst1 : MetaM Unit := do
 let u := mkLevelParam `u
 let v := mkLevelMVar  `v

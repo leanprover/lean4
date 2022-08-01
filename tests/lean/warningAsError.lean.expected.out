@@ -1,0 +1,4 @@
+warningAsError.lean:6:6-6:7: warning: `g` has been deprecated, use `f` instead
+1
+warningAsError.lean:10:6-10:7: error: `g` has been deprecated, use `f` instead
+1

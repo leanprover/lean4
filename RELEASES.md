@@ -1,6 +1,222 @@
 Unreleased
 ---------
 
+* [Missing doc linter](https://github.com/leanprover/lean4/pull/1390)
+
+* `match`-syntax notation now checks for unused alternatives. See issue [#1371](https://github.com/leanprover/lean4/issues/1371).
+
+* Auto-completion for structure instance fields. Example:
+  ```lean
+  example : Nat × Nat := {
+    f -- HERE
+  }
+  ```
+  `fst` now appears in the list of auto-completion suggestions.
+
+* Auto-completion for dotted identifier notation. Example:
+  ```lean
+  example : Nat :=
+    .su -- HERE
+  ```
+  `succ` now appears in the list of auto-completion suggestions.
+
+* `nat_lit` is not needed anymore when declaring `OfNat` instances. See issues [#1389](https://github.com/leanprover/lean4/issues/1389) and [#875](https://github.com/leanprover/lean4/issues/875). Example:
+  ```lean
+  inductive Bit where
+    | zero
+    | one
+
+  instance inst0 : OfNat Bit 0 where
+    ofNat := Bit.zero
+
+  instance : OfNat Bit 1 where
+    ofNat := Bit.one
+
+  example : Bit := 0
+  example : Bit := 1
+  ```
+
+* Add `[elabAsElim]` attribute (it is called `elab_as_eliminator` in Lean 3). Motivation: simplify the Mathlib port to Lean 4.
+
+* `Trans` type class now accepts relations in `Type u`. See this [Zulip issue](https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/Calc.20mode/near/291214574).
+
+* Accept unescaped keywords as inductive constructor names. Escaping can often be avoided at use sites via dot notation.
+  ```lean
+  inductive MyExpr
+    | let : ...
+
+  def f : MyExpr → MyExpr
+    | .let ... => .let ...
+  ```
+
+* Throw an error message at parametric local instances such as `[Nat -> Decidable p]`. The type class resolution procedure
+  cannot use this kind of local instance because the parameter does not have a forward dependency.
+  This check can be disabled using `set_option checkBinderAnnotations false`.
+
+* Add option `pp.showLetValues`. When set to `false`, the info view hides the value of `let`-variables in a goal.
+  By default, it is `true` when visualizing tactic goals, and `false` otherwise.
+  See [issue #1345](https://github.com/leanprover/lean4/issues/1345) for additional details.
+
+* Add option `warningAsError`. When set to true, warning messages are treated as errors.
+
+* Support dotted notation and named arguments in patterns. Example:
+  ```lean
+  def getForallBinderType (e : Expr) : Expr :=
+    match e with
+    | .forallE (binderType := type) .. => type
+    | _ => panic! "forall expected"
+  ```
+
+* "jump-to-definition" now works for function names embedded in the following attributes
+  `@[implementedBy funName]`, `@[tactic parserName]`, `@[termElab parserName]`, `@[commandElab parserName]`,
+  `@[builtinTactic parserName]`, `@[builtinTermElab parserName]`, and `@[builtinCommandElab parserName]`.
+   See [issue #1350](https://github.com/leanprover/lean4/issues/1350).
+
+* Improve `MVarId` methods discoverability. See [issue #1346](https://github.com/leanprover/lean4/issues/1346).
+  We still have to add similar methods for `FVarId`, `LVarId`, `Expr`, and other objects.
+  Many existing methods have been marked as deprecated.
+
+* Add attribute `[deprecated]` for marking deprecated declarations. Examples:
+  ```lean
+  def g (x : Nat) := x + 1
+
+  -- Whenever `f` is used, a warning message is generated suggesting to use `g` instead.
+  @[deprecated g]
+  def f (x : Nat) := x + 1
+
+  #check f 0 -- warning: `f` has been deprecated, use `g` instead
+
+  -- Whenever `h` is used, a warning message is generated.
+  @[deprecated]
+  def h (x : Nat) := x + 1
+
+  #check h 0 -- warning: `h` has been deprecated
+  ```
+
+* Add type `LevelMVarId` (and abbreviation `LMVarId`) for universe level metavariable ids.
+  Motivation: prevent meta-programmers from mixing up universe and expression metavariable ids.
+
+* Improve `calc` term and tactic. See [issue #1342](https://github.com/leanprover/lean4/issues/1342).
+
+* [Relaxed antiquotation parsing](https://github.com/leanprover/lean4/pull/1272) further reduces the need for explicit `$x:p` antiquotation kind annotations.
+
+* Add support for computed fields in inductives. Example:
+  ```lean
+  inductive Exp
+    | var (i : Nat)
+    | app (a b : Exp)
+  with
+    @[computedField] hash : Exp → Nat
+      | .var i => i
+      | .app a b => a.hash * b.hash + 1
+  ```
+  The result of the `Exp.hash` function is then stored as an extra "computed" field in the `.var` and `.app` constructors;
+  `Exp.hash` accesses this field and thus runs in constant time (even on dag-like values).
+
+* Update `a[i]` notation. It is now based on the typeclass
+  ```lean
+  class GetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w)) (dom : outParam (cont → idx → Prop)) where
+    getElem (xs : cont) (i : idx) (h : dom xs i) : Elem
+  ```
+  The notation `a[i]` is now defined as follows
+  ```lean
+  macro:max x:term noWs "[" i:term "]" : term => `(getElem $x $i (by get_elem_tactic))
+  ```
+  The proof that `i` is a valid index is synthesized using the tactic `get_elem_tactic`.
+  For example, the type `Array α` has the following instances
+  ```lean
+  instance : GetElem (Array α) Nat α fun xs i => LT.lt i xs.size where ...
+  instance : GetElem (Array α) USize α fun xs i => LT.lt i.toNat xs.size where ...
+  ```
+  You can use the notation `a[i]'h` to provide the proof manually.
+  Two other notations were introduced: `a[i]!` and `a[i]?`, For `a[i]!`, a panic error message is produced at
+  runtime if `i` is not a valid index. `a[i]?` has type `Option α`, and `a[i]?` evaluates to `none` if the
+  index `i` is not valid.
+  The three new notations are defined as follows:
+  ```lean
+  @[inline] def getElem' [GetElem cont idx elem dom] (xs : cont) (i : idx) (h : dom xs i) : elem :=
+  getElem xs i h
+
+  @[inline] def getElem! [GetElem cont idx elem dom] [Inhabited elem] (xs : cont) (i : idx) [Decidable (dom xs i)] : elem :=
+    if h : _ then getElem xs i h else panic! "index out of bounds"
+
+  @[inline] def getElem? [GetElem cont idx elem dom] (xs : cont) (i : idx) [Decidable (dom xs i)] : Option elem :=
+    if h : _ then some (getElem xs i h) else none
+
+  macro:max x:term noWs "[" i:term "]" noWs "?" : term => `(getElem? $x $i)
+  macro:max x:term noWs "[" i:term "]" noWs "!" : term => `(getElem! $x $i)
+  macro x:term noWs "[" i:term "]'" h:term:max : term => `(getElem' $x $i $h)
+  ```
+  See discussion on [Zulip](https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/String.2EgetOp/near/287855425).
+  Examples:
+  ```lean
+  example (a : Array Int) (i : Nat) : Int :=
+    a[i] -- Error: failed to prove index is valid ...
+
+  example (a : Array Int) (i : Nat) (h : i < a.size) : Int :=
+    a[i] -- Ok
+
+  example (a : Array Int) (i : Nat) : Int :=
+    a[i]! -- Ok
+
+  example (a : Array Int) (i : Nat) : Option Int :=
+    a[i]? -- Ok
+
+  example (a : Array Int) (h : a.size = 2) : Int :=
+    a[0]'(by rw [h]; decide) -- Ok
+
+  example (a : Array Int) (h : a.size = 2) : Int :=
+    have : 0 < a.size := by rw [h]; decide
+    have : 1 < a.size := by rw [h]; decide
+    a[0] + a[1] -- Ok
+
+  example (a : Array Int) (i : USize) (h : i.toNat < a.size) : Int :=
+    a[i] -- Ok
+  ```
+  The `get_elem_tactic` is defined as
+  ```lean
+  macro "get_elem_tactic" : tactic =>
+    `(first
+      | get_elem_tactic_trivial
+      | fail "failed to prove index is valid, ..."
+     )
+  ```
+  The `get_elem_tactic_trivial` auxiliary tactic can be extended using `macro_rules`. By default, it tries `trivial`, `simp_arith`, and a special case for `Fin`. In the future, it will also try `linarith`.
+  You can extend `get_elem_tactic_trivial` using `my_tactic` as follows
+  ```lean
+  macro_rules
+  | `(tactic| get_elem_tactic_trivial) => `(tactic| my_tactic)
+  ```
+  Note that `Idx`'s type in `GetElem` does not depend on `Cont`. So, you cannot write the instance `instance : GetElem (Array α) (Fin ??) α fun xs i => ...`, but the Lean library comes equipped with the following auxiliary instance:
+  ```lean
+  instance [GetElem cont Nat elem dom] : GetElem cont (Fin n) elem fun xs i => dom xs i where
+    getElem xs i h := getElem xs i.1 h
+  ```
+  and helper tactic
+  ```lean
+  macro_rules
+  | `(tactic| get_elem_tactic_trivial) => `(tactic| apply Fin.val_lt_of_le; get_elem_tactic_trivial; done)
+  ```
+  Example:
+  ```lean
+  example (a : Array Nat) (i : Fin a.size) :=
+    a[i] -- Ok
+
+  example (a : Array Nat) (h : n ≤ a.size) (i : Fin n) :=
+    a[i] -- Ok
+  ```
+
+* Better support for qualified names in recursive declarations. The following is now supported:
+  ```lean
+  namespace Nat
+    def fact : Nat → Nat
+    | 0 => 1
+    | n+1 => (n+1) * Nat.fact n
+  end Nat
+  ```
+
+* Update Lake to v3.2.1. See the [v3.2.1 release notes](https://github.com/leanprover/lake/releases/tag/v3.2.1) for detailed changes.
+
 * Add support for `CommandElabM` monad at `#eval`. Example:
   ```lean
   import Lean
@@ -115,8 +331,6 @@ Unreleased
   ```
 
 * [`let/if` indentation in `do` blocks in now supported.](https://github.com/leanprover/lean4/issues/1120)
-
-* Update Lake to v3.1.1. See the [v3.1.0 release note](https://github.com/leanprover/lake/releases/tag/v3.1.0) for detailed changes.
 
 * Add unnamed antiquotation `$_` for use in syntax quotation patterns.
 

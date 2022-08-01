@@ -41,7 +41,7 @@ instance {ε σ} : MonadLift (ST σ) (EST ε σ) := ⟨fun x s =>
 
 namespace ST
 
-/- References -/
+/-- References -/
 opaque RefPointed : NonemptyType.{0}
 
 structure Ref (σ : Type) (α : Type) : Type where
@@ -53,7 +53,7 @@ instance {σ α} [s : Nonempty α] : Nonempty (Ref σ α) :=
 
 namespace Prim
 
-/- Auxiliary definition for showing that `ST σ α` is inhabited when we have a `Ref σ α` -/
+/-- Auxiliary definition for showing that `ST σ α` is inhabited when we have a `Ref σ α` -/
 private noncomputable def inhabitedFromRef {σ α} (r : Ref σ α) : ST σ α :=
   let _ : Inhabited α := Classical.inhabited_of_nonempty r.h
   pure default

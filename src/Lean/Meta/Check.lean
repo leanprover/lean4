@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.InferType
 
-/-
+/-!
 This is not the Kernel type checker, but an auxiliary method for checking
 whether terms produced by tactics and `isDefEq` are type correct.
 -/
@@ -32,11 +32,11 @@ private def getFunctionDomain (f : Expr) : MetaM (Expr × BinderInfo) := do
   let fType ← inferType f
   let fType ← whnfD fType
   match fType with
-  | Expr.forallE _ d _ c => return (d, c.binderInfo)
+  | Expr.forallE _ d _ c => return (d, c)
   | _                    => throwFunctionExpected f
 
-/-
-Given to expressions `a` and `b`, this method tries to annotate terms with `pp.explicit := true` to
+/--
+Given two expressions `a` and `b`, this method tries to annotate terms with `pp.explicit := true` to
 expose "implicit" differences. For example, suppose `a` and `b` are of the form
 ```lean
 @HashMap Nat Nat eqInst hasInst1
@@ -92,8 +92,8 @@ where
             return (mkAppN a.getAppFn as', mkAppN b.getAppFn bs')
           else
             for i in [:as.size] do
-              unless (← isDefEq as[i] bs[i]) do
-                let (ai, bi) ← visit as[i] bs[i]
+              unless (← isDefEq as[i]! bs[i]!) do
+                let (ai, bi) ← visit as[i]! bs[i]!
                 as := as.set! i ai
                 bs := bs.set! i bi
             let a := mkAppN a.getAppFn as
@@ -104,14 +104,14 @@ where
 
   hasExplicitDiff? (xs as bs : Array Expr) : MetaM (Option (Array Expr × Array Expr)) := do
     for i in [:xs.size] do
-      let localDecl ← getLocalDecl xs[i].fvarId!
+      let localDecl ← xs[i]!.fvarId!.getDecl
       if localDecl.binderInfo.isExplicit then
-         unless (← isDefEq as[i] bs[i]) do
-           let (ai, bi) ← visit as[i] bs[i]
+         unless (← isDefEq as[i]! bs[i]!) do
+           let (ai, bi) ← visit as[i]! bs[i]!
            return some (as.set! i ai, bs.set! i bi)
     return none
 
-/-
+/--
   Return error message "has type{givenType}\nbut is expected to have type{expectedType}"
 -/
 def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr) : MetaM MessageData := do
@@ -143,45 +143,56 @@ def checkApp (f a : Expr) : MetaM Unit := do
       throwAppTypeMismatch f a
   | _ => throwFunctionExpected (mkApp f a)
 
-private partial def checkAux : Expr → MetaM Unit
-  | e@(Expr.forallE ..)  => checkForall e
-  | e@(Expr.lam ..)      => checkLambdaLet e
-  | e@(Expr.letE ..)     => checkLambdaLet e
-  | Expr.const c lvls _  => checkConstant c lvls
-  | Expr.app f a _       => do checkAux f; checkAux a; checkApp f a
-  | Expr.mdata _ e _     => checkAux e
-  | Expr.proj _ _ e _    => checkAux e
-  | _                    => pure ()
+private partial def checkAux (e : Expr) : MetaM Unit := do
+  check e |>.run
 where
-  checkLambdaLet (e : Expr) : MetaM Unit :=
+  check (e : Expr) : MonadCacheT ExprStructEq Unit MetaM Unit :=
+    checkCache { val := e : ExprStructEq } fun _ => do
+      match e with
+      | .forallE ..      => checkForall e
+      | .lam ..          => checkLambdaLet e
+      | .letE ..         => checkLambdaLet e
+      | .const c lvls    => checkConstant c lvls
+      | .app f a         => check f; check a; checkApp f a
+      | .mdata _ e       => check e
+      | .proj _ _ e      => check e
+      | _                => return ()
+
+  checkLambdaLet (e : Expr) : MonadCacheT ExprStructEq Unit MetaM Unit :=
     lambdaLetTelescope e fun xs b => do
       xs.forM fun x => do
         let xDecl ← getFVarLocalDecl x;
         match xDecl with
-        | LocalDecl.cdecl (type := t) .. =>
+        | .cdecl (type := t) .. =>
           ensureType t
-          checkAux t
-        | LocalDecl.ldecl (type := t) (value := v) .. =>
+          check t
+        | .ldecl (type := t) (value := v) .. =>
           ensureType t
-          checkAux t
+          check t
           let vType ← inferType v
           unless (← isDefEq t vType) do throwLetTypeMismatchMessage x.fvarId!
-          checkAux v
-      checkAux b
+          check v
+      check b
 
-  checkForall (e : Expr) : MetaM Unit :=
+  checkForall (e : Expr) : MonadCacheT ExprStructEq Unit MetaM Unit :=
     forallTelescope e fun xs b => do
       xs.forM fun x => do
         let xDecl ← getFVarLocalDecl x
         ensureType xDecl.type
-        checkAux xDecl.type
+        check xDecl.type
       ensureType b
-      checkAux b
+      check b
 
+/--
+Throw an exception if `e` is not type correct.
+-/
 def check (e : Expr) : MetaM Unit :=
   traceCtx `Meta.check do
     withTransparency TransparencyMode.all $ checkAux e
 
+/--
+Return true if `e` is type correct.
+-/
 def isTypeCorrect (e : Expr) : MetaM Bool := do
   try
     check e

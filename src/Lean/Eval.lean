@@ -9,9 +9,11 @@ namespace Lean
 
 universe u
 
-/-- `Eval` extension that gives access to the current environment & options.
-    The basic `Eval` class is in the prelude and should not depend on these
-    types. -/
+/--
+`Eval` extension that gives access to the current environment & options.
+The basic `Eval` class is in the prelude and should not depend on these
+types.
+-/
 class MetaEval (α : Type u) where
   eval : Environment → Options → α → (hideUnit : Bool) → IO Environment
 

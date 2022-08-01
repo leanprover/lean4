@@ -14,6 +14,15 @@ variable {α : Type u} {β : Type v} {γ : Type w}
 
 namespace List
 
+instance : GetElem (List α) Nat α fun as i => i < as.length where
+  getElem as i h := as.get ⟨i, h⟩
+
+@[simp] theorem cons_getElem_zero (a : α) (as : List α) (h : 0 < (a :: as).length) : getElem (a :: as) 0 h = a := by
+  rfl
+
+@[simp] theorem cons_getElem_succ (a : α) (as : List α) (i : Nat) (h : i + 1 < (a :: as).length) : getElem (a :: as) (i+1) h = getElem as i (Nat.lt_of_succ_lt_succ h) := by
+  rfl
+
 theorem length_add_eq_lengthTRAux (as : List α) (n : Nat) : as.length + n = as.lengthTRAux n := by
   induction as generalizing n with
   | nil  => simp [length, lengthTRAux]
@@ -325,6 +334,14 @@ def drop : Nat → List α → List α
   | _+1, []    => []
   | n+1, _::as => drop n as
 
+@[simp] theorem drop_nil : ([] : List α).drop i = [] := by
+  cases i <;> rfl
+
+theorem get_drop_eq_drop (as : List α) (i : Nat) (h : i < as.length) : as[i] :: as.drop (i+1) = as.drop i :=
+  match as, i with
+  | _::_, 0   => rfl
+  | _::_, i+1 => get_drop_eq_drop _ i _
+
 def take : Nat → List α → List α
   | 0,   _     => []
   | _+1, []    => []
@@ -544,9 +561,9 @@ instance [BEq α] [LawfulBEq α] : LawfulBEq (List α) where
       cases bs with
       | nil => intro h; contradiction
       | cons b bs =>
-        simp [BEq.beq, List.beq]
+        simp [show (a::as == b::bs) = (a == b && as == bs) from rfl]
         intro ⟨h₁, h₂⟩
-        exact ⟨eq_of_beq h₁, ih h₂⟩
+        exact ⟨h₁, ih h₂⟩
   rfl {as} := by
     induction as with
     | nil => rfl
@@ -560,5 +577,14 @@ theorem of_concat_eq_concat {as bs : List α} {a b : α} (h : as.concat a = bs.c
   | [], [_] => simp [concat] at h
   | [], _::_::_ => simp [concat] at h
   | _::_, _::_ => simp [concat] at h; simp [h]; apply of_concat_eq_concat h.2
+
+theorem concat_eq_append (as : List α) (a : α) : as.concat a = as ++ [a] := by
+  induction as <;> simp [concat, *]
+
+theorem drop_eq_nil_of_le {as : List α} {i : Nat} (h : as.length ≤ i) : as.drop i = [] := by
+  match as, i with
+  | [],    i   => simp
+  | _::_,  0   => simp at h
+  | _::as, i+1 => simp at h; exact @drop_eq_nil_of_le as i (Nat.le_of_succ_le_succ h)
 
 end List

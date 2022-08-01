@@ -9,7 +9,7 @@ import Lean.LocalContext
 import Lean.Util.ReplaceExpr
 
 namespace Lean.Meta
-/-
+/--
   Some tactics substitute hypotheses with expressions.
   We track these substitutions using `FVarSubst`.
   It is just a mapping from the original FVarId (internal) name
@@ -29,7 +29,7 @@ def isEmpty (s : FVarSubst) : Bool :=
 def contains (s : FVarSubst) (fvarId : FVarId) : Bool :=
   s.map.contains fvarId
 
-/- Add entry `fvarId |-> v` to `s` if `s` does not contain an entry for `fvarId`. -/
+/-- Add entry `fvarId |-> v` to `s` if `s` does not contain an entry for `fvarId`. -/
 def insert (s : FVarSubst) (fvarId : FVarId) (v : Expr) : FVarSubst :=
   if s.contains fvarId then s
   else
@@ -52,7 +52,7 @@ def apply (s : FVarSubst) (e : Expr) : Expr :=
   if s.map.isEmpty then e
   else if !e.hasFVar then e
   else e.replace fun e => match e with
-    | Expr.fvar fvarId _ => match s.map.find? fvarId with
+    | Expr.fvar fvarId => match s.map.find? fvarId with
       | none   => e
       | some v => v
     | _ => none

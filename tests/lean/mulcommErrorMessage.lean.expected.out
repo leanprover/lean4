@@ -15,20 +15,13 @@ has type
 but is expected to have type
   true = false : Prop
 mulcommErrorMessage.lean:16:3-17:47: error: type mismatch
-  fun a b => Bool.casesOn a (?m a b) (?m a b)
+  fun a b => ?m a b
 has type
-  (a b : Bool) → ?m a b a : Sort (imax 1 1 ?u)
+  (a : ?m) → (b : ?m a) → ?m a b : Sort (imax ?u ?u ?u)
 but is expected to have type
   a✝ * b✝ = b✝ * a✝ : Prop
 the following variables have been introduced by the implicit lambda feature
   a✝ : Bool
   b✝ : Bool
 you can disable implict lambdas using `@` or writing a lambda expression with `{}` or `[]` binder annotations.
-mulcommErrorMessage.lean:17:27-17:47: error: application type mismatch
-  Bool.casesOn a ?m (Bool.casesOn b ?m ?m)
-argument
-  Bool.casesOn b ?m ?m
-has type
-  ?m a b b : Sort ?u
-but is expected to have type
-  ?m a b true : Sort ?u
+mulcommErrorMessage.lean:16:12-17:47: error: failed to elaborate eliminator, expected type is not available

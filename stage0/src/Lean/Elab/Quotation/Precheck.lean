@@ -112,9 +112,8 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
     for arg in args.raw do
       match arg with
       | `(argument| ($_ := $e)) => precheck e
-      | `(argument| $e:term)    => precheck e
       | `(argument| ..)         => pure ()
-      | _ => throwUnsupportedSyntax
+      | `(argument| $e:term)    => precheck e
   | _ => throwUnsupportedSyntax
 
 @[builtinQuotPrecheck Lean.Parser.Term.paren] def precheckParen : Precheck

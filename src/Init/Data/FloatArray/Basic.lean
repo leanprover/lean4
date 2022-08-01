@@ -39,7 +39,7 @@ def size : (@& FloatArray) → Nat
 
 @[extern "lean_float_array_uget"]
 def uget : (a : @& FloatArray) → (i : USize) → i.toNat < a.size → Float
-  | ⟨ds⟩, i, h => ds.uget i h
+  | ⟨ds⟩, i, h => ds[i]
 
 @[extern "lean_float_array_fget"]
 def get : (ds : @& FloatArray) → (@& Fin ds.size) → Float
@@ -55,8 +55,11 @@ def get? (ds : FloatArray) (i : Nat) : Option Float :=
   else
     none
 
-@[inline] def getOp (self : FloatArray) (idx : Nat) : Float :=
-  self.get! idx
+instance : GetElem FloatArray Nat Float fun xs i => i < xs.size where
+  getElem xs i h := xs.get ⟨i, h⟩
+
+instance : GetElem FloatArray USize Float fun xs i => i.val < xs.size where
+  getElem xs i h := xs.uget i h
 
 @[extern "lean_float_array_uset"]
 def uset : (a : FloatArray) → (i : USize) → Float → i.toNat < a.size → FloatArray
@@ -81,12 +84,11 @@ partial def toList (ds : FloatArray) : List Float :=
       r.reverse
   loop 0 []
 
-/-
+/--
   We claim this unsafe implementation is correct because an array cannot have more than `usizeSz` elements in our runtime.
   This is similar to the `Array` version.
-
-  TODO: avoid code duplication in the future after we improve the compiler.
 -/
+-- TODO: avoid code duplication in the future after we improve the compiler.
 @[inline] unsafe def forInUnsafe {β : Type v} {m : Type v → Type w} [Monad m] (as : FloatArray) (b : β) (f : Float → β → m (ForInStep β)) : m β :=
   let sz := USize.ofNat as.size
   let rec @[specialize] loop (i : USize) (b : β) : m β := do
@@ -99,7 +101,7 @@ partial def toList (ds : FloatArray) : List Float :=
       pure b
   loop 0 b
 
-/- Reference implementation for `forIn` -/
+/-- Reference implementation for `forIn` -/
 @[implementedBy FloatArray.forInUnsafe]
 protected def forIn {β : Type v} {m : Type v → Type w} [Monad m] (as : FloatArray) (b : β) (f : Float → β → m (ForInStep β)) : m β :=
   let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
@@ -117,10 +119,8 @@ protected def forIn {β : Type v} {m : Type v → Type w} [Monad m] (as : FloatA
 instance : ForIn m FloatArray Float where
   forIn := FloatArray.forIn
 
-/-
-  See comment at forInUnsafe
-  TODO: avoid code duplication.
--/
+/-- See comment at `forInUnsafe` -/
+-- TODO: avoid code duplication.
 @[inline]
 unsafe def foldlMUnsafe {β : Type v} {m : Type v → Type w} [Monad m] (f : β → Float → m β) (init : β) (as : FloatArray) (start := 0) (stop := as.size) : m β :=
   let rec @[specialize] fold (i : USize) (stop : USize) (b : β) : m β := do
@@ -136,7 +136,7 @@ unsafe def foldlMUnsafe {β : Type v} {m : Type v → Type w} [Monad m] (f : β 
   else
     pure init
 
-/- Reference implementation for `foldlM` -/
+/-- Reference implementation for `foldlM` -/
 @[implementedBy foldlMUnsafe]
 def foldlM {β : Type v} {m : Type v → Type w} [Monad m] (f : β → Float → m β) (init : β) (as : FloatArray) (start := 0) (stop := as.size) : m β :=
   let fold (stop : Nat) (h : stop ≤ as.size) :=

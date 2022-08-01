@@ -19,9 +19,9 @@ def forallTelescopeCompatibleAux {α} (k : Array Expr → Expr → Expr → Meta
         throwError "parameter name mismatch '{n₁}', expected '{n₂}'"
       unless (← isDefEq d₁ d₂) do
         throwError "parameter '{n₁}' {← mkHasTypeButIsExpectedMsg d₁ d₂}"
-      unless c₁.binderInfo == c₂.binderInfo do
+      unless c₁ == c₂ do
         throwError "binder annotation mismatch at parameter '{n₁}'"
-      withLocalDecl n₁ c₁.binderInfo d₁ fun x =>
+      withLocalDecl n₁ c₁ d₁ fun x =>
         let type₁ := b₁.instantiate1 x
         let type₂ := b₂.instantiate1 x
         forallTelescopeCompatibleAux k i type₁ type₂ (xs.push x)
@@ -58,8 +58,8 @@ def mkFreshInstanceName (env : Environment) (nextIdx : Nat) : Name :=
 
 def isFreshInstanceName (name : Name) : Bool :=
   match name with
-  | Name.str _ s _ => "_instance".isPrefixOf s
-  | _              => false
+  | .str _ s => "_instance".isPrefixOf s
+  | _        => false
 
 /--
   Sort the given list of `usedParams` using the following order:

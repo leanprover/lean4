@@ -16,7 +16,7 @@ def _root_.g (x : Nat) :=
 def _root_.Boo.g (x : Nat) :=
   match x with
   | 0 => 1
-  | x+1 => 3*g x
+  | x+1 => 3 * Boo.g x
 
 protected def _root_.h (x : Nat) := x -- Error
 
@@ -34,7 +34,7 @@ def _root_.f._root_ (y : Nat) := y -- Error
 
 protected def _root_.h (x : Nat) := x -- Error
 
-protected def _root_.Boo.h (x : Nat) := x -- Error
+protected def _root_.Boo.h (x : Nat) := x
 
 example : Boo.h x = x := rfl
 
@@ -93,3 +93,23 @@ open Ex in
 example : isEven (x+1+1) = isEven x := by simp -- Ok
 
 example : isEven (x+1+1) = isEven x := by simp; done -- Error
+
+namespace Foo
+
+def _root_.Bla.g (x : Nat) : Nat :=
+  match x with
+  | 0 => 1
+  | .succ x => h x + g x
+where
+  h (x : Nat) :=
+    match x with
+    | 0 => 2
+    | .succ x => 2 * g x
+
+
+def _root_.Bla.g' (x : Nat) : Nat :=
+  match x with
+  | 0 => 1
+  | .succ x => g' x
+
+end Foo

@@ -16,7 +16,7 @@ extern "C" {
 static lean_object* l_Std___aux__Init__Data__Format__Macro______macroRules__Std__termF_x21____1___closed__3;
 static lean_object* l_Std_termF_x21_____closed__11;
 static lean_object* l_Std___aux__Init__Data__Format__Macro______macroRules__Std__termF_x21____1___closed__12;
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Std___aux__Init__Data__Format__Macro______macroRules__Std__termF_x21____1___closed__14;
 static lean_object* l_Std___aux__Init__Data__Format__Macro______macroRules__Std__termF_x21____1___closed__15;
 static lean_object* l_Std___aux__Init__Data__Format__Macro______macroRules__Std__termF_x21____1___closed__5;
@@ -69,7 +69,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Std_termF_x21_____closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -87,7 +87,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Std_termF_x21_____closed__2;
 x_2 = l_Std_termF_x21_____closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -105,7 +105,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Std_termF_x21_____closed__5;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -141,7 +141,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Std_termF_x21_____closed__9;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -159,7 +159,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Std_termF_x21_____closed__11;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -260,7 +260,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Std___aux__Init__Data__Format__Macro______macroRules__Std__termF_x21____1___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -270,7 +270,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Std_termF_x21_____closed__2;
 x_2 = l_Std___aux__Init__Data__Format__Macro______macroRules__Std__termF_x21____1___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -343,7 +343,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Std_termF_x21_____closed__2;
 x_2 = l_Std___aux__Init__Data__Format__Macro______macroRules__Std__termF_x21____1___closed__11;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -361,7 +361,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Std_termF_x21_____closed__2;
 x_2 = l_Std___aux__Init__Data__Format__Macro______macroRules__Std__termF_x21____1___closed__13;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -371,7 +371,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Std___aux__Init__Data__Format__Macro______macroRules__Std__termF_x21____1___closed__14;
 x_2 = l_Std___aux__Init__Data__Format__Macro______macroRules__Std__termF_x21____1___closed__11;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }

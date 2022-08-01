@@ -12,7 +12,7 @@ import Lean.Compiler.IR.FreeVars
 import Lean.Compiler.IR.ElimDeadVars
 
 namespace Lean.IR.ExplicitBoxing
-/-
+/-!
 Add explicit boxing and unboxing instructions.
 Recall that the Lean to λ_pure compiler produces code without these instructions.
 
@@ -32,9 +32,8 @@ open Std (AssocList)
 def mkBoxedName (n : Name) : Name :=
   Name.mkStr n "_boxed"
 
-def isBoxedName : Name → Bool
-  | Name.str _ "_boxed" _ => true
-  | _                     => false
+def isBoxedName (name : Name) : Bool :=
+  name matches .str _ "_boxed"
 
 abbrev N := StateM Nat
 
@@ -50,8 +49,8 @@ def mkBoxedVersionAux (decl : Decl) : N Decl := do
   let ps := decl.params
   let qs ← ps.mapM fun _ => do let x ← N.mkFresh; pure { x := x, ty := IRType.object, borrow := false : Param }
   let (newVDecls, xs) ← qs.size.foldM (init := (#[], #[])) fun i (newVDecls, xs) => do
-    let p := ps[i]
-    let q := qs[i]
+    let p := ps[i]!
+    let q := qs[i]!
     if !p.ty.isScalar then
       pure (newVDecls, xs.push (Arg.var q.x))
     else
@@ -75,7 +74,7 @@ def addBoxedVersions (env : Environment) (decls : Array Decl) : Array Decl :=
     if requiresBoxedVersion env decl then newDecls.push (mkBoxedVersion decl) else newDecls
   decls ++ boxedDecls
 
-/- Infer scrutinee type using `case` alternatives.
+/-- Infer scrutinee type using `case` alternatives.
    This can be done whenever `alts` does not contain an `Alt.default _` value. -/
 def getScrutineeType (alts : Array Alt) : IRType :=
   let isScalar :=
@@ -104,7 +103,7 @@ structure BoxingContext where
 
 structure BoxingState where
   nextIdx : Index
-  /- We create auxiliary declarations when boxing constant and literals.
+  /-- We create auxiliary declarations when boxing constant and literals.
      The idea is to avoid code such as
      ```
      let x1 := Uint64.inhabited;
@@ -156,7 +155,7 @@ def getDecl (fid : FunId) : M Decl := do
 @[inline] def withJDecl {α : Type} (j : JoinPointId) (xs : Array Param) (v : FnBody) (k : M α) : M α :=
   withReader (fun ctx => { ctx with localCtx := ctx.localCtx.addJP j xs v }) k
 
-/- If `x` declaration is of the form `x := Expr.lit _` or `x := Expr.fap c #[]`,
+/-- If `x` declaration is of the form `x := Expr.lit _` or `x := Expr.fap c #[]`,
    and `x`'s type is not cheap to box (e.g., it is `UInt64), then return its value. -/
 private def isExpensiveConstantValueBoxing (x : VarId) (xType : IRType) : M (Option Expr) :=
   if !xType.isScalar then
@@ -174,7 +173,7 @@ private def isExpensiveConstantValueBoxing (x : VarId) (xType : IRType) : M (Opt
         | _ => return none
       | _ => return none
 
-/- Auxiliary function used by castVarIfNeeded.
+/-- Auxiliary function used by castVarIfNeeded.
    It is used when the expected type does not match `xType`.
    If `xType` is scalar, then we need to "box" it. Otherwise, we need to "unbox" it. -/
 def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do
@@ -244,7 +243,7 @@ def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Arr
   return (xs', bs)
 
 @[inline] def castArgsIfNeeded (xs : Array Arg) (ps : Array Param) (k : Array Arg → M FnBody) : M FnBody := do
-  let (ys, bs) ← castArgsIfNeededAux xs fun i => ps[i].ty
+  let (ys, bs) ← castArgsIfNeededAux xs fun i => ps[i]!.ty
   let b ← k ys
   pure (reshape bs b)
 
@@ -328,7 +327,7 @@ def run (env : Environment) (decls : Array Decl) : Array Decl :=
   let ctx : BoxingContext := { decls := decls, env := env }
   let decls := decls.foldl (init := #[]) fun newDecls decl =>
     match decl with
-    | Decl.fdecl (f := f) (xs := xs) (type := t) (body := b) .. =>
+    | .fdecl (f := f) (xs := xs) (type := t) (body := b) .. =>
       let nextIdx  := decl.maxIndex + 1
       let (b, s)   := (withParams xs (visitFnBody b) { ctx with f := f, resultType := t }).run { nextIdx := nextIdx }
       let newDecls := newDecls ++ s.auxDecls

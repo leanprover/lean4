@@ -18,6 +18,7 @@ name const * g_bit0 = nullptr;
 name const * g_bit1 = nullptr;
 name const * g_has_of_nat_of_nat = nullptr;
 name const * g_byte_array = nullptr;
+name const * g_byte_array_data = nullptr;
 name const * g_bool = nullptr;
 name const * g_bool_false = nullptr;
 name const * g_bool_true = nullptr;
@@ -44,6 +45,7 @@ name const * g_eq_symm = nullptr;
 name const * g_eq_trans = nullptr;
 name const * g_float = nullptr;
 name const * g_float_array = nullptr;
+name const * g_float_array_data = nullptr;
 name const * g_false = nullptr;
 name const * g_false_rec = nullptr;
 name const * g_false_cases_on = nullptr;
@@ -137,6 +139,8 @@ void initialize_constants() {
     mark_persistent(g_has_of_nat_of_nat->raw());
     g_byte_array = new name{"ByteArray"};
     mark_persistent(g_byte_array->raw());
+    g_byte_array_data = new name{"ByteArray", "data"};
+    mark_persistent(g_byte_array_data->raw());
     g_bool = new name{"Bool"};
     mark_persistent(g_bool->raw());
     g_bool_false = new name{"Bool", "false"};
@@ -189,6 +193,8 @@ void initialize_constants() {
     mark_persistent(g_float->raw());
     g_float_array = new name{"FloatArray"};
     mark_persistent(g_float_array->raw());
+    g_float_array_data = new name{"FloatArray", "data"};
+    mark_persistent(g_float_array_data->raw());
     g_false = new name{"False"};
     mark_persistent(g_false->raw());
     g_false_rec = new name{"False", "rec"};
@@ -330,6 +336,7 @@ void finalize_constants() {
     delete g_bit1;
     delete g_has_of_nat_of_nat;
     delete g_byte_array;
+    delete g_byte_array_data;
     delete g_bool;
     delete g_bool_false;
     delete g_bool_true;
@@ -356,6 +363,7 @@ void finalize_constants() {
     delete g_eq_trans;
     delete g_float;
     delete g_float_array;
+    delete g_float_array_data;
     delete g_false;
     delete g_false_rec;
     delete g_false_cases_on;
@@ -434,6 +442,7 @@ name const & get_bit0_name() { return *g_bit0; }
 name const & get_bit1_name() { return *g_bit1; }
 name const & get_has_of_nat_of_nat_name() { return *g_has_of_nat_of_nat; }
 name const & get_byte_array_name() { return *g_byte_array; }
+name const & get_byte_array_data_name() { return *g_byte_array_data; }
 name const & get_bool_name() { return *g_bool; }
 name const & get_bool_false_name() { return *g_bool_false; }
 name const & get_bool_true_name() { return *g_bool_true; }
@@ -460,6 +469,7 @@ name const & get_eq_symm_name() { return *g_eq_symm; }
 name const & get_eq_trans_name() { return *g_eq_trans; }
 name const & get_float_name() { return *g_float; }
 name const & get_float_array_name() { return *g_float_array; }
+name const & get_float_array_data_name() { return *g_float_array_data; }
 name const & get_false_name() { return *g_false; }
 name const & get_false_rec_name() { return *g_false_rec; }
 name const & get_false_cases_on_name() { return *g_false_cases_on; }

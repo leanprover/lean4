@@ -30,16 +30,16 @@ where
       | _ => return Simp.Step.done r
     return Simp.Step.visit { expr := e }
 
-def unfoldTarget (mvarId : MVarId) (declName : Name) : MetaM MVarId := withMVarContext mvarId do
-  let target ← instantiateMVars (← getMVarType mvarId)
+def unfoldTarget (mvarId : MVarId) (declName : Name) : MetaM MVarId := mvarId.withContext do
+  let target ← instantiateMVars (← mvarId.getType)
   let r ← unfold target declName
   if r.expr == target then throwError "tactic 'unfold' failed to unfold '{declName}' at{indentExpr target}"
   applySimpResultToTarget mvarId target r
 
-def unfoldLocalDecl (mvarId : MVarId) (fvarId : FVarId) (declName : Name) : MetaM MVarId := withMVarContext mvarId do
-  let localDecl ← getLocalDecl fvarId
-  let r ← unfold (← instantiateMVars localDecl.type) declName
-  if r.expr == localDecl.type then throwError "tactic 'unfold' failed to unfold '{declName}' at{indentExpr localDecl.type}"
+def unfoldLocalDecl (mvarId : MVarId) (fvarId : FVarId) (declName : Name) : MetaM MVarId := mvarId.withContext do
+  let type ← fvarId.getType
+  let r ← unfold (← instantiateMVars type) declName
+  if r.expr == type then throwError "tactic 'unfold' failed to unfold '{declName}' at{indentExpr type}"
   let some (_, mvarId) ← applySimpResultToLocalDecl mvarId fvarId r (mayCloseGoal := false) | unreachable!
   return mvarId
 

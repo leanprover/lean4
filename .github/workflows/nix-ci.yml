@@ -20,8 +20,8 @@ jobs:
         include:
           - name: Nix Linux
             os: ubuntu-latest
-          - name: Nix macOS
-            os: macos-latest
+          #- name: Nix macOS
+          #  os: macos-latest
       # complete all jobs
       fail-fast: false
     name: ${{ matrix.name }}
@@ -33,6 +33,8 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@v15
         with:
+          # https://github.com/NixOS/nix/issues/6572
+          install_url: https://releases.nixos.org/nix/nix-2.7.0/install
           extra_nix_config: |
             extra-sandbox-paths = /nix/var/cache/ccache
             substituters = file://${{ github.workspace }}/nix-store-cache-copy?priority=10&trusted=true https://cache.nixos.org
@@ -76,8 +78,7 @@ jobs:
       - name: Build
         run: |
           # .o files are not a runtime dependency on macOS because of lack of thin archives
-          # leanc_src is required for building Leanc-deps
-          nix build $NIX_BUILD_ARGS .#stage0 .#stage1.lean-all .#lean-bin-tools-unwrapped.leanc_src .#Lean.oTree .#iTree -o push-build
+          nix build $NIX_BUILD_ARGS .#stage0 .#stage1.lean-all .#Lean.oTree .#iTree .#modDepsFiles -o push-build
       - name: Test
         run: |
           nix build $NIX_BUILD_ARGS .#test -o push-test
@@ -102,6 +103,6 @@ jobs:
         if: matrix.name == 'Nix Linux' && github.ref == 'refs/heads/master' && github.event_name == 'push'
       - name: Fixup CCache Cache
         run: |
-          sudo chown -R $USER /nix/var/cache/ccache
+          sudo chown -R $USER /nix/var/cache
       - name: CCache stats
         run: CCACHE_DIR=/nix/var/cache/ccache nix run .#nixpkgs.ccache -- -s

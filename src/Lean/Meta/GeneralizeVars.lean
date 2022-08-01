@@ -22,7 +22,7 @@ partial def mkGeneralizationForbiddenSet (targets : Array Expr) (forbidden : FVa
   loop todo.toList s.fvarSet
 where
   visit (fvarId : FVarId) (todo : List FVarId) (s : FVarIdSet) : MetaM (List FVarId × FVarIdSet) := do
-    let localDecl ← getLocalDecl fvarId
+    let localDecl ← fvarId.getDecl
     let mut s' := collectFVars {} (← instantiateMVars localDecl.type)
     if let some val := localDecl.value? then
       s' := collectFVars s' (← instantiateMVars val)
@@ -60,7 +60,7 @@ def getFVarSetToGeneralize (targets : Array Expr) (forbidden : FVarIdSet) (ignor
   for localDecl in (← getLCtx) do
     unless forbidden.contains localDecl.fvarId do
       unless localDecl.isAuxDecl || localDecl.binderInfo.isInstImplicit || (ignoreLetDecls && localDecl.isLet) do
-      if (← getMCtx).findLocalDeclDependsOn localDecl (s.contains ·) then
+      if (← findLocalDeclDependsOn localDecl (s.contains ·)) then
         r := r.insert localDecl.fvarId
         s := s.insert localDecl.fvarId
   return r

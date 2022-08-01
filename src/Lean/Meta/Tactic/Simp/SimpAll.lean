@@ -28,11 +28,11 @@ structure State where
 abbrev M := StateRefT State MetaM
 
 private def initEntries : M Unit := do
-  let hs ← withMVarContext (← get).mvarId do getPropHyps
-  let hsNonDeps ← getNondepPropHyps (← get).mvarId
+  let hs ←  (← get).mvarId.withContext do getPropHyps
+  let hsNonDeps ← (← get).mvarId.getNondepPropHyps
   let mut simpThms := (← get).ctx.simpTheorems
   for h in hs do
-    let localDecl ← getLocalDecl h
+    let localDecl ← h.getDecl
     unless simpThms.isErased localDecl.userName do
       let fvarId := localDecl.fvarId
       let proof  := localDecl.toExpr
@@ -51,7 +51,7 @@ private partial def loop : M Bool := do
   modify fun s => { s with modified := false }
   -- simplify entries
   for i in [:(← get).entries.size] do
-    let entry := (← get).entries[i]
+    let entry := (← get).entries[i]!
     let ctx := (← get).ctx
     -- We disable the current entry to prevent it to be simplified to `True`
     let simpThmsWithoutEntry := (← getSimpTheorems).eraseTheorem entry.id
@@ -60,24 +60,37 @@ private partial def loop : M Bool := do
     | none => return true -- closed the goal
     | some (proofNew, typeNew) =>
       unless typeNew == entry.type do
-        /- The theorem for the simplified entry must use the same `id` of the theorem before simplification. Otherwise,
+        /- We must erase the `id` for the simplified theorem. Otherwise,
            the previous versions can be used to self-simplify the new version. For example, suppose we have
            ```
             x : Nat
             h : x ≠ 0
             ⊢ Unit
            ```
-           In the first round, `h : x ≠ 0` is simplified to `h : ¬ x = 0`. If we don't use the same `id`, in the next round
-           the first version would simplify it to `h : True`.
+           In the first round, `h : x ≠ 0` is simplified to `h : ¬ x = 0`.
+
+           It is also important for avoiding identical hypotheses to simplify each other to `True`.
+           Example
+           ```
+           ...
+           h₁ : p a
+           h₂ : p a
+           ⊢ q a
+           ```
+           `h₁` is first simplified to `True`. If we don't remove `h₁` from the set of simp theorems, it will
+           be used to simplify `h₂` to `True` and information is lost.
 
            We must use `mkExpectedTypeHint` because `inferType proofNew` may not be equal to `typeNew` when
            we have theorems marked with `rfl`.
         -/
-        let simpThmsNew ← (← getSimpTheorems).addTheorem (← mkExpectedTypeHint proofNew typeNew) (name? := entry.id)
+        trace[Meta.Tactic.simp.all] "entry.id: {entry.id}, {entry.type} => {typeNew}"
+        let mut simpThmsNew := (← getSimpTheorems).eraseTheorem entry.id
+        let idNew ← mkFreshUserName `h
+        simpThmsNew ← simpThmsNew.addTheorem (← mkExpectedTypeHint proofNew typeNew) (name? := idNew)
         modify fun s => { s with
           modified         := true
           ctx.simpTheorems := simpThmsNew
-          entries[i]       := { entry with type := typeNew, proof := proofNew, id := entry.id }
+          entries[i]       := { entry with type := typeNew, proof := proofNew, id := idNew }
         }
   -- simplify target
   let mvarId := (← get).mvarId
@@ -101,13 +114,15 @@ def main : M (Option MVarId) := do
   else
     let mvarId := (← get).mvarId
     let entries := (← get).entries
-    let (_, mvarId) ← assertHypotheses mvarId (entries.map fun e => { userName := e.userName, type := e.type, value := e.proof })
-    tryClearMany mvarId (entries.map fun e => e.fvarId)
+    let (_, mvarId) ← mvarId.assertHypotheses <| entries.filterMap fun e =>
+      -- Do not assert `True` hypotheses
+      if e.type.isConstOf ``True then none else some { userName := e.userName, type := e.type, value := e.proof }
+    mvarId.tryClearMany (entries.map fun e => e.fvarId)
 
 end SimpAll
 
 def simpAll (mvarId : MVarId) (ctx : Simp.Context) : MetaM (Option MVarId) := do
-  withMVarContext mvarId do
+  mvarId.withContext do
     SimpAll.main.run' { mvarId := mvarId, ctx := ctx }
 
 end Lean.Meta

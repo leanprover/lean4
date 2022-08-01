@@ -48,12 +48,31 @@ private def utf8GetAux : List Char → Pos → Pos → Char
   | [],    _, _ => default
   | c::cs, i, p => if i = p then c else utf8GetAux cs (i + c) p
 
+/--
+  Return character at position `p`. If `p` is not a valid position
+  returns `(default : Char)`.
+  See `utf8GetAux` for the reference implementation.
+-/
 @[extern "lean_string_utf8_get"]
-def get : (@& String) → (@& Pos) → Char
-  | ⟨s⟩, p => utf8GetAux s 0 p
+def get (s : @& String) (p : @& Pos) : Char :=
+  match s with
+  | ⟨s⟩ => utf8GetAux s 0 p
 
-def getOp (self : String) (idx : Pos) : Char :=
-  self.get idx
+private def utf8GetAux? : List Char → Pos → Pos → Option Char
+  | [],    _, _ => none
+  | c::cs, i, p => if i = p then c else utf8GetAux cs (i + c) p
+
+@[extern "lean_string_utf8_get_opt"]
+def get? : (@& String) → (@& Pos) → Option Char
+  | ⟨s⟩, p => utf8GetAux? s 0 p
+
+/--
+  Similar to `get`, but produces a panic error message if `p` is not a valid `String.Pos`.
+-/
+@[extern "lean_string_utf8_get_bang"]
+def get! (s : @& String) (p : @& Pos) : Char :=
+  match s with
+  | ⟨s⟩ => utf8GetAux s 0 p
 
 private def utf8SetAux (c' : Char) : List Char → Pos → Pos → List Char
   | [],    _, _ => []

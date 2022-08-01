@@ -1,0 +1,9 @@
+⊢ let x := 0;
+  x + 5 = 5
+y : Nat
+⊢ 0 + y = y
+y : Nat
+⊢ let x := 0;
+  x + y = y
+y : Nat
+⊢ 0 + y = y

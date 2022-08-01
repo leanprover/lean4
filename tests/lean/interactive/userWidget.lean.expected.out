@@ -1,0 +1,10 @@
+{"widgets":
+ [{"range":
+   {"start": {"line": 13, "character": 0},
+    "end": {"line": 13, "character": 31}},
+   "props": {},
+   "name": "my fancy widget",
+   "javascriptHash": "2248127894",
+   "id": "widget1"}]}
+{"sourcetext":
+ "\n  import * as React from 'react';\n  export default function (props) {\n    return React.createElement('p', {}, 'hello')\n  }"}

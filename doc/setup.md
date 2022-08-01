@@ -125,7 +125,7 @@ If you don't want to or cannot start the pinned editor from Nix, e.g. because yo
 $ nix build .#lean-dev -o result-lean-dev
 ```
 The resulting `./result-lean-dev/bin/lean` script essentially runs `nix run .#lean` in the current project's root directory when you open a Lean file or use the "refresh dependencies" command such that the correct Lean version for that project is executed.
-This includes selecting the correct stage of Lean (which it will compile on the fly, though without progress output) if you are [working on Lean itself](../make/nix.md#editor-integration).
+This includes selecting the correct stage of Lean (which it will compile on the fly, though without progress output) if you are [working on Lean itself](./make/nix.md#editor-integration).
 
 Package dependencies can be added as further input flakes and passed to the `deps` list of `buildLeanPackage`. Example: <https://github.com/Kha/testpkg2/blob/master/flake.nix#L5>
 

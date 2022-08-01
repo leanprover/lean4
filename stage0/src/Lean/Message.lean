@@ -78,7 +78,7 @@ partial def instantiateMVars (msg : MessageData) : MessageData :=
 where
   visit (msg : MessageData) (mctx : MetavarContext) : MessageData :=
     match msg with
-    | ofExpr e                  => ofExpr <| mctx.instantiateMVars e |>.1
+    | ofExpr e                  => ofExpr <| instantiateMVarsCore mctx e |>.1
     | withContext ctx msg       => withContext ctx  <| visit msg ctx.mctx
     | withNamingContext ctx msg => withNamingContext ctx <| visit msg mctx
     | nest n msg                => nest n <| visit msg mctx
@@ -119,7 +119,7 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
   | _,    _,         ofFormat fmt             => return fmt
   | _,    _,         ofLevel u                => return format u
   | _,    _,         ofName n                 => return format n
-  | nCtx, some ctx,  ofSyntax s               => ppTerm (mkPPContext nCtx ctx) s  -- HACK: might not be a term
+  | nCtx, some ctx,  ofSyntax s               => ppTerm (mkPPContext nCtx ctx) ⟨s⟩  -- HACK: might not be a term
   | _,    none,      ofSyntax s               => return s.formatStx
   | _,    none,      ofExpr e                 => return format (toString e)
   | nCtx, some ctx,  ofExpr e                 => ppExpr (mkPPContext nCtx ctx) e
@@ -130,7 +130,7 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
   | nCtx, ctx,       tagged t d               =>
     /- Messages starting a trace context have their tags postfixed with `_traceCtx` so that
     we can detect them later. Here, we do so in order to print the trace context class. -/
-    if let Name.str cls "_traceCtx" _ := t then do
+    if let .str cls "_traceCtx" := t then do
       let d₁ ← formatAux nCtx ctx d
       return f!"[{cls}] {d₁}"
     else
@@ -288,7 +288,7 @@ def stringToMessageData (str : String) : MessageData :=
   let lines := lines.map (MessageData.ofFormat ∘ format)
   MessageData.joinSep lines (MessageData.ofFormat Format.line)
 
-instance {α} [ToFormat α] : ToMessageData α := ⟨MessageData.ofFormat ∘ format⟩
+instance [ToFormat α] : ToMessageData α := ⟨MessageData.ofFormat ∘ format⟩
 instance : ToMessageData Expr          := ⟨MessageData.ofExpr⟩
 instance : ToMessageData Level         := ⟨MessageData.ofLevel⟩
 instance : ToMessageData Name          := ⟨MessageData.ofName⟩
@@ -298,10 +298,10 @@ instance : ToMessageData (TSyntax k)   := ⟨(MessageData.ofSyntax ·)⟩
 instance : ToMessageData Format        := ⟨MessageData.ofFormat⟩
 instance : ToMessageData MVarId        := ⟨MessageData.ofGoal⟩
 instance : ToMessageData MessageData   := ⟨id⟩
-instance {α} [ToMessageData α] : ToMessageData (List α)  := ⟨fun as => MessageData.ofList <| as.map toMessageData⟩
-instance {α} [ToMessageData α] : ToMessageData (Array α) := ⟨fun as => toMessageData as.toList⟩
-instance {α} [ToMessageData α] : ToMessageData (Subarray α) := ⟨fun as => toMessageData as.toArray.toList⟩
-instance {α} [ToMessageData α] : ToMessageData (Option α) := ⟨fun | none => "none" | some e => "some (" ++ toMessageData e ++ ")"⟩
+instance [ToMessageData α] : ToMessageData (List α)  := ⟨fun as => MessageData.ofList <| as.map toMessageData⟩
+instance [ToMessageData α] : ToMessageData (Array α) := ⟨fun as => toMessageData as.toList⟩
+instance [ToMessageData α] : ToMessageData (Subarray α) := ⟨fun as => toMessageData as.toArray.toList⟩
+instance [ToMessageData α] : ToMessageData (Option α) := ⟨fun | none => "none" | some e => "some (" ++ toMessageData e ++ ")"⟩
 instance : ToMessageData (Option Expr) := ⟨fun | none => "<not-available>" | some e => toMessageData e⟩
 
 syntax:max "m!" interpolatedStr(term) : term

@@ -55,7 +55,7 @@ def fixLevelParams (preDefs : Array PreDefinition) (scopeLevelNames allUserLevel
   let us := levelParams.map mkLevelParam
   let fixExpr (e : Expr) : Expr :=
     e.replace fun c => match c with
-      | Expr.const declName _ _ => if preDefs.any fun preDef => preDef.declName == declName then some $ Lean.mkConst declName us else none
+      | Expr.const declName _ => if preDefs.any fun preDef => preDef.declName == declName then some $ Lean.mkConst declName us else none
       | _ => none
   return preDefs.map fun preDef =>
     { preDef with
@@ -74,7 +74,7 @@ def abstractNestedProofs (preDef : PreDefinition) : MetaM PreDefinition :=
     let value ← Meta.abstractNestedProofs preDef.declName preDef.value
     pure { preDef with value := value }
 
-/- Auxiliary method for (temporarily) adding pre definition as an axiom -/
+/-- Auxiliary method for (temporarily) adding pre definition as an axiom -/
 def addAsAxiom (preDef : PreDefinition) : MetaM Unit := do
   withRef preDef.ref do
     addDecl <| Declaration.axiomDecl { name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, isUnsafe := preDef.modifiers.isUnsafe }
@@ -147,7 +147,7 @@ def eraseRecAppSyntax (preDef : PreDefinition) : CoreM PreDefinition :=
 
 def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSafety.unsafe) : TermElabM Unit := do
   let preDefs ← preDefs.mapM fun d => eraseRecAppSyntax d
-  withRef preDefs[0].ref do
+  withRef preDefs[0]!.ref do
     let all  := preDefs.toList.map (·.declName)
     let decl := Declaration.mutualDefnDecl <| ← preDefs.toList.mapM fun preDef => return {
         name        := preDef.declName
@@ -173,7 +173,7 @@ def addAndCompilePartialRec (preDefs : Array PreDefinition) : TermElabM Unit := 
       { preDef with
         declName  := Compiler.mkUnsafeRecName preDef.declName
         value     := preDef.value.replace fun e => match e with
-          | Expr.const declName us _ =>
+          | Expr.const declName us =>
             if preDefs.any fun preDef => preDef.declName == declName then
               some <| mkConst (Compiler.mkUnsafeRecName declName) us
             else

@@ -44,16 +44,16 @@ extern "C" LEAN_EXPORT lean_object * lean_S_string(b_lean_obj_arg s) {
 
 static S g_s(0, 0, "");
 
-extern "C" LEAN_EXPORT lean_object * lean_S_global_append(b_lean_obj_arg str, lean_object /* w */) {
+extern "C" LEAN_EXPORT lean_object * lean_S_global_append(b_lean_obj_arg str, lean_object * /* w */) {
     g_s.m_s += lean_string_cstr(str);
     return lean_io_result_mk_ok(lean_box(0));
 }
 
-extern "C" LEAN_EXPORT lean_object * lean_S_global_string(lean_object /* w */) {
+extern "C" LEAN_EXPORT lean_object * lean_S_global_string(lean_object * /* w */) {
     return lean_io_result_mk_ok(lean_mk_string(g_s.m_s.c_str()));
 }
 
-extern "C" LEAN_EXPORT lean_object * lean_S_update_global(b_lean_obj_arg s, lean_object /* w */) {
+extern "C" LEAN_EXPORT lean_object * lean_S_update_global(b_lean_obj_arg s, lean_object * /* w */) {
     g_s.m_x = to_S(s)->m_x;
     g_s.m_y = to_S(s)->m_y;
     g_s.m_s = to_S(s)->m_s;

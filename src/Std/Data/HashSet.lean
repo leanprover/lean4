@@ -32,7 +32,7 @@ def mkIdx {n : Nat} (h : n > 0) (u : USize) : { u : USize // u.toNat < n } :=
 
 @[inline] def reinsertAux (hashFn : α → UInt64) (data : HashSetBucket α) (a : α) : HashSetBucket α :=
   let ⟨i, h⟩ := mkIdx data.property (hashFn a |>.toUSize)
-  data.update i (a :: data.val.uget i h) h
+  data.update i (a :: data.val[i]) h
 
 @[inline] def foldBucketsM {δ : Type w} {m : Type w → Type w} [Monad m] (data : HashSetBucket α) (d : δ) (f : δ → α → m δ) : m δ :=
   data.val.foldlM (init := d) fun d as => as.foldlM f d
@@ -50,13 +50,13 @@ def find? [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : Option α :=
   match m with
   | ⟨_, buckets⟩ =>
     let ⟨i, h⟩ := mkIdx buckets.property (hash a |>.toUSize)
-    (buckets.val.uget i h).find? (fun a' => a == a')
+    buckets.val[i].find? (fun a' => a == a')
 
 def contains [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : Bool :=
   match m with
   | ⟨_, buckets⟩ =>
     let ⟨i, h⟩ := mkIdx buckets.property (hash a |>.toUSize)
-    (buckets.val.uget i h).contains a
+    buckets.val[i].contains a
 
 def moveEntries [Hashable α] (i : Nat) (source : Array (List α)) (target : HashSetBucket α) : HashSetBucket α :=
   if h : i < source.size then
@@ -81,7 +81,7 @@ def insert [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : HashSetImp α :
   match m with
   | ⟨size, buckets⟩ =>
     let ⟨i, h⟩ := mkIdx buckets.property (hash a |>.toUSize)
-    let bkt    := buckets.val.uget i h
+    let bkt    := buckets.val[i]
     if bkt.contains a
     then ⟨size, buckets.update i (bkt.replace a a) h⟩
     else
@@ -95,7 +95,7 @@ def erase [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : HashSetImp α :=
   match m with
   | ⟨ size, buckets ⟩ =>
     let ⟨i, h⟩ := mkIdx buckets.property (hash a |>.toUSize)
-    let bkt    := buckets.val.uget i h
+    let bkt    := buckets.val[i]
     if bkt.contains a then ⟨size - 1, buckets.update i (bkt.erase a) h⟩
     else m
 

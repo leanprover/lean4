@@ -18,22 +18,22 @@ structure EqnInfo extends EqnInfoCore where
   fixedPrefixSize : Nat
   deriving Inhabited
 
-private partial def deltaLHSUntilFix (mvarId : MVarId) : MetaM MVarId := withMVarContext mvarId do
-  let target ← getMVarType' mvarId
+private partial def deltaLHSUntilFix (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
+  let target ← mvarId.getType'
   let some (_, lhs, _) := target.eq? | throwTacticEx `deltaLHSUntilFix mvarId "equality expected"
   if lhs.isAppOf ``WellFounded.fix then
     return mvarId
   else
     deltaLHSUntilFix (← deltaLHS mvarId)
 
-private def rwFixEq (mvarId : MVarId) : MetaM MVarId := withMVarContext mvarId do
-  let target ← getMVarType' mvarId
+private def rwFixEq (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
+  let target ← mvarId.getType'
   let some (_, lhs, rhs) := target.eq? | unreachable!
   let h := mkAppN (mkConst ``WellFounded.fix_eq lhs.getAppFn.constLevels!) lhs.getAppArgs
   let some (_, _, lhsNew) := (← inferType h).eq? | unreachable!
   let targetNew ← mkEq lhsNew rhs
   let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew
-  assignExprMVar mvarId (← mkEqTrans h mvarNew)
+  mvarId.assign (← mkEqTrans h mvarNew)
   return mvarNew.mvarId!
 
 private def hasWellFoundedFix (e : Expr) : Bool :=
@@ -46,7 +46,7 @@ private def hasWellFoundedFix (e : Expr) : Bool :=
 private partial def decodePackedArg? (info : EqnInfo) (e : Expr) : Option (Name × Array Expr) := do
   if info.declNames.size == 1 then
     let args := decodePSigma e #[]
-    return (info.declNames[0], args)
+    return (info.declNames[0]!, args)
   else
     decodePSum? e 0
 where
@@ -57,7 +57,7 @@ where
       decodePSum? e.appArg! (i+1)
     else
       guard (i < info.declNames.size)
-      return (info.declNames[i], decodePSigma e #[])
+      return (info.declNames[i]!, decodePSigma e #[])
 
   decodePSigma (e : Expr) (acc : Array Expr) : Array Expr :=
     /- TODO: check arity of the given function. If it takes a PSigma as the last argument,
@@ -88,7 +88,7 @@ where
     let e' := e.headBeta
     if e'.isAppOf ``WellFounded.fix && e'.getAppNumArgs >= 6 then
       let args := e'.getAppArgs
-      let packedArg := args[5]
+      let packedArg := args[5]!
       let extraArgs := args[6:]
       if let some (declName, args) := decodePackedArg? info packedArg then
         let candidate := mkAppN (mkAppN (mkAppN (mkConst declName us) fixedPrefix) args) extraArgs
@@ -103,8 +103,8 @@ where
   See comment at `tryToFoldWellFoundedFix`.
 -/
 def simpMatchWF? (info : EqnInfo) (us : List Level) (fixedPrefix : Array Expr) (mvarId : MVarId) : MetaM (Option MVarId) :=
-  withMVarContext mvarId do
-    let target ← instantiateMVars (← getMVarType mvarId)
+  mvarId.withContext do
+    let target ← instantiateMVars (← mvarId.getType)
     let targetNew ← Simp.main target (← Split.getSimpMatchContext) (methods := { pre })
     let mvarIdNew ← applySimpResultToTarget mvarId target targetNew
     if mvarId != mvarIdNew then return some mvarIdNew else return none
@@ -127,22 +127,22 @@ where
       | none => return Simp.Step.visit { expr := e }
 
 private def tryToFoldLHS? (info : EqnInfo) (us : List Level) (fixedPrefix : Array Expr) (mvarId : MVarId) : MetaM (Option MVarId) :=
-  withMVarContext mvarId do
-    let target ← getMVarType' mvarId
+  mvarId.withContext do
+    let target ← mvarId.getType'
     let some (_, lhs, rhs) := target.eq? | unreachable!
     let lhsNew ← tryToFoldWellFoundedFix info us fixedPrefix lhs
     if lhs == lhsNew then return none
     let targetNew ← mkEq lhsNew rhs
     let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew
-    assignExprMVar mvarId mvarNew
+    mvarId.assign mvarNew
     return mvarNew.mvarId!
 
 /--
   Given a goal of the form `|- f.{us} a_1 ... a_n b_1 ... b_m = ...`, return `(us, #[a_1, ..., a_n])`
   where `f` is a constant named `declName`, and `n = info.fixedPrefixSize`.
 -/
-private def getFixedPrefix (declName : Name) (info : EqnInfo) (mvarId : MVarId) : MetaM (List Level × Array Expr) := withMVarContext mvarId do
-  let target ← getMVarType' mvarId
+private def getFixedPrefix (declName : Name) (info : EqnInfo) (mvarId : MVarId) : MetaM (List Level × Array Expr) := mvarId.withContext do
+  let target ← mvarId.getType'
   let some (_, lhs, _) := target.eq? | unreachable!
   let lhsArgs := lhs.getAppArgs
   if lhsArgs.size < info.fixedPrefixSize || !lhs.getAppFn matches .const .. then
@@ -155,7 +155,7 @@ private partial def mkProof (declName : Name) (info : EqnInfo) (type : Expr) : M
   trace[Elab.definition.wf.eqns] "proving: {type}"
   withNewMCtxDepth do
     let main ← mkFreshExprSyntheticOpaqueMVar type
-    let (_, mvarId) ← intros main.mvarId!
+    let (_, mvarId) ← main.mvarId!.intros
     let (us, fixedPrefix) ← getFixedPrefix declName info mvarId
     let rec go (mvarId : MVarId) : MetaM Unit := do
       trace[Elab.definition.wf.eqns] "step\n{MessageData.ofGoal mvarId}"
@@ -169,7 +169,7 @@ private partial def mkProof (declName : Name) (info : EqnInfo) (type : Expr) : M
         go mvarId
       else if let some mvarId ← whnfReducibleLHS? mvarId then
         go mvarId
-      else match (← simpTargetStar mvarId {}) with
+      else match (← simpTargetStar mvarId { config.dsimp := false }) with
         | TacticResultCNM.closed => return ()
         | TacticResultCNM.modified mvarId => go mvarId
         | TacticResultCNM.noChange =>
@@ -194,8 +194,8 @@ def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
     mkEqnTypes info.declNames goal.mvarId!
   let mut thmNames := #[]
   for i in [: eqnTypes.size] do
-    let type := eqnTypes[i]
-    trace[Elab.definition.wf.eqns] "{eqnTypes[i]}"
+    let type := eqnTypes[i]!
+    trace[Elab.definition.wf.eqns] "{eqnTypes[i]!}"
     let name := baseName ++ (`_eq).appendIndexAfter (i+1)
     thmNames := thmNames.push name
     let value ← mkProof declName info type

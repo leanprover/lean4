@@ -49,14 +49,14 @@ where
     else
       let visit {ω} : StateRefT IndexSet (ST ω) Unit :=
         e.forEach fun
-          | Expr.fvar fvarId _ =>
+          | Expr.fvar fvarId =>
             match localInst2Index.find? fvarId with
             | some idx => modify (·.insert idx)
             | none => pure ()
           | _ => pure ()
       runST (fun _ => visit |>.run usedInstIdxs) |>.2
 
-  /- Create an `instance` command using the constructor `ctorName` with a hypothesis `Inhabited α` when `α` is one of the inductive type parameters
+  /-- Create an `instance` command using the constructor `ctorName` with a hypothesis `Inhabited α` when `α` is one of the inductive type parameters
      at position `i` and `i ∈ assumingParamIdxs`. -/
   mkInstanceCmdWith (assumingParamIdxs : IndexSet) : TermElabM Syntax := do
     let indVal ← getConstInfoInduct inductiveTypeName
@@ -87,7 +87,7 @@ where
         let mut usedInstIdxs := {}
         let mut ok := true
         for i in [ctorVal.numParams:xs.size] do
-          let x := xs[i]
+          let x := xs[i]!
           let instType ← mkAppM `Inhabited #[(← inferType x)]
           trace[Elab.Deriving.inhabited] "checking {instType} for '{ctorName}'"
           match (← trySynthInstance instType) with

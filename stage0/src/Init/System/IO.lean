@@ -91,7 +91,7 @@ set_option compiler.extract_closed false in
 @[extern "lean_io_timeit"] opaque timeit (msg : @& String) (fn : IO α) : IO α
 @[extern "lean_io_allocprof"] opaque allocprof (msg : @& String) (fn : IO α) : IO α
 
-/- Programs can execute IO actions during initialization that occurs before
+/-- Programs can execute IO actions during initialization that occurs before
    the `main` function is executed. The attribute `[init <action>]` specifies
    which IO action is executed to set the value of an opaque constant.
 
@@ -511,21 +511,21 @@ def Stdio.toHandleType : Stdio → Type
   | Stdio.null    => Unit
 
 structure StdioConfig where
-  /- Configuration for the process' stdin handle. -/
+  /-- Configuration for the process' stdin handle. -/
   stdin := Stdio.inherit
-  /- Configuration for the process' stdout handle. -/
+  /-- Configuration for the process' stdout handle. -/
   stdout := Stdio.inherit
-  /- Configuration for the process' stderr handle. -/
+  /-- Configuration for the process' stderr handle. -/
   stderr := Stdio.inherit
 
 structure SpawnArgs extends StdioConfig where
-  /- Command name. -/
+  /-- Command name. -/
   cmd : String
-  /- Arguments for the process -/
+  /-- Arguments for the process -/
   args : Array String := #[]
-  /- Working directory for the process. Inherit from current process if `none`. -/
+  /-- Working directory for the process. Inherit from current process if `none`. -/
   cwd : Option FilePath := none
-  /- Add or remove environment variables for the process. -/
+  /-- Add or remove environment variables for the process. -/
   env : Array (String × Option String) := #[]
 
 -- TODO(Sebastian): constructor must be private
@@ -599,7 +599,7 @@ def FileRight.flags (acc : FileRight) : UInt32 :=
 def setAccessRights (filename : FilePath) (mode : FileRight) : IO Unit :=
   Prim.setAccessRights filename mode.flags
 
-/- References -/
+/-- References -/
 abbrev Ref (α : Type) := ST.Ref IO.RealWorld α
 
 instance : MonadLift (ST IO.RealWorld) BaseIO := ⟨id⟩

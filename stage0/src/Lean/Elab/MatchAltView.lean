@@ -7,7 +7,7 @@ import Lean.Elab.Term
 
 namespace Lean.Elab.Term
 
-/- This modules assumes "match"-expressions use the following syntax.
+/-! This module assumes `match`-expressions use the following syntax.
 
 ```lean
 def matchDiscr := leading_parser optional (try (ident >> checkNoWsBefore "no space before ':'" >> ":")) >> termParser

@@ -10,7 +10,7 @@ import Lean.Meta.WHNF
 import Lean.Meta.Match.MatcherInfo
 
 namespace Lean.Meta.DiscrTree
-/-
+/-!
   (Imperfect) discrimination trees.
   We use a hybrid representation.
   - A `PersistentHashMap` for the root node which usually contains many children.
@@ -108,7 +108,7 @@ partial def format [ToFormat α] (d : DiscrTree α) : Format :=
 
 instance [ToFormat α] : ToFormat (DiscrTree α) := ⟨format⟩
 
-/- The discrimination tree ignores implicit arguments and proofs.
+/-- The discrimination tree ignores implicit arguments and proofs.
    We use the following auxiliary id as a "mark". -/
 private def tmpMVarId : MVarId := { name := `_discr_tree_tmp }
 private def tmpStar := mkMVar tmpMVarId
@@ -159,7 +159,7 @@ private def ignoreArg (a : Expr) (i : Nat) (infos : Array ParamInfo) : MetaM Boo
     isProof a
 
 private partial def pushArgsAux (infos : Array ParamInfo) : Nat → Expr → Array Expr → MetaM (Array Expr)
-  | i, Expr.app f a _, todo => do
+  | i, Expr.app f a, todo => do
     if (← ignoreArg a i infos) then
       pushArgsAux infos (i-1) f (todo.push tmpStar)
     else
@@ -205,7 +205,7 @@ private def isOffset (fName : Name) (e : Expr) : MetaM Bool := do
   else
     return fName == ``Nat.succ && e.getAppNumArgs == 1
 
-/-
+/--
   TODO: add hook for users adding their own functions for controlling `shouldAddAsStar`
   Different `DiscrTree` users may populate this set using, for example, attributes.
 
@@ -280,8 +280,8 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key �
       let todo ← pushArgsAux info.paramInfo (nargs-1) e todo
       return (k, todo)
     match fn with
-    | Expr.lit v _       => return (Key.lit v, todo)
-    | Expr.const c _ _   =>
+    | Expr.lit v         => return (Key.lit v, todo)
+    | Expr.const c _     =>
       unless root do
         if (← shouldAddAsStar c e) then
           return (Key.star, todo)
@@ -289,14 +289,14 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key �
       push (Key.const c nargs) nargs
     | Expr.proj s i a .. =>
       return (Key.proj s i, todo.push a)
-    | Expr.fvar fvarId _ =>
+    | Expr.fvar fvarId   =>
       let nargs := e.getAppNumArgs
       push (Key.fvar fvarId nargs) nargs
-    | Expr.mvar mvarId _ =>
+    | Expr.mvar mvarId   =>
       if mvarId == tmpMVarId then
         -- We use `tmp to mark implicit arguments and proofs
         return (Key.star, todo)
-      else if (← isReadOnlyOrSyntheticOpaqueExprMVar mvarId) then
+      else if (← mvarId.isReadOnlyOrSyntheticOpaque) then
         return (Key.other, todo)
       else
         return (Key.star, todo)
@@ -352,7 +352,7 @@ private partial def insertAux [BEq α] (keys : Array Key) (v : α) : Nat → Tri
 def insertCore [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : DiscrTree α :=
   if keys.isEmpty then panic! "invalid key sequence"
   else
-    let k := keys[0]
+    let k := keys[0]!
     match d.root.find? k with
     | none =>
       let c := createNodes keys v 1
@@ -368,8 +368,8 @@ def insert [BEq α] (d : DiscrTree α) (e : Expr) (v : α) : MetaM (DiscrTree α
 private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Expr) := do
   let e ← whnfDT e root
   match e.getAppFn with
-  | Expr.lit v _       => return (Key.lit v, #[])
-  | Expr.const c _ _   =>
+  | Expr.lit v         => return (Key.lit v, #[])
+  | Expr.const c _     =>
     if (← getConfig).isDefEqStuckEx && e.hasExprMVar then
       if (← isReducible c) then
         /- `e` is a term `c ...` s.t. `c` is reducible and `e` has metavariables, but it was not unfolded.
@@ -400,10 +400,10 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Ex
         Meta.throwIsDefEqStuck
     let nargs := e.getAppNumArgs
     return (Key.const c nargs, e.getAppRevArgs)
-  | Expr.fvar fvarId _ =>
+  | Expr.fvar fvarId   =>
     let nargs := e.getAppNumArgs
     return (Key.fvar fvarId nargs, e.getAppRevArgs)
-  | Expr.mvar mvarId _ =>
+  | Expr.mvar mvarId   =>
     if isMatch then
       return (Key.other, #[])
     else do
@@ -424,7 +424,7 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Ex
           This is incorrect because it is equivalent to saying that there is no solution even if
           the caller assigns `?m` and try again. -/
         return (Key.star, #[])
-      else if (← isReadOnlyOrSyntheticOpaqueExprMVar mvarId) then
+      else if (← mvarId.isReadOnlyOrSyntheticOpaque) then
         return (Key.other, #[])
       else
         return (Key.star, #[])
@@ -463,7 +463,7 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Arr
     else
       let e     := todo.back
       let todo  := todo.pop
-      let first := cs[0] /- Recall that `Key.star` is the minimal key -/
+      let first := cs[0]! /- Recall that `Key.star` is the minimal key -/
       let (k, args) ← getMatchKeyArgs e (root := false)
       /- We must always visit `Key.star` edges since they are wildcards.
          Thus, `todo` is not used linearly when there is `Key.star` edge
@@ -541,7 +541,7 @@ partial def getUnify (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
   withReducible do
     let (k, args) ← getUnifyKeyArgs e (root := true)
     match k with
-    | Key.star => d.root.foldlM (init := #[]) fun result k c => process k.arity #[] c result
+    | .star => d.root.foldlM (init := #[]) fun result k c => process k.arity #[] c result
     | _ =>
       let result := getStarResult d
       match d.root.find? k with
@@ -565,7 +565,7 @@ where
         let todo  := todo.pop
         let (k, args) ← getUnifyKeyArgs e (root := false)
         let visitStar (result : Array α) : MetaM (Array α) :=
-          let first := cs[0]
+          let first := cs[0]!
           if first.1 == Key.star then
             process 0 todo first.2 result
           else
@@ -575,9 +575,9 @@ where
           | none   => return result
           | some c => process 0 (todo ++ args) c.2 result
         match k with
-        | Key.star  => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result
+        | .star  => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result
         -- See comment a `getMatch` regarding non-dependent arrows vs dependent arrows
-        | Key.arrow => visitNonStar Key.other #[] (← visitNonStar k args (← visitStar result))
-        | _         => visitNonStar k args (← visitStar result)
+        | .arrow => visitNonStar Key.other #[] (← visitNonStar k args (← visitStar result))
+        | _      => visitNonStar k args (← visitStar result)
 
 end Lean.Meta.DiscrTree

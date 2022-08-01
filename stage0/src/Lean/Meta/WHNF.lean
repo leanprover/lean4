@@ -15,11 +15,11 @@ import Lean.Meta.Match.MatchPatternAttr
 
 namespace Lean.Meta
 
-/- ===========================
-   Smart unfolding support
-   =========================== -/
+-- ===========================
+/-! # Smart unfolding support -/
+-- ===========================
 
-/-
+/--
 Forward declaration. It is defined in the module `src/Lean/Elab/PreDefinition/Structural/Eqns.lean`.
 It is possible to avoid this hack if we move `Structural.EqnInfo` and `Structural.eqnInfoExt`
 to this module.
@@ -54,23 +54,24 @@ def markSmartUnfoldingMatchAlt (e : Expr) : Expr :=
 def smartUnfoldingMatchAlt? (e : Expr) : Option Expr :=
   annotation? `sunfoldMatchAlt e
 
-/- ===========================
-   Helper methods
-   =========================== -/
+-- ===========================
+/-! # Helper methods -/
+-- ===========================
+
 def isAuxDef (constName : Name) : MetaM Bool := do
   let env ← getEnv
   return isAuxRecursor env constName || isNoConfusion env constName
 
 @[inline] private def matchConstAux {α} (e : Expr) (failK : Unit → MetaM α) (k : ConstantInfo → List Level → MetaM α) : MetaM α :=
   match e with
-  | Expr.const name lvls _ => do
+  | Expr.const name lvls => do
     let (some cinfo) ← getConst? name | failK ()
     k cinfo lvls
   | _ => failK ()
 
-/- ===========================
-   Helper functions for reducing recursors
-   =========================== -/
+-- ===========================
+/-! # Helper functions for reducing recursors -/
+-- ===========================
 
 private def getFirstCtor (d : Name) : MetaM (Option Name) := do
   let some (ConstantInfo.inductInfo { ctors := ctor::_, ..}) ← getConstNoEx? d | pure none
@@ -78,24 +79,24 @@ private def getFirstCtor (d : Name) : MetaM (Option Name) := do
 
 private def mkNullaryCtor (type : Expr) (nparams : Nat) : MetaM (Option Expr) := do
   match type.getAppFn with
-  | Expr.const d lvls _ =>
+  | Expr.const d lvls =>
     let (some ctor) ← getFirstCtor d | pure none
     return mkAppN (mkConst ctor lvls) (type.getAppArgs.shrink nparams)
   | _ =>
     return none
 
 def toCtorIfLit : Expr → Expr
-  | Expr.lit (Literal.natVal v) _ =>
+  | Expr.lit (Literal.natVal v) =>
     if v == 0 then mkConst `Nat.zero
     else mkApp (mkConst `Nat.succ) (mkRawNatLit (v-1))
-  | Expr.lit (Literal.strVal v) _ =>
+  | Expr.lit (Literal.strVal v) =>
     mkApp (mkConst `String.mk) (toExpr v.toList)
   | e => e
 
 private def getRecRuleFor (recVal : RecursorVal) (major : Expr) : Option RecursorRule :=
   match major.getAppFn with
-  | Expr.const fn _ _ => recVal.rules.find? fun r => r.ctor == fn
-  | _                 => none
+  | Expr.const fn _ => recVal.rules.find? fun r => r.ctor == fn
+  | _               => none
 
 private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM Expr := do
   let majorType ← inferType major
@@ -152,7 +153,7 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
     if !majorTypeI.isConstOf inductName then
       return major
     match majorType.getAppFn with
-    | Expr.const d us _ =>
+    | Expr.const d us =>
       if (← whnfD (← inferType majorType)) == mkSort levelZero then
         return major -- We do not perform eta for propositions, see implementation in the kernel
       else
@@ -195,9 +196,9 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
   else
     failK ()
 
-/- ===========================
-   Helper functions for reducing Quot.lift and Quot.ind
-   =========================== -/
+-- ===========================
+/-! # Helper functions for reducing Quot.lift and Quot.ind -/
+-- ===========================
 
 /-- Auxiliary function for reducing `Quot.lift` and `Quot.ind` applications. -/
 private def reduceQuotRec (recVal  : QuotVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
@@ -206,12 +207,12 @@ private def reduceQuotRec (recVal  : QuotVal) (recLvls : List Level) (recArgs : 
       let major := recArgs.get ⟨majorPos, h⟩
       let major ← whnf major
       match major with
-      | Expr.app (Expr.app (Expr.app (Expr.const majorFn _ _) _ _) _ _) majorArg _ => do
+      | Expr.app (Expr.app (Expr.app (Expr.const majorFn _) _) _) majorArg => do
         let some (ConstantInfo.quotInfo { kind := QuotKind.ctor, .. }) ← getConstNoEx? majorFn | failK ()
-        let f := recArgs[argPos]
+        let f := recArgs[argPos]!
         let r := mkApp f majorArg
         let recArity := majorPos + 1
-        successK $ mkAppRange r recArity recArgs.size recArgs
+        successK <| mkAppRange r recArity recArgs.size recArgs
       | _ => failK ()
     else
       failK ()
@@ -220,9 +221,9 @@ private def reduceQuotRec (recVal  : QuotVal) (recLvls : List Level) (recArgs : 
   | QuotKind.ind  => process 4 3
   | _             => failK ()
 
-/- ===========================
-   Helper function for extracting "stuck term"
-   =========================== -/
+-- ===========================
+/-! # Helper function for extracting "stuck term" -/
+-- ===========================
 
 mutual
   private partial def isRecStuck? (recVal : RecursorVal) (recArgs : Array Expr) : MetaM (Option MVarId) :=
@@ -254,50 +255,49 @@ mutual
   /-- Return `some (Expr.mvar mvarId)` if metavariable `mvarId` is blocking reduction. -/
   partial def getStuckMVar? (e : Expr) : MetaM (Option MVarId) := do
     match e with
-    | Expr.mdata _ e _       => getStuckMVar? e
-    | Expr.proj _ _ e _      => getStuckMVar? (← whnf e)
-    | Expr.mvar .. => do
+    | .mdata _ e  => getStuckMVar? e
+    | .proj _ _ e => getStuckMVar? (← whnf e)
+    | .mvar .. => do
       let e ← instantiateMVars e
       match e with
-      | Expr.mvar mvarId _ => pure (some mvarId)
+      | Expr.mvar mvarId => pure (some mvarId)
       | _ => getStuckMVar? e
-    | Expr.app f .. =>
+    | .app f .. =>
       let f := f.getAppFn
       match f with
-      | Expr.mvar mvarId _   => return some mvarId
-      | Expr.const fName _ _ =>
-        let cinfo? ← getConstNoEx? fName
-        match cinfo? with
-        | some $ ConstantInfo.recInfo recVal  => isRecStuck? recVal e.getAppArgs
-        | some $ ConstantInfo.quotInfo recVal => isQuotRecStuck? recVal e.getAppArgs
-        | _                                => return none
-      | Expr.proj _ _ e _ => getStuckMVar? (← whnf e)
+      | .mvar mvarId   => return some mvarId
+      | .const fName _ =>
+        match (← getConstNoEx? fName) with
+        | some <| .recInfo recVal  => isRecStuck? recVal e.getAppArgs
+        | some <| .quotInfo recVal => isQuotRecStuck? recVal e.getAppArgs
+        | _                        => return none
+      | .proj _ _ e => getStuckMVar? (← whnf e)
       | _ => return none
     | _ => return none
 end
 
-/- ===========================
-   Weak Head Normal Form auxiliary combinators
-   =========================== -/
+-- ===========================
+/-! # Weak Head Normal Form auxiliary combinators -/
+-- ===========================
 
 /-- Auxiliary combinator for handling easy WHNF cases. It takes a function for handling the "hard" cases as an argument -/
 @[specialize] partial def whnfEasyCases (e : Expr) (k : Expr → MetaM Expr) : MetaM Expr := do
   match e with
-  | Expr.forallE ..    => return e
-  | Expr.lam ..        => return e
-  | Expr.sort ..       => return e
-  | Expr.lit ..        => return e
-  | Expr.bvar ..       => unreachable!
-  | Expr.letE ..       => k e
-  | Expr.const ..      => k e
-  | Expr.app ..        => k e
-  | Expr.proj ..       => k e
-  | Expr.mdata _ e _   => whnfEasyCases e k
-  | Expr.fvar fvarId _ =>
-    let decl ← getLocalDecl fvarId
+  | .forallE ..    => return e
+  | .lam ..        => return e
+  | .sort ..       => return e
+  | .lit ..        => return e
+  | .bvar ..       => unreachable!
+  | .letE ..       => k e
+  | .const ..      => k e
+  | .app ..        => k e
+  | .proj ..       => k e
+  | .mdata _ e     => whnfEasyCases e k
+  | .fvar fvarId   =>
+    let decl ← fvarId.getDecl
     match decl with
-    | LocalDecl.cdecl .. => return e
-    | LocalDecl.ldecl (value := v) (nonDep := nonDep) .. =>
+    | .cdecl .. => return e
+    | .ldecl (value := v) (nonDep := nonDep) .. =>
       let cfg ← getConfig
       if nonDep && !cfg.zetaNonDep then
         return e
@@ -305,7 +305,7 @@ end
         if cfg.trackZeta then
           modify fun s => { s with zetaFVarIds := s.zetaFVarIds.insert fvarId }
         whnfEasyCases v k
-  | Expr.mvar mvarId _ =>
+  | .mvar mvarId   =>
     match (← getExprMVarAssignment? mvarId) with
     | some v => whnfEasyCases v k
     | none   => return e
@@ -398,9 +398,9 @@ private def whnfMatcher (e : Expr) : MetaM Expr := do
   withTransparency transparency <| withReader (fun ctx => { ctx with canUnfold? := canUnfoldAtMatcher }) do
     whnf e
 
-partial def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
+def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
   match e.getAppFn with
-  | Expr.const declName declLevels _ =>
+  | Expr.const declName declLevels =>
     let some info ← getMatcherInfo? declName
       | return ReduceMatcherResult.notMatcher
     let args := e.getAppArgs
@@ -418,15 +418,14 @@ partial def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
         let mut i := prefixSz
         for h in hs do
           if auxAppFn == h then
-            let result := mkAppN args[i] auxApp.getAppArgs
+            let result := mkAppN args[i]! auxApp.getAppArgs
             let result := mkAppN result args[prefixSz + info.numAlts:args.size]
             return ReduceMatcherResult.reduced result.headBeta
           i := i + 1
         return ReduceMatcherResult.stuck auxApp
   | _ => pure ReduceMatcherResult.notMatcher
 
-def project? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
-  let e ← whnf e
+private def projectCore? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
   let e := toCtorIfLit e
   matchConstCtor e.getAppFn (fun _ => pure none) fun ctorVal _ =>
     let numArgs := e.getAppNumArgs
@@ -436,27 +435,30 @@ def project? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
     else
       return none
 
+def project? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
+  projectCore? (← whnf e) i
+
 /-- Reduce kernel projection `Expr.proj ..` expression. -/
 def reduceProj? (e : Expr) : MetaM (Option Expr) := do
   match e with
-  | Expr.proj _ i c _ => project? c i
-  | _                 => return none
+  | Expr.proj _ i c => project? c i
+  | _               => return none
 
-/-
+/--
   Auxiliary method for reducing terms of the form `?m t_1 ... t_n` where `?m` is delayed assigned.
   Recall that we can only expand a delayed assignment when all holes/metavariables in the assigned value have been "filled".
 -/
 private def whnfDelayedAssigned? (f' : Expr) (e : Expr) : MetaM (Option Expr) := do
   if f'.isMVar then
-    match (← getDelayedAssignment? f'.mvarId!) with
+    match (← getDelayedMVarAssignment? f'.mvarId!) with
     | none => return none
-    | some { fvars := fvars, val := val, .. } =>
+    | some { fvars, mvarIdPending } =>
       let args := e.getAppArgs
       if fvars.size > args.size then
         -- Insufficient number of argument to expand delayed assignment
         return none
       else
-        let newVal ← instantiateMVars val
+        let newVal ← instantiateMVars (mkMVar mvarIdPending)
         if newVal.hasExprMVar then
            -- Delayed assignment still contains metavariables
            return none
@@ -469,42 +471,52 @@ private def whnfDelayedAssigned? (f' : Expr) (e : Expr) : MetaM (Option Expr) :=
 
 /--
   Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
-  expand let-expressions, expand assigned meta-variables. -/
-partial def whnfCore (e : Expr) : MetaM Expr :=
-  whnfEasyCases e fun e => do
-    trace[Meta.whnf] e
-    match e with
-    | Expr.const ..  => pure e
-    | Expr.letE _ _ v b _ => whnfCore $ b.instantiate1 v
-    | Expr.app f ..       =>
-      let f := f.getAppFn
-      let f' ← whnfCore f
-      if f'.isLambda then
-        let revArgs := e.getAppRevArgs
-        whnfCore <| f'.betaRev revArgs
-      else if let some eNew ← whnfDelayedAssigned? f' e then
-        whnfCore eNew
-      else
-        let e := if f == f' then e else e.updateFn f'
-        match (← reduceMatcher? e) with
-        | ReduceMatcherResult.reduced eNew => whnfCore eNew
-        | ReduceMatcherResult.partialApp   => pure e
-        | ReduceMatcherResult.stuck _      => pure e
-        | ReduceMatcherResult.notMatcher   =>
-          matchConstAux f' (fun _ => return e) fun cinfo lvls =>
-            match cinfo with
-            | ConstantInfo.recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) whnfCore
-            | ConstantInfo.quotInfo rec   => reduceQuotRec rec lvls e.getAppArgs (fun _ => return e) whnfCore
-            | c@(ConstantInfo.defnInfo _) => do
-              if (← isAuxDef c.name) then
-                deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) whnfCore
-              else
-                return e
-            | _ => return e
-    | Expr.proj .. => match (← reduceProj? e) with
-      | some e => whnfCore e
-      | none => return e
-    | _ => unreachable!
+  expand let-expressions, expand assigned meta-variables.
+
+  The parameter `deltaAtProj` controls how to reduce projections `s.i`. If `deltaAtProj == true`,
+  then delta reduction is used to reduce `s` (i.e., `whnf` is used), otherwise `whnfCore`.
+  We only set this flag to `false` when implementing `isDefEq`.
+-/
+partial def whnfCore (e : Expr) (deltaAtProj : Bool := true) : MetaM Expr :=
+  go e
+where
+  go (e : Expr) : MetaM Expr :=
+    whnfEasyCases e fun e => do
+      trace[Meta.whnf] e
+      match e with
+      | Expr.const ..  => pure e
+      | Expr.letE _ _ v b _ => go <| b.instantiate1 v
+      | Expr.app f ..       =>
+        let f := f.getAppFn
+        let f' ← go f
+        if f'.isLambda then
+          let revArgs := e.getAppRevArgs
+          go <| f'.betaRev revArgs
+        else if let some eNew ← whnfDelayedAssigned? f' e then
+          go eNew
+        else
+          let e := if f == f' then e else e.updateFn f'
+          match (← reduceMatcher? e) with
+          | ReduceMatcherResult.reduced eNew => go eNew
+          | ReduceMatcherResult.partialApp   => pure e
+          | ReduceMatcherResult.stuck _      => pure e
+          | ReduceMatcherResult.notMatcher   =>
+            matchConstAux f' (fun _ => return e) fun cinfo lvls =>
+              match cinfo with
+              | ConstantInfo.recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) go
+              | ConstantInfo.quotInfo rec   => reduceQuotRec rec lvls e.getAppArgs (fun _ => return e) go
+              | c@(ConstantInfo.defnInfo _) => do
+                if (← isAuxDef c.name) then
+                  deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) go
+                else
+                  return e
+              | _ => return e
+      | Expr.proj _ i c =>
+        let c ← if deltaAtProj then whnf c else whnfCore c
+        match (← projectCore? c i) with
+        | some e => go e
+        | none => return e
+      | _ => unreachable!
 
 /--
   Recall that `_sunfold` auxiliary definitions contains the markers: `markSmartUnfoldingMatch` (*) and `markSmartUnfoldingMatchAlt` (**).
@@ -544,8 +556,8 @@ where
     | Expr.letE n t v b _ => withLetDecl n t (← go v) fun x => do mkLetFVars #[x] (← go (b.instantiate1 x))
     | Expr.lam .. => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← go b)
     | Expr.app f a .. => return mkApp (← go f) (← go a)
-    | Expr.proj _ _ s _ => return e.updateProj! (← go s)
-    | Expr.mdata _ b _  =>
+    | Expr.proj _ _ s => return e.updateProj! (← go s)
+    | Expr.mdata _ b  =>
       if let some m := smartUnfoldingMatch? e then
         goMatch m
       else
@@ -592,7 +604,7 @@ mutual
     Recall that class instance projections are not marked with `[reducible]` because we want them to be
     in "reducible canonical form".
   -/
-  private partial def unfoldProjInstWhenIntances? (e : Expr) : MetaM (Option Expr) := do
+  partial def unfoldProjInstWhenIntances? (e : Expr) : MetaM (Option Expr) := do
     if (← getTransparency) != TransparencyMode.instances then
       return none
     else
@@ -601,7 +613,7 @@ mutual
   /-- Unfold definition using "smart unfolding" if possible. -/
   partial def unfoldDefinition? (e : Expr) : MetaM (Option Expr) :=
     match e with
-    | Expr.app f _ _ =>
+    | Expr.app f _ =>
       matchConstAux f.getAppFn (fun _ => unfoldProjInstWhenIntances? e) fun fInfo fLvls => do
         if fInfo.levelParams.length != fLvls.length then
           return none
@@ -669,7 +681,7 @@ mutual
                 unfoldDefault ()
           else
             unfoldDefault ()
-    | Expr.const declName lvls _ => do
+    | Expr.const declName lvls => do
       if smartUnfolding.get (← getOptions) && (← getEnv).contains (mkSmartUnfoldingNameFor declName) then
         return none
       else
@@ -725,7 +737,7 @@ unsafe def reduceNatNativeUnsafe (constName : Name) : MetaM Nat := evalConstChec
 
 def reduceNative? (e : Expr) : MetaM (Option Expr) :=
   match e with
-  | Expr.app (Expr.const fName _ _) (Expr.const argName _ _) _ =>
+  | Expr.app (Expr.const fName _) (Expr.const argName _) =>
     if fName == ``Lean.reduceBool then do
       return toExpr (← reduceBoolNative argName)
     else if fName == ``Lean.reduceNat then do
@@ -738,9 +750,9 @@ def reduceNative? (e : Expr) : MetaM (Option Expr) :=
 @[inline] def withNatValue {α} (a : Expr) (k : Nat → MetaM (Option α)) : MetaM (Option α) := do
   let a ← whnf a
   match a with
-  | Expr.const `Nat.zero _ _      => k 0
-  | Expr.lit (Literal.natVal v) _ => k v
-  | _                             => return none
+  | Expr.const `Nat.zero _      => k 0
+  | Expr.lit (Literal.natVal v) => k v
+  | _                           => return none
 
 def reduceUnaryNatOp (f : Nat → Nat) (a : Expr) : MetaM (Option Expr) :=
   withNatValue a fun a =>
@@ -761,12 +773,12 @@ def reduceNat? (e : Expr) : MetaM (Option Expr) :=
   if e.hasFVar || e.hasMVar then
     return none
   else match e with
-    | Expr.app (Expr.const fn _ _) a _                  =>
+    | Expr.app (Expr.const fn _) a                =>
       if fn == ``Nat.succ then
         reduceUnaryNatOp Nat.succ a
       else
         return none
-    | Expr.app (Expr.app (Expr.const fn _ _) a1 _) a2 _ =>
+    | Expr.app (Expr.app (Expr.const fn _) a1) a2 =>
       if fn == ``Nat.add then reduceBinNatOp Nat.add a1 a2
       else if fn == ``Nat.sub then reduceBinNatOp Nat.sub a1 a2
       else if fn == ``Nat.mul then reduceBinNatOp Nat.mul a1 a2

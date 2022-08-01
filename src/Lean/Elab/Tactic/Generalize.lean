@@ -18,7 +18,7 @@ open Meta
       let expr ← elabTerm arg[1] none
       return { hName?, expr, xName? := arg[3].getId : GeneralizeArg }
     liftMetaTactic fun mvarId => do
-      let (_, mvarId) ← generalize mvarId args
+      let (_, mvarId) ← mvarId.generalize args
       return [mvarId]
 
 end Lean.Elab.Tactic

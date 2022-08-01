@@ -81,9 +81,9 @@ def structuralRecursion (preDefs : Array PreDefinition) : TermElabM Unit :=
   if preDefs.size != 1 then
     throwError "structural recursion does not handle mutually recursive functions"
   else do
-    let ((recArgPos, preDefNonRec), state) ← run <| elimRecursion preDefs[0]
+    let ((recArgPos, preDefNonRec), state) ← run <| elimRecursion preDefs[0]!
     let preDefNonRec ← eraseRecAppSyntax preDefNonRec
-    let preDef ← eraseRecAppSyntax preDefs[0]
+    let preDef ← eraseRecAppSyntax preDefs[0]!
     state.addMatchers.forM liftM
     registerEqnsInfo preDef recArgPos
     mapError (addNonRec preDefNonRec (applyAttrAfterCompilation := false)) fun msg =>

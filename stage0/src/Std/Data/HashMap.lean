@@ -38,7 +38,7 @@ def mkIdx {n : Nat} (h : n > 0) (u : USize) : { u : USize // u.toNat < n } :=
 
 @[inline] def reinsertAux (hashFn : α → UInt64) (data : HashMapBucket α β) (a : α) (b : β) : HashMapBucket α β :=
   let ⟨i, h⟩ := mkIdx data.property (hashFn a |>.toUSize)
-  data.update i (AssocList.cons a b (data.val.uget i h)) h
+  data.update i (AssocList.cons a b data.val[i]) h
 
 @[inline] def foldBucketsM {δ : Type w} {m : Type w → Type w} [Monad m] (data : HashMapBucket α β) (d : δ) (f : δ → α → β → m δ) : m δ :=
   data.val.foldlM (init := d) fun d b => b.foldlM f d
@@ -62,19 +62,20 @@ def findEntry? [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option (
   match m with
   | ⟨_, buckets⟩ =>
     let ⟨i, h⟩ := mkIdx buckets.property (hash a |>.toUSize)
-    (buckets.val.uget i h).findEntry? a
+    buckets.val[i].findEntry? a
 
+set_option linter.unusedVariables false in  -- #1214
 def find? [beq : BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option β :=
   match m with
   | ⟨_, buckets⟩ =>
     let ⟨i, h⟩ := mkIdx buckets.property (hash a |>.toUSize)
-    (buckets.val.uget i h).find? a
+    buckets.val[i].find? a
 
 def contains [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Bool :=
   match m with
   | ⟨_, buckets⟩ =>
     let ⟨i, h⟩ := mkIdx buckets.property (hash a |>.toUSize)
-    (buckets.val.uget i h).contains a
+    buckets.val[i].contains a
 
 def moveEntries [Hashable α] (i : Nat) (source : Array (AssocList α β)) (target : HashMapBucket α β) : HashMapBucket α β :=
   if h : i < source.size then
@@ -94,11 +95,12 @@ def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapI
   { size    := size,
     buckets := moveEntries 0 buckets.val new_buckets }
 
+set_option linter.unusedVariables false in  -- #1214
 @[inline] def insert [beq : BEq α] [Hashable α] (m : HashMapImp α β) (a : α) (b : β) : HashMapImp α β × Bool :=
   match m with
   | ⟨size, buckets⟩ =>
     let ⟨i, h⟩ := mkIdx buckets.property (hash a |>.toUSize)
-    let bkt    := buckets.val.uget i h
+    let bkt    := buckets.val[i]
     if bkt.contains a then
       (⟨size, buckets.update i (bkt.replace a b) h⟩, true)
     else
@@ -113,7 +115,7 @@ def erase [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : HashMapImp α
   match m with
   | ⟨ size, buckets ⟩ =>
     let ⟨i, h⟩ := mkIdx buckets.property (hash a |>.toUSize)
-    let bkt    := buckets.val.uget i h
+    let bkt    := buckets.val[i]
     if bkt.contains a then ⟨size - 1, buckets.update i (bkt.erase a) h⟩
     else m
 
@@ -176,8 +178,8 @@ def insert' (m : HashMap α β) (a : α) (b : β) : HashMap α β × Bool :=
   | some b => b
   | none   => panic! "key is not in the map"
 
-@[inline] def getOp (self : HashMap α β) (idx : α) : Option β :=
-  self.find? idx
+instance : GetElem (HashMap α β) α (Option β) fun _ _ => True where
+  getElem m k _ := m.find? k
 
 @[inline] def contains (m : HashMap α β) (a : α) : Bool :=
   match m with

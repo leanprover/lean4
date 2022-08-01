@@ -5,3 +5,9 @@ while trying to unify
   Catish.Obj Catish.Obj
 with
   CatIsh.{max ?u ?u, max (?u + 1) (?u + 1)}
+343.lean:30:0-30:54: error: failed to solve universe constraint
+  max (?u+1) (?u+1) =?= max (?u+1) (?u+1)
+while trying to unify
+  Catish.Obj : Type (max ((max (u_1 + 1) (u_2 + 1)) + 1) ((max u_3 u_4) + 1))
+with
+  CatIsh : Type (max ((max u_4 u_3) + 1) ((max (u_4 + 1) (u_3 + 1)) + 1))

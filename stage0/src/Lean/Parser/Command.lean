@@ -55,8 +55,8 @@ def «partial»        := leading_parser "partial "
 def «nonrec»         := leading_parser "nonrec "
 def declModifiers (inline : Bool) := leading_parser optional docComment >> optional (Term.«attributes» >> if inline then skip else ppDedent ppLine) >> optional visibility >> optional «noncomputable» >> optional «unsafe» >> optional («partial» <|> «nonrec»)
 def declId           := leading_parser ident >> optional (".{" >> sepBy1 ident ", " >> "}")
-def declSig          := leading_parser many (ppSpace >> (Term.simpleBinderWithoutType <|> Term.bracketedBinder)) >> Term.typeSpec
-def optDeclSig       := leading_parser many (ppSpace >> (Term.simpleBinderWithoutType <|> Term.bracketedBinder)) >> Term.optType
+def declSig          := leading_parser many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder)) >> Term.typeSpec
+def optDeclSig       := leading_parser many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder)) >> Term.optType
 def declValSimple    := leading_parser " :=" >> ppHardLineUnlessUngrouped >> termParser >> optional Term.whereDecls
 def declValEqns      := leading_parser Term.matchAltsWhereDecls
 def whereStructField := leading_parser Term.letDecl
@@ -77,10 +77,28 @@ def «instance»       := leading_parser Term.attrKind >> "instance" >> optNamed
 def «axiom»          := leading_parser "axiom " >> declId >> ppIndent declSig
 /- As `declSig` starts with a space, "example" does not need a trailing space. -/
 def «example»        := leading_parser "example" >> ppIndent declSig >> declVal
-def ctor             := leading_parser "\n| " >> ppIndent (declModifiers true >> ident >> optDeclSig)
+def ctor             := leading_parser "\n| " >> ppIndent (declModifiers true >> rawIdent >> optDeclSig)
 def derivingClasses  := sepBy1 (group (ident >> optional (" with " >> Term.structInst))) ", "
 def optDeriving      := leading_parser optional (ppLine >> atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
-def «inductive»      := leading_parser "inductive " >> declId >> optDeclSig >> optional (symbol " :=" <|> " where") >> many ctor >> optDeriving
+def computedField    := leading_parser declModifiers true >> ident >> " : " >> termParser >> Term.matchAlts
+def computedFields   := leading_parser "with" >> manyIndent (ppLine >> ppGroup computedField)
+/--
+In Lean, every concrete type other than the universes and every type constructor other than dependent arrows is
+an instance of a general family of type constructions known as inductive types.
+It is remarkable that it is possible to construct a substantial edifice of mathematics based on nothing more than the
+type universes, dependent arrow types, and inductive types; everything else follows from those.
+Intuitively, an inductive type is built up from a specified list of constructor. For example, `List α` is the list of elements of type `α`, and
+is defined as follows
+```
+inductive List (α : Type u) where
+| nil
+| cons (head : α) (tail : List α)
+```
+A list of elements of type `α` is either the empty list, `nil`, or an element `head : α` followed by a list `tail : List α`.
+For more information about [inductive types](https://leanprover.github.io/theorem_proving_in_lean4/inductive_types.html).
+-/
+def «inductive»      := leading_parser "inductive " >> declId >> optDeclSig >> optional (symbol " :=" <|> " where") >>
+  many ctor >> optional (ppDedent ppLine >> computedFields) >> optDeriving
 def classInductive   := leading_parser atomic (group (symbol "class " >> "inductive ")) >> declId >> ppIndent optDeclSig >> optional (symbol " :=" <|> " where") >> many ctor >> optDeriving
 def structExplicitBinder := leading_parser atomic (declModifiers true >> "(") >> many1 ident >> ppIndent optDeclSig >> optional (Term.binderTactic <|> Term.binderDefault) >> ")"
 def structImplicitBinder := leading_parser atomic (declModifiers true >> "{") >> many1 ident >> declSig >> "}"
@@ -129,12 +147,14 @@ def openDecl         := openHiding <|> openRenaming <|> openOnly <|> openSimple 
 @[builtinCommandParser] def «open»    := leading_parser withPosition ("open " >> openDecl)
 
 @[builtinCommandParser] def «mutual» := leading_parser "mutual " >> many1 (ppLine >> notSymbol "end" >> commandParser) >> ppDedent (ppLine >> "end") >> terminationSuffix
-@[builtinCommandParser] def «initialize» := leading_parser optional visibility >> "initialize " >> optional (atomic (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
-@[builtinCommandParser] def «builtin_initialize» := leading_parser optional visibility >> "builtin_initialize " >> optional (atomic (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
+def initializeKeyword := leading_parser "initialize " <|> "builtin_initialize "
+@[builtinCommandParser] def «initialize» := leading_parser declModifiers false >> initializeKeyword >> optional (atomic (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
 
 @[builtinCommandParser] def «in»  := trailing_parser withOpen (" in " >> commandParser)
 
-/-
+@[builtinCommandParser] def addDocString := leading_parser docComment >> "add_decl_doc" >> ident
+
+/--
   This is an auxiliary command for generation constructor injectivity theorems for inductive types defined at `Prelude.lean`.
   It is meant for bootstrapping purposes only. -/
 @[builtinCommandParser] def genInjectiveTheorems := leading_parser "gen_injective_theorems% " >> ident
@@ -150,6 +170,7 @@ builtin_initialize
   register_parser_alias                                                 declVal
   register_parser_alias                                                 optDeclSig
   register_parser_alias                                                 openDecl
+  register_parser_alias                                                 docComment
 
 end Command
 

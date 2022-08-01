@@ -34,25 +34,29 @@ def isEmpty (a : Array α) : Bool :=
 def singleton (v : α) : Array α :=
   mkArray 1 v
 
-/- Low-level version of `fget` which is as fast as a C array read.
+/-- Low-level version of `fget` which is as fast as a C array read.
    `Fin` values are represented as tag pointers in the Lean runtime. Thus,
    `fget` may be slightly slower than `uget`. -/
 @[extern "lean_array_uget"]
 def uget (a : @& Array α) (i : USize) (h : i.toNat < a.size) : α :=
-  a.get ⟨i.toNat, h⟩
+  a[i.toNat]
+
+instance : GetElem (Array α) USize α fun xs i => i.toNat < xs.size where
+  getElem xs i h := xs.uget i h
 
 def back [Inhabited α] (a : Array α) : α :=
   a.get! (a.size - 1)
 
 def get? (a : Array α) (i : Nat) : Option α :=
-  if h : i < a.size then some (a.get ⟨i, h⟩) else none
+  if h : i < a.size then some a[i] else none
 
 def back? (a : Array α) : Option α :=
   a.get? (a.size - 1)
 
 -- auxiliary declaration used in the equation compiler when pattern matching array literals.
 abbrev getLit {α : Type u} {n : Nat} (a : Array α) (i : Nat) (h₁ : a.size = n) (h₂ : i < n) : α :=
-  a.get ⟨i, h₁.symm ▸ h₂⟩
+  have := h₁.symm ▸ h₂
+  a[i]
 
 @[simp] theorem size_set (a : Array α) (i : Fin a.size) (v : α) : (set a i v).size = a.size :=
   List.length_set ..
@@ -60,7 +64,7 @@ abbrev getLit {α : Type u} {n : Nat} (a : Array α) (i : Nat) (h₁ : a.size = 
 @[simp] theorem size_push (a : Array α) (v : α) : (push a v).size = a.size + 1 :=
   List.length_concat ..
 
-/- Low-level version of `fset` which is as fast as a C array fset.
+/-- Low-level version of `fset` which is as fast as a C array fset.
    `Fin` values are represented as tag pointers in the Lean runtime. Thus,
    `fset` may be slightly slower than `uset`. -/
 @[extern "lean_array_uset"]
@@ -137,7 +141,7 @@ def modify (a : Array α) (i : Nat) (f : α → α) : Array α :=
 def modifyOp (self : Array α) (idx : Nat) (f : α → α) : Array α :=
   self.modify idx f
 
-/-
+/--
   We claim this unsafe implementation is correct because an array cannot have more than `usizeSz` elements in our runtime.
 
   This kind of low level trick can be removed with a little bit of compiler support. For example, if the compiler simplifies `as.size < usizeSz` to true. -/
@@ -153,7 +157,7 @@ def modifyOp (self : Array α) (idx : Nat) (f : α → α) : Array α :=
       pure b
   loop 0 b
 
-/- Reference implementation for `forIn` -/
+/-- Reference implementation for `forIn` -/
 @[implementedBy Array.forInUnsafe]
 protected def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
   let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
@@ -163,7 +167,7 @@ protected def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m
       have h' : i < as.size            := Nat.lt_of_lt_of_le (Nat.lt_succ_self i) h
       have : as.size - 1 < as.size     := Nat.sub_lt (Nat.zero_lt_of_lt h') (by decide)
       have : as.size - 1 - i < as.size := Nat.lt_of_le_of_lt (Nat.sub_le (as.size - 1) i) this
-      match (← f (as.get ⟨as.size - 1 - i, this⟩) b) with
+      match (← f as[as.size - 1 - i] b) with
       | ForInStep.done b  => pure b
       | ForInStep.yield b => loop i (Nat.le_of_lt h') b
   loop as.size (Nat.le_refl _) b
@@ -171,7 +175,7 @@ protected def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m
 instance : ForIn m (Array α) α where
   forIn := Array.forIn
 
-/- See comment at forInUnsafe -/
+/-- See comment at `forInUnsafe` -/
 @[inline]
 unsafe def foldlMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (as : Array α) (start := 0) (stop := as.size) : m β :=
   let rec @[specialize] fold (i : USize) (stop : USize) (b : β) : m β := do
@@ -187,7 +191,7 @@ unsafe def foldlMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Mon
   else
     pure init
 
-/- Reference implementation for `foldlM` -/
+/-- Reference implementation for `foldlM` -/
 @[implementedBy foldlMUnsafe]
 def foldlM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (as : Array α) (start := 0) (stop := as.size) : m β :=
   let fold (stop : Nat) (h : stop ≤ as.size) :=
@@ -196,7 +200,8 @@ def foldlM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β
         match i with
         | 0    => pure b
         | i'+1 =>
-          loop i' (j+1) (← f b (as.get ⟨j, Nat.lt_of_lt_of_le hlt h⟩))
+          have : j < as.size := Nat.lt_of_lt_of_le hlt h
+          loop i' (j+1) (← f b as[j])
       else
         pure b
     loop (stop - start) start init
@@ -205,7 +210,7 @@ def foldlM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β
   else
     fold as.size (Nat.le_refl _)
 
-/- See comment at forInUnsafe -/
+/-- See comment at `forInUnsafe` -/
 @[inline]
 unsafe def foldrMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → β → m β) (init : β) (as : Array α) (start := as.size) (stop := 0) : m β :=
   let rec @[specialize] fold (i : USize) (stop : USize) (b : β) : m β := do
@@ -223,7 +228,7 @@ unsafe def foldrMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Mon
   else
     pure init
 
-/- Reference implementation for `foldrM` -/
+/-- Reference implementation for `foldrM` -/
 @[implementedBy foldrMUnsafe]
 def foldrM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → β → m β) (init : β) (as : Array α) (start := as.size) (stop := 0) : m β :=
   let rec fold (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
@@ -233,7 +238,7 @@ def foldrM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α
       | 0, _   => pure b
       | i+1, h =>
         have : i < as.size := Nat.lt_of_lt_of_le (Nat.lt_succ_self _) h
-        fold i (Nat.le_of_lt this) (← f (as.get ⟨i, this⟩) b)
+        fold i (Nat.le_of_lt this) (← f as[i] b)
   if h : start ≤ as.size then
     if stop < start then
       fold start h init
@@ -244,7 +249,7 @@ def foldrM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α
   else
     pure init
 
-/- See comment at forInUnsafe -/
+/-- See comment at `forInUnsafe` -/
 @[inline]
 unsafe def mapMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m β) (as : Array α) : m (Array β) :=
   let sz := USize.ofNat as.size
@@ -261,7 +266,7 @@ unsafe def mapMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad
      pure (unsafeCast r)
   unsafeCast <| map 0 (unsafeCast as)
 
-/- Reference implementation for `mapM` -/
+/-- Reference implementation for `mapM` -/
 @[implementedBy mapMUnsafe]
 def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m β) (as : Array α) : m (Array β) :=
   as.foldlM (fun bs a => do let b ← f a; pure (bs.push b)) (mkEmpty as.size)
@@ -327,7 +332,8 @@ def anyM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as :
   let any (stop : Nat) (h : stop ≤ as.size) :=
     let rec loop (j : Nat) : m Bool := do
       if hlt : j < stop then
-        if (← p (as.get ⟨j, Nat.lt_of_lt_of_le hlt h⟩)) then
+        have : j < as.size := Nat.lt_of_lt_of_le hlt h
+        if (← p as[j]) then
           pure true
         else
           loop (j+1)
@@ -350,7 +356,7 @@ def findSomeRevM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] 
     | 0,   _ => pure none
     | i+1, h => do
       have : i < as.size := Nat.lt_of_lt_of_le (Nat.lt_succ_self _) h
-      let r ← f (as.get ⟨i, this⟩)
+      let r ← f as[i]
       match r with
       | some _ => pure r
       | none   =>
@@ -419,7 +425,7 @@ def findIdx? {α : Type u} (as : Array α) (p : α → Bool) : Option Nat :=
         rw [inv] at hlt
         exact absurd hlt (Nat.lt_irrefl _)
       | i+1, inv =>
-        if p (as.get ⟨j, hlt⟩) then
+        if p as[j] then
           some j
         else
           have : i + (j+1) = as.size := by
@@ -512,7 +518,8 @@ namespace Array
 @[specialize]
 def isEqvAux (a b : Array α) (hsz : a.size = b.size) (p : α → α → Bool) (i : Nat) : Bool :=
   if h : i < a.size then
-     p (a.get ⟨i, h⟩) (b.get ⟨i, hsz ▸ h⟩) && isEqvAux a b hsz p (i+1)
+     have : i < b.size := hsz ▸ h
+     p a[i] b[i] && isEqvAux a b hsz p (i+1)
   else
     true
 termination_by _ => a.size - i
@@ -550,7 +557,7 @@ def filterMap (f : α → Option β) (as : Array α) (start := 0) (stop := as.si
 @[specialize]
 def getMax? (as : Array α) (lt : α → α → Bool) : Option α :=
   if h : 0 < as.size then
-    let a0 := as.get ⟨0, h⟩
+    let a0 := as[0]
     some <| as.foldl (init := a0) (start := 1) fun best a =>
       if lt best a then a else best
   else
@@ -569,7 +576,7 @@ def partition (p : α → Bool) (as : Array α) : Array α × Array α := Id.run
 
 theorem ext (a b : Array α)
     (h₁ : a.size = b.size)
-    (h₂ : (i : Nat) → (hi₁ : i < a.size) → (hi₂ : i < b.size) → a.get ⟨i, hi₁⟩ = b.get ⟨i, hi₂⟩)
+    (h₂ : (i : Nat) → (hi₁ : i < a.size) → (hi₂ : i < b.size) → a[i] = b[i])
     : a = b := by
   let rec extAux (a b : List α)
       (h₁ : a.length = b.length)
@@ -712,51 +719,35 @@ def toListLitAux (a : Array α) (n : Nat) (hsz : a.size = n) : ∀ (i : Nat), i 
 def toArrayLit (a : Array α) (n : Nat) (hsz : a.size = n) : Array α :=
   List.toArray <| toListLitAux a n hsz n (hsz ▸ Nat.le_refl _) []
 
-theorem toArrayLit_eq (a : Array α) (n : Nat) (hsz : a.size = n) : a = toArrayLit a n hsz :=
-  -- TODO: this is painful to prove without proper automation
-  sorry
-  /-
-  First, we need to prove
-  ∀ i j acc, i ≤ a.size → (toListLitAux a n hsz (i+1) hi acc).index j = if j < i then a.getLit j hsz _ else acc.index (j - i)
-  by induction
+theorem ext' {as bs : Array α} (h : as.data = bs.data) : as = bs := by
+  cases as; cases bs; simp at h; rw [h]
 
-  Base case is trivial
-  (j : Nat) (acc : List α) (hi : 0 ≤ a.size)
-       |- (toListLitAux a n hsz 0 hi acc).index j = if j < 0 then a.getLit j hsz _ else acc.index (j - 0)
-  ...  |- acc.index j = acc.index j
+theorem toArrayAux_eq (as : List α) (acc : Array α) : (as.toArrayAux acc).data = acc.data ++ as := by
+  induction as generalizing acc <;> simp [*, List.toArrayAux, Array.push, List.append_assoc, List.concat_eq_append]
 
-  Induction
+theorem data_toArray (as : List α) : as.toArray.data = as := by
+  simp [List.toArray, toArrayAux_eq, Array.mkEmpty]
 
-  (j : Nat) (acc : List α) (hi : i+1 ≤ a.size)
-        |- (toListLitAux a n hsz (i+1) hi acc).index j = if j < i + 1 then a.getLit j hsz _ else acc.index (j - (i + 1))
-    ... |- (toListLitAux a n hsz i hi' (a.getLit i hsz _ :: acc)).index j = if j < i + 1 then a.getLit j hsz _ else acc.index (j - (i + 1))  * by def
-    ... |- if j < i     then a.getLit j hsz _ else (a.getLit i hsz _ :: acc).index (j-i)    * by induction hypothesis
-           =
-           if j < i + 1 then a.getLit j hsz _ else acc.index (j - (i + 1))
-  If j < i, then both are a.getLit j hsz _
-  If j = i, then lhs reduces else-branch to (a.getLit i hsz _) and rhs is then-brachn (a.getLit i hsz _)
-  If j >= i + 1, we use
-     - j - i >= 1 > 0
-     - (a::as).index k = as.index (k-1) If k > 0
-     - j - (i + 1) = (j - i) - 1
-     Then lhs = (a.getLit i hsz _ :: acc).index (j-i) = acc.index (j-i-1) = acc.index (j-(i+1)) = rhs
+theorem toArrayLit_eq (as : Array α) (n : Nat) (hsz : as.size = n) : as = toArrayLit as n hsz := by
+  apply ext'
+  simp [toArrayLit, data_toArray]
+  have hle : n ≤ as.size := hsz ▸ Nat.le_refl _
+  have hge : as.size ≤ n := hsz ▸ Nat.le_refl _
+  have := go n hle
+  rw [List.drop_eq_nil_of_le hge] at this
+  rw [this]
+where
+  getLit_eq (as : Array α) (i : Nat) (h₁ : as.size = n) (h₂ : i < n) : as.getLit i h₁ h₂ = getElem as.data i ((id (α := as.data.length = n) h₁) ▸ h₂) :=
+    rfl
 
-  With this proof, we have
-
-  ∀ j, j < n → (toListLitAux a n hsz n _ []).index j = a.getLit j hsz _
-
-  We also need
-
-  - (toListLitAux a n hsz n _ []).length = n
-  - j < n -> (List.toArray as).getLit j _ _ = as.index j
-
-  Then using Array.extLit, we have that a = List.toArray <| toListLitAux a n hsz n _ []
-  -/
+  go (i : Nat) (hi : i ≤ as.size) : toListLitAux as n hsz i hi (as.data.drop i) = as.data := by
+    cases i <;> simp [getLit_eq, List.get_drop_eq_drop, toListLitAux, List.drop, go]
 
 def isPrefixOfAux [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) (i : Nat) : Bool :=
   if h : i < as.size then
-    let a := as.get ⟨i, h⟩;
-    let b := bs.get ⟨i, Nat.lt_of_lt_of_le h hle⟩;
+    let a := as[i]
+    have : i < bs.size := Nat.lt_of_lt_of_le h hle
+    let b := bs[i]
     if a == b then
       isPrefixOfAux as bs hle (i+1)
     else
@@ -777,11 +768,11 @@ private def allDiffAuxAux [BEq α] (as : Array α) (a : α) : forall (i : Nat), 
   | 0,   _ => true
   | i+1, h =>
     have : i < as.size := Nat.lt_trans (Nat.lt_succ_self _) h;
-    a != as.get ⟨i, this⟩ && allDiffAuxAux as a i this
+    a != as[i] && allDiffAuxAux as a i this
 
 private def allDiffAux [BEq α] (as : Array α) (i : Nat) : Bool :=
   if h : i < as.size then
-    allDiffAuxAux as (as.get ⟨i, h⟩) i h && allDiffAux as (i+1)
+    allDiffAuxAux as as[i] i h && allDiffAux as (i+1)
   else
     true
 termination_by _ => as.size - i
@@ -791,9 +782,9 @@ def allDiff [BEq α] (as : Array α) : Bool :=
 
 @[specialize] def zipWithAux (f : α → β → γ) (as : Array α) (bs : Array β) (i : Nat) (cs : Array γ) : Array γ :=
   if h : i < as.size then
-    let a := as.get ⟨i, h⟩;
+    let a := as[i]
     if h : i < bs.size then
-      let b := bs.get ⟨i, h⟩;
+      let b := bs[i]
       zipWithAux f as bs (i+1) <| cs.push <| f a b
     else
       cs

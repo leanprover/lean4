@@ -12,25 +12,22 @@ universe u v
 inductive Acc {α : Sort u} (r : α → α → Prop) : α → Prop where
   | intro (x : α) (h : (y : α) → r y x → Acc r y) : Acc r x
 
-set_option codegen false in
-abbrev Acc.ndrec.{u1, u2} {α : Sort u2} {r : α → α → Prop} {C : α → Sort u1}
+noncomputable abbrev Acc.ndrec.{u1, u2} {α : Sort u2} {r : α → α → Prop} {C : α → Sort u1}
     (m : (x : α) → ((y : α) → r y x → Acc r y) → ((y : α) → (a : r y x) → C y) → C x)
     {a : α} (n : Acc r a) : C a :=
-Acc.rec (motive := fun α _ => C α) m n
+  n.rec m
 
-set_option codegen false in
-abbrev Acc.ndrecOn.{u1, u2} {α : Sort u2} {r : α → α → Prop} {C : α → Sort u1}
+noncomputable abbrev Acc.ndrecOn.{u1, u2} {α : Sort u2} {r : α → α → Prop} {C : α → Sort u1}
     {a : α} (n : Acc r a)
     (m : (x : α) → ((y : α) → r y x → Acc r y) → ((y : α) → (a : r y x) → C y) → C x)
     : C a :=
-Acc.rec (motive := fun α _ => C α) m n
+  n.rec m
 
 namespace Acc
 variable {α : Sort u} {r : α → α → Prop}
 
 def inv {x y : α} (h₁ : Acc r x) (h₂ : r y x) : Acc r y :=
-Acc.recOn (motive := fun (x : α) _ => r y x → Acc r y)
-  h₁ (fun _ ac₁ _ h₂ => ac₁ y h₂) h₂
+  h₁.recOn (fun _ ac₁ _ h₂ => ac₁ y h₂) h₂
 
 end Acc
 
@@ -43,8 +40,7 @@ class WellFoundedRelation (α : Sort u) where
 
 namespace WellFounded
 def apply {α : Sort u} {r : α → α → Prop} (wf : WellFounded r) (a : α) : Acc r a :=
-  WellFounded.recOn (motive := fun _ => (y : α) → Acc r y)
-    wf (fun p => p) a
+  wf.rec (fun p => p) a
 
 section
 variable {α : Sort u} {r : α → α → Prop} (hwf : WellFounded r)
@@ -59,8 +55,7 @@ theorem induction {C : α → Prop} (a : α) (h : ∀ x, (∀ y, r y x → C y) 
 variable {C : α → Sort v}
 variable (F : ∀ x, (∀ y, r y x → C y) → C x)
 
-set_option codegen false in
-def fixF (x : α) (a : Acc r x) : C x := by
+noncomputable def fixF (x : α) (a : Acc r x) : C x := by
   induction a with
   | intro x₁ _ ih => exact F x₁ ih
 
@@ -73,8 +68,7 @@ end
 variable {α : Sort u} {C : α → Sort v} {r : α → α → Prop}
 
 -- Well-founded fixpoint
-set_option codegen false in
-def fix (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) : C x :=
+noncomputable def fix (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) : C x :=
   fixF F x (apply hwf x)
 
 -- Well-founded fixpoint satisfies fixpoint equation

@@ -53,6 +53,7 @@ LEAN_EXPORT lean_object* l_ExceptT_adapt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadExceptOfExceptT__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ExceptT_instMonadLiftExceptT(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ExceptT_bindCont___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Except_isOk___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_ExceptT_instMonadExceptT___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Except_map___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_tryFinally(lean_object*, lean_object*, lean_object*);
@@ -69,6 +70,7 @@ LEAN_EXPORT lean_object* l_instMonadControlExceptT___rarg___lambda__2___boxed(le
 LEAN_EXPORT lean_object* l_Except_instMonadExcept___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Except_map(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadExceptOfExceptT(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Except_isOk(lean_object*, lean_object*);
 static lean_object* l_Except_instMonadExcept___closed__10;
 LEAN_EXPORT lean_object* l_instMonadControlExceptT___rarg(lean_object*);
 LEAN_EXPORT uint8_t l_Except_toBool___rarg(lean_object*);
@@ -105,6 +107,7 @@ LEAN_EXPORT lean_object* l_ExceptT_instMonadExceptT___rarg___lambda__5(lean_obje
 LEAN_EXPORT lean_object* l_ExceptT_run(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ExceptT_instMonadExceptT___rarg___lambda__3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ExceptT_bind___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Except_isOk___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_ExceptT_instMonadExceptT___rarg___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Except_instMonadExcept___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ExceptT_tryCatch___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -383,6 +386,41 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Except_toBool___rarg(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT uint8_t l_Except_isOk___rarg(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+uint8_t x_2; 
+x_2 = 0;
+return x_2;
+}
+else
+{
+uint8_t x_3; 
+x_3 = 1;
+return x_3;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Except_isOk(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Except_isOk___rarg___boxed), 1, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Except_isOk___rarg___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Except_isOk___rarg(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;

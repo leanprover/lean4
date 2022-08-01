@@ -13,7 +13,7 @@ open Meta
 
 abbrev PatternVar := Syntax  -- TODO: should be `Ident`
 
-/-
+/-!
   Patterns define new local variables.
   This module collect them and preprocess `_` occurring in patterns.
   Recall that an `_` may represent anonymous variables or inaccessible terms
@@ -36,8 +36,11 @@ abbrev PatternVar := Syntax  -- TODO: should be `Ident`
 -/
 namespace CollectPatternVars
 
+/-- State for the pattern variable collector monad. -/
 structure State where
+  /-- Pattern variables found so far. -/
   found     : NameSet := {}
+  /-- Pattern variables found so far as an array. It contains the order they were found. -/
   vars      : Array PatternVar := #[]
   deriving Inhabited
 
@@ -49,7 +52,7 @@ private def throwCtorExpected {α} : M α :=
 private def throwInvalidPattern {α} : M α :=
   throwError "invalid pattern"
 
-/-
+/-!
 An application in a pattern can be
 
 1- A constructor application
@@ -95,7 +98,7 @@ private def isNextArgAccessible (ctx : Context) : Bool :=
 
 private def getNextParam (ctx : Context) : (Name × BinderInfo) × Context :=
   let i := ctx.paramDeclIdx
-  let d := ctx.paramDecls[i]
+  let d := ctx.paramDecls[i]!
   (d, { ctx with paramDeclIdx := ctx.paramDeclIdx + 1 })
 
 private def processVar (idStx : Syntax) : M Syntax := do
@@ -108,19 +111,6 @@ private def processVar (idStx : Syntax) : M Syntax := do
     throwError "invalid pattern, variable '{id}' occurred more than once"
   modify fun s => { s with vars := s.vars.push idStx, found := s.found.insert id }
   return idStx
-
-private def nameToPattern : Name → TermElabM Term
-  | Name.anonymous => `(Name.anonymous)
-  | Name.str p s _ => do let p ← nameToPattern p; `(Name.str $p $(quote s) _)
-  | Name.num p n _ => do let p ← nameToPattern p; `(Name.num $p $(quote n) _)
-
-private def quotedNameToPattern (stx : Syntax) : TermElabM Syntax :=
-  match stx[0].isNameLit? with
-  | some val => nameToPattern val
-  | none     => throwIllFormedSyntax
-
-private def doubleQuotedNameToPattern (stx : Syntax) : TermElabM Syntax := do
-  nameToPattern (← resolveGlobalConstNoOverloadWithInfo stx[2])
 
 private def samePatternsVariables (startingAt : Nat) (s₁ s₂ : State) : Bool :=
   if h : s₁.vars.size = s₂.vars.size then
@@ -191,14 +181,8 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
     return stx
   else if k == charLitKind then
     return stx
-  else if k == ``Lean.Parser.Term.quotedName then
-    /- Quoted names have an elaboration function associated with them, and they will not be macro expanded.
-      Note that macro expansion is not a good option since it produces a term using the smart constructors `Name.mkStr`, `Name.mkNum`
-      instead of the constructors `Name.str` and `Name.num` -/
-    quotedNameToPattern stx
-  else if k == ``Lean.Parser.Term.doubleQuotedName then
-    /- Similar to previous case -/
-    doubleQuotedNameToPattern stx
+  else if k == ``Lean.Parser.Term.quotedName || k == ``Lean.Parser.Term.doubleQuotedName then
+    return stx
   else if k == choiceKind then
     /- Remark: If there are `Term.structInst` alternatives, we keep only them. This is a hack to get rid of
        Set-like notation in patterns. Recall that in Mathlib `{a, b}` can be a set with two elements or the
@@ -211,7 +195,7 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
       else
         args
     let stateSaved ← get
-    let arg0 ← collect args[0]
+    let arg0 ← collect args[0]!
     let stateNew ← get
     let mut argsNew := #[arg0]
     for arg in args[1:] do
@@ -229,33 +213,34 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
       | `(Parser.Term.structInstField| $lval:structInstLVal := $val) => do
         let newVal ← collect val
         `(Parser.Term.structInstField| $lval:structInstLVal := $newVal)
-      | field => throwInvalidPattern  -- `structInstFieldAbbrev` should be expanded at this point
+      | _ => throwInvalidPattern  -- `structInstFieldAbbrev` should be expanded at this point
     `({ $[$srcs?,* with]? $fields,* $[..%$ell?]? $[: $ty?]? })
   | _ => throwInvalidPattern
 
 where
 
   processCtorApp (stx : Syntax) : M Syntax := do
-    let (f, namedArgs, args, ellipsis) ← expandApp stx true
+    let (f, namedArgs, args, ellipsis) ← expandApp stx
     if f.getKind == ``Parser.Term.dotIdent then
-      unless namedArgs.isEmpty do
-        throwError "invalid dotted notation in a pattern, named arguments are not supported yet"
+      let namedArgsNew ← namedArgs.mapM fun
+        | { ref, name, val := Arg.stx arg } => withRef ref do `(Lean.Parser.Term.namedArgument| ($(mkIdentFrom ref name) := $(← collect arg)))
+        | _ => unreachable!
       let mut argsNew ← args.mapM fun | Arg.stx arg => collect arg | _ => unreachable!
       if ellipsis then
         argsNew := argsNew.push (mkNode ``Parser.Term.ellipsis #[mkAtomFrom stx ".."])
-      return Syntax.mkApp f argsNew
+      return Syntax.mkApp f (namedArgsNew ++ argsNew)
     else
       processCtorAppCore f namedArgs args ellipsis
 
   processCtor (stx : Syntax) : M Syntax := do
     processCtorAppCore stx #[] #[] false
 
-  /- Check whether `stx` is a pattern variable or constructor-like (i.e., constructor or constant tagged with `[matchPattern]` attribute) -/
+  /-- Check whether `stx` is a pattern variable or constructor-like (i.e., constructor or constant tagged with `[matchPattern]` attribute) -/
   processId (stx : Syntax) : M Syntax := do
     match (← resolveId? stx "pattern") with
     | none   => processVar stx
     | some f => match f with
-      | Expr.const fName _ _ =>
+      | Expr.const fName _ =>
         match (← getEnv).find? fName with
         | some (ConstantInfo.ctorInfo _) => processCtor stx
         | some _ =>
@@ -297,7 +282,7 @@ where
       let (d, ctx)   := getNextParam ctx
       match ctx.namedArgs.findIdx? fun namedArg => namedArg.name == d.1 with
       | some idx =>
-        let arg := ctx.namedArgs[idx]
+        let arg := ctx.namedArgs[idx]!
         let ctx := { ctx with namedArgs := ctx.namedArgs.eraseIdx idx }
         let ctx ← pushNewArg accessible ctx arg.val
         processCtorAppContext ctx
@@ -315,7 +300,7 @@ where
       | `($fId:ident)  => pure (fId, false)
       | `(@$fId:ident) => pure (fId, true)
       | _              => throwError "identifier expected"
-    let some (Expr.const fName _ _) ← resolveId? fId "pattern" (withInfo := true) | throwCtorExpected
+    let some (Expr.const fName _) ← resolveId? fId "pattern" (withInfo := true) | throwCtorExpected
     let fInfo ← getConstInfo fName
     let paramDecls ← forallTelescopeReducing fInfo.type fun xs _ => xs.mapM fun x => do
       let d ← getFVarLocalDecl x
@@ -339,17 +324,27 @@ def main (alt : MatchAltView) : M MatchAltView := do
 
 end CollectPatternVars
 
+/--
+Collect pattern variables occurring in the `match`-alternative object views.
+It also returns the updated views.
+-/
 def collectPatternVars (alt : MatchAltView) : TermElabM (Array PatternVar × MatchAltView) := do
   let (alt, s) ← (CollectPatternVars.main alt).run {}
   return (s.vars, alt)
 
-/- Return the pattern variables in the given pattern.
-   Remark: this method is not used by the main `match` elaborator, but in the precheck hook and other macros (e.g., at `Do.lean`). -/
+/--
+Return the pattern variables in the given pattern.
+Remark: this method is not used by the main `match` elaborator, but in the precheck hook and other macros (e.g., at `Do.lean`).
+-/
 def getPatternVars (patternStx : Syntax) : TermElabM (Array PatternVar) := do
   let patternStx ← liftMacroM <| expandMacros patternStx
   let (_, s) ← (CollectPatternVars.collect patternStx).run {}
   return s.vars
 
+/--
+Return the pattern variables occurring in the given patterns.
+This method is used in the `match` and `do` notation elaborators
+-/
 def getPatternsVars (patterns : Array Syntax) : TermElabM (Array PatternVar) := do
   let collect : CollectPatternVars.M Unit := do
     for pattern in patterns do

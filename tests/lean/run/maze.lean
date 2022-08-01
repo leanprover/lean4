@@ -98,9 +98,8 @@ def extractXY : Lean.Expr → Lean.MetaM Coords
 | e => do
   let e':Lean.Expr ← (Lean.Meta.whnf e)
   let sizeArgs := Lean.Expr.getAppArgs e'
-  let f := Lean.Expr.getAppFn e'
-  let x ← Lean.Meta.whnf sizeArgs[0]
-  let y ← Lean.Meta.whnf sizeArgs[1]
+  let x ← Lean.Meta.whnf sizeArgs[0]!
+  let y ← Lean.Meta.whnf sizeArgs[1]!
   let numCols := (Lean.Expr.natLit? x).get!
   let numRows := (Lean.Expr.natLit? y).get!
   return Coords.mk numCols numRows
@@ -111,8 +110,8 @@ partial def extractWallList : Lean.Expr → Lean.MetaM (List Coords)
   let f := Lean.Expr.getAppFn exp'
   if f.constName!.toString == "List.cons"
   then let consArgs := Lean.Expr.getAppArgs exp'
-       let rest ← extractWallList consArgs[2]
-       let ⟨wallCol, wallRow⟩ ← extractXY consArgs[1]
+       let rest ← extractWallList consArgs[2]!
+       let ⟨wallCol, wallRow⟩ ← extractXY consArgs[1]!
        return (Coords.mk wallCol wallRow) :: rest
   else return [] -- "List.nil"
 
@@ -120,9 +119,9 @@ partial def extractGameState : Lean.Expr → Lean.MetaM GameState
 | exp => do
     let exp': Lean.Expr ← (Lean.Meta.whnf exp)
     let gameStateArgs := Lean.Expr.getAppArgs exp'
-    let size ← extractXY gameStateArgs[0]
-    let playerCoords ← extractXY gameStateArgs[1]
-    let walls ← extractWallList gameStateArgs[2]
+    let size ← extractXY gameStateArgs[0]!
+    let playerCoords ← extractXY gameStateArgs[1]!
+    let walls ← extractWallList gameStateArgs[2]!
     pure ⟨size, playerCoords, walls⟩
 
 def update2dArray {α : Type} : Array (Array α) → Coords → α → Array (Array α)
@@ -130,7 +129,7 @@ def update2dArray {α : Type} : Array (Array α) → Coords → α → Array (Ar
    Array.set! a y $ Array.set! (Array.get! a y) x v
 
 def update2dArrayMulti {α : Type} : Array (Array α) → List Coords → α → Array (Array α)
-| a, [], v => a
+| a, [], _ => a
 | a, c::cs, v =>
      let a' := update2dArrayMulti a cs v
      update2dArray a' c v

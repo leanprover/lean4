@@ -52,7 +52,7 @@ private def tryApplyDefHandler (className : Name) (declName : Name) : CommandEla
          let className ← resolveGlobalConstNoOverloadWithInfo cls
          withRef cls do
            if declNames.size == 1 && args?.isNone then
-             if (← tryApplyDefHandler className declNames[0]) then
+             if (← tryApplyDefHandler className declNames[0]!) then
                return ()
            applyDerivingHandlers className declNames args?
        catch ex =>

@@ -123,7 +123,7 @@ def tryTheorem? (e : Expr) (thm : SimpTheorem) (discharge? : Expr → SimpM (Opt
         tryTheoremCore lhs xs bis val type e thm (eNumArgs - lhsNumArgs) discharge?
       else
         return none
-/-
+/--
 Remark: the parameter tag is used for creating trace messages. It is irrelevant otherwise.
 -/
 def rewrite? (e : Expr) (s : DiscrTree SimpTheorem) (erased : Std.PHashSet Name) (discharge? : Expr → SimpM (Option Expr)) (tag : String) (rflOnly : Bool) : SimpM (Option Result) := do

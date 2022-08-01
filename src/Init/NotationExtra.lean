@@ -86,8 +86,48 @@ macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBrackedBi
 
 -- enforce indentation of calc steps so we know when to stop parsing them
 syntax calcStep := ppIndent(colGe term " := " withPosition(term))
+
+/-- Step-wise reasoning over transitive relations.
+```
+calc
+  a = b := pab
+  b = c := pbc
+  ...
+  y = z := pyz
+```
+proves `a = z` from the given step-wise proofs. `=` can be replaced with any
+relation implementing the typeclass `Trans`. Instead of repeating the right-
+hand sides, subsequent left-hand sides can be replaced with `_`.
+
+`calc` has term mode and tactic mode variants. This is the term mode variant.
+
+See [Theorem Proving in Lean 4][tpil4] for more information.
+
+[tpil4]: https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#calculational-proofs
+-/
 syntax (name := calc) "calc" ppLine withPosition(calcStep) ppLine withPosition((calcStep ppLine)*) : term
 
+/-- Step-wise reasoning over transitive relations.
+```
+calc
+  a = b := pab
+  b = c := pbc
+  ...
+  y = z := pyz
+```
+proves `a = z` from the given step-wise proofs. `=` can be replaced with any
+relation implementing the typeclass `Trans`. Instead of repeating the right-
+hand sides, subsequent left-hand sides can be replaced with `_`.
+
+`calc` has term mode and tactic mode variants. This is the tactic mode variant,
+which supports an additional feature: it works even if the goal is `a = z'`
+for some other `z'`; in this case it will not close the goal but will instead
+leave a subgoal proving `z = z'`.
+
+See [Theorem Proving in Lean 4][tpil4] for more information.
+
+[tpil4]: https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#calculational-proofs
+-/
 syntax (name := calcTactic) "calc" ppLine withPosition(calcStep) ppLine withPosition((calcStep ppLine)*) : tactic
 
 @[appUnexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander

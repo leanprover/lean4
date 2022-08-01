@@ -117,7 +117,7 @@ theorem val_lt_of_le (i : Fin b) (h : b ≤ n) : i.val < n :=
 
 end Fin
 
-instance [GetElem Cont Nat Elem Dom] : GetElem Cont (Fin n) Elem fun xs i => Dom xs i where
+instance [GetElem cont Nat elem dom] : GetElem cont (Fin n) elem fun xs i => dom xs i where
   getElem xs i h := getElem xs i.1 h
 
 macro_rules

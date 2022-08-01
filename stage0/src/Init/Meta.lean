@@ -1252,20 +1252,23 @@ end Meta
 
 namespace Parser.Tactic
 
+/-- `erw [rules]` is a shorthand for `rw (config := { transparency := .default }) [rules]`.
+This does rewriting up to unfolding of regular definitions (by comparison to regular `rw`
+which only unfolds `@[reducible]` definitions). -/
 macro "erw " s:rwRuleSeq loc:(location)? : tactic =>
-  `(rw (config := { transparency := Lean.Meta.TransparencyMode.default }) $s $(loc)?)
+  `(rw (config := { transparency := .default }) $s $(loc)?)
 
 syntax simpAllKind := atomic("(" &"all") " := " &"true" ")"
 syntax dsimpKind   := atomic("(" &"dsimp") " := " &"true" ")"
 
-macro "declare_simp_like_tactic" opt:((simpAllKind <|> dsimpKind)?) tacName:ident tacToken:str updateCfg:term : command => do
+macro (name := declareSimpLikeTactic) doc?:(docComment)? "declare_simp_like_tactic" opt:((simpAllKind <|> dsimpKind)?) tacName:ident tacToken:str updateCfg:term : command => do
   let (kind, tkn, stx) ←
     if opt.raw.isNone then
-      pure (← `(``simp), ← `("simp "), ← `(syntax (name := $tacName) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic))
+      pure (← `(``simp), ← `("simp "), ← `($[$doc?:docComment]? syntax (name := $tacName) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic))
     else if opt.raw[0].getKind == ``simpAllKind then
-      pure (← `(``simpAll), ← `("simp_all "), ← `(syntax (name := $tacName) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic))
+      pure (← `(``simpAll), ← `("simp_all "), ← `($[$doc?:docComment]? syntax (name := $tacName) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic))
     else
-      pure (← `(``dsimp), ← `("dsimp "), ← `(syntax (name := $tacName) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? (location)? : tactic))
+      pure (← `(``dsimp), ← `("dsimp "), ← `($[$doc?:docComment]? syntax (name := $tacName) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? (location)? : tactic))
   `($stx:command
     @[macro $tacName] def expandSimp : Macro := fun s => do
       let c ← match s[1][0] with
@@ -1276,14 +1279,34 @@ macro "declare_simp_like_tactic" opt:((simpAllKind <|> dsimpKind)?) tacName:iden
       let r := s.setArg 1 (mkNullNode #[c])
       return r)
 
+/-- `simp!` is shorthand for `simp` with `autoUnfold := true`.
+This will rewrite with all equation lemmas, which can be used to
+partially evaluate many definitions. -/
 declare_simp_like_tactic simpAutoUnfold "simp! " fun (c : Lean.Meta.Simp.Config) => { c with autoUnfold := true }
+
+/-- `simp_arith` is shorthand for `simp` with `arith := true`.
+This enables the use of normalization by linear arithmetic. -/
 declare_simp_like_tactic simpArith "simp_arith " fun (c : Lean.Meta.Simp.Config) => { c with arith := true }
+
+/-- `simp_arith!` is shorthand for `simp_arith` with `autoUnfold := true`.
+This will rewrite with all equation lemmas, which can be used to
+partially evaluate many definitions. -/
 declare_simp_like_tactic simpArithAutoUnfold "simp_arith! " fun (c : Lean.Meta.Simp.Config) => { c with arith := true, autoUnfold := true }
 
+/-- `simp_all!` is shorthand for `simp_all` with `autoUnfold := true`.
+This will rewrite with all equation lemmas, which can be used to
+partially evaluate many definitions. -/
 declare_simp_like_tactic (all := true) simpAllAutoUnfold "simp_all! " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with autoUnfold := true }
+
+/-- `simp_all_arith` combines the effects of `simp_all` and `simp_arith`. -/
 declare_simp_like_tactic (all := true) simpAllArith "simp_all_arith " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with arith := true }
+
+/-- `simp_all_arith!` combines the effects of `simp_all`, `simp_arith` and `simp!`. -/
 declare_simp_like_tactic (all := true) simpAllArithAutoUnfold "simp_all_arith! " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with arith := true, autoUnfold := true }
 
+/-- `dsimp!` is shorthand for `dsimp` with `autoUnfold := true`.
+This will rewrite with all equation lemmas, which can be used to
+partially evaluate many definitions. -/
 declare_simp_like_tactic (dsimp := true) dsimpAutoUnfold "dsimp! " fun (c : Lean.Meta.DSimp.Config) => { c with autoUnfold := true }
 
 end Parser.Tactic

@@ -94,6 +94,14 @@ structure UserWidgetInfo where
   props : Json
   deriving Inhabited
 
+/--
+Specifies that the given free variables should be considered semantically identical in the current local context.
+Used for e.g. connecting variables before and after `match` generalization.
+-/
+structure FVarAliasInfo where
+  id     : FVarId
+  baseId : FVarId
+
 /-- Header information for a node in `InfoTree`. -/
 inductive Info where
   | ofTacticInfo (i : TacticInfo)
@@ -104,6 +112,7 @@ inductive Info where
   | ofCompletionInfo (i : CompletionInfo)
   | ofUserWidgetInfo (i : UserWidgetInfo)
   | ofCustomInfo (i : CustomInfo)
+  | ofFVarAliasInfo (i : FVarAliasInfo)
   deriving Inhabited
 
 /-- The InfoTree is a structure that is generated during elaboration and used

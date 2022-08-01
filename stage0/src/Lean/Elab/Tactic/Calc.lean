@@ -21,6 +21,7 @@ where
     Term.synthesizeSyntheticMVars (mayPostpone := false)
     instantiateMVars e
 
+/-- Elaborator for the `calc` tactic mode variant. -/
 @[builtinTactic calcTactic]
 def evalCalc : Tactic := fun stx => do
   withMainContext do

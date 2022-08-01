@@ -279,6 +279,20 @@ variable {σ : Type w}
 
 @[specialize] def foldl {_ : BEq α} {_ : Hashable α} (map : PersistentHashMap α β) (f : σ → α → β → σ) (init : σ) : σ :=
   Id.run $ map.foldlM f init
+
+@[specialize] protected def forIn {_ : BEq α} {_ : Hashable α} [Monad m]
+    (map : PersistentHashMap α β) (init : σ) (f : α × β → σ → m (ForInStep σ)) : m σ := do
+  let intoError : ForInStep σ → Except σ σ
+  | .done s => .error s
+  | .yield s => .ok s
+  let result ← foldlM (m := ExceptT σ m) map (init := init) fun s a b =>
+    (intoError <$> f (a, b) s : m _)
+  match result with
+  | .ok s | .error s => pure s
+
+instance {_ : BEq α} {_ : Hashable α} : ForIn m (PersistentHashMap α β) (α × β) where
+  forIn := PersistentHashMap.forIn
+
 end
 
 def toList {_ : BEq α} {_ : Hashable α} (m : PersistentHashMap α β) : List (α × β) :=

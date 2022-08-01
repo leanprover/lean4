@@ -137,15 +137,13 @@ def identOf : Info → Option (RefIdent × Bool)
   | Info.ofFieldInfo fi => some (RefIdent.const fi.projName, false)
   | _ => none
 
-def findReferences (text : FileMap) (trees : Array InfoTree) : Array Reference := Id.run do
-  let mut refs := #[]
+def findReferences (text : FileMap) (trees : Array InfoTree) : Array Reference := Id.run <| StateT.run' (s := #[]) do
   for tree in trees do
-    refs := refs.appendList <| tree.deepestNodes fun ci info _ => Id.run do
+    tree.visitM' (postNode := fun ci info _ => do
       if let some (ident, isBinder) := identOf info then
         if let some range := info.range? then
-          return some { ident, range := range.toLspRange text, stx := info.stx, ci, info, isBinder }
-      return none
-  refs
+          modify (·.push { ident, range := range.toLspRange text, stx := info.stx, ci, info, isBinder }))
+  get
 
 /--
 The `FVarId`s of a function parameter in the function's signature and body
@@ -157,23 +155,14 @@ of a variable.
 This function changes every such group to use a single `FVarId` (the head of the
 chain/DAG) and gets rid of duplicate definitions.
 -/
-partial def combineFvars (refs : Array Reference) : Array Reference := Id.run do
+partial def combineFvars (trees : Array InfoTree) (refs : Array Reference) : Array Reference := Id.run do
   -- Deduplicate definitions based on their exact range
   let mut posMap : HashMap Lsp.Range FVarId := HashMap.empty
   for ref in refs do
     if let { ident := RefIdent.fvar id, range, isBinder := true, .. } := ref then
       posMap := posMap.insert range id
 
-  -- Map fvar defs to overlapping fvar defs/uses
-  -- NOTE: poor man's union-find; see also `findCanonicalBinder?`
-  let mut idMap : HashMap FVarId FVarId := HashMap.empty
-  for ref in refs do
-    if let { ident := RefIdent.fvar baseId, range, .. } := ref then
-      if let some id := posMap.find? range then
-        let id := findCanonicalBinder idMap id
-        let baseId := findCanonicalBinder idMap baseId
-        if baseId != id then
-          idMap := idMap.insert id baseId
+  let idMap := buildIdMap posMap
 
   let mut refs' := #[]
   for ref in refs do
@@ -196,6 +185,28 @@ where
     | m, RefIdent.fvar id => RefIdent.fvar <| findCanonicalBinder m id
     | _, ident => ident
 
+  buildIdMap posMap := Id.run <| StateT.run' (s := HashMap.empty) do
+    -- map fvar defs to overlapping fvar defs/uses
+    for ref in refs do
+      if let { ident := RefIdent.fvar baseId, range, .. } := ref then
+        if let some id := posMap.find? range then
+          insertIdMap id baseId
+
+    -- apply `FVarAliasInfo`
+    trees.forM (·.visitM' (postNode := fun _ info cs => do
+      if let .ofFVarAliasInfo ai := info then
+        insertIdMap ai.id ai.baseId))
+
+    get
+
+  -- NOTE: poor man's union-find; see also `findCanonicalBinder`
+  insertIdMap id baseId := do
+    let idMap ← get
+    let id := findCanonicalBinder idMap id
+    let baseId := findCanonicalBinder idMap baseId
+    if baseId != id then
+      modify (·.insert id baseId)
+
 def dedupReferences (refs : Array Reference) (allowSimultaneousBinderUse := false) : Array Reference := Id.run do
   let mut refsByIdAndRange : HashMap (RefIdent × Option Bool × Lsp.Range) Reference := HashMap.empty
   for ref in refs do
@@ -212,7 +223,7 @@ def findModuleRefs (text : FileMap) (trees : Array InfoTree) (localVars : Bool :
     (allowSimultaneousBinderUse := false) : ModuleRefs := Id.run do
   let mut refs :=
     dedupReferences (allowSimultaneousBinderUse := allowSimultaneousBinderUse) <|
-    combineFvars <|
+    combineFvars trees <|
     findReferences text trees
   if !localVars then
     refs := refs.filter fun

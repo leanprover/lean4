@@ -15,7 +15,7 @@ structure ClassEntry where
     Position of the class `outParams`.
     For example, for class
     ```
-    class GetElem (Cont : Type u) (Idx : Type v) (Elem : outParam (Type w)) (Dom : outParam (Cont → Idx → Prop)) where
+    class GetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w)) (dom : outParam (cont → idx → Prop)) where
     ```
     `outParams := #[2, 3]`
   -/

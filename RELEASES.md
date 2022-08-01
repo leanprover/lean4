@@ -115,8 +115,8 @@ Unreleased
 
 * Update `a[i]` notation. It is now based on the typeclass
   ```lean
-  class GetElem (Cont : Type u) (Idx : Type v) (Elem : outParam (Type w)) (Dom : outParam (Cont → Idx → Prop)) where
-    getElem (xs : Cont) (i : Idx) (h : Dom xs i) : Elem
+  class GetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w)) (dom : outParam (cont → idx → Prop)) where
+    getElem (xs : cont) (i : idx) (h : dom xs i) : Elem
   ```
   The notation `a[i]` is now defined as follows
   ```lean
@@ -134,13 +134,13 @@ Unreleased
   index `i` is not valid.
   The three new notations are defined as follows:
   ```lean
-  @[inline] def getElem' [GetElem Cont Idx Elem Dom] (xs : Cont) (i : Idx) (h : Dom xs i) : Elem :=
+  @[inline] def getElem' [GetElem cont idx elem dom] (xs : cont) (i : idx) (h : dom xs i) : elem :=
   getElem xs i h
 
-  @[inline] def getElem! [GetElem Cont Idx Elem Dom] [Inhabited Elem] (xs : Cont) (i : Idx) [Decidable (Dom xs i)] : Elem :=
+  @[inline] def getElem! [GetElem cont idx elem dom] [Inhabited elem] (xs : cont) (i : idx) [Decidable (dom xs i)] : elem :=
     if h : _ then getElem xs i h else panic! "index out of bounds"
 
-  @[inline] def getElem? [GetElem Cont Idx Elem Dom] (xs : Cont) (i : Idx) [Decidable (Dom xs i)] : Option Elem :=
+  @[inline] def getElem? [GetElem cont idx elem dom] (xs : cont) (i : idx) [Decidable (dom xs i)] : Option elem :=
     if h : _ then some (getElem xs i h) else none
 
   macro:max x:term noWs "[" i:term "]" noWs "?" : term => `(getElem? $x $i)
@@ -189,7 +189,7 @@ Unreleased
   ```
   Note that `Idx`'s type in `GetElem` does not depend on `Cont`. So, you cannot write the instance `instance : GetElem (Array α) (Fin ??) α fun xs i => ...`, but the Lean library comes equipped with the following auxiliary instance:
   ```lean
-  instance [GetElem Cont Nat Elem Dom] : GetElem Cont (Fin n) Elem fun xs i => Dom xs i where
+  instance [GetElem cont Nat elem dom] : GetElem cont (Fin n) elem fun xs i => dom xs i where
     getElem xs i h := getElem xs i.1 h
   ```
   and helper tactic

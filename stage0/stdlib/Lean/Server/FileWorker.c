@@ -828,7 +828,6 @@ lean_inc(x_10);
 x_11 = 1;
 x_12 = 0;
 x_13 = l_Lean_Server_findModuleRefs(x_10, x_9, x_11, x_12);
-lean_dec(x_9);
 x_14 = lean_ctor_get(x_2, 1);
 lean_inc(x_14);
 lean_dec(x_2);

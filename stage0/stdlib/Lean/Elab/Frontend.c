@@ -2369,7 +2369,6 @@ x_25 = l_Std_PersistentArray_toArray___rarg(x_24);
 x_26 = l_Lean_FileMap_ofString(x_5);
 x_27 = 0;
 x_28 = l_Lean_Server_findModuleRefs(x_26, x_25, x_27, x_27);
-lean_dec(x_25);
 x_29 = l_Std_HashMap_toList___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__1(x_28);
 x_30 = lean_box(0);
 x_31 = l_List_mapTRAux___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__4(x_29, x_30);

@@ -133,6 +133,7 @@ LEAN_EXPORT lean_object* l_toBoolUsing___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_strictOr___boxed(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__4;
 LEAN_EXPORT lean_object* l_Subtype_instDecidableEqSubtype___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instInhabitedForInStep__1(lean_object*);
 static lean_object* l_term___x3c_x2d_x3e_____closed__6;
 LEAN_EXPORT lean_object* l_Quotient_mk___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableEqQuotient___boxed(lean_object*, lean_object*);
@@ -195,6 +196,7 @@ static lean_object* l___aux__Init__Core______macroRules__term_x7b_x7d__1___close
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__bne__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instInhabitedNonScalar;
 LEAN_EXPORT lean_object* l___aux__Init__Core______macroRules__term___x21_x3d____1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instInhabitedForInStep__1___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableIff(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instDecidableIff___rarg(uint8_t, uint8_t);
 static lean_object* l_term___x3c_x2d_x3e_____closed__5;
@@ -2752,6 +2754,23 @@ lean_object* x_4;
 x_4 = l___aux__Init__Core______unexpand__PSum__1(x_1, x_2, x_3);
 lean_dec(x_2);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_instInhabitedForInStep___rarg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_instInhabitedForInStep(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_instInhabitedForInStep___rarg), 1, 0);
+return x_2;
 }
 }
 static lean_object* _init_l_term___u2248_____closed__1() {
@@ -5698,7 +5717,7 @@ _start:
 return lean_box(0);
 }
 }
-LEAN_EXPORT lean_object* l_instInhabitedForInStep___rarg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_instInhabitedForInStep__1___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -5707,11 +5726,11 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_instInhabitedForInStep(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_instInhabitedForInStep__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instInhabitedForInStep___rarg), 1, 0);
+x_2 = lean_alloc_closure((void*)(l_instInhabitedForInStep__1___rarg), 1, 0);
 return x_2;
 }
 }

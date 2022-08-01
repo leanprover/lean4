@@ -158,11 +158,11 @@ inductive DefEqArgsFirstPassResult where
       contain higher order output parameters. Example:
       ```lean
       getElem :
-        {Cont : Type u_1} → {Idx : Type u_2} → {Elem : Type u_3} →
-        {Dom : Cont → Idx → Prop} → [self : GetElem Cont Idx Elem Dom] →
-        (xs : Cont) → (i : Idx) → (h : Dom xs i) → Elem
+        {cont : Type u_1} → {idx : Type u_2} → {elem : Type u_3} →
+        {dom : cont → idx → Prop} → [self : GetElem cont idx elem dom] →
+        (xs : cont) → (i : idx) → (h : dom xs i) → elem
       ```
-      The argumengs `Dom` and `h` must be processed after all implicit arguments
+      The argumengs `dom` and `h` must be processed after all implicit arguments
       otherwise higher-order unification problems are generated. See issue #1299,
       when trying to solve
       ```
@@ -170,7 +170,7 @@ inductive DefEqArgsFirstPassResult where
       ```
       we have to solve the constraint
       ```
-      ?Dom a i.val =?= LT.lt i.val (Array.size a)
+      ?dom a i.val =?= LT.lt i.val (Array.size a)
       ```
       by solving after the instance has been synthesized, we reduce this constraint to
       a simple check.

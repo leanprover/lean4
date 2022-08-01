@@ -142,12 +142,12 @@ structure ParamInfo where
     Example:
     ```
     getElem :
-      {Cont : Type u_1} → {Idx : Type u_2} → {Elem : Type u_3} →
-      {Dom : Cont → Idx → Prop} → [self : GetElem Cont Idx Elem Dom] →
-      (xs : Cont) → (i : Idx) → Dom xs i → Elem
+      {cont : Type u_1} → {idx : Type u_2} → {elem : Type u_3} →
+      {dom : cont → idx → Prop} → [self : GetElem cont idx elem dom] →
+      (xs : cont) → (i : idx) → dom xs i → elem
     ```
-    This flag is true for the parameter `Dom` because it is output parameter of
-    `[self : GetElem Cont Idx Elem Dom]`
+    This flag is true for the parameter `dom` because it is output parameter of
+    `[self : GetElem cont idx elem dom]`
    -/
   higherOrderOutParam : Bool  := false
   /--
@@ -156,12 +156,12 @@ structure ParamInfo where
     Example:
     ```
     getElem :
-      {Cont : Type u_1} → {Idx : Type u_2} → {Elem : Type u_3} →
-      {Dom : Cont → Idx → Prop} → [self : GetElem Cont Idx Elem Dom] →
-      (xs : Cont) → (i : Idx) → Dom xs i → Elem
+      {cont : Type u_1} → {idx : Type u_2} → {elem : Type u_3} →
+      {dom : cont → idx → Prop} → [self : GetElem cont idx elem dom] →
+      (xs : cont) → (i : idx) → dom xs i → elem
     ```
-    This flag is true for the parameter with type `Dom xs i` since `Dom` is an output parameter
-    of the instance `[self : GetElem Cont Idx Elem Dom]`
+    This flag is true for the parameter with type `dom xs i` since `dom` is an output parameter
+    of the instance `[self : GetElem cont idx elem dom]`
   -/
   dependsOnHigherOrderOutParam : Bool := false
   deriving Inhabited

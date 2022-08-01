@@ -168,7 +168,7 @@ where
       | none => return Simp.Step.done { expr := e }
     | e, _ => return Simp.Step.done { expr := e }
 
-@[builtinTactic ac_refl] def ac_refl_tactic : Lean.Elab.Tactic.Tactic := fun _ => do
+@[builtinTactic acRfl] def acRflTactic : Lean.Elab.Tactic.Tactic := fun _ => do
   let goal ← getMainGoal
   rewriteUnnormalized goal
 

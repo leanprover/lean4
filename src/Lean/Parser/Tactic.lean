@@ -20,8 +20,6 @@ example : True := by foo -- unknown tactic
 -/
 @[builtinTacticParser] def «unknown»    := leading_parser withPosition (ident >> errorAtSavedPos "unknown tactic" true)
 
-/-- The syntax `{ tacs }` is an alternative syntax for `· tacs`.
-It runs the tactics in sequence, and fails if the goal is not solved. -/
 @[builtinTacticParser] def nestedTactic := tacticSeqBracketed
 
 def matchRhs  := Term.hole <|> Term.syntheticHole <|> tacticSeq

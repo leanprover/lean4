@@ -266,10 +266,17 @@ macro_rules
     `($mods:declModifiers class $id $params* extends $parents,* $[: $ty]?
       attribute [instance] $ctor)
 
+section
+open Lean.Parser.Tactic
 /-- `· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. -/
 syntax ("·" <|> ".") ppHardSpace many1Indent(tactic ";"? ppLine) : tactic
 macro_rules
-  | `(tactic| ·%$dot $[$tacs $[;%$sc]?]*) => `(tactic| {%$dot $[$tacs $[;%$sc]?]*})
+  | `(tactic| ·%$dot $[$tacs $[;%$sc]?]*) => do
+    let tacs ← tacs.zip sc |>.mapM fun
+      | (tac, none)    => pure tac
+      | (tac, some sc) => `(tactic| ($tac; with_annotate_state $sc skip))
+    `(tactic| { with_annotate_state $dot skip; $[$tacs]* })
+end
 
 /--
   Similar to `first`, but succeeds only if one the given tactics solves the current goal.

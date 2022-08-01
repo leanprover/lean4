@@ -39,6 +39,12 @@ where go
   | none, node .. => panic! "unexpected context-free info tree node"
   | _, hole .. => pure none
 
+/-- `InfoTree.visitM` specialized to `Unit` return type -/
+def InfoTree.visitM' [Monad m]
+    (preNode  : ContextInfo → Info → (children : Std.PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
+    (postNode : ContextInfo → Info → (children : Std.PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
+    (t : InfoTree) : m Unit := t.visitM preNode (fun ci i cs _ => postNode ci i cs) |> discard
+
 /--
   Visit nodes bottom-up, passing in a surrounding context (the innermost one) and the union of nested results (empty at leaves). -/
 def InfoTree.collectNodesBottomUp (p : ContextInfo → Info → Std.PersistentArray InfoTree → List α → List α) (i : InfoTree) : List α :=
@@ -91,6 +97,7 @@ def Info.stx : Info → Syntax
   | ofCompletionInfo i     => i.stx
   | ofCustomInfo i         => i.stx
   | ofUserWidgetInfo i     => i.stx
+  | ofFVarAliasInfo _      => .missing
 
 def Info.lctx : Info → LocalContext
   | Info.ofTermInfo i  => i.lctx

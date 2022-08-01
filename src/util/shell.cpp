@@ -187,6 +187,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --o=oname -o       create olean file\n";
     std::cout << "  --i=iname -i       create ilean file\n";
     std::cout << "  --c=fname -c       name of the C output file\n";
+    std::cout << "  --bc=fname -b      name of the LLVM bitcode file\n";
     std::cout << "  --stdin            take input from stdin\n";
     std::cout << "  --root=dir         set package root directory from which the module name of the input file is calculated\n"
               << "                     (default: current working directory)\n";
@@ -237,6 +238,7 @@ static struct option g_long_options[] = {
     {"deps-json",    no_argument,       0, 'J'},
     {"timeout",      optional_argument, 0, 'T'},
     {"c",            optional_argument, 0, 'c'},
+    {"bc",           optional_argument, 0, 'b'},
     {"exitOnPanic",  no_argument,       0, 'e'},
 #if defined(LEAN_MULTI_THREAD)
     {"threads",      required_argument, 0, 'j'},
@@ -476,6 +478,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
     optional<std::string> server_in;
     std::string native_output;
     optional<std::string> c_output;
+    optional<std::string> llvm_output;
     optional<std::string> root_dir;
     buffer<string_ref> forwarded_args;
 
@@ -505,6 +508,10 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
             case 'c':
                 check_optarg("c");
                 c_output = optarg;
+                break;
+            case 'b':
+                check_optarg("b");
+                llvm_output = optarg;
                 break;
             case 's':
                 lean::lthread::set_thread_stack_size(
@@ -717,6 +724,17 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
             }
             time_task _("C code generation", opts);
             out << lean::ir::emit_c(env, *main_module_name).data();
+            out.close();
+        }
+
+        if (llvm_output && ok) {
+            std::ofstream out(*llvm_output, std::ios_base::binary);
+            if (out.fail()) {
+                std::cerr << "failed to create '" << *c_output << "'\n";
+                return 1;
+            }
+            time_task _("LLVM code generation", opts);
+            out << lean::ir::emit_llvm(env, *main_module_name).data();
             out.close();
         }
 

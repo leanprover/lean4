@@ -13,7 +13,7 @@ namespace Lean.Parser.Tactic.Conv
 declare_syntax_cat conv (behavior := both)
 
 syntax convSeq1Indented := withPosition((colGe conv ";"?)+)
-syntax convSeqBracketed := "{" (conv ";"?)+ "}"
+syntax convSeqBracketed := "{" (conv ";"?)* "}"
 -- Order is important: a missing `conv` proof should not be parsed as `{ <missing> }`,
 -- automatically closing goals
 syntax convSeq := convSeqBracketed <|> convSeq1Indented

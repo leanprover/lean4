@@ -46,9 +46,9 @@ private def addParserCategoryCore (categories : ParserCategories) (catName : Nam
 
 /-- All builtin parser categories are Pratt's parsers -/
 
-private def addBuiltinParserCategory (catName ref : Name) (behavior : LeadingIdentBehavior) : IO Unit := do
+private def addBuiltinParserCategory (catName declName : Name) (behavior : LeadingIdentBehavior) : IO Unit := do
   let categories ← builtinParserCategoriesRef.get
-  let categories ← IO.ofExcept $ addParserCategoryCore categories catName { ref, behavior }
+  let categories ← IO.ofExcept $ addParserCategoryCore categories catName { declName, behavior }
   builtinParserCategoriesRef.set categories
 
 namespace ParserExtension
@@ -162,10 +162,10 @@ def ParserExtension.addEntryImpl (s : State) (e : Entry) : State :=
     | _                => unreachable!
   | Entry.kind k =>
     { s with kinds := s.kinds.insert k }
-  | Entry.category catName ref behavior =>
+  | Entry.category catName declName behavior =>
     if s.categories.contains catName then s
     else { s with
-           categories := s.categories.insert catName { ref, behavior } }
+           categories := s.categories.insert catName { declName, behavior } }
   | Entry.parser catName declName leading parser prio =>
     match addParser s.categories catName declName leading parser prio with
     | Except.ok categories => { s with categories }

@@ -18,6 +18,17 @@ syntax convSeqBracketed := "{" (conv ";"?)+ "}"
 -- automatically closing goals
 syntax convSeq := convSeqBracketed <|> convSeq1Indented
 
+/--
+`conv => ...` allows the user to perform targeted rewriting on a goal or hypothesis,
+by focusing on particular subexpressions.
+
+See <https://leanprover.github.io/theorem_proving_in_lean4/conv.html> for more details.
+
+Basic forms:
+* `conv => cs` will rewrite the goal with conv tactics `cs`.
+* `conv at h => cs` will rewrite hypothesis `h`.
+* `conv in pat => cs` will rewrite the first subexpression matching `pat`.
+-/
 syntax (name := conv) "conv " (" at " ident)? (" in " term)? " => " convSeq : tactic
 
 syntax (name := lhs) "lhs" : conv

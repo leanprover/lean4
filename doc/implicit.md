@@ -64,7 +64,7 @@ It makes these three arguments implicit. Notationally, this hides the specificat
 making it look as though ``compose`` simply takes 3 arguments.
 
 Variables can also be specified as implicit when they are declared with
-the ``variables`` command:
+the ``variable`` command:
 
 ```lean
 universe u

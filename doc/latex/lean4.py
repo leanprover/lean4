@@ -33,14 +33,13 @@ class Lean4Lexer(RegexLexer):
 
     keywords1 = (
         'import', 'abbreviation', 'opaque_hint', 'tactic_hint', 'definition',
-        'renaming', 'inline', 'hiding', 'exposing', 'parameter', 'parameters',
-        'conjecture', 'hypothesis', 'lemma', 'corollary', 'variable', 'variables',
+        'renaming', 'inline', 'hiding', 'parameter', 'lemma', 'variable',
         'theorem', 'axiom', 'inductive', 'structure', 'universe', 'alias',
-        'help', 'options', 'precedence', 'postfix', 'prefix', 'calc_trans',
-        'calc_subst', 'calc_refl', 'infix', 'infixl', 'infixr', 'notation', '#eval',
+        'help', 'options', 'precedence', 'postfix', 'prefix',
+        'infix', 'infixl', 'infixr', 'notation', '#eval',
         '#check', '#reduce', '#exit', 'coercion', 'end', 'private', 'using', 'namespace',
         'including', 'instance', 'section', 'context', 'protected', 'expose',
-        'export', 'set_option', 'add_rewrite', 'extends', 'open', 'example',
+        'export', 'set_option', 'extends', 'open', 'example',
         'constant', 'constants', 'print', 'opaque', 'reducible', 'irreducible',
         'def', 'macro', 'elab', 'syntax', 'macro_rules', 'reduce', 'where',
         'abbrev', 'noncomputable', 'class', 'attribute', 'synth', 'mutual',

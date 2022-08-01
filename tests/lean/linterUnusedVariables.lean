@@ -231,6 +231,11 @@ example (a : Nat) : Nat := by
 theorem Fin.eqq_of_val_eq {n : Nat} : ∀ {x y : Fin n}, x.val = y.val → x = y
   | ⟨_, _⟩, _, rfl => rfl
 
+def Nat.discriminate (n : Nat) (H1 : n = 0 → α) (H2 : ∀ m, n = succ m → α) : α :=
+  match n with
+  | 0 => H1 rfl
+  | succ m => H2 m rfl
+
 @[unusedVariablesIgnoreFn]
 def ignoreEverything : Lean.Linter.IgnoreFunction :=
   fun _ _ _ => true

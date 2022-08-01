@@ -805,6 +805,10 @@ private def elabMatchAltView (discrs : Array Discr) (alt : MatchAltView) (matchT
         withEqs discrs altLHS.patterns fun eqs =>
           withLocalInstances altLHS.fvarDecls do
             trace[Elab.match] "elabMatchAltView: {matchType}"
+            -- connect match-generalized pattern fvars, which are a suffix of `latLHS.fvarDecls`,
+            -- to their original fvars (independently of whether they were cleared successfully) in the info tree
+            for (fvar, baseId) in altLHS.fvarDecls.toArray.reverse.zip toClear.reverse do
+              pushInfoLeaf <| .ofFVarAliasInfo { id := fvar.fvarId, baseId }
             let matchType ← instantiateMVars matchType
             -- If `matchType` is of the form `@m ...`, we create a new metavariable with the current scope.
             -- This improves the effectiveness of the `isDefEq` default approximations

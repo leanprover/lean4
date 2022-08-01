@@ -6,8 +6,8 @@ example (x y : Nat) : p (x + y) (y + x + 0) := by
   conv =>
     whnf
     congr
-    . skip
-    . whnf; skip
+    . rfl
+    . whnf; rfl
   trace_state
   rw [Nat.add_comm]
   rfl
@@ -38,7 +38,7 @@ example (x y : Nat) : p (x + y) (0 + y + x) := by
     rhs
     rw [Nat.zero_add, Nat.add_comm]
     trace_state
-    skip
+    rfl
     done
 
 axiom div_self (x : Nat) : x ≠ 0 → x / x = 1
@@ -48,7 +48,7 @@ example (h : x ≠ 0) : x / x + x = x.succ := by
     lhs
     arg 1
     rw [div_self]
-    skip
+    rfl
     tactic => assumption
     done
   show 1 + x = x.succ
@@ -58,7 +58,7 @@ example (h1 : x ≠ 0) (h2 : y = x / x) : y = 1 := by
   conv at h2 =>
     rhs
     rw [div_self]
-    skip
+    rfl
     tactic => assumption
   assumption
 

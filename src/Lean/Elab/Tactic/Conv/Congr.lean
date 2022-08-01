@@ -87,6 +87,8 @@ private def selectIdx (tacticName : String) (mvarIds : List (Option MVarId)) (i 
       return ()
   throwError "invalid '{tacticName}' conv tactic, application has only {mvarIds.length} (nondependent) argument(s)"
 
+@[builtinTactic Lean.Parser.Tactic.Conv.skip] def evalSkip : Tactic := fun _ => pure ()
+
 @[builtinTactic Lean.Parser.Tactic.Conv.lhs] def evalLhs : Tactic := fun _ => do
    let mvarIds ← congr (← getMainGoal)
    selectIdx "lhs" mvarIds ((mvarIds.length : Int) - 2)

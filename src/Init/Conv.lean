@@ -31,6 +31,9 @@ Basic forms:
 -/
 syntax (name := conv) "conv " (" at " ident)? (" in " term)? " => " convSeq : tactic
 
+/-- `skip` does nothing. -/
+syntax (name := skip) "skip" : conv
+
 /-- Traverses into the left subterm of a binary operator.
 (In general, for an `n`-ary operator, it traverses into the second to last argument.) -/
 syntax (name := lhs) "lhs" : conv
@@ -157,9 +160,9 @@ macro_rules
   | `(conv| enter [$id:ident]) => `(conv| ext $id)
   | `(conv| enter [$arg, $args,*]) => `(conv| (enter [$arg]; enter [$args,*]))
 
-/-- `skip` closes one conv goal "trivially", by using reflexivity
+/-- `rfl` closes one conv goal "trivially", by using reflexivity
 (that is, no rewriting). -/
-macro "skip" : conv => `(tactic => rfl)
+macro "rfl" : conv => `(tactic => rfl)
 
 /-- `done` succeeds iff there are no goals remaining. -/
 macro "done" : conv => `(tactic' => done)
@@ -179,6 +182,6 @@ syntax (name := first) "first " withPosition((colGe "|" convSeq)+) : conv
 /-- `repeat convs` runs the sequence `convs` repeatedly until it fails to apply. -/
 syntax "repeat " convSeq : conv
 macro_rules
-  | `(conv| repeat $seq) => `(conv| first | ($seq); repeat $seq | skip)
+  | `(conv| repeat $seq) => `(conv| first | ($seq); repeat $seq | rfl)
 
 end Lean.Parser.Tactic.Conv

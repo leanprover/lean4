@@ -1,6 +1,8 @@
 Unreleased
 ---------
 
+* [Missing doc linter](https://github.com/leanprover/lean4/pull/1390)
+
 * `match`-syntax notation now checks for unused alternatives. See issue [#1371](https://github.com/leanprover/lean4/issues/1371).
 
 * Auto-completion for structure instance fields. Example:

@@ -282,6 +282,11 @@ endif()
 string(APPEND LEANC_STATIC_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 string(APPEND LEANSHARED_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 
+# Link LLVM for code generation
+# TODO: hide this behind a flag
+
+string(APPEND LEANSHARED_LINKER_FLAGS " `llvm-config --ldflags` `llvm-config --libs`")
+
 # get rid of unused parts of C++ stdlib
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   string(APPEND LEANSHARED_LINKER_FLAGS " -Wl,-dead_strip")

@@ -49,20 +49,20 @@ instance : IsIdempotent Or := ⟨λ p => propext ⟨λ hp => hp.elim id id, Or.i
 instance : IsNeutral Or False :=
   ⟨λ p => propext ⟨λ hfp => hfp.elim False.elim id, Or.inr⟩, λ p => propext ⟨λ hpf => hpf.elim id False.elim, Or.inl⟩⟩
 
-example (x y z : Nat) : x + y + 0 + z = z + (x + y) := by ac_refl
+example (x y z : Nat) : x + y + 0 + z = z + (x + y) := by ac_rfl
 
-example (x y z : Nat) : (x + y) * (0 + z) = (x + y) * z:= by ac_refl
+example (x y z : Nat) : (x + y) * (0 + z) = (x + y) * z:= by ac_rfl
 
-example (x y z : Nat) : (x + y) * (0 + z) = 1 * z * (y + 0 + x) := by ac_refl
+example (x y z : Nat) : (x + y) * (0 + z) = 1 * z * (y + 0 + x) := by ac_rfl
 
-theorem ex₁ (x y z : Nat) : max (0 + (max x (max z (max (0 + 0) ((max 1 0) + 0 + 0) * y)))) y = max (max x y) z := by ac_refl
+theorem ex₁ (x y z : Nat) : max (0 + (max x (max z (max (0 + 0) ((max 1 0) + 0 + 0) * y)))) y = max (max x y) z := by ac_rfl
 #print ex₁
 
-example (x y : Nat) : 1 + 0 + 0 = 0 + 1 := by ac_refl
+example (x y : Nat) : 1 + 0 + 0 = 0 + 1 := by ac_rfl
 
-example (x y : Nat) : (x + y = 42) = (y + x = 42) := by ac_refl
+example (x y : Nat) : (x + y = 42) = (y + x = 42) := by ac_rfl
 
-example (x y : Nat) (P : Prop) : (x + y = 42 → P) = (y + x = 42 → P) := by ac_refl
+example (x y : Nat) (P : Prop) : (x + y = 42 → P) = (y + x = 42 → P) := by ac_rfl
 
 inductive Vector (α : Type u) : Nat → Type u where
   | nil  : Vector α 0
@@ -72,13 +72,13 @@ def f (n : Nat) (xs : Vector α n) := xs
 
 -- Repro: Dependent types trigger incorrect proofs
 theorem ex₂ (n m : Nat) (xs : Vector α (n+m)) (ys : Vector α (m+n)) : (f (n+m) xs, f (m+n) ys, n+m) = (f (n+m) xs, f (m+n) ys, m+n) := by
-  ac_refl
+  ac_rfl
 
 -- Repro: Binders also trigger invalid proofs
 theorem ex₃ (n : Nat) : (fun x => n + x) = (fun x => x + n) := by
-  ac_refl
+  ac_rfl
 #print ex₃
 
 -- Repro: the Prop universe doesn't work
 example (p q : Prop) : (p ∨ p ∨ q ∧ True) = (q ∨ p) := by
-  ac_refl
+  ac_rfl

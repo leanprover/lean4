@@ -8,7 +8,7 @@ import Lean.Parser.Term
 namespace Lean
 namespace Parser
 
-builtin_initialize registerBuiltinParserAttribute `builtinDoElemParser `doElem
+builtin_initialize registerBuiltinParserAttribute `builtinDoElemParser ``Category.doElem
 builtin_initialize registerBuiltinDynamicParserAttribute `doElemParser `doElem
 
 @[inline] def doElemParser (rbp : Nat := 0) : Parser :=

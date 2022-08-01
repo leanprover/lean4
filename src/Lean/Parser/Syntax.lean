@@ -10,11 +10,11 @@ namespace Lean
 namespace Parser
 
 builtin_initialize
-  registerBuiltinParserAttribute `builtinSyntaxParser `stx LeadingIdentBehavior.both
+  registerBuiltinParserAttribute `builtinSyntaxParser ``Category.stx .both
   registerBuiltinDynamicParserAttribute `stxParser `stx
 
 builtin_initialize
-  registerBuiltinParserAttribute `builtinPrecParser `prec LeadingIdentBehavior.both
+  registerBuiltinParserAttribute `builtinPrecParser ``Category.prec .both
   registerBuiltinDynamicParserAttribute `precParser `prec
 
 @[inline] def precedenceParser (rbp : Nat := 0) : Parser :=

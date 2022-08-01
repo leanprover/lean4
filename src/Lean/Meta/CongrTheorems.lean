@@ -170,6 +170,7 @@ private def shouldUseSubsingletonInst (info : FunInfo) (kinds : Array CongrArgKi
         return true
   return false
 
+/-- Compute `CongrArgKind`s for a simp congruence theorem. -/
 def getCongrSimpKinds (info : FunInfo) : Array CongrArgKind := Id.run do
   /- The default `CongrArgKind` is `eq`, which allows `simp` to rewrite this
      argument. However, if there are references from `i` to `j`, we cannot
@@ -195,7 +196,7 @@ def getCongrSimpKinds (info : FunInfo) : Array CongrArgKind := Id.run do
   return fixKindsForDependencies info result
 
 /--
-  Create a congruence theorem that is useful for the simplifier.
+  Create a congruence theorem that is useful for the simplifier and `congr` tactic.
 -/
 partial def mkCongrSimpCore? (f : Expr) (info : FunInfo) (kinds : Array CongrArgKind) : MetaM (Option CongrTheorem) := do
   if let some result ← mk? f info kinds then
@@ -230,19 +231,18 @@ where
           else
             let hyps := hyps.push lhss[i]!
             match kinds[i]! with
-            | CongrArgKind.heq => unreachable!
-            | CongrArgKind.fixedNoParam => unreachable!
-            | CongrArgKind.eq =>
+            | .heq | .fixedNoParam => unreachable!
+            | .eq =>
               let localDecl ← lhss[i]!.fvarId!.getDecl
               withLocalDecl localDecl.userName localDecl.binderInfo localDecl.type fun rhs => do
               withLocalDeclD ((`e).appendIndexAfter (eqs.size+1)) (← mkEq lhss[i]! rhs) fun eq => do
                 go (i+1) (rhss.push rhs) (eqs.push eq) (hyps.push rhs |>.push eq)
-            | CongrArgKind.fixed => go (i+1) (rhss.push lhss[i]!) (eqs.push none) hyps
-            | CongrArgKind.cast =>
+            | .fixed => go (i+1) (rhss.push lhss[i]!) (eqs.push none) hyps
+            | .cast =>
               let rhsType := (← inferType lhss[i]!).replaceFVars (lhss[:rhss.size]) rhss
               let rhs ← mkCast lhss[i]! rhsType info.paramInfo[i]!.backDeps eqs
               go (i+1) (rhss.push rhs) (eqs.push none) hyps
-            | CongrArgKind.subsingletonInst =>
+            | .subsingletonInst =>
               let rhsType := (← inferType lhss[i]!).replaceFVars (lhss[:rhss.size]) rhss
               withLocalDecl (← lhss[i]!.fvarId!.getDecl).userName BinderInfo.instImplicit rhsType fun rhs =>
                 go (i+1) (rhss.push rhs) (eqs.push none) (hyps.push rhs)
@@ -258,18 +258,17 @@ where
       else
         withNext type fun lhs type => do
         match kinds[i]! with
-        | CongrArgKind.heq => unreachable!
-        | CongrArgKind.fixedNoParam => unreachable!
-        | CongrArgKind.fixed => mkLambdaFVars #[lhs] (← go (i+1) type)
-        | CongrArgKind.cast => mkLambdaFVars #[lhs] (← go (i+1) type)
-        | CongrArgKind.eq =>
+        | .heq | .fixedNoParam => unreachable!
+        | .fixed => mkLambdaFVars #[lhs] (← go (i+1) type)
+        | .cast => mkLambdaFVars #[lhs] (← go (i+1) type)
+        | .eq =>
           let typeSub := type.bindingBody!.bindingBody!.instantiate #[(← mkEqRefl lhs), lhs]
           withNext type fun rhs type =>
           withNext type fun heq type => do
             let motive ← mkLambdaFVars #[rhs, heq] type
             let proofSub ← go (i+1) typeSub
             mkLambdaFVars #[lhs, rhs, heq] (← mkEqRec motive proofSub heq)
-        | CongrArgKind.subsingletonInst =>
+        | .subsingletonInst =>
           let typeSub := type.bindingBody!.instantiate #[lhs]
           withNext type fun rhs type => do
             let motive ← mkLambdaFVars #[rhs] type

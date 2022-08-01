@@ -231,3 +231,12 @@ null
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 163, "character": 2}}
 null
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 169, "character": 2}}
+{"range":
+ {"start": {"line": 169, "character": 2},
+  "end": {"line": 169, "character": 15}},
+ "contents":
+ {"value":
+  "`· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. ",
+  "kind": "markdown"}}

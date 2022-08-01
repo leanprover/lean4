@@ -237,11 +237,11 @@ syntax (name := rewriteSeq) "rewrite " (config)? rwRuleSeq (location)? : tactic
 /--
 `rw` is like `rewrite`, but also tries to close the goal by "cheap" (reducible) `rfl` afterwards.
 -/
-macro (name := rwSeq) rw:"rw " c:(config)? s:rwRuleSeq l:(location)? : tactic =>
+macro (name := rwSeq) "rw " c:(config)? s:rwRuleSeq l:(location)? : tactic =>
   match s with
-  | `(rwRuleSeq| [%$lbrak $rs,* ]%$rbrak) =>
+  | `(rwRuleSeq| [$rs,*]%$rbrak) =>
     -- We show the `rfl` state on `]`
-    `(tactic| rewrite%$rw $(c)? [%$lbrak $rs,*] $(l)?; try (with_reducible rfl%$rbrak))
+    `(tactic| rewrite $(c)? [$rs,*] $(l)?; with_annotate_state $rbrak (try (with_reducible rfl)))
   | _ => Macro.throwUnsupported
 
 /--

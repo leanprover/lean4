@@ -169,7 +169,7 @@ macro "rfl" : tactic => `(eq_refl)
   theorems included (relevant for declarations defined by well-founded recursion). -/
 macro "rfl'" : tactic => `(set_option smartUnfolding false in with_unfolding_all rfl)
 
-syntax (name := ac_refl) "ac_refl " : tactic
+syntax (name := acRfl) "ac_rfl" : tactic
 
 /-- `admit` is a shorthand for `exact sorry`. -/
 macro "admit" : tactic => `(exact @sorryAx _ false)

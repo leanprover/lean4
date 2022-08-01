@@ -1111,9 +1111,9 @@ hljs.registerLanguage("lean", function(hljs) {
       'axiom constant ' +
       'partial unsafe private protected ' +
       'if then else ' +
-      'universe variable variables ' +
-      'import open export theory prelude renaming hiding exposing ' +
-      'calc  match with do by let extends ' +
+      'universe variable ' +
+      'import open export prelude renaming hiding ' +
+      'calc match with do by let extends ' +
       'for in unless try catch finally mutual mut return continue break where rec ' +
       'syntax macro_rules macro deriving ' +
       'fun ' +

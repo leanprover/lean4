@@ -112,7 +112,7 @@ private partial def quoteSyntax : Syntax → TermElabM Term
       `(@TSyntax.raw $(quote <| ks.map (·.1)) $(getAntiquotTerm (getCanonicalAntiquot stx)))
     else if isTokenAntiquot stx && !isEscapedAntiquot stx then
       match stx[0] with
-      | Syntax.atom _ val => `(Syntax.atom (Option.getD (getHeadInfo? $(getAntiquotTerm stx)) info) $(quote val))
+      | Syntax.atom _ val => `(Syntax.atom (SourceInfo.fromRef $(getAntiquotTerm stx)) $(quote val))
       | _                 => throwErrorAt stx "expected token"
     else if isAntiquotSuffixSplice stx && !isEscapedAntiquot (getCanonicalAntiquot (getAntiquotSuffixSpliceInner stx)) then
       -- splices must occur in a `many` node

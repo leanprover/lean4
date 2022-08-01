@@ -28,6 +28,19 @@ def osDescriptor : String :=
   else
     "linux"
 
+/--
+A `tar.gz` file name suffix encoding the the current Platform.
+(i.e, `osDescriptor` joined with `System.Platform.numBits`).
+-/
+def archiveSuffix :=
+  s!"{osDescriptor}-{Platform.numBits}.tar.gz"
+
+/-- If `name?`, `{name}-{archiveSuffix}`, otherwise just `archiveSuffix`. -/
+def nameToArchive (name? : Option String) : String :=
+  match name? with
+  | none => archiveSuffix
+  | some name => s!"{name}-{archiveSuffix}"
+
 --------------------------------------------------------------------------------
 /-! # Defaults -/
 --------------------------------------------------------------------------------
@@ -139,15 +152,14 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   releaseRepo? : Option String := none
 
   /--
-  The name of the release archive on GitHub.
-  If `none` (the default), uses the name of release's tag.
-  The archive's full file name should be `{name}-{osDescriptor}.tar.gz`.
+  The name of the build archive on GitHub. Defaults to `none`.
+  The archive's full file name will be `nameToArchive buildArchive?`.
   -/
-  releaseArchive? : Option String := none
+  buildArchive? : Option String := none
 
   /--
-  Prefer downloading a prebuilt release (from GitHub) rather
-  than building this package from the source.
+  Prefer downloading a prebuilt release (from GitHub) rather than building
+  this package from the source when this package is used as a dependency.
   -/
   preferReleaseBuild : Bool := false
 
@@ -214,6 +226,10 @@ abbrev name (self : Package) : Name :=
 def manifestFile (self : Package) : FilePath :=
   self.dir / self.config.packagesDir / manifestFileName
 
+/-- The package's `dir` joined with its `buildDir` configuration. -/
+@[inline] def buildDir (self : Package) : FilePath :=
+  self.dir / self.config.buildDir
+
 /-- The package's `extraDepTarget` configuration. -/
 @[inline] def extraDepTarget (self : Package) : OpaqueTarget :=
   self.config.extraDepTarget.getD Target.nil
@@ -231,13 +247,17 @@ def release? (self : Package) : Option (String × String) := do
   let tag ← self.gitTag?
   return (url, tag)
 
-/-- The package's `releaseRepo?` with a fallback to `remoteUrl?`. -/
-@[inline] def remoteReleaseRepo? (self : Package) : Option String :=
-  self.config.releaseRepo? <|> self.remoteUrl?
+/-- The package's `buildArchive?` configuration. -/
+@[inline] def buildArchive? (self : Package) : Option String :=
+  self.config.buildArchive?
 
-/-- The package's `releaseArchive?` configuration. -/
-@[inline] def releaseArchive? (self : Package) : Option String :=
-  self.config.releaseArchive?
+/-- The file name of the package's build archive derived from `buildArchive?`. -/
+@[inline] def buildArchive (self : Package) : String :=
+  nameToArchive self.buildArchive?
+
+/-- The package's `buildDir` joined with its `buildArchive` configuration. -/
+@[inline] def buildArchiveFile (self : Package) : FilePath :=
+  self.buildDir / self.buildArchive
 
 /-- The package's `preferReleaseBuild` configuration. -/
 @[inline] def preferReleaseBuild (self : Package) : Bool :=
@@ -255,22 +275,6 @@ def release? (self : Package) : Option (String × String) := do
 @[inline] def moreServerArgs (self : Package) : Array String :=
   self.config.moreServerArgs
 
-/-- The package's `dir` joined with its `srcDir` configuration. -/
-@[inline] def srcDir (self : Package) : FilePath :=
-  self.dir / self.config.srcDir
-
-/-- The package's root directory for `lean` (i.e., `srcDir`). -/
-@[inline] def rootDir (self : Package) : FilePath :=
-  self.srcDir
-
-/-- The package's `dir` joined with its `buildDir` configuration. -/
-@[inline] def buildDir (self : Package) : FilePath :=
-  self.dir / self.config.buildDir
-
-/-- The package's `buildDir` joined with its `oleanDir` configuration. -/
-@[inline] def oleanDir (self : Package) : FilePath :=
-  self.buildDir / self.config.oleanDir
-
 /-- The package's `buildType` configuration. -/
 @[inline] def buildType (self : Package) : BuildType :=
   self.config.buildType
@@ -286,6 +290,18 @@ def release? (self : Package) : Option (String × String) := do
 /-- The package's `moreLinkArgs` configuration. -/
 @[inline] def moreLinkArgs (self : Package) : Array String :=
   self.config.moreLinkArgs
+
+/-- The package's `dir` joined with its `srcDir` configuration. -/
+@[inline] def srcDir (self : Package) : FilePath :=
+  self.dir / self.config.srcDir
+
+/-- The package's root directory for `lean` (i.e., `srcDir`). -/
+@[inline] def rootDir (self : Package) : FilePath :=
+  self.srcDir
+
+/-- The package's `buildDir` joined with its `oleanDir` configuration. -/
+@[inline] def oleanDir (self : Package) : FilePath :=
+  self.buildDir / self.config.oleanDir
 
 /-- The package's `buildDir` joined with its `irDir` configuration. -/
 @[inline] def irDir (self : Package) : FilePath :=

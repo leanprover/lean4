@@ -222,14 +222,13 @@ def exe (name : Name) (args  : Array String := #[]) (verbosity : Verbosity) : La
     error s!"unknown executable `{name}`"
 
 def uploadRelease (pkg : Package) (tag : String) : BuildIO Unit := do
-  let archiveName := pkg.releaseArchive?.getD tag
-  let archiveFileName := s!"{archiveName}-{osDescriptor}.tar.gz"
-  let archiveFile := pkg.buildDir / archiveFileName
-  let mut args := #["release", "upload", tag, archiveFile.toString]
+  let mut args :=
+    #["release", "upload", tag, pkg.buildArchiveFile.toString, "--clobber"]
   if let some repo := pkg.releaseRepo? then
     args := args.append #["-R", repo]
-  tar archiveFileName pkg.buildDir archiveFile (excludePaths := #["*.tar.gz", "*.tar.gz.trace"])
-  logAuxInfo s!"Uploading {tag}/{archiveFileName}"
+  tar pkg.buildArchive pkg.buildDir pkg.buildArchiveFile
+    (excludePaths := #["*.tar.gz", "*.tar.gz.trace"])
+  logAuxInfo s!"Uploading {tag}/{pkg.buildArchive}"
   proc {cmd := "gh", args}
 
 def parseScriptSpec (ws : Workspace) (spec : String) : Except CliError (Package × String) :=

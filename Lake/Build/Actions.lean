@@ -109,7 +109,7 @@ def download (name : String) (url : String) (file : FilePath) : BuildIO PUnit :=
     if (← getIsVerbose) then #[] else #["-s"]
   proc {
     cmd := "curl"
-    args := args ++ #["-o", file.toString, "-L", url]
+    args := args ++ #["-f", "-o", file.toString, "-L", url]
   }
 
 /-- Unpack an archive `file` using `tar` into the directory `dir`. -/

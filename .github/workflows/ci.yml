@@ -284,7 +284,3 @@ jobs:
           repository: ${{ github.repository_owner }}/lean4-nightly
         env:
           GITHUB_TOKEN: ${{ secrets.PUSH_NIGHTLY_TOKEN }}
-      - name: Trigger TPIL build
-        run: |
-          curl -u '${{ github.repository_owner }}:${{ secrets.PUSH_NIGHTLY_TOKEN }}' 'https://api.github.com/repos/leanprover/theorem_proving_in_lean4/dispatches' -X POST -d '{ "event_type": "build_event" }'
-

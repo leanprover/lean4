@@ -19,39 +19,20 @@ open System Lean
 namespace Lake
 
 /-- Load the tagged `Dependency` definitions from a package configuration environment. -/
-def loadDeps (env : Environment) (opts : Options) : Except String (Array Dependency) := do
+def loadDepsFromEnv (env : Environment) (opts : Options) : Except String (Array Dependency) := do
   packageDepAttr.ext.getState env |>.foldM (init := #[]) fun arr name => do
     return arr.push <| ← evalConstCheck env opts Dependency ``Dependency name
-
-/-- Add entries from `pkg`'s manifest to this one. -/
-def Manifest.appendPackageManifest (self : Manifest) (pkg : Package) : LogIO Manifest := do
-  let mut result := self
-  let pkgManifest ← Manifest.loadOrEmpty pkg.manifestFile
-  for pkgEntry in pkgManifest do
-    if let some entry := self.find? pkgEntry.name then
-      let shouldUpdate :=
-        match entry.inputRev?, pkgEntry.inputRev? with
-        | none,     none     => entry.rev != pkgEntry.rev
-        | none,     some _   => false
-        | some _,   none     => false
-        | some rev, some dep => rev = dep ∧ entry.rev ≠ pkgEntry.rev
-      let contributors := entry.contributors.insert pkg.name pkgEntry.toPersistentPackageEntry
-      result := result.insert {entry with contributors, shouldUpdate}
-    else
-      let contributors := NameMap.empty.insert pkg.name pkgEntry.toPersistentPackageEntry
-      result := result.insert {pkgEntry with contributors}
-  return result
 
 /--
 Resolve a single dependency and load the resulting package.
 Resolution is based on the `Dependency` configuration and the package manifest.
 -/
-def resolveDep (ws : Workspace) (pkg : Package) (dep : Dependency)
+def resolveDep (packagesDir : FilePath) (pkg : Package) (dep : Dependency)
 (topLevel : Bool) (shouldUpdate : Bool) : StateT Manifest LogIO Package := do
   let entry? := (← get).find? dep.name
   let entry? := entry?.map fun entry =>
     {entry with shouldUpdate := if topLevel then shouldUpdate else entry.shouldUpdate}
-  let ⟨dir, url?, tag?, entry?⟩ ← materializeDep ws.packagesDir pkg.dir dep entry?
+  let ⟨dir, url?, tag?, entry?⟩ ← materializeDep packagesDir pkg.dir dep entry?
   let configEnv ← elabConfigFile dir dep.options pkg.leanOpts (dir / defaultConfigFile)
   let config ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv pkg.leanOpts
   let depPkg : Package := {
@@ -85,20 +66,20 @@ def resolveDep (ws : Workspace) (pkg : Package) (dep : Dependency)
 Resolves the package's dependencies,
 downloading and/or updating them as necessary.
 -/
-def resolveDeps (ws : Workspace) (pkg : Package) (shouldUpdate := true) : LogIO Package := do
-  let manifest ← Manifest.loadOrEmpty pkg.manifestFile
-  let (pkg, manifest) ← StateT.run (s := manifest) do
+def Package.resolveDeps (root : Package) (shouldUpdate := true) : LogIO Package := do
+  let manifest ← Manifest.loadOrEmpty root.manifestFile
+  let (root, manifest) ← StateT.run (s := manifest) do
     let res ← EStateT.run' (mkNameMap Package) do
-      buildAcyclic (·.name) pkg fun pkg resolve => do
-        let topLevel := pkg.name = ws.root.name
-        let deps ← IO.ofExcept <| loadDeps pkg.configEnv pkg.leanOpts
+      buildAcyclic (·.name) root fun pkg resolve => do
+        let topLevel := pkg.name = root.name
+        let deps ← IO.ofExcept <| loadDepsFromEnv pkg.configEnv pkg.leanOpts
         let depPkgs ← deps.mapM fun dep => do
           fetchOrCreate dep.name do
-            liftM <| resolveDep ws pkg dep topLevel shouldUpdate
+            liftM <| resolveDep root.packagesDir pkg dep topLevel shouldUpdate
         return {pkg with opaqueDeps := ← depPkgs.mapM (.mk <$> resolve ·)}
     match res with
-    | Except.ok pkg =>
-      return pkg
+    | Except.ok root =>
+      return root
     | Except.error cycle =>
       let cycle := cycle.map (s!"  {·}")
       error s!"dependency cycle detected:\n{"\n".intercalate cycle}"
@@ -112,8 +93,8 @@ def resolveDeps (ws : Workspace) (pkg : Package) (shouldUpdate := true) : LogIO 
         let inputRev := entry.inputRev?.getD Git.upstreamBranch
         log := log ++  s!"Using `{inputRev}` at `{entry.rev}`"
         logInfo log
-    manifest.saveToFile ws.manifestFile
-  return pkg
+    manifest.saveToFile root.manifestFile
+  return root
 
 /--
 Finalize the workspace's root and its transitive dependencies
@@ -160,5 +141,5 @@ def loadWorkspace (config : LoadConfig) : LogIO Workspace := do
     packageFacetConfigs := initPackageFacetConfigs
     libraryFacetConfigs := initLibraryFacetConfigs
   }
-  let root ← resolveDeps ws root config.updateDeps
+  let root ← root.resolveDeps config.updateDeps
   {ws with root}.finalize

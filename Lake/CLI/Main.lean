@@ -16,7 +16,7 @@ import Lake.CLI.Error
 -- # CLI
 
 open System
-open Lean (Json toJson fromJson?)
+open Lean (Json toJson fromJson? LeanPaths)
 
 namespace Lake
 
@@ -190,7 +190,12 @@ def printPaths (config : LoadConfig) (imports : List String := []) : MainM PUnit
     let ws ← MainM.runLogIO (loadWorkspace config) config.verbosity
     let ctx ← mkBuildContext ws
     let dynlibs ← ws.root.buildImportsAndDeps imports |>.run (MonadLog.eio config.verbosity) ctx
-    IO.println <| Json.compress <| toJson {ws.leanPaths with loadDynlibPaths := dynlibs}
+    IO.println <| Json.compress <| toJson {
+      oleanPath := ws.leanPath
+      srcPath := ws.leanSrcPath
+      loadDynlibPaths := dynlibs
+      : LeanPaths
+    }
   else
     exit noConfigFileCode
 

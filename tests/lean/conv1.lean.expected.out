@@ -21,15 +21,16 @@ p : Nat → Prop
 h : ∀ (a : Nat), p a
 x : Nat
 | p (id (0 + x))
+case h
 p : Nat → Prop
 h : ∀ (a : Nat), p a
 x : Nat
 | id (0 + x)
+case h
 p : Nat → Prop
 h : ∀ (a : Nat), p a
 x : Nat
 | 0 + x
-case h₁
 p : Prop
 x : Nat
 | x = x → p

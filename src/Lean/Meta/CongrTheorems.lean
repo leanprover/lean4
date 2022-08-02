@@ -277,6 +277,7 @@ where
      go 0 type
 
 def mkCongrSimp? (f : Expr) : MetaM (Option CongrTheorem) := do
+  let f := (← instantiateMVars f).cleanupAnnotations
   let info ← getFunInfo f
   mkCongrSimpCore? f info (getCongrSimpKinds info)
 

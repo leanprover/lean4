@@ -33,7 +33,7 @@ private def applyCongrThm? (mvarId : MVarId) (congrThm : CongrTheorem) : MetaM (
   let mvarId ← mvarId.assert (← mkFreshUserName `h_congr_thm) congrThm.type congrThm.proof
   let (fvarId, mvarId) ← mvarId.intro1P
   let mvarIds ← mvarId.apply (mkFVar fvarId)
-  return mvarIds
+  mvarIds.mapM fun mvarId => mvarId.tryClear fvarId
 
 /--
 Try to apply a `simp` congruence theorem.
@@ -43,6 +43,7 @@ def MVarId.congr? (mvarId : MVarId) : MetaM (Option (List MVarId)) :=
     mvarId.checkNotAssigned `congr
     let target ← mvarId.getType'
     let some (_, lhs, _) := target.eq? | return none
+    let lhs := lhs.cleanupAnnotations
     unless lhs.isApp do return none
     let some congrThm ← mkCongrSimp? lhs.getAppFn | return none
     applyCongrThm? mvarId congrThm
@@ -56,6 +57,7 @@ def MVarId.hcongr? (mvarId : MVarId) : MetaM (Option (List MVarId)) :=
     mvarId.checkNotAssigned `congr
     let target ← mvarId.getType'
     let some (_, lhs, _, _) := target.heq? | return none
+    let lhs := lhs.cleanupAnnotations
     unless lhs.isApp do return none
     let congrThm ← mkHCongr lhs.getAppFn
     applyCongrThm? mvarId congrThm
@@ -64,7 +66,9 @@ def MVarId.hcongr? (mvarId : MVarId) : MetaM (Option (List MVarId)) :=
 Try to apply `implies_congr`.
 -/
 def MVarId.congrImplies? (mvarId : MVarId) : MetaM (Option (List MVarId)) :=
-  observing? do mvarId.apply (← mkConstWithFreshMVarLevels ``implies_congr)
+  observing? do
+    let mvarId₁ :: mvarId₂ :: _ ← mvarId.apply (← mkConstWithFreshMVarLevels ``implies_congr) | throwError "unexpected number of goals"
+    return [mvarId₁, mvarId₂]
 
 /--
 Given a goal of the form `⊢ f as = f bs`, `⊢ (p → q) = (p' → q')`, or `⊢ HEq (f as) (f bs)`, try to apply congruence.

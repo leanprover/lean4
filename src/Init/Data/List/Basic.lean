@@ -227,6 +227,12 @@ def findSome? (f : α → Option β) : List α → Option β
     | some b => some b
     | none   => findSome? f as
 
+def findIdx? (p : α → Bool) (startIndex : Nat := 0) : List α → Option Nat
+  | []    => none
+  | a::as => match p a with
+    | true => some startIndex
+    | false => findIdx? p (startIndex + 1) as
+
 def replace [BEq α] : List α → α → α → List α
   | [],    _, _ => []
   | a::as, b, c => match a == b with

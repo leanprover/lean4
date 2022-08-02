@@ -136,6 +136,21 @@ structure Alt (σ : Type) where
   rhs : σ
   deriving Inhabited
 
+inductive Label where
+  | none
+  | const (n : Nat)
+  | var (n : Term)
+
+def Label.toVar : Label → Option Term
+  | .none => .none
+  | .const n => some (quote n)
+  | .var n => some n
+
+def Label.succ : Label → Term
+  | .none => quote 0
+  | .const n => quote (n + 1)
+  | .var n => Unhygienic.run `($n + 1)
+
 /--
   Auxiliary datastructure for representing a `do` code block, and compiling "reassignments" (e.g., `x := x + 1`).
   We convert `Code` into a `Syntax` term representing the:
@@ -171,7 +186,7 @@ structure Alt (σ : Type) where
 
   - `decl` represents all declaration-like `doElem`s (e.g., `let`, `have`, `let rec`).
     The field `stx` is the actual `doElem`,
-    `vars` is the array of variables declared by it, and `cont` is the next instruction in the `do` code block.
+    `vars` is the array of variables declared by it, and `k` is the next instruction in the `do` code block.
     `vars` is an array since we have declarations such as `let (a, b) := s`.
 
   - `reassign` is an reassignment-like `doElem` (e.g., `x := x + 1`).
@@ -185,14 +200,14 @@ structure Alt (σ : Type) where
   - For every `jmp ref j as` in `C`, there is a `joinpoint j ps b k` and `jmp ref j as` is in `k`, and
     `ps.size == as.size` -/
 inductive Code where
-  | decl         (xs : Array Var) (doElem : Syntax) (k : Code)
-  | reassign     (xs : Array Var) (doElem : Syntax) (k : Code)
+  | decl         (vars : Array Var) (doElem : Syntax) (k : Code)
+  | reassign     (vars : Array Var) (doElem : Syntax) (k : Code)
   | /-- The Boolean value in `params` indicates whether we should use `(x : typeof! x)` when generating term Syntax or not -/
     joinpoint    (name : Name) (params : Array (Var × Bool)) (body : Code) (k : Code)
   | seq          (action : Syntax) (k : Code)
   | action       (action : Syntax)
-  | break        (ref : Syntax)
-  | continue     (ref : Syntax)
+  | break        (ref : Syntax) (label : Label)
+  | continue     (ref : Syntax) (label : Label)
   | return       (ref : Syntax) (val : Syntax)
   | /-- Recall that an if-then-else may declare a variable using `optIdent` for the branches `thenBranch` and `elseBranch`. We store the variable name at `var?`. -/
     ite          (ref : Syntax) (h? : Option Var) (optIdent : Syntax) (cond : Syntax) (thenBranch : Code) (elseBranch : Code)
@@ -206,8 +221,8 @@ def Code.getRef? : Code → Option Syntax
   | .joinpoint ..        => none
   | .seq a _             => a
   | .action a            => a
-  | .break ref           => ref
-  | .continue ref        => ref
+  | .break ref _         => ref
+  | .continue ref _      => ref
   | .return ref _        => ref
   | .ite ref ..          => ref
   | .match ref ..        => ref
@@ -226,7 +241,12 @@ private def varSetToArray (s : VarSet) : Array Var :=
 private def varsToMessageData (vars : Array Var) : MessageData :=
   MessageData.joinSep (vars.toList.map fun n => MessageData.ofName (n.getId.simpMacroScopes)) " "
 
-partial def CodeBlocl.toMessageData (codeBlock : CodeBlock) : MessageData :=
+def Label.toMessageData : Label → MessageData
+  | .none => m!""
+  | .const n => m!" (label := l{n})"
+  | .var n => m!" (label := l({n}))"
+
+partial def CodeBlock.toMessageData (codeBlock : CodeBlock) : MessageData :=
   let us := MessageData.ofList <| (varSetToArray codeBlock.uvars).toList.map MessageData.ofSyntax
   let rec loop : Code → MessageData
     | .decl xs _ k           => m!"let {varsToMessageData xs} := ...\n{loop k}"
@@ -236,8 +256,8 @@ partial def CodeBlocl.toMessageData (codeBlock : CodeBlock) : MessageData :=
     | .action e              => e
     | .ite _ _ _ c t e       => m!"if {c} then {indentD (loop t)}\nelse{loop e}"
     | .jmp _ j xs            => m!"jmp {j.simpMacroScopes} {xs.toList}"
-    | .break _               => m!"break {us}"
-    | .continue _            => m!"continue {us}"
+    | .break _ l             => m!"break{l.toMessageData} {us}"
+    | .continue _ l          => m!"continue{l.toMessageData} {us}"
     | .return _ v            => m!"return {v} {us}"
     | .match _ _ ds _ alts   =>
       m!"match {ds} with"
@@ -270,17 +290,24 @@ def hasTerminalAction (c : Code) : Bool :=
     | .action _ => true
     | _ => false
 
-def hasBreakContinue (c : Code) : Bool :=
+def hasBreakContinue0 (c : Code) : Bool :=
   hasExitPointPred c fun
-    | .break _    => true
-    | .continue _ => true
+    | .break _ .none    => true
+    | .continue _ .none => true
     | _ => false
+
+def hasBreakContinueSucc (c : Code) : Bool :=
+  hasExitPointPred c (· matches
+      .break _ (.const _)
+    | .break _ (.var _)
+    | .continue _ (.const _)
+    | .continue _ (.var _))
 
 def hasBreakContinueReturn (c : Code) : Bool :=
   hasExitPointPred c fun
-    | .break _    => true
-    | .continue _ => true
-    | .return _ _ => true
+    | .break _ _    => true
+    | .continue _ _ => true
+    | .return _ _   => true
     | _ => false
 
 def mkAuxDeclFor {m} [Monad m] [MonadQuotation m] (e : Syntax) (mkCont : Syntax → m Code) : m Code := withRef e <| withFreshMacroScope do
@@ -380,8 +407,8 @@ partial def pullExitPointsAux (rs : VarSet) (c : Code) : StateRefT (Array JPDecl
   | .ite ref x? o c t e    => return .ite ref x? o c (← pullExitPointsAux (eraseOptVar rs x?) t) (← pullExitPointsAux (eraseOptVar rs x?) e)
   | .match ref g ds t alts => return .match ref g ds t (← alts.mapM fun alt => do pure { alt with rhs := (← pullExitPointsAux (eraseVars rs alt.vars) alt.rhs) })
   | .jmp ..                => return  c
-  | .break ref             => mkSimpleJmp ref rs (.break ref)
-  | .continue ref          => mkSimpleJmp ref rs (.continue ref)
+  | .break ref l           => mkSimpleJmp ref rs (.break ref l)
+  | .continue ref l        => mkSimpleJmp ref rs (.continue ref l)
   | .return ref val        => mkJmp ref rs val (fun y => return .return ref y)
   | .action e              =>
     -- We use `mkAuxDeclFor` because `e` is not pure.
@@ -534,11 +561,11 @@ def mkTerminalAction (action : Syntax) : CodeBlock :=
 def mkReturn (ref : Syntax) (val : Syntax) : CodeBlock :=
   { code := .return ref val }
 
-def mkBreak (ref : Syntax) : CodeBlock :=
-  { code := .break ref }
+def mkBreak (ref : Syntax) (label : Label := .none) : CodeBlock :=
+  { code := .break ref label }
 
-def mkContinue (ref : Syntax) : CodeBlock :=
-  { code := .continue ref }
+def mkContinue (ref : Syntax) (label : Label := .none) : CodeBlock :=
+  { code := .continue ref label }
 
 def mkIte (ref : Syntax) (optIdent : Syntax) (cond : Syntax) (thenBranch : CodeBlock) (elseBranch : CodeBlock) : TermElabM CodeBlock := do
   let x? := optIdent.getOptional?
@@ -809,7 +836,7 @@ We use this method to convert
    For example, the auxiliary type `DoResultPBC α σ` is used for a code block that exits with `Code.action`,
    **and** `Code.break`/`Code.continue`, `α` is the type of values produced by the exit `action`, and
    `σ` is the type of the tuple of reassigned variables.
-   The type `DoResult α β σ` is usedf for code blocks that exit with
+   The type `DoResult α β σ` is used for code blocks that exit with
    `Code.action`, `Code.return`, **and** `Code.break`/`Code.continue`, `β` is the type of the returned values.
    We don't use `DoResult α β σ` for all cases because:
 
@@ -875,7 +902,9 @@ namespace ToTerm
 inductive Kind where
   | regular
   | forIn
-  | forInWithReturn
+  | forInR
+  | forInBC
+  | forInRBC
   | nestedBC
   | nestedPR
   | nestedSBC
@@ -907,47 +936,63 @@ def returnToTerm (val : Syntax) : M Syntax := do
   match ctx.kind with
   | .regular         => if ctx.uvars.isEmpty then ``(Pure.pure $val) else ``(Pure.pure (MProd.mk $val $u))
   | .forIn           => ``(Pure.pure (ForInStep.done $u))
-  | .forInWithReturn => ``(Pure.pure (ForInStep.done (MProd.mk (some $val) $u)))
+  | .forInR          => ``(Pure.pure (ForInStep.done (MProd.mk (some $val) $u)))
+  | .forInBC         => unreachable!
+  | .forInRBC        => ``(Pure.pure (ForInStep.done (MProd.mk (DoStateRBC.return $val) $u)))
   | .nestedBC        => unreachable!
-  | .nestedPR        => ``(Pure.pure (DoResultPR.«return» $val $u))
-  | .nestedSBC       => ``(Pure.pure (DoResultSBC.«pureReturn» $val $u))
-  | .nestedPRBC      => ``(Pure.pure (DoResultPRBC.«return» $val $u))
+  | .nestedPR        => ``(Pure.pure (DoResultPR.return $val $u))
+  | .nestedSBC       => ``(Pure.pure (DoResultSBC.pureReturn $val $u))
+  | .nestedPRBC      => ``(Pure.pure (DoResultPRBC.return $val $u))
 
-def continueToTerm : M Syntax := do
+def continueToTerm (label : Label) : M Syntax := do
   let ctx ← read
   let u ← mkUVarTuple
   match ctx.kind with
-  | .regular         => unreachable!
-  | .forIn           => ``(Pure.pure (ForInStep.yield $u))
-  | .forInWithReturn => ``(Pure.pure (ForInStep.yield (MProd.mk none $u)))
-  | .nestedBC        => ``(Pure.pure (DoResultBC.«continue» $u))
-  | .nestedPR        => unreachable!
-  | .nestedSBC       => ``(Pure.pure (DoResultSBC.«continue» $u))
-  | .nestedPRBC      => ``(Pure.pure (DoResultPRBC.«continue» $u))
+  | .regular    => unreachable!
+  | .forIn      => ``(Pure.pure (ForInStep.yield $u))
+  | .forInR     => ``(Pure.pure (ForInStep.yield (MProd.mk none $u)))
+  | .forInBC    => match label.toVar with
+    | none   => ``(Pure.pure (ForInStep.yield (MProd.mk DoStateBC.none $u)))
+    | some l => ``(Pure.pure (ForInStep.done (MProd.mk (DoStateBC.continue $(quote l)) $u)))
+  | .forInRBC   => match label.toVar with
+    | none   => ``(Pure.pure (ForInStep.yield (MProd.mk DoStateRBC.none $u)))
+    | some l => ``(Pure.pure (ForInStep.done (MProd.mk (DoStateRBC.continue $(quote l)) $u)))
+  | .nestedBC   => ``(Pure.pure (DoResultBC.continue $label.succ $u))
+  | .nestedPR   => unreachable!
+  | .nestedSBC  => ``(Pure.pure (DoResultSBC.continue $label.succ $u))
+  | .nestedPRBC => ``(Pure.pure (DoResultPRBC.continue $label.succ $u))
 
-def breakToTerm : M Syntax := do
+def breakToTerm (label : Label) : M Syntax := do
   let ctx ← read
   let u ← mkUVarTuple
   match ctx.kind with
-  | .regular         => unreachable!
-  | .forIn           => ``(Pure.pure (ForInStep.done $u))
-  | .forInWithReturn => ``(Pure.pure (ForInStep.done (MProd.mk none $u)))
-  | .nestedBC        => ``(Pure.pure (DoResultBC.«break» $u))
-  | .nestedPR        => unreachable!
-  | .nestedSBC       => ``(Pure.pure (DoResultSBC.«break» $u))
-  | .nestedPRBC      => ``(Pure.pure (DoResultPRBC.«break» $u))
+  | .regular    => unreachable!
+  | .forIn      => ``(Pure.pure (ForInStep.done $u))
+  | .forInR     => ``(Pure.pure (ForInStep.done (MProd.mk none $u)))
+  | .forInBC    => match label.toVar with
+    | none   => ``(Pure.pure (ForInStep.done (MProd.mk DoStateBC.none $u)))
+    | some l => ``(Pure.pure (ForInStep.done (MProd.mk (DoStateBC.break $(quote l)) $u)))
+  | .forInRBC   => match label.toVar with
+    | none   => ``(Pure.pure (ForInStep.done (MProd.mk DoStateRBC.none $u)))
+    | some l => ``(Pure.pure (ForInStep.done (MProd.mk (DoStateRBC.break $(quote l)) $u)))
+  | .nestedBC   => ``(Pure.pure (DoResultBC.break $label.succ $u))
+  | .nestedPR   => unreachable!
+  | .nestedSBC  => ``(Pure.pure (DoResultSBC.break $label.succ $u))
+  | .nestedPRBC => ``(Pure.pure (DoResultPRBC.break $label.succ $u))
 
 def actionTerminalToTerm (action : Syntax) : M Syntax := withRef action <| withFreshMacroScope do
   let ctx ← read
   let u ← mkUVarTuple
   match ctx.kind with
-  | .regular         => if ctx.uvars.isEmpty then pure action else ``(Bind.bind $action fun y => Pure.pure (MProd.mk y $u))
-  | .forIn           => ``(Bind.bind $action fun (_ : PUnit) => Pure.pure (ForInStep.yield $u))
-  | .forInWithReturn => ``(Bind.bind $action fun (_ : PUnit) => Pure.pure (ForInStep.yield (MProd.mk none $u)))
-  | .nestedBC        => unreachable!
-  | .nestedPR        => ``(Bind.bind $action fun y => (Pure.pure (DoResultPR.«pure» y $u)))
-  | .nestedSBC       => ``(Bind.bind $action fun y => (Pure.pure (DoResultSBC.«pureReturn» y $u)))
-  | .nestedPRBC      => ``(Bind.bind $action fun y => (Pure.pure (DoResultPRBC.«pure» y $u)))
+  | .regular    => if ctx.uvars.isEmpty then pure action else ``(Bind.bind $action fun y => Pure.pure (MProd.mk y $u))
+  | .forIn      => ``(Bind.bind $action fun (_ : PUnit) => Pure.pure (ForInStep.yield $u))
+  | .forInR     => ``(Bind.bind $action fun (_ : PUnit) => Pure.pure (ForInStep.yield (MProd.mk none $u)))
+  | .forInBC    => ``(Bind.bind $action fun (_ : PUnit) => Pure.pure (ForInStep.yield (MProd.mk DoStateBC.none $u)))
+  | .forInRBC   => ``(Bind.bind $action fun (_ : PUnit) => Pure.pure (ForInStep.yield (MProd.mk DoStateRBC.none $u)))
+  | .nestedBC   => unreachable!
+  | .nestedPR   => ``(Bind.bind $action fun y => (Pure.pure (DoResultPR.pure y $u)))
+  | .nestedSBC  => ``(Bind.bind $action fun y => (Pure.pure (DoResultSBC.pureReturn y $u)))
+  | .nestedPRBC => ``(Bind.bind $action fun y => (Pure.pure (DoResultPRBC.pure y $u)))
 
 def seqToTerm (action : Syntax) (k : Syntax) : M Syntax := withRef action <| withFreshMacroScope do
   if action.getKind == ``Parser.Term.doDbgTrace then
@@ -1048,8 +1093,8 @@ where
   go (c : Code) : M Syntax := do
     match c with
     | .return ref val     => withRef ref <| returnToTerm val
-    | .continue ref       => withRef ref continueToTerm
-    | .break ref          => withRef ref breakToTerm
+    | .continue ref l     => withRef ref <| continueToTerm l
+    | .break ref l        => withRef ref <| breakToTerm l
     | .action e           => actionTerminalToTerm e
     | .joinpoint j ps b k => mkJoinPoint j ps (← toTerm b) (← toTerm k)
     | .jmp ref j args     => return mkJmp ref j args
@@ -1086,61 +1131,117 @@ def mkNestedKind (a r bc : Bool) : Kind :=
   | true,  true,  true  => .nestedPRBC
   | false, false, false => unreachable!
 
-def mkNestedTerm (code : Code) (m : Syntax) (returnType : Syntax) (uvars : Array Var) (a r bc : Bool) : MacroM Syntax := do
-  ToTerm.run code m returnType uvars (mkNestedKind a r bc)
-
 /-- Given a term `term` produced by `ToTerm.run`, pattern match on its result.
    See comment at the beginning of the `ToTerm` namespace.
 
-   - `a` is true if the code block has a `Code.action _` exit point
-   - `r` is true if the code block has a `Code.return _ _` exit point
-   - `bc` is true if the code block has a `Code.break _` or `Code.continue _` exit point
+  * `kind` is one of the kinds returned by `mkNestedKind`, which describes how the
+    code block's type relates to the possible exit points.
+  * Because `kind` is ambiguous in the `.regular` aand `.nestedSBC` cases, we also need
+    `r`, which is true if the code block has a `Code.return _ _` exit point.
+  * `isLabeled` is true if the code block has a `Code.break` or `Code.continue` exit point
+  * `bc'` is true if the code block has a `Code.break` or `Code.continue` exit point
+    to an outer loop
 
    The result is a sequence of `doElem` -/
-def matchNestedTermResult (term : Syntax) (uvars : Array Var) (a r bc : Bool) : MacroM (List Syntax) := do
+def matchNestedTermResult (term : Syntax) (uvars : Array Var) (kind : Kind)
+    (r isLabeled bc' : Bool) : MacroM (List Syntax) := do
   let toDoElems (auxDo : Syntax) : List Syntax := getDoSeqElems (getDoSeq auxDo)
   let u ← mkTuple uvars
-  match a, r, bc with
-  | true, false, false =>
-    if uvars.isEmpty then
-      return toDoElems (← `(do $term:term))
-    else
-      return toDoElems (← `(do let r ← $term:term; $u:term := r.2; pure r.1))
-  | false, true, false =>
-    if uvars.isEmpty then
-      return toDoElems (← `(do let r ← $term:term; return r))
-    else
-      return toDoElems (← `(do let r ← $term:term; $u:term := r.2; return r.1))
-  | false, false, true => toDoElems <$>
+  toDoElems <$> match kind, bc', isLabeled with
+  | .regular, false, _ => match r, uvars.isEmpty with
+    | false, true => `(do $term:term)
+    | false, false => `(do let r ← $term:term; $u:term := r.2; pure r.1)
+    | true, true => `(do let r ← $term:term; return r)
+    | true, false => `(do let r ← $term:term; $u:term := r.2; return r.1)
+  | .nestedBC, false, _ =>
     `(do let r ← $term:term;
          match r with
-         | .break u => $u:term := u; break
-         | .continue u => $u:term := u; continue)
-  | true, true, false => toDoElems <$>
+         | .break _ u => $u:term := u; break
+         | .continue _ u => $u:term := u; continue)
+  | .nestedBC, true, false =>
+    `(do let r ← $term:term;
+         match r with
+         | .break l u => $u:term := u; breakIdx% l
+         | .continue l u => $u:term := u; continueIdx% l)
+  | .nestedBC, true, true =>
+    `(do let r ← $term:term;
+         match r with
+         | .break 0 u => $u:term := u; break
+         | .break (l + 1) u => $u:term := u; breakIdx% l
+         | .continue 0 u => $u:term := u; continue
+         | .continue (l + 1) u => $u:term := u; continueIdx% l)
+  | .nestedPR, false, _ =>
     `(do let r ← $term:term;
          match r with
          | .pure a u => $u:term := u; pure a
          | .return b u => $u:term := u; return b)
-  | true, false, true => toDoElems <$>
-    `(do let r ← $term:term;
-         match r with
-         | .pureReturn a u => $u:term := u; pure a
-         | .break u => $u:term := u; break
-         | .continue u => $u:term := u; continue)
-  | false, true, true => toDoElems <$>
-    `(do let r ← $term:term;
-         match r with
-         | .pureReturn a u => $u:term := u; return a
-         | .break u => $u:term := u; break
-         | .continue u => $u:term := u; continue)
-  | true, true, true => toDoElems <$>
+  | .nestedSBC, false, _ => match r with
+    | false =>
+      `(do let r ← $term:term;
+           match r with
+           | .pureReturn a u => $u:term := u; pure a
+           | .break _ u => $u:term := u; break
+           | .continue _ u => $u:term := u; continue)
+    | true =>
+      `(do let r ← $term:term;
+           match r with
+           | .pureReturn a u => $u:term := u; return a
+           | .break _ u => $u:term := u; break
+           | .continue _ u => $u:term := u; continue)
+  | .nestedSBC, true, false => match r with
+    | false =>
+      `(do let r ← $term:term;
+           match r with
+           | .pureReturn a u => $u:term := u; pure a
+           | .break l u => $u:term := u; breakIdx% l
+           | .continue l u => $u:term := u; continueIdx% l)
+    | true =>
+      `(do let r ← $term:term;
+           match r with
+           | .pureReturn a u => $u:term := u; return a
+           | .break l u => $u:term := u; breakIdx% l
+           | .continue l u => $u:term := u; continueIdx% l)
+  | .nestedSBC, true, true => match r with
+    | false =>
+      `(do let r ← $term:term;
+           match r with
+           | .pureReturn a u => $u:term := u; pure a
+           | .break 0 u => $u:term := u; break
+           | .break (l + 1) u => $u:term := u; breakIdx% l
+           | .continue 0 u => $u:term := u; continue
+           | .continue (l + 1) u => $u:term := u; continueIdx% l)
+    | true =>
+      `(do let r ← $term:term;
+           match r with
+           | .pureReturn a u => $u:term := u; return a
+           | .break 0 u => $u:term := u; break
+           | .break (l + 1) u => $u:term := u; breakIdx% l
+           | .continue 0 u => $u:term := u; continue
+           | .continue (l + 1) u => $u:term := u; continueIdx% l)
+  | .nestedPRBC, false, _ =>
     `(do let r ← $term:term;
          match r with
          | .pure a u => $u:term := u; pure a
          | .return a u => $u:term := u; return a
-         | .break u => $u:term := u; break
-         | .continue u => $u:term := u; continue)
-  | false, false, false => unreachable!
+         | .break _ u => $u:term := u; break
+         | .continue _ u => $u:term := u; continue)
+  | .nestedPRBC, true, false =>
+    `(do let r ← $term:term;
+         match r with
+         | .pure a u => $u:term := u; pure a
+         | .return a u => $u:term := u; return a
+         | .break l u => $u:term := u; breakIdx% l
+         | .continue l u => $u:term := u; continueIdx% l)
+  | .nestedPRBC, true, true =>
+    `(do let r ← $term:term;
+         match r with
+         | .pure a u => $u:term := u; pure a
+         | .return a u => $u:term := u; return a
+         | .break 0 u => $u:term := u; break
+         | .break (l + 1) u => $u:term := u; breakIdx% l
+         | .continue 0 u => $u:term := u; continue
+         | .continue (l + 1) u => $u:term := u; continueIdx% l)
+  | _, _, _ => unreachable!
 
 end ToTerm
 
@@ -1159,6 +1260,10 @@ structure Context where
   /-- Syntax to reference the result of the monadic computation performed by the do notation. -/
   returnType  : Syntax
   mutableVars : VarSet := {}
+  /-- The list of loop labels, from innermost to outermost. -/
+  labels      : List Name := []
+  /-- true if the loop we are currently in is labeled -/
+  isLabeled   : Bool := false
   insideFor   : Bool := false
 
 abbrev M := ReaderT Context TermElabM
@@ -1182,19 +1287,30 @@ def checkNotShadowingMutable (xs : Array Var) : M Unit := do
     if ctx.mutableVars.contains x.getId then
       throwInvalidShadowing x.getId
 
-def withFor {α} (x : M α) : M α :=
-  withReader (fun ctx => { ctx with insideFor := true }) x
+def canBreakContinueSucc (ctx : Context) : Bool :=
+  !(if ctx.isLabeled then ctx.labels.tail! else ctx.labels).isEmpty
+
+def withFor {α} (labels : List Name) (isLabeled : Bool) (x : M α) : M α :=
+  withReader (fun ctx => { ctx with labels, isLabeled, insideFor := true }) x
 
 structure ToForInTermResult where
   uvars      : Array Var
   term       : Syntax
+  (r bc'     : Bool)
 
-def mkForInBody  (_ : Syntax) (forInBody : CodeBlock) : M ToForInTermResult := do
+def mkForInBody (_ : Syntax) (forInBody : CodeBlock) : M ToForInTermResult := do
   let ctx ← read
   let uvars := forInBody.uvars
   let uvars := varSetToArray uvars
-  let term ← liftMacroM <| ToTerm.run forInBody.code ctx.m ctx.returnType uvars (if hasReturn forInBody.code then ToTerm.Kind.forInWithReturn else ToTerm.Kind.forIn)
-  return ⟨uvars, term⟩
+  let r := hasReturn forInBody.code
+  let bc' := hasBreakContinueSucc forInBody.code
+  let term ← liftMacroM <| ToTerm.run forInBody.code ctx.m ctx.returnType uvars <|
+    match bc', r with
+    | false, false => .forIn
+    | false, true  => .forInR
+    | true,  false => .forInBC
+    | true,  true  => .forInRBC
+  return ⟨uvars, term, r, bc'⟩
 
 def ensureInsideFor : M Unit :=
   unless (← read).insideFor do
@@ -1240,12 +1356,25 @@ def checkLetArrowRHS (doElem : Syntax) : M Unit := do
      kind == ``Parser.Term.doReassignArrow then
     throwErrorAt doElem "invalid kind of value `{kind}` in an assignment"
 
+/-- Gets a `Label` from an `optLabel` syntax. -/
+def getLabel (stx : Syntax) : M Label := do
+  let some label := stx.getOptional? | return .none
+  let ctx ← read
+  let label := label[3]
+  let l := label.getId
+  if l.isAnonymous then return .none
+  match ctx.labels.findIdx? (l == ·), ctx.isLabeled with
+  | none, _ => logErrorAt label m!"loop label {l} not found"; return .none
+  | some 0, true => pure .none
+  | some (n+1), true => pure (.const n)
+  | some n, false => pure (.const n)
+
 /-- Generate `CodeBlock` for `doReturn` which is of the form
    ```
    "return " >> optional termParser
    ```
    `doElems` is only used for sanity checking. -/
-def doReturnToCode (doReturn : Syntax) (doElems: List Syntax) : M CodeBlock := withRef doReturn do
+def doReturnToCode (doReturn : Syntax) (doElems : List Syntax) : M CodeBlock := withRef doReturn do
   ensureEOS doElems
   let argOpt := doReturn[1]
   let arg ← if argOpt.isNone then liftMacroM mkUnit else pure argOpt[0]
@@ -1395,6 +1524,13 @@ mutual
      ```
   -/
   partial def doForToCode (doFor : Syntax) (doElems : List Syntax) : M CodeBlock := do
+    let ctx ← read
+    let label := do
+      let l := (← doFor[1].getOptional?)[3]
+      if l.isMissing then none else some l
+    let (labels, isLabeled) := match label with
+    | some n => (n.getId :: ctx.labels, true)
+    | none => (ctx.labels, false)
     let doForDecls := doFor[2].getSepArgs
     if doForDecls.size > 1 then
       /-
@@ -1428,53 +1564,49 @@ mutual
         let toStreamApp ← withRef ys `(@toStream _ _ _ $ys)
         let auxDo ←
           `(do let mut s := $toStreamApp:term
-               for $doForDecls:doForDecl,* do
+               for $[(label := $label)]? $doForDecls:doForDecl,* do
                  match @Stream.next? _ _ _ s with
                  | none => break
                  | some ($y, s') =>
                    s := s'
                    do $body)
-        -- bootstrapping hack, remove in the next commit
-        let elemsHacked := match getDoSeqElems (getDoSeq auxDo) with
-        | [el, Syntax.node info k #[a, b, c, d]] =>
-          [el, Syntax.node info k #[a, mkNullNode, b, c, d]]
-        | e => e
-        doSeqToCode (elemsHacked ++ doElems)
+        doSeqToCode <| getDoSeqElems (getDoSeq auxDo) ++ doElems
     else withRef doFor do
+      if doForDecls.isEmpty then return mkTerminalAction .missing
       let h?        := if doForDecls[0]![0].isNone then none else some doForDecls[0]![0][0]
       let x         := doForDecls[0]![1]
       withRef x <| checkNotShadowingMutable (← getPatternVarsEx x)
       let xs        := doForDecls[0]![3]
       let forElems  := getDoSeqElems doFor[4]
-      let forInBodyCodeBlock ← withFor (doSeqToCode forElems)
-      let ⟨uvars, forInBody⟩ ← mkForInBody x forInBodyCodeBlock
-      let ctx ← read
+      let forInBodyCodeBlock ← withFor labels isLabeled (doSeqToCode forElems)
+      let ⟨uvars, forInBody, r, bc⟩ ← mkForInBody x forInBodyCodeBlock
+      let bc' := bc && canBreakContinueSucc ctx
       -- semantic no-op that replaces the `uvars`' position information (which all point inside the loop)
       -- with that of the respective mutable declarations outside the loop, which allows the language
       -- server to identify them as conceptually identical variables
       let uvars := uvars.map fun v => ctx.mutableVars.findD v.getId v
       let uvarsTuple ← liftMacroM do mkTuple uvars
-      if hasReturn forInBodyCodeBlock.code then
-        let forInBody ← liftMacroM <| destructTuple uvars (← `(r)) forInBody
-        let optType ← `(Option $((← read).returnType))
+      let forInBody ← liftMacroM <| destructTuple uvars (← `(r)) forInBody
+      match r, bc with
+      | true, false =>
+        let optType ← `(Option $ctx.returnType)
         let forInTerm ← if let some h := h? then
-          annotate doFor
-            (← `(for_in'% $(xs) (MProd.mk (none : $optType) $uvarsTuple) fun $x $h (r : MProd $optType _) => let r := r.2; $forInBody))
+          `(for_in'% $xs (MProd.mk (none : $optType) $uvarsTuple) fun $x $h (r : MProd $optType _) => let r := r.2; $forInBody)
         else
-          annotate doFor
-            (← `(for_in% $(xs) (MProd.mk (none : $optType) $uvarsTuple) fun $x (r : MProd $optType _) => let r := r.2; $forInBody))
+          `(for_in% $xs (MProd.mk (none : $optType) $uvarsTuple) fun $x (r : MProd $optType _) => let r := r.2; $forInBody)
+        let forInTerm ← annotate doFor forInTerm
         let auxDo ← `(do let r ← $forInTerm:term;
                          $uvarsTuple:term := r.2;
                          match r.1 with
                          | none => Pure.pure (ensure_expected_type% "type mismatch, `for`" PUnit.unit)
                          | some a => return ensure_expected_type% "type mismatch, `for`" a)
-        doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
-      else
-        let forInBody ← liftMacroM <| destructTuple uvars (← `(r)) forInBody
+        doSeqToCode <| getDoSeqElems (getDoSeq auxDo) ++ doElems
+      | false, false =>
         let forInTerm ← if let some h := h? then
-          annotate doFor (← `(for_in'% $(xs) $uvarsTuple fun $x $h r => $forInBody))
+          `(for_in'% $xs $uvarsTuple fun $x $h r => $forInBody)
         else
-          annotate doFor (← `(for_in% $(xs) $uvarsTuple fun $x r => $forInBody))
+          `(for_in% $xs $uvarsTuple fun $x r => $forInBody)
+        let forInTerm ← annotate doFor forInTerm
         if doElems.isEmpty then
           let auxDo ← `(do let r ← $forInTerm:term;
                            $uvarsTuple:term := r;
@@ -1483,6 +1615,70 @@ mutual
         else
           let auxDo ← `(do let r ← $forInTerm:term; $uvarsTuple:term := r)
           doSeqToCode <| getDoSeqElems (getDoSeq auxDo) ++ doElems
+      | true, true =>
+        let optType ← `(DoStateRBC $ctx.returnType)
+        let forInTerm ← if let some h := h? then
+          `(for_in'% $xs (MProd.mk (.none : $optType) $uvarsTuple) fun $x $h (r : MProd $optType _) => let r := r.2; $forInBody)
+        else
+          `(for_in% $xs (MProd.mk (.none : $optType) $uvarsTuple) fun $x (r : MProd $optType _) => let r := r.2; $forInBody)
+        let forInTerm ← annotate doFor forInTerm
+        let auxDo ← if !bc' then
+          `(do let r ← $forInTerm:term;
+               $uvarsTuple:term := r.2;
+               match r.1 with
+               | .none => Pure.pure (ensure_expected_type% "type mismatch, `for`" PUnit.unit)
+               | .break _ => break
+               | .continue _ => continue
+               | .return a => return ensure_expected_type% "type mismatch, `for`" a)
+        else if ctx.isLabeled then
+          `(do let r ← $forInTerm:term;
+               $uvarsTuple:term := r.2;
+               match r.1 with
+               | .none => Pure.pure (ensure_expected_type% "type mismatch, `for`" PUnit.unit)
+               | .break 0 => break
+               | .break (l + 1) => breakIdx% l
+               | .continue 0 => continue
+               | .continue (l + 1) => continueIdx% l
+               | .return a => return ensure_expected_type% "type mismatch, `for`" a)
+        else
+          `(do let r ← $forInTerm:term;
+               $uvarsTuple:term := r.2;
+               match r.1 with
+               | .none => Pure.pure (ensure_expected_type% "type mismatch, `for`" PUnit.unit)
+               | .break l => breakIdx% l
+               | .continue l => continueIdx% l
+               | .return a => return ensure_expected_type% "type mismatch, `for`" a)
+        doSeqToCode <| getDoSeqElems (getDoSeq auxDo) ++ doElems
+      | false, true =>
+        let forInTerm ← if let some h := h? then
+          `(for_in'% $xs (MProd.mk DoStateBC.none $uvarsTuple) fun $x $h (r : MProd DoStateBC _) => $forInBody)
+        else
+          `(for_in% $xs (MProd.mk DoStateBC.none $uvarsTuple) fun $x (r : MProd DoStateBC _) => $forInBody)
+        let forInTerm ← annotate doFor forInTerm
+        let auxDo ← if !bc' then
+          `(do let r ← $forInTerm:term;
+               $uvarsTuple:term := r.2;
+               match r.1 with
+               | .none => Pure.pure (ensure_expected_type% "type mismatch, `for`" PUnit.unit)
+               | .break _ => break
+               | .continue _ => continue)
+        else if ctx.isLabeled then
+          `(do let r ← $forInTerm:term;
+               $uvarsTuple:term := r.2;
+               match r.1 with
+               | .none => Pure.pure (ensure_expected_type% "type mismatch, `for`" PUnit.unit)
+               | .break 0 => break
+               | .break (l + 1) => breakIdx% l
+               | .continue 0 => continue
+               | .continue (l + 1) => continueIdx% l)
+        else
+          `(do let r ← $forInTerm:term;
+               $uvarsTuple:term := r.2;
+               match r.1 with
+               | .none => Pure.pure (ensure_expected_type% "type mismatch, `for`" PUnit.unit)
+               | .break l => breakIdx% l
+               | .continue l => continueIdx% l)
+        doSeqToCode <| getDoSeqElems (getDoSeq auxDo) ++ doElems
 
   /-- Generate `CodeBlock` for `doMatch; doElems` -/
   partial def doMatchToCode (doMatch : Syntax) (doElems: List Syntax) : M CodeBlock := do
@@ -1538,10 +1734,12 @@ mutual
     let uvars := varSetToArray ws
     let a     := tryCatchPred tryCode catches finallyCode? hasTerminalAction
     let r     := tryCatchPred tryCode catches finallyCode? hasReturn
-    let bc    := tryCatchPred tryCode catches finallyCode? hasBreakContinue
+    let bc0   := tryCatchPred tryCode catches finallyCode? hasBreakContinue0
+    let bc'   := tryCatchPred tryCode catches finallyCode? hasBreakContinueSucc
+    let kind  := ToTerm.mkNestedKind a r (bc0 || bc')
     let toTerm (codeBlock : CodeBlock) : M Syntax := do
       let codeBlock ← liftM $ extendUpdatedVars codeBlock ws
-      liftMacroM <| ToTerm.mkNestedTerm codeBlock.code ctx.m ctx.returnType uvars a r bc
+      liftMacroM <| ToTerm.run codeBlock.code ctx.m ctx.returnType uvars kind
     let term ← toTerm tryCode
     let term ← catches.foldlM (init := term) fun term «catch» => do
       let catchTerm ← toTerm «catch».codeBlock
@@ -1557,9 +1755,10 @@ mutual
           throwError "`finally` currently does not support reassignments"
         if hasBreakContinueReturn finallyCode.code then
           throwError "`finally` currently does `return`, `break`, nor `continue`"
-        let finallyTerm ← liftMacroM <| ToTerm.run finallyCode.code ctx.m ctx.returnType {} ToTerm.Kind.regular
+        let finallyTerm ← liftMacroM <| ToTerm.run finallyCode.code ctx.m ctx.returnType {} .regular
         annotate doTry (← ``(tryFinally $term $finallyTerm))
-    let doElemsNew ← liftMacroM <| ToTerm.matchNestedTermResult term uvars a r bc
+    let bc' := bc' && canBreakContinueSucc ctx
+    let doElemsNew ← liftMacroM <| ToTerm.matchNestedTermResult term uvars kind r ctx.isLabeled bc'
     doSeqToCode (doElemsNew ++ doElems)
 
   partial def doSeqToCode : List Syntax → M CodeBlock
@@ -1576,7 +1775,6 @@ mutual
         if !liftedDoElems.isEmpty then
           doSeqToCode (liftedDoElems ++ [doElem] ++ doElems)
         else
-          let ref := doElem
           let k := doElem.getKind
           if k == ``Parser.Term.doLet then
             let vars ← getDoLetVars doElem
@@ -1611,14 +1809,22 @@ mutual
             doMatchToCode doElem doElems
           else if k == ``Parser.Term.doTry then
             doTryToCode doElem doElems
-          else if k == ``Parser.Term.doBreak then
+          else if k == ``Parser.Term.doBreak then withRef doElem do
             ensureInsideFor
             ensureEOS doElems
-            return mkBreak ref
-          else if k == ``Parser.Term.doContinue then
+            return mkBreak (← getRef) (← getLabel doElem[1])
+          else if k == ``Parser.Term.doContinue then withRef doElem do
             ensureInsideFor
             ensureEOS doElems
-            return mkContinue ref
+            return mkContinue (← getRef) (← getLabel doElem[1])
+          else if k == ``Parser.Term.doBreakIdx then withRef doElem do
+            ensureInsideFor
+            ensureEOS doElems
+            return mkBreak (← getRef) (.var doElem[1])
+          else if k == ``Parser.Term.doContinueIdx then withRef doElem do
+            ensureInsideFor
+            ensureEOS doElems
+            return mkContinue (← getRef) (.var doElem[1])
           else if k == ``Parser.Term.doReturn then
             doReturnToCode doElem doElems
           else if k == ``Parser.Term.doDbgTrace then

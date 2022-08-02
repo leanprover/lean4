@@ -301,7 +301,7 @@ syntax "repeat " (label)? doSeq : doElem
 
 macro_rules
   | `(doElem| repeat $[(label := $x)]? $seq) =>
-    `(doElem| for _ in Loop.mk do $seq)
+    `(doElem| for $[(label := $x)]? _ in Loop.mk do $seq)
 
 syntax "while " (label)? ident " : " termBeforeDo " do " doSeq : doElem
 

@@ -97,11 +97,24 @@ export ForIn' (forIn')
 
 
 /-- Auxiliary type used to compile `do` notation. -/
+inductive DoStateBC where
+  | none     : DoStateBC
+  | break    : Nat → DoStateBC
+  | continue : Nat → DoStateBC
+
+/-- Auxiliary type used to compile `do` notation. -/
+inductive DoStateRBC (β : Type u) where
+  | none     : DoStateRBC β
+  | break    : Nat → DoStateRBC β
+  | continue : Nat → DoStateRBC β
+  | return   : β → DoStateRBC β
+
+/-- Auxiliary type used to compile `do` notation. -/
 inductive DoResultPRBC (α β σ : Type u) where
   | pure     : α → σ → DoResultPRBC α β σ
   | return   : β → σ → DoResultPRBC α β σ
-  | break    : σ → DoResultPRBC α β σ
-  | continue : σ → DoResultPRBC α β σ
+  | break    : Nat → σ → DoResultPRBC α β σ
+  | continue : Nat → σ → DoResultPRBC α β σ
 
 /-- Auxiliary type used to compile `do` notation. -/
 inductive DoResultPR (α β σ : Type u) where
@@ -110,14 +123,14 @@ inductive DoResultPR (α β σ : Type u) where
 
 /-- Auxiliary type used to compile `do` notation. -/
 inductive DoResultBC (σ : Type u) where
-  | break    : σ → DoResultBC σ
-  | continue : σ → DoResultBC σ
+  | break    : Nat → σ → DoResultBC σ
+  | continue : Nat → σ → DoResultBC σ
 
 /-- Auxiliary type used to compile `do` notation. -/
 inductive DoResultSBC (α σ : Type u) where
   | pureReturn : α → σ → DoResultSBC α σ
-  | break      : σ → DoResultSBC α σ
-  | continue   : σ → DoResultSBC α σ
+  | break      : Nat → σ → DoResultSBC α σ
+  | continue   : Nat → σ → DoResultSBC α σ
 
 class HasEquiv  (α : Sort u) where
   Equiv : α → α → Sort v

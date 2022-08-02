@@ -67,17 +67,7 @@ def elabCalcSteps (steps : Array Syntax) : TermElabM Expr := do
     (result, resultType) ← withRef steps[i]! <| mkCalcTrans result resultType proofs[i]! types[i]!
   return result
 
-/-- Step-wise reasoning over transitive relations.
-```
-calc
-  a = b := pab
-  b = c := pbc
-  ...
-  y = z := pyz
-```
-proves `a = z` from the given step-wise proofs. `=` can be replaced with any
-relation implementing the typeclass `Trans`. Instead of repeating the right-
-hand sides, subsequent left-hand sides can be replaced with `_`. -/
+/-- Elaborator for the `calc` term mode variant. -/
 @[builtinTermElab «calc»]
 def elabCalc : TermElab :=  fun stx expectedType? => do
   let steps := #[stx[1]] ++ stx[2].getArgs

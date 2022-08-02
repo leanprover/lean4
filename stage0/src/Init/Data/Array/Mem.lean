@@ -47,6 +47,9 @@ termination_by aux j _ => as.size - j
   apply Nat.lt_trans (List.sizeOf_get ..)
   simp_arith
 
+/-- This tactic, added to the `decreasing_trivial` toolbox, proves that
+`sizeOf arr[i] < sizeOf arr`, which is useful for well founded recursions
+over a nested inductive like `inductive T | mk : Array T → T`. -/
 macro "array_get_dec" : tactic =>
   `(first
     | apply sizeOf_get

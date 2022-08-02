@@ -1285,8 +1285,8 @@ def panic {α : Type u} [Inhabited α] (msg : String) : α :=
 -- TODO: this be applied directly to `Inhabited`'s definition when we remove the above workaround
 attribute [nospecialize] Inhabited
 
-class GetElem (Cont : Type u) (Idx : Type v) (Elem : outParam (Type w)) (Dom : outParam (Cont → Idx → Prop)) where
-  getElem (xs : Cont) (i : Idx) (h : Dom xs i) : Elem
+class GetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w)) (dom : outParam (cont → idx → Prop)) where
+  getElem (xs : cont) (i : idx) (h : dom xs i) : elem
 
 export GetElem (getElem)
 

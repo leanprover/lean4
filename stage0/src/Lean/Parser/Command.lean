@@ -175,13 +175,25 @@ builtin_initialize
 end Command
 
 namespace Term
-@[builtinTermParser] def «open» := leading_parser:leadPrec "open " >> Command.openDecl >> withOpenDecl (" in " >> termParser)
-@[builtinTermParser] def «set_option» := leading_parser:leadPrec "set_option " >> ident >> ppSpace >> Command.optionValue >> " in " >> termParser
+/-- `open Foo in e` is like `open Foo` but scoped to a single term. -/
+@[builtinTermParser] def «open» := leading_parser:leadPrec
+  "open " >> Command.openDecl >> withOpenDecl (" in " >> termParser)
+
+/-- `set_option opt val in e` is like `set_option opt val` but scoped to a single term. -/
+@[builtinTermParser] def «set_option» := leading_parser:leadPrec
+  "set_option " >> ident >> ppSpace >> Command.optionValue >> " in " >> termParser
 end Term
 
 namespace Tactic
-@[builtinTacticParser] def «open» := leading_parser:leadPrec "open " >> Command.openDecl >> withOpenDecl (" in " >> tacticSeq)
-@[builtinTacticParser] def «set_option» := leading_parser:leadPrec "set_option " >> ident >> ppSpace >> Command.optionValue >> " in " >> tacticSeq
+/-- `open Foo in tacs` (the tactic) acts like `open Foo` at command level,
+but it opens a namespace only within the tactics `tacs`. -/
+@[builtinTacticParser] def «open» := leading_parser:leadPrec
+  "open " >> Command.openDecl >> withOpenDecl (" in " >> tacticSeq)
+
+/-- `set_option opt val in tacs` (the tactic) acts like `set_option opt val` at command level,
+but it sets the option only within the tactics `tacs`. -/
+@[builtinTacticParser] def «set_option» := leading_parser:leadPrec
+  "set_option " >> ident >> ppSpace >> Command.optionValue >> " in " >> tacticSeq
 end Tactic
 
 end Parser

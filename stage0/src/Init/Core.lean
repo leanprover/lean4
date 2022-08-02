@@ -83,6 +83,7 @@ inductive Exists {α : Sort u} (p : α → Prop) : Prop where
 inductive ForInStep (α : Type u) where
   | done  : α → ForInStep α
   | yield : α → ForInStep α
+  deriving Inhabited
 
 class ForIn (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)) where
   forIn {β} [Monad m] (x : ρ) (b : β) (f : α → β → m (ForInStep β)) : m β

@@ -35,6 +35,9 @@ def notFollowedByRedefinedTermToken :=
   -- "open" command following `do`-block. If we don't add `do`, then users would have to indent `do` blocks or use `{ ... }`.
   notFollowedBy ("set_option" <|> "open" <|> "if" <|> "match" <|> "let" <|> "have" <|> "do" <|> "dbg_trace" <|> "assert!" <|> "for" <|> "unless" <|> "return" <|> symbol "try") "token at 'do' element"
 
+def label := leading_parser (atomic ("(" >> nonReservedSymbol "label") >> " := " >> ident >> ")")
+def optLabel := optional (ppSpace >> label)
+
 @[builtinDoElemParser] def doLet      := leading_parser "let " >> optional "mut " >> letDecl
 @[builtinDoElemParser] def doLetElse  := leading_parser "let " >> termParser >> " := " >> termParser >> checkColGt >> " | " >> doElemParser
 
@@ -92,7 +95,7 @@ def doIfCond    := withAntiquot (mkAntiquot "doIfCond" `Lean.Parser.Term.doIfCon
   >> optional (checkColGe "'else' in 'do' must be indented" >> " else " >> doSeq)
 @[builtinDoElemParser] def doUnless := leading_parser "unless " >> withForbidden "do" termParser >> "do " >> doSeq
 def doForDecl := leading_parser optional (atomic (ident >> " : ")) >> termParser >> " in " >> withForbidden "do" termParser
-@[builtinDoElemParser] def doFor    := leading_parser "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
+@[builtinDoElemParser] def doFor    := leading_parser "for " >> optLabel >> sepBy1 doForDecl ", " >> "do " >> doSeq
 
 def doMatchAlts := ppDedent <| matchAlts (rhsParser := doSeq)
 @[builtinDoElemParser] def doMatch := leading_parser:leadPrec "match " >> optional Term.generalizingParam >> optional Term.motive >> sepBy1 matchDiscr ", " >> " with " >> doMatchAlts
@@ -102,8 +105,10 @@ def doCatchMatch := leading_parser "catch " >> doMatchAlts
 def doFinally    := leading_parser "finally " >> doSeq
 @[builtinDoElemParser] def doTry    := leading_parser "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally
 
-@[builtinDoElemParser] def doBreak     := leading_parser "break"
-@[builtinDoElemParser] def doContinue  := leading_parser "continue"
+@[builtinDoElemParser] def doBreak     := leading_parser "break" >> optLabel
+@[builtinDoElemParser] def doContinue  := leading_parser "continue" >> optLabel
+@[builtinDoElemParser] def doBreakIdx    := leading_parser "breakIdx% " >> termParser
+@[builtinDoElemParser] def doContinueIdx := leading_parser "continueIdx% " >> termParser
 @[builtinDoElemParser] def doReturn    := leading_parser:leadPrec withPosition ("return " >> optional (checkLineEq >> termParser))
 @[builtinDoElemParser] def doDbgTrace  := leading_parser:leadPrec "dbg_trace " >> ((interpolatedStr termParser) <|> termParser)
 @[builtinDoElemParser] def doAssert    := leading_parser:leadPrec "assert! " >> termParser
@@ -129,7 +134,7 @@ The second `notFollowedBy` prevents this problem.
 
 /- macros for using `unless`, `for`, `try`, `return` as terms. They expand into `do unless ...`, `do for ...`, `do try ...`, and `do return ...` -/
 @[builtinTermParser] def termUnless := leading_parser "unless " >> withForbidden "do" termParser >> "do " >> doSeq
-@[builtinTermParser] def termFor    := leading_parser "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
+@[builtinTermParser] def termFor    := leading_parser "for " >> optLabel >> sepBy1 doForDecl ", " >> "do " >> doSeq
 @[builtinTermParser] def termTry    := leading_parser "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally
 @[builtinTermParser] def termReturn := leading_parser:leadPrec withPosition ("return " >> optional (checkLineEq >> termParser))
 

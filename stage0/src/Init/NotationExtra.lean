@@ -86,8 +86,48 @@ macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBrackedBi
 
 -- enforce indentation of calc steps so we know when to stop parsing them
 syntax calcStep := ppIndent(colGe term " := " withPosition(term))
+
+/-- Step-wise reasoning over transitive relations.
+```
+calc
+  a = b := pab
+  b = c := pbc
+  ...
+  y = z := pyz
+```
+proves `a = z` from the given step-wise proofs. `=` can be replaced with any
+relation implementing the typeclass `Trans`. Instead of repeating the right-
+hand sides, subsequent left-hand sides can be replaced with `_`.
+
+`calc` has term mode and tactic mode variants. This is the term mode variant.
+
+See [Theorem Proving in Lean 4][tpil4] for more information.
+
+[tpil4]: https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#calculational-proofs
+-/
 syntax (name := calc) "calc" ppLine withPosition(calcStep) ppLine withPosition((calcStep ppLine)*) : term
 
+/-- Step-wise reasoning over transitive relations.
+```
+calc
+  a = b := pab
+  b = c := pbc
+  ...
+  y = z := pyz
+```
+proves `a = z` from the given step-wise proofs. `=` can be replaced with any
+relation implementing the typeclass `Trans`. Instead of repeating the right-
+hand sides, subsequent left-hand sides can be replaced with `_`.
+
+`calc` has term mode and tactic mode variants. This is the tactic mode variant,
+which supports an additional feature: it works even if the goal is `a = z'`
+for some other `z'`; in this case it will not close the goal but will instead
+leave a subgoal proving `z = z'`.
+
+See [Theorem Proving in Lean 4][tpil4] for more information.
+
+[tpil4]: https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#calculational-proofs
+-/
 syntax (name := calcTactic) "calc" ppLine withPosition(calcStep) ppLine withPosition((calcStep ppLine)*) : tactic
 
 @[appUnexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
@@ -216,7 +256,8 @@ macro_rules
   attribute [instance] C.mk
   ```
 -/
-syntax declModifiers "class " "abbrev " declId bracketedBinder* (":" term)?
+syntax (name := Lean.Parser.Command.classAbbrev)
+  declModifiers "class " "abbrev " declId bracketedBinder* (":" term)?
   ":=" withPosition(group(colGe term ","?)*) : command
 
 macro_rules
@@ -236,13 +277,12 @@ macro_rules
 syntax (name := solve) "solve " withPosition((colGe "|" tacticSeq)+) : tactic
 
 macro_rules
-  | `(tactic| solve $[| $ts]* ) => `(tactic| focus first $[| ($ts); done]*)
+  | `(tactic| solve $[| $ts]*) => `(tactic| focus first $[| ($ts); done]*)
 
 namespace Lean
 /-! # `repeat` and `while` notation -/
 
-inductive Loop where
-  | mk
+structure Loop
 
 @[inline]
 partial def Loop.forIn {β : Type u} {m : Type u → Type v} [Monad m] (_ : Loop) (init : β) (f : Unit → β → m (ForInStep β)) : m β :=
@@ -255,25 +295,31 @@ partial def Loop.forIn {β : Type u} {m : Type u → Type v} [Monad m] (_ : Loop
 instance : ForIn m Loop Unit where
   forIn := Loop.forIn
 
-syntax "repeat " doSeq : doElem
+syntax label := atomic("(" &"label") " := " ident ") "
+
+syntax "repeat " (label)? doSeq : doElem
 
 macro_rules
-  | `(doElem| repeat $seq) => `(doElem| for _ in Loop.mk do $seq)
+  | `(doElem| repeat $[(label := $x)]? $seq) =>
+    `(doElem| for _ in Loop.mk do $seq)
 
-syntax "while " ident " : " termBeforeDo " do " doSeq : doElem
-
-macro_rules
-  | `(doElem| while $h : $cond do $seq) => `(doElem| repeat if $h : $cond then $seq else break)
-
-syntax "while " termBeforeDo " do " doSeq : doElem
+syntax "while " (label)? ident " : " termBeforeDo " do " doSeq : doElem
 
 macro_rules
-  | `(doElem| while $cond do $seq) => `(doElem| repeat if $cond then $seq else break)
+  | `(doElem| while $[(label := $x)]? $h : $cond do $seq) =>
+    `(doElem| repeat $[(label := $x)]? if $h : $cond then $seq else break)
 
-syntax "repeat " doSeq " until " term : doElem
+syntax "while " (label)? termBeforeDo " do " doSeq : doElem
 
 macro_rules
-  | `(doElem| repeat $seq until $cond) => `(doElem| repeat do $seq:doSeq; if $cond then break)
+  | `(doElem| while $[(label := $x)]? $cond do $seq) =>
+    `(doElem| repeat $[(label := $x)]? if $cond then $seq else break)
+
+syntax "repeat " (label)? doSeq " until " term : doElem
+
+macro_rules
+  | `(doElem| repeat $[(label := $x)]? $seq:doSeq until $cond) =>
+    `(doElem| repeat $[(label := $x)]? do $seq:doSeq; if $cond then break)
 
 macro:50 e:term:51 " matches " p:sepBy1(term:51, "|") : term =>
   `(((match $e:term with | $[$p:term]|* => true | _ => false) : Bool))

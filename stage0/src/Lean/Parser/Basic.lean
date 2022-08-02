@@ -1556,6 +1556,8 @@ instance : Inhabited (TokenMap α) := ⟨RBMap.empty⟩
 
 instance : EmptyCollection (TokenMap α) := ⟨RBMap.empty⟩
 
+instance : ForIn m (TokenMap α) (Name × List α) := inferInstanceAs (ForIn _ (RBMap ..) _)
+
 end TokenMap
 
 structure PrattParsingTables where
@@ -1567,7 +1569,7 @@ structure PrattParsingTables where
 instance : Inhabited PrattParsingTables := ⟨{}⟩
 
 /--
-  The type `leadingIdentBehavior` specifies how the parsing table
+  The type `LeadingIdentBehavior` specifies how the parsing table
   lookup function behaves for identifiers.  The function `prattParser`
   uses two tables `leadingTable` and `trailingTable`. They map tokens
   to parsers.
@@ -1610,9 +1612,23 @@ inductive LeadingIdentBehavior where
   The method `termParser prec` is equivalent to the method above.
 -/
 structure ParserCategory where
-  ref      : Name
+  /-- The name of a declaration which will be used as the target of
+  go-to-definition queries and from which doc strings will be extracted.
+  This is usually a dummy declaration of type `Lean.Parser.Category`
+  created by `declare_syntax_cat`, but for builtin categories this will
+  be the `builtin_initialize` command containing the call to
+  `registerBuiltinParserAttribute`. -/
+  declName : Name
+  /-- The list of syntax nodes that can parse into this category.
+  This can be used to list all syntaxes in the category. -/
   kinds    : SyntaxNodeKindSet := {}
+  /-- The parsing tables, which consist of a dynamic set of parser
+  functions based on the syntaxes that have been declared so far. -/
   tables   : PrattParsingTables := {}
+  /-- The `LeadingIdentBehavior`, which specifies how the parsing table
+  lookup function behaves for the first identifier to be parsed.
+  This is used by the `tactic` parser to avoid creating a reserved
+  symbol for each builtin tactic (e.g., `apply`, `assumption`, etc.). -/
   behavior : LeadingIdentBehavior
   deriving Inhabited
 

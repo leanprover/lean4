@@ -859,9 +859,9 @@ Elaborate a `f`-application using `namedArgs` and `args` as the arguments.
 - `resultIsOutParamSupport` is used to control whether special support is used when processing applications of functions that return
    output parameter of some local instance. Example:
    ```
-   GetElem.getElem : {Cont : Type u_1} → {Idx : Type u_2} → {Elem : Type u_3} → {Dom : Cont → Idx → Prop} → [self : GetElem Cont Idx Elem Dom] → (xs : Cont) → (i : Idx) → Dom xs i → Elem
+   GetElem.getElem : {Cont : Type u_1} → {Idx : Type u_2} → {elem : Type u_3} → {dom : cont → idx → Prop} → [self : GetElem cont idx elem dom] → (xs : cont) → (i : idx) → dom xs i → elem
    ```
-   The result type `Elem` is the output parameter of the local instance `self`.
+   The result type `elem` is the output parameter of the local instance `self`.
    When this parameter is set to `true`, we execute `synthesizeSyntheticMVarsUsingDefault`. For additional details, see comment at
    `ElabAppArgs.resultIsOutParam`.
 -/

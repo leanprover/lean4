@@ -177,19 +177,19 @@ instance : Repr Int where
 def hexDigitRepr (n : Nat) : String :=
   String.singleton <| Nat.digitChar n
 
-def charToHex (c : Char) : String :=
-  let n  := Char.toNat c;
-  let d2 := n / 16;
-  let d1 := n % 16;
-  hexDigitRepr d2 ++ hexDigitRepr d1
-
 def Char.quoteCore (c : Char) : String :=
   if       c = '\n' then "\\n"
   else if  c = '\t' then "\\t"
   else if  c = '\\' then "\\\\"
   else if  c = '\"' then "\\\""
-  else if  c.toNat <= 31 ∨ c = '\x7f' then "\\x" ++ charToHex c
+  else if  c.toNat <= 31 ∨ c = '\x7f' then "\\x" ++ smallCharToHex c
   else String.singleton c
+where
+  smallCharToHex (c : Char) : String :=
+    let n  := Char.toNat c;
+    let d2 := n / 16;
+    let d1 := n % 16;
+    hexDigitRepr d2 ++ hexDigitRepr d1
 
 def Char.quote (c : Char) : String :=
   "'" ++ Char.quoteCore c ++ "'"

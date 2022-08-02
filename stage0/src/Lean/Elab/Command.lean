@@ -335,12 +335,13 @@ private def mkMetaContext : Meta.Context := {
   config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true }
 }
 
+/-- Return identifier names in the given bracketed binder. -/
 def getBracketedBinderIds : Syntax → Array Name
   | `(bracketedBinder|($ids* $[: $ty?]? $(_annot?)?)) => ids.map Syntax.getId
-  | `(bracketedBinder|{$ids* $[: $ty?]?})            => ids.map Syntax.getId
-  | `(bracketedBinder|[$id : $_])                    => #[id.getId]
-  | `(bracketedBinder|[$_])                          => #[Name.anonymous]
-  | _                                                => #[]
+  | `(bracketedBinder|{$ids* $[: $ty?]?})             => ids.map Syntax.getId
+  | `(bracketedBinder|[$id : $_])                     => #[id.getId]
+  | `(bracketedBinder|[$_])                           => #[Name.anonymous]
+  | _                                                 => #[]
 
 private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) : Term.Context := Id.run do
   let scope      := s.scopes.head!

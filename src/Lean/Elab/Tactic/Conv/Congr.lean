@@ -10,46 +10,59 @@ import Lean.Elab.Tactic.Conv.Basic
 namespace Lean.Elab.Tactic.Conv
 open Meta
 
-/--
-Convert the list of goals `mvarIds` into a masked list based on `funInfo` and `congrArgKinds`.
-The output list length is equal to `congrArgKinds.size` If `addImplicitArgs = true`. Otherwise, the length is equal to the number of implicit arguments
-The `i`-th element at the output is a some iff `congrArgKinds[i] == .eq`.
-If `addImplicitArgs = true`, then goals corresponding to implicit arguments are closed using `assumption`.
+private def congrImplies (mvarId : MVarId) : MetaM (List MVarId) := do
+  let [mvarId₁, mvarId₂, _, _] ← mvarId.apply (← mkConstWithFreshMVarLevels ``implies_congr) | throwError "'apply implies_congr' unexpected result"
+  let mvarId₁ ← markAsConvGoal mvarId₁
+  let mvarId₂ ← markAsConvGoal mvarId₂
+  return [mvarId₁, mvarId₂]
 
-This function assumes
-- The number of `.eq`s in `congrArgKinds` is equal to `mvarId.length`.
-- `funInfo.paramInfo.size = congrArgKinds.size`
--/
-private def mkCongrThmMask? (funInfo : FunInfo) (congrArgKinds : Array CongrArgKind) (mvarIds : List MVarId) (addImplicitArgs : Bool): MetaM (List (Option MVarId)) := do
-  let mut mvarIds := mvarIds
-  let mut mvarIds? := #[]
-  for i in [:congrArgKinds.size] do
-    let kind := congrArgKinds[i]!
-    let argInfo := funInfo.paramInfo[i]!
-    if kind matches .eq then
-      let mvarId :: mvarIds' := mvarIds | unreachable!
-      mvarIds := mvarIds'
-      if addImplicitArgs || argInfo.isExplicit then
-        mvarIds? := mvarIds?.push (some (← markAsConvGoal mvarId))
-      else
-        mvarId.refl
-    else if addImplicitArgs || argInfo.isExplicit then
-      mvarIds? := mvarIds?.push none
-  return mvarIds?.toList
+private def isImplies (e : Expr) : MetaM Bool :=
+  if e.isArrow then
+    isProp e.bindingDomain! <&&> isProp e.bindingBody!
+  else
+    return false
 
-def congr (mvarId : MVarId) (addImplicitArgs := false) : MetaM (List (Option MVarId)) :=
-  mvarId.withContext do
-    let tag ← mvarId.getTag
-    let (lhs, _) ← getLhsRhsCore mvarId
-    let lhs := (← instantiateMVars lhs).cleanupAnnotations
-    let mvarIds ← try mvarId.congr (closeEasy := false) catch _ => throwError "invalid 'congr' conv tactic, application or implication expected{indentExpr lhs}"
-    mvarIds.forM fun mvarId => mvarId.setTag tag; mvarId.setKind .syntheticOpaque
-    if lhs.isApp then
-      let funInfo ← getFunInfo lhs.getAppFn
-      let congrArgKinds := getCongrSimpKinds funInfo
-      mkCongrThmMask? funInfo congrArgKinds mvarIds addImplicitArgs
-    else
-      mvarIds.mapM fun mvarId => return some (← markAsConvGoal mvarId)
+def congr (mvarId : MVarId) (addImplicitArgs := false) : MetaM (List (Option MVarId)) := mvarId.withContext do
+  let (lhs, rhs) ← getLhsRhsCore mvarId
+  let lhs := (← instantiateMVars lhs).cleanupAnnotations
+  if (← isImplies lhs) then
+    return (← congrImplies mvarId).map Option.some
+  else if lhs.isApp then
+    let funInfo ← getFunInfo lhs.getAppFn
+    let args := lhs.getAppArgs
+    let some congrThm ← mkCongrSimp? lhs.getAppFn | throwError "'congr' conv tactic failed to create congruence theorem"
+    unless args.size == congrThm.argKinds.size do throwError "'congr' conv tactic failed, unexpected number of arguments in congruence theorem"
+    let mut proof := congrThm.proof
+    let mut mvarIdsNew := #[]
+    let mut mvarIdsNewInsts := #[]
+    for i in [:args.size] do
+      let arg := args[i]!
+      let argInfo := funInfo.paramInfo[i]!
+      match congrThm.argKinds[i]! with
+      | .fixed | .cast =>
+        proof := mkApp proof arg;
+        if addImplicitArgs || argInfo.isExplicit then
+          mvarIdsNew := mvarIdsNew.push none
+      | .eq    =>
+        if addImplicitArgs || argInfo.isExplicit then
+          let (rhs, mvarNew) ← mkConvGoalFor arg;
+          proof := mkApp3 proof arg rhs mvarNew
+          mvarIdsNew := mvarIdsNew.push (some mvarNew.mvarId!)
+        else
+          proof := mkApp3 proof arg arg (← mkEqRefl arg)
+      | .subsingletonInst =>
+        proof := mkApp proof arg
+        let rhs ← mkFreshExprMVar (← whnf (← inferType proof)).bindingDomain!
+        proof := mkApp proof rhs
+        mvarIdsNewInsts := mvarIdsNewInsts.push (some rhs.mvarId!)
+      | .heq | .fixedNoParam => unreachable!
+    let some (_, _, rhs') := (← whnf (← inferType proof)).eq? | throwError "'congr' conv tactic failed, equality expected"
+    unless (← isDefEqGuarded rhs rhs') do
+      throwError "invalid 'congr' conv tactic, failed to resolve{indentExpr rhs}\n=?={indentExpr rhs'}"
+    mvarId.assign proof
+    return mvarIdsNew.toList ++ mvarIdsNewInsts.toList
+  else
+    throwError "invalid 'congr' conv tactic, application or implication expected{indentExpr lhs}"
 
 @[builtinTactic Lean.Parser.Tactic.Conv.congr] def evalCongr : Tactic := fun _ => do
    replaceMainGoal <| List.filterMap id (← congr (← getMainGoal))
@@ -66,7 +79,7 @@ private def selectIdx (tacticName : String) (mvarIds : List (Option MVarId)) (i 
           if i != j then
             mvarId.refl
       match mvarIds[i] with
-      | none => throwError "cannot select argument with forward dependencies"
+      | none => throwError "cannot select argument"
       | some mvarId => replaceMainGoal [mvarId]
       return ()
   throwError "invalid '{tacticName}' conv tactic, application has only {mvarIds.length} (nondependent) argument(s)"
@@ -106,7 +119,6 @@ def extLetBodyCongr? (mvarId : MVarId) (lhs rhs : Expr) : MetaM (Option MVarId) 
       let rhsBody ← mkFreshExprMVar type
       let f' ← mkLambdaFVars #[a] rhsBody
       let rhs' := mkLet n t v f'.bindingBody!
-      trace[Meta.debug] "rhs: {rhs'}"
       unless (← isDefEq rhs rhs') do
         throwError "failed to go inside let-declaration, type error"
       return (β, u₂, f')

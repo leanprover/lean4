@@ -240,7 +240,7 @@ For a theorem proving packages which depend on `mathlib`, you can also run `lake
 The `require` command has two forms:
 
 ```lean
-require foo from "path"/"to"/"local"/"package" with ["optional","args"]
+require foo from "path"/"to"/"local"/"package" with NameMap.empty
 require bar from git "url.git"@"rev"/"optional"/"path-to"/"dir-with-pkg"
 ```
 

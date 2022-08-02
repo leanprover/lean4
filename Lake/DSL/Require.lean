@@ -41,7 +41,7 @@ def expandDepSpec : TSyntax ``depSpec → MacroM Command
 Adds a mew package dependency to the workspace. Has two forms:
 
 ```lean
-require foo from "path"/"to"/"local"/"package" with ["optional","args"]
+require foo from "path"/"to"/"local"/"package" with NameMap.empty
 require bar from git "url.git"@"rev"/"optional"/"path-to"/"dir-with-pkg"
 ```
 

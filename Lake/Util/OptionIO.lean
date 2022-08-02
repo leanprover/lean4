@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 namespace Lake
 
+/-- Conceptually identical `OptionT BaseIO`, but practically more efficient. -/
 def OptionIO := EIO PUnit
 
 instance : Monad OptionIO := inferInstanceAs (Monad (EIO PUnit))

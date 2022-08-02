@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Util.Error
+import Lake.Util.OptionIO
 
 namespace Lake
 
@@ -34,14 +35,11 @@ def getIsVerbose [Functor m] [MonadLog m] : m Bool :=
 def getIsQuiet [Functor m] [MonadLog m] : m Bool :=
   getVerbosity <&> (· == .quiet)
 
-abbrev logVerbose [Monad m] [MonadLog m] (message : String) : m PUnit := do
+@[inline] def logVerbose [Monad m] [MonadLog m] (message : String) : m PUnit := do
   if (← getIsVerbose) then log message .info
 
-abbrev logAuxInfo [Monad m] [MonadLog m] (message : String) : m PUnit := do
+@[inline] def logInfo [Monad m] [MonadLog m] (message : String) : m PUnit := do
   if !(← getIsQuiet) then log message .info
-
-abbrev logInfo [MonadLog m] (message : String) : m PUnit :=
-  log message .info
 
 abbrev logWarning [MonadLog m] (message : String) : m PUnit :=
   log message .warning
@@ -109,7 +107,10 @@ abbrev adaptMethods [Monad n]
 end MonadLogT
 
 abbrev LogIO :=
-  MonadLogT BaseIO IO
+  MonadLogT BaseIO OptionIO
+
+instance : MonadError LogIO := ⟨MonadLog.error⟩
+instance : MonadLift IO LogIO := ⟨MonadError.runIO⟩
 
 abbrev LogT (m : Type → Type) :=
   MonadLogT m m

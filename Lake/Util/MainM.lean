@@ -6,6 +6,7 @@ Authors: Mac Malone
 import Lake.Util.Log
 import Lake.Util.Exit
 import Lake.Util.Error
+import Lake.Util.Lift
 
 namespace Lake
 

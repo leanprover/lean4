@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Lake.Util.Git
+import Lake.Util.Sugar
 import Lake.Config.Package
 import Lake.Config.Workspace
 import Lake.Load.Config
@@ -176,7 +177,7 @@ def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) : LogIO PUnit 
       repo.quietInit
       unless upstreamBranch = "master" do
         repo.checkoutBranch upstreamBranch
-    catch _ =>
+    else
       logWarning "failed to initialize git repository"
 
 def init (pkgName : String) (tmp : InitTemplate) : LogIO PUnit :=

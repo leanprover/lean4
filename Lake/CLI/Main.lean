@@ -203,7 +203,7 @@ def serve (config : LoadConfig) (args : Array String) : LogIO UInt32 := do
       let ws ← loadWorkspace config
       let ctx := mkLakeContext ws
       pure (← LakeT.run ctx getAugmentedEnv, ws.root.moreServerArgs)
-    catch _ =>
+    else
       logWarning "package configuration has errors, falling back to plain `lean --server`"
       pure (config.env.installVars.push (invalidConfigEnvVar, "1"), #[])
   (← IO.Process.spawn {
@@ -221,14 +221,14 @@ def exe (name : Name) (args  : Array String := #[]) (verbosity : Verbosity) : La
   else
     error s!"unknown executable `{name}`"
 
-def uploadRelease (pkg : Package) (tag : String) : BuildIO Unit := do
+def uploadRelease (pkg : Package) (tag : String) : LogIO Unit := do
   let mut args :=
     #["release", "upload", tag, pkg.buildArchiveFile.toString, "--clobber"]
   if let some repo := pkg.releaseRepo? then
     args := args.append #["-R", repo]
   tar pkg.buildArchive pkg.buildDir pkg.buildArchiveFile
     (excludePaths := #["*.tar.gz", "*.tar.gz.trace"])
-  logAuxInfo s!"Uploading {tag}/{pkg.buildArchive}"
+  logInfo s!"Uploading {tag}/{pkg.buildArchive}"
   proc {cmd := "gh", args}
 
 def parseScriptSpec (ws : Workspace) (spec : String) : Except CliError (Package × String) :=

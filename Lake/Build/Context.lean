@@ -25,11 +25,8 @@ abbrev BuildT := ReaderT BuildContext
 /-- The monad for the Lake build manager. -/
 abbrev SchedulerM := BuildT <| LogT BaseIO
 
-/-- The base IO monad for Lake builds. -/
-abbrev BuildIO := MonadLogT BaseIO OptionIO
-
 /-- The core monad for Lake builds. -/
-abbrev BuildM := BuildT BuildIO
+abbrev BuildM := BuildT LogIO
 
 /-- A transformer to equip a monad with a Lake build store. -/
 abbrev BuildStoreT := StateT BuildStore
@@ -43,14 +40,8 @@ abbrev BuildCycleT := CycleT BuildKey
 /-- A recursive build of a Lake build store that may encounter a cycle. -/
 abbrev RecBuildM := BuildCycleT <| BuildStoreT BuildM
 
-instance : MonadError BuildIO := ⟨MonadLog.error⟩
-instance : MonadLift IO BuildIO := ⟨MonadError.runIO⟩
-
 instance [Pure m] : MonadLift LakeM (BuildT m) where
   monadLift x := fun ctx => pure <| x.run ctx.toContext
-
-instance : MonadLift LogIO BuildIO where
-  monadLift x := fun meths => liftM (n := BuildIO) (x.run meths.lift) meths
 
 def BuildM.run (logMethods : MonadLog BaseIO) (ctx : BuildContext) (self : BuildM α) : IO α :=
   self ctx logMethods |>.toIO fun _ => IO.userError "build failed"

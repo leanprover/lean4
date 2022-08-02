@@ -36,5 +36,6 @@ protected def MonadError.runEIO [Monad m]
 Perform an IO action.
 If it throws an error, invoke `error` with its string representation.
 -/
-protected def MonadError.runIO [Monad m] [MonadError m] [MonadLiftT BaseIO m] (x : IO α) : m α :=
+@[inline] protected def MonadError.runIO
+[Monad m] [MonadError m] [MonadLiftT BaseIO m] (x : IO α) : m α :=
   MonadError.runEIO x

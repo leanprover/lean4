@@ -111,7 +111,7 @@ def resolveDeps (ws : Workspace) (pkg : Package) (shouldUpdate := true) : LogIO 
           log := log ++ s!"`{name}` locked `{inputRev}` at `{contrib.rev}`\n"
         let inputRev := entry.inputRev?.getD Git.upstreamBranch
         log := log ++  s!"Using `{inputRev}` at `{entry.rev}`"
-        logVerbose log
+        logInfo log
     manifest.saveToFile ws.manifestFile
   return pkg
 

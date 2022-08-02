@@ -25,7 +25,7 @@ def UInt8.div (a b : UInt8) : UInt8 := ⟨a.val / b.val⟩
 @[extern "lean_uint8_mod"]
 def UInt8.mod (a b : UInt8) : UInt8 := ⟨a.val % b.val⟩
 @[extern "lean_uint8_modn"]
-def UInt8.modn (a : UInt8) (n : @& Nat) : UInt8 := ⟨a.val % n⟩
+def UInt8.modn (a : UInt8) (n : @& Nat) : UInt8 := ⟨Fin.modn a.val n⟩
 @[extern "lean_uint8_land"]
 def UInt8.land (a b : UInt8) : UInt8 := ⟨Fin.land a.val b.val⟩
 @[extern "lean_uint8_lor"]
@@ -90,7 +90,7 @@ def UInt16.div (a b : UInt16) : UInt16 := ⟨a.val / b.val⟩
 @[extern "lean_uint16_mod"]
 def UInt16.mod (a b : UInt16) : UInt16 := ⟨a.val % b.val⟩
 @[extern "lean_uint16_modn"]
-def UInt16.modn (a : UInt16) (n : @& Nat) : UInt16 := ⟨a.val % n⟩
+def UInt16.modn (a : UInt16) (n : @& Nat) : UInt16 := ⟨Fin.modn a.val n⟩
 @[extern "lean_uint16_land"]
 def UInt16.land (a b : UInt16) : UInt16 := ⟨Fin.land a.val b.val⟩
 @[extern "lean_uint16_lor"]
@@ -160,7 +160,7 @@ def UInt32.div (a b : UInt32) : UInt32 := ⟨a.val / b.val⟩
 @[extern "lean_uint32_mod"]
 def UInt32.mod (a b : UInt32) : UInt32 := ⟨a.val % b.val⟩
 @[extern "lean_uint32_modn"]
-def UInt32.modn (a : UInt32) (n : @& Nat) : UInt32 := ⟨a.val % n⟩
+def UInt32.modn (a : UInt32) (n : @& Nat) : UInt32 := ⟨Fin.modn a.val n⟩
 @[extern "lean_uint32_land"]
 def UInt32.land (a b : UInt32) : UInt32 := ⟨Fin.land a.val b.val⟩
 @[extern "lean_uint32_lor"]
@@ -214,7 +214,7 @@ def UInt64.div (a b : UInt64) : UInt64 := ⟨a.val / b.val⟩
 @[extern "lean_uint64_mod"]
 def UInt64.mod (a b : UInt64) : UInt64 := ⟨a.val % b.val⟩
 @[extern "lean_uint64_modn"]
-def UInt64.modn (a : UInt64) (n : @& Nat) : UInt64 := ⟨a.val % n⟩
+def UInt64.modn (a : UInt64) (n : @& Nat) : UInt64 := ⟨Fin.modn a.val n⟩
 @[extern "lean_uint64_land"]
 def UInt64.land (a b : UInt64) : UInt64 := ⟨Fin.land a.val b.val⟩
 @[extern "lean_uint64_lor"]
@@ -297,7 +297,7 @@ def USize.div (a b : USize) : USize := ⟨a.val / b.val⟩
 @[extern "lean_usize_mod"]
 def USize.mod (a b : USize) : USize := ⟨a.val % b.val⟩
 @[extern "lean_usize_modn"]
-def USize.modn (a : USize) (n : @& Nat) : USize := ⟨a.val % n⟩
+def USize.modn (a : USize) (n : @& Nat) : USize := ⟨Fin.modn a.val n⟩
 @[extern "lean_usize_land"]
 def USize.land (a b : USize) : USize := ⟨Fin.land a.val b.val⟩
 @[extern "lean_usize_lor"]

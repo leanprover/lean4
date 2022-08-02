@@ -82,6 +82,6 @@ def addBoxedVersionAux (decl : Decl) : CompilerM Unit := do
 def addBoxedVersion (env : Environment) (decl : Decl) : Except String Environment :=
   match (addBoxedVersionAux decl Options.empty).run { env := env } with
   | EStateM.Result.ok     _  s => Except.ok s.env
-  | EStateM.Result.error msg s => Except.error msg
+  | EStateM.Result.error msg _ => Except.error msg
 
 end Lean.IR

@@ -7,6 +7,7 @@ import Lean.Data.Name
 
 namespace Lean
 
+/-- Data for representing `open` commands -/
 inductive OpenDecl where
   | simple   (ns : Name) (except : List Name)
   | explicit (id : Name) (declName : Name)

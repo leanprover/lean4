@@ -15,7 +15,7 @@ workers. These messages are not visible externally to users of the LSP server.
 namespace Lean.Lsp
 open Std
 
-/- Most reference-related types have custom FromJson/ToJson implementations to
+/-! Most reference-related types have custom FromJson/ToJson implementations to
 reduce the size of the resulting JSON. -/
 
 inductive RefIdent where

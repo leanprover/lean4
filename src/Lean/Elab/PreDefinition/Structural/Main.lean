@@ -66,9 +66,10 @@ private def elimRecursion (preDef : PreDefinition) : M (Nat × PreDefinition) :=
     trace[Elab.definition.structural] "numFixed: {numFixed}"
     findRecArg numFixed xs fun recArgInfo => do
       -- when (recArgInfo.indName == `Nat) throwStructuralFailed -- HACK to skip Nat argument
-      let valueNew ←
-        if recArgInfo.indPred then mkIndPredBRecOn preDef.declName recArgInfo value
-        else mkBRecOn preDef.declName recArgInfo value
+      let valueNew ← if recArgInfo.indPred then
+        mkIndPredBRecOn preDef.declName recArgInfo value
+      else
+        mkBRecOn preDef.declName recArgInfo value
       let valueNew ← mkLambdaFVars xs valueNew
       trace[Elab.definition.structural] "result: {valueNew}"
       -- Recursive applications may still occur in expressions that were not visited by replaceRecApps (e.g., in types)
@@ -80,9 +81,9 @@ def structuralRecursion (preDefs : Array PreDefinition) : TermElabM Unit :=
   if preDefs.size != 1 then
     throwError "structural recursion does not handle mutually recursive functions"
   else do
-    let ((recArgPos, preDefNonRec), state) ← run <| elimRecursion preDefs[0]
+    let ((recArgPos, preDefNonRec), state) ← run <| elimRecursion preDefs[0]!
     let preDefNonRec ← eraseRecAppSyntax preDefNonRec
-    let preDef ← eraseRecAppSyntax preDefs[0]
+    let preDef ← eraseRecAppSyntax preDefs[0]!
     state.addMatchers.forM liftM
     registerEqnsInfo preDef recArgPos
     mapError (addNonRec preDefNonRec (applyAttrAfterCompilation := false)) fun msg =>

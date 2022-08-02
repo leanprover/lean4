@@ -57,12 +57,29 @@ h₂ : ∀ (x y : Nat), f (g x) (g y) = y
 x y : Nat
 h : y = 0
 | y + x
-conv1.lean:139:10-139:13: error: invalid 'lhs' conv tactic, application has only 1 (nondependent) argument(s)
-conv1.lean:142:10-142:15: error: invalid 'arg' conv tactic, application has only 1 (nondependent) argument(s)
-conv1.lean:145:10-145:13: error: invalid 'congr' conv tactic, application or implication expected
-  p
 p : Nat → Prop
 x y : Nat
 h1 : y = 0
 h2 : p x
 | y + x
+j : Fin 5
+p : (n : Nat) → Fin n → Prop
+i : Fin 5
+hp : p 5 i
+hi : j = i
+| j
+p : {x : Nat} → Nat → Prop
+x y : Nat
+h1 : y = 0
+h2 : p x
+| y
+p : {x : Nat} → Nat → Prop
+x y : Nat
+h1 : y = 0
+h2 : p x
+| y
+conv1.lean:166:10-166:13: error: invalid 'lhs' conv tactic, application has only 1 (nondependent) argument(s)
+conv1.lean:169:10-169:15: error: invalid 'arg' conv tactic, application has only 1 (nondependent) argument(s)
+conv1.lean:172:10-172:13: error: invalid 'congr' conv tactic, application or implication expected
+  p
+conv1.lean:175:10-175:15: error: cannot select argument

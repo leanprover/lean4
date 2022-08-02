@@ -57,6 +57,33 @@ attribute [runBuiltinParserAttributeHooks]
 @[runBuiltinParserAttributeHooks, inline] def manyIndent (p : Parser) : Parser :=
   withPosition $ many (checkColGe "irrelevant" >> p)
 
+@[inline] def sepByIndent (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTrailingSep : Bool := false) : Parser :=
+  let p := withAntiquotSpliceAndSuffix `sepBy p (symbol "*")
+  withPosition $ sepBy (checkColGe "irrelevant" >> p) sep (psep <|> checkLinebreakBefore >> pushNone) allowTrailingSep
+
+@[inline] def sepBy1Indent (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTrailingSep : Bool := false) : Parser :=
+  let p := withAntiquotSpliceAndSuffix `sepBy p (symbol "*")
+  withPosition $ sepBy1 (checkColGe "irrelevant" >> p) sep (psep <|> checkLinebreakBefore >> pushNone) allowTrailingSep
+
+open PrettyPrinter Syntax.MonadTraverser Formatter in
+@[combinatorFormatter Lean.Parser.sepByIndent]
+def sepByIndent.formatter (p : Formatter) (_sep : String) (pSep : Formatter) : Formatter := do
+  let stx ← getCur
+  let hasNewlineSep := stx.getArgs.mapIdx (fun ⟨i, _⟩ n => i % 2 == 1 && n.matchesNull 0) |>.any id
+  visitArgs do
+    for i in (List.range stx.getArgs.size).reverse do
+      if i % 2 == 0 then p else pSep <|> (pushWhitespace "\n" *> goLeft)
+  -- If there is any newline separator, then we need to force a newline at the
+  -- start so that `withPosition` will pick up the right column.
+  if hasNewlineSep then
+    pushWhitespace "\n"
+    -- HACK: allow formatter to put initial brace on previous line in structure instances
+    modify ({ · with mustBeGrouped := false })
+
+@[combinatorFormatter Lean.Parser.sepBy1Indent] def sepBy1Indent.formatter := sepByIndent.formatter
+
+attribute [runBuiltinParserAttributeHooks] sepByIndent sepBy1Indent
+
 @[runBuiltinParserAttributeHooks] abbrev notSymbol (s : String) : Parser :=
   notFollowedBy (symbol s) s
 
@@ -142,25 +169,29 @@ attribute [runBuiltinParserAttributeHooks]
   ppHardSpace ppSpace ppLine ppGroup ppRealGroup ppRealFill ppIndent ppDedent
   ppAllowUngrouped ppDedentIfGrouped ppHardLineUnlessUngrouped
 
-macro "register_parser_alias" aliasName?:optional(strLit) declName:ident : term =>
-  let aliasName := aliasName?.getD (Syntax.mkStrLit declName.getId.toString)
-  `(do Parser.registerAlias $aliasName $declName
-       PrettyPrinter.Formatter.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `formatter))
-       PrettyPrinter.Parenthesizer.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `parenthesizer)))
+syntax "register_parser_alias" group("(" &"kind" " := " term ")")? (strLit)? ident (colGt term)? : term
+macro_rules
+  | `(register_parser_alias $[(kind := $kind?)]? $(aliasName?)? $declName $(info?)?) => do
+    let [(fullDeclName, [])] ← Macro.resolveGlobalName declName.getId |
+      Macro.throwError "expected non-overloaded constant name"
+    let aliasName := aliasName?.getD (Syntax.mkStrLit declName.getId.toString)
+    `(do Parser.registerAlias $aliasName $declName $(info?.getD (Unhygienic.run `({}))) (kind? := some $(kind?.getD (quote fullDeclName)))
+         PrettyPrinter.Formatter.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `formatter))
+         PrettyPrinter.Parenthesizer.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `parenthesizer)))
 
 builtin_initialize
-  register_parser_alias group
-  register_parser_alias ppHardSpace
-  register_parser_alias ppSpace
-  register_parser_alias ppLine
-  register_parser_alias ppGroup
-  register_parser_alias ppRealGroup
-  register_parser_alias ppRealFill
-  register_parser_alias ppIndent
-  register_parser_alias ppDedent
-  register_parser_alias ppAllowUngrouped
-  register_parser_alias ppDedentIfGrouped
-  register_parser_alias ppHardLineUnlessUngrouped
+  register_parser_alias group { autoGroupArgs := false }
+  register_parser_alias ppHardSpace { stackSz? := some 0 }
+  register_parser_alias ppSpace { stackSz? := some 0 }
+  register_parser_alias ppLine { stackSz? := some 0 }
+  register_parser_alias ppGroup { stackSz? := none }
+  register_parser_alias ppRealGroup { stackSz? := none }
+  register_parser_alias ppRealFill { stackSz? := none }
+  register_parser_alias ppIndent { stackSz? := none }
+  register_parser_alias ppDedent { stackSz? := none }
+  register_parser_alias ppDedentIfGrouped { stackSz? := none }
+  register_parser_alias ppAllowUngrouped { stackSz? := some 0 }
+  register_parser_alias ppHardLineUnlessUngrouped { stackSz? := some 0 }
 
 end Parser
 

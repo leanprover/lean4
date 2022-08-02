@@ -20,7 +20,7 @@ this operator should be translated to after the arrow `=>`.
 
 The precedence is a natural number describing how "tightly" an
 operator binds to its arguments, encoding the order of operations. We
-can make this more precise by looking at the commands above unfold to:
+can make this more precise by looking at what the commands above unfold to:
 
 ```lean
 notation:65 lhs:65 " + " rhs:66 => HAdd.hAdd lhs rhs

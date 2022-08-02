@@ -1833,6 +1833,7 @@ else
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = lean_array_uget(x_2, x_4);
 x_9 = l_Lean_Name_getString_x21(x_8);
+lean_dec(x_8);
 x_10 = l_Lean_Json_getObjVal_x3f(x_1, x_9);
 lean_dec(x_9);
 if (lean_obj_tag(x_10) == 0)

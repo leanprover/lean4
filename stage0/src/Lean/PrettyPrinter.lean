@@ -20,12 +20,14 @@ def PPContext.runMetaM {α : Type} (ppCtx : PPContext) (x : MetaM α) : IO α :=
 
 namespace PrettyPrinter
 
-def ppTerm (stx : Syntax) : CoreM Format := do
+def ppCategory (cat : Name) (stx : Syntax) : CoreM Format := do
   let opts ← getOptions
   let stx := (sanitizeSyntax stx).run' { options := opts }
-  parenthesizeTerm stx >>= formatTerm
+  parenthesizeCategory cat stx >>= formatCategory cat
 
-def ppUsing (e : Expr) (delab : Expr → MetaM Syntax) : MetaM Format := do
+def ppTerm (stx : Term) : CoreM Format := ppCategory `term stx
+
+def ppUsing (e : Expr) (delab : Expr → MetaM Term) : MetaM Format := do
   let lctx := (← getLCtx).sanitizeNames.run' { options := (← getOptions) }
   Meta.withLCtx lctx #[] do
     ppTerm (← delab e)
@@ -50,14 +52,15 @@ def ppConst (e : Expr) : MetaM Format := do
 def ppExprLegacy (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : IO Format :=
   Prod.fst <$> ((ppExpr e).run' { lctx := lctx } { mctx := mctx }).toIO { options := opts, fileName := "<PrettyPrinter>", fileMap := default } { env := env }
 
-def ppCommand (stx : Syntax) : CoreM Format :=
-  parenthesizeCommand stx >>= formatCommand
+def ppTactic (stx : TSyntax `tactic) : CoreM Format := ppCategory `tactic stx
 
-def ppModule (stx : Syntax) : CoreM Format := do
+def ppCommand (stx : Syntax.Command) : CoreM Format := ppCategory `command stx
+
+def ppModule (stx : TSyntax ``Parser.Module.module) : CoreM Format := do
   parenthesize Lean.Parser.Module.module.parenthesizer stx >>= format Lean.Parser.Module.module.formatter
 
 private partial def noContext : MessageData → MessageData
-  | MessageData.withContext ctx msg => noContext msg
+  | MessageData.withContext _   msg => noContext msg
   | MessageData.withNamingContext ctx msg => MessageData.withNamingContext ctx (noContext msg)
   | MessageData.nest n msg => MessageData.nest n (noContext msg)
   | MessageData.group msg  => MessageData.group (noContext msg)

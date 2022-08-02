@@ -1,0 +1,4 @@
+nonfatalattrs.lean:6:2-6:19: error: unknown attribute [attrUnimplementedattr]
+foo : Nat
+nonfatalattrs.lean:11:12-11:17: error: invalid 'class', declaration 'bar.bar' must be inductive datatype, structure, or constant
+bar : Nat

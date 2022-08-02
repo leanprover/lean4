@@ -100,7 +100,7 @@ def locationLinksOfInfo (kind : GoToKind) (ci : Elab.ContextInfo) (i : Elab.Info
     let mut expr := ti.expr
     if kind == type then
       expr ← ci.runMetaM i.lctx do
-        return Expr.getAppFn (← Meta.instantiateMVars (← Meta.inferType expr))
+        return Expr.getAppFn (← instantiateMVars (← Meta.inferType expr))
     match expr with
     | Expr.const n .. => return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
     | Expr.fvar id .. => return ← ci.runMetaM i.lctx <| locationLinksFromBinder i id
@@ -108,7 +108,7 @@ def locationLinksOfInfo (kind : GoToKind) (ci : Elab.ContextInfo) (i : Elab.Info
   if let Info.ofFieldInfo fi := i then
     if kind == type then
       let expr ← ci.runMetaM i.lctx do
-        Meta.instantiateMVars (← Meta.inferType fi.val)
+        instantiateMVars (← Meta.inferType fi.val)
       if let some n := expr.getAppFn.constName? then
         return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
     else
@@ -127,7 +127,6 @@ def locationLinksOfInfo (kind : GoToKind) (ci : Elab.ContextInfo) (i : Elab.Info
 open Elab GoToKind in
 def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
     : RequestM (RequestTask (Array LocationLink)) := do
-  let rc ← read
   let doc ← readDoc
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
@@ -150,7 +149,7 @@ def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Optio
         let goals ← List.join <$> rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter, .. } =>
           let ci := if useAfter then { ci with mctx := ti.mctxAfter } else { ci with mctx := ti.mctxBefore }
           let goals := if useAfter then ti.goalsAfter else ti.goalsBefore
-          ci.runMetaM {} <| goals.mapM (fun g => Meta.withPPInaccessibleNames (Widget.goalToInteractive g))
+          ci.runMetaM {} <| goals.mapM (fun g => Meta.withPPForTacticGoal (Widget.goalToInteractive g))
         return some { goals := goals.toArray }
       else
         return none
@@ -179,7 +178,7 @@ def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
     (notFoundX := pure none) fun snap => do
       if let some (ci, i@(Elab.Info.ofTermInfo ti)) := snap.infoTree.termGoalAt? hoverPos then
         let ty ← ci.runMetaM i.lctx do
-          Meta.instantiateMVars <| ti.expectedType?.getD (← Meta.inferType ti.expr)
+          instantiateMVars <| ti.expectedType?.getD (← Meta.inferType ti.expr)
         -- for binders, hide the last hypothesis (the binder itself)
         let lctx' := if ti.isBinder then i.lctx.pop else i.lctx
         let goal ← ci.runMetaM lctx' do
@@ -204,7 +203,7 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
   let pos := text.lspPosToUtf8Pos p.position
 
   let rec highlightReturn? (doRange? : Option Range) : Syntax → Option DocumentHighlight
-    | stx@`(doElem|return%$i $e) => Id.run do
+    | `(doElem|return%$i $e) => Id.run do
       if let some range := i.getRange? then
         if range.contains pos then
           return some { range := doRange?.getD (range.toLspRange text), kind? := DocumentHighlightKind.text }
@@ -212,7 +211,7 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
     | `(do%$i $elems) => highlightReturn? (i.getRange?.get!.toLspRange text) elems
     | stx => stx.getArgs.findSome? (highlightReturn? doRange?)
 
-  let highlightRefs? (snaps : Array Snapshot) (pos : Lsp.Position) : Option (Array DocumentHighlight) := Id.run do
+  let highlightRefs? (snaps : Array Snapshot) : Option (Array DocumentHighlight) := Id.run do
     let trees := snaps.map (·.infoTree)
     let refs : Lsp.ModuleRefs := findModuleRefs text trees
     let mut ranges := #[]
@@ -227,8 +226,8 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
 
   withWaitFindSnap doc (fun s => s.endPos > pos)
     (notFoundX := pure #[]) fun snap => do
-      let (snaps, _) ← doc.allSnaps.updateFinishedPrefix
-      if let some his := highlightRefs? snaps.finishedPrefix.toArray p.position then
+      let (snaps, _) ← doc.cmdSnaps.getFinishedPrefix
+      if let some his := highlightRefs? snaps.toArray then
         return his
       if let some hi := highlightReturn? none snap.stx then
         return #[hi]
@@ -238,38 +237,34 @@ open Parser.Command in
 partial def handleDocumentSymbol (_ : DocumentSymbolParams)
     : RequestM (RequestTask DocumentSymbolResult) := do
   let doc ← readDoc
-  asTask do
-    let ⟨cmdSnaps, e?⟩ ← doc.cmdSnaps.updateFinishedPrefix
-    let mut stxs := cmdSnaps.finishedPrefix.map (·.stx)
-    match e? with
-    | some ElabTaskError.aborted =>
-      throw RequestError.fileChanged
-    | some (ElabTaskError.ioError e) =>
-      throw (e : RequestError)
-    | _ => pure ()
-
-    let lastSnap := cmdSnaps.finishedPrefix.getLastD doc.headerSnap
-    stxs := stxs ++ (← parseAhead doc.meta.mkInputContext lastSnap).toList
+  -- bad: we have to wait on elaboration of the entire file before we can report document symbols
+  let t ← doc.cmdSnaps.waitAll
+  mapTask t fun (snaps, _) => do
+    let mut stxs := snaps.map (·.stx)
     let (syms, _) := toDocumentSymbols doc.meta.text stxs
     return { syms := syms.toArray }
-  where
-    toDocumentSymbols (text : FileMap)
+where
+  toDocumentSymbols (text : FileMap) (stxs : List Syntax) : List DocumentSymbol × List Syntax :=
+    match stxs with
     | [] => ([], [])
     | stx::stxs => match stx with
       | `(namespace $id)  => sectionLikeToDocumentSymbols text stx stxs (id.getId.toString) SymbolKind.namespace id
-      | `(section $(id)?) => sectionLikeToDocumentSymbols text stx stxs ((·.getId.toString) <$> id |>.getD "<section>") SymbolKind.namespace (id.getD stx)
-      | `(end $(id)?) => ([], stx::stxs)
+      | `(section $(id)?) => sectionLikeToDocumentSymbols text stx stxs ((·.getId.toString) <$> id |>.getD "<section>") SymbolKind.namespace (id.map (·.raw) |>.getD stx)
+      | `(end $(_id)?) => ([], stx::stxs)
       | _ => Id.run do
         let (syms, stxs') := toDocumentSymbols text stxs
         unless stx.isOfKind ``Lean.Parser.Command.declaration do
           return (syms, stxs')
         if let some stxRange := stx.getRange? then
           let (name, selection) := match stx with
-            | `($dm:declModifiers $ak:attrKind instance $[$np:namedPrio]? $[$id:ident$[.{$ls,*}]?]? $sig:declSig $val) =>
-              ((·.getId.toString) <$> id |>.getD s!"instance {sig.reprint.getD ""}", id.getD sig)
-            | _ => match stx[1][1] with
-              | `(declId|$id:ident$[.{$ls,*}]?) => (id.getId.toString, id)
-              | _                               => (stx[1][0].isIdOrAtom?.getD "<unknown>", stx[1][0])
+            | `($_:declModifiers $_:attrKind instance $[$np:namedPrio]? $[$id$[.{$ls,*}]?]? $sig:declSig $_) =>
+              ((·.getId.toString) <$> id |>.getD s!"instance {sig.raw.reprint.getD ""}", id.map (·.raw) |>.getD sig)
+            | _ =>
+              match stx.getArg 1 |>.getArg 1 with
+              | `(declId|$id$[.{$ls,*}]?) => (id.raw.getId.toString, id)
+              | _ =>
+                let stx10 : Syntax := (stx.getArg 1).getArg 0 -- TODO: stx[1][0] times out
+                (stx10.isIdOrAtom?.getD "<unknown>", stx10)
           if let some selRange := selection.getRange? then
             return (DocumentSymbol.mk {
               name := name
@@ -278,22 +273,23 @@ partial def handleDocumentSymbol (_ : DocumentSymbolParams)
               selectionRange := selRange.toLspRange text
               } :: syms, stxs')
         return (syms, stxs')
-    sectionLikeToDocumentSymbols (text : FileMap) (stx : Syntax) (stxs : List Syntax) (name : String) (kind : SymbolKind) (selection : Syntax) :=
-        let (syms, stxs') := toDocumentSymbols text stxs
-        -- discard `end`
-        let (syms', stxs'') := toDocumentSymbols text (stxs'.drop 1)
-        let endStx := match stxs' with
-          | endStx::_ => endStx
-          | []        => (stx::stxs').getLast!
-        -- we can assume that commands always have at least one position (see `parseCommand`)
-        let range := (mkNullNode #[stx, endStx]).getRange?.get!.toLspRange text
-        (DocumentSymbol.mk {
-          name
-          kind
-          range
-          selectionRange := selection.getRange? |>.map (·.toLspRange text) |>.getD range
-          children? := syms.toArray
-        } :: syms', stxs'')
+
+  sectionLikeToDocumentSymbols (text : FileMap) (stx : Syntax) (stxs : List Syntax) (name : String) (kind : SymbolKind) (selection : Syntax) : List DocumentSymbol × List Syntax :=
+    let (syms, stxs') := toDocumentSymbols text stxs
+    -- discard `end`
+    let (syms', stxs'') := toDocumentSymbols text (stxs'.drop 1)
+    let endStx := match stxs' with
+      | endStx::_ => endStx
+      | []        => (stx::stxs').getLast!
+    -- we can assume that commands always have at least one position (see `parseCommand`)
+    let range := (mkNullNode #[stx, endStx]).getRange?.get!.toLspRange text
+    (DocumentSymbol.mk {
+      name
+      kind
+      range
+      selectionRange := selection.getRange? |>.map (·.toLspRange text) |>.getD range
+      children? := syms.toArray
+    } :: syms', stxs'')
 
 def noHighlightKinds : Array SyntaxNodeKind := #[
   -- usually have special highlighting by the client
@@ -302,7 +298,8 @@ def noHighlightKinds : Array SyntaxNodeKind := #[
   ``Lean.Parser.Term.prop,
   -- not really keywords
   `antiquotName,
-  ``Lean.Parser.Command.docComment]
+  ``Lean.Parser.Command.docComment,
+  ``Lean.Parser.Command.moduleDoc]
 
 structure SemanticTokensContext where
   beginPos  : String.Pos
@@ -367,10 +364,10 @@ where
           addToken ti.stx SemanticTokenType.property
           lastPos := ti.stx.getPos?.get!
   highlightKeyword stx := do
-    if let Syntax.atom info val := stx then
-      if (val.length > 0 && val[0].isAlpha) ||
+    if let Syntax.atom _ val := stx then
+      if (val.length > 0 && val.front.isAlpha) ||
          -- Support for keywords of the form `#<alpha>...`
-         (val.length > 1 && val[0] == '#' && val[⟨1⟩].isAlpha) then
+         (val.length > 1 && val.front == '#' && (val.get ⟨1⟩).isAlpha) then
         addToken stx SemanticTokenType.keyword
   addToken stx type := do
     let ⟨beginPos, endPos, text, _⟩ ← read
@@ -403,7 +400,7 @@ def handleSemanticTokensRange (p : SemanticTokensRangeParams)
 partial def handleFoldingRange (_ : FoldingRangeParams)
   : RequestM (RequestTask (Array FoldingRange)) := do
   let doc ← readDoc
-  let t ← doc.allSnaps.waitAll
+  let t ← doc.cmdSnaps.waitAll
   mapTask t fun (snaps, _) => do
     let stxs := snaps.map (·.stx)
     let (_, ranges) ← StateT.run (addRanges doc.meta.text [] stxs) #[]
@@ -414,9 +411,9 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
     addRanges (text : FileMap) sections
     | [] => return
     | stx::stxs => match stx with
-      | `(namespace $id)  => addRanges text (stx.getPos?::sections) stxs
-      | `(section $(id)?) => addRanges text (stx.getPos?::sections) stxs
-      | `(end $(id)?) => do
+      | `(namespace $_id)  => addRanges text (stx.getPos?::sections) stxs
+      | `(section $(_id)?) => addRanges text (stx.getPos?::sections) stxs
+      | `(end $(_id)?) => do
         if let start::rest := sections then
           addRange text FoldingRangeKind.region start stx.getTailPos?
           addRanges text rest stxs
@@ -424,7 +421,7 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
           addRanges text sections stxs
       | `(mutual $body* end) => do
         addRangeFromSyntax text FoldingRangeKind.region stx
-        addRanges text [] body.toList
+        addRanges text [] body.raw.toList
         addRanges text sections stxs
       | _ => do
         if isImport stx then
@@ -445,7 +442,7 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
         -- separately to the main definition.
         -- We never fold other modifiers, such as annotations.
         if let `($dm:declModifiers $decl) := stx then
-          if let some comment := dm[0].getOptional? then
+          if let some comment := dm.raw[0].getOptional? then
             addRangeFromSyntax text FoldingRangeKind.comment comment
 
           addRangeFromSyntax text FoldingRangeKind.region decl

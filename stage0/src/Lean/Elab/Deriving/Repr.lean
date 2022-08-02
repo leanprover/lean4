@@ -13,27 +13,26 @@ open Lean.Parser.Term
 open Meta
 open Std
 
-def mkReprHeader (ctx : Context) (indVal : InductiveVal) : TermElabM Header := do
-  let prec ← `(prec)
-  let header ← mkHeader ctx `Repr 1 indVal
+def mkReprHeader (indVal : InductiveVal) : TermElabM Header := do
+  let header ← mkHeader `Repr 1 indVal
   return { header with
-    binders := header.binders.push (← `(explicitBinderF| (prec : Nat)))
+    binders := header.binders.push (← `(bracketedBinder| (prec : Nat)))
   }
 
-def mkBodyForStruct (ctx : Context) (header : Header) (indVal : InductiveVal) : TermElabM Syntax := do
+def mkBodyForStruct (header : Header) (indVal : InductiveVal) : TermElabM Term := do
   let ctorVal ← getConstInfoCtor indVal.ctors.head!
   let fieldNames := getStructureFields (← getEnv) indVal.name
   let numParams  := indVal.numParams
-  let target     := mkIdent header.targetNames[0]
+  let target     := mkIdent header.targetNames[0]!
   forallTelescopeReducing ctorVal.type fun xs _ => do
-    let mut fields : Syntax ← `(Format.nil)
+    let mut fields ← `(Format.nil)
     let mut first := true
     if xs.size != numParams + fieldNames.size then
       throwError "'deriving Repr' failed, unexpected number of fields in structure"
     for i in [:fieldNames.size] do
-      let fieldName := fieldNames[i]
+      let fieldName := fieldNames[i]!
       let fieldNameLit := Syntax.mkStrLit (toString fieldName)
-      let x := xs[numParams + i]
+      let x := xs[numParams + i]!
       if first then
         first := false
       else
@@ -44,31 +43,31 @@ def mkBodyForStruct (ctx : Context) (header : Header) (indVal : InductiveVal) : 
         fields ← `($fields ++ $fieldNameLit ++ " := " ++ repr ($target.$(mkIdent fieldName):ident))
     `(Format.bracket "{ " $fields:term " }")
 
-def mkBodyForInduct (ctx : Context) (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Syntax := do
+def mkBodyForInduct (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Term := do
   let discrs ← mkDiscrs header indVal
   let alts ← mkAlts
   `(match $[$discrs],* with $alts:matchAlt*)
 where
-  mkAlts : TermElabM (Array Syntax) := do
+  mkAlts : TermElabM (Array (TSyntax ``matchAlt)) := do
     let mut alts := #[]
     for ctorName in indVal.ctors do
       let ctorInfo ← getConstInfoCtor ctorName
-      let alt ← forallTelescopeReducing ctorInfo.type fun xs type => do
+      let alt ← forallTelescopeReducing ctorInfo.type fun xs _ => do
         let mut patterns := #[]
         -- add `_` pattern for indices
-        for i in [:indVal.numIndices] do
+        for _ in [:indVal.numIndices] do
           patterns := patterns.push (← `(_))
         let mut ctorArgs := #[]
-        let mut rhs := Syntax.mkStrLit (toString ctorInfo.name)
+        let mut rhs : Term := Syntax.mkStrLit (toString ctorInfo.name)
         rhs ← `(Format.text $rhs)
         -- add `_` for inductive parameters, they are inaccessible
-        for i in [:indVal.numParams] do
+        for _ in [:indVal.numParams] do
           ctorArgs := ctorArgs.push (← `(_))
         for i in [:ctorInfo.numFields] do
-          let x := xs[indVal.numParams + i]
+          let x := xs[indVal.numParams + i]!
           let a := mkIdent (← mkFreshUserName `a)
           ctorArgs := ctorArgs.push a
-          let localDecl ← getLocalDecl x.fvarId!
+          let localDecl ← x.fvarId!.getDecl
           if localDecl.binderInfo.isExplicit then
             if (← inferType x).isAppOf indVal.name then
               rhs ← `($rhs ++ Format.line ++ $(mkIdent auxFunName):ident $a:ident max_prec)
@@ -79,25 +78,25 @@ where
       alts := alts.push alt
     return alts
 
-def mkBody (ctx : Context) (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Syntax := do
+def mkBody (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Term := do
   if isStructure (← getEnv) indVal.name then
-    mkBodyForStruct ctx header indVal
+    mkBodyForStruct header indVal
   else
-    mkBodyForInduct ctx header indVal auxFunName
+    mkBodyForInduct header indVal auxFunName
 
-def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Syntax := do
-  let auxFunName := ctx.auxFunNames[i]
-  let indVal     := ctx.typeInfos[i]
-  let header     ← mkReprHeader ctx indVal
-  let mut body   ← mkBody ctx header indVal auxFunName
+def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
+  let auxFunName := ctx.auxFunNames[i]!
+  let indVal     := ctx.typeInfos[i]!
+  let header     ← mkReprHeader indVal
+  let mut body   ← mkBody header indVal auxFunName
   if ctx.usePartial then
     let letDecls ← mkLocalInstanceLetDecls ctx `Repr header.argNames
     body ← mkLet letDecls body
   let binders    := header.binders
   if ctx.usePartial then
-    `(private partial def $(mkIdent auxFunName):ident $binders:explicitBinder* : Format := $body:term)
+    `(private partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Format := $body:term)
   else
-    `(private def $(mkIdent auxFunName):ident $binders:explicitBinder* : Format := $body:term)
+    `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Format := $body:term)
 
 def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]
@@ -108,7 +107,7 @@ def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
     end)
 
 private def mkReprInstanceCmds (declNames : Array Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext "repr" declNames[0]
+  let ctx ← mkContext "repr" declNames[0]!
   let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `Repr declNames)
   trace[Elab.Deriving.repr] "\n{cmds}"
   return cmds

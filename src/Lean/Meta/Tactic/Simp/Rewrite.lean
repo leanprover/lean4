@@ -57,15 +57,14 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
     if (← isDefEq lhs e) then
       unless (← synthesizeArgs thm.getName xs bis discharge?) do
         return none
-      let proof? ←
-        if thm.rfl then
-          pure none
-        else
-          let proof ← instantiateMVars (mkAppN val xs)
-          if (← hasAssignableMVar proof) then
-            trace[Meta.Tactic.simp.rewrite] "{thm}, has unassigned metavariables after unification"
-            return none
-          pure <| some proof
+      let proof? ← if thm.rfl then
+        pure none
+      else
+        let proof ← instantiateMVars (mkAppN val xs)
+        if (← hasAssignableMVar proof) then
+          trace[Meta.Tactic.simp.rewrite] "{thm}, has unassigned metavariables after unification"
+          return none
+        pure <| some proof
       let rhs := (← instantiateMVars type).appArg!
       if e == rhs then
         return none
@@ -92,8 +91,8 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
   extraArgs := extraArgs.reverse
   match (← go e) with
   | none => return none
-  | some { expr := eNew, proof? := none } => return some { expr := mkAppN eNew extraArgs }
-  | some { expr := eNew, proof? := some proof } =>
+  | some { expr := eNew, proof? := none, .. } => return some { expr := mkAppN eNew extraArgs }
+  | some { expr := eNew, proof? := some proof, .. } =>
     let mut proof := proof
     for extraArg in extraArgs do
       proof ← mkCongrFun proof extraArg
@@ -124,7 +123,7 @@ def tryTheorem? (e : Expr) (thm : SimpTheorem) (discharge? : Expr → SimpM (Opt
         tryTheoremCore lhs xs bis val type e thm (eNumArgs - lhsNumArgs) discharge?
       else
         return none
-/-
+/--
 Remark: the parameter tag is used for creating trace messages. It is irrelevant otherwise.
 -/
 def rewrite? (e : Expr) (s : DiscrTree SimpTheorem) (erased : Std.PHashSet Name) (discharge? : Expr → SimpM (Option Expr)) (tag : String) (rflOnly : Bool) : SimpM (Option Result) := do

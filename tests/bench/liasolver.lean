@@ -108,7 +108,7 @@ def gcd (coeffs : HashMap Nat Int) : Nat :=
   | #[]           => panic! "Cannot calculate GCD of empty list of coefficients"
   | #[(i, x)]     => x
   | coeffsContent =>
-    coeffsContent[0].2.gcd coeffsContent[1].2
+    coeffsContent[0]!.2.gcd coeffsContent[1]!.2
       |> coeffs.fold fun acc k v => acc.gcd v
 
 namespace Equation
@@ -302,9 +302,9 @@ where
       let mut assignment := assignment
       let mut r := eq.const
       for (i, coeff) in eq.coeffs do
-        if assignment[i].isNone then
+        if assignment[i]!.isNone then
           assignment := readSolution i assignment
-        r := r + coeff*assignment[i].get!
+        r := r + coeff*assignment[i]!.get!
       return assignment.set! varIdx (some r)
 
 partial def solveProblem' (p : Problem) : Solution := Id.run <| do
@@ -322,7 +322,7 @@ def isSatAssignment (p : Problem) (assignment : Array Int) : Bool :=
   ¬ p.equations.any fun _ (eq : Equation) => Id.run <| do
     let mut r := 0
     for (i, coeff) in eq.coeffs do
-      r := r + coeff*assignment[i]
+      r := r + coeff*assignment[i]!
     return r ≠ eq.const
 
 def solveProblem (p : Problem) : Solution :=

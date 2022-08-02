@@ -10,7 +10,7 @@ namespace Expr
 
 @[inline] def const? (e : Expr) : Option (Name × List Level) :=
   match e with
-  | Expr.const n us _ => some (n, us)
+  | Expr.const n us => some (n, us)
   | _ => none
 
 @[inline] def app1? (e : Expr) (fName : Name) : Option Expr :=
@@ -106,10 +106,10 @@ private def getConstructorVal? (env : Environment) (ctorName : Name) : Option Co
 
 def isConstructorApp? (env : Environment) (e : Expr) : Option ConstructorVal :=
   match e with
-  | Expr.lit (Literal.natVal n) _ => if n == 0 then getConstructorVal? env `Nat.zero else getConstructorVal? env `Nat.succ
+  | Expr.lit (Literal.natVal n) => if n == 0 then getConstructorVal? env `Nat.zero else getConstructorVal? env `Nat.succ
   | _ =>
     match e.getAppFn with
-    | Expr.const n _ _ => match getConstructorVal? env n with
+    | Expr.const n _ => match getConstructorVal? env n with
       | some v => if v.numParams + v.numFields == e.getAppNumArgs then some v else none
       | none   => none
     | _ => none
@@ -119,7 +119,7 @@ def isConstructorApp (env : Environment) (e : Expr) : Bool :=
 
 def constructorApp? (env : Environment) (e : Expr) : Option (ConstructorVal × Array Expr) := do
   match e with
-  | Expr.lit (Literal.natVal n) _ =>
+  | Expr.lit (Literal.natVal n) =>
     if n == 0 then do
       let v ← getConstructorVal? env `Nat.zero
       pure (v, #[])
@@ -128,7 +128,7 @@ def constructorApp? (env : Environment) (e : Expr) : Option (ConstructorVal × A
       pure (v, #[mkNatLit (n-1)])
   | _ =>
     match e.getAppFn with
-    | Expr.const n _ _ => do
+    | Expr.const n _ => do
       let v ← getConstructorVal? env n
       if v.numParams + v.numFields == e.getAppNumArgs then
         pure (v, e.getAppArgs)

@@ -36,11 +36,11 @@ unsafe def fold {α : Type} (f : Name → α → α) (size : USize) (e : Expr) (
       match e with
       | Expr.forallE _ d b _   => visit b (← visit d acc)
       | Expr.lam _ d b _       => visit b (← visit d acc)
-      | Expr.mdata _ b _       => visit b acc
+      | Expr.mdata _ b         => visit b acc
       | Expr.letE _ t v b _    => visit b (← visit v (← visit t acc))
-      | Expr.app f a _         => visit a (← visit f acc)
-      | Expr.proj _ _ b _      => visit b acc
-      | Expr.const c _ _       =>
+      | Expr.app f a           => visit a (← visit f acc)
+      | Expr.proj _ _ b        => visit b acc
+      | Expr.const c _         =>
         let s ← get
         if s.visitedConsts.contains c then
           pure acc
@@ -61,7 +61,7 @@ end FoldConstsImpl
 
 /-- Apply `f` to every constant occurring in `e` once. -/
 @[implementedBy FoldConstsImpl.foldUnsafe]
-constant foldConsts {α : Type} (e : Expr) (init : α) (f : Name → α → α) : α := init
+opaque foldConsts {α : Type} (e : Expr) (init : α) (f : Name → α → α) : α := init
 
 def getUsedConstants (e : Expr) : Array Name :=
   e.foldConsts #[] fun c cs => cs.push c

@@ -18,58 +18,58 @@ namespace Name
 
 def getPrefix : Name → Name
   | anonymous => anonymous
-  | str p s _ => p
-  | num p s _ => p
+  | str p _   => p
+  | num p _   => p
 
 def getString! : Name → String
-  | str _ s _ => s
-  | _         => unreachable!
+  | str _ s => s
+  | _       => unreachable!
 
 def getNumParts : Name → Nat
   | anonymous => 0
-  | str p _ _ => getNumParts p + 1
-  | num p _ _ => getNumParts p + 1
+  | str p _   => getNumParts p + 1
+  | num p _   => getNumParts p + 1
 
 def updatePrefix : Name → Name → Name
-  | anonymous, newP => anonymous
-  | str p s _, newP => Name.mkStr newP s
-  | num p s _, newP => Name.mkNum newP s
+  | anonymous, _    => anonymous
+  | str _ s,   newP => Name.mkStr newP s
+  | num _ s,   newP => Name.mkNum newP s
 
 def components' : Name → List Name
   | anonymous => []
-  | str n s _ => Name.mkStr anonymous s :: components' n
-  | num n v _ => Name.mkNum anonymous v :: components' n
+  | str n s   => Name.mkStr anonymous s :: components' n
+  | num n v   => Name.mkNum anonymous v :: components' n
 
 def components (n : Name) : List Name :=
   n.components'.reverse
 
 def eqStr : Name → String → Bool
-  | str anonymous s _, s' => s == s'
+  | str anonymous s, s' => s == s'
   | _,                 _  => false
 
 def isPrefixOf : Name → Name → Bool
-  | p, anonymous      => p == anonymous
-  | p, n@(num p' _ _) => p == n || isPrefixOf p p'
-  | p, n@(str p' _ _) => p == n || isPrefixOf p p'
+  | p, anonymous    => p == anonymous
+  | p, n@(num p' _) => p == n || isPrefixOf p p'
+  | p, n@(str p' _) => p == n || isPrefixOf p p'
 
 
 def isSuffixOf : Name → Name → Bool
-  | anonymous,   _           => true
-  | str p₁ s₁ _, str p₂ s₂ _ => s₁ == s₂ && isSuffixOf p₁ p₂
-  | num p₁ n₁ _, num p₂ n₂ _ => n₁ == n₂ && isSuffixOf p₁ p₂
-  | _,           _           => false
+  | anonymous, _         => true
+  | str p₁ s₁, str p₂ s₂ => s₁ == s₂ && isSuffixOf p₁ p₂
+  | num p₁ n₁, num p₂ n₂ => n₁ == n₂ && isSuffixOf p₁ p₂
+  | _,         _         => false
 
 def cmp : Name → Name → Ordering
-  | anonymous,   anonymous   => Ordering.eq
-  | anonymous,   _           => Ordering.lt
-  | _,           anonymous   => Ordering.gt
-  | num p₁ i₁ _, num p₂ i₂ _ =>
+  | anonymous, anonymous => Ordering.eq
+  | anonymous, _         => Ordering.lt
+  | _,         anonymous => Ordering.gt
+  | num p₁ i₁, num p₂ i₂ =>
     match cmp p₁ p₂ with
     | Ordering.eq => compare i₁ i₂
     | ord => ord
-  | num _ _ _,   str _ _ _   => Ordering.lt
-  | str _ _ _,   num _ _ _   => Ordering.gt
-  | str p₁ n₁ _, str p₂ n₂ _ =>
+  | num _ _,   str _ _   => Ordering.lt
+  | str _ _,   num _ _   => Ordering.gt
+  | str p₁ n₁, str p₂ n₂ =>
     match cmp p₁ p₂ with
     | Ordering.eq => compare n₁ n₂
     | ord => ord
@@ -78,16 +78,16 @@ def lt (x y : Name) : Bool :=
   cmp x y == Ordering.lt
 
 def quickCmpAux : Name → Name → Ordering
-  | anonymous, anonymous   => Ordering.eq
-  | anonymous, _           => Ordering.lt
-  | _,         anonymous   => Ordering.gt
-  | num n v _, num n' v' _ =>
+  | anonymous, anonymous => Ordering.eq
+  | anonymous, _         => Ordering.lt
+  | _,         anonymous => Ordering.gt
+  | num n v, num n' v' =>
     match compare v v' with
     | Ordering.eq => n.quickCmpAux n'
     | ord => ord
-  | num _ _ _, str _ _ _   => Ordering.lt
-  | str _ _ _, num _ _ _   => Ordering.gt
-  | str n s _, str n' s' _ =>
+  | num _ _, str _  _  => Ordering.lt
+  | str _ _, num _  _  => Ordering.gt
+  | str n s, str n' s' =>
     match compare s s' with
     | Ordering.eq => n.quickCmpAux n'
     | ord => ord
@@ -100,25 +100,25 @@ def quickCmp (n₁ n₂ : Name) : Ordering :=
 def quickLt (n₁ n₂ : Name) : Bool :=
   quickCmp n₁ n₂ == Ordering.lt
 
-/- Alternative HasLt instance. -/
+/-- Alternative HasLt instance. -/
 @[inline] protected def hasLtQuick : LT Name :=
   ⟨fun a b => Name.quickLt a b = true⟩
 
 @[inline] instance : DecidableRel (@LT.lt Name Name.hasLtQuick) :=
   inferInstanceAs (DecidableRel (fun a b => Name.quickLt a b = true))
 
-/- The frontend does not allow user declarations to start with `_` in any of its parts.
+/-- The frontend does not allow user declarations to start with `_` in any of its parts.
    We use name parts starting with `_` internally to create auxiliary names (e.g., `_private`). -/
 def isInternal : Name → Bool
-  | str p s _ => s.get 0 == '_' || isInternal p
-  | num p _ _ => isInternal p
-  | _         => false
+  | str p s => s.get 0 == '_' || isInternal p
+  | num p _ => isInternal p
+  | _       => false
 
 def isAtomic : Name → Bool
-  | anonymous         => true
-  | str anonymous _ _ => true
-  | num anonymous _ _ => true
-  | _                 => false
+  | anonymous       => true
+  | str anonymous _ => true
+  | num anonymous _ => true
+  | _               => false
 
 def isAnonymous : Name → Bool
   | anonymous         => true
@@ -154,6 +154,9 @@ def contains (m : NameMap α) (n : Name) : Bool := Std.RBMap.contains m n
 
 @[inline] def find? (m : NameMap α) (n : Name) : Option α := Std.RBMap.find? m n
 
+instance : ForIn m (NameMap α) (Name × α) :=
+  inferInstanceAs (ForIn _ (Std.RBMap ..) ..)
+
 end NameMap
 
 def NameSet := RBTree Name Name.quickCmp
@@ -188,6 +191,18 @@ instance : Inhabited NameHashSet := ⟨{}⟩
 def insert (s : NameHashSet) (n : Name) := Std.HashSet.insert s n
 def contains (s : NameHashSet) (n : Name) : Bool := Std.HashSet.contains s n
 end NameHashSet
+
+def MacroScopesView.isPrefixOf (v₁ v₂ : MacroScopesView) : Bool :=
+  v₁.name.isPrefixOf v₂.name &&
+  v₁.scopes == v₂.scopes &&
+  v₁.mainModule == v₂.mainModule &&
+  v₁.imported == v₂.imported
+
+def MacroScopesView.isSuffixOf (v₁ v₂ : MacroScopesView) : Bool :=
+  v₁.name.isSuffixOf v₂.name &&
+  v₁.scopes == v₂.scopes &&
+  v₁.mainModule == v₂.mainModule &&
+  v₁.imported == v₂.imported
 
 end Lean
 

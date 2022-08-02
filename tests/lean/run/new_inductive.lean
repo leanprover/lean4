@@ -56,7 +56,7 @@ inductive Rbnode (α : Type u)
 namespace Rbnode
 variable {α : Type u}
 
-constant insert (lt : α → α → Prop) [DecidableRel lt] (t : Rbnode α) (x : α) : Rbnode α := Rbnode.leaf
+opaque insert (lt : α → α → Prop) [DecidableRel lt] (t : Rbnode α) (x : α) : Rbnode α := Rbnode.leaf
 
 inductive WellFormed (lt : α → α → Prop) : Rbnode α → Prop
 | leafWff : WellFormed lt leaf

@@ -13,12 +13,13 @@ import Lean.Util.FindExpr
 import Lean.Util.Profile
 
 namespace Lean
-/- Opaque environment extension state. -/
-constant EnvExtensionStateSpec : (α : Type) × Inhabited α := ⟨Unit, ⟨()⟩⟩
+/-- Opaque environment extension state. -/
+opaque EnvExtensionStateSpec : (α : Type) × Inhabited α := ⟨Unit, ⟨()⟩⟩
 def EnvExtensionState : Type := EnvExtensionStateSpec.fst
 instance : Inhabited EnvExtensionState := EnvExtensionStateSpec.snd
 
 def ModuleIdx := Nat
+abbrev ModuleIdx.toNat (midx : ModuleIdx) : Nat := midx
 
 instance : Inhabited ModuleIdx := inferInstanceAs (Inhabited Nat)
 
@@ -37,18 +38,18 @@ instance : ToString Import := ⟨fun imp => toString imp.module ++ if imp.runtim
 def CompactedRegion := USize
 
 @[extern "lean_compacted_region_is_memory_mapped"]
-constant CompactedRegion.isMemoryMapped : CompactedRegion → Bool
+opaque CompactedRegion.isMemoryMapped : CompactedRegion → Bool
 
 /-- Free a compacted region and its contents. No live references to the contents may exist at the time of invocation. -/
 @[extern "lean_compacted_region_free"]
-unsafe constant CompactedRegion.free : CompactedRegion → IO Unit
+unsafe opaque CompactedRegion.free : CompactedRegion → IO Unit
 
-/- Opaque persistent environment extension entry. -/
-constant EnvExtensionEntrySpec : NonemptyType.{0}
+/-- Opaque persistent environment extension entry. -/
+opaque EnvExtensionEntrySpec : NonemptyType.{0}
 def EnvExtensionEntry : Type := EnvExtensionEntrySpec.type
 instance : Nonempty EnvExtensionEntry := EnvExtensionEntrySpec.property
 
-/- Content of a .olean file.
+/-- Content of a .olean file.
    We use `compact.cpp` to generate the image of this object in disk. -/
 structure ModuleData where
   imports    : Array Import
@@ -56,23 +57,66 @@ structure ModuleData where
   entries    : Array (Name × Array EnvExtensionEntry)
   deriving Inhabited
 
-/- Environment fields that are not used often. -/
+/-- Environment fields that are not used often. -/
 structure EnvironmentHeader where
+  /--
+  The trust level used by the kernel. For example,
+  the kernel assumes imported constants are type correct when the trust level is greater than zero.
+  -/
   trustLevel   : UInt32       := 0
+  /--
+  `quotInit = true` if the command `init_quot` has already been executed for the environment, and
+  `Quot` declarations have been added to the environment.
+  -/
   quotInit     : Bool         := false
+  /--
+  Name of the module being compiled.
+  -/
   mainModule   : Name         := default
-  imports      : Array Import := #[] -- direct imports
-  regions      : Array CompactedRegion := #[] -- compacted regions of all imported modules
-  moduleNames  : Array Name   := #[] -- names of all imported modules
-  moduleData   : Array ModuleData := #[] -- ModuleData of all imported modules
+  /-- Direct imports -/
+  imports      : Array Import := #[]
+  /-- Compacted regions for all imported modules. Objects in compacted memory regions do no require any memory management. -/
+  regions      : Array CompactedRegion := #[]
+  /-- Name of all imported modules (directly and indirectly). -/
+  moduleNames  : Array Name   := #[]
+  /-- Module data for all imported modules. -/
+  moduleData   : Array ModuleData := #[]
   deriving Inhabited
 
 open Std (HashMap)
 
+/--
+An environment stores declarations provided by the user. The kernel
+currently supports different kinds of declarations such as definitions, theorems,
+and inductive families. Each has a unique identifier (i.e., `Name`), and can be
+parameterized by a sequence of universe parameters.
+A constant in Lean is just a reference to a `ConstantInfo` object. The main task of
+the kernel is to type check these declarations and refuse type incorrect ones. The
+kernel does not allow declarations containing metavariables and/or free variables
+to be added to an environment. Environments are never destructively updated.
+
+The environment also contains a collction of extensions. For example, the `simp` theorems
+declared by users are stored in an environment extension. Users can declare new extensions
+using meta-programming.
+-/
 structure Environment where
+  /--
+  Mapping from constant name to module (index) where constant has been declared.
+  Recall that a Leah file has a header where previously compiled modules can be imported.
+  Each imported module has a unique `ModuleIdx`.
+  Many extensions use the `ModuleIdx` to efficiently retrieve information stored in imported modules.
+  -/
   const2ModIdx : HashMap Name ModuleIdx
+  /--
+  Mapping from constant name to `ConstantInfo`. It contains all constants (definitions, theorems, axioms, etc)
+  that have been already type checked by the kernel.
+  -/
   constants    : ConstMap
+  /--
+  Environment extensions. It also includes user-defined extensions.
+  -/
   extensions   : Array EnvExtensionState
+  /-- The header contains additional information that is not updated often. -/
   header       : EnvironmentHeader := {}
   deriving Inhabited
 
@@ -128,6 +172,7 @@ def getModuleIdx? (env : Environment) (moduleName : Name) : Option ModuleIdx :=
 
 end Environment
 
+/-- Exceptions that can be raised by the Kernel when type checking new declarations. -/
 inductive KernelException where
   | unknownConstant  (env : Environment) (name : Name)
   | alreadyDeclared  (env : Environment) (name : Name)
@@ -144,21 +189,13 @@ inductive KernelException where
 
 namespace Environment
 
-/- Type check given declaration and add it to the environment -/
+/-- Type check given declaration and add it to the environment -/
 @[extern "lean_add_decl"]
-constant addDecl (env : Environment) (decl : @& Declaration) : Except KernelException Environment
-
-/- Compile the given declaration, it assumes the declaration has already been added to the environment using `addDecl`. -/
-@[extern "lean_compile_decl"]
-constant compileDecl (env : Environment) (opt : @& Options) (decl : @& Declaration) : Except KernelException Environment
-
-def addAndCompile (env : Environment) (opt : Options) (decl : Declaration) : Except KernelException Environment := do
-  let env ← addDecl env decl
-  compileDecl env opt decl
+opaque addDecl (env : Environment) (decl : @& Declaration) : Except KernelException Environment
 
 end Environment
 
-/- Interface for managing environment extensions. -/
+/-- Interface for managing environment extensions. -/
 structure EnvExtensionInterface where
   ext              : Type → Type
   inhabitedExt {σ} : Inhabited σ → Inhabited (ext σ)
@@ -181,7 +218,7 @@ instance : Inhabited EnvExtensionInterface where
     mkInitialExtStates   := pure #[]
   }
 
-/- Unsafe implementation of `EnvExtensionInterface` -/
+/-! # Unsafe implementation of `EnvExtensionInterface` -/
 namespace EnvExtensionInterfaceUnsafe
 
 structure Ext (σ : Type) where
@@ -203,8 +240,8 @@ partial def ensureExtensionsArraySize (env : Environment) : IO Environment := do
 where
   loop (i : Nat) (env : Environment) : IO Environment := do
     let envExtensions ← envExtensionsRef.get
-    if h : i < envExtensions.size then
-      let s ← envExtensions[i].mkInitial
+    if i < envExtensions.size then
+      let s ← envExtensions[i]!.mkInitial
       let env := { env with extensions := env.extensions.push s }
       loop (i + 1) env
     else
@@ -265,7 +302,7 @@ unsafe def imp : EnvExtensionInterface := {
 end EnvExtensionInterfaceUnsafe
 
 @[implementedBy EnvExtensionInterfaceUnsafe.imp]
-constant EnvExtensionInterfaceImp : EnvExtensionInterface
+opaque EnvExtensionInterfaceImp : EnvExtensionInterface
 
 def EnvExtension (σ : Type) : Type := EnvExtensionInterfaceImp.ext σ
 
@@ -279,7 +316,7 @@ def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ 
 def getState {σ : Type} [Inhabited σ] (ext : EnvExtension σ) (env : Environment) : σ := EnvExtensionInterfaceImp.getState ext env
 end EnvExtension
 
-/- Environment extensions can only be registered during initialization.
+/-- Environment extensions can only be registered during initialization.
    Reasons:
    1- Our implementation assumes the number of extensions does not change after an environment object is created.
    2- We do not use any synchronization primitive to access `envExtensionsRef`.
@@ -311,7 +348,7 @@ structure ImportM.Context where
 
 abbrev ImportM := ReaderT Lean.ImportM.Context IO
 
-/- An environment extension with support for storing/retrieving entries from a .olean file.
+/-- An environment extension with support for storing/retrieving entries from a .olean file.
    - α is the type of the entries that are stored in .olean files.
    - β is the type of values used to update the state.
    - σ is the actual state.
@@ -401,10 +438,9 @@ unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ]
   return pExt
 
 @[implementedBy registerPersistentEnvExtensionUnsafe]
-constant registerPersistentEnvExtension {α β σ : Type} [Inhabited σ] (descr : PersistentEnvExtensionDescr α β σ) : IO (PersistentEnvExtension α β σ)
+opaque registerPersistentEnvExtension {α β σ : Type} [Inhabited σ] (descr : PersistentEnvExtensionDescr α β σ) : IO (PersistentEnvExtension α β σ)
 
-/- Simple PersistentEnvExtension that implements exportEntriesFn using a list of entries. -/
-
+/-- Simple `PersistentEnvExtension` that implements `exportEntriesFn` using a list of entries. -/
 def SimplePersistentEnvExtension (α σ : Type) := PersistentEnvExtension α α (List α × σ)
 
 @[specialize] def mkStateFromImportedEntries {α σ : Type} (addEntryFn : σ → α → σ) (initState : σ) (as : Array (Array α)) : σ :=
@@ -453,7 +489,7 @@ def TagDeclarationExtension := SimplePersistentEnvExtension Name NameSet
 def mkTagDeclarationExtension (name : Name) : IO TagDeclarationExtension :=
   registerSimplePersistentEnvExtension {
     name          := name,
-    addImportedFn := fun as => {},
+    addImportedFn := fun _ => {},
     addEntryFn    := fun s n => s.insert n,
     toArrayFn     := fun es => es.toArray.qsort Name.quickLt
   }
@@ -482,7 +518,7 @@ def MapDeclarationExtension (α : Type) := SimplePersistentEnvExtension (Name ×
 def mkMapDeclarationExtension [Inhabited α] (name : Name) : IO (MapDeclarationExtension α) :=
   registerSimplePersistentEnvExtension {
     name          := name,
-    addImportedFn := fun as => {},
+    addImportedFn := fun _ => {},
     addEntryFn    := fun s n => s.insert n.1 n.2 ,
     toArrayFn     := fun es => es.toArray.qsort (fun a b => Name.quickLt a.1 b.1)
   }
@@ -512,9 +548,9 @@ def contains [Inhabited α] (ext : MapDeclarationExtension α) (env : Environmen
 end MapDeclarationExtension
 
 @[extern "lean_save_module_data"]
-constant saveModuleData (fname : @& System.FilePath) (mod : @& Name) (data : @& ModuleData) : IO Unit
+opaque saveModuleData (fname : @& System.FilePath) (mod : @& Name) (data : @& ModuleData) : IO Unit
 @[extern "lean_read_module_data"]
-constant readModuleData (fname : @& System.FilePath) : IO (ModuleData × CompactedRegion)
+opaque readModuleData (fname : @& System.FilePath) : IO (ModuleData × CompactedRegion)
 
 /--
   Free compacted regions of imports. No live references to imported objects may exist at the time of invocation; in
@@ -582,9 +618,9 @@ private def setImportedEntries (env : Environment) (mods : Array ModuleData) (st
   When we a new user-defined attribute declaration is imported, `attributeMapRef` is updated.
   Later, we set this method with code that adds the user-defined attributes that were imported after we initialized `attributeExtension`.
 -/
-@[extern 2 "lean_update_env_attributes"] constant updateEnvAttributes : Environment → IO Environment
+@[extern 2 "lean_update_env_attributes"] opaque updateEnvAttributes : Environment → IO Environment
 /-- "Forward declaration" for retrieving the number of builtin attributes. -/
-@[extern 1 "lean_get_num_attributes"] constant getNumBuiltiAttributes : IO Nat
+@[extern 1 "lean_get_num_attributes"] opaque getNumBuiltiAttributes : IO Nat
 
 private partial def finalizePersistentExtensions (env : Environment) (mods : Array ModuleData) (opts : Options) : IO Environment := do
   loop 0 env
@@ -592,8 +628,8 @@ where
   loop (i : Nat) (env : Environment) : IO Environment := do
     -- Recall that the size of the array stored `persistentEnvExtensionRef` may increase when we import user-defined environment extensions.
     let pExtDescrs ← persistentEnvExtensionsRef.get
-    if h : i < pExtDescrs.size then
-      let extDescr := pExtDescrs[i]
+    if i < pExtDescrs.size then
+      let extDescr := pExtDescrs[i]!
       let s := extDescr.toEnvExtension.getState env
       let prevSize := (← persistentEnvExtensionsRef.get).size
       let prevAttrSize ← getNumBuiltiAttributes
@@ -619,6 +655,9 @@ structure ImportState where
 
 @[export lean_import_modules]
 partial def importModules (imports : List Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := profileitIO "import" opts do
+  for imp in imports do
+    if imp.module matches .anonymous then
+      throw <| IO.userError "import failed, trying to import module with anonymous name"
   withImporting do
     let (_, s) ← importMods imports |>.run {}
     let mut numConsts := 0
@@ -680,6 +719,9 @@ unsafe def withImportModules {α : Type} (imports : List Import) (opts : Options
   let env ← importModules imports opts trustLevel
   try x env finally env.freeRegions
 
+/--
+Environment extension for tracking all `namespace` declared by users.
+-/
 builtin_initialize namespacesExt : SimplePersistentEnvExtension Name NameSSet ←
   registerSimplePersistentEnvExtension {
     name            := `namespaces,
@@ -689,23 +731,26 @@ builtin_initialize namespacesExt : SimplePersistentEnvExtension Name NameSSet �
 
 namespace Environment
 
+/-- Register a new namespace in the environment. -/
 def registerNamespace (env : Environment) (n : Name) : Environment :=
   if (namespacesExt.getState env).contains n then env else namespacesExt.addEntry env n
 
+/-- Return `true` if `n` is the name of a namespace in `env`. -/
 def isNamespace (env : Environment) (n : Name) : Bool :=
   (namespacesExt.getState env).contains n
 
+/-- Return a set containing all namespaces in `env`. -/
 def getNamespaceSet (env : Environment) : NameSSet :=
   namespacesExt.getState env
 
 private def isNamespaceName : Name → Bool
-  | Name.str Name.anonymous _ _ => true
-  | Name.str p _ _              => isNamespaceName p
-  | _                           => false
+  | .str .anonymous _ => true
+  | .str p _          => isNamespaceName p
+  | _                 => false
 
 private def registerNamePrefixes : Environment → Name → Environment
-  | env, Name.str p _ _ => if isNamespaceName p then registerNamePrefixes (registerNamespace env p) p else env
-  | env, _              => env
+  | env, .str p _ => if isNamespaceName p then registerNamePrefixes (registerNamespace env p) p else env
+  | env, _        => env
 
 @[export lean_environment_add]
 def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
@@ -736,7 +781,7 @@ def displayStats (env : Environment) : IO Unit := do
   This function is only safe to use if the type matches the declaration's type in the environment
   and if `enableInitializersExecution` has been used before importing any modules. -/
 @[extern "lean_eval_const"]
-unsafe constant evalConst (α) (env : @& Environment) (opts : @& Options) (constName : @& Name) : Except String α
+unsafe opaque evalConst (α) (env : @& Environment) (opts : @& Options) (constName : @& Name) : Except String α
 
 private def throwUnexpectedType {α} (typeName : Name) (constName : Name) : ExceptT String Id α :=
   throw ("unexpected type at '" ++ toString constName ++ "', `" ++ toString typeName ++ "` expected")
@@ -748,14 +793,14 @@ unsafe def evalConstCheck (α) (env : Environment) (opts : Options) (typeName : 
   | none      => throw ("unknown constant '" ++ toString constName ++ "'")
   | some info =>
     match info.type with
-    | Expr.const c _ _ =>
+    | Expr.const c _ =>
       if c != typeName then throwUnexpectedType typeName constName
       else env.evalConst α opts constName
     | _ => throwUnexpectedType typeName constName
 
 def hasUnsafe (env : Environment) (e : Expr) : Bool :=
   let c? := e.find? fun e => match e with
-    | Expr.const c _ _ =>
+    | Expr.const c _ =>
       match env.find? c with
       | some cinfo => cinfo.isUnsafe
       | none       => false
@@ -765,21 +810,21 @@ def hasUnsafe (env : Environment) (e : Expr) : Bool :=
 end Environment
 
 namespace Kernel
-/- Kernel API -/
+/-! # Kernel API -/
 
 /--
   Kernel isDefEq predicate. We use it mainly for debugging purposes.
   Recall that the Kernel type checker does not support metavariables.
   When implementing automation, consider using the `MetaM` methods. -/
 @[extern "lean_kernel_is_def_eq"]
-constant isDefEq (env : Environment) (lctx : LocalContext) (a b : Expr) : Bool
+opaque isDefEq (env : Environment) (lctx : LocalContext) (a b : Expr) : Bool
 
 /--
   Kernel WHNF function. We use it mainly for debugging purposes.
   Recall that the Kernel type checker does not support metavariables.
   When implementing automation, consider using the `MetaM` methods. -/
 @[extern "lean_kernel_whnf"]
-constant whnf (env : Environment) (lctx : LocalContext) (a : Expr) : Expr
+opaque whnf (env : Environment) (lctx : LocalContext) (a : Expr) : Expr
 
 end Kernel
 

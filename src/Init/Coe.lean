@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Core
+import Init.Prelude
 
 universe u v w w'
 
@@ -15,11 +15,11 @@ class Coe (α : Sort u) (β : Sort v) where
 class CoeTC (α : Sort u) (β : Sort v) where
   coe : α → β
 
-/- Expensive coercion that can only appear at the beginning of a sequence of coercions. -/
+/-- Expensive coercion that can only appear at the beginning of a sequence of coercions. -/
 class CoeHead (α : Sort u) (β : Sort v) where
   coe : α → β
 
-/- Expensive coercion that can only appear at the end of a sequence of coercions. -/
+/-- Expensive coercion that can only appear at the end of a sequence of coercions. -/
 class CoeTail (α : Sort u) (β : Sort v) where
   coe : α → β
 
@@ -27,11 +27,11 @@ class CoeTail (α : Sort u) (β : Sort v) where
 class CoeHTCT (α : Sort u) (β : Sort v) where
   coe : α → β
 
-class CoeDep (α : Sort u) (a : α) (β : Sort v) where
+class CoeDep (α : Sort u) (_ : α) (β : Sort v) where
   coe : β
 
-/- Combines CoeHead, CoeTC, CoeTail, CoeDep -/
-class CoeT (α : Sort u) (a : α) (β : Sort v) where
+/-- Combines CoeHead, CoeTC, CoeTail, CoeDep -/
+class CoeT (α : Sort u) (_ : α) (β : Sort v) where
   coe : β
 
 class CoeFun (α : Sort u) (γ : outParam (α → Sort v)) where
@@ -40,7 +40,7 @@ class CoeFun (α : Sort u) (γ : outParam (α → Sort v)) where
 class CoeSort (α : Sort u) (β : outParam (Sort v)) where
   coe : α → β
 
-syntax:max (name := coeNotation) "↑" term:max : term
+syntax:1024 (name := coeNotation) "↑" term:1024 : term
 
 instance coeTrans {α : Sort u} {β : Sort v} {δ : Sort w} [Coe β δ] [CoeTC α β] : CoeTC α δ where
   coe a := Coe.coe (CoeTC.coe a : β)
@@ -56,6 +56,9 @@ instance coeOfHeadOfTC {α : Sort u} {β : Sort v} {δ : Sort w} [CoeHead α β]
 
 instance coeOfTCOfTail {α : Sort u} {β : Sort v} {δ : Sort w} [CoeTail β δ] [CoeTC α β] : CoeHTCT α δ where
   coe a := CoeTail.coe (CoeTC.coe a : β)
+
+instance coeOfHeadOfTail {α : Sort u} {β : Sort v} {γ : Sort w} [CoeHead α β] [CoeTail β γ] : CoeHTCT α γ where
+  coe a := CoeTail.coe (CoeHead.coe a : β)
 
 instance coeOfHead {α : Sort u} {β : Sort v} [CoeHead α β] : CoeHTCT α β where
   coe a := CoeHead.coe a
@@ -78,13 +81,13 @@ instance coeId {α : Sort u} (a : α) : CoeT α a α where
 instance coeSortToCoeTail [inst : CoeSort α β] : CoeTail α β where
   coe := inst.coe
 
-/- Basic instances -/
+/-! # Basic instances -/
 
 @[inline] instance boolToProp : Coe Bool Prop where
-  coe b := b = true
+  coe b := Eq b true
 
 instance boolToSort : CoeSort Bool Prop where
-  coe b := b = true
+  coe b := Eq b true
 
 instance decPropToBool (p : Prop) [Decidable p] : CoeDep Prop p Bool where
   coe := decide p
@@ -92,10 +95,10 @@ instance decPropToBool (p : Prop) [Decidable p] : CoeDep Prop p Bool where
 instance optionCoe {α : Type u} : CoeTail α (Option α) where
   coe := some
 
-instance subtypeCoe {α : Sort u} {p : α → Prop} : CoeHead { x // p x } α where
+instance subtypeCoe {α : Sort u} {p : α → Prop} : CoeHead (Subtype p) α where
   coe v := v.val
 
-/- Coe bridge -/
+/-! # Coe bridge -/
 
 -- Helper definition used by the elaborator. It is not meant to be used directly by users
 @[inline] def Lean.Internal.liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u} [MonadLiftT m n] [∀ a, CoeT α a β] [Monad n] (x : m α) : n β := do
@@ -105,7 +108,7 @@ instance subtypeCoe {α : Sort u} {p : α → Prop} : CoeHead { x // p x } α wh
 -- Helper definition used by the elaborator. It is not meant to be used directly by users
 @[inline] def Lean.Internal.coeM {m : Type u → Type v} {α β : Type u} [∀ a, CoeT α a β] [Monad m] (x : m α) : m β := do
   let a ← x
-  pure <| CoeT.coe a
+  pure (CoeT.coe a)
 
 instance [CoeFun α β] (a : α) : CoeDep α a (β a) where
   coe := CoeFun.coe a

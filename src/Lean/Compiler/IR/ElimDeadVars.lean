@@ -41,7 +41,7 @@ partial def FnBody.elimDead (b : FnBody) : FnBody :=
 /-- Eliminate dead let-declarations and join points -/
 def Decl.elimDead (d : Decl) : Decl :=
   match d with
-  | Decl.fdecl (body := b) .. => d.updateBody! b.elimDead
+  | .fdecl (body := b) .. => d.updateBody! b.elimDead
   | other => other
 
 end Lean.IR

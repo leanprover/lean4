@@ -7,7 +7,7 @@ import Lean.Environment
 
 namespace Lean
 
-/- Given a structure `S`, Lean automatically creates an auxiliary definition (projection function)
+/-- Given a structure `S`, Lean automatically creates an auxiliary definition (projection function)
    for each field. This structure caches information about these auxiliary definitions. -/
 structure ProjectionFunctionInfo where
   ctorName : Name  -- Constructor associated with the auxiliary projection function.

@@ -1,8 +1,9 @@
-import Lean.Util.Trace
+import Lean
 
+set_option linter.missingDocs false
 set_option linter.all true
 
-def explicitelyUsedVariable (x : Nat) : Nat :=
+def explicitlyUsedVariable (x : Nat) : Nat :=
   x
 
 theorem implicitlyUsedVariable : P ∧ Q → Q := by
@@ -179,8 +180,8 @@ register_option opt : Nat := {
 }
 
 
-constant foo (x : Nat) : Nat
-constant foo' (x : Nat) : Nat :=
+opaque foo (x : Nat) : Nat
+opaque foo' (x : Nat) : Nat :=
   let y := 5
   3
 variable (bar)
@@ -201,11 +202,42 @@ def externDef (x : Nat) : Nat :=
   5
 
 @[extern "test"]
-constant externConst (x : Nat) : Nat :=
+opaque externConst (x : Nat) : Nat :=
   let y := 3
   5
+
+
+macro "useArg " name:declId arg:ident : command => `(def $name ($arg : α) : α := $arg)
+useArg usedMacroVariable a
+
+macro "doNotUseArg " name:declId arg:ident : command => `(def $name ($arg : α) : Nat := 3)
+doNotUseArg unusedMacroVariable b
+
+macro "ignoreArg " id:declId sig:declSig : command => `(opaque $id $sig)
+ignoreArg ignoredMacroVariable (x : UInt32) : UInt32
+
 
 theorem not_eq_zero_of_lt (h : b < a) : a ≠ 0 := by -- *not* unused
   cases a
   exact absurd h (Nat.not_lt_zero _)
   apply Nat.noConfusion
+
+-- should not be reported either
+example (a : Nat) : Nat := _
+example (a : Nat) : Nat := sorry
+example (a : sorry) : Nat := 0
+example (a : Nat) : Nat := by
+
+theorem Fin.eqq_of_val_eq {n : Nat} : ∀ {x y : Fin n}, x.val = y.val → x = y
+  | ⟨_, _⟩, _, rfl => rfl
+
+def Nat.discriminate (n : Nat) (H1 : n = 0 → α) (H2 : ∀ m, n = succ m → α) : α :=
+  match n with
+  | 0 => H1 rfl
+  | succ m => H2 m rfl
+
+@[unusedVariablesIgnoreFn]
+def ignoreEverything : Lean.Linter.IgnoreFunction :=
+  fun _ _ _ => true
+
+def ignored (x : Nat) := 0

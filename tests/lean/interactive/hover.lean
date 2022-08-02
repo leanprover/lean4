@@ -26,7 +26,7 @@ example : True := by
 
 /-- My way better tactic -/
 macro_rules
-  | `(tactic| mytac $[only]? $e) => `(apply $e)
+  | `(tactic| mytac $[only]? $e) => `(tactic| apply $e)
 
 example : True := by
   mytac only True.intro
@@ -34,7 +34,7 @@ example : True := by
 
 /-- My ultimate tactic -/
 elab_rules : tactic
-  | `(tactic| mytac $[only]? $e) => `(tactic| refine $e) >>= Lean.Elab.Tactic.evalTactic
+  | `(tactic| mytac $[only]? $e) => do Lean.Elab.Tactic.evalTactic (← `(tactic| refine $e))
 
 example : True := by
   mytac only True.intro
@@ -81,7 +81,7 @@ mycmd 1
 syntax "mycmd'" term : command
 /-- My ultimate command -/
 elab_rules : command
-  | `(mycmd' $e) => `(/-- hi -/ @[inline] def hi := $e) >>= Lean.Elab.Command.elabCommand
+  | `(mycmd' $e) => do Lean.Elab.Command.elabCommand (← `(/-- hi -/ @[inline] def hi := $e))
 
 mycmd' 1
 --^ textDocument/hover
@@ -103,15 +103,15 @@ example : Id Nat := do
   n
 
 
-constant foo : Nat
+opaque foo : Nat
 
 #check _root_.foo
        --^ textDocument/hover
 
 namespace Bar
 
-constant foo : Nat
-       --^ textDocument/hover
+opaque foo : Nat
+     --^ textDocument/hover
 
 #check _root_.foo
        --^ textDocument/hover
@@ -160,3 +160,12 @@ def g (n : Nat) : Nat := g 0
 termination_by g n => n
 decreasing_by have n' := n; admit
                        --^ textDocument/hover
+
+@[inline]
+--^ textDocument/hover
+def one := 1
+
+example : True ∧ False := by
+  constructor
+  · constructor
+--^ textDocument/hover

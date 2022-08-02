@@ -21,7 +21,7 @@ private def formatInfo (showInfo : Bool) (info : SourceInfo) (f : Format) : Form
 
 partial def formatStxAux (maxDepth : Option Nat) (showInfo : Bool) : Nat → Syntax → Format
   | _,     atom info val     => formatInfo showInfo info $ format (repr val)
-  | _,     ident info _ val pre => formatInfo showInfo info $ format "`" ++ format val
+  | _,     ident info _ val _   => formatInfo showInfo info $ format "`" ++ format val
   | _,     missing           => "<missing>"
   | depth, node _ kind args  =>
     let depth := depth + 1;
@@ -43,5 +43,8 @@ def formatStx (stx : Syntax) (maxDepth : Option Nat := none) (showInfo := false)
 
 instance : ToFormat (Syntax) := ⟨formatStx⟩
 instance : ToString (Syntax) := ⟨@toString Format _ ∘ format⟩
+
+instance : ToFormat (TSyntax k) := ⟨(format ·.raw)⟩
+instance : ToString (TSyntax k) := ⟨(toString ·.raw)⟩
 
 end Lean.Syntax

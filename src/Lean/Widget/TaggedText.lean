@@ -75,7 +75,7 @@ private structure TaggedState where
 
 instance : Std.Format.MonadPrettyFormat (StateM TaggedState) where
   pushOutput s       := modify fun ⟨out, ts, col⟩ => ⟨out.appendText s, ts, col + s.length⟩
-  pushNewline indent := modify fun ⟨out, ts, col⟩ => ⟨out.appendText ("\n".pushn ' ' indent), ts, indent⟩
+  pushNewline indent := modify fun ⟨out, ts, _⟩ => ⟨out.appendText ("\n".pushn ' ' indent), ts, indent⟩
   currColumn         := return (←get).column
   startTag n         := modify fun ⟨out, ts, col⟩ => ⟨TaggedText.text "", (n, col, out) :: ts, col⟩
   endTags n          := modify fun ⟨out, ts, col⟩ =>

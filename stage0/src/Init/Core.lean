@@ -79,10 +79,11 @@ structure PSigma {α : Sort u} (β : α → Sort v) where
 inductive Exists {α : Sort u} (p : α → Prop) : Prop where
   | intro (w : α) (h : p w) : Exists p
 
-/- Auxiliary type used to compile `for x in xs` notation. -/
+/-- Auxiliary type used to compile `for x in xs` notation. -/
 inductive ForInStep (α : Type u) where
   | done  : α → ForInStep α
   | yield : α → ForInStep α
+  deriving Inhabited
 
 class ForIn (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)) where
   forIn {β} [Monad m] (x : ρ) (b : β) (f : α → β → m (ForInStep β)) : m β
@@ -95,28 +96,28 @@ class ForIn' (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)
 export ForIn' (forIn')
 
 
-/- Auxiliary type used to compile `do` notation. -/
+/-- Auxiliary type used to compile `do` notation. -/
 inductive DoResultPRBC (α β σ : Type u) where
-  | «pure»     : α → σ → DoResultPRBC α β σ
-  | «return»   : β → σ → DoResultPRBC α β σ
-  | «break»    : σ → DoResultPRBC α β σ
-  | «continue» : σ → DoResultPRBC α β σ
+  | pure     : α → σ → DoResultPRBC α β σ
+  | return   : β → σ → DoResultPRBC α β σ
+  | break    : σ → DoResultPRBC α β σ
+  | continue : σ → DoResultPRBC α β σ
 
-/- Auxiliary type used to compile `do` notation. -/
+/-- Auxiliary type used to compile `do` notation. -/
 inductive DoResultPR (α β σ : Type u) where
-  | «pure»     : α → σ → DoResultPR α β σ
-  | «return»   : β → σ → DoResultPR α β σ
+  | pure   : α → σ → DoResultPR α β σ
+  | return : β → σ → DoResultPR α β σ
 
-/- Auxiliary type used to compile `do` notation. -/
+/-- Auxiliary type used to compile `do` notation. -/
 inductive DoResultBC (σ : Type u) where
-  | «break»    : σ → DoResultBC σ
-  | «continue» : σ → DoResultBC σ
+  | break    : σ → DoResultBC σ
+  | continue : σ → DoResultBC σ
 
-/- Auxiliary type used to compile `do` notation. -/
+/-- Auxiliary type used to compile `do` notation. -/
 inductive DoResultSBC (α σ : Type u) where
-  | «pureReturn» : α → σ → DoResultSBC α σ
-  | «break»      : σ → DoResultSBC α σ
-  | «continue»   : σ → DoResultSBC α σ
+  | pureReturn : α → σ → DoResultSBC α σ
+  | break      : σ → DoResultSBC α σ
+  | continue   : σ → DoResultSBC α σ
 
 class HasEquiv  (α : Sort u) where
   Equiv : α → α → Sort v
@@ -129,7 +130,7 @@ class EmptyCollection (α : Type u) where
 notation "{" "}" => EmptyCollection.emptyCollection
 notation "∅"     => EmptyCollection.emptyCollection
 
-/- Remark: tasks have an efficient implementation in the runtime. -/
+/-- Remark: tasks have an efficient implementation in the runtime. -/
 structure Task (α : Type u) : Type u where
   pure :: (get : α)
   deriving Inhabited
@@ -149,25 +150,28 @@ def Priority.max : Priority := 8
   non-dedicated workers than the number of cores to reduce context switches. -/
 def Priority.dedicated : Priority := 9
 
+set_option linter.unusedVariables.funArgs false in
 @[noinline, extern "lean_task_spawn"]
 protected def spawn {α : Type u} (fn : Unit → α) (prio := Priority.default) : Task α :=
   ⟨fn ()⟩
 
+set_option linter.unusedVariables.funArgs false in
 @[noinline, extern "lean_task_map"]
 protected def map {α : Type u} {β : Type v} (f : α → β) (x : Task α) (prio := Priority.default) : Task β :=
   ⟨f x.get⟩
 
+set_option linter.unusedVariables.funArgs false in
 @[noinline, extern "lean_task_bind"]
 protected def bind {α : Type u} {β : Type v} (x : Task α) (f : α → Task β) (prio := Priority.default) : Task β :=
   ⟨(f x.get).get⟩
 
 end Task
 
-/- Some type that is not a scalar value in our runtime. -/
+/-- Some type that is not a scalar value in our runtime. -/
 structure NonScalar where
   val : Nat
 
-/- Some type that is not a scalar value in our runtime and is universe polymorphic. -/
+/-- Some type that is not a scalar value in our runtime and is universe polymorphic. -/
 inductive PNonScalar : Type u where
   | mk (v : Nat) : PNonScalar
 
@@ -175,7 +179,7 @@ inductive PNonScalar : Type u where
 
 theorem optParam_eq (α : Sort u) (default : α) : optParam α default = α := rfl
 
-/- Boolean operators -/
+/-! # Boolean operators -/
 
 @[extern c inline "#1 || #2"] def strictOr  (b₁ b₂ : Bool) := b₁ || b₂
 @[extern c inline "#1 && #2"] def strictAnd (b₁ b₂ : Bool) := b₁ && b₂
@@ -186,25 +190,23 @@ theorem optParam_eq (α : Sort u) (default : α) : optParam α default = α := r
 infix:50 " != " => bne
 
 class LawfulBEq (α : Type u) [BEq α] : Prop where
-  eq_of_beq : (a b : α) → (a == b) = true → a = b
-  rfl : (a : α) → (a == a) = true
-
-theorem eq_of_beq [BEq α] [LawfulBEq α] {a b : α} (h : (a == b) = true) : a = b :=
-  LawfulBEq.eq_of_beq a b h
+  eq_of_beq : {a b : α} → (a == b) = true → a = b
+  protected rfl : {a : α} → (a == a) = true
+export LawfulBEq (eq_of_beq)
 
 instance : LawfulBEq Bool where
-  eq_of_beq a b h := by cases a <;> cases b <;> first | rfl | contradiction
-  rfl a := by cases a <;> decide
+  eq_of_beq {a b} h := by cases a <;> cases b <;> first | rfl | contradiction
+  rfl {a} := by cases a <;> decide
 
-instance : LawfulBEq Char where
-  eq_of_beq _ _  h := of_decide_eq_true h
-  rfl a := of_decide_eq_self_eq_true a
+instance [DecidableEq α] : LawfulBEq α where
+  eq_of_beq := of_decide_eq_true
+  rfl := of_decide_eq_self_eq_true _
 
-instance : LawfulBEq String where
-  eq_of_beq _ _  h := of_decide_eq_true h
-  rfl a := of_decide_eq_self_eq_true a
+instance : LawfulBEq Char := inferInstance
 
-/- Logical connectives an equality -/
+instance : LawfulBEq String := inferInstance
+
+/-! # Logical connectives and equality -/
 
 def implies (a b : Prop) := a → b
 
@@ -273,14 +275,14 @@ end Ne
 
 theorem Bool.of_not_eq_true : {b : Bool} → ¬ (b = true) → b = false
   | true,  h => absurd rfl h
-  | false, h => rfl
+  | false, _ => rfl
 
 theorem Bool.of_not_eq_false : {b : Bool} → ¬ (b = false) → b = true
-  | true,  h => rfl
+  | true,  _ => rfl
   | false, h => absurd rfl h
 
 theorem ne_of_beq_false [BEq α] [LawfulBEq α] {a b : α} (h : (a == b) = false) : a ≠ b := by
-  intro h'; subst h'; have : true = false := Eq.trans (LawfulBEq.rfl a).symm h; contradiction
+  intro h'; subst h'; have : true = false := Eq.trans LawfulBEq.rfl.symm h; contradiction
 
 theorem beq_false_of_ne [BEq α] [LawfulBEq α] {a b : α} (h : a ≠ b) : (a == b) = false :=
   have : ¬ (a == b) = true := by
@@ -291,10 +293,10 @@ section
 variable {α β φ : Sort u} {a a' : α} {b b' : β} {c : φ}
 
 theorem HEq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} (m : motive a) {β : Sort u2} {b : β} (h : HEq a b) : motive b :=
-  @HEq.rec α a (fun b _ => motive b) m β b h
+  h.rec m
 
 theorem HEq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} {β : Sort u2} {b : β} (h : HEq a b) (m : motive a) : motive b :=
-  @HEq.rec α a (fun b _ => motive b) m β b h
+  h.rec m
 
 theorem HEq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : HEq a b) (h₂ : p a) : p b :=
   eq_of_heq h₁ ▸ h₂
@@ -303,7 +305,7 @@ theorem HEq.subst {p : (T : Sort u) → T → Prop} (h₁ : HEq a b) (h₂ : p �
   HEq.ndrecOn h₁ h₂
 
 theorem HEq.symm (h : HEq a b) : HEq b a :=
-  HEq.ndrecOn (motive := fun x => HEq x a) h (HEq.refl a)
+  h.rec (HEq.refl a)
 
 theorem heq_of_eq (h : a = a') : HEq a a' :=
   Eq.subst h (HEq.refl a)
@@ -318,7 +320,7 @@ theorem heq_of_eq_of_heq (h₁ : a = a') (h₂ : HEq a' b) : HEq a b :=
   HEq.trans (heq_of_eq h₁) h₂
 
 def type_eq_of_heq (h : HEq a b) : α = β :=
-  HEq.ndrecOn (motive := @fun (x : Sort u) _ => α = x) h (Eq.refl α)
+  h.rec (Eq.refl α)
 
 end
 
@@ -355,23 +357,26 @@ theorem Iff.symm (h : a ↔ b) : b ↔ a :=
 theorem Iff.comm : (a ↔ b) ↔ (b ↔ a) :=
   Iff.intro Iff.symm Iff.symm
 
-/- Exists -/
+theorem And.comm : a ∧ b ↔ b ∧ a := by
+  constructor <;> intro ⟨h₁, h₂⟩ <;> exact ⟨h₂, h₁⟩
+
+/-! # Exists -/
 
 theorem Exists.elim {α : Sort u} {p : α → Prop} {b : Prop}
    (h₁ : Exists (fun x => p x)) (h₂ : ∀ (a : α), p a → b) : b :=
   match h₁ with
   | intro a h => h₂ a h
 
-/- Decidable -/
+/-! # Decidable -/
 
 theorem decide_true_eq_true (h : Decidable True) : @decide True h = true :=
   match h with
-  | isTrue h  => rfl
+  | isTrue _  => rfl
   | isFalse h => False.elim <| h ⟨⟩
 
 theorem decide_false_eq_false (h : Decidable False) : @decide False h = false :=
   match h with
-  | isFalse h => rfl
+  | isFalse _ => rfl
   | isTrue h  => False.elim h
 
 /-- Similar to `decide`, but uses an explicit instance -/
@@ -379,13 +384,13 @@ theorem decide_false_eq_false (h : Decidable False) : @decide False h = false :=
   decide p (h := d)
 
 theorem toBoolUsing_eq_true {p : Prop} (d : Decidable p) (h : p) : toBoolUsing d = true :=
-  decide_eq_true (s := d) h
+  decide_eq_true (inst := d) h
 
 theorem ofBoolUsing_eq_true {p : Prop} {d : Decidable p} (h : toBoolUsing d = true) : p :=
-  of_decide_eq_true (s := d) h
+  of_decide_eq_true (inst := d) h
 
 theorem ofBoolUsing_eq_false {p : Prop} {d : Decidable p} (h : toBoolUsing d = false) : ¬ p :=
-  of_decide_eq_false (s := d) h
+  of_decide_eq_false (inst := d) h
 
 instance : Decidable True :=
   isTrue trivial
@@ -404,6 +409,7 @@ variable {p q : Prop}
 theorem em (p : Prop) [Decidable p] : p ∨ ¬p :=
   byCases Or.inl Or.inr
 
+set_option linter.unusedVariables.funArgs false in
 theorem byContradiction [dec : Decidable p] (h : ¬p → False) : p :=
   byCases id (fun np => False.elim (h np))
 
@@ -424,7 +430,7 @@ end Decidable
 
 section
 variable {p q : Prop}
-@[inline] def  decidable_of_decidable_of_iff [hp : Decidable p] (h : p ↔ q) : Decidable q :=
+@[inline] def  decidable_of_decidable_of_iff [Decidable p] (h : p ↔ q) : Decidable q :=
   if hp : p then
     isTrue (Iff.mp h hp)
   else
@@ -436,7 +442,7 @@ end
 
 @[macroInline] instance {p q} [Decidable p] [Decidable q] : Decidable (p → q) :=
   if hp : p then
-    if hq : q then isTrue (fun h => hq)
+    if hq : q then isTrue (fun _ => hq)
     else isFalse (fun h => absurd (h hp) hq)
   else isTrue (fun h => absurd h hp)
 
@@ -452,47 +458,47 @@ instance {p q} [Decidable p] [Decidable q] : Decidable (p ↔ q) :=
     else
       isTrue ⟨fun h => absurd h hp, fun h => absurd h hq⟩
 
-/- if-then-else expression theorems -/
+/-! # if-then-else expression theorems -/
 
 theorem if_pos {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t e : α} : (ite c t e) = t :=
   match h with
-  | isTrue  hc  => rfl
+  | isTrue  _   => rfl
   | isFalse hnc => absurd hc hnc
 
 theorem if_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t e : α} : (ite c t e) = e :=
   match h with
   | isTrue hc   => absurd hc hnc
-  | isFalse hnc => rfl
+  | isFalse _   => rfl
 
 theorem dif_pos {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = t hc :=
   match h with
-  | isTrue  hc  => rfl
+  | isTrue  _   => rfl
   | isFalse hnc => absurd hc hnc
 
 theorem dif_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = e hnc :=
   match h with
   | isTrue hc   => absurd hc hnc
-  | isFalse hnc => rfl
+  | isFalse _   => rfl
 
 -- Remark: dite and ite are "defally equal" when we ignore the proofs.
-theorem dif_eq_if (c : Prop) {h : Decidable c} {α : Sort u} (t : α) (e : α) : dite c (fun h => t) (fun h => e) = ite c t e :=
+theorem dif_eq_if (c : Prop) {h : Decidable c} {α : Sort u} (t : α) (e : α) : dite c (fun _ => t) (fun _ => e) = ite c t e :=
   match h with
-  | isTrue hc   => rfl
-  | isFalse hnc => rfl
+  | isTrue _    => rfl
+  | isFalse _   => rfl
 
 instance {c t e : Prop} [dC : Decidable c] [dT : Decidable t] [dE : Decidable e] : Decidable (if c then t else e)  :=
   match dC with
-  | isTrue hc  => dT
-  | isFalse hc => dE
+  | isTrue _   => dT
+  | isFalse _  => dE
 
 instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [dC : Decidable c] [dT : ∀ h, Decidable (t h)] [dE : ∀ h, Decidable (e h)] : Decidable (if h : c then t h else e h)  :=
   match dC with
   | isTrue hc  => dT hc
   | isFalse hc => dE hc
 
-/- Auxiliary definitions for generating compact `noConfusion` for enumeration types -/
+/-- Auxiliary definitions for generating compact `noConfusion` for enumeration types -/
 abbrev noConfusionTypeEnum {α : Sort u} {β : Sort v} [inst : DecidableEq β] (f : α → β) (P : Sort w) (x y : α) : Sort w :=
-  Decidable.casesOn (motive := fun _ => Sort w) (inst (f x) (f y))
+  (inst (f x) (f y)).casesOn
     (fun _ => P)
     (fun _ => P → P)
 
@@ -501,9 +507,9 @@ abbrev noConfusionEnum {α : Sort u} {β : Sort v} [inst : DecidableEq β] (f : 
     (motive := fun (inst : Decidable (f x = f y)) => Decidable.casesOn (motive := fun _ => Sort w) inst (fun _ => P) (fun _ => P → P))
     (inst (f x) (f y))
     (fun h' => False.elim (h' (congrArg f h)))
-    (fun h' => fun x => x)
+    (fun _ => fun x => x)
 
-/- Inhabited -/
+/-! # Inhabited -/
 
 instance : Inhabited Prop where
   default := True
@@ -511,9 +517,9 @@ instance : Inhabited Prop where
 deriving instance Inhabited for NonScalar, PNonScalar, True, ForInStep
 
 theorem nonempty_of_exists {α : Sort u} {p : α → Prop} : Exists (fun x => p x) → Nonempty α
-  | ⟨w, h⟩ => ⟨w⟩
+  | ⟨w, _⟩ => ⟨w⟩
 
-/- Subsingleton -/
+/-! # Subsingleton -/
 
 class Subsingleton (α : Sort u) : Prop where
   intro :: allEq : (a b : α) → a = b
@@ -532,11 +538,11 @@ instance (p : Prop) : Subsingleton p :=
 instance (p : Prop) : Subsingleton (Decidable p) :=
   Subsingleton.intro fun
     | isTrue t₁ => fun
-      | isTrue t₂  => rfl
+      | isTrue _   => rfl
       | isFalse f₂ => absurd t₁ f₂
     | isFalse f₁ => fun
       | isTrue t₂  => absurd t₂ f₁
-      | isFalse f₂ => rfl
+      | isFalse _  => rfl
 
 theorem recSubsingleton
      {p : Prop} [h : Decidable p]
@@ -544,7 +550,7 @@ theorem recSubsingleton
      {h₂ : ¬p → Sort u}
      [h₃ : ∀ (h : p), Subsingleton (h₁ h)]
      [h₄ : ∀ (h : ¬p), Subsingleton (h₂ h)]
-     : Subsingleton (Decidable.casesOn (motive := fun _ => Sort u) h h₂ h₁) :=
+     : Subsingleton (h.casesOn h₂ h₁) :=
   match h with
   | isTrue h  => h₃ h
   | isFalse h => h₄ h
@@ -554,7 +560,7 @@ structure Equivalence {α : Sort u} (r : α → α → Prop) : Prop where
   symm  : ∀ {x y}, r x y → r y x
   trans : ∀ {x y z}, r x y → r y z → r x z
 
-def emptyRelation {α : Sort u} (a₁ a₂ : α) : Prop :=
+def emptyRelation {α : Sort u} (_ _ : α) : Prop :=
   False
 
 def Subrelation {α : Sort u} (q r : α → α → Prop) :=
@@ -567,7 +573,7 @@ inductive TC {α : Sort u} (r : α → α → Prop) : α → α → Prop where
   | base  : ∀ a b, r a b → TC r a b
   | trans : ∀ a b c, TC r a b → TC r b c → TC r a c
 
-/- Subtype -/
+/-! # Subtype -/
 
 namespace Subtype
 def existsOfSubtype {α : Type u} {p : α → Prop} : { x // p x } → Exists (fun x => p x)
@@ -576,7 +582,7 @@ def existsOfSubtype {α : Type u} {p : α → Prop} : { x // p x } → Exists (f
 variable {α : Type u} {p : α → Prop}
 
 protected theorem eq : ∀ {a1 a2 : {x // p x}}, val a1 = val a2 → a1 = a2
-  | ⟨x, h1⟩, ⟨_, _⟩, rfl => rfl
+  | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
 theorem eta (a : {x // p x}) (h : p (val a)) : mk (val a) h = a := by
   cases a
@@ -592,15 +598,15 @@ instance {α : Type u} {p : α → Prop} [DecidableEq α] : DecidableEq {x : α 
 
 end Subtype
 
-/- Sum -/
+/-! # Sum -/
 
 section
 variable {α : Type u} {β : Type v}
 
-instance Sum.inhabitedLeft [h : Inhabited α] : Inhabited (Sum α β) where
+instance Sum.inhabitedLeft [Inhabited α] : Inhabited (Sum α β) where
   default := Sum.inl default
 
-instance Sum.inhabitedRight [h : Inhabited β] : Inhabited (Sum α β) where
+instance Sum.inhabitedRight [Inhabited β] : Inhabited (Sum α β) where
   default := Sum.inr default
 
 instance {α : Type u} {β : Type v} [DecidableEq α] [DecidableEq β] : DecidableEq (Sum α β) := fun a b =>
@@ -611,12 +617,12 @@ instance {α : Type u} {β : Type v} [DecidableEq α] [DecidableEq β] : Decidab
   | Sum.inr a, Sum.inr b =>
     if h : a = b then isTrue (h ▸ rfl)
     else isFalse fun h' => Sum.noConfusion h' fun h' => absurd h' h
-  | Sum.inr a, Sum.inl b => isFalse fun h => Sum.noConfusion h
-  | Sum.inl a, Sum.inr b => isFalse fun h => Sum.noConfusion h
+  | Sum.inr _, Sum.inl _ => isFalse fun h => Sum.noConfusion h
+  | Sum.inl _, Sum.inr _ => isFalse fun h => Sum.noConfusion h
 
 end
 
-/- Product -/
+/-! # Product -/
 
 instance [Inhabited α] [Inhabited β] : Inhabited (α × β) where
   default := (default, default)
@@ -627,8 +633,8 @@ instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
     | isTrue e₁ =>
       match decEq b b' with
       | isTrue e₂  => isTrue (e₁ ▸ e₂ ▸ rfl)
-      | isFalse n₂ => isFalse fun h => Prod.noConfusion h fun e₁' e₂' => absurd e₂' n₂
-    | isFalse n₁ => isFalse fun h => Prod.noConfusion h fun e₁' e₂' => absurd e₁' n₁
+      | isFalse n₂ => isFalse fun h => Prod.noConfusion h fun _   e₂' => absurd e₂' n₂
+    | isFalse n₁ => isFalse fun h => Prod.noConfusion h fun e₁' _   => absurd e₁' n₁
 
 instance [BEq α] [BEq β] : BEq (α × β) where
   beq := fun (a₁, b₁) (a₂, b₂) => a₁ == a₂ && b₁ == b₂
@@ -640,7 +646,7 @@ instance prodHasDecidableLt
     [LT α] [LT β] [DecidableEq α] [DecidableEq β]
     [(a b : α) → Decidable (a < b)] [(a b : β) → Decidable (a < b)]
     : (s t : α × β) → Decidable (s < t) :=
-  fun t s => inferInstanceAs (Decidable (_ ∨ _))
+  fun _ _ => inferInstanceAs (Decidable (_ ∨ _))
 
 theorem Prod.lt_def [LT α] [LT β] (s t : α × β) : (s < t) = (s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)) :=
   rfl
@@ -652,7 +658,7 @@ def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ 
     (f : α₁ → α₂) (g : β₁ → β₂) : α₁ × β₁ → α₂ × β₂
   | (a, b) => (f a, g b)
 
-/- Dependent products -/
+/-! # Dependent products -/
 
 theorem ex_of_PSigma {α : Type u} {p : α → Prop} : (PSigma (fun x => p x)) → Exists (fun x => p x)
   | ⟨x, hx⟩ => ⟨x, hx⟩
@@ -663,7 +669,7 @@ protected theorem PSigma.eta {α : Sort u} {β : α → Sort v} {a₁ a₂ : α}
   subst h₂
   exact rfl
 
-/- Universe polymorphic unit -/
+/-! # Universe polymorphic unit -/
 
 theorem PUnit.subsingleton (a b : PUnit) : a = b := by
   cases a; cases b; exact rfl
@@ -680,7 +686,7 @@ instance : Inhabited PUnit where
 instance : DecidableEq PUnit :=
   fun a b => isTrue (PUnit.subsingleton a b)
 
-/- Setoid -/
+/-! # Setoid -/
 
 class Setoid (α : Sort u) where
   r : α → α → Prop
@@ -705,7 +711,7 @@ theorem trans {a b c : α} (hab : a ≈ b) (hbc : b ≈ c) : a ≈ c :=
 end Setoid
 
 
-/- Propositional extensionality -/
+/-! # Propositional extensionality -/
 
 axiom propext {a b : Prop} : (a ↔ b) → a = b
 
@@ -734,9 +740,12 @@ gen_injective_theorems% EStateM.Result
 gen_injective_theorems% Lean.Name
 gen_injective_theorems% Lean.Syntax
 
-/- Quotients -/
+@[simp] theorem beq_iff_eq [BEq α] [LawfulBEq α] (a b : α) : a == b ↔ a = b :=
+  ⟨eq_of_beq, by intro h; subst h; exact LawfulBEq.rfl⟩
 
--- Iff can now be used to do substitutions in a calculation
+/-! # Quotients -/
+
+/-- Iff can now be used to do substitutions in a calculation -/
 theorem Iff.subst {a b : Prop} {p : Prop → Prop} (h₁ : a ↔ b) (h₂ : p a) : p b :=
   Eq.subst (propext h₁) h₂
 
@@ -759,6 +768,7 @@ protected theorem indBeta {α : Sort u} {r : α → α → Prop} {motive : Quot 
 protected abbrev liftOn {α : Sort u} {β : Sort v} {r : α → α → Prop} (q : Quot r) (f : α → β) (c : (a b : α) → r a b → f a = f b) : β :=
   lift f c q
 
+@[elabAsElim]
 protected theorem inductionOn {α : Sort u} {r : α → α → Prop} {motive : Quot r → Prop}
     (q : Quot r)
     (h : (a : α) → motive (Quot.mk r a))
@@ -766,7 +776,7 @@ protected theorem inductionOn {α : Sort u} {r : α → α → Prop} {motive : Q
   ind h q
 
 theorem exists_rep {α : Sort u} {r : α → α → Prop} (q : Quot r) : Exists (fun a => (Quot.mk r a) = q) :=
-  Quot.inductionOn (motive := fun q => Exists (fun a => (Quot.mk r a) = q)) q (fun a => ⟨a, rfl⟩)
+  q.inductionOn (fun a => ⟨a, rfl⟩)
 
 section
 variable {α : Sort u}
@@ -802,7 +812,7 @@ protected abbrev recOn
     (f : (a : α) → motive (Quot.mk r a))
     (h : (a b : α) → (p : r a b) → Eq.ndrec (f a) (sound p) = f b)
     : motive q :=
- Quot.rec f h q
+ q.rec f h
 
 protected abbrev recOnSubsingleton
     [h : (a : α) → Subsingleton (motive (Quot.mk r a))]
@@ -825,6 +835,7 @@ protected abbrev hrecOn
 end
 end Quot
 
+set_option linter.unusedVariables.funArgs false in
 def Quotient {α : Sort u} (s : Setoid α) :=
   @Quot α Setoid.r
 
@@ -849,6 +860,7 @@ protected theorem ind {α : Sort u} {s : Setoid α} {motive : Quotient s → Pro
 protected abbrev liftOn {α : Sort u} {β : Sort v} {s : Setoid α} (q : Quotient s) (f : α → β) (c : (a b : α) → a ≈ b → f a = f b) : β :=
   Quot.liftOn q f c
 
+@[elabAsElim]
 protected theorem inductionOn {α : Sort u} {s : Setoid α} {motive : Quotient s → Prop}
     (q : Quotient s)
     (h : (a : α) → motive (Quotient.mk s a))
@@ -863,7 +875,7 @@ variable {α : Sort u}
 variable {s : Setoid α}
 variable {motive : Quotient s → Sort v}
 
-@[inline]
+@[inline, elabAsElim]
 protected def rec
     (f : (a : α) → motive (Quotient.mk s a))
     (h : (a b : α) → (p : a ≈ b) → Eq.ndrec (f a) (Quotient.sound p) = f b)
@@ -871,6 +883,7 @@ protected def rec
     : motive q :=
   Quot.rec f h q
 
+@[elabAsElim]
 protected abbrev recOn
     (q : Quotient s)
     (f : (a : α) → motive (Quotient.mk s a))
@@ -878,6 +891,7 @@ protected abbrev recOn
     : motive q :=
   Quot.recOn q f h
 
+@[elabAsElim]
 protected abbrev recOnSubsingleton
     [h : (a : α) → Subsingleton (motive (Quotient.mk s a))]
     (q : Quotient s)
@@ -885,6 +899,7 @@ protected abbrev recOnSubsingleton
     : motive q :=
   Quot.recOnSubsingleton (h := h) q f
 
+@[elabAsElim]
 protected abbrev hrecOn
     (q : Quotient s)
     (f : (a : α) → motive (Quotient.mk s a))
@@ -916,6 +931,7 @@ protected abbrev liftOn₂
     : φ :=
   Quotient.lift₂ f c q₁ q₂
 
+@[elabAsElim]
 protected theorem ind₂
     {motive : Quotient s₁ → Quotient s₂ → Prop}
     (h : (a : α) → (b : β) → motive (Quotient.mk s₁ a) (Quotient.mk s₂ b))
@@ -926,6 +942,7 @@ protected theorem ind₂
   induction q₂ using Quotient.ind
   apply h
 
+@[elabAsElim]
 protected theorem inductionOn₂
     {motive : Quotient s₁ → Quotient s₂ → Prop}
     (q₁ : Quotient s₁)
@@ -936,6 +953,7 @@ protected theorem inductionOn₂
   induction q₂ using Quotient.ind
   apply h
 
+@[elabAsElim]
 protected theorem inductionOn₃
     {s₃ : Setoid φ}
     {motive : Quotient s₁ → Quotient s₂ → Quotient s₃ → Prop}
@@ -958,13 +976,13 @@ variable   {α : Sort u}
 private def rel {s : Setoid α} (q₁ q₂ : Quotient s) : Prop :=
   Quotient.liftOn₂ q₁ q₂
     (fun a₁ a₂ => a₁ ≈ a₂)
-    (fun a₁ a₂ b₁ b₂ a₁b₁ a₂b₂ =>
+    (fun _ _ _ _ a₁b₁ a₂b₂ =>
       propext (Iff.intro
         (fun a₁a₂ => Setoid.trans (Setoid.symm a₁b₁) (Setoid.trans a₁a₂ a₂b₂))
         (fun b₁b₂ => Setoid.trans a₁b₁ (Setoid.trans b₁b₂ (Setoid.symm a₂b₂)))))
 
 private theorem rel.refl {s : Setoid α} (q : Quotient s) : rel q q :=
-  Quot.inductionOn (motive := fun q => rel q q) q (fun a => Setoid.refl a)
+  q.inductionOn Setoid.refl
 
 private theorem rel_of_eq {s : Setoid α} {q₁ q₂ : Quotient s} : q₁ = q₂ → rel q₁ q₂ :=
   fun h => Eq.ndrecOn h (rel.refl q₁)
@@ -979,6 +997,7 @@ universe uA uB uC
 variable {α : Sort uA} {β : Sort uB}
 variable {s₁ : Setoid α} {s₂ : Setoid β}
 
+@[elabAsElim]
 protected abbrev recOnSubsingleton₂
     {motive : Quotient s₁ → Quotient s₂ → Sort uC}
     [s : (a : α) → (b : β) → Subsingleton (motive (Quotient.mk s₁ a) (Quotient.mk s₂ b))]
@@ -1003,13 +1022,13 @@ variable (r : α → α → Prop)
 
 instance {α : Sort u} {s : Setoid α} [d : ∀ (a b : α), Decidable (a ≈ b)] : DecidableEq (Quotient s) :=
   fun (q₁ q₂ : Quotient s) =>
-    Quotient.recOnSubsingleton₂ (motive := fun a b => Decidable (a = b)) q₁ q₂
+    Quotient.recOnSubsingleton₂ q₁ q₂
       fun a₁ a₂ =>
         match d a₁ a₂ with
         | isTrue h₁  => isTrue (Quotient.sound h₁)
         | isFalse h₂ => isFalse fun h => absurd (Quotient.exact h) h₂
 
-/- Function extensionality -/
+/-! # Function extensionality -/
 
 namespace Function
 variable {α : Sort u} {β : α → Sort v}
@@ -1017,7 +1036,7 @@ variable {α : Sort u} {β : α → Sort v}
 protected def Equiv (f₁ f₂ : ∀ (x : α), β x) : Prop := ∀ x, f₁ x = f₂ x
 
 protected theorem Equiv.refl (f : ∀ (x : α), β x) : Function.Equiv f f :=
-  fun x => rfl
+  fun _ => rfl
 
 protected theorem Equiv.symm {f₁ f₂ : ∀ (x : α), β x} : Function.Equiv f₁ f₂ → Function.Equiv f₂ f₁ :=
   fun h x => Eq.symm (h x)
@@ -1044,7 +1063,7 @@ private def funSetoid (α : Sort u) (β : α → Sort v) : Setoid (∀ (x : α),
 private def extfunApp (f : Quotient <| funSetoid α β) (x : α) : β x :=
   Quot.liftOn f
     (fun (f : ∀ (x : α), β x) => f x)
-    (fun f₁ f₂ h => h x)
+    (fun _ _ h => h x)
 
 theorem funext {f₁ f₂ : ∀ (x : α), β x} (h : ∀ x, f₁ x = f₂ x) : f₁ = f₂ := by
   show extfunApp (Quotient.mk' f₁) = extfunApp (Quotient.mk' f₂)
@@ -1058,9 +1077,9 @@ instance {α : Sort u} {β : α → Sort v} [∀ a, Subsingleton (β a)] : Subsi
   allEq f₁ f₂ :=
     funext (fun a => Subsingleton.elim (f₁ a) (f₂ a))
 
-/- Squash -/
+/-! # Squash -/
 
-def Squash (α : Type u) := Quot (fun (a b : α) => True)
+def Squash (α : Type u) := Quot (fun (_ _ : α) => True)
 
 def Squash.mk {α : Type u} (x : α) : Squash α := Quot.mk _ x
 
@@ -1068,7 +1087,7 @@ theorem Squash.ind {α : Type u} {motive : Squash α → Prop} (h : ∀ (a : α)
   Quot.ind h
 
 @[inline] def Squash.lift {α β} [Subsingleton β] (s : Squash α) (f : α → β) : β :=
-  Quot.lift f (fun a b _ => Subsingleton.elim _ _) s
+  Quot.lift f (fun _ _ _ => Subsingleton.elim _ _) s
 
 instance : Subsingleton (Squash α) where
   allEq a b := by
@@ -1077,13 +1096,13 @@ instance : Subsingleton (Squash α) where
     apply Quot.sound
     trivial
 
-/- Relations -/
+/-! # Relations -/
 
 class Antisymm {α : Sort u} (r : α → α → Prop) where
   antisymm {a b : α} : r a b → r b a → a = b
 
 namespace Lean
-/- Kernel reduction hints -/
+/-! # Kernel reduction hints -/
 
 /--
   When the kernel tries to reduce a term `Lean.reduceBool c`, it will invoke the Lean interpreter to evaluate `c`.
@@ -1104,7 +1123,7 @@ namespace Lean
   If an extern function is executed, then the trusted code base will also include the implementation of the associated
   foreign function.
 -/
-constant reduceBool (b : Bool) : Bool := b
+opaque reduceBool (b : Bool) : Bool := b
 
 /--
   Similar to `Lean.reduceBool` for closed `Nat` terms.
@@ -1112,7 +1131,7 @@ constant reduceBool (b : Bool) : Bool := b
   Remark: we do not have plans for supporting a generic `reduceValue {α} (a : α) : α := a`.
   The main issue is that it is non-trivial to convert an arbitrary runtime object back into a Lean expression.
   We believe `Lean.reduceBool` enables most interesting applications (e.g., proof by reflection). -/
-constant reduceNat (n : Nat) : Nat := n
+opaque reduceNat (n : Nat) : Nat := n
 
 axiom ofReduceBool (a b : Bool) (h : reduceBool a = b) : a = b
 axiom ofReduceNat (a b : Nat) (h : reduceNat a = b)    : a = b

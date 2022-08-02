@@ -23,13 +23,13 @@ open Meta
        let some mvarIds ← splitTarget? mvarId | Meta.throwTacticEx `split mvarId ""
         return mvarIds
     else
-      let fvarId ← getFVarId hyps[0]
+      let fvarId ← getFVarId hyps[0]!
       liftMetaTactic fun mvarId => do
         let some mvarIds ← splitLocalDecl? mvarId fvarId | Meta.throwTacticEx `split mvarId ""
         return mvarIds
   | Location.wildcard =>
     liftMetaTactic fun mvarId => do
-      let fvarIds ← getNondepPropHyps mvarId
+      let fvarIds ← mvarId.getNondepPropHyps
       for fvarId in fvarIds do
         if let some mvarIds ← splitLocalDecl? mvarId fvarId then
           return mvarIds

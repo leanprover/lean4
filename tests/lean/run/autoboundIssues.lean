@@ -4,7 +4,7 @@ example : n.succ = 1 → n = 0 := by
 example (h : n.succ = 1) : n = 0 := by
   injection h; assumption
 
-constant T : Type
-constant T.Pred : T → T → Prop
+opaque T : Type
+opaque T.Pred : T → T → Prop
 
 example {ρ} (hρ : ρ.Pred σ) : T.Pred ρ ρ := sorry

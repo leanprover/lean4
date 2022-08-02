@@ -24,14 +24,14 @@ inductive LocalDecl where
 
 @[export lean_mk_local_decl]
 def mkLocalDeclEx (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo) : LocalDecl :=
-  LocalDecl.cdecl index fvarId userName type bi
+  .cdecl index fvarId userName type bi
 @[export lean_mk_let_decl]
 def mkLetDeclEx (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (val : Expr) : LocalDecl :=
-  LocalDecl.ldecl index fvarId userName type val false
+  .ldecl index fvarId userName type val false
 @[export lean_local_decl_binder_info]
 def LocalDecl.binderInfoEx : LocalDecl → BinderInfo
-  | LocalDecl.cdecl _ _ _ _ bi => bi
-  | _                          => BinderInfo.default
+  | .cdecl _ _ _ _ bi => bi
+  | _                 => BinderInfo.default
 namespace LocalDecl
 
 def isLet : LocalDecl → Bool
@@ -267,8 +267,8 @@ def renameUserName (lctx : LocalContext) (fromName : Name) (toName : Name) : Loc
     match lctx.find? fvarId with
     | none      => lctx
     | some decl =>
-      let decl := f decl;
-      { fvarIdToDecl := map.insert decl.fvarId decl,
+      let decl := f decl
+      { fvarIdToDecl := map.insert decl.fvarId decl
         decls        := decls.set decl.index decl }
 
 def setBinderInfo (lctx : LocalContext) (fvarId : FVarId) (bi : BinderInfo) : LocalContext :=
@@ -318,6 +318,9 @@ instance : ForIn m LocalContext LocalDecl where
 @[inline] def foldr (lctx : LocalContext) (f : LocalDecl → β → β) (init : β) : β :=
   Id.run <| lctx.foldrM f init
 
+def size (lctx : LocalContext) : Nat :=
+  lctx.foldl (fun n _ => n+1) 0
+
 @[inline] def findDecl? (lctx : LocalContext) (f : LocalDecl → Option β) : Option β :=
   Id.run <| lctx.findDeclM? f
 
@@ -326,19 +329,19 @@ instance : ForIn m LocalContext LocalDecl where
 
 partial def isSubPrefixOfAux (a₁ a₂ : PArray (Option LocalDecl)) (exceptFVars : Array Expr) (i j : Nat) : Bool :=
   if i < a₁.size then
-    match a₁[i] with
+    match a₁[i]! with
     | none       => isSubPrefixOfAux a₁ a₂ exceptFVars (i+1) j
     | some decl₁ =>
       if exceptFVars.any fun fvar => fvar.fvarId! == decl₁.fvarId then
         isSubPrefixOfAux a₁ a₂ exceptFVars (i+1) j
       else if j < a₂.size then
-        match a₂[j] with
+        match a₂[j]! with
         | none       => isSubPrefixOfAux a₁ a₂ exceptFVars i (j+1)
         | some decl₂ => if decl₁.fvarId == decl₂.fvarId then isSubPrefixOfAux a₁ a₂ exceptFVars (i+1) (j+1) else isSubPrefixOfAux a₁ a₂ exceptFVars i (j+1)
       else false
   else true
 
-/- Given `lctx₁ - exceptFVars` of the form `(x_1 : A_1) ... (x_n : A_n)`, then return true
+/-- Given `lctx₁ - exceptFVars` of the form `(x_1 : A_1) ... (x_n : A_n)`, then return true
    iff there is a local context `B_1* (x_1 : A_1) ... B_n* (x_n : A_n)` which is a prefix
    of `lctx₂` where `B_i`'s are (possibly empty) sequences of local declarations. -/
 def isSubPrefixOf (lctx₁ lctx₂ : LocalContext) (exceptFVars : Array Expr := #[]) : Bool :=
@@ -347,15 +350,15 @@ def isSubPrefixOf (lctx₁ lctx₂ : LocalContext) (exceptFVars : Array Expr := 
 @[inline] def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=
   let b := b.abstract xs
   xs.size.foldRev (init := b) fun i b =>
-    let x := xs[i]
+    let x := xs[i]!
     match lctx.findFVar? x with
-    | some (LocalDecl.cdecl _ _ n ty bi)  =>
+    | some (.cdecl _ _ n ty bi)  =>
       let ty := ty.abstractRange i xs;
       if isLambda then
         Lean.mkLambda n bi ty b
       else
         Lean.mkForall n bi ty b
-    | some (LocalDecl.ldecl _ _ n ty val nonDep) =>
+    | some (.ldecl _ _ n ty val nonDep) =>
       if b.hasLooseBVar 0 then
         let ty  := ty.abstractRange i xs
         let val := val.abstractRange i xs
@@ -384,18 +387,21 @@ def mkForall (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=
     | some decl => p decl
     | none      => pure true
 
+/-- Return `true` if `lctx` contains a local declaration satisfying `p`. -/
 @[inline] def any (lctx : LocalContext) (p : LocalDecl → Bool) : Bool :=
   Id.run <| lctx.anyM p
 
+/-- Return `true` if all declarations in `lctx` satisfy `p`. -/
 @[inline] def all (lctx : LocalContext) (p : LocalDecl → Bool) : Bool :=
   Id.run <| lctx.allM p
 
+/-- If option `pp.sanitizeNames` is set to `true`, add tombstone to shadowed local declaration names and ones contains macroscopes. -/
 def sanitizeNames (lctx : LocalContext) : StateM NameSanitizerState LocalContext := do
   let st ← get
   if !getSanitizeNames st.options then pure lctx else
     StateT.run' (s := ({} : NameSet)) <|
       lctx.decls.size.foldRevM (init := lctx) fun i lctx => do
-        match lctx.decls[i] with
+        match lctx.decls[i]! with
         | none      => pure lctx
         | some decl =>
           if decl.userName.hasMacroScopes || (← get).contains decl.userName then do
@@ -420,7 +426,7 @@ instance [MonadLift m n] [MonadLCtx m] : MonadLCtx n where
 def replaceFVarIdAtLocalDecl (fvarId : FVarId) (e : Expr) (d : LocalDecl) : LocalDecl :=
   if d.fvarId == fvarId then d
   else match d with
-    | LocalDecl.cdecl idx id n type bi => LocalDecl.cdecl idx id n (type.replaceFVarId fvarId e) bi
-    | LocalDecl.ldecl idx id n type val nonDep => LocalDecl.ldecl idx id n (type.replaceFVarId fvarId e) (val.replaceFVarId fvarId e) nonDep
+    | .cdecl idx id n type bi => .cdecl idx id n (type.replaceFVarId fvarId e) bi
+    | .ldecl idx id n type val nonDep => .ldecl idx id n (type.replaceFVarId fvarId e) (val.replaceFVarId fvarId e) nonDep
 
 end Lean

@@ -92,7 +92,7 @@ where
   go (t : Tree β) (acc : List (Nat × β)) : List (Nat × β) :=
     match t with
     | leaf => acc
-    | node l k v r => l.go ((k, v) :: r.go acc)
+    | node l k v r => go l ((k, v) :: go r acc)
 
 /-!
 We now prove that `t.toList` and `t.toListTR` return the same list.
@@ -176,10 +176,10 @@ The modifier `local` specifies the scope of the macro.
 /-- The `have_eq lhs rhs` tactic (tries to) prove that `lhs = rhs`,
     and then replaces `lhs` with `rhs`. -/
 local macro "have_eq " lhs:term:max rhs:term:max : tactic =>
-  `((have h : $lhs:term = $rhs:term :=
+  `((have h : $lhs = $rhs :=
        -- TODO: replace with linarith
        by simp_arith at *; apply Nat.le_antisymm <;> assumption
-     try subst $lhs:term))
+     try subst $lhs))
 
 /-!
 The `by_cases' e` is just the regular `by_cases` followed by `simp` using all
@@ -191,7 +191,7 @@ useful if `e` is the condition of an `if`-statement.
 -/
 /-- `by_cases' e` is a shorthand form `by_cases e <;> simp[*]` -/
 local macro "by_cases' " e:term :  tactic =>
-  `(by_cases $e:term <;> simp [*])
+  `(by_cases $e <;> simp [*])
 
 
 /-!

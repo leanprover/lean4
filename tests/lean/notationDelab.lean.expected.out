@@ -1,0 +1,6 @@
+unitTest 42 : Nat × Unit
+parenthesisTest 12 : Nat → Nat
+{ x | x ≤ 1 } : Set Nat
+cdotTest (13, 12) : Nat × Nat
+tupleFunctionTest (15, 12) : Nat × Nat
+(12, 12) : Nat × Nat

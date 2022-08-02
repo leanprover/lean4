@@ -21,8 +21,7 @@ def leftArrow : Parser := unicodeSymbol "← " "<- "
 def doSeqItem      := leading_parser ppLine >> doElemParser >> optional "; "
 def doSeqIndent    := leading_parser many1Indent doSeqItem
 def doSeqBracketed := leading_parser "{" >> withoutPosition (many1 doSeqItem) >> ppLine >> "}"
-def doSeq          := doSeqBracketed <|> doSeqIndent
-
+def doSeq          := withAntiquot (mkAntiquot "doSeq" `Lean.Parser.Term.doSeq (isPseudoKind := true)) <| doSeqBracketed <|> doSeqIndent
 def termBeforeDo := withForbidden "do" termParser
 
 attribute [runBuiltinParserAttributeHooks] doSeq termBeforeDo
@@ -51,7 +50,7 @@ def letIdDeclNoBinders := node `Lean.Parser.Term.letIdDecl $ atomic (ident >> pu
 @[builtinDoElemParser] def doReassign      := leading_parser notFollowedByRedefinedTermToken >> (letIdDeclNoBinders <|> letPatDecl)
 @[builtinDoElemParser] def doReassignArrow := leading_parser notFollowedByRedefinedTermToken >> withPosition (doIdDecl <|> doPatDecl)
 @[builtinDoElemParser] def doHave     := leading_parser "have " >> Term.haveDecl
-/-
+/--
 In `do` blocks, we support `if` without an `else`. Thus, we use indentation to prevent examples such as
 ```
 if c_1 then
@@ -86,8 +85,8 @@ def doIfLetPure := leading_parser " := " >> termParser
 def doIfLetBind := leading_parser " ← " >> termParser
 def doIfLet     := leading_parser (withAnonymousAntiquot := false) "let " >> termParser >> (doIfLetPure <|> doIfLetBind)
 def doIfProp    := leading_parser (withAnonymousAntiquot := false) optIdent >> termParser
-def doIfCond    := withAntiquot (mkAntiquot "doIfCond" none (anonymous := false)) <| doIfLet <|> doIfProp
-@[builtinDoElemParser] def doIf := leading_parser withPosition $
+def doIfCond    := withAntiquot (mkAntiquot "doIfCond" `Lean.Parser.Term.doIfCond (anonymous := false) (isPseudoKind := true)) <| doIfLet <|> doIfProp
+@[builtinDoElemParser] def doIf := leading_parser withPositionAfterLinebreak $
   "if " >> doIfCond >> " then " >> doSeq
   >> many (checkColGe "'else if' in 'do' must be indented" >> group (elseIf >> doIfCond >> " then " >> doSeq))
   >> optional (checkColGe "'else' in 'do' must be indented" >> " else " >> doSeq)
@@ -109,7 +108,7 @@ def doFinally    := leading_parser "finally " >> doSeq
 @[builtinDoElemParser] def doDbgTrace  := leading_parser:leadPrec "dbg_trace " >> ((interpolatedStr termParser) <|> termParser)
 @[builtinDoElemParser] def doAssert    := leading_parser:leadPrec "assert! " >> termParser
 
-/-
+/--
 We use `notFollowedBy` to avoid counterintuitive behavior.
 
 For example, the `if`-term parser

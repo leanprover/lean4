@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Meta.Transform
 import Lean.Meta.Tactic.Injection
 import Lean.Meta.Tactic.Apply
+import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.Subst
 import Lean.Meta.Tactic.Simp.Types
@@ -44,11 +45,10 @@ private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useE
         if !(← isProp arg1Type) && arg1 != arg2 then
           eqs := eqs.push (← mkEqHEq arg1 arg2)
       if let some andEqs := mkAnd? eqs then
-        let result ←
-          if useEq then
-            mkEq eq andEqs
-          else
-            mkArrow eq andEqs
+        let result ← if useEq then
+          mkEq eq andEqs
+        else
+          mkArrow eq andEqs
         mkForallFVars params (← mkForallFVars args1 (← mkForallFVars args2New result))
       else
         return none
@@ -85,8 +85,8 @@ private def solveEqOfCtorEq (ctorName : Name) (mvarId : MVarId) (h : FVarId) : M
   match (← injection mvarId h) with
   | InjectionResult.solved => unreachable!
   | InjectionResult.subgoal mvarId .. =>
-    (← splitAnd mvarId).forM fun mvarId =>
-      unless (← assumptionCore mvarId) do
+    (←  mvarId.splitAnd).forM fun mvarId =>
+      unless (← mvarId.assumptionCore) do
         throwInjectiveTheoremFailure ctorName mvarId
 
 private def mkInjectiveTheoremValue (ctorName : Name) (targetType : Expr) : MetaM Expr :=
@@ -102,8 +102,9 @@ private def mkInjectiveTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
   let some type ← mkInjectiveTheoremType? ctorVal
     | return ()
   let value ← mkInjectiveTheoremValue ctorVal.name type
+  let name := mkInjectiveTheoremNameFor ctorVal.name
   addDecl <| Declaration.thmDecl {
-    name        := mkInjectiveTheoremNameFor ctorVal.name
+    name
     levelParams := ctorVal.levelParams
     type        := (← instantiateMVars type)
     value       := (← instantiateMVars value)
@@ -118,14 +119,14 @@ private def mkInjectiveEqTheoremType? (ctorVal : ConstructorVal) : MetaM (Option
 private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : MetaM Expr := do
   forallTelescopeReducing targetType fun xs type => do
     let mvar ← mkFreshExprSyntheticOpaqueMVar type
-    let [mvarId₁, mvarId₂] ← apply mvar.mvarId! (mkConst ``Eq.propIntro)
+    let [mvarId₁, mvarId₂] ← mvar.mvarId!.apply (mkConst ``Eq.propIntro)
       | throwError "unexpected number of subgoals when proving injective theorem for constructor '{ctorName}'"
-    let (h, mvarId₁) ← intro1 mvarId₁
-    let (_, mvarId₂) ← intro1 mvarId₂
+    let (h, mvarId₁) ← mvarId₁.intro1
+    let (_, mvarId₂) ← mvarId₂.intro1
     solveEqOfCtorEq ctorName mvarId₁ h
-    let mvarId₂ ← casesAnd mvarId₂
-    if let some mvarId₂ ← substEqs mvarId₂ then
-      applyRefl mvarId₂ (injTheoremFailureHeader ctorName)
+    let mvarId₂ ← mvarId₂.casesAnd
+    if let some mvarId₂ ← mvarId₂.substEqs then
+      try mvarId₂.refl catch _ => throwError (injTheoremFailureHeader ctorName)
     mkLambdaFVars xs mvar
 
 private def mkInjectiveEqTheorem (ctorVal : ConstructorVal) : MetaM Unit := do

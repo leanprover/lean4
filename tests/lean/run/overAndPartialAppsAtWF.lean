@@ -6,7 +6,7 @@ theorem eq_of_isEqvAux [DecidableEq α] (a b : Array α) (hsz : a.size = b.size)
     have hind := eq_of_isEqvAux a b hsz (i+1) (Nat.succ_le_of_lt h) heqv.2
     by_cases heq : i = j
     · subst heq; exact heqv.1
-    · exact hind j (Nat.succ_le_of_lt (Nat.lt_of_le_and_ne low heq)) high
+    · exact hind j (Nat.succ_le_of_lt (Nat.lt_of_le_of_ne low heq)) high
   · have heq : i = a.size := Nat.le_antisymm hi (Nat.ge_of_not_lt h)
     subst heq
     exact absurd (Nat.lt_of_lt_of_le high low) (Nat.lt_irrefl j)

@@ -1,0 +1,2 @@
+Ex.double : Nat → Nat
+protectedAlias.lean:9:7-9:13: error: unknown identifier 'double'

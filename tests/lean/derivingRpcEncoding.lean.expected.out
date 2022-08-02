@@ -1,0 +1,29 @@
+instRpcEncodingWithRpcRefFooRefRpcRef : RpcEncoding (WithRpcRef FooRef) Lsp.RpcRef
+ok: {"p": "0"}
+instRpcEncodingBar : RpcEncoding Bar RpcEncodingPacket✝
+ok: {"fooRef": {"p": "0"}, "fooJson": {"s": ""}}
+instRpcEncodingBarTrans : RpcEncoding BarTrans RpcEncodingPacket✝
+ok: {"bar": {"fooRef": {"p": "0"}, "fooJson": {"s": ""}}}
+instRpcEncodingBaz : RpcEncoding Baz RpcEncodingPacket✝
+ok: {"arr": []}
+instRpcEncodingFooGeneric : (α αPacket : Type) →
+  [inst : RpcEncoding α αPacket] → RpcEncoding (FooGeneric α) (RpcEncodingPacket✝ αPacket)
+ok: {"a": 0}
+ok: {"b": 42, "a": 3}
+instRpcEncodingBazInductive : RpcEncoding BazInductive RpcEncodingPacket✝
+ok: {"baz":
+ {"arr":
+  [{"fooRef": {"p": "0"}, "fooJson": {"s": ""}},
+   {"fooRef": {"p": "1"}, "fooJson": {"s": ""}}]}}
+instRpcEncodingFooInductive : (α αPacket : Type) →
+  [inst : RpcEncoding α αPacket] → RpcEncoding (FooInductive α) (RpcEncodingPacket✝ αPacket)
+ok: {"a": [{"baz": {"arr": []}}, {"p": "0"}]}
+ok: {"b": {"n": 42, "m": 0, "a": {"baz": {"arr": []}}}}
+ok: {"a": [{"baz": {"arr": []}}, [{"a": [{"baz": {"arr": []}}, []]}]]}
+instRpcEncodingFooParam : (n : Nat) → RpcEncoding (FooParam n) RpcEncodingPacket✝
+ok: {"a": 42}
+instRpcEncodingUnused : (α : Type) → RpcEncoding (Unused α) RpcEncodingPacket✝
+ok: "a"
+instRpcEncodingUnusedStruct : (α : Type) → RpcEncoding (UnusedStruct α) RpcEncodingPacket✝
+ok: {}
+Except.error "no inductive constructor matched"

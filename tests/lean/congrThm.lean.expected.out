@@ -1,0 +1,8 @@
+∀ (p p_1 : Prop),
+  p = p_1 →
+    ∀ {inst : Decidable p} {inst_1 : Decidable p_1} (a a_1 : Nat),
+      a = a_1 → ∀ (h : a > 0), g p a h = g p_1 a_1 (_ : a_1 > 0)
+∀ (p p_1 : Prop),
+  p = p_1 →
+    ∀ {inst : Decidable p} [inst_1 : Decidable p_1] (a a_1 : Nat),
+      a = a_1 → ∀ (h : a > 0), g p a h = g p_1 a_1 (_ : a_1 > 0)

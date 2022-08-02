@@ -7,7 +7,7 @@ open Lean.Meta
 def shouldIgnore (declName : Name) : Bool :=
   declName.isInternal
   || match declName with
-     | Name.str _ s _ => "match_".isPrefixOf s || "proof_".isPrefixOf s || "eq_".isPrefixOf s
+     | .str _ s => "match_".isPrefixOf s || "proof_".isPrefixOf s || "eq_".isPrefixOf s
      | _ => true
 
 -- Print declarations that have the given prefix.

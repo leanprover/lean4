@@ -17,10 +17,10 @@ def iteToDIte (e : Expr) : MetaM Expr := do
     if e.isAppOfArity ``ite 5 then
       let f    := e.getAppFn
       let args := e.getAppArgs
-      let c    := args[1]
+      let c    := args[1]!
       let h    ← mkFreshUserName `h
-      let args := args.set! 3 (Lean.mkLambda h BinderInfo.default c args[3])
-      let args := args.set! 4 (Lean.mkLambda h BinderInfo.default (mkNot c) args[4])
+      let args := args.set! 3 (Lean.mkLambda h BinderInfo.default c args[3]!)
+      let args := args.set! 4 (Lean.mkLambda h BinderInfo.default (mkNot c) args[4]!)
       return .done <| mkAppN (mkConst ``dite f.constLevels!) args
     else
       return .done e

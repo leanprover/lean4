@@ -8,7 +8,7 @@ import Lean.Compiler.IR.Basic
 namespace Lean.IR
 
 namespace MaxIndex
-/- Compute the maximum index `M` used in a declaration.
+/-! Compute the maximum index `M` used in a declaration.
    We `M` to initialize the fresh index generator used to create fresh
    variable and join point names.
 
@@ -28,7 +28,7 @@ instance : AndThen Collector where
 
 private def collectArg : Arg → Collector
   | Arg.var x  => collectVar x
-  | irrelevant => skip
+  | _          => skip
 
 private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector :=
   fun m => as.foldl (fun m a => f a m) m
@@ -49,7 +49,7 @@ private def collectExpr : Expr → Collector
   | Expr.ap x ys        => collectVar x >> collectArgs ys
   | Expr.box _ x        => collectVar x
   | Expr.unbox x        => collectVar x
-  | Expr.lit v          => skip
+  | Expr.lit _          => skip
   | Expr.isShared x     => collectVar x
   | Expr.isTaggedPtr x  => collectVar x
 
@@ -73,8 +73,8 @@ partial def collectFnBody : FnBody → Collector
   | FnBody.unreachable      => skip
 
 partial def collectDecl : Decl → Collector
-  | Decl.fdecl (xs := xs) (body := b) .. => collectParams xs >> collectFnBody b
-  | Decl.extern (xs := xs) ..            => collectParams xs
+  | .fdecl (xs := xs) (body := b) .. => collectParams xs >> collectFnBody b
+  | .extern (xs := xs) ..            => collectParams xs
 
 end MaxIndex
 
@@ -85,13 +85,13 @@ def Decl.maxIndex (d : Decl) : Index :=
   MaxIndex.collectDecl d 0
 
 namespace FreeIndices
-/- We say a variable (join point) index (aka name) is free in a function body
+/-! We say a variable (join point) index (aka name) is free in a function body
    if there isn't a `FnBody.vdecl` (`Fnbody.jdecl`) binding it. -/
 
 abbrev Collector := IndexSet → IndexSet → IndexSet
 
 @[inline] private def skip : Collector :=
-  fun bv fv => fv
+  fun _ fv => fv
 
 @[inline] private def collectIndex (x : Index) : Collector :=
   fun bv fv => if bv.contains x then fv else fv.insert x
@@ -125,7 +125,7 @@ instance : AndThen Collector where
 
 private def collectArg : Arg → Collector
   | Arg.var x  => collectVar x
-  | irrelevant => skip
+  | _          => skip
 
 private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector :=
   fun bv fv => as.foldl (fun fv a => f a bv fv) fv
@@ -145,7 +145,7 @@ private def collectExpr : Expr → Collector
   | Expr.ap x ys        => collectVar x >> collectArgs ys
   | Expr.box _ x        => collectVar x
   | Expr.unbox x        => collectVar x
-  | Expr.lit v          => skip
+  | Expr.lit _          => skip
   | Expr.isShared x     => collectVar x
   | Expr.isTaggedPtr x  => collectVar x
 
@@ -177,7 +177,7 @@ def FnBody.freeIndices (b : FnBody) : IndexSet :=
   b.collectFreeIndices {}
 
 namespace HasIndex
-/- In principle, we can check whether a function body `b` contains an index `i` using
+/-! In principle, we can check whether a function body `b` contains an index `i` using
    `b.freeIndices.contains i`, but it is more efficient to avoid the construction
    of the set of freeIndices and just search whether `i` occurs in `b` or not.
 -/
@@ -206,13 +206,13 @@ def visitExpr (w : Index) : Expr → Bool
   | Expr.ap x ys        => visitVar w x || visitArgs w ys
   | Expr.box _ x        => visitVar w x
   | Expr.unbox x        => visitVar w x
-  | Expr.lit v          => false
+  | Expr.lit _          => false
   | Expr.isShared x     => visitVar w x
   | Expr.isTaggedPtr x  => visitVar w x
 
 partial def visitFnBody (w : Index) : FnBody → Bool
-  | FnBody.vdecl x _ v b    => visitExpr w v || visitFnBody w b
-  | FnBody.jdecl j ys v b   => visitFnBody w v || visitFnBody w b
+  | FnBody.vdecl _ _ v b    => visitExpr w v || visitFnBody w b
+  | FnBody.jdecl _ _  v b   => visitFnBody w v || visitFnBody w b
   | FnBody.set x _ y b      => visitVar w x || visitArg w y || visitFnBody w b
   | FnBody.uset x _ y b     => visitVar w x || visitVar w y || visitFnBody w b
   | FnBody.sset x _ _ y _ b => visitVar w x || visitVar w y || visitFnBody w b

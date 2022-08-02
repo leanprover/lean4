@@ -2,7 +2,7 @@
 with pkgs;
 let
   nix-pinned = writeShellScriptBin "nix" ''
-    ${nix.defaultPackage.${system}}/bin/nix --experimental-features 'nix-command flakes' --extra-substituters https://lean4.cachix.org/ --option warn-dirty false "$@"
+    ${nix.packages.${system}.default}/bin/nix --experimental-features 'nix-command flakes' --extra-substituters https://lean4.cachix.org/ --option warn-dirty false "$@"
   '';
   # https://github.com/NixOS/nixpkgs/issues/130963
   llvmPackages = if stdenv.isDarwin then llvmPackages_11 else llvmPackages_14;
@@ -76,7 +76,7 @@ in {
   nixpkgs = pkgs;
   ciShell = writeShellScriptBin "ciShell" ''
     set -o pipefail
-    export PATH=${nix-pinned}/bin:${moreutils}/bin:$PATH
+    export PATH=${moreutils}/bin:$PATH
     # prefix lines with cumulative and individual execution time
     "$@" |& ts -i "(%.S)]" | ts -s "[%M:%S"
   '';

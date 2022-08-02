@@ -7,6 +7,7 @@ import Lean.Data.Name
 
 namespace Lean
 
+/-- Value stored in a key-value map. -/
 inductive DataValue where
   | ofString (v : String)
   | ofBool   (v : Bool)
@@ -26,36 +27,40 @@ def DataValue.beqExp (a b : DataValue) : Bool :=
   | _                  => false
 
 def DataValue.sameCtor : DataValue → DataValue → Bool
-  | DataValue.ofString _, DataValue.ofString _ => true
-  | DataValue.ofBool _,   DataValue.ofBool _   => true
-  | DataValue.ofName _,   DataValue.ofName _   => true
-  | DataValue.ofNat _,    DataValue.ofNat _    => true
-  | DataValue.ofInt _,    DataValue.ofInt _    => true
-  | DataValue.ofSyntax _, DataValue.ofSyntax _ => true
-  | _,                    _                    => false
+  | .ofString _, .ofString _ => true
+  | .ofBool _,   .ofBool _   => true
+  | .ofName _,   .ofName _   => true
+  | .ofNat _,    .ofNat _    => true
+  | .ofInt _,    .ofInt _    => true
+  | .ofSyntax _, .ofSyntax _ => true
+  | _,           _           => false
 
 @[export lean_data_value_to_string]
 def DataValue.str : DataValue → String
-  | DataValue.ofString v => v
-  | DataValue.ofBool v   => toString v
-  | DataValue.ofName v   => toString v
-  | DataValue.ofNat v    => toString v
-  | DataValue.ofInt v    => toString v
-  | DataValue.ofSyntax v => toString v
+  | .ofString v => v
+  | .ofBool v   => toString v
+  | .ofName v   => toString v
+  | .ofNat v    => toString v
+  | .ofInt v    => toString v
+  | .ofSyntax v => toString v
 
 instance : ToString DataValue := ⟨DataValue.str⟩
 
-instance : Coe String DataValue := ⟨DataValue.ofString⟩
-instance : Coe Bool DataValue   := ⟨DataValue.ofBool⟩
-instance : Coe Name DataValue   := ⟨DataValue.ofName⟩
-instance : Coe Nat DataValue    := ⟨DataValue.ofNat⟩
-instance : Coe Int DataValue    := ⟨DataValue.ofInt⟩
-instance : Coe Syntax DataValue := ⟨DataValue.ofSyntax⟩
+instance : Coe String DataValue := ⟨.ofString⟩
+instance : Coe Bool DataValue   := ⟨.ofBool⟩
+instance : Coe Name DataValue   := ⟨.ofName⟩
+instance : Coe Nat DataValue    := ⟨.ofNat⟩
+instance : Coe Int DataValue    := ⟨.ofInt⟩
+instance : Coe Syntax DataValue := ⟨.ofSyntax⟩
 
 
-/- Remark: we do not use RBMap here because we need to manipulate KVMap objects in
-   C++ and RBMap is implemented in Lean. So, we use just a List until we can
-   generate C++ code from Lean code. -/
+/--
+A key-value map. We use it to represent user-selected options and `Expr.mdata`.
+
+Remark: we do not use `RBMap` here because we need to manipulate `KVMap` objects in
+C++ and `RBMap` is implemented in Lean. So, we use just a `List` until we can
+generate C++ code from Lean code.
+-/
 structure KVMap where
   entries : List (Name × DataValue) := []
   deriving Inhabited, Repr
@@ -73,7 +78,7 @@ def size (m : KVMap) : Nat :=
   m.entries.length
 
 def findCore : List (Name × DataValue) → Name → Option DataValue
-  | [],       k' => none
+  | [],       _  => none
   | (k,v)::m, k' => if k == k' then some v else findCore m k'
 
 def find : KVMap → Name → Option DataValue
@@ -148,7 +153,7 @@ instance : ForIn m KVMap (Name × DataValue) where
   forIn := KVMap.forIn
 
 def subsetAux : List (Name × DataValue) → KVMap → Bool
-  | [],          m₂ => true
+  | [],          _  => true
   | (k, v₁)::m₁, m₂ =>
     match m₂.find k with
     | some v₂ => v₁ == v₂ && subsetAux m₁ m₂
@@ -167,13 +172,13 @@ class Value (α : Type) where
   toDataValue  : α → DataValue
   ofDataValue? : DataValue → Option α
 
-@[inline] def get? {α : Type} [s : Value α] (m : KVMap) (k : Name) : Option α :=
+@[inline] def get? {α : Type} [Value α] (m : KVMap) (k : Name) : Option α :=
   m.find k |>.bind Value.ofDataValue?
 
-@[inline] def get {α : Type} [s : Value α] (m : KVMap) (k : Name) (defVal : α) : α :=
+@[inline] def get {α : Type} [Value α] (m : KVMap) (k : Name) (defVal : α) : α :=
   m.get? k |>.getD defVal
 
-@[inline] def set {α : Type} [s : Value α] (m : KVMap) (k : Name) (v : α) : KVMap :=
+@[inline] def set {α : Type} [Value α] (m : KVMap) (k : Name) (v : α) : KVMap :=
   m.insert k (Value.toDataValue v)
 
 instance : Value DataValue where

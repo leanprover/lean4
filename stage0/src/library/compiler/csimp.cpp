@@ -1687,8 +1687,7 @@ class csimp_fn {
     bool is_stuck_at_cases(expr e) {
         type_checker tc(m_st, m_lctx);
         while (true) {
-            bool cheap = true;
-            expr e1 = tc.whnf_core(e, cheap);
+            expr e1 = tc.whnf_core_cheap(e);
             expr const & fn = get_app_fn(e1);
             if (!is_constant(fn)) return false;
             if (is_recursor(env(), const_name(fn))) return true;

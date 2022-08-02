@@ -9,6 +9,7 @@ import Lean.Declaration
 import Lean.Log
 import Lean.Util.FindExpr
 import Lean.AuxRecursor
+import Lean.Compiler.Util
 
 namespace Lean
 
@@ -51,7 +52,7 @@ def isRec [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
 
 @[inline] def matchConst [Monad m] [MonadEnv m] (e : Expr) (failK : Unit → m α) (k : ConstantInfo → List Level → m α) : m α := do
   match e with
-  | Expr.const constName us _ => do
+  | Expr.const constName us => do
     match (← getEnv).find? constName with
     | some cinfo => k cinfo us
     | none       => failK ()
@@ -97,6 +98,11 @@ def mkConstWithLevelParams [Monad m] [MonadEnv m] [MonadError m] (constName : Na
   let info ← getConstInfo constName
   return mkConst constName (info.levelParams.map mkLevelParam)
 
+def getConstInfoDefn [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m DefinitionVal := do
+  match (← getConstInfo constName) with
+  | ConstantInfo.defnInfo v => pure v
+  | _                       => throwError "'{mkConst constName}' is not a definition"
+
 def getConstInfoInduct [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m InductiveVal := do
   match (← getConstInfo constName) with
   | ConstantInfo.inductInfo v => pure v
@@ -132,7 +138,7 @@ def addDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] [MonadLog m] 
 private def supportedRecursors :=
   #[``Empty.rec, ``False.rec, ``Eq.ndrec, ``Eq.rec, ``Eq.recOn, ``Eq.casesOn, ``False.casesOn, ``Empty.casesOn, ``And.rec, ``And.casesOn]
 
-/- This is a temporary workaround for generating better error messages for the compiler. It can be deleted after we
+/-- This is a temporary workaround for generating better error messages for the compiler. It can be deleted after we
    rewrite the remaining parts of the compiler in Lean.  -/
 private def checkUnsupported [Monad m] [MonadEnv m] [MonadError m] (decl : Declaration) : m Unit := do
   let env ← getEnv
@@ -155,6 +161,14 @@ def compileDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (decl : D
   | Except.error ex =>
     throwKernelException ex
 
+def compileDecls [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (decls : List Name) : m Unit := do
+  match (← getEnv).compileDecls (← getOptions) decls with
+  | Except.ok env   => setEnv env
+  | Except.error (KernelException.other msg) =>
+    throwError msg
+  | Except.error ex =>
+    throwKernelException ex
+
 def addAndCompile [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] [MonadLog m] [AddMessageContext m] (decl : Declaration) : m Unit := do
   addDecl decl;
   compileDecl decl
@@ -169,7 +183,7 @@ def findModuleOf? [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m (O
   discard <| getConstInfo declName -- ensure declaration exists
   match (← getEnv).getModuleIdxFor? declName with
   | none        => return none
-  | some modIdx => return some ((← getEnv).allImportedModuleNames[modIdx])
+  | some modIdx => return some ((← getEnv).allImportedModuleNames[modIdx.toNat]!)
 
 def isEnumType  [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m Bool := do
   if let ConstantInfo.inductInfo info ← getConstInfo declName then

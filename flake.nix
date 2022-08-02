@@ -41,18 +41,15 @@
         };
         tsandebug = tsan.override { debug = true; };
         stage0-from-input = lean-packages.override {
-          stage0 = lean-stage0.packages.${system}.lean;
+          stage0 = pkgs.writeShellScriptBin "lean" ''
+            exec ${lean-stage0.packages.${system}.lean}/bin/lean -Dinterpreter.prefer_native=false "$@"
+          '';
         };
         inherit self;
       };
       defaultPackage = lean-packages.lean-all;
 
-      devShell = pkgs.mkShell {
-        buildInputs = [ lean-packages.nix ];
-        shellHook = ''
-          export LEAN_SRC_PATH="$PWD/src"
-        '';
-      };
+      inherit (lean-packages) devShell;
 
       checks.lean = lean-packages.test;
     }) // rec {

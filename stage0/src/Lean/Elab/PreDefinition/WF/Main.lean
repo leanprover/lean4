@@ -18,7 +18,7 @@ open Meta
 
 private def isOnlyOneUnaryDef (preDefs : Array PreDefinition) (fixedPrefixSize : Nat) : MetaM Bool := do
   if preDefs.size == 1 then
-    lambdaTelescope preDefs[0].value fun xs _ => return xs.size == fixedPrefixSize + 1
+    lambdaTelescope preDefs[0]!.value fun xs _ => return xs.size == fixedPrefixSize + 1
   else
     return false
 
@@ -26,8 +26,9 @@ private partial def addNonRecPreDefs (preDefs : Array PreDefinition) (preDefNonR
   if (← isOnlyOneUnaryDef preDefs fixedPrefixSize) then
     return ()
   let us := preDefNonRec.levelParams.map mkLevelParam
+  let all := preDefs.toList.map (·.declName)
   for fidx in [:preDefs.size] do
-    let preDef := preDefs[fidx]
+    let preDef := preDefs[fidx]!
     let value ← lambdaTelescope preDef.value fun xs _ => do
       let packedArgs : Array Expr := xs[fixedPrefixSize:]
       let mkProd (type : Expr) : MetaM Expr := do
@@ -39,15 +40,15 @@ private partial def addNonRecPreDefs (preDefs : Array PreDefinition) (preDefNonR
           (← whnfD type).withApp fun f args => do
             assert! args.size == 2
             if i == fidx then
-              return mkApp3 (mkConst ``PSum.inl f.constLevels!) args[0] args[1] (← mkProd args[0])
+              return mkApp3 (mkConst ``PSum.inl f.constLevels!) args[0]! args[1]! (← mkProd args[0]!)
             else
-              let r ← mkSum (i+1) args[1]
-              return mkApp3 (mkConst ``PSum.inr f.constLevels!) args[0] args[1] r
+              let r ← mkSum (i+1) args[1]!
+              return mkApp3 (mkConst ``PSum.inr f.constLevels!) args[0]! args[1]! r
       let Expr.forallE _ domain _ _ := (← instantiateForall preDefNonRec.type xs[:fixedPrefixSize]) | unreachable!
       let arg ← mkSum 0 domain
       mkLambdaFVars xs (mkApp (mkAppN (mkConst preDefNonRec.declName us) xs[:fixedPrefixSize]) arg)
     trace[Elab.definition.wf] "{preDef.declName} := {value}"
-    addNonRec { preDef with value } (applyAttrAfterCompilation := false)
+    addNonRec { preDef with value } (applyAttrAfterCompilation := false) (all := all)
 
 partial def withCommonTelescope (preDefs : Array PreDefinition) (k : Array Expr → Array Expr → TermElabM α) : TermElabM α :=
   go #[] (preDefs.map (·.value))
@@ -55,10 +56,10 @@ where
   go (fvars : Array Expr) (vals : Array Expr) : TermElabM α := do
     if !(vals.all fun val => val.isLambda) then
       k fvars vals
-    else if !(← vals.allM fun val => return val.bindingName! == vals[0].bindingName! && val.binderInfo == vals[0].binderInfo && (← isDefEq val.bindingDomain! vals[0].bindingDomain!)) then
+    else if !(← vals.allM fun val => return val.bindingName! == vals[0]!.bindingName! && val.binderInfo == vals[0]!.binderInfo && (← isDefEq val.bindingDomain! vals[0]!.bindingDomain!)) then
       k fvars vals
     else
-      withLocalDecl vals[0].bindingName! vals[0].binderInfo vals[0].bindingDomain! fun x =>
+      withLocalDecl vals[0]!.bindingName! vals[0]!.binderInfo vals[0]!.bindingDomain! fun x =>
         go (fvars.push x) (vals.map fun val => val.bindingBody!.instantiate1 x)
 
 def getFixedPrefix (preDefs : Array PreDefinition) : TermElabM Nat :=

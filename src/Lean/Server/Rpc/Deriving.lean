@@ -20,26 +20,14 @@ private def deriveWithRefInstance (typeNm : Name) : CommandElabM Bool := do
   -- TODO(WN): check that `typeNm` is not a scalar type
   let typeId := mkIdent typeNm
   let cmds ← `(
-    section
-    variable {m : Type → Type}
-    unsafe def encodeUnsafe [Monad m] [MonadRpcSession m] (r : WithRpcRef $typeId:ident) : m Lsp.RpcRef :=
-      WithRpcRef.encodeUnsafe $(quote typeNm) r
+    unsafe def unsafeInst : RpcEncoding (WithRpcRef $typeId) Lsp.RpcRef where
+      rpcEncode := WithRpcRef.encodeUnsafe $(quote typeNm)
+      rpcDecode := WithRpcRef.decodeUnsafeAs $typeId $(quote typeNm)
 
-    @[implementedBy encodeUnsafe]
-    constant encode [Monad m] [MonadRpcSession m] (r : WithRpcRef $typeId:ident) : m Lsp.RpcRef :=
-      pure ⟨0⟩
+    @[implementedBy unsafeInst]
+    opaque inst : RpcEncoding (WithRpcRef $typeId) Lsp.RpcRef
 
-    unsafe def decodeUnsafe [Monad m] [MonadRpcSession m] (r : Lsp.RpcRef) : ExceptT String m (WithRpcRef $typeId:ident) :=
-      WithRpcRef.decodeUnsafeAs $typeId:ident $(quote typeNm) r
-
-    @[implementedBy decodeUnsafe]
-    constant decode [Monad m] [MonadRpcSession m] (r : Lsp.RpcRef) : ExceptT String m (WithRpcRef $typeId:ident) :=
-      throw "unreachable"
-
-    instance : RpcEncoding (WithRpcRef $typeId:ident) Lsp.RpcRef :=
-      { rpcEncode := encode
-        rpcDecode := decode }
-    end
+    instance : RpcEncoding (WithRpcRef $typeId) Lsp.RpcRef := inst
   )
   elabCommand cmds
   return true
@@ -85,164 +73,119 @@ def withFieldsFlattened (indVal : InductiveVal) (params : Array Expr)
 
 end
 
-def isOptField (n : Name) : Bool :=
-  n.toString.endsWith "?"
+private def getRpcPacketFor (ty : Expr) : MetaM Expr := do
+  let packetTy ← mkFreshExprMVar (Expr.sort levelOne)
+  let _ ← synthInstance (mkApp2 (mkConst ``RpcEncoding) ty packetTy)
+  instantiateMVars packetTy
 
-private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr) : TermElabM Syntax :=
+private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr)
+    (paramBinders packetParamBinders encInstBinders : Array (TSyntax ``Parser.Term.bracketedBinder)) : TermElabM Command := do
   withFields indVal params fun fields => do
     trace[Elab.Deriving.RpcEncoding] "for structure {indVal.name} with params {params}"
-    -- Postulate that every field have a rpc encoding, storing the encoding type ident
-    -- in `fieldEncIds`. When multiple fields have the same type, we reuse the encoding type
-    -- as otherwise typeclass synthesis fails.
     let mut binders := #[]
     let mut fieldIds := #[]
-    let mut fieldEncIds : Array Syntax := #[]
-    let mut uniqFieldEncIds : Array Syntax := #[]
-    let mut fieldEncIds' : DiscrTree Syntax := {}
+    let mut fieldEncTypeStxs := #[]
     for (fieldName, fieldTp) in fields do
       let mut fieldTp := fieldTp
-      if isOptField fieldName then
-        if !fieldTp.isAppOf ``Option then
-          throwError "optional field '{fieldName}' has type{indentD m!"{fieldTp}"}\nbut is expected to have type{indentD "Option _"}"
-        fieldTp := fieldTp.getArg! 0
 
-      -- postulate that the field has an encoding and remember the encoding's binder name
+      let fieldEncTypeStx ← PrettyPrinter.delab (← getRpcPacketFor fieldTp)
+      let stx ← PrettyPrinter.delab fieldTp
       fieldIds := fieldIds.push <| mkIdent fieldName
-      let mut fieldEncId := Syntax.missing
-      match (← fieldEncIds'.getMatch fieldTp).back? with
-      | none =>
-        fieldEncId ← mkIdent <$> mkFreshUserName fieldName
-        binders := binders.push <| ← `(Deriving.explicitBinderF| ( $fieldEncId:ident ))
-        let stx ← PrettyPrinter.delab fieldTp
-        binders := binders.push <|
-          ← `(Deriving.instBinderF| [ $(mkIdent ``Lean.Server.RpcEncoding) $stx $fieldEncId:ident ])
-        fieldEncIds' ← fieldEncIds'.insert fieldTp fieldEncId
-        uniqFieldEncIds := uniqFieldEncIds.push fieldEncId
-      | some fid => fieldEncId := fid
-
-      if isOptField fieldName then
-        fieldEncIds := fieldEncIds.push <| ← ``(Option $fieldEncId:ident)
-      else
-        fieldEncIds := fieldEncIds.push fieldEncId
+      fieldEncTypeStxs := fieldEncTypeStxs.push fieldEncTypeStx
+      binders := binders.push
+        (← `(bracketedBinder| [ RpcEncoding $stx $fieldEncTypeStx ]))
 
     -- helpers for field initialization syntax
     let fieldInits (func : Name) := fieldIds.mapM fun fid =>
-      `(Parser.Term.structInstField| $fid:ident := ← $(mkIdent func):ident a.$fid:ident)
+      `(Parser.Term.structInstField| $fid:ident := ← $(mkIdent func) a.$fid)
     let encInits ← fieldInits ``rpcEncode
     let decInits ← fieldInits ``rpcDecode
 
     -- helpers for type name syntax
     let paramIds ← params.mapM fun p => return mkIdent (← getFVarLocalDecl p).userName
     let typeId := Syntax.mkApp (← `(@$(mkIdent indVal.name))) paramIds
-    let packetId ← mkIdent <$> mkFreshUserName `RpcEncodingPacket
-    let packetAppliedId := Syntax.mkApp packetId uniqFieldEncIds
+    let instId := mkIdent (`_root_ ++ indVal.name.appendBefore "instRpcEncoding")
 
-    `(variable $binders*
+    `(variable $packetParamBinders* in
+      structure RpcEncodingPacket where
+        $[($fieldIds : $fieldEncTypeStxs)]*
+        deriving FromJson, ToJson
 
-      structure $packetId:ident where
-        $[($fieldIds : $fieldEncIds)]*
-        deriving $(mkIdent ``FromJson), $(mkIdent ``ToJson)
-
-      instance : $(mkIdent ``RpcEncoding) $typeId $packetAppliedId:ident where
-        rpcEncode a := return {
-          $[$encInits]*
-        }
-        rpcDecode a := return {
-          $[$decInits]*
-        }
+      variable $(paramBinders ++ packetParamBinders ++ encInstBinders)* in
+      @[instance] def $instId := show RpcEncoding $typeId (RpcEncodingPacket ..) from {
+        rpcEncode := fun a => return { $[$encInits],* }
+        rpcDecode := fun a => return { $[$decInits],* }
+      }
     )
 
 private structure CtorState where
-  -- names of encoded argument types in the RPC packet
-  encArgTypes : DiscrTree Name := {}
-  uniqEncArgTypes : Array Name := #[]
-  -- binders for `encArgTypes` as well as the relevant `RpcEncoding`s
-  binders : Array Syntax := #[]
   -- the syntax of each constructor in the packet
-  ctors : Array Syntax := #[]
+  ctors : Array (TSyntax ``Parser.Command.ctor) := #[]
   -- syntax of each arm of the `rpcEncode` pattern-match
-  encodes : Array Syntax := #[]
+  encodes : Array (TSyntax ``Parser.Term.matchAlt) := #[]
   -- syntax of each arm of the `rpcDecode` pattern-match
-  decodes : Array Syntax := #[]
-  deriving Inhabited
+  decodes : Array (TSyntax ``Parser.Term.matchAlt) := #[]
 
 private def matchF := Lean.Parser.Term.matchAlt (rhsParser := Lean.Parser.termParser)
-private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr) : TermElabM Syntax := do
+private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr)
+    (paramBinders packetParamBinders encInstBinders : Array (TSyntax ``Parser.Term.bracketedBinder)) : TermElabM Command := do
   trace[Elab.Deriving.RpcEncoding] "for inductive {indVal.name} with params {params}"
+  withoutModifyingEnv do
+  let packetNm := (← `(RpcEncodingPacket)).1.getId
+  addDecl <| .axiomDecl {
+    name := packetNm
+    levelParams := []
+    type := mkSort levelOne
+    isUnsafe := true
+  }
+  let pktCtorTp := mkConst packetNm
+  let recInstTp := mkApp2 (mkConst ``RpcEncoding) (mkAppN (mkConst indVal.name) params) pktCtorTp
+  withLocalDecl `inst .instImplicit recInstTp fun _ => do
+  let st ← foldWithConstructors indVal params (init := { : CtorState }) fun acc ctor argVars _ => do
+    -- create the constructor
+    let fieldStxs ← argVars.mapM fun arg => do
+      let packetTp ← getRpcPacketFor (← inferType arg)
+      let tyStx ← PrettyPrinter.delab packetTp
+      let name := (← getFVarLocalDecl arg).userName
+      `(bracketedBinder| ($(mkIdent name) : $tyStx))
+    let pktCtor ← `(Parser.Command.ctor| | $(mkIdent ctor.getString!):ident $[$fieldStxs]* : RpcEncodingPacket)
 
-  -- produce all encoding types and binders for them
-  let st ← foldWithConstructors indVal params (init := { : CtorState}) fun acc ctor argVars tp => do
-    trace[Elab.Deriving.RpcEncoding] "{ctor} : {argVars} → {tp}"
-    let mut acc := acc
-    let argFVars ← argVars.mapM (LocalDecl.fvarId <$> getFVarLocalDecl ·)
-    for arg in argVars do
-      let argTp ← inferType arg
-      if (← getMCtx).findExprDependsOn argTp (pf := fun fv => argFVars.contains fv) then
-        throwError "cross-argument dependencies are not supported ({arg} : {argTp})"
+    -- create encoder and decoder match arms
+    let nms ← argVars.mapM fun _ => mkIdent <$> mkFreshBinderName
+    let mkPattern (src : Name) := Syntax.mkApp (mkIdent <| Name.mkStr src ctor.getString!) nms
+    let mkBody (tgt : Name) (func : Name) : TermElabM Term := do
+      let items ← nms.mapM fun nm => `(← $(mkIdent func) $nm)
+      let tm := Syntax.mkApp (mkIdent <| Name.mkStr tgt ctor.getString!) items
+      `(return $tm:term)
 
-      if (← acc.encArgTypes.getMatch argTp).isEmpty then
-        let tid ← mkFreshUserName `_rpcEnc
-        let argTpStx ← PrettyPrinter.delab argTp
-        acc := { acc with encArgTypes := ← acc.encArgTypes.insert argTp tid
-                          uniqEncArgTypes := acc.uniqEncArgTypes.push tid
-                          binders := acc.binders.append #[
-                            ← `(Deriving.explicitBinderF| ( $(mkIdent tid):ident )),
-                            ← `(Deriving.instBinderF| [ $(mkIdent ``Lean.Server.RpcEncoding) $argTpStx $(mkIdent tid):ident ])
-                          ] }
-    return acc
+    let encArm ← `(matchF| | $(mkPattern indVal.name):term => $(← mkBody packetNm ``rpcEncode))
+    let decArm ← `(matchF| | $(mkPattern packetNm):term => $(← mkBody indVal.name ``rpcDecode))
 
-  -- introduce encoding types into the local context so that we can use the delaborator to print them
-  withLocalDecls
-    (st.uniqEncArgTypes.map fun tid => (tid, BinderInfo.default, fun _ => pure <| mkSort levelOne))
-    fun ts => do
-      trace[Elab.Deriving.RpcEncoding] m!"RpcEncoding type binders : {ts}"
+    return { acc with ctors := acc.ctors.push pktCtor
+                      encodes := acc.encodes.push ⟨encArm⟩
+                      decodes := acc.decodes.push ⟨decArm⟩ }
 
-      let packetNm ← mkFreshUserName `RpcEncodingPacket
-      let st ← foldWithConstructors indVal params (init := st) fun acc ctor argVars tp => do
-        -- create the constructor
-        let mut pktCtorTp := Lean.mkConst packetNm
-        for arg in argVars.reverse do
-          let argTp ← inferType arg
-          let encTpNm := (← acc.encArgTypes.getMatch argTp).back
-          let encTp ← elabTerm (mkIdent encTpNm) none
-          pktCtorTp := mkForall (← getFVarLocalDecl arg).userName BinderInfo.default encTp pktCtorTp
-        -- TODO(WN): this relies on delab printing non-macro-scoped user names in non-dependent foralls
-        -- to generate the expected JSON encoding
-        let pktCtorTpStx ← PrettyPrinter.delab pktCtorTp
-        let pktCtor ← `(Lean.Parser.Command.ctor| | $(mkIdent ctor.getString!):ident : $pktCtorTpStx:term)
+  -- helpers for type name syntax
+  let paramIds ← params.mapM fun p => return mkIdent (← getFVarLocalDecl p).userName
+  let typeId := Syntax.mkApp (← `(@$(mkIdent indVal.name))) paramIds
+  let instId := mkIdent (`_root_ ++ indVal.name.appendBefore "instRpcEncoding")
 
-        -- create encoder and decoder match arms
-        let nms ← argVars.mapM fun _ => mkIdent <$> mkFreshBinderName
-        let mkPattern (src : Name) := Syntax.mkApp (mkIdent <| Name.mkStr src ctor.getString!) nms
-        let mkBody (tgt : Name) (func : Name) : TermElabM Syntax := do
-          let items ← nms.mapM fun nm => `(← $(mkIdent func) $nm)
-          let tm := Syntax.mkApp (mkIdent <| Name.mkStr tgt ctor.getString!) items
-          `(return $tm:term)
+  `(variable $packetParamBinders:bracketedBinder* in
+    inductive RpcEncodingPacket where
+      $[$(st.ctors):ctor]*
+      deriving FromJson, ToJson
 
-        let encArm ← `(matchF| | $(mkPattern indVal.name):term => $(← mkBody packetNm ``rpcEncode))
-        let decArm ← `(matchF| | $(mkPattern packetNm):term => $(← mkBody indVal.name ``rpcDecode))
-
-        return { acc with ctors := acc.ctors.push pktCtor
-                          encodes := acc.encodes.push encArm
-                          decodes := acc.decodes.push decArm }
-
-      -- helpers for type name syntax
-      let paramIds ← params.mapM fun p => return mkIdent (← getFVarLocalDecl p).userName
-      let typeId := Syntax.mkApp (← `(@$(mkIdent indVal.name))) paramIds
-      let packetAppliedId := Syntax.mkApp (mkIdent packetNm) (st.uniqEncArgTypes.map mkIdent)
-
-      `(variable $st.binders*
-
-        inductive $(mkIdent packetNm) where
-          $[$(st.ctors):ctor]*
-          deriving $(mkIdent ``FromJson), $(mkIdent ``ToJson)
-
-        instance : $(mkIdent ``RpcEncoding) $typeId:ident $packetAppliedId:ident where
-          rpcEncode := fun x => match x with
-            $[$(st.encodes):matchAlt]*
-          rpcDecode := fun x => match x with
-            $[$(st.decodes):matchAlt]*
-      )
+    variable $(paramBinders ++ packetParamBinders ++ encInstBinders)* in
+    @[instance] partial def $instId := show RpcEncoding $typeId (RpcEncodingPacket ..) from
+      { rpcEncode, rpcDecode }
+    where
+      rpcEncode {m} [Monad m] [MonadRpcSession m] (x : $typeId) : ExceptT String m (RpcEncodingPacket ..) :=
+        have inst : RpcEncoding $typeId (RpcEncodingPacket ..) := { rpcEncode, rpcDecode }
+        match x with $[$(st.encodes):matchAlt]*
+      rpcDecode {m} [Monad m] [MonadRpcSession m] (x : RpcEncodingPacket ..) : ExceptT String m $typeId :=
+        have inst : RpcEncoding $typeId (RpcEncodingPacket ..) := { rpcEncode, rpcDecode }
+        match x with $[$(st.decodes):matchAlt]*
+  )
 
 /-- Creates an `RpcEncodingPacket` for `typeName`. For structures, the packet is a structure
 with the same field names. For inductives, it mirrors the inductive structure with every field
@@ -255,56 +198,57 @@ private def deriveInstance (typeName : Name) : CommandElabM Bool := do
   if indVal.numIndices ≠ 0 then
     throwError "indexed inductive families are not supported"
 
-  let cmds ← liftTermElabM none <|
+  let (paramBinders, packetParamBinders, encInstBinders) ← liftTermElabM none do
     -- introduce fvars for all the parameters
     forallTelescopeReducing indVal.type fun params _ => do
-      assert! params.size == indVal.numParams
+      let mut paramBinders := #[] -- input parameters
+      let mut packetParamBinders := #[] -- RPC encoding packets for type input parameters
+      let mut encInstBinders := #[] -- RPC encoding instance binders corresponding to packetParamBinders
 
-      -- bind every parameter and *some* (not named) `RpcEncoding` for it
-      let mut binders := #[]
       for param in params do
-        let paramNm := (←getFVarLocalDecl param).userName
-        binders := binders.push <| ← `(Deriving.explicitBinderF| ( $(mkIdent paramNm) ))
+        let paramNm := (← getFVarLocalDecl param).userName
+        let ty ← PrettyPrinter.delab (← inferType param)
+        paramBinders := paramBinders.push (← `(bracketedBinder| ($(mkIdent paramNm) : $ty)))
+        let packet := mkIdent (← mkFreshUserName (paramNm.appendAfter "Packet"))
         -- only look for encodings for `Type` parameters
-        if !(← inferType param).isType then continue
-        binders := binders.push <|
-          ← `(Deriving.instBinderF| [ $(mkIdent ``Lean.Server.RpcEncoding) $(mkIdent paramNm) _ ])
-
-      return #[
-        ← `(section),
-        ← `(variable $binders*),
-        ← if isStructure (← getEnv) typeName then
-          deriveStructureInstance indVal params
+        if (← inferType param).isType then
+          packetParamBinders := packetParamBinders.push (← `(bracketedBinder| ($packet : Type)))
+          encInstBinders := encInstBinders.push (← `(bracketedBinder| [RpcEncoding $(mkIdent paramNm) $packet]))
         else
-          deriveInductiveInstance indVal params,
-        ← `(end)
-      ]
+          packetParamBinders := packetParamBinders.push paramBinders.back
 
-  for cmd in cmds do
-     elabCommand cmd
+      return (paramBinders, packetParamBinders, encInstBinders)
+
+  elabCommand <| ← liftTermElabM none do
+    Term.elabBinders (paramBinders ++ packetParamBinders ++ encInstBinders) fun locals => do
+      let params := locals[:paramBinders.size]
+      if isStructure (← getEnv) typeName then
+          deriveStructureInstance indVal params paramBinders packetParamBinders encInstBinders
+      else
+          deriveInductiveInstance indVal params paramBinders packetParamBinders encInstBinders
+
   return true
 
-private unsafe def dispatchDeriveInstanceUnsafe (declNames : Array Name) (args? : Option Syntax) : CommandElabM Bool := do
+private unsafe def dispatchDeriveInstanceUnsafe (declNames : Array Name) (args? : Option (TSyntax ``Parser.Term.structInst)) : CommandElabM Bool := do
   if declNames.size ≠ 1 then
     return false
   let args ←
     if let some args := args? then
-      let n ← liftCoreM <| mkFreshUserName `_args
-      liftTermElabM (some n) do
+      liftTermElabM none do
         let argsT := mkConst ``DerivingParams
         let args ← elabTerm args argsT
-        evalExpr DerivingParams ``DerivingParams args
+        evalExpr' DerivingParams ``DerivingParams args
     else pure {}
   if args.withRef then
-    deriveWithRefInstance declNames[0]
+    deriveWithRefInstance declNames[0]!
   else
-    deriveInstance declNames[0]
+    deriveInstance declNames[0]!
 
 @[implementedBy dispatchDeriveInstanceUnsafe]
-private constant dispatchDeriveInstance (declNames : Array Name) (args? : Option Syntax) : CommandElabM Bool
+private opaque dispatchDeriveInstance (declNames : Array Name) (args? : Option (TSyntax ``Parser.Term.structInst)) : CommandElabM Bool
 
 builtin_initialize
-  Elab.registerBuiltinDerivingHandlerWithArgs ``RpcEncoding dispatchDeriveInstance
+  registerDerivingHandlerWithArgs ``RpcEncoding dispatchDeriveInstance
   registerTraceClass `Elab.Deriving.RpcEncoding
 
 end Lean.Server.RpcEncoding

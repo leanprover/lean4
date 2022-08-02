@@ -141,15 +141,15 @@ def SimpTheorems.erase [Monad m] [MonadError m] (d : SimpTheorems) (declName : N
   return d.eraseCore declName
 
 private partial def isPerm : Expr → Expr → MetaM Bool
-  | Expr.app f₁ a₁ _, Expr.app f₂ a₂ _ => isPerm f₁ f₂ <&&> isPerm a₁ a₂
-  | Expr.mdata _ s _, t => isPerm s t
-  | s, Expr.mdata _ t _ => isPerm s t
+  | Expr.app f₁ a₁, Expr.app f₂ a₂ => isPerm f₁ f₂ <&&> isPerm a₁ a₂
+  | Expr.mdata _ s, t => isPerm s t
+  | s, Expr.mdata _ t => isPerm s t
   | s@(Expr.mvar ..), t@(Expr.mvar ..) => isDefEq s t
-  | Expr.forallE n₁ d₁ b₁ _, Expr.forallE n₂ d₂ b₂ _ => isPerm d₁ d₂ <&&> withLocalDeclD n₁ d₁ fun x => isPerm (b₁.instantiate1 x) (b₂.instantiate1 x)
-  | Expr.lam n₁ d₁ b₁ _, Expr.lam n₂ d₂ b₂ _ => isPerm d₁ d₂ <&&> withLocalDeclD n₁ d₁ fun x => isPerm (b₁.instantiate1 x) (b₂.instantiate1 x)
-  | Expr.letE n₁ t₁ v₁ b₁ _, Expr.letE n₂ t₂ v₂ b₂ _ =>
+  | Expr.forallE n₁ d₁ b₁ _, Expr.forallE _ d₂ b₂ _ => isPerm d₁ d₂ <&&> withLocalDeclD n₁ d₁ fun x => isPerm (b₁.instantiate1 x) (b₂.instantiate1 x)
+  | Expr.lam n₁ d₁ b₁ _, Expr.lam _ d₂ b₂ _ => isPerm d₁ d₂ <&&> withLocalDeclD n₁ d₁ fun x => isPerm (b₁.instantiate1 x) (b₂.instantiate1 x)
+  | Expr.letE n₁ t₁ v₁ b₁ _, Expr.letE _  t₂ v₂ b₂ _ =>
     isPerm t₁ t₂ <&&> isPerm v₁ v₂ <&&> withLetDecl n₁ t₁ v₁ fun x => isPerm (b₁.instantiate1 x) (b₂.instantiate1 x)
-  | Expr.proj _ i₁ b₁ _, Expr.proj _ i₂ b₂ _ => pure (i₁ == i₂) <&&> isPerm b₁ b₂
+  | Expr.proj _ i₁ b₁, Expr.proj _ i₂ b₂ => pure (i₁ == i₂) <&&> isPerm b₁ b₂
   | s, t => return s == t
 
 private def checkBadRewrite (lhs rhs : Expr) : MetaM Unit := do
@@ -158,7 +158,7 @@ private def checkBadRewrite (lhs rhs : Expr) : MetaM Unit := do
     throwError "invalid `simp` theorem, equation is equivalent to{indentExpr (← mkEq lhs rhs)}"
 
 private partial def shouldPreprocess (type : Expr) : MetaM Bool :=
-  forallTelescopeReducing type fun xs result => do
+  forallTelescopeReducing type fun _ result => do
     if let some (_, lhs, rhs) := result.eq? then
       checkBadRewrite lhs rhs
       return false
@@ -235,7 +235,7 @@ private def checkTypeIsProp (type : Expr) : MetaM Unit :=
 private def mkSimpTheoremCore (e : Expr) (levelParams : Array Name) (proof : Expr) (post : Bool) (prio : Nat) (name? : Option Name) : MetaM SimpTheorem := do
   let type ← instantiateMVars (← inferType e)
   withNewMCtxDepth do
-    let (xs, _, type) ← withReducible <| forallMetaTelescopeReducing type
+    let (_, _, type) ← withReducible <| forallMetaTelescopeReducing type
     let type ← whnfR type
     let (keys, perm) ←
       match type.eq? with
@@ -274,8 +274,10 @@ def addSimpTheorem (ext : SimpExtension) (declName : Name) (post : Bool) (inv : 
   for simpThm in simpThms do
     ext.add (SimpEntry.thm simpThm) attrKind
 
-def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension) : IO Unit :=
+def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension)
+    (ref : Name := by exact decl_name%) : IO Unit :=
   registerBuiltinAttribute {
+    ref   := ref
     name  := attrName
     descr := attrDescr
     applicationTime := AttributeApplicationTime.afterCompilation
@@ -319,9 +321,11 @@ abbrev SimpExtensionMap := Std.HashMap Name SimpExtension
 
 builtin_initialize simpExtensionMapRef : IO.Ref SimpExtensionMap ← IO.mkRef {}
 
-def registerSimpAttr (attrName : Name) (attrDescr : String) (extName : Name := attrName.appendAfter "Ext") : IO SimpExtension := do
+def registerSimpAttr (attrName : Name) (attrDescr : String)
+    (ref : Name := by exact decl_name%)
+    (extName : Name := attrName.appendAfter "Ext") : IO SimpExtension := do
   let ext ← mkSimpExt extName
-  mkSimpAttr attrName attrDescr ext -- Remark: it will fail if it is not performed during initialization
+  mkSimpAttr attrName attrDescr ext ref -- Remark: it will fail if it is not performed during initialization
   simpExtensionMapRef.modify fun map => map.insert attrName ext
   return ext
 
@@ -333,7 +337,7 @@ def getSimpExtension? (attrName : Name) : IO (Option SimpExtension) :=
 def getSimpTheorems : CoreM SimpTheorems :=
   simpExtension.getTheorems
 
-/- Auxiliary method for adding a global declaration to a `SimpTheorems` datastructure. -/
+/-- Auxiliary method for adding a global declaration to a `SimpTheorems` datastructure. -/
 def SimpTheorems.addConst (s : SimpTheorems) (declName : Name) (post : Bool := true) (inv : Bool := false) (prio : Nat := eval_prio default) : MetaM SimpTheorems := do
   let s := { s with erased := s.erased.erase declName }
   let simpThms ← mkSimpTheoremsFromConst declName post inv prio
@@ -356,12 +360,12 @@ private def preprocessProof (val : Expr) (inv : Bool) : MetaM (Array Expr) := do
   let ps ← preprocess val type inv (isGlobal := false)
   return ps.toArray.map fun (val, _) => val
 
-/- Auxiliary method for creating simp theorems from a proof term `val`. -/
+/-- Auxiliary method for creating simp theorems from a proof term `val`. -/
 def mkSimpTheorems (levelParams : Array Name) (proof : Expr) (post : Bool := true) (inv : Bool := false) (prio : Nat := eval_prio default) (name? : Option Name := none): MetaM (Array SimpTheorem) :=
   withReducible do
     (← preprocessProof proof inv).mapM fun val => mkSimpTheoremCore val levelParams val post prio name?
 
-/- Auxiliary method for adding a local simp theorem to a `SimpTheorems` datastructure. -/
+/-- Auxiliary method for adding a local simp theorem to a `SimpTheorems` datastructure. -/
 def SimpTheorems.add (s : SimpTheorems) (levelParams : Array Name) (proof : Expr) (inv : Bool := false) (post : Bool := true) (prio : Nat := eval_prio default) (name? : Option Name := none): MetaM SimpTheorems := do
   if proof.isConst then
     s.addConst proof.constName! post inv prio
@@ -411,11 +415,12 @@ def SimpTheoremsArray.isErased (thmsArray : SimpTheoremsArray) (thmId : Name) : 
 def SimpTheoremsArray.isDeclToUnfold (thmsArray : SimpTheoremsArray) (declName : Name) : Bool :=
   thmsArray.any fun thms => thms.isDeclToUnfold declName
 
-macro "register_simp_attr" id:ident descr:str : command => do
+macro (name := _root_.Lean.Parser.Command.registerSimpAttr) doc?:(docComment)?
+  "register_simp_attr" id:ident descr:str : command => do
   let str := id.getId.toString
   let idParser := mkIdentFrom id (`Parser.Attr ++ id.getId)
-  `(initialize ext : SimpExtension ← registerSimpAttr $(quote id.getId) $descr
-    syntax (name := $idParser:ident) $(quote str):str (Parser.Tactic.simpPre <|> Parser.Tactic.simpPost)? (prio)? : attr)
+  `($[$doc?]? initialize ext : SimpExtension ← registerSimpAttr $(quote id.getId) $descr $(quote id.getId)
+    $[$doc?]? syntax (name := $idParser:ident) $(quote str):str (Parser.Tactic.simpPre <|> Parser.Tactic.simpPost)? (prio)? : attr)
 
 end Meta
 

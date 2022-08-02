@@ -14,17 +14,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     defaults:
       run:
-        # Can't use `nix-shell` without configured nixpkgs path on macOS
         shell: nix -v --experimental-features "nix-command flakes" run .#ciShell -- bash -euxo pipefail {0}
     strategy:
       matrix:
         include:
           - name: Nix Linux
             os: ubuntu-latest
-            nix_url: https://releases.nixos.org/nix/nix-2.8.0/nix-2.8.0-x86_64-linux.tar.xz
           #- name: Nix macOS
           #  os: macos-latest
-          #  nix_url: https://hydra.nixos.org/build/135773542/download/1/nix-2.4pre20210125_36c4d6f-x86_64-darwin.tar.xz
       # complete all jobs
       fail-fast: false
     name: ${{ matrix.name }}
@@ -33,39 +30,32 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      # Install flakes-enabled Nix manually from Hydra since `install-nix-action` doesn't accept raw tarballs
       - name: Install Nix
-        shell: bash -euo pipefail {0}
-        run: |
-          curl ${{ matrix.nix_url }} | tar -xJ
-          # Do a single-user install so actions/cache doesn't get confused about permissions
-          nix-*/install --no-daemon --no-channel-add --darwin-use-unencrypted-nix-store-volume
-          rm -rf nix-*
-      # Call `install-nix-action` anyways to run its Actions-specific setup
-      - name: Setup Nix
-        uses: cachix/install-nix-action@v12
-      - name: Fixup install-nix-action
-        shell: bash -euo pipefail {0}
-        run: |
-          # the path set by install-nix-action is valid only for multi-user installations
-          echo "NIX_SSL_CERT_FILE=$HOME/.nix-profile/etc/ssl/certs/ca-bundle.crt" > $GITHUB_ENV
-        if: matrix.name == 'macOS'
-      - name: Further setup Nix
-        run: |
-          mkdir -p ~/.config/nix
-          echo '
-            max-jobs = auto
+        uses: cachix/install-nix-action@v15
+        with:
+          # https://github.com/NixOS/nix/issues/6572
+          install_url: https://releases.nixos.org/nix/nix-2.7.0/install
+          extra_nix_config: |
             extra-sandbox-paths = /nix/var/cache/ccache
-            extra-substituters = file://${{ github.workspace }}/nix-store-cache?priority=10&trusted=true
-            extra-trusted-substituters = https://lean4.cachix.org/
-            extra-trusted-public-keys = lean4.cachix.org-1:mawtxSxcaiWE24xCXXgh3qnvlTkyU7evRRnGeAhD4Wk=' > ~/.config/nix/nix.conf
+            substituters = file://${{ github.workspace }}/nix-store-cache-copy?priority=10&trusted=true https://cache.nixos.org
+      - name: Set Up Nix Cache
+        uses: actions/cache@v2
+        with:
+          path: nix-store-cache
+          key: ${{ matrix.name }}-nix-store-cache-${{ github.sha }}
+          # fall back to (latest) previous cache
+          restore-keys: |
+            ${{ matrix.name }}-nix-store-cache
+      - name: Further Set Up Nix Cache
+        shell: bash -euxo pipefail {0}
+        run: |
+          # Nix seems to mutate the cache, so make a copy
+          cp -r nix-store-cache nix-store-cache-copy || true
+      - name: Prepare CCache Cache
+        shell: bash -euxo pipefail {0}
+        run: |
           sudo mkdir -m0770 -p /nix/var/cache/ccache
-          # macOS standard chown doesn't support --reference
-          nix shell .#nixpkgs.coreutils -c sudo chown --reference=/nix /nix/var/cache/ccache
-          echo 'max_size = 50M' > /nix/var/cache/ccache/ccache.conf
-
-          # install & use Cachix manually since `cachix-action` pushes *all* derivations (incl. `$mod-deps`, stage 2&3, etc.)
-          [ -z '${{ secrets.CACHIX_AUTH_TOKEN }}' ] || nix-env -iA cachix -f https://cachix.org/api/v1/install
+          sudo chown -R $USER /nix/var/cache/ccache
       - name: Setup CCache Cache
         uses: actions/cache@v2
         with:
@@ -74,18 +64,21 @@ jobs:
           # fall back to (latest) previous cache
           restore-keys: |
             ${{ matrix.name }}-nix-ccache
-      - name: Setup Nix Cache
-        uses: actions/cache@v2
+      - name: Further Set Up CCache Cache
+        shell: bash -euxo pipefail {0}
+        run: |
+          sudo chown -R root:nixbld /nix/var/cache
+          sudo chmod -R 770 /nix/var/cache
+      - name: Install Cachix
+        uses: cachix/cachix-action@v10
         with:
-          path: nix-store-cache
-          key: ${{ matrix.name }}-nix-store-cache-${{ github.sha }}
-          # fall back to (latest) previous cache
-          restore-keys: |
-            ${{ matrix.name }}-nix-store-cache
+          name: lean4
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+          skipPush: true  # we push specific outputs only
       - name: Build
         run: |
           # .o files are not a runtime dependency on macOS because of lack of thin archives
-          nix build $NIX_BUILD_ARGS .#stage0 .#stage1.lean-all .#Lean.oTree .#iTree -o push-build
+          nix build $NIX_BUILD_ARGS .#stage0 .#stage1.lean-all .#Lean.oTree .#iTree .#modDepsFiles -o push-build
       - name: Test
         run: |
           nix build $NIX_BUILD_ARGS .#test -o push-test
@@ -96,9 +89,7 @@ jobs:
         if: matrix.name == 'Nix Linux'
       - name: Push to Cachix
         run: |
-          [ -z "$CACHIX_AUTH_TOKEN" ] || cachix push -j4 lean4 ./push-* || true
-        env:
-          CACHIX_AUTH_TOKEN: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+          [ -z "${{ secrets.CACHIX_AUTH_TOKEN }}" ] || cachix push -j4 lean4 ./push-* || true
       - name: Rebuild Nix Store Cache
         run: |
           rm -rf nix-store-cache || true
@@ -110,5 +101,8 @@ jobs:
           publish_dir: ./result
           destination_dir: ./doc
         if: matrix.name == 'Nix Linux' && github.ref == 'refs/heads/master' && github.event_name == 'push'
+      - name: Fixup CCache Cache
+        run: |
+          sudo chown -R $USER /nix/var/cache
       - name: CCache stats
         run: CCACHE_DIR=/nix/var/cache/ccache nix run .#nixpkgs.ccache -- -s

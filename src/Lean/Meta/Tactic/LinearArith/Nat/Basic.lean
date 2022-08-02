@@ -24,7 +24,7 @@ def LinearExpr.toExpr (e : LinearExpr) : Expr :=
   | var i    => mkApp (mkConst ``var) (mkNatLit i)
   | add a b  => mkApp2 (mkConst ``add) (toExpr a) (toExpr b)
   | mulL k a => mkApp2 (mkConst ``mulL) (mkNatLit k) (toExpr a)
-  | mulR a k => mkApp2 (mkConst ``mulL) (toExpr a) (mkNatLit k)
+  | mulR a k => mkApp2 (mkConst ``mulR) (toExpr a) (mkNatLit k)
 
 instance : ToExpr LinearExpr where
   toExpr a := a.toExpr
@@ -41,7 +41,7 @@ open Nat.Linear.Expr in
 def LinearExpr.toArith (ctx : Array Expr) (e : LinearExpr) : MetaM Expr := do
   match e with
   | num v    => return mkNatLit v
-  | var i    => return ctx[i]
+  | var i    => return ctx[i]!
   | add a b  => mkAdd (← toArith ctx a) (← toArith ctx b)
   | mulL k a => mkMul (mkNatLit k) (← toArith ctx a)
   | mulR a k => mkMul (← toArith ctx a) (mkNatLit k)
@@ -73,12 +73,12 @@ def addAsVar (e : Expr) : M LinearExpr := do
 
 partial def toLinearExpr (e : Expr) : M LinearExpr := do
   match e with
-  | Expr.lit (Literal.natVal n) _ => return num n
-  | Expr.mdata _ e _              => toLinearExpr e
-  | Expr.const ``Nat.zero ..      => return num 0
-  | Expr.app ..                   => visit e
-  | Expr.mvar ..                  => visit e
-  | _                             => addAsVar e
+  | Expr.lit (Literal.natVal n) => return num n
+  | Expr.mdata _ e              => toLinearExpr e
+  | Expr.const ``Nat.zero ..    => return num 0
+  | Expr.app ..                 => visit e
+  | Expr.mvar ..                => visit e
+  | _                           => addAsVar e
 where
   visit (e : Expr) : M LinearExpr := do
     let f := e.getAppFn

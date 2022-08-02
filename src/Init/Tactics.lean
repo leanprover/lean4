@@ -8,6 +8,8 @@ import Init.Notation
 
 namespace Lean
 
+syntax binderIdent := ident <|> "_"
+
 namespace Parser.Tactic
 /-- `with_annotate_state stx t` annotates the lexical range of `stx : Syntax` with the initial and final state of running tactic `t`. -/
 scoped syntax (name := withAnnotateState) "with_annotate_state " rawStx ppSpace tactic : tactic
@@ -103,18 +105,18 @@ syntax (name := constructor) "constructor" : tactic
 /--
 `case tag => tac` focuses on the goal with case name `tag` and solves it using `tac`, or else fails.
 `case tag x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses with inaccessible names to the given names. -/
-syntax (name := case) "case " (ident <|> "_") (ident <|> "_")* " => " tacticSeq : tactic
+syntax (name := case) "case " binderIdent binderIdent* " => " tacticSeq : tactic
 /--
 `case'` is similar to the `case tag => tac` tactic, but does not ensure the goal has been solved after applying `tac`, nor
 admits the goal if `tac` failed. Recall that `case` closes the goal using `sorry` when `tac` fails, and
 the tactic execution is not interrupted.
 -/
-syntax (name := case') "case' " (ident <|> "_") (ident <|> "_")* " => " tacticSeq : tactic
+syntax (name := case') "case' " binderIdent binderIdent* " => " tacticSeq : tactic
 
 /--
 `next => tac` focuses on the next goal solves it using `tac`, or else fails.
 `next x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses with inaccessible names to the given names. -/
-macro "next " args:(ident <|> "_")* " => " tac:tacticSeq : tactic => `(tactic| case _ $args* => $tac)
+macro "next " args:binderIdent* " => " tac:tacticSeq : tactic => `(tactic| case _ $args* => $tac)
 
 /-- `all_goals tac` runs `tac` on each goal, concatenating the resulting goals, if any. -/
 syntax (name := allGoals) "all_goals " tacticSeq : tactic
@@ -134,13 +136,27 @@ syntax (name := traceState) "trace_state" : tactic
 syntax (name := traceMessage) "trace " str : tactic
 /-- `fail_if_success t` fails if the tactic `t` succeeds. -/
 syntax (name := failIfSuccess) "fail_if_success " tacticSeq : tactic
+/-- `(tacs)` executes a list of tactics in sequence, without requiring that
+the goal be closed at the end like `· tacs`. Like `by` itself, the tactics
+can be either separated by newlines or `;`. -/
 syntax (name := paren) "(" tacticSeq ")" : tactic
+/-- `with_reducible tacs` excutes `tacs` using the reducible transparency setting.
+In this setting only definitions tagged as `[reducible]` are unfolded. -/
 syntax (name := withReducible) "with_reducible " tacticSeq : tactic
+/-- `with_reducible_and_instances tacs` excutes `tacs` using the `.instances` transparency setting.
+In this setting only definitions tagged as `[reducible]` or type class instances are unfolded. -/
 syntax (name := withReducibleAndInstances) "with_reducible_and_instances " tacticSeq : tactic
+/-- `with_unfolding_all tacs` excutes `tacs` using the `.all` transparency setting.
+In this setting all definitions that are not opaque are unfolded. -/
 syntax (name := withUnfoldingAll) "with_unfolding_all " tacticSeq : tactic
 /-- `first | tac | ...` runs each `tac` until one succeeds, or else fails. -/
-syntax (name := first) "first " withPosition((group(colGe "|" tacticSeq))+) : tactic
+syntax (name := first) "first " withPosition((colGe "|" tacticSeq)+) : tactic
+/-- `rotate_left n` rotates goals to the left by `n`. That is, `rotate_left 1`
+takes the main goal and puts it to the back of the subgoal list.
+If `n` is omitted, it defaults to `1`. -/
 syntax (name := rotateLeft) "rotate_left" (num)? : tactic
+/-- Rotate the goals to the right by `n`. That is, take the goal at the back
+and push it to the front `n` times. If `n` is omitted, it defaults to `1`. -/
 syntax (name := rotateRight) "rotate_right" (num)? : tactic
 /-- `try tac` runs `tac` and succeeds even if `tac` failed. -/
 macro "try " t:tacticSeq : tactic => `(first | $t | skip)
@@ -167,12 +183,20 @@ macro "rfl" : tactic => `(eq_refl)
   theorems included (relevant for declarations defined by well-founded recursion). -/
 macro "rfl'" : tactic => `(set_option smartUnfolding false in with_unfolding_all rfl)
 
-syntax (name := ac_refl) "ac_refl " : tactic
+/-- `ac_rfl` proves equalities up to application of an associative and commutative operator.
+```
+instance : IsAssociative (α := Nat) (.+.) := ⟨Nat.add_assoc⟩
+instance : IsCommutative (α := Nat) (.+.) := ⟨Nat.add_comm⟩
+
+example (a b c d : Nat) : a + b + c + d = d + (b + c) + a := by ac_rfl
+```
+-/
+syntax (name := acRfl) "ac_rfl" : tactic
 
 /-- `admit` is a shorthand for `exact sorry`. -/
-macro "admit" : tactic => `(exact sorry)
+macro "admit" : tactic => `(exact @sorryAx _ false)
 /-- The `sorry` tactic is a shorthand for `exact sorry`. -/
-macro "sorry" : tactic => `(exact sorry)
+macro "sorry" : tactic => `(exact @sorryAx _ false)
 /-- `infer_instance` is an abbreviation for `exact inferInstance` -/
 macro "infer_instance" : tactic => `(exact inferInstance)
 
@@ -183,7 +207,19 @@ syntax locationWildcard := "*"
 syntax locationHyp      := (colGt term:max)+ ("⊢" <|> "|-")?
 syntax location         := withPosition(" at " (locationWildcard <|> locationHyp))
 
+/--
+* `change tgt'` will change the goal from `tgt` to `tgt'`,
+  assuming these are definitionally equal.
+* `change t' at h` will change hypothesis `h : t` to have type `t'`, assuming
+  assuming `t` and `t'` are definitionally equal.
+-/
 syntax (name := change) "change " term (location)? : tactic
+
+/--
+* `change a with b` will change occurrences of `a` to `b` in the goal,
+  assuming `a` and `b` are are definitionally equal.
+* `change a with b at h` similarly changes `a` to `b` in the type of hypothesis `h`.
+-/
 syntax (name := changeWith) "change " term " with " term (location)? : tactic
 
 syntax rwRule    := ("← " <|> "<- ")? term
@@ -201,19 +237,12 @@ syntax (name := rewriteSeq) "rewrite " (config)? rwRuleSeq (location)? : tactic
 /--
 `rw` is like `rewrite`, but also tries to close the goal by "cheap" (reducible) `rfl` afterwards.
 -/
-syntax (name := rwSeq) "rw " (config)? rwRuleSeq (location)? : tactic
-
-def rwWithRfl (kind : SyntaxNodeKind) (atom : String) (stx : Syntax) : MacroM Syntax := do
-  -- We show the `rfl` state on `]`
-  let seq   := stx[2]
-  let rbrak := seq[2]
-  -- Replace `]` token with one without position information in the expanded tactic
-  let seq   := seq.setArg 2 (mkAtom "]")
-  let tac   := stx.setKind kind |>.setArg 0 (mkAtomFrom stx atom) |>.setArg 2 seq
-  `(tactic| $tac; try (with_reducible rfl%$rbrak))
-
-@[macro rwSeq] def expandRwSeq : Macro :=
-  rwWithRfl ``Lean.Parser.Tactic.rewriteSeq "rewrite"
+macro (name := rwSeq) "rw " c:(config)? s:rwRuleSeq l:(location)? : tactic =>
+  match s with
+  | `(rwRuleSeq| [$rs,*]%$rbrak) =>
+    -- We show the `rfl` state on `]`
+    `(tactic| rewrite $(c)? [$rs,*] $(l)?; with_annotate_state $rbrak (try (with_reducible rfl)))
+  | _ => Macro.throwUnsupported
 
 /--
 The `injection` tactic is based on the fact that constructors of inductive data types are injections.
@@ -225,6 +254,10 @@ Given `h : a::b = c::d`, the tactic `injection h` adds two new hypothesis with t
 The tactic `injection h with h₁ h₂` uses the names `h₁` and `h₂` to name the new hypotheses.
 -/
 syntax (name := injection) "injection " term (" with " (colGt (ident <|> "_"))+)? : tactic
+
+/-- `injections` applies `injection` to all hypotheses recursively
+(since `injection` can produce new hypotheses). Useful for destructing nested
+constructor equalities like `(a::b::c) = (d::e::f)`. -/
 -- TODO: add with
 syntax (name := injections) "injections" : tactic
 
@@ -270,8 +303,8 @@ syntax (name := delta) "delta " ident (location)? : tactic
   kernel that the definition terminates. -/
 syntax (name := unfold) "unfold " ident,+ (location)? : tactic
 
--- Auxiliary macro for lifting have/suffices/let/...
--- It makes sure the "continuation" `?_` is the main goal after refining
+/-- Auxiliary macro for lifting have/suffices/let/...
+  It makes sure the "continuation" `?_` is the main goal after refining. -/
 macro "refine_lift " e:term : tactic => `(focus (refine no_implicit_lambda% $e; rotate_right))
 
 /--
@@ -285,7 +318,7 @@ macro "have " d:haveDecl : tactic => `(refine_lift have $d:haveDecl; ?_)
 /--
 `have h := e` adds the hypothesis `h : t` if `e : t`.
 -/
-macro (priority := high) "have" x:ident " := " p:term : tactic => `(have $x:ident : _ := $p)
+macro (priority := high) "have" x:ident " := " p:term : tactic => `(have $x : _ := $p)
 /--
 Given a main goal `ctx |- t`, `suffices h : t' from e` replaces the main goal with `ctx |- t'`,
 `e` must have type `t` in the context `ctx, h : t'`.
@@ -293,7 +326,7 @@ Given a main goal `ctx |- t`, `suffices h : t' from e` replaces the main goal wi
 The variant `suffices h : t' by tac` is a shorthand for `suffices h : t' from by tac`.
 If `h :` is omitted, the name `this` is used.
  -/
-macro "suffices " d:sufficesDecl : tactic => `(refine_lift suffices $d:sufficesDecl; ?_)
+macro "suffices " d:sufficesDecl : tactic => `(refine_lift suffices $d; ?_)
 /--
 `let h : t := e` adds the hypothesis `h : t := e` to the current goal if `e` a term of type `t`.
 If `t` is omitted, it will be inferred.
@@ -305,18 +338,24 @@ macro "let " d:letDecl : tactic => `(refine_lift let $d:letDecl; ?_)
 `show t` finds the first goal whose target unifies with `t`. It makes that the main goal,
  performs the unification, and replaces the target with the unified version of `t`.
 -/
-macro "show " e:term : tactic => `(refine_lift show $e:term from ?_) -- TODO: fix, see comment
-syntax (name := letrec) withPosition(atomic(group("let " &"rec ")) letRecDecls) : tactic
+macro "show " e:term : tactic => `(refine_lift show $e from ?_) -- TODO: fix, see comment
+/-- `let rec f : t := e` adds a recursive definition `f` to the current goal.
+The syntax is the same as term-mode `let rec`. -/
+syntax (name := letrec) withPosition(atomic("let " &"rec ") letRecDecls) : tactic
 macro_rules
-  | `(tactic| let rec $d:letRecDecls) => `(tactic| refine_lift let rec $d:letRecDecls; ?_)
+  | `(tactic| let rec $d) => `(tactic| refine_lift let rec $d; ?_)
 
--- Similar to `refineLift`, but using `refine'`
+/-- Similar to `refine_lift`, but using `refine'` -/
 macro "refine_lift' " e:term : tactic => `(focus (refine' no_implicit_lambda% $e; rotate_right))
+/-- Similar to `have`, but using `refine'` -/
 macro "have' " d:haveDecl : tactic => `(refine_lift' have $d:haveDecl; ?_)
-macro (priority := high) "have'" x:ident " := " p:term : tactic => `(have' $x:ident : _ := $p)
+/-- Similar to `have`, but using `refine'` -/
+macro (priority := high) "have'" x:ident " := " p:term : tactic => `(have' $x : _ := $p)
+/-- Similar to `let`, but using `refine'` -/
 macro "let' " d:letDecl : tactic => `(refine_lift' let $d:letDecl; ?_)
 
-syntax inductionAlt  := ppDedent(ppLine) "| " (group("@"? ident) <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)
+syntax inductionAltLHS := "| " (("@"? ident) <|> "_") (ident <|> "_")*
+syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ " => " (hole <|> syntheticHole <|> tacticSeq)
 syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)+)
 /--
 Assuming `x` is a variable in the local context with an inductive type, `induction x` applies induction on `x` to the main goal,
@@ -355,7 +394,7 @@ and one goal with hypothesis `h : P (Nat.succ a)` and target `Q (Nat.succ a)`. H
 syntax (name := cases) "cases " casesTarget,+ (" using " ident)? (inductionAlts)? : tactic
 
 /-- `rename_i x_1 ... x_n` renames the last `n` inaccessible names using the given names. -/
-syntax (name := renameI) "rename_i " (colGt (ident <|> "_"))+ : tactic
+syntax (name := renameI) "rename_i " (colGt binderIdent)+ : tactic
 
 /--
 `repeat tac` applies `tac` to main goal. If the application succeeds,
@@ -380,6 +419,15 @@ For a `match` expression with `n` cases, the `split` tactic generates at most `n
 -/
 syntax (name := split) "split " (colGt term)? (location)? : tactic
 
+/-- `dbg_trace "foo"` prints `foo` when elaborated.
+Useful for debugging tactic control flow:
+```
+example : False ∨ True := by
+  first
+  | apply Or.inl; trivial; dbg_trace "left"
+  | apply Or.inr; trivial; dbg_trace "right"
+```
+-/
 syntax (name := dbgTrace) "dbg_trace " str : tactic
 
 /-- `stop` is a helper tactic for "discarding" the rest of a proof. It is useful when working on the middle of a complex proofs,
@@ -401,13 +449,41 @@ macro_rules | `(tactic| trivial) => `(tactic| decide)
 macro_rules | `(tactic| trivial) => `(tactic| apply True.intro)
 macro_rules | `(tactic| trivial) => `(tactic| apply And.intro <;> trivial)
 
-macro "unhygienic " t:tacticSeq : tactic => `(set_option tactic.hygienic false in $t:tacticSeq)
+/-- `unhygienic tacs` runs `tacs` with name hygiene disabled.
+This means that tactics that would normally create inaccessible names will instead
+make regular variables. **Warning**: Tactics may change their variable naming
+strategies at any time, so code that depends on autogenerated names is brittle.
+Users should try not to use `unhygienic` if possible.
+```
+example : ∀ x : Nat, x = x := by unhygienic
+  intro            -- x would normally be intro'd as inaccessible
+  exact Eq.refl x  -- refer to x
+```
+-/
+macro "unhygienic " t:tacticSeq : tactic => `(set_option tactic.hygienic false in $t)
 
 /-- `fail msg` is a tactic that always fail and produces an error using the given message. -/
 syntax (name := fail) "fail " (str)? : tactic
 
+/-- `checkpoint tac` acts the same as `tac`, but it caches the input and output of `tac`,
+and if the file is re-elaborated and the input matches, the tactic is not re-run and
+its effects are reapplied to the state. This is useful for improving responsiveness
+when working on a long tactic proof, by wrapping expensive tactics with `checkpoint`.
+
+See the `save` tactic, which may be more convenient to use.
+
+(TODO: do this automatically and transparently so that users don't have to use
+this combinator explicitly.) -/
 syntax (name := checkpoint) "checkpoint " tacticSeq : tactic
 
+/-- `save` is defined to be the same as `skip`, but the elaborator has
+special handling for occurrences of `save` in tactic scripts and will transform
+`by tac1; save; tac2` to `by (checkpoint tac1); tac2`, meaning that the effect of `tac1`
+will be cached and replayed. This is useful for improving responsiveness
+when working on a long tactic proof, by using `save` after expensive tactics.
+
+(TODO: do this automatically and transparently so that users don't have to use
+this combinator explicitly.) -/
 macro (name := save) "save" : tactic => `(skip)
 
 /-- The tactic `sleep ms` sleeps for `ms` milliseconds and does nothing. It is used for debugging purposes only. -/
@@ -417,10 +493,55 @@ syntax (name := sleep) "sleep" num : tactic
 macro "exists " es:term,+ : tactic =>
   `(tactic| (refine ⟨$es,*, ?_⟩; try trivial))
 
+/--
+Apply congruence (recursively) to goals of the form `⊢ f as = f bs` and `⊢ HEq (f as) (f bs)`.
+The optional parameter is the depth of the recursive applications. This is useful when `congr` is too aggressive
+in breaking down the goal.
+For example, given `⊢ f (g (x + y)) = f (g (y + x))`, `congr` produces the goals `⊢ x = y` and `⊢ y = x`,
+while `congr 2` produces the intended `⊢ x + y = y + x`.
+-/
+syntax (name := congr) "congr " (num)? : tactic
+
 end Tactic
 
 namespace Attr
--- simp attribute syntax
+/--
+Theorems tagged with the `simp` attribute are by the simplifier (i.e., the `simp` tactic, and its variants) to simplify
+expressions occurring in your goals.
+We call theorems tagged with the `simp` attribute "simp theorems" or "simp lemmas".
+Lean maintains a database/index containing all active simp theorems.
+Here is an example of a simp theorem.
+```lean
+@[simp] theorem ne_eq (a b : α) : (a ≠ b) = Not (a = b) := rfl
+```
+This simp theorem instructs the simplifier to replace instances of the term `a ≠ b` (e.g. `x + 0 ≠ y`) with `Not (a = b)`
+(e.g., `Not (x + 0 = y)`).
+The simplifier applies simp theorems in one direction only: if `A = B` is a simp theorem, then `simp`
+replaces `A`s with `B`s, but it doesn't replace `B`s with `A`s. Hence a simp theorem should have the
+property that its right-hand side is "simpler" than its left-hand side.
+In particular, `=` and `↔` should not be viewed as symmetric operators in this situation.
+The following would be a terrible simp theorem (if it were even allowed):
+```lean
+@[simp] lemma mul_right_inv_bad (a : G) : 1 = a * a⁻¹ := ...
+```
+Replacing 1 with a * a⁻¹ is not a sensible default direction to travel. Even worse would be a theorem
+that causes expressions to grow without bound, causing simp to loop forever.
+
+By default the simplifier applies `simp` theorems to an expression `e` after its sub-expressions have been simplified.
+We say it performs a bottom-up simplification. You can instruct the simplifier to apply a theorem before its sub-expressions
+have been simplified by using the modifier `↓`. Here is an example
+```lean
+@[simp↓] theorem not_and_eq (p q : Prop) : (¬ (p ∧ q)) = (¬p ∨ ¬q) :=
+```
+
+When multiple simp theorems are applicable, the simplifier uses the one with highest priority. If there are several with
+the same priority, it is uses the "most recent one". Example:
+```lean
+@[simp high] theorem cond_true (a b : α) : cond true a b = a := rfl
+@[simp low+1] theorem or_true (p : Prop) : (p ∨ True) = True := propext <| Iff.intro (fun _ => trivial) (fun _ => Or.inr trivial)
+@[simp 100] theorem ite_self {d : Decidable c} (a : α) : ite c a a = a := by cases d  <;> rfl
+```
+-/
 syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? (prio)? : attr
 end Attr
 
@@ -431,3 +552,37 @@ end Lean
 `‹t›` resolves to an (arbitrary) hypothesis of type `t`. It is useful for referring to hypotheses without accessible names.
 `t` may contain holes that are solved by unification with the expected type; in particular, `‹_›` is a shortcut for `by assumption`. -/
 macro "‹" type:term "›" : term => `((by assumption : $type))
+
+/-- `get_elem_tactic_trivial` is an extensible tactic automatically called
+by the notation `arr[i]` to prove any side conditions that arise when
+constructing the term (e.g. the index is in bounds of the array).
+The default behavior is to just try `trivial` (which handles the case
+where `i < arr.size` is in the context) and `simp_arith`
+(for doing linear arithmetic in the index). -/
+syntax "get_elem_tactic_trivial" : tactic
+
+macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| trivial)
+macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| simp (config := { arith := true }); done)
+
+/-- `get_elem_tactic` is the tactic automatically called by the notation `arr[i]`
+to prove any side conditions that arise when constructing the term
+(e.g. the index is in bounds of the array). It just delegates to
+`get_elem_tactic_trivial` and gives a diagnostic error message otherwise;
+users are encouraged to extend `get_elem_tactic_trivial` instead of this tactic. -/
+macro "get_elem_tactic" : tactic =>
+  `(first
+    | get_elem_tactic_trivial
+    | fail "failed to prove index is valid, possible solutions:
+  - Use `have`-expressions to prove the index is valid
+  - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]?` notation instead, result is an `Option` type
+  - Use `a[i]'h` notation instead, where `h` is a proof that index is valid"
+   )
+
+macro:max x:term noWs "[" i:term "]" : term => `(getElem $x $i (by get_elem_tactic))
+
+/-- Helper declaration for the unexpander -/
+@[inline] def getElem' [GetElem cont idx elem dom] (xs : cont) (i : idx) (h : dom xs i) : elem :=
+  getElem xs i h
+
+macro x:term noWs "[" i:term "]'" h:term:max : term => `(getElem' $x $i $h)

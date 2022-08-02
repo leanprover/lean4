@@ -180,7 +180,7 @@ With this added to the earlier instance declarations, type class instance can in
 #  default := true
 # instance : Inhabited Nat where
 #  default := 0
-# constant default [Inhabited a] : a :=
+# opaque default [Inhabited a] : a :=
 #  Inhabited.default
 instance [Inhabited a] [Inhabited b] : Inhabited (a × b) where
   default := (default, default)
@@ -273,6 +273,20 @@ def getUnit [Monoid α] : α :=
   1
 ```
 
+Because many users were forgetting the `nat_lit` when defining `OfNat` instances, Lean also accepts `OfNat` instance
+declarations not using `nat_lit`. Thus, the following is also accepted.
+```lean
+class Monoid (α : Type u) where
+  unit : α
+  op   : α → α → α
+
+instance [s : Monoid α] : OfNat α 1 where
+  ofNat := s.unit
+
+def getUnit [Monoid α] : α :=
+  1
+```
+
 ## Output parameters
 
 By default, Lean only tries to synthesize an instance `Inhabited T` when the term `T` is known and does not
@@ -353,9 +367,9 @@ instance : HMul Int Int Int where
 
 def xs : List Int := [1, 2, 3]
 
+# -- TODO: fix error message
 -- Error "failed to create type class instance for HMul Int ?m.1767 (?m.1797 x)"
-# -- FIXME: should fail
-#check fun y => xs.map (fun x => hMul x y)
+-- #check fun y => xs.map (fun x => hMul x y)
 # end Ex
 ```
 The instance `HMul` is not synthesized by Lean because the type of `y` has not been provided.

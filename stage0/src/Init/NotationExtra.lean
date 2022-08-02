@@ -16,20 +16,20 @@ macro "Macro.trace[" id:ident "]" s:interpolatedStr(term) : term =>
 
 -- Auxiliary parsers and functions for declaring notation with binders
 
-syntax binderIdent                := ident <|> "_"
 syntax unbracketedExplicitBinders := binderIdent+ (" : " term)?
 syntax bracketedExplicitBinders   := "(" binderIdent+ " : " term ")"
 syntax explicitBinders            := bracketedExplicitBinders+ <|> unbracketedExplicitBinders
 
+open TSyntax.Compat in
 def expandExplicitBindersAux (combinator : Syntax) (idents : Array Syntax) (type? : Option Syntax) (body : Syntax) : MacroM Syntax :=
   let rec loop (i : Nat) (acc : Syntax) := do
     match i with
     | 0   => pure acc
     | i+1 =>
-      let ident := idents[i][0]
+      let ident := idents[i]![0]
       let acc ← match ident.isIdent, type? with
         | true,  none      => `($combinator fun $ident => $acc)
-        | true,  some type => `($combinator fun $ident:ident : $type => $acc)
+        | true,  some type => `($combinator fun $ident : $type => $acc)
         | false, none      => `($combinator fun _ => $acc)
         | false, some type => `($combinator fun _ : $type => $acc)
       loop i acc
@@ -40,8 +40,8 @@ def expandBrackedBindersAux (combinator : Syntax) (binders : Array Syntax) (body
     match i with
     | 0   => pure acc
     | i+1 =>
-      let idents := binders[i][1].getArgs
-      let type   := binders[i][3]
+      let idents := binders[i]![1].getArgs
+      let type   := binders[i]![3]
       loop i (← expandExplicitBindersAux combinator idents (some type) acc)
   loop binders.size body
 
@@ -64,21 +64,15 @@ def expandBrackedBinders (combinatorDeclName : Name) (bracketedExplicitBinders :
 syntax unifConstraint := term (" =?= " <|> " ≟ ") term
 syntax unifConstraintElem := colGe unifConstraint ", "?
 
-syntax attrKind "unif_hint " (ident)? bracketedBinder* " where " withPosition(unifConstraintElem*) ("|-" <|> "⊢ ") unifConstraint : command
-
-private def mkHintBody (cs : Array Syntax) (p : Syntax) : MacroM Syntax := do
-  let mut body ← `($(p[0]) = $(p[2]))
-  for c in cs.reverse do
-    body ← `($(c[0][0]) = $(c[0][2]) → $body)
-  return body
+syntax (docComment)? attrKind "unif_hint " (ident)? bracketedBinder* " where " withPosition(unifConstraintElem*) ("|-" <|> "⊢ ") unifConstraint : command
 
 macro_rules
-  | `($kind:attrKind unif_hint $bs:explicitBinder* where $cs* |- $p) => do
-    let body ← mkHintBody cs p
-    `(@[$kind:attrKind unificationHint] def hint $bs:explicitBinder* : Sort _ := $body)
-  | `($kind:attrKind unif_hint $n:ident $bs* where $cs* |- $p) => do
-    let body ← mkHintBody cs p
-    `(@[$kind:attrKind unificationHint] def $n:ident $bs:explicitBinder* : Sort _ := $body)
+  | `($[$doc?:docComment]? $kind:attrKind unif_hint $(n)? $bs* where $[$cs₁ ≟ $cs₂]* |- $t₁ ≟ $t₂) => do
+    let mut body ← `($t₁ = $t₂)
+    for (c₁, c₂) in cs₁.zip cs₂ |>.reverse do
+      body ← `($c₁ = $c₂ → $body)
+    let hint : Ident ← `(hint)
+    `($[$doc?:docComment]? @[$kind unificationHint] def $(n.getD hint) $bs* : Sort _ := $body)
 end Lean
 
 open Lean
@@ -92,17 +86,55 @@ macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBrackedBi
 
 -- enforce indentation of calc steps so we know when to stop parsing them
 syntax calcStep := ppIndent(colGe term " := " withPosition(term))
-syntax (name := calc) "calc" ppLine withPosition((calcStep ppLine)+) : term
 
-macro "calc " steps:withPosition(calcStep+) : tactic => `(exact calc $(steps.getArgs)*)
+/-- Step-wise reasoning over transitive relations.
+```
+calc
+  a = b := pab
+  b = c := pbc
+  ...
+  y = z := pyz
+```
+proves `a = z` from the given step-wise proofs. `=` can be replaced with any
+relation implementing the typeclass `Trans`. Instead of repeating the right-
+hand sides, subsequent left-hand sides can be replaced with `_`.
+
+`calc` has term mode and tactic mode variants. This is the term mode variant.
+
+See [Theorem Proving in Lean 4][tpil4] for more information.
+
+[tpil4]: https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#calculational-proofs
+-/
+syntax (name := calc) "calc" ppLine withPosition(calcStep) ppLine withPosition((calcStep ppLine)*) : term
+
+/-- Step-wise reasoning over transitive relations.
+```
+calc
+  a = b := pab
+  b = c := pbc
+  ...
+  y = z := pyz
+```
+proves `a = z` from the given step-wise proofs. `=` can be replaced with any
+relation implementing the typeclass `Trans`. Instead of repeating the right-
+hand sides, subsequent left-hand sides can be replaced with `_`.
+
+`calc` has term mode and tactic mode variants. This is the tactic mode variant,
+which supports an additional feature: it works even if the goal is `a = z'`
+for some other `z'`; in this case it will not close the goal but will instead
+leave a subgoal proving `z = z'`.
+
+See [Theorem Proving in Lean 4][tpil4] for more information.
+
+[tpil4]: https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#calculational-proofs
+-/
+syntax (name := calcTactic) "calc" ppLine withPosition(calcStep) ppLine withPosition((calcStep ppLine)*) : tactic
 
 @[appUnexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `(())
-  | _       => throw ()
 
 @[appUnexpander List.nil] def unexpandListNil : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `([])
-  | _       => throw ()
 
 @[appUnexpander List.cons] def unexpandListCons : Lean.PrettyPrinter.Unexpander
   | `($(_) $x [])      => `([$x])
@@ -154,6 +186,34 @@ macro "calc " steps:withPosition(calcStep+) : tactic => `(exact calc $(steps.get
   | `($(_) fun $x:ident => $p)            => `({ $x // $p })
   | _                                     => throw ()
 
+@[appUnexpander TSyntax] def unexpandTSyntax : Lean.PrettyPrinter.Unexpander
+  | `($f [$k])  => `($f $k)
+  | _           => throw ()
+
+@[appUnexpander TSyntaxArray] def unexpandTSyntaxArray : Lean.PrettyPrinter.Unexpander
+  | `($f [$k])  => `($f $k)
+  | _           => throw ()
+
+@[appUnexpander Syntax.TSepArray] def unexpandTSepArray : Lean.PrettyPrinter.Unexpander
+  | `($f [$k] $sep)  => `($f $k $sep)
+  | _                => throw ()
+
+@[appUnexpander GetElem.getElem] def unexpandGetElem : Lean.PrettyPrinter.Unexpander
+  | `($_ $array $index $_) => `($array[$index])
+  | _ => throw ()
+
+@[appUnexpander getElem!] def unexpandGetElem! : Lean.PrettyPrinter.Unexpander
+  | `($_ $array $index) => `($array[$index]!)
+  | _ => throw ()
+
+@[appUnexpander getElem?] def unexpandGetElem? : Lean.PrettyPrinter.Unexpander
+  | `($_ $array $index) => `($array[$index]?)
+  | _ => throw ()
+
+@[appUnexpander getElem'] def unexpandGetElem' : Lean.PrettyPrinter.Unexpander
+  | `($_ $array $index $h) => `($array[$index]'$h)
+  | _ => throw ()
+
 /--
 Apply function extensionality and introduce new hypotheses.
 The tactic `funext` will keep applying new the `funext` lemma until the goal target is not reducible to
@@ -170,16 +230,13 @@ Patterns can be used like in the `intro` tactic. Example, given a goal
 syntax "funext " (colGt term:max)+ : tactic
 
 macro_rules
-  | `(tactic|funext $xs*) =>
-    if xs.size == 1 then
-      `(tactic| apply funext; intro $(xs[0]):term)
-    else
-      `(tactic| apply funext; intro $(xs[0]):term; funext $(xs[1:])*)
+  | `(tactic|funext $x) => `(tactic| apply funext; intro $x:term)
+  | `(tactic|funext $x $xs*) => `(tactic| apply funext; intro $x:term; funext $xs*)
 
 macro_rules
   | `(%[ $[$x],* | $k ]) =>
     if x.size < 8 then
-      x.foldrM (init := k) fun x k =>
+      x.foldrM (β := Term) (init := k) fun x k =>
         `(List.cons $x $k)
     else
       let m := x.size / 2
@@ -188,7 +245,7 @@ macro_rules
       `(let y := %[ $[$y],* | $k ]
         %[ $[$z],* | y ])
 
-/-
+/--
   Expands
   ```
   class abbrev C <params> := D_1, ..., D_n
@@ -199,37 +256,44 @@ macro_rules
   attribute [instance] C.mk
   ```
 -/
-syntax declModifiers "class " "abbrev " declId bracketedBinder* (":" term)?
+syntax (name := Lean.Parser.Command.classAbbrev)
+  declModifiers "class " "abbrev " declId bracketedBinder* (":" term)?
   ":=" withPosition(group(colGe term ","?)*) : command
 
 macro_rules
-  | `($mods:declModifiers class abbrev $id $params* $[: $ty:term]? := $[ $parents:term $[,]? ]*) =>
-    let name := id[0]
-    let ctor := mkIdentFrom name <| name.getId.modifyBase (. ++ `mk)
-    `($mods:declModifiers class $id $params* extends $[$parents:term],* $[: $ty]?
+  | `($mods:declModifiers class abbrev $id $params* $[: $ty]? := $[ $parents $[,]? ]*) =>
+    let ctor := mkIdentFrom id <| id.raw[0].getId.modifyBase (. ++ `mk)
+    `($mods:declModifiers class $id $params* extends $parents,* $[: $ty]?
       attribute [instance] $ctor)
 
+section
+open Lean.Parser.Tactic
 /-- `· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. -/
-syntax ("·" <|> ".") ppHardSpace many1Indent(group(tactic ";"? ppLine)) : tactic
+syntax ("·" <|> ".") ppHardSpace many1Indent(tactic ";"? ppLine) : tactic
 macro_rules
-  | `(tactic| ·%$dot $[$tacs:tactic $[;%$sc]?]*) => `(tactic| {%$dot $[$tacs:tactic $[;%$sc]?]*})
+  | `(tactic| ·%$dot $[$tacs $[;%$sc]?]*) => do
+    let tacs ← tacs.zip sc |>.mapM fun
+      | (tac, none)    => pure tac
+      | (tac, some sc) => `(tactic| ($tac; with_annotate_state $sc skip))
+    `(tactic| { with_annotate_state $dot skip; $[$tacs]* })
+end
 
 /--
   Similar to `first`, but succeeds only if one the given tactics solves the current goal.
 -/
-syntax (name := solve) "solve " withPosition((group(colGe "|" tacticSeq))+) : tactic
+syntax (name := solve) "solve " withPosition((colGe "|" tacticSeq)+) : tactic
 
 macro_rules
   | `(tactic| solve $[| $ts]* ) => `(tactic| focus first $[| ($ts); done]*)
 
 namespace Lean
-/- `repeat` and `while` notation -/
+/-! # `repeat` and `while` notation -/
 
 inductive Loop where
   | mk
 
 @[inline]
-partial def Loop.forIn {β : Type u} {m : Type u → Type v} [Monad m] (loop : Loop) (init : β) (f : Unit → β → m (ForInStep β)) : m β :=
+partial def Loop.forIn {β : Type u} {m : Type u → Type v} [Monad m] (_ : Loop) (init : β) (f : Unit → β → m (ForInStep β)) : m β :=
   let rec @[specialize] loop (b : β) : m β := do
     match ← f () b with
       | ForInStep.done b  => pure b
@@ -244,6 +308,11 @@ syntax "repeat " doSeq : doElem
 macro_rules
   | `(doElem| repeat $seq) => `(doElem| for _ in Loop.mk do $seq)
 
+syntax "while " ident " : " termBeforeDo " do " doSeq : doElem
+
+macro_rules
+  | `(doElem| while $h : $cond do $seq) => `(doElem| repeat if $h : $cond then $seq else break)
+
 syntax "while " termBeforeDo " do " doSeq : doElem
 
 macro_rules
@@ -252,7 +321,7 @@ macro_rules
 syntax "repeat " doSeq " until " term : doElem
 
 macro_rules
-  | `(doElem| repeat $seq until $cond) => `(doElem| repeat do $seq; if $cond then break)
+  | `(doElem| repeat $seq until $cond) => `(doElem| repeat do $seq:doSeq; if $cond then break)
 
 macro:50 e:term:51 " matches " p:sepBy1(term:51, "|") : term =>
   `(((match $e:term with | $[$p:term]|* => true | _ => false) : Bool))

@@ -64,8 +64,8 @@ example (x : Nat × Nat) : (frob x).2 = 42 := rfl
 
 example (x y : Unit) : x = y := rfl
 
-constant f : Nat → Unit
-constant g : Nat → Unit
+opaque f : Nat → Unit
+opaque g : Nat → Unit
 
 example (x y : Nat) : f x = f y := rfl
 

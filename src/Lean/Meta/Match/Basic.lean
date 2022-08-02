@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.Check
+import Lean.Meta.CollectFVars
 import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Match.CaseArraySizes
 
@@ -64,7 +65,7 @@ where
       let fields ← fields.mapM visit
       pure $ mkAppN (mkConst ctorName us) (params ++ fields).toArray
 
-/- Apply the free variable substitution `s` to the given pattern -/
+/-- Apply the free variable substitution `s` to the given pattern -/
 partial def applyFVarSubst (s : FVarSubst) : Pattern → Pattern
   | inaccessible e  => inaccessible $ s.apply e
   | ctor n us ps fs => ctor n us (ps.map s.apply) $ fs.map (applyFVarSubst s)
@@ -89,6 +90,18 @@ partial def hasExprMVar : Pattern → Bool
   | arrayLit t xs  => t.hasExprMVar || xs.any hasExprMVar
   | _              => false
 
+
+partial def collectFVars (p : Pattern) : StateRefT CollectFVars.State MetaM Unit := do
+  match p with
+  | inaccessible e => e.collectFVars
+  | ctor _ _ ps fs =>
+    ps.forM fun p => p.collectFVars
+    fs.forM collectFVars
+  | val e => e.collectFVars
+  | arrayLit t xs => t.collectFVars; xs.forM collectFVars
+  | as fvarId₁ p fvarId₂ => modify (·.add fvarId₁ |>.add fvarId₂); p.collectFVars
+  | var fvarId => modify (·.add fvarId)
+
 end Pattern
 
 partial def instantiatePatternMVars : Pattern → MetaM Pattern
@@ -103,6 +116,10 @@ structure AltLHS where
   ref        : Syntax
   fvarDecls  : List LocalDecl -- Free variables used in the patterns.
   patterns   : List Pattern   -- We use `List Pattern` since we have nary match-expressions.
+
+def AltLHS.collectFVars (altLHS: AltLHS) : StateRefT CollectFVars.State MetaM Unit := do
+  altLHS.fvarDecls.forM fun fvarDecl => fvarDecl.collectFVars
+  altLHS.patterns.forM fun p => p.collectFVars
 
 def instantiateAltLHSMVars (altLHS : AltLHS) : MetaM AltLHS :=
   return { altLHS with
@@ -140,7 +157,7 @@ def replaceFVarId (fvarId : FVarId) (v : Expr) (alt : Alt) : Alt :=
       decls.map $ replaceFVarIdAtLocalDecl fvarId v,
     rhs       := alt.rhs.replaceFVarId fvarId v }
 
-/-
+/--
   Similar to `checkAndReplaceFVarId`, but ensures type of `v` is definitionally equal to type of `fvarId`.
   This extra check is necessary when performing dependent elimination and inaccessible terms have been used.
   For example, consider the following code fragment:
@@ -213,8 +230,8 @@ partial def replaceFVarId (fvarId : FVarId) (ex : Example) : Example → Example
 partial def applyFVarSubst (s : FVarSubst) : Example → Example
   | var fvarId =>
     match s.get fvarId with
-    | Expr.fvar fvarId' _ => var fvarId'
-    | _                   => underscore
+    | Expr.fvar fvarId' => var fvarId'
+    | _                 => underscore
   | ctor n exs   => ctor n $ exs.map (applyFVarSubst s)
   | arrayLit exs => arrayLit $ exs.map (applyFVarSubst s)
   | ex           => ex
@@ -246,7 +263,7 @@ structure Problem where
   deriving Inhabited
 
 def withGoalOf {α} (p : Problem) (x : MetaM α) : MetaM α :=
-  withMVarContext p.mvarId x
+  p.mvarId.withContext x
 
 def Problem.toMessageData (p : Problem) : MetaM MessageData :=
   withGoalOf p do
@@ -289,8 +306,8 @@ partial def toPattern (e : Expr) : MetaM Pattern := do
       if let some e := isNamedPattern? e then
         let p ← toPattern <| e.getArg! 2
         match e.getArg! 1, e.getArg! 3 with
-        | Expr.fvar x _, Expr.fvar h _ => return Pattern.as x p h
-        | _,             _               => throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
+        | Expr.fvar x, Expr.fvar h => return Pattern.as x p h
+        | _,           _   => throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
       else if isMatchValue e then
         return Pattern.val e
       else if e.isFVar then

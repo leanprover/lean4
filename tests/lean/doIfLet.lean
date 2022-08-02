@@ -1,10 +1,10 @@
-#eval show Id Nat from do
+#eval Id.run do
   let mut x := 2
   if let n + 1 := x then
     x := n
   return x
 
-#eval show Id Nat from do
+#eval Id.run do
   let mut x := 2
   if let 0 := x then
     x := 0

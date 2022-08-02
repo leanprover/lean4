@@ -42,7 +42,7 @@ private def containsInOrderLower (a b : String) : Bool := Id.run do
 end Utils
 
 
-/- Represents the type of a single character. -/
+/-- Represents the type of a single character. -/
 inductive CharType where
   | lower | upper | separator
 
@@ -55,7 +55,7 @@ def charType (c : Char) : CharType :=
     CharType.separator
 
 
-/- Represents the role of a character inside a word. -/
+/-- Represents the role of a character inside a word. -/
 inductive CharRole where
   | head | tail | separator
   deriving Inhabited
@@ -72,7 +72,7 @@ inductive CharRole where
   else
     CharRole.head
 
-/- Add additional information to each character in a string. -/
+/-- Add additional information to each character in a string. -/
 private def stringInfo (s : String) : Array CharRole :=
   iterateLookaround (string := s) fun (prev?, curr, next?) =>
     charRole (prev?.map charType) (charType curr) (next?.map charType)
@@ -85,7 +85,7 @@ private def selectBest (missScore? matchScore? : Option Int) : Option Int :=
   | (some missScore, some matchScore) =>
     some <| max missScore matchScore
 
-/- Match the given pattern with the given word. The algorithm uses dynamic
+/-- Match the given pattern with the given word. The algorithm uses dynamic
 programming to find the best scores.
 
 In addition to the current characters in the pattern and the word, the
@@ -145,7 +145,7 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
       let idx := patternIdx * (word.length + 1) * 2 + wordIdx * 2
       result |>.set! idx missValue |>.set! (idx + 1) matchValue
 
-    /- Heuristic to penalize skipping characters in the word. -/
+    /-- Heuristic to penalize skipping characters in the word. -/
     skipPenalty (wordRole : CharRole) (patternComplete : Bool) (wordStart : Bool) : Int := Id.run do
       /- Skipping characters if the match is already completed is free. -/
       if patternComplete then
@@ -159,7 +159,7 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
 
       return 0
 
-    /- Whether characters from the pattern and the word match. -/
+    /-- Whether characters from the pattern and the word match. -/
     allowMatch (patternChar wordChar : Char) (patternRole wordRole : CharRole) : Bool := Id.run do
       /- Different characters do not match. -/
       if patternChar.toLower != wordChar.toLower then
@@ -170,7 +170,7 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
 
       return true
 
-    /- Heuristic to rate a match. -/
+    /-- Heuristic to rate a match. -/
     matchResult (patternChar wordChar : Char) (patternRole wordRole : CharRole) (consecutive : Bool) (wordStart : Bool) : Int := Id.run do
       let mut score := 1
       /- Case-sensitive equality or beginning of a segment in pattern and word. -/
@@ -185,7 +185,7 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
 
       return score
 
-/- Match the given pattern with the given word using a fuzzy matching
+/-- Match the given pattern with the given word using a fuzzy matching
 algorithm. The resulting scores are in the interval `[0, 1]` or `none` if no
 match was found. -/
 def fuzzyMatchScore? (pattern word : String) : Option Float := Id.run do
@@ -214,7 +214,7 @@ def fuzzyMatchScore? (pattern word : String) : Option Float := Id.run do
 def fuzzyMatchScoreWithThreshold? (pattern word : String) (threshold := 0.2) : Option Float :=
   fuzzyMatchScore? pattern word |>.filter (· > threshold)
 
-/- Match the given pattern with the given word using a fuzzy matching
+/-- Match the given pattern with the given word using a fuzzy matching
 algorithm. Return `false` if no match was found or the found match received a
 score below the given threshold. -/
 def fuzzyMatch (pattern word : String) (threshold := 0.2) : Bool :=

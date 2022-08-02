@@ -27,10 +27,10 @@ builtin_initialize matchEqnsExt : EnvExtension MatchEqnsExtState ←
 def registerMatchEqns (matchDeclName : Name) (matchEqns : MatchEqns) : CoreM Unit :=
   modifyEnv fun env => matchEqnsExt.modifyState env fun s => { s with map := s.map.insert matchDeclName matchEqns }
 
-/-
+/--
   Forward definition. We want to use `getEquationsFor` in the simplifier,
  `getEquationsFor` depends on `mkEquationsfor` which uses the simplifier. -/
 @[extern "lean_get_match_equations_for"]
-constant getEquationsFor (matchDeclName : Name) : MetaM MatchEqns
+opaque getEquationsFor (matchDeclName : Name) : MetaM MatchEqns
 
 end Lean.Meta.Match

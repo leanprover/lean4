@@ -9,7 +9,7 @@ import Init.NotationExtra
 
 universe u v
 
-/- Classical reasoning support -/
+/-! # Classical reasoning support -/
 
 namespace Classical
 
@@ -56,16 +56,16 @@ theorem em (p : Prop) : p ∨ ¬p :=
   | Or.inl hne => Or.inr (mt p_implies_uv hne)
   | Or.inr h   => Or.inl h
 
-theorem exists_true_of_nonempty {α : Sort u} : Nonempty α → ∃ x : α, True
+theorem exists_true_of_nonempty {α : Sort u} : Nonempty α → ∃ _ : α, True
   | ⟨x⟩ => ⟨x, trivial⟩
 
 noncomputable def inhabited_of_nonempty {α : Sort u} (h : Nonempty α) : Inhabited α :=
   ⟨choice h⟩
 
 noncomputable def inhabited_of_exists {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : Inhabited α :=
-  inhabited_of_nonempty (Exists.elim h (fun w hw => ⟨w⟩))
+  inhabited_of_nonempty (Exists.elim h (fun w _ => ⟨w⟩))
 
-/- all propositions are Decidable -/
+/-- All propositions are `Decidable`. -/
 noncomputable scoped instance (priority := low) propDecidable (a : Prop) : Decidable a :=
   choice <| match em a with
     | Or.inl h => ⟨isTrue h⟩
@@ -75,7 +75,7 @@ noncomputable def decidableInhabited (a : Prop) : Inhabited (Decidable a) where
   default := inferInstance
 
 noncomputable def typeDecidableEq (α : Sort u) : DecidableEq α :=
-  fun x y => inferInstance
+  fun _ _ => inferInstance
 
 noncomputable def typeDecidable (α : Sort u) : PSum α (α → False) :=
   match (propDecidable (Nonempty α)) with
@@ -87,7 +87,7 @@ noncomputable def strongIndefiniteDescription {α : Sort u} (p : α → Prop) (h
     (fun (hp : ∃ x : α, p x) =>
       show {x : α // (∃ y : α, p y) → p x} from
       let xp := indefiniteDescription _ hp;
-      ⟨xp.val, fun h' => xp.property⟩)
+      ⟨xp.val, fun _ => xp.property⟩)
     (fun hp => ⟨choice h, fun h => absurd h hp⟩)
 
 /-- the Hilbert epsilon Function -/
@@ -129,14 +129,14 @@ theorem byContradiction {p : Prop} (h : ¬p → False) : p :=
 syntax "by_cases" (atomic(ident ":"))? term : tactic
 
 macro_rules
-  | `(tactic| by_cases $h:ident : $e:term) =>
+  | `(tactic| by_cases $h : $e) =>
     `(tactic|
-      cases em $e:term with
-      | inl $h:ident => _
-      | inr $h:ident => _)
-  | `(tactic| by_cases $e:term) =>
+      cases em $e with
+      | inl $h => _
+      | inr $h => _)
+  | `(tactic| by_cases $e) =>
     `(tactic|
-      cases em $e:term with
+      cases em $e with
       | inl h => _
       | inr h => _)
 

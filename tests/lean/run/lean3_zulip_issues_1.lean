@@ -40,7 +40,7 @@ inductive Vec.{u} (α : Type u) : Nat → Type u
   | nil  : Vec α 0
   | cons : α → {n : Nat} → Vec α n → Vec α (Nat.succ n) -- TODO: investigate why +1 doesn't work here
 
-constant Vars : Type
+opaque Vars : Type
 
 structure Lang :=
   (funcs : Nat → Type)

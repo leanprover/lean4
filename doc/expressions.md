@@ -222,7 +222,7 @@ def f2 (a b c : Bool) : Bool :=
 def p : Nat × Bool := (1, false)
 
 section
-variables (a b c : Nat) (p : Nat × bool)
+variable (a b c : Nat) (p : Nat × bool)
 
 #check (1, 2)
 #check p.1 * 2
@@ -232,8 +232,8 @@ end
 
 /- lists -/
 section
-variables x y z : Nat
-variables xs ys zs : list Nat
+variable x y z : Nat
+variable xs ys zs : list Nat
 open list
 
 #check (1 :: xs) ++ (y :: zs) ++ [1,2,3]
@@ -243,7 +243,7 @@ end
 
 /- sets -/
 section
-variables s t u : set Nat
+variable s t u : set Nat
 
 #check ({1, 2, 3} ∩ s) ∪ ({x | x < 7} ∩ t)
 end
@@ -276,7 +276,7 @@ Finally, for data types with one constructor, one destruct an element by pattern
 .. code-block:: lean
 
     universes u v
-    variables {α : Type u} {β : Type v}
+    variable {α : Type u} {β : Type v}
 
     def p : Nat × ℤ := ⟨1, 2⟩
     #check p.fst
@@ -369,7 +369,7 @@ Here is an example:
 
 .. code-block:: lean
 
-    variables (a b c d e : Nat)
+    variable (a b c d e : Nat)
     variable h1 : a = b
     variable h2 : b = c + 1
     variable h3 : c = d

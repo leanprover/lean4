@@ -366,7 +366,7 @@ def State.step : State → State
   | s@(done ..)  => s
 
 def Context.equiv (cₗ cᵣ : Context) : Prop :=
-  ∀ n, cₗ[n] = cᵣ[n]
+  ∀ n : String, cₗ[n] = cᵣ[n]
 
 def State.stepN : State → Nat → State
   | s, 0     => s

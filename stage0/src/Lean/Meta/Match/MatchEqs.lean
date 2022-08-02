@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Meta.Match.Match
 import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.Tactic.Apply
+import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Delta
 import Lean.Meta.Tactic.SplitIf
 import Lean.Meta.Tactic.Injection
@@ -17,15 +18,15 @@ namespace Lean.Meta
   Helper method for `proveCondEqThm`. Given a goal of the form `C.rec ... xMajor = rhs`,
   apply `cases xMajor`. -/
 partial def casesOnStuckLHS (mvarId : MVarId) : MetaM (Array MVarId) := do
-  let target ← getMVarType mvarId
-  if let some (_, lhs, rhs) ← matchEq? target then
+  let target ← mvarId.getType
+  if let some (_, lhs, _) ← matchEq? target then
     if let some fvarId ← findFVar? lhs then
-      return (← cases mvarId fvarId).map fun s => s.mvarId
+      return (←  mvarId.cases fvarId).map fun s => s.mvarId
   throwError "'casesOnStuckLHS' failed"
 where
   findFVar? (e : Expr) : MetaM (Option FVarId) := do
     match e.getAppFn with
-    | Expr.proj _ _ e _ => findFVar? e
+    | Expr.proj _ _ e => findFVar? e
     | f =>
       if !f.isConst then
         return none
@@ -35,14 +36,14 @@ where
         match (← getProjectionFnInfo? declName) with
         | some projInfo =>
           if projInfo.numParams < args.size then
-            findFVar? args[projInfo.numParams]
+            findFVar? args[projInfo.numParams]!
           else
             return none
         | none =>
           matchConstRec f (fun _ => return none) fun recVal _ => do
             if recVal.getMajorIdx >= args.size then
               return none
-            let major := args[recVal.getMajorIdx]
+            let major := args[recVal.getMajorIdx]!
             if major.isFVar then
               return some major.fvarId!
             else
@@ -96,20 +97,20 @@ where
             if lhs.isFVar && ys.contains lhs && args.contains lhs && isNamedPatternProof typeNew y then
                let some i  := ys.getIdx? lhs | unreachable!
                let ys      := ys.eraseIdx i
-               let mask    := mask.set! i false
+               let some j  := args.getIdx? lhs | unreachable!
+               let mask    := mask.set! j false
                let args    := args.map fun arg => if arg == lhs then rhs else arg
                let args    := args.push (← mkEqRefl rhs)
                let typeNew := typeNew.replaceFVar lhs rhs
                return (← go ys eqs args (mask.push false) (i+1) typeNew)
           go (ys.push y) eqs (args.push y) (mask.push true) (i+1) typeNew
       else
-        let arg ←
-           if let some (_, _, rhs) ← matchEq? d then
-             mkEqRefl rhs
-           else if let some (_, _, _, rhs) ← matchHEq? d then
-             mkHEqRefl rhs
-           else
-             throwError "unexpected match alternative type{indentExpr altType}"
+        let arg ← if let some (_, _, rhs) ← matchEq? d then
+          mkEqRefl rhs
+        else if let some (_, _, _, rhs) ← matchHEq? d then
+          mkHEqRefl rhs
+        else
+          throwError "unexpected match alternative type{indentExpr altType}"
         withLocalDeclD n d fun eq => do
           let typeNew := b.instantiate1 eq
           go ys (eqs.push eq) (args.push arg) (mask.push false) (i+1) typeNew
@@ -118,7 +119,7 @@ where
       /- Recall that alternatives that do not have variables have a `Unit` parameter to ensure
          they are not eagerly evaluated. -/
       if ys.size == 1 then
-        if (← inferType ys[0]).isConstOf ``Unit && !(← dependsOn type ys[0].fvarId!) then
+        if (← inferType ys[0]!).isConstOf ``Unit && !(← dependsOn type ys[0]!.fvarId!) then
           return (← k #[] #[] #[mkConst ``Unit.unit] #[false] type)
       k ys eqs args mask type
 
@@ -177,7 +178,7 @@ private def isDone : M Bool :=
 
 /-- Customized `contradiction` tactic for `simpH?` -/
 private def contradiction (mvarId : MVarId) : MetaM Bool :=
-  contradictionCore mvarId { genDiseq := false, emptyType := false }
+   mvarId.contradictionCore { genDiseq := false, emptyType := false }
 
 /--
   Auxiliary tactic that tries to replace as many variables as possible and then apply `contradiction`.
@@ -196,7 +197,7 @@ partial def trySubstVarsAndContradiction (mvarId : MVarId) : MetaM Bool :=
 
 private def processNextEq : M Bool := do
   let s ← get
-  withMVarContext s.mvarId do
+  s.mvarId.withContext do
     -- If the goal is contradictory, the hypothesis is redundant.
     if (← contradiction s.mvarId) then
       return false
@@ -256,11 +257,11 @@ end SimpH
 private partial def simpH? (h : Expr) (numEqs : Nat) : MetaM (Option Expr) := withDefault do
   let numVars ← forallTelescope h fun ys _ => pure (ys.size - numEqs)
   let mvarId := (← mkFreshExprSyntheticOpaqueMVar h).mvarId!
-  let (xs, mvarId) ← introN mvarId numVars
-  let (eqs, mvarId) ← introN mvarId numEqs
+  let (xs, mvarId) ← mvarId.introN numVars
+  let (eqs, mvarId) ← mvarId.introN numEqs
   let (r, s) ← SimpH.go |>.run { mvarId, xs := xs.toList, eqs := eqs.toList }
   if r then
-    withMVarContext s.mvarId do
+    s.mvarId.withContext do
       let eqs := s.eqsNew.reverse.toArray.map mkFVar
       let mut r ← mkForallFVars eqs (mkConst ``False)
       /- We only include variables in `xs` if there is a dependency. -/
@@ -273,7 +274,7 @@ private partial def simpH? (h : Expr) (numEqs : Nat) : MetaM (Option Expr) := wi
   else
     return none
 
-private def substSomeVar (mvarId : MVarId) : MetaM (Array MVarId) := withMVarContext mvarId do
+private def substSomeVar (mvarId : MVarId) : MetaM (Array MVarId) := mvarId.withContext do
   for localDecl in (← getLCtx) do
     if let some (_, lhs, rhs) ← matchEq? localDecl.type then
       if lhs.isFVar then
@@ -291,18 +292,18 @@ partial def proveCondEqThm (matchDeclName : Name) (type : Expr) : MetaM Expr := 
   forallTelescope type fun ys target => do
     let mvar0  ← mkFreshExprSyntheticOpaqueMVar target
     trace[Meta.Match.matchEqs] "proveCondEqThm {mvar0.mvarId!}"
-    let mvarId ← deltaTarget mvar0.mvarId! (· == matchDeclName)
+    let mvarId ← mvar0.mvarId!.deltaTarget (· == matchDeclName)
     withDefault <| go mvarId 0
     mkLambdaFVars ys (← instantiateMVars mvar0)
 where
   go (mvarId : MVarId) (depth : Nat) : MetaM Unit := withIncRecDepth do
     trace[Meta.Match.matchEqs] "proveCondEqThm.go {mvarId}"
-    let mvarId' ← modifyTargetEqLHS mvarId whnfCore
+    let mvarId' ← mvarId.modifyTargetEqLHS whnfCore
     let mvarId := mvarId'
     let subgoals ←
-      (do applyRefl mvarId; return #[])
+      (do mvarId.refl; return #[])
       <|>
-      (do contradiction mvarId { genDiseq := true }; return #[])
+      (do mvarId.contradiction { genDiseq := true }; return #[])
       <|>
       (casesOnStuckLHS mvarId)
       <|>
@@ -347,7 +348,7 @@ private def injectionAnyCandidate? (type : Expr) : MetaM (Option (Expr × Expr))
   return none
 
 private def injectionAny (mvarId : MVarId) : MetaM InjectionAnyResult :=
-  withMVarContext mvarId do
+  mvarId.withContext do
     for localDecl in (← getLCtx) do
       if let some (lhs, rhs) ← injectionAnyCandidate? localDecl.type then
         unless (← isDefEq lhs rhs) do
@@ -363,6 +364,9 @@ private def injectionAny (mvarId : MVarId) : MetaM InjectionAnyResult :=
               pure ()
     return InjectionAnyResult.failed
 
+
+private abbrev ConvertM := ReaderT (FVarIdMap (Expr × Nat × Array Bool)) $ StateRefT (Array MVarId) MetaM
+
 /--
   Construct a proof for the splitter generated by `mkEquationsfor`.
   The proof uses the definition of the `match`-declaration as a template (argument `template`).
@@ -374,7 +378,7 @@ private partial def mkSplitterProof (matchDeclName : Name) (template : Expr) (al
     (altArgMasks : Array (Array Bool)) : MetaM Expr := do
   trace[Meta.Match.matchEqs] "proof template: {template}"
   let map := mkMap
-  let (proof, mvarIds) ← convertTemplate map |>.run #[]
+  let (proof, mvarIds) ← convertTemplate template |>.run map |>.run #[]
   trace[Meta.Match.matchEqs] "splitter proof: {proof}"
   for mvarId in mvarIds do
     proveSubgoal mvarId
@@ -386,25 +390,181 @@ where
       m := m.insert alt.fvarId! (altNew, numParams, argMask)
     return m
 
-  convertTemplate (m : FVarIdMap (Expr × Nat × Array Bool)) : StateRefT (Array MVarId) MetaM Expr :=
-    transform template fun e => do
-      match e.getAppFn with
-      | Expr.fvar fvarId .. =>
-        match m.find? fvarId with
-        | some (altNew, numParams, argMask) =>
-          trace[Meta.Match.matchEqs] ">> {e}, {altNew}"
-          let mut newArgs := #[]
-          for arg in e.getAppArgs, includeArg in argMask do
-            if includeArg then
-              newArgs := newArgs.push arg
-          let eNew := mkAppN altNew newArgs
-          /- Recall that `numParams` does not include the equalities associated with discriminants of the form `h : discr`. -/
-          let (mvars, _, _) ← forallMetaBoundedTelescope (← inferType eNew) (numParams - newArgs.size) (kind := MetavarKind.syntheticOpaque)
-          modify fun s => s ++ (mvars.map (·.mvarId!))
-          let eNew := mkAppN eNew mvars
-          return TransformStep.done eNew
-        | none => return TransformStep.visit e
-      | _ => return TransformStep.visit e
+  trimFalseTrail (argMask : Array Bool) : Array Bool :=
+    if argMask.isEmpty then
+      argMask
+    else if !argMask.back then
+      trimFalseTrail argMask.pop
+    else
+      argMask
+
+  /--
+    Auxiliary function used at `convertTemplate` to decide whether to use `convertCastEqRec`.
+    See `convertCastEqRec`.  -/
+  isCastEqRec (e : Expr) : ConvertM Bool := do
+    -- TODO: we do not handle `Eq.rec` since we never found an example that needed it.
+    -- If we find one we must extend `convertCastEqRec`.
+    unless e.isAppOf ``Eq.ndrec do return false
+    unless e.getAppNumArgs > 6 do return false
+    for arg in e.getAppArgs[6:] do
+      if arg.isFVar && (← read).contains arg.fvarId! then
+        return true
+    return true
+
+  /--
+    Auxiliary function used at `convertTemplate`. It is needed when the auxiliary `match` declaration had to refine the type of its
+    minor premises during dependent pattern match. For an example, consider
+    ```
+    inductive Foo : Nat → Type _
+    | nil             : Foo 0
+    | cons  (t: Foo l): Foo l
+
+    def Foo.bar (t₁: Foo l₁): Foo l₂ → Bool
+    | cons s₁ => t₁.bar s₁
+    | _ => false
+    attribute [simp] Foo.bar
+    ```
+    The auxiliary `Foo.bar.match_1` is of the form
+    ```
+    def Foo.bar.match_1.{u_1} : {l₂ : Nat} →
+      (t₂ : Foo l₂) →
+        (motive : Foo l₂ → Sort u_1) →
+          (t₂ : Foo l₂) → ((s₁ : Foo l₂) → motive (Foo.cons s₁)) → ((x : Foo l₂) → motive x) → motive t₂ :=
+    fun {l₂} t₂ motive t₂_1 h_1 h_2 =>
+      (fun t₂_2 =>
+          Foo.casesOn (motive := fun a x => l₂ = a → HEq t₂_1 x → motive t₂_1) t₂_2
+            (fun h =>
+              Eq.ndrec (motive := fun {l₂} =>
+                (t₂ t₂ : Foo l₂) →
+                  (motive : Foo l₂ → Sort u_1) →
+                    ((s₁ : Foo l₂) → motive (Foo.cons s₁)) → ((x : Foo l₂) → motive x) → HEq t₂ Foo.nil → motive t₂)
+                (fun t₂ t₂ motive h_1 h_2 h => Eq.symm (eq_of_heq h) ▸ h_2 Foo.nil) (Eq.symm h) t₂ t₂_1 motive h_1 h_2) --- HERE
+            fun {l} t h =>
+            Eq.ndrec (motive := fun {l} => (t : Foo l) → HEq t₂_1 (Foo.cons t) → motive t₂_1)
+              (fun t h => Eq.symm (eq_of_heq h) ▸ h_1 t) h t)
+        t₂_1 (Eq.refl l₂) (HEq.refl t₂_1)
+    ```
+    The `HERE` comment marks the place where the type of `Foo.bar.match_1` minor premises `h_1` and `h_2` is being "refined"
+    using `Eq.ndrec`.
+
+    This function will adjust the motive and minor premise of the `Eq.ndrec` to reflect the new minor premises used in the
+    corresponding splitter theorem.
+
+    We may have to extend this function to handle `Eq.rec` too.
+
+    This function was added to address issue #1179
+  -/
+  convertCastEqRec (e : Expr) : ConvertM Expr := do
+    assert! (← isCastEqRec e)
+    e.withApp fun f args => do
+      let mut argsNew := args
+      let mut isAlt := #[]
+      for i in [6:args.size] do
+        let arg := argsNew[i]!
+        if arg.isFVar then
+          match (← read).find? arg.fvarId! with
+          | some (altNew, _, _) =>
+            argsNew := argsNew.set! i altNew
+            trace[Meta.Match.matchEqs] "arg: {arg} : {← inferType arg}, altNew: {altNew} : {← inferType altNew}"
+            isAlt := isAlt.push true
+          | none =>
+            argsNew := argsNew.set! i (← convertTemplate arg)
+            isAlt := isAlt.push false
+        else
+          argsNew := argsNew.set! i (← convertTemplate arg)
+          isAlt := isAlt.push false
+      assert! isAlt.size == args.size - 6
+      let rhs := args[4]!
+      let motive := args[2]!
+      -- Construct new motive using the splitter theorem minor premise types.
+      let motiveNew ← lambdaTelescope motive fun motiveArgs body => do
+        unless motiveArgs.size == 1 do
+          throwError "unexpected `Eq.ndrec` motive while creating splitter/eliminator theorem for `{matchDeclName}`, expected lambda with 1 binder{indentExpr motive}"
+        let x := motiveArgs[0]!
+        forallTelescopeReducing body fun motiveTypeArgs resultType => do
+          unless motiveTypeArgs.size >= isAlt.size do
+            throwError "unexpected `Eq.ndrec` motive while creating splitter/eliminator theorem for `{matchDeclName}`, expected arrow with at least #{isAlt.size} binders{indentExpr body}"
+          let rec go (i : Nat) (motiveTypeArgsNew : Array Expr) : ConvertM Expr := do
+            assert! motiveTypeArgsNew.size == i
+            if h : i < motiveTypeArgs.size then
+              let motiveTypeArg := motiveTypeArgs.get ⟨i, h⟩
+              if i < isAlt.size && isAlt[i]! then
+                let altNew := argsNew[6+i]! -- Recall that `Eq.ndrec` has 6 arguments
+                let altTypeNew ← inferType altNew
+                trace[Meta.Match.matchEqs] "altNew: {altNew} : {altTypeNew}"
+                -- Replace `rhs` with `x` (the lambda binder in the motive)
+                let mut altTypeNewAbst := (← kabstract altTypeNew rhs).instantiate1 x
+                -- Replace args[6:6+i] with `motiveTypeArgsNew`
+                for j in [:i] do
+                  altTypeNewAbst := (← kabstract altTypeNewAbst argsNew[6+j]!).instantiate1 motiveTypeArgsNew[j]!
+                let localDecl ← motiveTypeArg.fvarId!.getDecl
+                withLocalDecl localDecl.userName localDecl.binderInfo altTypeNewAbst fun motiveTypeArgNew =>
+                  go (i+1) (motiveTypeArgsNew.push motiveTypeArgNew)
+              else
+                go (i+1) (motiveTypeArgsNew.push motiveTypeArg)
+            else
+              mkLambdaFVars motiveArgs (← mkForallFVars motiveTypeArgsNew resultType)
+          go 0 #[]
+      trace[Meta.Match.matchEqs] "new motive: {motiveNew}"
+      unless (← isTypeCorrect motiveNew) do
+        throwError "failed to construct new type correct motive for `Eq.ndrec` while creating splitter/eliminator theorem for `{matchDeclName}`{indentExpr motiveNew}"
+      argsNew := argsNew.set! 2 motiveNew
+      -- Construct the new minor premise for the `Eq.ndrec` application.
+      -- First, we use `eqRecNewPrefix` to infer the new minor premise binders for `Eq.ndrec`
+      let eqRecNewPrefix := mkAppN f argsNew[:3] -- `Eq.ndrec` minor premise is the fourth argument.
+      let .forallE _ minorTypeNew .. ← whnf (← inferType eqRecNewPrefix) | unreachable!
+      trace[Meta.Match.matchEqs] "new minor type: {minorTypeNew}"
+      let minor := args[3]!
+      let minorNew ← forallBoundedTelescope minorTypeNew isAlt.size fun minorArgsNew _ => do
+        let mut minorBodyNew := minor
+        -- We have to extend the mapping to make sure `convertTemplate` can "fix" occurrences of the refined minor premises
+        let mut m ← read
+        for i in [:isAlt.size] do
+          if isAlt[i]! then
+            -- `convertTemplate` will correct occurrences of the alternative
+            let alt := args[6+i]! -- Recall that `Eq.ndrec` has 6 arguments
+            let some (_, numParams, argMask) := m.find? alt.fvarId! | unreachable!
+            -- We add a new entry to `m` to make sure `convertTemplate` will correct the occurrences of the alternative
+            m := m.insert minorArgsNew[i]!.fvarId! (minorArgsNew[i]!, numParams, argMask)
+          unless minorBodyNew.isLambda do
+            throwError "unexpected `Eq.ndrec` minor premise while creating splitter/eliminator theorem for `{matchDeclName}`, expected lambda with at least #{isAlt.size} binders{indentExpr minor}"
+          minorBodyNew := minorBodyNew.bindingBody!
+        minorBodyNew := minorBodyNew.instantiateRev minorArgsNew
+        trace[Meta.Match.matchEqs] "minor premise new body before convertTemplate:{indentExpr minorBodyNew}"
+        minorBodyNew ← withReader (fun _ => m) <| convertTemplate minorBodyNew
+        trace[Meta.Match.matchEqs] "minor premise new body after convertTemplate:{indentExpr minorBodyNew}"
+        mkLambdaFVars minorArgsNew minorBodyNew
+      unless (← isTypeCorrect minorNew) do
+        throwError "failed to construct new type correct minor premise for `Eq.ndrec` while creating splitter/eliminator theorem for `{matchDeclName}`{indentExpr minorNew}"
+      argsNew := argsNew.set! 3 minorNew
+      -- trace[Meta.Match.matchEqs] "argsNew: {argsNew}"
+      trace[Meta.Match.matchEqs] "found cast target {e}"
+      return mkAppN f argsNew
+
+  convertTemplate (e : Expr) : ConvertM Expr :=
+    transform e fun e => do
+      if (← isCastEqRec e) then
+        return .done (← convertCastEqRec e)
+      else match e.getAppFn with
+        | Expr.fvar fvarId .. =>
+          match (← read).find? fvarId with
+          | some (altNew, numParams, argMask) =>
+            trace[Meta.Match.matchEqs] ">> argMask: {argMask}, e: {e}, {altNew}"
+            let mut newArgs := #[]
+            let argMask := trimFalseTrail argMask
+            unless e.getAppNumArgs ≥ argMask.size do
+              throwError "unexpected occurrence of `match`-expression alternative (aka minor premise) while creating splitter/eliminator theorem for `{matchDeclName}`, minor premise is partially applied{indentExpr e}\npossible solution if you are matching on inductive families: add its indices as additional discriminants"
+            for arg in e.getAppArgs, includeArg in argMask do
+              if includeArg then
+                newArgs := newArgs.push arg
+            let eNew := mkAppN altNew newArgs
+            /- Recall that `numParams` does not include the equalities associated with discriminants of the form `h : discr`. -/
+            let (mvars, _, _) ← forallMetaBoundedTelescope (← inferType eNew) (numParams - newArgs.size) (kind := MetavarKind.syntheticOpaque)
+            modify fun s => s ++ (mvars.map (·.mvarId!))
+            let eNew := mkAppN eNew mvars
+            return TransformStep.done eNew
+          | none => return TransformStep.visit e
+        | _ => return TransformStep.visit e
 
   proveSubgoalLoop (mvarId : MVarId) : MetaM Unit := do
     trace[Meta.Match.matchEqs] "proveSubgoalLoop\n{mvarId}"
@@ -413,7 +573,7 @@ where
     | InjectionAnyResult.failed =>
       let mvarId' ← substVars mvarId
       if mvarId' == mvarId then
-        if (← contradictionCore mvarId {}) then
+        if (← mvarId.contradictionCore {}) then
           return ()
         throwError "failed to generate splitter for match auxiliary declaration '{matchDeclName}', unsolved subgoal:\n{MessageData.ofGoal mvarId}"
       else
@@ -421,9 +581,9 @@ where
     | InjectionAnyResult.subgoal mvarId => proveSubgoalLoop mvarId
 
   proveSubgoal (mvarId : MVarId) : MetaM Unit := do
-    trace[Meta.Match.matchEqs] "subgoal {mkMVar mvarId}, {repr (← getMVarDecl mvarId).kind}, {← isExprMVarAssigned mvarId}\n{MessageData.ofGoal mvarId}"
-    let (_, mvarId) ← intros mvarId
-    let mvarId ← tryClearMany mvarId (alts.map (·.fvarId!))
+    trace[Meta.Match.matchEqs] "subgoal {mkMVar mvarId}, {repr (← mvarId.getDecl).kind}, {← mvarId.isAssigned}\n{MessageData.ofGoal mvarId}"
+    let (_, mvarId) ← mvarId.intros
+    let mvarId ← mvarId.tryClearMany (alts.map (·.fvarId!))
     proveSubgoalLoop mvarId
 
 /--
@@ -460,7 +620,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
   forallTelescopeReducing constInfo.type fun xs matchResultType => do
     let mut eqnNames := #[]
     let params := xs[:matchInfo.numParams]
-    let motive := xs[matchInfo.getMotivePos]
+    let motive := xs[matchInfo.getMotivePos]!
     let alts   := xs[xs.size - matchInfo.numAlts:]
     let firstDiscrIdx := matchInfo.numParams + 1
     let discrs := xs[firstDiscrIdx : firstDiscrIdx + matchInfo.numDiscrs]
@@ -470,11 +630,11 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
     let mut splitterAltNumParams := #[]
     let mut altArgMasks := #[] -- masks produced by `forallAltTelescope`
     for i in [:alts.size] do
-      let altNumParams := matchInfo.altNumParams[i]
+      let altNumParams := matchInfo.altNumParams[i]!
       let altNonEqNumParams := altNumParams - numDiscrEqs
       let thmName := baseName ++ ((`eq).appendIndexAfter idx)
       eqnNames := eqnNames.push thmName
-      let (notAlt, splitterAltType, splitterAltNumParam, argMask) ← forallAltTelescope (← inferType alts[i]) altNonEqNumParams fun ys eqs rhsArgs argMask altResultType => do
+      let (notAlt, splitterAltType, splitterAltNumParam, argMask) ← forallAltTelescope (← inferType alts[i]!) altNonEqNumParams fun ys eqs rhsArgs argMask altResultType => do
         let patterns := altResultType.getAppArgs
         let mut hs := #[]
         for notAlt in notAlts do
@@ -492,7 +652,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
         /- Recall that when we use the `h : discr`, the alternative type depends on the discriminant.
            Thus, we need to create new `alts`. -/
         withNewAlts numDiscrEqs discrs patterns alts fun alts => do
-          let alt := alts[i]
+          let alt := alts[i]!
           let lhs := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ patterns ++ alts)
           let rhs := mkAppN alt rhsArgs
           let thmType ← mkEq lhs rhs

@@ -54,8 +54,8 @@ abbrev div2Shift (i : USize) (shift : USize) : USize := i.shiftRight shift
 abbrev mod2Shift (i : USize) (shift : USize) : USize := USize.land i ((USize.shiftLeft 1 shift) - 1)
 
 partial def getAux [Inhabited α] : PersistentArrayNode α → USize → USize → α
-  | node cs, i, shift => getAux (cs.get! (div2Shift i shift).toNat) (mod2Shift i shift) (shift - initShift)
-  | leaf cs, i, _     => cs.get! i.toNat
+  | node cs, i, shift => getAux cs[(div2Shift i shift).toNat]! (mod2Shift i shift) (shift - initShift)
+  | leaf cs, i, _     => cs[i.toNat]!
 
 def get! [Inhabited α] (t : PersistentArray α) (i : Nat) : α :=
   if i >= t.tailOff then
@@ -63,15 +63,16 @@ def get! [Inhabited α] (t : PersistentArray α) (i : Nat) : α :=
   else
     getAux t.root (USize.ofNat i) t.shift
 
-def getOp [Inhabited α] (self : PersistentArray α) (idx : Nat) : α :=
-  self.get! idx
+-- TODO: remove [Inhabited α]
+instance [Inhabited α] : GetElem (PersistentArray α) Nat α fun as i => i < as.size where
+  getElem xs i _ := xs.get! i
 
 partial def setAux : PersistentArrayNode α → USize → USize → α → PersistentArrayNode α
   | node cs, i, shift, a =>
     let j     := div2Shift i shift
     let i     := mod2Shift i shift
     let shift := shift - initShift
-    node $ cs.modify j.toNat $ fun c => setAux c i shift a
+    node <| cs.modify j.toNat fun c => setAux c i shift a
   | leaf cs, i, _,     a => leaf (cs.set! i.toNat a)
 
 def set (t : PersistentArray α) (i : Nat) (a : α) : PersistentArray α :=
@@ -85,7 +86,7 @@ def set (t : PersistentArray α) (i : Nat) (a : α) : PersistentArray α :=
     let j     := div2Shift i shift
     let i     := mod2Shift i shift
     let shift := shift - initShift
-    node $ cs.modify j.toNat $ fun c => modifyAux f c i shift
+    node <| cs.modify j.toNat fun c => modifyAux f c i shift
   | leaf cs, i, _     => leaf (cs.modify i.toNat f)
 
 @[specialize] def modify [Inhabited α] (t : PersistentArray α) (i : Nat) (f : α → α) : PersistentArray α :=
@@ -109,9 +110,9 @@ partial def insertNewLeaf : PersistentArrayNode α → USize → USize → Array
       let i     := mod2Shift i shift
       let shift := shift - initShift
       if j.toNat < cs.size then
-         node $ cs.modify j.toNat fun c => insertNewLeaf c i shift a
+         node <| cs.modify j.toNat fun c => insertNewLeaf c i shift a
       else
-         node $ cs.push $ mkNewPath shift a
+         node <| cs.push <| mkNewPath shift a
   | n, _, _, _ => n -- unreachable
 
 def mkNewTail (t : PersistentArray α) : PersistentArray α :=
@@ -140,7 +141,7 @@ private def emptyArray {α : Type u} : Array (PersistentArrayNode α) :=
   Array.mkEmpty PersistentArray.branching.toNat
 
 partial def popLeaf : PersistentArrayNode α → Option (Array α) × Array (PersistentArrayNode α)
-  | n@(node cs) =>
+  | node cs =>
     if h : cs.size ≠ 0 then
       let idx : Fin cs.size := ⟨cs.size - 1, by exact Nat.pred_lt h⟩
       let last := cs.get idx
@@ -212,6 +213,7 @@ variable {β : Type v}
 @[specialize] def foldrM [Monad m] (t : PersistentArray α) (f : α → β → m β) (init : β) : m β := do
   foldrMAux f t.root (← t.tail.foldrM f init)
 
+set_option linter.unusedVariables.funArgs false in
 @[specialize]
 partial def forInAux {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] [inh : Inhabited β]
     (f : α → β → m (ForInStep β)) (n : PersistentArrayNode α) (b : β) : m (ForInStep β) := do
@@ -350,7 +352,7 @@ partial def collectStats : PersistentArrayNode α → Stats → Nat → Stats
       { s with
         numNodes := s.numNodes + 1,
         depth    := Nat.max d s.depth }
-  | leaf vs, s, d => { s with numNodes := s.numNodes + 1, depth := Nat.max d s.depth }
+  | leaf _,  s, d => { s with numNodes := s.numNodes + 1, depth := Nat.max d s.depth }
 
 def stats (r : PersistentArray α) : Stats :=
   collectStats r.root { numNodes := 0, depth := 0, tailSize := r.tail.size } 0
@@ -363,7 +365,7 @@ instance : ToString Stats := ⟨Stats.toString⟩
 end PersistentArray
 
 def mkPersistentArray {α : Type u} (n : Nat) (v : α) : PArray α :=
-  n.fold (init := PersistentArray.empty) fun i p => p.push v
+  n.fold (init := PersistentArray.empty) fun _ p => p.push v
 
 @[inline] def mkPArray {α : Type u} (n : Nat) (v : α) : PArray α :=
   mkPersistentArray n v

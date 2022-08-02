@@ -19,21 +19,21 @@ structure TerminationHints where
 private def addAndCompilePartial (preDefs : Array PreDefinition) (useSorry := false) : TermElabM Unit := do
   for preDef in preDefs do
     trace[Elab.definition] "processing {preDef.declName}"
+    let all := preDefs.toList.map (·.declName)
     forallTelescope preDef.type fun xs type => do
-      let val ←
-        if useSorry then
-          mkLambdaFVars xs (← mkSorry type (synthetic := true))
-        else
-          liftM <| mkInhabitantFor preDef.declName xs type
+      let value ← if useSorry then
+        mkLambdaFVars xs (← mkSorry type (synthetic := true))
+      else
+        liftM <| mkInhabitantFor preDef.declName xs type
       addNonRec { preDef with
         kind  := DefKind.«opaque»
-        value := val
-      }
+        value
+      } (all := all)
   addAndCompilePartialRec preDefs
 
 private def isNonRecursive (preDef : PreDefinition) : Bool :=
   Option.isNone $ preDef.value.find? fun
-    | Expr.const declName _ _ => preDef.declName == declName
+    | Expr.const declName _ => preDef.declName == declName
     | _ => false
 
 private def partitionPreDefs (preDefs : Array PreDefinition) : Array (Array PreDefinition) :=
@@ -103,8 +103,8 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
   let mut hasErrors := false
   for preDefs in cliques do
     trace[Elab.definition.scc] "{preDefs.map (·.declName)}"
-    if preDefs.size == 1 && isNonRecursive preDefs[0] then
-      let preDef := preDefs[0]
+    if preDefs.size == 1 && isNonRecursive preDefs[0]! then
+      let preDef := preDefs[0]!
       if preDef.modifiers.isNoncomputable then
         addNonRec preDef
       else
@@ -124,12 +124,12 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
           wf? := some wf
           terminationBy := terminationBy.markAsUsed (preDefs.map (·.declName))
         if let some { ref, value := decrTactic } := decreasingBy.find? (preDefs.map (·.declName)) then
-          decrTactic? := some (← withRef ref `(by $decrTactic))
+          decrTactic? := some (← withRef ref `(by $(⟨decrTactic⟩)))
           decreasingBy := decreasingBy.markAsUsed (preDefs.map (·.declName))
         if wf?.isSome || decrTactic?.isSome then
           wfRecursion preDefs wf? decrTactic?
         else
-          withRef (preDefs[0].ref) <| mapError
+          withRef (preDefs[0]!.ref) <| mapError
             (orelseMergeErrors
               (structuralRecursion preDefs)
               (wfRecursion preDefs none none))

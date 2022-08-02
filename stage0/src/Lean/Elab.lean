@@ -41,3 +41,5 @@ import Lean.Elab.Mixfix
 import Lean.Elab.MacroRules
 import Lean.Elab.BuiltinCommand
 import Lean.Elab.RecAppSyntax
+import Lean.Elab.Eval
+import Lean.Elab.Calc

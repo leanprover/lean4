@@ -11,7 +11,7 @@ import Init.Util
 universe u
 
 namespace List
-/- The following functions can't be defined at `Init.Data.List.Basic`, because they depend on `Init.Util`,
+/-! The following functions can't be defined at `Init.Data.List.Basic`, because they depend on `Init.Util`,
    and `Init.Util` depends on `Init.Data.List.Basic`. -/
 
 def get! [Inhabited α] : List α → Nat → α
@@ -121,6 +121,9 @@ theorem sizeOf_lt_of_mem [SizeOf α] {as : List α} (h : a ∈ as) : sizeOf a < 
   | head => simp_arith
   | tail _ _ ih => exact Nat.lt_trans ih (by simp_arith)
 
+/-- This tactic, added to the `decreasing_trivial` toolbox, proves that
+`sizeOf a < sizeOf as` when `a ∈ as`, which is useful for well founded recursions
+over a nested inductive like `inductive T | mk : List T → T`. -/
 macro "sizeOf_list_dec" : tactic =>
   `(first
     | apply sizeOf_lt_of_mem; assumption; done

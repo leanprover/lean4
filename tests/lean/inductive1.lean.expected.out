@@ -18,7 +18,7 @@ inductive1.lean:69:2-69:5: error: 'Boo.T1.bla' has already been declared
 inductive1.lean:73:10-73:12: error: 'Boo.T1' has already been declared
 inductive1.lean:80:0-80:27: error: invalid use of 'partial' in inductive declaration
 inductive1.lean:81:0-81:33: error: invalid use of 'noncomputable' in inductive declaration
-inductive1.lean:82:10-82:30: error: declaration is not a definition 'T1''
+inductive1.lean:82:2-82:8: error: declaration is not a definition 'T1''
 inductive1.lean:85:0-85:17: error: invalid 'private' constructor in a 'private' inductive datatype
 inductive1.lean:93:7-93:26: error: invalid inductive type, cannot mix unsafe and safe declarations in a mutually inductive datatypes
 inductive1.lean:100:0-100:4: error: constructor resulting type must be specified in inductive family declaration

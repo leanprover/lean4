@@ -18,18 +18,18 @@ def checkParams (ps : Array Param) : M Bool :=
   ps.allM fun p => checkId p.x.idx
 
 partial def checkFnBody : FnBody → M Bool
-  | FnBody.vdecl x _ _ b    => checkId x.idx <&&> checkFnBody b
-  | FnBody.jdecl j ys _ b   => checkId j.idx <&&> checkParams ys <&&> checkFnBody b
-  | FnBody.case _ _ _ alts  => alts.allM fun alt => checkFnBody alt.body
-  | b                       => if b.isTerminal then pure true else checkFnBody b.body
+  | .vdecl x _ _ b    => checkId x.idx <&&> checkFnBody b
+  | .jdecl j ys _ b   => checkId j.idx <&&> checkParams ys <&&> checkFnBody b
+  | .case _ _ _ alts  => alts.allM fun alt => checkFnBody alt.body
+  | b                 => if b.isTerminal then pure true else checkFnBody b.body
 
 partial def checkDecl : Decl → M Bool
-  | Decl.fdecl (xs := xs) (body := b) .. => checkParams xs <&&> checkFnBody b
-  | Decl.extern (xs := xs) .. => checkParams xs
+  | .fdecl (xs := xs) (body := b) .. => checkParams xs <&&> checkFnBody b
+  | .extern (xs := xs) .. => checkParams xs
 
 end UniqueIds
 
-/- Return true if variable, parameter and join point ids are unique -/
+/-- Return true if variable, parameter and join point ids are unique -/
 def Decl.uniqueIds (d : Decl) : Bool :=
   (UniqueIds.checkDecl d).run' {}
 
@@ -69,7 +69,7 @@ def normExpr : Expr → M Expr
   | Expr.unbox x,        m => Expr.unbox (normVar x m)
   | Expr.isShared x,     m => Expr.isShared (normVar x m)
   | Expr.isTaggedPtr x,  m => Expr.isTaggedPtr (normVar x m)
-  | e@(Expr.lit v),      m =>  e
+  | e@(Expr.lit _),      _ =>  e
 
 abbrev N := ReaderT IndexRenaming (StateM Nat)
 
@@ -114,16 +114,16 @@ partial def normFnBody : FnBody → N FnBody
 
 def normDecl (d : Decl) : N Decl :=
   match d with
-  | Decl.fdecl (xs := xs) (body := b) .. => withParams xs fun xs => return d.updateBody! (← normFnBody b)
+  | Decl.fdecl (xs := xs) (body := b) .. => withParams xs fun _ => return d.updateBody! (← normFnBody b)
   | other => pure other
 
 end NormalizeIds
 
-/- Create a declaration equivalent to `d` s.t. `d.normalizeIds.uniqueIds == true` -/
+/-- Create a declaration equivalent to `d` s.t. `d.normalizeIds.uniqueIds == true` -/
 def Decl.normalizeIds (d : Decl) : Decl :=
   (NormalizeIds.normDecl d {}).run' 1
 
-/- Apply a function `f : VarId → VarId` to variable occurrences.
+/-! Apply a function `f : VarId → VarId` to variable occurrences.
    The following functions assume the IR code does not have variable shadowing. -/
 namespace MapVars
 
@@ -148,7 +148,7 @@ def mapExpr (f : VarId → VarId) : Expr → Expr
   | Expr.unbox x        => Expr.unbox (f x)
   | Expr.isShared x     => Expr.isShared (f x)
   | Expr.isTaggedPtr x  => Expr.isTaggedPtr (f x)
-  | e@(Expr.lit v)      =>  e
+  | e@(Expr.lit _)      =>  e
 
 partial def mapFnBody (f : VarId → VarId) : FnBody → FnBody
   | FnBody.vdecl x t v b         => FnBody.vdecl x t (mapExpr f v) (mapFnBody f b)
@@ -171,7 +171,7 @@ end MapVars
 @[inline] def FnBody.mapVars (f : VarId → VarId) (b : FnBody) : FnBody :=
   MapVars.mapFnBody f b
 
-/- Replace `x` with `y` in `b`. This function assumes `b` does not shadow `x` -/
+/-- Replace `x` with `y` in `b`. This function assumes `b` does not shadow `x` -/
 def FnBody.replaceVar (x y : VarId) (b : FnBody) : FnBody :=
   b.mapVars fun z => if x == z then y else z
 

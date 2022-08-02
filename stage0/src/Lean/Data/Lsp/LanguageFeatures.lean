@@ -20,10 +20,10 @@ structure CompletionOptions where
 
 inductive CompletionItemKind where
   | text | method | function | constructor | field
-  | «variable» | «class» | interface | module | property
+  | variable | class | interface | module | property
   | unit | value | enum | keyword | snippet
   | color | file | reference | folder | enumMember
-  | «constant» | struct | event | operator | typeParameter
+  | constant | struct | event | operator | typeParameter
   deriving Inhabited, DecidableEq, Repr
 
 instance : ToJson CompletionItemKind where
@@ -129,18 +129,18 @@ structure DocumentSymbolParams where
 inductive SymbolKind where
   | file
   | module
-  | «namespace»
+  | namespace
   | package
-  | «class»
+  | class
   | method
   | property
   | field
   | constructor
-  | «enum»
+  | enum
   | interface
   | function
-  | «variable»
-  | «constant»
+  | variable
+  | constant
   | string
   | number
   | boolean
@@ -226,14 +226,16 @@ structure SymbolInformation where
   deriving ToJson
 
 inductive SemanticTokenType where
+  -- Used by Lean
   | keyword
-  | «variable»
+  | variable
   | property
   | function
-  /-
-  | «namespace»
+  /- Other types included by default in the LSP specification.
+  Not used by the Lean core, but useful to users extending the Lean server. -/
+  | namespace
   | type
-  | «class»
+  | class
   | enum
   | interface
   | struct
@@ -242,26 +244,36 @@ inductive SemanticTokenType where
   | enumMember
   | event
   | method
-  | «macro»
+  | macro
   | modifier
   | comment
   | string
   | number
   | regexp
   | operator
-  -/
+  | decorator
+  deriving ToJson, FromJson
 
+-- must be in the same order as the constructors
 def SemanticTokenType.names : Array String :=
-  #["keyword", "variable", "property", "function"]
+  #["keyword", "variable", "property", "function", "namespace", "type", "class",
+    "enum", "interface", "struct", "typeParameter", "parameter", "enumMember",
+    "event", "method", "macro", "modifier", "comment", "string", "number",
+    "regexp", "operator", "decorator"]
 
--- must be the correct index in `names`
-def SemanticTokenType.toNat : SemanticTokenType → Nat
-  | keyword    => 0
-  | «variable» => 1
-  | property   => 2
-  | function   => 3
+def SemanticTokenType.toNat (type : SemanticTokenType) : Nat :=
+  type.toCtorIdx
 
-/-
+-- sanity check
+example {v : SemanticTokenType} : open SemanticTokenType in
+    names[v.toNat]?.map (toString <| toJson ·) = some (toString <| toJson v) := by
+  cases v <;> native_decide
+
+/--
+The semantic token modifiers included by default in the LSP specification.
+Not used by the Lean core, but implementing them here allows them to be
+utilized by users extending the Lean server.
+-/
 inductive SemanticTokenModifier where
   | declaration
   | definition
@@ -273,7 +285,20 @@ inductive SemanticTokenModifier where
   | modification
   | documentation
   | defaultLibrary
--/
+  deriving ToJson, FromJson
+
+-- must be in the same order as the constructors
+def SemanticTokenModifier.names : Array String :=
+  #["declaration", "definition", "readonly", "static", "deprecated", "abstract",
+    "async", "modification", "documentation", "defaultLibrary"]
+
+def SemanticTokenModifier.toNat (modifier : SemanticTokenModifier) : Nat :=
+  modifier.toCtorIdx
+
+-- sanity check
+example {v : SemanticTokenModifier} : open SemanticTokenModifier in
+    names[v.toNat]?.map (toString <| toJson ·) = some (toString <| toJson v) := by
+  cases v <;> native_decide
 
 structure SemanticTokensLegend where
   tokenTypes : Array String
@@ -298,7 +323,7 @@ structure SemanticTokensRangeParams where
   deriving FromJson, ToJson
 
 structure SemanticTokens where
-  -- resultId?: string;
+  resultId? : Option String := none
   data : Array Nat
   deriving FromJson, ToJson
 

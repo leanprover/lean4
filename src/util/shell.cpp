@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "runtime/debug.h"
 #include "runtime/sstream.h"
 #include "runtime/load_dynlib.h"
+#include "runtime/array_ref.h"
 #include "util/timer.h"
 #include "util/macros.h"
 #include "util/io.h"
@@ -233,6 +234,7 @@ static struct option g_long_options[] = {
     {"stats",        no_argument,       0, 'a'},
     {"quiet",        no_argument,       0, 'q'},
     {"deps",         no_argument,       0, 'd'},
+    {"deps-json",    no_argument,       0, 'J'},
     {"timeout",      optional_argument, 0, 'T'},
     {"c",            optional_argument, 0, 'c'},
     {"exitOnPanic",  no_argument,       0, 'e'},
@@ -392,6 +394,12 @@ void print_imports(std::string const & input, std::string const & fname) {
     consume_io_result(lean_print_imports(mk_string(input), mk_option_some(mk_string(fname)), io_mk_world()));
 }
 
+/* def printImportsJson (fileNames : Array String) : IO Unit */
+extern "C" object* lean_print_imports_json(object * file_names, object * w);
+void print_imports_json(array_ref<string_ref> const & fnames) {
+    consume_io_result(lean_print_imports_json(fnames.to_obj_arg(), io_mk_world()));
+}
+
 extern "C" object* lean_environment_free_regions(object * env, object * w);
 void environment_free_regions(environment && env) {
     consume_io_result(lean_environment_free_regions(env.steal(), io_mk_world()));
@@ -442,6 +450,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
     bool use_stdin = false;
     unsigned trust_lvl = LEAN_BELIEVER_TRUST_LEVEL + 1;
     bool only_deps = false;
+    bool deps_json = false;
     bool stats = false;
     // 0 = don't run server, 1 = watchdog, 2 = worker
     int run_server = 0;
@@ -500,6 +509,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
             case 's':
                 lean::lthread::set_thread_stack_size(
                         static_cast<size_t>((atoi(optarg) / 4) * 4) * static_cast<size_t>(1024));
+                forwarded_args.push_back(string_ref("-s" + std::string(optarg)));
                 break;
             case 'I':
                 use_stdin = true;
@@ -515,25 +525,32 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
                 break;
             case 'R':
                 root_dir = optarg;
+                forwarded_args.push_back(string_ref("-R" + std::string(optarg)));
                 break;
             case 'M':
                 check_optarg("M");
                 opts = opts.update(get_max_memory_opt_name(), static_cast<unsigned>(atoi(optarg)));
+                forwarded_args.push_back(string_ref("-M" + std::string(optarg)));
                 break;
             case 'T':
                 check_optarg("T");
-                forwarded_args.push_back(string_ref("-T" + std::string(optarg)));
                 opts = opts.update(get_timeout_opt_name(), static_cast<unsigned>(atoi(optarg)));
+                forwarded_args.push_back(string_ref("-T" + std::string(optarg)));
                 break;
             case 't':
                 check_optarg("t");
                 trust_lvl = atoi(optarg);
+                forwarded_args.push_back(string_ref("-t" + std::string(optarg)));
                 break;
             case 'q':
                 opts = opts.update(lean::get_verbose_opt_name(), false);
                 break;
             case 'd':
                 only_deps = true;
+                break;
+            case 'J':
+                only_deps = true;
+                deps_json = true;
                 break;
             case 'a':
                 stats = true;
@@ -621,6 +638,15 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
             return run_server_watchdog(forwarded_args);
         else if (run_server == 2)
             return run_server_worker(opts);
+
+        if (only_deps && deps_json) {
+            buffer<string_ref> fns;
+            for (int i = optind; i < argc; i++) {
+                fns.push_back(string_ref(argv[i]));
+            }
+            print_imports_json(fns);
+            return 0;
+        }
 
         if (use_stdin) {
             if (argc - optind != 0) {

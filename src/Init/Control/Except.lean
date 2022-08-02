@@ -34,9 +34,12 @@ variable {ε : Type u}
   | Except.error err => Except.error err
   | Except.ok v      => f v
 
+/-- Returns true if the value is `Except.ok`, false otherwise. -/
 @[inline] protected def toBool : Except ε α → Bool
   | Except.ok _    => true
   | Except.error _ => false
+
+abbrev isOk : Except ε α → Bool := Except.toBool
 
 @[inline] protected def toOption : Except ε α → Option α
   | Except.ok a    => some a

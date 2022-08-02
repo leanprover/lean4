@@ -95,7 +95,7 @@ structure definition_val extends constant_val :=
 */
 class definition_val : public object_ref {
 public:
-    definition_val(name const & n, names const & lparams, expr const & type, expr const & val, reducibility_hints const & hints, definition_safety safety);
+    definition_val(name const & n, names const & lparams, expr const & type, expr const & val, reducibility_hints const & hints, definition_safety safety, names const & all);
     definition_val(definition_val const & other):object_ref(other) {}
     definition_val(definition_val && other):object_ref(other) {}
     definition_val & operator=(definition_val const & other) { object_ref::operator=(other); return *this; }
@@ -135,7 +135,7 @@ structure opaque_val extends constant_val :=
 */
 class opaque_val : public object_ref {
 public:
-    opaque_val(name const & n, names const & lparams, expr const & type, expr const & val, bool is_unsafe);
+    opaque_val(name const & n, names const & lparams, expr const & type, expr const & val, bool is_unsafe, names const & all);
     opaque_val(opaque_val const & other):object_ref(other) {}
     opaque_val(opaque_val && other):object_ref(other) {}
     opaque_val & operator=(opaque_val const & other) { object_ref::operator=(other); return *this; }

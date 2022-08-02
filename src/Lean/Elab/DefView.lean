@@ -16,22 +16,22 @@ import Lean.Elab.DeclUtil
 namespace Lean.Elab
 
 inductive DefKind where
-  | «def» | «theorem» | «example» | «opaque» | «abbrev»
+  | def | theorem | example | opaque | abbrev
   deriving Inhabited, BEq
 
 def DefKind.isTheorem : DefKind → Bool
-  | «theorem» => true
-  | _         => false
-
-def DefKind.isDefOrAbbrevOrOpaque : DefKind → Bool
-  | «def»    => true
-  | «opaque» => true
-  | «abbrev» => true
+  | .theorem => true
   | _        => false
 
+def DefKind.isDefOrAbbrevOrOpaque : DefKind → Bool
+  | .def    => true
+  | .opaque => true
+  | .abbrev => true
+  | _       => false
+
 def DefKind.isExample : DefKind → Bool
-  | «example» => true
-  | _         => false
+  | .example => true
+  | _        => false
 
 structure DefView where
   kind          : DefKind
@@ -44,8 +44,10 @@ structure DefView where
   deriving?     : Option (Array Syntax) := none
   deriving Inhabited
 
-namespace Command
+def DefView.isInstance (view : DefView) : Bool :=
+  view.modifiers.attrs.any fun attr => attr.name == `instance
 
+namespace Command
 open Meta
 
 def mkDefViewOfAbbrev (modifiers : Modifiers) (stx : Syntax) : DefView :=
@@ -91,8 +93,8 @@ def mkInstanceName (binders : Array Syntax) (type : Syntax) : CommandElabM Name 
         else if e.isSort then ref.modify (· ++ "Sort")
         else if e.isConst then
           match e.constName!.eraseMacroScopes with
-          | Name.str _ str _ =>
-              if str[0].isLower then
+          | .str _ str =>
+              if str.front.isLower then
                 ref.modify (· ++ str.capitalize)
               else
                 ref.modify (· ++ str)
@@ -100,7 +102,7 @@ def mkInstanceName (binders : Array Syntax) (type : Syntax) : CommandElabM Name 
       ref.get
     set savedState
     liftMacroM <| mkUnusedBaseName <| Name.mkSimple ("inst" ++ result)
-  catch ex =>
+  catch _ =>
     set savedState
     mkFreshInstanceName
 
@@ -121,8 +123,8 @@ def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
     declId := declId, binders := binders, type? := type, value := stx[5]
   }
 
-def mkDefViewOfConstant (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
-  -- leading_parser "constant " >> declId >> declSig >> optional declValSimple
+def mkDefViewOfOpaque (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
+  -- leading_parser "opaque " >> declId >> declSig >> optional declValSimple
   let (binders, type) := expandDeclSig stx[2]
   let val ← match stx[3].getOptional? with
     | some val => pure val
@@ -144,26 +146,26 @@ def mkDefViewOfExample (modifiers : Modifiers) (stx : Syntax) : DefView :=
 
 def isDefLike (stx : Syntax) : Bool :=
   let declKind := stx.getKind
-  declKind == ``Parser.Command.«abbrev» ||
-  declKind == ``Parser.Command.«def» ||
-  declKind == ``Parser.Command.«theorem» ||
-  declKind == ``Parser.Command.«constant» ||
-  declKind == ``Parser.Command.«instance» ||
-  declKind == ``Parser.Command.«example»
+  declKind == ``Parser.Command.abbrev ||
+  declKind == ``Parser.Command.def ||
+  declKind == ``Parser.Command.theorem ||
+  declKind == ``Parser.Command.opaque ||
+  declKind == ``Parser.Command.instance ||
+  declKind == ``Parser.Command.example
 
 def mkDefView (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView :=
   let declKind := stx.getKind
   if declKind == ``Parser.Command.«abbrev» then
     return mkDefViewOfAbbrev modifiers stx
-  else if declKind == ``Parser.Command.«def» then
+  else if declKind == ``Parser.Command.def then
     return mkDefViewOfDef modifiers stx
-  else if declKind == ``Parser.Command.«theorem» then
+  else if declKind == ``Parser.Command.theorem then
     return mkDefViewOfTheorem modifiers stx
-  else if declKind == ``Parser.Command.«constant» then
-    mkDefViewOfConstant modifiers stx
-  else if declKind == ``Parser.Command.«instance» then
+  else if declKind == ``Parser.Command.opaque then
+    mkDefViewOfOpaque modifiers stx
+  else if declKind == ``Parser.Command.instance then
     mkDefViewOfInstance modifiers stx
-  else if declKind == ``Parser.Command.«example» then
+  else if declKind == ``Parser.Command.example then
     return mkDefViewOfExample modifiers stx
   else
     throwError "unexpected kind of definition"

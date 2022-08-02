@@ -66,17 +66,12 @@ def diagnostics (s : Snapshot) : Std.PersistentArray Lsp.Diagnostic :=
 def infoTree (s : Snapshot) : InfoTree :=
   -- the parser returns exactly one command per snapshot, and the elaborator creates exactly one node per command
   assert! s.cmdState.infoState.trees.size == 1
-  s.cmdState.infoState.trees[0]
+  s.cmdState.infoState.trees[0]!
 
 def isAtEnd (s : Snapshot) : Bool :=
   Parser.isEOI s.stx || Parser.isExitCommand s.stx
 
 end Snapshot
-
-/-- Reparses the header syntax but does not re-elaborate it. Used to ignore whitespace-only changes. -/
-def reparseHeader (inputCtx : Parser.InputContext) (header : Snapshot) (opts : Options := {}) : IO Snapshot := do
-  let (newStx, newMpState, _) ← Parser.parseHeader inputCtx
-  pure { header with stx := newStx, mpState := newMpState }
 
 /-- Parses the next command occurring after the given snapshot
 without elaborating it. -/
@@ -87,22 +82,6 @@ def parseNextCmd (inputCtx : Parser.InputContext) (snap : Snapshot) : IO Syntax 
   let (cmdStx, _, _) :=
     Parser.parseCommand inputCtx pmctx snap.mpState snap.msgLog
   return cmdStx
-
-/--
-  Parse remaining file without elaboration. NOTE that doing so can lead to parse errors or even wrong syntax objects,
-  so it should only be done for reporting preliminary results! -/
-partial def parseAhead (inputCtx : Parser.InputContext) (snap : Snapshot) : IO (Array Syntax) := do
-  let cmdState := snap.cmdState
-  let scope := cmdState.scopes.head!
-  let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
-  go inputCtx pmctx snap.mpState #[]
-  where
-    go inputCtx pmctx cmdParserState stxs := do
-      let (cmdStx, cmdParserState, _) := Parser.parseCommand inputCtx pmctx cmdParserState snap.msgLog
-      if Parser.isEOI cmdStx || Parser.isExitCommand cmdStx then
-        return stxs.push cmdStx
-      else
-        go inputCtx pmctx cmdParserState (stxs.push cmdStx)
 
 register_builtin_option server.stderrAsMessages : Bool := {
   defValue := true
@@ -149,7 +128,7 @@ def compileNextCmd (inputCtx : Parser.InputContext) (snap : Snapshot) (hasWidget
         (getResetInfoTrees *> Elab.Command.elabCommandTopLevel cmdStx)
         cmdCtx cmdStateRef
     let postNew := (← tacticCacheNew.get).post
-    snap.tacticCache.modify fun { pre, post } => { pre := postNew, post := {} }
+    snap.tacticCache.modify fun _ => { pre := postNew, post := {} }
     let mut postCmdState ← cmdStateRef.get
     if !output.isEmpty then
       postCmdState := {

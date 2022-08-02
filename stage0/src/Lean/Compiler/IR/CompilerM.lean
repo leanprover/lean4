@@ -45,7 +45,7 @@ def tracePrefixOptionName := `trace.compiler.ir
 private def isLogEnabledFor (opts : Options) (optName : Name) : Bool :=
   match opts.find optName with
   | some (DataValue.ofBool v) => v
-  | other => opts.getBool tracePrefixOptionName
+  | _     => opts.getBool tracePrefixOptionName
 
 private def logDeclsAux (optName : Name) (cls : Name) (decls : Array Decl) : CompilerM Unit := do
   let opts ← read
@@ -63,7 +63,7 @@ private def logMessageIfAux {α : Type} [ToFormat α] (optName : Name) (a : α) 
 @[inline] def logMessageIf {α : Type} [ToFormat α] (cls : Name) (a : α) : CompilerM Unit :=
   logMessageIfAux (tracePrefixOptionName ++ cls) a
 
-@[inline] def logMessage {α : Type} [ToFormat α] (cls : Name) (a : α) : CompilerM Unit :=
+@[inline] def logMessage {α : Type} [ToFormat α] (a : α) : CompilerM Unit :=
   logMessageIfAux tracePrefixOptionName a
 
 @[inline] def modifyEnv (f : Environment → Environment) : CompilerM Unit :=
@@ -73,13 +73,13 @@ open Std (HashMap)
 
 abbrev DeclMap := SMap Name Decl
 
-/- Create an array of decls to be saved on .olean file.
+/-- Create an array of decls to be saved on .olean file.
    `decls` may contain duplicate entries, but we assume the one that occurs last is the most recent one. -/
 private def mkEntryArray (decls : List Decl) : Array Decl :=
   /- Remove duplicates by adding decls into a map -/
   let map : HashMap Name Decl := {}
   let map := decls.foldl (init := map) fun map decl => map.insert decl.name decl
-  map.fold (fun a k v => a.push v) #[]
+  map.fold (fun a _ v => a.push v) #[]
 
 builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
   registerSimplePersistentEnvExtension {
@@ -142,7 +142,7 @@ def getDecl' (n : Name) (decls : Array Decl) : CompilerM Decl := do
 @[export lean_decl_get_sorry_dep]
 def getSorryDep (env : Environment) (declName : Name) : Option Name :=
   match (declMapExt.getState env).find? declName with
-  | some (Decl.fdecl (info := { sorryDep? := dep?, .. }) ..) => dep?
+  | some (.fdecl (info := { sorryDep? := dep?, .. }) ..) => dep?
   | _ => none
 
 end IR

@@ -23,13 +23,13 @@ mutual
     else main e { s with visitedExpr := s.visitedExpr.insert e }
 
   partial def main : Expr → Visitor
-    | Expr.proj _ _ e _    => visit e
+    | Expr.proj _ _ e      => visit e
     | Expr.forallE _ d b _ => visit b ∘ visit d
     | Expr.lam _ d b _     => visit b ∘ visit d
     | Expr.letE _ t v b _  => visit b ∘ visit v ∘ visit t
-    | Expr.app f a _       => visit a ∘ visit f
-    | Expr.mdata _ b _     => visit b
-    | Expr.mvar mvarId _   => fun s => { s with result := s.result.push mvarId }
+    | Expr.app f a         => visit a ∘ visit f
+    | Expr.mdata _ b       => visit b
+    | Expr.mvar mvarId     => fun s => { s with result := s.result.push mvarId }
     | _                    => id
 end
 

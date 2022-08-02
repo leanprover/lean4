@@ -1111,9 +1111,9 @@ hljs.registerLanguage("lean", function(hljs) {
       'axiom constant ' +
       'partial unsafe private protected ' +
       'if then else ' +
-      'universe variable variables ' +
-      'import open export theory prelude renaming hiding exposing ' +
-      'calc  match with do by let extends ' +
+      'universe variable ' +
+      'import open export prelude renaming hiding ' +
+      'calc match with do by let extends ' +
       'for in unless try catch finally mutual mut return continue break where rec ' +
       'syntax macro_rules macro deriving ' +
       'fun ' +
@@ -1123,7 +1123,7 @@ hljs.registerLanguage("lean", function(hljs) {
       'Type Prop|10 Sort rw|10 rewrite rwa erw subst substs ' +
       'simp dsimp simpa simp_intros finish using generalizing ' +
       'unfold unfold1 dunfold unfold_projs unfold_coes ' +
-      'delta cc ac_reflexivity ac_refl ' +
+      'delta cc ac_rfl ' +
       'existsi|10 cases rcases intro intros introv by_cases ' +
       'refl rfl funext case focus propext exact exacts ' +
       'refine apply eapply fapply apply_with apply_instance ' +

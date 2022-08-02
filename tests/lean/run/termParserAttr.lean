@@ -73,7 +73,7 @@ syntax (name := tst3) "FOO " foo : term
 macro_rules
 | `(FOO ⟨| $t |⟩) => `($t+1)
 | `(FOO $t:term) => `($t)
-| `(FOO $t:term >>> $r) => `($t * $r)
+
 
 #check FOO ⟨| id 1 |⟩
 #check FOO 1

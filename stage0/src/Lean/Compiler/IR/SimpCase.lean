@@ -20,17 +20,17 @@ private def getOccsOf (alts : Array Alt) (i : Nat) : Nat := Id.run do
   let aBody := (alts.get! i).body
   let mut n := 1
   for j in [i+1:alts.size] do
-    if alts[j].body == aBody then
+    if alts[j]!.body == aBody then
       n := n+1
   return n
 
 private def maxOccs (alts : Array Alt) : Alt × Nat := Id.run do
-  let mut maxAlt := alts[0]
+  let mut maxAlt := alts[0]!
   let mut max    := getOccsOf alts 0
   for i in [1:alts.size] do
     let curr := getOccsOf alts i
     if curr > max then
-       maxAlt := alts[i]
+       maxAlt := alts[i]!
        max    := curr
   return (maxAlt, max)
 
@@ -63,7 +63,7 @@ partial def FnBody.simpCase (b : FnBody) : FnBody :=
   | FnBody.case tid x xType alts =>
     let alts := alts.map fun alt => alt.modifyBody simpCase;
     reshape bs (mkSimpCase tid x xType alts)
-  | other => reshape bs term
+  | _     => reshape bs term
 
 /-- Simplify `case`
   - Remove unreachable branches.
@@ -71,7 +71,7 @@ partial def FnBody.simpCase (b : FnBody) : FnBody :=
   - Merge most common branches using `Alt.default`. -/
 def Decl.simpCase (d : Decl) : Decl :=
   match d with
-  | Decl.fdecl (body := b) .. => d.updateBody! b.simpCase
+  | .fdecl (body := b) .. => d.updateBody! b.simpCase
   | other => other
 
 end Lean.IR

@@ -38,7 +38,7 @@ partial def parserNodeKind? (e : Expr) : MetaM (Option Name) := do
     try pure <| some (← reduceEval e) catch _ => pure none
   let e ← whnfCore e
   if e matches Expr.lam .. then
-    lambdaLetTelescope e fun xs e => parserNodeKind? e
+    lambdaLetTelescope e fun _ e => parserNodeKind? e
   else if e.isAppOfArity ``nodeWithAntiquot 4 then
     reduceEval? (e.getArg! 1)
   else if e.isAppOfArity ``withAntiquot 2 then
@@ -63,7 +63,6 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
   | _ => do
     let fn := e.getAppFn
     let .const c .. := fn | throwError "call of unknown parser at '{e}'"
-    let args := e.getAppArgs
     -- call the translated `p` with (a prefix of) the arguments of `e`, recursing for arguments
     -- of type `ty` (i.e. formerly `Parser`)
     let mkCall (p : Name) := do
@@ -72,8 +71,8 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
         let mut p := mkConst p
         let args  := e.getAppArgs
         for i in [:Nat.min params.size args.size] do
-          let param := params[i]
-          let arg   := args[i]
+          let param := params[i]!
+          let arg   := args[i]!
           let paramTy ← inferType param
           let resultTy ← forallTelescope paramTy fun _ b => pure b
           let arg ← if resultTy.isConstOf ctx.tyName then compileParserExpr arg else pure arg
@@ -98,8 +97,9 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
             let paramTy ← replaceParserTy ctx <$> inferType param
             return mkForall `_ BinderInfo.default paramTy ty
         let decl := Declaration.defnDecl {
-          name := c', levelParams := [],
-          type := ty, value := value, hints := ReducibilityHints.opaque, safety := DefinitionSafety.safe }
+          name := c', levelParams := []
+          type := ty, value := value, hints := ReducibilityHints.opaque, safety := DefinitionSafety.safe
+        }
         let env ← getEnv
         let env ← match env.addAndCompile {} decl with
           | Except.ok    env => pure env

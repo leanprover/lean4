@@ -10,26 +10,26 @@ namespace Lean
 /--
   Return true if `e` does **not** contain `mvarId` directly or indirectly
   This function considers assigments and delayed assignments. -/
-partial def MetavarContext.occursCheck (mctx : MetavarContext) (mvarId : MVarId) (e : Expr) : Bool :=
+partial def occursCheck [Monad m] [MonadMCtx m] (mvarId : MVarId) (e : Expr) : m Bool := do
   if !e.hasExprMVar then
-    true
+    return true
   else
-    match visit e |>.run {} with
-    | EStateM.Result.ok ..    => true
-    | EStateM.Result.error .. => false
+    match (← visit e |>.run |>.run {}) with
+    | (.ok .., _)    => return true
+    | (.error .., _) => return false
 where
-  visitMVar (mvarId' : MVarId) : EStateM Unit ExprSet Unit := do
+  visitMVar (mvarId' : MVarId) : ExceptT Unit (StateT ExprSet m) Unit := do
     if mvarId == mvarId' then
       throw () -- found
     else
-      match mctx.getExprAssignment? mvarId' with
+      match (← getExprMVarAssignment? mvarId') with
       | some v => visit v
       | none   =>
-        match mctx.getDelayedAssignment? mvarId' with
-        | some d => visit d.val
+        match (← getDelayedMVarAssignment? mvarId') with
+        | some d => visitMVar d.mvarIdPending
         | none   => return ()
 
-  visit (e : Expr) : EStateM Unit ExprSet Unit := do
+  visit (e : Expr) : ExceptT Unit (StateT ExprSet m) Unit := do
     if !e.hasExprMVar then
       return ()
     else if (← get).contains e then
@@ -37,13 +37,13 @@ where
     else
       modify fun s => s.insert e
       match e with
-      | Expr.proj _ _ s _    => visit s
+      | Expr.proj _ _ s      => visit s
       | Expr.forallE _ d b _ => visit d; visit b
       | Expr.lam _ d b _     => visit d; visit b
       | Expr.letE _ t v b _  => visit t; visit v; visit b
-      | Expr.mdata _ b _     => visit b
-      | Expr.app f a _       => visit f; visit a
-      | Expr.mvar mvarId _   => visitMVar mvarId
+      | Expr.mdata _ b       => visit b
+      | Expr.app f a         => visit f; visit a
+      | Expr.mvar mvarId     => visitMVar mvarId
       | _                    => return ()
 
 end Lean

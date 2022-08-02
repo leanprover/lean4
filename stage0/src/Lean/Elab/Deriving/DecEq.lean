@@ -12,40 +12,38 @@ namespace Lean.Elab.Deriving.DecEq
 open Lean.Parser.Term
 open Meta
 
-def mkDecEqHeader (ctx : Context) (indVal : InductiveVal) : TermElabM Header := do
-  mkHeader ctx `DecidableEq 2 indVal
+def mkDecEqHeader (indVal : InductiveVal) : TermElabM Header := do
+  mkHeader `DecidableEq 2 indVal
 
-def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) (auxFunName : Name) (argNames : Array Name) : TermElabM Syntax := do
+def mkMatch (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Term := do
   let discrs ← mkDiscrs header indVal
   let alts ← mkAlts
   `(match $[$discrs],* with $alts:matchAlt*)
 where
-  mkSameCtorRhs : List (Syntax × Syntax × Bool × Bool) → TermElabM Syntax
+  mkSameCtorRhs : List (Ident × Ident × Bool × Bool) → TermElabM Term
     | [] => ``(isTrue rfl)
     | (a, b, recField, isProof) :: todo => withFreshMacroScope do
-      let rhs ←
-        if isProof
-        then
-          `(have h : $a = $b := rfl; by subst h; exact $(← mkSameCtorRhs todo):term)
-        else
-          `(if h : $a = $b then
-             by subst h; exact $(← mkSameCtorRhs todo):term
-            else
-             isFalse (by intro n; injection n; apply h _; assumption))
+      let rhs ← if isProof then
+        `(have h : $a = $b := rfl; by subst h; exact $(← mkSameCtorRhs todo):term)
+      else
+        `(if h : $a = $b then
+           by subst h; exact $(← mkSameCtorRhs todo):term
+          else
+           isFalse (by intro n; injection n; apply h _; assumption))
       if recField then
         -- add local instance for `a = b` using the function being defined `auxFunName`
         `(let inst := $(mkIdent auxFunName) $a $b; $rhs)
       else
         return rhs
 
-  mkAlts : TermElabM (Array Syntax) := do
+  mkAlts : TermElabM (Array (TSyntax ``matchAlt)) := do
     let mut alts := #[]
     for ctorName₁ in indVal.ctors do
       let ctorInfo ← getConstInfoCtor ctorName₁
       for ctorName₂ in indVal.ctors do
         let mut patterns := #[]
         -- add `_` pattern for indices
-        for i in [:indVal.numIndices] do
+        for _ in [:indVal.numIndices] do
           patterns := patterns.push (← `(_))
         if ctorName₁ == ctorName₂ then
           let alt ← forallTelescopeReducing ctorInfo.type fun xs type => do
@@ -54,12 +52,12 @@ where
             let mut ctorArgs1 := #[]
             let mut ctorArgs2 := #[]
             -- add `_` for inductive parameters, they are inaccessible
-            for i in [:indVal.numParams] do
+            for _ in [:indVal.numParams] do
               ctorArgs1 := ctorArgs1.push (← `(_))
               ctorArgs2 := ctorArgs2.push (← `(_))
             let mut todo := #[]
             for i in [:ctorInfo.numFields] do
-              let x := xs[indVal.numParams + i]
+              let x := xs[indVal.numParams + i]!
               if type.containsFVar x.fvarId! then
                 -- If resulting type depends on this field, we don't need to compare
                 ctorArgs1 := ctorArgs1.push (← `(_))
@@ -84,13 +82,13 @@ where
     return alts
 
 def mkAuxFunction (ctx : Context) : TermElabM Syntax := do
-  let auxFunName := ctx.auxFunNames[0]
-  let indVal     :=ctx.typeInfos[0]
-  let header     ← mkDecEqHeader ctx indVal
-  let mut body   ← mkMatch ctx header indVal auxFunName header.argNames
+  let auxFunName := ctx.auxFunNames[0]!
+  let indVal     :=ctx.typeInfos[0]!
+  let header     ← mkDecEqHeader indVal
+  let mut body   ← mkMatch header indVal auxFunName
   let binders    := header.binders
-  let type       ← `(Decidable ($(mkIdent header.targetNames[0]) = $(mkIdent header.targetNames[1])))
-  `(private def $(mkIdent auxFunName):ident $binders:explicitBinder* : $type:term := $body:term)
+  let type       ← `(Decidable ($(mkIdent header.targetNames[0]!) = $(mkIdent header.targetNames[1]!)))
+  `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type:term := $body:term)
 
 def mkDecEqCmds (indVal : InductiveVal) : TermElabM (Array Syntax) := do
   let ctx ← mkContext "decEq" indVal.name
@@ -117,9 +115,9 @@ partial def mkEnumOfNat (declName : Name) : MetaM Unit := do
     let cond := mkConst ``cond [levelZero]
     let rec mkDecTree (low high : Nat) : Expr :=
       if low + 1 == high then
-        mkConst ctors[low]
+        mkConst ctors[low]!
       else if low + 2 == high then
-        mkApp4 cond enumType (mkApp2 (mkConst ``Nat.beq) n (mkRawNatLit low)) (mkConst ctors[low]) (mkConst ctors[low+1])
+        mkApp4 cond enumType (mkApp2 (mkConst ``Nat.beq) n (mkRawNatLit low)) (mkConst ctors[low]!) (mkConst ctors[low+1]!)
       else
         let mid := (low + high)/2
         let lowBranch := mkDecTree low mid
@@ -163,7 +161,6 @@ def mkDecEqEnum (declName : Name) : CommandElabM Unit := do
   liftTermElabM none <| mkEnumOfNatThm declName
   let ofNatIdent  := mkIdent (Name.mkStr declName "ofNat")
   let auxThmIdent := mkIdent (Name.mkStr declName "ofNat_toCtorIdx")
-  let indVal ← getConstInfoInduct declName
   let cmd ← `(
     instance : DecidableEq $(mkIdent declName) :=
       fun x y =>
@@ -179,11 +176,11 @@ def mkDecEqEnum (declName : Name) : CommandElabM Unit := do
 def mkDecEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if declNames.size != 1 then
     return false -- mutually inductive types are not supported yet
-  else if (← isEnumType declNames[0]) then
-    mkDecEqEnum declNames[0]
+  else if (← isEnumType declNames[0]!) then
+    mkDecEqEnum declNames[0]!
     return true
   else
-    mkDecEq declNames[0]
+    mkDecEq declNames[0]!
 
 builtin_initialize
   registerBuiltinDerivingHandler `DecidableEq mkDecEqInstanceHandler

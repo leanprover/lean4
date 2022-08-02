@@ -46,8 +46,8 @@ partial def ofString (s : String) : FileMap :=
   let rec loop (i : String.Pos) (line : Nat) (ps : Array String.Pos) (lines : Array Nat) : FileMap :=
     if s.atEnd i then { source := s, positions := ps.push i, lines := lines.push line }
     else
-      let c := s.get i;
-      let i := s.next i;
+      let c := s.get i
+      let i := s.next i
       if c == '\n' then loop i (line+1) (ps.push i) (lines.push (line+1))
       else loop i line ps lines
   loop 0 1 (#[0]) (#[1])
@@ -60,7 +60,7 @@ partial def toPosition (fmap : FileMap) (pos : String.Pos) : Position :=
         if i == pos || str.atEnd i then c
         else toColumn (str.next i) (c+1)
       let rec loop (b e : Nat) :=
-        let posB := ps[b]
+        let posB := ps[b]!
         if e == b + 1 then { line := lines.get! b, column := toColumn posB 0 }
         else
           let m := (b + e) / 2;

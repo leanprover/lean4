@@ -54,7 +54,7 @@ After the snapshot is available, they can access its data, in particular the com
 The `InfoTree` is the second central server data structure.
 It is filled during elaboration with various metadata that cannot (easily) be recovered from the kernel declarations in the environment: goal & subterm infos including the precise local & metavariable contexts used during elaboration, macro expansion steps, ...
 Once a relevant `Snapshot` `snap` has been located, `snap.infoTree.smallestInfo?` and other functions from `Lean.Server.InfoUtils` can be used to further locate information about a document position.
-The test `tests/lean/infoTree.lean` shows how to inspect the info tree of a command right in the editor.
+The command `set_option trace.Elab.info true` instructs Lean to display the `InfoTree` for the declarations occurring after it.
 
 ## Code style
 

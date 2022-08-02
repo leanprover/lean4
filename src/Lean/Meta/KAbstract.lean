@@ -9,7 +9,12 @@ import Lean.Meta.Basic
 
 namespace Lean.Meta
 
-def kabstract (e : Expr) (p : Expr) (occs : Occurrences := Occurrences.all) : MetaM Expr := do
+/--
+Abstract occurrences of `p` in `e`. We detect subterms equivalent to `p` using key-matching.
+That is, only perform `isDefEq` tests when the head symbol of substerm is equivalent to head symbol of `p`.
+By default, all occurrences are abstracted, but this behavior can be controlled using the `occs` parameter.
+-/
+def kabstract (e : Expr) (p : Expr) (occs : Occurrences := .all) : MetaM Expr := do
   let e ← instantiateMVars e
   if p.isFVar && occs == Occurrences.all then
     return e.abstract #[p] -- Easy case
@@ -19,13 +24,13 @@ def kabstract (e : Expr) (p : Expr) (occs : Occurrences := Occurrences.all) : Me
     let rec visit (e : Expr) (offset : Nat) : StateRefT Nat MetaM Expr := do
       let visitChildren : Unit → StateRefT Nat MetaM Expr := fun _ => do
         match e with
-        | Expr.app f a _       => return e.updateApp! (← visit f offset) (← visit a offset)
-        | Expr.mdata _ b _     => return e.updateMData! (← visit b offset)
-        | Expr.proj _ _ b _    => return e.updateProj! (← visit b offset)
-        | Expr.letE _ t v b _  => return e.updateLet! (← visit t offset) (← visit v offset) (← visit b (offset+1))
-        | Expr.lam _ d b _     => return e.updateLambdaE! (← visit d offset) (← visit b (offset+1))
-        | Expr.forallE _ d b _ => return e.updateForallE! (← visit d offset) (← visit b (offset+1))
-        | e                    => return e
+        | .app f a         => return e.updateApp! (← visit f offset) (← visit a offset)
+        | .mdata _ b       => return e.updateMData! (← visit b offset)
+        | .proj _ _ b      => return e.updateProj! (← visit b offset)
+        | .letE _ t v b _  => return e.updateLet! (← visit t offset) (← visit v offset) (← visit b (offset+1))
+        | .lam _ d b _     => return e.updateLambdaE! (← visit d offset) (← visit b (offset+1))
+        | .forallE _ d b _ => return e.updateForallE! (← visit d offset) (← visit b (offset+1))
+        | e                => return e
       if e.hasLooseBVars then
         visitChildren ()
       else if e.toHeadIndex != pHeadIdx || e.headNumArgs != pNumArgs then
@@ -40,36 +45,5 @@ def kabstract (e : Expr) (p : Expr) (occs : Occurrences := Occurrences.all) : Me
       else
         visitChildren ()
     visit e 0 |>.run' 1
-
-/--
-  Similar to `kabstract`, but only abstracts occurrences of `p` s.t. `pred parent? p` is true where `parent?`
-  is the parent expression for `p` if any.
--/
-partial def kabstractWithPred (e : Expr) (p : Expr) (pred : (parent? : Option Expr) → (e : Expr) → MetaM Bool) : MetaM Expr := do
-  let e ← instantiateMVars e
-  let pHeadIdx := p.toHeadIndex
-  let pNumArgs := p.headNumArgs
-  let rec visit (parent? : Option Expr) (e : Expr) (offset : Nat) : MetaM Expr := do
-    let visitChildren : Unit → MetaM Expr := fun _ => do
-      match e with
-      | Expr.app ..          => e.withApp fun f args => return mkAppN (← visit e f offset) (← args.mapM (visit e . offset))
-      | Expr.mdata _ b _     => return e.updateMData! (← visit e b offset)
-      | Expr.proj _ _ b _    => return e.updateProj! (← visit e b offset)
-      | Expr.letE _ t v b _  => return e.updateLet! (← visit e t offset) (← visit e v offset) (← visit e b (offset+1))
-      | Expr.lam _ d b _     => return e.updateLambdaE! (← visit e d offset) (← visit e b (offset+1))
-      | Expr.forallE _ d b _ => return e.updateForallE! (← visit e d offset) (← visit e b (offset+1))
-      | e                    => return e
-    if e.hasLooseBVars then
-      visitChildren ()
-    else if e.toHeadIndex != pHeadIdx || e.headNumArgs != pNumArgs then
-      visitChildren ()
-    else if (← isDefEq e p) then
-      if (← pred parent? e) then
-        return mkBVar offset
-      else
-        visitChildren ()
-    else
-      visitChildren ()
-  visit none e 0
 
 end Lean.Meta

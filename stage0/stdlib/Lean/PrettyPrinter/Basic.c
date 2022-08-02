@@ -15,14 +15,15 @@ extern "C" {
 #endif
 lean_object* l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContextCoreM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__11;
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__5;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_runForNodeKind(lean_object*);
 static lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__8;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__4;
 static lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__9;
+lean_object* l_Lean_getConstInfo___at___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__2;
 static lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -49,7 +50,6 @@ LEAN_EXPORT lean_object* l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind_
 LEAN_EXPORT lean_object* l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_getConstInfo___at___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__4(lean_object*);
 static lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__12;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_backtrackExceptionId;
@@ -67,7 +67,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_Basic___hyg_5____closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -252,7 +252,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -270,7 +270,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__2;
 x_2 = l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__3;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -288,7 +288,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__2;
 x_2 = l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__5;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -365,7 +365,7 @@ if (lean_obj_tag(x_12) == 0)
 lean_object* x_13; 
 lean_free_object(x_7);
 lean_inc(x_2);
-x_13 = l_Lean_getConstInfo___at___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___spec__1(x_2, x_4, x_5, x_10);
+x_13 = l_Lean_getConstInfo___at___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___spec__1(x_2, x_4, x_5, x_10);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
@@ -566,7 +566,7 @@ if (lean_obj_tag(x_57) == 0)
 {
 lean_object* x_58; 
 lean_inc(x_2);
-x_58 = l_Lean_getConstInfo___at___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___spec__1(x_2, x_4, x_5, x_55);
+x_58 = l_Lean_getConstInfo___at___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___spec__1(x_2, x_4, x_5, x_55);
 if (lean_obj_tag(x_58) == 0)
 {
 lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; uint8_t x_63; 

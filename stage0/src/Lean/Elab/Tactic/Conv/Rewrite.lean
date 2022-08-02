@@ -15,7 +15,7 @@ open Meta
   withRWRulesSeq stx[0] stx[2] fun symm term => do
     Term.withSynthesize <| withMainContext do
       let e ← elabTerm term none true
-      let r ← rewrite (← getMainGoal) (← getLhs) e symm (config := config)
+      let r ←  (← getMainGoal).rewrite (← getLhs) e symm (config := config)
       updateLhs r.eNew r.eqProof
       replaceMainGoal ((← getMainGoal) :: r.mvarIds)
 

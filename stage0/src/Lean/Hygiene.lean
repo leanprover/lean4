@@ -8,25 +8,26 @@ import Lean.Data.Options
 import Lean.Data.Format
 
 namespace Lean
-/- Remark: `MonadQuotation` class is part of the `Init` package and loaded by default since it is used in the builtin command `macro`. -/
+/-! Remark: `MonadQuotation` class is part of the `Init` package and loaded by default since it is used in the builtin command `macro`. -/
 
 structure Unhygienic.Context where
   ref   : Syntax
   scope : MacroScope
 
-/-- Simplistic MonadQuotation that does not guarantee globally fresh names, that
-    is, between different runs of this or other MonadQuotation implementations.
-    It is only safe if the syntax quotations do not introduce bindings around
-    antiquotations, and if references to globals are prefixed with `_root_.`
-    (which is not allowed to refer to a local variable).
-
-    `Unhygienic` can also be seen as a model implementation of `MonadQuotation`
-    (since it is completely hygienic as long as it is "run" only once and can
-    assume that there are no other implentations in use, as is the case for the
-    elaboration monads that carry their macro scope state through the entire
-    processing of a file). It uses the state monad to query and allocate the
-    next macro scope, and uses the reader monad to store the stack of scopes
-    corresponding to `withFreshMacroScope` calls. -/
+/--
+Simplistic MonadQuotation that does not guarantee globally fresh names, that
+is, between different runs of this or other MonadQuotation implementations.
+It is only safe if the syntax quotations do not introduce bindings around
+antiquotations, and if references to globals are prefixed with `_root_.`
+(which is not allowed to refer to a local variable)
+`Unhygienic` can also be seen as a model implementation of `MonadQuotation`
+(since it is completely hygienic as long as it is "run" only once and can
+assume that there are no other implentations in use, as is the case for the
+elaboration monads that carry their macro scope state through the entire
+processing of a file). It uses the state monad to query and allocate the
+next macro scope, and uses the reader monad to store the stack of scopes
+corresponding to `withFreshMacroScope` calls.
+-/
 abbrev Unhygienic := ReaderT Lean.Unhygienic.Context <| StateM MacroScope
 namespace Unhygienic
 instance : MonadQuotation Unhygienic where
@@ -51,11 +52,11 @@ private def mkInaccessibleUserNameAux (unicode : Bool) (name : Name) (idx : Nat)
     name ++ Name.mkNum "_inaccessible" idx
 
 private def mkInaccessibleUserName (unicode : Bool) : Name → Name
-  | Name.num p@(Name.str _ _ _) idx _ =>
+  | .num p@(.str ..) idx =>
     mkInaccessibleUserNameAux unicode p idx
-  | Name.num Name.anonymous idx _     =>
+  | .num .anonymous idx =>
     mkInaccessibleUserNameAux unicode Name.anonymous idx
-  | Name.num p idx _ =>
+  | .num p idx =>
     if unicode then
       (mkInaccessibleUserName unicode p).appendAfter ("⁻" ++ idx.toSuperscriptString)
     else
@@ -72,9 +73,9 @@ def getSanitizeNames (o : Options) : Bool := pp.sanitizeNames.get o
 
 structure NameSanitizerState where
   options            : Options
-  -- `x` ~> 2 if we're already using `x✝`, `x✝¹`
+  /-- `x` ~> 2 if we're already using `x✝`, `x✝¹` -/
   nameStem2Idx       : NameMap Nat := {}
-  -- `x._hyg...` ~> `x✝`
+  /-- `x._hyg...` ~> `x✝` -/
   userName2Sanitized : NameMap Name := {}
 
 private partial def mkFreshInaccessibleUserName (userName : Name) (idx : Nat) : StateM NameSanitizerState Name := do
@@ -86,6 +87,7 @@ private partial def mkFreshInaccessibleUserName (userName : Name) (idx : Nat) : 
     modify fun s => { s with nameStem2Idx := s.nameStem2Idx.insert userName (idx+1) }
     pure userNameNew
 
+/-- Erase macro scopes from `userName` and add "tombstone" + superscript (or `._hyg`). -/
 def sanitizeName (userName : Name) : StateM NameSanitizerState Name := do
   let stem := userName.eraseMacroScopes;
   let idx  := (← get).nameStem2Idx.find? stem |>.getD 0
@@ -95,9 +97,10 @@ def sanitizeName (userName : Name) : StateM NameSanitizerState Name := do
 
 private partial def sanitizeSyntaxAux : Syntax → StateM NameSanitizerState Syntax
   | stx@(Syntax.ident _ _ n _) => do
-    mkIdentFrom stx <$> match (← get).userName2Sanitized.find? n with
-    | some n' => pure n'
-    | none    => if n.hasMacroScopes then sanitizeName n else pure n
+    let n ← match (← get).userName2Sanitized.find? n with
+      | some n' => pure n'
+      | none    => if n.hasMacroScopes then sanitizeName n else pure n
+    return mkIdentFrom stx n
   | Syntax.node info k args => Syntax.node info k <$> args.mapM sanitizeSyntaxAux
   | stx => pure stx
 

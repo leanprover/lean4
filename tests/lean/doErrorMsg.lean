@@ -22,3 +22,8 @@ def g2 : ExceptT String (StateT Nat Id) Unit := do
 def g3 : ExceptT String (StateT Nat Id) String := do
   let x ← f2
   f1
+
+example : Nat := Id.run do
+  let mut n : Nat := 0
+  (n, _) := (false, false)
+  n

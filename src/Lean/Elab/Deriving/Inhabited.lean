@@ -49,14 +49,14 @@ where
     else
       let visit {ω} : StateRefT IndexSet (ST ω) Unit :=
         e.forEach fun
-          | Expr.fvar fvarId _ =>
+          | Expr.fvar fvarId =>
             match localInst2Index.find? fvarId with
             | some idx => modify (·.insert idx)
             | none => pure ()
           | _ => pure ()
       runST (fun _ => visit |>.run usedInstIdxs) |>.2
 
-  /- Create an `instance` command using the constructor `ctorName` with a hypothesis `Inhabited α` when `α` is one of the inductive type parameters
+  /-- Create an `instance` command using the constructor `ctorName` with a hypothesis `Inhabited α` when `α` is one of the inductive type parameters
      at position `i` and `i ∈ assumingParamIdxs`. -/
   mkInstanceCmdWith (assumingParamIdxs : IndexSet) : TermElabM Syntax := do
     let indVal ← getConstInfoInduct inductiveTypeName
@@ -66,10 +66,10 @@ where
     for i in [:indVal.numParams + indVal.numIndices] do
       let arg := mkIdent (← mkFreshUserName `a)
       indArgs := indArgs.push arg
-      let binder ← `(implicitBinderF| { $arg:ident })
+      let binder ← `(bracketedBinder| { $arg:ident })
       binders := binders.push binder
       if assumingParamIdxs.contains i then
-        let binder ← `(instBinderF| [ Inhabited $arg:ident ])
+        let binder ← `(bracketedBinder| [Inhabited $arg:ident ])
         binders := binders.push binder
     let type ← `(Inhabited (@$(mkIdent inductiveTypeName):ident $indArgs:ident*))
     let mut ctorArgs := #[]
@@ -77,8 +77,8 @@ where
       ctorArgs := ctorArgs.push (← `(_))
     for _ in [:ctorVal.numFields] do
       ctorArgs := ctorArgs.push (← ``(Inhabited.default))
-    let val ← `(⟨@$(mkIdent ctorName):ident $ctorArgs:ident*⟩)
-    `(instance $binders:explicitBinder* : $type := $val)
+    let val ← `(⟨@$(mkIdent ctorName):ident $ctorArgs*⟩)
+    `(instance $binders:bracketedBinder* : $type := $val)
 
   mkInstanceCmd? : TermElabM (Option Syntax) := do
     let ctorVal ← getConstInfoCtor ctorName
@@ -87,7 +87,7 @@ where
         let mut usedInstIdxs := {}
         let mut ok := true
         for i in [ctorVal.numParams:xs.size] do
-          let x := xs[i]
+          let x := xs[i]!
           let instType ← mkAppM `Inhabited #[(← inferType x)]
           trace[Elab.Deriving.inhabited] "checking {instType} for '{ctorName}'"
           match (← trySynthInstance instType) with
@@ -123,7 +123,7 @@ def mkInhabitedInstanceHandler (declNames : Array Name) : CommandElabM Bool := d
     return false
 
 builtin_initialize
-  registerBuiltinDerivingHandler `Inhabited mkInhabitedInstanceHandler
+  registerDerivingHandler `Inhabited mkInhabitedInstanceHandler
   registerTraceClass `Elab.Deriving.inhabited
 
 end Lean.Elab

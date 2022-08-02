@@ -32,12 +32,18 @@ partial def InfoTree.visitM [Monad m] [Inhabited α]
   go none
 where go
   | _, context ctx t => go ctx t
-  | some ctx, n@(node i cs) => do
+  | some ctx, node i cs => do
     preNode ctx i cs
     let as ← cs.toList.mapM (go <| i.updateContext? ctx)
     postNode ctx i cs as
   | none, node .. => panic! "unexpected context-free info tree node"
   | _, hole .. => pure none
+
+/-- `InfoTree.visitM` specialized to `Unit` return type -/
+def InfoTree.visitM' [Monad m]
+    (preNode  : ContextInfo → Info → (children : Std.PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
+    (postNode : ContextInfo → Info → (children : Std.PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
+    (t : InfoTree) : m Unit := t.visitM preNode (fun ci i cs _ => postNode ci i cs) |> discard
 
 /--
   Visit nodes bottom-up, passing in a surrounding context (the innermost one) and the union of nested results (empty at leaves). -/
@@ -90,6 +96,8 @@ def Info.stx : Info → Syntax
   | ofFieldInfo i          => i.stx
   | ofCompletionInfo i     => i.stx
   | ofCustomInfo i         => i.stx
+  | ofUserWidgetInfo i     => i.stx
+  | ofFVarAliasInfo _      => .missing
 
 def Info.lctx : Info → LocalContext
   | Info.ofTermInfo i  => i.lctx
@@ -141,22 +149,29 @@ def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextI
   infos.toArray.getMax? (fun a b => a.1 > b.1) |>.map fun (_, ci, i) => (ci, i)
 
 /-- Find an info node, if any, which should be shown on hover/cursor at position `hoverPos`. -/
-partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (includeStop := false) : Option (ContextInfo × Info) := Id.run do
-  let results := t.visitM (m := Id) (postNode := fun ctx i _ results => do
-    let results := results.bind (·.getD [])
-    if results.isEmpty && (i matches Info.ofFieldInfo _ || i.toElabInfo?.isSome) && i.contains hoverPos includeStop then
-      let r := i.range?.get!
-      let priority :=
-        if r.stop == hoverPos then
-          0  -- prefer results directly *after* the hover position (only matters for `includeStop = true`; see #767)
-        else if i matches .ofTermInfo { expr := .fvar .., .. } then
-          0  -- prefer results for constants over variables (which overlap at declaration names)
-        else 1
-      -- must prioritize smaller nodes because pattern infos are not properly nested
-      let priority := (-(r.stop - r.start |>.byteIdx : Int), priority)
-      [(priority, ctx, i)]
-    else
-      results) |>.getD []
+partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (includeStop := false) (omitAppFns := false) : Option (ContextInfo × Info) := Id.run do
+  let results := t.visitM (m := Id) (postNode := fun ctx info _ results => do
+    let mut results := results.bind (·.getD [])
+    if omitAppFns && info.stx.isOfKind ``Parser.Term.app && info.stx[0].isIdent then
+      results := results.filter (·.2.2.stx != info.stx[0])
+    unless results.isEmpty do
+      return results  -- prefer innermost results
+    /-
+      Remark: we skip `info` nodes associated with the `nullKind` and `withAnnotateState` because they are used by tactics (e.g., `rewrite`) to control
+      which goal is displayed in the info views. See issue #1403
+    -/
+    if info.stx.isOfKind nullKind || info.toElabInfo?.any (·.elaborator == `Lean.Elab.Tactic.evalWithAnnotateState) then
+      return results
+    unless (info matches Info.ofFieldInfo _ || info.toElabInfo?.isSome) && info.contains hoverPos includeStop do
+      return results
+    let r := info.range?.get!
+    let priority :=
+      if r.stop == hoverPos then
+        0  -- prefer results directly *after* the hover position (only matters for `includeStop = true`; see #767)
+      else if info matches .ofTermInfo { expr := .fvar .., .. } then
+        0  -- prefer results for constants over variables (which overlap at declaration names)
+      else 1
+    [(priority, ctx, info)]) |>.getD []
   let maxPrio? := results.map (·.1) |>.maximum?
   let res? := results.find? (·.1 == maxPrio?) |>.map (·.2)
   if let some (_, i) := res? then
@@ -201,11 +216,11 @@ where
   fmtTerm? : MetaM (Option Format) := do
     match i with
     | Info.ofTermInfo ti =>
-      let e ← Meta.instantiateMVars ti.expr
+      let e ← instantiateMVars ti.expr
       if e.isSort then
         -- Types of sorts are funny to look at in widgets, but ultimately not very helpful
         return none
-      let tp ← Meta.instantiateMVars (← Meta.inferType e)
+      let tp ← instantiateMVars (← Meta.inferType e)
       let tpFmt ← Meta.ppExpr tp
       if e.isConst then
         -- Recall that `ppExpr` adds a `@` if the constant has implicit arguments, and it is quite distracting
@@ -244,7 +259,7 @@ structure GoalsAtResult where
   -- for overlapping goals, only keep those of the highest reported priority
   priority   : Nat
 
-/-
+/--
   Try to retrieve `TacticInfo` for `hoverPos`.
   We retrieve all `TacticInfo` nodes s.t. `hoverPos` is inside the node's range plus trailing whitespace.
   We usually prefer the innermost such nodes so that for composite tactics such as `induction`, we show the nested proofs' states.
@@ -287,7 +302,7 @@ partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String
 where
   hasNestedTactic (pos tailPos) : InfoTree → Bool
     | InfoTree.node i@(Info.ofTacticInfo _) cs => Id.run do
-      if let `(by $t) := i.stx then
+      if let `(by $_) := i.stx then
         return false  -- ignore term-nested proofs such as in `simp [show p by ...]`
       if let (some pos', some tailPos') := (i.pos?, i.tailPos?) then
         -- ignore preceding nested infos
@@ -299,35 +314,22 @@ where
       cs.any (hasNestedTactic pos tailPos)
     | _ => false
 
-/--
-Find info nodes that should be used for the term goal feature.
-
-The main complication concerns applications
-like `f a b` where `f` is an identifier.
-In this case, the term goal at `f`
-should be the goal for the full application `f a b`.
-
-Therefore we first gather the position of
-these head function symbols such as `f`,
-and later ignore identifiers at these positions.
--/
 partial def InfoTree.termGoalAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × Info) :=
-  let headFns : Std.HashSet String.Pos := t.foldInfo (init := {}) fun ctx i headFns =>
-    if let some pos := getHeadFnPos? i.stx then
-      headFns.insert pos
+  -- In the case `f a b`, where `f` is an identifier, the term goal at `f` should be the goal for the full application `f a b`.
+  hoverableInfoAt? t hoverPos (includeStop := true) (omitAppFns := true)
+
+partial def InfoTree.hasSorry : InfoTree → IO Bool :=
+  go none
+where go ci?
+  | .context ci t => go ci t
+  | .node i cs =>
+    if let (some ci, .ofTermInfo ti) := (ci?, i) then do
+      let expr ← ti.runMetaM ci (instantiateMVars ti.expr)
+      return expr.hasSorry
+      -- we assume that `cs` are subterms of `ti.expr` and
+      -- thus do not have to be checked as well
     else
-      headFns
-  t.smallestInfo? fun i => Id.run do
-    if i.contains hoverPos then
-      if let Info.ofTermInfo ti := i then
-        return !ti.stx.isIdent || !headFns.contains i.pos?.get!
-    false
-  where
-    /- Returns the position of the head function symbol, if it is an identifier. -/
-    getHeadFnPos? (s : Syntax) (foundArgs := false) : Option String.Pos :=
-      match s with
-      | `(($s)) => getHeadFnPos? s foundArgs
-      | `($f $as*) => getHeadFnPos? f (foundArgs := foundArgs || !as.isEmpty)
-      | stx => if foundArgs && stx.isIdent then stx.getPos? else none
+      cs.anyM (go ci?)
+  | _ => return false
 
 end Lean.Elab

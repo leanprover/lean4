@@ -26,7 +26,7 @@ namespace Nat
   | 0      => false
   | succ n => f (s - (succ n)) || anyAux f s n
 
-/- `any f n = true` iff there is `i in [0, n-1]` s.t. `f i = true` -/
+/-- `any f n = true` iff there is `i in [0, n-1]` s.t. `f i = true` -/
 @[inline] def any (f : Nat → Bool) (n : Nat) : Bool :=
   anyAux f n n
 
@@ -44,7 +44,7 @@ def blt (a b : Nat) : Bool :=
 
 attribute [simp] Nat.zero_le
 
-/- Helper "packing" theorems -/
+/-! # Helper "packing" theorems -/
 
 @[simp] theorem zero_eq : Nat.zero = 0 := rfl
 @[simp] theorem add_eq : Nat.add x y = x + y := rfl
@@ -53,7 +53,7 @@ attribute [simp] Nat.zero_le
 @[simp] theorem lt_eq : Nat.lt x y = (x < y) := rfl
 @[simp] theorem le_eq : Nat.le x y = (x ≤ y) := rfl
 
-/- Helper Bool relation theorems -/
+/-! # Helper Bool relation theorems -/
 
 @[simp] theorem beq_refl (a : Nat) : Nat.beq a a = true := by
   induction a with simp [Nat.beq]
@@ -64,8 +64,8 @@ attribute [simp] Nat.zero_le
 @[simp] theorem blt_eq : (Nat.blt x y = true) = (x < y) := propext <| Iff.intro Nat.le_of_ble_eq_true Nat.ble_eq_true_of_le
 
 instance : LawfulBEq Nat where
-  eq_of_beq _ _ h := Nat.eq_of_beq_eq_true h
-  rfl a := by simp [BEq.beq]
+  eq_of_beq h := Nat.eq_of_beq_eq_true h
+  rfl := by simp [BEq.beq]
 
 @[simp] theorem beq_eq_true_eq (a b : Nat) : ((a == b) = true) = (a = b) := propext <| Iff.intro eq_of_beq (fun h => by subst h; apply LawfulBEq.rfl)
 @[simp] theorem not_beq_eq_true_eq (a b : Nat) : ((!(a == b)) = true) = ¬(a = b) :=
@@ -75,7 +75,7 @@ instance : LawfulBEq Nat where
       have : ¬ ((a == b) = true) := fun h' => absurd (eq_of_beq h') h
       by simp [this])
 
-/- Nat.add theorems -/
+/-! # Nat.add theorems -/
 
 @[simp] protected theorem zero_add : ∀ (n : Nat), 0 + n = n
   | 0   => rfl
@@ -120,7 +120,7 @@ protected theorem add_right_cancel {n m k : Nat} (h : n + m = k + m) : n = k := 
   rw [Nat.add_comm n m, Nat.add_comm k m] at h
   apply Nat.add_left_cancel h
 
-/- Nat.mul theorems -/
+/-! # Nat.mul theorems -/
 
 @[simp] protected theorem mul_zero (n : Nat) : n * 0 = 0 :=
   rfl
@@ -168,7 +168,7 @@ protected theorem mul_assoc : ∀ (n m k : Nat), (n * m) * k = n * (m * k)
 protected theorem mul_left_comm (n m k : Nat) : n * (m * k) = m * (n * k) := by
   rw [← Nat.mul_assoc, Nat.mul_comm n m, Nat.mul_assoc]
 
-/- Inequalities -/
+/-! # Inequalities -/
 
 attribute [simp] Nat.le_refl
 
@@ -200,8 +200,8 @@ theorem sub_le (n m : Nat) : n - m ≤ n := by
   | succ m ih => apply Nat.le_trans (pred_le (n - m)) ih
 
 theorem sub_lt : ∀ {n m : Nat}, 0 < n → 0 < m → n - m < n
-  | 0,   _,   h1, h2 => absurd h1 (Nat.lt_irrefl 0)
-  | _+1, 0,   h1, h2 => absurd h2 (Nat.lt_irrefl 0)
+  | 0,   _,   h1, _  => absurd h1 (Nat.lt_irrefl 0)
+  | _+1, 0,   _, h2  => absurd h2 (Nat.lt_irrefl 0)
   | n+1, m+1, _,  _  =>
     Eq.symm (succ_sub_succ_eq_sub n m) ▸
       show n - m < succ n from
@@ -259,11 +259,6 @@ protected theorem le_total (m n : Nat) : m ≤ n ∨ n ≤ m :=
   | Or.inl h => Or.inl (Nat.le_of_lt h)
   | Or.inr h => Or.inr h
 
-protected theorem lt_of_le_and_ne {m n : Nat} (h₁ : m ≤ n) (h₂ : m ≠ n) : m < n :=
-  match Nat.eq_or_lt_of_le h₁ with
-  | Or.inl h => absurd h h₂
-  | Or.inr h => h
-
 theorem eq_zero_of_le_zero {n : Nat} (h : n ≤ 0) : n = 0 :=
   Nat.le_antisymm h (zero_le _)
 
@@ -299,7 +294,7 @@ theorem le_or_eq_or_le_succ {m n : Nat} (h : m ≤ succ n) : m ≤ n ∨ m = suc
   Decidable.byCases
     (fun (h' : m = succ n) => Or.inr h')
     (fun (h' : m ≠ succ n) =>
-       have : m < succ n := Nat.lt_of_le_and_ne h h'
+       have : m < succ n := Nat.lt_of_le_of_ne h h'
        have : succ m ≤ succ n := succ_le_of_lt this
        Or.inl (le_of_succ_le_succ this))
 
@@ -384,7 +379,7 @@ protected theorem le_of_add_le_add_right {a b c : Nat} : a + b ≤ c + b → a �
   rw [Nat.add_comm _ b, Nat.add_comm _ b]
   apply Nat.le_of_add_le_add_left
 
-/- Basic theorems for comparing numerals -/
+/-! # Basic theorems for comparing numerals -/
 
 theorem ctor_eq_zero : Nat.zero = 0 :=
   rfl
@@ -398,7 +393,7 @@ protected theorem zero_ne_one : 0 ≠ (1 : Nat) :=
 theorem succ_ne_zero (n : Nat) : succ n ≠ 0 :=
   fun h => Nat.noConfusion h
 
-/- mul + order -/
+/-! # mul + order -/
 
 theorem mul_le_mul_left {n m : Nat} (k : Nat) (h : n ≤ m) : k * n ≤ k * m :=
   match le.dest h with
@@ -434,7 +429,7 @@ protected theorem eq_of_mul_eq_mul_left {m k n : Nat} (hn : 0 < n) (h : n * m = 
 theorem eq_of_mul_eq_mul_right {n m k : Nat} (hm : 0 < m) (h : n * m = k * m) : n = k := by
   rw [Nat.mul_comm n m, Nat.mul_comm k m] at h; exact Nat.eq_of_mul_eq_mul_left hm h
 
-/- power -/
+/-! # power -/
 
 theorem pow_succ (n m : Nat) : n^(succ m) = n^m * n :=
   rfl
@@ -460,7 +455,7 @@ theorem pow_le_pow_of_le_right {n : Nat} (hx : n > 0) {i : Nat} : ∀ {j}, i ≤
 theorem pos_pow_of_pos {n : Nat} (m : Nat) (h : 0 < n) : 0 < n^m :=
   pow_le_pow_of_le_right h (Nat.zero_le _)
 
-/- min/max -/
+/-! # min/max -/
 
 protected def min (n m : Nat) : Nat :=
   if n ≤ m then n else m
@@ -468,7 +463,7 @@ protected def min (n m : Nat) : Nat :=
 protected def max (n m : Nat) : Nat :=
   if n ≤ m then m else n
 
-/- Auxiliary theorems for well-founded recursion -/
+/-! # Auxiliary theorems for well-founded recursion -/
 
 theorem not_eq_zero_of_lt (h : b < a) : a ≠ 0 := by
   cases a
@@ -478,7 +473,7 @@ theorem not_eq_zero_of_lt (h : b < a) : a ≠ 0 := by
 theorem pred_lt' {n m : Nat} (h : m < n) : pred n < n :=
   pred_lt (not_eq_zero_of_lt h)
 
-/- sub/pred theorems -/
+/-! # sub/pred theorems -/
 
 theorem add_sub_self_left (a b : Nat) : (a + b) - a = b := by
   induction a with
@@ -661,7 +656,7 @@ protected theorem mul_sub_right_distrib (n m k : Nat) : (n - m) * k = n * k - m 
 protected theorem mul_sub_left_distrib (n m k : Nat) : n * (m - k) = n * m - n * k := by
   rw [Nat.mul_comm, Nat.mul_sub_right_distrib, Nat.mul_comm m n, Nat.mul_comm n k]
 
-/- Helper normalization theorems -/
+/-! # Helper normalization theorems -/
 
 theorem not_le_eq (a b : Nat) : (¬ (a ≤ b)) = (b + 1 ≤ a) :=
   propext <| Iff.intro (fun h => Nat.gt_of_not_le h) (fun h => Nat.not_le_of_gt h)

@@ -9,6 +9,7 @@ import Lean.ToExpr
 
 namespace Lean
 
+/-- Store position information for declarations. -/
 structure DeclarationRange where
   pos          : Position
   /-- A precomputed UTF-16 `character` field as in `Lean.Lsp.Position`. We need to store this
@@ -48,11 +49,10 @@ def findDeclarationRangesCore? [Monad m] [MonadEnv m] (declName : Name) : m (Opt
 
 def findDeclarationRanges? [Monad m] [MonadEnv m] [MonadLiftT IO m] (declName : Name) : m (Option DeclarationRanges) := do
   let env ← getEnv
-  let ranges ←
-    if isAuxRecursor env declName || isNoConfusion env declName || (← isRec declName)  then
-      findDeclarationRangesCore? declName.getPrefix
-    else
-      findDeclarationRangesCore? declName
+  let ranges ← if isAuxRecursor env declName || isNoConfusion env declName || (← isRec declName)  then
+    findDeclarationRangesCore? declName.getPrefix
+  else
+    findDeclarationRangesCore? declName
   match ranges with
   | none => return (← builtinDeclRanges.get (m := IO)).find? declName
   | some _ => return ranges

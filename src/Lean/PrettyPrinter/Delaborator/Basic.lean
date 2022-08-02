@@ -61,7 +61,7 @@ structure State where
 builtin_initialize delabFailureId : InternalExceptionId ← registerInternalExceptionId `delabFailure
 
 abbrev DelabM := ReaderT Context (StateRefT State MetaM)
-abbrev Delab := DelabM Syntax
+abbrev Delab := DelabM Term
 
 instance : Inhabited (DelabM α) where
   default := throw default
@@ -113,29 +113,29 @@ unsafe def mkDelabAttribute : IO (KeyedDeclsAttribute Delab) :=
   is tried first.",
     valueTypeName := `Lean.PrettyPrinter.Delaborator.Delab
   } `Lean.PrettyPrinter.Delaborator.delabAttribute
-@[builtinInit mkDelabAttribute] constant delabAttribute : KeyedDeclsAttribute Delab
+@[builtinInit mkDelabAttribute] opaque delabAttribute : KeyedDeclsAttribute Delab
 
 def getExprKind : DelabM Name := do
   let e ← getExpr
   pure $ match e with
-  | Expr.bvar _ _        => `bvar
-  | Expr.fvar _ _        => `fvar
-  | Expr.mvar _ _        => `mvar
-  | Expr.sort _ _        => `sort
-  | Expr.const c _ _     =>
+  | Expr.bvar _          => `bvar
+  | Expr.fvar _          => `fvar
+  | Expr.mvar _          => `mvar
+  | Expr.sort _          => `sort
+  | Expr.const c _       =>
     -- we identify constants as "nullary applications" to reduce special casing
     `app ++ c
-  | Expr.app fn _ _      => match fn.getAppFn with
-    | Expr.const c _ _ => `app ++ c
+  | Expr.app fn _        => match fn.getAppFn with
+    | Expr.const c _   => `app ++ c
     | _                => `app
   | Expr.lam _ _ _ _     => `lam
   | Expr.forallE _ _ _ _ => `forallE
   | Expr.letE _ _ _ _ _  => `letE
-  | Expr.lit _ _         => `lit
-  | Expr.mdata m _ _     => match m.entries with
+  | Expr.lit _           => `lit
+  | Expr.mdata m _       => match m.entries with
     | [(key, _)] => `mdata ++ key
     | _   => `mdata
-  | Expr.proj _ _ _ _    => `proj
+  | Expr.proj _ _ _      => `proj
 
 def getOptionsAtCurrPos : DelabM Options := do
   let ctx ← read
@@ -166,10 +166,10 @@ def withOptionAtCurrPos (k : Name) (v : DataValue) (x : DelabM α) : DelabM α :
       { ctx with optionsPerPos := ctx.optionsPerPos.insert pos opts' })
     x
 
-def annotatePos (pos : Pos) (stx : Syntax) : Syntax :=
-  stx.setInfo (SourceInfo.synthetic ⟨pos⟩ ⟨pos⟩)
+def annotatePos (pos : Pos) (stx : Term) : Term :=
+  ⟨stx.raw.setInfo (SourceInfo.synthetic ⟨pos⟩ ⟨pos⟩)⟩
 
-def annotateCurPos (stx : Syntax) : Delab :=
+def annotateCurPos (stx : Term) : Delab :=
   return annotatePos (← getPos) stx
 
 def getUnusedName (suggestion : Name) (body : Expr) : DelabM Name := do
@@ -187,7 +187,7 @@ def getUnusedName (suggestion : Name) (body : Expr) : DelabM Name := do
 where
   bodyUsesSuggestion (lctx : LocalContext) (suggestion' : Name) : Bool :=
     Option.isSome <| body.find? fun
-      | Expr.fvar fvarId _ =>
+      | Expr.fvar fvarId =>
         match lctx.find? fvarId with
         | none      => false
         | some decl => decl.userName == suggestion'
@@ -241,17 +241,17 @@ partial def delab : Delab := do
   let e ← getExpr
 
   -- no need to hide atomic proofs
-  if ← pure !e.isAtomic <&&> pure !(← getPPOption getPPProofs) <&&> (try Meta.isProof e catch ex => pure false) then
+  if ← pure !e.isAtomic <&&> pure !(← getPPOption getPPProofs) <&&> (try Meta.isProof e catch _ => pure false) then
     if ← getPPOption getPPProofsWithType then
       let stx ← withType delab
       return ← ``((_ : $stx))
     else
       return ← ``(_)
   let k ← getExprKind
-  let stx ← delabFor k <|> (liftM $ show MetaM Syntax from throwError "don't know how to delaborate '{k}'")
+  let stx ← delabFor k <|> (liftM $ show MetaM _ from throwError "don't know how to delaborate '{k}'")
   if ← getPPOption getPPAnalyzeTypeAscriptions <&&> getPPOption getPPAnalysisNeedsType <&&> pure !e.isMData then
     let typeStx ← withType delab
-    `(($stx:term : $typeStx:term)) >>= annotateCurPos
+    `(($stx : $typeStx)) >>= annotateCurPos
   else
     return stx
 
@@ -267,14 +267,14 @@ to true or `pp.notation` is set to false, it will not be called at all.",
     evalKey := fun _ stx => do
       resolveGlobalConstNoOverloadCore (← Attribute.Builtin.getId stx)
   } `Lean.PrettyPrinter.Delaborator.appUnexpanderAttribute
-@[builtinInit mkAppUnexpanderAttribute] constant appUnexpanderAttribute : KeyedDeclsAttribute Unexpander
+@[builtinInit mkAppUnexpanderAttribute] opaque appUnexpanderAttribute : KeyedDeclsAttribute Unexpander
 
 end Delaborator
 
 open SubExpr (Pos)
 open Delaborator (OptionsPerPos topDownAnalyze)
 
-def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab := Delaborator.delab) : MetaM (Syntax × Std.RBMap Pos Elab.Info compare) := do
+def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab := Delaborator.delab) : MetaM (Term × Std.RBMap Pos Elab.Info compare) := do
   /- Using `erasePatternAnnotations` here is a bit hackish, but we do it
      `Expr.mdata` affects the delaborator. TODO: should we fix that? -/
   let e ← Meta.erasePatternRefAnnotations e
@@ -284,7 +284,7 @@ def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab := Delabor
   if pp.proofs.get? opts == none then
     try if ← Meta.isProof e then opts := pp.proofs.set opts true
     catch _ => pure ()
-  let e ← if getPPInstantiateMVars opts then Meta.instantiateMVars e else pure e
+  let e ← if getPPInstantiateMVars opts then instantiateMVars e else pure e
   let optionsPerPos ←
     if !getPPAll opts && getPPAnalyze opts && optionsPerPos.isEmpty then
       withTheReader Core.Context (fun ctx => { ctx with options := opts }) do topDownAnalyze e
@@ -302,7 +302,7 @@ def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab := Delabor
   return (stx, infos)
 
 /-- "Delaborate" the given term into surface-level syntax using the default and given subterm-specific options. -/
-def delab (e : Expr) (optionsPerPos : OptionsPerPos := {}) : MetaM Syntax := do
+def delab (e : Expr) (optionsPerPos : OptionsPerPos := {}) : MetaM Term := do
   let (stx, _) ← delabCore e optionsPerPos
   return stx
 

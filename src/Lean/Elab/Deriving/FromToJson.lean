@@ -14,38 +14,38 @@ open Lean.Json
 open Lean.Parser.Term
 open Lean.Meta
 
-def mkJsonField (n : Name) : Bool × Syntax :=
+def mkJsonField (n : Name) : Bool × Term :=
   let s  := n.toString
   let s₁ := s.dropRightWhile (· == '?')
   (s != s₁, Syntax.mkStrLit s₁)
 
 def mkToJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if declNames.size == 1 then
-    if isStructure (← getEnv) declNames[0] then
+    if isStructure (← getEnv) declNames[0]! then
       let cmds ← liftTermElabM none <| do
-        let ctx ← mkContext "toJson" declNames[0]
-        let header ← mkHeader ctx ``ToJson 1 ctx.typeInfos[0]
-        let fields := getStructureFieldsFlattened (← getEnv) declNames[0] (includeSubobjectFields := false)
-        let fields : Array Syntax ← fields.mapM fun field => do
+        let ctx ← mkContext "toJson" declNames[0]!
+        let header ← mkHeader ``ToJson 1 ctx.typeInfos[0]!
+        let fields := getStructureFieldsFlattened (← getEnv) declNames[0]! (includeSubobjectFields := false)
+        let fields ← fields.mapM fun field => do
           let (isOptField, nm) := mkJsonField field
-          if isOptField then ``(opt $nm $(mkIdent <| header.targetNames[0] ++ field))
-          else ``([($nm, toJson $(mkIdent <| header.targetNames[0] ++ field))])
-        let cmd ← `(private def $(mkIdent ctx.auxFunNames[0]):ident $header.binders:explicitBinder* :=
+          if isOptField then ``(opt $nm $(mkIdent <| header.targetNames[0]! ++ field))
+          else ``([($nm, toJson $(mkIdent <| header.targetNames[0]! ++ field))])
+        let cmd ← `(private def $(mkIdent ctx.auxFunNames[0]!):ident $header.binders:bracketedBinder* : Json :=
           mkObj <| List.join [$fields,*])
         return #[cmd] ++ (← mkInstanceCmds ctx ``ToJson declNames)
       cmds.forM elabCommand
       return true
     else
-      let indVal ← getConstInfoInduct declNames[0]
+      let indVal ← getConstInfoInduct declNames[0]!
       let cmds ← liftTermElabM none <| do
-        let ctx ← mkContext "toJson" declNames[0]
-        let toJsonFuncId := mkIdent ctx.auxFunNames[0]
+        let ctx ← mkContext "toJson" declNames[0]!
+        let toJsonFuncId := mkIdent ctx.auxFunNames[0]!
         -- Return syntax to JSONify `id`, either via `ToJson` or recursively
         -- if `id`'s type is the type we're deriving for.
-        let mkToJson (id : Syntax) (type : Expr) : TermElabM Syntax := do
+        let mkToJson (id : Ident) (type : Expr) : TermElabM Term := do
           if type.isAppOf indVal.name then `($toJsonFuncId:ident $id:ident)
           else ``(toJson $id:ident)
-        let header ← mkHeader ctx ``ToJson 1 ctx.typeInfos[0]
+        let header ← mkHeader ``ToJson 1 ctx.typeInfos[0]!
         let discrs ← mkDiscrs header indVal
         let alts ← mkAlts indVal fun ctor args userNames => do
           match args, userNames with
@@ -56,15 +56,16 @@ def mkToJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
             ``(mkObj [($(quote ctor.name.getString!), Json.arr #[$[$xs:term],*])])
           | xs, some userNames =>
             let xs ← xs.mapIdxM fun idx (x, t) => do
-              `(($(quote userNames[idx].getString!), $(← mkToJson x t)))
+              `(($(quote userNames[idx]!.getString!), $(← mkToJson x t)))
             ``(mkObj [($(quote ctor.name.getString!), mkObj [$[$xs:term],*])])
-        let mut auxCmd ← `(match $[$discrs],* with $alts:matchAlt*)
-        if ctx.usePartial then
-          let letDecls ← mkLocalInstanceLetDecls ctx ``ToJson header.argNames
-          auxCmd ← mkLet letDecls auxCmd
-          auxCmd ← `(private partial def $toJsonFuncId:ident $header.binders:explicitBinder* := $auxCmd)
-        else
-          auxCmd ← `(private def $toJsonFuncId:ident $header.binders:explicitBinder* := $auxCmd)
+        let auxTerm ← `(match $[$discrs],* with $alts:matchAlt*)
+        let auxCmd ←
+          if ctx.usePartial then
+            let letDecls ← mkLocalInstanceLetDecls ctx ``ToJson header.argNames
+            let auxTerm ← mkLet letDecls auxTerm
+            `(private partial def $toJsonFuncId:ident $header.binders:bracketedBinder* : Json := $auxTerm)
+          else
+            `(private def $toJsonFuncId:ident $header.binders:bracketedBinder* : Json := $auxTerm)
         return #[auxCmd] ++ (← mkInstanceCmds ctx ``ToJson declNames)
       cmds.forM elabCommand
       return true
@@ -73,10 +74,10 @@ def mkToJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
 where
   mkAlts
     (indVal : InductiveVal)
-    (rhs : ConstructorVal → Array (Syntax × Expr) → (Option $ Array Name) → TermElabM Syntax) : TermElabM (Array Syntax) := do
+    (rhs : ConstructorVal → Array (Ident × Expr) → Option (Array Name) → TermElabM Term) : TermElabM (Array (TSyntax ``matchAlt)) := do
   indVal.ctors.toArray.mapM fun ctor => do
     let ctorInfo ← getConstInfoCtor ctor
-    forallTelescopeReducing ctorInfo.type fun xs type => do
+    forallTelescopeReducing ctorInfo.type fun xs _ => do
       let mut patterns := #[]
       -- add `_` pattern for indices
       for _ in [:indVal.numIndices] do
@@ -89,8 +90,8 @@ where
       let mut binders := #[]
       let mut userNames := #[]
       for i in [:ctorInfo.numFields] do
-        let x := xs[indVal.numParams + i]
-        let localDecl ← getLocalDecl x.fvarId!
+        let x := xs[indVal.numParams + i]!
+        let localDecl ← x.fvarId!.getDecl
         if !localDecl.userName.hasMacroScopes then
           userNames := userNames.push localDecl.userName
         let a := mkIdent (← mkFreshUserName `a)
@@ -102,60 +103,58 @@ where
 
 def mkFromJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if declNames.size == 1 then
-    if isStructure (← getEnv) declNames[0] then
+    if isStructure (← getEnv) declNames[0]! then
       let cmds ← liftTermElabM none <| do
-        let ctx ← mkContext "fromJson" declNames[0]
-        let header ← mkHeader ctx ``FromJson 0 ctx.typeInfos[0]
-        let fields := getStructureFieldsFlattened (← getEnv) declNames[0] (includeSubobjectFields := false)
+        let ctx ← mkContext "fromJson" declNames[0]!
+        let header ← mkHeader ``FromJson 0 ctx.typeInfos[0]!
+        let fields := getStructureFieldsFlattened (← getEnv) declNames[0]! (includeSubobjectFields := false)
         let jsonFields := fields.map (Prod.snd ∘ mkJsonField)
         let fields := fields.map mkIdent
-        let cmd ← `(private def $(mkIdent ctx.auxFunNames[0]):ident $header.binders:explicitBinder* (j : Json)
-          : Except String $(← mkInductiveApp ctx.typeInfos[0] header.argNames) := do
+        let cmd ← `(private def $(mkIdent ctx.auxFunNames[0]!):ident $header.binders:bracketedBinder* (j : Json)
+          : Except String $(← mkInductiveApp ctx.typeInfos[0]! header.argNames) := do
           $[let $fields:ident ← getObjValAs? j _ $jsonFields]*
-          return { $[$fields:ident := $(id fields)]* })
+          return { $[$fields:ident := $(id fields)],* })
         return #[cmd] ++ (← mkInstanceCmds ctx ``FromJson declNames)
       cmds.forM elabCommand
       return true
     else
-      let indVal ← getConstInfoInduct declNames[0]
+      let indVal ← getConstInfoInduct declNames[0]!
       let cmds ← liftTermElabM none <| do
-        let ctx ← mkContext "fromJson" declNames[0]
-        let header ← mkHeader ctx ``FromJson 0 ctx.typeInfos[0]
-        let fromJsonFuncId := mkIdent ctx.auxFunNames[0]
-        let discrs ← mkDiscrs header indVal
+        let ctx ← mkContext "fromJson" declNames[0]!
+        let header ← mkHeader ``FromJson 0 ctx.typeInfos[0]!
+        let fromJsonFuncId := mkIdent ctx.auxFunNames[0]!
         let alts ← mkAlts indVal fromJsonFuncId
-        let mut auxCmd ← alts.foldrM (fun xs x => `(Except.orElseLazy $xs (fun _ => $x))) (← `(Except.error "no inductive constructor matched"))
+        let mut auxTerm ← alts.foldrM (fun xs x => `(Except.orElseLazy $xs (fun _ => $x))) (← `(Except.error "no inductive constructor matched"))
         if ctx.usePartial then
           let letDecls ← mkLocalInstanceLetDecls ctx ``FromJson header.argNames
-          auxCmd ← mkLet letDecls auxCmd
+          auxTerm ← mkLet letDecls auxTerm
         -- FromJson is not structurally recursive even non-nested recursive inductives,
         -- so we also use `partial` then.
-        if ctx.usePartial || indVal.isRec then
-          auxCmd ← `(
-            private partial def $fromJsonFuncId:ident $header.binders:explicitBinder* (json : Json)
-                : Except String $(← mkInductiveApp ctx.typeInfos[0] header.argNames) :=
-              $auxCmd)
-        else
-          auxCmd ← `(
-            private def $fromJsonFuncId:ident $header.binders:explicitBinder* (json : Json)
-                : Except String $(← mkInductiveApp ctx.typeInfos[0] header.argNames) :=
-              $auxCmd)
+        let auxCmd ←
+          if ctx.usePartial || indVal.isRec then
+            `(private partial def $fromJsonFuncId:ident $header.binders:bracketedBinder* (json : Json)
+                  : Except String $(← mkInductiveApp ctx.typeInfos[0]! header.argNames) :=
+                $auxTerm)
+          else
+            `(private def $fromJsonFuncId:ident $header.binders:bracketedBinder* (json : Json)
+                  : Except String $(← mkInductiveApp ctx.typeInfos[0]! header.argNames) :=
+                $auxTerm)
         return #[auxCmd] ++ (← mkInstanceCmds ctx ``FromJson declNames)
       cmds.forM elabCommand
       return true
   else
     return false
 where
-  mkAlts (indVal : InductiveVal) (fromJsonFuncId : Syntax) : TermElabM (Array Syntax) := do
+  mkAlts (indVal : InductiveVal) (fromJsonFuncId : Ident) : TermElabM (Array Term) := do
   let alts ←
     indVal.ctors.toArray.mapM fun ctor => do
       let ctorInfo ← getConstInfoCtor ctor
-      forallTelescopeReducing ctorInfo.type fun xs type => do
+      forallTelescopeReducing ctorInfo.type fun xs _ => do
         let mut binders := #[]
         let mut userNames := #[]
         for i in [:ctorInfo.numFields] do
-          let x := xs[indVal.numParams + i]
-          let localDecl ← getLocalDecl x.fvarId!
+          let x := xs[indVal.numParams + i]!
+          let localDecl ← x.fvarId!.getDecl
           if !localDecl.userName.hasMacroScopes then
             userNames := userNames.push localDecl.userName
           let a := mkIdent (← mkFreshUserName `a)
@@ -163,20 +162,19 @@ where
 
         -- Return syntax to parse `id`, either via `FromJson` or recursively
         -- if `id`'s type is the type we're deriving for.
-        let mkFromJson (idx : Nat) (type : Expr) : TermElabM Syntax :=
-          if type.isAppOf indVal.name then `(Lean.Parser.Term.doExpr| $fromJsonFuncId:ident jsons[$(quote idx)])
-          else `(Lean.Parser.Term.doExpr| fromJson? jsons[$(quote idx)])
+        let mkFromJson (idx : Nat) (type : Expr) : TermElabM (TSyntax ``doExpr) :=
+          if type.isAppOf indVal.name then `(Lean.Parser.Term.doExpr| $fromJsonFuncId:ident jsons[$(quote idx)]!)
+          else `(Lean.Parser.Term.doExpr| fromJson? jsons[$(quote idx)]!)
         let identNames := binders.map Prod.fst
         let fromJsons ← binders.mapIdxM fun idx (_, type) => mkFromJson idx type
-
-        let userNamesOpt ←
-          if binders.size == userNames.size then
-            ``(some #[$[$(userNames.map quote):ident],*])
-          else ``(none)
+        let userNamesOpt ← if binders.size == userNames.size then
+          ``(some #[$[$(userNames.map quote)],*])
+        else
+          ``(none)
         let stx ←
           `((Json.parseTagged json $(quote ctor.getString!) $(quote ctorInfo.numFields) $(quote userNamesOpt)).bind
             (fun jsons => do
-              $[let $identNames:ident ← $fromJsons]*
+              $[let $identNames:ident ← $fromJsons:doExpr]*
               return $(mkIdent ctor):ident $identNames*))
         pure (stx, ctorInfo.numFields)
   -- the smaller cases, especially the ones without fields are likely faster
@@ -184,7 +182,7 @@ where
   return alts.map Prod.fst
 
 builtin_initialize
-  registerBuiltinDerivingHandler ``ToJson mkToJsonInstanceHandler
-  registerBuiltinDerivingHandler ``FromJson mkFromJsonInstanceHandler
+  registerDerivingHandler ``ToJson mkToJsonInstanceHandler
+  registerDerivingHandler ``FromJson mkFromJsonInstanceHandler
 
 end Lean.Elab.Deriving.FromToJson

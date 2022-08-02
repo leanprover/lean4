@@ -8,6 +8,7 @@ import Lean.Parser.Syntax
 import Lean.Parser.Extension
 import Lean.KeyedDeclsAttribute
 import Lean.Elab.Exception
+import Lean.Elab.InfoTree
 import Lean.DocString
 import Lean.DeclarationRange
 import Lean.Compiler.InitAttr
@@ -21,7 +22,7 @@ def Syntax.prettyPrint (stx : Syntax) : Format :=
   | none     => format stx
 
 def MacroScopesView.format (view : MacroScopesView) (mainModule : Name) : Format :=
-  Std.format $
+  Std.format <|
     if view.scopes.isEmpty then
       view.name
     else if view.mainModule == mainModule then
@@ -44,7 +45,7 @@ structure MacroStackElem where
 
 abbrev MacroStack := List MacroStackElem
 
-/- If `ref` does not have position information, then try to use macroStack -/
+/-- If `ref` does not have position information, then try to use macroStack -/
 def getBetterRef (ref : Syntax) (macroStack : MacroStack) : Syntax :=
   match ref.getPos? with
   | some _ => ref
@@ -75,8 +76,8 @@ def checkSyntaxNodeKind [Monad m] [MonadEnv m] [MonadError m] (k : Name) : m Nam
   else throwError "failed"
 
 def checkSyntaxNodeKindAtNamespaces [Monad m] [MonadEnv m] [MonadError m] (k : Name) : Name → m Name
-  | n@(Name.str p _ _) => checkSyntaxNodeKind (n ++ k) <|> checkSyntaxNodeKindAtNamespaces k p
-  | Name.anonymous     => checkSyntaxNodeKind k
+  | n@(.str p _) => checkSyntaxNodeKind (n ++ k) <|> checkSyntaxNodeKindAtNamespaces k p
+  | .anonymous   => checkSyntaxNodeKind k
   | _ => throwError "failed"
 
 def checkSyntaxNodeKindAtCurrentNamespaces (k : Name) : AttrM Name := do
@@ -95,7 +96,7 @@ private unsafe def evalSyntaxConstantUnsafe (env : Environment) (opts : Options)
   env.evalConstCheck Syntax opts `Lean.Syntax constName
 
 @[implementedBy evalSyntaxConstantUnsafe]
-constant evalSyntaxConstant (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax := throw ""
+opaque evalSyntaxConstant (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax := throw ""
 
 unsafe def mkElabAttribute (γ) (attrDeclName attrBuiltinName attrName : Name) (parserNamespace : Name) (typeName : Name) (kind : String)
     : IO (KeyedDeclsAttribute γ) :=
@@ -104,7 +105,18 @@ unsafe def mkElabAttribute (γ) (attrDeclName attrBuiltinName attrName : Name) (
     name          := attrName
     descr         := kind ++ " elaborator"
     valueTypeName := typeName
-    evalKey       := fun _ stx => syntaxNodeKindOfAttrParam parserNamespace stx
+    evalKey       := fun _ stx => do
+      let kind ← syntaxNodeKindOfAttrParam parserNamespace stx
+      /- Recall that a `SyntaxNodeKind` is often the name of the paser, but this is not always true, and we much check it. -/
+      if (← getEnv).contains kind && (← getInfoState).enabled then
+        pushInfoLeaf <| Info.ofTermInfo {
+          elaborator    := .anonymous
+          lctx          := {}
+          expr          := mkConst kind
+          stx           := stx[1]
+          expectedType? := none
+        }
+      return kind
     onAdded       := fun builtin declName => do
       if builtin then
       if let some doc ← findDocString? (← getEnv) declName then
@@ -117,7 +129,7 @@ unsafe def mkMacroAttributeUnsafe : IO (KeyedDeclsAttribute Macro) :=
   mkElabAttribute Macro `Lean.Elab.macroAttribute `builtinMacro `macro Name.anonymous `Lean.Macro "macro"
 
 @[implementedBy mkMacroAttributeUnsafe]
-constant mkMacroAttribute : IO (KeyedDeclsAttribute Macro)
+opaque mkMacroAttribute : IO (KeyedDeclsAttribute Macro)
 
 builtin_initialize macroAttribute : KeyedDeclsAttribute Macro ← mkMacroAttribute
 
@@ -141,8 +153,8 @@ class MonadMacroAdapter (m : Type → Type) where
   setNextMacroScope                  : MacroScope → m Unit
 
 instance (m n) [MonadLift m n] [MonadMacroAdapter m] : MonadMacroAdapter n := {
-  getCurrMacroScope := liftM (MonadMacroAdapter.getCurrMacroScope : m _),
-  getNextMacroScope := liftM (MonadMacroAdapter.getNextMacroScope : m _),
+  getCurrMacroScope := liftM (MonadMacroAdapter.getCurrMacroScope : m _)
+  getNextMacroScope := liftM (MonadMacroAdapter.getNextMacroScope : m _)
   setNextMacroScope := fun s => liftM (MonadMacroAdapter.setNextMacroScope s : m _)
 }
 
@@ -158,7 +170,7 @@ def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEn
       | none           => return none
     hasDecl          := fun declName => return env.contains declName
     getCurrNamespace := return currNamespace
-    resolveNamespace? := fun n => return ResolveName.resolveNamespace? env currNamespace openDecls n
+    resolveNamespace := fun n => return ResolveName.resolveNamespace env currNamespace openDecls n
     resolveGlobalName := fun n => return ResolveName.resolveGlobalName env currNamespace openDecls n
   }
   match x { methods        := methods
@@ -175,10 +187,10 @@ def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEn
       throwMaxRecDepthAt ref
     else
       throwErrorAt ref msg
-  | EStateM.Result.ok a  s                                   =>
+  | EStateM.Result.ok a s =>
     MonadMacroAdapter.setNextMacroScope s.macroScope
     s.traceMsgs.reverse.forM fun (clsName, msg) => trace clsName fun _ => msg
-    pure a
+    return a
 
 @[inline] def adaptMacro {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m]  [MonadResolveName m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] (x : Macro) (stx : Syntax) : m Syntax :=
   liftMacroM (x stx)
@@ -204,12 +216,30 @@ def logException [Monad m] [MonadLog m] [AddMessageContext m] [MonadLiftT IO m] 
       let name ← id.getName
       logError m!"internal exception: {name}"
 
+def withLogging [Monad m] [MonadLog m] [MonadExcept Exception m] [AddMessageContext m] [MonadLiftT IO m]
+    (x : m Unit) : m Unit := do
+  try x catch ex => logException ex
+
 @[inline] def trace [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] (cls : Name) (msg : Unit → MessageData) : m Unit := do
   if checkTraceOption (← getOptions) cls then
     logTrace cls (msg ())
 
 def logDbgTrace [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] (msg : MessageData) : m Unit := do
   trace `Elab.debug fun _ => msg
+
+def nestedExceptionToMessageData [Monad m] [MonadLog m] (ex : Exception) : m MessageData := do
+  let pos ← getRefPos
+  match ex.getRef.getPos? with
+  | none       => return ex.toMessageData
+  | some exPos =>
+    if pos == exPos then
+      return ex.toMessageData
+    else
+      let exPosition := (← getFileMap).toPosition exPos
+      return m!"{exPosition.line}:{exPosition.column} {ex.toMessageData}"
+
+def throwErrorWithNestedErrors [MonadError m] [Monad m] [MonadLog m] (msg : MessageData) (exs : Array Exception) : m α := do
+  throwError "{msg}, errors {toMessageList (← exs.mapM fun | ex => nestedExceptionToMessageData ex)}"
 
 builtin_initialize
   registerTraceClass `Elab

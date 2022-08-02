@@ -24,16 +24,16 @@ structure CasesOnApp where
 /-- Return `some c` if `e` is a `casesOn` application. -/
 def toCasesOnApp? (e : Expr) : MetaM (Option CasesOnApp) := do
   let f := e.getAppFn
-  let .const declName us _ := f | return none
+  let .const declName us := f | return none
   unless isCasesOnRecursor (← getEnv) declName do return none
   let indName := declName.getPrefix
   let .inductInfo info ← getConstInfo indName | return none
   let args := e.getAppArgs
   unless args.size >= info.numParams + 1 /- motive -/ + info.numIndices + 1 /- major -/ + info.numCtors do return none
   let params    := args[:info.numParams]
-  let motive    := args[info.numParams]
+  let motive    := args[info.numParams]!
   let indices   := args[info.numParams + 1 : info.numParams + 1 + info.numIndices]
-  let major     := args[info.numParams + 1 + info.numIndices]
+  let major     := args[info.numParams + 1 + info.numIndices]!
   let alts      := args[info.numParams + 1 + info.numIndices + 1 : info.numParams + 1 + info.numIndices + 1 + info.numCtors]
   let remaining := args[info.numParams + 1 + info.numIndices + 1 + info.numCtors :]
   let propOnly  := info.levelParams.length == us.length
@@ -82,20 +82,19 @@ def CasesOnApp.addArg (c : CasesOnApp) (arg : Expr) (checkIfRefined : Bool := fa
     return { c with us, motive, alts, remaining }
 where
   updateAlts (argType : Expr) (auxType : Expr) : MetaM (Array Expr) := do
-    let indName := c.declName.getPrefix
     let mut auxType := auxType
     let mut altsNew := #[]
     let mut refined := false
     for alt in c.alts, numParams in c.altNumParams do
       auxType ← whnfD auxType
       match auxType with
-      | .forallE n d b _ =>
+      | .forallE _ d b _ =>
         let (altNew, refinedAt) ← forallBoundedTelescope d (some numParams) fun xs d => do
-          forallBoundedTelescope d (some 1) fun x d => do
+          forallBoundedTelescope d (some 1) fun x _ => do
             let alt := alt.beta xs
             let alt ← mkLambdaFVars x alt -- x is the new argument we are adding to the alternative
             if checkIfRefined then
-              return (← mkLambdaFVars xs alt, !(← isDefEq argType (← inferType x[0])))
+              return (← mkLambdaFVars xs alt, !(← isDefEq argType (← inferType x[0]!)))
             else
               return (← mkLambdaFVars xs alt, true)
         if refinedAt then

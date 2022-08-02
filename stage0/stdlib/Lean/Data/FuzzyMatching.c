@@ -31,8 +31,8 @@ LEAN_EXPORT lean_object* l_Lean_FuzzyMatching_CharType_toCtorIdx(uint8_t);
 LEAN_EXPORT uint8_t l_Lean_FuzzyMatching_charRole(lean_object*, uint8_t, lean_object*);
 static lean_object* l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_iterateLookaround___rarg___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_iterateLookaround___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+double l_Float_ofScientific(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_fuzzyMatchCore___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-double lean_float_of_nat(lean_object*);
 static double l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___lambda__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_FuzzyMatching_CharRole_toCtorIdx(uint8_t);
 static lean_object* l___private_Lean_Data_FuzzyMatching_0__Lean_FuzzyMatching_iterateLookaround___rarg___closed__1;
@@ -2549,19 +2549,22 @@ return x_2;
 static double _init_l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___lambda__1___closed__2() {
 _start:
 {
-lean_object* x_1; double x_2; 
+lean_object* x_1; uint8_t x_2; lean_object* x_3; double x_4; 
 x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_float_of_nat(x_1);
-return x_2;
+x_2 = 0;
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = l_Float_ofScientific(x_1, x_2, x_3);
+return x_4;
 }
 }
 static double _init_l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___lambda__1___closed__3() {
 _start:
 {
-lean_object* x_1; double x_2; 
+lean_object* x_1; uint8_t x_2; double x_3; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_float_of_nat(x_1);
-return x_2;
+x_2 = 0;
+x_3 = l_Float_ofScientific(x_1, x_2, x_1);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_FuzzyMatching_fuzzyMatchScore_x3f___lambda__1___closed__4___boxed__const__1() {

@@ -15,27 +15,26 @@ open Meta
 def rewriteTarget (stx : Syntax) (symm : Bool) (config : Rewrite.Config) : TacticM Unit := do
   Term.withSynthesize <| withMainContext do
     let e ← elabTerm stx none true
-    let r ← rewrite (← getMainGoal) (← getMainTarget) e symm (config := config)
-    let mvarId' ← replaceTargetEq (← getMainGoal) r.eNew r.eqProof
+    let r ← (← getMainGoal).rewrite (← getMainTarget) e symm (config := config)
+    let mvarId' ← (← getMainGoal).replaceTargetEq r.eNew r.eqProof
     replaceMainGoal (mvarId' :: r.mvarIds)
 
 def rewriteLocalDecl (stx : Syntax) (symm : Bool) (fvarId : FVarId) (config : Rewrite.Config) : TacticM Unit := do
   Term.withSynthesize <| withMainContext do
     let e ← elabTerm stx none true
-    let localDecl ← getLocalDecl fvarId
-    let rwResult ← rewrite (← getMainGoal) localDecl.type e symm (config := config)
-    let replaceResult ← replaceLocalDecl (← getMainGoal) fvarId rwResult.eNew rwResult.eqProof
+    let localDecl ← fvarId.getDecl
+    let rwResult ← (← getMainGoal).rewrite localDecl.type e symm (config := config)
+    let replaceResult ← (← getMainGoal).replaceLocalDecl fvarId rwResult.eNew rwResult.eqProof
     replaceMainGoal (replaceResult.mvarId :: rwResult.mvarIds)
 
 def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) → (term : Syntax) → TacticM Unit) : TacticM Unit := do
   let lbrak := rwRulesSeqStx[0]
   let rules := rwRulesSeqStx[1].getArgs
-  let rbrak := rwRulesSeqStx[2]
   -- show initial state up to (incl.) `[`
   withTacticInfoContext (mkNullNode #[token, lbrak]) (pure ())
   let numRules := (rules.size + 1) / 2
   for i in [:numRules] do
-    let rule := rules[i * 2]
+    let rule := rules[i * 2]!
     let sep  := rules.getD (i * 2 + 1) Syntax.missing
     -- show rule state up to (incl.) next `,`
     withTacticInfoContext (mkNullNode #[rule, sep]) do

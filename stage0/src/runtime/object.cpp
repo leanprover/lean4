@@ -20,6 +20,11 @@ Author: Leonardo de Moura
 #include "runtime/interrupt.h"
 #include "runtime/buffer.h"
 
+#ifdef __GLIBC__
+#include <execinfo.h>
+#include <unistd.h>
+#endif
+
 // see `Task.Priority.max`
 #define LEAN_MAX_PRIO 8
 
@@ -66,7 +71,20 @@ extern "C" LEAN_EXPORT object * lean_panic_fn(object * default_val, object * msg
     // TODO(Leo, Kha): add thread local buffer for interpreter.
     if (g_panic_messages) {
         std::cerr << lean_string_cstr(msg) << "\n";
+#ifdef __GLIBC__
+        char * bt_env = getenv("LEAN_BACKTRACE");
+        if (!bt_env || strcmp(bt_env, "0") != 0) {
+            std::cerr << "backtrace:\n";
+            void * bt_buf[100];
+            int nptrs = backtrace(bt_buf, sizeof(bt_buf));
+            backtrace_symbols_fd(bt_buf, nptrs, STDERR_FILENO);
+            if (nptrs == sizeof(bt_buf)) {
+                std::cerr << "...\n";
+            }
+        }
+#endif
     }
+
     abort_on_panic();
     if (g_exit_on_panic) {
         std::exit(1);
@@ -349,107 +367,6 @@ extern "C" LEAN_EXPORT b_obj_res lean_thunk_get_core(b_obj_arg t) {
         }
         return lean_to_thunk(t)->m_value;
     }
-}
-
-// =======================================
-// Fixpoint
-
-static inline object * ptr_to_weak_ptr(object * p) {
-    return reinterpret_cast<object*>(reinterpret_cast<uintptr_t>(p) | 1);
-}
-
-static inline object * weak_ptr_to_ptr(object * w) {
-    return reinterpret_cast<object*>((reinterpret_cast<uintptr_t>(w) >> 1) << 1);
-}
-
-obj_res fixpoint_aux(obj_arg rec, obj_arg weak_k, obj_arg a) {
-    object * k = weak_ptr_to_ptr(weak_k);
-    lean_inc(k);
-    return lean_apply_2(rec, k, a);
-}
-
-extern "C" LEAN_EXPORT obj_res lean_fixpoint(obj_arg rec, obj_arg a) {
-    object * k = lean_alloc_closure((void*)fixpoint_aux, 3, 2);
-    lean_inc(rec);
-    lean_closure_set(k, 0, rec);
-    lean_closure_set(k, 1, ptr_to_weak_ptr(k));
-    object * r = lean_apply_2(rec, k, a);
-    return r;
-}
-
-obj_res fixpoint_aux2(obj_arg rec, obj_arg weak_k, obj_arg a1, obj_arg a2) {
-    object * k = weak_ptr_to_ptr(weak_k);
-    lean_inc(k);
-    return lean_apply_3(rec, k, a1, a2);
-}
-
-extern "C" LEAN_EXPORT obj_res lean_fixpoint2(obj_arg rec, obj_arg a1, obj_arg a2) {
-    object * k = lean_alloc_closure((void*)fixpoint_aux2, 4, 2);
-    lean_inc(rec);
-    lean_closure_set(k, 0, rec);
-    lean_closure_set(k, 1, ptr_to_weak_ptr(k));
-    object * r = lean_apply_3(rec, k, a1, a2);
-    return r;
-}
-
-obj_res fixpoint_aux3(obj_arg rec, obj_arg weak_k, obj_arg a1, obj_arg a2, obj_arg a3) {
-    object * k = weak_ptr_to_ptr(weak_k);
-    lean_inc(k);
-    return lean_apply_4(rec, k, a1, a2, a3);
-}
-
-extern "C" LEAN_EXPORT obj_res lean_fixpoint3(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3) {
-    object * k = lean_alloc_closure((void*)fixpoint_aux3, 5, 2);
-    lean_inc(rec);
-    lean_closure_set(k, 0, rec);
-    lean_closure_set(k, 1, ptr_to_weak_ptr(k));
-    object * r = lean_apply_4(rec, k, a1, a2, a3);
-    return r;
-}
-
-obj_res fixpoint_aux4(obj_arg rec, obj_arg weak_k, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4) {
-    object * k = weak_ptr_to_ptr(weak_k);
-    lean_inc(k);
-    return lean_apply_5(rec, k, a1, a2, a3, a4);
-}
-
-extern "C" LEAN_EXPORT obj_res lean_fixpoint4(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4) {
-    object * k = lean_alloc_closure((void*)fixpoint_aux4, 6, 2);
-    lean_inc(rec);
-    lean_closure_set(k, 0, rec);
-    lean_closure_set(k, 1, ptr_to_weak_ptr(k));
-    object * r = lean_apply_5(rec, k, a1, a2, a3, a4);
-    return r;
-}
-
-obj_res fixpoint_aux5(obj_arg rec, obj_arg weak_k, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5) {
-    object * k = weak_ptr_to_ptr(weak_k);
-    lean_inc(k);
-    return lean_apply_6(rec, k, a1, a2, a3, a4, a5);
-}
-
-extern "C" LEAN_EXPORT obj_res lean_fixpoint5(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5) {
-    object * k = lean_alloc_closure((void*)fixpoint_aux5, 7, 2);
-    lean_inc(rec);
-    lean_closure_set(k, 0, rec);
-    lean_closure_set(k, 1, ptr_to_weak_ptr(k));
-    object * r = lean_apply_6(rec, k, a1, a2, a3, a4, a5);
-    return r;
-}
-
-obj_res fixpoint_aux6(obj_arg rec, obj_arg weak_k, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5, obj_arg a6) {
-    object * k = weak_ptr_to_ptr(weak_k);
-    lean_inc(k);
-    return lean_apply_7(rec, k, a1, a2, a3, a4, a5, a6);
-}
-
-extern "C" LEAN_EXPORT obj_res lean_fixpoint6(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5, obj_arg a6) {
-    object * k = lean_alloc_closure((void*)fixpoint_aux6, 8, 2);
-    lean_inc(rec);
-    lean_closure_set(k, 0, rec);
-    lean_closure_set(k, 1, ptr_to_weak_ptr(k));
-    object * r = lean_apply_7(rec, k, a1, a2, a3, a4, a5, a6);
-    return r;
 }
 
 // =======================================
@@ -1707,6 +1624,52 @@ extern "C" LEAN_EXPORT obj_res lean_string_data(obj_arg s) {
     return string_to_list_core(tmp);
 }
 
+static bool lean_string_utf8_get_core(char const * str, usize size, usize i, uint32 & result) {
+    unsigned c = static_cast<unsigned char>(str[i]);
+    /* zero continuation (0 to 127) */
+    if ((c & 0x80) == 0) {
+        i++;
+        result = c;
+        return true;
+    }
+
+    /* one continuation (128 to 2047) */
+    if ((c & 0xe0) == 0xc0 && i + 1 < size) {
+        unsigned c1 = static_cast<unsigned char>(str[i+1]);
+        result = ((c & 0x1f) << 6) | (c1 & 0x3f);
+        if (result >= 128) {
+            i += 2;
+            return true;
+        }
+    }
+
+    /* two continuations (2048 to 55295 and 57344 to 65535) */
+    if ((c & 0xf0) == 0xe0 && i + 2 < size) {
+        unsigned c1 = static_cast<unsigned char>(str[i+1]);
+        unsigned c2 = static_cast<unsigned char>(str[i+2]);
+        result = ((c & 0x0f) << 12) | ((c1 & 0x3f) << 6) | (c2 & 0x3f);
+        if (result >= 2048 && (result < 55296 || result > 57343)) {
+            i += 3;
+            return true;
+        }
+    }
+
+    /* three continuations (65536 to 1114111) */
+    if ((c & 0xf8) == 0xf0 && i + 3 < size) {
+        unsigned c1 = static_cast<unsigned char>(str[i+1]);
+        unsigned c2 = static_cast<unsigned char>(str[i+2]);
+        unsigned c3 = static_cast<unsigned char>(str[i+3]);
+        result = ((c & 0x07) << 18) | ((c1 & 0x3f) << 12) | ((c2 & 0x3f) << 6) | (c3 & 0x3f);
+        if (result >= 65536 && result <= 1114111) {
+            i += 4;
+            return true;
+        }
+    }
+
+    /* invalid UTF-8 encoded string */
+    return false;
+}
+
 extern "C" LEAN_EXPORT uint32 lean_string_utf8_get(b_obj_arg s, b_obj_arg i0) {
     if (!lean_is_scalar(i0)) {
         /* If `i0` is not a scalar, then it must be > LEAN_MAX_SMALL_NAT,
@@ -1728,49 +1691,53 @@ extern "C" LEAN_EXPORT uint32 lean_string_utf8_get(b_obj_arg s, b_obj_arg i0) {
     usize size = lean_string_size(s) - 1;
     if (i >= lean_string_size(s) - 1)
         return lean_char_default_value();
-    unsigned c = static_cast<unsigned char>(str[i]);
-    /* zero continuation (0 to 127) */
-    if ((c & 0x80) == 0) {
-        i++;
-        return c;
-    }
+    uint32 result;
+    if (lean_string_utf8_get_core(str, size, i, result))
+        return result;
+    else
+        return lean_char_default_value();
+}
 
-    /* one continuation (128 to 2047) */
-    if ((c & 0xe0) == 0xc0 && i + 1 < size) {
-        unsigned c1 = static_cast<unsigned char>(str[i+1]);
-        unsigned r = ((c & 0x1f) << 6) | (c1 & 0x3f);
-        if (r >= 128) {
-            i += 2;
-            return r;
-        }
+extern "C" LEAN_EXPORT obj_res lean_string_utf8_get_opt(b_obj_arg s, b_obj_arg i0) {
+    if (!lean_is_scalar(i0)) {
+        return lean_box(0);
     }
-
-    /* two continuations (2048 to 55295 and 57344 to 65535) */
-    if ((c & 0xf0) == 0xe0 && i + 2 < size) {
-        unsigned c1 = static_cast<unsigned char>(str[i+1]);
-        unsigned c2 = static_cast<unsigned char>(str[i+2]);
-        unsigned r = ((c & 0x0f) << 12) | ((c1 & 0x3f) << 6) | (c2 & 0x3f);
-        if (r >= 2048 && (r < 55296 || r > 57343)) {
-            i += 3;
-            return r;
-        }
+    usize i = lean_unbox(i0);
+    char const * str = lean_string_cstr(s);
+    usize size = lean_string_size(s) - 1;
+    if (i >= lean_string_size(s) - 1)
+        return lean_box(0);
+    uint32 result;
+    if (lean_string_utf8_get_core(str, size, i, result)) {
+        obj_res new_r = lean_alloc_ctor(1, 1, 0);
+        lean_ctor_set(new_r, 0, lean_box_uint32(result));
+        return new_r;
+    } else {
+        return lean_box(0);
     }
+}
 
-    /* three continuations (65536 to 1114111) */
-    if ((c & 0xf8) == 0xf0 && i + 3 < size) {
-        unsigned c1 = static_cast<unsigned char>(str[i+1]);
-        unsigned c2 = static_cast<unsigned char>(str[i+2]);
-        unsigned c3 = static_cast<unsigned char>(str[i+3]);
-        unsigned r  = ((c & 0x07) << 18) | ((c1 & 0x3f) << 12) | ((c2 & 0x3f) << 6) | (c3 & 0x3f);
-        if (r >= 65536 && r <= 1114111) {
-            i += 4;
-            return r;
-        }
-    }
-
-    /* invalid UTF-8 encoded string */
+static uint32 lean_string_utf8_get_panic() {
+    lean_panic_fn(lean_box(0), lean_mk_string("Error: invalid `String.Pos` at `String.get!`"));
     return lean_char_default_value();
 }
+
+extern "C" LEAN_EXPORT uint32 lean_string_utf8_get_bang(b_obj_arg s, b_obj_arg i0) {
+    if (!lean_is_scalar(i0)) {
+        return lean_string_utf8_get_panic();
+    }
+    usize i = lean_unbox(i0);
+    char const * str = lean_string_cstr(s);
+    usize size = lean_string_size(s) - 1;
+    if (i >= lean_string_size(s) - 1)
+        return lean_string_utf8_get_panic();
+    uint32 result;
+    if (lean_string_utf8_get_core(str, size, i, result))
+        return result;
+    else
+        return lean_string_utf8_get_panic();
+}
+
 
 /* The reference implementation is:
    ```
@@ -2012,7 +1979,6 @@ extern "C" LEAN_EXPORT obj_res lean_float_array_data(obj_arg a) {
     double * end   = it+sz;
     object ** dest = lean_array_cptr(r);
     for (; it != end; ++it, ++dest) {
-        lean_dec(*dest);
         *dest = lean_box_float(*it);
     }
     lean_dec(a);

@@ -91,3 +91,7 @@ theorem tst8'' {α} [Inhabited α] (xs : List α) (h : xs ≠ []) : xs = popBack
 match xs, last xs with
 | _, ListLast.empty         => absurd rfl h
 | _, ListLast.nonEmpty ys y => sorry
+
+example (xs : List α) : xs = xs := by
+  match xs with
+  | [] | [x] | x::x'::xs => rfl

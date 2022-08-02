@@ -37,11 +37,11 @@ unsafe def findM? (p : Expr → Bool) (size : USize) (e : Expr) : OptionT FindM 
     else match e with
       | Expr.forallE _ d b _   => visit d <|> visit b
       | Expr.lam _ d b _       => visit d <|> visit b
-      | Expr.mdata _ b _       => visit b
+      | Expr.mdata _ b         => visit b
       | Expr.letE _ t v b _    => visit t <|> visit v <|> visit b
-      | Expr.app f a _         => visit f <|> visit a
-      | Expr.proj _ _ b _      => visit b
-      | e                      => failure
+      | Expr.app f a           => visit f <|> visit a
+      | Expr.proj _ _ b        => visit b
+      | _                      => failure
   visit e
 
 
@@ -61,11 +61,11 @@ def find? (p : Expr → Bool) (e : Expr) : Option Expr :=
   else match e with
     | Expr.forallE _ d b _   => find? p d <|> find? p b
     | Expr.lam _ d b _       => find? p d <|> find? p b
-    | Expr.mdata _ b _       => find? p b
+    | Expr.mdata _ b         => find? p b
     | Expr.letE _ t v b _    => find? p t <|> find? p v <|> find? p b
-    | Expr.app f a _         => find? p f <|> find? p a
-    | Expr.proj _ _ b _      => find? p b
-    | e                      => none
+    | Expr.app f a           => find? p f <|> find? p a
+    | Expr.proj _ _ b        => find? p b
+    | _                      => none
 
 /-- Return true if `e` occurs in `t` -/
 def occurs (e : Expr) (t : Expr) : Bool :=
@@ -99,11 +99,11 @@ where
         match e with
         | Expr.forallE _ d b _   => visit d <|> visit b
         | Expr.lam _ d b _       => visit d <|> visit b
-        | Expr.mdata _ b _       => visit b
+        | Expr.mdata _ b         => visit b
         | Expr.letE _ t v b _    => visit t <|> visit v <|> visit b
         | Expr.app ..            => visitApp e
-        | Expr.proj _ _ b _      => visit b
-        | e                      => failure
+        | Expr.proj _ _ b        => visit b
+        | _                      => failure
 
 unsafe def findUnsafe? (p : Expr → FindStep) (e : Expr) : Option Expr :=
   Id.run <| findM? p FindImpl.cacheSize e |>.run' FindImpl.initCache
@@ -114,7 +114,7 @@ end FindExtImpl
   Similar to `find?`, but `p` can return `FindStep.done` to interrupt the search on subterms.
   Remark: Differently from `find?`, we do not invoke `p` for partial applications of an application. -/
 @[implementedBy FindExtImpl.findUnsafe?]
-constant findExt? (p : Expr → FindStep) (e : Expr) : Option Expr
+opaque findExt? (p : Expr → FindStep) (e : Expr) : Option Expr
 
 end Expr
 end Lean

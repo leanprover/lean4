@@ -58,7 +58,7 @@ section
   #eval checkM `(id Nat)
   #eval checkM `(Sum Nat Nat)
 end
-#eval checkM `(id (id Nat)) (Std.RBMap.empty.insert 5 $ KVMap.empty.insert `pp.explicit true)
+#eval checkM `(id (id Nat)) (Std.RBMap.empty.insert (SubExpr.Pos.ofArray #[1]) $ KVMap.empty.insert `pp.explicit true)
 
 -- specify the expected type of `a` in a way that is not erased by the delaborator
 def typeAs.{u} (α : Type u) (a : α) := ()

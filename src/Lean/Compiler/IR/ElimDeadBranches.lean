@@ -50,7 +50,7 @@ instance : BEq Value := ⟨Value.beq⟩
 
 partial def addChoice (merge : Value → Value → Value) : List Value → Value → List Value
   | [], v => [v]
-  | v₁@(ctor i₁ vs₁) :: cs, v₂@(ctor i₂ vs₂) =>
+  | v₁@(ctor i₁ _) :: cs, v₂@(ctor i₂ _) =>
     if i₁ == i₂ then merge v₁ v₂ :: cs
     else v₁ :: addChoice merge cs v₂
   | _, _ => panic! "invalid addChoice"
@@ -62,7 +62,7 @@ partial def merge (v₁ v₂ : Value) : Value :=
   | top, _ => top
   | _, top => top
   | v₁@(ctor i₁ vs₁), v₂@(ctor i₂ vs₂) =>
-    if i₁ == i₂ then ctor i₁ <| vs₁.size.fold (init := #[]) fun i r => r.push (merge vs₁[i] vs₂[i])
+    if i₁ == i₂ then ctor i₁ <| vs₁.size.fold (init := #[]) fun i r => r.push (merge vs₁[i]! vs₂[i]!)
     else choice [v₁, v₂]
   | choice vs₁, choice vs₂ => choice <| vs₁.foldl (addChoice merge) vs₂
   | choice vs, v => choice <| addChoice merge vs v
@@ -158,7 +158,7 @@ open Value
 def findVarValue (x : VarId) : M Value := do
   let ctx ← read
   let s ← get
-  let assignment := s.assignments[ctx.currFnIdx]
+  let assignment := s.assignments[ctx.currFnIdx]!
   return assignment.findD x bot
 
 def findArgValue (arg : Arg) : M Value :=
@@ -193,7 +193,7 @@ def interpExpr : Expr → M Value
     | none   => do
       let s ← get
       match ctx.decls.findIdx? (fun decl => decl.name == fid) with
-      | some idx => pure s.funVals[idx]
+      | some idx => pure s.funVals[idx]!
       | none     => pure top
   | _ => pure top
 
@@ -213,8 +213,8 @@ def updateJPParamsAssignment (ys : Array Param) (xs : Array Arg) : M Bool := do
   let ctx ← read
   let currFnIdx := ctx.currFnIdx
   ys.size.foldM (init := false) fun i r => do
-    let y := ys[i]
-    let x := xs[i]
+    let y := ys[i]!
+    let x := xs[i]!
     let yVal ← findVarValue y.x
     let xVal ← findArgValue x
     let newVal := merge yVal xVal
@@ -226,8 +226,6 @@ def updateJPParamsAssignment (ys : Array Param) (xs : Array Arg) : M Bool := do
 
 private partial def resetNestedJPParams : FnBody → M Unit
   | FnBody.jdecl _ ys _ k => do
-    let ctx ← read
-    let currFnIdx := ctx.currFnIdx
     ys.forM resetParamAssignment
     /- Remark we don't need to reset the parameters of joint-points
       nested in `b` since they will be reset if this JP is used. -/
@@ -272,17 +270,17 @@ def inferStep : M Bool := do
   let ctx ← read
   modify fun s => { s with assignments := ctx.decls.map fun _ => {} }
   ctx.decls.size.foldM (init := false) fun idx modified => do
-    match ctx.decls[idx] with
-    | Decl.fdecl (xs := ys) (body := b) .. => do
+    match ctx.decls[idx]! with
+    | .fdecl (xs := ys) (body := b) .. => do
       let s ← get
-      let currVals := s.funVals[idx]
+      let currVals := s.funVals[idx]!
       withReader (fun ctx => { ctx with currFnIdx := idx }) do
         ys.forM fun y => updateVarAssignment y.x top
         interpFnBody b
         let s ← get
-        let newVals := s.funVals[idx]
+        let newVals := s.funVals[idx]!
         pure (modified || currVals != newVals)
-    | Decl.extern _ _ _ _ => pure modified
+    | .extern .. => pure modified
 
 partial def inferMain : M Unit := do
   let modified ← inferStep
@@ -307,7 +305,7 @@ partial def elimDeadAux (assignment : Assignment) : FnBody → FnBody
 
 partial def elimDead (assignment : Assignment) (d : Decl) : Decl :=
   match d with
-  | Decl.fdecl (body := b) .. => d.updateBody! <| elimDeadAux assignment b
+  | .fdecl (body := b) .. => d.updateBody! <| elimDeadAux assignment b
   | other => other
 
 end UnreachableBranches
@@ -326,8 +324,8 @@ def elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
   let assignments := s.assignments
   modify fun s =>
     let env := decls.size.fold (init := s.env) fun i env =>
-      addFunctionSummary env decls[i].name funVals[i]
+      addFunctionSummary env decls[i]!.name funVals[i]!
     { s with env := env }
-  return decls.mapIdx fun i decl => elimDead assignments[i] decl
+  return decls.mapIdx fun i decl => elimDead assignments[i]! decl
 
 end Lean.IR

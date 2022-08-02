@@ -38,7 +38,7 @@ We can write a function to translate `Ty` values to a Lean type
 — remember that types are first class, so can be calculated just like any other value.
 We mark `Ty.interp` as `[reducible]` to make sure the typeclass resolution procedure can
 unfold/reduce it. For example, suppose Lean is trying to synthesize a value for the instance
-`Add (Ty.interp Ty.int)`. Since `Ty.interp` is marked as `[reducible],
+`Add (Ty.interp Ty.int)`. Since `Ty.interp` is marked as `[reducible]`,
 the typeclass resolution procedure can reduce `Ty.interp Ty.int` to `Int`, and use
 the builtin instance for `Add Int` as the solution.
 -/

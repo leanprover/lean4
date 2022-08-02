@@ -13,7 +13,7 @@ private def mkInhabitant? (type : Expr) (useOfNonempty : Bool) : MetaM (Option E
       return some (← mkOfNonempty type)
     else
       return some (← mkDefault type)
-  catch ex =>
+  catch _ =>
     return none
 
 private def findAssumption? (xs : Array Expr) (type : Expr) : MetaM (Option Expr) := do
@@ -23,7 +23,7 @@ private def mkFnInhabitant? (xs : Array Expr) (type : Expr) (useOfNonempty : Boo
   let rec loop
     | 0,   type => mkInhabitant? type useOfNonempty
     | i+1, type => do
-      let x := xs[i]
+      let x := xs[i]!
       let type ← mkForallFVars #[x] type;
       match (← mkInhabitant? type useOfNonempty) with
       | none     => loop i type
@@ -31,7 +31,6 @@ private def mkFnInhabitant? (xs : Array Expr) (type : Expr) (useOfNonempty : Boo
   loop xs.size type
 
 /- TODO: add a global IO.Ref to let users customize/extend this procedure -/
-
 def mkInhabitantFor (declName : Name) (xs : Array Expr) (type : Expr) : MetaM Expr := do
   let go? (useOfNonempty : Bool) : MetaM (Option Expr) := do
     match (← mkInhabitant? type useOfNonempty) with

@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Lean_Level_param___override(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CollectLevelParams_State_params___default;
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -67,7 +68,6 @@ LEAN_EXPORT lean_object* l_Std_HashSetImp_contains___at_Lean_CollectLevelParams_
 LEAN_EXPORT lean_object* l_List_elem___at_Lean_CollectLevelParams_visitExpr___spec__2___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CollectLevelParams_State_visitedExpr___default;
-lean_object* l_Lean_mkLevelParam(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_collectLevelParams(lean_object*, lean_object*);
 uint8_t lean_level_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSetImp_moveEntries___at_Lean_CollectLevelParams_visitLevel___spec__5(lean_object*, lean_object*, lean_object*);
@@ -586,36 +586,23 @@ return x_12;
 }
 case 4:
 {
-lean_object* x_13; uint8_t x_14; 
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_13 = lean_ctor_get(x_1, 0);
 lean_inc(x_13);
 lean_dec(x_1);
-x_14 = !lean_is_exclusive(x_2);
-if (x_14 == 0)
-{
-lean_object* x_15; lean_object* x_16; 
-x_15 = lean_ctor_get(x_2, 2);
-x_16 = lean_array_push(x_15, x_13);
-lean_ctor_set(x_2, 2, x_16);
-return x_2;
-}
-else
-{
-lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_17 = lean_ctor_get(x_2, 0);
-x_18 = lean_ctor_get(x_2, 1);
-x_19 = lean_ctor_get(x_2, 2);
-lean_inc(x_19);
-lean_inc(x_18);
-lean_inc(x_17);
+x_14 = lean_ctor_get(x_2, 0);
+lean_inc(x_14);
+x_15 = lean_ctor_get(x_2, 1);
+lean_inc(x_15);
+x_16 = lean_ctor_get(x_2, 2);
+lean_inc(x_16);
 lean_dec(x_2);
-x_20 = lean_array_push(x_19, x_13);
-x_21 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_21, 0, x_17);
-lean_ctor_set(x_21, 1, x_18);
-lean_ctor_set(x_21, 2, x_20);
-return x_21;
-}
+x_17 = lean_array_push(x_16, x_13);
+x_18 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_18, 0, x_14);
+lean_ctor_set(x_18, 1, x_15);
+lean_ctor_set(x_18, 2, x_17);
+return x_18;
 }
 default: 
 {
@@ -1203,7 +1190,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7;
 lean_inc(x_3);
 lean_inc(x_2);
 x_4 = lean_name_append_index_after(x_2, x_3);
-x_5 = l_Lean_mkLevelParam(x_4);
+x_5 = l_Lean_Level_param___override(x_4);
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
 lean_inc(x_5);
@@ -1232,7 +1219,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 lean_inc(x_2);
-x_3 = l_Lean_mkLevelParam(x_2);
+x_3 = l_Lean_Level_param___override(x_2);
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 lean_inc(x_3);

@@ -12,8 +12,8 @@ namespace Lean
 namespace ScopedEnvExtension
 
 inductive Entry (α : Type) where
-  | global   : α → Entry α
-  | «scoped» : Name → α → Entry α
+  | global : α → Entry α
+  | scoped : Name → α → Entry α
 
 structure State (σ : Type) where
   state        : σ
@@ -117,7 +117,7 @@ unsafe def registerScopedEnvExtensionUnsafe (descr : Descr α β σ) : IO (Scope
   return ext
 
 @[implementedBy registerScopedEnvExtensionUnsafe]
-constant registerScopedEnvExtension (descr : Descr α β σ) : IO (ScopedEnvExtension α β σ)
+opaque registerScopedEnvExtension (descr : Descr α β σ) : IO (ScopedEnvExtension α β σ)
 
 def ScopedEnvExtension.pushScope (ext : ScopedEnvExtension α β σ) (env : Environment) : Environment :=
   let s := ext.ext.getState env

@@ -8,15 +8,15 @@ import Lean.Meta.AppBuilder
 
 namespace Lean
 
-@[extern "lean_mk_cases_on"] constant mkCasesOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_rec_on"] constant mkRecOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_no_confusion"] constant mkNoConfusionCoreImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_below"] constant mkBelowImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_ibelow"] constant mkIBelowImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_brec_on"] constant mkBRecOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
-@[extern "lean_mk_binduction_on"] constant mkBInductionOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
+@[extern "lean_mk_cases_on"] opaque mkCasesOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
+@[extern "lean_mk_rec_on"] opaque mkRecOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
+@[extern "lean_mk_no_confusion"] opaque mkNoConfusionCoreImp (env : Environment) (declName : @& Name) : Except KernelException Environment
+@[extern "lean_mk_below"] opaque mkBelowImp (env : Environment) (declName : @& Name) : Except KernelException Environment
+@[extern "lean_mk_ibelow"] opaque mkIBelowImp (env : Environment) (declName : @& Name) : Except KernelException Environment
+@[extern "lean_mk_brec_on"] opaque mkBRecOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
+@[extern "lean_mk_binduction_on"] opaque mkBInductionOnImp (env : Environment) (declName : @& Name) : Except KernelException Environment
 
-variable {m} [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m]
+variable [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m]
 
 @[inline] private def adaptFn (f : Environment → Name → Except KernelException Environment) (declName : Name) : m Unit := do
   match f (← getEnv) declName with

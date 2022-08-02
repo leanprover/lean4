@@ -20,21 +20,22 @@ def mkInductArgNames (indVal : InductiveVal) : TermElabM (Array Name) := do
   forallTelescopeReducing indVal.type fun xs _ => do
     let mut argNames := #[]
     for x in xs do
-      let localDecl ← getLocalDecl x.fvarId!
+      let localDecl ← x.fvarId!.getDecl
       let paramName ← mkFreshUserName localDecl.userName.eraseMacroScopes
       argNames := argNames.push paramName
     pure argNames
 
 /-- Return the inductive declaration's type applied to the arguments in `argNames`. -/
-def mkInductiveApp (indVal : InductiveVal) (argNames : Array Name) : TermElabM Syntax :=
+def mkInductiveApp (indVal : InductiveVal) (argNames : Array Name) : TermElabM Term :=
   let f    := mkIdent indVal.name
   let args := argNames.map mkIdent
   `(@$f $args*)
 
+open TSyntax.Compat in
 /-- Return implicit binder syntaxes for the given `argNames`. The output matches `implicitBinder*`.
 
 For example, ``#[`foo,`bar]`` gives `` `({foo} {bar})``. -/
-def mkImplicitBinders (argNames : Array Name) : TermElabM (Array Syntax) :=
+def mkImplicitBinders (argNames : Array Name) : TermElabM (Array (TSyntax ``Parser.Term.implicitBinder)) :=
   argNames.mapM fun argName =>
     `(implicitBinderF| { $(mkIdent argName) })
 
@@ -49,11 +50,11 @@ def mkInstImplicitBinders (className : Name) (indVal : InductiveVal) (argNames :
     let mut binders := #[]
     for i in [:xs.size] do
       try
-        let x := xs[i]
+        let x := xs[i]!
         let c ← mkAppM className #[x]
         if (← isTypeCorrect c) then
-          let argName := argNames[i]
-          let binder ← `(instBinderF| [ $(mkIdent className):ident $(mkIdent argName):ident ])
+          let argName := argNames[i]!
+          let binder : Syntax ← `(instBinderF| [ $(mkIdent className):ident $(mkIdent argName):ident ])
           binders := binders.push binder
       catch _ =>
         pure ()
@@ -72,8 +73,8 @@ def mkContext (fnPrefix : String) (typeName : Name) : TermElabM Context := do
   let mut auxFunNames := #[]
   for typeName in indVal.all do
     match typeName.eraseMacroScopes with
-    | Name.str _ t _ => auxFunNames := auxFunNames.push (← mkFreshUserName <| Name.mkSimple <| fnPrefix ++ t)
-    | _              => auxFunNames := auxFunNames.push (← mkFreshUserName `instFn)
+    | .str _ t => auxFunNames := auxFunNames.push (← mkFreshUserName <| Name.mkSimple <| fnPrefix ++ t)
+    | _        => auxFunNames := auxFunNames.push (← mkFreshUserName `instFn)
   trace[Elab.Deriving.beq] "{auxFunNames}"
   let usePartial := indVal.isNested || typeInfos.size > 1
   return {
@@ -82,11 +83,11 @@ def mkContext (fnPrefix : String) (typeName : Name) : TermElabM Context := do
     usePartial  := usePartial
   }
 
-def mkLocalInstanceLetDecls (ctx : Context) (className : Name) (argNames : Array Name) : TermElabM (Array Syntax) := do
+def mkLocalInstanceLetDecls (ctx : Context) (className : Name) (argNames : Array Name) : TermElabM (Array (TSyntax ``Parser.Term.letDecl)) := do
   let mut letDecls := #[]
   for i in [:ctx.typeInfos.size] do
-    let indVal       := ctx.typeInfos[i]
-    let auxFunName   := ctx.auxFunNames[i]
+    let indVal       := ctx.typeInfos[i]!
+    let auxFunName   := ctx.auxFunNames[i]!
     let currArgNames ← mkInductArgNames indVal
     let numParams    := indVal.numParams
     let currIndices  := currArgNames[numParams:]
@@ -100,16 +101,17 @@ def mkLocalInstanceLetDecls (ctx : Context) (className : Name) (argNames : Array
     letDecls := letDecls.push letDecl
   return letDecls
 
-def mkLet (letDecls : Array Syntax) (body : Syntax) : TermElabM Syntax :=
+def mkLet (letDecls : Array (TSyntax ``Parser.Term.letDecl)) (body : Term) : TermElabM Term :=
   letDecls.foldrM (init := body) fun letDecl body =>
     `(let $letDecl:letDecl; $body)
 
-def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) (useAnonCtor := true) : TermElabM (Array Syntax) := do
+open TSyntax.Compat in
+def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) (useAnonCtor := true) : TermElabM (Array Command) := do
   let mut instances := #[]
   for i in [:ctx.typeInfos.size] do
-    let indVal       := ctx.typeInfos[i]
+    let indVal       := ctx.typeInfos[i]!
     if typeNames.contains indVal.name then
-      let auxFunName   := ctx.auxFunNames[i]
+      let auxFunName   := ctx.auxFunNames[i]!
       let argNames     ← mkInductArgNames indVal
       let binders      ← mkImplicitBinders argNames
       let binders      := binders ++ (← mkInstImplicitBinders className indVal argNames)
@@ -120,16 +122,17 @@ def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) (
       instances := instances.push instCmd
   return instances
 
-def mkDiscr (varName : Name) : TermElabM Syntax :=
+def mkDiscr (varName : Name) : TermElabM (TSyntax ``Parser.Term.matchDiscr) :=
  `(Parser.Term.matchDiscr| $(mkIdent varName):term)
 
 structure Header where
-  binders     : Array Syntax
+  binders     : Array (TSyntax ``Parser.Term.bracketedBinder)
   argNames    : Array Name
   targetNames : Array Name
-  targetType  : Syntax
+  targetType  : Term
 
-def mkHeader (ctx : Context) (className : Name) (arity : Nat) (indVal : InductiveVal) : TermElabM Header := do
+open TSyntax.Compat in
+def mkHeader (className : Name) (arity : Nat) (indVal : InductiveVal) : TermElabM Header := do
   let argNames      ← mkInductArgNames indVal
   let binders       ← mkImplicitBinders argNames
   let targetType    ← mkInductiveApp indVal argNames
@@ -145,7 +148,7 @@ def mkHeader (ctx : Context) (className : Name) (arity : Nat) (indVal : Inductiv
     targetType  := targetType
   }
 
-def mkDiscrs (header : Header) (indVal : InductiveVal) : TermElabM (Array Syntax) := do
+def mkDiscrs (header : Header) (indVal : InductiveVal) : TermElabM (Array (TSyntax ``Parser.Term.matchDiscr)) := do
   let mut discrs := #[]
   -- add indices
   for argName in header.argNames[indVal.numParams:] do

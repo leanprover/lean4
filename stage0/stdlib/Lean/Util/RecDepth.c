@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____closed__1;
 LEAN_EXPORT lean_object* l_Lean_maxRecDepth;
 static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____closed__2;
@@ -114,7 +114,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }

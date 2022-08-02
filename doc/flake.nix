@@ -7,27 +7,27 @@
     url = github:leanprover/mdBook;
     flake = false;
   };
-  inputs.alectryon-src = {
+  inputs.alectryon = {
     url = github:Kha/alectryon/typeid;
     flake = false;
   };
-  inputs.leanInk-src = {
+  inputs.leanInk = {
     url = github:leanprover/LeanInk;
     flake = false;
   };
 
-  outputs = { self, lean, flake-utils, mdBook, alectryon-src, leanInk-src }: flake-utils.lib.eachDefaultSystem (system:
-    with lean.packages.${system}; with nixpkgs;
+  outputs = inputs@{ self, ... }: inputs.flake-utils.lib.eachDefaultSystem (system:
+    with inputs.lean.packages.${system}; with nixpkgs;
     let
       doc-src = lib.sourceByRegex ../. ["doc.*" "tests(/lean(/beginEndAsMacro.lean)?)?"];
     in {
     packages = rec {
       lean-mdbook = mdbook.overrideAttrs (drv: rec {
         name = "lean-${mdbook.name}";
-        src = mdBook;
+        src = inputs.mdBook;
         cargoDeps = drv.cargoDeps.overrideAttrs (_: {
           inherit src;
-          outputHash = "sha256-5cAV8tOU3R1cPubseetURDQOzKyoo4485wD5IgeJUhQ=";
+          outputHash = "sha256-mhTWHs/bsmm3FH59SkUxBTl5lEH2Rlz/aF9CuBTu1TE=";
         });
         doCheck = false;
       });
@@ -40,7 +40,7 @@
           # necessary for `additional-css`...?
           cp -r --no-preserve=mode $src/doc/* .
           # overwrite stub .lean.md files
-          cp -r ${examples}/* .
+          cp -r ${examples}/* examples/
           mdbook build -d $out
         '';
       };
@@ -60,30 +60,35 @@
         dontInstall = true;
       };
       leanInk = (buildLeanPackage {
-        name = "LeanInk";
-        src = leanInk-src;
+        name = "Main";
+        src = inputs.leanInk;
+        deps = [ (buildLeanPackage {
+          name = "LeanInk";
+          src = inputs.leanInk;
+        }) ];
         executableName = "leanInk";
         linkFlags = ["-rdynamic"];
       }).executable;
       alectryon = python3Packages.buildPythonApplication {
         name = "alectryon";
-        src = alectryon-src;
+        src = inputs.alectryon;
         propagatedBuildInputs =
           [ leanInk lean-all ] ++
           # https://github.com/cpitclaudel/alectryon/blob/master/setup.cfg
           (with python3Packages; [ pygments dominate beautifulsoup4 docutils ]);
         doCheck = false;
       };
-      examples = let
-        renderLean = name: file: runCommandNoCC "${name}.md" { buildInputs = [ alectryon ]; } ''
-          mkdir -p $out/examples
-          alectryon --frontend lean4+markup ${file} --backend webpage -o $out/examples/${name}.md
-        '';
-        ents = builtins.readDir ./examples;
+      renderLean = name: file: runCommandNoCC "${name}.md" { buildInputs = [ alectryon ]; } ''
+        mkdir -p $out/examples
+        alectryon --frontend lean4+markup ${file} --backend webpage -o $out/${name}.md
+      '';
+      renderDir = name: dir: let
+        ents = builtins.readDir dir;
         inputs = lib.filterAttrs (n: t: builtins.match ".*\.lean" n != null && t == "regular") ents;
-        outputs = lib.mapAttrs (n: _: renderLean n ./examples/${n}) inputs;
+        outputs = lib.mapAttrs (n: _: renderLean n "${dir}/${n}") inputs;
       in
-        outputs // symlinkJoin { name = "examples"; paths = lib.attrValues outputs; };
+        outputs // symlinkJoin { inherit name; paths = lib.attrValues outputs; };
+      examples = renderDir "examples" ./examples;
       doc = book;
     };
     defaultPackage = self.packages.${system}.doc;

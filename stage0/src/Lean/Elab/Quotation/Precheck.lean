@@ -48,7 +48,7 @@ and calling `precheck` recursively on nested terms, potentially with an extended
 Macros without registered precheck hook are unfolded, and identifier-less syntax is ultimately assumed to be well-formed.",
     valueTypeName := ``Precheck
   } `Lean.Elab.Term.Quotation.precheckAttribute
-@[builtinInit mkPrecheckAttribute] constant precheckAttribute : KeyedDeclsAttribute Precheck
+@[builtinInit mkPrecheckAttribute] opaque precheckAttribute : KeyedDeclsAttribute Precheck
 
 partial def precheck : Precheck := fun stx => do
   if let p::_ := precheckAttribute.getValues (← getEnv) stx.getKind then
@@ -82,7 +82,7 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
 
 @[builtinQuotPrecheck ident] def precheckIdent : Precheck := fun stx =>
   match stx with
-  | Syntax.ident info rawVal val preresolved => do
+  | Syntax.ident _    _      val preresolved => do
     if !preresolved.isEmpty then
       return
     /- The precheck currently ignores field notation.
@@ -99,7 +99,7 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
     let rs ← try resolveName stx val [] [] catch _ => pure []
     for (e, _) in rs do
       match e with
-      | Expr.fvar fvarId .. =>
+      | Expr.fvar _      .. =>
         if quotPrecheck.allowSectionVars.get (← getOptions) && (← isSectionVariable e) then
           return
       | _ => pure ()
@@ -109,12 +109,11 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
 @[builtinQuotPrecheck Lean.Parser.Term.app] def precheckApp : Precheck
   | `($f $args*) => do
     precheck f
-    for arg in args do
+    for arg in args.raw do
       match arg with
-      | `(argument| ($n := $e)) => precheck e
-      | `(argument| $e:term)    => precheck e
+      | `(argument| ($_ := $e)) => precheck e
       | `(argument| ..)         => pure ()
-      | _ => throwUnsupportedSyntax
+      | `(argument| $e:term)    => precheck e
   | _ => throwUnsupportedSyntax
 
 @[builtinQuotPrecheck Lean.Parser.Term.paren] def precheckParen : Precheck
@@ -125,7 +124,7 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
   | `(($e))         => precheck e
   | `(($e, $es,*))  => do
     precheck e
-    es.getElems.forM precheck
+    es.getElems.raw.forM precheck
   | _ => throwUnsupportedSyntax
 
 @[builtinQuotPrecheck choice] def precheckChoice : Precheck := fun stx => do

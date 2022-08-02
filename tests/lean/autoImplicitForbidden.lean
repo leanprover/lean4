@@ -21,3 +21,10 @@ mutual
 
   inductive Ex2 : Type
 end
+
+
+structure Bar :=
+  (x : Na)
+  (y : Nat := foobar)  -- Error at `foobar`
+
+#print Bar.mk

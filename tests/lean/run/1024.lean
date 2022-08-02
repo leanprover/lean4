@@ -17,7 +17,7 @@ namespace Vector
     cases k; rename_i k hk
     induction v generalizing k <;> subst h
     · simp only [nth]
-    · simp_all[nth]
+    · simp! [*]
 
   theorem nth_snoc_eq_works (k: Fin (n+1))(v : Vector α n)
     (h: k.val = n):

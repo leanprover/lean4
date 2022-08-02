@@ -54,20 +54,16 @@ First [install Pygments](https://pygments.org/download/). Then save [`lean4.py`]
 % instruct minted to use our local theorem.py
 \newmintinline[lean]{lean4.py:Lean4Lexer -x}{bgcolor=white}
 \newminted[leancode]{lean4.py:Lean4Lexer -x}{fontsize=\footnotesize}
+\usemintedstyle{tango}  % a nice, colorful theme
 
 \begin{document}
-% some example options
-\begin{minted}[mathescape,
-               linenos,
-               numbersep=5pt,
-               frame=lines,
-               framesep=2mm]{Lean}
+\begin{leancode}
 theorem funext {f₁ f₂ : ∀ (x : α), β x} (h : ∀ x, f₁ x = f₂ x) : f₁ = f₂ := by
-  show extfunApp (Quotient.mk f₁) = extfunApp (Quotient.mk f₂)
+  show extfunApp (Quotient.mk' f₁) = extfunApp (Quotient.mk' f₂)
   apply congrArg
   apply Quotient.sound
   exact h
-\end{minted}
+\end{leancode}
 \end{document}
 ```
 

@@ -95,7 +95,7 @@ private def getMajorPosIfAuxRecursor? (declName : Name) (majorPos? : Option Nat)
     let env ← getEnv
     if !isAuxRecursor env declName then pure none
     else match declName with
-    | Name.str p s _ =>
+    | .str p s =>
       if s != recOnSuffix && s != casesOnSuffix && s != brecOnSuffix then
         pure none
       else do
@@ -107,7 +107,7 @@ private def checkMotive (declName : Name) (motive : Expr) (motiveArgs : Array Ex
   unless motive.isFVar && motiveArgs.all Expr.isFVar do
     throwError "invalid user defined recursor '{declName}', result type must be of the form (C t), where C is a bound variable, and t is a (possibly empty) sequence of bound variables"
 
-/- Compute number of parameters for (user-defined) recursor.
+/-- Compute number of parameters for (user-defined) recursor.
    We assume a parameter is anything that occurs before the motive -/
 private partial def getNumParams (xs : Array Expr) (motive : Expr) (i : Nat) : Nat :=
   if h : i < xs.size then
@@ -117,7 +117,7 @@ private partial def getNumParams (xs : Array Expr) (motive : Expr) (i : Nat) : N
   else
     i
 
-private def getMajorPosDepElim (declName : Name) (majorPos? : Option Nat) (xs : Array Expr) (motive : Expr) (motiveArgs : Array Expr)
+private def getMajorPosDepElim (declName : Name) (majorPos? : Option Nat) (xs : Array Expr) (motiveArgs : Array Expr)
     : MetaM (Expr × Nat × Bool) := do
   match majorPos? with
   | some majorPos =>
@@ -137,11 +137,11 @@ private def getMajorPosDepElim (declName : Name) (majorPos? : Option Nat) (xs : 
 private def getParamsPos (declName : Name) (xs : Array Expr) (numParams : Nat) (Iargs : Array Expr) : MetaM (List (Option Nat)) := do
   let mut paramsPos := #[]
   for i in [:numParams] do
-    let x := xs[i]
+    let x := xs[i]!
     match (← Iargs.findIdxM? fun Iarg => isDefEq Iarg x) with
     | some j => paramsPos := paramsPos.push (some j)
     | none   => do
-      let localDecl ← getLocalDecl x.fvarId!
+      let localDecl ← x.fvarId!.getDecl
       if localDecl.binderInfo.isInstImplicit then
         paramsPos := paramsPos.push none
       else
@@ -152,7 +152,7 @@ private def getIndicesPos (declName : Name) (xs : Array Expr) (majorPos numIndic
   let mut indicesPos := #[]
   for i in [:numIndices] do
     let i := majorPos - numIndices + i
-    let x := xs[i]
+    let x := xs[i]!
     match (← Iargs.findIdxM? fun Iarg => isDefEq Iarg x) with
     | some j => indicesPos := indicesPos.push j
     | none   => throwError "invalid user defined recursor '{declName}', type of the major premise does not contain the recursor index"
@@ -160,9 +160,9 @@ private def getIndicesPos (declName : Name) (xs : Array Expr) (majorPos numIndic
 
 private def getMotiveLevel (declName : Name) (motiveResultType : Expr) : MetaM Level :=
   match motiveResultType with
-  | Expr.sort u@(Level.zero _) _    => pure u
-  | Expr.sort u@(Level.param _ _) _ => pure u
-  | _                               =>
+  | Expr.sort u@(Level.zero)    => pure u
+  | Expr.sort u@(Level.param _) => pure u
+  | _                           =>
     throwError "invalid user defined recursor '{declName}', motive result sort must be Prop or (Sort u) where u is a universe level parameter"
 
 private def getUnivLevelPos (declName : Name) (lparams : List Name) (motiveLvl : Level) (Ilevels : List Level) : MetaM (List RecursorUnivLevelPos) := do
@@ -187,7 +187,7 @@ private def getProduceMotiveAndRecursive (xs : Array Expr) (numParams numIndices
     if majorPos - numIndices ≤ i && i ≤ majorPos then
       continue -- skip indices and major premise
     -- process minor premise
-    let x := xs[i]
+    let x := xs[i]!
     let xType ← inferType x
     (produceMotive, recursor) ← forallTelescopeReducing xType fun minorArgs minorResultType => minorResultType.withApp fun res _ => do
       let produceMotive := produceMotive.push (res == motive)
@@ -207,14 +207,14 @@ private def mkRecursorInfoAux (cinfo : ConstantInfo) (majorPos? : Option Nat) : 
   forallTelescopeReducing cinfo.type fun xs type => type.withApp fun motive motiveArgs => do
     checkMotive declName motive motiveArgs
     let numParams := getNumParams xs motive 0
-    let (major, majorPos, depElim) ← getMajorPosDepElim declName majorPos? xs motive motiveArgs
+    let (major, majorPos, depElim) ← getMajorPosDepElim declName majorPos? xs motiveArgs
     let numIndices := if depElim then motiveArgs.size - 1 else motiveArgs.size
     if majorPos < numIndices then
       throwError "invalid user defined recursor '{declName}', indices must occur before major premise"
     let majorType ← inferType major
     majorType.withApp fun I Iargs =>
     match I with
-    | Expr.const Iname Ilevels _ => do
+    | Expr.const Iname Ilevels => do
       let paramsPos ← getParamsPos declName xs numParams Iargs
       let indicesPos ← getIndicesPos declName xs majorPos numIndices Iargs
       let motiveType ← inferType motive
@@ -265,7 +265,7 @@ builtin_initialize recursorAttribute : ParametricAttribute Nat ←
   }
 
 def getMajorPos? (env : Environment) (declName : Name) : Option Nat :=
-  recursorAttribute.getParam env declName
+  recursorAttribute.getParam? env declName
 
 def mkRecursorInfo (declName : Name) (majorPos? : Option Nat := none) : MetaM RecursorInfo := do
   let cinfo ← getConstInfo declName

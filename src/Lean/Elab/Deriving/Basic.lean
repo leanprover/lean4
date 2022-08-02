@@ -9,35 +9,37 @@ import Lean.Elab.MutualDef
 namespace Lean.Elab
 open Command
 
-def DerivingHandler := (typeNames : Array Name) → (args? : Option Syntax) → CommandElabM Bool
+def DerivingHandler := (typeNames : Array Name) → (args? : Option (TSyntax ``Parser.Term.structInst)) → CommandElabM Bool
 def DerivingHandlerNoArgs := (typeNames : Array Name) → CommandElabM Bool
 
-builtin_initialize derivingHandlersRef : IO.Ref (NameMap DerivingHandler) ← IO.mkRef {}
+builtin_initialize derivingHandlersRef : IO.Ref (NameMap (List DerivingHandler)) ← IO.mkRef {}
 
 /-- A `DerivingHandler` is called on the fully qualified names of all types it is running for
 as well as the syntax of a `with` argument, if present.
 
 For example, `deriving instance Foo with fooArgs for Bar, Baz` invokes
 ``fooHandler #[`Bar, `Baz] `(fooArgs)``. -/
-def registerBuiltinDerivingHandlerWithArgs (className : Name) (handler : DerivingHandler) : IO Unit := do
+def registerDerivingHandlerWithArgs (className : Name) (handler : DerivingHandler) : IO Unit := do
   unless (← initializing) do
     throw (IO.userError "failed to register deriving handler, it can only be registered during initialization")
-  if (← derivingHandlersRef.get).contains className then
-    throw (IO.userError s!"failed to register deriving handler, a handler has already been registered for '{className}'")
-  derivingHandlersRef.modify fun m => m.insert className handler
+  derivingHandlersRef.modify fun m => match m.find? className with
+    | some handlers => m.insert className (handler :: handlers)
+    | none => m.insert className [handler]
 
 /-- Like `registerBuiltinDerivingHandlerWithArgs` but ignoring any `with` argument. -/
-def registerBuiltinDerivingHandler (className : Name) (handler : DerivingHandlerNoArgs) : IO Unit := do
-  registerBuiltinDerivingHandlerWithArgs className fun typeNames _ => handler typeNames
+def registerDerivingHandler (className : Name) (handler : DerivingHandlerNoArgs) : IO Unit := do
+  registerDerivingHandlerWithArgs className fun typeNames _ => handler typeNames
 
 def defaultHandler (className : Name) (typeNames : Array Name) : CommandElabM Unit := do
   throwError "default handlers have not been implemented yet, class: '{className}' types: {typeNames}"
 
-def applyDerivingHandlers (className : Name) (typeNames : Array Name) (args? : Option Syntax) : CommandElabM Unit := do
+def applyDerivingHandlers (className : Name) (typeNames : Array Name) (args? : Option (TSyntax ``Parser.Term.structInst)) : CommandElabM Unit := do
   match (← derivingHandlersRef.get).find? className with
-  | some handler =>
-    unless (← handler typeNames args?) do
-      defaultHandler className typeNames
+  | some handlers =>
+    for handler in handlers do
+      if (← handler typeNames args?) then
+        return ()
+    defaultHandler className typeNames
   | none => defaultHandler className typeNames
 
 private def tryApplyDefHandler (className : Name) (declName : Name) : CommandElabM Bool :=
@@ -52,7 +54,7 @@ private def tryApplyDefHandler (className : Name) (declName : Name) : CommandEla
          let className ← resolveGlobalConstNoOverloadWithInfo cls
          withRef cls do
            if declNames.size == 1 && args?.isNone then
-             if (← tryApplyDefHandler className declNames[0]) then
+             if (← tryApplyDefHandler className declNames[0]!) then
                return ()
            applyDerivingHandlers className declNames args?
        catch ex =>
@@ -62,7 +64,7 @@ private def tryApplyDefHandler (className : Name) (declName : Name) : CommandEla
 structure DerivingClassView where
   ref : Syntax
   className : Name
-  args? : Option Syntax
+  args? : Option (TSyntax ``Parser.Term.structInst)
 
 def getOptDerivingClasses [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadInfoTree m] (optDeriving : Syntax) : m (Array DerivingClassView) := do
   match optDeriving with

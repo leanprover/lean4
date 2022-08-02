@@ -14,7 +14,7 @@ done
 
 axiom zeroAdd (x : Nat) : 0 + x = x
 
-theorem ex2 (x y z) (h₁ : 0 + x = y) (h₂ : 0 + y = z) : x = z := by
+theorem ex2a (x y z) (h₁ : 0 + x = y) (h₂ : 0 + y = z) : x = z := by
 rewrite [zeroAdd] at h₁ h₂;
 trace_state;
 subst x;

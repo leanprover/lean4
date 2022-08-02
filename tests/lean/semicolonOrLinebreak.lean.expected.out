@@ -1,0 +1,4 @@
+semicolonOrLinebreak.lean:2:12: error: expected ';' or line break
+semicolonOrLinebreak.lean:9:31-10:8: error: field 'y' is missing
+semicolonOrLinebreak.lean:10:8: error: expected command
+semicolonOrLinebreak.lean:20:8: error: expected ':'

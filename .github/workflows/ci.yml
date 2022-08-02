@@ -54,7 +54,7 @@ jobs:
             prepare-llvm: ../script/prepare-llvm-linux.sh lean-llvm*
             binary-check: ldd -v
             # foreign code may be linked against more recent glibc
-            CTEST_OPTIONS: -E foreign
+            CTEST_OPTIONS: -E 'foreign|leanlaketest_git'
           - name: Linux
             os: ubuntu-latest
             check-stage3: true
@@ -126,10 +126,11 @@ jobs:
         uses: cachix/install-nix-action@v15
         if: matrix.os == 'ubuntu-latest'
       - name: Install MSYS2
-        uses: msys2/setup-msys2@v2.10.0
+        uses: msys2/setup-msys2@v2
         with:
           msystem: clang64
-          install: make python mingw-w64-clang-x86_64-cmake mingw-w64-clang-x86_64-clang mingw-w64-clang-x86_64-ccache git zip unzip diffutils binutils tree mingw-w64-clang-x86_64-zstd tar
+          # `:p` means prefix with appropriate msystem prefix
+          pacboy: "make python cmake:p clang:p ccache:p gmp:p git zip unzip diffutils binutils tree zstd:p tar"
         if: matrix.os == 'windows-2022'
       - name: Install Brew Packages
         run: |
@@ -139,10 +140,10 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .ccache
-          key: ${{ matrix.name }}-build-v2-${{ github.sha }}
+          key: ${{ matrix.name }}-build-v3-${{ github.sha }}
           # fall back to (latest) previous cache
           restore-keys: |
-            ${{ matrix.name }}-build-v2
+            ${{ matrix.name }}-build-v3
       - name: Setup
         run: |
           # open nix-shell once for initial setup
@@ -194,7 +195,8 @@ jobs:
       - name: Test
         run: |
           cd build/stage1
-          ctest -j4 --output-on-failure ${{ matrix.CTEST_OPTIONS }} < /dev/null
+          # exclude nonreproducible test
+          ctest -j4 --output-on-failure -E leanlaketest_git ${{ matrix.CTEST_OPTIONS }} < /dev/null
         if: ${{ !matrix.cross }}
       - name: Check Test Binary
         run: ${{ matrix.binary-check }} tests/compiler/534.lean.out
@@ -237,13 +239,13 @@ jobs:
         with:
           path: artifacts
       - name: Release
-        uses: softprops/action-gh-release@v1       
+        uses: softprops/action-gh-release@v1
         with:
           files: artifacts/*/*
           fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+
   release-nightly:
     needs: [set-nightly, build]
     if: needs.set-nightly.outputs.nightly

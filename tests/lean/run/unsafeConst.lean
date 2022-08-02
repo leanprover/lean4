@@ -1,1 +1,1 @@
-@[extern "foo"] unsafe constant something : α
+@[extern "foo"] unsafe opaque something : α

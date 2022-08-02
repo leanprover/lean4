@@ -58,7 +58,7 @@ where
       let p ← decodeConstraint e
       return { pattern := p, constraints := cs.toList }
 
-private partial def validateHint (declName : Name) (hint : UnificationHint) : MetaM Unit := do
+private partial def validateHint (hint : UnificationHint) : MetaM Unit := do
   hint.constraints.forM fun c => do
     unless (← isDefEq c.lhs c.rhs) do
       throwError "invalid unification hint, failed to unify constraint left-hand-side{indentExpr c.lhs}\nwith right-hand-side{indentExpr c.rhs}"
@@ -76,7 +76,7 @@ def addUnificationHint (declName : Name) (kind : AttributeKind) : MetaM Unit :=
       | Except.error msg => throwError msg
       | Except.ok hint =>
         let keys ← DiscrTree.mkPath hint.pattern.lhs
-        validateHint declName hint
+        validateHint hint
         unificationHintExtension.add { keys := keys, val := declName } kind
 
 builtin_initialize

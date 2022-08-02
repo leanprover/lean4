@@ -1,6 +1,6 @@
 {
   "nodes": {
-    "alectryon-src": {
+    "alectryon": {
       "flake": false,
       "locked": {
         "lastModified": 1654613606,
@@ -82,14 +82,14 @@
         "type": "github"
       }
     },
-    "leanInk-src": {
+    "leanInk": {
       "flake": false,
       "locked": {
-        "lastModified": 1649941279,
-        "narHash": "sha256-buqWjBvCDuuLo3Ijlw3r1yX6AL/HcM4ttskj/u2AhhE=",
+        "lastModified": 1656863690,
+        "narHash": "sha256-9tmynTTeJGhYZaltS4xhSJgLTpe7Ta1ofV6U1SA/5V4=",
         "owner": "leanprover",
         "repo": "LeanInk",
-        "rev": "ad9f1b2d518852cd25063d590a7fbea98e047471",
+        "rev": "4b5e606ea8cc54c2447ce48706f8ec1d133d19e9",
         "type": "github"
       },
       "original": {
@@ -198,13 +198,13 @@
     },
     "root": {
       "inputs": {
-        "alectryon-src": "alectryon-src",
+        "alectryon": "alectryon",
         "flake-utils": [
           "lean",
           "flake-utils"
         ],
         "lean": "lean",
-        "leanInk-src": "leanInk-src",
+        "leanInk": "leanInk",
         "mdBook": "mdBook"
       }
     }

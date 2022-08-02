@@ -13,6 +13,7 @@ bit0
 bit1
 HasOfNat.ofNat
 ByteArray
+ByteArray.data
 Bool
 Bool.false
 Bool.true
@@ -39,6 +40,7 @@ Eq.symm
 Eq.trans
 Float
 FloatArray
+FloatArray.data
 False
 False.rec
 False.casesOn

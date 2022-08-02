@@ -196,10 +196,10 @@ abbrev State.getNumVars (s : State) : Nat := s.lowers.size
 abbrev State.currVar (s : State) : Nat := s.assignment.size
 
 abbrev State.getBestLowerBound? (s : State) : Option (Rat × Cnstr) :=
-  getBestBound? s.lowers[s.currVar] s.assignment true s.int[s.currVar]
+  getBestBound? s.lowers[s.currVar]! s.assignment true s.int[s.currVar]!
 
 abbrev State.getBestUpperBound? (s : State) : Option (Rat × Cnstr) :=
-  getBestBound? s.uppers[s.currVar] s.assignment false s.int[s.currVar]
+  getBestBound? s.uppers[s.currVar]! s.assignment false s.int[s.currVar]!
 
 abbrev State.assignCurr (s : State) (v : Rat) : State :=
   { s with assignment := s.assignment.push v }

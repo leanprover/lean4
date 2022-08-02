@@ -1,3 +1,3 @@
-constant a b c : Nat
+opaque a b c : Nat
 
-constant a α β : β → Bool
+opaque a α β : β → Bool

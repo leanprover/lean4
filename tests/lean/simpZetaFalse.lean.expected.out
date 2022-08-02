@@ -10,11 +10,13 @@ theorem ex1 : ∀ (x : Nat),
       1 :=
 fun x h =>
   Eq.mpr
-    (congrFun
-      (congrArg Eq
-        (let_congr (Eq.refl (x * x)) fun y =>
-          ite_congr (Eq.trans (congrFun (congrArg Eq h) x) (eq_self x)) (fun a => Eq.refl 1) fun a => Eq.refl (y + 1)))
-      1)
+    (id
+      (congrFun
+        (congrArg Eq
+          (let_congr (Eq.refl (x * x)) fun y =>
+            ite_congr (Eq.trans (congrFun (congrArg Eq h) x) (eq_self x)) (fun a => Eq.refl 1) fun a =>
+              Eq.refl (y + 1)))
+        1))
     (of_eq_true (eq_self 1))
 x z : Nat
 h : f (f x) = x
@@ -29,7 +31,7 @@ theorem ex2 : ∀ (x z : Nat),
         y) =
         z :=
 fun x z h h' =>
-  Eq.mpr (congrFun (congrArg Eq (let_val_congr (fun y => y) h)) z)
+  Eq.mpr (id (congrFun (congrArg Eq (let_val_congr (fun y => y) h)) z))
     (of_eq_true (Eq.trans (congrArg (Eq x) h') (eq_self x)))
 x z : Nat
 ⊢ (let α := Nat;
@@ -46,5 +48,5 @@ theorem ex4 : ∀ (p : Prop),
       fun x => x = x) =
       fun z => p :=
 fun p h =>
-  Eq.mpr (congrFun (congrArg Eq (let_body_congr 10 fun n => funext fun x => eq_self x)) fun z => p)
+  Eq.mpr (id (congrFun (congrArg Eq (let_body_congr 10 fun n => funext fun x => eq_self x)) fun z => p))
     (of_eq_true (Eq.trans (congrArg (Eq fun x => True) (funext fun z => eq_true h)) (eq_self fun x => True)))

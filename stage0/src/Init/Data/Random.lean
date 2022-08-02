@@ -8,27 +8,27 @@ import Init.System.IO
 import Init.Data.Int
 universe u
 
-/-
+/-!
 Basic random number generator support based on the one
 available on the Haskell library
 -/
 
-/- Interface for random number generators. -/
+/-- Interface for random number generators. -/
 class RandomGen (g : Type u) where
-  /- `range` returns the range of values returned by
+  /-- `range` returns the range of values returned by
       the generator. -/
   range : g → Nat × Nat
-  /- `next` operation returns a natural number that is uniformly distributed
+  /-- `next` operation returns a natural number that is uniformly distributed
       the range returned by `range` (including both end points),
      and a new generator. -/
   next  : g → Nat × g
-  /-
+  /--
     The 'split' operation allows one to obtain two distinct random number
     generators. This is very useful in functional programs (for example, when
     passing a random number generator down to recursive calls). -/
   split : g → g × g
 
-/- "Standard" random number generator. -/
+/-- "Standard" random number generator. -/
 structure StdGen where
   s1 : Nat
   s2 : Nat
@@ -76,7 +76,7 @@ def mkStdGen (s : Nat := 0) : StdGen :=
   let s2 := q % 2147483398
   ⟨s1 + 1, s2 + 1⟩
 
-/-
+/--
 Auxiliary function for randomNatVal.
 Generate random values until we exceed the target magnitude.
 `genLo` and `genMag` are the generator lower bound and magnitude.
@@ -84,7 +84,7 @@ The parameter `r` is the "remaining" magnitude.
 -/
 private partial def randNatAux {gen : Type u} [RandomGen gen] (genLo genMag : Nat) : Nat → (Nat × gen) → Nat × gen
   | 0,        (v, g) => (v, g)
-  | r'@(r+1), (v, g) =>
+  | r'@(_+1), (v, g) =>
     let (x, g') := RandomGen.next g
     let v'      := v*genMag + (x - genLo)
     randNatAux genLo genMag (r' / genMag - 1) (v', g')
@@ -112,7 +112,9 @@ def randBool {gen : Type u} [RandomGen gen] (g : gen) : Bool × gen :=
   let (v, g') := randNat g 0 1
   (v = 1, g')
 
-initialize IO.stdGenRef : IO.Ref StdGen ← IO.mkRef mkStdGen
+initialize IO.stdGenRef : IO.Ref StdGen ←
+  let seed := UInt64.toNat (ByteArray.toUInt64LE! (← IO.getRandomBytes 8))
+  IO.mkRef (mkStdGen seed)
 
 def IO.setRandSeed (n : Nat) : IO Unit :=
   IO.stdGenRef.set (mkStdGen n)

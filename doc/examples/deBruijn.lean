@@ -153,7 +153,7 @@ use hypotheses such as `a = b` as rewriting/simplications rules.
 We use the `split` to break the nested `match` expression in the `plus` case into two cases.
 The local variables `iha` and `ihb` are the induction hypotheses for `a` and `b`.
 The modifier `←` in a term simplifier argument instructs the term simplier to use the equation as a rewriting rule in
-the "reverse direction. That is, given `h : a = b`, `← h` instructs the term simplifier to rewrite `b` subterms to `a`.
+the "reverse direction". That is, given `h : a = b`, `← h` instructs the term simplifier to rewrite `b` subterms to `a`.
 -/
 theorem Term.constFold_sound (e : Term ctx ty) : e.constFold.denote env = e.denote env := by
   induction e with simp [*]

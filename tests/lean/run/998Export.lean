@@ -55,9 +55,9 @@ def exportName (n : Name) : ExportM Nat := do
   match (← get).names.map.find? n with
   | some i => pure i
   | none => match n with
-    | Name.anonymous => pure 0
-    | Name.num p a _ => let i ← alloc n; IO.println s!"{i} #NI {← exportName p} {a}"; pure i
-    | Name.str p s _ => let i ← alloc n; IO.println s!"{i} #NS {← exportName p} {s}"; pure i
+    | .anonymous => pure 0
+    | .num p a => let i ← alloc n; IO.println s!"{i} #NI {← exportName p} {a}"; pure i
+    | .str p s => let i ← alloc n; IO.println s!"{i} #NS {← exportName p} {s}"; pure i
 
 attribute [simp] exportName
 
@@ -65,15 +65,15 @@ def exportLevel (L : Level) : ExportM Nat := do
   match (← get).levels.map.find? L with
   | some i => pure i
   | none => match L with
-    | Level.zero _ => pure 0
-    | Level.succ l _ =>
+    | Level.zero => pure 0
+    | Level.succ l =>
       let i ← alloc L; IO.println s!"{i} #US {← exportLevel l}"; pure i
-    | Level.max l₁ l₂ _ =>
+    | Level.max l₁ l₂ =>
       let i ← alloc L; IO.println s!"{i} #UM {← exportLevel l₁} {← exportLevel l₂}"; pure i
-    | Level.imax l₁ l₂ _ =>
+    | Level.imax l₁ l₂ =>
       let i ← alloc L; IO.println s!"{i} #UIM {← exportLevel l₁} {← exportLevel l₂}"; pure i
-    | Level.param n _ =>
+    | Level.param n =>
       let i ← alloc L; IO.println s!"{i} #UP {← exportName n}"; pure i
-    | Level.mvar n _ => unreachable!
+    | Level.mvar n => unreachable!
 
 attribute [simp] exportLevel

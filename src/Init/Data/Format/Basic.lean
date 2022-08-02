@@ -23,8 +23,8 @@ inductive Format where
   | nest (indent : Int) : Format → Format
   | append              : Format → Format → Format
   | group               : Format → (behavior : FlattenBehavior := FlattenBehavior.allOrNone) → Format
-  /- Used for associating auxiliary information (e.g. `Expr`s) with `Format` objects. -/
-  | tag                 : Nat → Format → Format
+  | /-- Used for associating auxiliary information (e.g. `Expr`s) with `Format` objects. -/
+    tag                 : Nat → Format → Format
   deriving Inhabited
 
 namespace Format
@@ -214,8 +214,8 @@ private structure State where
 instance : MonadPrettyFormat (StateM State) where
   -- We avoid a structure instance update, and write these functions using pattern matching because of issue #316
   pushOutput s       := modify fun ⟨out, col⟩ => ⟨out ++ s, col + s.length⟩
-  pushNewline indent := modify fun ⟨out, col⟩ => ⟨out ++ "\n".pushn ' ' indent, indent⟩
-  currColumn         := return (←get).column
+  pushNewline indent := modify fun ⟨out, _⟩ => ⟨out ++ "\n".pushn ' ' indent, indent⟩
+  currColumn         := return (← get).column
   startTag _         := return ()
   endTags _          := return ()
 

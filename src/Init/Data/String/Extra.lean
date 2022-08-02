@@ -23,10 +23,10 @@ def toNat! (s : String) : Nat :=
   Convert a UTF-8 encoded `ByteArray` string to `String`.
   The result is unspecified if `a` is not properly UTF-8 encoded. -/
 @[extern "lean_string_from_utf8_unchecked"]
-constant fromUTF8Unchecked (a : @& ByteArray) : String
+opaque fromUTF8Unchecked (a : @& ByteArray) : String
 
 @[extern "lean_string_to_utf8"]
-constant toUTF8 (a : @& String) : ByteArray
+opaque toUTF8 (a : @& String) : ByteArray
 
 theorem one_le_csize (c : Char) : 1 ≤ csize c := by
   simp [csize, Char.utf8Size]
@@ -52,7 +52,7 @@ theorem Iterator.sizeOf_next_lt_of_hasNext (i : String.Iterator) (h : i.hasNext)
   cases i; rename_i s pos; simp [Iterator.next, Iterator.sizeOf_eq]; simp [Iterator.hasNext] at h
   have := String.lt_next s pos
   apply Nat.sub.elim (motive := fun k => k < _) (utf8ByteSize s) (String.next s pos).1
-  . intro hle k he
+  . intro _ k he
     simp [he]; rw [Nat.add_comm, Nat.add_sub_assoc (Nat.le_of_lt this)]
     have := Nat.zero_lt_sub_of_lt this
     simp_all_arith
@@ -65,5 +65,22 @@ theorem Iterator.sizeOf_next_lt_of_atEnd (i : String.Iterator) (h : ¬ i.atEnd =
   sizeOf_next_lt_of_hasNext i h
 
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply String.Iterator.sizeOf_next_lt_of_atEnd; assumption)
+
+namespace Iterator
+
+@[specialize] def find (it : Iterator) (p : Char → Bool) : Iterator :=
+  if it.atEnd then it
+  else if p it.curr then it
+  else find it.next p
+
+@[specialize] def foldUntil (it : Iterator) (init : α) (f : α → Char → Option α) : α × Iterator :=
+  if it.atEnd then
+    (init, it)
+  else if let some a := f init it.curr then
+    foldUntil it.next a f
+  else
+    (init, it)
+
+end Iterator
 
 end String

@@ -10,7 +10,10 @@ import Init.Coe
 
 namespace Nat
 
-partial def bitwise (f : Bool → Bool → Bool) (n m : Nat) : Nat :=
+theorem bitwise_rec_lemma {n : Nat} (hNe : n ≠ 0) : n / 2 < n :=
+  Nat.div_lt_self (Nat.zero_lt_of_ne_zero hNe) (Nat.lt_succ_self _)
+
+def bitwise (f : Bool → Bool → Bool) (n m : Nat) : Nat :=
   if n = 0 then
     if f false true then m else 0
   else if m = 0 then
@@ -25,6 +28,7 @@ partial def bitwise (f : Bool → Bool → Bool) (n m : Nat) : Nat :=
       r+r+1
     else
       r+r
+decreasing_by apply bitwise_rec_lemma; assumption
 
 @[extern "lean_nat_land"]
 def land : @& Nat → @& Nat → Nat := bitwise and

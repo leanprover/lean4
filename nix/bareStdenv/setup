@@ -1,0 +1,7 @@
+set -eo pipefail
+
+for pkg in $buildInputs; do
+  export PATH=$PATH:$pkg/bin
+done
+
+: ${outputs:=out}

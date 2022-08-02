@@ -2,7 +2,13 @@
  "position": {"line": 2, "character": 10}}
 {"items":
  [{"label": "False", "kind": 22, "detail": "Prop"},
-  {"label": "Fin", "kind": 22, "detail": "Nat → Type"},
+  {"label": "Fin",
+   "kind": 22,
+   "documentation":
+   {"value":
+    "`Fin n` is a natural number `i` with the constraint that `0 ≤ i < n`. ",
+    "kind": "markdown"},
+   "detail": "Nat → Type"},
   {"label": "Float", "kind": 22, "detail": "Type"},
   {"label": "FloatArray", "kind": 22, "detail": "Type"},
   {"label": "FloatSpec", "kind": 22, "detail": "Type 1"},
@@ -15,66 +21,24 @@
    "kind": 7,
    "detail":
    "(Type u₁ → Type u₂) →\n  (ρ : Type u) → (α : outParam (Type v)) → outParam (Membership α ρ) → Type (max (max (max u (u₁ + 1)) u₂) v)"},
-  {"label": "ForInStep", "kind": 22, "detail": "Type u → Type u"},
+  {"label": "ForInStep",
+   "kind": 22,
+   "documentation":
+   {"value": "Auxiliary type used to compile `for x in xs` notation. ",
+    "kind": "markdown"},
+   "detail": "Type u → Type u"},
   {"label": "ForM",
    "kind": 7,
+   "documentation":
+   {"value":
+    "Typeclass for the polymorphic `forM` operation described in the \"do unchained\" paper.\nRemark:\n- `γ` is a \"container\" type of elements of type `α`.\n- `α` is treated as an output parameter by the typeclass resolution procedure.\n  That is, it tries to find an instance using only `m` and `γ`.\n",
+    "kind": "markdown"},
    "detail":
    "(Type u → Type v) → Type w₁ → outParam (Type w₂) → Type (max (max (max (u + 1) v) w₁) w₂)"},
   {"label": "Function", "kind": 9, "detail": "namespace"},
   {"label": "Functor",
    "kind": 7,
    "detail": "(Type u → Type v) → Type (max (u + 1) v)"},
-  {"label": "fix",
-   "kind": 3,
-   "detail": "[inst : Inhabited β] → ((α → β) → α → β) → α → β"},
-  {"label": "fix1",
-   "kind": 3,
-   "detail": "[inst : Inhabited β] → ((α → β) → α → β) → α → β"},
-  {"label": "fix2",
-   "kind": 3,
-   "detail":
-   "[inst : Inhabited β] → ((α₁ → α₂ → β) → α₁ → α₂ → β) → α₁ → α₂ → β"},
-  {"label": "fix3",
-   "kind": 3,
-   "detail":
-   "[inst : Inhabited β] → ((α₁ → α₂ → α₃ → β) → α₁ → α₂ → α₃ → β) → α₁ → α₂ → α₃ → β"},
-  {"label": "fix4",
-   "kind": 3,
-   "detail":
-   "[inst : Inhabited β] → ((α₁ → α₂ → α₃ → α₄ → β) → α₁ → α₂ → α₃ → α₄ → β) → α₁ → α₂ → α₃ → α₄ → β"},
-  {"label": "fix5",
-   "kind": 3,
-   "detail":
-   "[inst : Inhabited β] → ((α₁ → α₂ → α₃ → α₄ → α₅ → β) → α₁ → α₂ → α₃ → α₄ → α₅ → β) → α₁ → α₂ → α₃ → α₄ → α₅ → β"},
-  {"label": "fix6",
-   "kind": 3,
-   "detail":
-   "[inst : Inhabited β] →\n  ((α₁ → α₂ → α₃ → α₄ → α₅ → α₆ → β) → α₁ → α₂ → α₃ → α₄ → α₅ → α₆ → β) → α₁ → α₂ → α₃ → α₄ → α₅ → α₆ → β"},
-  {"label": "fixCore",
-   "kind": 3,
-   "detail": "(α → β) → ((α → β) → α → β) → α → β"},
-  {"label": "fixCore1",
-   "kind": 3,
-   "detail": "(α → β) → ((α → β) → α → β) → α → β"},
-  {"label": "fixCore2",
-   "kind": 3,
-   "detail": "(α₁ → α₂ → β) → ((α₁ → α₂ → β) → α₁ → α₂ → β) → α₁ → α₂ → β"},
-  {"label": "fixCore3",
-   "kind": 3,
-   "detail":
-   "(α₁ → α₂ → α₃ → β) → ((α₁ → α₂ → α₃ → β) → α₁ → α₂ → α₃ → β) → α₁ → α₂ → α₃ → β"},
-  {"label": "fixCore4",
-   "kind": 3,
-   "detail":
-   "(α₁ → α₂ → α₃ → α₄ → β) → ((α₁ → α₂ → α₃ → α₄ → β) → α₁ → α₂ → α₃ → α₄ → β) → α₁ → α₂ → α₃ → α₄ → β"},
-  {"label": "fixCore5",
-   "kind": 3,
-   "detail":
-   "(α₁ → α₂ → α₃ → α₄ → α₅ → β) → ((α₁ → α₂ → α₃ → α₄ → α₅ → β) → α₁ → α₂ → α₃ → α₄ → α₅ → β) → α₁ → α₂ → α₃ → α₄ → α₅ → β"},
-  {"label": "fixCore6",
-   "kind": 3,
-   "detail":
-   "(α₁ → α₂ → α₃ → α₄ → α₅ → α₆ → β) →\n  ((α₁ → α₂ → α₃ → α₄ → α₅ → α₆ → β) → α₁ → α₂ → α₃ → α₄ → α₅ → α₆ → β) → α₁ → α₂ → α₃ → α₄ → α₅ → α₆ → β"},
   {"label": "failure",
    "kind": 5,
    "detail": "[self : Alternative f] → {α : Type u} → f α"},

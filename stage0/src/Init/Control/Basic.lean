@@ -75,8 +75,8 @@ Suppose we have `foo : ∀ α, IO α → IO α` and `bar : StateT σ IO β` (ie,
 We might want to 'map' `bar` by `foo`. Concretely we would write this as:
 
 ```lean
-constant foo : ∀ {α}, IO α → IO α
-constant bar : StateT σ IO β
+opaque foo : ∀ {α}, IO α → IO α
+opaque bar : StateT σ IO β
 
 def mapped_foo : StateT σ IO β := do
   let s ← get
@@ -208,7 +208,7 @@ instance (m : Type u → Type v) [Pure m] : MonadControlT m m where
   restoreM x := pure x
 
 @[inline]
-def controlAt (m : Type u → Type v) {n : Type u → Type w} [s1 : MonadControlT m n] [s2 : Bind n] {α : Type u}
+def controlAt (m : Type u → Type v) {n : Type u → Type w} [MonadControlT m n] [Bind n] {α : Type u}
     (f : ({β : Type u} → n β → m (stM m n β)) → m (stM m n α)) : n α :=
   liftWith f >>= restoreM
 
@@ -217,7 +217,7 @@ def control {m : Type u → Type v} {n : Type u → Type w} [MonadControlT m n] 
     (f : ({β : Type u} → n β → m (stM m n β)) → m (stM m n α)) : n α :=
   controlAt m f
 
-/-
+/--
   Typeclass for the polymorphic `forM` operation described in the "do unchained" paper.
   Remark:
   - `γ` is a "container" type of elements of type `α`.

@@ -43,6 +43,7 @@ In the case of `@[extern]` all *irrelevant* types are removed first; see next se
   * it is none of the types described above
   * it is not marked `unsafe`
   * it has a single constructor with a single parameter of *relevant* type
+
   is represented by the representation of that parameter's type.
   
   For example, `{ x : α // p }`, the `Subtype` structure of a value of type `α` and an irrelevant proof, is represented by the representation of `α`.

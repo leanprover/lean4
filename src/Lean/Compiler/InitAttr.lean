@@ -9,12 +9,12 @@ import Lean.Attributes
 namespace Lean
 
 private def getIOTypeArg : Expr → Option Expr
-  | Expr.app (Expr.const `IO _ _) arg _ => some arg
-  | _                                   => none
+  | Expr.app (Expr.const `IO _) arg => some arg
+  | _                               => none
 
 private def isUnitType : Expr → Bool
-  | Expr.const `Unit _ _ => true
-  | _                    => false
+  | Expr.const `Unit _ => true
+  | _                  => false
 
 private def isIOUnit (type : Expr) : Bool :=
   match getIOTypeArg type with
@@ -26,16 +26,17 @@ private def isIOUnit (type : Expr) : Bool :=
   Return `false` if the initializer is not available as native code.
   Initializers do not have corresponding Lean definitions, so they cannot be interpreted in this case. -/
 @[extern "lean_run_mod_init"]
-unsafe constant runModInit (mod : Name) : IO Bool
+unsafe opaque runModInit (mod : Name) : IO Bool
 
 /-- Run the initializer for `decl` and store its value for global access. Should only be used while importing. -/
 @[extern "lean_run_init"]
-unsafe constant runInit (env : @& Environment) (opts : @& Options) (decl initDecl : @& Name) : IO Unit
+unsafe opaque runInit (env : @& Environment) (opts : @& Options) (decl initDecl : @& Name) : IO Unit
 
-unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) : IO (ParametricAttribute Name) :=
+unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) (ref : Name) : IO (ParametricAttribute Name) :=
   registerParametricAttribute {
-    name := attrName,
-    descr := "initialization procedure for global references",
+    ref := ref
+    name := attrName
+    descr := "initialization procedure for global references"
     getParam := fun declName stx => do
       let decl ← getConstInfo declName
       match (← Attribute.Builtin.getIdent? stx) with
@@ -70,13 +71,17 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) : IO
   }
 
 @[implementedBy registerInitAttrUnsafe]
-constant registerInitAttr (attrName : Name) (runAfterImport : Bool) : IO (ParametricAttribute Name)
+private opaque registerInitAttrInner (attrName : Name) (runAfterImport : Bool) (ref : Name) : IO (ParametricAttribute Name)
+
+@[inline]
+def registerInitAttr (attrName : Name) (runAfterImport : Bool) (ref : Name := by exact decl_name%) : IO (ParametricAttribute Name) :=
+  registerInitAttrInner attrName runAfterImport ref
 
 builtin_initialize regularInitAttr : ParametricAttribute Name ← registerInitAttr `init true
 builtin_initialize builtinInitAttr : ParametricAttribute Name ← registerInitAttr `builtinInit false
 
 def getInitFnNameForCore? (env : Environment) (attr : ParametricAttribute Name) (fn : Name) : Option Name :=
-  match attr.getParam env fn with
+  match attr.getParam? env fn with
   | some Name.anonymous => none
   | some n              => some n
   | _                   => none
@@ -94,7 +99,7 @@ def getInitFnNameFor? (env : Environment) (fn : Name) : Option Name :=
   getBuiltinInitFnNameFor? env fn <|> getRegularInitFnNameFor? env fn
 
 def isIOUnitInitFnCore (env : Environment) (attr : ParametricAttribute Name) (fn : Name) : Bool :=
-  match attr.getParam env fn with
+  match attr.getParam? env fn with
   | some Name.anonymous => true
   | _ => false
 

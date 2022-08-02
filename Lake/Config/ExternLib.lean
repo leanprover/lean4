@@ -32,3 +32,10 @@ namespace ExternLib
 /-- The external library's user-defined `target`. -/
 @[inline] def target (self : ExternLib) : FileTarget :=
   self.config.target
+
+/--
+The arguments to pass to `leanc` when linking the external library.
+That is, the package's `moreLinkArgs`.
+-/
+@[inline] def linkArgs (self : ExternLib) : Array String :=
+  self.pkg.moreLinkArgs

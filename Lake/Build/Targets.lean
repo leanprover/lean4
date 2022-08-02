@@ -84,7 +84,8 @@ def leanExeTarget (name : String) (exeFile : FilePath)
   (extraDepTrace := getLeanTrace <&> (·.mix <| pureHash linkArgs)) fun links => do
     compileExe name exeFile links linkArgs (← getLeanc)
 
-def staticToLeanSharedLibTarget (name : String) (staticLibTarget : FileTarget) : FileTarget :=
+def staticToLeanSharedLibTarget (name : String)
+(staticLibTarget : FileTarget) (linkArgs : Array String := #[]) : FileTarget :=
   .mk <| staticLibTarget.bindSync fun staticLib staticTrace => do
     let dynlib := staticLib.withExtension sharedLibExt
     let trace ← buildFileUnlessUpToDate dynlib staticTrace do
@@ -93,7 +94,7 @@ def staticToLeanSharedLibTarget (name : String) (staticLibTarget : FileTarget) :
           #[s!"-Wl,-force_load,{staticLib}"]
         else
           #["-Wl,--whole-archive", staticLib.toString, "-Wl,--no-whole-archive"]
-      compileSharedLib name dynlib args (← getLeanc)
+      compileSharedLib name dynlib (args ++ linkArgs) (← getLeanc)
     return (dynlib, trace)
 
 def sharedToLeanDynlibTarget (sharedLibTarget : FileTarget) : DynlibTarget :=

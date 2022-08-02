@@ -53,7 +53,7 @@ def compileO (name : String) (oFile srcFile : FilePath)
 
 def compileStaticLib (name : String) (libFile : FilePath)
 (oFiles : Array FilePath) (ar : FilePath := "ar") : LogIO Unit := do
-  logInfo s!"Linking {name}"
+  logInfo s!"Creating {name}"
   createParentDirs libFile
   proc {
     cmd := ar.toString

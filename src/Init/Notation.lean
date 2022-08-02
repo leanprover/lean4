@@ -22,7 +22,7 @@ def term : Category := {}
 def tactic : Category := {}
 /-- The syntax category for elements that can appear in the `do` notation. -/
 def doElem : Category := {}
-/-- The level syntax category. Declarations can be annotated with attributes using the `@[...]` notation. -/
+/-- The level syntax category. -/
 def level : Category := {}
 /-- The attribute syntax category. Declarations can be annotated with attributes using the `@[...]` notation. -/
 def attr : Category := {}

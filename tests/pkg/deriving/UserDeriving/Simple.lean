@@ -11,5 +11,12 @@ def mkSimpleHandler (declNames : Array Name) : CommandElabM Bool := do
   -- TODO: see examples at src/Lean/Elab/Deriving
   return true
 
+def mkMyInhabitedHandler (declNames : Array Name) : CommandElabM Bool := do
+  for declName in declNames do
+    let cmd ← `(def $(mkIdent (declName ++ `test)) := 0)
+    elabCommand cmd
+  return false -- `false` instructs Lean to run the next handler
+
 initialize
-  registerBuiltinDerivingHandler ``Simple mkSimpleHandler
+  registerDerivingHandler ``Simple mkSimpleHandler
+  registerDerivingHandler ``Inhabited mkMyInhabitedHandler

@@ -123,7 +123,7 @@ def mkInhabitedInstanceHandler (declNames : Array Name) : CommandElabM Bool := d
     return false
 
 builtin_initialize
-  registerBuiltinDerivingHandler `Inhabited mkInhabitedInstanceHandler
+  registerDerivingHandler `Inhabited mkInhabitedInstanceHandler
   registerTraceClass `Elab.Deriving.inhabited
 
 end Lean.Elab

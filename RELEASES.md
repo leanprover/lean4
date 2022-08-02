@@ -1,6 +1,9 @@
 Unreleased
 ---------
 
+* Allow users to install their own `deriving` handlers for existing type classes.
+  See example at [Simple.lean](https://github.com/leanprover/lean4/blob/master/tests/pkg/deriving/UserDeriving/Simple.lean).
+
 * Add tactic `congr (num)?`. See doc string for additional details.
 
 * [Missing doc linter](https://github.com/leanprover/lean4/pull/1390)

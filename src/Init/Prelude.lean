@@ -789,7 +789,6 @@ protected theorem Nat.lt_irrefl (n : Nat) : Not (LT.lt n n) :=
 protected theorem Nat.lt_of_le_of_lt {n m k : Nat} (h₁ : LE.le n m) (h₂ : LT.lt m k) : LT.lt n k :=
   Nat.le_trans (Nat.succ_le_succ h₁) h₂
 
-set_option linter.unusedVariables.funArgs false in  -- #1214
 protected theorem Nat.le_antisymm {n m : Nat} (h₁ : LE.le n m) (h₂ : LE.le m n) : Eq n m :=
   match h₁ with
   | Nat.le.refl   => rfl
@@ -800,7 +799,6 @@ protected theorem Nat.lt_of_le_of_ne {n m : Nat} (h₁ : LE.le n m) (h₂ : Not 
   | Or.inl h₃ => h₃
   | Or.inr h₃ => absurd (Nat.le_antisymm h₁ h₃) h₂
 
-set_option linter.unusedVariables.funArgs false in  -- #1214
 theorem Nat.le_of_ble_eq_true (h : Eq (Nat.ble n m) true) : LE.le n m :=
   match n, m with
   | 0,      _      => Nat.zero_le _

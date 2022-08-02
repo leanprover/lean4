@@ -7,13 +7,19 @@ import Lean.Environment
 
 namespace Lean
 
-/-- Given a structure `S`, Lean automatically creates an auxiliary definition (projection function)
-   for each field. This structure caches information about these auxiliary definitions. -/
+/--
+Given a structure `S`, Lean automatically creates an auxiliary definition (projection function)
+for each field. This structure caches information about these auxiliary definitions.
+-/
 structure ProjectionFunctionInfo where
-  ctorName : Name  -- Constructor associated with the auxiliary projection function.
-  numParams : Nat  -- Number of parameters in the structure
-  i : Nat          -- The field index associated with the auxiliary projection function.
-  fromClass : Bool -- `true` if the structure is a class
+  /-- Constructor associated with the auxiliary projection function. -/
+  ctorName : Name
+  /-- Number of parameters in the structure -/
+  numParams : Nat
+  /-- The field index associated with the auxiliary projection function. -/
+  i : Nat
+  /-- `true` if the structure is a class. -/
+  fromClass : Bool
   deriving Inhabited
 
 @[export lean_mk_projection_info]

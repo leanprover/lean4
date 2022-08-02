@@ -1,6 +1,8 @@
 Unreleased
 ---------
 
+* Add tactic `congr (num)?`. See doc string for additional details.
+
 * [Missing doc linter](https://github.com/leanprover/lean4/pull/1390)
 
 * `match`-syntax notation now checks for unused alternatives. See issue [#1371](https://github.com/leanprover/lean4/issues/1371).

@@ -493,6 +493,15 @@ syntax (name := sleep) "sleep" num : tactic
 macro "exists " es:term,+ : tactic =>
   `(tactic| (refine ⟨$es,*, ?_⟩; try trivial))
 
+/--
+Apply congruence (recursively) to goals of the form `⊢ f as = f bs` and `⊢ HEq (f as) (f bs)`.
+The optional parameter is the depth of the recursive applications. This is useful when `congr` is too aggressive
+in breaking down the goal.
+For example, given `⊢ f (g (x + y)) = f (g (y + x))`, `congr` produces the goals `⊢ x = y` and `⊢ y = x`,
+while `congr 2` produces the intended `⊢ x + y = y + x`.
+-/
+syntax (name := congr) "congr " (num)? : tactic
+
 end Tactic
 
 namespace Attr

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Meta.Match.Match
 import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.Tactic.Apply
+import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Delta
 import Lean.Meta.Tactic.SplitIf
 import Lean.Meta.Tactic.Injection
@@ -300,7 +301,7 @@ where
     let mvarId' ← mvarId.modifyTargetEqLHS whnfCore
     let mvarId := mvarId'
     let subgoals ←
-      (do mvarId.applyRefl; return #[])
+      (do mvarId.refl; return #[])
       <|>
       (do mvarId.contradiction { genDiseq := true }; return #[])
       <|>

@@ -277,13 +277,12 @@ macro_rules
 syntax (name := solve) "solve " withPosition((colGe "|" tacticSeq)+) : tactic
 
 macro_rules
-  | `(tactic| solve $[| $ts]* ) => `(tactic| focus first $[| ($ts); done]*)
+  | `(tactic| solve $[| $ts]*) => `(tactic| focus first $[| ($ts); done]*)
 
 namespace Lean
 /-! # `repeat` and `while` notation -/
 
-inductive Loop where
-  | mk
+structure Loop
 
 @[inline]
 partial def Loop.forIn {β : Type u} {m : Type u → Type v} [Monad m] (_ : Loop) (init : β) (f : Unit → β → m (ForInStep β)) : m β :=
@@ -296,25 +295,31 @@ partial def Loop.forIn {β : Type u} {m : Type u → Type v} [Monad m] (_ : Loop
 instance : ForIn m Loop Unit where
   forIn := Loop.forIn
 
-syntax "repeat " doSeq : doElem
+syntax label := atomic("(" &"label") " := " ident ") "
+
+syntax "repeat " (label)? doSeq : doElem
 
 macro_rules
-  | `(doElem| repeat $seq) => `(doElem| for _ in Loop.mk do $seq)
+  | `(doElem| repeat $[(label := $x)]? $seq) =>
+    `(doElem| for _ in Loop.mk do $seq)
 
-syntax "while " ident " : " termBeforeDo " do " doSeq : doElem
-
-macro_rules
-  | `(doElem| while $h : $cond do $seq) => `(doElem| repeat if $h : $cond then $seq else break)
-
-syntax "while " termBeforeDo " do " doSeq : doElem
+syntax "while " (label)? ident " : " termBeforeDo " do " doSeq : doElem
 
 macro_rules
-  | `(doElem| while $cond do $seq) => `(doElem| repeat if $cond then $seq else break)
+  | `(doElem| while $[(label := $x)]? $h : $cond do $seq) =>
+    `(doElem| repeat $[(label := $x)]? if $h : $cond then $seq else break)
 
-syntax "repeat " doSeq " until " term : doElem
+syntax "while " (label)? termBeforeDo " do " doSeq : doElem
 
 macro_rules
-  | `(doElem| repeat $seq until $cond) => `(doElem| repeat do $seq:doSeq; if $cond then break)
+  | `(doElem| while $[(label := $x)]? $cond do $seq) =>
+    `(doElem| repeat $[(label := $x)]? if $cond then $seq else break)
+
+syntax "repeat " (label)? doSeq " until " term : doElem
+
+macro_rules
+  | `(doElem| repeat $[(label := $x)]? $seq:doSeq until $cond) =>
+    `(doElem| repeat $[(label := $x)]? do $seq:doSeq; if $cond then break)
 
 macro:50 e:term:51 " matches " p:sepBy1(term:51, "|") : term =>
   `(((match $e:term with | $[$p:term]|* => true | _ => false) : Bool))

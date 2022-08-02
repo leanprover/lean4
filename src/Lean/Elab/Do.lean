@@ -1391,11 +1391,11 @@ mutual
      `doFor` is of the form
      ```
      def doForDecl := leading_parser termParser >> " in " >> withForbidden "do" termParser
-     def doFor := leading_parser "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
+     def doFor := leading_parser "for " >> optLabel >> sepBy1 doForDecl ", " >> "do " >> doSeq
      ```
   -/
   partial def doForToCode (doFor : Syntax) (doElems : List Syntax) : M CodeBlock := do
-    let doForDecls := doFor[1].getSepArgs
+    let doForDecls := doFor[2].getSepArgs
     if doForDecls.size > 1 then
       /-
         Expand
@@ -1405,7 +1405,7 @@ mutual
         ```
         into
         ```
-        let s := toStream ys
+        let mut s := toStream ys
         for x in xs do
           match Stream.next? s with
           | none => break
@@ -1421,7 +1421,7 @@ mutual
       let y  := doForDecl[1]
       let ys := doForDecl[3]
       let doForDecls := doForDecls.eraseIdx 1
-      let body := doFor[3]
+      let body := doFor[4]
       withFreshMacroScope do
         /- Recall that `@` (explicit) disables `coeAtOutParam`.
            We used `@` at `Stream` functions to make sure `resultIsOutParamSupport` is not used. -/
@@ -1434,13 +1434,18 @@ mutual
                  | some ($y, s') =>
                    s := s'
                    do $body)
-        doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
+        -- bootstrapping hack, remove in the next commit
+        let elemsHacked := match getDoSeqElems (getDoSeq auxDo) with
+        | [el, Syntax.node info k #[a, b, c, d]] =>
+          [el, Syntax.node info k #[a, mkNullNode, b, c, d]]
+        | e => e
+        doSeqToCode (elemsHacked ++ doElems)
     else withRef doFor do
       let h?        := if doForDecls[0]![0].isNone then none else some doForDecls[0]![0][0]
       let x         := doForDecls[0]![1]
       withRef x <| checkNotShadowingMutable (← getPatternVarsEx x)
       let xs        := doForDecls[0]![3]
-      let forElems  := getDoSeqElems doFor[3]
+      let forElems  := getDoSeqElems doFor[4]
       let forInBodyCodeBlock ← withFor (doSeqToCode forElems)
       let ⟨uvars, forInBody⟩ ← mkForInBody x forInBodyCodeBlock
       let ctx ← read

@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.Reduce
 import Lean.Meta.Tactic.Util
+import Lean.Meta.Tactic.Apply
 
 namespace Lean.Meta
 
@@ -38,5 +39,25 @@ def _root_.Lean.MVarId.refl (mvarId : MVarId) : MetaM Unit := do
 @[deprecated MVarId.refl]
 def refl (mvarId : MVarId) : MetaM Unit := do
   mvarId.refl
+
+@[deprecated MVarId.refl]
+def _root_.Lean.MVarId.applyRefl (mvarId : MVarId) (msg : MessageData := "refl failed") : MetaM Unit :=
+  try mvarId.refl catch _ => throwError msg
+
+/--
+Try to apply `heq_of_eq`. If successful, then return new goal, otherwise return `mvarId`.
+-/
+def _root_.Lean.MVarId.heqOfEq (mvarId : MVarId) : MetaM MVarId :=
+  mvarId.withContext do
+    let some [mvarId] ← observing? do mvarId.apply (mkConst ``heq_of_eq [← mkFreshLevelMVar]) | return mvarId
+    return mvarId
+
+/--
+Close given goal using `HEq.refl`.
+-/
+def _root_.Lean.MVarId.hrefl (mvarId : MVarId) : MetaM Unit := do
+  mvarId.withContext do
+    let some [] ← observing? do mvarId.apply (mkConst ``HEq.refl [← mkFreshLevelMVar])
+      | throwTacticEx `hrefl mvarId ""
 
 end Lean.Meta

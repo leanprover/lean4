@@ -193,7 +193,7 @@ where
           insertIdMap id baseId
 
     -- apply `FVarAliasInfo`
-    trees.forM (·.visitM' (postNode := fun _ info cs => do
+    trees.forM (·.visitM' (postNode := fun _ info _ => do
       if let .ofFVarAliasInfo ai := info then
         insertIdMap ai.id ai.baseId))
 

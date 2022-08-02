@@ -154,21 +154,24 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (in
     let mut results := results.bind (·.getD [])
     if omitAppFns && info.stx.isOfKind ``Parser.Term.app && info.stx[0].isIdent then
       results := results.filter (·.2.2.stx != info.stx[0])
+    unless results.isEmpty do
+      return results  -- prefer innermost results
     /-
-      Remark: we skip `info` nodes associated with the `nullKind` because some tactics (e.g., `rewrite`) attach auxiliary null nodes to control
+      Remark: we skip `info` nodes associated with the `nullKind` and `withAnnotateState` because they are used by tactics (e.g., `rewrite`) to control
       which goal is displayed in the info views. See issue #1403
     -/
-    if results.isEmpty && info.stx.getKind != nullKind && (info matches Info.ofFieldInfo _ || info.toElabInfo?.isSome) && info.contains hoverPos includeStop then
-      let r := info.range?.get!
-      let priority :=
-        if r.stop == hoverPos then
-          0  -- prefer results directly *after* the hover position (only matters for `includeStop = true`; see #767)
-        else if info matches .ofTermInfo { expr := .fvar .., .. } then
-          0  -- prefer results for constants over variables (which overlap at declaration names)
-        else 1
-      [(priority, ctx, info)]
-    else
-      results) |>.getD []
+    if info.stx.isOfKind nullKind || info.toElabInfo?.any (·.elaborator == `Lean.Elab.Tactic.evalWithAnnotateState) then
+      return results
+    unless (info matches Info.ofFieldInfo _ || info.toElabInfo?.isSome) && info.contains hoverPos includeStop do
+      return results
+    let r := info.range?.get!
+    let priority :=
+      if r.stop == hoverPos then
+        0  -- prefer results directly *after* the hover position (only matters for `includeStop = true`; see #767)
+      else if info matches .ofTermInfo { expr := .fvar .., .. } then
+        0  -- prefer results for constants over variables (which overlap at declaration names)
+      else 1
+    [(priority, ctx, info)]) |>.getD []
   let maxPrio? := results.map (·.1) |>.maximum?
   let res? := results.find? (·.1 == maxPrio?) |>.map (·.2)
   if let some (_, i) := res? then

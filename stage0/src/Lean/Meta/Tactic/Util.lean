@@ -157,6 +157,12 @@ def getPropHyps : MetaM (Array FVarId) := do
         result := result.push localDecl.fvarId
   return result
 
+def _root_.Lean.MVarId.inferInstance (mvarId : MVarId) : MetaM Unit := mvarId.withContext do
+  mvarId.checkNotAssigned `infer_instance
+  let synthVal ← synthInstance (← mvarId.getType)
+  unless (← isDefEq (mkMVar mvarId) synthVal) do
+    throwTacticEx `infer_instance mvarId "`infer_instance` tactic failed to assign instance"
+
 inductive TacticResultCNM where
   | closed
   | noChange

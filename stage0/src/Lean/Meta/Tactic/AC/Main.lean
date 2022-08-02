@@ -5,6 +5,7 @@ Authors: Dany Fabian
 -/
 import Init.Data.AC
 import Lean.Meta.AppBuilder
+import Lean.Meta.Tactic.Refl
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.Rewrite
 
@@ -147,7 +148,7 @@ def rewriteUnnormalized (mvarId : MVarId) : MetaM Unit := do
   let tgt ← mvarId.getType
   let res ← Simp.main tgt simpCtx (methods := { post })
   let newGoal ← applySimpResultToTarget mvarId tgt res
-  newGoal.applyRefl
+  newGoal.refl
 where
   post (e : Expr) : SimpM Simp.Step := do
     let ctx ← read

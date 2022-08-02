@@ -109,6 +109,29 @@ static void setup_stdio(SECURITY_ATTRIBUTES * saAttr, HANDLE * theirs, object **
     lean_unreachable();
 }
 
+
+const char* ws = " \t\n\r\f\v";
+
+// trim from end of string (right)
+inline std::string& rtrim(std::string& s, const char* t = ws)
+{
+    s.erase(s.find_last_not_of(t) + 1);
+    return s;
+}
+
+// trim from beginning of string (left)
+inline std::string& ltrim(std::string& s, const char* t = ws)
+{
+    s.erase(0, s.find_first_not_of(t));
+    return s;
+}
+
+// trim from both ends of string (right then left)
+inline std::string& trim(std::string& s, const char* t = ws)
+{
+    return ltrim(rtrim(s, t), t);
+}
+
 // This code is adapted from: https://msdn.microsoft.com/en-us/library/windows/desktop/ms682499(v=vs.85).aspx
 static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const & args, stdio stdin_mode, stdio stdout_mode,
                      stdio stderr_mode, option_ref<string_ref> const & cwd, array_ref<pair_ref<string_ref, option_ref<string_ref>>> const & env) {
@@ -128,23 +151,35 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     object * parent_stderr = box(0); setup_stdio(&saAttr, &child_stderr, &parent_stderr, false, stderr_mode);
 
     std::string command = proc_name.to_std_string();
-    char buffer[32767];
-    auto rc = FindExecutable(command.c_str(), NULL, buffer);
-    long long error = (long long)rc;
-    if (error < 32) {
-        // find program failed, well then fall back on whatever is in the command string.
-    } else {
+
+    // remove any whitespace and quotes so we can check if the file exists.
+    trim(command, ws);
+    trim(command, "\"");
+
+    const char* extensions[] = { ".exe", ".com", ".cmd" };
+    const DWORD MAX_SIZE = 32767;
+    char buffer[MAX_SIZE];
+    LPSTR lpFilePart = NULL;
+    DWORD rc = 0;
+    for (auto ext : extensions) {
+        rc = SearchPath(NULL, command.c_str(), ext, MAX_SIZE, buffer, &lpFilePart);
+        if (rc != 0) {
+            break;
+        }
+    }
+
+    if (rc != 0) {
         // buffer now contains the executable that Windows would have executed if you
         // typed that name in a terminal window.  This can change the name of the command.
         // For example, "npm" becomes "C:\Program Files\nodejs\npm.cmd" and not the bash
-        // shell script named "C:\Program Files\nodejs\npm".  It is the executable returned from
-        // FindExecutable that we need to spawn here.
+        // shell script named "C:\Program Files\nodejs\npm".
         command = buffer;
-        if (command.find(' ') != std::string::npos) {
-            // path contains spaces!
-            command.insert(command.begin(), '"');
-            command += "\"";
-        }
+    }
+
+    if (command.find(' ') != std::string::npos) {
+        // path contains spaces so it needs quotes.
+        command.insert(command.begin(), '"');
+        command += "\"";
     }
 
     // This needs some thought, on Windows we must pass a command string

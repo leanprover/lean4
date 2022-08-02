@@ -53,8 +53,8 @@ private def setBinderInfosD (ys : Array Expr) (lctx : LocalContext) : LocalConte
 
 partial def mkHCongrWithArity (f : Expr) (numArgs : Nat) : MetaM CongrTheorem := do
   let fType ← inferType f
-  forallBoundedTelescope fType numArgs fun xs xType =>
-  forallBoundedTelescope fType numArgs fun ys yType => do
+  forallBoundedTelescope fType numArgs fun xs _ =>
+  forallBoundedTelescope fType numArgs fun ys _ => do
     if xs.size != numArgs then
       throwError "failed to generate hcongr theorem, insufficient number of arguments"
     else

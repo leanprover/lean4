@@ -69,24 +69,10 @@ builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
   (stack.get? 3 |>.any fun (stx, _) =>
     stx.isOfKind ``Lean.Parser.Command.optDeclSig ||
     stx.isOfKind ``Lean.Parser.Command.declSig) &&
-  (stack.get? 5 |>.any fun (stx, _) => Id.run <| do
-    let declModifiers := stx[0]
-    if !declModifiers.isOfKind ``Lean.Parser.Command.declModifiers then
-      return false
-    let termAttributes := declModifiers[1][0]
-    if !termAttributes.isOfKind ``Lean.Parser.Term.attributes then
-      return false
-    let termAttrInstance := termAttributes[1][0]
-    if !termAttrInstance.isOfKind ``Lean.Parser.Term.attrInstance then
-      return false
-
-    let attr := termAttrInstance[1]
-    if attr.isOfKind ``Lean.Parser.Attr.extern then
-      return true
-    else if attr.isOfKind ``Lean.Parser.Attr.simple then
-      return attr[0].getId == `implementedBy
-    else
-      return false))
+  (stack.get? 5 |>.any fun (stx, _) => match stx[0] with
+    | `(Lean.Parser.Command.declModifiersT| $[$_:docComment]? @[$[$attrs:attr],*] $[$vis]? $[noncomputable]?) =>
+      attrs.any (fun attr => attr.raw.isOfKind ``Parser.Attr.extern || attr matches `(attr| implementedBy $_))
+    | _ => false))
 
 -- is in dependent arrow
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>

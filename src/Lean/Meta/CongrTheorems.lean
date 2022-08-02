@@ -197,7 +197,7 @@ def getCongrSimpKinds (info : FunInfo) : Array CongrArgKind := Id.run do
 /--
   Create a congruence theorem that is useful for the simplifier and `congr` tactic.
 -/
-partial def mkCongrSimpCore? (f : Expr) (info : FunInfo) (kinds : Array CongrArgKind) : MetaM (Option CongrTheorem) := do
+partial def mkCongrSimpCore? (f : Expr) (info : FunInfo) (kinds : Array CongrArgKind) (subsingletonInstImplicitRhs : Bool := true) : MetaM (Option CongrTheorem) := do
   if let some result ← mk? f info kinds then
     return some result
   else if hasCastLike kinds then
@@ -242,9 +242,12 @@ where
               let rhs ← mkCast lhss[i]! rhsType info.paramInfo[i]!.backDeps eqs
               go (i+1) (rhss.push rhs) (eqs.push none) hyps
             | .subsingletonInst =>
-              let rhsType := (← inferType lhss[i]!).replaceFVars (lhss[:rhss.size]) rhss
-              withLocalDecl (← lhss[i]!.fvarId!.getDecl).userName BinderInfo.instImplicit rhsType fun rhs =>
-                go (i+1) (rhss.push rhs) (eqs.push none) (hyps.push rhs)
+              -- The `lhs` does not need to instance implicit since it can be inferred from the LHS
+              withNewBinderInfos #[(lhss[i]!.fvarId!, .implicit)] do
+                let rhsType := (← inferType lhss[i]!).replaceFVars (lhss[:rhss.size]) rhss
+                let rhsBi   := if subsingletonInstImplicitRhs then .instImplicit else .implicit
+                withLocalDecl (← lhss[i]!.fvarId!.getDecl).userName rhsBi rhsType fun rhs =>
+                  go (i+1) (rhss.push rhs) (eqs.push none) (hyps.push rhs)
         return some (← go 0 #[] #[] #[])
     catch _ =>
       return none
@@ -276,9 +279,17 @@ where
             mkLambdaFVars #[lhs, rhs] (← mkEqNDRec motive proofSub heq)
      go 0 type
 
-def mkCongrSimp? (f : Expr) : MetaM (Option CongrTheorem) := do
+/--
+Create a congruence theorem for `f`. The theorem is used in the simplifier.
+
+If `subsinglentonInstImplicitRhs = true`, the the `rhs` corresponding to `[Decidable p]` parameters
+is marked as instance implicit. It forces the simplifier to compute the new instance when applying
+the congruence theorem.
+For the `congr` tactic we set it to `false`.
+-/
+def mkCongrSimp? (f : Expr) (subsingletonInstImplicitRhs : Bool := true) : MetaM (Option CongrTheorem) := do
   let f := (← instantiateMVars f).cleanupAnnotations
   let info ← getFunInfo f
-  mkCongrSimpCore? f info (getCongrSimpKinds info)
+  mkCongrSimpCore? f info (getCongrSimpKinds info) (subsingletonInstImplicitRhs := subsingletonInstImplicitRhs)
 
 end Lean.Meta

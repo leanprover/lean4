@@ -45,7 +45,7 @@ def MVarId.congr? (mvarId : MVarId) : MetaM (Option (List MVarId)) :=
     let some (_, lhs, _) := target.eq? | return none
     let lhs := lhs.cleanupAnnotations
     unless lhs.isApp do return none
-    let some congrThm ← mkCongrSimp? lhs.getAppFn | return none
+    let some congrThm ← mkCongrSimp? lhs.getAppFn (subsingletonInstImplicitRhs := false) | return none
     applyCongrThm? mvarId congrThm
 
 /--

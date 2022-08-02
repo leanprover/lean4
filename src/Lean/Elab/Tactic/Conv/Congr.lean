@@ -30,8 +30,10 @@ def congr (mvarId : MVarId) (addImplicitArgs := false) : MetaM (List (Option MVa
   else if lhs.isApp then
     let funInfo ← getFunInfo lhs.getAppFn
     let args := lhs.getAppArgs
-    let some congrThm ← mkCongrSimp? lhs.getAppFn | throwError "'congr' conv tactic failed to create congruence theorem"
-    unless args.size == congrThm.argKinds.size do throwError "'congr' conv tactic failed, unexpected number of arguments in congruence theorem"
+    let some congrThm ← mkCongrSimp? lhs.getAppFn (subsingletonInstImplicitRhs := false)
+      | throwError "'congr' conv tactic failed to create congruence theorem"
+    unless args.size == congrThm.argKinds.size do
+      throwError "'congr' conv tactic failed, unexpected number of arguments in congruence theorem"
     let mut proof := congrThm.proof
     let mut mvarIdsNew := #[]
     let mut mvarIdsNewInsts := #[]

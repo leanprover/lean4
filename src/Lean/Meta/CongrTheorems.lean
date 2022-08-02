@@ -64,10 +64,9 @@ partial def mkHCongrWithArity (f : Expr) (numArgs : Nat) : MetaM CongrTheorem :=
         let mut hs := #[]
         for x in xs, y in ys, eq in eqs do
           hs := hs.push x |>.push y |>.push eq
-        let xType := xType.consumeTypeAnnotations
-        let yType := yType.consumeTypeAnnotations
-        let resultType ← if xType == yType then mkEq xType yType else mkHEq xType yType
-        let congrType ← mkForallFVars hs resultType
+        let lhs := mkAppN f xs
+        let rhs := mkAppN f ys
+        let congrType ← mkForallFVars hs (← mkHEq lhs rhs)
         return {
           type  := congrType
           proof := (← mkProof congrType)

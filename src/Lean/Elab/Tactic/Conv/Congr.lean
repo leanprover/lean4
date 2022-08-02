@@ -41,7 +41,7 @@ def congr (mvarId : MVarId) (addImplicitArgs := false) : MetaM (List (Option MVa
   mvarId.withContext do
     let tag ← mvarId.getTag
     let (lhs, _) ← getLhsRhsCore mvarId
-    let lhs := lhs.cleanupAnnotations
+    let lhs := (← instantiateMVars lhs).cleanupAnnotations
     let mvarIds ← try mvarId.congr (closeEasy := false) catch _ => throwError "invalid 'congr' conv tactic, application or implication expected{indentExpr lhs}"
     mvarIds.forM fun mvarId => mvarId.setTag tag; mvarId.setKind .syntheticOpaque
     if lhs.isApp then

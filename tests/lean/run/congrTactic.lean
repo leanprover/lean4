@@ -30,3 +30,10 @@ example (h₁ : α = β) (h₂ : α = γ) (a : α) : HEq (cast h₁ a) (cast h�
 example (f : Nat → Nat) (g : Nat → Nat) : f (g (x + y)) = f (g (y + x)) := by
   congr 2
   rw [Nat.add_comm]
+
+example (p q r : Prop) (h : q = r) : (p → q) = (p → r) := by
+  congr
+
+example (p q r s : Prop) (h₁ : q = r) (h₂ : r = s) : (p → q) = (p → s) := by
+  congr
+  rw [h₁, h₂]

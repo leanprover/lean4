@@ -15,26 +15,25 @@ open Meta
 /--
 Postprocessor after applying congruence theorem.
 Tries to close new goals using `Eq.refl`, `HEq.refl`, and `assumption`.
-It also tries to apply `heq_of_eq`, and clears `fvarId`.
+It also tries to apply `heq_of_eq`.
 -/
-private def congrPost (fvarId : FVarId) (mvarIds : List MVarId) : MetaM (List MVarId) :=
+private def congrPost (mvarIds : List MVarId) : MetaM (List MVarId) :=
   mvarIds.filterMapM fun mvarId => do
     let mvarId ← mvarId.heqOfEq
     try mvarId.refl; return none catch _ => pure ()
     try mvarId.hrefl; return none catch _ => pure ()
     if (← mvarId.assumptionCore) then return none
-    let mvarId ← mvarId.tryClear fvarId
     return some mvarId
 
 /--
 Asserts the given congruence theorem as fresh hypothesis, and then applies it.
 Return the `fvarId` for the new hypothesis and the new subgoals.
 -/
-private def applyCongrThm? (mvarId : MVarId) (congrThm : CongrTheorem) : MetaM (Option (FVarId × List MVarId)) := do
+private def applyCongrThm? (mvarId : MVarId) (congrThm : CongrTheorem) : MetaM (List MVarId) := do
   let mvarId ← mvarId.assert (← mkFreshUserName `h_congr_thm) congrThm.type congrThm.proof
   let (fvarId, mvarId) ← mvarId.intro1P
   let mvarIds ← mvarId.apply (mkFVar fvarId)
-  return some (fvarId, mvarIds)
+  return mvarIds
 
 /--
 Try to apply a `simp` congruence theorem.
@@ -46,12 +45,11 @@ def MVarId.congr? (mvarId : MVarId) : MetaM (Option (List MVarId)) :=
     let some (_, lhs, _) := target.eq? | return none
     unless lhs.isApp do return none
     let some congrThm ← mkCongrSimp? lhs.getAppFn | return none
-    let some (fvarId, mvarIds) ← applyCongrThm? mvarId congrThm | return none
-    congrPost fvarId mvarIds
+    applyCongrThm? mvarId congrThm
 
 /--
-Try to apply a hcongr congruence theorem. This kind of theorem is used by
-the congruence closure module.
+Try to apply a `hcongr` congruence theorem, and then tries to close resulting goals
+using `Eq.refl`, `HEq.refl`, and assumption.
 -/
 def MVarId.hcongr? (mvarId : MVarId) : MetaM (Option (List MVarId)) :=
   mvarId.withContext do
@@ -60,29 +58,42 @@ def MVarId.hcongr? (mvarId : MVarId) : MetaM (Option (List MVarId)) :=
     let some (_, lhs, _, _) := target.heq? | return none
     unless lhs.isApp do return none
     let congrThm ← mkHCongr lhs.getAppFn
-    trace[Meta.debug] "congrThm: {congrThm.type}"
-    let some (fvarId, mvarIds) ← applyCongrThm? mvarId congrThm | return none
-    congrPost fvarId mvarIds
+    applyCongrThm? mvarId congrThm
 
 /--
-Given a goal of the form `⊢ f as = f bs` or `⊢ HEq (f as) (f bs)`, try to apply congruence.
-It takes proof irrelevance into account, the fact that `Decidable p` is a subsingleton.
-It tries to close new subgoals using `Eq.refl`, `HEq.refl`, and `assumption`.
+Try to apply `implies_congr`.
 -/
-def MVarId.congr (mvarId : MVarId) : MetaM (List MVarId) := do
-  if let some mvarIds ← mvarId.congr? then
-    return mvarIds
+def MVarId.congrImplies? (mvarId : MVarId) : MetaM (Option (List MVarId)) :=
+  observing? do mvarId.apply (← mkConstWithFreshMVarLevels ``implies_congr)
+
+/--
+Given a goal of the form `⊢ f as = f bs`, `⊢ (p → q) = (p' → q')`, or `⊢ HEq (f as) (f bs)`, try to apply congruence.
+It takes proof irrelevance into account, the fact that `Decidable p` is a subsingleton.
+If `closeEasy := true`, it tries to close new subgoals using `Eq.refl`, `HEq.refl`, and `assumption`.
+-/
+def MVarId.congr (mvarId : MVarId) (closeEasy := true) : MetaM (List MVarId) := do
+  let mvarIds ← if let some mvarIds ← mvarId.congr? then
+    pure mvarIds
   else if let some mvarIds ← mvarId.hcongr? then
-    return mvarIds
+    pure mvarIds
+  else if let some mvarIds ← mvarId.congrImplies? then
+    pure mvarIds
   else
     throwTacticEx `congr mvarId "failed to apply congruence"
+  if closeEasy then
+    congrPost mvarIds
+  else
+    return mvarIds
 
 /--
 Applies `congr` recursively up to depth `n`.
 -/
 def MVarId.congrN (mvarId : MVarId) (n : Nat) : MetaM (List MVarId) := do
-  let (_, s) ← go n mvarId |>.run #[]
-  return s.toList
+  if n == 1 then
+    mvarId.congr
+  else
+    let (_, s) ← go n mvarId |>.run #[]
+    return s.toList
 where
   go (n : Nat) (mvarId : MVarId) : StateRefT (Array MVarId) MetaM Unit := do
     match n with
@@ -92,4 +103,3 @@ where
         | modify (·.push mvarId)
       mvarIds.forM (go n)
 end Lean
-

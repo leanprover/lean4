@@ -12,9 +12,9 @@ echo 'def hello := "old"' > hello/Hello.lean
 $LAKE -d hello build --old | tee produced.out
 echo 'def hello := "normal"' > hello/Hello.lean
 $LAKE -d hello build | tee -a produced.out
-if [ "`uname`" = Darwin ]; then
-  sed -i '' 's/.exe//g' produced.out
-else
+if [ "$OS" = Windows_NT ]; then
   sed -i 's/.exe//g' produced.out
+  diff --strip-trailing-cr expected.out produced.out
+else
+  diff expected.out produced.out
 fi
-diff expected.out produced.out

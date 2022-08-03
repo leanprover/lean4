@@ -85,9 +85,9 @@ my_command x
 
 open Lean.Linter.MissingDocs in
 @[missingDocsHandler myCmd]
-def handleMyCmd : SimpleHandler := fun stx => do
-  if stx[0].isNone then
-    lintNamed stx[2] "my_command"
+def handleMyCmd : SimpleHandler := fun
+  | `(my_command $x:ident) => lintNamed x "my_command"
+  | _ => pure ()
 
 /-- doc -/
 my_command y

@@ -4,8 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Mario Carneiro
 -/
-import Lean.Elab.Command
-import Lean.Elab.Tactic.Config
 import Lean.Linter.Util
 
 namespace Lean.Linter
@@ -63,6 +61,8 @@ partial def missingDocs : Linter := fun stx => do
   if let some h := (getHandlers (← getEnv)).find? stx.getKind then
     h (getLinterMissingDocs (← getOptions)) stx
 
+builtin_initialize addLinter missingDocs
+
 builtin_initialize
   let name := `missingDocsHandler
   registerBuiltinAttribute {
@@ -92,7 +92,7 @@ def lintField (parent stx : Syntax) (msg : String) : CommandElabM Unit :=
   lint stx s!"{msg} {parent.getId}.{stx.getId}"
 
 def lintDeclHead (k : SyntaxNodeKind) (id : Syntax) : CommandElabM Unit := do
-  if k == ``«abbrev» then lintNamed id s!"public abbrev"
+  if k == ``«abbrev» then lintNamed id "public abbrev"
   else if k == ``«def» then lintNamed id "public def"
   else if k == ``«opaque» then lintNamed id "public opaque"
   else if k == ``«axiom» then lintNamed id "public axiom"
@@ -100,8 +100,9 @@ def lintDeclHead (k : SyntaxNodeKind) (id : Syntax) : CommandElabM Unit := do
   else if k == ``classInductive then lintNamed id "public inductive"
   else if k == ``«structure» then lintNamed id "public structure"
 
-def checkDecl (args : Array Syntax) : CommandElabM Unit := do
-  let #[head, rest] := args | return
+@[missingDocsHandler declaration]
+def checkDecl : SimpleHandler := fun stx => do
+  let head := stx[0]; let rest := stx[1]
   if head[2][0].getKind == ``«private» then return -- not private
   let k := rest.getKind
   if head[0].isNone then -- no doc string
@@ -128,60 +129,64 @@ def checkDecl (args : Array Syntax) : CommandElabM Unit := do
             for stx in stx[2].getArgs do
               lintField rest[1][0] stx "public field"
 
-def main (stx : Syntax) (k : SyntaxNodeKind) (args : Array Syntax) : CommandElabM Unit := do
-  if k == ``declaration then
-    checkDecl args
-  else if k == ``«initialize» then
-    let #[head, _, rest, _] := args | return
-    if rest.isNone then return
-    if head[2][0].getKind != ``«private» && head[0].isNone then
-      lintNamed rest[0] "initializer"
-  else if k == ``«syntax» then
-    if stx[0].isNone && stx[2][0][0].getKind != ``«local» then
-      if stx[5].isNone then lint stx[3] "syntax"
-      else lintNamed stx[5][0][3] "syntax"
-  else if k == ``syntaxAbbrev then
-    if stx[0].isNone then
-      lintNamed stx[2] "syntax"
-  else if k == ``syntaxCat then
-    if stx[0].isNone then
-      lintNamed stx[2] "syntax category"
-  else if k == ``«macro» then
-    if stx[0].isNone && stx[1][0][0].getKind != ``«local» then
-      if stx[4].isNone then lint stx[2] "macro"
-      else lintNamed stx[4][0][3] "macro"
-  else if k == ``«elab» then
-    if stx[0].isNone && stx[1][0][0].getKind != ``«local» then
-      if stx[4].isNone then lint stx[2] "elab"
-      else lintNamed stx[4][0][3] "elab"
-  else if k == ``classAbbrev then
-    let head := stx[0]
-    if head[2][0].getKind != ``«private» && head[0].isNone then
-      lintNamed stx[3] "class abbrev"
-  else if k == ``Parser.Tactic.declareSimpLikeTactic then
-    if stx[0].isNone then
-      lintNamed stx[3] "simp-like tactic"
-  else if k == ``Option.registerBuiltinOption then
-    if stx[0].isNone then
-      lintNamed stx[2] "option"
-  else if k == ``Option.registerOption then
-    if stx[0].isNone then
-      lintNamed stx[2] "option"
-  else if k == ``registerSimpAttr then
-    if stx[0].isNone then
-      lintNamed stx[2] "simp attr"
-  else if k == ``Elab.Tactic.configElab then
-    if stx[0].isNone then
-      lintNamed stx[2] "config elab"
-  else return
+@[missingDocsHandler «initialize»]
+def checkInit : SimpleHandler := fun stx => do
+  if stx[2].isNone then return
+  if stx[0][2][0].getKind != ``«private» && stx[0][0].isNone then
+    lintNamed stx[2][0] "initializer"
 
+@[missingDocsHandler «syntax»]
+def checkSyntax : SimpleHandler := fun stx => do
+  if stx[0].isNone && stx[2][0][0].getKind != ``«local» then
+    if stx[5].isNone then lint stx[3] "syntax"
+    else lintNamed stx[5][0][3] "syntax"
+
+def mkSimpleHandler (name : String) : SimpleHandler := fun stx => do
+  if stx[0].isNone then
+    lintNamed stx[2] name
+
+@[missingDocsHandler syntaxAbbrev]
+def checkSyntaxAbbrev : SimpleHandler := mkSimpleHandler "syntax"
+
+@[missingDocsHandler syntaxCat]
+def checkSyntaxCat : SimpleHandler := mkSimpleHandler "syntax category"
+
+@[missingDocsHandler «macro»]
+def checkMacro : SimpleHandler := fun stx => do
+  if stx[0].isNone && stx[1][0][0].getKind != ``«local» then
+    if stx[4].isNone then lint stx[2] "macro"
+    else lintNamed stx[4][0][3] "macro"
+
+@[missingDocsHandler «elab»]
+def checkElab : SimpleHandler := fun stx => do
+  if stx[0].isNone && stx[1][0][0].getKind != ``«local» then
+    if stx[4].isNone then lint stx[2] "elab"
+    else lintNamed stx[4][0][3] "elab"
+
+@[missingDocsHandler classAbbrev]
+def checkClassAbbrev : SimpleHandler := fun stx => do
+  let head := stx[0]
+  if head[2][0].getKind != ``«private» && head[0].isNone then
+    lintNamed stx[3] "class abbrev"
+
+@[missingDocsHandler Parser.Tactic.declareSimpLikeTactic]
+def checkSimpLike : SimpleHandler := mkSimpleHandler "simp-like tactic"
+
+@[missingDocsHandler Option.registerBuiltinOption, missingDocsHandler Option.registerOption]
+def checkRegisterOption : SimpleHandler := mkSimpleHandler "option"
+
+@[missingDocsHandler registerSimpAttr]
+def checkRegisterSimpAttr : SimpleHandler := mkSimpleHandler "simp attr"
+
+@[missingDocsHandler «in»]
 def handleIn : Handler := fun _ stx => do
   if stx[0].getKind == ``«set_option» then
     let opts ← Elab.elabSetOption stx[0][1] stx[0][2]
     withScope (fun scope => { scope with opts }) do
       missingDocs stx[2]
+  else
+    missingDocs stx[2]
 
+@[missingDocsHandler «mutual»]
 def handleMutual : Handler := fun _ stx => do
   stx[1].getArgs.forM missingDocs
-
-builtin_initialize addLinter missingDocs

@@ -265,12 +265,15 @@ include_directories(${CMAKE_BINARY_DIR}/include)
 
 # libleancpp/Lean as well as libleanrt/Init/Std are cyclically dependent. This works by default on macOS, which also doesn't like
 # the linker flags necessary on other platforms.
+# Furthermore, add LLVM flags into the list of flags we need when linking.
+execute_process(COMMAND llvm-config --ldflags OUTPUT_VARIABLE LLVM_CONFIG_LDFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND llvm-config --libs OUTPUT_VARIABLE LLVM_CONFIG_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  string(APPEND LEANC_STATIC_LINKER_FLAGS " -lleancpp -lInit -lStd -lLean -lleanrt")
+  string(APPEND LEANC_STATIC_LINKER_FLAGS " -lleancpp -lInit -lStd -lLean -lleanrt ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS}")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   string(APPEND LEANC_STATIC_LINKER_FLAGS " -lleancpp -lInit -lStd -lLean -lnodefs.js -lleanrt")
 else()
-  string(APPEND LEANC_STATIC_LINKER_FLAGS " -Wl,--start-group -lleancpp -lLean -Wl,--end-group -Wl,--start-group -lInit -lStd -lleanrt -Wl,--end-group")
+  string(APPEND LEANC_STATIC_LINKER_FLAGS " ${LLVM_CONFIG_LDFLAGS} -Wl,--start-group -lleancpp -lLean -Wl,--end-group -Wl,--start-group -lInit -lStd -lleanrt -Wl,--end-group ${LLVM_CONFIG_LIBS}")
 endif()
 
 set(LEAN_CXX_STDLIB "-lstdc++" CACHE STRING "C++ stdlib linker flags")
@@ -285,7 +288,7 @@ string(APPEND LEANSHARED_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 # Link LLVM for code generation
 # TODO: hide this behind a flag
 
-string(APPEND LEANSHARED_LINKER_FLAGS " `llvm-config --ldflags` `llvm-config --libs`")
+string(APPEND LEANSHARED_LINKER_FLAGS " ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS}")
 
 # get rid of unused parts of C++ stdlib
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")

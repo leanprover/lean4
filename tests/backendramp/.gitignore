@@ -1,0 +1,6 @@
+*.produced.out
+*.lean.out
+*.lean.c
+*.cmi
+*.cmx
+*.o

@@ -8,7 +8,6 @@
 -- CHECK-INTERPRET: 3
 -- CHECK-INTERPRET: 4
 
-set_option trace.compiler.ir.init true
 def casef : Nat -> Nat
 | 0 => 10
 | 1 => 20

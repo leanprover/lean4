@@ -9,7 +9,7 @@
 -- CHECK: "lz.block"
 -- CHECK: func @main
 
-set_option trace.compiler.ir.init true
+-- set_option trace.compiler.ir.init true
 
 
 -- We've arranged for the output to be 0, 1, 2
@@ -55,7 +55,6 @@ def eval : Expr -> Expr
 def toNat : Expr -> Nat
  | Val v => v
  | _ => 420
- 	
 end Expr
 open Expr
 -- | Check output to be 0, 1, 2

@@ -2,8 +2,6 @@
 --  RUN: ./validate-lean.sh %s 
 -- CHECK-INTERPRET: (((nil , nil) , (nil , nil)) , ((nil , nil) , (nil , nil)))
 
-
-set_option trace.compiler.ir.init true
 inductive Tree
 | Nil
 | Node (l r : Tree) : Tree

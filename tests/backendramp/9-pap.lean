@@ -15,7 +15,6 @@
 -- 1 + 2 + 3 + 4 + 5 + 5 = 15 + 5 = 20
 -- CHECK-INTERPRET: 20
 
-set_option trace.compiler.ir.init true
 inductive MyList
 | Nil : MyList
 | Cons : Nat -> MyList -> MyList

@@ -87,7 +87,7 @@ file(GLOB LEANCOMPTESTS "${LEAN_SOURCE_DIR}/../tests/backendramp/*.lean")
 FOREACH(T ${LEANCOMPTESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
   add_test(NAME "leanramptest_${T_NAME}"
-           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/compiler"
+           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/backendramp/"
            COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
 ENDFOREACH(T)
 

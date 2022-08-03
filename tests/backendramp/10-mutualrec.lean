@@ -25,18 +25,16 @@
 --   lz.return %0 : !lz.value
 -- }
 
-set_option trace.compiler.ir true
-
 mutual 
   partial def even (a : Nat) : Nat := if a == 0 then 1 else odd (a - 1)
   partial def odd (a : Nat) : Nat := if a == 0 then 0 else even (a - 1)
 end
 
 -- | This example is not so interesting because dead code elimination gets rid of the work.
-unsafe def main : List String → IO Unit
-| [s] => do
-  let n := s.toNat!;
-  IO.println (even n)
-| _ => return ()
+def main (xs: List String) : IO Unit := do
+   IO.println (even 0)
+   IO.println (even 1)
+   IO.println (even 2)
+   IO.println (even 3)
 
 

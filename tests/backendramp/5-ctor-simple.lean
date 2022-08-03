@@ -2,16 +2,13 @@
 --  RUN: ./validate-lean.sh %s 
 -- CHECK-INTERPRET: ctor
 
-set_option trace.compiler.ir.init true
+-- set_option trace.compiler.ir.init true
 inductive Ctor
-| MkCtor
-open Ctor
+| mk
+deriving Inhabited
 
-instance : Inhabited Ctor := ⟨MkCtor⟩
-
-def ctorToStr: Ctor -> String
-| MkCtor => "ctor"
-
+def Ctor.toString: Ctor -> String
+| .mk => "ctor"
 
 def main (xs: List String) : IO Unit := 
-  IO.println (ctorToStr (MkCtor))
+  IO.println (Ctor.mk.toString)

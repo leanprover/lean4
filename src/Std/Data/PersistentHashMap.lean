@@ -295,6 +295,25 @@ instance {_ : BEq α} {_ : Hashable α} : ForIn m (PersistentHashMap α β) (α 
 
 end
 
+partial def mapMAux {α : Type u} {β : Type v} {σ : Type u} {m : Type u → Type w} [Monad m] (f : β → m σ) (n : Node α β) : m (Node α σ) := do
+  match n with
+  | .collision keys vals heq =>
+    let ⟨vals', h⟩ ← vals.mapM' f
+    return .collision keys vals' (h ▸ heq)
+  | .entries entries =>
+    let entries' ← entries.mapM fun
+      | .null      => return .null
+      | .entry k v => return .entry k (← f v)
+      | .ref node  => return .ref (← mapMAux f node)
+    return .entries entries'
+
+def mapM {α : Type u} {β : Type v} {σ : Type u} {m : Type u → Type w} [Monad m] {_ : BEq α} {_ : Hashable α} (pm : PersistentHashMap α β) (f : β → m σ) : m (PersistentHashMap α σ) := do
+  let root ← mapMAux f pm.root
+  return { pm with root }
+
+def map {α : Type u} {β : Type v} {σ : Type u} {_ : BEq α} {_ : Hashable α} (pm : PersistentHashMap α β) (f : β → σ) : PersistentHashMap α σ :=
+  Id.run <| pm.mapM f
+
 def toList {_ : BEq α} {_ : Hashable α} (m : PersistentHashMap α β) : List (α × β) :=
   m.foldl (init := []) fun ps k v => (k, v) :: ps
 

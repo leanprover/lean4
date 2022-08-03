@@ -3,8 +3,8 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lake.Build.Job
 import Lake.Build.Data
-import Lake.Build.TargetTypes
 
 /-!
 # Simple Builtin Facet Declarations
@@ -16,6 +16,13 @@ import said configurations for `BuildInfo`.
 -/
 
 namespace Lake
+export System (FilePath)
+
+/--
+A dynamic/shared library for linking.
+Represented by an optional `-L` library directory × a `-l` library name.
+-/
+abbrev Dynlib := Option FilePath × String
 
 /-! ## Module Facets -/
 
@@ -64,13 +71,13 @@ module_data dynlib : BuildJob String
 
 /-! ## Package Facets -/
 
-/-- The package's `extraDepTarget` mixed with its transitive dependencies `extraDepTarget`. -/
-abbrev Package.extraDepFacet := `extraDep
-package_data extraDep : BuildJob Unit
-
 /-- The package's cloud build release. -/
 abbrev Package.releaseFacet := `release
 package_data release : BuildJob Unit
+
+/-- The package's `extraDepTarget` mixed with its transitive dependencies. -/
+abbrev Package.extraDepFacet := `extraDep
+package_data extraDep : BuildJob Unit
 
 /-! ## Target Facets -/
 

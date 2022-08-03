@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Mac Malone
 -/
 import Lean.Elab.Import
-import Lake.Build.Targets
+import Lake.Build.Common
 
 open System
 
@@ -74,7 +74,7 @@ requested artifact is `c`. Returns an build job producing the requested
 artifact.
 -/
 def Module.recBuildLean (mod : Module) (art : LeanArtifact)
-: IndexBuildM (BuildJob (if art = .leanBin then PUnit else FilePath)) := do
+: IndexBuildM (BuildJob (if art = .leanBin then Unit else FilePath)) := do
   let leanOnly := mod.isLeanOnly ∧ art ≠ .c
 
   -- Fetch prebuilt module if desired
@@ -86,7 +86,6 @@ def Module.recBuildLean (mod : Module) (art : LeanArtifact)
       pure .nil
 
   -- Compute and build dependencies
-  let extraDepJob ← mod.pkg.extraDep.recBuild
   let (imports, _) ← mod.imports.recBuild
   let (modJobs, externJobs, libDirs) ← recBuildPrecompileDynlibs mod.pkg imports
   let importJob ← BuildJob.mixArray <| ← imports.mapM (·.leanBin.recBuild)
@@ -98,9 +97,8 @@ def Module.recBuildLean (mod : Module) (art : LeanArtifact)
     releaseJob.bindAsync fun _ _ => do
     importJob.bindAsync fun _ importTrace => do
     modDynlibsJob.bindAsync fun modDynlibs modTrace => do
-    externDynlibsJob.bindAsync fun externDynlibs externTrace => do
-    extraDepJob.bindSync fun _ depTrace => do
-      let depTrace := importTrace.mix <| modTrace.mix <| externTrace.mix depTrace
+    externDynlibsJob.bindSync fun externDynlibs externTrace => do
+      let depTrace := importTrace.mix <| modTrace.mix externTrace
       let dynlibPath := libDirs ++ externDynlibs.filterMap ( ·.1)
       -- NOTE: Lean wants the external library symbols before module symbols
       -- NOTE: Unix requires the full file name of the dynlib (Windows doesn't care)
@@ -152,12 +150,11 @@ def Module.cFacetConfig : ModuleFacetConfig cFacet :=
 
 /-- Recursively build the module's object file from its C file produced by `lean`. -/
 def Module.recBuildLeanO (self : Module) : IndexBuildM (BuildJob FilePath) := do
-  let cJob := Target.active (← self.c.recBuild)
-  leanOFileTarget self.name.toString self.oFile cJob self.leancArgs |>.activate
+  buildLeanO self.name.toString self.oFile (← self.c.recBuild) self.leancArgs
 
 /-- The `ModuleFacetConfig` for the builtin `oFacet`. -/
 def Module.oFacetConfig : ModuleFacetConfig oFacet :=
-  mkFacetJobConfig (·.recBuildLeanO)
+  mkFacetJobConfig Module.recBuildLeanO
 
 /--
 Recursively parse the Lean files of a module and its imports
@@ -229,7 +226,7 @@ def Module.recBuildDynlib (mod : Module) : IndexBuildM (BuildJob String) := do
 
 /-- The `ModuleFacetConfig` for the builtin `dynlibFacet`. -/
 def Module.dynlibFacetConfig : ModuleFacetConfig dynlibFacet :=
-  mkFacetJobConfig (·.recBuildDynlib)
+  mkFacetJobConfig Module.recBuildDynlib
 
 open Module in
 /--

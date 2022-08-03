@@ -26,6 +26,12 @@ dynamically typed equivalent.
 [h : FamilyDef TargetData facet α] : IndexBuildM (TargetData facet) :=
   cast (by rw [← h.family_key_eq_type]) build
 
+def ExternLib.recBuildShared (lib : ExternLib) : IndexBuildM (BuildJob FilePath) := do
+  buildLeanSharedLibOfStatic (← lib.static.recBuild) lib.linkArgs
+
+def ExternLib.recComputeDynlib (lib : ExternLib) : IndexBuildM (BuildJob Dynlib) := do
+  computeDynlibOfShared (← lib.shared.recBuild)
+
 /-!
 ## Topologically-based Recursive Build Using the Index
 -/
@@ -55,15 +61,11 @@ def recBuildWithIndex : (info : BuildInfo) → IndexBuildM (BuildData info.key)
 | .leanExe exe =>
   mkTargetFacetBuild LeanExe.exeFacet exe.recBuildExe
 | .staticExternLib lib =>
-  mkTargetFacetBuild ExternLib.staticFacet lib.target.activate
+  mkTargetFacetBuild ExternLib.staticFacet lib.build
 | .sharedExternLib lib =>
-  mkTargetFacetBuild ExternLib.sharedFacet do
-    let staticTarget := Target.active <| ← lib.static.recBuild
-    staticToLeanSharedLibTarget lib.name.toString staticTarget lib.linkArgs |>.activate
+  mkTargetFacetBuild ExternLib.sharedFacet lib.recBuildShared
 | .dynlibExternLib lib =>
-  mkTargetFacetBuild ExternLib.dynlibFacet do
-    let sharedTarget := Target.active <| ← lib.shared.recBuild
-    sharedToLeanDynlibTarget sharedTarget |>.activate
+  mkTargetFacetBuild ExternLib.dynlibFacet lib.recComputeDynlib
 
 /--
 Recursively build the given info using the Lake build index
@@ -86,13 +88,6 @@ and a topological / suspending scheduler and return the dynamic result.
   buildIndexTop self |>.run
 
 export BuildInfo (build)
-
-/-! ## Targets Using the Build Index -/
-
-/-- An opaque target that builds the info in a fresh build store. -/
-@[inline] def BuildInfo.target (self : BuildInfo)
-[FamilyDef BuildData self.key (BuildJob α)] : BuildTarget α :=
-  Target.mk <| self.build |>.catchFailure fun _ => pure failure
 
 /-! ### Lean Executable Builds -/
 

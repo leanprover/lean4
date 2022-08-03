@@ -177,7 +177,7 @@ end Module
 abbrev Package.facet (facet : Name) (self : Package) : BuildInfo :=
   .packageFacet self facet
 
-/-- Build info for the package and its dependencies collective `extraDepTarget`. -/
+/-- Build info for fetching the package's cloud release. -/
 abbrev Package.release (self : Package) : BuildInfo :=
   self.facet releaseFacet
 

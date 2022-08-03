@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Util.Sugar
-import Lake.Build.Targets
+import Lake.Build.Common
 
 open System
 namespace Lake
@@ -25,16 +25,16 @@ def Package.recComputeDeps (self : Package) : IndexBuildM (Array Package) := do
 
 /-- The `PackageFacetConfig` for the builtin `depsFacet`. -/
 def Package.depsFacetConfig : PackageFacetConfig depsFacet :=
-  mkFacetConfig (·.recComputeDeps)
+  mkFacetConfig Package.recComputeDeps
 
 /-- Build the `extraDepTarget` for the package and its transitive dependencies. -/
 def Package.recBuildExtraDepTargets (self : Package) : IndexBuildM (BuildJob Unit) := do
   let job ← self.deps.foldlM (do ·.mix <| ← ·.extraDep.recBuild) BuildJob.nil
-  job.mix <| ← self.extraDepTarget.activate
+  job.mix <| ← self.extraDepTarget
 
 /-- The `PackageFacetConfig` for the builtin `dynlibFacet`. -/
 def Package.extraDepFacetConfig : PackageFacetConfig extraDepFacet :=
-  mkFacetJobConfig (·.recBuildExtraDepTargets)
+  mkFacetJobConfig Package.recBuildExtraDepTargets
 
 /-- Download and unpack the package's prebuilt release archive (from GitHub). -/
 def Package.fetchRelease (self : Package) : SchedulerM (BuildJob Unit) := Job.async do

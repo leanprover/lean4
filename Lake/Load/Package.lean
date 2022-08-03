@@ -85,11 +85,6 @@ def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := 
     | .error e => error e
   let defaultTargets := defaultTargetAttr.ext.getState env |>.fold (·.push ·) #[]
 
-  -- Issue Warnings
-  if self.config.extraDepTarget.isSome then
-    logWarning <| "`extraDepTarget` has been deprecated. " ++
-      "Try to use a custom target or raise an issue about your use case."
-
   -- Fill in the Package
   return {self with
     opaqueDeps := deps.map (.mk ·)

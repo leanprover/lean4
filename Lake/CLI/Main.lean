@@ -189,7 +189,8 @@ def printPaths (config : LoadConfig) (imports : List String := []) : MainM PUnit
       exit 1
     let ws ← MainM.runLogIO (loadWorkspace config) config.verbosity
     let ctx ← mkBuildContext ws
-    let dynlibs ← ws.root.buildImportsAndDeps imports |>.run (MonadLog.eio config.verbosity) ctx
+    let dynlibs ← buildImportsAndDeps imports |>.run
+      (MonadLog.eio config.verbosity) ctx
     IO.println <| Json.compress <| toJson {
       oleanPath := ws.leanPath
       srcPath := ws.leanSrcPath

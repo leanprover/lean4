@@ -79,5 +79,5 @@ doc?:optional(docComment) attrs?:optional(Term.attributes)
     let ty := ty?.getD <| mkCIdentFrom (← getRef) ``ExternLibConfig
     let attrs := #[attr] ++ expandAttrs attrs?
     `($[$doc?]? @[$attrs,*] def $id : $ty :=
-      {name := $(quote id.getId), target := $defn} $[$wds?]?)
+      {name := $(quote id.getId), build := $defn} $[$wds?]?)
   | stx => Macro.throwErrorAt stx "ill-formed external library declaration"

@@ -29,9 +29,9 @@ namespace ExternLib
 @[inline] def name (self : ExternLib) : Name :=
   self.config.name
 
-/-- The external library's user-defined `target`. -/
-@[inline] def target (self : ExternLib) : FileTarget :=
-  self.config.target
+/-- The external library's user-defined `build`. -/
+@[inline] def build (self : ExternLib) : SchedulerM (BuildJob FilePath) :=
+  self.config.build
 
 /--
 The arguments to pass to `leanc` when linking the external library.

@@ -32,14 +32,15 @@ Returns the set of module dynlibs built (so they can be loaded by the server).
 Builds only module `.olean` and `.ilean` files if the package is configured
 as "Lean-only". Otherwise, also build `.c` files.
 -/
-def Package.buildImportsAndDeps (imports : List String) (self : Package) : BuildM (Array FilePath) := do
+def buildImportsAndDeps (imports : List String) : BuildM (Array FilePath) := do
+  let ws ← getWorkspace
   if imports.isEmpty then
     -- build the package's (and its dependencies') `extraDepTarget`
-    self.extraDep.build >>= (·.materialize)
+    ws.root.extraDep.build >>= (·.materialize)
     return #[]
   else
     -- build local imports from list
-    let mods := (← getWorkspace).processImportList imports
+    let mods := ws.processImportList imports
     let (importTargets, bStore) ← RecBuildM.runIn {} <| mods.mapM fun mod =>
       if mod.shouldPrecompile then
         (discard ·.toJob) <$> buildIndexTop mod.dynlib

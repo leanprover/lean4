@@ -3,7 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Build.Targets
+import Lake.Build.Common
 
 namespace Lake
 
@@ -32,16 +32,16 @@ protected def LeanLib.recBuildLean
 
 /-- The `LibraryFacetConfig` for the builtin `leanFacet`. -/
 def LeanLib.leanFacetConfig : LibraryFacetConfig leanFacet :=
-  mkFacetJobConfig (·.recBuildLean)
+  mkFacetJobConfig LeanLib.recBuildLean
 
 protected def LeanLib.recBuildStatic
 (self : LeanLib) : IndexBuildM (BuildJob FilePath) := do
-  let oTargets := (← self.recBuildLocalModules self.nativeFacets).map Target.active
-  staticLibTarget self.name.toString self.staticLibFile oTargets |>.activate
+  let oJobs ← self.recBuildLocalModules self.nativeFacets
+  buildStaticLib self.staticLibFile oJobs
 
 /-- The `LibraryFacetConfig` for the builtin `staticFacet`. -/
 def LeanLib.staticFacetConfig : LibraryFacetConfig staticFacet :=
-  mkFacetJobConfig (·.recBuildStatic)
+  mkFacetJobConfig LeanLib.recBuildStatic
 
 /-! # Build Shared Lib -/
 
@@ -78,12 +78,11 @@ def LeanLib.recBuildLinks
 
 protected def LeanLib.recBuildShared
 (self : LeanLib) : IndexBuildM (BuildJob FilePath) := do
-  let linkJobs := (← self.recBuildLinks).map Target.active
-  leanSharedLibTarget self.name.toString self.sharedLibFile linkJobs self.linkArgs |>.activate
+  buildLeanSharedLib self.sharedLibFile (← self.recBuildLinks) self.linkArgs
 
 /-- The `LibraryFacetConfig` for the builtin `sharedFacet`. -/
 def LeanLib.sharedFacetConfig : LibraryFacetConfig sharedFacet :=
-  mkFacetJobConfig (·.recBuildShared)
+  mkFacetJobConfig LeanLib.recBuildShared
 
 open LeanLib in
 /--

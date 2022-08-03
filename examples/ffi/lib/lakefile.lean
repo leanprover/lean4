@@ -16,13 +16,13 @@ def pkgDir := __dir__
 def cSrcDir := pkgDir / "c"
 def cBuildDir := pkgDir / _package.buildDir / "c"
 
-def ffiOTarget : FileTarget :=
+def buildFfiO : SchedulerM (BuildJob FilePath) := do
   let oFile := cBuildDir / "ffi.o"
-  let srcTarget := inputFileTarget <| cSrcDir / "ffi.cpp"
-  fileTargetWithDep oFile srcTarget fun srcFile => do
-    compileO "ffi.c" oFile srcFile #["-I", (← getLeanIncludeDir).toString, "-fPIC"] "c++"
+  let srcJob ← inputFile <| cSrcDir / "ffi.cpp"
+  buildFileAfterDep oFile srcJob fun srcFile => do
+    let flags := #["-I", (← getLeanIncludeDir).toString, "-fPIC"]
+    compileO "ffi.c" oFile srcFile flags "c++"
 
-extern_lib cLib :=
+extern_lib libleanffi := do
   let name := nameToStaticLib "leanffi"
-  let libFile := cBuildDir / name
-  staticLibTarget name libFile #[ffiOTarget]
+  buildStaticLib (cBuildDir / name) #[← buildFfiO]

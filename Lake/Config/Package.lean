@@ -78,7 +78,7 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
 
   **DEPRECATED:** Use separate custom `target` declarations instead?
   -/
-  extraDepTarget : Option OpaqueTarget := none
+  extraDepTarget : Option (SchedulerM (BuildJob Unit)) := none
 
   /--
   Whether to compile each of the package's module into a native shared library
@@ -235,8 +235,8 @@ def manifestFile (self : Package) : FilePath :=
   self.dir / self.config.buildDir
 
 /-- The package's `extraDepTarget` configuration. -/
-@[inline] def extraDepTarget (self : Package) : OpaqueTarget :=
-  self.config.extraDepTarget.getD Target.nil
+@[inline] def extraDepTarget (self : Package) : SchedulerM (BuildJob Unit) :=
+  self.config.extraDepTarget.getD (pure BuildJob.nil)
 
 /-- The package's `releaseRepo?` configuration. -/
 @[inline] def releaseRepo? (self : Package) : Option String :=

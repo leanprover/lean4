@@ -528,8 +528,8 @@ private partial def mkClosureForAux (toProcess : Array FVarId) : StateRefT Closu
           newLetDecls   := s.newLetDecls.push <| LocalDecl.ldecl default fvarId userName type val false,
           /- We don't want to interleave let and lambda declarations in our closure. So, we expand any occurrences of fvarId
              at `newLocalDecls` and `localDecls` -/
-          newLocalDecls := s.newLocalDecls.map (replaceFVarIdAtLocalDecl fvarId val)
-          localDecls := s.localDecls.map (replaceFVarIdAtLocalDecl fvarId val)
+          newLocalDecls := s.newLocalDecls.map (·.replaceFVarId fvarId val)
+          localDecls := s.localDecls.map (·.replaceFVarId fvarId val)
         }
         mkClosureForAux (pushNewVars toProcess (collectFVars (collectFVars {} type) val))
 

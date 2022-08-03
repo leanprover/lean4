@@ -152,10 +152,11 @@ def applyFVarSubst (s : FVarSubst) (alt : Alt) : Alt :=
 def replaceFVarId (fvarId : FVarId) (v : Expr) (alt : Alt) : Alt :=
   { alt with
     patterns  := alt.patterns.map fun p => p.replaceFVarId fvarId v,
+    rhs       := alt.rhs.replaceFVarId fvarId v
     fvarDecls :=
       let decls := alt.fvarDecls.filter fun d => d.fvarId != fvarId
-      decls.map $ replaceFVarIdAtLocalDecl fvarId v,
-    rhs       := alt.rhs.replaceFVarId fvarId v }
+      decls.map (·.replaceFVarId fvarId v)
+  }
 
 /--
   Similar to `checkAndReplaceFVarId`, but ensures type of `v` is definitionally equal to type of `fvarId`.

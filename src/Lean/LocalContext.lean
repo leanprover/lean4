@@ -423,7 +423,7 @@ export MonadLCtx (getLCtx)
 instance [MonadLift m n] [MonadLCtx m] : MonadLCtx n where
   getLCtx := liftM (getLCtx : m _)
 
-def replaceFVarIdAtLocalDecl (fvarId : FVarId) (e : Expr) (d : LocalDecl) : LocalDecl :=
+def LocalDecl.replaceFVarId (fvarId : FVarId) (e : Expr) (d : LocalDecl) : LocalDecl :=
   if d.fvarId == fvarId then d
   else match d with
     | .cdecl idx id n type bi => .cdecl idx id n (type.replaceFVarId fvarId e) bi

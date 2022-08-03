@@ -20,7 +20,7 @@ f="$1"
 shift
 [ $# -eq 0 ] || fail "Usage: test_single.sh [-i] test-file.lean"
 
-function compile_lean {
+function compile_lean_c_backend {
     lean --c="$f.c" "$f" || fail "Failed to compile $f into C file"
     leanc -O3 -DNDEBUG -o "$f.out" "$@" "$f.c" || fail "Failed to compile C file $f.c"
 }

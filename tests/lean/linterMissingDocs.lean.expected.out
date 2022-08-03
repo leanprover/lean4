@@ -22,3 +22,6 @@ linterMissingDocs.lean:75:0-75:4: warning: missing doc string for elab [linter.m
 linterMissingDocs.lean:76:0-76:5: warning: missing doc string for macro [linter.missingDocs]
 linterMissingDocs.lean:78:13-78:22: warning: missing doc string for class abbrev [anonymous] [linter.missingDocs]
 linterMissingDocs.lean:80:16-80:24: warning: missing doc string for option myOption [linter.missingDocs]
+linterMissingDocs.lean:82:14-82:19: warning: missing doc string for elab myCmd [linter.missingDocs]
+linterMissingDocs.lean:88:4-88:15: warning: missing doc string for public def handleMyCmd [linter.missingDocs]
+linterMissingDocs.lean:95:11-95:12: warning: missing doc string for my_command [anonymous] [linter.missingDocs]

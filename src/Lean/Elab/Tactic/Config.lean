@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Meta.Eval
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.SyntheticMVars
+import Lean.Linter.MissingDocs
 
 namespace Lean.Elab.Tactic
 open Meta
@@ -24,5 +25,9 @@ macro (name := configElab) doc?:(docComment)? "declare_config_elab" elabName:ide
          instantiateMVars c
        eval c
   )
+
+open Linter.MissingDocs in
+@[missingDocsHandler Elab.Tactic.configElab]
+def checkConfigElab : SimpleHandler := mkSimpleHandler "config elab"
 
 end Lean.Elab.Tactic

@@ -35,6 +35,8 @@ option(CCACHE             "use ccache"         ON)
 option(SPLIT_STACK        "SPLIT_STACK"        OFF)
 # When OFF we disable LLVM support
 option(LLVM               "LLVM"               OFF)
+# When OFF we disable the LLVM backend
+option(LLVM_BACKEND        "LLVM_BACKEND"      ON)
 
 # When ON we include githash in the version string
 option(USE_GITHASH        "GIT_HASH"           ON)
@@ -159,7 +161,20 @@ endif()
 
 if(LLVM)
   if(NOT (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_ID STREQUAL "Clang"))
-    message(FATAL_ERROR "LLVM=ON must be used with clang. Set `CMAKE_CXX_COMPILER` and `CMAKE_C_COMPILER` accordingly.")
+  message(FATAL_ERROR "LLVM=ON must be used with clang. Set `CMAKE_CXX_COMPILER=Clang` and `CMAKE_C_COMPILER=Clang` accordingly.")
+  endif()
+  message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+  message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+
+  include_directories(${LLVM_INCLUDE_DIRS})
+  string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_LLVM")
+else()
+  #message(WARNING "Disabling LLVM support.  JIT compilation will not be available")
+endif()
+
+if(LLVM_BACKEND)
+  if(NOT (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_ID STREQUAL "Clang"))
+      message(FATAL_ERROR "LLVM_BACKEND=ON must be used with clang. Set `CMAKE_CXX_COMPILER=clang++` and `CMAKE_C_COMPILER=clang` accordingly. Found ${CMAKE_CXX_COMPILER_ID}, ${CMAKE_C_COMPILER_ID}")
   endif()
   message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
   message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")

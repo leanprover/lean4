@@ -183,7 +183,7 @@ def mkDecEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
     mkDecEq declNames[0]!
 
 builtin_initialize
-  registerBuiltinDerivingHandler `DecidableEq mkDecEqInstanceHandler
+  registerDerivingHandler `DecidableEq mkDecEqInstanceHandler
   registerTraceClass `Elab.Deriving.decEq
 
 end Lean.Elab.Deriving.DecEq

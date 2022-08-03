@@ -123,7 +123,7 @@ def mkReprInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
     return false
 
 builtin_initialize
-  registerBuiltinDerivingHandler `Repr mkReprInstanceHandler
+  registerDerivingHandler `Repr mkReprInstanceHandler
   registerTraceClass `Elab.Deriving.repr
 
 end Lean.Elab.Deriving.Repr

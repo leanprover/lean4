@@ -182,7 +182,7 @@ where
   return alts.map Prod.fst
 
 builtin_initialize
-  registerBuiltinDerivingHandler ``ToJson mkToJsonInstanceHandler
-  registerBuiltinDerivingHandler ``FromJson mkFromJsonInstanceHandler
+  registerDerivingHandler ``ToJson mkToJsonInstanceHandler
+  registerDerivingHandler ``FromJson mkFromJsonInstanceHandler
 
 end Lean.Elab.Deriving.FromToJson

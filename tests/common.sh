@@ -25,6 +25,18 @@ function compile_lean_c_backend {
     leanc -O3 -DNDEBUG -o "$f.out" "$@" "$f.c" || fail "Failed to compile C file $f.c"
 }
 
+function compile_lean_llvm_backend {
+    # TODO: find a sane way to pick this path up, similar to the way leanc hardcodes these paths via flags with --print-cflags
+    # Also, this should be in stage0, since we want it to be present in all circumstances.
+    which lean
+    which leanc
+    export LIBRUNTIMEBC=$(git rev-parse --show-toplevel)/build/stage1/runtime/libleanrt.bc
+    lean --bc="$f.bc" "$f" || fail "Failed to compile $f into bitcode file"
+    llvm-link "$f.bc" $LIBRUNTIMEBC -o "$f.linked.bc"
+    llc --relocation-model=static -O1 -march=x86-64 -filetype=obj "$f.linked.bc" -o "$f.o"
+    leanc -o "$f.out" "$@" "$f.o" || fail "Failed to link object file '$f.o', generated from bitcode file $f.linked.bc"
+}
+
 function exec_capture {
     # mvar suffixes like in `?m.123` are deterministic but prone to change on minor changes, so strip them
     LEAN_BACKTRACE=0 "$@" 2>&1 | perl -pe 's/(\?(\w|_\w+))\.[0-9]+/\1/g' > "$f.produced.out"

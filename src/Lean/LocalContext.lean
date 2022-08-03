@@ -429,4 +429,9 @@ def LocalDecl.replaceFVarId (fvarId : FVarId) (e : Expr) (d : LocalDecl) : Local
     | .cdecl idx id n type bi => .cdecl idx id n (type.replaceFVarId fvarId e) bi
     | .ldecl idx id n type val nonDep => .ldecl idx id n (type.replaceFVarId fvarId e) (val.replaceFVarId fvarId e) nonDep
 
+def LocalContext.replaceFVarId (fvarId : FVarId) (e : Expr) (lctx : LocalContext) : LocalContext :=
+  let lctx := lctx.erase fvarId
+  { fvarIdToDecl := lctx.fvarIdToDecl.map (·.replaceFVarId fvarId e)
+    decls := lctx.decls.map fun localDecl? => localDecl?.map (·.replaceFVarId fvarId e) }
+
 end Lean

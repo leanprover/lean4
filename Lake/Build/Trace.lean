@@ -232,6 +232,14 @@ def checkAgainstHash [CheckExists i]
   pure (hash == self.hash) <&&> checkExists info
 
 /--
+Check the build trace against the given target info and its modification time
+to see if the target is up-to-date.
+-/
+def checkAgainstTime [CheckExists i] [GetMTime i]
+(info : i) (self : BuildTrace) : BaseIO Bool :=
+  checkIfNewer info self.mtime
+
+/--
 Check the build trace against the given target info and its trace file
 to see if the target is up-to-date.
 -/

@@ -17,10 +17,16 @@ namespace Lake
 
 @[inline] def buildUnlessUpToDate [CheckExists ι] [GetMTime ι] (info : ι)
 (depTrace : BuildTrace) (traceFile : FilePath) (build : JobM PUnit) : JobM PUnit := do
-  let upToDate ← depTrace.checkAgainstFile info traceFile
+  let isOldMode ← getIsOldMode
+  let upToDate ←
+    if isOldMode then
+      depTrace.checkAgainstTime info
+    else
+      depTrace.checkAgainstFile info traceFile
   unless upToDate do
     build
-    depTrace.writeToFile traceFile
+    unless isOldMode do
+      depTrace.writeToFile traceFile
 
 @[inline] def buildFileUnlessUpToDate (file : FilePath)
 (depTrace : BuildTrace) (build : BuildM PUnit) : BuildM BuildTrace := do

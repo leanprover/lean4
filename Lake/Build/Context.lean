@@ -18,6 +18,7 @@ namespace Lake
 /-- A Lake context with some additional caching for builds. -/
 structure BuildContext extends Context where
   leanTrace : BuildTrace
+  oldMode : Bool := false
 
 /-- A transformer to equip a monad with a `BuildContext`. -/
 abbrev BuildT := ReaderT BuildContext
@@ -43,8 +44,8 @@ abbrev RecBuildM := BuildCycleT <| BuildStoreT BuildM
 instance [Pure m] : MonadLift LakeM (BuildT m) where
   monadLift x := fun ctx => pure <| x.run ctx.toContext
 
-def BuildM.run (logMethods : MonadLog BaseIO) (ctx : BuildContext) (self : BuildM α) : IO α :=
-  self ctx logMethods |>.toIO fun _ => IO.userError "build failed"
+@[inline] def BuildM.run (ctx : BuildContext) (self : BuildM α) : LogIO α :=
+  self ctx
 
 def BuildM.catchFailure (f : Unit → BaseIO α) (self : BuildM α) : SchedulerM α :=
   fun ctx logMethods => self ctx logMethods |>.catchFailure f

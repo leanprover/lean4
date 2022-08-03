@@ -13,22 +13,33 @@ namespace Lake
 def Module.buildUnlessUpToDate (mod : Module)
 (dynlibPath : SearchPath) (dynlibs : Array FilePath)
 (depTrace : BuildTrace) (leanOnly : Bool) : BuildM BuildTrace := do
+  let isOldMode ← getIsOldMode
   let argTrace : BuildTrace := pureHash mod.leanArgs
   let srcTrace : BuildTrace ← computeTrace mod.leanFile
   let modTrace := (← getLeanTrace).mix <| argTrace.mix <| srcTrace.mix depTrace
-  let modUpToDate ← modTrace.checkAgainstFile mod mod.traceFile
+  let modUpToDate ← do
+    if isOldMode then
+      srcTrace.checkAgainstTime mod
+    else
+      modTrace.checkAgainstFile mod mod.traceFile
   let name := mod.name.toString
   if leanOnly then
     unless modUpToDate do
       compileLeanModule name mod.leanFile mod.oleanFile mod.ileanFile none
         (← getLeanPath) mod.rootDir dynlibs dynlibPath mod.leanArgs (← getLean)
   else
-    let cUpToDate ← modTrace.checkAgainstFile mod.cFile mod.cTraceFile
-    unless modUpToDate && cUpToDate do
+    let cUpToDate ←
+      if isOldMode then
+        pure modUpToDate
+      else
+        (modUpToDate && ·) <$> modTrace.checkAgainstFile mod.cFile mod.cTraceFile
+    unless cUpToDate do
       compileLeanModule name mod.leanFile mod.oleanFile mod.ileanFile mod.cFile
         (← getLeanPath) mod.rootDir dynlibs dynlibPath mod.leanArgs (← getLean)
-    modTrace.writeToFile mod.cTraceFile
-  modTrace.writeToFile mod.traceFile
+    unless isOldMode do
+      modTrace.writeToFile mod.cTraceFile
+  unless isOldMode do
+    modTrace.writeToFile mod.traceFile
   return mixTrace (← computeTrace mod) depTrace
 
 /-- Compute library directories and build external library Jobs of the given packages. -/

@@ -92,19 +92,9 @@ instance [Monad n] [MonadLiftT m n] : MonadLog (MonadLogT m n) where
   getVerbosity := do (← read).getVerbosity
   log msg lv := do (← read).log msg lv
 
-namespace MonadLogT
-
-abbrev run (methods : MonadLog m) (self : MonadLogT m n α) : n α :=
-  ReaderT.run self methods
-
-abbrev runWith (methods : MonadLog m) (self : MonadLogT m n α) : n α :=
-  ReaderT.run self methods
-
-abbrev adaptMethods [Monad n]
+abbrev MonadLogT.adaptMethods [Monad n]
 (f : MonadLog m → MonadLog m') (self : MonadLogT m' n α) : MonadLogT m n α :=
   ReaderT.adapt f self
-
-end MonadLogT
 
 abbrev LogIO :=
   MonadLogT BaseIO OptionIO
@@ -114,13 +104,3 @@ instance : MonadLift IO LogIO := ⟨MonadError.runIO⟩
 
 abbrev LogT (m : Type → Type) :=
   MonadLogT m m
-
-namespace LogT
-
-def run (methods : MonadLog m) (self : LogT m α) : m α :=
-  ReaderT.run self methods
-
-def runWith (methods : MonadLog m) (self : LogT m α) : m α :=
-  ReaderT.run self methods
-
-end LogT

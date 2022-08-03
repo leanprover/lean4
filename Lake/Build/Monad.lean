@@ -13,17 +13,20 @@ namespace Lake
 
 deriving instance Inhabited for BuildContext
 
-def mkBuildContext (ws : Workspace) : IO BuildContext := do
+def mkBuildContext (ws : Workspace) (oldMode : Bool) : IO BuildContext := do
   let lean := ws.lakeEnv.lean
   let leanTrace :=
     if lean.githash.isEmpty then
       mixTrace (← computeTrace lean.lean) (← computeTrace lean.sharedLib)
     else
       Hash.ofString lean.githash
-  return {opaqueWs := ws, leanTrace}
+  return {opaqueWs := ws, leanTrace, oldMode}
 
 @[inline] def getLeanTrace : BuildM BuildTrace :=
   (·.leanTrace) <$> readThe BuildContext
+
+@[inline] def getIsOldMode : BuildM Bool :=
+  (·.oldMode) <$> readThe BuildContext
 
 def failOnBuildCycle [ToString k] : Except (List k) α → BuildM α
 | Except.ok a => pure a

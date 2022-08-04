@@ -863,12 +863,24 @@ Example: suppose we want to support `repeat doSeq`. Assuming we have `repeat : m
 /--
 Helper method for annotating `term` with the raw syntax `ref`.
 We use this method to implement finer-grained term infos for `do`-blocks.
-Note that we attach `term` position to token `with_annotate_term`. We do that
-to make sure if a coercion is created for `with_annotate_term ref term`, we
-get the position information for `term`.
+
+We use `withRef term` to make sure the synthetic position for the `with_annotate_term` is equal
+to the one for `term`. This is important for producing error messages when there is a type mismatch.
+Consider the following example:
+```
+opaque f : IO Nat
+
+def g : IO String := do
+  f
+```
+There is at type mismatch at `f`, but it is detected when elaborating the expanded term
+containing the `with_annotate_term .. f`. The current `getRef` when this `annotate` is invoked
+is not necessarily `f`. Actually, it is the whole `do`-block. By using `withRef` we ensure
+the synthetic position for the `with_annotate_term ..` is equal to `term`.
+Recall that synthetic positions are used when generating error messages.
 -/
 def annotate [Monad m] [MonadRef m] [MonadQuotation m] (ref : Syntax) (term : Syntax) : m Syntax :=
-  `(with_annotate_term%$term $ref $term)
+  withRef term <| `(with_annotate_term $ref $term)
 
 namespace ToTerm
 

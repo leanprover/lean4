@@ -231,7 +231,12 @@ where
       else
         let eFmt ← Meta.ppExpr e
         -- Try not to show too scary internals
-        let fmt := if isAtomicFormat eFmt then f!"{eFmt} : {tpFmt}" else f!"{tpFmt}"
+        let showTerm := if let .fvar id := e then
+          if let some ldecl := (← getLCtx).findFVar? e then
+            !ldecl.userName.hasMacroScopes
+          else false
+        else isAtomicFormat eFmt
+        let fmt := if showTerm then f!"{eFmt} : {tpFmt}" else tpFmt
         return some f!"```lean
 {fmt}
 ```"

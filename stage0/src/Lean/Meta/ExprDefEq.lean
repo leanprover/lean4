@@ -1250,21 +1250,29 @@ private def unfoldReducibeDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : Meta
       unfoldDefEq tInfo sInfo t s
 
 /--
-  If `t` is a projection function application and `s` is not ==> `isDefEqRight t (unfold s)`
-  If `s` is a projection function application and `t` is not ==> `isDefEqRight (unfold t) s`
-
+  This is an auxiliary method for isDefEqDelta.
+  If `t` is a (non-class) projection function application and `s` is not ==> `isDefEqRight t (unfold s)`
+  If `s` is a (non-class) projection function application and `t` is not ==> `isDefEqRight (unfold t) s`
   Otherwise, use `unfoldReducibeDefEq`
 
-  Auxiliary method for isDefEqDelta -/
+  The motivation for the heuristic above is unification problems such as
+  ```
+  id (?m.1) =?= (a, b).1
+  ```
+  We want to reduce the lhs instead of the rhs, and eventually assign `?m := (a, b)`.
+
+  For class projections we do the opposite because the `?m` can always be synthesized using
+  type class resolution. See issue #1419 for an example for motivating this behavior.
+-/
 private def unfoldNonProjFnDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : MetaM LBool := do
-  let tProj? ← isProjectionFn tInfo.name
-  let sProj? ← isProjectionFn sInfo.name
-  if tProj? && !sProj? then
-    unfold s (unfoldDefEq tInfo sInfo t s) fun s => isDefEqRight sInfo.name t s
-  else if !tProj? && sProj? then
-    unfold t (unfoldDefEq tInfo sInfo t s) fun t => isDefEqLeft tInfo.name t s
-  else
-    unfoldReducibeDefEq tInfo sInfo t s
+  let tProjInfo? ← getProjectionFnInfo? tInfo.name
+  let sProjInfo? ← getProjectionFnInfo? sInfo.name
+  match tProjInfo?, sProjInfo? with
+  | some { fromClass := false, .. }, none | none, some { fromClass := true, ..}
+    => unfold s (unfoldDefEq tInfo sInfo t s) fun s => isDefEqRight sInfo.name t s
+  | some { fromClass := true, .. }, none | none, some { fromClass := false, ..}
+    => unfold t (unfoldDefEq tInfo sInfo t s) fun t => isDefEqLeft tInfo.name t s
+  | _, _ => unfoldReducibeDefEq tInfo sInfo t s
 
 /--
   isDefEq by lazy delta reduction.

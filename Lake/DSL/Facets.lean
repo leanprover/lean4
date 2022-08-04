@@ -15,65 +15,72 @@ Macros for declaring custom facets and targets.
 namespace Lake.DSL
 open Lean Parser Command
 
+syntax buildDeclSig :=
+  ident (ppSpace simpleBinder)? Term.typeSpec declValSimple
+
 scoped macro (name := moduleFacetDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
-kw:"module_facet " sig:simpleDeclSig : command => do
+kw:"module_facet " sig:buildDeclSig : command => do
   match sig with
-  | `(simpleDeclSig| $id:ident : $ty := $defn $[$wds?]?) =>
+  | `(buildDeclSig| $id:ident $[$mod?]? : $ty := $defn $[$wds?]?) =>
     let attr ← withRef kw `(Term.attrInstance| moduleFacet)
     let attrs := #[attr] ++ expandAttrs attrs?
     let name := Name.quoteFrom id id.getId
+    let mod ← expandOptSimpleBinder mod?
     `(module_data $id : BuildJob $ty
-      $[$doc?]? @[$attrs,*] def $id : ModuleFacetDecl := {
+      $[$doc?:docComment]? @[$attrs,*] def modFacet : ModuleFacetDecl := {
         name := $name
-        config := Lake.mkFacetJobConfig $defn
+        config := Lake.mkFacetJobConfig (fun $mod => $defn)
       } $[$wds?]?)
   | stx => Macro.throwErrorAt stx "ill-formed module facet declaration"
 
 scoped macro (name := packageFacetDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
-kw:"package_facet " sig:simpleDeclSig : command => do
+kw:"package_facet " sig:buildDeclSig : command => do
   match sig with
-  | `(simpleDeclSig| $id:ident : $ty := $defn $[$wds?]?) =>
+  | `(buildDeclSig| $id:ident $[$pkg?]? : $ty := $defn $[$wds?]?) =>
     let attr ← withRef kw `(Term.attrInstance| packageFacet)
     let attrs := #[attr] ++ expandAttrs attrs?
     let name := Name.quoteFrom id id.getId
+    let pkg ← expandOptSimpleBinder pkg?
     `(package_data $id : BuildJob $ty
-      $[$doc?]? @[$attrs,*] def $id : PackageFacetDecl := {
+      $[$doc?]? @[$attrs,*] def pkgFacet : PackageFacetDecl := {
         name := $name
-        config := Lake.mkFacetJobConfig $defn
+        config := Lake.mkFacetJobConfig (fun $pkg => $defn)
       } $[$wds?]?)
   | stx => Macro.throwErrorAt stx "ill-formed package facet declaration"
 
 scoped macro (name := libraryFacetDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
-kw:"library_facet " sig:simpleDeclSig : command => do
+kw:"library_facet " sig:buildDeclSig : command => do
   match sig with
-  | `(simpleDeclSig| $id:ident : $ty := $defn $[$wds?]?) =>
+  | `(buildDeclSig| $id:ident $[$lib?]? : $ty := $defn $[$wds?]?) =>
     let attr ← withRef kw `(Term.attrInstance| libraryFacet)
     let attrs := #[attr] ++ expandAttrs attrs?
     let name := Name.quoteFrom id id.getId
+    let lib ← expandOptSimpleBinder lib?
     `(library_data $id : BuildJob $ty
-      $[$doc?]? @[$attrs,*] def $id : LibraryFacetDecl := {
+      $[$doc?]? @[$attrs,*] def libFacet : LibraryFacetDecl := {
         name := $name
-        config := Lake.mkFacetJobConfig $defn
+        config := Lake.mkFacetJobConfig (fun $lib => $defn)
       } $[$wds?]?)
   | stx => Macro.throwErrorAt stx "ill-formed library facet declaration"
 
 scoped macro (name := targetDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
-kw:"target " sig:simpleDeclSig : command => do
+kw:"target " sig:buildDeclSig : command => do
   match sig with
-  | `(simpleDeclSig| $id:ident : $ty := $defn $[$wds?]?) =>
+  | `(buildDeclSig| $id:ident $[$pkg?]? : $ty := $defn $[$wds?]?) =>
     let attr ← withRef kw `(Term.attrInstance| target)
     let attrs := #[attr] ++ expandAttrs attrs?
     let name := Name.quoteFrom id id.getId
     let pkgName := mkIdentFrom id `_package.name
+    let pkg ← expandOptSimpleBinder pkg?
     `(family_def $id : CustomData ($pkgName, $name) := BuildJob $ty
       $[$doc?]? @[$attrs,*] def $id : TargetDecl := {
         pkg := $pkgName
         name := $name
-        config := Lake.mkTargetJobConfig $defn
+        config := Lake.mkTargetJobConfig (fun $pkg _ => $defn)
       }  $[$wds?]?)
   | stx => Macro.throwErrorAt stx "ill-formed target declaration"
 
@@ -82,7 +89,7 @@ kw:"target " sig:simpleDeclSig : command => do
 --------------------------------------------------------------------------------
 
 syntax externLibDeclSpec :=
-  ident declValSimple
+  ident (ppSpace simpleBinder)? declValSimple
 
 /--
 Define a new external library target for the package. Has one form:
@@ -98,13 +105,13 @@ scoped macro (name := externLibDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
 "extern_lib " spec:externLibDeclSpec : command => do
   match spec with
-  | `(externLibDeclSpec| $id:ident := $defn $[$wds?]?) =>
+  | `(externLibDeclSpec| $id:ident $[$pkg?]? := $defn $[$wds?]?) =>
     let attr ← `(Term.attrInstance| externLib)
     let attrs := #[attr] ++ expandAttrs attrs?
     let pkgName := mkIdentFrom id `_package.name
     let targetId := mkIdentFrom id <| id.getId.modifyBase (· ++ `static)
     let name := Name.quoteFrom id id.getId
-    `(target $targetId : FilePath := $defn $[$wds?]?
+    `(target $targetId $[$pkg?]? : FilePath := $defn $[$wds?]?
       $[$doc?:docComment]? @[$attrs,*] def $id : ExternLibDecl := {
         pkg := $pkgName
         name := $name

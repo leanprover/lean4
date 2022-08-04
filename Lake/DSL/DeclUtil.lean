@@ -45,6 +45,25 @@ syntax simpleDeclSig :=
 syntax structDeclSig :=
   ident (Command.whereStructInst <|> declValOptTyped <|> declValStruct)?
 
+syntax bracketedSimpleBinder :=
+  "(" ident (" : " term)? ")"
+
+syntax simpleBinder :=
+  ident <|> bracketedSimpleBinder
+
+abbrev SimpleBinder := TSyntax ``simpleBinder
+def expandOptSimpleBinder (stx? : Option SimpleBinder) : MacroM FunBinder := do
+  match stx? with
+  | some stx =>
+    match stx with
+    | `(simpleBinder| $id:ident) =>
+      `(funBinder| $id)
+    | `(simpleBinder| ($id $[: $ty?]?)) =>
+      let ty := ty?.getD (← `(_))
+      `(funBinder| ($id : $ty))
+    | _ => `(funBinder| _)
+  | none => `(funBinder| _)
+
 def fixName (id : Ident) : Option Name → Ident
 | some n => mkIdentFrom id n
 | none => id

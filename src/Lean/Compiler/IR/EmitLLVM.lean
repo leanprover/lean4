@@ -74,6 +74,9 @@ opaque getNamedGlobal(m: @&Ptr Module) (name: @&String): IO (Option (Ptr Value))
 @[extern "lean_llvm_function_type"]
 opaque functionType(retty: @&Ptr LLVMType) (args: @&Array (Ptr LLVMType)) (isVarArg: @&Bool): IO (Ptr LLVMType)
 
+@[extern "lean_llvm_void_type_in_context"]
+opaque voidTypeInContext (ctx: @&Ptr Context): IO (Ptr LLVMType)
+
 @[extern "lean_llvm_int_type_in_context"]
 opaque intTypeInContext (ctx: @&Ptr Context) (width: @&UInt64): IO (Ptr LLVMType)
 
@@ -90,17 +93,43 @@ opaque pointerType (ty: @&Ptr LLVMType): IO (Ptr LLVMType)
 opaque createBuilderInContext (ctx: @&Ptr Context): IO (Ptr Builder)
 
 @[extern "lean_llvm_append_basic_block_in_context"]
-opaque appendBasicBlockInContext (ctx: @&Ptr Context) (fn: @& Ptr Value): IO (Ptr BasicBlock)
+opaque appendBasicBlockInContext (ctx: @&Ptr Context) (fn: @& Ptr Value) (name: @&String): IO (Ptr BasicBlock)
 
 @[extern "lean_llvm_position_builder_at_end"]
 opaque positionBuilderAtEnd (builder: @&Ptr Builder) (bb: @& Ptr BasicBlock): IO Unit
 
+@[extern "lean_llvm_build_call2"]
+opaque buildCall2 (builder: @&Ptr Builder) (fnty: @&Ptr LLVMType) (fn: @&Ptr Value) (args: @&Array (Ptr Value)) (name: @&String): IO (Ptr Value)
+
+@[extern "lean_llvm_build_call"]
+opaque buildCall (builder: @&Ptr Builder) (fn: @&Ptr Value) (args: @&Array (Ptr Value)) (name: @&String): IO (Ptr Value)
+
+@[extern "lean_llvm_type_of"]
+opaque typeOf (val: @&Ptr Value): IO (Ptr LLVMType)
+
+
+@[extern "lean_llvm_print_module_to_string"]
+opaque printModuletoString (mod: @&Ptr Module): IO (String)
 
 -- Helper to add a function if it does not exist, and to return the function handle if it does.
 def getOrAddFunction(m: Ptr Module) (name: String) (type: Ptr LLVMType): IO (Ptr Value) :=  do
   match (← getNamedFunction m name) with
   | .some fn => return fn
   | .none => addFunction m name type
+
+def i8Type (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) :=
+  LLVM.intTypeInContext ctx 8
+
+def i64Type (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) :=
+  LLVM.intTypeInContext ctx 64
+
+def voidPtrType (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) :=
+  do LLVM.pointerType (← LLVM.intTypeInContext ctx 8)
+
+def i8PtrType (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) := voidPtrType ctx
+
+-- infer the type of the called function and then build the call
+-- def buildCallWithInferredType ()
 
 end LLVM
 
@@ -876,11 +905,6 @@ instance : ToString Error where
 
 abbrev M := ReaderT Context (ExceptT Error IO)
 
-def i8Type (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) :=
-  LLVM.intTypeInContext ctx 8
-
-def i8ptrType (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) :=
-  do LLVM.pointerType (← LLVM.intTypeInContext ctx 8)
 
 /-
 def toCType : IRType → String
@@ -904,9 +928,9 @@ def toLLVMType (ctx: LLVM.Ptr LLVM.Context): IRType → IO (LLVM.Ptr LLVM.LLVMTy
   | IRType.uint64     => LLVM.intTypeInContext ctx 64
   -- TODO: how to cleanly size_t in LLVM? We can do eg. instantiate the current target and query for size.
   | IRType.usize      => LLVM.intTypeInContext ctx 64
-  | IRType.object     => do LLVM.pointerType (← i8Type ctx)
-  | IRType.tobject    => do LLVM.pointerType (← i8Type ctx)
-  | IRType.irrelevant => do LLVM.pointerType (← i8Type ctx)
+  | IRType.object     => do LLVM.pointerType (← LLVM.i8Type ctx)
+  | IRType.tobject    => do LLVM.pointerType (← LLVM.i8Type ctx)
+  | IRType.irrelevant => do LLVM.pointerType (← LLVM.i8Type ctx)
   | IRType.struct _ _ => panic! "not implemented yet"
   | IRType.union _ _  => panic! "not implemented yet"
 
@@ -1007,7 +1031,7 @@ def emitFnDeclAux (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module)
       IO.eprintln "...added argument!"
   -- QUESTION: why do we care if it is boxed?
   if argtys.size > closureMaxArgs && isBoxedName decl.name then
-    argtys := #[(← i8ptrType ctx)]
+    argtys := #[(← LLVM.voidPtrType ctx)]
   IO.eprintln "creating function type..."
   let fnty ← LLVM.functionType retty argtys (isVarArg := false)
   IO.eprintln "created function type!"
@@ -1275,7 +1299,7 @@ partial def emitFnBody (b : FnBody) : M Unit := do
 -/
 
 partial def emitFnBody (llvmctx: LLVM.Ptr LLVM.Context) (b : FnBody) (llvmfn: LLVM.Ptr LLVM.Value) (builder: LLVM.Ptr LLVM.Builder): M Unit := do
-  let bb ← LLVM.appendBasicBlockInContext llvmctx llvmfn
+  let bb ← LLVM.appendBasicBlockInContext llvmctx llvmfn "entry"
   -- let declared ← declareVars b false
   -- if declared then emitLn ""
 
@@ -1352,7 +1376,7 @@ def emitDeclAux (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builde
       let retty ← toLLVMType ctx t
       let mut argtys := #[]
       if xs.size > closureMaxArgs && isBoxedName d.name then
-        argtys := #[(← i8ptrType ctx)]
+        argtys := #[(← LLVM.voidPtrType ctx)]
       else
         for x in xs do
           argtys := argtys.push (← toLLVMType ctx x.ty)
@@ -1420,7 +1444,7 @@ def emitFns (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder: L
 def emitInitFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module): M Unit := do
   let env ← getEnv
   let modName ← getModName
-  let fnty ← LLVM.functionType (← i8ptrType ctx) #[ (← i8Type ctx), (← i8ptrType ctx)] (isVarArg := false)
+  let fnty ← LLVM.functionType (← LLVM.voidPtrType ctx) #[ (← LLVM.i8Type ctx), (← LLVM.voidPtrType ctx)] (isVarArg := false)
   -- env.imports.forM fun imp => emitLn ("lean_object* " ++ mkModuleInitializationFunctionName imp.module ++ "(uint8_t builtin, lean_object*);")
   for imp in env.imports do
     let _ ← LLVM.getOrAddFunction mod (mkModuleInitializationFunctionName imp.module) fnty
@@ -1449,90 +1473,119 @@ def emitInitFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module): M Unit 
 -- ^^ emitInitFn ^^
 
 
--- vv emitMainFnIfIneeded vv
-def emitMainFn : M Unit := do
-  let d ← getDecl `main
-  match d with
-  | .fdecl (xs := xs) .. => do
-    unless xs.size == 2 || xs.size == 1 do throw (Error.compileError "invalid main function, incorrect arity when generating code")
-    let env ← getEnv
-    let usesLeanAPI := usesModuleFrom env `Lean
-    /-
-    if usesLeanAPI then
-       emitLn "void lean_initialize();"
-    else
-       emitLn "void lean_initialize_runtime_module();";
-    -/
-    /-
-    emitLn "
-  #if defined(WIN32) || defined(_WIN32)
-  #include <windows.h>
-  #endif
 
+-- vv emitMainFnIfIneeded vv
+def getOrCreateFunctionPrototype (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module)
+  (retty: LLVM.Ptr LLVM.LLVMType) (name: String) (args: Array (LLVM.Ptr LLVM.LLVMType)): M (LLVM.Ptr LLVM.Value) := do
+  -- void lean_initialize();
+  LLVM.getOrAddFunction mod name $
+     (← LLVM.functionType retty args (isVarArg := false))
+
+def getOrCreateLeanInitialize (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module): M (LLVM.Ptr LLVM.Value) := do
+  -- void lean_initialize();
+  getOrCreateFunctionPrototype ctx mod (← LLVM.voidTypeInContext ctx) "lean_initialize"  #[]
+
+def getOrCreateLeanInitializeRuntimeModule (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module): M (LLVM.Ptr LLVM.Value) := do
+  -- void lean_initialize();
+  getOrCreateFunctionPrototype ctx mod (← LLVM.voidTypeInContext ctx) "lean_initialize_runtime_module"  #[]
+
+
+def emitMainFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder: LLVM.Ptr LLVM.Builder): M Unit := do
+  let d ← getDecl `main
+  let xs ← match d with
+   | .fdecl (xs := xs) .. => pure xs
+   | _ =>  throw (Error.compileError "function declaration expected")
+
+  unless xs.size == 2 || xs.size == 1 do throw (Error.compileError "invalid main function, incorrect arity when generating code")
+  let env ← getEnv
+  let usesLeanAPI := usesModuleFrom env `Lean
+  /-
+  if usesLeanAPI then
+      emitLn "void lean_initialize();"
+  else
+      emitLn "void lean_initialize_runtime_module();";
+  -/
+  /-
+  emitLn "
+#if defined(WIN32) || defined(_WIN32)
+#include <windows.h>
+#endif
+-/
+
+  /-
   int main(int argc, char ** argv) {
+  -/
+  let mainTy ← LLVM.functionType (← LLVM.i64Type ctx) #[(← LLVM.i64Type ctx), (← LLVM.voidPtrType ctx)] (isVarArg := false)
+  let main ← LLVM.getOrAddFunction mod "main" mainTy
+  let entry ← LLVM.appendBasicBlockInContext ctx main "entry"
+  LLVM.positionBuilderAtEnd builder entry
+  /-
   #if defined(WIN32) || defined(_WIN32)
   SetErrorMode(SEM_FAILCRITICALERRORS);
   #endif
+  -/
+  /-
   lean_object* in; lean_object* res;";
   -/
-    /-
-    if usesLeanAPI then
-      emitLn "lean_initialize();"
-    else
-      emitLn "lean_initialize_runtime_module();"
-    -/
-    let modName ← getModName
+  /-
+  if usesLeanAPI then
+    emitLn "lean_initialize();"
+  else
+    emitLn "lean_initialize_runtime_module();"
+  -/
+  let initfn ← if usesLeanAPI then getOrCreateLeanInitialize ctx mod else getOrCreateLeanInitializeRuntimeModule ctx mod
+  let _ ← LLVM.buildCall builder initfn #[] ""
+  let modName ← getModName
     /- We disable panic messages because they do not mesh well with extracted closed terms.
-       See issue #534. We can remove this workaround after we implement issue #467. -/
+        See issue #534. We can remove this workaround after we implement issue #467. -/
     /-
     emitLn "lean_set_panic_messages(false);"
     emitLn ("res = " ++ mkModuleInitializationFunctionName modName ++ "(1 /* builtin */, lean_io_mk_world());")
     emitLn "lean_set_panic_messages(true);"
     emitLns ["lean_io_mark_end_initialization();",
-             "if (lean_io_result_is_ok(res)) {",
-             "lean_dec_ref(res);",
-             "lean_init_task_manager();"];
+              "if (lean_io_result_is_ok(res)) {",
+              "lean_dec_ref(res);",
+              "lean_init_task_manager();"];
     -/
-    if xs.size == 2 then
-      /-
-      emitLns ["in = lean_box(0);",
-               "int i = argc;",
-               "while (i > 1) {",
-               " lean_object* n;",
-               " i--;",
-               " n = lean_alloc_ctor(1,2,0); lean_ctor_set(n, 0, lean_mk_string(argv[i])); lean_ctor_set(n, 1, in);",
-               " in = n;",
-              "}"]
-      emitLn ("res = " ++ leanMainFn ++ "(in, lean_io_mk_world());")
-      -/
-      pure ()
-    else
-      pure ()
-      /-
-      emitLn ("res = " ++ leanMainFn ++ "(lean_io_mk_world());")
-      -/
-    /-
-    emitLn "}"
+  if xs.size == 2 then
+        /-
+    emitLns ["in = lean_box(0);",
+              "int i = argc;",
+              "while (i > 1) {",
+              " lean_object* n;",
+              " i--;",
+              " n = lean_alloc_ctor(1,2,0); lean_ctor_set(n, 0, lean_mk_string(argv[i])); lean_ctor_set(n, 1, in);",
+              " in = n;",
+            "}"]
+    emitLn ("res = " ++ leanMainFn ++ "(in, lean_io_mk_world());")
     -/
-    -- `IO _`
-    let retTy := env.find? `main |>.get! |>.type |>.getForallBody
-    -- either `UInt32` or `(P)Unit`
-    let retTy := retTy.appArg!
-    -- finalize at least the task manager to avoid leak sanitizer false positives from tasks outliving the main thread
-    /-
-    emitLns ["lean_finalize_task_manager();",
-             "if (lean_io_result_is_ok(res)) {",
-             "  int ret = " ++ if retTy.constName? == some ``UInt32 then "lean_unbox_uint32(lean_io_result_get_value(res));" else "0;",
-             "  lean_dec_ref(res);",
-             "  return ret;",
-             "} else {",
-             "  lean_io_result_show_error(res);",
-             "  lean_dec_ref(res);",
-             "  return 1;",
-             "}"]
-    -/
-    -- emitLn "}"
-  | _     => throw (Error.compileError "function declaration expected")
+    pure ()
+  else
+    pure ()
+  /-
+  emitLn ("res = " ++ leanMainFn ++ "(lean_io_mk_world());")
+  -/
+  /-
+  emitLn "}"
+  -/
+  -- `IO _`
+  let retTy := env.find? `main |>.get! |>.type |>.getForallBody
+  -- either `UInt32` or `(P)Unit`
+  let retTy := retTy.appArg!
+  -- finalize at least the task manager to avoid leak sanitizer false positives from tasks outliving the main thread
+  /-
+  emitLns ["lean_finalize_task_manager();",
+            "if (lean_io_result_is_ok(res)) {",
+            "  int ret = " ++ if retTy.constName? == some ``UInt32 then "lean_unbox_uint32(lean_io_result_get_value(res));" else "0;",
+            "  lean_dec_ref(res);",
+            "  return ret;",
+            "} else {",
+            "  lean_io_result_show_error(res);",
+            "  lean_dec_ref(res);",
+            "  return 1;",
+            "}"]
+  -/
+  -- emitLn "}"
 
 
 def hasMainFn : M Bool := do
@@ -1541,8 +1594,8 @@ def hasMainFn : M Bool := do
   return decls.any (fun d => d.name == `main)
 
 
-def emitMainFnIfNeeded : M Unit := do
-  if (← hasMainFn) then emitMainFn
+def emitMainFnIfNeeded (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder: LLVM.Ptr LLVM.Builder): M Unit := do
+  if (← hasMainFn) then emitMainFn ctx mod builder
 
 -- ^^ emitMainFnIfNeeded ^^
 
@@ -1577,8 +1630,9 @@ def main : M Unit := do
   let builder ← LLVM.createBuilderInContext (← getLLVMContext)
   emitFns (← getLLVMContext) (← getLLVMModule) builder
   emitInitFn (← getLLVMContext) (← getLLVMModule)
-  emitMainFnIfNeeded
+  emitMainFnIfNeeded (← getLLVMContext) (← getLLVMModule) builder
   emitFileFooter
+  IO.eprintln (← LLVM.printModuletoString (← getLLVMModule))
   return ()
 end EmitLLVM
 

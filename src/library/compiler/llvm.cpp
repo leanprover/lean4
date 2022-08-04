@@ -123,6 +123,47 @@ static inline LLVMBasicBlockRef lean_to_BasicBlock(b_lean_obj_arg s) {
     return static_cast<LLVMBasicBlockRef>(lean_get_external_data(s));
 }
 
+// == Array Type <-> C array of types ==
+
+// TODO: there is redundancy here, but I am loath to clean it up with templates,
+// because we will somehow dispatch to the correct `lean_to_*` function. I can't
+// think of an immediate, clean way to achieve this (plenty of unclean ways. eg:
+// create a templated function that we partial template specialize that tells us
+// what the correct `lean_to_*` is.
+// Concretely: leanToFn<LLVMTypeRef> = lean_to_LLVMType; leanToFn<LLVMValueRef>
+// = lean_to_LLVMValue).
+
+// TODO, QUESTION: is there a nicer way to do this?
+LLVMTypeRef *array_ref_to_ArrayLLVMType(lean::array_ref<lean_object *> arr) {
+    const int nargs = arr.size();  // lean::array_size(args);
+    // bollu: ouch, this is expensive! There must be a cheaper way?
+    LLVMTypeRef *tys = (LLVMTypeRef *)malloc(sizeof(LLVMTypeRef) * nargs);
+    for (int i = 0; i < nargs; ++i) {
+        tys[i] = lean_to_Type(arr[i]);
+        if (LLVM_DEBUG) {
+            fprintf(stderr, "... %s ; tys[i]: %s \n", __PRETTY_FUNCTION__,
+                    LLVMPrintTypeToString(tys[i]));
+        }
+    }
+    return tys;
+}
+
+// TODO, QUESTION: is there a nicer way to do this?
+LLVMValueRef *array_ref_to_ArrayLLVMValue(lean::array_ref<lean_object *> arr) {
+    const int nargs = arr.size();  // lean::array_size(args);
+    // bollu: ouch, this is expensive! There must be a cheaper way?
+    LLVMValueRef *vals = (LLVMValueRef *)malloc(sizeof(LLVMValueRef) * nargs);
+    assert(vals && "unable to allocate array");
+    for (int i = 0; i < nargs; ++i) {
+        vals[i] = lean_to_Value(arr[i]);
+        if (LLVM_DEBUG) {
+            fprintf(stderr, "... %s ; vals[i]: %s \n", __PRETTY_FUNCTION__,
+                    LLVMPrintValueToString(vals[i]));
+        }
+    }
+    return vals;
+}
+
 // == FFI ==
 // static lean_external_class *g_llvm_context_external_class = NULL;
 // static void llvm_context_finalizer(void *h) {}
@@ -226,34 +267,24 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_get_named_global(
 }
 
 extern "C" LEAN_EXPORT lean_object *lean_llvm_function_type(
-    lean_object *retty, lean_object *args, uint8_t isvararg,
+    lean_object *retty, lean_object *argtys, uint8_t isvararg,
     lean_object * /* w */) {
     if (LLVM_DEBUG) {
         fprintf(stderr, "%s ; retty: %p\n", __PRETTY_FUNCTION__, retty);
-    }
-    lean::array_ref<lean_object *> arr(args, true); // TODO: why do I need to bump up refcount here?
-    if (LLVM_DEBUG) {
         fprintf(stderr, "... %s ; retty: %s \n", __PRETTY_FUNCTION__,
                 LLVMPrintTypeToString(lean_to_Type(retty)));
     }
+    lean::array_ref<lean_object *> arr(
+        argtys, true);  // TODO: why do I need to bump up refcount here?
     if (LLVM_DEBUG) {
         fprintf(stderr, "... %s ; arr.size(): %zu\n", __PRETTY_FUNCTION__,
                 arr.size());
     }
-
     // for 'bool=uint8_t', see 'lean_bool_to_uint64'
-    const int nargs = arr.size();  // lean::array_size(args);
     // bollu: ouch, this is expensive! There must be a cheaper way?
-    LLVMTypeRef *tys = (LLVMTypeRef *)malloc(sizeof(LLVMTypeRef) * nargs);
-    for (int i = 0; i < nargs; ++i) {
-        tys[i] = lean_to_Type(arr[i]);
-        if (LLVM_DEBUG) {
-            fprintf(stderr, "... %s ; tys[i]: %s \n", __PRETTY_FUNCTION__,
-                    LLVMPrintTypeToString(tys[i]));
-        }
-    }
+    LLVMTypeRef *tys = array_ref_to_ArrayLLVMType(arr);
     LLVMTypeRef out =
-        LLVMFunctionType(lean_to_Type(retty), tys, nargs, isvararg);
+        LLVMFunctionType(lean_to_Type(retty), tys, arr.size(), isvararg);
     if (LLVM_DEBUG) {
         fprintf(stderr, "... %s ; out: %s \n", __PRETTY_FUNCTION__,
                 LLVMPrintTypeToString(out));
@@ -281,6 +312,15 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_float_type_in_context(
         Type_to_lean(LLVMFloatTypeInContext(lean_to_Context(ctx))));
 }
 
+extern "C" LEAN_EXPORT lean_object *lean_llvm_void_type_in_context(
+    lean_object *ctx, lean_object * /* w */) {
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "%s ; \n", __PRETTY_FUNCTION__);
+    }
+    return lean_io_result_mk_ok(
+        Type_to_lean(LLVMVoidTypeInContext(lean_to_Context(ctx))));
+}
+
 extern "C" LEAN_EXPORT lean_object *lean_llvm_double_type_in_context(
     lean_object *ctx, lean_object * /* w */) {
     if (LLVM_DEBUG) {
@@ -299,7 +339,6 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_pointer_type(
         Type_to_lean(LLVMPointerType(lean_to_Type(base), /*addrspace=*/0)));
 }
 
-
 extern "C" LEAN_EXPORT lean_object *lean_llvm_create_builder_in_context(
     lean_object *ctx, lean_object * /* w */) {
     if (LLVM_DEBUG) {
@@ -309,28 +348,99 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_create_builder_in_context(
         Builder_to_lean(LLVMCreateBuilderInContext(lean_to_Context(ctx))));
 }
 
-
-
 extern "C" LEAN_EXPORT lean_object *lean_llvm_append_basic_block_in_context(
-    lean_object *ctx, lean_object *fn, lean_object * /* w */) {
+    lean_object *ctx, lean_object *fn, lean_object *name, lean_object * /* w */) {
     if (LLVM_DEBUG) {
         fprintf(stderr, "%s ; ctx: %p\n", __PRETTY_FUNCTION__, ctx);
-        fprintf(stderr, "...%s ; fn: %p\n", __PRETTY_FUNCTION__, LLVMPrintValueToString(lean_to_Value(fn)));
+        fprintf(stderr, "...%s ; fn: %p\n", __PRETTY_FUNCTION__,
+                LLVMPrintValueToString(lean_to_Value(fn)));
+        fprintf(stderr, "...%s ; name: %s\n", __PRETTY_FUNCTION__, lean_string_cstr(name));
     }
-    return lean_io_result_mk_ok(
-        Builder_to_lean(LLVMCreateBuilderInContext(lean_to_Context(ctx))));
+    LLVMBasicBlockRef bb = LLVMAppendBasicBlockInContext(lean_to_Context(ctx), lean_to_Value(fn), lean_string_cstr(name));
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "...%s ; bb: %p\n", __PRETTY_FUNCTION__, bb);
+    }
+    return lean_io_result_mk_ok(BasicBlock_to_lean(bb));
 }
-
-
 
 extern "C" LEAN_EXPORT lean_object *lean_llvm_position_builder_at_end(
     lean_object *builder, lean_object *bb, lean_object * /* w */) {
     if (LLVM_DEBUG) {
         fprintf(stderr, "%s ; builder: %p\n", __PRETTY_FUNCTION__, builder);
-        fprintf(stderr, "...%s ; bb: %p\n", __PRETTY_FUNCTION__, bb);
+        fprintf(stderr, ".....%s ; bb: %p\n", __PRETTY_FUNCTION__, bb);
     }
     LLVMPositionBuilderAtEnd(lean_to_Builder(builder), lean_to_BasicBlock(bb));
     return lean_io_result_mk_ok(lean_box(0));
 }
 
+extern "C" LEAN_EXPORT lean_object *lean_llvm_build_call2(
+    lean_object *builder, lean_object *fnty, lean_object *fnval,
+    lean_object *args, lean_object *name, lean_object * /* w */) {
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "%s ; builder: %p\n", __PRETTY_FUNCTION__, builder);
+        fprintf(stderr, "...%s ; fnty: %s\n", __PRETTY_FUNCTION__,
+                LLVMPrintTypeToString(lean_to_Type(fnty)));
+        fprintf(stderr, "...%s ; fnval: %s\n", __PRETTY_FUNCTION__,
+                LLVMPrintValueToString(lean_to_Value(fnval)));
+        fprintf(stderr, "...%s ; name: %s\n", __PRETTY_FUNCTION__, 
+                lean_string_cstr(name));
+    }
+    lean::array_ref<lean_object *> arr(
+        args, true);  // TODO: why do I need to bump up refcount here?
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "... %s ; arr.size(): %zu\n", __PRETTY_FUNCTION__,
+                arr.size());
+    }
+    LLVMValueRef *arrArgVals = array_ref_to_ArrayLLVMValue(arr);
+    LLVMValueRef out = LLVMBuildCall2(
+        lean_to_Builder(builder), lean_to_Type(fnty), lean_to_Value(fnval),
+        arrArgVals, arr.size(), lean_string_cstr(name));
+    fprintf(stderr, "created call");
+    free(arrArgVals);
+    return lean_io_result_mk_ok(Value_to_lean(out));
+} 
 
+
+extern "C" LEAN_EXPORT lean_object *lean_llvm_build_call(
+    lean_object *builder, lean_object *fnval,
+    lean_object *args, lean_object *name, lean_object * /* w */) {
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "%s ; builder: %p\n", __PRETTY_FUNCTION__, builder);
+        fprintf(stderr, "...%s ; fnval: %s\n", __PRETTY_FUNCTION__,
+                LLVMPrintValueToString(lean_to_Value(fnval)));
+        fprintf(stderr, "...%s ; name: %s\n", __PRETTY_FUNCTION__, 
+                lean_string_cstr(name));
+    }
+    lean::array_ref<lean_object *> arr(
+        args, true);  // TODO: why do I need to bump up refcount here?
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "... %s ; arr.size(): %zu\n", __PRETTY_FUNCTION__,
+                arr.size());
+    }
+    LLVMValueRef *arrArgVals = array_ref_to_ArrayLLVMValue(arr);
+    LLVMValueRef out = LLVMBuildCall(
+        lean_to_Builder(builder), lean_to_Value(fnval),
+        arrArgVals, arr.size(), lean_string_cstr(name));
+    fprintf(stderr, "created call");
+    free(arrArgVals);
+    return lean_io_result_mk_ok(Value_to_lean(out));
+} 
+
+extern "C" LEAN_EXPORT lean_object *lean_llvm_type_of(lean_object *val) {
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "%s ; val: %s\n", __PRETTY_FUNCTION__, LLVMPrintValueToString(lean_to_Value(val)));
+    }
+    LLVMTypeRef ty = LLVMTypeOf(lean_to_Value(val));
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "...%s ; ty: %s\n", __PRETTY_FUNCTION__, LLVMPrintTypeToString(ty));
+    }
+    return lean_io_result_mk_ok(Type_to_lean(ty));
+}
+
+extern "C" LEAN_EXPORT lean_object *lean_llvm_print_module_to_string(lean_object *mod) {
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "%s ; module: %p\n", __PRETTY_FUNCTION__, mod);
+    }
+    const char *s = LLVMPrintModuleToString(lean_to_Module(mod));
+    return lean_io_result_mk_ok(lean::mk_string(s));
+}

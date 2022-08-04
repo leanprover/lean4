@@ -13,6 +13,8 @@ import Lean.Compiler.IR.NormIds
 import Lean.Compiler.IR.SimpCase
 import Lean.Compiler.IR.Boxing
 
+open Lean.IR.ExplicitBoxing (isBoxedName)
+
 
 namespace Lean.IR
 
@@ -58,16 +60,32 @@ opaque moduletoString (m: @&Ptr Module): IO String
 opaque writeBitcodeToFile(m: @&Ptr Module) (path: @&String): IO Unit
 
 @[extern "lean_llvm_add_function"]
-opaque addFunction(m: @&Ptr Module) (name: @&String) (type: @&Ptr LLVMType): IO Value
+opaque addFunction(m: @&Ptr Module) (name: @&String) (type: @&Ptr LLVMType): IO (Ptr Value)
 
 @[extern "lean_llvm_get_named_function"]
 opaque getNamedFunction(m: @&Ptr Module) (name: @&String): IO (Option (Ptr Value))
 
 @[extern "lean_llvm_add_global"]
-opaque addGlobal(m: @&Ptr Module) (name: @&String) (type: @&Ptr LLVMType): IO Value
+opaque addGlobal(m: @&Ptr Module) (name: @&String) (type: @&Ptr LLVMType): IO (Ptr Value)
 
 @[extern "lean_llvm_get_named_global"]
 opaque getNamedGlobal(m: @&Ptr Module) (name: @&String): IO (Option (Ptr Value))
+
+@[extern "lean_llvm_function_type"]
+opaque functionType(retty: @&Ptr LLVMType) (args: @&Array (Ptr LLVMType)) (isVarArg: @&Bool): IO (Ptr LLVMType)
+
+@[extern "lean_llvm_int_type_in_context"]
+opaque intTypeInContext (ctx: @&Ptr Context) (width: @&UInt64): IO (Ptr LLVMType)
+
+@[extern "lean_llvm_float_type_in_context"]
+opaque floatTypeInContext (ctx: @&Ptr Context): IO (Ptr LLVMType)
+
+@[extern "lean_llvm_double_type_in_context"]
+opaque doubleTypeInContext (ctx: @&Ptr Context): IO (Ptr LLVMType)
+
+@[extern "lean_llvm_pointer_type"]
+opaque pointerType (ty: @&Ptr LLVMType): IO (Ptr LLVMType)
+
 end LLVM
 
 
@@ -816,30 +834,276 @@ structure Context where
   jpMap      : JPParamsMap := {}
   mainFn     : FunId := default
   mainParams : Array Param := #[]
+  llvmctx : LLVM.Ptr LLVM.Context
+  llvmmodule : LLVM.Ptr LLVM.Module
+
 
 structure State where
-  ctx : LLVM.Ptr LLVM.Context
-  module : LLVM.Ptr LLVM.Module
 
-def State.createInitStateIO (modName: Name): IO State := do
-  let ctx ← LLVM.createContext
-  let module ← LLVM.createModule ctx modName.toString -- TODO: pass module name
-  return { ctx := ctx, module := module : State }
+-- def State.createInitStateIO (modName: Name): IO State := do
+--   let ctx ← LLVM.createContext
+--   let module ← LLVM.createModule ctx modName.toString -- TODO: pass module name
+--   return { ctx := ctx, module := module : State }
 
-abbrev Error := String
-abbrev M := ReaderT Context (EStateM Error State)
+inductive Error where
+| unknownDeclaration: Name → Error
+| invalidExportName: Name → Error
 
 
+instance : ToString Error where
+  toString e := match e with 
+   | .unknownDeclaration n => s!"unknown declaration '{n}'"
+   | .invalidExportName n => s!"invalid export name '{n}'"
+
+abbrev M := ReaderT Context (ExceptT Error IO)
+
+def i8Type (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) := 
+  LLVM.intTypeInContext ctx 8
+
+def i8ptrType (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) := 
+  do LLVM.pointerType (← LLVM.intTypeInContext ctx 8)
+
+/-
+def toCType : IRType → String
+  | IRType.float      => "double"
+  | IRType.uint8      => "uint8_t"
+  | IRType.uint16     => "uint16_t"
+  | IRType.uint32     => "uint32_t"
+  | IRType.uint64     => "uint64_t"
+  | IRType.usize      => "size_t"
+  | IRType.object     => "lean_object*"
+  | IRType.tobject    => "lean_object*"
+  | IRType.irrelevant => "lean_object*"
+  | IRType.struct _ _ => panic! "not implemented yet"
+  | IRType.union _ _  => panic! "not implemented yet"
+-/
+def toLLVMType (ctx: LLVM.Ptr LLVM.Context): IRType → IO (LLVM.Ptr LLVM.LLVMType)
+  | IRType.float      => LLVM.doubleTypeInContext ctx
+  | IRType.uint8      => LLVM.intTypeInContext ctx 8
+  | IRType.uint16     => LLVM.intTypeInContext ctx 16
+  | IRType.uint32     => LLVM.intTypeInContext ctx 32
+  | IRType.uint64     => LLVM.intTypeInContext ctx 64
+  -- TODO: how to cleanly size_t in LLVM? We can do eg. instantiate the current target and query for size.
+  | IRType.usize      => LLVM.intTypeInContext ctx 64 
+  | IRType.object     => do LLVM.pointerType (← i8Type ctx)
+  | IRType.tobject    => do LLVM.pointerType (← i8Type ctx)
+  | IRType.irrelevant => do LLVM.pointerType (← i8Type ctx)
+  | IRType.struct _ _ => panic! "not implemented yet"
+  | IRType.union _ _  => panic! "not implemented yet"
+
+/-
+def getEnv : M Environment := Context.env <$> read
+def getModName : M Name := Context.modName <$> read
+def getDecl (n : Name) : M Decl := do
+  let env ← getEnv
+  match findEnvDecl env n with
+  | some d => pure d
+  | none   => throw s!"unknown declaration '{n}'"
+-/
+def getLLVMContext : M (LLVM.Ptr LLVM.Context) := Context.llvmctx <$> read
+def getLLVMModule : M (LLVM.Ptr LLVM.Module) := Context.llvmmodule <$> read
+def getEnv : M Environment := Context.env <$> read
+def getModName : M Name := Context.modName <$> read
+def getDecl (n : Name) : M Decl := do
+  let env ← getEnv
+  match findEnvDecl env n with
+  | some d => pure d
+  | none   => IO.eprintln "getDecl failed!"; throw (Error.unknownDeclaration n)
+
+
+/-
+def throwInvalidExportName {α : Type} (n : Name) : M α :=
+  throw s!"invalid export name '{n}'"
+-/
+def throwInvalidExportName {α : Type} (n : Name) : M α := do
+  IO.eprintln "invalid export Name!"; throw (Error.invalidExportName n)
+
+/-
+def toCName (n : Name) : M String := do
+  let env ← getEnv;
+  -- TODO: we should support simple export names only
+  match getExportNameFor? env n with
+  | some (.str .anonymous s) => pure s
+  | some _                   => throwInvalidExportName n
+  | none                     => if n == `main then pure leanMainFn else pure n.mangle
+-/
+def toCName (n : Name) : M String := do
+  let env ← getEnv;
+  -- TODO: we should support simple export names only
+  match getExportNameFor? env n with
+  | some (.str .anonymous s) => pure s
+  | some _                   => throwInvalidExportName n
+  | none                     => if n == `main then pure leanMainFn else pure n.mangle
+
+
+/-
+def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M Unit := do
+  let ps := decl.params
+  let env ← getEnv
+  if ps.isEmpty then
+    if isClosedTermName env decl.name then emit "static "
+    else if isExternal then emit "extern "
+    else emit "LEAN_EXPORT "
+  else
+    if !isExternal then emit "LEAN_EXPORT "
+  emit (toCType decl.resultType ++ " " ++ cppBaseName)
+  unless ps.isEmpty do
+    emit "("
+    -- We omit irrelevant parameters for extern constants
+    let ps := if isExternC env decl.name then ps.filter (fun p => !p.ty.isIrrelevant) else ps
+    if ps.size > closureMaxArgs && isBoxedName decl.name then
+      emit "lean_object**"
+    else
+      ps.size.forM fun i => do
+        if i > 0 then emit ", "
+        emit (toCType ps[i]!.ty)
+    emit ")"
+  emitLn ";"
+-/
+def emitFnDeclAux (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module)
+  (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M (LLVM.Ptr LLVM.Value) := do
+  IO.println s!"\nvv\nemitFnDeclAux {decl}\n^^"
+  -- let types : Array LLVM.LLVMType ← decl.params.mapM (toLLVMType ctx)
+  let ps := decl.params
+  let env ← getEnv
+  -- if ps.isEmpty then
+  --   if isClosedTermName env decl.name then emit "static "
+  --   else if isExternal then emit "extern "
+  --   else emit "LEAN_EXPORT "
+  -- else
+  --   if !isExternal then emit "LEAN_EXPORT "
+  -- emit (toCType decl.resultType ++ " " ++ cppBaseName)
+  IO.eprintln s!"creating result type ({decl.resultType})"
+  let retty ← (toLLVMType ctx decl.resultType)
+  IO.eprintln s!"...created!"
+  let mut argtys := #[]
+  for p in ps do 
+    -- if it is extern, then we must not add irrelevant args
+    if !(isExternC env decl.name) || !p.ty.isIrrelevant then 
+      IO.eprintln s!"adding argument of type {p.ty}"
+      argtys := argtys.push (← toLLVMType ctx p.ty)
+      IO.eprintln "...added argument!"
+  -- QUESTION: why do we care if it is boxed?
+  if argtys.size > closureMaxArgs && isBoxedName decl.name then 
+    argtys := #[(← i8ptrType ctx)]
+  IO.eprintln "creating function type..."
+  let fnty ← LLVM.functionType retty argtys (isVarArg := false)
+  IO.eprintln "created function type!"
+  LLVM.addFunction mod cppBaseName fnty
+  -- unless ps.isEmpty do
+  --   emit "("
+  --   -- We omit irrelevant parameters for extern constants
+  --   let ps := if isExternC env decl.name then ps.filter (fun p => !p.ty.isIrrelevant) else ps
+  --   if ps.size > closureMaxArgs && isBoxedName decl.name then
+  --     emit "lean_object**"
+  --   else
+  --     ps.size.forM fun i => do
+  --       if i > 0 then emit ", "
+  --       emit (toCType ps[i]!.ty)
+  --   emit ")"
+  -- emitLn ";"
+
+
+/-
+def emitFnDecl (decl : Decl) (isExternal : Bool) : M Unit := do
+  let cppBaseName ← toCName decl.name
+  emitFnDeclAux decl cppBaseName isExternal
+-/
+
+def emitFnDecl (decl : Decl) (isExternal : Bool) : M Unit := do
+  let cppBaseName ← toCName decl.name
+  let _ ← emitFnDeclAux (← getLLVMContext) (← getLLVMModule) decl cppBaseName isExternal
+
+/-
+def emitExternDeclAux (decl : Decl) (cNameStr : String) : M Unit := do
+  let env ← getEnv
+  let extC := isExternC env decl.name
+  emitFnDeclAux decl cNameStr extC
+-/
+def emitExternDeclAux (decl : Decl) (cNameStr : String) : M Unit := do
+  let env ← getEnv
+  let extC := isExternC env decl.name
+  let _ ← emitFnDeclAux (← getLLVMContext) (← getLLVMModule) decl cNameStr extC
+/-
+def emitFnDecls : M Unit := do
+  let env ← getEnv
+  let decls := getDecls env
+  let modDecls  : NameSet := decls.foldl (fun s d => s.insert d.name) {}
+  let usedDecls : NameSet := decls.foldl (fun s d => collectUsedDecls env d (s.insert d.name)) {}
+  let usedDecls := usedDecls.toList
+  usedDecls.forM fun n => do
+    let decl ← getDecl n;
+    match getExternNameFor env `c decl.name with
+    | some cName => emitExternDeclAux decl cName
+    | none       => emitFnDecl decl (!modDecls.contains n)
+-/
+def emitFnDecls : M Unit := do
+  let env ← getEnv
+  let decls := getDecls env
+  let modDecls  : NameSet := decls.foldl (fun s d => s.insert d.name) {}
+  let usedDecls : NameSet := decls.foldl (fun s d => collectUsedDecls env d (s.insert d.name)) {}
+  let usedDecls := usedDecls.toList
+  for n in usedDecls do
+    let decl ← getDecl n;
+    IO.println s!"processing {decl}"
+    match getExternNameFor env `c decl.name with
+    | some cName => emitExternDeclAux decl cName
+    | none       => emitFnDecl decl (!modDecls.contains n)
+  return ()
+
+
+
+/-
+def emitFileHeader : M Unit := do
+  let env ← getEnv
+  let modName ← getModName
+  emitLn "// Lean compiler output"
+  emitLn ("// Module: " ++ toString modName)
+  emit "// Imports:"
+  env.imports.forM fun m => emit (" " ++ toString m)
+  emitLn ""
+  emitLn "#include <lean/lean.h>"
+  emitLns [
+    "#if defined(__clang__)",
+    "#pragma clang diagnostic ignored \"-Wunused-parameter\"",
+    "#pragma clang diagnostic ignored \"-Wunused-label\"",
+    "#elif defined(__GNUC__) && !defined(__CLANG__)",
+    "#pragma GCC diagnostic ignored \"-Wunused-parameter\"",
+    "#pragma GCC diagnostic ignored \"-Wunused-label\"",
+    "#pragma GCC diagnostic ignored \"-Wunused-but-set-variable\"",
+    "#endif",
+    "#ifdef __cplusplus",
+    "extern \"C\" {",
+    "#endif"
+  ]
+-/
+def emitFileHeader : M Unit := return () -- this is purely C++ ceremony
+  
+
+/-
 def main : M Unit := do
-   return ()
+  emitFileHeader
+  emitFnDecls
+  emitFns
+  emitInitFn
+  emitMainFnIfNeeded
+  emitFileFooter
+-/
+def main : M Unit := do
+  emitFileHeader
+  emitFnDecls
+  return ()
 end EmitLLVM
 
 -- | TODO: Use a beter type signature than this.
 -- | TODO: produce bitcode instead of an LLVM string.
 @[export lean_ir_emit_llvm]
 def emitLLVM (env : Environment) (modName : Name) (filepath: String): IO Unit := do
-  let state ← EmitLLVM.State.createInitStateIO modName
-  match (EmitLLVM.main {env := env, modName := modName}).run state with
-  | EStateM.Result.ok    _   s =>  LLVM.writeBitcodeToFile s.module filepath
-  | EStateM.Result.error err _ =>  throw (IO.userError err)
+  let llvmctx ← LLVM.createContext
+  let module ← LLVM.createModule llvmctx modName.toString -- TODO: pass module name
+  let ctx := {env := env, modName := modName, llvmctx := llvmctx, llvmmodule := module}
+  let out? ← (EmitLLVM.main ctx).run 
+  match out? with
+  | .ok _ =>  LLVM.writeBitcodeToFile ctx.llvmmodule filepath
+  | .error err => IO.eprintln ("ERROR: " ++ toString err); return () -- throw (IO.userError <| toString err)
 end Lean.IR

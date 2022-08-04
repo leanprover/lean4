@@ -86,6 +86,12 @@ opaque doubleTypeInContext (ctx: @&Ptr Context): IO (Ptr LLVMType)
 @[extern "lean_llvm_pointer_type"]
 opaque pointerType (ty: @&Ptr LLVMType): IO (Ptr LLVMType)
 
+@[extern "lean_llvm_create_builder_in_context"]
+opaque createBuilderInContext (ctx: @&Ptr Context): IO (Ptr Builder)
+
+@[extern "lean_llvm_append_basic_block_in_context"]
+opaque appendBasicBlockInContext (ctx: @&Ptr Context) (fn: @& Ptr Value): IO (Ptr BasicBlock)
+
 -- Helper to add a function if it does not exist, and to return the function handle if it does.
 def getOrAddFunction(m: Ptr Module) (name: String) (type: Ptr LLVMType): IO (Ptr Value) :=  do
   match (← getNamedFunction m name) with
@@ -757,10 +763,10 @@ def emitDeclAux (d : Decl) : M Unit := do
       emitLn "}"
     | _ => pure ()
 
-def emitDecl (d : Decl) : M Unit := do
+def emitDecl (d : Decl) (builder: LLVM.Ptr LLVM.Builder): M Unit := do
   let d := d.normalizeIds; -- ensure we don't have gaps in the variable indices
   try
-    emitDeclAux d
+    emitDeclAux d builder
   catch err =>
     throw s!"{err}\ncompiling:\n{d}"
 
@@ -1098,6 +1104,95 @@ def emitFileHeader : M Unit := return () -- this is purely C++ ceremony
 
 -- vvvemitFnsvvv
 
+
+/-
+mutual
+-/
+mutual
+
+/-
+partial def emitIf (x : VarId) (xType : IRType) (tag : Nat) (t : FnBody) (e : FnBody) : M Unit := do
+  emit "if ("; emitTag x xType; emit " == "; emit tag; emitLn ")";
+  emitFnBody t;
+  emitLn "else";
+  emitFnBody e
+-/
+
+/-
+partial def emitCase (x : VarId) (xType : IRType) (alts : Array Alt) : M Unit :=
+  match isIf alts with
+  | some (tag, t, e) => emitIf x xType tag t e
+  | _ => do
+    emit "switch ("; emitTag x xType; emitLn ") {";
+    let alts := ensureHasDefault alts;
+    alts.forM fun alt => do
+      match alt with
+      | Alt.ctor c b  => emit "case "; emit c.cidx; emitLn ":"; emitFnBody b
+      | Alt.default b => emitLn "default: "; emitFnBody b
+    emitLn "}"
+-/
+/-
+partial def emitBlock (b : FnBody) : M Unit := do
+  match b with
+  | FnBody.jdecl _ _  _ b      => emitBlock b
+  | d@(FnBody.vdecl x t v b)   =>
+    let ctx ← read
+    if isTailCallTo ctx.mainFn d then
+      emitTailCall v
+    else
+      emitVDecl x t v
+      emitBlock b
+  | FnBody.inc x n c p b       =>
+    unless p do emitInc x n c
+    emitBlock b
+  | FnBody.dec x n c p b       =>
+    unless p do emitDec x n c
+    emitBlock b
+  | FnBody.del x b             => emitDel x; emitBlock b
+  | FnBody.setTag x i b        => emitSetTag x i; emitBlock b
+  | FnBody.set x i y b         => emitSet x i y; emitBlock b
+  | FnBody.uset x i y b        => emitUSet x i y; emitBlock b
+  | FnBody.sset x i o y t b    => emitSSet x i o y t; emitBlock b
+  | FnBody.mdata _ b           => emitBlock b
+  | FnBody.ret x               => emit "return "; emitArg x; emitLn ";"
+  | FnBody.case _ x xType alts => emitCase x xType alts
+  | FnBody.jmp j xs            => emitJmp j xs
+  | FnBody.unreachable         => emitLn "lean_internal_panic_unreachable();"
+-/
+
+/-
+partial def emitJPs : FnBody → M Unit
+  | FnBody.jdecl j _  v b => do emit j; emitLn ":"; emitFnBody v; emitJPs b
+  | e                     => do unless e.isTerminal do emitJPs e.body
+-/
+
+/-
+partial def emitFnBody (b : FnBody) : M Unit := do
+  emitLn "{"
+  let declared ← declareVars b false
+  if declared then emitLn ""
+  emitBlock b
+  emitJPs b
+  emitLn "}"
+-/
+
+partial def emitFnBody (llvmctx: LLVM.Ptr LLVM.Context) (b : FnBody) (llvmfn: LLVM.Ptr LLVM.Value) (builder: LLVM.Ptr LLVM.Builder): M Unit := do
+  let bb ← LLVM.appendBasicBlockInContext llvmctx llvmfn
+  pure ()
+  -- emitLn "{"
+  -- let declared ← declareVars b false
+  -- if declared then emitLn ""
+  -- emitBlock b
+  -- emitJPs b
+  -- emitLn "}"
+
+/-
+end
+-/
+end
+
+
+
 /-
 def emitDeclAux (d : Decl) : M Unit := do
   let env ← getEnv
@@ -1139,7 +1234,7 @@ def emitDeclAux (d : Decl) : M Unit := do
 
 
 -- TODO: figure out if we can always return the corresponding function?
-def emitDeclAux (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (d : Decl) : M Unit := do
+def emitDeclAux (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder: LLVM.Ptr LLVM.Builder) (d : Decl): M Unit := do
   IO.println "vvvv\nemitDeclAux {d}\n^^^\n"
   let env ← getEnv
   let (_, jpMap) := mkVarJPMaps d
@@ -1184,7 +1279,7 @@ def emitDeclAux (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (d : De
       --     let x := xs[i]!
       --     emit "lean_object* "; emit x.x; emit " = _args["; emit i; emitLn "];"
       -- emitLn "_start:";
-      -- withReader (fun ctx => { ctx with mainFn := f, mainParams := xs }) (emitFnBody b);
+      withReader (fun ctx => { ctx with mainFn := f, mainParams := xs }) (emitFnBody ctx b fn builder);
       -- emitLn "}"
       pure ()
     | _ => pure ()
@@ -1198,11 +1293,11 @@ def emitDecl (d : Decl) : M Unit := do
     throw s!"{err}\ncompiling:\n{d}"
 -/
 
-def emitDecl (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (d : Decl) : M Unit := do
+def emitDecl (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder: LLVM.Ptr LLVM.Builder) (d : Decl) : M Unit := do
   IO.eprintln s!"vvv\nemitDecl\n{d}\n^^^\n"
   let d := d.normalizeIds; -- ensure we don't have gaps in the variable indices
   try
-    emitDeclAux ctx mod d
+    emitDeclAux ctx mod builder d
     return ()
   catch err =>
     throw (Error.unimplemented s!"{err}\ncompiling:\n{d}")
@@ -1214,11 +1309,11 @@ def emitFns : M Unit := do
   decls.reverse.forM emitDecl
 -/
 
-def emitFns (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) : M Unit := do
+def emitFns (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder: LLVM.Ptr LLVM.Builder) : M Unit := do
   let env ← getEnv
   let decls := getDecls env;
   IO.eprintln "gotten decls, going to loop..."
-  decls.reverse.forM (emitDecl ctx mod)
+  decls.reverse.forM (emitDecl ctx mod builder)
 -- ^^^ emitFns ^^^
 
 

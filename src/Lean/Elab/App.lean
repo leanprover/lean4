@@ -922,10 +922,11 @@ inductive LValResolution where
 private def throwLValError (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α :=
   throwError "{msg}{indentExpr e}\nhas type{indentExpr eType}"
 
-/-- `findMethod? env S fName`.
-    1- If `env` contains `S ++ fName`, return `(S, S++fName)`
-    2- Otherwise if `env` contains private name `prv` for `S ++ fName`, return `(S, prv)`, o
-    3- Otherwise for each parent structure `S'` of  `S`, we try `findMethod? env S' fname`
+/--
+`findMethod? env S fName`.
+- If `env` contains `S ++ fName`, return `(S, S++fName)`
+- Otherwise if `env` contains private name `prv` for `S ++ fName`, return `(S, prv)`, o
+- Otherwise for each parent structure `S'` of  `S`, we try `findMethod? env S' fname`
 -/
 private partial def findMethod? (env : Environment) (structName fieldName : Name) : Option (Name × Name) :=
   let fullName := structName ++ fieldName

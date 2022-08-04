@@ -107,6 +107,9 @@ opaque buildCall (builder: @&Ptr Builder) (fn: @&Ptr Value) (args: @&Array (Ptr 
 @[extern "lean_llvm_type_of"]
 opaque typeOf (val: @&Ptr Value): IO (Ptr LLVMType)
 
+@[extern "lean_llvm_const_int"]
+opaque constInt (intty: @&Ptr LLVMType) (value: @&UInt64) (signExtend: Bool := false): IO (Ptr Value)
+
 
 @[extern "lean_llvm_print_module_to_string"]
 opaque printModuletoString (mod: @&Ptr Module): IO (String)
@@ -116,6 +119,11 @@ def getOrAddFunction(m: Ptr Module) (name: String) (type: Ptr LLVMType): IO (Ptr
   match (← getNamedFunction m name) with
   | .some fn => return fn
   | .none => addFunction m name type
+
+
+
+def i1Type (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) :=
+  LLVM.intTypeInContext ctx 1
 
 def i8Type (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) :=
   LLVM.intTypeInContext ctx 8
@@ -127,6 +135,21 @@ def voidPtrType (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) :=
   do LLVM.pointerType (← LLVM.intTypeInContext ctx 8)
 
 def i8PtrType (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) := voidPtrType ctx
+
+-- TODO: instantiate target triple and find out what size_t is.
+def size_tTypeInContext (ctx: @&Ptr Context): IO (Ptr LLVMType) := i64Type ctx
+
+def True (ctx: Ptr Context): IO (Ptr Value) :=
+  do constInt (← i1Type ctx) 1 (signExtend := false)
+
+def False (ctx: Ptr Context): IO (Ptr Value) :=
+  do constInt (← i1Type ctx) 0 (signExtend := false)
+
+def constInt' (ctx: Ptr Context) (width: UInt64) (value: UInt64) (signExtend: Bool := false): IO (Ptr Value) :=
+ do constInt (← LLVM.intTypeInContext ctx width) value signExtend
+
+def constInt8 (ctx: Ptr Context) (value: UInt64) (signExtend: Bool := false): IO (Ptr Value) :=
+  constInt' ctx 8 value signExtend
 
 -- infer the type of the called function and then build the call
 -- def buildCallWithInferredType ()
@@ -927,7 +950,7 @@ def toLLVMType (ctx: LLVM.Ptr LLVM.Context): IRType → IO (LLVM.Ptr LLVM.LLVMTy
   | IRType.uint32     => LLVM.intTypeInContext ctx 32
   | IRType.uint64     => LLVM.intTypeInContext ctx 64
   -- TODO: how to cleanly size_t in LLVM? We can do eg. instantiate the current target and query for size.
-  | IRType.usize      => LLVM.intTypeInContext ctx 64
+  | IRType.usize      => LLVM.size_tTypeInContext ctx
   | IRType.object     => do LLVM.pointerType (← LLVM.i8Type ctx)
   | IRType.tobject    => do LLVM.pointerType (← LLVM.i8Type ctx)
   | IRType.irrelevant => do LLVM.pointerType (← LLVM.i8Type ctx)
@@ -1489,6 +1512,14 @@ def getOrCreateLeanInitializeRuntimeModule (ctx: LLVM.Ptr LLVM.Context) (mod: LL
   -- void lean_initialize();
   getOrCreateFunctionPrototype ctx mod (← LLVM.voidTypeInContext ctx) "lean_initialize_runtime_module"  #[]
 
+def getOrCreateLeanSetPanicMessages (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module): M (LLVM.Ptr LLVM.Value) := do
+  -- void lean_set_panic_messages();
+  getOrCreateFunctionPrototype ctx mod (← LLVM.i1Type ctx) "lean_set_panic_messages"  #[]
+
+def getOrCreateLeanIOMkWorldFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module): M (LLVM.Ptr LLVM.Value) := do
+  -- lean_object* lean_io_mk_world();
+  getOrCreateFunctionPrototype ctx mod (← LLVM.voidPtrType ctx) "lean_io_mk_world"  #[]
+
 
 def emitMainFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder: LLVM.Ptr LLVM.Builder): M Unit := do
   let d ← getDecl `main
@@ -1547,8 +1578,17 @@ def emitMainFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder
               "lean_dec_ref(res);",
               "lean_init_task_manager();"];
     -/
+  let setPanicMesagesFn ← getOrCreateLeanSetPanicMessages ctx mod
+  -- | TODO: remove reuse of the same function type across two locations
+  let modInitFnTy ← LLVM.functionType (← LLVM.voidPtrType ctx) #[ (← LLVM.i8Type ctx), (← LLVM.voidPtrType ctx)] (isVarArg := false)
+  let modInitFn ← LLVM.getOrAddFunction mod (mkModuleInitializationFunctionName modName) modInitFnTy
+  let _ ← LLVM.buildCall builder setPanicMesagesFn #[(← LLVM.False ctx )] ""
+  let world ← LLVM.buildCall builder (← getOrCreateLeanIOMkWorldFn ctx mod) #[] "world"
+  let res ← LLVM.buildCall builder modInitFn #[(← LLVM.constInt8 ctx 1 ), world] "res"
+  let _ ← LLVM.buildCall builder setPanicMesagesFn #[(← LLVM.True ctx )] ""
+
   if xs.size == 2 then
-        /-
+  /-
     emitLns ["in = lean_box(0);",
               "int i = argc;",
               "while (i > 1) {",

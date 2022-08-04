@@ -444,3 +444,13 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_print_module_to_string(lean_object
     const char *s = LLVMPrintModuleToString(lean_to_Module(mod));
     return lean_io_result_mk_ok(lean::mk_string(s));
 }
+
+extern "C" LEAN_EXPORT lean_object *lean_llvm_const_int(lean_object *ty, uint64_t val, uint8_t sext) {
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "%s ; ty: %p\n", __PRETTY_FUNCTION__, LLVMPrintTypeToString(lean_to_Type(ty)));
+        fprintf(stderr, "...%s ; val: %lu\n", __PRETTY_FUNCTION__, val);
+        fprintf(stderr, "...%s ; sext: %d\n", __PRETTY_FUNCTION__, (int)sext);
+    }
+    LLVMValueRef out = LLVMConstInt(lean_to_Type(ty), val, sext);
+    return lean_io_result_mk_ok(Value_to_lean(out));
+}

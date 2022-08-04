@@ -11,13 +11,15 @@ namespace Lake
 /-- A custom target's declarative configuration. -/
 structure TargetConfig (pkgName name : Name) : Type where
   /-- The target's build function. -/
-  build : Package → IndexBuildM (CustomData (pkgName, name))
+  build : (pkg : Package) → [Fact (pkg.name = pkgName)] →
+    IndexBuildM (CustomData (pkgName, name))
   /-- Does this target produce an associated asynchronous job? -/
   getJob? : Option (CustomData (pkgName, name) → Job Unit)
   deriving Inhabited
 
 /-- A smart constructor for target configurations that generate CLI targets. -/
-@[inline] def mkTargetJobConfig (build : Package → IndexBuildM (BuildJob α))
+@[inline] def mkTargetJobConfig
+(build : (pkg : Package) → [Fact (pkg.name = pkgName)] → IndexBuildM (BuildJob α))
 [h : FamilyDef CustomData (pkgName, name) (BuildJob α)] : TargetConfig pkgName name where
   build := cast (by rw [← h.family_key_eq_type]) build
   getJob? := some fun data => discard <| ofFamily data

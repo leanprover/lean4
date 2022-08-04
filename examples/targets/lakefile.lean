@@ -17,14 +17,14 @@ lean_exe b
 lean_exe c
 
 @[defaultTarget]
-target meow : Unit := fun pkg => do
+target meow : Unit := fun pkg _ => do
   IO.FS.writeFile (pkg.buildDir / "meow.txt") "Meow!"
   return .nil
 
-target bark : Unit := fun _pkg => do
+target bark : Unit := fun _pkg _ => do
   logInfo "Bark!"
   return .nil
 
-package_facet print_name : Unit := fun pkg => do
+package_facet print_name : Unit := fun pkg _ => do
   IO.println pkg.name
   return .nil

@@ -9,9 +9,13 @@ namespace Lake
 open Lean System
 
 /-- A external library's declarative configuration. -/
-structure ExternLibConfig where
-  /-- The name of the target. -/
-  name : Name
-  /-- The library's build. -/
-  build : SchedulerM (BuildJob FilePath)
+structure ExternLibConfig (pkgName name : Name) where
+  /-- The library's build data. -/
+  getJob : CustomData (pkgName, .str name "static") → BuildJob FilePath
   deriving Inhabited
+
+/-- A dependently typed configuration based on its registered package and name. -/
+structure ExternLibDecl where
+  pkg : Name
+  name : Name
+  config : ExternLibConfig pkg name

@@ -27,7 +27,7 @@ kw:"module_facet " sig:simpleDeclSig : command => do
       $[$doc?]? @[$attrs,*] def $id : ModuleFacetDecl := {
         name := $name
         config := Lake.mkFacetJobConfig $defn
-      })
+      } $[$wds?]?)
   | stx => Macro.throwErrorAt stx "ill-formed module facet declaration"
 
 scoped macro (name := packageFacetDecl)
@@ -42,7 +42,7 @@ kw:"package_facet " sig:simpleDeclSig : command => do
       $[$doc?]? @[$attrs,*] def $id : PackageFacetDecl := {
         name := $name
         config := Lake.mkFacetJobConfig $defn
-      })
+      } $[$wds?]?)
   | stx => Macro.throwErrorAt stx "ill-formed package facet declaration"
 
 scoped macro (name := libraryFacetDecl)
@@ -57,7 +57,7 @@ kw:"library_facet " sig:simpleDeclSig : command => do
       $[$doc?]? @[$attrs,*] def $id : LibraryFacetDecl := {
         name := $name
         config := Lake.mkFacetJobConfig $defn
-      })
+      } $[$wds?]?)
   | stx => Macro.throwErrorAt stx "ill-formed library facet declaration"
 
 scoped macro (name := targetDecl)
@@ -74,5 +74,40 @@ kw:"target " sig:simpleDeclSig : command => do
         pkg := $pkgName
         name := $name
         config := Lake.mkTargetJobConfig $defn
-      })
+      }  $[$wds?]?)
   | stx => Macro.throwErrorAt stx "ill-formed target declaration"
+
+--------------------------------------------------------------------------------
+/-! # External Library Target -/
+--------------------------------------------------------------------------------
+
+syntax externLibDeclSpec :=
+  ident declValSimple
+
+/--
+Define a new external library target for the package. Has one form:
+
+```lean
+extern_lib «target-name» := /- build function term -/
+```
+
+The term should be of type `Package → IndexBuildM (BuildJob FilePath)` and
+build the external library's **static** library.
+-/
+scoped macro (name := externLibDecl)
+doc?:optional(docComment) attrs?:optional(Term.attributes)
+"extern_lib " spec:externLibDeclSpec : command => do
+  match spec with
+  | `(externLibDeclSpec| $id:ident := $defn $[$wds?]?) =>
+    let attr ← `(Term.attrInstance| externLib)
+    let attrs := #[attr] ++ expandAttrs attrs?
+    let pkgName := mkIdentFrom id `_package.name
+    let targetId := mkIdentFrom id <| id.getId.modifyBase (· ++ `static)
+    let name := Name.quoteFrom id id.getId
+    `(target $targetId : FilePath := $defn $[$wds?]?
+      $[$doc?:docComment]? @[$attrs,*] def $id : ExternLibDecl := {
+        pkg := $pkgName
+        name := $name
+        config := {getJob := ofFamily}
+      })
+  | stx => Macro.throwErrorAt stx "ill-formed external library declaration"

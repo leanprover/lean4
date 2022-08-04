@@ -73,8 +73,14 @@ def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := 
     evalConstCheck env opts LeanLibConfig ``LeanLibConfig name
   let leanExeConfigs ← IO.ofExcept <| mkTagMap env leanExeAttr fun name =>
     evalConstCheck env opts LeanExeConfig ``LeanExeConfig name
-  let externLibConfigs ← IO.ofExcept <| mkTagMap env externLibAttr fun name =>
-    evalConstCheck env opts ExternLibConfig ``ExternLibConfig name
+  let externLibConfigs ← mkDTagMap env externLibAttr fun name =>
+    match evalConstCheck env opts ExternLibDecl ``ExternLibDecl name with
+    | .ok decl =>
+      if h : decl.pkg = self.config.name ∧ decl.name = name then
+        return h.1 ▸ h.2 ▸ decl.config
+      else
+        error s!"target was defined as `{decl.pkg}/{decl.name}`, but was registered as `{self.name}/{name}`"
+    | .error e => error e
   let opaqueTargetConfigs ← mkDTagMap env targetAttr fun name =>
     match evalConstCheck env opts TargetDecl ``TargetDecl name with
     | .ok decl =>

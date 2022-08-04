@@ -26,6 +26,12 @@ dynamically typed equivalent.
 [h : FamilyDef TargetData facet α] : IndexBuildM (TargetData facet) :=
   cast (by rw [← h.family_key_eq_type]) build
 
+def ExternLib.recBuildStatic (lib : ExternLib) : IndexBuildM (BuildJob FilePath) := do
+  if let some target := lib.pkg.findTargetConfig? (.str lib.name "static") then
+    lib.config.getJob <$> (target.build lib.pkg)
+  else
+    error "missing target for external library"
+
 def ExternLib.recBuildShared (lib : ExternLib) : IndexBuildM (BuildJob FilePath) := do
   buildLeanSharedLibOfStatic (← lib.static.recBuild) lib.linkArgs
 
@@ -61,7 +67,7 @@ def recBuildWithIndex : (info : BuildInfo) → IndexBuildM (BuildData info.key)
 | .leanExe exe =>
   mkTargetFacetBuild LeanExe.exeFacet exe.recBuildExe
 | .staticExternLib lib =>
-  mkTargetFacetBuild ExternLib.staticFacet lib.build
+  mkTargetFacetBuild ExternLib.staticFacet lib.recBuildStatic
 | .sharedExternLib lib =>
   mkTargetFacetBuild ExternLib.sharedFacet lib.recBuildShared
 | .dynlibExternLib lib =>

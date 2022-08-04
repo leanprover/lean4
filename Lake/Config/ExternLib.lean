@@ -11,27 +11,21 @@ namespace Lake
 structure ExternLib where
   /-- The package the library belongs to. -/
   pkg : Package
-   /-- The library's user-defined configuration. -/
-  config : ExternLibConfig
+  /-- The external library's name. -/
+  name : Name
+  /-- The library's user-defined configuration. -/
+  config : ExternLibConfig pkg.name name
   deriving Inhabited
 
 /-- The external libraries of the package (as an Array). -/
 @[inline] def Package.externLibs (self : Package) : Array ExternLib :=
-  self.externLibConfigs.fold (fun a _ v => a.push (⟨self, v⟩)) #[]
+  self.externLibConfigs.fold (fun a n v => a.push (⟨self, n, v⟩)) #[]
 
 /-- Try to find a external library in the package with the given name. -/
 @[inline] def Package.findExternLib? (name : Name) (self : Package) : Option ExternLib :=
-  self.externLibConfigs.find? name |>.map (⟨self, ·⟩)
+  self.externLibConfigs.find? name |>.map (⟨self, name, ·⟩)
 
 namespace ExternLib
-
-/-- The library's well-formed name. -/
-@[inline] def name (self : ExternLib) : Name :=
-  self.config.name
-
-/-- The external library's user-defined `build`. -/
-@[inline] def build (self : ExternLib) : SchedulerM (BuildJob FilePath) :=
-  self.config.build
 
 /--
 The arguments to pass to `leanc` when linking the external library.

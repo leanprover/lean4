@@ -193,7 +193,7 @@ structure Package where
   /-- Lean binary executable configurations for the package. -/
   leanExeConfigs : NameMap LeanExeConfig := {}
   /-- External library targets for the package. -/
-  externLibConfigs : NameMap ExternLibConfig := {}
+  externLibConfigs : DNameMap (ExternLibConfig config.name) := {}
   /-- (Opaque references to) targets defined in the package. -/
   opaqueTargetConfigs : DNameMap (OpaqueTargetConfig config.name) := {}
   /--

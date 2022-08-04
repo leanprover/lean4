@@ -243,13 +243,17 @@ where
 
 
 /--
-  Try to expand `·` notation.
-  Recall that in Lean the `·` notation must be surrounded by parentheses.
-  We may change this is the future, but right now, here are valid examples
-  - `(· + 1)`
-  - `(f ⟨·, 1⟩ ·)`
-  - `(· + ·)`
-  - `(f · a b)` -/
+You can use parentheses for
+- Grouping expressions, e.g., `a * (b + c)`.
+- Creating tuples, e.g., `(a, b, c)` is notation for `Prod.mk a (Prod.mk b c)`.
+- Performing type ascription, e.g., `(0 : Int)` instructs Lean to process `0` as a value of type `Int`.
+- Creating `Unit.unit`, `()` is just a shorthand for `Unit.unit`.
+- Creating simple functions when combined with `·`. Here are some examples:
+  - `(· + 1)` is shorthand for `fun x => x + 1`
+  - `(· + ·)` is shorthand for `fun x y => x + y`
+  - `(f · a b)` is shorthand for `fun x => f x a b`
+  - `(h (· + 1) ·)` is shorthand for `fun x => h (fun y => y + 1) x`
+-/
 @[builtinMacro Lean.Parser.Term.paren] def expandParen : Macro
   | `(())           => `(Unit.unit)
   | `(($e : $type)) => do

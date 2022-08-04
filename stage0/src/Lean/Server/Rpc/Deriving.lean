@@ -248,7 +248,7 @@ private unsafe def dispatchDeriveInstanceUnsafe (declNames : Array Name) (args? 
 private opaque dispatchDeriveInstance (declNames : Array Name) (args? : Option (TSyntax ``Parser.Term.structInst)) : CommandElabM Bool
 
 builtin_initialize
-  Elab.registerBuiltinDerivingHandlerWithArgs ``RpcEncoding dispatchDeriveInstance
+  registerDerivingHandlerWithArgs ``RpcEncoding dispatchDeriveInstance
   registerTraceClass `Elab.Deriving.RpcEncoding
 
 end Lean.Server.RpcEncoding

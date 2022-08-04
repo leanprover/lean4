@@ -14,21 +14,64 @@ structure Lean.Parser.Category
 
 namespace Lean.Parser.Category
 
-/-- The command syntax category. -/
+/-- `command` is the syntax category for things that appear at the top level
+of a lean file. For example, `def foo := 1` is a `command`, as is
+`namespace Foo` and `end Foo`. Commands generally have an effect on the state of
+adding something to the environment (like a new definition), as well as
+commands like `variable` which modify future commands within a scope. -/
 def command : Category := {}
-/-- The term syntax category. -/
+
+/-- `term` is the builtin syntax category for terms. A term denotes an expression
+in lean's type theory, for example `2 + 2` is a term. The difference between
+`Term` and `Expr` is that the former is a kind of syntax, while the latter is
+the result of elaboration. For example `by simp` is also a `Term`, but it elaborates
+to different `Expr`s depending on the context. -/
 def term : Category := {}
-/-- The tactic syntax category. -/
+
+/-- `tactic` is the builtin syntax category for tactics. These appear after
+`by` in proofs, and they are programs that take in the proof context
+(the hypotheses in scope plus the type of the term to synthesize) and construct
+a term of the expected type. For example, `simp` is a tactic, used in:
+```
+example : 2 + 2 = 4 := by simp
+```
+-/
 def tactic : Category := {}
-/-- The syntax category for elements that can appear in the `do` notation. -/
+
+/-- `doElem` is a builtin syntax category for elements that can appear in the `do` notation.
+For example, `let x ← e` is a `doElem`, and a `do` block consists of a list of `doElem`s. -/
 def doElem : Category := {}
-/-- The attribute syntax category. Declarations can be annotated with attributes using the `@[...]` notation. -/
+
+/-- `level` is a builtin syntax category for universe levels.
+This is the `u` in `Sort u`: it can contain `max` and `imax`, addition with
+constants, and variables. -/
+def level : Category := {}
+
+/-- `attr` is a builtin syntax category for attributes.
+Declarations can be annotated with attributes using the `@[...]` notation. -/
 def attr : Category := {}
-/-- The syntax syntax category. This is the syntax category used to define syntax itself. -/
+
+/-- `stx` is a builtin syntax category for syntax. This is the abbreviated
+parser notation used inside `syntax` and `macro` declarations. -/
 def stx : Category := {}
-/-- The priority syntax category. Priorities are used in many different attributes. -/
+
+/-- `prio` is a builtin syntax category for priorities.
+Priorities are used in many different attributes.
+Higher numbers denote higher priority, and for example typeclass search will
+try high priority instances before low priority.
+In addition to literals like `37`, you can also use `low`, `mid`, `high`, as well as
+add and subtract priorities. -/
 def prio : Category := {}
-/-- The precedence syntax category. Parsers have precedence in Lean. -/
+
+/-- `prec` is a builtin syntax category for precedences. A precedence is a value
+that expresses how tightly a piece of syntax binds: for example `1 + 2 * 3` is
+parsed as `1 + (2 * 3)` because `*` has a higher pr0ecedence than `+`.
+Higher numbers denote higher precedence.
+In addition to literals like `37`, there are some special named priorities:
+* `arg` for the precedence of function arguments
+* `max` for the highest precedence used in term parsers (not actually the maximum possible value)
+* `lead` for the precedence of terms not supposed to be used as arguments
+and you can also add and subtract precedences. -/
 def prec : Category := {}
 
 end Lean.Parser.Category
@@ -55,12 +98,17 @@ instance : Coe SyntaxNodeKind SyntaxNodeKinds where
 
 end Lean
 
-macro "max"  : prec => `(1024) -- maximum precedence used in term parsers, in particular for terms in function position (`ident`, `paren`, ...)
-macro "arg"  : prec => `(1023) -- precedence used for application arguments (`do`, `by`, ...)
-macro "lead" : prec => `(1022) -- precedence used for terms not supposed to be used as arguments (`let`, `have`, ...)
+/-- maximum precedence used in term parsers, in particular for terms in function position (`ident`, `paren`, ...) -/
+macro "max"  : prec => `(1024)
+/-- precedence used for application arguments (`do`, `by`, ...) -/
+macro "arg"  : prec => `(1023)
+/-- precedence used for terms not supposed to be used as arguments (`let`, `have`, ...) -/
+macro "lead" : prec => `(1022)
 macro "(" p:prec ")" : prec => return p
-macro "min"  : prec => `(10)   -- minimum precedence used in term parsers
-macro "min1" : prec => `(11)   -- `(min+1) we can only `min+1` after `Meta.lean`
+/-- minimum precedence used in term parsers -/
+macro "min"  : prec => `(10)
+/-- `(min+1)` (we can only write `min+1` after `Meta.lean`) -/
+macro "min1" : prec => `(11)
 /--
   `max:prec` as a term. It is equivalent to `eval_prec max` for `eval_prec` defined at `Meta.lean`.
   We use `max_prec` to workaround bootstrapping issues. -/
@@ -256,7 +304,7 @@ macro_rules
 /-- Special identifier introduced by "anonymous" `have : ...`, `suffices p ...` etc. -/
 macro tk:"this" : term => return Syntax.ident tk.getHeadInfo "this".toSubstring `this []
 
-/-
+/--
   Category for carrying raw syntax trees between macros; any content is printed as is by the pretty printer.
   The only accepted parser for this category is an antiquotation. -/
 declare_syntax_cat rawStx

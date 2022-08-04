@@ -24,19 +24,20 @@ def isNatProjInst (declName : Name) (numArgs : Nat) : Bool :=
 /--
   Evaluate simple `Nat` expressions.
   Remark: this method assumes the given expression has type `Nat`. -/
-partial def evalNat : Expr → OptionT MetaM Nat
-  | Expr.lit (Literal.natVal n)   => return n
-  | Expr.mdata _ e                => evalNat e
-  | Expr.const `Nat.zero ..       => return 0
-  | e@(Expr.app ..)               => visit e
-  | e@(Expr.mvar ..)              => visit e
-  | _                             => failure
+partial def evalNat (e : Expr) : OptionT MetaM Nat := do
+  match e with
+  | .lit (.natVal n)     => return n
+  | .mdata _ e           => evalNat e
+  | .const ``Nat.zero .. => return 0
+  | .app ..              => visit e
+  | .mvar ..             => visit e
+  | _                    => failure
 where
   visit e := do
     let f := e.getAppFn
     match f with
-    | Expr.mvar .. => withInstantiatedMVars e evalNat
-    | Expr.const c _ =>
+    | .mvar .. => withInstantiatedMVars e evalNat
+    | .const c _ =>
       let nargs := e.getAppNumArgs
       if c == ``Nat.succ && nargs == 1 then
         let v ← evalNat (e.getArg! 0)
@@ -60,40 +61,44 @@ where
     | _ => failure
 
 /-- Quick function for converting `e` into `s + k` s.t. `e` is definitionally equal to `Nat.add s k`. -/
-private partial def getOffsetAux : Expr → Bool → OptionT MetaM (Expr × Nat)
-  | e@(Expr.app _ a), top => do
+private partial def getOffsetAux (e : Expr) (top : Bool) : OptionT MetaM (Expr × Nat) := do
+  match e with
+  | .app _ a => do
     let f := e.getAppFn
     match f with
-    | Expr.mvar .. => withInstantiatedMVars e (getOffsetAux · top)
-    | Expr.const c _ =>
+    | .mvar .. => withInstantiatedMVars e (getOffsetAux · top)
+    | .const c _ =>
       let nargs := e.getAppNumArgs
       if c == ``Nat.succ && nargs == 1 then
         let (s, k) ← getOffsetAux a false
         pure (s, k+1)
       else if c == ``Nat.add && nargs == 2 then
-        let v      ← evalNat (e.getArg! 1)
+        let v ← evalNat (e.getArg! 1)
         let (s, k) ← getOffsetAux (e.getArg! 0) false
         pure (s, k+v)
       else if (c == ``Add.add && nargs == 4) || (c == ``HAdd.hAdd && nargs == 6) then
         getOffsetAux (← unfoldProjInst? e) false
-      else if top then failure else pure (e, 0)
-    | _ => if top then failure else pure (e, 0)
-  | e, top => if top then failure else pure (e, 0)
+      else
+        guard (!top); return (e, 0)
+    | _ => guard (!top); return (e, 0)
+  | _ => guard (!top); return (e, 0)
 
 private def getOffset (e : Expr) : OptionT MetaM (Expr × Nat) :=
   getOffsetAux e true
 
-private partial def isOffset : Expr → OptionT MetaM (Expr × Nat)
-  | e@(Expr.app _ _) =>
+private partial def isOffset (e : Expr) : OptionT MetaM (Expr × Nat) := do
+  match e with
+  | .app .. =>
     let f := e.getAppFn
     match f with
-    | Expr.mvar .. => withInstantiatedMVars e isOffset
-    | Expr.const c _ =>
+    | .mvar ..   => withInstantiatedMVars e isOffset
+    | .const c _ =>
       let nargs := e.getAppNumArgs
-      if (c == ``Nat.succ && nargs == 1) || (c == ``Nat.add && nargs == 2) || (c == ``Add.add && nargs == 4) || (c == ``HAdd.hAdd && nargs == 6) then
-        getOffset e
-      else
-        failure
+      guard ((c == ``Nat.succ && nargs == 1) ||
+             (c == ``Nat.add && nargs == 2) ||
+             (c == ``Add.add && nargs == 4) ||
+             (c == ``HAdd.hAdd && nargs == 6))
+      getOffset e
     | _ => failure
   | _ => failure
 

@@ -326,6 +326,7 @@ static lean_object* l_term___x3c_x3d_____closed__4;
 static lean_object* l___aux__Init__Notation______macroRules__term___x2b_x2b____1___closed__6;
 static lean_object* l___aux__Init__Notation______macroRules__termIfLet___x3a_x3d__Then__Else____1___closed__7;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x2a_x3e____1___closed__16;
+LEAN_EXPORT lean_object* l_Lean_Parser_Category_level;
 static lean_object* l___aux__Init__Notation______macroRules__term_x2d____1___closed__7;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__Functor__map__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_termMax__prec___closed__3;
@@ -1421,6 +1422,14 @@ return x_1;
 }
 }
 static lean_object* _init_l_Lean_Parser_Category_doElem() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_box(0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parser_Category_level() {
 _start:
 {
 lean_object* x_1; 
@@ -37142,6 +37151,8 @@ l_Lean_Parser_Category_tactic = _init_l_Lean_Parser_Category_tactic();
 lean_mark_persistent(l_Lean_Parser_Category_tactic);
 l_Lean_Parser_Category_doElem = _init_l_Lean_Parser_Category_doElem();
 lean_mark_persistent(l_Lean_Parser_Category_doElem);
+l_Lean_Parser_Category_level = _init_l_Lean_Parser_Category_level();
+lean_mark_persistent(l_Lean_Parser_Category_level);
 l_Lean_Parser_Category_attr = _init_l_Lean_Parser_Category_attr();
 lean_mark_persistent(l_Lean_Parser_Category_attr);
 l_Lean_Parser_Category_stx = _init_l_Lean_Parser_Category_stx();

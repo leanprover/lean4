@@ -9,11 +9,11 @@ import Lean.Parser.Extra
 namespace Lean.Parser
 
 builtin_initialize
-  registerBuiltinParserAttribute `builtinPrioParser `prio LeadingIdentBehavior.both
+  registerBuiltinParserAttribute `builtinPrioParser ``Category.prio .both
   registerBuiltinDynamicParserAttribute `prioParser `prio
 
 builtin_initialize
-  registerBuiltinParserAttribute `builtinAttrParser `attr LeadingIdentBehavior.symbol
+  registerBuiltinParserAttribute `builtinAttrParser ``Category.attr .symbol
   registerBuiltinDynamicParserAttribute `attrParser `attr
 
 @[inline] def priorityParser (rbp : Nat := 0) : Parser :=

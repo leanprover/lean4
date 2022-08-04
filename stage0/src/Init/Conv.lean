@@ -10,6 +10,11 @@ import Init.NotationExtra
 
 namespace Lean.Parser.Tactic.Conv
 
+/-- `conv` is the syntax category for a "conv tactic", where "conv" is short
+for conversion. A conv tactic is a program which receives a target, printed as
+`| a`, and is tasked with coming up with some term `b` and a proof of `a = b`.
+It is mainly used for doing targeted term transformations, for example rewriting
+only on the left side of an equality. -/
 declare_syntax_cat conv (behavior := both)
 
 syntax convSeq1Indented := withPosition((colGe conv ";"?)+)

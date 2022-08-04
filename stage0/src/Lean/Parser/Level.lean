@@ -9,7 +9,7 @@ namespace Lean
 namespace Parser
 
 builtin_initialize
-  registerBuiltinParserAttribute `builtinLevelParser `level
+  registerBuiltinParserAttribute `builtinLevelParser ``Category.level
 
 @[inline] def levelParser (rbp : Nat := 0) : Parser :=
   categoryParser `level rbp

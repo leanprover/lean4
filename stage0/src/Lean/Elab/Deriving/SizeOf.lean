@@ -23,6 +23,6 @@ def mkSizeOfHandler (declNames : Array Name) : CommandElabM Bool := do
     return false
 
 builtin_initialize
-  registerBuiltinDerivingHandler `SizeOf mkSizeOfHandler
+  registerDerivingHandler `SizeOf mkSizeOfHandler
 
 end Lean.Elab.Deriving.SizeOf

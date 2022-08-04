@@ -216,27 +216,3 @@ def ex3 (α : Type u) (β : Type v) (n : Nat) (x : List α) (y : List β) :
 
 #eval test `ex3 2 `elimTest3
 #print elimTest3
-
-def ex4 (α : Type u) (n : Nat) (xs : Vec α n) :
-  LHS (Pat (inaccessible 0) × Pat (Vec.nil : Vec α 0))
-× LHS (forall (n : Nat) (xs : Vec α (n+1)), Pat (inaccessible (n+1)) × Pat xs) :=
-default
-
-#eval test `ex4 2 `elimTest4
-#print elimTest4
-
-def ex5 (α : Type u) (n : Nat) (xs : Vec α n) :
-  LHS (Pat Nat.zero × Pat (Vec.nil : Vec α 0))
-× LHS (forall (n : Nat) (xs : Vec α (n+1)), Pat (Nat.succ n) × Pat xs) :=
-default
-
-#eval test `ex5 2 `elimTest5
-#print elimTest5
-
-def ex6 (α : Type u) (n : Nat) (xs : Vec α n) :
-  LHS (Pat (inaccessible Nat.zero) × Pat (Vec.nil : Vec α 0))
-× LHS (forall (N : Nat) (XS : Vec α N), Pat (inaccessible N) × Pat XS) :=
-default
-
--- set_option trace.Meta.Match.match true
--- set_option trace.Meta.Match.debug true

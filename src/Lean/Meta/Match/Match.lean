@@ -66,17 +66,8 @@ where
         let rhs    := if hasParams then mkAppN minor xs else mkApp minor (mkConst `Unit.unit)
         let minors := minors.push (minor, minorNumParams)
         let fvarDecls ← lhs.fvarDecls.mapM instantiateLocalDeclMVars
-        let alts   := { ref := lhs.ref, idx := idx, rhs := rhs, fvarDecls := fvarDecls, patterns := lhs.patterns : Alt } :: alts
+        let alts   := { ref := lhs.ref, idx := idx, rhs := rhs, fvarDecls := fvarDecls, patterns := lhs.patterns, cnstrs := [] } :: alts
         loop lhss alts minors
-
-def assignGoalOf (p : Problem) (e : Expr) : MetaM Unit :=
-  withGoalOf p do
-    let mvar := mkMVar p.mvarId
-    let mvarType ← inferType mvar
-    let eType ← inferType e
-    unless (← isDefEq mvarType eType) do
-      throwError "dependent elimination failed, type mismatch when solving alternative with type{indentExpr eType}\nbut expected{indentExpr mvarType}"
-    p.mvarId.assign e
 
 structure State where
   used            : Std.HashSet Nat := {} -- used alternatives
@@ -159,24 +150,109 @@ private def isNatValueTransition (p : Problem) : Bool :=
       | _                    => false)
 
 private def processSkipInaccessible (p : Problem) : Problem := Id.run do
-  let _ :: xs := p.vars | unreachable!
+  let x :: xs := p.vars | unreachable!
   let alts := p.alts.map fun alt => Id.run do
-    let .inaccessible _ :: ps := alt.patterns | unreachable!
-    { alt with patterns := ps }
+    let .inaccessible e :: ps := alt.patterns | unreachable!
+    { alt with patterns := ps, cnstrs := (x, e) :: alt.cnstrs }
   { p with alts := alts, vars := xs }
 
-private def processLeaf (p : Problem) : StateRefT State MetaM Unit := do
-  match p.alts with
-  | []       =>
-    /- TODO: allow users to configure which tactic is used to close leaves. -/
-    unless (← p.mvarId.contradictionCore {}) do
-      trace[Meta.Match.match] "missing alternative"
-      p.mvarId.admit
-      modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
-  | alt :: _ =>
-    -- TODO: check whether we have unassigned metavars in rhs
-    liftM <| assignGoalOf p alt.rhs
-    modify fun s => { s with used := s.used.insert alt.idx }
+/--
+If contraint is of the form `e ≋ x` where `x` is a free variable, reorient it
+as `x ≋ e` If
+- `x` is an `alt`-local declaration
+- `e` is not a free variable.
+-/
+private def reorientCnstrs (alt : Alt) : Alt :=
+  let cnstrs := alt.cnstrs.map fun (lhs, rhs) =>
+    if rhs.isFVar && alt.isLocalDecl rhs.fvarId! then
+      (rhs, lhs)
+    else if !lhs.isFVar && rhs.isFVar then
+      (rhs, lhs)
+    else
+      (lhs, rhs)
+  { alt with cnstrs }
+
+/--
+Remove constraints of the form `lhs ≋ rhs` where `lhs` and `rhs` are definitionally equal,
+or `lhs` is a free variable.
+-/
+private def filterTrivialCnstrs (alt : Alt) : MetaM Alt := do
+   let cnstrs ← withExistingLocalDecls alt.fvarDecls do
+     alt.cnstrs.filterM fun (lhs, rhs) => do
+       if (← isDefEqGuarded lhs rhs) then
+         return false
+       else if lhs.isFVar then
+         return false
+       else
+         return true
+   return { alt with cnstrs }
+
+/--
+Find an alternative constraint of the form `x ≋ e` where `x` is an alternative
+local declarations, and `x` and `e` have definitionally equal types.
+Then, replace `x` with `e` in the alternative, and return it.
+Return `none` if the alternative does not contain a constraint of this form.
+-/
+private def solveSomeLocalFVarIdCnstr? (alt : Alt) : MetaM (Option Alt) :=
+  withExistingLocalDecls alt.fvarDecls do
+    let (some (fvarId, val), cnstrs) ← go alt.cnstrs | return none
+    trace[Meta.Match.match] "found cnstr to solve {mkFVar fvarId} ↦ {val}"
+    return some <| { alt with cnstrs }.replaceFVarId fvarId val
+where
+  go (cnstrs : List (Expr × Expr)) := do
+    match cnstrs with
+    | [] => return (none, [])
+    | (lhs, rhs) :: cnstrs =>
+      if lhs.isFVar && alt.isLocalDecl lhs.fvarId! then
+        if !(← dependsOn rhs lhs.fvarId!) && (← isDefEqGuarded (← inferType lhs) (← inferType rhs)) then
+          return (some (lhs.fvarId!, rhs), cnstrs)
+      let (p, cnstrs) ← go cnstrs
+      return (p, (lhs, rhs) :: cnstrs)
+
+/--
+Solve pending alternative constraints. If all constraints can be solved perform assignment
+`mvarId := alt.rhs`, and return true.
+-/
+private partial def solveCnstrs (mvarId : MVarId) (alt : Alt) : StateRefT State MetaM Bool := do
+  go (reorientCnstrs alt)
+where
+  go (alt : Alt) : StateRefT State MetaM Bool := do
+    match (← solveSomeLocalFVarIdCnstr? alt) with
+    | some alt => go alt
+    | none =>
+      let alt ← filterTrivialCnstrs alt
+      if alt.cnstrs.isEmpty then
+        let eType ← inferType alt.rhs
+        let targetType ← mvarId.getType
+        unless (← isDefEqGuarded targetType eType) do
+          trace[Meta.Match.match] "assignGoalOf failed {eType} =?= {targetType}"
+          throwError "dependent elimination failed, type mismatch when solving alternative with type{indentExpr eType}\nbut expected{indentExpr targetType}"
+        mvarId.assign alt.rhs
+        modify fun s => { s with used := s.used.insert alt.idx }
+        return true
+      else
+        trace[Meta.Match.match] "alt has unsolved cnstrs:\n{← alt.toMessageData}"
+        return false
+
+/--
+Try to solve the problem by using the first alternative whose pending constraints can be resolved.
+-/
+private def processLeaf (p : Problem) : StateRefT State MetaM Unit :=
+  p.mvarId.withContext do
+    withPPForTacticGoal do trace[Meta.Match.match] "local context at processLeaf:\n{(← mkFreshTypeMVar).mvarId!}"
+    go p.alts
+where
+  go (alts : List Alt) : StateRefT State MetaM Unit := do
+    match alts with
+    | [] =>
+      /- TODO: allow users to configure which tactic is used to close leaves. -/
+      unless (← p.mvarId.contradictionCore {}) do
+        trace[Meta.Match.match] "missing alternative"
+        p.mvarId.admit
+        modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
+    | alt :: alts =>
+      unless (← solveCnstrs p.mvarId alt) do
+        go alts
 
 private def processAsPattern (p : Problem) : MetaM Problem := withGoalOf p do
   let x :: _ := p.vars | unreachable!
@@ -216,62 +292,43 @@ private def processVariable (p : Problem) : MetaM Problem := withGoalOf p do
   let x :: xs := p.vars | unreachable!
   let alts ← p.alts.mapM fun alt => do
     match alt.patterns with
-    | .inaccessible _ :: ps => return { alt with patterns := ps }
-    | .var fvarId :: ps     => ({ alt with patterns := ps }).checkAndReplaceFVarId fvarId x
-    | _                     => unreachable!
+    | .inaccessible e :: ps => return { alt with patterns := ps, cnstrs := (x, e) :: alt.cnstrs }
+    | .var fvarId :: ps     =>
+      withExistingLocalDecls alt.fvarDecls do
+        if (← isDefEqGuarded (← fvarId.getType) (← inferType x)) then
+          return { alt with patterns := ps }.replaceFVarId fvarId x
+        else
+          return { alt with patterns := ps, cnstrs := (mkFVar fvarId, x) :: alt.cnstrs }
+    | _  => unreachable!
   return { p with alts := alts, vars := xs }
 
-/-
-  TODO: FIX the following issue.
+/-!
+Note that we decided to store pending constraints to address issues exposed by #1279 and #1361.
+Here is a simplified version of the example on this issue (see test: `1279_simplified.lean`)
+```lean
+inductive Arrow : Type → Type → Type 1
+  | id   : Arrow a a
+  | unit : Arrow Unit Unit
+  | comp : Arrow β γ → Arrow α β → Arrow α γ
+deriving Repr
 
-  `fvarId` is not an alternative variable, and we used to return `false` here, but it is incorrect, and may
-  incorrectly discard applicable alternatives. It was buggy because of the way we handle inaccessible patterns
-  in variable transitions. The bug was exposed by issue #1279
-  Here is a simplified version of the example on this issue (see test: `1279_simplified.lean`)
-  ```lean
-  inductive Arrow : Type → Type → Type 1
-    | id   : Arrow a a
-    | unit : Arrow Unit Unit
-    | comp : Arrow β γ → Arrow α β → Arrow α γ
-  deriving Repr
-
-  def Arrow.compose (f : Arrow β γ) (g : Arrow α β) : Arrow α γ :=
-    match f, g with
-    | id, g => g
-    | f, id => f
-    | f, g => comp f g
-  ```
-  The initial state for the `match`-expression above is
-  ```lean
-  [Meta.Match.match] remaining variables: [β✝:(Type), γ✝:(Type), f✝:(Arrow β✝ γ✝), g✝:(Arrow α β✝)]
-  alternatives:
-    [β:(Type), g:(Arrow α β)] |- [β, .(β), (Arrow.id .(β)), g] => h_1 β g
-    [γ:(Type), f:(Arrow α γ)] |- [.(α), γ, f, (Arrow.id .(α))] => h_2 γ f
-    [β:(Type), γ:(Type), f:(Arrow β γ), g:(Arrow α β)] |- [β, γ, f, g] => h_3 β γ f g
-  ```
-  The first step is a variable-transition which replaces `β` with `β✝` in the first and third alternatives.
-  The constraint `β✝ === α` in the second alternative is lost. Note that `α` is not an alternative variable.
-  After applying the variable-transition step twice, we reach the following state
-  ```lean
-  [Meta.Match.match] remaining variables: [f✝:(Arrow β✝ γ✝), g✝:(Arrow α β✝)]
-  alternatives:
-    [g:(Arrow α β✝)] |- [(Arrow.id .(β✝)), g] => h_1 β✝ g
-    [f:(Arrow α γ✝)] |- [f, (Arrow.id .(α))] => h_2 γ✝ f
-    [f:(Arrow β✝ γ✝), g:(Arrow α β✝)] |- [f, g] => h_3 β✝ γ✝ f g
-  ```
-  A constructor-transition should be used, and the functions `expandVarIntoCtor?` is required for the second and
-  third alternatives. There are 3 constructors, in the `Arrow.id` case, we use unify to solve
-  ```
-  Arrow a a =?= Arrow α β✝
-  ```
-  Where `a` is new alternative variable corresponding to the `Arrow.id` field.
-  The first assignment is fine `a := α`.
-  In the second assignment we have `α := β✝` where both `α` and `β✝` are not alternative variables.
-  We did not store information that `β✝ === α` in the first step, and the alternative was being incorrectly discarded.
-  Returning `true` here "solves" the problem, but it is a bit hackish. We see two possible improvements:
-  - We store the constraint `β✝ === α`.
-  - We postpone variable-transition steps.
-  It is unclear at this point what is the best solution. We should keep accumulating problematic examples.
+def Arrow.compose (f : Arrow β γ) (g : Arrow α β) : Arrow α γ :=
+  match f, g with
+  | id, g => g
+  | f, id => f
+  | f, g => comp f g
+```
+The initial state for the `match`-expression above is
+```lean
+[Meta.Match.match] remaining variables: [β✝:(Type), γ✝:(Type), f✝:(Arrow β✝ γ✝), g✝:(Arrow α β✝)]
+alternatives:
+  [β:(Type), g:(Arrow α β)] |- [β, .(β), (Arrow.id .(β)), g] => h_1 β g
+  [γ:(Type), f:(Arrow α γ)] |- [.(α), γ, f, (Arrow.id .(α))] => h_2 γ f
+  [β:(Type), γ:(Type), f:(Arrow β γ), g:(Arrow α β)] |- [β, γ, f, g] => h_3 β γ f g
+```
+The first step is a variable-transition which replaces `β` with `β✝` in the first and third alternatives.
+The constraint `β✝ ≋ α` in the second alternative used to be discarded. We now store it at the
+alternative `cnstrs` field.
 -/
 
 private def inLocalDecls (localDecls : List LocalDecl) (fvarId : FVarId) : Bool :=
@@ -285,23 +342,17 @@ private def expandVarIntoCtor? (alt : Alt) (fvarId : FVarId) (ctorName : Name) :
     let (ctorLevels, ctorParams) ← getInductiveUniverseAndParams expectedType
     let ctor := mkAppN (mkConst ctorName ctorLevels) ctorParams
     let ctorType ← inferType ctor
-    let ctorAbst? ← withNewMCtxDepth do
-      let (ctorFields, _, resultType) ← forallMetaTelescopeReducing ctorType
-      unless (← isDefEq resultType expectedType) do
-        return none
-      return some (← abstractMVars (mkAppN ctor ctorFields))
-    let some ctorAbst := ctorAbst? | return none
-    lambdaTelescope ctorAbst.expr fun newFVars ctor => do
-      let ctorArgs := ctor.getAppArgs
-      let ctorFields := ctorArgs[ctorParams.size:].toArray
+    forallTelescopeReducing ctorType fun ctorFields resultType => do
+      let ctor := mkAppN ctor ctorFields
       let alt  := alt.replaceFVarId fvarId ctor
-      let newAltDecls ← newFVars.mapM fun newFVar => newFVar.fvarId!.getDecl
-      let newAltDecls := newAltDecls.toList ++ alt.fvarDecls
+      let ctorFieldDecls ← ctorFields.mapM fun ctorField => ctorField.fvarId!.getDecl
+      let newAltDecls := ctorFieldDecls.toList ++ alt.fvarDecls
+      let mut cnstrs := alt.cnstrs
+      unless (← isDefEqGuarded resultType expectedType) do
+         cnstrs := (resultType, expectedType) :: cnstrs
       trace[Meta.Match.unify] "expandVarIntoCtor? {mkFVar fvarId} : {expectedType}, ctor: {ctor}"
-      let ctorFieldPatterns := ctorFields.toList.map fun ctorField => match ctorField with
-        | .fvar fvarId => if inLocalDecls newAltDecls fvarId then Pattern.var fvarId else Pattern.inaccessible ctorField
-        | _            => Pattern.inaccessible ctorField
-      return some { alt with fvarDecls := newAltDecls, patterns := ctorFieldPatterns ++ alt.patterns }
+      let ctorFieldPatterns := ctorFieldDecls.toList.map fun decl => Pattern.var decl.fvarId
+      return some { alt with fvarDecls := newAltDecls, patterns := ctorFieldPatterns ++ alt.patterns, cnstrs }
 
 private def getInductiveVal? (x : Expr) : MetaM (Option InductiveVal) := do
   let xType ← inferType x
@@ -411,34 +462,32 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
       | _                         => unreachable!
     return { mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
 
+private def altsAreCtorLike (p : Problem) : MetaM Bool := withGoalOf p do
+  p.alts.allM fun alt => do match alt.patterns with
+    | .ctor .. :: _ => return true
+    | .inaccessible e :: _ => return (← whnfD e).isConstructorApp (← getEnv)
+    | _ => return false
+
 private def processNonVariable (p : Problem) : MetaM Problem := withGoalOf p do
   let x :: xs := p.vars | unreachable!
-  let x ← whnfD x
-  let env ← getEnv
-  match x.constructorApp? env with
-  | some (ctorVal, xArgs) =>
-    let alts ← p.alts.filterMapM fun alt => do
-      match alt.patterns with
-      | .ctor n _ _ fields :: ps   =>
-        if n != ctorVal.name then
-          return none
-        else
-          return some { alt with patterns := fields ++ ps }
-      | .inaccessible _ :: _ => processInaccessibleAsCtor alt ctorVal.name
-      | p :: _  => throwError "failed to compile pattern matching, inaccessible pattern or constructor expected{indentD p.toMessageData}"
-      | _       => unreachable!
-    let xFields := xArgs.extract ctorVal.numParams xArgs.size
-    return { p with alts := alts, vars := xFields.toList ++ xs }
-  | none =>
-    let alts ← p.alts.filterMapM fun alt => match alt.patterns with
-      | .inaccessible e :: ps => do
-        if (← isDefEq x e) then
-          return some { alt with patterns := ps }
-        else
-          return none
-      | p :: _ => throwError "failed to compile pattern matching, unexpected pattern{indentD p.toMessageData}\ndiscriminant{indentExpr x}"
-      | _      => unreachable!
-    return { p with alts := alts, vars := xs }
+  if let some (ctorVal, xArgs) := (← whnfD x).constructorApp? (← getEnv) then
+    if (← altsAreCtorLike p) then
+      let alts ← p.alts.filterMapM fun alt => do
+        match alt.patterns with
+        | .ctor ctorName _ _ fields :: ps   =>
+          if ctorName != ctorVal.name then
+            return none
+          else
+            return some { alt with patterns := fields ++ ps }
+        | .inaccessible _ :: _ => processInaccessibleAsCtor alt ctorVal.name
+        | _ => unreachable!
+      let xFields := xArgs.extract ctorVal.numParams xArgs.size
+      return { p with alts := alts, vars := xFields.toList ++ xs }
+  let alts ← p.alts.mapM fun alt => do
+    match alt.patterns with
+    | p :: ps => return { alt with patterns := ps, cnstrs := (x, ← p.toExpr) :: alt.cnstrs }
+    | _      => unreachable!
+  return { p with alts := alts, vars := xs }
 
 private def collectValues (p : Problem) : Array Expr :=
   p.alts.foldl (init := #[]) fun values alt =>
@@ -601,91 +650,44 @@ private def moveToFront (p : Problem) (i : Nat) : Problem :=
   else
     p
 
-private partial def process (p : Problem) : StateRefT State MetaM Unit :=
-  search 0
-where
-  /-- If `p.vars` is empty, then we are done. Otherwise, we process `p.vars[0]`. -/
-  tryToProcess (p : Problem) : StateRefT State MetaM Unit := withIncRecDepth do
-    traceState p
-    let isInductive ← isCurrVarInductive p
-    if isDone p then
-      processLeaf p
-    else if hasAsPattern p then
-      traceStep ("as-pattern")
-      let p ← processAsPattern p
-      process p
-    else if isNatValueTransition p then
-      traceStep ("nat value to constructor")
-      process (expandNatValuePattern p)
-    else if !isNextVar p then
-      traceStep ("non variable")
-      let p ← processNonVariable p
-      process p
-    else if isInductive && isConstructorTransition p then
-      let ps ← processConstructor p
-      ps.forM process
-    else if isVariableTransition p then
-      traceStep ("variable")
-      let p ← processVariable p
-      process p
-    else if isValueTransition p then
-      let ps ← processValue p
-      ps.forM process
-    else if isArrayLitTransition p then
-      let ps ← processArrayLit p
-      ps.forM process
-    else if hasNatValPattern p then
-      -- This branch is reachable when `p`, for example, is just values without an else-alternative.
-      -- We added it just to get better error messages.
-      traceStep ("nat value to constructor")
-      process (expandNatValuePattern p)
-    else
-      checkNextPatternTypes p
-      throwNonSupported p
-
-  /-- Return `true` if `type` does not depend on the first `i` elements in `xs` -/
-  checkVarDeps (xs : List Expr) (i : Nat) (type : Expr) : MetaM Bool := do
-    match i, xs with
-    | 0,   _     => return true
-    | _,   []    => unreachable!
-    | i+1, x::xs =>
-      if x.isFVar then
-        if (← dependsOn type x.fvarId!) then
-          return false
-      checkVarDeps xs i type
-
-  /--
-    Auxiliary method for `search`. Find next variable to "try".
-    `i` is the position of the variable s.t. `tryToProcess` failed.
-    We only consider variables that do not depend on other variables at `p.vars`. -/
-  findNext (i : Nat) : MetaM (Option Nat) := do
-    if h : i < p.vars.length then
-      let x := p.vars.get ⟨i, h⟩
-      if (← checkVarDeps p.vars i (← inferType x)) then
-        return i
-      else
-        findNext (i+1)
-    else
-      return none
-
-  /--
-    Auxiliary method for trying the next variable to process.
-    It moves variable `#i` to the front of the to-do list and invokes `tryToProcess`.
-    Note that for non-dependent elimination, variable `#0` always work.
-    If variable `#i` fails, we use `findNext` to select the next variable to try.
-    Remark: the "missing cases" error is not considered a failure. -/
-  search (i : Nat) : StateRefT State MetaM Unit := do
-    let s₁ ← getThe Meta.State
-    let s₂ ← get
-    let p' := moveToFront p i
-    try
-      tryToProcess p'
-    catch ex =>
-      match (← withGoalOf p <| findNext (i+1)) with
-      | none   => throw ex
-      | some j =>
-        trace[Meta.Match.match] "failed with #{i}, trying #{j}{indentD ex.toMessageData}"
-        set s₁; set s₂; search j
+private partial def process (p : Problem) : StateRefT State MetaM Unit := do
+  traceState p
+  let isInductive ← isCurrVarInductive p
+  if isDone p then
+    traceStep ("leaf")
+    processLeaf p
+  else if hasAsPattern p then
+    traceStep ("as-pattern")
+    let p ← processAsPattern p
+    process p
+  else if isNatValueTransition p then
+    traceStep ("nat value to constructor")
+    process (expandNatValuePattern p)
+  else if !isNextVar p then
+    traceStep ("non variable")
+    let p ← processNonVariable p
+    process p
+  else if isInductive && isConstructorTransition p then
+    let ps ← processConstructor p
+    ps.forM process
+  else if isVariableTransition p then
+    traceStep ("variable")
+    let p ← processVariable p
+    process p
+  else if isValueTransition p then
+    let ps ← processValue p
+    ps.forM process
+  else if isArrayLitTransition p then
+    let ps ← processArrayLit p
+    ps.forM process
+  else if hasNatValPattern p then
+    -- This branch is reachable when `p`, for example, is just values without an else-alternative.
+    -- We added it just to get better error messages.
+    traceStep ("nat value to constructor")
+    process (expandNatValuePattern p)
+  else
+    checkNextPatternTypes p
+    throwNonSupported p
 
 private def getUElimPos? (matcherLevels : List Level) (uElim : Level) : MetaM (Option Nat) :=
   if uElim == levelZero then

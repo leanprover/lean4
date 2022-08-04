@@ -35,6 +35,7 @@ structure BasicBlock where
 structure Function where
 structure GlobalValue where
 
+structure Context where
 structure Module where 
 
 def Module.toPointer (m: Module): IO String := return ""
@@ -808,10 +809,45 @@ def main : M Unit := do
   emitFileFooter
 
 end EmitC
+@[export lean_ir_emit_c]
+def emitC (env : Environment) (modName : Name) : Except String String :=
+  match (EmitC.main { env := env, modName := modName }).run "" with
+  | EStateM.Result.ok    _   s => Except.ok s
+  | EStateM.Result.error err _ => Except.error err
 -/
 
-@[export lean_ir_emit_llvm]
-def emitLLVM (env : Environment) (modName : Name) : Except String String := 
-  Except.error "can't emit llvm"
+namespace EmitLLVM
 
+structure Context where
+  env        : Environment
+  modName    : Name
+  jpMap      : JPParamsMap := {}
+  mainFn     : FunId := default
+  mainParams : Array Param := #[]
+
+structure State where 
+  ctx : LLVM.Ptr LLVM.Context
+  module : LLVM.Ptr LLVM.Module
+
+def State.createInitStateIO: IO State := do
+  let ctx ← LLVM.createContext
+  let module ← LLVM.createModule ctx -- TODO: pass module name
+  return { ctx := ctx, module := module : State }
+
+abbrev Error := String
+abbrev M := ReaderT Context (EStateM Error State)
+
+
+def main : M Unit := do 
+   return ()
+end EmitLLVM
+
+-- | TODO: Use a beter type signature than this.
+-- | TODO: produce bitcode instead of an LLVM string.
+@[export lean_ir_emit_llvm]
+def emitLLVM (env : Environment) (modName : Name) : IO String := do
+  let state ← EmitLLVM.State.createInitStateIO
+  match (EmitLLVM.main {env := env, modName := modName}).run state with 
+  | EStateM.Result.ok    _   s =>  (LLVM.moduletoString  s.module)
+  | EStateM.Result.error err _ =>  throw (IO.userError err)
 end Lean.IR

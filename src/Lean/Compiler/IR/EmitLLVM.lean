@@ -32,11 +32,13 @@ def Ty.i8: Ty := Ty.int 8
 def Ty.i8ptr: Ty := .ptr <| Ty.i8
 
 structure BasicBlock where
-structure Function where
-structure GlobalValue where
+-- structure Function where
+-- structure GlobalValue where
 structure Context where
 structure Module where
 structure Builder where
+structure LLVMType where
+structure Value where
 
 -- A raw pointer to a C object, whose Lean representation
 -- is given by α
@@ -54,6 +56,18 @@ opaque moduletoString (m: @&Ptr Module): IO String
 
 @[extern "lean_llvm_write_bitcode_to_file"]
 opaque writeBitcodeToFile(m: @&Ptr Module) (path: @&String): IO Unit
+
+@[extern "lean_llvm_add_function"]
+opaque addFunction(m: @&Ptr Module) (name: @&String) (type: @&Ptr LLVMType): IO Value
+
+@[extern "lean_llvm_get_named_function"]
+opaque getNamedFunction(m: @&Ptr Module) (name: @&String): IO (Option (Ptr Value))
+
+@[extern "lean_llvm_add_global"]
+opaque addGlobal(m: @&Ptr Module) (name: @&String) (type: @&Ptr LLVMType): IO Value
+
+@[extern "lean_llvm_get_named_global"]
+opaque getNamedGlobal(m: @&Ptr Module) (name: @&String): IO (Option (Ptr Value))
 end LLVM
 
 

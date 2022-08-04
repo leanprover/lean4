@@ -86,8 +86,48 @@ macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBrackedBi
 
 -- enforce indentation of calc steps so we know when to stop parsing them
 syntax calcStep := ppIndent(colGe term " := " withPosition(term))
+
+/-- Step-wise reasoning over transitive relations.
+```
+calc
+  a = b := pab
+  b = c := pbc
+  ...
+  y = z := pyz
+```
+proves `a = z` from the given step-wise proofs. `=` can be replaced with any
+relation implementing the typeclass `Trans`. Instead of repeating the right-
+hand sides, subsequent left-hand sides can be replaced with `_`.
+
+`calc` has term mode and tactic mode variants. This is the term mode variant.
+
+See [Theorem Proving in Lean 4][tpil4] for more information.
+
+[tpil4]: https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#calculational-proofs
+-/
 syntax (name := calc) "calc" ppLine withPosition(calcStep) ppLine withPosition((calcStep ppLine)*) : term
 
+/-- Step-wise reasoning over transitive relations.
+```
+calc
+  a = b := pab
+  b = c := pbc
+  ...
+  y = z := pyz
+```
+proves `a = z` from the given step-wise proofs. `=` can be replaced with any
+relation implementing the typeclass `Trans`. Instead of repeating the right-
+hand sides, subsequent left-hand sides can be replaced with `_`.
+
+`calc` has term mode and tactic mode variants. This is the tactic mode variant,
+which supports an additional feature: it works even if the goal is `a = z'`
+for some other `z'`; in this case it will not close the goal but will instead
+leave a subgoal proving `z = z'`.
+
+See [Theorem Proving in Lean 4][tpil4] for more information.
+
+[tpil4]: https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#calculational-proofs
+-/
 syntax (name := calcTactic) "calc" ppLine withPosition(calcStep) ppLine withPosition((calcStep ppLine)*) : tactic
 
 @[appUnexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
@@ -216,7 +256,8 @@ macro_rules
   attribute [instance] C.mk
   ```
 -/
-syntax declModifiers "class " "abbrev " declId bracketedBinder* (":" term)?
+syntax (name := Lean.Parser.Command.classAbbrev)
+  declModifiers "class " "abbrev " declId bracketedBinder* (":" term)?
   ":=" withPosition(group(colGe term ","?)*) : command
 
 macro_rules
@@ -225,10 +266,17 @@ macro_rules
     `($mods:declModifiers class $id $params* extends $parents,* $[: $ty]?
       attribute [instance] $ctor)
 
+section
+open Lean.Parser.Tactic
 /-- `· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. -/
 syntax ("·" <|> ".") ppHardSpace many1Indent(tactic ";"? ppLine) : tactic
 macro_rules
-  | `(tactic| ·%$dot $[$tacs $[;%$sc]?]*) => `(tactic| {%$dot $[$tacs $[;%$sc]?]*})
+  | `(tactic| ·%$dot $[$tacs $[;%$sc]?]*) => do
+    let tacs ← tacs.zip sc |>.mapM fun
+      | (tac, none)    => pure tac
+      | (tac, some sc) => `(tactic| ($tac; with_annotate_state $sc skip))
+    `(tactic| { with_annotate_state $dot skip; $[$tacs]* })
+end
 
 /--
   Similar to `first`, but succeeds only if one the given tactics solves the current goal.

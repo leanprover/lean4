@@ -8,16 +8,17 @@ import Init.Data.String.Basic
 import Init.Data.ToString.Basic
 
 universe u v
-set_option linter.unusedVariables.funArgs false
 
 /-! # Debugging helper functions -/
 
+set_option linter.unusedVariables.funArgs false in
 @[neverExtract, extern "lean_dbg_trace"]
 def dbgTrace {α : Type u} (s : String) (f : Unit → α) : α := f ()
 
 def dbgTraceVal {α : Type u} [ToString α] (a : α) : α :=
   dbgTrace (toString a) (fun _ => a)
 
+set_option linter.unusedVariables.funArgs false in
 /-- Display the given message if `a` is shared, that is, RC(a) > 1 -/
 @[neverExtract, extern "lean_dbg_trace_if_shared"]
 def dbgTraceIfShared {α : Type u} (s : String) (a : α) : α := a
@@ -40,6 +41,7 @@ def dbgSleep {α : Type u} (ms : UInt32) (f : Unit → α) : α := f ()
 @[extern "lean_ptr_addr"]
 unsafe def ptrAddrUnsafe {α : Type u} (a : @& α) : USize := 0
 
+set_option linter.unusedVariables.funArgs false in
 @[inline] unsafe def withPtrAddrUnsafe {α : Type u} {β : Type v} (a : α) (k : USize → β) (h : ∀ u₁ u₂, k u₁ = k u₂) : β :=
   k (ptrAddrUnsafe a)
 
@@ -50,6 +52,7 @@ unsafe def ptrEqList : (as bs : List α) → Bool
   | a::as, b::bs => if ptrEq a b then ptrEqList as bs else false
   | _, _ => false
 
+set_option linter.unusedVariables.funArgs false in
 @[inline] unsafe def withPtrEqUnsafe {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
   if ptrEq a b then true else k ()
 
@@ -66,10 +69,10 @@ def withPtrEq {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () =
 @[implementedBy withPtrAddrUnsafe]
 def withPtrAddr {α : Type u} {β : Type v} (a : α) (k : USize → β) (h : ∀ u₁ u₂, k u₁ = k u₂) : β := k 0
 
-@[inline] def getElem! [GetElem Cont Idx Elem Dom] [Inhabited Elem] (xs : Cont) (i : Idx) [Decidable (Dom xs i)] : Elem :=
+@[inline] def getElem! [GetElem cont idx elem dom] [Inhabited elem] (xs : cont) (i : idx) [Decidable (dom xs i)] : elem :=
   if h : _ then getElem xs i h else panic! "index out of bounds"
 
-@[inline] def getElem? [GetElem Cont Idx Elem Dom] (xs : Cont) (i : Idx) [Decidable (Dom xs i)] : Option Elem :=
+@[inline] def getElem? [GetElem cont idx elem dom] (xs : cont) (i : idx) [Decidable (dom xs i)] : Option elem :=
   if h : _ then some (getElem xs i h) else none
 
 macro:max x:term noWs "[" i:term "]" noWs "?" : term => `(getElem? $x $i)

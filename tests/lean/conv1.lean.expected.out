@@ -82,4 +82,4 @@ conv1.lean:166:10-166:13: error: invalid 'lhs' conv tactic, application has only
 conv1.lean:169:10-169:15: error: invalid 'arg' conv tactic, application has only 1 (nondependent) argument(s)
 conv1.lean:172:10-172:13: error: invalid 'congr' conv tactic, application or implication expected
   p
-conv1.lean:175:10-175:15: error: cannot select argument with forward dependencies
+conv1.lean:175:10-175:15: error: cannot select argument

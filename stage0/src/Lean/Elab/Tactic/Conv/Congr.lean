@@ -4,44 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.Tactic.Simp.Main
+import Lean.Meta.Tactic.Congr
 import Lean.Elab.Tactic.Conv.Basic
 
 namespace Lean.Elab.Tactic.Conv
 open Meta
-
-/-- Returns a list of new congruence subgoals, which contains `none` for each argument with
-forward dependencies. -/
-private def congrApp (mvarId : MVarId) (lhs rhs : Expr) (addImplicitArgs := false) :
-   MetaM (List (Option MVarId)) :=
-  -- TODO: add support for `[congr]` lemmas
-  lhs.withApp fun f args => do
-    let infos := (← getFunInfoNArgs f args.size).paramInfo
-    let mut r := { expr := f : Simp.Result }
-    let mut newGoals : Array (Option MVarId) := #[]
-    let mut i := 0
-    for arg in args do
-      let addGoal ←
-        if i < infos.size then
-          pure (addImplicitArgs || infos[i]!.binderInfo.isExplicit)
-        else
-          pure (← whnfD (← inferType r.expr)).isArrow
-      let hasFwdDep := i < infos.size && infos[i]!.hasFwdDeps
-      if addGoal then
-        if hasFwdDep then
-          newGoals := newGoals.push none
-          r ← Simp.mkCongrFun r arg
-        else
-          let (rhs, newGoal) ← mkConvGoalFor arg
-          newGoals := newGoals.push newGoal.mvarId!
-          r ← Simp.mkCongr r { expr := rhs, proof? := newGoal }
-      else
-        r ← Simp.mkCongrFun r arg
-      i := i + 1
-    let proof ← r.getProof
-    unless (← isDefEqGuarded rhs r.expr) do
-      throwError "invalid 'congr' conv tactic, failed to resolve{indentExpr rhs}\n=?={indentExpr r.expr}"
-    mvarId.assign proof
-    return newGoals.toList
 
 private def congrImplies (mvarId : MVarId) : MetaM (List MVarId) := do
   let [mvarId₁, mvarId₂, _, _] ← mvarId.apply (← mkConstWithFreshMVarLevels ``implies_congr) | throwError "'apply implies_congr' unexpected result"
@@ -49,23 +16,55 @@ private def congrImplies (mvarId : MVarId) : MetaM (List MVarId) := do
   let mvarId₂ ← markAsConvGoal mvarId₂
   return [mvarId₁, mvarId₂]
 
--- TODO: move?
-def isImplies (e : Expr) : MetaM Bool :=
+private def isImplies (e : Expr) : MetaM Bool :=
   if e.isArrow then
     isProp e.bindingDomain! <&&> isProp e.bindingBody!
   else
     return false
 
-def congr (mvarId : MVarId) (addImplicitArgs := false) : MetaM (List (Option MVarId)) :=
-  mvarId.withContext do
-    let (lhs, rhs) ← getLhsRhsCore mvarId
-    let lhs := (← instantiateMVars lhs).consumeMData
-    if (← isImplies lhs) then
-      return (← congrImplies mvarId).map Option.some
-    else if lhs.isApp then
-      congrApp mvarId lhs rhs addImplicitArgs
-    else
-      throwError "invalid 'congr' conv tactic, application or implication expected{indentExpr lhs}"
+def congr (mvarId : MVarId) (addImplicitArgs := false) : MetaM (List (Option MVarId)) := mvarId.withContext do
+  let (lhs, rhs) ← getLhsRhsCore mvarId
+  let lhs := (← instantiateMVars lhs).cleanupAnnotations
+  if (← isImplies lhs) then
+    return (← congrImplies mvarId).map Option.some
+  else if lhs.isApp then
+    let funInfo ← getFunInfo lhs.getAppFn
+    let args := lhs.getAppArgs
+    let some congrThm ← mkCongrSimp? lhs.getAppFn (subsingletonInstImplicitRhs := false)
+      | throwError "'congr' conv tactic failed to create congruence theorem"
+    unless args.size == congrThm.argKinds.size do
+      throwError "'congr' conv tactic failed, unexpected number of arguments in congruence theorem"
+    let mut proof := congrThm.proof
+    let mut mvarIdsNew := #[]
+    let mut mvarIdsNewInsts := #[]
+    for i in [:args.size] do
+      let arg := args[i]!
+      let argInfo := funInfo.paramInfo[i]!
+      match congrThm.argKinds[i]! with
+      | .fixed | .cast =>
+        proof := mkApp proof arg;
+        if addImplicitArgs || argInfo.isExplicit then
+          mvarIdsNew := mvarIdsNew.push none
+      | .eq    =>
+        if addImplicitArgs || argInfo.isExplicit then
+          let (rhs, mvarNew) ← mkConvGoalFor arg;
+          proof := mkApp3 proof arg rhs mvarNew
+          mvarIdsNew := mvarIdsNew.push (some mvarNew.mvarId!)
+        else
+          proof := mkApp3 proof arg arg (← mkEqRefl arg)
+      | .subsingletonInst =>
+        proof := mkApp proof arg
+        let rhs ← mkFreshExprMVar (← whnf (← inferType proof)).bindingDomain!
+        proof := mkApp proof rhs
+        mvarIdsNewInsts := mvarIdsNewInsts.push (some rhs.mvarId!)
+      | .heq | .fixedNoParam => unreachable!
+    let some (_, _, rhs') := (← whnf (← inferType proof)).eq? | throwError "'congr' conv tactic failed, equality expected"
+    unless (← isDefEqGuarded rhs rhs') do
+      throwError "invalid 'congr' conv tactic, failed to resolve{indentExpr rhs}\n=?={indentExpr rhs'}"
+    mvarId.assign proof
+    return mvarIdsNew.toList ++ mvarIdsNewInsts.toList
+  else
+    throwError "invalid 'congr' conv tactic, application or implication expected{indentExpr lhs}"
 
 @[builtinTactic Lean.Parser.Tactic.Conv.congr] def evalCongr : Tactic := fun _ => do
    replaceMainGoal <| List.filterMap id (← congr (← getMainGoal))
@@ -80,12 +79,14 @@ private def selectIdx (tacticName : String) (mvarIds : List (Option MVarId)) (i 
         | none => pure ()
         | some mvarId =>
           if i != j then
-            mvarId.applyRefl
-      match mvarIds.get ⟨i, h⟩ with
-      | none => throwError "cannot select argument with forward dependencies"
+            mvarId.refl
+      match mvarIds[i] with
+      | none => throwError "cannot select argument"
       | some mvarId => replaceMainGoal [mvarId]
       return ()
   throwError "invalid '{tacticName}' conv tactic, application has only {mvarIds.length} (nondependent) argument(s)"
+
+@[builtinTactic Lean.Parser.Tactic.Conv.skip] def evalSkip : Tactic := fun _ => pure ()
 
 @[builtinTactic Lean.Parser.Tactic.Conv.lhs] def evalLhs : Tactic := fun _ => do
    let mvarIds ← congr (← getMainGoal)
@@ -120,7 +121,6 @@ def extLetBodyCongr? (mvarId : MVarId) (lhs rhs : Expr) : MetaM (Option MVarId) 
       let rhsBody ← mkFreshExprMVar type
       let f' ← mkLambdaFVars #[a] rhsBody
       let rhs' := mkLet n t v f'.bindingBody!
-      trace[Meta.debug] "rhs: {rhs'}"
       unless (← isDefEq rhs rhs') do
         throwError "failed to go inside let-declaration, type error"
       return (β, u₂, f')

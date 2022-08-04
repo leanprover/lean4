@@ -164,3 +164,8 @@ decreasing_by have n' := n; admit
 @[inline]
 --^ textDocument/hover
 def one := 1
+
+example : True ∧ False := by
+  constructor
+  · constructor
+--^ textDocument/hover

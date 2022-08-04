@@ -33,6 +33,8 @@ namespace Tactic
 
 def tacticSeq1Indented : Parser :=
   leading_parser many1Indent (group (ppLine >> tacticParser >> optional ";"))
+/-- The syntax `{ tacs }` is an alternative syntax for `· tacs`.
+It runs the tactics in sequence, and fails if the goal is not solved. -/
 def tacticSeqBracketed : Parser :=
   leading_parser "{" >> many (group (ppLine >> tacticParser >> optional ";")) >> ppDedent (ppLine >> "}")
 def tacticSeq :=

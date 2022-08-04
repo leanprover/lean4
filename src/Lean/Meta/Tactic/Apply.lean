@@ -154,11 +154,6 @@ abbrev _root_.Lean.MVarId.splitAnd (mvarId : MVarId) : MetaM (List MVarId) :=
 def splitAnd (mvarId : MVarId) : MetaM (List MVarId) :=
   mvarId.splitAnd
 
-def _root_.Lean.MVarId.applyRefl (mvarId : MVarId) (msg : MessageData := "refl failed") : MetaM Unit :=
-  mvarId.withContext do
-    let some [] ← observing? do mvarId.apply (mkConst ``Eq.refl [← mkFreshLevelMVar])
-      | throwTacticEx `refl mvarId msg
-
 def _root_.Lean.MVarId.exfalso (mvarId : MVarId) : MetaM MVarId :=
   mvarId.withContext do
     mvarId.checkNotAssigned `exfalso

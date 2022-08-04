@@ -237,11 +237,11 @@ syntax (name := rewriteSeq) "rewrite " (config)? rwRuleSeq (location)? : tactic
 /--
 `rw` is like `rewrite`, but also tries to close the goal by "cheap" (reducible) `rfl` afterwards.
 -/
-macro (name := rwSeq) rw:"rw " c:(config)? s:rwRuleSeq l:(location)? : tactic =>
+macro (name := rwSeq) "rw " c:(config)? s:rwRuleSeq l:(location)? : tactic =>
   match s with
-  | `(rwRuleSeq| [%$lbrak $rs,* ]%$rbrak) =>
+  | `(rwRuleSeq| [$rs,*]%$rbrak) =>
     -- We show the `rfl` state on `]`
-    `(tactic| rewrite%$rw $(c)? [%$lbrak $rs,*] $(l)?; try (with_reducible rfl%$rbrak))
+    `(tactic| rewrite $(c)? [$rs,*] $(l)?; with_annotate_state $rbrak (try (with_reducible rfl)))
   | _ => Macro.throwUnsupported
 
 /--
@@ -493,6 +493,15 @@ syntax (name := sleep) "sleep" num : tactic
 macro "exists " es:term,+ : tactic =>
   `(tactic| (refine ⟨$es,*, ?_⟩; try trivial))
 
+/--
+Apply congruence (recursively) to goals of the form `⊢ f as = f bs` and `⊢ HEq (f as) (f bs)`.
+The optional parameter is the depth of the recursive applications. This is useful when `congr` is too aggressive
+in breaking down the goal.
+For example, given `⊢ f (g (x + y)) = f (g (y + x))`, `congr` produces the goals `⊢ x = y` and `⊢ y = x`,
+while `congr 2` produces the intended `⊢ x + y = y + x`.
+-/
+syntax (name := congr) "congr " (num)? : tactic
+
 end Tactic
 
 namespace Attr
@@ -573,7 +582,7 @@ macro "get_elem_tactic" : tactic =>
 macro:max x:term noWs "[" i:term "]" : term => `(getElem $x $i (by get_elem_tactic))
 
 /-- Helper declaration for the unexpander -/
-@[inline] def getElem' [GetElem Cont Idx Elem Dom] (xs : Cont) (i : Idx) (h : Dom xs i) : Elem :=
+@[inline] def getElem' [GetElem cont idx elem dom] (xs : cont) (i : idx) (h : dom xs i) : elem :=
   getElem xs i h
 
 macro x:term noWs "[" i:term "]'" h:term:max : term => `(getElem' $x $i $h)

@@ -150,21 +150,28 @@ def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextI
 
 /-- Find an info node, if any, which should be shown on hover/cursor at position `hoverPos`. -/
 partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (includeStop := false) (omitAppFns := false) : Option (ContextInfo × Info) := Id.run do
-  let results := t.visitM (m := Id) (postNode := fun ctx i _ results => do
+  let results := t.visitM (m := Id) (postNode := fun ctx info _ results => do
     let mut results := results.bind (·.getD [])
-    if omitAppFns && i.stx.isOfKind ``Parser.Term.app && i.stx[0].isIdent then
-      results := results.filter (·.2.2.stx != i.stx[0])
-    if results.isEmpty && (i matches Info.ofFieldInfo _ || i.toElabInfo?.isSome) && i.contains hoverPos includeStop then
-      let r := i.range?.get!
-      let priority :=
-        if r.stop == hoverPos then
-          0  -- prefer results directly *after* the hover position (only matters for `includeStop = true`; see #767)
-        else if i matches .ofTermInfo { expr := .fvar .., .. } then
-          0  -- prefer results for constants over variables (which overlap at declaration names)
-        else 1
-      [(priority, ctx, i)]
-    else
-      results) |>.getD []
+    if omitAppFns && info.stx.isOfKind ``Parser.Term.app && info.stx[0].isIdent then
+      results := results.filter (·.2.2.stx != info.stx[0])
+    unless results.isEmpty do
+      return results  -- prefer innermost results
+    /-
+      Remark: we skip `info` nodes associated with the `nullKind` and `withAnnotateState` because they are used by tactics (e.g., `rewrite`) to control
+      which goal is displayed in the info views. See issue #1403
+    -/
+    if info.stx.isOfKind nullKind || info.toElabInfo?.any (·.elaborator == `Lean.Elab.Tactic.evalWithAnnotateState) then
+      return results
+    unless (info matches Info.ofFieldInfo _ || info.toElabInfo?.isSome) && info.contains hoverPos includeStop do
+      return results
+    let r := info.range?.get!
+    let priority :=
+      if r.stop == hoverPos then
+        0  -- prefer results directly *after* the hover position (only matters for `includeStop = true`; see #767)
+      else if info matches .ofTermInfo { expr := .fvar .., .. } then
+        0  -- prefer results for constants over variables (which overlap at declaration names)
+      else 1
+    [(priority, ctx, info)]) |>.getD []
   let maxPrio? := results.map (·.1) |>.maximum?
   let res? := results.find? (·.1 == maxPrio?) |>.map (·.2)
   if let some (_, i) := res? then

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Meta.Transform
 import Lean.Meta.Tactic.Injection
 import Lean.Meta.Tactic.Apply
+import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.Subst
 import Lean.Meta.Tactic.Simp.Types
@@ -125,7 +126,7 @@ private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : Me
     solveEqOfCtorEq ctorName mvarId₁ h
     let mvarId₂ ← mvarId₂.casesAnd
     if let some mvarId₂ ← mvarId₂.substEqs then
-      mvarId₂.applyRefl (injTheoremFailureHeader ctorName)
+      try mvarId₂.refl catch _ => throwError (injTheoremFailureHeader ctorName)
     mkLambdaFVars xs mvar
 
 private def mkInjectiveEqTheorem (ctorVal : ConstructorVal) : MetaM Unit := do

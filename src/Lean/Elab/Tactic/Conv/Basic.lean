@@ -37,10 +37,7 @@ def convert (lhs : Expr) (conv : TacticM Unit) : TacticM (Expr × Expr) := do
     setGoals [newGoal.mvarId!]
     conv
     for mvarId in (← getGoals) do
-      try
-        mvarId.applyRefl
-      catch _ =>
-        pure ()
+      liftM <| mvarId.refl <|> mvarId.inferInstance <|> pure ()
     pruneSolvedGoals
     unless (← getGoals).isEmpty do
       throwError "convert tactic failed, there are unsolved goals\n{goalsToMessageData (← getGoals)}"

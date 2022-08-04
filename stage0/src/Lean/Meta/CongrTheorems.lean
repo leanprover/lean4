@@ -53,8 +53,8 @@ private def setBinderInfosD (ys : Array Expr) (lctx : LocalContext) : LocalConte
 
 partial def mkHCongrWithArity (f : Expr) (numArgs : Nat) : MetaM CongrTheorem := do
   let fType ← inferType f
-  forallBoundedTelescope fType numArgs fun xs xType =>
-  forallBoundedTelescope fType numArgs fun ys yType => do
+  forallBoundedTelescope fType numArgs fun xs _ =>
+  forallBoundedTelescope fType numArgs fun ys _ => do
     if xs.size != numArgs then
       throwError "failed to generate hcongr theorem, insufficient number of arguments"
     else
@@ -64,10 +64,9 @@ partial def mkHCongrWithArity (f : Expr) (numArgs : Nat) : MetaM CongrTheorem :=
         let mut hs := #[]
         for x in xs, y in ys, eq in eqs do
           hs := hs.push x |>.push y |>.push eq
-        let xType := xType.consumeTypeAnnotations
-        let yType := yType.consumeTypeAnnotations
-        let resultType ← if xType == yType then mkEq xType yType else mkHEq xType yType
-        let congrType ← mkForallFVars hs resultType
+        let lhs := mkAppN f xs
+        let rhs := mkAppN f ys
+        let congrType ← mkForallFVars hs (← mkHEq lhs rhs)
         return {
           type  := congrType
           proof := (← mkProof congrType)
@@ -170,6 +169,7 @@ private def shouldUseSubsingletonInst (info : FunInfo) (kinds : Array CongrArgKi
         return true
   return false
 
+/-- Compute `CongrArgKind`s for a simp congruence theorem. -/
 def getCongrSimpKinds (info : FunInfo) : Array CongrArgKind := Id.run do
   /- The default `CongrArgKind` is `eq`, which allows `simp` to rewrite this
      argument. However, if there are references from `i` to `j`, we cannot
@@ -195,9 +195,9 @@ def getCongrSimpKinds (info : FunInfo) : Array CongrArgKind := Id.run do
   return fixKindsForDependencies info result
 
 /--
-  Create a congruence theorem that is useful for the simplifier.
+  Create a congruence theorem that is useful for the simplifier and `congr` tactic.
 -/
-partial def mkCongrSimpCore? (f : Expr) (info : FunInfo) (kinds : Array CongrArgKind) : MetaM (Option CongrTheorem) := do
+partial def mkCongrSimpCore? (f : Expr) (info : FunInfo) (kinds : Array CongrArgKind) (subsingletonInstImplicitRhs : Bool := true) : MetaM (Option CongrTheorem) := do
   if let some result ← mk? f info kinds then
     return some result
   else if hasCastLike kinds then
@@ -230,22 +230,24 @@ where
           else
             let hyps := hyps.push lhss[i]!
             match kinds[i]! with
-            | CongrArgKind.heq => unreachable!
-            | CongrArgKind.fixedNoParam => unreachable!
-            | CongrArgKind.eq =>
+            | .heq | .fixedNoParam => unreachable!
+            | .eq =>
               let localDecl ← lhss[i]!.fvarId!.getDecl
               withLocalDecl localDecl.userName localDecl.binderInfo localDecl.type fun rhs => do
               withLocalDeclD ((`e).appendIndexAfter (eqs.size+1)) (← mkEq lhss[i]! rhs) fun eq => do
                 go (i+1) (rhss.push rhs) (eqs.push eq) (hyps.push rhs |>.push eq)
-            | CongrArgKind.fixed => go (i+1) (rhss.push lhss[i]!) (eqs.push none) hyps
-            | CongrArgKind.cast =>
+            | .fixed => go (i+1) (rhss.push lhss[i]!) (eqs.push none) hyps
+            | .cast =>
               let rhsType := (← inferType lhss[i]!).replaceFVars (lhss[:rhss.size]) rhss
               let rhs ← mkCast lhss[i]! rhsType info.paramInfo[i]!.backDeps eqs
               go (i+1) (rhss.push rhs) (eqs.push none) hyps
-            | CongrArgKind.subsingletonInst =>
-              let rhsType := (← inferType lhss[i]!).replaceFVars (lhss[:rhss.size]) rhss
-              withLocalDecl (← lhss[i]!.fvarId!.getDecl).userName BinderInfo.instImplicit rhsType fun rhs =>
-                go (i+1) (rhss.push rhs) (eqs.push none) (hyps.push rhs)
+            | .subsingletonInst =>
+              -- The `lhs` does not need to instance implicit since it can be inferred from the LHS
+              withNewBinderInfos #[(lhss[i]!.fvarId!, .implicit)] do
+                let rhsType := (← inferType lhss[i]!).replaceFVars (lhss[:rhss.size]) rhss
+                let rhsBi   := if subsingletonInstImplicitRhs then .instImplicit else .implicit
+                withLocalDecl (← lhss[i]!.fvarId!.getDecl).userName rhsBi rhsType fun rhs =>
+                  go (i+1) (rhss.push rhs) (eqs.push none) (hyps.push rhs)
         return some (← go 0 #[] #[] #[])
     catch _ =>
       return none
@@ -258,18 +260,17 @@ where
       else
         withNext type fun lhs type => do
         match kinds[i]! with
-        | CongrArgKind.heq => unreachable!
-        | CongrArgKind.fixedNoParam => unreachable!
-        | CongrArgKind.fixed => mkLambdaFVars #[lhs] (← go (i+1) type)
-        | CongrArgKind.cast => mkLambdaFVars #[lhs] (← go (i+1) type)
-        | CongrArgKind.eq =>
+        | .heq | .fixedNoParam => unreachable!
+        | .fixed => mkLambdaFVars #[lhs] (← go (i+1) type)
+        | .cast => mkLambdaFVars #[lhs] (← go (i+1) type)
+        | .eq =>
           let typeSub := type.bindingBody!.bindingBody!.instantiate #[(← mkEqRefl lhs), lhs]
           withNext type fun rhs type =>
           withNext type fun heq type => do
             let motive ← mkLambdaFVars #[rhs, heq] type
             let proofSub ← go (i+1) typeSub
             mkLambdaFVars #[lhs, rhs, heq] (← mkEqRec motive proofSub heq)
-        | CongrArgKind.subsingletonInst =>
+        | .subsingletonInst =>
           let typeSub := type.bindingBody!.instantiate #[lhs]
           withNext type fun rhs type => do
             let motive ← mkLambdaFVars #[rhs] type
@@ -278,8 +279,17 @@ where
             mkLambdaFVars #[lhs, rhs] (← mkEqNDRec motive proofSub heq)
      go 0 type
 
-def mkCongrSimp? (f : Expr) : MetaM (Option CongrTheorem) := do
+/--
+Create a congruence theorem for `f`. The theorem is used in the simplifier.
+
+If `subsinglentonInstImplicitRhs = true`, the the `rhs` corresponding to `[Decidable p]` parameters
+is marked as instance implicit. It forces the simplifier to compute the new instance when applying
+the congruence theorem.
+For the `congr` tactic we set it to `false`.
+-/
+def mkCongrSimp? (f : Expr) (subsingletonInstImplicitRhs : Bool := true) : MetaM (Option CongrTheorem) := do
+  let f := (← instantiateMVars f).cleanupAnnotations
   let info ← getFunInfo f
-  mkCongrSimpCore? f info (getCongrSimpKinds info)
+  mkCongrSimpCore? f info (getCongrSimpKinds info) (subsingletonInstImplicitRhs := subsingletonInstImplicitRhs)
 
 end Lean.Meta

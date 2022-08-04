@@ -7,6 +7,7 @@ import Lean.Meta.Eqns
 import Lean.Util.CollectFVars
 import Lean.Meta.Tactic.Split
 import Lean.Meta.Tactic.Apply
+import Lean.Meta.Tactic.Refl
 
 namespace Lean.Elab.Eqns
 open Meta
@@ -101,7 +102,7 @@ private def lhsDependsOn (type : Expr) (fvarId : FVarId) : MetaM Bool :=
 /-- Try to close goal using `rfl` with smart unfolding turned off. -/
 def tryURefl (mvarId : MVarId) : MetaM Bool :=
   withOptions (smartUnfolding.set · false) do
-    try mvarId.applyRefl; return true catch _ => return false
+    try mvarId.refl; return true catch _ => return false
 
 /--
   Eliminate `namedPatterns` from equation, and trivial hypotheses.

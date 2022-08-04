@@ -21,3 +21,4 @@ import Lean.Elab.Tactic.Meta
 import Lean.Elab.Tactic.Unfold
 import Lean.Elab.Tactic.Cache
 import Lean.Elab.Tactic.Calc
+import Lean.Elab.Tactic.Congr

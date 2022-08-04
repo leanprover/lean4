@@ -4,7 +4,7 @@
  {"start": {"line": 4, "character": 32}, "end": {"line": 4, "character": 36}},
  "contents":
  {"value":
-  "```lean\nLean.Parser.Category.term : Lean.Parser.Category\n```\n***\nThe term syntax category. ",
+  "```lean\nLean.Parser.Category.term : Lean.Parser.Category\n```\n***\n`term` is the builtin syntax category for terms. A term denotes an expression\nin lean's type theory, for example `2 + 2` is a term. The difference between\n`Term` and `Expr` is that the former is a kind of syntax, while the latter is\nthe result of elaboration. For example `by simp` is also a `Term`, but it elaborates\nto different `Expr`s depending on the context. ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://catHover.lean"},
  "position": {"line": 4, "character": 14}}
@@ -12,7 +12,7 @@
  {"start": {"line": 4, "character": 14}, "end": {"line": 4, "character": 18}},
  "contents":
  {"value":
-  "```lean\nLean.Parser.Category.term : Lean.Parser.Category\n```\n***\nThe term syntax category. ",
+  "```lean\nLean.Parser.Category.term : Lean.Parser.Category\n```\n***\n`term` is the builtin syntax category for terms. A term denotes an expression\nin lean's type theory, for example `2 + 2` is a term. The difference between\n`Term` and `Expr` is that the former is a kind of syntax, while the latter is\nthe result of elaboration. For example `by simp` is also a `Term`, but it elaborates\nto different `Expr`s depending on the context. ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://catHover.lean"},
  "position": {"line": 4, "character": 25}}
@@ -36,7 +36,7 @@
  {"start": {"line": 17, "character": 15}, "end": {"line": 17, "character": 19}},
  "contents":
  {"value":
-  "```lean\nLean.Parser.Category.term : Lean.Parser.Category\n```\n***\nThe term syntax category. ",
+  "```lean\nLean.Parser.Category.term : Lean.Parser.Category\n```\n***\n`term` is the builtin syntax category for terms. A term denotes an expression\nin lean's type theory, for example `2 + 2` is a term. The difference between\n`Term` and `Expr` is that the former is a kind of syntax, while the latter is\nthe result of elaboration. For example `by simp` is also a `Term`, but it elaborates\nto different `Expr`s depending on the context. ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://catHover.lean"},
  "position": {"line": 20, "character": 9}}
@@ -44,5 +44,5 @@
  {"start": {"line": 20, "character": 7}, "end": {"line": 20, "character": 11}},
  "contents":
  {"value":
-  "```lean\nLean.Parser.Category.term : Lean.Parser.Category\n```\n***\nThe term syntax category. ",
+  "```lean\nLean.Parser.Category.term : Lean.Parser.Category\n```\n***\n`term` is the builtin syntax category for terms. A term denotes an expression\nin lean's type theory, for example `2 + 2` is a term. The difference between\n`Term` and `Expr` is that the former is a kind of syntax, while the latter is\nthe result of elaboration. For example `by simp` is also a `Term`, but it elaborates\nto different `Expr`s depending on the context. ",
   "kind": "markdown"}}

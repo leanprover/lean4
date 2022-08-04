@@ -9,3 +9,4 @@ import Lean.Widget.InteractiveDiagnostic
 import Lean.Widget.InteractiveGoal
 import Lean.Widget.TaggedText
 import Lean.Widget.UserWidget
+import Lean.Widget.IncludeStr

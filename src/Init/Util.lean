@@ -39,7 +39,7 @@ def dbgSleep {α : Type u} (ms : UInt32) (f : Unit → α) : α := f ()
   panic (mkPanicMessageWithDecl modName declName line col msg)
 
 @[extern "lean_ptr_addr"]
-unsafe def ptrAddrUnsafe {α : Type u} (a : @& α) : USize := 0
+unsafe opaque ptrAddrUnsafe {α : Type u} (a : @& α) : USize
 
 set_option linter.unusedVariables.funArgs false in
 @[inline] unsafe def withPtrAddrUnsafe {α : Type u} {β : Type v} (a : α) (k : USize → β) (h : ∀ u₁ u₂, k u₁ = k u₂) : β :=

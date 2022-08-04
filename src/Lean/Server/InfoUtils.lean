@@ -231,7 +231,7 @@ where
       else
         let eFmt ← Meta.ppExpr e
         -- Try not to show too scary internals
-        let showTerm := if let .fvar id := e then
+        let showTerm := if let .fvar _ := e then
           if let some ldecl := (← getLCtx).findFVar? e then
             !ldecl.userName.hasMacroScopes
           else false

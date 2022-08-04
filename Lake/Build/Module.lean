@@ -88,16 +88,9 @@ def Module.recBuildLean (mod : Module) (art : LeanArtifact)
 : IndexBuildM (BuildJob (if art = .leanBin then Unit else FilePath)) := do
   let leanOnly := mod.isLeanOnly ∧ art ≠ .c
 
-  -- Fetch prebuilt module if desired
-  let isDepPkgModule := mod.pkg.name ≠ (← getWorkspace).root.name
-  let releaseJob ← do
-    if isDepPkgModule ∧ mod.pkg.preferReleaseBuild then
-      mod.pkg.release.fetch
-    else
-      pure .nil
-
   -- Compute and build dependencies
   let (imports, _) ← mod.imports.fetch
+  let extraDepJob ← mod.pkg.extraDep.fetch
   let (modJobs, externJobs, libDirs) ← recBuildPrecompileDynlibs mod.pkg imports
   let importJob ← BuildJob.mixArray <| ← imports.mapM (·.leanBin.fetch)
   let externDynlibsJob ← BuildJob.collectArray externJobs
@@ -105,18 +98,18 @@ def Module.recBuildLean (mod : Module) (art : LeanArtifact)
 
   -- Build Module
   let modJob : BuildJob Unit ← show SchedulerM _ from do
-    releaseJob.bindAsync fun _ _ => do
+    extraDepJob.bindAsync fun _ _ => do
     importJob.bindAsync fun _ importTrace => do
     modDynlibsJob.bindAsync fun modDynlibs modTrace => do
     externDynlibsJob.bindSync fun externDynlibs externTrace => do
       let depTrace := importTrace.mix <| modTrace.mix externTrace
-      let dynlibPath := libDirs ++ externDynlibs.filterMap ( ·.1)
+      let dynlibPath := libDirs ++ externDynlibs.filterMap ( ·.1) |>.toList
       -- NOTE: Lean wants the external library symbols before module symbols
       -- NOTE: Unix requires the full file name of the dynlib (Windows doesn't care)
       let dynlibs :=
         externDynlibs.map (.mk <| nameToSharedLib ·.2) ++
         modDynlibs.map (.mk <| nameToSharedLib ·)
-      let trace ← mod.buildUnlessUpToDate dynlibPath.toList dynlibs depTrace leanOnly
+      let trace ← mod.buildUnlessUpToDate dynlibPath dynlibs depTrace leanOnly
       return ((), trace)
 
   -- Save All Resulting Jobs & Return Requested One

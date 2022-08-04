@@ -27,9 +27,19 @@ def Package.recComputeDeps (self : Package) : IndexBuildM (Array Package) := do
 def Package.depsFacetConfig : PackageFacetConfig depsFacet :=
   mkFacetConfig Package.recComputeDeps
 
-/-- Build the `extraDepTarget` for the package and its transitive dependencies. -/
+/--
+Build the `extraDepTarget` for the package and its transitive dependencies.
+Also fetch pre-built releases for the package's' dependencies.
+-/
 def Package.recBuildExtraDepTargets (self : Package) : IndexBuildM (BuildJob Unit) := do
   let job ← self.deps.foldlM (do ·.mix <| ← ·.extraDep.fetch) BuildJob.nil
+  -- Fetch dependency's pre-built release if desired
+  let isDepPkg := self.name ≠ (← getWorkspace).root.name
+  let job ← do
+    if isDepPkg ∧ self.preferReleaseBuild then
+      job.mix <| ← self.release.fetch
+    else
+      return job
   job.mix <| ← self.extraDepTarget
 
 /-- The `PackageFacetConfig` for the builtin `dynlibFacet`. -/

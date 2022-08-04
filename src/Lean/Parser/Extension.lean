@@ -509,11 +509,14 @@ private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
 /--
 The parsing tables for builtin parsers are "stored" in the extracted source code.
 -/
-def registerBuiltinParserAttribute (attrName : Name) (catName : Name)
-    (behavior := LeadingIdentBehavior.default) (ref : Name := by exact decl_name%) : IO Unit := do
-  addBuiltinParserCategory catName ref behavior
+def registerBuiltinParserAttribute (attrName declName : Name)
+    (behavior := LeadingIdentBehavior.default) : IO Unit := do
+  let .str ``Lean.Parser.Category s := declName
+    | throw (IO.userError "`declName` should be in Lean.Parser.Category")
+  let catName := Name.mkSimple s
+  addBuiltinParserCategory catName declName behavior
   registerBuiltinAttribute {
-    ref             := ref
+    ref             := declName
     name            := attrName
     descr           := "Builtin parser"
     add             := fun declName stx kind => liftM $ BuiltinParserAttribute.add attrName catName declName stx kind
@@ -566,12 +569,12 @@ def registerParserCategory (env : Environment) (attrName catName : Name)
 
 -- declare `termParser` here since it is used everywhere via antiquotations
 
-builtin_initialize registerBuiltinParserAttribute `builtinTermParser `term
+builtin_initialize registerBuiltinParserAttribute `builtinTermParser ``Category.term
 
 builtin_initialize registerBuiltinDynamicParserAttribute `termParser `term
 
 -- declare `commandParser` to break cyclic dependency
-builtin_initialize registerBuiltinParserAttribute `builtinCommandParser `command
+builtin_initialize registerBuiltinParserAttribute `builtinCommandParser ``Category.command
 
 builtin_initialize registerBuiltinDynamicParserAttribute `commandParser `command
 

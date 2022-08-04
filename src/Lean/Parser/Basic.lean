@@ -1614,10 +1614,9 @@ inductive LeadingIdentBehavior where
 structure ParserCategory where
   /-- The name of a declaration which will be used as the target of
   go-to-definition queries and from which doc strings will be extracted.
-  This is usually a dummy declaration of type `Lean.Parser.Category`
-  created by `declare_syntax_cat`, but for builtin categories this will
-  be the `builtin_initialize` command containing the call to
-  `registerBuiltinParserAttribute`. -/
+  This is a dummy declaration of type `Lean.Parser.Category`
+  created by `declare_syntax_cat`, but for builtin categories the declaration
+  is made manually and passed to `registerBuiltinParserAttribute`. -/
   declName : Name
   /-- The list of syntax nodes that can parse into this category.
   This can be used to list all syntaxes in the category. -/

@@ -24,7 +24,7 @@ namespace LLVM
 inductive Ty where
 | int: Nat → Ty
 | float: Nat → Ty
-| ptr: Ty → Ty 
+| ptr: Ty → Ty
 
 def Ty.i32: Ty := Ty.int 32
 def Ty.i1: Ty := Ty.int 1
@@ -34,33 +34,9 @@ def Ty.i8ptr: Ty := .ptr <| Ty.i8
 structure BasicBlock where
 structure Function where
 structure GlobalValue where
-
 structure Context where
-structure Module where 
-
-def Module.toPointer (m: Module): IO String := return ""
-
-def Module.makeBitcodeIO (m: Module): IO String := return ""
-def Module.toStringIO (m: Module): IO String := return ""
-
-abbrev FunctionName := String
-abbrev FunctionArg := String × Ty
--- free(r) LLVM builder monad
-inductive Builder: Type → Type :=
--- | Return: {R: Type} → (r: R) → Builder R
-| GotoBBEnd: BBId → Builder Unit
-| CreateFunction: (f: FunctionName) → (args: List FunctionArg) → Builder Unit
-  
--- Run the sequence of LLVM build instructions purely to produce a `Module`.
-def Builder.makeModule (b: Builder Unit): Module := Module.mk
-
--- run the sequence of LLVM build instructions via the LLVM API to produce 
--- the bitcode of the final LLVM module
-def Builder.makeModuleBitcodeIO (b: Builder Unit): IO String := return ""
-
--- run the sequence of LLVM build instructions via the LLVM API
--- to produce the string representation of the LLVM module.
-def Builder.makeModuleLLVMIO (b: Builder Unit): IO String := return ""
+structure Module where
+structure Builder where
 
 -- A raw pointer to a C object, whose Lean representation
 -- is given by α
@@ -70,15 +46,17 @@ opaque Ptr (α: Type): Type := Unit
 opaque createContext: IO (Ptr Context)
 
 @[extern "lean_llvm_create_module"]
-opaque createModule (ctx: Ptr Context): IO (Ptr Module)
+opaque createModule (ctx: @&Ptr Context) (name: @&String): IO (Ptr Module)
 
 
 @[extern "lean_llvm_module_to_string"]
-opaque moduletoString (m: Ptr Module): IO String
+opaque moduletoString (m: @&Ptr Module): IO String
 
-end LLVM 
+@[extern "lean_llvm_write_bitcode_to_file"]
+opaque writeBitcodeToFile(m: @&Ptr Module) (path: @&String): IO Unit
+end LLVM
 
-  
+
 
 /-
 namespace Lean.IR.EmitC
@@ -825,29 +803,29 @@ structure Context where
   mainFn     : FunId := default
   mainParams : Array Param := #[]
 
-structure State where 
+structure State where
   ctx : LLVM.Ptr LLVM.Context
   module : LLVM.Ptr LLVM.Module
 
-def State.createInitStateIO: IO State := do
+def State.createInitStateIO (modName: Name): IO State := do
   let ctx ← LLVM.createContext
-  let module ← LLVM.createModule ctx -- TODO: pass module name
+  let module ← LLVM.createModule ctx modName.toString -- TODO: pass module name
   return { ctx := ctx, module := module : State }
 
 abbrev Error := String
 abbrev M := ReaderT Context (EStateM Error State)
 
 
-def main : M Unit := do 
+def main : M Unit := do
    return ()
 end EmitLLVM
 
 -- | TODO: Use a beter type signature than this.
 -- | TODO: produce bitcode instead of an LLVM string.
 @[export lean_ir_emit_llvm]
-def emitLLVM (env : Environment) (modName : Name) : IO String := do
-  let state ← EmitLLVM.State.createInitStateIO
-  match (EmitLLVM.main {env := env, modName := modName}).run state with 
-  | EStateM.Result.ok    _   s =>  (LLVM.moduletoString  s.module)
+def emitLLVM (env : Environment) (modName : Name) (filepath: String): IO Unit := do
+  let state ← EmitLLVM.State.createInitStateIO modName
+  match (EmitLLVM.main {env := env, modName := modName}).run state with
+  | EStateM.Result.ok    _   s =>  LLVM.writeBitcodeToFile s.module filepath
   | EStateM.Result.error err _ =>  throw (IO.userError err)
 end Lean.IR

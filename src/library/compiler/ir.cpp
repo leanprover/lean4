@@ -589,18 +589,12 @@ string_ref emit_c(environment const & env, name const & mod_name) {
     }
 }
 
-extern "C" object * lean_ir_emit_llvm(object * env, object * mod_name);
+extern "C" object * lean_ir_emit_llvm(object *env, object *mod_name, object *filepath);
 
-string_ref emit_llvm(environment const & env, name const & mod_name) {
-    object * r = lean_ir_emit_llvm(env.to_obj_arg(), mod_name.to_obj_arg());
-    string_ref s(cnstr_get(r, 0), true);
-    if (cnstr_tag(r) == 0) {
-        dec_ref(r);
-        throw exception(s.to_std_string());
-    } else {
-        dec_ref(r);
-        return s;
-    }
+void emit_llvm(environment const & env, name const & mod_name, std::string const &filepath) {
+    object * r = lean_ir_emit_llvm(env.to_obj_arg(), mod_name.to_obj_arg(), lean::string_ref(filepath).to_obj_arg());
+    assert (lean_io_result_is_ok(r) && "expected LLVM function to return successful result.");
+    return;
 }
 
 /*

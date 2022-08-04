@@ -728,14 +728,8 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
         }
 
         if (llvm_output && ok) {
-            std::ofstream out(*llvm_output, std::ios_base::binary);
-            if (out.fail()) {
-                std::cerr << "failed to create '" << *c_output << "'\n";
-                return 1;
-            }
             time_task _("LLVM code generation", opts);
-            out << lean::ir::emit_llvm(env, *main_module_name).data();
-            out.close();
+            lean::ir::emit_llvm(env, *main_module_name, *llvm_output);
         }
 
         display_cumulative_profiling_times(std::cerr);

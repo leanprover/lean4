@@ -26,14 +26,22 @@ function compile_lean_c_backend {
 }
 
 function compile_lean_llvm_backend {
+    # print the original C program well-formatted, and LLVM sources for handy debugging.
+    lean --c="$f.c" "$f" || fail "Failed to compile $f into C file"
+    clang-format -i "$f.c"
+    clang $(leanc --print-cflags) -S -emit-llvm "$f.c" -o "$f.c.ll" # generate ll.
+
     # TODO: find a sane way to pick this path up, similar to the way leanc hardcodes these paths via flags with --print-cflags
     # Also, this should be in stage0, since we want it to be present in all circumstances.
     echo "using lean: $(which lean); leanc: $(which leanc)"
     export LIBRUNTIMEBC=$(git rev-parse --show-toplevel)/build/stage1/runtime/libleanrt.bc
+    set -o xtrace
     lean --bc="$f.bc" "$f" || fail "Failed to compile $f into bitcode file"
+    opt -S "$f.bc" -o "$f.bc.ll" # generate easy to read ll from bitcode.
     llvm-link "$f.bc" $LIBRUNTIMEBC -o "$f.linked.bc"
-    llc --relocation-model=static -O1 -march=x86-64 -filetype=obj "$f.linked.bc" -o "$f.o"
+    llc --relocation-model=pic -O1 -march=x86-64 -filetype=obj "$f.linked.bc" -o "$f.o"
     leanc -o "$f.out" "$@" "$f.o" || fail "Failed to link object file '$f.o', generated from bitcode file $f.linked.bc"
+    unset -o xtrace
 }
 
 function exec_capture {

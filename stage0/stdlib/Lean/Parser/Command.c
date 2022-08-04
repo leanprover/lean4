@@ -5508,7 +5508,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Term_quot_docString___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Syntax quotation for terms and (lists of) commands. We prefer terms, so ambiguous quotations like\n`` `($x $y) `` will be parsed as an application, not two commands. Use `` `($x:command $y:command) `` instead.\nMultiple command will be put in a `` `null `` node, but a single command will not (so that you can directly\nmatch against a quotation in a command kind's elaborator). ", 376);
+x_1 = lean_mk_string_from_bytes("Syntax quotation for terms. ", 28);
 return x_1;
 }
 }

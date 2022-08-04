@@ -5604,7 +5604,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabCalc_docString___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Step-wise reasoning over transitive relations.\n```\ncalc\n  a = b := pab\n  b = c := pbc\n  ...\n  y = z := pyz\n```\nproves `a = z` from the given step-wise proofs. `=` can be replaced with any\nrelation implementing the typeclass `Trans`. Instead of repeating the right-\nhand sides, subsequent left-hand sides can be replaced with `_`. ", 330);
+x_1 = lean_mk_string_from_bytes("Elaborator for the `calc` term mode variant. ", 45);
 return x_1;
 }
 }

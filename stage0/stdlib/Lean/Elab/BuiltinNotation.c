@@ -16516,7 +16516,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_expandParen_docString___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Try to expand `·` notation.\nRecall that in Lean the `·` notation must be surrounded by parentheses.\nWe may change this is the future, but right now, here are valid examples\n- `(· + 1)`\n- `(f ⟨·, 1⟩ ·)`\n- `(· + ·)`\n- `(f · a b)` ", 240);
+x_1 = lean_mk_string_from_bytes("You can use parentheses for\n- Grouping expressions, e.g., `a * (b + c)`.\n- Creating tuples, e.g., `(a, b, c)` is notation for `Prod.mk a (Prod.mk b c)`.\n- Performing type ascription, e.g., `(0 : Int)` instructs Lean to process `0` as a value of type `Int`.\n- Creating `Unit.unit`, `()` is just a shorthand for `Unit.unit`.\n- Creating simple functions when combined with `·`. Here are some examples:\n  - `(· + 1)` is shorthand for `fun x => x + 1`\n  - `(· + ·)` is shorthand for `fun x y => x + y`\n  - `(f · a b)` is shorthand for `fun x => f x a b`\n  - `(h (· + 1) ·)` is shorthand for `fun x => h (fun y => y + 1) x`\n", 625);
 return x_1;
 }
 }
@@ -19865,7 +19865,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabSubst_docString___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`h ▸ e` is a macro built on top of `Eq.subst` and `Eq.symm` definitions.\nGiven `h : a = b` and `e : p a`, the term `h ▸ e` has type `p b`.\nYou can also view `h ▸ e` as a \"type casting\" operation where you change the type of `e` by using `h`.\nSee the Chapter \"Quantifiers and Equality\" in the manual \"Theorem Proving in Lean\" for additional information.\n", 359);
+x_1 = lean_mk_string_from_bytes("`h ▸ e` is a macro built on top of `Eq.rec` and `Eq.symm` definitions.\nGiven `h : a = b` and `e : p a`, the term `h ▸ e` has type `p b`.\nYou can also view `h ▸ e` as a \"type casting\" operation where you change the type of `e` by using `h`.\nSee the Chapter \"Quantifiers and Equality\" in the manual \"Theorem Proving in Lean\" for additional information.\n", 357);
 return x_1;
 }
 }

@@ -169,3 +169,6 @@ example : True ∧ False := by
   constructor
   · constructor
 --^ textDocument/hover
+
+example : Nat := Id.run do (← 1)
+                          --^ textDocument/hover

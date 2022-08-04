@@ -240,3 +240,12 @@ null
  {"value":
   "`· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. ",
   "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 172, "character": 28}}
+{"range":
+ {"start": {"line": 172, "character": 27},
+  "end": {"line": 172, "character": 32}},
+ "contents":
+ {"value":
+  "```lean\nId Nat\n```\n***\nTry to expand `·` notation.\nRecall that in Lean the `·` notation must be surrounded by parentheses.\nWe may change this is the future, but right now, here are valid examples\n- `(· + 1)`\n- `(f ⟨·, 1⟩ ·)`\n- `(· + ·)`\n- `(f · a b)` ",
+  "kind": "markdown"}}

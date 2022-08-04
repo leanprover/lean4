@@ -11,14 +11,11 @@ namespace Lake
 
 protected def LeanExe.recBuildExe
 (self : LeanExe) : IndexBuildM (BuildJob FilePath) := do
-  let (_, imports) ← self.root.imports.recBuild
-  let linkJobs := #[← self.root.o.recBuild]
-  let mut linkJobs ← imports.foldlM (init := linkJobs) fun arr mod => do
-    let mut arr := arr
-    for facet in mod.nativeFacets do
-      arr := arr.push <| ← recBuild <| mod.facet facet.name
-    return arr
-  let deps := (← recBuild <| self.pkg.facet `deps).push self.pkg
+  let (_, imports) ← self.root.imports.fetch
+  let mut linkJobs := #[← self.root.o.fetch]
+  for mod in imports do for facet in mod.nativeFacets do
+    linkJobs := linkJobs.push <| ← fetch <| mod.facet facet.name
+  let deps := (← fetch <| self.pkg.facet `deps).push self.pkg
   for dep in deps do for lib in dep.externLibs do
-    linkJobs := linkJobs.push <| ← lib.static.recBuild
+    linkJobs := linkJobs.push <| ← lib.static.fetch
   buildLeanExe self.file linkJobs self.linkArgs

@@ -14,7 +14,7 @@ def Package.recComputeDeps (self : Package) : IndexBuildM (Array Package) := do
   let mut deps := #[]
   let mut depSet := PackageSet.empty
   for dep in self.deps do
-    for depDep in (← recBuild <| dep.facet `deps) do
+    for depDep in (← fetch <| dep.facet `deps) do
       unless depSet.contains depDep do
         deps := deps.push depDep
         depSet := depSet.insert depDep
@@ -29,7 +29,7 @@ def Package.depsFacetConfig : PackageFacetConfig depsFacet :=
 
 /-- Build the `extraDepTarget` for the package and its transitive dependencies. -/
 def Package.recBuildExtraDepTargets (self : Package) : IndexBuildM (BuildJob Unit) := do
-  let job ← self.deps.foldlM (do ·.mix <| ← ·.extraDep.recBuild) BuildJob.nil
+  let job ← self.deps.foldlM (do ·.mix <| ← ·.extraDep.fetch) BuildJob.nil
   job.mix <| ← self.extraDepTarget
 
 /-- The `PackageFacetConfig` for the builtin `dynlibFacet`. -/

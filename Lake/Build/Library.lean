@@ -16,13 +16,13 @@ def LeanLib.recBuildLocalModules
   let mut modSet := ModuleSet.empty
   let mods ← self.getModuleArray
   for mod in mods do
-    let (_, mods) ← mod.imports.recBuild
+    let (_, mods) ← mod.imports.fetch
     let mods := mods.push mod
     for mod in mods do
       if self.isLocalModule mod.name then
         unless modSet.contains mod do
           for facet in facets do
-            results := results.push <| ← recBuild <| mod.facet facet.name
+            results := results.push <| ← fetch <| mod.facet facet.name
           modSet := modSet.insert mod
   return results
 
@@ -58,7 +58,7 @@ def LeanLib.recBuildLinks
   let mut modSet := ModuleSet.empty
   let mods ← self.getModuleArray
   for mod in mods do
-    let (_, mods) ← mod.imports.recBuild
+    let (_, mods) ← mod.imports.fetch
     let mods := mods.push mod
     for mod in mods do
       unless modSet.contains mod do
@@ -67,11 +67,11 @@ def LeanLib.recBuildLinks
             pkgs := pkgs.push mod.pkg
         if self.isLocalModule mod.name then
           for facet in self.nativeFacets do
-            jobs := jobs.push <| ← recBuild <| mod.facet facet.name
+            jobs := jobs.push <| ← fetch <| mod.facet facet.name
         modSet := modSet.insert mod
   -- Build and collect external library jobs
   for pkg in pkgs do
-    let externLibJobs ← pkg.externLibs.mapM (·.shared.recBuild)
+    let externLibJobs ← pkg.externLibs.mapM (·.shared.fetch)
     for job in externLibJobs do
       jobs := jobs.push job
   return jobs

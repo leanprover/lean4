@@ -28,7 +28,7 @@ inductive BuildInfo
 | staticExternLib (lib : ExternLib)
 | sharedExternLib (lib : ExternLib)
 | dynlibExternLib (lib : ExternLib)
-| customTarget (package : Package) (target : Name)
+| target (package : Package) (target : Name)
 
 --------------------------------------------------------------------------------
 /-! ## Build Info & Keys                                                      -/
@@ -71,7 +71,7 @@ abbrev BuildInfo.key : (self : BuildInfo) → BuildKey
 | staticExternLib l => l.staticBuildKey
 | sharedExternLib l => l.sharedBuildKey
 | dynlibExternLib l => l.dynlibBuildKey
-| customTarget p t => p.targetBuildKey t
+| target p t => p.targetBuildKey t
 
 /-! ### Instances for deducing data types of `BuildInfo` keys -/
 
@@ -84,11 +84,11 @@ instance [FamilyDef PackageData f α]
   family_key_eq_type := by unfold BuildData; simp
 
 instance [h : Fact (p.name = n)] [FamilyDef CustomData (n, t) α]
-: FamilyDef BuildData (BuildInfo.key (.customTarget p t)) α where
+: FamilyDef BuildData (BuildInfo.key (.target p t)) α where
   family_key_eq_type := by unfold BuildData; simp [h.proof]
 
 instance [FamilyDef CustomData (p.name, t) α]
-: FamilyDef BuildData (BuildInfo.key (.customTarget p t)) α where
+: FamilyDef BuildData (BuildInfo.key (.target p t)) α where
   family_key_eq_type := by unfold BuildData; simp
 
 instance [FamilyDef TargetData (`leanLib ++ f) α]
@@ -127,10 +127,10 @@ abbrev IndexT (m : Type → Type v) := EquipT (IndexBuildFn m) m
 abbrev IndexBuildM := IndexT RecBuildM
 
 /-- Build the given info using the Lake build index. -/
-@[inline] def BuildInfo.recBuild (self : BuildInfo) [FamilyDef BuildData self.key α] : IndexBuildM α :=
+@[inline] def BuildInfo.fetch (self : BuildInfo) [FamilyDef BuildData self.key α] : IndexBuildM α :=
   fun build => cast (by simp) <| build self
 
-export BuildInfo (recBuild)
+export BuildInfo (fetch)
 
 --------------------------------------------------------------------------------
 /-! ## Build Info & Facets                                                    -/
@@ -191,8 +191,8 @@ abbrev Package.extraDep (self : Package) : BuildInfo :=
   self.facet extraDepFacet
 
 /-- Build info for a custom package target. -/
-abbrev Package.customTarget (target : Name) (self : Package) : BuildInfo :=
-  .customTarget self target
+abbrev Package.target (target : Name) (self : Package) : BuildInfo :=
+  .target self target
 
 /-- Build info of the Lean library's Lean binaries. -/
 abbrev LeanLib.facet (self : LeanLib) (facet : Name) : BuildInfo :=

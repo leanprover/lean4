@@ -83,7 +83,7 @@ def resolveCustomTarget (pkg : Package)
   if !facet.isAnonymous then
     throw <| CliError.invalidFacet name facet
   else do
-    let info := pkg.customTarget name
+    let info := pkg.target name
     let some getJob := config.getJob?
       | throw <| CliError.nonCliTarget name
     have h : BuildData info.key = CustomData (pkg.name, name) := rfl

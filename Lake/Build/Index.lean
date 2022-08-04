@@ -33,10 +33,10 @@ def ExternLib.recBuildStatic (lib : ExternLib) : IndexBuildM (BuildJob FilePath)
     error "missing target for external library"
 
 def ExternLib.recBuildShared (lib : ExternLib) : IndexBuildM (BuildJob FilePath) := do
-  buildLeanSharedLibOfStatic (← lib.static.recBuild) lib.linkArgs
+  buildLeanSharedLibOfStatic (← lib.static.fetch) lib.linkArgs
 
 def ExternLib.recComputeDynlib (lib : ExternLib) : IndexBuildM (BuildJob Dynlib) := do
-  computeDynlibOfShared (← lib.shared.recBuild)
+  computeDynlibOfShared (← lib.shared.fetch)
 
 /-!
 ## Topologically-based Recursive Build Using the Index
@@ -54,7 +54,7 @@ def recBuildWithIndex : (info : BuildInfo) → IndexBuildM (BuildData info.key)
     config.build pkg
   else
     error s!"do not know how to build package facet `{facet}`"
-| .customTarget pkg target =>
+| .target pkg target =>
   if let some config := pkg.findTargetConfig? target then
     config.build pkg
   else
@@ -100,5 +100,5 @@ export BuildInfo (build)
 @[inline] protected def LeanExe.build (self : LeanExe) : BuildM (BuildJob FilePath) :=
   self.exe.build
 
-@[inline] protected def LeanExe.recBuild (self : LeanExe) : IndexBuildM (BuildJob FilePath) :=
-  self.exe.recBuild
+@[inline] protected def LeanExe.fetch (self : LeanExe) : IndexBuildM (BuildJob FilePath) :=
+  self.exe.fetch

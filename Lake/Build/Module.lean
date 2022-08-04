@@ -46,11 +46,11 @@ def Module.buildUnlessUpToDate (mod : Module)
 def recBuildExternalDynlibs (pkgs : Array Package)
 : IndexBuildM (Array (BuildJob Dynlib) × Array FilePath) := do
   let mut libDirs := #[]
-  let mut Jobs : Array (BuildJob Dynlib) := #[]
+  let mut jobs : Array (BuildJob Dynlib) := #[]
   for pkg in pkgs do
     libDirs := libDirs.push pkg.libDir
-    Jobs := Jobs.append <| ← pkg.externLibs.mapM (·.dynlib.recBuild)
-  return (Jobs, libDirs)
+    jobs := jobs.append <| ← pkg.externLibs.mapM (·.dynlib.fetch)
+  return (jobs, libDirs)
 
 /-- Build the dynlibs of the imports that want precompilation (and *their* imports). -/
 def recBuildPrecompileDynlibs (pkg : Package) (imports : Array Module)
@@ -58,18 +58,18 @@ def recBuildPrecompileDynlibs (pkg : Package) (imports : Array Module)
   let mut pkgs := #[]
   let mut pkgSet := PackageSet.empty.insert pkg
   let mut modSet := ModuleSet.empty
-  let mut Jobs := #[]
+  let mut jobs := #[]
   for imp in imports do
     if imp.shouldPrecompile then
-      let (_, transImports) ← imp.imports.recBuild
+      let (_, transImports) ← imp.imports.fetch
       for mod in transImports.push imp do
         unless pkgSet.contains mod.pkg do
           pkgSet := pkgSet.insert mod.pkg
           pkgs := pkgs.push mod.pkg
         unless modSet.contains mod do
           modSet := modSet.insert mod
-          Jobs := Jobs.push <| ← mod.dynlib.recBuild
-  return (Jobs, ← recBuildExternalDynlibs <| pkgs.push pkg)
+          jobs := jobs.push <| ← mod.dynlib.fetch
+  return (jobs, ← recBuildExternalDynlibs <| pkgs.push pkg)
 
 variable [MonadLiftT BuildM m]
 
@@ -92,14 +92,14 @@ def Module.recBuildLean (mod : Module) (art : LeanArtifact)
   let isDepPkgModule := mod.pkg.name ≠ (← getWorkspace).root.name
   let releaseJob ← do
     if isDepPkgModule ∧ mod.pkg.preferReleaseBuild then
-      mod.pkg.release.recBuild
+      mod.pkg.release.fetch
     else
       pure .nil
 
   -- Compute and build dependencies
-  let (imports, _) ← mod.imports.recBuild
+  let (imports, _) ← mod.imports.fetch
   let (modJobs, externJobs, libDirs) ← recBuildPrecompileDynlibs mod.pkg imports
-  let importJob ← BuildJob.mixArray <| ← imports.mapM (·.leanBin.recBuild)
+  let importJob ← BuildJob.mixArray <| ← imports.mapM (·.leanBin.fetch)
   let externDynlibsJob ← BuildJob.collectArray externJobs
   let modDynlibsJob ← BuildJob.collectArray modJobs
 
@@ -161,7 +161,7 @@ def Module.cFacetConfig : ModuleFacetConfig cFacet :=
 
 /-- Recursively build the module's object file from its C file produced by `lean`. -/
 def Module.recBuildLeanO (self : Module) : IndexBuildM (BuildJob FilePath) := do
-  buildLeanO self.name.toString self.oFile (← self.c.recBuild) self.leancArgs
+  buildLeanO self.name.toString self.oFile (← self.c.fetch) self.leancArgs
 
 /-- The `ModuleFacetConfig` for the builtin `oFacet`. -/
 def Module.oFacetConfig : ModuleFacetConfig oFacet :=
@@ -180,7 +180,7 @@ def Module.recParseImports (mod : Module)
   let (imports, _, _) ← Lean.Elab.parseImports contents mod.leanFile.toString
   for imp in imports do
     if let some mod ← findModule? imp.module then
-      let (_, impTransImports) ← mod.imports.recBuild
+      let (_, impTransImports) ← mod.imports.fetch
       for transImp in impTransImports do
         unless importSet.contains transImp do
           importSet := importSet.insert transImp
@@ -200,20 +200,20 @@ def recBuildDynlibs (pkg : Package) (imports : Array Module)
 : IndexBuildM (Array (BuildJob String) × Array (BuildJob Dynlib) × Array FilePath) := do
   let mut pkgs := #[]
   let mut pkgSet := PackageSet.empty.insert pkg
-  let mut Jobs := #[]
+  let mut jobs := #[]
   for imp in imports do
     unless pkgSet.contains imp.pkg do
       pkgSet := pkgSet.insert imp.pkg
       pkgs := pkgs.push imp.pkg
-    Jobs := Jobs.push <| ← imp.dynlib.recBuild
-  return (Jobs, ← recBuildExternalDynlibs <| pkgs.push pkg)
+    jobs := jobs.push <| ← imp.dynlib.fetch
+  return (jobs, ← recBuildExternalDynlibs <| pkgs.push pkg)
 
 /-- Recursively build the shared library of a module (e.g., for `--load-dynlib`). -/
 def Module.recBuildDynlib (mod : Module) : IndexBuildM (BuildJob String) := do
 
   -- Compute dependencies
-  let (_, transImports) ← mod.imports.recBuild
-  let linkJobs ← mod.nativeFacets.mapM (recBuild <| mod.facet ·.name)
+  let (_, transImports) ← mod.imports.fetch
+  let linkJobs ← mod.nativeFacets.mapM (fetch <| mod.facet ·.name)
   let (modJobs, externJobs, pkgLibDirs) ← recBuildDynlibs mod.pkg transImports
 
   -- Collect Jobs

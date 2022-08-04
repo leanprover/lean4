@@ -86,6 +86,12 @@ opaque doubleTypeInContext (ctx: @&Ptr Context): IO (Ptr LLVMType)
 @[extern "lean_llvm_pointer_type"]
 opaque pointerType (ty: @&Ptr LLVMType): IO (Ptr LLVMType)
 
+-- Helper to add a function if it does not exist, and to return the function handle if it does.
+def getOrAddFunction(m: Ptr Module) (name: String) (type: Ptr LLVMType): IO (Ptr Value) :=  do
+  match (← getNamedFunction m name) with
+  | .some fn => return fn
+  | .none => addFunction m name type
+
 end LLVM
 
 
@@ -848,19 +854,21 @@ structure State where
 inductive Error where
 | unknownDeclaration: Name → Error
 | invalidExportName: Name → Error
+| unimplemented: String → Error
 
 
 instance : ToString Error where
-  toString e := match e with 
+  toString e := match e with
    | .unknownDeclaration n => s!"unknown declaration '{n}'"
    | .invalidExportName n => s!"invalid export name '{n}'"
+   | .unimplemented s => s!"unimplemented '{s}'"
 
 abbrev M := ReaderT Context (ExceptT Error IO)
 
-def i8Type (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) := 
+def i8Type (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) :=
   LLVM.intTypeInContext ctx 8
 
-def i8ptrType (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) := 
+def i8ptrType (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) :=
   do LLVM.pointerType (← LLVM.intTypeInContext ctx 8)
 
 /-
@@ -884,7 +892,7 @@ def toLLVMType (ctx: LLVM.Ptr LLVM.Context): IRType → IO (LLVM.Ptr LLVM.LLVMTy
   | IRType.uint32     => LLVM.intTypeInContext ctx 32
   | IRType.uint64     => LLVM.intTypeInContext ctx 64
   -- TODO: how to cleanly size_t in LLVM? We can do eg. instantiate the current target and query for size.
-  | IRType.usize      => LLVM.intTypeInContext ctx 64 
+  | IRType.usize      => LLVM.intTypeInContext ctx 64
   | IRType.object     => do LLVM.pointerType (← i8Type ctx)
   | IRType.tobject    => do LLVM.pointerType (← i8Type ctx)
   | IRType.irrelevant => do LLVM.pointerType (← i8Type ctx)
@@ -936,6 +944,8 @@ def toCName (n : Name) : M String := do
   | none                     => if n == `main then pure leanMainFn else pure n.mangle
 
 
+-- vvemitFnDeclsvv
+
 /-
 def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M Unit := do
   let ps := decl.params
@@ -960,6 +970,7 @@ def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M U
     emit ")"
   emitLn ";"
 -/
+
 def emitFnDeclAux (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module)
   (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M (LLVM.Ptr LLVM.Value) := do
   IO.println s!"\nvv\nemitFnDeclAux {decl}\n^^"
@@ -977,19 +988,19 @@ def emitFnDeclAux (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module)
   let retty ← (toLLVMType ctx decl.resultType)
   IO.eprintln s!"...created!"
   let mut argtys := #[]
-  for p in ps do 
+  for p in ps do
     -- if it is extern, then we must not add irrelevant args
-    if !(isExternC env decl.name) || !p.ty.isIrrelevant then 
+    if !(isExternC env decl.name) || !p.ty.isIrrelevant then
       IO.eprintln s!"adding argument of type {p.ty}"
       argtys := argtys.push (← toLLVMType ctx p.ty)
       IO.eprintln "...added argument!"
   -- QUESTION: why do we care if it is boxed?
-  if argtys.size > closureMaxArgs && isBoxedName decl.name then 
+  if argtys.size > closureMaxArgs && isBoxedName decl.name then
     argtys := #[(← i8ptrType ctx)]
   IO.eprintln "creating function type..."
   let fnty ← LLVM.functionType retty argtys (isVarArg := false)
   IO.eprintln "created function type!"
-  LLVM.addFunction mod cppBaseName fnty
+  LLVM.getOrAddFunction mod cppBaseName fnty
   -- unless ps.isEmpty do
   --   emit "("
   --   -- We omit irrelevant parameters for extern constants
@@ -1051,6 +1062,9 @@ def emitFnDecls : M Unit := do
     | none       => emitFnDecl decl (!modDecls.contains n)
   return ()
 
+-- ^^emitFnDecls^^^
+
+-- vvv emitFileHeader vvv
 
 
 /-
@@ -1077,8 +1091,136 @@ def emitFileHeader : M Unit := do
     "#endif"
   ]
 -/
+
 def emitFileHeader : M Unit := return () -- this is purely C++ ceremony
-  
+-- ^^^ emitFileHeader^^^
+
+
+-- vvvemitFnsvvv
+
+/-
+def emitDeclAux (d : Decl) : M Unit := do
+  let env ← getEnv
+  let (_, jpMap) := mkVarJPMaps d
+  withReader (fun ctx => { ctx with jpMap := jpMap }) do
+  unless hasInitAttr env d.name do
+    match d with
+    | .fdecl (f := f) (xs := xs) (type := t) (body := b) .. =>
+      let baseName ← toCName f;
+      if xs.size == 0 then
+        emit "static "
+      else
+        emit "LEAN_EXPORT "  -- make symbol visible to the interpreter
+      emit (toCType t); emit " ";
+      if xs.size > 0 then
+        emit baseName;
+        emit "(";
+        if xs.size > closureMaxArgs && isBoxedName d.name then
+          emit "lean_object** _args"
+        else
+          xs.size.forM fun i => do
+            if i > 0 then emit ", "
+            let x := xs[i]!
+            emit (toCType x.ty); emit " "; emit x.x
+        emit ")"
+      else
+        emit ("_init_" ++ baseName ++ "()")
+      emitLn " {";
+      if xs.size > closureMaxArgs && isBoxedName d.name then
+        xs.size.forM fun i => do
+          let x := xs[i]!
+          emit "lean_object* "; emit x.x; emit " = _args["; emit i; emitLn "];"
+      emitLn "_start:";
+      withReader (fun ctx => { ctx with mainFn := f, mainParams := xs }) (emitFnBody b);
+      emitLn "}"
+    | _ => pure ()
+-/
+
+
+
+-- TODO: figure out if we can always return the corresponding function?
+def emitDeclAux (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (d : Decl) : M Unit := do
+  IO.println "vvvv\nemitDeclAux {d}\n^^^\n"
+  let env ← getEnv
+  let (_, jpMap) := mkVarJPMaps d
+  withReader (fun ctx => { ctx with jpMap := jpMap }) do
+  unless hasInitAttr env d.name do
+    match d with
+    | .fdecl (f := f) (xs := xs) (type := t) (body := b) .. =>
+      let baseName ← toCName f;
+      -- if xs.size == 0 then
+      --   emit "static "
+      -- else
+      --   emit "LEAN_EXPORT "  -- make symbol visible to the interpreter
+      --create initializer for closed terms.
+      let name := if xs.size > 0 then baseName else "_init_" ++ baseName
+      let retty ← toLLVMType ctx t
+      let mut argtys := #[]
+      if xs.size > closureMaxArgs && isBoxedName d.name then
+        argtys := #[(← i8ptrType ctx)]
+      else
+        for x in xs do
+          argtys := argtys.push (← toLLVMType ctx x.ty)
+      let fnty ← LLVM.functionType retty argtys (isVarArg := false)
+      let fn ← LLVM.getOrAddFunction mod name fnty
+      -- emit (toCType t); emit " ";
+      -- if xs.size > 0 then
+      --   emit baseName;
+      --   emit "(";
+      --   if xs.size > closureMaxArgs && isBoxedName d.name then
+      --     emit "lean_object** _args"
+      --   else
+      --     xs.size.forM fun i => do
+      --       if i > 0 then emit ", "
+      --       let x := xs[i]!
+      --       emit (toCType x.ty); emit " "; emit x.x
+      --   emit ")"
+      -- else
+      --   emit ("_init_" ++ baseName ++ "()")
+      -- emitLn " {";
+      if xs.size > closureMaxArgs && isBoxedName d.name then
+        throw (Error.unimplemented "unimplemented > closureMaxArgs case")
+      --   xs.size.forM fun i => do
+      --     let x := xs[i]!
+      --     emit "lean_object* "; emit x.x; emit " = _args["; emit i; emitLn "];"
+      -- emitLn "_start:";
+      -- withReader (fun ctx => { ctx with mainFn := f, mainParams := xs }) (emitFnBody b);
+      -- emitLn "}"
+      pure ()
+    | _ => pure ()
+
+/-
+def emitDecl (d : Decl) : M Unit := do
+  let d := d.normalizeIds; -- ensure we don't have gaps in the variable indices
+  try
+    emitDeclAux d
+  catch err =>
+    throw s!"{err}\ncompiling:\n{d}"
+-/
+
+def emitDecl (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (d : Decl) : M Unit := do
+  IO.eprintln s!"vvv\nemitDecl\n{d}\n^^^\n"
+  let d := d.normalizeIds; -- ensure we don't have gaps in the variable indices
+  try
+    emitDeclAux ctx mod d
+    return ()
+  catch err =>
+    throw (Error.unimplemented s!"{err}\ncompiling:\n{d}")
+
+/-
+def emitFns : M Unit := do
+  let env ← getEnv;
+  let decls := getDecls env;
+  decls.reverse.forM emitDecl
+-/
+
+def emitFns (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) : M Unit := do
+  let env ← getEnv
+  let decls := getDecls env;
+  IO.eprintln "gotten decls, going to loop..."
+  decls.reverse.forM (emitDecl ctx mod)
+-- ^^^ emitFns ^^^
+
 
 /-
 def main : M Unit := do
@@ -1089,20 +1231,25 @@ def main : M Unit := do
   emitMainFnIfNeeded
   emitFileFooter
 -/
+
 def main : M Unit := do
   emitFileHeader
+  IO.eprintln "starting emitFnDcls"
   emitFnDecls
+  IO.eprintln "starting emitFns"
+  emitFns (← getLLVMContext) (← getLLVMModule)
   return ()
 end EmitLLVM
 
 -- | TODO: Use a beter type signature than this.
 -- | TODO: produce bitcode instead of an LLVM string.
+
 @[export lean_ir_emit_llvm]
 def emitLLVM (env : Environment) (modName : Name) (filepath: String): IO Unit := do
   let llvmctx ← LLVM.createContext
   let module ← LLVM.createModule llvmctx modName.toString -- TODO: pass module name
   let ctx := {env := env, modName := modName, llvmctx := llvmctx, llvmmodule := module}
-  let out? ← (EmitLLVM.main ctx).run 
+  let out? ← (EmitLLVM.main ctx).run
   match out? with
   | .ok _ =>  LLVM.writeBitcodeToFile ctx.llvmmodule filepath
   | .error err => IO.eprintln ("ERROR: " ++ toString err); return () -- throw (IO.userError <| toString err)

@@ -13,13 +13,13 @@ Lean's IR.
 #include <llvm-c/BitWriter.h>
 #include <llvm-c/Core.h>
 
-#include "runtime/string_ref.h"
 #include "runtime/array_ref.h"
+#include "runtime/string_ref.h"
 
 #define LLVM_DEBUG 1
 
-
 static void donothing_finalize(void *obj) {
+    (void)obj;
     // delete static_cast<S*>(obj);
 }
 
@@ -99,7 +99,9 @@ static inline LLVMValueRef lean_to_Value(b_lean_obj_arg s) {
 extern "C" LEAN_EXPORT lean_object *lean_llvm_create_context(
     lean_object * /* w */) {
     LLVMContextRef ctx = LLVMContextCreate();
-    if (LLVM_DEBUG) { fprintf(stderr, "%s ; ctx: %p\n", __PRETTY_FUNCTION__, ctx); }
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "%s ; ctx: %p\n", __PRETTY_FUNCTION__, ctx);
+    }
     return lean_io_result_mk_ok(Context_to_lean(ctx));
 };
 
@@ -108,15 +110,20 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_create_module(
     lean_object *ctx, lean_object *str, lean_object * /* w */) {
     LLVMModuleRef mod = LLVMModuleCreateWithNameInContext(
         lean::string_ref(str).data(), lean_to_Context(ctx));
-    if(LLVM_DEBUG) { fprintf(stderr, "%s ; mod: %p\n", __PRETTY_FUNCTION__, mod); }
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "%s ; mod: %p\n", __PRETTY_FUNCTION__, mod);
+    }
     // LLVMWriteBitcodeToFile(mod, "/home/bollu/temp/module.bc");
     return lean_io_result_mk_ok(Module_to_lean(mod));
 };
 
 extern "C" LEAN_EXPORT lean_object *lean_llvm_write_bitcode_to_file(
     lean_object *mod, lean_object *filepath, lean_object * /* w */) {
-    if(LLVM_DEBUG) { fprintf(stderr, "%s ; mod: %p\n", __PRETTY_FUNCTION__, mod); }
-    const int err = LLVMWriteBitcodeToFile(lean_to_Module(mod), lean_string_cstr(filepath));
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "%s ; mod: %p\n", __PRETTY_FUNCTION__, mod);
+    }
+    const int err =
+        LLVMWriteBitcodeToFile(lean_to_Module(mod), lean_string_cstr(filepath));
     assert(!err && "unable to write bitcode");
     return lean_io_result_mk_ok(lean_box(0));  // IO Unit
 };
@@ -124,7 +131,9 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_write_bitcode_to_file(
 extern "C" LEAN_EXPORT lean_object *lean_llvm_module_to_string(
     lean_object *mod, lean_object * /* w */) {
     // return lean_io_result_mk_ok(lean_mk_string(g_s.m_s.c_str()));
-    if(LLVM_DEBUG) { fprintf(stderr, "%s ; mod: %p\n", __PRETTY_FUNCTION__, mod); }
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "%s ; mod: %p\n", __PRETTY_FUNCTION__, mod);
+    }
     return lean_io_result_mk_ok(
         lean_mk_string(LLVMPrintModuleToString((LLVMModuleRef)mod)));
 };
@@ -132,69 +141,128 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_module_to_string(
 extern "C" LEAN_EXPORT lean_object *lean_llvm_add_function(
     lean_object *mod, lean_object *name, lean_object *type,
     lean_object * /* w */) {
-    if(LLVM_DEBUG) { fprintf(stderr, "%s ; lean_llvm_add_function: %p\n", __PRETTY_FUNCTION__, mod); }
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "%s ; lean_llvm_add_function: %p\n",
+                __PRETTY_FUNCTION__, mod);
+    }
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "... %s ; name: %s \n", __PRETTY_FUNCTION__,
+                lean_string_cstr(name));
+    }
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "... %s ; type: %s\n", __PRETTY_FUNCTION__,
+                LLVMPrintTypeToString(lean_to_Type(type)));
+    }
     return lean_io_result_mk_ok(Value_to_lean(LLVMAddFunction(
         lean_to_Module(mod), lean_string_cstr(name), lean_to_Type(type))));
 }
 
 extern "C" LEAN_EXPORT lean_object *lean_llvm_get_named_function(
-    lean_object *mod, lean_object *name,
-    lean_object * /* w */) {
-    LLVMValueRef f = LLVMGetNamedFunction(lean_to_Module(mod), lean_string_cstr(name));
-    if(LLVM_DEBUG) { fprintf(stderr, "%s ; f: %p\n", __PRETTY_FUNCTION__, f); }
-    return lean_io_result_mk_ok(f ? lean::mk_option_some(Value_to_lean(f)) : lean::mk_option_none());
+    lean_object *mod, lean_object *name, lean_object * /* w */) {
+    LLVMValueRef f =
+        LLVMGetNamedFunction(lean_to_Module(mod), lean_string_cstr(name));
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "%s ; name: %s\n", __PRETTY_FUNCTION__,
+                lean_string_cstr(name));
+    }
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "...%s ; f: %p\n", __PRETTY_FUNCTION__, f);
+    }
+    return lean_io_result_mk_ok(f ? lean::mk_option_some(Value_to_lean(f))
+                                  : lean::mk_option_none());
 }
 
 extern "C" LEAN_EXPORT lean_object *lean_llvm_add_global(
     lean_object *mod, lean_object *name, lean_object *type,
     lean_object * /* w */) {
-    if(LLVM_DEBUG) { fprintf(stderr, "%s ; mod: %p\n", __PRETTY_FUNCTION__, mod); }
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "%s ; mod: %p\n", __PRETTY_FUNCTION__, mod);
+    }
     return lean_io_result_mk_ok(Value_to_lean(LLVMAddGlobal(
         lean_to_Module(mod), lean_to_Type(type), lean_string_cstr(name))));
 }
 
-
 extern "C" LEAN_EXPORT lean_object *lean_llvm_get_named_global(
-    lean_object *mod, lean_object *name,
-    lean_object * /* w */) {
-    LLVMValueRef g = LLVMGetNamedGlobal(lean_to_Module(mod), lean_string_cstr(name));
-    if(LLVM_DEBUG) { fprintf(stderr, "%s ; g: %p\n", __PRETTY_FUNCTION__, g); }
-    return lean_io_result_mk_ok(g ? lean::mk_option_some(Value_to_lean(g)) : lean::mk_option_none());
+    lean_object *mod, lean_object *name, lean_object * /* w */) {
+    LLVMValueRef g =
+        LLVMGetNamedGlobal(lean_to_Module(mod), lean_string_cstr(name));
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "%s ; g: %p\n", __PRETTY_FUNCTION__, g);
+    }
+    return lean_io_result_mk_ok(g ? lean::mk_option_some(Value_to_lean(g))
+                                  : lean::mk_option_none());
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_function_type(lean_object *retty,
-        lean_object *args, uint8_t isvararg, lean_object * /* w */) {
-    if(LLVM_DEBUG) { fprintf(stderr, "%s ; retty: %p\n", __PRETTY_FUNCTION__, retty); }
-    lean::array_ref<lean_object*> arr(args);
+extern "C" LEAN_EXPORT lean_object *lean_llvm_function_type(
+    lean_object *retty, lean_object *args, uint8_t isvararg,
+    lean_object * /* w */) {
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "%s ; retty: %p\n", __PRETTY_FUNCTION__, retty);
+    }
+    lean::array_ref<lean_object *> arr(args, true); // TODO: why do I need to bump up refcount here?
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "... %s ; retty: %s \n", __PRETTY_FUNCTION__,
+                LLVMPrintTypeToString(lean_to_Type(retty)));
+    }
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "... %s ; arr.size(): %zu\n", __PRETTY_FUNCTION__,
+                arr.size());
+    }
+
     // for 'bool=uint8_t', see 'lean_bool_to_uint64'
-    const int nargs = arr.size(); // lean::array_size(args);
+    const int nargs = arr.size();  // lean::array_size(args);
     // bollu: ouch, this is expensive! There must be a cheaper way?
     LLVMTypeRef *tys = (LLVMTypeRef *)malloc(sizeof(LLVMTypeRef) * nargs);
-    for(int i = 0; i < nargs; ++i) { tys[i] = lean_to_Type(arr[i]); }
-    LLVMTypeRef out = LLVMFunctionType(lean_to_Type(retty), tys, nargs, isvararg);
+    for (int i = 0; i < nargs; ++i) {
+        tys[i] = lean_to_Type(arr[i]);
+        if (LLVM_DEBUG) {
+            fprintf(stderr, "... %s ; tys[i]: %s \n", __PRETTY_FUNCTION__,
+                    LLVMPrintTypeToString(tys[i]));
+        }
+    }
+    LLVMTypeRef out =
+        LLVMFunctionType(lean_to_Type(retty), tys, nargs, isvararg);
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "... %s ; out: %s \n", __PRETTY_FUNCTION__,
+                LLVMPrintTypeToString(out));
+    }
     free(tys);
     return lean_io_result_mk_ok(Type_to_lean(out));
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_int_type_in_context(lean_object *ctx,
-        uint64_t width, lean_object * /* w */) {
+extern "C" LEAN_EXPORT lean_object *lean_llvm_int_type_in_context(
+    lean_object *ctx, uint64_t width, lean_object * /* w */) {
     // bollu, TODO: Check that this actually works.
-    if(LLVM_DEBUG) { fprintf(stderr, "%s ; %d \n", __PRETTY_FUNCTION__, width); }
-    return lean_io_result_mk_ok(Type_to_lean(LLVMIntTypeInContext(lean_to_Context(ctx), width)));
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "%s ; %lu \n", __PRETTY_FUNCTION__, width);
+    }
+    return lean_io_result_mk_ok(
+        Type_to_lean(LLVMIntTypeInContext(lean_to_Context(ctx), width)));
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_float_type_in_context(lean_object *ctx, lean_object * /* w */) {
-    if(LLVM_DEBUG) { fprintf(stderr, "%s ; \n", __PRETTY_FUNCTION__); }
-    return lean_io_result_mk_ok(Type_to_lean(LLVMFloatTypeInContext(lean_to_Context(ctx))));
+extern "C" LEAN_EXPORT lean_object *lean_llvm_float_type_in_context(
+    lean_object *ctx, lean_object * /* w */) {
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "%s ; \n", __PRETTY_FUNCTION__);
+    }
+    return lean_io_result_mk_ok(
+        Type_to_lean(LLVMFloatTypeInContext(lean_to_Context(ctx))));
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_double_type_in_context(lean_object *ctx, lean_object * /* w */) {
-    if(LLVM_DEBUG) { fprintf(stderr, "%s ; \n", __PRETTY_FUNCTION__); }
-    return lean_io_result_mk_ok(Type_to_lean(LLVMDoubleTypeInContext(lean_to_Context(ctx))));
+extern "C" LEAN_EXPORT lean_object *lean_llvm_double_type_in_context(
+    lean_object *ctx, lean_object * /* w */) {
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "%s ; \n", __PRETTY_FUNCTION__);
+    }
+    return lean_io_result_mk_ok(
+        Type_to_lean(LLVMDoubleTypeInContext(lean_to_Context(ctx))));
 }
 
-
-extern "C" LEAN_EXPORT lean_object *lean_llvm_pointer_type(lean_object *base, lean_object * /* w */) {
-    if(LLVM_DEBUG) { fprintf(stderr, "%s ; base: %p\n", __PRETTY_FUNCTION__, base); }
-    return lean_io_result_mk_ok(Type_to_lean(LLVMPointerType(lean_to_Type(base), /*addrspace=*/0)));
+extern "C" LEAN_EXPORT lean_object *lean_llvm_pointer_type(
+    lean_object *base, lean_object * /* w */) {
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "%s ; base: %p\n", __PRETTY_FUNCTION__, base);
+    }
+    return lean_io_result_mk_ok(
+        Type_to_lean(LLVMPointerType(lean_to_Type(base), /*addrspace=*/0)));
 }

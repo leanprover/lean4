@@ -92,6 +92,10 @@ opaque createBuilderInContext (ctx: @&Ptr Context): IO (Ptr Builder)
 @[extern "lean_llvm_append_basic_block_in_context"]
 opaque appendBasicBlockInContext (ctx: @&Ptr Context) (fn: @& Ptr Value): IO (Ptr BasicBlock)
 
+@[extern "lean_llvm_position_builder_at_end"]
+opaque positionBuilderAtEnd (builder: @&Ptr Builder) (bb: @& Ptr BasicBlock): IO Unit
+
+
 -- Helper to add a function if it does not exist, and to return the function handle if it does.
 def getOrAddFunction(m: Ptr Module) (name: String) (type: Ptr LLVMType): IO (Ptr Value) :=  do
   match (← getNamedFunction m name) with
@@ -861,13 +865,14 @@ inductive Error where
 | unknownDeclaration: Name → Error
 | invalidExportName: Name → Error
 | unimplemented: String → Error
-
+| compileError: String → Error -- TODO: these gotta be changed into real errors
 
 instance : ToString Error where
   toString e := match e with
    | .unknownDeclaration n => s!"unknown declaration '{n}'"
    | .invalidExportName n => s!"invalid export name '{n}'"
    | .unimplemented s => s!"unimplemented '{s}'"
+   | .compileError s => s!"compile eror '{s}'"
 
 abbrev M := ReaderT Context (ExceptT Error IO)
 
@@ -1105,6 +1110,36 @@ def emitFileHeader : M Unit := return () -- this is purely C++ ceremony
 -- vvvemitFnsvvv
 
 
+def emitTailCall (llvmctx: LLVM.Ptr LLVM.Context) (v : Expr) : M Unit :=
+  match v with
+  | Expr.fap _ ys => do
+    let ctx ← read
+    let ps := ctx.mainParams
+    unless ps.size == ys.size do throw (Error.compileError "invalid tail call")
+    throw (Error.unimplemented "emitTailCall")
+    /-
+    if overwriteParam ps ys then
+      emitLn "{"
+      ps.size.forM fun i => do
+        let p := ps[i]!
+        let y := ys[i]!
+        unless paramEqArg p y do
+          emit (toCType p.ty); emit " _tmp_"; emit i; emit " = "; emitArg y; emitLn ";"
+      ps.size.forM fun i => do
+        let p := ps[i]!
+        let y := ys[i]!
+        unless paramEqArg p y do emit p.x; emit " = _tmp_"; emit i; emitLn ";"
+      emitLn "}"
+    else
+      ys.size.forM fun i => do
+        let p := ps[i]!
+        let y := ys[i]!
+        unless paramEqArg p y do emit p.x; emit " = "; emitArg y; emitLn ";"
+    emitLn "goto _start;"
+    -/
+  | _ => throw (Error.compileError "bug at emitTailCall")
+
+
 /-
 mutual
 -/
@@ -1160,6 +1195,69 @@ partial def emitBlock (b : FnBody) : M Unit := do
   | FnBody.unreachable         => emitLn "lean_internal_panic_unreachable();"
 -/
 
+partial def emitBlock (b : FnBody) (bb: LLVM.Ptr LLVM.BasicBlock) : M Unit := do
+  match b with
+  | FnBody.jdecl _ _  _ b      =>  throw (Error.unimplemented "join points are unimplemented")
+       --emitBlock b
+  | d@(FnBody.vdecl x t v b)   =>  throw (Error.unimplemented "vdecl")
+    /-
+    let ctx ← read
+    if isTailCallTo ctx.mainFn d then
+      emitTailCall v
+    else
+      emitVDecl x t v
+      emitBlock b
+    -/
+  | FnBody.inc x n c p b       => throw (Error.unimplemented "inc")
+  /-
+    unless p do emitInc x n c
+    emitBlock b
+  -/
+  | FnBody.dec x n c p b       => throw (Error.unimplemented "dec")
+  /-
+    unless p do emitDec x n c
+    emitBlock b
+  -/
+  | FnBody.del x b             => throw (Error.unimplemented "del")
+  /-
+  emitDel x; emitBlock b
+  -/
+  | FnBody.setTag x i b        => throw (Error.unimplemented "setTag")
+  /-
+  emitSetTag x i; emitBlock b
+  -/
+  | FnBody.set x i y b         => throw (Error.unimplemented "set")
+  /-
+  emitSet x i y; emitBlock b
+  -/
+  | FnBody.uset x i y b        => throw (Error.unimplemented "uset")
+  /-
+  emitUSet x i y; emitBlock b
+  -/
+  | FnBody.sset x i o y t b    => throw (Error.unimplemented "sset")
+  /-
+  emitSSet x i o y t; emitBlock b
+  -/
+  | FnBody.mdata _ b           =>  throw (Error.unimplemented "mdata")
+  /-
+  emitBlock b
+  -/
+  | FnBody.ret x               => throw (Error.unimplemented "ret")
+  /-
+  emit "return "; emitArg x; emitLn ";"
+  -/
+  | FnBody.case _ x xType alts => throw (Error.unimplemented "case")
+  /- emitCase x xType alts
+  -/
+  | FnBody.jmp j xs            => throw (Error.unimplemented "jump")
+  /-
+  emitJmp j xs
+  -/
+  | FnBody.unreachable         => throw (Error.unimplemented "unreachable")
+  /-
+  emitLn "lean_internal_panic_unreachable();"
+  -/
+
 /-
 partial def emitJPs : FnBody → M Unit
   | FnBody.jdecl j _  v b => do emit j; emitLn ":"; emitFnBody v; emitJPs b
@@ -1178,11 +1276,13 @@ partial def emitFnBody (b : FnBody) : M Unit := do
 
 partial def emitFnBody (llvmctx: LLVM.Ptr LLVM.Context) (b : FnBody) (llvmfn: LLVM.Ptr LLVM.Value) (builder: LLVM.Ptr LLVM.Builder): M Unit := do
   let bb ← LLVM.appendBasicBlockInContext llvmctx llvmfn
-  pure ()
-  -- emitLn "{"
   -- let declared ← declareVars b false
   -- if declared then emitLn ""
-  -- emitBlock b
+
+  -- emitLn "{"
+  -- TODO: emitBlock b bb   -- emitBlock b
+  -- LLVM.positionBuilderAtEnd builder bb
+
   -- emitJPs b
   -- emitLn "}"
 
@@ -1316,7 +1416,149 @@ def emitFns (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder: L
   decls.reverse.forM (emitDecl ctx mod builder)
 -- ^^^ emitFns ^^^
 
+-- vv emitInitFn vv
+def emitInitFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module): M Unit := do
+  let env ← getEnv
+  let modName ← getModName
+  let fnty ← LLVM.functionType (← i8ptrType ctx) #[ (← i8Type ctx), (← i8ptrType ctx)] (isVarArg := false)
+  -- env.imports.forM fun imp => emitLn ("lean_object* " ++ mkModuleInitializationFunctionName imp.module ++ "(uint8_t builtin, lean_object*);")
+  for imp in env.imports do
+    let _ ← LLVM.getOrAddFunction mod (mkModuleInitializationFunctionName imp.module) fnty
 
+  /-
+  emitLns [
+    "static bool _G_initialized = false;",
+    "LEAN_EXPORT lean_object* " ++ mkModuleInitializationFunctionName modName ++ "(uint8_t builtin, lean_object* w) {",
+    "lean_object * res;",
+    "if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));",
+    "_G_initialized = true;"
+  ]
+  -/
+  /-
+  env.imports.forM fun imp => emitLns [
+    "res = " ++ mkModuleInitializationFunctionName imp.module ++ "(builtin, lean_io_mk_world());",
+    "if (lean_io_result_is_error(res)) return res;",
+    "lean_dec_ref(res);"]
+  -/
+  /-
+  let decls := getDecls env
+  decls.reverse.forM emitDeclInit
+  -/
+  -- emitLns ["return lean_io_result_mk_ok(lean_box(0));", "}"]
+
+-- ^^ emitInitFn ^^
+
+
+-- vv emitMainFnIfIneeded vv
+def emitMainFn : M Unit := do
+  let d ← getDecl `main
+  match d with
+  | .fdecl (xs := xs) .. => do
+    unless xs.size == 2 || xs.size == 1 do throw (Error.compileError "invalid main function, incorrect arity when generating code")
+    let env ← getEnv
+    let usesLeanAPI := usesModuleFrom env `Lean
+    /-
+    if usesLeanAPI then
+       emitLn "void lean_initialize();"
+    else
+       emitLn "void lean_initialize_runtime_module();";
+    -/
+    /-
+    emitLn "
+  #if defined(WIN32) || defined(_WIN32)
+  #include <windows.h>
+  #endif
+
+  int main(int argc, char ** argv) {
+  #if defined(WIN32) || defined(_WIN32)
+  SetErrorMode(SEM_FAILCRITICALERRORS);
+  #endif
+  lean_object* in; lean_object* res;";
+  -/
+    /-
+    if usesLeanAPI then
+      emitLn "lean_initialize();"
+    else
+      emitLn "lean_initialize_runtime_module();"
+    -/
+    let modName ← getModName
+    /- We disable panic messages because they do not mesh well with extracted closed terms.
+       See issue #534. We can remove this workaround after we implement issue #467. -/
+    /-
+    emitLn "lean_set_panic_messages(false);"
+    emitLn ("res = " ++ mkModuleInitializationFunctionName modName ++ "(1 /* builtin */, lean_io_mk_world());")
+    emitLn "lean_set_panic_messages(true);"
+    emitLns ["lean_io_mark_end_initialization();",
+             "if (lean_io_result_is_ok(res)) {",
+             "lean_dec_ref(res);",
+             "lean_init_task_manager();"];
+    -/
+    if xs.size == 2 then
+      /-
+      emitLns ["in = lean_box(0);",
+               "int i = argc;",
+               "while (i > 1) {",
+               " lean_object* n;",
+               " i--;",
+               " n = lean_alloc_ctor(1,2,0); lean_ctor_set(n, 0, lean_mk_string(argv[i])); lean_ctor_set(n, 1, in);",
+               " in = n;",
+              "}"]
+      emitLn ("res = " ++ leanMainFn ++ "(in, lean_io_mk_world());")
+      -/
+      pure ()
+    else
+      pure ()
+      /-
+      emitLn ("res = " ++ leanMainFn ++ "(lean_io_mk_world());")
+      -/
+    /-
+    emitLn "}"
+    -/
+    -- `IO _`
+    let retTy := env.find? `main |>.get! |>.type |>.getForallBody
+    -- either `UInt32` or `(P)Unit`
+    let retTy := retTy.appArg!
+    -- finalize at least the task manager to avoid leak sanitizer false positives from tasks outliving the main thread
+    /-
+    emitLns ["lean_finalize_task_manager();",
+             "if (lean_io_result_is_ok(res)) {",
+             "  int ret = " ++ if retTy.constName? == some ``UInt32 then "lean_unbox_uint32(lean_io_result_get_value(res));" else "0;",
+             "  lean_dec_ref(res);",
+             "  return ret;",
+             "} else {",
+             "  lean_io_result_show_error(res);",
+             "  lean_dec_ref(res);",
+             "  return 1;",
+             "}"]
+    -/
+    -- emitLn "}"
+  | _     => throw (Error.compileError "function declaration expected")
+
+
+def hasMainFn : M Bool := do
+  let env ← getEnv
+  let decls := getDecls env
+  return decls.any (fun d => d.name == `main)
+
+
+def emitMainFnIfNeeded : M Unit := do
+  if (← hasMainFn) then emitMainFn
+
+-- ^^ emitMainFnIfNeeded ^^
+
+-- vv EmitFileFooter vv
+/-
+def emitFileFooter : M Unit :=
+  emitLns [
+   "#ifdef __cplusplus",
+   "}",
+   "#endif"
+  ]
+-/
+
+def emitFileFooter : M Unit := pure ()
+
+-- ^^ emitFileFooter ^^
 /-
 def main : M Unit := do
   emitFileHeader
@@ -1332,7 +1574,11 @@ def main : M Unit := do
   IO.eprintln "starting emitFnDcls"
   emitFnDecls
   IO.eprintln "starting emitFns"
-  emitFns (← getLLVMContext) (← getLLVMModule)
+  let builder ← LLVM.createBuilderInContext (← getLLVMContext)
+  emitFns (← getLLVMContext) (← getLLVMModule) builder
+  emitInitFn (← getLLVMContext) (← getLLVMModule)
+  emitMainFnIfNeeded
+  emitFileFooter
   return ()
 end EmitLLVM
 

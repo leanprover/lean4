@@ -107,6 +107,22 @@ static inline LLVMBuilderRef lean_to_Builder(b_lean_obj_arg s) {
     return static_cast<LLVMBuilderRef>(lean_get_external_data(s));
 }
 
+// == LLVM <-> Lean: BasicBlockRef ==
+
+static lean_external_class *g_BasicBlock_class = nullptr;
+
+static inline lean_object *BasicBlock_to_lean(LLVMBasicBlockRef s) {
+    if (g_BasicBlock_class == nullptr) {
+        g_BasicBlock_class =
+            lean_register_external_class(donothing_finalize, donothing_foreach);
+    }
+    return lean_alloc_external(g_BasicBlock_class, s);
+}
+
+static inline LLVMBasicBlockRef lean_to_BasicBlock(b_lean_obj_arg s) {
+    return static_cast<LLVMBasicBlockRef>(lean_get_external_data(s));
+}
+
 // == FFI ==
 // static lean_external_class *g_llvm_context_external_class = NULL;
 // static void llvm_context_finalizer(void *h) {}
@@ -303,6 +319,18 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_append_basic_block_in_context(
     }
     return lean_io_result_mk_ok(
         Builder_to_lean(LLVMCreateBuilderInContext(lean_to_Context(ctx))));
+}
+
+
+
+extern "C" LEAN_EXPORT lean_object *lean_llvm_position_builder_at_end(
+    lean_object *builder, lean_object *bb, lean_object * /* w */) {
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "%s ; builder: %p\n", __PRETTY_FUNCTION__, builder);
+        fprintf(stderr, "...%s ; bb: %p\n", __PRETTY_FUNCTION__, bb);
+    }
+    LLVMPositionBuilderAtEnd(lean_to_Builder(builder), lean_to_BasicBlock(bb));
+    return lean_io_result_mk_ok(lean_box(0));
 }
 
 

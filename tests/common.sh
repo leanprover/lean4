@@ -28,8 +28,7 @@ function compile_lean_c_backend {
 function compile_lean_llvm_backend {
     # TODO: find a sane way to pick this path up, similar to the way leanc hardcodes these paths via flags with --print-cflags
     # Also, this should be in stage0, since we want it to be present in all circumstances.
-    which lean
-    which leanc
+    echo "using lean: $(which lean); leanc: $(which leanc)"
     export LIBRUNTIMEBC=$(git rev-parse --show-toplevel)/build/stage1/runtime/libleanrt.bc
     lean --bc="$f.bc" "$f" || fail "Failed to compile $f into bitcode file"
     llvm-link "$f.bc" $LIBRUNTIMEBC -o "$f.linked.bc"
@@ -58,7 +57,7 @@ function exec_check {
 function diff_produced {
     if test -f "$f.expected.out"; then
         if $DIFF -au --strip-trailing-cr -I "executing external script" "$f.expected.out" "$f.produced.out"; then
-            exit 0
+            :
         else
             echo "ERROR: file $f.produced.out does not match $f.expected.out"
             if [ $INTERACTIVE == "yes" ]; then

@@ -1,6 +1,37 @@
 Unreleased
 ---------
 
+* Mutual declarations in different namespaces are now supported. Example:
+  ```lean
+  mutual
+    def Foo.boo (x : Nat) :=
+      match x with
+      | 0 => 1
+      | x + 1 => 2*Boo.bla x
+
+    def Boo.bla (x : Nat) :=
+      match x with
+      | 0 => 2
+      | x+1 => 3*Foo.boo x
+  end
+  ```
+  A `namespace` is automatically created for the common prefix. Example:
+  ```lean
+  mutual
+    def Tst.Foo.boo (x : Nat) := ...
+    def Tst.Boo.bla (x : Nat) := ...
+  end
+  ```
+  expands to
+  ```lean
+  namespace Tst
+  mutual
+    def Foo.boo (x : Nat) := ...
+    def Boo.bla (x : Nat) := ...
+  end
+  end Tst
+  ```
+
 * Allow users to install their own `deriving` handlers for existing type classes.
   See example at [Simple.lean](https://github.com/leanprover/lean4/blob/master/tests/pkg/deriving/UserDeriving/Simple.lean).
 

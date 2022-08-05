@@ -32,7 +32,7 @@ end
 mutual
   private def Foo.toString : Foo → String
     | Foo.somefoo => go 2 ++ toString.go 2 ++ Foo.toString.go 2
-    | Foo.bar b f => toString f ++ Bar.toString b
+    | Foo.bar b f => Foo.toString f ++ Bar.toString b
   where
     go (x : Nat) := s!"foo {x}"
 

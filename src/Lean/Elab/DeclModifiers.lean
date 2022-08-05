@@ -178,8 +178,6 @@ def mkDeclName (currNamespace : Name) (modifiers : Modifiers) (shortName : Name)
   let isRootName := (`_root_).isPrefixOf name
   if name == `_root_ then
     throwError "invalid declaration name `_root_`, `_root_` is a prefix used to refer to the 'root' namespace"
-  unless name.isAtomic || isFreshInstanceName name || isRootName do
-    throwError "atomic identifier expected '{shortName}'"
   let declName := if isRootName then { view with name := name.replacePrefix `_root_ Name.anonymous }.review else currNamespace ++ shortName
   if isRootName then
     let .str p s := name | throwError "invalid declaration name '{name}'"

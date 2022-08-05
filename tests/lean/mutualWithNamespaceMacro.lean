@@ -1,25 +1,11 @@
-
-
 mutual
 
 inductive Foo.Lst (α : Type)
-| nil   : Lst
-| cons  : Tree α → Lst α → Lst α
+| nil   : Foo.Lst α
+| cons  : Boo.Tree α → Foo.Lst α → Foo.Lst α
 
-inductive Boo.Tree (α : Type) -- conflicting namespace
-| leaf : Tree α
-| node : Lst α → Tree α
-
-end
-
-mutual
-
-inductive Foo.Lst (α : Type)
-| nil   : Lst α
-| cons  : Tree α → Lst α → Lst α
-
-inductive Foo.Tree (α : Type)
-| leaf : Tree α
-| node : Lst α → Tree α
+inductive Boo.Tree (α : Type)
+| leaf : Boo.Tree α
+| node : Foo.Lst α → Boo.Tree α
 
 end

@@ -71,6 +71,9 @@ opaque addGlobal(m: @&Ptr Module) (name: @&String) (type: @&Ptr LLVMType): IO (P
 @[extern "lean_llvm_get_named_global"]
 opaque getNamedGlobal(m: @&Ptr Module) (name: @&String): IO (Option (Ptr Value))
 
+@[extern "lean_llvm_set_initializer"]
+opaque setInitializer (glbl: @&Ptr Value) (val: @&Ptr Value): IO Unit
+
 @[extern "lean_llvm_function_type"]
 opaque functionType(retty: @&Ptr LLVMType) (args: @&Array (Ptr LLVMType)) (isVarArg: Bool := false): IO (Ptr LLVMType)
 
@@ -157,6 +160,10 @@ def getOrAddFunction(m: Ptr Module) (name: String) (type: Ptr LLVMType): IO (Ptr
   | .some fn => return fn
   | .none => addFunction m name type
 
+def getOrAddGlobal(m: Ptr Module) (name: String) (type: Ptr LLVMType): IO (Ptr Value) :=  do
+  match (← getNamedGlobal m name) with
+  | .some fn => return fn
+  | .none => addGlobal m name type
 
 
 def i1Type (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) :=
@@ -188,6 +195,9 @@ def False (ctx: Ptr Context): IO (Ptr Value) :=
 
 def constInt' (ctx: Ptr Context) (width: UInt64) (value: UInt64) (signExtend: Bool := false): IO (Ptr Value) :=
  do constInt (← LLVM.intTypeInContext ctx width) value signExtend
+
+def constInt1 (ctx: Ptr Context) (value: UInt64) (signExtend: Bool := false): IO (Ptr Value) :=
+  constInt' ctx 1 value signExtend
 
 def constInt8 (ctx: Ptr Context) (value: UInt64) (signExtend: Bool := false): IO (Ptr Value) :=
   constInt' ctx 8 value signExtend
@@ -281,6 +291,21 @@ def getOrCreateLeanBoxFn: M (LLVM.Ptr LLVM.Value) := do
 def callLeanBox (builder: LLVM.Ptr LLVM.Builder) (arg: LLVM.Ptr LLVM.Value) (name: String): M (LLVM.Ptr LLVM.Value) := do
   LLVM.buildCall builder (← getOrCreateLeanBoxFn) #[arg] name
 
+def getOrCreateLeanIOMkWorldFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module): M (LLVM.Ptr LLVM.Value) := do
+  -- lean_object* lean_io_mk_world();
+  getOrCreateFunctionPrototype ctx mod (← LLVM.voidPtrType ctx) "lean_io_mk_world"  #[]
+
+def callLeanIOMkWorld (builder: LLVM.Ptr LLVM.Builder): M (LLVM.Ptr LLVM.Value) := do
+   LLVM.buildCall builder (← getOrCreateLeanIOMkWorldFn (← getLLVMContext) (← getLLVMModule)) #[] "mk_io_out"
+
+
+def getOrCreateLeanIOResultIsErrorFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module): M (LLVM.Ptr LLVM.Value) := do
+  -- bool lean_io_result_is_err();
+  getOrCreateFunctionPrototype ctx mod (← LLVM.i1Type ctx) "lean_io_result_is_err"  #[(← LLVM.voidPtrType ctx)]
+
+def callLeanIOResultIsError (builder: LLVM.Ptr LLVM.Builder) (arg: LLVM.Ptr LLVM.Value) (name: String): M (LLVM.Ptr LLVM.Value) := do
+  LLVM.buildCall builder (← getOrCreateLeanIOResultIsErrorFn (← getLLVMContext) (← getLLVMModule)) #[arg] name
+
 -- lean_alloc_ctor (unsigned tag, unsigned num_obj, unsigned scalar_sz)
 def getOrCreateLeanAllocCtorFn: M (LLVM.Ptr LLVM.Value) := do
   let ctx ← getLLVMContext
@@ -301,6 +326,19 @@ def getOrCreateLeanCtorSetFn: M (LLVM.Ptr LLVM.Value) := do
 
 def callLeanCtorSet (builder: LLVM.Ptr LLVM.Builder) (o i v: LLVM.Ptr LLVM.Value) (name: String): M (LLVM.Ptr LLVM.Value) := do
   LLVM.buildCall builder (← getOrCreateLeanCtorSetFn) #[o, i, v] name
+
+
+-- lean_obj_res io_result_mk_ok(lean_obj_arg a)
+def getOrCreateLeanIOResultMkOkFn: M (LLVM.Ptr LLVM.Value) := do
+  let ctx ← getLLVMContext
+  let voidptr ← LLVM.voidPtrType ctx
+  getOrCreateFunctionPrototype ctx (← getLLVMModule)
+    voidptr "lean_io_result_mk_ok"  #[voidptr]
+
+def callLeanIOResultMKOk (builder: LLVM.Ptr LLVM.Builder) (v: LLVM.Ptr LLVM.Value) (name: String): M (LLVM.Ptr LLVM.Value) := do
+  LLVM.buildCall builder (← getOrCreateLeanCtorSetFn) #[v] name
+
+
 
 /-
 def toCType : IRType → String
@@ -355,6 +393,73 @@ def toCName (n : Name) : M String := do
   | some _                   => throwInvalidExportName n
   | none                     => if n == `main then pure leanMainFn else pure n.mangle
 
+
+-- vvvv LLVM UTILS vvvv
+
+-- indicates whether the API for building the blocks for then/else should
+-- forward the control flow to the merge block.
+-- TODO: infer this automatically from the state of the basic block.
+inductive ShouldForwardControlFlow where
+| yes | no
+
+-- build an if, and position the builder at the merge basic block after execution.
+-- The '_' denotes that we return Unit on each branch.
+-- TODO: get current function from the builder.
+def buildIfThen_ (builder: LLVM.Ptr LLVM.Builder) (fn: LLVM.Ptr LLVM.Value)  (name: String) (brval: LLVM.Ptr LLVM.Value)
+  (thencodegen: LLVM.Ptr LLVM.Builder → M ShouldForwardControlFlow): M Unit := do
+  let builderBB ← LLVM.getInsertBlock builder
+  let fn ← LLVM.getBasicBlockParent builderBB
+  -- LLVM.positionBuilderAtEnd builder
+
+  let nameThen := name ++ "Then"
+  let nameElse := name ++ "Else"
+  let nameMerge := name ++ "Merge"
+
+  let thenbb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn nameThen
+  let elsebb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn nameElse
+  let mergebb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn nameMerge
+  let _ ← LLVM.buildCondBr builder brval thenbb elsebb
+  -- then
+  LLVM.positionBuilderAtEnd builder thenbb
+  let fwd? ← thencodegen builder
+  LLVM.positionBuilderAtEnd builder thenbb
+  match fwd? with
+  | .yes => let _ ← LLVM.buildBr builder mergebb
+  | .no => pure ()
+
+  -- else
+  LLVM.positionBuilderAtEnd builder elsebb
+  let _ ← LLVM.buildBr builder mergebb
+  -- merge
+  LLVM.positionBuilderAtEnd builder mergebb
+
+def buildIfThenElse_ (builder: LLVM.Ptr LLVM.Builder)  (name: String) (brval: LLVM.Ptr LLVM.Value)
+  (thencodegen: LLVM.Ptr LLVM.Builder → M ShouldForwardControlFlow)
+  (elsecodegen: LLVM.Ptr LLVM.Builder → M ShouldForwardControlFlow): M Unit := do
+  let fn ← LLVM.getBasicBlockParent (← LLVM.getInsertBlock builder)
+  -- LLVM.positionBuilderAtEnd builder insertpt
+  let thenbb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn (name ++ "Then")
+  let elsebb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn (name ++ "Else")
+  let mergebb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn (name ++ "Merge")
+  let _ ← LLVM.buildCondBr builder brval thenbb elsebb
+  -- then
+  LLVM.positionBuilderAtEnd builder thenbb
+  let fwd? ← thencodegen builder
+  LLVM.positionBuilderAtEnd builder thenbb
+  match fwd? with
+  | .yes => let _ ← LLVM.buildBr builder mergebb
+  | .no => pure ()
+  -- else
+  LLVM.positionBuilderAtEnd builder elsebb
+  let fwd? ← elsecodegen builder
+  LLVM.positionBuilderAtEnd builder elsebb
+  match fwd? with
+  | .yes => let _ ← LLVM.buildBr builder mergebb
+  | .no => pure ()
+  -- merge
+  LLVM.positionBuilderAtEnd builder mergebb
+
+-- ^^^^ LLVM UTILS ^^^^
 
 -- vvemitFnDeclsvv
 
@@ -999,35 +1104,96 @@ def emitFns (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder: L
 -- ^^^ emitFns ^^^
 
 -- vv emitInitFn vv
-def emitInitFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module): M Unit := do
+/-
+def emitMarkPersistent (d : Decl) (n : Name) : M Unit := do
+  if d.resultType.isObj then
+    emit "lean_mark_persistent("
+    emitCName n
+    emitLn ");"
+-/
+
+/-
+def emitDeclInit (d : Decl) : M Unit := do
+  let env ← getEnv
+  let n := d.name
+  if isIOUnitInitFn env n then
+    emit "res = "; emitCName n; emitLn "(lean_io_mk_world());"
+    emitLn "if (lean_io_result_is_error(res)) return res;"
+    emitLn "lean_dec_ref(res);"
+  else if d.params.size == 0 then
+    match getInitFnNameFor? env d.name with
+    | some initFn =>
+      if getBuiltinInitFnNameFor? env d.name |>.isSome then
+        emit "if (builtin) {"
+      emit "res = "; emitCName initFn; emitLn "(lean_io_mk_world());"
+      emitLn "if (lean_io_result_is_error(res)) return res;"
+      emitCName n; emitLn " = lean_io_result_get_value(res);"
+      emitMarkPersistent d n
+      emitLn "lean_dec_ref(res);"
+      if getBuiltinInitFnNameFor? env d.name |>.isSome then
+        emit "}"
+    | _ =>
+      emitCName n; emit " = "; emitCInitName n; emitLn "();"; emitMarkPersistent d n
+-/
+def emitDeclInit (d : Decl) : M Unit := do
+   throw (Error.unimplemented s!"emitDeclInit {d}")
+
+def emitInitFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder: LLVM.Ptr LLVM.Builder): M Unit := do
   let env ← getEnv
   let modName ← getModName
-  let fnty ← LLVM.functionType (← LLVM.voidPtrType ctx) #[ (← LLVM.i8Type ctx), (← LLVM.voidPtrType ctx)] (isVarArg := false)
-  -- env.imports.forM fun imp => emitLn ("lean_object* " ++ mkModuleInitializationFunctionName imp.module ++ "(uint8_t builtin, lean_object*);")
-  for imp in env.imports do
-    let _ ← LLVM.getOrAddFunction mod (mkModuleInitializationFunctionName imp.module) fnty
 
-  /-
-  emitLns [
-    "static bool _G_initialized = false;",
-    "LEAN_EXPORT lean_object* " ++ mkModuleInitializationFunctionName modName ++ "(uint8_t builtin, lean_object* w) {",
-    "lean_object * res;",
-    "if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));",
-    "_G_initialized = true;"
-  ]
-  -/
+  let initFnTy ← LLVM.functionType (← LLVM.voidPtrType ctx) #[ (← LLVM.i8Type ctx), (← LLVM.voidPtrType ctx)] (isVarArg := false)
+  let initFn ← LLVM.getOrAddFunction mod (mkModuleInitializationFunctionName modName) initFnTy
+  let entryBB ← LLVM.appendBasicBlockInContext ctx initFn "entry"
+  LLVM.positionBuilderAtEnd builder entryBB
+      /-
+    emitLns [
+      "static bool _G_initialized = false;",
+      "LEAN_EXPORT lean_object* " ++ mkModuleInitializationFunctionName modName ++ "(uint8_t builtin, lean_object* w) {",
+      "lean_object * res;",
+      "if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));",
+      "_G_initialized = true;"
+    ]
+    -/
+  let ginitslot ← LLVM.getOrAddGlobal mod (modName.mangle ++ "_G_initialized") (← LLVM.i1Type ctx)
+  LLVM.setInitializer ginitslot (← LLVM.False ctx)
+  let ginitv ← LLVM.buildLoad builder ginitslot "init_v"
+  buildIfThen_ builder initFn "isGInitialized" ginitv
+    (fun builder => do
+      let box0 ← callLeanBox builder (← LLVM.constIntUnsigned ctx 0) "box0"
+      let out ← callLeanIOResultMKOk builder box0 "retval"
+      let _ ← LLVM.buildRet builder out
+      pure ShouldForwardControlFlow.no)
+  LLVM.buildStore builder ginitslot (← LLVM.True ctx)
+
   /-
   env.imports.forM fun imp => emitLns [
     "res = " ++ mkModuleInitializationFunctionName imp.module ++ "(builtin, lean_io_mk_world());",
     "if (lean_io_result_is_error(res)) return res;",
     "lean_dec_ref(res);"]
   -/
-  /-
+  env.imports.forM fun import => do
+    let importFnTy ← LLVM.functionType (← LLVM.voidPtrType ctx) #[ (← LLVM.i8Type ctx), (← LLVM.voidPtrType ctx)] (isVarArg := false)
+    let importInitFn ← LLVM.getOrAddFunction mod (mkModuleInitializationFunctionName import.module) importFnTy
+    let builtin ← LLVM.getParam initFn 0
+    let world ← callLeanIOMkWorld builder
+    let res ← LLVM.buildCall builder initFn #[builtin, world] ("res_" ++ import.module.mangle)
+    let err? ← callLeanIOResultIsError builder res ("res_is_error_"  ++ import.module.mangle)
+    buildIfThen_ builder initFn ("IsError" ++ import.module.mangle) err?
+      (fun builder => do
+        let _ ← LLVM.buildRet builder res
+        pure ShouldForwardControlFlow.no)
+    -- TODO: call lean_dec_ref. It's fine to not decrement refcounts.
+    /-
+    let decls := getDecls env
+    decls.reverse.forM emitDeclInit
+    -/
+  -- emitLns ["return lean_io_result_mk_ok(lean_box(0));", "}"]
   let decls := getDecls env
   decls.reverse.forM emitDeclInit
-  -/
-  -- emitLns ["return lean_io_result_mk_ok(lean_box(0));", "}"]
-
+  let box0 ← callLeanBox builder (← LLVM.constIntUnsigned ctx 0) "box0"
+  let out ← callLeanIOResultMKOk builder box0 "retval"
+  let _ ← LLVM.buildRet builder out
 -- ^^ emitInitFn ^^
 
 
@@ -1045,9 +1211,6 @@ def getOrCreateLeanSetPanicMessages (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr 
   -- void lean_set_panic_messages();
   getOrCreateFunctionPrototype ctx mod (← LLVM.voidTypeInContext ctx) "lean_set_panic_messages"  #[(← LLVM.i1Type ctx)]
 
-def getOrCreateLeanIOMkWorldFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module): M (LLVM.Ptr LLVM.Value) := do
-  -- lean_object* lean_io_mk_world();
-  getOrCreateFunctionPrototype ctx mod (← LLVM.voidPtrType ctx) "lean_io_mk_world"  #[]
 
 def getOrCreateLeanIOMarkEndInitializationFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module): M (LLVM.Ptr LLVM.Value) := do
   -- lean_object* lean_io_mk_world();
@@ -1078,9 +1241,6 @@ def getOrCreateLeanInitTaskManagerFn: M (LLVM.Ptr LLVM.Value) := do
 def callLeanInitTaskManager (builder: LLVM.Ptr LLVM.Builder): M Unit := do
    let _ ← LLVM.buildCall builder (← getOrCreateLeanInitTaskManagerFn) #[] "init_out"
 
-
-def callLeanIOMkWorld (builder: LLVM.Ptr LLVM.Builder): M (LLVM.Ptr LLVM.Value) := do
-   LLVM.buildCall builder (← getOrCreateLeanIOMkWorldFn (← getLLVMContext) (← getLLVMModule)) #[] "mk_io_out"
 
 def getOrCreateLeanFinalizeTaskManager: M (LLVM.Ptr LLVM.Value) := do
   let ctx ← getLLVMContext
@@ -1119,69 +1279,6 @@ def callLeanIOResultShowError (builder: LLVM.Ptr LLVM.Builder) (v: LLVM.Ptr LLVM
    let _ ← LLVM.buildCall builder (← getOrCreateLeanIOResultShowErrorFn) #[v] name
 
 
-
--- indicates whether the API for building the blocks for then/else should
--- forward the control flow to the merge block.
--- TODO: infer this automatically from the state of the basic block.
-inductive ShouldForwardControlFlow where
-| yes | no
-
--- build an if, and position the builder at the merge basic block after execution.
--- The '_' denotes that we return Unit on each branch.
--- TODO: get current function from the builder.
-def buildIfThen_ (builder: LLVM.Ptr LLVM.Builder) (fn: LLVM.Ptr LLVM.Value)  (name: String) (brval: LLVM.Ptr LLVM.Value)
-  (thencodegen: LLVM.Ptr LLVM.Builder → M ShouldForwardControlFlow): M Unit := do
-  let builderBB ← LLVM.getInsertBlock builder
-  let fn ← LLVM.getBasicBlockParent builderBB
-  -- LLVM.positionBuilderAtEnd builder
-
-  let nameThen := name ++ "Then"
-  let nameElse := name ++ "Else"
-  let nameMerge := name ++ "Merge"
-
-  let thenbb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn nameThen
-  let elsebb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn nameElse
-  let mergebb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn nameMerge
-  let _ ← LLVM.buildCondBr builder brval thenbb elsebb
-  -- then
-  LLVM.positionBuilderAtEnd builder thenbb
-  let fwd? ← thencodegen builder
-  LLVM.positionBuilderAtEnd builder thenbb
-  match fwd? with
-  | .yes => let _ ← LLVM.buildBr builder mergebb
-  | .no => pure ()
-
-  -- else
-  LLVM.positionBuilderAtEnd builder elsebb
-  let _ ← LLVM.buildBr builder mergebb
-  -- merge
-  LLVM.positionBuilderAtEnd builder mergebb
-
-def buildIfThenElse_ (builder: LLVM.Ptr LLVM.Builder)  (name: String) (brval: LLVM.Ptr LLVM.Value)
-  (thencodegen: LLVM.Ptr LLVM.Builder → M ShouldForwardControlFlow)
-  (elsecodegen: LLVM.Ptr LLVM.Builder → M ShouldForwardControlFlow): M Unit := do
-  let fn ← LLVM.getBasicBlockParent (← LLVM.getInsertBlock builder)
-  -- LLVM.positionBuilderAtEnd builder insertpt
-  let thenbb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn (name ++ "Then")
-  let elsebb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn (name ++ "Else")
-  let mergebb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn (name ++ "Merge")
-  let _ ← LLVM.buildCondBr builder brval thenbb elsebb
-  -- then
-  LLVM.positionBuilderAtEnd builder thenbb
-  let fwd? ← thencodegen builder
-  LLVM.positionBuilderAtEnd builder thenbb
-  match fwd? with
-  | .yes => let _ ← LLVM.buildBr builder mergebb
-  | .no => pure ()
-  -- else
-  LLVM.positionBuilderAtEnd builder elsebb
-  let fwd? ← elsecodegen builder
-  LLVM.positionBuilderAtEnd builder elsebb
-  match fwd? with
-  | .yes => let _ ← LLVM.buildBr builder mergebb
-  | .no => pure ()
-  -- merge
-  LLVM.positionBuilderAtEnd builder mergebb
 
 
 def emitMainFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder: LLVM.Ptr LLVM.Builder): M Unit := do
@@ -1387,7 +1484,7 @@ def main : M Unit := do
   IO.eprintln "starting emitFns"
   let builder ← LLVM.createBuilderInContext (← getLLVMContext)
   emitFns (← getLLVMContext) (← getLLVMModule) builder
-  emitInitFn (← getLLVMContext) (← getLLVMModule)
+  emitInitFn (← getLLVMContext) (← getLLVMModule) builder
   emitMainFnIfNeeded (← getLLVMContext) (← getLLVMModule) builder
   emitFileFooter
   IO.eprintln (← LLVM.printModuletoString (← getLLVMModule))

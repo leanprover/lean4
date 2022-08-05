@@ -267,6 +267,17 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_get_named_global(
                                   : lean::mk_option_none());
 }
 
+extern "C" LEAN_EXPORT lean_object *lean_llvm_set_initializer(
+    lean_object *global, lean_object *initializer,
+    lean_object * /* w */) {
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "%s ; global: %s\n", __PRETTY_FUNCTION__, LLVMPrintValueToString(lean_to_Value(global)));
+        fprintf(stderr, "...%s ; initializer: %s\n", __PRETTY_FUNCTION__, LLVMPrintValueToString(lean_to_Value(initializer)));
+    }
+    LLVMSetInitializer(lean_to_Value(global), lean_to_Value(initializer));
+    return lean_io_result_mk_ok(lean_box(0));
+}
+
 extern "C" LEAN_EXPORT lean_object *lean_llvm_function_type(
     lean_object *retty, lean_object *argtys, uint8_t isvararg,
     lean_object * /* w */) {

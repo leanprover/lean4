@@ -90,7 +90,6 @@ static lean_object* l_Lean_Meta_AC_getInstance___closed__8;
 static lean_object* l___regBuiltin_Lean_Meta_AC_acRflTactic___closed__3;
 LEAN_EXPORT lean_object* l_Array_insertionSort_traverse___at_Lean_Meta_AC_toACExpr___spec__4(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
-lean_object* l_Std_HashSetImp_insert___at_Lean_CollectMVars_visit___spec__3(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_AC_instContextInformationProdPreContextArrayBool___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_AC_toACExpr_toPreExpr___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -188,7 +187,6 @@ static lean_object* l_Lean_Meta_AC_buildNormProof_convert___closed__6;
 static lean_object* l___regBuiltin_Lean_Meta_AC_acRflTactic_declRange___closed__1;
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_applySimpResultToTarget(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern uint8_t l_instInhabitedBool;
 static lean_object* l_Lean_Meta_AC_toACExpr___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_AC_buildNormProof_mkContext(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
@@ -225,10 +223,9 @@ lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_Lean_Meta_AC_getInstance___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_AC_buildNormProof_mkContext___closed__12;
-lean_object* lean_panic_fn(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_AC_preContext___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_AC_instEvalInformationPreContextACExpr;
-LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_AC_instContextInformationProdPreContextArrayBool___spec__1(lean_object*);
+lean_object* l_Std_HashSetImp_insert___at_Lean_CollectFVars_visit___spec__3(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_AC_norm___at_Lean_Meta_AC_buildNormProof___spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Meta_AC_acRflTactic_declRange___closed__2;
@@ -250,6 +247,7 @@ static lean_object* l_Lean_Meta_AC_rewriteUnnormalized___closed__1;
 static lean_object* l_Lean_Meta_AC_instInhabitedPreContext___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_AC_toACExpr___spec__16___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_AssocList_find_x3f___at_Lean_Meta_AC_toACExpr___spec__15(lean_object*, lean_object*);
+lean_object* l_panic___at_Lean_Meta_Match_mkMatcher___spec__12(lean_object*);
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_AC_buildNormProof_convert___closed__4;
 lean_object* l_Lean_indentExpr(lean_object*);
@@ -297,16 +295,6 @@ x_1 = l_Lean_Meta_AC_instInhabitedPreContext___closed__2;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_AC_instContextInformationProdPreContextArrayBool___spec__1(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_instInhabitedBool;
-x_3 = lean_box(x_2);
-x_4 = lean_panic_fn(x_3, x_1);
-return x_4;
-}
-}
 static lean_object* _init_l_Lean_Meta_AC_instContextInformationProdPreContextArrayBool___lambda__1___closed__1() {
 _start:
 {
@@ -349,24 +337,20 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_1, 1);
-lean_inc(x_3);
-lean_dec(x_1);
 x_4 = lean_array_get_size(x_3);
 x_5 = lean_nat_dec_lt(x_2, x_4);
 lean_dec(x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
-lean_dec(x_3);
 x_6 = l_Lean_Meta_AC_instContextInformationProdPreContextArrayBool___lambda__1___closed__4;
-x_7 = l_panic___at_Lean_Meta_AC_instContextInformationProdPreContextArrayBool___spec__1(x_6);
+x_7 = l_panic___at_Lean_Meta_Match_mkMatcher___spec__12(x_6);
 return x_7;
 }
 else
 {
 lean_object* x_8; 
 x_8 = lean_array_fget(x_3, x_2);
-lean_dec(x_3);
 return x_8;
 }
 }
@@ -463,6 +447,7 @@ _start:
 lean_object* x_3; 
 x_3 = l_Lean_Meta_AC_instContextInformationProdPreContextArrayBool___lambda__1(x_1, x_2);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -1320,7 +1305,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12;
 lean_inc(x_1);
 x_9 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_9, 0, x_1);
-x_10 = l_Std_HashSetImp_insert___at_Lean_CollectMVars_visit___spec__3(x_3, x_1);
+x_10 = l_Std_HashSetImp_insert___at_Lean_CollectFVars_visit___spec__3(x_3, x_1);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_9);
 lean_ctor_set(x_11, 1, x_10);
@@ -1574,7 +1559,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_1);
 lean_inc(x_2);
-x_55 = l_Std_HashSetImp_insert___at_Lean_CollectMVars_visit___spec__3(x_3, x_2);
+x_55 = l_Std_HashSetImp_insert___at_Lean_CollectFVars_visit___spec__3(x_3, x_2);
 x_56 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_56, 0, x_2);
 x_57 = lean_alloc_ctor(0, 2, 0);
@@ -1595,7 +1580,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_1);
 lean_inc(x_2);
-x_59 = l_Std_HashSetImp_insert___at_Lean_CollectMVars_visit___spec__3(x_3, x_2);
+x_59 = l_Std_HashSetImp_insert___at_Lean_CollectFVars_visit___spec__3(x_3, x_2);
 x_60 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_60, 0, x_2);
 x_61 = lean_alloc_ctor(0, 2, 0);
@@ -3609,7 +3594,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_10 = l_Lean_Meta_AC_instContextInformationProdPreContextArrayBool___lambda__1___closed__4;
-x_11 = l_panic___at_Lean_Meta_AC_instContextInformationProdPreContextArrayBool___spec__1(x_10);
+x_11 = l_panic___at_Lean_Meta_Match_mkMatcher___spec__12(x_10);
 x_12 = lean_unbox(x_11);
 lean_dec(x_11);
 if (x_12 == 0)
@@ -3665,7 +3650,7 @@ if (x_23 == 0)
 {
 lean_object* x_24; lean_object* x_25; uint8_t x_26; 
 x_24 = l_Lean_Meta_AC_instContextInformationProdPreContextArrayBool___lambda__1___closed__4;
-x_25 = l_panic___at_Lean_Meta_AC_instContextInformationProdPreContextArrayBool___spec__1(x_24);
+x_25 = l_panic___at_Lean_Meta_Match_mkMatcher___spec__12(x_24);
 x_26 = lean_unbox(x_25);
 lean_dec(x_25);
 if (x_26 == 0)

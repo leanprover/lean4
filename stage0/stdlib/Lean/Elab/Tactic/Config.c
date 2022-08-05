@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Config
-// Imports: Init Lean.Meta.Eval Lean.Elab.Tactic.Basic Lean.Elab.SyntheticMVars
+// Imports: Init Lean.Meta.Eval Lean.Elab.Tactic.Basic Lean.Elab.SyntheticMVars Lean.Linter.MissingDocs
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -215,12 +215,15 @@ static lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______ma
 static lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab__Tactic__configElab__1___closed__243;
 static lean_object* l_Lean_Elab_Tactic_configElab___closed__19;
 static lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab__Tactic__configElab__1___closed__112;
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_checkConfigElab___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab__Tactic__configElab__1___closed__116;
 static lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab__Tactic__configElab__1___closed__231;
 static lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab__Tactic__configElab__1___closed__128;
 static lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab__Tactic__configElab__1___closed__192;
+static lean_object* l_Lean_Elab_Tactic_checkConfigElab___closed__1;
 static lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab__Tactic__configElab__1___closed__136;
 static lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab__Tactic__configElab__1___closed__101;
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_checkConfigElab(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab__Tactic__configElab__1___closed__95;
 static lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab__Tactic__configElab__1___closed__250;
 static lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab__Tactic__configElab__1___closed__79;
@@ -270,6 +273,7 @@ static lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______ma
 static lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab__Tactic__configElab__1___closed__129;
 static lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab__Tactic__configElab__1___closed__8;
 static lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab__Tactic__configElab__1___closed__83;
+lean_object* l_Lean_Linter_MissingDocs_mkSimpleHandler(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab__Tactic__configElab__1___closed__94;
 static lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab__Tactic__configElab__1___closed__145;
 static lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab__Tactic__configElab__1___closed__45;
@@ -4328,10 +4332,39 @@ return x_537;
 }
 }
 }
+static lean_object* _init_l_Lean_Elab_Tactic_checkConfigElab___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("config elab", 11);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_checkConfigElab(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = l_Lean_Elab_Tactic_checkConfigElab___closed__1;
+x_6 = l_Lean_Linter_MissingDocs_mkSimpleHandler(x_5, x_1, x_2, x_3, x_4);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_checkConfigElab___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_Elab_Tactic_checkConfigElab(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_5;
+}
+}
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Eval(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_SyntheticMVars(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Linter_MissingDocs(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Config(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -4347,6 +4380,9 @@ res = initialize_Lean_Elab_Tactic_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_SyntheticMVars(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Linter_MissingDocs(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_Tactic_configElab___closed__1 = _init_l_Lean_Elab_Tactic_configElab___closed__1();
@@ -4925,6 +4961,8 @@ l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab
 lean_mark_persistent(l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab__Tactic__configElab__1___closed__261);
 l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab__Tactic__configElab__1___closed__262 = _init_l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab__Tactic__configElab__1___closed__262();
 lean_mark_persistent(l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab__Tactic__configElab__1___closed__262);
+l_Lean_Elab_Tactic_checkConfigElab___closed__1 = _init_l_Lean_Elab_Tactic_checkConfigElab___closed__1();
+lean_mark_persistent(l_Lean_Elab_Tactic_checkConfigElab___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

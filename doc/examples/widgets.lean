@@ -28,8 +28,9 @@ def helloWidget : UserWidgetDefinition where
 #widget helloWidget .null
 
 /-!
-If you want to dive into a full sample right away, check out [`Rubiks`](TODO merge). Below,
-we'll explain the system piece by piece.
+If you want to dive into a full sample right away, check out
+[`RubiksCube`](https://github.com/leanprover/lean4-samples/blob/main/RubiksCube/).
+Below, we'll explain the system piece by piece.
 
 ⚠️ WARNING: All of the user widget APIs are **unstable** and subject to breaking changes.
 
@@ -126,32 +127,6 @@ The code below demonstrates useful parts of the API. To make RPC method calls, w
 The `useAsync` helper packs the results of a call into a `status` enum, the returned `val`ue in case
 the call was successful, and otherwise an `err`or. Based on the `status` we either display
 an `InteractiveCode`, or `mapRpcError` the error in order to turn it into a readable message.
-
-```javascript
-import * as React from 'react';
-const e = React.createElement;
-import { RpcContext, InteractiveCode, useAsync, mapRpcError } from '@leanprover/infoview';
-
-export default function(props) {
-  const rs = React.useContext(RpcContext)
-  const [name, setName] = React.useState('getType')
-
-  const [status, val, err] = useAsync(() =>
-    rs.call('getType', { name, pos: props.pos }), [name, rs, props.pos])
-
-  const type = status === 'fulfilled' ? val && e(InteractiveCode, {fmt: val})
-    : status === 'rejected' ? e('p', null, mapRpcError(err).message)
-      : e('p', null, 'Loading..')
-
-  const onChange = (event) => { setName(event.target.value) }
-  return e('div', null,
-    e('input', { value: name, onChange }),
-    ' : ',
-    type)
-}
-```
-
-Finally we can try out the widget.
 -/
 
 @[widget]
@@ -181,6 +156,10 @@ export default function(props) {
 }
 "
 
+/-!
+Finally we can try out the widget.
+-/
+
 #widget checkWidget .null
 
 /-!
@@ -199,5 +178,6 @@ If we go with `rollup.js`, to make a widget work with the infoview we need to:
 - [Externalize](https://rollupjs.org/guide/en/#external) `react`, `react-dom`, `@leanprover/infoview`.
   These libraries are already loaded by the infoview so they should not be bundled.
 
-We provide a working build setup sample in [`Rubiks/rollup.config.js`](TODO merge).
+In the RubiksCube sample, we provide a working `rollup.js` build configuration in
+[rollup.config.js](https://github.com/leanprover/lean4-samples/blob/main/RubiksCube/widget/rollup.config.js).
 -/

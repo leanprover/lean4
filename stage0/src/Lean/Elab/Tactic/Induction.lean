@@ -30,11 +30,11 @@ private def getFirstAltLhs (alt : Syntax) : Syntax :=
 /-- Return `inductionAlt` name. It assumes `alt` does not have multiple `inductionAltLHS` -/
 private def getAltName (alt : Syntax) : Name :=
   let lhs := getFirstAltLhs alt
-  if lhs[1].hasArgs then lhs[1][1].getId.eraseMacroScopes else `_
+  if !lhs[1].isOfKind ``Parser.Term.hole then lhs[1][1].getId.eraseMacroScopes else `_
 /-- Return `true` if the first LHS of the given alternative contains `@`. -/
 private def altHasExplicitModifier (alt : Syntax) : Bool :=
   let lhs := getFirstAltLhs alt
-  lhs[1].hasArgs && !lhs[1][0].isNone
+  !lhs[1].isOfKind ``Parser.Term.hole && !lhs[1][0].isNone
 /-- Return the variables in the first LHS of the given alternative. -/
 private def getAltVars (alt : Syntax) : Array Syntax :=
   let lhs := getFirstAltLhs alt

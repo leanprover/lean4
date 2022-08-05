@@ -301,7 +301,7 @@ def callLeanIOMkWorld (builder: LLVM.Ptr LLVM.Builder): M (LLVM.Ptr LLVM.Value) 
 
 def getOrCreateLeanIOResultIsErrorFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module): M (LLVM.Ptr LLVM.Value) := do
   -- bool lean_io_result_is_err();
-  getOrCreateFunctionPrototype ctx mod (← LLVM.i1Type ctx) "lean_io_result_is_err"  #[(← LLVM.voidPtrType ctx)]
+  getOrCreateFunctionPrototype ctx mod (← LLVM.i1Type ctx) "lean_io_result_is_error"  #[(← LLVM.voidPtrType ctx)]
 
 def callLeanIOResultIsError (builder: LLVM.Ptr LLVM.Builder) (arg: LLVM.Ptr LLVM.Value) (name: String): M (LLVM.Ptr LLVM.Value) := do
   LLVM.buildCall builder (← getOrCreateLeanIOResultIsErrorFn (← getLLVMContext) (← getLLVMModule)) #[arg] name
@@ -336,7 +336,7 @@ def getOrCreateLeanIOResultMkOkFn: M (LLVM.Ptr LLVM.Value) := do
     voidptr "lean_io_result_mk_ok"  #[voidptr]
 
 def callLeanIOResultMKOk (builder: LLVM.Ptr LLVM.Builder) (v: LLVM.Ptr LLVM.Value) (name: String): M (LLVM.Ptr LLVM.Value) := do
-  LLVM.buildCall builder (← getOrCreateLeanCtorSetFn) #[v] name
+  LLVM.buildCall builder (← getOrCreateLeanIOResultMkOkFn) #[v] name
 
 
 
@@ -1135,8 +1135,40 @@ def emitDeclInit (d : Decl) : M Unit := do
     | _ =>
       emitCName n; emit " = "; emitCInitName n; emitLn "();"; emitMarkPersistent d n
 -/
-def emitDeclInit (d : Decl) : M Unit := do
-   throw (Error.unimplemented s!"emitDeclInit {d}")
+
+def emitDeclInit (builder: LLVM.Ptr LLVM.Builder) (parentFn: LLVM.Ptr LLVM.Value) (d : Decl) : M Unit := do
+  let env ← getEnv
+  let n := d.name
+  if isIOUnitInitFn env n then do
+    -- emit "res = "; emitCName n; emitLn "(lean_io_mk_world());"
+    -- emitLn "if (lean_io_result_is_error(res)) return res;"
+    -- emitLn "lean_dec_ref(res);"
+    let res ← callLeanIOMkWorld builder
+    let err? ← callLeanIOResultIsError builder res "is_error"
+    buildIfThen_ builder parentFn "IsError" err?
+      (fun builder => do
+        let _ ← LLVM.buildRet builder res
+        pure ShouldForwardControlFlow.no)
+    -- TODO: emit lean_dec_ref. For now, it does not matter.
+  else if d.params.size == 0 then
+    match getInitFnNameFor? env d.name with
+    | some initFn =>
+      if getBuiltinInitFnNameFor? env d.name |>.isSome then
+
+      /-
+        emit "if (builtin) {"
+      emit "res = "; emitCName initFn; emitLn "(lean_io_mk_world());"
+      emitLn "if (lean_io_result_is_error(res)) return res;"
+      emitCName n; emitLn " = lean_io_result_get_value(res);"
+      emitMarkPersistent d n
+      emitLn "lean_dec_ref(res);"
+      if getBuiltinInitFnNameFor? env d.name |>.isSome then
+        emit "}"
+      -/
+        throw (Error.unimplemented "unimplemented emitDeclInit [d.params.size == 0]")
+    | _ =>
+      throw (Error.unimplemented "emitMarkPersistent")
+      -- emitCName n; emit " = "; emitCInitName n; emitLn "();"; emitMarkPersistent d n
 
 def emitInitFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder: LLVM.Ptr LLVM.Builder): M Unit := do
   let env ← getEnv
@@ -1164,7 +1196,7 @@ def emitInitFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder
       let out ← callLeanIOResultMKOk builder box0 "retval"
       let _ ← LLVM.buildRet builder out
       pure ShouldForwardControlFlow.no)
-  LLVM.buildStore builder ginitslot (← LLVM.True ctx)
+  LLVM.buildStore builder (← LLVM.True ctx) ginitslot
 
   /-
   env.imports.forM fun imp => emitLns [
@@ -1190,7 +1222,7 @@ def emitInitFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder
     -/
   -- emitLns ["return lean_io_result_mk_ok(lean_box(0));", "}"]
   let decls := getDecls env
-  decls.reverse.forM emitDeclInit
+  decls.reverse.forM (emitDeclInit builder initFn)
   let box0 ← callLeanBox builder (← LLVM.constIntUnsigned ctx 0) "box0"
   let out ← callLeanIOResultMKOk builder box0 "retval"
   let _ ← LLVM.buildRet builder out

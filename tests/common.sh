@@ -41,7 +41,6 @@ function compile_lean_llvm_backend {
     llvm-link "$f.bc" $LIBRUNTIMEBC -o "$f.linked.bc"
     llc --relocation-model=pic -O1 -march=x86-64 -filetype=obj "$f.linked.bc" -o "$f.o"
     leanc -o "$f.out" "$@" "$f.o" || fail "Failed to link object file '$f.o', generated from bitcode file $f.linked.bc"
-    unset -o xtrace
 }
 
 function exec_capture {

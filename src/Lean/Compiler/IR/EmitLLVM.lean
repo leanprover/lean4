@@ -1762,48 +1762,47 @@ def emitMainFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder
 
   let resv ← LLVM.buildLoad builder res ""
   let res_is_ok ← callLeanIOResultIsOk builder resv ""
-  buildIfThen_ builder main "if.result.is.ok"  res_is_ok
-    (fun builder => do {-- then clause of the builder)
-      if xs.size == 2 then {
-        callLeanDecRef builder res;
-        callLeanInitTaskManager builder;
-        let inv ← callLeanBox builder (← LLVM.constInt (← LLVM.size_tTypeInContext ctx) 0) ""
-        let _ ← LLVM.buildStore builder inv in_
-        -- TODO: have yet to do the while loop!
-        -- TODO: have yet to do the while loop!
-        -- TODO: have yet to do the while loop!
+  -- buildIfThen_ builder main "if.result.is.ok"  res_is_ok
+  --   (fun builder => do -- then clause of the builder)
+  --     if xs.size == 2 then
+  --       callLeanDecRef builder res;
+  --       callLeanInitTaskManager builder;
+  --       let inv ← callLeanBox builder (← LLVM.constInt (← LLVM.size_tTypeInContext ctx) 0) ""
+  --       let _ ← LLVM.buildStore builder inv in_
+  --       -- TODO: have yet to do the while loop!
+  --       -- TODO: have yet to do the while loop!
+  --       -- TODO: have yet to do the while loop!
 
-        /-
-          emitLns ["in = lean_box(0);",
-                    "int i = argc;",
-                    "while (i > 1) {",
-                    " lean_object* n;",
-                    " i--;",
-                    " n = lean_alloc_ctor(1,2,0); lean_ctor_set(n, 0, lean_mk_string(argv[i])); lean_ctor_set(n, 1, in);",
-                    " in = n;",
-                  "}"]
-          -/
-          /-
-          emitLn ("res = " ++ leanMainFn ++ "(in, lean_io_mk_world());")
-          -/
-        let leanMainFnTy ← LLVM.functionType (← LLVM.voidPtrType ctx) #[(← LLVM.voidPtrType ctx), (← LLVM.voidPtrType ctx)]
-        let leanMainFn ← LLVM.getOrAddFunction mod leanMainFn leanMainFnTy
-        let world ← callLeanIOMkWorld builder
-        let inv ← LLVM.buildLoad builder in_ ""
-        let resv ← LLVM.buildCall builder leanMainFn #[inv, world] ""
-        let _ ← LLVM.buildStore builder resv res
-      } else {
-          pure ()
-        /-
-        emitLn ("res = " ++ leanMainFn ++ "(lean_io_mk_world());")
-        -/
-        let leanMainFnTy ← LLVM.functionType (← LLVM.voidPtrType ctx) #[(← LLVM.voidPtrType ctx)]
-        let leanMainFn ← LLVM.getOrAddFunction mod leanMainFn leanMainFnTy
-        let world ← callLeanIOMkWorld builder
-        let resv ← LLVM.buildCall builder leanMainFn #[world] ""
-        let _ ← LLVM.buildStore builder resv res
-      }
-    })
+  --       /-
+  --         emitLns ["in = lean_box(0);",
+  --                   "int i = argc;",
+  --                   "while (i > 1) {",
+  --                   " lean_object* n;",
+  --                   " i--;",
+  --                   " n = lean_alloc_ctor(1,2,0); lean_ctor_set(n, 0, lean_mk_string(argv[i])); lean_ctor_set(n, 1, in);",
+  --                   " in = n;",
+  --                 "}"]
+  --         -/
+  --         /-
+  --         emitLn ("res = " ++ leanMainFn ++ "(in, lean_io_mk_world());")
+  --         -/
+  --       let leanMainFnTy ← LLVM.functionType (← LLVM.voidPtrType ctx) #[(← LLVM.voidPtrType ctx), (← LLVM.voidPtrType ctx)]
+  --       let leanMainFn ← LLVM.getOrAddFunction mod leanMainFn leanMainFnTy
+  --       let world ← callLeanIOMkWorld builder
+  --       let inv ← LLVM.buildLoad builder in_ ""
+  --       let resv ← LLVM.buildCall builder leanMainFn #[inv, world] ""
+  --       let _ ← LLVM.buildStore builder resv res
+  --     else
+  --         /-
+  --         emitLn ("res = " ++ leanMainFn ++ "(lean_io_mk_world());")
+  --         -/
+  --         let leanMainFnTy ← LLVM.functionType (← LLVM.voidPtrType ctx) #[(← LLVM.voidPtrType ctx)]
+  --         let leanMainFn ← LLVM.getOrAddFunction mod leanMainFn leanMainFnTy
+  --         let world ← callLeanIOMkWorld builder
+  --         let resv ← LLVM.buildCall builder leanMainFn #[world] ""
+  --         let _ ← LLVM.buildStore builder resv res
+
+  --   )
 
   -- `IO _`
   let retTy := env.find? `main |>.get! |>.type |>.getForallBody

@@ -423,6 +423,9 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_call(
         lean_to_Builder(builder), lean_to_Value(fnval),
         arrArgVals, arr.size(), lean_string_cstr(name));
     free(arrArgVals);
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "... %s ; out: %s\n", __PRETTY_FUNCTION__, LLVMPrintValueToString(out));
+    }
     return lean_io_result_mk_ok(Value_to_lean(out));
 }
 

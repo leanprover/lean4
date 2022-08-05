@@ -72,13 +72,13 @@ opaque addGlobal(m: @&Ptr Module) (name: @&String) (type: @&Ptr LLVMType): IO (P
 opaque getNamedGlobal(m: @&Ptr Module) (name: @&String): IO (Option (Ptr Value))
 
 @[extern "lean_llvm_function_type"]
-opaque functionType(retty: @&Ptr LLVMType) (args: @&Array (Ptr LLVMType)) (isVarArg: @&Bool := false): IO (Ptr LLVMType)
+opaque functionType(retty: @&Ptr LLVMType) (args: @&Array (Ptr LLVMType)) (isVarArg: Bool := false): IO (Ptr LLVMType)
 
 @[extern "lean_llvm_void_type_in_context"]
 opaque voidTypeInContext (ctx: @&Ptr Context): IO (Ptr LLVMType)
 
 @[extern "lean_llvm_int_type_in_context"]
-opaque intTypeInContext (ctx: @&Ptr Context) (width: @&UInt64): IO (Ptr LLVMType)
+opaque intTypeInContext (ctx: @&Ptr Context) (width: UInt64): IO (Ptr LLVMType)
 
 @[extern "lean_llvm_float_type_in_context"]
 opaque floatTypeInContext (ctx: @&Ptr Context): IO (Ptr LLVMType)
@@ -98,8 +98,8 @@ opaque appendBasicBlockInContext (ctx: @&Ptr Context) (fn: @& Ptr Value) (name: 
 @[extern "lean_llvm_position_builder_at_end"]
 opaque positionBuilderAtEnd (builder: @&Ptr Builder) (bb: @& Ptr BasicBlock): IO Unit
 
-@[extern "lean_llvm_build_call2"]
-opaque buildCall2 (builder: @&Ptr Builder) (fnty: @&Ptr LLVMType) (fn: @&Ptr Value) (args: @&Array (Ptr Value)) (name: @&String): IO (Ptr Value)
+-- @[extern "lean_llvm_build_call2"]
+-- opaque buildCall2 (builder: @&Ptr Builder) (fnty: @&Ptr LLVMType) (fn: @&Ptr Value) (args: @&Array (Ptr Value)) (name: @&String): IO (Ptr Value)
 
 @[extern "lean_llvm_build_call"]
 opaque buildCall (builder: @&Ptr Builder) (fn: @&Ptr Value) (args: @&Array (Ptr Value)) (name: @&String): IO (Ptr Value)
@@ -136,7 +136,7 @@ opaque getBasicBlockParent (bb: @&Ptr BasicBlock): IO (Ptr Value)
 opaque typeOf (val: @&Ptr Value): IO (Ptr LLVMType)
 
 @[extern "lean_llvm_const_int"]
-opaque constInt (intty: @&Ptr LLVMType) (value: @&UInt64) (signExtend: Bool := false): IO (Ptr Value)
+opaque constInt (intty: @&Ptr LLVMType) (value: @&UInt64) (signExtend: @Bool := false): IO (Ptr Value)
 
 
 @[extern "lean_llvm_print_module_to_string"]
@@ -1641,13 +1641,18 @@ structure IfControlFlow where
 -- build an if, and position the builder at the merge basic block after execution.
 -- The '_' denotes that we return Unit on each branch.
 -- TODO: get current function from the builder.
-def buildIfThen_ (builder: LLVM.Ptr LLVM.Builder)  (name: String) (brval: LLVM.Ptr LLVM.Value)
+def buildIfThen_ (builder: LLVM.Ptr LLVM.Builder) (fn: LLVM.Ptr LLVM.Value)  (name: String) (brval: LLVM.Ptr LLVM.Value)
   (thencodegen: LLVM.Ptr LLVM.Builder → M Unit): M Unit := do
-  let fn ← LLVM.getBasicBlockParent (← LLVM.getInsertBlock builder)
+  -- let builderBB ← LLVM.getInsertBlock builder
+  -- let fn ← LLVM.getBasicBlockParent builderBB
   -- LLVM.positionBuilderAtEnd builder insertpt
-  let thenbb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn (name ++ ".then")
-  let elsebb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn (name ++ ".else")
-  let mergebb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn (name ++ ".merge")
+  let nameThen := name ++ ".then"
+  let nameElse := name ++ ".else"
+  let nameMerge := name ++ ".merge"
+
+  let thenbb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn nameThen
+  let elsebb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn nameElse
+  let mergebb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn nameMerge
   let _ ← LLVM.buildCondBr builder brval thenbb elsebb
   -- then
   LLVM.positionBuilderAtEnd builder thenbb
@@ -1757,7 +1762,7 @@ def emitMainFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder
 
   let resv ← LLVM.buildLoad builder res ""
   let res_is_ok ← callLeanIOResultIsOk builder resv ""
-  buildIfThen_ builder "if.result.is.ok" res_is_ok
+  buildIfThen_ builder main "if.result.is.ok"  res_is_ok
     (fun builder => do {-- then clause of the builder)
       if xs.size == 2 then {
         callLeanDecRef builder res;

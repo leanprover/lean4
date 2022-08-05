@@ -134,14 +134,14 @@ static inline LLVMBasicBlockRef lean_to_BasicBlock(b_lean_obj_arg s) {
 // = lean_to_LLVMValue).
 
 // TODO, QUESTION: is there a nicer way to do this?
-LLVMTypeRef *array_ref_to_ArrayLLVMType(lean::array_ref<lean_object *> arr) {
+LLVMTypeRef *array_ref_to_ArrayLLVMType(const lean::array_ref<lean_object *> &arr) {
     const int nargs = arr.size();  // lean::array_size(args);
     // bollu: ouch, this is expensive! There must be a cheaper way?
     LLVMTypeRef *tys = (LLVMTypeRef *)malloc(sizeof(LLVMTypeRef) * nargs);
     for (int i = 0; i < nargs; ++i) {
         tys[i] = lean_to_Type(arr[i]);
         if (LLVM_DEBUG) {
-            fprintf(stderr, "... %s ; tys[i]: %s \n", __PRETTY_FUNCTION__,
+            fprintf(stderr, "... %s ; tys[%d]: %s \n", __PRETTY_FUNCTION__, i,
                     LLVMPrintTypeToString(tys[i]));
         }
     }
@@ -149,15 +149,16 @@ LLVMTypeRef *array_ref_to_ArrayLLVMType(lean::array_ref<lean_object *> arr) {
 }
 
 // TODO, QUESTION: is there a nicer way to do this?
-LLVMValueRef *array_ref_to_ArrayLLVMValue(lean::array_ref<lean_object *> arr) {
+LLVMValueRef *array_ref_to_ArrayLLVMValue(const lean::array_ref<lean_object *> &arr) {
     const int nargs = arr.size();  // lean::array_size(args);
     // bollu: ouch, this is expensive! There must be a cheaper way?
     LLVMValueRef *vals = (LLVMValueRef *)malloc(sizeof(LLVMValueRef) * nargs);
     assert(vals && "unable to allocate array");
     for (int i = 0; i < nargs; ++i) {
+        lean_inc(arr[i]); // TODO: do I need this?
         vals[i] = lean_to_Value(arr[i]);
         if (LLVM_DEBUG) {
-            fprintf(stderr, "... %s ; vals[i]: %s \n", __PRETTY_FUNCTION__,
+            fprintf(stderr, "... %s ; vals[%d]: %s \n", __PRETTY_FUNCTION__, i, 
                     LLVMPrintValueToString(vals[i]));
         }
     }
@@ -333,10 +334,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_double_type_in_context(
 extern "C" LEAN_EXPORT lean_object *lean_llvm_pointer_type(
     lean_object *base, lean_object * /* w */) {
     if (LLVM_DEBUG) {
-        fprintf(stderr, "%s ; base: %p\n", __PRETTY_FUNCTION__, base);
+        fprintf(stderr, "%s ; base: %s\n", __PRETTY_FUNCTION__, LLVMPrintTypeToString(lean_to_Type(base)));
     }
-    return lean_io_result_mk_ok(
-        Type_to_lean(LLVMPointerType(lean_to_Type(base), /*addrspace=*/0)));
+    LLVMTypeRef out = LLVMPointerType(lean_to_Type(base), /*addrspace=*/0);
+    fprintf(stderr, "...%s ; out: %s\n", __PRETTY_FUNCTION__, LLVMPrintTypeToString(out));
+    return lean_io_result_mk_ok(Type_to_lean(out));
 }
 
 extern "C" LEAN_EXPORT lean_object *lean_llvm_create_builder_in_context(
@@ -352,7 +354,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_append_basic_block_in_context(
     lean_object *ctx, lean_object *fn, lean_object *name, lean_object * /* w */) {
     if (LLVM_DEBUG) {
         fprintf(stderr, "%s ; ctx: %p\n", __PRETTY_FUNCTION__, ctx);
-        fprintf(stderr, "...%s ; fn: %p\n", __PRETTY_FUNCTION__,
+        fprintf(stderr, "...%s ; fn: %s\n", __PRETTY_FUNCTION__,
                 LLVMPrintValueToString(lean_to_Value(fn)));
         fprintf(stderr, "...%s ; name: %s\n", __PRETTY_FUNCTION__, lean_string_cstr(name));
     }
@@ -395,7 +397,6 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_call2(
     LLVMValueRef out = LLVMBuildCall2(
         lean_to_Builder(builder), lean_to_Type(fnty), lean_to_Value(fnval),
         arrArgVals, arr.size(), lean_string_cstr(name));
-    fprintf(stderr, "created call");
     free(arrArgVals);
     return lean_io_result_mk_ok(Value_to_lean(out));
 } 
@@ -421,14 +422,13 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_call(
     LLVMValueRef out = LLVMBuildCall(
         lean_to_Builder(builder), lean_to_Value(fnval),
         arrArgVals, arr.size(), lean_string_cstr(name));
-    fprintf(stderr, "created call");
     free(arrArgVals);
     return lean_io_result_mk_ok(Value_to_lean(out));
 }
 
 extern "C" LEAN_EXPORT lean_object *lean_llvm_build_cond_br(
     lean_object *builder, lean_object *if_,
-    lean_object *thenbb, lean_object *elsebb, lean_object * _w) {
+    lean_object *thenbb, lean_object *elsebb, lean_object* /* w */) {
     if (LLVM_DEBUG) {
         fprintf(stderr, "%s ; builder: %p\n", __PRETTY_FUNCTION__, builder);
         fprintf(stderr, "...%s ; if_: %s\n", __PRETTY_FUNCTION__,
@@ -441,7 +441,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_cond_br(
 } 
 
 extern "C" LEAN_EXPORT lean_object *lean_llvm_build_br(
-    lean_object *builder, lean_object *bb, lean_object *_w) {
+    lean_object *builder, lean_object *bb, lean_object* /* w */) {
     if (LLVM_DEBUG) {
         fprintf(stderr, "%s ; builder: %p\n", __PRETTY_FUNCTION__, builder);
         fprintf(stderr, "...%s ; bb: %p\n", __PRETTY_FUNCTION__, bb);
@@ -451,34 +451,35 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_br(
 } 
 
 extern "C" LEAN_EXPORT lean_object *lean_llvm_build_store(
-    lean_object *builder, lean_object *v, lean_object *slot, lean_object *_w) {
+    lean_object *builder, lean_object *v, lean_object *slot, lean_object* /* w */) {
     if (LLVM_DEBUG) {
         fprintf(stderr, "%s ; builder: %p\n", __PRETTY_FUNCTION__, builder);
-        fprintf(stderr, "...%s ; v: %p\n", __PRETTY_FUNCTION__, LLVMPrintValueToString(lean_to_Value(v)));
-        fprintf(stderr, "...%s ; slot: %p\n", __PRETTY_FUNCTION__, LLVMPrintValueToString(lean_to_Value(slot)));
+        fprintf(stderr, "...%s ; v: %s\n", __PRETTY_FUNCTION__, LLVMPrintValueToString(lean_to_Value(v)));
+        fprintf(stderr, "...%s ; slot: %s\n", __PRETTY_FUNCTION__, LLVMPrintValueToString(lean_to_Value(slot)));
     }
     LLVMValueRef out = LLVMBuildStore(lean_to_Builder(builder), lean_to_Value(v), lean_to_Value(slot));
     return lean_io_result_mk_ok(Value_to_lean(out));
 } 
 
 extern "C" LEAN_EXPORT lean_object *lean_llvm_build_load(
-    lean_object *builder, lean_object *slot, lean_object *name, lean_object *_w) {
+    lean_object *builder, lean_object *slot, lean_object *name, lean_object* /* w */) {
     if (LLVM_DEBUG) {
         fprintf(stderr, "%s ; builder: %p\n", __PRETTY_FUNCTION__, builder);
-        fprintf(stderr, "...%s ; slot: %p\n", __PRETTY_FUNCTION__, LLVMPrintValueToString(lean_to_Value(slot)));
-        fprintf(stderr, "...%s ; name: %p\n", __PRETTY_FUNCTION__, lean_string_cstr(name));
+        fprintf(stderr, "...%s ; slot: %s\n", __PRETTY_FUNCTION__, LLVMPrintValueToString(lean_to_Value(slot)));
+        fprintf(stderr, "...%s ; name: %s\n", __PRETTY_FUNCTION__, lean_string_cstr(name));
     }
     LLVMValueRef out = LLVMBuildLoad(lean_to_Builder(builder), lean_to_Value(slot), lean_string_cstr(name));
+    fprintf(stderr, "...%s ; out: %s\n", __PRETTY_FUNCTION__, LLVMPrintValueToString(out));
     return lean_io_result_mk_ok(Value_to_lean(out));
 } 
 
 
 extern "C" LEAN_EXPORT lean_object *lean_llvm_build_alloca(
-    lean_object *builder, lean_object *type, lean_object *name, lean_object *_w) {
+    lean_object *builder, lean_object *type, lean_object *name, lean_object* /* w */) {
     if (LLVM_DEBUG) {
         fprintf(stderr, "%s ; builder: %p\n", __PRETTY_FUNCTION__, builder);
-        fprintf(stderr, "...%s ; ty: %p\n", __PRETTY_FUNCTION__, LLVMPrintTypeToString(lean_to_Type(type)));
-        fprintf(stderr, "...%s ; name: %p\n", __PRETTY_FUNCTION__, lean_string_cstr(name));
+        fprintf(stderr, "...%s ; ty: %s\n", __PRETTY_FUNCTION__, LLVMPrintTypeToString(lean_to_Type(type)));
+        fprintf(stderr, "...%s ; name: %s\n", __PRETTY_FUNCTION__, lean_string_cstr(name));
     }
     LLVMValueRef out = LLVMBuildAlloca(lean_to_Builder(builder), lean_to_Type(type),lean_string_cstr(name));
     return lean_io_result_mk_ok(Value_to_lean(out));
@@ -486,17 +487,17 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_alloca(
 
 
 extern "C" LEAN_EXPORT lean_object *lean_llvm_build_ret(
-    lean_object *builder, lean_object *v, lean_object *_w) {
+    lean_object *builder, lean_object *v, lean_object * /* w */) {
     if (LLVM_DEBUG) {
         fprintf(stderr, "%s ; builder: %p\n", __PRETTY_FUNCTION__, builder);
-        fprintf(stderr, "...%s ; v: %p\n", __PRETTY_FUNCTION__, LLVMPrintValueToString(lean_to_Value(v)));
+        fprintf(stderr, "...%s ; v: %s\n", __PRETTY_FUNCTION__, LLVMPrintValueToString(lean_to_Value(v)));
     }
     LLVMValueRef out = LLVMBuildRet(lean_to_Builder(builder), lean_to_Value(v));
     return lean_io_result_mk_ok(Value_to_lean(out));
 } 
 
 extern "C" LEAN_EXPORT lean_object *lean_llvm_build_ret_void(
-    lean_object *builder, lean_object *_w) {
+    lean_object *builder, lean_object* /* w */) {
     if (LLVM_DEBUG) {
         fprintf(stderr, "%s ; builder: %p\n", __PRETTY_FUNCTION__, builder);
     }
@@ -505,7 +506,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_ret_void(
 } 
 
 extern "C" LEAN_EXPORT lean_object *lean_llvm_build_unreachable(
-    lean_object *builder, lean_object *_w) {
+    lean_object *builder, lean_object* /* w */) {
     if (LLVM_DEBUG) {
         fprintf(stderr, "%s ; builder: %p\n", __PRETTY_FUNCTION__, builder);
     }
@@ -515,17 +516,18 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_unreachable(
 
 
 extern "C" LEAN_EXPORT lean_object *lean_llvm_get_basic_block_parent(
-    lean_object *bb, lean_object *_w) {
+    lean_object *bb, lean_object* /* w */) {
     if (LLVM_DEBUG) {
         fprintf(stderr, "%s ; bb: %p\n", __PRETTY_FUNCTION__, bb);
     }
     LLVMValueRef out = LLVMGetBasicBlockParent(lean_to_BasicBlock(bb));
+    fprintf(stderr, "...%s ; parent: %s\n", __PRETTY_FUNCTION__, LLVMPrintValueToString(out));
     return lean_io_result_mk_ok(Value_to_lean(out));
 } 
 
 
 extern "C" LEAN_EXPORT lean_object *lean_llvm_get_insert_block(
-    lean_object *builder, lean_object *_w) {
+    lean_object *builder, lean_object* /* w */) {
     if (LLVM_DEBUG) {
         fprintf(stderr, "%s ; builder: %p\n", __PRETTY_FUNCTION__, builder);
     }
@@ -534,7 +536,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_get_insert_block(
 } 
 
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_type_of(lean_object *val, lean_object *_w) {
+extern "C" LEAN_EXPORT lean_object *lean_llvm_type_of(lean_object *val, lean_object* /* w */) {
     if (LLVM_DEBUG) {
         fprintf(stderr, "%s ; val: %s\n", __PRETTY_FUNCTION__, LLVMPrintValueToString(lean_to_Value(val)));
     }
@@ -545,7 +547,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_type_of(lean_object *val, lean_obj
     return lean_io_result_mk_ok(Type_to_lean(ty));
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_print_module_to_string(lean_object *mod, lean_object *_w) {
+extern "C" LEAN_EXPORT lean_object *lean_llvm_print_module_to_string(lean_object *mod, lean_object* /* w */) {
     if (LLVM_DEBUG) {
         fprintf(stderr, "%s ; module: %p\n", __PRETTY_FUNCTION__, mod);
     }
@@ -553,7 +555,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_print_module_to_string(lean_object
     return lean_io_result_mk_ok(lean::mk_string(s));
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_const_int(lean_object *ty, uint64_t val, uint8_t sext, lean_object *_w) {
+extern "C" LEAN_EXPORT lean_object *lean_llvm_const_int(lean_object *ty, uint64_t val, uint8_t sext, lean_object * /* w */) {
     if (LLVM_DEBUG) {
         fprintf(stderr, "%s ; ty: %p\n", __PRETTY_FUNCTION__, LLVMPrintTypeToString(lean_to_Type(ty)));
         fprintf(stderr, "...%s ; val: %lu\n", __PRETTY_FUNCTION__, val);

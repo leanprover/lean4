@@ -119,6 +119,12 @@ opaque buildLoad (builder: @&Ptr Builder) (val: @&Ptr Value) (name: @&String): I
 @[extern "lean_llvm_build_store"]
 opaque buildStore (builder: @&Ptr Builder) (val: @&Ptr Value) (store_loc_ptr: @&Ptr Value): IO (Ptr Value)
 
+@[extern "lean_llvm_build_ret"]
+opaque buildRet (builder: @&Ptr Builder) (val: @&Ptr Value): IO (Ptr Value)
+
+@[extern "lean_llvm_build_unreachable"]
+opaque buildUnreachable (builder: @&Ptr Builder): IO (Ptr Value)
+
 @[extern "lean_llvm_get_insert_block"]
 opaque getInsertBlock (builder: @&Ptr Builder): IO (Ptr BasicBlock)
 
@@ -150,6 +156,10 @@ def i1Type (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) :=
 def i8Type (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) :=
   LLVM.intTypeInContext ctx 8
 
+def i32Type (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) :=
+  LLVM.intTypeInContext ctx 32
+
+
 def i64Type (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) :=
   LLVM.intTypeInContext ctx 64
 
@@ -172,6 +182,9 @@ def constInt' (ctx: Ptr Context) (width: UInt64) (value: UInt64) (signExtend: Bo
 
 def constInt8 (ctx: Ptr Context) (value: UInt64) (signExtend: Bool := false): IO (Ptr Value) :=
   constInt' ctx 8 value signExtend
+
+def constInt64 (ctx: Ptr Context) (value: UInt64) (signExtend: Bool := false): IO (Ptr Value) :=
+  constInt' ctx 64 value signExtend
 
 -- infer the type of the called function and then build the call
 -- def buildCallWithInferredType ()
@@ -1583,6 +1596,43 @@ def callLeanInitTaskManager (builder: LLVM.Ptr LLVM.Builder): M Unit := do
 def callLeanIOMkWorld (builder: LLVM.Ptr LLVM.Builder): M (LLVM.Ptr LLVM.Value) := do
    LLVM.buildCall builder (← getOrCreateLeanIOMkWorldFn (← getLLVMContext) (← getLLVMModule)) #[] ""
 
+def getOrCreateLeanFinalizeTaskManager: M (LLVM.Ptr LLVM.Value) := do
+  let ctx ← getLLVMContext
+  getOrCreateFunctionPrototype ctx (← getLLVMModule)
+    (← LLVM.voidTypeInContext ctx) "lean_finalize_task_manager"  #[]
+
+
+def callLeanFinalizeTaskManager (builder: LLVM.Ptr LLVM.Builder): M Unit := do
+   let _ ← LLVM.buildCall builder (← getOrCreateLeanFinalizeTaskManager) #[] ""
+
+def getOrCreateCallLeanUnboxUint32Fn: M (LLVM.Ptr LLVM.Value) := do
+  let ctx ← getLLVMContext
+  getOrCreateFunctionPrototype ctx (← getLLVMModule)
+    (← LLVM.i32Type ctx) "lean_unbox_uint32"  #[← LLVM.voidPtrType ctx]
+
+
+def callLeanUnboxUint32 (builder: LLVM.Ptr LLVM.Builder) (v: LLVM.Ptr LLVM.Value) (name: String): M (LLVM.Ptr LLVM.Value) := do
+   LLVM.buildCall builder (← getOrCreateCallLeanUnboxUint32Fn) #[v] name
+
+def getOrCreateLeanIOResultGetValueFn: M (LLVM.Ptr LLVM.Value) := do
+  let ctx ← getLLVMContext
+  getOrCreateFunctionPrototype ctx (← getLLVMModule)
+    (← LLVM.voidPtrType ctx) "lean_io_result_get_value"  #[← LLVM.voidPtrType ctx]
+
+def callLeanIOResultGetValue (builder: LLVM.Ptr LLVM.Builder) (v: LLVM.Ptr LLVM.Value) (name: String): M (LLVM.Ptr LLVM.Value) := do
+   LLVM.buildCall builder (← getOrCreateLeanIOResultGetValueFn) #[v] name
+
+
+
+def getOrCreateLeanIOResultShowErrorFn: M (LLVM.Ptr LLVM.Value) := do
+  let ctx ← getLLVMContext
+  getOrCreateFunctionPrototype ctx (← getLLVMModule)
+    (← LLVM.voidTypeInContext ctx) "lean_io_result_show_error"  #[← LLVM.voidPtrType ctx]
+
+def callLeanIOResultShowError (builder: LLVM.Ptr LLVM.Builder) (v: LLVM.Ptr LLVM.Value) (name: String): M Unit := do
+   let _ ← LLVM.buildCall builder (← getOrCreateLeanIOResultShowErrorFn) #[v] name
+
+
 structure IfControlFlow where
   thenbb: LLVM.Ptr LLVM.BasicBlock
   elsebb: LLVM.Ptr LLVM.BasicBlock
@@ -1606,10 +1656,32 @@ def buildIfThen_ (builder: LLVM.Ptr LLVM.Builder)  (name: String) (brval: LLVM.P
   let _ ← LLVM.buildBr builder mergebb
   -- else
   LLVM.positionBuilderAtEnd builder elsebb
+  let _ ← LLVM.buildBr builder mergebb
+  -- merge
+  LLVM.positionBuilderAtEnd builder mergebb
+
+def buildIfThenElse_ (builder: LLVM.Ptr LLVM.Builder)  (name: String) (brval: LLVM.Ptr LLVM.Value)
+  (thencodegen: LLVM.Ptr LLVM.Builder → M Unit)
+  (elsecodegen: LLVM.Ptr LLVM.Builder → M Unit): M Unit := do
+  let fn ← LLVM.getBasicBlockParent (← LLVM.getInsertBlock builder)
+  -- LLVM.positionBuilderAtEnd builder insertpt
+  let thenbb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn (name ++ ".then")
+  let elsebb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn (name ++ ".else")
+  let mergebb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn (name ++ ".merge")
+  let _ ← LLVM.buildCondBr builder brval thenbb elsebb
+  -- then
+  LLVM.positionBuilderAtEnd builder thenbb
+  thencodegen builder
+  LLVM.positionBuilderAtEnd builder thenbb
+  let _ ← LLVM.buildBr builder mergebb
+  -- else
+  LLVM.positionBuilderAtEnd builder elsebb
+  elsecodegen builder
   LLVM.positionBuilderAtEnd builder elsebb
   let _ ← LLVM.buildBr builder mergebb
   -- merge
   LLVM.positionBuilderAtEnd builder mergebb
+
 
 def emitMainFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder: LLVM.Ptr LLVM.Builder): M Unit := do
   let d ← getDecl `main
@@ -1733,6 +1805,7 @@ def emitMainFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder
   -- either `UInt32` or `(P)Unit`
   let retTy := retTy.appArg!
   -- finalize at least the task manager to avoid leak sanitizer false positives from tasks outliving the main thread
+  let _ ← callLeanFinalizeTaskManager builder
   /-
   emitLns ["lean_finalize_task_manager();",
             "if (lean_io_result_is_ok(res)) {",
@@ -1746,6 +1819,26 @@ def emitMainFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder
             "}"]
   -/
   -- emitLn "}"
+  let resv ← LLVM.buildLoad builder res ""
+  let res_is_ok ← callLeanIOResultIsOk builder resv ""
+  buildIfThenElse_ builder "res.is.ok" res_is_ok
+    (fun builder => -- then builder
+      if retTy.constName? == some ``UInt32 then do
+        let resv ← LLVM.buildLoad builder res ""
+        let retv ← callLeanUnboxUint32 builder (← callLeanIOResultGetValue builder resv "") "retv"
+        let _ ← LLVM.buildRet builder retv
+      else do
+        let _ ← LLVM.buildRet builder (← LLVM.constInt64 ctx 0)
+    )
+    (fun builder => do -- else builder
+        let resv ← LLVM.buildLoad builder res ""
+        callLeanIOResultShowError builder resv ""
+        callLeanDecRef builder resv
+        let _ ← LLVM.buildRet builder (← LLVM.constInt64 ctx 0))
+  -- at the merge
+  let _ ← LLVM.buildUnreachable builder
+
+
 
 
 def hasMainFn : M Bool := do

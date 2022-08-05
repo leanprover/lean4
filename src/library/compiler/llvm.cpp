@@ -558,6 +558,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_print_module_to_string(lean_object
     return lean_io_result_mk_ok(lean::mk_string(s));
 }
 
+extern "C" LEAN_EXPORT lean_object *lean_llvm_print_module_to_file(lean_object *mod, lean_object *file, lean_object* /* w */) {
+    LLVMPrintModuleToFile(lean_to_Module(mod), lean_string_cstr(file), /*errorMessage=*/NULL);
+    return lean_io_result_mk_ok(lean_box(0));
+}
+
 extern "C" LEAN_EXPORT lean_object *lean_llvm_const_int(lean_object *ty, uint64_t val, uint8_t sext, lean_object * /* w */) {
     if (LLVM_DEBUG) {
         fprintf(stderr, "%s ; ty: %p\n", __PRETTY_FUNCTION__, LLVMPrintTypeToString(lean_to_Type(ty)));

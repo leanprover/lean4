@@ -24,6 +24,9 @@ builtin_initialize deprecatedAttr : ParametricAttribute (Option Name) ←
 def isDeprecated (env : Environment) (declName : Name) : Bool :=
   Option.isSome <| deprecatedAttr.getParam? env declName
 
+def MessageData.isDeprecationWarning (msg : MessageData) : Bool :=
+  msg.hasTag (· == ``deprecatedAttr)
+
 def getDeprecatedNewName (env : Environment) (declName : Name) : Option Name :=
   match deprecatedAttr.getParam? env declName with
   | some newName? => newName?
@@ -32,7 +35,7 @@ def getDeprecatedNewName (env : Environment) (declName : Name) : Option Name :=
 def checkDeprecated [Monad m] [MonadEnv m] [MonadLog m] [AddMessageContext m] [MonadOptions m] (declName : Name) : m Unit := do
   match deprecatedAttr.getParam? (← getEnv) declName with
   | none => pure ()
-  | some none => logWarning m!"`{declName}` has been deprecated"
-  | some (some newName) => logWarning m!"`{declName}` has been deprecated, use `{newName}` instead"
+  | some none => logWarning <| .tagged ``deprecatedAttr m!"`{declName}` has been deprecated"
+  | some (some newName) => logWarning <| .tagged ``deprecatedAttr m!"`{declName}` has been deprecated, use `{newName}` instead"
 
 end Lean

@@ -62,6 +62,12 @@ namespace BuildJob
 
 instance : Pure BuildJob := ⟨BuildJob.pure⟩
 
+@[inline] protected def map (f : α → β) (self : BuildJob α) : BuildJob β :=
+  mk <| (fun (a,t) => (f a,t)) <$> self.toJob
+
+instance : Functor BuildJob where
+  map := BuildJob.map
+
 @[inline] protected def bindSync
 (self : BuildJob α) (f : α → BuildTrace → JobM β) : SchedulerM (Job β) :=
   self.toJob.bindSync fun (a, t) => f a t

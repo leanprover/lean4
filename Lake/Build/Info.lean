@@ -126,7 +126,7 @@ abbrev IndexT (m : Type → Type v) := EquipT (IndexBuildFn m) m
 /-- The monad for build functions that are part of the index. -/
 abbrev IndexBuildM := IndexT RecBuildM
 
-/-- Build the given info using the Lake build index. -/
+/-- Fetch the given info using the Lake build index. -/
 @[inline] def BuildInfo.fetch (self : BuildInfo) [FamilyDef BuildData self.key α] : IndexBuildM α :=
   fun build => cast (by simp) <| build self
 

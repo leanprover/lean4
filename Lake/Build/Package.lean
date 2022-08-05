@@ -32,15 +32,20 @@ Build the `extraDepTarget` for the package and its transitive dependencies.
 Also fetch pre-built releases for the package's' dependencies.
 -/
 def Package.recBuildExtraDepTargets (self : Package) : IndexBuildM (BuildJob Unit) := do
-  let job ← self.deps.foldlM (do ·.mix <| ← ·.extraDep.fetch) BuildJob.nil
-  -- Fetch dependency's pre-built release if desired
-  let isDepPkg := self.name ≠ (← getWorkspace).root.name
-  let job ← do
-    if isDepPkg ∧ self.preferReleaseBuild then
-      job.mix <| ← self.release.fetch
+  let mut job := BuildJob.nil
+  -- Build dependencies' extra dep targets
+  for dep in self.deps do
+    job ← job.mix <| ← dep.extraDep.fetch
+  -- Fetch pre-built release if desired and this package is a dependency
+  if self.name ≠ (← getWorkspace).root.name ∧ self.preferReleaseBuild then
+    job ← job.mix <| ← self.release.fetch
+  -- Build this package's extra dep targets
+  for target in self.extraDepTargets do
+    if let some config := self.findTargetConfig? target then
+      job ← job.mix <| config.getJob <| ← fetch <| self.target target
     else
-      return job
-  job.mix <| ← self.extraDepTarget
+      error s!"unknown target `{target}`"
+  return job
 
 /-- The `PackageFacetConfig` for the builtin `dynlibFacet`. -/
 def Package.extraDepFacetConfig : PackageFacetConfig extraDepFacet :=

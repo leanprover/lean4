@@ -13,8 +13,8 @@ structure TargetConfig (pkgName name : Name) : Type where
   /-- The target's build function. -/
   build : (pkg : Package) → [Fact (pkg.name = pkgName)] →
     IndexBuildM (CustomData (pkgName, name))
-  /-- Does this target produce an associated asynchronous job? -/
-  getJob? : Option (CustomData (pkgName, name) → Job Unit)
+  /-- The target's resulting build job. -/
+  getJob : CustomData (pkgName, name) → BuildJob Unit
   deriving Inhabited
 
 /-- A smart constructor for target configurations that generate CLI targets. -/
@@ -22,7 +22,7 @@ structure TargetConfig (pkgName name : Name) : Type where
 (build : (pkg : Package) → [Fact (pkg.name = pkgName)] → IndexBuildM (BuildJob α))
 [h : FamilyDef CustomData (pkgName, name) (BuildJob α)] : TargetConfig pkgName name where
   build := cast (by rw [← h.family_key_eq_type]) build
-  getJob? := some fun data => discard <| ofFamily data
+  getJob := fun data => discard <| ofFamily data
 
 /-- A dependently typed configuration based on its registered package and name. -/
 structure TargetDecl where

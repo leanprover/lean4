@@ -70,15 +70,8 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   /-- The `Name` of the package. -/
   name : Name
 
-  /--
-  An extra `OpaqueTarget` that should be built before the package.
-
-  `OpaqueTarget.collectList/collectArray` can be used combine multiple
-  extra targets into a single `extraDepTarget`.
-
-  **DEPRECATED:** Use separate custom `target` declarations instead?
-  -/
-  extraDepTarget : Option (SchedulerM (BuildJob Unit)) := none
+  /-- An `Array` of target names to build whenever the package is used. -/
+  extraDepTargets : Array Name := #[]
 
   /--
   Whether to compile each of the package's module into a native shared library
@@ -234,9 +227,9 @@ def manifestFile (self : Package) : FilePath :=
 @[inline] def buildDir (self : Package) : FilePath :=
   self.dir / self.config.buildDir
 
-/-- The package's `extraDepTarget` configuration. -/
-@[inline] def extraDepTarget (self : Package) : SchedulerM (BuildJob Unit) :=
-  self.config.extraDepTarget.getD (pure BuildJob.nil)
+/-- The package's `extraDepTargets` configuration. -/
+@[inline] def extraDepTargets (self : Package) : Array Name :=
+  self.config.extraDepTargets
 
 /-- The package's `releaseRepo?` configuration. -/
 @[inline] def releaseRepo? (self : Package) : Option String :=

@@ -84,10 +84,8 @@ def resolveCustomTarget (pkg : Package)
     throw <| CliError.invalidFacet name facet
   else do
     let info := pkg.target name
-    let some getJob := config.getJob?
-      | throw <| CliError.nonCliTarget name
     have h : BuildData info.key = CustomData (pkg.name, name) := rfl
-    return {info, getJob := h ▸ getJob}
+    return {info, getJob := fun data => discard (h ▸ config.getJob data).toJob}
 
 def resolveTargetInPackage (ws : Workspace)
 (pkg : Package) (target facet : Name) : Except CliError BuildSpec :=

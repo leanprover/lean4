@@ -80,6 +80,11 @@ abbrev BuildData : BuildKey → Type
 | .targetFacet _ _ f => TargetData f
 | .customTarget p t => CustomData (p, t)
 
+instance : FamilyDef BuildData (.moduleFacet m f) (ModuleData f) := ⟨rfl⟩
+instance : FamilyDef BuildData (.packageFacet p f) (PackageData f) := ⟨rfl⟩
+instance : FamilyDef BuildData (.targetFacet p t f) (TargetData f) := ⟨rfl⟩
+instance : FamilyDef BuildData (.customTarget p t) (CustomData (p,t)) := ⟨rfl⟩
+
 --------------------------------------------------------------------------------
 /-! ## Macros for Declaring Build Data                                        -/
 --------------------------------------------------------------------------------

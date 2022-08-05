@@ -33,3 +33,7 @@ That is, the package's `moreLinkArgs`.
 -/
 @[inline] def linkArgs (self : ExternLib) : Array String :=
   self.pkg.moreLinkArgs
+
+/-- The name of the package target used to build the external library's static binary. -/
+@[inline] def staticTargetName (self : ExternLib) : Name :=
+  .str self.name "static"

@@ -27,10 +27,7 @@ dynamically typed equivalent.
   cast (by rw [← h.family_key_eq_type]) build
 
 def ExternLib.recBuildStatic (lib : ExternLib) : IndexBuildM (BuildJob FilePath) := do
-  if let some target := lib.pkg.findTargetConfig? (.str lib.name "static") then
-    lib.config.getJob <$> (target.build lib.pkg)
-  else
-    error "missing target for external library"
+  lib.config.getJob <$> fetch (lib.pkg.target lib.staticTargetName)
 
 def ExternLib.recBuildShared (lib : ExternLib) : IndexBuildM (BuildJob FilePath) := do
   buildLeanSharedLibOfStatic (← lib.static.fetch) lib.linkArgs

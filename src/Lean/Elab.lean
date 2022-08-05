@@ -43,4 +43,3 @@ import Lean.Elab.BuiltinCommand
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.Eval
 import Lean.Elab.Calc
-import Lean.Elab.IncludeStr

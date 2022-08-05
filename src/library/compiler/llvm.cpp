@@ -424,6 +424,30 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_call(
     fprintf(stderr, "created call");
     free(arrArgVals);
     return lean_io_result_mk_ok(Value_to_lean(out));
+}
+
+extern "C" LEAN_EXPORT lean_object *lean_llvm_build_cond_br(
+    lean_object *builder, lean_object *if_,
+    lean_object *thenbb, lean_object *elsebb) {
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "%s ; builder: %p\n", __PRETTY_FUNCTION__, builder);
+        fprintf(stderr, "...%s ; if_: %s\n", __PRETTY_FUNCTION__,
+                LLVMPrintValueToString(lean_to_Value(if_)));
+        fprintf(stderr, "...%s ; thenbb: %p\n", __PRETTY_FUNCTION__, thenbb);
+        fprintf(stderr, "...%s ; elsebb: %p\n", __PRETTY_FUNCTION__, elsebb);
+    }
+    LLVMBuildCondBr(lean_to_Builder(builder), lean_to_Value(if_), lean_to_BasicBlock(thenbb), lean_to_BasicBlock(elsebb));
+    return lean_io_result_mk_ok(lean_box(0));
+} 
+
+extern "C" LEAN_EXPORT lean_object *lean_llvm_build_br(
+    lean_object *builder, lean_object *bb) {
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "%s ; builder: %p\n", __PRETTY_FUNCTION__, builder);
+        fprintf(stderr, "...%s ; bb: %p\n", __PRETTY_FUNCTION__, bb);
+    }
+    LLVMBuildBr(lean_to_Builder(builder), lean_to_BasicBlock(bb));
+    return lean_io_result_mk_ok(lean_box(0));
 } 
 
 extern "C" LEAN_EXPORT lean_object *lean_llvm_type_of(lean_object *val) {

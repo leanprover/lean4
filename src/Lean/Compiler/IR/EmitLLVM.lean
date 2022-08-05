@@ -72,7 +72,7 @@ opaque addGlobal(m: @&Ptr Module) (name: @&String) (type: @&Ptr LLVMType): IO (P
 opaque getNamedGlobal(m: @&Ptr Module) (name: @&String): IO (Option (Ptr Value))
 
 @[extern "lean_llvm_function_type"]
-opaque functionType(retty: @&Ptr LLVMType) (args: @&Array (Ptr LLVMType)) (isVarArg: @&Bool): IO (Ptr LLVMType)
+opaque functionType(retty: @&Ptr LLVMType) (args: @&Array (Ptr LLVMType)) (isVarArg: @&Bool := false): IO (Ptr LLVMType)
 
 @[extern "lean_llvm_void_type_in_context"]
 opaque voidTypeInContext (ctx: @&Ptr Context): IO (Ptr LLVMType)
@@ -103,6 +103,28 @@ opaque buildCall2 (builder: @&Ptr Builder) (fnty: @&Ptr LLVMType) (fn: @&Ptr Val
 
 @[extern "lean_llvm_build_call"]
 opaque buildCall (builder: @&Ptr Builder) (fn: @&Ptr Value) (args: @&Array (Ptr Value)) (name: @&String): IO (Ptr Value)
+
+@[extern "lean_llvm_build_cond_br"]
+opaque buildCondBr (builder: @&Ptr Builder) (if_: @&Ptr Value) (thenbb: @&Ptr BasicBlock) (elsebb: @&Ptr BasicBlock): IO (Ptr Value)
+
+@[extern "lean_llvm_build_br"]
+opaque buildBr (builder: @&Ptr Builder) (bb: @&Ptr BasicBlock): IO (Ptr Value)
+
+@[extern "lean_llvm_build_alloca"]
+opaque buildAlloca (builder: @&Ptr Builder) (ty: @&Ptr LLVMType) (name: @&String): IO (Ptr Value)
+
+@[extern "lean_llvm_build_load"]
+opaque buildLoad (builder: @&Ptr Builder) (val: @&Ptr Value) (name: @&String): IO (Ptr Value)
+
+@[extern "lean_llvm_build_store"]
+opaque buildStore (builder: @&Ptr Builder) (val: @&Ptr Value) (store_loc_ptr: @&Ptr Value): IO (Ptr Value)
+
+@[extern "lean_llvm_get_insert_block"]
+opaque getInsertBlock (builder: @&Ptr Builder): IO (Ptr BasicBlock)
+
+@[extern "lean_llvm_get_basic_block_parent"]
+opaque getBasicBlockParent (bb: @&Ptr BasicBlock): IO (Ptr Value)
+
 
 @[extern "lean_llvm_type_of"]
 opaque typeOf (val: @&Ptr Value): IO (Ptr LLVMType)
@@ -1520,6 +1542,74 @@ def getOrCreateLeanIOMkWorldFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.
   -- lean_object* lean_io_mk_world();
   getOrCreateFunctionPrototype ctx mod (← LLVM.voidPtrType ctx) "lean_io_mk_world"  #[]
 
+def getOrCreateLeanIOMarkEndInitializationFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module): M (LLVM.Ptr LLVM.Value) := do
+  -- lean_object* lean_io_mk_world();
+  getOrCreateFunctionPrototype ctx mod (← LLVM.voidTypeInContext ctx) "lean_io_mark_end_initialization"  #[]
+
+def getOrCreateLeanIOResultIsOkFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module): M (LLVM.Ptr LLVM.Value) := do
+  -- lean_object* lean_io_mk_world();
+  getOrCreateFunctionPrototype ctx mod (← LLVM.i1Type ctx) "lean_io_result_is_ok"  #[(← LLVM.voidPtrType ctx)]
+
+def callLeanIOResultIsOk (builder: LLVM.Ptr LLVM.Builder) (arg: LLVM.Ptr LLVM.Value) (name: String): M (LLVM.Ptr LLVM.Value) := do
+  LLVM.buildCall builder (← getOrCreateLeanIOResultIsOkFn (← getLLVMContext) (← getLLVMModule)) #[arg] name
+
+def getOrCreateLeanBoxFn: M (LLVM.Ptr LLVM.Value) := do
+  let ctx ← getLLVMContext
+  getOrCreateFunctionPrototype ctx (← getLLVMModule)
+    (← LLVM.voidPtrType ctx) "lean_box"  #[(← LLVM.size_tTypeInContext ctx)]
+
+def callLeanBox (builder: LLVM.Ptr LLVM.Builder) (arg: LLVM.Ptr LLVM.Value) (name: String): M (LLVM.Ptr LLVM.Value) := do
+  LLVM.buildCall builder (← getOrCreateLeanBoxFn) #[arg] name
+
+
+def getOrCreateLeanDecRefFn: M (LLVM.Ptr LLVM.Value) := do
+  let ctx ← getLLVMContext
+  getOrCreateFunctionPrototype ctx (← getLLVMModule)
+    (← LLVM.voidTypeInContext ctx) "lean_dec_ref"  #[(← LLVM.i8PtrType ctx)]
+
+def callLeanDecRef (builder: LLVM.Ptr LLVM.Builder) (res: LLVM.Ptr LLVM.Value): M Unit := do
+   let _ ← LLVM.buildCall builder (← getOrCreateLeanDecRefFn) #[res] ""
+
+def getOrCreateLeanInitTaskManagerFn: M (LLVM.Ptr LLVM.Value) := do
+  let ctx ← getLLVMContext
+  getOrCreateFunctionPrototype ctx (← getLLVMModule)
+    (← LLVM.voidTypeInContext ctx) "lean_init_task_manager"  #[]
+
+
+def callLeanInitTaskManager (builder: LLVM.Ptr LLVM.Builder): M Unit := do
+   let _ ← LLVM.buildCall builder (← getOrCreateLeanInitTaskManagerFn) #[] ""
+
+
+def callLeanIOMkWorld (builder: LLVM.Ptr LLVM.Builder): M (LLVM.Ptr LLVM.Value) := do
+   LLVM.buildCall builder (← getOrCreateLeanIOMkWorldFn (← getLLVMContext) (← getLLVMModule)) #[] ""
+
+structure IfControlFlow where
+  thenbb: LLVM.Ptr LLVM.BasicBlock
+  elsebb: LLVM.Ptr LLVM.BasicBlock
+  mergebb: LLVM.Ptr LLVM.BasicBlock
+
+-- build an if, and position the builder at the merge basic block after execution.
+-- The '_' denotes that we return Unit on each branch.
+-- TODO: get current function from the builder.
+def buildIfThen_ (builder: LLVM.Ptr LLVM.Builder)  (name: String) (brval: LLVM.Ptr LLVM.Value)
+  (thencodegen: LLVM.Ptr LLVM.Builder → M Unit): M Unit := do
+  let fn ← LLVM.getBasicBlockParent (← LLVM.getInsertBlock builder)
+  -- LLVM.positionBuilderAtEnd builder insertpt
+  let thenbb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn (name ++ ".then")
+  let elsebb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn (name ++ ".else")
+  let mergebb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn (name ++ ".merge")
+  let _ ← LLVM.buildCondBr builder brval thenbb elsebb
+  -- then
+  LLVM.positionBuilderAtEnd builder thenbb
+  thencodegen builder
+  LLVM.positionBuilderAtEnd builder thenbb
+  let _ ← LLVM.buildBr builder mergebb
+  -- else
+  LLVM.positionBuilderAtEnd builder elsebb
+  LLVM.positionBuilderAtEnd builder elsebb
+  let _ ← LLVM.buildBr builder mergebb
+  -- merge
+  LLVM.positionBuilderAtEnd builder mergebb
 
 def emitMainFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder: LLVM.Ptr LLVM.Builder): M Unit := do
   let d ← getDecl `main
@@ -1558,6 +1648,8 @@ def emitMainFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder
   /-
   lean_object* in; lean_object* res;";
   -/
+  let in_ ← LLVM.buildAlloca builder (← LLVM.i8PtrType ctx) "in"
+  let res ← LLVM.buildAlloca builder (← LLVM.i8PtrType ctx) "res"
   /-
   if usesLeanAPI then
     emitLn "lean_initialize();"
@@ -1584,30 +1676,58 @@ def emitMainFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder
   let modInitFn ← LLVM.getOrAddFunction mod (mkModuleInitializationFunctionName modName) modInitFnTy
   let _ ← LLVM.buildCall builder setPanicMesagesFn #[(← LLVM.False ctx )] ""
   let world ← LLVM.buildCall builder (← getOrCreateLeanIOMkWorldFn ctx mod) #[] "world"
-  let res ← LLVM.buildCall builder modInitFn #[(← LLVM.constInt8 ctx 1 ), world] "res"
-  let _ ← LLVM.buildCall builder setPanicMesagesFn #[(← LLVM.True ctx )] ""
 
-  if xs.size == 2 then
-  /-
-    emitLns ["in = lean_box(0);",
-              "int i = argc;",
-              "while (i > 1) {",
-              " lean_object* n;",
-              " i--;",
-              " n = lean_alloc_ctor(1,2,0); lean_ctor_set(n, 0, lean_mk_string(argv[i])); lean_ctor_set(n, 1, in);",
-              " in = n;",
-            "}"]
-    emitLn ("res = " ++ leanMainFn ++ "(in, lean_io_mk_world());")
-    -/
-    pure ()
-  else
-    pure ()
-  /-
-  emitLn ("res = " ++ leanMainFn ++ "(lean_io_mk_world());")
-  -/
-  /-
-  emitLn "}"
-  -/
+  let resv ← LLVM.buildCall builder modInitFn #[(← LLVM.constInt8 ctx 1 ), world] ""
+  let _ ← LLVM.buildStore builder resv res
+
+  let _ ← LLVM.buildCall builder setPanicMesagesFn #[(← LLVM.True ctx )] ""
+  let _ ← LLVM.buildCall builder (← getOrCreateLeanIOMarkEndInitializationFn ctx mod) #[] ""
+
+  let resv ← LLVM.buildLoad builder res ""
+  let res_is_ok ← callLeanIOResultIsOk builder resv ""
+  buildIfThen_ builder "if.result.is.ok" res_is_ok
+    (fun builder => do {-- then clause of the builder)
+      if xs.size == 2 then {
+        callLeanDecRef builder res;
+        callLeanInitTaskManager builder;
+        let inv ← callLeanBox builder (← LLVM.constInt (← LLVM.size_tTypeInContext ctx) 0) ""
+        let _ ← LLVM.buildStore builder inv in_
+        -- TODO: have yet to do the while loop!
+        -- TODO: have yet to do the while loop!
+        -- TODO: have yet to do the while loop!
+
+        /-
+          emitLns ["in = lean_box(0);",
+                    "int i = argc;",
+                    "while (i > 1) {",
+                    " lean_object* n;",
+                    " i--;",
+                    " n = lean_alloc_ctor(1,2,0); lean_ctor_set(n, 0, lean_mk_string(argv[i])); lean_ctor_set(n, 1, in);",
+                    " in = n;",
+                  "}"]
+          -/
+          /-
+          emitLn ("res = " ++ leanMainFn ++ "(in, lean_io_mk_world());")
+          -/
+        let leanMainFnTy ← LLVM.functionType (← LLVM.voidPtrType ctx) #[(← LLVM.voidPtrType ctx), (← LLVM.voidPtrType ctx)]
+        let leanMainFn ← LLVM.getOrAddFunction mod leanMainFn leanMainFnTy
+        let world ← callLeanIOMkWorld builder
+        let inv ← LLVM.buildLoad builder in_ ""
+        let resv ← LLVM.buildCall builder leanMainFn #[inv, world] ""
+        let _ ← LLVM.buildStore builder resv res
+      } else {
+          pure ()
+        /-
+        emitLn ("res = " ++ leanMainFn ++ "(lean_io_mk_world());")
+        -/
+        let leanMainFnTy ← LLVM.functionType (← LLVM.voidPtrType ctx) #[(← LLVM.voidPtrType ctx)]
+        let leanMainFn ← LLVM.getOrAddFunction mod leanMainFn leanMainFnTy
+        let world ← callLeanIOMkWorld builder
+        let resv ← LLVM.buildCall builder leanMainFn #[world] ""
+        let _ ← LLVM.buildStore builder resv res
+      }
+    })
+
   -- `IO _`
   let retTy := env.find? `main |>.get! |>.type |>.getForallBody
   -- either `UInt32` or `(P)Unit`

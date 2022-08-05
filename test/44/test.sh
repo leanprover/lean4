@@ -12,6 +12,10 @@ echo 'def hello := "old"' > hello/Hello.lean
 $LAKE -d hello build --old | tee produced.out
 echo 'def hello := "normal"' > hello/Hello.lean
 $LAKE -d hello build | tee -a produced.out
+
+grep -i main produced.out
+grep -i hello produced.out > produced.out.tmp
+mv produced.out.tmp produced.out
 if [ "$OS" = Windows_NT ]; then
   sed -i 's/.exe//g' produced.out
   diff --strip-trailing-cr expected.out produced.out

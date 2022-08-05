@@ -36,11 +36,11 @@ example : 0 + n = n := by
 -- TODO: goal state after dedent
 
 example : 0 + n = n := by
-  induction n with
+  induction n
  --^ $/lean/plainGoal
 
 example : 0 + n = n := by
-  cases n with
+  cases n
  --^ $/lean/plainGoal
 
 example : ∀ a b : Nat, a = b := by

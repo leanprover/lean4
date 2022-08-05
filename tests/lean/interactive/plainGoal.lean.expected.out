@@ -53,12 +53,18 @@
  "goals": ["case zero\n⊢ 0 + Nat.zero = Nat.zero"]}
 {"textDocument": {"uri": "file://plainGoal.lean"},
  "position": {"line": 38, "character": 3}}
-{"rendered": "```lean\nn : Nat\n⊢ 0 + n = n\n```",
- "goals": ["n : Nat\n⊢ 0 + n = n"]}
+{"rendered":
+ "```lean\ncase zero\n⊢ 0 + Nat.zero = Nat.zero\n```\n---\n```lean\ncase succ\nn✝ : Nat\n: 0 + n✝ = n✝\n⊢ 0 + Nat.succ n✝ = Nat.succ n✝\n```",
+ "goals":
+ ["case zero\n⊢ 0 + Nat.zero = Nat.zero",
+  "case succ\nn✝ : Nat\n: 0 + n✝ = n✝\n⊢ 0 + Nat.succ n✝ = Nat.succ n✝"]}
 {"textDocument": {"uri": "file://plainGoal.lean"},
  "position": {"line": 42, "character": 3}}
-{"rendered": "```lean\nn : Nat\n⊢ 0 + n = n\n```",
- "goals": ["n : Nat\n⊢ 0 + n = n"]}
+{"rendered":
+ "```lean\ncase zero\n⊢ 0 + Nat.zero = Nat.zero\n```\n---\n```lean\ncase succ\nn✝ : Nat\n⊢ 0 + Nat.succ n✝ = Nat.succ n✝\n```",
+ "goals":
+ ["case zero\n⊢ 0 + Nat.zero = Nat.zero",
+  "case succ\nn✝ : Nat\n⊢ 0 + Nat.succ n✝ = Nat.succ n✝"]}
 {"textDocument": {"uri": "file://plainGoal.lean"},
  "position": {"line": 46, "character": 3}}
 {"rendered": "```lean\na b : Nat\n⊢ a = b\n```",

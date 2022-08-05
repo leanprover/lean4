@@ -1119,19 +1119,22 @@ def callLeanIOResultShowError (builder: LLVM.Ptr LLVM.Builder) (v: LLVM.Ptr LLVM
    let _ ← LLVM.buildCall builder (← getOrCreateLeanIOResultShowErrorFn) #[v] name
 
 
-structure IfControlFlow where
-  thenbb: LLVM.Ptr LLVM.BasicBlock
-  elsebb: LLVM.Ptr LLVM.BasicBlock
-  mergebb: LLVM.Ptr LLVM.BasicBlock
+
+-- indicates whether the API for building the blocks for then/else should
+-- forward the control flow to the merge block.
+-- TODO: infer this automatically from the state of the basic block.
+inductive ShouldForwardControlFlow where
+| yes | no
 
 -- build an if, and position the builder at the merge basic block after execution.
 -- The '_' denotes that we return Unit on each branch.
 -- TODO: get current function from the builder.
 def buildIfThen_ (builder: LLVM.Ptr LLVM.Builder) (fn: LLVM.Ptr LLVM.Value)  (name: String) (brval: LLVM.Ptr LLVM.Value)
-  (thencodegen: LLVM.Ptr LLVM.Builder → M Unit): M Unit := do
-  -- let builderBB ← LLVM.getInsertBlock builder
-  -- let fn ← LLVM.getBasicBlockParent builderBB
-  -- LLVM.positionBuilderAtEnd builder insertpt
+  (thencodegen: LLVM.Ptr LLVM.Builder → M ShouldForwardControlFlow): M Unit := do
+  let builderBB ← LLVM.getInsertBlock builder
+  let fn ← LLVM.getBasicBlockParent builderBB
+  -- LLVM.positionBuilderAtEnd builder
+
   let nameThen := name ++ "Then"
   let nameElse := name ++ "Else"
   let nameMerge := name ++ "Merge"
@@ -1142,9 +1145,12 @@ def buildIfThen_ (builder: LLVM.Ptr LLVM.Builder) (fn: LLVM.Ptr LLVM.Value)  (na
   let _ ← LLVM.buildCondBr builder brval thenbb elsebb
   -- then
   LLVM.positionBuilderAtEnd builder thenbb
-  thencodegen builder
+  let fwd? ← thencodegen builder
   LLVM.positionBuilderAtEnd builder thenbb
-  let _ ← LLVM.buildBr builder mergebb
+  match fwd? with
+  | .yes => let _ ← LLVM.buildBr builder mergebb
+  | .no => pure ()
+
   -- else
   LLVM.positionBuilderAtEnd builder elsebb
   let _ ← LLVM.buildBr builder mergebb
@@ -1152,24 +1158,28 @@ def buildIfThen_ (builder: LLVM.Ptr LLVM.Builder) (fn: LLVM.Ptr LLVM.Value)  (na
   LLVM.positionBuilderAtEnd builder mergebb
 
 def buildIfThenElse_ (builder: LLVM.Ptr LLVM.Builder)  (name: String) (brval: LLVM.Ptr LLVM.Value)
-  (thencodegen: LLVM.Ptr LLVM.Builder → M Unit)
-  (elsecodegen: LLVM.Ptr LLVM.Builder → M Unit): M Unit := do
+  (thencodegen: LLVM.Ptr LLVM.Builder → M ShouldForwardControlFlow)
+  (elsecodegen: LLVM.Ptr LLVM.Builder → M ShouldForwardControlFlow): M Unit := do
   let fn ← LLVM.getBasicBlockParent (← LLVM.getInsertBlock builder)
   -- LLVM.positionBuilderAtEnd builder insertpt
-  let thenbb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn (name ++ ".then")
-  let elsebb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn (name ++ ".else")
-  let mergebb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn (name ++ ".merge")
+  let thenbb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn (name ++ "Then")
+  let elsebb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn (name ++ "Else")
+  let mergebb ← LLVM.appendBasicBlockInContext (← getLLVMContext) fn (name ++ "Merge")
   let _ ← LLVM.buildCondBr builder brval thenbb elsebb
   -- then
   LLVM.positionBuilderAtEnd builder thenbb
-  thencodegen builder
+  let fwd? ← thencodegen builder
   LLVM.positionBuilderAtEnd builder thenbb
-  let _ ← LLVM.buildBr builder mergebb
+  match fwd? with
+  | .yes => let _ ← LLVM.buildBr builder mergebb
+  | .no => pure ()
   -- else
   LLVM.positionBuilderAtEnd builder elsebb
-  elsecodegen builder
+  let fwd? ← elsecodegen builder
   LLVM.positionBuilderAtEnd builder elsebb
-  let _ ← LLVM.buildBr builder mergebb
+  match fwd? with
+  | .yes => let _ ← LLVM.buildBr builder mergebb
+  | .no => pure ()
   -- merge
   LLVM.positionBuilderAtEnd builder mergebb
 
@@ -1278,6 +1288,7 @@ def emitMainFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder
         let inv ← LLVM.buildLoad builder in_ "inv"
         let resv ← LLVM.buildCall builder leanMainFn #[inv, world] "resv"
         let _ ← LLVM.buildStore builder resv res
+        pure ShouldForwardControlFlow.yes
       else
           /-
           emitLn ("res = " ++ leanMainFn ++ "(lean_io_mk_world());")
@@ -1287,7 +1298,7 @@ def emitMainFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder
           let world ← callLeanIOMkWorld builder
           let resv ← LLVM.buildCall builder leanMainFn #[world] "resv"
           let _ ← LLVM.buildStore builder resv res
-
+          pure ShouldForwardControlFlow.yes
     )
 
   -- `IO _`
@@ -1317,14 +1328,18 @@ def emitMainFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder
         let resv ← LLVM.buildLoad builder res "resv"
         let retv ← callLeanUnboxUint32 builder (← callLeanIOResultGetValue builder resv "io_val") "retv"
         let _ ← LLVM.buildRet builder retv
+        pure ShouldForwardControlFlow.no
       else do
         let _ ← LLVM.buildRet builder (← LLVM.constInt64 ctx 0)
+        pure ShouldForwardControlFlow.no
+
     )
     (fun builder => do -- else builder
         let resv ← LLVM.buildLoad builder res "resv"
         callLeanIOResultShowError builder resv ""
         callLeanDecRef builder resv
-        let _ ← LLVM.buildRet builder (← LLVM.constInt64 ctx 0))
+        let _ ← LLVM.buildRet builder (← LLVM.constInt64 ctx 0)
+        pure ShouldForwardControlFlow.no)
   -- at the merge
   let _ ← LLVM.buildUnreachable builder
 

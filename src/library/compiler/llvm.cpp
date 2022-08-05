@@ -567,3 +567,24 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_const_int(lean_object *ty, uint64_
     LLVMValueRef out = LLVMConstInt(lean_to_Type(ty), val, sext);
     return lean_io_result_mk_ok(Value_to_lean(out));
 }
+
+extern "C" LEAN_EXPORT lean_object *llvm_get_param(lean_object *f, uint64_t ix, lean_object * /* w */) {
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "%s ; f: %s\n", __PRETTY_FUNCTION__, LLVMPrintValueToString(lean_to_Value(f)));
+        fprintf(stderr, "...%s ; ix: %lu\n", __PRETTY_FUNCTION__, ix);
+    }
+    LLVMValueRef out = LLVMGetParam(lean_to_Value(f), ix);
+    fprintf(stderr, "%s ; out: %s\n", __PRETTY_FUNCTION__, LLVMPrintValueToString(out));
+    return lean_io_result_mk_ok(Value_to_lean(out));
+}
+
+
+extern "C" LEAN_EXPORT uint64_t llvm_count_params(lean_object *f, lean_object * /* w */) {
+    if (LLVM_DEBUG) {
+        fprintf(stderr, "%s ; f: %s\n", __PRETTY_FUNCTION__, LLVMPrintValueToString(lean_to_Value(f)));
+    }
+    int n = LLVMCountParams(lean_to_Value(f));
+    fprintf(stderr, "%s ; n: %d\n", __PRETTY_FUNCTION__, n);
+    return n;
+}
+

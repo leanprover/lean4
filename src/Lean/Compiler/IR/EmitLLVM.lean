@@ -142,6 +142,12 @@ opaque constInt (intty: @&Ptr LLVMType) (value: @&UInt64) (signExtend: @Bool := 
 @[extern "lean_llvm_print_module_to_string"]
 opaque printModuletoString (mod: @&Ptr Module): IO (String)
 
+@[extern "llvm_count_params"]
+opaque countParams (fn: @&Ptr Function): UInt64 -- will this cause problems..?
+
+@[extern "llvm_get_param"]
+opaque getParam (fn: @&Ptr Function) (ix: UInt64): IO (Ptr Value)
+
 -- Helper to add a function if it does not exist, and to return the function handle if it does.
 def getOrAddFunction(m: Ptr Module) (name: String) (type: Ptr LLVMType): IO (Ptr Value) :=  do
   match (← getNamedFunction m name) with
@@ -1398,6 +1404,7 @@ def declareVar (x : VarId) (t : IRType) : M Unit := do
 def declareVar (builder: LLVM.Ptr LLVM.Builder) (x : VarId) (t : IRType) : M Unit := do
   let alloca ← LLVM.buildAlloca builder (← toLLVMType (← getLLVMContext) t) ""
   addVartoState x alloca
+  IO.eprintln s!"### declared {x} ###"
 /-
 partial def declareVars : FnBody → Bool → M Bool
   | e@(FnBody.vdecl x t _ b), d => do
@@ -1563,9 +1570,6 @@ partial def emitFnBody (b : FnBody) : M Unit := do
   emitLn "}"
 -/
 partial def emitFnBody (llvmctx: LLVM.Ptr LLVM.Context) (b : FnBody) (llvmfn: LLVM.Ptr LLVM.Value) (builder: LLVM.Ptr LLVM.Builder): M Unit := do
-  set { var2val := default : EmitLLVM.State } -- flush varuable map
-  let bb ← LLVM.appendBasicBlockInContext llvmctx llvmfn "entry"
-  LLVM.positionBuilderAtEnd builder bb
 
   -- let declared ← declareVars b false
   -- if declared then emitLn ""
@@ -1624,6 +1628,11 @@ def emitDeclAux (d : Decl) : M Unit := do
 -/
 
 
+def emitFnArgs (ctx: LLVM.Ptr LLVM.Context) (builder: LLVM.Ptr LLVM.Builder) (llvmfn: LLVM.Ptr LLVM.Value) (xs: Array Param) : M Unit := do
+  let n := LLVM.countParams llvmfn
+  for i in (List.range n.toNat) do
+    let arg ← LLVM.getParam llvmfn (UInt64.ofNat i)
+    addVartoState xs[i]!.x arg
 
 -- TODO: figure out if we can always return the corresponding function?
 def emitDeclAux (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder: LLVM.Ptr LLVM.Builder) (d : Decl): M Unit := do
@@ -1649,7 +1658,7 @@ def emitDeclAux (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builde
         for x in xs do
           argtys := argtys.push (← toLLVMType ctx x.ty)
       let fnty ← LLVM.functionType retty argtys (isVarArg := false)
-      let fn ← LLVM.getOrAddFunction mod name fnty
+      let llvmfn ← LLVM.getOrAddFunction mod name fnty
       -- emit (toCType t); emit " ";
       -- if xs.size > 0 then
       --   emit baseName;
@@ -1671,7 +1680,12 @@ def emitDeclAux (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builde
       --     let x := xs[i]!
       --     emit "lean_object* "; emit x.x; emit " = _args["; emit i; emitLn "];"
       -- emitLn "_start:";
-      withReader (fun ctx => { ctx with mainFn := f, mainParams := xs }) (emitFnBody ctx b fn builder);
+      withReader (fun ctx => { ctx with mainFn := f, mainParams := xs }) (do
+        set { var2val := default : EmitLLVM.State } -- flush varuable map
+        let bb ← LLVM.appendBasicBlockInContext (← getLLVMContext) llvmfn "entry"
+        LLVM.positionBuilderAtEnd builder bb
+        emitFnArgs ctx builder llvmfn xs
+        emitFnBody ctx b llvmfn builder);
       -- emitLn "}"
       pure ()
     | _ => pure ()

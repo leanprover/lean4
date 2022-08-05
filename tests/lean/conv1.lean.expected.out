@@ -16,7 +16,6 @@ a b : Nat
 case h.h
 a b : Nat
 | 0 + a + b
-case h
 p : Nat → Prop
 h : ∀ (a : Nat), p a
 x : Nat

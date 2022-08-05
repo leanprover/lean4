@@ -4,7 +4,7 @@
  {"start": {"line": 3, "character": 8}, "end": {"line": 3, "character": 18}},
  "contents":
  {"value":
-  "```lean\nTrue.intro : True\n```\n***\nIntroduction rule for `True`. ",
+  "```lean\nTrue.intro : True\n```\n***\n`True` is true, and `True.intro` (or more commonly, `trivial`)\nis the proof. ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 7, "character": 8}}
@@ -12,7 +12,7 @@
  {"start": {"line": 7, "character": 8}, "end": {"line": 7, "character": 18}},
  "contents":
  {"value":
-  "```lean\nTrue.intro : True\n```\n***\nIntroduction rule for `True`. ",
+  "```lean\nTrue.intro : True\n```\n***\n`True` is true, and `True.intro` (or more commonly, `trivial`)\nis the proof. ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 12, "character": 4}}
@@ -35,7 +35,7 @@
  {"start": {"line": 21, "character": 13}, "end": {"line": 21, "character": 23}},
  "contents":
  {"value":
-  "```lean\nTrue.intro : True\n```\n***\nIntroduction rule for `True`. ",
+  "```lean\nTrue.intro : True\n```\n***\n`True` is true, and `True.intro` (or more commonly, `trivial`)\nis the proof. ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 31, "character": 2}}
@@ -114,7 +114,7 @@ null
  {"start": {"line": 97, "character": 8}, "end": {"line": 97, "character": 10}},
  "contents":
  {"value":
-  "```lean\nid.{0} : ∀ {α : Prop}, α → α\n```\n***\nIdentity function ",
+  "```lean\nid.{0} : ∀ {α : Prop}, α → α\n```\n***\nThe identity function. `id` takes an implicit argument `α : Sort u`\n(a type in any universe), and an argument `a : α`, and returns `a`.\n\nAlthough this may look like a useless function, one application of the identity\nfunction is to explicitly put a type on an expression. If `e` has type `T`,\nand `T'` is definitionally equal to `T`, then `@id T' e` typechecks, and lean\nknows that this expression has type `T'` rather than `T`. This can make a\ndifference for typeclass inference, since `T` and `T'` may have different\ntypeclass instances on them. `show T' from e` is sugar for an `@id T' e`\nexpression.\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 97, "character": 10}}

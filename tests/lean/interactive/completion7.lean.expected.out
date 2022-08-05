@@ -1,7 +1,13 @@
 {"textDocument": {"uri": "file://completion7.lean"},
  "position": {"line": 0, "character": 10}}
 {"items":
- [{"label": "And", "kind": 22, "detail": "Prop → Prop → Prop"},
+ [{"label": "And",
+   "kind": 22,
+   "documentation":
+   {"value":
+    "`And a b`, or `a ∧ b`, is the conjunction of propositions. It can be\nconstructed and destructed like a pair: if `ha : a` and `hb : b` then\n`⟨ha, hb⟩ : a ∧ b`, and if `h : a ∧ b` then `h.left : a` and `h.right : b`.\n",
+    "kind": "markdown"},
+   "detail": "Prop → Prop → Prop"},
   {"label": "AndOp", "kind": 7, "detail": "Type u → Type u"},
   {"label": "AndThen", "kind": 7, "detail": "Type u → Type u"},
   {"label": "and", "kind": 3, "detail": "Bool → Bool → Bool"},
@@ -53,7 +59,25 @@
  "position": {"line": 2, "character": 11}}
 {"items":
  [{"label": "comm", "kind": 3, "detail": "a ∧ b ↔ b ∧ a"},
-  {"label": "intro", "kind": 4, "detail": "a → b → a ∧ b"},
-  {"label": "left", "kind": 5, "detail": "a ∧ b → a"},
-  {"label": "right", "kind": 5, "detail": "a ∧ b → b"}],
+  {"label": "intro",
+   "kind": 4,
+   "documentation":
+   {"value":
+    "`And.intro : a → b → a ∧ b` is the constructor for the And operation. ",
+    "kind": "markdown"},
+   "detail": "a → b → a ∧ b"},
+  {"label": "left",
+   "kind": 5,
+   "documentation":
+   {"value":
+    "Extract the left conjunct from a conjunction. `h : a ∧ b` then\n`h.left`, also notated as `h.1`, is a proof of `a`. ",
+    "kind": "markdown"},
+   "detail": "a ∧ b → a"},
+  {"label": "right",
+   "kind": 5,
+   "documentation":
+   {"value":
+    "Extract the right conjunct from a conjunction. `h : a ∧ b` then\n`h.right`, also notated as `h.2`, is a proof of `b`. ",
+    "kind": "markdown"},
+   "detail": "a ∧ b → b"}],
  "isIncomplete": true}

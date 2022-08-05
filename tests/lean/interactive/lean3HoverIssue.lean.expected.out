@@ -4,7 +4,7 @@
  {"start": {"line": 0, "character": 54}, "end": {"line": 0, "character": 58}},
  "contents":
  {"value":
-  "```lean\nEq.symm.{1} : ∀ {α : Type} {a b : α}, a = b → b = a\n```\n***\nEquality is a symmetric relationship.\nFor more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)\n",
+  "```lean\nEq.symm.{1} : ∀ {α : Type} {a b : α}, a = b → b = a\n```\n***\nEquality is symmetric: if `a = b` then `b = a`.\n\nBecause this is in the `Eq` namespace, if you have a variable `h : a = b`,\n`h.symm` can be used as shorthand for `Eq.symm h` as a proof of `b = a`.\n\nFor more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://lean3HoverIssue.lean"},
  "position": {"line": 0, "character": 52}}
@@ -17,7 +17,7 @@
  {"start": {"line": 4, "character": 45}, "end": {"line": 4, "character": 49}},
  "contents":
  {"value":
-  "```lean\nEq.symm.{1} : ∀ {α : Type} {a b : α}, a = b → b = a\n```\n***\nEquality is a symmetric relationship.\nFor more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)\n",
+  "```lean\nEq.symm.{1} : ∀ {α : Type} {a b : α}, a = b → b = a\n```\n***\nEquality is symmetric: if `a = b` then `b = a`.\n\nBecause this is in the `Eq` namespace, if you have a variable `h : a = b`,\n`h.symm` can be used as shorthand for `Eq.symm h` as a proof of `b = a`.\n\nFor more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://lean3HoverIssue.lean"},
  "position": {"line": 7, "character": 54}}
@@ -25,7 +25,7 @@
  {"start": {"line": 7, "character": 53}, "end": {"line": 7, "character": 60}},
  "contents":
  {"value":
-  "```lean\nEq.symm.{1} : ∀ {α : Type} {a b : α}, a = b → b = a\n```\n***\nEquality is a symmetric relationship.\nFor more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)\n",
+  "```lean\nEq.symm.{1} : ∀ {α : Type} {a b : α}, a = b → b = a\n```\n***\nEquality is symmetric: if `a = b` then `b = a`.\n\nBecause this is in the `Eq` namespace, if you have a variable `h : a = b`,\n`h.symm` can be used as shorthand for `Eq.symm h` as a proof of `b = a`.\n\nFor more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://lean3HoverIssue.lean"},
  "position": {"line": 7, "character": 65}}
@@ -33,7 +33,7 @@
  {"start": {"line": 7, "character": 62}, "end": {"line": 7, "character": 69}},
  "contents":
  {"value":
-  "```lean\nEq.symm.{1} : ∀ {α : Type} {a b : α}, a = b → b = a\n```\n***\nEquality is a symmetric relationship.\nFor more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)\n",
+  "```lean\nEq.symm.{1} : ∀ {α : Type} {a b : α}, a = b → b = a\n```\n***\nEquality is symmetric: if `a = b` then `b = a`.\n\nBecause this is in the `Eq` namespace, if you have a variable `h : a = b`,\n`h.symm` can be used as shorthand for `Eq.symm h` as a proof of `b = a`.\n\nFor more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://lean3HoverIssue.lean"},
  "position": {"line": 7, "character": 70}}
@@ -46,5 +46,5 @@
  {"start": {"line": 7, "character": 72}, "end": {"line": 7, "character": 76}},
  "contents":
  {"value":
-  "```lean\nEq.symm.{1} : ∀ {α : Type} {a b : α}, a = b → b = a\n```\n***\nEquality is a symmetric relationship.\nFor more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)\n",
+  "```lean\nEq.symm.{1} : ∀ {α : Type} {a b : α}, a = b → b = a\n```\n***\nEquality is symmetric: if `a = b` then `b = a`.\n\nBecause this is in the `Eq` namespace, if you have a variable `h : a = b`,\n`h.symm` can be used as shorthand for `Eq.symm h` as a proof of `b = a`.\n\nFor more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)\n",
   "kind": "markdown"}}

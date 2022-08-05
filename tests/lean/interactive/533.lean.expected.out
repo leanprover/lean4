@@ -48,7 +48,13 @@
   {"label": "failure",
    "kind": 5,
    "detail": "[self : Alternative f] → {α : Type u} → f α"},
-  {"label": "false", "kind": 4, "detail": "Bool"},
+  {"label": "false",
+   "kind": 4,
+   "documentation":
+   {"value":
+    "The boolean value `false`, not to be confused with the proposition `False`. ",
+    "kind": "markdown"},
+   "detail": "Bool"},
   {"label": "false_and",
    "kind": 3,
    "detail": "∀ (p : Prop), (False ∧ p) = False"},

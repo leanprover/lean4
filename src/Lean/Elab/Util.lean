@@ -208,7 +208,7 @@ partial def mkUnusedBaseName (baseName : Name) : MacroM Name := do
   else
     return baseName
 
-def logException [Monad m] [MonadLog m] [AddMessageContext m] [MonadLiftT IO m] (ex : Exception) : m Unit := do
+def logException [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [MonadLiftT IO m] (ex : Exception) : m Unit := do
   match ex with
   | Exception.error ref msg => logErrorAt ref msg
   | Exception.internal id _ =>
@@ -216,7 +216,7 @@ def logException [Monad m] [MonadLog m] [AddMessageContext m] [MonadLiftT IO m] 
       let name ← id.getName
       logError m!"internal exception: {name}"
 
-def withLogging [Monad m] [MonadLog m] [MonadExcept Exception m] [AddMessageContext m] [MonadLiftT IO m]
+def withLogging [Monad m] [MonadLog m] [MonadExcept Exception m] [AddMessageContext m] [MonadOptions m] [MonadLiftT IO m]
     (x : m Unit) : m Unit := do
   try x catch ex => logException ex
 

@@ -338,7 +338,7 @@ theorem Poly.denote_mul (ctx : Context) (k : Nat) (p : Poly) : (p.mul k).denote 
   by_cases h : k == 1 <;> simp [h]; simp [eq_of_beq h]
   induction p with
   | nil  => simp
-  | cons kv m ih => cases kv with | _ k' v => simp [ih]
+  | cons kv m ih => cases kv with | mk k' v => simp [ih]
 
 private theorem eq_of_not_blt_eq_true (h₁ : ¬ (Nat.blt x y = true)) (h₂ : ¬ (Nat.blt y x = true)) : x = y :=
   have h₁ : ¬ x < y := fun h => h₁ (Nat.blt_eq.mpr h)

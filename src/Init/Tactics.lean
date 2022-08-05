@@ -8,7 +8,7 @@ import Init.Notation
 
 namespace Lean
 
-syntax binderIdent := ident <|> "_"
+syntax binderIdent := ident <|> hole
 
 namespace Parser.Tactic
 /-- `with_annotate_state stx t` annotates the lexical range of `stx : Syntax` with the initial and final state of running tactic `t`. -/
@@ -34,7 +34,7 @@ For each hypothesis to be introduced, the remaining main goal's target type must
 -/
 syntax (name := intro) "intro " notFollowedBy("|") (colGt term:max)* : tactic
 /-- `intros x...` behaves like `intro x...`, but then keeps introducing (anonymous) hypotheses until goal is not of a function type. -/
-syntax (name := intros) "intros " (colGt (ident <|> "_"))* : tactic
+syntax (name := intros) "intros " (colGt (ident <|> hole))* : tactic
 /--
 `rename t => x` renames the most recent hypothesis whose type matches `t` (which may contain placeholders) to `x`,
 or fails if no such hypothesis could be found. -/
@@ -253,7 +253,7 @@ should be constructor applications of the same constructor.
 Given `h : a::b = c::d`, the tactic `injection h` adds two new hypothesis with types `a = c` and `b = d` to the main goal.
 The tactic `injection h with h₁ h₂` uses the names `h₁` and `h₂` to name the new hypotheses.
 -/
-syntax (name := injection) "injection " term (" with " (colGt (ident <|> "_"))+)? : tactic
+syntax (name := injection) "injection " term (" with " (colGt (ident <|> hole))+)? : tactic
 
 /-- `injections` applies `injection` to all hypotheses recursively
 (since `injection` can produce new hypotheses). Useful for destructing nested
@@ -354,7 +354,7 @@ macro (priority := high) "have'" x:ident " := " p:term : tactic => `(have' $x : 
 /-- Similar to `let`, but using `refine'` -/
 macro "let' " d:letDecl : tactic => `(refine_lift' let $d:letDecl; ?_)
 
-syntax inductionAltLHS := "| " (("@"? ident) <|> "_") (ident <|> "_")*
+syntax inductionAltLHS := "| " (("@"? ident) <|> hole) (ident <|> hole)*
 syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ " => " (hole <|> syntheticHole <|> tacticSeq)
 syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)+)
 /--

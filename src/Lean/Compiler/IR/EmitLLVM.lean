@@ -1271,7 +1271,7 @@ def getOrCreateLeanInitTaskManagerFn: M (LLVM.Ptr LLVM.Value) := do
 
 
 def callLeanInitTaskManager (builder: LLVM.Ptr LLVM.Builder): M Unit := do
-   let _ ← LLVM.buildCall builder (← getOrCreateLeanInitTaskManagerFn) #[] "init_out"
+   let _ ← LLVM.buildCall builder (← getOrCreateLeanInitTaskManagerFn) #[] ""
 
 
 def getOrCreateLeanFinalizeTaskManager: M (LLVM.Ptr LLVM.Value) := do
@@ -1389,9 +1389,9 @@ def emitMainFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder
   let res_is_ok ← callLeanIOResultIsOk builder resv "res_is_ok"
   buildIfThen_ builder main "resIsOkBranches"  res_is_ok
     (fun builder => do -- then clause of the builder)
+      callLeanDecRef builder resv
+      callLeanInitTaskManager builder
       if xs.size == 2 then
-        callLeanDecRef builder res;
-        callLeanInitTaskManager builder;
         let inv ← callLeanBox builder (← LLVM.constInt (← LLVM.size_tTypeInContext ctx) 0) "inv"
         let _ ← LLVM.buildStore builder inv in_
         -- TODO: have yet to do the while loop!
@@ -1428,7 +1428,7 @@ def emitMainFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder
           let resv ← LLVM.buildCall builder leanMainFn #[world] "resv"
           let _ ← LLVM.buildStore builder resv res
           pure ShouldForwardControlFlow.yes
-    )
+  )
 
   -- `IO _`
   let retTy := env.find? `main |>.get! |>.type |>.getForallBody

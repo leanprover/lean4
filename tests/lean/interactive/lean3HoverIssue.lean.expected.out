@@ -3,7 +3,8 @@
 {"range":
  {"start": {"line": 0, "character": 54}, "end": {"line": 0, "character": 58}},
  "contents":
- {"value": "```lean\nEq.symm.{1} : ∀ {α : Type} {a b : α}, a = b → b = a\n```",
+ {"value":
+  "```lean\nEq.symm.{1} : ∀ {α : Type} {a b : α}, a = b → b = a\n```\n***\nEquality is a symmetric relationship.\nFor more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://lean3HoverIssue.lean"},
  "position": {"line": 0, "character": 52}}
@@ -15,21 +16,24 @@
 {"range":
  {"start": {"line": 4, "character": 45}, "end": {"line": 4, "character": 49}},
  "contents":
- {"value": "```lean\nEq.symm.{1} : ∀ {α : Type} {a b : α}, a = b → b = a\n```",
+ {"value":
+  "```lean\nEq.symm.{1} : ∀ {α : Type} {a b : α}, a = b → b = a\n```\n***\nEquality is a symmetric relationship.\nFor more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://lean3HoverIssue.lean"},
  "position": {"line": 7, "character": 54}}
 {"range":
  {"start": {"line": 7, "character": 53}, "end": {"line": 7, "character": 60}},
  "contents":
- {"value": "```lean\nEq.symm.{1} : ∀ {α : Type} {a b : α}, a = b → b = a\n```",
+ {"value":
+  "```lean\nEq.symm.{1} : ∀ {α : Type} {a b : α}, a = b → b = a\n```\n***\nEquality is a symmetric relationship.\nFor more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://lean3HoverIssue.lean"},
  "position": {"line": 7, "character": 65}}
 {"range":
  {"start": {"line": 7, "character": 62}, "end": {"line": 7, "character": 69}},
  "contents":
- {"value": "```lean\nEq.symm.{1} : ∀ {α : Type} {a b : α}, a = b → b = a\n```",
+ {"value":
+  "```lean\nEq.symm.{1} : ∀ {α : Type} {a b : α}, a = b → b = a\n```\n***\nEquality is a symmetric relationship.\nFor more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://lean3HoverIssue.lean"},
  "position": {"line": 7, "character": 70}}
@@ -41,5 +45,6 @@
 {"range":
  {"start": {"line": 7, "character": 72}, "end": {"line": 7, "character": 76}},
  "contents":
- {"value": "```lean\nEq.symm.{1} : ∀ {α : Type} {a b : α}, a = b → b = a\n```",
+ {"value":
+  "```lean\nEq.symm.{1} : ∀ {α : Type} {a b : α}, a = b → b = a\n```\n***\nEquality is a symmetric relationship.\nFor more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)\n",
   "kind": "markdown"}}

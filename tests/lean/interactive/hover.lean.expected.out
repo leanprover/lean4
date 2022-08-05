@@ -2,12 +2,18 @@
  "position": {"line": 3, "character": 8}}
 {"range":
  {"start": {"line": 3, "character": 8}, "end": {"line": 3, "character": 18}},
- "contents": {"value": "```lean\nTrue.intro : True\n```", "kind": "markdown"}}
+ "contents":
+ {"value":
+  "```lean\nTrue.intro : True\n```\n***\nIntroduction rule for `True`. ",
+  "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 7, "character": 8}}
 {"range":
  {"start": {"line": 7, "character": 8}, "end": {"line": 7, "character": 18}},
- "contents": {"value": "```lean\nTrue.intro : True\n```", "kind": "markdown"}}
+ "contents":
+ {"value":
+  "```lean\nTrue.intro : True\n```\n***\nIntroduction rule for `True`. ",
+  "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 12, "character": 4}}
 {"range":
@@ -27,7 +33,10 @@
  "position": {"line": 21, "character": 13}}
 {"range":
  {"start": {"line": 21, "character": 13}, "end": {"line": 21, "character": 23}},
- "contents": {"value": "```lean\nTrue.intro : True\n```", "kind": "markdown"}}
+ "contents":
+ {"value":
+  "```lean\nTrue.intro : True\n```\n***\nIntroduction rule for `True`. ",
+  "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 31, "character": 2}}
 {"range":
@@ -80,7 +89,9 @@ null
 {"range":
  {"start": {"line": 93, "character": 8}, "end": {"line": 93, "character": 10}},
  "contents":
- {"value": "```lean\nid.{0} : ∀ {α : Prop}, α → α\n```", "kind": "markdown"}}
+ {"value":
+  "```lean\nid.{0} : ∀ {α : Prop}, α → α\n```\n***\nIdentity function ",
+  "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 93, "character": 10}}
 {"range":

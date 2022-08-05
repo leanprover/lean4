@@ -1,7 +1,13 @@
 {"textDocument": {"uri": "file://533.lean"},
  "position": {"line": 2, "character": 10}}
 {"items":
- [{"label": "False", "kind": 22, "detail": "Prop"},
+ [{"label": "False",
+   "kind": 22,
+   "documentation":
+   {"value":
+    "`False` is the empty proposition. Thus, it has no introduction rules.\nIt represents a contradiction. `False` elimination rule, `False.rec`,\nexpresses the fact that anything follows from a contradiction.\nThis rule is sometimes called ex falso (short for ex falso sequitur quodlibet),\nor the principle of explosion.\nFor more information: [Propositional Logic](https://leanprover.github.io/theorem_proving_in_lean4/propositions_and_proofs.html#propositional-logic)\n",
+    "kind": "markdown"},
+   "detail": "Prop"},
   {"label": "Fin",
    "kind": 22,
    "documentation":

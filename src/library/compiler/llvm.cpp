@@ -461,7 +461,9 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_store(
         fprintf(stderr, "...%s ; slot: %s\n", __PRETTY_FUNCTION__, LLVMPrintValueToString(lean_to_Value(slot)));
     }
     LLVMValueRef out = LLVMBuildStore(lean_to_Builder(builder), lean_to_Value(v), lean_to_Value(slot));
-    return lean_io_result_mk_ok(Value_to_lean(out));
+    fprintf(stderr, "...%s ; out: %s\n", __PRETTY_FUNCTION__, LLVMPrintValueToString(out));
+    // return lean_io_result_mk_ok(Value_to_lean(out));
+    return lean_io_result_mk_ok(lean_box(0));
 } 
 
 extern "C" LEAN_EXPORT lean_object *lean_llvm_build_load(

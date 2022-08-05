@@ -117,7 +117,7 @@ opaque buildAlloca (builder: @&Ptr Builder) (ty: @&Ptr LLVMType) (name: @&String
 opaque buildLoad (builder: @&Ptr Builder) (val: @&Ptr Value) (name: @&String): IO (Ptr Value)
 
 @[extern "lean_llvm_build_store"]
-opaque buildStore (builder: @&Ptr Builder) (val: @&Ptr Value) (store_loc_ptr: @&Ptr Value): IO (Ptr Value)
+opaque buildStore (builder: @&Ptr Builder) (val: @&Ptr Value) (store_loc_ptr: @&Ptr Value): IO Unit
 
 @[extern "lean_llvm_build_ret"]
 opaque buildRet (builder: @&Ptr Builder) (val: @&Ptr Value): IO (Ptr Value)
@@ -593,19 +593,23 @@ def emitCtorSetArgs (z : VarId) (ys : Array Arg) : M Unit :=
     emit "lean_ctor_set("; emit z; emit ", "; emit i; emit ", "; emitArg ys[i]!; emitLn ");"
 -/
 def emitCtorSetArgs (builder: LLVM.Ptr LLVM.Builder) (z : VarId) (ys : Array Arg) : M Unit := do
+  IO.eprintln "##-1##"
   ys.size.forM fun i => do
-    -- emit "lean_ctor_set("; emit z; emit ", "; emit i; emit ", "; emitArg ys[i]!; emitLn ");"
+    -- -- emit "lean_ctor_set("; emit z; emit ", "; emit i; emit ", "; emitArg ys[i]!; emitLn ");"
+    IO.println "#######0#######"
     let zslot ← emitLhs z;
     let zv ← LLVM.buildLoad builder zslot "z"
-
+    -- IO.eprintln "##1##"
     let yslot ← emitArg builder ys[i]!
     let yv ← LLVM.buildLoad builder yslot "y"
-
+    -- IO.eprintln "##2##"
     let iv ← LLVM.constIntUnsigned (← getLLVMContext) (UInt64.ofNat i)
-
-    let zv ← callLeanCtorSet builder zv iv yv "z2"
+    IO.eprintln "######3#######"
+    let _ ← callLeanCtorSet builder zv iv yv ""
+    IO.eprintln "######4#######"
     let _ ← LLVM.buildStore builder zv zslot
-
+    IO.eprintln "######45#######"
+    pure ()
 /-
 def emitCtor (z : VarId) (c : CtorInfo) (ys : Array Arg) : M Unit := do
   emitLhs z;
@@ -625,6 +629,7 @@ def emitCtor (builder: LLVM.Ptr LLVM.Builder) (z : VarId) (c : CtorInfo) (ys : A
   else do
     let v ← emitAllocCtor builder c;
     emitCtorSetArgs builder z ys -- TODO:
+    IO.eprintln "######5#######"
     let _ ← LLVM.buildStore builder v slot
 
 
@@ -1062,7 +1067,7 @@ def getOrCreateLeanDecRefFn: M (LLVM.Ptr LLVM.Value) := do
     (← LLVM.voidTypeInContext ctx) "lean_dec_ref"  #[(← LLVM.i8PtrType ctx)]
 
 def callLeanDecRef (builder: LLVM.Ptr LLVM.Builder) (res: LLVM.Ptr LLVM.Value): M Unit := do
-   let _ ← LLVM.buildCall builder (← getOrCreateLeanDecRefFn) #[res] "dec_out"
+   let _ ← LLVM.buildCall builder (← getOrCreateLeanDecRefFn) #[res] ""
 
 def getOrCreateLeanInitTaskManagerFn: M (LLVM.Ptr LLVM.Value) := do
   let ctx ← getLLVMContext
@@ -1084,7 +1089,7 @@ def getOrCreateLeanFinalizeTaskManager: M (LLVM.Ptr LLVM.Value) := do
 
 
 def callLeanFinalizeTaskManager (builder: LLVM.Ptr LLVM.Builder): M Unit := do
-   let _ ← LLVM.buildCall builder (← getOrCreateLeanFinalizeTaskManager) #[] "finalize_out"
+   let _ ← LLVM.buildCall builder (← getOrCreateLeanFinalizeTaskManager) #[] ""
 
 def getOrCreateCallLeanUnboxUint32Fn: M (LLVM.Ptr LLVM.Value) := do
   let ctx ← getLLVMContext
@@ -1215,7 +1220,7 @@ def emitMainFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder
     emitLn "lean_initialize_runtime_module();"
   -/
   let initfn ← if usesLeanAPI then getOrCreateLeanInitialize ctx mod else getOrCreateLeanInitializeRuntimeModule ctx mod
-  let _ ← LLVM.buildCall builder initfn #[] "init_out"
+  let _ ← LLVM.buildCall builder initfn #[] ""
   let modName ← getModName
     /- We disable panic messages because they do not mesh well with extracted closed terms.
         See issue #534. We can remove this workaround after we implement issue #467. -/
@@ -1232,14 +1237,14 @@ def emitMainFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder
   -- | TODO: remove reuse of the same function type across two locations
   let modInitFnTy ← LLVM.functionType (← LLVM.voidPtrType ctx) #[ (← LLVM.i8Type ctx), (← LLVM.voidPtrType ctx)] (isVarArg := false)
   let modInitFn ← LLVM.getOrAddFunction mod (mkModuleInitializationFunctionName modName) modInitFnTy
-  let _ ← LLVM.buildCall builder setPanicMesagesFn #[(← LLVM.False ctx )] "panic_out"
+  let _ ← LLVM.buildCall builder setPanicMesagesFn #[(← LLVM.False ctx )] ""
   let world ← LLVM.buildCall builder (← getOrCreateLeanIOMkWorldFn ctx mod) #[] "world"
 
   let resv ← LLVM.buildCall builder modInitFn #[(← LLVM.constInt8 ctx 1 ), world] (modName.toString ++ "init_out")
   let _ ← LLVM.buildStore builder resv res
 
-  let _ ← LLVM.buildCall builder setPanicMesagesFn #[(← LLVM.True ctx )] "panic_messages_out"
-  let _ ← LLVM.buildCall builder (← getOrCreateLeanIOMarkEndInitializationFn ctx mod) #[] "end_initialization_out"
+  let _ ← LLVM.buildCall builder setPanicMesagesFn #[(← LLVM.True ctx )] ""
+  let _ ← LLVM.buildCall builder (← getOrCreateLeanIOMarkEndInitializationFn ctx mod) #[] ""
 
   let resv ← LLVM.buildLoad builder res "resv"
   let res_is_ok ← callLeanIOResultIsOk builder resv "res_is_ok"
@@ -1317,7 +1322,7 @@ def emitMainFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module) (builder
     )
     (fun builder => do -- else builder
         let resv ← LLVM.buildLoad builder res "resv"
-        callLeanIOResultShowError builder resv "result_show_error_out"
+        callLeanIOResultShowError builder resv ""
         callLeanDecRef builder resv
         let _ ← LLVM.buildRet builder (← LLVM.constInt64 ctx 0))
   -- at the merge

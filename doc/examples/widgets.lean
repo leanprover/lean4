@@ -45,10 +45,11 @@ We can register a widget source with the `@[widget]` attribute, giving it a frie
 in the `name` field. This is bundled together in a `UserWidgetDefinition`.
 
 A *widget instance* is then the identifier of a `UserWidgetDefinition` (so `` `helloWidget ``,
-not `"Hello"`) associated with a range of positions in the Lean source code. In our example,
-the `#widget` command places a widget instance with the entire line as its range. We can think
-of a widget instance as an instruction for the infoview: "when the user places their cursor here,
-please render the following widget".
+not `"Hello"`) associated with a range of positions in the Lean source code. Widget instances
+are stored in the *infotree* in the same manner as other information about the source file
+such as the type of every expression. In our example, the `#widget` command stores a widget instance
+with the entire line as its range. We can think of a widget instance as an instruction for the
+infoview: "when the user places their cursor here, please render the following widget".
 
 Every widget instance also contains a `props : Json` value. This value is passed as an argument
 to the React component. In our first invocation of `#widget`, we set it to `.null`. Try out what
@@ -63,9 +64,10 @@ is the web-based infoview in VSCode.
 
 ## Querying the Lean server
 
-The interesting functionality of user widgets comes from their ability to communicate with the Lean
-server. To see this in action, let's implement a `#check` command as a web input form. This example
-assumes some familiarity with React.
+Besides enabling us to create cool client-side visualizations, user widgets come with the ability
+to communicate with the Lean server. Thanks to this, they have the same metaprogramming capabilities
+as custom elaborators or the tactic framework. To see this in action, let's implement a `#check`
+command as a web input form. This example assumes some familiarity with React.
 
 The first thing we'll need is to create an *RPC method*. This is basically a Lean function callable
 from widget code (possibly remotely over the internet). Our method will take in the `name : Name`
@@ -170,10 +172,11 @@ Finally we can try out the widget.
 While typing JavaScript inline is fine for a simple example, for real developments we want to use
 packages from NPM, a proper build system, and JSX. Thus, most actual widget sources are built with
 Lake and NPM. They consist of multiple files and may import libraries which don't work as ESModules
-by default. On the other hand a widget source is just a single string. Readers familiar with web
-development may already have guessed that to obtain such a string, we need a *bundler*. Two popular
-choices are [`rollup.js`](https://rollupjs.org/guide/en/) and [`esbuild`](https://esbuild.github.io/).
-If we go with `rollup.js`, to make a widget work with the infoview we need to:
+by default. On the other hand a widget source must be a single, self-contained ESModule in the form
+of a string. Readers familiar with web development may already have guessed that to obtain such a
+string, we need a *bundler*. Two popular choices are [`rollup.js`](https://rollupjs.org/guide/en/)
+and [`esbuild`](https://esbuild.github.io/). If we go with `rollup.js`, to make a widget work with
+the infoview we need to:
 - Set [`output.format`](https://rollupjs.org/guide/en/#outputformat) to `'es'`.
 - [Externalize](https://rollupjs.org/guide/en/#external) `react`, `react-dom`, `@leanprover/infoview`.
   These libraries are already loaded by the infoview so they should not be bundled.

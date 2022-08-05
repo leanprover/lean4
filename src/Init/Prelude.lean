@@ -380,9 +380,6 @@ set_option linter.unusedVariables.funArgs false in
 /-- Gadget for marking output parameters in type classes. -/
 @[reducible] def outParam (α : Sort u) : Sort u := α
 
-/-- Auxiliary Declaration used to implement the notation (a : α) -/
-@[reducible] def typedExpr (α : Sort u) (a : α) : α := a
-
 set_option linter.unusedVariables.funArgs false in
 /-- Auxiliary Declaration used to implement the named patterns `x@h:p` -/
 @[reducible] def namedPattern {α : Sort u} (x a : α) (h : Eq x a) : α := a

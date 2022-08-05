@@ -1549,7 +1549,7 @@ def getOrCreateLeanInitializeRuntimeModule (ctx: LLVM.Ptr LLVM.Context) (mod: LL
 
 def getOrCreateLeanSetPanicMessages (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module): M (LLVM.Ptr LLVM.Value) := do
   -- void lean_set_panic_messages();
-  getOrCreateFunctionPrototype ctx mod (← LLVM.i1Type ctx) "lean_set_panic_messages"  #[]
+  getOrCreateFunctionPrototype ctx mod (← LLVM.voidTypeInContext ctx) "lean_set_panic_messages"  #[(← LLVM.i1Type ctx)]
 
 def getOrCreateLeanIOMkWorldFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module): M (LLVM.Ptr LLVM.Value) := do
   -- lean_object* lean_io_mk_world();

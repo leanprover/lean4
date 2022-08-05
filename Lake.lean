@@ -7,3 +7,4 @@ import Lake.Build
 import Lake.Config
 import Lake.DSL
 import Lake.Version
+import Lake.CLI.Actions

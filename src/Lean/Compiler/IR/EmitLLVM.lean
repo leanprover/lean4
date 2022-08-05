@@ -733,9 +733,9 @@ def emitCtor (builder: LLVM.Ptr LLVM.Builder) (z : VarId) (c : CtorInfo) (ys : A
     let _ ← LLVM.buildStore builder v slot
   else do
     let v ← emitAllocCtor builder c;
+    let _ ← LLVM.buildStore builder v slot
     emitCtorSetArgs builder z ys -- TODO:
     IO.eprintln "######5#######"
-    let _ ← LLVM.buildStore builder v slot
 
 
 -- ^^^ emitVDecl.emitCtor
@@ -776,9 +776,14 @@ def emitVDecl (builder: LLVM.Ptr LLVM.Builder) (z : VarId) (t : IRType) (v : Exp
 
 
 /-
+bollu: consider removing declareVar and declareVars, it's quite nonsensical
+to have such a mechanism in a language such as LLVM.
+-/
+/-
 def declareVar (x : VarId) (t : IRType) : M Unit := do
   emit (toCType t); emit " "; emit x; emit "; "
 -/
+
 def declareVar (builder: LLVM.Ptr LLVM.Builder) (x : VarId) (t : IRType) : M Unit := do
   let alloca ← LLVM.buildAlloca builder (← toLLVMType (← getLLVMContext) t) "varx"
   addVartoState x alloca
@@ -794,6 +799,7 @@ partial def declareVars : FnBody → Bool → M Bool
   | FnBody.jdecl _ xs _ b,    d => do declareParams xs; declareVars b (d || xs.size > 0)
   | e,                        d => if e.isTerminal then pure d else declareVars e.body d
 -/
+
 partial def declareVars (builder: LLVM.Ptr LLVM.Builder): FnBody → M Unit
   | e@(FnBody.vdecl x t _ b) => do
     let ctx ← read
@@ -810,7 +816,6 @@ partial def declareVars (builder: LLVM.Ptr LLVM.Builder): FnBody → M Unit
       -- do declareParams xs; declareVars b (d || xs.size > 0)
   | e => do
       if e.isTerminal then pure () else declareVars builder e.body
-
 
 /-
 mutual
@@ -942,7 +947,8 @@ partial def emitJPs : FnBody → M Unit
 /-
 partial def emitFnBody (b : FnBody) : M Unit := do
   emitLn "{"
-  let declared ← declareVars b false
+  let declared ←
+   b false
   if declared then emitLn ""
   emitBlock b
   emitJPs b
@@ -952,7 +958,7 @@ partial def emitFnBody (llvmctx: LLVM.Ptr LLVM.Context) (b : FnBody) (llvmfn: LL
 
   -- let declared ← declareVars b false
   -- if declared then emitLn ""
-  declareVars builder b
+  declareVars builder b -- This looks very dangerous to @bollu, because we are literally creating stack slots with nothing in them.
 
   -- emitLn "{"
   emitBlock builder b   -- emitBlock b

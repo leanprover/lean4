@@ -16,9 +16,6 @@ open Std System Lean
 
 namespace Lake
 
-/-- The file name of a workspace's package manifest (i.e., `manifest.json`). -/
-def manifestFileName := "manifest.json"
-
 /-- A string descriptor of the `System.Platform` OS (`windows`, `macOS`, or `linux`). -/
 def osDescriptor : String :=
   if Platform.isWindows then
@@ -45,6 +42,9 @@ def nameToArchive (name? : Option String) : String :=
 /-! # Defaults -/
 --------------------------------------------------------------------------------
 
+/-- The default name of the package manifest. -/
+def defaultManifestFileName := "manifest.json"
+
 /-- The default setting for a `PackageConfig`'s `buildDir` option. -/
 def defaultBuildDir : FilePath := "build"
 
@@ -69,6 +69,12 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
 
   /-- The `Name` of the package. -/
   name : Name
+
+  /--
+  The path of a package's manifest file
+  Defaults to `packagesDir` / `defaultManifestFileName` (i.e., `manifest.json`).
+  -/
+  manifestFile := packagesDir / defaultManifestFileName
 
   /-- An `Array` of target names to build whenever the package is used. -/
   extraDepTargets : Array Name := #[]
@@ -221,7 +227,7 @@ def packagesDir (self : Package) : FilePath :=
 
 /-- The package's JSON manifest of remote dependencies. -/
 def manifestFile (self : Package) : FilePath :=
-  self.dir / self.config.packagesDir / manifestFileName
+  self.dir / self.config.manifestFile
 
 /-- The package's `dir` joined with its `buildDir` configuration. -/
 @[inline] def buildDir (self : Package) : FilePath :=

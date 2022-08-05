@@ -48,3 +48,12 @@ If a cycle is encountered, log it and then fail.
 -/
 @[inline] def RecBuildM.run (build : RecBuildM α) : BuildM α := do
   (·.1) <$> build.runIn {}
+
+/-- Run the given build function in the Workspace's context. -/
+@[inline] def Workspace.runBuild (ws : Workspace) (build : BuildM α) (oldMode := false) : LogIO α := do
+  let ctx ← mkBuildContext ws oldMode
+  build.run ctx
+
+/-- Run the given build function in the Lake monad's workspace. -/
+@[inline] def runBuild (build : BuildM α) (oldMode := false) : LakeT LogIO α := do
+  (← getWorkspace).runBuild build oldMode

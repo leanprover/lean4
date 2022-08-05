@@ -190,9 +190,8 @@ def printPaths (config : LoadConfig) (imports : List String := []) (oldMode : Bo
       IO.eprintln s!"Error parsing '{configFile}'.  Please restart the lean server after fixing the Lake configuration file."
       exit 1
     let ws ← MainM.runLogIO (loadWorkspace config) config.verbosity
-    let ctx ← mkBuildContext ws oldMode
-    let dynlibs ← buildImportsAndDeps imports
-      |>.run ctx |>.run (MonadLog.eio config.verbosity)
+    let dynlibs ← ws.runBuild (buildImportsAndDeps imports) oldMode
+      |>.run (MonadLog.eio config.verbosity)
     IO.println <| Json.compress <| toJson {
       oleanPath := ws.leanPath
       srcPath := ws.leanSrcPath
@@ -220,11 +219,10 @@ def serve (config : LoadConfig) (args : Array String) : LogIO UInt32 := do
     env := extraEnv
   }).wait
 
-def exe (name : Name) (args  : Array String := #[]) (oldMode : Bool := false) : LakeT LogIO UInt32 := do
+def exe (name : Name) (args  : Array String := #[]) (oldMode := false) : LakeT LogIO UInt32 := do
   let ws ← getWorkspace
   if let some exe := ws.findLeanExe? name then
-    let ctx ← mkBuildContext ws oldMode
-    let exeFile ← (exe.build >>= (·.await)).run ctx
+    let exeFile ← ws.runBuild (exe.build >>= (·.await)) oldMode
     env exeFile.toString args
   else
     error s!"unknown executable `{name}`"
@@ -332,8 +330,7 @@ protected def build : CliM PUnit := do
   let ws ← loadWorkspace config
   let targetSpecs ← takeArgs
   let specs ← parseTargetSpecs ws targetSpecs
-  let ctx ← mkBuildContext ws opts.oldMode
-  buildSpecs specs |>.run ctx |>.run (MonadLog.io config.verbosity)
+  ws.runBuild (buildSpecs specs) opts.oldMode |>.run (MonadLog.io config.verbosity)
 
 protected def resolveDeps : CliM PUnit := do
   processOptions lakeOption

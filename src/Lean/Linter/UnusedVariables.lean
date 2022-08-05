@@ -235,7 +235,8 @@ def unusedVariables : Linter := fun cmdStx => do
       continue
 
     -- publish warning if variable is unused and not ignored
-    publishMessage s!"unused variable `{localDecl.userName}` [linter.unusedVariables]" range
+    publishMessage (.tagged decl_name%
+      m!"unused variable `{localDecl.userName}` [linter.unusedVariables]") range
 
   return ()
 where
@@ -252,4 +253,7 @@ where
 
 builtin_initialize addLinter unusedVariables
 
-end Lean.Linter
+end Linter
+
+def MessageData.isUnusedVariableWarning (msg : MessageData) : Bool :=
+  msg.hasTag (· == ``Linter.unusedVariables)

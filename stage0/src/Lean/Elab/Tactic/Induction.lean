@@ -21,7 +21,7 @@ open Meta
 /-
   Given an `inductionAlt` of the form
   ```
-  syntax inductionAltLHS := "| " (group("@"? ident) <|> "_") (ident <|> "_")*
+  syntax inductionAltLHS := "| " (group("@"? ident) <|> hole) (ident <|> hole)*
   syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ " => " (hole <|> syntheticHole <|> tacticSeq)
   ```
 -/

@@ -98,7 +98,7 @@ inductive TerminationWF where
 
 /-
 ```
-def terminationByElement   := leading_parser ppLine >> (ident <|> "_") >> many (ident <|> "_") >> " => " >> termParser >> optional ";"
+def terminationByElement   := leading_parser ppLine >> (ident <|> hole) >> many (ident <|> hole) >> " => " >> termParser >> optional ";"
 def terminationBy          := leading_parser ppLine >> "termination_by " >> many1chIndent terminationByElement
 ```
 -/

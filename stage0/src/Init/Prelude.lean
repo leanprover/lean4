@@ -7,28 +7,90 @@ prelude
 
 universe u v w
 
+/-- Identity function -/
 @[inline] def id {α : Sort u} (a : α) : α := a
 
+/--
+Function composition is the act of pipelining the result of one function, to the input of another, creating an entirely new function.
+Example:
+```
+#eval Function.comp List.reverse (List.drop 2) [3, 2, 4, 1]
+-- [1, 4]
+```
+You can use the notation `f ∘ g` as shorthand for `Function.comp f g`.
+```
+#eval (List.reverse ∘ List.drop 2) [3, 2, 4, 1]
+-- [1, 4]
+```
+A simpler way of thinking about it, is that `List.reverse ∘ List.drop 2`
+is equivalent to `fun xs => List.reverse (List.drop 2 xs)`,
+the benefit is that the meaning of composition is obvious,
+and the representation is compact.
+-/
 @[inline] def Function.comp {α : Sort u} {β : Sort v} {δ : Sort w} (f : β → δ) (g : α → β) : α → δ :=
   fun x => f (g x)
 
+/--
+The constant function.
+```
+example (b : Bool) : Function.const Bool 10 b = 10 :=
+  rfl
+
+#check Function.const Bool 10
+-- Bool → Nat
+```
+-/
 @[inline] def Function.const {α : Sort u} (β : Sort v) (a : α) : β → α :=
   fun _ => a
 
 set_option checkBinderAnnotations false in
+/--
+`inferInstance` is useful for triggering the type class resolution procedure when
+the expected type is an instance. Example:
+```
+#check (inferInstance : Inhabited Nat) -- Inhabited Nat
+
+def foo : Inhabited (Nat × Nat) :=
+  inferInstance
+
+example : foo.default = (default, default) :=
+  rfl
+```
+-/
 @[reducible] def inferInstance {α : Sort u} [i : α] : α := i
 set_option checkBinderAnnotations false in
+/--
+Similar to `inferInstance`, but the instance is explicitly provided.
+Example:
+```
+#check inferInstanceAs (Inhabited Nat) -- Inhabited Nat
+```
+-/
 @[reducible] def inferInstanceAs (α : Sort u) [i : α] : α := i
 
 set_option bootstrap.inductiveCheckResultingUniverse false in
+/--
+The universe polymorphic `Unit` type.
+For more information about universe levels: [Types as objects](https://leanprover.github.io/theorem_proving_in_lean4/dependent_type_theory.html#types-as-objects)
+-/
 inductive PUnit : Sort u where
   | unit : PUnit
 
-/-- An abbreviation for `PUnit.{0}`, its most common instantiation.
-    This Type should be preferred over `PUnit` where possible to avoid
-    unnecessary universe parameters. -/
+/--
+`Unit` is a type with just one argumentless constructor, called `unit`.
+In other words, it describes only a single value, which consists of said constructor applied
+to no arguments whatsoever.
+The `Unit` type is similar to `void` in languages derived from C.
+
+`Unit` is actually defined as `PUnit.{0}` where `PUnit` is the universe
+polymorphic version. The `Unit` should be preferred over `PUnit` where possible to avoid
+unnecessary universe parameters.
+-/
 abbrev Unit : Type := PUnit
 
+/--
+Shorthand for `PUnit.unit`.
+-/
 @[matchPattern] abbrev Unit.unit : Unit := PUnit.unit
 
 /-- Auxiliary unsafe constant used by the Compiler when erasing proofs from code. -/
@@ -37,49 +99,143 @@ unsafe axiom lcProof {α : Prop} : α
 /-- Auxiliary unsafe constant used by the Compiler to mark unreachable code. -/
 unsafe axiom lcUnreachable {α : Sort u} : α
 
+/--
+`True` is a proposition and has only an introduction rule, `True.intro : True`.
+In other words, `True` is simply true, and has a canonical proof, `True.intro`
+For more information: [Propositional Logic](https://leanprover.github.io/theorem_proving_in_lean4/propositions_and_proofs.html#propositional-logic)
+-/
 inductive True : Prop where
-  | intro : True
+  | /-- Introduction rule for `True`. -/
+    intro : True
 
+/--
+`False` is the empty proposition. Thus, it has no introduction rules.
+It represents a contradiction. `False` elimination rule, `False.rec`,
+expresses the fact that anything follows from a contradiction.
+This rule is sometimes called ex falso (short for ex falso sequitur quodlibet),
+or the principle of explosion.
+For more information: [Propositional Logic](https://leanprover.github.io/theorem_proving_in_lean4/propositions_and_proofs.html#propositional-logic)
+-/
 inductive False : Prop
 
+/--
+The empty type. It has no constructors. The `Empty.rec`
+eliminator expresses the fact that anything follows from the empty type.
+-/
 inductive Empty : Type
 
 set_option bootstrap.inductiveCheckResultingUniverse false in
+/--
+The universe polymorphic empty type.
+See `Empty`.
+-/
 inductive PEmpty : Sort u where
 
+/--
+Negation, `Not p`, is actually defined to be `p → False`, so we obtain `Not p` by deriving a contradiction from `p`.
+You can use `¬p` as a shorthand for `Not p`.
+For more information: [Propositional Logic](https://leanprover.github.io/theorem_proving_in_lean4/propositions_and_proofs.html#propositional-logic)
+-/
 def Not (a : Prop) : Prop := a → False
 
+/--
+A simpler version of `False.rec` where the implicit argument has type `C : Sort u` instead of `C : False → Sort u`.
+They both express the fact that anything follows from a contradiction.
+-/
 @[macroInline] def False.elim {C : Sort u} (h : False) : C :=
   h.rec
 
+/--
+Anything follows from two contradictory hypotheses. Example:
+```
+example (hp : p) (hnp : ¬p) : q := absurd hp hnp
+```
+For more information: [Propositional Logic](https://leanprover.github.io/theorem_proving_in_lean4/propositions_and_proofs.html#propositional-logic)
+-/
 @[macroInline] def absurd {a : Prop} {b : Sort v} (h₁ : a) (h₂ : Not a) : b :=
   (h₂ h₁).rec
 
+/--
+The equality relation. It has one introduction rule, `Eq.refl`.
+We use `a = b` as notation for `Eq a b`.
+A fundamental property of equality is that it is an equivalence relation.
+```
+variable (α : Type) (a b c d : α)
+variable (hab : a = b) (hcb : c = b) (hcd : c = d)
+
+example : a = d :=
+  Eq.trans (Eq.trans hab (Eq.symm hcb)) hcd
+```
+Equality is much more than an equivalence relation, however. It has the important property that every assertion
+respects the equivalence, in the sense that we can substitute equal expressions without changing the truth value.
+That is, given `h1 : a = b` and `h2 : p a`, we can construct a proof for `p b` using substitution: `Eq.subst h1 h2`.
+Example:
+```
+example (α : Type) (a b : α) (p : α → Prop)
+        (h1 : a = b) (h2 : p a) : p b :=
+  Eq.subst h1 h2
+
+example (α : Type) (a b : α) (p : α → Prop)
+    (h1 : a = b) (h2 : p a) : p b :=
+  h1 ▸ h2
+```
+The triangle in the second presentation is a macro built on top of `Eq.subst` and `Eq.symm`, and you can enter it by typing `\t`.
+For more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
+-/
 inductive Eq : α → α → Prop where
   | refl (a : α) : Eq a a
 
 @[simp] abbrev Eq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : motive a) {b : α} (h : Eq a b) : motive b :=
   h.rec m
 
+/--
+Short for `Eq.refl _`
+-/
 @[matchPattern] def rfl {α : Sort u} {a : α} : Eq a a := Eq.refl a
 
 @[simp] theorem id_eq (a : α) : Eq (id a) a := rfl
 
+/--
+Equality is much more than an equivalence relation, however. It has the important property that every assertion
+respects the equivalence, in the sense that we can substitute equal expressions without changing the truth value.
+That is, given `h1 : a = b` and `h2 : p a`, we can construct a proof for `p b` using substitution: `Eq.subst h1 h2`.
+For more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
+-/
 theorem Eq.subst {α : Sort u} {motive : α → Prop} {a b : α} (h₁ : Eq a b) (h₂ : motive a) : motive b :=
   Eq.ndrec h₂ h₁
 
+/--
+Equality is a symmetric relationship.
+For more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
+-/
 theorem Eq.symm {α : Sort u} {a b : α} (h : Eq a b) : Eq b a :=
   h ▸ rfl
 
+/--
+Equality is a transitive relationship.
+For more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
+-/
 theorem Eq.trans {α : Sort u} {a b c : α} (h₁ : Eq a b) (h₂ : Eq b c) : Eq a c :=
   h₂ ▸ h₁
 
+/--
+You can use an equality `α = β` to cast an value of type `α` into `β`.
+For more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
+-/
 @[macroInline] def cast {α β : Sort u} (h : Eq α β) (a : α) : β :=
   h.rec a
 
+/--
+Given a (nondependent) function `f` and a proof `h : a₁ = a₂`, `congrArg f h : f a₁ = f a₂`.
+For more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
+-/
 theorem congrArg {α : Sort u} {β : Sort v} {a₁ a₂ : α} (f : α → β) (h : Eq a₁ a₂) : Eq (f a₁) (f a₂) :=
   h ▸ rfl
 
+/--
+`congr` is short for congruence.
+For more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
+-/
 theorem congr {α : Sort u} {β : Sort v} {f₁ f₂ : α → β} {a₁ a₂ : α} (h₁ : Eq f₁ f₂) (h₂ : Eq a₁ a₂) : Eq (f₁ a₁) (f₂ a₂) :=
   h₁ ▸ h₂ ▸ rfl
 
@@ -142,6 +298,9 @@ In fact, the computation principle is declared as a reduction rule.
 -/
 add_decl_doc Quot.lift
 
+/--
+Heterogeneous equality. That is, the elements may have different types.
+-/
 inductive HEq : {α : Sort u} → α → {β : Sort u} → β → Prop where
   | refl (a : α) : HEq a a
 
@@ -154,19 +313,33 @@ theorem eq_of_heq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=
       h₁.rec (fun _ => rfl)
   this α α a a' h rfl
 
+/--
+Product type (aka pair). You can use `α × β` as notation for `Prod α β`.
+Given `a : α` and `b : β`, `Prod.mk a b : Prod α β`. You can use `(a, b)`
+as notation for `Prod.mk a b`. Moreover, `(a, b, c)` is notation for
+`Prod.mk a (Prod.mk b c)`.
+Given `p : Prod α β`, `p.1 : α` and `p.2 : β`. They are short for `Prod.fst p`
+and `Prod.snd p` respectively. You can also write `p.fst` and `p.snd`.
+For more information: [Constructors with Arguments](https://leanprover.github.io/theorem_proving_in_lean4/inductive_types.html?highlight=Prod#constructors-with-arguments)
+-/
 structure Prod (α : Type u) (β : Type v) where
   fst : α
   snd : β
 
 attribute [unbox] Prod
 
-/-- Similar to `Prod`, but `α` and `β` can be propositions.
-   We use this Type internally to automatically generate the brecOn recursor. -/
+/--
+Similar to `Prod`, but `α` and `β` can be propositions.
+We use this Type internally to automatically generate the `brecOn` recursor.
+-/
 structure PProd (α : Sort u) (β : Sort v) where
   fst : α
   snd : β
 
-/-- Similar to `Prod`, but `α` and `β` are in the same universe. -/
+/--
+Similar to `Prod`, but `α` and `β` are in the same universe.
+We say `MProd` is the universe monomorphic product type.
+-/
 structure MProd (α β : Type u) where
   fst : α
   snd : β
@@ -363,8 +536,10 @@ open BEq (beq)
 instance [DecidableEq α] : BEq α where
   beq a b := decide (Eq a b)
 
--- We use "dependent" if-then-else to be able to communicate the if-then-else condition
--- to the branches
+
+/--
+We use "dependent" if-then-else to be able to communicate the if-then-else condition to the branches
+-/
 @[macroInline] def dite {α : Sort u} (c : Prop) [h : Decidable c] (t : c → α) (e : Not c → α) : α :=
   h.casesOn e t
 
@@ -2042,9 +2217,10 @@ def isMissing : Syntax → Bool
 def isNodeOf (stx : Syntax) (k : SyntaxNodeKind) (n : Nat) : Bool :=
   and (stx.isOfKind k) (beq stx.getNumArgs n)
 
+/-- `stx.isIdent` is `true` iff `stx` is an identifier. -/
 def isIdent : Syntax → Bool
-  | ident _ _ _ _ => true
-  | _             => false
+  | ident .. => true
+  | _        => false
 
 def getId : Syntax → Name
   | ident _ _ val _ => val

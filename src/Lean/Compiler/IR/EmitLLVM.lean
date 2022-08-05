@@ -186,6 +186,9 @@ def constInt8 (ctx: Ptr Context) (value: UInt64) (signExtend: Bool := false): IO
 def constInt64 (ctx: Ptr Context) (value: UInt64) (signExtend: Bool := false): IO (Ptr Value) :=
   constInt' ctx 64 value signExtend
 
+def constIntUnsigned (ctx: Ptr Context) (value: UInt64) (signExtend: Bool := false): IO (Ptr Value) :=
+  constInt' ctx 64 value signExtend
+
 -- infer the type of the called function and then build the call
 -- def buildCallWithInferredType ()
 
@@ -942,6 +945,8 @@ structure Context where
 
 
 structure State where
+  var2val: Std.HashMap VarId (LLVM.Ptr LLVM.Value)
+  -- arg2val: Std.HashMap Arg (LLVM.Ptr LLVM.Value)
 
 -- def State.createInitStateIO (modName: Name): IO State := do
 --   let ctx ← LLVM.createContext
@@ -961,8 +966,70 @@ instance : ToString Error where
    | .unimplemented s => s!"unimplemented '{s}'"
    | .compileError s => s!"compile eror '{s}'"
 
-abbrev M := ReaderT Context (ExceptT Error IO)
 
+abbrev M := StateT State (ReaderT Context (ExceptT Error IO))
+
+
+def addVartoState (x: VarId) (v: LLVM.Ptr LLVM.Value): M Unit :=
+  modify (fun s => { s with var2val := s.var2val.insert x v}) -- add new variable
+
+
+/-
+def getEnv : M Environment := Context.env <$> read
+def getModName : M Name := Context.modName <$> read
+def getDecl (n : Name) : M Decl := do
+  let env ← getEnv
+  match findEnvDecl env n with
+  | some d => pure d
+  | none   => throw s!"unknown declaration '{n}'"
+-/
+def getLLVMContext : M (LLVM.Ptr LLVM.Context) := Context.llvmctx <$> read
+def getLLVMModule : M (LLVM.Ptr LLVM.Module) := Context.llvmmodule <$> read
+def getEnv : M Environment := Context.env <$> read
+def getModName : M Name := Context.modName <$> read
+def getDecl (n : Name) : M Decl := do
+  let env ← getEnv
+  match findEnvDecl env n with
+  | some d => pure d
+  | none   => IO.eprintln "getDecl failed!"; throw (Error.unknownDeclaration n)
+
+
+-- vv emitMainFnIfIneeded vv
+def getOrCreateFunctionPrototype (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module)
+  (retty: LLVM.Ptr LLVM.LLVMType) (name: String) (args: Array (LLVM.Ptr LLVM.LLVMType)): M (LLVM.Ptr LLVM.Value) := do
+  -- void lean_initialize();
+  LLVM.getOrAddFunction mod name $
+     (← LLVM.functionType retty args (isVarArg := false))
+
+
+def getOrCreateLeanBoxFn: M (LLVM.Ptr LLVM.Value) := do
+  let ctx ← getLLVMContext
+  getOrCreateFunctionPrototype ctx (← getLLVMModule)
+    (← LLVM.voidPtrType ctx) "lean_box"  #[(← LLVM.size_tTypeInContext ctx)]
+
+def callLeanBox (builder: LLVM.Ptr LLVM.Builder) (arg: LLVM.Ptr LLVM.Value) (name: String): M (LLVM.Ptr LLVM.Value) := do
+  LLVM.buildCall builder (← getOrCreateLeanBoxFn) #[arg] name
+
+-- lean_alloc_ctor (unsigned tag, unsigned num_obj, unsigned scalar_sz)
+def getOrCreateLeanAllocCtorFn: M (LLVM.Ptr LLVM.Value) := do
+  let ctx ← getLLVMContext
+  let unsigned ← LLVM.size_tTypeInContext ctx
+  getOrCreateFunctionPrototype ctx (← getLLVMModule)
+    (← LLVM.voidPtrType ctx) "lean_alloc_ctor"  #[unsigned, unsigned, unsigned]
+
+def callLeanAllocCtor (builder: LLVM.Ptr LLVM.Builder) (tag num_objs scalar_sz: LLVM.Ptr LLVM.Value) (name: String): M (LLVM.Ptr LLVM.Value) := do
+  LLVM.buildCall builder (← getOrCreateLeanAllocCtorFn) #[tag, num_objs, scalar_sz] name
+
+-- void lean_ctor_set(b_lean_obj_arg o, unsigned i, lean_obj_arg v)
+def getOrCreateLeanCtorSetFn: M (LLVM.Ptr LLVM.Value) := do
+  let ctx ← getLLVMContext
+  let unsigned ← LLVM.size_tTypeInContext ctx
+  let voidptr ← LLVM.voidPtrType ctx
+  getOrCreateFunctionPrototype ctx (← getLLVMModule)
+    (← LLVM.voidTypeInContext ctx) "lean_ctor_set"  #[voidptr, unsigned, voidptr]
+
+def callLeanCtorSet (builder: LLVM.Ptr LLVM.Builder) (o i v: LLVM.Ptr LLVM.Value) (name: String): M (LLVM.Ptr LLVM.Value) := do
+  LLVM.buildCall builder (← getOrCreateLeanCtorSetFn) #[o, i, v] name
 
 /-
 def toCType : IRType → String
@@ -991,25 +1058,6 @@ def toLLVMType (ctx: LLVM.Ptr LLVM.Context): IRType → IO (LLVM.Ptr LLVM.LLVMTy
   | IRType.irrelevant => do LLVM.pointerType (← LLVM.i8Type ctx)
   | IRType.struct _ _ => panic! "not implemented yet"
   | IRType.union _ _  => panic! "not implemented yet"
-
-/-
-def getEnv : M Environment := Context.env <$> read
-def getModName : M Name := Context.modName <$> read
-def getDecl (n : Name) : M Decl := do
-  let env ← getEnv
-  match findEnvDecl env n with
-  | some d => pure d
-  | none   => throw s!"unknown declaration '{n}'"
--/
-def getLLVMContext : M (LLVM.Ptr LLVM.Context) := Context.llvmctx <$> read
-def getLLVMModule : M (LLVM.Ptr LLVM.Module) := Context.llvmmodule <$> read
-def getEnv : M Environment := Context.env <$> read
-def getModName : M Name := Context.modName <$> read
-def getDecl (n : Name) : M Decl := do
-  let env ← getEnv
-  match findEnvDecl env n with
-  | some d => pure d
-  | none   => IO.eprintln "getDecl failed!"; throw (Error.unknownDeclaration n)
 
 
 /-
@@ -1192,7 +1240,7 @@ def emitFileHeader : M Unit := return () -- this is purely C++ ceremony
 -- vvvemitFnsvvv
 
 
-def emitTailCall (llvmctx: LLVM.Ptr LLVM.Context) (v : Expr) : M Unit :=
+def emitTailCall (v : Expr) : M Unit :=
   match v with
   | Expr.fap _ ys => do
     let ctx ← read
@@ -1220,6 +1268,163 @@ def emitTailCall (llvmctx: LLVM.Ptr LLVM.Context) (v : Expr) : M Unit :=
     emitLn "goto _start;"
     -/
   | _ => throw (Error.compileError "bug at emitTailCall")
+
+
+-- vvv emitVDecl.emitCtor
+-- TODO: think if I need to actually load the value from the slot here.
+def emitLhs (x: VarId): M (LLVM.Ptr LLVM.Value) := do
+  let state ← get
+  match state.var2val.find? x with
+  | .some v => return v
+  | .none => throw (Error.compileError s!"unable to find variable {x}")
+
+/-
+def argToCString (x : Arg) : String :=
+  match x with
+  | Arg.var x => toString x
+  | _         => "lean_box(0)"
+
+def emitArg (x : Arg) : M Unit :=
+  emit (argToCString x)
+-/
+def emitArg (builder: LLVM.Ptr LLVM.Builder) (x : Arg) : M (LLVM.Ptr LLVM.Value) := do
+  let ctx ← getLLVMContext
+  match x with
+  | Arg.var x => emitLhs x
+  | _ => do
+    callLeanBox builder (← LLVM.constIntUnsigned ctx 0) ""
+
+/-
+def emitCtorScalarSize (usize : Nat) (ssize : Nat) : M Unit := do
+  if usize == 0 then emit ssize
+  else if ssize == 0 then emit "sizeof(size_t)*"; emit usize
+  else emit "sizeof(size_t)*"; emit usize; emit " + "; emit ssize
+-/
+
+/-
+def emitAllocCtor (c : CtorInfo) : M Unit := do
+  emit "lean_alloc_ctor("; emit c.cidx; emit ", "; emit c.size; emit ", "
+  emitCtorScalarSize c.usize c.ssize; emitLn ");"
+-/
+def emitAllocCtor (builder: LLVM.Ptr LLVM.Builder) (c : CtorInfo) : M (LLVM.Ptr LLVM.Value) := do
+  let ctx ← getLLVMContext
+  -- throw (Error.unimplemented "emitAllocCtor")
+  let scalarSize := 900; -- HACK: do find the correct size.
+  let idx ← LLVM.constIntUnsigned ctx (UInt64.ofNat c.cidx)
+  let n ← LLVM.constIntUnsigned ctx (UInt64.ofNat c.size)
+  let scalarSize ← LLVM.constIntUnsigned ctx (UInt64.ofNat scalarSize)
+  callLeanAllocCtor builder idx n scalarSize ""
+/-
+def emitCtorSetArgs (z : VarId) (ys : Array Arg) : M Unit :=
+  ys.size.forM fun i => do
+    emit "lean_ctor_set("; emit z; emit ", "; emit i; emit ", "; emitArg ys[i]!; emitLn ");"
+-/
+def emitCtorSetArgs (builder: LLVM.Ptr LLVM.Builder) (z : VarId) (ys : Array Arg) : M Unit := do
+  ys.size.forM fun i => do
+    -- emit "lean_ctor_set("; emit z; emit ", "; emit i; emit ", "; emitArg ys[i]!; emitLn ");"
+    let slot ← emitLhs z;
+    let zv ← LLVM.buildLoad builder slot ""
+
+    let yslot ← emitArg builder ys[i]!
+    let yv ← LLVM.buildLoad builder yslot ""
+
+    let iv ← LLVM.constIntUnsigned (← getLLVMContext) (UInt64.ofNat i)
+
+    let zv ← callLeanCtorSet builder zv iv yv ""
+    -- let _ ← LLVM.buildStore builder zv slot
+
+/-
+def emitCtor (z : VarId) (c : CtorInfo) (ys : Array Arg) : M Unit := do
+  emitLhs z;
+  if c.size == 0 && c.usize == 0 && c.ssize == 0 then do
+    emit "lean_box("; emit c.cidx; emitLn ");"
+  else do
+    emitAllocCtor c; emitCtorSetArgs z ys
+-/
+def emitCtor (builder: LLVM.Ptr LLVM.Builder) (z : VarId) (c : CtorInfo) (ys : Array Arg) : M Unit := do
+  let slot ← emitLhs z;
+  let ctx ← getLLVMContext
+  if c.size == 0 && c.usize == 0 && c.ssize == 0 then do
+    let v ← callLeanBox builder (← LLVM.constInt (← LLVM.size_tTypeInContext ctx) 0) ""
+    let _ ← LLVM.buildStore builder v slot
+  else do
+    let v ← emitAllocCtor builder c;
+    addVartoState z v
+    emitCtorSetArgs builder z ys -- TODO:
+    let _ ← LLVM.buildStore builder v slot
+
+
+-- ^^^ emitVDecl.emitCtor
+/-
+def emitVDecl (z : VarId) (t : IRType) (v : Expr) : M Unit :=
+  match v with
+  | Expr.ctor c ys      => emitCtor z c ys
+  | Expr.reset n x      => emitReset z n x
+  | Expr.reuse x c u ys => emitReuse z x c u ys
+  | Expr.proj i x       => emitProj z i x
+  | Expr.uproj i x      => emitUProj z i x
+  | Expr.sproj n o x    => emitSProj z t n o x
+  | Expr.fap c ys       => emitFullApp z c ys
+  | Expr.pap c ys       => emitPartialApp z c ys
+  | Expr.ap x ys        => emitApp z x ys
+  | Expr.box t x        => emitBox z x t
+  | Expr.unbox x        => emitUnbox z t x
+  | Expr.isShared x     => emitIsShared z x
+  | Expr.isTaggedPtr x  => emitIsTaggedPtr z x
+  | Expr.lit v          => emitLit z t v
+-/
+def emitVDecl (builder: LLVM.Ptr LLVM.Builder) (z : VarId) (t : IRType) (v : Expr) : M Unit :=
+  match v with
+  | Expr.ctor c ys      => emitCtor builder z c ys -- throw (Error.unimplemented "emitCtor z c ys")
+  | Expr.reset n x      => throw (Error.unimplemented "emitReset z n x")
+  | Expr.reuse x c u ys => throw (Error.unimplemented "emitReuse z x c u ys")
+  | Expr.proj i x       => throw (Error.unimplemented "emitProj z i x")
+  | Expr.uproj i x      => throw (Error.unimplemented "emitUProj z i x")
+  | Expr.sproj n o x    => throw (Error.unimplemented "emitSProj z t n o x")
+  | Expr.fap c ys       => throw (Error.unimplemented "emitFullApp z c ys")
+  | Expr.pap c ys       => throw (Error.unimplemented "emitPartialApp z c ys")
+  | Expr.ap x ys        => throw (Error.unimplemented "emitApp z x ys")
+  | Expr.box t x        => throw (Error.unimplemented "emitBox z x t")
+  | Expr.unbox x        => throw (Error.unimplemented "emitUnbox z t x")
+  | Expr.isShared x     => throw (Error.unimplemented "emitIsShared z x")
+  | Expr.isTaggedPtr x  => throw (Error.unimplemented "emitIsTaggedPtr z x")
+  | Expr.lit v          => throw (Error.unimplemented "emitLit z t v")
+
+
+/-
+def declareVar (x : VarId) (t : IRType) : M Unit := do
+  emit (toCType t); emit " "; emit x; emit "; "
+-/
+def declareVar (builder: LLVM.Ptr LLVM.Builder) (x : VarId) (t : IRType) : M Unit := do
+  let alloca ← LLVM.buildAlloca builder (← toLLVMType (← getLLVMContext) t) ""
+  addVartoState x alloca
+/-
+partial def declareVars : FnBody → Bool → M Bool
+  | e@(FnBody.vdecl x t _ b), d => do
+    let ctx ← read
+    if isTailCallTo ctx.mainFn e then
+      pure d
+    else
+      declareVar x t; declareVars b true
+  | FnBody.jdecl _ xs _ b,    d => do declareParams xs; declareVars b (d || xs.size > 0)
+  | e,                        d => if e.isTerminal then pure d else declareVars e.body d
+-/
+partial def declareVars (builder: LLVM.Ptr LLVM.Builder): FnBody → M Unit
+  | e@(FnBody.vdecl x t _ b) => do
+    let ctx ← read
+    /-
+    if isTailCallTo ctx.mainFn e then
+      pure d
+    else
+      declareVar x t; declareVars b true
+    -/
+    declareVar builder x t; declareVars builder b
+
+  | FnBody.jdecl _ xs _ b => do
+      throw (Error.unimplemented "declareVars.jdecl")
+      -- do declareParams xs; declareVars b (d || xs.size > 0)
+  | e => do
+      if e.isTerminal then pure () else declareVars builder e.body
 
 
 /-
@@ -1277,19 +1482,18 @@ partial def emitBlock (b : FnBody) : M Unit := do
   | FnBody.unreachable         => emitLn "lean_internal_panic_unreachable();"
 -/
 
-partial def emitBlock (b : FnBody) (bb: LLVM.Ptr LLVM.BasicBlock) : M Unit := do
+partial def emitBlock (builder: LLVM.Ptr LLVM.Builder) (b : FnBody) : M Unit := do
   match b with
   | FnBody.jdecl _ _  _ b      =>  throw (Error.unimplemented "join points are unimplemented")
        --emitBlock b
-  | d@(FnBody.vdecl x t v b)   =>  throw (Error.unimplemented "vdecl")
-    /-
+  | d@(FnBody.vdecl x t v b)   => do
+    -- throw (Error.unimplemented "vdecl")
     let ctx ← read
     if isTailCallTo ctx.mainFn d then
       emitTailCall v
     else
-      emitVDecl x t v
-      emitBlock b
-    -/
+      emitVDecl builder x t v
+      emitBlock builder b
   | FnBody.inc x n c p b       => throw (Error.unimplemented "inc")
   /-
     unless p do emitInc x n c
@@ -1324,10 +1528,12 @@ partial def emitBlock (b : FnBody) (bb: LLVM.Ptr LLVM.BasicBlock) : M Unit := do
   /-
   emitBlock b
   -/
-  | FnBody.ret x               => throw (Error.unimplemented "ret")
-  /-
-  emit "return "; emitArg x; emitLn ";"
-  -/
+  | FnBody.ret x               => do
+      /-
+      emit "return "; emitArg x; emitLn ";"
+      -/
+      let x ← emitArg builder x
+      let _ ← LLVM.buildRet builder x
   | FnBody.case _ x xType alts => throw (Error.unimplemented "case")
   /- emitCase x xType alts
   -/
@@ -1346,6 +1552,7 @@ partial def emitJPs : FnBody → M Unit
   | e                     => do unless e.isTerminal do emitJPs e.body
 -/
 
+
 /-
 partial def emitFnBody (b : FnBody) : M Unit := do
   emitLn "{"
@@ -1355,14 +1562,17 @@ partial def emitFnBody (b : FnBody) : M Unit := do
   emitJPs b
   emitLn "}"
 -/
-
 partial def emitFnBody (llvmctx: LLVM.Ptr LLVM.Context) (b : FnBody) (llvmfn: LLVM.Ptr LLVM.Value) (builder: LLVM.Ptr LLVM.Builder): M Unit := do
+  set { var2val := default : EmitLLVM.State } -- flush varuable map
   let bb ← LLVM.appendBasicBlockInContext llvmctx llvmfn "entry"
+  LLVM.positionBuilderAtEnd builder bb
+
   -- let declared ← declareVars b false
   -- if declared then emitLn ""
+  declareVars builder b
 
   -- emitLn "{"
-  -- TODO: emitBlock b bb   -- emitBlock b
+  emitBlock builder b   -- emitBlock b
   -- LLVM.positionBuilderAtEnd builder bb
 
   -- emitJPs b
@@ -1532,12 +1742,6 @@ def emitInitFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module): M Unit 
 
 
 
--- vv emitMainFnIfIneeded vv
-def getOrCreateFunctionPrototype (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module)
-  (retty: LLVM.Ptr LLVM.LLVMType) (name: String) (args: Array (LLVM.Ptr LLVM.LLVMType)): M (LLVM.Ptr LLVM.Value) := do
-  -- void lean_initialize();
-  LLVM.getOrAddFunction mod name $
-     (← LLVM.functionType retty args (isVarArg := false))
 
 def getOrCreateLeanInitialize (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module): M (LLVM.Ptr LLVM.Value) := do
   -- void lean_initialize();
@@ -1565,14 +1769,6 @@ def getOrCreateLeanIOResultIsOkFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LL
 
 def callLeanIOResultIsOk (builder: LLVM.Ptr LLVM.Builder) (arg: LLVM.Ptr LLVM.Value) (name: String): M (LLVM.Ptr LLVM.Value) := do
   LLVM.buildCall builder (← getOrCreateLeanIOResultIsOkFn (← getLLVMContext) (← getLLVMModule)) #[arg] name
-
-def getOrCreateLeanBoxFn: M (LLVM.Ptr LLVM.Value) := do
-  let ctx ← getLLVMContext
-  getOrCreateFunctionPrototype ctx (← getLLVMModule)
-    (← LLVM.voidPtrType ctx) "lean_box"  #[(← LLVM.size_tTypeInContext ctx)]
-
-def callLeanBox (builder: LLVM.Ptr LLVM.Builder) (arg: LLVM.Ptr LLVM.Value) (name: String): M (LLVM.Ptr LLVM.Value) := do
-  LLVM.buildCall builder (← getOrCreateLeanBoxFn) #[arg] name
 
 
 def getOrCreateLeanDecRefFn: M (LLVM.Ptr LLVM.Value) := do
@@ -1901,7 +2097,8 @@ def emitLLVM (env : Environment) (modName : Name) (filepath: String): IO Unit :=
   let llvmctx ← LLVM.createContext
   let module ← LLVM.createModule llvmctx modName.toString -- TODO: pass module name
   let ctx := {env := env, modName := modName, llvmctx := llvmctx, llvmmodule := module}
-  let out? ← (EmitLLVM.main ctx).run
+  let initState := { var2val := default : EmitLLVM.State}
+  let out? ← (EmitLLVM.main initState ctx).run
   match out? with
   | .ok _ =>  LLVM.writeBitcodeToFile ctx.llvmmodule filepath
   | .error err => IO.eprintln ("ERROR: " ++ toString err); return () -- throw (IO.userError <| toString err)

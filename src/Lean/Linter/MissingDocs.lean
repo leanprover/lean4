@@ -99,7 +99,7 @@ builtin_initialize
   mkAttr false `missingDocsHandler
 
 def lint (stx : Syntax) (msg : String) : CommandElabM Unit :=
-  logWarningAt stx s!"missing doc string for {msg} [linter.missingDocs]"
+  logLint linter.missingDocs stx m!"missing doc string for {msg}"
 
 def lintNamed (stx : Syntax) (msg : String) : CommandElabM Unit :=
   lint stx s!"{msg} {stx.getId}"

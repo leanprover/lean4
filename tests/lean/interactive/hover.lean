@@ -78,7 +78,11 @@ macro_rules
 mycmd 1
 --^ textDocument/hover
 
-syntax "mycmd'" term : command
+syntax "mycmd'" ppSpace sepBy1(term, " + ") : command
+              --^ textDocument/hover
+                      --^ textDocument/hover
+                             --^ textDocument/hover
+
 /-- My ultimate command -/
 elab_rules : command
   | `(mycmd' $e) => do Lean.Elab.Command.elabCommand (← `(/-- hi -/ @[inline] def hi := $e))

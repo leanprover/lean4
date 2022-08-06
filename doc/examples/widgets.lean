@@ -8,7 +8,7 @@ Proving and programming are inherently interactive tasks. Lots of mathematical o
 structures are visual in nature. *User widgets* let you associate custom interactive UIs with
 sections of a Lean document. User widgets are rendered in the Lean infoview.
 
-![Rubik's cube](images/widgets_rubiks.png)
+![Rubik's cube](../images/widgets_rubiks.png)
 
 ## Trying it out
 
@@ -165,7 +165,7 @@ Finally we can try out the widget.
 #widget checkWidget .null
 
 /-!
-![`#check` as a service](images/widgets_caas.png)
+![`#check` as a service](../images/widgets_caas.png)
 
 ## Building widget sources
 

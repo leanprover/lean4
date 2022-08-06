@@ -16,7 +16,7 @@ def getLinterValue (opt : Lean.Option Bool) (o : Options) : Bool := o.get opt.na
 open Lean.Elab Lean.Elab.Command
 
 def publishMessage
-  (content : String) (range : String.Range) (severity : MessageSeverity := .warning) : CommandElabM Unit :=
+  (content : MessageData) (range : String.Range) (severity : MessageSeverity := .warning) : CommandElabM Unit :=
 do
   let ctx := (← read)
   let messages := (← get).messages |>.add (mkMessageCore ctx.fileName ctx.fileMap content severity range.start range.stop)

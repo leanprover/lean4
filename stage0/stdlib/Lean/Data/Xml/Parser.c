@@ -16292,30 +16292,30 @@ return x_41;
 }
 else
 {
-lean_object* x_42; uint32_t x_43; lean_object* x_44; uint32_t x_63; uint8_t x_64; 
+lean_object* x_42; uint32_t x_43; lean_object* x_44; uint32_t x_66; uint8_t x_67; 
 lean_inc(x_1);
 x_42 = l_String_Iterator_next(x_1);
 x_43 = l_String_Iterator_curr(x_1);
-x_63 = 48;
-x_64 = lean_uint32_dec_le(x_63, x_43);
-if (x_64 == 0)
-{
-lean_object* x_65; 
-x_65 = lean_box(0);
-x_44 = x_65;
-goto block_62;
-}
-else
-{
-uint32_t x_66; uint8_t x_67; 
-x_66 = 57;
-x_67 = lean_uint32_dec_le(x_43, x_66);
+x_66 = 48;
+x_67 = lean_uint32_dec_le(x_66, x_43);
 if (x_67 == 0)
 {
 lean_object* x_68; 
 x_68 = lean_box(0);
 x_44 = x_68;
-goto block_62;
+goto block_65;
+}
+else
+{
+uint32_t x_69; uint8_t x_70; 
+x_69 = 57;
+x_70 = lean_uint32_dec_le(x_43, x_69);
+if (x_70 == 0)
+{
+lean_object* x_71; 
+x_71 = lean_box(0);
+x_44 = x_71;
+goto block_65;
 }
 else
 {
@@ -16325,7 +16325,7 @@ x_3 = x_43;
 goto block_38;
 }
 }
-block_62:
+block_65:
 {
 uint32_t x_45; uint8_t x_46; 
 lean_dec(x_44);
@@ -16348,17 +16348,18 @@ return x_50;
 }
 else
 {
-uint8_t x_51; 
-x_51 = lean_uint32_dec_le(x_43, x_47);
-if (x_51 == 0)
+uint32_t x_51; uint8_t x_52; 
+x_51 = 70;
+x_52 = lean_uint32_dec_le(x_43, x_51);
+if (x_52 == 0)
 {
-lean_object* x_52; lean_object* x_53; 
+lean_object* x_53; lean_object* x_54; 
 lean_dec(x_42);
-x_52 = l_Lean_Xml_Parser_CharRef___lambda__2___closed__1;
-x_53 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_53, 0, x_1);
-lean_ctor_set(x_53, 1, x_52);
-return x_53;
+x_53 = l_Lean_Xml_Parser_CharRef___lambda__2___closed__1;
+x_54 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_54, 0, x_1);
+lean_ctor_set(x_54, 1, x_53);
+return x_54;
 }
 else
 {
@@ -16371,36 +16372,38 @@ goto block_38;
 }
 else
 {
-uint8_t x_54; 
-x_54 = lean_uint32_dec_le(x_43, x_45);
-if (x_54 == 0)
-{
 uint32_t x_55; uint8_t x_56; 
-x_55 = 65;
-x_56 = lean_uint32_dec_le(x_55, x_43);
+x_55 = 102;
+x_56 = lean_uint32_dec_le(x_43, x_55);
 if (x_56 == 0)
 {
-lean_object* x_57; lean_object* x_58; 
+uint32_t x_57; uint8_t x_58; 
+x_57 = 65;
+x_58 = lean_uint32_dec_le(x_57, x_43);
+if (x_58 == 0)
+{
+lean_object* x_59; lean_object* x_60; 
 lean_dec(x_42);
-x_57 = l_Lean_Xml_Parser_CharRef___lambda__2___closed__1;
-x_58 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_58, 0, x_1);
-lean_ctor_set(x_58, 1, x_57);
-return x_58;
+x_59 = l_Lean_Xml_Parser_CharRef___lambda__2___closed__1;
+x_60 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_60, 0, x_1);
+lean_ctor_set(x_60, 1, x_59);
+return x_60;
 }
 else
 {
-uint8_t x_59; 
-x_59 = lean_uint32_dec_le(x_43, x_55);
-if (x_59 == 0)
+uint32_t x_61; uint8_t x_62; 
+x_61 = 70;
+x_62 = lean_uint32_dec_le(x_43, x_61);
+if (x_62 == 0)
 {
-lean_object* x_60; lean_object* x_61; 
+lean_object* x_63; lean_object* x_64; 
 lean_dec(x_42);
-x_60 = l_Lean_Xml_Parser_CharRef___lambda__2___closed__1;
-x_61 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_61, 0, x_1);
-lean_ctor_set(x_61, 1, x_60);
-return x_61;
+x_63 = l_Lean_Xml_Parser_CharRef___lambda__2___closed__1;
+x_64 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_64, 0, x_1);
+lean_ctor_set(x_64, 1, x_63);
+return x_64;
 }
 else
 {

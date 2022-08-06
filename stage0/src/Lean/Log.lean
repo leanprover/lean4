@@ -98,7 +98,7 @@ def logInfo (msgData : MessageData) : m Unit :=
 def logTrace (cls : Name) (msgData : MessageData) : m Unit := do
   logInfo (MessageData.tagged cls m!"[{cls}] {msgData}")
 
-/-- Log the error message "unknow declaration" -/
+/-- Log the error message "unknown declaration" -/
 def logUnknownDecl (declName : Name) : m Unit :=
   logError m!"unknown declaration '{declName}'"
 

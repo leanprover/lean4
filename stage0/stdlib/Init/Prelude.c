@@ -356,7 +356,6 @@ LEAN_EXPORT lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_UInt32_decLt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_UInt32_toNat___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_reservedMacroScope;
-LEAN_EXPORT lean_object* l_typedExpr___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Macro_instMonadRefMacroM;
 LEAN_EXPORT lean_object* l_instLEFin(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Macro_throwError(lean_object*);
@@ -452,7 +451,6 @@ LEAN_EXPORT lean_object* l_instMonadReader___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_instMonadReaderOfReaderT(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedSyntax;
 LEAN_EXPORT lean_object* l_Lean_firstFrontendMacroScope;
-LEAN_EXPORT lean_object* l_typedExpr(lean_object*);
 LEAN_EXPORT lean_object* l_instHDiv(lean_object*);
 LEAN_EXPORT lean_object* l_Substring_bsize(lean_object*);
 LEAN_EXPORT lean_object* l_List_set___rarg(lean_object*, lean_object*, lean_object*);
@@ -515,7 +513,6 @@ LEAN_EXPORT lean_object* l_instLEUInt32;
 LEAN_EXPORT lean_object* l_instDecidableEqChar___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instTransEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_UInt16_decEq___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_typedExpr___rarg(lean_object*);
 static lean_object* l_Lean_nullKind___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Syntax_matchesIdent___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_MonadExcept_instOrElse(lean_object*, lean_object*);
@@ -1077,30 +1074,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_cast___rarg(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_typedExpr___rarg(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_typedExpr(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_typedExpr___rarg___boxed), 1, 0);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_typedExpr___rarg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_typedExpr___rarg(x_1);
 lean_dec(x_1);
 return x_2;
 }

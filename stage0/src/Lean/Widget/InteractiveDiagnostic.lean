@@ -4,16 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
-import Lean.Data.Lsp
-import Lean.Message
-import Lean.Elab.InfoTree
-
+import Lean.Linter.UnusedVariables
 import Lean.Server.Utils
-import Lean.Server.Rpc.Basic
-
-import Lean.Widget.Basic
-import Lean.Widget.TaggedText
-import Lean.Widget.InteractiveCode
 import Lean.Widget.InteractiveGoal
 
 namespace Lean.Widget
@@ -160,21 +152,19 @@ def msgToInteractiveDiagnostic (text : FileMap) (m : Message) (hasWidgets : Bool
     | none        => low
   let range : Range := ⟨low, high⟩
   let fullRange : Range := ⟨low, fullHigh⟩
-  let severity := match m.severity with
-    | MessageSeverity.information => DiagnosticSeverity.information
-    | MessageSeverity.warning     => DiagnosticSeverity.warning
-    | MessageSeverity.error       => DiagnosticSeverity.error
-  let source := "Lean 4"
+  let severity? := some <| match m.severity with
+    | .information => .information
+    | .warning     => .warning
+    | .error       => .error
+  let source? := some "Lean 4"
+  let tags? :=
+    if m.data.isDeprecationWarning then some #[.deprecated]
+    else if m.data.isUnusedVariableWarning then some #[.unnecessary]
+    else none
   let message ← try
       msgToInteractive m.data hasWidgets
     catch ex =>
       pure <| TaggedText.text s!"[error when printing message: {ex.toString}]"
-  pure {
-    range := range
-    fullRange := fullRange
-    severity? := severity
-    source? := source
-    message := message
-  }
+  pure { range, fullRange, severity?, source?, message, tags? }
 
 end Lean.Widget

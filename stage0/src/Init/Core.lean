@@ -627,6 +627,12 @@ end
 instance [Inhabited α] [Inhabited β] : Inhabited (α × β) where
   default := (default, default)
 
+instance [Inhabited α] [Inhabited β] : Inhabited (MProd α β) where
+  default := ⟨default, default⟩
+
+instance [Inhabited α] [Inhabited β] : Inhabited (PProd α β) where
+  default := ⟨default, default⟩
+
 instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
   fun (a, b) (a', b') =>
     match decEq a a' with

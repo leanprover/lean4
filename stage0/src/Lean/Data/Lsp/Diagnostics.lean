@@ -90,7 +90,7 @@ abbrev Diagnostic := DiagnosticWith String
 structure PublishDiagnosticsParams where
   uri : DocumentUri
   version? : Option Int := none
-  diagnostics: Array Diagnostic
+  diagnostics : Array Diagnostic
   deriving Inhabited, BEq, ToJson, FromJson
 
 end Lsp

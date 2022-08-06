@@ -72,6 +72,20 @@ register_builtin_option tactic.hygienic : Bool := {
   descr    := "make sure tactics are hygienic"
 }
 
+private def mkFreshBinderNameForTacticCore (lctx : LocalContext) (binderName : Name) (hygienic := true) : MetaM Name := do
+  if hygienic then
+    mkFreshUserName binderName
+  else
+    return lctx.getUnusedName binderName
+
+/--
+Similar to `mkFreshUserName`, but takes into account `tactic.hygienic` option value.
+If `tactic.hygienic = true`, then the current macro scopes are applied to `binderName`.
+If not, then an unused (accessible) name (based on `binderName`) in the local context is used.
+-/
+def mkFreshBinderNameForTactic (binderName : Name) : MetaM Name := do
+  mkFreshBinderNameForTacticCore (← getLCtx) binderName (tactic.hygienic.get (← getOptions))
+
 private def mkAuxNameImp (preserveBinderNames : Bool) (hygienic : Bool) (useNamesForExplicitOnly : Bool)
     (lctx : LocalContext) (binderName : Name) (isExplicit : Bool) : List Name → MetaM (Name × List Name)
   | []         => mkAuxNameWithoutGivenName []
@@ -86,11 +100,9 @@ where
   mkAuxNameWithoutGivenName (rest : List Name) : MetaM (Name × List Name) := do
     if preserveBinderNames then
       return (binderName, rest)
-    else if hygienic then
-      let binderName ← mkFreshUserName binderName
-      return (binderName, rest)
     else
-      return (lctx.getUnusedName binderName, rest)
+      let binderName ← mkFreshBinderNameForTacticCore lctx binderName hygienic
+      return (binderName, rest)
 
 def introNCore (mvarId : MVarId) (n : Nat) (givenNames : List Name) (useNamesForExplicitOnly : Bool) (preserveBinderNames : Bool)
     : MetaM (Array FVarId × MVarId) := do

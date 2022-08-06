@@ -124,8 +124,8 @@ def digit : Parsec Char := attempt do
 def hexDigit : Parsec Char := attempt do
   let c ← anyChar
   if ('0' ≤ c ∧ c ≤ '9')
-   ∨ ('a' ≤ c ∧ c ≤ 'a')
-   ∨ ('A' ≤ c ∧ c ≤ 'A') then return c else fail s!"hex digit expected"
+   ∨ ('a' ≤ c ∧ c ≤ 'f')
+   ∨ ('A' ≤ c ∧ c ≤ 'F') then return c else fail s!"hex digit expected"
 
 @[inline]
 def asciiLetter : Parsec Char := attempt do

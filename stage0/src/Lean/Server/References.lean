@@ -4,14 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Joscha Mennicken
 -/
-
-import Init.System.IO
-import Lean.Data.Json
-import Lean.Data.Lsp
-
 import Lean.Server.Utils
-import Lean.Server.InfoUtils
-import Lean.Server.Snapshots
 
 /-! # Representing collected and deduplicated definitions and usages -/
 

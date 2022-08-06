@@ -137,13 +137,24 @@ def extLetBodyCongr? (mvarId : MVarId) (lhs rhs : Expr) : MetaM (Option MVarId) 
 
 private def extCore (mvarId : MVarId) (userName? : Option Name) : MetaM MVarId :=
    mvarId.withContext do
-     let userNames := if let some userName := userName? then [userName] else []
      let (lhs, rhs) ← getLhsRhsCore mvarId
-     let lhs ← instantiateMVars lhs
-     if lhs.isForall then
-       let [mvarId, _] ← mvarId.apply (← mkConstWithFreshMVarLevels ``forall_congr) | throwError "'apply forall_congr' unexpected result"
-       let (_, mvarId) ← mvarId.introN 1 userNames
-       markAsConvGoal mvarId
+     let lhs := (← instantiateMVars lhs).cleanupAnnotations
+     if let .forallE n d b bi := lhs then
+       let u ← getLevel d
+       let p : Expr := .lam n d b bi
+       let userName ← if let some userName := userName? then pure userName else mkFreshBinderNameForTactic n
+       let (q, h, mvarNew) ← withLocalDecl userName bi d fun a => do
+         let pa := b.instantiate1 a
+         let (qa, mvarNew) ← mkConvGoalFor pa
+         let q ← mkLambdaFVars #[a] qa
+         let h ← mkLambdaFVars #[a] mvarNew
+         let rhs' ← mkForallFVars #[a] qa
+         unless (← isDefEqGuarded rhs rhs') do
+           throwError "invalid 'ext' conv tactic, failed to resolve{indentExpr rhs}\n=?={indentExpr rhs'}"
+         return (q, h, mvarNew)
+       let proof := mkApp4 (mkConst ``forall_congr [u]) d p q h
+       mvarId.assign proof
+       return mvarNew.mvarId!
      else if let some mvarId ← extLetBodyCongr? mvarId lhs rhs then
        return mvarId
      else
@@ -151,6 +162,7 @@ private def extCore (mvarId : MVarId) (userName? : Option Name) : MetaM MVarId :
        unless lhsType.isForall do
          throwError "invalid 'ext' conv tactic, function or arrow expected{indentD m!"{lhs} : {lhsType}"}"
        let [mvarId] ← mvarId.apply (← mkConstWithFreshMVarLevels ``funext) | throwError "'apply funext' unexpected result"
+       let userNames := if let some userName := userName? then [userName] else []
        let (_, mvarId) ← mvarId.introN 1 userNames
        markAsConvGoal mvarId
 

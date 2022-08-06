@@ -363,6 +363,9 @@ partial def isTypeQuick : Expr → MetaM LBool
   | .mvar mvarId      => do let mvarType  ← inferMVarType mvarId;  isArrowType mvarType 0
   | .app f ..         => isTypeQuickApp f 1
 
+/--
+Return `true` iff the type of `e` is a `Sort _`.
+-/
 def isType (e : Expr) : MetaM Bool := do
   match (← isTypeQuick e) with
   | .true  => return true
@@ -374,6 +377,9 @@ def isType (e : Expr) : MetaM Bool := do
     | .sort .. => return true
     | _        => return false
 
+/--
+Return true iff `type` is `Sort _` or `As → Sort _`.
+-/
 partial def isTypeFormerType (type : Expr) : MetaM Bool := do
   let type ← whnfD type
   match type with
@@ -383,8 +389,9 @@ partial def isTypeFormerType (type : Expr) : MetaM Bool := do
   | _ => return false
 
 /--
-  Return true iff `e : Sort _` or `e : (forall As, Sort _)`.
-  Remark: it subsumes `isType` -/
+Return true iff `e : Sort _` or `e : (forall As, Sort _)`.
+Remark: it subsumes `isType`
+-/
 def isTypeFormer (e : Expr) : MetaM Bool := do
   isTypeFormerType (← inferType e)
 

@@ -27,7 +27,7 @@ macro (name := configElab) doc?:(docComment)? "declare_config_elab" elabName:ide
   )
 
 open Linter.MissingDocs in
-@[missingDocsHandler Elab.Tactic.configElab]
+@[builtinMissingDocsHandler Elab.Tactic.configElab]
 def checkConfigElab : SimpleHandler := mkSimpleHandler "config elab"
 
 end Lean.Elab.Tactic

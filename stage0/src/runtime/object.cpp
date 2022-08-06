@@ -1112,7 +1112,7 @@ extern "C" LEAN_EXPORT object * lean_nat_big_mod(object * a1, object * a2) {
             lean_inc(a1);
             return a1;
         } else {
-            return lean_box((mpz_value(a1) % mpz::of_size_t(n2)).get_unsigned_int());
+            return mpz_to_nat(mpz_value(a1) % mpz::of_size_t(n2));
         }
     } else {
         lean_assert(mpz_value(a2) != 0);

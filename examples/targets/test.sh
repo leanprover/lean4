@@ -17,6 +17,8 @@ fi
 ./clean.sh
 
 $LAKE build targets/bark | grep -m1 Bark!
+$LAKE build Foo.Test:print_src | grep -m1 Test.lean
+$LAKE build foo:print_name | grep -m1 foo
 
 $LAKE build +Foo.Test
 

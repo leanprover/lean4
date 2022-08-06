@@ -1,6 +1,8 @@
 Unreleased
 ---------
 
+* Update Lake to v4.0.0. See the [v4.0.0 release notes](https://github.com/leanprover/lake/releases/tag/v4.0.0) for detailed changes.
+
 * Mutual declarations in different namespaces are now supported. Example:
   ```lean
   mutual
@@ -250,8 +252,6 @@ Unreleased
     | n+1 => (n+1) * Nat.fact n
   end Nat
   ```
-
-* Update Lake to v3.2.1. See the [v3.2.1 release notes](https://github.com/leanprover/lake/releases/tag/v3.2.1) for detailed changes.
 
 * Add support for `CommandElabM` monad at `#eval`. Example:
   ```lean

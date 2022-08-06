@@ -14,3 +14,5 @@ import Lean.Compiler.IR
 import Lean.Compiler.CSimpAttr
 import Lean.Compiler.FFI
 import Lean.Compiler.NoncomputableAttr
+import Lean.Compiler.CompilerM
+import Lean.Compiler.LCNF

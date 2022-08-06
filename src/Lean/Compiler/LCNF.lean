@@ -53,7 +53,9 @@ structure Context where
   root : Bool
 
 structure State where
-  cache     : ExprMap Expr := {}
+  cache   : PersistentExprMap Expr := {}
+  /-- Next auxiliary variable suffix -/
+  nextIdx : Nat := 1
 
 abbrev M := ReaderT Context $ StateRefT State CompilerM
 
@@ -61,14 +63,17 @@ def mkFreshLetDecl (e : Expr) : M Expr := do
   if (← read).root then
     return e
   else
-    mkLetDecl (← mkFreshUserName `x) (← inferType e) e (nonDep := false)
+    try
+      mkLetDecl ((`_x).appendIndexAfter (← get).nextIdx) (← inferType e) e (nonDep := false)
+    finally
+      modify fun s => { s with nextIdx := s.nextIdx + 1 }
 
 def withNewRoot (x : M α) : M α := do
-  let s ← get
+  let cacheSaved := (← get).cache
   try
     withReader (fun _ => { root := true }) <| Compiler.withNewScope x
   finally
-    set s
+    modify fun s => { s with cache := cacheSaved }
 
 /--
 Put the given expression in `LCNF`.

@@ -71,7 +71,9 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   name : Name
 
   /--
-  The path of a package's manifest file
+  The path of a package's manifest file, which stores the exact versions
+  of its resolved dependencies.
+
   Defaults to `packagesDir` / `defaultManifestFileName` (i.e., `manifest.json`).
   -/
   manifestFile := packagesDir / defaultManifestFileName
@@ -157,8 +159,8 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   buildArchive? : Option String := none
 
   /--
-  Prefer downloading a prebuilt release (from GitHub) rather than building
-  this package from the source when this package is used as a dependency.
+  Whether to prefer downloading a prebuilt release (from GitHub) rather than
+  building this package from the source when this package is used as a dependency.
   -/
   preferReleaseBuild : Bool := false
 

@@ -18,6 +18,17 @@ open Lean Parser Command
 syntax buildDeclSig :=
   ident (ppSpace simpleBinder)? Term.typeSpec declValSimple
 
+/--
+Define a new module facet. Has one form:
+
+```lean
+module_facet «facet-name» (mod : Module) : α :=
+  /- build function term -/
+```
+
+The `mod` parameter (and its type specifier) is optional.
+The term should be of type `IndexBuildM (BuildJob α)`.
+-/
 scoped macro (name := moduleFacetDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
 kw:"module_facet " sig:buildDeclSig : command => do
@@ -34,6 +45,17 @@ kw:"module_facet " sig:buildDeclSig : command => do
       } $[$wds?]?)
   | stx => Macro.throwErrorAt stx "ill-formed module facet declaration"
 
+/--
+Define a new package facet. Has one form:
+
+```lean
+package_facet «facet-name» (pkg : Package) : α :=
+  /- build function term -/
+```
+
+The `pkg` parameter (and its type specifier) is optional.
+The term should be of type `IndexBuildM (BuildJob α)`.
+-/
 scoped macro (name := packageFacetDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
 kw:"package_facet " sig:buildDeclSig : command => do
@@ -50,6 +72,17 @@ kw:"package_facet " sig:buildDeclSig : command => do
       } $[$wds?]?)
   | stx => Macro.throwErrorAt stx "ill-formed package facet declaration"
 
+/--
+Define a new library facet. Has one form:
+
+```lean
+library_facet «facet-name» (lib : LeanLib) : α :=
+  /- build function term -/
+```
+
+The `lib` parameter (and its type specifier) is optional.
+The term should be of type `IndexBuildM (BuildJob α)`.
+-/
 scoped macro (name := libraryFacetDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
 kw:"library_facet " sig:buildDeclSig : command => do
@@ -66,6 +99,17 @@ kw:"library_facet " sig:buildDeclSig : command => do
       } $[$wds?]?)
   | stx => Macro.throwErrorAt stx "ill-formed library facet declaration"
 
+/--
+Define a new custom target for the package. Has one form:
+
+```lean
+target «target-name» (pkg : Package) : α :=
+  /- build function term -/
+```
+
+The `pkg` parameter (and its type specifier) is optional.
+The term should be of type `IndexBuildM (BuildJob α)`.
+-/
 scoped macro (name := targetDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
 kw:"target " sig:buildDeclSig : command => do
@@ -95,10 +139,12 @@ syntax externLibDeclSpec :=
 Define a new external library target for the package. Has one form:
 
 ```lean
-extern_lib «target-name» := /- build function term -/
+extern_lib «target-name» (pkg : Package) :=
+  /- build function term -/
 ```
 
-The term should be of type `Package → IndexBuildM (BuildJob FilePath)` and
+The `pkg` parameter (and its type specifier) is optional.
+The term should be of type `IndexBuildM (BuildJob FilePath)` and
 build the external library's **static** library.
 -/
 scoped macro (name := externLibDecl)

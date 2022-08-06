@@ -16,3 +16,5 @@ import Lean.Compiler.FFI
 import Lean.Compiler.NoncomputableAttr
 import Lean.Compiler.CompilerM
 import Lean.Compiler.LCNF
+import Lean.Compiler.Decl
+import Lean.Compiler.Main

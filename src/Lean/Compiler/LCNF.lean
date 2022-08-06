@@ -47,16 +47,6 @@ change in the future when we add support for debugging information
 def isCompilerRelevantMData (_mdata : MData) : Bool :=
   false
 
-/--
-Inline constants tagged with the `[macroInline]` attribute occurring in `e`.
--/
-def macroInline (e : Expr) : CoreM Expr :=
-  Core.transform e fun e => do
-    let .const declName us := e.getAppFn | return .visit e
-    unless hasMacroInlineAttribute (← getEnv) declName do return .visit e
-    let val ← Core.instantiateValueLevelParams (← getConstInfo declName) us
-    return .visit <| val.beta e.getAppArgs
-
 namespace ToLCNF
 
 structure Context where
@@ -146,5 +136,7 @@ where
     return r
 
 end ToLCNF
+
+export ToLCNF (toLCNF)
 
 end Lean.Compiler

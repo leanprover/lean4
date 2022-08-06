@@ -23,6 +23,9 @@ namespace MissingDocs
 abbrev SimpleHandler := Syntax → CommandElabM Unit
 abbrev Handler := Bool → SimpleHandler
 
+def SimpleHandler.toHandler (h : SimpleHandler) : Handler :=
+  fun enabled stx => if enabled then h stx else pure ()
+
 unsafe def mkHandlerUnsafe (constName : Name) : ImportM Handler := do
   let env  := (← read).env
   let opts := (← read).opts
@@ -31,7 +34,7 @@ unsafe def mkHandlerUnsafe (constName : Name) : ImportM Handler := do
   | some info => match info.type with
     | Expr.const ``SimpleHandler _ => do
       let h ← IO.ofExcept $ env.evalConst SimpleHandler opts constName
-      pure fun enabled stx => if enabled then h stx else pure ()
+      pure h.toHandler
     | Expr.const ``Handler _ =>
       IO.ofExcept $ env.evalConst Handler opts constName
     | _ => throw ↑s!"unexpected missing docs handler at '{constName}', `MissingDocs.Handler` or `MissingDocs.SimpleHandler` expected"
@@ -39,13 +42,15 @@ unsafe def mkHandlerUnsafe (constName : Name) : ImportM Handler := do
 @[implementedBy mkHandlerUnsafe]
 opaque mkHandler (constName : Name) : ImportM Handler
 
+builtin_initialize builtinHandlersRef : IO.Ref (NameMap Handler) ← IO.mkRef {}
+
 builtin_initialize missingDocsExt :
   PersistentEnvExtension (Name × Name) (Name × Name × Handler) (List (Name × Name) × NameMap Handler) ←
   registerPersistentEnvExtension {
     name            := "missing docs extension"
-    mkInitial       := pure ([], {})
-    addImportedFn   := fun as =>
-      ([], ·) <$> as.foldlM (init := {}) fun s as =>
+    mkInitial       := return ([], ← builtinHandlersRef.get)
+    addImportedFn   := fun as => do
+      ([], ·) <$> as.foldlM (init := ← builtinHandlersRef.get) fun s as =>
         as.foldlM (init := s) fun s (n, k) => s.insert k <$> mkHandler n
     addEntryFn      := fun (entries, s) (n, k, h) => ((n, k)::entries, s.insert k h)
     exportEntriesFn := fun s => s.1.reverse.toArray
@@ -63,24 +68,35 @@ partial def missingDocs : Linter := fun stx => do
 
 builtin_initialize addLinter missingDocs
 
+def addBuiltinHandler (key : Name) (h : Handler) : IO Unit :=
+  builtinHandlersRef.modify (·.insert key h)
+
 builtin_initialize
-  let name := `missingDocsHandler
-  registerBuiltinAttribute {
+  let mkAttr (builtin : Bool) (name : Name) := registerBuiltinAttribute {
     name
-    descr := "adds a syntax traversal for the missing docs linter"
+    descr           := (if builtin then "(builtin) " else "") ++
+      "adds a syntax traversal for the missing docs linter"
     applicationTime := .afterCompilation
-    add := fun declName stx kind => do
+    add             := fun declName stx kind => do
       unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
       let env ← getEnv
-      unless (env.getModuleIdxFor? declName).isNone do
+      unless builtin || (env.getModuleIdxFor? declName).isNone do
         throwError "invalid attribute '{name}', declaration is in an imported module"
       let decl ← getConstInfo declName
       let fnNameStx ← Attribute.Builtin.getIdent stx
       let key ← Elab.resolveGlobalConstNoOverloadWithInfo fnNameStx
       unless decl.levelParams.isEmpty && (decl.type == .const ``Handler [] || decl.type == .const ``SimpleHandler []) do
         throwError "unexpected missing docs handler at '{declName}', `MissingDocs.Handler` or `MissingDocs.SimpleHandler` expected"
-      setEnv <| missingDocsExt.addEntry env (declName, key, ← mkHandler declName)
+      if builtin then
+        let h := if decl.type == .const ``SimpleHandler [] then
+          mkApp (mkConst ``SimpleHandler.toHandler) (mkConst declName)
+        else mkConst declName
+        declareBuiltin declName <| mkApp2 (mkConst ``addBuiltinHandler) (toExpr key) h
+      else
+        setEnv <| missingDocsExt.addEntry env (declName, key, ← mkHandler declName)
   }
+  mkAttr true `builtinMissingDocsHandler
+  mkAttr false `missingDocsHandler
 
 def lint (stx : Syntax) (msg : String) : CommandElabM Unit :=
   logWarningAt stx s!"missing doc string for {msg} [linter.missingDocs]"

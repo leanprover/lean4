@@ -53,11 +53,17 @@ def ensureUnaryOutput (x : Term × Nat) : Term :=
 @[inline] private def withNestedParser (x : ToParserDescr) : ToParserDescr := do
   withReader (fun ctx => { ctx with leftRec := false, first := false }) x
 
-/-- (Try to) a term info for the category `catName` at `ref`. -/
+/-- (Try to) add a term info for the category `catName` at `ref`. -/
 def addCategoryInfo (ref : Syntax) (catName : Name) : TermElabM Unit := do
-    let declName := ``Lean.Parser.Category ++ catName
-    if (← getEnv).contains declName then
-      addTermInfo' ref (Lean.mkConst declName)
+  let declName := ``Lean.Parser.Category ++ catName
+  if (← getEnv).contains declName then
+    addTermInfo' ref (Lean.mkConst declName)
+
+/-- (Try to) add a term info for the alias with info `info` at `ref`. -/
+def addAliasInfo (ref : Syntax) (info : Parser.ParserAliasInfo) : TermElabM Unit := do
+  if (← getInfoState).enabled then
+    if (← getEnv).contains info.declName then
+      addTermInfo' ref (Lean.mkConst info.declName)
 
 def checkLeftRec (stx : Syntax) : ToParserDescrM Bool := do
   let ctx ← read
@@ -161,6 +167,7 @@ where
   processAlias (id : Syntax) (args : Array Syntax) := do
     let aliasName := id.getId.eraseMacroScopes
     let info ← Parser.getParserAliasInfo aliasName
+    addAliasInfo id info
     let args ← args.mapM (withNestedParser ∘ process)
     let (args, stackSz) := if let some stackSz := info.stackSz? then
       if !info.autoGroupArgs then
@@ -205,14 +212,14 @@ where
     let sep := stx[3]
     let psep ← if stx[4].isNone then `(ParserDescr.symbol $sep) else ensureUnaryOutput <$> withNestedParser do process stx[4][1]
     let allowTrailingSep := !stx[5].isNone
-    return (← `(ParserDescr.sepBy $p $sep $psep $(quote allowTrailingSep)), 1)
+    return (← `((with_annotate_term $(stx[0]) @ParserDescr.sepBy) $p $sep $psep $(quote allowTrailingSep)), 1)
 
   processSepBy1 (stx : Syntax) := do
     let p ← ensureUnaryOutput <$> withNestedParser do process stx[1]
     let sep := stx[3]
     let psep ← if stx[4].isNone then `(ParserDescr.symbol $sep) else ensureUnaryOutput <$> withNestedParser do process stx[4][1]
     let allowTrailingSep := !stx[5].isNone
-    return (← `(ParserDescr.sepBy1 $p $sep $psep $(quote allowTrailingSep)), 1)
+    return (← `((with_annotate_term $(stx[0]) @ParserDescr.sepBy1) $p $sep $psep $(quote allowTrailingSep)), 1)
 
   isValidAtom (s : String) : Bool :=
     !s.isEmpty &&
@@ -235,9 +242,8 @@ where
     | none => throwUnsupportedSyntax
 
   processNonReserved (stx : Syntax) := do
-    match stx[1].isStrLit? with
-    | some atom => return (← `(ParserDescr.nonReservedSymbol $(quote atom) false), 1)
-    | none      => throwUnsupportedSyntax
+    let some atom := stx[1].isStrLit? | throwUnsupportedSyntax
+    return (← `((with_annotate_term $(stx[0]) @ParserDescr.nonReservedSymbol) $(quote atom) false), 1)
 
 
 end Term

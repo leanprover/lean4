@@ -42,7 +42,7 @@ builtin_initialize
   register_parser_alias orelse
   register_parser_alias andthen { stackSz? := none }
 
-  registerAlias "notFollowedBy" (notFollowedBy · "element")
+  registerAlias "notFollowedBy" ``notFollowedBy (notFollowedBy · "element")
   Parenthesizer.registerAlias "notFollowedBy" notFollowedBy.parenthesizer
   Formatter.registerAlias "notFollowedBy" notFollowedBy.formatter
 

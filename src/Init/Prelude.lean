@@ -145,6 +145,12 @@ out.
 unsafe axiom lcProof {α : Prop} : α
 
 /--
+Auxiliary unsafe constant used by the Compiler when erasing casts.
+-/
+unsafe axiom lcCast {α : Sort u} {β : Sort v} (a : α) : β
+
+
+/--
 Auxiliary unsafe constant used by the Compiler to mark unreachable code.
 
 Like `lcProof`, this is an `unsafe axiom`, which means that even though it is
@@ -412,6 +418,11 @@ The idea is that for each element `a` in `α`, the function `Quot.lift f h` maps
 In fact, the computation principle is declared as a reduction rule.
 -/
 add_decl_doc Quot.lift
+
+/--
+Unsafe auxiliary constant used by the compiler to erase `Quot.lift`.
+-/
+unsafe axiom Quot.lcInv {α : Sort u} {r : α → α → Prop} (q : Quot r) : α
 
 /--
 Heterogeneous equality. `HEq a b` asserts that `a` and `b` have the same

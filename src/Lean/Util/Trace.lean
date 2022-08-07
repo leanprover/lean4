@@ -16,7 +16,6 @@ structure TraceElem where
   deriving Inhabited
 
 structure TraceState where
-  enabled : Bool := true
   traces  : PersistentArray TraceElem := {}
   deriving Inhabited
 
@@ -52,15 +51,8 @@ private def checkTraceOptionM [MonadOptions m] (cls : Name) : m Bool :=
   return checkTraceOption (← getOptions) cls
 
 @[inline] def isTracingEnabledFor [MonadOptions m] (cls : Name) : m Bool := do
-  let s ← getTraceState
-  if !s.enabled then pure false
   else checkTraceOptionM cls
 
-@[inline] def enableTracing (b : Bool) : m Bool := do
-  let s ← getTraceState
-  let oldEnabled := s.enabled
-  modifyTraceState fun s => { s with enabled := b }
-  pure oldEnabled
 
 @[inline] def getTraces : m (PersistentArray TraceElem) := do
   let s ← getTraceState
@@ -117,8 +109,7 @@ def addTrace (cls : Name) (msg : MessageData) : m Unit := do
 @[inline] def traceCtx [MonadFinally m] (cls : Name) (ctx : m α) : m α := do
   let b ← isTracingEnabledFor cls
   if !b then
-    let old ← enableTracing false
-    try ctx finally enableTracing old
+    ctx
   else
     let ref ← getRef
     let oldCurrTraces ← getResetTraces

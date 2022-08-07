@@ -160,23 +160,6 @@ macro "trace[" id:ident "]" s:(interpolatedStr(term) <|> term) : doElem => do
     if (← Lean.isTracingEnabledFor cls) then
       Lean.addTrace cls $msg)
 
-private def withNestedTracesFinalizer [Monad m] [MonadTrace m] (ref : Syntax) (currTraces : PersistentArray TraceElem) : m Unit := do
-  modifyTraces fun traces =>
-    if traces.size == 0 then
-      currTraces
-    else if traces.size == 1 && traces[0]!.msg.isNest then
-      currTraces ++ traces -- No nest of nest
-    else
-      let d := traces.foldl (init := MessageData.nil) fun d elem =>
-        if d.isNil then elem.msg else m!"{d}\n{elem.msg}"
-      currTraces.push { ref := ref, msg := MessageData.nestD d }
-
-@[inline] def withNestedTraces [Monad m] [MonadFinally m] [MonadTrace m] [MonadRef m] (x : m α) : m α := do
-  let currTraces ← getTraces
-  modifyTraces fun _ => {}
-  let ref ← getRef
-  try x finally withNestedTracesFinalizer ref currTraces
-
 def bombEmoji := "💥"
 def checkEmoji := "✅"
 def crossEmoji := "❌"

@@ -204,15 +204,33 @@ instance (m n) [MonadLift m n] [MonadResolveName m] : MonadResolveName n where
 def resolveGlobalName [Monad m] [MonadResolveName m] [MonadEnv m] (id : Name) : m (List (Name × List String)) := do
   return ResolveName.resolveGlobalName (← getEnv) (← getCurrNamespace) (← getOpenDecls) id
 
-def resolveNamespace [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Name) : m (List Name) := do
-  match ResolveName.resolveNamespace (← getEnv) (← getCurrNamespace) (← getOpenDecls) id with
-  | []  => throwError s!"unknown namespace '{id}'"
-  | nss => return nss
+/--
+Given a namespace name, return a list of possible interpretations.
+Names extracted from syntax should be passed to `resolveNamespace` instead.
+-/
+def resolveNamespaceCore [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Name) (allowEmpty := false) : m (List Name) := do
+  let nss := ResolveName.resolveNamespace (← getEnv) (← getCurrNamespace) (← getOpenDecls) id
+  if !allowEmpty && nss.isEmpty then
+    throwError s!"unknown namespace '{id}'"
+  return nss
 
-def resolveUniqueNamespace [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Name) : m Name := do
+/-- Given a namespace identifier, return a list of possible interpretations. -/
+def resolveNamespace [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] : Ident → m (List Name)
+  | stx@⟨Syntax.ident _ _ n pre⟩ => do
+    let pre := pre.filterMap fun
+      | .namespace ns => some ns
+      | _             => none
+    if pre.isEmpty then
+      withRef stx <| resolveNamespaceCore n
+    else
+      return pre
+  | stx => throwErrorAt stx s!"expected identifier"
+
+/-- Given a namespace identifier, return the unique interpretation or else fail. -/
+def resolveUniqueNamespace [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Ident) : m Name := do
   match (← resolveNamespace id) with
   | [ns] => return ns
-  | nss => throwError s!"ambiguous namespace '{id}', possible interpretations: '{nss}'"
+  | nss => throwError s!"ambiguous namespace '{id.getId}', possible interpretations: '{nss}'"
 
 /-- Given a name `n`, return a list of possible interpretations for global constants.
 
@@ -254,7 +272,9 @@ After `open Foo open Boo`, we have
 -/
 def resolveGlobalConst [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] : Syntax → m (List Name)
   | stx@(Syntax.ident _ _ n pre) => do
-    let pre := pre.filterMap fun (n, fields) => if fields.isEmpty then some n else none
+    let pre := pre.filterMap fun
+      | .decl n [] => some n
+      | _          => none
     if pre.isEmpty then
       withRef stx <| resolveGlobalConstCore n
     else

@@ -3446,9 +3446,9 @@ inductive Syntax where
     `rawIdent` parsers.
     * `rawVal` is the literal substring from the input file
     * `val` is the parsed identifier (with hygiene)
-    * `preresolved` is the list of possible constants this could refer to
+    * `preresolved` is the list of possible declarations this could refer to
     -/
-    ident  (info : SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List (Prod Name (List String))) : Syntax
+    ident  (info : SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List Syntax.Preresolved) : Syntax
 
 /-- `SyntaxNodeKinds` is a set of `SyntaxNodeKind` (implemented as a list). -/
 def SyntaxNodeKinds := List SyntaxNodeKind

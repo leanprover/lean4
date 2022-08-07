@@ -111,12 +111,15 @@ private partial def quoteSyntax : Syntax → TermElabM Term
       return ← `(Syntax.ident info $(quote rawVal) $(quote val) $(quote preresolved))
     -- Add global scopes at compilation time (now), add macro scope at runtime (in the quotation).
     -- See the paper for details.
-    let r ← resolveGlobalName val
+    let consts ← resolveGlobalName val
     -- extension of the paper algorithm: also store unique section variable names as top-level scopes
     -- so they can be captured and used inside the section, but not outside
-    let r := r ++ resolveSectionVariable (← read).sectionVars val
-    let preresolved := r ++ preresolved
-    let preresolved := preresolved.map fun (n, fs) => Syntax.Preresolved.decl n fs
+    let sectionVars := resolveSectionVariable (← read).sectionVars val
+    -- extension of the paper algorithm: resolve namespaces as well
+    let namespaces ← resolveNamespaceCore (allowEmpty := true) val
+    let preresolved := (consts ++ sectionVars).map (fun (n, projs) => Preresolved.decl n projs) ++
+      namespaces.map .namespace ++
+      preresolved
     let val := quote val
     -- `scp` is bound in stxQuot.expand
     `(Syntax.ident info $(quote rawVal) (addMacroScope mainModule $val scp) $(quote preresolved))

@@ -185,11 +185,13 @@ def mkSizeOfSpecLemmaName (ctorName : Name) : Name :=
 def mkSizeOfSpecLemmaInstance (ctorApp : Expr) : MetaM Expr :=
   matchConstCtor ctorApp.getAppFn (fun _ => throwError "failed to apply 'sizeOf' spec, constructor expected{indentExpr ctorApp}") fun ctorInfo _ => do
     let ctorArgs     := ctorApp.getAppArgs
-    let ctorFields   := ctorArgs[ctorArgs.size - ctorInfo.numFields:]
+    let ctorParams   := ctorArgs[:ctorInfo.numParams]
+    let ctorFields   := ctorArgs[ctorInfo.numParams:]
     let lemmaName  := mkSizeOfSpecLemmaName ctorInfo.name
     let lemmaInfo  ← getConstInfo lemmaName
     let lemmaArity ← forallTelescopeReducing lemmaInfo.type fun xs _ => return xs.size
-    let lemmaArgMask := mkArray (lemmaArity - ctorInfo.numFields) (none (α := Expr))
+    let lemmaArgMask := ctorParams.toArray.map some
+    let lemmaArgMask := lemmaArgMask ++ mkArray (lemmaArity - ctorInfo.numParams - ctorInfo.numFields) (none (α := Expr))
     let lemmaArgMask := lemmaArgMask ++ ctorFields.toArray.map some
     mkAppOptM lemmaName lemmaArgMask
 

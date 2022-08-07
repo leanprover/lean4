@@ -15,7 +15,11 @@
     "kind": "markdown"},
    "detail":
    "[inst : Monad m] → [inst : MonadEnv m] → Name → m ReducibilityStatus"},
-  {"label": "getRef", "kind": 5, "detail": "[self : MonadRef m] → m Syntax"},
+  {"label": "getRef",
+   "kind": 5,
+   "documentation":
+   {"value": "Get the current value of the `ref` ", "kind": "markdown"},
+   "detail": "[self : MonadRef m] → m Syntax"},
   {"label": "getRefPos",
    "kind": 3,
    "documentation":
@@ -58,7 +62,11 @@
     "kind": "markdown"},
    "detail":
    "[inst : Monad m] → [inst : MonadEnv m] → Name → m ReducibilityStatus"},
-  {"label": "getRef", "kind": 5, "detail": "[self : MonadRef m] → m Syntax"},
+  {"label": "getRef",
+   "kind": 5,
+   "documentation":
+   {"value": "Get the current value of the `ref` ", "kind": "markdown"},
+   "detail": "[self : MonadRef m] → m Syntax"},
   {"label": "getRefPos",
    "kind": 3,
    "documentation":

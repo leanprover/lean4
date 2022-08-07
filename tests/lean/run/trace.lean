@@ -14,7 +14,7 @@ do trace[module] (m!"hello" ++ MessageData.nest 9 (m!"\n" ++ "world"));
    pure ()
 
 def tst2 (b : Bool) : M Unit :=
-traceCtx `module $ do
+withTraceNode `module (fun _ => return "message") do
   tst1;
   trace[bughunt] "at test2";
   if b then throwError "error";
@@ -30,7 +30,7 @@ def slow (b : Bool) : Nat :=
 ack 4 (cond b 0 1)
 
 def tst3 (b : Bool) : M Unit :=
-do traceCtx `module $ do {
+do withTraceNode `module.slow (fun _ => return m!"slow: {slow b}") do {
      tst2 b;
      tst1
    };
@@ -39,7 +39,7 @@ do traceCtx `module $ do {
    -- if `trace.slow is active.
    trace[slow] (m!"slow message: " ++ toString (slow b))
    -- This is true even if it is a monad computation:
-   trace[slow] (m!"slow message: " ++ (toString (slow b)))
+   trace[slow] (m!"slow message: " ++ (← pure (toString (slow b))))
 
 def run (x : M Unit) : M Unit :=
 withReader

@@ -1,13 +1,19 @@
 fun x x_1 => x : (x : ?m) → ?m x → ?m
 [Elab.step] expected type: <not-available>, term
-fun x => m x
-[Elab.step] expected type: Sort ?u, term
-  _
-  [Elab.step] expected type: <not-available>, term
-  m x
-  [Elab.step] expected type: <not-available>, term
-    fun x✝ => x
-    [Elab.step] expected type: Sort ?u, term
+    fun x => m x
+  [Elab.step] expected type: Sort ?u, term
       _
+    [Elab.step.result] ?m
+  [Elab.step] expected type: <not-available>, term
+      m x
+    [Elab.step] expected type: <not-available>, term
+        fun x✝ => x
+      [Elab.step] expected type: Sort ?u, term
+          _
+        [Elab.step.result] ?m
       [Elab.step] expected type: <not-available>, term
-      x
+          x
+        [Elab.step.result] x
+      [Elab.step.result] fun x_1 => x
+    [Elab.step.result] fun x_1 => x
+  [Elab.step.result] fun x x_1 => x

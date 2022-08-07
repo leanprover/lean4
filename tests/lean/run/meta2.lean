@@ -369,7 +369,7 @@ pure ()
 #eval tst26
 
 section
-set_option trace.Meta.isDefEq.step true
+set_option trace.Meta.isDefEq true
 set_option trace.Meta.isDefEq.delta true
 set_option trace.Meta.isDefEq.assign true
 
@@ -572,7 +572,7 @@ checkM $ getAssignment m2 >>= fun v => pure $ v == nat;
 pure ()
 
 set_option pp.all true
-set_option trace.Meta.isDefEq.step true
+set_option trace.Meta.isDefEq true
 set_option trace.Meta.isDefEq.delta true
 set_option trace.Meta.isDefEq.assign true
 
@@ -658,7 +658,7 @@ check w;
 print w;
 pure ()
 
-set_option trace.Meta.isDefEq.step false
+set_option trace.Meta.isDefEq false
 set_option trace.Meta.isDefEq.delta false
 set_option trace.Meta.isDefEq.assign false
 #eval tst41

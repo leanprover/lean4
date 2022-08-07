@@ -105,8 +105,9 @@ where
     withReducible <| Meta.isExprDefEqAux p e
 
   tryCandidate candidate : MetaM Bool :=
-    traceCtx `Meta.isDefEq.hint <| checkpointDefEq do
-      trace[Meta.isDefEq.hint] "trying hint {candidate} at {t} =?= {s}"
+    withTraceNode `Meta.isDefEq.hint
+      (return m!"{exceptBoolEmoji ·} hint {candidate} at {t} =?= {s}") do
+    checkpointDefEq do
       let cinfo ← getConstInfo candidate
       let us ← cinfo.levelParams.mapM fun _ => mkFreshLevelMVar
       let val ← instantiateValueLevelParams cinfo us

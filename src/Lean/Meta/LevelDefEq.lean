@@ -86,11 +86,11 @@ mutual
   @[export lean_is_level_def_eq]
   partial def isLevelDefEqAuxImpl : Level → Level → MetaM Bool
     | Level.succ lhs, Level.succ rhs => isLevelDefEqAux lhs rhs
-    | lhs, rhs => do
+    | lhs, rhs =>
+      withTraceNode `Meta.isLevelDefEq (return m!"{exceptBoolEmoji ·} {lhs} =?= {rhs}") do
       if lhs.getLevelOffset == rhs.getLevelOffset then
         return lhs.getOffset == rhs.getOffset
       else
-        trace[Meta.isLevelDefEq.step] "{lhs} =?= {rhs}"
         let lhs' ← instantiateLevelMVars lhs
         let lhs' := lhs'.normalize
         let rhs' ← instantiateLevelMVars rhs
@@ -119,6 +119,6 @@ end
 
 builtin_initialize
   registerTraceClass `Meta.isLevelDefEq
-  registerTraceClass `Meta.isLevelDefEq.step
+  registerTraceClass `Meta.isLevelDefEq.stuck (inherited := true)
 
 end Lean.Meta

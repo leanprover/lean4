@@ -1577,29 +1577,29 @@ def mkLevelStuckErrorMessage (entry : PostponedEntry) : MetaM MessageData := do
 def mkLevelErrorMessage (entry : PostponedEntry) : MetaM MessageData := do
   mkLeveErrorMessageCore "failed to solve universe constraint" entry
 
-private def processPostponedStep (exceptionOnFailure : Bool) : MetaM Bool :=
-  traceCtx `Meta.isLevelDefEq.postponed.step do
-    let ps ← getResetPostponed
-    for p in ps do
-      unless (← withReader (fun ctx => { ctx with defEqCtx? := p.ctx? }) <| isLevelDefEqAux p.lhs p.rhs) do
-        if exceptionOnFailure then
-          withRef p.ref do
-            throwError (← mkLevelErrorMessage p)
-        else
-          return false
-    return true
+private def processPostponedStep (exceptionOnFailure : Bool) : MetaM Bool := do
+  let ps ← getResetPostponed
+  for p in ps do
+    unless (← withReader (fun ctx => { ctx with defEqCtx? := p.ctx? }) <| isLevelDefEqAux p.lhs p.rhs) do
+      if exceptionOnFailure then
+        withRef p.ref do
+          throwError (← mkLevelErrorMessage p)
+      else
+        return false
+  return true
 
 partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure := false) : MetaM Bool := do
   if (← getNumPostponed) == 0 then
     return true
   else
-    traceCtx `Meta.isLevelDefEq.postponed do
+    let numPostponedBegin ← getNumPostponed
+    withTraceNode `Meta.isLevelDefEq.postponed
+        (fun _ => return m!"processing #{numPostponedBegin} postponed is-def-eq level constraints") do
       let rec loop : MetaM Bool := do
         let numPostponed ← getNumPostponed
         if numPostponed == 0 then
           return true
         else
-          trace[Meta.isLevelDefEq.postponed] "processing #{numPostponed} postponed is-def-eq level constraints"
           if !(← processPostponedStep exceptionOnFailure) then
             return false
           else
@@ -1654,17 +1654,12 @@ partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure :=
   Determines whether two universe level expressions are definitionally equal to each other.
 -/
 def isLevelDefEq (u v : Level) : MetaM Bool :=
-  traceCtx `Meta.isLevelDefEq do
-    let b ← checkpointDefEq (mayPostpone := true) <| Meta.isLevelDefEqAux u v
-    trace[Meta.isLevelDefEq] "{u} =?= {v} ... {if b then "success" else "failure"}"
-    return b
+  checkpointDefEq (mayPostpone := true) <| Meta.isLevelDefEqAux u v
 
 /-- See `isDefEq`. -/
 def isExprDefEq (t s : Expr) : MetaM Bool :=
-  traceCtx `Meta.isDefEq <| withReader (fun ctx => { ctx with defEqCtx? := some { lhs := t, rhs := s, lctx := ctx.lctx, localInstances := ctx.localInstances } }) do
-    let b ← checkpointDefEq (mayPostpone := true) <| Meta.isExprDefEqAux t s
-    trace[Meta.isDefEq] "{t} =?= {s} ... {if b then "success" else "failure"}"
-    return b
+  withReader (fun ctx => { ctx with defEqCtx? := some { lhs := t, rhs := s, lctx := ctx.lctx, localInstances := ctx.localInstances } }) do
+    checkpointDefEq (mayPostpone := true) <| Meta.isExprDefEqAux t s
 
 /--
   Determines whether two expressions are definitionally equal to each other.

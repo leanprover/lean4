@@ -83,7 +83,7 @@ def mkFreshInstanceName : CommandElabM Name := do
 def mkInstanceName (binders : Array Syntax) (type : Syntax) : CommandElabM Name := do
   let savedState ← get
   try
-    let result ← runTermElabM `inst fun _ => Term.withAutoBoundImplicit <| Term.elabBinders binders fun _ => Term.withoutErrToSorry do
+    let result ← runTermElabM fun _ => Term.withAutoBoundImplicit <| Term.elabBinders binders fun _ => Term.withoutErrToSorry do
       let type ← instantiateMVars (← Term.elabType type)
       let ref ← IO.mkRef ""
       Meta.forEachExpr type fun e => do

@@ -693,11 +693,11 @@ private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := match stx wit
     let mut eIsSeq := true
     for (i, cond, t) in Array.zip (is.reverse.push i) (Array.zip (conds.reverse.push cond) (ts.reverse.push t)) do
       e ← if eIsSeq then pure e else `(doSeq|$e:doElem)
-      e ← withRef cond <| match cond with
-        | `(doIfCond|let $pat := $d) => `(doElem| match%$i $d:term with | $pat:term => $t | _ => $e)
-        | `(doIfCond|let $pat ← $d)  => `(doElem| match%$i ← $d    with | $pat:term => $t | _ => $e)
-        | `(doIfCond|$cond:doIfProp) => `(doElem| if%$i $cond:doIfProp then $t else $e)
-        | _                          => `(doElem| if%$i $(Syntax.missing) then $t else $e)
+      e ← withRef (mkNullNode #[i, t]) <| match cond with
+        | `(doIfCond|let $pat := $d) => `(doElem| match $d:term with | $pat:term => $t | _ => $e)
+        | `(doIfCond|let $pat ← $d)  => `(doElem| match ← $d    with | $pat:term => $t | _ => $e)
+        | `(doIfCond|$cond:doIfProp) => `(doElem| if $cond:doIfProp then $t else $e)
+        | _                          => `(doElem| if $(Syntax.missing) then $t else $e)
       eIsSeq := false
     return some e
   | _ => pure none

@@ -80,7 +80,7 @@
   "targetSelectionRange":
   {"start": {"line": 36, "character": 0}, "end": {"line": 36, "character": 39}},
   "targetRange":
-  {"start": {"line": 36, "character": 0}, "end": {"line": 36, "character": 32}},
+  {"start": {"line": 36, "character": 0}, "end": {"line": 36, "character": 39}},
   "originSelectionRange":
   {"start": {"line": 43, "character": 7},
    "end": {"line": 43, "character": 11}}}]
@@ -128,7 +128,7 @@
  "position": {"line": 60, "character": 7}}
 [{"targetUri": "file://goTo.lean",
   "targetSelectionRange":
-  {"start": {"line": 59, "character": 0}, "end": {"line": 59, "character": 11}},
+  {"start": {"line": 59, "character": 0}, "end": {"line": 59, "character": 29}},
   "targetRange":
   {"start": {"line": 59, "character": 0}, "end": {"line": 59, "character": 29}},
   "originSelectionRange":

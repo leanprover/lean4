@@ -16,10 +16,10 @@ fun x =>
     let mainModule ← Lean.getMainModule
     pure
         { raw :=
-              Lean.Syntax.node Lean.SourceInfo.none `Lean.Parser.Term.app
+              Lean.Syntax.node info `Lean.Parser.Term.app
                 #[Lean.Syntax.ident info (String.toSubstring "Nat.add") (Lean.addMacroScope mainModule `Nat.add scp)
                     [(`Nat.add, [])],
-                  Lean.Syntax.node Lean.SourceInfo.none `null #[lhs.raw, rhs.raw]] }.raw
+                  Lean.Syntax.node info `null #[lhs.raw, rhs.raw]] }.raw
   else
     let discr := x;
     throw Lean.Macro.Exception.unsupportedSyntax
@@ -40,10 +40,7 @@ fun x =>
           let info ← Lean.MonadRef.mkInfoFromRefPos
           let _ ← Lean.getCurrMacroScope
           let _ ← Lean.getMainModule
-          pure
-              { raw :=
-                    Lean.Syntax.node Lean.SourceInfo.none `«term_+++_»
-                      #[lhs.raw, Lean.Syntax.atom info "+++", rhs.raw] }.raw
+          pure { raw := Lean.Syntax.node info `«term_+++_» #[lhs.raw, Lean.Syntax.atom info "+++", rhs.raw] }.raw
       else
         let discr := Lean.Syntax.getArg discr 1;
         throw ()
@@ -67,11 +64,9 @@ fun x =>
               let _ ← Lean.getMainModule
               pure
                   { raw :=
-                        Lean.Syntax.node Lean.SourceInfo.none `Lean.Parser.Term.app
-                          #[Lean.Syntax.node Lean.SourceInfo.none `«term_+++_»
-                              #[lhs.raw, Lean.Syntax.atom info "+++", rhs.raw],
-                            Lean.Syntax.node Lean.SourceInfo.none `null
-                              (Array.append #[] (Lean.TSyntaxArray.raw moreArgs))] }.raw
+                        Lean.Syntax.node info `Lean.Parser.Term.app
+                          #[Lean.Syntax.node info `«term_+++_» #[lhs.raw, Lean.Syntax.atom info "+++", rhs.raw],
+                            Lean.Syntax.node info `null (Array.append #[] (Lean.TSyntaxArray.raw moreArgs))] }.raw
           else
             let discr_5 := Lean.Syntax.getArg discr_2 1;
             let discr := Lean.Syntax.getArg discr 1;

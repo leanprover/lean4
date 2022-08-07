@@ -3203,7 +3203,16 @@ This is lossless because `USize.size` is either `2^32` or `2^64`.
 This function is overridden with a native implementation.
 -/
 @[extern "lean_usize_to_uint64"]
-opaque USize.toUInt64 (u : USize) : UInt64
+def USize.toUInt64 (u : USize) : UInt64 where
+  val := {
+    val  := u.val.val
+    isLt :=
+      let ⟨n, h⟩ := u
+      show LT.lt n _ from
+      match USize.size, usize_size_eq, h with
+      | _, Or.inl rfl, h => Nat.lt_trans h (by decide)
+      | _, Or.inr rfl, h => h
+  }
 
 /-- An opaque hash mixing operation, used to implement hashing for tuples. -/
 @[extern "lean_uint64_mix_hash"]

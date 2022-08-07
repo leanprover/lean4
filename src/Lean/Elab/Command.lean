@@ -354,7 +354,32 @@ private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) 
     isNoncomputableSection := scope.isNoncomputable
     tacticCache?           := ctx.tacticCache? }
 
-def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandElabM α := do
+/--
+Lift the `TermElabM` monadic action `x` into a `CommandElabM` monadic action.
+You can optionally set the current declaration name for `x` using the parameter `declName?`.
+
+Note that `x` is executed with an empty message log. Thus, `x` cannot modify/view messages produced by
+previous commands.
+
+If you need to access the free variables corresponding to the ones declared using the `variable` command,
+consider using `runTermElabM`.
+
+Recall that `TermElabM` actions can automatically lift `MetaM` and `CoreM` actions.
+Example:
+```
+import Lean
+
+open Lean Elab Command Meta
+
+def printExpr (e : Expr) : MetaM Unit := do
+  IO.println s!"{← ppExpr e} : {← ppExpr (← inferType e)}"
+
+#eval
+  liftTermElabM none do
+    printExpr (mkConst ``Nat)
+```
+-/
+def liftTermElabM (declName? : Option Name) (x : TermElabM α) : CommandElabM α := do
   let ctx ← read
   let s   ← get
   let heartbeats ← IO.getNumHeartbeats
@@ -378,7 +403,31 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
   | Except.ok a     => pure a
   | Except.error ex => throw ex
 
-@[inline] def runTermElabM {α} (declName? : Option Name) (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
+/--
+Execute the monadic action `elabFn xs` as a `CommandElabM` monadic action, where `xs` are free variables
+corresponding to all active scoped variables declared using the `variable` command.
+
+This method is similar to `liftTermElabM`, but it elaborates all scoped variables declared using the `variable`
+command.
+
+You can optionally set the current declaration name for `elabFn xs` using the parameter `declName?`.
+
+Example:
+```
+import Lean
+
+open Lean Elab Command Meta
+
+variable {α : Type u} {f : α → α}
+variable (n : Nat)
+
+#eval
+  runTermElabM none fun xs => do
+    for x in xs do
+      IO.println s!"{← ppExpr x} : {← ppExpr (← inferType x)}"
+```
+-/
+def runTermElabM (declName? : Option Name) (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
   let scope ← getScope
   liftTermElabM declName? <|
     Term.withAutoBoundImplicit <|

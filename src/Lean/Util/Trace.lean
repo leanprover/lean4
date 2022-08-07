@@ -65,14 +65,6 @@ def isTracingEnabledFor (cls : Name) : m Bool := do
 @[inline] def setTraceState (s : TraceState) : m Unit :=
   modifyTraceState fun _ => s
 
-private def addNode (oldTraces : PersistentArray TraceElem) (cls : Name) (ref : Syntax) : m Unit :=
-  modifyTraces fun traces =>
-    if traces.isEmpty then
-      oldTraces
-    else
-      let d := .trace cls "" (traces.toArray.map fun elem => elem.msg) (collapsed := true)
-      oldTraces.push { ref := ref, msg := d }
-
 private def getResetTraces : m (PersistentArray TraceElem) := do
   let oldTraces ← getTraces
   modifyTraces fun _ => {}
@@ -99,15 +91,6 @@ def addTrace (cls : Name) (msg : MessageData) : m Unit := do
   if (← isTracingEnabledFor cls) then
     let msg ← mkMsg
     addTrace cls msg
-
-@[inline] def traceCtx [MonadFinally m] (cls : Name) (ctx : m α) : m α := do
-  let b ← isTracingEnabledFor cls
-  if !b then
-    ctx
-  else
-    let ref ← getRef
-    let oldCurrTraces ← getResetTraces
-    try ctx finally addNode oldCurrTraces cls ref
 
 private def addTraceNode (oldTraces : PersistentArray TraceElem)
     (cls : Name) (ref : Syntax) (msg : MessageData) (collapsed : Bool) : m Unit :=

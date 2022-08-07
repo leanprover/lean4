@@ -237,5 +237,6 @@ def throwErrorWithNestedErrors [MonadError m] [Monad m] [MonadLog m] (msg : Mess
 builtin_initialize
   registerTraceClass `Elab
   registerTraceClass `Elab.step
+  registerTraceClass `Elab.step.result (inherited := true)
 
 end Lean.Elab

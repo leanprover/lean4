@@ -53,7 +53,7 @@ scoped syntax (name := metaIf)
 "meta " "if " term " then " cmdDo (" else " cmdDo)? : command
 
 elab_rules : command | `(meta if $c then $t $[else $e?]?) => do
-  if (← withRef c <| runTermElabM none <| fun _ => evalTerm Bool c) then
+  if (← withRef c <| runTermElabM fun _ => evalTerm Bool c) then
     let cmd := mkNullNode (expandCmdDo t)
     withMacroExpansion (← getRef) cmd <| elabCommand cmd
   else if let some e := e? then

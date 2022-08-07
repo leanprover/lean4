@@ -873,7 +873,7 @@ def elabMutualDef (ds : Array Syntax) (hints : TerminationHints) : CommandElabM 
     if ds.size > 1 && modifiers.isNonrec then
       throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
     mkDefView modifiers d[1]
-  runTermElabM none fun vars => Term.elabMutualDef vars views hints
+  runTermElabM fun vars => Term.elabMutualDef vars views hints
 
 end Command
 end Lean.Elab

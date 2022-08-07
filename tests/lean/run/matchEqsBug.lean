@@ -6,7 +6,7 @@ open Lean.Elab.Command
 
 @[commandElab test] def elabTest : CommandElab := fun stx => do
   let id ← resolveGlobalConstNoOverloadWithInfo stx[1]
-  liftTermElabM none do
+  liftTermElabM do
     IO.println (repr (← Lean.Meta.Match.getEquationsFor id))
   return ()
 

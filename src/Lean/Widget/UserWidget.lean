@@ -187,7 +187,7 @@ open Elab Command in
 /-- Use this to place a widget. Useful for debugging widgets. -/
 @[commandElab widgetCmd] def elabWidgetCmd : CommandElab := fun
   | stx@`(#widget $id:ident $props) => do
-    let props : Json ← runTermElabM none (fun _ => evalJson props)
+    let props : Json ← runTermElabM fun _ => evalJson props
     saveWidgetInfo id.getId props stx
   | _ => throwUnsupportedSyntax
 

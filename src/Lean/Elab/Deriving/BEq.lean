@@ -111,11 +111,11 @@ open Command
 
 def mkBEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if declNames.size == 1 && (← isEnumType declNames[0]!) then
-    let cmds ← liftTermElabM none <| mkBEqEnumCmd declNames[0]!
+    let cmds ← liftTermElabM <| mkBEqEnumCmd declNames[0]!
     cmds.forM elabCommand
     return true
   else if (← declNames.allM isInductive) && declNames.size > 0 then
-    let cmds ← liftTermElabM none <| mkBEqInstanceCmds declNames
+    let cmds ← liftTermElabM <| mkBEqInstanceCmds declNames
     cmds.forM elabCommand
     return true
   else

@@ -80,7 +80,7 @@ def runCommandElabM (snap : Snapshot) (meta : DocumentMeta) (c : CommandElabM α
     fileMap := meta.text,
     tacticCache? := snap.tacticCache,
   }
-  c.run ctx |>.run' snap.cmdState 
+  c.run ctx |>.run' snap.cmdState
 
 /-- Run a `CoreM` computation using the data in the given snapshot.-/
 def runCoreM (snap : Snapshot) (meta : DocumentMeta) (c : CoreM α) : EIO Exception α :=
@@ -88,7 +88,7 @@ def runCoreM (snap : Snapshot) (meta : DocumentMeta) (c : CoreM α) : EIO Except
 
 /-- Run a `TermElabM` computation using the data in the given snapshot.-/
 def runTermElabM (snap : Snapshot) (meta : DocumentMeta) (c : TermElabM α) : EIO Exception α :=
-  snap.runCommandElabM meta <| Command.liftTermElabM none c
+  snap.runCommandElabM meta <| Command.liftTermElabM c
 
 end Snapshot
 

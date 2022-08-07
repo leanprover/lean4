@@ -343,20 +343,18 @@ def getBracketedBinderIds : Syntax → Array Name
   | `(bracketedBinder|[$_])                           => #[Name.anonymous]
   | _                                                 => #[]
 
-private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) : Term.Context := Id.run do
+private def mkTermContext (ctx : Context) (s : State) : Term.Context := Id.run do
   let scope      := s.scopes.head!
   let mut sectionVars := {}
   for id in scope.varDecls.concatMap getBracketedBinderIds, uid in scope.varUIds do
     sectionVars := sectionVars.insert id uid
   { macroStack             := ctx.macroStack
-    declName?              := declName?
     sectionVars            := sectionVars
     isNoncomputableSection := scope.isNoncomputable
     tacticCache?           := ctx.tacticCache? }
 
 /--
 Lift the `TermElabM` monadic action `x` into a `CommandElabM` monadic action.
-You can optionally set the current declaration name for `x` using the parameter `declName?`.
 
 Note that `x` is executed with an empty message log. Thus, `x` cannot modify/view messages produced by
 previous commands.
@@ -375,11 +373,11 @@ def printExpr (e : Expr) : MetaM Unit := do
   IO.println s!"{← ppExpr e} : {← ppExpr (← inferType e)}"
 
 #eval
-  liftTermElabM none do
+  liftTermElabM do
     printExpr (mkConst ``Nat)
 ```
 -/
-def liftTermElabM (declName? : Option Name) (x : TermElabM α) : CommandElabM α := do
+def liftTermElabM (x : TermElabM α) : CommandElabM α := do
   let ctx ← read
   let s   ← get
   let heartbeats ← IO.getNumHeartbeats
@@ -388,7 +386,7 @@ def liftTermElabM (declName? : Option Name) (x : TermElabM α) : CommandElabM α
   -- We execute `x` with an empty message log. Thus, `x` cannot modify/view messages produced by previous commands.
   -- This is useful for implementing `runTermElabM` where we use `Term.resetMessageLog`
   let x : TermElabM _  := withSaveInfoContext x
-  let x : MetaM _      := (observing x).run (mkTermContext ctx s declName?) { levelNames := scope.levelNames }
+  let x : MetaM _      := (observing x).run (mkTermContext ctx s) { levelNames := scope.levelNames }
   let x : CoreM _      := x.run mkMetaContext {}
   let x : EIO _ _      := x.run (mkCoreContext ctx s heartbeats) { env := s.env, ngen := s.ngen, nextMacroScope := s.nextMacroScope, infoState.enabled := s.infoState.enabled }
   let (((ea, _), _), coreS) ← liftEIO x
@@ -410,8 +408,6 @@ corresponding to all active scoped variables declared using the `variable` comma
 This method is similar to `liftTermElabM`, but it elaborates all scoped variables declared using the `variable`
 command.
 
-You can optionally set the current declaration name for `elabFn xs` using the parameter `declName?`.
-
 Example:
 ```
 import Lean
@@ -422,14 +418,14 @@ variable {α : Type u} {f : α → α}
 variable (n : Nat)
 
 #eval
-  runTermElabM none fun xs => do
+  runTermElabM fun xs => do
     for x in xs do
       IO.println s!"{← ppExpr x} : {← ppExpr (← inferType x)}"
 ```
 -/
-def runTermElabM (declName? : Option Name) (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
+def runTermElabM (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
   let scope ← getScope
-  liftTermElabM declName? <|
+  liftTermElabM <|
     Term.withAutoBoundImplicit <|
       Term.elabBinders scope.varDecls fun xs => do
         -- We need to synthesize postponed terms because this is a checkpoint for the auto-bound implicit feature

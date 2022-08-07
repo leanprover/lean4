@@ -41,7 +41,7 @@ def checkDelab (e : Expr) (tgt? : Option Term) (name? : Option Name := none) : T
 syntax (name := testDelabTD) "#testDelab " term " expecting " term : command
 
 @[commandElab testDelabTD] def elabTestDelabTD : CommandElab
-  | `(#testDelab $stx:term expecting $tgt:term) => liftTermElabM `delabTD do
+  | `(#testDelab $stx:term expecting $tgt:term) => liftTermElabM do withDeclName `delabTD do
      let e ← elabTerm stx none
      let ⟨e, _⟩ ← levelMVarToParam e
      let e ← instantiateMVars e
@@ -51,7 +51,7 @@ syntax (name := testDelabTD) "#testDelab " term " expecting " term : command
 syntax (name := testDelabTDN) "#testDelabN " ident : command
 
 @[commandElab testDelabTDN] def elabTestDelabTDN : CommandElab
-  | `(#testDelabN $name:ident) => liftTermElabM `delabTD do
+  | `(#testDelabN $name:ident) => liftTermElabM do withDeclName `delabTD do
     let name := name.getId
     let [name] ← resolveGlobalConst (mkIdent name) | throwError "cannot resolve name"
     let some cInfo := (← getEnv).find? name | throwError "no decl for name"

@@ -69,7 +69,7 @@ open Lean.Meta
 open Lean.Elab
 open Lean.Elab.Command
 elab "unfold " e:term : command =>
-  runTermElabM none fun xs => do
+  runTermElabM fun xs => do
     let e ← instantiateMVars (← Term.withSynthesize <| Term.elabTerm e none)
     match (← unfoldDefinition? e) with
     | some e => logInfo m!"{e}"

@@ -80,7 +80,7 @@ private def mkHashableInstanceCmds (declNames : Array Name) : TermElabM (Array S
 
 def mkHashableHandler (declNames : Array Name) : CommandElabM Bool := do
   if (← declNames.allM isInductive) && declNames.size > 0 then
-    let cmds ← liftTermElabM none <| mkHashableInstanceCmds declNames
+    let cmds ← liftTermElabM <| mkHashableInstanceCmds declNames
     cmds.forM elabCommand
     return true
   else

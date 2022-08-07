@@ -831,13 +831,13 @@ private def applyComputedFields (indViews : Array InductiveView) : CommandElabM 
         |>.setBool `elaboratingComputedFields true}) <|
     elabCommand <| ← `(mutual $computedFieldDefs* end)
 
-  liftTermElabM indViews[0]!.declName do
+  liftTermElabM do Term.withDeclName indViews[0]!.declName do
     ComputedFields.setComputedFields computedFields
 
 def elabInductiveViews (views : Array InductiveView) : CommandElabM Unit := do
   let view0 := views[0]!
   let ref := view0.ref
-  runTermElabM view0.declName fun vars => withRef ref do
+  runTermElabM fun vars => Term.withDeclName view0.declName do withRef ref do
     mkInductiveDecl vars views
     mkSizeOfInstances view0.declName
     Lean.Meta.IndPredBelow.mkBelow view0.declName
@@ -845,7 +845,7 @@ def elabInductiveViews (views : Array InductiveView) : CommandElabM Unit := do
       mkInjectiveTheorems view.declName
   applyComputedFields views -- NOTE: any generated code before this line is invalid
   applyDerivingHandlers views
-  runTermElabM view0.declName fun _ => withRef ref do
+  runTermElabM fun _ => Term.withDeclName view0.declName do withRef ref do
     for view in views do
       Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation
 

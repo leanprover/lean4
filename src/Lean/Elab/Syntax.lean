@@ -346,7 +346,7 @@ def resolveSyntaxKind (k : Name) : CommandElabM Name := do
   let cat := catStx.getId.eraseMacroScopes
   unless (Parser.isParserCategory (← getEnv) cat) do
     throwErrorAt catStx "unknown category '{cat}'"
-  liftTermElabM none <| Term.addCategoryInfo catStx cat
+  liftTermElabM <| Term.addCategoryInfo catStx cat
   let syntaxParser := mkNullNode ps
   -- If the user did not provide an explicit precedence, we assign `maxPrec` to atom-like syntax and `leadPrec` otherwise.
   let precDefault  := if isAtomLikeSyntax syntaxParser then Parser.maxPrec else Parser.leadPrec
@@ -359,7 +359,7 @@ def resolveSyntaxKind (k : Name) : CommandElabM Name := do
   let prio ← liftMacroM <| evalOptPrio prio?
   let stxNodeKind := (← getCurrNamespace) ++ name
   let catParserId := mkIdentFrom stx (cat.appendAfter "Parser")
-  let (val, lhsPrec?) ← runTermElabM none fun _ => Term.toParserDescr syntaxParser cat
+  let (val, lhsPrec?) ← runTermElabM fun _ => Term.toParserDescr syntaxParser cat
   let declName := mkIdentFrom stx name
   let attrInstance ← `(attrInstance| $attrKind:attrKind $catParserId:ident $(quote prio):num)
   let attrInstances := attrInstances.getD { elemsAndSeps := #[] }
@@ -376,7 +376,7 @@ def resolveSyntaxKind (k : Name) : CommandElabM Name := do
 @[builtinCommandElab «syntaxAbbrev»] def elabSyntaxAbbrev : CommandElab := fun stx => do
   let `($[$doc?:docComment]? syntax $declName:ident := $[$ps:stx]*) ← pure stx | throwUnsupportedSyntax
   -- TODO: nonatomic names
-  let (val, _) ← runTermElabM none fun _ => Term.toParserDescr (mkNullNode ps) Name.anonymous
+  let (val, _) ← runTermElabM fun _ => Term.toParserDescr (mkNullNode ps) Name.anonymous
   let stxNodeKind := (← getCurrNamespace) ++ declName.getId
   let stx' ← `($[$doc?:docComment]? def $declName:ident : Lean.ParserDescr := ParserDescr.nodeWithAntiquot $(quote (toString declName.getId)) $(quote stxNodeKind) $val)
   withMacroExpansion stx stx' <| elabCommand stx'

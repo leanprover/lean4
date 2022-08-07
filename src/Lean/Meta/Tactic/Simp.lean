@@ -13,10 +13,10 @@ import Lean.Meta.Tactic.Simp.SimpAll
 namespace Lean
 
 builtin_initialize registerTraceClass `Meta.Tactic.simp
-builtin_initialize registerTraceClass `Meta.Tactic.simp.congr
-builtin_initialize registerTraceClass `Meta.Tactic.simp.discharge
-builtin_initialize registerTraceClass `Meta.Tactic.simp.rewrite
-builtin_initialize registerTraceClass `Meta.Tactic.simp.unify
+builtin_initialize registerTraceClass `Meta.Tactic.simp.congr (inherited := true)
+builtin_initialize registerTraceClass `Meta.Tactic.simp.discharge (inherited := true)
+builtin_initialize registerTraceClass `Meta.Tactic.simp.rewrite (inherited := true)
+builtin_initialize registerTraceClass `Meta.Tactic.simp.unify (inherited := true)
 builtin_initialize registerTraceClass `Debug.Meta.Tactic.simp
 
 end Lean

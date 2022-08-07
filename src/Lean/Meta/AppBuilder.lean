@@ -254,6 +254,18 @@ private def mkFun (constName : Name) : MetaM (Expr × Expr) := do
   let fType ← instantiateTypeLevelParams cinfo us
   return (f, fType)
 
+private def withAppBuilderTrace [ToMessageData α] [ToMessageData β]
+    (f : α) (xs : β) (k : MetaM Expr) : MetaM Expr :=
+  let emoji | .ok .. => checkEmoji | .error .. => crossEmoji
+  withTraceNode `Meta.appBuilder (return m!"{emoji ·} f: {f}, xs: {xs}") do
+    try
+      let res ← k
+      trace[Meta.appBuilder.result] res
+      pure res
+    catch ex =>
+      trace[Meta.appBuilder.error] ex.toMessageData
+      throw ex
+
 /--
   Return the application `constName xs`.
   It tries to fill the implicit arguments before the last element in `xs`.
@@ -264,19 +276,15 @@ private def mkFun (constName : Name) : MetaM (Expr × Expr) := do
   Given a `x : (([Decidable p] → Bool) × Nat`, ``mkAppM `Prod.fst #[x]`` returns `@Prod.fst ([Decidable p] → Bool) Nat x`
 -/
 def mkAppM (constName : Name) (xs : Array Expr) : MetaM Expr := do
-  traceCtx `Meta.appBuilder <| withNewMCtxDepth do
+  withAppBuilderTrace constName xs do withNewMCtxDepth do
     let (f, fType) ← mkFun constName
-    let r ← mkAppMArgs f fType xs
-    trace[Meta.appBuilder] "constName: {constName}, xs: {xs}, result: {r}"
-    return r
+    mkAppMArgs f fType xs
 
 /-- Similar to `mkAppM`, but takes an `Expr` instead of a constant name. -/
 def mkAppM' (f : Expr) (xs : Array Expr) : MetaM Expr := do
   let fType ← inferType f
-  traceCtx `Meta.appBuilder <| withNewMCtxDepth do
-    let r ← mkAppMArgs f fType xs
-    trace[Meta.appBuilder] "f: {f}, xs: {xs}, result: {r}"
-    return r
+  withAppBuilderTrace f xs do withNewMCtxDepth do
+    mkAppMArgs f fType xs
 
 private partial def mkAppOptMAux (f : Expr) (xs : Array (Option Expr)) : Nat → Array Expr → Nat → Array MVarId → Expr → MetaM Expr
   | i, args, j, instMVars, Expr.forallE n d b bi => do
@@ -325,14 +333,14 @@ private partial def mkAppOptMAux (f : Expr) (xs : Array (Option Expr)) : Nat →
   fails because the only explicit argument `(a : α)` is not sufficient for inferring the remaining arguments,
   we would need the expected type. -/
 def mkAppOptM (constName : Name) (xs : Array (Option Expr)) : MetaM Expr := do
-  traceCtx `Meta.appBuilder <| withNewMCtxDepth do
+  withAppBuilderTrace constName xs do withNewMCtxDepth do
     let (f, fType) ← mkFun constName
     mkAppOptMAux f xs 0 #[] 0 #[] fType
 
 /-- Similar to `mkAppOptM`, but takes an `Expr` instead of a constant name -/
 def mkAppOptM' (f : Expr) (xs : Array (Option Expr)) : MetaM Expr := do
   let fType ← inferType f
-  traceCtx `Meta.appBuilder <| withNewMCtxDepth do
+  withAppBuilderTrace f xs do withNewMCtxDepth do
     mkAppOptMAux f xs 0 #[] 0 #[] fType
 
 def mkEqNDRec (motive h1 h2 : Expr) : MetaM Expr := do
@@ -581,6 +589,9 @@ def mkLE (a b : Expr) : MetaM Expr := mkBinaryRel ``LE ``LE.le a b
 /-- Return `a < b`. This method assumes `a` and `b` have the same type. -/
 def mkLT (a b : Expr) : MetaM Expr := mkBinaryRel ``LT ``LT.lt a b
 
-builtin_initialize registerTraceClass `Meta.appBuilder
+builtin_initialize do
+  registerTraceClass `Meta.appBuilder
+  registerTraceClass `Meta.appBuilder.result (inherited := true)
+  registerTraceClass `Meta.appBuilder.error (inherited := true)
 
 end Lean.Meta

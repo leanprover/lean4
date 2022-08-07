@@ -19,6 +19,7 @@ structure TraceState where
   traces  : PersistentArray TraceElem := {}
   deriving Inhabited
 
+builtin_initialize inheritedTraceOptions : IO.Ref (Std.HashSet Name) ← IO.mkRef ∅
 
 class MonadTrace (m : Type → Type) where
   modifyTraceState : (TraceState → TraceState) → m Unit
@@ -30,29 +31,29 @@ instance (m n) [MonadLift m n] [MonadTrace m] : MonadTrace n where
   modifyTraceState := fun f => liftM (modifyTraceState f : m _)
   getTraceState    := liftM (getTraceState : m _)
 
-variable {α : Type} {m : Type → Type} [Monad m] [MonadTrace m]
+variable {α : Type} {m : Type → Type} [Monad m] [MonadTrace m] [MonadOptions m] [MonadLiftT IO m]
 
-def printTraces {m} [Monad m] [MonadTrace m] [MonadLiftT IO m] : m Unit := do
+def printTraces : m Unit := do
   for {msg, ..} in (← getTraceState).traces do
     IO.println (← msg.format)
 
-def resetTraceState {m} [MonadTrace m] : m Unit :=
+def resetTraceState : m Unit :=
   modifyTraceState (fun _ => {})
 
-private def checkTraceOptionAux (opts : Options) : Name → Bool
-  | n@(.str p _) => opts.getBool n || (!opts.contains n && checkTraceOptionAux opts p)
-  | _            => false
+private def checkTraceOption (inherited : Std.HashSet Name) (opts : Options) (cls : Name) : Bool :=
+  !opts.isEmpty && go (`trace ++ cls)
+where
+  go (opt : Name) : Bool :=
+    if let some enabled := opts.get? opt then
+      enabled
+    else if let .str parent _ := opt then
+      inherited.contains opt && go parent
+    else
+      false
 
-def checkTraceOption (opts : Options) (cls : Name) : Bool :=
-  if opts.isEmpty then false
-  else checkTraceOptionAux opts (`trace ++ cls)
-
-private def checkTraceOptionM [MonadOptions m] (cls : Name) : m Bool :=
-  return checkTraceOption (← getOptions) cls
-
-@[inline] def isTracingEnabledFor [MonadOptions m] (cls : Name) : m Bool := do
-  else checkTraceOptionM cls
-
+def isTracingEnabledFor (cls : Name) : m Bool := do
+  let inherited ← (inheritedTraceOptions.get : IO _)
+  pure (checkTraceOption inherited (← getOptions) cls)
 
 @[inline] def getTraces : m (PersistentArray TraceElem) := do
   let s ← getTraceState
@@ -142,8 +143,15 @@ def withTraceNode' [MonadExcept Exception m] (cls : Name) (k : m (α × MessageD
 
 end
 
-def registerTraceClass (traceClassName : Name) : IO Unit :=
-  registerOption (`trace ++ traceClassName) { group := "trace", defValue := false, descr := "enable/disable tracing for the given module and submodules" }
+def registerTraceClass (traceClassName : Name) (inherited := false) : IO Unit := do
+  let optionName := `trace ++ traceClassName
+  registerOption optionName {
+    group := "trace"
+    defValue := false
+    descr := "enable/disable tracing for the given module and submodules"
+  }
+  if inherited then
+    inheritedTraceOptions.modify (·.insert optionName)
 
 macro "trace[" id:ident "]" s:(interpolatedStr(term) <|> term) : doElem => do
   let msg ← if s.raw.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))

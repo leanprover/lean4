@@ -41,7 +41,7 @@ def toAttributeKind (attrKindStx : Syntax) : MacroM AttributeKind := do
 def mkAttrKindGlobal : Syntax :=
   mkNode ``Lean.Parser.Term.attrKind #[mkNullNode]
 
-def elabAttr [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadInfoTree m] (attrInstance : Syntax) : m Attribute := do
+def elabAttr [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadInfoTree m] [MonadLiftT IO m] (attrInstance : Syntax) : m Attribute := do
   /- attrInstance     := ppGroup $ leading_parser attrKind >> attrParser -/
   let attrKind ← liftMacroM <| toAttributeKind attrInstance[0]
   let attr := attrInstance[1]

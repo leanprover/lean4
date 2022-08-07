@@ -1,4 +1,4 @@
-elseifDoErrorPos.lean:4:7-7:14: error: application type mismatch
+elseifDoErrorPos.lean:4:7-5:12: error: application type mismatch
   @ite ?m x
 argument
   x

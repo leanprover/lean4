@@ -1,10 +1,10 @@
 10 + 1 : Nat
 scopedMacros.lean:11:7-11:11: error: unknown identifier 'foo!'
 10 + 1 : Nat
-scopedMacros.lean:19:0-19:37: error: scoped attributes must be used inside namespaces
+scopedMacros.lean:19:7-19:50: error: scoped attributes must be used inside namespaces
 scopedMacros.lean:19:7-19:50: error: invalid syntax node kind 'termBla!_'
 scopedMacros.lean:29:7-29:11: error: unknown identifier 'bla!'
-scopedMacros.lean:36:0-36:45: error: scoped attributes must be used inside namespaces
+scopedMacros.lean:36:7-36:45: error: scoped attributes must be used inside namespaces
 10 + 20 : Nat
 scopedMacros.lean:47:7-47:14: error: elaboration function for 'termBar!_' has not been implemented
   bar! 10

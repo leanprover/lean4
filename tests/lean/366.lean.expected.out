@@ -1,12 +1,6 @@
-[Meta.synthInstance] preprocess: Inhabited Nat ==> Inhabited Nat
-  [Meta.synthInstance] 
-    [Meta.synthInstance] main goal Inhabited Nat
-    [Meta.synthInstance.newSubgoal] Inhabited Nat
-    [Meta.synthInstance.globalInstances] Inhabited Nat, [@instInhabited, instInhabitedNat]
-    [Meta.synthInstance.generate] instance instInhabitedNat
-    [Meta.synthInstance.tryResolve] 
-      [Meta.synthInstance.tryResolve] Inhabited Nat =?= Inhabited Nat
-      [Meta.synthInstance.tryResolve] success
-    [Meta.synthInstance.newAnswer] size: 0, Inhabited Nat
-    [Meta.synthInstance.newAnswer] val: instInhabitedNat
+[Meta.synthInstance] ✅ Inhabited Nat
+  [Meta.synthInstance] new goal Inhabited Nat
+    [Meta.synthInstance.instances] #[@instInhabited, instInhabitedNat]
+  [Meta.synthInstance] ✅ apply instInhabitedNat to Inhabited Nat
+    [Meta.synthInstance.tryResolve] ✅ Inhabited Nat ≟ Inhabited Nat
   [Meta.synthInstance] result instInhabitedNat

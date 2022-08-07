@@ -1,27 +1,5 @@
-[Elab.command] #check foo true
 true : Bool
-[Elab.step] expected type: <not-available>, term
-foo true
-[Elab.step] expected type: <not-available>, term
-  true
-  [Elab.app.args] explicit: false, ellipsis: false, true : Bool
-    [Elab.app.args] namedArgs: []
-    [Elab.app.args] args: []
-    [Elab.app.finalize] true
-    [Elab.app.finalize] after etaArgs, true : Bool
-[Elab.command] end
-[Elab.command] #check bla true
 true : Bool
-[Elab.step] expected type: <not-available>, term
-bla true
-[Elab.step] expected type: <not-available>, term
-  true
-  [Elab.app.args] explicit: false, ellipsis: false, true : Bool
-    [Elab.app.args] namedArgs: []
-    [Elab.app.args] args: []
-    [Elab.app.finalize] true
-    [Elab.app.finalize] after etaArgs, true : Bool
-[Elab.command] end
 def Bla.bla : Lean.ParserDescr :=
 Lean.ParserDescr.node `Bla.bla 1022
   (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.symbol "bla") (Lean.ParserDescr.cat `term 0))

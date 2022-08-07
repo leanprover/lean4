@@ -11,11 +11,5 @@ instance comp (f : β → γ) (g : α → β) [IsSmooth f] [IsSmooth g] : IsSmoo
 instance diag (f : β → δ → γ) (g : α → β) (h : α → δ) [IsSmooth f] [∀ b, IsSmooth (f b)] [IsSmooth g] [IsSmooth h] : IsSmooth (λ a => f (g a) (h a)) := sorry
 
 set_option trace.Meta.synthInstance true
-set_option trace.Meta.synthInstance.globalInstances false
-set_option trace.Meta.synthInstance.newSubgoal false
-set_option trace.Meta.synthInstance.tryResolve false
-set_option trace.Meta.synthInstance.resume false
-set_option trace.Meta.synthInstance.generate false
-set_option trace.Meta.synthInstance.newAnswer false
 set_option trace.Meta.synthInstance.unusedArgs true
 example (f : β → δ → γ) [IsSmooth f] (d : δ) : IsSmooth (λ (g : α → β) a => f (g a) d) := by infer_instance

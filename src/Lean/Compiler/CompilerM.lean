@@ -13,6 +13,13 @@ structure CompilerM.State where
 
 abbrev CompilerM := StateRefT CompilerM.State CoreM
 
+instance : AddMessageContext CompilerM where
+  addMessageContext msgData := do
+    let env ← getEnv
+    let lctx := (← get).lctx
+    let opts ← getOptions
+    return MessageData.withContext { env, lctx, opts, mctx := {} } msgData
+
 @[inline] def liftMetaM (x : MetaM α) : CompilerM α := do
   x.run' { lctx := (← get).lctx }
 
@@ -43,6 +50,19 @@ where
       let type := type.instantiateRev fvars
       let fvar ← mkLocalDecl binderName type binderInfo
       go body (fvars.push fvar)
+    else
+      return (fvars, e.instantiateRev fvars)
+
+def visitBoundedLambda (e : Expr) (n : Nat) : CompilerM (Array Expr × Expr) :=
+  go e n #[]
+where
+  go (e : Expr) (n : Nat) (fvars : Array Expr) := do
+    if n == 0 then
+      return (fvars, e.instantiateRev fvars)
+    else if let .lam binderName type body binderInfo := e then
+      let type := type.instantiateRev fvars
+      let fvar ← mkLocalDecl binderName type binderInfo
+      go body (n-1) (fvars.push fvar)
     else
       return (fvars, e.instantiateRev fvars)
 

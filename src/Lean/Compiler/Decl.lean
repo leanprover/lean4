@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.Transform
+import Lean.Meta.Check
 import Lean.Compiler.LCNF
 
 namespace Lean.Compiler
@@ -57,5 +58,8 @@ def toDecl (declName : Name) : CoreM Decl := do
     let value ← macroInline value
     let value ← toLCNF {} value
     return { name := declName, type := info.type, value }
+
+def Decl.check (decl : Decl) : CoreM Unit := do
+  Meta.MetaM.run' do Meta.check decl.value
 
 end Lean.Compiler

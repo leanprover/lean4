@@ -113,9 +113,9 @@ def isDefEqNat (s t : Expr) : MetaM LBool := do
 def isDefEqStringLit (s t : Expr) : MetaM LBool := do
   let isDefEq (s t) : MetaM LBool := toLBoolM <| Meta.isExprDefEqAux s t
   if s.isStringLit && t.isAppOf ``String.mk then
-    isDefEq (toCtorIfLit s) t
+    isDefEq s.toCtorIfLit t
   else if s.isAppOf `String.mk && t.isStringLit then
-    isDefEq s (toCtorIfLit t)
+    isDefEq s t.toCtorIfLit
   else
     pure LBool.undef
 

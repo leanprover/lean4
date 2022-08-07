@@ -86,14 +86,6 @@ private def mkNullaryCtor (type : Expr) (nparams : Nat) : MetaM (Option Expr) :=
   | _ =>
     return none
 
-def toCtorIfLit : Expr → Expr
-  | Expr.lit (Literal.natVal v) =>
-    if v == 0 then mkConst `Nat.zero
-    else mkApp (mkConst `Nat.succ) (mkRawNatLit (v-1))
-  | Expr.lit (Literal.strVal v) =>
-    mkApp (mkConst `String.mk) (toExpr v.toList)
-  | e => e
-
 private def getRecRuleFor (recVal : RecursorVal) (major : Expr) : Option RecursorRule :=
   match major.getAppFn with
   | Expr.const fn _ => recVal.rules.find? fun r => r.ctor == fn
@@ -175,7 +167,7 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
     let mut major ← whnf major
     if recVal.k then
       major ← toCtorWhenK recVal major
-    major := toCtorIfLit major
+    major := major.toCtorIfLit
     major ← toCtorWhenStructure recVal.getInduct major
     match getRecRuleFor recVal major with
     | some rule =>
@@ -453,7 +445,7 @@ def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
   | _ => pure ReduceMatcherResult.notMatcher
 
 private def projectCore? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
-  let e := toCtorIfLit e
+  let e := e.toCtorIfLit
   matchConstCtor e.getAppFn (fun _ => pure none) fun ctorVal _ =>
     let numArgs := e.getAppNumArgs
     let idx := ctorVal.numParams + i

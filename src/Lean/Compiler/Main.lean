@@ -13,7 +13,6 @@ We do not generate code for `declName` if
 - Its type is a proposition.
 - Its type is a type former.
 - It is tagged as `[macroInline]`.
-- It is matcher auxiliary function.
 - It is a type class instance.
 
 Remark: we still generate code for declarations tagged as `[inline]`
@@ -21,7 +20,6 @@ and `[specialize]` since they can be partially applied.
 -/
 def shouldGenerateCode (declName : Name) : CoreM Bool := do
   if (← isCompIrrelevant |>.run') then return false
-  if (← Meta.isMatcher declName) then return false
   if hasMacroInlineAttribute (← getEnv) declName then return false
   -- TODO: check if type class instance
   return true
@@ -36,6 +34,6 @@ def compile (declNames : Array Name) : CoreM Unit := do
   -- WIP
   for decl in decls do
     trace[Meta.debug] "{decl.name} := {decl.value}"
-    pure ()
+    decl.check
 
 end Lean.Compiler

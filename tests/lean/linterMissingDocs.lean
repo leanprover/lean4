@@ -54,10 +54,18 @@ structure Foo where
   [mk6 mk7 : Nat]
 
 class Bar (α : Prop) := mk ::
+  (foo bar := 1)
+
+class Bar2 (α : Prop) where
+  bar := 2
+
+class Bar3 (α : Prop) extends Bar α where
+  bar := 3
+  (foo baz := 3)
 
 theorem aThm : True := trivial
 example : True := trivial
-instance : Bar True := ⟨⟩
+instance : Bar True := {}
 
 initialize init : Unit ← return
 initialize return

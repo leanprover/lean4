@@ -178,4 +178,18 @@ private def withNestedTracesFinalizer [Monad m] [MonadTrace m] (ref : Syntax) (c
   let ref ← getRef
   try x finally withNestedTracesFinalizer ref currTraces
 
+def bombEmoji := "💥"
+def checkEmoji := "✅"
+def crossEmoji := "❌"
+
+def exceptBoolEmoji : Except ε Bool → String
+  | .error _ => bombEmoji
+  | .ok true => checkEmoji
+  | .ok false => crossEmoji
+
+def exceptOptionEmoji : Except ε (Option α) → String
+  | .error _ => bombEmoji
+  | .ok (some _) => checkEmoji
+  | .ok none => crossEmoji
+
 end Lean

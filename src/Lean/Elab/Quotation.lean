@@ -99,6 +99,11 @@ def tryAddSyntaxNodeKindInfo (stx : Syntax) (k : SyntaxNodeKind) : TermElabM Uni
     if (← getEnv).contains k then
       addTermInfo' stx (← mkConstWithFreshMVarLevels k)
 
+instance : Quote Syntax.Preresolved where
+  quote
+    | .namespace ns => Unhygienic.run ``(Syntax.Preresolved.namespace $(quote ns))
+    | .decl n fs    => Unhygienic.run ``(Syntax.Preresolved.decl $(quote n) $(quote fs))
+
 /-- Elaborate the content of a syntax quotation term -/
 private partial def quoteSyntax : Syntax → TermElabM Term
   | Syntax.ident _ rawVal val preresolved => do
@@ -109,8 +114,9 @@ private partial def quoteSyntax : Syntax → TermElabM Term
     let r ← resolveGlobalName val
     -- extension of the paper algorithm: also store unique section variable names as top-level scopes
     -- so they can be captured and used inside the section, but not outside
-    let r' := resolveSectionVariable (← read).sectionVars val
-    let preresolved := r ++ r' ++ preresolved
+    let r := r ++ resolveSectionVariable (← read).sectionVars val
+    let preresolved := r ++ preresolved
+    let preresolved := preresolved.map fun (n, fs) => Syntax.Preresolved.decl n fs
     let val := quote val
     -- `scp` is bound in stxQuot.expand
     `(Syntax.ident info $(quote rawVal) (addMacroScope mainModule $val scp) $(quote preresolved))

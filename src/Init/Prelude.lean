@@ -3400,6 +3400,17 @@ abbrev SyntaxNodeKind := Name
 /-! # Syntax AST -/
 
 /--
+Binding information resolved and stored at compile time of a syntax quotation.
+Note: We do not statically know whether a syntax expects a namespace or term name,
+so a `Syntax.ident` may contain both preresolution kinds.
+-/
+inductive Syntax.Preresolved where
+  | /-- A potential namespace reference -/
+    namespace (ns : Name)
+  | /-- A potential global constant or section variable reference, with additional field accesses -/
+    decl (n : Name) (fields : List String)
+
+/--
 Syntax objects used by the parser, macro expander, delaborator, etc.
 -/
 inductive Syntax where

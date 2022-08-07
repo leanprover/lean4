@@ -220,13 +220,6 @@ def withLogging [Monad m] [MonadLog m] [MonadExcept Exception m] [AddMessageCont
     (x : m Unit) : m Unit := do
   try x catch ex => logException ex
 
-@[inline] def trace [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] (cls : Name) (msg : Unit → MessageData) : m Unit := do
-  if checkTraceOption (← getOptions) cls then
-    logTrace cls (msg ())
-
-def logDbgTrace [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] (msg : MessageData) : m Unit := do
-  trace `Elab.debug fun _ => msg
-
 def nestedExceptionToMessageData [Monad m] [MonadLog m] (ex : Exception) : m MessageData := do
   let pos ← getRefPos
   match ex.getRef.getPos? with

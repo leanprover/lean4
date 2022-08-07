@@ -95,10 +95,6 @@ def logWarning [MonadOptions m] (msgData : MessageData) : m Unit := do
 def logInfo (msgData : MessageData) : m Unit :=
   log msgData MessageSeverity.information
 
-/-- Log a trace message into the message log. -/
-def logTrace (cls : Name) (msgData : MessageData) : m Unit := do
-  logInfo (MessageData.tagged cls m!"[{cls}] {msgData}")
-
 /-- Log the error message "unknown declaration" -/
 def logUnknownDecl (declName : Name) : m Unit :=
   logError m!"unknown declaration '{declName}'"

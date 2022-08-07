@@ -187,8 +187,13 @@ where
 Throw an exception if `e` is not type correct.
 -/
 def check (e : Expr) : MetaM Unit :=
-  traceCtx `Meta.check do
-    withTransparency TransparencyMode.all $ checkAux e
+  withTraceNode `Meta.check (fun res =>
+      return m!"{if res.isOk then checkEmoji else crossEmoji} {e}") do
+    try
+      withTransparency TransparencyMode.all $ checkAux e
+    catch ex =>
+      trace[Meta.check] ex.toMessageData
+      throw ex
 
 /--
 Return true if `e` is type correct.
@@ -197,12 +202,10 @@ def isTypeCorrect (e : Expr) : MetaM Bool := do
   try
     check e
     pure true
-  catch ex =>
-    trace[Meta.typeError] ex.toMessageData
+  catch _ =>
     pure false
 
 builtin_initialize
   registerTraceClass `Meta.check
-  registerTraceClass `Meta.typeError
 
 end Lean.Meta

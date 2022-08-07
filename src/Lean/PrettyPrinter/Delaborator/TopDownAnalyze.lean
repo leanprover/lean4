@@ -627,22 +627,22 @@ open TopDownAnalyze SubExpr
 
 def topDownAnalyze (e : Expr) : MetaM OptionsPerPos := do
   let s₀ ← get
-  traceCtx `pp.analyze do
+  withTraceNode `pp.analyze (fun _ => return e) do
     withReader (fun ctx => { ctx with config := Elab.Term.setElabConfig ctx.config }) do
       let ϕ : AnalyzeM OptionsPerPos := do withNewMCtxDepth analyze; pure (← get).annotations
       try
         let knowsType := getPPAnalyzeKnowsType (← getOptions)
         ϕ { knowsType := knowsType, knowsLevel := knowsType, subExpr := mkRoot e }
           |>.run' { : TopDownAnalyze.State }
-      catch _ =>
-        trace[pp.analyze.error] "failed"
+      catch e =>
+        trace[pp.analyze.error] "failed {e.toMessageData}"
         pure {}
       finally set s₀
 
 builtin_initialize
   registerTraceClass `pp.analyze
-  registerTraceClass `pp.analyze.annotate
-  registerTraceClass `pp.analyze.tryUnify
-  registerTraceClass `pp.analyze.error
+  registerTraceClass `pp.analyze.annotate (inherited := true)
+  registerTraceClass `pp.analyze.tryUnify (inherited := true)
+  registerTraceClass `pp.analyze.error (inherited := true)
 
 end Lean.PrettyPrinter.Delaborator

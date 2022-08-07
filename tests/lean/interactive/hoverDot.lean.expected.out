@@ -18,7 +18,9 @@
 {"range":
  {"start": {"line": 12, "character": 14}, "end": {"line": 12, "character": 18}},
  "contents":
- {"value": "```lean\nNat.succ : Nat → Nat\n```", "kind": "markdown"}}
+ {"value":
+  "```lean\nNat.succ : Nat → Nat\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. ",
+  "kind": "markdown"}}
 {"textDocument": {"uri": "file://hoverDot.lean"},
  "position": {"line": 16, "character": 11}}
 {"range":
@@ -29,7 +31,9 @@
 {"range":
  {"start": {"line": 16, "character": 14}, "end": {"line": 16, "character": 18}},
  "contents":
- {"value": "```lean\nNat.succ : Nat → Nat\n```", "kind": "markdown"}}
+ {"value":
+  "```lean\nNat.succ : Nat → Nat\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. ",
+  "kind": "markdown"}}
 {"textDocument": {"uri": "file://hoverDot.lean"},
  "position": {"line": 19, "character": 13}}
 {"range":
@@ -40,7 +44,9 @@
 {"range":
  {"start": {"line": 19, "character": 16}, "end": {"line": 19, "character": 20}},
  "contents":
- {"value": "```lean\nNat.succ : Nat → Nat\n```", "kind": "markdown"}}
+ {"value":
+  "```lean\nNat.succ : Nat → Nat\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. ",
+  "kind": "markdown"}}
 {"textDocument": {"uri": "file://hoverDot.lean"},
  "position": {"line": 22, "character": 14}}
 {"range":
@@ -51,4 +57,6 @@
 {"range":
  {"start": {"line": 22, "character": 17}, "end": {"line": 22, "character": 21}},
  "contents":
- {"value": "```lean\nNat.succ : Nat → Nat\n```", "kind": "markdown"}}
+ {"value":
+  "```lean\nNat.succ : Nat → Nat\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. ",
+  "kind": "markdown"}}

@@ -12,7 +12,7 @@
    "kind": 22,
    "documentation":
    {"value":
-    "`Fin n` is a natural number `i` with the constraint that `0 ≤ i < n`. ",
+    "`Fin n` is a natural number `i` with the constraint that `0 ≤ i < n`.\nIt is the \"canonical type with `n` elements\".\n",
     "kind": "markdown"},
    "detail": "Nat → Type"},
   {"label": "Float", "kind": 22, "detail": "Type"},
@@ -44,6 +44,10 @@
   {"label": "Function", "kind": 9, "detail": "namespace"},
   {"label": "Functor",
    "kind": 7,
+   "documentation":
+   {"value":
+    "In functional programming, a \"functor\" is a function on types `F : Type u → Type v`\nequipped with an operator called `map` or `<$>` such that if `f : α → β` then\n`map f : F α → F β`, so `f <$> x : F β` if `x : F α`. This corresponds to the\ncategory-theory notion of [functor](https://en.wikipedia.org/wiki/Functor) in\nthe special case where the category is the category of types and functions\nbetween them, except that this class supplies only the operations and not the\nlaws (see `LawfulFunctor`).\n",
+    "kind": "markdown"},
    "detail": "(Type u → Type v) → Type (max (u + 1) v)"},
   {"label": "failure",
    "kind": 5,

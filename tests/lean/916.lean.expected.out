@@ -1,1 +1,1 @@
-916.lean:3:2-3:19: error: mutable variable `x` cannot be shadowed
+916.lean:3:7-3:8: error: mutable variable `x` cannot be shadowed

@@ -107,6 +107,9 @@ def lintNamed (stx : Syntax) (msg : String) : CommandElabM Unit :=
 def lintField (parent stx : Syntax) (msg : String) : CommandElabM Unit :=
   lint stx s!"{msg} {parent.getId}.{stx.getId}"
 
+def lintStructField (parent stx : Syntax) (msg : String) : CommandElabM Unit :=
+  lint stx s!"{msg} {parent.getId}.{stx.getId}"
+
 def lintDeclHead (k : SyntaxNodeKind) (id : Syntax) : CommandElabM Unit := do
   if k == ``«abbrev» then lintNamed id "public abbrev"
   else if k == ``«def» then lintNamed id "public def"
@@ -136,14 +139,27 @@ def checkDecl : SimpleHandler := fun stx => do
           lintField rest[1][0] stx[1] "computed field"
   else if rest.getKind == ``«structure» then
     unless rest[5].isNone || rest[5][2].isNone do
+      let redecls : Std.HashSet String.Pos :=
+        (← get).infoState.trees.foldl (init := {}) fun s tree =>
+          tree.foldInfo (init := s) fun _ info s =>
+            if let .ofFieldRedeclInfo info := info then
+              if let some range := info.stx.getRange? then
+                s.insert range.start
+              else s
+            else s
+      let parent := rest[1][0]
+      let lint1 stx := do
+        if let some range := stx.getRange? then
+          if redecls.contains range.start then return
+        lintField parent stx "public field"
       for stx in rest[5][2][0].getArgs do
         let head := stx[0]
         if head[2][0].getKind != ``«private» && head[0].isNone then
           if stx.getKind == ``structSimpleBinder then
-            lintField rest[1][0] stx[1] "public field"
+            lint1 stx[1]
           else
             for stx in stx[2].getArgs do
-              lintField rest[1][0] stx "public field"
+              lint1 stx
 
 @[builtinMissingDocsHandler «initialize»]
 def checkInit : SimpleHandler := fun stx => do

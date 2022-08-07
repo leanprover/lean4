@@ -557,6 +557,7 @@ where
                 valStx ← `(fun $(view.binders.getArgs)* => $valStx:term)
               let fvarType ← inferType info.fvar
               let value ← Term.elabTermEnsuringType valStx fvarType
+              pushInfoLeaf <| .ofFieldRedeclInfo { stx := view.ref }
               let infos := updateFieldInfoVal infos info.name value
               go (i+1) defaultValsOverridden infos
         match info.kind with

@@ -666,15 +666,6 @@ LEAN_SHARED lean_object* lean_apply_n(lean_object* f, unsigned n, lean_object** 
 /* Pre: n > 16 */
 LEAN_SHARED lean_object* lean_apply_m(lean_object* f, unsigned n, lean_object** args);
 
-/* Fixpoint */
-
-LEAN_SHARED lean_obj_res lean_fixpoint(lean_obj_arg rec, lean_obj_arg a);
-LEAN_SHARED lean_obj_res lean_fixpoint2(lean_obj_arg rec, lean_obj_arg a1, lean_obj_arg a2);
-LEAN_SHARED lean_obj_res lean_fixpoint3(lean_obj_arg rec, lean_obj_arg a1, lean_obj_arg a2, lean_obj_arg a3);
-LEAN_SHARED lean_obj_res lean_fixpoint4(lean_obj_arg rec, lean_obj_arg a1, lean_obj_arg a2, lean_obj_arg a3, lean_obj_arg a4);
-LEAN_SHARED lean_obj_res lean_fixpoint5(lean_obj_arg rec, lean_obj_arg a1, lean_obj_arg a2, lean_obj_arg a3, lean_obj_arg a4, lean_obj_arg a5);
-LEAN_SHARED lean_obj_res lean_fixpoint6(lean_obj_arg rec, lean_obj_arg a1, lean_obj_arg a2, lean_obj_arg a3, lean_obj_arg a4, lean_obj_arg a5, lean_obj_arg a6);
-
 /* Arrays of objects (low level API) */
 static inline lean_obj_res lean_alloc_array(size_t size, size_t capacity) {
     lean_array_object * o = (lean_array_object*)lean_alloc_object(sizeof(lean_array_object) + sizeof(void*)*capacity);

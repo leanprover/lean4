@@ -18,3 +18,5 @@ import Lean.Compiler.CompilerM
 import Lean.Compiler.LCNF
 import Lean.Compiler.Decl
 import Lean.Compiler.Main
+import Lean.Compiler.AtMostOnce -- TODO: delete after we port code generator to Lean
+import Lean.Compiler.Old -- TODO: delete after we port code generator to Lean

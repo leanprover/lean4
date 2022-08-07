@@ -3,11 +3,32 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-prelude
+prelude -- Don't import Init, because we're in Init itself
+
+/-!
+# Init.Prelude
+
+This is the first file in the lean import hierarchy. It is responsible for setting
+up basic definitions, most of which lean already has "built in knowledge" about,
+so it is important that they be set up in exactly this way. (For example, lean will
+use `PUnit` in the desugaring of `do` notation, or in the pattern match compiler.)
+
+-/
 
 universe u v w
 
-/-- Identity function -/
+/--
+The identity function. `id` takes an implicit argument `α : Sort u`
+(a type in any universe), and an argument `a : α`, and returns `a`.
+
+Although this may look like a useless function, one application of the identity
+function is to explicitly put a type on an expression. If `e` has type `T`,
+and `T'` is definitionally equal to `T`, then `@id T' e` typechecks, and lean
+knows that this expression has type `T'` rather than `T`. This can make a
+difference for typeclass inference, since `T` and `T'` may have different
+typeclass instances on them. `show T' from e` is sugar for an `@id T' e`
+expression.
+-/
 @[inline] def id {α : Sort u} (a : α) : α := a
 
 /--
@@ -31,7 +52,8 @@ and the representation is compact.
   fun x => f (g x)
 
 /--
-The constant function.
+The constant function. If `a : α`, then `Function.const β a : β → α` is the
+"constant function with value `a`", that is, `Function.const β a b = a`.
 ```
 example (b : Bool) : Function.const Bool 10 b = 10 :=
   rfl
@@ -45,8 +67,11 @@ example (b : Bool) : Function.const Bool 10 b = 10 :=
 
 set_option checkBinderAnnotations false in
 /--
-`inferInstance` is useful for triggering the type class resolution procedure when
-the expected type is an instance. Example:
+`inferInstance` synthesizes a value of any target type by typeclass
+inference. This function has the same type signature as the identity
+function, but the square brackets on the `[i : α]` argument means that it will
+attempt to construct this argument by typeclass inference. (This will fail if
+`α` is not a `class`.) Example:
 ```
 #check (inferInstance : Inhabited Nat) -- Inhabited Nat
 
@@ -58,10 +83,15 @@ example : foo.default = (default, default) :=
 ```
 -/
 @[reducible] def inferInstance {α : Sort u} [i : α] : α := i
+
 set_option checkBinderAnnotations false in
-/--
-Similar to `inferInstance`, but the instance is explicitly provided.
-Example:
+/-- `inferInstanceAs α` synthesizes a value of any target type by typeclass
+inference. This is just like `inferInstance` except that `α` is given
+explicitly instead of being inferred from the target type. It is especially
+useful when the target type is some `α'` which is definitionally equal to `α`,
+but the instance we are looking for is only registered for `α` (because
+typeclass search does not unfold most definitions, but definitional equality
+does.) Example:
 ```
 #check inferInstanceAs (Inhabited Nat) -- Inhabited Nat
 ```
@@ -70,14 +100,17 @@ Example:
 
 set_option bootstrap.inductiveCheckResultingUniverse false in
 /--
-The universe polymorphic `Unit` type.
+The unit type, the canonical type with one element, named `unit` or `()`.
+This is the universe-polymorphic version of `Unit`; it is preferred to use
+`Unit` instead where applicable.
 For more information about universe levels: [Types as objects](https://leanprover.github.io/theorem_proving_in_lean4/dependent_type_theory.html#types-as-objects)
 -/
 inductive PUnit : Sort u where
-  | unit : PUnit
+  | /-- `PUnit.unit : PUnit` is the canonical element of the unit type. -/
+    unit : PUnit
 
 /--
-`Unit` is a type with just one argumentless constructor, called `unit`.
+The unit type, the canonical type with one element, named `unit` or `()`.
 In other words, it describes only a single value, which consists of said constructor applied
 to no arguments whatsoever.
 The `Unit` type is similar to `void` in languages derived from C.
@@ -85,18 +118,50 @@ The `Unit` type is similar to `void` in languages derived from C.
 `Unit` is actually defined as `PUnit.{0}` where `PUnit` is the universe
 polymorphic version. The `Unit` should be preferred over `PUnit` where possible to avoid
 unnecessary universe parameters.
+
+In functional programming, `Unit` is the return type of things that "return
+nothing", since a type with one element conveys no additional information.
+When programming with monads, the type `m Unit` represents an action that has
+some side effects but does not return a value, while `m α` would be an action
+that has side effects and returns a value of type `α`.
 -/
 abbrev Unit : Type := PUnit
 
 /--
-Shorthand for `PUnit.unit`.
+`Unit.unit : Unit` is the canonical element of the unit type.
+It can also be written as `()`.
 -/
 @[matchPattern] abbrev Unit.unit : Unit := PUnit.unit
 
-/-- Auxiliary unsafe constant used by the Compiler when erasing proofs from code. -/
+/--
+Auxiliary unsafe constant used by the Compiler when erasing proofs from code.
+
+It may look strange to have an axiom that says "every proposition is true",
+since this is obviously unsound, but the `unsafe` marker ensures that the
+kernel will not let this through into regular proofs. The lower levels of the
+code generator don't need proofs in terms, so this is used to stub the proofs
+out.
+-/
 unsafe axiom lcProof {α : Prop} : α
 
-/-- Auxiliary unsafe constant used by the Compiler to mark unreachable code. -/
+/--
+Auxiliary unsafe constant used by the Compiler when erasing casts.
+-/
+unsafe axiom lcCast {α : Sort u} {β : Sort v} (a : α) : β
+
+
+/--
+Auxiliary unsafe constant used by the Compiler to mark unreachable code.
+
+Like `lcProof`, this is an `unsafe axiom`, which means that even though it is
+not sound, the kernel will not let us use it for regular proofs.
+
+Executing this expression to actually synthesize a value of type `α` causes
+**immediate undefined behavior**, and the compiler does take advantage of this
+to optimize the code assuming that it is not called. If it is not optimized out,
+it is likely to appear as a print message saying "unreachable code", but this
+behavior is not guaranteed or stable in any way.
+-/
 unsafe axiom lcUnreachable {α : Sort u} : α
 
 /--
@@ -105,7 +170,8 @@ In other words, `True` is simply true, and has a canonical proof, `True.intro`
 For more information: [Propositional Logic](https://leanprover.github.io/theorem_proving_in_lean4/propositions_and_proofs.html#propositional-logic)
 -/
 inductive True : Prop where
-  | /-- Introduction rule for `True`. -/
+  | /-- `True` is true, and `True.intro` (or more commonly, `trivial`)
+    is the proof. -/
     intro : True
 
 /--
@@ -126,21 +192,29 @@ inductive Empty : Type
 
 set_option bootstrap.inductiveCheckResultingUniverse false in
 /--
-The universe polymorphic empty type.
-See `Empty`.
+The universe-polymorphic empty type. Prefer `Empty` or `False` where
+possible.
 -/
 inductive PEmpty : Sort u where
 
 /--
-Negation, `Not p`, is actually defined to be `p → False`, so we obtain `Not p` by deriving a contradiction from `p`.
-You can use `¬p` as a shorthand for `Not p`.
+`Not p`, or `¬p`, is the negation of `p`. It is defined to be `p → False`,
+so if your goal is `¬p` you can use `intro h` to turn the goal into
+`h : p ⊢ False`, and if you have `hn : ¬p` and `h : p` then `hn h : False`
+and `(hn h).elim` will prove anything.
 For more information: [Propositional Logic](https://leanprover.github.io/theorem_proving_in_lean4/propositions_and_proofs.html#propositional-logic)
 -/
 def Not (a : Prop) : Prop := a → False
 
 /--
-A simpler version of `False.rec` where the implicit argument has type `C : Sort u` instead of `C : False → Sort u`.
-They both express the fact that anything follows from a contradiction.
+`False.elim : False → C` says that from `False`, any desired proposition
+`C` holds. Also known as ex falso quodlibet (EFQ) or the principle of explosion.
+
+The target type is actually `C : Sort u` which means it works for both
+propositions and types. When executed, this acts like an "unreachable"
+instruction: it is **undefined behavior** to run, but it will probably print
+"unreachable code". (You would need to construct a proof of false to run it
+anyway, which you can only do using `sorry` or unsound axioms.)
 -/
 @[macroInline] def False.elim {C : Sort u} (h : False) : C :=
   h.rec
@@ -183,63 +257,106 @@ The triangle in the second presentation is a macro built on top of `Eq.subst` an
 For more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
 -/
 inductive Eq : α → α → Prop where
-  | refl (a : α) : Eq a a
+  | /-- `Eq.refl a : a = a` is reflexivity, the unique constructor of the
+    equality type. See also `rfl`, which is usually used instead. -/
+    refl (a : α) : Eq a a
 
+/-- Non-dependent recursor for the equality type. -/
 @[simp] abbrev Eq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : motive a) {b : α} (h : Eq a b) : motive b :=
   h.rec m
 
 /--
-Short for `Eq.refl _`
+`rfl : a = a` is the unique constructor of the equality type. This is the
+same as `Eq.refl` except that it takes `a` implicitly instead of explicitly.
+
+This is a more powerful theorem than it may appear at first, because although
+the statement of the theorem is `a = a`, lean will allow anything that is
+definitionally equal to that type. So, for instance, `2 + 2 = 4` is proven in
+lean by `rfl`, because both sides are the same up to definitional equality.
 -/
 @[matchPattern] def rfl {α : Sort u} {a : α} : Eq a a := Eq.refl a
 
+/-- `id x = x`, as a `@[simp]` lemma. -/
 @[simp] theorem id_eq (a : α) : Eq (id a) a := rfl
 
 /--
-Equality is much more than an equivalence relation, however. It has the important property that every assertion
-respects the equivalence, in the sense that we can substitute equal expressions without changing the truth value.
-That is, given `h1 : a = b` and `h2 : p a`, we can construct a proof for `p b` using substitution: `Eq.subst h1 h2`.
+The substitution principle for equality. If `a = b ` and `P a` holds,
+then `P b` also holds. We conventionally use the name `motive` for `P` here,
+so that you can specify it explicitly using e.g.
+`Eq.subst (motive := fun x => x < 5)` if it is not otherwise inferred correctly.
+
+This theorem is the underlying mechanism behind the `rw` tactic, which is
+essentially a fancy algorithm for finding good `motive` arguments to usefully
+apply this theorem to replace occurrences of `a` with `b` in the goal or
+hypotheses.
+
 For more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
 -/
 theorem Eq.subst {α : Sort u} {motive : α → Prop} {a b : α} (h₁ : Eq a b) (h₂ : motive a) : motive b :=
   Eq.ndrec h₂ h₁
 
 /--
-Equality is a symmetric relationship.
+Equality is symmetric: if `a = b` then `b = a`.
+
+Because this is in the `Eq` namespace, if you have a variable `h : a = b`,
+`h.symm` can be used as shorthand for `Eq.symm h` as a proof of `b = a`.
+
 For more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
 -/
 theorem Eq.symm {α : Sort u} {a b : α} (h : Eq a b) : Eq b a :=
   h ▸ rfl
 
 /--
-Equality is a transitive relationship.
+Equality is transitive: if `a = b` and `b = c` then `a = c`.
+
+Because this is in the `Eq` namespace, if you variables or expressions
+`h₁ : a = b` and `h₂ : b = c`, you can use `h₁.trans h₂ : a = c` as shorthand
+for `Eq.trans h₁ h₃`.
+
 For more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
 -/
 theorem Eq.trans {α : Sort u} {a b c : α} (h₁ : Eq a b) (h₂ : Eq b c) : Eq a c :=
   h₂ ▸ h₁
 
 /--
-You can use an equality `α = β` to cast an value of type `α` into `β`.
+Cast across a type equality. If `h : α = β` is an equality of types, and
+`a : α`, then `a : β` will usually not typecheck directly, but this function
+will allow you to work around this and embed `a` in type `β` as `cast h a : β`.
+
+It is best to avoid this function if you can, because it is more complicated
+to reason about terms containing casts, but if the types don't match up
+definitionally sometimes there isn't anything better you can do.
+
 For more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
 -/
 @[macroInline] def cast {α β : Sort u} (h : Eq α β) (a : α) : β :=
   h.rec a
 
 /--
-Given a (nondependent) function `f` and a proof `h : a₁ = a₂`, `congrArg f h : f a₁ = f a₂`.
+Congruence in the function argument: if `a₁ = a₂` then `f a₁ = f a₂` for
+any (nondependent) function `f`. This is more powerful than it might look at first, because
+you can also use a lambda expression for `f` to prove that
+`<something containing a₁> = <something containing a₂>`. This function is used
+internally by tactics like `congr` and `simp` to apply equalities inside
+subterms.
+
 For more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
 -/
 theorem congrArg {α : Sort u} {β : Sort v} {a₁ a₂ : α} (f : α → β) (h : Eq a₁ a₂) : Eq (f a₁) (f a₂) :=
   h ▸ rfl
 
 /--
-`congr` is short for congruence.
+Congruence in both function and argument. If `f₁ = f₂` and `a₁ = a₂` then
+`f₁ a₁ = f₂ a₂`. This only works for nondependent functions; the theorem
+statement is more complex in the dependent case.
+
 For more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
 -/
 theorem congr {α : Sort u} {β : Sort v} {f₁ f₂ : α → β} {a₁ a₂ : α} (h₁ : Eq f₁ f₂) (h₂ : Eq a₁ a₂) : Eq (f₁ a₁) (f₂ a₂) :=
   h₁ ▸ h₂ ▸ rfl
 
-theorem congrFun {α : Sort u} {β : α → Sort v} {f g : (x : α) →  β x} (h : Eq f g) (a : α) : Eq (f a) (g a) :=
+/-- Congruence in the function part of an application: If `f = g` then `f a = g a`. -/
+theorem congrFun {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x} (h : Eq f g) (a : α) : Eq (f a) (g a) :=
   h ▸ rfl
 
 /-!
@@ -260,15 +377,19 @@ init_quot
 
 /--
 Let `α` be any type, and let `r` be an equivalence relation on `α`.
-It is mathematically common to form the "quotient" `α / r`, that is, the type of elements of `α` "modulo" `r`.
-Set theoretically, one can view `α / r` as the set of equivalence classes of `α` modulo `r`.
-If `f : α → β` is any function that respects the equivalence relation in the sense that for every `x y : α`, `r x y` implies `f x = f y`,
-then f "lifts" to a function `f' : α / r → β` defined on each equivalence class `⟦x⟧` by `f' ⟦x⟧ = f x`.
-Lean extends the Calculus of Constructions with additional constants that perform exactly these constructions,
-and installs this last equation as a definitional reduction rule.
+It is mathematically common to form the "quotient" `α / r`, that is, the type of
+elements of `α` "modulo" `r`. Set theoretically, one can view `α / r` as the set
+of equivalence classes of `α` modulo `r`. If `f : α → β` is any function that
+respects the equivalence relation in the sense that for every `x y : α`,
+`r x y` implies `f x = f y`, then f "lifts" to a function `f' : α / r → β`
+defined on each equivalence class `⟦x⟧` by `f' ⟦x⟧ = f x`.
+Lean extends the Calculus of Constructions with additional constants that
+perform exactly these constructions, and installs this last equation as a
+definitional reduction rule.
 
-Given a type `α` and any binary relation `r` on `α`, `Quot r` is a type. Note that `r` is not required to be
-an equilance relation. `Quot` is the basic building block used to construct later the type `Quotient`.
+Given a type `α` and any binary relation `r` on `α`, `Quot r` is a type. Note
+that `r` is not required to be an equivalance relation. `Quot` is the basic
+building block used to construct later the type `Quotient`.
 -/
 add_decl_doc Quot
 
@@ -299,11 +420,27 @@ In fact, the computation principle is declared as a reduction rule.
 add_decl_doc Quot.lift
 
 /--
-Heterogeneous equality. That is, the elements may have different types.
+Unsafe auxiliary constant used by the compiler to erase `Quot.lift`.
+-/
+unsafe axiom Quot.lcInv {α : Sort u} {r : α → α → Prop} (q : Quot r) : α
+
+/--
+Heterogeneous equality. `HEq a b` asserts that `a` and `b` have the same
+type, and casting `a` across the equality yields `b`, and vice versa.
+
+You should avoid using this type if you can. Heterogeneous equality does not
+have all the same properties as `Eq`, because the assumption that the types of
+`a` and `b` are equal is often too weak to prove theorems of interest. One
+important non-theorem is the analogue of `congr`: If `HEq f g` and `HEq x y`
+and `f x` and `g y` are well typed it does not follow that `HEq (f x) (g y)`.
+(This does follow if you have `f = g` instead.) However if `a` and `b` have
+the same type then `a = b` and `HEq a b` ae equivalent.
 -/
 inductive HEq : {α : Sort u} → α → {β : Sort u} → β → Prop where
-  | refl (a : α) : HEq a a
+  | /-- Reflexivity of heterogeneous equality. -/
+    refl (a : α) : HEq a a
 
+/-- A version of `HEq.refl` with an implicit argument. -/
 @[matchPattern] protected def HEq.rfl {α : Sort u} {a : α} : HEq a a :=
   HEq.refl a
 
@@ -323,7 +460,9 @@ and `Prod.snd p` respectively. You can also write `p.fst` and `p.snd`.
 For more information: [Constructors with Arguments](https://leanprover.github.io/theorem_proving_in_lean4/inductive_types.html?highlight=Prod#constructors-with-arguments)
 -/
 structure Prod (α : Type u) (β : Type v) where
+  /-- The first projection out of a pair. if `p : α × β` then `p.1 : α`. -/
   fst : α
+  /-- The second projection out of a pair. if `p : α × β` then `p.2 : β`. -/
   snd : β
 
 attribute [unbox] Prod
@@ -333,7 +472,9 @@ Similar to `Prod`, but `α` and `β` can be propositions.
 We use this Type internally to automatically generate the `brecOn` recursor.
 -/
 structure PProd (α : Sort u) (β : Sort v) where
+  /-- The first projection out of a pair. if `p : PProd α β` then `p.1 : α`. -/
   fst : α
+  /-- The second projection out of a pair. if `p : PProd α β` then `p.2 : β`. -/
   snd : β
 
 /--
@@ -341,50 +482,134 @@ Similar to `Prod`, but `α` and `β` are in the same universe.
 We say `MProd` is the universe monomorphic product type.
 -/
 structure MProd (α β : Type u) where
+  /-- The first projection out of a pair. if `p : MProd α β` then `p.1 : α`. -/
   fst : α
+  /-- The second projection out of a pair. if `p : MProd α β` then `p.2 : β`. -/
   snd : β
 
+/--
+`And a b`, or `a ∧ b`, is the conjunction of propositions. It can be
+constructed and destructed like a pair: if `ha : a` and `hb : b` then
+`⟨ha, hb⟩ : a ∧ b`, and if `h : a ∧ b` then `h.left : a` and `h.right : b`.
+-/
 structure And (a b : Prop) : Prop where
-  intro :: (left : a) (right : b)
+  /-- `And.intro : a → b → a ∧ b` is the constructor for the And operation. -/
+  intro ::
+  /-- Extract the left conjunct from a conjunction. `h : a ∧ b` then
+  `h.left`, also notated as `h.1`, is a proof of `a`. -/
+  left : a
+  /-- Extract the right conjunct from a conjunction. `h : a ∧ b` then
+  `h.right`, also notated as `h.2`, is a proof of `b`. -/
+  right : b
 
+/--
+`Or a b`, or `a ∨ b`, is the disjunction of propositions. There are two
+constructors for `Or`, called `Or.inl : a → a ∨ b` and `Or.inr : b → a ∨ b`,
+and you can use `match` or `cases` to destruct an `Or` assumption into the
+two cases.
+-/
 inductive Or (a b : Prop) : Prop where
-  | inl (h : a) : Or a b
-  | inr (h : b) : Or a b
+  | /-- `Or.inl` is "left injection" into an `Or`. If `h : a` then `Or.inl h : a ∨ b`. -/
+    inl (h : a) : Or a b
+  | /-- `Or.inr` is "right injection" into an `Or`. If `h : b` then `Or.inr h : a ∨ b`. -/
+    inr (h : b) : Or a b
 
+/-- Alias for `Or.inl`. -/
 theorem Or.intro_left (b : Prop) (h : a) : Or a b :=
   Or.inl h
 
+/-- Alias for `Or.inr`. -/
 theorem Or.intro_right (a : Prop) (h : b) : Or a b :=
   Or.inr h
 
+/--
+Proof by cases on an `Or`. If `a ∨ b`, and both `a` and `b` imply
+proposition `c`, then `c` is true.
+-/
 theorem Or.elim {c : Prop} (h : Or a b) (left : a → c) (right : b → c) : c :=
   match h with
   | Or.inl h => left h
   | Or.inr h => right h
 
+/--
+`Bool` is the type of boolean values, `true` and `false`. Classically,
+this is equivalent to `Prop` (the type of propositions), but the distinction
+is important for programming, because values of type `Prop` are erased in the
+code generator, while `Bool` corresponds to the type called `bool` or `boolean`
+in most programming languages.
+-/
 inductive Bool : Type where
-  | false : Bool
-  | true : Bool
+  | /-- The boolean value `false`, not to be confused with the proposition `False`. -/
+    false : Bool
+  | /-- The boolean value `true`, not to be confused with the proposition `True`. -/
+    true : Bool
 
 export Bool (false true)
 
-/-- Remark: Subtype must take a Sort instead of Type because of the axiom strongIndefiniteDescription. -/
+/--
+`Subtype p`, usually written as `{x : α // p x}`, is a type which
+represents all the elements `x : α` for which `p x` is true. It is structurally
+a pair-like type, so if you have `x : α` and `h : p x` then
+`⟨x, h⟩ : {x // p x}`. An element `s : {x // p x}` will coerce to `α` but
+you can also make it explicit using `s.1` or `s.val`.
+-/
 structure Subtype {α : Sort u} (p : α → Prop) where
+  /-- If `s : {x // p x}` then `s.val : α` is the underlying element in the base
+  type. You can also write this as `s.1`, or simply as `s` when the type is
+  known from context. -/
   val : α
+  /-- If `s : {x // p x}` then `s.2` or `s.property` is the assertion that
+  `p s.1`, that is, that `s` is in fact an element for which `p` holds. -/
   property : p val
 
 set_option linter.unusedVariables.funArgs false in
-/-- Gadget for optional parameter support. -/
+/--
+Gadget for optional parameter support.
+
+A binder like `(x : α := default)` in a declaration is syntax sugar for
+`x : optParam α default`, and triggers the elaborator to attempt to use
+`default` to supply the argument if it is not supplied.
+-/
 @[reducible] def optParam (α : Sort u) (default : α) : Sort u := α
 
-/-- Gadget for marking output parameters in type classes. -/
+/--
+Gadget for marking output parameters in type classes.
+
+For example, the `Membership` class is defined as:
+```
+class Membership (α : outParam (Type u)) (γ : Type v)
+```
+This means that whenever a typeclass goal of the form `Membership ?α ?γ` comes
+up, lean will wait to solve it until `?γ` is known, but then it will run
+typeclass inference, and take the first solution it finds, for any value of `?α`,
+which thereby determines what `?α` should be.
+
+This expresses that in a term like `a ∈ s`, `s` might be a `Set α` or
+`List α` or some other type with a membership operation, and in each case
+the "member" type `α` is determined by looking at the container type.
+-/
 @[reducible] def outParam (α : Sort u) : Sort u := α
 
 set_option linter.unusedVariables.funArgs false in
-/-- Auxiliary Declaration used to implement the named patterns `x@h:p` -/
+/-- Auxiliary declaration used to implement named patterns like `x@h:p`. -/
 @[reducible] def namedPattern {α : Sort u} (x a : α) (h : Eq x a) : α := a
 
-/-- Auxiliary axiom used to implement `sorry`. -/
+/--
+Auxiliary axiom used to implement `sorry`.
+
+The `sorry` term/tactic expands to `sorryAx _ (synthetic := false)`. This is a
+proof of anything, which is intended for stubbing out incomplete parts of a
+proof while still having a syntactically correct proof skeleton. Lean will give
+a warning whenever a proof uses `sorry`, so you aren't likely to miss it, but
+you can double check if a theorem depends on `sorry` by using
+`#print axioms my_thm` and looking for `sorryAx` in the axiom list.
+
+The `synthetic` flag is false when written explicitly by the user, but it is
+set to `true` when a tactic fails to prove a goal, or if there is a type error
+in the expression. A synthetic `sorry` acts like a regular one, except that it
+suppresses follow-up errors in order to prevent one error from causing a cascade
+of other errors because the desired term was not constructed.
+-/
 @[extern "lean_sorry", neverExtract]
 axiom sorryAx (α : Sort u) (synthetic := false) : α
 
@@ -404,16 +629,67 @@ theorem ne_true_of_eq_false : {b : Bool} → Eq b false → Not (Eq b true)
   | true, h  => Bool.noConfusion h
   | false, _ => fun h => Bool.noConfusion h
 
+/--
+`Inhabited α` is a typeclass that says that `α` has a designated element,
+called `(default : α)`. This is sometimes referred to as a "pointed type".
+
+This class is used by functions that need to return a value of the type
+when called "out of domain". For example, `Array.get! arr i : α` returns
+a value of type `α` when `arr : Array α`, but if `i` is not in range of
+the array, it reports a panic message, but this does not halt the program,
+so it must still return a value of type `α` (and in fact this is required
+for logical consistency), so in this case it returns `default`.
+-/
 class Inhabited (α : Sort u) where
+  /-- `default` is a function that produces a "default" element of any
+  `Inhabited` type. This element does not have any particular specified
+  properties, but it is often an all-zeroes value. -/
   default : α
 
 export Inhabited (default)
 
+/--
+`Nonempty α` is a typeclass that says that `α` is not an empty type,
+that is, there exists an element in the type. It differs from `Inhabited α`
+in that `Nonempty α` is a `Prop`, which means that it does not actually carry
+an element of `α`, only a proof that *there exists* such an element.
+Given `Nonempty α`, you can construct an element of `α` *nonconstructively*
+using `Classical.choice`.
+-/
 class inductive Nonempty (α : Sort u) : Prop where
-  | intro (val : α) : Nonempty α
+  | /-- If `val : α`, then `α` is nonempty. -/
+    intro (val : α) : Nonempty α
 
+/--
+**The axiom of choice**. `Nonempty α` is a proof that `α` has an element,
+but the element itself is erased. The axiom `choice` supplies a particular
+element of `α` given only this proof.
+
+The textbook axiom of choice normally makes a family of choices all at once,
+but that is implied from this formulation, because if `α : ι → Type` is a
+family of types and `h : ∀ i, Nonempty (α i)` is a proof that they are all
+nonempty, then `fun i => Classical.choice (h i) : ∀ i, α i` is a family of
+chosen elements. This is actually a bit stronger than the ZFC choice axiom;
+this is sometimes called "[global choice](https://en.wikipedia.org/wiki/Axiom_of_global_choice)".
+
+In lean, we use the axiom of choice to derive the law of excluded middle
+(see `Classical.em`), so it will often show up in axiom listings where you
+may not expect. You can use `#print axioms my_thm` to find out if a given
+theorem depends on this or other axioms.
+
+This axiom can be used to construct "data", but obviously there is no algorithm
+to compute it, so lean will require you to mark any definition that would
+involve executing `Classical.choice` or other axioms as `noncomputable`, and
+will not produce any executable code for such definitions.
+-/
 axiom Classical.choice {α : Sort u} : Nonempty α → α
 
+/--
+The elimination principle for `Nonempty α`. If `Nonempty α`, and we can
+prove `p` given any element `x : α`, then `p` holds. Note that it is essential
+that `p` is a `Prop` here; the version with `p` being a `Sort u` is equivalent
+to `Classical.choice`.
+-/
 protected def Nonempty.elim {α : Sort u} {p : Prop} (h₁ : Nonempty α) (h₂ : α → p) : p :=
   match h₁ with
   | intro a => h₂ a
@@ -421,6 +697,10 @@ protected def Nonempty.elim {α : Sort u} {p : Prop} (h₁ : Nonempty α) (h₂ 
 instance {α : Sort u} [Inhabited α] : Nonempty α :=
   ⟨default⟩
 
+/--
+A variation on `Classical.choice` that uses typeclass inference to
+infer the proof of `Nonempty α`.
+-/
 noncomputable def Classical.ofNonempty {α : Sort u} [Nonempty α] : α :=
   Classical.choice inferInstance
 
@@ -441,55 +721,98 @@ instance (α : Sort u) {β : α → Sort v} [(a : α) → Inhabited (β a)] : In
 
 deriving instance Inhabited for Bool
 
-/-- Universe lifting operation from Sort to Type -/
+/-- Universe lifting operation from `Sort u` to `Type u`. -/
 structure PLift (α : Sort u) : Type u where
-  up :: (down : α)
+  /-- Lift a value into `PLift α` -/    up ::
+  /-- Extract a value from `PLift α` -/ down : α
 
-/-- Bijection between α and PLift α -/
-theorem PLift.up_down {α : Sort u} : ∀ (b : PLift α), Eq (up (down b)) b
-  | up _ => rfl
+/-- Bijection between `α` and `PLift α` -/
+theorem PLift.up_down {α : Sort u} (b : PLift α) : Eq (up (down b)) b := rfl
 
-theorem PLift.down_up {α : Sort u} (a : α) : Eq (down (up a)) a :=
-  rfl
+/-- Bijection between `α` and `PLift α` -/
+theorem PLift.down_up {α : Sort u} (a : α) : Eq (down (up a)) a := rfl
 
-/-- Pointed types -/
+/--
+`NonemptyType.{u}` is the type of nonempty types in universe `u`.
+It is mainly used in constant declarations where we wish to introduce a type
+and simultaneously assert that it is nonempty, but otherwise make the type
+opaque.
+-/
 def NonemptyType := Subtype fun α : Type u => Nonempty α
 
+/-- The underlying type of a `NonemptyType`. -/
 abbrev NonemptyType.type (type : NonemptyType.{u}) : Type u :=
   type.val
 
+/-- `NonemptyType` is inhabited, because `PUnit` is a nonempty type. -/
 instance : Inhabited NonemptyType.{u} where
-  default := ⟨PUnit.{u+1}, Nonempty.intro ⟨⟩⟩
+  default := ⟨PUnit, ⟨⟨⟩⟩⟩
 
-/-- Universe lifting operation -/
+/--
+Universe lifting operation from a lower `Type` universe to a higher one.
+To express this using level variables, the input is `Type s` and the output is
+`Type (max s r)`, so if `s ≤ r` then the latter is (definitionally) `Type r`.
+
+The universe variable `r` is written first so that `ULift.{r} α` can be used
+when `s` can be inferred from the type of `α`.
+-/
 structure ULift.{r, s} (α : Type s) : Type (max s r) where
-  up :: (down : α)
+  /-- Lift a value into `ULift α` -/    up ::
+  /-- Extract a value from `ULift α` -/ down : α
 
-/-- Bijection between α and ULift.{v} α -/
-theorem ULift.up_down {α : Type u} : ∀ (b : ULift.{v} α), Eq (up (down b)) b
-  | up _ => rfl
+/-- Bijection between `α` and `ULift.{v} α` -/
+theorem ULift.up_down {α : Type u} (b : ULift.{v} α) : Eq (up (down b)) b := rfl
 
-theorem ULift.down_up {α : Type u} (a : α) : Eq (down (up.{v} a)) a :=
-  rfl
+/-- Bijection between `α` and `ULift.{v} α` -/
+theorem ULift.down_up {α : Type u} (a : α) : Eq (down (up.{v} a)) a := rfl
 
+/--
+`Decidable p` is a data-carrying class that supplies a proof that `p` is
+either `true` or `false`. It is equivalent to `Bool` (and in fact it has the
+same code generation as `Bool`) together with a proof that the `Bool` is
+true iff `p` is.
+
+`Decidable` instances are used to infer "computation strategies" for
+propositions, so that you can have the convenience of writing propositions
+inside `if` statements and executing them (which actually executes the inferred
+decidability instance instead of the proposition, which has no code).
+
+If a proposition `p` is `Decidable`, then `(by decide : p)` will prove it by
+evaluating the decidability instance to `isTrue h` and returning `h`.
+-/
 class inductive Decidable (p : Prop) where
-  | isFalse (h : Not p) : Decidable p
-  | isTrue  (h : p) : Decidable p
+  | /-- Prove that `p` is decidable by supplying a proof of `¬p` -/
+    isFalse (h : Not p) : Decidable p
+  | /-- Prove that `p` is decidable by supplying a proof of `p` -/
+    isTrue (h : p) : Decidable p
 
+/--
+Convert a decidable proposition into a boolean value.
+
+If `p : Prop` is decidable, then `decide p : Bool` is the boolean value
+which is `true` if `p` is true and `false` if `p` is false.
+-/
 @[inlineIfReduce, nospecialize] def Decidable.decide (p : Prop) [h : Decidable p] : Bool :=
   h.casesOn (fun _ => false) (fun _ => true)
 
 export Decidable (isTrue isFalse decide)
 
+/-- A decidable predicate. See `Decidable`. -/
 abbrev DecidablePred {α : Sort u} (r : α → Prop) :=
   (a : α) → Decidable (r a)
 
+/-- A decidable relation. See `Decidable`. -/
 abbrev DecidableRel {α : Sort u} (r : α → α → Prop) :=
   (a b : α) → Decidable (r a b)
 
+/--
+Asserts that `α` has decidable equality, that is, `a = b` is decidable
+for all `a b : α`. See `Decidable`.
+-/
 abbrev DecidableEq (α : Sort u) :=
   (a b : α) → Decidable (Eq a b)
 
+/-- Proves that `a = b` is decidable given `DecidableEq α`. -/
 def decEq {α : Sort u} [inst : DecidableEq α] (a b : α) : Decidable (Eq a b) :=
   inst a b
 
@@ -524,8 +847,16 @@ theorem of_decide_eq_self_eq_true [inst : DecidableEq α] (a : α) : Eq (decide 
    | true, false  => isFalse (fun h => Bool.noConfusion h)
    | true, true   => isTrue rfl
 
+/--
+`BEq α` is a typeclass for supplying a boolean-valued equality relation on
+`α`, notated as `a == b`. Unlike `DecidableEq α` (which uses `a = b`), this
+is `Bool` valued instead of `Prop` valued, and it also does not have any
+axioms like being reflexive or agreeing with `=`. It is mainly intended for
+programming applications. See `LawfulBEq` for a version that requires that
+`==` and `=` coincide.
+-/
 class BEq (α : Type u) where
-  /-- Boolean equality. -/
+  /-- Boolean equality, notated as `a == b`. -/
   beq : α → α → Bool
 
 open BEq (beq)
@@ -535,13 +866,41 @@ instance [DecidableEq α] : BEq α where
 
 
 /--
-We use "dependent" if-then-else to be able to communicate the if-then-else condition to the branches
+"Dependent" if-then-else, normally written via the notation `if h : c then t(h) else e(h)`,
+is sugar for `dite c (fun h => t(h)) (fun h => e(h))`, and it is the same as
+`if c then t else e` except that `t` is allowed to depend on a proof `h : c`,
+and `e` can depend on `h : ¬c`. (Both branches use the same name for the hypothesis,
+even though it has different types in the two cases.)
+
+We use this to be able to communicate the if-then-else condition to the branches.
+For example, `Array.get arr ⟨i, h⟩` expects a proof `h : i < arr.size` in order to
+avoid a bounds check, so you can write `if h : i < arr.size then arr.get ⟨i, h⟩ else ...`
+to avoid the bounds check inside the if branch. (Of course in this case we have only
+lifted the check into an explicit `if`, but we could also use this proof multiple times
+or derive `i < arr.size` from some other proposition that we are checking in the `if`.)
 -/
 @[macroInline] def dite {α : Sort u} (c : Prop) [h : Decidable c] (t : c → α) (e : Not c → α) : α :=
   h.casesOn e t
 
 /-! # if-then-else -/
 
+/--
+`if c then t else e` is notation for `ite c t e`, "if-then-else", which decides to
+return `t` or `e` depending on whether `c` is true or false. The explicit argument
+`c : Prop` does not have any actual computational content, but there is an additional
+`[Decidable c]` argument synthesized by typeclass inference which actually
+determines how to evaluate `c` to true or false.
+
+Because lean uses a strict (call-by-value) evaluation strategy, the signature of this
+function is problematic in that it would require `t` and `e` to be evaluated before
+calling the `ite` function, which would cause both sides of the `if` to be evaluated.
+Even if the result is discarded, this would be a big performance problem,
+and is undesirable for users in any case. To resolve this, `ite` is marked as
+`@[macroInline]`, which means that it is unfolded during code generation, and
+the definition of the function uses `fun _ => t` and `fun _ => e` so this recovers
+the expected "lazy" behavior of `if`: the `t` and `e` arguments delay evaluation
+until `c` is known.
+-/
 @[macroInline] def ite {α : Sort u} (c : Prop) [h : Decidable c] (t e : α) : α :=
   h.casesOn (fun _ => e) (fun _ => t)
 
@@ -572,6 +931,11 @@ instance [dp : Decidable p] : Decidable (Not p) :=
 
 /-! # Boolean operators -/
 
+/--
+`cond b x y` is the same as `if b then x else y`, but optimized for a
+boolean condition. This is `@[macroInline]` because `x` and `y` should not
+be eagerly evaluated (see `ite`).
+-/
 @[macroInline] def cond {α : Type u} (c : Bool) (x y : α) : α :=
   match c with
   | true  => x

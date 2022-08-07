@@ -143,7 +143,8 @@ def openRenaming     := leading_parser atomic (ident >> "renaming") >> sepBy1 op
 def openOnly         := leading_parser atomic (ident >> " (") >> many1 ident >> ")"
 def openSimple       := leading_parser many1 (checkColGt >> ident)
 def openScoped       := leading_parser "scoped " >> many1 (checkColGt >> ident)
-def openDecl         := openHiding <|> openRenaming <|> openOnly <|> openSimple <|> openScoped
+def openDecl         := withAntiquot (mkAntiquot "openDecl" `Lean.Parser.Command.openDecl (isPseudoKind := true)) <|
+  openHiding <|> openRenaming <|> openOnly <|> openSimple <|> openScoped
 @[builtinCommandParser] def «open»    := leading_parser withPosition ("open " >> openDecl)
 
 @[builtinCommandParser] def «mutual» := leading_parser "mutual " >> many1 (ppLine >> notSymbol "end" >> commandParser) >> ppDedent (ppLine >> "end") >> terminationSuffix

@@ -316,3 +316,8 @@ instance : Coe Syntax (TSyntax `rawStx) where
 scoped syntax (name := withAnnotateTerm) "with_annotate_term " rawStx ppSpace term : term
 
 syntax (name := deprecated) "deprecated " (ident)? : attr
+
+/-- When `parent_dir` contains the current Lean file, `include_str "path" / "to" / "file"` becomes
+a string literal with the contents of the file at `"parent_dir" / "path" / "to" / "file"`. If this
+file cannot be read, elaboration fails. -/
+syntax (name := includeStr) "include_str" term : term

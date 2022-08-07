@@ -3,121 +3,82 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Environment
+import Lean.Compiler.CompilerM
 
-namespace Lean
-
-namespace Compiler
-
-def neutralExpr : Expr       := mkConst `_neutral
-def unreachableExpr : Expr   := mkConst `_unreachable
-def objectType : Expr        := mkConst `_obj
-def voidType : Expr          := mkConst `_void
-def mkLcProof (pred : Expr)  := mkApp (mkConst `lcProof []) pred
-
-namespace atMostOnce
-
-structure AtMostOnceData where
-  found : Bool
-  result : Bool
-
-def Visitor := AtMostOnceData → AtMostOnceData
-
-@[inline] def seq (f g : Visitor) : Visitor := fun d =>
-  match f d with
-  | ⟨found, false⟩ => ⟨found, false⟩
-  | other          => g other
-
-instance : AndThen Visitor where
-  andThen a b := seq a (b ())
-
-@[inline] def skip : Visitor := id
-
-@[inline] def visitFVar (x y : FVarId) : Visitor
-  | d@{result := false, ..} => d
-  | {found := false, result := true} => {found := x == y, result := true}
-  | {found := true,  result := true} => {found := true, result := x != y}
-
-def visit (x : FVarId) : Expr → Visitor
-  | Expr.fvar y          => visitFVar y x
-  | Expr.app f a         => visit x a >> visit x f
-  | Expr.lam _ d b _     => visit x d >> visit x b
-  | Expr.forallE _ d b _ => visit x d >> visit x b
-  | Expr.letE _ t v b _  => visit x t >> visit x v >> visit x b
-  | Expr.mdata _ e       => visit x e
-  | Expr.proj _ _ e      => visit x e
-  | _                    => skip
-
-end atMostOnce
-
-open atMostOnce (visit) in
-/-- Return true iff the free variable with id `x` occurs at most once in `e` -/
-@[export lean_at_most_once]
-def atMostOnce (e : Expr) (x : FVarId) : Bool :=
-  let {result := result, ..} := visit x e {found := false, result := true}
-  result
-
-/-! Helper functions for creating auxiliary names used in compiler passes. -/
-
-@[export lean_mk_eager_lambda_lifting_name]
-def mkEagerLambdaLiftingName (n : Name) (idx : Nat) : Name :=
-  Name.mkStr n ("_elambda_" ++ toString idx)
-
-@[export lean_is_eager_lambda_lifting_name]
-def isEagerLambdaLiftingName : Name → Bool
-  | .str p s => "_elambda".isPrefixOf s || isEagerLambdaLiftingName p
-  | .num p _ => isEagerLambdaLiftingName p
-  | _        => false
-
-/-- Return the name of new definitions in the a given declaration.
-    Here we consider only declarations we generate code for.
-    We use this definition to implement `add_and_compile`. -/
-def getDeclNamesForCodeGen : Declaration → List Name
-  | Declaration.defnDecl { name := n, .. }   => [n]
-  | Declaration.mutualDefnDecl defs          => defs.map fun d => d.name
-  | Declaration.opaqueDecl { name := n, .. } => [n]
-  | Declaration.axiomDecl { name := n, .. }  => [n] -- axiom may be tagged with `@[extern ...]`
-  | _                                        => []
-
-def checkIsDefinition (env : Environment) (n : Name) : Except String Unit :=
-match env.find? n with
-  | (some (ConstantInfo.defnInfo _))   => Except.ok ()
-  | (some (ConstantInfo.opaqueInfo _)) => Except.ok ()
-  | none => Except.error s!"unknow declaration '{n}'"
-  | _    => Except.error s!"declaration is not a definition '{n}'"
+namespace Lean.Compiler
 
 /--
-  We generate auxiliary unsafe definitions for regular recursive definitions.
-  The auxiliary unsafe definition has a clear runtime cost execution model.
-  This function returns the auxiliary unsafe definition name for the given name. -/
-@[export lean_mk_unsafe_rec_name]
-def mkUnsafeRecName (declName : Name) : Name :=
-  Name.mkStr declName "_unsafe_rec"
-
-/-- Return `some _` if the given name was created using `mkUnsafeRecName` -/
-@[export lean_is_unsafe_rec_name]
-def isUnsafeRecName? : Name → Option Name
-  | .str n "_unsafe_rec" => some n
-  | _ => none
-
-end Compiler
-
-namespace Environment
-
-/--
-Compile the given block of mutual declarations.
-Assumes the declarations have already been added to the environment using `addDecl`.
+Return `true` if `mdata` should be preserved.
+Right now, we don't preserve any `MData`, but this may
+change in the future when we add support for debugging information
 -/
-@[extern "lean_compile_decls"]
-opaque compileDecls (env : Environment) (opt : @& Options) (decls : @& List Name) : Except KernelException Environment
+def isCompilerRelevantMData (_mdata : MData) : Bool :=
+  false
 
-/-- Compile the given declaration, it assumes the declaration has already been added to the environment using `addDecl`. -/
-def compileDecl (env : Environment) (opt : @& Options) (decl : @& Declaration) : Except KernelException Environment :=
-  compileDecls env opt (Compiler.getDeclNamesForCodeGen decl)
+/--
+Return `true` if `e` is a `lcProof` application.
+Recall that we use `lcProof` to erase all nested proofs.
+-/
+def isLCProof (e : Expr) : Bool :=
+  e.isAppOfArity ``lcProof 1
 
 
-def addAndCompile (env : Environment) (opt : Options) (decl : Declaration) : Except KernelException Environment := do
-  let env ← addDecl env decl
-  compileDecl env opt decl
+/-- Create `lcProof p` -/
+def mkLcProof (p : Expr) :=
+  mkApp (mkConst ``lcProof []) p
 
-end Environment
+/-- Create `lcCast expectedType e : expectedType` -/
+def mkLcCast (e : Expr) (expectedType : Expr) : CompilerM Expr := do
+  liftMetaM do
+    let type ← Meta.inferType e
+    let u ← Meta.getLevel type
+    let v ← Meta.getLevel expectedType
+    return mkApp3 (.const ``lcCast [u, v]) type expectedType e
+
+/-- Create `lcUnreachable type` -/
+def mkLcUnreachable (type : Expr) : CompilerM Expr := do
+  liftMetaM do
+    let u ← Meta.getLevel type
+    return .app (.const ``lcUnreachable [u]) type
+
+structure CasesOnInfo where
+  arity       : Nat
+  majorPos    : Nat
+  minorsRange : Std.Range
+  ctors       : List Name
+
+def getCasesOnInductiveVal? (declName : Name) : CoreM (Option InductiveVal) := do
+  unless isCasesOnRecursor (← getEnv) declName do return none
+  let .inductInfo val ← getConstInfo declName.getPrefix | return none
+  return some val
+
+def getCasesOnInfo? (declName : Name) : CoreM (Option CasesOnInfo) := do
+  let some val ← getCasesOnInductiveVal? declName | return none
+  let arity       := val.numIndices + val.numParams + 1 /- motive -/ + 1 /- major -/ + val.numCtors
+  let majorPos    := val.numIndices + val.numParams + 1 /- motive -/
+  let minorsRange := { start := majorPos + 1, stop := arity }
+  return some { arity, majorPos, minorsRange, ctors := val.ctors }
+
+def getCtorArity? (declName : Name) : CoreM (Option Nat) := do
+  let .ctorInfo val ← getConstInfo declName | return none
+  return val.numParams + val.numFields
+
+/--
+List of types that have builtin runtime support
+-/
+def builtinRuntimeTypes : List Name := [
+  ``String,
+  ``UInt8, ``UInt16, ``UInt32, ``UInt64, ``USize,
+  ``Float,
+  ``Thunk, ``Task,
+  ``Array, ``ByteArray, ``FloatArray,
+  ``Nat, ``Int
+]
+
+/--
+Return `true` iff `declName` is the name of a type with builtin support in the runtime.
+-/
+def isRuntimeBultinType (declName : Name) : Bool :=
+  builtinRuntimeTypes.contains declName
+
+end Lean.Compiler

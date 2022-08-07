@@ -82,4 +82,12 @@ instance [ToExpr α] [ToExpr β] : ToExpr (α × β) :=
   { toExpr     := fun ⟨a, b⟩ => mkApp4 (mkConst ``Prod.mk [levelZero, levelZero]) αType βType (toExpr a) (toExpr b),
     toTypeExpr := mkApp2 (mkConst ``Prod [levelZero, levelZero]) αType βType }
 
+def Expr.toCtorIfLit : Expr → Expr
+  | .lit (.natVal v) =>
+    if v == 0 then mkConst ``Nat.zero
+    else mkApp (mkConst ``Nat.succ) (mkRawNatLit (v-1))
+  | .lit (.strVal v) =>
+    mkApp (mkConst ``String.mk) (toExpr v.toList)
+  | e => e
+
 end Lean

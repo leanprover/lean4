@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.InlineAttrs
-// Imports: Init Lean.Attributes Lean.Compiler.Util
+// Imports: Init Lean.Attributes
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1613,7 +1613,6 @@ return x_5;
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Attributes(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Compiler_Util(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_InlineAttrs(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1623,9 +1622,6 @@ res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Attributes(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Compiler_Util(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Compiler_InlineAttributeKind_noConfusion___rarg___closed__1 = _init_l_Lean_Compiler_InlineAttributeKind_noConfusion___rarg___closed__1();

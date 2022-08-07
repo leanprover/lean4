@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.Decl
-// Imports: Init Lean.Meta.Transform Lean.Compiler.LCNF
+// Imports: Init Lean.Meta.Transform Lean.Meta.Check Lean.Compiler.LCNF
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -64,6 +64,7 @@ lean_object* l_Lean_ConstantInfo_type(lean_object*);
 lean_object* l_Lean_ConstantInfo_value_x3f(lean_object*);
 lean_object* l_instBEqProd___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_toDecl___closed__24;
+LEAN_EXPORT lean_object* l_Lean_Compiler_Decl_check(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_macroInline___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_macroInline___lambda__1___closed__1;
 lean_object* l_Lean_Meta_etaExpand(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -96,6 +97,7 @@ static lean_object* l_Lean_Compiler_toDecl___closed__29;
 static lean_object* l_Lean_Compiler_toDecl___closed__14;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_Decl_0__Lean_Compiler_replaceUnsafeRecNames(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_toDecl___closed__28;
+lean_object* l_Lean_Meta_check(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Compiler_macroInline___lambda__1___closed__1() {
 _start:
 {
@@ -1269,8 +1271,93 @@ lean_dec(x_2);
 return x_5;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Compiler_Decl_check(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_5 = lean_ctor_get(x_1, 2);
+lean_inc(x_5);
+lean_dec(x_1);
+x_6 = lean_st_ref_get(x_3, x_4);
+x_7 = lean_ctor_get(x_6, 1);
+lean_inc(x_7);
+lean_dec(x_6);
+x_8 = l_Lean_Compiler_toDecl___closed__29;
+x_9 = lean_st_mk_ref(x_8, x_7);
+x_10 = lean_ctor_get(x_9, 0);
+lean_inc(x_10);
+x_11 = lean_ctor_get(x_9, 1);
+lean_inc(x_11);
+lean_dec(x_9);
+x_12 = l_Lean_Compiler_toDecl___closed__16;
+lean_inc(x_3);
+lean_inc(x_10);
+x_13 = l_Lean_Meta_check(x_5, x_12, x_10, x_2, x_3, x_11);
+if (lean_obj_tag(x_13) == 0)
+{
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; 
+x_14 = lean_ctor_get(x_13, 0);
+lean_inc(x_14);
+x_15 = lean_ctor_get(x_13, 1);
+lean_inc(x_15);
+lean_dec(x_13);
+x_16 = lean_st_ref_get(x_3, x_15);
+lean_dec(x_3);
+x_17 = lean_ctor_get(x_16, 1);
+lean_inc(x_17);
+lean_dec(x_16);
+x_18 = lean_st_ref_get(x_10, x_17);
+lean_dec(x_10);
+x_19 = !lean_is_exclusive(x_18);
+if (x_19 == 0)
+{
+lean_object* x_20; 
+x_20 = lean_ctor_get(x_18, 0);
+lean_dec(x_20);
+lean_ctor_set(x_18, 0, x_14);
+return x_18;
+}
+else
+{
+lean_object* x_21; lean_object* x_22; 
+x_21 = lean_ctor_get(x_18, 1);
+lean_inc(x_21);
+lean_dec(x_18);
+x_22 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_22, 0, x_14);
+lean_ctor_set(x_22, 1, x_21);
+return x_22;
+}
+}
+else
+{
+uint8_t x_23; 
+lean_dec(x_10);
+lean_dec(x_3);
+x_23 = !lean_is_exclusive(x_13);
+if (x_23 == 0)
+{
+return x_13;
+}
+else
+{
+lean_object* x_24; lean_object* x_25; lean_object* x_26; 
+x_24 = lean_ctor_get(x_13, 0);
+x_25 = lean_ctor_get(x_13, 1);
+lean_inc(x_25);
+lean_inc(x_24);
+lean_dec(x_13);
+x_26 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_26, 0, x_24);
+lean_ctor_set(x_26, 1, x_25);
+return x_26;
+}
+}
+}
+}
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Transform(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Check(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_Decl(uint8_t builtin, lean_object* w) {
@@ -1281,6 +1368,9 @@ res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Transform(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Check(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF(builtin, lean_io_mk_world());

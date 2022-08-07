@@ -8,23 +8,19 @@ import Lean.DeclarationRange
 
 import Lean.Data.Json
 import Lean.Data.Lsp
+import Lean.Elab.Command
 
 import Lean.Server.FileSource
 import Lean.Server.FileWorker.Utils
 
 import Lean.Server.Rpc.Basic
 
-/-! We maintain a global map of LSP request handlers. This allows user code such as plugins
-to register its own handlers, for example to support ITP functionality such as goal state
-visualization.
-
-For details of how to register one, see `registerLspRequestHandler`. -/
-
 namespace Lean.Server
 
 structure RequestError where
   code    : JsonRpc.ErrorCode
   message : String
+  deriving Inhabited
 
 namespace RequestError
 open JsonRpc
@@ -38,11 +34,13 @@ def methodNotFound (method : String) : RequestError :=
     message := s!"No request handler found for '{method}'" }
 
 def internalError (message : String) : RequestError :=
-  { code := ErrorCode.internalError, message := message }
+  { code := ErrorCode.internalError, message }
 
-instance : Coe IO.Error RequestError where
-  coe e := { code := ErrorCode.internalError
-             message := toString e }
+def ofException (e : Lean.Exception) : IO RequestError :=
+  return internalError (← e.toMessageData.toString)
+
+def ofIoError (e : IO.Error) : RequestError :=
+  internalError (toString e)
 
 def toLspResponseError (id : RequestID) (e : RequestError) : ResponseError Unit :=
   { id := id
@@ -65,31 +63,42 @@ structure RequestContext where
   initParams    : Lsp.InitializeParams
 
 abbrev RequestTask α := Task (Except RequestError α)
+abbrev RequestT m := ReaderT RequestContext <| ExceptT RequestError m
 /-- Workers execute request handlers in this monad. -/
 abbrev RequestM := ReaderT RequestContext <| EIO RequestError
 
-instance : Inhabited (RequestM α) :=
-  ⟨throw ("executing Inhabited instance?!" : RequestError)⟩
-
 instance : MonadLift IO RequestM where
-  monadLift x := x.toEIO fun e => (e : RequestError)
+  monadLift x := do
+    match ←  x.toBaseIO with
+    | .error e => throw <| RequestError.ofIoError e
+    | .ok v => return v
+
+instance : MonadLift (EIO Exception) RequestM where
+  monadLift x := do
+    match ←  x.toBaseIO with
+    | .error e => throw <| ← RequestError.ofException e
+    | .ok v => return v
 
 namespace RequestM
 open FileWorker
 open Snapshots
 
-def readDoc : RequestM EditableDocument := fun rc =>
+def readDoc [Monad m] [MonadReaderOf RequestContext m] : m EditableDocument := do
+  let rc ← readThe RequestContext
   return rc.doc
 
-def asTask (t : RequestM α) : RequestM (RequestTask α) := fun rc => do
-  let t ← EIO.asTask <| t rc
+def asTask (t : RequestM α) : RequestM (RequestTask α) := do
+  let rc ← readThe RequestContext
+  let t ← EIO.asTask <| t.run rc
   return t.map liftExcept
 
-def mapTask (t : Task α) (f : α → RequestM β) : RequestM (RequestTask β) := fun rc => do
+def mapTask (t : Task α) (f : α → RequestM β) : RequestM (RequestTask β) := do
+  let rc ← readThe RequestContext
   let t ← EIO.mapTask (f · rc) t
   return t.map liftExcept
 
-def bindTask (t : Task α) (f : α → RequestM (RequestTask β)) : RequestM (RequestTask β) := fun rc => do
+def bindTask (t : Task α) (f : α → RequestM (RequestTask β)) : RequestM (RequestTask β) := do
+  let rc ← readThe RequestContext
   EIO.bindTask t (f · rc)
 
 def waitFindSnapAux (notFoundX : RequestM α) (x : Snapshot → RequestM α)
@@ -100,7 +109,7 @@ def waitFindSnapAux (notFoundX : RequestM α) (x : Snapshot → RequestM α)
   | Except.error FileWorker.ElabTaskError.aborted =>
     throwThe RequestError RequestError.fileChanged
   | Except.error (FileWorker.ElabTaskError.ioError e) =>
-    throw (e : RequestError)
+    throw (RequestError.ofIoError e)
   | Except.ok none => notFoundX
   | Except.ok (some snap) => x snap
 
@@ -108,54 +117,61 @@ def waitFindSnapAux (notFoundX : RequestM α) (x : Snapshot → RequestM α)
 and if a matching snapshot was found executes `x` with it. If not found, the task executes
 `notFoundX`. -/
 def withWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
-  (notFoundX : RequestM β)
-  (x : Snapshot → RequestM β)
+    (notFoundX : RequestM β)
+    (x : Snapshot → RequestM β)
     : RequestM (RequestTask β) := do
   let findTask ← doc.cmdSnaps.waitFind? p
   mapTask findTask <| waitFindSnapAux notFoundX x
 
 /-- See `withWaitFindSnap`. -/
 def bindWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
-  (notFoundX : RequestM (RequestTask β))
-  (x : Snapshot → RequestM (RequestTask β))
+    (notFoundX : RequestM (RequestTask β))
+    (x : Snapshot → RequestM (RequestTask β))
     : RequestM (RequestTask β) := do
   let findTask ← doc.cmdSnaps.waitFind? p
   bindTask findTask <| waitFindSnapAux notFoundX x
 
-/-- Helper for running an Rpc request at a particular snapshot. -/
+/-- Create a task which waits for the snapshot containing `lspPos` and executes `f` with it.
+If no such snapshot exists, the request fails with an error. -/
 def withWaitFindSnapAtPos
-  (lspPos : Lean.Lsp.Position)
-  (f : Snapshots.Snapshot → RequestM α): RequestM (RequestTask α) := do
+    (lspPos : Lsp.Position)
+    (f : Snapshots.Snapshot → RequestM α)
+    : RequestM (RequestTask α) := do
   let doc ← readDoc
   let pos := doc.meta.text.lspPosToUtf8Pos lspPos
-  withWaitFindSnap
-    doc
-    (fun s => s.endPos >= pos)
-    (notFoundX := throw <| RequestError.mk .invalidParams s!"no snapshot found at {lspPos}")
-    f
+  withWaitFindSnap doc (fun s => s.endPos >= pos)
+    (notFoundX := throw ⟨.invalidParams, s!"no snapshot found at {lspPos}"⟩)
+    (x := f)
 
-open Lean Elab Command in
-/-- Use the command state in the given snapshot to run a `CommandElabM`.-/
-def runCommand (snap : Snapshots.Snapshot) (c : CommandElabM α) : RequestM α := do
-  let r ← read
-  let ctx : Command.Context := {
-    fileName := r.doc.meta.uri,
-    fileMap := r.doc.meta.text,
-    tacticCache? := snap.tacticCache,
-  }
-  let ea ← c.run ctx |>.run snap.cmdState |> EIO.toIO'
-  match ea with
-  | Except.ok (a, _s) => return a
-  | Except.error ex => do
-    throw <| RequestError.internalError <|← ex.toMessageData.toString
+open Elab.Command in
+def runCommandElabM (snap : Snapshot) (c : RequestT CommandElabM α) : RequestM α := do
+  let rc ← readThe RequestContext
+  match ← snap.runCommandElabM rc.doc.meta (c.run rc) with
+  | .ok v => return v
+  | .error e => throw e
 
-/-- Run a `CoreM` using the data in the given snapshot.-/
-def runCore (snap : Snapshots.Snapshot) (c : CoreM α) : RequestM α :=
-  runCommand snap <| Lean.Elab.Command.liftCoreM c
+def runCoreM (snap : Snapshot) (c : RequestT CoreM α) : RequestM α := do
+  let rc ← readThe RequestContext
+  match ← snap.runCoreM rc.doc.meta (c.run rc) with
+  | .ok v => return v
+  | .error e => throw e
+
+open Elab.Term in
+def runTermElabM (snap : Snapshot) (c : RequestT TermElabM α) : RequestM α := do
+  let rc ← readThe RequestContext
+  match ← snap.runTermElabM rc.doc.meta (c.run rc) with
+  | .ok v => return v
+  | .error e => throw e
 
 end RequestM
 
-/-! # The global request handlers table -/
+/-! # The global request handlers table
+
+We maintain a global map of LSP request handlers. This allows user code such as plugins
+to register its own handlers, for example to support ITP functionality such as goal state
+visualization.
+
+For details of how to register one, see `registerLspRequestHandler`. -/
 section HandlerTable
 open Lsp
 
@@ -215,7 +231,7 @@ def chainLspRequestHandler (method : String)
     let handle := fun j => do
       let t ← oldHandler.handle j
       let t := t.map fun x => x.bind fun j => FromJson.fromJson? j |>.mapError fun e =>
-        IO.userError s!"Failed to parse original LSP response for `{method}` when chaining: {e}"
+        .internalError s!"Failed to parse original LSP response for `{method}` when chaining: {e}"
       let params ← liftExcept <| parseRequestParams paramType j
       let t ← handler params t
       pure <| t.map <| Except.map ToJson.toJson
@@ -231,7 +247,9 @@ def routeLspRequest (method : String) (params : Json) : IO (Except RequestError 
 
 def handleLspRequest (method : String) (params : Json) : RequestM (RequestTask Json) := do
   match (← lookupLspRequestHandler method) with
-  | none => throw (s!"internal server error: request '{method}' routed through watchdog but unknown in worker; are both using the same plugins?" : RequestError)
+  | none =>
+    throw <| .internalError
+      s!"request '{method}' routed through watchdog but unknown in worker; are both using the same plugins?"
   | some rh => rh.handle params
 
 end HandlerTable

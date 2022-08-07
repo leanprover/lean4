@@ -113,9 +113,9 @@ def isDefEqNat (s t : Expr) : MetaM LBool := do
 def isDefEqStringLit (s t : Expr) : MetaM LBool := do
   let isDefEq (s t) : MetaM LBool := toLBoolM <| Meta.isExprDefEqAux s t
   if s.isStringLit && t.isAppOf ``String.mk then
-    isDefEq (toCtorIfLit s) t
+    isDefEq s.toCtorIfLit t
   else if s.isAppOf `String.mk && t.isStringLit then
-    isDefEq s (toCtorIfLit t)
+    isDefEq s t.toCtorIfLit
   else
     pure LBool.undef
 
@@ -1255,24 +1255,45 @@ private def unfoldReducibeDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : Meta
   If `s` is a (non-class) projection function application and `t` is not ==> `isDefEqRight (unfold t) s`
   Otherwise, use `unfoldReducibeDefEq`
 
-  The motivation for the heuristic above is unification problems such as
+  One motivation for the heuristic above is unification problems such as
   ```
   id (?m.1) =?= (a, b).1
   ```
   We want to reduce the lhs instead of the rhs, and eventually assign `?m := (a, b)`.
 
-  For class projections we do the opposite because the `?m` can always be synthesized using
-  type class resolution. See issue #1419 for an example for motivating this behavior.
+  Another motivation for the heuristic above is unification problems such as
+  ```
+  List.length (a :: as) =?= HAdd.hAdd (List.length as) 1
+  ```
+
+  However, for class projections, we also unpack them and check whether the result function is the one
+  on the other side. This is relevant for unification problems such as
+  ```
+  Foo.pow x 256 =?= Pow.pow x 256
+  ```
+  where the the `Pow` instance is wrapping `Foo.pow`
+  See issue #1419 for the complete example.
 -/
-private def unfoldNonProjFnDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : MetaM LBool := do
+private partial def unfoldNonProjFnDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : MetaM LBool := do
   let tProjInfo? ← getProjectionFnInfo? tInfo.name
   let sProjInfo? ← getProjectionFnInfo? sInfo.name
-  match tProjInfo?, sProjInfo? with
-  | some { fromClass := false, .. }, none | none, some { fromClass := true, ..}
-    => unfold s (unfoldDefEq tInfo sInfo t s) fun s => isDefEqRight sInfo.name t s
-  | some { fromClass := true, .. }, none | none, some { fromClass := false, ..}
-    => unfold t (unfoldDefEq tInfo sInfo t s) fun t => isDefEqLeft tInfo.name t s
-  | _, _ => unfoldReducibeDefEq tInfo sInfo t s
+  if let some tNew ← packedInstanceOf? tProjInfo? t sInfo.name then
+    isDefEqLeft tInfo.name tNew s
+  else if let some sNew ← packedInstanceOf? sProjInfo? s tInfo.name then
+    isDefEqRight sInfo.name t sNew
+  else  match tProjInfo?, sProjInfo? with
+    | some _, none => unfold s (unfoldDefEq tInfo sInfo t s) fun s => isDefEqRight sInfo.name t s
+    | none, some _ => unfold t (unfoldDefEq tInfo sInfo t s) fun t => isDefEqLeft tInfo.name t s
+    | _, _ => unfoldReducibeDefEq tInfo sInfo t s
+where
+  packedInstanceOf? (projInfo? : Option ProjectionFunctionInfo) (e : Expr) (declName : Name) : MetaM (Option Expr) := do
+    let some { fromClass := true, .. } := projInfo? | return none -- It is not a class projection
+    let some e ← unfoldDefinition? e | return none
+    let e ← whnfCore e
+    if e.isAppOf declName then return some e
+    let .const name _ := e.getAppFn | return none
+    -- Keep going if new `e` is also a class projection
+    packedInstanceOf? (← getProjectionFnInfo? name) e declName
 
 /--
   isDefEq by lazy delta reduction.

@@ -176,20 +176,6 @@ inline object* apply_n(object* f, unsigned n, object** args) { return lean_apply
 inline object* apply_m(object* f, unsigned n, object** args) { return lean_apply_m(f, n, args); }
 
 // =======================================
-// Fixpoint
-
-inline obj_res fixpoint(obj_arg rec, obj_arg a) { return lean_fixpoint(rec, a); }
-inline obj_res fixpoint2(obj_arg rec, obj_arg a1, obj_arg a2) { return lean_fixpoint2(rec, a1, a2); }
-inline obj_res fixpoint3(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3) { return lean_fixpoint3(rec, a1, a2, a3); }
-inline obj_res fixpoint4(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4) { return lean_fixpoint4(rec, a1, a2, a3, a4); }
-inline obj_res fixpoint5(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5) {
-    return lean_fixpoint5(rec, a1, a2, a3, a4, a5);
-}
-inline obj_res fixpoint6(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5, obj_arg a6) {
-    return lean_fixpoint6(rec, a1, a2, a3, a4, a5, a6);
-}
-
-// =======================================
 // MPZ
 
 object * alloc_mpz(mpz const &);

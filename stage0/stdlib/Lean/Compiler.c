@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler
-// Imports: Init Lean.Compiler.InlineAttrs Lean.Compiler.Specialize Lean.Compiler.ConstFolding Lean.Compiler.ClosedTermCache Lean.Compiler.ExternAttr Lean.Compiler.ImplementedByAttr Lean.Compiler.NeverExtractAttr Lean.Compiler.IR Lean.Compiler.CSimpAttr Lean.Compiler.FFI Lean.Compiler.NoncomputableAttr Lean.Compiler.CompilerM Lean.Compiler.LCNF Lean.Compiler.Decl Lean.Compiler.Main
+// Imports: Init Lean.Compiler.InlineAttrs Lean.Compiler.Specialize Lean.Compiler.ConstFolding Lean.Compiler.ClosedTermCache Lean.Compiler.ExternAttr Lean.Compiler.ImplementedByAttr Lean.Compiler.NeverExtractAttr Lean.Compiler.IR Lean.Compiler.CSimpAttr Lean.Compiler.FFI Lean.Compiler.NoncomputableAttr Lean.Compiler.CompilerM Lean.Compiler.LCNF Lean.Compiler.Decl Lean.Compiler.Main Lean.Compiler.AtMostOnce Lean.Compiler.Old
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -29,6 +29,8 @@ lean_object* initialize_Lean_Compiler_CompilerM(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_Decl(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_Main(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_AtMostOnce(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_Old(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -80,6 +82,12 @@ res = initialize_Lean_Compiler_Decl(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_Main(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Compiler_AtMostOnce(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Compiler_Old(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

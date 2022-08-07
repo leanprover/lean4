@@ -83,7 +83,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_elabAttr___spec__
 lean_object* l_Lean_addTrace___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_toAttributeKind___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_elabAttr___spec__3___rarg___lambda__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_logException___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_logException___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_elabAttrs___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_elabAttr___spec__3(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_elabAttr___spec__3___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -103,7 +103,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_elabAttr___spec__
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_elabAttr(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_elabAttrs___spec__1___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_elabAttrs___spec__1___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_elabAttrs___spec__1___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_elabAttr___spec__1___rarg___lambda__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forM___at_Lean_Elab_elabAttr___spec__2___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_elabAttr___spec__1___rarg___lambda__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2704,17 +2704,17 @@ x_7 = lean_apply_2(x_5, lean_box(0), x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_elabAttrs___spec__1___rarg___lambda__5(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_elabAttrs___spec__1___rarg___lambda__5(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 lean_inc(x_1);
-x_8 = l_Lean_Elab_logException___rarg(x_1, x_2, x_3, x_4, x_7);
-x_9 = lean_alloc_closure((void*)(l_Array_forInUnsafe_loop___at_Lean_Elab_elabAttrs___spec__1___rarg___lambda__4), 3, 2);
-lean_closure_set(x_9, 0, x_1);
-lean_closure_set(x_9, 1, x_5);
-x_10 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_8, x_9);
-return x_10;
+x_9 = l_Lean_Elab_logException___rarg(x_1, x_2, x_3, x_4, x_5, x_8);
+x_10 = lean_alloc_closure((void*)(l_Array_forInUnsafe_loop___at_Lean_Elab_elabAttrs___spec__1___rarg___lambda__4), 3, 2);
+lean_closure_set(x_10, 0, x_1);
+lean_closure_set(x_10, 1, x_6);
+x_11 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_9, x_10);
+return x_11;
 }
 }
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_elabAttrs___spec__1___rarg___lambda__6(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -2866,16 +2866,18 @@ lean_inc(x_13);
 x_31 = lean_apply_4(x_13, lean_box(0), lean_box(0), x_29, x_30);
 lean_inc(x_13);
 lean_inc(x_12);
+lean_inc(x_8);
 lean_inc(x_9);
 lean_inc(x_10);
 lean_inc(x_1);
-x_32 = lean_alloc_closure((void*)(l_Array_forInUnsafe_loop___at_Lean_Elab_elabAttrs___spec__1___rarg___lambda__5), 7, 6);
+x_32 = lean_alloc_closure((void*)(l_Array_forInUnsafe_loop___at_Lean_Elab_elabAttrs___spec__1___rarg___lambda__5), 8, 7);
 lean_closure_set(x_32, 0, x_1);
 lean_closure_set(x_32, 1, x_10);
 lean_closure_set(x_32, 2, x_9);
-lean_closure_set(x_32, 3, x_12);
-lean_closure_set(x_32, 4, x_17);
-lean_closure_set(x_32, 5, x_13);
+lean_closure_set(x_32, 3, x_8);
+lean_closure_set(x_32, 4, x_12);
+lean_closure_set(x_32, 5, x_17);
+lean_closure_set(x_32, 6, x_13);
 x_33 = lean_ctor_get(x_24, 1);
 lean_inc(x_33);
 lean_dec(x_24);

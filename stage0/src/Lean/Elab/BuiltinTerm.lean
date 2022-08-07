@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Elab.Term
+import Lean.Elab.Eval
 
 namespace Lean.Elab.Term
 open Meta
@@ -303,5 +304,22 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
   | `(with_annotate_term $stx $e) =>
     withInfoContext' stx (elabTerm e expectedType?) (mkTermInfo .anonymous (expectedType? := expectedType?) stx)
   | _ => throwUnsupportedSyntax
+
+private unsafe def evalFilePathUnsafe (stx : Syntax) : TermElabM System.FilePath :=
+  evalTerm System.FilePath (Lean.mkConst ``System.FilePath) stx
+
+@[implementedBy evalFilePathUnsafe]
+private opaque evalFilePath (stx : Syntax) : TermElabM System.FilePath
+
+@[builtinTermElab includeStr] def elabIncludeStr : TermElab
+  | `(include_str $path:term), _ => do
+    let path ← evalFilePath path
+    let ctx ← readThe Lean.Core.Context
+    let srcPath := System.FilePath.mk ctx.fileName
+    let some srcDir := srcPath.parent
+      | throwError "cannot compute parent directory of '{srcPath}'"
+    let path := srcDir / path
+    mkStrLit <$> IO.FS.readFile path
+  | _, _ => throwUnsupportedSyntax
 
 end Lean.Elab.Term

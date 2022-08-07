@@ -268,11 +268,12 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
   | some msg => elabTermEnsuringType stx[2] expectedType? (errorMsgHeader? := msg)
 
 @[builtinTermElab «open»] def elabOpen : TermElab := fun stx expectedType? => do
+  let `(open $decl in $e) := stx | throwUnsupportedSyntax
   try
     pushScope
-    let openDecls ← elabOpenDecl stx[1]
+    let openDecls ← elabOpenDecl decl
     withTheReader Core.Context (fun ctx => { ctx with openDecls := openDecls }) do
-      elabTerm stx[3] expectedType?
+      elabTerm e expectedType?
   finally
     popScope
 

@@ -18,7 +18,7 @@
             { raw :=
                   Lean.Syntax.node info `Lean.Parser.Term.app
                     #[Lean.Syntax.ident info (String.toSubstring "Nat.add") (Lean.addMacroScope mainModule `Nat.add scp)
-                        [(`Nat.add, [])],
+                        [Lean.Syntax.Preresolved.decl `Nat.add [], Lean.Syntax.Preresolved.namespace `Nat.add],
                       Lean.Syntax.node info `null #[lhs.raw, rhs.raw]] }.raw
       else
         let discr := x;

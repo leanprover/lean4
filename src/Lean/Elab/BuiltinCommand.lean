@@ -120,12 +120,10 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
   | Except.error ex => throwError (ex.toMessageData (← getOptions))
 
 @[builtinCommandElab «export»] def elabExport : CommandElab := fun stx => do
-  -- `stx` is of the form (Command.export "export" <namespace> "(" (null <ids>*) ")")
-  let id  := stx[1].getId
-  let nss ← resolveNamespace id
+  let `(export $ns ($ids*)) := stx | throwUnsupportedSyntax
+  let nss ← resolveNamespace ns
   let currNamespace ← getCurrNamespace
   if nss == [currNamespace] then throwError "invalid 'export', self export"
-  let ids := stx[3].getArgs
   let mut aliases := #[]
   for idStx in ids do
     let id := idStx.getId
@@ -133,9 +131,11 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
     aliases := aliases.push (currNamespace ++ id, declName)
   modify fun s => { s with env := aliases.foldl (init := s.env) fun env p => addAlias env p.1 p.2 }
 
-@[builtinCommandElab «open»] def elabOpen : CommandElab := fun n => do
-  let openDecls ← elabOpenDecl n[1]
-  modifyScope fun scope => { scope with openDecls := openDecls }
+@[builtinCommandElab «open»] def elabOpen : CommandElab
+  | `(open $decl:openDecl) => do
+    let openDecls ← elabOpenDecl decl
+    modifyScope fun scope => { scope with openDecls := openDecls }
+  | _ => throwUnsupportedSyntax
 
 private def typelessBinder? : Syntax → Option (Array (TSyntax [`ident, `Lean.Parser.Term.hole]) × Bool)
   | `(bracketedBinder|($ids*)) => some <| (ids, true)

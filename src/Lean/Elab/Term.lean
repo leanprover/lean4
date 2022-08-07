@@ -1726,12 +1726,15 @@ private def mkConsts (candidates : List (Name × List String)) (explicitLevels :
    let const ← mkConst declName explicitLevels
    return (const, projs) :: result
 
-def resolveName (stx : Syntax) (n : Name) (preresolved : List (Name × List String)) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × List String)) := do
+def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × List String)) := do
   addCompletionInfo <| CompletionInfo.id stx stx.getId (danglingDot := false) (← getLCtx) expectedType?
   if let some (e, projs) ← resolveLocalName n then
     unless explicitLevels.isEmpty do
       throwError "invalid use of explicit universe parameters, '{e}' is a local"
     return [(e, projs)]
+  let preresolved := preresolved.filterMap fun
+    | .decl n projs => some (n, projs)
+    | _             => none
   -- check for section variable capture by a quotation
   let ctx ← read
   if let some (e, projs) := preresolved.findSome? fun (n, projs) => ctx.sectionFVars.find? n |>.map (·, projs) then

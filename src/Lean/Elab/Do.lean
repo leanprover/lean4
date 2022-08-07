@@ -1192,7 +1192,7 @@ def checkNotShadowingMutable (xs : Array Var) : M Unit := do
   let ctx ← read
   for x in xs do
     if ctx.mutableVars.contains x.getId then
-      throwInvalidShadowing x.getId
+      withRef x <| throwInvalidShadowing x.getId
 
 def withFor {α} (x : M α) : M α :=
   withReader (fun ctx => { ctx with insideFor := true }) x

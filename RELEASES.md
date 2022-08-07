@@ -1,4 +1,4 @@
-Unreleased
+v4.0.0-m5 (07 August 2022)
 ---------
 
 * Update Lake to v4.0.0. See the [v4.0.0 release notes](https://github.com/leanprover/lake/releases/tag/v4.0.0) for detailed changes.

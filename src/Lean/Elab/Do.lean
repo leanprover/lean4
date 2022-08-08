@@ -685,15 +685,15 @@ def mkSingletonDoSeq (doElem : Syntax) : Syntax :=
   mkDoSeq #[doElem]
 
 /--
-  If the given syntax is a `doIf`, return an equivalente `doIf` that has an `else` but no `else if`s or `if let`s.  -/
+  If the given syntax is a `doIf`, return an equivalent `doIf` that has an `else` but no `else if`s or `if let`s.  -/
 private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := match stx with
   | `(doElem|if $_:doIfProp then $_ else $_) => pure none
-  | `(doElem|if%$i $cond:doIfCond then $t $[else if%$is $conds:doIfCond then $ts]* $[else $e?]?) => withRef stx do
+  | `(doElem|if $cond:doIfCond then $t $[else if $conds:doIfCond then $ts]* $[else $e?]?) => withRef stx do
     let mut e      := e?.getD (← `(doSeq|pure PUnit.unit))
     let mut eIsSeq := true
-    for (i, cond, t) in Array.zip (is.reverse.push i) (Array.zip (conds.reverse.push cond) (ts.reverse.push t)) do
+    for (cond, t) in Array.zip (conds.reverse.push cond) (ts.reverse.push t) do
       e ← if eIsSeq then pure e else `(doSeq|$e:doElem)
-      e ← withRef (mkNullNode #[i, t]) <| match cond with
+      e ← match cond with
         | `(doIfCond|let $pat := $d) => `(doElem| match $d:term with | $pat:term => $t | _ => $e)
         | `(doIfCond|let $pat ← $d)  => `(doElem| match ← $d    with | $pat:term => $t | _ => $e)
         | `(doIfCond|$cond:doIfProp) => `(doElem| if $cond:doIfProp then $t else $e)

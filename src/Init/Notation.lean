@@ -230,14 +230,18 @@ syntax (name := termDepIfThenElse)
     ppDedent(ppSpace) ppRealFill("else " term)) : term
 
 macro_rules
-  | `(if $h : $c then $t else $e) => `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; dite ?m (fun $h:ident => $t) (fun $h:ident => $e))
+  | `(if $h : $c then $t else $e) => do
+    let mvar ← Lean.withRef c `(?m)
+    `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; dite $mvar (fun $h:ident => $t) (fun $h:ident => $e))
 
 syntax (name := termIfThenElse)
   ppRealGroup(ppRealFill(ppIndent("if " term " then") ppSpace term)
     ppDedent(ppSpace) ppRealFill("else " term)) : term
 
 macro_rules
-  | `(if $c then $t else $e) => `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; ite ?m $t $e)
+  | `(if $c then $t else $e) => do
+    let mvar ← Lean.withRef c `(?m)
+    `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; ite $mvar $t $e)
 
 macro "if " "let " pat:term " := " d:term " then " t:term " else " e:term : term =>
   `(match $d:term with | $pat => $t | _ => $e)

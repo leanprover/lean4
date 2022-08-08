@@ -39,6 +39,9 @@ def Vec.zip : Vec α n → Vec β n → Vec (α × β) n
   | .cons a as, .cons b bs => .cons (a, b) (zip as bs)
   | .nil, .nil => .nil
 
+def Vec.head : Vec α (n+1) → α
+  | .cons a _ => a
+
 #eval Compiler.compile #[``Vec.zip]
 
 #eval Compiler.compile #[``Vec.zip.match_1]

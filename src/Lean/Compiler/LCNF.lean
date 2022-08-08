@@ -51,6 +51,12 @@ def etaExpandN (e : Expr) (n : Nat) : CompilerM Expr := do
     Meta.forallBoundedTelescope (← Meta.inferType e) n fun xs _ =>
       Meta.mkLambdaFVars xs (mkAppN e xs)
 
+def mkAuxLetDecl (e : Expr) : M Expr := do
+  if (← read).root then
+    return e
+  else
+    Compiler.mkAuxLetDecl e
+
 /--
 Put the given expression in `LCNF`.
 

@@ -23,10 +23,30 @@ Recall that we use `lcProof` to erase all nested proofs.
 def isLCProof (e : Expr) : Bool :=
   e.isAppOfArity ``lcProof 1
 
+/--
+Return `true` if `e` is a `lcUnreachable` application.
+-/
+def isLcUnreachable (e : Expr) : Bool :=
+  e.isAppOfArity ``lcUnreachable 1
+
+/--
+Return `true` if `e` is a `lcCast` application.
+-/
+def isLcCast? (e : Expr) : Option Expr :=
+  if e.isAppOfArity ``lcCast 3 then
+    some e.appArg!
+  else
+    none
 
 /-- Create `lcProof p` -/
 def mkLcProof (p : Expr) :=
   mkApp (mkConst ``lcProof []) p
+
+/-- Create `lcUnreachable type` -/
+def mkLcUnreachable (type : Expr) : CompilerM Expr := do
+  liftMetaM do
+    let u ← Meta.getLevel type
+    return .app (.const ``lcUnreachable [u]) type
 
 /-- Create `lcCast expectedType e : expectedType` -/
 def mkLcCast (e : Expr) (expectedType : Expr) : CompilerM Expr := do
@@ -35,12 +55,6 @@ def mkLcCast (e : Expr) (expectedType : Expr) : CompilerM Expr := do
     let u ← Meta.getLevel type
     let v ← Meta.getLevel expectedType
     return mkApp3 (.const ``lcCast [u, v]) type expectedType e
-
-/-- Create `lcUnreachable type` -/
-def mkLcUnreachable (type : Expr) : CompilerM Expr := do
-  liftMetaM do
-    let u ← Meta.getLevel type
-    return .app (.const ``lcUnreachable [u]) type
 
 /--
 Store information about `matcher` and `casesOn` declarations.
@@ -52,6 +66,7 @@ structure CasesInfo where
   discrsRange  : Std.Range
   altsRange    : Std.Range
   altNumParams : Array Nat
+  motivePos    : Nat
 
 private def getCasesOnInductiveVal? (declName : Name) : CoreM (Option InductiveVal) := do
   unless isCasesOnRecursor (← getEnv) declName do return none
@@ -60,6 +75,7 @@ private def getCasesOnInductiveVal? (declName : Name) : CoreM (Option InductiveV
 
 private def getCasesOnInfo? (declName : Name) : CoreM (Option CasesInfo) := do
   let some val ← getCasesOnInductiveVal? declName | return none
+  let motivePos    := val.numParams
   let arity        := val.numIndices + val.numParams + 1 /- motive -/ + 1 /- major -/ + val.numCtors
   let majorPos     := val.numIndices + val.numParams + 1 /- motive -/
   let discrsRange  := { start := majorPos, stop := majorPos + 1 }
@@ -67,11 +83,12 @@ private def getCasesOnInfo? (declName : Name) : CoreM (Option CasesInfo) := do
   let altNumParams ← val.ctors.toArray.mapM fun ctor => do
     let .ctorInfo ctorVal ← getConstInfo ctor | unreachable!
     return ctorVal.numFields
-  return some { arity, discrsRange, altsRange, altNumParams }
+  return some { motivePos, arity, discrsRange, altsRange, altNumParams }
 
 def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
   if let some matcherInfo ← Meta.getMatcherInfo? declName then
     return some {
+      motivePos    := matcherInfo.getMotivePos
       arity        := matcherInfo.arity
       discrsRange  := matcherInfo.getDiscrRange
       altsRange    := matcherInfo.getAltRange
@@ -79,6 +96,19 @@ def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
     }
   else
     getCasesOnInfo? declName
+
+def isCasesApp? (e : Expr) : CoreM (Option CasesInfo) := do
+  let .const declName _ := e.getAppFn | return none
+  if let some info ← getCasesInfo? declName then
+    assert! info.arity == e.getAppNumArgs
+    return some info
+  else
+    return none
+
+def updateMotive (casesInfo : CasesInfo) (args : Array Expr) (newResultingType : Expr) : MetaM (Array Expr) := do
+  -- TODO: make it more robust, it is assuming the motive is eta-expanded
+  args.modifyM casesInfo.motivePos fun motive => do
+    Meta.lambdaTelescope motive fun xs _ => Meta.mkLambdaFVars xs newResultingType
 
 def getCtorArity? (declName : Name) : CoreM (Option Nat) := do
   let .ctorInfo val ← getConstInfo declName | return none

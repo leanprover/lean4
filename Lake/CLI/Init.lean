@@ -22,7 +22,6 @@ def toolchainFileName : FilePath :=
 def gitignoreContents :=
 s!"/{defaultBuildDir}
 /{defaultPackagesDir}/*
-!/{defaultPackagesDir}/{defaultManifestFileName}
 "
 
 def libFileContents :=

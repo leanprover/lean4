@@ -42,8 +42,8 @@ def nameToArchive (name? : Option String) : String :=
 /-! # Defaults -/
 --------------------------------------------------------------------------------
 
-/-- The default name of the package manifest. -/
-def defaultManifestFileName := "manifest.json"
+/-- The default setting for a `PackageConfig`'s `manifestFile` option. -/
+def defaultManifestFile := "lake-manifest.json"
 
 /-- The default setting for a `PackageConfig`'s `buildDir` option. -/
 def defaultBuildDir : FilePath := "build"
@@ -74,9 +74,9 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   The path of a package's manifest file, which stores the exact versions
   of its resolved dependencies.
 
-  Defaults to `packagesDir` / `defaultManifestFileName` (i.e., `manifest.json`).
+  Defaults to `defaultManifestFile` (i.e., `lake-manifest.json`).
   -/
-  manifestFile := packagesDir / defaultManifestFileName
+  manifestFile := defaultManifestFile
 
   /-- An `Array` of target names to build whenever the package is used. -/
   extraDepTargets : Array Name := #[]

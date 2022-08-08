@@ -60,7 +60,6 @@ lean_object* l___private_Lean_Elab_Term_0__Lean_Elab_Term_withoutModifyingStateW
 static lean_object* l_Lean_Meta_SimpTheorems_erase___at_Lean_Elab_Tactic_elabSimpArgs___spec__17___closed__1;
 lean_object* l_List_mapTRAux___at_Lean_resolveGlobalConstCore___spec__2(lean_object*, lean_object*);
 extern lean_object* l_Std_Format_defWidth;
-static lean_object* l_Lean_Elab_Tactic_tacticToDischarge___closed__23;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_elabSimpConfigCore___spec__10(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_elabSimpArgs___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalUnsafe____x40_Lean_Elab_Tactic_Simp___hyg_6____closed__2;
@@ -3428,27 +3427,13 @@ return x_2;
 static lean_object* _init_l_Lean_Elab_Tactic_tacticToDischarge___closed__21() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_box(2);
-x_2 = l_Lean_Elab_Tactic_tacticToDischarge___closed__13;
-x_3 = l_Lean_withoutModifyingState___at_Lean_Elab_Tactic_elabSimpConfigCore___spec__12___at_Lean_Elab_Tactic_elabSimpConfigCore___spec__13___closed__8;
-x_4 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_Elab_Tactic_tacticToDischarge___closed__22() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(2u);
 x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_tacticToDischarge___closed__23() {
+static lean_object* _init_l_Lean_Elab_Tactic_tacticToDischarge___closed__22() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3482,6 +3467,7 @@ x_19 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_19, 0, x_12);
 lean_ctor_set(x_19, 1, x_18);
 x_20 = l_Lean_Elab_Tactic_tacticToDischarge___closed__19;
+lean_inc(x_12);
 x_21 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_21, 0, x_12);
 lean_ctor_set(x_21, 1, x_20);
@@ -3489,45 +3475,54 @@ x_22 = l_Lean_Elab_Tactic_tacticToDischarge___closed__20;
 x_23 = lean_array_push(x_22, x_19);
 x_24 = lean_array_push(x_23, x_1);
 x_25 = lean_array_push(x_24, x_21);
-x_26 = lean_box(2);
-x_27 = l_Lean_Elab_Tactic_tacticToDischarge___closed__17;
-x_28 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_28, 0, x_26);
-lean_ctor_set(x_28, 1, x_27);
-lean_ctor_set(x_28, 2, x_25);
-x_29 = l_Lean_Elab_Tactic_tacticToDischarge___closed__22;
-x_30 = lean_array_push(x_29, x_28);
+x_26 = l_Lean_Elab_Tactic_tacticToDischarge___closed__17;
+lean_inc(x_12);
+x_27 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_27, 0, x_12);
+lean_ctor_set(x_27, 1, x_26);
+lean_ctor_set(x_27, 2, x_25);
+x_28 = l_Lean_Elab_Tactic_tacticToDischarge___closed__13;
+x_29 = l_Lean_withoutModifyingState___at_Lean_Elab_Tactic_elabSimpConfigCore___spec__12___at_Lean_Elab_Tactic_elabSimpConfigCore___spec__13___closed__8;
+lean_inc(x_12);
+x_30 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_30, 0, x_12);
+lean_ctor_set(x_30, 1, x_28);
+lean_ctor_set(x_30, 2, x_29);
 x_31 = l_Lean_Elab_Tactic_tacticToDischarge___closed__21;
-x_32 = lean_array_push(x_30, x_31);
-x_33 = l_Lean_Elab_Tactic_tacticToDischarge___closed__15;
-x_34 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_34, 0, x_26);
-lean_ctor_set(x_34, 1, x_33);
-lean_ctor_set(x_34, 2, x_32);
-x_35 = l_Lean_Elab_Tactic_tacticToDischarge___closed__23;
-x_36 = lean_array_push(x_35, x_34);
-x_37 = l_Lean_Elab_Tactic_tacticToDischarge___closed__13;
+x_32 = lean_array_push(x_31, x_27);
+x_33 = lean_array_push(x_32, x_30);
+x_34 = l_Lean_Elab_Tactic_tacticToDischarge___closed__15;
+lean_inc(x_12);
+x_35 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_35, 0, x_12);
+lean_ctor_set(x_35, 1, x_34);
+lean_ctor_set(x_35, 2, x_33);
+x_36 = l_Lean_Elab_Tactic_tacticToDischarge___closed__22;
+x_37 = lean_array_push(x_36, x_35);
+lean_inc(x_12);
 x_38 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_38, 0, x_26);
-lean_ctor_set(x_38, 1, x_37);
-lean_ctor_set(x_38, 2, x_36);
-x_39 = lean_array_push(x_35, x_38);
+lean_ctor_set(x_38, 0, x_12);
+lean_ctor_set(x_38, 1, x_28);
+lean_ctor_set(x_38, 2, x_37);
+x_39 = lean_array_push(x_36, x_38);
 x_40 = l_Lean_Elab_Tactic_tacticToDischarge___closed__11;
+lean_inc(x_12);
 x_41 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_41, 0, x_26);
+lean_ctor_set(x_41, 0, x_12);
 lean_ctor_set(x_41, 1, x_40);
 lean_ctor_set(x_41, 2, x_39);
-x_42 = lean_array_push(x_35, x_41);
+x_42 = lean_array_push(x_36, x_41);
 x_43 = l_Lean_Elab_Tactic_tacticToDischarge___closed__9;
+lean_inc(x_12);
 x_44 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_44, 0, x_26);
+lean_ctor_set(x_44, 0, x_12);
 lean_ctor_set(x_44, 1, x_43);
 lean_ctor_set(x_44, 2, x_42);
-x_45 = lean_array_push(x_29, x_17);
+x_45 = lean_array_push(x_31, x_17);
 x_46 = lean_array_push(x_45, x_44);
 x_47 = l_Lean_Elab_Tactic_tacticToDischarge___closed__6;
 x_48 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_48, 0, x_26);
+lean_ctor_set(x_48, 0, x_12);
 lean_ctor_set(x_48, 1, x_47);
 lean_ctor_set(x_48, 2, x_46);
 x_49 = lean_st_ref_get(x_9, x_15);
@@ -9456,7 +9451,7 @@ lean_inc(x_23);
 lean_dec(x_21);
 x_24 = lean_unsigned_to_nat(4u);
 x_25 = l_Lean_Syntax_getArg(x_1, x_24);
-x_26 = l_Lean_Elab_Tactic_tacticToDischarge___closed__23;
+x_26 = l_Lean_Elab_Tactic_tacticToDischarge___closed__22;
 x_27 = lean_array_push(x_26, x_6);
 x_28 = lean_box(0);
 x_29 = lean_unsigned_to_nat(0u);
@@ -12044,8 +12039,6 @@ l_Lean_Elab_Tactic_tacticToDischarge___closed__21 = _init_l_Lean_Elab_Tactic_tac
 lean_mark_persistent(l_Lean_Elab_Tactic_tacticToDischarge___closed__21);
 l_Lean_Elab_Tactic_tacticToDischarge___closed__22 = _init_l_Lean_Elab_Tactic_tacticToDischarge___closed__22();
 lean_mark_persistent(l_Lean_Elab_Tactic_tacticToDischarge___closed__22);
-l_Lean_Elab_Tactic_tacticToDischarge___closed__23 = _init_l_Lean_Elab_Tactic_tacticToDischarge___closed__23();
-lean_mark_persistent(l_Lean_Elab_Tactic_tacticToDischarge___closed__23);
 l___private_Lean_Elab_Tactic_Simp_0__Lean_Elab_Tactic_addDeclToUnfoldOrTheorem___closed__1 = _init_l___private_Lean_Elab_Tactic_Simp_0__Lean_Elab_Tactic_addDeclToUnfoldOrTheorem___closed__1();
 lean_mark_persistent(l___private_Lean_Elab_Tactic_Simp_0__Lean_Elab_Tactic_addDeclToUnfoldOrTheorem___closed__1);
 l___private_Lean_Elab_Tactic_Simp_0__Lean_Elab_Tactic_addDeclToUnfoldOrTheorem___closed__2 = _init_l___private_Lean_Elab_Tactic_Simp_0__Lean_Elab_Tactic_addDeclToUnfoldOrTheorem___closed__2();

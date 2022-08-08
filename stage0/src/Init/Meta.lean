@@ -479,17 +479,18 @@ structure Module where
      syntatic categories are expanded by `expandMacros`.
 -/
 partial def expandMacros (stx : Syntax) (p : SyntaxNodeKind → Bool := fun k => k != `Lean.Parser.Term.byTactic) : MacroM Syntax :=
-  match stx with
-  | .node info k args => do
-    if p k then
-      match (← expandMacro? stx) with
-      | some stxNew => expandMacros stxNew
-      | none        => do
-        let args ← Macro.withIncRecDepth stx <| args.mapM expandMacros
-        return .node info k args
-    else
-      return stx
-  | stx => return stx
+  withRef stx do
+    match stx with
+    | .node info k args => do
+      if p k then
+        match (← expandMacro? stx) with
+        | some stxNew => expandMacros stxNew
+        | none        => do
+          let args ← Macro.withIncRecDepth stx <| args.mapM expandMacros
+          return .node info k args
+      else
+        return stx
+    | stx => return stx
 
 /-! # Helper functions for processing Syntax programmatically -/
 

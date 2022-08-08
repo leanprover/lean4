@@ -26,8 +26,6 @@ structure LoadConfig where
   configOpts : NameMap String := {}
   /-- The Lean options with which to elaborate the configuration file. -/
   leanOpts : Options := {}
-  /-- The verbosity setting for logging messages. -/
-  verbosity : Verbosity := .normal
   /--
   Whether to update dependencies during resolution
   or fallback to the ones listed in the manifest.

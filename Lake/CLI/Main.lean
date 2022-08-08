@@ -63,7 +63,6 @@ def LakeOptions.mkLoadConfig
     configFile := opts.rootDir / opts.configFile
     configOpts := opts.configOpts
     leanOpts := Lean.Options.empty
-    verbosity := opts.verbosity
     updateDeps
   }
 
@@ -261,7 +260,7 @@ protected def build : CliM PUnit := do
   let ws ← loadWorkspace config
   let targetSpecs ← takeArgs
   let specs ← parseTargetSpecs ws targetSpecs
-  ws.runBuild (buildSpecs specs) opts.oldMode |>.run (MonadLog.io config.verbosity)
+  ws.runBuild (buildSpecs specs) opts.oldMode |>.run (MonadLog.io opts.verbosity)
 
 protected def resolveDeps : CliM PUnit := do
   processOptions lakeOption
@@ -290,7 +289,7 @@ protected def printPaths : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
-  printPaths config (← takeArgs) opts.oldMode
+  printPaths config (← takeArgs) opts.oldMode opts.verbosity
 
 protected def clean : CliM PUnit := do
   processOptions lakeOption

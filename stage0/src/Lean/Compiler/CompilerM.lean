@@ -3,13 +3,16 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Util.ForEachExpr
 import Lean.Meta.InferType
 
 namespace Lean.Compiler
 
 structure CompilerM.State where
-  lctx     : LocalContext
+  lctx     : LocalContext := {}
   letFVars : Array Expr := #[]
+  /-- Next auxiliary variable suffix -/
+  nextIdx : Nat := 1
 
 abbrev CompilerM := StateRefT CompilerM.State CoreM
 
@@ -27,9 +30,13 @@ def inferType (e : Expr) : CompilerM Expr := liftMetaM <| Meta.inferType e
 
 def whnf (e : Expr) : CompilerM Expr := liftMetaM <| Meta.whnf e
 
+def inferType' (e : Expr) : CompilerM Expr := liftMetaM do Meta.whnf (← Meta.inferType e)
+
 def isProp (e : Expr) : CompilerM Bool := liftMetaM <| Meta.isProp e
 
 def isTypeFormerType (e : Expr) : CompilerM Bool := liftMetaM <| Meta.isTypeFormerType e
+
+def isDefEq (a b : Expr) : CompilerM Bool := liftMetaM <| Meta.isDefEq a b
 
 def mkLocalDecl (binderName : Name) (type : Expr) (bi := BinderInfo.default) : CompilerM Expr := do
   let fvarId ← mkFreshFVarId
@@ -41,6 +48,25 @@ def mkLetDecl (binderName : Name) (type : Expr) (value : Expr) (nonDep : Bool) :
   let x := .fvar fvarId
   modify fun s => { s with lctx := s.lctx.mkLetDecl fvarId binderName type value nonDep, letFVars := s.letFVars.push x }
   return x
+
+def mkAuxLetDecl (e : Expr) (prefixName := `_x) : CompilerM Expr := do
+  if e.isFVar then
+    return e
+  else
+    try
+      mkLetDecl (.num prefixName (← get).nextIdx) (← inferType e) e (nonDep := false)
+    finally
+      modify fun s => { s with nextIdx := s.nextIdx + 1 }
+
+def mkJpDecl (e : Expr) : CompilerM Expr := do
+  mkAuxLetDecl e `_jp
+
+def getMaxLetVarIdx (e : Expr) : CoreM Nat := do
+  let maxRef ← IO.mkRef 0
+  e.forEach fun
+    | .letE (.num _ i) .. => maxRef.modify (Nat.max · i)
+    | _ => pure ()
+  maxRef.get
 
 def visitLambda (e : Expr) : CompilerM (Array Expr × Expr) :=
   go e #[]
@@ -67,9 +93,12 @@ where
       return (fvars, e.instantiateRev fvars)
 
 def withNewScopeImp (x : CompilerM α) : CompilerM α := do
-  let s ← get
+  let saved ← get
   modify fun s => { s with letFVars := #[] }
-  try x finally set s
+  try x
+  finally
+    let saved := { saved with nextIdx := (← get).nextIdx }
+    set saved
 
 def withNewScope [MonadFunctorT CompilerM m] (x : m α) : m α :=
   monadMap (m := CompilerM) withNewScopeImp x

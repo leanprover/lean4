@@ -3,8 +3,8 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Compiler.LCNF
 import Lean.Compiler.Decl
+import Lean.Compiler.TerminalCases
 
 namespace Lean.Compiler
 
@@ -28,12 +28,17 @@ where
     let info ← getConstInfo declName
     Meta.isProp info.type <||> Meta.isTypeFormerType info.type
 
-def compile (declNames : Array Name) : CoreM Unit := do
-  let declNames ← declNames.filterM shouldGenerateCode
-  let decls ← declNames.mapM toDecl
-  -- WIP
+def checkpoint (step : Name) (decls : Array Decl) : CoreM Unit := do
+  trace[Meta.debug] "After {step}"
   for decl in decls do
     trace[Meta.debug] "{decl.name} := {decl.value}"
     decl.check
+
+def compile (declNames : Array Name) : CoreM Unit := do
+  let declNames ← declNames.filterM shouldGenerateCode
+  let decls ← declNames.mapM toDecl
+  checkpoint `init decls
+  let decls ← decls.mapM (·.terminalCases)
+  checkpoint `terminalCases decls
 
 end Lean.Compiler

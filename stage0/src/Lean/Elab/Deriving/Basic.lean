@@ -43,7 +43,7 @@ def applyDerivingHandlers (className : Name) (typeNames : Array Name) (args? : O
   | none => defaultHandler className typeNames
 
 private def tryApplyDefHandler (className : Name) (declName : Name) : CommandElabM Bool :=
-  liftTermElabM none do
+  liftTermElabM do
     Term.processDefDeriving className declName
 
 @[builtinCommandElab «deriving»] def elabDeriving : CommandElab

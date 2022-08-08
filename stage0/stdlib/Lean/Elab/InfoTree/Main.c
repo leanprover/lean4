@@ -50,6 +50,7 @@ static lean_object* l_Lean_Elab_assignInfoHoleId___rarg___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_withSaveInfoContext___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_assignInfoHoleId___rarg___lambda__2___closed__4;
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Elab_resolveGlobalConstWithInfos___spec__1___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_FieldRedeclInfo_format(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentArray_mapM___at_Lean_Elab_withSaveInfoContext___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 lean_object* l_Lean_Meta_ppExpr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -150,6 +151,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_resolveGlobalConstNoOverloadWithInfo___rarg
 static lean_object* l_Lean_Elab_UserWidgetInfo_format___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_pushInfoTree___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Elab_assignInfoHoleId___spec__5___rarg(lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_FieldRedeclInfo_format___closed__2;
 static lean_object* l___private_Lean_Elab_InfoTree_Main_0__Lean_Elab_formatStxRange_fmtPos___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Elab_ContextInfo_ppGoals(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_withInfoTreeContext___at_Lean_Elab_withInfoContext___spec__1(lean_object*);
@@ -157,8 +159,10 @@ lean_object* l_Std_PersistentArray_get_x21___rarg(lean_object*, lean_object*, le
 LEAN_EXPORT lean_object* l_Lean_Elab_resolveGlobalConstWithInfos___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_ContextInfo_save___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getHeadInfo(lean_object*);
+static lean_object* l_Lean_Elab_FieldRedeclInfo_format___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_withInfoHole___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_Elab_assignInfoHoleId___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_FieldRedeclInfo_format___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_withInfoContext_x27___rarg___lambda__2(lean_object*, lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
@@ -4729,6 +4733,49 @@ lean_ctor_set(x_15, 1, x_14);
 return x_15;
 }
 }
+static lean_object* _init_l_Lean_Elab_FieldRedeclInfo_format___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("FieldRedecl @ ", 14);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Elab_FieldRedeclInfo_format___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Elab_FieldRedeclInfo_format___closed__1;
+x_2 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_FieldRedeclInfo_format(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_3 = l___private_Lean_Elab_InfoTree_Main_0__Lean_Elab_formatStxRange(x_1, x_2);
+x_4 = l_Lean_Elab_FieldRedeclInfo_format___closed__2;
+x_5 = lean_alloc_ctor(4, 2, 0);
+lean_ctor_set(x_5, 0, x_4);
+lean_ctor_set(x_5, 1, x_3);
+x_6 = l___private_Lean_Elab_InfoTree_Main_0__Lean_Elab_formatStxRange_fmtPos___closed__7;
+x_7 = lean_alloc_ctor(4, 2, 0);
+lean_ctor_set(x_7, 0, x_5);
+lean_ctor_set(x_7, 1, x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_FieldRedeclInfo_format___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Elab_FieldRedeclInfo_format(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Elab_Info_format(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -4816,7 +4863,7 @@ lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set(x_21, 1, x_3);
 return x_21;
 }
-default: 
+case 8:
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 lean_dec(x_1);
@@ -4828,6 +4875,19 @@ x_24 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_24, 0, x_23);
 lean_ctor_set(x_24, 1, x_3);
 return x_24;
+}
+default: 
+{
+lean_object* x_25; lean_object* x_26; lean_object* x_27; 
+x_25 = lean_ctor_get(x_2, 0);
+lean_inc(x_25);
+lean_dec(x_2);
+x_26 = l_Lean_Elab_FieldRedeclInfo_format(x_1, x_25);
+lean_dec(x_1);
+x_27 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_27, 0, x_26);
+lean_ctor_set(x_27, 1, x_3);
+return x_27;
 }
 }
 }
@@ -8292,7 +8352,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_assignInfoHoleId___rarg___lambda__2___closed__4;
 x_2 = l_Lean_Elab_assignInfoHoleId___rarg___lambda__2___closed__5;
-x_3 = lean_unsigned_to_nat(307u);
+x_3 = lean_unsigned_to_nat(312u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_Elab_assignInfoHoleId___rarg___lambda__2___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -8986,6 +9046,10 @@ l_Lean_Elab_FVarAliasInfo_format___closed__3 = _init_l_Lean_Elab_FVarAliasInfo_f
 lean_mark_persistent(l_Lean_Elab_FVarAliasInfo_format___closed__3);
 l_Lean_Elab_FVarAliasInfo_format___closed__4 = _init_l_Lean_Elab_FVarAliasInfo_format___closed__4();
 lean_mark_persistent(l_Lean_Elab_FVarAliasInfo_format___closed__4);
+l_Lean_Elab_FieldRedeclInfo_format___closed__1 = _init_l_Lean_Elab_FieldRedeclInfo_format___closed__1();
+lean_mark_persistent(l_Lean_Elab_FieldRedeclInfo_format___closed__1);
+l_Lean_Elab_FieldRedeclInfo_format___closed__2 = _init_l_Lean_Elab_FieldRedeclInfo_format___closed__2();
+lean_mark_persistent(l_Lean_Elab_FieldRedeclInfo_format___closed__2);
 l_Lean_Elab_InfoTree_format___closed__1 = _init_l_Lean_Elab_InfoTree_format___closed__1();
 lean_mark_persistent(l_Lean_Elab_InfoTree_format___closed__1);
 l_Lean_Elab_InfoTree_format___closed__2 = _init_l_Lean_Elab_InfoTree_format___closed__2();

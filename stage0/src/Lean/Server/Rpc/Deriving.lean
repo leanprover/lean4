@@ -198,7 +198,7 @@ private def deriveInstance (typeName : Name) : CommandElabM Bool := do
   if indVal.numIndices ≠ 0 then
     throwError "indexed inductive families are not supported"
 
-  let (paramBinders, packetParamBinders, encInstBinders) ← liftTermElabM none do
+  let (paramBinders, packetParamBinders, encInstBinders) ← liftTermElabM do
     -- introduce fvars for all the parameters
     forallTelescopeReducing indVal.type fun params _ => do
       let mut paramBinders := #[] -- input parameters
@@ -219,7 +219,7 @@ private def deriveInstance (typeName : Name) : CommandElabM Bool := do
 
       return (paramBinders, packetParamBinders, encInstBinders)
 
-  elabCommand <| ← liftTermElabM none do
+  elabCommand <| ← liftTermElabM do
     Term.elabBinders (paramBinders ++ packetParamBinders ++ encInstBinders) fun locals => do
       let params := locals[:paramBinders.size]
       if isStructure (← getEnv) typeName then
@@ -234,7 +234,7 @@ private unsafe def dispatchDeriveInstanceUnsafe (declNames : Array Name) (args? 
     return false
   let args ←
     if let some args := args? then
-      liftTermElabM none do
+      liftTermElabM do
         let argsT := mkConst ``DerivingParams
         let args ← elabTerm args argsT
         evalExpr' DerivingParams ``DerivingParams args

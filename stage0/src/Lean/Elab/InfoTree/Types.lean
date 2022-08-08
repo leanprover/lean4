@@ -102,6 +102,18 @@ structure FVarAliasInfo where
   id     : FVarId
   baseId : FVarId
 
+/--
+Contains the syntax of an identifier which is part of a field redeclaration, like:
+```
+structure Foo := x : Nat
+structure Bar extends Foo :=
+  x := 0
+--^ here
+```
+-/
+structure FieldRedeclInfo where
+  stx : Syntax
+
 /-- Header information for a node in `InfoTree`. -/
 inductive Info where
   | ofTacticInfo (i : TacticInfo)
@@ -113,6 +125,7 @@ inductive Info where
   | ofUserWidgetInfo (i : UserWidgetInfo)
   | ofCustomInfo (i : CustomInfo)
   | ofFVarAliasInfo (i : FVarAliasInfo)
+  | ofFieldRedeclInfo (i : FieldRedeclInfo)
   deriving Inhabited
 
 /-- The InfoTree is a structure that is generated during elaboration and used

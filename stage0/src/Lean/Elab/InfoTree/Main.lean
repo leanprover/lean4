@@ -152,6 +152,9 @@ def UserWidgetInfo.format (info : UserWidgetInfo) : Format :=
 def FVarAliasInfo.format (info : FVarAliasInfo) : Format :=
   f!"FVarAlias {info.id.name} -> {info.baseId.name}"
 
+def FieldRedeclInfo.format (ctx : ContextInfo) (info : FieldRedeclInfo) : Format :=
+  f!"FieldRedecl @ {formatStxRange ctx info.stx}"
+
 def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofTacticInfo i         => i.format ctx
   | ofTermInfo i           => i.format ctx
@@ -159,9 +162,10 @@ def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofMacroExpansionInfo i => i.format ctx
   | ofFieldInfo i          => i.format ctx
   | ofCompletionInfo i     => i.format ctx
-  | ofUserWidgetInfo i     => pure <| UserWidgetInfo.format i
+  | ofUserWidgetInfo i     => pure <| i.format
   | ofCustomInfo i         => pure <| Std.ToFormat.format i
-  | ofFVarAliasInfo i      => pure <| FVarAliasInfo.format i
+  | ofFVarAliasInfo i      => pure <| i.format
+  | ofFieldRedeclInfo i    => pure <| i.format ctx
 
 def Info.toElabInfo? : Info → Option ElabInfo
   | ofTacticInfo i         => some i.toElabInfo
@@ -173,6 +177,7 @@ def Info.toElabInfo? : Info → Option ElabInfo
   | ofUserWidgetInfo _     => none
   | ofCustomInfo _         => none
   | ofFVarAliasInfo _      => none
+  | ofFieldRedeclInfo _    => none
 
 /--
   Helper function for propagating the tactic metavariable context to its children nodes.

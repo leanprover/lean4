@@ -104,34 +104,35 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
   let scopeLevelNames ← getLevelNames
   let ⟨_, declName, allUserLevelNames⟩ ← expandDeclId declId modifiers
   addDeclarationRanges declName stx
-  runTermElabM declName fun vars => Term.withLevelNames allUserLevelNames <| Term.elabBinders binders.getArgs fun xs => do
-    Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.beforeElaboration
-    let type ← Term.elabType typeStx
-    Term.synthesizeSyntheticMVarsNoPostponing
-    let type ← instantiateMVars type
-    let type ← mkForallFVars xs type
-    let type ← mkForallFVars vars type (usedOnly := true)
-    let (type, _) ← Term.levelMVarToParam type
-    let usedParams  := collectLevelParams {} type |>.params
-    match sortDeclLevelParams scopeLevelNames allUserLevelNames usedParams with
-    | Except.error msg      => throwErrorAt stx msg
-    | Except.ok levelParams =>
+  runTermElabM fun vars =>
+    Term.withDeclName declName <| Term.withLevelNames allUserLevelNames <| Term.elabBinders binders.getArgs fun xs => do
+      Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.beforeElaboration
+      let type ← Term.elabType typeStx
+      Term.synthesizeSyntheticMVarsNoPostponing
       let type ← instantiateMVars type
-      let decl := Declaration.axiomDecl {
-        name        := declName,
-        levelParams := levelParams,
-        type        := type,
-        isUnsafe    := modifiers.isUnsafe
-      }
-      trace[Elab.axiom] "{declName} : {type}"
-      Term.ensureNoUnassignedMVars decl
-      addDecl decl
-      withSaveInfoContext do  -- save new env
-        Term.addTermInfo' declId (← mkConstWithLevelParams declName) (isBinder := true)
-      Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterTypeChecking
-      if isExtern (← getEnv) declName then
-        compileDecl decl
-      Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterCompilation
+      let type ← mkForallFVars xs type
+      let type ← mkForallFVars vars type (usedOnly := true)
+      let (type, _) ← Term.levelMVarToParam type
+      let usedParams  := collectLevelParams {} type |>.params
+      match sortDeclLevelParams scopeLevelNames allUserLevelNames usedParams with
+      | Except.error msg      => throwErrorAt stx msg
+      | Except.ok levelParams =>
+        let type ← instantiateMVars type
+        let decl := Declaration.axiomDecl {
+          name        := declName,
+          levelParams := levelParams,
+          type        := type,
+          isUnsafe    := modifiers.isUnsafe
+        }
+        trace[Elab.axiom] "{declName} : {type}"
+        Term.ensureNoUnassignedMVars decl
+        addDecl decl
+        withSaveInfoContext do  -- save new env
+          Term.addTermInfo' declId (← mkConstWithLevelParams declName) (isBinder := true)
+        Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterTypeChecking
+        if isExtern (← getEnv) declName then
+          compileDecl decl
+        Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterCompilation
 
 /-
 leading_parser "inductive " >> declId >> optDeclSig >> optional ":=" >> many ctor
@@ -366,7 +367,7 @@ def elabMutual : CommandElab := fun stx => do
       attrInsts := attrInsts.push attrKindStx
   let attrs ← elabAttrs attrInsts
   let idents := stx[4].getArgs
-  for ident in idents do withRef ident <| liftTermElabM none do
+  for ident in idents do withRef ident <| liftTermElabM do
     let declName ← resolveGlobalConstNoOverloadWithInfo ident
     Term.applyAttributes declName attrs
     for attrName in toErase do

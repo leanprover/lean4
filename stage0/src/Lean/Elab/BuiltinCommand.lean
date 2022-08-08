@@ -217,7 +217,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
 @[builtinCommandElab «variable»] def elabVariable : CommandElab
   | `(variable $binders*) => do
     -- Try to elaborate `binders` for sanity checking
-    runTermElabM none fun _ => Term.withAutoBoundImplicit <|
+    runTermElabM fun _ => Term.withAutoBoundImplicit <|
       Term.elabBinders binders fun _ => pure ()
     for binder in binders do
       let binders ← replaceBinderAnnotation binder
@@ -230,7 +230,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
 open Meta
 
 def elabCheckCore (ignoreStuckTC : Bool) : CommandElab
-  | `(#check%$tk $term) => withoutModifyingEnv $ runTermElabM (some `_check) fun _ => do
+  | `(#check%$tk $term) => withoutModifyingEnv <| runTermElabM fun _ => Term.withDeclName `_check do
     let e ← Term.elabTerm term none
     Term.synthesizeSyntheticMVarsNoPostponing (ignoreStuckTC := ignoreStuckTC)
     let (e, _) ← Term.levelMVarToParam (← instantiateMVars e)
@@ -242,7 +242,7 @@ def elabCheckCore (ignoreStuckTC : Bool) : CommandElab
 @[builtinCommandElab Lean.Parser.Command.check] def elabCheck : CommandElab := elabCheckCore (ignoreStuckTC := true)
 
 @[builtinCommandElab Lean.Parser.Command.reduce] def elabReduce : CommandElab
-  | `(#reduce%$tk $term) => withoutModifyingEnv <| runTermElabM (some `_check) fun _ => do
+  | `(#reduce%$tk $term) => withoutModifyingEnv <| runTermElabM fun _ => Term.withDeclName `_reduce do
     let e ← Term.elabTerm term none
     Term.synthesizeSyntheticMVarsNoPostponing
     let (e, _) ← Term.levelMVarToParam (← instantiateMVars e)
@@ -344,7 +344,7 @@ unsafe def elabEvalUnsafe : CommandElab
     -- Evaluate using term using `MetaEval` class.
     let elabMetaEval : CommandElabM Unit := do
       -- act? is `some act` if elaborated `term` has type `CommandElabM α`
-      let act? ← runTermElabM (some declName) fun _ => do
+      let act? ← runTermElabM fun _ => Term.withDeclName declName do
         let e ← elabEvalTerm
         let eType ← instantiateMVars (← inferType e)
         if eType.isAppOfArity ``CommandElabM 1 then
@@ -366,7 +366,7 @@ unsafe def elabEvalUnsafe : CommandElab
       let some act := act? | return ()
       act
     -- Evaluate using term using `Eval` class.
-    let elabEval : CommandElabM Unit := runTermElabM (some declName) fun _ => do
+    let elabEval : CommandElabM Unit := runTermElabM fun _ => Term.withDeclName declName do
       -- fall back to non-meta eval if MetaEval hasn't been defined yet
       -- modify e to `runEval e`
       let e ← mkRunEval (← elabEvalTerm)
@@ -388,7 +388,7 @@ opaque elabEval : CommandElab
 
 @[builtinCommandElab «synth»] def elabSynth : CommandElab := fun stx => do
   let term := stx[1]
-  withoutModifyingEnv <| runTermElabM `_synth_cmd fun _ => do
+  withoutModifyingEnv <| runTermElabM fun _ => Term.withDeclName `_synth_cmd do
     let inst ← Term.elabTerm term none
     Term.synthesizeSyntheticMVarsNoPostponing
     let inst ← instantiateMVars inst

@@ -628,28 +628,6 @@ private def checkNextPatternTypes (p : Problem) : MetaM Unit := do
           unless (← isDefEq xType eType) do
             throwError "pattern{indentExpr e}\n{← mkHasTypeButIsExpectedMsg eType xType}"
 
-private def List.moveToFront [Inhabited α] (as : List α) (i : Nat) : List α :=
-  let rec loop : (as : List α) → (i : Nat) → α × List α
-    | [],    _   => unreachable!
-    | a::as, 0   => (a, as)
-    | a::as, i+1 =>
-      let (b, bs) := loop as i
-      (b, a::bs)
-  let (b, bs) := loop as i
-  b :: bs
-
-/-- Move variable `#i` to the beginning of the to-do list `p.vars`. -/
-private def moveToFront (p : Problem) (i : Nat) : Problem :=
-  if i == 0 then
-    p
-  else if i < p.vars.length then
-    { p with
-      vars := List.moveToFront p.vars i
-      alts := p.alts.map fun alt => { alt with patterns := List.moveToFront alt.patterns i }
-    }
-  else
-    p
-
 private partial def process (p : Problem) : StateRefT State MetaM Unit := do
   traceState p
   let isInductive ← isCurrVarInductive p

@@ -557,6 +557,7 @@ where
                 valStx ← `(fun $(view.binders.getArgs)* => $valStx:term)
               let fvarType ← inferType info.fvar
               let value ← Term.elabTermEnsuringType valStx fvarType
+              pushInfoLeaf <| .ofFieldRedeclInfo { stx := view.ref }
               let infos := updateFieldInfoVal infos info.name value
               go (i+1) defaultValsOverridden infos
         match info.kind with
@@ -876,7 +877,7 @@ def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
   let derivingClassViews ← getOptDerivingClasses stx[6]
   let type ← if optType.isNone then `(Sort _) else pure optType[0][1]
   let declName ←
-    runTermElabM none fun scopeVars => do
+    runTermElabM fun scopeVars => do
       let scopeLevelNames ← Term.getLevelNames
       let ⟨name, declName, allUserLevelNames⟩ ← Elab.expandDeclId (← getCurrNamespace) scopeLevelNames declId modifiers
       Term.withAutoBoundImplicitForbiddenPred (fun n => name == n) do
@@ -908,7 +909,7 @@ def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
                 mkInjectiveTheorems declName
               return declName
   derivingClassViews.forM fun view => view.applyHandlers #[declName]
-  runTermElabM declName fun _ =>
+  runTermElabM fun _ => Term.withDeclName declName do
     Term.applyAttributesAt declName modifiers.attrs .afterCompilation
 
 builtin_initialize registerTraceClass `Elab.structure

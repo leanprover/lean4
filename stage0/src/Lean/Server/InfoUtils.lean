@@ -22,7 +22,7 @@ def Lean.Syntax.getRange? (stx : Syntax) (originalOnly := false) : Option String
 namespace Lean.Elab
 
 /-- Visit nodes, passing in a surrounding context (the innermost one) and accumulating results on the way back up. -/
-partial def InfoTree.visitM [Monad m] [Inhabited α]
+partial def InfoTree.visitM [Monad m]
     (preNode  : ContextInfo → Info → (children : Std.PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
     (postNode : ContextInfo → Info → (children : Std.PersistentArray InfoTree) → List (Option α) → m α)
     : InfoTree → m (Option α) :=
@@ -95,6 +95,7 @@ def Info.stx : Info → Syntax
   | ofCustomInfo i         => i.stx
   | ofUserWidgetInfo i     => i.stx
   | ofFVarAliasInfo _      => .missing
+  | ofFieldRedeclInfo i    => i.stx
 
 def Info.lctx : Info → LocalContext
   | Info.ofTermInfo i  => i.lctx

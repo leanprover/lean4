@@ -36,7 +36,6 @@ static lean_object* l_Lean_Compiler_toDecl___closed__20;
 static lean_object* l_Lean_Compiler_toDecl___closed__10;
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at_Lean_Compiler_toDecl___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_Decl_0__Lean_Compiler_replaceUnsafeRecNames___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_toDecl___closed__12;
@@ -88,12 +87,11 @@ static lean_object* l_Lean_Compiler_toDecl___closed__13;
 static lean_object* l_Lean_Compiler_toDecl___closed__21;
 static lean_object* l_Lean_Compiler_toDecl___closed__23;
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
-lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_lambdaTelescopeImp___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_toDecl___closed__6;
 static lean_object* l_Lean_Compiler_toDecl___closed__25;
 static lean_object* l_Lean_Compiler_toDecl___closed__5;
-LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at_Lean_Compiler_toDecl___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_toDecl___closed__29;
+lean_object* l_Lean_Meta_lambdaTelescope___at_Lean_Compiler_updateMotive___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_toDecl___closed__14;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_Decl_0__Lean_Compiler_replaceUnsafeRecNames(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_toDecl___closed__28;
@@ -466,66 +464,6 @@ lean_ctor_set(x_13, 0, x_12);
 lean_ctor_set(x_13, 1, x_11);
 return x_13;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at_Lean_Compiler_toDecl___spec__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-uint8_t x_8; lean_object* x_9; 
-x_8 = 0;
-x_9 = l___private_Lean_Meta_Basic_0__Lean_Meta_lambdaTelescopeImp___rarg(x_1, x_8, x_2, x_3, x_4, x_5, x_6, x_7);
-if (lean_obj_tag(x_9) == 0)
-{
-uint8_t x_10; 
-x_10 = !lean_is_exclusive(x_9);
-if (x_10 == 0)
-{
-return x_9;
-}
-else
-{
-lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_11 = lean_ctor_get(x_9, 0);
-x_12 = lean_ctor_get(x_9, 1);
-lean_inc(x_12);
-lean_inc(x_11);
-lean_dec(x_9);
-x_13 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_13, 0, x_11);
-lean_ctor_set(x_13, 1, x_12);
-return x_13;
-}
-}
-else
-{
-uint8_t x_14; 
-x_14 = !lean_is_exclusive(x_9);
-if (x_14 == 0)
-{
-return x_9;
-}
-else
-{
-lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_15 = lean_ctor_get(x_9, 0);
-x_16 = lean_ctor_get(x_9, 1);
-lean_inc(x_16);
-lean_inc(x_15);
-lean_dec(x_9);
-x_17 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_17, 0, x_15);
-lean_ctor_set(x_17, 1, x_16);
-return x_17;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at_Lean_Compiler_toDecl___spec__2(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Meta_lambdaTelescope___at_Lean_Compiler_toDecl___spec__2___rarg), 7, 0);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Compiler_toDecl___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -1067,7 +1005,7 @@ x_32 = l_Lean_Compiler_toDecl___closed__16;
 lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_29);
-x_33 = l_Lean_Meta_lambdaTelescope___at_Lean_Compiler_toDecl___spec__2___rarg(x_24, x_31, x_32, x_29, x_2, x_3, x_30);
+x_33 = l_Lean_Meta_lambdaTelescope___at_Lean_Compiler_updateMotive___spec__1___rarg(x_24, x_31, x_32, x_29, x_2, x_3, x_30);
 if (lean_obj_tag(x_33) == 0)
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 

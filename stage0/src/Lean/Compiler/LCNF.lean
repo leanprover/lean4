@@ -28,29 +28,18 @@ structure Context where
 
 structure State where
   cache   : PersistentExprMap Expr := {}
-  /-- Next auxiliary variable suffix -/
-  nextIdx : Nat := 1
 
 abbrev M := ReaderT Context $ StateRefT State CompilerM
-
-def mkFreshLetDecl (e : Expr) : M Expr := do
-  if (← read).root then
-    return e
-  else
-    try
-      mkLetDecl ((`_x).appendIndexAfter (← get).nextIdx) (← inferType e) e (nonDep := false)
-    finally
-      modify fun s => { s with nextIdx := s.nextIdx + 1 }
 
 @[inline] def withRoot (flag : Bool) (x : M α) : M α :=
   withReader (fun _ => { root := flag }) x
 
 def withNewRootScope (x : M α) : M α := do
-  let cacheSaved := (← get).cache
+  let saved ← get
   try
     withRoot true <| Compiler.withNewScope x
   finally
-    modify fun s => { s with cache := cacheSaved }
+    set saved
 
 /--
 Eta-expand with `n` lambdas.
@@ -61,6 +50,12 @@ def etaExpandN (e : Expr) (n : Nat) : CompilerM Expr := do
   else liftMetaM do
     Meta.forallBoundedTelescope (← Meta.inferType e) n fun xs _ =>
       Meta.mkLambdaFVars xs (mkAppN e xs)
+
+def mkAuxLetDecl (e : Expr) : M Expr := do
+  if (← read).root then
+    return e
+  else
+    Compiler.mkAuxLetDecl e
 
 /--
 Put the given expression in `LCNF`.
@@ -79,7 +74,7 @@ where
   /-- Visit args, and return `f args` -/
   visitAppDefault (f : Expr) (args : Array Expr) : M Expr := do
     let args ← args.mapM visitChild
-    mkFreshLetDecl <| mkAppN f args
+    mkAuxLetDecl <| mkAppN f args
 
   /-- Eta expand if under applied, otherwise apply k -/
   etaIfUnderApplied (e : Expr) (arity : Nat) (k : M Expr) : M Expr := do
@@ -88,6 +83,39 @@ where
       visit (← etaExpandN e (arity - numArgs))
     else
       k
+
+  /--
+  If `args.size == arity`, then just return `app`.
+  Otherwise return
+  ```
+  let k := app
+  k args[arity:]
+  ```
+  -/
+  mkOverApplication (app : Expr) (args : Array Expr) (arity : Nat) : M Expr := do
+    if args.size == arity then
+      mkAuxLetDecl app
+    else
+    let k ← withRoot false <| mkAuxLetDecl app
+    let mut args := args
+    for i in [arity : args.size] do
+      args ← args.modifyM i visitChild
+    mkAuxLetDecl (mkAppN k args[arity:])
+
+  /--
+  Create an application `f args` that is expected to have arity `arity`.
+  If `arity > args.size`, we say `f` is over-applied, we visit the "extra" arguments,
+  and produce an output of the form
+  ```
+  let k := f args[:arity]
+  k args[arity:]
+  ```
+  -/
+  mkAppWithArity (f : Expr) (args : Array Expr) (arity : Nat) : M Expr := do
+    if args.size == arity then
+      mkAuxLetDecl (mkAppN f args)
+    else
+      mkOverApplication (mkAppN f args[:arity]) args arity
 
   /--
   Visit a `matcher`/`casesOn` alternative.
@@ -103,58 +131,15 @@ where
       e ← mkLetUsingScope (← visit e)
       mkLambda as e
 
-  /--
-  If `args.size == arity`, then just return `app`.
-  Otherwise return
-  ```
-  let k := app
-  k args[arity:]
-  ```
-  -/
-  mkOverApplication (app : Expr) (args : Array Expr) (arity : Nat) : M Expr := do
-    if args.size == arity then
-      mkFreshLetDecl app
-    else
-    let k ← withRoot false <| mkFreshLetDecl app
-    let mut args := args
-    for i in [arity : args.size] do
-      args ← args.modifyM i visitChild
-    mkFreshLetDecl (mkAppN k args[arity:])
-
-  /--
-  Create an application `f args` that is expected to have arity `arity`.
-  If `arity > args.size`, we say `f` is over-applied, we visit the "extra" arguments,
-  and produce an output of the form
-  ```
-  let k := f args[:arity]
-  k args[arity:]
-  ```
-  -/
-  mkAppWithArity (f : Expr) (args : Array Expr) (arity : Nat) : M Expr := do
-    if args.size == arity then
-      mkFreshLetDecl (mkAppN f args)
-    else
-      mkOverApplication (mkAppN f args[:arity]) args arity
-
-  visitMatcher (matcherInfo : Meta.MatcherInfo) (e : Expr) : M Expr :=
-    etaIfUnderApplied e matcherInfo.arity do
+  visitCases (casesInfo : CasesInfo) (e : Expr) : M Expr :=
+    etaIfUnderApplied e casesInfo.arity do
       let mut args := e.getAppArgs
-      for i in matcherInfo.getDiscrRange do
+      for i in casesInfo.discrsRange do
         args ← args.modifyM i visitChild
-      for i in matcherInfo.getAltRange, altIdx in [: matcherInfo.numAlts] do
-        let alt ← visitAlt args[i]! matcherInfo.altNumParams[altIdx]!
+      for i in casesInfo.altsRange, numParams in casesInfo.altNumParams do
+        let alt ← visitAlt args[i]! numParams
         args := args.set! i alt
-      mkAppWithArity e.getAppFn args matcherInfo.arity
-
-  visitCasesOn (casesOnInfo : CasesOnInfo) (e : Expr) : M Expr :=
-    etaIfUnderApplied e casesOnInfo.arity do
-      let mut args := e.getAppArgs
-      args ← args.modifyM casesOnInfo.majorPos visitChild
-      for i in casesOnInfo.minorsRange, ctor in casesOnInfo.ctors do
-        let .ctorInfo ctorVal ← getConstInfo ctor | unreachable!
-        let alt ← visitAlt args[i]! ctorVal.numFields
-        args := args.set! i alt
-      mkAppWithArity e.getAppFn args casesOnInfo.arity
+      mkAppWithArity e.getAppFn args casesInfo.arity
 
   visitCtor (arity : Nat) (e : Expr) : M Expr :=
     etaIfUnderApplied e arity do
@@ -169,7 +154,7 @@ where
       let f ← visitChild args[3]!
       let q ← visitChild args[5]!
       let .const _ [u, _] := e.getAppFn | unreachable!
-      let invq ← mkFreshLetDecl (mkApp3 (.const ``Quot.lcInv [u]) α r q)
+      let invq ← mkAuxLetDecl (mkApp3 (.const ``Quot.lcInv [u]) α r q)
       let r := mkApp f invq
       mkOverApplication r args arity
 
@@ -186,7 +171,7 @@ where
   visitFalseRec (e : Expr) : M Expr :=
     let arity := 2
     etaIfUnderApplied e arity do
-      mkFreshLetDecl (← mkLcUnreachable (← inferType e))
+      mkAuxLetDecl (← mkLcUnreachable (← inferType e))
 
   visitAndRec (e : Expr) : M Expr :=
     let arity := 5
@@ -218,7 +203,7 @@ where
             let major := mkAppN major args[arity+1:]
             visit major
         else
-          mkFreshLetDecl (← mkLcUnreachable (← inferType e))
+          mkAuxLetDecl (← mkLcUnreachable (← inferType e))
       | _, _ =>
         throwError "code generator failed, unsupported occurrence of `{declName}`"
 
@@ -250,9 +235,7 @@ where
 
   visitApp (e : Expr) : M Expr := do
     if let .const declName _ := e.getAppFn then
-      if let some matcherInfo ← Meta.getMatcherInfo? declName then
-        visitMatcher matcherInfo e
-      else if declName == ``Quot.lift then
+      if declName == ``Quot.lift then
         visitQuotLift e
       else if declName == ``Quot.mk then
         visitCtor 3 e
@@ -262,8 +245,8 @@ where
         visitAndRec e
       else if declName == ``False.rec || declName == ``Empty.rec || declName == ``False.casesOn || declName == ``Empty.casesOn then
         visitFalseRec e
-      else if let some casesOnInfo ← getCasesOnInfo? declName then
-        visitCasesOn casesOnInfo e
+      else if let some casesInfo ← getCasesInfo? declName then
+        visitCases casesInfo e
       else if let some arity ← getCtorArity? declName then
         visitCtor arity e
       else if isNoConfusion (← getEnv) declName then
@@ -280,16 +263,16 @@ where
       let (as, e) ← Compiler.visitLambda e
       let e ← mkLetUsingScope (← visit e)
       mkLambda as e
-    mkFreshLetDecl r
+    mkAuxLetDecl r
 
   visitMData (mdata : MData) (e : Expr) : M Expr := do
     if isCompilerRelevantMData mdata then
-      mkFreshLetDecl <| .mdata mdata (← visitChild e)
+      mkAuxLetDecl <| .mdata mdata (← visitChild e)
     else
       visit e
 
   visitProj (s : Name) (i : Nat) (e : Expr) : M Expr := do
-    mkFreshLetDecl <| .proj s i (← visitChild e)
+    mkAuxLetDecl <| .proj s i (← visitChild e)
 
   visit (e : Expr) : M Expr := withIncRecDepth do
     match e with
@@ -315,7 +298,7 @@ where
       | .mdata d e  => visitMData d e
       | .lam ..     => visitLambda e
       | .letE ..    => visit (← visitLet e visitChild)
-      | .lit ..     => mkFreshLetDecl e
+      | .lit ..     => mkAuxLetDecl e
       | _           => pure e
     modify fun s => { s with cache := s.cache.insert e r }
     return r

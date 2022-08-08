@@ -206,8 +206,6 @@ structure Package where
   scripts : NameMap Script := {}
   deriving Inhabited
 
-#check String.dropRight
-
 hydrate_opaque_type OpaquePackage Package
 
 abbrev PackageSet := RBTree Package (·.config.name.quickCmp ·.config.name)

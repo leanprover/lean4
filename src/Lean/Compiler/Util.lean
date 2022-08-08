@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Compiler.CompilerM
+import Lean.Meta.Match.MatcherInfo
 
 namespace Lean.Compiler
 
@@ -41,23 +42,43 @@ def mkLcUnreachable (type : Expr) : CompilerM Expr := do
     let u ← Meta.getLevel type
     return .app (.const ``lcUnreachable [u]) type
 
-structure CasesOnInfo where
-  arity       : Nat
-  majorPos    : Nat
-  minorsRange : Std.Range
-  ctors       : List Name
+/--
+Store information about `matcher` and `casesOn` declarations.
 
-def getCasesOnInductiveVal? (declName : Name) : CoreM (Option InductiveVal) := do
+We treat them uniformly in the code generator.
+-/
+structure CasesInfo where
+  arity        : Nat
+  discrsRange  : Std.Range
+  altsRange    : Std.Range
+  altNumParams : Array Nat
+
+private def getCasesOnInductiveVal? (declName : Name) : CoreM (Option InductiveVal) := do
   unless isCasesOnRecursor (← getEnv) declName do return none
   let .inductInfo val ← getConstInfo declName.getPrefix | return none
   return some val
 
-def getCasesOnInfo? (declName : Name) : CoreM (Option CasesOnInfo) := do
+private def getCasesOnInfo? (declName : Name) : CoreM (Option CasesInfo) := do
   let some val ← getCasesOnInductiveVal? declName | return none
-  let arity       := val.numIndices + val.numParams + 1 /- motive -/ + 1 /- major -/ + val.numCtors
-  let majorPos    := val.numIndices + val.numParams + 1 /- motive -/
-  let minorsRange := { start := majorPos + 1, stop := arity }
-  return some { arity, majorPos, minorsRange, ctors := val.ctors }
+  let arity        := val.numIndices + val.numParams + 1 /- motive -/ + 1 /- major -/ + val.numCtors
+  let majorPos     := val.numIndices + val.numParams + 1 /- motive -/
+  let discrsRange  := { start := majorPos, stop := majorPos + 1 }
+  let altsRange    := { start := majorPos + 1, stop := arity }
+  let altNumParams ← val.ctors.toArray.mapM fun ctor => do
+    let .ctorInfo ctorVal ← getConstInfo ctor | unreachable!
+    return ctorVal.numFields
+  return some { arity, discrsRange, altsRange, altNumParams }
+
+def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
+  if let some matcherInfo ← Meta.getMatcherInfo? declName then
+    return some {
+      arity        := matcherInfo.arity
+      discrsRange  := matcherInfo.getDiscrRange
+      altsRange    := matcherInfo.getAltRange
+      altNumParams := matcherInfo.altNumParams
+    }
+  else
+    getCasesOnInfo? declName
 
 def getCtorArity? (declName : Name) : CoreM (Option Nat) := do
   let .ctorInfo val ← getConstInfo declName | return none

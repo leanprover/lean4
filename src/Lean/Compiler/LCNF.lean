@@ -79,20 +79,6 @@ where
       k
 
   /--
-  Visit a `matcher`/`casesOn` alternative.
-  -/
-  visitAlt (e : Expr) (numParams : Nat) : M Expr := do
-    withNewRootScope do
-      let mut (as, e) ← Compiler.visitBoundedLambda e numParams
-      if as.size < numParams then
-        e ← etaExpandN e (numParams - as.size)
-        let (as', e') ← Compiler.visitLambda e
-        as := as ++ as'
-        e := e'
-      e ← mkLetUsingScope (← visit e)
-      mkLambda as e
-
-  /--
   If `args.size == arity`, then just return `app`.
   Otherwise return
   ```
@@ -125,25 +111,29 @@ where
     else
       mkOverApplication (mkAppN f args[:arity]) args arity
 
-  visitMatcher (matcherInfo : Meta.MatcherInfo) (e : Expr) : M Expr :=
-    etaIfUnderApplied e matcherInfo.arity do
-      let mut args := e.getAppArgs
-      for i in matcherInfo.getDiscrRange do
-        args ← args.modifyM i visitChild
-      for i in matcherInfo.getAltRange, altIdx in [: matcherInfo.numAlts] do
-        let alt ← visitAlt args[i]! matcherInfo.altNumParams[altIdx]!
-        args := args.set! i alt
-      mkAppWithArity e.getAppFn args matcherInfo.arity
+  /--
+  Visit a `matcher`/`casesOn` alternative.
+  -/
+  visitAlt (e : Expr) (numParams : Nat) : M Expr := do
+    withNewRootScope do
+      let mut (as, e) ← Compiler.visitBoundedLambda e numParams
+      if as.size < numParams then
+        e ← etaExpandN e (numParams - as.size)
+        let (as', e') ← Compiler.visitLambda e
+        as := as ++ as'
+        e := e'
+      e ← mkLetUsingScope (← visit e)
+      mkLambda as e
 
-  visitCasesOn (casesOnInfo : CasesOnInfo) (e : Expr) : M Expr :=
-    etaIfUnderApplied e casesOnInfo.arity do
+  visitCases (casesInfo : CasesInfo) (e : Expr) : M Expr :=
+    etaIfUnderApplied e casesInfo.arity do
       let mut args := e.getAppArgs
-      args ← args.modifyM casesOnInfo.majorPos visitChild
-      for i in casesOnInfo.minorsRange, ctor in casesOnInfo.ctors do
-        let .ctorInfo ctorVal ← getConstInfo ctor | unreachable!
-        let alt ← visitAlt args[i]! ctorVal.numFields
+      for i in casesInfo.discrsRange do
+        args ← args.modifyM i visitChild
+      for i in casesInfo.altsRange, numParams in casesInfo.altNumParams do
+        let alt ← visitAlt args[i]! numParams
         args := args.set! i alt
-      mkAppWithArity e.getAppFn args casesOnInfo.arity
+      mkAppWithArity e.getAppFn args casesInfo.arity
 
   visitCtor (arity : Nat) (e : Expr) : M Expr :=
     etaIfUnderApplied e arity do
@@ -239,9 +229,7 @@ where
 
   visitApp (e : Expr) : M Expr := do
     if let .const declName _ := e.getAppFn then
-      if let some matcherInfo ← Meta.getMatcherInfo? declName then
-        visitMatcher matcherInfo e
-      else if declName == ``Quot.lift then
+      if declName == ``Quot.lift then
         visitQuotLift e
       else if declName == ``Quot.mk then
         visitCtor 3 e
@@ -251,8 +239,8 @@ where
         visitAndRec e
       else if declName == ``False.rec || declName == ``Empty.rec || declName == ``False.casesOn || declName == ``Empty.casesOn then
         visitFalseRec e
-      else if let some casesOnInfo ← getCasesOnInfo? declName then
-        visitCasesOn casesOnInfo e
+      else if let some casesInfo ← getCasesInfo? declName then
+        visitCases casesInfo e
       else if let some arity ← getCtorArity? declName then
         visitCtor arity e
       else if isNoConfusion (← getEnv) declName then

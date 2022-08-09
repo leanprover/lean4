@@ -1,60 +1,12 @@
 import Lean
 
-opaque Erased : Type
-opaque Any : Type
-notation "◾" => Erased
-notation "⊤" => Any
+notation "◾" => lcErased
+notation "⊤" => lcAny
 
-open Lean Meta
-
-def erasedExpr := mkConst ``Erased
-def anyExpr := mkConst  ``Any
-
-partial def simpType (type : Expr) : MetaM Expr := do
-  if (← isProp type) then
-    return erasedExpr
-  let type ← whnf type
-  match type with
-  | .sort u     => return .sort u
-  | .const ..   => visitApp type #[]
-  | .lam n d b bi =>
-    withLocalDecl n bi d fun x => do
-      let d ← simpType d
-      let b ← simpType (b.instantiate1 x)
-      return .lam n d (b.abstract #[x]) bi
-  | .forallE n d b bi =>
-    withLocalDecl n bi d fun x => do
-      let borrowed := isMarkedBorrowed d
-      let mut d ← simpType d
-      if borrowed then
-        d := markBorrowed d
-      let b ← simpType (b.instantiate1 x)
-      return .forallE n d (b.abstract #[x]) bi
-  | .app ..  => type.withApp visitApp
-  | .fvar .. => visitApp type #[]
-  | _        => return anyExpr
-where
-  visitApp (f : Expr) (args : Array Expr) := do
-    let fNew ← match f with
-      | .const declName us =>
-        let .inductInfo _ ← getConstInfo declName | return anyExpr
-        pure <| .const declName us
-      | .fvar .. => pure f
-      | _ => return anyExpr
-    let mut result := fNew
-    for arg in args do
-      if (← isProp arg) then
-        result := mkApp result erasedExpr
-      else if (← isTypeFormer arg) then
-        result := mkApp result (← simpType arg)
-      else
-        result := mkApp result erasedExpr
-    return result
+open Lean Compiler Meta
 
 def test (declName : Name) : MetaM Unit := do
-  let info ← getConstInfo declName
-  let type ← simpType info.type
-  IO.println s!"{declName} : {← ppExpr type}"
+  IO.println s!"{declName} : {← ppExpr (← getDeclLCNFType declName)}"
 
 inductive Vec (α : Type u) : Nat → Type u
   | nil : Vec α 0
@@ -140,6 +92,6 @@ def Term.constFold : Term ctx ty → Term ctx ty
 #eval test ``Decidable.casesOn
 #eval test ``getConstInfo
 #eval test ``instMonadMetaM
-#eval test ``inferType
+#eval test ``Lean.Meta.inferType
 #eval test ``Elab.Term.elabTerm
 #eval test ``Nat.add

@@ -404,10 +404,10 @@ private def mkAnswer (cNode : ConsumerNode) : MetaM Answer :=
 def addAnswer (cNode : ConsumerNode) : SynthM Unit := do
   withMCtx cNode.mctx do
   if cNode.size ≥ (← read).maxResultSize then
-      trace[Meta.synthInstance.answer] "❌ {← instantiateMVars (← inferType cNode.mvar)}{Format.line}(size: {cNode.size} ≥ {(← read).maxResultSize})"
+      trace[Meta.synthInstance.answer] "{crossEmoji} {← instantiateMVars (← inferType cNode.mvar)}{Format.line}(size: {cNode.size} ≥ {(← read).maxResultSize})"
   else
     withTraceNode `Meta.synthInstance.answer
-      (fun _ => return m!"✅ {← instantiateMVars (← inferType cNode.mvar)}") do
+      (fun _ => return m!"{checkEmoji} {← instantiateMVars (← inferType cNode.mvar)}") do
     let answer ← mkAnswer cNode
     -- Remark: `answer` does not contain assignable or assigned metavariables.
     let key := cNode.key

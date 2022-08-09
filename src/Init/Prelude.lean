@@ -1088,39 +1088,73 @@ instance (r : α → γ → Sort u) : Trans Eq r r where
 instance (r : α → β → Sort u) : Trans r Eq r where
   trans h' heq := heq ▸ h'
 
-/-- The typeclass behind the notation `a + b : γ` where `a : α`, `b : β`. -/
+/--
+The notation typeclass for heterogeneous addition.
+This enables the notation `a + b : γ` where `a : α`, `b : β`.
+-/
 class HAdd (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  /-- The implementation of `a + b : γ`. -/
+  /-- `a + b` computes the sum of `a` and `b`.
+  The meaning of this notation is type-dependent. -/
   hAdd : α → β → γ
 
-/-- The typeclass behind the notation `a - b : γ` where `a : α`, `b : β`. -/
+/--
+The notation typeclass for heterogeneous subtraction.
+This enables the notation `a - b : γ` where `a : α`, `b : β`.
+-/
 class HSub (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  /-- The implementation of `a - b : γ`. -/
+  /-- `a - b` computes the difference of `a` and `b`.
+  The meaning of this notation is type-dependent.
+  * For natural numbers, this operator saturates at 0: `a - b = 0` when `a ≤ b`. -/
   hSub : α → β → γ
 
-/-- The typeclass behind the notation `a * b : γ` where `a : α`, `b : β`. -/
+/--
+The notation typeclass for heterogeneous multiplication.
+This enables the notation `a * b : γ` where `a : α`, `b : β`.
+-/
 class HMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  /-- The implementation of `a * b : γ`. -/
+  /-- `a * b` computes the product of `a` and `b`.
+  The meaning of this notation is type-dependent. -/
   hMul : α → β → γ
 
-/-- The typeclass behind the notation `a / b : γ` where `a : α`, `b : β`. -/
+/--
+The notation typeclass for heterogeneous division.
+This enables the notation `a / b : γ` where `a : α`, `b : β`.
+-/
 class HDiv (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  /-- The implementation of `a / b : γ`. -/
+  /-- `a / b` computes the result of dividing `a` by `b`.
+  The meaning of this notation is type-dependent.
+  * For most types like `Nat`, `Int`, `Rat`, `Real`, `a / 0` is defined to be `0`.
+  * For `Nat` and `Int`, `a / b` rounds toward 0.
+  * For `Float`, `a / 0` follows the IEEE 754 semantics for division,
+    usually resulting in `inf` or `nan`. -/
   hDiv : α → β → γ
 
-/-- The typeclass behind the notation `a % b : γ` where `a : α`, `b : β`. -/
+/--
+The notation typeclass for heterogeneous modulo / remainder.
+This enables the notation `a % b : γ` where `a : α`, `b : β`.
+-/
 class HMod (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  /-- The implementation of `a % b : γ`. -/
+  /-- `a % b` computes the remainder upon dividing `a` by `b`.
+  The meaning of this notation is type-dependent.
+  * For `Nat` and `Int`, `a % 0` is defined to be `a`. -/
   hMod : α → β → γ
 
-/-- The typeclass behind the notation `a ^ b : γ` where `a : α`, `b : β`. -/
+/--
+The notation typeclass for heterogeneous exponentiation.
+This enables the notation `a ^ b : γ` where `a : α`, `b : β`.
+-/
 class HPow (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  /-- The implementation of `a ^ b : γ`. -/
+  /-- `a ^ b` computes `a` to the power of `b`.
+  The meaning of this notation is type-dependent. -/
   hPow : α → β → γ
 
-/-- The typeclass behind the notation `a ++ b : γ` where `a : α`, `b : β`. -/
+/--
+The notation typeclass for heterogeneous append.
+This enables the notation `a ++ b : γ` where `a : α`, `b : β`.
+-/
 class HAppend (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  /-- The implementation of `a ++ b : γ`. -/
+  /-- `a ++ b` is the result of concatenation of `a` and `b`, usually read "append".
+  The meaning of this notation is type-dependent. -/
   hAppend : α → β → γ
 
 /--
@@ -1129,8 +1163,10 @@ Because `b` is "lazy" in this notation, it is passed as `Unit → β` to the
 implementation so it can decide when to evaluate it.
 -/
 class HOrElse (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  /-- The implementation of `a <|> b : γ`. `b` is passed as a thunk so it
-  can be forced only when needed. -/
+  /-- `a <|> b` executes `a` and returns the result, unless it fails in which
+  case it executes and returns `b`. Because `b` is not always executed, it
+  is passed as a thunk so it can be forced only when needed.
+  The meaning of this notation is type-dependent. -/
   hOrElse : α → (Unit → β) → γ
 
 /--
@@ -1139,63 +1175,79 @@ Because `b` is "lazy" in this notation, it is passed as `Unit → β` to the
 implementation so it can decide when to evaluate it.
 -/
 class HAndThen (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  /-- The implementation of `a >> b : γ`. `b` is passed as a thunk so it
-  can be forced only when needed. -/
+  /-- `a >> b` executes `a`, ignores the result, and then executes `b`.
+  If `a` fails then `b` is not executed. Because `b` is not always executed, it
+  is passed as a thunk so it can be forced only when needed.
+  The meaning of this notation is type-dependent. -/
   hAndThen : α → (Unit → β) → γ
 
 /-- The typeclass behind the notation `a &&& b : γ` where `a : α`, `b : β`. -/
 class HAnd (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  /-- The implementation of `a &&& b : γ`. -/
+  /-- `a &&& b` computes the bitwise AND of `a` and `b`.
+  The meaning of this notation is type-dependent. -/
   hAnd : α → β → γ
 
 /-- The typeclass behind the notation `a ^^^ b : γ` where `a : α`, `b : β`. -/
 class HXor (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  /-- The implementation of `a ^^^ b : γ`. -/
+  /-- `a ^^^ b` computes the bitwise XOR of `a` and `b`.
+  The meaning of this notation is type-dependent. -/
   hXor : α → β → γ
 
 /-- The typeclass behind the notation `a ||| b : γ` where `a : α`, `b : β`. -/
 class HOr (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  /-- The implementation of `a ||| b : γ`. -/
+  /-- `a ||| b` computes the bitwise OR of `a` and `b`.
+  The meaning of this notation is type-dependent. -/
   hOr : α → β → γ
 
 /-- The typeclass behind the notation `a <<< b : γ` where `a : α`, `b : β`. -/
 class HShiftLeft (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  /-- The implementation of `a <<< b : γ`. -/
+  /-- `a <<< b` computes `a` shifted to the left by `b` places.
+  The meaning of this notation is type-dependent.
+  * On `Nat`, this is equivalent to `a * 2 ^ b`.
+  * On `UInt8` and other fixed width unsigned types, this is the same but
+    truncated to the bit width. -/
   hShiftLeft : α → β → γ
 
 /-- The typeclass behind the notation `a >>> b : γ` where `a : α`, `b : β`. -/
 class HShiftRight (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  /-- The implementation of `a >>> b : γ`. -/
+  /-- `a >>> b` computes `a` shifted to the right by `b` places.
+  The meaning of this notation is type-dependent.
+  * On `Nat` and fixed width unsigned types like `UInt8`,
+    this is equivalent to `a / 2 ^ b`. -/
   hShiftRight : α → β → γ
 
 /-- The homogeneous version of `HAdd`: `a + b : α` where `a b : α`. -/
 class Add (α : Type u) where
-  /-- The implementation of `a + b : α`. -/
+  /-- `a + b` computes the sum of `a` and `b`. See `HAdd`. -/
   add : α → α → α
 
 /-- The homogeneous version of `HSub`: `a - b : α` where `a b : α`. -/
 class Sub (α : Type u) where
-  /-- The implementation of `a - b : α`. -/
+  /-- `a - b` computes the difference of `a` and `b`. See `HSub`. -/
   sub : α → α → α
 
 /-- The homogeneous version of `HMul`: `a * b : α` where `a b : α`. -/
 class Mul (α : Type u) where
-  /-- The implementation of `a * b : α`. -/
+  /-- `a * b` computes the product of `a` and `b`. See `HMul`. -/
   mul : α → α → α
 
-/-- The typeclass behind the notation `-a : α` where `a : α`. -/
+/--
+The notation typeclass for negation.
+This enables the notation `-a : α` where `a : α`.
+-/
 class Neg (α : Type u) where
-  /-- The implementation of `-a : α`. -/
+  /-- `-a` computes the negative or opposite of `a`.
+  The meaning of this notation is type-dependent. -/
   neg : α → α
 
 /-- The homogeneous version of `HDiv`: `a / b : α` where `a b : α`. -/
 class Div (α : Type u) where
-  /-- The implementation of `a / b : α`. -/
+  /-- `a / b` computes the result of dividing `a` by `b`. See `HDiv`. -/
   div : α → α → α
 
 /-- The homogeneous version of `HMod`: `a % b : α` where `a b : α`. -/
 class Mod (α : Type u) where
-  /-- The implementation of `a % b : α`. -/
+  /-- `a % b` computes the remainder upon dividing `a` by `b`. See `HMod`. -/
   mod : α → α → α
 
 /--
@@ -1204,12 +1256,12 @@ The homogeneous version of `HPow`: `a ^ b : α` where `a : α`, `b : β`.
 in the homogeneous case.)
 -/
 class Pow (α : Type u) (β : Type v) where
-  /-- The implementation of `a ^ b : α`. -/
+  /-- `a ^ b` computes `a` to the power of `b`. See `HPow`. -/
   pow : α → β → α
 
 /-- The homogeneous version of `HAppend`: `a ++ b : α` where `a b : α`. -/
 class Append (α : Type u) where
-  /-- The implementation of `a ++ b : α`. -/
+  /-- `a ++ b` is the result of concatenation of `a` and `b`. See `HAppend`. -/
   append : α → α → α
 
 /--
@@ -1218,8 +1270,7 @@ Because `b` is "lazy" in this notation, it is passed as `Unit → α` to the
 implementation so it can decide when to evaluate it.
 -/
 class OrElse (α : Type u) where
-  /-- The implementation of `a <|> b : α`. `b` is passed as a thunk so it
-  can be forced only when needed. -/
+  /-- The implementation of `a <|> b : α`. See `HOrElse`. -/
   orElse  : α → (Unit → α) → α
 
 /--
@@ -1228,8 +1279,7 @@ Because `b` is "lazy" in this notation, it is passed as `Unit → α` to the
 implementation so it can decide when to evaluate it.
 -/
 class AndThen (α : Type u) where
-  /-- The implementation of `a >> b : α`. `b` is passed as a thunk so it
-  can be forced only when needed. -/
+  /-- The implementation of `a >> b : α`. See `HAndThen`. -/
   andThen : α → (Unit → α) → α
 
 /--
@@ -1237,12 +1287,12 @@ The homogeneous version of `HAnd`: `a &&& b : α` where `a b : α`.
 (It is called `AndOp` because `And` is taken for the propositional connective.)
 -/
 class AndOp (α : Type u) where
-  /-- The implementation of `a &&& b : α`. -/
+  /-- The implementation of `a &&& b : α`. See `HAnd`. -/
   and : α → α → α
 
 /-- The homogeneous version of `HXor`: `a ^^^ b : α` where `a b : α`. -/
 class Xor (α : Type u) where
-  /-- The implementation of `a ^^^ b : α`. -/
+  /-- The implementation of `a ^^^ b : α`. See `HXor`. -/
   xor : α → α → α
 
 /--
@@ -1250,7 +1300,7 @@ The homogeneous version of `HOr`: `a ||| b : α` where `a b : α`.
 (It is called `OrOp` because `Or` is taken for the propositional connective.)
 -/
 class OrOp (α : Type u) where
-  /-- The implementation of `a ||| b : α`. -/
+  /-- The implementation of `a ||| b : α`. See `HOr`. -/
   or : α → α → α
 
 /-- The typeclass behind the notation `~~~a : α` where `a : α`. -/
@@ -1260,12 +1310,12 @@ class Complement (α : Type u) where
 
 /-- The homogeneous version of `HShiftLeft`: `a <<< b : α` where `a b : α`. -/
 class ShiftLeft (α : Type u) where
-  /-- The implementation of `a <<< b : α`. -/
+  /-- The implementation of `a <<< b : α`. See `HShiftLeft`. -/
   shiftLeft : α → α → α
 
 /-- The homogeneous version of `HShiftRight`: `a >>> b : α` where `a b : α`. -/
 class ShiftRight (α : Type u) where
-  /-- The implementation of `a >>> b : α`. -/
+  /-- The implementation of `a >>> b : α`. See `HShiftRight`. -/
   shiftRight : α → α → α
 
 @[defaultInstance]

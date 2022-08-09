@@ -2838,35 +2838,41 @@ instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (ReaderT ρ m) where
 end
 
 section
-variable {ρ : Type u} {m : Type u → Type v} [Monad m] {α β : Type u}
+variable {ρ : Type u} {m : Type u → Type v}
 
 /-- `(← read) : ρ` gets the read-only state of a `ReaderT ρ`. -/
-@[inline] protected def read : ReaderT ρ m ρ := pure
+@[inline] protected def read [Monad m] : ReaderT ρ m ρ :=
+  pure
 
 /-- The `pure` operation of the `ReaderT` monad. -/
-@[inline] protected def pure (a : α) : ReaderT ρ m α := fun _ => pure a
+@[inline] protected def pure [Monad m] {α} (a : α) : ReaderT ρ m α :=
+  fun _ => pure a
 
 /-- The `bind` operation of the `ReaderT` monad. -/
-@[inline] protected def bind (x : ReaderT ρ m α) (f : α → ReaderT ρ m β) : ReaderT ρ m β :=
+@[inline] protected def bind [Monad m] {α β} (x : ReaderT ρ m α) (f : α → ReaderT ρ m β) : ReaderT ρ m β :=
   fun r => bind (x r) fun a => f a r
 
-/-- The `map` operation of the `ReaderT` monad. -/
-@[inline] protected def map (f : α → β) (x : ReaderT ρ m α) : ReaderT ρ m β :=
-  fun r => Functor.map f (x r)
+instance [Monad m] : Functor (ReaderT ρ m) where
+  map      f x r := Functor.map f (x r)
+  mapConst a x r := Functor.mapConst a (x r)
 
-instance : Monad (ReaderT ρ m) where
-  pure := ReaderT.pure
+instance [Monad m] : Applicative (ReaderT ρ m) where
+  pure           := ReaderT.pure
+  seq      f x r := Seq.seq (f r) fun _ => x () r
+  seqLeft  a b r := SeqLeft.seqLeft (a r) fun _ => b () r
+  seqRight a b r := SeqRight.seqRight (a r) fun _ => b () r
+
+instance [Monad m] : Monad (ReaderT ρ m) where
   bind := ReaderT.bind
-  map  := ReaderT.map
 
-instance (ρ m) [Monad m] : MonadFunctor m (ReaderT ρ m) where
+instance (ρ m) : MonadFunctor m (ReaderT ρ m) where
   monadMap f x := fun ctx => f (x ctx)
 
 /--
 `adapt (f : ρ' → ρ)` precomposes function `f` on the reader state of a
 `ReaderT ρ`, yielding a `ReaderT ρ'`.
 -/
-@[inline] protected def adapt {ρ' : Type u} [Monad m] {α : Type u} (f : ρ' → ρ) : ReaderT ρ m α → ReaderT ρ' m α :=
+@[inline] protected def adapt {ρ' α : Type u} (f : ρ' → ρ) : ReaderT ρ m α → ReaderT ρ' m α :=
   fun x r => x (f r)
 
 end

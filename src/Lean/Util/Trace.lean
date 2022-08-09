@@ -6,6 +6,56 @@ Authors: Sebastian Ullrich, Leonardo de Moura
 import Lean.Message
 import Lean.MonadEnv
 
+/-!
+# Trace messages
+
+Trace messages explain to the user what problem Lean solved and what steps it took.
+Think of trace messages like a figure in a paper.
+
+They are shown in the editor as a collapsible tree,
+usually as `[class.name] message ▸`.
+Every trace node has a class name, a message, and an array of children.
+This module provides the API to produce trace messages,
+the key entry points are:
+- ``registerTraceMessage `class.name`` registers a trace class
+- ``withTraceNode `class.name (fun result => return msg) do body`
+  produces a trace message containing the trace messages in `body` as children
+- `trace[class.name] msg` produces a trace message without children
+
+Users can enable trace options for a class using
+`set_option trace.class.name true`.
+This only enables trace messages for the `class.name` trace class
+as well as child classes that are explicitly marked as inherited
+(see `registerTraceClass`).
+
+Internally, trace messages are stored as `MessageData`:
+`.trace cls msg #[.trace .., .trace ..]`
+
+When writing trace messages,
+try to follow these guidelines:
+1. **Expansion progressively increases detail.**
+  Each level of expansion (of the trace node in the editor) should reveal more details.
+  For example, the unexpanded node should show the top-level goal.
+  Expanding it should show a list of steps.
+  Expanding one of the steps then shows what happens during that step.
+2. **One trace message per step.**
+  The `[trace.class]` marker functions as a visual bullet point,
+  making it easy to identify the different steps at a glance.
+3. **Outcome first.**
+  The top-level trace message should already show whether the action failed or succeeded,
+  as opposed to a "success" trace message that comes pages later.
+4. **Be concise.**
+  Keep messages short.
+  Avoid repetitive text.
+  (This is also why the editor plugins abbreviate the common prefixes.)
+5. **Emoji are concisest.**
+  Several helper functions in this module help with a consistent emoji language.
+6. **Good defaults.**
+  Setting `set_option trace.Meta.synthInstance true` (etc.)
+  should produce great trace messages out-of-the-box,
+  without needing extra options to tweak it.
+-/
+
 namespace Lean
 
 open Std (PersistentArray)
@@ -118,6 +168,14 @@ def withTraceNode' [MonadExcept Exception m] (cls : Name) (k : m (α × MessageD
 
 end
 
+/--
+Registers a trace class.
+
+By default, trace classes are not inherited;
+that is, `set_option trace.foo true` does not imply `set_option trace.foo.bar true`.
+Calling ``registerTraceClass `foo.bar (inherited := true)`` enables this inheritance
+on an opt-in basis.
+-/
 def registerTraceClass (traceClassName : Name) (inherited := false) : IO Unit := do
   let optionName := `trace ++ traceClassName
   registerOption optionName {

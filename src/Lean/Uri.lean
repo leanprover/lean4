@@ -4,11 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Chris Lovett
 -/
 import Lean
-open Lean Parsec
 
+namespace Lean
 namespace Uri
 namespace UriEscape
 
+open Lean Parsec
 def textData : Parsec Char := satisfy fun c =>
   '%' ≠ c
 
@@ -91,15 +92,29 @@ def unescapeUri (s: String) : Option String := Id.run do
   | Except.ok res => some res
   | Except.error _ => none
 
-def fileUriToPath (uri : String) : Option System.FilePath :=
-  if !uri.startsWith "file:///" then
-    none
-  else do
+def fromFileUri (uri : String) : String := Id.run do
+  -- file://[hostname]/path
+  -- where hostname is optional, we assume localhost here and ignore it.
+  if !uri.startsWith "file://" then
+    uri
+  else
     let mut p := uri.drop "file://".length
-    if System.Platform.isWindows then
-      p := uri.drop "file:///".length
-    match unescapeUri p with
-    | some s => some ⟨s⟩
-    | none => none
+    p := p.dropWhile (λ c => c != '/') -- drop the hostname.
+    -- on windows the path "/c:/temp" needs to become "c:/temp"
+    -- but only when it is a valid drive letter.
+    if System.Platform.isWindows &&
+      p.length > 3 &&
+      "/" == (p.take 1) &&
+      ((p.drop 1).take 1).all Char.isAlpha &&
+      ":" == ((p.drop 2).take 1)  then
+      p := p.drop 1
+    p
+
+def fileUriToPath (uri : String) : Option System.FilePath :=
+  match unescapeUri uri with
+  | some s => some ⟨fromFileUri s⟩
+  | none => none
+
 
 end Uri
+end Lean

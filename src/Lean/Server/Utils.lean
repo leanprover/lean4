@@ -9,6 +9,7 @@ import Lean.Data.Lsp
 import Lean.Server.InfoUtils
 import Init.System.FilePath
 import Lean.Parser.Basic
+-- import Lean.Uri
 
 namespace IO
 
@@ -66,6 +67,7 @@ namespace Lean.Lsp.DocumentUri
 
 /-- Transform the given path to a file:// URI. -/
 def ofPath (fname : System.FilePath) : DocumentUri :=
+  -- Lean.Uri.pathToUri fname
   let fname := fname.normalize.toString
   let fname := if System.Platform.isWindows then
     fname.map fun c => if c == '\\' then '/' else c
@@ -75,8 +77,11 @@ def ofPath (fname : System.FilePath) : DocumentUri :=
   -- Three slashes denote localhost.
   "file:///" ++ fname.dropWhile (· == '/')
 
+
 /-- Return local path from file:// URI, if any. -/
-def toPath? (uri : DocumentUri) : Option System.FilePath := Id.run do
+def toPath? (uri : DocumentUri) : Option System.FilePath :=
+  -- Lean.Uri.fileUriToPath uri
+  Id.run do
   if !uri.startsWith "file:///" then
     return none
   let mut p := uri.drop "file://".length

@@ -29,6 +29,11 @@ instance {m n : Type → Type} [MonadLift m n] [MonadRpcSession m] : MonadRpcSes
   rpcGetRef r              := liftM (rpcGetRef r : m _)
   rpcReleaseRef r          := liftM (rpcReleaseRef r : m _)
 
+set_option linter.unusedVariables false in
+def RpcEncodable (α : Type) : Type := default
+def RpcEncodable.rpcEncode := 0
+def RpcEncodable.rpcDecode := 0
+
 /-- `RpcEncoding α β` means that `α` may participate in RPC calls with its on-the-wire LSP encoding
 being `β`. This is useful when `α` contains fields which must be marshalled in a special way. In
 particular, we encode `WithRpcRef` fields as opaque references rather than send their content.

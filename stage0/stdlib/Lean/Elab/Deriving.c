@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Deriving
-// Imports: Init Lean.Elab.Deriving.Basic Lean.Elab.Deriving.Util Lean.Elab.Deriving.Inhabited Lean.Elab.Deriving.BEq Lean.Elab.Deriving.DecEq Lean.Elab.Deriving.Repr Lean.Elab.Deriving.FromToJson Lean.Elab.Deriving.SizeOf Lean.Elab.Deriving.Hashable Lean.Elab.Deriving.Ord
+// Imports: Init Lean.Elab.Deriving.Basic Lean.Elab.Deriving.Util Lean.Elab.Deriving.Inhabited Lean.Elab.Deriving.TypeName Lean.Elab.Deriving.BEq Lean.Elab.Deriving.DecEq Lean.Elab.Deriving.Repr Lean.Elab.Deriving.FromToJson Lean.Elab.Deriving.SizeOf Lean.Elab.Deriving.Hashable Lean.Elab.Deriving.Ord
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,6 +17,7 @@ lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Deriving_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Deriving_Util(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Deriving_Inhabited(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_Deriving_TypeName(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Deriving_BEq(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Deriving_DecEq(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Deriving_Repr(uint8_t builtin, lean_object*);
@@ -39,6 +40,9 @@ res = initialize_Lean_Elab_Deriving_Util(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Deriving_Inhabited(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_Deriving_TypeName(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Deriving_BEq(builtin, lean_io_mk_world());

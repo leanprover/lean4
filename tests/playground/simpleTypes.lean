@@ -17,6 +17,11 @@ partial def simpType (type : Expr) : MetaM Expr := do
   match type with
   | .sort u     => return .sort u
   | .const ..   => visitApp type #[]
+  | .lam n d b bi =>
+    withLocalDecl n bi d fun x => do
+      let d ← simpType d
+      let b ← simpType (b.instantiate1 x)
+      return .lam n d (b.abstract #[x]) bi
   | .forallE n d b bi =>
     withLocalDecl n bi d fun x => do
       let borrowed := isMarkedBorrowed d

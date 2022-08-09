@@ -86,7 +86,7 @@
    "kind": 7,
    "documentation":
    {"value":
-    "The typeclass behind the notation `a ++ b : γ` where `a : α`, `b : β`. ",
+    "The notation typeclass for heterogeneous append.\nThis enables the notation `a ++ b : γ` where `a : α`, `b : β`.\n",
     "kind": "markdown"},
    "detail": "Type u → Type v → outParam (Type w) → Type (max (max u v) w)"},
   {"label": "instAppendSubarray", "kind": 3, "detail": "Append (Subarray α)"}],

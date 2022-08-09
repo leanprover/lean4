@@ -82,6 +82,17 @@ where
     let t ← pushEmbed EmbedFmt.ignoreTags
     return Format.tag t fmt
 
+  mkContextInfo (nCtx : NamingContext) (ctx : MessageDataContext) : Elab.ContextInfo := {
+    env           := ctx.env
+    mctx          := ctx.mctx
+    fileMap       := default
+    options       := ctx.opts
+    currNamespace := nCtx.currNamespace
+    openDecls     := nCtx.openDecls
+    -- Hack: to make sure unique ids created at `ppExprWithInfos` do not collide with ones in `ctx.mctx`
+    ngen          := { namePrefix := `_diag }
+  }
+
   go : NamingContext → Option MessageDataContext → MessageData → MsgFmtM Format
   | _,    _,         ofFormat fmt             => withIgnoreTags (pure fmt)
   | _,    _,         ofLevel u                => return format u
@@ -90,21 +101,13 @@ where
   | _,    none,      ofSyntax s               => withIgnoreTags (pure s.formatStx)
   | _,    none,      ofExpr e                 => return format (toString e)
   | nCtx, some ctx,  ofExpr e                 => do
-    let ci : Elab.ContextInfo := {
-      env           := ctx.env
-      mctx          := ctx.mctx
-      fileMap       := default
-      options       := ctx.opts
-      currNamespace := nCtx.currNamespace
-      openDecls     := nCtx.openDecls
-      -- Hack: to make sure unique ids created at `ppExprWithInfos` do not collide with ones in `ctx.mctx`
-      ngen          := { namePrefix := `_diag }
-    }
+    let ci := mkContextInfo nCtx ctx
     let (fmt, infos) ← ci.runMetaM ctx.lctx <| PrettyPrinter.ppExprWithInfos e
     let t ← pushEmbed <| EmbedFmt.expr ci infos
     return Format.tag t fmt
   | _,    none,      ofGoal mvarId            => pure $ "goal " ++ format (mkMVar mvarId)
-  | nCtx, some ctx,  ofGoal mvarId            => withIgnoreTags <| ppGoal (mkPPContext nCtx ctx) mvarId
+  | nCtx, some ctx,  ofGoal mvarId            =>
+    return .tag (← pushEmbed (.goal (mkContextInfo nCtx ctx) ctx.lctx mvarId)) "\n"
   | nCtx, _,         withContext ctx d        => go nCtx ctx d
   | _,    ctx,       withNamingContext nCtx d => go nCtx ctx d
   | nCtx, ctx,       tagged _ d               => go nCtx ctx d
@@ -134,23 +137,23 @@ partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent
   the tags are `TaggedText MsgEmbed`s corresponding to embedded objects with their subtree
   empty (`text ""`). In other words, we terminate the `MsgEmbed`-tagged -tree at embedded objects
   and store the pretty-printed embed (which can itself be a `TaggedText`) in the tag. -/
-  let rec fmtToTT (fmt : Format) (indent : Nat) : TaggedText MsgEmbed :=
-    (TaggedText.prettyTagged fmt indent).rewrite fun (n, col) tt =>
+  let rec fmtToTT (fmt : Format) (indent : Nat) : IO (TaggedText MsgEmbed) :=
+    (TaggedText.prettyTagged fmt indent).rewriteM fun (n, col) tt =>
       match embeds[n]! with
         | .expr ctx infos =>
-          .tag (.expr (tagExprInfos ctx infos tt)) default
-        | .goal _ _ _ =>
-          -- TODO(WN): use InteractiveGoal types here
-          unreachable!
-        | .trace cls msg collapsed children =>
+          return .tag (.expr (tagExprInfos ctx infos tt)) default
+        | .goal ctx lctx g =>
+          ctx.runMetaM lctx do
+            return .tag (.goal (← goalToInteractive g)) default
+        | .trace cls msg collapsed children => do
           let col := col + tt.stripTags.length - 2
-          let children :=
+          let children ←
             match children with
-              | .lazy children => .lazy ⟨{indent := col+2, children := children.map .mk}⟩
-              | .strict children => .strict (children.map (fmtToTT · (col+2)))
-          .tag (.trace indent cls (fmtToTT msg col) collapsed children) default
-        | .ignoreTags => .text tt.stripTags
-  return fmtToTT fmt indent
+              | .lazy children => pure <| .lazy ⟨{indent := col+2, children := children.map .mk}⟩
+              | .strict children => pure <| .strict (← children.mapM (fmtToTT · (col+2)))
+          return .tag (.trace indent cls (← fmtToTT msg col) collapsed children) default
+        | .ignoreTags => return .text tt.stripTags
+  fmtToTT fmt indent
 
 /-- Transform a Lean Message concerning the given text into an LSP Diagnostic. -/
 def msgToInteractiveDiagnostic (text : FileMap) (m : Message) (hasWidgets : Bool) : IO InteractiveDiagnostic := do

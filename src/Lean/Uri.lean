@@ -6,7 +6,8 @@ Authors: Chris Lovett
 import Lean
 open Lean Parsec
 
-namespace UriParser
+namespace Uri
+namespace UriEscape
 
 def textData : Parsec Char := satisfy fun c =>
   '%' ≠ c
@@ -56,8 +57,6 @@ def decodeUri (uri : String) := do
   join (l : Array String) : String :=
     l.foldl (fun r s => r ++ s) ""
 
-end UriParser
-
 /- https://datatracker.ietf.org/doc/html/rfc3986/#page-12 -/
 def rfc3986ReservedChars : List Char := [ ';', ':', '?', '#', '[', ']', '@', '&', '=', '+', '$', ',', '!', '\'', '(', ')', '*', '%' ]
 
@@ -74,9 +73,11 @@ def uriEscapeAsciiChar (c : Char) : String :=
     let d2 := n / 16;
     let d1 := n % 16;
     hexDigitRepr d2 ++ hexDigitRepr d1
+end UriEscape
+
 
 def toFileUri (s : String) : String :=
-  let uri := s.foldl (fun s c => s ++ uriEscapeAsciiChar c) ""
+  let uri := s.foldl (fun s c => s ++ UriEscape.uriEscapeAsciiChar c) ""
   if uri.startsWith "/" then
     "file://" ++ uri
   else
@@ -86,9 +87,9 @@ def pathToUri (fname : System.FilePath) : String :=
   toFileUri fname.normalize.toString
 
 def unescapeUri (s: String) : Option String := Id.run do
-  match (← UriParser.decodeUri s) with
+  match (← UriEscape.decodeUri s) with
   | Except.ok res => some res
-  | Except.error e => none
+  | Except.error _ => none
 
 def fileUriToPath (uri : String) : Option System.FilePath :=
   if !uri.startsWith "file:///" then
@@ -101,3 +102,4 @@ def fileUriToPath (uri : String) : Option System.FilePath :=
     | some s => some ⟨s⟩
     | none => none
 
+end Uri

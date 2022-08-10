@@ -16,21 +16,23 @@ def hexDigitToNat (c : Char) : Option Nat :=
 
 def decodeUri (uri : String) : String := Id.run do
   let mut decoded : ByteArray := ByteArray.empty
-  let len := uri.data.length
+  let len := uri.utf8ByteSize
   let mut pos : Nat := 0
+  let mut i := uri.mkIterator
   while pos < len do
-    let c := uri.data[pos]!
+    let c := i.curr
     if c == '%' && pos + 2 < len then
-      let h1 : Char := uri.data[pos + 1]!
+      let h1 : Char := i.next.curr
       if (h1 == '%') then
         -- this is an escaped '%%' which should become a single percent.
         decoded := decoded.push 37 -- %
         pos := pos + 2
+        i := i.next.next
       else
          -- should have %HH where HH are hex digits, if they are not
          -- valid hex digits then just repeat whatever sequence of chars
          -- we found here.
-         let h2 := uri.data[pos + 2]!
+         let h2 := i.next.next.curr
          let hc : Option UInt8 := match hexDigitToNat h1 with
          | none => none
          | some hd1 =>
@@ -41,9 +43,11 @@ def decodeUri (uri : String) : String := Id.run do
          | some b => decoded.push b
          | none => (decoded.push 37) ++ h1.toString.toUTF8 ++ h2.toString.toUTF8
          pos := pos + 3
+         i := i.next.next.next
     else
       decoded := decoded.append c.toString.toUTF8
       pos := pos + 1
+      i := i.next
    return String.fromUTF8Unchecked decoded
 
 /- https://datatracker.ietf.org/doc/html/rfc3986/#page-12 -/

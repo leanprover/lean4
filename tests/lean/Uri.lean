@@ -1,15 +1,15 @@
-import Init.System.Uri
+import Std.System.Uri
 
 open System.Uri
 
-/- Uri character escaping includes UTF-8 encoding for the 😵‍💫 char! -/
-#eval toFileUri "/temp/test.xml?😵‍💫=2022"
+/- Uri character escaping includes UTF-8 encoding for the 😵 char! -/
+#eval toFileUri "/temp/test.xml?😵=2022"
 
 /- round trip test -/
-#eval unescapeUri (toFileUri "/temp/test.xml?😵‍💫=2022")
+#eval unescapeUri (toFileUri "/temp/test.xml?😵=2022")
 
 /- and to System.FilePath -/
-#eval fileUriToPath (toFileUri "/temp/test.xml?😵‍💫=2022")
+#eval fileUriToPath (toFileUri "/temp/test.xml?😵=2022")
 
 /- escaped percent -/
 #eval unescapeUri "/temp/test%%.xml"

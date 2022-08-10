@@ -9,7 +9,7 @@ import Lean.Data.Lsp
 import Lean.Server.InfoUtils
 import Init.System.FilePath
 import Lean.Parser.Basic
-import Init.System.Uri
+import Std.System.Uri
 
 namespace IO
 
@@ -85,7 +85,7 @@ structure DocumentMeta where
 
 def DocumentMeta.mkInputContext (doc : DocumentMeta) : Parser.InputContext where
   input    := doc.text.source
-  fileName := doc.uri.toPath?.getD doc.uri |>.toString
+  fileName := System.Uri.fileUriToPath doc.uri |>.toString
   fileMap  := doc.text
 
 def replaceLspRange (text : FileMap) (r : Lsp.Range) (newText : String) : FileMap :=

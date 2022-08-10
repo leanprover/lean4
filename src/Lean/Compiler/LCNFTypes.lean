@@ -22,6 +22,9 @@ def anyTypeExpr := mkConst  ``lcAny
 def _root_.Lean.Expr.isAnyType (e : Expr) :=
   e.isConstOf ``lcAny
 
+def _root_.Lean.Expr.erased (e : Expr) :=
+  e.isConstOf ``lcErased
+
 /-!
 The code generator uses a format based on A-normal form.
 This normal form uses many let-expressions and it is very convenient for
@@ -86,7 +89,10 @@ partial def toLCNFType (type : Expr) : MetaM Expr := do
     withLocalDecl n bi d fun x => do
       let d ← toLCNFType d
       let b ← toLCNFType (b.instantiate1 x)
-      return (Expr.lam n d (b.abstract #[x]) bi).eta
+      if b.isAnyType || b.erased then
+        return b
+      else
+        return (Expr.lam n d (b.abstract #[x]) bi).eta
   | .forallE n d b bi =>
     withLocalDecl n bi d fun x => do
       let borrowed := isMarkedBorrowed d

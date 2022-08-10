@@ -126,6 +126,42 @@ instance : ToString JsonNumber := ⟨JsonNumber.toString⟩
 instance : Repr JsonNumber where
   reprPrec | ⟨m, e⟩, _ => Std.Format.bracket "⟨" (repr m ++ "," ++ repr e) "⟩"
 
+instance : OfScientific JsonNumber where
+  ofScientific mantissa exponentSign decimalExponent :=
+    if exponentSign then
+      {mantissa := mantissa, exponent := decimalExponent}
+    else
+      {mantissa := (mantissa * 10 ^ decimalExponent : Nat), exponent := 0}
+
+instance : Neg JsonNumber where
+  neg jn := ⟨- jn.mantissa, jn.exponent⟩
+
+instance : Inhabited JsonNumber := ⟨0⟩
+
+def toFloat : JsonNumber → Float
+  | ⟨m, e⟩ => (if m >= 0 then 1.0 else -1.0) * OfScientific.ofScientific m.natAbs true e
+
+/-- Creates a json number from a positive float, panicking if it isn't.
+[todo]EdAyers: Currently goes via a string representation, when more float primitives are available
+should switch to using those. -/
+private def fromPositiveFloat! (x : Float) : JsonNumber :=
+  match Lean.Syntax.decodeScientificLitVal? (toString x) with
+  | none => panic! s!"Failed to parse {toString x}"
+  | some (m, sign, e) => OfScientific.ofScientific m sign e
+
+/-- Attempts to convert a float to a JsonNumber, if the number isn't finite returns
+the appropriate string from "NaN", "Infinity", "-Infinity". -/
+def fromFloat? (x : Float): Sum String JsonNumber :=
+  if x.isNaN then Sum.inl "NaN"
+  else if x.isInf then
+    Sum.inl <| if x > 0 then "Infinity" else "-Infinity"
+  else if x == 0.0 then
+    Sum.inr 0 -- special case to avoid -0.0
+  else if x < 0.0 then
+    Sum.inr <| Neg.neg <| fromPositiveFloat! <| Neg.neg <| x
+  else
+    Sum.inr <| fromPositiveFloat! <| x
+
 end JsonNumber
 
 def strLt (a b : String) := Decidable.decide (a < b)

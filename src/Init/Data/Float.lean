@@ -70,15 +70,29 @@ instance floatDecLe (a b : Float) : Decidable (a ≤ b) := Float.decLe a b
 
 @[extern "lean_float_to_string"] opaque Float.toString : Float → String
 
+/-- If the given float is positive, truncates the value to the nearest positive integer.
+If negative or larger than the maximum value for UInt8, returns 0. -/
 @[extern "lean_float_to_uint8"] opaque Float.toUInt8 : Float → UInt8
+/-- If the given float is positive, truncates the value to the nearest positive integer.
+If negative or larger than the maximum value for UInt16, returns 0. -/
 @[extern "lean_float_to_uint16"] opaque Float.toUInt16 : Float → UInt16
+/-- If the given float is positive, truncates the value to the nearest positive integer.
+If negative or larger than the maximum value for UInt32, returns 0. -/
 @[extern "lean_float_to_uint32"] opaque Float.toUInt32 : Float → UInt32
+/-- If the given float is positive, truncates the value to the nearest positive integer.
+If negative or larger than the maximum value for UInt64, returns 0. -/
 @[extern "lean_float_to_uint64"] opaque Float.toUInt64 : Float → UInt64
+/-- If the given float is positive, truncates the value to the nearest positive integer.
+If negative or larger than the maximum value for USize, returns 0. -/
 @[extern "lean_float_to_usize"] opaque Float.toUSize : Float → USize
 
 @[extern "lean_float_isnan"] opaque Float.isNaN : Float → Bool
 @[extern "lean_float_isfinite"] opaque Float.isFinite : Float → Bool
 @[extern "lean_float_isinf"] opaque Float.isInf : Float → Bool
+/-- Splits the given float `x` into a significand/exponent pair `(s, i)`
+such that `x = s * 2^i` where `s ∈ (-1;-0.5] ∪ [0.5; 1)`.
+Returns an undefined value if `x` is not finite.
+-/
 @[extern "lean_float_frexp"] opaque Float.frExp : Float → Float × Int
 
 instance : ToString Float where

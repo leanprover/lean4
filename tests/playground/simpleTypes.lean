@@ -95,3 +95,9 @@ def Term.constFold : Term ctx ty → Term ctx ty
 #eval test ``Lean.Meta.inferType
 #eval test ``Elab.Term.elabTerm
 #eval test ``Nat.add
+
+structure Magma where
+  carrier : Type
+  mul : carrier → carrier → carrier
+
+#eval test ``Magma.mul

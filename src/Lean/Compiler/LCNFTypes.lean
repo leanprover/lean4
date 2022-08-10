@@ -10,6 +10,7 @@ namespace Lean.Compiler
 
 structure LCNFTypeExtState where
   types : Std.PHashMap Name Expr := {}
+  instLevelType : Core.InstantiateLevelCache := {}
   deriving Inhabited
 
 builtin_initialize lcnfTypeExt : EnvExtension LCNFTypeExtState ←
@@ -17,6 +18,9 @@ builtin_initialize lcnfTypeExt : EnvExtension LCNFTypeExtState ←
 
 def erasedExpr := mkConst ``lcErased
 def anyTypeExpr := mkConst  ``lcAny
+
+def _root_.Lean.Expr.isAnyType (e : Expr) :=
+  e.isConstOf ``lcAny
 
 /-!
 The code generator uses a format based on A-normal form.
@@ -123,5 +127,21 @@ def getDeclLCNFType (declName : Name) : CoreM Expr := do
     let type ← Meta.MetaM.run' <| toLCNFType info.type
     modifyEnv fun env => lcnfTypeExt.modifyState env fun s => { s with types := s.types.insert declName type }
     return type
+
+/--
+Instantiate the LCNF type for the given declaration with the given universe levels.
+-/
+def instantiateLCNFTypeLevelParams (declName : Name) (us : List Level) : CoreM Expr := do
+  if us.isEmpty then
+    getDeclLCNFType declName
+  else
+    if let some (us', r) := lcnfTypeExt.getState (← getEnv) |>.instLevelType.find? declName then
+      if us == us' then
+        return r
+    let type ← getDeclLCNFType declName
+    let info ← getConstInfo declName
+    let r := type.instantiateLevelParams info.levelParams us
+    modifyEnv fun env => lcnfTypeExt.modifyState env fun s => { s with instLevelType := s.instLevelType.insert declName (us, r) }
+    return r
 
 end Lean.Compiler

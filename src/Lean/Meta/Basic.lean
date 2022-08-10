@@ -647,7 +647,7 @@ def setMVarUserName (mvarId : MVarId) (userNameNew : Name) : MetaM Unit :=
 /--
 Throw an exception saying `fvarId` is not declared in the current local context.
 -/
-def _root_.Lean.FVarId.throwUnknown (fvarId : FVarId) : MetaM α :=
+def _root_.Lean.FVarId.throwUnknown (fvarId : FVarId) : CoreM α :=
   throwError "unknown free variable '{mkFVar fvarId}'"
 
 @[deprecated FVarId.throwUnknown]

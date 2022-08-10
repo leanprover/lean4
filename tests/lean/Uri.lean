@@ -11,8 +11,14 @@ open System.Uri
 /- and to System.FilePath -/
 #eval fileUriToPath (toFileUri "/temp/test.xml?😵=2022")
 
+/- invalid file uri -/
+#eval fileUriToPath "invalid"
+
 /- escaped percent -/
 #eval unescapeUri "/temp/test%%.xml"
+
+/- single percent -/
+#eval unescapeUri "%%"
 
 /- invalid escape followed by valid escapes -/
 #eval unescapeUri "file://test%xx/%3Fa%3D123"
@@ -28,11 +34,13 @@ def testWindowsDriveLetterEscaping : String :=
     let x : System.FilePath := "C:" / "Temp" / "test.lean"
     let r := toFileUri x.normalize.toString
     if r == "file:///c%3a/temp/test.lean" then
-      let y := fileUriToPath r
-      if y.normalize.toString == x.normalize.toString  then
-        "testWindowsDriveLetterEscaping ok"
-      else
-        s!"testWindowsDriveLetterEscaping '{x.normalize.toString}' != '{y.normalize.toString}'"
+      match fileUriToPath r with
+      | none => "testWindowsDriveLetterEscaping fileUriToPath returned none"
+      | some y =>
+        if y.normalize.toString == x.normalize.toString  then
+          "testWindowsDriveLetterEscaping ok"
+        else
+          s!"testWindowsDriveLetterEscaping '{x.normalize.toString}' != '{y.normalize.toString}'"
     else
       "testWindowsDriveLetterEscaping failed to escape"
   else

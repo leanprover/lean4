@@ -8,7 +8,7 @@ namespace System
 namespace Uri
 namespace UriEscape
 
-def hexDigitToNat (c : Char) : Option Nat :=
+def hexDigitToNat? (c : Char) : Option Nat :=
   if '0' ≤ c ∧ c ≤ '9' then some (c.toNat - '0'.toNat)
   else if 'a' ≤ c ∧ c ≤ 'f' then some (c.toNat - 'a'.toNat + 10)
   else if 'A' ≤ c ∧ c ≤ 'F' then some (c.toNat - 'A'.toNat + 10)
@@ -30,20 +30,17 @@ def decodeUri (uri : String) : String := Id.run do
         decoded := decoded.push 37 -- %
         i := i.next.next
       else if i.2.byteIdx + 2 < len then
-         -- should have %HH where HH are hex digits, if they are not
-         -- valid hex digits then just repeat whatever sequence of chars
-         -- we found here.
-         let h2 := i.next.next.curr
-         let hc : Option UInt8 := match hexDigitToNat h1 with
-         | none => none
-         | some hd1 =>
-           match hexDigitToNat h2 with
-           | some hd2 => (hd1 * 16 + hd2).toUInt8
-           | none => none
-         decoded := match hc with
-         | some b => decoded.push b
-         | none => decoded.push 37 ++ h1.toString.toUTF8 ++ h2.toString.toUTF8
-         i := i.nextn 3
+        -- should have %HH where HH are hex digits, if they are not
+        -- valid hex digits then just repeat whatever sequence of chars
+        -- we found here.
+        let h2 := i.next.next.curr
+        let d1 := hexDigitToNat? h1
+        let d2 := hexDigitToNat? h2
+        decoded := if let (some hd1, some hd2) := (d1, d2) then
+          decoded.push (hd1 * 16 + hd2).toUInt8
+        else
+          decoded.push 37 ++ h1.toString.toUTF8 ++ h2.toString.toUTF8
+        i := i.nextn 3
       else
         decoded := decoded.push 37 ++ h1.toString.toUTF8
         i := i.next.next

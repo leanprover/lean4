@@ -20,7 +20,7 @@ open Server
 structure MsgToInteractive where
   msg : WithRpcRef MessageData
   indent : Nat
-  deriving Inhabited, RpcEncoding
+  deriving Inhabited, RpcEncodable
 
 builtin_initialize
   registerBuiltinRpcProcedure
@@ -38,7 +38,7 @@ structure InfoPopup where
   exprExplicit : Option CodeWithInfos
   /-- Docstring. In markdown. -/
   doc : Option String
-  deriving Inhabited, RpcEncoding
+  deriving Inhabited, RpcEncodable
 
 /-- Given elaborator info for a particular subexpression. Produce the `InfoPopup`.
 
@@ -118,7 +118,7 @@ builtin_initialize
 structure GetGoToLocationParams where
   kind : GoToKind
   info : WithRpcRef InfoWithCtx
-  deriving RpcEncoding
+  deriving RpcEncodable
 
 builtin_initialize
   registerBuiltinRpcProcedure

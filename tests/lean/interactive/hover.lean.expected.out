@@ -18,7 +18,10 @@
  "position": {"line": 12, "character": 4}}
 {"range":
  {"start": {"line": 12, "character": 4}, "end": {"line": 12, "character": 12}},
- "contents": {"value": "```lean\nNat.zero : Nat\n```", "kind": "markdown"}}
+ "contents":
+ {"value":
+  "```lean\nNat.zero : Nat\n```\n***\n`Nat.zero`, normally written `0 : Nat`, is the smallest natural number.\nThis is one of the two constructors of `Nat`. ",
+  "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 21, "character": 2}}
 {"range":
@@ -90,7 +93,7 @@
  {"start": {"line": 80, "character": 24}, "end": {"line": 80, "character": 31}},
  "contents":
  {"value":
-  "```lean\nLean.ParserDescr.sepBy1 : Lean.ParserDescr → String → Lean.ParserDescr → optParam Bool false → Lean.ParserDescr\n```",
+  "```lean\nLean.ParserDescr.sepBy1 : Lean.ParserDescr → String → Lean.ParserDescr → optParam Bool false → Lean.ParserDescr\n```\n***\n`sepBy1` is just like `sepBy`, except it takes 1 or more instead of\n0 or more occurrences of `p`. ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 80, "character": 31}}

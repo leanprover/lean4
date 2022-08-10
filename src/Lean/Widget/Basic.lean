@@ -18,9 +18,9 @@ functionality is purpose-specific to showing the contents of infoview popups.
 structure InfoWithCtx where
   ctx  : Elab.ContextInfo
   info : Elab.Info
-  deriving Inhabited, RpcEncoding with { withRef := true }
+  deriving Inhabited, Std.TypeName
 
-deriving instance RpcEncoding with { withRef := true } for MessageData
+deriving instance Std.TypeName for MessageData
 
 instance : ToJson FVarId := ⟨fun f => toJson f.name⟩
 instance : ToJson MVarId := ⟨fun f => toJson f.name⟩

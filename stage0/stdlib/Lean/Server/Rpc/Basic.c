@@ -56,6 +56,7 @@ LEAN_EXPORT lean_object* l_ExceptT_bindCont___at_Lean_Server_WithRpcRef_decodeUn
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Server_instMonadRpcSession___rarg___lambda__2(lean_object*, lean_object*, size_t);
 lean_object* l_Nat_repr(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_RpcEncodable_rpcEncode;
 static lean_object* l_Lean_Server_WithRpcRef_decodeUnsafeAs___rarg___lambda__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncoding___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instMonadRpcSession___rarg___lambda__3(lean_object*, lean_object*, size_t);
@@ -100,6 +101,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodingOption(lean_object*, lean_
 lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l_Lean_Server_WithRpcRef_decodeUnsafeAs___rarg(lean_object*, lean_object*, lean_object*, lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodingOption___rarg___lambda__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_RpcEncodable_rpcDecode;
 LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodingProd___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodingProd___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_WithRpcRef_encodeUnsafe___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -193,6 +195,22 @@ x_4 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_5 = l_Lean_Server_instMonadRpcSession___rarg___lambda__3(x_1, x_2, x_4);
 return x_5;
+}
+}
+static lean_object* _init_l_Lean_Server_RpcEncodable_rpcEncode() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_unsigned_to_nat(0u);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Server_RpcEncodable_rpcDecode() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_unsigned_to_nat(0u);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncoding___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -1702,6 +1720,10 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_Lsp_Extra(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Lean_Server_RpcEncodable_rpcEncode = _init_l_Lean_Server_RpcEncodable_rpcEncode();
+lean_mark_persistent(l_Lean_Server_RpcEncodable_rpcEncode);
+l_Lean_Server_RpcEncodable_rpcDecode = _init_l_Lean_Server_RpcEncodable_rpcDecode();
+lean_mark_persistent(l_Lean_Server_RpcEncodable_rpcDecode);
 l_Lean_Server_instRpcEncoding___closed__1 = _init_l_Lean_Server_instRpcEncoding___closed__1();
 lean_mark_persistent(l_Lean_Server_instRpcEncoding___closed__1);
 l_Lean_Server_instRpcEncoding___closed__2 = _init_l_Lean_Server_instRpcEncoding___closed__2();

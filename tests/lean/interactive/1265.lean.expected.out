@@ -13,7 +13,11 @@
    "kind": 3,
    "detail": "Lean.ScientificLit → Nat × Bool × Nat"},
   {"label": "getString", "kind": 3, "detail": "Lean.StrLit → String"},
-  {"label": "raw", "kind": 5, "detail": "Lean.TSyntax ks → Lean.Syntax"}],
+  {"label": "raw",
+   "kind": 5,
+   "documentation":
+   {"value": "The underlying `Syntax` value. ", "kind": "markdown"},
+   "detail": "Lean.TSyntax ks → Lean.Syntax"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://1265.lean"},
  "position": {"line": 2, "character": 53}}
@@ -30,5 +34,9 @@
    "kind": 3,
    "detail": "Lean.ScientificLit → Nat × Bool × Nat"},
   {"label": "getString", "kind": 3, "detail": "Lean.StrLit → String"},
-  {"label": "raw", "kind": 5, "detail": "Lean.TSyntax ks → Lean.Syntax"}],
+  {"label": "raw",
+   "kind": 5,
+   "documentation":
+   {"value": "The underlying `Syntax` value. ", "kind": "markdown"},
+   "detail": "Lean.TSyntax ks → Lean.Syntax"}],
  "isIncomplete": true}

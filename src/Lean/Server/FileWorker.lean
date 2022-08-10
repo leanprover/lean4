@@ -332,20 +332,20 @@ section NotificationHandling
     updatePendingRequests (fun pendingRequests => pendingRequests.erase p.id)
 
 def handleRpcRelease (p : Lsp.RpcReleaseParams) : WorkerM Unit := do
-  let st ← get
   -- NOTE(WN): when the worker restarts e.g. due to changed imports, we may receive `rpc/release`
   -- for the previous RPC session. This is fine, just ignore.
-  if let some seshRef := st.rpcSessions.find? p.sessionId then
+  if let some seshRef := (← get).rpcSessions.find? p.sessionId then
     let monoMsNow ← IO.monoMsNow
-    seshRef.modify fun sesh => Id.run do
-      let mut sesh := sesh
+    let discardRefs : StateM RpcObjectStore Unit := do
       for ref in p.refs do
-        sesh := sesh.release ref |>.snd
-      sesh.keptAlive monoMsNow
+        discard do rpcReleaseRef ref
+    seshRef.modify fun st =>
+      let st := st.keptAlive monoMsNow
+      let ((), objects) := discardRefs st.objects
+      { st with objects }
 
 def handleRpcKeepAlive (p : Lsp.RpcKeepAliveParams) : WorkerM Unit := do
-  let st ← get
-  match st.rpcSessions.find? p.sessionId with
+  match (← get).rpcSessions.find? p.sessionId with
   | none => return
   | some seshRef =>
     seshRef.modify (·.keptAlive (← IO.monoMsNow))

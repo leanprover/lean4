@@ -8,9 +8,27 @@
     "`And a b`, or `a ∧ b`, is the conjunction of propositions. It can be\nconstructed and destructed like a pair: if `ha : a` and `hb : b` then\n`⟨ha, hb⟩ : a ∧ b`, and if `h : a ∧ b` then `h.left : a` and `h.right : b`.\n",
     "kind": "markdown"},
    "detail": "Prop → Prop → Prop"},
-  {"label": "AndOp", "kind": 7, "detail": "Type u → Type u"},
-  {"label": "AndThen", "kind": 7, "detail": "Type u → Type u"},
-  {"label": "and", "kind": 3, "detail": "Bool → Bool → Bool"},
+  {"label": "AndOp",
+   "kind": 7,
+   "documentation":
+   {"value":
+    "The homogeneous version of `HAnd`: `a &&& b : α` where `a b : α`.\n(It is called `AndOp` because `And` is taken for the propositional connective.)\n",
+    "kind": "markdown"},
+   "detail": "Type u → Type u"},
+  {"label": "AndThen",
+   "kind": 7,
+   "documentation":
+   {"value":
+    "The homogeneous version of `HAndThen`: `a >> b : α` where `a b : α`.\nBecause `b` is \"lazy\" in this notation, it is passed as `Unit → α` to the\nimplementation so it can decide when to evaluate it.\n",
+    "kind": "markdown"},
+   "detail": "Type u → Type u"},
+  {"label": "and",
+   "kind": 3,
+   "documentation":
+   {"value":
+    "`and x y`, or `x && y`, is the boolean \"and\" operation (not to be confused\nwith `And : Prop → Prop → Prop`, which is the propositional connective).\nIt is `@[macroInline]` because it has C-like short-circuiting behavior:\nif `x` is false then `y` is not evaluated.\n",
+    "kind": "markdown"},
+   "detail": "Bool → Bool → Bool"},
   {"label": "andM",
    "kind": 3,
    "detail": "[inst : Monad m] → [inst : ToBool β] → m β → m β → m β"},
@@ -19,12 +37,26 @@
    "detail": "∀ (p : Prop), (p ∧ False) = False"},
   {"label": "and_self", "kind": 3, "detail": "∀ (p : Prop), (p ∧ p) = p"},
   {"label": "and_true", "kind": 3, "detail": "∀ (p : Prop), (p ∧ True) = p"},
-  {"label": "Append", "kind": 7, "detail": "Type u → Type u"},
+  {"label": "Append",
+   "kind": 7,
+   "documentation":
+   {"value":
+    "The homogeneous version of `HAppend`: `a ++ b : α` where `a b : α`. ",
+    "kind": "markdown"},
+   "detail": "Type u → Type u"},
   {"label": "HAnd",
    "kind": 7,
+   "documentation":
+   {"value":
+    "The typeclass behind the notation `a &&& b : γ` where `a : α`, `b : β`. ",
+    "kind": "markdown"},
    "detail": "Type u → Type v → outParam (Type w) → Type (max (max u v) w)"},
   {"label": "HAndThen",
    "kind": 7,
+   "documentation":
+   {"value":
+    "The typeclass behind the notation `a >> b : γ` where `a : α`, `b : β`.\nBecause `b` is \"lazy\" in this notation, it is passed as `Unit → β` to the\nimplementation so it can decide when to evaluate it.\n",
+    "kind": "markdown"},
    "detail": "Type u → Type v → outParam (Type w) → Type (max (max u v) w)"},
   {"label": "false_and",
    "kind": 3,
@@ -52,6 +84,10 @@
    "detail": "∀ (a b : Prop), (a ↔ b) ↔ (a → b) ∧ (b → a)"},
   {"label": "HAppend",
    "kind": 7,
+   "documentation":
+   {"value":
+    "The notation typeclass for heterogeneous append.\nThis enables the notation `a ++ b : γ` where `a : α`, `b : β`.\n",
+    "kind": "markdown"},
    "detail": "Type u → Type v → outParam (Type w) → Type (max (max u v) w)"},
   {"label": "instAppendSubarray", "kind": 3, "detail": "Append (Subarray α)"}],
  "isIncomplete": true}

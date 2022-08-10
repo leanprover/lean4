@@ -13,3 +13,13 @@
   else
     x := x + 1
   return x
+
+#eval Id.run do
+  let mut some x ← pure $ some 2 | 0
+  x := x - 1
+  pure x
+
+#eval Id.run do
+  let mut some x := some 2 | 0
+  x := x - 1
+  pure x

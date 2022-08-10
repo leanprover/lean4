@@ -34,8 +34,8 @@ def testWindowsDriveLetterEscaping : String :=
     let x : System.FilePath := "C:" / "Temp" / "test.lean"
     let r := toFileUri x.normalize.toString
     if r == "file:///c%3a/temp/test.lean" then
-      match fileUriToPath r with
-      | none => "testWindowsDriveLetterEscaping fileUriToPath returned none"
+      match fileUriToPath? r with
+      | none => "testWindowsDriveLetterEscaping fileUriToPath? returned none"
       | some y =>
         if y.normalize.toString == x.normalize.toString  then
           "testWindowsDriveLetterEscaping ok"

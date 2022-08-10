@@ -41,248 +41,296 @@
   "```lean\nTrue.intro : True\n```\n***\n`True` is true, and `True.intro` (or more commonly, `trivial`)\nis the proof. ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 31, "character": 2}}
+ "position": {"line": 28, "character": 6}}
 {"range":
- {"start": {"line": 31, "character": 2}, "end": {"line": 31, "character": 23}},
- "contents": {"value": "My way better tactic ", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 39, "character": 2}}
-{"range":
- {"start": {"line": 39, "character": 2}, "end": {"line": 39, "character": 23}},
- "contents": {"value": "My way better tactic ", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 46, "character": 7}}
-{"range":
- {"start": {"line": 46, "character": 7}, "end": {"line": 46, "character": 15}},
- "contents":
- {"value": "```lean\n1 : Nat\n```\n***\nMy notation ", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 53, "character": 7}}
-{"range":
- {"start": {"line": 53, "character": 7}, "end": {"line": 53, "character": 15}},
- "contents":
- {"value": "```lean\nNat\n```\n***\nMy way better notation ",
-  "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 63, "character": 7}}
-{"range":
- {"start": {"line": 63, "character": 7}, "end": {"line": 63, "character": 16}},
- "contents":
- {"value": "```lean\nNat\n```\n***\nMy ultimate notation ", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 70, "character": 2}}
-{"range":
- {"start": {"line": 70, "character": 0}, "end": {"line": 70, "character": 7}},
- "contents": {"value": "My command ", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 77, "character": 2}}
-{"range":
- {"start": {"line": 77, "character": 0}, "end": {"line": 77, "character": 7}},
- "contents": {"value": "My way better command ", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 80, "character": 16}}
-{"range":
- {"start": {"line": 80, "character": 16}, "end": {"line": 80, "character": 23}},
+ {"start": {"line": 28, "character": 6}, "end": {"line": 28, "character": 12}},
  "contents":
  {"value":
-  "```lean\nLean.Parser.ppSpace : Lean.Parser.Parser\n```\n***\nNo-op parser that advises the pretty printer to emit a space/soft line break. ",
+  "```lean\nLean.Parser.Category.tactic : Lean.Parser.Category\n```\n***\n`tactic` is the builtin syntax category for tactics. These appear after\n`by` in proofs, and they are programs that take in the proof context\n(the hypotheses in scope plus the type of the term to synthesize) and construct\na term of the expected type. For example, `simp` is a tactic, used in:\n```\nexample : 2 + 2 = 4 := by simp\n```\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 80, "character": 24}}
+ "position": {"line": 28, "character": 32}}
 {"range":
- {"start": {"line": 80, "character": 24}, "end": {"line": 80, "character": 31}},
- "contents":
- {"value":
-  "```lean\nLean.ParserDescr.sepBy1 : Lean.ParserDescr → String → Lean.ParserDescr → optParam Bool false → Lean.ParserDescr\n```\n***\n`sepBy1` is just like `sepBy`, except it takes 1 or more instead of\n0 or more occurrences of `p`. ",
-  "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 80, "character": 31}}
-{"range":
- {"start": {"line": 80, "character": 31}, "end": {"line": 80, "character": 35}},
+ {"start": {"line": 28, "character": 32}, "end": {"line": 28, "character": 36}},
  "contents":
  {"value":
   "```lean\nLean.Parser.Category.term : Lean.Parser.Category\n```\n***\n`term` is the builtin syntax category for terms. A term denotes an expression\nin lean's type theory, for example `2 + 2` is a term. The difference between\n`Term` and `Expr` is that the former is a kind of syntax, while the latter is\nthe result of elaboration. For example `by simp` is also a `Term`, but it elaborates\nto different `Expr`s depending on the context. ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 89, "character": 2}}
+ "position": {"line": 31, "character": 6}}
 {"range":
- {"start": {"line": 89, "character": 0}, "end": {"line": 89, "character": 8}},
+ {"start": {"line": 31, "character": 6}, "end": {"line": 31, "character": 12}},
+ "contents":
+ {"value":
+  "```lean\nLean.Parser.Category.tactic : Lean.Parser.Category\n```\n***\n`tactic` is the builtin syntax category for tactics. These appear after\n`by` in proofs, and they are programs that take in the proof context\n(the hypotheses in scope plus the type of the term to synthesize) and construct\na term of the expected type. For example, `simp` is a tactic, used in:\n```\nexample : 2 + 2 = 4 := by simp\n```\n",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 31, "character": 24}}
+{"range":
+ {"start": {"line": 31, "character": 23}, "end": {"line": 31, "character": 27}},
+ "contents":
+ {"value":
+  "```lean\nLean.Parser.Category.term : Lean.Parser.Category\n```\n***\n`term` is the builtin syntax category for terms. A term denotes an expression\nin lean's type theory, for example `2 + 2` is a term. The difference between\n`Term` and `Expr` is that the former is a kind of syntax, while the latter is\nthe result of elaboration. For example `by simp` is also a `Term`, but it elaborates\nto different `Expr`s depending on the context. ",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 36, "character": 2}}
+{"range":
+ {"start": {"line": 36, "character": 2}, "end": {"line": 36, "character": 23}},
+ "contents": {"value": "My way better tactic ", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 44, "character": 2}}
+{"range":
+ {"start": {"line": 44, "character": 2}, "end": {"line": 44, "character": 23}},
+ "contents": {"value": "My way better tactic ", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 51, "character": 7}}
+{"range":
+ {"start": {"line": 51, "character": 7}, "end": {"line": 51, "character": 15}},
+ "contents":
+ {"value": "```lean\n1 : Nat\n```\n***\nMy notation ", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 58, "character": 7}}
+{"range":
+ {"start": {"line": 58, "character": 7}, "end": {"line": 58, "character": 15}},
+ "contents":
+ {"value": "```lean\nNat\n```\n***\nMy way better notation ",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 68, "character": 7}}
+{"range":
+ {"start": {"line": 68, "character": 7}, "end": {"line": 68, "character": 16}},
+ "contents":
+ {"value": "```lean\nNat\n```\n***\nMy ultimate notation ", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 74, "character": 14}}
+{"range":
+ {"start": {"line": 74, "character": 14}, "end": {"line": 74, "character": 36}},
+ "contents":
+ {"value": "```lean\nLean.Parser.Term.doSeq : Lean.Parser.Parser\n```",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 76, "character": 30}}
+{"range":
+ {"start": {"line": 76, "character": 29}, "end": {"line": 76, "character": 34}},
+ "contents":
+ {"value": "```lean\nLean.Parser.Term.doSeq : Lean.Parser.Parser\n```",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 79, "character": 2}}
+{"range":
+ {"start": {"line": 79, "character": 0}, "end": {"line": 79, "character": 7}},
+ "contents": {"value": "My command ", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 86, "character": 2}}
+{"range":
+ {"start": {"line": 86, "character": 0}, "end": {"line": 86, "character": 7}},
+ "contents": {"value": "My way better command ", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 89, "character": 16}}
+{"range":
+ {"start": {"line": 89, "character": 16}, "end": {"line": 89, "character": 23}},
+ "contents":
+ {"value":
+  "```lean\nLean.Parser.ppSpace : Lean.Parser.Parser\n```\n***\nNo-op parser that advises the pretty printer to emit a space/soft line break. ",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 89, "character": 24}}
+{"range":
+ {"start": {"line": 89, "character": 24}, "end": {"line": 89, "character": 31}},
+ "contents":
+ {"value":
+  "```lean\nLean.ParserDescr.sepBy1 : Lean.ParserDescr → String → Lean.ParserDescr → optParam Bool false → Lean.ParserDescr\n```\n***\n`sepBy1` is just like `sepBy`, except it takes 1 or more instead of\n0 or more occurrences of `p`. ",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 89, "character": 31}}
+{"range":
+ {"start": {"line": 89, "character": 31}, "end": {"line": 89, "character": 35}},
+ "contents":
+ {"value":
+  "```lean\nLean.Parser.Category.term : Lean.Parser.Category\n```\n***\n`term` is the builtin syntax category for terms. A term denotes an expression\nin lean's type theory, for example `2 + 2` is a term. The difference between\n`Term` and `Expr` is that the former is a kind of syntax, while the latter is\nthe result of elaboration. For example `by simp` is also a `Term`, but it elaborates\nto different `Expr`s depending on the context. ",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 98, "character": 2}}
+{"range":
+ {"start": {"line": 98, "character": 0}, "end": {"line": 98, "character": 8}},
  "contents": {"value": "My ultimate command ", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 93, "character": 10}}
+ "position": {"line": 102, "character": 10}}
 null
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 97, "character": 8}}
+ "position": {"line": 106, "character": 8}}
 {"range":
- {"start": {"line": 97, "character": 8}, "end": {"line": 97, "character": 10}},
+ {"start": {"line": 106, "character": 8},
+  "end": {"line": 106, "character": 10}},
  "contents":
  {"value":
   "```lean\nid.{0} : ∀ {α : Prop}, α → α\n```\n***\nThe identity function. `id` takes an implicit argument `α : Sort u`\n(a type in any universe), and an argument `a : α`, and returns `a`.\n\nAlthough this may look like a useless function, one application of the identity\nfunction is to explicitly put a type on an expression. If `e` has type `T`,\nand `T'` is definitionally equal to `T`, then `@id T' e` typechecks, and lean\nknows that this expression has type `T'` rather than `T`. This can make a\ndifference for typeclass inference, since `T` and `T'` may have different\ntypeclass instances on them. `show T' from e` is sugar for an `@id T' e`\nexpression.\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 97, "character": 10}}
+ "position": {"line": 106, "character": 10}}
 {"range":
- {"start": {"line": 97, "character": 8}, "end": {"line": 97, "character": 21}},
+ {"start": {"line": 106, "character": 8},
+  "end": {"line": 106, "character": 21}},
  "contents": {"value": "```lean\nTrue\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 104, "character": 2}}
+ "position": {"line": 113, "character": 2}}
 {"range":
- {"start": {"line": 104, "character": 2}, "end": {"line": 104, "character": 3}},
+ {"start": {"line": 113, "character": 2}, "end": {"line": 113, "character": 3}},
  "contents": {"value": "```lean\nn : Id Nat\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 111, "character": 9}}
+ "position": {"line": 120, "character": 9}}
 {"range":
- {"start": {"line": 111, "character": 7},
-  "end": {"line": 111, "character": 17}},
+ {"start": {"line": 120, "character": 7},
+  "end": {"line": 120, "character": 17}},
  "contents": {"value": "```lean\nfoo : Nat\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 116, "character": 7}}
+ "position": {"line": 125, "character": 7}}
 {"range":
- {"start": {"line": 116, "character": 7},
-  "end": {"line": 116, "character": 10}},
+ {"start": {"line": 125, "character": 7},
+  "end": {"line": 125, "character": 10}},
  "contents": {"value": "```lean\nBar.foo : Nat\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 119, "character": 9}}
+ "position": {"line": 128, "character": 9}}
 {"range":
- {"start": {"line": 119, "character": 7},
-  "end": {"line": 119, "character": 17}},
+ {"start": {"line": 128, "character": 7},
+  "end": {"line": 128, "character": 17}},
  "contents": {"value": "```lean\n_root_.foo : Nat\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 122, "character": 4}}
+ "position": {"line": 131, "character": 4}}
 {"range":
- {"start": {"line": 122, "character": 4}, "end": {"line": 122, "character": 7}},
+ {"start": {"line": 131, "character": 4}, "end": {"line": 131, "character": 7}},
  "contents": {"value": "```lean\nBar.bar : Nat\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 125, "character": 10}}
+ "position": {"line": 134, "character": 10}}
 {"range":
- {"start": {"line": 125, "character": 10},
-  "end": {"line": 125, "character": 13}},
+ {"start": {"line": 134, "character": 10},
+  "end": {"line": 134, "character": 13}},
  "contents": {"value": "```lean\nBar.Foo : Type\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 125, "character": 17}}
+ "position": {"line": 134, "character": 17}}
 {"range":
- {"start": {"line": 125, "character": 17},
-  "end": {"line": 125, "character": 19}},
+ {"start": {"line": 134, "character": 17},
+  "end": {"line": 134, "character": 19}},
  "contents":
  {"value": "```lean\nBar.Foo.mk : Nat → Foo\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 128, "character": 2}}
+ "position": {"line": 137, "character": 2}}
 {"range":
- {"start": {"line": 128, "character": 2}, "end": {"line": 128, "character": 4}},
+ {"start": {"line": 137, "character": 2}, "end": {"line": 137, "character": 4}},
  "contents":
  {"value": "```lean\nBar.Foo.hi : Foo → Nat\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 131, "character": 10}}
+ "position": {"line": 140, "character": 10}}
 {"range":
- {"start": {"line": 131, "character": 10},
-  "end": {"line": 131, "character": 13}},
+ {"start": {"line": 140, "character": 10},
+  "end": {"line": 140, "character": 13}},
  "contents": {"value": "```lean\nBar.Bar : Type\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 133, "character": 4}}
+ "position": {"line": 142, "character": 4}}
 {"range":
- {"start": {"line": 133, "character": 4}, "end": {"line": 133, "character": 6}},
+ {"start": {"line": 142, "character": 4}, "end": {"line": 142, "character": 6}},
  "contents": {"value": "```lean\nBar.Bar.mk : Bar\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 136, "character": 2}}
+ "position": {"line": 145, "character": 2}}
 {"range":
- {"start": {"line": 136, "character": 0}, "end": {"line": 136, "character": 8}},
+ {"start": {"line": 145, "character": 0}, "end": {"line": 145, "character": 8}},
  "contents":
  {"value": "```lean\nBar.instToStringNat : ToString Nat\n```",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 138, "character": 9}}
+ "position": {"line": 147, "character": 9}}
 {"range":
- {"start": {"line": 138, "character": 9},
-  "end": {"line": 138, "character": 10}},
+ {"start": {"line": 147, "character": 9},
+  "end": {"line": 147, "character": 10}},
  "contents":
  {"value": "```lean\nBar.f : ToString Nat\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 141, "character": 10}}
+ "position": {"line": 150, "character": 10}}
 {"range":
- {"start": {"line": 141, "character": 10},
-  "end": {"line": 141, "character": 16}},
+ {"start": {"line": 150, "character": 10},
+  "end": {"line": 150, "character": 16}},
  "contents":
  {"value": "A type universe. `Type ≡ Type 0`, `Type u ≡ Sort (u + 1)`. ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 144, "character": 4}}
+ "position": {"line": 153, "character": 4}}
 {"range":
- {"start": {"line": 144, "character": 4},
-  "end": {"line": 144, "character": 11}},
+ {"start": {"line": 153, "character": 4},
+  "end": {"line": 153, "character": 11}},
  "contents": {"value": "```lean\nBar.foo.bar : Nat\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 144, "character": 8}}
+ "position": {"line": 153, "character": 8}}
 {"range":
- {"start": {"line": 144, "character": 4},
-  "end": {"line": 144, "character": 11}},
+ {"start": {"line": 153, "character": 4},
+  "end": {"line": 153, "character": 11}},
  "contents": {"value": "```lean\nBar.foo.bar : Nat\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 149, "character": 6}}
+ "position": {"line": 158, "character": 6}}
 {"range":
- {"start": {"line": 149, "character": 6}, "end": {"line": 149, "character": 7}},
+ {"start": {"line": 158, "character": 6}, "end": {"line": 158, "character": 7}},
  "contents": {"value": "```lean\nx : Nat\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 152, "character": 4}}
+ "position": {"line": 161, "character": 4}}
 [{"targetUri": "file://hover.lean",
   "targetSelectionRange":
-  {"start": {"line": 149, "character": 6},
-   "end": {"line": 149, "character": 7}},
+  {"start": {"line": 158, "character": 6},
+   "end": {"line": 158, "character": 7}},
   "targetRange":
-  {"start": {"line": 149, "character": 6},
-   "end": {"line": 149, "character": 7}},
+  {"start": {"line": 158, "character": 6},
+   "end": {"line": 158, "character": 7}},
   "originSelectionRange":
-  {"start": {"line": 152, "character": 4},
-   "end": {"line": 152, "character": 5}}}]
+  {"start": {"line": 161, "character": 4},
+   "end": {"line": 161, "character": 5}}}]
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 152, "character": 4}}
+ "position": {"line": 161, "character": 4}}
 {"range":
- {"start": {"line": 152, "character": 4}, "end": {"line": 152, "character": 5}},
+ {"start": {"line": 161, "character": 4}, "end": {"line": 161, "character": 5}},
  "contents": {"value": "```lean\nx : Nat\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 156, "character": 8}}
+ "position": {"line": 165, "character": 8}}
 {"range":
- {"start": {"line": 156, "character": 8}, "end": {"line": 156, "character": 9}},
+ {"start": {"line": 165, "character": 8}, "end": {"line": 165, "character": 9}},
  "contents": {"value": "```lean\nx : Nat\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 159, "character": 8}}
+ "position": {"line": 168, "character": 8}}
 [{"targetUri": "file://hover.lean",
   "targetSelectionRange":
-  {"start": {"line": 156, "character": 8},
-   "end": {"line": 156, "character": 9}},
+  {"start": {"line": 165, "character": 8},
+   "end": {"line": 165, "character": 9}},
   "targetRange":
-  {"start": {"line": 156, "character": 8},
-   "end": {"line": 156, "character": 9}},
+  {"start": {"line": 165, "character": 8},
+   "end": {"line": 165, "character": 9}},
   "originSelectionRange":
-  {"start": {"line": 159, "character": 8},
-   "end": {"line": 159, "character": 9}}}]
+  {"start": {"line": 168, "character": 8},
+   "end": {"line": 168, "character": 9}}}]
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 159, "character": 8}}
+ "position": {"line": 168, "character": 8}}
 {"range":
- {"start": {"line": 159, "character": 8}, "end": {"line": 159, "character": 9}},
+ {"start": {"line": 168, "character": 8}, "end": {"line": 168, "character": 9}},
  "contents": {"value": "```lean\nx : Nat\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 164, "character": 25}}
+ "position": {"line": 173, "character": 25}}
 {"range":
- {"start": {"line": 164, "character": 25},
-  "end": {"line": 164, "character": 26}},
+ {"start": {"line": 173, "character": 25},
+  "end": {"line": 173, "character": 26}},
  "contents": {"value": "```lean\nn : Nat\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 167, "character": 2}}
+ "position": {"line": 176, "character": 2}}
 null
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 173, "character": 2}}
+ "position": {"line": 182, "character": 2}}
 {"range":
- {"start": {"line": 173, "character": 2},
-  "end": {"line": 173, "character": 15}},
+ {"start": {"line": 182, "character": 2},
+  "end": {"line": 182, "character": 15}},
  "contents":
  {"value":
   "`· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 176, "character": 28}}
+ "position": {"line": 185, "character": 28}}
 {"range":
- {"start": {"line": 176, "character": 27},
-  "end": {"line": 176, "character": 32}},
+ {"start": {"line": 185, "character": 27},
+  "end": {"line": 185, "character": 32}},
  "contents":
  {"value":
   "```lean\nId Nat\n```\n***\nYou can use parentheses for\n- Grouping expressions, e.g., `a * (b + c)`.\n- Creating tuples, e.g., `(a, b, c)` is notation for `Prod.mk a (Prod.mk b c)`.\n- Performing type ascription, e.g., `(0 : Int)` instructs Lean to process `0` as a value of type `Int`.\n- Creating `Unit.unit`, `()` is just a shorthand for `Unit.unit`.\n- Creating simple functions when combined with `·`. Here are some examples:\n  - `(· + 1)` is shorthand for `fun x => x + 1`\n  - `(· + ·)` is shorthand for `fun x y => x + y`\n  - `(f · a b)` is shorthand for `fun x => f x a b`\n  - `(h (· + 1) ·)` is shorthand for `fun x => h (fun y => y + 1) x`\n",

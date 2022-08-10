@@ -26,7 +26,12 @@ example : True := by
 
 /-- My way better tactic -/
 macro_rules
-  | `(tactic| mytac $[only]? $e) => `(tactic| apply $e)
+  | `(tactic| mytac $[only]? $e:term) =>
+    --^ textDocument/hover
+                              --^ textDocument/hover
+    `(tactic| apply $e:term)
+    --^ textDocument/hover
+                      --^ textDocument/hover
 
 example : True := by
   mytac only True.intro
@@ -66,7 +71,11 @@ elab_rules : term
 
 
 /-- My command -/
-macro "mycmd" e:term : command => `(def hi := $e)
+macro "mycmd" e:term : command => do
+  let seq ← `(Lean.Parser.Term.doSeq| $e:term)
+            --^ textDocument/hover
+  `(def hi := Id.run do $seq:doSeq)
+                            --^ textDocument/hover
 
 mycmd 1
 --^ textDocument/hover

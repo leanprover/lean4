@@ -23,7 +23,7 @@ def getAntiquotationIds (stx : Syntax) : TermElabM (Array Ident) := do
       else throwErrorAt stx "complex antiquotation not allowed here"
   return ids
 
--- Get all pattern vars (as `Syntax.ident`s) in `stx`
+/-- Get all pattern vars (as `Syntax.ident`s) in `stx` -/
 partial def getPatternVars (stx : Syntax) : TermElabM (Array Syntax) :=
   if stx.isQuot then
     getAntiquotationIds stx
@@ -33,7 +33,15 @@ partial def getPatternVars (stx : Syntax) : TermElabM (Array Syntax) :=
     | `($id:ident@$e) => return (← getPatternVars e).push id
     | _               => throwErrorAt stx "unsupported pattern in syntax match{indentD stx}"
 
-partial def getPatternsVars (pats : Array Syntax) : TermElabM (Array Syntax) :=
+def getPatternsVars (pats : Array Syntax) : TermElabM (Array Syntax) :=
   pats.foldlM (fun vars pat => do return vars ++ (← getPatternVars pat)) #[]
+
+/--
+Given an antiquotation like `$e:term` (i.e. `Syntax.antiquotKind?` returns `some`),
+returns the `"term"` atom if present.
+-/
+def getAntiquotKindSpec? (antiquot : Syntax) : Option Syntax :=
+  let name := antiquot[3][1]
+  if name.isMissing then none else some name
 
 end Lean.Elab.Term.Quotation

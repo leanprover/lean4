@@ -90,7 +90,16 @@ def append (b : ArrayStxBuilder) (arr : Syntax) (appendName := ``Array.append) :
 
 end ArrayStxBuilder
 
--- Elaborate the content of a syntax quotation term
+def tryAddSyntaxNodeKindInfo (stx : Syntax) (k : SyntaxNodeKind) : TermElabM Unit := do
+  if (← getEnv).contains k then
+    addTermInfo' stx (← mkConstWithFreshMVarLevels k)
+  else
+    -- HACK to support built in categories, which use a different naming convention
+    let k := ``Lean.Parser.Category ++ k
+    if (← getEnv).contains k then
+      addTermInfo' stx (← mkConstWithFreshMVarLevels k)
+
+/-- Elaborate the content of a syntax quotation term -/
 private partial def quoteSyntax : Syntax → TermElabM Term
   | Syntax.ident _ rawVal val preresolved => do
     if !hygiene.get (← getOptions) then
@@ -107,6 +116,9 @@ private partial def quoteSyntax : Syntax → TermElabM Term
     `(Syntax.ident info $(quote rawVal) (addMacroScope mainModule $val scp) $(quote preresolved))
   -- if antiquotation, insert contents as-is, else recurse
   | stx@(Syntax.node _ k _) => do
+    if let some (k, _) := stx.antiquotKind? then
+      if let some name := getAntiquotKindSpec? stx then
+        tryAddSyntaxNodeKindInfo name k
     if isAntiquots stx && !isEscapedAntiquot (getCanonicalAntiquot stx) then
       let ks := antiquotKinds stx
       `(@TSyntax.raw $(quote <| ks.map (·.1)) $(getAntiquotTerm (getCanonicalAntiquot stx)))
@@ -167,21 +179,32 @@ private partial def quoteSyntax : Syntax → TermElabM Term
     `(Syntax.atom info $(quote val))
   | Syntax.missing => throwUnsupportedSyntax
 
+def addNamedQuotInfo (stx : Syntax) (k : SyntaxNodeKind) : TermElabM SyntaxNodeKind := do
+  if stx.getNumArgs == 3 && stx[0].isAtom then
+    let s := stx[0].getAtomVal!
+    if s.length > 3 then
+      if let (some l, some r) := (stx[0].getPos? true, stx[0].getTailPos? true) then
+        -- HACK: The atom is the string "`(foo|", so chop off the edges.
+        -- HACK: We have to use .original here or the hover won't show up
+        let name := stx[0].setInfo <| .original default ⟨l.1 + 2⟩ default ⟨r.1 - 1⟩
+        tryAddSyntaxNodeKindInfo name k
+  pure k
+
 def getQuotKind (stx : Syntax) : TermElabM SyntaxNodeKind := do
   match stx.getKind with
-  | ``Parser.Command.quot => pure `command
-  | ``Parser.Term.quot => pure `term
-  | ``Parser.Level.quot => pure `level
-  | ``Parser.Tactic.quot => pure `tactic
-  | ``Parser.Tactic.quotSeq => pure `tactic.seq
-  | ``Parser.Term.stx.quot => pure `stx
-  | ``Parser.Term.prec.quot => pure `prec
-  | ``Parser.Term.attr.quot => pure `attr
-  | ``Parser.Term.prio.quot => pure `prio
-  | ``Parser.Term.doElem.quot => pure `doElem
-  | .str kind "quot" => return kind
+  | ``Parser.Command.quot => addNamedQuotInfo stx `command
+  | ``Parser.Term.quot => addNamedQuotInfo stx `term
+  | ``Parser.Level.quot => addNamedQuotInfo stx `level
+  | ``Parser.Tactic.quot => addNamedQuotInfo stx `tactic
+  | ``Parser.Tactic.quotSeq => addNamedQuotInfo stx `tactic.seq
+  | ``Parser.Term.stx.quot => addNamedQuotInfo stx `stx
+  | ``Parser.Term.prec.quot => addNamedQuotInfo stx `prec
+  | ``Parser.Term.attr.quot => addNamedQuotInfo stx `attr
+  | ``Parser.Term.prio.quot => addNamedQuotInfo stx `prio
+  | ``Parser.Term.doElem.quot => addNamedQuotInfo stx `doElem
+  | .str kind "quot" => addNamedQuotInfo stx kind
   | ``dynamicQuot =>
-    match (← resolveGlobalConst stx[1]) with
+    match (← resolveGlobalConstWithInfos stx[1]) with
     | [parser] => pure parser
     | _ => throwError "unknown parser {stx[1]}"
   | k => throwError "unexpected quotation kind {k}"
@@ -296,14 +319,17 @@ private def adaptRhs (fn : Term → TermElabM Term) : Alt → TermElabM Alt
 
 private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
   let pat := alt.fst.head!
-  let unconditionally (rhsFn) := pure {
+  let unconditionally rhsFn := pure {
     check := unconditional,
     doMatch := fun yes _ => yes [],
-    onMatch := fun taken => covered (adaptRhs rhsFn ∘ noOpMatchAdaptPats taken) (match taken with | unconditional => true | _ => false)
+    onMatch := fun taken => covered (adaptRhs rhsFn ∘ noOpMatchAdaptPats taken) (taken matches unconditional)
   }
   -- quotation pattern
-  if isQuot pat then
+  if isQuot pat then do
     let quoted := getQuotContent pat
+    if let some (k, _) := quoted.antiquotKind? then
+      if let some name := getAntiquotKindSpec? quoted then
+        tryAddSyntaxNodeKindInfo name k
     if quoted.isAtom then
       -- We assume that atoms are uniquely determined by the node kind and never have to be checked
       unconditionally pure
@@ -614,6 +640,9 @@ def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
       -- no quotations => fall back to regular `match`
       throwUnsupportedSyntax
     let (altIdxMap, ignoreIfUnused, rhss) ← markRhss rhss
+    -- call `getQuotKind` on all the patterns, which adds
+    -- term info for all `(foo| ...)` as a side effect
+    patss.forM (·.forM fun ⟨pat⟩ => do if pat.isQuot then _ ← getQuotKind pat)
     let stx ← compileStxMatch discrs.toList (patss.map (·.toList) |>.zip rhss).toList
     let stx ← checkUnusedAlts stx alt altIdxMap ignoreIfUnused
     trace[Elab.match_syntax.result] "{stx}"

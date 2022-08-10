@@ -119,6 +119,20 @@ instance : FromJson UInt64 where
 instance : ToJson UInt64 where
   toJson v := bignumToJson (UInt64.toNat v)
 
+instance : ToJson Float where
+  toJson x :=
+    match JsonNumber.fromFloat? x with
+    | Sum.inl e => Json.str e
+    | Sum.inr n => Json.num n
+
+instance : FromJson Float where
+  fromJson? := fun
+    | (Json.str "Infinity") => Except.ok (1.0 / 0.0)
+    | (Json.str "-Infinity") => Except.ok (-1.0 / 0.0)
+    | (Json.str "NaN") => Except.ok (0.0 / 0.0)
+    | (Json.num jn) => Except.ok jn.toFloat
+    | _ => Except.error "Expected a number or a string 'Infinity', '-Infinity', 'NaN'."
+
 namespace Json
 
 instance : FromJson Structured := ⟨fun

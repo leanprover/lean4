@@ -21,15 +21,16 @@ def decodeUri (uri : String) : String := Id.run do
   let mut decoded : ByteArray := ByteArray.empty
   let len := uri.utf8ByteSize
   let mut i := uri.mkIterator
-  while i.2.byteIdx < len do
+  while !i.atEnd do
+    let pos := i.2.byteIdx
     let c := i.curr
-    if c == '%' && i.2.byteIdx + 1 < len then
+    if c == '%' && pos + 1 < len then
       let h1 : Char := i.next.curr
       if h1 == '%' then
         -- this is an escaped '%%' which should become a single percent.
         decoded := decoded.push 37 -- %
         i := i.next.next
-      else if i.2.byteIdx + 2 < len then
+      else if pos + 2 < len then
         -- should have %HH where HH are hex digits, if they are not
         -- valid hex digits then just repeat whatever sequence of chars
         -- we found here.

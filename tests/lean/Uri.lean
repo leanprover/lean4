@@ -19,3 +19,6 @@ open System.Uri
 
 /- tilde is NOT escaped -/
 #eval toFileUri "~/git/lean4"
+
+/- trailing truncated escape ignored -/
+#eval unescapeUri "lean%4"

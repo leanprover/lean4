@@ -64,14 +64,17 @@ def uriEscapeAsciiChar (c : Char) : String :=
     hexDigitRepr d2 ++ hexDigitRepr d1
 end UriEscape
 
-def toFileUri (s : String) : String :=
-  let uri := s.foldl (fun s c => s ++ UriEscape.uriEscapeAsciiChar c) ""
+def toFileUri (s : String) : String := Id.run do
+  let mut uri := s
+  if System.Platform.isWindows then
+    uri := uri.map (fun c => if c == '\\' then '/' else c)
+  uri := uri.foldl (fun s c => s ++ UriEscape.uriEscapeAsciiChar c) ""
   if uri.startsWith "/" then
     "file://" ++ uri
   else
     "file:///" ++ uri
 
-def pathToUri (fname : System.FilePath) : String :=
+def pathToUri (fname : System.FilePath) : String := Id.run do
   toFileUri fname.normalize.toString
 
 def unescapeUri (s: String) : String :=
@@ -96,7 +99,7 @@ def fromFileUri (uri : String) : String := Id.run do
     p
 
 def fileUriToPath (uri : String) : System.FilePath :=
-  ⟨unescapeUri uri⟩
+  ⟨fromFileUri (unescapeUri uri)⟩
 
 end Uri
 end System

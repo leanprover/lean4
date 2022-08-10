@@ -97,7 +97,7 @@ def unescapeUri (s: String) : String :=
 
 /-- Takes a "file://[hostname]/path" uri and returns the unescaped
 path minus the uri scheme prefix and optional hostname. -/
-def fromFileUri (uri : String) : Option String := Id.run do
+def fromFileUri? (uri : String) : Option String := Id.run do
   if !uri.startsWith "file://" then
     none
   else
@@ -113,8 +113,8 @@ def fromFileUri (uri : String) : Option String := Id.run do
       p := p.drop 1
     some p
 
-def fileUriToPath (uri : String) : Option System.FilePath :=
-  match fromFileUri uri with
+def fileUriToPath? (uri : String) : Option System.FilePath :=
+  match fromFileUri? uri with
   | some p => some ⟨p⟩
   | none => none
 

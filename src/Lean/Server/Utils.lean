@@ -63,18 +63,6 @@ def withPrefix (a : Stream) (pre : String) : Stream :=
 end FS.Stream
 end IO
 
-namespace Lean.Lsp.DocumentUri
-
-/-- Transform the given path to a file:// URI. -/
-def ofPath (fname : System.FilePath) : DocumentUri :=
-  System.Uri.pathToUri fname
-
-/-- Return local path from file:// URI, if any. -/
-def toPath? (uri : DocumentUri) : Option System.FilePath :=
-  System.Uri.fileUriToPath uri
-
-end Lean.Lsp.DocumentUri
-
 namespace Lean.Server
 
 structure DocumentMeta where
@@ -85,7 +73,7 @@ structure DocumentMeta where
 
 def DocumentMeta.mkInputContext (doc : DocumentMeta) : Parser.InputContext where
   input    := doc.text.source
-  fileName := doc.uri.toPath?.getD doc.uri |>.toString
+  fileName := (System.Uri.fileUriToPath? doc.uri).getD doc.uri |>.toString
   fileMap  := doc.text
 
 def replaceLspRange (text : FileMap) (r : Lsp.Range) (newText : String) : FileMap :=

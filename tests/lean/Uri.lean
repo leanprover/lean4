@@ -6,13 +6,13 @@ open System.Uri
 #eval toFileUri "/temp/test.xml?😵=2022"
 
 /- round trip test -/
-#eval unescapeUri (toFileUri "/temp/test.xml?😵=2022")
+#eval fromFileUri (toFileUri "/temp/test.xml?😵=2022")
 
 /- and to System.FilePath -/
-#eval fileUriToPath (toFileUri "/temp/test.xml?😵=2022")
+#eval fileUriToPath? (toFileUri "/temp/test.xml?😵=2022")
 
 /- invalid file uri -/
-#eval fileUriToPath "invalid"
+#eval fileUriToPath? "invalid"
 
 /- escaped percent -/
 #eval unescapeUri "/temp/test%%.xml"

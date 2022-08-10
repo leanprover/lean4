@@ -86,7 +86,7 @@ partial def toLCNFType (type : Expr) : MetaM Expr := do
     withLocalDecl n bi d fun x => do
       let d ← toLCNFType d
       let b ← toLCNFType (b.instantiate1 x)
-      return .lam n d (b.abstract #[x]) bi
+      return (Expr.lam n d (b.abstract #[x]) bi).eta
   | .forallE n d b bi =>
     withLocalDecl n bi d fun x => do
       let borrowed := isMarkedBorrowed d
@@ -143,5 +143,26 @@ def instantiateLCNFTypeLevelParams (declName : Name) (us : List Level) : CoreM E
     let r := type.instantiateLevelParams info.levelParams us
     modifyEnv fun env => lcnfTypeExt.modifyState env fun s => { s with instLevelType := s.instLevelType.insert declName (us, r) }
     return r
+
+/--
+Return true if the LCNF types `a` and `b` are compatible.
+
+Remark: `a` and `b` can be type formers (e.g., `List`, or `fun (α : Type) => Nat → Nat × α`)
+
+Remark: LCNFs types are eagerly eta reduced.
+-/
+partial def compatibleTypes (a b : Expr) : CoreM Bool := do
+  if a.isAnyType || b.isAnyType then
+    return true
+  else if a == b then
+    return true
+  else
+    match a, b with
+    | .mdata _ a, b => compatibleTypes a b
+    | a, .mdata _ b => compatibleTypes a b
+    | .app f a, .app g b => compatibleTypes f g <&&> compatibleTypes a b
+    | .forallE _ d₁ b₁ _, .forallE _ d₂ b₂ _ => compatibleTypes d₁ d₂ <&&> compatibleTypes b₁ b₂
+    | .lam _ d₁ b₁ _, .lam _ d₂ b₂ _ => compatibleTypes d₁ d₂ <&&> compatibleTypes b₁ b₂
+    | _, _ => return false
 
 end Lean.Compiler

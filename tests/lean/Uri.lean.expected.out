@@ -7,4 +7,5 @@ none
 "file://test%xx/?a=123"
 "file:///~/git/lean4"
 "lean%4"
+"Lean1234😵"
 "testWindowsDriveLetterEscaping ok"

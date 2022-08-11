@@ -29,6 +29,9 @@ open System.Uri
 /- trailing truncated escape ignored -/
 #eval unescapeUri "lean%4"
 
+/- Nothing to unescape -/
+#eval unescapeUri "Lean1234😵"
+
 def testWindowsDriveLetterEscaping : String :=
   if System.Platform.isWindows then
     let x : System.FilePath := "C:" / "Temp" / "test.lean"

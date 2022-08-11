@@ -19,48 +19,54 @@ sequence of multiple escapings can represet a utf-8 encoded sequence for
 a single unicode code point and these will also be decoded correctly. -/
 def decodeUri (uri : String) : String := Id.run do
   let mut decoded : ByteArray := ByteArray.empty
+  let raw_bytes := uri.toUTF8
   let len := uri.utf8ByteSize
   let mut i := uri.mkIterator
+  let percent := '%'.toNat.toUInt8
   while !i.atEnd do
     let pos := i.2.byteIdx
     let c := i.curr
     if c == '%' && pos + 1 < len then
-      let h1 : Char := i.next.curr
+      i := i.next
+      let h1 : Char := i.curr
+      let h1_pos := i.2.byteIdx
       if h1 == '%' then
         -- this is an escaped '%%' which should become a single percent.
-        decoded := decoded.push 37 -- %
-        i := i.next.next
+        decoded := decoded.push percent
+        i := i.next
       else if pos + 2 < len then
         -- should have %HH where HH are hex digits, if they are not
         -- valid hex digits then just repeat whatever sequence of chars
         -- we found here.
-        let h2 := i.next.next.curr
+        i := i.next
+        let h2 := i.curr
+        let h2_pos := i.2.byteIdx
         let d1 := hexDigitToNat? h1
         let d2 := hexDigitToNat? h2
         decoded := if let (some hd1, some hd2) := (d1, d2) then
           decoded.push (hd1 * 16 + hd2).toUInt8
         else
-          decoded.push 37 ++ h1.toString.toUTF8 ++ h2.toString.toUTF8
-        i := i.nextn 3
+          (decoded.push percent) ++ (raw_bytes.extract h1_pos h2_pos) ++ (raw_bytes.extract h2_pos i.next.2.byteIdx)
+        i := i.next
       else
-        decoded := decoded.push 37 ++ h1.toString.toUTF8
-        i := i.next.next
-
+        decoded := (decoded.push percent) ++ (raw_bytes.extract h1_pos i.next.2.byteIdx)
+        i := i.next
     else
-      decoded := decoded.append c.toString.toUTF8
+      decoded := decoded ++ (raw_bytes.extract pos i.next.2.byteIdx)
       i := i.next
-   return String.fromUTF8Unchecked decoded
+  return String.fromUTF8Unchecked decoded
+
 
 /- https://datatracker.ietf.org/doc/html/rfc3986/#page-12 -/
 def rfc3986ReservedChars : List Char := [ ';', ':', '?', '#', '[', ']', '@', '&', '=', '+', '$', ',', '!', '\'', '(', ')', '*', '%' ]
 
 def uriEscapeAsciiChar (c : Char) : String :=
-  if (rfc3986ReservedChars.contains c) then
+  if rfc3986ReservedChars.contains c then
     "%" ++ smallCharToHex c
-  else if ((Char.toNat c) < 127) then
+  else if (Char.toNat c) < 127 then
     c.toString
   else
-    c.toString.toUTF8.foldl (fun s c => s ++ "%" ++ (smallCharToHex (Char.ofNat c.toNat))) ""
+    c.toString.toUTF8.foldl (fun s b => s ++ "%" ++ (smallCharToHex (Char.ofNat b.toNat))) ""
   where
   smallCharToHex (c : Char) : String :=
     let n  := Char.toNat c;
@@ -115,6 +121,9 @@ def fileUriToPath? (uri : String) : Option System.FilePath :=
   match fromFileUri? uri with
   | some p => some ⟨p⟩
   | none => none
+
+--#eval unescapeUri (toFileUri "😊")
+--#eval unescapeUri "file://test%xx/%3Fa%3D123"
 
 end Uri
 end System

@@ -12,9 +12,9 @@ open System.Uri
 #eval fileUriToPath? "invalid"
 
 /- escaped percent -/
-#eval unescapeUri "/temp/test%%.xml"
+#eval unescapeUri "/temp/test%25.xml"
 
-/- single percent -/
+/- invalid percents -/
 #eval unescapeUri "%%"
 
 /- invalid escape followed by valid escapes -/

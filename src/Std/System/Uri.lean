@@ -8,11 +8,12 @@ namespace System
 namespace Uri
 namespace UriEscape
 
-def hexDigitToNat? (c : Char) : Option Nat :=
-  if '0' ≤ c ∧ c ≤ '9' then some (c.toNat - '0'.toNat)
-  else if 'a' ≤ c ∧ c ≤ 'f' then some (c.toNat - 'a'.toNat + 10)
-  else if 'A' ≤ c ∧ c ≤ 'F' then some (c.toNat - 'A'.toNat + 10)
-  else none
+def Zero : UInt8 := '0'.toNat.toUInt8
+def Nine : UInt8 := '9'.toNat.toUInt8
+def Lettera : UInt8 := 'a'.toNat.toUInt8
+def Letterf : UInt8 := 'f'.toNat.toUInt8
+def LetterA : UInt8 := 'A'.toNat.toUInt8
+def LetterF : UInt8 := 'F'.toNat.toUInt8
 
 /-- Decode %HH escapings in the given string. Note that sometimes a consecutive
 sequence of multiple escapings can represet a utf-8 encoded sequence for
@@ -20,42 +21,38 @@ a single unicode code point and these will also be decoded correctly. -/
 def decodeUri (uri : String) : String := Id.run do
   let mut decoded : ByteArray := ByteArray.empty
   let raw_bytes := uri.toUTF8
-  let len := uri.utf8ByteSize
-  let mut i := uri.mkIterator
+  let len := raw_bytes.size
+  let mut i := 0
   let percent := '%'.toNat.toUInt8
-  while !i.atEnd do
-    let pos := i.2.byteIdx
-    let c := i.curr
-    if c == '%' && pos + 1 < len then
-      i := i.next
-      let h1 : Char := i.curr
-      let h1_pos := i.2.byteIdx
-      if h1 == '%' then
-        -- this is an escaped '%%' which should become a single percent.
-        decoded := decoded.push percent
-        i := i.next
-      else if pos + 2 < len then
-        -- should have %HH where HH are hex digits, if they are not
-        -- valid hex digits then just repeat whatever sequence of chars
-        -- we found here.
-        i := i.next
-        let h2 := i.curr
-        let h2_pos := i.2.byteIdx
-        let d1 := hexDigitToNat? h1
-        let d2 := hexDigitToNat? h2
-        decoded := if let (some hd1, some hd2) := (d1, d2) then
-          decoded.push (hd1 * 16 + hd2).toUInt8
+  while i < len do
+    let c := raw_bytes[i]!
+    let (result, pos) := if c == percent && i + 1 < len then
+      let h1 := raw_bytes[i + 1]!
+      if let some hd1 := hexDigitToUInt8? h1 then
+        if i + 2 < len then
+          let h2 := raw_bytes[i + 2]!
+          if let some hd2 := hexDigitToUInt8? h2 then
+            -- decode the hex digits into a byte.
+            (decoded.push (hd1 * 16 + hd2), i + 3)
+          else
+            -- not a valid second hex digit so keep the original bytes
+            (((decoded.push c).push h1).push h2, i + 3)
         else
-          (decoded.push percent) ++ (raw_bytes.extract h1_pos h2_pos) ++ (raw_bytes.extract h2_pos i.next.2.byteIdx)
-        i := i.next
+          -- hit end of string, there is no h2.
+          ((decoded.push c).push h1, i + 2)
       else
-        decoded := (decoded.push percent) ++ (raw_bytes.extract h1_pos i.next.2.byteIdx)
-        i := i.next
+        -- not a valid hex digit so keep the original bytes
+        ((decoded.push c).push h1, i + 2)
     else
-      decoded := decoded ++ (raw_bytes.extract pos i.next.2.byteIdx)
-      i := i.next
+      (decoded.push c, i + 1)
+    decoded := result
+    i := pos
   return String.fromUTF8Unchecked decoded
-
+where hexDigitToUInt8? (c : UInt8) : Option UInt8 :=
+  if Zero ≤ c ∧ c ≤ Nine then some (c - Zero)
+  else if Lettera ≤ c ∧ c ≤ Letterf then some (c - Lettera + 10)
+  else if LetterA ≤ c ∧ c ≤ LetterF then some (c - LetterA + 10)
+  else none
 
 /- https://datatracker.ietf.org/doc/html/rfc3986/#page-12 -/
 def rfc3986ReservedChars : List Char := [ ';', ':', '?', '#', '[', ']', '@', '&', '=', '+', '$', ',', '!', '\'', '(', ')', '*', '%' ]

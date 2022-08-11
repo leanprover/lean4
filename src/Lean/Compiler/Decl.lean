@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Meta.Transform
 import Lean.Meta.Check
 import Lean.Compiler.LCNF
+import Lean.Compiler.Check
 
 namespace Lean.Compiler
 
@@ -53,13 +54,14 @@ def toDecl (declName : Name) : CoreM Decl := do
   let some info := env.find? (mkUnsafeRecName declName) <|> env.find? declName | throwError "declaration `{declName}` not found"
   let some value := info.value? | throwError "declaration `{declName}` does not have a value"
   Meta.MetaM.run' do
+    let type  ← toLCNFType info.type
     let value ← Meta.lambdaTelescope value fun xs body => do Meta.mkLambdaFVars xs (← Meta.etaExpand body)
     let value ← replaceUnsafeRecNames value
     let value ← macroInline value
-    -- let value ← toLCNF {} value -- TODO: uncomment
-    return { name := declName, type := info.type, value }
+    let value ← toLCNF value -- TODO: uncomment
+    return { name := declName, type, value }
 
 def Decl.check (decl : Decl) : CoreM Unit := do
-  Meta.MetaM.run' do Meta.check decl.value
+  InferType.check decl.value {} { lctx := {} }
 
 end Lean.Compiler

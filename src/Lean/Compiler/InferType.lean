@@ -39,12 +39,12 @@ def inferFVarType (fvarId : FVarId) : InferTypeM Expr := do
   return decl.type
 
 def getCasesResultingType (casesInfo : CasesInfo) (cases : Expr) : InferTypeM Expr :=
-  go (cases.getArg! 0) casesInfo.geNumDiscrs
+  go (cases.getArg! casesInfo.motivePos) casesInfo.geNumDiscrs
 where
   go (motive : Expr) (n : Nat) : InferTypeM Expr :=
     match n, motive with
     | 0,   _ => return motive
-    | n+1, .forallE _ _ b _ => go b n
+    | n+1, .lam _ _ b _ => go b n
     | _, _ => throwError "invalid LCNF cases-experession{indentExpr cases}"
 
 mutual

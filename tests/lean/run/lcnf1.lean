@@ -1,14 +1,20 @@
 import Lean
 
 open Lean
+
 set_option trace.Meta.debug true
 set_option pp.proofs true
-
+set_option pp.funBinderTypes true
+set_option pp.letVarTypes true
+-- set_option pp.explicit true
 -- set_option pp.match false
 #eval Compiler.compile #[``List.map]
 
+#exit
 #eval Compiler.compile #[``Lean.Elab.Term.synthesizeInstMVarCore]
 #check @Eq.rec
+
+#exit
 
 #eval Compiler.compile #[``Eq.ndrec]
 

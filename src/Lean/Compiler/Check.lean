@@ -79,11 +79,11 @@ where
         fType := b
 
   checkCases (casesInfo : CasesInfo) (args : Array Expr) : InferTypeM Unit := do
-    let mut motive := args[0]!
+    let mut motive := args[casesInfo.motivePos]!
     for i in casesInfo.discrsRange do
       let discr := args[i]!
       let discrType ← inferType discr
-      if let .forallE _ d b _ := motive then
+      if let .lam _ d b _ := motive then
         unless compatibleTypes d discrType do
           throwError "type mismatch at LCNF `cases` discriminant{indentExpr discr}\nhas type{indentExpr discrType}\nbut is expected to have type{indentExpr d}"
         motive := b

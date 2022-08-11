@@ -7,6 +7,8 @@ import Lean.Meta.Check
 import Lean.Compiler.Util
 import Lean.Compiler.Decl
 
+#exit -- TODO: port file to new LCNF format
+
 namespace Lean.Compiler
 
 namespace TerminalCases

@@ -642,7 +642,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
           if let some h ← simpH? h patterns.size then
             hs := hs.push h
         trace[Meta.Match.matchEqs] "hs: {hs}"
-        let splitterAltType ← mkForallFVars ys (← hs.foldrM (init := (← mkForallFVars eqs altResultType)) mkArrow)
+        let splitterAltType ← mkForallFVars ys (← hs.foldrM (init := (← mkForallFVars eqs altResultType)) (mkArrow · ·))
         let splitterAltNumParam := hs.size + ys.size
         -- Create a proposition for representing terms that do not match `patterns`
         let mut notAlt := mkConst ``False
@@ -656,7 +656,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
           let lhs := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ patterns ++ alts)
           let rhs := mkAppN alt rhsArgs
           let thmType ← mkEq lhs rhs
-          let thmType ← hs.foldrM (init := thmType) mkArrow
+          let thmType ← hs.foldrM (init := thmType) (mkArrow · ·)
           let thmType ← mkForallFVars (params ++ #[motive] ++ ys ++ alts) thmType
           let thmType ← unfoldNamedPattern thmType
           let thmVal ← proveCondEqThm matchDeclName thmType

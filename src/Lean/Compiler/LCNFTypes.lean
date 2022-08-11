@@ -22,6 +22,9 @@ def anyTypeExpr := mkConst  ``lcAny
 def _root_.Lean.Expr.isAnyType (e : Expr) :=
   e.isConstOf ``lcAny
 
+def _root_.Lean.Expr.erased (e : Expr) :=
+  e.isConstOf ``lcErased
+
 /-!
 The code generator uses a format based on A-normal form.
 This normal form uses many let-expressions and it is very convenient for
@@ -86,7 +89,10 @@ partial def toLCNFType (type : Expr) : MetaM Expr := do
     withLocalDecl n bi d fun x => do
       let d ← toLCNFType d
       let b ← toLCNFType (b.instantiate1 x)
-      return .lam n d (b.abstract #[x]) bi
+      if b.isAnyType || b.erased then
+        return b
+      else
+        return (Expr.lam n d (b.abstract #[x]) bi).eta
   | .forallE n d b bi =>
     withLocalDecl n bi d fun x => do
       let borrowed := isMarkedBorrowed d
@@ -143,5 +149,35 @@ def instantiateLCNFTypeLevelParams (declName : Name) (us : List Level) : CoreM E
     let r := type.instantiateLevelParams info.levelParams us
     modifyEnv fun env => lcnfTypeExt.modifyState env fun s => { s with instLevelType := s.instLevelType.insert declName (us, r) }
     return r
+
+/--
+Return true if the LCNF types `a` and `b` are compatible.
+
+Remark: `a` and `b` can be type formers (e.g., `List`, or `fun (α : Type) => Nat → Nat × α`)
+
+Remark: LCNFs types are eagerly eta reduced.
+-/
+partial def compatibleTypes (a b : Expr) : Bool :=
+  if a.isAnyType || b.isAnyType then
+    true
+  else if a == b then
+    true
+  else
+    match a, b with
+    | .mdata _ a, b => compatibleTypes a b
+    | a, .mdata _ b => compatibleTypes a b
+    | .app f a, .app g b => compatibleTypes f g && compatibleTypes a b
+    | .forallE _ d₁ b₁ _, .forallE _ d₂ b₂ _ => compatibleTypes d₁ d₂ && compatibleTypes b₁ b₂
+    | .lam _ d₁ b₁ _, .lam _ d₂ b₂ _ => compatibleTypes d₁ d₂ && compatibleTypes b₁ b₂
+    | _, _ => false
+
+/--
+Return `true` if `type` is a LCNF type former type.
+-/
+def isTypeFormerType (type : Expr) : Bool :=
+  match type with
+  | .sort .. => true
+  | .forallE _ _ b _ => isTypeFormerType b
+  | _ => type.isAnyType
 
 end Lean.Compiler

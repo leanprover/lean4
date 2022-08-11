@@ -38,7 +38,8 @@ def compile (declNames : Array Name) : CoreM Unit := do
   let declNames ← declNames.filterM shouldGenerateCode
   let decls ← declNames.mapM toDecl
   checkpoint `init decls
-  let decls ← decls.mapM (·.terminalCases)
-  checkpoint `terminalCases decls
+  -- TODO: uncomment
+  -- let decls ← decls.mapM (·.terminalCases)
+  -- checkpoint `terminalCases decls
 
 end Lean.Compiler

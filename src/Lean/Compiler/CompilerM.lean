@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Util.ForEachExpr
-import Lean.Meta.InferType
+import Lean.Compiler.InferType
 
 namespace Lean.Compiler
 
@@ -23,20 +23,28 @@ instance : AddMessageContext CompilerM where
     let opts ← getOptions
     return MessageData.withContext { env, lctx, opts, mctx := {} } msgData
 
-@[inline] def liftMetaM (x : MetaM α) : CompilerM α := do
-  x.run' { lctx := (← get).lctx }
+/--
+Infer the type of a LCNF expression.
+-/
+def inferType (e : Expr) : CompilerM Expr := do
+  InferType.inferType e { lctx := (← get).lctx }
 
-def inferType (e : Expr) : CompilerM Expr := liftMetaM <| Meta.inferType e
+def getLevel (type : Expr) : CompilerM Level := do
+  match (← inferType type) with
+  | .sort u => return u
+  | e => if e.isAnyType then return levelOne else throwError "type expected{indentExpr type}"
 
-def whnf (e : Expr) : CompilerM Expr := liftMetaM <| Meta.whnf e
+/-- Create `lcUnreachable type` -/
+def mkLcUnreachable (type : Expr) : CompilerM Expr := do
+  let u ← getLevel type
+  return .app (.const ``lcUnreachable [u]) type
 
-def inferType' (e : Expr) : CompilerM Expr := liftMetaM do Meta.whnf (← Meta.inferType e)
-
-def isProp (e : Expr) : CompilerM Bool := liftMetaM <| Meta.isProp e
-
-def isTypeFormerType (e : Expr) : CompilerM Bool := liftMetaM <| Meta.isTypeFormerType e
-
-def isDefEq (a b : Expr) : CompilerM Bool := liftMetaM <| Meta.isDefEq a b
+/-- Create `lcCast expectedType e : expectedType` -/
+def mkLcCast (e : Expr) (expectedType : Expr) : CompilerM Expr := do
+  let type ← inferType e
+  let u ← getLevel type
+  let v ← getLevel expectedType
+  return mkApp3 (.const ``lcCast [u, v]) type expectedType e
 
 def mkLocalDecl (binderName : Name) (type : Expr) (bi := BinderInfo.default) : CompilerM Expr := do
   let fvarId ← mkFreshFVarId

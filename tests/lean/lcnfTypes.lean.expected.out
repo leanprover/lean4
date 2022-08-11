@@ -1,0 +1,43 @@
+Vec.zip : {α : Type u_1} → {n : Nat} → {β : Type u_2} → Vec α ◾ → Vec β ◾ → Vec (α × β) ◾
+mkConstTuple : {α : Type u_1} → α → Nat → ⊤
+Fin.add : {n : Nat} → Fin ◾ → Fin ◾ → Fin ◾
+Vec.cons : {α : Type u} → {n : Nat} → α → Vec α ◾ → Vec α ◾
+Eq.rec : {α : Sort u_1} → {a : α} → {motive : α → ◾ → Sort u} → motive ◾ ◾ → {a : α} → ◾ → motive ◾ ◾
+GetElem.getElem : {cont : Type u} →
+  {idx : Type v} →
+    {elem : Type w} → {dom : cont → idx → Prop} → [self : GetElem cont idx elem dom] → cont → idx → ◾ → elem
+Term.constFold : {ctx : List Ty} → {ty : Ty} → Term ◾ ◾ → Term ◾ ◾
+Term.denote : {ctx : List Ty} → {ty : Ty} → Term ◾ ◾ → HList ⊤ ◾ → ⊤
+HList.get : {α : Type u_1} → {β : α → Type u_2} → {is : List α} → {i : α} → HList β ◾ → Member ◾ ◾ → β ◾
+Member.head : {α : Type u_1} → {a : α} → {as : List α} → Member ◾ ◾
+Ty.denote : Ty → Type
+MonadControl.liftWith : {m : Type u → Type v} →
+  {n : Type u → Type w} → [self : MonadControl m n] → {α : Type u} → (({β : Type u} → n β → m ⊤) → m α) → n α
+MonadControl.restoreM : {m : Type u → Type v} → {n : Type u → Type w} → [self : MonadControl m n] → {α : Type u} → m ⊤ → n α
+Decidable.casesOn : {p : Prop} → {motive : Decidable ◾ → Sort u} → Decidable ◾ → (◾ → motive ◾) → (◾ → motive ◾) → motive ◾
+Lean.getConstInfo : {m : Type → Type} →
+  [inst : Monad m] → [inst : Lean.MonadEnv m] → [inst : Lean.MonadError m] → Lean.Name → m Lean.ConstantInfo
+Lean.Meta.instMonadMetaM : Monad fun α =>
+  Lean.Meta.Context →
+    ST.Ref PUnit Lean.Meta.State →
+      Lean.Core.Context → ST.Ref PUnit Lean.Core.State → PUnit → EStateM.Result Lean.Exception PUnit α
+Lean.Meta.inferType : Lean.Expr →
+  Lean.Meta.Context →
+    ST.Ref PUnit Lean.Meta.State →
+      Lean.Core.Context → ST.Ref PUnit Lean.Core.State → PUnit → EStateM.Result Lean.Exception PUnit Lean.Expr
+Lean.Elab.Term.elabTerm : Lean.Syntax →
+  Option Lean.Expr →
+    Bool →
+      Bool →
+        Lean.Elab.Term.Context →
+          ST.Ref PUnit Lean.Elab.Term.State →
+            Lean.Meta.Context →
+              ST.Ref PUnit Lean.Meta.State →
+                Lean.Core.Context → ST.Ref PUnit Lean.Core.State → PUnit → EStateM.Result Lean.Exception PUnit Lean.Expr
+Nat.add : Nat → Nat → Nat
+Magma.mul : Magma → ⊤ → ⊤ → ⊤
+weird1 : Bool → ⊤
+
+lamAny₁ : Bool → Monad.{0, 0} lcAny
+lamAny₂ : Bool → Monad.{0, 0} lcAny
+

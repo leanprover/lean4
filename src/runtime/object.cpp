@@ -32,6 +32,12 @@ Author: Leonardo de Moura
 #ifndef isnan
 #define isnan(x) std::isnan(x)
 #endif
+#ifndef isfinite
+#define isfinite(x) std::isfinite(x)
+#endif
+#ifndef isinf
+#define isinf(x) std::isinf(x)
+#endif
 
 // see `Task.Priority.max`
 #define LEAN_MAX_PRIO 8
@@ -1478,6 +1484,17 @@ extern "C" LEAN_EXPORT double lean_float_scaleb(double a, b_lean_obj_arg b) {
    } else {
      return a * (1.0 / 0.0);
    }
+}
+
+extern "C" LEAN_EXPORT uint8_t lean_float_isnan(double a) { return (bool) isnan(a); }
+extern "C" LEAN_EXPORT uint8_t lean_float_isfinite(double a) { return (bool) isfinite(a); }
+extern "C" LEAN_EXPORT uint8_t lean_float_isinf(double a) { return (bool) isinf(a); }
+extern "C" LEAN_EXPORT obj_res lean_float_frexp(double a) {
+    object* r = lean_alloc_ctor(0, 2, 0);
+    int exp;
+    lean_ctor_set(r, 0, lean_box_float(frexp(a, &exp)));
+    lean_ctor_set(r, 1, isfinite(a) ? lean_int_to_int(exp) : lean_box(0));
+    return r;
 }
 
 // =======================================

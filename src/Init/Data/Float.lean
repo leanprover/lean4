@@ -31,33 +31,33 @@ structure Float where
 
 instance : Inhabited Float := ⟨{ val := floatSpec.val }⟩
 
-@[extern "lean_float_add"]  opaque Float.add : Float → Float → Float
-@[extern "lean_float_sub"]  opaque Float.sub : Float → Float → Float
-@[extern "lean_float_mul"]  opaque Float.mul : Float → Float → Float
-@[extern "lean_float_div"]  opaque Float.div : Float → Float → Float
-@[extern "lean_float_negate"]   opaque Float.neg : Float → Float
+@[extern "lean_float_add"] opaque Float.add : Float → Float → Float
+@[extern "lean_float_sub"] opaque Float.sub : Float → Float → Float
+@[extern "lean_float_mul"] opaque Float.mul : Float → Float → Float
+@[extern "lean_float_div"] opaque Float.div : Float → Float → Float
+@[extern "lean_float_negate"] opaque Float.neg : Float → Float
 
 set_option bootstrap.genMatcherCode false
-def Float.lt  : Float → Float → Prop := fun a b =>
+def Float.lt : Float → Float → Prop := fun a b =>
   match a, b with
   | ⟨a⟩, ⟨b⟩ => floatSpec.lt a b
 
-def Float.le  : Float → Float → Prop := fun a b =>
+def Float.le : Float → Float → Prop := fun a b =>
   floatSpec.le a.val b.val
 
-instance : Add Float       := ⟨Float.add⟩
-instance : Sub Float       := ⟨Float.sub⟩
-instance : Mul Float       := ⟨Float.mul⟩
-instance : Div Float       := ⟨Float.div⟩
-instance : Neg Float       := ⟨Float.neg⟩
-instance : LT Float        := ⟨Float.lt⟩
-instance : LE Float        := ⟨Float.le⟩
+instance : Add Float := ⟨Float.add⟩
+instance : Sub Float := ⟨Float.sub⟩
+instance : Mul Float := ⟨Float.mul⟩
+instance : Div Float := ⟨Float.div⟩
+instance : Neg Float := ⟨Float.neg⟩
+instance : LT Float  := ⟨Float.lt⟩
+instance : LE Float  := ⟨Float.le⟩
 
 @[extern "lean_float_beq"] opaque Float.beq (a b : Float) : Bool
 
 instance : BEq Float := ⟨Float.beq⟩
 
-@[extern "lean_float_decLt"]   opaque Float.decLt (a b : Float) : Decidable (a < b) :=
+@[extern "lean_float_decLt"] opaque Float.decLt (a b : Float) : Decidable (a < b) :=
   match a, b with
   | ⟨a⟩, ⟨b⟩ => floatSpec.decLt a b
 
@@ -75,6 +75,11 @@ instance floatDecLe (a b : Float) : Decidable (a ≤ b) := Float.decLe a b
 @[extern "lean_float_to_uint32"] opaque Float.toUInt32 : Float → UInt32
 @[extern "lean_float_to_uint64"] opaque Float.toUInt64 : Float → UInt64
 @[extern "lean_float_to_usize"] opaque Float.toUSize : Float → USize
+
+@[extern "lean_float_isnan"] opaque Float.isNaN : Float → Bool
+@[extern "lean_float_isfinite"] opaque Float.isFinite : Float → Bool
+@[extern "lean_float_isinf"] opaque Float.isInf : Float → Bool
+@[extern "lean_float_frexp"] opaque Float.frExp : Float → Float × Int
 
 instance : ToString Float where
   toString := Float.toString

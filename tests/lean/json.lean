@@ -24,3 +24,4 @@ match Lean.Json.parse s with
 #eval test "{foo: 1}"
 #eval test "   "
 #eval toString (Lean.Json.num ⟨20, 1⟩)
+#eval toString (Lean.Json.num ⟨-20, 1⟩)

@@ -3,7 +3,6 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Compiler.CompilerM
 import Lean.Meta.Match.MatcherInfo
 
 namespace Lean.Compiler
@@ -42,26 +41,12 @@ def isLcCast? (e : Expr) : Option Expr :=
 def mkLcProof (p : Expr) :=
   mkApp (mkConst ``lcProof []) p
 
-/-- Create `lcUnreachable type` -/
-def mkLcUnreachable (type : Expr) : CompilerM Expr := do
-  liftMetaM do
-    let u ← Meta.getLevel type
-    return .app (.const ``lcUnreachable [u]) type
-
-/-- Create `lcCast expectedType e : expectedType` -/
-def mkLcCast (e : Expr) (expectedType : Expr) : CompilerM Expr := do
-  liftMetaM do
-    let type ← Meta.inferType e
-    let u ← Meta.getLevel type
-    let v ← Meta.getLevel expectedType
-    return mkApp3 (.const ``lcCast [u, v]) type expectedType e
-
 /--
 Store information about `matcher` and `casesOn` declarations.
 
 We treat them uniformly in the code generator.
 -/
-structure CasesInfo where
+structure CasesInfoPreLCNF where
   arity        : Nat
   discrsRange  : Std.Range
   altsRange    : Std.Range
@@ -73,7 +58,7 @@ private def getCasesOnInductiveVal? (declName : Name) : CoreM (Option InductiveV
   let .inductInfo val ← getConstInfo declName.getPrefix | return none
   return some val
 
-private def getCasesOnInfo? (declName : Name) : CoreM (Option CasesInfo) := do
+private def getCasesOnInfoPreLCNF? (declName : Name) : CoreM (Option CasesInfoPreLCNF) := do
   let some val ← getCasesOnInductiveVal? declName | return none
   let motivePos    := val.numParams
   let arity        := val.numIndices + val.numParams + 1 /- motive -/ + 1 /- major -/ + val.numCtors
@@ -85,13 +70,48 @@ private def getCasesOnInfo? (declName : Name) : CoreM (Option CasesInfo) := do
     return ctorVal.numFields
   return some { motivePos, arity, discrsRange, altsRange, altNumParams }
 
-def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
+def getCasesInfoPreLCNF? (declName : Name) : CoreM (Option CasesInfoPreLCNF) := do
   if let some matcherInfo ← Meta.getMatcherInfo? declName then
     return some {
       motivePos    := matcherInfo.getMotivePos
       arity        := matcherInfo.arity
       discrsRange  := matcherInfo.getDiscrRange
       altsRange    := matcherInfo.getAltRange
+      altNumParams := matcherInfo.altNumParams
+    }
+  else
+    getCasesOnInfoPreLCNF? declName
+
+structure CasesInfo where
+  arity        : Nat
+  discrsRange  : Std.Range
+  altsRange    : Std.Range
+  altNumParams : Array Nat
+
+def CasesInfo.geNumDiscrs (casesInfo : CasesInfo) : Nat :=
+  casesInfo.discrsRange.stop - casesInfo.discrsRange.start
+
+private def getCasesOnInfo? (declName : Name) : CoreM (Option CasesInfo) := do
+  let some val ← getCasesOnInductiveVal? declName | return none
+  let arity        := 1 /- major -/ + val.numCtors
+  let discrsRange  := { start := 1, stop := 2 }
+  let altsRange    := { start := 2, stop := arity }
+  let altNumParams ← val.ctors.toArray.mapM fun ctor => do
+    let .ctorInfo ctorVal ← getConstInfo ctor | unreachable!
+    return ctorVal.numFields
+  return some { arity, discrsRange, altsRange, altNumParams }
+
+def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
+  if let some matcherInfo ← Meta.getMatcherInfo? declName then
+    let numParams    := matcherInfo.numParams
+    let discrsRange  := matcherInfo.getDiscrRange
+    let discrsRange  := { start := discrsRange.start - numParams, stop := discrsRange.stop - numParams }
+    let altsRange    := matcherInfo.getAltRange
+    let altsRange    := { start := altsRange.start - numParams, stop := altsRange.stop - numParams }
+    return some {
+      arity        := matcherInfo.arity - numParams
+      discrsRange
+      altsRange
       altNumParams := matcherInfo.altNumParams
     }
   else
@@ -104,11 +124,6 @@ def isCasesApp? (e : Expr) : CoreM (Option CasesInfo) := do
     return some info
   else
     return none
-
-def updateMotive (casesInfo : CasesInfo) (args : Array Expr) (newResultingType : Expr) : MetaM (Array Expr) := do
-  -- TODO: make it more robust, it is assuming the motive is eta-expanded
-  args.modifyM casesInfo.motivePos fun motive => do
-    Meta.lambdaTelescope motive fun xs _ => Meta.mkLambdaFVars xs newResultingType
 
 def getCtorArity? (declName : Name) : CoreM (Option Nat) := do
   let .ctorInfo val ← getConstInfo declName | return none

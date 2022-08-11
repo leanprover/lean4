@@ -157,18 +157,27 @@ Remark: `a` and `b` can be type formers (e.g., `List`, or `fun (α : Type) => Na
 
 Remark: LCNFs types are eagerly eta reduced.
 -/
-partial def compatibleTypes (a b : Expr) : CoreM Bool := do
+partial def compatibleTypes (a b : Expr) : Bool :=
   if a.isAnyType || b.isAnyType then
-    return true
+    true
   else if a == b then
-    return true
+    true
   else
     match a, b with
     | .mdata _ a, b => compatibleTypes a b
     | a, .mdata _ b => compatibleTypes a b
-    | .app f a, .app g b => compatibleTypes f g <&&> compatibleTypes a b
-    | .forallE _ d₁ b₁ _, .forallE _ d₂ b₂ _ => compatibleTypes d₁ d₂ <&&> compatibleTypes b₁ b₂
-    | .lam _ d₁ b₁ _, .lam _ d₂ b₂ _ => compatibleTypes d₁ d₂ <&&> compatibleTypes b₁ b₂
-    | _, _ => return false
+    | .app f a, .app g b => compatibleTypes f g && compatibleTypes a b
+    | .forallE _ d₁ b₁ _, .forallE _ d₂ b₂ _ => compatibleTypes d₁ d₂ && compatibleTypes b₁ b₂
+    | .lam _ d₁ b₁ _, .lam _ d₂ b₂ _ => compatibleTypes d₁ d₂ && compatibleTypes b₁ b₂
+    | _, _ => false
+
+/--
+Return `true` if `type` is a LCNF type former type.
+-/
+def isTypeFormerType (type : Expr) : Bool :=
+  match type with
+  | .sort .. => true
+  | .forallE _ _ b _ => isTypeFormerType b
+  | _ => type.isAnyType
 
 end Lean.Compiler

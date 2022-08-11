@@ -25,6 +25,8 @@ def tst1 : IO Unit := do
   IO.println (-1 : Float).toUInt64
   IO.println (2^64 : Float).toUInt64
   IO.println (1 / 0 : Float).toUInt64
+  IO.println (0 / 0 : Float)
+  IO.println (-(0 / 0) : Float)
 
 structure Foo where
   x : Nat

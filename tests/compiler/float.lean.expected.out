@@ -23,8 +23,11 @@ true
 0
 18446744073709551615
 18446744073709551615
-NaN
-NaN
+(1.400000, (false, (false, (true, (0.700000, 1)))))
+(NaN, (true, (false, (false, (NaN, 0)))))
+(NaN, (true, (false, (false, (NaN, 0)))))
+(inf, (false, (true, (false, (inf, 0)))))
+(-inf, (false, (true, (false, (-inf, 0)))))
 -----
 2.333333
 3.500000

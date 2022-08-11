@@ -1688,6 +1688,10 @@ static inline uint64_t lean_usize_to_uint64(size_t a) { return ((uint64_t)a); }
 
 LEAN_SHARED lean_obj_res lean_float_to_string(double a);
 LEAN_SHARED double lean_float_scaleb(double a, b_lean_obj_arg b);
+LEAN_SHARED uint8_t lean_float_isnan(double a);
+LEAN_SHARED uint8_t lean_float_isfinite(double a);
+LEAN_SHARED uint8_t lean_float_isinf(double a);
+LEAN_SHARED lean_obj_res lean_float_frexp(double a);
 
 /* Boxing primitives */
 

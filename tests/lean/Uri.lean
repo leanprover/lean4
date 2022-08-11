@@ -3,13 +3,10 @@ import Std.System.Uri
 open System.Uri
 
 /- Uri character escaping includes UTF-8 encoding for the 😵 char! -/
-#eval toFileUri "/temp/test.xml?😵=2022"
+#eval pathToUri "/temp/test.xml?😵=2022"
 
 /- round trip test -/
-#eval fromFileUri? (toFileUri "/temp/test.xml?😵=2022")
-
-/- and to System.FilePath -/
-#eval fileUriToPath? (toFileUri "/temp/test.xml?😵=2022")
+#eval fileUriToPath? (pathToUri "/temp/test.xml?😵=2022")
 
 /- invalid file uri -/
 #eval fileUriToPath? "invalid"
@@ -24,7 +21,7 @@ open System.Uri
 #eval unescapeUri "file://test%xx/%3Fa%3D123"
 
 /- tilde is NOT escaped -/
-#eval toFileUri "~/git/lean4"
+#eval pathToUri "~/git/lean4"
 
 /- trailing truncated escape ignored -/
 #eval unescapeUri "lean%4"
@@ -35,7 +32,7 @@ open System.Uri
 def testWindowsDriveLetterEscaping : String :=
   if System.Platform.isWindows then
     let x : System.FilePath := "C:" / "Temp" / "test.lean"
-    let r := toFileUri x.normalize.toString
+    let r := pathToUri x
     if r == "file:///c%3a/temp/test.lean" then
       match fileUriToPath? r with
       | none => "testWindowsDriveLetterEscaping fileUriToPath? returned none"

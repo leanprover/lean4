@@ -67,7 +67,7 @@ def uriEscapeAsciiChar (c : Char) : String :=
     c.toString
   else
     c.toString.toUTF8.foldl (fun s b => s ++ "%" ++ (smallCharToHex (Char.ofNat b.toNat))) ""
-  where
+where
   smallCharToHex (c : Char) : String :=
     let n  := Char.toNat c;
     let d2 := n / 16;
@@ -75,22 +75,15 @@ def uriEscapeAsciiChar (c : Char) : String :=
     hexDigitRepr d2 ++ hexDigitRepr d1
 end UriEscape
 
-/-- Convert the given file name to a "file:///encodedpath" Uri
-where the encoded path may contain %xx escaping when needed. -/
-def toFileUri (s : String) : String := Id.run do
-  let mut uri := s
-  if System.Platform.isWindows then
-    uri := uri.map (fun c => if c == '\\' then '/' else c)
-  uri := uri.foldl (fun s c => s ++ UriEscape.uriEscapeAsciiChar c) ""
-  if uri.startsWith "/" then
-    "file://" ++ uri
-  else
-    "file:///" ++ uri
-
 /-- Convert the given FilePath to a "file:///encodedpath" Uri
 where the encoded path may contain %xx escaping when needed. -/
 def pathToUri (fname : System.FilePath) : String := Id.run do
-  toFileUri fname.normalize.toString
+  let mut uri := fname.normalize.toString
+  if System.Platform.isWindows then
+    uri := uri.map (fun c => if c == '\\' then '/' else c)
+  uri := uri.foldl (fun s c => s ++ UriEscape.uriEscapeAsciiChar c) ""
+  let result := if uri.startsWith "/" then "file://" ++ uri else "file:///" ++ uri
+  result
 
 /-- Replaces all %HH Uri escapings in the given string with their
 corresponding unicode code points.  Note that sometimes a consecutive
@@ -99,9 +92,7 @@ a single unicode code point and these will also be decoded correctly. -/
 def unescapeUri (s: String) : String :=
   UriEscape.decodeUri s
 
-/-- Takes a "file://[hostname]/path" uri and returns the unescaped
-path minus the uri scheme prefix and optional hostname. -/
-def fromFileUri? (uri : String) : Option String := Id.run do
+def fileUriToPath? (uri : String) : Option System.FilePath := Id.run do
   if !uri.startsWith "file://" then
     none
   else
@@ -116,14 +107,6 @@ def fromFileUri? (uri : String) : Option String := Id.run do
       ":" == ((p.drop 2).take 1)  then
       p := p.drop 1
     some p
-
-def fileUriToPath? (uri : String) : Option System.FilePath :=
-  match fromFileUri? uri with
-  | some p => some ⟨p⟩
-  | none => none
-
---#eval unescapeUri (toFileUri "😊")
---#eval unescapeUri "file://test%xx/%3Fa%3D123"
 
 end Uri
 end System

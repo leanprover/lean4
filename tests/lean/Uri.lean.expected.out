@@ -1,5 +1,4 @@
 "file:///temp/test.xml%3f%f0%9f%98%b5%3d2022"
-some "/temp/test.xml?😵=2022"
 some (FilePath.mk "/temp/test.xml?😵=2022")
 none
 "/temp/test%.xml"

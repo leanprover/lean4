@@ -8,6 +8,10 @@ import Lean.Compiler.Util
 
 namespace Lean.Compiler.InferType
 
+/-!
+Type checker for LCNF expressions
+-/
+
 structure Config where
   terminalCasesOnly : Bool := false
 

@@ -774,10 +774,6 @@ def mkLambdaFVars (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedL
 def mkLetFVars (xs : Array Expr) (e : Expr) (usedLetOnly := true) (binderInfoForMVars := BinderInfo.implicit) : MetaM Expr :=
   mkLambdaFVars xs e (usedLetOnly := usedLetOnly) (binderInfoForMVars := binderInfoForMVars)
 
-/-- Creates the expression `d → b` -/
-def mkArrow (d b : Expr) : MetaM Expr :=
-  return Lean.mkForall (← mkFreshUserName `x) BinderInfo.default d b
-
 /-- `fun _ : Unit => a` -/
 def mkFunUnit (a : Expr) : MetaM Expr :=
   return Lean.mkLambda (← mkFreshUserName `x) BinderInfo.default (mkConst ``Unit) a

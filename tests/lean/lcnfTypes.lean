@@ -113,7 +113,7 @@ def weird1 (c : Bool) : (cond c List Array) Nat :=
 def compatible (declName₁ declName₂ : Name) : MetaM Unit := do
   let type₁ ← getDeclLCNFType declName₁
   let type₂ ← getDeclLCNFType declName₂
-  unless (← compatibleTypes type₁ type₂) do
+  unless compatibleTypes type₁ type₂ do
     throwError "{declName₁} : {← ppExpr type₁}\ntype is not compatible with\n{declName₂} : {← ppExpr type₂}"
 
 axiom monadList₁.{u} : Monad List.{u}

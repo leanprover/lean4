@@ -9,7 +9,6 @@ import Lean.Elab.Eval
 namespace Lean.Elab.Term
 open Meta
 
-/-- The universe of propositions. `Prop ≡ Sort 0`. -/
 @[builtinTermElab «prop»] def elabProp : TermElab := fun _ _ =>
   return mkSort levelZero
 
@@ -19,11 +18,9 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
   else
     elabLevel stx[0]
 
-/-- A specific universe in Lean's infinite hierarchy of universes. -/
 @[builtinTermElab «sort»] def elabSort : TermElab := fun stx _ =>
   return mkSort (← elabOptLevel stx[1])
 
-/-- A type universe. `Type ≡ Type 0`, `Type u ≡ Sort (u + 1)`. -/
 @[builtinTermElab «type»] def elabTypeStx : TermElab := fun stx _ =>
   return mkSort (mkLevelSucc (← elabOptLevel stx[1]))
 
@@ -56,7 +53,6 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
   else
     elabPipeCompletion stx expectedType?
 
-/-- A placeholder term, to be synthesized by unification. -/
 @[builtinTermElab «hole»] def elabHole : TermElab := fun stx expectedType? => do
   let mvar ← mkFreshExprMVar expectedType?
   registerMVarErrorHoleInfo mvar.mvarId! stx
@@ -149,7 +145,6 @@ private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr :=
   registerSyntheticMVar ref mvarId <| SyntheticMVarKind.tactic tacticCode (← saveContext)
   return mvar
 
-/-- `by tac` constructs a term of the expected type by running the tactic(s) `tac`. -/
 @[builtinTermElab byTactic] def elabByTactic : TermElab := fun stx expectedType? => do
   match expectedType? with
   | some expectedType => mkTacticMVar expectedType stx
@@ -208,30 +203,19 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
   | some val => return mkApp (Lean.mkConst ``Char.ofNat) (mkRawNatLit val.toNat)
   | none     => throwIllFormedSyntax
 
-/-- A literal of type `Name`. -/
 @[builtinTermElab quotedName] def elabQuotedName : TermElab := fun stx _ =>
   match stx[0].isNameLit? with
   | some val => pure $ toExpr val
   | none     => throwIllFormedSyntax
 
-/--
-A resolved name literal. Evaluates to the full name of the given constant if
-existent in the current context, or else fails. -/
 @[builtinTermElab doubleQuotedName] def elabDoubleQuotedName : TermElab := fun stx _ =>
   return toExpr (← resolveGlobalConstNoOverloadWithInfo stx[2])
 
-/-- A macro which evaluates to the name of the currently elaborating declaration. -/
 @[builtinTermElab declName] def elabDeclName : TermElab := adaptExpander fun _ => do
   let some declName ← getDeclName?
     | throwError "invalid `decl_name%` macro, the declaration name is not available"
   return (quote declName : Term)
 
-/--
-* `with_decl_name% id e` elaborates `e` in a context while changing the effective
-  declaration name to `id`.
-* `with_decl_name% ? id e` does the same, but resolves `id` as a new definition name
-  (appending the current namespaces).
--/
 @[builtinTermElab Parser.Term.withDeclName] def elabWithDeclName : TermElab := fun stx expectedType? => do
   let id := stx[2].getId
   let id := if stx[1].isNone then id else (← getCurrNamespace) ++ id
@@ -283,7 +267,6 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
   | none     => throwIllFormedSyntax
   | some msg => elabTermEnsuringType stx[2] expectedType? (errorMsgHeader? := msg)
 
-/-- `open ... in e` makes the given namespaces available in the term `e`. -/
 @[builtinTermElab «open»] def elabOpen : TermElab := fun stx expectedType? => do
   try
     pushScope
@@ -293,7 +276,6 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
   finally
     popScope
 
-/-- `set_option opt val in e` sets the option `opt` to the value `val` in the term `e`. -/
 @[builtinTermElab «set_option»] def elabSetOption : TermElab := fun stx expectedType? => do
   let options ← Elab.elabSetOption stx[1] stx[2]
   withTheReader Core.Context (fun ctx => { ctx with maxRecDepth := maxRecDepth.get options, options := options }) do

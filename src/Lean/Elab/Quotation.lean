@@ -649,23 +649,6 @@ def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
     return stx
   | _ => throwUnsupportedSyntax
 
-/--
-  Syntactic pattern match. Matches a `Syntax` value against quotations, pattern variables, or `_`.
-
-  Quoted identifiers only match identical identifiers - custom matching such as by the preresolved names only should be done explicitly.
-
-  `Syntax.atom`s are ignored during matching by default except when part of a built-in literal.
-  For users introducing new atoms, we recommend wrapping them in dedicated syntax kinds if they should participate in matching.
-  For example, in
-  ```lean
-  syntax "c" ("foo" <|> "bar") ...
-  ```
-  `foo` and `bar` are indistinguishable during matching, but in
-  ```lean
-  syntax foo := "foo"
-  syntax "c" (foo <|> "bar") ...
-  ```
-  they are not. -/
 @[builtinTermElab «match»] def elabMatchSyntax : TermElab :=
   adaptExpander match_syntax.expand
 

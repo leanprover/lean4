@@ -1,5 +1,5 @@
 621.lean:4:45-4:47: error: type expected
-failed to coerse
+failed to coerce
   xs
 to a type, after applying `CoeSort.coe`, result is still not a type
   xs.val

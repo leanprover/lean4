@@ -41,8 +41,6 @@ def Vec.head : Vec α (n+1) → α
 
 #eval Compiler.compile #[``Vec.zip]
 
-#eval Compiler.compile #[``Vec.zip.match_1]
-
 #eval Compiler.compile #[``Lean.Elab.Term.reportStuckSyntheticMVar]
 
 #eval Compiler.compile #[``Lean.Elab.Term.synthesizeSyntheticMVars]
@@ -61,3 +59,5 @@ def foo (a b : Nat) :=
   Nat.add d e
 
 #eval Compiler.compile #[``foo]
+
+#eval Compiler.compile #[``Vec.zip.match_1]

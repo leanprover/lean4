@@ -110,6 +110,17 @@ def getCtorArity? (declName : Name) : CoreM (Option Nat) := do
   return val.numParams + val.numFields
 
 /--
+Return `true` if the `value` if not a `lambda`, `let` or cases-like expression.
+-/
+def isSimpleLCNF (value : Expr) : CoreM Bool := do
+  if value.isLet || value.isLambda then
+    return false
+  else if let some _ ← isCasesApp? value then
+    return false
+  else
+    return true
+
+/--
 List of types that have builtin runtime support
 -/
 def builtinRuntimeTypes : List Name := [

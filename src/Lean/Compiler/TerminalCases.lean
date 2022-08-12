@@ -52,7 +52,11 @@ partial def visitLet (e : Expr) (fvars : Array Expr) : M Expr := do
         let body ← mkLetUsingScope body
         let bodyAbst := body.abstract #[x]
         return bodyAbst
-      let jp ← mkJpDecl (.lam binderName type bodyAbst .default)
+      let jp ← if (← isSimpleLCNF bodyAbst) then
+        -- Join point is too simple, we eagerly inline it.
+        pure <| .lam binderName type bodyAbst .default
+      else
+        mkJpDecl (.lam binderName type bodyAbst .default)
       withReader (fun _ => { jp? := some jp }) do
         visitCases casesInfo value
     else
@@ -71,19 +75,20 @@ partial def visitLet (e : Expr) (fvars : Array Expr) : M Expr := do
         else
           return e
       | some jp =>
-        let .forallE _ d _ _ ← inferType jp | unreachable!
+        let .forallE _ d b _ ← inferType jp | unreachable!
+        let mkJpApp (x : Expr) := mkApp jp x |>.headBeta
         if isLcUnreachable e then
-          mkLcUnreachable d
+          mkLcUnreachable b
         else if compatibleTypes (← inferType e) d then
           let x ← mkAuxLetDecl e
-          return mkApp jp x
+          return mkJpApp x
         else if let some x := isLcCast? e then
-          let e ← mkAuxLetDecl (← mkLcCast x d)
-          return mkApp jp e
+          let x ← mkAuxLetDecl (← mkLcCast x d)
+          return mkJpApp x
         else
           let x ← mkAuxLetDecl e
           let x ← mkAuxLetDecl (← mkLcCast x d)
-          return mkApp jp x
+          return mkJpApp x
 
 end
 

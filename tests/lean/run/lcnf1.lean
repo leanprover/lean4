@@ -61,3 +61,11 @@ def foo (a b : Nat) :=
 #eval Compiler.compile #[``foo]
 
 #eval Compiler.compile #[``Vec.zip.match_1]
+
+structure Foo where
+  α : Sort u
+  x : α
+
+def foo1 :=  Foo.mk Type Nat
+
+#eval Compiler.compile #[``foo1]

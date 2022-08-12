@@ -85,9 +85,9 @@ where
         let expectedType := d.instantiateRevRange j i args
         unless compatibleTypes argType expectedType do
           throwError "type mismatch at LCNF application{indentExpr e}\nargument {arg} has type{indentExpr argType}\nbut is expected to have type{indentExpr expectedType}"
-        unless isTypeFormerType d || d.erased do
+        unless isTypeFormerType expectedType || expectedType.erased do
           unless arg.isFVar do
-            throwError "invalid LCNF application{indentExpr e}\nargument {arg} must be a free variable"
+            throwError "invalid LCNF application{indentExpr e}\nargument{indentExpr arg}\nmust be a free variable"
         fType := b
 
   checkCases (casesInfo : CasesInfo) (args : Array Expr) : InferTypeM Unit := do

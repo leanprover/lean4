@@ -68,11 +68,11 @@ where
         let arg := args[i]!
         if fType.isAnyType then
           return ()
-        let .forallE _ d b _ := fType | throwError "function expected at{indentExpr e}"
+        let .forallE _ d b _ := fType.headBeta | throwError "function expected at{indentExpr e}\narrow type expected{indentExpr fType}"
         let argType ← inferType arg
         let expectedType := d.instantiateRevRange 0 i args
         unless compatibleTypes argType expectedType do
-          throwError "type mismatch at application{indentExpr e}\nargument {arg} has type{indentExpr argType}\nbut is expected to have type{indentExpr expectedType}"
+          throwError "type mismatch at LCNF application{indentExpr e}\nargument {arg} has type{indentExpr argType}\nbut is expected to have type{indentExpr expectedType}"
         unless isTypeFormerType d || d.erased do
           unless arg.isFVar do
             throwError "invalid LCNF application{indentExpr e}\nargument {arg} must be a free variable"

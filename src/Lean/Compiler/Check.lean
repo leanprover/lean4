@@ -65,13 +65,24 @@ where
       checkCases casesInfo args
     else
       let mut fType ← inferType f
+      let mut j := 0
       for i in [:args.size] do
         let arg := args[i]!
         if fType.isAnyType then
           return ()
-        let .forallE _ d b _ := fType.headBeta | throwError "function expected at{indentExpr e}\narrow type expected{indentExpr fType}"
+        fType := fType.headBeta
+        let (d, b) ←
+          match fType with
+          | .forallE _ d b _ => pure (d, b)
+          | _ =>
+            fType := fType.instantiateRevRange j i args |>.headBeta
+            match fType with
+            | .forallE _ d b _ => j := i; pure (d, b)
+            | _ =>
+              if fType.isAnyType then return ()
+              throwError "function expected at{indentExpr e}\narrow type expected{indentExpr fType}"
         let argType ← inferType arg
-        let expectedType := d.instantiateRevRange 0 i args
+        let expectedType := d.instantiateRevRange j i args
         unless compatibleTypes argType expectedType do
           throwError "type mismatch at LCNF application{indentExpr e}\nargument {arg} has type{indentExpr argType}\nbut is expected to have type{indentExpr expectedType}"
         unless isTypeFormerType d || d.erased do

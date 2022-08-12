@@ -59,15 +59,19 @@ mutual
     else
       let f := e.getAppFn
       let args := e.getAppArgs
+      let mut j := 0
       let mut fType ← inferType f
-      for _ in [:args.size] do
+      for i in [:args.size] do
         fType := fType.headBeta
         match fType with
         | .forallE _ _ b _ => fType := b
         | _ =>
-          if fType.isAnyType then return anyTypeExpr
-          throwError "function expected{indentExpr f}"
-      return fType.instantiateRev args
+          match fType.instantiateRevRange j i args |>.headBeta with
+          | .forallE _ _ b _ => j := i; fType := b
+          | _ =>
+            if fType.isAnyType then return anyTypeExpr
+            throwError "function expected{indentExpr f}"
+      return fType.instantiateRevRange j args.size args |>.headBeta
 
   partial def inferProjType (structName : Name) (idx : Nat) (s : Expr) : InferTypeM Expr := do
     let failed {α} : Unit → InferTypeM α := fun _ =>

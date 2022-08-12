@@ -9,12 +9,12 @@ namespace Uri
 namespace UriEscape
 
 /- https://www.ietf.org/rfc/rfc3986.txt -/
-def Zero : UInt8 := '0'.toNat.toUInt8
-def Nine : UInt8 := '9'.toNat.toUInt8
-def Lettera : UInt8 := 'a'.toNat.toUInt8
-def Letterf : UInt8 := 'f'.toNat.toUInt8
-def LetterA : UInt8 := 'A'.toNat.toUInt8
-def LetterF : UInt8 := 'F'.toNat.toUInt8
+@[inline] def zero : UInt8 := '0'.toNat.toUInt8
+@[inline] def nine : UInt8 := '9'.toNat.toUInt8
+@[inline] def lettera : UInt8 := 'a'.toNat.toUInt8
+@[inline] def letterf : UInt8 := 'f'.toNat.toUInt8
+@[inline] def letterA : UInt8 := 'A'.toNat.toUInt8
+@[inline] def letterF : UInt8 := 'F'.toNat.toUInt8
 
 /-- Decode %HH escapings in the given string. Note that sometimes a consecutive
 sequence of multiple escapings can represet a utf-8 encoded sequence for
@@ -27,7 +27,7 @@ def decodeUri (uri : String) : String := Id.run do
   let percent := '%'.toNat.toUInt8
   while i < len do
     let c := rawBytes[i]!
-    let (result, pos) := if c == percent && i + 1 < len then
+    (decoded, i) := if c == percent && i + 1 < len then
       let h1 := rawBytes[i + 1]!
       if let some hd1 := hexDigitToUInt8? h1 then
         if i + 2 < len then
@@ -46,13 +46,11 @@ def decodeUri (uri : String) : String := Id.run do
         ((decoded.push c).push h1, i + 2)
     else
       (decoded.push c, i + 1)
-    decoded := result
-    i := pos
   return String.fromUTF8Unchecked decoded
 where hexDigitToUInt8? (c : UInt8) : Option UInt8 :=
-  if Zero ≤ c ∧ c ≤ Nine then some (c - Zero)
-  else if Lettera ≤ c ∧ c ≤ Letterf then some (c - Lettera + 10)
-  else if LetterA ≤ c ∧ c ≤ LetterF then some (c - LetterA + 10)
+  if zero ≤ c ∧ c ≤ nine then some (c - zero)
+  else if lettera ≤ c ∧ c ≤ letterf then some (c - lettera + 10)
+  else if letterA ≤ c ∧ c ≤ letterF then some (c - letterA + 10)
   else none
 
 def rfc3986ReservedChars : List Char := [ ';', ':', '?', '#', '[', ']', '@', '&', '=', '+', '$', ',', '!', '\'', '(', ')', '*', '%', ' ' ]

@@ -21,7 +21,7 @@ def lambdaBoundedTelescope (e : Expr) (n : Nat) (k : Array Expr → Expr → Inf
 where
   go (e : Expr) (i : Nat) (xs : Array Expr) : InferTypeM α :=
     match i with
-    | 0 => k xs e
+    | 0 => k xs (e.instantiateRev xs)
     | i+1 => match e with
       | .lam n d b bi =>
         withLocalDecl n (d.instantiateRev xs) bi fun x => go b i (xs.push x)

@@ -50,3 +50,14 @@ def Vec.head : Vec α (n+1) → α
 set_option profiler true
 set_option trace.Compiler.step true
 #eval Compiler.compile #[``Lean.Meta.isExprDefEqAuxImpl]
+
+def foo (a b : Nat) :=
+  let d := match a with
+  | .zero => b
+  | .succ c => c
+  let e := match b with
+  | .zero => a
+  | .succ f => f
+  Nat.add d e
+
+#eval Compiler.compile #[``foo]

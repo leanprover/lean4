@@ -7,6 +7,7 @@ import Lean.Meta.Transform
 import Lean.Meta.Check
 import Lean.Compiler.LCNF
 import Lean.Compiler.Check
+import Lean.Compiler.CompilerM
 
 namespace Lean.Compiler
 
@@ -66,5 +67,9 @@ def Decl.check (decl : Decl) (cfg : Check.Config := {}): CoreM Unit := do
   let valueType ← InferType.inferType decl.value { lctx := {} }
   unless compatibleTypes decl.type valueType do
     throwError "declaration type mismatch at `{decl.name}`, value has type{indentExpr valueType}\nbut is expected to have type{indentExpr decl.type}"
+
+/-- Apply `f` to declaration `value`. -/
+def Decl.mapValue (decl : Decl) (f : Expr → CompilerM Expr) : CoreM Decl := do
+  return { decl with value := (← f decl.value |>.run' { nextIdx := (← getMaxLetVarIdx decl.value) + 1 }) }
 
 end Lean.Compiler

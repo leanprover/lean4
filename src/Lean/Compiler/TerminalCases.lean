@@ -97,7 +97,7 @@ end TerminalCases
 /--
 Ensure all `casesOn` and `matcher` applications are terminal.
 -/
-def Decl.terminalCases (decl : Decl) : CoreM Decl := do
-  return { decl with value := (← TerminalCases.visitLambda decl.value |>.run {} |>.run' { nextIdx := (← getMaxLetVarIdx decl.value) + 1 }) }
+def Decl.terminalCases (decl : Decl) : CoreM Decl :=
+  decl.mapValue fun value => TerminalCases.visitLambda value |>.run {}
 
 end Lean.Compiler

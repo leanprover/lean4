@@ -1425,7 +1425,7 @@ private def tryCoeSort (α : Expr) (a : Expr) : TermElabM Expr := do
       if (← synthesizeCoeInstMVarCore mvarId) then
         let result ← expandCoe <| mkAppN (Lean.mkConst ``CoeSort.coe [u, v]) #[α, β, mvar, a]
         unless (← isType result) do
-          throwError "failed to coerse{indentExpr a}\nto a type, after applying `CoeSort.coe`, result is still not a type{indentExpr result}\nthis is often due to incorrect `CoeSort` instances, the synthesized value for{indentExpr coeSortInstType}\nwas{indentExpr mvar}"
+          throwError "failed to coerce{indentExpr a}\nto a type, after applying `CoeSort.coe`, result is still not a type{indentExpr result}\nthis is often due to incorrect `CoeSort` instances, the synthesized value for{indentExpr coeSortInstType}\nwas{indentExpr mvar}"
         return result
       else
         throwError "type expected"

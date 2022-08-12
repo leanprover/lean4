@@ -71,9 +71,9 @@ partial def visitLet (e : Expr) (fvars : Array Expr) : M Expr := do
         else
           return e
       | some jp =>
-        let .forallE _ d _ _ ← inferType jp | unreachable!
+        let .forallE _ d b _ ← inferType jp | unreachable!
         if isLcUnreachable e then
-          mkLcUnreachable d
+          mkLcUnreachable b
         else if compatibleTypes (← inferType e) d then
           let x ← mkAuxLetDecl e
           return mkApp jp x

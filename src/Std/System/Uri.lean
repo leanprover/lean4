@@ -55,22 +55,32 @@ where hexDigitToUInt8? (c : UInt8) : Option UInt8 :=
   else none
 
 /- https://datatracker.ietf.org/doc/html/rfc3986/#page-12 -/
-def rfc3986ReservedChars : List Char := [ ';', ':', '?', '#', '[', ']', '@', '&', '=', '+', '$', ',', '!', '\'', '(', ')', '*', '%' ]
+def rfc3986ReservedChars : List Char := [ ';', ':', '?', '#', '[', ']', '@', '&', '=', '+', '$', ',', '!', '\'', '(', ')', '*', '%', ' ' ]
 
 def uriEscapeAsciiChar (c : Char) : String :=
-  if rfc3986ReservedChars.contains c then
-    "%" ++ smallCharToHex c
+  if rfc3986ReservedChars.contains c || c < ' ' then
+    "%" ++ uInt8ToHex c.toNat.toUInt8
   else if (Char.toNat c) < 127 then
     c.toString
   else
-    c.toString.toUTF8.foldl (fun s b => s ++ "%" ++ (smallCharToHex (Char.ofNat b.toNat))) ""
+    c.toString.toUTF8.foldl (fun s b => s ++ "%" ++ (uInt8ToHex b)) ""
 where
-  smallCharToHex (c : Char) : String :=
-    let n  := Char.toNat c;
-    let d2 := n / 16;
-    let d1 := n % 16;
-    hexDigitRepr d2 ++ hexDigitRepr d1
+  uInt8ToHex (c : UInt8) : String :=
+    let d2 := c / 16;
+    let d1 := c % 16;
+    (hexDigitRepr d2.toNat ++ hexDigitRepr d1.toNat).toUpper
 end UriEscape
+
+/-- Replaces special characters in the given Uri with %HH Uri escapings. -/
+def escapeUri (uri: String) : String :=
+  uri.foldl (fun s c => s ++ UriEscape.uriEscapeAsciiChar c) ""
+
+/-- Replaces all %HH Uri escapings in the given string with their
+corresponding unicode code points.  Note that sometimes a consecutive
+sequence of multiple escapings can represet a utf-8 encoded sequence for
+a single unicode code point and these will also be decoded correctly. -/
+def unescapeUri (s: String) : String :=
+  UriEscape.decodeUri s
 
 /-- Convert the given FilePath to a "file:///encodedpath" Uri
 where the encoded path may contain %xx escaping when needed. -/
@@ -82,13 +92,9 @@ def pathToUri (fname : System.FilePath) : String := Id.run do
   let result := if uri.startsWith "/" then "file://" ++ uri else "file:///" ++ uri
   result
 
-/-- Replaces all %HH Uri escapings in the given string with their
-corresponding unicode code points.  Note that sometimes a consecutive
-sequence of multiple escapings can represet a utf-8 encoded sequence for
-a single unicode code point and these will also be decoded correctly. -/
-def unescapeUri (s: String) : String :=
-  UriEscape.decodeUri s
-
+/-- Convert the given uri to a FilePath stripping the 'file://' prefix,
+ignoring the optional host name and unescaping any %HH escaped chars.
+It is also careful to create correct paths on Windows that start with a drive letter. -/
 def fileUriToPath? (uri : String) : Option System.FilePath := Id.run do
   if !uri.startsWith "file://" then
     none
@@ -107,3 +113,4 @@ def fileUriToPath? (uri : String) : Option System.FilePath := Id.run do
 
 end Uri
 end System
+

@@ -6,7 +6,12 @@ Authors: Leonardo de Moura
 import Lean.Compiler.LCNFTypes
 import Lean.Compiler.Util
 
-namespace Lean.Compiler.InferType
+namespace Lean.Compiler
+
+class MonadInferType (m : Type → Type) where
+  inferType : Expr → m Expr
+
+namespace InferType
 
 structure InferTypeM.Context where
   lctx : LocalContext
@@ -39,12 +44,12 @@ def inferFVarType (fvarId : FVarId) : InferTypeM Expr := do
   return decl.type
 
 def getCasesResultingType (casesInfo : CasesInfo) (cases : Expr) : InferTypeM Expr :=
-  go (cases.getArg! 0) casesInfo.geNumDiscrs
+  go (cases.getArg! casesInfo.motivePos) casesInfo.geNumDiscrs
 where
   go (motive : Expr) (n : Nat) : InferTypeM Expr :=
     match n, motive with
     | 0,   _ => return motive
-    | n+1, .forallE _ _ b _ => go b n
+    | n+1, .lam _ _ b _ => go b n
     | _, _ => throwError "invalid LCNF cases-experession{indentExpr cases}"
 
 mutual
@@ -54,14 +59,19 @@ mutual
     else
       let f := e.getAppFn
       let args := e.getAppArgs
+      let mut j := 0
       let mut fType ← inferType f
-      for _ in [:args.size] do
+      for i in [:args.size] do
+        fType := fType.headBeta
         match fType with
         | .forallE _ _ b _ => fType := b
         | _ =>
-          if fType.isAnyType then return anyTypeExpr
-          throwError "function expected{indentExpr f}"
-      return fType.instantiateRev args
+          match fType.instantiateRevRange j i args |>.headBeta with
+          | .forallE _ _ b _ => j := i; fType := b
+          | _ =>
+            if fType.isAnyType then return anyTypeExpr
+            throwError "function expected{indentExpr f}"
+      return fType.instantiateRevRange j args.size args |>.headBeta
 
   partial def inferProjType (structName : Name) (idx : Nat) (s : Expr) : InferTypeM Expr := do
     let failed {α} : Unit → InferTypeM α := fun _ =>
@@ -141,3 +151,32 @@ mutual
     | .lam ..        => inferLambdaType e
     | .letE ..       => inferLambdaType e
 end
+
+end InferType
+
+instance : MonadInferType InferType.InferTypeM where
+  inferType := InferType.inferType
+
+export MonadInferType (inferType)
+
+instance [MonadLift m n] [MonadInferType m] : MonadInferType n where
+  inferType e := liftM (inferType e : m _)
+
+def getLevel [Monad m] [MonadInferType m] [MonadError m] (type : Expr) : m Level := do
+  match (← inferType type) with
+  | .sort u => return u
+  | e => if e.isAnyType then return levelOne else throwError "type expected{indentExpr type}"
+
+/-- Create `lcUnreachable type` -/
+def mkLcUnreachable [Monad m] [MonadInferType m] [MonadError m] (type : Expr) : m Expr := do
+  let u ← getLevel type
+  return .app (.const ``lcUnreachable [u]) type
+
+/-- Create `lcCast expectedType e : expectedType` -/
+def mkLcCast [Monad m] [MonadInferType m] [MonadError m] (e : Expr) (expectedType : Expr) : m Expr := do
+  let type ← inferType e
+  let u ← getLevel type
+  let v ← getLevel expectedType
+  return mkApp3 (.const ``lcCast [u, v]) type expectedType e
+
+end Lean.Compiler

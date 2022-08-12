@@ -703,7 +703,6 @@ abbrev M := ReaderT Context $ StateRefT State TermElabM
 def mkMotive (discrs : Array Expr) (expectedType : Expr): MetaM Expr := do
   discrs.foldrM (init := expectedType) fun discr motive => do
     let discr ← instantiateMVars discr
-    trace[Meta.debug] "discr: {discr}, motive: {motive}"
     let motiveBody ← kabstract motive discr
     /- We use `transform (usedLetOnly := true)` to eliminate unnecessary let-expressions. -/
     let discrType ← transform (usedLetOnly := true) (← instantiateMVars (← inferType discr))
@@ -744,7 +743,6 @@ def finalize : M Expr := do
       -- over-application, simulate `revert`
       (f, expectedType) ← revertArgs (← get).args f expectedType
     let result := mkAppN f xs
-    trace[Meta.debug] "result: {result}"
     let mut discrs := (← get).discrs
     let idx := (← get).idx
     if (← get).discrs.size < (← read).elimInfo.targetsPos.size then
@@ -752,7 +750,6 @@ def finalize : M Expr := do
         if (← read).elimInfo.targetsPos.contains i then
           discrs := discrs.push x
     let motiveVal ← mkMotive discrs expectedType
-    trace[Meta.debug] "motiveVal: {motiveVal}"
     unless (← isDefEq motive motiveVal) do
       throwError "failed to elaborate eliminator, invalid motive{indentExpr motiveVal}"
     synthesizeAppInstMVars (← get).instMVars result

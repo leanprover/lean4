@@ -25,6 +25,14 @@ Author: Leonardo de Moura
 #include <unistd.h>
 #endif
 
+// HACK: for unknown reasons, std::isnan(x) fails on msys64 because math.h
+// is imported and isnan(x) looks like a macro. On the other hand, isnan(x)
+// fails on linux because <cmath> doesn't define it (as expected).
+// So we declare isnan(x) as a macro for std::isnan(x) if it doesn't already exist.
+#ifndef isnan
+#define isnan(x) std::isnan(x)
+#endif
+
 // see `Task.Priority.max`
 #define LEAN_MAX_PRIO 8
 
@@ -1454,7 +1462,12 @@ extern "C" LEAN_EXPORT usize lean_usize_mix_hash(usize a1, usize a2) {
 // Float
 
 extern "C" LEAN_EXPORT lean_obj_res lean_float_to_string(double a) {
-    return mk_string(std::to_string(a));
+    if (isnan(a))
+        // override NaN because we don't want NaNs to be distinguishable
+        // because the sign bit / payload bits can be architecture-dependent
+        return mk_string("NaN");
+    else
+        return mk_string(std::to_string(a));
 }
 
 extern "C" LEAN_EXPORT double lean_float_scaleb(double a, b_lean_obj_arg b) {

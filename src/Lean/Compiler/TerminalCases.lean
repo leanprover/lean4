@@ -6,8 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Meta.Check
 import Lean.Compiler.Util
 import Lean.Compiler.Decl
-
-#exit -- TODO: port file to new LCNF format
+import Lean.Compiler.CompilerM
 
 namespace Lean.Compiler
 
@@ -29,8 +28,8 @@ partial def visitAlt (e : Expr) (numParams : Nat) : M Expr := do
 partial def visitCases (casesInfo : CasesInfo) (cases : Expr) : M Expr := do
   let mut args := cases.getAppArgs
   if let some jp := (← read).jp? then
-    let .forallE _ _ b _ ← inferType' jp | unreachable! -- jp's type is guaranteed to be an nondependent arrow, see `visitLet`
-    args ← liftMetaM <| updateMotive casesInfo args b
+    let .forallE _ _ b _ ← inferType jp | unreachable! -- jp's type is guaranteed to be an nondependent arrow, see `visitLet`
+    args := casesInfo.updateResultingType args b
   for i in casesInfo.altsRange, numParams in casesInfo.altNumParams do
     args ← args.modifyM i (visitAlt · numParams)
   return mkAppN cases.getAppFn args
@@ -47,34 +46,15 @@ partial def visitLet (e : Expr) (fvars : Array Expr) : M Expr := do
     let type := type.instantiateRev fvars
     let mut value := value.instantiateRev fvars
     if let some casesInfo ← isCasesApp? value then
-      let (bodyAbst, safeJp) ← withNewScope do
+      let bodyAbst ← withNewScope do
         let x ← mkLocalDecl binderName type
         let body ← visitLet body (fvars.push x)
         let body ← mkLetUsingScope body
-        let bodyType ← inferType body
         let bodyAbst := body.abstract #[x]
-        if (bodyType.abstract #[x]).hasLooseBVars then
-          /-
-          We cannot eliminate this nonterminal `cases` because the resulting type of the joinpoint
-          depends on `x`. We have to wait until we perform erasure to do it.
-          -/
-          return (bodyAbst, false)
-        else if !(← liftMetaM <| Meta.isTypeCorrect body) then
-          /-
-          We cannot eliminate this nonterminal `cases` because the joinpoint is not type correct.
-          This can happen because we abstracted `x`.
-          We have to wait until we perform erasure to do it.
-          Remark: we can skip this test if we set `nonDep` properly.
-          -/
-          return (bodyAbst, false)
-        else
-          return (bodyAbst, true)
-      if !safeJp then
-        return .letE binderName type value bodyAbst nonDep
-      else
-        let jp ← mkJpDecl (.lam binderName type bodyAbst .default)
-        withReader (fun _ => { jp? := some jp }) do
-          visitCases casesInfo value
+        return bodyAbst
+      let jp ← mkJpDecl (.lam binderName type bodyAbst .default)
+      withReader (fun _ => { jp? := some jp }) do
+        visitCases casesInfo value
     else
       if value.isLambda then
         value ← visitLambda value
@@ -91,10 +71,10 @@ partial def visitLet (e : Expr) (fvars : Array Expr) : M Expr := do
         else
           return e
       | some jp =>
-        let .forallE _ d _ _ ← inferType' jp | unreachable!
+        let .forallE _ d _ _ ← inferType jp | unreachable!
         if isLcUnreachable e then
           mkLcUnreachable d
-        else if (← isDefEq (← inferType e) d) then
+        else if compatibleTypes (← inferType e) d then
           let x ← mkAuxLetDecl e
           return mkApp jp x
         else if let some x := isLcCast? e then
@@ -110,7 +90,7 @@ end
 end TerminalCases
 
 /--
-(Try to) ensure all `casesOn` and `matcher` applications are terminal.
+Ensure all `casesOn` and `matcher` applications are terminal.
 -/
 def Decl.terminalCases (decl : Decl) : CoreM Decl := do
   return { decl with value := (← TerminalCases.visitLambda decl.value |>.run {} |>.run' { nextIdx := (← getMaxLetVarIdx decl.value) + 1 }) }

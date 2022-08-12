@@ -23,28 +23,8 @@ instance : AddMessageContext CompilerM where
     let opts ← getOptions
     return MessageData.withContext { env, lctx, opts, mctx := {} } msgData
 
-/--
-Infer the type of a LCNF expression.
--/
-def inferType (e : Expr) : CompilerM Expr := do
-  InferType.inferType e { lctx := (← get).lctx }
-
-def getLevel (type : Expr) : CompilerM Level := do
-  match (← inferType type) with
-  | .sort u => return u
-  | e => if e.isAnyType then return levelOne else throwError "type expected{indentExpr type}"
-
-/-- Create `lcUnreachable type` -/
-def mkLcUnreachable (type : Expr) : CompilerM Expr := do
-  let u ← getLevel type
-  return .app (.const ``lcUnreachable [u]) type
-
-/-- Create `lcCast expectedType e : expectedType` -/
-def mkLcCast (e : Expr) (expectedType : Expr) : CompilerM Expr := do
-  let type ← inferType e
-  let u ← getLevel type
-  let v ← getLevel expectedType
-  return mkApp3 (.const ``lcCast [u, v]) type expectedType e
+instance : MonadInferType CompilerM where
+  inferType e := do InferType.inferType e { lctx := (← get).lctx }
 
 def mkLocalDecl (binderName : Name) (type : Expr) (bi := BinderInfo.default) : CompilerM Expr := do
   let fvarId ← mkFreshFVarId
@@ -72,7 +52,8 @@ def mkJpDecl (e : Expr) : CompilerM Expr := do
 def getMaxLetVarIdx (e : Expr) : CoreM Nat := do
   let maxRef ← IO.mkRef 0
   e.forEach fun
-    | .letE (.num _ i) .. => maxRef.modify (Nat.max · i)
+    | .letE (.num `_x i) ..
+    | .letE (.num `_jp i) .. => maxRef.modify (Nat.max · i)
     | _ => pure ()
   maxRef.get
 

@@ -6,27 +6,28 @@ Authors: Leonardo de Moura
 import Lean.Compiler.InferType
 import Lean.Compiler.Util
 
-namespace Lean.Compiler.InferType
+namespace Lean.Compiler
+open InferType
 
 /-!
 Type checker for LCNF expressions
 -/
 
-structure Config where
-  terminalCasesOnly : Bool := false
+structure Check.Config where
+  terminalCasesOnly : Bool := true
 
 def lambdaBoundedTelescope (e : Expr) (n : Nat) (k : Array Expr → Expr → InferTypeM α) : InferTypeM α :=
   go e n #[]
 where
   go (e : Expr) (i : Nat) (xs : Array Expr) : InferTypeM α :=
     match i with
-    | 0 => k xs e
+    | 0 => k xs (e.instantiateRev xs)
     | i+1 => match e with
       | .lam n d b bi =>
         withLocalDecl n (d.instantiateRev xs) bi fun x => go b i (xs.push x)
       | _ => throwError "lambda expected"
 
-partial def check (e : Expr) (cfg : Config := {}) : InferTypeM Unit := do
+partial def check (e : Expr) (cfg : Check.Config := {}) : InferTypeM Unit := do
   checkBlock e #[]
 where
   checkBlock (e : Expr) (xs : Array Expr) : InferTypeM Unit := do
@@ -64,26 +65,37 @@ where
       checkCases casesInfo args
     else
       let mut fType ← inferType f
+      let mut j := 0
       for i in [:args.size] do
         let arg := args[i]!
         if fType.isAnyType then
           return ()
-        let .forallE _ d b _ := fType | throwError "function expected at{indentExpr e}"
+        fType := fType.headBeta
+        let (d, b) ←
+          match fType with
+          | .forallE _ d b _ => pure (d, b)
+          | _ =>
+            fType := fType.instantiateRevRange j i args |>.headBeta
+            match fType with
+            | .forallE _ d b _ => j := i; pure (d, b)
+            | _ =>
+              if fType.isAnyType then return ()
+              throwError "function expected at{indentExpr e}\narrow type expected{indentExpr fType}"
         let argType ← inferType arg
-        let expectedType := d.instantiateRevRange 0 i args
+        let expectedType := d.instantiateRevRange j i args
         unless compatibleTypes argType expectedType do
-          throwError "type mismatch at application{indentExpr e}\nargument {arg} has type{indentExpr argType}\nbut is expected to have type{indentExpr expectedType}"
+          throwError "type mismatch at LCNF application{indentExpr e}\nargument {arg} has type{indentExpr argType}\nbut is expected to have type{indentExpr expectedType}"
         unless isTypeFormerType d || d.erased do
           unless arg.isFVar do
             throwError "invalid LCNF application{indentExpr e}\nargument {arg} must be a free variable"
         fType := b
 
   checkCases (casesInfo : CasesInfo) (args : Array Expr) : InferTypeM Unit := do
-    let mut motive := args[0]!
+    let mut motive := args[casesInfo.motivePos]!
     for i in casesInfo.discrsRange do
       let discr := args[i]!
       let discrType ← inferType discr
-      if let .forallE _ d b _ := motive then
+      if let .lam _ d b _ := motive then
         unless compatibleTypes d discrType do
           throwError "type mismatch at LCNF `cases` discriminant{indentExpr discr}\nhas type{indentExpr discrType}\nbut is expected to have type{indentExpr d}"
         motive := b
@@ -95,4 +107,4 @@ where
         unless compatibleTypes expectedType altBodyType do
           throwError "type mismatch at LCNF `cases` alternative{indentExpr altBody}\nhas type{indentExpr altBodyType}\nbut is expected to have type{indentExpr expectedType}"
 
-end Lean.Compiler.InferType
+end Lean.Compiler

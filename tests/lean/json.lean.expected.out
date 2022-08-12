@@ -15,3 +15,5 @@
 "offset 2: unexpected end of input"
 "offset 1: expected \""
 "offset 3: unexpected end of input"
+"2"
+"-2"

@@ -46,8 +46,9 @@ Store information about `matcher` and `casesOn` declarations.
 
 We treat them uniformly in the code generator.
 -/
-structure CasesInfoPreLCNF where
+structure CasesInfo where
   arity        : Nat
+  numParams    : Nat
   discrsRange  : Std.Range
   altsRange    : Std.Range
   altNumParams : Array Nat
@@ -58,21 +59,24 @@ private def getCasesOnInductiveVal? (declName : Name) : CoreM (Option InductiveV
   let .inductInfo val ← getConstInfo declName.getPrefix | return none
   return some val
 
-private def getCasesOnInfoPreLCNF? (declName : Name) : CoreM (Option CasesInfoPreLCNF) := do
+private def getCasesOnInfo? (declName : Name) : CoreM (Option CasesInfo) := do
   let some val ← getCasesOnInductiveVal? declName | return none
-  let motivePos    := val.numParams
-  let arity        := val.numIndices + val.numParams + 1 /- motive -/ + 1 /- major -/ + val.numCtors
-  let majorPos     := val.numIndices + val.numParams + 1 /- motive -/
-  let discrsRange  := { start := majorPos, stop := majorPos + 1 }
-  let altsRange    := { start := majorPos + 1, stop := arity }
+  let numParams    := val.numParams
+  let motivePos    := numParams
+  let arity        := numParams + 1 /- motive -/ + val.numIndices + 1 /- major -/ + val.numCtors
+  let majorPos     := numParams + 1 /- motive -/ + val.numIndices
+  -- We view indices as discriminants
+  let discrsRange  := { start := numParams + 1, stop := majorPos + 1 }
+  let altsRange    := { start := majorPos + 1,  stop := arity }
   let altNumParams ← val.ctors.toArray.mapM fun ctor => do
     let .ctorInfo ctorVal ← getConstInfo ctor | unreachable!
     return ctorVal.numFields
-  return some { motivePos, arity, discrsRange, altsRange, altNumParams }
+  return some { numParams, motivePos, arity, discrsRange, altsRange, altNumParams }
 
-def getCasesInfoPreLCNF? (declName : Name) : CoreM (Option CasesInfoPreLCNF) := do
+def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
   if let some matcherInfo ← Meta.getMatcherInfo? declName then
     return some {
+      numParams    := matcherInfo.numParams
       motivePos    := matcherInfo.getMotivePos
       arity        := matcherInfo.arity
       discrsRange  := matcherInfo.getDiscrRange
@@ -80,42 +84,18 @@ def getCasesInfoPreLCNF? (declName : Name) : CoreM (Option CasesInfoPreLCNF) := 
       altNumParams := matcherInfo.altNumParams
     }
   else
-    getCasesOnInfoPreLCNF? declName
-
-structure CasesInfo where
-  arity        : Nat
-  discrsRange  : Std.Range
-  altsRange    : Std.Range
-  altNumParams : Array Nat
+    getCasesOnInfo? declName
 
 def CasesInfo.geNumDiscrs (casesInfo : CasesInfo) : Nat :=
   casesInfo.discrsRange.stop - casesInfo.discrsRange.start
 
-private def getCasesOnInfo? (declName : Name) : CoreM (Option CasesInfo) := do
-  let some val ← getCasesOnInductiveVal? declName | return none
-  let arity        := 1 /- major -/ + val.numCtors
-  let discrsRange  := { start := 1, stop := 2 }
-  let altsRange    := { start := 2, stop := arity }
-  let altNumParams ← val.ctors.toArray.mapM fun ctor => do
-    let .ctorInfo ctorVal ← getConstInfo ctor | unreachable!
-    return ctorVal.numFields
-  return some { arity, discrsRange, altsRange, altNumParams }
-
-def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
-  if let some matcherInfo ← Meta.getMatcherInfo? declName then
-    let numParams    := matcherInfo.numParams
-    let discrsRange  := matcherInfo.getDiscrRange
-    let discrsRange  := { start := discrsRange.start - numParams, stop := discrsRange.stop - numParams }
-    let altsRange    := matcherInfo.getAltRange
-    let altsRange    := { start := altsRange.start - numParams, stop := altsRange.stop - numParams }
-    return some {
-      arity        := matcherInfo.arity - numParams
-      discrsRange
-      altsRange
-      altNumParams := matcherInfo.altNumParams
-    }
-  else
-    getCasesOnInfo? declName
+def CasesInfo.updateResultingType (casesInfo : CasesInfo) (casesArgs : Array Expr) (typeNew : Expr) : Array Expr :=
+  casesArgs.modify casesInfo.motivePos fun motive => go motive
+where
+  go (e : Expr) : Expr :=
+    match e with
+    | .lam n b d bi => .lam n b (go d) bi
+    | _ => typeNew
 
 def isCasesApp? (e : Expr) : CoreM (Option CasesInfo) := do
   let .const declName _ := e.getAppFn | return none

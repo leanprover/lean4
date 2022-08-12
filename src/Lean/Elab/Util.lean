@@ -107,7 +107,7 @@ unsafe def mkElabAttribute (γ) (attrDeclName attrBuiltinName attrName : Name) (
     valueTypeName := typeName
     evalKey       := fun _ stx => do
       let kind ← syntaxNodeKindOfAttrParam parserNamespace stx
-      /- Recall that a `SyntaxNodeKind` is often the name of the paser, but this is not always true, and we much check it. -/
+      /- Recall that a `SyntaxNodeKind` is often the name of the parser, but this is not always true, and we must check it. -/
       if (← getEnv).contains kind && (← getInfoState).enabled then
         pushInfoLeaf <| Info.ofTermInfo {
           elaborator    := .anonymous
@@ -119,10 +119,10 @@ unsafe def mkElabAttribute (γ) (attrDeclName attrBuiltinName attrName : Name) (
       return kind
     onAdded       := fun builtin declName => do
       if builtin then
-      if let some doc ← findDocString? (← getEnv) declName then
-        declareBuiltin (declName ++ `docString) (mkAppN (mkConst ``addBuiltinDocString) #[toExpr declName, toExpr doc])
-      if let some declRanges ← findDeclarationRanges? declName then
-        declareBuiltin (declName ++ `declRange) (mkAppN (mkConst ``addBuiltinDeclarationRanges) #[toExpr declName, toExpr declRanges])
+        if let some doc ← findDocString? (← getEnv) declName then
+          declareBuiltin (declName ++ `docString) (mkAppN (mkConst ``addBuiltinDocString) #[toExpr declName, toExpr doc])
+        if let some declRanges ← findDeclarationRanges? declName then
+          declareBuiltin (declName ++ `declRange) (mkAppN (mkConst ``addBuiltinDeclarationRanges) #[toExpr declName, toExpr declRanges])
   } attrDeclName
 
 unsafe def mkMacroAttributeUnsafe : IO (KeyedDeclsAttribute Macro) :=
@@ -199,11 +199,11 @@ partial def mkUnusedBaseName (baseName : Name) : MacroM Name := do
   let currNamespace ← Macro.getCurrNamespace
   if ← Macro.hasDecl (currNamespace ++ baseName) then
     let rec loop (idx : Nat) := do
-       let name := baseName.appendIndexAfter idx
-       if ← Macro.hasDecl (currNamespace ++ name) then
-         loop (idx+1)
-       else
-         return name
+      let name := baseName.appendIndexAfter idx
+      if ← Macro.hasDecl (currNamespace ++ name) then
+        loop (idx+1)
+      else
+        return name
     loop 1
   else
     return baseName

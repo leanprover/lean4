@@ -12,9 +12,6 @@ import Lean.Compiler.InlineAttrs
 import Lean.Compiler.InferType
 import Lean.Compiler.Util
 
--- TODO: port file to the new LCNF format
-
-#exit
 namespace Lean.Compiler
 /-!
 # Lean Compiler Normal Form (LCNF)
@@ -42,9 +39,8 @@ structure State where
 
 abbrev M := ReaderT Context $ StateRefT State CoreM
 
-/-- Return the type of the given LCNF expression. -/
-def inferType (e : Expr) : M Expr := do
-  InferType.inferType e { lctx := (← get).lctx' }
+instance : MonadInferType M where
+  inferType e := do InferType.inferType e { lctx := (← get).lctx' }
 
 @[inline] def liftMetaM (x : MetaM α) : M α := do
   x.run' { lctx := (← get).lctx }
@@ -71,11 +67,11 @@ def mkLocalDecl (binderName : Name) (type : Expr) (bi := BinderInfo.default) : M
   }
   return .fvar fvarId
 
-def mkLetDecl (binderName : Name) (type : Expr) (value : Expr) (type' : Expr) (value' : Expr) (nonDep : Bool) : M Expr := do
+def mkLetDecl (binderName : Name) (type : Expr) (value : Expr) (type' : Expr) (value' : Expr) : M Expr := do
   let fvarId ← mkFreshFVarId
   let x := .fvar fvarId
   modify fun s => { s with
-    lctx     := s.lctx.mkLetDecl fvarId binderName type value nonDep
+    lctx     := s.lctx.mkLetDecl fvarId binderName type value false
     lctx'    := s.lctx'.mkLetDecl fvarId binderName type' value' true
     letFVars := s.letFVars.push x
   }
@@ -183,21 +179,6 @@ where
     mkAuxLetDecl (mkAppN k args[arity:])
 
   /--
-  Create an application `f args` that is expected to have arity `arity`.
-  If `arity > args.size`, we say `f` is over-applied, we visit the "extra" arguments,
-  and produce an output of the form
-  ```
-  let k := f args[:arity]
-  k args[arity:]
-  ```
-  -/
-  mkAppWithArity (f : Expr) (args : Array Expr) (arity : Nat) : M Expr := do
-    if args.size == arity then
-      mkAuxLetDecl (mkAppN f args)
-    else
-      mkOverApplication (mkAppN f args[:arity]) args arity
-
-  /--
   Visit a `matcher`/`casesOn` alternative.
   -/
   visitAlt (e : Expr) (numParams : Nat) : M (Expr × Expr) := do
@@ -212,25 +193,27 @@ where
       let eType ← inferType e
       return (eType, (← mkLambda as e))
 
-  visitCases (casesInfo : CasesInfoPreLCNF) (e : Expr) : M Expr :=
+  visitCases (casesInfo : CasesInfo) (e : Expr) : M Expr :=
     etaIfUnderApplied e casesInfo.arity do
-      let args := e.getAppArgs
-      let mut argsNew := #[default]
+      let mut args := e.getAppArgs
+      let mut resultType ← liftMetaM do toLCNFType (← Meta.inferType (mkAppN e.getAppFn args[:casesInfo.arity]))
       let mut discrTypes := #[]
+      for i in [:casesInfo.numParams] do
+        -- `cases` and `match` parameters are irrelevant at LCNF
+        args := args.modify i fun _ => mkConst ``lcErased
       for i in casesInfo.discrsRange do
-        let discr ← visitChild args[i]!
-        let discrType ← inferType discr
-        argsNew := argsNew.push discr
+        let discrType ← inferType args[i]!
+        args ← args.modifyM i visitChild
         discrTypes := discrTypes.push discrType
-      let mut resultType ← liftMetaM (toLCNFType e)
       for i in casesInfo.altsRange, numParams in casesInfo.altNumParams do
         let (altType, alt) ← visitAlt args[i]! numParams
         unless compatibleTypes altType resultType do
           resultType := anyTypeExpr
-        argsNew := argsNew.push alt
-      let motive ← discrTypes.foldrM (init := resultType) fun discrType resultType => mkArrow discrType resultType
-      argsNew := argsNew.set! 0 motive
-      let result := mkAppN e.getAppFn argsNew
+        args := args.set! i alt
+      let motive ← discrTypes.foldrM (init := resultType) fun discrType resultType =>
+        return .lam (← mkFreshUserName `x) discrType resultType .default
+      args := args.set! casesInfo.motivePos motive
+      let result := mkAppN e.getAppFn args[:casesInfo.arity]
       if args.size == casesInfo.arity then
         mkAuxLetDecl result
       else
@@ -239,8 +222,6 @@ where
   visitCtor (arity : Nat) (e : Expr) : M Expr :=
     etaIfUnderApplied e arity do
       visitAppDefault e.getAppFn e.getAppArgs
-
--- TODO: stopped here
 
   visitQuotLift (e : Expr) : M Expr := do
     let arity := 6
@@ -251,7 +232,7 @@ where
       let f ← visitChild args[3]!
       let q ← visitChild args[5]!
       let .const _ [u, _] := e.getAppFn | unreachable!
-      let invq ← mkAuxLetDecl (mkApp3 (.const ``Quot.lcInv [u]) α r q)
+      let invq ← withRoot false <| mkAuxLetDecl (mkApp3 (.const ``Quot.lcInv [u]) α r q)
       let r := mkApp f invq
       mkOverApplication r args arity
 
@@ -260,21 +241,29 @@ where
     etaIfUnderApplied e arity do
       let args := e.getAppArgs
       let f := e.getAppFn
-      let type ← inferType (mkAppN f args[:arity])
+      let recType ← liftMetaM do toLCNFType (← Meta.inferType (mkAppN f args[:arity]))
       let minor := if e.isAppOf ``Eq.rec || e.isAppOf ``Eq.ndrec then args[3]! else args[5]!
-      let cast ← mkLcCast (← visitChild minor) type
+      let minor ← visit minor
+      let minorType ← inferType minor
+      let cast ← if compatibleTypes minorType recType then
+        -- Recall that many types become compatible after LCNF conversion
+        -- Example: `Fin 10` and `Fin n`
+        pure minor
+      else
+        mkLcCast (← withRoot false <| mkAuxLetDecl minor) recType
       mkOverApplication cast args arity
 
   visitFalseRec (e : Expr) : M Expr :=
     let arity := 2
     etaIfUnderApplied e arity do
-      mkAuxLetDecl (← mkLcUnreachable (← inferType e))
+      let type ← liftMetaM do toLCNFType (← Meta.inferType e)
+      mkAuxLetDecl (← mkLcUnreachable type)
 
   visitAndRec (e : Expr) : M Expr :=
     let arity := 5
     etaIfUnderApplied e arity do
       let args := e.getAppArgs
-      let ha := mkLcProof args[0]!
+      let ha := mkLcProof args[0]! -- We should not use `lcErased` here since we use it to create a pre-LCNF Expr.
       let hb := mkLcProof args[1]!
       let minor := if e.isAppOf ``And.rec then args[3]! else args[4]!
       let minor := minor.beta #[ha, hb]
@@ -287,8 +276,8 @@ where
     let arity := inductVal.numParams + inductVal.numIndices + 1 /- motive -/ + 2 /- lhs/rhs-/ + 1 /- equality -/
     etaIfUnderApplied e arity do
       let args := e.getAppArgs
-      let lhs ← whnf args[inductVal.numParams + inductVal.numIndices + 1]!
-      let rhs ← whnf args[inductVal.numParams + inductVal.numIndices + 2]!
+      let lhs ← liftMetaM do Meta.whnf args[inductVal.numParams + inductVal.numIndices + 1]!
+      let rhs ← liftMetaM do Meta.whnf args[inductVal.numParams + inductVal.numIndices + 2]!
       let lhs := lhs.toCtorIfLit
       let rhs := rhs.toCtorIfLit
       match lhs.isConstructorApp? (← getEnv), rhs.isConstructorApp? (← getEnv) with
@@ -310,7 +299,6 @@ where
     | n+1 =>
       if let .lam _ d b _ := major then
         let proof := mkLcProof d
-        trace[Meta.debug] "proof: {proof}"
         expandNoConfusionMajor (b.instantiate1 proof) n
       else
         expandNoConfusionMajor (← etaExpandN major (n+1)) (n+1)
@@ -357,7 +345,7 @@ where
 
   visitLambda (e : Expr) : M Expr := do
     let r ← withNewRootScope do
-      let (as, e) ← Compiler.visitLambda e
+      let (as, e) ← ToLCNF.visitLambda e
       let e ← mkLetUsingScope (← visit e)
       mkLambda as e
     mkAuxLetDecl r
@@ -371,6 +359,22 @@ where
   visitProj (s : Name) (i : Nat) (e : Expr) : M Expr := do
     mkAuxLetDecl <| .proj s i (← visitChild e)
 
+  visitLet (e : Expr) (xs : Array Expr) : M Expr := do
+    match e with
+    | .letE binderName type value body _ =>
+      let type := type.instantiateRev xs
+      let value := value.instantiateRev xs
+      if (← liftMetaM <| Meta.isProp type <||> Meta.isTypeFormerType type) then
+        visitLet body (xs.push value)
+      else
+        let type' ← liftMetaM <| toLCNFType type
+        let value' ← visitChild value
+        let x ← mkLetDecl binderName type value type' value'
+        visitLet body (xs.push x)
+    | _ =>
+      let e := e.instantiateRev xs
+      visit e
+
   visit (e : Expr) : M Expr := withIncRecDepth do
     match e with
     | .mvar .. => throwError "unexpected occurrence of metavariable in code generator{indentExpr e}"
@@ -378,14 +382,14 @@ where
     | .fvar .. | .sort .. | .forallE .. => return e -- Do nothing
     | _ =>
     if isLCProof e then
-      return e
-    let type ← inferType e
-    if (← isProp type) then
+      return mkConst ``lcErased
+    let type ← liftMetaM <| Meta.inferType e
+    if (← liftMetaM <| Meta.isProp type) then
       /- We replace proofs with `lcProof` applications. -/
-      return mkLcProof type
+      return mkConst ``lcErased
     if (← liftMetaM <| Meta.isTypeFormerType type) then
       /- Types and Type formers are not put into A-normal form. -/
-      return e
+      return (← liftMetaM <| toLCNFType e)
     if let some e := (← get).cache.find? e then
       return e
     let r ← match e with
@@ -394,7 +398,7 @@ where
       | .proj s i e => visitProj s i e
       | .mdata d e  => visitMData d e
       | .lam ..     => visitLambda e
-      | .letE ..    => visit (← visitLet e visitChild)
+      | .letE ..    => visitLet e #[]
       | .lit ..     => mkAuxLetDecl e
       | _           => pure e
     modify fun s => { s with cache := s.cache.insert e r }

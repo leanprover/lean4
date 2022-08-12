@@ -36,7 +36,8 @@ with builtins; let
   modToAbsPath = mod: "${src}/${modToPath mod}";
   modToLean = mod: "${modToAbsPath mod}.lean";
   bareStdenv = ./bareStdenv;
-  mkBareDerivation = args@{ buildCommand, ... }: derivation (args // {
+  mkBareDerivation = args: derivation (args // {
+    name = lib.strings.sanitizeDerivationName args.name;
     stdenv = bareStdenv;
     inherit (stdenv) system;
     buildInputs = (args.buildInputs or []) ++ [ coreutils ];
@@ -44,7 +45,7 @@ with builtins; let
     args = [ "-c" ''
       source $stdenv/setup
       set -u
-      ${buildCommand}
+      ${args.buildCommand}
     '' ];
   });
   runBareCommand = name: args: buildCommand: mkBareDerivation (args // { inherit name buildCommand; });

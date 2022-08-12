@@ -58,7 +58,6 @@ namespace Lean.Meta
             loop (i+1) lctx fvars fvars.size s newType
           else
             let newType ← whnf newType
-            trace[Meta.debug] "newType whnf: {newType}"
             if newType.isForall then
               loop (i+1) lctx fvars fvars.size s newType
             else

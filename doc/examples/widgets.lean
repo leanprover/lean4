@@ -69,11 +69,11 @@ to communicate with the Lean server. Thanks to this, they have the same metaprog
 as custom elaborators or the tactic framework. To see this in action, let's implement a `#check`
 command as a web input form. This example assumes some familiarity with React.
 
-The first thing we'll need is to create an *RPC method*. This is basically a Lean function callable
-from widget code (possibly remotely over the internet). Our method will take in the `name : Name`
-of a constant in the environment and return its type. By convention, we represent the input data
-as a `structure`. Since it will be sent over from JavaScript, we need `FromJson` and `ToJson`.
-We'll see below why the position field is needed.
+The first thing we'll need is to create an *RPC method*. Meaning "Remote Procedure Call", this
+is basically a Lean function callable from widget code (possibly remotely over the internet).
+Our method will take in the `name : Name` of a constant in the environment and return its type.
+By convention, we represent the input data as a `structure`. Since it will be sent over from JavaScript,
+we need `FromJson` and `ToJson`. We'll see below why the position field is needed.
 -/
 
 structure GetTypeParams where

@@ -155,6 +155,9 @@ instance : MonadInferType InferType.InferTypeM where
 
 export MonadInferType (inferType)
 
+instance [MonadLift m n] [MonadInferType m] : MonadInferType n where
+  inferType e := liftM (inferType e : m _)
+
 def getLevel [Monad m] [MonadInferType m] [MonadError m] (type : Expr) : m Level := do
   match (← inferType type) with
   | .sort u => return u

@@ -61,8 +61,8 @@ def toDecl (declName : Name) : CoreM Decl := do
     let value ← toLCNF value -- TODO: uncomment
     return { name := declName, type, value }
 
-def Decl.check (decl : Decl) : CoreM Unit := do
-  InferType.check decl.value {} { lctx := {} }
+def Decl.check (decl : Decl) (cfg : Check.Config := {}): CoreM Unit := do
+  Compiler.check decl.value cfg { lctx := {} }
   let valueType ← InferType.inferType decl.value { lctx := {} }
   unless compatibleTypes decl.type valueType do
     throwError "declaration type mismatch at `{decl.name}`, value has type{indentExpr valueType}\nbut is expected to have type{indentExpr decl.type}"

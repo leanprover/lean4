@@ -6,14 +6,15 @@ Authors: Leonardo de Moura
 import Lean.Compiler.InferType
 import Lean.Compiler.Util
 
-namespace Lean.Compiler.InferType
+namespace Lean.Compiler
+open InferType
 
 /-!
 Type checker for LCNF expressions
 -/
 
-structure Config where
-  terminalCasesOnly : Bool := false
+structure Check.Config where
+  terminalCasesOnly : Bool := true
 
 def lambdaBoundedTelescope (e : Expr) (n : Nat) (k : Array Expr → Expr → InferTypeM α) : InferTypeM α :=
   go e n #[]
@@ -26,7 +27,7 @@ where
         withLocalDecl n (d.instantiateRev xs) bi fun x => go b i (xs.push x)
       | _ => throwError "lambda expected"
 
-partial def check (e : Expr) (cfg : Config := {}) : InferTypeM Unit := do
+partial def check (e : Expr) (cfg : Check.Config := {}) : InferTypeM Unit := do
   checkBlock e #[]
 where
   checkBlock (e : Expr) (xs : Array Expr) : InferTypeM Unit := do
@@ -95,4 +96,4 @@ where
         unless compatibleTypes expectedType altBodyType do
           throwError "type mismatch at LCNF `cases` alternative{indentExpr altBody}\nhas type{indentExpr altBodyType}\nbut is expected to have type{indentExpr expectedType}"
 
-end Lean.Compiler.InferType
+end Lean.Compiler

@@ -89,6 +89,14 @@ def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
 def CasesInfo.geNumDiscrs (casesInfo : CasesInfo) : Nat :=
   casesInfo.discrsRange.stop - casesInfo.discrsRange.start
 
+def CasesInfo.updateResultingType (casesInfo : CasesInfo) (casesArgs : Array Expr) (typeNew : Expr) : Array Expr :=
+  casesArgs.modify casesInfo.motivePos fun motive => go motive
+where
+  go (e : Expr) : Expr :=
+    match e with
+    | .lam n b d bi => .lam n b (go d) bi
+    | _ => typeNew
+
 def isCasesApp? (e : Expr) : CoreM (Option CasesInfo) := do
   let .const declName _ := e.getAppFn | return none
   if let some info ← getCasesInfo? declName then

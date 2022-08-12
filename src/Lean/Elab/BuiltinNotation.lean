@@ -26,12 +26,6 @@ open Meta
       mkCoe expectedType type e
   | _ => throwError "invalid coercion notation, expected type is not known"
 
-/--
-The *anonymous constructor* `⟨e, ...⟩` is equivalent to `c e ...` if the
-expected type is an inductive type with a single constructor `c`.
-If more terms are given than `c` has parameters, the remaining arguments
-are turned into a new anonymous constructor application. For example,
-`⟨a, b, c⟩ : α × (β × γ)` is equivalent to `⟨a, ⟨b, c⟩⟩`. -/
 @[builtinTermElab anonymousCtor] def elabAnonymousCtor : TermElab := fun stx expectedType? =>
   match stx with
   | `(⟨$args,*⟩) => do
@@ -123,13 +117,6 @@ private def elabTParserMacroAux (prec lhsPrec e : Term) : TermElabM Syntax := do
     elabTParserMacroAux (prec?.getD <| quote Parser.maxPrec) (lhsPrec?.getD <| quote 0) e
   | _ => throwUnsupportedSyntax
 
-/--
-`panic! msg` formally evaluates to `@Inhabited.default α` if the expected type
-`α` implements `Inhabited`.
-At runtime, `msg` and the file position are printed to stderr unless the C
-function `lean_set_panic_messages(false)` has been executed before. If the C
-function `lean_set_exit_on_panic(true)` has been executed before, the process is
-then aborted. -/
 @[builtinTermElab Lean.Parser.Term.panic] def elabPanic : TermElab := fun stx expectedType? => do
   match stx with
   | `(panic! $arg) =>
@@ -141,11 +128,9 @@ then aborted. -/
     withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
   | _ => throwUnsupportedSyntax
 
-/-- A shorthand for `panic! "unreachable code has been reached"`. -/
 @[builtinMacro Lean.Parser.Term.unreachable]  def expandUnreachable : Macro := fun _ =>
   `(panic! "unreachable code has been reached")
 
-/-- `assert! cond` panics if `cond` evaluates to `false`. -/
 @[builtinMacro Lean.Parser.Term.assert]  def expandAssert : Macro
   | `(assert! $cond; $body) =>
     -- TODO: support for disabling runtime assertions
@@ -154,15 +139,11 @@ then aborted. -/
     | none => `(if $cond then $body else panic! ("assertion violation"))
   | _ => Macro.throwUnsupported
 
-/--
-`dbg_trace e; body` evaluates to `body` and prints `e` (which can be an
-interpolated string literal) to stderr. It should only be used for debugging. -/
 @[builtinMacro Lean.Parser.Term.dbgTrace]  def expandDbgTrace : Macro
   | `(dbg_trace $arg:interpolatedStr; $body) => `(dbgTrace (s! $arg) fun _ => $body)
   | `(dbg_trace $arg:term; $body)            => `(dbgTrace (toString $arg) fun _ => $body)
   | _                                        => Macro.throwUnsupported
 
-/-- A temporary placeholder for a missing proof or value. -/
 @[builtinTermElab «sorry»] def elabSorry : TermElab := fun stx expectedType? => do
   let stxNew ← `(sorryAx _ false)
   withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
@@ -241,19 +222,6 @@ where
     | `(($e)) => Term.expandCDot? e
     | _ => Term.expandCDot? stx
 
-
-/--
-You can use parentheses for
-- Grouping expressions, e.g., `a * (b + c)`.
-- Creating tuples, e.g., `(a, b, c)` is notation for `Prod.mk a (Prod.mk b c)`.
-- Performing type ascription, e.g., `(0 : Int)` instructs Lean to process `0` as a value of type `Int`.
-- Creating `Unit.unit`, `()` is just a shorthand for `Unit.unit`.
-- Creating simple functions when combined with `·`. Here are some examples:
-  - `(· + 1)` is shorthand for `fun x => x + 1`
-  - `(· + ·)` is shorthand for `fun x y => x + y`
-  - `(f · a b)` is shorthand for `fun x => f x a b`
-  - `(h (· + 1) ·)` is shorthand for `fun x => h (fun y => y + 1) x`
--/
 @[builtinMacro Lean.Parser.Term.paren] def expandParen : Macro
   | `(())           => `(Unit.unit)
   | `(($e : $type)) => do
@@ -298,12 +266,6 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
     let aux ← withLocalDeclD id (← inferType e) fun x => do mkLambdaFVars #[x] (← k (mkIdentFrom stx id))
     return mkApp aux e
 
-/--
-`h ▸ e` is a macro built on top of `Eq.rec` and `Eq.symm` definitions.
-Given `h : a = b` and `e : p a`, the term `h ▸ e` has type `p b`.
-You can also view `h ▸ e` as a "type casting" operation where you change the type of `e` by using `h`.
-See the Chapter "Quantifiers and Equality" in the manual "Theorem Proving in Lean" for additional information.
--/
 @[builtinTermElab subst] def elabSubst : TermElab := fun stx expectedType? => do
   let expectedType? ← tryPostponeIfHasMVars? expectedType?
   match stx with

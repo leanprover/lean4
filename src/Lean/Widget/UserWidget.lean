@@ -168,11 +168,9 @@ def saveWidgetInfo [Monad m] [MonadEnv m] [MonadError m] [MonadInfoTree m] (widg
   }
   pushInfoLeaf info
 
-/-!  # Widget command
+/-!  # Widget command -/
 
-Use `#widget <widgetname> <props>` to display a widget.
--/
-
+/-- Use `#widget <widgetname> <props>` to display a widget. Useful for debugging widgets. -/
 syntax (name := widgetCmd) "#widget " ident term : command
 
 open Lean Lean.Meta Lean.Elab Lean.Elab.Term in
@@ -184,7 +182,6 @@ private opaque evalJson (stx : Syntax) : TermElabM Json
 
 open Elab Command in
 
-/-- Use this to place a widget. Useful for debugging widgets. -/
 @[commandElab widgetCmd] def elabWidgetCmd : CommandElab := fun
   | stx@`(#widget $id:ident $props) => do
     let props : Json ← runTermElabM fun _ => evalJson props

@@ -176,11 +176,17 @@ builtin_initialize
 end Command
 
 namespace Term
-/-- `open Foo in e` is like `open Foo` but scoped to a single term. -/
+/--
+`open Foo in e` is like `open Foo` but scoped to a single term.
+It makes the given namespaces available in the term `e`.
+-/
 @[builtinTermParser] def «open» := leading_parser:leadPrec
   "open " >> Command.openDecl >> withOpenDecl (" in " >> termParser)
 
-/-- `set_option opt val in e` is like `set_option opt val` but scoped to a single term. -/
+/--
+`set_option opt val in e` is like `set_option opt val` but scoped to a single term.
+It sets the option `opt` to the value `val` in the term `e`.
+-/
 @[builtinTermParser] def «set_option» := leading_parser:leadPrec
   "set_option " >> ident >> ppSpace >> Command.optionValue >> " in " >> termParser
 end Term

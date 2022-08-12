@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joscha Mennicken
 -/
 import Lean.Server.Utils
+import Std.System.Uri
 
 /-! # Representing collected and deduplicated definitions and usages -/
 
@@ -287,7 +288,7 @@ def referringTo (self : References) (identModule : Name) (ident : RefIdent) (src
       if let some path ← srcSearchPath.findModuleWithExt "lean" module then
         -- Resolve symlinks (such as `src` in the build dir) so that files are
         -- opened in the right folder
-        let uri := DocumentUri.ofPath <| ← IO.FS.realPath path
+        let uri := System.Uri.pathToUri <| ← IO.FS.realPath path
         if includeDefinition then
           if let some range := info.definition then
             result := result.push ⟨uri, range⟩
@@ -303,7 +304,7 @@ def definitionOf? (self : References) (ident : RefIdent) (srcSearchPath : Search
         if let some path ← srcSearchPath.findModuleWithExt "lean" module then
           -- Resolve symlinks (such as `src` in the build dir) so that files are
           -- opened in the right folder
-          let uri := DocumentUri.ofPath <| ← IO.FS.realPath path
+          let uri := System.Uri.pathToUri <| ← IO.FS.realPath path
           return some ⟨uri, definition⟩
   return none
 
@@ -312,7 +313,7 @@ def definitionsMatching (self : References) (srcSearchPath : SearchPath) (filter
   let mut result := #[]
   for (module, refs) in self.allRefs.toList do
     if let some path ← srcSearchPath.findModuleWithExt "lean" module then
-      let uri := DocumentUri.ofPath <| ← IO.FS.realPath path
+      let uri := System.Uri.pathToUri <| ← IO.FS.realPath path
       for (ident, info) in refs.toList do
         if let (RefIdent.const name, some definition) := (ident, info.definition) then
           if let some a := filter name then

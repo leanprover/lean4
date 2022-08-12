@@ -6,6 +6,7 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 import Init.System.IO
 import Std.Data.RBMap
+import Std.System.Uri
 
 import Lean.Environment
 
@@ -199,7 +200,7 @@ section Initialization
           | _         => pure <| (← appDir) / "lake"
         pure <| lakePath.withExtension System.FilePath.exeExtension
     let (headerEnv, msgLog) ← try
-      if let some path := m.uri.toPath? then
+      if let some path := System.Uri.fileUriToPath? m.uri then
         -- NOTE: we assume for now that `lakefile.lean` does not have any non-stdlib deps
         -- NOTE: lake does not exist in stage 0 (yet?)
         if path.fileName != "lakefile.lean" && (← System.FilePath.pathExists lakePath) then
@@ -211,7 +212,7 @@ section Initialization
       pure (← mkEmptyEnvironment, msgs)
     let mut headerEnv := headerEnv
     try
-      if let some path := m.uri.toPath? then
+      if let some path := System.Uri.fileUriToPath? m.uri then
         headerEnv := headerEnv.setMainModule (← moduleNameOfFileName path none)
     catch _ => pure ()
     let cmdState := Elab.Command.mkState headerEnv msgLog opts

@@ -35,7 +35,7 @@ def checkpoint (step : Name) (decls : Array Decl) (cfg : Check.Config := {}): Co
       trace[Compiler.step] "{decl.name} := {decl.value}"
       decl.check cfg
 
-def compile (declNames : Array Name) : CoreM Unit := do
+def compile (declNames : Array Name) : CoreM Unit := do profileitM Exception "compiler new" (← getOptions) do
   let declNames ← declNames.filterM shouldGenerateCode
   let decls ← declNames.mapM toDecl
   checkpoint `init decls { terminalCasesOnly := false }

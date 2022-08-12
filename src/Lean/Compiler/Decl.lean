@@ -58,7 +58,7 @@ def toDecl (declName : Name) : CoreM Decl := do
     let value ← Meta.lambdaTelescope value fun xs body => do Meta.mkLambdaFVars xs (← Meta.etaExpand body)
     let value ← replaceUnsafeRecNames value
     let value ← macroInline value
-    let value ← toLCNF value -- TODO: uncomment
+    let value ← toLCNF value
     return { name := declName, type, value }
 
 def Decl.check (decl : Decl) (cfg : Check.Config := {}): CoreM Unit := do

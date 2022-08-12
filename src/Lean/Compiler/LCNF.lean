@@ -267,7 +267,6 @@ where
       let hb := mkLcProof args[1]!
       let minor := if e.isAppOf ``And.rec then args[3]! else args[4]!
       let minor := minor.beta #[ha, hb]
-      trace[Meta.debug] "minor: {minor}"
       visit (mkAppN minor args[arity:])
 
   visitNoConfusion (e : Expr) : M Expr := do

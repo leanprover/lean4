@@ -52,7 +52,8 @@ def mkJpDecl (e : Expr) : CompilerM Expr := do
 def getMaxLetVarIdx (e : Expr) : CoreM Nat := do
   let maxRef ← IO.mkRef 0
   e.forEach fun
-    | .letE (.num _ i) .. => maxRef.modify (Nat.max · i)
+    | .letE (.num `_x i) ..
+    | .letE (.num `_jp i) .. => maxRef.modify (Nat.max · i)
     | _ => pure ()
   maxRef.get
 

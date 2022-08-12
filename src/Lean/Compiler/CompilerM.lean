@@ -24,8 +24,7 @@ instance : AddMessageContext CompilerM where
     return MessageData.withContext { env, lctx, opts, mctx := {} } msgData
 
 instance : MonadInferType CompilerM where
-  inferType e := do
-    InferType.inferType e { lctx := (← get).lctx }
+  inferType e := do InferType.inferType e { lctx := (← get).lctx }
 
 def mkLocalDecl (binderName : Name) (type : Expr) (bi := BinderInfo.default) : CompilerM Expr := do
   let fvarId ← mkFreshFVarId

@@ -61,6 +61,7 @@ mutual
       let args := e.getAppArgs
       let mut fType ← inferType f
       for _ in [:args.size] do
+        fType := fType.headBeta
         match fType with
         | .forallE _ _ b _ => fType := b
         | _ =>

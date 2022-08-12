@@ -63,5 +63,8 @@ def toDecl (declName : Name) : CoreM Decl := do
 
 def Decl.check (decl : Decl) : CoreM Unit := do
   InferType.check decl.value {} { lctx := {} }
+  let valueType ← InferType.inferType decl.value { lctx := {} }
+  unless compatibleTypes decl.type valueType do
+    throwError "declaration type mismatch at `{decl.name}`, value has type{indentExpr valueType}\nbut is expected to have type{indentExpr decl.type}"
 
 end Lean.Compiler

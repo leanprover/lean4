@@ -29,10 +29,10 @@ where
     Meta.isProp info.type <||> Meta.isTypeFormerType info.type
 
 def checkpoint (step : Name) (decls : Array Decl) (cfg : Check.Config := {}): CoreM Unit := do
-  trace[Meta.debug] "After {step}"
+  trace[Compiler.step] "{step}"
   for decl in decls do
     withOptions (fun opts => opts.setBool `pp.motives.pi false) do
-      trace[Meta.debug] "{decl.name} := {decl.value}"
+      trace[Compiler.step] "{decl.name} := {decl.value}"
       decl.check cfg
 
 def compile (declNames : Array Name) : CoreM Unit := do
@@ -41,5 +41,9 @@ def compile (declNames : Array Name) : CoreM Unit := do
   checkpoint `init decls { terminalCasesOnly := false }
   let decls ← decls.mapM (·.terminalCases)
   checkpoint `terminalCases decls
+
+builtin_initialize
+  registerTraceClass `Compiler
+  registerTraceClass `Compiler.step
 
 end Lean.Compiler

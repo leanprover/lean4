@@ -45,5 +45,5 @@ def Vec.head : Vec α (n+1) → α
 
 #eval Compiler.compile #[``Lean.Elab.Term.reportStuckSyntheticMVar]
 
-set_option trace.Meta.debug true
+set_option trace.Compiler.step true
 #eval Compiler.compile #[``Lean.Elab.Term.synthesizeSyntheticMVars]

@@ -76,12 +76,12 @@
  "position": {"line": 36, "character": 2}}
 {"range":
  {"start": {"line": 36, "character": 2}, "end": {"line": 36, "character": 23}},
- "contents": {"value": "My way better tactic ", "kind": "markdown"}}
+ "contents": {"value": "My tactic ", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 44, "character": 2}}
 {"range":
  {"start": {"line": 44, "character": 2}, "end": {"line": 44, "character": 23}},
- "contents": {"value": "My way better tactic ", "kind": "markdown"}}
+ "contents": {"value": "My tactic ", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 51, "character": 7}}
 {"range":
@@ -93,8 +93,7 @@
 {"range":
  {"start": {"line": 58, "character": 7}, "end": {"line": 58, "character": 15}},
  "contents":
- {"value": "```lean\nNat\n```\n***\nMy way better notation ",
-  "kind": "markdown"}}
+ {"value": "```lean\nNat\n```\n***\nMy notation ", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 68, "character": 7}}
 {"range":
@@ -124,7 +123,7 @@
  "position": {"line": 86, "character": 2}}
 {"range":
  {"start": {"line": 86, "character": 0}, "end": {"line": 86, "character": 7}},
- "contents": {"value": "My way better command ", "kind": "markdown"}}
+ "contents": {"value": "My command ", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 89, "character": 16}}
 {"range":

@@ -41,9 +41,8 @@ structure State where
 
 abbrev M := ReaderT Context $ StateRefT State CoreM
 
-/-- Return the type of the given LCNF expression. -/
-def inferType (e : Expr) : M Expr := do
-  InferType.inferType e { lctx := (← get).lctx' }
+instance : MonadInferType M where
+  inferType e := do InferType.inferType e { lctx := (← get).lctx' }
 
 @[inline] def liftMetaM (x : MetaM α) : M α := do
   x.run' { lctx := (← get).lctx }

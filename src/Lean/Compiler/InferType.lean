@@ -6,7 +6,12 @@ Authors: Leonardo de Moura
 import Lean.Compiler.LCNFTypes
 import Lean.Compiler.Util
 
-namespace Lean.Compiler.InferType
+namespace Lean.Compiler
+
+class MonadInferType (m : Type → Type) where
+  inferType : Expr → m Expr
+
+namespace InferType
 
 structure InferTypeM.Context where
   lctx : LocalContext
@@ -141,3 +146,29 @@ mutual
     | .lam ..        => inferLambdaType e
     | .letE ..       => inferLambdaType e
 end
+
+end InferType
+
+instance : MonadInferType InferType.InferTypeM where
+  inferType := InferType.inferType
+
+export MonadInferType (inferType)
+
+def getLevel [Monad m] [MonadInferType m] [MonadError m] (type : Expr) : m Level := do
+  match (← inferType type) with
+  | .sort u => return u
+  | e => if e.isAnyType then return levelOne else throwError "type expected{indentExpr type}"
+
+/-- Create `lcUnreachable type` -/
+def mkLcUnreachable [Monad m] [MonadInferType m] [MonadError m] (type : Expr) : m Expr := do
+  let u ← getLevel type
+  return .app (.const ``lcUnreachable [u]) type
+
+/-- Create `lcCast expectedType e : expectedType` -/
+def mkLcCast [Monad m] [MonadInferType m] [MonadError m] (e : Expr) (expectedType : Expr) : m Expr := do
+  let type ← inferType e
+  let u ← getLevel type
+  let v ← getLevel expectedType
+  return mkApp3 (.const ``lcCast [u, v]) type expectedType e
+
+end Lean.Compiler

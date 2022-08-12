@@ -31,8 +31,9 @@ where
 def checkpoint (step : Name) (decls : Array Decl) : CoreM Unit := do
   trace[Meta.debug] "After {step}"
   for decl in decls do
-    trace[Meta.debug] "{decl.name} := {decl.value}"
-    decl.check
+    withOptions (fun opts => opts.setBool `pp.motives.pi false) do
+      trace[Meta.debug] "{decl.name} := {decl.value}"
+      decl.check
 
 def compile (declNames : Array Name) : CoreM Unit := do
   let declNames ← declNames.filterM shouldGenerateCode

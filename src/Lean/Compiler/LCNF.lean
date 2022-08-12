@@ -12,8 +12,6 @@ import Lean.Compiler.InlineAttrs
 import Lean.Compiler.InferType
 import Lean.Compiler.Util
 
--- TODO: port file to the new LCNF format
-
 namespace Lean.Compiler
 /-!
 # Lean Compiler Normal Form (LCNF)
@@ -225,11 +223,8 @@ where
     etaIfUnderApplied e arity do
       visitAppDefault e.getAppFn e.getAppArgs
 
--- TODO: stopped here
-
   visitQuotLift (e : Expr) : M Expr := do
-    throwError "wip {e}"
-/-    let arity := 6
+    let arity := 6
     etaIfUnderApplied e arity do
       let mut args := e.getAppArgs
       let α := args[0]!
@@ -237,56 +232,53 @@ where
       let f ← visitChild args[3]!
       let q ← visitChild args[5]!
       let .const _ [u, _] := e.getAppFn | unreachable!
-      let invq ← mkAuxLetDecl (mkApp3 (.const ``Quot.lcInv [u]) α r q)
+      let invq ← withRoot false <| mkAuxLetDecl (mkApp3 (.const ``Quot.lcInv [u]) α r q)
       let r := mkApp f invq
       mkOverApplication r args arity
--/
 
   visitEqRec (e : Expr) : M Expr :=
-    throwError "wip {e}"
-/-
     let arity := 6
     etaIfUnderApplied e arity do
       let args := e.getAppArgs
       let f := e.getAppFn
-      let type ← inferType (mkAppN f args[:arity])
+      let recType ← liftMetaM do toLCNFType (← Meta.inferType (mkAppN f args[:arity]))
       let minor := if e.isAppOf ``Eq.rec || e.isAppOf ``Eq.ndrec then args[3]! else args[5]!
-      let cast ← mkLcCast (← visitChild minor) type
+      let minor ← visit minor
+      let minorType ← inferType minor
+      let cast ← if compatibleTypes minorType recType then
+        -- Recall that many types become compatible after LCNF conversion
+        -- Example: `Fin 10` and `Fin n`
+        pure minor
+      else
+        mkLcCast (← withRoot false <| mkAuxLetDecl minor) recType
       mkOverApplication cast args arity
--/
 
   visitFalseRec (e : Expr) : M Expr :=
-    throwError "wip {e}"
-/-
     let arity := 2
     etaIfUnderApplied e arity do
-      mkAuxLetDecl (← mkLcUnreachable (← inferType e))
--/
+      let type ← liftMetaM do toLCNFType (← Meta.inferType e)
+      mkAuxLetDecl (← mkLcUnreachable type)
 
   visitAndRec (e : Expr) : M Expr :=
-    throwError "wip {e}"
-/-
     let arity := 5
     etaIfUnderApplied e arity do
       let args := e.getAppArgs
-      let ha := mkLcProof args[0]!
+      let ha := mkLcProof args[0]! -- We should not use `lcErased` here since we use it to create a pre-LCNF Expr.
       let hb := mkLcProof args[1]!
       let minor := if e.isAppOf ``And.rec then args[3]! else args[4]!
       let minor := minor.beta #[ha, hb]
+      trace[Meta.debug] "minor: {minor}"
       visit (mkAppN minor args[arity:])
--/
 
   visitNoConfusion (e : Expr) : M Expr := do
-    throwError "wip {e}"
-/-
     let .const declName _ := e.getAppFn | unreachable!
     let typeName := declName.getPrefix
     let .inductInfo inductVal ← getConstInfo typeName | unreachable!
     let arity := inductVal.numParams + inductVal.numIndices + 1 /- motive -/ + 2 /- lhs/rhs-/ + 1 /- equality -/
     etaIfUnderApplied e arity do
       let args := e.getAppArgs
-      let lhs ← whnf args[inductVal.numParams + inductVal.numIndices + 1]!
-      let rhs ← whnf args[inductVal.numParams + inductVal.numIndices + 2]!
+      let lhs ← liftMetaM do Meta.whnf args[inductVal.numParams + inductVal.numIndices + 1]!
+      let rhs ← liftMetaM do Meta.whnf args[inductVal.numParams + inductVal.numIndices + 2]!
       let lhs := lhs.toCtorIfLit
       let rhs := rhs.toCtorIfLit
       match lhs.isConstructorApp? (← getEnv), rhs.isConstructorApp? (← getEnv) with
@@ -301,7 +293,6 @@ where
           mkAuxLetDecl (← mkLcUnreachable (← inferType e))
       | _, _ =>
         throwError "code generator failed, unsupported occurrence of `{declName}`"
--/
 
   expandNoConfusionMajor (major : Expr) (numFields : Nat) : M Expr := do
     match numFields with
@@ -309,7 +300,6 @@ where
     | n+1 =>
       if let .lam _ d b _ := major then
         let proof := mkLcProof d
-        trace[Meta.debug] "proof: {proof}"
         expandNoConfusionMajor (b.instantiate1 proof) n
       else
         expandNoConfusionMajor (← etaExpandN major (n+1)) (n+1)
@@ -393,7 +383,7 @@ where
     | .fvar .. | .sort .. | .forallE .. => return e -- Do nothing
     | _ =>
     if isLCProof e then
-      return e
+      return mkConst ``lcErased
     let type ← liftMetaM <| Meta.inferType e
     if (← liftMetaM <| Meta.isProp type) then
       /- We replace proofs with `lcProof` applications. -/

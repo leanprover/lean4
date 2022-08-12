@@ -8,6 +8,7 @@ namespace System
 namespace Uri
 namespace UriEscape
 
+/- https://www.ietf.org/rfc/rfc3986.txt -/
 def Zero : UInt8 := '0'.toNat.toUInt8
 def Nine : UInt8 := '9'.toNat.toUInt8
 def Lettera : UInt8 := 'a'.toNat.toUInt8
@@ -54,7 +55,6 @@ where hexDigitToUInt8? (c : UInt8) : Option UInt8 :=
   else if LetterA ≤ c ∧ c ≤ LetterF then some (c - LetterA + 10)
   else none
 
-/- https://datatracker.ietf.org/doc/html/rfc3986/#page-12 -/
 def rfc3986ReservedChars : List Char := [ ';', ':', '?', '#', '[', ']', '@', '&', '=', '+', '$', ',', '!', '\'', '(', ')', '*', '%', ' ' ]
 
 def uriEscapeAsciiChar (c : Char) : String :=

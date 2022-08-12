@@ -98,9 +98,9 @@ def test_windows_drive_letter :=
 
 def test_windows_drive_letter_escaping :=
   if System.Platform.isWindows then
-    let x : System.FilePath := "c:" / "Temp" / "test.lean"
+    let x : System.FilePath := "c:" / "temp" / "test.lean"
     let r := pathToUri x
-    let result := if r == "file:///c%3A/Temp/test.lean" then
+    let result := if r == "file:///c%3A/temp/test.lean" then
       match fileUriToPath? r with
       | none =>
         "testWindowsDriveLetterEscaping fileUriToPath? returned none"

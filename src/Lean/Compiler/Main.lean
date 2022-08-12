@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Compiler.Decl
 import Lean.Compiler.TerminalCases
+import Lean.Compiler.CSE
 
 namespace Lean.Compiler
 
@@ -41,6 +42,9 @@ def compile (declNames : Array Name) : CoreM Unit := do profileitM Exception "co
   checkpoint `init decls { terminalCasesOnly := false }
   let decls ← decls.mapM (·.terminalCases)
   checkpoint `terminalCases decls
+  -- Remark: add simplification step here, `cse` is useful after simplification
+  let decls ← decls.mapM (·.cse)
+  checkpoint `cse decls
 
 builtin_initialize
   registerTraceClass `Compiler

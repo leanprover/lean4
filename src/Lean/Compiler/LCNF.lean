@@ -399,7 +399,7 @@ where
     match e with
     | .mvar .. => throwError "unexpected occurrence of metavariable in code generator{indentExpr e}"
     | .bvar .. => unreachable!
-    | .fvar .. | .sort .. | .forallE .. => return e -- Do nothing
+    | .fvar .. | .sort .. => return e -- Do nothing
     | _ =>
     if isLCProof e then
       return mkConst ``lcErased
@@ -420,6 +420,7 @@ where
       | .lam ..     => visitLambda e
       | .letE ..    => visitLet e #[]
       | .lit ..     => mkAuxLetDecl e
+      | .forallE .. => unreachable!
       | _           => pure e
     modify fun s => { s with cache := s.cache.insert e r }
     return r

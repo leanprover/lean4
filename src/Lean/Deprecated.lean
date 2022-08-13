@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Log
 import Lean.Attributes
+import Lean.Elab.InfoTree.Main
 
 namespace Lean
 
@@ -16,7 +17,7 @@ builtin_initialize deprecatedAttr : ParametricAttribute (Option Name) ←
      match stx with
      | `(attr| deprecated $[$id?]?) =>
        let some id := id? | return none
-       let declNameNew ← resolveGlobalConstNoOverload id
+       let declNameNew ← Elab.resolveGlobalConstNoOverloadWithInfo id
        return some declNameNew
      | _  => throwError "invalid `[deprecated]` attribute"
   }

@@ -38,6 +38,8 @@ where
       withLocalDecl n (d.instantiateRev xs) bi fun x => checkBlock b (xs.push x) false
     | .letE n t v b _ =>
       let value := v.instantiateRev xs
+      if value.isAppOf ``lcUnreachable then
+        throwError "invalid occurrence of `lcUnreachable` in let-declaration `{n}`"
       checkValue value (isTerminal := false)
       let type := t.instantiateRev xs
       let valueType ← inferType value

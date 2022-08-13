@@ -1,8 +1,6 @@
 import Lean
 
 open Lean
-set_option trace.Meta.debug true
-set_option pp.proofs true
 
 def f (x : Nat) : Nat :=
   let y := match x with
@@ -13,3 +11,14 @@ def f (x : Nat) : Nat :=
   | z+1 => z + y + 2
 
 #eval Compiler.compile #[``f]
+
+def g (x : Nat) : Bool :=
+  let pred? := match x with
+    | 0 => none
+    | y+1 => some y
+  match pred? with
+  | none => true
+  | some _  => false
+
+set_option trace.Compiler.step true
+#eval Compiler.compile #[``g]

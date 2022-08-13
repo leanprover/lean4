@@ -37,6 +37,10 @@ def mkLetDecl (binderName : Name) (type : Expr) (value : Expr) (nonDep : Bool) :
   modify fun s => { s with lctx := s.lctx.mkLetDecl fvarId binderName type value nonDep, letFVars := s.letFVars.push x }
   return x
 
+def findDecl? (fvarId : FVarId) : CompilerM (Option LocalDecl) := do
+  let lctx := (← get).lctx
+  return lctx.find? fvarId
+
 def mkAuxLetDecl (e : Expr) (prefixName := `_x) : CompilerM Expr := do
   if e.isFVar then
     return e
@@ -67,6 +71,25 @@ where
       go body (fvars.push fvar)
     else
       return (fvars, e.instantiateRev fvars)
+
+/--
+Given an expression representing a `match` return a tuple consisting of:
+1. The motive
+2. The discriminators
+3. The expressions inside of the match arms
+-/
+def visitMatch (cases : Expr) (casesInfo : CasesInfo) : CompilerM (Expr × Array Expr × Array Expr) := do
+  let args := cases.getAppArgs
+  let motive := args.get! casesInfo.motivePos
+
+  let mut discrs := #[]
+  for i in casesInfo.discrsRange do
+    discrs := discrs.push args[i]!
+
+  let mut arms := #[]
+  for i in casesInfo.altsRange do
+    arms := arms.push (←visitLambda args[i]!).snd
+  return (motive, discrs, arms)
 
 def withNewScopeImp (x : CompilerM α) : CompilerM α := do
   let saved ← get

@@ -172,6 +172,8 @@ partial def compatibleTypes (a b : Expr) : Bool :=
       | .app f a, .app g b => compatibleTypes f g && compatibleTypes a b
       | .forallE _ d₁ b₁ _, .forallE _ d₂ b₂ _ => compatibleTypes d₁ d₂ && compatibleTypes b₁ b₂
       | .lam _ d₁ b₁ _, .lam _ d₂ b₂ _ => compatibleTypes d₁ d₂ && compatibleTypes b₁ b₂
+      | .sort u, .sort v => Level.isEquiv u v
+      | .const n us, .const m vs => n == m && List.isEqv us vs Level.isEquiv
       | _, _ => false
 
 /--

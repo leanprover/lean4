@@ -69,6 +69,11 @@ elab_rules : term
 #check mynota' 1
      --^ textDocument/hover
 
+infix:65 " >+< " => Nat.add
+                   --^ textDocument/hover
+
+#check 1 >+< 2
+        --^ textDocument/hover
 
 /-- My command -/
 macro "mycmd" e:term : command => do

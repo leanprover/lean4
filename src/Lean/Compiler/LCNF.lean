@@ -135,7 +135,7 @@ def mkLetUsingScope (e : Expr) : M Expr := do
     /-
     In LCNF, terminal expression in a `let`-block must not be a lambda.
     -/
-    mkAuxLetDecl e
+    withRoot false <| mkAuxLetDecl e
   else
     pure e
   return (← get).lctx'.mkLambda (← get).letFVars e

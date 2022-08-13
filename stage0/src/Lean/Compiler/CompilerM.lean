@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Util.ForEachExpr
-import Lean.Meta.InferType
+import Lean.Compiler.InferType
 
 namespace Lean.Compiler
 
@@ -23,20 +23,8 @@ instance : AddMessageContext CompilerM where
     let opts ← getOptions
     return MessageData.withContext { env, lctx, opts, mctx := {} } msgData
 
-@[inline] def liftMetaM (x : MetaM α) : CompilerM α := do
-  x.run' { lctx := (← get).lctx }
-
-def inferType (e : Expr) : CompilerM Expr := liftMetaM <| Meta.inferType e
-
-def whnf (e : Expr) : CompilerM Expr := liftMetaM <| Meta.whnf e
-
-def inferType' (e : Expr) : CompilerM Expr := liftMetaM do Meta.whnf (← Meta.inferType e)
-
-def isProp (e : Expr) : CompilerM Bool := liftMetaM <| Meta.isProp e
-
-def isTypeFormerType (e : Expr) : CompilerM Bool := liftMetaM <| Meta.isTypeFormerType e
-
-def isDefEq (a b : Expr) : CompilerM Bool := liftMetaM <| Meta.isDefEq a b
+instance : MonadInferType CompilerM where
+  inferType e := do InferType.inferType e { lctx := (← get).lctx }
 
 def mkLocalDecl (binderName : Name) (type : Expr) (bi := BinderInfo.default) : CompilerM Expr := do
   let fvarId ← mkFreshFVarId
@@ -64,7 +52,8 @@ def mkJpDecl (e : Expr) : CompilerM Expr := do
 def getMaxLetVarIdx (e : Expr) : CoreM Nat := do
   let maxRef ← IO.mkRef 0
   e.forEach fun
-    | .letE (.num _ i) .. => maxRef.modify (Nat.max · i)
+    | .letE (.num `_x i) ..
+    | .letE (.num `_jp i) .. => maxRef.modify (Nat.max · i)
     | _ => pure ()
   maxRef.get
 

@@ -100,12 +100,15 @@ protected def toString : JsonNumber → String
     let exp := if exp < 0 then exp else 0
     let e' := (10 : Int) ^ (e - exp.natAbs)
     let left := (m / e').repr
-    let right := e' + ↑m % e'
-      |>.repr.toSubstring.drop 1
-      |>.dropRightWhile (fun c => c = '0')
-      |>.toString
-    let exp := if exp = 0 then "" else "e" ++ exp.repr
-    s!"{sign}{left}.{right}{exp}"
+    if m % e' = 0 && exp = 0 then
+      s!"{sign}{left}"
+    else
+      let right := e' + m % e'
+        |>.repr.toSubstring.drop 1
+        |>.dropRightWhile (fun c => c = '0')
+        |>.toString
+      let exp := if exp = 0 then "" else "e" ++ exp.repr
+      s!"{sign}{left}.{right}{exp}"
 
 -- shift a JsonNumber by a specified amount of places to the left
 protected def shiftl : JsonNumber → Nat → JsonNumber

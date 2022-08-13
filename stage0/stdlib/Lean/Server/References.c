@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.References
-// Imports: Init Lean.Server.Utils
+// Imports: Init Lean.Server.Utils Std.System.Uri
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -44,6 +44,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_References_re
 LEAN_EXPORT lean_object* l_Std_AssocList_contains___at_Lean_Server_dedupReferences___spec__5___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_AssocList_erase___at_Lean_Server_References_removeWorkerRefs___spec__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_dedupReferences___spec__14(lean_object*, size_t, size_t, lean_object*);
+lean_object* l_System_Uri_pathToUri(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_dedupReferences___spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Server_References_referringTo___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -231,7 +232,6 @@ static lean_object* l___private_Lean_Server_References_0__Lean_Server_fromJsonIl
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_insert___at_Lean_Server_dedupReferences___spec__4(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Lsp_instHashableRange;
-lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_fromJsonRpcCallParams____x40_Lean_Data_Lsp_Extra___hyg_1330____spec__1(lean_object*, lean_object*);
 static uint64_t l_Std_HashMapImp_find_x3f___at_Lean_Server_dedupReferences___spec__2___closed__1;
 lean_object* l_Lean_Elab_Info_stx(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Lsp_RefInfo_contains___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -314,6 +314,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs(le
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_combineFvars_buildIdMap___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_References_updateWorkerRefs___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_findModuleRefs___closed__1;
+lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_fromJsonRpcCallParams____x40_Lean_Data_Lsp_Extra___hyg_1153____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Lsp_RefInfo_contains___spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_insert___at_Lean_Server_References_updateWorkerRefs___spec__6(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_AssocList_erase___at_Lean_Server_References_removeIlean___spec__7___boxed(lean_object*, lean_object*);
@@ -414,7 +415,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_combineFvars
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_combineFvars_buildIdMap___spec__10___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM_x27___at_Lean_Server_findReferences___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_References_definitionOf_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Lsp_DocumentUri_ofPath(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instToJsonIlean;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_combineFvars___spec__10(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Ilean_version___default;
@@ -2291,7 +2291,7 @@ x_7 = lean_ctor_get(x_3, 0);
 lean_inc(x_7);
 lean_dec(x_3);
 x_8 = l___private_Lean_Server_References_0__Lean_Server_fromJsonIlean____x40_Lean_Server_References___hyg_833____closed__2;
-x_9 = l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_fromJsonRpcCallParams____x40_Lean_Data_Lsp_Extra___hyg_1330____spec__1(x_1, x_8);
+x_9 = l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_fromJsonRpcCallParams____x40_Lean_Data_Lsp_Extra___hyg_1153____spec__1(x_1, x_8);
 if (lean_obj_tag(x_9) == 0)
 {
 uint8_t x_10; 
@@ -10255,7 +10255,7 @@ lean_inc(x_23);
 x_24 = lean_ctor_get(x_22, 1);
 lean_inc(x_24);
 lean_dec(x_22);
-x_25 = l_Lean_Lsp_DocumentUri_ofPath(x_23);
+x_25 = l_System_Uri_pathToUri(x_23);
 if (x_3 == 0)
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
@@ -10465,7 +10465,7 @@ lean_inc(x_23);
 x_24 = lean_ctor_get(x_22, 1);
 lean_inc(x_24);
 lean_dec(x_22);
-x_25 = l_Lean_Lsp_DocumentUri_ofPath(x_23);
+x_25 = l_System_Uri_pathToUri(x_23);
 if (x_3 == 0)
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
@@ -10675,7 +10675,7 @@ lean_inc(x_23);
 x_24 = lean_ctor_get(x_22, 1);
 lean_inc(x_24);
 lean_dec(x_22);
-x_25 = l_Lean_Lsp_DocumentUri_ofPath(x_23);
+x_25 = l_System_Uri_pathToUri(x_23);
 if (x_3 == 0)
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
@@ -11192,7 +11192,7 @@ if (x_28 == 0)
 {
 lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
 x_29 = lean_ctor_get(x_27, 0);
-x_30 = l_Lean_Lsp_DocumentUri_ofPath(x_29);
+x_30 = l_System_Uri_pathToUri(x_29);
 x_31 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_31, 0, x_30);
 lean_ctor_set(x_31, 1, x_18);
@@ -11213,7 +11213,7 @@ x_35 = lean_ctor_get(x_27, 1);
 lean_inc(x_35);
 lean_inc(x_34);
 lean_dec(x_27);
-x_36 = l_Lean_Lsp_DocumentUri_ofPath(x_34);
+x_36 = l_System_Uri_pathToUri(x_34);
 x_37 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_37, 0, x_36);
 lean_ctor_set(x_37, 1, x_18);
@@ -11277,7 +11277,7 @@ if (lean_is_exclusive(x_46)) {
  lean_dec_ref(x_46);
  x_49 = lean_box(0);
 }
-x_50 = l_Lean_Lsp_DocumentUri_ofPath(x_47);
+x_50 = l_System_Uri_pathToUri(x_47);
 x_51 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_51, 0, x_50);
 lean_ctor_set(x_51, 1, x_18);
@@ -11422,7 +11422,7 @@ if (lean_is_exclusive(x_73)) {
  lean_dec_ref(x_73);
  x_76 = lean_box(0);
 }
-x_77 = l_Lean_Lsp_DocumentUri_ofPath(x_74);
+x_77 = l_System_Uri_pathToUri(x_74);
 x_78 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_78, 0, x_77);
 lean_ctor_set(x_78, 1, x_64);
@@ -12195,7 +12195,7 @@ lean_inc(x_24);
 x_25 = lean_ctor_get(x_23, 1);
 lean_inc(x_25);
 lean_dec(x_23);
-x_26 = l_Lean_Lsp_DocumentUri_ofPath(x_24);
+x_26 = l_System_Uri_pathToUri(x_24);
 x_27 = l_Std_HashMap_toList___at_Lean_Lsp_instToJsonModuleRefs___spec__2(x_12);
 lean_inc(x_4);
 lean_ctor_set(x_6, 0, x_4);
@@ -12463,7 +12463,7 @@ lean_inc(x_76);
 x_77 = lean_ctor_get(x_75, 1);
 lean_inc(x_77);
 lean_dec(x_75);
-x_78 = l_Lean_Lsp_DocumentUri_ofPath(x_76);
+x_78 = l_System_Uri_pathToUri(x_76);
 x_79 = l_Std_HashMap_toList___at_Lean_Lsp_instToJsonModuleRefs___spec__2(x_12);
 lean_inc(x_4);
 x_80 = lean_alloc_ctor(0, 2, 0);
@@ -12766,6 +12766,7 @@ return x_2;
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_Utils(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_System_Uri(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Server_References(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -12775,6 +12776,9 @@ res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Server_Utils(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_System_Uri(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Server_Reference_aliases___default___closed__1 = _init_l_Lean_Server_Reference_aliases___default___closed__1();

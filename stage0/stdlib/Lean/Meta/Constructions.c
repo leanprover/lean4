@@ -116,6 +116,7 @@ lean_object* l_Lean_Meta_InfoCacheKey_instHashableInfoCacheKey___boxed(lean_obje
 LEAN_EXPORT lean_object* l___private_Lean_MonadEnv_0__Lean_checkUnsupported___at_Lean_mkNoConfusionEnum_mkToCtorIdx___spec__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addAndCompile___at_Lean_mkNoConfusionEnum_mkToCtorIdx___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkNoConfusionEnum(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkArrow(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Constructions_0__Lean_adaptFn___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusionType___lambda__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_mkBInductionOn___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -181,7 +182,6 @@ static lean_object* l_Lean_setReducibilityStatus___at_Lean_mkNoConfusionEnum_mkT
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_mkArrow(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__10;
 LEAN_EXPORT lean_object* l_Lean_mkRecOn(lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
@@ -3860,7 +3860,7 @@ lean_inc(x_1);
 x_20 = l_Lean_Expr_const___override(x_1, x_14);
 x_21 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__8;
 lean_inc(x_20);
-x_22 = l_Lean_Meta_mkArrow(x_20, x_21, x_2, x_3, x_4, x_5, x_11);
+x_22 = l_Lean_mkArrow(x_20, x_21, x_4, x_5, x_11);
 x_23 = lean_ctor_get(x_22, 0);
 lean_inc(x_23);
 x_24 = lean_ctor_get(x_22, 1);

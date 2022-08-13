@@ -7,6 +7,7 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 import Init.System.IO
 import Init.Data.ByteArray
 import Std.Data.RBMap
+import Std.System.Uri
 
 import Lean.Elab.Import
 import Lean.Util.Paths
@@ -68,6 +69,7 @@ open IO
 open Std (RBMap RBMap.empty)
 open Lsp
 open JsonRpc
+open System.Uri
 
 section Utils
   structure OpenDocument where
@@ -200,7 +202,7 @@ section ServerM
   def eraseFileWorker (uri : DocumentUri) : ServerM Unit := do
     let s ← read
     s.fileWorkersRef.modify (fun fileWorkers => fileWorkers.erase uri)
-    if let some path := uri.toPath? then
+    if let some path := fileUriToPath? uri then
       if let some module ← searchModuleNameOfFileName path s.srcSearchPath then
         s.references.modify fun refs => refs.removeWorkerRefs module
 
@@ -211,13 +213,13 @@ section ServerM
 
   def handleIleanInfoUpdate (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
     let s ← read
-    if let some path := fw.doc.meta.uri.toPath? then
+    if let some path := fileUriToPath? fw.doc.meta.uri then
       if let some module ← searchModuleNameOfFileName path s.srcSearchPath then
         s.references.modify fun refs => refs.updateWorkerRefs module params.version params.references
 
   def handleIleanInfoFinal (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
     let s ← read
-    if let some path := fw.doc.meta.uri.toPath? then
+    if let some path := fileUriToPath? fw.doc.meta.uri then
       if let some module ← searchModuleNameOfFileName path s.srcSearchPath then
         s.references.modify fun refs => refs.finalizeWorkerRefs module params.version params.references
 
@@ -374,7 +376,7 @@ open FuzzyMatching
 
 def findDefinitions (p : TextDocumentPositionParams) : ServerM <| Array Location := do
   let mut definitions := #[]
-  if let some path := p.textDocument.uri.toPath? then
+  if let some path := fileUriToPath? p.textDocument.uri then
     let srcSearchPath := (← read).srcSearchPath
     if let some module ← searchModuleNameOfFileName path srcSearchPath then
       let references ← (← read).references.get
@@ -385,7 +387,7 @@ def findDefinitions (p : TextDocumentPositionParams) : ServerM <| Array Location
 
 def handleReference (p : ReferenceParams) : ServerM (Array Location) := do
   let mut result := #[]
-  if let some path := p.textDocument.uri.toPath? then
+  if let some path := fileUriToPath? p.textDocument.uri then
     let srcSearchPath := (← read).srcSearchPath
     if let some module ← searchModuleNameOfFileName path srcSearchPath then
       let references ← (← read).references.get
@@ -457,7 +459,7 @@ section NotificationHandling
     let oleanSearchPath ← Lean.searchPathRef.get
     let ileans ← oleanSearchPath.findAllWithExt "ilean"
     for change in p.changes do
-      if let some path := change.uri.toPath? then
+      if let some path := fileUriToPath? change.uri then
       if let FileChangeType.Deleted := change.type then
         references.modify (fun r => r.removeIlean path)
       else if ileans.contains path then

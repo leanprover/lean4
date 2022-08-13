@@ -69,6 +69,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at_Lean_Meta_CasesOnApp_a
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_CasesOnApp_addArg___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_CasesOnApp_addArg_updateAlts___spec__1___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_sort___override(lean_object*);
+lean_object* l_Lean_mkArrow(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_CasesOnApp_addArg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_CasesOnApp_addArg___lambda__4___closed__1;
 static lean_object* l_Lean_Meta_toCasesOnApp_x3f___lambda__1___closed__5;
@@ -104,7 +105,6 @@ lean_object* l_Lean_Name_getPrefix(lean_object*);
 static lean_object* l_Lean_Meta_CasesOnApp_addArg___lambda__2___closed__2;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_CasesOnApp_addArg_updateAlts___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_mkArrow(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_CasesOnApp_addArg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4169,7 +4169,7 @@ lean_dec(x_29);
 x_32 = lean_ctor_get(x_30, 1);
 lean_inc(x_32);
 lean_dec(x_30);
-x_33 = l_Lean_Meta_mkArrow(x_32, x_4, x_7, x_8, x_9, x_10, x_31);
+x_33 = l_Lean_mkArrow(x_32, x_4, x_9, x_10, x_31);
 x_34 = lean_ctor_get_uint8(x_2, sizeof(void*)*9);
 if (x_34 == 0)
 {

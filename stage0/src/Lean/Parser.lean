@@ -30,6 +30,7 @@ builtin_initialize
   register_parser_alias (kind := identKind) "ident" ident
   register_parser_alias "colGt" checkColGt { stackSz? := some 0 }
   register_parser_alias "colGe" checkColGe { stackSz? := some 0 }
+  register_parser_alias "lineEq" checkLineEq { stackSz? := some 0 }
   register_parser_alias lookahead { stackSz? := some 0 }
   register_parser_alias atomic { stackSz? := none }
   register_parser_alias many

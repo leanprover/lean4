@@ -6,6 +6,8 @@ Authors: Leonardo de Moura
 import Lean.Meta.Transform
 import Lean.Meta.Check
 import Lean.Compiler.LCNF
+import Lean.Compiler.Check
+import Lean.Compiler.CompilerM
 
 namespace Lean.Compiler
 
@@ -53,13 +55,21 @@ def toDecl (declName : Name) : CoreM Decl := do
   let some info := env.find? (mkUnsafeRecName declName) <|> env.find? declName | throwError "declaration `{declName}` not found"
   let some value := info.value? | throwError "declaration `{declName}` does not have a value"
   Meta.MetaM.run' do
+    let type  ← toLCNFType info.type
     let value ← Meta.lambdaTelescope value fun xs body => do Meta.mkLambdaFVars xs (← Meta.etaExpand body)
     let value ← replaceUnsafeRecNames value
     let value ← macroInline value
-    let value ← toLCNF {} value
-    return { name := declName, type := info.type, value }
+    let value ← toLCNF value
+    return { name := declName, type, value }
 
-def Decl.check (decl : Decl) : CoreM Unit := do
-  Meta.MetaM.run' do Meta.check decl.value
+def Decl.check (decl : Decl) (cfg : Check.Config := {}): CoreM Unit := do
+  Compiler.check decl.value cfg { lctx := {} }
+  let valueType ← InferType.inferType decl.value { lctx := {} }
+  unless compatibleTypes decl.type valueType do
+    throwError "declaration type mismatch at `{decl.name}`, value has type{indentExpr valueType}\nbut is expected to have type{indentExpr decl.type}"
+
+/-- Apply `f` to declaration `value`. -/
+def Decl.mapValue (decl : Decl) (f : Expr → CompilerM Expr) : CoreM Decl := do
+  return { decl with value := (← f decl.value |>.run' { nextIdx := (← getMaxLetVarIdx decl.value) + 1 }) }
 
 end Lean.Compiler

@@ -63,9 +63,9 @@ partial def rewriteM : TaggedText α → m (TaggedText β)
   | append as => return append (← as.mapM rewriteM)
   | tag t a => f t a
 
-instance [RpcEncoding α β] : RpcEncoding (TaggedText α) (TaggedText β) where
-  rpcEncode a := a.mapM rpcEncode
-  rpcDecode a := a.mapM rpcDecode
+instance [RpcEncodable α] : RpcEncodable (TaggedText α) where
+  rpcEncode a := toJson <$> a.mapM rpcEncode
+  rpcDecode a := do TaggedText.mapM rpcDecode (← fromJson? a)
 
 private structure TaggedState where
   out      : TaggedText (Nat × Nat)              := TaggedText.text ""

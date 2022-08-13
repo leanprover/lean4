@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.GoTo
-// Imports: Init Lean.Data.Json.FromToJson Lean.Util.Path Lean.Server.Utils
+// Imports: Init Lean.Data.Json.FromToJson Lean.Util.Path Lean.Server.Utils Std.System.Uri
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20,6 +20,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_locationLinksFromDecl___lambda__2(lean_ob
 LEAN_EXPORT lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_toJsonGoToKind____x40_Lean_Server_GoTo___hyg_24____boxed(lean_object*);
 static lean_object* l_Lean_findModuleOf_x3f___at_Lean_Server_locationLinksFromDecl___spec__1___closed__1;
 static lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_toJsonGoToKind____x40_Lean_Server_GoTo___hyg_24____closed__2;
+lean_object* l_System_Uri_pathToUri(lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
 static lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_toJsonGoToKind____x40_Lean_Server_GoTo___hyg_24____closed__1;
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRanges_x3f___at_Lean_Server_locationLinksFromDecl___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -103,7 +104,6 @@ lean_object* l_Lean_SearchPath_findModuleWithExt(lean_object*, lean_object*, lea
 static lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_toJsonGoToKind____x40_Lean_Server_GoTo___hyg_24____closed__5;
 LEAN_EXPORT lean_object* l_Lean_Server_GoToKind_noConfusion___rarg___lambda__1___boxed(lean_object*);
 extern lean_object* l_Lean_builtinDeclRanges;
-lean_object* l_Lean_Lsp_DocumentUri_ofPath(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_GoToKind_toCtorIdx(uint8_t x_1) {
 _start:
@@ -669,7 +669,7 @@ if (x_17 == 0)
 {
 lean_object* x_18; lean_object* x_19; 
 x_18 = lean_ctor_get(x_16, 0);
-x_19 = l_Lean_Lsp_DocumentUri_ofPath(x_18);
+x_19 = l_System_Uri_pathToUri(x_18);
 lean_ctor_set(x_6, 0, x_19);
 lean_ctor_set(x_16, 0, x_6);
 return x_16;
@@ -682,7 +682,7 @@ x_21 = lean_ctor_get(x_16, 1);
 lean_inc(x_21);
 lean_inc(x_20);
 lean_dec(x_16);
-x_22 = l_Lean_Lsp_DocumentUri_ofPath(x_20);
+x_22 = l_System_Uri_pathToUri(x_20);
 lean_ctor_set(x_6, 0, x_22);
 x_23 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_23, 0, x_6);
@@ -736,7 +736,7 @@ if (lean_is_exclusive(x_29)) {
  lean_dec_ref(x_29);
  x_32 = lean_box(0);
 }
-x_33 = l_Lean_Lsp_DocumentUri_ofPath(x_30);
+x_33 = l_System_Uri_pathToUri(x_30);
 x_34 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_34, 0, x_33);
 if (lean_is_scalar(x_32)) {
@@ -1836,6 +1836,7 @@ lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Json_FromToJson(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_Path(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_Utils(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_System_Uri(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Server_GoTo(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1851,6 +1852,9 @@ res = initialize_Lean_Util_Path(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Server_Utils(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_System_Uri(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Server_GoToKind_noConfusion___rarg___closed__1 = _init_l_Lean_Server_GoToKind_noConfusion___rarg___closed__1();

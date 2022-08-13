@@ -33,7 +33,7 @@ def checkpoint (step : Name) (decls : Array Decl) (cfg : Check.Config := {}): Co
   trace[Compiler.step] "{step}"
   for decl in decls do
     withOptions (fun opts => opts.setBool `pp.motives.pi false) do
-      trace[Compiler.step] "{decl.name} := {decl.value}"
+      trace[Compiler.step] "{decl.name} : {decl.type} :=\n{decl.value}"
       decl.check cfg
 
 def compile (declNames : Array Name) : CoreM Unit := do profileitM Exception "compiler new" (← getOptions) do

@@ -15,8 +15,20 @@ namespace Lean.Compiler
 Declaration being processed by the Lean to Lean compiler passes.
 -/
 structure Decl where
+  /--
+  The name of the declaration from the `Environment` it came from
+  -/
   name  : Name
+  /--
+  The type of the declaration. Note that this is an erased LCNF type
+  instead of the fully dependent one that might have been the original
+  type of the declaration in the `Environment`.
+  -/
   type  : Expr
+  /--
+  The value of the declaration, usually changes as it progresses
+  through compiler passes.
+  -/
   value : Expr
 
 /--
@@ -44,11 +56,12 @@ private def replaceUnsafeRecNames (value : Expr) : CoreM Expr :=
 
 /--
 Convert the given declaration from the Lean environment into `Decl`.
-
-Remarks:
-- If the declaration has an unsafe-rec version, we use it.
-- We eta-expand the declaration value.
-- We expand declarations tagged with the `[MacroInline]` attribute
+The steps for this are roughly:
+- partially erasing type information of the declaration
+- eta-expanding the declaration value.
+- if the declaration has an unsafe-rec version, use it.
+- expand declarations tagged with the `[macroInline]` attribute
+- turn the resulting term into LCNF
 -/
 def toDecl (declName : Name) : CoreM Decl := do
   let env ← getEnv

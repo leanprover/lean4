@@ -68,19 +68,6 @@ where
     else
       return (fvars, e.instantiateRev fvars)
 
-def visitBoundedLambda (e : Expr) (n : Nat) : CompilerM (Array Expr × Expr) :=
-  go e n #[]
-where
-  go (e : Expr) (n : Nat) (fvars : Array Expr) := do
-    if n == 0 then
-      return (fvars, e.instantiateRev fvars)
-    else if let .lam binderName type body binderInfo := e then
-      let type := type.instantiateRev fvars
-      let fvar ← mkLocalDecl binderName type binderInfo
-      go body (n-1) (fvars.push fvar)
-    else
-      return (fvars, e.instantiateRev fvars)
-
 def withNewScopeImp (x : CompilerM α) : CompilerM α := do
   let saved ← get
   modify fun s => { s with letFVars := #[] }

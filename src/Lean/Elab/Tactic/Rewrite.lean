@@ -50,6 +50,7 @@ def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) 
             | [] => throwError "failed to rewrite using equation theorems for '{declName}'"
             | eqThm::eqThms => (x symm (mkIdentFrom id eqThm)) <|> go eqThms
           go eqThms.toList
+          discard <| Term.addTermInfo id (← mkConstWithFreshMVarLevels declName) (lctx? := ← getLCtx)
         match term with
         | `($id:ident)  => processId id
         | `(@$id:ident) => processId id

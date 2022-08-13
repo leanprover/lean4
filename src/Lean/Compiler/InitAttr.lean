@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Environment
 import Lean.Attributes
+import Lean.Elab.InfoTree.Main
 
 namespace Lean
 
@@ -41,7 +42,7 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) (ref
       let decl ← getConstInfo declName
       match (← Attribute.Builtin.getIdent? stx) with
       | some initFnName =>
-        let initFnName ← resolveGlobalConstNoOverload initFnName
+        let initFnName ← Elab.resolveGlobalConstNoOverloadWithInfo initFnName
         let initDecl ← getConstInfo initFnName
         match getIOTypeArg initDecl.type with
         | none => throwError "initialization function '{initFnName}' must have type of the form `IO <type>`"

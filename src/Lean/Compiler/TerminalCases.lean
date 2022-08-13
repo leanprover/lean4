@@ -55,7 +55,7 @@ partial def visitLet (e : Expr) (fvars : Array Expr) : M Expr := do
         visitCases casesInfo value
     else
       if value.isLambda then
-        value ← visitLambda value
+        value ← withReader (fun _ => {}) <| visitLambda value
       let fvar ← mkLetDecl binderName type value nonDep
       visitLet body (fvars.push fvar)
   | e =>

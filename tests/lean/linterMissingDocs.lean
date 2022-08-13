@@ -74,6 +74,10 @@ declare_syntax_cat myCat
 
 syntax "my_syn" : myCat
 syntax (name := namedSyn) "my_named_syn" myCat : command
+infixl:20 "<my_infix>" => Nat.add
+infixr:20 (name := namedInfix) "<my_named_infix>" => Nat.add
+notation:20 "my_notation" x y => Nat.add x y
+notation:20 (name := namedNota) "my_named_notation" x y => Nat.add x y
 
 macro_rules | `(my_named_syn my_syn) => `(def hygienic := 1)
 elab_rules : command | `(my_named_syn my_syn) => return

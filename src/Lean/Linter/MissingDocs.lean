@@ -167,6 +167,18 @@ def checkInit : SimpleHandler := fun stx => do
   if stx[0][2][0].getKind != ``«private» && stx[0][0].isNone then
     lintNamed stx[2][0] "initializer"
 
+@[builtinMissingDocsHandler «notation»]
+def checkNotation : SimpleHandler := fun stx => do
+  if stx[0].isNone && stx[1][0][0].getKind != ``«local» then
+    if stx[4].isNone then lint stx[2] "notation"
+    else lintNamed stx[4][0][3] "notation"
+
+@[builtinMissingDocsHandler «mixfix»]
+def checkMixfix : SimpleHandler := fun stx => do
+  if stx[0].isNone && stx[1][0][0].getKind != ``«local» then
+    if stx[4].isNone then lint stx[2] stx[2][0].getAtomVal!
+    else lintNamed stx[4][0][3] stx[2][0].getAtomVal!
+
 @[builtinMissingDocsHandler «syntax»]
 def checkSyntax : SimpleHandler := fun stx => do
   if stx[0].isNone && stx[2][0][0].getKind != ``«local» then

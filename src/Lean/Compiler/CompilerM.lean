@@ -118,7 +118,14 @@ instance [VisitLet m] : VisitLet (ReaderT ρ m) where
 
 instance [VisitLet m] : VisitLet (StateRefT' ω σ m) := inferInstanceAs (VisitLet (ReaderT _ _))
 
-def mkLetUsingScope (e : Expr) : CompilerM Expr :=
+def mkLetUsingScope (e : Expr) : CompilerM Expr := do
+  let e ← if e.isLambda then
+    /-
+    In LCNF, terminal expression in a `let`-block must not be a lambda.
+    -/
+    mkAuxLetDecl e
+  else
+    pure e
   return (← get).lctx.mkLambda (← get).letFVars e
 
 def mkLambda (xs : Array Expr) (e : Expr) : CompilerM Expr :=

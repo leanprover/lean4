@@ -28,11 +28,14 @@ where
       | _ => throwError "lambda expected"
 
 partial def check (e : Expr) (cfg : Check.Config := {}) : InferTypeM Unit := do
-  checkBlock e #[]
+  checkBlock e #[] false
 where
-  checkBlock (e : Expr) (xs : Array Expr) : InferTypeM Unit := do
+  checkBlock (e : Expr) (xs : Array Expr) (foundLet : Bool) : InferTypeM Unit := do
     match e with
-    | .lam n d b bi => withLocalDecl n (d.instantiateRev xs) bi fun x => checkBlock b (xs.push x)
+    | .lam n d b bi =>
+      if foundLet then
+        throwError "invalid occurrence of lambda-expression at the end of a let-declaration block{indentExpr (e.instantiateRev xs)}"
+      withLocalDecl n (d.instantiateRev xs) bi fun x => checkBlock b (xs.push x) false
     | .letE n t v b _ =>
       let value := v.instantiateRev xs
       checkValue value (isTerminal := false)
@@ -40,13 +43,13 @@ where
       let valueType ← inferType value
       unless compatibleTypes type valueType do
         throwError "type mismatch at let-declaration `{n}`, value has type{indentExpr valueType}\nbut is expected to have type{indentExpr type}"
-      withLocalDecl n type .default fun x => checkBlock b (xs.push x)
+      withLocalDecl n type .default fun x => checkBlock b (xs.push x) true
     | _ => checkValue (e.instantiateRev xs) (isTerminal := true)
 
   checkValue (e : Expr) (isTerminal : Bool) : InferTypeM Unit := do
     match e with
     | .lit _ => pure ()
-    | .lam .. => checkBlock e #[]
+    | .lam .. => checkBlock e #[] (foundLet := false)
     | .app .. => checkApp e isTerminal
     | .proj _ _ (.fvar _) => pure ()
     | .mdata _ (.fvar _)  => pure ()
@@ -106,5 +109,6 @@ where
         let altBodyType ← inferType altBody
         unless compatibleTypes expectedType altBodyType do
           throwError "type mismatch at LCNF `cases` alternative{indentExpr altBody}\nhas type{indentExpr altBodyType}\nbut is expected to have type{indentExpr expectedType}"
+        checkBlock altBody #[] (foundLet := true)
 
 end Lean.Compiler

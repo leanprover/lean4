@@ -19,19 +19,13 @@ abbrev M := ReaderT Context CompilerM
 
 mutual
 
-partial def visitAlt (e : Expr) (numParams : Nat) : M Expr := do
-  withNewScope do
-    let (as, e) ← Compiler.visitBoundedLambda e numParams
-    let e ← mkLetUsingScope (← visitLet e #[])
-    mkLambda as e
-
 partial def visitCases (casesInfo : CasesInfo) (cases : Expr) : M Expr := do
   let mut args := cases.getAppArgs
   if let some jp := (← read).jp? then
     let .forallE _ _ b _ ← inferType jp | unreachable! -- jp's type is guaranteed to be an nondependent arrow, see `visitLet`
     args := casesInfo.updateResultingType args b
-  for i in casesInfo.altsRange, numParams in casesInfo.altNumParams do
-    args ← args.modifyM i (visitAlt · numParams)
+  for i in casesInfo.altsRange do
+    args ← args.modifyM i visitLambda
   return mkAppN cases.getAppFn args
 
 partial def visitLambda (e : Expr) : M Expr :=
@@ -69,11 +63,7 @@ partial def visitLet (e : Expr) (fvars : Array Expr) : M Expr := do
     if let some casesInfo ← isCasesApp? e then
       visitCases casesInfo e
     else match (← read).jp? with
-      | none =>
-        if e.isLambda then
-          visitLambda e
-        else
-          return e
+      | none => return e
       | some jp =>
         let .forallE _ d b _ ← inferType jp | unreachable!
         let mkJpApp (x : Expr) := mkApp jp x |>.headBeta

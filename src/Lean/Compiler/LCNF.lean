@@ -19,6 +19,19 @@ namespace Lean.Compiler
 It is based on the [A-normal form](https://en.wikipedia.org/wiki/A-normal_form),
 and the approach described in the paper
 [Compiling  without continuations](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/11/compiling-without-continuations.pdf).
+
+Remark, in LCNF, the terminal expression in a `let`-declaration block is never a lambda.
+The idea is to make sure we can easily compute the "true arity" of a join point.
+For example, consider the following two join points
+```
+let _jp.1 := fun x y =>
+  x + y
+let _jp.2 := fun x =>
+  let f := fun y => x + y
+  f
+```
+`_jp.1` is a join point of arity 2, and `_jp.2` is a join point of arity 1.
+
 -/
 
 namespace ToLCNF
@@ -117,7 +130,14 @@ where
     else
       return (fvars, e.instantiateRev fvars)
 
-def mkLetUsingScope (e : Expr) : M Expr :=
+def mkLetUsingScope (e : Expr) : M Expr := do
+  let e ← if e.isLambda then
+    /-
+    In LCNF, terminal expression in a `let`-block must not be a lambda.
+    -/
+    mkAuxLetDecl e
+  else
+    pure e
   return (← get).lctx'.mkLambda (← get).letFVars e
 
 def mkLambda (xs : Array Expr) (e : Expr) : M Expr :=

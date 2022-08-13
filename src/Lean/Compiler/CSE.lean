@@ -19,16 +19,10 @@ abbrev M := StateRefT State CompilerM
 
 mutual
 
-partial def visitAlt (e : Expr) (numParams : Nat) : M Expr := do
-  withNewScope do
-    let (as, e) ← Compiler.visitBoundedLambda e numParams
-    let e ← mkLetUsingScope (← visitLet e)
-    mkLambda as e
-
 partial def visitCases (casesInfo : CasesInfo) (cases : Expr) : M Expr := do
   let mut args := cases.getAppArgs
-  for i in casesInfo.altsRange, numParams in casesInfo.altNumParams do
-    args ← args.modifyM i (visitAlt · numParams)
+  for i in casesInfo.altsRange do
+    args ← args.modifyM i visitLambda
   return mkAppN cases.getAppFn args
 
 partial def visitLambda (e : Expr) : M Expr :=
@@ -58,8 +52,6 @@ where
       let e := e.instantiateRev xs
       if let some casesInfo ← isCasesApp? e then
         visitCases casesInfo e
-      else if e.isLambda then
-        visitLambda e
       else
         return e
 

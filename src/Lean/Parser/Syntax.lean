@@ -59,7 +59,7 @@ def «infixl»   := leading_parser "infixl"
 def «infixr»   := leading_parser "infixr"
 def «postfix»  := leading_parser "postfix"
 def mixfixKind := «prefix» <|> «infix» <|> «infixl» <|> «infixr» <|> «postfix»
-@[builtinCommandParser] def «mixfix»   := leading_parser Term.attrKind >> mixfixKind >> precedence >> optNamedName >> optNamedPrio >> ppSpace >> strLit >> darrow >> termParser
+@[builtinCommandParser] def «mixfix»   := leading_parser optional docComment >> Term.attrKind >> mixfixKind >> precedence >> optNamedName >> optNamedPrio >> ppSpace >> strLit >> darrow >> termParser
 -- NOTE: We use `suppressInsideQuot` in the following parsers because quotations inside them are evaluated in the same stage and
 -- thus should be ignored when we use `checkInsideQuot` to prepare the next stage for a builtin syntax change
 def identPrec  := leading_parser ident >> optPrecedence
@@ -67,7 +67,7 @@ def identPrec  := leading_parser ident >> optPrecedence
 def optKind : Parser := optional ("(" >> nonReservedSymbol "kind" >> ":=" >> ident >> ")")
 
 def notationItem := ppSpace >> withAntiquot (mkAntiquot "notationItem" `Lean.Parser.Command.notationItem) (strLit <|> identPrec)
-@[builtinCommandParser] def «notation»    := leading_parser Term.attrKind >> "notation" >> optPrecedence >> optNamedName >> optNamedPrio >> many notationItem >> darrow >> termParser
+@[builtinCommandParser] def «notation»    := leading_parser optional docComment >> Term.attrKind >> "notation" >> optPrecedence >> optNamedName >> optNamedPrio >> many notationItem >> darrow >> termParser
 @[builtinCommandParser] def «macro_rules» := suppressInsideQuot (leading_parser optional docComment >> Term.attrKind >> "macro_rules" >>  optKind >> Term.matchAlts)
 @[builtinCommandParser] def «syntax»      := leading_parser optional docComment >> optional (Term.«attributes») >> Term.attrKind >> "syntax " >> optPrecedence >> optNamedName >> optNamedPrio >> many1 (syntaxParser argPrec) >> " : " >> ident
 @[builtinCommandParser] def syntaxAbbrev  := leading_parser optional docComment >> "syntax " >> ident >> " := " >> many1 syntaxParser

@@ -408,7 +408,7 @@ opaque elabEval : CommandElab
 @[builtinCommandElab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do
   match stx with
   | `($doc:docComment add_decl_doc $id) =>
-    let declName ← resolveGlobalConstNoOverload id
+    let declName ← resolveGlobalConstNoOverloadWithInfo id
     addDocString declName (← getDocStringText doc)
   | _ => throwUnsupportedSyntax
 

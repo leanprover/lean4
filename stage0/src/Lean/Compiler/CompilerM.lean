@@ -8,7 +8,14 @@ import Lean.Compiler.InferType
 
 namespace Lean.Compiler
 
+/--
+The state managed by the `CompilerM` `Monad`.
+-/
 structure CompilerM.State where
+  /--
+  A `LocalContext` to store local declarations from let binders
+  and other constructs in as we move through `Expr`s.
+  -/
   lctx     : LocalContext := {}
   letFVars : Array Expr := #[]
   /-- Next auxiliary variable suffix -/
@@ -26,17 +33,43 @@ instance : AddMessageContext CompilerM where
 instance : MonadInferType CompilerM where
   inferType e := do InferType.inferType e { lctx := (← get).lctx }
 
+/--
+Add a new local declaration with the given arguments to the `LocalContext` of `CompilerM`.
+Returns the free variable representing the new declaration.
+-/
 def mkLocalDecl (binderName : Name) (type : Expr) (bi := BinderInfo.default) : CompilerM Expr := do
   let fvarId ← mkFreshFVarId
   modify fun s => { s with lctx := s.lctx.mkLocalDecl fvarId binderName type bi }
   return .fvar fvarId
 
+/--
+Add a new let declaration with the given arguments to the `LocalContext` of `CompilerM`.
+Returns the free variable representing the new declaration.
+-/
 def mkLetDecl (binderName : Name) (type : Expr) (value : Expr) (nonDep : Bool) : CompilerM Expr := do
   let fvarId ← mkFreshFVarId
   let x := .fvar fvarId
   modify fun s => { s with lctx := s.lctx.mkLetDecl fvarId binderName type value nonDep, letFVars := s.letFVars.push x }
   return x
 
+/--
+Look for a declaration with the given `FvarId` in the `LocalContext` of `CompilerM`.
+-/
+def findDecl? (fvarId : FVarId) : CompilerM (Option LocalDecl) := do
+  let lctx := (← get).lctx
+  return lctx.find? fvarId
+
+/--
+Whether a given local declaration is a join point.
+-/
+def _root_.Lean.LocalDecl.isJp (decl : LocalDecl) : Bool :=
+  decl.userName.getPrefix == `_jp
+
+/--
+Create a new auxiliary let declaration with value `e` The name of the
+declaration is guaranteed to be unique.
+Returns the free variable representing the new declaration.
+-/
 def mkAuxLetDecl (e : Expr) (prefixName := `_x) : CompilerM Expr := do
   if e.isFVar then
     return e
@@ -46,9 +79,17 @@ def mkAuxLetDecl (e : Expr) (prefixName := `_x) : CompilerM Expr := do
     finally
       modify fun s => { s with nextIdx := s.nextIdx + 1 }
 
+/--
+Create an auxiliary let declaration with value `e`, that is a join point.
+recognizable by the _jp name prefix.
+Returns the free variable representing the new declaration.
+-/
 def mkJpDecl (e : Expr) : CompilerM Expr := do
   mkAuxLetDecl e `_jp
 
+/--
+Compute the maximum auxiliary let variable index that is used within `e`.
+-/
 def getMaxLetVarIdx (e : Expr) : CoreM Nat := do
   let maxRef ← IO.mkRef 0
   e.forEach fun
@@ -57,6 +98,14 @@ def getMaxLetVarIdx (e : Expr) : CoreM Nat := do
     | _ => pure ()
   maxRef.get
 
+/--
+Move through all consecutive lambda abstractions at the top level of `e`.
+Returning the body of the last one we find with all bound variables
+instantiated as new free variables.
+Returns a tuple consisting of:
+1. An `Array` of all the newly created free variables
+2. The (fully instantiated) body of the last lambda binder that was visited
+-/
 def visitLambda (e : Expr) : CompilerM (Array Expr × Expr) :=
   go e #[]
 where
@@ -67,6 +116,25 @@ where
       go body (fvars.push fvar)
     else
       return (fvars, e.instantiateRev fvars)
+
+/--
+Given an expression representing a `match` return a tuple consisting of:
+1. The motive
+2. The discriminators
+3. The expressions inside of the match arms
+-/
+def visitMatch (cases : Expr) (casesInfo : CasesInfo) : CompilerM (Expr × Array Expr × Array Expr) := do
+  let args := cases.getAppArgs
+  let motive := args.get! casesInfo.motivePos
+
+  let mut discrs := #[]
+  for i in casesInfo.discrsRange do
+    discrs := discrs.push args[i]!
+
+  let mut arms := #[]
+  for i in casesInfo.altsRange do
+    arms := arms.push (←visitLambda args[i]!).snd
+  return (motive, discrs, arms)
 
 def withNewScopeImp (x : CompilerM α) : CompilerM α := do
   let saved ← get
@@ -79,7 +147,18 @@ def withNewScopeImp (x : CompilerM α) : CompilerM α := do
 def withNewScope [MonadFunctorT CompilerM m] (x : m α) : m α :=
   monadMap (m := CompilerM) withNewScopeImp x
 
+/--
+A typeclass for `Monad`s that are able to perform a visit operation for
+let binders. That is move through a chain of consecutive let binders
+and returning the body of the final one.
+-/
 class VisitLet (m : Type → Type) where
+  /--
+  Move through consecutive top level let binders in the first argument,
+  applying the function in the second argument to the values before the
+  the local declarations for the binders are created. The final return
+  value is the body of the last let binder in the chain.
+  -/
   visitLet : Expr → (Expr → m Expr) → m Expr
 
 export VisitLet (visitLet)
@@ -115,6 +194,9 @@ def mkLetUsingScope (e : Expr) : CompilerM Expr := do
     pure e
   return (← get).lctx.mkLambda (← get).letFVars e
 
+/--
+Shorthand for `LocalContext.mkLambda` with the `LocalContext` of `CompilerM`.
+-/
 def mkLambda (xs : Array Expr) (e : Expr) : CompilerM Expr :=
   return (← get).lctx.mkLambda xs e
 

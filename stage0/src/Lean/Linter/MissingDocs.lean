@@ -169,15 +169,15 @@ def checkInit : SimpleHandler := fun stx => do
 
 @[builtinMissingDocsHandler «notation»]
 def checkNotation : SimpleHandler := fun stx => do
-  if stx[0].isNone && stx[1][0][0].getKind != ``«local» then
-    if stx[4].isNone then lint stx[2] "notation"
-    else lintNamed stx[4][0][3] "notation"
+  if stx[0].isNone && stx[2][0][0].getKind != ``«local» then
+    if stx[5].isNone then lint stx[3] "notation"
+    else lintNamed stx[5][0][3] "notation"
 
 @[builtinMissingDocsHandler «mixfix»]
 def checkMixfix : SimpleHandler := fun stx => do
-  if stx[0].isNone && stx[1][0][0].getKind != ``«local» then
-    if stx[4].isNone then lint stx[2] stx[2][0].getAtomVal!
-    else lintNamed stx[4][0][3] stx[2][0].getAtomVal!
+  if stx[0].isNone && stx[2][0][0].getKind != ``«local» then
+    if stx[5].isNone then lint stx[3] stx[3][0].getAtomVal!
+    else lintNamed stx[5][0][3] stx[3][0].getAtomVal!
 
 @[builtinMissingDocsHandler «syntax»]
 def checkSyntax : SimpleHandler := fun stx => do

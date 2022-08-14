@@ -160,7 +160,7 @@ partial def mkPairs (elems : Array Term) : MacroM Term :=
       pure acc
   loop (elems.size - 1) elems.back
 
-private partial def hasCDot : Syntax → Bool
+partial def hasCDot : Syntax → Bool
   | Syntax.node _ k args =>
     if k == ``Lean.Parser.Term.paren then false
     else if k == ``Lean.Parser.Term.cdot then true

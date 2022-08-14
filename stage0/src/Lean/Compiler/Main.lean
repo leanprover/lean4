@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Compiler.Decl
 import Lean.Compiler.TerminalCases
 import Lean.Compiler.CSE
+import Lean.Compiler.Stage1
 
 namespace Lean.Compiler
 
@@ -41,11 +42,8 @@ def checkpoint (step : Name) (decls : Array Decl) (cfg : Check.Config := {}): Co
       trace[Compiler.step] "{decl.name} : {decl.type} :=\n{decl.value}"
       decl.check cfg
 
-/--
-Run the code generation pipeline for all declarations in `declNames`
-that fulfill the requirements of `shouldGenerateCode`.
--/
-def compile (declNames : Array Name) : CoreM Unit := do profileitM Exception "compiler new" (← getOptions) do
+@[export lean_compile_stage1]
+def compileStage1Impl (declNames : Array Name) : CoreM (Array Decl) := do
   let declNames ← declNames.filterM shouldGenerateCode
   let decls ← declNames.mapM toDecl
   checkpoint `init decls { terminalCasesOnly := false }
@@ -54,6 +52,15 @@ def compile (declNames : Array Name) : CoreM Unit := do profileitM Exception "co
   -- Remark: add simplification step here, `cse` is useful after simplification
   let decls ← decls.mapM (·.cse)
   checkpoint `cse decls
+  saveStage1Decls decls
+  return decls
+
+/--
+Run the code generation pipeline for all declarations in `declNames`
+that fulfill the requirements of `shouldGenerateCode`.
+-/
+def compile (declNames : Array Name) : CoreM Unit := do profileitM Exception "compiler new" (← getOptions) do
+  discard <| compileStage1Impl declNames
 
 builtin_initialize
   registerTraceClass `Compiler

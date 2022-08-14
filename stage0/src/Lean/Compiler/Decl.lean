@@ -8,6 +8,7 @@ import Lean.Meta.Check
 import Lean.Compiler.LCNF
 import Lean.Compiler.Check
 import Lean.Compiler.CompilerM
+import Lean.Compiler.JoinPoints
 
 namespace Lean.Compiler
 
@@ -75,8 +76,33 @@ def toDecl (declName : Name) : CoreM Decl := do
     let value ← toLCNF value
     return { name := declName, type, value }
 
+
+
+/--
+Join points are let bound variables with an _jp name prefix.
+They always need to satisfy two conditions:
+1. Be fully applied
+2. Always be called in tail position
+in order to allow the optimizer to turn them into efficient machine code.
+This function ensures that inside the given declaration both of these
+conditions are satisfied and throws an exception otherwise.
+-/
+def Decl.checkJoinPoints (decl : Decl) : CompilerM Unit :=
+  JoinPointChecker.checkJoinPoints decl.value
+
+
+/--
+Check whether a declaration still fulfills all the invariants that we put
+on them, if it does not throw an exception. This is meant as a sanity
+check for the code generator itself, not to find errors in the user code.
+
+These invariants are:
+- The ones enforced by `Compiler.check`
+- The stored and the inferred LCNF type of the declaration are compatible according to `compatibleTypes`
+-/
 def Decl.check (decl : Decl) (cfg : Check.Config := {}): CoreM Unit := do
   Compiler.check decl.value cfg { lctx := {} }
+  checkJoinPoints decl |>.run' {}
   let valueType ← InferType.inferType decl.value { lctx := {} }
   unless compatibleTypes decl.type valueType do
     throwError "declaration type mismatch at `{decl.name}`, value has type{indentExpr valueType}\nbut is expected to have type{indentExpr decl.type}"
@@ -84,5 +110,9 @@ def Decl.check (decl : Decl) (cfg : Check.Config := {}): CoreM Unit := do
 /-- Apply `f` to declaration `value`. -/
 def Decl.mapValue (decl : Decl) (f : Expr → CompilerM Expr) : CoreM Decl := do
   return { decl with value := (← f decl.value |>.run' { nextIdx := (← getMaxLetVarIdx decl.value) + 1 }) }
+
+def Decl.toString (decl : Decl) : CoreM String := do
+  Meta.MetaM.run' do
+    return s!"{decl.name} : {← Meta.ppExpr decl.type} :=\n{← Meta.ppExpr decl.value}"
 
 end Lean.Compiler

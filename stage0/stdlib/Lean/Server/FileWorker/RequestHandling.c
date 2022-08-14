@@ -85,7 +85,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Serve
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_9400____spec__21___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_9400____spec__24___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_locationLinksOfInfo___lambda__9___boxed(lean_object*, lean_object*);
-lean_object* l_ReaderT_pure___at_Lean_Elab_CompletionInfo_format___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_SemanticTokenType_toCtorIdx(uint8_t);
 static lean_object* l_Lean_Server_FileWorker_handleDocumentHighlight_highlightReturn_x3f___closed__10;
 LEAN_EXPORT lean_object* l_liftExcept___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_9400____spec__9(lean_object*, lean_object*, lean_object*);
@@ -153,6 +152,7 @@ static lean_object* l_List_mapM___at_Lean_Server_FileWorker_getInteractiveGoals_
 static lean_object* l_Lean_Server_FileWorker_handleWaitForDiagnostics___lambda__2___closed__1;
 static lean_object* l_Lean_Server_FileWorker_noHighlightKinds___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleCompletion___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_pure___at_Lean_Meta_Match_mkMatcher___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_handleFoldingRange_isImport___closed__5;
 static lean_object* l_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_9400____closed__21;
 LEAN_EXPORT lean_object* l_liftExcept___at_Lean_Server_FileWorker_handleWaitForDiagnostics___spec__1(lean_object*, lean_object*, lean_object*);
@@ -3748,7 +3748,7 @@ lean_ctor_set(x_63, 2, x_59);
 lean_ctor_set(x_63, 3, x_59);
 x_64 = l_Lean_Server_FileWorker_locationLinksOfInfo___lambda__2___closed__4;
 x_65 = lean_array_push(x_64, x_63);
-x_66 = lean_alloc_closure((void*)(l_ReaderT_pure___at_Lean_Elab_CompletionInfo_format___spec__2___rarg___boxed), 6, 1);
+x_66 = lean_alloc_closure((void*)(l_ReaderT_pure___at_Lean_Meta_Match_mkMatcher___spec__5___rarg___boxed), 6, 1);
 lean_closure_set(x_66, 0, x_65);
 x_67 = l_Lean_Elab_ContextInfo_runMetaM___rarg(x_4, x_13, x_66, x_11);
 if (lean_obj_tag(x_67) == 0)
@@ -3823,7 +3823,7 @@ lean_ctor_set(x_83, 2, x_59);
 lean_ctor_set(x_83, 3, x_59);
 x_84 = l_Lean_Server_FileWorker_locationLinksOfInfo___lambda__2___closed__4;
 x_85 = lean_array_push(x_84, x_83);
-x_86 = lean_alloc_closure((void*)(l_ReaderT_pure___at_Lean_Elab_CompletionInfo_format___spec__2___rarg___boxed), 6, 1);
+x_86 = lean_alloc_closure((void*)(l_ReaderT_pure___at_Lean_Meta_Match_mkMatcher___spec__5___rarg___boxed), 6, 1);
 lean_closure_set(x_86, 0, x_85);
 x_87 = l_Lean_Elab_ContextInfo_runMetaM___rarg(x_4, x_13, x_86, x_11);
 if (lean_obj_tag(x_87) == 0)
@@ -3894,7 +3894,7 @@ lean_ctor_set(x_102, 2, x_59);
 lean_ctor_set(x_102, 3, x_59);
 x_103 = l_Lean_Server_FileWorker_locationLinksOfInfo___lambda__2___closed__4;
 x_104 = lean_array_push(x_103, x_102);
-x_105 = lean_alloc_closure((void*)(l_ReaderT_pure___at_Lean_Elab_CompletionInfo_format___spec__2___rarg___boxed), 6, 1);
+x_105 = lean_alloc_closure((void*)(l_ReaderT_pure___at_Lean_Meta_Match_mkMatcher___spec__5___rarg___boxed), 6, 1);
 lean_closure_set(x_105, 0, x_104);
 x_106 = l_Lean_Elab_ContextInfo_runMetaM___rarg(x_4, x_13, x_105, x_11);
 if (lean_obj_tag(x_106) == 0)

@@ -82,6 +82,7 @@ static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hy
 size_t lean_usize_sub(size_t, size_t);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Linter_unusedVariables___spec__32___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__1;
+lean_object* l_Lean_getConstInfo___at_Lean_initFn____x40_Lean_Deprecated___hyg_4____spec__14(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSetImp_expand___at_Lean_Linter_unusedVariables___spec__4(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_550____lambda__5___closed__1;
@@ -100,7 +101,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Linter_unusedVariab
 LEAN_EXPORT lean_object* l_Std_HashMapImp_moveEntries___at_Lean_Linter_unusedVariables___spec__11(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_getLinterUnusedVariablesPatternVars___boxed(lean_object*);
 lean_object* l_Lean_Elab_Command_addLinter(lean_object*, lean_object*);
-lean_object* l_Lean_getConstInfo___at_Lean_registerInitAttrUnsafe___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1722____lambda__1___closed__4;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1778____closed__1;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_550____lambda__5___closed__8;
@@ -4146,7 +4146,7 @@ _start:
 lean_object* x_7; 
 lean_dec(x_3);
 lean_inc(x_1);
-x_7 = l_Lean_getConstInfo___at_Lean_registerInitAttrUnsafe___spec__1(x_1, x_4, x_5, x_6);
+x_7 = l_Lean_getConstInfo___at_Lean_initFn____x40_Lean_Deprecated___hyg_4____spec__14(x_1, x_4, x_5, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 

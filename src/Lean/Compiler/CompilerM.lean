@@ -41,6 +41,9 @@ def findDecl? (fvarId : FVarId) : CompilerM (Option LocalDecl) := do
   let lctx := (← get).lctx
   return lctx.find? fvarId
 
+def _root_.Lean.LocalDecl.isJp (decl : LocalDecl) : Bool :=
+  decl.userName.getPrefix == `_jp
+
 def mkAuxLetDecl (e : Expr) (prefixName := `_x) : CompilerM Expr := do
   if e.isFVar then
     return e

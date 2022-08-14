@@ -940,7 +940,8 @@ instance [dp : Decidable p] : Decidable (Not p) :=
 
 /--
 `cond b x y` is the same as `if b then x else y`, but optimized for a
-boolean condition. This is `@[macroInline]` because `x` and `y` should not
+boolean condition. It can also be written as `bif b then x else y`.
+This is `@[macroInline]` because `x` and `y` should not
 be eagerly evaluated (see `ite`).
 -/
 @[macroInline] def cond {α : Type u} (c : Bool) (x y : α) : α :=

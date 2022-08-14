@@ -47,7 +47,8 @@ example : True := by
 
 
 /-- My notation -/
-macro "mynota" e:term : term => pure e
+macro (name := myNota) "mynota" e:term : term => pure e
+              --^ textDocument/hover
 
 #check mynota 1
      --^ textDocument/hover

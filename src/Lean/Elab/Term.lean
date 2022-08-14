@@ -346,7 +346,7 @@ def withoutModifyingElabMetaStateWithInfo (x : TermElabM α) : TermElabM α := d
     set sMeta
 
 /--
-  Execute `x` bud discard changes performed to the state.
+  Execute `x` but discard changes performed to the state.
   However, the info trees and messages are not discarded. -/
 private def withoutModifyingStateWithInfoAndMessagesImpl (x : TermElabM α) : TermElabM α := do
   let saved ← saveState

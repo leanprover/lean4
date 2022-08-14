@@ -25,7 +25,7 @@ open Lean.Parser.Command
         So, we must include current namespace when we create a pattern for the following `macro_rules` commands. -/
       let pat := ⟨mkNode ((← getCurrNamespace) ++ name) patArgs⟩
       let stxCmd ← `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind
-        syntax$[:$prec?]? (name := $(← mkIdentFromRef name)) (priority := $(quote prio):num) $[$stxParts]* : $cat)
+        syntax$[:$prec?]? (name := $(name?.getD (mkIdentFrom tk name))) (priority := $(quote prio):num) $[$stxParts]* : $cat)
       let rhs := rhs.raw
       let macroRulesCmd ← if rhs.getArgs.size == 1 then
         -- `rhs` is a `term`

@@ -24,7 +24,7 @@ structure Context (α : Type) where
 
 def Context.tyName {α} (ctx : Context α) : Name := ctx.categoryAttr.defn.valueTypeName
 
--- replace all references of `Parser` with `tyName`
+/-- Replace all references of `Parser` with `tyName` -/
 def replaceParserTy {α} (ctx : Context α) (e : Expr) : Expr :=
   e.replace fun e =>
     -- strip `optParam`

@@ -647,7 +647,7 @@ def setMVarUserName (mvarId : MVarId) (userNameNew : Name) : MetaM Unit :=
 /--
 Throw an exception saying `fvarId` is not declared in the current local context.
 -/
-def _root_.Lean.FVarId.throwUnknown (fvarId : FVarId) : MetaM α :=
+def _root_.Lean.FVarId.throwUnknown (fvarId : FVarId) : CoreM α :=
   throwError "unknown free variable '{mkFVar fvarId}'"
 
 @[deprecated FVarId.throwUnknown]
@@ -773,10 +773,6 @@ def mkLambdaFVars (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedL
 
 def mkLetFVars (xs : Array Expr) (e : Expr) (usedLetOnly := true) (binderInfoForMVars := BinderInfo.implicit) : MetaM Expr :=
   mkLambdaFVars xs e (usedLetOnly := usedLetOnly) (binderInfoForMVars := binderInfoForMVars)
-
-/-- Creates the expression `d → b` -/
-def mkArrow (d b : Expr) : MetaM Expr :=
-  return Lean.mkForall (← mkFreshUserName `x) BinderInfo.default d b
 
 /-- `fun _ : Unit => a` -/
 def mkFunUnit (a : Expr) : MetaM Expr :=

@@ -25,6 +25,7 @@ static lean_object* l_instMonadControlReaderT___closed__3;
 LEAN_EXPORT lean_object* l_ReaderT_instAlternativeReaderT___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadControlReaderT(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadControlReaderT___lambda__3___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_instApplicativeReaderT___rarg(lean_object*);
 static lean_object* l_instMonadControlReaderT___closed__2;
 LEAN_EXPORT lean_object* l_ReaderT_instAlternativeReaderT(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_tryFinally(lean_object*, lean_object*);
@@ -34,7 +35,6 @@ static lean_object* l_instMonadControlReaderT___closed__1;
 LEAN_EXPORT lean_object* l_ReaderT_instAlternativeReaderT___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_orElse(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadControlReaderT___lambda__2(lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_instMonadReaderT___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_orElse___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_instAlternativeReaderT___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_tryFinally___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -138,21 +138,18 @@ return x_9;
 LEAN_EXPORT lean_object* l_ReaderT_instAlternativeReaderT___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_3 = l_ReaderT_instMonadReaderT___rarg(x_2);
-x_4 = lean_ctor_get(x_3, 0);
-lean_inc(x_4);
-lean_dec(x_3);
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_3 = l_ReaderT_instApplicativeReaderT___rarg(x_2);
 lean_inc(x_1);
-x_5 = lean_alloc_closure((void*)(l_ReaderT_instAlternativeReaderT___rarg___lambda__1___boxed), 3, 1);
+x_4 = lean_alloc_closure((void*)(l_ReaderT_instAlternativeReaderT___rarg___lambda__1___boxed), 3, 1);
+lean_closure_set(x_4, 0, x_1);
+x_5 = lean_alloc_closure((void*)(l_ReaderT_instAlternativeReaderT___rarg___lambda__2), 5, 1);
 lean_closure_set(x_5, 0, x_1);
-x_6 = lean_alloc_closure((void*)(l_ReaderT_instAlternativeReaderT___rarg___lambda__2), 5, 1);
-lean_closure_set(x_6, 0, x_1);
-x_7 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_7, 0, x_4);
-lean_ctor_set(x_7, 1, x_5);
-lean_ctor_set(x_7, 2, x_6);
-return x_7;
+x_6 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_6, 0, x_3);
+lean_ctor_set(x_6, 1, x_4);
+lean_ctor_set(x_6, 2, x_5);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_ReaderT_instAlternativeReaderT(lean_object* x_1, lean_object* x_2) {

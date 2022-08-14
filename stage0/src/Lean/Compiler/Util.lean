@@ -3,7 +3,6 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Compiler.CompilerM
 import Lean.Meta.Match.MatcherInfo
 
 namespace Lean.Compiler
@@ -42,20 +41,6 @@ def isLcCast? (e : Expr) : Option Expr :=
 def mkLcProof (p : Expr) :=
   mkApp (mkConst ``lcProof []) p
 
-/-- Create `lcUnreachable type` -/
-def mkLcUnreachable (type : Expr) : CompilerM Expr := do
-  liftMetaM do
-    let u ← Meta.getLevel type
-    return .app (.const ``lcUnreachable [u]) type
-
-/-- Create `lcCast expectedType e : expectedType` -/
-def mkLcCast (e : Expr) (expectedType : Expr) : CompilerM Expr := do
-  liftMetaM do
-    let type ← Meta.inferType e
-    let u ← Meta.getLevel type
-    let v ← Meta.getLevel expectedType
-    return mkApp3 (.const ``lcCast [u, v]) type expectedType e
-
 /--
 Store information about `matcher` and `casesOn` declarations.
 
@@ -63,6 +48,7 @@ We treat them uniformly in the code generator.
 -/
 structure CasesInfo where
   arity        : Nat
+  numParams    : Nat
   discrsRange  : Std.Range
   altsRange    : Std.Range
   altNumParams : Array Nat
@@ -75,19 +61,22 @@ private def getCasesOnInductiveVal? (declName : Name) : CoreM (Option InductiveV
 
 private def getCasesOnInfo? (declName : Name) : CoreM (Option CasesInfo) := do
   let some val ← getCasesOnInductiveVal? declName | return none
-  let motivePos    := val.numParams
-  let arity        := val.numIndices + val.numParams + 1 /- motive -/ + 1 /- major -/ + val.numCtors
-  let majorPos     := val.numIndices + val.numParams + 1 /- motive -/
-  let discrsRange  := { start := majorPos, stop := majorPos + 1 }
-  let altsRange    := { start := majorPos + 1, stop := arity }
+  let numParams    := val.numParams
+  let motivePos    := numParams
+  let arity        := numParams + 1 /- motive -/ + val.numIndices + 1 /- major -/ + val.numCtors
+  let majorPos     := numParams + 1 /- motive -/ + val.numIndices
+  -- We view indices as discriminants
+  let discrsRange  := { start := numParams + 1, stop := majorPos + 1 }
+  let altsRange    := { start := majorPos + 1,  stop := arity }
   let altNumParams ← val.ctors.toArray.mapM fun ctor => do
     let .ctorInfo ctorVal ← getConstInfo ctor | unreachable!
     return ctorVal.numFields
-  return some { motivePos, arity, discrsRange, altsRange, altNumParams }
+  return some { numParams, motivePos, arity, discrsRange, altsRange, altNumParams }
 
 def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
   if let some matcherInfo ← Meta.getMatcherInfo? declName then
     return some {
+      numParams    := matcherInfo.numParams
       motivePos    := matcherInfo.getMotivePos
       arity        := matcherInfo.arity
       discrsRange  := matcherInfo.getDiscrRange
@@ -97,6 +86,17 @@ def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
   else
     getCasesOnInfo? declName
 
+def CasesInfo.geNumDiscrs (casesInfo : CasesInfo) : Nat :=
+  casesInfo.discrsRange.stop - casesInfo.discrsRange.start
+
+def CasesInfo.updateResultingType (casesInfo : CasesInfo) (casesArgs : Array Expr) (typeNew : Expr) : Array Expr :=
+  casesArgs.modify casesInfo.motivePos fun motive => go motive
+where
+  go (e : Expr) : Expr :=
+    match e with
+    | .lam n b d bi => .lam n b (go d) bi
+    | _ => typeNew
+
 def isCasesApp? (e : Expr) : CoreM (Option CasesInfo) := do
   let .const declName _ := e.getAppFn | return none
   if let some info ← getCasesInfo? declName then
@@ -105,14 +105,20 @@ def isCasesApp? (e : Expr) : CoreM (Option CasesInfo) := do
   else
     return none
 
-def updateMotive (casesInfo : CasesInfo) (args : Array Expr) (newResultingType : Expr) : MetaM (Array Expr) := do
-  -- TODO: make it more robust, it is assuming the motive is eta-expanded
-  args.modifyM casesInfo.motivePos fun motive => do
-    Meta.lambdaTelescope motive fun xs _ => Meta.mkLambdaFVars xs newResultingType
-
 def getCtorArity? (declName : Name) : CoreM (Option Nat) := do
   let .ctorInfo val ← getConstInfo declName | return none
   return val.numParams + val.numFields
+
+/--
+Return `true` if the `value` if not a `lambda`, `let` or cases-like expression.
+-/
+def isSimpleLCNF (value : Expr) : CoreM Bool := do
+  if value.isLet || value.isLambda then
+    return false
+  else if let some _ ← isCasesApp? value then
+    return false
+  else
+    return true
 
 /--
 List of types that have builtin runtime support

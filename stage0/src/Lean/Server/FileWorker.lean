@@ -6,6 +6,7 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 import Init.System.IO
 import Std.Data.RBMap
+import Std.System.Uri
 
 import Lean.Environment
 
@@ -199,7 +200,7 @@ section Initialization
           | _         => pure <| (← appDir) / "lake"
         pure <| lakePath.withExtension System.FilePath.exeExtension
     let (headerEnv, msgLog) ← try
-      if let some path := m.uri.toPath? then
+      if let some path := System.Uri.fileUriToPath? m.uri then
         -- NOTE: we assume for now that `lakefile.lean` does not have any non-stdlib deps
         -- NOTE: lake does not exist in stage 0 (yet?)
         if path.fileName != "lakefile.lean" && (← System.FilePath.pathExists lakePath) then
@@ -211,7 +212,7 @@ section Initialization
       pure (← mkEmptyEnvironment, msgs)
     let mut headerEnv := headerEnv
     try
-      if let some path := m.uri.toPath? then
+      if let some path := System.Uri.fileUriToPath? m.uri then
         headerEnv := headerEnv.setMainModule (← moduleNameOfFileName path none)
     catch _ => pure ()
     let cmdState := Elab.Command.mkState headerEnv msgLog opts
@@ -332,20 +333,20 @@ section NotificationHandling
     updatePendingRequests (fun pendingRequests => pendingRequests.erase p.id)
 
 def handleRpcRelease (p : Lsp.RpcReleaseParams) : WorkerM Unit := do
-  let st ← get
   -- NOTE(WN): when the worker restarts e.g. due to changed imports, we may receive `rpc/release`
   -- for the previous RPC session. This is fine, just ignore.
-  if let some seshRef := st.rpcSessions.find? p.sessionId then
+  if let some seshRef := (← get).rpcSessions.find? p.sessionId then
     let monoMsNow ← IO.monoMsNow
-    seshRef.modify fun sesh => Id.run do
-      let mut sesh := sesh
+    let discardRefs : StateM RpcObjectStore Unit := do
       for ref in p.refs do
-        sesh := sesh.release ref |>.snd
-      sesh.keptAlive monoMsNow
+        discard do rpcReleaseRef ref
+    seshRef.modify fun st =>
+      let st := st.keptAlive monoMsNow
+      let ((), objects) := discardRefs st.objects
+      { st with objects }
 
 def handleRpcKeepAlive (p : Lsp.RpcKeepAliveParams) : WorkerM Unit := do
-  let st ← get
-  match st.rpcSessions.find? p.sessionId with
+  match (← get).rpcSessions.find? p.sessionId with
   | none => return
   | some seshRef =>
     seshRef.modify (·.keptAlive (← IO.monoMsNow))

@@ -703,7 +703,6 @@ abbrev M := ReaderT Context $ StateRefT State TermElabM
 def mkMotive (discrs : Array Expr) (expectedType : Expr): MetaM Expr := do
   discrs.foldrM (init := expectedType) fun discr motive => do
     let discr ← instantiateMVars discr
-    trace[Meta.debug] "discr: {discr}, motive: {motive}"
     let motiveBody ← kabstract motive discr
     /- We use `transform (usedLetOnly := true)` to eliminate unnecessary let-expressions. -/
     let discrType ← transform (usedLetOnly := true) (← instantiateMVars (← inferType discr))
@@ -744,7 +743,6 @@ def finalize : M Expr := do
       -- over-application, simulate `revert`
       (f, expectedType) ← revertArgs (← get).args f expectedType
     let result := mkAppN f xs
-    trace[Meta.debug] "result: {result}"
     let mut discrs := (← get).discrs
     let idx := (← get).idx
     if (← get).discrs.size < (← read).elimInfo.targetsPos.size then
@@ -752,7 +750,6 @@ def finalize : M Expr := do
         if (← read).elimInfo.targetsPos.contains i then
           discrs := discrs.push x
     let motiveVal ← mkMotive discrs expectedType
-    trace[Meta.debug] "motiveVal: {motiveVal}"
     unless (← isDefEq motive motiveVal) do
       throwError "failed to elaborate eliminator, invalid motive{indentExpr motiveVal}"
     synthesizeAppInstMVars (← get).instMVars result
@@ -1399,12 +1396,9 @@ private def elabAtom : TermElab := fun stx expectedType? => do
   annotateIfRec stx (← elabAppAux stx #[] #[] (ellipsis := false) expectedType?)
 
 @[builtinTermElab ident] def elabIdent : TermElab := elabAtom
-/-- `x@e` matches the pattern `e` and binds its value to the identifier `x`. -/
 @[builtinTermElab namedPattern] def elabNamedPattern : TermElab := elabAtom
 @[builtinTermElab dotIdent] def elabDotIdent : TermElab := elabAtom
-/-- `x.{u, ...}` explicitly specifies the universes `u, ...` of the constant `x`. -/
 @[builtinTermElab explicitUniv] def elabExplicitUniv : TermElab := elabAtom
-/-- `e |>.x` is a shorthand for `(e).x`. It is especially useful for avoiding parentheses with repeated applications. -/
 @[builtinTermElab pipeProj] def elabPipeProj : TermElab
   | `($e |>.$f $args*), expectedType? =>
     universeConstraintsCheckpoint do
@@ -1412,9 +1406,6 @@ private def elabAtom : TermElab := fun stx expectedType? => do
       elabAppAux (← `($e |>.$f)) namedArgs args (ellipsis := ellipsis) expectedType?
   | _, _ => throwUnsupportedSyntax
 
-/--
-`@x` disables automatic insertion of implicit parameters of the constant `x`.
-`@e` for any term `e` also disables the insertion of implicit lambdas at this position. -/
 @[builtinTermElab explicit] def elabExplicit : TermElab := fun stx expectedType? =>
   match stx with
   | `(@$_:ident)         => elabAtom stx expectedType?  -- Recall that `elabApp` also has support for `@`

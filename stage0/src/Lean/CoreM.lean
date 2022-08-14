@@ -263,4 +263,8 @@ def Exception.isMaxHeartbeat (ex : Exception) : Bool :=
   | Exception.error _ (MessageData.ofFormat (Std.Format.text msg)) => "(deterministic) timeout".isPrefixOf msg
   | _ => false
 
+/-- Creates the expression `d → b` -/
+def mkArrow (d b : Expr) : CoreM Expr :=
+  return Lean.mkForall (← mkFreshUserName `x) BinderInfo.default d b
+
 end Lean

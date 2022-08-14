@@ -9,7 +9,7 @@ import Lean.Util.Recognizers
 import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Transform
 import Lean.Compiler.InlineAttrs
-import Lean.Compiler.CompilerM
+import Lean.Compiler.InferType
 import Lean.Compiler.Util
 
 namespace Lean.Compiler
@@ -19,6 +19,19 @@ namespace Lean.Compiler
 It is based on the [A-normal form](https://en.wikipedia.org/wiki/A-normal_form),
 and the approach described in the paper
 [Compiling  without continuations](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/11/compiling-without-continuations.pdf).
+
+Remark, in LCNF, the terminal expression in a `let`-declaration block is never a lambda.
+The idea is to make sure we can easily compute the "true arity" of a join point.
+For example, consider the following two join points
+```
+let _jp.1 := fun x y =>
+  x + y
+let _jp.2 := fun x =>
+  let f := fun y => x + y
+  f
+```
+`_jp.1` is a join point of arity 2, and `_jp.2` is a join point of arity 1.
+
 -/
 
 namespace ToLCNF
@@ -27,35 +40,118 @@ structure Context where
   root : Bool
 
 structure State where
-  cache   : PersistentExprMap Expr := {}
+  /-- Local context containing the original Lean types (not LCNF ones). -/
+  lctx     : LocalContext := {}
+  /-- Local context containing Lean LCNF types. -/
+  lctx' : LocalContext := {}
+  letFVars : Array Expr := #[]
+  /-- Next auxiliary variable suffix -/
+  nextIdx : Nat := 1
+  /-- Cache from Lean regular expression to LCNF expression. -/
+  cache : PersistentExprMap Expr := {}
 
-abbrev M := ReaderT Context $ StateRefT State CompilerM
+abbrev M := ReaderT Context $ StateRefT State CoreM
+
+instance : MonadInferType M where
+  inferType e := do InferType.inferType e { lctx := (← get).lctx' }
+
+@[inline] def liftMetaM (x : MetaM α) : M α := do
+  x.run' { lctx := (← get).lctx }
 
 @[inline] def withRoot (flag : Bool) (x : M α) : M α :=
   withReader (fun _ => { root := flag }) x
 
 def withNewRootScope (x : M α) : M α := do
   let saved ← get
+  modify fun s => { s with letFVars := #[] }
   try
-    withRoot true <| Compiler.withNewScope x
+    withRoot true x
   finally
+    let saved := { saved with nextIdx := (← get).nextIdx }
     set saved
+
+/-- Create a new local declaration using a Lean regular type. -/
+def mkLocalDecl (binderName : Name) (type : Expr) (bi := BinderInfo.default) : M Expr := do
+  let fvarId ← mkFreshFVarId
+  let type' ← liftMetaM <| toLCNFType type
+  modify fun s => { s with
+    lctx  := s.lctx.mkLocalDecl fvarId binderName type bi
+    lctx' := s.lctx'.mkLocalDecl fvarId binderName type' bi
+  }
+  return .fvar fvarId
+
+def mkLetDecl (binderName : Name) (type : Expr) (value : Expr) (type' : Expr) (value' : Expr) : M Expr := do
+  let fvarId ← mkFreshFVarId
+  let x := .fvar fvarId
+  modify fun s => { s with
+    lctx     := s.lctx.mkLetDecl fvarId binderName type value false
+    lctx'    := s.lctx'.mkLetDecl fvarId binderName type' value' true
+    letFVars := s.letFVars.push x
+  }
+  return x
+
+/-- Create an auxiliary `let`-declaration for the given LCNF expression. -/
+def mkAuxLetDecl (e : Expr) : M Expr := do
+  if (← read).root then
+    return e
+  else
+    let fvarId ← mkFreshFVarId
+    let binderName := .num `_x (← get).nextIdx
+    modify fun s => { s with nextIdx := s.nextIdx + 1 }
+    let type ← inferType e
+    let x := .fvar fvarId
+    modify fun s => { s with
+      lctx'    := s.lctx'.mkLetDecl fvarId binderName type e true
+      letFVars := s.letFVars.push x
+    }
+    return x
+
+def visitLambda (e : Expr) : M (Array Expr × Expr) :=
+  go e #[]
+where
+  go (e : Expr) (fvars : Array Expr) := do
+    if let .lam binderName type body binderInfo := e then
+      let type := type.instantiateRev fvars
+      let fvar ← mkLocalDecl binderName type binderInfo
+      go body (fvars.push fvar)
+    else
+      return (fvars, e.instantiateRev fvars)
+
+def visitBoundedLambda (e : Expr) (n : Nat) : M (Array Expr × Expr) :=
+  go e n #[]
+where
+  go (e : Expr) (n : Nat) (fvars : Array Expr) := do
+    if n == 0 then
+      return (fvars, e.instantiateRev fvars)
+    else if let .lam binderName type body binderInfo := e then
+      let type := type.instantiateRev fvars
+      let fvar ← mkLocalDecl binderName type binderInfo
+      go body (n-1) (fvars.push fvar)
+    else
+      return (fvars, e.instantiateRev fvars)
+
+def mkLetUsingScope (e : Expr) : M Expr := do
+  let e ← if e.isLambda then
+    /-
+    In LCNF, terminal expression in a `let`-block must not be a lambda.
+    -/
+    withRoot false <| mkAuxLetDecl e
+  else
+    pure e
+  return (← get).lctx'.mkLambda (← get).letFVars e
+
+def mkLambda (xs : Array Expr) (e : Expr) : M Expr :=
+  return (← get).lctx'.mkLambda xs e
 
 /--
 Eta-expand with `n` lambdas.
 -/
-def etaExpandN (e : Expr) (n : Nat) : CompilerM Expr := do
+def etaExpandN (e : Expr) (n : Nat) : M Expr := do
   if n == 0 then
     return e
   else liftMetaM do
     Meta.forallBoundedTelescope (← Meta.inferType e) n fun xs _ =>
       Meta.mkLambdaFVars xs (mkAppN e xs)
-
-def mkAuxLetDecl (e : Expr) : M Expr := do
-  if (← read).root then
-    return e
-  else
-    Compiler.mkAuxLetDecl e
 
 /--
 Put the given expression in `LCNF`.
@@ -64,9 +160,9 @@ Put the given expression in `LCNF`.
 - Eta-expand applications of declarations that satisfy `shouldEtaExpand`.
 - Put computationally relevant expressions in A-normal form.
 -/
-partial def toLCNF (lctx : LocalContext) (e : Expr) : CoreM Expr := do
-  let ((e, _), s) ← visit e |>.run { root := true } |>.run {} |>.run { lctx }
-  return s.lctx.mkLambda s.letFVars e
+partial def toLCNF (e : Expr) : CoreM Expr := do
+  let (e, s) ← visit e |>.run { root := true } |>.run {}
+  return s.lctx'.mkLambda s.letFVars e
 where
   visitChild (e : Expr) : M Expr :=
     withRoot false <| visit e
@@ -103,43 +199,45 @@ where
     mkAuxLetDecl (mkAppN k args[arity:])
 
   /--
-  Create an application `f args` that is expected to have arity `arity`.
-  If `arity > args.size`, we say `f` is over-applied, we visit the "extra" arguments,
-  and produce an output of the form
-  ```
-  let k := f args[:arity]
-  k args[arity:]
-  ```
-  -/
-  mkAppWithArity (f : Expr) (args : Array Expr) (arity : Nat) : M Expr := do
-    if args.size == arity then
-      mkAuxLetDecl (mkAppN f args)
-    else
-      mkOverApplication (mkAppN f args[:arity]) args arity
-
-  /--
   Visit a `matcher`/`casesOn` alternative.
   -/
-  visitAlt (e : Expr) (numParams : Nat) : M Expr := do
+  visitAlt (e : Expr) (numParams : Nat) : M (Expr × Expr) := do
     withNewRootScope do
-      let mut (as, e) ← Compiler.visitBoundedLambda e numParams
+      let mut (as, e) ← visitBoundedLambda e numParams
       if as.size < numParams then
         e ← etaExpandN e (numParams - as.size)
-        let (as', e') ← Compiler.visitLambda e
+        let (as', e') ← ToLCNF.visitLambda e
         as := as ++ as'
         e := e'
       e ← mkLetUsingScope (← visit e)
-      mkLambda as e
+      let eType ← inferType e
+      return (eType, (← mkLambda as e))
 
   visitCases (casesInfo : CasesInfo) (e : Expr) : M Expr :=
     etaIfUnderApplied e casesInfo.arity do
       let mut args := e.getAppArgs
+      let mut resultType ← liftMetaM do toLCNFType (← Meta.inferType (mkAppN e.getAppFn args[:casesInfo.arity]))
+      let mut discrTypes := #[]
+      for i in [:casesInfo.numParams] do
+        -- `cases` and `match` parameters are irrelevant at LCNF
+        args := args.modify i fun _ => mkConst ``lcErased
       for i in casesInfo.discrsRange do
+        let discrType ← inferType args[i]!
         args ← args.modifyM i visitChild
+        discrTypes := discrTypes.push discrType
       for i in casesInfo.altsRange, numParams in casesInfo.altNumParams do
-        let alt ← visitAlt args[i]! numParams
+        let (altType, alt) ← visitAlt args[i]! numParams
+        unless compatibleTypes altType resultType do
+          resultType := anyTypeExpr
         args := args.set! i alt
-      mkAppWithArity e.getAppFn args casesInfo.arity
+      let motive ← discrTypes.foldrM (init := resultType) fun discrType resultType =>
+        return .lam (← mkFreshUserName `x) discrType resultType .default
+      args := args.set! casesInfo.motivePos motive
+      let result := mkAppN e.getAppFn args[:casesInfo.arity]
+      if args.size == casesInfo.arity then
+        mkAuxLetDecl result
+      else
+        mkOverApplication result args casesInfo.arity
 
   visitCtor (arity : Nat) (e : Expr) : M Expr :=
     etaIfUnderApplied e arity do
@@ -154,7 +252,7 @@ where
       let f ← visitChild args[3]!
       let q ← visitChild args[5]!
       let .const _ [u, _] := e.getAppFn | unreachable!
-      let invq ← mkAuxLetDecl (mkApp3 (.const ``Quot.lcInv [u]) α r q)
+      let invq ← withRoot false <| mkAuxLetDecl (mkApp3 (.const ``Quot.lcInv [u]) α r q)
       let r := mkApp f invq
       mkOverApplication r args arity
 
@@ -163,21 +261,29 @@ where
     etaIfUnderApplied e arity do
       let args := e.getAppArgs
       let f := e.getAppFn
-      let type ← inferType (mkAppN f args[:arity])
+      let recType ← liftMetaM do toLCNFType (← Meta.inferType (mkAppN f args[:arity]))
       let minor := if e.isAppOf ``Eq.rec || e.isAppOf ``Eq.ndrec then args[3]! else args[5]!
-      let cast ← mkLcCast (← visitChild minor) type
+      let minor ← visit minor
+      let minorType ← inferType minor
+      let cast ← if compatibleTypes minorType recType then
+        -- Recall that many types become compatible after LCNF conversion
+        -- Example: `Fin 10` and `Fin n`
+        pure minor
+      else
+        mkLcCast (← withRoot false <| mkAuxLetDecl minor) recType
       mkOverApplication cast args arity
 
   visitFalseRec (e : Expr) : M Expr :=
     let arity := 2
     etaIfUnderApplied e arity do
-      mkAuxLetDecl (← mkLcUnreachable (← inferType e))
+      let type ← liftMetaM do toLCNFType (← Meta.inferType e)
+      mkAuxLetDecl (← mkLcUnreachable type)
 
   visitAndRec (e : Expr) : M Expr :=
     let arity := 5
     etaIfUnderApplied e arity do
       let args := e.getAppArgs
-      let ha := mkLcProof args[0]!
+      let ha := mkLcProof args[0]! -- We should not use `lcErased` here since we use it to create a pre-LCNF Expr.
       let hb := mkLcProof args[1]!
       let minor := if e.isAppOf ``And.rec then args[3]! else args[4]!
       let minor := minor.beta #[ha, hb]
@@ -190,8 +296,8 @@ where
     let arity := inductVal.numParams + inductVal.numIndices + 1 /- motive -/ + 2 /- lhs/rhs-/ + 1 /- equality -/
     etaIfUnderApplied e arity do
       let args := e.getAppArgs
-      let lhs ← whnf args[inductVal.numParams + inductVal.numIndices + 1]!
-      let rhs ← whnf args[inductVal.numParams + inductVal.numIndices + 2]!
+      let lhs ← liftMetaM do Meta.whnf args[inductVal.numParams + inductVal.numIndices + 1]!
+      let rhs ← liftMetaM do Meta.whnf args[inductVal.numParams + inductVal.numIndices + 2]!
       let lhs := lhs.toCtorIfLit
       let rhs := rhs.toCtorIfLit
       match lhs.isConstructorApp? (← getEnv), rhs.isConstructorApp? (← getEnv) with
@@ -213,7 +319,6 @@ where
     | n+1 =>
       if let .lam _ d b _ := major then
         let proof := mkLcProof d
-        trace[Meta.debug] "proof: {proof}"
         expandNoConfusionMajor (b.instantiate1 proof) n
       else
         expandNoConfusionMajor (← etaExpandN major (n+1)) (n+1)
@@ -260,7 +365,7 @@ where
 
   visitLambda (e : Expr) : M Expr := do
     let r ← withNewRootScope do
-      let (as, e) ← Compiler.visitLambda e
+      let (as, e) ← ToLCNF.visitLambda e
       let e ← mkLetUsingScope (← visit e)
       mkLambda as e
     mkAuxLetDecl r
@@ -274,21 +379,37 @@ where
   visitProj (s : Name) (i : Nat) (e : Expr) : M Expr := do
     mkAuxLetDecl <| .proj s i (← visitChild e)
 
+  visitLet (e : Expr) (xs : Array Expr) : M Expr := do
+    match e with
+    | .letE binderName type value body _ =>
+      let type := type.instantiateRev xs
+      let value := value.instantiateRev xs
+      if (← liftMetaM <| Meta.isProp type <||> Meta.isTypeFormerType type) then
+        visitLet body (xs.push value)
+      else
+        let type' ← liftMetaM <| toLCNFType type
+        let value' ← visitChild value
+        let x ← mkLetDecl binderName type value type' value'
+        visitLet body (xs.push x)
+    | _ =>
+      let e := e.instantiateRev xs
+      visit e
+
   visit (e : Expr) : M Expr := withIncRecDepth do
     match e with
     | .mvar .. => throwError "unexpected occurrence of metavariable in code generator{indentExpr e}"
     | .bvar .. => unreachable!
-    | .fvar .. | .sort .. | .forallE .. => return e -- Do nothing
+    | .fvar .. | .sort .. => return e -- Do nothing
     | _ =>
     if isLCProof e then
-      return e
-    let type ← inferType e
-    if (← isProp type) then
+      return mkConst ``lcErased
+    let type ← liftMetaM <| Meta.inferType e
+    if (← liftMetaM <| Meta.isProp type) then
       /- We replace proofs with `lcProof` applications. -/
-      return mkLcProof type
-    if (← isTypeFormerType type) then
+      return mkConst ``lcErased
+    if (← liftMetaM <| Meta.isTypeFormerType type) then
       /- Types and Type formers are not put into A-normal form. -/
-      return e
+      return (← liftMetaM <| toLCNFType e)
     if let some e := (← get).cache.find? e then
       return e
     let r ← match e with
@@ -297,8 +418,9 @@ where
       | .proj s i e => visitProj s i e
       | .mdata d e  => visitMData d e
       | .lam ..     => visitLambda e
-      | .letE ..    => visit (← visitLet e visitChild)
+      | .letE ..    => visitLet e #[]
       | .lit ..     => mkAuxLetDecl e
+      | .forallE .. => unreachable!
       | _           => pure e
     modify fun s => { s with cache := s.cache.insert e r }
     return r

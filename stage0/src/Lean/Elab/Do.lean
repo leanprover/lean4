@@ -1158,7 +1158,7 @@ end ToTerm
 
 def isMutableLet (doElem : Syntax) : Bool :=
   let kind := doElem.getKind
-  (kind == `Lean.Parser.Term.doLetArrow || kind == `Lean.Parser.Term.doLet)
+  (kind == ``doLetArrow || kind == ``doLet || kind == ``doLetElse)
   &&
   !doElem[1].isNone
 
@@ -1330,9 +1330,12 @@ mutual
           `(do let%$doLetArrow discr ← $doElem; let%$doLetArrow $pattern:term := discr)
         doSeqToCode <| getDoSeqElems (getDoSeq auxDo) ++ doElems
       else
-        if isMutableLet doLetArrow then
-          throwError "`mut` is currently not supported in let-decls with `else` case"
-        let contSeq := mkDoSeq doElems.toArray
+        let contSeq ← if isMutableLet doLetArrow then
+          let vars ← (← getPatternVarsEx pattern).mapM fun var => `(doElem| let mut $var := $var)
+          pure (vars ++ doElems.toArray)
+        else
+          pure doElems.toArray
+        let contSeq := mkDoSeq contSeq
         let elseSeq := mkSingletonDoSeq optElse[1]
         let auxDo ← `(do let%$doLetArrow discr ← $doElem; match%$doLetArrow discr with | $pattern:term => $contSeq | _ => $elseSeq)
         doSeqToCode <| getDoSeqElems (getDoSeq auxDo)
@@ -1340,11 +1343,16 @@ mutual
       throwError "unexpected kind of `do` declaration"
 
   partial def doLetElseToCode (doLetElse : Syntax) (doElems : List Syntax) : M CodeBlock := do
-    -- "let " >> termParser >> " := " >> termParser >> checkColGt >> " | " >> doElemParser
-    let pattern := doLetElse[1]
-    let val     := doLetElse[3]
-    let elseSeq := mkSingletonDoSeq doLetElse[5]
-    let contSeq := mkDoSeq doElems.toArray
+    -- "let " >> optional "mut " >> termParser >> " := " >> termParser >> checkColGt >> " | " >> doElemParser
+    let pattern := doLetElse[2]
+    let val     := doLetElse[4]
+    let elseSeq := mkSingletonDoSeq doLetElse[6]
+    let contSeq ← if isMutableLet doLetElse then
+      let vars ← (← getPatternVarsEx pattern).mapM fun var => `(doElem| let mut $var := $var)
+      pure (vars ++ doElems.toArray)
+    else
+      pure doElems.toArray
+    let contSeq := mkDoSeq contSeq
     let auxDo ← `(do let discr := $val; match discr with | $pattern:term => $contSeq | _ => $elseSeq)
     doSeqToCode <| getDoSeqElems (getDoSeq auxDo)
 

@@ -54,7 +54,7 @@ LEAN_EXPORT lean_object* l_Std_PersistentHashMap_find_x3f___at___private_Lean_Me
 LEAN_EXPORT lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_throwTypeExcepted___rarg___closed__1;
 static lean_object* l_Lean_Expr_instantiateBetaRevRange_visit___closed__12;
-lean_object* l_Lean_FVarId_throwUnknown___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_FVarId_throwUnknown___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instantiateLevelMVars___at_Lean_Meta_normalizeLevel___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isBVar(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_throwFunctionExpected___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5701,19 +5701,18 @@ _start:
 lean_object* x_7; lean_object* x_8; 
 x_7 = lean_ctor_get(x_2, 1);
 lean_inc(x_7);
+lean_dec(x_2);
 lean_inc(x_1);
 x_8 = lean_local_ctx_find(x_7, x_1);
 if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_9; 
-x_9 = l_Lean_FVarId_throwUnknown___rarg(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_2);
+x_9 = l_Lean_FVarId_throwUnknown___rarg(x_1, x_4, x_5, x_6);
 return x_9;
 }
 else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-lean_dec(x_2);
 lean_dec(x_1);
 x_10 = lean_ctor_get(x_8, 0);
 lean_inc(x_10);

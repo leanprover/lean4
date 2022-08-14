@@ -106,8 +106,10 @@ private def isLocalAttrKind (attrKind : Syntax) : Bool :=
   | `(Parser.Term.attrKind| local) => true
   | _ => false
 
-private def expandNotationAux (ref : Syntax)
-    (currNamespace : Name) (attrKind : TSyntax ``attrKind) (prec? : Option Prec) (name? : Option Ident) (prio? : Option Prio) (items : Array (TSyntax ``notationItem)) (rhs : Term) : MacroM Syntax := do
+private def expandNotationAux (ref : Syntax) (currNamespace : Name)
+    (doc? : Option (TSyntax ``docComment)) (attrKind : TSyntax ``attrKind)
+    (prec? : Option Prec) (name? : Option Ident) (prio? : Option Prio)
+    (items : Array (TSyntax ``notationItem)) (rhs : Term) : MacroM Syntax := do
   let prio ← evalOptPrio prio?
   -- build parser
   let syntaxParts ← items.mapM expandNotationItemIntoSyntaxItem
@@ -125,7 +127,7 @@ private def expandNotationAux (ref : Syntax)
      So, we must include current namespace when we create a pattern for the following `macro_rules` commands. -/
   let fullName := currNamespace ++ name
   let pat : Term := ⟨mkNode fullName patArgs⟩
-  let stxDecl ← `($attrKind:attrKind syntax $[: $prec?]? (name := $(mkIdent name)) (priority := $(quote prio)) $[$syntaxParts]* : $cat)
+  let stxDecl ← `($[$doc?:docComment]? $attrKind:attrKind syntax $[: $prec?]? (name := $(mkIdent name)) (priority := $(quote prio)) $[$syntaxParts]* : $cat)
   let macroDecl ← `(macro_rules | `($pat) => ``($qrhs))
   let macroDecls ←
     if isLocalAttrKind attrKind then
@@ -138,10 +140,10 @@ private def expandNotationAux (ref : Syntax)
   | none           => return mkNullNode #[stxDecl, macroDecls]
 
 @[builtinMacro Lean.Parser.Command.notation] def expandNotation : Macro
-  | stx@`($attrKind:attrKind notation $[: $prec? ]? $[(name := $name?)]? $[(priority := $prio?)]? $items* => $rhs) => do
+  | stx@`($[$doc?:docComment]? $attrKind:attrKind notation $[: $prec? ]? $[(name := $name?)]? $[(priority := $prio?)]? $items* => $rhs) => do
     -- trigger scoped checks early and only once
     let _ ← toAttributeKind attrKind
-    expandNotationAux stx (← Macro.getCurrNamespace) attrKind prec? name? prio? items rhs
+    expandNotationAux stx (← Macro.getCurrNamespace) doc? attrKind prec? name? prio? items rhs
   | _ => Macro.throwUnsupported
 
 end Lean.Elab.Command

@@ -192,7 +192,7 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
   if let Info.ofFieldInfo fi := i then
     return ← findDocString? env fi.projName
   if let some ei := i.toElabInfo? then
-    return ← findDocString? env ei.elaborator <||> findDocString? env ei.stx.getKind
+    return ← findDocString? env ei.stx.getKind <||> findDocString? env ei.elaborator
   return none
 
 /-- Construct a hover popup, if any, from an info node in a context.-/

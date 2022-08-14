@@ -111,4 +111,8 @@ def Decl.check (decl : Decl) (cfg : Check.Config := {}): CoreM Unit := do
 def Decl.mapValue (decl : Decl) (f : Expr → CompilerM Expr) : CoreM Decl := do
   return { decl with value := (← f decl.value |>.run' { nextIdx := (← getMaxLetVarIdx decl.value) + 1 }) }
 
+def Decl.toString (decl : Decl) : CoreM String := do
+  Meta.MetaM.run' do
+    return s!"{decl.name} : {← Meta.ppExpr decl.type} :=\n{← Meta.ppExpr decl.value}"
+
 end Lean.Compiler

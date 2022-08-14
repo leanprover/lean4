@@ -95,15 +95,19 @@ def Tuple.example (a b : Nat) :=
 #eval Compiler.compile #[``Tuple.example]
 
 def gebner1 (x : UInt64) : UInt64 := assert! x > 0; x - 1
-set_option pp.letVarTypes true in
+-- set_option pp.letVarTypes true in
 #eval Compiler.compile #[``gebner1]
 
 def gebner2 (x : UInt64) := x &&& ((1 : UInt64) <<< 5 : UInt64)
-set_option pp.letVarTypes true in
+-- set_option pp.letVarTypes true in
 #eval Compiler.compile #[``gebner2]
 
 #eval Compiler.compile #[``Lean.Meta.instMonadMetaM]
 #eval Compiler.compile #[``Lean.Core.instMonadCoreM]
 #eval Compiler.compile #[``instMonadEIO]
-set_option pp.explicit true in
+-- set_option pp.explicit true in
 #eval Compiler.compile #[``EStateM.instMonadEStateM]
+
+#eval do
+  let some decl ← Compiler.getStage1Decl? ``List.length | throwError "not found"
+  IO.println (← decl.toString)

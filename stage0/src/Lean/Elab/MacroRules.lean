@@ -42,13 +42,17 @@ def elabMacroRulesAux (doc? : Option (TSyntax ``docComment)) (attrKind : TSyntax
 @[builtinCommandElab «macro_rules»] def elabMacroRules : CommandElab :=
   adaptExpander fun stx => match stx with
   | `($[$doc?:docComment]? $attrKind:attrKind macro_rules%$tk $alts:matchAlt*) =>
-    expandNoKindMacroRulesAux alts "macro_rules" fun kind? alts =>
-      `($[$doc?:docComment]? $attrKind:attrKind macro_rules%$tk $[(kind := $(mkIdent <$> kind?))]? $alts:matchAlt*)
+    -- exclude command prefix from synthetic position used for e.g. jumping to the macro definition
+    withRef (mkNullNode #[tk, mkNullNode alts]) do
+      expandNoKindMacroRulesAux alts "macro_rules" fun kind? alts =>
+        `($[$doc?:docComment]? $attrKind:attrKind macro_rules $[(kind := $(mkIdent <$> kind?))]? $alts:matchAlt*)
   | `($[$doc?:docComment]? $attrKind:attrKind macro_rules%$tk (kind := $kind) | $x:ident => $rhs) =>
-    `($[$doc?:docComment]? @[$attrKind:attrKind macro $kind]
-      aux_def $(mkIdentFrom tk kind.getId) $kind : Macro := fun $x:ident => $rhs)
+    withRef (mkNullNode #[tk, rhs]) do
+      `($[$doc?:docComment]? @[$attrKind:attrKind macro $kind]
+        aux_def $(mkIdentFrom tk kind.getId) $kind : Macro := fun $x:ident => $rhs)
   | `($[$doc?:docComment]? $attrKind:attrKind macro_rules%$tk (kind := $kind) $alts:matchAlt*) =>
-    do elabMacroRulesAux doc? attrKind tk (← resolveSyntaxKind kind.getId) alts
+    withRef (mkNullNode #[tk, mkNullNode alts]) do
+      elabMacroRulesAux doc? attrKind tk (← resolveSyntaxKind kind.getId) alts
   | _  => throwUnsupportedSyntax
 
 end Lean.Elab.Command

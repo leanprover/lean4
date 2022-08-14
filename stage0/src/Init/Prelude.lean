@@ -3342,7 +3342,7 @@ inductive SourceInfo where
     -/
    original (leading : Substring) (pos : String.Pos) (trailing : Substring) (endPos : String.Pos)
   | /--
-    Synthesized token (e.g. from a quotation) annotated with a span from the original source.
+    Synthesized syntax (e.g. from a quotation) annotated with a span from the original source.
     In the delaborator, we "misuse" this constructor to store synthetic positions identifying
     subterms.
     -/
@@ -3392,6 +3392,11 @@ inductive Syntax where
     The `info` field is used by the delaborator to store the position of the
     subexpression corresponding to this node. The parser sets the `info` field
     to `none`.
+    The parser sets the `info` field to `none`, with position retrieval continuing recursively.
+    Nodes created by quotatons use the result from `SourceInfo.fromRef` so that they are marked
+    as synthetic even when the leading/trailing token is not.
+    The delaborator uses the `info` field to store the position of the subexpression
+    corresponding to this node.
 
     (Remark: the `node` constructor did not have an `info` field in previous
     versions. This caused a bug in the interactive widgets, where the popup for

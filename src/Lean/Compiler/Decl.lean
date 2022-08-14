@@ -87,9 +87,8 @@ in order to allow the optimizer to turn them into efficient machine code.
 This function ensures that inside the given declaration both of these
 conditions are satisfied and throws an exception otherwise.
 -/
-def Decl.checkJoinPoints (decl : Decl) : CompilerM Unit := do
-  let tails ← JoinPointChecker.getTails decl.value
-  discard <| tails.mapM JoinPointChecker.checkTail
+def Decl.checkJoinPoints (decl : Decl) : CompilerM Unit :=
+  JoinPointChecker.checkJoinPoints decl.value
 
 
 /--
@@ -103,7 +102,7 @@ These invariants are:
 -/
 def Decl.check (decl : Decl) (cfg : Check.Config := {}): CoreM Unit := do
   Compiler.check decl.value cfg { lctx := {} }
-  discard <| checkJoinPoints decl |>.run {}
+  checkJoinPoints decl |>.run' {}
   let valueType ← InferType.inferType decl.value { lctx := {} }
   unless compatibleTypes decl.type valueType do
     throwError "declaration type mismatch at `{decl.name}`, value has type{indentExpr valueType}\nbut is expected to have type{indentExpr decl.type}"

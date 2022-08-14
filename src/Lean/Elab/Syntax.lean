@@ -341,7 +341,8 @@ def resolveSyntaxKind (k : Name) : CommandElabM Name := do
   throwError "invalid syntax node kind '{k}'"
 
 @[builtinCommandElab «syntax»] def elabSyntax : CommandElab := fun stx => do
-  let `($[$doc?:docComment]? $[ @[ $attrInstances:attrInstance,* ] ]? $attrKind:attrKind syntax $[: $prec? ]? $[(name := $name?)]? $[(priority := $prio?)]? $[$ps:stx]* : $catStx) ← pure stx
+  let `($[$doc?:docComment]? $[ @[ $attrInstances:attrInstance,* ] ]? $attrKind:attrKind
+      syntax%$tk $[: $prec? ]? $[(name := $name?)]? $[(priority := $prio?)]? $[$ps:stx]* : $catStx) := stx
     | throwUnsupportedSyntax
   let cat := catStx.getId.eraseMacroScopes
   unless (Parser.isParserCategory (← getEnv) cat) do
@@ -357,10 +358,11 @@ def resolveSyntaxKind (k : Name) : CommandElabM Name := do
     | some name => pure name.getId
     | none => liftMacroM <| mkNameFromParserSyntax cat syntaxParser
   let prio ← liftMacroM <| evalOptPrio prio?
+  let idRef := (name?.map (·.raw)).getD tk
   let stxNodeKind := (← getCurrNamespace) ++ name
-  let catParserId := mkIdentFrom stx (cat.appendAfter "Parser")
+  let catParserId := mkIdentFrom idRef (cat.appendAfter "Parser")
   let (val, lhsPrec?) ← runTermElabM fun _ => Term.toParserDescr syntaxParser cat
-  let declName := mkIdentFrom stx name
+  let declName := name?.getD (mkIdentFrom idRef name)
   let attrInstance ← `(attrInstance| $attrKind:attrKind $catParserId:ident $(quote prio):num)
   let attrInstances := attrInstances.getD { elemsAndSeps := #[] }
   let attrInstances := attrInstances.push attrInstance

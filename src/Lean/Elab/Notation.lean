@@ -143,7 +143,7 @@ private def expandNotationAux (ref : Syntax) (currNamespace : Name)
   let fullName := currNamespace ++ name
   let pat : Term := ⟨mkNode fullName patArgs⟩
   let stxDecl ← `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind
-    syntax $[: $prec?]? (name := $(mkIdent name)) (priority := $(quote prio)) $[$syntaxParts]* : $cat)
+    syntax $[: $prec?]? (name := $(name?.getD (mkIdent name))) (priority := $(quote prio)) $[$syntaxParts]* : $cat)
   let macroDecl ← `(macro_rules | `($pat) => ``($qrhs))
   let macroDecls ←
     if isLocalAttrKind attrKind then

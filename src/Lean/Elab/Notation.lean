@@ -107,7 +107,9 @@ private def isLocalAttrKind (attrKind : Syntax) : Bool :=
   | _ => false
 
 private def expandNotationAux (ref : Syntax) (currNamespace : Name)
-    (doc? : Option (TSyntax ``docComment)) (attrKind : TSyntax ``attrKind)
+    (doc? : Option (TSyntax ``docComment))
+    (attrs? : Option (TSepArray ``attrInstance ","))
+    (attrKind : TSyntax ``attrKind)
     (prec? : Option Prec) (name? : Option Ident) (prio? : Option Prio)
     (items : Array (TSyntax ``notationItem)) (rhs : Term) : MacroM Syntax := do
   let prio ← evalOptPrio prio?
@@ -119,7 +121,7 @@ private def expandNotationAux (ref : Syntax) (currNamespace : Name)
     | some name => pure name.getId
     | none => mkNameFromParserSyntax `term (mkNullNode syntaxParts)
   -- build macro rules
-  let vars := items.filter fun item => item.raw.getKind == `Lean.Parser.Command.identPrec
+  let vars := items.filter fun item => item.raw.getKind == ``identPrec
   let vars := vars.map fun var => var.raw[0]
   let qrhs := ⟨antiquote vars rhs⟩
   let patArgs ← items.mapM expandNotationItemIntoPattern
@@ -127,7 +129,8 @@ private def expandNotationAux (ref : Syntax) (currNamespace : Name)
      So, we must include current namespace when we create a pattern for the following `macro_rules` commands. -/
   let fullName := currNamespace ++ name
   let pat : Term := ⟨mkNode fullName patArgs⟩
-  let stxDecl ← `($[$doc?:docComment]? $attrKind:attrKind syntax $[: $prec?]? (name := $(mkIdent name)) (priority := $(quote prio)) $[$syntaxParts]* : $cat)
+  let stxDecl ← `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind
+    syntax $[: $prec?]? (name := $(mkIdent name)) (priority := $(quote prio)) $[$syntaxParts]* : $cat)
   let macroDecl ← `(macro_rules | `($pat) => ``($qrhs))
   let macroDecls ←
     if isLocalAttrKind attrKind then
@@ -140,10 +143,11 @@ private def expandNotationAux (ref : Syntax) (currNamespace : Name)
   | none           => return mkNullNode #[stxDecl, macroDecls]
 
 @[builtinMacro Lean.Parser.Command.notation] def expandNotation : Macro
-  | stx@`($[$doc?:docComment]? $attrKind:attrKind notation $[: $prec? ]? $[(name := $name?)]? $[(priority := $prio?)]? $items* => $rhs) => do
+  | stx@`($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind
+      notation $[: $prec?]? $[(name := $name?)]? $[(priority := $prio?)]? $items* => $rhs) => do
     -- trigger scoped checks early and only once
     let _ ← toAttributeKind attrKind
-    expandNotationAux stx (← Macro.getCurrNamespace) doc? attrKind prec? name? prio? items rhs
+    expandNotationAux stx (← Macro.getCurrNamespace) doc? attrs? attrKind prec? name? prio? items rhs
   | _ => Macro.throwUnsupported
 
 end Lean.Elab.Command

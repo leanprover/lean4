@@ -234,23 +234,44 @@ def pushInfoLeaf (t : Info) : m Unit := do
 def addCompletionInfo (info : CompletionInfo) : m Unit := do
   pushInfoLeaf <| Info.ofCompletionInfo info
 
-/-- This does the same job as resolveGlobalConstNoOverload; resolving an identifier
+def addConstInfo [MonadEnv m] [MonadError m]
+    (stx : Syntax) (n : Name) (expectedType? : Option Expr := none) : m Unit := do
+  pushInfoLeaf <| .ofTermInfo {
+    elaborator := .anonymous
+    lctx := .empty
+    expr := (← mkConstWithLevelParams n)
+    stx
+    expectedType?
+  }
+
+/-- This does the same job as `resolveGlobalConstNoOverload`; resolving an identifier
 syntax to a unique fully resolved name or throwing if there are ambiguities.
 But also adds this resolved name to the infotree. This means that when you hover
 over a name in the sourcefile you will see the fully resolved name in the hover info.-/
-def resolveGlobalConstNoOverloadWithInfo [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Syntax) (expectedType? : Option Expr := none) : m Name := do
+def resolveGlobalConstNoOverloadWithInfo [MonadResolveName m] [MonadEnv m] [MonadError m]
+    (id : Syntax) (expectedType? : Option Expr := none) : m Name := do
   let n ← resolveGlobalConstNoOverload id
   if (← getInfoState).enabled then
     -- we do not store a specific elaborator since identifiers are special-cased by the server anyway
-    pushInfoLeaf <| Info.ofTermInfo { elaborator := Name.anonymous, lctx := LocalContext.empty, expr := (← mkConstWithLevelParams n), stx := id, expectedType? }
+    addConstInfo id n expectedType?
   return n
 
-/-- Similar to resolveGlobalConstNoOverloadWithInfo, except if there are multiple name resolutions then it returns them as a list. -/
-def resolveGlobalConstWithInfos [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Syntax) (expectedType? : Option Expr := none) : m (List Name) := do
+/-- Similar to `resolveGlobalConstNoOverloadWithInfo`, except if there are multiple name resolutions then it returns them as a list. -/
+def resolveGlobalConstWithInfos [MonadResolveName m] [MonadEnv m] [MonadError m]
+    (id : Syntax) (expectedType? : Option Expr := none) : m (List Name) := do
   let ns ← resolveGlobalConst id
   if (← getInfoState).enabled then
     for n in ns do
-      pushInfoLeaf <| Info.ofTermInfo { elaborator := Name.anonymous, lctx := LocalContext.empty, expr := (← mkConstWithLevelParams n), stx := id, expectedType? }
+      addConstInfo id n expectedType?
+  return ns
+
+/-- Similar to `resolveGlobalName`, but it also adds the resolved name to the info tree. -/
+def resolveGlobalNameWithInfos [MonadResolveName m] [MonadEnv m] [MonadError m]
+    (ref : Syntax) (id : Name) : m (List (Name × List String)) := do
+  let ns ← resolveGlobalName id
+  if (← getInfoState).enabled then
+    for (n, _) in ns do
+      addConstInfo ref n
   return ns
 
 /-- Use this to descend a node on the infotree that is being built.

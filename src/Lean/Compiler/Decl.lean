@@ -115,4 +115,12 @@ def Decl.toString (decl : Decl) : CoreM String := do
   Meta.MetaM.run' do
     return s!"{decl.name} : {← Meta.ppExpr decl.type} :=\n{← Meta.ppExpr decl.value}"
 
+/--
+Make sure all let-declarations have unique user-facing names.
+
+See `Compiler.ensureUniqueLetVarNames`
+-/
+def Decl.ensureUniqueLetVarNames (decl : Decl) : CoreM Decl := do
+  return { decl with value := (← Compiler.ensureUniqueLetVarNames decl.value) }
+
 end Lean.Compiler

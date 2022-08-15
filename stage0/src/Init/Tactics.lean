@@ -316,10 +316,6 @@ Example: given `h : p ∧ q ∧ r`, `have ⟨h₁, h₂, h₃⟩ := h` produces 
 macro "have " d:haveDecl : tactic => `(refine_lift have $d:haveDecl; ?_)
 
 /--
-`have h := e` adds the hypothesis `h : t` if `e : t`.
--/
-macro (priority := high) "have" x:ident " := " p:term : tactic => `(have $x : _ := $p)
-/--
 Given a main goal `ctx |- t`, `suffices h : t' from e` replaces the main goal with `ctx |- t'`,
 `e` must have type `t` in the context `ctx, h : t'`.
 

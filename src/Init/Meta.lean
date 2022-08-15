@@ -671,6 +671,10 @@ def isNatLit? (s : Syntax) : Option Nat :=
 def isFieldIdx? (s : Syntax) : Option Nat :=
   isNatLitAux fieldIdxKind s
 
+/-- Decodes a 'scientific number' string which is consumed by the `OfScientific` class.
+  Takes as input a string such as `123`, `123.456e7` and returns a triple `(n, sign, e)` with value given by
+  `n * 10^-e` if `sign` else `n * 10^e`.
+-/
 partial def decodeScientificLitVal? (s : String) : Option (Nat × Bool × Nat) :=
   let len := s.length
   if len == 0 then none
@@ -699,6 +703,8 @@ where
     let c := s.get i
     if c == '-' then
        decodeAfterExp (s.next i) val e true 0
+    else if c == '+' then
+       decodeAfterExp (s.next i) val e false 0
     else
        decodeAfterExp i val e false 0
 

@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l___private_Lean_Server_InfoUtils_0__String_beqRange____x40_Lean_Server_InfoUtils___hyg_77____boxed(lean_object*, lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfo_go___spec__22___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfo_go___spec__26(lean_object*);
@@ -76,7 +77,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldI
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_hasSorry_go___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_InfoUtils_0__String_reprRange____x40_Lean_Server_InfoUtils___hyg_34____closed__18;
-LEAN_EXPORT uint8_t l___private_Lean_Server_InfoUtils_0__String_beqRange____x40_Lean_Server_InfoUtils___hyg_75_(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l___private_Lean_Server_InfoUtils_0__String_beqRange____x40_Lean_Server_InfoUtils___hyg_77_(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_structEq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Info_fmtHover_x3f_isAtomicFormat___boxed(lean_object*);
 lean_object* l_Std_Format_joinSep___at_Prod_repr___spec__1(lean_object*, lean_object*);
@@ -254,7 +255,6 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_hasSorry
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Info_fmtHover_x3f_fmtTerm_x3f___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Info_fmtHover_x3f___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Server_InfoUtils_0__String_beqRange____x40_Lean_Server_InfoUtils___hyg_75____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_hasSorry_go___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Array_getMax_x3f___at_Lean_Elab_InfoTree_smallestInfo_x3f___spec__2(lean_object*);
@@ -369,7 +369,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldI
 static lean_object* l_Lean_Elab_InfoTree_collectNodesBottomUp___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM___at_Lean_Elab_InfoTree_visitM_x27___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_smallestInfo_x3f___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint64_t l___private_Lean_Server_InfoUtils_0__String_hashRange____x40_Lean_Server_InfoUtils___hyg_148_(lean_object*);
+LEAN_EXPORT uint64_t l___private_Lean_Server_InfoUtils_0__String_hashRange____x40_Lean_Server_InfoUtils___hyg_150_(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_hasSorry_go___spec__28___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_mapTRAux___at_Lean_Elab_InfoTree_smallestInfo_x3f___spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfo_go___spec__9___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -445,10 +445,10 @@ LEAN_EXPORT lean_object* l_Std_PersistentArray_anyM___at_Lean_Elab_InfoTree_goal
 LEAN_EXPORT lean_object* l_Lean_Elab_Info_lctx(lean_object*);
 static lean_object* l_panic___at_Lean_Elab_InfoTree_collectNodesBottomUp___spec__4___rarg___closed__1;
 lean_object* lean_usize_to_nat(size_t);
+LEAN_EXPORT lean_object* l___private_Lean_Server_InfoUtils_0__String_hashRange____x40_Lean_Server_InfoUtils___hyg_150____boxed(lean_object*);
 lean_object* l_Std_instInhabitedPersistentArrayNode(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_hasSorry_go___spec__24(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_foldInfo(lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Server_InfoUtils_0__String_hashRange____x40_Lean_Server_InfoUtils___hyg_148____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_hasSorry_go___spec__9(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentArray_anyM___at_Lean_Elab_InfoTree_hasSorry_go___spec__41(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_ContextInfo_runMetaM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -780,7 +780,7 @@ x_1 = l_String_instReprRange___closed__1;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l___private_Lean_Server_InfoUtils_0__String_beqRange____x40_Lean_Server_InfoUtils___hyg_75_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l___private_Lean_Server_InfoUtils_0__String_beqRange____x40_Lean_Server_InfoUtils___hyg_77_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
@@ -803,11 +803,11 @@ return x_9;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_InfoUtils_0__String_beqRange____x40_Lean_Server_InfoUtils___hyg_75____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_InfoUtils_0__String_beqRange____x40_Lean_Server_InfoUtils___hyg_77____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l___private_Lean_Server_InfoUtils_0__String_beqRange____x40_Lean_Server_InfoUtils___hyg_75_(x_1, x_2);
+x_3 = l___private_Lean_Server_InfoUtils_0__String_beqRange____x40_Lean_Server_InfoUtils___hyg_77_(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -818,7 +818,7 @@ static lean_object* _init_l_String_instBEqRange___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Server_InfoUtils_0__String_beqRange____x40_Lean_Server_InfoUtils___hyg_75____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Server_InfoUtils_0__String_beqRange____x40_Lean_Server_InfoUtils___hyg_77____boxed), 2, 0);
 return x_1;
 }
 }
@@ -830,7 +830,7 @@ x_1 = l_String_instBEqRange___closed__1;
 return x_1;
 }
 }
-LEAN_EXPORT uint64_t l___private_Lean_Server_InfoUtils_0__String_hashRange____x40_Lean_Server_InfoUtils___hyg_148_(lean_object* x_1) {
+LEAN_EXPORT uint64_t l___private_Lean_Server_InfoUtils_0__String_hashRange____x40_Lean_Server_InfoUtils___hyg_150_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint64_t x_4; uint64_t x_5; uint64_t x_6; uint64_t x_7; uint64_t x_8; 
@@ -844,11 +844,11 @@ x_8 = lean_uint64_mix_hash(x_6, x_7);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_InfoUtils_0__String_hashRange____x40_Lean_Server_InfoUtils___hyg_148____boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lean_Server_InfoUtils_0__String_hashRange____x40_Lean_Server_InfoUtils___hyg_150____boxed(lean_object* x_1) {
 _start:
 {
 uint64_t x_2; lean_object* x_3; 
-x_2 = l___private_Lean_Server_InfoUtils_0__String_hashRange____x40_Lean_Server_InfoUtils___hyg_148_(x_1);
+x_2 = l___private_Lean_Server_InfoUtils_0__String_hashRange____x40_Lean_Server_InfoUtils___hyg_150_(x_1);
 lean_dec(x_1);
 x_3 = lean_box_uint64(x_2);
 return x_3;
@@ -858,7 +858,7 @@ static lean_object* _init_l_String_instHashableRange___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Server_InfoUtils_0__String_hashRange____x40_Lean_Server_InfoUtils___hyg_148____boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Server_InfoUtils_0__String_hashRange____x40_Lean_Server_InfoUtils___hyg_150____boxed), 1, 0);
 return x_1;
 }
 }

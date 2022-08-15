@@ -19,7 +19,7 @@ LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Util___hyg_6_(l
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_findSyntaxStack_x3f_go___lambda__2___closed__3;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Util___hyg_6____closed__2;
-uint8_t l___private_Lean_Server_InfoUtils_0__String_beqRange____x40_Lean_Server_InfoUtils___hyg_75_(lean_object*, lean_object*);
+uint8_t l___private_Lean_Server_InfoUtils_0__String_beqRange____x40_Lean_Server_InfoUtils___hyg_77_(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_InfoTree_visitM_go___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_range(lean_object*);
@@ -1021,7 +1021,7 @@ LEAN_EXPORT lean_object* l_Lean_Linter_findSyntaxStack_x3f_go___lambda__3(lean_o
 _start:
 {
 uint8_t x_7; 
-x_7 = l___private_Lean_Server_InfoUtils_0__String_beqRange____x40_Lean_Server_InfoUtils___hyg_75_(x_5, x_3);
+x_7 = l___private_Lean_Server_InfoUtils_0__String_beqRange____x40_Lean_Server_InfoUtils___hyg_77_(x_5, x_3);
 lean_dec(x_5);
 if (x_7 == 0)
 {

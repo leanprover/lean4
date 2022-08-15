@@ -132,7 +132,7 @@ static lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_659____c
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_659_(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_659____closed__1;
-lean_object* l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Class___hyg_587____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Class___hyg_588____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__12;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 uint32_t l_String_Iterator_curr(lean_object*);
@@ -818,7 +818,7 @@ else
 lean_object* x_16; lean_object* x_17; 
 lean_free_object(x_6);
 x_16 = lean_add_extern(x_10, x_1);
-x_17 = l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Class___hyg_587____spec__1(x_16, x_3, x_4, x_9);
+x_17 = l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Class___hyg_588____spec__1(x_16, x_3, x_4, x_9);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 
@@ -859,7 +859,7 @@ else
 lean_object* x_25; lean_object* x_26; 
 lean_free_object(x_6);
 x_25 = lean_add_extern(x_10, x_1);
-x_26 = l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Class___hyg_587____spec__1(x_25, x_3, x_4, x_9);
+x_26 = l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Class___hyg_588____spec__1(x_25, x_3, x_4, x_9);
 if (lean_obj_tag(x_26) == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; 
@@ -932,7 +932,7 @@ else
 {
 lean_object* x_43; lean_object* x_44; 
 x_43 = lean_add_extern(x_36, x_1);
-x_44 = l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Class___hyg_587____spec__1(x_43, x_3, x_4, x_35);
+x_44 = l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Class___hyg_588____spec__1(x_43, x_3, x_4, x_35);
 if (lean_obj_tag(x_44) == 0)
 {
 lean_object* x_45; lean_object* x_46; lean_object* x_47; 
@@ -974,7 +974,7 @@ else
 {
 lean_object* x_52; lean_object* x_53; 
 x_52 = lean_add_extern(x_36, x_1);
-x_53 = l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Class___hyg_587____spec__1(x_52, x_3, x_4, x_35);
+x_53 = l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Class___hyg_588____spec__1(x_52, x_3, x_4, x_35);
 if (lean_obj_tag(x_53) == 0)
 {
 lean_object* x_54; lean_object* x_55; lean_object* x_56; 

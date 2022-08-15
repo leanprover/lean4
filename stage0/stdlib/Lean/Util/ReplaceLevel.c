@@ -45,7 +45,7 @@ LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_Expr_ReplaceLevelImpl_replace
 LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache;
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
-uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_371_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_375_(uint8_t, uint8_t);
 lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2;
 static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__4;
@@ -397,7 +397,7 @@ return x_66;
 else
 {
 uint8_t x_67; 
-x_67 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_371_(x_49, x_49);
+x_67 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_375_(x_49, x_49);
 if (x_67 == 0)
 {
 lean_object* x_68; lean_object* x_69; 
@@ -478,7 +478,7 @@ return x_91;
 else
 {
 uint8_t x_92; 
-x_92 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_371_(x_74, x_74);
+x_92 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_375_(x_74, x_74);
 if (x_92 == 0)
 {
 lean_object* x_93; lean_object* x_94; 

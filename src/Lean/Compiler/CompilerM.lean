@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Util.ForEachExpr
+import Lean.Meta.Transform
 import Lean.Compiler.InferType
 
 namespace Lean.Compiler
@@ -90,13 +91,34 @@ def mkJpDecl (e : Expr) : CompilerM Expr := do
 /--
 Compute the maximum auxiliary let variable index that is used within `e`.
 -/
-def getMaxLetVarIdx (e : Expr) : CoreM Nat := do
+def getMaxLetVarIdx (e : Expr) : IO Nat := do
   let maxRef ← IO.mkRef 0
   e.forEach fun
     | .letE (.num `_x i) ..
     | .letE (.num `_jp i) .. => maxRef.modify (Nat.max · i)
     | _ => pure ()
   maxRef.get
+
+/--
+Make sure all let-declarations have unique user-facing names.
+We use this method when we want to retrieve candidates for code trasnformations. Examples:
+let-declarations that are safe to unfold without producing code blowup, and join point detection.
+
+Remark: user-facing names provided by users are preserved. We keep them as the prefix
+of the new unique names.
+-/
+def ensureUniqueLetVarNames (e : Expr) : CoreM Expr :=
+  let pre (e : Expr) : StateRefT Nat CoreM TransformStep := do
+    match e with
+    | .letE binderName type value body nonDep =>
+      let idx ← modifyGet fun s => (s, s+1)
+      let binderName' := match binderName with
+        | .num `_x _ => .num `_x idx
+        | .num `_jp _ => .num `_jp idx
+        | _ => .num binderName idx
+      return .visit <| .letE binderName' type value body nonDep
+    | _ => return .visit e
+  Core.transform e pre |>.run' 1
 
 /--
 Move through all consecutive lambda abstractions at the top level of `e`.

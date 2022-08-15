@@ -17,7 +17,10 @@ def withExpectedType (expectedType? : Option Expr) (x : Expr → TermElabM Expr)
     | throwError "expected type must be known"
   x expectedType
 
-def elabElabRulesAux (doc? : Option (TSyntax ``docComment)) (attrKind : TSyntax ``attrKind) (k : SyntaxNodeKind) (cat? expty? : Option (Ident)) (alts : Array (TSyntax ``matchAlt)) : CommandElabM Syntax := do
+def elabElabRulesAux (doc? : Option (TSyntax ``docComment))
+    (attrs? : Option (TSepArray ``attrInstance ",")) (attrKind : TSyntax ``attrKind)
+    (k : SyntaxNodeKind) (cat? expty? : Option (Ident)) (alts : Array (TSyntax ``matchAlt)) :
+    CommandElabM Syntax := do
   let alts ← alts.mapM fun (alt : TSyntax ``matchAlt) => match alt with
     | `(matchAltExpr| | $pats,* => $rhs) => do
       let pat := pats.elemsAndSeps[0]!
@@ -42,25 +45,30 @@ def elabElabRulesAux (doc? : Option (TSyntax ``docComment)) (attrKind : TSyntax 
     | _, some _   => pure `term
     -- TODO: infer category from quotation kind, possibly even kind of quoted syntax?
     | _, _        => throwError "invalid elab_rules command, specify category using `elab_rules : <cat> ...`"
+  let mkAttrs (kind : Name) : CommandElabM (TSyntaxArray ``attrInstance) := do
+    let attr ← `(attrInstance| $attrKind:attrKind $(mkIdent kind):ident $(← mkIdentFromRef k):ident)
+    pure <| match attrs? with
+      | some attrs => attrs.getElems.push attr
+      | none => #[attr]
   if let some expId := expty? then
     if catName == `term then
-      `($[$doc?:docComment]? @[$attrKind:attrKind termElab $(← mkIdentFromRef k):ident]
+      `($[$doc?:docComment]? @[$(← mkAttrs `termElab),*]
         aux_def elabRules $(mkIdent k) : Lean.Elab.Term.TermElab :=
         fun stx expectedType? => Lean.Elab.Command.withExpectedType expectedType? fun $expId => match stx with
           $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
     else
       throwErrorAt expId "syntax category '{catName}' does not support expected type specification"
   else if catName == `term then
-    `($[$doc?:docComment]? @[$attrKind:attrKind termElab $(← mkIdentFromRef k):ident]
+    `($[$doc?:docComment]? @[$(← mkAttrs `termElab),*]
       aux_def elabRules $(mkIdent k) : Lean.Elab.Term.TermElab :=
       fun stx _ => match stx with
         $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
   else if catName == `command then
-    `($[$doc?:docComment]? @[$attrKind:attrKind commandElab $(← mkIdentFromRef k):ident]
+    `($[$doc?:docComment]? @[$(← mkAttrs `commandElab),*]
       aux_def elabRules $(mkIdent k) : Lean.Elab.Command.CommandElab :=
       fun $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
   else if catName == `tactic then
-    `($[$doc?:docComment]? @[$attrKind:attrKind tactic $(← mkIdentFromRef k):ident]
+    `($[$doc?:docComment]? @[$(← mkAttrs `tactic),*]
       aux_def elabRules $(mkIdent k) : Lean.Elab.Tactic.Tactic :=
       fun $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
   else
@@ -70,16 +78,16 @@ def elabElabRulesAux (doc? : Option (TSyntax ``docComment)) (attrKind : TSyntax 
 
 @[builtinCommandElab «elab_rules»] def elabElabRules : CommandElab :=
   adaptExpander fun stx => match stx with
-  | `($[$doc?:docComment]? $attrKind:attrKind elab_rules $[: $cat?]? $[<= $expty?]? $alts:matchAlt*) =>
+  | `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind elab_rules $[: $cat?]? $[<= $expty?]? $alts:matchAlt*) =>
     expandNoKindMacroRulesAux alts "elab_rules" fun kind? alts =>
-      `($[$doc?:docComment]? $attrKind:attrKind elab_rules $[(kind := $(mkIdent <$> kind?))]? $[: $cat?]? $[<= $expty?]? $alts:matchAlt*)
-  | `($[$doc?:docComment]? $attrKind:attrKind elab_rules (kind := $kind) $[: $cat?]? $[<= $expty?]? $alts:matchAlt*) =>
-    do elabElabRulesAux doc? attrKind (← resolveSyntaxKind kind.getId) cat? expty? alts
+      `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind elab_rules $[(kind := $(mkIdent <$> kind?))]? $[: $cat?]? $[<= $expty?]? $alts:matchAlt*)
+  | `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind elab_rules (kind := $kind) $[: $cat?]? $[<= $expty?]? $alts:matchAlt*) =>
+    do elabElabRulesAux doc? attrs? attrKind (← resolveSyntaxKind kind.getId) cat? expty? alts
   | _  => throwUnsupportedSyntax
 
 @[builtinCommandElab Lean.Parser.Command.elab]
 def elabElab : CommandElab
-  | `($[$doc?:docComment]? $attrKind:attrKind
+  | `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind
     elab$[:$prec?]? $[(name := $name?)]? $[(priority := $prio?)]? $args:macroArg* :
       $cat $[<= $expectedType?]? => $rhs) => do
     let prio    ← liftMacroM <| evalOptPrio prio?
@@ -89,7 +97,7 @@ def elabElab : CommandElab
       | some name => pure name.getId
       | none => liftMacroM <| mkNameFromParserSyntax cat.getId (mkNullNode stxParts)
     let pat := ⟨mkNode ((← getCurrNamespace) ++ name) patArgs⟩
-    `($[$doc?:docComment]? $attrKind:attrKind syntax$[:$prec?]? (name := $(← mkIdentFromRef name)) (priority := $(quote prio):num) $[$stxParts]* : $cat
+    `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind syntax$[:$prec?]? (name := $(← mkIdentFromRef name)) (priority := $(quote prio):num) $[$stxParts]* : $cat
       $[$doc?:docComment]? elab_rules : $cat $[<= $expectedType?]? | `($pat) => $rhs) >>= (elabCommand ·)
   | _ => throwUnsupportedSyntax
 

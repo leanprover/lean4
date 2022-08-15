@@ -33,3 +33,10 @@ noncomputable abbrev TupleN : (n : Fin 1) → TupleNTyp n.val
 
 set_option pp.proofs true
 #eval Compiler.compile #[``TupleN]
+
+
+def userControlled (a b : Nat) :=
+  let f := fun _ => a
+  f () + b
+
+#eval Compiler.compile #[``userControlled]

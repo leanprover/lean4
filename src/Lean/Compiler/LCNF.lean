@@ -440,7 +440,7 @@ where
         visitLet body (xs.push value)
       else
         let type' ← liftMetaM <| toLCNFType type
-        let value' ← visitChild value
+        let value' ← visit value
         let x ← mkLetDecl binderName type value type' value'
         visitLet body (xs.push x)
     | _ =>

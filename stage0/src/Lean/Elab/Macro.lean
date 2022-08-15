@@ -11,7 +11,7 @@ open Lean.Parser.Term hiding macroArg
 open Lean.Parser.Command
 
 @[builtinCommandElab Lean.Parser.Command.macro] def elabMacro : CommandElab
-  | `($[$doc?:docComment]? $attrKind:attrKind
+  | `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind
       macro%$tk$[:$prec?]? $[(name := $name?)]? $[(priority := $prio?)]? $args:macroArg* : $cat => $rhs) =>
     -- exclude command prefix from synthetic position used for e.g. jumping to the macro definition
     withRef (mkNullNode #[tk, rhs]) do
@@ -24,7 +24,7 @@ open Lean.Parser.Command
       /- The command `syntax [<kind>] ...` adds the current namespace to the syntax node kind.
         So, we must include current namespace when we create a pattern for the following `macro_rules` commands. -/
       let pat := ⟨mkNode ((← getCurrNamespace) ++ name) patArgs⟩
-      let stxCmd ← `($[$doc?:docComment]? $attrKind:attrKind
+      let stxCmd ← `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind
         syntax$[:$prec?]? (name := $(← mkIdentFromRef name)) (priority := $(quote prio):num) $[$stxParts]* : $cat)
       let rhs := rhs.raw
       let macroRulesCmd ← if rhs.getArgs.size == 1 then

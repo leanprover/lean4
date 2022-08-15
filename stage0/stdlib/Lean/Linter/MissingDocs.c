@@ -6840,7 +6840,7 @@ return x_9;
 else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_10 = lean_unsigned_to_nat(1u);
+x_10 = lean_unsigned_to_nat(2u);
 x_11 = l_Lean_Syntax_getArg(x_1, x_10);
 x_12 = l_Lean_Syntax_getArg(x_11, x_5);
 lean_dec(x_11);
@@ -6853,7 +6853,7 @@ lean_dec(x_14);
 if (x_16 == 0)
 {
 lean_object* x_17; lean_object* x_18; uint8_t x_19; 
-x_17 = lean_unsigned_to_nat(4u);
+x_17 = lean_unsigned_to_nat(5u);
 x_18 = l_Lean_Syntax_getArg(x_1, x_17);
 x_19 = l_Lean_Syntax_isNone(x_18);
 if (x_19 == 0)
@@ -6873,7 +6873,7 @@ else
 {
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
 lean_dec(x_18);
-x_25 = lean_unsigned_to_nat(2u);
+x_25 = lean_unsigned_to_nat(3u);
 x_26 = l_Lean_Syntax_getArg(x_1, x_25);
 x_27 = l_Lean_Linter_MissingDocs_checkMacro___closed__1;
 x_28 = l_Lean_Linter_MissingDocs_lint(x_26, x_27, x_2, x_3, x_4);
@@ -6970,7 +6970,7 @@ return x_9;
 else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_10 = lean_unsigned_to_nat(1u);
+x_10 = lean_unsigned_to_nat(2u);
 x_11 = l_Lean_Syntax_getArg(x_1, x_10);
 x_12 = l_Lean_Syntax_getArg(x_11, x_5);
 lean_dec(x_11);
@@ -6983,7 +6983,7 @@ lean_dec(x_14);
 if (x_16 == 0)
 {
 lean_object* x_17; lean_object* x_18; uint8_t x_19; 
-x_17 = lean_unsigned_to_nat(4u);
+x_17 = lean_unsigned_to_nat(5u);
 x_18 = l_Lean_Syntax_getArg(x_1, x_17);
 x_19 = l_Lean_Syntax_isNone(x_18);
 if (x_19 == 0)
@@ -7003,7 +7003,7 @@ else
 {
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
 lean_dec(x_18);
-x_25 = lean_unsigned_to_nat(2u);
+x_25 = lean_unsigned_to_nat(3u);
 x_26 = l_Lean_Syntax_getArg(x_1, x_25);
 x_27 = l_Lean_Linter_MissingDocs_checkElab___closed__1;
 x_28 = l_Lean_Linter_MissingDocs_lint(x_26, x_27, x_2, x_3, x_4);

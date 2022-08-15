@@ -197,15 +197,15 @@ def checkSyntaxCat : SimpleHandler := mkSimpleHandler "syntax category"
 
 @[builtinMissingDocsHandler «macro»]
 def checkMacro : SimpleHandler := fun stx => do
-  if stx[0].isNone && stx[1][0][0].getKind != ``«local» then
-    if stx[4].isNone then lint stx[2] "macro"
-    else lintNamed stx[4][0][3] "macro"
+  if stx[0].isNone && stx[2][0][0].getKind != ``«local» then
+    if stx[5].isNone then lint stx[3] "macro"
+    else lintNamed stx[5][0][3] "macro"
 
 @[builtinMissingDocsHandler «elab»]
 def checkElab : SimpleHandler := fun stx => do
-  if stx[0].isNone && stx[1][0][0].getKind != ``«local» then
-    if stx[4].isNone then lint stx[2] "elab"
-    else lintNamed stx[4][0][3] "elab"
+  if stx[0].isNone && stx[2][0][0].getKind != ``«local» then
+    if stx[5].isNone then lint stx[3] "elab"
+    else lintNamed stx[5][0][3] "elab"
 
 @[builtinMissingDocsHandler classAbbrev]
 def checkClassAbbrev : SimpleHandler := fun stx => do

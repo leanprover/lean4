@@ -10,6 +10,7 @@ match Lean.Json.parse s with
 #eval test "false"
 #eval test "true"
 #eval test "123.456e-7"
+#eval test "123.456e+7"
 #eval test "-0.01e8"
 #eval test "\"\""
 #eval test "\"abc\""

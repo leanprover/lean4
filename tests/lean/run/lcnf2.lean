@@ -22,3 +22,14 @@ def g (x : Nat) : Bool :=
 
 set_option trace.Compiler.step true
 #eval Compiler.compile #[``g]
+
+
+abbrev TupleNTyp : Nat → Type 1
+  | 0 => Type
+  | n + 1 => Type → (TupleNTyp n)
+
+noncomputable abbrev TupleN : (n : Fin 1) → TupleNTyp n.val
+  | 0 => Unit × Unit
+
+set_option pp.proofs true
+#eval Compiler.compile #[``TupleN]

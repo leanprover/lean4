@@ -80,8 +80,14 @@ def mkLocalDecl (binderName : Name) (type : Expr) (bi := BinderInfo.default) : M
   }
   return .fvar fvarId
 
+def mkFreshBinderName : M Name := do
+  let declName := .num `_x (← get).nextIdx
+  modify fun s => { s with nextIdx := s.nextIdx + 1 }
+  return declName
+
 def mkLetDecl (binderName : Name) (type : Expr) (value : Expr) (type' : Expr) (value' : Expr) : M Expr := do
   let fvarId ← mkFreshFVarId
+  let binderName ← if binderName.isInternal then mkFreshBinderName else pure binderName
   let x := .fvar fvarId
   modify fun s => { s with
     lctx     := s.lctx.mkLetDecl fvarId binderName type value false
@@ -96,8 +102,7 @@ def mkAuxLetDecl (e : Expr) : M Expr := do
     return e
   else
     let fvarId ← mkFreshFVarId
-    let binderName := .num `_x (← get).nextIdx
-    modify fun s => { s with nextIdx := s.nextIdx + 1 }
+    let binderName ← mkFreshBinderName
     let type ← inferType e
     let x := .fvar fvarId
     modify fun s => { s with

@@ -222,6 +222,17 @@ def mkLambda (xs : Array Expr) (e : Expr) : CompilerM Expr :=
   return (← get).lctx.mkLambda xs e
 
 /--
+Given a join point `jp` of the form `fun y => body`, if `jp` is simple (see `isSimpleLCNF`), just return it
+Otherwise, create `let jp := fun y => body` declaration and return `jp`.
+-/
+def mkJpDeclIfNotSimple (jp : Expr) : CompilerM Expr := do
+  if (← isSimpleLCNF jp.bindingBody!) then
+    -- Join point is too simple, we eagerly inline it.
+    return jp
+  else
+    mkJpDecl jp
+
+/--
 Create "jump" to join point `jp` with value `e`.
 Remarks:
 - If `e` is unreachable, then result is unreachable
@@ -243,5 +254,9 @@ def mkJump (jp : Expr) (e : Expr) : CompilerM Expr := do
     let x ← mkAuxLetDecl e
     let x ← mkAuxLetDecl (← mkLcCast x d)
     return mkJpApp x
+
+def mkOptJump (jp? : Option Expr) (e : Expr) : CompilerM Expr := do
+  let some jp := jp? | return e
+  mkJump jp e
 
 end Lean.Compiler

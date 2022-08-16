@@ -17,12 +17,19 @@ structure Config where
 
 structure Context where
   config : Config := {}
+  /--
+  Current continuation. It is a join point or lambda abstraction.
+  -/
   jp? : Option Expr := none
 
-structure State where
-  unit : Unit := ()
+abbrev SimpM := ReaderT Context CompilerM
 
-abbrev SimpM := ReaderT Context $ StateRefT State CompilerM
+def withJp (jp : Expr) (x : SimpM α) : SimpM α := do
+  let jp ← mkJpDeclIfNotSimple jp
+  withReader (fun ctx => { ctx with jp? := some jp }) x
+
+def withoutJp (x : SimpM α) : SimpM α :=
+  withReader (fun ctx => { ctx with jp? := none }) x
 
 def inlineCandidate? (e : Expr) : SimpM (Option Nat) := do
   let .const declName _ := e.getAppFn | return none
@@ -86,63 +93,80 @@ partial def inlineApp (e : Expr) : SimpM Expr := do
   assert! !value.isLambda
   visitLet value
 
-partial def visitLet (e : Expr) : SimpM Expr := do
-  go e #[]
-where
-  go (e : Expr) (xs : Array Expr) : SimpM Expr := do
-    let rec inlineApp? (e : Expr) (k? : Option Expr) : SimpM (Option Expr) := do
-      let some numExtraArgs ← inlineCandidate? e | return none
-      let args := e.getAppArgs
-      if k?.isNone && numExtraArgs == 0 then
-        inlineApp e
-      else
-        let toInline := mkAppN e.getAppFn args[:args.size - numExtraArgs]
-        let jpDomain ← inferType toInline
-        let binderName ← mkFreshUserName `_y
-        let bodyAbst ← withNewScope do
-          let y ← mkLocalDecl binderName jpDomain
-          let body ← if numExtraArgs == 0 then
-            go k?.get! (xs.push y)
-          else if let some k := k? then
-            let x ← mkAuxLetDecl (mkAppN y args[args.size - numExtraArgs:])
-            go k (xs.push x)
-          else
-            pure <| mkAppN y args[args.size - numExtraArgs:]
-          let body ← mkLetUsingScope body
-          return body.abstract #[y]
-        let jp ← if (← isSimpleLCNF bodyAbst) then
-          -- Join point is too simple, we eagerly inline it.
-          pure <| .lam binderName jpDomain bodyAbst .default
-        else
-          mkJpDecl (.lam binderName jpDomain bodyAbst .default)
-        withReader (fun _ => { jp? := some jp }) do
-          inlineApp toInline
-    match e with
-    | .letE binderName type value body nonDep =>
-      let mut value := value.instantiateRev xs
-      if value.isLambda then
-        value ← withReader (fun _ => {}) <| visitLambda value
-      if value.isFVar then
-        /- Eliminate `let _x_i := _x_j;` -/
-        go body (xs.push value)
-      else if let some e ← inlineApp? value body then
-        return e
-      else
-        let type := type.instantiateRev xs
-        let x ← mkLetDecl binderName type value nonDep
-        go body (xs.push x)
-    | _ =>
-      let e := e.instantiateRev xs
-      if let some casesInfo ← isCasesApp? e then
-        visitCases casesInfo e
-      else if let some e ← inlineApp? e none then
-        return e
-      else
-        let e ← expandTrivialExpr e
-        match (← read).jp? with
-        | none => return e
-        | some jp => mkJump jp e
+/--
+If `e` is an application that can be inlined, inline it.
 
+`k?` is the optional "continuation" for `e`, and it may contain loose bound variables
+that need to instantiated with `xs`. That is, if `k? = some k`, then `k.instantiateRev xs`
+is an expression without loose bound variables.
+-/
+partial def inlineApp? (e : Expr) (xs : Array Expr) (k? : Option Expr) : SimpM (Option Expr) := do
+  let some numExtraArgs ← inlineCandidate? e | return none
+  let args := e.getAppArgs
+  if k?.isNone && numExtraArgs == 0 then
+    -- Easy case, there is not continuation and `e` is not over applied
+    inlineApp e
+  else
+    /-
+    There is a continuation `k` or `e` is over applied.
+    If `e` is over applied, the extra arguments act as continuation.
+    -/
+    let toInline := mkAppN e.getAppFn args[:args.size - numExtraArgs]
+    /-
+    `toInline` is the application that is going to be inline
+     We create a new join point
+     ```
+     let jp := fun y =>
+       let x := y <extra-arguments> -- if `e` is over applied
+       k
+     ```
+     Recall that `visitLet` incorporates the current continuation
+     to the new join point `jp`.
+    -/
+    let jpDomain ← inferType toInline
+    let binderName ← mkFreshUserName `_y
+    let jp ← withNewScope do
+      let y ← mkLocalDecl binderName jpDomain
+      let body ← if numExtraArgs == 0 then
+        visitLet k?.get! (xs.push y)
+      else
+        let x ← mkAuxLetDecl (mkAppN y args[args.size - numExtraArgs:])
+        if let some k := k? then
+          visitLet k (xs.push x)
+        else
+          visitLet x (xs.push x)
+      let body ← mkLetUsingScope body
+      mkLambda #[y] body
+    /- Inline `toInline` and "go-to" `jp` with the result. -/
+    withJp jp do inlineApp toInline
+
+/--
+Let-declaration basic block visitor. `e` may contain loose bound variables that
+still have to be instantiated with `xs`.
+-/
+partial def visitLet (e : Expr) (xs : Array Expr := #[]): SimpM Expr := do
+  match e with
+  | .letE binderName type value body nonDep =>
+    let mut value := value.instantiateRev xs
+    if value.isLambda then
+      value ← withoutJp <| visitLambda value
+    if value.isFVar then
+      /- Eliminate `let _x_i := _x_j;` -/
+      visitLet body (xs.push value)
+    else if let some e ← inlineApp? value xs body then
+      return e
+    else
+      let type := type.instantiateRev xs
+      let x ← mkLetDecl binderName type value nonDep
+      visitLet body (xs.push x)
+  | _ =>
+    let e := e.instantiateRev xs
+    if let some casesInfo ← isCasesApp? e then
+      visitCases casesInfo e
+    else if let some e ← inlineApp? e #[] none then
+      return e
+    else
+      mkOptJump (← read).jp? (← expandTrivialExpr e)
 end
 
 end Simp

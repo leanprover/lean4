@@ -17,6 +17,13 @@ structure Context where
 
 abbrev M := ReaderT Context CompilerM
 
+def withJp (jp : Expr) (x : M α) : M α := do
+  let jp ← mkJpDeclIfNotSimple jp
+  withReader (fun ctx => { ctx with jp? := some jp }) x
+
+def withoutJp (x : M α) : M α :=
+  withReader (fun ctx => { ctx with jp? := none }) x
+
 mutual
 
 private partial def visitCases (casesInfo : CasesInfo) (cases : Expr) : M Expr := do
@@ -40,30 +47,23 @@ private partial def visitLet (e : Expr) (fvars : Array Expr) : M Expr := do
     let type := type.instantiateRev fvars
     let mut value := value.instantiateRev fvars
     if let some casesInfo ← isCasesApp? value then
-      let bodyAbst ← withNewScope do
+      let jp ← withNewScope do
         let x ← mkLocalDecl binderName type
         let body ← visitLet body (fvars.push x)
         let body ← mkLetUsingScope body
-        return body.abstract #[x]
-      let jp ← if (← isSimpleLCNF bodyAbst) then
-        -- Join point is too simple, we eagerly inline it.
-        pure <| .lam binderName type bodyAbst .default
-      else
-        mkJpDecl (.lam binderName type bodyAbst .default)
-      withReader (fun _ => { jp? := some jp }) do
-        visitCases casesInfo value
+        mkLambda #[x] body
+      withJp jp do visitCases casesInfo value
     else
       if value.isLambda then
-        value ← withReader (fun _ => {}) <| visitLambda value
+        value ← withoutJp <| visitLambda value
       let fvar ← mkLetDecl binderName type value nonDep
       visitLet body (fvars.push fvar)
   | e =>
     let e := e.instantiateRev fvars
     if let some casesInfo ← isCasesApp? e then
       visitCases casesInfo e
-    else match (← read).jp? with
-      | none => return e
-      | some jp => mkJump jp e
+    else
+      mkOptJump (← read).jp? e
 
 end
 

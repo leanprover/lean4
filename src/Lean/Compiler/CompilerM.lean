@@ -94,8 +94,8 @@ Compute the maximum auxiliary let variable index that is used within `e`.
 def getMaxLetVarIdx (e : Expr) : IO Nat := do
   let maxRef ← IO.mkRef 0
   e.forEach fun
-    | .letE (.num `_x i) ..
-    | .letE (.num `_jp i) .. => maxRef.modify (Nat.max · i)
+    | .letE (.num (.str .anonymous s) i) .. =>
+      if s.get 0 == '_' then maxRef.modify (Nat.max · i) else pure ()
     | _ => pure ()
   maxRef.get
 
@@ -113,8 +113,7 @@ def ensureUniqueLetVarNames (e : Expr) : CoreM Expr :=
     | .letE binderName type value body nonDep =>
       let idx ← modifyGet fun s => (s, s+1)
       let binderName' := match binderName with
-        | .num `_x _ => .num `_x idx
-        | .num `_jp _ => .num `_jp idx
+        | .num p _ => .num p idx
         | _ => .num binderName idx
       return .visit <| .letE binderName' type value body nonDep
     | _ => return .visit e

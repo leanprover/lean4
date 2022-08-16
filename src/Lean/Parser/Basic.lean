@@ -910,7 +910,7 @@ where
     let curr  := input.get i
     if curr == 'e' || curr == 'E' then
       let i    := input.next i
-      let i    := if input.get i == '-' then input.next i else i
+      let i    := if input.get i == '-' || input.get i == '+' then input.next i else i
       let curr := input.get i
       if curr.isDigit then
         takeWhileFn (fun c => c.isDigit) c (s.setPos i)

@@ -1,2 +1,7 @@
 1.000000
-10.00000
+10.000000
+scientific.lean:4:6-4:13: error: function expected at
+  1.0
+term has type
+  ?m
+2.000000

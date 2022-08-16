@@ -38,6 +38,9 @@ partial def formatStxAux (maxDepth : Option Nat) (showInfo : Bool) : Nat → Syn
         if args.size > 0 && depth > maxDepth.getD depth then [".."] else args.toList.map (formatStxAux maxDepth showInfo depth);
       paren $ joinSep (header :: body) line
 
+/-- Pretty print the given syntax `stx` as a `Format`.
+Nodes deeper than `maxDepth` are omitted.
+Setting the `showInfo` flag will also print the `SourceInfo` for each node. -/
 def formatStx (stx : Syntax) (maxDepth : Option Nat := none) (showInfo := false) : Format :=
   formatStxAux maxDepth showInfo 0 stx
 

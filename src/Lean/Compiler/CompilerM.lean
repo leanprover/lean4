@@ -222,4 +222,27 @@ Shorthand for `LocalContext.mkLambda` with the `LocalContext` of `CompilerM`.
 def mkLambda (xs : Array Expr) (e : Expr) : CompilerM Expr :=
   return (← get).lctx.mkLambda xs e
 
+/--
+Create "jump" to join point `jp` with value `e`.
+Remarks:
+- If `e` is unreachable, then result is unreachable
+- Add `cast` if `e`'s type is not compatible with the type expected by `jp`. It avoids `cast` on `cast`.
+- If creates an auxiliary let-declaration if `e` is not a free variable.
+-/
+def mkJump (jp : Expr) (e : Expr) : CompilerM Expr := do
+  let .forallE _ d b _ ← inferType jp | unreachable!
+  let mkJpApp (x : Expr) := mkApp jp x |>.headBeta
+  if isLcUnreachable e then
+    mkLcUnreachable b
+  else if compatibleTypes (← inferType e) d then
+    let x ← mkAuxLetDecl e
+    return mkJpApp x
+  else if let some x := isLcCast? e then
+    let x ← mkAuxLetDecl (← mkLcCast x d)
+    return mkJpApp x
+  else
+    let x ← mkAuxLetDecl e
+    let x ← mkAuxLetDecl (← mkLcCast x d)
+    return mkJpApp x
+
 end Lean.Compiler

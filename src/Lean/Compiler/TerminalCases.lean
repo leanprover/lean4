@@ -19,7 +19,7 @@ abbrev M := ReaderT Context CompilerM
 
 mutual
 
-partial def visitCases (casesInfo : CasesInfo) (cases : Expr) : M Expr := do
+private partial def visitCases (casesInfo : CasesInfo) (cases : Expr) : M Expr := do
   let mut args := cases.getAppArgs
   if let some jp := (← read).jp? then
     let .forallE _ _ b _ ← inferType jp | unreachable! -- jp's type is guaranteed to be an nondependent arrow, see `visitLet`
@@ -28,13 +28,13 @@ partial def visitCases (casesInfo : CasesInfo) (cases : Expr) : M Expr := do
     args ← args.modifyM i visitLambda
   return mkAppN cases.getAppFn args
 
-partial def visitLambda (e : Expr) : M Expr :=
+private partial def visitLambda (e : Expr) : M Expr :=
   withNewScope do
     let (as, e) ← Compiler.visitLambda e
     let e ← mkLetUsingScope (← visitLet e #[])
     mkLambda as e
 
-partial def visitLet (e : Expr) (fvars : Array Expr) : M Expr := do
+private partial def visitLet (e : Expr) (fvars : Array Expr) : M Expr := do
   match e with
   | .letE binderName type value body nonDep =>
     let type := type.instantiateRev fvars
@@ -64,21 +64,7 @@ partial def visitLet (e : Expr) (fvars : Array Expr) : M Expr := do
       visitCases casesInfo e
     else match (← read).jp? with
       | none => return e
-      | some jp =>
-        let .forallE _ d b _ ← inferType jp | unreachable!
-        let mkJpApp (x : Expr) := mkApp jp x |>.headBeta
-        if isLcUnreachable e then
-          mkLcUnreachable b
-        else if compatibleTypes (← inferType e) d then
-          let x ← mkAuxLetDecl e
-          return mkJpApp x
-        else if let some x := isLcCast? e then
-          let x ← mkAuxLetDecl (← mkLcCast x d)
-          return mkJpApp x
-        else
-          let x ← mkAuxLetDecl e
-          let x ← mkAuxLetDecl (← mkLcCast x d)
-          return mkJpApp x
+      | some jp => mkJump jp e
 
 end
 

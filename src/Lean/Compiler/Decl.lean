@@ -164,4 +164,12 @@ See `Compiler.ensureUniqueLetVarNames`
 def Decl.ensureUniqueLetVarNames (decl : Decl) : CoreM Decl := do
   return { decl with value := (← Compiler.ensureUniqueLetVarNames decl.value) }
 
+def Decl.getArity (decl : Decl) : Nat :=
+  go decl.value
+where
+  go (e : Expr) :=
+    match e with
+    | .lam _ _ b _ => go b + 1
+    | _ => 0
+
 end Lean.Compiler

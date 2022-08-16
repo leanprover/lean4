@@ -7,6 +7,7 @@ import Lean.Compiler.Decl
 import Lean.Compiler.TerminalCases
 import Lean.Compiler.CSE
 import Lean.Compiler.Stage1
+import Lean.Compiler.Simp
 
 namespace Lean.Compiler
 
@@ -51,6 +52,8 @@ def compileStage1Impl (declNames : Array Name) : CoreM (Array Decl) := do
   checkpoint `init decls { terminalCasesOnly := false }
   let decls ← decls.mapM (·.terminalCases)
   checkpoint `terminalCases decls
+  let decls ← decls.mapM (·.simp)
+  checkpoint `simp decls
   -- Remark: add simplification step here, `cse` is useful after simplification
   let decls ← decls.mapM (·.cse)
   checkpoint `cse decls

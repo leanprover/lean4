@@ -21,6 +21,10 @@ structure Decl where
   -/
   name  : Name
   /--
+  Universe level parameter names.
+  -/
+  levelParams : List Name
+  /--
   The type of the declaration. Note that this is an erased LCNF type
   instead of the fully dependent one that might have been the original
   type of the declaration in the `Environment`.
@@ -117,7 +121,7 @@ def toDecl (declName : Name) : CoreM Decl := do
     let value ← macroInline value
     let value ← inlineMatchers value
     let value ← toLCNF value
-    return { name := declName, type, value }
+    return { name := declName, type, value, levelParams := info.levelParams }
 
 /--
 Join points are let bound variables with an _jp name prefix.

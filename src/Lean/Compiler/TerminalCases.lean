@@ -44,8 +44,7 @@ private partial def visitLet (e : Expr) (fvars : Array Expr) : M Expr := do
         let x ← mkLocalDecl binderName type
         let body ← visitLet body (fvars.push x)
         let body ← mkLetUsingScope body
-        let bodyAbst := body.abstract #[x]
-        return bodyAbst
+        return body.abstract #[x]
       let jp ← if (← isSimpleLCNF bodyAbst) then
         -- Join point is too simple, we eagerly inline it.
         pure <| .lam binderName type bodyAbst .default

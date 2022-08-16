@@ -445,7 +445,7 @@ where
         visitLet body (xs.push value)
       else
         let type' ← liftMetaM <| toLCNFType type
-        let value' ← visit value
+        let value' ← withRoot true <| visit value
         let x ← mkLetDecl binderName type value type' value'
         visitLet body (xs.push x)
     | _ =>

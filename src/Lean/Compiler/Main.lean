@@ -23,6 +23,7 @@ and `[specialize]` since they can be partially applied.
 def shouldGenerateCode (declName : Name) : CoreM Bool := do
   if (← isCompIrrelevant |>.run') then return false
   if hasMacroInlineAttribute (← getEnv) declName then return false
+  if (← Meta.isMatcher declName) then return false
   -- TODO: check if type class instance
   return true
 where
@@ -45,6 +46,7 @@ def checkpoint (step : Name) (decls : Array Decl) (cfg : Check.Config := {}): Co
 @[export lean_compile_stage1]
 def compileStage1Impl (declNames : Array Name) : CoreM (Array Decl) := do
   let declNames ← declNames.filterM shouldGenerateCode
+  if declNames.isEmpty then return #[]
   let decls ← declNames.mapM toDecl
   checkpoint `init decls { terminalCasesOnly := false }
   let decls ← decls.mapM (·.terminalCases)

@@ -59,7 +59,7 @@ private def getCasesOnInductiveVal? (declName : Name) : CoreM (Option InductiveV
   let .inductInfo val ← getConstInfo declName.getPrefix | return none
   return some val
 
-private def getCasesOnInfo? (declName : Name) : CoreM (Option CasesInfo) := do
+def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
   let some val ← getCasesOnInductiveVal? declName | return none
   let numParams    := val.numParams
   let motivePos    := numParams
@@ -72,19 +72,6 @@ private def getCasesOnInfo? (declName : Name) : CoreM (Option CasesInfo) := do
     let .ctorInfo ctorVal ← getConstInfo ctor | unreachable!
     return ctorVal.numFields
   return some { numParams, motivePos, arity, discrsRange, altsRange, altNumParams }
-
-def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
-  if let some matcherInfo ← Meta.getMatcherInfo? declName then
-    return some {
-      numParams    := matcherInfo.numParams
-      motivePos    := matcherInfo.getMotivePos
-      arity        := matcherInfo.arity
-      discrsRange  := matcherInfo.getDiscrRange
-      altsRange    := matcherInfo.getAltRange
-      altNumParams := matcherInfo.altNumParams
-    }
-  else
-    getCasesOnInfo? declName
 
 def CasesInfo.geNumDiscrs (casesInfo : CasesInfo) : Nat :=
   casesInfo.discrsRange.stop - casesInfo.discrsRange.start

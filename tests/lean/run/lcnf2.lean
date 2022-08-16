@@ -20,7 +20,7 @@ def g (x : Nat) : Bool :=
   | none => true
   | some _  => false
 
-set_option trace.Compiler.step true
+set_option trace.Compiler true
 #eval Compiler.compile #[``g]
 
 

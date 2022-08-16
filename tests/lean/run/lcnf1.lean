@@ -44,7 +44,7 @@ def Vec.head : Vec α (n+1) → α
 #eval Compiler.compile #[``Lean.Elab.Term.synthesizeSyntheticMVars]
 
 set_option profiler true
-set_option trace.Compiler.step true
+set_option trace.Compiler true
 #eval Compiler.compile #[``Lean.Meta.isExprDefEqAuxImpl]
 
 def foo (a b : Nat) :=

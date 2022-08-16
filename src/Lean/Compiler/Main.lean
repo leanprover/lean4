@@ -37,11 +37,12 @@ A checkpoint in code generation to print all declarations in between
 compiler passes in order to ease debugging.
 The trace can be viewed with `set_option trace.Compiler.step true`.
 -/
-def checkpoint (step : Name) (decls : Array Decl) (cfg : Check.Config := {}): CoreM Unit := do
-  trace[Compiler.step] "{step}"
+def checkpoint (stepName : Name) (decls : Array Decl) (cfg : Check.Config := {}): CoreM Unit := do
   for decl in decls do
     withOptions (fun opts => opts.setBool `pp.motives.pi false) do
-      trace[Compiler.step] "{decl.name} : {decl.type} :=\n{decl.value}"
+      let clsName := `Compiler ++ stepName
+      if (← Lean.isTracingEnabledFor clsName) then
+        Lean.addTrace clsName m!"{decl.name} : {decl.type} :=\n{decl.value}"
       decl.check cfg
 
 @[export lean_compile_stage1]
@@ -69,6 +70,9 @@ def compile (declNames : Array Name) : CoreM Unit := do profileitM Exception "co
 
 builtin_initialize
   registerTraceClass `Compiler
-  registerTraceClass `Compiler.step
+  registerTraceClass `Compiler.init (inherited := true)
+  registerTraceClass `Compiler.terminalCases (inherited := true)
+  registerTraceClass `Compiler.simp (inherited := true)
+  registerTraceClass `Compiler.cse (inherited := true)
 
 end Lean.Compiler

@@ -235,7 +235,7 @@ FlattenBehaviour is `allOrNone`; for `fill` use `bracketFill`. -/
 @[inline] def paren (f : Format) : Format :=
   bracket "(" f ")"
 
-/-- Creates the format `"(" ++ f ++ ")"` with a flattening group.-/
+/-- Creates the format `"[" ++ f ++ "]"` with a flattening group.-/
 @[inline] def sbracket (f : Format) : Format :=
   bracket "[" f "]"
 
@@ -298,12 +298,12 @@ def Format.joinSep {α : Type u} [ToFormat α] : List α → Format → Format
   | [a],   _   => format a
   | a::as, sep => format a ++ sep ++ joinSep as sep
 
-/-- format each item in `items` and prepend prefix `pre`. -/
+/-- Format each item in `items` and prepend prefix `pre`. -/
 def Format.prefixJoin {α : Type u} [ToFormat α] (pre : Format) : List α → Format
   | []    => nil
   | a::as => pre ++ format a ++ prefixJoin pre as
 
-/-- format each item in `items` and append `suffix`. -/
+/-- Format each item in `items` and append `suffix`. -/
 def Format.joinSuffix {α : Type u} [ToFormat α] : List α → Format → Format
   | [],    _      => nil
   | a::as, suffix => format a ++ suffix ++ joinSuffix as suffix

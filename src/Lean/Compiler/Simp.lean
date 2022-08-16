@@ -72,9 +72,13 @@ where
       let mut value := value.instantiateRev xs
       if value.isLambda then
         value ← visitLambda value
-      let type := type.instantiateRev xs
-      let x ← mkLetDecl binderName type value nonDep
-      go body (xs.push x)
+      if value.isFVar then
+        /- Eliminate `let _x_i := _x_j;` -/
+        go body (xs.push value)
+      else
+        let type := type.instantiateRev xs
+        let x ← mkLetDecl binderName type value nonDep
+        go body (xs.push x)
     | _ =>
       let e := e.instantiateRev xs
       if let some casesInfo ← isCasesApp? e then

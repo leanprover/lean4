@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Leonardo de Moura, Sebastian Ullrich
 */
+#include <cstdio>
 #if defined(LEAN_WINDOWS)
 #include <windows.h>
 #include <io.h>
@@ -337,8 +338,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_get_line(b_obj_arg h, obj_arg
             }
             result.append(out);
         } else if (std::feof(fp)) {
-            ungetc(' ',fp); // reset the eof state
-            getc(fp); // remove the character introduced above
+            clearerr(fp);
             return io_result_mk_ok(mk_string(result));
         } else {
             return io_result_mk_error(g_io_error_getline);

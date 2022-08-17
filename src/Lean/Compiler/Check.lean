@@ -68,8 +68,7 @@ where
         withReader (fun ctx => { ctx with jps := if isJpBinderName n then ctx.jps.insert x.fvarId! else ctx.jps }) do
           checkBlock b (xs.push x)
     | _ =>
-      if (← isJump e) then
-        let .fvar fvarId := e.getAppFn | unreachable!
+      if let some fvarId ← isJump? e then
         unless (← read).jps.contains fvarId do
           /-
           We cannot jump to join points defined out of the scope of a local function declaration.

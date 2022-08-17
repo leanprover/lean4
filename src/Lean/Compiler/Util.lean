@@ -167,9 +167,12 @@ def findDecl? [Monad m] [MonadLCtx m] (fvarId : FVarId) : m (Option LocalDecl) :
 /--
 Return true if `e` is of the form `_jp.<idx> ..` where `_jp.<idx>` is a join point.
 -/
-def isJump [Monad m] [MonadLCtx m] (e : Expr) : m Bool := do
-  let .fvar fvarId := e.getAppFn | return false
-  let some localDecl ← findDecl? fvarId | return false
-  return localDecl.isJp
+def isJump? [Monad m] [MonadLCtx m] (e : Expr) : m (Option FVarId) := do
+  let .fvar fvarId := e.getAppFn | return none
+  let some localDecl ← findDecl? fvarId | return none
+  if localDecl.isJp then
+    return some fvarId
+  else
+    return none
 
 end Lean.Compiler

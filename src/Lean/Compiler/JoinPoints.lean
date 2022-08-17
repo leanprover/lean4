@@ -10,11 +10,7 @@ namespace Lean.Compiler
 namespace JoinPointChecker
 
 def jpArity (jp : LocalDecl) : Nat :=
-  go jp.value
-where
-  go : Expr → Nat
-  | .lam _ _ body _ => 1 + go body
-  | _ => 0
+  getLambdaArity jp.value
 
 /--
 Throws an exception if `e` contains a join point.
@@ -38,7 +34,7 @@ partial def containsNoJp (e : Expr) : CompilerM Unit := do
     if decl.isJp then
       throwError s!"Join point {decl.userName} in forbidden position"
   | .sort .. | .forallE .. | .const .. | .lit .. => return ()
-  | .bvar .. | .mvar .. | .mdata .. => unreachable! 
+  | .bvar .. | .mvar .. | .mdata .. => unreachable!
 
 /--
 Check whether all join points in `e` are in a valid position that is:
@@ -86,7 +82,7 @@ where
         containsNoJp e
     | .proj .. | .lam ..  => containsNoJp e
     | .fvar .. | .sort .. | .forallE .. | .const .. | .lit .. => return ()
-    | .bvar .. | .mvar .. | .mdata .. => unreachable! 
+    | .bvar .. | .mvar .. | .mdata .. => unreachable!
 
 end JoinPointChecker
 

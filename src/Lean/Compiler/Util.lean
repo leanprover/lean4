@@ -143,4 +143,9 @@ where
         for i in casesInfo.altsRange do
           go args[i]!
 
+def getLambdaArity (e : Expr) :=
+  match e with
+  | .lam _ _ b _ => getLambdaArity b + 1
+  | _ => 0
+
 end Lean.Compiler

@@ -53,6 +53,12 @@ def InlineStats.format (s : InlineStats) : Format := Id.run do
     pure ()
   return result
 
+def InlineStats.shouldInline (s : InlineStats) (k : Name) : Bool := Id.run do
+  let some numOccs := s.numOccs.find? k | return false
+  if numOccs == 1 then return true
+  let some sz := s.size.find? k | return false
+  return sz == 1
+
 instance : ToFormat InlineStats where
   format := InlineStats.format
 
@@ -106,6 +112,13 @@ structure Context where
   -/
   stats : InlineStats
   /--
+  We only inline local declarations when `localInline` is `true`.
+  We set it to `false` when we are inlining a non local definition
+  that may have let-declarations whose names collide with the ones
+  stored at `stats`.
+  -/
+  localInline : Bool := true
+  /--
   Current continuation. It is a join point or lambda abstraction.
   -/
   jp? : Option Expr := none
@@ -119,15 +132,31 @@ def withJp (jp : Expr) (x : SimpM α) : SimpM α := do
 def withoutJp (x : SimpM α) : SimpM α :=
   withReader (fun ctx => { ctx with jp? := none }) x
 
+def shouldInline (localDecl : LocalDecl) : SimpM Bool :=
+  return (← read).localInline && (← read).stats.shouldInline localDecl.userName
+
+def isJump (e : Expr) : CompilerM Bool := do
+  let .fvar fvarId := e.getAppFn | return false
+  let some localDecl ← findDecl? fvarId | return false
+  return localDecl.userName matches .num `_jp _
+
 def inlineCandidate? (e : Expr) : SimpM (Option Nat) := do
-  -- TODO: support for local declarations
-  let .const declName _ := e.getAppFn | return none
-  unless hasInlineAttribute (← getEnv) declName do return none
-  -- TODO: check whether function is recursive or not.
-  -- We can skip the test and store function inline so far.
-  let some decl ← getStage1Decl? declName | return none
-  if e.getAppNumArgs < decl.getArity then return none
-  return e.getAppNumArgs - decl.getArity
+  let f := e.getAppFn
+  let arity ← match f with
+    | .const declName _ =>
+      unless hasInlineAttribute (← getEnv) declName do return none
+      -- TODO: check whether function is recursive or not.
+      -- We can skip the test and store function inline so far.
+      let some decl ← getStage1Decl? declName | return none
+      pure decl.getArity
+    | _ =>
+      match (← findLambda? f) with
+      | none => return none
+      | some localDecl =>
+        unless (← shouldInline localDecl) do return none
+        pure (getLambdaArity localDecl.value)
+  if e.getAppNumArgs < arity then return none
+  return e.getAppNumArgs - arity
 
 /--
 If `e` if a free variable that expands to a valid LCNF terminal `let`-block expression `e'`,
@@ -168,13 +197,19 @@ partial def visitCases (casesInfo : CasesInfo) (e : Expr) : SimpM Expr := do
     return mkAppN e.getAppFn args
 
 partial def inlineApp (e : Expr) : SimpM Expr := do
-  let .const declName us := e.getAppFn | unreachable!
-  let some decl ← getStage1Decl? declName | unreachable!
+  let f := e.getAppFn
+  let value ← match f with
+    | .const declName us =>
+      let some decl ← getStage1Decl? declName | unreachable!
+      pure <| decl.value.instantiateLevelParams decl.levelParams us
+    | _ =>
+      let some localDecl ← findLambda? f | unreachable!
+      pure localDecl.value
   let args := e.getAppArgs
-  let value := decl.value.instantiateLevelParams decl.levelParams us
   let value := value.beta args
   assert! !value.isLambda
-  visitLet value
+  withReader (fun ctx => { ctx with localInline := !f.isConst }) do
+    visitLet value
 
 /--
 If `e` is an application that can be inlined, inline it.
@@ -247,6 +282,27 @@ partial def visitLet (e : Expr) (xs : Array Expr := #[]): SimpM Expr := do
     if let some casesInfo ← isCasesApp? e then
       visitCases casesInfo e
     else if let some e ← inlineApp? e #[] none then
+      return e
+    else if (← isJump e) then
+      /- TODO: fix, this is buggy.
+         Suppose we have
+         ```
+         let _jp.1 := fun x => k[x]
+         ```
+         and we are trying to jump to `_jp.2` when processing
+         ```
+         let _x.3 := ...
+         _jp.1 _x.3
+         ```
+         We must create a new join point `_jp.4` which fuses `_jp.1` and `_jp.2`.
+         ```
+         let _jp.4 := fun x => let r := k[x]; _jp.2 r
+         ```
+         and replace `_jp.1` with `_jp.4`.
+
+         When inlining, we must "fix" the join points **before** we process it.
+         We should not need `jp?` in the context. It will simplify the code too.
+      -/
       return e
     else
       mkOptJump (← read).jp? (← expandTrivialExpr e)

@@ -249,6 +249,33 @@ def mkJump (jp : Expr) (e : Expr) : CompilerM Expr := do
 Given a let-declaration block `e`, return a new block that jumps to `jp` at its "exit points".
 
 `e` must contain all join points declarations used in `e`.
+
+Example: Suppose `e` is of the form
+```
+let _jp.1 := fun y =>
+  let _x.1 := Nat.add y y
+  Nat.mul _x.1 y
+casesOn _x.2
+  (fun x => _jp.1 x)
+  (fun x => Nat.add x x)
+```
+then, `attachJp e _jp.2` produces the new let-block.
+```
+let _jp.1 := fun y =>
+  let _x.1 := Nat.add y y
+  let _x.2 := Nat.mul _x.1 y
+  _jp.2 _x.2
+casesOn _x.2
+  (fun x => _jp.1 x)
+  (fun x =>
+    let _x.3 := Nat.add x x
+    _jp.2 _x.3)
+```
+
+If `e` contains a jump to a join point `_jp.i` not declared in `e`, we throw an exception because
+an invalid block would be generated. It would be invalid because the input join poinp `jp` would not
+be applied to `_jp.i`. Note that, we could have decided to create a copy of `_jp.i` where we apply `jp` to it,
+by we decided to not do it to avoid code duplication.
 -/
 partial def attachJp (e : Expr) (jp : Expr) : CompilerM Expr := do
   withNewScope do

@@ -25,7 +25,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_withPPShowLetValues___at_Lean_Meta_throwTac
 LEAN_EXPORT lean_object* l_Std_PersistentArray_forIn___at_Lean_MVarId_getNondepPropHyps___spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_424____closed__4;
 LEAN_EXPORT lean_object* l_Lean_Meta_ensureAtMostOne(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
+lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*);
 lean_object* lean_erase_macro_scopes(lean_object*);
 static lean_object* l_Lean_MVarId_inferInstance___lambda__1___closed__3;
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -1571,10 +1571,11 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_424_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_424____closed__4;
-x_3 = l_Lean_registerTraceClass(x_2, x_1);
-return x_3;
+x_3 = 0;
+x_4 = l_Lean_registerTraceClass(x_2, x_3, x_1);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_MVarId_admit___lambda__1(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {

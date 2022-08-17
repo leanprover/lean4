@@ -18,7 +18,7 @@ LEAN_EXPORT lean_object* l_Lean_getConstInfo___at_Lean_Elab_elabDeriving___spec_
 LEAN_EXPORT lean_object* l_Lean_Elab_derivingHandlersRef;
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_resolveGlobalConst___at_Lean_Elab_elabDeriving___spec__10___closed__1;
-lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
+lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_applyDerivingHandlers___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_defaultHandler___closed__4;
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -4615,10 +4615,11 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Basic___hyg_1780_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Basic___hyg_1780____closed__3;
-x_3 = l_Lean_registerTraceClass(x_2, x_1);
-return x_3;
+x_3 = 0;
+x_4 = l_Lean_registerTraceClass(x_2, x_3, x_1);
+return x_4;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);

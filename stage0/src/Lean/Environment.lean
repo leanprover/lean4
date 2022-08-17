@@ -468,9 +468,12 @@ namespace SimplePersistentEnvExtension
 instance {α σ : Type} [Inhabited σ] : Inhabited (SimplePersistentEnvExtension α σ) :=
   inferInstanceAs (Inhabited (PersistentEnvExtension α α (List α × σ)))
 
+/-- Get the list of values used to update the state of the given 
+`SimplePersistentEnvExtension` in the current file. -/
 def getEntries {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension α σ) (env : Environment) : List α :=
   (PersistentEnvExtension.getState ext env).1
 
+/-- Get the current state of the given `SimplePersistentEnvExtension`. -/
 def getState {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension α σ) (env : Environment) : σ :=
   (PersistentEnvExtension.getState ext env).2
 

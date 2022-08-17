@@ -158,7 +158,7 @@ instance (m n) [MonadLift m n] [MonadMacroAdapter m] : MonadMacroAdapter n := {
   setNextMacroScope := fun s => liftM (MonadMacroAdapter.setNextMacroScope s : m _)
 }
 
-def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m] [MonadResolveName m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] (x : MacroM α) : m α := do
+def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m] [MonadResolveName m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLiftT IO m] (x : MacroM α) : m α := do
   let env  ← getEnv
   let currNamespace ← getCurrNamespace
   let openDecls ← getOpenDecls
@@ -192,7 +192,7 @@ def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEn
     s.traceMsgs.reverse.forM fun (clsName, msg) => trace clsName fun _ => msg
     return a
 
-@[inline] def adaptMacro {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m]  [MonadResolveName m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] (x : Macro) (stx : Syntax) : m Syntax :=
+@[inline] def adaptMacro {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m]  [MonadResolveName m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLiftT IO m] (x : Macro) (stx : Syntax) : m Syntax :=
   liftMacroM (x stx)
 
 partial def mkUnusedBaseName (baseName : Name) : MacroM Name := do
@@ -220,13 +220,6 @@ def withLogging [Monad m] [MonadLog m] [MonadExcept Exception m] [AddMessageCont
     (x : m Unit) : m Unit := do
   try x catch ex => logException ex
 
-@[inline] def trace [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] (cls : Name) (msg : Unit → MessageData) : m Unit := do
-  if checkTraceOption (← getOptions) cls then
-    logTrace cls (msg ())
-
-def logDbgTrace [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] (msg : MessageData) : m Unit := do
-  trace `Elab.debug fun _ => msg
-
 def nestedExceptionToMessageData [Monad m] [MonadLog m] (ex : Exception) : m MessageData := do
   let pos ← getRefPos
   match ex.getRef.getPos? with
@@ -244,5 +237,6 @@ def throwErrorWithNestedErrors [MonadError m] [Monad m] [MonadLog m] (msg : Mess
 builtin_initialize
   registerTraceClass `Elab
   registerTraceClass `Elab.step
+  registerTraceClass `Elab.step.result (inherited := true)
 
 end Lean.Elab

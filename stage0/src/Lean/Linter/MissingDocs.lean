@@ -110,6 +110,14 @@ def lintField (parent stx : Syntax) (msg : String) : CommandElabM Unit :=
 def lintStructField (parent stx : Syntax) (msg : String) : CommandElabM Unit :=
   lint stx s!"{msg} {parent.getId}.{stx.getId}"
 
+def hasInheritDoc (attrs : Syntax) : Bool :=
+  attrs[0][1].getSepArgs.any fun attr =>
+    attr[1].isOfKind ``Parser.Attr.simple &&
+    attr[1][0].getId.eraseMacroScopes == `inheritDoc
+
+def declModifiersPubNoDoc (mods : Syntax) : Bool :=
+  mods[2][0].getKind != ``«private» && mods[0].isNone && !hasInheritDoc mods[1]
+
 def lintDeclHead (k : SyntaxNodeKind) (id : Syntax) : CommandElabM Unit := do
   if k == ``«abbrev» then lintNamed id "public abbrev"
   else if k == ``«def» then lintNamed id "public def"
@@ -124,21 +132,20 @@ def checkDecl : SimpleHandler := fun stx => do
   let head := stx[0]; let rest := stx[1]
   if head[2][0].getKind == ``«private» then return -- not private
   let k := rest.getKind
-  if head[0].isNone then -- no doc string
+  if declModifiersPubNoDoc head then -- no doc string
     lintDeclHead k rest[1][0]
   if k == ``«inductive» || k == ``classInductive then
     for stx in rest[4].getArgs do
       let head := stx[1]
-      if head[2][0].getKind != ``«private» && head[0].isNone then
+      if declModifiersPubNoDoc head then
         lintField rest[1][0] stx[2] "public constructor"
     unless rest[5].isNone do
       for stx in rest[5][0][1].getArgs do
         let head := stx[0]
-        if head[2][0].getKind == ``«private» then return -- not private
-        if head[0].isNone then -- no doc string
+        if declModifiersPubNoDoc head then -- no doc string
           lintField rest[1][0] stx[1] "computed field"
   else if rest.getKind == ``«structure» then
-    unless rest[5].isNone || rest[5][2].isNone do
+    unless rest[5][2].isNone do
       let redecls : Std.HashSet String.Pos :=
         (← get).infoState.trees.foldl (init := {}) fun s tree =>
           tree.foldInfo (init := s) fun _ info s =>
@@ -154,7 +161,7 @@ def checkDecl : SimpleHandler := fun stx => do
         lintField parent stx "public field"
       for stx in rest[5][2][0].getArgs do
         let head := stx[0]
-        if head[2][0].getKind != ``«private» && head[0].isNone then
+        if declModifiersPubNoDoc head then
           if stx.getKind == ``structSimpleBinder then
             lint1 stx[1]
           else
@@ -163,25 +170,24 @@ def checkDecl : SimpleHandler := fun stx => do
 
 @[builtinMissingDocsHandler «initialize»]
 def checkInit : SimpleHandler := fun stx => do
-  if stx[2].isNone then return
-  if stx[0][2][0].getKind != ``«private» && stx[0][0].isNone then
+  if !stx[2].isNone && declModifiersPubNoDoc stx[0] then
     lintNamed stx[2][0] "initializer"
 
 @[builtinMissingDocsHandler «notation»]
 def checkNotation : SimpleHandler := fun stx => do
-  if stx[0].isNone && stx[2][0][0].getKind != ``«local» then
+  if stx[0].isNone && stx[2][0][0].getKind != ``«local» && !hasInheritDoc stx[1] then
     if stx[5].isNone then lint stx[3] "notation"
     else lintNamed stx[5][0][3] "notation"
 
 @[builtinMissingDocsHandler «mixfix»]
 def checkMixfix : SimpleHandler := fun stx => do
-  if stx[0].isNone && stx[2][0][0].getKind != ``«local» then
+  if stx[0].isNone && stx[2][0][0].getKind != ``«local» && !hasInheritDoc stx[1] then
     if stx[5].isNone then lint stx[3] stx[3][0].getAtomVal!
     else lintNamed stx[5][0][3] stx[3][0].getAtomVal!
 
 @[builtinMissingDocsHandler «syntax»]
 def checkSyntax : SimpleHandler := fun stx => do
-  if stx[0].isNone && stx[2][0][0].getKind != ``«local» then
+  if stx[0].isNone && stx[2][0][0].getKind != ``«local» && !hasInheritDoc stx[1] then
     if stx[5].isNone then lint stx[3] "syntax"
     else lintNamed stx[5][0][3] "syntax"
 
@@ -197,20 +203,19 @@ def checkSyntaxCat : SimpleHandler := mkSimpleHandler "syntax category"
 
 @[builtinMissingDocsHandler «macro»]
 def checkMacro : SimpleHandler := fun stx => do
-  if stx[0].isNone && stx[2][0][0].getKind != ``«local» then
+  if stx[0].isNone && stx[2][0][0].getKind != ``«local» && !hasInheritDoc stx[1] then
     if stx[5].isNone then lint stx[3] "macro"
     else lintNamed stx[5][0][3] "macro"
 
 @[builtinMissingDocsHandler «elab»]
 def checkElab : SimpleHandler := fun stx => do
-  if stx[0].isNone && stx[2][0][0].getKind != ``«local» then
+  if stx[0].isNone && stx[2][0][0].getKind != ``«local» && !hasInheritDoc stx[1] then
     if stx[5].isNone then lint stx[3] "elab"
     else lintNamed stx[5][0][3] "elab"
 
 @[builtinMissingDocsHandler classAbbrev]
 def checkClassAbbrev : SimpleHandler := fun stx => do
-  let head := stx[0]
-  if head[2][0].getKind != ``«private» && head[0].isNone then
+  if declModifiersPubNoDoc stx[0] then
     lintNamed stx[3] "class abbrev"
 
 @[builtinMissingDocsHandler Parser.Tactic.declareSimpLikeTactic]

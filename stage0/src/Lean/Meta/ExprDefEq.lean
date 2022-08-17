@@ -314,20 +314,18 @@ private partial def isDefEqBindingAux (lctx : LocalContext) (fvars : Array Expr)
   isDefEqBindingAux lctx #[] a b #[]
 
 private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
-  traceCtx `Meta.isDefEq.assign.checkTypes do
+  withTraceNode `Meta.isDefEq.assign.checkTypes (return m!"{exceptBoolEmoji ·} ({mvar} : {← inferType mvar}) := ({v} : {← inferType v})") do
     if !mvar.isMVar then
-      trace[Meta.isDefEq.assign.final] "metavariable expected at {mvar} := {v}"
+      trace[Meta.isDefEq.assign.checkTypes] "metavariable expected"
       return false
     else
       -- must check whether types are definitionally equal or not, before assigning and returning true
       let mvarType ← inferType mvar
       let vType ← inferType v
       if (← withTransparency TransparencyMode.default <| Meta.isExprDefEqAux mvarType vType) then
-        trace[Meta.isDefEq.assign.final] "{mvar} := {v}"
         mvar.mvarId!.assign v
         pure true
       else
-        trace[Meta.isDefEq.assign.typeMismatch] "{mvar} : {mvarType} := {v} : {vType}"
         pure false
 
 /--
@@ -1018,8 +1016,7 @@ private partial def processConstApprox (mvar : Expr) (args : Array Expr) (patter
 /-- Tries to solve `?m a₁ ... aₙ =?= v` by assigning `?m`.
     It assumes `?m` is unassigned. -/
 private partial def processAssignment (mvarApp : Expr) (v : Expr) : MetaM Bool :=
-  traceCtx `Meta.isDefEq.assign do
-    trace[Meta.isDefEq.assign] "{mvarApp} := {v}"
+  withTraceNode `Meta.isDefEq.assign (return m!"{exceptBoolEmoji ·} {mvarApp} := {v}") do
     let mvar := mvarApp.getAppFn
     let mvarDecl ← mvar.mvarId!.getDecl
     let rec process (i : Nat) (args : Array Expr) (v : Expr) := do
@@ -1135,7 +1132,7 @@ private def tryHeuristic (t s : Expr) : MetaM Bool := do
   unless info.hints.isRegular || isMatcherCore (← getEnv) tFn.constName! do
     unless t.hasExprMVar || s.hasExprMVar do
       return false
-  traceCtx `Meta.isDefEq.delta do
+  withTraceNode `Meta.isDefEq.delta (return m!"{exceptBoolEmoji ·} {t} =?= {s}") do
     /-
       We process arguments before universe levels to reduce a source of brittleness in the TC procedure.
 
@@ -1156,12 +1153,8 @@ private def tryHeuristic (t s : Expr) : MetaM Bool := do
       Then the entry-point for `isDefEq` checks the flag before returning `true`.
     -/
     checkpointDefEq do
-      let b ← isDefEqArgs tFn t.getAppArgs s.getAppArgs
-              <&&>
-              isListLevelDefEqAux tFn.constLevels! sFn.constLevels!
-      unless b do
-        trace[Meta.isDefEq.delta] "heuristic failed {t} =?= {s}"
-      pure b
+      isDefEqArgs tFn t.getAppArgs s.getAppArgs <&&>
+        isListLevelDefEqAux tFn.constLevels! sFn.constLevels!
 
 /-- Auxiliary method for isDefEqDelta -/
 private abbrev unfold (e : Expr) (failK : MetaM α) (successK : Expr → MetaM α) : MetaM α := do
@@ -1731,9 +1724,8 @@ private def cacheResult (key : Expr × Expr) (result : Bool) : MetaM Unit := do
 
 @[export lean_is_expr_def_eq]
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecDepth do
-  trace[Meta.isDefEq.step] "{t} =?= {s}"
+  withTraceNode `Meta.isDefEq (return m!"{exceptBoolEmoji ·} {t} =?= {s}") do
   checkMaxHeartbeats "isDefEq"
-  withNestedTraces do
   whenUndefDo (isDefEqQuick t s) do
   whenUndefDo (isDefEqProofIrrel t s) do
   -- We perform `whnfCore` again with `deltaAtProj := true` at `isExprDefEqExpensive` after `isDefEqProj`
@@ -1772,9 +1764,9 @@ builtin_initialize
   registerTraceClass `Meta.isDefEq
   registerTraceClass `Meta.isDefEq.foApprox
   registerTraceClass `Meta.isDefEq.constApprox
-  registerTraceClass `Meta.isDefEq.delta
-  registerTraceClass `Meta.isDefEq.step
+  registerTraceClass `Meta.isDefEq.delta (inherited := true)
   registerTraceClass `Meta.isDefEq.assign
+  registerTraceClass `Meta.isDefEq.assign.checkTypes (inherited := true)
   registerTraceClass `Meta.isDefEq.eta.struct
 
 end Lean.Meta

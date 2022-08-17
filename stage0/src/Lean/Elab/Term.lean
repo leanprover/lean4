@@ -1329,11 +1329,10 @@ where
 private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone : Bool) (implicitLambda : Bool) : Syntax → TermElabM Expr
   | .missing => mkSyntheticSorryFor expectedType?
   | stx => withFreshMacroScope <| withIncRecDepth do
-    trace[Elab.step] "expected type: {expectedType?}, term\n{stx}"
+    withTraceNode `Elab.step (fun _ => return m!"expected type: {expectedType?}, term\n{stx}") do
     checkMaxHeartbeats "elaborator"
-    withNestedTraces do
     let env ← getEnv
-    match (← liftMacroM (expandMacroImpl? env stx)) with
+    let result ← match (← liftMacroM (expandMacroImpl? env stx)) with
     | some (decl, stxNew?) =>
       let stxNew ← liftMacroM <| liftExcept stxNew?
       withInfoContext' stx (mkInfo := mkTermInfo decl (expectedType? := expectedType?) stx) <|
@@ -1345,6 +1344,8 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
       match implicit? with
       | some expectedType => elabImplicitLambda stx catchExPostpone expectedType
       | none              => elabUsingElabFns stx expectedType? catchExPostpone
+    trace[Elab.step.result] result
+    pure result
 
 /-- Store in the `InfoTree` that `e` is a "dot"-completion target. -/
 def addDotCompletionInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr) (field? : Option Syntax := none) : TermElabM Unit := do

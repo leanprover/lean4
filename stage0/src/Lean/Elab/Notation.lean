@@ -24,6 +24,18 @@ private partial def antiquote (vars : Array Syntax) : Syntax → Syntax
     | Syntax.node i k args => Syntax.node i k (args.map (antiquote vars))
     | stx => stx
 
+ def addInheritDocDefault (rhs : Term) (attrs? : Option (TSepArray ``attrInstance ",")) :
+    Option (TSepArray ``attrInstance ",") :=
+  attrs?.map fun attrs =>
+    match rhs with
+    | `($f:ident $_args*) =>
+      attrs.getElems.map fun stx => Unhygienic.run do
+        if let `(attrInstance| $attr:ident) := stx then
+          if attr.getId.eraseMacroScopes == `inheritDoc then
+            return ← `(attrInstance| $attr:ident $f:ident)
+        pure ⟨stx⟩
+    | _ => attrs
+
 /-- Convert `notation` command lhs item into a `syntax` command item -/
 def expandNotationItemIntoSyntaxItem : TSyntax ``notationItem → MacroM (TSyntax `stx)
   | `(notationItem| $_:ident$[:$prec?]?) => `(stx| term $[:$prec?]?)
@@ -124,6 +136,7 @@ private def expandNotationAux (ref : Syntax) (currNamespace : Name)
   let vars := items.filter fun item => item.raw.getKind == ``identPrec
   let vars := vars.map fun var => var.raw[0]
   let qrhs := ⟨antiquote vars rhs⟩
+  let attrs? := addInheritDocDefault rhs attrs?
   let patArgs ← items.mapM expandNotationItemIntoPattern
   /- The command `syntax [<kind>] ...` adds the current namespace to the syntax node kind.
      So, we must include current namespace when we create a pattern for the following `macro_rules` commands. -/

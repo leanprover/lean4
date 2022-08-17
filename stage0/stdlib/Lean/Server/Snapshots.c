@@ -55,7 +55,6 @@ static lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runTermElabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__15;
 lean_object* l_panic___at_Lean_FileMap_toPosition_loop___spec__1(lean_object*);
-static lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__18;
 extern lean_object* l_ByteArray_empty;
 static lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__16;
 lean_object* l_Lean_Widget_msgToInteractiveDiagnostic(lean_object*, lean_object*, uint8_t, lean_object*);
@@ -401,40 +400,27 @@ return x_4;
 static lean_object* _init_l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__15() {
 _start:
 {
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 0;
-x_2 = l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__11;
-x_3 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__16() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__8;
 x_3 = l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__11;
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__12;
 x_6 = l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__14;
-x_7 = l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__15;
-x_8 = lean_alloc_ctor(0, 9, 0);
-lean_ctor_set(x_8, 0, x_2);
-lean_ctor_set(x_8, 1, x_3);
-lean_ctor_set(x_8, 2, x_1);
-lean_ctor_set(x_8, 3, x_4);
-lean_ctor_set(x_8, 4, x_4);
-lean_ctor_set(x_8, 5, x_4);
-lean_ctor_set(x_8, 6, x_5);
-lean_ctor_set(x_8, 7, x_6);
-lean_ctor_set(x_8, 8, x_7);
-return x_8;
+x_7 = lean_alloc_ctor(0, 9, 0);
+lean_ctor_set(x_7, 0, x_2);
+lean_ctor_set(x_7, 1, x_3);
+lean_ctor_set(x_7, 2, x_1);
+lean_ctor_set(x_7, 3, x_4);
+lean_ctor_set(x_7, 4, x_4);
+lean_ctor_set(x_7, 5, x_4);
+lean_ctor_set(x_7, 6, x_5);
+lean_ctor_set(x_7, 7, x_6);
+lean_ctor_set(x_7, 8, x_3);
+return x_7;
 }
 }
-static lean_object* _init_l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__17() {
+static lean_object* _init_l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__16() {
 _start:
 {
 lean_object* x_1; 
@@ -442,16 +428,16 @@ x_1 = l_Lean_Server_Snapshots_dummyTacticCache;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__18() {
+static lean_object* _init_l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__17() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_box(0);
 x_3 = l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__1;
-x_4 = l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__16;
+x_4 = l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__15;
 x_5 = l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__11;
-x_6 = l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__17;
+x_6 = l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__16;
 x_7 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_7, 0, x_1);
 lean_ctor_set(x_7, 1, x_2);
@@ -466,7 +452,7 @@ static lean_object* _init_l_Lean_Server_Snapshots_instInhabitedSnapshot() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__18;
+x_1 = l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__17;
 return x_1;
 }
 }
@@ -2740,8 +2726,6 @@ l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__16 = _init_l_Lean_Server
 lean_mark_persistent(l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__16);
 l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__17 = _init_l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__17();
 lean_mark_persistent(l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__17);
-l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__18 = _init_l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__18();
-lean_mark_persistent(l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__18);
 l_Lean_Server_Snapshots_instInhabitedSnapshot = _init_l_Lean_Server_Snapshots_instInhabitedSnapshot();
 lean_mark_persistent(l_Lean_Server_Snapshots_instInhabitedSnapshot);
 l_Lean_Server_Snapshots_Snapshot_infoTree___closed__1 = _init_l_Lean_Server_Snapshots_Snapshot_infoTree___closed__1();

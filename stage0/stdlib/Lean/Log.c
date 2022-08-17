@@ -40,7 +40,6 @@ uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message_
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__4(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Log___hyg_192____closed__4;
 LEAN_EXPORT lean_object* l_Lean_getRefPosition___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_logTrace___rarg___closed__3;
 LEAN_EXPORT lean_object* l_Lean_logInfo___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logInfo(lean_object*);
 uint8_t l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(lean_object*, lean_object*);
@@ -58,7 +57,6 @@ LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__14(uint8_t, lean_object*,
 static lean_object* l_Lean_logAt___rarg___lambda__14___closed__1;
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_logTrace___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logUnknownDecl(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Log___hyg_192____closed__1;
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
@@ -79,8 +77,6 @@ lean_object* l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Form
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__10(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logInfoAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logError(lean_object*);
-static lean_object* l_Lean_logTrace___rarg___closed__5;
-LEAN_EXPORT lean_object* l_Lean_logTrace(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__5(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_logInfoAt(lean_object*);
@@ -98,12 +94,9 @@ LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__12___boxed(lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_instMonadLog(lean_object*, lean_object*);
 static lean_object* l_Lean_logUnknownDecl___rarg___closed__3;
 LEAN_EXPORT lean_object* l_Lean_logUnknownDecl___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_logTrace___rarg___closed__4;
 LEAN_EXPORT lean_object* l_Lean_instMonadLog___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__7(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
-static lean_object* l_Lean_logTrace___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__3(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
-static lean_object* l_Lean_logTrace___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_log___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instMonadLog___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1171,87 +1164,6 @@ x_2 = lean_alloc_closure((void*)(l_Lean_logInfo___rarg), 5, 0);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_logTrace___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("[", 1);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_logTrace___rarg___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_logTrace___rarg___closed__1;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_logTrace___rarg___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("] ", 2);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_logTrace___rarg___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_logTrace___rarg___closed__3;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_logTrace___rarg___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_initFn____x40_Lean_Log___hyg_192____closed__3;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_logTrace___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; 
-lean_inc(x_5);
-x_7 = lean_alloc_ctor(4, 1, 0);
-lean_ctor_set(x_7, 0, x_5);
-x_8 = l_Lean_logTrace___rarg___closed__2;
-x_9 = lean_alloc_ctor(10, 2, 0);
-lean_ctor_set(x_9, 0, x_8);
-lean_ctor_set(x_9, 1, x_7);
-x_10 = l_Lean_logTrace___rarg___closed__4;
-x_11 = lean_alloc_ctor(10, 2, 0);
-lean_ctor_set(x_11, 0, x_9);
-lean_ctor_set(x_11, 1, x_10);
-x_12 = lean_alloc_ctor(10, 2, 0);
-lean_ctor_set(x_12, 0, x_11);
-lean_ctor_set(x_12, 1, x_6);
-x_13 = l_Lean_logTrace___rarg___closed__5;
-x_14 = lean_alloc_ctor(10, 2, 0);
-lean_ctor_set(x_14, 0, x_12);
-lean_ctor_set(x_14, 1, x_13);
-x_15 = lean_alloc_ctor(11, 2, 0);
-lean_ctor_set(x_15, 0, x_5);
-lean_ctor_set(x_15, 1, x_14);
-x_16 = 0;
-x_17 = l_Lean_log___rarg(x_1, x_2, x_3, x_4, x_15, x_16);
-return x_17;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_logTrace(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_logTrace___rarg), 6, 0);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_logUnknownDecl___rarg___closed__1() {
 _start:
 {
@@ -1343,16 +1255,6 @@ lean_mark_persistent(l_Lean_warningAsError);
 lean_dec_ref(res);
 }l_Lean_logAt___rarg___lambda__14___closed__1 = _init_l_Lean_logAt___rarg___lambda__14___closed__1();
 lean_mark_persistent(l_Lean_logAt___rarg___lambda__14___closed__1);
-l_Lean_logTrace___rarg___closed__1 = _init_l_Lean_logTrace___rarg___closed__1();
-lean_mark_persistent(l_Lean_logTrace___rarg___closed__1);
-l_Lean_logTrace___rarg___closed__2 = _init_l_Lean_logTrace___rarg___closed__2();
-lean_mark_persistent(l_Lean_logTrace___rarg___closed__2);
-l_Lean_logTrace___rarg___closed__3 = _init_l_Lean_logTrace___rarg___closed__3();
-lean_mark_persistent(l_Lean_logTrace___rarg___closed__3);
-l_Lean_logTrace___rarg___closed__4 = _init_l_Lean_logTrace___rarg___closed__4();
-lean_mark_persistent(l_Lean_logTrace___rarg___closed__4);
-l_Lean_logTrace___rarg___closed__5 = _init_l_Lean_logTrace___rarg___closed__5();
-lean_mark_persistent(l_Lean_logTrace___rarg___closed__5);
 l_Lean_logUnknownDecl___rarg___closed__1 = _init_l_Lean_logUnknownDecl___rarg___closed__1();
 lean_mark_persistent(l_Lean_logUnknownDecl___rarg___closed__1);
 l_Lean_logUnknownDecl___rarg___closed__2 = _init_l_Lean_logUnknownDecl___rarg___closed__2();

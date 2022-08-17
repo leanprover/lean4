@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Util.ForEachExpr
+import Lean.Meta.Transform
 import Lean.Compiler.InferType
 
 namespace Lean.Compiler
@@ -90,13 +91,33 @@ def mkJpDecl (e : Expr) : CompilerM Expr := do
 /--
 Compute the maximum auxiliary let variable index that is used within `e`.
 -/
-def getMaxLetVarIdx (e : Expr) : CoreM Nat := do
+def getMaxLetVarIdx (e : Expr) : IO Nat := do
   let maxRef ← IO.mkRef 0
   e.forEach fun
-    | .letE (.num `_x i) ..
-    | .letE (.num `_jp i) .. => maxRef.modify (Nat.max · i)
+    | .letE (.num (.str .anonymous s) i) .. =>
+      if s.get 0 == '_' then maxRef.modify (Nat.max · i) else pure ()
     | _ => pure ()
   maxRef.get
+
+/--
+Make sure all let-declarations have unique user-facing names.
+We use this method when we want to retrieve candidates for code trasnformations. Examples:
+let-declarations that are safe to unfold without producing code blowup, and join point detection.
+
+Remark: user-facing names provided by users are preserved. We keep them as the prefix
+of the new unique names.
+-/
+def ensureUniqueLetVarNames (e : Expr) : CoreM Expr :=
+  let pre (e : Expr) : StateRefT Nat CoreM TransformStep := do
+    match e with
+    | .letE binderName type value body nonDep =>
+      let idx ← modifyGet fun s => (s, s+1)
+      let binderName' := match binderName with
+        | .num p _ => .num p idx
+        | _ => .num binderName idx
+      return .visit <| .letE binderName' type value body nonDep
+    | _ => return .visit e
+  Core.transform e pre |>.run' 1
 
 /--
 Move through all consecutive lambda abstractions at the top level of `e`.
@@ -199,5 +220,43 @@ Shorthand for `LocalContext.mkLambda` with the `LocalContext` of `CompilerM`.
 -/
 def mkLambda (xs : Array Expr) (e : Expr) : CompilerM Expr :=
   return (← get).lctx.mkLambda xs e
+
+/--
+Given a join point `jp` of the form `fun y => body`, if `jp` is simple (see `isSimpleLCNF`), just return it
+Otherwise, create `let jp := fun y => body` declaration and return `jp`.
+-/
+def mkJpDeclIfNotSimple (jp : Expr) : CompilerM Expr := do
+  if (← isSimpleLCNF jp.bindingBody!) then
+    -- Join point is too simple, we eagerly inline it.
+    return jp
+  else
+    mkJpDecl jp
+
+/--
+Create "jump" to join point `jp` with value `e`.
+Remarks:
+- If `e` is unreachable, then result is unreachable
+- Add `cast` if `e`'s type is not compatible with the type expected by `jp`. It avoids `cast` on `cast`.
+- If creates an auxiliary let-declaration if `e` is not a free variable.
+-/
+def mkJump (jp : Expr) (e : Expr) : CompilerM Expr := do
+  let .forallE _ d b _ ← inferType jp | unreachable!
+  let mkJpApp (x : Expr) := mkApp jp x |>.headBeta
+  if isLcUnreachable e then
+    mkLcUnreachable b
+  else if compatibleTypes (← inferType e) d then
+    let x ← mkAuxLetDecl e
+    return mkJpApp x
+  else if let some x := isLcCast? e then
+    let x ← mkAuxLetDecl (← mkLcCast x d)
+    return mkJpApp x
+  else
+    let x ← mkAuxLetDecl e
+    let x ← mkAuxLetDecl (← mkLcCast x d)
+    return mkJpApp x
+
+def mkOptJump (jp? : Option Expr) (e : Expr) : CompilerM Expr := do
+  let some jp := jp? | return e
+  mkJump jp e
 
 end Lean.Compiler

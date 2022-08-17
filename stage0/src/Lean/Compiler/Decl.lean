@@ -21,6 +21,10 @@ structure Decl where
   -/
   name  : Name
   /--
+  Universe level parameter names.
+  -/
+  levelParams : List Name
+  /--
   The type of the declaration. Note that this is an erased LCNF type
   instead of the fully dependent one that might have been the original
   type of the declaration in the `Environment`.
@@ -41,6 +45,48 @@ def macroInline (e : Expr) : CoreM Expr :=
     unless hasMacroInlineAttribute (← getEnv) declName do return .visit e
     let val ← Core.instantiateValueLevelParams (← getConstInfo declName) us
     return .visit <| val.beta e.getAppArgs
+
+private def normalizeAlt (e : Expr) (numParams : Nat) : MetaM Expr :=
+  Meta.lambdaTelescope e fun xs body => do
+    if xs.size == numParams then
+      return e
+    else if xs.size > numParams then
+      let body ← Meta.mkLambdaFVars xs[numParams:] body
+      let body ← Meta.withLetDecl (← mkFreshUserName `_k) (← Meta.inferType body) body fun x => Meta.mkLetFVars #[x] x
+      Meta.mkLambdaFVars xs[:numParams] body
+    else
+      Meta.forallBoundedTelescope (← Meta.inferType e) (numParams - xs.size) fun ys _ =>
+        Meta.mkLambdaFVars (xs ++ ys) (mkAppN e ys)
+
+/--
+Inline auxiliary `matcher` applications.
+-/
+partial def inlineMatchers (e : Expr) : CoreM Expr :=
+  Meta.MetaM.run' <| Meta.transform e fun e => do
+    let .const declName us := e.getAppFn | return .visit e
+    let some info ← Meta.getMatcherInfo? declName | return .visit e
+    let numArgs := e.getAppNumArgs
+    if numArgs > info.arity then
+      return .visit e
+    else if numArgs < info.arity then
+      Meta.forallBoundedTelescope (← Meta.inferType e) (info.arity - numArgs) fun xs _ =>
+        return .visit (← Meta.mkLambdaFVars xs (mkAppN e xs))
+    else
+      let mut args := e.getAppArgs
+      let numAlts := info.numAlts
+      let altNumParams := info.altNumParams
+      let rec inlineMatcher (i : Nat) (args : Array Expr) (letFVars : Array Expr) : MetaM Expr := do
+        if i < numAlts then
+          let altIdx := i + info.getFirstAltPos
+          let numParams := altNumParams[i]!
+          let alt ← normalizeAlt args[altIdx]! numParams
+          Meta.withLetDecl (← mkFreshUserName `_alt) (← Meta.inferType alt) alt fun altFVar =>
+            inlineMatcher (i+1) (args.set! altIdx altFVar) (letFVars.push altFVar)
+        else
+          let info ← getConstInfo declName
+          let value := (← Core.instantiateValueLevelParams info us).beta args
+          Meta.mkLetFVars letFVars value
+      return .visit (← inlineMatcher 0 args #[])
 
 /--
 Replace nested occurrences of `unsafeRec` names with the safe ones.
@@ -73,10 +119,9 @@ def toDecl (declName : Name) : CoreM Decl := do
     let value ← Meta.lambdaTelescope value fun xs body => do Meta.mkLambdaFVars xs (← Meta.etaExpand body)
     let value ← replaceUnsafeRecNames value
     let value ← macroInline value
+    let value ← inlineMatchers value
     let value ← toLCNF value
-    return { name := declName, type, value }
-
-
+    return { name := declName, type, value, levelParams := info.levelParams }
 
 /--
 Join points are let bound variables with an _jp name prefix.
@@ -114,5 +159,16 @@ def Decl.mapValue (decl : Decl) (f : Expr → CompilerM Expr) : CoreM Decl := do
 def Decl.toString (decl : Decl) : CoreM String := do
   Meta.MetaM.run' do
     return s!"{decl.name} : {← Meta.ppExpr decl.type} :=\n{← Meta.ppExpr decl.value}"
+
+/--
+Make sure all let-declarations have unique user-facing names.
+
+See `Compiler.ensureUniqueLetVarNames`
+-/
+def Decl.ensureUniqueLetVarNames (decl : Decl) : CoreM Decl := do
+  return { decl with value := (← Compiler.ensureUniqueLetVarNames decl.value) }
+
+def Decl.getArity (decl : Decl) : Nat :=
+  getLambdaArity decl.value
 
 end Lean.Compiler

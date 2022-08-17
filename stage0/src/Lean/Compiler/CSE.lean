@@ -42,7 +42,7 @@ where
       if value.isLambda then
         value ← visitLambda value
       match (← get).map.find? value with
-      | some x => go value (xs.push x)
+      | some x => go body (xs.push x)
       | none =>
         let type := type.instantiateRev xs
         let x ← mkLetDecl binderName type value nonDep

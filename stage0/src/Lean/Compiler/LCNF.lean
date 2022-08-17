@@ -80,8 +80,14 @@ def mkLocalDecl (binderName : Name) (type : Expr) (bi := BinderInfo.default) : M
   }
   return .fvar fvarId
 
+def mkFreshBinderName (binderName := `_x): M Name := do
+  let declName := .num binderName (← get).nextIdx
+  modify fun s => { s with nextIdx := s.nextIdx + 1 }
+  return declName
+
 def mkLetDecl (binderName : Name) (type : Expr) (value : Expr) (type' : Expr) (value' : Expr) : M Expr := do
   let fvarId ← mkFreshFVarId
+  let binderName ← if binderName.eraseMacroScopes.isInternal then mkFreshBinderName binderName.eraseMacroScopes else pure binderName
   let x := .fvar fvarId
   modify fun s => { s with
     lctx     := s.lctx.mkLetDecl fvarId binderName type value false
@@ -96,8 +102,7 @@ def mkAuxLetDecl (e : Expr) : M Expr := do
     return e
   else
     let fvarId ← mkFreshFVarId
-    let binderName := .num `_x (← get).nextIdx
-    modify fun s => { s with nextIdx := s.nextIdx + 1 }
+    let binderName ← mkFreshBinderName
     let type ← inferType e
     let x := .fvar fvarId
     modify fun s => { s with
@@ -164,13 +169,65 @@ partial def toLCNF (e : Expr) : CoreM Expr := do
   let (e, s) ← visit e |>.run { root := true } |>.run {}
   return s.lctx'.mkLambda s.letFVars e
 where
+  visitCore (e : Expr) : M Expr := withIncRecDepth do
+    if let some e := (← get).cache.find? e then
+      return e
+    let r ← match e with
+      | .app ..     => visitApp e
+      | .const ..   => visitApp e
+      | .proj s i e => visitProj s i e
+      | .mdata d e  => visitMData d e
+      | .lam ..     => visitLambda e
+      | .letE ..    => visitLet e #[]
+      | .lit ..     => mkAuxLetDecl e
+      | .forallE .. => unreachable!
+      | .mvar .. => throwError "unexpected occurrence of metavariable in code generator{indentExpr e}"
+      | .bvar .. => unreachable!
+      | _           => pure e
+    modify fun s => { s with cache := s.cache.insert e r }
+    return r
+
+  visit (e : Expr) : M Expr := withIncRecDepth do
+    if isLCProof e then
+      return mkConst ``lcErased
+    let type ← liftMetaM <| Meta.inferType e
+    if (← liftMetaM <| Meta.isProp type) then
+      /- We erase proofs. -/
+      return mkConst ``lcErased
+    if (← liftMetaM <| Meta.isTypeFormerType type) then
+      /-
+      We erase type formers unless they occur as application arguments.
+      Recall that we usually do not generate code for functions that return type,
+      by this branch can be reachable if we cannot establish whether the function produces a type or not.
+
+      See `visitAppArg`
+      -/
+      return mkConst ``lcErased
+    visitCore e
+
   visitChild (e : Expr) : M Expr :=
     withRoot false <| visit e
 
+  visitAppArg (e : Expr) : M Expr := do
+    if isLCProof e then
+      return mkConst ``lcErased
+    let type ← liftMetaM <| Meta.inferType e
+    if (← liftMetaM <| Meta.isProp type) then
+      /- We erase proofs. -/
+      return mkConst ``lcErased
+    if (← liftMetaM <| Meta.isTypeFormerType type) then
+      /- Types and Type formers are not put into A-normal form -/
+      return (← liftMetaM <| toLCNFType e)
+    else
+      withRoot false <| visitCore e
+
   /-- Visit args, and return `f args` -/
   visitAppDefault (f : Expr) (args : Array Expr) : M Expr := do
-    let args ← args.mapM visitChild
-    mkAuxLetDecl <| mkAppN f args
+    if f.isConstOf ``lcErased then
+      return f
+    else
+      let args ← args.mapM visitAppArg
+      mkAuxLetDecl <| mkAppN f args
 
   /-- Eta expand if under applied, otherwise apply k -/
   etaIfUnderApplied (e : Expr) (arity : Nat) (k : M Expr) : M Expr := do
@@ -195,7 +252,7 @@ where
     let k ← withRoot false <| mkAuxLetDecl app
     let mut args := args
     for i in [arity : args.size] do
-      args ← args.modifyM i visitChild
+      args ← args.modifyM i visitAppArg
     mkAuxLetDecl (mkAppN k args[arity:])
 
   /--
@@ -223,7 +280,7 @@ where
         args := args.modify i fun _ => mkConst ``lcErased
       for i in casesInfo.discrsRange do
         let discrType ← inferType args[i]!
-        args ← args.modifyM i visitChild
+        args ← args.modifyM i visitAppArg
         discrTypes := discrTypes.push discrType
       for i in casesInfo.altsRange, numParams in casesInfo.altNumParams do
         let (altType, alt) ← visitAlt args[i]! numParams
@@ -249,8 +306,8 @@ where
       let mut args := e.getAppArgs
       let α := args[0]!
       let r := args[1]!
-      let f ← visitChild args[3]!
-      let q ← visitChild args[5]!
+      let f ← visitAppArg args[3]!
+      let q ← visitAppArg args[5]!
       let .const _ [u, _] := e.getAppFn | unreachable!
       let invq ← withRoot false <| mkAuxLetDecl (mkApp3 (.const ``Quot.lcInv [u]) α r q)
       let r := mkApp f invq
@@ -388,42 +445,12 @@ where
         visitLet body (xs.push value)
       else
         let type' ← liftMetaM <| toLCNFType type
-        let value' ← visitChild value
+        let value' ← withRoot true <| visit value
         let x ← mkLetDecl binderName type value type' value'
         visitLet body (xs.push x)
     | _ =>
       let e := e.instantiateRev xs
       visit e
-
-  visit (e : Expr) : M Expr := withIncRecDepth do
-    match e with
-    | .mvar .. => throwError "unexpected occurrence of metavariable in code generator{indentExpr e}"
-    | .bvar .. => unreachable!
-    | .fvar .. | .sort .. => return e -- Do nothing
-    | _ =>
-    if isLCProof e then
-      return mkConst ``lcErased
-    let type ← liftMetaM <| Meta.inferType e
-    if (← liftMetaM <| Meta.isProp type) then
-      /- We replace proofs with `lcProof` applications. -/
-      return mkConst ``lcErased
-    if (← liftMetaM <| Meta.isTypeFormerType type) then
-      /- Types and Type formers are not put into A-normal form. -/
-      return (← liftMetaM <| toLCNFType e)
-    if let some e := (← get).cache.find? e then
-      return e
-    let r ← match e with
-      | .app ..     => visitApp e
-      | .const ..   => visitApp e
-      | .proj s i e => visitProj s i e
-      | .mdata d e  => visitMData d e
-      | .lam ..     => visitLambda e
-      | .letE ..    => visitLet e #[]
-      | .lit ..     => mkAuxLetDecl e
-      | .forallE .. => unreachable!
-      | _           => pure e
-    modify fun s => { s with cache := s.cache.insert e r }
-    return r
 
 end ToLCNF
 

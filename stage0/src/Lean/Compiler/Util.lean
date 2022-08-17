@@ -59,7 +59,7 @@ private def getCasesOnInductiveVal? (declName : Name) : CoreM (Option InductiveV
   let .inductInfo val ← getConstInfo declName.getPrefix | return none
   return some val
 
-private def getCasesOnInfo? (declName : Name) : CoreM (Option CasesInfo) := do
+def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
   let some val ← getCasesOnInductiveVal? declName | return none
   let numParams    := val.numParams
   let motivePos    := numParams
@@ -72,19 +72,6 @@ private def getCasesOnInfo? (declName : Name) : CoreM (Option CasesInfo) := do
     let .ctorInfo ctorVal ← getConstInfo ctor | unreachable!
     return ctorVal.numFields
   return some { numParams, motivePos, arity, discrsRange, altsRange, altNumParams }
-
-def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
-  if let some matcherInfo ← Meta.getMatcherInfo? declName then
-    return some {
-      numParams    := matcherInfo.numParams
-      motivePos    := matcherInfo.getMotivePos
-      arity        := matcherInfo.arity
-      discrsRange  := matcherInfo.getDiscrRange
-      altsRange    := matcherInfo.getAltRange
-      altNumParams := matcherInfo.altNumParams
-    }
-  else
-    getCasesOnInfo? declName
 
 def CasesInfo.geNumDiscrs (casesInfo : CasesInfo) : Nat :=
   casesInfo.discrsRange.stop - casesInfo.discrsRange.start
@@ -137,5 +124,28 @@ Return `true` iff `declName` is the name of a type with builtin support in the r
 -/
 def isRuntimeBultinType (declName : Name) : Bool :=
   builtinRuntimeTypes.contains declName
+
+/--
+Return the number of let-declarations and terminal expressions in the LCNF expression.
+-/
+partial def getLCNFSize (e : Expr) : CoreM Nat := do
+  let (_, s) ←  go e |>.run 0
+  return s
+where
+  go (e : Expr) : StateRefT Nat CoreM Unit := do
+    match e with
+    | .lam _ _ b _ => go b
+    | .letE _ _ v b _ => modify (·+1); go v; go b
+    | _ =>
+      modify (·+1)
+      if let some casesInfo ← isCasesApp? e then
+        let args := e.getAppArgs
+        for i in casesInfo.altsRange do
+          go args[i]!
+
+def getLambdaArity (e : Expr) :=
+  match e with
+  | .lam _ _ b _ => getLambdaArity b + 1
+  | _ => 0
 
 end Lean.Compiler

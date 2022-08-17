@@ -128,12 +128,19 @@ private def mkCoreContext (ctx : Context) (s : State) (heartbeats : Nat) : Core.
     initHeartbeats := heartbeats
     currMacroScope := ctx.currMacroScope }
 
-private def addTraceAsMessagesCore (ctx : Context) (log : MessageLog) (traceState : TraceState) : MessageLog :=
-  traceState.traces.foldl (init := log) fun (log : MessageLog) traceElem =>
+private def addTraceAsMessagesCore (ctx : Context) (log : MessageLog) (traceState : TraceState) : MessageLog := Id.run do
+  if traceState.traces.isEmpty then return log
+  let mut traces : Std.HashMap (String.Pos × String.Pos) (Array MessageData) := ∅
+  for traceElem in traceState.traces do
     let ref := replaceRef traceElem.ref ctx.ref
     let pos := ref.getPos?.getD 0
     let endPos := ref.getTailPos?.getD pos
-    log.add (mkMessageCore ctx.fileName ctx.fileMap traceElem.msg MessageSeverity.information pos endPos)
+    traces := traces.insert (pos, endPos) <| traces.findD (pos, endPos) #[] |>.push traceElem.msg
+  let mut log := log
+  let traces' := traces.toArray.qsort fun ((a, _), _) ((b, _), _) => a < b
+  for ((pos, endPos), traceMsg) in traces' do
+    log := log.add <| mkMessageCore ctx.fileName ctx.fileMap (.joinSep traceMsg.toList "\n") .information pos endPos
+  return log
 
 private def addTraceAsMessages : CommandElabM Unit := do
   let ctx ← read

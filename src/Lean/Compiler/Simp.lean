@@ -118,7 +118,13 @@ structure Context where
   -/
   localInline : Bool := true
 
-abbrev SimpM := ReaderT Context CompilerM
+structure State where
+  simplified : Bool := false
+
+abbrev SimpM := ReaderT Context $ StateRefT State CompilerM
+
+def markSimplified : SimpM Unit :=
+  modify fun s => { s with simplified := true }
 
 def shouldInline (localDecl : LocalDecl) : SimpM Bool :=
   return (← read).localInline && (← read).stats.shouldInline localDecl.userName
@@ -144,10 +150,11 @@ def inlineCandidate? (e : Expr) : SimpM (Option Nat) := do
 /--
 If `e` if a free variable that expands to a valid LCNF terminal `let`-block expression `e'`,
 return `e'`. -/
-def expandTrivialExpr (e : Expr) : CompilerM Expr := do
+def expandTrivialExpr (e : Expr) : SimpM Expr := do
   if e.isFVar then
     let e' ← findExpr e
     unless e'.isLambda do
+      if e != e' then markSimplified
       return e'
   return e
 
@@ -170,6 +177,7 @@ partial def visitCases (casesInfo : CasesInfo) (e : Expr) : SimpM Expr := do
     let ctorFields := ctorArgs[ctorVal.numParams:]
     let alt := alt.beta ctorFields
     assert! !alt.isLambda
+    markSimplified
     visitLet alt
   else
     for i in casesInfo.altsRange do
@@ -189,6 +197,7 @@ partial def inlineApp (e : Expr) (jp? : Option Expr := none) : SimpM Expr := do
   let value := value.beta args
   let value ← attachOptJp value jp?
   assert! !value.isLambda
+  markSimplified
   withReader (fun ctx => { ctx with localInline := !f.isConst }) do
     visitLet value
 
@@ -251,6 +260,7 @@ partial def visitLet (e : Expr) (xs : Array Expr := #[]): SimpM Expr := do
       value ← visitLambda value
     if value.isFVar then
       /- Eliminate `let _x_i := _x_j;` -/
+      markSimplified
       visitLet body (xs.push value)
     else if let some e ← inlineApp? value xs body then
       return e
@@ -270,14 +280,22 @@ end
 
 end Simp
 
-def Decl.simp (decl : Decl) : CoreM Decl := do
+def Decl.simp? (decl : Decl) : CoreM (Option Decl) := do
   let decl ← decl.ensureUniqueLetVarNames
   let stats ← Simp.collectInlineStats decl.value
   trace[Compiler.simp.inline.stats] "{decl.name}:{Format.nest 2 (format stats)}"
-  /- TODO:
-  - Fixpoint.
-  -/
-  decl.mapValue fun value => Simp.visitLambda value |>.run { stats } |>.run' {}
+  let (value, s) ← Simp.visitLambda decl.value |>.run { stats } |>.run { simplified := false } |>.run' {}
+  if s.simplified then
+    return some { decl with value }
+  else
+    return none
+
+partial def Decl.simp (decl : Decl) : CoreM Decl := do
+  if let some decl ← decl.simp? then
+    -- TODO: bound number of steps?
+    decl.simp
+  else
+    return decl
 
 builtin_initialize
   registerTraceClass `Compiler.simp.inline.stats

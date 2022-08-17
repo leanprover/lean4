@@ -9,8 +9,59 @@ import Lean.Compiler.Stage1
 import Lean.Compiler.InlineAttrs
 
 namespace Lean.Compiler
-
 namespace Simp
+
+/--
+Return true if `e` is of the form `_jp.<idx> ..` where `_jp.<idx>` is a join point.
+-/
+def isJump (e : Expr) : CompilerM Bool := do
+  let .fvar fvarId := e.getAppFn | return false
+  let some localDecl ← findDecl? fvarId | return false
+  return localDecl.isJp
+
+/--
+Given a let-declaration block `e`, return a new block that jumps to `jp` at its "exit points".
+-/
+partial def attachJp (e : Expr) (jp : Expr) : CompilerM Expr := do
+  visitLet e #[]
+where
+  visitLambda (e : Expr) : CompilerM Expr := do
+    withNewScope do
+      let (as, e) ← Compiler.visitLambda e
+      let e ← mkLetUsingScope (← visitLet e #[])
+      mkLambda as e
+
+  visitCases (casesInfo : CasesInfo) (cases : Expr) : CompilerM Expr := do
+    let mut args := cases.getAppArgs
+    let .forallE _ _ b _ ← inferType jp | unreachable! -- jp's type is guaranteed to be an nondependent arrow
+    args := casesInfo.updateResultingType args b
+    for i in casesInfo.altsRange do
+      args ← args.modifyM i visitLambda
+    return mkAppN cases.getAppFn args
+
+  visitLet (e : Expr) (xs : Array Expr) : CompilerM Expr := do
+    match e with
+    | .letE binderName type value body nonDep =>
+      let type := type.instantiateRev xs
+      let mut value := value.instantiateRev xs
+      if isJpBinderName binderName then
+        value ← visitLambda value
+      let x ← mkLetDecl binderName type value nonDep
+      visitLet body (xs.push x)
+    | _ =>
+      let e := e.instantiateRev xs
+      if (← isJump e) then
+        return e
+      else if let some casesInfo ← isCasesApp? e then
+        visitCases casesInfo e
+      else
+        mkJump jp e
+
+def attachOptJp (e : Expr) (jp? : Option Expr) : CompilerM Expr :=
+  if let some jp := jp? then
+    attachJp e jp
+  else
+    return e
 
 partial def findLambda? (e : Expr) : CompilerM (Option LocalDecl) := do
   match e with
@@ -118,27 +169,11 @@ structure Context where
   stored at `stats`.
   -/
   localInline : Bool := true
-  /--
-  Current continuation. It is a join point or lambda abstraction.
-  -/
-  jp? : Option Expr := none
 
 abbrev SimpM := ReaderT Context CompilerM
 
-def withJp (jp : Expr) (x : SimpM α) : SimpM α := do
-  let jp ← mkJpDeclIfNotSimple jp
-  withReader (fun ctx => { ctx with jp? := some jp }) x
-
-def withoutJp (x : SimpM α) : SimpM α :=
-  withReader (fun ctx => { ctx with jp? := none }) x
-
 def shouldInline (localDecl : LocalDecl) : SimpM Bool :=
   return (← read).localInline && (← read).stats.shouldInline localDecl.userName
-
-def isJump (e : Expr) : CompilerM Bool := do
-  let .fvar fvarId := e.getAppFn | return false
-  let some localDecl ← findDecl? fvarId | return false
-  return localDecl.userName matches .num `_jp _
 
 def inlineCandidate? (e : Expr) : SimpM (Option Nat) := do
   let f := e.getAppFn
@@ -189,14 +224,11 @@ partial def visitCases (casesInfo : CasesInfo) (e : Expr) : SimpM Expr := do
     assert! !alt.isLambda
     visitLet alt
   else
-    if let some jp := (← read).jp? then
-      let .forallE _ _ b _ ← inferType jp | unreachable! -- jp's type is guaranteed to be an nondependent arrow
-      args := casesInfo.updateResultingType args b
     for i in casesInfo.altsRange do
       args ← args.modifyM i visitLambda
     return mkAppN e.getAppFn args
 
-partial def inlineApp (e : Expr) : SimpM Expr := do
+partial def inlineApp (e : Expr) (jp? : Option Expr := none) : SimpM Expr := do
   let f := e.getAppFn
   let value ← match f with
     | .const declName us =>
@@ -207,6 +239,7 @@ partial def inlineApp (e : Expr) : SimpM Expr := do
       pure localDecl.value
   let args := e.getAppArgs
   let value := value.beta args
+  let value ← attachOptJp value jp?
   assert! !value.isLambda
   withReader (fun ctx => { ctx with localInline := !f.isConst }) do
     visitLet value
@@ -256,7 +289,7 @@ partial def inlineApp? (e : Expr) (xs : Array Expr) (k? : Option Expr) : SimpM (
       let body ← mkLetUsingScope body
       mkLambda #[y] body
     /- Inline `toInline` and "go-to" `jp` with the result. -/
-    withJp jp do inlineApp toInline
+    inlineApp toInline jp
 
 /--
 Let-declaration basic block visitor. `e` may contain loose bound variables that
@@ -267,7 +300,7 @@ partial def visitLet (e : Expr) (xs : Array Expr := #[]): SimpM Expr := do
   | .letE binderName type value body nonDep =>
     let mut value := value.instantiateRev xs
     if value.isLambda then
-      value ← withoutJp <| visitLambda value
+      value ← visitLambda value
     if value.isFVar then
       /- Eliminate `let _x_i := _x_j;` -/
       visitLet body (xs.push value)
@@ -283,29 +316,8 @@ partial def visitLet (e : Expr) (xs : Array Expr := #[]): SimpM Expr := do
       visitCases casesInfo e
     else if let some e ← inlineApp? e #[] none then
       return e
-    else if (← isJump e) then
-      /- TODO: fix, this is buggy.
-         Suppose we have
-         ```
-         let _jp.1 := fun x => k[x]
-         ```
-         and we are trying to jump to `_jp.2` when processing
-         ```
-         let _x.3 := ...
-         _jp.1 _x.3
-         ```
-         We must create a new join point `_jp.4` which fuses `_jp.1` and `_jp.2`.
-         ```
-         let _jp.4 := fun x => let r := k[x]; _jp.2 r
-         ```
-         and replace `_jp.1` with `_jp.4`.
-
-         When inlining, we must "fix" the join points **before** we process it.
-         We should not need `jp?` in the context. It will simplify the code too.
-      -/
-      return e
     else
-      mkOptJump (← read).jp? (← expandTrivialExpr e)
+      expandTrivialExpr e
 end
 
 end Simp

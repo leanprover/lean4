@@ -60,11 +60,14 @@ def findDecl? (fvarId : FVarId) : CompilerM (Option LocalDecl) := do
   let lctx := (← get).lctx
   return lctx.find? fvarId
 
+def isJpBinderName (binderName : Name) : Bool :=
+  binderName.getPrefix == `_jp
+
 /--
 Whether a given local declaration is a join point.
 -/
 def _root_.Lean.LocalDecl.isJp (decl : LocalDecl) : Bool :=
-  decl.userName.getPrefix == `_jp
+  isJpBinderName decl.userName
 
 /--
 Create a new auxiliary let declaration with value `e` The name of the
@@ -255,8 +258,60 @@ def mkJump (jp : Expr) (e : Expr) : CompilerM Expr := do
     let x ← mkAuxLetDecl (← mkLcCast x d)
     return mkJpApp x
 
-def mkOptJump (jp? : Option Expr) (e : Expr) : CompilerM Expr := do
-  let some jp := jp? | return e
-  mkJump jp e
+/--
+Return true if `e` is of the form `_jp.<idx> ..` where `_jp.<idx>` is a join point.
+-/
+def isJump (e : Expr) : CompilerM Bool := do
+  let .fvar fvarId := e.getAppFn | return false
+  let some localDecl ← findDecl? fvarId | return false
+  return localDecl.isJp
+
+/--
+Given a let-declaration block `e`, return a new block that jumps to `jp` at its "exit points".
+-/
+partial def attachJp (e : Expr) (jp : Expr) : CompilerM Expr := do
+  visitLet e #[]
+where
+  visitLambda (e : Expr) : CompilerM Expr := do
+    withNewScope do
+      let (as, e) ← Compiler.visitLambda e
+      let e ← mkLetUsingScope (← visitLet e #[])
+      mkLambda as e
+
+  visitCases (casesInfo : CasesInfo) (cases : Expr) : CompilerM Expr := do
+    let mut args := cases.getAppArgs
+    let .forallE _ _ b _ ← inferType jp | unreachable! -- jp's type is guaranteed to be an nondependent arrow
+    args := casesInfo.updateResultingType args b
+    for i in casesInfo.altsRange do
+      args ← args.modifyM i visitLambda
+    return mkAppN cases.getAppFn args
+
+  visitLet (e : Expr) (xs : Array Expr) : CompilerM Expr := do
+    match e with
+    | .letE binderName type value body nonDep =>
+      let type := type.instantiateRev xs
+      let mut value := value.instantiateRev xs
+      if isJpBinderName binderName then
+        value ← visitLambda value
+      let x ← mkLetDecl binderName type value nonDep
+      visitLet body (xs.push x)
+    | _ =>
+      let e := e.instantiateRev xs
+      if (← isJump e) then
+        return e
+      else if let some casesInfo ← isCasesApp? e then
+        visitCases casesInfo e
+      else
+        mkJump jp e
+
+/--
+Given a let-declaration block `e` and `jp? = some jp`, return a new block that jumps
+to `jp` at its "exit points". If `jp? = none`, it just returns `e`.
+-/
+def attachOptJp (e : Expr) (jp? : Option Expr) : CompilerM Expr :=
+  if let some jp := jp? then
+    attachJp e jp
+  else
+    return e
 
 end Lean.Compiler

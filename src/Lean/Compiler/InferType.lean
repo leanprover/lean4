@@ -28,10 +28,13 @@ instance : AddMessageContext InferTypeM where
     let opts ← getOptions
     return MessageData.withContext { env, lctx, opts, mctx := {} } msgData
 
-@[inline] def withLocalDecl (binderName : Name) (type : Expr) (binderInfo : BinderInfo) (k : Expr → InferTypeM α) : InferTypeM α := do
+@[inline] def withLocalDeclImp (binderName : Name) (type : Expr) (binderInfo : BinderInfo) (k : Expr → InferTypeM α) : InferTypeM α := do
   let fvarId ← mkFreshFVarId
   withReader (fun ctx => { ctx with lctx := ctx.lctx.mkLocalDecl fvarId binderName type binderInfo }) do
     k (.fvar fvarId)
+
+@[inline] def withLocalDecl [Monad m] [MonadControlT InferTypeM m] (binderName : Name) (type : Expr) (binderInfo : BinderInfo) (k : Expr → m α) : m α :=
+  controlAt InferTypeM fun runInBase => withLocalDeclImp binderName type binderInfo fun x =>runInBase (k x)
 
 def inferConstType (declName : Name) (us : List Level) : CoreM Expr :=
   if declName == ``lcAny || declName == ``lcErased then

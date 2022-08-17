@@ -34,6 +34,9 @@ instance : AddMessageContext CompilerM where
 instance : MonadInferType CompilerM where
   inferType e := do InferType.inferType e { lctx := (← get).lctx }
 
+instance : MonadLCtx CompilerM where
+  getLCtx := return (← get).lctx
+
 /--
 Add a new local declaration with the given arguments to the `LocalContext` of `CompilerM`.
 Returns the free variable representing the new declaration.
@@ -52,22 +55,6 @@ def mkLetDecl (binderName : Name) (type : Expr) (value : Expr) (nonDep : Bool) :
   let x := .fvar fvarId
   modify fun s => { s with lctx := s.lctx.mkLetDecl fvarId binderName type value nonDep, letFVars := s.letFVars.push x }
   return x
-
-/--
-Look for a declaration with the given `FvarId` in the `LocalContext` of `CompilerM`.
--/
-def findDecl? (fvarId : FVarId) : CompilerM (Option LocalDecl) := do
-  let lctx := (← get).lctx
-  return lctx.find? fvarId
-
-def isJpBinderName (binderName : Name) : Bool :=
-  binderName.getPrefix == `_jp
-
-/--
-Whether a given local declaration is a join point.
--/
-def _root_.Lean.LocalDecl.isJp (decl : LocalDecl) : Bool :=
-  isJpBinderName decl.userName
 
 /--
 Create a new auxiliary let declaration with value `e` The name of the
@@ -257,14 +244,6 @@ def mkJump (jp : Expr) (e : Expr) : CompilerM Expr := do
     let x ← mkAuxLetDecl e
     let x ← mkAuxLetDecl (← mkLcCast x d)
     return mkJpApp x
-
-/--
-Return true if `e` is of the form `_jp.<idx> ..` where `_jp.<idx>` is a join point.
--/
-def isJump (e : Expr) : CompilerM Bool := do
-  let .fvar fvarId := e.getAppFn | return false
-  let some localDecl ← findDecl? fvarId | return false
-  return localDecl.isJp
 
 /--
 Given a let-declaration block `e`, return a new block that jumps to `jp` at its "exit points".

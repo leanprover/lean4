@@ -146,7 +146,7 @@ These invariants are:
 - The stored and the inferred LCNF type of the declaration are compatible according to `compatibleTypes`
 -/
 def Decl.check (decl : Decl) (cfg : Check.Config := {}): CoreM Unit := do
-  Compiler.check decl.value cfg { lctx := {} }
+  Compiler.check decl.value cfg {} { lctx := {} }
   checkJoinPoints decl |>.run' {}
   let valueType ← InferType.inferType decl.value { lctx := {} }
   unless compatibleTypes decl.type valueType do

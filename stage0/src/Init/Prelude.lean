@@ -940,7 +940,8 @@ instance [dp : Decidable p] : Decidable (Not p) :=
 
 /--
 `cond b x y` is the same as `if b then x else y`, but optimized for a
-boolean condition. This is `@[macroInline]` because `x` and `y` should not
+boolean condition. It can also be written as `bif b then x else y`.
+This is `@[macroInline]` because `x` and `y` should not
 be eagerly evaluated (see `ite`).
 -/
 @[macroInline] def cond {α : Type u} (c : Bool) (x y : α) : α :=
@@ -2413,7 +2414,26 @@ The proof side-condition `dom xs i` is automatically dispatched by the
 `get_elem_tactic_trivial`.
 -/
 class GetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w)) (dom : outParam (cont → idx → Prop)) where
-  /-- The implementation of `xs[i]`. `h` is discharged by `get_elem_tactic`. -/
+  /--
+  The syntax `arr[i]` gets the `i`'th element of the collection `arr`.
+  If there are proof side conditions to the application, they will be automatically
+  inferred by the `get_elem_tactic` tactic.
+
+  The actual behavior of this class is type-dependent,
+  but here are some important implementations:
+  * `arr[i] : α` where `arr : Array α` and `i : Nat` or `i : USize`:
+    does array indexing with no bounds check and a proof side goal `i < arr.size`.
+  * `l[i] : α` where `l : List α` and `i : Nat`: index into a list,
+    with proof side goal `i < l.length`.
+  * `stx[i] : Syntax` where `stx : Syntax` and `i : Nat`: get a syntax argument,
+    no side goal (returns `.missing` out of range)
+
+  There are other variations on this syntax:
+  * `arr[i]`: proves the proof side goal by `get_elem_tactic`
+  * `arr[i]!`: panics if the side goal is false
+  * `arr[i]?`: returns `none` if the side goal is false
+  * `arr[i]'h`: uses `h` to prove the side goal
+  -/
   getElem (xs : cont) (i : idx) (h : dom xs i) : elem
 
 export GetElem (getElem)

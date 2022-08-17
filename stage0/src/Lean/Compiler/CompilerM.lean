@@ -34,6 +34,9 @@ instance : AddMessageContext CompilerM where
 instance : MonadInferType CompilerM where
   inferType e := do InferType.inferType e { lctx := (← get).lctx }
 
+instance : MonadLCtx CompilerM where
+  getLCtx := return (← get).lctx
+
 /--
 Add a new local declaration with the given arguments to the `LocalContext` of `CompilerM`.
 Returns the free variable representing the new declaration.
@@ -52,19 +55,6 @@ def mkLetDecl (binderName : Name) (type : Expr) (value : Expr) (nonDep : Bool) :
   let x := .fvar fvarId
   modify fun s => { s with lctx := s.lctx.mkLetDecl fvarId binderName type value nonDep, letFVars := s.letFVars.push x }
   return x
-
-/--
-Look for a declaration with the given `FvarId` in the `LocalContext` of `CompilerM`.
--/
-def findDecl? (fvarId : FVarId) : CompilerM (Option LocalDecl) := do
-  let lctx := (← get).lctx
-  return lctx.find? fvarId
-
-/--
-Whether a given local declaration is a join point.
--/
-def _root_.Lean.LocalDecl.isJp (decl : LocalDecl) : Bool :=
-  decl.userName.getPrefix == `_jp
 
 /--
 Create a new auxiliary let declaration with value `e` The name of the
@@ -176,22 +166,23 @@ and returning the body of the final one.
 class VisitLet (m : Type → Type) where
   /--
   Move through consecutive top level let binders in the first argument,
-  applying the function in the second argument to the values before the
-  the local declarations for the binders are created. The final return
-  value is the body of the last let binder in the chain.
+  applying the function in the second argument to the binder name
+  and the values before the the local declarations for the binders are
+  created. The final return value is the body of the last let binder in
+  the chain.
   -/
-  visitLet : Expr → (Expr → m Expr) → m Expr
+  visitLet : Expr → (Name → Expr → m Expr) → m Expr
 
 export VisitLet (visitLet)
 
-def visitLetImp (e : Expr) (f : Expr → CompilerM Expr) : CompilerM Expr :=
+def visitLetImp (e : Expr) (f : Name → Expr → CompilerM Expr) : CompilerM Expr :=
   go e #[]
 where
   go (e : Expr) (fvars : Array Expr) : CompilerM Expr := do
     if let .letE binderName type value body nonDep := e then
       let type := type.instantiateRev fvars
       let value := value.instantiateRev fvars
-      let value ← f value
+      let value ← f binderName value
       let fvar ← mkLetDecl binderName type value nonDep
       go body (fvars.push fvar)
     else
@@ -201,7 +192,7 @@ instance : VisitLet CompilerM where
   visitLet := visitLetImp
 
 instance [VisitLet m] : VisitLet (ReaderT ρ m) where
-  visitLet e f ctx := visitLet e (f · ctx)
+  visitLet e f ctx := visitLet e (f · · ctx)
 
 instance [VisitLet m] : VisitLet (StateRefT' ω σ m) := inferInstanceAs (VisitLet (ReaderT _ _))
 
@@ -255,8 +246,85 @@ def mkJump (jp : Expr) (e : Expr) : CompilerM Expr := do
     let x ← mkAuxLetDecl (← mkLcCast x d)
     return mkJpApp x
 
-def mkOptJump (jp? : Option Expr) (e : Expr) : CompilerM Expr := do
-  let some jp := jp? | return e
-  mkJump jp e
+/--
+Given a let-declaration block `e`, return a new block that jumps to `jp` at its "exit points".
+
+`e` must contain all join points declarations used in `e`.
+
+Example: Suppose `e` is of the form
+```
+let _jp.1 := fun y =>
+  let _x.1 := Nat.add y y
+  Nat.mul _x.1 y
+casesOn _x.2
+  (fun x => _jp.1 x)
+  (fun x => Nat.add x x)
+```
+then, `attachJp e _jp.2` produces the new let-block.
+```
+let _jp.1 := fun y =>
+  let _x.1 := Nat.add y y
+  let _x.2 := Nat.mul _x.1 y
+  _jp.2 _x.2
+casesOn _x.2
+  (fun x => _jp.1 x)
+  (fun x =>
+    let _x.3 := Nat.add x x
+    _jp.2 _x.3)
+```
+
+If `e` contains a jump to a join point `_jp.i` not declared in `e`, we throw an exception because
+an invalid block would be generated. It would be invalid because the input join poinp `jp` would not
+be applied to `_jp.i`. Note that, we could have decided to create a copy of `_jp.i` where we apply `jp` to it,
+by we decided to not do it to avoid code duplication.
+-/
+partial def attachJp (e : Expr) (jp : Expr) : CompilerM Expr := do
+  withNewScope do
+    mkLetUsingScope (← visitLet e #[] |>.run {})
+where
+  visitLambda (e : Expr) : ReaderT FVarIdSet CompilerM Expr := do
+    withNewScope do
+      let (as, e) ← Compiler.visitLambda e
+      let e ← mkLetUsingScope (← visitLet e #[])
+      mkLambda as e
+
+  visitCases (casesInfo : CasesInfo) (cases : Expr) : ReaderT FVarIdSet CompilerM Expr := do
+    let mut args := cases.getAppArgs
+    let .forallE _ _ b _ ← inferType jp | unreachable! -- jp's type is guaranteed to be an nondependent arrow
+    args := casesInfo.updateResultingType args b
+    for i in casesInfo.altsRange do
+      args ← args.modifyM i visitLambda
+    return mkAppN cases.getAppFn args
+
+  visitLet (e : Expr) (xs : Array Expr) : ReaderT FVarIdSet CompilerM Expr := do
+    match e with
+    | .letE binderName type value body nonDep =>
+      let type := type.instantiateRev xs
+      let mut value := value.instantiateRev xs
+      if isJpBinderName binderName then
+        value ← visitLambda value
+      let x ← mkLetDecl binderName type value nonDep
+      withReader (fun jps => if isJpBinderName binderName then jps.insert x.fvarId! else jps) do
+        visitLet body (xs.push x)
+    | _ =>
+      let e := e.instantiateRev xs
+      if let some fvarId ← isJump? e then
+        unless (← read).contains fvarId do
+          throwError "failed to attach join point to let-block, it contains a out of scope join point"
+        return e
+      else if let some casesInfo ← isCasesApp? e then
+        visitCases casesInfo e
+      else
+        mkJump jp e
+
+/--
+Given a let-declaration block `e` and `jp? = some jp`, return a new block that jumps
+to `jp` at its "exit points". If `jp? = none`, it just returns `e`.
+-/
+def attachOptJp (e : Expr) (jp? : Option Expr) : CompilerM Expr :=
+  if let some jp := jp? then
+    attachJp e jp
+  else
+    return e
 
 end Lean.Compiler

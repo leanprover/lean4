@@ -41,6 +41,9 @@ def isLcCast? (e : Expr) : Option Expr :=
 def mkLcProof (p : Expr) :=
   mkApp (mkConst ``lcProof []) p
 
+def isJpBinderName (binderName : Name) : Bool :=
+  binderName.getPrefix == `_jp
+
 /--
 Store information about `matcher` and `casesOn` declarations.
 
@@ -147,5 +150,29 @@ def getLambdaArity (e : Expr) :=
   match e with
   | .lam _ _ b _ => getLambdaArity b + 1
   | _ => 0
+
+
+/--
+Whether a given local declaration is a join point.
+-/
+def _root_.Lean.LocalDecl.isJp (decl : LocalDecl) : Bool :=
+  isJpBinderName decl.userName
+
+/--
+Look for a declaration with the given `FvarId` in the `LocalContext` of `CompilerM`.
+-/
+def findDecl? [Monad m] [MonadLCtx m] (fvarId : FVarId) : m (Option LocalDecl) := do
+  return (← getLCtx).find? fvarId
+
+/--
+Return true if `e` is of the form `_jp.<idx> ..` where `_jp.<idx>` is a join point.
+-/
+def isJump? [Monad m] [MonadLCtx m] (e : Expr) : m (Option FVarId) := do
+  let .fvar fvarId := e.getAppFn | return none
+  let some localDecl ← findDecl? fvarId | return none
+  if localDecl.isJp then
+    return some fvarId
+  else
+    return none
 
 end Lean.Compiler

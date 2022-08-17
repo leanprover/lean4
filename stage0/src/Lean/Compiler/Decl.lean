@@ -133,7 +133,7 @@ This function ensures that inside the given declaration both of these
 conditions are satisfied and throws an exception otherwise.
 -/
 def Decl.checkJoinPoints (decl : Decl) : CompilerM Unit :=
-  JoinPointChecker.checkJoinPoints decl.value
+  JoinPoints.JoinPointChecker.checkJoinPoints decl.value
 
 
 /--
@@ -146,7 +146,7 @@ These invariants are:
 - The stored and the inferred LCNF type of the declaration are compatible according to `compatibleTypes`
 -/
 def Decl.check (decl : Decl) (cfg : Check.Config := {}): CoreM Unit := do
-  Compiler.check decl.value cfg { lctx := {} }
+  Compiler.check decl.value cfg {} { lctx := {} }
   checkJoinPoints decl |>.run' {}
   let valueType ← InferType.inferType decl.value { lctx := {} }
   unless compatibleTypes decl.type valueType do

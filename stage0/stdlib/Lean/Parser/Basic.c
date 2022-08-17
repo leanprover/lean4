@@ -808,6 +808,7 @@ lean_object* l_Lean_Syntax_mkNameLit(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Basic_0__Lean_Parser_rawAux(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_UInt32_decEq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_decimalNumberFn_parseOptDot___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_Parser_decimalNumberFn_parseOptExp___closed__1;
 static lean_object* l_Lean_Parser_unicodeSymbolFn___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parser_ParserContext_forbiddenTk_x3f___default;
 LEAN_EXPORT lean_object* l_Std_RBNode_insert___at_Lean_Parser_TokenMap_insert___spec__5(lean_object*);
@@ -9669,43 +9670,51 @@ lean_dec(x_1);
 return x_3;
 }
 }
+static lean_object* _init_l_Lean_Parser_decimalNumberFn_parseOptExp___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("missing exponent digits in scientific literal", 45);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Parser_decimalNumberFn_parseOptExp(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint32_t x_33; uint32_t x_34; uint8_t x_35; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint32_t x_39; uint32_t x_40; uint8_t x_41; 
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = lean_ctor_get(x_3, 0);
 x_5 = lean_ctor_get(x_2, 2);
 lean_inc(x_5);
-x_33 = lean_string_utf8_get(x_4, x_5);
-x_34 = 101;
-x_35 = lean_uint32_dec_eq(x_33, x_34);
-if (x_35 == 0)
+x_39 = lean_string_utf8_get(x_4, x_5);
+x_40 = 101;
+x_41 = lean_uint32_dec_eq(x_39, x_40);
+if (x_41 == 0)
 {
-uint32_t x_36; uint8_t x_37; 
-x_36 = 69;
-x_37 = lean_uint32_dec_eq(x_33, x_36);
-if (x_37 == 0)
+uint32_t x_42; uint8_t x_43; 
+x_42 = 69;
+x_43 = lean_uint32_dec_eq(x_39, x_42);
+if (x_43 == 0)
 {
 lean_dec(x_5);
 return x_2;
 }
 else
 {
-lean_object* x_38; 
-x_38 = lean_box(0);
-x_6 = x_38;
-goto block_32;
+lean_object* x_44; 
+x_44 = lean_box(0);
+x_6 = x_44;
+goto block_38;
 }
 }
 else
 {
-lean_object* x_39; 
-x_39 = lean_box(0);
-x_6 = x_39;
-goto block_32;
+lean_object* x_45; 
+x_45 = lean_box(0);
+x_6 = x_45;
+goto block_38;
 }
-block_32:
+block_38:
 {
 lean_object* x_7; uint32_t x_8; uint32_t x_9; uint8_t x_10; 
 lean_dec(x_6);
@@ -9725,62 +9734,71 @@ uint8_t x_13;
 x_13 = l_Char_isDigit(x_8);
 if (x_13 == 0)
 {
-lean_object* x_14; 
-x_14 = l_Lean_Parser_ParserState_setPos(x_2, x_7);
-return x_14;
-}
-else
-{
-lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_15 = l_Lean_Parser_ParserState_setPos(x_2, x_7);
-x_16 = l_Lean_Parser_decimalNumberFn_parseOptDot___closed__1;
-x_17 = l_Lean_Parser_takeWhileFn(x_16, x_1, x_15);
-return x_17;
-}
-}
-else
-{
-lean_object* x_18; uint32_t x_19; uint8_t x_20; 
-x_18 = lean_string_utf8_next(x_4, x_7);
+lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 lean_dec(x_7);
-x_19 = lean_string_utf8_get(x_4, x_18);
-x_20 = l_Char_isDigit(x_19);
-if (x_20 == 0)
-{
-lean_object* x_21; 
-x_21 = l_Lean_Parser_ParserState_setPos(x_2, x_18);
-return x_21;
+x_14 = lean_box(0);
+x_15 = l_Lean_Parser_decimalNumberFn_parseOptExp___closed__1;
+x_16 = l_Lean_Parser_ParserState_mkUnexpectedError(x_2, x_15, x_14);
+return x_16;
 }
 else
 {
-lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-x_22 = l_Lean_Parser_ParserState_setPos(x_2, x_18);
-x_23 = l_Lean_Parser_decimalNumberFn_parseOptDot___closed__1;
-x_24 = l_Lean_Parser_takeWhileFn(x_23, x_1, x_22);
-return x_24;
-}
+lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+x_17 = l_Lean_Parser_ParserState_setPos(x_2, x_7);
+x_18 = l_Lean_Parser_decimalNumberFn_parseOptDot___closed__1;
+x_19 = l_Lean_Parser_takeWhileFn(x_18, x_1, x_17);
+return x_19;
 }
 }
 else
 {
-lean_object* x_25; uint32_t x_26; uint8_t x_27; 
-x_25 = lean_string_utf8_next(x_4, x_7);
+lean_object* x_20; uint32_t x_21; uint8_t x_22; 
+x_20 = lean_string_utf8_next(x_4, x_7);
 lean_dec(x_7);
-x_26 = lean_string_utf8_get(x_4, x_25);
-x_27 = l_Char_isDigit(x_26);
-if (x_27 == 0)
+x_21 = lean_string_utf8_get(x_4, x_20);
+x_22 = l_Char_isDigit(x_21);
+if (x_22 == 0)
 {
-lean_object* x_28; 
-x_28 = l_Lean_Parser_ParserState_setPos(x_2, x_25);
+lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+lean_dec(x_20);
+x_23 = lean_box(0);
+x_24 = l_Lean_Parser_decimalNumberFn_parseOptExp___closed__1;
+x_25 = l_Lean_Parser_ParserState_mkUnexpectedError(x_2, x_24, x_23);
+return x_25;
+}
+else
+{
+lean_object* x_26; lean_object* x_27; lean_object* x_28; 
+x_26 = l_Lean_Parser_ParserState_setPos(x_2, x_20);
+x_27 = l_Lean_Parser_decimalNumberFn_parseOptDot___closed__1;
+x_28 = l_Lean_Parser_takeWhileFn(x_27, x_1, x_26);
 return x_28;
 }
+}
+}
 else
 {
-lean_object* x_29; lean_object* x_30; lean_object* x_31; 
-x_29 = l_Lean_Parser_ParserState_setPos(x_2, x_25);
-x_30 = l_Lean_Parser_decimalNumberFn_parseOptDot___closed__1;
-x_31 = l_Lean_Parser_takeWhileFn(x_30, x_1, x_29);
-return x_31;
+lean_object* x_29; uint32_t x_30; uint8_t x_31; 
+x_29 = lean_string_utf8_next(x_4, x_7);
+lean_dec(x_7);
+x_30 = lean_string_utf8_get(x_4, x_29);
+x_31 = l_Char_isDigit(x_30);
+if (x_31 == 0)
+{
+lean_object* x_32; lean_object* x_33; lean_object* x_34; 
+lean_dec(x_29);
+x_32 = lean_box(0);
+x_33 = l_Lean_Parser_decimalNumberFn_parseOptExp___closed__1;
+x_34 = l_Lean_Parser_ParserState_mkUnexpectedError(x_2, x_33, x_32);
+return x_34;
+}
+else
+{
+lean_object* x_35; lean_object* x_36; lean_object* x_37; 
+x_35 = l_Lean_Parser_ParserState_setPos(x_2, x_29);
+x_36 = l_Lean_Parser_decimalNumberFn_parseOptDot___closed__1;
+x_37 = l_Lean_Parser_takeWhileFn(x_36, x_1, x_35);
+return x_37;
 }
 }
 }
@@ -31189,6 +31207,8 @@ l_Lean_Parser_strLitFnAux___closed__3 = _init_l_Lean_Parser_strLitFnAux___closed
 lean_mark_persistent(l_Lean_Parser_strLitFnAux___closed__3);
 l_Lean_Parser_decimalNumberFn_parseOptDot___closed__1 = _init_l_Lean_Parser_decimalNumberFn_parseOptDot___closed__1();
 lean_mark_persistent(l_Lean_Parser_decimalNumberFn_parseOptDot___closed__1);
+l_Lean_Parser_decimalNumberFn_parseOptExp___closed__1 = _init_l_Lean_Parser_decimalNumberFn_parseOptExp___closed__1();
+lean_mark_persistent(l_Lean_Parser_decimalNumberFn_parseOptExp___closed__1);
 l_Lean_Parser_decimalNumberFn___closed__1 = _init_l_Lean_Parser_decimalNumberFn___closed__1();
 lean_mark_persistent(l_Lean_Parser_decimalNumberFn___closed__1);
 l_Lean_Parser_decimalNumberFn___closed__2 = _init_l_Lean_Parser_decimalNumberFn___closed__2();

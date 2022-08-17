@@ -16,10 +16,19 @@ Type checker for LCNF expressions
 structure Check.Config where
   terminalCasesOnly : Bool := true
 
-def lambdaBoundedTelescope (e : Expr) (n : Nat) (k : Array Expr → Expr → InferTypeM α) : InferTypeM α :=
+structure Check.Context where
+  /-- Join points that are in scope. -/
+  jps : FVarIdSet := {}
+
+abbrev CheckM := ReaderT Check.Context InferTypeM
+
+def withFreshJps (x : CheckM α) : CheckM α :=
+  withReader (fun ctx => { ctx with jps := {} }) x
+
+def lambdaBoundedTelescope (e : Expr) (n : Nat) (k : Array Expr → Expr → CheckM α) : CheckM α :=
   go e n #[]
 where
-  go (e : Expr) (i : Nat) (xs : Array Expr) : InferTypeM α :=
+  go (e : Expr) (i : Nat) (xs : Array Expr) : CheckM α :=
     match i with
     | 0 => k xs (e.instantiateRev xs)
     | i+1 => match e with
@@ -27,31 +36,56 @@ where
         withLocalDecl n (d.instantiateRev xs) bi fun x => go b i (xs.push x)
       | _ => throwError "lambda expected"
 
-partial def check (e : Expr) (cfg : Check.Config := {}) : InferTypeM Unit := do
-  checkBlock e #[] false
+partial def check (e : Expr) (cfg : Check.Config := {}) : CheckM Unit := do
+  checkLambda e #[] |>.run {}
 where
-  checkBlock (e : Expr) (xs : Array Expr) (foundLet : Bool) : InferTypeM Unit := do
+  checkLambda (e : Expr) (xs : Array Expr) : CheckM Unit := do
     match e with
     | .lam n d b bi =>
-      if foundLet then
-        throwError "invalid occurrence of lambda-expression at the end of a let-declaration block{indentExpr (e.instantiateRev xs)}"
-      withLocalDecl n (d.instantiateRev xs) bi fun x => checkBlock b (xs.push x) false
+      withLocalDecl n (d.instantiateRev xs) bi fun x => checkLambda b (xs.push x)
+    | _ => checkBlock e xs
+
+  checkBlock (e : Expr) (xs : Array Expr) : CheckM Unit := do
+    match e with
+    | .lam .. =>
+      throwError "invalid occurrence of lambda-expression at the end of a let-declaration block{indentExpr (e.instantiateRev xs)}"
     | .letE n t v b _ =>
       let value := v.instantiateRev xs
       if value.isAppOf ``lcUnreachable then
         throwError "invalid occurrence of `lcUnreachable` in let-declaration `{n}`"
-      checkValue value (isTerminal := false)
+      if isJpBinderName n then
+        checkLambda value #[]
+      else if value.isLambda then
+        -- This is a local function declaration
+        withFreshJps <| checkLambda value #[]
+      else
+        checkValue value (isTerminal := false)
       let type := t.instantiateRev xs
       let valueType ← inferType value
       unless compatibleTypes type valueType do
         throwError "type mismatch at let-declaration `{n}`, value has type{indentExpr valueType}\nbut is expected to have type{indentExpr type}"
-      withLocalDecl n type .default fun x => checkBlock b (xs.push x) true
-    | _ => checkValue (e.instantiateRev xs) (isTerminal := true)
+      withLocalDecl n type .default fun x =>
+        withReader (fun ctx => { ctx with jps := if isJpBinderName n then ctx.jps.insert x.fvarId! else ctx.jps }) do
+          checkBlock b (xs.push x)
+    | _ =>
+      if let some fvarId ← isJump? e then
+        unless (← read).jps.contains fvarId do
+          /-
+          We cannot jump to join points defined out of the scope of a local function declaration.
+          For example, the following is an invalid LCNF.
+          ```
+          let _jp.1 := fun x => ... -- Some join point
+          let f := fun y => -- Local function declaration.
+            ...
+            _jp.1 _x.n -- jump to a join point that is not in the scope of `f`.
+          ```
+          -/
+          throwError "invalid jump to out of scope join point"
+      checkValue (e.instantiateRev xs) (isTerminal := true)
 
-  checkValue (e : Expr) (isTerminal : Bool) : InferTypeM Unit := do
+  checkValue (e : Expr) (isTerminal : Bool) : CheckM Unit := do
     match e with
     | .lit _ => pure ()
-    | .lam .. => checkBlock e #[] (foundLet := false)
     | .app .. => checkApp e isTerminal
     | .proj _ _ (.fvar _) => pure ()
     | .mdata _ (.fvar _)  => pure ()
@@ -59,7 +93,7 @@ where
     | .fvar _ => pure () -- TODO: report unnecessary fvar?
     | _ => throwError "unexpected expression at LCNF{indentExpr e}"
 
-  checkApp (e : Expr) (isTerminal : Bool) : InferTypeM Unit := do
+  checkApp (e : Expr) (isTerminal : Bool) : CheckM Unit := do
     let f := e.getAppFn
     let args := e.getAppArgs
     unless f.isConst || f.isFVar do
@@ -95,7 +129,7 @@ where
             throwError "invalid LCNF application{indentExpr e}\nargument{indentExpr arg}\nmust be a free variable"
         fType := b
 
-  checkCases (casesInfo : CasesInfo) (args : Array Expr) : InferTypeM Unit := do
+  checkCases (casesInfo : CasesInfo) (args : Array Expr) : CheckM Unit := do
     let mut motive := args[casesInfo.motivePos]!
     for i in casesInfo.discrsRange do
       let discr := args[i]!
@@ -111,6 +145,6 @@ where
         let altBodyType ← inferType altBody
         unless compatibleTypes expectedType altBodyType do
           throwError "type mismatch at LCNF `cases` alternative{indentExpr altBody}\nhas type{indentExpr altBodyType}\nbut is expected to have type{indentExpr expectedType}"
-        checkBlock altBody #[] (foundLet := true)
+        checkBlock altBody #[]
 
 end Lean.Compiler

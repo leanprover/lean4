@@ -9,7 +9,6 @@ import Lean.Compiler.Stage1
 import Lean.Compiler.InlineAttrs
 
 namespace Lean.Compiler
-
 namespace Simp
 
 partial def findLambda? (e : Expr) : CompilerM (Option LocalDecl) := do
@@ -92,7 +91,7 @@ where
     match e with
     | .letE .. =>
       withNewScope do
-        let body ← visitLet e fun value => do goValue value; return value
+        let body ← visitLet e fun _ value => do goValue value; return value
         go body
     | e =>
       if let some casesInfo ← isCasesApp? e then
@@ -118,27 +117,17 @@ structure Context where
   stored at `stats`.
   -/
   localInline : Bool := true
-  /--
-  Current continuation. It is a join point or lambda abstraction.
-  -/
-  jp? : Option Expr := none
 
-abbrev SimpM := ReaderT Context CompilerM
+structure State where
+  simplified : Bool := false
 
-def withJp (jp : Expr) (x : SimpM α) : SimpM α := do
-  let jp ← mkJpDeclIfNotSimple jp
-  withReader (fun ctx => { ctx with jp? := some jp }) x
+abbrev SimpM := ReaderT Context $ StateRefT State CompilerM
 
-def withoutJp (x : SimpM α) : SimpM α :=
-  withReader (fun ctx => { ctx with jp? := none }) x
+def markSimplified : SimpM Unit :=
+  modify fun s => { s with simplified := true }
 
 def shouldInline (localDecl : LocalDecl) : SimpM Bool :=
   return (← read).localInline && (← read).stats.shouldInline localDecl.userName
-
-def isJump (e : Expr) : CompilerM Bool := do
-  let .fvar fvarId := e.getAppFn | return false
-  let some localDecl ← findDecl? fvarId | return false
-  return localDecl.userName matches .num `_jp _
 
 def inlineCandidate? (e : Expr) : SimpM (Option Nat) := do
   let f := e.getAppFn
@@ -161,10 +150,11 @@ def inlineCandidate? (e : Expr) : SimpM (Option Nat) := do
 /--
 If `e` if a free variable that expands to a valid LCNF terminal `let`-block expression `e'`,
 return `e'`. -/
-def expandTrivialExpr (e : Expr) : CompilerM Expr := do
+def expandTrivialExpr (e : Expr) : SimpM Expr := do
   if e.isFVar then
     let e' ← findExpr e
     unless e'.isLambda do
+      if e != e' then markSimplified
       return e'
   return e
 
@@ -187,17 +177,16 @@ partial def visitCases (casesInfo : CasesInfo) (e : Expr) : SimpM Expr := do
     let ctorFields := ctorArgs[ctorVal.numParams:]
     let alt := alt.beta ctorFields
     assert! !alt.isLambda
+    markSimplified
     visitLet alt
   else
-    if let some jp := (← read).jp? then
-      let .forallE _ _ b _ ← inferType jp | unreachable! -- jp's type is guaranteed to be an nondependent arrow
-      args := casesInfo.updateResultingType args b
     for i in casesInfo.altsRange do
       args ← args.modifyM i visitLambda
     return mkAppN e.getAppFn args
 
-partial def inlineApp (e : Expr) : SimpM Expr := do
+partial def inlineApp (e : Expr) (jp? : Option Expr := none) : SimpM Expr := do
   let f := e.getAppFn
+  trace[Compiler.simp.inline] "inlining {e}"
   let value ← match f with
     | .const declName us =>
       let some decl ← getStage1Decl? declName | unreachable!
@@ -207,7 +196,9 @@ partial def inlineApp (e : Expr) : SimpM Expr := do
       pure localDecl.value
   let args := e.getAppArgs
   let value := value.beta args
+  let value ← attachOptJp value jp?
   assert! !value.isLambda
+  markSimplified
   withReader (fun ctx => { ctx with localInline := !f.isConst }) do
     visitLet value
 
@@ -255,8 +246,9 @@ partial def inlineApp? (e : Expr) (xs : Array Expr) (k? : Option Expr) : SimpM (
           visitLet x (xs.push x)
       let body ← mkLetUsingScope body
       mkLambda #[y] body
+    let jp ← mkJpDeclIfNotSimple jp
     /- Inline `toInline` and "go-to" `jp` with the result. -/
-    withJp jp do inlineApp toInline
+    inlineApp toInline jp
 
 /--
 Let-declaration basic block visitor. `e` may contain loose bound variables that
@@ -267,9 +259,10 @@ partial def visitLet (e : Expr) (xs : Array Expr := #[]): SimpM Expr := do
   | .letE binderName type value body nonDep =>
     let mut value := value.instantiateRev xs
     if value.isLambda then
-      value ← withoutJp <| visitLambda value
+      value ← visitLambda value
     if value.isFVar then
       /- Eliminate `let _x_i := _x_j;` -/
+      markSimplified
       visitLet body (xs.push value)
     else if let some e ← inlineApp? value xs body then
       return e
@@ -283,43 +276,32 @@ partial def visitLet (e : Expr) (xs : Array Expr := #[]): SimpM Expr := do
       visitCases casesInfo e
     else if let some e ← inlineApp? e #[] none then
       return e
-    else if (← isJump e) then
-      /- TODO: fix, this is buggy.
-         Suppose we have
-         ```
-         let _jp.1 := fun x => k[x]
-         ```
-         and we are trying to jump to `_jp.2` when processing
-         ```
-         let _x.3 := ...
-         _jp.1 _x.3
-         ```
-         We must create a new join point `_jp.4` which fuses `_jp.1` and `_jp.2`.
-         ```
-         let _jp.4 := fun x => let r := k[x]; _jp.2 r
-         ```
-         and replace `_jp.1` with `_jp.4`.
-
-         When inlining, we must "fix" the join points **before** we process it.
-         We should not need `jp?` in the context. It will simplify the code too.
-      -/
-      return e
     else
-      mkOptJump (← read).jp? (← expandTrivialExpr e)
+      expandTrivialExpr e
 end
 
 end Simp
 
-def Decl.simp (decl : Decl) : CoreM Decl := do
+def Decl.simp? (decl : Decl) : CoreM (Option Decl) := do
   let decl ← decl.ensureUniqueLetVarNames
   let stats ← Simp.collectInlineStats decl.value
   trace[Compiler.simp.inline.stats] "{decl.name}:{Format.nest 2 (format stats)}"
-  /- TODO:
-  - Fixpoint.
-  -/
-  decl.mapValue fun value => Simp.visitLambda value |>.run { stats } |>.run' {}
+  let (value, s) ← Simp.visitLambda decl.value |>.run { stats } |>.run { simplified := false } |>.run' {}
+  if s.simplified then
+    return some { decl with value }
+  else
+    return none
+
+partial def Decl.simp (decl : Decl) : CoreM Decl := do
+  if let some decl ← decl.simp? then
+    -- TODO: bound number of steps?
+    decl.simp
+  else
+    return decl
 
 builtin_initialize
+  registerTraceClass `Compiler.simp.inline
+  registerTraceClass `Compiler.simp.step
   registerTraceClass `Compiler.simp.inline.stats
 
 end Lean.Compiler

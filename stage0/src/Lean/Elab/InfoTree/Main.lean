@@ -290,8 +290,8 @@ def withInfoContext' [MonadFinally m] (x : m α) (mkInfo : α → m (Sum Info MV
         let info ← mkInfo a
         modifyInfoTrees fun trees =>
           match info with
-          | Sum.inl info  => treesSaved.push <| InfoTree.node info trees
-          | Sum.inr mvaId => treesSaved.push <| InfoTree.hole mvaId
+          | Sum.inl info   => treesSaved.push <| InfoTree.node info trees
+          | Sum.inr mvarId => treesSaved.push <| InfoTree.hole mvarId
   else
     x
 

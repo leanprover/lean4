@@ -915,7 +915,7 @@ where
       if curr.isDigit then
         takeWhileFn (fun c => c.isDigit) c (s.setPos i)
       else
-        s.setPos i
+        s.mkUnexpectedError "missing exponent digits in scientific literal"
     else
       s
 

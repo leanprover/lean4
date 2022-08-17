@@ -9,39 +9,23 @@ import Lean.Compiler.Decl
 import Lean.Compiler.CompilerM
 
 namespace Lean.Compiler
-
 namespace TerminalCases
-
-structure Context where
-  jp? : Option Expr := none
-
-abbrev M := ReaderT Context CompilerM
-
-def withJp (jp : Expr) (x : M α) : M α := do
-  let jp ← mkJpDeclIfNotSimple jp
-  withReader (fun ctx => { ctx with jp? := some jp }) x
-
-def withoutJp (x : M α) : M α :=
-  withReader (fun ctx => { ctx with jp? := none }) x
 
 mutual
 
-private partial def visitCases (casesInfo : CasesInfo) (cases : Expr) : M Expr := do
+private partial def visitCases (casesInfo : CasesInfo) (cases : Expr) : CompilerM Expr := do
   let mut args := cases.getAppArgs
-  if let some jp := (← read).jp? then
-    let .forallE _ _ b _ ← inferType jp | unreachable! -- jp's type is guaranteed to be an nondependent arrow, see `visitLet`
-    args := casesInfo.updateResultingType args b
   for i in casesInfo.altsRange do
     args ← args.modifyM i visitLambda
   return mkAppN cases.getAppFn args
 
-private partial def visitLambda (e : Expr) : M Expr :=
+private partial def visitLambda (e : Expr) : CompilerM Expr :=
   withNewScope do
     let (as, e) ← Compiler.visitLambda e
     let e ← mkLetUsingScope (← visitLet e #[])
     mkLambda as e
 
-private partial def visitLet (e : Expr) (fvars : Array Expr) : M Expr := do
+private partial def visitLet (e : Expr) (fvars : Array Expr) : CompilerM Expr := do
   match e with
   | .letE binderName type value body nonDep =>
     let type := type.instantiateRev fvars
@@ -52,10 +36,12 @@ private partial def visitLet (e : Expr) (fvars : Array Expr) : M Expr := do
         let body ← visitLet body (fvars.push x)
         let body ← mkLetUsingScope body
         mkLambda #[x] body
-      withJp jp do visitCases casesInfo value
+      let jp ← mkJpDeclIfNotSimple jp
+      value ← visitCases casesInfo value
+      attachJp value jp
     else
       if value.isLambda then
-        value ← withoutJp <| visitLambda value
+        value ← visitLambda value
       let fvar ← mkLetDecl binderName type value nonDep
       visitLet body (fvars.push fvar)
   | e =>
@@ -63,7 +49,7 @@ private partial def visitLet (e : Expr) (fvars : Array Expr) : M Expr := do
     if let some casesInfo ← isCasesApp? e then
       visitCases casesInfo e
     else
-      mkOptJump (← read).jp? e
+      return e
 
 end
 
@@ -73,6 +59,6 @@ end TerminalCases
 Ensure all `casesOn` and `matcher` applications are terminal.
 -/
 def Decl.terminalCases (decl : Decl) : CoreM Decl :=
-  decl.mapValue fun value => TerminalCases.visitLambda value |>.run {}
+  decl.mapValue fun value => TerminalCases.visitLambda value
 
 end Lean.Compiler

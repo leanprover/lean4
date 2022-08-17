@@ -4,5 +4,5 @@
  {"start": {"line": 1, "character": 2}, "end": {"line": 1, "character": 12}},
  "contents":
  {"value":
-  "`rewrite [e]` applies identity `e` as a rewrite rule to the target of the main goal.\nIf `e` is preceded by left arrow (`←` or `<-`), the rewrite is applied in the reverse direction.\nIf `e` is a defined constant, then the equational theorems associated with `e` are used. This provides a convenient way to unfold `e`.\n- `rewrite [e₁, ..., eₙ]` applies the given rules sequentially.\n- `rewrite [e] at l` rewrites `e` at location(s) `l`, where `l` is either `*` or a list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-` can also be used, to signify the target of the goal.\n",
+  "`rewrite [e]` applies identity `e` as a rewrite rule to the target of the main goal.\nIf `e` is preceded by left arrow (`←` or `<-`), the rewrite is applied in the reverse direction.\nIf `e` is a defined constant, then the equational theorems associated with `e` are used.\nThis provides a convenient way to unfold `e`.\n- `rewrite [e₁, ..., eₙ]` applies the given rules sequentially.\n- `rewrite [e] at l` rewrites `e` at location(s) `l`, where `l` is either `*` or a\n  list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-`\n  can also be used, to signify the target of the goal.\n",
   "kind": "markdown"}}

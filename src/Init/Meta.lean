@@ -700,6 +700,7 @@ where
         none
 
   decodeExp (i : String.Pos) (val : Nat) (e : Nat) : Option (Nat × Bool × Nat) :=
+    if s.atEnd i then none else
     let c := s.get i
     if c == '-' then
        decodeAfterExp (s.next i) val e true 0

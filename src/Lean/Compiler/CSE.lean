@@ -46,7 +46,10 @@ where
       | none =>
         let type := type.instantiateRev xs
         let x ← mkLetDecl binderName type value nonDep
-        modify fun s => { s with map := s.map.insert value x }
+        unless isJpBinderName binderName do
+          -- We currently don't eliminate common join points because we want to prevent
+          -- jumps to out-of-scope join points.
+          modify fun s => { s with map := s.map.insert value x }
         go body (xs.push x)
     | _ =>
       let e := e.instantiateRev xs

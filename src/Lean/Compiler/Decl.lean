@@ -133,7 +133,7 @@ This function ensures that inside the given declaration both of these
 conditions are satisfied and throws an exception otherwise.
 -/
 def Decl.checkJoinPoints (decl : Decl) : CompilerM Unit :=
-  JoinPointChecker.checkJoinPoints decl.value
+  JoinPoints.JoinPointChecker.checkJoinPoints decl.value
 
 
 /--

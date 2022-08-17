@@ -53,6 +53,7 @@ def compileStage1Impl (declNames : Array Name) : CoreM (Array Decl) := do
   checkpoint `init decls { terminalCasesOnly := false }
   let decls ← decls.mapM (·.terminalCases)
   checkpoint `terminalCases decls
+  decls.forM fun decl => do trace[Compiler.jp] "{decl.name}: {(← JoinPoints.JoinPointFinder.findJoinPoints decl.value |>.run' {})}"
   let decls ← decls.mapM (·.simp)
   checkpoint `simp decls
   -- Remark: add simplification step here, `cse` is useful after simplification
@@ -74,5 +75,6 @@ builtin_initialize
   registerTraceClass `Compiler.terminalCases (inherited := true)
   registerTraceClass `Compiler.simp (inherited := true)
   registerTraceClass `Compiler.cse (inherited := true)
+  registerTraceClass `Compiler.jp
 
 end Lean.Compiler

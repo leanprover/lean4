@@ -91,7 +91,7 @@ where
     match e with
     | .letE .. =>
       withNewScope do
-        let body ← visitLet e fun value => do goValue value; return value
+        let body ← visitLet e fun _ value => do goValue value; return value
         go body
     | e =>
       if let some casesInfo ← isCasesApp? e then

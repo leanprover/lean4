@@ -166,22 +166,23 @@ and returning the body of the final one.
 class VisitLet (m : Type → Type) where
   /--
   Move through consecutive top level let binders in the first argument,
-  applying the function in the second argument to the values before the
-  the local declarations for the binders are created. The final return
-  value is the body of the last let binder in the chain.
+  applying the function in the second argument to the binder name
+  and the values before the the local declarations for the binders are
+  created. The final return value is the body of the last let binder in
+  the chain.
   -/
-  visitLet : Expr → (Expr → m Expr) → m Expr
+  visitLet : Expr → (Name → Expr → m Expr) → m Expr
 
 export VisitLet (visitLet)
 
-def visitLetImp (e : Expr) (f : Expr → CompilerM Expr) : CompilerM Expr :=
+def visitLetImp (e : Expr) (f : Name → Expr → CompilerM Expr) : CompilerM Expr :=
   go e #[]
 where
   go (e : Expr) (fvars : Array Expr) : CompilerM Expr := do
     if let .letE binderName type value body nonDep := e then
       let type := type.instantiateRev fvars
       let value := value.instantiateRev fvars
-      let value ← f value
+      let value ← f binderName value
       let fvar ← mkLetDecl binderName type value nonDep
       go body (fvars.push fvar)
     else
@@ -191,7 +192,7 @@ instance : VisitLet CompilerM where
   visitLet := visitLetImp
 
 instance [VisitLet m] : VisitLet (ReaderT ρ m) where
-  visitLet e f ctx := visitLet e (f · ctx)
+  visitLet e f ctx := visitLet e (f · · ctx)
 
 instance [VisitLet m] : VisitLet (StateRefT' ω σ m) := inferInstanceAs (VisitLet (ReaderT _ _))
 

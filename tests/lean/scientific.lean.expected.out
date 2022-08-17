@@ -1,7 +1,8 @@
-1.000000
 10.000000
-scientific.lean:4:6-4:13: error: function expected at
-  1.0
-term has type
-  ?m
-2.000000
+10.000000
+0.100000
+scientific.lean:6:9: error: missing exponent digits in scientific literal
+scientific.lean:7:9: error: missing exponent digits in scientific literal
+scientific.lean:8:9: error: missing exponent digits in scientific literal
+scientific.lean:9:9: error: missing exponent digits in scientific literal
+scientific.lean:10:9: error: missing exponent digits in scientific literal

@@ -36,8 +36,9 @@ private partial def visitLet (e : Expr) (fvars : Array Expr) : CompilerM Expr :=
         let body ← visitLet body (fvars.push x)
         let body ← mkLetUsingScope body
         mkLambda #[x] body
-      value ← attachJp value jp
-      visitCases casesInfo value
+      let jp ← mkJpDeclIfNotSimple jp
+      value ← visitCases casesInfo value
+      attachJp value jp
     else
       if value.isLambda then
         value ← visitLambda value

@@ -186,6 +186,7 @@ partial def visitCases (casesInfo : CasesInfo) (e : Expr) : SimpM Expr := do
 
 partial def inlineApp (e : Expr) (jp? : Option Expr := none) : SimpM Expr := do
   let f := e.getAppFn
+  trace[Compiler.simp.inline] "inlining {e}"
   let value ← match f with
     | .const declName us =>
       let some decl ← getStage1Decl? declName | unreachable!
@@ -245,6 +246,7 @@ partial def inlineApp? (e : Expr) (xs : Array Expr) (k? : Option Expr) : SimpM (
           visitLet x (xs.push x)
       let body ← mkLetUsingScope body
       mkLambda #[y] body
+    let jp ← mkJpDeclIfNotSimple jp
     /- Inline `toInline` and "go-to" `jp` with the result. -/
     inlineApp toInline jp
 
@@ -298,6 +300,8 @@ partial def Decl.simp (decl : Decl) : CoreM Decl := do
     return decl
 
 builtin_initialize
+  registerTraceClass `Compiler.simp.inline
+  registerTraceClass `Compiler.simp.step
   registerTraceClass `Compiler.simp.inline.stats
 
 end Lean.Compiler

@@ -12,11 +12,99 @@ namespace Lean.Compiler
 
 namespace Simp
 
+partial def findLambda? (e : Expr) : CompilerM (Option LocalDecl) := do
+  match e with
+  | .fvar fvarId =>
+    let some d@(.ldecl (value := v) ..) ← findDecl? fvarId | return none
+    if v.isLambda then return some d else findLambda? v
+  | .mdata _ e => findLambda? e
+  | _ => return none
+
+partial def findExpr (e : Expr) (skipMData := true): CompilerM Expr := do
+  match e with
+  | .fvar fvarId =>
+    let some (.ldecl (value := v) ..) ← findDecl? fvarId | return e
+    findExpr v
+  | .mdata _ e' => if skipMData then findExpr e' else return e
+  | _ => return e
+
+/--
+Local function declaration statistics.
+
+Remark: we use the `userName` as the key. Thus, `ensureUniqueLetVarNames`
+must be used before collectin stastistics.
+-/
+structure InlineStats where
+  /--
+  Mapping from local function name to the number of times it is used
+  in a declaration.
+  -/
+  numOccs : Std.HashMap Name Nat := {}
+  /--
+  Mapping from local function name to their LCNF size.
+  -/
+  size : Std.HashMap Name Nat := {}
+
+def InlineStats.format (s : InlineStats) : Format := Id.run do
+  let mut result := Format.nil
+  for (k, n) in s.numOccs.toList do
+    let some size := s.size.find? k | pure ()
+    result := result ++ "\n" ++ f!"{k} ↦ {n}, {size}"
+    pure ()
+  return result
+
+instance : ToFormat InlineStats where
+  format := InlineStats.format
+
+partial def collectInlineStats (e : Expr) : CoreM InlineStats := do
+  let ((_, s), _) ← goLambda e |>.run {} |>.run {}
+  return s
+where
+  goLambda (e : Expr) : StateRefT InlineStats CompilerM Unit := do
+    withNewScope do
+      let (_, body) ← visitLambda e
+      go body
+
+  goValue (value : Expr) : StateRefT InlineStats CompilerM Unit := do
+    match value with
+    | .lam .. => goLambda value
+    | .app .. =>
+      match (← findLambda? value.getAppFn) with
+      | some localDecl =>
+        trace[Meta.debug] "found decl {localDecl.userName}"
+        if localDecl.value.isLambda then
+          let key := localDecl.userName
+          match (← get).numOccs.find? localDecl.userName with
+          | some numOccs => modify fun s => { s with numOccs := s.numOccs.insert key (numOccs + 1) }
+          | _ =>
+            let sz ← getLCNFSize localDecl.value
+            modify fun { numOccs, size } => { numOccs := numOccs.insert key 1, size := size.insert key sz }
+      | _ => pure ()
+    | _ => pure ()
+
+  go (e : Expr) : StateRefT InlineStats CompilerM Unit := do
+    match e with
+    | .letE .. =>
+      withNewScope do
+        let body ← visitLet e fun value => do goValue value; return value
+        go body
+    | e =>
+      if let some casesInfo ← isCasesApp? e then
+        let args := e.getAppArgs
+        for i in casesInfo.altsRange do
+          goLambda args[i]!
+      else
+        goValue e
+
 structure Config where
   increaseFactor : Nat := 2
 
 structure Context where
   config : Config := {}
+  /--
+  Statistics for deciding whether to inline local function declarations.
+  -/
+  stats : InlineStats
   /--
   Current continuation. It is a join point or lambda abstraction.
   -/
@@ -32,19 +120,14 @@ def withoutJp (x : SimpM α) : SimpM α :=
   withReader (fun ctx => { ctx with jp? := none }) x
 
 def inlineCandidate? (e : Expr) : SimpM (Option Nat) := do
+  -- TODO: support for local declarations
   let .const declName _ := e.getAppFn | return none
   unless hasInlineAttribute (← getEnv) declName do return none
+  -- TODO: check whether function is recursive or not.
+  -- We can skip the test and store function inline so far.
   let some decl ← getStage1Decl? declName | return none
   if e.getAppNumArgs < decl.getArity then return none
   return e.getAppNumArgs - decl.getArity
-
-partial def findExpr (e : Expr) (skipMData := true): CompilerM Expr := do
-  match e with
-  | .fvar fvarId =>
-    let some (.ldecl (value := v) ..) ← findDecl? fvarId | return e
-    findExpr v
-  | .mdata _ e' => if skipMData then findExpr e' else return e
-  | _ => return e
 
 /--
 If `e` if a free variable that expands to a valid LCNF terminal `let`-block expression `e'`,
@@ -173,10 +256,14 @@ end Simp
 
 def Decl.simp (decl : Decl) : CoreM Decl := do
   let decl ← decl.ensureUniqueLetVarNames
+  let stats ← Simp.collectInlineStats decl.value
+  trace[Compiler.simp.inline.stats] "{decl.name}:{Format.nest 2 (format stats)}"
   /- TODO:
-  - Collect local function number of occurrences.
   - Fixpoint.
   -/
-  decl.mapValue fun value => Simp.visitLambda value |>.run {} |>.run' {}
+  decl.mapValue fun value => Simp.visitLambda value |>.run { stats } |>.run' {}
+
+builtin_initialize
+  registerTraceClass `Compiler.simp.inline.stats
 
 end Lean.Compiler

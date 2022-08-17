@@ -125,4 +125,22 @@ Return `true` iff `declName` is the name of a type with builtin support in the r
 def isRuntimeBultinType (declName : Name) : Bool :=
   builtinRuntimeTypes.contains declName
 
+/--
+Return the number of let-declarations and terminal expressions in the LCNF expression.
+-/
+partial def getLCNFSize (e : Expr) : CoreM Nat := do
+  let (_, s) ←  go e |>.run 0
+  return s
+where
+  go (e : Expr) : StateRefT Nat CoreM Unit := do
+    match e with
+    | .lam _ _ b _ => go b
+    | .letE _ _ v b _ => modify (·+1); go v; go b
+    | _ =>
+      modify (·+1)
+      if let some casesInfo ← isCasesApp? e then
+        let args := e.getAppArgs
+        for i in casesInfo.altsRange do
+          go args[i]!
+
 end Lean.Compiler

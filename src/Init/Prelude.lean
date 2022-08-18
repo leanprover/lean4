@@ -83,7 +83,7 @@ example : foo.default = (default, default) :=
   rfl
 ```
 -/
-@[reducible] def inferInstance {α : Sort u} [i : α] : α := i
+abbrev inferInstance {α : Sort u} [i : α] : α := i
 
 set_option checkBinderAnnotations false in
 /-- `inferInstanceAs α` synthesizes a value of any target type by typeclass
@@ -97,7 +97,7 @@ does.) Example:
 #check inferInstanceAs (Inhabited Nat) -- Inhabited Nat
 ```
 -/
-@[reducible] def inferInstanceAs (α : Sort u) [i : α] : α := i
+abbrev inferInstanceAs (α : Sort u) [i : α] : α := i
 
 set_option bootstrap.inductiveCheckResultingUniverse false in
 /--

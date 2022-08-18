@@ -126,6 +126,19 @@ abbrev SimpM := ReaderT Context $ StateRefT State CompilerM
 def markSimplified : SimpM Unit :=
   modify fun s => { s with simplified := true }
 
+def findCtor (e : Expr) : SimpM Expr := do
+  -- TODO: add support for mapping discriminants to constructors in branches
+  findExpr e
+
+/--
+Try to simplify projections `.proj _ i s` where `s` is constructor.
+-/
+def simpProj? (e : Expr) : SimpM (Option Expr) := do
+  let .proj _ i s := e | return none
+  let s ← findCtor s
+  let some (ctorVal, args) := s.constructorApp? (← getEnv) | return none
+  return some args[ctorVal.numParams + i]!
+
 def shouldInline (localDecl : LocalDecl) : SimpM Bool :=
   return (← read).localInline && (← read).stats.shouldInline localDecl.userName
 
@@ -260,6 +273,8 @@ partial def visitLet (e : Expr) (xs : Array Expr := #[]): SimpM Expr := do
     let mut value := value.instantiateRev xs
     if value.isLambda then
       value ← visitLambda value
+    else if let some value' ← simpProj? value then
+      value := value'
     if value.isFVar then
       /- Eliminate `let _x_i := _x_j;` -/
       markSimplified
@@ -272,6 +287,7 @@ partial def visitLet (e : Expr) (xs : Array Expr := #[]): SimpM Expr := do
       visitLet body (xs.push x)
   | _ =>
     let e := e.instantiateRev xs
+    let e := (← simpProj? e).getD e
     if let some casesInfo ← isCasesApp? e then
       visitCases casesInfo e
     else if let some e ← inlineApp? e #[] none then

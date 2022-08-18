@@ -303,6 +303,7 @@ def Decl.simp? (decl : Decl) : CoreM (Option Decl) := do
   let stats ← Simp.collectInlineStats decl.value
   trace[Compiler.simp.inline.stats] "{decl.name}:{Format.nest 2 (format stats)}"
   let (value, s) ← Simp.visitLambda decl.value |>.run { stats } |>.run { simplified := false } |>.run' {}
+  trace[Compiler.simp.step] "{decl.name} :=\n{decl.value}"
   if s.simplified then
     return some { decl with value }
   else

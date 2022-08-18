@@ -69,11 +69,12 @@ mutual
         match fType with
         | .forallE _ _ b _ => fType := b
         | _ =>
-          match fType.instantiateRevRange j i args |>.headBeta with
+          fType := fType.instantiateRevRange j i args |>.headBeta
+          match fType with
           | .forallE _ _ b _ => j := i; fType := b
           | _ =>
             if fType.isAnyType then return anyTypeExpr
-            throwError "function expected{indentExpr f}"
+            throwError "function expected{indentExpr (mkAppN f args[:i])} : {fType}\nfunction type{indentExpr (← inferType f)}"
       return fType.instantiateRevRange j args.size args |>.headBeta
 
   partial def inferProjType (structName : Name) (idx : Nat) (s : Expr) : InferTypeM Expr := do

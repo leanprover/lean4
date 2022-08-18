@@ -133,11 +133,28 @@ def findCtor (e : Expr) : SimpM Expr := do
 /--
 Try to simplify projections `.proj _ i s` where `s` is constructor.
 -/
-def simpProj? (e : Expr) : SimpM (Option Expr) := do
-  let .proj _ i s := e | return none
+def simpProj? (e : Expr) : OptionT SimpM Expr := do
+  let .proj _ i s := e | failure
   let s ← findCtor s
-  let some (ctorVal, args) := s.constructorApp? (← getEnv) | return none
-  return some args[ctorVal.numParams + i]!
+  let some (ctorVal, args) := s.constructorApp? (← getEnv) | failure
+  return args[ctorVal.numParams + i]!
+
+/--
+Application over application.
+```
+let _x.i := f a
+_x.i b
+```
+is simplified to `f a b`.
+-/
+def simpAppApp? (e : Expr) : OptionT SimpM Expr := do
+  let f ← findExpr e.getAppFn
+  guard f.isApp
+  return mkAppN f e.getAppArgs
+
+/-- Try to apply simple simplifications. -/
+def simpValue? (e : Expr) : SimpM (Option Expr) :=
+  simpProj? e <|> simpAppApp? e
 
 def shouldInline (localDecl : LocalDecl) : SimpM Bool :=
   return (← read).localInline && (← read).stats.shouldInline localDecl.userName
@@ -273,7 +290,7 @@ partial def visitLet (e : Expr) (xs : Array Expr := #[]): SimpM Expr := do
     let mut value := value.instantiateRev xs
     if value.isLambda then
       value ← visitLambda value
-    else if let some value' ← simpProj? value then
+    else if let some value' ← simpValue? value then
       value := value'
     if value.isFVar then
       /- Eliminate `let _x_i := _x_j;` -/
@@ -287,7 +304,7 @@ partial def visitLet (e : Expr) (xs : Array Expr := #[]): SimpM Expr := do
       visitLet body (xs.push x)
   | _ =>
     let e := e.instantiateRev xs
-    let e := (← simpProj? e).getD e
+    let e := (← simpValue? e).getD e
     if let some casesInfo ← isCasesApp? e then
       visitCases casesInfo e
     else if let some e ← inlineApp? e #[] none then

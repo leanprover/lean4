@@ -317,13 +317,19 @@ where
   visitLet (e : Expr) (xs : Array Expr) : ReaderT FVarIdSet CompilerM Expr := do
     match e with
     | .letE binderName type value body nonDep =>
+      let mkDecl (type value : Expr) := do
+        let x ← mkLetDecl binderName type value nonDep
+        withReader (fun jps => if isJpBinderName binderName then jps.insert x.fvarId! else jps) do
+          visitLet body (xs.push x)
       let type := type.instantiateRev xs
-      let mut value := value.instantiateRev xs
+      let value := value.instantiateRev xs
       if isJpBinderName binderName then
-        value ← visitLambda value
-      let x ← mkLetDecl binderName type value nonDep
-      withReader (fun jps => if isJpBinderName binderName then jps.insert x.fvarId! else jps) do
-        visitLet body (xs.push x)
+        let value ← visitLambda value
+        -- Recall that the resulting type of join point may change after the attachment
+        let type ← inferType value
+        mkDecl type value
+      else
+        mkDecl type value
     | _ =>
       let e := e.instantiateRev xs
       if let some fvarId ← isJump? e then

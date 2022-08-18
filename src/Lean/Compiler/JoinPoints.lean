@@ -74,13 +74,43 @@ end Visitors
 
 namespace JoinPointFinder
 
-abbrev M := StateRefT (Std.HashMap Name Nat) CompilerM
+structure CandidateInfo where
+  arity : Nat
+  associated : Std.HashSet Name
+  deriving Inhabited
+
+abbrev M := ReaderT (Option Name) StateRefT (Std.HashMap Name CandidateInfo) CompilerM
+
+private def findCandidate? (name : Name) : M (Option CandidateInfo) := do
+  return (← get).find? name
+
+private partial def eraseCandidate (name : Name) : M Unit := do
+  if let some info ← findCandidate? name then
+    modify (fun candidates => candidates.erase name)
+    info.associated.forM eraseCandidate
 
 private partial def removeCandidatesContainedIn (e : Expr) : M Unit := do
   let remover := fun fvarId => do
     let some decl ← findDecl? fvarId | unreachable!
-    modify (fun jps? => jps?.erase decl.userName)
+    eraseCandidate decl.userName
   forEachFVar e remover
+
+private def addCandidate (name : Name) (arity : Nat) : M Unit := do
+  let cinfo := { arity, associated := .empty }
+  modify (fun cs => cs.insert name cinfo)
+
+private def addDependency (src : Name) (target : Name) : M Unit := do
+  if let some targetInfo ← findCandidate? target then
+    modify (fun cs => cs.insert target { targetInfo with associated := targetInfo.associated.insert src })
+  else
+    eraseCandidate src
+
+def declIsInScope (decl : LocalDecl) : CompilerM Bool := do
+  let fvars := (←getThe CompilerM.State).letFVars
+  fvars.anyM (fun fvar => do
+    let scopeDecl := (←findDecl? fvar.fvarId!).get!
+    return scopeDecl.userName == decl.userName
+  )
 
 /--
 Return a set of let declaration names inside of `e` that qualify as a join
@@ -92,25 +122,28 @@ Since declaration names are unique inside of LCNF the let bindings and
 call sites can be uniquely identified by this.
 -/
 partial def findJoinPoints (e : Expr) : CompilerM (Array Name) := do
-  let (_, names) ← visitLambda goTailApp removeCandidatesContainedIn goLetValue e |>.run .empty
-  return names.toArray.map Prod.fst
+  let (_, state) ← visitLambda goTailApp removeCandidatesContainedIn goLetValue e |>.run none |>.run .empty
+  return state.toArray.map Prod.fst
 where
   goLetValue (userName : Name) (value : Expr) : M Expr := do
-    if let .lam .. := value then
-      withNewScope do
-        let (vars, body) ← Compiler.visitLambda value
-        modify (fun jps? => jps?.insert userName vars.size)
+    match value with
+    | .lam .. => withNewScope do
+      let (vars, body) ← Compiler.visitLambda value
+      addCandidate userName vars.size
+      withReader (fun _ => some userName) do
         visitTails goTailApp removeCandidatesContainedIn goLetValue body
-    else
-      visitTails goTailApp removeCandidatesContainedIn goLetValue value
+    | _ => removeCandidatesContainedIn value
     return value
 
   goTailApp (fvarId : FVarId) (e : Expr) : M Unit := do
     let some decl ← findDecl? fvarId | unreachable!
-    if let some jpArity := (←get).find? decl.userName then
+    if let some candidateInfo ← findCandidate? decl.userName then
       let args := e.getAppNumArgs
-      if args != jpArity then
-        modify (fun jps? => jps?.erase decl.userName)
+      if args != candidateInfo.arity then
+        eraseCandidate decl.userName
+      else if let some upperCandidate ← read then
+        if !(←declIsInScope decl) then
+          addDependency decl.userName upperCandidate
 
 end JoinPointFinder
 
@@ -120,7 +153,6 @@ namespace JoinPointChecker
 Throws an exception if `e` contains a join point.
 -/
 def containsNoJp (e : Expr) : CompilerM Unit := do
-  trace[Compiler.step] s!"Checking whether {e} contains jp"
   let checker := fun fvarId => do
     let some decl ← findDecl? fvarId | unreachable!
     if decl.isJp then

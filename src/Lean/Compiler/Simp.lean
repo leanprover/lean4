@@ -76,7 +76,6 @@ where
     | .app .. =>
       match (← findLambda? value.getAppFn) with
       | some localDecl =>
-        trace[Meta.debug] "found decl {localDecl.userName}"
         if localDecl.value.isLambda then
           let key := localDecl.userName
           match (← get).numOccs.find? localDecl.userName with

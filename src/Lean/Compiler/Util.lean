@@ -175,4 +175,18 @@ def isJump? [Monad m] [MonadLCtx m] (e : Expr) : m (Option FVarId) := do
   else
     return none
 
+/--
+Return if the LCNF expression has many exit points.
+It assumes `cases` expressions only occur at the end of `let`-blocks.
+That is, `terminalCases` has already been applied.
+It also assumes that if contains a join point, then it has multiple
+exit points. This is a reasonable assumption because the simplifier
+inlines any join point that was used only once.
+-/
+def manyExitPoints (e : Expr) : CoreM Bool := do
+  match e with
+  | .lam _ _ b _ => manyExitPoints b
+  | .letE n _ _ b _ => pure (isJpBinderName n) <||> manyExitPoints b
+  | e => return (← isCasesApp? e).isSome
+
 end Lean.Compiler

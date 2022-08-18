@@ -185,4 +185,14 @@ def isTypeFormerType (type : Expr) : Bool :=
   | .forallE _ _ b _ => isTypeFormerType b
   | _ => type.isAnyType
 
+/--
+`isClass? type` return `some ClsName` if the LCNF `type` is an instance of the class `ClsName`.
+-/
+def isClass? (type : Expr) : CoreM (Option Name) := do
+  let .const declName _ := type.getAppFn | return none
+  if isClass (← getEnv) declName then
+    return declName
+  else
+    return none
+
 end Lean.Compiler

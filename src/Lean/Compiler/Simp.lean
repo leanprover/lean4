@@ -120,8 +120,32 @@ structure Context where
 
 structure State where
   simplified : Bool := false
+  deriving Inhabited
 
 abbrev SimpM := ReaderT Context $ StateRefT State CompilerM
+
+structure SavedState where
+  compiler : CompilerM.SavedState
+  simp : State
+  deriving Inhabited
+
+protected def saveState : SimpM SavedState :=
+  return { compiler := (← CompilerM.saveState), simp := (← get) }
+
+/-- Restore backtrackable parts of the state. -/
+def SavedState.restore (b : SavedState) : SimpM Unit := do
+  b.compiler.restore
+  set b.simp
+
+instance : MonadBacktrack SavedState SimpM where
+  saveState      := Simp.saveState
+  restoreState s := s.restore
+
+def withLocalInline (localInline : Bool) (x : SimpM α) : SimpM α :=
+  withReader (fun ctx => { ctx with localInline }) x
+
+def withoutLocalInline (x : SimpM α) : SimpM α :=
+  withLocalInline false x
 
 def markSimplified : SimpM Unit :=
   modify fun s => { s with simplified := true }
@@ -148,13 +172,12 @@ _x.i b
 is simplified to `f a b`.
 -/
 def simpAppApp? (e : Expr) : OptionT SimpM Expr := do
-  let f ← findExpr e.getAppFn
-  guard f.isApp
+  guard e.isApp
+  let f := e.getAppFn
+  guard f.isFVar
+  let f ← findExpr f
+  guard <| f.isApp || f.isConst
   return mkAppN f e.getAppArgs
-
-/-- Try to apply simple simplifications. -/
-def simpValue? (e : Expr) : SimpM (Option Expr) :=
-  simpProj? e <|> simpAppApp? e
 
 def shouldInline (localDecl : LocalDecl) : SimpM Bool :=
   return (← read).localInline && (← read).stats.shouldInline localDecl.userName
@@ -214,6 +237,25 @@ partial def visitCases (casesInfo : CasesInfo) (e : Expr) : SimpM Expr := do
       args ← args.modifyM i visitLambda
     return mkAppN e.getAppFn args
 
+partial def inlineProjInst? (e : Expr) : OptionT SimpM Expr := do
+  let .proj _ i s := e | failure
+  let s ← findExpr s
+  let .const declName us := s.getAppFn | failure
+  let sType ← inferType s
+  guard (← isClass? sType).isSome
+  let some decl ← getStage1Decl? declName | failure
+  guard <| decl.getArity == s.getAppNumArgs
+  withoutLocalInline do
+    let saved ← saveState
+    let value := decl.value.instantiateLevelParams decl.levelParams us
+    let value := value.beta s.getAppArgs
+    let value ← visitLet value #[]
+    if let some (ctorVal, ctorArgs) := value.constructorApp? (← getEnv) then
+      return ctorArgs[ctorVal.numParams + i]!
+    else
+      saved.restore
+      return none
+
 partial def inlineApp (e : Expr) (jp? : Option Expr := none) : SimpM Expr := do
   let f := e.getAppFn
   trace[Compiler.simp.inline] "inlining {e}"
@@ -229,8 +271,7 @@ partial def inlineApp (e : Expr) (jp? : Option Expr := none) : SimpM Expr := do
   let value ← attachOptJp value jp?
   assert! !value.isLambda
   markSimplified
-  withReader (fun ctx => { ctx with localInline := !f.isConst }) do
-    visitLet value
+  withLocalInline (!f.isConst) do visitLet value
 
 /--
 If `e` is an application that can be inlined, inline it.
@@ -279,6 +320,10 @@ partial def inlineApp? (e : Expr) (xs : Array Expr) (k? : Option Expr) : SimpM (
     let jp ← mkJpDeclIfNotSimple jp
     /- Inline `toInline` and "go-to" `jp` with the result. -/
     inlineApp toInline jp
+
+/-- Try to apply simple simplifications. -/
+partial def simpValue? (e : Expr) : SimpM (Option Expr) :=
+  simpProj? e <|> simpAppApp? e <|> inlineProjInst? e
 
 /--
 Let-declaration basic block visitor. `e` may contain loose bound variables that

@@ -41,14 +41,14 @@ structure Context where
 
 structure State where
   /-- Local context containing the original Lean types (not LCNF ones). -/
-  lctx     : LocalContext := {}
+  lctx : LocalContext := {}
   /-- Local context containing Lean LCNF types. -/
   lctx' : LocalContext := {}
   letFVars : Array Expr := #[]
   /-- Next auxiliary variable suffix -/
   nextIdx : Nat := 1
   /-- Cache from Lean regular expression to LCNF expression. -/
-  cache : PersistentExprMap Expr := {}
+  cache : Std.PHashMap (Expr × Bool) Expr := {}
 
 abbrev M := ReaderT Context $ StateRefT State CoreM
 
@@ -170,7 +170,8 @@ partial def toLCNF (e : Expr) : CoreM Expr := do
   return s.lctx'.mkLambda s.letFVars e
 where
   visitCore (e : Expr) : M Expr := withIncRecDepth do
-    if let some e := (← get).cache.find? e then
+    let key := (e, (← read).root)
+    if let some e := (← get).cache.find? key then
       return e
     let r ← match e with
       | .app ..     => visitApp e
@@ -184,7 +185,7 @@ where
       | .mvar .. => throwError "unexpected occurrence of metavariable in code generator{indentExpr e}"
       | .bvar .. => unreachable!
       | _           => pure e
-    modify fun s => { s with cache := s.cache.insert e r }
+    modify fun s => { s with cache := s.cache.insert key r }
     return r
 
   visit (e : Expr) : M Expr := withIncRecDepth do
@@ -434,6 +435,7 @@ where
       visit e
 
   visitProj (s : Name) (i : Nat) (e : Expr) : M Expr := do
+    trace[Meta.debug] "visitProj: {s}, {i}, {e}"
     mkAuxLetDecl <| .proj s i (← visitChild e)
 
   visitLet (e : Expr) (xs : Array Expr) : M Expr := do

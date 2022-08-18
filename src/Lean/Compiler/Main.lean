@@ -60,6 +60,7 @@ def compileStage1Impl (declNames : Array Name) : CoreM (Array Decl) := do
   let decls ← decls.mapM (·.cse)
   checkpoint `cse decls
   saveStage1Decls decls
+  decls.forM fun decl => do trace[Compiler.stat] "{decl.name}: {← getLCNFSize decl.value}"
   return decls
 
 /--
@@ -71,6 +72,7 @@ def compile (declNames : Array Name) : CoreM Unit := do profileitM Exception "co
 
 builtin_initialize
   registerTraceClass `Compiler
+  registerTraceClass `Compiler.stat
   registerTraceClass `Compiler.init (inherited := true)
   registerTraceClass `Compiler.terminalCases (inherited := true)
   registerTraceClass `Compiler.simp (inherited := true)

@@ -57,10 +57,11 @@ def mkLetDecl (binderName : Name) (type : Expr) (value : Expr) (nonDep : Bool) :
   modify fun s => { s with lctx := s.lctx.mkLetDecl fvarId binderName type value nonDep, letFVars := s.letFVars.push x }
   return x
 
-def mkAuxLetDeclName (prefixName := `_x) : CompilerM Name := do
-  let r := .num prefixName (← get).nextIdx
-  modify fun s => { s with nextIdx := s.nextIdx + 1 }
-  return r
+def mkFreshLetVarIdx : CompilerM Nat := do
+  modifyGet fun s => (s.nextIdx, { s with nextIdx := s.nextIdx +1 })
+
+def mkAuxLetDeclName (prefixName := `_x) : CompilerM Name :=
+  return .num prefixName (← mkFreshLetVarIdx)
 
 /--
 Create a new auxiliary let declaration with value `e` The name of the

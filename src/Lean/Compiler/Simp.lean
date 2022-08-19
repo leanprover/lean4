@@ -27,99 +27,104 @@ partial def findExpr (e : Expr) (skipMData := true): CompilerM Expr := do
   | .mdata _ e' => if skipMData then findExpr e' else return e
   | _ => return e
 
+inductive Occ where
+  | once
+  | many
+  deriving Repr, Inhabited
+
 /--
 Local function declaration statistics.
 
 Remark: we use the `userName` as the key. Thus, `ensureUniqueLetVarNames`
 must be used before collectin stastistics.
 -/
-structure InlineStats where
+structure OccInfo where
   /--
-  Mapping from local function name to the number of times it is used
-  in a declaration.
+  Mapping from local function name to occurrence information.
   -/
-  numOccs : Std.HashMap Name Nat := {}
-  /--
-  Mapping from local function name to their LCNF size.
-  -/
-  size : Std.HashMap Name Nat := {}
+  map : Std.HashMap Name Occ := {}
   deriving Inhabited
 
-def InlineStats.format (s : InlineStats) : Format := Id.run do
+def OccInfo.format (s : OccInfo) : Format := Id.run do
   let mut result := Format.nil
-  for (k, n) in s.numOccs.toList do
-    let some size := s.size.find? k | pure ()
-    result := result ++ "\n" ++ f!"{k} ↦ {n}, {size}"
-    pure ()
+  for (k, n) in s.map.toList do
+    result := result ++ "\n" ++ f!"{k} ↦ {repr n}"
   return result
 
-def InlineStats.shouldInline (s : InlineStats) (k : Name) : Bool := Id.run do
-  let some numOccs := s.numOccs.find? k | return false
-  if numOccs == 1 then return true
-  let some sz := s.size.find? k | return false
-  return sz == 1
+instance : ToFormat OccInfo where
+  format := OccInfo.format
 
-def InlineStats.add (s : InlineStats) (key : Name) (sz : Nat) : InlineStats :=
+def OccInfo.add (s : OccInfo) (key : Name) : OccInfo :=
   match s with
-  | { numOccs, size } => { numOccs := numOccs.insert key 1, size := size.insert key sz }
-
-instance : ToFormat InlineStats where
-  format := InlineStats.format
-
-partial def collectInlineStats (e : Expr) : CoreM InlineStats := do
-  let ((_, s), _) ← goLambda e |>.run {} |>.run {}
-  return s
-where
-  goLambda (e : Expr) : StateRefT InlineStats CompilerM Unit := do
-    withNewScope do
-      let (_, body) ← visitLambda e
-      go body
-
-  goValue (value : Expr) : StateRefT InlineStats CompilerM Unit := do
-    match value with
-    | .lam .. => goLambda value
-    | .app .. =>
-      match (← findLambda? value.getAppFn) with
-      | some localDecl =>
-        if localDecl.value.isLambda then
-          let key := localDecl.userName
-          match (← get).numOccs.find? localDecl.userName with
-          | some numOccs => modify fun s => { s with numOccs := s.numOccs.insert key (numOccs + 1) }
-          | _ =>
-            let sz ← getLCNFSize localDecl.value
-            modify fun s => s.add key sz
-      | _ => pure ()
-    | _ => pure ()
-
-  go (e : Expr) : StateRefT InlineStats CompilerM Unit := do
-    match e with
-    | .letE .. =>
-      withNewScope do
-        let body ← visitLet e fun _ value => do goValue value; return value
-        go body
-    | e =>
-      if let some casesInfo ← isCasesApp? e then
-        let args := e.getAppArgs
-        for i in casesInfo.altsRange do
-          goLambda args[i]!
-      else
-        goValue e
+  | { map } =>
+    match map.find? key with
+    | some .once => { map := map.insert key .many }
+    | none       => { map := map.insert key .once }
+    | _          => { map }
 
 structure Config where
-  increaseFactor : Nat := 2
+  smallThreshold : Nat := 1
 
 structure Context where
   config : Config := {}
 
 structure State where
   /--
-  Statistics for deciding whether to inline local function declarations.
+  (Approximate) occurence information for local function declarations.
   -/
-  stats : InlineStats
+  occInfo : OccInfo := {}
   simplified : Bool := false
   deriving Inhabited
 
 abbrev SimpM := ReaderT Context $ StateRefT State CompilerM
+
+/-- Ensure binder names are unique, and update occurrence information -/
+partial def internalize (e : Expr) : SimpM Expr := do
+  visitLambda e
+where
+  visitLambda (e : Expr) : SimpM Expr := do
+    withNewScope do
+      let (as, e) ← Compiler.visitLambda e
+      let e ← mkLetUsingScope (← visitLet e #[])
+      mkLambda as e
+
+  visitCases (casesInfo : CasesInfo) (cases : Expr) : SimpM Expr := do
+    let mut args := cases.getAppArgs
+    for i in casesInfo.altsRange do
+      args ← args.modifyM i visitLambda
+    return mkAppN cases.getAppFn args
+
+  visitValue (e : Expr) : SimpM Unit := do
+    if e.isApp then
+      match (← findLambda? e.getAppFn) with
+      | some localDecl =>
+        if localDecl.value.isLambda then
+          let key := localDecl.userName
+          modify fun s => { s with occInfo := s.occInfo.add key  }
+      | _ => pure ()
+
+  visitLet (e : Expr) (xs : Array Expr) : SimpM Expr := do
+    match e with
+    | .letE binderName type value body nonDep =>
+      let idx ← mkFreshLetVarIdx
+      let binderName' := match binderName with
+        | .num p _ => .num p idx
+        | _ => .num binderName idx
+      let type  := type.instantiateRev xs
+      let mut value := value.instantiateRev xs
+      if value.isLambda then
+        value ← visitLambda value
+      else
+        visitValue value
+      let x ← mkLetDecl binderName' type value nonDep
+      visitLet body (xs.push x)
+    | _  =>
+      let e := e.instantiateRev xs
+      if let some casesInfo ← isCasesApp? e then
+        visitCases casesInfo e
+      else
+        visitValue e
+        return e
 
 def markSimplified : SimpM Unit :=
   modify fun s => { s with simplified := true }
@@ -135,6 +140,7 @@ def simpProj? (e : Expr) : OptionT SimpM Expr := do
   let .proj _ i s := e | failure
   let s ← findCtor s
   let some (ctorVal, args) := s.constructorApp? (← getEnv) | failure
+  markSimplified
   return args[ctorVal.numParams + i]!
 
 /--
@@ -151,10 +157,13 @@ def simpAppApp? (e : Expr) : OptionT SimpM Expr := do
   guard f.isFVar
   let f ← findExpr f
   guard <| f.isApp || f.isConst
+  markSimplified
   return mkAppN f e.getAppArgs
 
-def shouldInline (localDecl : LocalDecl) : SimpM Bool :=
-  return (← get).stats.shouldInline localDecl.userName
+def shouldInlineLocal (localDecl : LocalDecl) : SimpM Bool := do
+  match (← get).occInfo.map.find? localDecl.userName with
+  | some .once => return true
+  | _ => lcnfSizeLe localDecl.value (← read).config.smallThreshold
 
 structure InlineCandidateInfo where
   isLocal : Bool
@@ -182,7 +191,7 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
       isLocal := false
     }
   else if let some localDecl ← findLambda? f then
-    unless (← shouldInline localDecl) do return none
+    unless (← shouldInlineLocal localDecl) do return none
     let numArgs := e.getAppNumArgs
     let arity := getLambdaArity localDecl.value
     if numArgs < arity then return none
@@ -225,20 +234,6 @@ where
     | _ => .letE y type value (body.liftLooseBVars 1 i) nonDep
 
 /--
-Update inlining statistics (`stats` field) with the local function
-declarations in `e`.
-We use this method to make sure type class instance elements are
-inlined in the current compiler simp pass.
--/
-private def updateStatsUsing (e : Expr) : SimpM Unit := do
-   match e with
-   | .letE binderName _ v b _ =>
-     if v.isLambda then
-       modify fun s => { s with stats := s.stats.add binderName 1 }
-     updateStatsUsing b
-   | _ => return ()
-
-/--
 Auxiliary function for projecting "type class dictionary access".
 That is, we are trying to extract one of the type class instance elements.
 Remark: We do not consider parent instances to be elements.
@@ -270,9 +265,8 @@ partial def inlineProjInst? (e : Expr) : OptionT SimpM Expr := do
   Recall that we are extracting only one of the type class elements.
   -/
   let value ← withNewScope do mkLetUsingScope (← visitProj e)
-  let value ← ensureUniqueLetVarNames value
-  updateStatsUsing value
-  return value
+  markSimplified
+  internalize value
 where
   visitProj (e : Expr) : OptionT SimpM Expr := do
     let .proj _ i s := e | unreachable!
@@ -303,8 +297,11 @@ where
       let value ← Compiler.visitLet (m := SimpM) value fun _ value => return value
       visit value
 
-mutual
+def betaReduce (e : Expr) (args : Array Expr) : SimpM Expr := do
+  -- TODO: add necessary casts
+  internalize (e.beta args)
 
+mutual
 /--
 Simplify the given lambda expression.
 If `checkEmptyTypes := true`, then return `fun a_i : t_i => lcUnreachable` if
@@ -355,10 +352,10 @@ partial def inlineApp? (e : Expr) (xs : Array Expr) (k? : Option Expr) : SimpM (
   markSimplified
   if k?.isNone && numArgs == info.arity then
     /- Easy case, there is no continuation and `e` is not over applied -/
-    visitLet (info.value.beta args)
+    visitLet (← betaReduce info.value args)
   else if (← onlyOneExitPoint info.value) then
     /- If `info.value` has only one exit point, we don't need to create a new auxiliary join point -/
-    let mut value := info.value.beta args[:info.arity]
+    let mut value ← betaReduce info.value args[:info.arity]
     if numArgs > info.arity then
       let type ← inferType (mkAppN e.getAppFn args[:info.arity])
       value := mkFlatLet (← mkAuxLetDeclName) type value (mkAppN (.bvar 0) args[info.arity:])
@@ -395,7 +392,7 @@ partial def inlineApp? (e : Expr) (xs : Array Expr) (k? : Option Expr) : SimpM (
       let body ← mkLetUsingScope body
       mkLambda #[y] body
     let jp ← mkJpDeclIfNotSimple jp
-    let value := info.value.beta args[:info.arity]
+    let value ← betaReduce info.value args[:info.arity]
     let value ← attachJp value jp
     visitLet value
 
@@ -443,21 +440,20 @@ end
 
 end Simp
 
-def Decl.simp? (decl : Decl) : CoreM (Option Decl) := do
-  let decl ← decl.ensureUniqueLetVarNames
-  let stats ← Simp.collectInlineStats decl.value
-  trace[Compiler.simp.inline.stats] "{decl.name}:{Format.nest 2 (format stats)}"
+def Decl.simp? (decl : Decl) : Simp.SimpM (Option Decl) := do
+  let value ← Simp.internalize decl.value
+  trace[Compiler.simp.inline.occs] "{decl.name}:{Format.nest 2 (format (← get).occInfo)}"
   trace[Compiler.simp.step] "{decl.name} :=\n{decl.value}"
-  let (value, s) ← Simp.visitLambda decl.value |>.run {} |>.run { stats, simplified := false } |>.run' { nextIdx := (← getMaxLetVarIdx decl.value) + 1 }
+  let value ← Simp.visitLambda value
   trace[Compiler.simp.step.new] "{decl.name} :=\n{value}"
   trace[Compiler.simp.stat] "{decl.name}: {← getLCNFSize decl.value}"
-  if s.simplified then
+  if (← get).simplified then
     return some { decl with value }
   else
     return none
 
 partial def Decl.simp (decl : Decl) : CoreM Decl := do
-  if let some decl ← decl.simp? then
+  if let some decl ← decl.simp? |>.run {} |>.run' {} |>.run' {} then
     -- TODO: bound number of steps?
     decl.simp
   else
@@ -468,6 +464,6 @@ builtin_initialize
   registerTraceClass `Compiler.simp.stat
   registerTraceClass `Compiler.simp.step
   registerTraceClass `Compiler.simp.step.new
-  registerTraceClass `Compiler.simp.inline.stats
+  registerTraceClass `Compiler.simp.inline.occs
 
 end Lean.Compiler

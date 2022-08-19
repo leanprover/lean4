@@ -1,0 +1,45 @@
+
+[Compiler.simp] f : Nat → Nat :=
+    fun x =>
+      let h.14 := fun x_1 =>
+        Nat.casesOn x_1
+          (let _x.86 := Nat.mul x x_1;
+          let _x.87 := Nat.mul _x.86 x;
+          let _x.88 := Nat.mul _x.87 x_1;
+          Nat.mul _x.88 x_1)
+          fun n => Nat.add n x_1;
+      let _x.15 := 1;
+      let _x.89 := Nat.add x _x.15;
+      let _x.19 := h.14 _x.89;
+      let _x.20 := 2;
+      let _x.90 := Nat.add x _x.20;
+      let _x.24 := h.14 _x.90;
+      let _x.91 := Nat.add _x.19 _x.24;
+      let _x.26 := 3;
+      let _x.92 := Nat.add x _x.26;
+      let _x.30 := h.14 _x.92;
+      let _x.93 := Nat.add _x.91 _x.30;
+      let _x.32 := 4;
+      let _x.94 := Nat.add x _x.32;
+      let _x.36 := h.14 _x.94;
+      let _x.95 := Nat.add _x.93 _x.36;
+      let _x.38 := 5;
+      let _x.96 := Nat.add x _x.38;
+      let _x.42 := h.14 _x.96;
+      let _x.97 := Nat.add _x.95 _x.42;
+      let _x.44 := 6;
+      let _x.98 := Nat.add x _x.44;
+      let _x.48 := h.14 _x.98;
+      let _x.99 := Nat.add _x.97 _x.48;
+      let _x.50 := 7;
+      let _x.100 := Nat.add x _x.50;
+      let _x.54 := h.14 _x.100;
+      let _x.101 := Nat.add _x.99 _x.54;
+      let _x.56 := 8;
+      let _x.102 := Nat.add x _x.56;
+      let _x.60 := h.14 _x.102;
+      let _x.103 := Nat.add _x.101 _x.60;
+      let _x.62 := 9;
+      let _x.104 := Nat.add x _x.62;
+      let _x.66 := h.14 _x.104;
+      Nat.add _x.103 _x.66

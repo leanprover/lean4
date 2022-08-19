@@ -146,6 +146,30 @@ where
         for i in casesInfo.altsRange do
           go args[i]!
 
+/--
+Return `true` if `getLCNFSIze e ≤ n`
+-/
+partial def lcnfSizeLe (e : Expr) (n : Nat) : CoreM Bool := do
+  go e |>.run' 0
+where
+  inc : StateRefT Nat CoreM Bool := do
+    modify (·+1)
+    return (← get) <= n
+
+  go (e : Expr) : StateRefT Nat CoreM Bool := do
+    match e with
+    | .lam _ _ b _ => go b
+    | .letE _ _ v b _ => inc <&&> go v <&&> go b
+    | _ =>
+      unless (← inc) do
+        return false
+      if let some casesInfo ← isCasesApp? e then
+        let args := e.getAppArgs
+        for i in casesInfo.altsRange do
+          unless (← go args[i]!) do
+            return false
+      return true
+
 def getLambdaArity (e : Expr) :=
   match e with
   | .lam _ _ b _ => getLambdaArity b + 1

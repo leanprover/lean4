@@ -254,24 +254,62 @@ partial def visitCases (casesInfo : CasesInfo) (e : Expr) : SimpM Expr := do
       args ← args.modifyM i visitLambda
     return mkAppN e.getAppFn args
 
+/--
+Auxiliary function for projecting "type class dictionary access".
+That is, we are trying to extract one of the type class instance elements.
+Remark: We do not consider parent instances to be elements.
+For example, suppose `e` is `_x_4.1`, and we have
+```
+_x_2 : Monad (ReaderT Bool (ExceptT String Id)) := @ReaderT.Monad Bool (ExceptT String Id) _x_1
+_x_3 : Applicative (ReaderT Bool (ExceptT String Id)) := _x_2.1
+_x_4 : Functor (ReaderT Bool (ExceptT String Id)) := _x_3.1
+```
+Then, we will expand `_x_4.1` since it corresponds to the `Functor` `map` element,
+and its type is not a type class, but is of the form
+```
+{α β : Type u} → (α → β) → ...
+```
+In the example above, the compiler should not expand `_x_3.1` or `_x_2.1` because they are
+type class applications: `Functor` and `Applicative` respectively.
+By eagerly expanding them, we may produce inefficient and bloated code.
+For example, we may be using `_x_3.1` to invoke a function that expects a `Functor` instance.
+By expanding `_x_3.1` we will be just expanding the code that creates this instance.
+-/
 partial def inlineProjInst? (e : Expr) : OptionT SimpM Expr := do
   let .proj _ i s := e | failure
-  let s ← findExpr s
-  let .const declName us := s.getAppFn | failure
   let sType ← inferType s
   guard (← isClass? sType).isSome
-  let some decl ← getStage1Decl? declName | failure
-  guard <| decl.getArity == s.getAppNumArgs
+  let eType ← inferType e
+  guard (← isClass? eType).isNone
   withoutLocalInline do
     let saved ← saveState
-    let value := decl.value.instantiateLevelParams decl.levelParams us
-    let value := value.beta s.getAppArgs
-    let value ← visitLet value #[]
+    let some value ← go s | return none
     if let some (ctorVal, ctorArgs) := value.constructorApp? (← getEnv) then
       return ctorArgs[ctorVal.numParams + i]!
     else
       saved.restore
       return none
+where
+  go (e : Expr) : OptionT SimpM Expr := do
+    let e ← findExpr e
+    if e.isConstructorApp (← getEnv) then
+      return e
+    else if let .proj _ i s := e then
+      let s ← go s
+      if let some (ctorVal, ctorArgs) := s.constructorApp? (← getEnv) then
+        go ctorArgs[ctorVal.numParams + i]!
+      else
+        failure
+    else
+      let .const declName us := e.getAppFn | failure
+      let some decl ← getStage1Decl? declName | failure
+      guard !(← manyExitPoints decl.value)
+      guard <| decl.getArity == e.getAppNumArgs
+      let value := decl.value.instantiateLevelParams decl.levelParams us
+      let value := value.beta e.getAppArgs
+      let value ← visitLet value #[]
+      go value
+
 
 /--
 If `e` is an application that can be inlined, inline it.
@@ -291,7 +329,6 @@ partial def inlineApp? (e : Expr) (xs : Array Expr) (k? : Option Expr) : SimpM (
     -- If `info.value` has only one exit point, we don't need to create a new join point
     let value := info.value.beta args[:info.arity]
     let value ← visitLet value #[]
-    trace[Meta.debug] "value: {value}"
     match numArgs == info.arity, k? with
       | true, none => return value
       | false, none => return mkAppN (← mkAuxLetDecl value) args[info.arity:]

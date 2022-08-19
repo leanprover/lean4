@@ -10,6 +10,10 @@ namespace Lean.Compiler.LCNF
 namespace Check
 open InferType
 
+/-
+Type and structural properties checker for LCNF expressions.
+-/
+
 structure Context where
   /-- Join points that are in scope. -/
   jps : FVarIdSet := {}

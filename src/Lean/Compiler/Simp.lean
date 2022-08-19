@@ -43,6 +43,7 @@ structure InlineStats where
   Mapping from local function name to their LCNF size.
   -/
   size : Std.HashMap Name Nat := {}
+  deriving Inhabited
 
 def InlineStats.format (s : InlineStats) : Format := Id.run do
   let mut result := Format.nil
@@ -57,6 +58,10 @@ def InlineStats.shouldInline (s : InlineStats) (k : Name) : Bool := Id.run do
   if numOccs == 1 then return true
   let some sz := s.size.find? k | return false
   return sz == 1
+
+def InlineStats.add (s : InlineStats) (key : Name) (sz : Nat) : InlineStats :=
+  match s with
+  | { numOccs, size } => { numOccs := numOccs.insert key 1, size := size.insert key sz }
 
 instance : ToFormat InlineStats where
   format := InlineStats.format
@@ -82,7 +87,7 @@ where
           | some numOccs => modify fun s => { s with numOccs := s.numOccs.insert key (numOccs + 1) }
           | _ =>
             let sz ← getLCNFSize localDecl.value
-            modify fun { numOccs, size } => { numOccs := numOccs.insert key 1, size := size.insert key sz }
+            modify fun s => s.add key sz
       | _ => pure ()
     | _ => pure ()
 
@@ -105,19 +110,12 @@ structure Config where
 
 structure Context where
   config : Config := {}
+
+structure State where
   /--
   Statistics for deciding whether to inline local function declarations.
   -/
   stats : InlineStats
-  /--
-  We only inline local declarations when `localInline` is `true`.
-  We set it to `false` when we are inlining a non local definition
-  that may have let-declarations whose names collide with the ones
-  stored at `stats`.
-  -/
-  localInline : Bool := true
-
-structure State where
   simplified : Bool := false
   deriving Inhabited
 
@@ -139,12 +137,6 @@ def SavedState.restore (b : SavedState) : SimpM Unit := do
 instance : MonadBacktrack SavedState SimpM where
   saveState      := Simp.saveState
   restoreState s := s.restore
-
-def withLocalInline (localInline : Bool) (x : SimpM α) : SimpM α :=
-  withReader (fun ctx => { ctx with localInline }) x
-
-def withoutLocalInline (x : SimpM α) : SimpM α :=
-  withLocalInline false x
 
 def markSimplified : SimpM Unit :=
   modify fun s => { s with simplified := true }
@@ -179,7 +171,7 @@ def simpAppApp? (e : Expr) : OptionT SimpM Expr := do
   return mkAppN f e.getAppArgs
 
 def shouldInline (localDecl : LocalDecl) : SimpM Bool :=
-  return (← read).localInline && (← read).stats.shouldInline localDecl.userName
+  return (← get).stats.shouldInline localDecl.userName
 
 structure InlineCandidateInfo where
   isLocal : Bool
@@ -189,8 +181,7 @@ structure InlineCandidateInfo where
 
 def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
   let f := e.getAppFn
-  match f with
-  | .const declName us =>
+  if let .const declName us ← findExpr f then
     unless hasInlineAttribute (← getEnv) declName do return none
     -- TODO: check whether function is recursive or not.
     -- We can skip the test and store function inline so far.
@@ -198,35 +189,40 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
     let numArgs := e.getAppNumArgs
     let arity := decl.getArity
     if numArgs < arity then return none
+    /-
+    Recall that we use binder names to build `InlineStats`.
+    Thus, we use `ensureUniqueLetVarNames` to make sure there is no name collision.
+    -/
+    let value ← ensureUniqueLetVarNames (decl.value.instantiateLevelParams decl.levelParams us)
     return some {
-      arity
+      arity, value
       isLocal := false
-      value := decl.value.instantiateLevelParams decl.levelParams us
     }
-  | _ =>
-    match (← findLambda? f) with
-    | none => return none
-    | some localDecl =>
-      unless (← shouldInline localDecl) do return none
-      let numArgs := e.getAppNumArgs
-      let arity := getLambdaArity localDecl.value
-      if numArgs < arity then return none
-      return some {
-        arity
-        isLocal := true
-        value := localDecl.value
-      }
+  else if let some localDecl ← findLambda? f then
+    unless (← shouldInline localDecl) do return none
+    let numArgs := e.getAppNumArgs
+    let arity := getLambdaArity localDecl.value
+    if numArgs < arity then return none
+    let value ← ensureUniqueLetVarNames localDecl.value
+    return some {
+      arity, value
+      isLocal := true
+    }
+  else
+    return none
 
 /--
 If `e` if a free variable that expands to a valid LCNF terminal `let`-block expression `e'`,
-return `e'`. -/
-def expandTrivialExpr (e : Expr) : SimpM Expr := do
+return `e'`.
+-/
+def expandTrivialExpr? (e : Expr) : SimpM (Option Expr) := do
   if e.isFVar then
     let e' ← findExpr e
     unless e'.isLambda do
-      if e != e' then markSimplified
-      return e'
-  return e
+      if e != e' then
+        markSimplified
+        return some e'
+  return none
 
 /--
 Auxiliary function for projecting "type class dictionary access".
@@ -260,8 +256,13 @@ partial def inlineProjInst? (e : Expr) : OptionT SimpM Expr := do
   Recall that we are extracting only one of the type class elements.
   -/
   let value ← withNewScope do mkLetUsingScope (← visitProj e)
+  let value ← ensureUniqueLetVarNames value
   /- We use `visitLet` again to put back on the current local context the relevant let-declarations. -/
-  visitLet (m := SimpM) value fun _ value => return value
+  visitLet (m := SimpM) value fun binderName value => do
+    if value.isLambda then
+      /- make sure instance element can be beta reduced in this simp step. -/
+      modify fun s => { s with stats := s.stats.add binderName 1 }
+    return value
 where
   visitProj (e : Expr) : OptionT SimpM Expr := do
     let .proj _ i s := e | unreachable!
@@ -326,9 +327,8 @@ partial def inlineApp? (e : Expr) (xs : Array Expr) (k? : Option Expr) : SimpM (
   let numArgs := args.size
   trace[Compiler.simp.inline] "inlining {e}"
   markSimplified
-  withLocalInline info.isLocal do
   if !(← manyExitPoints info.value) then
-    -- If `info.value` has only one exit point, we don't need to create a new join point
+    /- If `info.value` has only one exit point, we don't need to create a new join point -/
     let value := info.value.beta args[:info.arity]
     let value ← visitLet value #[]
     match numArgs == info.arity, k? with
@@ -342,7 +342,7 @@ partial def inlineApp? (e : Expr) (xs : Array Expr) (k? : Option Expr) : SimpM (
   else
     let args := e.getAppArgs
     if k?.isNone && numArgs == info.arity then
-      -- Easy case, there is no continuation and `e` is not overapplied
+      /- Easy case, there is no continuation and `e` is not overapplied -/
       return info.value.beta args
     else
       /-
@@ -398,7 +398,7 @@ partial def visitLet (e : Expr) (xs : Array Expr := #[]): SimpM Expr := do
       markSimplified
       visitLet body (xs.push value)
     else if let some e ← inlineApp? value xs body then
-      return e
+      visitLet e
     else
       let type := type.instantiateRev xs
       let x ← mkLetDecl binderName type value nonDep
@@ -409,9 +409,11 @@ partial def visitLet (e : Expr) (xs : Array Expr := #[]): SimpM Expr := do
     if let some casesInfo ← isCasesApp? e then
       visitCases casesInfo e
     else if let some e ← inlineApp? e #[] none then
-      return e
+      visitLet e
+    else if let some e ← expandTrivialExpr? e then
+      visitLet e
     else
-      expandTrivialExpr e
+      return e
 end
 
 end Simp
@@ -420,8 +422,9 @@ def Decl.simp? (decl : Decl) : CoreM (Option Decl) := do
   let decl ← decl.ensureUniqueLetVarNames
   let stats ← Simp.collectInlineStats decl.value
   trace[Compiler.simp.inline.stats] "{decl.name}:{Format.nest 2 (format stats)}"
-  let (value, s) ← Simp.visitLambda decl.value |>.run { stats } |>.run { simplified := false } |>.run' {}
   trace[Compiler.simp.step] "{decl.name} :=\n{decl.value}"
+  let (value, s) ← Simp.visitLambda decl.value |>.run {} |>.run { stats, simplified := false } |>.run' { nextIdx := (← getMaxLetVarIdx decl.value) + 1 }
+  trace[Compiler.simp.step.new] "{decl.name} :=\n{value}"
   trace[Compiler.simp.stat] "{decl.name}: {← getLCNFSize decl.value}"
   if s.simplified then
     return some { decl with value }
@@ -439,6 +442,7 @@ builtin_initialize
   registerTraceClass `Compiler.simp.inline
   registerTraceClass `Compiler.simp.stat
   registerTraceClass `Compiler.simp.step
+  registerTraceClass `Compiler.simp.step.new
   registerTraceClass `Compiler.simp.inline.stats
 
 end Lean.Compiler

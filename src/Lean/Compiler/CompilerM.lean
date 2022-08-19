@@ -115,7 +115,7 @@ let-declarations that are safe to unfold without producing code blowup, and join
 Remark: user-facing names provided by users are preserved. We keep them as the prefix
 of the new unique names.
 -/
-def ensureUniqueLetVarNames (e : Expr) : CoreM Expr :=
+def ensureUniqueLetVarNamesCore (e : Expr) : StateRefT Nat CoreM Expr :=
   let pre (e : Expr) : StateRefT Nat CoreM TransformStep := do
     match e with
     | .letE binderName type value body nonDep =>
@@ -125,7 +125,12 @@ def ensureUniqueLetVarNames (e : Expr) : CoreM Expr :=
         | _ => .num binderName idx
       return .visit <| .letE binderName' type value body nonDep
     | _ => return .visit e
-  Core.transform e pre |>.run' 1
+  Core.transform e pre
+
+def ensureUniqueLetVarNames (e : Expr) : CompilerM Expr := do
+  let (e, nextIdx) ← ensureUniqueLetVarNamesCore e |>.run (← get).nextIdx
+  modify fun s => { s with nextIdx }
+  return e
 
 /--
 Move through all consecutive lambda abstractions at the top level of `e`.

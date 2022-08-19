@@ -195,4 +195,13 @@ Return `true` if the LCNF expression has only one exit point.
 def onlyOneExitPoint (e : Expr) : CoreM Bool := do
   return !(← manyExitPoints e)
 
+/--
+Return `true` if `type` is an empty type.
+
+Remark: this is an approximate test that only checks
+whether `type == Empty`. It is good enough (and fast) for our purposes.
+-/
+def isEmptyType (type : Expr) : CoreM Bool :=
+  return type.isConstOf ``Empty
+
 end Lean.Compiler

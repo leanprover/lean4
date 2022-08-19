@@ -305,9 +305,20 @@ where
 
 mutual
 
-partial def visitLambda (e : Expr) : SimpM Expr :=
+/--
+Simplify the given lambda expression.
+If `checkEmptyTypes := true`, then return `fun a_i : t_i => lcUnreachable` if
+`t_i` is the `Empty` type.
+-/
+partial def visitLambda (e : Expr) (checkEmptyTypes := false): SimpM Expr :=
   withNewScope do
     let (as, e) ← Compiler.visitLambda e
+    if checkEmptyTypes then
+      for a in as do
+        if (← isEmptyType (← inferType a)) then
+          let unreach ← mkLcUnreachable (← inferType e)
+          let r ← mkLambda as unreach
+          return r
     let e ← mkLetUsingScope (← visitLet e)
     mkLambda as e
 
@@ -326,7 +337,7 @@ partial def visitCases (casesInfo : CasesInfo) (e : Expr) : SimpM Expr := do
     visitLet alt
   else
     for i in casesInfo.altsRange do
-      args ← args.modifyM i visitLambda
+      args ← args.modifyM i (visitLambda · (checkEmptyTypes := true))
     return mkAppN e.getAppFn args
 
 /--

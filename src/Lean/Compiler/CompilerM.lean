@@ -74,6 +74,11 @@ def mkLetDecl (binderName : Name) (type : Expr) (value : Expr) (nonDep : Bool) :
   modify fun s => { s with lctx := s.lctx.mkLetDecl fvarId binderName type value nonDep, letFVars := s.letFVars.push x }
   return x
 
+def mkAuxLetDeclName (prefixName := `_x) : CompilerM Name := do
+  let r := .num prefixName (← get).nextIdx
+  modify fun s => { s with nextIdx := s.nextIdx + 1 }
+  return r
+
 /--
 Create a new auxiliary let declaration with value `e` The name of the
 declaration is guaranteed to be unique.
@@ -83,10 +88,7 @@ def mkAuxLetDecl (e : Expr) (prefixName := `_x) : CompilerM Expr := do
   if e.isFVar then
     return e
   else
-    try
-      mkLetDecl (.num prefixName (← get).nextIdx) (← inferType e) e (nonDep := false)
-    finally
-      modify fun s => { s with nextIdx := s.nextIdx + 1 }
+    mkLetDecl (← mkAuxLetDeclName prefixName) (← inferType e) e (nonDep := false)
 
 /--
 Create an auxiliary let declaration with value `e`, that is a join point.

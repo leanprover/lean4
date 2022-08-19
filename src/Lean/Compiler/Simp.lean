@@ -228,6 +228,65 @@ def expandTrivialExpr (e : Expr) : SimpM Expr := do
       return e'
   return e
 
+/--
+Auxiliary function for projecting "type class dictionary access".
+That is, we are trying to extract one of the type class instance elements.
+Remark: We do not consider parent instances to be elements.
+For example, suppose `e` is `_x_4.1`, and we have
+```
+_x_2 : Monad (ReaderT Bool (ExceptT String Id)) := @ReaderT.Monad Bool (ExceptT String Id) _x_1
+_x_3 : Applicative (ReaderT Bool (ExceptT String Id)) := _x_2.1
+_x_4 : Functor (ReaderT Bool (ExceptT String Id)) := _x_3.1
+```
+Then, we will expand `_x_4.1` since it corresponds to the `Functor` `map` element,
+and its type is not a type class, but is of the form
+```
+{α β : Type u} → (α → β) → ...
+```
+In the example above, the compiler should not expand `_x_3.1` or `_x_2.1` because they are
+type class applications: `Functor` and `Applicative` respectively.
+By eagerly expanding them, we may produce inefficient and bloated code.
+For example, we may be using `_x_3.1` to invoke a function that expects a `Functor` instance.
+By expanding `_x_3.1` we will be just expanding the code that creates this instance.
+-/
+partial def inlineProjInst? (e : Expr) : OptionT SimpM Expr := do
+  let .proj _ _ s := e | failure
+  let sType ← inferType s
+  guard (← isClass? sType).isSome
+  let eType ← inferType e
+  guard (← isClass? eType).isNone
+  /-
+  We use `withNewScope` + `mkLetUsingScope` to filter the relevant let-declarations.
+  Recall that we are extracting only one of the type class elements.
+  -/
+  let value ← withNewScope do mkLetUsingScope (← visitProj e)
+  /- We use `visitLet` again to put back on the current local context the relevant let-declarations. -/
+  visitLet (m := SimpM) value fun _ value => return value
+where
+  visitProj (e : Expr) : OptionT SimpM Expr := do
+    let .proj _ i s := e | unreachable!
+    let s ← visit s
+    if let some (ctorVal, ctorArgs) := s.constructorApp? (← getEnv) then
+      return ctorArgs[ctorVal.numParams + i]!
+    else
+      failure
+
+  visit (e : Expr) : OptionT SimpM Expr := do
+    let e ← findExpr e
+    if e.isConstructorApp (← getEnv) then
+      return e
+    else if e.isProj then
+      /- We may have nested projections as we traverse parent classes. -/
+      visit (← visitProj e)
+    else
+      let .const declName us := e.getAppFn | failure
+      let some decl ← getStage1Decl? declName | failure
+      guard <| decl.getArity == e.getAppNumArgs
+      let value := decl.value.instantiateLevelParams decl.levelParams us
+      let value := value.beta e.getAppArgs
+      let value ← visitLet (m := SimpM) value fun _ value => return value
+      visit value
+
 mutual
 
 partial def visitLambda (e : Expr) : SimpM Expr :=
@@ -253,63 +312,6 @@ partial def visitCases (casesInfo : CasesInfo) (e : Expr) : SimpM Expr := do
     for i in casesInfo.altsRange do
       args ← args.modifyM i visitLambda
     return mkAppN e.getAppFn args
-
-/--
-Auxiliary function for projecting "type class dictionary access".
-That is, we are trying to extract one of the type class instance elements.
-Remark: We do not consider parent instances to be elements.
-For example, suppose `e` is `_x_4.1`, and we have
-```
-_x_2 : Monad (ReaderT Bool (ExceptT String Id)) := @ReaderT.Monad Bool (ExceptT String Id) _x_1
-_x_3 : Applicative (ReaderT Bool (ExceptT String Id)) := _x_2.1
-_x_4 : Functor (ReaderT Bool (ExceptT String Id)) := _x_3.1
-```
-Then, we will expand `_x_4.1` since it corresponds to the `Functor` `map` element,
-and its type is not a type class, but is of the form
-```
-{α β : Type u} → (α → β) → ...
-```
-In the example above, the compiler should not expand `_x_3.1` or `_x_2.1` because they are
-type class applications: `Functor` and `Applicative` respectively.
-By eagerly expanding them, we may produce inefficient and bloated code.
-For example, we may be using `_x_3.1` to invoke a function that expects a `Functor` instance.
-By expanding `_x_3.1` we will be just expanding the code that creates this instance.
--/
-partial def inlineProjInst? (e : Expr) : OptionT SimpM Expr := do
-  let .proj _ i s := e | failure
-  let sType ← inferType s
-  guard (← isClass? sType).isSome
-  let eType ← inferType e
-  guard (← isClass? eType).isNone
-  withoutLocalInline do
-    let saved ← saveState
-    let some value ← go s | return none
-    if let some (ctorVal, ctorArgs) := value.constructorApp? (← getEnv) then
-      return ctorArgs[ctorVal.numParams + i]!
-    else
-      saved.restore
-      return none
-where
-  go (e : Expr) : OptionT SimpM Expr := do
-    let e ← findExpr e
-    if e.isConstructorApp (← getEnv) then
-      return e
-    else if let .proj _ i s := e then
-      let s ← go s
-      if let some (ctorVal, ctorArgs) := s.constructorApp? (← getEnv) then
-        go ctorArgs[ctorVal.numParams + i]!
-      else
-        failure
-    else
-      let .const declName us := e.getAppFn | failure
-      let some decl ← getStage1Decl? declName | failure
-      guard !(← manyExitPoints decl.value)
-      guard <| decl.getArity == e.getAppNumArgs
-      let value := decl.value.instantiateLevelParams decl.levelParams us
-      let value := value.beta e.getAppArgs
-      let value ← visitLet value #[]
-      go value
-
 
 /--
 If `e` is an application that can be inlined, inline it.

@@ -36,7 +36,10 @@ def getStage1Decl? (declName : Name) : CoreM (Option Decl) := do
   | some decl => return decl
   | none =>
     let info ← getConstInfo declName
-    let decls ← compileStage1 info.all.toArray
-    return decls.find? fun decl => declName == decl.name
+    if info.hasValue then
+      let decls ← compileStage1 info.all.toArray
+      return decls.find? fun decl => declName == decl.name
+    else
+      return none
 
 end Lean.Compiler

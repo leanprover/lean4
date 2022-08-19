@@ -435,7 +435,6 @@ where
       visit e
 
   visitProj (s : Name) (i : Nat) (e : Expr) : M Expr := do
-    trace[Meta.debug] "visitProj: {s}, {i}, {e}"
     mkAuxLetDecl <| .proj s i (← visitChild e)
 
   visitLet (e : Expr) (xs : Array Expr) : M Expr := do

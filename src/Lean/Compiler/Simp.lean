@@ -121,23 +121,6 @@ structure State where
 
 abbrev SimpM := ReaderT Context $ StateRefT State CompilerM
 
-structure SavedState where
-  compiler : CompilerM.SavedState
-  simp : State
-  deriving Inhabited
-
-protected def saveState : SimpM SavedState :=
-  return { compiler := (← CompilerM.saveState), simp := (← get) }
-
-/-- Restore backtrackable parts of the state. -/
-def SavedState.restore (b : SavedState) : SimpM Unit := do
-  b.compiler.restore
-  set b.simp
-
-instance : MonadBacktrack SavedState SimpM where
-  saveState      := Simp.saveState
-  restoreState s := s.restore
-
 def markSimplified : SimpM Unit :=
   modify fun s => { s with simplified := true }
 

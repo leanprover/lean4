@@ -38,23 +38,6 @@ instance : MonadInferType CompilerM where
 instance : MonadLCtx CompilerM where
   getLCtx := return (← get).lctx
 
-structure CompilerM.SavedState where
-  core     : Core.State
-  compiler : CompilerM.State
-  deriving Inhabited
-
-protected def CompilerM.saveState : CompilerM CompilerM.SavedState :=
-  return { core := (← getThe Core.State), compiler := (← get) }
-
-/-- Restore backtrackable parts of the state. -/
-def CompilerM.SavedState.restore (b : SavedState) : CompilerM Unit := do
-  Core.restore b.core
-  set b.compiler
-
-instance : MonadBacktrack CompilerM.SavedState CompilerM where
-  saveState      := CompilerM.saveState
-  restoreState s := s.restore
-
 /--
 Add a new local declaration with the given arguments to the `LocalContext` of `CompilerM`.
 Returns the free variable representing the new declaration.

@@ -42,9 +42,9 @@ def mkLambda (xs : Array Expr) (letFVarsSavedSize : Nat) (e : Expr) : PullM Expr
 mutual
 
 partial def visitLambda (e : Expr) (topLevel := false) : PullM Expr := do
-  let (as, e) ← Compiler.visitLambda e
+  let (as, e) ← Compiler.visitLambdaCore e
   let letFVarsSavedSize := (← getThe CompilerM.State).letFVars.size
-  let e ← visitLet e
+  let e ← visitLet e as
   if topLevel then
     Compiler.mkLambda as (← mkLetUsingScope e)
   else

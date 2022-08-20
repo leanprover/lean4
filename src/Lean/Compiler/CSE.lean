@@ -27,13 +27,13 @@ partial def visitCases (casesInfo : CasesInfo) (cases : Expr) : M Expr := do
 
 partial def visitLambda (e : Expr) : M Expr :=
   withNewScope do
-    let (as, e) ← Compiler.visitLambda e
-    let e ← mkLetUsingScope (← visitLet e)
+    let (as, e) ← Compiler.visitLambdaCore e
+    let e ← mkLetUsingScope (← visitLet e as)
     mkLambda as e
 
-partial def visitLet (e : Expr) : M Expr := do
+partial def visitLet (e : Expr) (xs : Array Expr): M Expr := do
   let saved ← get
-  try go e #[] finally set saved
+  try go e xs finally set saved
 where
   go (e : Expr) (xs : Array Expr) : M Expr := do
     match e with

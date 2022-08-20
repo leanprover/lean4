@@ -120,13 +120,16 @@ def ensureUniqueLetVarNames (e : Expr) : CompilerM Expr := do
 
 /--
 Move through all consecutive lambda abstractions at the top level of `e`.
-Returning the body of the last one we find with all bound variables
-instantiated as new free variables.
+Returning the body of the last one we find with **loose bound variables**.
 Returns a tuple consisting of:
-1. An `Array` of all the newly created free variables
-2. The (fully instantiated) body of the last lambda binder that was visited
+1. An `Array` of all the newly created free variables.
+2. The body of the last lambda binder that was visited.
+   The caller is responsible for replacing the loose bound variables
+   with the newly created free variables.
+
+See `visitLambda`.
 -/
-def visitLambda (e : Expr) : CompilerM (Array Expr × Expr) :=
+def visitLambdaCore (e : Expr) : CompilerM (Array Expr × Expr) :=
   go e #[]
 where
   go (e : Expr) (fvars : Array Expr) := do
@@ -135,7 +138,19 @@ where
       let fvar ← mkLocalDecl binderName type binderInfo
       go body (fvars.push fvar)
     else
-      return (fvars, e.instantiateRev fvars)
+      return (fvars, e)
+
+/--
+Move through all consecutive lambda abstractions at the top level of `e`.
+Returning the body of the last one we find with all bound variables
+instantiated as new free variables.
+Returns a tuple consisting of:
+1. An `Array` of all the newly created free variables
+2. The (fully instantiated) body of the last lambda binder that was visited
+-/
+def visitLambda (e : Expr) : CompilerM (Array Expr × Expr) := do
+  let (fvars, e) ← visitLambdaCore e
+  return (fvars, e.instantiateRev fvars)
 
 /--
 Given an expression representing a `match` return a tuple consisting of:
@@ -184,10 +199,10 @@ class VisitLet (m : Type → Type) where
 
 export VisitLet (visitLet)
 
-def visitLetImp (e : Expr) (f : Name → Expr → CompilerM Expr) : CompilerM Expr :=
+@[inline] def visitLetImp (e : Expr) (f : Name → Expr → CompilerM Expr) : CompilerM Expr :=
   go e #[]
 where
-  go (e : Expr) (fvars : Array Expr) : CompilerM Expr := do
+  @[specialize] go (e : Expr) (fvars : Array Expr) : CompilerM Expr := do
     if let .letE binderName type value body nonDep := e then
       let type := type.instantiateRev fvars
       let value := value.instantiateRev fvars
@@ -293,8 +308,8 @@ partial def attachJp (e : Expr) (jp : Expr) : CompilerM Expr := do
 where
   visitLambda (e : Expr) : ReaderT FVarIdSet CompilerM Expr := do
     withNewScope do
-      let (as, e) ← Compiler.visitLambda e
-      let e ← mkLetUsingScope (← visitLet e #[])
+      let (as, e) ← Compiler.visitLambdaCore e
+      let e ← mkLetUsingScope (← visitLet e as)
       mkLambda as e
 
   visitCases (casesInfo : CasesInfo) (cases : Expr) : ReaderT FVarIdSet CompilerM Expr := do

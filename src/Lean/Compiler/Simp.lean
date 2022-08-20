@@ -84,8 +84,8 @@ partial def internalize (e : Expr) : SimpM Expr := do
 where
   visitLambda (e : Expr) : SimpM Expr := do
     withNewScope do
-      let (as, e) ← Compiler.visitLambda e
-      let e ← mkLetUsingScope (← visitLet e #[])
+      let (as, e) ← Compiler.visitLambdaCore e
+      let e ← mkLetUsingScope (← visitLet e as)
       mkLambda as e
 
   visitCases (casesInfo : CasesInfo) (cases : Expr) : SimpM Expr := do
@@ -389,14 +389,15 @@ If `checkEmptyTypes := true`, then return `fun a_i : t_i => lcUnreachable` if
 -/
 partial def visitLambda (e : Expr) (checkEmptyTypes := false): SimpM Expr :=
   withNewScope do
-    let (as, e) ← Compiler.visitLambda e
+    let (as, e) ← Compiler.visitLambdaCore e
     if checkEmptyTypes then
       for a in as do
         if (← isEmptyType (← inferType a)) then
+          let e := e.instantiateRev as
           let unreach ← mkLcUnreachable (← inferType e)
           let r ← mkLambda as unreach
           return r
-    let e ← mkLetUsingScope (← visitLet e)
+    let e ← mkLetUsingScope (← visitLet e as)
     mkLambda as e
 
 partial def visitCases (casesInfo : CasesInfo) (e : Expr) : SimpM Expr := do

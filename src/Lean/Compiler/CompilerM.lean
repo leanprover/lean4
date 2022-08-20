@@ -156,7 +156,7 @@ def visitMatch (cases : Expr) (casesInfo : CasesInfo) : CompilerM (Expr × Array
     arms := arms.push (←visitLambda args[i]!).snd
   return (motive, discrs, arms)
 
-def withNewScopeImp (x : CompilerM α) : CompilerM α := do
+@[inline] def withNewScopeImp (x : CompilerM α) : CompilerM α := do
   let saved ← get
   modify fun s => { s with letFVars := #[] }
   try x
@@ -164,7 +164,7 @@ def withNewScopeImp (x : CompilerM α) : CompilerM α := do
     let saved := { saved with nextIdx := (← get).nextIdx }
     set saved
 
-def withNewScope [MonadFunctorT CompilerM m] (x : m α) : m α :=
+@[inline] def withNewScope [MonadFunctorT CompilerM m] (x : m α) : m α :=
   monadMap (m := CompilerM) withNewScopeImp x
 
 /--

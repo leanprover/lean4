@@ -146,6 +146,30 @@ where
         for i in casesInfo.altsRange do
           go args[i]!
 
+/--
+Return `true` if `getLCNFSIze e ≤ n`
+-/
+partial def lcnfSizeLe (e : Expr) (n : Nat) : CoreM Bool := do
+  go e |>.run' 0
+where
+  inc : StateRefT Nat CoreM Bool := do
+    modify (·+1)
+    return (← get) <= n
+
+  go (e : Expr) : StateRefT Nat CoreM Bool := do
+    match e with
+    | .lam _ _ b _ => go b
+    | .letE _ _ v b _ => inc <&&> go v <&&> go b
+    | _ =>
+      unless (← inc) do
+        return false
+      if let some casesInfo ← isCasesApp? e then
+        let args := e.getAppArgs
+        for i in casesInfo.altsRange do
+          unless (← go args[i]!) do
+            return false
+      return true
+
 def getLambdaArity (e : Expr) :=
   match e with
   | .lam _ _ b _ => getLambdaArity b + 1
@@ -174,5 +198,34 @@ def isJump? [Monad m] [MonadLCtx m] (e : Expr) : m (Option FVarId) := do
     return some fvarId
   else
     return none
+
+/--
+Return `true` if the LCNF expression has many exit points.
+It assumes `cases` expressions only occur at the end of `let`-blocks.
+That is, `terminalCases` has already been applied.
+It also assumes that if contains a join point, then it has multiple
+exit points. This is a reasonable assumption because the simplifier
+inlines any join point that was used only once.
+-/
+def manyExitPoints (e : Expr) : CoreM Bool := do
+  match e with
+  | .lam _ _ b _ => manyExitPoints b
+  | .letE n _ _ b _ => pure (isJpBinderName n) <||> manyExitPoints b
+  | e => return (← isCasesApp? e).isSome
+
+/--
+Return `true` if the LCNF expression has only one exit point.
+-/
+def onlyOneExitPoint (e : Expr) : CoreM Bool := do
+  return !(← manyExitPoints e)
+
+/--
+Return `true` if `type` is an empty type.
+
+Remark: this is an approximate test that only checks
+whether `type == Empty`. It is good enough (and fast) for our purposes.
+-/
+def isEmptyType (type : Expr) : CoreM Bool :=
+  return type.isConstOf ``Empty
 
 end Lean.Compiler

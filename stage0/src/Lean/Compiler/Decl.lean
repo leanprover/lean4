@@ -166,7 +166,7 @@ Make sure all let-declarations have unique user-facing names.
 See `Compiler.ensureUniqueLetVarNames`
 -/
 def Decl.ensureUniqueLetVarNames (decl : Decl) : CoreM Decl := do
-  return { decl with value := (← Compiler.ensureUniqueLetVarNames decl.value) }
+  return { decl with value := (← ensureUniqueLetVarNamesCore decl.value |>.run' 1) }
 
 def Decl.getArity (decl : Decl) : Nat :=
   getLambdaArity decl.value

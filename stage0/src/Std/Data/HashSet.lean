@@ -46,6 +46,12 @@ def mkIdx {n : Nat} (h : n > 0) (u : USize) : { u : USize // u.toNat < n } :=
 @[inline] def fold {δ : Type w} (f : δ → α → δ) (d : δ) (m : HashSetImp α) : δ :=
   foldBuckets m.buckets d f
 
+@[inline] def forBucketsM {m : Type w → Type w} [Monad m] (data : HashSetBucket α) (f : α → m PUnit) : m PUnit :=
+  data.val.forM fun as=> as.forM f
+
+@[inline] def forM {m : Type w → Type w} [Monad m] (f : α → m PUnit) (h : HashSetImp α) : m PUnit :=
+  forBucketsM h.buckets f
+
 def find? [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : Option α :=
   match m with
   | ⟨_, buckets⟩ =>
@@ -148,6 +154,13 @@ variable {α : Type u} {_ : BEq α} {_ : Hashable α}
 @[inline] def fold {δ : Type w} (f : δ → α → δ) (init : δ) (m : HashSet α) : δ :=
   match m with
   | ⟨ m, _ ⟩ => m.fold f init
+
+@[inline] def forM {m : Type w → Type w} [Monad m] (h : HashSet α) (f : α → m PUnit) : m PUnit :=
+  match h with
+  | ⟨h, _⟩ => h.forM f
+
+instance : ForM m (HashSet α) α where
+  forM := HashSet.forM
 
 @[inline] def size (m : HashSet α) : Nat :=
   match m with

@@ -14,6 +14,7 @@ Type checker for LCNF expressions
 -/
 
 structure Check.Config where
+  checkJpScope : Bool := true
   terminalCasesOnly : Bool := true
 
 structure Check.Context where
@@ -69,7 +70,7 @@ where
           checkBlock b (xs.push x)
     | _ =>
       if let some fvarId ← isJump? e then
-        unless (← read).jps.contains fvarId do
+        unless !cfg.checkJpScope || (← read).jps.contains fvarId do
           /-
           We cannot jump to join points defined out of the scope of a local function declaration.
           For example, the following is an invalid LCNF.

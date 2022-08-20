@@ -49,6 +49,8 @@ structure State where
   nextIdx : Nat := 1
   /-- Cache from Lean regular expression to LCNF expression. -/
   cache : Std.PHashMap (Expr × Bool) Expr := {}
+  /-- `toLCNFType` cache -/
+  typeCache : Std.PHashMap Expr Expr := {}
 
 abbrev M := ReaderT Context $ StateRefT State CoreM
 
@@ -67,13 +69,21 @@ def withNewRootScope (x : M α) : M α := do
   try
     withRoot true x
   finally
-    let saved := { saved with nextIdx := (← get).nextIdx }
+    let saved := { saved with nextIdx := (← get).nextIdx, typeCache := (← get).typeCache }
     set saved
+
+def toLCNFType (type : Expr) : M Expr := do
+  match (← get).typeCache.find? type with
+  | some type' => return type'
+  | none =>
+    let type' ← liftMetaM <| Compiler.toLCNFType type
+    modify fun s => { s with typeCache := s.typeCache.insert type type' }
+    return type'
 
 /-- Create a new local declaration using a Lean regular type. -/
 def mkLocalDecl (binderName : Name) (type : Expr) (bi := BinderInfo.default) : M Expr := do
   let fvarId ← mkFreshFVarId
-  let type' ← liftMetaM <| toLCNFType type
+  let type' ← toLCNFType type
   modify fun s => { s with
     lctx  := s.lctx.mkLocalDecl fvarId binderName type bi
     lctx' := s.lctx'.mkLocalDecl fvarId binderName type' bi
@@ -218,7 +228,7 @@ where
       return mkConst ``lcErased
     if (← liftMetaM <| Meta.isTypeFormerType type) then
       /- Types and Type formers are not put into A-normal form -/
-      return (← liftMetaM <| toLCNFType e)
+      toLCNFType e
     else
       withRoot false <| visitCore e
 
@@ -274,7 +284,7 @@ where
   visitCases (casesInfo : CasesInfo) (e : Expr) : M Expr :=
     etaIfUnderApplied e casesInfo.arity do
       let mut args := e.getAppArgs
-      let mut resultType ← liftMetaM do toLCNFType (← Meta.inferType (mkAppN e.getAppFn args[:casesInfo.arity]))
+      let mut resultType ← toLCNFType (← liftMetaM do Meta.inferType (mkAppN e.getAppFn args[:casesInfo.arity]))
       let mut discrTypes := #[]
       for i in [:casesInfo.numParams] do
         -- `cases` and `match` parameters are irrelevant at LCNF
@@ -319,7 +329,7 @@ where
     etaIfUnderApplied e arity do
       let args := e.getAppArgs
       let f := e.getAppFn
-      let recType ← liftMetaM do toLCNFType (← Meta.inferType (mkAppN f args[:arity]))
+      let recType ← toLCNFType (← liftMetaM do Meta.inferType (mkAppN f args[:arity]))
       let minor := if e.isAppOf ``Eq.rec || e.isAppOf ``Eq.ndrec then args[3]! else args[5]!
       let minor ← visit minor
       let minorType ← inferType minor
@@ -334,7 +344,7 @@ where
   visitFalseRec (e : Expr) : M Expr :=
     let arity := 2
     etaIfUnderApplied e arity do
-      let type ← liftMetaM do toLCNFType (← Meta.inferType e)
+      let type ← toLCNFType (← liftMetaM do Meta.inferType e)
       mkAuxLetDecl (← mkLcUnreachable type)
 
   visitAndRec (e : Expr) : M Expr :=
@@ -445,7 +455,7 @@ where
       if (← liftMetaM <| Meta.isProp type <||> Meta.isTypeFormerType type) then
         visitLet body (xs.push value)
       else
-        let type' ← liftMetaM <| toLCNFType type
+        let type' ← toLCNFType type
         let value' ← withRoot true <| visit value
         let x ← mkLetDecl binderName type value type' value'
         visitLet body (xs.push x)

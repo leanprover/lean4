@@ -93,18 +93,25 @@ partial def toLCNFType (type : Expr) : MetaM Expr := do
         return b
       else
         return (Expr.lam n d (b.abstract #[x]) bi).eta
-  | .forallE n d b bi =>
-    withLocalDecl n bi d fun x => do
-      let borrowed := isMarkedBorrowed d
-      let mut d ← toLCNFType d
-      if borrowed then
-        d := markBorrowed d
-      let b ← toLCNFType (b.instantiate1 x)
-      return .forallE n d (b.abstract #[x]) bi
+  | .forallE .. => visitForall type #[]
   | .app ..  => type.withApp visitApp
   | .fvar .. => visitApp type #[]
   | _        => return anyTypeExpr
 where
+  visitForall (e : Expr) (xs : Array Expr) : MetaM Expr := do
+    match e with
+    | .forallE n d b bi =>
+      let d := d.instantiateRev xs
+      withLocalDecl n bi d fun x => do
+        let borrowed := isMarkedBorrowed d
+        let mut d := (← toLCNFType d).abstract xs
+        if borrowed then
+          d := markBorrowed d
+        return .forallE n d (← visitForall b (xs.push x)) bi
+    | _ =>
+      let e ← toLCNFType (e.instantiateRev xs)
+      return e.abstract xs
+
   visitApp (f : Expr) (args : Array Expr) := do
     let fNew ← match f with
       | .const declName us =>

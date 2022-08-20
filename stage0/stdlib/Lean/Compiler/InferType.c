@@ -27,9 +27,10 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_InferType_i
 static lean_object* l_panic___at_Lean_Compiler_InferType_inferProjType___spec__3___closed__2;
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__2;
-LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_InferType_inferProjType___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_succ___override(lean_object*);
+static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__6;
 static lean_object* l_Lean_Compiler_InferType_getCasesResultingType_go___closed__4;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_InferType_inferForallType_go___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferProjType___spec__4___closed__3;
@@ -48,6 +49,7 @@ static lean_object* l_Lean_Compiler_InferType_getCasesResultingType_go___closed_
 lean_object* l_Lean_FVarId_throwUnknown___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_InferType_inferForallType_go___spec__4(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_InferType_getCasesResultingType_go___closed__2;
+lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkFreshId___at_Lean_Compiler_InferType_withLocalDeclImp___spec__2(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -63,6 +65,7 @@ LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inf
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferProjType___spec__4___closed__2;
 extern lean_object* l_Lean_levelZero;
+static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__4;
 static lean_object* l_Lean_getConstInfo___at_Lean_Compiler_InferType_inferProjType___spec__1___closed__4;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_InferType_inferForallType_go___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -89,7 +92,7 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_InferType_inferType___closed__4;
 static lean_object* l_Lean_Compiler_InferType_instAddMessageContextInferTypeM___closed__5;
 lean_object* l_Lean_Expr_headBeta(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_InferType_inferForallType_go___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_InferType_instAddMessageContextInferTypeM___closed__3;
 static lean_object* l_Lean_getConstInfo___at_Lean_Compiler_InferType_inferProjType___spec__1___closed__2;
@@ -164,6 +167,7 @@ lean_object* l_Lean_Level_normalize(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_InferType_inferForallType_go___spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_InferType_inferProjType___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_ofSubarray___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_InferType_inferLambdaType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAnyType(lean_object*);
 lean_object* l_Lean_throwError___rarg(lean_object*, lean_object*, lean_object*);
@@ -190,6 +194,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_instMonadInferType___rarg(lean_object*,
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_InferType_inferForallType_go___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_instMonadInferType(lean_object*, lean_object*);
+static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__3;
 lean_object* l_Lean_Compiler_isCasesApp_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_local_ctx_find(lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_mkForall(lean_object*, lean_object*, lean_object*);
@@ -201,6 +206,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_InferType_inferLambdaType_go(lean_objec
 LEAN_EXPORT lean_object* l_Lean_Compiler_mkLcCast___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferProjType___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_indentExpr(lean_object*);
+static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__5;
 static lean_object* l_panic___at_Lean_Compiler_InferType_inferProjType___spec__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_InferType_inferFVarType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Compiler_InferType_getLevel_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7265,37 +7271,137 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__3() {
 _start:
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_10 = l_Lean_indentExpr(x_1);
-x_11 = l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__2;
-x_12 = lean_alloc_ctor(10, 2, 0);
-lean_ctor_set(x_12, 0, x_11);
-lean_ctor_set(x_12, 1, x_10);
-x_13 = l_Lean_Compiler_InferType_getCasesResultingType_go___closed__4;
-x_14 = lean_alloc_ctor(10, 2, 0);
-lean_ctor_set(x_14, 0, x_12);
-lean_ctor_set(x_14, 1, x_13);
-x_15 = l_Lean_throwError___at_Lean_Compiler_InferType_inferAppType___spec__1(x_14, x_6, x_7, x_8, x_9);
-x_16 = !lean_is_exclusive(x_15);
-if (x_16 == 0)
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes(" : ", 3);
+return x_1;
+}
+}
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__4() {
+_start:
 {
-return x_15;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__3;
+x_2 = l_Lean_stringToMessageData(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__5() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("\nfunction type", 14);
+return x_1;
+}
+}
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__5;
+x_2 = l_Lean_stringToMessageData(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
+_start:
+{
+lean_object* x_12; 
+lean_inc(x_10);
+lean_inc(x_9);
+lean_inc(x_8);
+lean_inc(x_1);
+x_12 = l_Lean_Compiler_InferType_inferType(x_1, x_8, x_9, x_10, x_11);
+if (lean_obj_tag(x_12) == 0)
+{
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; uint8_t x_33; 
+x_13 = lean_ctor_get(x_12, 0);
+lean_inc(x_13);
+x_14 = lean_ctor_get(x_12, 1);
+lean_inc(x_14);
+lean_dec(x_12);
+x_15 = lean_unsigned_to_nat(0u);
+x_16 = l_Array_toSubarray___rarg(x_2, x_15, x_3);
+x_17 = l_Array_ofSubarray___rarg(x_16);
+x_18 = l_Lean_mkAppN(x_1, x_17);
+x_19 = l_Lean_indentExpr(x_18);
+x_20 = l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__2;
+x_21 = lean_alloc_ctor(10, 2, 0);
+lean_ctor_set(x_21, 0, x_20);
+lean_ctor_set(x_21, 1, x_19);
+x_22 = l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__4;
+x_23 = lean_alloc_ctor(10, 2, 0);
+lean_ctor_set(x_23, 0, x_21);
+lean_ctor_set(x_23, 1, x_22);
+x_24 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_24, 0, x_4);
+x_25 = lean_alloc_ctor(10, 2, 0);
+lean_ctor_set(x_25, 0, x_23);
+lean_ctor_set(x_25, 1, x_24);
+x_26 = l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__6;
+x_27 = lean_alloc_ctor(10, 2, 0);
+lean_ctor_set(x_27, 0, x_25);
+lean_ctor_set(x_27, 1, x_26);
+x_28 = l_Lean_indentExpr(x_13);
+x_29 = lean_alloc_ctor(10, 2, 0);
+lean_ctor_set(x_29, 0, x_27);
+lean_ctor_set(x_29, 1, x_28);
+x_30 = l_Lean_Compiler_InferType_getCasesResultingType_go___closed__4;
+x_31 = lean_alloc_ctor(10, 2, 0);
+lean_ctor_set(x_31, 0, x_29);
+lean_ctor_set(x_31, 1, x_30);
+x_32 = l_Lean_throwError___at_Lean_Compiler_InferType_inferAppType___spec__1(x_31, x_8, x_9, x_10, x_14);
+lean_dec(x_10);
+lean_dec(x_9);
+x_33 = !lean_is_exclusive(x_32);
+if (x_33 == 0)
+{
+return x_32;
 }
 else
 {
-lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_17 = lean_ctor_get(x_15, 0);
-x_18 = lean_ctor_get(x_15, 1);
-lean_inc(x_18);
-lean_inc(x_17);
-lean_dec(x_15);
-x_19 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_19, 0, x_17);
-lean_ctor_set(x_19, 1, x_18);
-return x_19;
+lean_object* x_34; lean_object* x_35; lean_object* x_36; 
+x_34 = lean_ctor_get(x_32, 0);
+x_35 = lean_ctor_get(x_32, 1);
+lean_inc(x_35);
+lean_inc(x_34);
+lean_dec(x_32);
+x_36 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_36, 0, x_34);
+lean_ctor_set(x_36, 1, x_35);
+return x_36;
+}
+}
+else
+{
+uint8_t x_37; 
+lean_dec(x_10);
+lean_dec(x_9);
+lean_dec(x_8);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+x_37 = !lean_is_exclusive(x_12);
+if (x_37 == 0)
+{
+return x_12;
+}
+else
+{
+lean_object* x_38; lean_object* x_39; lean_object* x_40; 
+x_38 = lean_ctor_get(x_12, 0);
+x_39 = lean_ctor_get(x_12, 1);
+lean_inc(x_39);
+lean_inc(x_38);
+lean_dec(x_12);
+x_40 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_40, 0, x_38);
+lean_ctor_set(x_40, 1, x_39);
+return x_40;
+}
 }
 }
 }
@@ -7349,11 +7455,11 @@ else
 {
 lean_object* x_44; lean_object* x_45; 
 x_44 = lean_expr_instantiate_rev_range(x_38, x_37, x_5, x_2);
+lean_dec(x_38);
 x_45 = l_Lean_Expr_headBeta(x_44);
 if (lean_obj_tag(x_45) == 7)
 {
 lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; 
-lean_dec(x_38);
 lean_dec(x_37);
 x_46 = lean_ctor_get(x_45, 2);
 lean_inc(x_46);
@@ -7377,17 +7483,19 @@ goto block_34;
 else
 {
 uint8_t x_51; 
-lean_dec(x_45);
-x_51 = l_Lean_Expr_isAnyType(x_38);
+x_51 = l_Lean_Expr_isAnyType(x_45);
 if (x_51 == 0)
 {
 lean_object* x_52; lean_object* x_53; 
 x_52 = lean_box(0);
+lean_inc(x_11);
+lean_inc(x_10);
 lean_inc(x_9);
+lean_inc(x_5);
+lean_inc(x_2);
 lean_inc(x_1);
-x_53 = l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1(x_1, x_38, x_37, x_3, x_52, x_9, x_10, x_11, x_12);
+x_53 = l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1(x_1, x_2, x_5, x_45, x_37, x_3, x_52, x_9, x_10, x_11, x_12);
 lean_dec(x_37);
-lean_dec(x_38);
 x_18 = x_53;
 goto block_34;
 }
@@ -7395,7 +7503,7 @@ else
 {
 lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; 
 x_54 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_54, 0, x_38);
+lean_ctor_set(x_54, 0, x_45);
 lean_ctor_set(x_54, 1, x_37);
 x_55 = l_Array_forInUnsafe_loop___at_Lean_Compiler_InferType_inferForallType_go___spec__1___closed__1;
 x_56 = lean_alloc_ctor(0, 2, 0);
@@ -7422,9 +7530,12 @@ if (lean_obj_tag(x_19) == 0)
 {
 uint8_t x_20; 
 lean_dec(x_17);
+lean_dec(x_11);
+lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_5);
 lean_dec(x_3);
+lean_dec(x_2);
 lean_dec(x_1);
 x_20 = !lean_is_exclusive(x_18);
 if (x_20 == 0)
@@ -7475,9 +7586,12 @@ else
 {
 uint8_t x_30; 
 lean_dec(x_17);
+lean_dec(x_11);
+lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_5);
 lean_dec(x_3);
+lean_dec(x_2);
 lean_dec(x_1);
 x_30 = !lean_is_exclusive(x_18);
 if (x_30 == 0)
@@ -7503,10 +7617,13 @@ return x_33;
 else
 {
 lean_object* x_59; 
+lean_dec(x_11);
+lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
+lean_dec(x_2);
 lean_dec(x_1);
 x_59 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_59, 0, x_8);
@@ -7517,10 +7634,13 @@ return x_59;
 else
 {
 lean_object* x_60; 
+lean_dec(x_11);
+lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
+lean_dec(x_2);
 lean_dec(x_1);
 x_60 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_60, 0, x_8);
@@ -7600,8 +7720,11 @@ lean_ctor_set(x_22, 1, x_10);
 x_23 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_23, 0, x_21);
 lean_ctor_set(x_23, 1, x_22);
+lean_inc(x_4);
+lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_20);
+lean_inc(x_16);
 x_24 = l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2(x_9, x_16, x_21, x_20, x_10, x_20, x_14, x_23, x_2, x_3, x_4, x_19);
 if (lean_obj_tag(x_24) == 0)
 {
@@ -8094,7 +8217,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferProjType___spec__4___closed__4;
 x_2 = l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferProjType___spec__4___closed__5;
-x_3 = lean_unsigned_to_nat(93u);
+x_3 = lean_unsigned_to_nat(94u);
 x_4 = lean_unsigned_to_nat(12u);
 x_5 = l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferProjType___spec__4___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -9086,18 +9209,15 @@ lean_dec(x_3);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
 {
-lean_object* x_10; 
-x_10 = l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_8);
+lean_object* x_12; 
+x_12 = l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_10;
+return x_12;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
@@ -9105,11 +9225,8 @@ _start:
 {
 lean_object* x_13; 
 x_13 = l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
-lean_dec(x_11);
-lean_dec(x_10);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_2);
 return x_13;
 }
 }
@@ -9542,6 +9659,14 @@ l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lam
 lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__1);
 l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__2 = _init_l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__2();
 lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__2);
+l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__3 = _init_l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__3();
+lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__3);
+l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__4 = _init_l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__4();
+lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__4);
+l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__5 = _init_l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__5();
+lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__5);
+l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__6 = _init_l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__6();
+lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Compiler_InferType_inferAppType___spec__2___lambda__1___closed__6);
 l_Lean_Compiler_InferType_inferAppType___closed__1 = _init_l_Lean_Compiler_InferType_inferAppType___closed__1();
 lean_mark_persistent(l_Lean_Compiler_InferType_inferAppType___closed__1);
 l_Lean_getConstInfo___at_Lean_Compiler_InferType_inferProjType___spec__1___closed__1 = _init_l_Lean_getConstInfo___at_Lean_Compiler_InferType_inferProjType___spec__1___closed__1();

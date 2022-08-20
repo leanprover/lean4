@@ -151,12 +151,6 @@ private def inferLambdaType (e : Expr) : MetaM Expr :=
     let type ← inferType e
     mkForallFVars xs type
 
-@[inline] private def withLocalDecl' {α} (name : Name) (bi : BinderInfo) (type : Expr) (x : Expr → MetaM α) : MetaM α :=
-  savingCache do
-    let fvarId ← mkFreshFVarId
-    withReader (fun ctx => { ctx with lctx := ctx.lctx.mkLocalDecl fvarId name type bi }) do
-      x (mkFVar fvarId)
-
 def throwUnknownMVar {α} (mvarId : MVarId) : MetaM α :=
   throwError "unknown metavariable '?{mvarId.name}'"
 
@@ -377,16 +371,35 @@ def isType (e : Expr) : MetaM Bool := do
     | .sort .. => return true
     | _        => return false
 
+
+@[inline] private def withLocalDecl' {α} (name : Name) (bi : BinderInfo) (type : Expr) (x : Expr → MetaM α) : MetaM α := do
+  let fvarId ← mkFreshFVarId
+  withReader (fun ctx => { ctx with lctx := ctx.lctx.mkLocalDecl fvarId name type bi }) do
+    x (mkFVar fvarId)
+
+def isTypeFormerTypeQuick : Expr → Bool
+  | .forallE _ _ b _ => isTypeFormerTypeQuick b
+  | .sort _ => true
+  | _ => false
+
 /--
 Return true iff `type` is `Sort _` or `As → Sort _`.
 -/
 partial def isTypeFormerType (type : Expr) : MetaM Bool := do
-  let type ← whnfD type
-  match type with
-  | .sort .. => return true
-  | .forallE n d b c =>
-    withLocalDecl' n c d fun fvar => isTypeFormerType (b.instantiate1 fvar)
-  | _ => return false
+  match isTypeFormerTypeQuick type with
+  | true => return true
+  | false => savingCache <| go type #[]
+where
+  go (type : Expr) (xs : Array Expr) : MetaM Bool := do
+    match type with
+    | .sort .. => return true
+    | .forallE n d b c => withLocalDecl' n c (d.instantiateRev xs) fun x => go b (xs.push x)
+    | _ =>
+      let type ← whnfD (type.instantiateRev xs)
+      match type with
+      | .sort .. => return true
+      | .forallE .. => go type #[]
+      | _ => return false
 
 /--
 Return true iff `e : Sort _` or `e : (forall As, Sort _)`.

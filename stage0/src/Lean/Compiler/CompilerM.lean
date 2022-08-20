@@ -21,6 +21,7 @@ structure CompilerM.State where
   letFVars : Array Expr := #[]
   /-- Next auxiliary variable suffix -/
   nextIdx : Nat := 1
+deriving Inhabited
 
 abbrev CompilerM := StateRefT CompilerM.State CoreM
 
@@ -56,6 +57,12 @@ def mkLetDecl (binderName : Name) (type : Expr) (value : Expr) (nonDep : Bool) :
   modify fun s => { s with lctx := s.lctx.mkLetDecl fvarId binderName type value nonDep, letFVars := s.letFVars.push x }
   return x
 
+def mkFreshLetVarIdx : CompilerM Nat := do
+  modifyGet fun s => (s.nextIdx, { s with nextIdx := s.nextIdx +1 })
+
+def mkAuxLetDeclName (prefixName := `_x) : CompilerM Name :=
+  return .num prefixName (← mkFreshLetVarIdx)
+
 /--
 Create a new auxiliary let declaration with value `e` The name of the
 declaration is guaranteed to be unique.
@@ -65,10 +72,7 @@ def mkAuxLetDecl (e : Expr) (prefixName := `_x) : CompilerM Expr := do
   if e.isFVar then
     return e
   else
-    try
-      mkLetDecl (.num prefixName (← get).nextIdx) (← inferType e) e (nonDep := false)
-    finally
-      modify fun s => { s with nextIdx := s.nextIdx + 1 }
+    mkLetDecl (← mkAuxLetDeclName prefixName) (← inferType e) e (nonDep := false)
 
 /--
 Create an auxiliary let declaration with value `e`, that is a join point.
@@ -97,7 +101,7 @@ let-declarations that are safe to unfold without producing code blowup, and join
 Remark: user-facing names provided by users are preserved. We keep them as the prefix
 of the new unique names.
 -/
-def ensureUniqueLetVarNames (e : Expr) : CoreM Expr :=
+def ensureUniqueLetVarNamesCore (e : Expr) : StateRefT Nat CoreM Expr :=
   let pre (e : Expr) : StateRefT Nat CoreM TransformStep := do
     match e with
     | .letE binderName type value body nonDep =>
@@ -107,7 +111,34 @@ def ensureUniqueLetVarNames (e : Expr) : CoreM Expr :=
         | _ => .num binderName idx
       return .visit <| .letE binderName' type value body nonDep
     | _ => return .visit e
-  Core.transform e pre |>.run' 1
+  Core.transform e pre
+
+def ensureUniqueLetVarNames (e : Expr) : CompilerM Expr := do
+  let (e, nextIdx) ← ensureUniqueLetVarNamesCore e |>.run (← get).nextIdx
+  modify fun s => { s with nextIdx }
+  return e
+
+/--
+Move through all consecutive lambda abstractions at the top level of `e`.
+Returning the body of the last one we find with **loose bound variables**.
+Returns a tuple consisting of:
+1. An `Array` of all the newly created free variables.
+2. The body of the last lambda binder that was visited.
+   The caller is responsible for replacing the loose bound variables
+   with the newly created free variables.
+
+See `visitLambda`.
+-/
+def visitLambdaCore (e : Expr) : CompilerM (Array Expr × Expr) :=
+  go e #[]
+where
+  go (e : Expr) (fvars : Array Expr) := do
+    if let .lam binderName type body binderInfo := e then
+      let type := type.instantiateRev fvars
+      let fvar ← mkLocalDecl binderName type binderInfo
+      go body (fvars.push fvar)
+    else
+      return (fvars, e)
 
 /--
 Move through all consecutive lambda abstractions at the top level of `e`.
@@ -117,16 +148,9 @@ Returns a tuple consisting of:
 1. An `Array` of all the newly created free variables
 2. The (fully instantiated) body of the last lambda binder that was visited
 -/
-def visitLambda (e : Expr) : CompilerM (Array Expr × Expr) :=
-  go e #[]
-where
-  go (e : Expr) (fvars : Array Expr) := do
-    if let .lam binderName type body binderInfo := e then
-      let type := type.instantiateRev fvars
-      let fvar ← mkLocalDecl binderName type binderInfo
-      go body (fvars.push fvar)
-    else
-      return (fvars, e.instantiateRev fvars)
+def visitLambda (e : Expr) : CompilerM (Array Expr × Expr) := do
+  let (fvars, e) ← visitLambdaCore e
+  return (fvars, e.instantiateRev fvars)
 
 /--
 Given an expression representing a `match` return a tuple consisting of:
@@ -147,7 +171,7 @@ def visitMatch (cases : Expr) (casesInfo : CasesInfo) : CompilerM (Expr × Array
     arms := arms.push (←visitLambda args[i]!).snd
   return (motive, discrs, arms)
 
-def withNewScopeImp (x : CompilerM α) : CompilerM α := do
+@[inline] def withNewScopeImp (x : CompilerM α) : CompilerM α := do
   let saved ← get
   modify fun s => { s with letFVars := #[] }
   try x
@@ -155,7 +179,7 @@ def withNewScopeImp (x : CompilerM α) : CompilerM α := do
     let saved := { saved with nextIdx := (← get).nextIdx }
     set saved
 
-def withNewScope [MonadFunctorT CompilerM m] (x : m α) : m α :=
+@[inline] def withNewScope [MonadFunctorT CompilerM m] (x : m α) : m α :=
   monadMap (m := CompilerM) withNewScopeImp x
 
 /--
@@ -175,10 +199,10 @@ class VisitLet (m : Type → Type) where
 
 export VisitLet (visitLet)
 
-def visitLetImp (e : Expr) (f : Name → Expr → CompilerM Expr) : CompilerM Expr :=
+@[inline] def visitLetImp (e : Expr) (f : Name → Expr → CompilerM Expr) : CompilerM Expr :=
   go e #[]
 where
-  go (e : Expr) (fvars : Array Expr) : CompilerM Expr := do
+  @[specialize] go (e : Expr) (fvars : Array Expr) : CompilerM Expr := do
     if let .letE binderName type value body nonDep := e then
       let type := type.instantiateRev fvars
       let value := value.instantiateRev fvars
@@ -284,8 +308,8 @@ partial def attachJp (e : Expr) (jp : Expr) : CompilerM Expr := do
 where
   visitLambda (e : Expr) : ReaderT FVarIdSet CompilerM Expr := do
     withNewScope do
-      let (as, e) ← Compiler.visitLambda e
-      let e ← mkLetUsingScope (← visitLet e #[])
+      let (as, e) ← Compiler.visitLambdaCore e
+      let e ← mkLetUsingScope (← visitLet e as)
       mkLambda as e
 
   visitCases (casesInfo : CasesInfo) (cases : Expr) : ReaderT FVarIdSet CompilerM Expr := do
@@ -299,13 +323,19 @@ where
   visitLet (e : Expr) (xs : Array Expr) : ReaderT FVarIdSet CompilerM Expr := do
     match e with
     | .letE binderName type value body nonDep =>
+      let mkDecl (type value : Expr) := do
+        let x ← mkLetDecl binderName type value nonDep
+        withReader (fun jps => if isJpBinderName binderName then jps.insert x.fvarId! else jps) do
+          visitLet body (xs.push x)
       let type := type.instantiateRev xs
-      let mut value := value.instantiateRev xs
+      let value := value.instantiateRev xs
       if isJpBinderName binderName then
-        value ← visitLambda value
-      let x ← mkLetDecl binderName type value nonDep
-      withReader (fun jps => if isJpBinderName binderName then jps.insert x.fvarId! else jps) do
-        visitLet body (xs.push x)
+        let value ← visitLambda value
+        -- Recall that the resulting type of join point may change after the attachment
+        let type ← inferType value
+        mkDecl type value
+      else
+        mkDecl type value
     | _ =>
       let e := e.instantiateRev xs
       if let some fvarId ← isJump? e then

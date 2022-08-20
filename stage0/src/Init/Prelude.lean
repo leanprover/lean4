@@ -83,7 +83,7 @@ example : foo.default = (default, default) :=
   rfl
 ```
 -/
-@[reducible] def inferInstance {α : Sort u} [i : α] : α := i
+abbrev inferInstance {α : Sort u} [i : α] : α := i
 
 set_option checkBinderAnnotations false in
 /-- `inferInstanceAs α` synthesizes a value of any target type by typeclass
@@ -97,7 +97,7 @@ does.) Example:
 #check inferInstanceAs (Inhabited Nat) -- Inhabited Nat
 ```
 -/
-@[reducible] def inferInstanceAs (α : Sort u) [i : α] : α := i
+abbrev inferInstanceAs (α : Sort u) [i : α] : α := i
 
 set_option bootstrap.inductiveCheckResultingUniverse false in
 /--
@@ -3398,6 +3398,17 @@ that parses it.
 abbrev SyntaxNodeKind := Name
 
 /-! # Syntax AST -/
+
+/--
+Binding information resolved and stored at compile time of a syntax quotation.
+Note: We do not statically know whether a syntax expects a namespace or term name,
+so a `Syntax.ident` may contain both preresolution kinds.
+-/
+inductive Syntax.Preresolved where
+  | /-- A potential namespace reference -/
+    namespace (ns : Name)
+  | /-- A potential global constant or section variable reference, with additional field accesses -/
+    decl (n : Name) (fields : List String)
 
 /--
 Syntax objects used by the parser, macro expander, delaborator, etc.

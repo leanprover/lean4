@@ -21,8 +21,8 @@ private partial def visitCases (casesInfo : CasesInfo) (cases : Expr) : Compiler
 
 private partial def visitLambda (e : Expr) : CompilerM Expr :=
   withNewScope do
-    let (as, e) ← Compiler.visitLambda e
-    let e ← mkLetUsingScope (← visitLet e #[])
+    let (as, e) ← Compiler.visitLambdaCore e
+    let e ← mkLetUsingScope (← visitLet e as)
     mkLambda as e
 
 private partial def visitLet (e : Expr) (fvars : Array Expr) : CompilerM Expr := do

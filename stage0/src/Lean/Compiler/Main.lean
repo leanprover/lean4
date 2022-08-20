@@ -8,6 +8,7 @@ import Lean.Compiler.TerminalCases
 import Lean.Compiler.CSE
 import Lean.Compiler.Stage1
 import Lean.Compiler.Simp
+import Lean.Compiler.PullLocalDecls
 
 namespace Lean.Compiler
 
@@ -53,12 +54,17 @@ def compileStage1Impl (declNames : Array Name) : CoreM (Array Decl) := do
   checkpoint `init decls { terminalCasesOnly := false }
   let decls ← decls.mapM (·.terminalCases)
   checkpoint `terminalCases decls
-  let decls ← decls.mapM (·.simp)
-  checkpoint `simp decls
-  -- Remark: add simplification step here, `cse` is useful after simplification
+  decls.forM fun decl => do trace[Compiler.jp] "{decl.name}: {(← JoinPoints.JoinPointFinder.findJoinPoints decl.value |>.run' {})}"
+  let decls ← decls.mapM (·.pullInstances)
+  checkpoint `pullInstances decls
   let decls ← decls.mapM (·.cse)
   checkpoint `cse decls
+  let decls ← decls.mapM (·.simp)
+  checkpoint `simp decls
+  -- let decls ← decls.mapM (·.cse)
+  -- checkpoint `cse decls
   saveStage1Decls decls
+  decls.forM fun decl => do trace[Compiler.stat] "{decl.name}: {← getLCNFSize decl.value}"
   return decls
 
 /--
@@ -70,9 +76,12 @@ def compile (declNames : Array Name) : CoreM Unit := do profileitM Exception "co
 
 builtin_initialize
   registerTraceClass `Compiler
+  registerTraceClass `Compiler.stat
   registerTraceClass `Compiler.init (inherited := true)
   registerTraceClass `Compiler.terminalCases (inherited := true)
   registerTraceClass `Compiler.simp (inherited := true)
+  registerTraceClass `Compiler.pullInstances (inherited := true)
   registerTraceClass `Compiler.cse (inherited := true)
+  registerTraceClass `Compiler.jp
 
 end Lean.Compiler

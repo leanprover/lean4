@@ -301,6 +301,86 @@ def betaReduce (e : Expr) (args : Array Expr) : SimpM Expr := do
   -- TODO: add necessary casts
   internalize (e.beta args)
 
+/--
+Try "cases on cases" simplification.
+If `casesFn args` is of the form
+```
+casesOn _x.i
+  (... let _x.j₁ := ctorⱼ₁ ...; _jp.k _x.j₁)
+  ...
+  (... let _x.jₙ := ctorⱼₙ ...; _jp.k _x.jₙ)
+```
+where `_jp.k` is a join point of the form
+```
+let _jp.k := fun y =>
+  casesOn y ...
+```
+Then, inline `_jp.k`. The idea is to force the `casesOn` application in the join point to
+reduce after the inlining step.
+Example: consider the following declarations
+```
+@[inline] def pred? (x : Nat) : Option Nat :=
+  match x with
+  | 0 => none
+  | x+1 => some x
+
+def isZero (x : Nat) :=
+ match pred? x with
+ | some _ => false
+ | none => true
+```
+After inlining `pred?` in `isZero`, we have
+```
+let _jp.1 := fun y : Option Nat =>
+  casesOn y true (fun y => false)
+casesOn x
+  (let _x.1 := none; _jp.1 _x.1)
+  (fun n => let _x.2 := some n; _jp.1 _x.2)
+```
+and this simplification is applicable, producing
+```
+casesOn x true (fun n => false)
+```
+-/
+def simpCasesOnCases? (casesInfo : CasesInfo) (casesFn : Expr) (args : Array Expr) : OptionT SimpM Expr := do
+  let mut jpFirst? := none
+  for i in casesInfo.altsRange do
+    let alt := args[i]!
+    let jp ← isJpCtor? alt
+    if let some jpFirst := jpFirst? then
+       guard <| jp == jpFirst
+    else
+       let some localDecl ← findDecl? jp | failure
+       let .lam _ _ jpBody _ := localDecl.value | failure
+       guard (← isCasesApp? jpBody).isSome
+       jpFirst? := jp
+  let some jpFVarId := jpFirst? | failure
+  let some localDecl ← findDecl? jpFVarId | failure
+  let .lam _ _ jpBody _ := localDecl.value | failure
+  let mut args := args
+  for i in casesInfo.altsRange do
+    args := args.modify i (inlineJp · jpBody)
+  return mkAppN casesFn args
+where
+  isJpCtor? (alt : Expr) : OptionT SimpM FVarId := do
+    match alt with
+    | .lam _ _ b _ => isJpCtor? b
+    | .letE _ _ v b _ => match b with
+      | .letE .. => isJpCtor? b
+      | .app (.fvar fvarId) (.bvar 0) =>
+        let some localDecl ← findDecl? fvarId | failure
+        guard localDecl.isJp
+        guard <| v.isConstructorApp (← getEnv)
+        return fvarId
+      | _ => failure
+    | _ => failure
+
+  inlineJp (alt : Expr) (jpBody : Expr) : Expr :=
+    match alt with
+    | .lam n d b bi => .lam n d (inlineJp b jpBody) bi
+    | .letE n t v b nd => .letE n t v (inlineJp b jpBody) nd
+    | _ => jpBody
+
 mutual
 /--
 Simplify the given lambda expression.
@@ -320,6 +400,7 @@ partial def visitLambda (e : Expr) (checkEmptyTypes := false): SimpM Expr :=
     mkLambda as e
 
 partial def visitCases (casesInfo : CasesInfo) (e : Expr) : SimpM Expr := do
+  let f := e.getAppFn
   let mut args  := e.getAppArgs
   let major := args[casesInfo.discrsRange.stop - 1]!
   let major ← findExpr major
@@ -332,10 +413,12 @@ partial def visitCases (casesInfo : CasesInfo) (e : Expr) : SimpM Expr := do
     assert! !alt.isLambda
     markSimplified
     visitLet alt
+  else if let some e ← simpCasesOnCases? casesInfo f args then
+    visitCases casesInfo e
   else
     for i in casesInfo.altsRange do
       args ← args.modifyM i (visitLambda · (checkEmptyTypes := true))
-    return mkAppN e.getAppFn args
+    return mkAppN f args
 
 /--
 If `e` is an application that can be inlined, inline it.

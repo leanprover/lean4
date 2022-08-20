@@ -1,0 +1,3 @@
+
+[Compiler.simp] isZero : Nat → Bool :=
+    fun x => Nat.casesOn x true fun n => false

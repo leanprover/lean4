@@ -238,6 +238,18 @@
    {"replace":
     {"start": {"line": 10, "character": 11},
      "end": {"line": 10, "character": 18}},
+    "newText": "trace.Compiler.simp.projInst",
+    "insert":
+    {"start": {"line": 10, "character": 11},
+     "end": {"line": 10, "character": 18}}},
+   "label": "trace.Compiler.simp.projInst",
+   "kind": 10,
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 10, "character": 11},
+     "end": {"line": 10, "character": 18}},
     "newText": "trace.Meta.IndPredBelow",
     "insert":
     {"start": {"line": 10, "character": 11},

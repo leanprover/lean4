@@ -70,10 +70,15 @@ structure Context where
 
 structure State where
   /--
-  (Approximate) occurence information for local function declarations.
+  (Approximate) occurrence information for local function declarations.
   -/
   occInfo : OccInfo := {}
   simplified : Bool := false
+  /--
+  Number of visited `let-declarations` and terminal values.
+  This is a performance counter, and currently has no impact on code generation.
+  -/
+  counter : Nat := 0
   deriving Inhabited
 
 abbrev SimpM := ReaderT Context $ StateRefT State CompilerM
@@ -489,6 +494,7 @@ Let-declaration basic block visitor. `e` may contain loose bound variables that
 still have to be instantiated with `xs`.
 -/
 partial def visitLet (e : Expr) (xs : Array Expr := #[]): SimpM Expr := do
+  modify fun s => { s with counter := s.counter + 1 }
   match e with
   | .letE binderName type value body nonDep =>
     let mut value := value.instantiateRev xs
@@ -530,7 +536,7 @@ def Decl.simp? (decl : Decl) : Simp.SimpM (Option Decl) := do
   trace[Compiler.simp.step] "{decl.name} :=\n{decl.value}"
   let value ← Simp.visitLambda value
   trace[Compiler.simp.step.new] "{decl.name} :=\n{value}"
-  trace[Compiler.simp.stat] "{decl.name}: {← getLCNFSize decl.value}"
+  trace[Compiler.simp.stat] "{decl.name}, resulting size: {← getLCNFSize decl.value}, visited: {(← get).counter}"
   if (← get).simplified then
     return some { decl with value }
   else

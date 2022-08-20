@@ -27,40 +27,70 @@ partial def findExpr (e : Expr) (skipMData := true): CompilerM Expr := do
   | .mdata _ e' => if skipMData then findExpr e' else return e
   | _ => return e
 
-inductive Occ where
-  | once
-  | many
+/--
+Local function usage information used to decide whether it should be inlined or not.
+The information is an approximation, but it is on the "safe" side. That is, if we tagged
+a function with `.once`, then it is applied only once. A local function may be marked as
+`.many`, but after simplifications the number of applications may reduce to 1. This is not
+a big problem in practice because we run the simplifier multiple times, and this information
+is recomputed from scratch at the beginning of each simplification step.
+-/
+inductive LocalFunInfo where
+  | /--
+    Local function is applied once, and must be inlined.
+    -/
+    once
+  | /--
+    Local function is applied many times, and will only be inlined
+    if it is small.
+    -/
+    many
+  | /--
+    We always inline this local function. We use this annotation for
+    type class instance elements.
+    -/
+    mustInline
   deriving Repr, Inhabited
 
 /--
 Local function declaration statistics.
 
-Remark: we use the `userName` as the key. Thus, `ensureUniqueLetVarNames`
-must be used before collectin stastistics.
+Remark: we use the `userName` as the key.
 -/
-structure OccInfo where
+structure LocalFunInfoMap where
   /--
-  Mapping from local function name to occurrence information.
+  Mapping from local function name to inlining information.
   -/
-  map : Std.HashMap Name Occ := {}
+  map : Std.HashMap Name LocalFunInfo := {}
   deriving Inhabited
 
-def OccInfo.format (s : OccInfo) : Format := Id.run do
+def LocalFunInfoMap.format (s : LocalFunInfoMap) : Format := Id.run do
   let mut result := Format.nil
   for (k, n) in s.map.toList do
     result := result ++ "\n" ++ f!"{k} ↦ {repr n}"
   return result
 
-instance : ToFormat OccInfo where
-  format := OccInfo.format
+instance : ToFormat LocalFunInfoMap where
+  format := LocalFunInfoMap.format
 
-def OccInfo.add (s : OccInfo) (key : Name) : OccInfo :=
+/--
+Add new occurrence for the local function with binder name `key`.
+-/
+def LocalFunInfoMap.add (s : LocalFunInfoMap) (key : Name) : LocalFunInfoMap :=
   match s with
   | { map } =>
     match map.find? key with
     | some .once => { map := map.insert key .many }
     | none       => { map := map.insert key .once }
     | _          => { map }
+
+/--
+Mark the function with binder name `key` as `.mustInline`.
+We use this marker for auxiliary functions in type class instances.
+-/
+def LocalFunInfoMap.addMustInline (s : LocalFunInfoMap) (key : Name) : LocalFunInfoMap :=
+  match s with
+  | { map } => { map := map.insert key .mustInline }
 
 structure Config where
   smallThreshold : Nat := 1
@@ -70,9 +100,12 @@ structure Context where
 
 structure State where
   /--
-  (Approximate) occurrence information for local function declarations.
+  (Approximate) information for deciding whether to inline local function declarations.
   -/
-  occInfo : OccInfo := {}
+  localInfoMap : LocalFunInfoMap := {}
+  /--
+  `true` if some simplification was performed in the current simplification pass.
+  -/
   simplified : Bool := false
   /--
   Number of visited `let-declarations` and terminal values.
@@ -83,8 +116,11 @@ structure State where
 
 abbrev SimpM := ReaderT Context $ StateRefT State CompilerM
 
-/-- Ensure binder names are unique, and update occurrence information -/
-partial def internalize (e : Expr) : SimpM Expr := do
+/--
+Ensure binder names are unique, and update local function information.
+If `mustInline = true`, then local functions in `e` are marked as `.mustInline`.
+-/
+partial def internalize (e : Expr) (mustInline := false): SimpM Expr := do
   visitLambda e
 where
   visitLambda (e : Expr) : SimpM Expr := do
@@ -105,7 +141,10 @@ where
       | some localDecl =>
         if localDecl.value.isLambda then
           let key := localDecl.userName
-          modify fun s => { s with occInfo := s.occInfo.add key  }
+          if mustInline then
+            modify fun s => { s with localInfoMap := s.localInfoMap.addMustInline key  }
+          else
+            modify fun s => { s with localInfoMap := s.localInfoMap.add key  }
       | _ => pure ()
 
   visitLet (e : Expr) (xs : Array Expr) : SimpM Expr := do
@@ -166,8 +205,8 @@ def simpAppApp? (e : Expr) : OptionT SimpM Expr := do
   return mkAppN f e.getAppArgs
 
 def shouldInlineLocal (localDecl : LocalDecl) : SimpM Bool := do
-  match (← get).occInfo.map.find? localDecl.userName with
-  | some .once => return true
+  match (← get).localInfoMap.map.find? localDecl.userName with
+  | some .once | some .mustInline => return true
   | _ => lcnfSizeLe localDecl.value (← read).config.smallThreshold
 
 structure InlineCandidateInfo where
@@ -295,7 +334,7 @@ partial def inlineProjInst? (e : Expr) : OptionT SimpM Expr := do
   let value ← withNewScope do mkLetUsingScope (← visitProj e)
   markSimplified
   let value := simpUsingEtaReduction value
-  let value ← internalize value
+  let value ← internalize value (mustInline := true)
   trace[Compiler.simp.projInst] "{e} =>\n{value}"
   return value
 where
@@ -330,7 +369,9 @@ where
 
 def betaReduce (e : Expr) (args : Array Expr) : SimpM Expr := do
   -- TODO: add necessary casts
-  internalize (e.beta args)
+  let result ← internalize (e.beta args)
+  -- trace[Meta.debug] "inline:\n{result}"
+  return result
 
 /--
 Try "cases on cases" simplification.
@@ -558,7 +599,7 @@ end Simp
 
 def Decl.simp? (decl : Decl) : Simp.SimpM (Option Decl) := do
   let value ← Simp.internalize decl.value
-  trace[Compiler.simp.inline.occs] "{decl.name}:{Format.nest 2 (format (← get).occInfo)}"
+  trace[Compiler.simp.inline.info] "{decl.name}:{Format.nest 2 (format (← get).localInfoMap)}"
   trace[Compiler.simp.step] "{decl.name} :=\n{decl.value}"
   let value ← Simp.visitLambda value
   trace[Compiler.simp.step.new] "{decl.name} :=\n{value}"
@@ -577,10 +618,10 @@ partial def Decl.simp (decl : Decl) : CoreM Decl := do
 
 builtin_initialize
   registerTraceClass `Compiler.simp.inline
+  registerTraceClass `Compiler.simp.inline.info
   registerTraceClass `Compiler.simp.stat
   registerTraceClass `Compiler.simp.step
   registerTraceClass `Compiler.simp.step.new
-  registerTraceClass `Compiler.simp.inline.occs
   registerTraceClass `Compiler.simp.projInst
 
 end Lean.Compiler

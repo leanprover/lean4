@@ -177,7 +177,7 @@ where
     | .letE binderName type value body nonDep =>
       let idx ← modifyGet fun { nextIdx, localInfoMap } => (nextIdx, { nextIdx := nextIdx + 1, localInfoMap })
       let binderName' :=
-        if mustInline then
+        if mustInline && value.isLambda then
           .num `_mustInline idx
         else match binderName with
           | .num p _ => .num p idx

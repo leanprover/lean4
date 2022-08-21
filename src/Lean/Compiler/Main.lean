@@ -33,6 +33,12 @@ where
     let info ← getConstInfo declName
     Meta.isProp info.type <||> Meta.isTypeFormerType info.type
 
+register_builtin_option compiler.check : Bool := {
+  defValue := true
+  group    := "compiler"
+  descr    := "type check code after each compiler step (this is useful for debugging purses)"
+}
+
 /--
 A checkpoint in code generation to print all declarations in between
 compiler passes in order to ease debugging.
@@ -44,7 +50,8 @@ def checkpoint (stepName : Name) (decls : Array Decl) (cfg : Check.Config := {})
       let clsName := `Compiler ++ stepName
       if (← Lean.isTracingEnabledFor clsName) then
         Lean.addTrace clsName m!"{decl.name} : {decl.type} :=\n{decl.value}"
-      decl.check cfg
+      if compiler.check.get (← getOptions) then
+        decl.check cfg
 
 @[export lean_compile_stage1]
 def compileStage1Impl (declNames : Array Name) : CoreM (Array Decl) := do

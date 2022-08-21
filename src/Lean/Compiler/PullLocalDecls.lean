@@ -18,7 +18,7 @@ structure State where
 abbrev PullM := ReaderT Context $ StateRefT State CompilerM
 
 def dependsOn (e : Expr) (fvarIdSet : FVarIdSet) : Bool :=
-  Option.isSome <| e.find? fun e => e.isFVar && fvarIdSet.contains e.fvarId!
+  e.hasAnyFVar fun fvarId => fvarIdSet.contains fvarId
 
 def mkLambda (xs : Array Expr) (letFVarsSavedSize : Nat) (e : Expr) : PullM Expr := do
   let letFVars := (← getThe CompilerM.State).letFVars

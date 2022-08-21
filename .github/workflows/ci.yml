@@ -76,6 +76,7 @@ jobs:
             llvm-url: https://github.com/leanprover/lean-llvm/releases/download/14.0.0/lean-llvm-x86_64-apple-darwin.tar.zst
             prepare-llvm: ../script/prepare-llvm-macos.sh lean-llvm*
             binary-check: otool -L
+            tar: gtar  # https://github.com/actions/runner-images/issues/2619
           - name: macOS aarch64
             os: macos-latest
             release: true
@@ -85,6 +86,7 @@ jobs:
             llvm-url: https://github.com/leanprover/lean-llvm/releases/download/14.0.0/lean-llvm-aarch64-apple-darwin.tar.zst https://github.com/leanprover/lean-llvm/releases/download/14.0.0/lean-llvm-x86_64-apple-darwin.tar.zst
             prepare-llvm: EXTRA_FLAGS=--target=aarch64-apple-darwin ../script/prepare-llvm-macos.sh lean-llvm-aarch64-* lean-llvm-x86_64-*
             binary-check: otool -L
+            tar: gtar  # https://github.com/actions/runner-images/issues/2619
           - name: Windows
             os: windows-2022
             release: true
@@ -178,10 +180,10 @@ jobs:
           mkdir pack
           # high-compression tar.zst + zip for release, fast tar.zst otherwise
           if [[ '${{ startsWith(github.ref, 'refs/tags/v') && matrix.release }}' == true || -n '${{ needs.set-nightly.outputs.nightly }}' ]]; then
-            tar --format=v7 -cf - $dir | zstd -T0 --no-progress -19 -o pack/$dir.tar.zst
+            ${{ matrix.tar || 'tar' }} cf - $dir | zstd -T0 --no-progress -19 -o pack/$dir.tar.zst
             zip -rq pack/$dir.zip $dir
           else
-            tar --format=v7 -cf - $dir | zstd -T0 --no-progress -o pack/$dir.tar.zst
+            ${{ matrix.tar || 'tar' }} cf - $dir | zstd -T0 --no-progress -o pack/$dir.tar.zst
           fi
       - uses: actions/upload-artifact@v2
         if: matrix.release

@@ -285,11 +285,7 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
     let numArgs := e.getAppNumArgs
     let arity := decl.getArity
     if numArgs < arity then return none
-    /-
-    Recall that we use binder names to build `InlineStats`.
-    Thus, we use `ensureUniqueLetVarNames` to make sure there is no name collision.
-    -/
-    let value ← ensureUniqueLetVarNames (decl.value.instantiateLevelParams decl.levelParams us)
+    let value := decl.value.instantiateLevelParams decl.levelParams us
     return some {
       arity, value
       isLocal := false
@@ -299,7 +295,7 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
     let numArgs := e.getAppNumArgs
     let arity := getLambdaArity localDecl.value
     if numArgs < arity then return none
-    let value ← ensureUniqueLetVarNames localDecl.value
+    let value := localDecl.value
     return some {
       arity, value
       isLocal := true

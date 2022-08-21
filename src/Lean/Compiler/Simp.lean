@@ -204,10 +204,16 @@ def simpAppApp? (e : Expr) : OptionT SimpM Expr := do
   markSimplified
   return mkAppN f e.getAppArgs
 
-def shouldInlineLocal (localDecl : LocalDecl) : SimpM Bool := do
-  match (← get).localInfoMap.map.find? localDecl.userName with
+def isOnceOrMustInline (binderName : Name) : SimpM Bool := do
+  match (← get).localInfoMap.map.find? binderName with
   | some .once | some .mustInline => return true
-  | _ => lcnfSizeLe localDecl.value (← read).config.smallThreshold
+  | _ => return false
+
+def shouldInlineLocal (localDecl : LocalDecl) : SimpM Bool := do
+  if (← isOnceOrMustInline localDecl.userName) then
+    return true
+  else
+    lcnfSizeLe localDecl.value (← read).config.smallThreshold
 
 structure InlineCandidateInfo where
   isLocal : Bool
@@ -566,7 +572,12 @@ partial def visitLet (e : Expr) (xs : Array Expr := #[]): SimpM Expr := do
   | .letE binderName type value body nonDep =>
     let mut value := value.instantiateRev xs
     if value.isLambda then
-      value ← visitLambda value
+      unless (← isOnceOrMustInline binderName) do
+        /-
+        If the local function will be inlined anyway, we don't simplify it here,
+        we do it after its is inlined and we have information about the actual arguments.
+        -/
+        value ← visitLambda value
     else if let some value' ← simpValue? value then
       if value'.isLet then
         let e := mkFlatLet binderName type value' body nonDep

@@ -455,7 +455,6 @@ where
 def betaReduce (e : Expr) (args : Array Expr) : SimpM Expr := do
   -- TODO: add necessary casts to `args`
   let result ← instantiateRevInternalize (getLambdaBody e) args
-  trace[Meta.debug] "inline:\n{result}"
   return result
 
 /--

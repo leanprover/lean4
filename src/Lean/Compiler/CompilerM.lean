@@ -234,6 +234,27 @@ instance [VisitLet m] : VisitLet (ReaderT ρ m) where
 
 instance [VisitLet m] : VisitLet (StateRefT' ω σ m) := inferInstanceAs (VisitLet (ReaderT _ _))
 
+/--
+Collect set of (let) free variables in a LCNF value.
+This code exploints the LCNF property that let-variables do not occur in types.
+We use this function to implement `mkLetUsingScope`, and avoid the `hasLooseBVar`
+overhead at `LocalContext.mkBinding`.
+-/
+def collectLetFVars (s : FVarIdHashSet) (e : Expr) : FVarIdHashSet :=
+  match e with
+  | .proj _ _ e => collectLetFVars s e
+  | .forallE .. => s
+  | .lam _ _ b _ => collectLetFVars s b
+  | .letE _ _ v b _ => collectLetFVars (collectLetFVars s v) b
+  | .app f a => collectLetFVars (collectLetFVars s a) f
+  | .mdata _ b => collectLetFVars s b
+  | .fvar fvarId => s.insert fvarId
+  | _ => s
+
+/--
+Construct a LCNF let-block using `e` as terminal value, and `(← get).letFVars`
+as let-declarations. Only the used `let`-variables are included.
+-/
 def mkLetUsingScope (e : Expr) : CompilerM Expr := do
   let e ← if e.isLambda then
     /-
@@ -242,7 +263,25 @@ def mkLetUsingScope (e : Expr) : CompilerM Expr := do
     mkAuxLetDecl e
   else
     pure e
-  return (← get).lctx.mkLambda (← get).letFVars e
+  return go (← get).lctx (← get).letFVars e
+where
+  filterLetVars (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Array Expr :=
+    let s := collectLetFVars {} b
+    let s := xs.foldr (init := s) fun x s =>
+      if s.contains x.fvarId! then
+        collectLetFVars s (lctx.getFVar! x).value
+      else
+        s
+    xs.filter fun x => s.contains x.fvarId!
+
+  go (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=
+    let xs := filterLetVars lctx xs b
+    let b := b.abstract xs
+    xs.size.foldRev (init := b) fun i b =>
+      let x := xs[i]!
+      let decl := lctx.getFVar! x
+      let val := decl.value.abstractRange i xs
+      .letE decl.userName decl.type val b true
 
 /--
 Shorthand for `LocalContext.mkLambda` with the `LocalContext` of `CompilerM`.

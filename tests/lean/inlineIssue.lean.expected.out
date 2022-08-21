@@ -4,42 +4,42 @@
       let h.14 := fun x_1 =>
         Nat.casesOn x_1
           (let _x.92 := Nat.mul x x_1;
-          let _x.93 := Nat.mul _x.92 x;
-          let _x.94 := Nat.mul _x.93 x_1;
-          Nat.mul _x.94 x_1)
+          let _x.96 := Nat.mul _x.92 x;
+          let _x.100 := Nat.mul _x.96 x_1;
+          Nat.mul _x.100 x_1)
           fun n => Nat.add n x_1;
       let _x.15 := 1;
-      let _x.95 := Nat.add x _x.15;
-      let _x.19 := h.14 _x.95;
+      let _x.110 := Nat.add x _x.15;
+      let _x.19 := h.14 _x.110;
       let _x.20 := 2;
-      let _x.96 := Nat.add x _x.20;
-      let _x.24 := h.14 _x.96;
-      let _x.97 := Nat.add _x.19 _x.24;
+      let _x.114 := Nat.add x _x.20;
+      let _x.24 := h.14 _x.114;
+      let _x.118 := Nat.add _x.19 _x.24;
       let _x.26 := 3;
-      let _x.98 := Nat.add x _x.26;
-      let _x.30 := h.14 _x.98;
-      let _x.99 := Nat.add _x.97 _x.30;
+      let _x.122 := Nat.add x _x.26;
+      let _x.30 := h.14 _x.122;
+      let _x.126 := Nat.add _x.118 _x.30;
       let _x.32 := 4;
-      let _x.100 := Nat.add x _x.32;
-      let _x.36 := h.14 _x.100;
-      let _x.101 := Nat.add _x.99 _x.36;
+      let _x.130 := Nat.add x _x.32;
+      let _x.36 := h.14 _x.130;
+      let _x.134 := Nat.add _x.126 _x.36;
       let _x.38 := 5;
-      let _x.102 := Nat.add x _x.38;
-      let _x.42 := h.14 _x.102;
-      let _x.103 := Nat.add _x.101 _x.42;
+      let _x.138 := Nat.add x _x.38;
+      let _x.42 := h.14 _x.138;
+      let _x.142 := Nat.add _x.134 _x.42;
       let _x.44 := 6;
-      let _x.104 := Nat.add x _x.44;
-      let _x.48 := h.14 _x.104;
-      let _x.105 := Nat.add _x.103 _x.48;
+      let _x.146 := Nat.add x _x.44;
+      let _x.48 := h.14 _x.146;
+      let _x.150 := Nat.add _x.142 _x.48;
       let _x.50 := 7;
-      let _x.106 := Nat.add x _x.50;
-      let _x.54 := h.14 _x.106;
-      let _x.107 := Nat.add _x.105 _x.54;
+      let _x.154 := Nat.add x _x.50;
+      let _x.54 := h.14 _x.154;
+      let _x.158 := Nat.add _x.150 _x.54;
       let _x.56 := 8;
-      let _x.108 := Nat.add x _x.56;
-      let _x.60 := h.14 _x.108;
-      let _x.109 := Nat.add _x.107 _x.60;
+      let _x.162 := Nat.add x _x.56;
+      let _x.60 := h.14 _x.162;
+      let _x.166 := Nat.add _x.158 _x.60;
       let _x.62 := 9;
-      let _x.110 := Nat.add x _x.62;
-      let _x.66 := h.14 _x.110;
-      Nat.add _x.109 _x.66
+      let _x.170 := Nat.add x _x.62;
+      let _x.66 := h.14 _x.170;
+      Nat.add _x.166 _x.66

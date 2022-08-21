@@ -50,7 +50,9 @@ structure State where
   /-- Cache from Lean regular expression to LCNF expression. -/
   cache : Std.PHashMap (Expr × Bool) Expr := {}
   /-- `toLCNFType` cache -/
-  typeCache : Std.PHashMap Expr Expr := {}
+  typeCache : Std.HashMap Expr Expr := {}
+  /-- isTypeFormerType cache -/
+  isTypeFormerTypeCache : Std.HashMap Expr Bool := {}
 
 abbrev M := ReaderT Context $ StateRefT State CoreM
 
@@ -63,13 +65,49 @@ instance : MonadInferType M where
 @[inline] def withRoot (flag : Bool) (x : M α) : M α :=
   withReader (fun _ => { root := flag }) x
 
+/--
+Return true iff `type` is `Sort _` or `As → Sort _`.
+-/
+private partial def isTypeFormerType (type : Expr) : M Bool := do
+  match quick (← getEnv) type with
+  | .true => return true
+  | .false => return false
+  | .undef =>
+    if let some result := (← get).isTypeFormerTypeCache.find? type then
+      return result
+    let result ← liftMetaM <| Meta.isTypeFormerType type
+    modify fun s => { s with isTypeFormerTypeCache := s.isTypeFormerTypeCache.insert type result }
+    return result
+where
+  quick (env : Environment) : Expr → LBool
+  | .forallE _ _ b _ => quick env b
+  | .mdata _ b => quick env b
+  | .letE .. => .undef
+  | .sort _ => .true
+  | .bvar .. => .false
+  | type =>
+    match type.getAppFn with
+    | .bvar .. => .false
+    | .const declName _ =>
+      if let some (.inductInfo ..) := env.find? declName then
+        .false
+      else
+        .undef
+    | _ => .undef
+
 def withNewRootScope (x : M α) : M α := do
   let saved ← get
+  -- typeCache and isTypeFormerTypeCache are not backtrackable
+  let saved := { saved with typeCache := {}, isTypeFormerTypeCache := {} }
   modify fun s => { s with letFVars := #[] }
   try
     withRoot true x
   finally
-    let saved := { saved with nextIdx := (← get).nextIdx, typeCache := (← get).typeCache }
+    let saved := { saved with
+      nextIdx := (← get).nextIdx
+      typeCache := (← get).typeCache
+      isTypeFormerTypeCache := (← get).isTypeFormerTypeCache
+    }
     set saved
 
 def toLCNFType (type : Expr) : M Expr := do
@@ -205,7 +243,7 @@ where
     if (← liftMetaM <| Meta.isProp type) then
       /- We erase proofs. -/
       return mkConst ``lcErased
-    if (← liftMetaM <| Meta.isTypeFormerType type) then
+    if (← isTypeFormerType type) then
       /-
       We erase type formers unless they occur as application arguments.
       Recall that we usually do not generate code for functions that return type,
@@ -226,7 +264,7 @@ where
     if (← liftMetaM <| Meta.isProp type) then
       /- We erase proofs. -/
       return mkConst ``lcErased
-    if (← liftMetaM <| Meta.isTypeFormerType type) then
+    if (← isTypeFormerType type) then
       /- Types and Type formers are not put into A-normal form -/
       toLCNFType e
     else
@@ -452,7 +490,7 @@ where
     | .letE binderName type value body _ =>
       let type := type.instantiateRev xs
       let value := value.instantiateRev xs
-      if (← liftMetaM <| Meta.isProp type <||> Meta.isTypeFormerType type) then
+      if (← (liftMetaM <| Meta.isProp type) <||> isTypeFormerType type) then
         visitLet body (xs.push value)
       else
         let type' ← toLCNFType type

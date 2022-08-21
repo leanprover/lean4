@@ -320,9 +320,6 @@ static object * g_io_error_getline = nullptr;
   rest of the line is discarded. */
 extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_get_line(b_obj_arg h, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
-    if (feof(fp)) {
-        return io_result_mk_ok(mk_string(""));
-    }
     const int buf_sz = 64;
     char buf_str[buf_sz]; // NOLINT
     std::string result;
@@ -340,6 +337,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_get_line(b_obj_arg h, obj_arg
             }
             result.append(out);
         } else if (std::feof(fp)) {
+            clearerr(fp);
             return io_result_mk_ok(mk_string(result));
         } else {
             return io_result_mk_error(g_io_error_getline);

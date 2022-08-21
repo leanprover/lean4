@@ -153,6 +153,20 @@ def visitLambda (e : Expr) : CompilerM (Array Expr × Expr) := do
   return (fvars, e.instantiateRev fvars)
 
 /--
+Similar to `visitLambda` but for arrow-types.
+-/
+def visitArrow (type : Expr) : CompilerM (Array Expr × Expr) := do
+  go type #[]
+where
+  go (type : Expr) (fvars : Array Expr) := do
+    if let .forallE binderName type body binderInfo := type then
+      let type := type.instantiateRev fvars
+      let fvar ← mkLocalDecl binderName type binderInfo
+      go body (fvars.push fvar)
+    else
+      return (fvars, type.instantiateRev fvars)
+
+/--
 Given an expression representing a `match` return a tuple consisting of:
 1. The motive
 2. The discriminators

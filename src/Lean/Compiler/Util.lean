@@ -170,11 +170,19 @@ where
             return false
       return true
 
+def getArrowArity (e : Expr) :=
+  match e with
+  | .forallE _ _ b _ => getArrowArity b + 1
+  | _ => 0
+
 def getLambdaArity (e : Expr) :=
   match e with
   | .lam _ _ b _ => getLambdaArity b + 1
   | _ => 0
 
+def getLambdaBody : Expr → Expr
+  | .lam _ _ b _ => getLambdaBody b
+  | b => b
 
 /--
 Whether a given local declaration is a join point.

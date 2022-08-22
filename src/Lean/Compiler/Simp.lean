@@ -103,7 +103,27 @@ structure State where
   Number of visited `let-declarations` and terminal values.
   This is a performance counter, and currently has no impact on code generation.
   -/
-  counter : Nat := 0
+  visited : Nat := 0
+  /--
+  Number of `mkLetUsingScope` calls.
+  This is a performance counter.
+  -/
+  mkLet : Nat := 0
+  /--
+  Number of `mkLambda` calls.
+  This is a performance counter.
+  -/
+  mkLambda : Nat := 0
+  /--
+  Number of definitions inlined.
+  This is a performance counter.
+  -/
+  inline : Nat := 0
+  /--
+  Number of local functions inlined.
+  This is a performance counter.
+  -/
+  inlineLocal : Nat := 0
   deriving Inhabited
 
 abbrev SimpM := ReaderT Context $ StateRefT State CompilerM
@@ -286,6 +306,7 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
     let arity := decl.getArity
     if numArgs < arity then return none
     let value := decl.value.instantiateLevelParams decl.levelParams us
+    modify fun s => { s with inline := s.inline + 1 }
     return some {
       arity, value
       isLocal := false
@@ -296,6 +317,7 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
     let arity := getLambdaArity localDecl.value
     if numArgs < arity then return none
     let value := localDecl.value
+    modify fun s => { s with inlineLocal := s.inlineLocal + 1 }
     return some {
       arity, value
       isLocal := true
@@ -337,6 +359,14 @@ where
     | .letE n t v b d => .letE n t v (go b (i+1)) d
     | _ => .letE y type value (body.liftLooseBVars 1 i) nonDep
 
+def mkLetUsingScope (e : Expr) : SimpM Expr := do
+  modify fun s => { s with mkLet := s.mkLet + 1 }
+  Compiler.mkLetUsingScope e
+
+def mkLambda (as : Array Expr) (e : Expr) : SimpM Expr := do
+  modify fun s => { s with mkLambda := s.mkLambda + 1 }
+  Compiler.mkLambda as e
+
 /--
 Helper function for simplifying expressions such as
 ```
@@ -360,7 +390,7 @@ private def simpUsingEtaReduction (e : Expr) : Expr :=
   | .letE n t v b d => .letE n t v (simpUsingEtaReduction b) d
   | _ => e
 
-private def etaExpand (type : Expr) (value : Expr) : CompilerM Expr := do
+private def etaExpand (type : Expr) (value : Expr) : SimpM Expr := do
   let typeArity := getArrowArity type
   let valueArity := getLambdaArity value
   if typeArity <= valueArity then
@@ -637,7 +667,7 @@ Let-declaration basic block visitor. `e` may contain loose bound variables that
 still have to be instantiated with `xs`.
 -/
 partial def visitLet (e : Expr) (xs : Array Expr := #[]): SimpM Expr := do
-  modify fun s => { s with counter := s.counter + 1 }
+  modify fun s => { s with visited := s.visited + 1 }
   match e with
   | .letE binderName type value body nonDep =>
     let type := type.instantiateRev xs
@@ -703,7 +733,8 @@ def Decl.simp? (decl : Decl) : Simp.SimpM (Option Decl) := do
   trace[Compiler.simp.step] "{decl.name} :=\n{decl.value}"
   let value ← Simp.visitLambda value
   trace[Compiler.simp.step.new] "{decl.name} :=\n{value}"
-  trace[Compiler.simp.stat] "{decl.name}, resulting size: {← getLCNFSize decl.value}, visited: {(← get).counter}"
+  let s ← get
+  trace[Compiler.simp.stat] "{decl.name}, size: {← getLCNFSize decl.value}, # visited: {s.visited}, # mkLet: {s.mkLet}, # mkLambda: {s.mkLambda}, # inline: {s.inline}, # inline local: {s.inlineLocal}"
   if (← get).simplified then
     return some { decl with value }
   else

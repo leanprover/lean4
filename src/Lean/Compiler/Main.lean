@@ -68,11 +68,16 @@ def compileStage1Impl (declNames : Array Name) : CoreM (Array Decl) := do
   checkpoint `cse decls
   let decls ← decls.mapM (·.simp)
   checkpoint `simp decls
+  let mut decls := decls
+  profileitM Exception "compiler cse" (← getOptions) do
+    let mut decls := decls
+    for _ in [:1000] do
+      decls ← decls.mapM (·.cse)
   -- let decls ← decls.mapM (·.cse)
-  -- checkpoint `cse decls
-  saveStage1Decls decls
-  decls.forM fun decl => do trace[Compiler.stat] "{decl.name}: {← getLCNFSize decl.value}"
-  return decls
+    -- checkpoint `cse decls
+    saveStage1Decls decls
+    decls.forM fun decl => do trace[Compiler.stat] "{decl.name}: {← getLCNFSize decl.value}"
+    return decls
 
 /--
 Run the code generation pipeline for all declarations in `declNames`

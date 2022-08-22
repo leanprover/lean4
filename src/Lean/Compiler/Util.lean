@@ -57,13 +57,13 @@ structure CasesInfo where
   altNumParams : Array Nat
   motivePos    : Nat
 
-private def getCasesOnInductiveVal? (declName : Name) : CoreM (Option InductiveVal) := do
-  unless isCasesOnRecursor (← getEnv) declName do return none
-  let .inductInfo val ← getConstInfo declName.getPrefix | return none
+private def getCasesOnInductiveVal? (env : Environment) (declName : Name) : Option InductiveVal := Id.run do
+  unless isCasesOnRecursor env declName do return none
+  let some (.inductInfo val) := env.find? declName.getPrefix | return none
   return some val
 
-def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
-  let some val ← getCasesOnInductiveVal? declName | return none
+def getCasesInfo?' (env : Environment) (declName : Name) : Option CasesInfo := Id.run do
+  let some val ← getCasesOnInductiveVal? env declName | return none
   let numParams    := val.numParams
   let motivePos    := numParams
   let arity        := numParams + 1 /- motive -/ + val.numIndices + 1 /- major -/ + val.numCtors
@@ -72,9 +72,12 @@ def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
   let discrsRange  := { start := numParams + 1, stop := majorPos + 1 }
   let altsRange    := { start := majorPos + 1,  stop := arity }
   let altNumParams ← val.ctors.toArray.mapM fun ctor => do
-    let .ctorInfo ctorVal ← getConstInfo ctor | unreachable!
+    let some (.ctorInfo ctorVal) := env.find? ctor | unreachable!
     return ctorVal.numFields
   return some { numParams, motivePos, arity, discrsRange, altsRange, altNumParams }
+
+def getCasesInfo? [Monad m] [MonadEnv m] (declName : Name) : m (Option CasesInfo) :=
+  return getCasesInfo?' (← getEnv) declName
 
 def CasesInfo.geNumDiscrs (casesInfo : CasesInfo) : Nat :=
   casesInfo.discrsRange.stop - casesInfo.discrsRange.start
@@ -87,13 +90,16 @@ where
     | .lam n b d bi => .lam n b (go d) bi
     | _ => typeNew
 
-def isCasesApp? (e : Expr) : CoreM (Option CasesInfo) := do
+def isCasesApp?' (env : Environment) (e : Expr) : Option CasesInfo := Id.run do
   let .const declName _ := e.getAppFn | return none
-  if let some info ← getCasesInfo? declName then
+  if let some info ← getCasesInfo?' env declName then
     assert! info.arity == e.getAppNumArgs
     return some info
   else
     return none
+
+def isCasesApp? [Monad m] [MonadEnv m] (e : Expr) : m (Option CasesInfo) :=
+  return isCasesApp?' (← getEnv) e
 
 def getCtorArity? (declName : Name) : CoreM (Option Nat) := do
   let .ctorInfo val ← getConstInfo declName | return none

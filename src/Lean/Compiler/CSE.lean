@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Compiler.CompilerM
 import Lean.Compiler.Decl
+import Lean.Compiler.PExpr
 
 namespace Lean.Compiler
 
@@ -19,30 +20,25 @@ abbrev M := StateRefT State CompilerM
 
 mutual
 
-partial def visitCases (casesInfo : CasesInfo) (cases : Expr) : M Expr := do
-  let mut args := cases.getAppArgs
-  for i in casesInfo.altsRange do
-    args ← args.modifyM i visitLambda
-  return mkAppN cases.getAppFn args
+partial def visitLambda (xs : Array Expr) (e : Expr) : M PExpr :=
+  PExpr.visitLambda xs e visitLet
 
-partial def visitLambda (e : Expr) : M Expr :=
-  withNewScope do
-    let (as, e) ← Compiler.visitLambdaCore e
-    let e ← mkLetUsingScope (← visitLet e as)
-    mkLambda as e
-
-partial def visitLet (e : Expr) (xs : Array Expr): M Expr := do
+partial def visitLet (xs : Array Expr) (e : Expr) : M (Array Expr × PExpr) := do
   let saved ← get
-  try go e xs finally set saved
+  try go xs e finally set saved
 where
-  go (e : Expr) (xs : Array Expr) : M Expr := do
+  go (xs : Array Expr) (e : Expr) : M (Array Expr × PExpr) := do
     match e with
     | .letE binderName type value body nonDep =>
-      let mut value := value.instantiateRev xs
-      if value.isLambda then
-        value ← visitLambda value
+      let value' ← if value.isLambda then
+        (← visitLambda xs value).toExpr
+      else
+        pure <| value.instantiateRev xs
+      if value'.isLambda then
+        trace[Meta.debug] "nested lambda\n{value.instantiateRev xs}\n====>\n{value'}"
+      let value := value'
       match (← get).map.find? value with
-      | some x => go body (xs.push x)
+      | some x => go (xs.push x) body
       | none =>
         let type := type.instantiateRev xs
         let x ← mkLetDecl binderName type value nonDep
@@ -50,13 +46,12 @@ where
           -- We currently don't eliminate common join points because we want to prevent
           -- jumps to out-of-scope join points.
           modify fun s => { s with map := s.map.insert value x }
-        go body (xs.push x)
+        go (xs.push x) body
     | _ =>
-      let e := e.instantiateRev xs
       if let some casesInfo ← isCasesApp? e then
-        visitCases casesInfo e
+        return (xs, ← PExpr.visitCases xs casesInfo e visitLambda)
       else
-        return e
+        return (xs, e.instantiateRev xs)
 
 end
 
@@ -66,6 +61,6 @@ end CSE
 Common sub-expression elimination
 -/
 def Decl.cse (decl : Decl) : CoreM Decl :=
-  decl.mapValue fun value => CSE.visitLambda value  |>.run' {}
+  decl.mapValue fun value => do (← CSE.visitLambda #[] value  |>.run' {}).toExpr
 
 end Lean.Compiler

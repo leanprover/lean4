@@ -5,9 +5,8 @@ Authors: Leonardo de Moura
 -/
 import Lean.Compiler.BorrowedAnnotation
 import Lean.Meta.InferType
-import Lean.Compiler.LCNF.Types
 
-namespace Lean.Compiler
+namespace Lean.Compiler.LCNF
 
 structure LCNFTypeExtState where
   types : Std.PHashMap Name Expr := {}
@@ -19,6 +18,12 @@ builtin_initialize lcnfTypeExt : EnvExtension LCNFTypeExtState ←
 
 def erasedExpr := mkConst ``lcErased
 def anyTypeExpr := mkConst  ``lcAny
+
+def _root_.Lean.Expr.isAnyType (e : Expr) :=
+  e.isConstOf ``lcAny
+
+def _root_.Lean.Expr.erased (e : Expr) :=
+  e.isConstOf ``lcErased
 
 /-!
 The code generator uses a format based on A-normal form.
@@ -197,4 +202,4 @@ def isClass? (type : Expr) : CoreM (Option Name) := do
   else
     return none
 
-end Lean.Compiler
+end Lean.Compiler.LCNF

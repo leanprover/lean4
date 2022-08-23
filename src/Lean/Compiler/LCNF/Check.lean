@@ -18,7 +18,7 @@ structure Context where
 
 structure State where
   /-- All free variables found -/
-  all : FVarIdHashSet
+  all : FVarIdHashSet := {}
 
 abbrev CheckM := ReaderT Context $ StateRefT State InferTypeM
 
@@ -108,11 +108,14 @@ def addFVarId (fvarId : FVarId) : CheckM Unit := do
 
 mutual
 
-partial def checkFunDecl (funDecl : FunDecl) : CheckM Unit := do
-  let type ← withParams funDecl.params do
-    mkForallParams funDecl.params (← check funDecl.value)
-  unless compatibleTypes funDecl.type type do
-    throwError "type mismatch at `{funDecl.binderName}`, value has type{indentExpr type}\nbut is expected to have type{indentExpr funDecl.type}"
+partial def checkFunDeclCore (declName : Name) (type : Expr) (params : Array Param) (value : Code) : CheckM Unit := do
+  let valueType ← withParams params do
+    mkForallParams params (← check value)
+  unless compatibleTypes type valueType do
+    throwError "type mismatch at `{declName}`, value has type{indentExpr valueType}\nbut is expected to have type{indentExpr type}"
+
+partial def checkFunDecl (funDecl : FunDecl) : CheckM Unit :=
+  checkFunDeclCore funDecl.binderName funDecl.type funDecl.params funDecl.value
 
 partial def checkCases (c : Cases) : CheckM Expr := do
   let mut ctorNames : NameSet := {}
@@ -156,6 +159,12 @@ partial def check (code : Code) : CheckM Expr := do
 
 end
 
+def run (x : CheckM α) : CompilerM α :=
+  x |>.run {} |>.run' {} |>.run {}
+
 end Check
+
+def Decl.check (decl : Decl) : CompilerM Unit := do
+  Check.run do Check.checkFunDeclCore decl.name decl.type decl.params decl.value
 
 end Lean.Compiler.LCNF

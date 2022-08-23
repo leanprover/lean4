@@ -5,4 +5,4 @@ set -e
 ./app/build/bin/app
 ./lib/build/bin/test
 
-${LAKE:-../../build/bin/lake} -d app build Test
+${LAKE:-../../build/bin/lake} -d app build -v Test

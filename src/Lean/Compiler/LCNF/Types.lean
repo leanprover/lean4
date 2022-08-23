@@ -183,6 +183,41 @@ partial def compatibleTypes (a b : Expr) : Bool :=
       | .const n us, .const m vs => n == m && List.isEqv us vs Level.isEquiv
       | _, _ => false
 
+mutual
+
+partial def joinTypes (a b : Expr) : Expr :=
+  joinTypes? a b |>.getD anyTypeExpr
+
+partial def joinTypes? (a b : Expr) : Option Expr := do
+  if a.isAnyType then return a
+  else if b.isAnyType then return b
+  else if a == b then return a
+  else if a.erased || b.erased then failure
+  else
+    let a' := a.headBeta
+    let b' := b.headBeta
+    if a != a' || b != b' then
+      joinTypes? a' b'
+    else
+      match a, b with
+      | .mdata _ a, b => joinTypes? a b
+      | a, .mdata _ b => joinTypes? a b
+      | .app f a, .app g b =>
+        (do return .app (← joinTypes? f g) (← joinTypes? a b))
+         <|>
+        return anyTypeExpr
+      | .forallE n d₁ b₁ _, .forallE _ d₂ b₂ _ =>
+        (do return .forallE n (← joinTypes? d₁ d₂) (joinTypes b₁ b₂) .default)
+        <|>
+        return anyTypeExpr
+      | .lam n d₁ b₁ _, .lam _ d₂ b₂ _ =>
+        (do return .lam n (← joinTypes? d₁ d₂) (joinTypes b₁ b₂) .default)
+        <|>
+        return anyTypeExpr
+      | _, _ => return anyTypeExpr
+
+end
+
 /--
 Return `true` if `type` is a LCNF type former type.
 -/

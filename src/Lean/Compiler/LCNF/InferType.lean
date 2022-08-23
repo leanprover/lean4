@@ -170,4 +170,14 @@ def Code.inferType (code : Code) : CompilerM Expr := do
   | .unreach type => return type
   | .cases c => return c.resultType
 
+def Code.inferParamType (params : Array Param) (code : Code) : CompilerM Expr := do
+  let type ← code.inferType
+  let xs := params.map fun p => .fvar p.fvarId
+  InferType.mkForallFVars xs type |>.run {}
+
+def AltCore.inferType (alt : Alt) : CompilerM Expr := do
+  match alt with
+  | .default k => k.inferType
+  | .alt _ params k => k.inferParamType params
+
 end Lean.Compiler.LCNF

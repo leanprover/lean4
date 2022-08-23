@@ -16,12 +16,14 @@ structure Param where
 inductive AltCore (Code : Type) where
   | alt (ctorName : Name) (params : Array Param) (code : Code)
   | default (code : Code)
+  deriving Inhabited
 
 structure LetDecl where
   fvarId : FVarId
   binderName : Name
   type : Expr
   value : Expr
+  deriving Inhabited
 
 structure FunDeclCore (Code : Type) where
   fvarId : FVarId
@@ -29,12 +31,14 @@ structure FunDeclCore (Code : Type) where
   params : Array Param
   type : Expr
   value : Code
+  deriving Inhabited
 
 structure CasesCore (Code : Type) where
   typeName : Name
   resultType : Expr
   discr : FVarId
   alts : Array (AltCore Code)
+  deriving Inhabited
 
 inductive Code where
   | let (decl : LetDecl) (k : Code)
@@ -44,6 +48,7 @@ inductive Code where
   | cases (cases : CasesCore Code)
   | return (fvarId : FVarId)
   | unreach (type : Expr)
+  deriving Inhabited
 
 abbrev Alt := AltCore Code
 abbrev FunDecl := FunDeclCore Code

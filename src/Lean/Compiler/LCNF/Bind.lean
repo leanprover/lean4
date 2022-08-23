@@ -24,14 +24,21 @@ where
     | .let decl k => return .let decl (← go k)
     | .fun decl k => return .fun decl (← go k)
     | .jp decl k =>
-      let decl := { decl with value := (← go decl.value) }
+      let value ← go decl.value
+      let type ← value.inferParamType decl.params
+      let decl := { decl with value, type }
       withReader (fun s => s.insert decl.fvarId) do
         return .jp decl (← go k)
     | .cases c =>
       let alts ← c.alts.mapM fun
         | .alt ctorName params k => return .alt ctorName params (← go k)
         | .default k => return .default (← go k)
-      return .cases { c with alts }
+      if alts.isEmpty then
+        throwError "`Code.bind` failed, empty `cases` found"
+      let mut resultType ← alts[0]!.inferType
+      for alt in alts[1:] do
+        resultType := joinTypes resultType (← alt.inferType)
+      return .cases { c with alts, resultType }
     | .return fvarId => f fvarId
     | .jmp fvarId .. =>
       unless (← read).contains fvarId do

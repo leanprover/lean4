@@ -220,7 +220,6 @@ opaque FS.Handle : Type := Unit
   A pure-Lean abstraction of POSIX streams. We use `Stream`s for the standard streams stdin/stdout/stderr so we can
   capture output of `#eval` commands into memory. -/
 structure FS.Stream where
-  isEof   : IO Bool
   flush   : IO Unit
   read    : USize → IO ByteArray
   write   : ByteArray → IO Unit
@@ -266,12 +265,6 @@ private def fopenFlags (m : FS.Mode) (b : Bool) : String :=
 def mk (fn : FilePath) (Mode : Mode) (bin : Bool := true) : IO Handle :=
   mkPrim fn (fopenFlags Mode bin)
 
-/--
-Returns whether the end of the file has been reached while reading a file.
-`h.isEof` returns true /after/ the first attempt at reading past the end of `h`.
-Once `h.isEof` is true, reading `h` will always return an empty array.
--/
-@[extern "lean_io_prim_handle_is_eof"] opaque isEof (h : @& Handle) : BaseIO Bool
 @[extern "lean_io_prim_handle_flush"] opaque flush (h : @& Handle) : IO Unit
 /--
 Read up to the given number of bytes from the handle.
@@ -622,7 +615,6 @@ namespace Stream
 
 @[export lean_stream_of_handle]
 def ofHandle (h : Handle) : Stream := {
-  isEof   := Handle.isEof h,
   flush   := Handle.flush h,
   read    := Handle.read h,
   write   := Handle.write h,
@@ -635,7 +627,6 @@ structure Buffer where
   pos  : Nat := 0
 
 def ofBuffer (r : Ref Buffer) : Stream := {
-  isEof   := do let b ← r.get; pure <| b.pos >= b.data.size,
   flush   := pure (),
   read    := fun n => r.modifyGet fun b =>
     let data := b.data.extract b.pos (b.pos + n.toNat)

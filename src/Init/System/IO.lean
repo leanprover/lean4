@@ -221,8 +221,18 @@ opaque FS.Handle : Type := Unit
   capture output of `#eval` commands into memory. -/
 structure FS.Stream where
   flush   : IO Unit
+  /--
+Read up to the given number of bytes from the stream.
+If the returned array is empty, an end-of-file marker has been reached.
+Note that EOF does not actually close a stream, so further reads may block and return more data.
+  -/
   read    : USize → IO ByteArray
   write   : ByteArray → IO Unit
+  /--
+Read text up to (including) the next line break from the stream.
+If the returned string is empty, an end-of-file marker has been reached.
+Note that EOF does not actually close a stream, so further reads may block and return more data.
+  -/
   getLine : IO String
   putStr  : String → IO Unit
   deriving Inhabited

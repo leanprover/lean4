@@ -21,13 +21,17 @@ def getLocalDecl (fvarId : FVarId) : InferTypeM LocalDecl := do
   | some localDecl => return localDecl
   | none => LCNF.getLocalDecl fvarId
 
-def mkForallFVars (xs : Array Expr) (b : Expr) : InferTypeM Expr :=
-  let b := b.abstract xs
+def mkForallFVars (xs : Array Expr) (type : Expr) : InferTypeM Expr :=
+  let b := type.abstract xs
   xs.size.foldRevM (init := b) fun i b => do
     let x := xs[i]!
     let .cdecl _ _ n ty _ ← getLocalDecl x.fvarId! | unreachable!
     let ty := ty.abstractRange i xs;
     return .forallE n ty b .default
+
+def mkForallParams (params : Array Param) (type : Expr) : InferTypeM Expr :=
+  let xs := params.map fun p => .fvar p.fvarId
+  mkForallFVars xs type |>.run {}
 
 @[inline] def withLocalDecl (binderName : Name) (type : Expr) (binderInfo : BinderInfo) (k : Expr → InferTypeM α) : InferTypeM α := do
   let fvarId ← mkFreshFVarId

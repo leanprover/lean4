@@ -63,6 +63,9 @@ where
     else
       k
 
+def run (x : M α) (offset : Nat := 0) (levelMap : LevelMap := {}) : α :=
+  x |>.run offset |>.run' levelMap
+
 end ToExpr
 
 open ToExpr
@@ -89,6 +92,9 @@ partial def Code.toExprM (code : Code) : M Expr := do
     return mkAppN (mkConst `cases) (#[← c.discr.toExprM] ++ alts)
 
 def Code.toExpr (code : Code) : Expr :=
-  code.toExprM |>.run 0 |>.run' {}
+  run code.toExprM
+
+def Decl.toExpr (decl : Decl) : Expr :=
+  run do withParams decl.params do mkLambdaM decl.params (← decl.value.toExprM)
 
 end Lean.Compiler.LCNF

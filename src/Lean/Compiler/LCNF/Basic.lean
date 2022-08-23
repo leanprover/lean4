@@ -73,7 +73,11 @@ structure Decl where
   -/
   type  : Expr
   /--
-  The value of the declaration, usually changes as it progresses
+  Parameters.
+  -/
+  params : Array Param
+  /--
+  The body of the declaration, usually changes as it progresses
   through compiler passes.
   -/
   value : Code

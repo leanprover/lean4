@@ -29,6 +29,10 @@ instance : AddMessageContext CompilerM where
     let opts ← getOptions
     return MessageData.withContext { env, lctx, opts, mctx := {} } msgData
 
+def getLocalDecl (fvarId : FVarId) : CompilerM LocalDecl := do
+  let some decl := (← get).lctx.find? fvarId | throwError "unknown free variable {fvarId.name}"
+  return decl
+
 namespace Internalize
 
 structure State where

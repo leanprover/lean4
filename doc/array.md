@@ -35,6 +35,13 @@ To create an array of size `n` in which all the elements are initialized to some
 -- #['a', 'a', 'a', 'a', 'a']
 ```
 
+To create an array from a range of numbers use `List.range` and convert the result to an Array:
+
+```lean
+#eval (List.range 5).toArray
+-- #[0, 1, 2, 3, 4]
+```
+
 ## Accessing elements
 
 You can access array elements by using brackets (`[` and `]`).
@@ -64,6 +71,10 @@ def idx : Fin 4 :=
 
 #eval as[idx] -- This is an array access
 ```
+
+Note that `[1, 2, 3]` is the syntax for building a `List`, so here we are passing
+a list to the function `f`.  See [Lists](list.md).
+
 The notation `a[i]` has two variants: `a[i]!` and `a[i]?`. In both cases, `i` has type `Nat`. The first one
 produces a panic error message if the index `i` is out of bounds. The latter returns an `Option` type.
 
@@ -73,5 +84,73 @@ produces a panic error message if the index `i` is out of bounds. The latter ret
 #eval #['a', 'b', 'c'][5]?
 -- none
 #eval #['a', 'b', 'c'][1]!
--- 'b!
+-- 'b'
+```
+
+## Concatenation
+
+You can push a new item to the end of an array:
+```lean
+#eval Array.push #[1, 2, 3] 7
+-- #[1, 2, 3, 7]
+```
+
+And you can pop an item off the end of an array:
+
+
+```lean
+#eval Array.pop #[1, 2, 3]
+-- #[1, 2]
+```
+
+And you can append two arrays using the `++` operator:
+
+```lean
+#eval #[1, 2, 3] ++ (Array.mkArray 3 5)
+-- #[1, 2, 3, 5, 5, 5]
+```
+or the `append` method:
+
+```lean
+#eval Array.append #[10] #[20]
+-- #[10, 20]
+```
+
+You can create an array of arrays:
+
+```lean
+#check #[#[20, 21]] -- Array (Array Nat)
+
+#eval Array.append #[#[12]] #[#[20, 21]]
+-- #[#[12], #[20, 21]]
+```
+
+## Mapping
+
+Arrays support "mapping" where you apply a given function to all elements in the array:
+
+```lean
+#eval Array.map (λ x => x + 1) #[3, 4, 5]
+-- #[4, 5, 6]
+
+def square_cap (x : Nat) :=
+  if x < 10 then x * x else 100
+
+#eval Array.map square_cap #[3, 4, 5, 20]
+-- #[9, 16, 25, 100]
+
+#eval Array.map (λ x => toString x) #[1,2,3]
+-- #["1", "2", "3"]
+```
+
+## Aggregation
+
+And you can aggregate boolean predicates over an array with:
+
+```lean
+#eval Array.all (Array.mkArray 5 6) (λ x => x < 10)
+-- true
+
+#eval Array.any #["hello", "world"] (λ x => x.isEmpty)
+-- false
 ```

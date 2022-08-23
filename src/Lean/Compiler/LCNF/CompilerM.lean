@@ -30,7 +30,7 @@ instance : AddMessageContext CompilerM where
     return MessageData.withContext { env, lctx, opts, mctx := {} } msgData
 
 def getLocalDecl (fvarId : FVarId) : CompilerM LocalDecl := do
-  let some decl := (← get).lctx.find? fvarId | throwError "unknown free variable {fvarId.name}"
+  let some decl := (← get).lctx.localDecls.find? fvarId | throwError "unknown free variable {fvarId.name}"
   return decl
 
 namespace Internalize
@@ -66,15 +66,18 @@ where
 @[inline] private def translate (e : Expr) : M Expr :=
   return translateCore (← get) e
 
-private def declareFVarId (fvarId : FVarId) (binderName : Name) (type : Expr) : M FVarId := do
-  let fvarId' ← mkFreshFVarId
+@[inline] def modifyLCtx (f : LCtx → LCtx) : CompilerM Unit := do
+   modify fun s => { s with lctx := f s.lctx }
+
+private def mkNewFVarId (fvarId : FVarId) : M FVarId := do
+  let fvarId' ← Lean.mkFreshFVarId
   modify fun s => { s with fvarIdMap := s.fvarIdMap.insert fvarId fvarId' }
-  modifyThe CompilerM.State fun s => { s with lctx := s.lctx.insert fvarId (.cdecl 0 fvarId' binderName type .default) }
   return fvarId'
 
-private def declareParam (p : Param) : M Param := do
+private def addParam (p : Param) : M Param := do
   let type ← translate p.type
-  let fvarId ← declareFVarId p.fvarId p.binderName type
+  let fvarId ← mkNewFVarId p.fvarId
+  modifyLCtx fun lctx => lctx.addLocalDecl fvarId p.binderName type
   return { p with fvarId, type }
 
 end Internalize
@@ -88,17 +91,20 @@ partial def internalize (code : Code) : CompilerM Code :=
 where
   goFunDecl (decl : FunDecl) : M FunDecl := do
     let type ← translate decl.type
-    let params ← decl.params.mapM declareParam
+    let params ← decl.params.mapM addParam
     let value ← go decl.value
-    let fvarId ← declareFVarId decl.fvarId decl.binderName type
-    return { decl with fvarId, params, type, value }
+    let fvarId ← mkNewFVarId decl.fvarId
+    let decl := { decl with fvarId, params, type, value }
+    modifyLCtx fun lctx => lctx.addFunDecl decl
+    return decl
 
   go (code : Code) : M Code := do
     match code with
     | .let decl k =>
       let type ← translate decl.type
       let value ← translate decl.value
-      let fvarId ← declareFVarId decl.fvarId decl.binderName type
+      let fvarId ← mkNewFVarId decl.fvarId
+      modifyLCtx fun lctx => lctx.addLetDecl fvarId decl.binderName type value
       let k ← go k
       return .let { decl with fvarId, type, value } k
     | .fun decl k =>
@@ -111,7 +117,7 @@ where
     | .cases c =>
       let discr ← translateFVarId c.discr
       let alts ← c.alts.mapM fun
-        | .alt ctorName params k => return .alt ctorName (← params.mapM declareParam) (← go k)
+        | .alt ctorName params k => return .alt ctorName (← params.mapM addParam) (← go k)
         | .default k => return .default (← go k)
       return .cases { c with discr, alts }
 

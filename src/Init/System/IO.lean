@@ -273,9 +273,19 @@ Once `h.isEof` is true, reading `h` will always return an empty array.
 -/
 @[extern "lean_io_prim_handle_is_eof"] opaque isEof (h : @& Handle) : BaseIO Bool
 @[extern "lean_io_prim_handle_flush"] opaque flush (h : @& Handle) : IO Unit
-@[extern "lean_io_prim_handle_read"] opaque read  (h : @& Handle) (bytes : USize) : IO ByteArray
+/--
+Read up to the given number of bytes from the handle.
+If the returned array is empty, an end-of-file marker has been reached.
+Note that EOF does not actually close a handle, so further reads may block and return more data.
+-/
+@[extern "lean_io_prim_handle_read"] opaque read (h : @& Handle) (bytes : USize) : IO ByteArray
 @[extern "lean_io_prim_handle_write"] opaque write (h : @& Handle) (buffer : @& ByteArray) : IO Unit
 
+/--
+Read text up to (including) the next line break from the handle.
+If the returned string is empty, an end-of-file marker has been reached.
+Note that EOF does not actually close a handle, so further reads may block and return more data.
+-/
 @[extern "lean_io_prim_handle_get_line"] opaque getLine (h : @& Handle) : IO String
 @[extern "lean_io_prim_handle_put_str"] opaque putStr (h : @& Handle) (s : @& String) : IO Unit
 

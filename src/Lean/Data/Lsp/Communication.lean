@@ -39,7 +39,7 @@ section
 
   private partial def readHeaderFields (h : FS.Stream) : IO (List (String × String)) := do
     let l ← h.getLine
-    if (←h.isEof) then
+    if l.isEmpty then
       throw $ userError "Stream was closed"
     if l = "\r\n" then
       pure []

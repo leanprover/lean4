@@ -25,7 +25,7 @@ private def join (as : Array α) (f : α → M Format) : M Format := do
 
 private def prefixJoin (pre : Format) (as : Array α) (f : α → M Format) : M Format := do
   let mut result := .nil
-  for a in as[1:] do
+  for a in as do
     result := f!"{result}{pre}{← f a}"
   return result
 
@@ -103,8 +103,6 @@ def ppCode (code : Code) : CompilerM Format :=
 
 def ppDecl (decl : Decl) : CompilerM Format :=
   PP.run do
-    return f!"{decl.name}{← PP.ppParams decl.params} :={indentD (← PP.ppCode decl.value)}"
+    return f!"def {decl.name}{← PP.ppParams decl.params} :={indentD (← PP.ppCode decl.value)}"
 
 end Lean.Compiler.LCNF
-
-

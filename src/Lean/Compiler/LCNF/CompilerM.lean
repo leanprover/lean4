@@ -154,4 +154,7 @@ def mkFreshJpName : CompilerM Name := do
 def mkAuxParam (type : Expr) : CompilerM Param := do
   mkParam (← mkFreshBinderName `_y) type
 
+def CompilerM.run (x : CompilerM α) (s : State := {}) : CoreM α :=
+  x |>.run' s
+
 end Lean.Compiler.LCNF

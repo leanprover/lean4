@@ -4,11 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Expr
-import Lean.Compiler.Util
 
 /-! Constant folding for primitives that have special runtime support. -/
 
 namespace Lean.Compiler
+
+def mkLcProof (p : Expr) :=
+  mkApp (mkConst ``lcProof []) p
 
 abbrev BinFoldFn := Bool → Expr → Expr → Option Expr
 abbrev UnFoldFn  := Bool → Expr → Option Expr

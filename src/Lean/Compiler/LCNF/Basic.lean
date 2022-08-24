@@ -66,6 +66,20 @@ abbrev Alt := AltCore Code
 abbrev FunDecl := FunDeclCore Code
 abbrev Cases := CasesCore Code
 
+def AltCore.getCode : Alt → Code
+  | .default k => k
+  | .alt _ _ k => k
+
+partial def Code.size (c : Code) : Nat :=
+  go c 0
+where
+  go (c : Code) (n : Nat) : Nat :=
+   match c with
+   | .let _ k => go k (n+1)
+   | .jp decl k | .fun decl k => go k <| go decl.value n
+   | .cases c => c.alts.foldl (init := n+1) fun n alt => go alt.getCode (n+1)
+   | .jmp .. | .return .. | unreach .. => n+1
+
 /--
 Declaration being processed by the Lean to Lean compiler passes.
 -/
@@ -93,5 +107,8 @@ structure Decl where
   through compiler passes.
   -/
   value : Code
+
+partial def Decl.size (decl : Decl) : Nat :=
+  decl.value.size
 
 end Lean.Compiler.LCNF

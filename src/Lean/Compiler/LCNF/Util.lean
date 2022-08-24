@@ -3,7 +3,7 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Meta.Match.MatcherInfo
+import Lean.CoreM
 import Lean.Util.Recognizers
 
 namespace Lean.Compiler.LCNF
@@ -25,14 +25,15 @@ def isLcCast? (e : Expr) : Option Expr :=
   else
     none
 /--
-Store information about `matcher` and `casesOn` declarations.
+Store information about `casesOn` declarations.
 
 We treat them uniformly in the code generator.
 -/
 structure CasesInfo where
+  declName     : Name
   arity        : Nat
   numParams    : Nat
-  discrsRange  : Std.Range
+  discrPos     : Nat
   altsRange    : Std.Range
   altNumParams : Array Nat
   motivePos    : Nat
@@ -47,25 +48,13 @@ def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
   let numParams    := val.numParams
   let motivePos    := numParams
   let arity        := numParams + 1 /- motive -/ + val.numIndices + 1 /- major -/ + val.numCtors
-  let majorPos     := numParams + 1 /- motive -/ + val.numIndices
+  let discrPos     := numParams + 1 /- motive -/ + val.numIndices
   -- We view indices as discriminants
-  let discrsRange  := { start := numParams + 1, stop := majorPos + 1 }
-  let altsRange    := { start := majorPos + 1,  stop := arity }
+  let altsRange    := { start := discrPos + 1,  stop := arity }
   let altNumParams ← val.ctors.toArray.mapM fun ctor => do
     let .ctorInfo ctorVal ← getConstInfo ctor | unreachable!
     return ctorVal.numFields
-  return some { numParams, motivePos, arity, discrsRange, altsRange, altNumParams }
-
-def CasesInfo.geNumDiscrs (casesInfo : CasesInfo) : Nat :=
-  casesInfo.discrsRange.stop - casesInfo.discrsRange.start
-
-def CasesInfo.updateResultingType (casesInfo : CasesInfo) (casesArgs : Array Expr) (typeNew : Expr) : Array Expr :=
-  casesArgs.modify casesInfo.motivePos fun motive => go motive
-where
-  go (e : Expr) : Expr :=
-    match e with
-    | .lam n b d bi => .lam n b (go d) bi
-    | _ => typeNew
+  return some { declName, numParams, motivePos, arity, discrPos, altsRange, altNumParams }
 
 def isCasesApp? (e : Expr) : CoreM (Option CasesInfo) := do
   let .const declName _ := e.getAppFn | return none

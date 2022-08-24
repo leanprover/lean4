@@ -23,6 +23,11 @@ def isLCProof (e : Expr) : Bool :=
 def mkLcProof (p : Expr) :=
   mkApp (mkConst ``lcProof []) p
 
+/--
+Auxiliary inductive datatype for constructing LCNF `Code` objects.
+The `toLCNF` function maintains a sequence of elements that is eventually
+converted into `Code`.
+-/
 inductive Element where
   | jp  (decl : FunDecl)
   | fun (decl : FunDecl)

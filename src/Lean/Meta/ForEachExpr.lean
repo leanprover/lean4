@@ -11,6 +11,41 @@ namespace Lean.Meta
 
 variable {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
 
+/-- Given an expression `e = fun (x₁ : α₁) .. (xₙ : αₙ) => b`, runs `f` on each `αᵢ` and `b`. -/
+def visitLambda (f : Expr → m Unit) (e : Expr) : m Unit := visit #[] e
+  where visit (fvars : Array Expr) : Expr → m Unit
+    | Expr.lam n d b c => do
+      let d := d.instantiateRev fvars
+      f d
+      withLocalDecl n c d fun x =>
+        visit (fvars.push x) b
+    | e => do
+      f <| e.instantiateRev fvars
+
+/-- Given an expression `e =  (x₁ : α₁) → .. (xₙ : αₙ) → b`, runs `f` on each `αᵢ` and `b`. -/
+def visitForall (f : Expr → m Unit) (e : Expr) : m Unit := visit #[] e
+  where visit (fvars : Array Expr) : Expr → m Unit
+    | Expr.forallE n d b c => do
+      let d := d.instantiateRev fvars
+      f d
+      withLocalDecl n c d fun x =>
+        visit (fvars.push x) b
+    | e => do
+      f <| e.instantiateRev fvars
+
+/-- Given a sequence of let binders `let (x₁ : α₁ := v₁) ... in b`, runs `f` on each `αᵢ`, `vᵢ` and `b`. -/
+def visitLet (f : Expr → m Unit) (e : Expr) : m Unit := visit #[] e
+  where visit (fvars : Array Expr) : Expr → m Unit
+    | Expr.letE n d v b _ => do
+      let d := d.instantiateRev fvars
+      let v := v.instantiateRev fvars
+      f d
+      f v
+      withLetDecl n d v fun x =>
+        visit (fvars.push x) b
+    | e => do
+      f <| e.instantiateRev fvars
+
 /-- Similar to `Expr.forEach'`, but creates free variables whenever going inside of a binder.
 If the inner function returns `false`, deeper subexpressions will not be visited.
  -/
@@ -21,31 +56,12 @@ partial def forEachExpr'
   let _ : STWorld IO.RealWorld m := ⟨⟩
   let _ : MonadLiftT (ST IO.RealWorld) m := { monadLift := fun x => liftM (m := MetaM) (liftM (m := ST IO.RealWorld) x) }
   let rec visit (e : Expr) : MonadCacheT Expr Unit m Unit :=
-    let rec visitBinder (fvars : Array Expr) (j : Nat) : Expr → MonadCacheT Expr Unit m Unit
-      | Expr.lam n d b c => do
-        let d := d.instantiateRevRange j fvars.size fvars
-        visit d
-        withLocalDecl n c d fun x =>
-          visitBinder (fvars.push x) j b
-      | Expr.forallE n d b c => do
-        let d := d.instantiateRevRange j fvars.size fvars
-        visit d
-        withLocalDecl n c d fun x =>
-          visitBinder (fvars.push x) j b
-      | Expr.letE n t v b _ => do
-        let t := t.instantiateRevRange j fvars.size fvars
-        visit t
-        let v := v.instantiateRevRange j fvars.size fvars
-        visit v
-        withLetDecl n t v fun x =>
-          visitBinder (fvars.push x) j b
-      | e => visit $ e.instantiateRevRange j fvars.size fvars
     checkCache e fun _ => do
       if (← liftM (fn e)) then
         match e with
-        | .forallE ..   => visitBinder #[] 0 e
-        | .lam ..       => visitBinder #[] 0 e
-        | .letE ..      => visitBinder #[] 0 e
+        | .forallE ..   => visitForall visit e
+        | .lam ..       => visitLambda visit e
+        | .letE ..      => visitLet visit e
         | .app f a      => visit f; visit a
         | .mdata _ b    => visit b
         | .proj _ _ b   => visit b

@@ -263,5 +263,4 @@ straightforward laws. We can easily visualize what they do. Monads meanwhile hav
 and several more complicated laws.
 
 Understanding abstract mathematical structures is a little tricky for most people. So it helps to
-start with a simpler idea like functors before we try to understand monads.  Ultimately it is pretty
-cool that the world of mathematical Category Theory has been able to enrich the world of programming.
+start with a simpler idea like functors before we try to understand monads.

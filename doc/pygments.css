@@ -79,3 +79,5 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 .highlight .vi, .code .vi { color: #ce5c00 } /* Name.Variable.Instance */
 .highlight .vm, .code .vm { color: #ce5c00 } /* Name.Variable.Magic */
 .highlight .il, .code .il { color: #2e3436 } /* Literal.Number.Integer.Long */
+.hljs-doctag { color: green  }
+.hljs-comment { color: green  }

@@ -65,6 +65,13 @@ Remember you can construct an Option using the type constructors `some` or `none
 #eval (some 5).map (fun x => toString x) -- some "5"
 ```
 
+Lean also provides a convenient short hand syntax for `(fun x => x + 1)`, namely `(· * 5)`
+using the middle dot unicode character which you can type in VS code using `\. `.
+
+```lean
+#eval (some 4).map (· * 5)  -- some 20
+```
+
 The `map` function preserves the `none` state of the Option, so again
 map preserves the structure of the object.  Notice that even in the `none` case it has
 transformed `Option Nat` into `Option String` as we see in the `#check` command below:
@@ -235,17 +242,14 @@ Lean Functor defines both `map` and a special case for working on constants more
 ```lean
 # namespace hidden
 class Functor (F : Type u → Type v) : Type (max (u+1) v) where
-  /-- If `f : α → β` and `x : F α` then `f <$> x : F β`. -/
   map : {α β : Type u} → (α → β) → f α → f β
-  /-- The special case `const a <$> x`, which can sometimes be implemented more
-  efficiently. -/
   mapConst : {α β : Type u} → α → f β → f α := Function.comp map (Function.const _)
 # end hidden
 ```
 
 In general then, a functor is a function on types `F : Type u → Type v` equipped with an operator
 called `map` such that if you have a function `f` of type `α → β` then `map f` will convert your
-container of type from `F α → F β`.
+container type from `F α → F β`.
 This corresponds to the category-theory notion of
 [functor](https://en.wikipedia.org/wiki/Functor) in the special case where the category is the
 category of types and functions between them.

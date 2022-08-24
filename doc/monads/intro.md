@@ -8,17 +8,22 @@ Monads in Lean are so similar to Haskell that this introduction to monads is hea
 similar chapter of the [Monday Morning Haskell](https://mmhaskell.com/monads/). So,
 much credit needs to go to the authors of that material.
 
+Monads build on the following more fundamental type classes which you will need to understand
+first before fully understanding monads:
+
+![image](../images/monads.png)
+
 This chapter is organized to give you a bottom up introduction to monads, starting with functors and
 applicative functors to get an intuition for how these abstract structures work in Lean. Then we’ll
 tackle monads and look at some of the most common ones.
 
 ## [Part 1: Functors](functors.md)
-In [part 1 on functors](functors.md), you’ll learn all about functors. A functor is a type class
+In [part 1](functors.md), you’ll learn all about functors. A functor is a type class
 that provides a `map` function and the map function is something many people are already familiar
 with so this should be easy to follow.
 
-## Part 2: Applicative Functors
-In part 2, we tackle applicative functors. Applicatives are a little
+## [Part 2: Applicative Functors](applicative.md)
+In [part 2](applicative.md), we tackle applicative functors. Applicatives are a little
 more difficult to understand than functors, but their functionality can still be summed up in a
 couple simple functions.
 

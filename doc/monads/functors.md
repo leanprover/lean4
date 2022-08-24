@@ -211,13 +211,7 @@ To break these laws, you would have to do something like introducing an arbitrar
 instance that is not the identity value and is not based on the function `f : α → β`:
 
 ```lean
-# structure LivingSpace (α: Type) where
-#   totalSize : α
-#   numBedrooms : Nat
-#   masterBedroomSize : α
-#   livingRoomSize : α
-#   kitchenSize : α
-#   deriving Repr, BEq
+# ++
 def LivingSpace.map (f : α → β) (s : LivingSpace α) : LivingSpace β :=
   {
     totalSize := f s.totalSize,
@@ -240,7 +234,7 @@ Lean Functor defines both `map` and a special case for working on constants more
 
 ```lean
 # namespace hidden
-class Functor (f : Type u → Type v) : Type (max (u+1) v) where
+class Functor (F : Type u → Type v) : Type (max (u+1) v) where
   /-- If `f : α → β` and `x : F α` then `f <$> x : F β`. -/
   map : {α β : Type u} → (α → β) → f α → f β
   /-- The special case `const a <$> x`, which can sometimes be implemented more
@@ -249,18 +243,17 @@ class Functor (f : Type u → Type v) : Type (max (u+1) v) where
 # end hidden
 ```
 
-In general then, a "functor" is a function on types `F : Type u → Type v` equipped with an operator
-called `map` such that if `f : α → β` then `map f : F α → F β`.
+In general then, a functor is a function on types `F : Type u → Type v` equipped with an operator
+called `map` such that if you have a function `f` of type `α → β` then `map f` will convert your
+container of type from `F α → F β`.
 This corresponds to the category-theory notion of
 [functor](https://en.wikipedia.org/wiki/Functor) in the special case where the category is the
 category of types and functions between them.
 
 This `Functor` has particular "laws" associated with it that dictate its expected behavior. Monads
-are the same way!
-
-However, functors are simpler to understand. The functor type class has only the `map` function and two
-straightforward laws. We can easily visualize what they do. Monads meanwhile have multiple functions
-and several more complicated laws.
+are the same way! However, functors are simpler to understand. The functor type class has only the
+`map` function and two straightforward laws. We can easily visualize what they do. Monads meanwhile
+have multiple functions and several more complicated laws.
 
 Understanding abstract mathematical structures is a little tricky for most people. So it helps to
 start with a simpler idea like functors before we try to understand monads.

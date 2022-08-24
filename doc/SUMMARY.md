@@ -59,6 +59,8 @@
   - [Thunk](./thunk.md)
   - [Task and Thread](./task.md)
 - [Functions](./functions.md)
+- [Monads](./monads/intro.md)
+  - [Functors](./monads/functors.md)
 
 # Other
 

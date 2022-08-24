@@ -489,4 +489,6 @@ where
 
 end ToLCNF
 
+export ToLCNF (toLCNF)
+
 end Lean.Compiler.LCNF

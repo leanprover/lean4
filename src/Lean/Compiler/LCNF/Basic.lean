@@ -7,11 +7,23 @@ import Lean.Expr
 
 namespace Lean.Compiler.LCNF
 
+/-!
+# Lean Compiler Normal Form (LCNF)
+
+It is based on the [A-normal form](https://en.wikipedia.org/wiki/A-normal_form),
+and the approach described in the paper
+[Compiling  without continuations](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/11/compiling-without-continuations.pdf).
+
+-/
+
 structure Param where
   fvarId     : FVarId
   binderName : Name
   type       : Expr
   deriving Inhabited
+
+def Param.toExpr (p : Param) : Expr :=
+  .fvar p.fvarId
 
 inductive AltCore (Code : Type) where
   | alt (ctorName : Name) (params : Array Param) (code : Code)

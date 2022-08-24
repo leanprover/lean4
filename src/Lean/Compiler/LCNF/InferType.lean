@@ -184,4 +184,28 @@ def AltCore.inferType (alt : Alt) : CompilerM Expr := do
   | .default k => k.inferType
   | .alt _ params k => k.inferParamType params
 
+def mkAuxLetDecl (e : Expr) (prefixName := `_x) : CompilerM Expr := do
+  if e.isFVar then
+    return e
+  else
+    let letDecl ← mkLetDecl (← mkFreshBinderName prefixName) (← inferType e) e
+    return .fvar letDecl.fvarId
+
+def mkForallParams (params : Array Param) (type : Expr) : CompilerM Expr :=
+  InferType.mkForallParams params type |>.run {}
+
+def mkAuxFunDecl (params : Array Param) (code : Code) (prefixName := `_f) : CompilerM FunDecl := do
+  let type ← mkForallParams params (← code.inferType)
+  let binderName ← mkFreshBinderName prefixName
+  mkFunDecl binderName type params code
+
+def mkAuxJpDecl (params : Array Param) (code : Code) (prefixName := `_jp) : CompilerM FunDecl := do
+  mkAuxFunDecl params code prefixName
+
+def mkAuxJpDecl' (fvarId : FVarId) (code : Code) (prefixName := `_jp) : CompilerM FunDecl := do
+  let y ← mkFreshBinderName `_y
+  let yType ← inferType (.fvar fvarId)
+  let params := #[{ fvarId, binderName := y, type := yType }]
+  mkAuxFunDecl params code prefixName
+
 end Lean.Compiler.LCNF

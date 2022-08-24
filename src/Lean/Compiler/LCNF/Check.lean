@@ -24,13 +24,10 @@ abbrev CheckM := ReaderT Context $ StateRefT State InferTypeM
 
 def checkFVar (fvarId : FVarId) : CheckM Unit :=
   unless (← read).vars.contains fvarId do
-    throwError "invalid out of scope free variable {fvarId.name}"
+    let localDecl ← getLocalDecl fvarId
+    throwError "invalid out of scope free variable {localDecl.userName}"
 
-def checkApp (f : Expr) (args : Array Expr) : CheckM Unit := do
-  unless f.isConst || f.isFVar do
-    throwError "unexpected function application, function must be a constant or free variable{indentExpr (mkAppN f args)}"
-  if f.isFVar then
-    checkFVar f.fvarId!
+def checkAppArgs (f : Expr) (args : Array Expr) : CheckM Unit := do
   let mut fType ← inferType f
   let mut j := 0
   for i in [:args.size] do
@@ -57,6 +54,13 @@ def checkApp (f : Expr) (args : Array Expr) : CheckM Unit := do
         throwError "invalid LCNF application{indentExpr (mkAppN f args)}\nargument{indentExpr arg}\nmust be a free variable"
       checkFVar arg.fvarId!
     fType := b
+
+def checkApp (f : Expr) (args : Array Expr) : CheckM Unit := do
+  unless f.isConst || f.isFVar do
+    throwError "unexpected function application, function must be a constant or free variable{indentExpr (mkAppN f args)}"
+  if f.isFVar then
+    checkFVar f.fvarId!
+  checkAppArgs f args
 
 def checkExpr (e : Expr) : CheckM Unit :=
   match e with
@@ -153,7 +157,7 @@ partial def check (code : Code) : CheckM Expr := do
     withFVarId decl.fvarId do check k
   | .jp decl k => checkFunDecl decl; withJp decl.fvarId do check k
   | .cases c => checkCases c
-  | .jmp fvarId args => checkJpInScope fvarId; checkApp (.fvar fvarId) args; code.inferType
+  | .jmp fvarId args => checkJpInScope fvarId; checkAppArgs (.fvar fvarId) args; code.inferType
   | .return fvarId => checkFVar fvarId; code.inferType
   | .unreach .. => code.inferType
 

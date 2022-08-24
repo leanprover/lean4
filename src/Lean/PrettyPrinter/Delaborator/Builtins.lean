@@ -206,15 +206,6 @@ def unexpandRegularApp (stx : Syntax) : Delab := do
     | EStateM.Result.ok stx _ => pure stx
     | _ => failure
 
--- abbrev coe {α : Sort u} {β : Sort v} (a : α) [CoeT α a β] : β
--- abbrev coeFun {α : Sort u} {γ : α → Sort v} (a : α) [CoeFun α γ] : γ a
-def unexpandCoe (stx : Syntax) : Delab := whenPPOption getPPCoercions do
-  if not (isCoe (← getExpr)) then failure
-  match stx with
-  | `($_ $arg)   => return arg
-  | `($_ $args*) => `($(args.get! 0) $(args.eraseIdx 0)*)
-  | _            => failure
-
 def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStructureInstances do
   let env ← getEnv
   let e ← getExpr
@@ -285,7 +276,6 @@ def delabAppImplicit : Delab := do
   if ← isRegularApp then
     (guard (← getPPOption getPPNotation) *> unexpandRegularApp stx)
     <|> (guard (← getPPOption getPPStructureInstances) *> unexpandStructureInstance stx)
-    <|> (guard (← getPPOption getPPNotation) *> unexpandCoe stx)
     <|> pure stx
   else pure stx
 

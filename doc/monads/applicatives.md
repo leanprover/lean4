@@ -25,12 +25,10 @@ of earlier computations cannot be used to define later actions.
 
 Applicative in Lean is built on some helper type classes, `Functor`, `Pure` and `Seq`:
 
-```lean
+```lean,ignore
 # namespace hidden
 class Applicative (f : Type u → Type v) extends Functor f, Pure f, Seq f, SeqLeft f, SeqRight f where
-  map      := fun x y => Seq.seq (pure x) fun _ => y
-  seqLeft  := fun a b => Seq.seq (Functor.map (Function.const _) a) b
-  seqRight := fun a b => Seq.seq (Functor.map (Function.const _ id) a) b
+  ...
 # end hidden
 ```
 
@@ -269,10 +267,10 @@ Applicative functor.
 
 ## SeqLeft and SeqRight
 
-You may remember seeing the `seqLeft` and `seqRight` operations on `class Applicative` earlier.
-These operators also have some handy notation shorthands `<*` and `*>` repsectively. where:
-`x <* y` evaluates `x`, then `y`, and returns the result of `x` and
-`x *> y` evaluates `x`, then `y`,  and returns the result of `y`.
+You may remember seeing the `SeqLeft` and `SeqRight` base types on `class Applicative` earlier.
+These provide the `seqLeft` and `seqRight` operatoions which also have some handy notation
+shorthands `<*` and `*>` repsectively. Where: `x <* y` evaluates `x`, then `y`, and returns the
+result of `x` and `x *> y` evaluates `x`, then `y`,  and returns the result of `y`.
 
 To make it easier to remember, notice that it returns that value that the `<*` or `*>` notation is
 pointing at.  For example:

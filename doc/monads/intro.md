@@ -27,10 +27,10 @@ In [part 2](applicative.md), we tackle applicative functors. Applicatives are a 
 more difficult to understand than functors, but their functionality can still be summed up in a
 couple simple functions.
 
-## Part 3: Monads Tutorial
-In part 3, we finally approach the topics of monads. Now that you have an intuition for how abstract
-structures work, we’ll examine some of the problems that applicative functors and functors DON’T
-help us solve. Then we’ll get into the specifics of how we actually use monads.
+## [Part 3: Monads Tutorial](monads.md)
+In [part 3]((monads.md), we finally approach the topics of monads. Now that you have an intuition
+for how abstract structures work, we’ll examine some of the problems that applicative functors and
+functors don't help us solve. Then we’ll get into the specifics of how we actually use monads.
 
 ## Part 4: Reader Monads
 Our introduction to monads examined the built in types that have a monadic structure. It had a focus

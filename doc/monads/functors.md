@@ -241,9 +241,9 @@ Lean Functor defines both `map` and a special case for working on constants more
 
 ```lean
 # namespace hidden
-class Functor (F : Type u → Type v) : Type (max (u+1) v) where
+class Functor (f : Type u → Type v) : Type (max (u+1) v) where
   map : {α β : Type u} → (α → β) → f α → f β
-  mapConst : {α β : Type u} → α → f β → f α := Function.comp map (Function.const _)
+  mapConst : {α β : Type u} → α → f β → f α
 # end hidden
 ```
 

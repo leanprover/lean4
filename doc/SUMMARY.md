@@ -62,6 +62,7 @@
 - [Monads](./monads/intro.md)
   - [Functors](./monads/functors.md)
   - [Applicatives](./monads/applicatives.md)
+  - [Monads](./monads/monads.md)
 
 # Other
 

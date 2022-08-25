@@ -59,7 +59,7 @@ def unfoldNamedPattern (e : Expr) : MetaM Expr := do
     if let some e := isNamedPattern? e then
       if let some eNew ← unfoldDefinition? e then
         return TransformStep.visit eNew
-    return TransformStep.visit e
+    return .continue
   Meta.transform e (pre := visit)
 
 /--
@@ -545,26 +545,23 @@ where
     transform e fun e => do
       if (← isCastEqRec e) then
         return .done (← convertCastEqRec e)
-      else match e.getAppFn with
-        | Expr.fvar fvarId .. =>
-          match (← read).find? fvarId with
-          | some (altNew, numParams, argMask) =>
-            trace[Meta.Match.matchEqs] ">> argMask: {argMask}, e: {e}, {altNew}"
-            let mut newArgs := #[]
-            let argMask := trimFalseTrail argMask
-            unless e.getAppNumArgs ≥ argMask.size do
-              throwError "unexpected occurrence of `match`-expression alternative (aka minor premise) while creating splitter/eliminator theorem for `{matchDeclName}`, minor premise is partially applied{indentExpr e}\npossible solution if you are matching on inductive families: add its indices as additional discriminants"
-            for arg in e.getAppArgs, includeArg in argMask do
-              if includeArg then
-                newArgs := newArgs.push arg
-            let eNew := mkAppN altNew newArgs
-            /- Recall that `numParams` does not include the equalities associated with discriminants of the form `h : discr`. -/
-            let (mvars, _, _) ← forallMetaBoundedTelescope (← inferType eNew) (numParams - newArgs.size) (kind := MetavarKind.syntheticOpaque)
-            modify fun s => s ++ (mvars.map (·.mvarId!))
-            let eNew := mkAppN eNew mvars
-            return TransformStep.done eNew
-          | none => return TransformStep.visit e
-        | _ => return TransformStep.visit e
+      else
+        let Expr.fvar fvarId .. := e.getAppFn | return .continue
+        let some (altNew, numParams, argMask) := (← read).find? fvarId | return .continue
+        trace[Meta.Match.matchEqs] ">> argMask: {argMask}, e: {e}, {altNew}"
+        let mut newArgs := #[]
+        let argMask := trimFalseTrail argMask
+        unless e.getAppNumArgs ≥ argMask.size do
+          throwError "unexpected occurrence of `match`-expression alternative (aka minor premise) while creating splitter/eliminator theorem for `{matchDeclName}`, minor premise is partially applied{indentExpr e}\npossible solution if you are matching on inductive families: add its indices as additional discriminants"
+        for arg in e.getAppArgs, includeArg in argMask do
+          if includeArg then
+            newArgs := newArgs.push arg
+        let eNew := mkAppN altNew newArgs
+        /- Recall that `numParams` does not include the equalities associated with discriminants of the form `h : discr`. -/
+        let (mvars, _, _) ← forallMetaBoundedTelescope (← inferType eNew) (numParams - newArgs.size) (kind := MetavarKind.syntheticOpaque)
+        modify fun s => s ++ (mvars.map (·.mvarId!))
+        let eNew := mkAppN eNew mvars
+        return TransformStep.done eNew
 
   proveSubgoalLoop (mvarId : MVarId) : MetaM Unit := do
     trace[Meta.Match.matchEqs] "proveSubgoalLoop\n{mvarId}"

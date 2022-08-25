@@ -205,6 +205,8 @@ private def expandWhereStructInst : Macro
         let mut val := val
         if let some ty := ty? then
           val ← `(($val : $ty))
+        -- HACK: this produces invalid syntax, but the fun elaborator supports letIdBinders as well
+        have : Coe (TSyntax ``letIdBinder) (TSyntax ``funBinder) := ⟨(⟨·⟩)⟩
         val ← if binders.size > 0 then `(fun $binders* => $val) else pure val
         `(structInstField|$id:ident := $val)
       | _ => Macro.throwUnsupported

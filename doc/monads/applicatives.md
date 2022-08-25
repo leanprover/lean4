@@ -267,10 +267,68 @@ numBedrooms value be for the default? What would it mean to "chain" two of these
 If you can't answer these questions very well, then it suggests this type isn't really an
 Applicative functor.
 
+## Lazy Evaluation
+
+Diving a bit deeper, (you can skip this and jump to the [Applicative
+Laws](#what-are-the-applicative-laws) if don't want to dive into this implementation detail right
+now). But, if you write our simple Option example `(.*.) <$> some 4 <*> some 5` that produces `some 20`
+using `Seq.seq` you will see somthing interesting:
+
+```lean
+#eval Seq.seq ((.*.) <$> (some 4)) (fun (_ : Unit) => (some 5)) -- some 20
+```
+
+This may look a bit combersome, specifically, why did we need to invent this funny looking function
+`fun (_ : Unit) => (some 5)`?
+
+Well if you take a close look at the type class definition:
+```lean
+# namespace hidden
+class Seq (f : Type u → Type v) : Type (max (u+1) v) where
+  seq : {α β : Type u} → f (α → β) → (Unit → f α) → f β
+# end hidden
+```
+
+You will see this function defined here: `(Unit → f α)`, this is a function that takes `Unit` as input
+and produces the output of type `f α` where `f` is our container type `Type u`, in our example `Option`
+and `α` is our element type `Nat`, so `fun (_ : Unit) => some 5` matches this definition because
+it is taking an input of type Unit and producing `some 5` which is type `Option Nat`.
+
+The that `seq` is defined this way is because Lean is an eagerly evaluated language
+(call-by-value), you have to use this kind of Unit function whenever you want to explicitly delay
+evaluation and `seq` wants that so it can eliminate unnecessary function evaluations whenever
+possible.
+
+Fortunately the `<*>` infix notation hides this from us by creating this wrapper function for us.
+If you look up the notation using F12 in VS Code you will find this:
+
+```lean
+@[inheritDoc] notation:60 a:60 " <*> " b:61 => Seq.seq a (fun _ : Unit => b)
+```
+
+Now to complete this picture you will find the default implementation of `seq` on the Lean `Monad`
+type class:
+
+```lean
+# namespace hidden
+class Monad (m : Type u → Type v) extends Applicative m, Bind m : Type (max (u+1) v) where
+  map      f x := bind x (Function.comp pure f)
+  seq      f x := bind f fun y => Functor.map y (x ())
+# end hidden
+```
+
+Notice here that `x` is our `(Unit → f α)` function, and it is calling that function by passing the
+Unit value `()`, which is the Unit value (Unit.unit).  All this just to ensure delayed evaluation.
+
 ## What are the Applicative Laws?
 
 While functors had two laws, applicatives have four laws which we can test using our
 applicative list:
+
+- Identity
+- Homomorphism
+- Interchange
+- Composition
 
 ### Identity
 
@@ -326,14 +384,18 @@ Note that (· y) is short hand for: `fun f => f y`.
 
 ### Composition:
 
-`pure (.) <*> u <*> v <*> w = u <*> (v <*> w)`
+`u <*> v <*> w = u <*> (v <*> w)`
+
+For example:
 
 ```lean
 # ++
-#eval pure (·+·+·) <*> [1, 2] <*> [3, 4] <*> [5, 6] -- [9, 10, 10, 11, 10, 11, 11, 12]
+#eval pure (·+·+·) <*> [1, 2] <*> [3, 4] <*> [5, 6]
+-- [9, 10, 10, 11, 10, 11, 11, 12]
 
 #eval let grouped := pure (·+·) <*> [3, 4] <*> [5, 6]
-      pure (·+·) <*> [1, 2] <*> grouped -- [9, 10, 10, 11, 10, 11, 11, 12]
+      pure (·+·) <*> [1, 2] <*> grouped
+-- [9, 10, 10, 11, 10, 11, 11, 12]
 ```
 
 With composition we implemented the grouping `(v <*> w)` then showed you could
@@ -356,48 +418,3 @@ Applicatives are helpful for the same reasons as functors. They're a relatively 
 structure that has practical applications in our code. Now that we understand how chaining
 operations can fit into a structure definition, we're in a good position to start thinking about
 monads!
-
-## Lazy Evaluation
-
-If you write our simple Option example `(.*.) <$> some 4 <*> some 5` that produces `some 20`
-using `Seq.seq` you will see somthing interesting:
-
-```lean
-#eval Seq.seq ((.*.) <$> (some 4)) (fun (_ : Unit) => (some 5)) -- some 20
-```
-
-This may look a bit combersome, specifically, why did we need to invent this
-function `(fun (_ : Unit) => (some 5)`?
-
-Well if you take a close look at the type class definition:
-```lean
-# namespace hidden
-class Seq (f : Type u → Type v) : Type (max (u+1) v) where
-  seq : {α β : Type u} → f (α → β) → (Unit → f α) → f β
-# end hidden
-```
-
-You will see this function defined here: `(Unit → f α)`, this is a function that takes `Unit` as input
-and produces the output of type `f α` where `f` is our container type `Type u`, in our example `Option`
-and `α` is our element type `Nat`, so `(fun (_ : Unit) => (some 5)` matches this definition because
-it is taking an input of type Unit and producing `some 5` which is type `Option Nat`.
-
-The reason is `seq` is defined this way is because Lean is an eagerly evaluated language
-(call-by-value), you have to use this kind of Unit function whenever you want to explicitly delay
-evaluation and `seq` wants that so it can eliminate unnecessary function evaluations whenever
-possible.  This happened, in fact, with our example using `none` values
-`#eval (.*.) <$> none <*> some 5  -- none`.
-
-Now to complete this picture you will find the default implementation of `seq` on the Lean `Monad`
-type class:
-
-```lean
-# namespace hidden
-class Monad (m : Type u → Type v) extends Applicative m, Bind m : Type (max (u+1) v) where
-  map      f x := bind x (Function.comp pure f)
-  seq      f x := bind f fun y => Functor.map y (x ())
-# end hidden
-```
-
-Notice here that `x` is our `(Unit → f α)` function, and it is calling that function by passing the
-Unit value `()`.  All this just to ensure delayed evaluation.

@@ -37,7 +37,6 @@ LEAN_EXPORT lean_object* l_instReprFloat___boxed(lean_object*, lean_object*);
 uint8_t lean_float_beq(double, double);
 size_t lean_float_to_usize(double);
 double sqrt(double);
-double fabs(double);
 LEAN_EXPORT lean_object* l_Float_log10___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Float_floor___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Float_div___boxed(lean_object*, lean_object*);
@@ -110,7 +109,6 @@ double lean_float_negate(double);
 static lean_object* l_instMulFloat___closed__1;
 double cbrt(double);
 LEAN_EXPORT lean_object* l_Float_sqrt___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Float_fabs___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_floatDecLt(double, double);
 LEAN_EXPORT lean_object* l_floatSpec;
 LEAN_EXPORT lean_object* l_floatDecLe___boxed(lean_object*, lean_object*);
@@ -842,17 +840,6 @@ double x_2; double x_3; lean_object* x_4;
 x_2 = lean_unbox_float(x_1);
 lean_dec(x_1);
 x_3 = sqrt(x_2);
-x_4 = lean_box_float(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Float_fabs___boxed(lean_object* x_1) {
-_start:
-{
-double x_2; double x_3; lean_object* x_4;
-x_2 = lean_unbox_float(x_1);
-lean_dec(x_1);
-x_3 = fabs(x_2);
 x_4 = lean_box_float(x_3);
 return x_4;
 }

@@ -17,17 +17,17 @@ This chapter is organized to give you a bottom up introduction to monads, starti
 applicative functors to get an intuition for how these abstract structures work in Lean. Then we’ll
 tackle monads and look at some of the most common ones.
 
-## [Part 1: Functors](functors.md)
+## [Part 1: Functors](functors.lean.md)
 In [part 1](functors.md), you’ll learn all about functors. A functor is a type class
 that provides a `map` function and the map function is something many people are already familiar
 with so this should be easy to follow.
 
-## [Part 2: Applicative Functors](applicative.md)
+## [Part 2: Applicative Functors](applicatives.lean.md)
 In [part 2](applicative.md), we tackle applicative functors. Applicatives are a little
 more difficult to understand than functors, but their functionality can still be summed up in a
 couple simple functions.
 
-## [Part 3: Monads Tutorial](monads.md)
+## [Part 3: Monads Tutorial](monads.lean.md)
 In [part 3]((monads.md), we finally approach the topics of monads. Now that you have an intuition
 for how abstract structures work, we’ll examine some of the problems that applicative functors and
 functors don't help us solve. Then we’ll get into the specifics of how we actually use monads.

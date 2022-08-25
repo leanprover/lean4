@@ -60,9 +60,9 @@
   - [Task and Thread](./task.md)
 - [Functions](./functions.md)
 - [Monads](./monads/intro.md)
-  - [Functors](./monads/functors.md)
-  - [Applicatives](./monads/applicatives.md)
-  - [Monads](./monads/monads.md)
+  - [Functors](./monads/functors.lean.md)
+  - [Applicatives](./monads/applicatives.lean.md)
+  - [Monads](./monads/monads.lean.md)
 
 # Other
 

@@ -267,35 +267,77 @@ numBedrooms value be for the default? What would it mean to "chain" two of these
 If you can't answer these questions very well, then it suggests this type isn't really an
 Applicative functor.
 
-
 ## What are the Applicative Laws?
 
 While functors had two laws, applicatives have four laws which we can test using our
 applicative list:
 
+### Identity
+
+`pure id <*> v = v`
+
+Applying the identity function through an applicative structure should not change the underlying
+values or structure:
+
+For example:
 ```lean
 # instance : Applicative List where
 #   pure := List.pure
 #   seq f x := List.bind f fun y => Functor.map y (x ())
--- Identity: pure id <*> v = v
 #eval pure id <*> [1, 2, 3]  -- [1, 2, 3]
+```
 
--- Homomorphism: pure f <*> pure x = pure (f x)
-#eval (pure (·+2) <*> pure 1 : List Nat) -- [3]
-#eval (pure ((·+2) 1) : List Nat)        -- [3]
+We can prove this for all values `v` with this theorem:
 
--- Interchange: u <*> pure y = pure ($ y) <*> u
-#eval pure (·+·) <*> [1, 2] <*> [3, 4] -- [4, 5, 5, 6]
-#eval pure (·+·) <*> [3, 4] <*> [1, 2] -- [4, 5, 5, 6]
+```lean
+# ++
+example [Applicative m] [LawfulApplicative m] (v : m α) :
+  pure id <*> v = v :=
+  by simp -- Goals accomplished 🎉
+```
 
--- Composition: pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+### Homomorphism
+
+`pure f <*> pure x = pure (f x)`
+
+For example:
+
+```lean
+# ++
+#eval let x := 1
+      let f := (· + 2)
+      pure f <*> pure x = (pure (f x) : List Nat) -- true
+```
+
+### Interchange
+
+`u <*> pure y = pure (. y) <*> u`.
+
+For example:
+
+```lean
+# ++
+#eval let y := 4
+      let u : List (Nat → Nat) := [(· + 2)]
+      u <*> pure y = pure (· y) <*> u      -- true
+```
+
+Note that (· y) is short hand for: `fun f => f y`.
+
+### Composition:
+
+`pure (.) <*> u <*> v <*> w = u <*> (v <*> w)`
+
+```lean
+# ++
 #eval pure (·+·+·) <*> [1, 2] <*> [3, 4] <*> [5, 6] -- [9, 10, 10, 11, 10, 11, 11, 12]
+
 #eval let grouped := pure (·+·) <*> [3, 4] <*> [5, 6]
       pure (·+·) <*> [1, 2] <*> grouped -- [9, 10, 10, 11, 10, 11, 11, 12]
 ```
 
 With composition we implemented the grouping `(v <*> w)` then showed you could
-use that in the outer sequence to get the same final result `[9, 10, 10, 11, 10, 11, 11, 12]`
+use that in the outer sequence to get the same final result `[9, 10, 10, 11, 10, 11, 11, 12]`.
 
 Ultimately though, these laws encapsulate the same ideas as the functor laws which can be summarized
 in the following three statements:

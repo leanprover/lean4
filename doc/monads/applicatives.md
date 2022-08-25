@@ -267,6 +267,36 @@ numBedrooms value be for the default? What would it mean to "chain" two of these
 If you can't answer these questions very well, then it suggests this type isn't really an
 Applicative functor.
 
+## SeqLeft and SeqRight
+
+You may remember seeing the `seqLeft` and `seqRight` operations on `class Applicative` earlier.
+These operators also have some handy notation shorthands `<*` and `*>` repsectively. where:
+`x <* y` evaluates `x`, then `y`, and returns the result of `x` and
+`x *> y` evaluates `x`, then `y`,  and returns the result of `y`.
+
+To make it easier to remember, notice that it returns that value that the `<*` or `*>` notation is
+pointing at.  For example:
+
+```lean
+#eval (some 1) *> (some 2) -- Some 2
+#eval (some 1) <* (some 2) -- Some 1
+```
+
+So these are a kind of "discard" operation.  Run all the actions, but only return the values that you
+care about. It will be easier to see these in action when we get to full Monads, but they are used
+heavily in the Lean `Parsec` parser combinator library where you will find parsing functions like
+this one which parses the XML declaration `<?xml version="1.0" encoding='utf-8' standalone="yes">`:
+
+```lean,ignore
+def XMLdecl : Parsec Unit := do
+  skipString "<?xml"
+  VersionInfo
+  optional EncodingDecl *> optional SDDecl *> optional S *> skipString "?>"
+```
+
+But you will need to understand full Monads before this will make sense.  So trust us for now,
+these will be useful later.
+
 ## Lazy Evaluation
 
 Diving a bit deeper, (you can skip this and jump to the [Applicative

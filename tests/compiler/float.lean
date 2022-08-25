@@ -51,8 +51,12 @@ def tst2 (x : Nat) : IO Unit := do
 def tst3 (xs : List Float) (y : Float) : IO Unit :=
   IO.println (fMap (fun x => x / y) xs)
 
+def tst4 (xs : List Float) : IO Unit :=
+  IO.println (fMap (fun x => x.abs) xs)
+
 def main : IO Unit := do
   tst1
   IO.println "-----"
   tst2 7
   tst3 [3, 4, 7, 8, 9, 11] 2
+  tst4 [3, -3, 0, -0, -1 / 0, -0 / 0]

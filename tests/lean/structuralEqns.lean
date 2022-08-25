@@ -16,3 +16,10 @@ def foo (xs ys zs : List Nat) : List Nat :=
 
 #eval tst ``foo
 #check foo._unfold
+
+
+def bar (xs ys : List Nat) : List Nat :=
+  match xs ++ [], ys ++ [] with
+  | xs', ys'   => xs' ++ ys'
+
+#print bar  -- should not contain either `let _discr` aux binding

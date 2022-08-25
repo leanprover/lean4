@@ -20,8 +20,8 @@ def delta? (e : Expr) (p : Name → Bool := fun _ => true) : CoreM (Option Expr)
 def deltaExpand (e : Expr) (p : Name → Bool) : CoreM Expr :=
   Core.transform e fun e => do
     match (← delta? e p) with
-    | some e' => return TransformStep.visit e'
-    | none    => return TransformStep.visit e
+    | some e' => return .visit e'
+    | none    => return .continue
 
 /--
 Delta expand declarations that satisfy `p` at `mvarId` type.

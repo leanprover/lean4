@@ -129,6 +129,7 @@ instance : ReprAtom Float  := ⟨⟩
 @[extern "ceil"] opaque Float.ceil : Float → Float
 @[extern "floor"] opaque Float.floor : Float → Float
 @[extern "round"] opaque Float.round : Float → Float
+@[extern "fabs"] opaque Float.abs : Float → Float
 
 instance : Pow Float Float := ⟨Float.pow⟩
 

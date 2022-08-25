@@ -15,5 +15,5 @@ def f (x : Nat) :=
 
 #eval Lean.Compiler.compile #[``f]
 
-set_option trace.Compiler.simp true
+-- set_option trace.Compiler.simp true -- TODO: uncomment
 #eval Lean.Compiler.compile #[``f]

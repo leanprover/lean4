@@ -1,15 +1,15 @@
 fn.imp : {p : P} → Bar.fn p
-439.lean:20:7-20:12: error: function expected at
+439.lean:18:7-18:12: error: function expected at
   Fn.imp fn
 term has type
   Bar.fn ?m
-439.lean:31:7-31:11: error: function expected at
+439.lean:29:7-29:11: error: function expected at
   Fn.imp fn
 term has type
   Bar.fn ?m
 Fn.imp fn : Bar.fn p
 Fn.imp fn' Bp : Bar.fn p
-439.lean:41:11-41:12: error: application type mismatch
+439.lean:39:11-39:12: error: application type mismatch
   Fn.imp fn' p
 argument
   p

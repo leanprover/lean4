@@ -37,11 +37,11 @@ def ppExpr (e : Expr) : MetaM Format := do
 
 /-- Return a `fmt` representing pretty-printed `e` together with a map from tags in `fmt`
 to `Elab.Info` nodes produced by the delaborator at various subexpressions of `e`. -/
-def ppExprWithInfos (e : Expr) (optsPerPos : Delaborator.OptionsPerPos := {})
+def ppExprWithInfos (e : Expr) (optsPerPos : Delaborator.OptionsPerPos := {}) (delab := Delaborator.delab)
     : MetaM (Format × Std.RBMap Nat Elab.Info compare) := do
   let lctx := (← getLCtx).sanitizeNames.run' { options := (← getOptions) }
   Meta.withLCtx lctx #[] do
-    let (stx, infos) ← delabCore e optsPerPos
+    let (stx, infos) ← delabCore e optsPerPos delab
     let fmt ← ppTerm stx
     return (fmt, infos)
 

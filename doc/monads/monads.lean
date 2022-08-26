@@ -19,14 +19,14 @@ especially modification of an implicitly shared value.
 
 Like functors and applicatives, monads are represented with a type class in Lean:
 
-```lean
+```lean,ignore
 class Monad (m : Type u → Type v) extends Applicative m, Bind m where
 ```
 
 Just as every applicative is a functor, every monad is also an applicative and
 there's one more new base type class used here that we need to explain, namely, `Bind`.
 
-```lean
+```lean,ignore
 class Bind (f : Type u → Type v) where
   bind : {α β : Type u} → f α → (α → f β) → f β
 ```
@@ -39,7 +39,7 @@ passing it to function `g` of type `α → f β` returning the result of type `f
 This `bind` operation looks similar to the other ones we've seen so far, if we put
 them all together Monad has the following operations:
 
-```lean
+```lean,ignore
 class Monad (f : Type u → Type v) extends Applicative f, Bind f where
   pure {α : Type u} : α → f α
   map : {α β : Type u} → (α → β) → f α → f β
@@ -74,7 +74,7 @@ instance : Monad Option where
 
 where:
 
-```lean
+```lean,ignore
 def Option.bind : Option α → (α → Option β) → Option β
   | none,   _ => none
   | some a, f => f a
@@ -330,7 +330,7 @@ The Lean library contains formal proofs of all these things.
 
 ### Associativity
 The associativity law is written as:
-```lean
+```lean,ignore
   x >>= f >>= g = x >>= (λ x => f x >>= g)
 ```
 where `(x : m α)` and `(f : α → m β)` and `(g : β → m γ)`.

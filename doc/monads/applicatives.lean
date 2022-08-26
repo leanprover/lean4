@@ -26,7 +26,7 @@ of earlier computations cannot be used to define later actions.
 
 Applicative in Lean is built on some helper type classes, `Functor`, `Pure` and `Seq`:
 
-```lean
+```lean,ignore
 class Applicative (f : Type u → Type v) extends Functor f, Pure f, Seq f, SeqLeft f, SeqRight f where
 ```
 
@@ -38,7 +38,7 @@ exists for all these types.
 
 The `Pure` base type class is a very simple type class that supplies the `pure` function.
 
-```lean
+```lean,ignore
 class Pure (f : Type u → Type v) where
    pure {α : Type u} : α → f α
 ```
@@ -62,7 +62,7 @@ instance : Monad Option where
 The `Seq` type class is also a simple type class that provides the `seq` operator which can
 also be written using the special syntax `<*>`.
 
-```lean
+```lean,ignore
 class Seq (f : Type u → Type v) : Type (max (u+1) v) where
   seq : {α β : Type u} → f (α → β) → (Unit → f α) → f β
 ```

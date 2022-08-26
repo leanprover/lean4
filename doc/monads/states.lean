@@ -72,9 +72,8 @@ have for instance, picking a random move:
 -/
 open TileState
 
-def findOpen (board: Board) : List TileIndex :=
-  let i := board.toList.map (λ (x: TileIndex × TileState) => if x.2 == TileEmpty then x.1 else (5,5))
-  i.filter (λ x: TileIndex => x ≠ (5,5))
+def findOpen (board: HashMap TileIndex TileState) : List TileIndex :=
+  board.toList.filterMap fun (i, x) => guard (x == TileEmpty) *> pure i
 
 def chooseRandomMove : StateM GameState TileIndex := do
   let game ← get
@@ -85,8 +84,10 @@ def chooseRandomMove : StateM GameState TileIndex := do
   return openSpots[i]!
 
 /-!
-This returns a `TileIndex` and modifies the random number generator stored in our state! Now we also
-have the function applying a move:
+This returns a `TileIndex` and modifies the random number generator stored in our state!
+Notice we have a fun little use of the `Applicative.seqRight` operator `*>` in `findOpen`.
+
+Now we can create the function that can make a move:
 -/
 open Player
 
@@ -140,8 +141,8 @@ def initBoard : Board := Id.run do
   let mut board := HashMap.empty
   for i in [0:3] do
     for j in [0:3] do
-      let x : TileIndex := (i, j)
-      board := board.insert x TileEmpty
+      let t : TileIndex := (i, j)
+      board := board.insert t TileEmpty
   board
 
 def printBoard (b: Board) : IO Unit :=

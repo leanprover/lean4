@@ -45,6 +45,9 @@ structure FunDeclCore (Code : Type) where
   value : Code
   deriving Inhabited
 
+def FunDeclCore.getArity (decl : FunDeclCore Code) : Nat :=
+  decl.params.size
+
 structure CasesCore (Code : Type) where
   typeName : Name
   resultType : Expr

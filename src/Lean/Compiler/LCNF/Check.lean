@@ -157,7 +157,12 @@ partial def check (code : Code) : CheckM Expr := do
     withFVarId decl.fvarId do check k
   | .jp decl k => checkFunDecl decl; withJp decl.fvarId do check k
   | .cases c => checkCases c
-  | .jmp fvarId args => checkJpInScope fvarId; checkAppArgs (.fvar fvarId) args; code.inferType
+  | .jmp fvarId args =>
+    checkJpInScope fvarId
+    let decl ← getFunDecl fvarId
+    unless decl.getArity == args.size do
+      throwError "invalid LCNF `jmp`, join point has #{decl.getArity} parameters, but #{args.size} were provided"
+    checkAppArgs (.fvar fvarId) args; code.inferType
   | .return fvarId => checkFVar fvarId; code.inferType
   | .unreach .. => code.inferType
 

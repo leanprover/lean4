@@ -710,8 +710,9 @@ private def levelMVarToParamHeaders (views : Array DefView) (headers : Array Def
     let mut newHeaders := #[]
     for view in views, header in headers do
       if view.kind.isTheorem then
-        newHeaders := newHeaders.push { header with type :=
-          (← monadMap (@withLevelNames (levelNames := header.levelNames)) (levelMVarToParam' header.type)) }
+        newHeaders ←
+          withLevelNames header.levelNames do
+            return newHeaders.push { header with type := (← levelMVarToParam header.type), levelNames := (← getLevelNames) }
       else
         newHeaders := newHeaders.push header
     return newHeaders

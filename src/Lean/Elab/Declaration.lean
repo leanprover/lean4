@@ -112,7 +112,7 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
       let type ← instantiateMVars type
       let type ← mkForallFVars xs type
       let type ← mkForallFVars vars type (usedOnly := true)
-      let (type, _) ← Term.levelMVarToParam type
+      let type ← Term.levelMVarToParam type
       let usedParams  := collectLevelParams {} type |>.params
       match sortDeclLevelParams scopeLevelNames allUserLevelNames usedParams with
       | Except.error msg      => throwErrorAt stx msg

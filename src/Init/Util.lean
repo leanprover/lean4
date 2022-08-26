@@ -23,6 +23,10 @@ set_option linter.unusedVariables.funArgs false in
 @[neverExtract, extern "lean_dbg_trace_if_shared"]
 def dbgTraceIfShared {α : Type u} (s : String) (a : α) : α := a
 
+/-- Print stack trace to stderr before evaluating given closure. Currently supported on Linux only. -/
+@[neverExtract, extern "lean_dbg_stack_trace"]
+def dbgStackTrace {α : Type u} (f : Unit → α) : α := f ()
+
 @[extern "lean_dbg_sleep"]
 def dbgSleep {α : Type u} (ms : UInt32) (f : Unit → α) : α := f ()
 

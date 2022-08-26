@@ -2,7 +2,7 @@ import Std.Data.HashMap
 /-!
 # State
 
-In the [part 4: States](states.lean.md), you learned about the Reader monad. Hopefully this gave you
+In the [previous section](readers.lean.md), you learned about the Reader monad. Hopefully this gave you
 a new perspective on Lean. It showed that, in fact, you _can_ have global variables of some sort;
 you just need to encode them in the type signature somehow, and this is what monads are for! In this
 part, we'll explore the `State` monad, which is like a `Reader` only the state can also be updated.
@@ -210,10 +210,7 @@ our code cannot communicate with the outside world, we can be far more certain o
 
 ## Summary
 
-That wraps it up for the State monad! Now that you know all these different monad constructs, you
-might be wondering how you can combine them. What if there was some part of your state that you
-wanted to be able to modify (using the State monad), but then there was another part that was
-read-only. How can you get multiple monadic capabilities at the same time? To learn the answer, head
-to [Part 6 : Monad Transformers](transformers.lean.md).
+That wraps it up for the State monad! There is one more very useful monad that can be used to
+do exception handling which we'll cover in the [next section](except.lean.md).
 
 -/

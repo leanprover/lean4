@@ -60,11 +60,14 @@
   - [Task and Thread](./task.md)
 - [Functions](./functions.md)
 - [Monads](./monads/intro.md)
-  - [Functors](./monads/functors.lean.md)
-  - [Applicatives](./monads/applicatives.lean.md)
-  - [Monads](./monads/monads.lean.md)
-  - [Readers](./monads/readers.lean.md)
-  - [States](./monads/states.lean.md)
+  - [Functor](./monads/functors.lean.md)
+  - [Applicative](./monads/applicatives.lean.md)
+  - [Monad](./monads/monads.lean.md)
+  - [Reader](./monads/readers.lean.md)
+  - [State](./monads/states.lean.md)
+  - [Except](./monads/except.lean.md)
+  - [Transformers](./monads/transformers.lean.md)
+  - [Laws](./monads/laws.lean.md)
 
 # Other
 

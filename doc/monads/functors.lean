@@ -1,5 +1,5 @@
 /-!
-# Functors
+# Functor
 
 A `Functor` is any type that can act as a generic container that allows you to transform the
 underlying values inside the container using a function, so that the values are all updated, but the
@@ -222,11 +222,11 @@ Functors are an abstract mathematical structure that we represent in Lean with a
 Lean functor defines both `map` and a special case for working on constants more efficiently called
 `mapConst`:
 
--/
+```lean
 class Functor (f : Type u → Type v) : Type (max (u+1) v) where
   map : {α β : Type u} → (α → β) → f α → f β
   mapConst : {α β : Type u} → α → f β → f α
-/-!
+```
 
 In general then, a functor is a function on types `F : Type u → Type v` equipped with an operator
 called `map` such that if you have a function `f` of type `α → β` then `map f` will convert your

@@ -33,6 +33,7 @@ Lean has numerous features, including:
 - Powerful data types
 - Pattern matching
 - [Type classes](./typeclass.md)
+- [Monads](./monads/intro.md)
 - [Extensible syntax](./syntax.md)
 - Hygienic macros
 - [Dependent types](https://leanprover.github.io/theorem_proving_in_lean4/dependent_type_theory.html)

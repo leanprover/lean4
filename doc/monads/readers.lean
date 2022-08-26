@@ -1,7 +1,7 @@
 /-!
 # Readers
 
-In [part 3: Monads](monads.lean.md) you learned about the conceptual idea of monads. You learned
+In the [previous section](monads.lean.md) you learned about the conceptual idea of monads. You learned
 what they are, and saw how some common types like `IO` and `Option` work as monads. Now in this
 part, we'll start looking at some other useful monads. In particular, we'll consider the `Reader`
 monad.
@@ -149,7 +149,6 @@ find that in larger code bases, with many different types of monads all composed
 greatly cleans up the code. Monads provide a beautiful functional way of managing cross-cutting
 concerns that would otherwise make your code very messy.
 
-Now it's time to move on to [part 5: State Monad](states.lean.md) which is like a `Reader` that is
+Now it's time to move on to [State Monad](states.lean.md) which is like a `Reader` that is
 also updatable.
 -/
-

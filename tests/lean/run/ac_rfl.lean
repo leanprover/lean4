@@ -82,3 +82,6 @@ theorem ex₃ (n : Nat) : (fun x => n + x) = (fun x => x + n) := by
 -- Repro: the Prop universe doesn't work
 example (p q : Prop) : (p ∨ p ∨ q ∧ True) = (q ∨ p) := by
   ac_rfl
+
+-- Repro: missing withContext
+example : ∀ x : Nat, x = x := by intro x; ac_rfl

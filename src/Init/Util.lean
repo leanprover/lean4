@@ -38,41 +38,6 @@ def dbgSleep {α : Type u} (ms : UInt32) (f : Unit → α) : α := f ()
 @[neverExtract, inline] def panicWithPosWithDecl {α : Type u} [Inhabited α] (modName : String) (declName : String) (line col : Nat) (msg : String) : α :=
   panic (mkPanicMessageWithDecl modName declName line col msg)
 
-/-!
-
-# The unsoundness of `ptrAddr`
-
-Reference: [Sealing Pointer-Based Optimizations Behind Pure Functions](https://arxiv.org/pdf/2003.01685.pdf)
-
-Note that we can not allow bare reference-equality in trusted Lean code.
-To see why, let `α` be `List String` and define `x` and `y` as follows:
-
-```lean
-def x := ["hello"]
-def y := x.map id
-
-#eval ptrEq x y -- false
-#eval x = y     -- true
-```
-
-Suppose that `ptrEq` was a safe definition (call it `evilEq`), then using definition of equality in Lean we can derive:
-
-```
-@[implementedBy ptrEq]
-opaque evilEq {α : Type u} (a b : α) : Bool
-
-theorem evil {α} : ∀ {a b : α}, (a = b) → (evilEq a b) = (evilEq a a)
-  | _, _, rfl => rfl
-
-#eval (evilEq x y) = (evilEq x x) -- false!
-```
-
-But now the evaluation of `(evilEq x y) = (evilEq x x)` contradicts the `evil` theorem!
-
-To create the sound version of `ptrEq` called `withPtrEq`, we have to provide the hypothesis `h : a = b → k() = true`,
-since now if the values are not pointer-equal, it will run the decision procedure `k` instead.
--/
-
 @[extern "lean_ptr_addr"]
 unsafe opaque ptrAddrUnsafe {α : Type u} (a : @& α) : USize
 
@@ -91,10 +56,6 @@ set_option linter.unusedVariables.funArgs false in
 @[inline] unsafe def withPtrEqUnsafe {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
   if ptrEq a b then true else k ()
 
-/-- If `a` and `b` are reference-equal (that is, their pointers point to the same address), then return `true`, otherwise return `k()`.
-`h` demands that `k` should be a decision procedure that returns `true` whenever `a = b`.
-
-This function allows us to implement safe functions that compare `a` and `b`, with an optimisation for when `a` is reference-equal to `b`.  -/
 @[implementedBy withPtrEqUnsafe]
 def withPtrEq {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () = true) : Bool := k ()
 

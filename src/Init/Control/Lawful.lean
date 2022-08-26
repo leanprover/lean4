@@ -50,13 +50,7 @@ class LawfulMonad (m : Type u → Type v) [Monad m] extends LawfulApplicative m 
   bind_assoc     (x : m α) (f : α → m β) (g : β → m γ) : x >>= f >>= g = x >>= fun x => f x >>= g
   map_pure g x    := (by rw [← bind_pure_comp, pure_bind])
   seq_pure g x    := (by rw [← bind_map]; simp [map_pure, bind_pure_comp])
-  seq_assoc x g h := (by
-    -- TODO: support for applying `symm` at `simp` arguments
-    have bind_pure_comp_symm {α β : Type u} (f : α → β) (x : m α) : f <$> x = x >>= fun a => pure (f a) := by
-      rw [bind_pure_comp]
-    have bind_map_symm {α β : Type u} (f : m (α → (β : Type u))) (x : m α) : f <*> x = f >>= (. <$> x) := by
-      rw [bind_map]
-    simp[bind_pure_comp_symm, bind_map_symm, bind_assoc, pure_bind])
+  seq_assoc x g h := (by simp [← bind_pure_comp, ← bind_map, bind_assoc, pure_bind])
 
 export LawfulMonad (bind_pure_comp bind_map pure_bind bind_assoc)
 attribute [simp] pure_bind bind_assoc

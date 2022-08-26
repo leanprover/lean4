@@ -43,7 +43,7 @@ syntax (name := testDelabTD) "#testDelab " term " expecting " term : command
 @[commandElab testDelabTD] def elabTestDelabTD : CommandElab
   | `(#testDelab $stx:term expecting $tgt:term) => liftTermElabM do withDeclName `delabTD do
      let e ← elabTerm stx none
-     let ⟨e, _⟩ ← levelMVarToParam e
+     let e ← levelMVarToParam e
      let e ← instantiateMVars e
      checkDelab e (some tgt)
   | _ => throwUnsupportedSyntax

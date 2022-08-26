@@ -408,18 +408,15 @@ def shouldInferResultUniverse (u : Level) : TermElabM (Option LMVarId) := do
   it should be inferred later using `inferResultingUniverse`.
 -/
 private def levelMVarToParam (indTypes : List InductiveType) (univToInfer? : Option LMVarId) : TermElabM (List InductiveType) :=
-  go |>.run' 1
+  indTypes.mapM fun indType => do
+    let type  ← levelMVarToParam' indType.type
+    let ctors ← indType.ctors.mapM fun ctor => do
+      let ctorType ← levelMVarToParam' ctor.type
+      return { ctor with type := ctorType }
+    return { indType with ctors, type }
 where
-  levelMVarToParam' (type : Expr) : StateRefT Nat TermElabM Expr := do
-    Term.levelMVarToParam' type (except := fun mvarId => univToInfer? == some mvarId)
-
-  go : StateRefT Nat TermElabM (List InductiveType) := do
-    indTypes.mapM fun indType => do
-      let type  ← levelMVarToParam' indType.type
-      let ctors ← indType.ctors.mapM fun ctor => do
-        let ctorType ← levelMVarToParam' ctor.type
-        return { ctor with type := ctorType }
-      return { indType with ctors, type }
+  levelMVarToParam' (type : Expr) : TermElabM Expr := do
+    Term.levelMVarToParam type (except := fun mvarId => univToInfer? == some mvarId)
 
 def mkResultUniverse (us : Array Level) (rOffset : Nat) : Level :=
   if us.isEmpty && rOffset == 0 then

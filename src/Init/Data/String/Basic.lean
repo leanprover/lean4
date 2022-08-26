@@ -404,59 +404,59 @@ namespace Substring
   | ⟨s, b, _⟩ => ⟨s, b⟩
 
 /-- Return the codepoint at the given offset into the substring. -/
-@[inline] def get : Substring → String.Pos → Char
-  | ⟨s, b, _⟩, p => s.get (b+p)
+@[inline] def get : String.Pos → Substring → Char
+  | p, ⟨s, b, _⟩ => s.get (b+p)
 
 /-- Given an offset of a codepoint into the substring,
 return the offset there of the next codepoint. -/
-@[inline] def next : Substring → String.Pos → String.Pos
-  | ⟨s, b, e⟩, p =>
+@[inline] def next : String.Pos → Substring → String.Pos
+  | p, ⟨s, b, e⟩ =>
     let absP := b+p
     if absP = e then p else { byteIdx := (s.next absP).byteIdx - b.byteIdx }
 
 /-- Given an offset of a codepoint into the substring,
 return the offset there of the previous codepoint. -/
-@[inline] def prev : Substring → String.Pos → String.Pos
-  | ⟨s, b, _⟩, p =>
+@[inline] def prev : String.Pos → Substring → String.Pos
+  | p, ⟨s, b, _⟩ =>
     let absP := b+p
     if absP = b then p else { byteIdx := (s.prev absP).byteIdx - b.byteIdx }
 
-def nextn : Substring → Nat → String.Pos → String.Pos
-  | _,  0,   p => p
-  | ss, i+1, p => ss.nextn i (ss.next p)
+def nextn : Nat → String.Pos → Substring → String.Pos
+  | 0,   p, _ => p
+  | i+1, p, ss => ss.nextn i (ss.next p)
 
-def prevn : Substring → Nat → String.Pos → String.Pos
-  | _,  0,   p => p
-  | ss, i+1, p => ss.prevn i (ss.prev p)
+def prevn : Nat → String.Pos → Substring → String.Pos
+  | 0,   p, _  => p
+  | i+1, p, ss => ss.prevn i (ss.prev p)
 
 @[inline] def front (s : Substring) : Char :=
   s.get 0
 
 /-- Return the offset into `s` of the first occurence of `c` in `s`,
 or `s.bsize` if `c` doesn't occur. -/
-@[inline] def posOf (s : Substring) (c : Char) : String.Pos :=
+@[inline] def posOf (c : Char) (s : Substring) : String.Pos :=
   match s with
   | ⟨s, b, e⟩ => { byteIdx := (String.posOfAux s c e b).byteIdx - b.byteIdx }
 
-@[inline] def drop : Substring → Nat → Substring
-  | ss@⟨s, b, e⟩, n => ⟨s, b + ss.nextn n 0, e⟩
+@[inline] def drop : Nat → Substring → Substring
+  | n, ss@⟨s, b, e⟩ => ⟨s, b + ss.nextn n 0, e⟩
 
-@[inline] def dropRight : Substring → Nat → Substring
-  | ss@⟨s, b, _⟩, n => ⟨s, b, b + ss.prevn n ⟨ss.bsize⟩⟩
+@[inline] def dropRight : Nat → Substring → Substring
+  | n, ss@⟨s, b, _⟩ => ⟨s, b, b + ss.prevn n ⟨ss.bsize⟩⟩
 
-@[inline] def take : Substring → Nat → Substring
-  | ss@⟨s, b, _⟩, n => ⟨s, b, b + ss.nextn n 0⟩
+@[inline] def take : Nat → Substring → Substring
+  | n, ss@⟨s, b, _⟩ => ⟨s, b, b + ss.nextn n 0⟩
 
-@[inline] def takeRight : Substring → Nat → Substring
-  | ss@⟨s, b, e⟩, n => ⟨s, b + ss.prevn n ⟨ss.bsize⟩, e⟩
+@[inline] def takeRight : Nat → Substring → Substring
+  | n, ss@⟨s, b, e⟩ => ⟨s, b + ss.prevn n ⟨ss.bsize⟩, e⟩
 
-@[inline] def atEnd : Substring → String.Pos → Bool
-  | ⟨_, b, e⟩, p => b + p == e
+@[inline] def atEnd : String.Pos → Substring → Bool
+  | p, ⟨_, b, e⟩ => b + p == e
 
-@[inline] def extract : Substring → String.Pos → String.Pos → Substring
-  | ⟨s, b, e⟩, b', e' => if b' ≥ e' then ⟨"", 0, 0⟩ else ⟨s, e.min (b+b'), e.min (b+e')⟩
+@[inline] def extract : String.Pos → String.Pos → Substring → Substring
+  | b', e', ⟨s, b, e⟩ => if b' ≥ e' then ⟨"", 0, 0⟩ else ⟨s, e.min (b+b'), e.min (b+e')⟩
 
-partial def splitOn (s : Substring) (sep : String := " ") : List Substring :=
+partial def splitOn (sep : String := " ") (s : Substring) : List Substring :=
   if sep == "" then
     [s]
   else
@@ -486,14 +486,14 @@ partial def splitOn (s : Substring) (sep : String := " ") : List Substring :=
   match s with
   | ⟨s, b, e⟩ => String.foldrAux f init s e b
 
-@[inline] def any (s : Substring) (p : Char → Bool) : Bool :=
+@[inline] def any (p : Char → Bool) (s : Substring) : Bool :=
   match s with
   | ⟨s, b, e⟩ => String.anyAux s e p b
 
-@[inline] def all (s : Substring) (p : Char → Bool) : Bool :=
+@[inline] def all (p : Char → Bool) (s : Substring) : Bool :=
   !s.any (fun c => !p c)
 
-def contains (s : Substring) (c : Char) : Bool :=
+def contains (c : Char) (s : Substring) : Bool :=
   s.any (fun a => a == c)
 
 @[specialize] private partial def takeWhileAux (s : String) (stopPos : String.Pos) (p : Char → Bool) (i : String.Pos) : String.Pos :=
@@ -501,13 +501,13 @@ def contains (s : Substring) (c : Char) : Bool :=
   else if p (s.get i) then takeWhileAux s stopPos p (s.next i)
   else i
 
-@[inline] def takeWhile : Substring → (Char → Bool) → Substring
-  | ⟨s, b, e⟩, p =>
+@[inline] def takeWhile : (Char → Bool) → Substring → Substring
+  | p, ⟨s, b, e⟩ =>
     let e := takeWhileAux s e p b;
     ⟨s, b, e⟩
 
-@[inline] def dropWhile : Substring → (Char → Bool) → Substring
-  | ⟨s, b, e⟩, p =>
+@[inline] def dropWhile : (Char → Bool) → Substring → Substring
+  | p, ⟨s, b, e⟩ =>
     let b := takeWhileAux s e p b;
     ⟨s, b, e⟩
 
@@ -519,13 +519,13 @@ def contains (s : Substring) (c : Char) : Bool :=
     if !p c then i
     else takeRightWhileAux s begPos p i'
 
-@[inline] def takeRightWhile : Substring → (Char → Bool) → Substring
-  | ⟨s, b, e⟩, p =>
+@[inline] def takeRightWhile : (Char → Bool) → Substring → Substring
+  | p, ⟨s, b, e⟩ =>
     let b := takeRightWhileAux s b p e
     ⟨s, b, e⟩
 
-@[inline] def dropRightWhile : Substring → (Char → Bool) → Substring
-  | ⟨s, b, e⟩, p =>
+@[inline] def dropRightWhile : (Char → Bool) → Substring → Substring
+  | p, ⟨s, b, e⟩ =>
     let e := takeRightWhileAux s b p e
     ⟨s, b, e⟩
 

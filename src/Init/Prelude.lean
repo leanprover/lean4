@@ -2116,9 +2116,9 @@ returns `a` if `opt = some a` and `dflt` otherwise.
 This function is `@[macroInline]`, so `dflt` will not be evaluated unless
 `opt` turns out to be `none`.
 -/
-@[macroInline] def Option.getD : Option α → α → α
-  | some x, _ => x
-  | none,   e => e
+@[macroInline] def Option.getD : α → Option α → α
+  | _, some x => x
+  | e, none   => e
 
 /--
 Map a function over an `Option` by applying the function to the contained

@@ -29,6 +29,42 @@ def LCtx.addFunDecl (lctx : LCtx) (funDecl : FunDecl) : LCtx :=
     localDecls := lctx.localDecls.insert funDecl.fvarId (.cdecl 0 funDecl.fvarId funDecl.binderName funDecl.type .default)
     funDecls   := lctx.funDecls.insert funDecl.fvarId funDecl }
 
+def LCtx.eraseLocal (fvarId : FVarId) : LCtx → LCtx
+  | { localDecls, funDecls } =>
+    let localDecls := localDecls.erase fvarId
+    { localDecls, funDecls }
+
+partial def LCtx.erase (fvarId : FVarId) : LCtx → LCtx
+  | { localDecls, funDecls } =>
+    let localDecls := localDecls.erase fvarId
+    match funDecls.find? fvarId with
+    | none => { localDecls, funDecls }
+    | some funDecl =>
+      let funDecls := funDecls.erase fvarId
+      go funDecl.value { localDecls, funDecls }
+where
+  go (code : Code) (lctx : LCtx) : LCtx :=
+    match code with
+    | .let decl k => go k <| lctx.eraseLocal decl.fvarId
+    | .jp decl k | .fun decl k => go k <| lctx.erase decl.fvarId
+    | _ => lctx
+
+def LCtx.updateLocalDecl (lctx : LCtx) (fvarId : FVarId) (type : Expr) : LCtx :=
+  match lctx with
+  | { localDecls, funDecls } =>
+    let localDecls := match localDecls.find? fvarId with
+      | none => unreachable!
+      | some localDecl => localDecls.insert fvarId <| localDecl.setType type
+    { localDecls, funDecls }
+
+def LCtx.updateLetDecl (lctx : LCtx) (fvarId : FVarId) (type : Expr) (value : Expr) : LCtx :=
+  match lctx with
+  | { localDecls, funDecls } =>
+    let localDecls := match localDecls.find? fvarId with
+      | some (.ldecl idx _ u _ _ _) => localDecls.insert fvarId <| .ldecl idx fvarId u type value true
+      | _ => unreachable!
+    { localDecls, funDecls }
+
 /--
 Convert a LCNF local context into a regular Lean local context.
 -/

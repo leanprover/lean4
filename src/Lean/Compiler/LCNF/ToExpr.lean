@@ -70,6 +70,10 @@ end ToExpr
 
 open ToExpr
 
+mutual
+partial def FunDeclCore.toExprM (decl : FunDecl) : M Expr :=
+  withParams decl.params do mkLambdaM decl.params (← decl.value.toExprM)
+
 partial def Code.toExprM (code : Code) : M Expr := do
   match code with
   | .let decl k =>
@@ -79,7 +83,7 @@ partial def Code.toExprM (code : Code) : M Expr := do
     return .letE decl.binderName type value body true
   | .fun decl k | .jp decl k =>
     let type ← decl.type.abstractM
-    let value ← withParams decl.params do mkLambdaM decl.params (← decl.value.toExprM)
+    let value ← decl.toExprM
     let body ← withFVar decl.fvarId k.toExprM
     return .letE decl.binderName type value body true
   | .return fvarId => fvarId.toExprM
@@ -90,9 +94,13 @@ partial def Code.toExprM (code : Code) : M Expr := do
       | .alt _ params k => withParams params do mkLambdaM params (← k.toExprM)
       | .default k => k.toExprM
     return mkAppN (mkConst `cases) (#[← c.discr.toExprM] ++ alts)
+end
 
 def Code.toExpr (code : Code) : Expr :=
   run code.toExprM
+
+def FunDeclCore.toExpr (decl : FunDecl) : Expr :=
+  run decl.toExprM
 
 def Decl.toExpr (decl : Decl) : Expr :=
   run do withParams decl.params do mkLambdaM decl.params (← decl.value.toExprM)

@@ -3,70 +3,95 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-#exit -- TODO: port to new LCNF
-import Lean.Compiler.CompilerM
-import Lean.Compiler.Decl
+import Lean.Compiler.LCNF.CompilerM
+import Lean.Compiler.LCNF.ToExpr
 
-namespace Lean.Compiler
+namespace Lean.Compiler.LCNF
 
 /-! Common Sub-expression Elimination -/
 
 namespace CSE
 
 structure State where
-  map : Std.PHashMap Expr Expr := {}
+  map   : Std.PHashMap Expr FVarId := {}
+  subst : FVarSubst := {}
 
 abbrev M := StateRefT State CompilerM
 
-mutual
+@[inline] def getSubst : M FVarSubst :=
+  return (← get).subst
 
-partial def visitCases (casesInfo : CasesInfo) (cases : Expr) : M Expr := do
-  let mut args := cases.getAppArgs
-  for i in casesInfo.altsRange do
-    args ← args.modifyM i visitLambda
-  return mkAppN cases.getAppFn args
+@[inline] def addEntry (value : Expr) (fvarId : FVarId) : M Unit :=
+  modify fun s => { s with map := s.map.insert value fvarId }
 
-partial def visitLambda (e : Expr) : M Expr :=
-  withNewScope do
-    let (as, e) ← Compiler.visitLambdaCore e
-    let e ← mkLetUsingScope (← visitLet e as)
-    mkLambda as e
+@[inline] def addSubst (fvarId fvarId' : FVarId) : M Unit :=
+  modify fun s => { s with subst := s.subst.insert fvarId fvarId' }
 
-partial def visitLet (e : Expr) (xs : Array Expr): M Expr := do
-  let saved ← get
-  try go e xs finally set saved
-where
-  go (e : Expr) (xs : Array Expr) : M Expr := do
-    match e with
-    | .letE binderName type value body nonDep =>
-      let mut value := value.instantiateRev xs
-      if value.isLambda then
-        value ← visitLambda value
-      match (← get).map.find? value with
-      | some x => go body (xs.push x)
-      | none =>
-        let type := type.instantiateRev xs
-        let x ← mkLetDecl binderName type value nonDep
-        unless isJpBinderName binderName do
-          -- We currently don't eliminate common join points because we want to prevent
-          -- jumps to out-of-scope join points.
-          modify fun s => { s with map := s.map.insert value x }
-        go body (xs.push x)
-    | _ =>
-      let e := e.instantiateRev xs
-      if let some casesInfo ← isCasesApp? e then
-        visitCases casesInfo e
-      else
-        return e
+@[inline] def withNewScope (x : M α) : M α := do
+  let map := (← get).map
+  try x finally modify fun s => { s with map }
 
-end
+def replaceFVar (fvarId fvarId' : FVarId) : M Unit := do
+  eraseFVar fvarId
+  addSubst fvarId fvarId'
 
 end CSE
+
+open CSE in
+partial def Code.cse (code : Code) : CompilerM Code :=
+  go code |>.run' {}
+where
+  goFunDecl (decl : FunDecl) : M FunDecl := do
+    let type := (← getSubst).applyToExpr decl.type
+    let params ← (← getSubst).applyToParams decl.params
+    let value ← withNewScope do go decl.value
+    return { decl with type, params, value }
+
+  go (code : Code) : M Code := do
+    match code with
+    | .let decl k =>
+      let decl ← (← getSubst).applyToLetDecl decl
+      match (← get).map.find? decl.value with
+      | some fvarId' =>
+        replaceFVar decl.fvarId fvarId'
+        go k
+      | none =>
+        addEntry decl.value decl.fvarId
+        return .let decl (← go k)
+    | .fun decl k =>
+      let decl ← goFunDecl decl
+      let value := decl.toExpr
+      match (← get).map.find? value with
+      | some fvarId' =>
+        replaceFVar decl.fvarId fvarId'
+        go k
+      | none =>
+        addEntry value decl.fvarId
+        return .fun decl (← go k)
+    | .jp decl k =>
+      let decl ← goFunDecl decl
+      /-
+       We currently don't eliminate common join points because we want to prevent
+       jumps to out-of-scope join points.
+      -/
+      return .jp decl (← go k)
+    | .cases c =>
+      let discr := (← getSubst).applyToFVar c.discr
+      let resultType := (← getSubst).applyToExpr c.resultType
+      let alts ← c.alts.mapM fun alt => do
+        match alt with
+        | .alt ctorName ps k => withNewScope do
+          let ps ← (← getSubst).applyToParams ps
+          return .alt ctorName ps (← go k)
+        | .default k => withNewScope do return .default (← go k)
+      return .cases { c with discr, resultType, alts }
+    | .return .. | .jmp .. | .unreach .. => return code
 
 /--
 Common sub-expression elimination
 -/
-def Decl.cse (decl : Decl) : CoreM Decl :=
-  decl.mapValue fun value => CSE.visitLambda value  |>.run' {}
+def Decl.cse (decl : Decl) : CompilerM Decl := do
+  let value ← decl.value.cse
+  return { decl with value }
 
-end Lean.Compiler
+end Lean.Compiler.LCNF

@@ -9,6 +9,7 @@ import Lean.Compiler.LCNF.ToDecl
 import Lean.Compiler.LCNF.Check
 import Lean.Compiler.LCNF.Stage1
 import Lean.Compiler.LCNF.PullLetDecls
+import Lean.Compiler.LCNF.CSE
 
 namespace Lean.Compiler.LCNF
 /--
@@ -55,6 +56,8 @@ def compileStage1Impl (declNames : Array Name) : CoreM (Array Decl) :=
     checkpoint `init decls
     let decls ← decls.mapM (·.pullInstances)
     checkpoint `pullInstances decls
+    let decls ← decls.mapM (·.cse)
+    checkpoint `cse decls
     saveStage1Decls decls
     decls.forM fun decl => do trace[Compiler.stat] "{decl.name} : {decl.size}"
     return decls

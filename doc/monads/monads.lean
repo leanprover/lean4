@@ -360,6 +360,6 @@ worry about them too much.
 Hopefully you now have a basic level understanding of what a monad is. But perhaps some more
 examples of what a "computational context" means would be useful to you. The Reader, State and
 Except monads each provide a concrete and easily understood context that can be compared easily to
-function parameters. You can learn more about those in [Part 4: Reader monads](readers.lean.md) and [Part
-5: State monads](states.lean.md) and [Part 5: Except monad](except.lean.md).
+function parameters. You can learn more about those in [Part 4: Reader monads](readers.lean.md) and
+[Part 5: State monads](states.lean.md), [Part 6: Except monad](except.lean.md).
 -/

@@ -32,13 +32,13 @@ In [part 3]((monads.md), we finally approach the topics of monads. Now that you 
 for how abstract structures work, we’ll examine some of the problems that applicative functors and
 functors don't help us solve. Then we’ll get into the specifics of how we actually use monads.
 
-## Part 4: Reader Monads
+## [Part 4: Reader Monads](readers.lean.md)
 Our introduction to monads examined the built in types that have a monadic structure. It had a focus
 on those things that you’ve seen in action, but maybe never thought of monadically. In part 4, we
 start exploring some of the common monadic idioms that you’ll need outside of the basics. We’ll
 examine the Reader monad, which gives us a global readable state.
 
-## Part 5: State Monad
+## [Part 5: State Monad](states.lean.md)
 Part 5 picks up where part 4 left off, and introduces the State monad. This monad allows us to keep
 a particular type that we can both read from and write to. It opens the door to fully stateful
 programming, allowing us to do many of the things a function programming language supposedely

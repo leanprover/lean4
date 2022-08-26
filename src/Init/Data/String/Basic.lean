@@ -227,6 +227,7 @@ where go (acc : String) (s : String) : List String → String
   | a :: as => go (acc ++ s ++ a) s as
   | []      => acc
 
+/-- Iterator for `String`. That is, a `String` and a position in that string. -/
 structure Iterator where
   s : String
   i : Pos

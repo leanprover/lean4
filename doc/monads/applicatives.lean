@@ -1,7 +1,10 @@
 /-!
 # Applicative Functors
 
-Building on [Functors](functors.lean.md) is the [Applicative Functor](https://en.wikipedia.org/wiki/Applicative_functor). For simplicity, you can refer to these simply as "Applicatives". These are a little tricker than functors, but still simpler than monads. Let's they work!
+Building on [Functors](functors.lean.md) is the [Applicative
+Functor](https://en.wikipedia.org/wiki/Applicative_functor). For simplicity, you can refer to these
+simply as "Applicatives". These are a little tricker than functors, but still simpler than monads.
+Let's see how they work!
 
 # What is an Applicative Functor?
 
@@ -20,9 +23,9 @@ structure between `Functor` and `Monad`. It mainly consists of two operations:
 The `pure` operator tells us how we can wrap a normal object into an instance of this structure.
 This is the "default" mechanism mentioned above.
 
-The `seq` operator gives a notion of evaluation order to the effects, where
-the first argument is executed before the second, but unlike a monad the results
-of earlier computations cannot be used to define later actions.
+The `seq` operator gives a notion of evaluation order to the effects, where the first argument is
+executed before the second, but unlike a monad the results of earlier computations cannot be used to
+define later actions.
 
 Applicative in Lean is built on some helper type classes, `Functor`, `Pure` and `Seq`:
 
@@ -30,8 +33,8 @@ Applicative in Lean is built on some helper type classes, `Functor`, `Pure` and 
 class Applicative (f : Type u → Type v) extends Functor f, Pure f, Seq f, SeqLeft f, SeqRight f where
 ```
 
-Notice that as with `Functor` it is also a type transformer `(f : Type u → Type v)` and notice
-the `extends Functor f` is ensuring the base Functor also performs that same transformation.
+Notice that as with `Functor` it is also a type transformer `(f : Type u → Type v)` and notice the
+`extends Functor f` is ensuring the base Functor also performs that same transformation.
 
 As stated above, all applicatives are then functors. This means we can assume that `map` already
 exists for all these types.
@@ -43,8 +46,8 @@ class Pure (f : Type u → Type v) where
    pure {α : Type u} : α → f α
 ```
 
-You can think of it as lifing the result of a pure value to some monadic type.
-The simplest example of `pure` is the `Option` type:
+You can think of it as lifing the result of a pure value to some monadic type. The simplest example
+of `pure` is the `Option` type:
 
 -/
 #eval (pure 10 : Option Nat)  -- some 10

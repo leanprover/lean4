@@ -3,10 +3,9 @@ import Std.Data.HashMap
 # State
 
 In the [part 4: States](states.lean.md), you learned about the Reader monad. Hopefully this gave you
-a new perspective on Lean. It showed that in fact you _can_ have global variables of some sort; you
-just need to encode them in the type signature somehow, and this is what monads are for! In this
-part, we'll explore the `State` monad, which combines some of the functionality of both these
-concepts.
+a new perspective on Lean. It showed that, in fact, you _can_ have global variables of some sort;
+you just need to encode them in the type signature somehow, and this is what monads are for! In this
+part, we'll explore the `State` monad, which is like a `Reader` only the state can also be updated.
 
 ## Motivating example: Tic Tac Toe
 
@@ -49,9 +48,7 @@ the context of reading and modifying a global state object.
 
 It is parameterized by a single type parameter `s`, the state type in use. So just like the `Reader`
 has a single type you read from, the `State` has a single type you can both **read from and write
-to**. There are two primary actions you can take within the `State`monad: `get` and `put`. The first
-retrieves the state, the second modifies it by replacing it with a new object. Typically though,
-this new object will be similar to the original:
+to**. There are three primary actions you can take within the `State`monad:
 
 - **get** - retrieves the state, like Reader.read
 - **set** - updates the state
@@ -166,7 +163,7 @@ def main : IO Unit := do
     board := initBoard,
     currentPlayer := player,
     generator := gen' }
-  for i in [0:10] do
+  for _ in [0:9] do
     let (_, g) := nextTurn gs
     gs := g
   printBoard gs.board
@@ -178,12 +175,26 @@ def main : IO Unit := do
 
 /-!
 
+Lastly, you can see how the State monad adds the input state and output state when you
+look at the reduced Type for `nextTurn`:
+-/
+#reduce StateM GameState Bool
+-- GameState → Bool × GameState
+/-!
+
+So a function like `nextTurn` that might have just returned a `Bool` has been modified by the State
+monad such that the initial `GameState` is passed in as a new input argument, and the output value
+has been changed to the pair `Bool × GameState` so that it can return the pure `Bool` and the
+updated `GameState`.  This is why the call to nextTurn looks like this: `let (_, g) := nextTurn gs`.
+This expression `(_, g)` mean break the pair up into 2 values, we don't care what the first value is
+(so use underscore `_`), but we do need the updated state `g`.
+
 ## State, IO and other languages
 
 When thinking about Lean, it is often seen as a restriction that we can't have global variables like
-you could with Python. However, we see now this isn't true. You can have a data type with exactly
-the same functionality as a Python class. You would simple have many functions that can modify the
-global state using the State monad.
+you can with Python. However, hopefully you see now this isn't true. You can have a data type with
+exactly the same functionality as a Python class. You would simple have many functions that can
+modify the global state using the State monad.
 
 The difference is in Lean we simply put a label on these types of functions. We don't allow it to
 happen for free anywhere in an uncontrolled fashion. We want to know when side effects can
@@ -205,5 +216,3 @@ read-only. How can you get multiple monadic capabilities at the same time? To le
 to [Part 6 : Monad Transformers](transformers.lean.md).
 
 -/
-
-

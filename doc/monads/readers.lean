@@ -97,12 +97,12 @@ readerFunc3.  The `do` notation you learned about in [Monads](monads.lean.md) is
 here.  Technically `readerFunc3` is a monadic action and in order to "run" that action the `Reader`
 monad provides a `run` method and it is the `Reader` run method that takes the initial `Environment`
 state.  So you can actually write the complete code by doing this: `let str := readerFunc3.run env`.
-
-**Side note**: If the function `readerFunc3` also took `pure` arguments then you would have to write
-`(readerFunc3 args).run env` and this is a bit ugly, so Lean provides an infix operator `|>` that
-eliminiates thos parens so you can write `readerFunc3 args |>.run env` and then you can chain
-multiple monadic actions like this `m1 args1 |>.run args2 |>.run args3` and this is the recommended
-style.  You will see this patten used heavily in Lean code.
+eliminiates eliminiates
+**Side note**: If the function `readerFunc3` also took some explicit arguments then you would have
+to write `(readerFunc3 args).run env` and this is a bit ugly, so Lean provides an infix operator
+`|>` that eliminiates those parens so you can write `readerFunc3 args |>.run env` and then you can
+chain multiple monadic actions like this `m1 args1 |>.run args2 |>.run args3` and this is the
+recommended style.  You will see this patten used heavily in Lean code.
 
 The `let env ← read` expression in `readerFunc1` unwraps the environment from the `Reader` so we can
 use it. Each type of monad might provide one or more extra functions like this, functions that
@@ -112,8 +112,8 @@ Here the `readerFunc2` function uses the `bind` operator `>>=` just to show you 
 operations happening here.  The `readerFunc3` function uses the  `do` notation you learned about in
 [Monads](monads.lean.md) which hides that bind operation and can make the code look cleaner.
 
-The Reader also has a `run` function to actually execute the monadic action, and it is used under the
-covers here so `let x ← readerFunc2` is really doing `let x ← readerFunc2.run`.
+The `do` notation with `let x ← readerFunc2` is also calling the `run` function to actually execute
+the monadic action, then it unwraps the value x, so it is really doing `let x ← readerFunc2.run`.
 
 The important difference here to the earlier code is that `readerFunc3` and `readerFunc2` no longer
 have an **explicit** Environment input parameter that needs to be passed along all the way to
@@ -125,12 +125,29 @@ The above code also introduces an important idea. Whenever you learn about a mon
 often (but not always) a `run` function to execute that monad, and sometimes some additional
 functions like `read` that interact with the monad state.
 
+You might be wondering, how does the state actually move through the Reader monad? How can
+you add an input argument to a function by modifying it's return type?  There is a special
+command in the Lean interpreter that will show you the reduced Types:
+-/
+#reduce Reader Environment String   -- Environment → String
+/-!
+And you can see here that this type is actually a function!  It's a function that takes an
+`Environment` as input and returns a `String`.  So, remember in Lean that a function that takes
+argument a and returns a string: `def f (a: Nat) → String` is the same as the function that takes no
+arguments and returns another function of type `Nat → String`.  Well this fact is being used by the
+Reader Monad to add an input argument to all the functions that use the Reader monad and this is why
+`main` is able to start things off by simply passing that new input argument in `readerFunc3 env`.
+So now that you know the implementation details of the Reader monad you can see that what it is
+doing looks very much like the original code we wrote at the beginning of this section, only it's
+taking a lot of the tedious work off your plate and it is creating a nice clean separation between
+what your pure functions are doing, and the global state idea that the Reader adds.
+
 ## Conclusion
 
 It might not seem like we've accomplished much with this `Reader Environment` monad, but you will
-find that in larger code bases, with many different types of monads this greatly cleans up the code.
-Monads provide a beautiful functional way of managing cross-cutting concerns that would otherwise
-make your code very messy.
+find that in larger code bases, with many different types of monads all composed together this
+greatly cleans up the code. Monads provide a beautiful functional way of managing cross-cutting
+concerns that would otherwise make your code very messy.
 
 Now it's time to move on to [part 5: State Monad](states.lean.md) which is like a `Reader` that is
 also updatable.

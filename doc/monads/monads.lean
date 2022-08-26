@@ -211,7 +211,7 @@ Here's an example where we use `bind` to convert a list of strings into a combin
 -- ['a', 'p', 'p', 'l', 'e', 'o', 'r', 'a', 'n', 'g', 'e']
 /-!
 List also provides some functions that are designed to operate in the context of a monad.
-These methods end in upper case M like this one:
+These methods end in upper case M like `anyM` below:
 -/
 
 def hasSomeItemGreaterThan (x : List Nat) (n: Nat): Option Bool := do
@@ -345,7 +345,7 @@ def runMaybeFuncsBind2 (input: String) : Option (List Nat) :=
 #eval runMaybeFuncsBind2 "big" -- some [9, 10]
 /-!
 
-Notice here we had to insert a `λ` function just like the definition where it says `(λ x => f x >>= g)`.
+Notice here we had to insert a `λ` function just like the definition says: `(λ x => f x >>= g)`.
 This is because unlike applicatives, we can't resolve the structure of later operations without the
 results of earlier operations quite as well because of the extra context monads provide. But we can
 still group their later operations into composite functions taking their inputs from earlier on, and

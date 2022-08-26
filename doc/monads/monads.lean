@@ -1,7 +1,7 @@
 /-!
 # Monads
 
-Building on [Functors](functors.md) and [Applicatives](applicatives.md) we can now introduce
+Building on [Functors](functors.lean.md) and [Applicatives](applicatives.lean.md) we can now introduce
 [monads](https://en.wikipedia.org/wiki/Monad_%28category_theory%29).
 
 A monad is another type of abstract, functional structure. Let's explore what makes it different
@@ -360,6 +360,6 @@ worry about them too much.
 Hopefully you now have a basic level understanding of what a monad is. But perhaps some more
 examples of what a "computational context" means would be useful to you. The Reader, State and
 Except monads each provide a concrete and easily understood context that can be compared easily to
-function parameters. You can learn more about those in [Part 4: Reader monads](readers.md) and [Part
-5: State monads](states.md) and [Part 5: Except monad](except.md).
+function parameters. You can learn more about those in [Part 4: Reader monads](readers.lean.md) and [Part
+5: State monads](states.lean.md) and [Part 5: Except monad](except.lean.md).
 -/

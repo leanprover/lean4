@@ -63,6 +63,7 @@
   - [Functors](./monads/functors.lean.md)
   - [Applicatives](./monads/applicatives.lean.md)
   - [Monads](./monads/monads.lean.md)
+  - [Readers](./monads/readers.lean.md)
 
 # Other
 

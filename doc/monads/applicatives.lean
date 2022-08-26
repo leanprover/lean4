@@ -1,7 +1,7 @@
 /-!
 # Applicative Functors
 
-Building on [Functors](functors.md) is the [Applicative Functor](https://en.wikipedia.org/wiki/Applicative_functor). For simplicity, you can refer to these simply as "Applicatives". These are a little tricker than functors, but still simpler than monads. Let's they work!
+Building on [Functors](functors.lean.md) is the [Applicative Functor](https://en.wikipedia.org/wiki/Applicative_functor). For simplicity, you can refer to these simply as "Applicatives". These are a little tricker than functors, but still simpler than monads. Let's they work!
 
 # What is an Applicative Functor?
 
@@ -220,7 +220,7 @@ And of couse, as you would expect, there is an `unzip` also:
 
 ## Example: A Functor that is not Applicative
 
-From the chapter on [functors](functors.md) you might remember this example of `LivingSpace`
+From the chapter on [functors](functors.lean.md) you might remember this example of `LivingSpace`
 that had a `Functor` instance:
 
 -/

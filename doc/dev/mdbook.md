@@ -23,6 +23,17 @@ We are using the following settings while editing the markdown docs.
 
 ## Build
 
+### Using Nix
+
+Building the manual using Nix (which is what the CI does) is as easy as
+```bash
+$ nix build --update-input lean ./doc
+```
+You can also open a shell with `mdbook` for running the commands mentioned below with
+`nix develop ./doc#book`. Otherwise, read on.
+
+### Manually
+
 To build and test the book you have to preprocess the .lean files with Alectryon then use our own
 fork of the Rust tool named [mdbook](https://github.com/leanprover/mdbook). We have our own fork of
 mdBook with the following additional features:
@@ -103,14 +114,3 @@ and you can use the `--chapter` option to test a specific chapter that you are w
     ```
 
 Use chapter name `?` to get a list of all the chapter names.
-
-## Nix
-
-Run `mdbook test` to test all `lean` code blocks.
-
-This book is built by the Lean `nix-ci.yml` workflow and so the latest instructions are always in
-the `doc/flake.nix` file.  If you want to use the [Nix setup](make/nix.md), you can instead open a
-shell with the mdBook fork downloaded from our binary cache:
-```bash
-nix develop .#doc
-```

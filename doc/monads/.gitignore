@@ -1,6 +1,1 @@
-applicatives.lean.md
-functors.lean.md
-monads.lean.md
-readers.lean.md
-states.lean.md
-except.lean.md
+*.lean.md

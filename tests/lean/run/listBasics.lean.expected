@@ -1,0 +1,28 @@
+[one, two, three]
+["zero", "one", "two", "three"]
+some 1
+some "three"
+true
+["one", "two", "three", "four", "five", "six"]
+"elephant"
+["two", "three"]
+["one", "two"]
+[3, 3, 5]
+true
+["two", "three"]
+"three"
+"two"
+["one", "three"]
+"one"
+["two", "three"]
+"one,two,three"
+false
+3
+["a", "b", "c", "d"]
+["three", "two", "one"]
+["one"]
+["one", "2", "three"]
+#["one", "two", "three"]
+[0, 1, 2, 3, 4]
+[("one", 0), ("two", 1), ("three", 2)]
+(["one", "two", "three"], [0, 1, 2])

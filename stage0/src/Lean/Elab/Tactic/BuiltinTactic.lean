@@ -99,11 +99,12 @@ private def getOptRotation (stx : Syntax) : Nat :=
   setGoals <| (← getGoals).rotateRight n
 
 @[builtinTactic Parser.Tactic.open] def evalOpen : Tactic := fun stx => do
+  let `(tactic| open $decl in $tac) := stx | throwUnsupportedSyntax
   try
     pushScope
-    let openDecls ← elabOpenDecl stx[1]
+    let openDecls ← elabOpenDecl decl
     withTheReader Core.Context (fun ctx => { ctx with openDecls := openDecls }) do
-      evalTactic stx[3]
+      evalTactic tac
   finally
     popScope
 

@@ -318,7 +318,7 @@ Equality is transitive: if `a = b` and `b = c` then `a = c`.
 
 Because this is in the `Eq` namespace, if you variables or expressions
 `h₁ : a = b` and `h₂ : b = c`, you can use `h₁.trans h₂ : a = c` as shorthand
-for `Eq.trans h₁ h₃`.
+for `Eq.trans h₁ h₂`.
 
 For more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
 -/
@@ -3446,9 +3446,9 @@ inductive Syntax where
     `rawIdent` parsers.
     * `rawVal` is the literal substring from the input file
     * `val` is the parsed identifier (with hygiene)
-    * `preresolved` is the list of possible constants this could refer to
+    * `preresolved` is the list of possible declarations this could refer to
     -/
-    ident  (info : SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List (Prod Name (List String))) : Syntax
+    ident  (info : SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List Syntax.Preresolved) : Syntax
 
 /-- `SyntaxNodeKinds` is a set of `SyntaxNodeKind` (implemented as a list). -/
 def SyntaxNodeKinds := List SyntaxNodeKind

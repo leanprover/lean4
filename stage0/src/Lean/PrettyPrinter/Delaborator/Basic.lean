@@ -226,13 +226,15 @@ where
     stx := stx
   }
 
+def annotateTermInfo (stx : Term) : Delab := do
+  let stx ← annotateCurPos stx
+  addTermInfo (← getPos) stx (← getExpr)
+  pure stx
+
 partial def delabFor : Name → Delab
   | Name.anonymous => failure
   | k              =>
-    (do let stx ← (delabAttribute.getValues (← getEnv) k).firstM id
-        let stx ← annotateCurPos stx
-        addTermInfo (← getPos) stx (← getExpr)
-        pure stx)
+    (do annotateTermInfo (← (delabAttribute.getValues (← getEnv) k).firstM id))
     -- have `app.Option.some` fall back to `app` etc.
     <|> if k.isAtomic then failure else delabFor k.getRoot
 
@@ -244,9 +246,9 @@ partial def delab : Delab := do
   if ← pure !e.isAtomic <&&> pure !(← getPPOption getPPProofs) <&&> (try Meta.isProof e catch _ => pure false) then
     if ← getPPOption getPPProofsWithType then
       let stx ← withType delab
-      return ← ``((_ : $stx))
+      return ← annotateTermInfo (← `((_ : $stx)))
     else
-      return ← ``(_)
+      return ← annotateTermInfo (← ``(_))
   let k ← getExprKind
   let stx ← delabFor k <|> (liftM $ show MetaM _ from throwError "don't know how to delaborate '{k}'")
   if ← getPPOption getPPAnalyzeTypeAscriptions <&&> getPPOption getPPAnalysisNeedsType <&&> pure !e.isMData then

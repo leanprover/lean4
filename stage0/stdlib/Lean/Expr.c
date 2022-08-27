@@ -12059,11 +12059,22 @@ return x_9;
 LEAN_EXPORT uint8_t l_Lean_Expr_isHeadBetaTarget(lean_object* x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; uint8_t x_4; 
-x_3 = l_Lean_Expr_getAppFn(x_1);
-x_4 = l_Lean_Expr_isHeadBetaTargetFn(x_2, x_3);
-lean_dec(x_3);
+uint8_t x_3; 
+x_3 = l_Lean_Expr_isApp(x_1);
+if (x_3 == 0)
+{
+uint8_t x_4; 
+x_4 = 0;
 return x_4;
+}
+else
+{
+lean_object* x_5; uint8_t x_6; 
+x_5 = l_Lean_Expr_getAppFn(x_1);
+x_6 = l_Lean_Expr_isHeadBetaTargetFn(x_2, x_5);
+lean_dec(x_5);
+return x_6;
+}
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Expr_isHeadBetaTarget___boxed(lean_object* x_1, lean_object* x_2) {

@@ -204,7 +204,6 @@ partial def unifyEqs? (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) (case
     return some (mvarId, subst)
   else
     let (eqFVarId, mvarId) ← mvarId.intro1
-    trace[Meta.debug] "unifyEqs? {numEqs}:\n{mvarId}"
     if let some { mvarId, subst, numNewEqs } ← unifyEq? mvarId eqFVarId subst MVarId.acyclic caseName? then
       unifyEqs? (numEqs - 1 + numNewEqs) mvarId subst caseName?
     else

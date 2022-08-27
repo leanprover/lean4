@@ -17,6 +17,8 @@ namespace Lean.JsonRpc
 open Json
 open Std (RBNode)
 
+/-- In JSON-RPC, each request from the client editor to the language server comes with a
+request id so that the corresponding response can be identified or cancelled. -/
 inductive RequestID where
   | str (s : String)
   | num (n : JsonNumber)
@@ -31,18 +33,36 @@ instance : ToString RequestID where
   | RequestID.num n => toString n
   | RequestID.null => "null"
 
-/-- Error codes defined by JSON-RPC and LSP. -/
+/-- Error codes defined by
+[JSON-RPC](https://www.jsonrpc.org/specification#error_object) and
+[LSP](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#errorCodes). -/
 inductive ErrorCode where
-  | parseError
-  | invalidRequest
-  | methodNotFound
-  | invalidParams
-  | internalError
-  | serverNotInitialized
+  | /-- Invalid JSON was received by the server. An error occurred on the server while parsing the JSON text.-/
+    parseError
+  | /-- The JSON sent is not a valid Request object. -/
+    invalidRequest
+  | /-- The method does not exist / is not available. -/
+    methodNotFound
+  | /-- Invalid method parameter(s). -/
+    invalidParams
+  | /-- Internal JSON-RPC error. -/
+    internalError
+  | /-- Error code indicating that a server received a notification or
+        request before the server has received the `initialize` request. -/
+    serverNotInitialized
   | unknownErrorCode
   -- LSP-specific codes below.
-  | contentModified
-  | requestCancelled
+  | /-- The server detected that the content of a document got
+        modified outside normal conditions. A server should
+        NOT send this error code if it detects a content change
+        in it unprocessed messages. The result even computed
+        on an older state might still be useful for the client.
+
+        If a client decides that a result is not of any use anymore
+        the client should cancel the request. -/
+    contentModified
+  | /-- The client has canceled a request and a server as detected the cancel. -/
+    requestCancelled
   -- Lean-specific codes below.
   | rpcNeedsReconnect
   | workerExited
@@ -78,18 +98,30 @@ instance : ToJson ErrorCode := ⟨fun
   | ErrorCode.workerExited         => (-32901 : Int)
   | ErrorCode.workerCrashed        => (-32902 : Int)⟩
 
-/-- Uses separate constructors for notifications and errors because client and server
-behavior is expected to be wildly different for both. -/
+/-- A JSON-RPC message.
+
+Uses separate constructors for notifications and errors because client and server
+behavior is expected to be wildly different for both.
+-/
 inductive Message where
-  | request (id : RequestID) (method : String) (params? : Option Structured)
-  | notification (method : String) (params? : Option Structured)
-  | response (id : RequestID) (result : Json)
-  | responseError (id : RequestID) (code : ErrorCode) (message : String) (data? : Option Json)
+  | /-- A request message to describe a request between the client and the server. Every processed request must send a response back to the sender of the request. -/
+    request (id : RequestID) (method : String) (params? : Option Structured)
+  | /-- A notification message. A processed notification message must not send a response back. They work like events. -/
+    notification (method : String) (params? : Option Structured)
+  | /-- A Response Message sent as a result of a request. -/
+    response (id : RequestID) (result : Json)
+  | /-- A non-successful response. -/
+    responseError (id : RequestID) (code : ErrorCode) (message : String) (data? : Option Json)
 
 def Batch := Array Message
 
--- Compound type with simplified APIs for passing around
--- jsonrpc data
+/-- Generic version of `Message.request`.
+
+A request message to describe a request between the client and the server. Every processed request must send a response back to the sender of the request.
+
+- [LSP](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#requestMessage)
+- [JSON-RPC](https://www.jsonrpc.org/specification#request_object)
+-/
 structure Request (α : Type u) where
   id     : RequestID
   method : String
@@ -99,6 +131,13 @@ structure Request (α : Type u) where
 instance [ToJson α] : Coe (Request α) Message :=
   ⟨fun r => Message.request r.id r.method (toStructured? r.param).toOption⟩
 
+/-- Generic version of `Message.notification`.
+
+A notification message. A processed notification message must not send a response back. They work like events.
+
+- [JSON-RPC](https://www.jsonrpc.org/specification#notification)
+- [LSP](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#notificationMessage).
+-/
 structure Notification (α : Type u) where
   method : String
   param  : α
@@ -107,6 +146,17 @@ structure Notification (α : Type u) where
 instance [ToJson α] : Coe (Notification α) Message :=
   ⟨fun r => Message.notification r.method (toStructured? r.param).toOption⟩
 
+/-- Generic version of `Message.response`.
+
+A Response Message sent as a result of a request. If a request doesn’t provide a
+result value the receiver of a request still needs to return a response message
+to conform to the JSON-RPC specification. The result property of the ResponseMessage
+should be set to null in this case to signal a successful request.
+
+References:
+- [JSON-RPC](https://www.jsonrpc.org/specification#response_object)
+- [LSP](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#responseMessage)
+-/
 structure Response (α : Type u) where
   id     : RequestID
   result : α
@@ -115,10 +165,19 @@ structure Response (α : Type u) where
 instance [ToJson α] : Coe (Response α) Message :=
   ⟨fun r => Message.response r.id (toJson r.result)⟩
 
+/-- Generic version of `Message.responseError`.
+
+References:
+- [JSON-RPC](https://www.jsonrpc.org/specification#error_object)
+- [LSP](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#responseError).
+-/
 structure ResponseError (α : Type u) where
   id      : RequestID
   code    : ErrorCode
+  /-- A string providing a short description of the error. -/
   message : String
+  /-- A primitive or structured value that contains additional
+      information about the error. Can be omitted.-/
   data?   : Option α := none
   deriving Inhabited, BEq
 

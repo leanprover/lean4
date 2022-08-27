@@ -59,14 +59,13 @@ def addDocString' [Monad m] [MonadEnv m] (declName : Name) (docString? : Option 
   | some docString => addDocString declName docString
   | none => return ()
 
-def findDocString? (env : Environment) (declName : Name) : IO (Option String) :=
-  /-
-  `docStringExt` should have precedence over `builtinDocStrings`, otherwise
-  we would not be able to update the doc strings for builtin elaborators, parsers, macros, ...
-  -/
-  match docStringExt.find? env declName with
-  | some docStr => return some docStr
-  | none => return (← builtinDocStrings.get).find? declName
+def findDocString? (env : Environment) (declName : Name) (includeBuiltin := true) : IO (Option String) :=
+  if let some docStr := docStringExt.find? env declName then
+    return some docStr
+  else if includeBuiltin then
+    return (← builtinDocStrings.get).find? declName
+  else
+    return none
 
 structure ModuleDoc where
   doc : String

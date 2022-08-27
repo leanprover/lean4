@@ -13,6 +13,9 @@ import Init.WFTactics
 
 namespace String
 
+/-- Interpret the string as the decimal representation of a natural number.
+
+Panics if the string is not a string of digits. -/
 def toNat! (s : String) : Nat :=
   if s.isNat then
     s.foldl (fun n c => n*10 + (c.toNat - '0'.toNat)) 0
@@ -20,11 +23,13 @@ def toNat! (s : String) : Nat :=
     panic! "Nat expected"
 
 /--
-  Convert a UTF-8 encoded `ByteArray` string to `String`.
-  The result is unspecified if `a` is not properly UTF-8 encoded. -/
+  Convert a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded `ByteArray` string to `String`.
+  The result is unspecified if `a` is not properly UTF-8 encoded.
+-/
 @[extern "lean_string_from_utf8_unchecked"]
 opaque fromUTF8Unchecked (a : @& ByteArray) : String
 
+/-- Convert the given `String` to a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded byte array. -/
 @[extern "lean_string_to_utf8"]
 opaque toUTF8 (a : @& String) : ByteArray
 
@@ -68,6 +73,7 @@ macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply String.Iterator.s
 
 namespace Iterator
 
+/-- Advance the given iterator until the predicate returns true or the end of the string is reached. -/
 @[specialize] def find (it : Iterator) (p : Char → Bool) : Iterator :=
   if it.atEnd then it
   else if p it.curr then it

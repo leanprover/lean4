@@ -156,7 +156,7 @@ where
       if let some name := e.constName? then
         if let some _ := ctx.typeInfos.findIdx? fun indVal => indVal.name == name then
           modify (· + 1)
-      return TransformStep.visit e
+      return .continue
 
     if cnt > 1 then
       throwError "only arrows are allowed as premises. Multiple recursive occurrences detected:{indentExpr domain}"

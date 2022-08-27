@@ -229,7 +229,9 @@ def findSome? (f : α → Option β) : List α → Option β
 
 def indexOf? [BEq α] (s : α) (i := 0): List α → Option Nat
   | [] => none
-  | a :: tail => if a == s then some i else indexOf? s (i+1) tail
+  | a :: tail => match a == s with
+    | true => some i
+    | false => indexOf? s (i+1) tail
 
 def replace [BEq α] : List α → α → α → List α
   | [],    _, _ => []

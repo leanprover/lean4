@@ -3,7 +3,7 @@
 
 In the [previous section](monads.lean.md) you learned about the conceptual idea of monads. You learned
 what they are, and saw how some common types like `IO` and `Option` work as monads. Now in this
-part, we'll start looking at some other useful monads. In particular, we'll consider the `Reader`
+part, we'll start looking at some other useful monads. In particular, we'll consider the `ReaderM`
 monad.
 
 ## How to do Global Variables in Lean?
@@ -65,23 +65,23 @@ headaches.
 
 ## The Reader Solution
 
-The Reader monad solves this problem. It effectively creates a global read-only value of a specified
-type. All functions within the monad can "read" the type. Let's look at how the Reader monad changes
+The `ReaderM` monad solves this problem. It effectively creates a global read-only value of a specified
+type. All functions within the monad can "read" the type. Let's look at how the `ReaderM` monad changes
 the shape of our code. Our functions **no longer need** the `Environment` as an explicit parameter, as
 they can access it through the monad.
 -/
 
-def readerFunc1 : Reader Environment Float := do
+def readerFunc1 : ReaderM Environment Float := do
   let env ← read
   let l1 := env.path.length
   let l2 := env.home.length * 2
   let l3 := env.user.length * 3
   return (l1 + l2 + l3).toFloat * 2.1
 
-def readerFunc2 : Reader Environment Nat :=
+def readerFunc2 : ReaderM Environment Nat :=
   readerFunc1 >>= (fun x => return 2 + (x.floor.toUInt32.toNat))
 
-def readerFunc3 : Reader Environment String := do
+def readerFunc3 : ReaderM Environment String := do
   let x ← readerFunc2
   return "Result: " ++ (toString x)
 
@@ -92,10 +92,10 @@ def main2 : IO Unit := do
 
 #eval main2 -- Result: 7538
 /-!
-`main2` loads the environment as before, and estabilishes the `Reader` state by passing `env` to
+`main2` loads the environment as before, and estabilishes the `ReaderM` state by passing `env` to
 readerFunc3.  The `do` notation you learned about in [Monads](monads.lean.md) is hiding some things
-here.  Technically `readerFunc3` is a monadic action and in order to "run" that action the `Reader`
-monad provides a `run` method and it is the `Reader` run method that takes the initial `Environment`
+here.  Technically `readerFunc3` is a monadic action and in order to "run" that action the `ReaderM`
+monad provides a `run` method and it is the `ReaderM` run method that takes the initial `Environment`
 state.  So you can actually write the complete code by doing this: `let str := readerFunc3.run env`.
 
 **Side note**: If the function `readerFunc3` also took some explicit arguments then you would have
@@ -104,7 +104,7 @@ to write `(readerFunc3 args).run env` and this is a bit ugly, so Lean provides a
 chain multiple monadic actions like this `m1 args1 |>.run args2 |>.run args3` and this is the
 recommended style.  You will see this patten used heavily in Lean code.
 
-The `let env ← read` expression in `readerFunc1` unwraps the environment from the `Reader` so we can
+The `let env ← read` expression in `readerFunc1` unwraps the environment from the `ReaderM` so we can
 use it. Each type of monad might provide one or more extra functions like this, functions that
 become available only when you are in the context of that monad.
 
@@ -117,27 +117,27 @@ the monadic action, then it unwraps the value x, so it is really doing `let x �
 
 The important difference here to the earlier code is that `readerFunc3` and `readerFunc2` no longer
 have an **explicit** Environment input parameter that needs to be passed along all the way to
-`readerFunc1`.  Instead, the `Reader` monad is taking care of that for you, which gives you the
+`readerFunc1`.  Instead, the `ReaderM` monad is taking care of that for you, which gives you the
 illusion of something like global state where the state is now available to all functions that use
-the `Reader` monad.
+the `ReaderM` monad.
 
 The above code also introduces an important idea. Whenever you learn about a monad "X", there's
 often (but not always) a `run` function to execute that monad, and sometimes some additional
 functions like `read` that interact with the monad state.
 
-You might be wondering, how does the state actually move through the Reader monad? How can
+You might be wondering, how does the state actually move through the ReaderM monad? How can
 you add an input argument to a function by modifying it's return type?  There is a special
 command in the Lean interpreter that will show you the reduced Types:
 -/
-#reduce Reader Environment String   -- Environment → String
+#reduce ReaderM Environment String   -- Environment → String
 /-!
 And you can see here that this type is actually a function!  It's a function that takes an
 `Environment` as input and returns a `String`.  So, remember in Lean that a function that takes
 argument a and returns a string: `def f (a: Nat) → String` is the same as the function that takes no
 arguments and returns another function of type `Nat → String`.  Well this fact is being used by the
-Reader Monad to add an input argument to all the functions that use the Reader monad and this is why
+ReaderM Monad to add an input argument to all the functions that use the ReaderM monad and this is why
 `main` is able to start things off by simply passing that new input argument in `readerFunc3 env`.
-So now that you know the implementation details of the Reader monad you can see that what it is
+So now that you know the implementation details of the ReaderM monad you can see that what it is
 doing looks very much like the original code we wrote at the beginning of this section, only it's
 taking a lot of the tedious work off your plate and it is creating a nice clean separation between
 what your pure functions are doing, and the global state idea that the Reader adds.
@@ -149,6 +149,6 @@ find that in larger code bases, with many different types of monads all composed
 greatly cleans up the code. Monads provide a beautiful functional way of managing cross-cutting
 concerns that would otherwise make your code very messy.
 
-Now it's time to move on to [State Monad](states.lean.md) which is like a `Reader` that is
+Now it's time to move on to [State Monad](states.lean.md) which is like a `ReaderM` that is
 also updatable.
 -/

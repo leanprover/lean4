@@ -5,7 +5,7 @@ import Std.Data.HashMap
 In the [previous section](readers.lean.md), you learned about the Reader monad. Hopefully this gave you
 a new perspective on Lean. It showed that, in fact, you _can_ have global variables of some sort;
 you just need to encode them in the type signature somehow, and this is what monads are for! In this
-part, we'll explore the `State` monad, which is like a `Reader` only the state can also be updated.
+part, we'll explore the `StateM` monad, which is like a `ReaderM` only the state can also be updated.
 
 ## Motivating example: Tic Tac Toe
 
@@ -46,7 +46,7 @@ that state**.
 This is exactly the situation the State monad deals with. The `State` monad wraps computations in
 the context of reading and modifying a global state object.
 
-It is parameterized by a single type parameter `s`, the state type in use. So just like the `Reader`
+It is parameterized by a single type parameter `s`, the state type in use. So just like the `ReaderM`
 has a single type you read from, the `State` has a single type you can both **read from and write
 to**. There are three primary actions you can take within the `State`monad:
 
@@ -54,11 +54,11 @@ to**. There are three primary actions you can take within the `State`monad:
 - **set** - updates the state
 - **modifyGet** - retrieves the state, then updates it
 
-There is also a `run` function, similar to `run` on `Reader`. Like the `Reader` monad, you must
+There is also a `run` function, similar to `run` on `ReaderM`. Like the `ReaderM` monad, you must
 provide an initial state, in addition to the computation to run. `State` then produces two outputs:
 the result of our computation combined with the final updated state.
 
-If you wish to discard either the final state and just get the computation's result, you can use
+If you wish to discard the final state and just get the computation's result, you can use
 `run'` method instead.  Yes in Lean, the apostraphe can be part of a name, you read this "run
 prime", and the general naming convention is that the prime method discards something.
 

@@ -208,7 +208,7 @@ with builtins; let
     if typeOf g == "string" then [g]
     else if g.glob == "one" then [g.mod]
     else if g.glob == "submodules" then submodules g.mod
-    else if g.glob == "andSubmodules" then [g] ++ submodules g.mod
+    else if g.glob == "andSubmodules" then [g.mod] ++ submodules g.mod
     else throw "unknown glob kind '${g}'";
   mods' = lib.foldr buildModAndDeps {} (concatMap expandGlob roots);
   allLinkFlags = lib.foldr (shared: acc: acc ++ [ "-L${shared}" "-l${shared.linkName or shared.name}" ]) linkFlags allNativeSharedLibs;

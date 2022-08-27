@@ -8,60 +8,74 @@ import Lean.Util.MonadCache
 import Lean.Meta.Basic
 
 namespace Lean.Meta
-namespace ForEachExpr
 
-abbrev M := MonadCacheT Expr Unit MetaM
+variable {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
 
-mutual
+/-- Given an expression `e = fun (x₁ : α₁) .. (xₙ : αₙ) => b`, runs `f` on each `αᵢ` and `b`. -/
+def visitLambda (f : Expr → m Unit) (e : Expr) : m Unit := visit #[] e
+  where visit (fvars : Array Expr) : Expr → m Unit
+    | Expr.lam n d b c => do
+      let d := d.instantiateRev fvars
+      f d
+      withLocalDecl n c d fun x =>
+        visit (fvars.push x) b
+    | e => do
+      f <| e.instantiateRev fvars
 
-private partial def visitBinder (fn : Expr → MetaM Bool) : Array Expr → Nat → Expr → M Unit
-  | fvars, j, Expr.lam n d b c => do
-    let d := d.instantiateRevRange j fvars.size fvars
-    visit fn d
-    withLocalDecl n c d fun x =>
-      visitBinder fn (fvars.push x) j b
-  | fvars, j, Expr.forallE n d b c => do
-    let d := d.instantiateRevRange j fvars.size fvars
-    visit fn d
-    withLocalDecl n c d fun x =>
-      visitBinder fn (fvars.push x) j b
-  | fvars, j, Expr.letE n t v b _ => do
-    let t := t.instantiateRevRange j fvars.size fvars
-    visit fn t
-    let v := v.instantiateRevRange j fvars.size fvars
-    visit fn v
-    withLetDecl n t v fun x =>
-      visitBinder fn (fvars.push x) j b
-  | fvars, j, e => visit fn $ e.instantiateRevRange j fvars.size fvars
+/-- Given an expression `e =  (x₁ : α₁) → .. (xₙ : αₙ) → b`, runs `f` on each `αᵢ` and `b`. -/
+def visitForall (f : Expr → m Unit) (e : Expr) : m Unit := visit #[] e
+  where visit (fvars : Array Expr) : Expr → m Unit
+    | Expr.forallE n d b c => do
+      let d := d.instantiateRev fvars
+      f d
+      withLocalDecl n c d fun x =>
+        visit (fvars.push x) b
+    | e => do
+      f <| e.instantiateRev fvars
 
-partial def visit (fn : Expr → MetaM Bool) (e : Expr) : M Unit :=
-  checkCache e fun _ => do
-    if (← liftM (fn e)) then
-      match e with
-      | .forallE ..   => visitBinder fn #[] 0 e
-      | .lam ..       => visitBinder fn #[] 0 e
-      | .letE ..      => visitBinder fn #[] 0 e
-      | .app f a      => visit fn f; visit fn a
-      | .mdata _ b    => visit fn b
-      | .proj _ _ b   => visit fn b
-      | _             => return ()
+/-- Given a sequence of let binders `let (x₁ : α₁ := v₁) ... in b`, runs `f` on each `αᵢ`, `vᵢ` and `b`. -/
+def visitLet (f : Expr → m Unit) (e : Expr) : m Unit := visit #[] e
+  where visit (fvars : Array Expr) : Expr → m Unit
+    | Expr.letE n d v b _ => do
+      let d := d.instantiateRev fvars
+      let v := v.instantiateRev fvars
+      f d
+      f v
+      withLetDecl n d v fun x =>
+        visit (fvars.push x) b
+    | e => do
+      f <| e.instantiateRev fvars
 
-end
-
-end ForEachExpr
-
-/-- Similar to `Expr.forEach'`, but creates free variables whenever going inside of a binder. -/
-def forEachExpr' (e : Expr) (f : Expr → MetaM Bool) : MetaM Unit :=
-  ForEachExpr.visit f e |>.run
+/-- Similar to `Expr.forEach'`, but creates free variables whenever going inside of a binder.
+If the inner function returns `false`, deeper subexpressions will not be visited.
+ -/
+partial def forEachExpr'
+  (input : Expr)
+  (fn : Expr → m Bool)
+  : m Unit := do
+  let _ : STWorld IO.RealWorld m := ⟨⟩
+  let _ : MonadLiftT (ST IO.RealWorld) m := { monadLift := fun x => liftM (m := MetaM) (liftM (m := ST IO.RealWorld) x) }
+  let rec visit (e : Expr) : MonadCacheT Expr Unit m Unit :=
+    checkCache e fun _ => do
+      if (← liftM (fn e)) then
+        match e with
+        | .forallE ..   => visitForall visit e
+        | .lam ..       => visitLambda visit e
+        | .letE ..      => visitLet visit e
+        | .app f a      => visit f; visit a
+        | .mdata _ b    => visit b
+        | .proj _ _ b   => visit b
+        | _             => return ()
+  visit input |>.run
 
 /-- Similar to `Expr.forEach`, but creates free variables whenever going inside of a binder. -/
-def forEachExpr (e : Expr) (f : Expr → MetaM Unit) : MetaM Unit :=
+def forEachExpr (e : Expr) (f : Expr → m Unit) : m Unit :=
   forEachExpr' e fun e => do
     f e
     return true
 
 /-- Return true iff `x` is a metavariable with an anonymous user facing name. -/
-private def shouldInferBinderName (x : Expr) : MetaM Bool := do
+private def shouldInferBinderName (x : Expr) : m Bool := do
   match x with
   | .mvar mvarId => return (← mvarId.getDecl).userName.isAnonymous
   | _ => return false

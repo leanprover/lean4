@@ -21,19 +21,13 @@ def isCoeDecl (declName : Name) : Bool :=
 /-- Expand coercions occurring in `e` -/
 partial def expandCoe (e : Expr) : MetaM Expr :=
   withReducibleAndInstances do
-    return (← transform e (pre := step))
-where
-  step (e : Expr) : MetaM TransformStep := do
-    let f := e.getAppFn
-    if !f.isConst then
-      return TransformStep.visit e
-    else
-      let declName := f.constName!
-      if isCoeDecl declName then
-        match (← unfoldDefinition? e) with
-        | none   => return TransformStep.visit e
-        | some e => step e.headBeta
-      else
-        return TransformStep.visit e
+    transform e fun e => do
+      let f := e.getAppFn
+      if f.isConst then
+        let declName := f.constName!
+        if isCoeDecl declName then
+          if let some e ← unfoldDefinition? e then
+            return .visit e.headBeta
+      return .continue
 
 end Lean.Meta

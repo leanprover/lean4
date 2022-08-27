@@ -1297,7 +1297,7 @@ If `useZeta = true`, then `let`-expressions are visited. That is, it assumes
 that zeta-reduction (aka let-expansion) is going to be used.
 -/
 def isHeadBetaTarget (e : Expr) (useZeta := false) : Bool :=
-  e.getAppFn.isHeadBetaTargetFn useZeta
+  e.isApp && e.getAppFn.isHeadBetaTargetFn useZeta
 
 private def etaExpandedBody : Expr → Nat → Nat → Option Expr
   | app f (bvar j), n+1, i => if j == i then etaExpandedBody f n (i+1) else none

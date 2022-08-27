@@ -1786,7 +1786,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Server_FileWorker_unfoldCmdSnaps___closed__1;
 x_2 = l_Lean_Server_FileWorker_unfoldCmdSnaps___closed__2;
-x_3 = lean_unsigned_to_nat(73u);
+x_3 = lean_unsigned_to_nat(77u);
 x_4 = lean_unsigned_to_nat(36u);
 x_5 = l_Lean_Server_FileWorker_unfoldCmdSnaps___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -20485,7 +20485,7 @@ lean_inc(x_32);
 x_33 = lean_ctor_get(x_31, 1);
 lean_inc(x_33);
 lean_dec(x_31);
-x_34 = lean_ctor_get(x_7, 1);
+x_34 = lean_ctor_get(x_7, 0);
 lean_inc(x_34);
 lean_dec(x_7);
 x_35 = lean_apply_1(x_34, x_33);
@@ -20495,7 +20495,7 @@ lean_object* x_36; lean_object* x_37; lean_object* x_38;
 x_36 = lean_ctor_get(x_35, 1);
 lean_inc(x_36);
 lean_dec(x_35);
-x_37 = lean_ctor_get(x_10, 1);
+x_37 = lean_ctor_get(x_10, 0);
 lean_inc(x_37);
 x_38 = lean_apply_1(x_37, x_36);
 if (lean_obj_tag(x_38) == 0)

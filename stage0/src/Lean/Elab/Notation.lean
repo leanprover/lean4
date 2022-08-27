@@ -28,7 +28,7 @@ private partial def antiquote (vars : Array Syntax) : Syntax → Syntax
     Option (TSepArray ``attrInstance ",") :=
   attrs?.map fun attrs =>
     match rhs with
-    | `($f:ident $_args*) =>
+    | `($f:ident $_args*) | `($f:ident) =>
       attrs.getElems.map fun stx => Unhygienic.run do
         if let `(attrInstance| $attr:ident) := stx then
           if attr.getId.eraseMacroScopes == `inheritDoc then

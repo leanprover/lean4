@@ -53,6 +53,7 @@ instance : Neg Float := ⟨Float.neg⟩
 instance : LT Float  := ⟨Float.lt⟩
 instance : LE Float  := ⟨Float.le⟩
 
+/-- Note: this is not reflexive since `NaN != NaN`.-/
 @[extern "lean_float_beq"] opaque Float.beq (a b : Float) : Bool
 
 instance : BEq Float := ⟨Float.beq⟩

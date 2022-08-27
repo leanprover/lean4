@@ -13,6 +13,10 @@ variable [Monad m] [STWorld IO.RealWorld m] [MonadEnv m]
 variable [MonadExceptOf Exception m] [MonadRef m] [AddErrorMessageContext m]
 variable [AddMessageContext m] [MonadLiftT (ST IO.RealWorld) m] [MonadLog m]
 
+/--
+A local copy of name resolution state that allows us to immediately use new open decls
+in further name resolution as in `open Lean Elab`.
+-/
 structure State where
   openDecls     : List OpenDecl
   currNamespace : Name
@@ -32,19 +36,6 @@ def resolveId (ns : Name) (idStx : Syntax) : M (m := m) Name := do
 
 private def addOpenDecl (decl : OpenDecl) : M (m:=m) Unit :=
   modify fun s => { s with openDecls := decl :: s.openDecls }
-
-private def elabOpenSimple (n : Syntax) : M (m:=m) Unit :=
-  -- `open` id+
-  for ns in n[0].getArgs do
-    for ns in (← resolveNamespace ns.getId) do
-      addOpenDecl (OpenDecl.simple ns [])
-      activateScoped ns
-
-private def elabOpenScoped (n : Syntax) : M (m:=m) Unit :=
-  -- `open` `scoped` id+
-  for ns in n[1].getArgs do
-    for ns in (← resolveNamespace ns.getId) do
-    activateScoped ns
 
 private def resolveNameUsingNamespacesCore (nss : List Name) (idStx : Syntax) : M (m:=m) Name := do
   let mut exs := #[]
@@ -66,56 +57,43 @@ private def resolveNameUsingNamespacesCore (nss : List Name) (idStx : Syntax) : 
   else
     withRef idStx do throwError "ambiguous identifier '{idStx.getId}', possible interpretations: {result.map mkConst}"
 
--- `open` id `(` id+ `)`
-private def elabOpenOnly (n : Syntax) : M (m:=m) Unit := do
-  let nss ← resolveNamespace n[0].getId
-  for idStx in n[2].getArgs do
-    let declName ← resolveNameUsingNamespacesCore nss idStx
-    addOpenDecl (OpenDecl.explicit idStx.getId declName)
-
--- `open` id `hiding` id+
-private def elabOpenHiding (n : Syntax) : M (m:=m) Unit := do
-  let ns ← resolveUniqueNamespace n[0].getId
-  let mut ids : List Name := []
-  for idStx in n[2].getArgs do
-    let _ ← resolveId ns idStx
-    let id := idStx.getId
-    ids := id::ids
-  addOpenDecl (OpenDecl.simple ns ids)
-
--- `open` id `renaming` sepBy (id `->` id) `,`
-private def elabOpenRenaming (n : Syntax) : M (m:=m) Unit := do
-  let ns ← resolveUniqueNamespace n[0].getId
-  for stx in n[2].getSepArgs do
-    let fromStx  := stx[0]
-    let toId     := stx[2].getId
-    let declName ← resolveId ns fromStx
-    addOpenDecl (OpenDecl.explicit toId declName)
-
-def elabOpenDecl [MonadResolveName m] (openDeclStx : Syntax) : m (List OpenDecl) := do
+def elabOpenDecl [MonadResolveName m] (stx : TSyntax ``Parser.Command.openDecl) : m (List OpenDecl) := do
   StateRefT'.run' (s := { openDecls := (← getOpenDecls), currNamespace := (← getCurrNamespace) }) do
-    if openDeclStx.getKind == ``Parser.Command.openSimple then
-      elabOpenSimple openDeclStx
-    else if openDeclStx.getKind == ``Parser.Command.openScoped then
-      elabOpenScoped openDeclStx
-    else if openDeclStx.getKind == ``Parser.Command.openOnly then
-      elabOpenOnly openDeclStx
-    else if openDeclStx.getKind == ``Parser.Command.openHiding then
-      elabOpenHiding openDeclStx
-    else
-      elabOpenRenaming openDeclStx
+    match stx with
+    | `(Parser.Command.openDecl| $nss*) =>
+      for ns in nss do
+        for ns in (← resolveNamespace ns) do
+          addOpenDecl (OpenDecl.simple ns [])
+          activateScoped ns
+    | `(Parser.Command.openDecl| scoped $nss*) =>
+      for ns in nss do
+        for ns in (← resolveNamespace ns) do
+          activateScoped ns
+    | `(Parser.Command.openDecl| $ns ($ids*)) =>
+      let nss ← resolveNamespace ns
+      for idStx in ids do
+        let declName ← resolveNameUsingNamespacesCore nss idStx
+        addOpenDecl (OpenDecl.explicit idStx.getId declName)
+    | `(Parser.Command.openDecl| $ns hiding $ids*) =>
+      let ns ← resolveUniqueNamespace ns
+      for id in ids do
+        let _ ← resolveId ns id
+      let ids := ids.map (·.getId) |>.toList
+      addOpenDecl (OpenDecl.simple ns ids)
+    | `(Parser.Command.openDecl| $ns renaming $[$froms -> $tos],*) =>
+      let ns ← resolveUniqueNamespace ns
+      for («from», to) in froms.zip tos do
+        let declName ← resolveId ns «from»
+        addOpenDecl (OpenDecl.explicit to.getId declName)
+    | _ => throwUnsupportedSyntax
     return (← get).openDecls
 
-def resolveOpenDeclId [MonadResolveName m] (ns : Name) (idStx : Syntax) : m Name := do
-  StateRefT'.run' (s := { openDecls := (← getOpenDecls), currNamespace := (← getCurrNamespace) }) do
-    OpenDecl.resolveId ns idStx
-
-def resolveNameUsingNamespaces [MonadResolveName m] (nss : List Name) (idStx : Syntax) : m Name := do
+def resolveNameUsingNamespaces [MonadResolveName m] (nss : List Name) (idStx : Ident) : m Name := do
   StateRefT'.run' (s := { openDecls := (← getOpenDecls), currNamespace := (← getCurrNamespace) }) do
     resolveNameUsingNamespacesCore nss idStx
 
 end OpenDecl
 
-export OpenDecl (elabOpenDecl resolveOpenDeclId resolveNameUsingNamespaces)
+export OpenDecl (elabOpenDecl resolveNameUsingNamespaces)
 
 end Lean.Elab

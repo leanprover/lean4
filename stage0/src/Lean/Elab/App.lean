@@ -1239,7 +1239,8 @@ private partial def resolveDotName (id : Syntax) (expectedType? : Option Expr) :
     go resultType expectedType #[]
 where
   go (resultType : Expr) (expectedType : Expr) (previousExceptions : Array Exception) : TermElabM Name := do
-    let resultTypeFn := (← instantiateMVars resultType).cleanupAnnotations.getAppFn
+    let resultType ← instantiateMVars resultType
+    let resultTypeFn := resultType.cleanupAnnotations.getAppFn
     try
       tryPostponeIfMVar resultTypeFn
       let .const declName .. := resultTypeFn.cleanupAnnotations
@@ -1251,8 +1252,9 @@ where
     catch
       | ex@(.error ..) =>
         match (← unfoldDefinition? resultType) with
-        | some resultType => go (← whnfCore resultType) expectedType (previousExceptions.push ex)
-        | none       =>
+        | some resultType =>
+          go (← whnfCore resultType) expectedType (previousExceptions.push ex)
+        | none =>
           previousExceptions.forM fun ex => logException ex
           throw ex
       | ex@(.internal _ _) => throw ex

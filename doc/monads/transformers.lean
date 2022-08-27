@@ -24,22 +24,22 @@ returns true if the optional argument is present.
 -/
 abbrev Arguments := List String
 
-def List.posOf? (xs : List String) (s : String) (i := 0): Option Nat :=
+def indexOf? [BEq α] (xs : List α) (s : α) (i := 0): Option Nat :=
   match xs with
   | [] => none
-  | a :: tail => if a = s then some i else posOf? tail s (i+1)
+  | a :: tail => if a == s then some i else indexOf? tail s (i+1)
 
 def requiredArgument (name: String) : ReaderT Arguments (Except String) String := do
   let args ← read
-  let value := match args.posOf? name with
-  | some i => if i < args.length - 1 then args[i+1]! else ""
-  | none => ""
+  let value := match indexOf? args name with
+    | some i => if i + 1 < args.length then args[i+1]! else ""
+    | none => ""
   if value == "" then throw s!"Command line argument {name} missing"
   return value
 
 def optionalSwitch (name: String) : ReaderT Arguments (Except String) Bool := do
   let args ← read
-  return match (args.posOf? name) with
+  return match (indexOf? args name) with
   | some _ => true
   | none => false
 

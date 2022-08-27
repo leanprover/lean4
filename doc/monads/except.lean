@@ -81,11 +81,11 @@ Now with all good exception handling you also want to be able to catch exception
 can try continue on or do some error recovery task, which you can do like this:
 -/
 def testCatch :=
-    try
-      let r ← divide 8 0  -- 'r' is type Float
-      return toString r
-    catch e =>
-      return s!"Caught exception: {e}"
+  try
+    let r ← divide 8 0  -- 'r' is type Float
+    return toString r
+  catch e =>
+    return s!"Caught exception: {e}"
 /-!
 
 Note that the type inferred by Lean for this function is `Except String String` so the `Except
@@ -107,14 +107,14 @@ some things along the way to make it even easier to manage.
 
 Now you might be wondering why `testCatch` doesn't have return type `String`? Lean does this as a
 convenience since you could have a rethrow in or after the catch block. If you really want to stop
-the `Except` type from bubbling up you can do this:
+the `Except` type from bubbling up you can unwrap it like this:
 
 -/
 def testUnwrap : String := Id.run do
-    let r ← divide 8 0 -- r is type Except String Float
-    match r with
-    | .ok a => toString a -- 'a' is type Float
-    | .error e => s!"Caught exception: {e}"
+  let r ← divide 8 0 -- r is type Except String Float
+  match r with
+  | .ok a => toString a -- 'a' is type Float
+  | .error e => s!"Caught exception: {e}"
 
 #check testUnwrap -- String
 #eval testUnwrap -- "Caught exception: can't divide by zero"
@@ -122,44 +122,9 @@ def testUnwrap : String := Id.run do
 /-!
 
 The `Id.run` function is a helper function that executes the `do` block and returns the result where
-`Id` is the _identity monad_.
+`Id` is the _identity monad_.  So `Id.run do` is a pattern you can use to execute monads in a
+function that is not itself monadic.
 
-## Lifting
-
-When you get all the way back up to your `main` function which has type `IO Unit` we have a problem
-because that doesn't match `Except String Float` even if we use a `try/catch`.  To help solve this
-kind of problem with mismatching monad types, Lean provides a concept of lifting so that one monad
-type can be converted into another.
-
-It turns out that the `IO` monad you see in your `main` function is based on a `Result` type which
-is similar to the `Except` type but it has an additional return value. The following `liftIO`
-function converts any `Except String α` into `IO α` by simply mapping the ok state of the `Except`
-to the `Result.ok` and the error case to the Result.error.
-
-This can then be used to implement a `MonadLift` instance which allows the `main` function to
-compile and work as expected.
-
--/
-open EStateM
-
-def liftIO (t : Except String α) : IO α := do
-  match t with
-  | .ok r => Result.ok r
-  | .error s => Result.error s
-
-instance : MonadLift (Except String) IO where
-  monadLift := liftIO
-
-def main : IO Unit := do
-  try
-    let ret ← divide 5 0
-    IO.println (toString ret)
-  catch e =>
-    IO.println s!"Unhandled exception: {e}"
-
-#eval main -- Unhandled exception: can't divide by zero
-
-/-!
 ## Summary
 
 Now that you know all these different monad constructs, you might be wondering how you can combine

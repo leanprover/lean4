@@ -60,6 +60,8 @@ Notice that `throw` was available from the inner `Except` monad. The cool thing 
 this around and get the exact same result using `ExceptT` as the outer monad transformer and
 `Reader` as the wrapped monad. Try changing requiredArgument to `ExceptT String (Reader Arguments) Bool`.
 
+Note: the `|>.` notation is described in [Readers](readers.lean.md#the-reader-solution).
+
 ## Adding more layers
 
 Here's the best part about monad transformers. Since the result of a monad transformer is itself a
@@ -150,17 +152,25 @@ But something interesting is happening here.  `divideCounter` is returning the v
 You can see this more clearly with the following test:
 
 -/
-def liftTest (x : Except String Float) : StateT Nat (Except String) Float :=
-  x
+def liftTest (x : Except String Float) :
+  StateT Nat (Except String) Float := x
 
 #eval liftTest (divide 5 1) |>.run 3 -- Except.ok (5.000000, 3)
 
 /-!
 
 Notice that `liftTest` returned `x` without doing anything to it, yet that matched the return type
-`StateT Nat (Except String) Float`.  Monad lifting is done by our monad transformers.  if you
-`#print liftTest` you will see that it is implementing this using a call to a function named
-`monadLift` from the `MonadLiftT` type class.
+`StateT Nat (Except String) Float`.  Monad lifting is provided by our monad transformers.  if you
+`#print liftTest` you will see that Lean is implementing this using a call to a function named
+`monadLift` from the `MonadLift` type class:
+
+```lean,ignore
+class MonadLift (m : Type u → Type v) (n : Type u → Type w) where
+  monadLift : {α : Type u} → m α → n α
+```
+
+So `monadLift` is a function for lifting a computation from an inner `Monad m α ` to an outer `Monad n α`.
+You could replace `x` in `liftTest` with `monadLift x` if you want to be explicit about it.
 
 The StateT monad transformer defines an instance of `MonadLift` like this:
 
@@ -190,8 +200,36 @@ cursor to the end of the first line after `do` and you will see a nice detailed 
 This was a lot of detail, but it is very important to understand how monad lifting works because it
 is used heavily in Lean programs.
 
-## Add your own Custom Lifting
+## Transative lifting
 
+There is also a transitive version of `MonadLift` called `MonadLiftT` which can lift multiple
+monad layers at once.  In the following example we added another monad layer with
+`ReaderT String ...` and notice that `x` is also automatically lifted to match.
+
+-/
+def liftTest2 (x : Except String Float) :
+  ReaderT String (StateT Nat (Except String)) Float := x
+
+#eval liftTest2 (divide 5 1) |>.run "" |>.run 3
+-- Except.ok (5.000000, 3)
+
+/-!
+
+The ReaderT monadLift is even simpler than the one for StateT:
+
+```lean,ignore
+instance  : MonadLift m (ReaderT ρ m) where
+  monadLift x := fun _ => x
+```
+
+This lift operation creates a function that defines the required `ReaderT` input
+argument, but the inner monad doesn't know or care about `ReaderT` so the
+monadLift function throws it away with the `_` then calls the inner monad action `x`.
+This is a perfectly legal and trivial way to implement a `Reader` monad.
+
+## Add your own Custom MonadLift
+
+This does not compile:
 -/
 def main2 : IO Unit := do
   try
@@ -201,15 +239,14 @@ def main2 : IO Unit := do
     IO.println e
 
 /-!
-
-This does not compile saying:
+saying:
 ```
 typeclass instance problem is stuck, it is often due to metavariables
   ToString ?m.4786
 ```
 
-`divideCounter` returns the big `StateT Nat (ExceptT String Id) Float` and the problem is that
-cannot be automatically transformed into the `main` return type of `IO Unit` unless we give it some
+The reason is `divideCounter` returns the big `StateT Nat (ExceptT String Id) Float` and that type
+cannot be automatically lifted into the `main` return type of `IO Unit` unless we give it some
 help.
 
 The following custom `MonadLift` solves this problem:
@@ -233,10 +270,40 @@ def main3 : IO Unit := do
 #eval main3 -- (2.500000, 1)
 /-!
 
-This instance makes it possible to lift the result of type `ExceptT String Id` into the type
-required by main which is `IO Unit`. Fortunately this lift is relatively easy because IO is just an
-alias for the `EStateM.Result` which is very similar to the `Except` object in that it also has an
-`ok` or `error` state.
+It turns out that the same `IO` monad you see in your `main` function is based on a `Result` type
+which is similar to the `Except` type but it has an additional return value. The `liftIO` function
+converts any `Except String α` into `IO α` by simply mapping the ok state of the `Except` to the
+`Result.ok` and the error case to the Result.error.
+
+## Lifting ExceptT
+
+In the previous [Except](except.lean.md) section we were writing functions that `throw` Except
+values. When you get all the way back up to your `main` function which has type `IO Unit` we have
+the same problem we had above, because `Except String Float` doesn't match even if we use a
+`try/catch`.
+
+-/
+
+def main4 : IO Unit := do
+  try
+    let ret ← divide 5 0
+    IO.println (toString ret)  -- lifting happens here.
+  catch e =>
+    IO.println s!"Unhandled exception: {e}"
+
+#eval main4 -- Unhandled exception: can't divide by zero
+
+/-!
+
+Without the `liftIO` the `(toString ret)` expression would not compile with a similar error:
+
+```
+typeclass instance problem is stuck, it is often due to metavariables
+  ToString ?m.6007
+```
+
+So the general lesson is that if you see an error like this when using monads, check for
+a missing `MonadLift`.
 
 ## Summary
 

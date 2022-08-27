@@ -97,7 +97,7 @@ readerFunc3.  The `do` notation you learned about in [Monads](monads.lean.md) is
 here.  Technically `readerFunc3` is a monadic action and in order to "run" that action the `Reader`
 monad provides a `run` method and it is the `Reader` run method that takes the initial `Environment`
 state.  So you can actually write the complete code by doing this: `let str := readerFunc3.run env`.
-eliminiates eliminiates
+
 **Side note**: If the function `readerFunc3` also took some explicit arguments then you would have
 to write `(readerFunc3 args).run env` and this is a bit ugly, so Lean provides an infix operator
 `|>` that eliminiates those parens so you can write `readerFunc3 args |>.run env` and then you can

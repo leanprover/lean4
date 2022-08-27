@@ -61,8 +61,8 @@ def shouldPull (decl : LetDecl) : PullM Bool := do
 mutual
   partial def pullAlt (alt : Alt) : PullM Alt :=
     match alt with
-    | .default k => return AltCore.default (← withNewScope <| pullDecls k)
-    | .alt ctorName params k => return AltCore.alt ctorName params (← withNewScope <| withParams params <| pullDecls k)
+    | .default k => return .default (← withNewScope <| pullDecls k)
+    | .alt ctorName params k => return .alt ctorName params (← withNewScope <| withParams params <| pullDecls k)
 
   partial def pullDecls (code : Code) : PullM Code := do
     match code with

@@ -75,8 +75,8 @@ def AltCore.getCode : Alt → Code
 
 private unsafe def updateAltCodeImp (alt : Alt) (c : Code) : Alt :=
   match alt with
-  | .default k => if ptrEq k c then alt else AltCore.default c
-  | .alt ctorName ps k => if ptrEq k c then alt else AltCore.alt ctorName ps c
+  | .default k => if ptrEq k c then alt else .default c
+  | .alt ctorName ps k => if ptrEq k c then alt else .alt ctorName ps c
 
 @[implementedBy updateAltCodeImp] opaque AltCore.updateCode (alt : Alt) (c : Code) : Alt
 

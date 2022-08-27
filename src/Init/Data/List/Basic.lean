@@ -227,11 +227,14 @@ def findSome? (f : α → Option β) : List α → Option β
     | some b => some b
     | none   => findSome? f as
 
-def indexOf? [BEq α] (s : α) (i := 0): List α → Option Nat
+private def indexOfAux? [BEq α] (s : α) (i := 0): List α → Option Nat
   | [] => none
   | a :: tail => match a == s with
     | true => some i
-    | false => indexOf? s (i+1) tail
+    | false => indexOfAux? s (i+1) tail
+
+def indexOf? [BEq α] (as : List α) (s : α) : Option Nat :=
+  as.indexOfAux? s 0
 
 def replace [BEq α] : List α → α → α → List α
   | [],    _, _ => []

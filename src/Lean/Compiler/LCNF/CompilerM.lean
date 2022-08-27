@@ -56,28 +56,18 @@ partial def FVarSubst.applyToExpr (s : FVarSubst) (e : Expr) : Expr :=
   go e
 where
   go (e : Expr) : Expr :=
-    match e with
-    | .fvar fvarId => .fvar (s.applyToFVar fvarId)
-    | .lit .. | .const .. | .sort .. | .mvar .. | .bvar .. => e
-    | .app .. => mkAppN (go e.getAppFn) (e.getAppArgs.map go)
-    | .mdata k b => .mdata k (go b)
-    | .proj s i b => .proj s i (go b)
-    | .forallE n d b bi => .forallE n (go d) (go b) bi
-    | .lam n d b bi => .lam n (go d) (go b) bi
-    | .letE n t v b nd => .letE n (go t) (go v) (go b) nd
-
-def FVarSubst.applyToParam (s : FVarSubst) (p : Param) : CompilerM Param := do
-  let p := { p with type := s.applyToExpr p.type }
-  modifyLCtx fun lctx => lctx.updateLocalDecl p.fvarId p.type
-  return p
-
-def FVarSubst.applyToParams (s : FVarSubst) (ps : Array Param) : CompilerM (Array Param) :=
-  ps.mapM s.applyToParam
-
-def FVarSubst.applyToLetDecl (s : FVarSubst) (decl : LetDecl) : CompilerM LetDecl := do
-  let decl := { decl with type := s.applyToExpr decl.type, value := s.applyToExpr decl.value }
-  modifyLCtx fun lctx => lctx.updateLetDecl decl.fvarId decl.type decl.value
-  return decl
+    if e.hasFVar then
+      match e with
+      | .fvar fvarId => .fvar (s.applyToFVar fvarId)
+      | .lit .. | .const .. | .sort .. | .mvar .. | .bvar .. => e
+      | .app f a => e.updateApp! (go f) (go a)
+      | .mdata _ b => e.updateMData! (go b)
+      | .proj _ _ b => e.updateProj! (go b)
+      | .forallE _ d b _ => e.updateForallE! (go d) (go b)
+      | .lam _ d b _ => e.updateLambdaE! (go d) (go b)
+      | .letE _ t v b _ => e.updateLet! (go t) (go v) (go b)
+    else
+      e
 
 namespace Internalize
 
@@ -160,6 +150,35 @@ def mkFunDecl (binderName : Name) (type : Expr) (params : Array Param) (value : 
   let funDecl := { fvarId, binderName, type, params, value }
   modifyLCtx fun lctx => lctx.addFunDecl funDecl
   return funDecl
+
+private unsafe def updateParamImp (p : Param) (type : Expr) : CompilerM Param := do
+  if ptrEq type p.type then
+    return p
+  else
+    let p := { p with type }
+    modifyLCtx fun lctx => lctx.addLocalDecl p.fvarId p.binderName p.type
+    return p
+
+@[implementedBy updateParamImp] opaque updateParam (p : Param) (type : Expr) : CompilerM Param
+
+private unsafe def updateLetDeclImp (decl : LetDecl) (type : Expr) (value : Expr) : CompilerM LetDecl := do
+  if ptrEq type decl.type && ptrEq value decl.value then
+    return decl
+  else
+    let decl := { decl with type, value }
+    modifyLCtx fun lctx => lctx.addLetDecl decl.fvarId decl.binderName decl.type decl.value
+    return decl
+
+@[implementedBy updateLetDeclImp] opaque updateLetDecl (decl : LetDecl) (type : Expr) (value : Expr) : CompilerM LetDecl
+
+def FVarSubst.applyToParam (s : FVarSubst) (p : Param) : CompilerM Param :=
+  updateParam p (s.applyToExpr p.type)
+
+def FVarSubst.applyToParams (s : FVarSubst) (ps : Array Param) : CompilerM (Array Param) :=
+  ps.mapM s.applyToParam
+
+def FVarSubst.applyToLetDecl (s : FVarSubst) (decl : LetDecl) : CompilerM LetDecl :=
+  updateLetDecl decl (s.applyToExpr decl.type) (s.applyToExpr decl.value)
 
 def mkFreshBinderName (binderName := `_x): CompilerM Name := do
   let declName := .num binderName (← get).nextIdx

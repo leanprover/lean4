@@ -49,22 +49,6 @@ where
     | .jp decl k | .fun decl k => go k <| lctx.erase decl.fvarId
     | _ => lctx
 
-def LCtx.updateLocalDecl (lctx : LCtx) (fvarId : FVarId) (type : Expr) : LCtx :=
-  match lctx with
-  | { localDecls, funDecls } =>
-    let localDecls := match localDecls.find? fvarId with
-      | none => unreachable!
-      | some localDecl => localDecls.insert fvarId <| localDecl.setType type
-    { localDecls, funDecls }
-
-def LCtx.updateLetDecl (lctx : LCtx) (fvarId : FVarId) (type : Expr) (value : Expr) : LCtx :=
-  match lctx with
-  | { localDecls, funDecls } =>
-    let localDecls := match localDecls.find? fvarId with
-      | some (.ldecl idx _ u _ _ _) => localDecls.insert fvarId <| .ldecl idx fvarId u type value true
-      | _ => unreachable!
-    { localDecls, funDecls }
-
 /--
 Convert a LCNF local context into a regular Lean local context.
 -/

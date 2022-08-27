@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.ConstFolding
-// Imports: Init Lean.Expr Lean.Compiler.Util
+// Imports: Init Lean.Expr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -48,6 +48,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_foldNatBeq(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_NumScalarTypeInfo_ofNatFn___default(lean_object*);
 extern lean_object* l_System_Platform_numBits;
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldNatPow___boxed(lean_object*);
+static lean_object* l_Lean_Compiler_mkLcProof___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldUIntMod___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_natFoldFns___closed__14;
 static lean_object* l_Lean_Compiler_mkNatLe___closed__6;
@@ -59,6 +60,7 @@ static lean_object* l_Lean_Compiler_numScalarTypes___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldStrictAnd(uint8_t);
 static lean_object* l_Lean_Compiler_foldNatMul___rarg___closed__1;
 static lean_object* l_Lean_Compiler_getBoolLit___closed__2;
+static lean_object* l_Lean_Compiler_mkLcProof___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Compiler_preUIntBinFoldFns;
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldStrictAnd___boxed(lean_object*);
 static lean_object* l_Lean_Compiler_natFoldFns___closed__51;
@@ -103,6 +105,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_foldNatAdd___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldNatDecLe___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_natFoldFns___closed__45;
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldNatDiv(uint8_t);
+static lean_object* l_Lean_Compiler_mkLcProof___closed__1;
 extern lean_object* l_Lean_levelZero;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__19;
@@ -195,7 +198,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_isOfNat___boxed(lean_object*);
 static lean_object* l_Lean_Compiler_mkNatLt___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Compiler_getBoolLit(lean_object*);
 static lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__1;
-lean_object* l_Lean_Compiler_mkLcProof(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_mkLcProof(lean_object*);
 static lean_object* l_Lean_Compiler_mkNatLt___closed__10;
 lean_object* l_Nat_mod___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_numScalarTypes___closed__9;
@@ -366,6 +369,43 @@ static lean_object* l_Lean_Compiler_natFoldFns___closed__44;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_boolFoldFns___closed__10;
 static lean_object* l_Lean_Compiler_toDecidableExpr___closed__2;
+static lean_object* _init_l_Lean_Compiler_mkLcProof___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("lcProof", 7);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_mkLcProof___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Compiler_mkLcProof___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_mkLcProof___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Compiler_mkLcProof___closed__2;
+x_3 = l_Lean_Expr_const___override(x_2, x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Compiler_mkLcProof(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_Lean_Compiler_mkLcProof___closed__3;
+x_3 = l_Lean_Expr_app___override(x_2, x_1);
+return x_3;
+}
+}
 static lean_object* _init_l_Lean_Compiler_mkUIntTypeName___closed__1() {
 _start:
 {
@@ -4698,7 +4738,6 @@ return x_5;
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Expr(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Compiler_Util(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_ConstFolding(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -4710,9 +4749,12 @@ lean_dec_ref(res);
 res = initialize_Lean_Expr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_Util(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
+l_Lean_Compiler_mkLcProof___closed__1 = _init_l_Lean_Compiler_mkLcProof___closed__1();
+lean_mark_persistent(l_Lean_Compiler_mkLcProof___closed__1);
+l_Lean_Compiler_mkLcProof___closed__2 = _init_l_Lean_Compiler_mkLcProof___closed__2();
+lean_mark_persistent(l_Lean_Compiler_mkLcProof___closed__2);
+l_Lean_Compiler_mkLcProof___closed__3 = _init_l_Lean_Compiler_mkLcProof___closed__3();
+lean_mark_persistent(l_Lean_Compiler_mkLcProof___closed__3);
 l_Lean_Compiler_mkUIntTypeName___closed__1 = _init_l_Lean_Compiler_mkUIntTypeName___closed__1();
 lean_mark_persistent(l_Lean_Compiler_mkUIntTypeName___closed__1);
 l_Lean_Compiler_NumScalarTypeInfo_ofNatFn___default___closed__1 = _init_l_Lean_Compiler_NumScalarTypeInfo_ofNatFn___default___closed__1();

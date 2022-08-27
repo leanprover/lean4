@@ -158,8 +158,6 @@ protected def reprPrec (n : Name) (prec : Nat) : Std.Format :=
 instance : Repr Name where
   reprPrec := Name.reprPrec
 
-deriving instance Repr for Syntax
-
 def capitalize : Name → Name
   | .str p s => .str p s.capitalize
   | n        => n
@@ -257,6 +255,9 @@ instance monadNameGeneratorLift (m n : Type → Type) [MonadLift m n] [MonadName
 
 namespace Syntax
 
+deriving instance Repr for Syntax.Preresolved
+deriving instance Repr for Syntax
+
 abbrev Term := TSyntax `term
 abbrev Command := TSyntax `command
 protected abbrev Level := TSyntax `level
@@ -325,6 +326,9 @@ end TSyntax
 
 namespace Syntax
 
+deriving instance BEq for Syntax.Preresolved
+
+/-- Compare syntax structures modulo source info. -/
 partial def structEq : Syntax → Syntax → Bool
   | Syntax.missing, Syntax.missing => true
   | Syntax.node _ k args, Syntax.node _ k' args' => k == k' && args.isEqv args' structEq
@@ -510,7 +514,7 @@ def mkIdentFromRef [Monad m] [MonadRef m] (val : Name) : m Ident := do
 def mkCIdentFrom (src : Syntax) (c : Name) : Ident :=
   -- Remark: We use the reserved macro scope to make sure there are no accidental collision with our frontend
   let id   := addMacroScope `_internal c reservedMacroScope
-  ⟨Syntax.ident (SourceInfo.fromRef src) (toString id).toSubstring id [(c, [])]⟩
+  ⟨Syntax.ident (SourceInfo.fromRef src) (toString id).toSubstring id [.decl c []]⟩
 
 def mkCIdentFromRef [Monad m] [MonadRef m] (c : Name) : m Syntax := do
   return mkCIdentFrom (← getRef) c

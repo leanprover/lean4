@@ -342,7 +342,7 @@ lean_object* l_Lean_Syntax_getRange_x3f(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___lambda__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_sortCompletionItems(lean_object*);
-lean_object* l_Lean_findDocString_x3f(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_findDocString_x3f(lean_object*, lean_object*, uint8_t, lean_object*);
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__7;
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 lean_object* lean_data_value_to_string(lean_object*);
@@ -2767,7 +2767,7 @@ return x_14;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 x_15 = lean_ctor_get(x_4, 0);
 lean_inc(x_15);
 lean_dec(x_4);
@@ -2784,14 +2784,15 @@ x_20 = lean_st_ref_get(x_11, x_18);
 x_21 = lean_ctor_get(x_20, 1);
 lean_inc(x_21);
 lean_dec(x_20);
-x_22 = l_Lean_findDocString_x3f(x_19, x_15, x_21);
-x_23 = lean_ctor_get(x_22, 0);
-lean_inc(x_23);
-x_24 = lean_ctor_get(x_22, 1);
+x_22 = 1;
+x_23 = l_Lean_findDocString_x3f(x_19, x_15, x_22, x_21);
+x_24 = lean_ctor_get(x_23, 0);
 lean_inc(x_24);
-lean_dec(x_22);
-x_25 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_addCompletionItem___lambda__1(x_1, x_2, x_5, x_3, x_6, x_23, x_7, x_8, x_9, x_10, x_11, x_24);
-return x_25;
+x_25 = lean_ctor_get(x_23, 1);
+lean_inc(x_25);
+lean_dec(x_23);
+x_26 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_addCompletionItem___lambda__1(x_1, x_2, x_5, x_3, x_6, x_24, x_7, x_8, x_9, x_10, x_11, x_25);
+return x_26;
 }
 }
 }

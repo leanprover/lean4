@@ -5739,7 +5739,7 @@ x_20 = l_Lean_Server_registerRpcProcedure___lambda__1___closed__11;
 x_21 = l_Lean_addMacroScope(x_19, x_20, x_14);
 x_22 = l_Lean_Server_registerRpcProcedure___lambda__1___closed__13;
 lean_inc(x_1);
-x_23 = lean_alloc_ctor(0, 2, 0);
+x_23 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_23, 0, x_22);
 lean_ctor_set(x_23, 1, x_1);
 lean_inc(x_1);

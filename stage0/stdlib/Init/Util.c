@@ -16,6 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_panicWithPosWithDecl___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_term_____x5b___x5d___x21___closed__6;
 LEAN_EXPORT lean_object* l_panicWithPos___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_dbg_stack_trace(lean_object*);
 static lean_object* l_term_____x5b___x5d___x3f___closed__2;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
@@ -74,6 +75,7 @@ static lean_object* l___aux__Init__Util______macroRules__term_____x5b___x5d___x3
 LEAN_EXPORT lean_object* l_getElem_x21(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_term_____x5b___x5d___x3f___closed__23;
 static lean_object* l_term_____x5b___x5d___x3f___closed__13;
+LEAN_EXPORT lean_object* l_dbgStackTrace___boxed(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Util______macroRules__term_____x5b___x5d___x3f__1___closed__13;
 static lean_object* l___aux__Init__Util______macroRules__term_____x5b___x5d___x21__1___closed__4;
 LEAN_EXPORT lean_object* l_term_____x5b___x5d___x21;
@@ -184,6 +186,14 @@ _start:
 lean_object* x_4; 
 x_4 = lean_dbg_trace_if_shared(x_2, x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_dbgStackTrace___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_dbg_stack_trace(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_dbgSleep___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -600,7 +610,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_getElem_x21___rarg___closed__1;
 x_2 = l_getElem_x21___rarg___closed__2;
-x_3 = lean_unsigned_to_nat(73u);
+x_3 = lean_unsigned_to_nat(77u);
 x_4 = lean_unsigned_to_nat(36u);
 x_5 = l_getElem_x21___rarg___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -1078,7 +1088,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l___aux__Init__Util______macroRules__term_____x5b___x5d___x3f__1___closed__12;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -1350,7 +1360,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l___aux__Init__Util______macroRules__term_____x5b___x5d___x21__1___closed__3;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;

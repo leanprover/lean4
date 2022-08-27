@@ -148,7 +148,7 @@ And you can append two lists using the `++` operator:
 which is short hand for the `append` method:
 
 ```lean
-#eval #eval List.append [1, 2, 3] (List.range 4)
+#eval List.append [1, 2, 3] (List.range 4)
 -- [1, 2, 3, 0, 1, 2, 3]
 ```
 
@@ -193,4 +193,3 @@ And you can aggregate boolean predicates over a list with:
 #eval List.any ["hello", "world"] (λ x => x.isEmpty)
 -- false
 ```
-

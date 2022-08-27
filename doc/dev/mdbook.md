@@ -53,7 +53,7 @@ there.
 
 1. Activate this environment and install the following packages:
     ```
-    pip intsall pygments dominate beautifulsoup4 docutils
+    pip install pygments dominate beautifulsoup4 docutils
     ```
 
 1. Clone https://github.com/Kha/alectryon.git and run the following install the

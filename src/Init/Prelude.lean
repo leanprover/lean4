@@ -2110,15 +2110,20 @@ instance {α} : Inhabited (Option α) where
   default := none
 
 /--
+Get with default. Same semantic with `Option.getD`, but the caller need to pass in a lazy function as default value.
+-/
+def Option.getDLazy : (dflt : Unit → α) → Option α → α
+| _, some x => x
+| e, none   => e ()
+
+/--
 Get with default. If `opt : Option α` and `dflt : α`, then `opt.getD dflt`
 returns `a` if `opt = some a` and `dflt` otherwise.
 
 This function is `@[macroInline]`, so `dflt` will not be evaluated unless
 `opt` turns out to be `none`.
 -/
-@[macroInline] def Option.getD : α → Option α → α
-  | _, some x => x
-  | e, none   => e
+@[macroInline] def Option.getD (dflt : α) : Option α → α := Option.getDLazy (fun _ => dflt)
 
 /--
 Map a function over an `Option` by applying the function to the contained

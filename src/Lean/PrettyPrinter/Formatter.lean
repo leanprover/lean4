@@ -142,10 +142,11 @@ def concat (x : FormatterM Unit) : FormatterM Unit := do
 def indent (x : Formatter) (indent : Option Int := none) : Formatter := do
   concat x
   let ctx ← read
-  let indent := indent.getD $ Std.Format.getIndent ctx.options
+  let indent := indent.getD ↑(Std.Format.getIndent ctx.options)
   modify fun st => { st with stack := st.stack.modify (st.stack.size - 1) (Format.nest indent) }
 
 def fill (x : Formatter) : Formatter := do
+
   concat x
   modify fun st => { st with
     stack := st.stack.modify (st.stack.size - 1) Format.fill

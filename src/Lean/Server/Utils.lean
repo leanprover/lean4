@@ -73,7 +73,7 @@ structure DocumentMeta where
 
 def DocumentMeta.mkInputContext (doc : DocumentMeta) : Parser.InputContext where
   input    := doc.text.source
-  fileName := (System.Uri.fileUriToPath? doc.uri).getD doc.uri |>.toString
+  fileName := (System.Uri.fileUriToPath? doc.uri).getD ↑doc.uri |>.toString
   fileMap  := doc.text
 
 def replaceLspRange (text : FileMap) (r : Lsp.Range) (newText : String) : FileMap :=

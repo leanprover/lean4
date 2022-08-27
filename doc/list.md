@@ -224,3 +224,13 @@ And you can aggregate boolean predicates over a list with:
 #eval ["hello", "world"].any (λ x => x.isEmpty)
 -- false
 ```
+
+## Conversion
+
+You can convert a list to an array and vice versa:
+
+```lean
+#eval ["a", "b", "c", "b"].toArray -- #["a", "b", "c", "b"]
+
+#eval #["a", "b", "c", "b"].toList -- ["a", "b", "c", "b"]
+```

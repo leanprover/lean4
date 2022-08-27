@@ -162,7 +162,7 @@ Notice that `liftTest` returned `x` without doing anything to it, yet that match
 `#print liftTest` you will see that it is implementing this using a call to a function named
 `monadLift` from the `MonadLiftT` type class.
 
-The State monad defines an instance of `MonadLift` like this:
+The StateT monad transformer defines an instance of `MonadLift` like this:
 
 ```lean
 @[inline] protected def lift {α : Type u} (t : m α) : StateT σ m α :=
@@ -170,9 +170,9 @@ The State monad defines an instance of `MonadLift` like this:
 
 instance : MonadLift m (StateT σ m) := ⟨StateT.lift⟩
 ```
-This means that any monad `m` can be wrapped in a `StateT` monad by inventing a function `fun s =>
-do let a ← t; pure (a, s)` that takes state `s`, runs the inner monad action `t`, and returns the
-result and the new state in a pair `(a, s)` without making any changes to `s`.
+This means that any monad `m` can be wrapped in a `StateT` monad by inventing the trivial function
+`fun s => do let a ← t; pure (a, s)` that takes state `s`, runs the inner monad action `t`, and
+returns the result and the new state in a pair `(a, s)` without making any changes to `s`.
 
 Because `MonadLift` is a type class, type inference can automatically find the required `monadLift`
 instances in order to make your code compile and in this way it was able to find the `StateT.lift`

@@ -94,8 +94,8 @@ where
         let candidate := mkAppN (mkAppN (mkAppN (mkConst declName us) fixedPrefix) args) extraArgs
         trace[Elab.definition.wf] "found nested WF at discr {candidate}"
         if (← withDefault <| isDefEq candidate e) then
-          return TransformStep.visit candidate
-    return TransformStep.visit e
+          return .visit candidate
+    return .continue
 
 /--
   Simplify `match`-expressions when trying to prove equation theorems for a recursive declaration defined using well-founded recursion.

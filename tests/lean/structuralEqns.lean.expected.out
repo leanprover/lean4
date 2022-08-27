@@ -9,3 +9,7 @@ foo._unfold : ∀ (xs ys zs : List Nat),
         match ys' with
         | [] => [1]
         | x => [2]
+def bar : List Nat → List Nat → List Nat :=
+fun xs ys =>
+  match xs ++ [], ys ++ [] with
+  | xs', ys' => xs' ++ ys'

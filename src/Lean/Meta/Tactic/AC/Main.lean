@@ -171,7 +171,7 @@ where
 
 @[builtinTactic acRfl] def acRflTactic : Lean.Elab.Tactic.Tactic := fun _ => do
   let goal ← getMainGoal
-  rewriteUnnormalized goal
+  goal.withContext <| rewriteUnnormalized goal
 
 builtin_initialize
   registerTraceClass `Meta.AC

@@ -106,7 +106,3 @@ def gebner2 (x : UInt64) := x &&& ((1 : UInt64) <<< 5 : UInt64)
 #eval Compiler.compile #[``instMonadEIO]
 -- set_option pp.explicit true in
 #eval Compiler.compile #[``EStateM.instMonadEStateM]
-
-#eval do
-  let some decl ← Compiler.getStage1Decl? ``List.length | throwError "not found"
-  IO.println (← decl.toString)

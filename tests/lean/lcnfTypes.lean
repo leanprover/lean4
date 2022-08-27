@@ -3,7 +3,7 @@ import Lean
 notation "◾" => lcErased
 notation "⊤" => lcAny
 
-open Lean Compiler Meta
+open Lean Compiler LCNF Meta
 
 def test (declName : Name) : MetaM Unit := do
   IO.println s!"{declName} : {← ppExpr (← getDeclLCNFType declName)}"

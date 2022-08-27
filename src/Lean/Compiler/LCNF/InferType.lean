@@ -21,13 +21,17 @@ def getLocalDecl (fvarId : FVarId) : InferTypeM LocalDecl := do
   | some localDecl => return localDecl
   | none => LCNF.getLocalDecl fvarId
 
-def mkForallFVars (xs : Array Expr) (b : Expr) : InferTypeM Expr :=
-  let b := b.abstract xs
+def mkForallFVars (xs : Array Expr) (type : Expr) : InferTypeM Expr :=
+  let b := type.abstract xs
   xs.size.foldRevM (init := b) fun i b => do
     let x := xs[i]!
     let .cdecl _ _ n ty _ ← getLocalDecl x.fvarId! | unreachable!
     let ty := ty.abstractRange i xs;
     return .forallE n ty b .default
+
+def mkForallParams (params : Array Param) (type : Expr) : InferTypeM Expr :=
+  let xs := params.map fun p => .fvar p.fvarId
+  mkForallFVars xs type |>.run {}
 
 @[inline] def withLocalDecl (binderName : Name) (type : Expr) (binderInfo : BinderInfo) (k : Expr → InferTypeM α) : InferTypeM α := do
   let fvarId ← mkFreshFVarId
@@ -175,9 +179,31 @@ def Code.inferParamType (params : Array Param) (code : Code) : CompilerM Expr :=
   let xs := params.map fun p => .fvar p.fvarId
   InferType.mkForallFVars xs type |>.run {}
 
-def AltCore.inferType (alt : Alt) : CompilerM Expr := do
-  match alt with
-  | .default k => k.inferType
-  | .alt _ params k => k.inferParamType params
+def AltCore.inferType (alt : Alt) : CompilerM Expr :=
+  alt.getCode.inferType
+
+def mkAuxLetDecl (e : Expr) (prefixName := `_x) : CompilerM Expr := do
+  if e.isFVar then
+    return e
+  else
+    let letDecl ← mkLetDecl (← mkFreshBinderName prefixName) (← inferType e) e
+    return .fvar letDecl.fvarId
+
+def mkForallParams (params : Array Param) (type : Expr) : CompilerM Expr :=
+  InferType.mkForallParams params type |>.run {}
+
+def mkAuxFunDecl (params : Array Param) (code : Code) (prefixName := `_f) : CompilerM FunDecl := do
+  let type ← mkForallParams params (← code.inferType)
+  let binderName ← mkFreshBinderName prefixName
+  mkFunDecl binderName type params code
+
+def mkAuxJpDecl (params : Array Param) (code : Code) (prefixName := `_jp) : CompilerM FunDecl := do
+  mkAuxFunDecl params code prefixName
+
+def mkAuxJpDecl' (fvarId : FVarId) (code : Code) (prefixName := `_jp) : CompilerM FunDecl := do
+  let y ← mkFreshBinderName `_y
+  let yType ← inferType (.fvar fvarId)
+  let params := #[{ fvarId, binderName := y, type := yType }]
+  mkAuxFunDecl params code prefixName
 
 end Lean.Compiler.LCNF

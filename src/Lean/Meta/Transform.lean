@@ -8,17 +8,23 @@ import Lean.Meta.Basic
 namespace Lean
 
 inductive TransformStep where
-  | done  (e : Expr)
-  | visit (e : Expr)
+  | /-- Return expression without visiting any subexpressions. -/
+    done (e : Expr)
+  | /-- Visit expression (which should be different from current expression) instead. -/
+    visit (e : Expr)
+  | /--
+      Continue transformation with the given expression (defaults to current expression).
+      For `pre`, this means visiting the children of the expression.
+      For `post`, this is equivalent to returning `done`. -/
+    continue (e? : Option Expr := none)
 
 namespace Core
 
 /--
-  Tranform the expression `input` using `pre` and `post`.
-  - `pre s` is invoked before visiting the children of subterm 's'. If the result is `TransformStep.visit sNew`, then
-     `sNew` is traversed by transform. If the result is `TransformStep.done sNew`, then `s` is just replaced with `sNew`.
-     In both cases, `sNew` must be definitionally equal to `s`
-  - `post s` is invoked after visiting the children of subterm `s`.
+  Transform the expression `input` using `pre` and `post`.
+  - First `pre` is invoked with the current expression and recursion is continued according to the `TransformStep` result.
+    In all cases, the expression contained in the result, if any, must be definitionally equal to the current expression.
+  - After recursion, if any, `post` is invoked on the resulting expression.
 
   The term `s` in both `pre s` and `post s` may contain loose bound variables. So, this method is not appropriate for
   if one needs to apply operations (e.g., `whnf`, `inferType`) that do not handle loose bound variables.
@@ -28,8 +34,8 @@ namespace Core
 -/
 partial def transform {m} [Monad m] [MonadLiftT CoreM m] [MonadControlT CoreM m]
     (input : Expr)
-    (pre   : Expr → m TransformStep := fun e => return TransformStep.visit e)
-    (post  : Expr → m TransformStep := fun e => return TransformStep.done e)
+    (pre   : Expr → m TransformStep := fun _ => return .continue)
+    (post  : Expr → m TransformStep := fun e => return .done e)
     : m Expr :=
   let _ : STWorld IO.RealWorld m := ⟨⟩
   let _ : MonadLiftT (ST IO.RealWorld) m := { monadLift := fun x => liftM (m := CoreM) (liftM (m := ST IO.RealWorld) x) }
@@ -37,11 +43,15 @@ partial def transform {m} [Monad m] [MonadLiftT CoreM m] [MonadControlT CoreM m]
     checkCache { val := e : ExprStructEq } fun _ => Core.withIncRecDepth do
       let rec visitPost (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
         match (← post e) with
-        | TransformStep.done e  => pure e
-        | TransformStep.visit e => visit e
+        | .done e      => pure e
+        | .visit e     => visit e
+        | .continue e? => pure (e?.getD e)
       match (← pre e) with
-      | TransformStep.done e  => pure e
-      | TransformStep.visit e => match e with
+      | .done e  => pure e
+      | .visit e => visitPost (← visit e)
+      | .continue e? =>
+        let e := e?.getD e
+        match e with
         | Expr.forallE _ d b _ => visitPost (e.updateForallE! (← visit d) (← visit b))
         | Expr.lam _ d b _     => visitPost (e.updateLambdaE! (← visit d) (← visit b))
         | Expr.letE _ t v b _  => visitPost (e.updateLet! (← visit t) (← visit v) (← visit b))
@@ -52,7 +62,7 @@ partial def transform {m} [Monad m] [MonadLiftT CoreM m] [MonadControlT CoreM m]
   visit input |>.run
 
 def betaReduce (e : Expr) : CoreM Expr :=
-  transform e (pre := fun e => return TransformStep.visit e.headBeta)
+  transform e (pre := fun e => return if e.isHeadBetaTarget then .visit e.headBeta else .continue)
 
 end Core
 
@@ -63,8 +73,8 @@ namespace Meta
   So, it is safe to use any `MetaM` method at `pre` and `post`. -/
 partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m] [MonadTrace m] [MonadRef m] [MonadOptions m] [AddMessageContext m]
     (input : Expr)
-    (pre   : Expr → m TransformStep := fun e => return TransformStep.visit e)
-    (post  : Expr → m TransformStep := fun e => return TransformStep.done e)
+    (pre   : Expr → m TransformStep := fun _ => return .continue)
+    (post  : Expr → m TransformStep := fun e => return .done e)
     (usedLetOnly := false)
     : m Expr := do
   let _ : STWorld IO.RealWorld m := ⟨⟩
@@ -73,8 +83,9 @@ partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
     checkCache { val := e : ExprStructEq } fun _ => Meta.withIncRecDepth do
       let rec visitPost (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
         match (← post e) with
-        | TransformStep.done e  => pure e
-        | TransformStep.visit e => visit e
+        | .done e      => pure e
+        | .visit e     => visit e
+        | .continue e? => pure (e?.getD e)
       let rec visitLambda (fvars : Array Expr) (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
         match e with
         | Expr.lam n d b c =>
@@ -97,8 +108,11 @@ partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
         e.withApp fun f args => do
           visitPost (mkAppN (← visit f) (← args.mapM visit))
       match (← pre e) with
-      | TransformStep.done e  => pure e
-      | TransformStep.visit e => match e with
+      | .done e  => pure e
+      | .visit e => visit e
+      | .continue e? =>
+        let e := e?.getD e
+        match e with
         | Expr.forallE ..    => visitForall #[] e
         | Expr.lam ..        => visitLambda #[] e
         | Expr.letE ..       => visitLet #[] e
@@ -119,7 +133,7 @@ def zetaReduce (e : Expr) : MetaM Expr := do
           return TransformStep.visit value
         else
           return TransformStep.done e
-    | e => return TransformStep.visit e
+    | _ => return .continue
   transform e (pre := pre) (usedLetOnly := true)
 
 /-- Unfold definitions and theorems in `e` that are not in the current environment, but are in `biggerEnv`. -/
@@ -139,7 +153,7 @@ def unfoldDeclsFrom (biggerEnv : Environment) (e : Expr) : CoreM Expr := do
             return TransformStep.done e
         else
           return TransformStep.done e
-      | _ => return TransformStep.visit e
+      | _ => return .continue
     Core.transform e (pre := pre)
 
 def eraseInaccessibleAnnotations (e : Expr) : CoreM Expr :=

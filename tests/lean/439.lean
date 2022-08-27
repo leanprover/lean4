@@ -1,5 +1,3 @@
-set_option pp.analyze.trustCoe true
-
 universe u
 
 structure Fn (E I : Sort u) := (exp : E) (imp : I)

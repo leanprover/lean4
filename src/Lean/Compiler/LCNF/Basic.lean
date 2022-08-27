@@ -73,6 +73,26 @@ def AltCore.getCode : Alt → Code
   | .default k => k
   | .alt _ _ k => k
 
+private unsafe def updateAltCodeImp (alt : Alt) (c : Code) : Alt :=
+  match alt with
+  | .default k => if ptrEq k c then alt else AltCore.default c
+  | .alt ctorName ps k => if ptrEq k c then alt else AltCore.alt ctorName ps c
+
+@[implementedBy updateAltCodeImp] opaque AltCore.updateCode (alt : Alt) (c : Code) : Alt
+
+@[inline] private unsafe def updateContImp (c : Code) (k' : Code) : Code :=
+  match c with
+  | .let decl k => if ptrEq k k' then c else .let decl k'
+  | .fun decl k => if ptrEq k k' then c else .fun decl k'
+  | .jp decl k => if ptrEq k k' then c else .jp decl k'
+  | _ => unreachable!
+
+@[implementedBy updateContImp] opaque Code.updateCont! (c : Code) (k' : Code) : Code
+
+def Code.isDecl : Code → Bool
+  | .let .. | .fun .. | .jp .. => true
+  | _ => false
+
 partial def Code.size (c : Code) : Nat :=
   go c 0
 where

@@ -45,7 +45,7 @@ where
     let type := (← getSubst).applyToExpr decl.type
     let params ← (← getSubst).applyToParams decl.params
     let value ← withNewScope do go decl.value
-    return { decl with type, params, value }
+    decl.update type params value
 
   go (code : Code) : M Code := do
     match code with

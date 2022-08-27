@@ -26,7 +26,7 @@ where
     | .jp decl k =>
       let value ← go decl.value
       let type ← value.inferParamType decl.params
-      let decl := { decl with value, type }
+      let decl ← decl.update' type value
       withReader (fun s => s.insert decl.fvarId) do
         return .jp decl (← go k)
     | .cases c =>

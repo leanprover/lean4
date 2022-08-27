@@ -96,8 +96,8 @@ open Internalize in
 /--
 Refresh free variables ids in `code`, and store their declarations in the local context.
 -/
-partial def Code.internalize (code : Code) : CompilerM Code :=
-  go code |>.run' {}
+partial def Code.internalize (code : Code) (s : FVarSubst := {}) : CompilerM Code :=
+  go code |>.run' s
 where
   goFunDecl (decl : FunDecl) : M FunDecl := do
     let type ← translateExpr decl.type
@@ -159,7 +159,7 @@ private unsafe def updateParamImp (p : Param) (type : Expr) : CompilerM Param :=
     modifyLCtx fun lctx => lctx.addLocalDecl p.fvarId p.binderName p.type
     return p
 
-@[implementedBy updateParamImp] opaque updateParam (p : Param) (type : Expr) : CompilerM Param
+@[implementedBy updateParamImp] opaque Param.update (p : Param) (type : Expr) : CompilerM Param
 
 private unsafe def updateLetDeclImp (decl : LetDecl) (type : Expr) (value : Expr) : CompilerM LetDecl := do
   if ptrEq type decl.type && ptrEq value decl.value then
@@ -169,16 +169,32 @@ private unsafe def updateLetDeclImp (decl : LetDecl) (type : Expr) (value : Expr
     modifyLCtx fun lctx => lctx.addLetDecl decl.fvarId decl.binderName decl.type decl.value
     return decl
 
-@[implementedBy updateLetDeclImp] opaque updateLetDecl (decl : LetDecl) (type : Expr) (value : Expr) : CompilerM LetDecl
+@[implementedBy updateLetDeclImp] opaque LetDecl.update (decl : LetDecl) (type : Expr) (value : Expr) : CompilerM LetDecl
+
+private unsafe def updateFunDeclImp (decl: FunDecl) (type : Expr) (params : Array Param) (value : Code) : CompilerM FunDecl := do
+  if ptrEq type decl.type && ptrEq params decl.params && ptrEq value decl.value then
+    return decl
+  else
+    let decl := { decl with type, params, value }
+    modifyLCtx fun lctx => lctx.addFunDecl decl
+    return decl
+
+@[implementedBy updateFunDeclImp] opaque FunDeclCore.update (decl: FunDecl) (type : Expr) (params : Array Param) (value : Code) : CompilerM FunDecl
+
+abbrev FunDeclCore.update' (decl : FunDecl) (type : Expr) (value : Code) : CompilerM FunDecl :=
+  decl.update type decl.params value
+
+abbrev FunDeclCore.updateValue (decl : FunDecl) (value : Code) : CompilerM FunDecl :=
+  decl.update decl.type decl.params value
 
 def FVarSubst.applyToParam (s : FVarSubst) (p : Param) : CompilerM Param :=
-  updateParam p (s.applyToExpr p.type)
+  p.update (s.applyToExpr p.type)
 
 def FVarSubst.applyToParams (s : FVarSubst) (ps : Array Param) : CompilerM (Array Param) :=
   ps.mapM s.applyToParam
 
 def FVarSubst.applyToLetDecl (s : FVarSubst) (decl : LetDecl) : CompilerM LetDecl :=
-  updateLetDecl decl (s.applyToExpr decl.type) (s.applyToExpr decl.value)
+  decl.update (s.applyToExpr decl.type) (s.applyToExpr decl.value)
 
 def mkFreshBinderName (binderName := `_x): CompilerM Name := do
   let declName := .num binderName (← get).nextIdx

@@ -85,11 +85,24 @@ it should look like https://leanprover.github.io/lean4/doc/.
    in the `doc/` folder so that it keeps the html up to date while you are editing.
 
     ```bash
-    cd doc
     mdbook watch --open  # opens the output in `out/` in your default browser
     ```
 
+## Testing Lean Snippets
 
+You can run the following in the `doc/` folder to test all the lean code snippets.
+
+    ```bash
+    mdbook test
+    ```
+
+and you can use the `--chapter` option to test a specific chapter that you are working on:
+
+    ```bash
+    mdbook test --chapter Array
+    ```
+
+Use chapter name `?` to get a list of all the chapter names.
 
 ## Nix
 

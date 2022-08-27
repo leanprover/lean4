@@ -1,7 +1,7 @@
 # List
 
-A `List` looks similar to an [Array](Array.md) but it is a pure Lean inductive type that does not
-have an optimized runtime other than what the Lean compiler builds from the List implementation.
+A `List` is a container of elements of a given type, similar to linked lists in other
+languages.
 
 ```lean
 # namespace hidden
@@ -30,10 +30,9 @@ You can create lists in several ways. You can start with a small list by listing
 #eval List.cons "a" ["b", "c", "d"]     -- ["a", "b", "c", "d"]
 ```
 
-Notice that Lean is able to infer the list element type in these cases, createing `List nat` and `List String`.
+Notice that Lean is able to infer the list element type in these cases, creating `List Nat` and `List String`.
 
-Notice also that `[]` is short hand for `List.nil` and that it is missing any list element type. To
-resolve this you can write the following:
+Notice also that `[]` is short hand for `List.nil` and that it cannot infer any implicit list element type.
 
 There is special syntax for `cons`, namely, `::` as follows:
 
@@ -93,7 +92,6 @@ The notation `a[i]` has two variants: `a[i]!` and `a[i]?`. In both cases, `i` ha
 first one produces a panic error message if the index `i` is out of bounds. The latter returns an
 `Option` type.
 
-
 ```lean
 #eval ['a', 'b', 'c'][1]?
 -- some 'b'
@@ -118,25 +116,32 @@ def as : List Nat :=
 #eval [1, 2, 3][2]  -- 3
 ```
 
+**Note**: Accessing elements this way is not recommended because it can lead to quadratic
+performance if you write code like this:
+
+```lean
+def badLoop (x: List Nat) : String := Id.run do
+  for i in [0:x.length] do
+    if x[i]! == 99 then
+      return "found it"
+    else
+      continue
+  return "not found"
+
+#eval badLoop (List.range 100) -- performs 99 * 99 list iterations!
+```
+
+So in this case it is much better to use `find?` or `indexOf?` or `replace`
+or `erase`, or whatever the operation is you are trying to do on the found element.
+
 ## Concatenation
 
 You can add a new item to the front of a list by constructing a new List using the `cons`
 constructor:
 
 ```lean
-#eval List.cons 7 [1, 2, 3]
+#eval 7 :: [1, 2, 3]
 -- [7, 1, 2, 3]
-```
-
-And you can pop an item off the front of a list using pattern matching:
-
-```lean
-def pop (x: List α) : List α :=
-  match x with
-  | .nil => .nil
-  | head :: tail => tail
-
-#eval pop [1,2,3]   -- [2, 3]
 ```
 
 And you can append two lists using the `++` operator:
@@ -148,7 +153,7 @@ And you can append two lists using the `++` operator:
 which is short hand for the `append` method:
 
 ```lean
-#eval List.append [1, 2, 3] (List.range 4)
+#eval [1, 2, 3].append (List.range 4)
 -- [1, 2, 3, 0, 1, 2, 3]
 ```
 
@@ -157,8 +162,34 @@ You can create a list of lists:
 ```lean
 #check [[20, 21]] -- List (List Nat)
 
-#eval List.append [[12]] [[20, 21]]
+#eval [[12]].append [[20, 21]]
 -- [[12], [20, 21]]
+```
+
+## Manipulating
+
+You can pop some elements off the front of a list
+
+```lean
+#eval [1,2,3].take 2   -- [1, 2]
+```
+
+And you can drop some times off the front and get the remainder:
+
+```lean
+#eval [1,2,3].drop 1   -- [2, 3]
+```
+
+You can also erase a the first matching item:
+
+```lean
+#eval ["a", "b", "c", "b"].erase "b" -- ["a", "c", "b"]
+```
+
+Or you can remove all matching items:
+
+```lean
+#eval ["a", "b", "c", "b"].removeAll ["b", "c"] -- ["a"]
 ```
 
 ## Mapping
@@ -166,30 +197,30 @@ You can create a list of lists:
 Lists support "mapping" where you apply a given function to all elements in the list:
 
 ```lean
-#eval List.map (λ x => x + 1) [3, 4, 5]
+#eval [3, 4, 5].map (λ x => x + 1)
 -- [4, 5, 6]
 
 def square_cap (x : Nat) :=
   if x < 10 then x * x else 100
 
-#eval List.map square_cap [3, 4, 5, 20]
+#eval [3, 4, 5, 20].map square_cap
 -- [9, 16, 25, 100]
 
-#eval List.map (λ x => toString x) [1,2,3]
+#eval [1,2,3].map (λ x => toString x)
 -- ["1", "2", "3"]
 ```
 
 Notice that map can change the List element type.  Map here is actually part of a bigger
-story around Monads.  List is a Monad.
+story around Functors.  List is a Functor and all Functors have a `map` method.
 
 ## Aggregation
 
 And you can aggregate boolean predicates over a list with:
 
 ```lean
-#eval List.all (List.range 5) (λ x => x < 10)
+#eval (List.range 5).all (λ x => x < 10)
 -- true
 
-#eval List.any ["hello", "world"] (λ x => x.isEmpty)
+#eval ["hello", "world"].any (λ x => x.isEmpty)
 -- false
 ```

@@ -91,7 +91,7 @@ produces a panic error message if the index `i` is out of bounds. The latter ret
 
 You can push a new item to the end of an array:
 ```lean
-#eval Array.push #[1, 2, 3] 7
+#eval #[1, 2, 3].push 7
 -- #[1, 2, 3, 7]
 ```
 
@@ -99,7 +99,7 @@ And you can pop an item off the end of an array:
 
 
 ```lean
-#eval Array.pop #[1, 2, 3]
+#eval #[1, 2, 3].pop
 -- #[1, 2]
 ```
 
@@ -112,7 +112,7 @@ And you can append two arrays using the `++` operator:
 or the `append` method:
 
 ```lean
-#eval Array.append #[10] #[20]
+#eval #[10].append #[20]
 -- #[10, 20]
 ```
 
@@ -121,7 +121,7 @@ You can create an array of arrays:
 ```lean
 #check #[#[20, 21]] -- Array (Array Nat)
 
-#eval Array.append #[#[12]] #[#[20, 21]]
+#eval #[#[12]].append #[#[20, 21]]
 -- #[#[12], #[20, 21]]
 ```
 
@@ -130,16 +130,16 @@ You can create an array of arrays:
 Arrays support "mapping" where you apply a given function to all elements in the array:
 
 ```lean
-#eval Array.map (λ x => x + 1) #[3, 4, 5]
+#eval #[3, 4, 5].map (λ x => x + 1)
 -- #[4, 5, 6]
 
 def square_cap (x : Nat) :=
   if x < 10 then x * x else 100
 
-#eval Array.map square_cap #[3, 4, 5, 20]
+#eval #[3, 4, 5, 20].map square_cap
 -- #[9, 16, 25, 100]
 
-#eval Array.map (λ x => toString x) #[1,2,3]
+#eval #[1,2,3].map (λ x => toString x)
 -- #["1", "2", "3"]
 ```
 
@@ -148,9 +148,9 @@ def square_cap (x : Nat) :=
 And you can aggregate boolean predicates over an array with:
 
 ```lean
-#eval Array.all (Array.mkArray 5 6) (λ x => x < 10)
+#eval (Array.mkArray 5 6).all (λ x => x < 10)
 -- true
 
-#eval Array.any #["hello", "world"] (λ x => x.isEmpty)
+#eval #["hello", "world"].any (λ x => x.isEmpty)
 -- false
 ```

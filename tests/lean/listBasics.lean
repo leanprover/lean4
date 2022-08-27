@@ -8,6 +8,8 @@ def x := ["one", "two", "three"]
 
 #eval x.indexOf? "two" -- some 1
 
+#eval [].indexOf? "two" -- none
+
 #eval x.find? (λ x => x == "three") -- some "three"
 
 #eval x.any (λ x => x == "three") -- true

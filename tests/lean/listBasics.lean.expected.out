@@ -1,6 +1,8 @@
-[one, two, three]
+["one", "two", "three"]
+["zero", "one", "two", "three"]
 ["zero", "one", "two", "three"]
 some 1
+none
 some "three"
 true
 ["one", "two", "three", "four", "five", "six"]

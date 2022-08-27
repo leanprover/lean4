@@ -237,4 +237,9 @@ def isClass? (type : Expr) : CoreM (Option Name) := do
   else
     return none
 
+def getArrowArity (e : Expr) :=
+  match e with
+  | .forallE _ _ b _ => getArrowArity b + 1
+  | _ => 0
+
 end Lean.Compiler.LCNF

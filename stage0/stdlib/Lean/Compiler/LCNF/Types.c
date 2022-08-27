@@ -86,6 +86,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_LCNFTypeExtState_types___default;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_toLCNFType_visitApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_insertAux_traverse___at_Lean_Compiler_LCNF_getDeclLCNFType___spec__6(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getArrowArity(lean_object*);
 uint8_t l_List_beq___at_Lean_Core_instantiateTypeLevelParams___spec__8(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insert___at_Lean_Core_instantiateTypeLevelParams___spec__1(lean_object*, lean_object*, lean_object*);
@@ -130,6 +131,7 @@ static lean_object* l_Lean_Compiler_LCNF_LCNFTypeExtState_types___default___clos
 lean_object* l_Lean_Expr_eta(lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_getDeclLCNFType___closed__4;
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getArrowArity___boxed(lean_object*);
 uint8_t lean_usize_dec_le(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_joinTypes(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_getDeclLCNFType___closed__1;
@@ -4402,6 +4404,36 @@ lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getArrowArity(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 7)
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_2 = lean_ctor_get(x_1, 2);
+x_3 = l_Lean_Compiler_LCNF_getArrowArity(x_2);
+x_4 = lean_unsigned_to_nat(1u);
+x_5 = lean_nat_add(x_3, x_4);
+lean_dec(x_3);
+return x_5;
+}
+else
+{
+lean_object* x_6; 
+x_6 = lean_unsigned_to_nat(0u);
+return x_6;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getArrowArity___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Compiler_LCNF_getArrowArity(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);

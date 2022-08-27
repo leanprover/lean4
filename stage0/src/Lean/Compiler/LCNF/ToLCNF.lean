@@ -37,28 +37,32 @@ inductive Element where
   deriving Inhabited
 
 def seqToCode (seq : Array Element) (e : Expr) : CompilerM Code := do
-  let e ← mkAuxLetDecl e
-  go seq.size (.return e.fvarId!)
+  if let .fvar fvarId := e then
+    go seq seq.size (.return fvarId)
+  else
+    let decl ← mkAuxLetDecl e
+    let seq := seq.push (.let decl)
+    go seq seq.size (.return decl.fvarId)
 where
-  go (i : Nat) (c : Code) : CompilerM Code := do
+  go (seq : Array Element) (i : Nat) (c : Code) : CompilerM Code := do
     if i > 0 then
       match seq[i-1]! with
-      | .jp decl => go (i - 1) (.jp decl c)
-      | .fun decl => go (i - 1) (.fun decl c)
-      | .let decl => go (i - 1) (.let decl c)
+      | .jp decl => go seq (i - 1) (.jp decl c)
+      | .fun decl => go seq (i - 1) (.fun decl c)
+      | .let decl => go seq (i - 1) (.let decl c)
       | .unreach => return .unreach (← c.inferType)
       | .cases fvarId cases =>
         if let .return fvarId' := c then
           if fvarId == fvarId' then
-            go (i - 1) (.cases cases)
+            go seq (i - 1) (.cases cases)
           else
             -- `cases` is dead code
-            go (i - 1) c
+            go seq (i - 1) c
         else
           /- Create a join point for `c` and jump to it from `cases` -/
           let jpDecl ← mkAuxJpDecl' fvarId c
           let cases ← (Code.cases cases).bind fun fvarId => return .jmp jpDecl.fvarId #[.fvar fvarId]
-          go (i - 1) (.jp jpDecl cases)
+          go seq (i - 1) (.jp jpDecl cases)
     else
       return c
 

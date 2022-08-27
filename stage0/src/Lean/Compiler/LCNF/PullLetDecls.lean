@@ -78,11 +78,13 @@ mutual
     | .fun decl k =>
       withCheckpoint do
         let value ← withParams decl.params <| pullDecls decl.value
-        withFVar decl.fvarId do return .fun { decl with value } (← pullDecls k)
+        let decl ← decl.updateValue value
+        withFVar decl.fvarId do return .fun decl (← pullDecls k)
     | .jp decl k =>
       withCheckpoint do
         let value ← withParams decl.params <| pullDecls decl.value
-        withFVar decl.fvarId do return .jp { decl with value } (← pullDecls k)
+        let decl ← decl.updateValue value
+        withFVar decl.fvarId do return .jp decl (← pullDecls k)
     | _ => return code
 
 end

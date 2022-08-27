@@ -26,7 +26,7 @@ where
     | .jp decl k =>
       let value ← go decl.value
       let type ← value.inferParamType decl.params
-      let decl := { decl with value, type }
+      let decl ← decl.update' type value
       withReader (fun s => s.insert decl.fvarId) do
         return .jp decl (← go k)
     | .cases c =>
@@ -45,5 +45,29 @@ where
         throwError "`Code.bind` failed, it contains a out of scope join point"
       return c
     | .unreach .. => return c
+
+def FunDecl.etaExpand (decl : FunDecl) : CompilerM FunDecl := do
+  let typeArity := getArrowArity decl.type
+  let valueArity := decl.getArity
+  if typeArity <= valueArity then
+    -- It can be < because of the "any" type
+    return decl
+  else
+    let valueType ← instantiateForall decl.type decl.params
+    let psNew ← mkNewParams valueType #[] #[]
+    let params := decl.params ++ psNew
+    let xs := psNew.map fun p => Expr.fvar p.fvarId
+    let value ← decl.value.bind fun fvarId => do
+      let auxDecl ← mkAuxLetDecl (mkAppN (.fvar fvarId) xs)
+      return .let auxDecl (.return auxDecl.fvarId)
+    decl.update decl.type params value
+where
+  mkNewParams (type : Expr) (xs : Array Expr) (ps : Array Param) : CompilerM (Array Param) := do
+    match type with
+    | .forallE _ d b _ =>
+      let d := d.instantiateRev xs
+      let p ← mkAuxParam d
+      mkNewParams b (xs.push (.fvar p.fvarId)) (ps.push p)
+    | _ => return ps
 
 end Lean.Compiler.LCNF

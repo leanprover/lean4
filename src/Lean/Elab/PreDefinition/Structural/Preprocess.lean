@@ -26,10 +26,10 @@ private def shouldBetaReduce (e : Expr) (recFnName : Name) : Bool :=
 -/
 def preprocess (e : Expr) (recFnName : Name) : CoreM Expr :=
   Core.transform e
-   fun e => return TransformStep.visit <|
+   fun e =>
      if shouldBetaReduce e recFnName then
-       e.headBeta
+       return .visit e.headBeta
      else
-       e
+       return .continue
 
 end Lean.Elab.Structural

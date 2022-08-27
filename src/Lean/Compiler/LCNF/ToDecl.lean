@@ -13,8 +13,8 @@ Inline constants tagged with the `[macroInline]` attribute occurring in `e`.
 -/
 def macroInline (e : Expr) : CoreM Expr :=
   Core.transform e fun e => do
-    let .const declName us := e.getAppFn | return .visit e
-    unless hasMacroInlineAttribute (← getEnv) declName do return .visit e
+    let .const declName us := e.getAppFn | return .continue
+    unless hasMacroInlineAttribute (← getEnv) declName do return .continue
     let val ← Core.instantiateValueLevelParams (← getConstInfo declName) us
     return .visit <| val.beta e.getAppArgs
 
@@ -35,11 +35,11 @@ Inline auxiliary `matcher` applications.
 -/
 partial def inlineMatchers (e : Expr) : CoreM Expr :=
   Meta.MetaM.run' <| Meta.transform e fun e => do
-    let .const declName us := e.getAppFn | return .visit e
-    let some info ← Meta.getMatcherInfo? declName | return .visit e
+    let .const declName us := e.getAppFn | return .continue
+    let some info ← Meta.getMatcherInfo? declName | return .continue
     let numArgs := e.getAppNumArgs
     if numArgs > info.arity then
-      return .visit e
+      return .continue
     else if numArgs < info.arity then
       Meta.forallBoundedTelescope (← Meta.inferType e) (info.arity - numArgs) fun xs _ =>
         return .visit (← Meta.mkLambdaFVars xs (mkAppN e xs))
@@ -71,7 +71,7 @@ private def replaceUnsafeRecNames (value : Expr) : CoreM Expr :=
         return .done (.const safeDeclName us)
       else
         return .done e
-    | _ => return .visit e
+    | _ => return .continue
 
 /--
 Convert the given declaration from the Lean environment into `Decl`.

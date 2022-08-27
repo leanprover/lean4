@@ -378,7 +378,7 @@ where
           args := args.set! i param
         return TransformStep.done (mkAppN f args)
       else
-        return TransformStep.visit e
+        return .continue
     transform ctorType (pre := visit)
 
 private def getResultingUniverse : List InductiveType → TermElabM Level

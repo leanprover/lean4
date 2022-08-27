@@ -118,11 +118,11 @@ See issues #1389 and #875
 -/
 private def cleanupOfNat (type : Expr) : MetaM Expr := do
   Meta.transform type fun e => do
-    if !e.isAppOfArity ``OfNat 2 then return .visit e
+    if !e.isAppOfArity ``OfNat 2 then return .continue
     let arg ← instantiateMVars e.appArg!
-    if !arg.isAppOfArity ``OfNat.ofNat 3 then return .visit e
+    if !arg.isAppOfArity ``OfNat.ofNat 3 then return .continue
     let argArgs := arg.getAppArgs
-    if !argArgs[0]!.isConstOf ``Nat then return .visit e
+    if !argArgs[0]!.isConstOf ``Nat then return .continue
     let eNew := mkApp e.appFn! argArgs[1]!
     return .done eNew
 
@@ -766,13 +766,11 @@ def processDefDeriving (className : Name) (declName : Name) : TermElabM Bool := 
 
 /-- Remove auxiliary match discriminant let-declarations. -/
 def eraseAuxDiscr (e : Expr) : CoreM Expr := do
-  Core.transform e fun e => match e with
-    | Expr.letE n _ v b .. =>
+  Core.transform e fun e => do
+    if let .letE n _ v b .. := e then
       if isAuxDiscrName n then
-        return TransformStep.visit (b.instantiate1 v)
-      else
-        return TransformStep.visit e
-    | e => return TransformStep.visit e
+        return .visit (b.instantiate1 v)
+    return .continue
 
 partial def checkForHiddenUnivLevels (allUserLevelNames : List Name) (preDefs : Array PreDefinition) : TermElabM Unit :=
   unless (← MonadLog.hasErrors) do

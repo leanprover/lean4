@@ -8,6 +8,8 @@ import Lean.Compiler.LCNF.PrettyPrinter
 import Lean.Compiler.LCNF.ToDecl
 import Lean.Compiler.LCNF.Check
 import Lean.Compiler.LCNF.Stage1
+import Lean.Compiler.LCNF.PullLetDecls
+import Lean.Compiler.LCNF.CSE
 
 namespace Lean.Compiler.LCNF
 /--
@@ -41,7 +43,7 @@ def checkpoint (stepName : Name) (decls : Array Decl) : CompilerM Unit := do
     withOptions (fun opts => opts.setBool `pp.motives.pi false) do
       let clsName := `Compiler ++ stepName
       if (← Lean.isTracingEnabledFor clsName) then
-        Lean.addTrace clsName m!"\n{← ppDecl decl}"
+        Lean.addTrace clsName m!"size: {decl.size}\n{← ppDecl decl}"
       if compiler.check.get (← getOptions) then
         decl.check
 
@@ -52,6 +54,10 @@ def compileStage1Impl (declNames : Array Name) : CoreM (Array Decl) :=
     if declNames.isEmpty then return #[]
     let decls ← declNames.mapM toDecl
     checkpoint `init decls
+    let decls ← decls.mapM (·.pullInstances)
+    checkpoint `pullInstances decls
+    let decls ← decls.mapM (·.cse)
+    checkpoint `cse decls
     saveStage1Decls decls
     decls.forM fun decl => do trace[Compiler.stat] "{decl.name} : {decl.size}"
     return decls

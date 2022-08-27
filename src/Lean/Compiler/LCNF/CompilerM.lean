@@ -35,28 +35,29 @@ def getLocalDecl (fvarId : FVarId) : CompilerM LocalDecl := do
   let some decl := (← get).lctx.localDecls.find? fvarId | throwError "unknown free variable {fvarId.name}"
   return decl
 
+def getFunDecl (fvarId : FVarId) : CompilerM FunDecl := do
+  let some decl := (← get).lctx.funDecls.find? fvarId | throwError "unknown local function {fvarId.name}"
+  return decl
+
 @[inline] def modifyLCtx (f : LCtx → LCtx) : CompilerM Unit := do
    modify fun s => { s with lctx := f s.lctx }
 
-namespace Internalize
+def eraseFVar (fvarId : FVarId) : CompilerM Unit := do
+  modifyLCtx fun lctx => lctx.erase fvarId
 
-structure State where
-  fvarIdMap : Std.HashMap FVarId FVarId := {}
-  deriving Inhabited
+abbrev FVarSubst := Std.HashMap FVarId FVarId
 
-abbrev M := StateRefT State CompilerM
-
-private def translateFVarIdCore (s : State) (fvarId : FVarId) : FVarId :=
-  match s.fvarIdMap.find? fvarId with
+def FVarSubst.applyToFVar (s : FVarSubst) (fvarId : FVarId) : FVarId :=
+  match s.find? fvarId with
   | some fvarId' => fvarId'
   | none => fvarId
 
-private partial def translateCore (s : State) (e : Expr) : Expr :=
+partial def FVarSubst.applyToExpr (s : FVarSubst) (e : Expr) : Expr :=
   go e
 where
   go (e : Expr) : Expr :=
     match e with
-    | .fvar fvarId => .fvar (translateFVarIdCore s fvarId)
+    | .fvar fvarId => .fvar (s.applyToFVar fvarId)
     | .lit .. | .const .. | .sort .. | .mvar .. | .bvar .. => e
     | .app .. => mkAppN (go e.getAppFn) (e.getAppArgs.map go)
     | .mdata k b => .mdata k (go b)
@@ -65,19 +66,36 @@ where
     | .lam n d b bi => .lam n (go d) (go b) bi
     | .letE n t v b nd => .letE n (go t) (go v) (go b) nd
 
-@[inline] private def translateFVarId (fvarId : FVarId) : M FVarId :=
-  return translateFVarIdCore (← get) fvarId
+def FVarSubst.applyToParam (s : FVarSubst) (p : Param) : CompilerM Param := do
+  let p := { p with type := s.applyToExpr p.type }
+  modifyLCtx fun lctx => lctx.updateLocalDecl p.fvarId p.type
+  return p
 
-@[inline] private def translate (e : Expr) : M Expr :=
-  return translateCore (← get) e
+def FVarSubst.applyToParams (s : FVarSubst) (ps : Array Param) : CompilerM (Array Param) :=
+  ps.mapM s.applyToParam
+
+def FVarSubst.applyToLetDecl (s : FVarSubst) (decl : LetDecl) : CompilerM LetDecl := do
+  let decl := { decl with type := s.applyToExpr decl.type, value := s.applyToExpr decl.value }
+  modifyLCtx fun lctx => lctx.updateLetDecl decl.fvarId decl.type decl.value
+  return decl
+
+namespace Internalize
+
+abbrev M := StateRefT FVarSubst CompilerM
+
+@[inline] private def translateFVarId (fvarId : FVarId) : M FVarId :=
+  return (← get).applyToFVar fvarId
+
+@[inline] private def translateExpr (e : Expr) : M Expr :=
+  return (← get).applyToExpr e
 
 private def mkNewFVarId (fvarId : FVarId) : M FVarId := do
   let fvarId' ← Lean.mkFreshFVarId
-  modify fun s => { s with fvarIdMap := s.fvarIdMap.insert fvarId fvarId' }
+  modify fun s => s.insert fvarId fvarId'
   return fvarId'
 
 private def addParam (p : Param) : M Param := do
-  let type ← translate p.type
+  let type ← translateExpr p.type
   let fvarId ← mkNewFVarId p.fvarId
   modifyLCtx fun lctx => lctx.addLocalDecl fvarId p.binderName type
   return { p with fvarId, type }
@@ -88,11 +106,11 @@ open Internalize in
 /--
 Refresh free variables ids in `code`, and store their declarations in the local context.
 -/
-partial def internalize (code : Code) : CompilerM Code :=
+partial def Code.internalize (code : Code) : CompilerM Code :=
   go code |>.run' {}
 where
   goFunDecl (decl : FunDecl) : M FunDecl := do
-    let type ← translate decl.type
+    let type ← translateExpr decl.type
     let params ← decl.params.mapM addParam
     let value ← go decl.value
     let fvarId ← mkNewFVarId decl.fvarId
@@ -103,8 +121,8 @@ where
   go (code : Code) : M Code := do
     match code with
     | .let decl k =>
-      let type ← translate decl.type
-      let value ← translate decl.value
+      let type ← translateExpr decl.type
+      let value ← translateExpr decl.value
       let fvarId ← mkNewFVarId decl.fvarId
       modifyLCtx fun lctx => lctx.addLetDecl fvarId decl.binderName type value
       let k ← go k
@@ -114,8 +132,8 @@ where
     | .jp decl k =>
       return .jp (← goFunDecl decl) (← go k)
     | .return fvarId => return .return (← translateFVarId fvarId)
-    | .jmp fvarId args => return .jmp (← translateFVarId fvarId) (← args.mapM translate)
-    | .unreach type => return .unreach (← translate type)
+    | .jmp fvarId args => return .jmp (← translateFVarId fvarId) (← args.mapM translateExpr)
+    | .unreach type => return .unreach (← translateExpr type)
     | .cases c =>
       let discr ← translateFVarId c.discr
       let alts ← c.alts.mapM fun

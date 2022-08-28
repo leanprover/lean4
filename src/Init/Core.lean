@@ -1031,48 +1031,15 @@ instance {α : Sort u} {s : Setoid α} [d : ∀ (a b : α), Decidable (a ≈ b)]
 
 /-! # Function extensionality -/
 
-namespace Function
-variable {α : Sort u} {β : α → Sort v}
-
-protected def Equiv (f₁ f₂ : ∀ (x : α), β x) : Prop := ∀ x, f₁ x = f₂ x
-
-protected theorem Equiv.refl (f : ∀ (x : α), β x) : Function.Equiv f f :=
-  fun _ => rfl
-
-protected theorem Equiv.symm {f₁ f₂ : ∀ (x : α), β x} : Function.Equiv f₁ f₂ → Function.Equiv f₂ f₁ :=
-  fun h x => Eq.symm (h x)
-
-protected theorem Equiv.trans {f₁ f₂ f₃ : ∀ (x : α), β x} : Function.Equiv f₁ f₂ → Function.Equiv f₂ f₃ → Function.Equiv f₁ f₃ :=
-  fun h₁ h₂ x => Eq.trans (h₁ x) (h₂ x)
-
-protected theorem Equiv.isEquivalence (α : Sort u) (β : α → Sort v) : Equivalence (@Function.Equiv α β) := {
-  refl := Equiv.refl
-  symm := Equiv.symm
-  trans := Equiv.trans
-}
-
-end Function
-
-section
-open Quotient
-variable {α : Sort u} {β : α → Sort v}
-
-@[instance]
-private def funSetoid (α : Sort u) (β : α → Sort v) : Setoid (∀ (x : α), β x) :=
-  Setoid.mk (@Function.Equiv α β) (Function.Equiv.isEquivalence α β)
-
-private def extfunApp (f : Quotient <| funSetoid α β) (x : α) : β x :=
-  Quot.liftOn f
-    (fun (f : ∀ (x : α), β x) => f x)
-    (fun _ _ h => h x)
-
-theorem funext {f₁ f₂ : ∀ (x : α), β x} (h : ∀ x, f₁ x = f₂ x) : f₁ = f₂ := by
-  show extfunApp (Quotient.mk' f₁) = extfunApp (Quotient.mk' f₂)
-  apply congrArg
-  apply Quotient.sound
-  exact h
-
-end
+theorem funext {α : Sort u} {β : α → Sort v} {f₁ f₂ : (x : α) → β x}
+    (h : ∀ x, f₁ x = f₂ x) : f₁ = f₂ := by
+  let eqv (f₁ f₂ : (x : α) → β x) := ∀ x, f₁ x = f₂ x
+  let extfunApp (f : Quot eqv) (x : α) : β x :=
+    Quot.liftOn f
+      (fun (f : ∀ (x : α), β x) => f x)
+      (fun _ _ h => h x)
+  show extfunApp (Quot.mk eqv f₁) = extfunApp (Quot.mk eqv f₂)
+  exact congrArg extfunApp (Quot.sound h)
 
 instance {α : Sort u} {β : α → Sort v} [∀ a, Subsingleton (β a)] : Subsingleton (∀ a, β a) where
   allEq f₁ f₂ :=

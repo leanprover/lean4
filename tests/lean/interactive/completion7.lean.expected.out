@@ -66,7 +66,13 @@
   {"label": "instAndOpUInt64", "kind": 21, "detail": "AndOp UInt64"},
   {"label": "instAndOpUInt8", "kind": 21, "detail": "AndOp UInt8"},
   {"label": "instAndOpUSize", "kind": 21, "detail": "AndOp USize"},
-  {"label": "strictAnd", "kind": 3, "detail": "Bool → Bool → Bool"},
+  {"label": "strictAnd",
+   "kind": 3,
+   "documentation":
+   {"value":
+    "`strictAnd` is the same as `and`, but it does not use short-circuit evaluation semantics:\nboth sides are evaluated, even if the first value is `false`.\n",
+    "kind": "markdown"},
+   "detail": "Bool → Bool → Bool"},
   {"label": "true_and", "kind": 3, "detail": "∀ (p : Prop), (True ∧ p) = p"},
   {"label": "instDecidableAnd",
    "kind": 3,

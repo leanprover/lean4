@@ -88,7 +88,7 @@ where
           let ps ← (← getSubst).applyToParams ps
           return alt.updateAlt! ps (← go k)
         | .default k => withNewScope do return alt.updateCode (← go k)
-      return .cases { c with discr, resultType, alts }
+      return code.updateCases! resultType discr alts
     | .return .. | .jmp .. | .unreach .. => return code
 
 /--

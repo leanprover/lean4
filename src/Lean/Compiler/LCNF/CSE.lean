@@ -25,7 +25,7 @@ abbrev M := StateRefT State CompilerM
   modify fun s => { s with map := s.map.insert value fvarId }
 
 @[inline] def addSubst (fvarId fvarId' : FVarId) : M Unit :=
-  modify fun s => { s with subst := s.subst.insert fvarId fvarId' }
+  modify fun s => { s with subst := s.subst.insert fvarId (.fvar fvarId') }
 
 @[inline] def withNewScope (x : M α) : M α := do
   let map := (← get).map

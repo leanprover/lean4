@@ -48,12 +48,15 @@ def getFunDecl (fvarId : FVarId) : CompilerM FunDecl := do
 def eraseFVar (fvarId : FVarId) : CompilerM Unit := do
   modifyLCtx fun lctx => lctx.erase fvarId
 
-abbrev FVarSubst := Std.HashMap FVarId FVarId
-
-def FVarSubst.applyToFVar (s : FVarSubst) (fvarId : FVarId) : FVarId :=
-  match s.find? fvarId with
-  | some fvarId' => fvarId'
-  | none => fvarId
+/--
+A free variable substitution.
+We use these substitutions when inlining definitions and "internalizing" LCNF code into `CompilerM`.
+During the internalization process, we ensure all free variables in the LCNF code do not collide with existing ones
+at the `CompilerM` local context.
+Remark: in LCNF, (computationally relevant) data is in A-normal form, but this is not the case for types and type formers.
+So, when inlining we often want to replace a free variable with a type or type former.
+-/
+abbrev FVarSubst := Std.HashMap FVarId Expr
 
 partial def FVarSubst.applyToExpr (s : FVarSubst) (e : Expr) : Expr :=
   go e
@@ -61,30 +64,36 @@ where
   go (e : Expr) : Expr :=
     if e.hasFVar then
       match e with
-      | .fvar fvarId => .fvar (s.applyToFVar fvarId)
+      | .fvar fvarId => s.find? fvarId |>.getD e
       | .lit .. | .const .. | .sort .. | .mvar .. | .bvar .. => e
       | .app f a => e.updateApp! (go f) (go a)
       | .mdata _ b => e.updateMData! (go b)
       | .proj _ _ b => e.updateProj! (go b)
       | .forallE _ d b _ => e.updateForallE! (go d) (go b)
       | .lam _ d b _ => e.updateLambdaE! (go d) (go b)
-      | .letE _ t v b _ => e.updateLet! (go t) (go v) (go b)
+      | .letE .. => unreachable! -- Valid LCNF does not contain `let`-declarations
     else
       e
+
+def FVarSubst.applyToFVar (s : FVarSubst) (fvarId : FVarId) : FVarId :=
+  match s.find? fvarId with
+  | some (.fvar fvarId') => fvarId'
+  | some _ => panic! "invalid LCNF substitution of free variable with expression"
+  | none => fvarId
 
 namespace Internalize
 
 abbrev M := StateRefT FVarSubst CompilerM
 
-@[inline] private def translateFVarId (fvarId : FVarId) : M FVarId :=
+@[inline] private abbrev translateFVarId (fvarId : FVarId) : M FVarId := do
   return (← get).applyToFVar fvarId
 
-@[inline] private def translateExpr (e : Expr) : M Expr :=
+@[inline] private abbrev translateExpr (e : Expr) : M Expr :=
   return (← get).applyToExpr e
 
 private def mkNewFVarId (fvarId : FVarId) : M FVarId := do
   let fvarId' ← Lean.mkFreshFVarId
-  modify fun s => s.insert fvarId fvarId'
+  modify fun s => s.insert fvarId (.fvar fvarId')
   return fvarId'
 
 private def addParam (p : Param) : M Param := do

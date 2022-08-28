@@ -208,11 +208,6 @@ instance : LawfulBEq String := inferInstance
 
 /-! # Logical connectives and equality -/
 
-def implies (a b : Prop) := a → b
-
-theorem implies.trans {p q r : Prop} (h₁ : implies p q) (h₂ : implies q r) : implies p r :=
-  fun hp => h₂ (h₁ hp)
-
 def trivial : True := ⟨⟩
 
 theorem mt {a b : Prop} (h₁ : a → b) (h₂ : ¬b) : ¬a :=

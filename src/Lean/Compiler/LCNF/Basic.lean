@@ -89,6 +89,14 @@ private unsafe def updateAltCodeImp (alt : Alt) (c : Code) : Alt :=
 
 @[implementedBy updateContImp] opaque Code.updateCont! (c : Code) (k' : Code) : Code
 
+@[inline] private unsafe def updateFunImp (c : Code) (decl' : FunDecl) (k' : Code) : Code :=
+  match c with
+  | .fun decl k => if ptrEq k k' && ptrEq decl decl' then c else .fun decl' k'
+  | .jp decl k => if ptrEq k k' && ptrEq decl decl' then c else .jp decl' k'
+  | _ => unreachable!
+
+@[implementedBy updateFunImp] opaque Code.updateFun! (c : Code) (decl' : FunDecl) (k' : Code) : Code
+
 def Code.isDecl : Code → Bool
   | .let .. | .fun .. | .jp .. => true
   | _ => false

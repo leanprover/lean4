@@ -35,6 +35,7 @@ structure LetDecl where
   binderName : Name
   type : Expr
   value : Expr
+  pure : Bool
   deriving Inhabited
 
 structure FunDeclCore (Code : Type) where
@@ -73,12 +74,40 @@ def AltCore.getCode : Alt → Code
   | .default k => k
   | .alt _ _ k => k
 
-private unsafe def updateAltCodeImp (alt : Alt) (c : Code) : Alt :=
+private unsafe def updateAltCodeImp (alt : Alt) (k' : Code) : Alt :=
   match alt with
-  | .default k => if ptrEq k c then alt else .default c
-  | .alt ctorName ps k => if ptrEq k c then alt else .alt ctorName ps c
+  | .default k => if ptrEq k k' then alt else .default k'
+  | .alt ctorName ps k => if ptrEq k k' then alt else .alt ctorName ps k'
 
 @[implementedBy updateAltCodeImp] opaque AltCore.updateCode (alt : Alt) (c : Code) : Alt
+
+private unsafe def updateAltImp (alt : Alt) (ps' : Array Param) (k' : Code) : Alt :=
+  match alt with
+  | .alt ctorName ps k => if ptrEq k k' && ptrEq ps ps' then alt else .alt ctorName ps' k'
+  | _ => unreachable!
+
+@[implementedBy updateAltImp] opaque AltCore.updateAlt! (alt : Alt) (ps' : Array Param) (k' : Code) : Alt
+
+@[inline] private unsafe def updateAltsImp (c : Code) (alts : Array Alt) : Code :=
+  match c with
+  | .cases cs => if ptrEq cs.alts alts then c else .cases { cs with alts }
+  | _ => unreachable!
+
+@[implementedBy updateAltsImp] opaque Code.updateAlts! (c : Code) (alts : Array Alt) : Code
+
+@[inline] private unsafe def updateCasesImp (c : Code) (resultType : Expr) (discr : FVarId) (alts : Array Alt) : Code :=
+  match c with
+  | .cases cs => if ptrEq cs.alts alts && ptrEq cs.resultType resultType && cs.discr == discr then c else .cases { cs with discr, resultType, alts }
+  | _ => unreachable!
+
+@[implementedBy updateCasesImp] opaque Code.updateCases! (c : Code) (resultType : Expr) (discr : FVarId) (alts : Array Alt) : Code
+
+@[inline] private unsafe def updateLetImp (c : Code) (decl' : LetDecl) (k' : Code) : Code :=
+  match c with
+  | .let decl k => if ptrEq k k' && ptrEq decl decl' then c else .let decl' k'
+  | _ => unreachable!
+
+@[implementedBy updateLetImp] opaque Code.updateLet! (c : Code) (decl' : LetDecl) (k' : Code) : Code
 
 @[inline] private unsafe def updateContImp (c : Code) (k' : Code) : Code :=
   match c with
@@ -96,6 +125,14 @@ private unsafe def updateAltCodeImp (alt : Alt) (c : Code) : Alt :=
   | _ => unreachable!
 
 @[implementedBy updateFunImp] opaque Code.updateFun! (c : Code) (decl' : FunDecl) (k' : Code) : Code
+
+/-
+@[inline] private unsafe def updateCases (cases : Cases) (decl' : FunDecl) (k' : Code) : Cases :=
+  match c with
+  | .fun decl k => if ptrEq k k' && ptrEq decl decl' then c else .fun decl' k'
+  | .jp decl k => if ptrEq k k' && ptrEq decl decl' then c else .jp decl' k'
+  | _ => unreachable!
+-/
 
 def Code.isDecl : Code → Bool
   | .let .. | .fun .. | .jp .. => true

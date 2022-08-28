@@ -61,30 +61,25 @@ def shouldPull (decl : LetDecl) : PullM Bool := do
 mutual
   partial def pullAlt (alt : Alt) : PullM Alt :=
     match alt with
-    | .default k => return .default (← withNewScope <| pullDecls k)
-    | .alt ctorName params k => return .alt ctorName params (← withNewScope <| withParams params <| pullDecls k)
+    | .default k => return alt.updateCode (← withNewScope <| pullDecls k)
+    | .alt _ params k => return alt.updateCode (← withNewScope <| withParams params <| pullDecls k)
 
   partial def pullDecls (code : Code) : PullM Code := do
     match code with
     | .cases c =>
       withCheckpoint do
-        let alts ← c.alts.mapM pullAlt
-        return .cases { c with alts}
+        let alts ← c.alts.mapMonoM pullAlt
+        return code.updateAlts! alts
     | .let decl k =>
       if (← shouldPull decl) then
         pullDecls k
       else
-        withFVar decl.fvarId do return .let decl (← pullDecls k)
-    | .fun decl k =>
+        withFVar decl.fvarId do return code.updateCont! (← pullDecls k)
+    | .fun decl k | .jp decl k =>
       withCheckpoint do
         let value ← withParams decl.params <| pullDecls decl.value
         let decl ← decl.updateValue value
-        withFVar decl.fvarId do return .fun decl (← pullDecls k)
-    | .jp decl k =>
-      withCheckpoint do
-        let value ← withParams decl.params <| pullDecls decl.value
-        let decl ← decl.updateValue value
-        withFVar decl.fvarId do return .jp decl (← pullDecls k)
+        withFVar decl.fvarId do return code.updateFun! decl (← pullDecls k)
     | _ => return code
 
 end

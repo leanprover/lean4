@@ -58,11 +58,9 @@ partial def elimDead (code : Code) : M Code := do
       eraseFVar decl.fvarId
       return k
   | .cases c =>
-    let alts ← c.alts.mapM fun
-      | .alt ctorName params k => return .alt ctorName params (← elimDead k)
-      | .default k => return .default (← elimDead k)
+    let alts ← c.alts.mapMonoM fun alt => return alt.updateCode (← elimDead alt.getCode)
     collectFVarM c.discr
-    return .cases { c with alts }
+    return code.updateAlts! alts
   | .return fvarId => collectFVarM fvarId; return code
   | .jmp fvarId args => collectFVarM fvarId; args.forM collectExprM; return code
   | .unreach .. => return code

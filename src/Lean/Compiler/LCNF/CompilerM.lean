@@ -165,10 +165,10 @@ def mkParam (binderName : Name) (type : Expr) : CompilerM Param := do
   modifyLCtx fun lctx => lctx.addLocalDecl fvarId binderName type
   return { fvarId, binderName, type }
 
-def mkLetDecl (binderName : Name) (type : Expr) (value : Expr) : CompilerM LetDecl := do
+def mkLetDecl (binderName : Name) (type : Expr) (value : Expr) (pure := true) : CompilerM LetDecl := do
   let fvarId ← mkFreshFVarId
   modifyLCtx fun lctx => lctx.addLetDecl fvarId binderName type value
-  return { fvarId, binderName, type, value }
+  return { fvarId, binderName, type, value, pure }
 
 def mkFunDecl (binderName : Name) (type : Expr) (params : Array Param) (value : Code) : CompilerM FunDecl := do
   let fvarId ← mkFreshFVarId
@@ -216,7 +216,7 @@ def FVarSubst.applyToParam (s : FVarSubst) (p : Param) : CompilerM Param :=
   p.update (s.applyToExpr p.type)
 
 def FVarSubst.applyToParams (s : FVarSubst) (ps : Array Param) : CompilerM (Array Param) :=
-  ps.mapM s.applyToParam
+  ps.mapMonoM s.applyToParam
 
 def FVarSubst.applyToLetDecl (s : FVarSubst) (decl : LetDecl) : CompilerM LetDecl :=
   decl.update (s.applyToExpr decl.type) (s.applyToExpr decl.value)

@@ -97,7 +97,13 @@ structure Context where
   config : Config := {}
 
 structure State where
+  /--
+  Free variable substitution. We use it to implement inlining are removing redundant variables `let _x.i := _x.j`
+  -/
   subst : FVarSubst := {}
+  /--
+  Mapping used to decide whether a local function declaration must be inlined or not.
+  -/
   funDeclInfoMap : FunDeclInfoMap := {}
   /--
   `true` if some simplification was performed in the current simplification pass.
@@ -108,16 +114,6 @@ structure State where
   This is a performance counter, and currently has no impact on code generation.
   -/
   visited : Nat := 0
-  /--
-  Number of `mkLetUsingScope` calls.
-  This is a performance counter.
-  -/
-  mkLet : Nat := 0
-  /--
-  Number of `mkLambda` calls.
-  This is a performance counter.
-  -/
-  mkLambda : Nat := 0
   /--
   Number of definitions inlined.
   This is a performance counter.
@@ -187,6 +183,15 @@ def simpAppApp? (e : Expr) : OptionT SimpM Expr := do
   guard <| f.isApp || f.isConst
   markSimplified
   return mkAppN f e.getAppArgs
+
+mutual
+
+partial def simp (code : Code) : SimpM Code :=
+  match code with
+  | _ => return code
+
+end
+
 
 end Simp
 

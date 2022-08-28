@@ -51,13 +51,17 @@ where
     match code with
     | .let decl k =>
       let decl ← (← getSubst).applyToLetDecl decl
-      match (← get).map.find? decl.value with
-      | some fvarId' =>
-        replaceFVar decl.fvarId fvarId'
-        go k
-      | none =>
-        addEntry decl.value decl.fvarId
-        return .let decl (← go k)
+      if decl.pure then
+        -- We only apply CSE to pure code
+        match (← get).map.find? decl.value with
+        | some fvarId' =>
+          replaceFVar decl.fvarId fvarId'
+          go k
+        | none =>
+          addEntry decl.value decl.fvarId
+          return code.updateLet! decl (← go k)
+      else
+        return code.updateLet! decl (← go k)
     | .fun decl k =>
       let decl ← goFunDecl decl
       let value := decl.toExpr
@@ -67,23 +71,23 @@ where
         go k
       | none =>
         addEntry value decl.fvarId
-        return .fun decl (← go k)
+        return code.updateFun! decl (← go k)
     | .jp decl k =>
       let decl ← goFunDecl decl
       /-
        We currently don't eliminate common join points because we want to prevent
        jumps to out-of-scope join points.
       -/
-      return .jp decl (← go k)
+      return code.updateFun! decl (← go k)
     | .cases c =>
       let discr := (← getSubst).applyToFVar c.discr
       let resultType := (← getSubst).applyToExpr c.resultType
-      let alts ← c.alts.mapM fun alt => do
+      let alts ← c.alts.mapMonoM fun alt => do
         match alt with
-        | .alt ctorName ps k => withNewScope do
+        | .alt _ ps k => withNewScope do
           let ps ← (← getSubst).applyToParams ps
-          return .alt ctorName ps (← go k)
-        | .default k => withNewScope do return .default (← go k)
+          return alt.updateAlt! ps (← go k)
+        | .default k => withNewScope do return alt.updateCode (← go k)
       return .cases { c with discr, resultType, alts }
     | .return .. | .jmp .. | .unreach .. => return code
 

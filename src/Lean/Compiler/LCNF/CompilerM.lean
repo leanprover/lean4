@@ -35,8 +35,11 @@ def getLocalDecl (fvarId : FVarId) : CompilerM LocalDecl := do
   let some decl := (← get).lctx.localDecls.find? fvarId | throwError "unknown free variable {fvarId.name}"
   return decl
 
+def findFunDecl? (fvarId : FVarId) : CompilerM (Option FunDecl) :=
+  return (← get).lctx.funDecls.find? fvarId
+
 def getFunDecl (fvarId : FVarId) : CompilerM FunDecl := do
-  let some decl := (← get).lctx.funDecls.find? fvarId | throwError "unknown local function {fvarId.name}"
+  let some decl ← findFunDecl? fvarId | throwError "unknown local function {fvarId.name}"
   return decl
 
 @[inline] def modifyLCtx (f : LCtx → LCtx) : CompilerM Unit := do

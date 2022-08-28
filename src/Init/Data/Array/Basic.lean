@@ -259,7 +259,7 @@ unsafe def mapMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad
      -- Replace r[i] by `box(0)`.  This ensures that `v` remains unshared if possible.
      -- Note: we assume that arrays have a uniform representation irrespective
      -- of the element type, and that it is valid to store `box(0)` in any array.
-     let r    := r.uset i default lcProof
+     let r    := r.uset i .null lcProof
      let vNew ← f (unsafeCast v)
      map (i+1) (r.uset i (unsafeCast vNew) lcProof)
     else

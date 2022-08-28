@@ -167,13 +167,24 @@ protected def bind {α : Type u} {β : Type v} (x : Task α) (f : α → Task β
 
 end Task
 
-/-- Some type that is not a scalar value in our runtime. -/
-structure NonScalar where
-  val : Nat
+private inductive PNonScalarSpec : Type u where
+  | mk (v : Nat)
+
+opaque nonScalarSpec : NonemptyType.{u} := ⟨PNonScalarSpec, ⟨⟨0⟩⟩⟩
 
 /-- Some type that is not a scalar value in our runtime and is universe polymorphic. -/
-inductive PNonScalar : Type u where
-  | mk (v : Nat) : PNonScalar
+def PNonScalar : Type u := nonScalarSpec.type
+
+instance : Nonempty PNonScalar := nonScalarSpec.property
+
+@[inline] unsafe def PNonScalar.null : PNonScalar := unsafeCast (0 : Nat)
+
+/-- Some type that is not a scalar value in our runtime. -/
+def NonScalar : Type := PNonScalar.{0}
+
+instance : Nonempty NonScalar := nonScalarSpec.property
+
+@[inline] unsafe def NonScalar.null : NonScalar := PNonScalar.null
 
 @[simp] theorem Nat.add_zero (n : Nat) : n + 0 = n := rfl
 
@@ -514,7 +525,7 @@ abbrev noConfusionEnum {α : Sort u} {β : Sort v} [inst : DecidableEq β] (f : 
 instance : Inhabited Prop where
   default := True
 
-deriving instance Inhabited for NonScalar, PNonScalar, True, ForInStep
+deriving instance Inhabited for True, ForInStep
 
 theorem nonempty_of_exists {α : Sort u} {p : α → Prop} : Exists (fun x => p x) → Nonempty α
   | ⟨w, _⟩ => ⟨w⟩
@@ -632,6 +643,15 @@ instance [Inhabited α] [Inhabited β] : Inhabited (MProd α β) where
 
 instance [Inhabited α] [Inhabited β] : Inhabited (PProd α β) where
   default := ⟨default, default⟩
+
+instance : [Nonempty α] → [Nonempty β] → Nonempty (α × β)
+  | ⟨a⟩, ⟨b⟩ => ⟨(a, b)⟩
+
+instance : [Nonempty α] → [Nonempty β] → Nonempty (MProd α β)
+  | ⟨a⟩, ⟨b⟩ => ⟨⟨a, b⟩⟩
+
+instance : [Nonempty α] → [Nonempty β] → Nonempty (PProd α β)
+  | ⟨a⟩, ⟨b⟩ => ⟨⟨a, b⟩⟩
 
 instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
   fun (a, b) (a', b') =>

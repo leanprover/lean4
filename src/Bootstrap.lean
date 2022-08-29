@@ -6,4 +6,3 @@ Authors: Leonardo de Moura
 import Bootstrap.Data
 import Bootstrap.ShareCommon
 import Bootstrap.Dynamic
-import Bootstrap.System

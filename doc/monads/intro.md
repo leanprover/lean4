@@ -1,7 +1,7 @@
 # Monads
 
 Monads are used heavily in Lean, as they are also in Haskell. Monads come from the wonderful world
-of [Category Theory](https://en.wikipedia.org/wiki/Monad_(category_theory).
+of [Category Theory](https://en.wikipedia.org/wiki/Monad_%28category_theory%29).
 
 Monads in Lean are so similar to Haskell that this introduction to monads is heavily based on the
 similar chapter of the [Monday Morning Haskell](https://mmhaskell.com/monads/). Many thanks to

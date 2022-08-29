@@ -174,13 +174,13 @@ You can pop some elements off the front of a list
 #eval [1,2,3].take 2   -- [1, 2]
 ```
 
-And you can drop some times off the front and get the remainder:
+And you can drop some items off the front and get the remainder:
 
 ```lean
 #eval [1,2,3].drop 1   -- [2, 3]
 ```
 
-You can also erase a the first matching item:
+You can also erase the first matching item:
 
 ```lean
 #eval ["a", "b", "c", "b"].erase "b" -- ["a", "c", "b"]

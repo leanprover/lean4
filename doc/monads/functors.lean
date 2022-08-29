@@ -175,47 +175,6 @@ Notice that squareFeetToMeters knows nothing about `LivingSpace`.
 You can implement the `Functor` pattern in other languages, people have even done it in C++,
 but it is very clean and elegant in Lean.
 
-
-## What are the Functor laws?
-
-Functors have two laws: the identity law, and the composition law. These laws express behaviors that
-your functor instances should follow. If they don't, other programmers will be very confused at the
-effect your instances have on the program. Many structures have similar laws, including monads.
-
-The identity law says that if you "map" the identity function (`id`) over your functor, the resulting
-functor should be the same. A succinct way of stating this is:
-
--/
-#eval id <$> mySpace == mySpace -- true
-/-!
-
-And you can prove this is the case with `mySpace` with the following Lean proof:
-
--/
-example : mySpace.map id = mySpace := by
-  simp[LivingSpace.map]  -- Goals accomplished 🎉
-/-!
-
-The composition law says that if we "map" two functions in succession over our functor, this should
-be the same as "composing" the functions and simply mapping that one super-function.  In Lean you
-can compose two functions using `Function.comp f g` (or the syntax `f ∘ g`, which you can type in VS
-code using `\o`) and you will get the same results from both of these showing that the composition
-law holds:
-
--/
-#eval (squareFeetToMeters <$> (id <$> mySpace)) == ((squareFeetToMeters ∘ id) <$> mySpace) -- true
-/-!
-
-To break these laws, you would have to do something like introducing an arbitrary value into the
-instance that is not the identity value and is not based on the function `f : α → β`
-for example if you changed how you initialize numBedrooms from ` numBedrooms := s.numBedrooms`
-to  `numBedrooms := 0,`.
-
-If you zero out the number of bedrooms this will break the `id` law, and the theorem proving
-`mySpace.map id = mySpace` now fails.  Similarly, `numBedrooms := s.numBedrooms + s.numBedrooms` would
-also break the `id` law.  So it's best to stick with an identity transform or the given function `f` in
-your map implementations.
-
 # How do Functors help with Monads ?
 
 Functors are an abstract mathematical structure that we represent in Lean with a type class. The

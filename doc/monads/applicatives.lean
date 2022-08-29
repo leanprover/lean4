@@ -274,10 +274,6 @@ care about. It will be easier to see these in action when we get to full Monads,
 heavily in the Lean `Parsec` parser combinator library where you will find parsing functions like
 this one which parses the XML declaration `<?xml version="1.0" encoding='utf-8' standalone="yes">`:
 
--/
-
-/-!
-
 But you will need to understand full Monads before this will make sense.  So trust us for now,
 these will be useful later.
 
@@ -296,10 +292,10 @@ This may look a bit combersome, specifically, why did we need to invent this fun
 `fun (_ : Unit) => (some 5)`?
 
 Well if you take a close look at the type class definition:
--/
-class Seq (f : Type u → Type v) : Type (max (u+1) v) where
+```lean
+class Seq (f : Type u → Type v) where
   seq : {α β : Type u} → f (α → β) → (Unit → f α) → f β
-/-!
+```
 
 You will see this function defined here: `(Unit → f α)`, this is a function that takes `Unit` as input
 and produces the output of type `f α` where `f` is our container type `Type u`, in our example `Option`
@@ -317,99 +313,13 @@ If you look up the notation using F12 in VS Code you will find it contains `(fun
 Now to complete this picture you will find the default implementation of `seq` on the Lean `Monad`
 type class:
 
--/
-class Monad (m : Type u → Type v) extends Applicative m, Bind m : Type (max (u+1) v) where
-  map      f x := bind x (Function.comp pure f)
+```lean
+class Monad (m : Type u → Type v) extends Applicative m, Bind m where
   seq      f x := bind f fun y => Functor.map y (x ())
-/-!
+```
 
 Notice here that `x` is our `(Unit → f α)` function, and it is calling that function by passing the
 Unit value `()`, which is the Unit value (Unit.unit).  All this just to ensure delayed evaluation.
-
-## What are the Applicative Laws?
-
-While functors had two laws, applicatives have four laws which we can test using our
-applicative list:
-
-- Identity
-- Homomorphism
-- Interchange
-- Composition
-
-### Identity
-
-`pure id <*> v = v`
-
-Applying the identity function through an applicative structure should not change the underlying
-values or structure:
-
-For example:
--/
-#eval pure id <*> [1, 2, 3]  -- [1, 2, 3]
-/-!
-
-We can prove this for all values `v` with this theorem:
-
--/
-example [Applicative m] [LawfulApplicative m] (v : m α) :
-  pure id <*> v = v :=
-  by simp -- Goals accomplished 🎉
-/-!
-
-### Homomorphism
-
-`pure f <*> pure x = pure (f x)`
-
-For example:
-
--/
-#eval let x := 1
-      let f := (· + 2)
-      pure f <*> pure x = (pure (f x) : List Nat) -- true
-/-!
-
-### Interchange
-
-`u <*> pure y = pure (. y) <*> u`.
-
-For example:
-
--/
-#eval let y := 4
-      let u : List (Nat → Nat) := [(· + 2)]
-      u <*> pure y = pure (· y) <*> u      -- true
-/-!
-
-Note that (· y) is short hand for: `fun f => f y`.
-
-### Composition:
-
-`u <*> v <*> w = u <*> (v <*> w)`
-
-For example:
-
--/
-#eval pure (·+·+·) <*> [1, 2] <*> [3, 4] <*> [5, 6]
--- [9, 10, 10, 11, 10, 11, 11, 12]
-
-#eval let grouped := pure (·+·) <*> [3, 4] <*> [5, 6]
-      pure (·+·) <*> [1, 2] <*> grouped
--- [9, 10, 10, 11, 10, 11, 11, 12]
-/-!
-
-With composition we implemented the grouping `(v <*> w)` then showed you could
-use that in the outer sequence to get the same final result `[9, 10, 10, 11, 10, 11, 11, 12]`.
-
-Ultimately though, these laws encapsulate the same ideas as the functor laws which can be summarized
-in the following three statements:
-
-1. Applying pure should not change the underlying values or functions
-1. Applying the identity function through an applicative structure should not change the underlying
-   values or structure.
-1. It should not matter what order we group operations in. This third idea in particular is useful
-because it means that we can apply parallelism to a long chain of applicative operations. This also
-comes down to the fact that applicative functors are context-free, an idea we'll discuss more with
-monads.
 
 ## How do Applicatives help with Monads?
 

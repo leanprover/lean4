@@ -111,27 +111,27 @@ abort a series of operations whenever one of them fails. This allows future oper
 that all previous operations have succeeded. Here's some code to motivate this idea:
 
 -/
-def maybeFunc1 : String -> Option Nat
+def optionFunc1 : String -> Option Nat
 | "" => none
 | str => some str.length
 
-def maybeFunc2 (i : Nat) : Option Float :=
+def optionFunc2 (i : Nat) : Option Float :=
   if i % 2 == 0 then none else some (i.toFloat * 3.14159)
 
-def maybeFunc3 (f : Float) : Option (List Nat) :=
+def optionFunc3 (f : Float) : Option (List Nat) :=
   if f > 15.0 then none else some [f.floor.toUInt32.toNat, f.ceil.toUInt32.toNat]
 
-def runMaybeFuncs (input : String) : Option (List Nat) :=
-  match maybeFunc1 input with
+def runOptionFuncs (input : String) : Option (List Nat) :=
+  match optionFunc1 input with
   | none => none
-  | some i => match maybeFunc2 i with
+  | some i => match optionFunc2 i with
     | none => none
-    | some f => maybeFunc3 f
+    | some f => optionFunc3 f
 
-#eval runMaybeFuncs "big" -- some [9, 10]
+#eval runOptionFuncs "big" -- some [9, 10]
 /-!
 
-We have three different functions that could fail. We combine them all in `runMaybeFuncs`. But at each
+We have three different functions that could fail. We combine them all in `runOptionFuncs`. But at each
 stage, it has to check if the previous result succeeded. It would be very tedious to continue this
 pattern.
 
@@ -139,41 +139,41 @@ The `Option` monad helps you fix this. Here's what this function looks like usin
 
 -/
 
-def runMaybeFuncsBind (input: String) : Option (List Nat) :=
-  maybeFunc1 input >>= maybeFunc2 >>= maybeFunc3
+def runOptionFuncsBind (input: String) : Option (List Nat) :=
+  optionFunc1 input >>= optionFunc2 >>= optionFunc3
 
-#eval runMaybeFuncsBind "big" -- some [9, 10]
+#eval runOptionFuncsBind "big" -- some [9, 10]
 /-!
 
 It's much cleaner now! We take our first result and pass it into the second and third functions
 using the bind function. The monad instance handles all the failure cases so we don't have to!
 
-Let's see why the types work out. The result of `maybeFunc1` input is simply `Option Nat`. Then the
-bind operator allows you to take this `Option Nat` value and combine it with `maybeFunc2`, whose type
+Let's see why the types work out. The result of `optionFunc1` input is simply `Option Nat`. Then the
+bind operator allows you to take this `Option Nat` value and combine it with `optionFunc2`, whose type
 is `Nat → Option Float` The **bind operator resolves** these to an `Option Float`. Then we pass this
-similarly through the bind operator to `maybeFunc3`, resulting in our final type, `Option (List Nat)`.
+similarly through the bind operator to `optionFunc3`, resulting in our final type, `Option (List Nat)`.
 
 Your functions will not always combine so cleanly though. This is where `do` notation comes into play.
 This notation allows you to write monadic operations one after another, line-by-line. It almost makes
 our code look like imperative programming. We can rewrite the above as:
 -/
 
-def runMaybeFuncsDo (input: String) : Option (List Nat) := do
-  let i ← maybeFunc1 input
-  let f ← maybeFunc2 i
-  maybeFunc3 f
+def runOptionFuncsDo (input: String) : Option (List Nat) := do
+  let i ← optionFunc1 input
+  let f ← optionFunc2 i
+  optionFunc3 f
 
-#eval runMaybeFuncsDo "big" -- some [9, 10]
+#eval runOptionFuncsDo "big" -- some [9, 10]
 /-!
 
 Note you can use `<-` or the nice unicode symbol `←` which you can type into VS code by typing
 these characters `\<- `.  When you type the final space, `\<-` is replaced with `←`.
 
 The `←` operator is special. It effectively unwraps the value on the right-hand side from the monad.
-This means the value `i` has type `Nat`, _even though_ the result of `maybeFunc1` is `Option Nat`.
+This means the value `i` has type `Nat`, _even though_ the result of `optionFunc1` is `Option Nat`.
 The bind operation happens under the hood. If the function returns `none`, then the entire
-`runMaybeFuncsDo` function will return `none`. Observe that we do not unwrap the final line of the
-computation. Our function result is `Option (List Nat)` which matches what `maybeFunc3` returns.
+`runOptionFuncsDo` function will return `none`. Observe that we do not unwrap the final line of the
+computation. Our function result is `Option (List Nat)` which matches what `optionFunc3` returns.
 
 At first glance, this looks more complicated than the bind example. However, it gives you a lot more
 flexibility, like mixing monadic and non-monadic statements. It is particularly helpful when one
@@ -292,68 +292,6 @@ result without evaluating everything, but we can determine the structure of how 
 take place. This allows some degree of parallelism with applicatives that is not generally possible
 with monads.
 
-## What are the Monad Laws?
-
-Monads have two laws:
-
-- Left Identity
-- Right Identity
-- Associativity
-
-### Left Identity
-
-Identity laws for monads specify that `pure` by itself shouldn't really change anything
-about the structure or its values.
-
-Left identity is `x >>= pure = x` and is demonstrated by the following examples:
--/
-#eval ["apple", "orange"] >>= pure  -- ["apple", "orange"]
-#eval [1,2,3] >>= pure              -- [1,2,3]
-
-/-!
-
-### Right Identity
-
-Right identity is `pure x >>= f = f x` and is demonstrated by the following example:
--/
-def f (x: Nat) : Option Nat :=  some (x + 1)
-def x := 5
-
-#eval pure x >>= f                  -- some 6
-#eval f x                           -- some 6
-
--- so in this example with this specific x and f we see that it is true
-#eval pure x >>= f = f x            -- true
-/-!
-
-The Lean library contains formal proofs of all these things.
-
-### Associativity
-The associativity law is written as:
-```lean,ignore
-  x >>= f >>= g = x >>= (λ x => f x >>= g)
-```
-where `(x : m α)` and `(f : α → m β)` and `(g : β → m γ)`.
-
-The associativity law is difficult to parse like some of the applicative laws, but what it is saying
-is that if you change the grouping of `bind` operations, you should still get the same result. You
-can see this in action in the following rewrite of `runMaybeFuncsBind`:
--/
-def runMaybeFuncsBind2 (input: String) : Option (List Nat) :=
-   maybeFunc1 input >>= (λ x => maybeFunc2 x >>= maybeFunc3)
-
-#eval runMaybeFuncsBind2 "big" -- some [9, 10]
-/-!
-
-Notice here we had to insert a `λ` function just like the definition says: `(λ x => f x >>= g)`.
-This is because unlike applicatives, we can't resolve the structure of later operations without the
-results of earlier operations quite as well because of the extra context monads provide. But we can
-still group their later operations into composite functions taking their inputs from earlier on, and
-the result should be the same.
-
-While these laws are difficult to understand just by looking at them, the good news is that most of
-the instances you'll make of these classes will naturally follow the laws, so you don't have to
-worry about them too much.
 
 ## Conclusion
 

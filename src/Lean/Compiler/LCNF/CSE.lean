@@ -16,7 +16,6 @@ structure State where
   map   : Std.PHashMap Expr FVarId := {}
   subst : FVarSubst := {}
 
-
 abbrev M := StateRefT State CompilerM
 
 instance : MonadFVarSubst M where
@@ -29,16 +28,13 @@ instance : MonadFVarSubst M where
 @[inline] def addEntry (value : Expr) (fvarId : FVarId) : M Unit :=
   modify fun s => { s with map := s.map.insert value fvarId }
 
-@[inline] def addSubst (fvarId fvarId' : FVarId) : M Unit :=
-  modify fun s => { s with subst := s.subst.insert fvarId (.fvar fvarId') }
-
 @[inline] def withNewScope (x : M α) : M α := do
   let map := (← get).map
   try x finally modify fun s => { s with map }
 
 def replaceFVar (fvarId fvarId' : FVarId) : M Unit := do
   eraseFVar fvarId
-  addSubst fvarId fvarId'
+  addFVarSubst fvarId fvarId'
 
 end CSE
 

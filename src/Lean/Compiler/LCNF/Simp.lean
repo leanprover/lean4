@@ -199,18 +199,47 @@ def incVisited : SimpM Unit :=
 def markUsedFVar (fvarId : FVarId) : SimpM Unit :=
   modify fun s => { s with used := s.used.insert fvarId }
 
+def markUsedExpr (e : Expr) : SimpM Unit :=
+  modify fun s => { s with used := collectLocalDecls s.used e }
+
+def markUsedLetDecl (letDecl : LetDecl) : SimpM Unit :=
+  markUsedExpr letDecl.value
+
+def isUsed (fvarId : FVarId) : SimpM Bool :=
+  return (← get).used.contains fvarId
+
+def eraseLetDecl (decl : LetDecl) : SimpM Unit := do
+  eraseFVar decl.fvarId
+  markSimplified
+
 mutual
 
 partial def simp (code : Code) : SimpM Code := do
-  -- TODO
   incVisited
   match code with
+  | .let decl k =>
+    let decl ← normLetDecl decl
+    if decl.value.isFVar then
+      /- Eliminate `let _x_i := _x_j;` -/
+      addSubst decl.fvarId decl.value
+      eraseLetDecl decl
+      simp k
+    else
+      /- TODO: simple value simplifications & inlining -/
+      let k ← simp k
+      if !decl.pure || (← isUsed decl.fvarId) then
+        markUsedLetDecl decl
+        return code.updateLet! decl k
+      else
+        /- Dead variable elimination -/
+        eraseLetDecl decl
+        return k
   | .return fvarId =>
     let fvarId ← normFVar fvarId
     markUsedFVar fvarId
     return code.updateReturn! fvarId
   | .unreach .. => return code
-  | _ => return code
+  | _ => return code -- TODO: implement other cases
 
 end
 

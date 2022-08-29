@@ -6,7 +6,7 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 import Init.Control
 import Init.System.IO
-import Bootstrap.Data.RBTree
+import Lean.Data.RBTree
 import Lean.Data.Json
 
 /-! Implementation of JSON-RPC 2.0 (https://www.jsonrpc.org/specification)

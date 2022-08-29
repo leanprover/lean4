@@ -7,7 +7,7 @@ Authors: Sebastian Ullrich, Lars König, Wojciech Nawrocki
 import Lean.Data.Json.FromToJson
 import Lean.Util.Path
 import Lean.Server.Utils
-import Std.System.Uri
+import Bootstrap.System.Uri
 
 namespace Lean.Server
 

@@ -263,14 +263,14 @@ find_package(PythonInterp)
 
 include_directories(${CMAKE_BINARY_DIR}/include)
 
-# libleancpp/Lean as well as libleanrt/Init/Std are cyclically dependent. This works by default on macOS, which also doesn't like
+# libleancpp/Lean as well as libleanrt/Init/Bootstrap are cyclically dependent. This works by default on macOS, which also doesn't like
 # the linker flags necessary on other platforms.
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  string(APPEND LEANC_STATIC_LINKER_FLAGS " -lleancpp -lInit -lStd -lLean -lleanrt")
+  string(APPEND LEANC_STATIC_LINKER_FLAGS " -lleancpp -lInit -lBootstrap -lLean -lleanrt")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  string(APPEND LEANC_STATIC_LINKER_FLAGS " -lleancpp -lInit -lStd -lLean -lnodefs.js -lleanrt")
+  string(APPEND LEANC_STATIC_LINKER_FLAGS " -lleancpp -lInit -lBootstrap -lLean -lnodefs.js -lleanrt")
 else()
-  string(APPEND LEANC_STATIC_LINKER_FLAGS " -Wl,--start-group -lleancpp -lLean -Wl,--end-group -Wl,--start-group -lInit -lStd -lleanrt -Wl,--end-group")
+  string(APPEND LEANC_STATIC_LINKER_FLAGS " -Wl,--start-group -lleancpp -lLean -Wl,--end-group -Wl,--start-group -lInit -lBootstrap -lleanrt -Wl,--end-group")
 endif()
 
 set(LEAN_CXX_STDLIB "-lstdc++" CACHE STRING "C++ stdlib linker flags")
@@ -445,9 +445,9 @@ string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")
 file(RELATIVE_PATH LIB ${LEAN_SOURCE_DIR} ${CMAKE_BINARY_DIR}/lib)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set(LEANSHARED_LINKER_FLAGS "-Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libInit.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libStd.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLean.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS}")
+  set(LEANSHARED_LINKER_FLAGS "-Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libInit.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libBootstrap.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLean.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS}")
 else()
-  set(LEANSHARED_LINKER_FLAGS "-Wl,--whole-archive -lInit -lStd -lLean -lleancpp -Wl,--no-whole-archive ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS}")
+  set(LEANSHARED_LINKER_FLAGS "-Wl,--whole-archive -lInit -lBootstrap -lLean -lleancpp -Wl,--no-whole-archive ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS}")
   if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     string(APPEND LEANSHARED_LINKER_FLAGS " -Wl,--out-implib,${CMAKE_BINARY_DIR}/lib/lean/libleanshared.dll.a")
   endif()
@@ -462,7 +462,7 @@ add_custom_target(make_stdlib ALL
   # The actual rule is in a separate makefile because we want to prefix it with '+' to use the Make job server
   # for a parallelized nested build, but CMake doesn't let us do that.
   # We use `lean` from the previous stage, but `leanc`, headers, etc. from the current stage
-  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Init Std Lean
+  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Init Bootstrap Lean
   VERBATIM)
 
 # We declare these as separate custom targets so they use separate `make` invocations, which makes `make` recompute which dependencies

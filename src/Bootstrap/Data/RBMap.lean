@@ -352,5 +352,3 @@ end RBMap
 
 def rbmapOf {α : Type u} {β : Type v} (l : List (α × β)) (cmp : α → α → Ordering) : RBMap α β cmp :=
   RBMap.fromList l cmp
-
-end Std

@@ -3,7 +3,7 @@ import Lean.Linter.Util
 import Lean.Elab.InfoTree
 import Lean.Server.InfoUtils
 import Lean.Server.References
-import Std.Data.HashMap
+import Bootstrap.Data.HashMap
 
 namespace Lean.Linter
 open Lean.Elab.Command Lean.Server Std

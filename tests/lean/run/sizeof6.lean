@@ -1,4 +1,4 @@
-import Std
+import Bootstrap
 
 inductive Foo where
   | mk (args : Std.PersistentArray Foo)

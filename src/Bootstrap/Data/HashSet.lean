@@ -177,6 +177,3 @@ def toArray (m : HashSet α) : Array α :=
 
 def numBuckets (m : HashSet α) : Nat :=
   m.val.buckets.val.size
-
-end HashSet
-end Std

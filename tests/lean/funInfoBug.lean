@@ -1,4 +1,4 @@
-import Std.Data.AssocList
+import Bootstrap.Data.AssocList
 
 def l : List (Prod Nat Nat) := [(1, 1), (2, 2)]
 #eval l -- works

@@ -62,6 +62,3 @@ def push : DList α → α → DList α
   }
 
 instance : Append (DList α) := ⟨DList.append⟩
-
-end DList
-end Std

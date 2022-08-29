@@ -3,10 +3,10 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Std.Data.HashSet
-import Std.Data.HashMap
-import Std.Data.PersistentHashMap
-import Std.Data.PersistentHashSet
+import Bootstrap.Data.HashSet
+import Bootstrap.Data.HashMap
+import Bootstrap.Data.PersistentHashMap
+import Bootstrap.Data.PersistentHashSet
 namespace Std
 universe u v
 
@@ -153,5 +153,3 @@ instance PShareCommonT.monadShareCommon [Monad m] : MonadShareCommon (PShareComm
 
 def shareCommon (a : α) : α :=
   (withShareCommon a : ShareCommonM α).run
-
-end Std

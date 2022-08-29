@@ -5,7 +5,7 @@ Authors: Sebastian Ullrich, Daniel Selsam, Wojciech Nawrocki, E.W.Ayers
 -/
 import Lean.Meta.Basic
 import Lean.Data.Json
-import Bootstrap.Data.RBMap
+import Lean.Data.RBMap
 
 namespace Lean
 

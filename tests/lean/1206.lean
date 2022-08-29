@@ -1,4 +1,4 @@
-import Bootstrap
+import Lean.Data.HashSet
 
 set_option linter.unusedVariables true
 

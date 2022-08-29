@@ -1,4 +1,4 @@
-import Bootstrap.Data.PersistentHashMap
+import Lean.Data.PersistentHashMap
 
 open Std
 def m : PersistentHashMap Nat Nat :=

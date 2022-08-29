@@ -1,4 +1,4 @@
-import Bootstrap.Data.PersistentHashMap
+import Lean.Data.PersistentHashMap
 import Lean.Data.Format
 
 open Lean Std Std.PersistentHashMap

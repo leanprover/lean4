@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Dany Fabian
 -/
 
-import Bootstrap.Data.RBMap
+import Lean.Data.RBMap
 namespace Lean
 namespace Xml
 

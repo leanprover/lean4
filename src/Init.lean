@@ -15,6 +15,7 @@ import Init.WFTactics
 import Init.Data
 import Init.System
 import Init.Util
+import Init.ShareCommon
 import Init.Meta
 import Init.NotationExtra
 import Init.SimpLemmas

@@ -13,6 +13,7 @@ import Lean.Util.PPExt
 import Lean.Util.Path
 import Lean.Util.Profile
 import Lean.Util.RecDepth
+import Lean.Util.ShareCommon
 import Lean.Util.Sorry
 import Lean.Util.Trace
 import Lean.Util.FindExpr

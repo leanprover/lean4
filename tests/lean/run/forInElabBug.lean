@@ -1,4 +1,4 @@
-import Std
+import Bootstrap
 
 namespace Std.BinomialHeapImp
 

@@ -1,4 +1,4 @@
-import Std.System.Uri
+import Bootstrap.System.Uri
 
 open Lean
 open System.Uri

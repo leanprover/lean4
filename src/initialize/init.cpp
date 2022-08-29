@@ -18,7 +18,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 extern "C" object* initialize_Init(object* w);
-extern "C" object* initialize_Std(object* w);
+extern "C" object* initialize_Bootstrap(object* w);
 extern "C" object* initialize_Lean(object* w);
 
 /* Initializes the Lean runtime. Before executing any code which uses the Lean package,
@@ -28,7 +28,7 @@ extern "C" LEAN_EXPORT void lean_initialize() {
     save_stack_info();
     initialize_util_module();
     consume_io_result(initialize_Init(io_mk_world()));
-    consume_io_result(initialize_Std(io_mk_world()));
+    consume_io_result(initialize_Bootstrap(io_mk_world()));
     consume_io_result(initialize_Lean(io_mk_world()));
     initialize_kernel_module();
     init_default_print_fn();

@@ -1,4 +1,4 @@
-import Std.ShareCommon
+import Bootstrap.ShareCommon
 
 open Std
 def check (b : Bool) : ShareCommonT IO Unit := do

@@ -34,6 +34,3 @@ def pop [Inhabited α] (s : Stack α) : Stack α :=
 
 def modify [Inhabited α] (s : Stack α) (f : α → α) : Stack α :=
   { s with vals := s.vals.modify (s.vals.size-1) f }
-
-end Stack
-end Std

@@ -36,6 +36,3 @@ def dequeue? (q : Queue α) : Option (α × Queue α) :=
     match q.eList.reverse with
     | []    => none
     | d::ds => some (d, { eList := [], dList := ds })
-
-end Queue
-end Std

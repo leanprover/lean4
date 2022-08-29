@@ -3,7 +3,7 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Std.Data.RBMap
+import Bootstrap.Data.RBMap
 namespace Std
 universe u v w
 
@@ -114,4 +114,3 @@ end RBTree
 
 def rbtreeOf {α : Type u} (l : List α) (cmp : α → α → Ordering) : RBTree α cmp :=
   RBTree.fromList l cmp
-end Std

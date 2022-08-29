@@ -348,6 +348,3 @@ def Stats.toString (s : Stats) : String :=
   s!"\{ nodes := {s.numNodes}, null := {s.numNull}, collisions := {s.numCollisions}, depth := {s.maxDepth}}"
 
 instance : ToString Stats := ⟨Stats.toString⟩
-
-end PersistentHashMap
-end Std

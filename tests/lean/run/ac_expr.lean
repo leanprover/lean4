@@ -1,4 +1,4 @@
-import Std
+import Bootstrap
 
 inductive Expr where
   | var (i : Nat)

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 rm -r stage0 || true
-for pkg in Init Std Lean; do
+for pkg in Init Bootstrap Lean; do
     # ensure deterministic ordering
     c_files="$pkg.c $(cd src; find $pkg -name '*.lean' | sed 's/\.lean/.c/' | LC_ALL=C sort | tr '\n' ' ')"
     for f in $c_files; do mkdir -p $(dirname stage0/stdlib/$f); cp ${CP_PARAMS:-} $CSRCS/$f stage0/stdlib/$f; done

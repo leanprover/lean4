@@ -1,4 +1,4 @@
-import Std
+import Bootstrap
 
 inductive NEList (α : Type)
   | uno  : α → NEList α

@@ -1,4 +1,4 @@
-import Std
+import Bootstrap
 
 def check (x : IO Nat) (expected : IO Nat) : IO Unit := do
 unless (← x) == (← expected) do

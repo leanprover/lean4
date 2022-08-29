@@ -234,6 +234,3 @@ def ofArray (le : α → α → Bool) (as : Array α) : BinomialHeap α le :=
 /-- O(n) -/
 @[inline] def toArrayUnordered : BinomialHeap α le → Array α
   | ⟨b, _⟩ => BinomialHeapImp.toArrayUnordered b
-
-end BinomialHeap
-end Std

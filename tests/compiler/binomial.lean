@@ -1,4 +1,4 @@
-import Std.Data.BinomialHeap
+import Bootstrap.Data.BinomialHeap
 
 open Std
 

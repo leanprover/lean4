@@ -171,6 +171,14 @@ def g : List (Nat → Nat) := [(· + 2)]
 #eval g <*> pure y = pure (· y) <*> g      -- true
 /-!
 
+You can prove this with the following theorem:
+-/
+example [Applicative m] [LawfulApplicative m] (u : m (α → β)) (y : α) :
+  u <*> pure y = pure (· y) <*> u :=
+  by simp [pure_seq] -- Goals accomplished 🎉
+
+/-!
+
 ### Composition:
 
 `u <*> v <*> w = u <*> (v <*> w)`

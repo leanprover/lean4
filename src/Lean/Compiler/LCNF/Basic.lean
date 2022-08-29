@@ -126,13 +126,19 @@ private unsafe def updateAltImp (alt : Alt) (ps' : Array Param) (k' : Code) : Al
 
 @[implementedBy updateFunImp] opaque Code.updateFun! (c : Code) (decl' : FunDecl) (k' : Code) : Code
 
-/-
-@[inline] private unsafe def updateCases (cases : Cases) (decl' : FunDecl) (k' : Code) : Cases :=
+@[inline] private unsafe def updateReturnImp (c : Code) (fvarId' : FVarId) : Code :=
   match c with
-  | .fun decl k => if ptrEq k k' && ptrEq decl decl' then c else .fun decl' k'
-  | .jp decl k => if ptrEq k k' && ptrEq decl decl' then c else .jp decl' k'
+  | .return fvarId => if fvarId == fvarId' then c else .return fvarId'
   | _ => unreachable!
--/
+
+@[implementedBy updateReturnImp] opaque Code.updateReturn! (c : Code) (fvarId' : FVarId) : Code
+
+@[inline] private unsafe def updateJmpImp (c : Code) (fvarId' : FVarId) (args' : Array Expr) : Code :=
+  match c with
+  | .jmp fvarId args => if fvarId == fvarId' && ptrEq args args' then c else .jmp fvarId' args'
+  | _ => unreachable!
+
+@[implementedBy updateJmpImp] opaque Code.updateJmp! (c : Code) (fvarId' : FVarId) (args' : Array Expr) : Code
 
 def Code.isDecl : Code → Bool
   | .let .. | .fun .. | .jp .. => true

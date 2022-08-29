@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Util.Recognizers
 import Lean.Compiler.InlineAttrs
 import Lean.Compiler.LCNF.CompilerM
+import Lean.Compiler.LCNF.ElimDead
 import Lean.Compiler.LCNF.Stage1
 
 namespace Lean.Compiler.LCNF
@@ -102,6 +103,10 @@ structure State where
   -/
   subst : FVarSubst := {}
   /--
+  Track used local declarations to be able to eliminate dead variables.
+  -/
+  used : UsedLocalDecls := {}
+  /--
   Mapping used to decide whether a local function declaration must be inlined or not.
   -/
   funDeclInfoMap : FunDeclInfoMap := {}
@@ -184,10 +189,22 @@ def simpAppApp? (e : Expr) : OptionT SimpM Expr := do
   markSimplified
   return mkAppN f e.getAppArgs
 
+def incVisited : SimpM Unit :=
+  modify fun s => { s with visited := s.visited + 1 }
+
+def markUsedFVar (fvarId : FVarId) : SimpM Unit :=
+  modify fun s => { s with used := s.used.insert fvarId }
+
 mutual
 
-partial def simp (code : Code) : SimpM Code :=
+partial def simp (code : Code) : SimpM Code := do
+  -- TODO
+  incVisited
   match code with
+  | .return fvarId =>
+    markUsedFVar fvarId
+    return code
+  | .unreach .. => return code
   | _ => return code
 
 end

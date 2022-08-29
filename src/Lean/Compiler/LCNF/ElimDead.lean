@@ -6,29 +6,33 @@ Authors: Leonardo de Moura
 import Lean.Compiler.LCNF.CompilerM
 
 namespace Lean.Compiler.LCNF
-namespace ElimDead
 
-abbrev UsedSet := FVarIdHashSet
+abbrev UsedLocalDecls := FVarIdHashSet
 
 /--
 Collect set of (let) free variables in a LCNF value.
 This code exploits the LCNF property that local declarations do not occur in types.
 -/
-def collectExpr (s : UsedSet) (e : Expr) : UsedSet :=
-  match e with
-  | .proj _ _ e => collectExpr s e
-  | .forallE .. => s
-  | .lam _ _ b _ => collectExpr s b
-  | .letE .. => unreachable! -- Valid LCNF does not contain `let`-declarations
-  | .app f a => collectExpr (collectExpr s a) f
-  | .mdata _ b => collectExpr s b
-  | .fvar fvarId => s.insert fvarId
-  | _ => s
+def collectLocalDecls (s : UsedLocalDecls) (e : Expr) : UsedLocalDecls :=
+  go s e
+where
+  go (s : UsedLocalDecls) (e : Expr) : UsedLocalDecls :=
+    match e with
+    | .proj _ _ e => go s e
+    | .forallE .. => s
+    | .lam _ _ b _ => go s b
+    | .letE .. => unreachable! -- Valid LCNF does not contain `let`-declarations
+    | .app f a => go (go s a) f
+    | .mdata _ b => go s b
+    | .fvar fvarId => s.insert fvarId
+    | _ => s
 
-abbrev M := StateRefT UsedSet CompilerM
+namespace ElimDead
+
+abbrev M := StateRefT UsedLocalDecls CompilerM
 
 private abbrev collectExprM (e : Expr) : M Unit :=
-  modify (collectExpr · e)
+  modify (collectLocalDecls · e)
 
 private abbrev collectFVarM (fvarId : FVarId) : M Unit :=
   modify (·.insert fvarId)

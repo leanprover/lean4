@@ -89,7 +89,9 @@ where
           return alt.updateAlt! ps (← go k)
         | .default k => withNewScope do return alt.updateCode (← go k)
       return code.updateCases! resultType discr alts
-    | .return .. | .jmp .. | .unreach .. => return code
+    | .return fvarId => return code.updateReturn! ((← getSubst).applyToFVar fvarId)
+    | .jmp fvarId args => return code.updateJmp! ((← getSubst).applyToFVar fvarId) (← args.mapMonoM fun arg => return (← getSubst).applyToExpr arg)
+    | .unreach .. => return code
 
 /--
 Common sub-expression elimination

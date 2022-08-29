@@ -54,7 +54,7 @@ of `pure` is the `Option` type:
 /-!
 
 Here we used the `Option` implementation of `pure` to wrap the `Nat 10` value in an `Option Nat`
-type resulting in the value `some 10`, and in fact if you look at the Monad instance of Option, you
+type resulting in the value `some 10`, and in fact if you look at the Monad instance of `Option` , you
 will see that `pure` is indeed implemented using `Option.some`:
 
 -/
@@ -96,20 +96,13 @@ You then might wonder how to use the `Functor.map` to solve this since we could 
 #eval (· * 5) <$> (some 4)   -- some 20
 /-!
 
-Remember that `<$>` is the infix notation for `Functor.map`.  Lean is very powerful and lets you
-define your own syntax, so `<$>` is nothing special.  You can define your own infix operator like this:
+Remember that `<$>` is the infix notation for `Functor.map`.
 
--/
-infixr:100 " doodle " => Functor.map
-
-#eval (· * 5) doodle (some 4)   -- some 20
-/-!
-
-The functor map operation can apply a multiplication to the value in the Option and then lift the
-result back up to become a new Option, but this isn't what we need here.
+The functor map operation can apply a multiplication to the value in the `Option` and then lift the
+result back up to become a new `Option` , but this isn't what we need here.
 
 The `Seq.seq` operator `<*>` can help since it can apply a function to the items inside our
-container and then lift the result back up to our desired type, namely Option.
+container and then lift the result back up to our desired type, namely `Option` .
 
 There are two ways to do this:
 
@@ -120,12 +113,12 @@ There are two ways to do this:
 /-!
 
 In the first way, we start off by wrapping our function in an applicative using pure. Then we apply
-this to the first Option, and again to the second Option in a chain of operations.  So  you can see
+this to the first `Option` , and again to the second `Option`  in a chain of operations.  So  you can see
 how `Seq.seq` can be chained in fact, `Seq.seq` is really all about chaining of operations.
 
 But in this case there is a simpler way.  In the second way, we observe that "applying" a single
 function to a container is the same as using `Functor.map`. So we use `<$>` to "transform" the first
-option into an Option containing a function, and then apply this function over our second value.
+option into an `Option`  containing a function, and then apply this function over our second value.
 
 Now if either side is `none`, our result is `none`, as expected, and in this case the
 `seq` operator was able to eliminate the multiplication:
@@ -135,7 +128,7 @@ Now if either side is `none`, our result is `none`, as expected, and in this cas
 #eval (.*.) <$> some 4 <*> none  -- none
 /-!
 
-For a more interesting example, let's make `List` an Applicative by adding the following
+For a more interesting example, let's make `List` an applicative by adding the following
 definition:
 
 -/
@@ -146,7 +139,7 @@ instance : Applicative List where
 
 Notice we can now sequence a _list_ of functions and a _list_ of items.
 The trivial case of sequencing a singleton list is in fact the same as map as we saw
-earlier with the Option examples:
+earlier with the `Option`  examples:
 
 -/
 #eval [(·+2)] <*> [4, 6] -- [6, 8]
@@ -279,8 +272,8 @@ But you will need to understand full Monads before this will make sense.
 ## Lazy Evaluation
 
 Diving a bit deeper, (you can skip this and jump to the [Applicative
-Laws](#what-are-the-applicative-laws) if don't want to dive into this implementation detail right
-now). But, if you write our simple Option example `(.*.) <$> some 4 <*> some 5` that produces `some 20`
+Laws](laws.lean.md#what-are-the-applicative-laws) if don't want to dive into this implementation detail right
+now). But, if you write our simple `Option`  example `(.*.) <$> some 4 <*> some 5` that produces `some 20`
 using `Seq.seq` you will see somthing interesting:
 
 -/

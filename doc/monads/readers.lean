@@ -125,7 +125,7 @@ The above code also introduces an important idea. Whenever you learn about a mon
 often (but not always) a `run` function to execute that monad, and sometimes some additional
 functions like `read` that interact with the monad state.
 
-You might be wondering, how does the state actually move through the ReaderM monad? How can
+You might be wondering, how does the state actually move through the `ReaderM` monad? How can
 you add an input argument to a function by modifying it's return type?  There is a special
 command in the Lean interpreter that will show you the reduced Types:
 -/
@@ -135,20 +135,20 @@ And you can see here that this type is actually a function!  It's a function tha
 `Environment` as input and returns a `String`.  So, remember in Lean that a function that takes
 argument a and returns a string: `def f (a: Nat) → String` is the same as the function that takes no
 arguments and returns another function of type `Nat → String`.  Well this fact is being used by the
-ReaderM Monad to add an input argument to all the functions that use the ReaderM monad and this is why
+ReaderM Monad to add an input argument to all the functions that use the `ReaderM` monad and this is why
 `main` is able to start things off by simply passing that new input argument in `readerFunc3 env`.
-So now that you know the implementation details of the ReaderM monad you can see that what it is
+So now that you know the implementation details of the `ReaderM` monad you can see that what it is
 doing looks very much like the original code we wrote at the beginning of this section, only it's
 taking a lot of the tedious work off your plate and it is creating a nice clean separation between
-what your pure functions are doing, and the global state idea that the Reader adds.
+what your pure functions are doing, and the global state idea that the `ReaderM` adds.
 
 ## Conclusion
 
-It might not seem like we've accomplished much with this `Reader Environment` monad, but you will
+It might not seem like we've accomplished much with this `ReaderM Environment` monad, but you will
 find that in larger code bases, with many different types of monads all composed together this
 greatly cleans up the code. Monads provide a beautiful functional way of managing cross-cutting
 concerns that would otherwise make your code very messy.
 
-Now it's time to move on to [State Monad](states.lean.md) which is like a `ReaderM` that is
+Now it's time to move on to [StateM Monad](states.lean.md) which is like a `ReaderM` that is
 also updatable.
 -/

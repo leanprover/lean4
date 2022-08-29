@@ -34,7 +34,7 @@ class Bind (f : Type u → Type v) where
 The `bind` operator also has infix notation `>>=` where `x >>= g` represents the result of
 executing `x` to get a value of type `f α` then unwrapping the value `α` from that and
 passing it to function `g` of type `α → f β` returning the result of type `f β` where
-`f` is our structure type (like Option or List)
+`f` is our structure type (like `Option`  or List)
 
 This `bind` operation looks similar to the other ones we've seen so far, if we put
 them all together Monad has the following operations:
@@ -163,11 +163,13 @@ def runOptionFuncsDo (input: String) : Option (List Nat) := do
   let f ← optionFunc2 i
   optionFunc3 f
 
+
+
 #eval runOptionFuncsDo "big" -- some [9, 10]
 /-!
 
 Note you can use `<-` or the nice unicode symbol `←` which you can type into VS code by typing
-these characters `\<- `.  When you type the final space, `\<-` is replaced with `←`.
+these characters `\l `.  When you type the final space, `\l` is replaced with `←`.
 
 The `←` operator is special. It effectively unwraps the value on the right-hand side from the monad.
 This means the value `i` has type `Nat`, _even though_ the result of `optionFunc1` is `Option Nat`.

@@ -46,7 +46,7 @@ as you will see below.
 
 Functors have two laws: the _identity_ law, and the _composition_ law. These laws express behaviors that
 your functor instances should follow. If they don't, other programmers will be very confused at the
-effect your instances have on the program. Many structures have similar laws, including monads.
+effect your instances have on their program. Many structures have similar laws, including monads.
 
 The identity law says that if you "map" the identity function (`id`) over your functor, the
 resulting functor should be the same. A succinct way of showing this on a `List` functor is:
@@ -92,9 +92,9 @@ Note that composition also fails on our bad `Point` because the x/y transpose.
 As you can see this bad `Point` implementation violates both of the functor laws. In this case it
 would not be a true functor. Its behavior would confuse any other programmers trying to use it. You
 should take care to make sure that your instances make sense. Once you get a feel for these type
-classes, the likelihood is that the instances you'll create follow the laws.
+classes, the likelihood is that the instances you'll create will follow the laws.
 
-Hopefully this explains the value of these laws.  We won't show any more bad implementations!
+Hopefully this explains the value of these laws, and so we won't show any more bad implementations!
 
 ## What are the Applicative Laws?
 
@@ -238,9 +238,11 @@ def z := 5
 #eval pure z >>= h                  -- some 6
 #eval h z                           -- some 6
 
--- so in this example with this specific `z` and `h` we see that the rule holds true:
 #eval pure z >>= h = h x            -- true
 /-!
+
+So in this example, with this specific `z` and `h`, we see that the rule holds true.
+
 
 ### Associativity
 
@@ -290,7 +292,7 @@ While these laws may be a bit difficult to understand just by looking at them, t
 most of the instances you'll make will naturally follow the laws so long as you keep it simple, so
 you shouldn't have to worry about them too much.
 
-So in summary, there are two main ideas from all the laws:
+There are two main ideas from all the laws:
 
 1. Applying the identity or pure function should not change the underlying values or structure.
 1. It should not matter what order we group operations in.  Another way to state this is function

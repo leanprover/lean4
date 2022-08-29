@@ -34,8 +34,17 @@ Lean also defines custom infix operator `<$>` for map which simply allows you to
 #eval (λ x => toString x) <$> [1, 2, 3] -- ["1", "2", "3"]
 /-!
 
-In this `Functor`, `map` is called a "higher order function" because it takes
-a function as input `(α → β)` and returns another function as output `F α → F β`.
+In this `Functor`, `map` is called a "higher order function" because it takes a function as input
+`(α → β)` and returns another function as output `F α → F β`.
+
+Note that Lean is very powerful and lets you define your own syntax, so `<$>` is nothing special.
+You can define your own infix operator like this:
+
+-/
+infixr:100 " doodle " => Functor.map
+
+#eval (· * 5) doodle [1, 2, 3]  -- [5, 10, 15]
+/-!
 
 Let's look at some more examples:
 
@@ -169,11 +178,11 @@ and now bringing it all together you can use the simple function `squareFeetToMe
 
 Wow, this is pretty powerful.  By providing a functor instance on `LivingSpace` with an
 implementation of the `map` function we have made it super easy for anyone to come alone and
-transform the units of a `LivingSpace` using very simple functions like `squareFeetToMeters`.
-Notice that squareFeetToMeters knows nothing about `LivingSpace`.
+transform the units of a `LivingSpace` using very simple functions like `squareFeetToMeters`. Notice
+that squareFeetToMeters knows nothing about `LivingSpace`.
 
-You can implement the `Functor` pattern in other languages, people have even done it in C++,
-but it is very clean and elegant in Lean.
+You can implement the `Functor` pattern in other languages, people have even done it in C++, but it
+is very clean and elegant in Lean.
 
 # How do Functors help with Monads ?
 
@@ -187,17 +196,16 @@ class Functor (f : Type u → Type v) : Type (max (u+1) v) where
   mapConst : {α β : Type u} → α → f β → f α
 ```
 
+Note that `mapConst` has a default implementation, namely:
+`mapConst : {α β : Type u} → α → f β → f α := Function.comp map (Function.const _)` in the `Functor`
+type class.  So you can use this default implementation and you only need to replace it if
+your Functors has a more specialized variant than this which is more performant.
+
 In general then, a functor is a function on types `F : Type u → Type v` equipped with an operator
 called `map` such that if you have a function `f` of type `α → β` then `map f` will convert your
-container type from `F α → F β`.
-This corresponds to the category-theory notion of
+container type from `F α → F β`. This corresponds to the category-theory notion of
 [functor](https://en.wikipedia.org/wiki/Functor) in the special case where the category is the
 category of types and functions between them.
-
-This `Functor` has particular "laws" associated with it that dictate its expected behavior. Monads
-are the same way! However, functors are simpler to understand. The functor type class has only the
-`map` function and two straightforward laws. We can easily visualize what they do. Monads meanwhile
-have multiple functions and several more complicated laws.
 
 Understanding abstract mathematical structures is a little tricky for most people. So it helps to
 start with a simpler idea like functors before we try to understand monads.

@@ -189,18 +189,18 @@ instances in order to make your code compile and in this way it was able to find
 function and use it to wrap the result of `divide` so that the correct type is returned from
 `divideCounter`.
 
-If we have an instance `MonadLiftT m n` that means there is a way to turn a computation that happens
+If we have an instance `MonadLift m n` that means there is a way to turn a computation that happens
 inside of `m` into one that happens inside of `n` and (this is the key part) usually *without* the
 instance itself creating any additional data that feeds into the computation. This means you can in
 principle declare lifting instances from any monad to any other monad, it does not, however, mean
 that you should do this in all cases.  You can get a report from Lean of how all this was done by
-uncommenting the line `set_option trace.Meta.synthInstance true in` before main and moving the
+add the line `set_option trace.Meta.synthInstance true in` before main and moving the
 cursor to the end of the first line after `do` and you will see a nice detailed report.
 
 This was a lot of detail, but it is very important to understand how monad lifting works because it
 is used heavily in Lean programs.
 
-## Transative lifting
+## Transitive lifting
 
 There is also a transitive version of `MonadLift` called `MonadLiftT` which can lift multiple
 monad layers at once.  In the following example we added another monad layer with

@@ -48,3 +48,24 @@ where
       let b ← f as[i]
       go (i+1) ⟨acc.val.push b, by simp [acc.property]⟩ hlt
 termination_by go i _ _ => as.size - i
+
+@[inline] private unsafe def mapMonoMImp [Monad m] (as : Array α) (f : α → m α) : m (Array α) :=
+  go 0 as
+where
+  @[specialize] go (i : Nat) (as : Array α) : m (Array α) := do
+    if h : i < as.size then
+      let a := as[i]
+      let b ← f a
+      if ptrEq a b then
+        go (i+1) as
+      else
+        go (i+1) (as.set ⟨i, h⟩ b)
+    else
+      return as
+
+/--
+Monomorphic `Array.mapM`. The internal implementation uses pointer equality, and does not allocate a new array
+if the result of each `f a` is a pointer equal value `a`.
+-/
+@[implementedBy mapMonoMImp] def Array.mapMonoM [Monad m] (as : Array α) (f : α → m α) : m (Array α) :=
+  as.mapM f

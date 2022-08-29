@@ -1,4 +1,4 @@
-import Std
+import Bootstrap
 open Std
 
 deriving instance TypeName for Nat

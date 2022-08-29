@@ -10,6 +10,11 @@ namespace Lean.Compiler.LCNF
 
 namespace InferType
 
+/-
+Type inference algorithm for LCNF. Invoked by the LCNF type checker
+to check correctness of LCNF IR.
+-/
+
 /--
 We use a regular local context to store temporary local declarations
 created during type inference.

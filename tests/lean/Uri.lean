@@ -1,5 +1,3 @@
-import Std.System.Uri
-
 open Lean
 open System.Uri
 

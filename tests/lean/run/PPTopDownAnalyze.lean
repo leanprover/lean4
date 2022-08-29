@@ -308,10 +308,10 @@ def takesStrictMotive ⦃motive : Nat → Type⦄ {n : Nat} (x : motive n) : mot
 #testDelab @takesStrictMotive (fun x => Unit) 0 expecting takesStrictMotive (motive := fun x => Unit) (n := 0)
 #testDelab @takesStrictMotive (fun x => Unit) 0 () expecting takesStrictMotive (motive := fun x => Unit) (n := 0) ()
 
-def stackMkInjEqSnippet :=
-  fun {α : Type} (xs : Array α) => Eq.ndrec (motive := fun _ => (Std.Stack.mk xs = Std.Stack.mk xs)) (Eq.refl (Std.Stack.mk xs)) (rfl : xs = xs)
+def arrayMkInjEqSnippet :=
+  fun {α : Type} (xs : List α) => Eq.ndrec (motive := fun _ => (Array.mk xs = Array.mk xs)) (Eq.refl (Array.mk xs)) (rfl : xs = xs)
 
-#testDelabN stackMkInjEqSnippet
+#testDelabN arrayMkInjEqSnippet
 
 def typeAs (α : Type u) (a : α) := ()
 
@@ -346,7 +346,7 @@ set_option pp.analyze.trustSubtypeMk true in
 #testDelabN Lean.Elab.InfoTree.goalsAt?.match_1
 #testDelabN Std.ShareCommon.ObjectMap.find?
 #testDelabN Std.ShareCommon.ObjectMap.insert
-#testDelabN Std.Stack.mk.injEq
+#testDelabN Array.mk.injEq
 #testDelabN Lean.PrefixTree.empty
 #testDelabN Std.PersistentHashMap.getCollisionNodeSize.match_1
 #testDelabN Std.HashMap.size.match_1

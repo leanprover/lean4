@@ -9,7 +9,6 @@ import Lean.Data.Lsp
 import Lean.Server.InfoUtils
 import Init.System.FilePath
 import Lean.Parser.Basic
-import Bootstrap.System.Uri
 
 namespace IO
 

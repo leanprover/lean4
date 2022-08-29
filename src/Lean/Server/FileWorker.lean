@@ -6,7 +6,6 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 import Init.System.IO
 import Bootstrap.Data.RBMap
-import Bootstrap.System.Uri
 
 import Lean.Environment
 

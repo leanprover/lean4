@@ -344,15 +344,10 @@ set_option pp.analyze.trustSubtypeMk true in
 #testDelabN MonadExcept.noConfusion
 #testDelabN MonadFinally.noConfusion
 #testDelabN Lean.Elab.InfoTree.goalsAt?.match_1
-#testDelabN Std.ShareCommon.ObjectMap.find?
-#testDelabN Std.ShareCommon.ObjectMap.insert
 #testDelabN Array.mk.injEq
 #testDelabN Lean.PrefixTree.empty
 #testDelabN Std.PersistentHashMap.getCollisionNodeSize.match_1
 #testDelabN Std.HashMap.size.match_1
-
--- TODO: for some reason this *only* works when trusting subst
-set_option pp.analyze.trustSubst true in
 #testDelabN and_false
 
 -- TODO: this one prints out a structure instance with keyword field `end`

@@ -26,89 +26,65 @@ unsafe def Object.ptrEq (a b : Object) : Bool :=
 unsafe abbrev Object.ptrHash (a : Object) : UInt64 :=
   ptrAddrUnsafe a |>.toUInt64
 
+structure StateFactoryImpl where
+  (Map Set : Type)
+  mkState : Unit → Map × Set
+  mapFind? (m : Map) (k : Object) : Option Object
+  mapInsert (m : Map) (k v : Object) : Map
+  setFind? (m : Set) (k : Object) : Option Object
+  setInsert (m : Set) (o : Object) : Set
+
+opaque StateFactoryPointed : NonemptyType
+abbrev StateFactory : Type := StateFactoryPointed.type
+instance : Nonempty StateFactory := StateFactoryPointed.property
+
+unsafe def StateFactory.mk : StateFactoryImpl → StateFactory := unsafeCast
+unsafe def StateFactory.get : StateFactory → StateFactoryImpl := unsafeCast
+
 @[extern "lean_sharecommon_eq"]
 unsafe opaque Object.eq (a b : @& Object) : Bool
 
 @[extern "lean_sharecommon_hash"]
 unsafe opaque Object.hash (a : @& Object) : UInt64
 
-unsafe def ObjectMap : Type := @HashMap Object Object ⟨Object.ptrEq⟩ ⟨Object.ptrHash⟩
-unsafe def ObjectSet : Type := @HashSet Object ⟨Object.eq⟩ ⟨Object.hash⟩
-unsafe def ObjectPersistentMap : Type := @PersistentHashMap Object Object ⟨Object.ptrEq⟩ ⟨Object.ptrHash⟩
-unsafe def ObjectPersistentSet : Type := @PersistentHashSet Object ⟨Object.eq⟩ ⟨Object.hash⟩
+unsafe def objectFactoryImpl : StateFactory :=
+  StateFactory.mk {
+    Map := @HashMap Object Object ⟨Object.ptrEq⟩ ⟨Object.ptrHash⟩
+    Set := @HashSet Object ⟨Object.eq⟩ ⟨Object.hash⟩
+    mkState := fun _ => (
+      @mkHashMap Object Object ⟨Object.ptrEq⟩ ⟨Object.ptrHash⟩ 1024,
+      @mkHashSet Object ⟨Object.eq⟩ ⟨Object.hash⟩ 1024)
+    mapFind? := @HashMap.find? Object Object ⟨Object.ptrEq⟩ ⟨Object.ptrHash⟩
+    mapInsert := @HashMap.insert Object Object ⟨Object.ptrEq⟩ ⟨Object.ptrHash⟩
+    setFind? := @HashSet.find? Object ⟨Object.eq⟩ ⟨Object.hash⟩
+    setInsert := @HashSet.insert Object ⟨Object.eq⟩ ⟨Object.hash⟩
+  }
+@[implementedBy objectFactoryImpl] opaque objectFactory : StateFactory
 
-@[export lean_mk_object_map]
-unsafe def mkObjectMap : Unit → ObjectMap :=
-  fun _ => @mkHashMap Object Object ⟨Object.ptrEq⟩ ⟨Object.ptrHash⟩ 1024
-
-@[export lean_object_map_find]
-unsafe def ObjectMap.find? (m : ObjectMap) (k : Object) : Option Object :=
-  @HashMap.find? Object Object ⟨Object.ptrEq⟩ ⟨Object.ptrHash⟩ m k
-
-@[export lean_object_map_insert]
-unsafe def ObjectMap.insert (m : ObjectMap) (k v : Object) : ObjectMap :=
-  @HashMap.insert Object Object ⟨Object.ptrEq⟩ ⟨Object.ptrHash⟩ m k v
-
-@[export lean_mk_object_set]
-unsafe def mkObjectSet : Unit → ObjectSet :=
-  fun _ => @mkHashSet Object ⟨Object.eq⟩ ⟨Object.hash⟩ 1024
-
-@[export lean_object_set_find]
-unsafe def ObjectSet.find? (s : ObjectSet) (o : Object) : Option Object :=
-  @HashSet.find? Object ⟨Object.eq⟩ ⟨Object.hash⟩ s o
-
-@[export lean_object_set_insert]
-unsafe def ObjectSet.insert (s : ObjectSet) (o : Object) : ObjectSet :=
-  @HashSet.insert Object ⟨Object.eq⟩ ⟨Object.hash⟩ s o
-
-@[export lean_mk_object_pmap]
-unsafe def mkObjectPersistentMap : Unit → ObjectPersistentMap :=
-  fun _ => @PersistentHashMap.empty Object Object ⟨Object.ptrEq⟩ ⟨Object.ptrHash⟩
-
-@[export lean_object_pmap_find]
-unsafe def ObjectPersistentMap.find? (m : ObjectPersistentMap) (k : Object) : Option Object :=
-  @PersistentHashMap.find? Object Object ⟨Object.ptrEq⟩ ⟨Object.ptrHash⟩ m k
-
-@[export lean_object_pmap_insert]
-unsafe def ObjectPersistentMap.insert (m : ObjectPersistentMap) (k v : Object) : ObjectPersistentMap :=
-  @PersistentHashMap.insert Object Object ⟨Object.ptrEq⟩ ⟨Object.ptrHash⟩ m k v
-
-@[export lean_mk_object_pset]
-unsafe def mkObjectPersistentSet : Unit → ObjectPersistentSet :=
-  fun _ => @PersistentHashSet.empty Object ⟨Object.eq⟩ ⟨Object.hash⟩
-
-@[export lean_object_pset_find]
-unsafe def ObjectPersistentSet.find? (s : ObjectPersistentSet) (o : Object) : Option Object :=
-  @PersistentHashSet.find? Object ⟨Object.eq⟩ ⟨Object.hash⟩ s o
-
-@[export lean_object_pset_insert]
-unsafe def ObjectPersistentSet.insert (s : ObjectPersistentSet) (o : Object) : ObjectPersistentSet :=
-  @PersistentHashSet.insert Object ⟨Object.eq⟩ ⟨Object.hash⟩ s o
+unsafe def persistentObjectFactoryImpl : StateFactory :=
+  StateFactory.mk {
+    Map := @PersistentHashMap Object Object ⟨Object.ptrEq⟩ ⟨Object.ptrHash⟩
+    Set := @PersistentHashSet Object ⟨Object.eq⟩ ⟨Object.hash⟩
+    mkState := fun _ => (
+      @PersistentHashMap.empty Object Object ⟨Object.ptrEq⟩ ⟨Object.ptrHash⟩,
+      @PersistentHashSet.empty Object ⟨Object.eq⟩ ⟨Object.hash⟩)
+    mapFind? := @PersistentHashMap.find? Object Object ⟨Object.ptrEq⟩ ⟨Object.ptrHash⟩
+    mapInsert := @PersistentHashMap.insert Object Object ⟨Object.ptrEq⟩ ⟨Object.ptrHash⟩
+    setFind? := @PersistentHashSet.find? Object ⟨Object.eq⟩ ⟨Object.hash⟩
+    setInsert := @PersistentHashSet.insert Object ⟨Object.eq⟩ ⟨Object.hash⟩
+  }
+@[implementedBy persistentObjectFactoryImpl] opaque persistentObjectFactory : StateFactory
 
 /-- Internally `State` is implemented as a pair `ObjectMap` and `ObjectSet` -/
-opaque StatePointed : NonemptyType
-abbrev State : Type u := StatePointed.type
-@[extern "lean_sharecommon_mk_state"]
-opaque mkState : Unit → State := fun _ => Classical.choice StatePointed.property
-def State.empty : State := mkState ()
-instance State.inhabited : Inhabited State := ⟨State.empty⟩
+opaque StatePointed (σ : StateFactory) : NonemptyType
+abbrev State (σ : StateFactory) : Type u := (StatePointed σ).type
+instance : Nonempty (State σ) := (StatePointed σ).property
 
-/-- Internally `PersistentState` is implemented as a pair `ObjectPersistentMap` and `ObjectPersistentSet` -/
-opaque PersistentStatePointed : NonemptyType
-abbrev PersistentState : Type u := PersistentStatePointed.type
-@[extern "lean_sharecommon_mk_pstate"]
-opaque mkPersistentState : Unit → PersistentState := fun _ => Classical.choice PersistentStatePointed.property
-def PersistentState.empty : PersistentState := mkPersistentState ()
-instance PersistentState.inhabited : Inhabited PersistentState := ⟨PersistentState.empty⟩
-abbrev PState : Type u := PersistentState
+unsafe def mkStateImpl (σ : StateFactory) : State σ := unsafeCast (σ.get.mkState ())
+@[implementedBy mkStateImpl] opaque mkState (σ : StateFactory) : State σ
 
 @[extern "lean_state_sharecommon"]
-def State.shareCommon (s : State) (a : α) : α × State :=
-  (a, s)
-
-@[extern "lean_persistent_state_sharecommon"]
-def PersistentState.shareCommon (s : PersistentState) (a : α) : α × PersistentState :=
-  (a, s)
+def State.shareCommon {σ : @& StateFactory} (s : State σ) (a : α) : α × State σ := (a, s)
 
 end ShareCommon
 
@@ -120,10 +96,15 @@ abbrev withShareCommon := @MonadShareCommon.withShareCommon
 abbrev shareCommonM [MonadShareCommon m] (a : α) : m α :=
   withShareCommon a
 
-abbrev ShareCommonT (m : Type u → Type v)  := StateT ShareCommon.State m
-abbrev PShareCommonT (m : Type u → Type v) := StateT ShareCommon.PState m
+abbrev GShareCommonT (σ) (m : Type u → Type v) := StateT (ShareCommon.State σ) m
+abbrev GShareCommonM (σ) := GShareCommonT σ Id
+abbrev ShareCommonT := GShareCommonT ShareCommon.objectFactory
+abbrev PShareCommonT := GShareCommonT ShareCommon.persistentObjectFactory
 abbrev ShareCommonM := ShareCommonT Id
 abbrev PShareCommonM := PShareCommonT Id
+
+@[specialize] def GShareCommonT.withShareCommon [Monad m] (a : α) : GShareCommonT σ m α :=
+  modifyGet fun s => s.shareCommon a
 
 @[specialize] def ShareCommonT.withShareCommon [Monad m] (a : α) : ShareCommonT m α :=
   modifyGet fun s => s.shareCommon a
@@ -139,17 +120,15 @@ instance PShareCommonT.monadShareCommon [Monad m] : MonadShareCommon (PShareComm
   withShareCommon := PShareCommonT.withShareCommon
 }
 
-@[inline] def ShareCommonT.run [Monad m] (x : ShareCommonT m α) : m α :=
-  x.run' ShareCommon.State.empty
+@[inline] def GShareCommonT.run [Monad m] (x : GShareCommonT σ m α) : m α :=
+  x.run' (ShareCommon.mkState σ)
 
-@[inline] def PShareCommonT.run [Monad m] (x : PShareCommonT m α) : m α :=
-  x.run' ShareCommon.PersistentState.empty
+@[inline] def ShareCommonT.run [Monad m] (x : ShareCommonT m α) : m α := GShareCommonT.run x
+@[inline] def PShareCommonT.run [Monad m] (x : PShareCommonT m α) : m α := GShareCommonT.run x
 
-@[inline] def ShareCommonM.run (x : ShareCommonM α) : α :=
-  ShareCommonT.run x
-
-@[inline] def PShareCommonM.run (x : PShareCommonM α) : α :=
-  PShareCommonT.run x
+@[inline] def GShareCommonM.run (x : GShareCommonM σ α) : α := GShareCommonT.run x
+@[inline] def ShareCommonM.run (x : ShareCommonM α) : α := ShareCommonT.run x
+@[inline] def PShareCommonM.run (x : PShareCommonM α) : α := PShareCommonT.run x
 
 def shareCommon (a : α) : α :=
   (withShareCommon a : ShareCommonM α).run

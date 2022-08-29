@@ -1,6 +1,6 @@
-import Bootstrap.ShareCommon
+import Lean.Util.ShareCommon
 
-open Std
+open Lean.ShareCommon
 def check (b : Bool) : ShareCommonT IO Unit := do
 unless b do throw $ IO.userError "check failed"
 

@@ -132,6 +132,10 @@ structure State where
 
 abbrev SimpM := ReaderT Context $ StateRefT State CompilerM
 
+instance : MonadFVarSubst SimpM where
+  getSubst := return (← get).subst
+  modifySubst f := modify fun s => { s with subst := f s.subst }
+
 partial def updateFunDeclInfo (code : Code) (mustInline := false) : SimpM Unit :=
   go code
 where
@@ -202,8 +206,9 @@ partial def simp (code : Code) : SimpM Code := do
   incVisited
   match code with
   | .return fvarId =>
+    let fvarId ← normFVar fvarId
     markUsedFVar fvarId
-    return code
+    return code.updateReturn! fvarId
   | .unreach .. => return code
   | _ => return code
 

@@ -294,7 +294,7 @@ So in summary, there are two main ideas from all the laws:
 
 1. Applying the identity or pure function should not change the underlying values or structure.
 1. It should not matter what order we group operations in.  Another way to state this is function
-   composition should hold across our structures.
+   composition should hold across your structures.
 
 Following these laws will ensure other programmers are not confused by the bahavior of your
 new functors, applicatives and monads.

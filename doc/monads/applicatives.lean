@@ -20,7 +20,7 @@ structure between `Functor` and `Monad`. It mainly consists of two operations:
 * `pure : α → F α`
 * `seq : F (α → β) → F α → F β` (written as `<*>`)
 
-The `pure` operator tells us how we can wrap a normal object into an instance of this structure.
+The `pure` operator tells you how you can wrap a normal object into an instance of this structure.
 This is the "default" mechanism mentioned above.
 
 The `seq` operator gives a notion of evaluation order to the effects, where the first argument is
@@ -274,8 +274,7 @@ care about. It will be easier to see these in action when we get to full Monads,
 heavily in the Lean `Parsec` parser combinator library where you will find parsing functions like
 this one which parses the XML declaration `<?xml version="1.0" encoding='utf-8' standalone="yes">`:
 
-But you will need to understand full Monads before this will make sense.  So trust us for now,
-these will be useful later.
+But you will need to understand full Monads before this will make sense.
 
 ## Lazy Evaluation
 
@@ -307,7 +306,7 @@ The that `seq` is defined this way is because Lean is an eagerly evaluated langu
 evaluation and `seq` wants that so it can eliminate unnecessary function evaluations whenever
 possible.
 
-Fortunately the `<*>` infix notation hides this from us by creating this wrapper function for us.
+Fortunately the `<*>` infix notation hides this from you by creating this wrapper function for you.
 If you look up the notation using F12 in VS Code you will find it contains `(fun _ : Unit => b)`.
 
 Now to complete this picture you will find the default implementation of `seq` on the Lean `Monad`

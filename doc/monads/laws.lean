@@ -121,7 +121,7 @@ instance : Applicative List where
 /-!
 
 The `pure id` statement here is wrapping the identity function in our applicative structure
-so that we can apply that over our container `[1, 2, 3]` using the `seq` Applicative operation
+so that we can apply that over our container `[1, 2, 3]` using the Applicative `seq` operation
 which has the notation `<*>`.
 
 We can prove this for all values `v` and any applicative `m` with this theorem:
@@ -296,5 +296,7 @@ So in summary, there are two main ideas from all the laws:
 1. It should not matter what order we group operations in.  Another way to state this is function
    composition should hold across our structures.
 
+Following these laws will ensure other programmers are not confused by the bahavior of your
+new functors, applicatives and monads.
 
 -/

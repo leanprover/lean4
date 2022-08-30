@@ -145,7 +145,7 @@ def getWidgets (args : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsRes
   let doc ← readDoc
   let filemap := doc.meta.text
   let pos := filemap.lspPosToUtf8Pos args
-  withWaitFindSnapAtPos args fun snap => do
+  withWaitFindSnap doc (·.endPos >= pos) (notFoundX := return ⟨∅⟩) fun snap => do
     let env := snap.env
     let ws := widgetInfosAt? filemap snap.infoTree pos
     let ws ← ws.toArray.mapM (fun (w : UserWidgetInfo) => do

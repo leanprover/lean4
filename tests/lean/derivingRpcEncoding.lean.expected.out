@@ -1,4 +1,4 @@
-instTypeNameFooRef : Std.TypeName FooRef
+instTypeNameFooRef : TypeName FooRef
 ok: {"p": "0"}
 instRpcEncodableBar : RpcEncodable Bar
 ok: {"fooRef": {"p": "0"}, "fooJson": {"s": ""}}

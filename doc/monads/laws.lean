@@ -12,7 +12,7 @@ But there's still one more important concept you need if you want to _create_ ne
 applicatives and monads. Namely, the notion of _structural “laws”_ -- rules that these type
 classes should follow in order to meet other programmers' expectations about your code.
 
-# Life without Laws
+## Life without Laws
 
 Remember Lean represents each of our abstract classes by a type class. Each of these type classes
 has one or two main functions. So, as long as we implement those functions and it type checks, we

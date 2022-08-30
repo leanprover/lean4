@@ -6,13 +6,13 @@ Functor](https://en.wikipedia.org/wiki/Applicative_functor). For simplicity, you
 simply as "Applicatives". These are a little tricker than functors, but still simpler than monads.
 Let's see how they work!
 
-# What is an Applicative Functor?
+## What is an Applicative Functor?
 
 An applicative functor is an defines a default or "base" construction for an object and allows
 function application to be chained across multiple instances of the structure. All applicative
 functors are functors, meaning they must also support the "map" operation.
 
-# How are Applicatives represented in Lean?
+## How are Applicatives represented in Lean?
 
 An [applicative functor](https://en.wikipedia.org/wiki/Applicative_functor) is an intermediate
 structure between `Functor` and `Monad`. It mainly consists of two operations:

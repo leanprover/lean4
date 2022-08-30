@@ -24,16 +24,16 @@ structure Environment where
   user : String
   deriving Repr
 
-def getEnvDefault (name: String): IO String :=
-  return match (← IO.getEnv name) with
-  | none => ""
-  | some s => s
+def getEnvDefault (name: String): IO String := do
+  pure <| match (← IO.getEnv name) with
+          | none => ""
+          | some s => s
 
 def loadEnv : IO Environment := do
   let path ← getEnvDefault "PATH"
   let home ← getEnvDefault "HOME"
   let user ← getEnvDefault "USER"
-  return { path, home, user }
+  pure { path, home, user }
 
 def func1 (e : Environment) : Float :=
   let l1 := e.path.length
@@ -95,17 +95,32 @@ def main2 : IO Unit := do
 `main2` loads the environment as before, and estabilishes the `ReaderM` state by passing `env` to
 readerFunc3.  The `do` notation you learned about in [Monads](monads.lean.md) is hiding some things
 here.  Technically `readerFunc3` is a monadic action and in order to "run" that action the `ReaderM`
-monad provides a `run` method and it is the `ReaderM` run method that takes the initial `Environment`
-state.  So you can actually write the complete code by doing this: `let str := readerFunc3.run env`.
+monad provides a `run` method and it is the `ReaderM` run method that takes the initial
+`Environment` state.  So you can actually write the complete code by doing this: `let str :=
+readerFunc3.run env`.
 
-**Side note**: If the function `readerFunc3` also took some explicit arguments then you would have
+> **Side note 1**: The `return` statement used above also needs some explanation.  The `return`
+statement in Lean can only be used inside a `do` block and is closely related to `pure`, but a
+little different. First the similarity is that `return` and `pure` both lift a pure value up to the
+Monad type. But `return` is a keyword so you do not need to parenthesize the expression like you do
+when using `pure`.  (Note: you can avoid parentheses when using `pure` by using the `<|` operator
+like we did above in the initial `getEnvDefault` function).  Furthermore, `return` can also cause an
+early `return` in a monadic function similar to how it can in an imperative language while `pure`
+cannot.
+
+> So technically if `return` is the last statement in a function it could be replaced with `pure <|`,
+but one could argue that `return` is still a little easier for most folks to read, just so long as
+you understand that `return` is doing more than other languages, it is also wrapping pure values in
+the monadic container type.
+
+> **Side note 2**: If the function `readerFunc3` also took some explicit arguments then you would have
 to write `(readerFunc3 args).run env` and this is a bit ugly, so Lean provides an infix operator
 `|>` that eliminiates those parens so you can write `readerFunc3 args |>.run env` and then you can
 chain multiple monadic actions like this `m1 args1 |>.run args2 |>.run args3` and this is the
 recommended style.  You will see this patten used heavily in Lean code.
 
-The `let env ← read` expression in `readerFunc1` unwraps the environment from the `ReaderM` so we can
-use it. Each type of monad might provide one or more extra functions like this, functions that
+The `let env ← read` expression in `readerFunc1` unwraps the environment from the `ReaderM` so we
+can use it. Each type of monad might provide one or more extra functions like this, functions that
 become available only when you are in the context of that monad.
 
 Here the `readerFunc2` function uses the `bind` operator `>>=` just to show you that there are bind
@@ -125,9 +140,9 @@ The above code also introduces an important idea. Whenever you learn about a mon
 often (but not always) a `run` function to execute that monad, and sometimes some additional
 functions like `read` that interact with the monad state.
 
-You might be wondering, how does the state actually move through the `ReaderM` monad? How can
-you add an input argument to a function by modifying it's return type?  There is a special
-command in the Lean interpreter that will show you the reduced Types:
+You might be wondering, how does the state actually move through the `ReaderM` monad? How can you
+add an input argument to a function by modifying it's return type?  There is a special command in
+the Lean interpreter that will show you the reduced Types:
 -/
 #reduce ReaderM Environment String   -- Environment → String
 /-!

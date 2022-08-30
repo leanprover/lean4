@@ -15,7 +15,7 @@ only operate on explicit input parameters and affect the program through explici
 operations in a monad can affect other computations in the chain implicitly through side effects,
 especially modification of an implicitly shared value.
 
-# How are monads represented in Lean?
+## How are monads represented in Lean?
 
 Like functors and applicatives, monads are represented with a type class in Lean:
 
@@ -80,9 +80,10 @@ def Option.bind : Option α → (α → Option β) → Option β
   | some a, f => f a
 ```
 
-| Side note     |
-| -------------- |
-| this function definition is using a special shorthand syntax in Lean where the `:= match a, b with` code can be collapsed away. To make this more clear consider the following simpler example, where `Option.bind` is using the second form like `bar`: |
+> **Side note**: this function definition is using a special shorthand syntax in Lean where the `:=
+match a, b with` code can be collapsed away. To make this more clear consider the following simpler
+example, where `Option.bind` is using the second form like `bar`:
+
 -/
 def foo (x : Option Nat) (y: Nat) : Option Nat :=
   match x, y with

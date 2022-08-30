@@ -83,9 +83,9 @@ can try continue on or do some error recovery task, which you can do like this:
 def testCatch :=
   try
     let r ← divide 8 0  -- 'r' is type Float
-    return toString r
+    pure (toString r)
   catch e =>
-    return s!"Caught exception: {e}"
+    pure s!"Caught exception: {e}"
 /-!
 
 Note that the type inferred by Lean for this function is `Except String String` so the `Except

@@ -186,7 +186,7 @@ that squareFeetToMeters knows nothing about `LivingSpace`.
 You can implement the `Functor` pattern in other languages, people have even done it in C++, but it
 is very clean and elegant in Lean.
 
-# How do Functors help with Monads ?
+## How do Functors help with Monads ?
 
 Functors are an abstract mathematical structure that we represent in Lean with a type class. The
 Lean functor defines both `map` and a special case for working on constants more efficiently called

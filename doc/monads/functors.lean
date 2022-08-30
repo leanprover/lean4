@@ -26,8 +26,8 @@ def map (f : α → β) : List α → List β
 
 /-!
 This is a very generic `map` function that can take any function that converts `(α → β)` and use it
-to convert `List α → List β`, notice the function call `f a` above which is producing the converted
-items for the new list.
+to convert `List α → List β`. Notice the function call `f a` above, this application of `f`
+is producing the converted items for the new list.
 
 Lean also defines custom infix operator `<$>` for map which simply allows you to write this:
 -/
@@ -82,14 +82,16 @@ using the middle dot unicode character which you can type in VS code using `\. `
 /-!
 
 The `map` function preserves the `none` state of the Option, so again
-map preserves the structure of the object.  Notice that even in the `none` case it has
-transformed `Option Nat` into `Option String` as we see in the `#check` command below:
+map preserves the structure of the object.
 
 -/
 def x : Option Nat := none
 #eval x.map (fun x => toString x) -- none
 #check x.map (fun x => toString x) -- Option String
 /-!
+
+Notice that even in the `none` case it has transformed `Option Nat` into `Option String` as we see
+in the `#check` command.
 
 ## How to make a Functor Instance?
 
@@ -101,7 +103,7 @@ instance : Functor List where
 /-!
 
 Notice all you need to do is provide the map function implementation.  For a quick
-example, let's supposed you have a type describing the measurements of a home
+example, let's supposed you create a new type describing the measurements of a home
 or apartment:
 
 -/
@@ -114,7 +116,7 @@ structure LivingSpace (α: Type) where
   deriving Repr, BEq
 /-!
 
-Now you can construct a LivingSpace in square feet using floating point values:
+Now you can construct a `LivingSpace` in square feet using floating point values:
 -/
 abbrev SquareFeet := Float
 
@@ -123,7 +125,7 @@ def mySpace : LivingSpace SquareFeet :=
     livingRoomSize := 900, kitchenSize := 400 }
 /-!
 
-Now, suppose you want anyone to be able to map LivingSpaces from one type of measurement unit to
+Now, suppose you want anyone to be able to map a `LivingSpace` from one type of measurement unit to
 another.  Then you would provide a `Functor` instance as follows:
 
 -/

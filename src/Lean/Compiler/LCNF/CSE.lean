@@ -20,7 +20,6 @@ abbrev M := StateRefT State CompilerM
 
 instance : MonadFVarSubst M where
   getSubst := return (← get).subst
-  modifySubst f := modify fun s => { s with subst := f s.subst }
 
 @[inline] def getSubst : M FVarSubst :=
   return (← get).subst
@@ -34,7 +33,7 @@ instance : MonadFVarSubst M where
 
 def replaceFVar (fvarId fvarId' : FVarId) : M Unit := do
   eraseFVar fvarId
-  addFVarSubst fvarId fvarId'
+  modify fun s => { s with subst := s.subst.insert fvarId (.fvar fvarId') }
 
 end CSE
 

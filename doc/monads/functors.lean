@@ -210,5 +210,6 @@ container type from `F α → F β`. This corresponds to the category-theory not
 category of types and functions between them.
 
 Understanding abstract mathematical structures is a little tricky for most people. So it helps to
-start with a simpler idea like functors before you try to understand monads.
+start with a simpler idea like functors before you try to understand monads.  Building on
+functors is the next abstraction called [Applicatives](applicatives.lean.md).
 -/

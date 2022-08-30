@@ -20,7 +20,7 @@ structure between `Functor` and `Monad`. It mainly consists of two operations:
 * `pure : α → F α`
 * `seq : F (α → β) → F α → F β` (written as `<*>`)
 
-The `pure` operator tells you how you can wrap a normal object into an instance of this structure.
+The `pure` operator specifies how you can wrap a normal object `α` into an instance of this structure `F α`.
 This is the "default" mechanism mentioned above.
 
 The `seq` operator gives a notion of evaluation order to the effects, where the first argument is
@@ -34,7 +34,7 @@ class Applicative (f : Type u → Type v) extends Functor f, Pure f, Seq f, SeqL
 ```
 
 Notice that as with `Functor` it is also a type transformer `(f : Type u → Type v)` and notice the
-`extends Functor f` is ensuring the base Functor also performs that same transformation.
+`extends Functor f` is ensuring the base Functor also performs that same type transformation.
 
 As stated above, all applicatives are then functors. This means you can assume that `map` already
 exists for all these types.
@@ -324,6 +324,6 @@ Unit value `()`, which is the Unit value (Unit.unit).  All this just to ensure d
 
 Applicatives are helpful for the same reasons as functors. They're a relatively simple abstract
 structure that has practical applications in your code. Now that you understand how chaining
-operations can fit into a structure definition, you're in a good position to start thinking about
-monads!
+operations can fit into a structure definition, you're in a good position to start learning about
+[Monads](monads.lean.md)!
 -/

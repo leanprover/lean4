@@ -18,7 +18,7 @@ def divide (x y: Float): Except String Float :=
 
 /-!
 
-Just as the `read` operation was available from the `Reader` monad and the `get` and `set`
+Just as the `read` operation was available from the `ReaderM` monad and the `get` and `set`
 operations came with the `StateM` monad, here we see a `throw` operation is provided by the `Except`
 monad.
 

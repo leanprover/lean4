@@ -2,7 +2,7 @@ import Std.Data.HashMap
 /-!
 # State
 
-In the [previous section](readers.lean.md), you learned about the Reader monad. Hopefully this gave you
+In the [previous section](readers.lean.md), you learned about the `ReaderM` monad. Hopefully this gave you
 a new perspective on Lean. It showed that, in fact, you _can_ have global variables of some sort;
 you just need to encode them in the type signature somehow, and this is what monads are for! In this
 part, we'll explore the `StateM` monad, which is like a `ReaderM` only the state can also be updated.
@@ -72,12 +72,13 @@ have for instance, picking a random move:
 -/
 open TileState
 
-def findOpen (board: HashMap TileIndex TileState) : List TileIndex :=
-  board.toList.filterMap fun (i, x) => guard (x == TileEmpty) *> pure i
+def findOpen : StateM GameState (List TileIndex) := do
+  let game ← get
+  return game.board.toList.filterMap fun (i, x) => guard (x == TileEmpty) *> pure i
 
 def chooseRandomMove : StateM GameState TileIndex := do
   let game ← get
-  let openSpots := findOpen game.board
+  let openSpots ← findOpen
   let gen := game.generator
   let (i, gen') := randNat gen 0 (openSpots.length - 1)
   set { game with generator := gen' }
@@ -117,8 +118,7 @@ returns a boolean determining if we've filled all the spaces:
 -/
 
 def isGameDone : StateM GameState Bool := do
-  let game ← get
-  return (findOpen game.board).isEmpty
+  return (← findOpen).isEmpty
 
 def nextTurn : StateM GameState Bool := do
   let i ← chooseRandomMove
@@ -129,12 +129,6 @@ def nextTurn : StateM GameState Bool := do
 To give you a quick test harness that runs all moves for both playes you can run this:
 -/
 
-instance : ToString TileState where
-  toString p := match p with
-    | TileEmpty => " "
-    | TileX => "X"
-    | TileO => "O"
-
 def initBoard : Board := Id.run do
   let mut board := HashMap.empty
   for i in [0:3] do
@@ -143,24 +137,24 @@ def initBoard : Board := Id.run do
       board := board.insert t TileEmpty
   board
 
-def printBoard (b: Board) : IO Unit :=
-  for i in [0:3] do
-    let mut row : List String := []
-    for j in [0:3] do
-      let x : TileIndex := (i, j)
-      let s := b.find? x
-      row := match s with
-      | none => row
-      | some tile => (row.append [toString tile])
-    IO.println row
+def printBoard (board : Board) : IO Unit := do
+  let mut row : List String := []
+  for i in board.toList do
+    let s := match i.2 with
+      | TileEmpty => " "
+      | TileX => "X"
+      | TileO => "O"
+    row := row.append [s]
+    if row.length == 3 then
+      IO.println row
+      row := []
 
 def main : IO Unit := do
   let gen ← IO.stdGenRef.get
   let (x, gen') := randNat gen 0 1
-  let player := if x = 0 then XPlayer else OPlayer
   let mut gs : GameState := {
     board := initBoard,
-    currentPlayer := player,
+    currentPlayer := if x = 0 then XPlayer else OPlayer,
     generator := gen' }
   for _ in [0:9] do
     let (_, g) := nextTurn gs
@@ -187,7 +181,7 @@ at the reduced Type for `nextTurn`:
 /-!
 
 So a function like `nextTurn` that might have just returned a `Bool` has been modified by the
-`State` monad such that the initial `GameState` is passed in as a new input argument, and the output
+`StateM` monad such that the initial `GameState` is passed in as a new input argument, and the output
 value has been changed to the pair `Bool × GameState` so that it can return the pure `Bool` and the
 updated `GameState`.  This is why the call to nextTurn looks like this: `let (_, g) := nextTurn gs`.
 This expression `(_, g)` conveniently breaks the pair up into 2 values, we don't care what the first

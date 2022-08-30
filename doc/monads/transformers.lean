@@ -7,7 +7,7 @@ In the previous sections you learned about some handy monads [Option](monads.lea
 do not yet know is how to make your function use multiple monads at once.
 
 For example, suppose you need a function that wants to access some Reader state and optionally throw
-an exception?  This would require composition of two monads `Reader` and `Except` and this is what
+an exception?  This would require composition of two monads `ReaderM` and `Except` and this is what
 monad transformers are for.
 
 A monad transformer is fundamentally a wrapper type. It is generally parameterized by another
@@ -24,10 +24,10 @@ returns true if the optional argument is present.
 -/
 abbrev Arguments := List String
 
-def indexOf? [BEq α] (xs : List α) (s : α) (i := 0): Option Nat :=
+def indexOf? [BEq α] (xs : List α) (s : α) (start := 0): Option Nat :=
   match xs with
   | [] => none
-  | a :: tail => if a == s then some i else indexOf? tail s (i+1)
+  | a :: tail => if a == s then some start else indexOf? tail s (start+1)
 
 def requiredArgument (name: String) : ReaderT Arguments (Except String) String := do
   let args ← read
@@ -58,7 +58,7 @@ def optionalSwitch (name: String) : ReaderT Arguments (Except String) Bool := do
 /-!
 Notice that `throw` was available from the inner `Except` monad. The cool thing is you can switch
 this around and get the exact same result using `ExceptT` as the outer monad transformer and
-`Reader` as the wrapped monad. Try changing requiredArgument to `ExceptT String (Reader Arguments) Bool`.
+`ReaderM` as the wrapped monad. Try changing requiredArgument to `ExceptT String (ReaderM Arguments) Bool`.
 
 Note: the `|>.` notation is described in [Readers](readers.lean.md#the-reader-solution).
 
@@ -106,7 +106,7 @@ def main (args: List String) : IO Unit := do
 -- Processing input 'bar' with verbose=true
 
 /-!
-In this example `parseArguments` is actually 3 stacked monads, `State`, `Reader`, `Except`. Notice
+In this example `parseArguments` is actually three stacked monads, `StateM`, `ReaderM`, `Except`. Notice
 the convention of abbreviating long monadic types with an alias like `CliConfigM`.
 
 ## Monad Lifting
@@ -225,7 +225,7 @@ instance  : MonadLift m (ReaderT ρ m) where
 This lift operation creates a function that defines the required `ReaderT` input
 argument, but the inner monad doesn't know or care about `ReaderT` so the
 monadLift function throws it away with the `_` then calls the inner monad action `x`.
-This is a perfectly legal and trivial way to implement a `Reader` monad.
+This is a perfectly legal and trivial way to implement a `ReaderM` monad.
 
 ## Add your own Custom MonadLift
 
@@ -270,7 +270,7 @@ def main3 : IO Unit := do
 #eval main3 -- (2.500000, 1)
 /-!
 
-It turns out that the same `IO` monad you see in your `main` function is based on a `Result` type
+It turns out that the `IO` monad you see in your `main` function is based on a `Result` type
 which is similar to the `Except` type but it has an additional return value. The `liftIO` function
 converts any `Except String α` into `IO α` by simply mapping the ok state of the `Except` to the
 `Result.ok` and the error case to the Result.error.

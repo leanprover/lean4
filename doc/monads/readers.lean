@@ -157,6 +157,34 @@ doing looks very much like the original code we wrote at the beginning of this s
 taking a lot of the tedious work off your plate and it is creating a nice clean separation between
 what your pure functions are doing, and the global state idea that the `ReaderM` adds.
 
+## withReader
+
+One `ReaderM` function can call another with a modified version of the `ReaderM` state.
+For example, `readerFunc3` could do this:
+
+-/
+def readerFunc3Mod : ReaderM Environment String := do
+  let env ← read
+  let x ← readerFunc2 |>.run { env with user := "new user" }
+  return "Result: " ++ (toString x)
+
+/-!
+
+And we have overridden the `user` field in the `Environment` state with the string "new user".
+
+You can also use the `withReader` function from the `MonadWithReader` typeclass to do this:
+
+-/
+def readerFunc3WithReader : ReaderM Environment String := do
+  let f := (λ env => { env with user := "new user" })
+  let x ← withReader f readerFunc2
+  return "Result: " ++ (toString x)
+
+/-!
+
+
+
+
 ## Conclusion
 
 It might not seem like we've accomplished much with this `ReaderM Environment` monad, but you will

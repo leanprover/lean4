@@ -188,6 +188,21 @@ This expression `(_, g)` conveniently breaks the pair up into 2 values, we don't
 value is (so we use underscore `_`), but we do need the updated state `g` which we can then assign
 back to our mutable `gs` variable to use next time around this loop.
 
+## StateM vs ReaderM
+
+While `ReaderM` functions can use `withReader` to modify the state before calling another function,
+`StateM` functions are a little more powerful, let's look at this function again:
+```
+def nextTurn : StateM GameState Bool := do
+  let i ← chooseRandomMove
+  applyMove i
+  isGameDone
+```
+
+In this function `chooseRandomMove` is modifying the state that `applyMove` is getting
+and `chooseRandomMove` knows nothing about `applyMove`.  So `StateM` functions can have this
+kind of downstream effect outside their own scope, whereas, `withReader` cannot do that.
+
 ## State, IO and other languages
 
 When thinking about Lean, it is often seen as a restriction that we can't have global variables or

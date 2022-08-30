@@ -94,7 +94,23 @@ would not be a true functor. Its behavior would confuse any other programmers tr
 should take care to make sure that your instances make sense. Once you get a feel for these type
 classes, the likelihood is that the instances you'll create will follow the laws.
 
-Hopefully this explains the value of these laws, and so we won't show any more bad implementations!
+You can also write a bad functor that passes one law but not the other like this:
+-/
+def bad_option_map {α β : Type u} : (α → β) → Option α → Option β
+  | _, _ => none
+
+instance : Functor Option where
+    map := bad_option_map
+
+def t1 : Option Nat := some 10
+
+#eval id <$> t1 == t1 -- false
+#eval double <$> (square <$> t1) == (double ∘ square) <$> t1  -- true
+/-!
+
+This fails the id law but obeys the composition law.
+
+Hopefully this explains the value of these laws, and we don't need to show any more bad examples!
 
 ## What are the Applicative Laws?
 

@@ -140,6 +140,13 @@ private unsafe def updateAltImp (alt : Alt) (ps' : Array Param) (k' : Code) : Al
 
 @[implementedBy updateJmpImp] opaque Code.updateJmp! (c : Code) (fvarId' : FVarId) (args' : Array Expr) : Code
 
+@[inline] private unsafe def updateUnreachImp (c : Code) (type' : Expr) : Code :=
+  match c with
+  | .unreach type => if ptrEq type type' then c else .unreach type'
+  | _ => unreachable!
+
+@[implementedBy updateUnreachImp] opaque Code.updateUnreach! (c : Code) (type' : Expr) : Code
+
 def Code.isDecl : Code → Bool
   | .let .. | .fun .. | .jp .. => true
   | _ => false

@@ -1313,16 +1313,17 @@ private def elabImplicitLambdaAux (stx : Syntax) (catchExPostpone : Bool) (expec
 private partial def elabImplicitLambda (stx : Syntax) (catchExPostpone : Bool) (type : Expr) : TermElabM Expr :=
   loop type #[]
 where
-  loop
-    | type@(.forallE n d b c), fvars =>
+  loop (type : Expr) (fvars : Array Expr) : TermElabM Expr := do
+    match (← whnfForall type) with
+    | .forallE n d b c =>
       if c.isExplicit then
         elabImplicitLambdaAux stx catchExPostpone type fvars
       else withFreshMacroScope do
         let n ← MonadQuotation.addMacroScope n
         withLocalDecl n c d fun fvar => do
-          let type ← whnfForall (b.instantiate1 fvar)
+          let type := b.instantiate1 fvar
           loop type (fvars.push fvar)
-    | type, fvars =>
+    | _ =>
       elabImplicitLambdaAux stx catchExPostpone type fvars
 
 /-- Main loop for `elabTerm` -/

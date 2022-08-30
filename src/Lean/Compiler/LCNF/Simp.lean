@@ -132,6 +132,9 @@ structure State where
 
 abbrev SimpM := ReaderT Context $ StateRefT State CompilerM
 
+instance : MonadFVarSubst SimpM where
+  getSubst := return (← get).subst
+
 partial def updateFunDeclInfo (code : Code) (mustInline := false) : SimpM Unit :=
   go code
 where
@@ -195,17 +198,77 @@ def incVisited : SimpM Unit :=
 def markUsedFVar (fvarId : FVarId) : SimpM Unit :=
   modify fun s => { s with used := s.used.insert fvarId }
 
+def markUsedExpr (e : Expr) : SimpM Unit :=
+  modify fun s => { s with used := collectLocalDecls s.used e }
+
+def markUsedLetDecl (letDecl : LetDecl) : SimpM Unit :=
+  markUsedExpr letDecl.value
+
+def isUsed (fvarId : FVarId) : SimpM Bool :=
+  return (← get).used.contains fvarId
+
+def eraseLocalDecl (fvarId : FVarId) : SimpM Unit := do
+  eraseFVar fvarId
+  markSimplified
+
+/--
+Add substitution `fvarId ↦ val`. `val` is a free variable, or
+it is a type, type former, or `lcErased`.
+-/
+def addSubst (fvarId : FVarId) (val : Expr) : SimpM Unit :=
+  modify fun s => { s with subst := s.subst.insert fvarId val }
+
 mutual
+partial def simpFunDecl (decl : FunDecl) : SimpM FunDecl := do
+  let type ← normExpr decl.type
+  let params ← normParams decl.params
+  let value ← simp decl.value
+  decl.update type params value
 
 partial def simp (code : Code) : SimpM Code := do
-  -- TODO
   incVisited
   match code with
+  | .let decl k =>
+    let decl ← normLetDecl decl
+    if decl.value.isFVar then
+      /- Eliminate `let _x_i := _x_j;` -/
+      addSubst decl.fvarId decl.value
+      eraseLocalDecl decl.fvarId
+      simp k
+    else
+      /- TODO: simple value simplifications & inlining -/
+      let k ← simp k
+      if !decl.pure || (← isUsed decl.fvarId) then
+        markUsedLetDecl decl
+        return code.updateLet! decl k
+      else
+        /- Dead variable elimination -/
+        eraseLocalDecl decl.fvarId
+        return k
+  | .fun decl k | .jp decl k =>
+    /-
+    Variables in `decl` will be marked as used even if the function is eliminated.
+    Thus, they will only be deleted in the second pass.
+
+    Pontential improvement: if `decl.fvarId` is marked with `once` or `mustInline`, we will probably
+    inline this declaration, and it may be wasteful to simplify it here.
+    The alternative option is to just normalize `decl`, and if used mark all occurring there as used.
+    -/
+    let decl ← simpFunDecl decl
+    let k ← simp k
+    if (← isUsed decl.fvarId) then
+      return code.updateFun! decl k
+    else
+      /- Dead function elimination -/
+      eraseLocalDecl decl.fvarId
+      return k
   | .return fvarId =>
+    let fvarId ← normFVar fvarId
     markUsedFVar fvarId
-    return code
-  | .unreach .. => return code
-  | _ => return code
+    return code.updateReturn! fvarId
+  | .unreach type =>
+    return code.updateUnreach! (← normExpr type)
+  | _ => return code -- TODO: implement other cases
 
 end
 

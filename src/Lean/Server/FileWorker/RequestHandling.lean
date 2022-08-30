@@ -238,7 +238,7 @@ partial def handleDocumentSymbol (_ : DocumentSymbolParams)
     : RequestM (RequestTask DocumentSymbolResult) := do
   let doc ← readDoc
   -- bad: we have to wait on elaboration of the entire file before we can report document symbols
-  let t ← doc.cmdSnaps.waitAll
+  let t := doc.cmdSnaps.waitAll
   mapTask t fun (snaps, _) => do
     let mut stxs := snaps.map (·.stx)
     let (syms, _) := toDocumentSymbols doc.meta.text stxs
@@ -315,7 +315,7 @@ partial def handleSemanticTokens (beginPos endPos : String.Pos)
     : RequestM (RequestTask SemanticTokens) := do
   let doc ← readDoc
   let text := doc.meta.text
-  let t ← doc.cmdSnaps.waitAll (·.beginPos < endPos)
+  let t := doc.cmdSnaps.waitAll (·.beginPos < endPos)
   mapTask t fun (snaps, _) =>
     StateT.run' (s := { data := #[], lastLspPos := ⟨0, 0⟩ : SemanticTokensState }) do
       for s in snaps do
@@ -400,7 +400,7 @@ def handleSemanticTokensRange (p : SemanticTokensRangeParams)
 partial def handleFoldingRange (_ : FoldingRangeParams)
   : RequestM (RequestTask (Array FoldingRange)) := do
   let doc ← readDoc
-  let t ← doc.cmdSnaps.waitAll
+  let t := doc.cmdSnaps.waitAll
   mapTask t fun (snaps, _) => do
     let stxs := snaps.map (·.stx)
     let (_, ranges) ← StateT.run (addRanges doc.meta.text [] stxs) #[]
@@ -475,7 +475,7 @@ partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
   let t ← RequestM.asTask waitLoop
   RequestM.bindTask t fun doc? => do
     let doc ← liftExcept doc?
-    let t₁ ← doc.cmdSnaps.waitAll
+    let t₁ := doc.cmdSnaps.waitAll
     return t₁.map fun _ => pure WaitForDiagnostics.mk
 
 builtin_initialize

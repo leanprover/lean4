@@ -66,31 +66,30 @@ partial def getAll : AsyncList ε α → List α × Option ε
     | Except.error e => ⟨[], some e⟩
 
 /-- Spawns a `Task` waiting on the prefix of elements for which `p` is true. -/
-partial def waitAll (p : α → Bool := fun _ => true) : AsyncList ε α → BaseIO (Task (List α × Option ε))
-  | cons hd tl => do
+partial def waitAll (p : α → Bool := fun _ => true) : AsyncList ε α → Task (List α × Option ε)
+  | cons hd tl =>
     if p hd then
-      let t ← tl.waitAll p
-      return t.map fun ⟨l, e?⟩ => ⟨hd :: l, e?⟩
+      (tl.waitAll p).map fun ⟨l, e?⟩ => ⟨hd :: l, e?⟩
     else
-      return Task.pure ⟨[hd], none⟩
-  | nil => return Task.pure ⟨[], none⟩
-  | delayed tl => do
-    BaseIO.bindTask tl fun
-      | Except.ok tl   => tl.waitAll p
-      | Except.error e => return Task.pure ⟨[], some e⟩
+      .pure ⟨[hd], none⟩
+  | nil => .pure ⟨[], none⟩
+  | delayed tl =>
+    tl.bind fun
+      | .ok tl   => tl.waitAll p
+      | .error e => .pure ⟨[], some e⟩
 
 /-- Spawns a `Task` acting like `List.find?` but which will wait for tail evalution
 when necessary to traverse the list. If the tail terminates before a matching element
 is found, the task throws the terminating value. -/
-partial def waitFind? (p : α → Bool) : AsyncList ε α → BaseIO (Task $ Except ε $ Option α)
-  | nil => return Task.pure <| Except.ok none
-  | cons hd tl => do
-    if p hd then return Task.pure <| Except.ok <| some hd
+partial def waitFind? (p : α → Bool) : AsyncList ε α → Task (Except ε (Option α))
+  | nil => .pure <| .ok none
+  | cons hd tl =>
+    if p hd then .pure <| Except.ok <| some hd
     else tl.waitFind? p
-  | delayed tl => do
-    BaseIO.bindTask tl fun
-      | Except.ok tl   => tl.waitFind? p
-      | Except.error e => return Task.pure <| Except.error e
+  | delayed tl =>
+    tl.bind fun
+      | .ok tl   => tl.waitFind? p
+      | .error e => .pure <| .error e
 
 /-- Retrieve the already-computed prefix of the list. If computation has finished with an error, return it as well. -/
 partial def getFinishedPrefix : AsyncList ε α → BaseIO (List α × Option ε)
@@ -105,7 +104,8 @@ partial def getFinishedPrefix : AsyncList ε α → BaseIO (List α × Option ε
       | Except.error e => pure ⟨[], some e⟩
     else pure ⟨[], none⟩
 
-def waitHead? (as : AsyncList ε α) : BaseIO (Task (Except ε (Option α))) := as.waitFind? (fun _ => true)
+def waitHead? (as : AsyncList ε α) : Task (Except ε (Option α)) :=
+  as.waitFind? fun _ => true
 
 end AsyncList
 

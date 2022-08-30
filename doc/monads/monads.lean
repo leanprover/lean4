@@ -5,7 +5,7 @@ Building on [Functors](functors.lean.md) and [Applicatives](applicatives.lean.md
 [monads](https://en.wikipedia.org/wiki/Monad_%28category_theory%29).
 
 A monad is another type of abstract, functional structure. Let's explore what makes it different
-from our first two structures.
+from the first two structures.
 
 ## What is a Monad?
 
@@ -24,7 +24,7 @@ class Monad (m : Type u → Type v) extends Applicative m, Bind m where
 ```
 
 Just as every applicative is a functor, every monad is also an applicative and
-there's one more new base type class used here that we need to explain, namely, `Bind`.
+there's one more new base type class used here that you need to understand, namely, `Bind`.
 
 ```lean,ignore
 class Bind (f : Type u → Type v) where
@@ -34,10 +34,10 @@ class Bind (f : Type u → Type v) where
 The `bind` operator also has infix notation `>>=` where `x >>= g` represents the result of
 executing `x` to get a value of type `f α` then unwrapping the value `α` from that and
 passing it to function `g` of type `α → f β` returning the result of type `f β` where
-`f` is our structure type (like `Option`  or List)
+`f` is the target structure type (like `Option` or List)
 
-This `bind` operation looks similar to the other ones we've seen so far, if we put
-them all together Monad has the following operations:
+This `bind` operation looks similar to the other ones you've seen so far, if you put
+them all together `Monad` has the following operations:
 
 ```lean,ignore
 class Monad (f : Type u → Type v) extends Applicative f, Bind f where
@@ -48,7 +48,7 @@ class Monad (f : Type u → Type v) extends Applicative f, Bind f where
   ...
 ```
 
-Notice `Monad` also contains `pure` so a monad must also have a "default" way to wrap a value in the
+Notice `Monad` also contains `pure` it must also have a "default" way to wrap a value in the
 structure.
 
 The `bind` operator is similar to the applicative `seq` operator in that it chains two operations,
@@ -58,13 +58,13 @@ Notice that `bind`, `seq` and `map` all take a function of some kind, and then a
 over a type `α`, namely `f α`, and then produce a structure wrapping a type `β`, namely `f β`. They
 just vary in what the function looks like. For the functor, the function is a normal pure function
 because it has the type `(α → β)`. For applicatives, the function is still pure, but wrapped in the
-structure `f (α → β)`. Now with monads, our function argument takes a "pure" input `α` but produces
+structure `f (α → β)`. Now with monads, the function argument takes a "pure" input `α` but produces
 an output in the structure, `(α → f β)`
 
 ## Basic Monad Example
 
 Just as `Option` is a functor and an applicative functor, it is also a monad!
-We can start with how `Option` implements the Monad type class.
+Let's start with how `Option` implements the Monad type class.
 
 -/
 instance : Monad Option where
@@ -104,7 +104,7 @@ the expression `f a` that you see in the line `  | some a, f => f a` above.  The
 returns a result of type `Option β` which then becomes the return value for `bind`.  So there
 is no structure wrapping required on the return value since the input function already did that.
 
-But let's bring in our definition of a monad. What does it mean to describe `Option` as a
+But let's bring in the definition of a monad. What does it mean to describe `Option` as a
 computational context?
 
 The `Option` monad encapsulates the context of failure. Essentially, the `Option` monad lets us
@@ -132,11 +132,12 @@ def runOptionFuncs (input : String) : Option (List Nat) :=
 #eval runOptionFuncs "big" -- some [9, 10]
 /-!
 
-We have three different functions that could fail. We combine them all in `runOptionFuncs`. But at each
-stage, it has to check if the previous result succeeded. It would be very tedious to continue this
-pattern.
+Here you see three different functions that could fail. These are then combined in `runOptionFuncs`.
+But then you have to use nested `match` expressions to check if the previous result succeeded. It
+would be very tedious to continue this pattern much longer.
 
-The `Option` monad helps you fix this. Here's what this function looks like using the `bind` operator.
+The `Option` monad helps you fix this. Here's what this function looks like using the `bind`
+operator.
 
 -/
 
@@ -146,17 +147,17 @@ def runOptionFuncsBind (input: String) : Option (List Nat) :=
 #eval runOptionFuncsBind "big" -- some [9, 10]
 /-!
 
-It's much cleaner now! We take our first result and pass it into the second and third functions
-using the bind function. The monad instance handles all the failure cases so we don't have to!
+It's much cleaner now! You take the first result and pass it into the second and third functions
+using the `bind` operation. The monad instance handles all the failure cases so you don't have to!
 
 Let's see why the types work out. The result of `optionFunc1` input is simply `Option Nat`. Then the
 bind operator allows you to take this `Option Nat` value and combine it with `optionFunc2`, whose type
-is `Nat → Option Float` The **bind operator resolves** these to an `Option Float`. Then we pass this
-similarly through the bind operator to `optionFunc3`, resulting in our final type, `Option (List Nat)`.
+is `Nat → Option Float` The **bind operator resolves** these to an `Option Float`. Then you pass this
+similarly through the bind operator to `optionFunc3`, resulting in the final type, `Option (List Nat)`.
 
 Your functions will not always combine so cleanly though. This is where `do` notation comes into play.
 This notation allows you to write monadic operations one after another, line-by-line. It almost makes
-our code look like imperative programming. We can rewrite the above as:
+your code look like imperative programming. You can rewrite the above as:
 -/
 
 def runOptionFuncsDo (input: String) : Option (List Nat) := do
@@ -164,23 +165,22 @@ def runOptionFuncsDo (input: String) : Option (List Nat) := do
   let f ← optionFunc2 i
   optionFunc3 f
 
-
-
 #eval runOptionFuncsDo "big" -- some [9, 10]
 /-!
 
-Note you can use `<-` or the nice unicode symbol `←` which you can type into VS code by typing
-these characters `\l `.  When you type the final space, `\l` is replaced with `←`.
+Note you can use `<-` or the nice unicode symbol `←` which you can type into VS code by typing these
+characters `\l `.  When you type the final space, `\l` is replaced with `←`.
 
 The `←` operator is special. It effectively unwraps the value on the right-hand side from the monad.
 This means the value `i` has type `Nat`, _even though_ the result of `optionFunc1` is `Option Nat`.
 The bind operation happens under the hood. If the function returns `none`, then the entire
-`runOptionFuncsDo` function will return `none`. Observe that we do not unwrap the final line of the
-computation. Our function result is `Option (List Nat)` which matches what `optionFunc3` returns.
+`runOptionFuncsDo` function will return `none`. Observe that you do not unwrap the final line of the
+computation. The function result is `Option (List Nat)` which matches what `optionFunc3` returns.
 
 At first glance, this looks more complicated than the bind example. However, it gives you a lot more
-flexibility, like mixing monadic and non-monadic statements. It is particularly helpful when one
-monadic function depends on multiple previous functions.
+flexibility, like mixing monadic and non-monadic statements, using if then/else structures with
+their own local do blocks and so on. It is particularly helpful when one monadic function depends on
+multiple previous functions.
 
 ## Example using List
 
@@ -193,7 +193,7 @@ instance : Monad List  where
   bind := List.bind
 /-!
 
-Like we saw with the applicative `seq` operator, the `bind` operator applies the given function
+Like you saw with the applicative `seq` operator, the `bind` operator applies the given function
 to every element of the list.  It is useful to look at the bind implementation for List:
 
 -/
@@ -204,7 +204,7 @@ def bind (a : List α) (b : α → List β) : List β := join (map b a)
 So `Functor.map` is used to apply the function `b` to every element of `a` but this would
 return a whole bunch of little lists, so `join` is used to turn those back into a single list.
 
-Here's an example where we use `bind` to convert a list of strings into a combined list of chars:
+Here's an example where you use `bind` to convert a list of strings into a combined list of chars:
 
 -/
 
@@ -230,7 +230,7 @@ def hasSomeItemGreaterThan (x : List Nat) (n: Nat): Option Bool := do
 
 The `IO Monad` is perhaps the most important monad in Lean. It is also one of the hardest monads to
 understand starting out. Its actual implementation is too intricate to discuss when first learning
-monads. So we'll learn by example.
+monads. So it is best to learn by example.
 
 What is the **computational context** that describes the IO monad? IO operations can read
 information from or write information to the terminal, file system, operating system, and/or
@@ -252,25 +252,26 @@ code from pure code like you can call into a function that takes `Option` as inp
 say this is you cannot invent an `IO` context out of thin air, it has to be given to you in your
 `main` function.
 
-Let's look at a simple program showing a few of the basic IO functions. We'll use `do` notation so you
-can see how it is similar to the `Option` monad. We list the types of each IO function for clarity.
+Let's look at a simple program showing a few of the basic IO functions. It also uses `do` notation
+to make the code read nicely:
 -/
 def main : IO Unit := do
   IO.println "enter a line of text:"
-  let stdin ← IO.getStdin
-  let input ← stdin.getLine
-  let uppercased := input.toUpper
-  IO.println uppercased
+  let stdin ← IO.getStdin            -- IO IO.FS.Stream (monadic)
+  let input ← stdin.getLine          -- IO.FS.Stream → IO String (monadic)
+  let uppercased := input.toUpper    -- String → String (pure)
+  IO.println uppercased              -- IO Unit (monadic)
 /-!
 
-So, once again we see that the `do` notation lets you chain a series of monadic actions.
+So, once again you can see that the `do` notation lets you chain a series of monadic actions.
 `IO.getStdin` is of type `IO IO.FS.Stream` and `stdin.getLine` is of type `IO String`
-and `IO.println` is of type `IO Unit`
+and `IO.println` is of type `IO Unit`.
 
-Note: a let statement can occur in any monad. Just as we could unwrap `i` from `Option Nat` to get the
-inner Nat, we can use `←` to unwrap the result of `getLine` to get a String. We can then manipulate
-this value using normal pure string functions like `toUpper`, and then we can pass the result to the
-print function.
+In between you see a non-monadic expression `let uppercased := input.toUpper` which is fine too.
+A let statement can occur in any monad. Just as you could unwrap `i` from `Option Nat` to get the
+inner Nat, you can use `←` to unwrap the result of `getLine` to get a String. You can then manipulate
+this value using normal pure string functions like `toUpper`, and then you can pass the result to the
+`IO.println` function.
 
 This is a simple echo program. It reads a line from the terminal, and then prints the line back out
 capitalized to the terminal. Hopefully it gives you a basic understanding of how IO works.
@@ -284,14 +285,14 @@ the quick brown fox
 THE QUICK BROWN FOX
 ```
 
-Here we entered the string `the quick brown fox` and got back the uppercase result.
+Here the user entered the string `the quick brown fox` and got back the uppercase result.
 
 ## What separates Monads from Applicatives?
 
-The key word that separates these is **context**. We cannot really determine the structure of
+The key that separates these is **context**. You cannot really determine the structure of
 "future" operations without knowing the results of "past" operations, because the past can alter the
-context in which the future operations work. With applicatives, we can't get the final function
-result without evaluating everything, but we can determine the structure of how the operation will
+context in which the future operations work. With applicatives, you can't get the final function
+result without evaluating everything, but you can determine the structure of how the operation will
 take place. This allows some degree of parallelism with applicatives that is not generally possible
 with monads.
 

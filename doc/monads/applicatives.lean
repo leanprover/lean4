@@ -36,7 +36,7 @@ class Applicative (f : Type u → Type v) extends Functor f, Pure f, Seq f, SeqL
 Notice that as with `Functor` it is also a type transformer `(f : Type u → Type v)` and notice the
 `extends Functor f` is ensuring the base Functor also performs that same transformation.
 
-As stated above, all applicatives are then functors. This means we can assume that `map` already
+As stated above, all applicatives are then functors. This means you can assume that `map` already
 exists for all these types.
 
 The `Pure` base type class is a very simple type class that supplies the `pure` function.
@@ -76,7 +76,7 @@ simply from outside the structure, as was the case with `Functor.map`.
 
 ## Basic Applicative Examples
 
-Many of our basic functors also have instances of `Applicative` inherited from their Monad instances.
+Many of the basic functors also have instances of `Applicative` inherited from their Monad instances.
 For example, `Option` is a Monad which means it is also `Applicative`.
 
 So let's take a look and what the `seq` operator can do.  Suppose you want to multiply two `Option Nat`
@@ -86,7 +86,7 @@ objects.  Your first attempt might be this:
 #check_failure (some 4) * (some 5)      -- failed to synthesize instance
 /-!
 
-You then might wonder how to use the `Functor.map` to solve this since we could do these before:
+You then might wonder how to use the `Functor.map` to solve this since you could do these before:
 
 -/
 #eval (some 4).map (fun x => x * 5)  -- some 20
@@ -99,10 +99,10 @@ You then might wonder how to use the `Functor.map` to solve this since we could 
 Remember that `<$>` is the infix notation for `Functor.map`.
 
 The functor map operation can apply a multiplication to the value in the `Option` and then lift the
-result back up to become a new `Option` , but this isn't what we need here.
+result back up to become a new `Option` , but this isn't what you need here.
 
-The `Seq.seq` operator `<*>` can help since it can apply a function to the items inside our
-container and then lift the result back up to our desired type, namely `Option` .
+The `Seq.seq` operator `<*>` can help since it can apply a function to the items inside a
+container and then lift the result back up to the desired type, namely `Option` .
 
 There are two ways to do this:
 
@@ -112,15 +112,15 @@ There are two ways to do this:
 #eval (.*.) <$> some 4 <*> some 5 -- some 20
 /-!
 
-In the first way, we start off by wrapping our function in an applicative using pure. Then we apply
+In the first way, we start off by wrapping the function in an applicative using pure. Then we apply
 this to the first `Option` , and again to the second `Option`  in a chain of operations.  So  you can see
 how `Seq.seq` can be chained in fact, `Seq.seq` is really all about chaining of operations.
 
-But in this case there is a simpler way.  In the second way, we observe that "applying" a single
-function to a container is the same as using `Functor.map`. So we use `<$>` to "transform" the first
-option into an `Option`  containing a function, and then apply this function over our second value.
+But in this case there is a simpler way.  In the second way, you can see that "applying" a single
+function to a container is the same as using `Functor.map`. So you use `<$>` to "transform" the first
+option into an `Option` containing a function, and then apply this function over the second value.
 
-Now if either side is `none`, our result is `none`, as expected, and in this case the
+Now if either side is `none`, the result is `none`, as expected, and in this case the
 `seq` operator was able to eliminate the multiplication:
 
 -/
@@ -137,8 +137,8 @@ instance : Applicative List where
   seq f x := List.bind f fun y => Functor.map y (x ())
 /-!
 
-Notice we can now sequence a _list_ of functions and a _list_ of items.
-The trivial case of sequencing a singleton list is in fact the same as map as we saw
+Notice you can now sequence a _list_ of functions and a _list_ of items.
+The trivial case of sequencing a singleton list is in fact the same as map as you saw
 earlier with the `Option`  examples:
 
 -/
@@ -154,7 +154,7 @@ But now with list it is easier to show the difference when you do this:
 
 Why did this produce 4 values?  The reason is because `<*>` applies _every_ function to _every_
 value in a pairwise manner.  This makes sequence really convenient for solving certain problems. For
-example, how do we get the pairwise combinations of all values from two lists?
+example, how do you get the pairwise combinations of all values from two lists?
 
 -/
 #eval Prod.mk <$> [1, 2, 3] <*> [4, 5, 6]
@@ -167,8 +167,8 @@ How do you get the sum of these pairwise values?
 -- [5, 6, 7, 6, 7, 8, 7, 8, 9]
 /-!
 
-Here we use `<$>` to "transform" each element of the first list into a function, and then apply
-these functions over our second list.
+Here you can use `<$>` to "transform" each element of the first list into a function, and then apply
+these functions over the second list.
 
 If you have 3 lists, and want to find all combinations of 3 values across those lists you
 would need helper function that can create a tuple out of 3 values, and Lean provides a
@@ -263,9 +263,16 @@ pointing at.  For example:
 /-!
 
 So these are a kind of "discard" operation.  Run all the actions, but only return the values that you
-care about. It will be easier to see these in action when we get to full Monads, but they are used
+care about. It will be easier to see these in action when you get to full Monads, but they are used
 heavily in the Lean `Parsec` parser combinator library where you will find parsing functions like
 this one which parses the XML declaration `<?xml version="1.0" encoding='utf-8' standalone="yes">`:
+
+```lean
+def XMLdecl : Parsec Unit := do
+  skipString "<?xml"
+  VersionInfo
+  optional EncodingDecl *> optional SDDecl *> optional S *> skipString "?>"
+```
 
 But you will need to understand full Monads before this will make sense.
 
@@ -273,7 +280,7 @@ But you will need to understand full Monads before this will make sense.
 
 Diving a bit deeper, (you can skip this and jump to the [Applicative
 Laws](laws.lean.md#what-are-the-applicative-laws) if don't want to dive into this implementation detail right
-now). But, if you write our simple `Option`  example `(.*.) <$> some 4 <*> some 5` that produces `some 20`
+now). But, if you write a simple `Option` example `(.*.) <$> some 4 <*> some 5` that produces `some 20`
 using `Seq.seq` you will see somthing interesting:
 
 -/
@@ -290,8 +297,8 @@ class Seq (f : Type u → Type v) where
 ```
 
 You will see this function defined here: `(Unit → f α)`, this is a function that takes `Unit` as input
-and produces the output of type `f α` where `f` is our container type `Type u`, in our example `Option`
-and `α` is our element type `Nat`, so `fun (_ : Unit) => some 5` matches this definition because
+and produces the output of type `f α` where `f` is the container type `Type u`, in this example `Option`
+and `α` is the element type `Nat`, so `fun (_ : Unit) => some 5` matches this definition because
 it is taking an input of type Unit and producing `some 5` which is type `Option Nat`.
 
 The that `seq` is defined this way is because Lean is an eagerly evaluated language
@@ -310,13 +317,13 @@ class Monad (m : Type u → Type v) extends Applicative m, Bind m where
   seq      f x := bind f fun y => Functor.map y (x ())
 ```
 
-Notice here that `x` is our `(Unit → f α)` function, and it is calling that function by passing the
+Notice here that `x` is the `(Unit → f α)` function, and it is calling that function by passing the
 Unit value `()`, which is the Unit value (Unit.unit).  All this just to ensure delayed evaluation.
 
 ## How do Applicatives help with Monads?
 
 Applicatives are helpful for the same reasons as functors. They're a relatively simple abstract
-structure that has practical applications in our code. Now that we understand how chaining
-operations can fit into a structure definition, we're in a good position to start thinking about
+structure that has practical applications in your code. Now that you understand how chaining
+operations can fit into a structure definition, you're in a good position to start thinking about
 monads!
 -/

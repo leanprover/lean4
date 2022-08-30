@@ -9,18 +9,18 @@ Transformers](transformers.lean.md).
 
 So far, you've learned the concrete details you need in order to _use_ monads in your Lean programs.
 But there's still one more important concept you need if you want to _create_ new functors,
-applicatives and monads. Namely, the notion of _structural “laws”_ -- rules that these type
+applicatives and monads. Namely, the notion of _structural "laws"_ -- rules that these type
 classes should follow in order to meet other programmers' expectations about your code.
 
 ## Life without Laws
 
-Remember Lean represents each of our abstract classes by a type class. Each of these type classes
-has one or two main functions. So, as long as we implement those functions and it type checks, we
+Remember Lean represents each of these abstract classes by a type class. Each of these type classes
+has one or two main functions. So, as long as you implement those functions and it type checks, you
 have a new functor, applicative, or monad, right?
 
 Well not quite. Yes, your program will compile and you'll be able to use the instances. But this
 doesn't mean your instances follow the mathematical constructs. If they don't, your instances won't
-fulfill other programmers' expectations. Each type class has its own “laws”. For instance, suppose
+fulfill other programmers' expectations. Each type class has its own "laws". For instance, suppose
 you have the following Point Functor:
 -/
 structure Point (α: Type) where
@@ -57,7 +57,7 @@ def list1 := [1,2,3]
 #eval id <$> list1 == list1 -- true
 /-!
 
-Now let's try the same test on our `Point` functor:
+Now let's try the same test on the `Point` functor:
 -/
 
 def p1 : Point Nat := (Point.mk 1 2)
@@ -65,10 +65,10 @@ def p1 : Point Nat := (Point.mk 1 2)
 #eval id <$> p1 == p1 -- false
 
 /-!
-Oh, and look while the List is behaving well, our `Point` functor fails this identity test.
+Oh, and look while the List is behaving well, the `Point` functor fails this identity test.
 
-The _composition_ law says that if we "map" two functions in succession over our functor, this
-should be the same as "composing" the functions and simply mapping that one super-function over our
+The _composition_ law says that if you "map" two functions in succession over a functor, this
+should be the same as "composing" the functions and simply mapping that one super-function over the
 functor.  In Lean you can compose two functions using `Function.comp f g` (or the syntax `f ∘ g`,
 which you can type in VS code using `\o `) and you will get the same results from both of these
 showing that the composition law holds for `List Nat`:
@@ -81,13 +81,13 @@ def square (x: Nat) := x * x
 
 #eval (double <$> (square <$> list1)) == ((double ∘ square) <$> list1) -- true
 
--- ok, what about our Point class?
+-- ok, what about the Point class?
 #eval double <$> (square <$> p1) -- { x := 2, y := 8 }
 #eval (double ∘ square) <$> p1   -- { x := 8, y := 2 }
 
 #eval double <$> (square <$> p1) == (double ∘ square) <$> p1  -- false
 /-!
-Note that composition also fails on our bad `Point` because the x/y transpose.
+Note that composition also fails on the bad `Point` because the x/y transpose.
 
 As you can see this bad `Point` implementation violates both of the functor laws. In this case it
 would not be a true functor. Its behavior would confuse any other programmers trying to use it. You
@@ -110,12 +110,11 @@ def t1 : Option Nat := some 10
 
 This fails the id law but obeys the composition law.
 
-Hopefully this explains the value of these laws, and we don't need to show any more bad examples!
+Hopefully this explains the value of these laws, and you don't need to see any more bad examples!
 
 ## What are the Applicative Laws?
 
-While functors have two laws, applicatives have four laws which we can test using our applicative
-list:
+While functors have two laws, applicatives have four laws:
 
 - Identity
 - Homomorphism
@@ -136,11 +135,11 @@ instance : Applicative List where
 #eval pure id <*> [1, 2, 3]  -- [1, 2, 3]
 /-!
 
-The `pure id` statement here is wrapping the identity function in our applicative structure
-so that we can apply that over our container `[1, 2, 3]` using the Applicative `seq` operation
+The `pure id` statement here is wrapping the identity function in an applicative structure
+so that you can apply that over the container `[1, 2, 3]` using the Applicative `seq` operation
 which has the notation `<*>`.
 
-We can prove this for all values `v` and any applicative `m` with this theorem:
+To prove this for all values `v` and any applicative `m` you can write this theorem:
 -/
 example [Applicative m] [LawfulApplicative m] (v : m α) :
   pure id <*> v = v :=
@@ -152,7 +151,7 @@ example [Applicative m] [LawfulApplicative m] (v : m α) :
 `pure f <*> pure x = pure (f x)`
 
 Suppose you wrap a function and an object in pure. You can then apply the wrapped function over the
-wrapped object. Of course, we could also apply the normal function over the normal object, and then
+wrapped object. Of course, you could also apply the normal function over the normal object, and then
 wrap it in pure. The homomorphism law states these results should be the same.
 
 For example:
@@ -164,19 +163,20 @@ def f := (· + 2)
 #eval pure f <*> pure x = (pure (f x) : List Nat) -- true
 /-!
 
-You should see a distinct pattern here. The overriding theme of almost all these laws is that our
-type classes are containers. The type class function should not have any side effects. All they
-should do is facilitate the wrapping, unwrapping, and transformation of data contained in the
-container resulting in a new container that has the same structure.
+You should see a distinct pattern here. The overriding theme of almost all these laws is that these
+`Applicative` types should behave like normal containers. The `Applicative` functions should not
+have any side effects. All they should do is facilitate the wrapping, unwrapping, and transformation
+of data contained in the container resulting in a new container that has the same structure.
 
 ### Interchange
 
 `u <*> pure y = pure (. y) <*> u`.
 
 This law is is a little more complicated, so don't sweat it too much. It states that the order that
-we wrap things shouldn't matter. One the left, we apply any applicative over a pure wrapped object.
-On the right, we first wrap a function applying the object as an argument. Note that `(· y)` is short
-hand for: `fun f => f y`. Then we apply this to the first applicative. These should be the same.
+you wrap things shouldn't matter. One the left, you apply any applicative `u` over a pure wrapped
+object. On the right, you first wrap a function applying the object as an argument. Note that `(·
+y)` is short hand for: `fun f => f y`. Then you apply this to the first applicative `u`. These
+should be the same.
 
 For example:
 
@@ -217,8 +217,8 @@ def w := [5, 6]
 -- [9, 10, 10, 11, 10, 11, 11, 12]
 /-!
 
-With composition we implemented the grouping `(v <*> w)` then showed you could
-use that in the outer sequence `u <*> grouping` to get the same final result `[9, 10, 10, 11, 10, 11, 11, 12]`.
+To test composition you see the separate grouping `(v <*> w)` then that can be used in the outer
+sequence `u <*> grouping` to get the same final result `[9, 10, 10, 11, 10, 11, 11, 12]`.
 
 ## What are the Monad Laws?
 
@@ -230,11 +230,10 @@ Monads have three laws:
 
 ### Left Identity
 
-Identity laws for monads specify that `pure` by itself shouldn't really change anything
-about the structure or its values.
+Identity laws for monads specify that `pure` by itself shouldn't really change anything about the
+structure or its values.
 
-Left identity is `x >>= pure = x` and is demonstrated by the following examples on a
-monadic `List`:
+Left identity is `x >>= pure = x` and is demonstrated by the following examples on a monadic `List`:
 -/
 instance : Monad List  where
   pure := List.pure
@@ -257,7 +256,7 @@ def z := 5
 #eval pure z >>= h = h x            -- true
 /-!
 
-So in this example, with this specific `z` and `h`, we see that the rule holds true.
+So in this example, with this specific `z` and `h`, you see that the rule holds true.
 
 
 ### Associativity
@@ -296,8 +295,8 @@ def runOptionFuncsBindGrouped (input: String) : Option (List Nat) :=
 /-!
 
 Notice here we had to insert a `λ` function just like the definition says: `(λ x => f x >>= g)`.
-This is because unlike applicatives, we can't resolve the structure of later operations without the
-results of earlier operations quite as well because of the extra context monads provide. But we can
+This is because unlike applicatives, you can't resolve the structure of later operations without the
+results of earlier operations quite as well because of the extra context monads provide. But you can
 still group their later operations into composite functions taking their inputs from earlier on, and
 the result should be the same.
 
@@ -311,7 +310,7 @@ you shouldn't have to worry about them too much.
 There are two main ideas from all the laws:
 
 1. Applying the identity or pure function should not change the underlying values or structure.
-1. It should not matter what order we group operations in.  Another way to state this is function
+1. It should not matter what order you group operations in.  Another way to state this is function
    composition should hold across your structures.
 
 Following these laws will ensure other programmers are not confused by the bahavior of your

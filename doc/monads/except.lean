@@ -19,8 +19,8 @@ def divide (x y: Float): Except String Float :=
 /-!
 
 Just as the `read` operation was available from the `ReaderM` monad and the `get` and `set`
-operations came with the `StateM` monad, here we see a `throw` operation is provided by the `Except`
-monad.
+operations came with the `StateM` monad, here you can see a `throw` operation is provided by the
+`Except` monad.
 
 So in Lean, `throw` is not available everywhere like it is in most imperative programming languages.
 You have to declare your function can throw by changing the type signature to `Except String Float`.
@@ -42,7 +42,7 @@ def test := divide 5 0
 /-!
 
 Notice the Lean compiler infers the required `Except String Float` type information for you.
-And now we can run this test and get the expected exception:
+And now you can run this test and get the expected exception:
 
 -/
 #eval test      -- Except.error "can't divide by zero"
@@ -70,7 +70,7 @@ def chainUsingDoNotation := do
 
 /-!
 Notice in the second `divide 6 0` the exception from that division was nicely propagated along
-to our final result and the square function was pretty much ignored in that case.
+to the final result and the square function was pretty much ignored in that case.
 
 Remember also that you can chain the actions with implicit binding by using the `do` notation
 as you see in the `chainUsingDoNotation` function above.
@@ -101,7 +101,7 @@ You can now see the try/catch working in this eval:
 Notice the `Caught exception:` wrapped message is returned, and that it is returned as an
 `Except.ok` value, meaning `testCatch` eliminated the error result as expected.
 
-So we've interleaved a new concept into our functions (exception handling) and the compiler is still
+So you've interleaved a new concept into your functions (exception handling) and the compiler is still
 able to type check everything just as well as it does for pure functions and it's been able to infer
 some things along the way to make it even easier to manage.
 

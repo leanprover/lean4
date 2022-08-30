@@ -3,18 +3,17 @@
 
 In the [previous section](monads.lean.md) you learned about the conceptual idea of monads. You learned
 what they are, and saw how some common types like `IO` and `Option` work as monads. Now in this
-part, we'll start looking at some other useful monads. In particular, we'll consider the `ReaderM`
-monad.
+part, you will be looking at some other useful monads. In particular, the `ReaderM` monad.
 
 ## How to do Global Variables in Lean?
 
 In Lean, your code is generally "pure", meaning functions can only interact with the arguments
 passed to them. This effectively means you cannot have global variables. You can have global
-definitions, but these are fixed at compile time. If some user behavior might change them, we have
+definitions, but these are fixed at compile time. If some user behavior might change them, you have
 to wrap them in the `IO` monad, which means they can't be used from pure code.
 
-Consider this example. Here, we want to have an `Environment` containing different parameters as a
-global variable. However, we want to load these parameters from the process environment variables,
+Consider this example. Here, you want to have an `Environment` containing different parameters as a
+global variable. However, you want to load these parameters from the process environment variables,
 which requires the `IO` monad.
 -/
 
@@ -58,17 +57,17 @@ def main : IO Unit := do
 The only function actually using the environment is func1. However func1 is a pure function. This
 means it cannot directly call loadEnv, an impure function in the IO monad. This means the
 environment has to be passed through as a variable to the other functions, just so they can
-ultimately pass it to func1. In a language with global variables, we could save env as a global
+ultimately pass it to func1. In a language with global variables, you could save env as a global
 value in main. Then func1 could access it directly. There would be no need to have it as a parameter
 to func1, func2 and func3. In larger programs, these "pass-through" variables can cause a lot of
 headaches.
 
 ## The Reader Solution
 
-The `ReaderM` monad solves this problem. It effectively creates a global read-only value of a specified
-type. All functions within the monad can "read" the type. Let's look at how the `ReaderM` monad changes
-the shape of our code. Our functions **no longer need** the `Environment` as an explicit parameter, as
-they can access it through the monad.
+The `ReaderM` monad solves this problem. It effectively creates a global read-only value of a
+specified type. All functions within the monad can "read" the type. Let's look at how the `ReaderM`
+monad changes the shape of this code. Now the functions **no longer need** to be given the
+`Environment` as an explicit parameter, as they can access it through the monad.
 -/
 
 def readerFunc1 : ReaderM Environment Float := do
@@ -187,7 +186,7 @@ def readerFunc3WithReader : ReaderM Environment String := do
 
 ## Conclusion
 
-It might not seem like we've accomplished much with this `ReaderM Environment` monad, but you will
+It might not seem like much has been accomplished with this `ReaderM Environment` monad, but you will
 find that in larger code bases, with many different types of monads all composed together this
 greatly cleans up the code. Monads provide a beautiful functional way of managing cross-cutting
 concerns that would otherwise make your code very messy.

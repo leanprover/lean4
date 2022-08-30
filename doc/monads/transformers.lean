@@ -16,7 +16,7 @@ behavior for combining actions in this new monad. The common transformers add `T
 existing monad name. You will find `OptionT`, `ExceptT`, `ReaderT`, `StateT` but there is no transformer
 for `IO`.  So generally if you need `IO` it becomes the innermost wrapped monad.
 
-In the following example we use `ReaderT` to provide some read only state to our function
+In the following example we use `ReaderT` to provide some read only state to a function
 and this `ReaderT` transformer will wrap an `Except` monad.  If all goes well the
 `requiredArgument` returns the value of a required argument and `optionalSwitch`
 returns true if the optional argument is present.
@@ -132,7 +132,7 @@ def divide (x: Float ) (y: Float): ExceptT String Id Float :=
 Notice here we used the `ExceptT` transformer, but we composed it with the `Id` identity monad.
 This is then the same as writing `Except String Float` since the identity monad does nothing.
 
-Now suppose we want to count the number of times we call divide and store the result in some
+Now suppose you want to count the number of times divide is called and store the result in some
 global state:
 -/
 
@@ -145,8 +145,8 @@ def divideCounter (x:Float) (y:Float) : StateT Nat (ExceptT String Id) Float := 
 
 /-!
 
-Here we used the `modify` helper which makes it easier to use `modifyGet` from the `StateM` monad.
-But something interesting is happening here.  `divideCounter` is returning the value of
+The `modify` function is a helper which makes it easier to use `modifyGet` from the `StateM` monad.
+But something interesting is happening here, `divideCounter` is returning the value of
 `divide`, but the types don't match, yet it works?  This is monad lifting in action.
 
 You can see this more clearly with the following test:
@@ -160,7 +160,7 @@ def liftTest (x : Except String Float) :
 /-!
 
 Notice that `liftTest` returned `x` without doing anything to it, yet that matched the return type
-`StateT Nat (Except String) Float`.  Monad lifting is provided by our monad transformers.  if you
+`StateT Nat (Except String) Float`.  Monad lifting is provided by monad transformers.  if you
 `#print liftTest` you will see that Lean is implementing this using a call to a function named
 `monadLift` from the `MonadLift` type class:
 
@@ -189,7 +189,7 @@ instances in order to make your code compile and in this way it was able to find
 function and use it to wrap the result of `divide` so that the correct type is returned from
 `divideCounter`.
 
-If we have an instance `MonadLift m n` that means there is a way to turn a computation that happens
+If you have an instance `MonadLift m n` that means there is a way to turn a computation that happens
 inside of `m` into one that happens inside of `n` and (this is the key part) usually *without* the
 instance itself creating any additional data that feeds into the computation. This means you can in
 principle declare lifting instances from any monad to any other monad, it does not, however, mean
@@ -246,7 +246,7 @@ typeclass instance problem is stuck, it is often due to metavariables
 ```
 
 The reason is `divideCounter` returns the big `StateT Nat (ExceptT String Id) Float` and that type
-cannot be automatically lifted into the `main` return type of `IO Unit` unless we give it some
+cannot be automatically lifted into the `main` return type of `IO Unit` unless you give it some
 help.
 
 The following custom `MonadLift` solves this problem:
@@ -277,9 +277,9 @@ converts any `Except String α` into `IO α` by simply mapping the ok state of t
 
 ## Lifting ExceptT
 
-In the previous [Except](except.lean.md) section we were writing functions that `throw` Except
-values. When you get all the way back up to your `main` function which has type `IO Unit` we have
-the same problem we had above, because `Except String Float` doesn't match even if we use a
+In the previous [Except](except.lean.md) section you saw functions that `throw` Except
+values. When you get all the way back up to your `main` function which has type `IO Unit` you have
+the same problem you had above, because `Except String Float` doesn't match even if you use a
 `try/catch`.
 
 -/
@@ -310,7 +310,7 @@ a missing `MonadLift`.
 Now that you know how to combine your monads together, you're almost done with understanding the key
 concepts of monads! You could probably go out now and start writing some pretty nice code! But to
 truly master monads, you should know how to make your own, and there's one final concept that you
-should understand for that. This is the idea of type "laws". Each of the structures we've gone over
+should understand for that. This is the idea of type "laws". Each of the structures you've learned
 so far has a series of laws associated with it. And for your instances of these classes to make
 sense, they should follow the laws! Check out [Monad Laws](laws.lean.md).
 -/

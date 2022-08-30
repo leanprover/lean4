@@ -36,7 +36,7 @@ start exploring some of the common monadic idioms that you’ll need outside of 
 examine the Reader monad, which gives you a global read-only state.
 
 ## [State Monad](states.lean.md)
-This section introduces the State monad. This monad allows you to keep a particular type that we can
+This section introduces the State monad. This monad allows you to keep a particular type that you can
 both read from and write to. It opens the door to fully stateful programming, allowing you to do many
 of the things a function programming language supposedly “can’t” do.
 
@@ -49,7 +49,7 @@ the signature of a function so that it can return an `ok` value or and `error` w
 ## [Monad Transformers](transformers.lean.md)
 
 Now that you are familiar with all the above monads it is time to answer the question of how you can
-make them work together. After all, there are definitely times when we need multiple kinds of
+make them work together. After all, there are definitely times when you need multiple kinds of
 monadic behavior. This section introduces the concept of monad transformers, which allow you to
 combine multiple monads into one.
 
@@ -57,5 +57,5 @@ combine multiple monads into one.
 In this section we’ll examine what makes a monad a monad. After all, can't you just implement these
 type classes any way you want and write a “monad” instance? Starting back with functors and
 applicative functors, you’ll learn that all these structures have “laws” that they are expected to
-obey with respect to their behavior. We can make instances that don’t follow these laws. But we do
+obey with respect to their behavior. You can make instances that don’t follow these laws. But you do
 so at our peril, as other programmers will be very confused by the behavior.

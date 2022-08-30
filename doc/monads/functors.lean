@@ -15,7 +15,7 @@ the function:
 
 /-!
 Here we converted a list of natural numbers (Nat) to a list of strings where the lambda function
-here used `toString` to do the transformation of each element. Notice that when we apply `map`
+here used `toString` to do the transformation of each element. Notice that when you apply `map`
 the "structure" of the object remains the same, in this case the resulting List is the same size.
 
 List has a specialized version of `map` defined as follows:
@@ -90,8 +90,8 @@ def x : Option Nat := none
 #check x.map (fun x => toString x) -- Option String
 /-!
 
-Notice that even in the `none` case it has transformed `Option Nat` into `Option String` as we see
-in the `#check` command.
+Notice that even in the `none` case it has transformed `Option Nat` into `Option String` as
+you see in the `#check` command.
 
 ## How to make a Functor Instance?
 
@@ -153,11 +153,11 @@ for the whole family of types `LivingSpace α` you can map to `LivingSpace β` u
 `LivingSpace.map` map function by simply providing a function that does the more primitive mapping
 from `(f : α → β)`.  So `LivingSpace.map` is a sort of function applicator.
 
-Notice that our `LivingSpace.map` applies a function `f` to convert the units of all the LivingSpace
+Notice that `LivingSpace.map` applies a function `f` to convert the units of all the LivingSpace
 fields, except for `numBedrooms` which is a count (and therefore is not a measurement that needs
 converting).
 
-So now you can define a simple conversion function, let's say we want square meters instead:
+So now you can define a simple conversion function, let's say you want square meters instead:
 
 -/
 abbrev SquareMeters := Float
@@ -179,7 +179,7 @@ and now bringing it all together you can use the simple function `squareFeetToMe
 /-!
 
 Wow, this is pretty powerful.  By providing a functor instance on `LivingSpace` with an
-implementation of the `map` function we have made it super easy for anyone to come alone and
+implementation of the `map` function it is now super easy for anyone to come along and
 transform the units of a `LivingSpace` using very simple functions like `squareFeetToMeters`. Notice
 that squareFeetToMeters knows nothing about `LivingSpace`.
 
@@ -188,7 +188,7 @@ is very clean and elegant in Lean.
 
 ## How do Functors help with Monads ?
 
-Functors are an abstract mathematical structure that we represent in Lean with a type class. The
+Functors are an abstract mathematical structure that is represented in Lean with a type class. The
 Lean functor defines both `map` and a special case for working on constants more efficiently called
 `mapConst`:
 
@@ -210,5 +210,5 @@ container type from `F α → F β`. This corresponds to the category-theory not
 category of types and functions between them.
 
 Understanding abstract mathematical structures is a little tricky for most people. So it helps to
-start with a simpler idea like functors before we try to understand monads.
+start with a simpler idea like functors before you try to understand monads.
 -/

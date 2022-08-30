@@ -132,6 +132,11 @@ theorem dite_congr {s : Decidable b} [Decidable c]
 @[simp] theorem Bool.and_self (b : Bool) : (b && b) = b          := by cases b <;> rfl
 @[simp] theorem Bool.and_eq_true (a b : Bool) : ((a && b) = true) = (a = true ∧ b = true) := by cases a <;> cases b <;> decide
 
+theorem Bool.and_assoc (a b c : Bool) : (a && b && c) = (a && (b && c)) := by
+  cases a <;> cases b <;> cases c <;> decide
+theorem Bool.or_assoc (a b c : Bool) : (a || b || c) = (a || (b || c)) := by
+  cases a <;> cases b <;> cases c <;> decide
+
 @[simp] theorem Bool.not_not (b : Bool) : (!!b) = b := by cases b <;> rfl
 @[simp] theorem Bool.not_true  : (!true) = false := by decide
 @[simp] theorem Bool.not_false : (!false) = true := by decide

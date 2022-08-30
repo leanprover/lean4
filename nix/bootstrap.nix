@@ -93,32 +93,30 @@ rec {
         srcPrefix = "src";
         inherit debug;
       } // args);
-      Init'      = build { name = "Init"; deps = []; };
-      Bootstrap' = build { name = "Bootstrap";  deps = [ Init' ]; };
-      Lean'      = build { name = "Lean"; deps = [ Init' Bootstrap' ]; };
+      Init' = build { name = "Init"; deps = []; };
+      Lean' = build { name = "Lean"; deps = [ Init' ]; };
       attachSharedLib = sharedLib: pkg: pkg // {
         inherit sharedLib;
         mods = mapAttrs (_: m: m // { inherit sharedLib; propagatedLoadDynlibs = []; }) pkg.mods;
       };
     in (all: all // all.lean) rec {
       inherit (Lean) emacs-dev emacs-package vscode-dev vscode-package;
-      Init      = attachSharedLib leanshared Init';
-      Bootstrap = attachSharedLib leanshared Bootstrap'  // { allExternalDeps = [ Init ]; };
-      Lean      = attachSharedLib leanshared Lean' // { allExternalDeps = [ Init Bootstrap ]; };
-      stdlib = [ Init Bootstrap Lean ];
+      Init = attachSharedLib leanshared Init';
+      Lean = attachSharedLib leanshared Lean' // { allExternalDeps = [ Init ]; };
+      stdlib = [ Init Lean ];
       modDepsFiles = symlinkJoin { name = "modDepsFiles"; paths = map (l: l.modDepsFile) (stdlib ++ [ Leanc ]); };
       iTree = symlinkJoin { name = "ileans"; paths = map (l: l.iTree) stdlib; };
       extlib = stdlib;  # TODO: add Lake
       Leanc = build { name = "Leanc"; src = lean-bin-tools-unwrapped.leanc_src; deps = stdlib; roots = [ "Leanc" ]; };
-      stdlibLinkFlags = "-L${Init.staticLib} -L${Bootstrap.staticLib} -L${Lean.staticLib} -L${leancpp}/lib/lean";
+      stdlibLinkFlags = "-L${Init.staticLib} -L${Lean.staticLib} -L${leancpp}/lib/lean";
       leanshared = runCommand "leanshared" { buildInputs = [ stdenv.cc ]; libName = "libleanshared${stdenv.hostPlatform.extensions.sharedLibrary}"; } ''
         mkdir $out
         LEAN_CC=${stdenv.cc}/bin/cc ${lean-bin-tools-unwrapped}/bin/leanc -shared ${lib.optionalString stdenv.isLinux "-Bsymbolic"} \
-          ${if stdenv.isDarwin then "-Wl,-force_load,${Init.staticLib}/libInit.a -Wl,-force_load,${Bootstrap.staticLib}/libBootstrap.a -Wl,-force_load,${Lean.staticLib}/libLean.a -Wl,-force_load,${leancpp}/lib/lean/libleancpp.a ${leancpp}/lib/libleanrt_initial-exec.a -lc++"
-            else "-Wl,--whole-archive -lInit -lBootstrap -lLean -lleancpp ${leancpp}/lib/libleanrt_initial-exec.a -Wl,--no-whole-archive -lstdc++"} -lm ${stdlibLinkFlags} \
+          ${if stdenv.isDarwin then "-Wl,-force_load,${Init.staticLib}/libInit.a -Wl,-force_load,${Lean.staticLib}/libLean.a -Wl,-force_load,${leancpp}/lib/lean/libleancpp.a ${leancpp}/lib/libleanrt_initial-exec.a -lc++"
+            else "-Wl,--whole-archive -lInit -lLean -lleancpp ${leancpp}/lib/libleanrt_initial-exec.a -Wl,--no-whole-archive -lstdc++"} -lm ${stdlibLinkFlags} \
           -o $out/$libName
       '';
-      mods = Init.mods // Bootstrap.mods // Lean.mods;
+      mods = Init.mods // Lean.mods;
       leanc = writeShellScriptBin "leanc" ''
         LEAN_CC=${stdenv.cc}/bin/cc ${Leanc.executable.override { withSharedStdlib = true; }}/bin/leanc -I${lean-bin-tools-unwrapped}/include ${stdlibLinkFlags} -L${leanshared} "$@"
       '';

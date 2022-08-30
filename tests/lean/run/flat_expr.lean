@@ -1,5 +1,3 @@
-import Bootstrap
-
 inductive Expr where
   | var (i : Nat)
   | op  (lhs rhs : Expr)

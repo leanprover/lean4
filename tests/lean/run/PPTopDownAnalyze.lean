@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Daniel Selsam
 -/
 import Lean
-import Bootstrap
 
 open Lean Lean.Meta Lean.Elab Lean.Elab.Term Lean.Elab.Command
 open Lean.PrettyPrinter

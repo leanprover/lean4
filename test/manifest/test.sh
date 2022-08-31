@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 set -exo pipefail
 
-LAKE1=${LAKE:-../../../build/bin/lake}
-LAKE=${LAKE:-../../build/bin/lake}
+LAKE=${LAKE:-$PWD/../../build/bin/lake}
+
+if [ "`uname`" = Darwin ]; then
+  sed_i() { sed -i '' "$@"; }
+else
+  sed_i() { sed -i "$@"; }
+fi
 
 ./clean.sh
 
@@ -25,7 +30,7 @@ pushd b
 cat >>lakefile.lean <<EOF
 require a from git "../a" @ "master"
 EOF
-$LAKE1 update -v
+$LAKE update -v
 git add .
 git config user.name test
 git config user.email test@example.com
@@ -42,7 +47,7 @@ pushd c
 cat >>lakefile.lean <<EOF
 require a from git "../a" @ "master"
 EOF
-$LAKE1 update -v
+$LAKE update -v
 git add .
 git config user.name test
 git config user.email test@example.com
@@ -55,24 +60,20 @@ cat >>lakefile.lean <<EOF
 require b from git "../b" @ "master"
 require c from git "../c" @ "master"
 EOF
-$LAKE1 update -v 2>&1 | grep -m8 -E '`[abc]`|master'
+$LAKE update -v 2>&1 | grep -m8 -E '`[abc]`|master'
 git add .
 git config user.name test
 git config user.email test@example.com
 git commit -am 'first commit in d'
-$LAKE1 update -v
-if [[ "`git diff`" ]]; then
-  exit 1
-fi
+$LAKE update -v
+git diff --exit-code
 popd
 
+# issue 85
 pushd b
-$LAKE1 update -v
+$LAKE update -v
 git diff | grep -m1 manifest
-if [ "`uname`" = Darwin ]; then
-  sed -i '' 's/master/init/g' lakefile.lean
-else
-  sed -i 's/master/init/g' lakefile.lean
-fi
-$LAKE1 resolve-deps -v 2>&1 | grep -m1 init
+sed_i 's/master/init/g' lakefile.lean
+$LAKE resolve-deps -v 2>&1 | grep -m1 'listed in manifest does not match `init`'
+git reset --hard
 popd

@@ -147,16 +147,17 @@ the Lean interpreter that will show you the reduced Types:
 #reduce ReaderM Environment String   -- Environment → String
 /-!
 And you can see here that this type is actually a function!  It's a function that takes an
-`Environment` as input and returns a `String`.  So, remember in Lean that a function that takes
-argument of type `Nat` and returns a `String` like `def f (a : Nat) : String` is the same as this
-function `def f : a → String`.  These are definitially equal.
-Well this fact is being used by the `ReaderM` Monad to add an input argument to all the functions that
-use the `ReaderM` monad and this is why `main` is able to start things off by simply passing that
-new input argument in `readerFunc3 env`. So now that you know the implementation details of the
-`ReaderM` monad you can see that what it is doing looks very much like the original code we wrote at
-the beginning of this section, only it's taking a lot of the tedious work off your plate and it is
-creating a nice clean separation between what your pure functions are doing, and the global context
-idea that the `ReaderM` adds.
+`Environment` as input and returns a `String`.
+
+Now, remember in Lean that a function that takes argument of type `Nat` and returns a `String` like
+`def f (a : Nat) : String` is the same as this function `def f : Nat → String`.  These are
+definitially equal.  Well this is being used by the `ReaderM` Monad to add an input argument to
+all the functions that use the `ReaderM` monad and this is why `main` is able to start things off by
+simply passing that new input argument in `readerFunc3 env`. So now that you know the implementation
+details of the `ReaderM` monad you can see that what it is doing looks very much like the original
+code we wrote at the beginning of this section, only it's taking a lot of the tedious work off your
+plate and it is creating a nice clean separation between what your pure functions are doing, and the
+global context idea that the `ReaderM` adds.
 
 ## withReader
 

@@ -211,17 +211,7 @@ Here's an example where you use `bind` to convert a list of strings into a combi
 
 #eval ["apple", "orange"] >>= String.toList
 -- ['a', 'p', 'p', 'l', 'e', 'o', 'r', 'a', 'n', 'g', 'e']
-/-!
-List also provides some functions that are designed to operate in the context of a monad.
-These methods end in upper case M like `anyM` below:
--/
 
-def hasSomeItemGreaterThan (x : List Nat) (n : Nat): Option Bool := do
-  x >>= List.anyM (λ a => if a > n then true else false)
-
-#eval hasSomeItemGreaterThan [0, 0, 1, 0, 1, 0, 1, 2] 1 -- some true
-#eval hasSomeItemGreaterThan [0, 0, 1, 0, 1, 0, 1, 2] 10 -- some false
-#eval hasSomeItemGreaterThan [] 5 -- some false
 /-!
 
 

@@ -125,6 +125,22 @@ The `Id.run` function is a helper function that executes the `do` block and retu
 `Id` is the _identity monad_.  So `Id.run do` is a pattern you can use to execute monads in a
 function that is not itself monadic.
 
+## Monadic list functions
+
+List also provides some functions that are designed to operate in the context of a monad.
+These methods end in upper case M like `anyM` below:
+-/
+
+def validateList (x : List Nat) (n : Nat): Except String Bool := do
+  x.anyM (λ a => if a > n then do throw "illegal value found in list" else pure true)
+
+#eval validateList [1, 2, 5, 3, 8] 10 -- some true
+
+/-!
+
+Notice here that the `anyM` function passes the monadic context through to the inner function
+so it can use a `do` block and inherit the `throw` and `pure` functions.
+
 ## Summary
 
 Now that you know all these different monad constructs, you might be wondering how you can combine

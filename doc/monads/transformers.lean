@@ -29,7 +29,7 @@ def indexOf? [BEq α] (xs : List α) (s : α) (start := 0): Option Nat :=
   | [] => none
   | a :: tail => if a == s then some start else indexOf? tail s (start+1)
 
-def requiredArgument (name: String) : ReaderT Arguments (Except String) String := do
+def requiredArgument (name : String) : ReaderT Arguments (Except String) String := do
   let args ← read
   let value := match indexOf? args name with
     | some i => if i + 1 < args.length then args[i+1]! else ""
@@ -37,7 +37,7 @@ def requiredArgument (name: String) : ReaderT Arguments (Except String) String :
   if value == "" then throw s!"Command line argument {name} missing"
   return value
 
-def optionalSwitch (name: String) : ReaderT Arguments (Except String) Bool := do
+def optionalSwitch (name : String) : ReaderT Arguments (Except String) Bool := do
   let args ← read
   return match (indexOf? args name) with
   | some _ => true
@@ -88,7 +88,7 @@ def parseArguments : CliConfigM Bool := do
   set config
   return true
 
-def main (args: List String) : IO Unit := do
+def main (args : List String) : IO Unit := do
   let config : Config := { input := "default"}
   match parseArguments |>.run config |>.run args with
   | Except.ok (_, c) => do
@@ -119,7 +119,7 @@ This "just worked" because Lean did some magic with monad lifting.
 
 To give you a simpler example of this, suppose you have the following funciton:
 -/
-def divide (x: Float ) (y: Float): ExceptT String Id Float :=
+def divide (x : Float ) (y : Float): ExceptT String Id Float :=
   if y == 0 then
     throw "can't divide by zero"
   else
@@ -136,7 +136,7 @@ Now suppose you want to count the number of times divide is called and store the
 global state:
 -/
 
-def divideCounter (x:Float) (y:Float) : StateT Nat (ExceptT String Id) Float := do
+def divideCounter (x : Float) (y : Float) : StateT Nat (ExceptT String Id) Float := do
   modify fun s => s + 1
   divide x y
 

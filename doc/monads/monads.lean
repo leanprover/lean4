@@ -85,7 +85,7 @@ match a, b with` code can be collapsed away. To make this more clear consider th
 example, where `Option.bind` is using the second form like `bar`:
 
 -/
-def foo (x : Option Nat) (y: Nat) : Option Nat :=
+def foo (x : Option Nat) (y : Nat) : Option Nat :=
   match x, y with
   | none, _ => none
   | some x, y => some (x + y)
@@ -141,7 +141,7 @@ operator.
 
 -/
 
-def runOptionFuncsBind (input: String) : Option (List Nat) :=
+def runOptionFuncsBind (input : String) : Option (List Nat) :=
   optionFunc1 input >>= optionFunc2 >>= optionFunc3
 
 #eval runOptionFuncsBind "big" -- some [9, 10]
@@ -160,7 +160,7 @@ This notation allows you to write monadic operations one after another, line-by-
 your code look like imperative programming. You can rewrite the above as:
 -/
 
-def runOptionFuncsDo (input: String) : Option (List Nat) := do
+def runOptionFuncsDo (input : String) : Option (List Nat) := do
   let i ← optionFunc1 input
   let f ← optionFunc2 i
   optionFunc3 f
@@ -217,7 +217,7 @@ List also provides some functions that are designed to operate in the context of
 These methods end in upper case M like `anyM` below:
 -/
 
-def hasSomeItemGreaterThan (x : List Nat) (n: Nat): Option Bool := do
+def hasSomeItemGreaterThan (x : List Nat) (n : Nat): Option Bool := do
   x >>= List.anyM (λ a => if a > n then true else false)
 
 #eval hasSomeItemGreaterThan [0, 0, 1, 0, 1, 0, 1, 2] 1 -- some true

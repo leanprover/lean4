@@ -220,7 +220,7 @@ From the chapter on [functors](functors.lean.md) you might remember this example
 that had a `Functor` instance:
 
 -/
-structure LivingSpace (α: Type) where
+structure LivingSpace (α : Type) where
   totalSize : α
   numBedrooms : Nat
   masterBedroomSize : α

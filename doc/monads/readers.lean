@@ -23,7 +23,7 @@ structure Environment where
   user : String
   deriving Repr
 
-def getEnvDefault (name: String): IO String := do
+def getEnvDefault (name : String): IO String := do
   pure <| match (← IO.getEnv name) with
           | none => ""
           | some s => s
@@ -40,7 +40,7 @@ def func1 (e : Environment) : Float :=
   let l3 := e.user.length * 3
   (l1 + l2 + l3).toFloat * 2.1
 
-def func2 (env: Environment) : Nat :=
+def func2 (env : Environment) : Nat :=
   2 + (func1 env).floor.toUInt32.toNat
 
 def func3 (env : Environment) : String :=
@@ -147,7 +147,7 @@ the Lean interpreter that will show you the reduced Types:
 /-!
 And you can see here that this type is actually a function!  It's a function that takes an
 `Environment` as input and returns a `String`.  So, remember in Lean that a function that takes
-argument a and returns a string: `def f (a: Nat) → String` is the same as the function that takes no
+argument a and returns a string: `def f (a : Nat) → String` is the same as the function that takes no
 arguments and returns another function of type `Nat → String`.  Well this fact is being used by the
 ReaderM Monad to add an input argument to all the functions that use the `ReaderM` monad and this is why
 `main` is able to start things off by simply passing that new input argument in `readerFunc3 env`.

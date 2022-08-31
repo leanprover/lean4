@@ -107,7 +107,7 @@ example, let's supposed you create a new type describing the measurements of a h
 or apartment:
 
 -/
-structure LivingSpace (α: Type) where
+structure LivingSpace (α : Type) where
   totalSize : α
   numBedrooms : Nat
   masterBedroomSize : α

@@ -23,7 +23,7 @@ doesn't mean your instances follow the mathematical constructs. If they don't, y
 fulfill other programmers' expectations. Each type class has its own "laws". For instance, suppose
 you have the following Point Functor:
 -/
-structure Point (α: Type) where
+structure Point (α : Type) where
   x : α
   y : α
   deriving Repr, BEq
@@ -74,8 +74,8 @@ which you can type in VS code using `\o `) and you will get the same results fro
 showing that the composition law holds for `List Nat`:
 
 -/
-def double (x: Nat) := x + x
-def square (x: Nat) := x * x
+def double (x : Nat) := x + x
+def square (x : Nat) := x * x
 
 #eval (double <$> (square <$> list1)) -- [2, 8, 18]
 
@@ -247,7 +247,7 @@ instance : Monad List  where
 
 Right identity is `pure x >>= f = f x` and is demonstrated by the following example:
 -/
-def h (x: Nat) : Option Nat :=  some (x + 1)
+def h (x : Nat) : Option Nat :=  some (x + 1)
 def z := 5
 
 #eval pure z >>= h                  -- some 6
@@ -284,10 +284,10 @@ def optionFunc3 (f : Float) : Option (List Nat) :=
   if f > 15.0 then none else some [f.floor.toUInt32.toNat, f.ceil.toUInt32.toNat]
 
 
-def runOptionFuncsBind (input: String) : Option (List Nat) :=
+def runOptionFuncsBind (input : String) : Option (List Nat) :=
    optionFunc1 input >>= optionFunc2 >>= optionFunc3
 
-def runOptionFuncsBindGrouped (input: String) : Option (List Nat) :=
+def runOptionFuncsBindGrouped (input : String) : Option (List Nat) :=
    optionFunc1 input >>= (λ x => optionFunc2 x >>= optionFunc3)
 
 #eval runOptionFuncsBind "big"        -- some [9, 10]

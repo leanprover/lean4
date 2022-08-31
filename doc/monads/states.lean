@@ -101,7 +101,7 @@ def nextPlayer : Player →  Player
 | XPlayer => OPlayer
 | OPlayer => XPlayer
 
-def applyMove (i: TileIndex): StateM GameState Unit := do
+def applyMove (i : TileIndex): StateM GameState Unit := do
   let game ← get
   let p := game.currentPlayer
   let newBoard := game.board.insert i (tileStateForPlayer p)

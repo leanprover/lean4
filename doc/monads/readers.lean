@@ -162,8 +162,7 @@ use the `withReader` function from the `MonadWithReader` typeclass to do this:
 
 -/
 def readerFunc3WithReader : ReaderM Environment String := do
-  let f := (λ env => { env with user := "new user" })
-  let x ← withReader f readerFunc2
+  let x ← withReader (λ env => { env with user := "new user" }) readerFunc2
   return "Result: " ++ toString x
 
 /-!

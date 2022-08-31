@@ -59,7 +59,7 @@ over a type `α`, namely `f α`, and then produce a structure wrapping a type `�
 just vary in what the function looks like. For the functor, the function is a normal pure function
 because it has the type `(α → β)`. For applicatives, the function is still pure, but wrapped in the
 structure `f (α → β)`. Now with monads, the function argument takes a "pure" input `α` but produces
-an output in the structure, `(α → f β)`
+an output in the structure, `(α → f β)`.
 
 ## Basic Monad Example
 

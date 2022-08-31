@@ -86,12 +86,17 @@ def testCatch :=
     pure (toString r)
   catch e =>
     pure s!"Caught exception: {e}"
+
+#check testCatch -- Except String String
 /-!
 
-Note that the type inferred by Lean for this function is `Except String String` so the `Except
-String Float` return type from the divide has been transformed. The secret to Lean is how easily it
-does monad transformation for you in most cases.  Notice here you didn't have to do any extra work
-for the compiler to figure out the transform you were trying to do.
+Note that the type inferred by Lean for this function is `Except String String` so unlike the
+`test` function earlier, this time Lean type inference has figured out that since the pure
+value `(toString r)` is of type `String`, then this function must have type `Except String String`
+so you don't have to explicitly state this. You can always hover your mouse over `testCatch`
+or use `#check testCatch` to query Lean interactively to figure out what type inference
+has decided.  Lean type inference makes life easy for you in, so it's good to use it
+when you can.
 
 You can now see the try/catch working in this eval:
 -/
@@ -105,7 +110,7 @@ So you've interleaved a new concept into your functions (exception handling) and
 able to type check everything just as well as it does for pure functions and it's been able to infer
 some things along the way to make it even easier to manage.
 
-Now you might be wondering why `testCatch` doesn't have return type `String`? Lean does this as a
+Now you might be wondering why `testCatch` doesn't infer the return type `String`? Lean does this as a
 convenience since you could have a rethrow in or after the catch block. If you really want to stop
 the `Except` type from bubbling up you can unwrap it like this:
 

@@ -135,6 +135,18 @@ abbrev SimpM := ReaderT Context $ StateRefT State CompilerM
 instance : MonadFVarSubst SimpM where
   getSubst := return (← get).subst
 
+def markSimplified : SimpM Unit :=
+  modify fun s => { s with simplified := true }
+
+def incVisited : SimpM Unit :=
+  modify fun s => { s with visited := s.visited + 1 }
+
+def incInline : SimpM Unit :=
+  modify fun s => { s with inline := s.inline + 1 }
+
+def incInlineLocal : SimpM Unit :=
+  modify fun s => { s with inlineLocal := s.inlineLocal + 1 }
+
 partial def updateFunDeclInfo (code : Code) (mustInline := false) : SimpM Unit :=
   go code
 where
@@ -158,8 +170,134 @@ def isOnceOrMustInline (fvarId : FVarId) : SimpM Bool := do
     | some .once | some .mustInline  => return true
     | _ => return false
 
-def markSimplified : SimpM Unit :=
-  modify fun s => { s with simplified := true }
+def isSmall (decl : FunDecl) : SimpM Bool :=
+  return decl.value.sizeLe (← read).config.smallThreshold
+
+def shouldInlineLocal (decl : FunDecl) : SimpM Bool := do
+  if (← isOnceOrMustInline decl.fvarId) then
+    return true
+  else
+    isSmall decl
+
+structure InlineCandidateInfo where
+  isLocal : Bool
+  params  : Array Param
+  /-- Value (lambda expression) of the function to be inlined. -/
+  value   : Code
+
+def InlineCandidateInfo.arity : InlineCandidateInfo → Nat
+  | { params, .. } => params.size
+
+def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
+  let f := e.getAppFn
+  if let .const declName us ← findExpr f then
+    unless hasInlineAttribute (← getEnv) declName do return none
+    -- TODO: check whether function is recursive or not.
+    -- We can skip the test and store function inline so far.
+    let some decl ← getStage1Decl? declName | return none
+    let numArgs := e.getAppNumArgs
+    let arity := decl.getArity
+    if numArgs < arity then return none
+    let params := decl.instantiateParamsLevelParams us
+    let value := decl.instantiateValueLevelParams us
+    incInline
+    return some {
+      isLocal := false
+      params, value
+    }
+  else if let some decl ← findFunDecl? f then
+    unless (← shouldInlineLocal decl) do return none
+    let numArgs := e.getAppNumArgs
+    let arity := decl.getArity
+    if numArgs < arity then return none
+    incInlineLocal
+    modify fun s => { s with inlineLocal := s.inlineLocal + 1 }
+    return some {
+      isLocal := true
+      params  := decl.params
+      value   := decl.value
+    }
+  else
+    return none
+
+private partial def oneExitPointQuick (c : Code) : Bool :=
+  go c
+where
+  go (c : Code) : Bool :=
+    match c with
+    | .let _ k | .fun _ k => go k
+    -- Approximation, the cases may have many unreachable alternatives, and only reachable.
+    | .cases c => c.alts.size == 1 && c.alts.any fun alt => go alt.getCode
+    -- Approximation, we assume that any code containing join points have more than one exit point
+    | .jp .. | .jmp .. => false
+    | .return .. | .unreach .. => true
+
+/-
+def betaReduce (e : Expr) (args : Array Expr) : SimpM Expr := do
+  -- TODO: add necessary casts to `args`
+  let result ← instantiateRevInternalize (getLambdaBody e) args
+  return result
+
+
+/--
+If `e` is an application that can be inlined, inline it.
+
+`k?` is the optional "continuation" for `e`, and it may contain loose bound variables
+that need to instantiated with `xs`. That is, if `k? = some k`, then `k.instantiateRev xs`
+is an expression without loose bound variables.
+-/
+partial def inlineApp? (e : Expr) (k? : Option Code) : SimpM (Option Code) := do
+  let some info ← inlineCandidate? e | return none
+  let args := e.getAppArgs
+  let numArgs := args.size
+  trace[Compiler.simp.inline] "inlining {e}"
+  markSimplified
+  if k?.isNone && numArgs == info.arity then
+    /- Easy case, there is no continuation and `e` is not over applied -/
+    visitLet (← betaReduce info.value args)
+  else if oneExitPointQuick info.value then
+    /- If `info.value` has only one exit point, we don't need to create a new auxiliary join point -/
+    let mut value ← betaReduce info.value args[:info.arity]
+    if numArgs > info.arity then
+      let type ← inferType (mkAppN e.getAppFn args[:info.arity])
+      value := mkFlatLet (← mkAuxLetDeclName) type value (mkAppN (.bvar 0) args[info.arity:])
+    if let some k := k? then
+      let type ← inferType e
+      value := mkFlatLet (← mkAuxLetDeclName) type value k
+    visitLet value xs
+  else
+    /-
+    There is a continuation `k` or `e` is over applied.
+    If `e` is over applied, the extra arguments act as a continuation.
+
+    We create a new join point
+    ```
+    let jp := fun y =>
+      let x := y <extra-arguments> -- if `e` is over applied
+      k
+    ```
+    Recall that `visitLet` incorporates the current continuation
+    to the new join point `jp`.
+    -/
+    let jpDomain ← inferType (mkAppN e.getAppFn args[:info.arity])
+    let binderName ← mkFreshUserName `_y
+    let jp ← withNewScope do
+      let y ← mkLocalDecl binderName jpDomain
+      let body ← if numArgs == info.arity then
+        visitLet k?.get! (xs.push y)
+      else
+        let x ← mkAuxLetDecl (mkAppN y args[info.arity:])
+        if let some k := k? then
+          visitLet k (xs.push x)
+        else
+          visitLet x (xs.push x)
+      let body ← mkLetUsingScope body
+      mkLambda #[y] body
+    let jp ← mkJpDeclIfNotSimple jp
+    let value ← betaReduce info.value args[:info.arity]
+    let value ← attachJp value jp
+    visitLet value
+-/
 
 def findCtor (e : Expr) : SimpM Expr := do
   -- TODO: add support for mapping discriminants to constructors in branches
@@ -191,9 +329,6 @@ def simpAppApp? (e : Expr) : OptionT SimpM Expr := do
   guard <| f.isApp || f.isConst
   markSimplified
   return mkAppN f e.getAppArgs
-
-def incVisited : SimpM Unit :=
-  modify fun s => { s with visited := s.visited + 1 }
 
 def markUsedFVar (fvarId : FVarId) : SimpM Unit :=
   modify fun s => { s with used := s.used.insert fvarId }
@@ -331,41 +466,6 @@ def shouldInlineLocal (localDecl : LocalDecl) : SimpM Bool := do
   else
     isSmallValue localDecl.value
 
-structure InlineCandidateInfo where
-  isLocal : Bool
-  arity : Nat
-  /-- Value (lambda expression) of the function to be inlined. -/
-  value : Expr
-
-def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
-  let f := e.getAppFn
-  if let .const declName us ← findExpr f then
-    unless hasInlineAttribute (← getEnv) declName do return none
-    -- TODO: check whether function is recursive or not.
-    -- We can skip the test and store function inline so far.
-    let some decl ← getStage1Decl? declName | return none
-    let numArgs := e.getAppNumArgs
-    let arity := decl.getArity
-    if numArgs < arity then return none
-    let value := decl.value.instantiateLevelParams decl.levelParams us
-    modify fun s => { s with inline := s.inline + 1 }
-    return some {
-      arity, value
-      isLocal := false
-    }
-  else if let some localDecl ← findLambda? f then
-    unless (← shouldInlineLocal localDecl) do return none
-    let numArgs := e.getAppNumArgs
-    let arity := getLambdaArity localDecl.value
-    if numArgs < arity then return none
-    let value := localDecl.value
-    modify fun s => { s with inlineLocal := s.inlineLocal + 1 }
-    return some {
-      arity, value
-      isLocal := true
-    }
-  else
-    return none
 
 /--
 If `e` if a free variable that expands to a valid LCNF terminal `let`-block expression `e'`,

@@ -6,7 +6,7 @@ In the previous sections you learned about some handy monads [Option](monads.lea
 [Except](except.lean.md), and you now know how to make your function use one of these, but what you
 do not yet know is how to make your function use multiple monads at once.
 
-For example, suppose you need a function that wants to access some Reader state and optionally throw
+For example, suppose you need a function that wants to access some Reader context and optionally throw
 an exception?  This would require composition of two monads `ReaderM` and `Except` and this is what
 monad transformers are for.
 
@@ -16,7 +16,7 @@ behavior for combining actions in this new monad. The common transformers add `T
 existing monad name. You will find `OptionT`, `ExceptT`, `ReaderT`, `StateT` but there is no transformer
 for `IO`.  So generally if you need `IO` it becomes the innermost wrapped monad.
 
-In the following example we use `ReaderT` to provide some read only state to a function
+In the following example we use `ReaderT` to provide some read only context to a function
 and this `ReaderT` transformer will wrap an `Except` monad.  If all goes well the
 `requiredArgument` returns the value of a required argument and `optionalSwitch`
 returns true if the optional argument is present.
@@ -65,7 +65,7 @@ Note: the `|>.` notation is described in [Readers](readers.lean.md#the-reader-so
 ## Adding more layers
 
 Here's the best part about monad transformers. Since the result of a monad transformer is itself a
-monad, you can wrap it inside another transformer! Suppose you need to pass in some read only state
+monad, you can wrap it inside another transformer! Suppose you need to pass in some read only context
 like the command line arguments, update some read-write state (like program Config) and optionally
 throw an exception, then you could write this:
 
@@ -272,7 +272,7 @@ def main3 : IO Unit := do
 
 It turns out that the `IO` monad you see in your `main` function is based on a `Result` type
 which is similar to the `Except` type but it has an additional return value. The `liftIO` function
-converts any `Except String α` into `IO α` by simply mapping the ok state of the `Except` to the
+converts any `Except String α` into `IO α` by simply mapping the ok case of the `Except` to the
 `Result.ok` and the error case to the Result.error.
 
 ## Lifting ExceptT

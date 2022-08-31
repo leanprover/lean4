@@ -148,7 +148,7 @@ Lean that will show you the reduced types:
 And you can see here that this type is actually a function!  It's a function that takes an
 `Environment` as input and returns a `String`.
 
-Now, remember in Lean that a function that takes argument of type `Nat` and returns a `String` like
+Now, remember in Lean that a function that takes an argument of type `Nat` and returns a `String` like
 `def f (a : Nat) : String` is the same as this function `def f : Nat → String`.  These are
 definitially equal.  Well this is being used by the `ReaderM` Monad to add an input argument to
 all the functions that use the `ReaderM` monad and this is why `main` is able to start things off by

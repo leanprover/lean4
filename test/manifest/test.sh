@@ -15,6 +15,7 @@ fi
 # https://github.com/leanprover/lake/issues/70
 # https://github.com/leanprover/lake/issues/84
 # https://github.com/leanprover/lake/issues/85
+# https://github.com/leanprover/lake/issues/119
 
 $LAKE new a lib
 pushd a
@@ -76,4 +77,36 @@ git diff | grep -m1 manifest
 sed_i 's/master/init/g' lakefile.lean
 $LAKE resolve-deps -v 2>&1 | grep -m1 'listed in manifest does not match `init`'
 git reset --hard
+popd
+
+pushd a
+echo '-- third commit in a' >>A.lean
+git commit -am 'third commit in a'
+popd
+
+# issue 70
+pushd d
+$LAKE update -v
+if grep 'third commit in a' lake-packages/a/A.lean; then false; fi
+git diff --exit-code
+popd
+
+# issue 119
+pushd a
+git checkout -b main
+popd
+pushd b
+sed_i 's/master/main/' lakefile.lean
+$LAKE update -v
+git commit -am 'third commit in b'
+popd
+pushd a
+sed_i 's/third commit/fourth commit/' A.lean
+git commit -am 'fourth commit in a'
+popd
+pushd d
+sed_i '/require c/d' lakefile.lean
+$LAKE update -v
+grep 'third commit in a' lake-packages/a/A.lean
+git commit -am 'second commit in d'
 popd

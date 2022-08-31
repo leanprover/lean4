@@ -191,8 +191,8 @@ This expression `(_, g)` conveniently breaks the pair up into 2 values, it doesn
 value is (hence the underscore `_`), but it does need the updated state `g` which you can then assign
 back to the mutable `gs` variable to use next time around this loop.
 
-It is also interesting to see how much work the `do` and `←` notation is doing for you.  To
-implement the `nextTurn` function without it you would have to write this, manually plumbing
+It is also interesting to see how much work the `do` and `←` notation are doing for you.  To
+implement the `nextTurn` function without these you would have to write this, manually plumbing
 the state all the way through:
 -/
 def nextTurnManually : StateM GameState Bool

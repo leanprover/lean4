@@ -10,7 +10,7 @@ the authors of that material for allowing it to reused it here.
 Monads build on the following more fundamental type classes which you will need to understand
 first before fully understanding monads:
 
-![image](../images/monads.png)
+![image](../images/monads.svg)
 
 This chapter is organized to give you a bottom up introduction to monads, starting with functors and
 applicative functors to get an intuition for how these abstract structures work in Lean. Then we’ll

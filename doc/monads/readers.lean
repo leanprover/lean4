@@ -83,7 +83,7 @@ def readerFunc2 : ReaderM Environment Nat :=
 
 def readerFunc3 : ReaderM Environment String := do
   let x ← readerFunc2
-  return "Result: " ++ (toString x)
+  return "Result: " ++ toString x
 
 def main2 : IO Unit := do
   let env ← loadEnv
@@ -164,7 +164,7 @@ use the `withReader` function from the `MonadWithReader` typeclass to do this:
 def readerFunc3WithReader : ReaderM Environment String := do
   let f := (λ env => { env with user := "new user" })
   let x ← withReader f readerFunc2
-  return "Result: " ++ (toString x)
+  return "Result: " ++ toString x
 
 /-!
 Here we changed the `user` in the `Environment` context to "new user" and then we

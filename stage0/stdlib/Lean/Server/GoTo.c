@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.GoTo
-// Imports: Init Lean.Data.Json.FromToJson Lean.Util.Path Lean.Server.Utils Std.System.Uri
+// Imports: Init Lean.Data.Json.FromToJson Lean.Util.Path Lean.Server.Utils
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1836,7 +1836,6 @@ lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Json_FromToJson(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_Path(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_Utils(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_System_Uri(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Server_GoTo(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1852,9 +1851,6 @@ res = initialize_Lean_Util_Path(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Server_Utils(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_System_Uri(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Server_GoToKind_noConfusion___rarg___closed__1 = _init_l_Lean_Server_GoToKind_noConfusion___rarg___closed__1();

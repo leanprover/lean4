@@ -5,8 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 import Init.System.IO
-import Std.Data.RBMap
-import Std.System.Uri
+import Bootstrap.Data.RBMap
 
 import Lean.Environment
 

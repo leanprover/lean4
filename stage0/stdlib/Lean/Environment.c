@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Environment
-// Imports: Init Std.Data.HashMap Lean.ImportingFlag Lean.Data.SMap Lean.Declaration Lean.LocalContext Lean.Util.Path Lean.Util.FindExpr Lean.Util.Profile
+// Imports: Init Bootstrap.Data.HashMap Lean.ImportingFlag Lean.Data.SMap Lean.Declaration Lean.LocalContext Lean.Util.Path Lean.Util.FindExpr Lean.Util.Profile
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -50,7 +50,6 @@ lean_object* l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*
 LEAN_EXPORT lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_AssocList_find_x3f___at_Lean_Environment_find_x3f___spec__6___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at___private_Lean_Environment_0__Lean_setImportedEntries___spec__1___lambda__1(lean_object*, lean_object*);
-lean_object* l___private_Std_Data_HashMap_0__Std_numBucketsForCapacity(lean_object*);
 LEAN_EXPORT lean_object* lean_display_stats(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_registerPersistentEnvExtensionUnsafe___spec__1___rarg(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_mkModuleData___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -209,6 +208,7 @@ static lean_object* l_Lean_MapDeclarationExtension_insert___rarg___closed__4;
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_Environment_find_x3f___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_write_module(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_binSearchAux___at_Lean_TagDeclarationExtension_isTagged___spec__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Bootstrap_Data_HashMap_0__Std_numBucketsForCapacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SimplePersistentEnvExtension_getEntries(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Environment_displayStats___spec__8___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_EnvExtensionInterfaceUnsafe_ensureExtensionsArraySize_loop(lean_object*, lean_object*, lean_object*);
@@ -1800,7 +1800,7 @@ lean_ctor_set(x_15, 0, x_2);
 lean_ctor_set(x_15, 1, x_3);
 lean_ctor_set(x_15, 2, x_11);
 x_16 = lean_array_uset(x_6, x_10, x_15);
-x_17 = l___private_Std_Data_HashMap_0__Std_numBucketsForCapacity(x_14);
+x_17 = l___private_Bootstrap_Data_HashMap_0__Std_numBucketsForCapacity(x_14);
 x_18 = lean_nat_dec_le(x_17, x_7);
 lean_dec(x_7);
 lean_dec(x_17);
@@ -1853,7 +1853,7 @@ lean_ctor_set(x_32, 0, x_2);
 lean_ctor_set(x_32, 1, x_3);
 lean_ctor_set(x_32, 2, x_28);
 x_33 = lean_array_uset(x_23, x_27, x_32);
-x_34 = l___private_Std_Data_HashMap_0__Std_numBucketsForCapacity(x_31);
+x_34 = l___private_Bootstrap_Data_HashMap_0__Std_numBucketsForCapacity(x_31);
 x_35 = lean_nat_dec_le(x_34, x_24);
 lean_dec(x_24);
 lean_dec(x_34);
@@ -9902,7 +9902,7 @@ lean_ctor_set(x_15, 0, x_2);
 lean_ctor_set(x_15, 1, x_3);
 lean_ctor_set(x_15, 2, x_11);
 x_16 = lean_array_uset(x_6, x_10, x_15);
-x_17 = l___private_Std_Data_HashMap_0__Std_numBucketsForCapacity(x_14);
+x_17 = l___private_Bootstrap_Data_HashMap_0__Std_numBucketsForCapacity(x_14);
 x_18 = lean_nat_dec_le(x_17, x_7);
 lean_dec(x_7);
 lean_dec(x_17);
@@ -9955,7 +9955,7 @@ lean_ctor_set(x_32, 0, x_2);
 lean_ctor_set(x_32, 1, x_3);
 lean_ctor_set(x_32, 2, x_28);
 x_33 = lean_array_uset(x_23, x_27, x_32);
-x_34 = l___private_Std_Data_HashMap_0__Std_numBucketsForCapacity(x_31);
+x_34 = l___private_Bootstrap_Data_HashMap_0__Std_numBucketsForCapacity(x_31);
 x_35 = lean_nat_dec_le(x_34, x_24);
 lean_dec(x_24);
 lean_dec(x_34);
@@ -10015,7 +10015,7 @@ lean_ctor_set(x_15, 0, x_2);
 lean_ctor_set(x_15, 1, x_3);
 lean_ctor_set(x_15, 2, x_11);
 x_16 = lean_array_uset(x_6, x_10, x_15);
-x_17 = l___private_Std_Data_HashMap_0__Std_numBucketsForCapacity(x_14);
+x_17 = l___private_Bootstrap_Data_HashMap_0__Std_numBucketsForCapacity(x_14);
 x_18 = lean_nat_dec_le(x_17, x_7);
 lean_dec(x_7);
 lean_dec(x_17);
@@ -10084,7 +10084,7 @@ lean_ctor_set(x_41, 0, x_2);
 lean_ctor_set(x_41, 1, x_3);
 lean_ctor_set(x_41, 2, x_37);
 x_42 = lean_array_uset(x_32, x_36, x_41);
-x_43 = l___private_Std_Data_HashMap_0__Std_numBucketsForCapacity(x_40);
+x_43 = l___private_Bootstrap_Data_HashMap_0__Std_numBucketsForCapacity(x_40);
 x_44 = lean_nat_dec_le(x_43, x_33);
 lean_dec(x_33);
 lean_dec(x_43);
@@ -13117,7 +13117,7 @@ return x_3;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_HashMap(uint8_t builtin, lean_object*);
+lean_object* initialize_Bootstrap_Data_HashMap(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_ImportingFlag(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_SMap(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Declaration(uint8_t builtin, lean_object*);
@@ -13133,7 +13133,7 @@ _G_initialized = true;
 res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_HashMap(builtin, lean_io_mk_world());
+res = initialize_Bootstrap_Data_HashMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_ImportingFlag(builtin, lean_io_mk_world());

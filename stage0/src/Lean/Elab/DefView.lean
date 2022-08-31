@@ -3,7 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
-import Std.ShareCommon
+import Bootstrap.ShareCommon
 import Lean.Parser.Command
 import Lean.Util.CollectLevelParams
 import Lean.Util.FoldConsts

@@ -26,25 +26,8 @@ def map (f : α → β) : List α → List β
 
 /-!
 This is a very generic `map` function that can take any function that converts `(α → β)` and use it
-to convert `List α → List β`. Notice the function call `f a` above, this application of `f`
-is producing the converted items for the new list.
-
-Lean also defines custom infix operator `<$>` for `map` which simply allows you to write this:
--/
-#eval (λ x => toString x) <$> [1, 2, 3] -- ["1", "2", "3"]
-/-!
-
-In this `Functor`, `map` is called a "higher order function" because it takes a function as input
-`(α → β)` and returns another function as output `F α → F β`.
-
-Note that Lean is very powerful and lets you define your own syntax, so `<$>` is nothing special.
-You can define your own infix operator like this:
-
--/
-infixr:100 " doodle " => Functor.map
-
-#eval (· * 5) doodle [1, 2, 3]  -- [5, 10, 15]
-/-!
+to convert `List α → List β`. Notice the function call `f a` above, this application of `f` is
+producing the converted items for the new list.
 
 Let's look at some more examples:
 
@@ -58,7 +41,7 @@ Let's look at some more examples:
 -- [1.000000, 8.000000, 27.000000, 64.000000, 125.000000]
 
 --- List String → List String
-#eval (fun s => s.capitalize) <$> ["chris", "david", "mark"]
+#eval ["chris", "david", "mark"].map (fun s => s.capitalize)
 -- ["Chris", "David", "Mark"]
 /-!
 
@@ -152,6 +135,8 @@ So the `instance : Functor` then is operating on the more abstract, or generic `
 for the whole family of types `LivingSpace α` you can map to `LivingSpace β` using the generic
 `LivingSpace.map` map function by simply providing a function that does the more primitive mapping
 from `(f : α → β)`.  So `LivingSpace.map` is a sort of function applicator.
+This is called a "higher order function" because it takes a function as input
+`(α → β)` and returns another function as output `F α → F β`.
 
 Notice that `LivingSpace.map` applies a function `f` to convert the units of all the LivingSpace
 fields, except for `numBedrooms` which is a count (and therefore is not a measurement that needs
@@ -168,7 +153,7 @@ and now bringing it all together you can use the simple function `squareFeetToMe
 `mySpace` to square meters:
 
 -/
-#eval squareFeetToMeters <$> mySpace
+#eval mySpace.map squareFeetToMeters
 /-
 { totalSize := 167.225472,
   numBedrooms := 4,
@@ -178,6 +163,29 @@ and now bringing it all together you can use the simple function `squareFeetToMe
   -/
 /-!
 
+Lean also defines custom infix operator `<$>` for `Functor.map` which allows you to write this:
+-/
+#eval (fun s => s.length) <$> ["elephant", "tiger", "giraffe"]
+#eval (fun x => x + 1) <$> (some 5) -- some 6
+/-!
+
+Note that the infix operator is left associative which means it binds more tightly to the
+function on the left than to the expression on the right, this means you can often drop the
+parentheses on the right like this:
+
+-/
+#eval (fun x => x + 1) <$> some 5 -- some 6
+/-!
+
+Note that Lean lets you define your own syntax, so `<$>` is nothing special.
+You can define your own infix operator like this:
+
+-/
+infixr:100 " doodle " => Functor.map
+
+#eval (· * 5) doodle [1, 2, 3]  -- [5, 10, 15]
+
+/-!
 Wow, this is pretty powerful.  By providing a functor instance on `LivingSpace` with an
 implementation of the `map` function it is now super easy for anyone to come along and
 transform the units of a `LivingSpace` using very simple functions like `squareFeetToMeters`. Notice

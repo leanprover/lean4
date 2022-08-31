@@ -23,9 +23,9 @@ structure between `Functor` and `Monad`. It mainly consists of two operations:
 The `pure` operator specifies how you can wrap a normal object `α` into an instance of this structure `F α`.
 This is the "default" mechanism mentioned above.
 
-The `seq` operator gives a notion of evaluation order to the effects, where the first argument is
-executed before the second, but unlike a monad the results of earlier computations cannot be used to
-define later actions.
+The `seq` operator allows you to chain operations by wrapping a function in a structure. The name
+"applicative" comes from the fact that you "apply" functions from within the structure, rather than
+simply from outside the structure, as was the case with `Functor.map`.
 
 Applicative in Lean is built on some helper type classes, `Functor`, `Pure` and `Seq`:
 
@@ -70,14 +70,11 @@ class Seq (f : Type u → Type v) : Type (max (u+1) v) where
   seq : {α β : Type u} → f (α → β) → (Unit → f α) → f β
 ```
 
-The `seq` operator allows you to chain operations by wrapping a function in a structure. The name
-"applicative" comes from the fact that you "apply" functions from within the structure, rather than
-simply from outside the structure, as was the case with `Functor.map`.
 
 ## Basic Applicative Examples
 
-Many of the basic functors also have instances of `Applicative` inherited from their Monad instances.
-For example, `Option` is a Monad which means it is also `Applicative`.
+Many of the basic functors also have instances of `Applicative`.
+For example, `Option` is also `Applicative`.
 
 So let's take a look and what the `seq` operator can do.  Suppose you want to multiply two `Option Nat`
 objects.  Your first attempt might be this:
@@ -250,7 +247,7 @@ Applicative functor.
 ## SeqLeft and SeqRight
 
 You may remember seeing the `SeqLeft` and `SeqRight` base types on `class Applicative` earlier.
-These provide the `seqLeft` and `seqRight` operatoions which also have some handy notation
+These provide the `seqLeft` and `seqRight` operatoins which also have some handy notation
 shorthands `<*` and `*>` repsectively. Where: `x <* y` evaluates `x`, then `y`, and returns the
 result of `x` and `x *> y` evaluates `x`, then `y`,  and returns the result of `y`.
 
@@ -284,7 +281,7 @@ now). But, if you write a simple `Option` example `(.*.) <$> some 4 <*> some 5` 
 using `Seq.seq` you will see somthing interesting:
 
 -/
-#eval Seq.seq ((.*.) <$> (some 4)) (fun (_ : Unit) => (some 5)) -- some 20
+#eval Seq.seq ((.*.) <$> some 4) (fun (_ : Unit) => some 5) -- some 20
 /-!
 
 This may look a bit combersome, specifically, why did we need to invent this funny looking function

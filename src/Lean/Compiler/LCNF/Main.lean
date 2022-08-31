@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Compiler.Options
 import Lean.Compiler.LCNF.PassManager
+import Lean.Compiler.LCNF.Passes
 import Lean.Compiler.LCNF.PrettyPrinter
 import Lean.Compiler.LCNF.ToDecl
 import Lean.Compiler.LCNF.Check

@@ -14,7 +14,7 @@ classes should follow in order to meet other programmers' expectations about you
 
 ## Life without Laws
 
-Remember Lean represents each of these abstract classes by a type class. Each of these type classes
+Remember Lean represents each of these abstract structures by a type class. Each of these type classes
 has one or two main functions. So, as long as you implement those functions and it type checks, you
 have a new functor, applicative, or monad, right?
 
@@ -77,7 +77,7 @@ showing that the composition law holds for `List Nat`:
 def double (x : Nat) := x + x
 def square (x : Nat) := x * x
 
-#eval (double <$> (square <$> list1)) -- [2, 8, 18]
+#eval double <$> (square <$> list1) -- [2, 8, 18]
 
 #eval (double <$> (square <$> list1)) == ((double ∘ square) <$> list1) -- true
 
@@ -108,9 +108,8 @@ def t1 : Option Nat := some 10
 #eval double <$> (square <$> t1) == (double ∘ square) <$> t1  -- true
 /-!
 
-This fails the id law but obeys the composition law.
-
-Hopefully this explains the value of these laws, and you don't need to see any more bad examples!
+This fails the id law but obeys the composition law. Hopefully this explains the value of these
+laws, and you don't need to see any more bad examples!
 
 ## What are the Applicative Laws?
 

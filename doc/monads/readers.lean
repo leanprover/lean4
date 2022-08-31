@@ -160,19 +160,7 @@ what your pure functions are doing, and the global context idea that the `Reader
 ## withReader
 
 One `ReaderM` function can call another with a modified version of the `ReaderM` context.
-For example, `readerFunc3` could do this:
-
--/
-def readerFunc3Mod : ReaderM Environment String := do
-  let env ← read
-  let x ← readerFunc2 |>.run { env with user := "new user" }
-  return "Result: " ++ (toString x)
-
-/-!
-
-And we have overridden the `user` field in the `Environment` context with the string "new user".
-
-You can also use the `withReader` function from the `MonadWithReader` typeclass to do this:
+You can use the `withReader` function from the `MonadWithReader` typeclass to do this:
 
 -/
 def readerFunc3WithReader : ReaderM Environment String := do
@@ -181,6 +169,10 @@ def readerFunc3WithReader : ReaderM Environment String := do
   return "Result: " ++ (toString x)
 
 /-!
+Here we changed the `user` in the `Environment` context to "new user" and then we
+passed that modified context to `readerFunc2`.
+
+So `withReader f m` executes monad `m` in the `ReaderM` context modified by `f`.
 
 ## Handy shortcut with (← e)
 

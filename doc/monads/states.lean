@@ -190,7 +190,7 @@ back to the mutable `gs` variable to use next time around this loop.
 
 ## StateM vs ReaderM
 
-While `ReaderM` functions can use `withReader` to modify the state before calling another function,
+While `ReaderM` functions can use `withReader` to modify the context before calling another function,
 `StateM` functions are a little more powerful, let's look at this function again:
 ```
 def nextTurn : StateM GameState Bool := do

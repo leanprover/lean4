@@ -180,11 +180,11 @@ The StateT monad transformer defines an instance of `MonadLift` like this:
 
 instance : MonadLift m (StateT σ m) := ⟨StateT.lift⟩
 ```
-This means that any monad `m` can be wrapped in a `StateT` monad by inventing the trivial function
+This means that any monad `m` can be wrapped in a `StateT` monad by using the function
 `fun s => do let a ← t; pure (a, s)` that takes state `s`, runs the inner monad action `t`, and
 returns the result and the new state in a pair `(a, s)` without making any changes to `s`.
 
-Because `MonadLift` is a type class, type inference can automatically find the required `monadLift`
+Because `MonadLift` is a type class, Lean can automatically find the required `monadLift`
 instances in order to make your code compile and in this way it was able to find the `StateT.lift`
 function and use it to wrap the result of `divide` so that the correct type is returned from
 `divideCounter`.

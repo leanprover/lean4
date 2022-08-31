@@ -3244,6 +3244,9 @@ def USize.toUInt64 (u : USize) : UInt64 where
 @[extern "lean_uint64_mix_hash"]
 opaque mixHash (u₁ u₂ : UInt64) : UInt64
 
+instance [Hashable α] {p : α → Prop} : Hashable (Subtype p) where
+  hash a := hash a.val
+
 /-- A opaque string hash function. -/
 @[extern "lean_string_hash"]
 protected opaque String.hash (s : @& String) : UInt64

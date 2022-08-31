@@ -52,23 +52,24 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEqRefl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_assert___closed__2;
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MVarId_assertAfter___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_MVarId_assertAfter___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Bootstrap_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MVarId_assertAfter___spec__3___closed__1;
 lean_object* l_Lean_Meta_intro1Core(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MVarId_assertAfter___spec__3(lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_assertAfter___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_MVarId_assertAfter___spec__6(lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Bootstrap_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MVarId_assertAfter___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_assign___at_Lean_Meta_getLevel___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Bootstrap_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_MVarId_assertAfter___spec__4(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_assertExt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_assertExt___lambda__1___closed__1;
 lean_object* l_Lean_MVarId_checkNotAssigned(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_MVarId_assertAfter___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MVarId_assertAfter___spec__3___closed__1;
+LEAN_EXPORT lean_object* l___private_Bootstrap_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MVarId_assertAfter___spec__3(lean_object*, size_t, size_t, lean_object*);
 size_t lean_usize_shift_left(size_t, size_t);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
@@ -126,7 +127,6 @@ uint8_t l_Lean_LocalDecl_isLet(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_assertAfter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_foldAux___at_Lean_MVarId_assertAfter___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_MVarId_assertAfter___spec__4(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_assert___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
@@ -887,7 +887,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; 
 x_6 = lean_array_uget(x_1, x_2);
-x_7 = l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_MVarId_assertAfter___spec__4(x_6, x_4);
+x_7 = l___private_Bootstrap_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_MVarId_assertAfter___spec__4(x_6, x_4);
 x_8 = 1;
 x_9 = lean_usize_add(x_2, x_8);
 x_2 = x_9;
@@ -936,7 +936,7 @@ return x_4;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_MVarId_assertAfter___spec__4(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Bootstrap_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_MVarId_assertAfter___spec__4(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -1015,7 +1015,7 @@ return x_18;
 }
 }
 }
-static lean_object* _init_l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MVarId_assertAfter___spec__3___closed__1() {
+static lean_object* _init_l___private_Bootstrap_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MVarId_assertAfter___spec__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1023,7 +1023,7 @@ x_1 = l_Std_instInhabitedPersistentArrayNode(lean_box(0));
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MVarId_assertAfter___spec__3(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Bootstrap_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MVarId_assertAfter___spec__3(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -1032,7 +1032,7 @@ lean_object* x_5; size_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x
 x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_usize_shift_right(x_2, x_3);
 x_7 = lean_usize_to_nat(x_6);
-x_8 = l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MVarId_assertAfter___spec__3___closed__1;
+x_8 = l___private_Bootstrap_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MVarId_assertAfter___spec__3___closed__1;
 x_9 = lean_array_get(x_8, x_5, x_7);
 x_10 = 1;
 x_11 = lean_usize_shift_left(x_10, x_3);
@@ -1040,7 +1040,7 @@ x_12 = lean_usize_sub(x_11, x_10);
 x_13 = lean_usize_land(x_2, x_12);
 x_14 = 5;
 x_15 = lean_usize_sub(x_3, x_14);
-x_16 = l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MVarId_assertAfter___spec__3(x_9, x_13, x_15, x_4);
+x_16 = l___private_Bootstrap_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MVarId_assertAfter___spec__3(x_9, x_13, x_15, x_4);
 lean_dec(x_9);
 x_17 = lean_unsigned_to_nat(1u);
 x_18 = lean_nat_add(x_7, x_17);
@@ -1133,7 +1133,7 @@ lean_inc(x_8);
 x_9 = lean_usize_of_nat(x_3);
 lean_dec(x_3);
 x_10 = lean_ctor_get_usize(x_1, 4);
-x_11 = l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MVarId_assertAfter___spec__3(x_8, x_9, x_10, x_2);
+x_11 = l___private_Bootstrap_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MVarId_assertAfter___spec__3(x_8, x_9, x_10, x_2);
 lean_dec(x_8);
 x_12 = lean_ctor_get(x_1, 1);
 lean_inc(x_12);
@@ -1217,7 +1217,7 @@ lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; uint
 lean_dec(x_3);
 x_27 = lean_ctor_get(x_1, 0);
 lean_inc(x_27);
-x_28 = l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_MVarId_assertAfter___spec__4(x_27, x_2);
+x_28 = l___private_Bootstrap_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_MVarId_assertAfter___spec__4(x_27, x_2);
 x_29 = lean_ctor_get(x_1, 1);
 lean_inc(x_29);
 lean_dec(x_1);
@@ -2054,7 +2054,7 @@ lean_dec(x_1);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MVarId_assertAfter___spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Bootstrap_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MVarId_assertAfter___spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 size_t x_5; size_t x_6; lean_object* x_7; 
@@ -2062,7 +2062,7 @@ x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
-x_7 = l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MVarId_assertAfter___spec__3(x_1, x_5, x_6, x_4);
+x_7 = l___private_Bootstrap_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MVarId_assertAfter___spec__3(x_1, x_5, x_6, x_4);
 lean_dec(x_1);
 return x_7;
 }
@@ -2522,8 +2522,8 @@ l_Lean_MVarId_assertExt___lambda__1___closed__2 = _init_l_Lean_MVarId_assertExt_
 lean_mark_persistent(l_Lean_MVarId_assertExt___lambda__1___closed__2);
 l_Lean_MVarId_assertExt___lambda__1___closed__3 = _init_l_Lean_MVarId_assertExt___lambda__1___closed__3();
 lean_mark_persistent(l_Lean_MVarId_assertExt___lambda__1___closed__3);
-l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MVarId_assertAfter___spec__3___closed__1 = _init_l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MVarId_assertAfter___spec__3___closed__1();
-lean_mark_persistent(l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MVarId_assertAfter___spec__3___closed__1);
+l___private_Bootstrap_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MVarId_assertAfter___spec__3___closed__1 = _init_l___private_Bootstrap_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MVarId_assertAfter___spec__3___closed__1();
+lean_mark_persistent(l___private_Bootstrap_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MVarId_assertAfter___spec__3___closed__1);
 l_Nat_foldAux___at_Lean_MVarId_assertAfter___spec__7___closed__1 = _init_l_Nat_foldAux___at_Lean_MVarId_assertAfter___spec__7___closed__1();
 lean_mark_persistent(l_Nat_foldAux___at_Lean_MVarId_assertAfter___spec__7___closed__1);
 l_Nat_foldAux___at_Lean_MVarId_assertAfter___spec__7___closed__2 = _init_l_Nat_foldAux___at_Lean_MVarId_assertAfter___spec__7___closed__2();

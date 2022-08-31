@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.Utils
-// Imports: Init Lean.Data.Position Lean.Data.Lsp Lean.Server.InfoUtils Init.System.FilePath Lean.Parser.Basic Std.System.Uri
+// Imports: Init Lean.Data.Position Lean.Data.Lsp Lean.Server.InfoUtils Init.System.FilePath Lean.Parser.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1800,7 +1800,6 @@ lean_object* initialize_Lean_Data_Lsp(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_InfoUtils(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_System_FilePath(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Parser_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_System_Uri(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Server_Utils(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1822,9 +1821,6 @@ res = initialize_Init_System_FilePath(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Parser_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_System_Uri(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Server_instInhabitedDocumentMeta___closed__1 = _init_l_Lean_Server_instInhabitedDocumentMeta___closed__1();

@@ -346,7 +346,6 @@ static lean_object* l_term___u2260_____closed__5;
 static lean_object* l___aux__Init__Core______macroRules__term___x3c_x2d_x3e____1___closed__18;
 static lean_object* l_term___u2295_____closed__7;
 static lean_object* l___aux__Init__Core______unexpand__Iff__1___closed__2;
-LEAN_EXPORT lean_object* l___private_Init_Core_0__funSetoid(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Sum_inhabitedRight(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___x3c_x2d_x3e____1___closed__6;
 LEAN_EXPORT uint8_t l_strictAnd(uint8_t, uint8_t);
@@ -360,14 +359,12 @@ static lean_object* l___aux__Init__Core______macroRules__term___u2295_x27____1__
 LEAN_EXPORT lean_object* l_Quotient_recOnSubsingleton_u2082(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Thunk_pure___boxed(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2295____1___closed__3;
-LEAN_EXPORT lean_object* l___private_Init_Core_0__extfunApp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Task_spawn___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_thunk_get_own(lean_object*);
 LEAN_EXPORT lean_object* l_Quotient_hrecOn(lean_object*, lean_object*, lean_object*);
 lean_object* lean_task_pure(lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2248____1___closed__3;
 static lean_object* l___aux__Init__Core______macroRules__term___u2295____1___closed__7;
-LEAN_EXPORT lean_object* l___private_Init_Core_0__extfunApp___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Eq_ndrecOn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___x3c_x2d_x3e____1___closed__13;
 LEAN_EXPORT lean_object* l_decidable__of__decidable__of__iff(lean_object*, lean_object*);
@@ -6791,30 +6788,6 @@ _start:
 lean_object* x_3; 
 x_3 = l_instDecidableEqQuotient(x_1, x_2);
 lean_dec(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Core_0__funSetoid(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_box(0);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Core_0__extfunApp___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_apply_1(x_1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Core_0__extfunApp(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l___private_Init_Core_0__extfunApp___rarg), 2, 0);
 return x_3;
 }
 }

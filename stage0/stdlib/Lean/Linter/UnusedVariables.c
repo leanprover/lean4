@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Linter.UnusedVariables
-// Imports: Init Lean.Elab.Command Lean.Linter.Util Lean.Elab.InfoTree Lean.Server.InfoUtils Lean.Server.References Std.Data.HashMap
+// Imports: Init Lean.Elab.Command Lean.Linter.Util Lean.Elab.InfoTree Lean.Server.InfoUtils Lean.Server.References Bootstrap.Data.HashMap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -38,7 +38,6 @@ lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1481____lambda__1___closed__2;
 lean_object* l_Std_HashMapImp_find_x3f___at_Lean_ForEachExpr_visit___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldr___at_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1628____spec__1___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Std_Data_HashMap_0__Std_numBucketsForCapacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Linter_getUnusedVariablesIgnoreFnsImpl___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_mkModuleData___spec__3___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_userName(lean_object*);
@@ -173,6 +172,7 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Linter_initFn____x40_L
 static lean_object* l_Lean_Linter_unusedVariables_isTopLevelDecl___closed__1;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_260____lambda__1___closed__7;
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
+lean_object* l___private_Bootstrap_Data_HashMap_0__Std_numBucketsForCapacity(lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_550____lambda__5___closed__10;
 static lean_object* l_List_forIn_loop___at_Lean_Linter_unusedVariables___spec__32___lambda__1___closed__1;
 LEAN_EXPORT uint8_t l_Lean_Linter_getLinterUnusedVariablesFunArgs(lean_object*);
@@ -5747,7 +5747,7 @@ lean_ctor_set(x_15, 0, x_2);
 lean_ctor_set(x_15, 1, x_3);
 lean_ctor_set(x_15, 2, x_11);
 x_16 = lean_array_uset(x_6, x_10, x_15);
-x_17 = l___private_Std_Data_HashMap_0__Std_numBucketsForCapacity(x_14);
+x_17 = l___private_Bootstrap_Data_HashMap_0__Std_numBucketsForCapacity(x_14);
 x_18 = lean_nat_dec_le(x_17, x_7);
 lean_dec(x_7);
 lean_dec(x_17);
@@ -5800,7 +5800,7 @@ lean_ctor_set(x_32, 0, x_2);
 lean_ctor_set(x_32, 1, x_3);
 lean_ctor_set(x_32, 2, x_28);
 x_33 = lean_array_uset(x_23, x_27, x_32);
-x_34 = l___private_Std_Data_HashMap_0__Std_numBucketsForCapacity(x_31);
+x_34 = l___private_Bootstrap_Data_HashMap_0__Std_numBucketsForCapacity(x_31);
 x_35 = lean_nat_dec_le(x_34, x_24);
 lean_dec(x_24);
 lean_dec(x_34);
@@ -11052,7 +11052,7 @@ lean_object* initialize_Lean_Linter_Util(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_InfoTree(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_InfoUtils(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_References(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_HashMap(uint8_t builtin, lean_object*);
+lean_object* initialize_Bootstrap_Data_HashMap(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Linter_UnusedVariables(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -11076,7 +11076,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Server_References(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_HashMap(builtin, lean_io_mk_world());
+res = initialize_Bootstrap_Data_HashMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_7____closed__1 = _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_7____closed__1();

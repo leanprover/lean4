@@ -47,7 +47,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_getElimInfo___spe
 static lean_object* l_Lean_Meta_addCustomEliminator___closed__1;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_reprElimInfo____x40_Lean_Meta_Tactic_ElimInfo___hyg_124_(lean_object*, lean_object*);
-lean_object* l___private_Std_Data_HashMap_0__Std_numBucketsForCapacity(lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_ElimInfo___hyg_2262____lambda__1___closed__11;
 lean_object* l_Lean_LocalDecl_userName(lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_ElimInfo___hyg_2262____closed__23;
@@ -161,6 +160,7 @@ static lean_object* l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_reprElimA
 uint64_t l_Lean_Name_hash___override(lean_object*);
 static lean_object* l_List_repr___at___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_reprCustomEliminators____x40_Lean_Meta_Tactic_ElimInfo___hyg_1579____spec__8___closed__2;
 LEAN_EXPORT lean_object* l_Lean_SMap_switch___at_Lean_Meta_initFn____x40_Lean_Meta_Tactic_ElimInfo___hyg_1631____spec__1(lean_object*);
+lean_object* l___private_Bootstrap_Data_HashMap_0__Std_numBucketsForCapacity(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_reprCustomEliminators____x40_Lean_Meta_Tactic_ElimInfo___hyg_1579____spec__6___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_mkCustomEliminator___spec__8(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_instInhabitedCustomEliminators;
@@ -8106,7 +8106,7 @@ lean_ctor_set(x_15, 0, x_2);
 lean_ctor_set(x_15, 1, x_3);
 lean_ctor_set(x_15, 2, x_11);
 x_16 = lean_array_uset(x_5, x_10, x_15);
-x_17 = l___private_Std_Data_HashMap_0__Std_numBucketsForCapacity(x_14);
+x_17 = l___private_Bootstrap_Data_HashMap_0__Std_numBucketsForCapacity(x_14);
 x_18 = lean_nat_dec_le(x_17, x_7);
 lean_dec(x_7);
 lean_dec(x_17);

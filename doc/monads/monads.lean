@@ -113,8 +113,8 @@ that all previous operations have succeeded. Here's some code to motivate this i
 
 -/
 def optionFunc1 : String -> Option Nat
-| "" => none
-| str => some str.length
+  | "" => none
+  | str => some str.length
 
 def optionFunc2 (i : Nat) : Option Float :=
   if i % 2 == 0 then none else some (i.toFloat * 3.14159)

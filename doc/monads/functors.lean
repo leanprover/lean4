@@ -5,7 +5,7 @@ A `Functor` is any type that can act as a generic container that allows you to t
 underlying values inside the container using a function, so that the values are all updated, but the
 structure of the container is the same. This is called "mapping".
 
-A List is the most basic example of a `Functor`.
+A List is one of the most basic examples of a `Functor`.
 
 A list contains zero or more elements of the same, underlying type.  When you `map` a function over
 a list, you create a new list with the same number of elements, where each has been transformed by
@@ -29,7 +29,7 @@ This is a very generic `map` function that can take any function that converts `
 to convert `List α → List β`. Notice the function call `f a` above, this application of `f`
 is producing the converted items for the new list.
 
-Lean also defines custom infix operator `<$>` for map which simply allows you to write this:
+Lean also defines custom infix operator `<$>` for `map` which simply allows you to write this:
 -/
 #eval (λ x => toString x) <$> [1, 2, 3] -- ["1", "2", "3"]
 /-!
@@ -102,7 +102,7 @@ instance : Functor List where
   map := List.map
 /-!
 
-Notice all you need to do is provide the map function implementation.  For a quick
+Notice all you need to do is provide the `map` function implementation.  For a quick
 example, let's supposed you create a new type describing the measurements of a home
 or apartment:
 
@@ -130,10 +130,10 @@ another.  Then you would provide a `Functor` instance as follows:
 
 -/
 def LivingSpace.map (f : α → β) (s : LivingSpace α) : LivingSpace β :=
-  { totalSize := f s.totalSize,
-    numBedrooms := s.numBedrooms,
-    masterBedroomSize := f s.masterBedroomSize,
-    livingRoomSize := f s.livingRoomSize,
+  { totalSize := f s.totalSize
+    numBedrooms := s.numBedrooms
+    masterBedroomSize := f s.masterBedroomSize
+    livingRoomSize := f s.livingRoomSize
     kitchenSize := f s.kitchenSize }
 
 instance : Functor LivingSpace where

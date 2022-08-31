@@ -98,7 +98,7 @@ You then might wonder how to use the `Functor.map` to solve this since you could
 
 Remember that `<$>` is the infix notation for `Functor.map`.
 
-The functor map operation can apply a multiplication to the value in the `Option` and then lift the
+The functor `map` operation can apply a multiplication to the value in the `Option` and then lift the
 result back up to become a new `Option` , but this isn't what you need here.
 
 The `Seq.seq` operator `<*>` can help since it can apply a function to the items inside a
@@ -138,18 +138,18 @@ instance : Applicative List where
 /-!
 
 Notice you can now sequence a _list_ of functions and a _list_ of items.
-The trivial case of sequencing a singleton list is in fact the same as map as you saw
+The trivial case of sequencing a singleton list is in fact the same as `map`, as you saw
 earlier with the `Option`  examples:
 
 -/
-#eval [(·+2)] <*> [4, 6] -- [6, 8]
+#eval [ (·+2)] <*> [4, 6] -- [6, 8]
 #eval (·+2) <$> [4,6]    -- [6, 8]
 /-!
 
 But now with list it is easier to show the difference when you do this:
 
 -/
-#eval [(· +2), (· *3)] <*> [4, 6] -- [6, 8, 12, 18]
+#eval [(·+2), (· *3)] <*> [4, 6] -- [6, 8, 12, 18]
 /-!
 
 Why did this produce 4 values?  The reason is because `<*>` applies _every_ function to _every_
@@ -229,10 +229,10 @@ structure LivingSpace (α : Type) where
   deriving Repr, BEq
 
 def LivingSpace.map (f : α → β) (s : LivingSpace α) : LivingSpace β :=
-  { totalSize := f s.totalSize,
-    numBedrooms := s.numBedrooms,
-    masterBedroomSize := f s.masterBedroomSize,
-    livingRoomSize := f s.livingRoomSize,
+  { totalSize := f s.totalSize
+    numBedrooms := s.numBedrooms
+    masterBedroomSize := f s.masterBedroomSize
+    livingRoomSize := f s.livingRoomSize
     kitchenSize := f s.kitchenSize }
 
 instance : Functor LivingSpace where

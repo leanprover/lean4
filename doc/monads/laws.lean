@@ -35,11 +35,11 @@ def Point.map (f : α → β) (s : Point α) : Point β :=
 instance : Functor Point where
   map := Point.map
 
-#eval (.+2) <$> (Point.mk 1 2) -- { x := 4, y := 3 }
+#eval (·+2) <$> (Point.mk 1 2) -- { x := 4, y := 3 }
 
 /-!
 This Point does something weird, when you `map` it because it transposes the `x` and `y` coordinates
-which is not what other people would expect from a map function.  In fact, it breaks the rules
+which is not what other people would expect from a `map` function.  In fact, it breaks the rules
 as you will see below.
 
 ## What are the Functor laws?
@@ -274,8 +274,8 @@ This law has a parallel structure to the other composition laws.
 You can see this in action in the following rewrite of `runOptionFuncsBind` from [monads](monads.lean.md):
 -/
 def optionFunc1 : String -> Option Nat
-| "" => none
-| str => some str.length
+  | "" => none
+  | str => some str.length
 
 def optionFunc2 (i : Nat) : Option Float :=
   if i % 2 == 0 then none else some (i.toFloat * 3.14159)

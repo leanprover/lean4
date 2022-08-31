@@ -130,21 +130,31 @@ The `Id.run` function is a helper function that executes the `do` block and retu
 `Id` is the _identity monad_.  So `Id.run do` is a pattern you can use to execute monads in a
 function that is not itself monadic.
 
-## Monadic list functions
+## Monadic functions
 
-List also provides some functions that are designed to operate in the context of a monad.
-These methods end in upper case M like `anyM` below:
+You can also write functions that are designed to operate in the context of a monad.
+These functions typically end in upper case M like `List.forM` used below:
 -/
 
-def validateList (x : List Nat) (n : Nat): Except String Bool := do
-  x.anyM (λ a => if a > n then do throw "illegal value found in list" else pure true)
+def validateList (x : List Nat) (max : Nat): Except String Unit := do
+  x.forM fun a => do
+    if a > max then throw "illegal value found in list"
 
-#eval validateList [1, 2, 5, 3, 8] 10 -- some true
+#eval validateList [1, 2, 5, 3, 8] 10 -- Except.ok ()
+#eval validateList [1, 2, 5, 3, 8] 5 -- Except.error "illegal value found in list"
 
 /-!
+Notice here that the `List.forM` function passes the monadic context through to the inner function
+so it can use the `throw` function from the `Except` monad.
 
-Notice here that the `anyM` function passes the monadic context through to the inner function
-so it can use a `do` block and inherit the `throw` and `pure` functions.
+The `List.forM` function is defined like this where `[Monad m]` means "in the context of a monad `m`":
+
+-/
+def forM [Monad m] (as : List α) (f : α → m PUnit) : m PUnit :=
+  match as with
+  | []      => pure ⟨⟩
+  | a :: as => do f a; List.forM as f
+/-!
 
 ## Summary
 

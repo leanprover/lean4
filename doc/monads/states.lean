@@ -150,18 +150,18 @@ def printBoard (board : Board) : IO Unit := do
       row := []
 
 def playGame : StateM GameState Unit := do
-  let mut done ← nextTurn
-  while !done do
-    let d ← nextTurn
-    done := d
+  while true do
+    let finished ← nextTurn
+    if finished then return
 
 def main : IO Unit := do
   let gen ← IO.stdGenRef.get
   let (x, gen') := randNat gen 0 1
-  let (_, g) := playGame {
+  let gs := {
     board := initBoard,
     currentPlayer := if x = 0 then XPlayer else OPlayer,
     generator := gen' }
+  let (_, g) := playGame |>.run gs
   printBoard g.board
 
 #eval main

@@ -18,6 +18,9 @@ Here we converted a list of natural numbers (Nat) to a list of strings where the
 here used `toString` to do the transformation of each element. Notice that when you apply `map`
 the "structure" of the object remains the same, in this case the resulting List is the same size.
 
+Note that in Lean a lambda function can be written using `fun` keyword or the unicode
+symbol `λ` which you can type in VS code using `\la `.
+
 List has a specialized version of `map` defined as follows:
 -/
 def map (f : α → β) : List α → List β

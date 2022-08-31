@@ -100,13 +100,12 @@ monad provides a `run` method and it is the `ReaderM` run method that takes the 
 readerFunc3.run env`.
 
 > **Side note 1**: The `return` statement used above also needs some explanation.  The `return`
-statement in Lean can only be used inside a `do` block and is closely related to `pure`, but a
-little different. First the similarity is that `return` and `pure` both lift a pure value up to the
-Monad type. But `return` is a keyword so you do not need to parenthesize the expression like you do
-when using `pure`.  (Note: you can avoid parentheses when using `pure` by using the `<|` operator
-like we did above in the initial `getEnvDefault` function).  Furthermore, `return` can also cause an
-early `return` in a monadic function similar to how it can in an imperative language while `pure`
-cannot.
+statement in Lean is closely related to `pure`, but a little different. First the similarity is that
+`return` and `pure` both lift a pure value up to the Monad type. But `return` is a keyword so you do
+not need to parenthesize the expression like you do when using `pure`.  (Note: you can avoid
+parentheses when using `pure` by using the `<|` operator like we did above in the initial
+`getEnvDefault` function).  Furthermore, `return` can also cause an early `return` in a monadic
+function similar to how it can in an imperative language while `pure` cannot.
 
 > So technically if `return` is the last statement in a function it could be replaced with `pure <|`,
 but one could argue that `return` is still a little easier for most folks to read, just so long as

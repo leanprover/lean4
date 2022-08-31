@@ -11,12 +11,16 @@ A list contains zero or more elements of the same, underlying type.  When you `m
 a list, you create a new list with the same number of elements, where each has been transformed by
 the function:
 -/
-#eval [1,2,3].map (λ x => toString x) -- ["1", "2", "3"]
+#eval List.map (λ x => toString x) [1,2,3] -- ["1", "2", "3"]
+
+-- you can also write this using dot notation on the List object
+#eval [1,2,3].map (λ x => toString x)  -- ["1", "2", "3"]
 
 /-!
 Here we converted a list of natural numbers (Nat) to a list of strings where the lambda function
-here used `toString` to do the transformation of each element. Notice that when you apply `map`
-the "structure" of the object remains the same, in this case the resulting List is the same size.
+here used `toString` to do the transformation of each element. Notice that when you apply `map` the
+"structure" of the object remains the same, in this case the result is always a `List` of the same
+size.
 
 Note that in Lean a lambda function can be written using `fun` keyword or the unicode
 symbol `λ` which you can type in VS code using `\la `.
@@ -60,7 +64,7 @@ Remember you can construct an Option using the type constructors `some` or `none
 #eval (some 5).map (fun x => toString x) -- some "5"
 /-!
 
-Lean also provides a convenient short hand syntax for `(fun x => x + 1)`, namely `(· * 5)`
+Lean also provides a convenient short hand syntax for `(fun x => x + 1)`, namely `(· + 1)`
 using the middle dot unicode character which you can type in VS code using `\. `.
 
 -/
@@ -81,7 +85,7 @@ you see in the `#check` command.
 
 ## How to make a Functor Instance?
 
-The `List` type is made a functor by the following `Functor` type class instance:
+The `List` type is made an official `Functor` by the following type class instance:
 
 -/
 instance : Functor List where

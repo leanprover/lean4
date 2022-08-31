@@ -1,4 +1,4 @@
-import Bootstrap.Data.HashMap
+import Lean.Data.HashMap
 /-!
 # State
 

@@ -294,7 +294,7 @@ class Seq (f : Type u → Type v) where
 ```
 
 You will see this function defined here: `(Unit → f α)`, this is a function that takes `Unit` as input
-and produces the output of type `f α` where `f` is the container type `Type u`, in this example `Option`
+and produces the output of type `f α` where `f` is the container type `Type u -> Type v`, in this example `Option`
 and `α` is the element type `Nat`, so `fun (_ : Unit) => some 5` matches this definition because
 it is taking an input of type Unit and producing `some 5` which is type `Option Nat`.
 

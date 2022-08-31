@@ -24,7 +24,8 @@ structure Environment where
   deriving Repr
 
 def getEnvDefault (name : String): IO String := do
-  pure <| match (← IO.getEnv name) with
+  let val? ← IO.getEnv name
+  pure <| match val? with
           | none => ""
           | some s => s
 
@@ -91,11 +92,11 @@ def main2 : IO Unit := do
 
 #eval main2 -- Result: 7538
 /-!
-`main2` loads the environment as before, and estabilishes the `ReaderM` state by passing `env` to
+`main2` loads the environment as before, and estabilishes the `ReaderM` context by passing `env` to
 readerFunc3.  The `do` notation you learned about in [Monads](monads.lean.md) is hiding some things
 here.  Technically `readerFunc3` is a monadic action and in order to "run" that action the `ReaderM`
 monad provides a `run` method and it is the `ReaderM` run method that takes the initial
-`Environment` state.  So you can actually write the complete code by doing this: `let str :=
+`Environment` context.  So you can actually write the complete code by doing this: `let str :=
 readerFunc3.run env`.
 
 > **Side note 1**: The `return` statement used above also needs some explanation.  The `return`
@@ -132,14 +133,14 @@ the monadic action, then it unwraps the value x, so it is really doing `let x �
 The important difference here to the earlier code is that `readerFunc3` and `readerFunc2` no longer
 have an **explicit** Environment input parameter that needs to be passed along all the way to
 `readerFunc1`.  Instead, the `ReaderM` monad is taking care of that for you, which gives you the
-illusion of something like global state where the state is now available to all functions that use
+illusion of something like global context where the context is now available to all functions that use
 the `ReaderM` monad.
 
 The above code also introduces an important idea. Whenever you learn about a monad "X", there's
 often (but not always) a `run` function to execute that monad, and sometimes some additional
-functions like `read` that interact with the monad state.
+functions like `read` that interact with the monad context.
 
-You might be wondering, how does the state actually move through the `ReaderM` monad? How can you
+You might be wondering, how does the context actually move through the `ReaderM` monad? How can you
 add an input argument to a function by modifying it's return type?  There is a special command in
 the Lean interpreter that will show you the reduced Types:
 -/
@@ -154,11 +155,11 @@ ReaderM Monad to add an input argument to all the functions that use the `Reader
 So now that you know the implementation details of the `ReaderM` monad you can see that what it is
 doing looks very much like the original code we wrote at the beginning of this section, only it's
 taking a lot of the tedious work off your plate and it is creating a nice clean separation between
-what your pure functions are doing, and the global state idea that the `ReaderM` adds.
+what your pure functions are doing, and the global context idea that the `ReaderM` adds.
 
 ## withReader
 
-One `ReaderM` function can call another with a modified version of the `ReaderM` state.
+One `ReaderM` function can call another with a modified version of the `ReaderM` context.
 For example, `readerFunc3` could do this:
 
 -/
@@ -169,7 +170,7 @@ def readerFunc3Mod : ReaderM Environment String := do
 
 /-!
 
-And we have overridden the `user` field in the `Environment` state with the string "new user".
+And we have overridden the `user` field in the `Environment` context with the string "new user".
 
 You can also use the `withReader` function from the `MonadWithReader` typeclass to do this:
 
@@ -181,8 +182,16 @@ def readerFunc3WithReader : ReaderM Environment String := do
 
 /-!
 
+## Handy shortcut with (← e)
 
-
+If you use the operator `←` in a let expression and the variable is only used once you can
+eliminate the let expression and place the `←` operator in parentheses like this
+call to loadEnv:
+-/
+def main3 : IO Unit := do
+  let str := readerFunc3 (← loadEnv)
+  IO.println str
+/-!
 
 ## Conclusion
 

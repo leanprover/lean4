@@ -168,19 +168,18 @@ def runOptionFuncsDo (input : String) : Option (List Nat) := do
 #eval runOptionFuncsDo "big" -- some [9, 10]
 /-!
 
-Note you can use `<-` or the nice unicode symbol `←` which you can type into VS code by typing these
-characters `\l `.  When you type the final space, `\l` is replaced with `←`.
+The `←` operator used here is special. It effectively unwraps the value on the right-hand side from
+the monad. This means the value `i` has type `Nat`, _even though_ the result of `optionFunc1` is
+`Option Nat`. This is done using a `bind` operation under the hood.
 
-The `←` operator is special. It effectively unwraps the value on the right-hand side from the monad.
-This means the value `i` has type `Nat`, _even though_ the result of `optionFunc1` is `Option Nat`.
-The bind operation happens under the hood. If the function returns `none`, then the entire
-`runOptionFuncsDo` function will return `none`. Observe that you do not unwrap the final line of the
-computation. The function result is `Option (List Nat)` which matches what `optionFunc3` returns.
+> Note you can use `<-` or the nice unicode symbol `←` which you can type into VS code by typing
+these characters `\l `.  When you type the final space, `\l` is replaced with `←`.
 
-At first glance, this looks more complicated than the bind example. However, it gives you a lot more
-flexibility, like mixing monadic and non-monadic statements, using if then/else structures with
-their own local do blocks and so on. It is particularly helpful when one monadic function depends on
-multiple previous functions.
+Observe that we do not unwrap the final line of the computation. The function result is `Option
+(List Nat)` which matches what `optionFunc3` returns. At first glance, this may look more complicated
+than the `bind` example. However, it gives you a lot more flexibility, like mixing monadic and
+non-monadic statements, using if then/else structures with their own local do blocks and so on. It
+is particularly helpful when one monadic function depends on multiple previous functions.
 
 ## Example using List
 
@@ -246,7 +245,7 @@ Now, the most important job of pretty much any computer program is precisely to 
 interaction with the outside world. For this reason, the root of all executable Lean code is a
 function called main, with the type `IO Unit`. So every program starts in the IO monad!
 
-When you function is `IO` monadic, you can get any input you need, call into "pure" code with the
+When your function is `IO` monadic, you can get any input you need, call into "pure" code with the
 inputs, and then output the result in some way. The reverse does not work. You cannot call into IO
 code from pure code like you can call into a function that takes `Option` as input. Another way to
 say this is you cannot invent an `IO` context out of thin air, it has to be given to you in your

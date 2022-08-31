@@ -127,8 +127,8 @@ Here the `readerFunc2` function uses the `bind` operator `>>=` just to show you 
 operations happening here.  The `readerFunc3` function uses the  `do` notation you learned about in
 [Monads](monads.lean.md) which hides that bind operation and can make the code look cleaner.
 
-The `do` notation with `let x ← readerFunc2` is also calling the `run` function to actually execute
-the monadic action, then it unwraps the value x, so it is really doing `let x ← readerFunc2.run`.
+The `do` notation with `let x ← readerFunc2` is also calling the `bind` function under the covers,
+so that you can access the unwrapped value `x` needed for the `toString x` conversion.
 
 The important difference here to the earlier code is that `readerFunc3` and `readerFunc2` no longer
 have an **explicit** Environment input parameter that needs to be passed along all the way to
@@ -148,19 +148,20 @@ the Lean interpreter that will show you the reduced Types:
 /-!
 And you can see here that this type is actually a function!  It's a function that takes an
 `Environment` as input and returns a `String`.  So, remember in Lean that a function that takes
-argument a and returns a string: `def f (a : Nat) → String` is the same as the function that takes no
-arguments and returns another function of type `Nat → String`.  Well this fact is being used by the
-ReaderM Monad to add an input argument to all the functions that use the `ReaderM` monad and this is why
-`main` is able to start things off by simply passing that new input argument in `readerFunc3 env`.
-So now that you know the implementation details of the `ReaderM` monad you can see that what it is
-doing looks very much like the original code we wrote at the beginning of this section, only it's
-taking a lot of the tedious work off your plate and it is creating a nice clean separation between
-what your pure functions are doing, and the global context idea that the `ReaderM` adds.
+argument of type `Nat` and returns a `String` like `def f (a : Nat) : String` is the same as this
+function `def f : a → String`.  These are definitially equal.
+Well this fact is being used by the `ReaderM` Monad to add an input argument to all the functions that
+use the `ReaderM` monad and this is why `main` is able to start things off by simply passing that
+new input argument in `readerFunc3 env`. So now that you know the implementation details of the
+`ReaderM` monad you can see that what it is doing looks very much like the original code we wrote at
+the beginning of this section, only it's taking a lot of the tedious work off your plate and it is
+creating a nice clean separation between what your pure functions are doing, and the global context
+idea that the `ReaderM` adds.
 
 ## withReader
 
-One `ReaderM` function can call another with a modified version of the `ReaderM` context.
-You can use the `withReader` function from the `MonadWithReader` typeclass to do this:
+One `ReaderM` function can call another with a modified version of the `ReaderM` context. You can
+use the `withReader` function from the `MonadWithReader` typeclass to do this:
 
 -/
 def readerFunc3WithReader : ReaderM Environment String := do

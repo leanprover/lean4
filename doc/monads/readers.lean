@@ -141,7 +141,7 @@ functions like `read` that interact with the monad context.
 
 You might be wondering, how does the context actually move through the `ReaderM` monad? How can you
 add an input argument to a function by modifying its return type?  There is a special command in
-the Lean interpreter that will show you the reduced Types:
+Lean that will show you the reduced types:
 -/
 #reduce ReaderM Environment String   -- Environment → String
 /-!

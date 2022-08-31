@@ -205,8 +205,13 @@ def sleep (ms : UInt32) : BaseIO Unit :=
 @[extern "lean_io_wait"] opaque wait (t : Task α) : BaseIO α :=
   return t.get
 
+local macro "nonempty_list" : tactic =>
+  `(exact Nat.zero_lt_succ _)
+
 /-- Wait until any of the tasks in the given list has finished, then return its result. -/
-@[extern "lean_io_wait_any"] opaque waitAny : @& List (Task α) → IO α
+@[extern "lean_io_wait_any"] opaque waitAny (tasks : @& List (Task α))
+    (h : tasks.length > 0 := by nonempty_list) : BaseIO α :=
+  return tasks[0].get
 
 /-- Helper method for implementing "deterministic" timeouts. It is the number of "small" memory allocations performed by the current execution thread. -/
 @[extern "lean_io_get_num_heartbeats"] opaque getNumHeartbeats : BaseIO Nat

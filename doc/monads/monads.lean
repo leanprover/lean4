@@ -1,8 +1,8 @@
 /-!
 # Monads
 
-Building on [Functors](functors.lean.md) and [Applicatives](applicatives.lean.md) we can now introduce
-[monads](https://en.wikipedia.org/wiki/Monad_%28category_theory%29).
+Building on [Functors](functors.lean.md) and [Applicatives](applicatives.lean.md) we can now
+introduce [monads](https://en.wikipedia.org/wiki/Monad_%28category_theory%29).
 
 A monad is another type of abstract, functional structure. Let's explore what makes it different
 from the first two structures.
@@ -23,21 +23,21 @@ Like functors and applicatives, monads are represented with a type class in Lean
 class Monad (m : Type u → Type v) extends Applicative m, Bind m where
 ```
 
-Just as every applicative is a functor, every monad is also an applicative and
-there's one more new base type class used here that you need to understand, namely, `Bind`.
+Just as every applicative is a functor, every monad is also an applicative and there's one more new
+base type class used here that you need to understand, namely, `Bind`.
 
 ```lean,ignore
 class Bind (f : Type u → Type v) where
   bind : {α β : Type u} → f α → (α → f β) → f β
 ```
 
-The `bind` operator also has infix notation `>>=` where `x >>= g` represents the result of
-executing `x` to get a value of type `f α` then unwrapping the value `α` from that and
-passing it to function `g` of type `α → f β` returning the result of type `f β` where
-`f` is the target structure type (like `Option` or List)
+The `bind` operator also has infix notation `>>=` where `x >>= g` represents the result of executing
+`x` to get a value of type `f α` then unwrapping the value `α` from that and passing it to function
+`g` of type `α → f β` returning the result of type `f β` where `f` is the target structure type
+(like `Option` or List)
 
-This `bind` operation looks similar to the other ones you've seen so far, if you put
-them all together `Monad` has the following operations:
+This `bind` operation looks similar to the other ones you've seen so far, if you put them all
+together `Monad` has the following operations:
 
 ```lean,ignore
 class Monad (f : Type u → Type v) extends Applicative f, Bind f where
@@ -52,19 +52,23 @@ Notice `Monad` also contains `pure` it must also have a "default" way to wrap a 
 structure.
 
 The `bind` operator is similar to the applicative `seq` operator in that it chains two operations,
-with one of them being function related.
+with one of them being function related. Notice that `bind`, `seq` and `map` all take a function of
+some kind.  Let's examine those function types:
 
-Notice that `bind`, `seq` and `map` all take a function of some kind, and then a structure wrapped
-over a type `α`, namely `f α`, and then produce a structure wrapping a type `β`, namely `f β`. They
-just vary in what the function looks like. For the functor, the function is a normal pure function
-because it has the type `(α → β)`. For applicatives, the function is still pure, but wrapped in the
-structure `f (α → β)`. Now with monads, the function argument takes a "pure" input `α` but produces
-an output in the structure, `(α → f β)`.
+- map: `(α → β)`
+- seq: `f (α → β)`
+- bind: `(α → f β)`
+
+So `map` is a pure function, `seq` is a pure function wrapped in the structure, and `bind` takes a
+pure input but produces an output wrapped in the structure.
+
+Note: we are ignoring the `(Unit → f α)` function also used by `seq` in this comparison, since that
+was explained in [Applicatives Lazy Evaluation](applicatives.lean.md#lazy-evaluation).
 
 ## Basic Monad Example
 
-Just as `Option` is a functor and an applicative functor, it is also a monad!
-Let's start with how `Option` implements the Monad type class.
+Just as `Option` is a functor and an applicative functor, it is also a monad! Let's start with how
+`Option` implements the Monad type class.
 
 -/
 instance : Monad Option where

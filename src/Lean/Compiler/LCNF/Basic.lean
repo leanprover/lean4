@@ -190,6 +190,10 @@ def Code.isDecl : Code → Bool
   | .let .. | .fun .. | .jp .. => true
   | _ => false
 
+def Code.isReturnOf : Code → FVarId → Bool
+  | .return fvarId, fvarId' => fvarId == fvarId'
+  | _, _ => false
+
 partial def Code.size (c : Code) : Nat :=
   go c 0
 where

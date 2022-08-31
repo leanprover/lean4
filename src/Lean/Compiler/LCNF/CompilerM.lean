@@ -267,6 +267,13 @@ end
 @[inline] def normCode [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m] (code : Code) : m Code := do
   normCodeImp code (← getSubst)
 
+def replaceFVars (code : Code) (s : FVarSubst) : CompilerM Code :=
+  (normCode code : ReaderT FVarSubst CompilerM Code).run s
+
+def replaceFVar (code : Code) (fvarId fvarId' : FVarId) : CompilerM Code :=
+  let s : FVarSubst := {}
+  replaceFVars code (s.insert fvarId (.fvar fvarId'))
+
 def mkFreshBinderName (binderName := `_x): CompilerM Name := do
   let declName := .num binderName (← get).nextIdx
   modify fun s => { s with nextIdx := s.nextIdx + 1 }

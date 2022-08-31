@@ -35,10 +35,7 @@ def replaceFVar (fvarId fvarId' : FVarId) : M Unit := do
   eraseFVar fvarId
   modify fun s => { s with subst := s.subst.insert fvarId (.fvar fvarId') }
 
-end CSE
-
-open CSE in
-partial def Code.cse (code : Code) : CompilerM Code :=
+partial def _root_.Lean.Compiler.LCNF.Code.cse (code : Code) : CompilerM Code :=
   go code |>.run' {}
 where
   goFunDecl (decl : FunDecl) : M FunDecl := do
@@ -91,6 +88,8 @@ where
     | .return fvarId => return code.updateReturn! (← normFVar fvarId)
     | .jmp fvarId args => return code.updateJmp! (← normFVar fvarId) (← normExprs args)
     | .unreach .. => return code
+
+end CSE
 
 /--
 Common sub-expression elimination

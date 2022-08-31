@@ -7,6 +7,7 @@ import Lean.Util.Recognizers
 import Lean.Compiler.InlineAttrs
 import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.ElimDead
+import Lean.Compiler.LCNF.Bind
 import Lean.Compiler.LCNF.Stage1
 
 namespace Lean.Compiler.LCNF
@@ -232,72 +233,62 @@ where
     | .jp .. | .jmp .. => false
     | .return .. | .unreach .. => true
 
-/-
-def betaReduce (e : Expr) (args : Array Expr) : SimpM Expr := do
+def betaReduce (params : Array Param) (code : Code) (args : Array Expr) : SimpM Code := do
   -- TODO: add necessary casts to `args`
-  let result ← instantiateRevInternalize (getLambdaBody e) args
-  return result
+  let mut subst := {}
+  for param in params, arg in args do
+    subst := subst.insert param.fvarId arg
+  let code ← code.internalize subst
+  updateFunDeclInfo code
+  return code
 
+  /--
+  If `e` is an application that can be inlined, inline it.
 
-/--
-If `e` is an application that can be inlined, inline it.
-
-`k?` is the optional "continuation" for `e`, and it may contain loose bound variables
-that need to instantiated with `xs`. That is, if `k? = some k`, then `k.instantiateRev xs`
-is an expression without loose bound variables.
--/
-partial def inlineApp? (e : Expr) (k? : Option Code) : SimpM (Option Code) := do
-  let some info ← inlineCandidate? e | return none
-  let args := e.getAppArgs
-  let numArgs := args.size
-  trace[Compiler.simp.inline] "inlining {e}"
-  markSimplified
-  if k?.isNone && numArgs == info.arity then
-    /- Easy case, there is no continuation and `e` is not over applied -/
-    visitLet (← betaReduce info.value args)
-  else if oneExitPointQuick info.value then
-    /- If `info.value` has only one exit point, we don't need to create a new auxiliary join point -/
-    let mut value ← betaReduce info.value args[:info.arity]
-    if numArgs > info.arity then
-      let type ← inferType (mkAppN e.getAppFn args[:info.arity])
-      value := mkFlatLet (← mkAuxLetDeclName) type value (mkAppN (.bvar 0) args[info.arity:])
-    if let some k := k? then
-      let type ← inferType e
-      value := mkFlatLet (← mkAuxLetDeclName) type value k
-    visitLet value xs
-  else
-    /-
-    There is a continuation `k` or `e` is over applied.
-    If `e` is over applied, the extra arguments act as a continuation.
-
-    We create a new join point
-    ```
-    let jp := fun y =>
-      let x := y <extra-arguments> -- if `e` is over applied
-      k
-    ```
-    Recall that `visitLet` incorporates the current continuation
-    to the new join point `jp`.
-    -/
-    let jpDomain ← inferType (mkAppN e.getAppFn args[:info.arity])
-    let binderName ← mkFreshUserName `_y
-    let jp ← withNewScope do
-      let y ← mkLocalDecl binderName jpDomain
-      let body ← if numArgs == info.arity then
-        visitLet k?.get! (xs.push y)
-      else
-        let x ← mkAuxLetDecl (mkAppN y args[info.arity:])
-        if let some k := k? then
-          visitLet k (xs.push x)
+  `k?` is the optional "continuation" for `e`, and it may contain loose bound variables
+  that need to instantiated with `xs`. That is, if `k? = some k`, then `k.instantiateRev xs`
+  is an expression without loose bound variables.
+  -/
+  partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := do
+    if k matches .unreach .. then return some k
+    let e := letDecl.value
+    let some info ← inlineCandidate? e | return none
+    let args := e.getAppArgs
+    let numArgs := args.size
+    trace[Compiler.simp.inline] "inlining {e}"
+    let code ← betaReduce info.params info.value args[:info.arity]
+    let fvarId := letDecl.fvarId
+    if k.isReturnOf fvarId && numArgs == info.arity then
+      /- Easy case, the continuation `k` is just returning the result of the application. -/
+      return code
+    else if oneExitPointQuick code then
+      /-
+      `code` has only one exit point, thus we can attach the continuation directly there,
+      and simplify the result.
+      -/
+      code.bind fun fvarId' => do
+        /- fvarId' is the result of the computation -/
+        if numArgs > info.arity then
+          let decl ← mkAuxLetDecl (mkAppN (.fvar fvarId') args[info.arity:])
+          let k ← replaceFVar k fvarId decl.fvarId
+          return .let decl k
         else
-          visitLet x (xs.push x)
-      let body ← mkLetUsingScope body
-      mkLambda #[y] body
-    let jp ← mkJpDeclIfNotSimple jp
-    let value ← betaReduce info.value args[:info.arity]
-    let value ← attachJp value jp
-    visitLet value
--/
+          replaceFVar k fvarId fvarId'
+    else
+      /-
+      `code` has multiple exit points, and the continuation is non-trivial
+      Thus, we create an auxiliary join point.
+      -/
+      let jpParam ← mkAuxParam (← inferType (mkAppN e.getAppFn args[:info.arity]))
+      let jpValue ← if numArgs > info.arity then
+        let decl ← mkAuxLetDecl (mkAppN (.fvar jpParam.fvarId) args[info.arity:])
+        let k ← replaceFVar k fvarId decl.fvarId
+        pure <| .let decl k
+      else
+        replaceFVar k fvarId jpParam.fvarId
+      let jpDecl ← mkAuxJpDecl #[jpParam] jpValue
+      let code ← code.bind fun fvarId => return .jmp jpDecl.fvarId #[.fvar fvarId]
+      return Code.jp jpDecl code
 
 def findCtor (e : Expr) : SimpM Expr := do
   -- TODO: add support for mapping discriminants to constructors in branches
@@ -370,6 +361,8 @@ partial def simp (code : Code) : SimpM Code := do
       addSubst decl.fvarId decl.value
       eraseLocalDecl decl.fvarId
       simp k
+    else if let some code ← inlineApp? decl k then
+      simp code
     else
       /- TODO: simple value simplifications & inlining -/
       let k ← simp k

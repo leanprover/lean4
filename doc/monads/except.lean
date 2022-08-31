@@ -95,7 +95,7 @@ Note that the type inferred by Lean for this function is `Except String String` 
 value `(toString r)` is of type `String`, then this function must have type `Except String String`
 so you don't have to explicitly state this. You can always hover your mouse over `testCatch`
 or use `#check testCatch` to query Lean interactively to figure out what type inference
-has decided.  Lean type inference makes life easy for you in, so it's good to use it
+has decided.  Lean type inference makes life easy for you, so it's good to use it
 when you can.
 
 You can now see the try/catch working in this eval:

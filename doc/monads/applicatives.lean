@@ -247,7 +247,7 @@ Applicative functor.
 ## SeqLeft and SeqRight
 
 You may remember seeing the `SeqLeft` and `SeqRight` base types on `class Applicative` earlier.
-These provide the `seqLeft` and `seqRight` operatoins which also have some handy notation
+These provide the `seqLeft` and `seqRight` operations which also have some handy notation
 shorthands `<*` and `*>` repsectively. Where: `x <* y` evaluates `x`, then `y`, and returns the
 result of `x` and `x *> y` evaluates `x`, then `y`,  and returns the result of `y`.
 

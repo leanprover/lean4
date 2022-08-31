@@ -1,4 +1,4 @@
-import Std.Data.HashMap
+import Bootstrap.Data.HashMap
 /-!
 # State
 
@@ -149,17 +149,20 @@ def printBoard (board : Board) : IO Unit := do
       IO.println row
       row := []
 
+def playGame : StateM GameState Unit := do
+  let mut done ← nextTurn
+  while !done do
+    let d ← nextTurn
+    done := d
+
 def main : IO Unit := do
   let gen ← IO.stdGenRef.get
   let (x, gen') := randNat gen 0 1
-  let mut gs : GameState := {
+  let (_, g) := playGame {
     board := initBoard,
     currentPlayer := if x = 0 then XPlayer else OPlayer,
     generator := gen' }
-  for _ in [0:9] do
-    let (_, g) := nextTurn gs
-    gs := g
-  printBoard gs.board
+  printBoard g.board
 
 #eval main
 -- [X, X, O]
@@ -187,6 +190,20 @@ updated `GameState`.  This is why the call to `nextTurn` looks like this: `let (
 This expression `(_, g)` conveniently breaks the pair up into 2 values, it doesn't care what the first
 value is (hence the underscore `_`), but it does need the updated state `g` which you can then assign
 back to the mutable `gs` variable to use next time around this loop.
+
+It is also interesting to see how much work the `do` and `←` notation is doing for you.  To
+implement the `nextTurn` function without it you would have to write this, manually plumbing
+the state all the way through:
+-/
+def nextTurnManually : StateM GameState Bool
+| state =>
+  let (i, gs) := chooseRandomMove |>.run state
+  let (_, gs') := applyMove i  |>.run gs
+  let (result, gs'') := isGameDone |>.run gs'
+  (result, gs'')
+
+/-!
+
 
 ## StateM vs ReaderM
 

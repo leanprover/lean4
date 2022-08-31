@@ -183,9 +183,6 @@ implementation of the `map` function it is now super easy for anyone to come alo
 transform the units of a `LivingSpace` using very simple functions like `squareFeetToMeters`. Notice
 that squareFeetToMeters knows nothing about `LivingSpace`.
 
-You can implement the `Functor` pattern in other languages, people have even done it in C++, but it
-is very clean and elegant in Lean.
-
 ## How do Functors help with Monads ?
 
 Functors are an abstract mathematical structure that is represented in Lean with a type class. The

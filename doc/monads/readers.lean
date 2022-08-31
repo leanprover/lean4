@@ -87,17 +87,14 @@ def readerFunc3 : ReaderM Environment String := do
 
 def main2 : IO Unit := do
   let env ← loadEnv
-  let str := readerFunc3 env
+  let str := readerFunc3.run env
   IO.println str
 
 #eval main2 -- Result: 7538
 /-!
-`main2` loads the environment as before, and estabilishes the `ReaderM` context by passing `env` to
-readerFunc3.  The `do` notation you learned about in [Monads](monads.lean.md) is hiding some things
-here.  Technically `readerFunc3` is a monadic action and in order to "run" that action the `ReaderM`
-monad provides a `run` method and it is the `ReaderM` run method that takes the initial
-`Environment` context.  So you can actually write the complete code by doing this: `let str :=
-readerFunc3.run env`.
+The `ReaderM` monad provides a `run` method and it is the `ReaderM` run method that takes the initial
+`Environment` context.  So here you see `main2` loads the environment as before, and estabilishes
+the `ReaderM` context by passing `env` to the `run` method.
 
 > **Side note 1**: The `return` statement used above also needs some explanation.  The `return`
 statement in Lean is closely related to `pure`, but a little different. First the similarity is that
@@ -123,7 +120,7 @@ can use it. Each type of monad might provide one or more extra functions like th
 become available only when you are in the context of that monad.
 
 Here the `readerFunc2` function uses the `bind` operator `>>=` just to show you that there are bind
-operations happening here.  The `readerFunc3` function uses the  `do` notation you learned about in
+operations happening here.  The `readerFunc3` function uses the `do` notation you learned about in
 [Monads](monads.lean.md) which hides that bind operation and can make the code look cleaner.
 
 The `do` notation with `let x ← readerFunc2` is also calling the `bind` function under the covers,

@@ -1,72 +1,72 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<svg stroke-linecap="round" font-size="12" font-family="Segoe UI" width="452.77666612395745" height="248.95005976562499" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+<svg stroke-linecap="round" font-size="12" font-family="Segoe UI" width="452.77666612395745" height="248.93005122070298" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
   <defs />
-  <g transform="translate(910.021657986111,529.020008544922)">
+  <g transform="translate(910.021657986111,529)">
     <g id="Applicative-&gt;Functor">
-      <path d="M -807.903653113395,-412.02 L -847.127199482231,-475.406764310835" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M -851.863004872386,-483.060008544922 L -850.002440765141,-472.451601444757 C -848.261013442837,-474.705163512294 -845.993385521626,-476.108365109377 -843.199557001509,-476.661206236006 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-      <text x="-852.71281390538786" y="-429.7109809576055" fill="#A0A0A0">map</text>
+      <path d="M -807.903653820948,-412 L -847.127198473005,-475.386755952588" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -851.863004164833,-483.04 L -850.002439639429,-472.431592973174 C -848.261012405955,-474.685155109354 -845.993384540055,-476.088356795821 -843.19955604173,-476.641198032576 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="-852.71281371306816" y="-429.69097671144323" fill="#A0A0A0">map</text>
     </g>
     <g id="Applicative-&gt;Pure">
-      <path d="M -796.512476956139,-412.02 L -780.382402532923,-474.347044339822" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M -778.127514362975,-483.059993286133 L -784.505367416834,-474.381111421319 C -781.673209784229,-474.681101846481 -779.091595281618,-474.012986833163 -776.760523909001,-472.376766381366 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-      <text x="-816.74287463212534" y="-438.71460842989927" fill="#A0A0A0">pure</text>
+      <path d="M -796.512477188646,-412 L -780.382402154141,-474.327051015833" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -778.127514130469,-483.04 L -784.505367038623,-474.361118028113 C -781.673209411055,-474.661108500821 -779.091594897227,-473.992993530844 -776.760523497142,-472.356773118182 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="-816.74287455842432" y="-438.69461173539923" fill="#A0A0A0">pure</text>
     </g>
     <g id="Applicative-&gt;Seq">
-      <path d="M -785.807323788427,-412.02 L -715.446477492255,-476.956114886586" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M -708.832667530688,-483.060008544922 L -718.89418689169,-479.217375574134 C -716.350758034231,-477.935938584596 -714.54219695028,-475.976291188576 -713.468503639835,-473.338433386074 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-      <text x="-770.41998811997121" y="-448.96779299030788" fill="#A0A0A0">seq</text>
+      <path d="M -785.807322549471,-412 L -715.4464789992,-476.93610663204" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -708.832668769644,-483.04 L -718.894188299355,-479.197367470959 C -716.350759498157,-477.915930369753 -714.542198500243,-475.956282894328 -713.468505305613,-473.318425044687 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="-770.4199881894375" y="-448.9477889225883" fill="#A0A0A0">seq</text>
     </g>
     <g id="Applicative-&gt;SeqLeft">
-      <path d="M -774.424177097466,-412.02 L -643.166440182814,-478.970628687411" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M -635.149148097516,-483.060008544922 L -645.874752573407,-482.079494074486 C -643.772274235778,-480.15837566301 -642.560606129849,-477.782881711811 -642.23974825562,-474.953012220888 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-      <text x="-715.07629215759039" y="-467.02459197895752" fill="#A0A0A0">seqLeft</text>
+      <path d="M -774.424174855747,-412 L -643.166442570346,-478.950620428356" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -635.149150339236,-483.04 L -645.874754850089,-482.059485912 C -643.77227658096,-480.138367425557 -642.560608559732,-477.762873431154 -642.239750786405,-474.933003928791 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="-715.07629332428348" y="-467.00458581706908" fill="#A0A0A0">seqLeft</text>
     </g>
     <g id="Applicative-&gt;SeqRight">
-      <path d="M -761.895003596909,-411.402324216699 L -553.358854932838,-479.285894607655" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M -544.800868060045,-482.071726742782 L -555.54788997876,-482.779907424993 C -553.771570804708,-480.553744514735 -552.946139060967,-478.018044700574 -553.071594747536,-475.17280798251 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-      <text x="-663.46912057531733" y="-428.38903616286348" fill="#A0A0A0">seqRight</text>
+      <path d="M -762.296881102206,-411.641869329766 L -553.205594253706,-481.878408566702" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -544.674070805549,-484.744260561058 L -555.427253300992,-485.351768766509 C -553.630164919536,-483.142337966428 -552.781023587875,-480.614479166975 -552.879829306009,-477.768192368148 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="-663.3952363902863" y="-429.80442236390451" fill="#A0A0A0">seqRight</text>
     </g>
     <g id="Monad-&gt;Applicative">
-      <path d="M -746.587965869616,-326.029948779297 L -785.093073336615,-378.790170505437" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M -790.398691031095,-386.06 L -787.734595590367,-375.62435936405 C -786.170085113587,-378.004153069218 -784.016061559643,-379.576187941656 -781.272524928534,-380.340463981366 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M -746.590169654655,-326.029948779297 L -785.090064303814,-378.770758254257" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -790.396487246056,-386.04 L -787.731235863895,-375.604654530401 C -786.166989006887,-377.984621522073 -784.013139600741,-379.556894986441 -781.269687645457,-380.321474923505 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Monad-&gt;Bind">
-      <path d="M -727.86672499438,-326.029948779297 L -693.189066804785,-374.700266035596" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M -687.966587993901,-382.030048779297 L -697.02702344764,-376.206947424467 C -694.274960544593,-375.473966600171 -692.103173064978,-373.92656547102 -690.511661008794,-371.564744037014 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
-      <text x="-735.97340317596081" y="-354.53565825430974" fill="#A0A0A0">bind</text>
+      <path d="M -728.398478364029,-326.029948779297 L -692.452285471737,-379.558423320732" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -687.434834624252,-387.030048779297 L -696.330502436375,-380.958220868663 C -693.55919294708,-380.301749372212 -691.345377996395,-378.815097269253 -689.689057584318,-376.498264559787 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <text x="-735.90240979756391" y="-356.91917512723364" fill="#A0A0A0">bind</text>
     </g>
     <g id="Applicative">
-      <rect x="-839.02499999967" y="-412.02" rx="3" ry="3" width="78.3066666666668" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-      <text x="-829.02499999967" y="-394.07" fill="#3D3D3D">Applicative</text>
+      <rect x="-839.02499999967" y="-412" rx="3" ry="3" width="78.3066666666668" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-829.02499999967" y="-394.05" fill="#3D3D3D">Applicative</text>
     </g>
     <g id="Bind">
-      <rect x="-703.718322753906" y="-407.990048779297" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-      <text x="-690.718322753906" y="-390.040048779297" fill="#3D3D3D">Bind</text>
+      <rect x="-703.718322753906" y="-412.990048779297" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-690.718322753906" y="-395.040048779297" fill="#3D3D3D">Bind</text>
     </g>
     <g id="Functor">
-      <rect x="-890.021657986111" y="-509.020008544922" rx="3" ry="3" width="60.2533333333333" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-      <text x="-880.021657986111" y="-491.070008544922" fill="#3D3D3D">Functor</text>
+      <rect x="-890.021657986111" y="-509" rx="3" ry="3" width="60.2533333333333" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-880.021657986111" y="-491.05" fill="#3D3D3D">Functor</text>
     </g>
     <g id="Monad">
       <rect x="-765.999990234375" y="-326.029948779297" rx="3" ry="3" width="57.77" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
       <text x="-755.999990234375" y="-308.079948779297" fill="#3D3D3D">Monad</text>
     </g>
     <g id="Pure">
-      <rect x="-799.768324652778" y="-509.019993286133" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-      <text x="-786.768324652778" y="-491.069993286133" fill="#3D3D3D">Pure</text>
+      <rect x="-799.768324652778" y="-509" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-786.768324652778" y="-491.05" fill="#3D3D3D">Pure</text>
     </g>
     <g id="Seq">
-      <rect x="-719.768324652778" y="-509.020008544922" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-      <text x="-704.768324652778" y="-491.070008544922" fill="#3D3D3D">Seq</text>
+      <rect x="-719.768324652778" y="-509" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-704.768324652778" y="-491.05" fill="#3D3D3D">Seq</text>
     </g>
     <g id="SeqLeft">
-      <rect x="-639.434991861979" y="-509.020008544922" rx="3" ry="3" width="59.4666666666667" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-      <text x="-629.434991861979" y="-491.070008544922" fill="#3D3D3D">SeqLeft</text>
+      <rect x="-639.434991861979" y="-509" rx="3" ry="3" width="59.4666666666667" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-629.434991861979" y="-491.05" fill="#3D3D3D">SeqLeft</text>
     </g>
     <g id="SeqRight">
-      <rect x="-544.968325195487" y="-506.020008544922" rx="3" ry="3" width="67.7233333333334" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
-      <text x="-534.968325195487" y="-488.070008544922" fill="#3D3D3D">SeqRight</text>
+      <rect x="-544.968325195487" y="-509" rx="3" ry="3" width="67.7233333333334" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-534.968325195487" y="-491.05" fill="#3D3D3D">SeqRight</text>
     </g>
   </g>
 </svg>

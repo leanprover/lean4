@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <DirectedGraph GraphDirection="TopToBottom" Layout="Sugiyama" Offset="-1412.43666666667,-789.04" ZoomLevel="1" xmlns="http://schemas.microsoft.com/vs/2009/dgml">
   <Nodes>
-    <Node Id="Applicative" Bounds="-839.02499999967,-412.02,78.3066666666668,25.96" UseManualLocation="True" />
-    <Node Id="Bind" Bounds="-703.718322753906,-407.990048779297,50,25.96" UseManualLocation="True" />
-    <Node Id="Functor" Bounds="-890.021657986111,-509.020008544922,60.2533333333333,25.96" UseManualLocation="True" />
+    <Node Id="Applicative" Bounds="-839.02499999967,-412,78.3066666666668,25.96" UseManualLocation="True" />
+    <Node Id="Bind" Bounds="-703.718322753906,-412.990048779297,50,25.96" UseManualLocation="True" />
+    <Node Id="Functor" Bounds="-890.021657986111,-509,60.2533333333333,25.96" UseManualLocation="True" />
     <Node Id="Monad" Bounds="-765.999990234375,-326.029948779297,57.77,25.96" UseManualLocation="True" />
-    <Node Id="Pure" Bounds="-799.768324652778,-509.019993286133,50,25.96" UseManualLocation="True" />
-    <Node Id="Seq" Bounds="-719.768324652778,-509.020008544922,50,25.96" UseManualLocation="True" />
-    <Node Id="SeqLeft" Bounds="-639.434991861979,-509.020008544922,59.4666666666667,25.96" UseManualLocation="True" />
-    <Node Id="SeqRight" Bounds="-544.968325195487,-506.020008544922,67.7233333333334,25.96" UseManualLocation="True" />
+    <Node Id="Pure" Bounds="-799.768324652778,-509,50,25.96" UseManualLocation="True" />
+    <Node Id="Seq" Bounds="-719.768324652778,-509,50,25.96" UseManualLocation="True" />
+    <Node Id="SeqLeft" Bounds="-639.434991861979,-509,59.4666666666667,25.96" UseManualLocation="True" />
+    <Node Id="SeqRight" Bounds="-544.968325195487,-509,67.7233333333334,25.96" UseManualLocation="True" />
   </Nodes>
   <Links>
     <Link Source="Applicative" Target="Functor" Bounds="-847.127222309317,-475.406765306835,39.2235654207764,63.3867653068347" Label="map" LabelBounds="-852.712826985171,-442.660981097922,23.4966666666667,15.96" />

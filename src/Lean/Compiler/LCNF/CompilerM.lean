@@ -95,6 +95,19 @@ export MonadFVarSubst (getSubst)
 def normExprs [MonadFVarSubst m] [Monad m] (es : Array Expr) : m (Array Expr) :=
   es.mapMonoM normExpr
 
+def mkFreshBinderName (binderName := `_x): CompilerM Name := do
+  let declName := .num binderName (← get).nextIdx
+  modify fun s => { s with nextIdx := s.nextIdx + 1 }
+  return declName
+
+private def refreshBinderName (binderName : Name) : CompilerM Name := do
+  match binderName with
+  | .num p _ =>
+    let r := .num p (← get).nextIdx
+    modify fun s => { s with nextIdx := s.nextIdx + 1 }
+    return r
+  | _ => return binderName
+
 namespace Internalize
 
 abbrev M := StateRefT FVarSubst CompilerM
@@ -117,22 +130,24 @@ mutual
 
 partial def internalizeFunDecl (decl : FunDecl) : M FunDecl := do
   let type ← normExpr decl.type
+  let binderName ← refreshBinderName decl.binderName
   let params ← decl.params.mapM addParam
   let value ← internalizeCode decl.value
   let fvarId ← mkNewFVarId decl.fvarId
-  let decl := { decl with fvarId, params, type, value }
+  let decl := { decl with binderName, fvarId, params, type, value }
   modifyLCtx fun lctx => lctx.addFunDecl decl
   return decl
 
 partial def internalizeCode (code : Code) : M Code := do
   match code with
   | .let decl k =>
+    let binderName ← refreshBinderName decl.binderName
     let type ← normExpr decl.type
     let value ← normExpr decl.value
     let fvarId ← mkNewFVarId decl.fvarId
-    modifyLCtx fun lctx => lctx.addLetDecl fvarId decl.binderName type value
+    modifyLCtx fun lctx => lctx.addLetDecl fvarId binderName type value
     let k ← internalizeCode k
-    return .let { decl with fvarId, type, value } k
+    return .let { decl with binderName, fvarId, type, value } k
   | .fun decl k =>
     return .fun (← internalizeFunDecl decl) (← internalizeCode k)
   | .jp decl k =>
@@ -273,11 +288,6 @@ def replaceFVars (code : Code) (s : FVarSubst) : CompilerM Code :=
 def replaceFVar (code : Code) (fvarId fvarId' : FVarId) : CompilerM Code :=
   let s : FVarSubst := {}
   replaceFVars code (s.insert fvarId (.fvar fvarId'))
-
-def mkFreshBinderName (binderName := `_x): CompilerM Name := do
-  let declName := .num binderName (← get).nextIdx
-  modify fun s => { s with nextIdx := s.nextIdx + 1 }
-  return declName
 
 def mkFreshJpName : CompilerM Name := do
   mkFreshBinderName `_jp

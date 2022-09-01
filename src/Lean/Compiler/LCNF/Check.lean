@@ -91,6 +91,14 @@ def checkJpInScope (jp : FVarId) : CheckM Unit := do
     -/
     throwError "invalid jump to out of scope join point"
 
+def checkParam (param : Param) : CheckM Unit := do
+  let localDecl ← getLocalDecl param.fvarId
+  unless localDecl.type == param.type do
+    throwError "LCNF parameter mismatch at `{param.binderName}`, type in local context{indentExpr localDecl.type}\nexpected{indentExpr param.type}"
+
+def checkParams (params : Array Param) : CheckM Unit :=
+  params.forM checkParam
+
 def checkLetDecl (letDecl : LetDecl) : CheckM Unit := do
   checkExpr letDecl.value
   let valueType ← inferType letDecl.value
@@ -98,9 +106,9 @@ def checkLetDecl (letDecl : LetDecl) : CheckM Unit := do
     throwError "type mismatch at `{letDecl.binderName}`, value has type{indentExpr valueType}\nbut is expected to have type{indentExpr letDecl.type}"
   let localDecl ← getLocalDecl letDecl.fvarId
   unless localDecl.type == letDecl.type do
-    throwError "LCNF let declaration mismatch, type in local context{indentExpr localDecl.type}\nexpected{indentExpr letDecl.type}"
+    throwError "LCNF let declaration mismatch at `{letDecl.binderName}`, type in local context{indentExpr localDecl.type}\nexpected{indentExpr letDecl.type}"
   unless localDecl.value == letDecl.value do
-    throwError "LCNF let declaration mismatch, value in local context{indentExpr localDecl.value}\nexpected{indentExpr letDecl.value}"
+    throwError "LCNF let declaration mismatch at `{letDecl.binderName}`, value in local context{indentExpr localDecl.value}\nexpected{indentExpr letDecl.value}"
 
 def addFVarId (fvarId : FVarId) : CheckM Unit := do
   if (← get).all.contains fvarId then
@@ -123,6 +131,7 @@ def addFVarId (fvarId : FVarId) : CheckM Unit := do
 mutual
 
 partial def checkFunDeclCore (declName : Name) (type : Expr) (params : Array Param) (value : Code) : CheckM Unit := do
+  checkParams params
   let valueType ← withParams params do
     mkForallParams params (← check value)
   unless compatibleTypes type valueType do
@@ -132,9 +141,9 @@ partial def checkFunDecl (funDecl : FunDecl) : CheckM Unit := do
   checkFunDeclCore funDecl.binderName funDecl.type funDecl.params funDecl.value
   let localDecl ← getLocalDecl funDecl.fvarId
   unless localDecl.type == funDecl.type do
-    throwError "LCNF local function declaration mismatch, type in local context{indentExpr localDecl.type}\nexpected{indentExpr funDecl.type}"
+    throwError "LCNF local function declaration mismatch at `{funDecl.binderName}`, type in local context{indentExpr localDecl.type}\nexpected{indentExpr funDecl.type}"
   unless (← getFunDecl funDecl.fvarId) == funDecl do
-    throwError "LCNF local function declaration mismatch, declaration in local context does match"
+    throwError "LCNF local function declaration mismatch at `{funDecl.binderName}`, declaration in local context does match"
 
 partial def checkCases (c : Cases) : CheckM Expr := do
   let mut ctorNames : NameSet := {}
@@ -149,6 +158,7 @@ partial def checkCases (c : Cases) : CheckM Expr := do
       match alt with
       | .default k => hasDefault := true; check k
       | .alt ctorName params k =>
+        checkParams params
         if ctorNames.contains ctorName then
           throwError "invalid LCNF `cases`, alternative `{ctorName}` occurs more than once"
         ctorNames := ctorNames.insert ctorName

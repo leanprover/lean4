@@ -35,7 +35,6 @@ lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_AC_getInstance___lambda__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_AC_buildNormProof_convertTarget___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_AC_getInstance___lambda__2___closed__1;
-lean_object* l___private_Std_Data_HashMap_0__Std_numBucketsForCapacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_AC_buildNormProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -54,6 +53,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_AC_instEvalInformationPreContextACExpr___la
 static lean_object* l_Std_HashMap_find_x21___at_Lean_Meta_AC_toACExpr___spec__13___closed__3;
 static lean_object* l_Lean_Meta_AC_buildNormProof_mkContext___closed__10;
 static lean_object* l_Lean_Meta_AC_preContext___closed__10;
+lean_object* l___private_Lean_Data_HashMap_0__Std_numBucketsForCapacity(lean_object*);
 static lean_object* l_Lean_Meta_AC_getInstance___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_AC_acRflTactic___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_mkHashMap___at_Lean_Meta_AC_toACExpr___spec__12(lean_object*);
@@ -1995,7 +1995,7 @@ lean_ctor_set(x_15, 0, x_2);
 lean_ctor_set(x_15, 1, x_3);
 lean_ctor_set(x_15, 2, x_11);
 x_16 = lean_array_uset(x_6, x_10, x_15);
-x_17 = l___private_Std_Data_HashMap_0__Std_numBucketsForCapacity(x_14);
+x_17 = l___private_Lean_Data_HashMap_0__Std_numBucketsForCapacity(x_14);
 x_18 = lean_nat_dec_le(x_17, x_7);
 lean_dec(x_7);
 lean_dec(x_17);
@@ -2048,7 +2048,7 @@ lean_ctor_set(x_32, 0, x_2);
 lean_ctor_set(x_32, 1, x_3);
 lean_ctor_set(x_32, 2, x_28);
 x_33 = lean_array_uset(x_23, x_27, x_32);
-x_34 = l___private_Std_Data_HashMap_0__Std_numBucketsForCapacity(x_31);
+x_34 = l___private_Lean_Data_HashMap_0__Std_numBucketsForCapacity(x_31);
 x_35 = lean_nat_dec_le(x_34, x_24);
 lean_dec(x_24);
 lean_dec(x_34);
@@ -2145,7 +2145,7 @@ static lean_object* _init_l_Std_HashMap_find_x21___at_Lean_Meta_AC_toACExpr___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Std.Data.HashMap", 16);
+x_1 = lean_mk_string_from_bytes("Lean.Data.HashMap", 17);
 return x_1;
 }
 }

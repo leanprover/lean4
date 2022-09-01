@@ -324,7 +324,7 @@ where
         e := e'
       let c ← toCode (← visit e)
       let eType ← inferType e
-      return (eType, AltCore.alt ctorName ps c)
+      return (eType, .alt ctorName ps c)
 
   visitCases (casesInfo : CasesInfo) (e : Expr) : M Expr :=
     etaIfUnderApplied e casesInfo.arity do

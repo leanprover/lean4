@@ -143,7 +143,7 @@ theorem reverseAux_eq_append (as bs : List α) : reverseAux as bs = reverseAux a
   | nil => simp
   | cons a as ih => simp [ih]; rw [append_assoc]
 
-theorem mapTRAux_eq (f : α → β) (as : List α) (bs : List β) : mapTRAux f as bs =  bs.reverse ++ map f as := by
+theorem mapTRAux_eq (f : α → β) (as : List α) (bs : List β) : mapTRAux f as bs = bs.reverse ++ map f as := by
   induction as generalizing bs with
   | nil => simp [mapTRAux, map]
   | cons a as ih =>
@@ -151,9 +151,9 @@ theorem mapTRAux_eq (f : α → β) (as : List α) (bs : List β) : mapTRAux f a
     rw [ih (f a :: bs), reverse_cons, append_assoc]
     rfl
 
-@[csimp] theorem map_eq_mapTR : @map = @mapTR := by
-  apply funext; intro α; apply funext; intro β; apply funext; intro f; apply funext; intro as
-  simp [mapTR, mapTRAux_eq]
+@[csimp] theorem map_eq_mapTR : @map = @mapTR :=
+  funext fun α => funext fun β => funext fun f => funext fun as => by
+    simp [mapTR, mapTRAux_eq]
 
 @[specialize] def map₂ (f : α → β → γ) : List α → List β → List γ
   | [],    _     => []

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.FVarSubst
-// Imports: Init Std.Data.AssocList Lean.Expr Lean.LocalContext Lean.Util.ReplaceExpr
+// Imports: Init Lean.Data.AssocList Lean.Expr Lean.LocalContext Lean.Util.ReplaceExpr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -611,7 +611,7 @@ return x_3;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_AssocList(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_AssocList(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Expr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_LocalContext(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_ReplaceExpr(uint8_t builtin, lean_object*);
@@ -623,7 +623,7 @@ _G_initialized = true;
 res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_AssocList(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_AssocList(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Expr(builtin, lean_io_mk_world());

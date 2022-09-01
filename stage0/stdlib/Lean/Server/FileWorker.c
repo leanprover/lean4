@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.FileWorker
-// Imports: Init Init.System.IO Std.Data.RBMap Std.System.Uri Lean.Environment Lean.Data.Lsp Lean.Data.Json.FromToJson Lean.Util.Paths Lean.LoadDynlib Lean.Server.Utils Lean.Server.Snapshots Lean.Server.AsyncList Lean.Server.References Lean.Server.FileWorker.Utils Lean.Server.FileWorker.RequestHandling Lean.Server.FileWorker.WidgetRequests Lean.Server.Rpc.Basic Lean.Widget.InteractiveDiagnostic
+// Imports: Init Init.System.IO Lean.Data.RBMap Lean.Environment Lean.Data.Lsp Lean.Data.Json.FromToJson Lean.Util.Paths Lean.LoadDynlib Lean.Server.Utils Lean.Server.Snapshots Lean.Server.AsyncList Lean.Server.References Lean.Server.FileWorker.Utils Lean.Server.FileWorker.RequestHandling Lean.Server.FileWorker.WidgetRequests Lean.Server.Rpc.Basic Lean.Widget.InteractiveDiagnostic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20648,8 +20648,7 @@ return x_29;
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_RBMap(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_System_Uri(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_RBMap(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Environment(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Lsp(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Json_FromToJson(uint8_t builtin, lean_object*);
@@ -20675,10 +20674,7 @@ lean_dec_ref(res);
 res = initialize_Init_System_IO(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_RBMap(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_System_Uri(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_RBMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Environment(builtin, lean_io_mk_world());

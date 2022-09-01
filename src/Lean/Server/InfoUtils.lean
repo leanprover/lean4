@@ -6,19 +6,6 @@ Authors: Wojciech Nawrocki
 -/
 import Lean.PrettyPrinter
 
-protected structure String.Range where
-  start : String.Pos
-  stop  : String.Pos
-  deriving Inhabited, Repr, BEq, Hashable
-
-def String.Range.contains (r : String.Range) (pos : String.Pos) (includeStop := false) : Bool :=
-  r.start <= pos && (if includeStop then pos <= r.stop else pos < r.stop)
-
-def Lean.Syntax.getRange? (stx : Syntax) (originalOnly := false) : Option String.Range :=
-  match stx.getPos? originalOnly, stx.getTailPos? originalOnly with
-  | some start, some stop => some { start, stop }
-  | _,          _         => none
-
 namespace Lean.Elab
 
 /-- Visit nodes, passing in a surrounding context (the innermost one) and accumulating results on the way back up. -/

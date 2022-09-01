@@ -5,7 +5,7 @@ Authors: Sebastian Ullrich, Daniel Selsam, Wojciech Nawrocki
 -/
 import Lean.Meta.Basic
 import Lean.SubExpr
-import Std.Data.RBMap
+import Lean.Data.RBMap
 
 /-!
 # Subexpr utilities for delaborator.

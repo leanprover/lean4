@@ -72,6 +72,26 @@ not a type former.
 
 We try to preserve type information because they unlock new optimizations, and we can type check
 the result produced by each code generator step.
+
+
+Below, we provide some example programs and their erased variants:
+-- 1. Source type: `f: (n: Nat) -> (tupleN Nat n)`.
+      LCNF type: `f: Nat -> Any`.
+      We convert the return type `(tupleN Nat n) to `Any`, since we cannot reduce
+      `(tupleN Nat n)` to a term of the form `(InductiveTy ...)`.
+
+-- 2. Source type: `f: (n: Nat) (fin: Fin n) -> (tupleN Nat fin)`.
+      LCNF type: `f: Nat -> Fin Erased -> Any`.
+      Since `(Fin n)` has dependency on `n`, we erase the `n` to get the
+      type `(Fin Erased)`. See that Erased only
+      occurs at argument position to a type constructor.
+
+- NOTE: we cannot have separate notions of ErasedProof
+        (which occurs at the value level for erased proofs) and ErasedData
+        (which occurs at the type level for erased dependencies)
+        because of universe polymorphism. Thus, we have a single notion of
+        Erased which unifies the two concepts.
+
 -/
 
 open Meta in
@@ -163,6 +183,23 @@ Return true if the LCNF types `a` and `b` are compatible.
 Remark: `a` and `b` can be type formers (e.g., `List`, or `fun (α : Type) => Nat → Nat × α`)
 
 Remark: LCNFs types are eagerly eta reduced.
+
+The below checks do not appear exhaustive, but are
+in fact exhaustive due to LCNF constraints:
+  - bvar: handled by ==.
+  - fvar: handled by ==.
+  - mvar: should be resolved by the time we get to LCNF.
+  - sort: matched.
+  - const: matched.
+  - app: handled by β reduction + match.
+  - lam: matched.
+  - forallE: matched.
+  - letE: LCNF does not contain let at the type level.
+  - lit: We don't have data in LCNF, so we don't need to handle it.
+         Erased is handled by `const`.
+  - mdata: matched.
+  - proj: Becomes Any/Erased depending on what it should become.
+          type inside structure becomes Any, value inside structure becomes Erased.
 -/
 partial def compatibleTypes (a b : Expr) : Bool :=
   if a.isAnyType || b.isAnyType then
@@ -176,6 +213,8 @@ partial def compatibleTypes (a b : Expr) : Bool :=
       match a, b with
       | .mdata _ a, b => compatibleTypes a b
       | a, .mdata _ b => compatibleTypes a b
+      -- Note that even after reducing to headβ, we can still have `.app` terms. For example,
+      -- an inductive constructor application such as `List Int`
       | .app f a, .app g b => compatibleTypes f g && compatibleTypes a b
       | .forallE _ d₁ b₁ _, .forallE _ d₂ b₂ _ => compatibleTypes d₁ d₂ && compatibleTypes b₁ b₂
       | .lam _ d₁ b₁ _, .lam _ d₂ b₂ _ => compatibleTypes d₁ d₂ && compatibleTypes b₁ b₂
@@ -220,6 +259,9 @@ end
 
 /--
 Return `true` if `type` is a LCNF type former type.
+
+Remark: This is faster than `Lean.Meta.isTypeFormer`, as this
+        assumes that the input `type` is an LCNF type.
 -/
 def isTypeFormerType (type : Expr) : Bool :=
   match type with

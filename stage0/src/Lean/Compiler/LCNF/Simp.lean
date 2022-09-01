@@ -3,35 +3,16 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-#exit -- TODO: port to new LCNF
-import Lean.Compiler.CompilerM
-import Lean.Compiler.Decl
-import Lean.Compiler.Stage1
+import Lean.Util.Recognizers
 import Lean.Compiler.InlineAttrs
+import Lean.Compiler.LCNF.CompilerM
+import Lean.Compiler.LCNF.ElimDead
+import Lean.Compiler.LCNF.Bind
+import Lean.Compiler.LCNF.PrettyPrinter
+import Lean.Compiler.LCNF.Stage1
 
-namespace Lean.Compiler
+namespace Lean.Compiler.LCNF
 namespace Simp
-
-partial def findLambdaCore? (lctx : LocalContext) (e : Expr) : Option LocalDecl :=
-  match e with
-  | .fvar fvarId =>
-    if let some d@(.ldecl (value := v) ..) := lctx.find? fvarId then
-      if v.isLambda then some d else findLambdaCore? lctx v
-    else
-      none
-  | .mdata _ e => findLambdaCore? lctx e
-  | _ => none
-
-partial def findLambda? (e : Expr) : CompilerM (Option LocalDecl) :=
-  return findLambdaCore? (← getLCtx) e
-
-partial def findExpr (e : Expr) (skipMData := true): CompilerM Expr := do
-  match e with
-  | .fvar fvarId =>
-    let some (.ldecl (value := v) ..) ← findDecl? fvarId | return e
-    findExpr v
-  | .mdata _ e' => if skipMData then findExpr e' else return e
-  | _ => return e
 
 /--
 Local function usage information used to decide whether it should be inlined or not.
@@ -41,7 +22,7 @@ a function with `.once`, then it is applied only once. A local function may be m
 a big problem in practice because we run the simplifier multiple times, and this information
 is recomputed from scratch at the beginning of each simplification step.
 -/
-inductive LocalFunInfo where
+inductive FunDeclInfo where
   | /--
     Local function is applied once, and must be inlined.
     -/
@@ -51,39 +32,66 @@ inductive LocalFunInfo where
     if it is small.
     -/
     many
+  | /--
+    Function must be inlined.
+    -/
+    mustInline
   deriving Repr, Inhabited
 
 /--
 Local function declaration statistics.
-
-Remark: we use the `userName` as the key.
 -/
-structure LocalFunInfoMap where
+structure FunDeclInfoMap where
   /--
   Mapping from local function name to inlining information.
   -/
-  map : Std.HashMap Name LocalFunInfo := {}
+  map : Std.HashMap FVarId FunDeclInfo := {}
   deriving Inhabited
 
-def LocalFunInfoMap.format (s : LocalFunInfoMap) : Format := Id.run do
+def FunDeclInfoMap.format (s : FunDeclInfoMap) : CompilerM Format := do
   let mut result := Format.nil
-  for (k, n) in s.map.toList do
-    result := result ++ "\n" ++ f!"{k} ↦ {repr n}"
+  for (fvarId, info) in s.map.toList do
+    let localDecl ← getLocalDecl fvarId
+    result := result ++ "\n" ++ f!"{localDecl.userName} ↦ {repr info}"
   return result
-
-instance : ToFormat LocalFunInfoMap where
-  format := LocalFunInfoMap.format
 
 /--
 Add new occurrence for the local function with binder name `key`.
 -/
-def LocalFunInfoMap.add (s : LocalFunInfoMap) (key : Name) : LocalFunInfoMap :=
+def FunDeclInfoMap.add (s : FunDeclInfoMap) (fvarId : FVarId) : FunDeclInfoMap :=
   match s with
   | { map } =>
-    match map.find? key with
-    | some .once => { map := map.insert key .many }
-    | none       => { map := map.insert key .once }
+    match map.find? fvarId with
+    | some .once => { map := map.insert fvarId .many }
+    | none       => { map := map.insert fvarId .once }
     | _          => { map }
+
+/--
+Add new occurrence for the local function with binder name `key`.
+-/
+def FunDeclInfoMap.addMustInline (s : FunDeclInfoMap) (fvarId : FVarId) : FunDeclInfoMap :=
+  match s with
+  | { map } => { map := map.insert fvarId .mustInline }
+
+partial def findFunDecl? (e : Expr) : CompilerM (Option FunDecl) := do
+  match e with
+  | .fvar fvarId =>
+    if let some decl ← LCNF.findFunDecl? fvarId then
+      return some decl
+    else if let .ldecl (value := v) .. ← getLocalDecl fvarId then
+      findFunDecl? v
+    else
+      return none
+  | .mdata _ e => findFunDecl? e
+  | _ => return none
+
+partial def findExpr (e : Expr) (skipMData := true) : CompilerM Expr := do
+  match e with
+  | .fvar fvarId =>
+    let .ldecl (value := v) .. ← getLocalDecl fvarId | return e
+    findExpr v
+  | .mdata _ e' => if skipMData then findExpr e' else return e
+  | _ => return e
 
 structure Config where
   smallThreshold : Nat := 1
@@ -93,9 +101,17 @@ structure Context where
 
 structure State where
   /--
-  (Approximate) information for deciding whether to inline local function declarations.
+  Free variable substitution. We use it to implement inlining are removing redundant variables `let _x.i := _x.j`
   -/
-  localInfoMap : LocalFunInfoMap := {}
+  subst : FVarSubst := {}
+  /--
+  Track used local declarations to be able to eliminate dead variables.
+  -/
+  used : UsedLocalDecls := {}
+  /--
+  Mapping used to decide whether a local function declaration must be inlined or not.
+  -/
+  funDeclInfoMap : FunDeclInfoMap := {}
   /--
   `true` if some simplification was performed in the current simplification pass.
   -/
@@ -106,16 +122,6 @@ structure State where
   -/
   visited : Nat := 0
   /--
-  Number of `mkLetUsingScope` calls.
-  This is a performance counter.
-  -/
-  mkLet : Nat := 0
-  /--
-  Number of `mkLambda` calls.
-  This is a performance counter.
-  -/
-  mkLambda : Nat := 0
-  /--
   Number of definitions inlined.
   This is a performance counter.
   -/
@@ -125,123 +131,166 @@ structure State where
   This is a performance counter.
   -/
   inlineLocal : Nat := 0
-  deriving Inhabited
 
 abbrev SimpM := ReaderT Context $ StateRefT State CompilerM
 
-/-
-Ensure binder names are unique, and update local function information.
-If `mustInline = true`, then local functions in `e` are marked with binders of the
-form `_mustInline.<idx>`.
-Remark: we used to store the `mustInline` information in the map `localInfoMap`,
-using a `.mustInline` constructor at `LocalFunInfo`. However, this was incorrect
-because there is no guarantee that we will be able to inline all occurrences of the
-function in the current `simp` step. Since, we recompute `localInfoMap` from scratch
-at the beginning of each compiler pass, the information was being lost.
--/
-
-structure Internalize.State where
-  nextIdx : Nat
-  localInfoMap : LocalFunInfoMap
-
-private def updateFunInfo (key : Name) (mustInline : Bool) : StateM Internalize.State Unit :=
-  unless mustInline do
-    modify fun s => { s with localInfoMap := s.localInfoMap.add key  }
-
-/--
-`instantiateRevInternalize` implementation.
--/
-private def instantiateRevInternalizeCore (lctx : LocalContext) (e : Expr) (args : Array Expr) (mustInline : Bool) : StateM Internalize.State Expr :=
-  go e {}
-where
-  /-- Auxiliary functions for instantiating `args` in types. -/
-  inst (e : Expr) (offset : Nat) : Expr :=
-    match e with
-    | .sort .. | .lit .. | .const .. | .mvar .. | .fvar .. => e
-    | .mdata k b => .mdata k (inst b offset)
-    | .proj s i b => .proj s i (inst b offset)
-    | .app f a => if offset >= e.looseBVarRange then e else .app (inst f offset) (inst a offset)
-    | .bvar idx => if idx >= offset then args[args.size - (idx - offset) - 1]! else e
-    | .forallE n d b bi => if offset >= e.looseBVarRange then e else .forallE n (inst d offset) (inst b (offset + 1)) bi
-    | .lam n d b bi => if offset >= e.looseBVarRange then e else .lam n (inst d offset) (inst b (offset + 1)) bi
-    | .letE n t v b nd => if offset >= e.looseBVarRange then e else .letE n (inst t offset) (inst v offset) (inst b (offset + 1)) nd
-
-  go (e : Expr) (ctx : Std.PArray (Option Name)) : StateM Internalize.State Expr := do
-    let instantiate (e : Expr) := if args.size == 0 then e else inst e ctx.size
-    let updtBVar (idx : Nat) :=
-      let offset := ctx.size
-      if idx >= offset then
-        args[args.size - (idx - offset) - 1]!
-      else
-        .bvar idx
-    match e with
-    | .sort .. | .lit .. | .const .. | .mvar .. | .fvar .. => return e
-    | .mdata k b => return .mdata k (← go b ctx)
-    | .proj s i b => return .proj s i (← go b ctx)
-    | .app f a =>
-      let f ← go f ctx
-      let a ← go a ctx
-      match f with
-      | .fvar .. =>
-        match findLambdaCore? lctx f with
-        | some localDecl => updateFunInfo localDecl.userName mustInline
-        | _ => pure ()
-      | .bvar idx =>
-        match ctx[ctx.size - idx - 1]! with
-        | some binderName => updateFunInfo binderName mustInline
-        | none => pure ()
-      | _ => pure ()
-      return .app f a
-    | .bvar idx => return updtBVar idx
-    | .forallE .. => return instantiate e
-    | .lam n d b bi => return .lam n (instantiate d) (← go b (ctx.push none)) bi
-    | .letE binderName type value body nonDep =>
-      let idx ← modifyGet fun { nextIdx, localInfoMap } => (nextIdx, { nextIdx := nextIdx + 1, localInfoMap })
-      let binderName' :=
-        if mustInline && value.isLambda then
-          .num `_mustInline idx
-        else match binderName with
-          | .num p _ => .num p idx
-          | _ => .num binderName idx
-      let type := instantiate type
-      let value ← go value ctx
-      let ctxVal := match value with
-        | .lam .. => some binderName'
-        -- The next two cases simulate findLambdaCore? for `ctx`
-        | .fvar .. => match findLambdaCore? lctx value with
-          | some localDecl => some localDecl.userName
-          | _ => none
-        | .bvar idx => if idx < ctx.size then ctx[ctx.size - idx - 1]! else none
-        | _ => none
-      return .letE binderName' type value (← go body (ctx.push ctxVal)) nonDep
-
-/--
-This function performs the following operations in the given expression in a single pass.
-- Ensure binder names for let-declarations are unique.
-- Update local function information. That is, it updates the map `localInfoMap`.
-- Apply `e.instantiateRev args`.
-
-We use it to "internalize" expressions at startup and when performing inlining.
--/
-def instantiateRevInternalize (e : Expr) (args : Array Expr) (mustInline := false) : SimpM Expr := do
-  let lctx ← getLCtx
-  let nextIdx := (← getThe CompilerM.State).nextIdx
-  let localInfoMap ← modifyGet fun s => (s.localInfoMap, { s with localInfoMap := {} })
-  let (e, { localInfoMap, nextIdx }) := instantiateRevInternalizeCore lctx e args mustInline |>.run { nextIdx, localInfoMap }
-  modifyThe CompilerM.State fun s => { s with nextIdx }
-  modify fun s => { s with localInfoMap }
-  return e
-
-/--
-This function performs the following operations in the given expression in a single pass.
-- Ensure binder names for let-declarations are unique.
-- Update local function information. That is, it updates the map `localInfoMap`.
--/
-def internalize (e : Expr) (mustInline := false) : SimpM Expr := do
-  instantiateRevInternalize e #[] mustInline
+instance : MonadFVarSubst SimpM where
+  getSubst := return (← get).subst
 
 def markSimplified : SimpM Unit :=
   modify fun s => { s with simplified := true }
+
+def incVisited : SimpM Unit :=
+  modify fun s => { s with visited := s.visited + 1 }
+
+def incInline : SimpM Unit :=
+  modify fun s => { s with inline := s.inline + 1 }
+
+def incInlineLocal : SimpM Unit :=
+  modify fun s => { s with inlineLocal := s.inlineLocal + 1 }
+
+partial def updateFunDeclInfo (code : Code) (mustInline := false) : SimpM Unit :=
+  go code
+where
+  go (code : Code) : SimpM Unit := do
+  match code with
+  | .let decl k =>
+    if decl.value.isApp then
+      if let some funDecl ← findFunDecl? decl.value.getAppFn then
+        modify fun s => { s with funDeclInfoMap := s.funDeclInfoMap.add funDecl.fvarId }
+    go k
+  | .fun decl k =>
+    if mustInline then
+      modify fun s => { s with funDeclInfoMap := s.funDeclInfoMap.addMustInline decl.fvarId }
+    go decl.value; go k
+  | .jp decl k => go decl.value; go k
+  | .cases c => c.alts.forM fun alt => go alt.getCode
+  | .return .. | .jmp .. | .unreach .. => return ()
+
+def isOnceOrMustInline (fvarId : FVarId) : SimpM Bool := do
+  match (← get).funDeclInfoMap.map.find? fvarId with
+    | some .once | some .mustInline  => return true
+    | _ => return false
+
+def isSmall (decl : FunDecl) : SimpM Bool :=
+  return decl.value.sizeLe (← read).config.smallThreshold
+
+def shouldInlineLocal (decl : FunDecl) : SimpM Bool := do
+  if (← isOnceOrMustInline decl.fvarId) then
+    return true
+  else
+    isSmall decl
+
+structure InlineCandidateInfo where
+  isLocal : Bool
+  params  : Array Param
+  /-- Value (lambda expression) of the function to be inlined. -/
+  value   : Code
+
+def InlineCandidateInfo.arity : InlineCandidateInfo → Nat
+  | { params, .. } => params.size
+
+def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
+  let f := e.getAppFn
+  if let .const declName us ← findExpr f then
+    unless hasInlineAttribute (← getEnv) declName do return none
+    -- TODO: check whether function is recursive or not.
+    -- We can skip the test and store function inline so far.
+    let some decl ← getStage1Decl? declName | return none
+    let numArgs := e.getAppNumArgs
+    let arity := decl.getArity
+    if numArgs < arity then return none
+    let params := decl.instantiateParamsLevelParams us
+    let value := decl.instantiateValueLevelParams us
+    incInline
+    return some {
+      isLocal := false
+      params, value
+    }
+  else if let some decl ← findFunDecl? f then
+    unless (← shouldInlineLocal decl) do return none
+    let numArgs := e.getAppNumArgs
+    let arity := decl.getArity
+    if numArgs < arity then return none
+    incInlineLocal
+    modify fun s => { s with inlineLocal := s.inlineLocal + 1 }
+    return some {
+      isLocal := true
+      params  := decl.params
+      value   := decl.value
+    }
+  else
+    return none
+
+private partial def oneExitPointQuick (c : Code) : Bool :=
+  go c
+where
+  go (c : Code) : Bool :=
+    match c with
+    | .let _ k | .fun _ k => go k
+    -- Approximation, the cases may have many unreachable alternatives, and only reachable.
+    | .cases c => c.alts.size == 1 && c.alts.any fun alt => go alt.getCode
+    -- Approximation, we assume that any code containing join points have more than one exit point
+    | .jp .. | .jmp .. => false
+    | .return .. | .unreach .. => true
+
+def betaReduce (params : Array Param) (code : Code) (args : Array Expr) : SimpM Code := do
+  -- TODO: add necessary casts to `args`
+  let mut subst := {}
+  for param in params, arg in args do
+    subst := subst.insert param.fvarId arg
+  let code ← code.internalize subst
+  updateFunDeclInfo code
+  return code
+
+  /--
+  If `e` is an application that can be inlined, inline it.
+
+  `k?` is the optional "continuation" for `e`, and it may contain loose bound variables
+  that need to instantiated with `xs`. That is, if `k? = some k`, then `k.instantiateRev xs`
+  is an expression without loose bound variables.
+  -/
+  partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := do
+    if k matches .unreach .. then return some k
+    let e := letDecl.value
+    let some info ← inlineCandidate? e | return none
+    markSimplified
+    let args := e.getAppArgs
+    let numArgs := args.size
+    trace[Compiler.simp.inline] "inlining {e}"
+    let code ← betaReduce info.params info.value args[:info.arity]
+    let fvarId := letDecl.fvarId
+    if k.isReturnOf fvarId && numArgs == info.arity then
+      /- Easy case, the continuation `k` is just returning the result of the application. -/
+      return code
+    else if oneExitPointQuick code then
+      /-
+      `code` has only one exit point, thus we can attach the continuation directly there,
+      and simplify the result.
+      -/
+      code.bind fun fvarId' => do
+        /- fvarId' is the result of the computation -/
+        if numArgs > info.arity then
+          let decl ← mkAuxLetDecl (mkAppN (.fvar fvarId') args[info.arity:])
+          let k ← replaceFVar k fvarId decl.fvarId
+          return .let decl k
+        else
+          replaceFVar k fvarId fvarId'
+    else
+      /-
+      `code` has multiple exit points, and the continuation is non-trivial
+      Thus, we create an auxiliary join point.
+      -/
+      let jpParam ← mkAuxParam (← inferType (mkAppN e.getAppFn args[:info.arity]))
+      let jpValue ← if numArgs > info.arity then
+        let decl ← mkAuxLetDecl (mkAppN (.fvar jpParam.fvarId) args[info.arity:])
+        let k ← replaceFVar k fvarId decl.fvarId
+        pure <| .let decl k
+      else
+        replaceFVar k fvarId jpParam.fvarId
+      let jpDecl ← mkAuxJpDecl #[jpParam] jpValue
+      let code ← code.bind fun fvarId => return .jmp jpDecl.fvarId #[.fvar fvarId]
+      return Code.jp jpDecl code
 
 def findCtor (e : Expr) : SimpM Expr := do
   -- TODO: add support for mapping discriminants to constructors in branches
@@ -274,12 +323,169 @@ def simpAppApp? (e : Expr) : OptionT SimpM Expr := do
   markSimplified
   return mkAppN f e.getAppArgs
 
-def isOnceOrMustInline (binderName : Name) : SimpM Bool := do
-  if binderName.getPrefix == `_mustInline then
-    return true
-  else match (← get).localInfoMap.map.find? binderName with
-    | some .once  => return true
-    | _ => return false
+def markUsedFVar (fvarId : FVarId) : SimpM Unit :=
+  modify fun s => { s with used := s.used.insert fvarId }
+
+def markUsedExpr (e : Expr) : SimpM Unit :=
+  modify fun s => { s with used := collectLocalDecls s.used e }
+
+def markUsedLetDecl (letDecl : LetDecl) : SimpM Unit :=
+  markUsedExpr letDecl.value
+
+def isUsed (fvarId : FVarId) : SimpM Bool :=
+  return (← get).used.contains fvarId
+
+def eraseLocalDecl (fvarId : FVarId) : SimpM Unit := do
+  eraseFVar fvarId
+  markSimplified
+
+/--
+Add substitution `fvarId ↦ val`. `val` is a free variable, or
+it is a type, type former, or `lcErased`.
+-/
+def addSubst (fvarId : FVarId) (val : Expr) : SimpM Unit :=
+  modify fun s => { s with subst := s.subst.insert fvarId val }
+
+mutual
+partial def simpFunDecl (decl : FunDecl) : SimpM FunDecl := do
+  let type ← normExpr decl.type
+  let params ← normParams decl.params
+  let value ← simp decl.value
+  decl.update type params value
+
+partial def simp (code : Code) : SimpM Code := do
+  incVisited
+  match code with
+  | .let decl k =>
+    let decl ← normLetDecl decl
+    if decl.value.isFVar then
+      /- Eliminate `let _x_i := _x_j;` -/
+      addSubst decl.fvarId decl.value
+      eraseLocalDecl decl.fvarId
+      simp k
+    else if let some code ← inlineApp? decl k then
+      eraseFVar decl.fvarId
+      simp code
+    else
+      /- TODO: simple value simplifications & inlining -/
+      let k ← simp k
+      if !decl.pure || (← isUsed decl.fvarId) then
+        markUsedLetDecl decl
+        return code.updateLet! decl k
+      else
+        /- Dead variable elimination -/
+        eraseLocalDecl decl.fvarId
+        return k
+  | .fun decl k | .jp decl k =>
+    /-
+    Variables in `decl` will be marked as used even if the function is eliminated.
+    Thus, they will only be deleted in the second pass.
+
+    Pontential improvement: if `decl.fvarId` is marked with `once` or `mustInline`, we will probably
+    inline this declaration, and it may be wasteful to simplify it here.
+    The alternative option is to just normalize `decl`, and if used mark all occurring there as used.
+    -/
+    let decl ← simpFunDecl decl
+    let k ← simp k
+    if (← isUsed decl.fvarId) then
+      return code.updateFun! decl k
+    else
+      /- Dead function elimination -/
+      eraseLocalDecl decl.fvarId
+      return k
+  | .return fvarId =>
+    let fvarId ← normFVar fvarId
+    markUsedFVar fvarId
+    return code.updateReturn! fvarId
+  | .unreach type =>
+    return code.updateUnreach! (← normExpr type)
+  | .jmp fvarId args =>
+    -- TODO: inline join point
+    let fvarId ← normFVar fvarId
+    let args ← normExprs args
+    markUsedFVar fvarId
+    args.forM markUsedExpr
+    return code.updateJmp! fvarId args
+  | .cases c =>
+    -- TODO: cases simplifications
+    let resultType ← normExpr c.resultType
+    let discr ← normFVar c.discr
+    markUsedFVar discr
+    let alts ← c.alts.mapMonoM fun alt => return alt.updateCode (← simp alt.getCode)
+    return code.updateCases! resultType discr alts
+
+end
+
+end Simp
+
+open Simp
+
+def Decl.simp? (decl : Decl) : SimpM (Option Decl) := do
+  updateFunDeclInfo decl.value
+  trace[Compiler.simp.inline.info] "{decl.name}:{Format.nest 2 (← (← get).funDeclInfoMap.format)}"
+  traceM `Compiler.simp.step do ppDecl decl
+  let value ← simp decl.value
+  traceM `Compiler.simp.step.new do return m!"{decl.name} :=\n{← ppCode value}"
+  let s ← get
+  trace[Compiler.simp.stat] "{decl.name}, size: {value.size}, # visited: {s.visited}, # inline: {s.inline}, # inline local: {s.inlineLocal}"
+  if (← get).simplified then
+    return some { decl with value }
+  else
+    return none
+
+partial def Decl.simp (decl : Decl) : CompilerM Decl := do
+  if let some decl ← decl.simp? |>.run {} |>.run' {} then
+    -- TODO: bound number of steps?
+    decl.simp
+  else
+    return decl
+
+builtin_initialize
+  registerTraceClass `Compiler.simp.inline
+  registerTraceClass `Compiler.simp.inline.info
+  registerTraceClass `Compiler.simp.stat
+  registerTraceClass `Compiler.simp.step
+  registerTraceClass `Compiler.simp.step.new
+  registerTraceClass `Compiler.simp.projInst
+
+end Lean.Compiler.LCNF
+
+#exit -- TODO: port rest of file
+
+
+namespace Lean.Compiler
+namespace Simp
+
+
+/-
+Ensure binder names are unique, and update local function information.
+If `mustInline = true`, then local functions in `e` are marked with binders of the
+form `_mustInline.<idx>`.
+Remark: we used to store the `mustInline` information in the map `localInfoMap`,
+using a `.mustInline` constructor at `LocalFunInfo`. However, this was incorrect
+because there is no guarantee that we will be able to inline all occurrences of the
+function in the current `simp` step. Since, we recompute `localInfoMap` from scratch
+at the beginning of each compiler pass, the information was being lost.
+-/
+
+
+/--
+This function performs the following operations in the given expression in a single pass.
+- Ensure binder names for let-declarations are unique.
+- Update local function information. That is, it updates the map `localInfoMap`.
+- Apply `e.instantiateRev args`.
+
+We use it to "internalize" expressions at startup and when performing inlining.
+-/
+def instantiateRevInternalize (e : Expr) (args : Array Expr) (mustInline := false) : SimpM Expr := do
+  let lctx ← getLCtx
+  let nextIdx := (← getThe CompilerM.State).nextIdx
+  let localInfoMap ← modifyGet fun s => (s.localInfoMap, { s with localInfoMap := {} })
+  let (e, { localInfoMap, nextIdx }) := instantiateRevInternalizeCore lctx e args mustInline |>.run { nextIdx, localInfoMap }
+  modifyThe CompilerM.State fun s => { s with nextIdx }
+  modify fun s => { s with localInfoMap }
+  return e
+
 
 def isSmallValue (value : Expr) : SimpM Bool := do
   lcnfSizeLe value (← read).config.smallThreshold
@@ -290,41 +496,6 @@ def shouldInlineLocal (localDecl : LocalDecl) : SimpM Bool := do
   else
     isSmallValue localDecl.value
 
-structure InlineCandidateInfo where
-  isLocal : Bool
-  arity : Nat
-  /-- Value (lambda expression) of the function to be inlined. -/
-  value : Expr
-
-def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
-  let f := e.getAppFn
-  if let .const declName us ← findExpr f then
-    unless hasInlineAttribute (← getEnv) declName do return none
-    -- TODO: check whether function is recursive or not.
-    -- We can skip the test and store function inline so far.
-    let some decl ← getStage1Decl? declName | return none
-    let numArgs := e.getAppNumArgs
-    let arity := decl.getArity
-    if numArgs < arity then return none
-    let value := decl.value.instantiateLevelParams decl.levelParams us
-    modify fun s => { s with inline := s.inline + 1 }
-    return some {
-      arity, value
-      isLocal := false
-    }
-  else if let some localDecl ← findLambda? f then
-    unless (← shouldInlineLocal localDecl) do return none
-    let numArgs := e.getAppNumArgs
-    let arity := getLambdaArity localDecl.value
-    if numArgs < arity then return none
-    let value := localDecl.value
-    modify fun s => { s with inlineLocal := s.inlineLocal + 1 }
-    return some {
-      arity, value
-      isLocal := true
-    }
-  else
-    return none
 
 /--
 If `e` if a free variable that expands to a valid LCNF terminal `let`-block expression `e'`,
@@ -600,64 +771,6 @@ partial def visitCases (casesInfo : CasesInfo) (e : Expr) : SimpM Expr := do
       args ← args.modifyM i (visitLambda · (checkEmptyTypes := true))
     return mkAppN f args
 
-/--
-If `e` is an application that can be inlined, inline it.
-
-`k?` is the optional "continuation" for `e`, and it may contain loose bound variables
-that need to instantiated with `xs`. That is, if `k? = some k`, then `k.instantiateRev xs`
-is an expression without loose bound variables.
--/
-partial def inlineApp? (e : Expr) (xs : Array Expr) (k? : Option Expr) : SimpM (Option Expr) := do
-  let some info ← inlineCandidate? e | return none
-  let args := e.getAppArgs
-  let numArgs := args.size
-  trace[Compiler.simp.inline] "inlining {e}"
-  markSimplified
-  if k?.isNone && numArgs == info.arity then
-    /- Easy case, there is no continuation and `e` is not over applied -/
-    visitLet (← betaReduce info.value args)
-  else if (← onlyOneExitPoint info.value) then
-    /- If `info.value` has only one exit point, we don't need to create a new auxiliary join point -/
-    let mut value ← betaReduce info.value args[:info.arity]
-    if numArgs > info.arity then
-      let type ← inferType (mkAppN e.getAppFn args[:info.arity])
-      value := mkFlatLet (← mkAuxLetDeclName) type value (mkAppN (.bvar 0) args[info.arity:])
-    if let some k := k? then
-      let type ← inferType e
-      value := mkFlatLet (← mkAuxLetDeclName) type value k
-    visitLet value xs
-  else
-    /-
-    There is a continuation `k` or `e` is over applied.
-    If `e` is over applied, the extra arguments act as a continuation.
-
-    We create a new join point
-    ```
-    let jp := fun y =>
-      let x := y <extra-arguments> -- if `e` is over applied
-      k
-    ```
-    Recall that `visitLet` incorporates the current continuation
-    to the new join point `jp`.
-    -/
-    let jpDomain ← inferType (mkAppN e.getAppFn args[:info.arity])
-    let binderName ← mkFreshUserName `_y
-    let jp ← withNewScope do
-      let y ← mkLocalDecl binderName jpDomain
-      let body ← if numArgs == info.arity then
-        visitLet k?.get! (xs.push y)
-      else
-        let x ← mkAuxLetDecl (mkAppN y args[info.arity:])
-        if let some k := k? then
-          visitLet k (xs.push x)
-        else
-          visitLet x (xs.push x)
-      let body ← mkLetUsingScope body
-      mkLambda #[y] body
-    let jp ← mkJpDeclIfNotSimple jp
-    let value ← betaReduce info.value args[:info.arity]
-    let value ← attachJp value jp
-    visitLet value
 
 /-- Try to apply simple simplifications. -/
 partial def simpValue? (e : Expr) : SimpM (Option Expr) :=
@@ -727,33 +840,5 @@ partial def visitLet (e : Expr) (xs : Array Expr := #[]): SimpM Expr := do
 end
 
 end Simp
-
-def Decl.simp? (decl : Decl) : Simp.SimpM (Option Decl) := do
-  let value ← Simp.internalize decl.value
-  trace[Compiler.simp.inline.info] "{decl.name}:{Format.nest 2 (format (← get).localInfoMap)}"
-  trace[Compiler.simp.step] "{decl.name} :=\n{decl.value}"
-  let value ← Simp.visitLambda value
-  trace[Compiler.simp.step.new] "{decl.name} :=\n{value}"
-  let s ← get
-  trace[Compiler.simp.stat] "{decl.name}, size: {← getLCNFSize decl.value}, # visited: {s.visited}, # mkLet: {s.mkLet}, # mkLambda: {s.mkLambda}, # inline: {s.inline}, # inline local: {s.inlineLocal}"
-  if (← get).simplified then
-    return some { decl with value }
-  else
-    return none
-
-partial def Decl.simp (decl : Decl) : CoreM Decl := do
-  if let some decl ← decl.simp? |>.run {} |>.run' {} |>.run' {} then
-    -- TODO: bound number of steps?
-    decl.simp
-  else
-    return decl
-
-builtin_initialize
-  registerTraceClass `Compiler.simp.inline
-  registerTraceClass `Compiler.simp.inline.info
-  registerTraceClass `Compiler.simp.stat
-  registerTraceClass `Compiler.simp.step
-  registerTraceClass `Compiler.simp.step.new
-  registerTraceClass `Compiler.simp.projInst
 
 end Lean.Compiler

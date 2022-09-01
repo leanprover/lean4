@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Compiler.Options
+import Lean.Compiler.LCNF.PassManager
+import Lean.Compiler.LCNF.Passes
 import Lean.Compiler.LCNF.PrettyPrinter
 import Lean.Compiler.LCNF.ToDecl
 import Lean.Compiler.LCNF.Check
@@ -40,27 +42,38 @@ The trace can be viewed with `set_option trace.Compiler.step true`.
 -/
 def checkpoint (stepName : Name) (decls : Array Decl) : CompilerM Unit := do
   for decl in decls do
+    trace[Compiler.stat] "{decl.name} : {decl.size}"
     withOptions (fun opts => opts.setBool `pp.motives.pi false) do
       let clsName := `Compiler ++ stepName
       if (← Lean.isTracingEnabledFor clsName) then
         Lean.addTrace clsName m!"size: {decl.size}\n{← ppDecl decl}"
       if compiler.check.get (← getOptions) then
         decl.check
+  if compiler.check.get (← getOptions) then
+    checkDeadLocalDecls decls
+
+namespace PassManager
+
+def run (declNames : Array Name) : CompilerM (Array Decl) := do
+  let declNames ← declNames.filterM (shouldGenerateCode ·)
+  if declNames.isEmpty then return #[]
+  let mut decls ← declNames.mapM toDecl
+  let mut manager := { passes := #[{ name := `init, run := pure }] }
+  let installers := PassInstaller.passInstallerExt.getState (←getEnv)
+  manager ← installers.foldlM (init := manager) PassInstaller.runFromDecl
+  for pass in manager.passes do
+    trace[Compiler] s!"Running pass: {pass.name}"
+    decls ← pass.run decls
+    checkpoint pass.name decls
+  saveStage1Decls decls
+  return decls
+
+end PassManager
 
 @[export lean_compile_stage1]
 def compileStage1Impl (declNames : Array Name) : CoreM (Array Decl) :=
   CompilerM.run do
-    let declNames ← declNames.filterM (shouldGenerateCode ·)
-    if declNames.isEmpty then return #[]
-    let decls ← declNames.mapM toDecl
-    checkpoint `init decls
-    let decls ← decls.mapM (·.pullInstances)
-    checkpoint `pullInstances decls
-    let decls ← decls.mapM (·.cse)
-    checkpoint `cse decls
-    saveStage1Decls decls
-    decls.forM fun decl => do trace[Compiler.stat] "{decl.name} : {decl.size}"
-    return decls
+    PassManager.run declNames
 
 builtin_initialize
   registerTraceClass `Compiler.init (inherited := true)

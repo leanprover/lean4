@@ -43,18 +43,34 @@ def handleHover (p : HoverParams)
     : RequestM (RequestTask (Option Hover)) := do
   let doc ← readDoc
   let text := doc.meta.text
-  let mkHover (s : String) (f : String.Pos) (t : String.Pos) : Hover :=
-    { contents := { kind := MarkupKind.markdown
-                    value := s }
-      range? := some { start := text.utf8PosToLspPos f
-                       «end» := text.utf8PosToLspPos t } }
+  let mkHover (s : String) (r : String.Range) : Hover := {
+    contents := {
+      kind := MarkupKind.markdown
+      value := s
+    }
+    range? := r.toLspRange text
+  }
 
   let hoverPos := text.lspPosToUtf8Pos p.position
   withWaitFindSnap doc (fun s => s.endPos > hoverPos)
     (notFoundX := pure none) fun snap => do
+      -- try to find parser docstring from syntax tree
+      let stack? := snap.stx.findStack? (·.getRange?.any (·.contains hoverPos))
+      let stxDoc? ← match stack? with
+        | some stack => stack.findSomeM? fun (stx, _) => do
+          return (← findDocString? snap.env stx.getKind).map (·, stx.getRange?.get!)
+        | none => pure none
+
+      -- now try info tree
       if let some (ci, i) := snap.infoTree.hoverableInfoAt? hoverPos then
-        if let some hoverFmt ← i.fmtHover? ci then
-          return some <| mkHover (toString hoverFmt) i.pos?.get! i.tailPos?.get!
+        if let some range := i.range? then
+          -- prefer info tree if at least as specific as parser docstring
+          if stxDoc?.all fun (_, stxRange) => stxRange.includes range then
+            if let some hoverFmt ← i.fmtHover? ci then
+              return mkHover (toString hoverFmt) range
+
+      if let some (doc, range) := stxDoc? then
+        return mkHover doc range
 
       return none
 
@@ -238,7 +254,7 @@ partial def handleDocumentSymbol (_ : DocumentSymbolParams)
     : RequestM (RequestTask DocumentSymbolResult) := do
   let doc ← readDoc
   -- bad: we have to wait on elaboration of the entire file before we can report document symbols
-  let t ← doc.cmdSnaps.waitAll
+  let t := doc.cmdSnaps.waitAll
   mapTask t fun (snaps, _) => do
     let mut stxs := snaps.map (·.stx)
     let (syms, _) := toDocumentSymbols doc.meta.text stxs
@@ -315,7 +331,7 @@ partial def handleSemanticTokens (beginPos endPos : String.Pos)
     : RequestM (RequestTask SemanticTokens) := do
   let doc ← readDoc
   let text := doc.meta.text
-  let t ← doc.cmdSnaps.waitAll (·.beginPos < endPos)
+  let t := doc.cmdSnaps.waitAll (·.beginPos < endPos)
   mapTask t fun (snaps, _) =>
     StateT.run' (s := { data := #[], lastLspPos := ⟨0, 0⟩ : SemanticTokensState }) do
       for s in snaps do
@@ -400,7 +416,7 @@ def handleSemanticTokensRange (p : SemanticTokensRangeParams)
 partial def handleFoldingRange (_ : FoldingRangeParams)
   : RequestM (RequestTask (Array FoldingRange)) := do
   let doc ← readDoc
-  let t ← doc.cmdSnaps.waitAll
+  let t := doc.cmdSnaps.waitAll
   mapTask t fun (snaps, _) => do
     let stxs := snaps.map (·.stx)
     let (_, ranges) ← StateT.run (addRanges doc.meta.text [] stxs) #[]
@@ -475,7 +491,7 @@ partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
   let t ← RequestM.asTask waitLoop
   RequestM.bindTask t fun doc? => do
     let doc ← liftExcept doc?
-    let t₁ ← doc.cmdSnaps.waitAll
+    let t₁ := doc.cmdSnaps.waitAll
     return t₁.map fun _ => pure WaitForDiagnostics.mk
 
 builtin_initialize

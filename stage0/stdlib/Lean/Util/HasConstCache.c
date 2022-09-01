@@ -14,12 +14,12 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_HasConstCache_containsUnsafe(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Std_Data_HashMap_0__Std_numBucketsForCapacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HasConstCache_containsUnsafe___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_HasConstCache_containsUnsafe_cache___boxed(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
+lean_object* l___private_Lean_Data_HashMap_0__Std_numBucketsForCapacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_AssocList_find_x3f___at_Lean_HasConstCache_containsUnsafe___spec__2___boxed(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_AssocList_foldlM___at_Lean_HasConstCache_containsUnsafe_cache___spec__4(lean_object*, lean_object*);
@@ -309,7 +309,7 @@ lean_ctor_set(x_16, 0, x_1);
 lean_ctor_set(x_16, 1, x_15);
 lean_ctor_set(x_16, 2, x_11);
 x_17 = lean_array_uset(x_6, x_10, x_16);
-x_18 = l___private_Std_Data_HashMap_0__Std_numBucketsForCapacity(x_14);
+x_18 = l___private_Lean_Data_HashMap_0__Std_numBucketsForCapacity(x_14);
 x_19 = lean_nat_dec_le(x_18, x_7);
 lean_dec(x_7);
 lean_dec(x_18);
@@ -376,7 +376,7 @@ lean_ctor_set(x_40, 0, x_1);
 lean_ctor_set(x_40, 1, x_39);
 lean_ctor_set(x_40, 2, x_35);
 x_41 = lean_array_uset(x_30, x_34, x_40);
-x_42 = l___private_Std_Data_HashMap_0__Std_numBucketsForCapacity(x_38);
+x_42 = l___private_Lean_Data_HashMap_0__Std_numBucketsForCapacity(x_38);
 x_43 = lean_nat_dec_le(x_42, x_31);
 lean_dec(x_31);
 lean_dec(x_42);

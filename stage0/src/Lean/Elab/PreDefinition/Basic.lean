@@ -33,12 +33,9 @@ def instantiateMVarsAtPreDecls (preDefs : Array PreDefinition) : TermElabM (Arra
   preDefs.mapM fun preDef => do
     pure { preDef with type := (← instantiateMVars preDef.type), value := (← instantiateMVars preDef.value) }
 
-private def levelMVarToParamPreDeclsAux (preDefs : Array PreDefinition) : StateRefT Nat TermElabM (Array PreDefinition) :=
-  preDefs.mapM fun preDef => do
-    pure { preDef with type := (← levelMVarToParam' preDef.type), value := (← levelMVarToParam' preDef.value) }
-
 def levelMVarToParamPreDecls (preDefs : Array PreDefinition) : TermElabM (Array PreDefinition) :=
-  (levelMVarToParamPreDeclsAux preDefs).run' 1
+  preDefs.mapM fun preDef => do
+    pure { preDef with type := (← levelMVarToParam preDef.type), value := (← levelMVarToParam preDef.value) }
 
 private def getLevelParamsPreDecls (preDefs : Array PreDefinition) (scopeLevelNames allUserLevelNames : List Name) : TermElabM (List Name) := do
   let mut s : CollectLevelParams.State := {}

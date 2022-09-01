@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.Watchdog
-// Imports: Init Init.System.IO Init.Data.ByteArray Std.Data.RBMap Std.System.Uri Lean.Elab.Import Lean.Util.Paths Lean.Data.FuzzyMatching Lean.Data.Json Lean.Data.Lsp Lean.Server.Utils Lean.Server.Requests Lean.Server.References
+// Imports: Init Init.System.IO Init.Data.ByteArray Lean.Data.RBMap Lean.Elab.Import Lean.Util.Paths Lean.Data.FuzzyMatching Lean.Data.Json Lean.Data.Lsp Lean.Server.Utils Lean.Server.Requests Lean.Server.References
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -23892,8 +23892,7 @@ return x_36;
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_ByteArray(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_RBMap(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_System_Uri(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_RBMap(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Import(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_Paths(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_FuzzyMatching(uint8_t builtin, lean_object*);
@@ -23916,10 +23915,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_ByteArray(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_RBMap(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_System_Uri(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_RBMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Import(builtin, lean_io_mk_world());

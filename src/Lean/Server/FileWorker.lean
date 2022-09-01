@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 import Init.System.IO
-import Bootstrap.Data.RBMap
+import Lean.Data.RBMap
 
 import Lean.Environment
 
@@ -280,7 +280,7 @@ section Updates
     let (newHeaderStx, newMpState, _) ← Parser.parseHeader newMeta.mkInputContext
     let cancelTk ← CancelToken.new
     -- Wait for at least one snapshot from the old doc, we don't want to unnecessarily re-run `print-paths`
-    let headSnapTask ← oldDoc.cmdSnaps.waitHead?
+    let headSnapTask := oldDoc.cmdSnaps.waitHead?
     let newSnaps ← EIO.mapTask (ε := ElabTaskError) (t := headSnapTask) fun headSnap?? => do
       let headSnap? ← MonadExcept.ofExcept headSnap??
       -- There is always at least one snapshot absent exceptions

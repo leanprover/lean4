@@ -6,8 +6,7 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 import Init.System.IO
 import Init.Data.ByteArray
-import Std.Data.RBMap
-import Std.System.Uri
+import Lean.Data.RBMap
 
 import Lean.Elab.Import
 import Lean.Util.Paths

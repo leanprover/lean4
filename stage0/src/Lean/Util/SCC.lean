@@ -3,7 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Std.Data.HashMap
+import Lean.Data.HashMap
 namespace Lean.SCC
 /-!
   Very simple implementation of Tarjan's SCC algorithm.

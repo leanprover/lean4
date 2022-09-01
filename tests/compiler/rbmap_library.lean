@@ -1,4 +1,4 @@
-import Bootstrap
+import Lean.Data.RBMap
 open Std
 
 def check (b : Bool) : IO Unit := do

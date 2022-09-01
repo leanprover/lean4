@@ -20,7 +20,7 @@ structure Param where
   fvarId     : FVarId
   binderName : Name
   type       : Expr
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 def Param.toExpr (p : Param) : Expr :=
   .fvar p.fvarId
@@ -36,7 +36,7 @@ structure LetDecl where
   type : Expr
   value : Expr
   pure : Bool
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 structure FunDeclCore (Code : Type) where
   fvarId : FVarId
@@ -66,9 +66,53 @@ inductive Code where
   | unreach (type : Expr)
   deriving Inhabited
 
+
 abbrev Alt := AltCore Code
 abbrev FunDecl := FunDeclCore Code
 abbrev Cases := CasesCore Code
+
+mutual
+  private unsafe def eqImp (c₁ c₂ : Code) : Bool :=
+    if ptrEq c₁ c₂ then
+      true
+    else match c₁, c₂ with
+      | .let d₁ k₁, .let d₂ k₂ => d₁ == d₂ && eqImp k₁ k₂
+      | .fun d₁ k₁, .fun d₂ k₂
+      | .jp d₁ k₁, .jp d₂ k₂ => eqFunDecl d₁ d₂ && eqImp k₁ k₂
+      | .cases c₁, .cases c₂ => eqCases c₁ c₂
+      | .jmp j₁ as₁, .jmp j₂ as₂ => j₁ == j₂ && as₁ == as₂
+      | .return r₁, .return r₂ => r₁ == r₂
+      | .unreach t₁, .unreach t₂ => t₁ == t₂
+      | _, _ => false
+
+  private unsafe def eqFunDecl (d₁ d₂ : FunDecl) : Bool :=
+    if ptrEq d₁ d₂ then
+      true
+    else
+      d₁.fvarId == d₂.fvarId && d₁.binderName == d₂.binderName &&
+      d₁.params == d₂.params && d₁.type == d₂.type &&
+      eqImp d₁.value d₂.value
+
+  private unsafe def eqCases (c₁ c₂ : Cases) : Bool :=
+    c₁.resultType == c₂.resultType && c₁.discr == c₂.discr &&
+    c₁.typeName == c₂.typeName && c₁.alts.isEqv c₂.alts eqAlt
+
+  private unsafe def eqAlt (a₁ a₂ : Alt) : Bool :=
+    match a₁, a₂ with
+    | .default k₁, .default k₂ => eqImp k₁ k₂
+    | .alt c₁ ps₁ k₁, .alt c₂ ps₂ k₂ => c₁ == c₂ && ps₁ == ps₂ && eqImp k₁ k₂
+    | _, _ => false
+end
+
+@[implementedBy eqImp] protected opaque Code.beq : Code → Code → Bool
+
+instance : BEq Code where
+  beq := Code.beq
+
+@[implementedBy eqFunDecl] protected opaque FunDecl.beq : FunDecl → FunDecl → Bool
+
+instance : BEq FunDecl where
+  beq := FunDecl.beq
 
 def AltCore.getCode : Alt → Code
   | .default k => k
@@ -147,19 +191,81 @@ private unsafe def updateAltImp (alt : Alt) (ps' : Array Param) (k' : Code) : Al
 
 @[implementedBy updateUnreachImp] opaque Code.updateUnreach! (c : Code) (type' : Expr) : Code
 
+private unsafe def updateParamCoreImp (p : Param) (type : Expr) : Param :=
+  if ptrEq type p.type then
+    p
+  else
+    { p with type }
+
+/--
+Low-level update `Param` function. It does not update the local context.
+Consider using `Param.update : Param → Expr → CompilerM Param` if you want the local context
+to be updated.
+-/
+@[implementedBy updateParamCoreImp] opaque Param.updateCore (p : Param) (type : Expr) : Param
+
+private unsafe def updateLetDeclCoreImp (decl : LetDecl) (type : Expr) (value : Expr) : LetDecl :=
+  if ptrEq type decl.type && ptrEq value decl.value then
+    decl
+  else
+    { decl with type, value }
+
+/--
+Low-level update `LetDecl` function. It does not update the local context.
+Consider using `LetDecl.update : LetDecl → Expr → Expr → CompilerM LetDecl` if you want the local context
+to be updated.
+-/
+@[implementedBy updateLetDeclCoreImp] opaque LetDecl.updateCore (decl : LetDecl) (type : Expr) (value : Expr) : LetDecl
+
+private unsafe def updateFunDeclCoreImp (decl: FunDecl) (type : Expr) (params : Array Param) (value : Code) : FunDecl :=
+  if ptrEq type decl.type && ptrEq params decl.params && ptrEq value decl.value then
+    decl
+  else
+    { decl with type, params, value }
+
+/--
+Low-level update `FunDecl` function. It does not update the local context.
+Consider using `FunDecl.update : LetDecl → Expr → Array Param → Code → CompilerM FunDecl` if you want the local context
+to be updated.
+-/
+@[implementedBy updateFunDeclCoreImp] opaque FunDeclCore.updateCore (decl: FunDecl) (type : Expr) (params : Array Param) (value : Code) : FunDecl
+
 def Code.isDecl : Code → Bool
   | .let .. | .fun .. | .jp .. => true
   | _ => false
+
+def Code.isReturnOf : Code → FVarId → Bool
+  | .return fvarId, fvarId' => fvarId == fvarId'
+  | _, _ => false
 
 partial def Code.size (c : Code) : Nat :=
   go c 0
 where
   go (c : Code) (n : Nat) : Nat :=
-   match c with
-   | .let _ k => go k (n+1)
-   | .jp decl k | .fun decl k => go k <| go decl.value n
-   | .cases c => c.alts.foldl (init := n+1) fun n alt => go alt.getCode (n+1)
-   | .jmp .. | .return .. | unreach .. => n+1
+    match c with
+    | .let _ k => go k (n+1)
+    | .jp decl k | .fun decl k => go k <| go decl.value n
+    | .cases c => c.alts.foldl (init := n+1) fun n alt => go alt.getCode (n+1)
+    | .jmp .. => n+1
+    | .return .. | unreach .. => n -- `return` & `unreach` have weight zero
+
+/-- Return true iff `c.size ≤ n` -/
+partial def Code.sizeLe (c : Code) (n : Nat) : Bool :=
+  match go c |>.run 0 with
+  | .ok .. => true
+  | .error .. => false
+where
+  inc : EStateM Unit Nat Unit := do
+    modify (·+1)
+    unless (← get) <= n do throw ()
+
+  go (c : Code) : EStateM Unit Nat Unit := do
+    match c with
+    | .let _ k => inc; go k
+    | .jp decl k | .fun decl k => inc; go decl.value; go k
+    | .cases c => inc; c.alts.forM fun alt => go alt.getCode
+    | .jmp .. => inc
+    | .return .. | unreach .. => return ()
 
 /--
 Declaration being processed by the Lean to Lean compiler passes.
@@ -189,7 +295,45 @@ structure Decl where
   -/
   value : Code
 
-partial def Decl.size (decl : Decl) : Nat :=
+def Decl.size (decl : Decl) : Nat :=
   decl.value.size
+
+def Decl.getArity (decl : Decl) : Nat :=
+  decl.params.size
+
+def Decl.instantiateTypeLevelParams (decl : Decl) (us : List Level) : Expr :=
+  decl.type.instantiateLevelParams decl.levelParams us
+
+def Decl.instantiateParamsLevelParams (decl : Decl) (us : List Level) : Array Param :=
+  decl.params.mapMono fun param => param.updateCore (param.type.instantiateLevelParams decl.levelParams us)
+
+partial def Decl.instantiateValueLevelParams (decl : Decl) (us : List Level) : Code :=
+  instCode decl.value
+where
+  instExpr (e : Expr) :=
+    e.instantiateLevelParams decl.levelParams us
+
+  instParams (ps : Array Param) :=
+    ps.mapMono fun p => p.updateCore (instExpr p.type)
+
+  instAlt (alt : Alt) :=
+    match alt with
+    | .default k => alt.updateCode (instCode k)
+    | .alt _ ps k => alt.updateAlt! (instParams ps) (instCode k)
+
+  instLetDecl (decl : LetDecl) :=
+    decl.updateCore (instExpr decl.type) (instExpr decl.value)
+
+  instFunDecl (decl : FunDecl) :=
+    decl.updateCore (instExpr decl.type) (instParams decl.params) (instCode decl.value)
+
+  instCode (code : Code) :=
+    match code with
+    | .let decl k => code.updateLet! (instLetDecl decl) (instCode k)
+    | .jp decl k | .fun decl k => code.updateFun! (instFunDecl decl) (instCode k)
+    | .cases c => code.updateCases! (instExpr c.resultType) c.discr (c.alts.mapMono instAlt)
+    | .jmp fvarId args => code.updateJmp! fvarId (args.mapMono instExpr)
+    | .return .. => code
+    | .unreach type => code.updateUnreach! (instExpr type)
 
 end Lean.Compiler.LCNF

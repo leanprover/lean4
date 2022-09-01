@@ -1,4 +1,4 @@
-import Bootstrap.Data.PersistentArray
+import Lean.Data.PersistentArray
 
 def check [BEq α] (as : List α) : Bool :=
   as.toPersistentArray.foldr (.::.) [] == as

@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Dany Fabian
 -/
 
-import Std.Data.RBMap
+import Lean.Data.RBMap
 namespace Lean
 namespace Xml
 
@@ -13,8 +13,8 @@ def Attributes := Std.RBMap String String compare
 instance : ToString Attributes := ⟨λ as => as.fold (λ s n v => s ++ s!" {n}=\"{v}\"") ""⟩
 
 mutual
-inductive Element 
-| Element 
+inductive Element
+| Element
   (name : String)
   (attributes : Attributes)
   (content : Array Content)
@@ -27,7 +27,7 @@ deriving Inhabited
 end
 
 mutual
-private partial def eToString : Element → String 
+private partial def eToString : Element → String
 | Element.Element n a c => s!"<{n}{a}>{c.map cToString |>.foldl (· ++ ·) ""}</{n}>"
 
 private partial def cToString : Content → String

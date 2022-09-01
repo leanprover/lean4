@@ -3,10 +3,10 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Std.Data.HashMap
-import Std.Data.HashSet
-import Std.Data.PersistentHashMap
-import Std.Data.PersistentHashSet
+import Lean.Data.HashMap
+import Lean.Data.HashSet
+import Lean.Data.PersistentHashMap
+import Lean.Data.PersistentHashSet
 import Lean.Hygiene
 import Lean.Data.Name
 import Lean.Data.Format

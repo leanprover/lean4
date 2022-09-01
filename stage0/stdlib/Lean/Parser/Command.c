@@ -70275,7 +70275,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_set__option_docStrin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at command level,\nbut it sets the option only within the tactics `tacs`. ", 146);
+x_1 = lean_mk_string_from_bytes("`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ", 150);
 return x_1;
 }
 }

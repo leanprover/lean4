@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util
-// Imports: Init Lean.Util.CollectFVars Lean.Util.CollectLevelParams Lean.Util.CollectMVars Lean.Util.FindMVar Lean.Util.FindLevelMVar Lean.Util.MonadCache Lean.Util.PPExt Lean.Util.Path Lean.Util.Profile Lean.Util.RecDepth Lean.Util.Sorry Lean.Util.Trace Lean.Util.FindExpr Lean.Util.ReplaceExpr Lean.Util.ForEachExpr Lean.Util.ReplaceLevel Lean.Util.FoldConsts Lean.Util.SCC Lean.Util.OccursCheck Lean.Util.Paths Lean.Util.HasConstCache
+// Imports: Init Lean.Util.CollectFVars Lean.Util.CollectLevelParams Lean.Util.CollectMVars Lean.Util.FindMVar Lean.Util.FindLevelMVar Lean.Util.MonadCache Lean.Util.PPExt Lean.Util.Path Lean.Util.Profile Lean.Util.RecDepth Lean.Util.ShareCommon Lean.Util.Sorry Lean.Util.Trace Lean.Util.FindExpr Lean.Util.ReplaceExpr Lean.Util.ForEachExpr Lean.Util.ReplaceLevel Lean.Util.FoldConsts Lean.Util.SCC Lean.Util.OccursCheck Lean.Util.Paths Lean.Util.HasConstCache
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -24,6 +24,7 @@ lean_object* initialize_Lean_Util_PPExt(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_Path(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_Profile(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_RecDepth(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Util_ShareCommon(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_Sorry(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_Trace(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_FindExpr(uint8_t builtin, lean_object*);
@@ -71,6 +72,9 @@ res = initialize_Lean_Util_Profile(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Util_RecDepth(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Util_ShareCommon(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Util_Sorry(builtin, lean_io_mk_world());

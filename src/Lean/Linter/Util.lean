@@ -48,41 +48,6 @@ where
     else
       return none)
 
-/-- List of `Syntax` nodes in which each succeeding element is the parent of
-the current. The associated index is the index of the preceding element in the
-list of children of the current element. -/
-abbrev SyntaxStack := List (Syntax × Nat)
-
-/-- Go upwards through the given `root` syntax starting from `child` and
-collect all `Syntax` nodes on the way up.
-
-Return `none` if the `child` is not found in `root`. -/
-partial def findSyntaxStack? (root child : Syntax) : Option SyntaxStack := Id.run <| do
-  let some childRange := child.getRange?
-    | none
-  let rec go (stack : SyntaxStack) (stx : Syntax) : Option SyntaxStack := Id.run <| do
-    let some range := stx.getRange?
-      | none
-    if !range.contains childRange.start then
-      return none
-
-    if range == childRange && stx.getKind == child.getKind then
-      return stack
-
-    for i in List.range stx.getNumArgs do
-      if let some resultStack := go ((stx, i) :: stack) stx[i] then
-        return resultStack
-    return none
-  go [] root
-
-/-- Compare the `SyntaxNodeKind`s in `pattern` to those of the `Syntax`
-elements in `stack`. Return `false` if `stack` is shorter than `pattern`. -/
-def stackMatches (stack : SyntaxStack) (pattern : List $ Option SyntaxNodeKind) : Bool :=
-  stack.length >= pattern.length &&
-  (stack
-    |>.zipWith (fun (s, _) p => p |>.map (s.isOfKind ·) |>.getD true) pattern
-    |>.all id)
-
-abbrev IgnoreFunction := Syntax → SyntaxStack → Options → Bool
+abbrev IgnoreFunction := Syntax → Syntax.Stack → Options → Bool
 
 end Lean.Linter

@@ -595,27 +595,24 @@ private def withUsed {α} (scopeVars : Array Expr) (params : Array Expr) (fieldI
   let (lctx, localInsts, vars) ← removeUnused scopeVars params fieldInfos
   withLCtx lctx localInsts <| k vars
 
-private def levelMVarToParam (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo) (univToInfer? : Option LMVarId) : TermElabM (Array StructFieldInfo) :=
-  go |>.run' 1
+private def levelMVarToParam (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo) (univToInfer? : Option LMVarId) : TermElabM (Array StructFieldInfo) := do
+  levelMVarToParamFVars scopeVars
+  levelMVarToParamFVars params
+  fieldInfos.mapM fun info => do
+    levelMVarToParamFVar info.fvar
+    match info.value? with
+    | none       => pure info
+    | some value =>
+      let value ← levelMVarToParam' value
+      pure { info with value? := value }
 where
-  levelMVarToParam' (type : Expr) : StateRefT Nat TermElabM Expr := do
-    Term.levelMVarToParam' type (except := fun mvarId => univToInfer? == some mvarId)
+  levelMVarToParam' (type : Expr) : TermElabM Expr := do
+    Term.levelMVarToParam type (except := fun mvarId => univToInfer? == some mvarId)
 
-  go : StateRefT Nat TermElabM (Array StructFieldInfo) := do
-    levelMVarToParamFVars scopeVars
-    levelMVarToParamFVars params
-    fieldInfos.mapM fun info => do
-      levelMVarToParamFVar info.fvar
-      match info.value? with
-      | none       => pure info
-      | some value =>
-        let value ← levelMVarToParam' value
-        pure { info with value? := value }
-
-  levelMVarToParamFVars (fvars : Array Expr) : StateRefT Nat TermElabM Unit :=
+  levelMVarToParamFVars (fvars : Array Expr) : TermElabM Unit :=
     fvars.forM levelMVarToParamFVar
 
-  levelMVarToParamFVar (fvar : Expr) : StateRefT Nat TermElabM Unit := do
+  levelMVarToParamFVar (fvar : Expr) : TermElabM Unit := do
     let type ← inferType fvar
     discard <| levelMVarToParam' type
 

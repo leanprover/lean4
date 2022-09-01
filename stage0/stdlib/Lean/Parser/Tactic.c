@@ -214,7 +214,6 @@ static lean_object* l___regBuiltin_Lean_Parser_Tactic_introMatch_declRange___clo
 static lean_object* l_Lean_Parser_Tactic_match_parenthesizer___closed__15;
 static lean_object* l_Lean_Parser_Tactic_match_parenthesizer___closed__18;
 static lean_object* l_Lean_Parser_Tactic_decide___closed__5;
-LEAN_EXPORT lean_object* l___regBuiltin_Lean_Parser_Tactic_unknown_docString(lean_object*);
 static lean_object* l_Lean_Parser_Tactic_initFn____x40_Lean_Parser_Tactic___hyg_6____closed__14;
 static lean_object* l___regBuiltin_Lean_Parser_Tactic_match_formatter___closed__1;
 static lean_object* l___regBuiltin_Lean_Parser_Tactic_decide_docString___closed__1;
@@ -374,7 +373,6 @@ LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_matchRhs;
 static lean_object* l_Lean_Parser_Tactic_match_parenthesizer___closed__9;
 lean_object* l_Lean_Parser_Term_syntheticHole___elambda__1(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Parser_Tactic_unknown___closed__1;
-static lean_object* l___regBuiltin_Lean_Parser_Tactic_unknown_docString___closed__1;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Parser_Tactic_nativeDecide_docString(lean_object*);
 lean_object* l_Lean_Parser_mkAntiquot(lean_object*, lean_object*, uint8_t, uint8_t);
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_withPosition_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1162,24 +1160,6 @@ x_5 = l_Lean_Parser_Tactic_unknown;
 x_6 = lean_unsigned_to_nat(1000u);
 x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
-}
-}
-static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_unknown_docString___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("This is a fallback tactic parser for any identifier which exists only\nto improve syntax error messages.\n```\nexample : True := by foo -- unknown tactic\n```\n", 155);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l___regBuiltin_Lean_Parser_Tactic_unknown_docString(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_Parser_Tactic_unknown___elambda__1___closed__2;
-x_3 = l___regBuiltin_Lean_Parser_Tactic_unknown_docString___closed__1;
-x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
-return x_4;
 }
 }
 static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_unknown_declRange___closed__1() {
@@ -5169,11 +5149,6 @@ lean_mark_persistent(l___regBuiltin_Lean_Parser_Tactic_unknown___closed__1);
 l___regBuiltin_Lean_Parser_Tactic_unknown___closed__2 = _init_l___regBuiltin_Lean_Parser_Tactic_unknown___closed__2();
 lean_mark_persistent(l___regBuiltin_Lean_Parser_Tactic_unknown___closed__2);
 res = l___regBuiltin_Lean_Parser_Tactic_unknown(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-l___regBuiltin_Lean_Parser_Tactic_unknown_docString___closed__1 = _init_l___regBuiltin_Lean_Parser_Tactic_unknown_docString___closed__1();
-lean_mark_persistent(l___regBuiltin_Lean_Parser_Tactic_unknown_docString___closed__1);
-res = l___regBuiltin_Lean_Parser_Tactic_unknown_docString(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___regBuiltin_Lean_Parser_Tactic_unknown_declRange___closed__1 = _init_l___regBuiltin_Lean_Parser_Tactic_unknown_declRange___closed__1();

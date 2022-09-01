@@ -3,7 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Std.Data.HashMap
+import Lean.Data.HashMap
 import Lean.ImportingFlag
 import Lean.Data.SMap
 import Lean.Declaration
@@ -468,7 +468,7 @@ namespace SimplePersistentEnvExtension
 instance {α σ : Type} [Inhabited σ] : Inhabited (SimplePersistentEnvExtension α σ) :=
   inferInstanceAs (Inhabited (PersistentEnvExtension α α (List α × σ)))
 
-/-- Get the list of values used to update the state of the given 
+/-- Get the list of values used to update the state of the given
 `SimplePersistentEnvExtension` in the current file. -/
 def getEntries {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension α σ) (env : Environment) : List α :=
   (PersistentEnvExtension.getState ext env).1

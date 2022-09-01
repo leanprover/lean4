@@ -233,7 +233,7 @@ def elabCheckCore (ignoreStuckTC : Bool) : CommandElab
   | `(#check%$tk $term) => withoutModifyingEnv <| runTermElabM fun _ => Term.withDeclName `_check do
     let e ← Term.elabTerm term none
     Term.synthesizeSyntheticMVarsNoPostponing (ignoreStuckTC := ignoreStuckTC)
-    let (e, _) ← Term.levelMVarToParam (← instantiateMVars e)
+    let e ← Term.levelMVarToParam (← instantiateMVars e)
     let type ← inferType e
     unless e.isSyntheticSorry do
       logInfoAt tk m!"{e} : {type}"
@@ -245,7 +245,7 @@ def elabCheckCore (ignoreStuckTC : Bool) : CommandElab
   | `(#reduce%$tk $term) => withoutModifyingEnv <| runTermElabM fun _ => Term.withDeclName `_reduce do
     let e ← Term.elabTerm term none
     Term.synthesizeSyntheticMVarsNoPostponing
-    let (e, _) ← Term.levelMVarToParam (← instantiateMVars e)
+    let e ← Term.levelMVarToParam (← instantiateMVars e)
     -- TODO: add options or notation for setting the following parameters
     withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.setBool `smartUnfolding false }) do
       let e ← withTransparency (mode := TransparencyMode.all) <| reduce e (skipProofs := false) (skipTypes := false)
@@ -318,7 +318,7 @@ unsafe def elabEvalUnsafe : CommandElab
   | `(#eval%$tk $term) => do
     let declName := `_eval
     let addAndCompile (value : Expr) : TermElabM Unit := do
-      let (value, _) ← Term.levelMVarToParam (← instantiateMVars value)
+      let value ← Term.levelMVarToParam (← instantiateMVars value)
       let type ← inferType value
       let us := collectLevelParams {} value |>.params
       let value ← instantiateMVars value

@@ -582,22 +582,13 @@ def mkExplicitBinder (ident : Syntax) (type : Syntax) : Syntax :=
 
 /--
   Convert unassigned universe level metavariables into parameters.
-  The new parameter names are of the form `u_i` where `i >= nextParamIdx`.
-  The method returns the updated expression and new `nextParamIdx`.
-
-  Remark: we make sure the generated parameter names do not clash with the universe at `ctx.levelNames`. -/
-def levelMVarToParam (e : Expr) (nextParamIdx : Nat := 1) (except : LMVarId → Bool := fun _ => false) : TermElabM (Expr × Nat) := do
+  The new parameter names are fresh names of the form `u_i` with regard to `ctx.levelNames`, which is updated with the new names. -/
+def levelMVarToParam (e : Expr) (except : LMVarId → Bool := fun _ => false) : TermElabM Expr := do
   let levelNames ← getLevelNames
-  let r := (← getMCtx).levelMVarToParam (fun n => levelNames.elem n) except e `u nextParamIdx
+  let r := (← getMCtx).levelMVarToParam (fun n => levelNames.elem n) except e `u 1
+  setLevelNames (levelNames ++ r.newParamNames.toList)
   setMCtx r.mctx
-  return (r.expr, r.nextParamIdx)
-
-/-- Variant of `levelMVarToParam` where `nextParamIdx` is stored in a state monad. -/
-def levelMVarToParam' (e : Expr) (except : LMVarId → Bool := fun _ => false) : StateRefT Nat TermElabM Expr := do
-  let nextParamIdx ← get
-  let (e, nextParamIdx) ← levelMVarToParam e nextParamIdx except
-  set nextParamIdx
-  return e
+  return r.expr
 
 /--
   Auxiliary method for creating fresh binder names.
@@ -1313,16 +1304,17 @@ private def elabImplicitLambdaAux (stx : Syntax) (catchExPostpone : Bool) (expec
 private partial def elabImplicitLambda (stx : Syntax) (catchExPostpone : Bool) (type : Expr) : TermElabM Expr :=
   loop type #[]
 where
-  loop
-    | type@(.forallE n d b c), fvars =>
+  loop (type : Expr) (fvars : Array Expr) : TermElabM Expr := do
+    match (← whnfForall type) with
+    | .forallE n d b c =>
       if c.isExplicit then
         elabImplicitLambdaAux stx catchExPostpone type fvars
       else withFreshMacroScope do
         let n ← MonadQuotation.addMacroScope n
         withLocalDecl n c d fun fvar => do
-          let type ← whnfForall (b.instantiate1 fvar)
+          let type := b.instantiate1 fvar
           loop type (fvars.push fvar)
-    | type, fvars =>
+    | _ =>
       elabImplicitLambdaAux stx catchExPostpone type fvars
 
 /-- Main loop for `elabTerm` -/

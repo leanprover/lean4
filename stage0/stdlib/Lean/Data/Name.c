@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Name
-// Imports: Init Bootstrap.Data.HashSet Bootstrap.Data.RBMap Bootstrap.Data.RBTree Lean.Data.SSet
+// Imports: Init Lean.Data.HashSet Lean.Data.RBMap Lean.Data.RBTree Lean.Data.SSet
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -44,6 +44,7 @@ LEAN_EXPORT lean_object* l_Std_mkHashMap___at_Lean_NameSSet_empty___spec__2___bo
 size_t lean_usize_sub(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_RBNode_ins___at_Lean_NameMap_insert___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_replace___at_Lean_NameHashSet_insert___spec__6(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Data_HashMap_0__Std_numBucketsForCapacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_quickLt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_insertAux_traverse___at_Lean_NameSSet_insert___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -79,7 +80,6 @@ LEAN_EXPORT lean_object* l_Std_PersistentHashMap_insertAux_traverse___at_Lean_Na
 LEAN_EXPORT lean_object* l_Lean_NameMap_insert___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBTree_forIn___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t l_Lean_Name_hash___override(lean_object*);
-lean_object* l___private_Bootstrap_Data_HashMap_0__Std_numBucketsForCapacity(lean_object*);
 lean_object* l_Std_RBNode_setBlack___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_quickCmpAux___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_eqStr(lean_object*, lean_object*);
@@ -9852,7 +9852,7 @@ lean_ctor_set(x_15, 0, x_2);
 lean_ctor_set(x_15, 1, x_3);
 lean_ctor_set(x_15, 2, x_11);
 x_16 = lean_array_uset(x_6, x_10, x_15);
-x_17 = l___private_Bootstrap_Data_HashMap_0__Std_numBucketsForCapacity(x_14);
+x_17 = l___private_Lean_Data_HashMap_0__Std_numBucketsForCapacity(x_14);
 x_18 = lean_nat_dec_le(x_17, x_7);
 lean_dec(x_7);
 lean_dec(x_17);
@@ -9905,7 +9905,7 @@ lean_ctor_set(x_32, 0, x_2);
 lean_ctor_set(x_32, 1, x_3);
 lean_ctor_set(x_32, 2, x_28);
 x_33 = lean_array_uset(x_23, x_27, x_32);
-x_34 = l___private_Bootstrap_Data_HashMap_0__Std_numBucketsForCapacity(x_31);
+x_34 = l___private_Lean_Data_HashMap_0__Std_numBucketsForCapacity(x_31);
 x_35 = lean_nat_dec_le(x_34, x_24);
 lean_dec(x_24);
 lean_dec(x_34);
@@ -10950,9 +10950,9 @@ return x_3;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
-lean_object* initialize_Bootstrap_Data_HashSet(uint8_t builtin, lean_object*);
-lean_object* initialize_Bootstrap_Data_RBMap(uint8_t builtin, lean_object*);
-lean_object* initialize_Bootstrap_Data_RBTree(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_HashSet(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_RBMap(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_RBTree(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_SSet(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_Name(uint8_t builtin, lean_object* w) {
@@ -10962,13 +10962,13 @@ _G_initialized = true;
 res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Bootstrap_Data_HashSet(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_HashSet(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Bootstrap_Data_RBMap(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_RBMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Bootstrap_Data_RBTree(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_RBTree(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_SSet(builtin, lean_io_mk_world());

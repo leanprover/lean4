@@ -83,15 +83,8 @@ private def normFVarImp (s : FVarSubst) (fvarId : FVarId) : FVarId :=
 
 class MonadFVarSubst (m : Type → Type) where
   getSubst : m FVarSubst
-  modifySubst : (FVarSubst → FVarSubst) → m Unit
 
-export MonadFVarSubst (getSubst modifySubst)
-
-@[inline] def addSubst [MonadFVarSubst m] (fvarId : FVarId) (e : Expr) : m Unit :=
-  modifySubst fun s => s.insert fvarId e
-
-@[inline] def addFVarSubst [MonadFVarSubst m] (fvarId fvarId' : FVarId) : m Unit :=
-  addSubst fvarId (.fvar fvarId')
+export MonadFVarSubst (getSubst)
 
 @[inline] def normFVar [MonadFVarSubst m] [Monad m] (fvarId : FVarId) : m FVarId :=
   return normFVarImp (← getSubst) fvarId
@@ -102,13 +95,25 @@ export MonadFVarSubst (getSubst modifySubst)
 def normExprs [MonadFVarSubst m] [Monad m] (es : Array Expr) : m (Array Expr) :=
   es.mapMonoM normExpr
 
+def mkFreshBinderName (binderName := `_x): CompilerM Name := do
+  let declName := .num binderName (← get).nextIdx
+  modify fun s => { s with nextIdx := s.nextIdx + 1 }
+  return declName
+
+private def refreshBinderName (binderName : Name) : CompilerM Name := do
+  match binderName with
+  | .num p _ =>
+    let r := .num p (← get).nextIdx
+    modify fun s => { s with nextIdx := s.nextIdx + 1 }
+    return r
+  | _ => return binderName
+
 namespace Internalize
 
 abbrev M := StateRefT FVarSubst CompilerM
 
 instance : MonadFVarSubst M where
   getSubst := get
-  modifySubst := modify
 
 private def mkNewFVarId (fvarId : FVarId) : M FVarId := do
   let fvarId' ← Lean.mkFreshFVarId
@@ -125,22 +130,24 @@ mutual
 
 partial def internalizeFunDecl (decl : FunDecl) : M FunDecl := do
   let type ← normExpr decl.type
+  let binderName ← refreshBinderName decl.binderName
   let params ← decl.params.mapM addParam
   let value ← internalizeCode decl.value
   let fvarId ← mkNewFVarId decl.fvarId
-  let decl := { decl with fvarId, params, type, value }
+  let decl := { decl with binderName, fvarId, params, type, value }
   modifyLCtx fun lctx => lctx.addFunDecl decl
   return decl
 
 partial def internalizeCode (code : Code) : M Code := do
   match code with
   | .let decl k =>
+    let binderName ← refreshBinderName decl.binderName
     let type ← normExpr decl.type
     let value ← normExpr decl.value
     let fvarId ← mkNewFVarId decl.fvarId
-    modifyLCtx fun lctx => lctx.addLetDecl fvarId decl.binderName type value
+    modifyLCtx fun lctx => lctx.addLetDecl fvarId binderName type value
     let k ← internalizeCode k
-    return .let { decl with fvarId, type, value } k
+    return .let { decl with binderName, fvarId, type, value } k
   | .fun decl k =>
     return .fun (← internalizeFunDecl decl) (← internalizeCode k)
   | .jp decl k =>
@@ -149,11 +156,12 @@ partial def internalizeCode (code : Code) : M Code := do
   | .jmp fvarId args => return .jmp (← normFVar fvarId) (← args.mapM normExpr)
   | .unreach type => return .unreach (← normExpr type)
   | .cases c =>
+    let resultType ← normExpr c.resultType
     let discr ← normFVar c.discr
     let alts ← c.alts.mapM fun
       | .alt ctorName params k => return .alt ctorName (← params.mapM addParam) (← internalizeCode k)
       | .default k => return .default (← internalizeCode k)
-    return .cases { c with discr, alts }
+    return .cases { c with discr, alts, resultType }
 
 end
 
@@ -240,10 +248,46 @@ def normParams [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m] (ps : Array
 def normLetDecl [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m] (decl : LetDecl) : m LetDecl := do
   decl.update (← normExpr decl.type) (← normExpr decl.value)
 
-def mkFreshBinderName (binderName := `_x): CompilerM Name := do
-  let declName := .num binderName (← get).nextIdx
-  modify fun s => { s with nextIdx := s.nextIdx + 1 }
-  return declName
+instance : MonadFVarSubst (ReaderT FVarSubst CompilerM) where
+  getSubst := read
+
+mutual
+  partial def normFunDeclImp (decl : FunDecl) : ReaderT FVarSubst CompilerM FunDecl := do
+    let type ← normExpr decl.type
+    let params ← normParams decl.params
+    let value ← normCodeImp decl.value
+    decl.update type params value
+
+  partial def normCodeImp (code : Code) : ReaderT FVarSubst CompilerM Code := do
+    match code with
+    | .let decl k => return code.updateLet! (← normLetDecl decl) (← normCodeImp k)
+    | .fun decl k | .jp decl k => return code.updateFun! (← normFunDeclImp decl) (← normCodeImp k)
+    | .return fvarId => return code.updateReturn! (← normFVar fvarId)
+    | .jmp fvarId args => return code.updateJmp! (← normFVar fvarId) (← normExprs args)
+    | .unreach type => return code.updateUnreach! (← normExpr type)
+    | .cases c =>
+      let resultType ← normExpr c.resultType
+      let discr ← normFVar c.discr
+      let alts ← c.alts.mapMonoM fun alt =>
+        match alt with
+        | .alt _ params k => return alt.updateAlt! (← normParams params) (← normCodeImp k)
+        | .default k => return alt.updateCode (← normCodeImp k)
+      return code.updateCases! resultType discr alts
+end
+
+@[inline] def normFunDecl [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m] (decl : FunDecl) : m FunDecl := do
+  normFunDeclImp decl (← getSubst)
+
+/-- Similar to `internalize`, but does not refresh `FVarId`s. -/
+@[inline] def normCode [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m] (code : Code) : m Code := do
+  normCodeImp code (← getSubst)
+
+def replaceFVars (code : Code) (s : FVarSubst) : CompilerM Code :=
+  (normCode code : ReaderT FVarSubst CompilerM Code).run s
+
+def replaceFVar (code : Code) (fvarId fvarId' : FVarId) : CompilerM Code :=
+  let s : FVarSubst := {}
+  replaceFVars code (s.insert fvarId (.fvar fvarId'))
 
 def mkFreshJpName : CompilerM Name := do
   mkFreshBinderName `_jp

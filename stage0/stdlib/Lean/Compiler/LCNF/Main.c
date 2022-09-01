@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.Main
-// Imports: Init Lean.Compiler.Options Lean.Compiler.LCNF.PassManager Lean.Compiler.LCNF.PrettyPrinter Lean.Compiler.LCNF.ToDecl Lean.Compiler.LCNF.Check Lean.Compiler.LCNF.Stage1 Lean.Compiler.LCNF.PullLetDecls Lean.Compiler.LCNF.CSE
+// Imports: Init Lean.Compiler.Options Lean.Compiler.LCNF.PassManager Lean.Compiler.LCNF.Passes Lean.Compiler.LCNF.PrettyPrinter Lean.Compiler.LCNF.ToDecl Lean.Compiler.LCNF.Check Lean.Compiler.LCNF.Stage1 Lean.Compiler.LCNF.PullLetDecls Lean.Compiler.LCNF.CSE
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3409,6 +3409,7 @@ return x_33;
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_Options(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_PassManager(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_LCNF_Passes(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_PrettyPrinter(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_ToDecl(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_Check(uint8_t builtin, lean_object*);
@@ -3427,6 +3428,9 @@ res = initialize_Lean_Compiler_Options(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_PassManager(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Compiler_LCNF_Passes(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_PrettyPrinter(builtin, lean_io_mk_world());

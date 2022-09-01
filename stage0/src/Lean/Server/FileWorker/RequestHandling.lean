@@ -43,18 +43,34 @@ def handleHover (p : HoverParams)
     : RequestM (RequestTask (Option Hover)) := do
   let doc ← readDoc
   let text := doc.meta.text
-  let mkHover (s : String) (f : String.Pos) (t : String.Pos) : Hover :=
-    { contents := { kind := MarkupKind.markdown
-                    value := s }
-      range? := some { start := text.utf8PosToLspPos f
-                       «end» := text.utf8PosToLspPos t } }
+  let mkHover (s : String) (r : String.Range) : Hover := {
+    contents := {
+      kind := MarkupKind.markdown
+      value := s
+    }
+    range? := r.toLspRange text
+  }
 
   let hoverPos := text.lspPosToUtf8Pos p.position
   withWaitFindSnap doc (fun s => s.endPos > hoverPos)
     (notFoundX := pure none) fun snap => do
+      -- try to find parser docstring from syntax tree
+      let stack? := snap.stx.findStack? (·.getRange?.any (·.contains hoverPos))
+      let stxDoc? ← match stack? with
+        | some stack => stack.findSomeM? fun (stx, _) => do
+          return (← findDocString? snap.env stx.getKind).map (·, stx.getRange?.get!)
+        | none => pure none
+
+      -- now try info tree
       if let some (ci, i) := snap.infoTree.hoverableInfoAt? hoverPos then
-        if let some hoverFmt ← i.fmtHover? ci then
-          return some <| mkHover (toString hoverFmt) i.pos?.get! i.tailPos?.get!
+        if let some range := i.range? then
+          -- prefer info tree if at least as specific as parser docstring
+          if stxDoc?.all fun (_, stxRange) => stxRange.includes range then
+            if let some hoverFmt ← i.fmtHover? ci then
+              return mkHover (toString hoverFmt) range
+
+      if let some (doc, range) := stxDoc? then
+        return mkHover doc range
 
       return none
 

@@ -878,7 +878,6 @@ static lean_object* l_Lean_Parser_Term_doIdDecl_parenthesizer___closed__1;
 static lean_object* l_Lean_Parser_Term_termReturn___elambda__1___closed__1;
 extern lean_object* l_Lean_Parser_Term_letDecl;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Parser_Term_liftMethod_parenthesizer(lean_object*);
-static lean_object* l___regBuiltin_Lean_Parser_Term_doExpr_docString___closed__1;
 static lean_object* l_Lean_Parser_Term_doDbgTrace___elambda__1___closed__3;
 static lean_object* l_Lean_Parser_Term_doIf_formatter___closed__9;
 static lean_object* l_Lean_Parser_Term_doHave_formatter___closed__2;
@@ -1172,7 +1171,6 @@ static lean_object* l_Lean_Parser_Term_leftArrow___elambda__1___closed__6;
 static lean_object* l_Lean_Parser_Term_doLetElse___elambda__1___closed__20;
 static lean_object* l___regBuiltin_Lean_Parser_Term_termReturn_declRange___closed__3;
 static lean_object* l_Lean_Parser_Term_doElem_quot_formatter___closed__7;
-LEAN_EXPORT lean_object* l___regBuiltin_Lean_Parser_Term_doExpr_docString(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_doIfLet___elambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_doSeqIndent_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Term_doLetRec___elambda__1___closed__10;
@@ -2038,7 +2036,6 @@ static lean_object* l___regBuiltin_Lean_Parser_Term_doElem_quot_declRange___clos
 static lean_object* l_Lean_Parser_Term_doElem_quot_formatter___closed__2;
 static lean_object* l_Lean_Parser_Term_doForDecl___closed__6;
 static lean_object* l_Lean_Parser_Term_do_formatter___closed__2;
-lean_object* l_Lean_addBuiltinDocString(lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Parser_Term_doAssert_parenthesizer___closed__1;
 static lean_object* l___regBuiltin_Lean_Parser_Term_doMatch_parenthesizer___closed__1;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Parser_Term_doElem_quot_parenthesizer(lean_object*);
@@ -31008,24 +31005,6 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Parser_Term_doExpr_docString___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("We use `notFollowedBy` to avoid counterintuitive behavior.\n\nFor example, the `if`-term parser\ndoesn't enforce indentation restrictions, but we don't want it to be used when `doIf` fails.\nNote that parser priorities would not solve this problem since the `doIf` parser is failing while the `if`\nparser is succeeding. The first `notFollowedBy` prevents this problem.\n\nConsider the `doElem` `x := (a, b⟩` it contains an error since we are using `⟩` instead of `)`. Thus, `doReassign` parser fails.\nHowever, `doExpr` would succeed consuming just `x`, and cryptic error message is generated after that.\nThe second `notFollowedBy` prevents this problem.\n", 652);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l___regBuiltin_Lean_Parser_Term_doExpr_docString(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_Parser_Term_doExpr___elambda__1___closed__2;
-x_3 = l___regBuiltin_Lean_Parser_Term_doExpr_docString___closed__1;
-x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
-return x_4;
-}
-}
 static lean_object* _init_l___regBuiltin_Lean_Parser_Term_doExpr_declRange___closed__1() {
 _start:
 {
@@ -39652,11 +39631,6 @@ lean_mark_persistent(l_Lean_Parser_Term_doExpr___closed__8);
 l_Lean_Parser_Term_doExpr = _init_l_Lean_Parser_Term_doExpr();
 lean_mark_persistent(l_Lean_Parser_Term_doExpr);
 res = l___regBuiltin_Lean_Parser_Term_doExpr(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-l___regBuiltin_Lean_Parser_Term_doExpr_docString___closed__1 = _init_l___regBuiltin_Lean_Parser_Term_doExpr_docString___closed__1();
-lean_mark_persistent(l___regBuiltin_Lean_Parser_Term_doExpr_docString___closed__1);
-res = l___regBuiltin_Lean_Parser_Term_doExpr_docString(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___regBuiltin_Lean_Parser_Term_doExpr_declRange___closed__1 = _init_l___regBuiltin_Lean_Parser_Term_doExpr_declRange___closed__1();

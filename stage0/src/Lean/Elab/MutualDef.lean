@@ -710,7 +710,9 @@ private def levelMVarToParamHeaders (views : Array DefView) (headers : Array Def
     let mut newHeaders := #[]
     for view in views, header in headers do
       if view.kind.isTheorem then
-        newHeaders := newHeaders.push { header with type := (← levelMVarToParam' header.type) }
+        newHeaders ←
+          withLevelNames header.levelNames do
+            return newHeaders.push { header with type := (← levelMVarToParam header.type), levelNames := (← getLevelNames) }
       else
         newHeaders := newHeaders.push header
     return newHeaders
@@ -841,7 +843,7 @@ where
         let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift
         for preDef in preDefs do
           trace[Elab.definition] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
-        let preDefs ← levelMVarToParamPreDecls preDefs
+        let preDefs ← withLevelNames allUserLevelNames <| levelMVarToParamPreDecls preDefs
         let preDefs ← instantiateMVarsAtPreDecls preDefs
         let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
         let preDefs ← preDefs.mapM fun preDef =>

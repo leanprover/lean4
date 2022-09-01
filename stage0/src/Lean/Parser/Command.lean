@@ -22,7 +22,7 @@ namespace Command
   match against a quotation in a command kind's elaborator). -/
 @[builtinTermParser low] def quot := leading_parser "`(" >> incQuotDepth (many1Unbox commandParser) >> ")"
 
-/--
+/-
   A mutual block may be broken in different cliques, we identify them using an `ident` (an element of the clique)
   We provide two kinds of hints to the termination checker:
   1- A wellfounded relation (`p` is `termParser`)
@@ -197,7 +197,7 @@ but it opens a namespace only within the tactics `tacs`. -/
 @[builtinTacticParser] def «open» := leading_parser:leadPrec
   "open " >> Command.openDecl >> withOpenDecl (" in " >> tacticSeq)
 
-/-- `set_option opt val in tacs` (the tactic) acts like `set_option opt val` at command level,
+/-- `set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,
 but it sets the option only within the tactics `tacs`. -/
 @[builtinTacticParser] def «set_option» := leading_parser:leadPrec
   "set_option " >> ident >> ppSpace >> Command.optionValue >> " in " >> tacticSeq

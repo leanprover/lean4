@@ -9,31 +9,47 @@ universe u
 
 namespace Nat
 
-@[specialize] def foldAux {α : Type u} (f : Nat → α → α) (s : Nat) : Nat → α → α
+@[specialize] def fold {α : Type u} (f : Nat → α → α) : (n : Nat) → (init : α) → α
   | 0,      a => a
-  | succ n, a => foldAux f s n (f (s - (succ n)) a)
+  | succ n, a => f n (fold f n a)
 
-@[inline] def fold {α : Type u} (f : Nat → α → α) (n : Nat) (init : α) : α :=
-  foldAux f n n init
-
-@[inline] def foldRev {α : Type u} (f : Nat → α → α) (n : Nat) (init : α) : α :=
+@[inline] def foldTR {α : Type u} (f : Nat → α → α) (n : Nat) (init : α) : α :=
   let rec @[specialize] loop
     | 0,      a => a
-    | succ n, a => loop n (f n a)
+    | succ m, a => loop m (f (n - succ m) a)
   loop n init
 
-@[specialize] def anyAux (f : Nat → Bool) (s : Nat) : Nat → Bool
-  | 0      => false
-  | succ n => f (s - (succ n)) || anyAux f s n
+@[specialize] def foldRev {α : Type u} (f : Nat → α → α) : (n : Nat) → (init : α) → α
+  | 0,      a => a
+  | succ n, a => foldRev f n (f n a)
 
 /-- `any f n = true` iff there is `i in [0, n-1]` s.t. `f i = true` -/
-@[inline] def any (f : Nat → Bool) (n : Nat) : Bool :=
-  anyAux f n n
+@[specialize] def any (f : Nat → Bool) : Nat → Bool
+  | 0      => false
+  | succ n => any f n || f n
 
-@[inline] def all (f : Nat → Bool) (n : Nat) : Bool :=
-  !any (fun i => !f i) n
+@[inline] def anyTR (f : Nat → Bool) (n : Nat) : Bool :=
+  let rec @[specialize] loop : Nat → Bool
+    | 0      => false
+    | succ m => f (n - succ m) || loop m
+  loop n
 
-@[inline] def repeat {α : Type u} (f : α → α) (n : Nat) (a : α) : α :=
+/-- `all f n = true` iff every `i in [0, n-1]` satisfies `f i = true` -/
+@[specialize] def all (f : Nat → Bool) : Nat → Bool
+  | 0      => true
+  | succ n => all f n && f n
+
+@[inline] def allTR (f : Nat → Bool) (n : Nat) : Bool :=
+  let rec @[specialize] loop : Nat → Bool
+    | 0      => true
+    | succ m => f (n - succ m) && loop m
+  loop n
+
+@[specialize] def repeat {α : Type u} (f : α → α) : (n : Nat) → (a : α) → α
+  | 0,      a => a
+  | succ n, a => f (repeat f n a)
+
+@[inline] def repeatTR {α : Type u} (f : α → α) (n : Nat) (a : α) : α :=
   let rec @[specialize] loop
     | 0,      a => a
     | succ n, a => loop n (f a)
@@ -670,17 +686,51 @@ theorem not_lt_eq (a b : Nat) : (¬ (a < b)) = (b ≤ a) :=
 theorem not_gt_eq (a b : Nat) : (¬ (a > b)) = (a ≤ b) :=
   not_lt_eq b a
 
+/-! # csimp theorems -/
+
+@[csimp] theorem fold_eq_foldTR : @fold = @foldTR :=
+  funext fun α => funext fun f => funext fun n => funext fun init =>
+  let rec go : ∀ m n, foldTR.loop f (m + n) m (fold f n init) = fold f (m + n) init
+    | 0,      n => by simp [foldTR.loop]
+    | succ m, n => by rw [foldTR.loop, add_sub_self_left, succ_add]; exact go m (succ n)
+  (go n 0).symm
+
+@[csimp] theorem any_eq_anyTR : @any = @anyTR :=
+  funext fun f => funext fun n =>
+  let rec go : ∀ m n,  (any f n || anyTR.loop f (m + n) m) = any f (m + n)
+    | 0,      n => by simp [anyTR.loop]
+    | succ m, n => by
+      rw [anyTR.loop, add_sub_self_left, ← Bool.or_assoc, succ_add]
+      exact go m (succ n)
+  (go n 0).symm
+
+@[csimp] theorem all_eq_allTR : @all = @allTR :=
+  funext fun f => funext fun n =>
+  let rec go : ∀ m n,  (all f n && allTR.loop f (m + n) m) = all f (m + n)
+    | 0,      n => by simp [allTR.loop]
+    | succ m, n => by
+      rw [allTR.loop, add_sub_self_left, ← Bool.and_assoc, succ_add]
+      exact go m (succ n)
+  (go n 0).symm
+
+@[csimp] theorem repeat_eq_repeatTR : @repeat = @repeatTR :=
+  funext fun α => funext fun f => funext fun n => funext fun init =>
+  let rec go : ∀ m n, repeatTR.loop f m (repeat f n init) = repeat f (m + n) init
+    | 0,      n => by simp [repeatTR.loop]
+    | succ m, n => by rw [repeatTR.loop, succ_add]; exact go m (succ n)
+  (go n 0).symm
+
 end Nat
 
 namespace Prod
 
 @[inline] def foldI {α : Type u} (f : Nat → α → α) (i : Nat × Nat) (a : α) : α :=
-  Nat.foldAux f i.2 (i.2 - i.1) a
+  Nat.foldTR.loop f i.2 (i.2 - i.1) a
 
 @[inline] def anyI (f : Nat → Bool) (i : Nat × Nat) : Bool :=
-  Nat.anyAux f i.2 (i.2 - i.1)
+  Nat.anyTR.loop f i.2 (i.2 - i.1)
 
 @[inline] def allI (f : Nat → Bool) (i : Nat × Nat) : Bool :=
-  Nat.anyAux (fun a => !f a) i.2 (i.2 - i.1)
+  Nat.allTR.loop f i.2 (i.2 - i.1)
 
 end Prod

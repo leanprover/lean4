@@ -220,6 +220,7 @@ typedef struct {
    * Task.spawn ==> Queued
    * Task.map/bind ==> Waiting
    * Task.pure ==> Finished
+   * Promise.new ==> Promised
 
    states:
    * Queued
@@ -234,6 +235,11 @@ typedef struct {
        * It cannot become Deactivated because this task should be holding an owned reference to it
      * transition: RC becomes 0 ==> Deactivated (`deactivate_task` lock)
      * transition: task dependency Finished ==> Queued (`handle_finished` under `spawn_worker` lock)
+   * Promised
+     * condition: obtained as result from promise
+     * invariant: m_imp != nullptr && m_value == nullptr
+     * transition: promise resolved ==> Finished (`resolve_core` under `spawn_worker` lock)
+     * transition: RC becomes 0 ==> Deactivated (`deactivate_task` lock)
    * Running
      * condition: m_imp != nullptr && m_imp->m_closure == nullptr
        * The worker takes ownership of the closure when running it

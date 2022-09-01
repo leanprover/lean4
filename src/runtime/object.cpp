@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "runtime/flet.h"
 #include "runtime/interrupt.h"
 #include "runtime/buffer.h"
+#include "runtime/io.h"
 
 #ifdef __GLIBC__
 #include <execinfo.h>
@@ -709,20 +710,24 @@ class task_manager {
             lock.lock();
         } else if (v != nullptr) {
             lean_assert(t->m_imp->m_closure == nullptr);
-            handle_finished(t);
-            mark_mt(v);
-            t->m_value = v;
-            /* After the task has been finished and we propagated
-               dependecies, we can release `m_imp` and keep just the value */
-            free_task_imp(t->m_imp);
-            t->m_imp   = nullptr;
-            m_task_finished_cv.notify_all();
+            resolve_core(t, v);
         } else {
             // `bind` task has not finished yet, re-add as dependency of nested task
             lock.unlock();
             add_dep(lean_to_task(closure_arg_cptr(t->m_imp->m_closure)[0]), t);
             lock.lock();
         }
+    }
+
+    void resolve_core(lean_task_object * t, object * v) {
+        handle_finished(t);
+        mark_mt(v);
+        t->m_value = v;
+        /* After the task has been finished and we propagated
+           dependecies, we can release `m_imp` and keep just the value */
+        free_task_imp(t->m_imp);
+        t->m_imp   = nullptr;
+        m_task_finished_cv.notify_all();
     }
 
     void handle_finished(lean_task_object * t) {
@@ -769,6 +774,15 @@ public:
     void enqueue(lean_task_object * t) {
         unique_lock<mutex> lock(m_mutex);
         enqueue_core(t);
+    }
+
+    void resolve(lean_task_object * t, object * v) {
+        unique_lock<mutex> lock(m_mutex);
+        if (t->m_value) {
+            dec(v);
+            return;
+        }
+        resolve_core(t, v);
     }
 
     void add_dep(lean_task_object * t1, lean_task_object * t2) {
@@ -1010,6 +1024,23 @@ extern "C" LEAN_EXPORT bool lean_io_has_finished_core(b_obj_arg t) {
 
 extern "C" LEAN_EXPORT b_obj_res lean_io_wait_any_core(b_obj_arg task_list) {
     return g_task_manager->wait_any(task_list);
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_promise_new(obj_arg) {
+    lean_always_assert(g_task_manager);
+    bool keep_alive = false;
+    unsigned prio = 0;
+    object * closure = nullptr;
+    lean_task_object * o = (lean_task_object*)lean_alloc_small_object(sizeof(lean_task_object));
+    lean_set_task_header((lean_object*)o);
+    o->m_value = nullptr;
+    o->m_imp   = alloc_task_imp(closure, prio, keep_alive);
+    return io_result_mk_ok((lean_object *) o);
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_promise_resolve(obj_arg value, b_obj_arg promise, obj_arg) {
+    g_task_manager->resolve(lean_to_task(promise), value);
+    return io_result_mk_ok(box(0));
 }
 
 // =======================================

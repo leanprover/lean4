@@ -697,6 +697,11 @@ instance [Eval α] : Eval (IO α) where
     let a ← x ()
     Eval.eval fun _ => a
 
+instance [Eval α] : Eval (BaseIO α) where
+  eval x _ := do
+    let a ← x ()
+    Eval.eval fun _ => a
+
 @[noinline, nospecialize] def runEval [Eval α] (a : Unit → α) : IO (String × Except IO.Error Unit) :=
   IO.FS.withIsolatedStreams (Eval.eval a false |>.toBaseIO)
 

@@ -7,3 +7,4 @@ prelude
 import Init.System.IO
 import Init.System.Platform
 import Init.System.Uri
+import Init.System.Promise

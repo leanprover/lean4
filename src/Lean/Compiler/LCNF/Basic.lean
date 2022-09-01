@@ -66,7 +66,6 @@ inductive Code where
   | unreach (type : Expr)
   deriving Inhabited
 
-
 abbrev Alt := AltCore Code
 abbrev FunDecl := FunDeclCore Code
 abbrev Cases := CasesCore Code
@@ -229,6 +228,15 @@ Consider using `FunDecl.update : LetDecl → Expr → Array Param → Code → C
 to be updated.
 -/
 @[implementedBy updateFunDeclCoreImp] opaque FunDeclCore.updateCore (decl: FunDecl) (type : Expr) (params : Array Param) (value : Code) : FunDecl
+
+def CasesCore.extractAlt! (cases : Cases) (ctorName : Name) : Alt × Cases :=
+  let found (i : Nat) := (cases.alts[i]!, { cases with alts := cases.alts.eraseIdx i })
+  if let some i := cases.alts.findIdx? fun | .alt ctorName' .. => ctorName == ctorName' | _ => false then
+    found i
+  else if let some i := cases.alts.findIdx? fun | .default _ => true | _ => false then
+    found i
+  else
+    unreachable!
 
 def Code.isDecl : Code → Bool
   | .let .. | .fun .. | .jp .. => true

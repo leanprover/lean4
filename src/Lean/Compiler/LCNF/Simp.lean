@@ -357,6 +357,24 @@ partial def simpFunDecl (decl : FunDecl) : SimpM FunDecl := do
   let value ← simp decl.value
   decl.update type params value
 
+/-- Try to simplify `cases` of `constructor` -/
+partial def simpCasesOnCtor? (cases : Cases) : SimpM (Option Code) := do
+  let discr ← normFVar cases.discr
+  let discrExpr ← findExpr (.fvar discr)
+  let some (ctorVal, ctorArgs) := discrExpr.constructorApp? (← getEnv) | return none
+  let (alt, cases) := cases.extractAlt! ctorVal.name
+  eraseFVarsAt (.cases cases)
+  markSimplified
+  match alt with
+  | .default k => simp k
+  | .alt _ params k =>
+    let fields := ctorArgs[ctorVal.numParams:]
+    for param in params, field in fields do
+      addSubst param.fvarId field
+    let k ← simp k
+    eraseParams params
+    return k
+
 partial def simp (code : Code) : SimpM Code := do
   incVisited
   match code with
@@ -413,12 +431,15 @@ partial def simp (code : Code) : SimpM Code := do
     args.forM markUsedExpr
     return code.updateJmp! fvarId args
   | .cases c =>
-    -- TODO: cases simplifications
-    let resultType ← normExpr c.resultType
-    let discr ← normFVar c.discr
-    markUsedFVar discr
-    let alts ← c.alts.mapMonoM fun alt => return alt.updateCode (← simp alt.getCode)
-    return code.updateCases! resultType discr alts
+    if let some k ← simpCasesOnCtor? c then
+      return k
+    else
+      -- TODO: other cases simplifications
+      let discr ← normFVar c.discr
+      let resultType ← normExpr c.resultType
+      markUsedFVar discr
+      let alts ← c.alts.mapMonoM fun alt => return alt.updateCode (← simp alt.getCode)
+      return code.updateCases! resultType discr alts
 
 end
 

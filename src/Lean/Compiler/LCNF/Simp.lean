@@ -8,6 +8,7 @@ import Lean.Compiler.InlineAttrs
 import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.ElimDead
 import Lean.Compiler.LCNF.Bind
+import Lean.Compiler.LCNF.PrettyPrinter
 import Lean.Compiler.LCNF.Stage1
 
 namespace Lean.Compiler.LCNF
@@ -253,6 +254,7 @@ def betaReduce (params : Array Param) (code : Code) (args : Array Expr) : SimpM 
     if k matches .unreach .. then return some k
     let e := letDecl.value
     let some info ← inlineCandidate? e | return none
+    markSimplified
     let args := e.getAppArgs
     let numArgs := args.size
     trace[Compiler.simp.inline] "inlining {e}"
@@ -362,6 +364,7 @@ partial def simp (code : Code) : SimpM Code := do
       eraseLocalDecl decl.fvarId
       simp k
     else if let some code ← inlineApp? decl k then
+      eraseFVar decl.fvarId
       simp code
     else
       /- TODO: simple value simplifications & inlining -/
@@ -396,12 +399,46 @@ partial def simp (code : Code) : SimpM Code := do
     return code.updateReturn! fvarId
   | .unreach type =>
     return code.updateUnreach! (← normExpr type)
-  | _ => return code -- TODO: implement other cases
+  | .jmp fvarId args =>
+    -- TODO: inline join point
+    let fvarId ← normFVar fvarId
+    let args ← normExprs args
+    markUsedFVar fvarId
+    args.forM markUsedExpr
+    return code.updateJmp! fvarId args
+  | .cases c =>
+    -- TODO: cases simplifications
+    let resultType ← normExpr c.resultType
+    let discr ← normFVar c.discr
+    markUsedFVar discr
+    let alts ← c.alts.mapMonoM fun alt => return alt.updateCode (← simp alt.getCode)
+    return code.updateCases! resultType discr alts
 
 end
 
-
 end Simp
+
+open Simp
+
+def Decl.simp? (decl : Decl) : SimpM (Option Decl) := do
+  updateFunDeclInfo decl.value
+  trace[Compiler.simp.inline.info] "{decl.name}:{Format.nest 2 (← (← get).funDeclInfoMap.format)}"
+  traceM `Compiler.simp.step do ppDecl decl
+  let value ← simp decl.value
+  traceM `Compiler.simp.step.new do return m!"{decl.name} :=\n{← ppCode value}"
+  let s ← get
+  trace[Compiler.simp.stat] "{decl.name}, size: {value.size}, # visited: {s.visited}, # inline: {s.inline}, # inline local: {s.inlineLocal}"
+  if (← get).simplified then
+    return some { decl with value }
+  else
+    return none
+
+partial def Decl.simp (decl : Decl) : CompilerM Decl := do
+  if let some decl ← decl.simp? |>.run {} |>.run' {} then
+    -- TODO: bound number of steps?
+    decl.simp
+  else
+    return decl
 
 builtin_initialize
   registerTraceClass `Compiler.simp.inline
@@ -734,64 +771,6 @@ partial def visitCases (casesInfo : CasesInfo) (e : Expr) : SimpM Expr := do
       args ← args.modifyM i (visitLambda · (checkEmptyTypes := true))
     return mkAppN f args
 
-/--
-If `e` is an application that can be inlined, inline it.
-
-`k?` is the optional "continuation" for `e`, and it may contain loose bound variables
-that need to instantiated with `xs`. That is, if `k? = some k`, then `k.instantiateRev xs`
-is an expression without loose bound variables.
--/
-partial def inlineApp? (e : Expr) (xs : Array Expr) (k? : Option Expr) : SimpM (Option Expr) := do
-  let some info ← inlineCandidate? e | return none
-  let args := e.getAppArgs
-  let numArgs := args.size
-  trace[Compiler.simp.inline] "inlining {e}"
-  markSimplified
-  if k?.isNone && numArgs == info.arity then
-    /- Easy case, there is no continuation and `e` is not over applied -/
-    visitLet (← betaReduce info.value args)
-  else if (← onlyOneExitPoint info.value) then
-    /- If `info.value` has only one exit point, we don't need to create a new auxiliary join point -/
-    let mut value ← betaReduce info.value args[:info.arity]
-    if numArgs > info.arity then
-      let type ← inferType (mkAppN e.getAppFn args[:info.arity])
-      value := mkFlatLet (← mkAuxLetDeclName) type value (mkAppN (.bvar 0) args[info.arity:])
-    if let some k := k? then
-      let type ← inferType e
-      value := mkFlatLet (← mkAuxLetDeclName) type value k
-    visitLet value xs
-  else
-    /-
-    There is a continuation `k` or `e` is over applied.
-    If `e` is over applied, the extra arguments act as a continuation.
-
-    We create a new join point
-    ```
-    let jp := fun y =>
-      let x := y <extra-arguments> -- if `e` is over applied
-      k
-    ```
-    Recall that `visitLet` incorporates the current continuation
-    to the new join point `jp`.
-    -/
-    let jpDomain ← inferType (mkAppN e.getAppFn args[:info.arity])
-    let binderName ← mkFreshUserName `_y
-    let jp ← withNewScope do
-      let y ← mkLocalDecl binderName jpDomain
-      let body ← if numArgs == info.arity then
-        visitLet k?.get! (xs.push y)
-      else
-        let x ← mkAuxLetDecl (mkAppN y args[info.arity:])
-        if let some k := k? then
-          visitLet k (xs.push x)
-        else
-          visitLet x (xs.push x)
-      let body ← mkLetUsingScope body
-      mkLambda #[y] body
-    let jp ← mkJpDeclIfNotSimple jp
-    let value ← betaReduce info.value args[:info.arity]
-    let value ← attachJp value jp
-    visitLet value
 
 /-- Try to apply simple simplifications. -/
 partial def simpValue? (e : Expr) : SimpM (Option Expr) :=
@@ -861,25 +840,5 @@ partial def visitLet (e : Expr) (xs : Array Expr := #[]): SimpM Expr := do
 end
 
 end Simp
-
-def Decl.simp? (decl : Decl) : Simp.SimpM (Option Decl) := do
-  let value ← Simp.internalize decl.value
-  trace[Compiler.simp.inline.info] "{decl.name}:{Format.nest 2 (format (← get).localInfoMap)}"
-  trace[Compiler.simp.step] "{decl.name} :=\n{decl.value}"
-  let value ← Simp.visitLambda value
-  trace[Compiler.simp.step.new] "{decl.name} :=\n{value}"
-  let s ← get
-  trace[Compiler.simp.stat] "{decl.name}, size: {← getLCNFSize decl.value}, # visited: {s.visited}, # mkLet: {s.mkLet}, # mkLambda: {s.mkLambda}, # inline: {s.inline}, # inline local: {s.inlineLocal}"
-  if (← get).simplified then
-    return some { decl with value }
-  else
-    return none
-
-partial def Decl.simp (decl : Decl) : CoreM Decl := do
-  if let some decl ← decl.simp? |>.run {} |>.run' {} |>.run' {} then
-    -- TODO: bound number of steps?
-    decl.simp
-  else
-    return decl
 
 end Lean.Compiler

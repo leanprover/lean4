@@ -6,6 +6,7 @@ Authors: Henrik Böving
 import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.PullLetDecls
 import Lean.Compiler.LCNF.CSE
+import Lean.Compiler.LCNF.Simp
 
 namespace Lean.Compiler.LCNF
 
@@ -16,5 +17,9 @@ def pullInstancesInstaller : PassInstaller :=
 @[cpass]
 def cseInstaller : PassInstaller :=
   .installAfter `pullInstances (.mkPerDeclaration `cse Decl.cse)
+
+@[cpass]
+def simpInstaller : PassInstaller :=
+  .installAfter `cse (.mkPerDeclaration `simp Decl.simp)
 
 end Lean.Compiler.LCNF

@@ -101,7 +101,7 @@ structure Context where
 
 structure State where
   /--
-  Free variable substitution. We use it to implement inlining are removing redundant variables `let _x.i := _x.j`
+  Free variable substitution. We use it to implement inlining and removing redundant variables `let _x.i := _x.j`
   -/
   subst : FVarSubst := {}
   /--
@@ -346,6 +346,10 @@ it is a type, type former, or `lcErased`.
 def addSubst (fvarId : FVarId) (val : Expr) : SimpM Unit :=
   modify fun s => { s with subst := s.subst.insert fvarId val }
 
+/-- Try to apply simple simplifications. -/
+def simpValue? (e : Expr) : SimpM (Option Expr) :=
+  simpProj? e <|> simpAppApp? e
+
 mutual
 partial def simpFunDecl (decl : FunDecl) : SimpM FunDecl := do
   let type ← normExpr decl.type
@@ -357,7 +361,7 @@ partial def simp (code : Code) : SimpM Code := do
   incVisited
   match code with
   | .let decl k =>
-    let decl ← normLetDecl decl
+    let mut decl ← normLetDecl decl
     if decl.value.isFVar then
       /- Eliminate `let _x_i := _x_j;` -/
       addSubst decl.fvarId decl.value
@@ -367,6 +371,8 @@ partial def simp (code : Code) : SimpM Code := do
       eraseFVar decl.fvarId
       simp code
     else
+      if let some value ← simpValue? decl.value then
+        decl ← decl.updateValue value
       /- TODO: simple value simplifications & inlining -/
       let k ← simp k
       if !decl.pure || (← isUsed decl.fvarId) then

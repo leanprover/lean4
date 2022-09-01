@@ -226,6 +226,9 @@ private unsafe def updateLetDeclImp (decl : LetDecl) (type : Expr) (value : Expr
 
 @[implementedBy updateLetDeclImp] opaque LetDecl.update (decl : LetDecl) (type : Expr) (value : Expr) : CompilerM LetDecl
 
+def LetDecl.updateValue (decl : LetDecl) (value : Expr) : CompilerM LetDecl :=
+  decl.update decl.type value
+
 private unsafe def updateFunDeclImp (decl: FunDecl) (type : Expr) (params : Array Param) (value : Code) : CompilerM FunDecl := do
   if ptrEq type decl.type && ptrEq params decl.params && ptrEq value decl.value then
     return decl

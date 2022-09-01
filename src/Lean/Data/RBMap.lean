@@ -386,6 +386,13 @@ def mergeBy (mergeFn : α → β → β → β) (t₁ t₂ : RBMap α β cmp) : 
       | some b₁ => mergeFn a b₁ b₂
       | none => b₂
 
+/-- Intersects the maps `t₁` and `t₂` using `mergeFn a b₁ b₂` to produce the new value. -/
+def intersectBy {γ : Type v₁} {δ : Type v₂} (mergeFn : α → β → γ → δ) (t₁ : RBMap α β cmp) (t₂ : RBMap α γ cmp) : RBMap α δ cmp :=
+  t₁.fold (init := ∅) fun acc a b₁ =>
+      match t₂.find? a with
+      | some b₂ => acc.insert a <| mergeFn a b₁ b₂
+      | none => acc
+
 end RBMap
 
 def rbmapOf {α : Type u} {β : Type v} (l : List (α × β)) (cmp : α → α → Ordering) : RBMap α β cmp :=

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Compiler.LCNF.InferType
+import Lean.Compiler.LCNF.PrettyPrinter
 
 namespace Lean.Compiler.LCNF
 
@@ -95,6 +96,11 @@ def checkLetDecl (letDecl : LetDecl) : CheckM Unit := do
   let valueType ← inferType letDecl.value
   unless compatibleTypes letDecl.type valueType do
     throwError "type mismatch at `{letDecl.binderName}`, value has type{indentExpr valueType}\nbut is expected to have type{indentExpr letDecl.type}"
+  let localDecl ← getLocalDecl letDecl.fvarId
+  unless localDecl.type == letDecl.type do
+    throwError "LCNF let declaration mismatch, type in local context{indentExpr localDecl.type}\nexpected{indentExpr letDecl.type}"
+  unless localDecl.value == letDecl.value do
+    throwError "LCNF let declaration mismatch, value in local context{indentExpr localDecl.value}\nexpected{indentExpr letDecl.value}"
 
 def addFVarId (fvarId : FVarId) : CheckM Unit := do
   if (← get).all.contains fvarId then
@@ -122,8 +128,13 @@ partial def checkFunDeclCore (declName : Name) (type : Expr) (params : Array Par
   unless compatibleTypes type valueType do
     throwError "type mismatch at `{declName}`, value has type{indentExpr valueType}\nbut is expected to have type{indentExpr type}"
 
-partial def checkFunDecl (funDecl : FunDecl) : CheckM Unit :=
+partial def checkFunDecl (funDecl : FunDecl) : CheckM Unit := do
   checkFunDeclCore funDecl.binderName funDecl.type funDecl.params funDecl.value
+  let localDecl ← getLocalDecl funDecl.fvarId
+  unless localDecl.type == funDecl.type do
+    throwError "LCNF local function declaration mismatch, type in local context{indentExpr localDecl.type}\nexpected{indentExpr funDecl.type}"
+  unless (← getFunDecl funDecl.fvarId) == funDecl do
+    throwError "LCNF local function declaration mismatch, declaration in local context does match"
 
 partial def checkCases (c : Cases) : CheckM Expr := do
   let mut ctorNames : NameSet := {}

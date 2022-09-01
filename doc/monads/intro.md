@@ -9,7 +9,7 @@ the authors of that material for allowing it to reused it here.
 
 Monads build on the following fundamental type classes which you will need to understand
 first before fully understanding monads. Shown in light blue are some concrete functors
-and monads that will be also be covered in this chapter:
+and monads that will also be covered in this chapter:
 
 ![image](../images/monads.svg)
 
@@ -18,7 +18,7 @@ applicative functors, you'll get an intuition for how these abstract structures 
 it dive into monads and look at some of the most common ones.
 
 ## [Functor](functors.lean.md)
-A functor is a type class that provides a `map` function and the map function is something many
+A functor is a type class that provides a map function and the map function is something many
 people are already familiar with so this should be easy to follow.  Here you will see some
 concrete examples in action with `List` and `Option`.
 
@@ -29,7 +29,7 @@ still be summed up in a couple simple functions.  Here you will learn how to cre
 
 ## [Monads Tutorial](monads.lean.md)
 Now that you have an intuition for how abstract structures work, you'll examine some of the problems
-that applicative functors and functors don't help you solve. Then you'll lean the specifics of how
+that functors and applicative functors don't help you solve. Then you'll lean the specifics of how
 to actually use monads with some examples using the `Option` monad and the all important `IO` monad.
 
 ## [Reader Monads](readers.lean.md)
@@ -46,7 +46,7 @@ of the things a function programming language supposedly "can't" do.
 
 Similar to the `Option` monad the `Except` monad allows you to change the signature of a function so
 that it can return an `ok` value or an `error` and it makes available the classic exception handling
-operations `throw/try/catch` so that your programs can do monad based exception handling.
+operations `throw/try/catch` so that your programs can do monad-based exception handling.
 
 ## [Monad Transformers](transformers.lean.md)
 

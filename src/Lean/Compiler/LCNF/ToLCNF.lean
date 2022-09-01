@@ -33,7 +33,7 @@ inductive Element where
   | fun (decl : FunDecl)
   | let (decl : LetDecl)
   | cases (fvarId : FVarId) (cases : Cases)
-  | unreach
+  | unreach (fvarId : FVarId)
   deriving Inhabited
 
 def seqToCode (seq : Array Element) (e : Expr) : CompilerM Code := do
@@ -50,7 +50,14 @@ where
       | .jp decl => go seq (i - 1) (.jp decl c)
       | .fun decl => go seq (i - 1) (.fun decl c)
       | .let decl => go seq (i - 1) (.let decl c)
-      | .unreach => return .unreach (← c.inferType)
+      | .unreach _ =>
+        let type ← c.inferType
+        eraseFVarsAt c
+        seq[:i].forM fun
+          | .let decl | .jp decl | .fun decl => eraseFVar decl.fvarId
+          | .cases _ cs => eraseFVarsAt (.cases cs)
+          | .unreach fvarId => eraseFVar fvarId
+        return .unreach type
       | .cases fvarId cases =>
         if let .return fvarId' := c then
           if fvarId == fvarId' then
@@ -93,8 +100,9 @@ def pushElement (elem : Element) : M Unit := do
   modify fun s => { s with seq := s.seq.push elem }
 
 def mkUnreachable (type : Expr) : M Expr := do
-  pushElement .unreach
-  return .fvar (← mkAuxParam type).fvarId
+  let p ← mkAuxParam type
+  pushElement (.unreach p.fvarId)
+  return .fvar p.fvarId
 
 def mkAuxLetDecl (e : Expr) (prefixName := `_x) : M Expr := do
   if e.isFVar then

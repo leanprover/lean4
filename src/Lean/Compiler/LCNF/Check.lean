@@ -180,4 +180,41 @@ end Check
 def Decl.check (decl : Decl) : CompilerM Unit := do
   Check.run do Check.checkFunDeclCore decl.name decl.type decl.params decl.value
 
+/--
+Check whether every local declaration in the local context is used in one of given `decls`.
+-/
+partial def checkDeadLocalDecls (decls : Array Decl) : CompilerM Unit := do
+  let (_, s) := visitDecls decls |>.run {}
+  (← get).lctx.localDecls.forM fun fvarId decl =>
+    unless s.contains fvarId do
+      throwError "LCNF local context contains unused local variable declaration `{decl.userName}`"
+where
+  visitFVar (fvarId : FVarId) : StateM FVarIdHashSet Unit :=
+    modify (·.insert fvarId)
+
+  visitParam (param : Param) : StateM FVarIdHashSet Unit := do
+    visitFVar param.fvarId
+
+  visitParams (params : Array Param) : StateM FVarIdHashSet Unit := do
+    params.forM visitParam
+
+  visitCode (code : Code) : StateM FVarIdHashSet Unit := do
+    match code with
+    | .jmp .. | .return .. | .unreach .. => return ()
+    | .let decl k => visitFVar decl.fvarId; visitCode k
+    | .fun decl k | .jp decl k =>
+      visitFVar decl.fvarId; visitParams decl.params; visitCode decl.value
+      visitCode k
+    | .cases c => c.alts.forM fun alt => do
+      match alt with
+      | .default k => visitCode k
+      | .alt _ ps k => visitParams ps; visitCode k
+
+  visitDecl (decl : Decl) : StateM FVarIdHashSet Unit := do
+    visitParams decl.params
+    visitCode decl.value
+
+  visitDecls (decls : Array Decl) : StateM FVarIdHashSet Unit :=
+    decls.forM visitDecl
+
 end Lean.Compiler.LCNF

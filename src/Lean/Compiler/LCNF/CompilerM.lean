@@ -48,6 +48,9 @@ def getFunDecl (fvarId : FVarId) : CompilerM FunDecl := do
 def eraseFVar (fvarId : FVarId) (recursive := true) : CompilerM Unit := do
   modifyLCtx fun lctx => lctx.erase fvarId recursive
 
+def eraseFVarsAt (code : Code) : CompilerM Unit := do
+  modifyLCtx fun lctx => lctx.eraseFVarsAt code
+
 /--
 A free variable substitution.
 We use these substitutions when inlining definitions and "internalizing" LCNF code into `CompilerM`.

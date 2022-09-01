@@ -34,15 +34,22 @@ def LCtx.eraseLocal (fvarId : FVarId) : LCtx → LCtx
     let localDecls := localDecls.erase fvarId
     { localDecls, funDecls }
 
-partial def LCtx.erase (fvarId : FVarId) : LCtx → LCtx
+partial def LCtx.erase (fvarId : FVarId) (lctx : LCtx) (recursive := true) : LCtx :=
+  match lctx with
   | { localDecls, funDecls } =>
     let localDecls := localDecls.erase fvarId
     match funDecls.find? fvarId with
     | none => { localDecls, funDecls }
     | some funDecl =>
       let funDecls := funDecls.erase fvarId
-      go funDecl.value { localDecls, funDecls }
+      if recursive then
+        go funDecl.value <| goParams funDecl.params { localDecls, funDecls }
+      else
+        { localDecls, funDecls }
 where
+  goParams (params : Array Param) (lctx : LCtx) : LCtx :=
+    params.foldl (init := lctx) fun lctx p => lctx.erase p.fvarId
+
   go (code : Code) (lctx : LCtx) : LCtx :=
     match code with
     | .let decl k => go k <| lctx.eraseLocal decl.fvarId

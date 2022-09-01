@@ -54,6 +54,7 @@ where
       | .cases fvarId cases =>
         if let .return fvarId' := c then
           if fvarId == fvarId' then
+            eraseFVar fvarId
             go seq (i - 1) (.cases cases)
           else
             -- `cases` is dead code

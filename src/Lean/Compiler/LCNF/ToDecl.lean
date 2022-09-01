@@ -95,6 +95,7 @@ def toDecl (declName : Name) : CompilerM Decl := do
     return (type, value)
   let value ← toLCNF value
   if let .fun decl (.return _) := value then
+    eraseFVar decl.fvarId (recursive := false)
     return { name := declName, params := decl.params, type, value := decl.value, levelParams := info.levelParams }
   else
     return { name := declName, params := #[], type, value, levelParams := info.levelParams }

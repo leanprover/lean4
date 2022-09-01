@@ -45,8 +45,8 @@ def getFunDecl (fvarId : FVarId) : CompilerM FunDecl := do
 @[inline] def modifyLCtx (f : LCtx → LCtx) : CompilerM Unit := do
    modify fun s => { s with lctx := f s.lctx }
 
-def eraseFVar (fvarId : FVarId) : CompilerM Unit := do
-  modifyLCtx fun lctx => lctx.erase fvarId
+def eraseFVar (fvarId : FVarId) (recursive := true) : CompilerM Unit := do
+  modifyLCtx fun lctx => lctx.erase fvarId recursive
 
 /--
 A free variable substitution.

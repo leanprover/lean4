@@ -1,7 +1,7 @@
 # Documentation
 
 The Lean `doc` folder contains the [Lean Manual](https://leanprover.github.io/lean4/doc/) and is
-authored in a combination of markdown (*.md) files and special lean programs.  The .lean files are
+authored in a combination of markdown (*.md) files and literate Lean files.  The .lean files are
 preprocessed using a tool called [LeanInk](https://github.com/leanprover/leanink) and
 [Alectryon](https://github.com/Kha/alectryon) which produces a generated markdown file.  We then run
 `mdbook` on the result to generate the html pages.

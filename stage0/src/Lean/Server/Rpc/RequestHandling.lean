@@ -23,33 +23,41 @@ builtin_initialize builtinRpcProcedures : IO.Ref (Std.PHashMap Name RpcProcedure
 builtin_initialize userRpcProcedures : MapDeclarationExtension Name ←
   mkMapDeclarationExtension `userRpcProcedures
 
-open RequestM in
-private unsafe def handleRpcCallUnsafe (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) := do
-  let doc ← readDoc
-  let text := doc.meta.text
-  let callPos := text.lspPosToUtf8Pos p.position
-  bindWaitFindSnap doc (fun s => s.endPos >= callPos)
-    (notFoundX := throwThe RequestError
-      { code := JsonRpc.ErrorCode.invalidParams
-        message := s!"Incorrect position '{p.toTextDocumentPositionParams}' in RPC call" })
-    fun snap => do
-      if let some proc := (← builtinRpcProcedures.get).find? p.method then
-        proc.wrapper p.sessionId p.params
-      else if let some procName := userRpcProcedures.find? snap.env p.method then
-        let options := snap.cmdState.scopes.head!.opts
-        let proc : Except _ _ := Lean.Environment.evalConstCheck RpcProcedure snap.env options ``RpcProcedure procName
-        match proc with
-        | Except.ok x => x.wrapper p.sessionId p.params
-        | Except.error e => throwThe RequestError {
-          code := JsonRpc.ErrorCode.internalError
-          message := s!"Failed to evaluate RPC constant '{procName}': {e}" }
-      else
-        throwThe RequestError {
-          code := JsonRpc.ErrorCode.methodNotFound
-          message := s!"No RPC method '{p.method}' bound" }
+private unsafe def evalRpcProcedureUnsafe (env : Environment) (opts : Options) (procName : Name) :
+    Except String RpcProcedure :=
+  env.evalConstCheck RpcProcedure opts ``RpcProcedure procName
 
-@[implementedBy handleRpcCallUnsafe]
-private opaque handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json)
+@[implementedBy evalRpcProcedureUnsafe]
+opaque evalRpcProcedure (env : Environment) (opts : Options) (procName : Name) :
+    Except String RpcProcedure
+
+open RequestM in
+def handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) := do
+  -- The imports are finished at this point, because the handleRequest function
+  -- waits for the header.  (Therefore the built-in RPC procedures won't change
+  -- if we wait for further snapshots.)
+  if let some proc := (← builtinRpcProcedures.get).find? p.method then
+    proc.wrapper p.sessionId p.params
+  else
+    let doc ← readDoc
+    let text := doc.meta.text
+    let callPos := text.lspPosToUtf8Pos p.position
+    let throwNotFound := throwThe RequestError
+      { code := .methodNotFound
+        message := s!"No RPC method '{p.method}' found"}
+    bindWaitFindSnap doc (notFoundX := throwNotFound)
+      (fun s => s.endPos >= callPos ||
+        (userRpcProcedures.find? s.env p.method).isSome)
+      fun snap => do
+        if let some procName := userRpcProcedures.find? snap.env p.method then
+          let options := snap.cmdState.scopes.head!.opts
+          match evalRpcProcedure snap.env options procName with
+          | .ok x => x.wrapper p.sessionId p.params
+          | .error e => throwThe RequestError {
+            code := .internalError
+            message := s!"Failed to evaluate RPC constant '{procName}': {e}" }
+        else
+          throwNotFound
 
 builtin_initialize
   registerLspRequestHandler "$/lean/rpc/call" Lsp.RpcCallParams Json handleRpcCall

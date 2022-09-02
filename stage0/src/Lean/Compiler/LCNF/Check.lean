@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Compiler.LCNF.InferType
+import Lean.Compiler.LCNF.PrettyPrinter
 
 namespace Lean.Compiler.LCNF
 
@@ -90,11 +91,24 @@ def checkJpInScope (jp : FVarId) : CheckM Unit := do
     -/
     throwError "invalid jump to out of scope join point"
 
+def checkParam (param : Param) : CheckM Unit := do
+  let localDecl ← getLocalDecl param.fvarId
+  unless localDecl.type == param.type do
+    throwError "LCNF parameter mismatch at `{param.binderName}`, type in local context{indentExpr localDecl.type}\nexpected{indentExpr param.type}"
+
+def checkParams (params : Array Param) : CheckM Unit :=
+  params.forM checkParam
+
 def checkLetDecl (letDecl : LetDecl) : CheckM Unit := do
   checkExpr letDecl.value
   let valueType ← inferType letDecl.value
   unless compatibleTypes letDecl.type valueType do
     throwError "type mismatch at `{letDecl.binderName}`, value has type{indentExpr valueType}\nbut is expected to have type{indentExpr letDecl.type}"
+  let localDecl ← getLocalDecl letDecl.fvarId
+  unless localDecl.type == letDecl.type do
+    throwError "LCNF let declaration mismatch at `{letDecl.binderName}`, type in local context{indentExpr localDecl.type}\nexpected{indentExpr letDecl.type}"
+  unless localDecl.value == letDecl.value do
+    throwError "LCNF let declaration mismatch at `{letDecl.binderName}`, value in local context{indentExpr localDecl.value}\nexpected{indentExpr letDecl.value}"
 
 def addFVarId (fvarId : FVarId) : CheckM Unit := do
   if (← get).all.contains fvarId then
@@ -117,27 +131,35 @@ def addFVarId (fvarId : FVarId) : CheckM Unit := do
 mutual
 
 partial def checkFunDeclCore (declName : Name) (type : Expr) (params : Array Param) (value : Code) : CheckM Unit := do
+  checkParams params
   let valueType ← withParams params do
     mkForallParams params (← check value)
   unless compatibleTypes type valueType do
     throwError "type mismatch at `{declName}`, value has type{indentExpr valueType}\nbut is expected to have type{indentExpr type}"
 
-partial def checkFunDecl (funDecl : FunDecl) : CheckM Unit :=
+partial def checkFunDecl (funDecl : FunDecl) : CheckM Unit := do
   checkFunDeclCore funDecl.binderName funDecl.type funDecl.params funDecl.value
+  let localDecl ← getLocalDecl funDecl.fvarId
+  unless localDecl.type == funDecl.type do
+    throwError "LCNF local function declaration mismatch at `{funDecl.binderName}`, type in local context{indentExpr localDecl.type}\nexpected{indentExpr funDecl.type}"
+  unless (← getFunDecl funDecl.fvarId) == funDecl do
+    throwError "LCNF local function declaration mismatch at `{funDecl.binderName}`, declaration in local context does match"
 
 partial def checkCases (c : Cases) : CheckM Expr := do
   let mut ctorNames : NameSet := {}
   let mut hasDefault := false
   checkFVar c.discr
   let discrType ← inferFVarType c.discr
-  let .const declName _ := discrType.headBeta.getAppFn | throwError "unexpected LCNF discriminant type {discrType}"
-  unless c.typeName == declName do
-    throwError "invalid LCNF `{c.typeName}.casesOn`, discriminant has type{indentExpr discrType}"
+  unless discrType.isAnyType do
+    let .const declName _ := discrType.headBeta.getAppFn | throwError "unexpected LCNF discriminant type {discrType}"
+    unless c.typeName == declName do
+      throwError "invalid LCNF `{c.typeName}.casesOn`, discriminant has type{indentExpr discrType}"
   for alt in c.alts do
     let type ←
       match alt with
       | .default k => hasDefault := true; check k
       | .alt ctorName params k =>
+        checkParams params
         if ctorNames.contains ctorName then
           throwError "invalid LCNF `cases`, alternative `{ctorName}` occurs more than once"
         ctorNames := ctorNames.insert ctorName
@@ -179,5 +201,42 @@ end Check
 
 def Decl.check (decl : Decl) : CompilerM Unit := do
   Check.run do Check.checkFunDeclCore decl.name decl.type decl.params decl.value
+
+/--
+Check whether every local declaration in the local context is used in one of given `decls`.
+-/
+partial def checkDeadLocalDecls (decls : Array Decl) : CompilerM Unit := do
+  let (_, s) := visitDecls decls |>.run {}
+  (← get).lctx.localDecls.forM fun fvarId decl =>
+    unless s.contains fvarId do
+      throwError "LCNF local context contains unused local variable declaration `{decl.userName}`"
+where
+  visitFVar (fvarId : FVarId) : StateM FVarIdHashSet Unit :=
+    modify (·.insert fvarId)
+
+  visitParam (param : Param) : StateM FVarIdHashSet Unit := do
+    visitFVar param.fvarId
+
+  visitParams (params : Array Param) : StateM FVarIdHashSet Unit := do
+    params.forM visitParam
+
+  visitCode (code : Code) : StateM FVarIdHashSet Unit := do
+    match code with
+    | .jmp .. | .return .. | .unreach .. => return ()
+    | .let decl k => visitFVar decl.fvarId; visitCode k
+    | .fun decl k | .jp decl k =>
+      visitFVar decl.fvarId; visitParams decl.params; visitCode decl.value
+      visitCode k
+    | .cases c => c.alts.forM fun alt => do
+      match alt with
+      | .default k => visitCode k
+      | .alt _ ps k => visitParams ps; visitCode k
+
+  visitDecl (decl : Decl) : StateM FVarIdHashSet Unit := do
+    visitParams decl.params
+    visitCode decl.value
+
+  visitDecls (decls : Array Decl) : StateM FVarIdHashSet Unit :=
+    decls.forM visitDecl
 
 end Lean.Compiler.LCNF

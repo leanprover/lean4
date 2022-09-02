@@ -95,17 +95,20 @@ structure GetWidgetSourceParams where
   pos : Lean.Lsp.Position
   deriving ToJson, FromJson
 
-open Server in
+open Server RequestM in
 @[serverRpcMethod]
-def getWidgetSource (args : GetWidgetSourceParams) : RequestM (RequestTask WidgetSource) :=
-  RequestM.withWaitFindSnapAtPos args.pos fun snap => do
-    RequestM.runCoreM snap do
-      let env ← getEnv
-      if let some id := widgetSourceRegistry.getState env |>.find? args.hash then
-        let d ← getUserWidgetDefinition id
-        return {sourcetext := d.javascript}
+def getWidgetSource (args : GetWidgetSourceParams) : RequestM (RequestTask WidgetSource) := do
+  let doc ← readDoc
+  let pos := doc.meta.text.lspPosToUtf8Pos args.pos
+  let notFound := throwThe RequestError ⟨.invalidParams, s!"No registered user-widget with hash {args.hash}"⟩
+  withWaitFindSnap doc (notFoundX := notFound)
+    (fun s => s.endPos >= pos || (widgetSourceRegistry.getState s.env).contains args.hash)
+    fun snap => do
+      if let some id := widgetSourceRegistry.getState snap.env |>.find? args.hash then
+        runCoreM snap do
+          return {sourcetext := (← getUserWidgetDefinition id).javascript}
       else
-        throwThe RequestError ⟨.invalidParams, s!"No registered user-widget with hash {args.hash}"⟩
+        notFound
 
 open Lean Elab
 
@@ -145,7 +148,7 @@ def getWidgets (args : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsRes
   let doc ← readDoc
   let filemap := doc.meta.text
   let pos := filemap.lspPosToUtf8Pos args
-  withWaitFindSnapAtPos args fun snap => do
+  withWaitFindSnap doc (·.endPos >= pos) (notFoundX := return ⟨∅⟩) fun snap => do
     let env := snap.env
     let ws := widgetInfosAt? filemap snap.infoTree pos
     let ws ← ws.toArray.mapM (fun (w : UserWidgetInfo) => do

@@ -20,7 +20,7 @@ structure Param where
   fvarId     : FVarId
   binderName : Name
   type       : Expr
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 def Param.toExpr (p : Param) : Expr :=
   .fvar p.fvarId
@@ -36,7 +36,7 @@ structure LetDecl where
   type : Expr
   value : Expr
   pure : Bool
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 structure FunDeclCore (Code : Type) where
   fvarId : FVarId
@@ -69,6 +69,62 @@ inductive Code where
 abbrev Alt := AltCore Code
 abbrev FunDecl := FunDeclCore Code
 abbrev Cases := CasesCore Code
+
+inductive CodeDecl where
+  | let (decl : LetDecl)
+  | fun (decl : FunDecl)
+  | jp (decl : FunDecl)
+  deriving Inhabited
+
+def CodeDecl.fvarId : CodeDecl → FVarId
+  | .let decl | .fun decl | .jp decl => decl.fvarId
+
+def CodeDecl.isPure : CodeDecl → Bool
+  | .let decl => decl.pure
+  | .fun .. | .jp .. => true
+
+mutual
+  private unsafe def eqImp (c₁ c₂ : Code) : Bool :=
+    if ptrEq c₁ c₂ then
+      true
+    else match c₁, c₂ with
+      | .let d₁ k₁, .let d₂ k₂ => d₁ == d₂ && eqImp k₁ k₂
+      | .fun d₁ k₁, .fun d₂ k₂
+      | .jp d₁ k₁, .jp d₂ k₂ => eqFunDecl d₁ d₂ && eqImp k₁ k₂
+      | .cases c₁, .cases c₂ => eqCases c₁ c₂
+      | .jmp j₁ as₁, .jmp j₂ as₂ => j₁ == j₂ && as₁ == as₂
+      | .return r₁, .return r₂ => r₁ == r₂
+      | .unreach t₁, .unreach t₂ => t₁ == t₂
+      | _, _ => false
+
+  private unsafe def eqFunDecl (d₁ d₂ : FunDecl) : Bool :=
+    if ptrEq d₁ d₂ then
+      true
+    else
+      d₁.fvarId == d₂.fvarId && d₁.binderName == d₂.binderName &&
+      d₁.params == d₂.params && d₁.type == d₂.type &&
+      eqImp d₁.value d₂.value
+
+  private unsafe def eqCases (c₁ c₂ : Cases) : Bool :=
+    c₁.resultType == c₂.resultType && c₁.discr == c₂.discr &&
+    c₁.typeName == c₂.typeName && c₁.alts.isEqv c₂.alts eqAlt
+
+  private unsafe def eqAlt (a₁ a₂ : Alt) : Bool :=
+    match a₁, a₂ with
+    | .default k₁, .default k₂ => eqImp k₁ k₂
+    | .alt c₁ ps₁ k₁, .alt c₂ ps₂ k₂ => c₁ == c₂ && ps₁ == ps₂ && eqImp k₁ k₂
+    | _, _ => false
+end
+
+@[implementedBy eqImp] protected opaque Code.beq : Code → Code → Bool
+
+instance : BEq Code where
+  beq := Code.beq
+
+@[implementedBy eqFunDecl] protected opaque FunDecl.beq : FunDecl → FunDecl → Bool
+
+instance : BEq FunDecl where
+  beq := FunDecl.beq
 
 def AltCore.getCode : Alt → Code
   | .default k => k
@@ -185,6 +241,15 @@ Consider using `FunDecl.update : LetDecl → Expr → Array Param → Code → C
 to be updated.
 -/
 @[implementedBy updateFunDeclCoreImp] opaque FunDeclCore.updateCore (decl: FunDecl) (type : Expr) (params : Array Param) (value : Code) : FunDecl
+
+def CasesCore.extractAlt! (cases : Cases) (ctorName : Name) : Alt × Cases :=
+  let found (i : Nat) := (cases.alts[i]!, { cases with alts := cases.alts.eraseIdx i })
+  if let some i := cases.alts.findIdx? fun | .alt ctorName' .. => ctorName == ctorName' | _ => false then
+    found i
+  else if let some i := cases.alts.findIdx? fun | .default _ => true | _ => false then
+    found i
+  else
+    unreachable!
 
 def Code.isDecl : Code → Bool
   | .let .. | .fun .. | .jp .. => true

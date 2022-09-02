@@ -195,6 +195,7 @@ LEAN_EXPORT lean_object* l_Lean_Macro_Context_currRecDepth___default;
 static lean_object* l_EStateM_instMonadStateOfEStateM___closed__1;
 LEAN_EXPORT lean_object* l_Applicative_seqRight___default(lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_adaptExcept(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instHashableSubtype(lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT lean_object* l_cond___rarg(uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkAtom(lean_object*);
@@ -268,6 +269,7 @@ LEAN_EXPORT uint8_t l_instDecidableEqChar(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_ReaderT_instFunctorReaderT(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_casesOn___override___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_dummyRestore___rarg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instHashableSubtype___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Macro_instMonadQuotationMacroM___lambda__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_namedPattern___rarg(lean_object*, lean_object*);
 static lean_object* l_instSubNat___closed__1;
@@ -6989,6 +6991,22 @@ lean_dec(x_2);
 x_5 = lean_uint64_mix_hash(x_3, x_4);
 x_6 = lean_box_uint64(x_5);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_instHashableSubtype___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_apply_1(x_1, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_instHashableSubtype(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_instHashableSubtype___rarg), 3, 0);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_String_hash___boxed(lean_object* x_1) {

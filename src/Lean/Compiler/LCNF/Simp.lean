@@ -243,54 +243,62 @@ def betaReduce (params : Array Param) (code : Code) (args : Array Expr) : SimpM 
   updateFunDeclInfo code
   return code
 
-  /--
-  If `e` is an application that can be inlined, inline it.
+/--
+If `e` is an application that can be inlined, inline it.
 
-  `k?` is the optional "continuation" for `e`, and it may contain loose bound variables
-  that need to instantiated with `xs`. That is, if `k? = some k`, then `k.instantiateRev xs`
-  is an expression without loose bound variables.
-  -/
-  partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := do
-    if k matches .unreach .. then return some k
-    let e := letDecl.value
-    let some info ← inlineCandidate? e | return none
-    markSimplified
-    let args := e.getAppArgs
-    let numArgs := args.size
-    trace[Compiler.simp.inline] "inlining {e}"
-    let code ← betaReduce info.params info.value args[:info.arity]
-    let fvarId := letDecl.fvarId
-    if k.isReturnOf fvarId && numArgs == info.arity then
-      /- Easy case, the continuation `k` is just returning the result of the application. -/
-      return code
-    else if oneExitPointQuick code then
-      /-
-      `code` has only one exit point, thus we can attach the continuation directly there,
-      and simplify the result.
-      -/
-      code.bind fun fvarId' => do
-        /- fvarId' is the result of the computation -/
-        if numArgs > info.arity then
-          let decl ← mkAuxLetDecl (mkAppN (.fvar fvarId') args[info.arity:])
-          let k ← replaceFVar k fvarId decl.fvarId
-          return .let decl k
-        else
-          replaceFVar k fvarId fvarId'
-    else
-      /-
-      `code` has multiple exit points, and the continuation is non-trivial
-      Thus, we create an auxiliary join point.
-      -/
-      let jpParam ← mkAuxParam (← inferType (mkAppN e.getAppFn args[:info.arity]))
-      let jpValue ← if numArgs > info.arity then
-        let decl ← mkAuxLetDecl (mkAppN (.fvar jpParam.fvarId) args[info.arity:])
+`k?` is the optional "continuation" for `e`, and it may contain loose bound variables
+that need to instantiated with `xs`. That is, if `k? = some k`, then `k.instantiateRev xs`
+is an expression without loose bound variables.
+-/
+partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := do
+  if k matches .unreach .. then return some k
+  let e := letDecl.value
+  let some info ← inlineCandidate? e | return none
+  markSimplified
+  let args := e.getAppArgs
+  let numArgs := args.size
+  trace[Compiler.simp.inline] "inlining {e}"
+  let code ← betaReduce info.params info.value args[:info.arity]
+  let fvarId := letDecl.fvarId
+  if k.isReturnOf fvarId && numArgs == info.arity then
+    /- Easy case, the continuation `k` is just returning the result of the application. -/
+    return code
+  else if oneExitPointQuick code then
+    /-
+    `code` has only one exit point, thus we can attach the continuation directly there,
+    and simplify the result.
+    -/
+    code.bind fun fvarId' => do
+      /- fvarId' is the result of the computation -/
+      if numArgs > info.arity then
+        let decl ← mkAuxLetDecl (mkAppN (.fvar fvarId') args[info.arity:])
         let k ← replaceFVar k fvarId decl.fvarId
-        pure <| .let decl k
+        return .let decl k
       else
-        replaceFVar k fvarId jpParam.fvarId
-      let jpDecl ← mkAuxJpDecl #[jpParam] jpValue
-      let code ← code.bind fun fvarId => return .jmp jpDecl.fvarId #[.fvar fvarId]
-      return Code.jp jpDecl code
+        replaceFVar k fvarId fvarId'
+  else
+    /-
+    `code` has multiple exit points, and the continuation is non-trivial
+    Thus, we create an auxiliary join point.
+    -/
+    let jpParam ← mkAuxParam (← inferType (mkAppN e.getAppFn args[:info.arity]))
+    let jpValue ← if numArgs > info.arity then
+      let decl ← mkAuxLetDecl (mkAppN (.fvar jpParam.fvarId) args[info.arity:])
+      let k ← replaceFVar k fvarId decl.fvarId
+      pure <| .let decl k
+    else
+      replaceFVar k fvarId jpParam.fvarId
+    let jpDecl ← mkAuxJpDecl #[jpParam] jpValue
+    let code ← code.bind fun fvarId => return .jmp jpDecl.fvarId #[.fvar fvarId]
+    return Code.jp jpDecl code
+
+/--
+Try to inline a join point.
+-/
+partial def inlineJp? (fvarId : FVarId) (args : Array Expr) : SimpM (Option Code) := do
+  let some decl ← LCNF.findFunDecl? fvarId | return none
+  unless (← shouldInlineLocal decl) do return none
+  betaReduce decl.params decl.value args
 
 def findCtor (e : Expr) : SimpM Expr := do
   -- TODO: add support for mapping discriminants to constructors in branches
@@ -424,12 +432,14 @@ partial def simp (code : Code) : SimpM Code := do
   | .unreach type =>
     return code.updateUnreach! (← normExpr type)
   | .jmp fvarId args =>
-    -- TODO: inline join point
     let fvarId ← normFVar fvarId
     let args ← normExprs args
-    markUsedFVar fvarId
-    args.forM markUsedExpr
-    return code.updateJmp! fvarId args
+    if let some code ← inlineJp? fvarId args then
+      simp code
+    else
+      markUsedFVar fvarId
+      args.forM markUsedExpr
+      return code.updateJmp! fvarId args
   | .cases c =>
     if let some k ← simpCasesOnCtor? c then
       return k

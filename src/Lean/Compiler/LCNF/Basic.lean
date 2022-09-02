@@ -70,6 +70,19 @@ abbrev Alt := AltCore Code
 abbrev FunDecl := FunDeclCore Code
 abbrev Cases := CasesCore Code
 
+inductive CodeDecl where
+  | let (decl : LetDecl)
+  | fun (decl : FunDecl)
+  | jp (decl : FunDecl)
+  deriving Inhabited
+
+def CodeDecl.fvarId : CodeDecl → FVarId
+  | .let decl | .fun decl | .jp decl => decl.fvarId
+
+def CodeDecl.isPure : CodeDecl → Bool
+  | .let decl => decl.pure
+  | .fun .. | .jp .. => true
+
 mutual
   private unsafe def eqImp (c₁ c₂ : Code) : Bool :=
     if ptrEq c₁ c₂ then

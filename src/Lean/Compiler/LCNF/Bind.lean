@@ -46,7 +46,7 @@ where
       return c
     | .unreach .. => return c
 
-def FunDecl.etaExpand (decl : FunDecl) : CompilerM FunDecl := do
+def FunDeclCore.etaExpand (decl : FunDecl) : CompilerM FunDecl := do
   let typeArity := getArrowArity decl.type
   let valueArity := decl.getArity
   if typeArity <= valueArity then

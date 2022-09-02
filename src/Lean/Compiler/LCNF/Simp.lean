@@ -524,6 +524,8 @@ partial def simp (code : Code) : SimpM Code := do
       Note that functions in `decl` will be marked as used even if `decl` is not actually used.
       They will only be deleted in the next pass.
       -/
+      if code.isFun then
+        decl ← decl.etaExpand
       decl ← simpFunDecl decl
     let k ← simp k
     if (← isUsed decl.fvarId) then
@@ -628,23 +630,6 @@ private def simpUsingEtaReduction (e : Expr) : Expr :=
     if v.isLambda then e else v
   | .letE n t v b d => .letE n t v (simpUsingEtaReduction b) d
   | _ => e
-
-private def etaExpand (type : Expr) (value : Expr) : SimpM Expr := do
-  let typeArity := getArrowArity type
-  let valueArity := getLambdaArity value
-  if typeArity <= valueArity then
-    -- It can be < because of the "any" type
-    return value
-  else
-    withNewScope do
-      let (xs, _) ← visitArrow type
-      let value := getLambdaBody value
-      let value := value.instantiateRev xs[:valueArity]
-      let valueType ← inferType value
-      let f ← mkLocalDecl (← mkFreshUserName `_f) valueType
-      let k ← mkLambda #[f] (mkAppN f xs[valueArity:])
-      let value ← attachJp value k
-      mkLambda xs value
 
 
 /--

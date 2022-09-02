@@ -255,6 +255,10 @@ def Code.isDecl : Code → Bool
   | .let .. | .fun .. | .jp .. => true
   | _ => false
 
+def Code.isFun : Code → Bool
+  | .fun .. => true
+  | _ => false
+
 def Code.isReturnOf : Code → FVarId → Bool
   | .return fvarId, fvarId' => fvarId == fvarId'
   | _, _ => false

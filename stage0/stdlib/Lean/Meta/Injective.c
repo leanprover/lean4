@@ -16,7 +16,6 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremTypeCore_x3f_mkArgs2___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Subarray_forInUnsafe_loop___at___private_Lean_Meta_Injective_0__Lean_Meta_mkAnd_x3f___spec__1___closed__3;
 size_t lean_usize_add(size_t, size_t);
-static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792____closed__1;
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 static lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremTypeCore_x3f_mkArgs2___closed__4;
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -24,11 +23,13 @@ lean_object* l_Lean_getConstInfoInduct___at___private_Lean_Meta_RecursorInfo_0__
 lean_object* l_Lean_addDecl___at_Lean_Meta_mkAuxLemma___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_elimOptParam___lambda__1___closed__3;
 lean_object* l_Lean_Meta_mkForallFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_setInlineAttribute___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_injTheoremFailureHeader___closed__4;
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremTypeCore_x3f(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791____closed__1;
 static lean_object* l_panic___at___private_Lean_Meta_Injective_0__Lean_Meta_solveEqOfCtorEq___spec__1___closed__1;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNames___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -106,6 +107,7 @@ lean_object* l_Lean_mkArrow(lean_object*, lean_object*, lean_object*, lean_objec
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremTypeCore_x3f___lambda__3(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremTypeCore_x3f___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791____closed__2;
 extern lean_object* l_Lean_instInhabitedExpr;
 static lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__7;
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -117,7 +119,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_injTheorem
 lean_object* lean_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_throwInjectiveTheoremFailure(lean_object*);
 static lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__5;
-static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792____closed__3;
+static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791____closed__3;
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremTypeCore_x3f___spec__2(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -127,14 +129,12 @@ static lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTh
 LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at___private_Lean_Meta_Injective_0__Lean_Meta_mkAnd_x3f___spec__1(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescope___at___private_Lean_Meta_InferType_0__Lean_Meta_inferForallType___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792____closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkInjectiveTheoremNameFor(lean_object*);
-static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792____closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremTypeCore_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__1;
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791_(lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_59____spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkInjectiveTheoremNameFor___boxed(lean_object*);
@@ -144,6 +144,7 @@ lean_object* l_Lean_Meta_withNewBinderInfos___at_Lean_Meta_withInstImplicitAsImp
 lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___private_Lean_Meta_Injective_0__Lean_Meta_solveEqOfCtorEq___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791____closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremTypeCore_x3f___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_mapTRAux___at_Lean_mkConstWithLevelParams___spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremTypeCore_x3f___lambda__2___closed__1;
@@ -302,6 +303,16 @@ x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Lean_Meta_elimOptParam___lambda__1___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Meta_elimOptParam___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -312,8 +323,8 @@ x_7 = l_Lean_Expr_isAppOfArity(x_1, x_5, x_6);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; 
-x_8 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_8, 0, x_1);
+lean_dec(x_1);
+x_8 = l_Lean_Meta_elimOptParam___lambda__1___closed__3;
 x_9 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_9, 0, x_8);
 lean_ctor_set(x_9, 1, x_4);
@@ -3910,7 +3921,7 @@ return x_87;
 }
 }
 }
-static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792____closed__1() {
+static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791____closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3918,17 +3929,17 @@ x_1 = lean_mk_string_from_bytes("genInjectivity", 14);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792____closed__2() {
+static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791____closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792____closed__1;
+x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791____closed__1;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792____closed__3() {
+static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791____closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -3936,13 +3947,13 @@ x_1 = lean_mk_string_from_bytes("generate injectivity theorems for inductive dat
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792____closed__4() {
+static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791____closed__4() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = 1;
 x_2 = l___private_Lean_Meta_Injective_0__Lean_Meta_throwInjectiveTheoremFailure___rarg___closed__1;
-x_3 = l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792____closed__3;
+x_3 = l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791____closed__3;
 x_4 = lean_box(x_1);
 x_5 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_5, 0, x_4);
@@ -3951,12 +3962,12 @@ lean_ctor_set(x_5, 2, x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792____closed__2;
-x_3 = l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792____closed__4;
+x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791____closed__2;
+x_3 = l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791____closed__4;
 x_4 = l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_59____spec__1(x_2, x_3, x_1);
 return x_4;
 }
@@ -4628,6 +4639,8 @@ l_Lean_Meta_elimOptParam___lambda__1___closed__1 = _init_l_Lean_Meta_elimOptPara
 lean_mark_persistent(l_Lean_Meta_elimOptParam___lambda__1___closed__1);
 l_Lean_Meta_elimOptParam___lambda__1___closed__2 = _init_l_Lean_Meta_elimOptParam___lambda__1___closed__2();
 lean_mark_persistent(l_Lean_Meta_elimOptParam___lambda__1___closed__2);
+l_Lean_Meta_elimOptParam___lambda__1___closed__3 = _init_l_Lean_Meta_elimOptParam___lambda__1___closed__3();
+lean_mark_persistent(l_Lean_Meta_elimOptParam___lambda__1___closed__3);
 l_Lean_Meta_elimOptParam___closed__1 = _init_l_Lean_Meta_elimOptParam___closed__1();
 lean_mark_persistent(l_Lean_Meta_elimOptParam___closed__1);
 l_Lean_Meta_elimOptParam___closed__2 = _init_l_Lean_Meta_elimOptParam___closed__2();
@@ -4688,15 +4701,15 @@ l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda_
 lean_mark_persistent(l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__7);
 l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheorem___closed__1 = _init_l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheorem___closed__1();
 lean_mark_persistent(l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheorem___closed__1);
-l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792____closed__1 = _init_l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792____closed__1();
-lean_mark_persistent(l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792____closed__1);
-l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792____closed__2 = _init_l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792____closed__2();
-lean_mark_persistent(l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792____closed__2);
-l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792____closed__3 = _init_l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792____closed__3();
-lean_mark_persistent(l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792____closed__3);
-l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792____closed__4 = _init_l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792____closed__4();
-lean_mark_persistent(l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792____closed__4);
-if (builtin) {res = l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1792_(lean_io_mk_world());
+l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791____closed__1 = _init_l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791____closed__1();
+lean_mark_persistent(l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791____closed__1);
+l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791____closed__2 = _init_l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791____closed__2();
+lean_mark_persistent(l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791____closed__2);
+l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791____closed__3 = _init_l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791____closed__3();
+lean_mark_persistent(l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791____closed__3);
+l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791____closed__4 = _init_l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791____closed__4();
+lean_mark_persistent(l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791____closed__4);
+if (builtin) {res = l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1791_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Meta_genInjectivity = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Meta_genInjectivity);

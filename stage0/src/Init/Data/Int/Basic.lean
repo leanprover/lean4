@@ -134,9 +134,6 @@ def natAbs (m : @& Int) : Nat :=
   | ofNat m   => m
   | negSucc m => m.succ
 
-instance : OfNat Int n where
-  ofNat := Int.ofNat n
-
 @[extern "lean_int_div"]
 def div : (@& Int) → (@& Int) → Int
   | ofNat m,   ofNat n   => ofNat (m / n)

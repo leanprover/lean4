@@ -28,7 +28,7 @@ def elimOptParam (type : Expr) : CoreM Expr := do
     if e.isAppOfArity  ``optParam 2 then
       return TransformStep.visit (e.getArg! 0)
     else
-      return TransformStep.visit e
+      return .continue
 
 private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useEq : Bool) : MetaM (Option Expr) := do
   let us := ctorVal.levelParams.map mkLevelParam

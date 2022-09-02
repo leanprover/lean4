@@ -78,6 +78,11 @@ infix:65 (name := myInfix) " >+< " => Nat.add
 #check 1 >+< 2
         --^ textDocument/hover
 
+@[inheritDoc] notation "ℕ" => Nat
+
+#check ℕ
+     --^ textDocument/hover
+
 /-- My command -/
 macro "mycmd" e:term : command => do
   let seq ← `(Lean.Parser.Term.doSeq| $e:term)

@@ -80,6 +80,7 @@ static lean_object* l_Classical___aux__Init__Classical______macroRules__Classica
 static lean_object* l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__53;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__33;
+static lean_object* l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__55;
 static lean_object* l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__22;
 static lean_object* l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__37;
 static lean_object* l_Classical_tacticBy__cases___x3a_____closed__10;
@@ -87,6 +88,7 @@ static lean_object* l_Classical___aux__Init__Classical______macroRules__Classica
 static lean_object* l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__20;
 static lean_object* l_Classical_tacticBy__cases___x3a_____closed__11;
 static lean_object* l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__16;
+static lean_object* l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__56;
 static lean_object* l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__12;
 static lean_object* l_Classical_tacticBy__cases___x3a_____closed__4;
 LEAN_EXPORT lean_object* l_Classical_tacticBy__cases___x3a__;
@@ -588,7 +590,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__22;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
@@ -597,16 +599,38 @@ return x_3;
 static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__24() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__22;
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__25() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__23;
+x_2 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__24;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__25() {
+static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__26() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__23;
+x_2 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__25;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__27() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -615,7 +639,7 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__26() {
+static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__28() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -624,7 +648,7 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__27() {
+static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__29() {
 _start:
 {
 lean_object* x_1; 
@@ -632,17 +656,17 @@ x_1 = lean_mk_string_from_bytes("inductionAlts", 13);
 return x_1;
 }
 }
-static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__28() {
+static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__30() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__6;
-x_2 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__27;
+x_2 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__29;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__29() {
+static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__31() {
 _start:
 {
 lean_object* x_1; 
@@ -650,29 +674,11 @@ x_1 = lean_mk_string_from_bytes("with", 4);
 return x_1;
 }
 }
-static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__30() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inductionAlt", 12);
-return x_1;
-}
-}
-static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__31() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__6;
-x_2 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__30;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
-}
-}
 static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__32() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inductionAltLHS", 15);
+x_1 = lean_mk_string_from_bytes("inductionAlt", 12);
 return x_1;
 }
 }
@@ -690,11 +696,29 @@ static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("|", 1);
+x_1 = lean_mk_string_from_bytes("inductionAltLHS", 15);
 return x_1;
 }
 }
 static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__35() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__6;
+x_2 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__34;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__36() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("|", 1);
+return x_1;
+}
+}
+static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__37() {
 _start:
 {
 lean_object* x_1; 
@@ -702,48 +726,7 @@ x_1 = lean_mk_string_from_bytes("group", 5);
 return x_1;
 }
 }
-static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__36() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__35;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__37() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inl", 3);
-return x_1;
-}
-}
 static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__38() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__37;
-x_2 = lean_string_utf8_byte_size(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__39() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__37;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__38;
-x_4 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__40() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -753,30 +736,30 @@ x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__41() {
+static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__39() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("h", 1);
+x_1 = lean_mk_string_from_bytes("inl", 3);
 return x_1;
 }
 }
-static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__42() {
+static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__40() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__41;
+x_1 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__39;
 x_2 = lean_string_utf8_byte_size(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__43() {
+static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__41() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__41;
+x_1 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__39;
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__42;
+x_3 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__40;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -784,17 +767,58 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__44() {
+static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__42() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__41;
+x_2 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__39;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__43() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("h", 1);
+return x_1;
+}
+}
+static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__44() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__43;
+x_2 = lean_string_utf8_byte_size(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__45() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__43;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__44;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__46() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__43;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__47() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -803,7 +827,7 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__46() {
+static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__48() {
 _start:
 {
 lean_object* x_1; 
@@ -811,7 +835,7 @@ x_1 = lean_mk_string_from_bytes("=>", 2);
 return x_1;
 }
 }
-static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__47() {
+static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__49() {
 _start:
 {
 lean_object* x_1; 
@@ -819,17 +843,17 @@ x_1 = lean_mk_string_from_bytes("hole", 4);
 return x_1;
 }
 }
-static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__48() {
+static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__50() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__15;
-x_2 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__47;
+x_2 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__49;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__49() {
+static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__51() {
 _start:
 {
 lean_object* x_1; 
@@ -837,7 +861,7 @@ x_1 = lean_mk_string_from_bytes("_", 1);
 return x_1;
 }
 }
-static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__50() {
+static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__52() {
 _start:
 {
 lean_object* x_1; 
@@ -845,22 +869,22 @@ x_1 = lean_mk_string_from_bytes("inr", 3);
 return x_1;
 }
 }
-static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__51() {
+static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__53() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__50;
+x_1 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__52;
 x_2 = lean_string_utf8_byte_size(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__52() {
+static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__54() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__50;
+x_1 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__52;
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__51;
+x_3 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__53;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -868,17 +892,17 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__53() {
+static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__55() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__50;
+x_2 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__52;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__54() {
+static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__56() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -964,21 +988,21 @@ lean_inc(x_21);
 x_28 = l_Lean_addMacroScope(x_21, x_27, x_20);
 x_29 = lean_box(0);
 x_30 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__20;
-x_31 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__24;
+x_31 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__26;
 lean_inc(x_19);
 x_32 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_32, 0, x_19);
 lean_ctor_set(x_32, 1, x_30);
 lean_ctor_set(x_32, 2, x_28);
 lean_ctor_set(x_32, 3, x_31);
-x_33 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__25;
+x_33 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__27;
 x_34 = lean_array_push(x_33, x_16);
 lean_inc(x_19);
 x_35 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_35, 0, x_19);
 lean_ctor_set(x_35, 1, x_24);
 lean_ctor_set(x_35, 2, x_34);
-x_36 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__26;
+x_36 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__28;
 x_37 = lean_array_push(x_36, x_32);
 x_38 = lean_array_push(x_37, x_35);
 x_39 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__17;
@@ -1003,21 +1027,21 @@ x_46 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_46, 0, x_19);
 lean_ctor_set(x_46, 1, x_24);
 lean_ctor_set(x_46, 2, x_45);
-x_47 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__29;
+x_47 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__31;
 lean_inc(x_19);
 x_48 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_48, 0, x_19);
 lean_ctor_set(x_48, 1, x_47);
-x_49 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__34;
+x_49 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__36;
 lean_inc(x_19);
 x_50 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_50, 0, x_19);
 lean_ctor_set(x_50, 1, x_49);
-x_51 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__40;
+x_51 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__42;
 lean_inc(x_20);
 lean_inc(x_21);
 x_52 = l_Lean_addMacroScope(x_21, x_51, x_20);
-x_53 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__39;
+x_53 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__41;
 lean_inc(x_19);
 x_54 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_54, 0, x_19);
@@ -1026,17 +1050,17 @@ lean_ctor_set(x_54, 2, x_52);
 lean_ctor_set(x_54, 3, x_29);
 lean_inc(x_41);
 x_55 = lean_array_push(x_41, x_54);
-x_56 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__36;
+x_56 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__38;
 lean_inc(x_19);
 x_57 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_57, 0, x_19);
 lean_ctor_set(x_57, 1, x_56);
 lean_ctor_set(x_57, 2, x_55);
-x_58 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__44;
+x_58 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__46;
 lean_inc(x_20);
 lean_inc(x_21);
 x_59 = l_Lean_addMacroScope(x_21, x_58, x_20);
-x_60 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__43;
+x_60 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__45;
 lean_inc(x_19);
 x_61 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_61, 0, x_19);
@@ -1049,13 +1073,13 @@ x_63 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_63, 0, x_19);
 lean_ctor_set(x_63, 1, x_24);
 lean_ctor_set(x_63, 2, x_62);
-x_64 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__45;
+x_64 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__47;
 x_65 = lean_array_push(x_64, x_50);
 lean_inc(x_65);
 x_66 = lean_array_push(x_65, x_57);
 lean_inc(x_63);
 x_67 = lean_array_push(x_66, x_63);
-x_68 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__33;
+x_68 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__35;
 lean_inc(x_19);
 x_69 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_69, 0, x_19);
@@ -1067,18 +1091,18 @@ x_71 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_71, 0, x_19);
 lean_ctor_set(x_71, 1, x_24);
 lean_ctor_set(x_71, 2, x_70);
-x_72 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__46;
+x_72 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__48;
 lean_inc(x_19);
 x_73 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_73, 0, x_19);
 lean_ctor_set(x_73, 1, x_72);
-x_74 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__49;
+x_74 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__51;
 lean_inc(x_19);
 x_75 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_75, 0, x_19);
 lean_ctor_set(x_75, 1, x_74);
 x_76 = lean_array_push(x_33, x_75);
-x_77 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__48;
+x_77 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__50;
 lean_inc(x_19);
 x_78 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_78, 0, x_19);
@@ -1089,15 +1113,15 @@ lean_inc(x_73);
 x_80 = lean_array_push(x_79, x_73);
 lean_inc(x_78);
 x_81 = lean_array_push(x_80, x_78);
-x_82 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__31;
+x_82 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__33;
 lean_inc(x_19);
 x_83 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_83, 0, x_19);
 lean_ctor_set(x_83, 1, x_82);
 lean_ctor_set(x_83, 2, x_81);
-x_84 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__53;
+x_84 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__55;
 x_85 = l_Lean_addMacroScope(x_21, x_84, x_20);
-x_86 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__52;
+x_86 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__54;
 lean_inc(x_19);
 x_87 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_87, 0, x_19);
@@ -1142,7 +1166,7 @@ x_102 = lean_array_push(x_64, x_48);
 lean_inc(x_26);
 x_103 = lean_array_push(x_102, x_26);
 x_104 = lean_array_push(x_103, x_101);
-x_105 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__28;
+x_105 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__30;
 lean_inc(x_19);
 x_106 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_106, 0, x_19);
@@ -1154,7 +1178,7 @@ x_108 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_108, 0, x_19);
 lean_ctor_set(x_108, 1, x_24);
 lean_ctor_set(x_108, 2, x_107);
-x_109 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__54;
+x_109 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__56;
 x_110 = lean_array_push(x_109, x_23);
 x_111 = lean_array_push(x_110, x_46);
 x_112 = lean_array_push(x_111, x_26);
@@ -1198,21 +1222,21 @@ lean_inc(x_119);
 x_126 = l_Lean_addMacroScope(x_119, x_125, x_118);
 x_127 = lean_box(0);
 x_128 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__20;
-x_129 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__24;
+x_129 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__26;
 lean_inc(x_116);
 x_130 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_130, 0, x_116);
 lean_ctor_set(x_130, 1, x_128);
 lean_ctor_set(x_130, 2, x_126);
 lean_ctor_set(x_130, 3, x_129);
-x_131 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__25;
+x_131 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__27;
 x_132 = lean_array_push(x_131, x_16);
 lean_inc(x_116);
 x_133 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_133, 0, x_116);
 lean_ctor_set(x_133, 1, x_122);
 lean_ctor_set(x_133, 2, x_132);
-x_134 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__26;
+x_134 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__28;
 x_135 = lean_array_push(x_134, x_130);
 x_136 = lean_array_push(x_135, x_133);
 x_137 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__17;
@@ -1237,21 +1261,21 @@ x_144 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_144, 0, x_116);
 lean_ctor_set(x_144, 1, x_122);
 lean_ctor_set(x_144, 2, x_143);
-x_145 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__29;
+x_145 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__31;
 lean_inc(x_116);
 x_146 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_146, 0, x_116);
 lean_ctor_set(x_146, 1, x_145);
-x_147 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__34;
+x_147 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__36;
 lean_inc(x_116);
 x_148 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_148, 0, x_116);
 lean_ctor_set(x_148, 1, x_147);
-x_149 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__40;
+x_149 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__42;
 lean_inc(x_118);
 lean_inc(x_119);
 x_150 = l_Lean_addMacroScope(x_119, x_149, x_118);
-x_151 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__39;
+x_151 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__41;
 lean_inc(x_116);
 x_152 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_152, 0, x_116);
@@ -1260,17 +1284,17 @@ lean_ctor_set(x_152, 2, x_150);
 lean_ctor_set(x_152, 3, x_127);
 lean_inc(x_139);
 x_153 = lean_array_push(x_139, x_152);
-x_154 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__36;
+x_154 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__38;
 lean_inc(x_116);
 x_155 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_155, 0, x_116);
 lean_ctor_set(x_155, 1, x_154);
 lean_ctor_set(x_155, 2, x_153);
-x_156 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__44;
+x_156 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__46;
 lean_inc(x_118);
 lean_inc(x_119);
 x_157 = l_Lean_addMacroScope(x_119, x_156, x_118);
-x_158 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__43;
+x_158 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__45;
 lean_inc(x_116);
 x_159 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_159, 0, x_116);
@@ -1283,13 +1307,13 @@ x_161 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_161, 0, x_116);
 lean_ctor_set(x_161, 1, x_122);
 lean_ctor_set(x_161, 2, x_160);
-x_162 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__45;
+x_162 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__47;
 x_163 = lean_array_push(x_162, x_148);
 lean_inc(x_163);
 x_164 = lean_array_push(x_163, x_155);
 lean_inc(x_161);
 x_165 = lean_array_push(x_164, x_161);
-x_166 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__33;
+x_166 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__35;
 lean_inc(x_116);
 x_167 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_167, 0, x_116);
@@ -1301,18 +1325,18 @@ x_169 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_169, 0, x_116);
 lean_ctor_set(x_169, 1, x_122);
 lean_ctor_set(x_169, 2, x_168);
-x_170 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__46;
+x_170 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__48;
 lean_inc(x_116);
 x_171 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_171, 0, x_116);
 lean_ctor_set(x_171, 1, x_170);
-x_172 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__49;
+x_172 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__51;
 lean_inc(x_116);
 x_173 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_173, 0, x_116);
 lean_ctor_set(x_173, 1, x_172);
 x_174 = lean_array_push(x_131, x_173);
-x_175 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__48;
+x_175 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__50;
 lean_inc(x_116);
 x_176 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_176, 0, x_116);
@@ -1323,15 +1347,15 @@ lean_inc(x_171);
 x_178 = lean_array_push(x_177, x_171);
 lean_inc(x_176);
 x_179 = lean_array_push(x_178, x_176);
-x_180 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__31;
+x_180 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__33;
 lean_inc(x_116);
 x_181 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_181, 0, x_116);
 lean_ctor_set(x_181, 1, x_180);
 lean_ctor_set(x_181, 2, x_179);
-x_182 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__53;
+x_182 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__55;
 x_183 = l_Lean_addMacroScope(x_119, x_182, x_118);
-x_184 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__52;
+x_184 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__54;
 lean_inc(x_116);
 x_185 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_185, 0, x_116);
@@ -1376,7 +1400,7 @@ x_200 = lean_array_push(x_162, x_146);
 lean_inc(x_124);
 x_201 = lean_array_push(x_200, x_124);
 x_202 = lean_array_push(x_201, x_199);
-x_203 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__28;
+x_203 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__30;
 lean_inc(x_116);
 x_204 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_204, 0, x_116);
@@ -1388,7 +1412,7 @@ x_206 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_206, 0, x_116);
 lean_ctor_set(x_206, 1, x_122);
 lean_ctor_set(x_206, 2, x_205);
-x_207 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__54;
+x_207 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__56;
 x_208 = lean_array_push(x_207, x_121);
 x_209 = lean_array_push(x_208, x_144);
 x_210 = lean_array_push(x_209, x_124);
@@ -1443,21 +1467,21 @@ lean_inc(x_222);
 x_229 = l_Lean_addMacroScope(x_222, x_228, x_221);
 x_230 = lean_box(0);
 x_231 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__20;
-x_232 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__24;
+x_232 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__26;
 lean_inc(x_220);
 x_233 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_233, 0, x_220);
 lean_ctor_set(x_233, 1, x_231);
 lean_ctor_set(x_233, 2, x_229);
 lean_ctor_set(x_233, 3, x_232);
-x_234 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__25;
+x_234 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__27;
 x_235 = lean_array_push(x_234, x_217);
 lean_inc(x_220);
 x_236 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_236, 0, x_220);
 lean_ctor_set(x_236, 1, x_225);
 lean_ctor_set(x_236, 2, x_235);
-x_237 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__26;
+x_237 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__28;
 x_238 = lean_array_push(x_237, x_233);
 x_239 = lean_array_push(x_238, x_236);
 x_240 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__17;
@@ -1482,21 +1506,21 @@ x_247 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_247, 0, x_220);
 lean_ctor_set(x_247, 1, x_225);
 lean_ctor_set(x_247, 2, x_246);
-x_248 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__29;
+x_248 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__31;
 lean_inc(x_220);
 x_249 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_249, 0, x_220);
 lean_ctor_set(x_249, 1, x_248);
-x_250 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__34;
+x_250 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__36;
 lean_inc(x_220);
 x_251 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_251, 0, x_220);
 lean_ctor_set(x_251, 1, x_250);
-x_252 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__40;
+x_252 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__42;
 lean_inc(x_221);
 lean_inc(x_222);
 x_253 = l_Lean_addMacroScope(x_222, x_252, x_221);
-x_254 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__39;
+x_254 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__41;
 lean_inc(x_220);
 x_255 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_255, 0, x_220);
@@ -1505,7 +1529,7 @@ lean_ctor_set(x_255, 2, x_253);
 lean_ctor_set(x_255, 3, x_230);
 lean_inc(x_242);
 x_256 = lean_array_push(x_242, x_255);
-x_257 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__36;
+x_257 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__38;
 lean_inc(x_220);
 x_258 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_258, 0, x_220);
@@ -1517,13 +1541,13 @@ x_260 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_260, 0, x_220);
 lean_ctor_set(x_260, 1, x_225);
 lean_ctor_set(x_260, 2, x_259);
-x_261 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__45;
+x_261 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__47;
 x_262 = lean_array_push(x_261, x_251);
 lean_inc(x_262);
 x_263 = lean_array_push(x_262, x_258);
 lean_inc(x_260);
 x_264 = lean_array_push(x_263, x_260);
-x_265 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__33;
+x_265 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__35;
 lean_inc(x_220);
 x_266 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_266, 0, x_220);
@@ -1535,18 +1559,18 @@ x_268 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_268, 0, x_220);
 lean_ctor_set(x_268, 1, x_225);
 lean_ctor_set(x_268, 2, x_267);
-x_269 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__46;
+x_269 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__48;
 lean_inc(x_220);
 x_270 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_270, 0, x_220);
 lean_ctor_set(x_270, 1, x_269);
-x_271 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__49;
+x_271 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__51;
 lean_inc(x_220);
 x_272 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_272, 0, x_220);
 lean_ctor_set(x_272, 1, x_271);
 x_273 = lean_array_push(x_234, x_272);
-x_274 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__48;
+x_274 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__50;
 lean_inc(x_220);
 x_275 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_275, 0, x_220);
@@ -1557,15 +1581,15 @@ lean_inc(x_270);
 x_277 = lean_array_push(x_276, x_270);
 lean_inc(x_275);
 x_278 = lean_array_push(x_277, x_275);
-x_279 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__31;
+x_279 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__33;
 lean_inc(x_220);
 x_280 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_280, 0, x_220);
 lean_ctor_set(x_280, 1, x_279);
 lean_ctor_set(x_280, 2, x_278);
-x_281 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__53;
+x_281 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__55;
 x_282 = l_Lean_addMacroScope(x_222, x_281, x_221);
-x_283 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__52;
+x_283 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__54;
 lean_inc(x_220);
 x_284 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_284, 0, x_220);
@@ -1610,7 +1634,7 @@ x_299 = lean_array_push(x_261, x_249);
 lean_inc(x_227);
 x_300 = lean_array_push(x_299, x_227);
 x_301 = lean_array_push(x_300, x_298);
-x_302 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__28;
+x_302 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__30;
 lean_inc(x_220);
 x_303 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_303, 0, x_220);
@@ -1622,7 +1646,7 @@ x_305 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_305, 0, x_220);
 lean_ctor_set(x_305, 1, x_225);
 lean_ctor_set(x_305, 2, x_304);
-x_306 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__54;
+x_306 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__56;
 x_307 = lean_array_push(x_306, x_224);
 x_308 = lean_array_push(x_307, x_247);
 x_309 = lean_array_push(x_308, x_227);
@@ -1666,21 +1690,21 @@ lean_inc(x_316);
 x_323 = l_Lean_addMacroScope(x_316, x_322, x_315);
 x_324 = lean_box(0);
 x_325 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__20;
-x_326 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__24;
+x_326 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__26;
 lean_inc(x_313);
 x_327 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_327, 0, x_313);
 lean_ctor_set(x_327, 1, x_325);
 lean_ctor_set(x_327, 2, x_323);
 lean_ctor_set(x_327, 3, x_326);
-x_328 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__25;
+x_328 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__27;
 x_329 = lean_array_push(x_328, x_217);
 lean_inc(x_313);
 x_330 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_330, 0, x_313);
 lean_ctor_set(x_330, 1, x_319);
 lean_ctor_set(x_330, 2, x_329);
-x_331 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__26;
+x_331 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__28;
 x_332 = lean_array_push(x_331, x_327);
 x_333 = lean_array_push(x_332, x_330);
 x_334 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__17;
@@ -1705,21 +1729,21 @@ x_341 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_341, 0, x_313);
 lean_ctor_set(x_341, 1, x_319);
 lean_ctor_set(x_341, 2, x_340);
-x_342 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__29;
+x_342 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__31;
 lean_inc(x_313);
 x_343 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_343, 0, x_313);
 lean_ctor_set(x_343, 1, x_342);
-x_344 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__34;
+x_344 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__36;
 lean_inc(x_313);
 x_345 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_345, 0, x_313);
 lean_ctor_set(x_345, 1, x_344);
-x_346 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__40;
+x_346 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__42;
 lean_inc(x_315);
 lean_inc(x_316);
 x_347 = l_Lean_addMacroScope(x_316, x_346, x_315);
-x_348 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__39;
+x_348 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__41;
 lean_inc(x_313);
 x_349 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_349, 0, x_313);
@@ -1728,7 +1752,7 @@ lean_ctor_set(x_349, 2, x_347);
 lean_ctor_set(x_349, 3, x_324);
 lean_inc(x_336);
 x_350 = lean_array_push(x_336, x_349);
-x_351 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__36;
+x_351 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__38;
 lean_inc(x_313);
 x_352 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_352, 0, x_313);
@@ -1740,13 +1764,13 @@ x_354 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_354, 0, x_313);
 lean_ctor_set(x_354, 1, x_319);
 lean_ctor_set(x_354, 2, x_353);
-x_355 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__45;
+x_355 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__47;
 x_356 = lean_array_push(x_355, x_345);
 lean_inc(x_356);
 x_357 = lean_array_push(x_356, x_352);
 lean_inc(x_354);
 x_358 = lean_array_push(x_357, x_354);
-x_359 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__33;
+x_359 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__35;
 lean_inc(x_313);
 x_360 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_360, 0, x_313);
@@ -1758,18 +1782,18 @@ x_362 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_362, 0, x_313);
 lean_ctor_set(x_362, 1, x_319);
 lean_ctor_set(x_362, 2, x_361);
-x_363 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__46;
+x_363 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__48;
 lean_inc(x_313);
 x_364 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_364, 0, x_313);
 lean_ctor_set(x_364, 1, x_363);
-x_365 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__49;
+x_365 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__51;
 lean_inc(x_313);
 x_366 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_366, 0, x_313);
 lean_ctor_set(x_366, 1, x_365);
 x_367 = lean_array_push(x_328, x_366);
-x_368 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__48;
+x_368 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__50;
 lean_inc(x_313);
 x_369 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_369, 0, x_313);
@@ -1780,15 +1804,15 @@ lean_inc(x_364);
 x_371 = lean_array_push(x_370, x_364);
 lean_inc(x_369);
 x_372 = lean_array_push(x_371, x_369);
-x_373 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__31;
+x_373 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__33;
 lean_inc(x_313);
 x_374 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_374, 0, x_313);
 lean_ctor_set(x_374, 1, x_373);
 lean_ctor_set(x_374, 2, x_372);
-x_375 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__53;
+x_375 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__55;
 x_376 = l_Lean_addMacroScope(x_316, x_375, x_315);
-x_377 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__52;
+x_377 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__54;
 lean_inc(x_313);
 x_378 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_378, 0, x_313);
@@ -1833,7 +1857,7 @@ x_393 = lean_array_push(x_355, x_343);
 lean_inc(x_321);
 x_394 = lean_array_push(x_393, x_321);
 x_395 = lean_array_push(x_394, x_392);
-x_396 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__28;
+x_396 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__30;
 lean_inc(x_313);
 x_397 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_397, 0, x_313);
@@ -1845,7 +1869,7 @@ x_399 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_399, 0, x_313);
 lean_ctor_set(x_399, 1, x_319);
 lean_ctor_set(x_399, 2, x_398);
-x_400 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__54;
+x_400 = l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__56;
 x_401 = lean_array_push(x_400, x_318);
 x_402 = lean_array_push(x_401, x_341);
 x_403 = lean_array_push(x_402, x_321);
@@ -2039,6 +2063,10 @@ l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases__
 lean_mark_persistent(l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__53);
 l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__54 = _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__54();
 lean_mark_persistent(l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__54);
+l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__55 = _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__55();
+lean_mark_persistent(l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__55);
+l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__56 = _init_l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__56();
+lean_mark_persistent(l_Classical___aux__Init__Classical______macroRules__Classical__tacticBy__cases___x3a____1___closed__56);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

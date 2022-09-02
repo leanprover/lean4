@@ -14,6 +14,7 @@ namespace IO.FS.Stream
 open Lean
 open IO
 
+/-- Consumes `nBytes` bytes from the stream, interprets the bytes as a utf-8 string and the string as a valid JSON object. -/
 def readJson (h : FS.Stream) (nBytes : Nat) : IO Json := do
   let bytes ← h.read (USize.ofNat nBytes)
   let s := String.fromUTF8Unchecked bytes

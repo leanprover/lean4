@@ -312,9 +312,6 @@ It is often used when building macros.
 -/
 @[builtinTermParser] def «let_tmp» := leading_parser:leadPrec withPosition ("let_tmp " >> letDecl) >> optSemicolon termParser
 
-instance : Coe (TSyntax ``letIdBinder) (TSyntax ``funBinder) where
-  coe stx := ⟨stx⟩
-
 /-- like `let_fun` but with optional name -/
 def haveIdLhs    := optional (ident >> many (ppSpace >> letIdBinder)) >> optType
 def haveIdDecl   := leading_parser (withAnonymousAntiquot := false) atomic (haveIdLhs >> " := ") >> termParser

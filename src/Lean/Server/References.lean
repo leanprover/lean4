@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joscha Mennicken
 -/
 import Lean.Server.Utils
-import Std.System.Uri
 
 /-! # Representing collected and deduplicated definitions and usages -/
 

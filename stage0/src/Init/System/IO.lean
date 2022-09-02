@@ -220,10 +220,19 @@ opaque FS.Handle : Type := Unit
   A pure-Lean abstraction of POSIX streams. We use `Stream`s for the standard streams stdin/stdout/stderr so we can
   capture output of `#eval` commands into memory. -/
 structure FS.Stream where
-  isEof   : IO Bool
   flush   : IO Unit
+  /--
+Read up to the given number of bytes from the stream.
+If the returned array is empty, an end-of-file marker has been reached.
+Note that EOF does not actually close a stream, so further reads may block and return more data.
+  -/
   read    : USize → IO ByteArray
   write   : ByteArray → IO Unit
+  /--
+Read text up to (including) the next line break from the stream.
+If the returned string is empty, an end-of-file marker has been reached.
+Note that EOF does not actually close a stream, so further reads may block and return more data.
+  -/
   getLine : IO String
   putStr  : String → IO Unit
   deriving Inhabited
@@ -266,16 +275,20 @@ private def fopenFlags (m : FS.Mode) (b : Bool) : String :=
 def mk (fn : FilePath) (Mode : Mode) (bin : Bool := true) : IO Handle :=
   mkPrim fn (fopenFlags Mode bin)
 
-/--
-Returns whether the end of the file has been reached while reading a file.
-`h.isEof` returns true /after/ the first attempt at reading past the end of `h`.
-Once `h.isEof` is true, reading `h` will always return an empty array.
--/
-@[extern "lean_io_prim_handle_is_eof"] opaque isEof (h : @& Handle) : BaseIO Bool
 @[extern "lean_io_prim_handle_flush"] opaque flush (h : @& Handle) : IO Unit
-@[extern "lean_io_prim_handle_read"] opaque read  (h : @& Handle) (bytes : USize) : IO ByteArray
+/--
+Read up to the given number of bytes from the handle.
+If the returned array is empty, an end-of-file marker has been reached.
+Note that EOF does not actually close a handle, so further reads may block and return more data.
+-/
+@[extern "lean_io_prim_handle_read"] opaque read (h : @& Handle) (bytes : USize) : IO ByteArray
 @[extern "lean_io_prim_handle_write"] opaque write (h : @& Handle) (buffer : @& ByteArray) : IO Unit
 
+/--
+Read text up to (including) the next line break from the handle.
+If the returned string is empty, an end-of-file marker has been reached.
+Note that EOF does not actually close a handle, so further reads may block and return more data.
+-/
 @[extern "lean_io_prim_handle_get_line"] opaque getLine (h : @& Handle) : IO String
 @[extern "lean_io_prim_handle_put_str"] opaque putStr (h : @& Handle) (s : @& String) : IO Unit
 
@@ -612,7 +625,6 @@ namespace Stream
 
 @[export lean_stream_of_handle]
 def ofHandle (h : Handle) : Stream := {
-  isEof   := Handle.isEof h,
   flush   := Handle.flush h,
   read    := Handle.read h,
   write   := Handle.write h,
@@ -625,7 +637,6 @@ structure Buffer where
   pos  : Nat := 0
 
 def ofBuffer (r : Ref Buffer) : Stream := {
-  isEof   := do let b ← r.get; pure <| b.pos >= b.data.size,
   flush   := pure (),
   read    := fun n => r.modifyGet fun b =>
     let data := b.data.extract b.pos (b.pos + n.toNat)

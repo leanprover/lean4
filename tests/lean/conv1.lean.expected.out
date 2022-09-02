@@ -82,3 +82,6 @@ conv1.lean:169:10-169:15: error: invalid 'arg' conv tactic, application has only
 conv1.lean:172:10-172:13: error: invalid 'congr' conv tactic, application or implication expected
   p
 conv1.lean:175:10-175:15: error: cannot select argument
+a✝ : Nat := 0
+b✝ : Nat := a✝
+| 0 = 0

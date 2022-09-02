@@ -722,7 +722,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
             check result
             pure (some result)
           else
-            trace[Meta.synthInstance] "result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"
+            trace[Meta.synthInstance] "{crossEmoji} result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"
             pure none
       if type.hasMVar || resultHasUnivMVars then
         pure result?

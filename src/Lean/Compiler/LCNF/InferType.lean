@@ -10,6 +10,11 @@ namespace Lean.Compiler.LCNF
 
 namespace InferType
 
+/-
+Type inference algorithm for LCNF. Invoked by the LCNF type checker
+to check correctness of LCNF IR.
+-/
+
 /--
 We use a regular local context to store temporary local declarations
 created during type inference.
@@ -182,12 +187,8 @@ def Code.inferParamType (params : Array Param) (code : Code) : CompilerM Expr :=
 def AltCore.inferType (alt : Alt) : CompilerM Expr :=
   alt.getCode.inferType
 
-def mkAuxLetDecl (e : Expr) (prefixName := `_x) : CompilerM Expr := do
-  if e.isFVar then
-    return e
-  else
-    let letDecl ← mkLetDecl (← mkFreshBinderName prefixName) (← inferType e) e
-    return .fvar letDecl.fvarId
+def mkAuxLetDecl (e : Expr) (prefixName := `_x) : CompilerM LetDecl := do
+  mkLetDecl (← mkFreshBinderName prefixName) (← inferType e) e
 
 def mkForallParams (params : Array Param) (type : Expr) : CompilerM Expr :=
   InferType.mkForallParams params type |>.run {}
@@ -205,5 +206,18 @@ def mkAuxJpDecl' (fvarId : FVarId) (code : Code) (prefixName := `_jp) : Compiler
   let yType ← inferType (.fvar fvarId)
   let params := #[{ fvarId, binderName := y, type := yType }]
   mkAuxFunDecl params code prefixName
+
+def instantiateForall (type : Expr) (params : Array Param) : CoreM Expr :=
+  go type 0
+where
+  go (type : Expr) (i : Nat) : CoreM Expr :=
+    if h : i < params.size then
+      let p := params[i]
+      match type with
+      | .forallE _ _ b _ => go (b.instantiate1 (.fvar p.fvarId)) (i+1)
+      | _ => throwError "invalid instantiateForall, too many parameters"
+    else
+      return type
+termination_by go i => params.size - i
 
 end Lean.Compiler.LCNF

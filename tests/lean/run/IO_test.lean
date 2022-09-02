@@ -28,14 +28,8 @@ withFile "foo.txt" Mode.read fun h => do
     check_eq "2" [1,2,3,4,1,2,3,4,5,6] ys.toList
     let ys ← h.read 2
     check_eq "3" [7,8] ys.toList
-    let b ← h.isEof
-    unless !b do
-      throw $ IO.userError $ "wrong (4): "
     let ys ← h.read 2
     check_eq "5" [] ys.toList
-    let b ← h.isEof
-    unless b do
-      throw $ IO.userError $ "wrong (6): "
 pure ()
 
 #eval test
@@ -69,9 +63,6 @@ let ys ← withFile fn2 Mode.read $ fun h => do
     { let ln ← h.getLine;
       IO.println i;
       IO.println ∘ repr $ ln;
-      let b  ← h.isEof;
-      unless i == 1 || !b do
-        throw $ IO.userError "isEof"
       pure ln };
     pure ys };
 IO.println ys;

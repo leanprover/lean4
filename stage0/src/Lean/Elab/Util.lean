@@ -119,7 +119,7 @@ unsafe def mkElabAttribute (γ) (attrDeclName attrBuiltinName attrName : Name) (
       return kind
     onAdded       := fun builtin declName => do
       if builtin then
-        if let some doc ← findDocString? (← getEnv) declName then
+        if let some doc ← findDocString? (← getEnv) declName (includeBuiltin := false) then
           declareBuiltin (declName ++ `docString) (mkAppN (mkConst ``addBuiltinDocString) #[toExpr declName, toExpr doc])
         if let some declRanges ← findDeclarationRanges? declName then
           declareBuiltin (declName ++ `declRange) (mkAppN (mkConst ``addBuiltinDeclarationRanges) #[toExpr declName, toExpr declRanges])

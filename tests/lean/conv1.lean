@@ -173,3 +173,10 @@ example (p : Prop) : p := by
 
 example (p : (n : Nat) → Fin n → Prop) (i : Fin 5) (hp : p 5 i) : p 5 j := by
   conv => arg 1
+
+-- repeated `zeta`
+example : let a := 0; let b := a; b = 0 := by
+  intros
+  conv =>
+    zeta
+    trace_state

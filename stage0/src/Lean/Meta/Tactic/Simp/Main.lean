@@ -180,7 +180,7 @@ private partial def dsimp (e : Expr) : M Expr := do
     if let Step.visit r ← rewritePre e (fun _ => pure none) (rflOnly := true) then
       if r.expr != e then
         return .visit r.expr
-    return .visit e
+    return .continue
   let post (e : Expr) : M TransformStep := do
     if let Step.visit r ← rewritePost e (fun _ => pure none) (rflOnly := true) then
       if r.expr != e then

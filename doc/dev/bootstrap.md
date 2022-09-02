@@ -22,7 +22,7 @@ stage1/
   lib/
     lean/**/*.olean  # the Lean library (incl. the compiler) compiled by the previous stage's `lean`
     temp/**/*.{c,o}  # the library extracted to C and compiled by `leanc`
-    libInit.a libStd.a libLean.a  # static libraries of the Lean library
+    libInit.a libBootstrap.a libLean.a  # static libraries of the Lean library
     libleancpp.a  # a static library of the C++ sources of Lean
     libleanshared.so  # a dynamic library including the static libraries above
   bin/

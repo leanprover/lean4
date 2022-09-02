@@ -21,16 +21,25 @@
   {"label": "Foo", "kind": 6, "detail": "Sort ?u"},
   {"label": "ForIn",
    "kind": 7,
+   "documentation":
+   {"value":
+    "`ForIn m ρ α` is the typeclass which supports `for x in xs` notation.\nHere `xs : ρ` is the type of the collection to iterate over, `x : α`\nis the element type which is made available inside the loop, and `m` is the monad\nfor the encompassing `do` block.\n",
+    "kind": "markdown"},
    "detail":
    "(Type u₁ → Type u₂) → Type u → outParam (Type v) → Type (max (max (max u (u₁ + 1)) u₂) v)"},
   {"label": "ForIn'",
    "kind": 7,
+   "documentation":
+   {"value":
+    "`ForIn' m ρ α d` is a variation on the `ForIn m ρ α` typeclass which supports the\n`for h : x in xs` notation. It is the same as `for x in xs` except that `h : x ∈ xs`\nis provided as an additional argument to the body of the for-loop.\n",
+    "kind": "markdown"},
    "detail":
    "(Type u₁ → Type u₂) →\n  (ρ : Type u) → (α : outParam (Type v)) → outParam (Membership α ρ) → Type (max (max (max u (u₁ + 1)) u₂) v)"},
   {"label": "ForInStep",
    "kind": 22,
    "documentation":
-   {"value": "Auxiliary type used to compile `for x in xs` notation. ",
+   {"value":
+    "Auxiliary type used to compile `for x in xs` notation.\n\nThis is the return value of the body of a `ForIn` call,\nrepresenting the body of a for loop. It can be:\n\n* `.yield (a : α)`, meaning that we should continue the loop and `a` is the new state.\n  `.yield` is produced by `continue` and reaching the bottom of the loop body.\n* `.done (a : α)`, meaning that we should early-exit the loop with state `a`.\n  `.done` is produced by calls to `break` or `return` in the loop,\n",
     "kind": "markdown"},
    "detail": "Type u → Type u"},
   {"label": "ForM",
@@ -68,7 +77,13 @@
    "detail": "∀ (p : Prop), (False → p) = True"},
   {"label": "false_of_ne", "kind": 3, "detail": "a ≠ a → False"},
   {"label": "false_or", "kind": 3, "detail": "∀ (p : Prop), (False ∨ p) = p"},
-  {"label": "flip", "kind": 3, "detail": "(α → β → φ) → β → α → φ"},
+  {"label": "flip",
+   "kind": 3,
+   "documentation":
+   {"value":
+    "`flip f a b` is `f b a`. It is useful for \"point-free\" programming,\nsince it can sometimes be used to avoid introducing variables.\nFor example, `(·<·)` is the less-than relation,\nand `flip (·<·)` is the greater-than relation.\n",
+    "kind": "markdown"},
+   "detail": "(α → β → φ) → β → α → φ"},
   {"label": "floatDecLe",
    "kind": 3,
    "detail": "(a b : Float) → Decidable (a ≤ b)"},
@@ -78,10 +93,18 @@
   {"label": "floatSpec", "kind": 21, "detail": "FloatSpec"},
   {"label": "forIn",
    "kind": 5,
+   "documentation":
+   {"value":
+    "`forIn x b f : m β` runs a for-loop in the monad `m` with additional state `β`.\n  This traverses over the \"contents\" of `x`, and passes the elements `a : α` to\n  `f : α → β → m (ForInStep β)`. `b : β` is the initial state, and the return value\n  of `f` is the new state as well as a directive `.done` or `.yield`\n  which indicates whether to abort early or continue iteration.\n\n  The expression\n  ```\n  let mut b := ...\n  for x in xs do\n    b ← foo x b\n  ```\n  in a `do` block is syntactic sugar for:\n  ```\n  let b := ...\n  let b ← forIn xs b (fun x b => do\n    let b ← foo x b\n    return .yield b)\n  ```\n  (Here `b` corresponds to the variables mutated in the loop.) ",
+    "kind": "markdown"},
    "detail":
    "[self : ForIn m ρ α] → {β : Type u₁} → [inst : Monad m] → ρ → β → (α → β → m (ForInStep β)) → m β"},
   {"label": "forIn'",
    "kind": 5,
+   "documentation":
+   {"value":
+    "`forIn' x b f : m β` runs a for-loop in the monad `m` with additional state `β`.\nThis traverses over the \"contents\" of `x`, and passes the elements `a : α` along\nwith a proof that `a ∈ x` to `f : (a : α) → a ∈ x → β → m (ForInStep β)`.\n`b : β` is the initial state, and the return value\nof `f` is the new state as well as a directive `.done` or `.yield`\nwhich indicates whether to abort early or continue iteration. ",
+    "kind": "markdown"},
    "detail":
    "[self : ForIn' m ρ α d] → {β : Type u₁} → [inst : Monad m] → (x : ρ) → β → ((a : α) → a ∈ x → β → m (ForInStep β)) → m β"},
   {"label": "forM",
@@ -93,5 +116,9 @@
    "detail": "(∀ (a : α), p a = q a) → (∀ (a : α), p a) = ∀ (a : α), q a"},
   {"label": "funext",
    "kind": 3,
-   "detail": "(∀ (x : α), f₁ x = f₂ x) → f₁ = f₂"}],
+   "documentation":
+   {"value":
+    "**Function extensionality** is the statement that if two functions take equal values\nevery point, then the functions themselves are equal: `(∀ x, f x = g x) → f = g`.\nIt is called \"extensionality\" because it talks about how to prove two objects are equal\nbased on the properties of the object (compare with set extensionality,\nwhich is `(∀ x, x ∈ s ↔ x ∈ t) → s = t`).\n\nThis is often an axiom in dependent type theory systems, because it cannot be proved\nfrom the core logic alone. However in lean's type theory this follows from the existence\nof quotient types (note the `Quot.sound` in the proof, as well as the `show` line\nwhich makes use of the definitional equality `Quot.lift f h (Quot.mk x) = f x`).\n",
+    "kind": "markdown"},
+   "detail": "(∀ (x : α), f x = g x) → f = g"}],
  "isIncomplete": true}

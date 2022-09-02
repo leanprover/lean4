@@ -332,6 +332,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_unicodeSymbol(lean_object*, lean_object*)
 static lean_object* l_Lean_Parser_longestMatchFn___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parser_checkStackTopFn(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_setBlack___rarg(lean_object*);
+uint8_t l_List_beq___at___private_Init_Meta_0__Lean_Syntax_beqPreresolved____x40_Init_Meta___hyg_2617____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_takeWhileFn___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_withAntiquotSuffixSplice(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_unicodeSymbolInfo___elambda__1(lean_object*);
@@ -392,7 +393,6 @@ static lean_object* l_Lean_Parser_tokenAntiquotFn___lambda__2___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Parser_mkAntiquotSplice___elambda__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_antiquotNestedExpr___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parser_checkNoWsBefore(lean_object*);
-uint8_t l_List_beq___at_Lean_Syntax_structEq___spec__3(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_antiquotNestedExpr___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parser_noFirstTokenInfo(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Basic___hyg_9615____lambda__1(lean_object*);
@@ -1931,7 +1931,7 @@ return x_8;
 else
 {
 uint8_t x_9; 
-x_9 = l_List_beq___at_Lean_Syntax_structEq___spec__3(x_4, x_6);
+x_9 = l_List_beq___at___private_Init_Meta_0__Lean_Syntax_beqPreresolved____x40_Init_Meta___hyg_2617____spec__1(x_4, x_6);
 return x_9;
 }
 }
@@ -2342,7 +2342,7 @@ lean_dec(x_1);
 x_4 = l_Lean_Parser_instInhabitedInputContext___closed__2;
 x_5 = lean_string_dec_eq(x_2, x_4);
 x_6 = lean_box(0);
-x_7 = l_List_beq___at_Lean_Syntax_structEq___spec__3(x_3, x_6);
+x_7 = l_List_beq___at___private_Init_Meta_0__Lean_Syntax_beqPreresolved____x40_Init_Meta___hyg_2617____spec__1(x_3, x_6);
 if (x_5 == 0)
 {
 lean_object* x_8; 

@@ -486,6 +486,8 @@ partial def simp (code : Code) : SimpM Code := do
   match code with
   | .let decl k =>
     let mut decl ← normLetDecl decl
+    if let some value ← simpValue? decl.value then
+      decl ← decl.updateValue value
     if decl.value.isFVar then
       /- Eliminate `let _x_i := _x_j;` -/
       addSubst decl.fvarId decl.value
@@ -500,8 +502,6 @@ partial def simp (code : Code) : SimpM Code := do
       let k ← simp k
       attachCodeDecls decls k
     else
-      if let some value ← simpValue? decl.value then
-        decl ← decl.updateValue value
       let k ← simp k
       if !decl.pure || (← isUsed decl.fvarId) then
         markUsedLetDecl decl

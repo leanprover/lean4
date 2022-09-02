@@ -57,21 +57,11 @@ Then run the following:
 executable to your `$HOME/.elan/bin` folder or `%USERPROFILE%\.elan\bin` so Alectryon can find it
 there.
 
-1. Create a Python 3.10 environment, if you use anaconda then that would be:
-    ```
-    conda create -n leanink python=3.10
-    ```
+1. Create a Python 3.10 environment.
 
-1. Activate this environment and install the following packages:
+1. Install the following packages:
     ```
-    pip install pygments dominate beautifulsoup4 docutils
-    ```
-
-1. Clone https://github.com/Kha/alectryon.git and run the following install the
-Alectryon python package:
-    ```
-    git checkout typeid
-    python setup.py install
+    python3 -m pip install git+https://github.com/Kha/alectryon.git@typeid
     ```
 
 1. Now you are ready to process the *.lean files using Alectryon as follows:

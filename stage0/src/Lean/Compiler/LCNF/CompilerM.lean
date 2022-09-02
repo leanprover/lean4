@@ -45,8 +45,14 @@ def getFunDecl (fvarId : FVarId) : CompilerM FunDecl := do
 @[inline] def modifyLCtx (f : LCtx → LCtx) : CompilerM Unit := do
    modify fun s => { s with lctx := f s.lctx }
 
-def eraseFVar (fvarId : FVarId) : CompilerM Unit := do
-  modifyLCtx fun lctx => lctx.erase fvarId
+def eraseFVar (fvarId : FVarId) (recursive := true) : CompilerM Unit := do
+  modifyLCtx fun lctx => lctx.erase fvarId recursive
+
+def eraseFVarsAt (code : Code) : CompilerM Unit := do
+  modifyLCtx fun lctx => lctx.eraseFVarsAt code
+
+def eraseParams (params : Array Param) : CompilerM Unit :=
+  params.forM (eraseFVar ·.fvarId)
 
 /--
 A free variable substitution.
@@ -222,6 +228,9 @@ private unsafe def updateLetDeclImp (decl : LetDecl) (type : Expr) (value : Expr
     return decl
 
 @[implementedBy updateLetDeclImp] opaque LetDecl.update (decl : LetDecl) (type : Expr) (value : Expr) : CompilerM LetDecl
+
+def LetDecl.updateValue (decl : LetDecl) (value : Expr) : CompilerM LetDecl :=
+  decl.update decl.type value
 
 private unsafe def updateFunDeclImp (decl: FunDecl) (type : Expr) (params : Array Param) (value : Code) : CompilerM FunDecl := do
   if ptrEq type decl.type && ptrEq params decl.params && ptrEq value decl.value then

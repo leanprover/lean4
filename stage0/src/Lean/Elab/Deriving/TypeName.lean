@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner
 -/
 import Lean.Elab.Deriving.Basic
-import Bootstrap.Dynamic
 
 namespace Lean.Elab
 open Command Std Parser Term
@@ -15,12 +14,13 @@ private def deriveTypeNameInstance (declNames : Array Name) : CommandElabM Bool 
     let cinfo ← getConstInfo declName
     unless cinfo.levelParams.isEmpty do
       throwError m!"{mkConst declName} has universe level parameters"
+    let TypeName := mkIdent `TypeName
     elabCommand <| ← withFreshMacroScope `(
-      unsafe def instImpl : TypeName @$(mkCIdent declName) := .mk _ $(quote declName)
-      @[implementedBy instImpl] opaque inst : TypeName @$(mkCIdent declName)
-      instance : TypeName @$(mkCIdent declName) := inst
+      unsafe def instImpl : $TypeName @$(mkCIdent declName) := .mk _ $(quote declName)
+      @[implementedBy instImpl] opaque inst : $TypeName @$(mkCIdent declName)
+      instance : $TypeName @$(mkCIdent declName) := inst
     )
   return true
 
 initialize
-  registerDerivingHandler ``TypeName deriveTypeNameInstance
+  registerDerivingHandler `TypeName deriveTypeNameInstance

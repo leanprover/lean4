@@ -332,7 +332,7 @@ where
   go (i : Nat) (code : Code) : SimpM Code := do
     if i > 0 then
       let decl := decls[i-1]!
-      if decl.isPure || (← isUsed decl.fvarId) then
+      if !decl.isPure || (← isUsed decl.fvarId) then
         match decl with
         | .let decl => markUsedLetDecl decl; go (i-1) (.let decl code)
         | .fun decl => markUsedFunDecl decl; go (i-1) (.fun decl code)

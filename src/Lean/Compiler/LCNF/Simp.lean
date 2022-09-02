@@ -453,6 +453,7 @@ def addSubst (fvarId : FVarId) (val : Expr) : SimpM Unit :=
 
 /-- Try to apply simple simplifications. -/
 def simpValue? (e : Expr) : SimpM (Option Expr) :=
+  -- TODO: more simplifications
   simpProj? e <|> simpAppApp? e
 
 mutual
@@ -501,7 +502,6 @@ partial def simp (code : Code) : SimpM Code := do
     else
       if let some value ← simpValue? decl.value then
         decl ← decl.updateValue value
-      /- TODO: simple value simplifications & inlining -/
       let k ← simp k
       if !decl.pure || (← isUsed decl.fvarId) then
         markUsedLetDecl decl
@@ -511,17 +511,28 @@ partial def simp (code : Code) : SimpM Code := do
         eraseLocalDecl decl.fvarId
         return k
   | .fun decl k | .jp decl k =>
-    /-
-    Variables in `decl` will be marked as used even if the function is eliminated.
-    Thus, they will only be deleted in the second pass.
-
-    Pontential improvement: if `decl.fvarId` is marked with `once` or `mustInline`, we will probably
-    inline this declaration, and it may be wasteful to simplify it here.
-    The alternative option is to just normalize `decl`, and if used mark all occurring there as used.
-    -/
-    let decl ← simpFunDecl decl
+    let mut decl := decl
+    let toBeInlined ← isOnceOrMustInline decl.fvarId
+    if toBeInlined then
+      /-
+      If the declaration will be inlined, it is wasteful to eagerly simplify it.
+      So, we just normalize it (i.e., apply the substitution to it).
+      -/
+      decl ← normFunDecl decl
+    else
+      /-
+      Note that functions in `decl` will be marked as used even if `decl` is not actually used.
+      They will only be deleted in the next pass.
+      -/
+      decl ← simpFunDecl decl
     let k ← simp k
     if (← isUsed decl.fvarId) then
+      if toBeInlined then
+        /-
+        `decl` was supposed to be inlined, but there are still references to it.
+        Thus, we must all variables in `decl` as used. Recall it was not eagerly simplified.
+        -/
+        markUsedFunDecl decl
       return code.updateFun! decl k
     else
       /- Dead function elimination -/

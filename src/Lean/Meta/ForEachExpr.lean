@@ -4,47 +4,123 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Expr
+import Lean.SubExpr
 import Lean.Util.MonadCache
 import Lean.Meta.Basic
 
-namespace Lean.Meta
+open Lean.SubExpr
 
-variable {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
+namespace Lean
 
-/-- Given an expression `e = fun (x₁ : α₁) .. (xₙ : αₙ) => b`, runs `f` on each `αᵢ` and `b`. -/
-def visitLambda (f : Expr → m Unit) (e : Expr) : m Unit := visit #[] e
-  where visit (fvars : Array Expr) : Expr → m Unit
+variable {m : Type → Type}
+/-- Convert a traversal function to a form without the `Pos` argument. -/
+private def forgetPos (t : (Pos → α → m β) → (Pos → α → m β)) (visit : α → m β) (e : α) : m β :=
+  t (fun _ => visit) Pos.root e
+
+/-- Visits all the immediate child subexpressions of the given expression.
+Includes a `Pos` parameter that is used to track position in the subexpression.
+
+Does not instantiate bound variables if the subexpression is below a binder.
+For that, use `Lean.Meta.visitChildrenWithPos`.
+-/
+def Expr.visitChildrenWithPos [Applicative m]
+    (visit : Pos → Expr → m Unit) (p : Pos) : Expr → m Unit
+  | Expr.proj _ _ e      => visit p.pushProj e
+  | Expr.mdata _ b       => Expr.visitChildrenWithPos visit p b
+  | Expr.app f a         => visit p.pushAppFn f *> visit p.pushAppArg a
+  | Expr.lam _ t b _     => visit p.pushBindingDomain t *> visit p.pushBindingBody b
+  | Expr.forallE _ t b _ => visit p.pushBindingDomain t *> visit p.pushBindingBody b
+  | Expr.letE _ t v b _  => visit p.pushLetVarType t *> visit p.pushLetValue v *> visit p.pushLetBody b
+  | _                    => pure ()
+
+/-- Visits all the immediate child subexpressions of the given expression.
+
+Does not instantiate bound variables if the subexpression is below a binder.
+For that, use `Lean.Meta.visitChildren`.-/
+def Expr.visitChildren [Applicative m] (visit : Expr → m Unit) : Expr → m Unit :=
+  forgetPos Expr.visitChildrenWithPos visit
+
+/-- Depth-first iterates over the subexpressions of the given expression.
+If `f` returns `false`, deeper subexpressions will not be visited.
+
+Does not instantiate bound variables if the subexpression is below a binder.
+For that, use `Lean.Meta.forEach'`.
+-/
+partial def Expr.forEach' [Monad m] (f : Expr → m Bool) (e : Expr) : m Unit := do
+  if (← f e) then Expr.visitChildren (Expr.forEach' f) e else return ()
+
+namespace Meta
+
+variable [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
+open Lean.SubExpr
+
+def visitLambdaWithPos (f : Pos → Expr → m Unit) (p : Pos) (e : Expr) : m Unit := visit #[] p e
+  where visit (fvars : Array Expr) (p : Pos) : Expr → m Unit
     | Expr.lam n d b c => do
       let d := d.instantiateRev fvars
-      f d
+      f p.pushBindingDomain d
       withLocalDecl n c d fun x =>
-        visit (fvars.push x) b
+        visit (fvars.push x) p.pushBindingBody b
     | e => do
-      f <| e.instantiateRev fvars
+      f p <| e.instantiateRev fvars
 
-/-- Given an expression `e =  (x₁ : α₁) → .. (xₙ : αₙ) → b`, runs `f` on each `αᵢ` and `b`. -/
-def visitForall (f : Expr → m Unit) (e : Expr) : m Unit := visit #[] e
-  where visit (fvars : Array Expr) : Expr → m Unit
+def visitForallWithPos (f : Pos → Expr → m Unit) (p : Pos) (e : Expr) : m Unit := visit #[] p e
+  where visit (fvars : Array Expr) (p : Pos) : Expr → m Unit
     | Expr.forallE n d b c => do
       let d := d.instantiateRev fvars
-      f d
+      f p.pushBindingDomain d
       withLocalDecl n c d fun x =>
-        visit (fvars.push x) b
+        visit (fvars.push x) p.pushBindingBody b
     | e => do
-      f <| e.instantiateRev fvars
+      f p <| e.instantiateRev fvars
 
-/-- Given a sequence of let binders `let (x₁ : α₁ := v₁) ... in b`, runs `f` on each `αᵢ`, `vᵢ` and `b`. -/
-def visitLet (f : Expr → m Unit) (e : Expr) : m Unit := visit #[] e
-  where visit (fvars : Array Expr) : Expr → m Unit
+def visitLetWithPos (f : Pos → Expr → m Unit) (p : Pos) (e : Expr) : m Unit := visit #[] p e
+  where visit (fvars : Array Expr) (p : Pos) : Expr → m Unit
     | Expr.letE n d v b _ => do
       let d := d.instantiateRev fvars
       let v := v.instantiateRev fvars
-      f d
-      f v
+      f p.pushLetVarType d
+      f p.pushLetValue v
       withLetDecl n d v fun x =>
-        visit (fvars.push x) b
+        visit (fvars.push x) p.pushLetBody b
     | e => do
-      f <| e.instantiateRev fvars
+      f p <| e.instantiateRev fvars
+
+/-- Given an expression `e = fun (x₁ : α₁) .. (xₙ : αₙ) => b`, runs `f` on each `αᵢ` and `b`. -/
+def visitLambda (f : Expr → m Unit) (e : Expr) := forgetPos visitLambdaWithPos f e
+
+/-- Given an expression `e =  (x₁ : α₁) → .. (xₙ : αₙ) → b`, runs `f` on each `αᵢ` and `b`. -/
+def visitForall (f : Expr → m Unit) (e : Expr) := forgetPos visitForallWithPos f e
+
+/-- Given a sequence of let binders `let (x₁ : α₁ := v₁) ... in b`, runs `f` on each `αᵢ`, `vᵢ` and `b`. -/
+def visitLet (f : Expr → m Unit) (e : Expr) := forgetPos visitLetWithPos f e
+
+/-- Visits all the immediate child subexpressions of the given expression.
+Includes a `Pos` parameter that is used to track position in the subexpression.
+
+Instantiates bound variables if the subexpression is below a binder.
+For that, use `Lean.Meta.visitChildrenWithPos`.
+-/
+def visitChildrenWithPos (visit : Pos → Expr → m Unit) (p : Pos) (e : Expr) :=
+  match e with
+  | .forallE .. => visitForallWithPos visit p e
+  | .lam ..     => visitLambdaWithPos visit p e
+  | .letE ..    => visitLetWithPos visit p e
+  | .app ..     => Expr.visitAppWithPos visit p e
+  | .mdata _ b  => visitChildrenWithPos visit p b
+  | .proj _ _ b => visit p.pushProj b
+  | _ => pure ()
+
+/-- Visits the immediate child subexpressions of the given expression.
+Instantiates bound variables is the subexpression is below a binder.
+-/
+def visitChildren (visit : Expr → m Unit) (e : Expr) :=
+  forgetPos visitChildrenWithPos visit e
+
+/-- Version of `forEachExpr'` with additional subexpr pos information.
+If the inner function returns `false`, deeper subexpressions will not be visited. -/
+partial def forEachExprWithPos' (fn : Pos → Expr → m Bool) (p : Pos) (e : Expr) : m Unit := do
+  if ← fn p e then visitChildrenWithPos (forEachExprWithPos' fn) p e
 
 /-- Similar to `Expr.forEach'`, but creates free variables whenever going inside of a binder.
 If the inner function returns `false`, deeper subexpressions will not be visited.
@@ -137,4 +213,5 @@ def mkForallFVars' (xs : Array Expr) (type : Expr) : MetaM Expr := do
   else
     mkForallFVars xs type
 
-end Lean.Meta
+end Meta
+end Lean

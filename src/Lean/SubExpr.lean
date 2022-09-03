@@ -83,6 +83,21 @@ def ofArray (ps : Array Nat) : Pos :=
 def toArray (p : Pos) : Array Nat :=
   foldl Array.push #[] p
 
+/-- Returns true when there is a `t` such that `p₁ ++ t = p₂`. -/
+def isPrefixOf (p₁ p₂ : Pos) : Bool :=
+  Array.isPrefixOf p₁.toArray p₂.toArray
+
+/-- Computes the deepest subexpression `Pos` that contains both `p₁` and `p₂`.
+
+Write `isPrefixOf p q` as `p ⊑ q`, then this computes the meet `q = p₁ ⊓ p₂`:
+the `⊑`-maximal `q` such that `q ⊑ p₁` and `q ⊑ p₂`.
+ -/
+def prefixMeet (p₁ p₂ : Pos) : Pos :=
+  Array.zip p₁.toArray p₂.toArray
+  |> Array.takeWhile (fun (c₁, c₂) => c₁ == c₂)
+  |> Array.map Prod.fst
+  |> Pos.ofArray
+
 def pushBindingDomain (p : Pos) := p.push 0
 def pushBindingBody   (p : Pos) := p.push 1
 def pushLetVarType    (p : Pos) := p.push 0
@@ -120,6 +135,8 @@ protected def fromString? : String → Except String Pos
 instance : Ord Pos := show Ord Nat by infer_instance
 instance : DecidableEq Pos := show DecidableEq Nat by infer_instance
 instance : ToString Pos := ⟨Pos.toString⟩
+instance : EmptyCollection Pos := ⟨root⟩
+
 
 -- Note: we can't send the bare Nat over the wire because Json will convert to float
 -- if the nat is too big and least significant bits will be lost.
@@ -150,9 +167,12 @@ def mkRoot (e : Expr) : SubExpr := ⟨e, Pos.root⟩
 /-- Returns true if the selected subexpression is the topmost one.-/
 def isRoot (s : SubExpr) : Bool := s.pos.isRoot
 
+/-- Map from subexpr positions to values. -/
+abbrev PosMap (α : Type u) := Std.RBMap Pos α compare
+
 end SubExpr
 
-open SubExpr in
+open SubExpr
 /-- Same as `Expr.traverseApp` but also includes a
 `SubExpr.Pos` argument for tracking subexpression position. -/
 def Expr.traverseAppWithPos {M} [Monad M] (visit : Pos → Expr → M Expr) (p : Pos) (e : Expr) : M Expr :=
@@ -163,4 +183,11 @@ def Expr.traverseAppWithPos {M} [Monad M] (visit : Pos → Expr → M Expr) (p :
       <*> visit p.pushAppArg a
   | e => visit p e
 
+/-- Same as `Expr.traverseAppWithPos` except doesn't reconstruct an expression. -/
+def Expr.visitAppWithPos {M} [Monad M] (visit : Pos → Expr → M Unit) (p : Pos) (e : Expr) : M Unit :=
+  match e with
+  | .app f a =>
+    visitAppWithPos visit p.pushAppFn f
+    *> visit p.pushAppArg a
+  | e => visit p e
 end Lean

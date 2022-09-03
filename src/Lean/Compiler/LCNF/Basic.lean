@@ -66,10 +66,22 @@ inductive Code where
   | unreach (type : Expr)
   deriving Inhabited
 
-
 abbrev Alt := AltCore Code
 abbrev FunDecl := FunDeclCore Code
 abbrev Cases := CasesCore Code
+
+inductive CodeDecl where
+  | let (decl : LetDecl)
+  | fun (decl : FunDecl)
+  | jp (decl : FunDecl)
+  deriving Inhabited
+
+def CodeDecl.fvarId : CodeDecl → FVarId
+  | .let decl | .fun decl | .jp decl => decl.fvarId
+
+def CodeDecl.isPure : CodeDecl → Bool
+  | .let decl => decl.pure
+  | .fun .. | .jp .. => true
 
 mutual
   private unsafe def eqImp (c₁ c₂ : Code) : Bool :=
@@ -230,8 +242,21 @@ to be updated.
 -/
 @[implementedBy updateFunDeclCoreImp] opaque FunDeclCore.updateCore (decl: FunDecl) (type : Expr) (params : Array Param) (value : Code) : FunDecl
 
+def CasesCore.extractAlt! (cases : Cases) (ctorName : Name) : Alt × Cases :=
+  let found (i : Nat) := (cases.alts[i]!, { cases with alts := cases.alts.eraseIdx i })
+  if let some i := cases.alts.findIdx? fun | .alt ctorName' .. => ctorName == ctorName' | _ => false then
+    found i
+  else if let some i := cases.alts.findIdx? fun | .default _ => true | _ => false then
+    found i
+  else
+    unreachable!
+
 def Code.isDecl : Code → Bool
   | .let .. | .fun .. | .jp .. => true
+  | _ => false
+
+def Code.isFun : Code → Bool
+  | .fun .. => true
   | _ => false
 
 def Code.isReturnOf : Code → FVarId → Bool

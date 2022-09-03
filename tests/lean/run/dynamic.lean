@@ -1,6 +1,3 @@
-import Bootstrap
-open Std
-
 deriving instance TypeName for Nat
 deriving instance TypeName for String
 

@@ -14,7 +14,7 @@ def test (α : Type) [RpcEncodable α] (a : α) := M.run do
 
 structure FooRef where
   a : Array Nat
-  deriving Inhabited, Std.TypeName
+  deriving Inhabited, TypeName
 
 #check instTypeNameFooRef
 #eval test (WithRpcRef FooRef) default

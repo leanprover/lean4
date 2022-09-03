@@ -1,4 +1,3 @@
-import Bootstrap
 open Std
 open Lean
 

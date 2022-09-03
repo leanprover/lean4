@@ -150,9 +150,10 @@ partial def checkCases (c : Cases) : CheckM Expr := do
   let mut hasDefault := false
   checkFVar c.discr
   let discrType ← inferFVarType c.discr
-  let .const declName _ := discrType.headBeta.getAppFn | throwError "unexpected LCNF discriminant type {discrType}"
-  unless c.typeName == declName do
-    throwError "invalid LCNF `{c.typeName}.casesOn`, discriminant has type{indentExpr discrType}"
+  unless discrType.isAnyType do
+    let .const declName _ := discrType.headBeta.getAppFn | throwError "unexpected LCNF discriminant type {discrType}"
+    unless c.typeName == declName do
+      throwError "invalid LCNF `{c.typeName}.casesOn`, discriminant has type{indentExpr discrType}"
   for alt in c.alts do
     let type ←
       match alt with

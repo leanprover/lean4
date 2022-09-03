@@ -215,6 +215,14 @@ where
     else
       return (ps, e.instantiateRev xs)
 
+def mustEtaExpand (env : Environment) (e : Expr) : Bool :=
+  if let .const declName _ := e.getAppFn then
+    match env.find? declName with
+    | some (.recInfo ..) | some (.ctorInfo ..) | some (.quotInfo ..) => true
+    | _ => isCasesOnRecursor env declName || isNoConfusion env declName || env.isProjectionFn declName
+  else
+    false
+
 /--
 Eta-expand with `n` lambdas.
 -/
@@ -482,13 +490,22 @@ where
       e.withApp fun f args => do visitAppDefault (← visit f) args
 
   visitLambda (e : Expr) : M Expr := do
-    let funDecl ← withNewScope do
-      let (ps, e) ← ToLCNF.visitLambda e
-      let e ← visit e
-      let c ← toCode e
-      mkAuxFunDecl ps c
-    pushElement (.fun funDecl)
-    return .fvar funDecl.fvarId
+    let b := e.eta
+    if !b.isLambda && !mustEtaExpand (← getEnv) b then
+      /-
+      We use eta-reduction to make sure we avoid the overhead introduced by
+      the implicit lambda feature when declaring instances.
+      Example: `fun {α} => ReaderT.pure
+      -/
+      visit b
+    else
+      let funDecl ← withNewScope do
+        let (ps, e) ← ToLCNF.visitLambda e
+        let e ← visit e
+        let c ← toCode e
+        mkAuxFunDecl ps c
+      pushElement (.fun funDecl)
+      return .fvar funDecl.fvarId
 
   visitMData (mdata : MData) (e : Expr) : M Expr := do
     if isCompilerRelevantMData mdata then

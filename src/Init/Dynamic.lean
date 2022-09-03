@@ -4,8 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Gabriel Ebner
 -/
+prelude
+import Init.Core
 
-namespace Std
 open Lean
 
 -- Implementation detail of TypeName, since classes cannot be opaque

@@ -92,6 +92,9 @@ class MonadFVarSubst (m : Type → Type) where
 
 export MonadFVarSubst (getSubst)
 
+instance (m n) [MonadLift m n] [MonadFVarSubst m] : MonadFVarSubst n where
+  getSubst := liftM (getSubst : m _)
+
 @[inline] def normFVar [MonadFVarSubst m] [Monad m] (fvarId : FVarId) : m FVarId :=
   return normFVarImp (← getSubst) fvarId
 

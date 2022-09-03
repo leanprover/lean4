@@ -1,0 +1,5 @@
+
+[Compiler.test] Starting condition test pullInstancesSizeEq for pullInstances
+[Compiler.test] Condition test pullInstancesSizeEq for pullInstances successful
+[Compiler.test] Running fixpoint test for pullInstances
+[Compiler.test] Fixpoint test for pullInstances successful

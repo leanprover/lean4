@@ -1,0 +1,5 @@
+
+[Compiler.test] Starting post condition test simpInlinesBinds for simp
+[Compiler.test] Post condition test simpInlinesBinds for simp successful
+[Compiler.test] Running fixpoint test for simp
+[Compiler.test] Fixpoint test for simp successful

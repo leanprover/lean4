@@ -449,7 +449,12 @@ where `_jp.k` is a join point of the form
 let _jp.k y :=
   cases y ...
 ```
-The goal is to mark `_jp.k` as must inline in this scenarion.
+The goal is to mark `_jp.k` as must inline in this scenario.
+The function also allows `_jp.k` to have a small prefix before
+`cases y`. The small prefix is set using the configuration option
+`config.smallThreshold`. It is currently the same threshold used to
+decide when to inline a function that has multiple occurrences.
+
 Example: consider the following declarations
 ```
 @[inline] def pred? (x : Nat) : Option Nat :=
@@ -470,7 +475,7 @@ but returns a normalized `FVarId` in case of success.
 def isCasesOnCases? (cases : Cases) : OptionT SimpM FVarId := do
   let jpFirst ← isCtorJmp? cases.alts[0]!.getCode
   let funDecl ← getFunDecl jpFirst
-  guard <| funDecl.value matches .cases ..
+  guard <| (← isJpCases funDecl)
   for alt in cases.alts[1:] do
     let jp ← isCtorJmp? alt.getCode
     guard <| jpFirst == jp
@@ -485,6 +490,17 @@ where
       let arg ← findExpr (← normExpr arg)
       guard <| arg.isConstructorApp (← getEnv)
       normFVar jpFVarId
+
+  isJpCases (funDecl : FunDecl) : SimpM Bool := do
+    let param := funDecl.params[0]!
+    let smallThreshold := (← read).config.smallThreshold
+    let rec go (code : Code) (prefixSize : Nat) : Bool :=
+      prefixSize <= smallThreshold &&
+      match code with
+      | .let _ k => go k (prefixSize + 1)
+      | .cases c => c.discr == param.fvarId
+      | _ => false
+    return go funDecl.value 0
 
 def findCtor (e : Expr) : SimpM Expr := do
   -- TODO: add support for mapping discriminants to constructors in branches

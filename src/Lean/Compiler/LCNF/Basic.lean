@@ -319,6 +319,7 @@ structure Decl where
   through compiler passes.
   -/
   value : Code
+  deriving BEq
 
 def Decl.size (decl : Decl) : Nat :=
   decl.value.size

@@ -34,24 +34,29 @@ end Pass
 
 namespace PassInstaller
 
-def installAtEnd (p : Pass) : PassInstaller :=
-  { install := fun ps => return ps.push p }
+def installAtEnd (p : Pass) : PassInstaller where
+  install passes := return passes.push p
 
-def installAfter (target : Name) (p : Pass) : PassInstaller :=
-  { install := fun ps =>
-      if let some idx := ps.findIdx? (·.name == target) then
-        return ps.insertAt (idx + 1) p
-      else
-        throwError s!"Tried to insert pass {p.name} after {target} but {target} is not in the pass list"
-  }
+def installAfter (targetName : Name) (p : Pass) : PassInstaller where
+  install passes :=
+    if let some idx := passes.findIdx? (·.name == targetName) then
+      return passes.insertAt (idx + 1) p
+    else
+      throwError s!"Tried to insert pass {p.name} after {targetName} but {targetName} is not in the pass list"
 
-def installBefore (target : Name) (p : Pass) : PassInstaller :=
-  { install := fun ps =>
-      if let some idx := ps.findIdx? (·.name == target) then
-        return ps.insertAt idx p
-      else
-        throwError s!"Tried to insert pass {p.name} after {target} but {target} is not in the pass list"
-  }
+def installBefore (targetName : Name) (p : Pass) : PassInstaller where
+  install passes :=
+    if let some idx := passes.findIdx? (·.name == targetName) then
+      return passes.insertAt idx p
+    else
+      throwError s!"Tried to insert pass {p.name} after {targetName} but {targetName} is not in the pass list"
+
+def replacePass (targetName : Name) (p : Pass → CompilerM Pass) : PassInstaller where
+  install passes := do
+    let some idx := passes.findIdx? (·.name == targetName) | throwError s!"Tried to replace {targetName} but {targetName} is not in the pass list"
+    let target := passes[idx]!
+    let replacement ← p target
+    return passes.set! idx replacement
 
 def run (manager : PassManager) (installer : PassInstaller) : CompilerM PassManager := do
   return { manager with passes := (←installer.install manager.passes) }

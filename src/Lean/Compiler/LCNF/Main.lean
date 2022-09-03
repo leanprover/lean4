@@ -80,6 +80,7 @@ builtin_initialize
   registerTraceClass `Compiler.simp (inherited := true)
   registerTraceClass `Compiler.pullInstances (inherited := true)
   registerTraceClass `Compiler.cse (inherited := true)
+  registerTraceClass `Compiler.test (inherited := true)
   registerTraceClass `Compiler.jp
 
 end Lean.Compiler.LCNF

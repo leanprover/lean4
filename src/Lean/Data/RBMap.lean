@@ -235,10 +235,10 @@ section Map
     pure (node color · key · ·) <*> lchild.mapM f <*> f _ val <*> rchild.mapM f
 
 @[specialize] def map {α : Type u} {β γ : α → Type v}
-  (f : {a : α} → β a → γ a)
+  (f : (a : α) → β a → γ a)
   : RBNode α β → RBNode α γ
   | leaf => leaf
-  | node color lchild key val rchild => node color (lchild.map f) key (f val) (rchild.map f)
+  | node color lchild key val rchild => node color (lchild.map f) key (f key val) (rchild.map f)
 
 end Map
 

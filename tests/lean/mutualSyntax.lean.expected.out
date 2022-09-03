@@ -1,0 +1,17 @@
+inductive Foo : Type
+number of parameters: 0
+constructors:
+Foo.mk : §
+§ : Type
+Foo : Type
+inductive Foo.Bar : Type
+number of parameters: 0
+constructors:
+Foo.Bar.mk : §
+Foo.Bar : Type
+inductive Foo.Baz : Type
+number of parameters: 0
+constructors:
+Foo.Baz.mk : §§
+Baz : Type
+⟨0, 0⟩ ⇓ 0 : Prop

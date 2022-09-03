@@ -169,6 +169,18 @@ attribute [runBuiltinParserAttributeHooks]
   ppHardSpace ppSpace ppLine ppGroup ppRealGroup ppRealFill ppIndent ppDedent
   ppAllowUngrouped ppDedentIfGrouped ppHardLineUnlessUngrouped
 
+/--
+  For any element of the parser stack satisfying `isValidSyntaxCmdInMutual`, elaborate it.
+  Then run `p` under the resulting environment (containing the category parsers) and token table. -/
+@[extern "lean_with_syntax_of_stack"]
+opaque withSyntaxOfStack (p : Parser) : Parser
+open Lean.PrettyPrinter in
+@[combinatorFormatter Lean.Parser.withSyntaxOfStack]
+def withSyntaxOfStack.formatter (p : Formatter) : Formatter := p
+open Lean.PrettyPrinter in
+@[combinatorParenthesizer Lean.Parser.withSyntaxOfStack]
+def withSyntaxOfStack.parenthesizer (p : Parenthesizer) : Parenthesizer := p
+
 syntax "register_parser_alias" group("(" &"kind" " := " term ")")? (strLit)? ident (colGt term)? : term
 macro_rules
   | `(register_parser_alias $[(kind := $kind?)]? $(aliasName?)? $declName $(info?)?) => do

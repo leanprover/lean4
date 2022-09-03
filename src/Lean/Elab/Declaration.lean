@@ -230,13 +230,32 @@ private def isMutualInductive (stx : Syntax) : Bool :=
   stx[1].getArgs.all fun elem =>
     let decl     := elem[1]
     let declKind := decl.getKind
-    declKind == `Lean.Parser.Command.inductive
+    declKind == ``Parser.Command.inductive || isValidSyntaxCmdInMutual elem
 
 private def elabMutualInductive (elems : Array Syntax) : CommandElabM Unit := do
-  let views ← elems.mapM fun stx => do
+  let (inds, stxCmds) := elems.partition (·.isOfKind ``Parser.Command.declaration)
+
+  let views ← inds.mapM fun stx => do
      let modifiers ← elabModifiers stx[0]
      inductiveSyntaxToView modifiers stx[1]
+
+  -- first, approximate syntax commands elaboration pass to collect macro state
+  let env ← getEnv
+  -- HACK: While we know all the inductive declaration names of the mutual block at this point,
+  -- we currently lack a nice API to forward that knowledge to the precheck/quotation code.
+  -- And in any case, the syntax cannot be hygienic as inside an inductive declaration its own
+  -- name is in the local context instead of in the environment.
+  withScope (fun scope => { scope with opts := scope.opts.setBool `quotPrecheck false |>.setBool `hygiene false }) do
+    stxCmds.forM elabCommand
+  let macroStateWithSyntax := macroAttribute.ext.getState (← getEnv)
+
+  -- now elaborate inductive views in original environment, but updated macro state
+  setEnv (macroAttribute.ext.modifyState env (fun _ => macroStateWithSyntax))
   elabInductiveViews views
+
+  -- finally, reset macro state and elaborate syntax commands *properly*, with inductive types in scope
+  modifyEnv (macroAttribute.ext.modifyState · (fun _ => macroAttribute.ext.getState env))
+  stxCmds.forM elabCommand
 
 /-- Return true if all elements of the mutual-block are definitions/theorems/abbrevs. -/
 private def isMutualDef (stx : Syntax) : Bool :=
@@ -314,6 +333,8 @@ def expandMutualElement : Macro := fun stx => do
   let mut elemsNew := #[]
   let mut modified := false
   for elem in stx[1].getArgs do
+    if isValidSyntaxCmdInMutual elem then
+      continue
     match (← expandMacro? elem) with
     | some elemNew => elemsNew := elemsNew.push elemNew; modified := true
     | none         => elemsNew := elemsNew.push elem

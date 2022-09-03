@@ -147,7 +147,7 @@ def openDecl         := withAntiquot (mkAntiquot "openDecl" `Lean.Parser.Command
   openHiding <|> openRenaming <|> openOnly <|> openSimple <|> openScoped
 @[builtinCommandParser] def «open»    := leading_parser withPosition ("open " >> openDecl)
 
-@[builtinCommandParser] def «mutual» := leading_parser "mutual " >> many1 (ppLine >> notSymbol "end" >> commandParser) >> ppDedent (ppLine >> "end") >> terminationSuffix
+@[builtinCommandParser] def «mutual» := leading_parser "mutual " >> many1 (ppLine >> notSymbol "end" >> withSyntaxOfStack commandParser) >> ppDedent (ppLine >> "end") >> terminationSuffix
 def initializeKeyword := leading_parser "initialize " <|> "builtin_initialize "
 @[builtinCommandParser] def «initialize» := leading_parser declModifiers false >> initializeKeyword >> optional (atomic (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
 

@@ -234,6 +234,10 @@ def nestedExceptionToMessageData [Monad m] [MonadLog m] (ex : Exception) : m Mes
 def throwErrorWithNestedErrors [MonadError m] [Monad m] [MonadLog m] (msg : MessageData) (exs : Array Exception) : m α := do
   throwError "{msg}, errors {toMessageList (← exs.mapM fun | ex => nestedExceptionToMessageData ex)}"
 
+open Parser in
+def isValidSyntaxCmdInMutual (stx : Syntax) : Bool :=
+  stx.getKind matches ``Command.syntax | ``Command.notation | ``Command.mixfix | ``Command.macro | ``Command.macro_rules
+
 builtin_initialize
   registerTraceClass `Elab
   registerTraceClass `Elab.step

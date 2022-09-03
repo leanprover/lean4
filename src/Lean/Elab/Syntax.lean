@@ -412,10 +412,29 @@ def expandNoKindMacroRulesAux (alts : Array (TSyntax ``matchAlt)) (cmdName : Str
     else
       `($(← mkCmd k altsK):command $(← mkCmd none altsNotK))
 
-def strLitToPattern (stx: Syntax) : MacroM Syntax :=
+def strLitToPattern (stx : Syntax) : MacroM Syntax :=
   match stx.isStrLit? with
   | some str => return mkAtomFrom stx str
   | none     => Macro.throwUnsupported
+
+open Parser in
+@[export lean_with_syntax_of_stack, inheritDoc Parser.withSyntaxOfStack]
+unsafe def withSyntaxOfStack (p : Parser) : Parser where
+  info := p.info
+  fn c s := Id.run do
+    let go : CommandElabM Unit := do
+      try
+        for stx in s.stxStack do
+          if isValidSyntaxCmdInMutual stx then
+            elabCommand stx
+      catch e => logException e
+    let Except.ok (_, s') ← go { fileName := c.fileName, fileMap := c.fileMap, tacticCache? := none, cmdPos := s.pos }
+      |>.run { env := c.env, maxRecDepth := maxRecDepth.get c.options, scopes := [{ header := "", currNamespace := c.currNamespace }] }
+      -- safety: the default elaborators of the accepted commands should not have any observable side-effects.
+      -- In theory this may not be true if they are overridden.
+      |> unsafeEIO
+      | s
+    p.fn { c with env := s'.env, tokens := getTokenTable s'.env } s
 
 builtin_initialize
   registerTraceClass `Elab.syntax

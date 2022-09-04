@@ -202,9 +202,8 @@ def mkAuxJpDecl (params : Array Param) (code : Code) (prefixName := `_jp) : Comp
   mkAuxFunDecl params code prefixName
 
 def mkAuxJpDecl' (fvarId : FVarId) (code : Code) (prefixName := `_jp) : CompilerM FunDecl := do
-  let y ← mkFreshBinderName `_y
-  let yType ← inferType (.fvar fvarId)
-  let params := #[{ fvarId, binderName := y, type := yType }]
+  let localDecl ← getLocalDecl fvarId
+  let params := #[{ fvarId, binderName := localDecl.userName, type := localDecl.type }]
   mkAuxFunDecl params code prefixName
 
 def instantiateForall (type : Expr) (params : Array Param) : CoreM Expr :=

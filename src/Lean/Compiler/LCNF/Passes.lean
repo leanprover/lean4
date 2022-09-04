@@ -7,6 +7,7 @@ import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.PullLetDecls
 import Lean.Compiler.LCNF.CSE
 import Lean.Compiler.LCNF.Simp
+import Lean.Compiler.LCNF.PullFunDecls
 
 namespace Lean.Compiler.LCNF
 
@@ -21,5 +22,9 @@ def cseInstaller : PassInstaller :=
 @[cpass]
 def simpInstaller : PassInstaller :=
   .installAfter `cse (.mkPerDeclaration `simp Decl.simp)
+
+@[cpass]
+def toJoinPointInstaller : PassInstaller :=
+  .installAfter `simp (.mkPerDeclaration `pullFunDecls Decl.pullFunDecls)
 
 end Lean.Compiler.LCNF

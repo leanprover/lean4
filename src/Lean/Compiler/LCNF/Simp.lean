@@ -161,6 +161,7 @@ def withDiscrCtor (discr : FVarId) (ctorName : Name) (ctorFields : Array Param) 
   withReader (fun ctx => { ctx with discrCtorMap := ctx.discrCtorMap.insert discr ctor }) do
     x
 
+/-- Set the `simplified` flag to `true`. -/
 def markSimplified : SimpM Unit :=
   modify fun s => { s with simplified := true }
 
@@ -176,9 +177,17 @@ def incInlineLocal : SimpM Unit :=
 def addMustInline (fvarId : FVarId) : SimpM Unit :=
   modify fun s => { s with funDeclInfoMap := s.funDeclInfoMap.addMustInline fvarId }
 
+/-- Add a new occurrence of local function `fvarId`. -/
 def addFunOcc (fvarId : FVarId) : SimpM Unit :=
   modify fun s => { s with funDeclInfoMap := s.funDeclInfoMap.add fvarId }
 
+/--
+Traverse `code` and update function occurrence map.
+This map is used to decide whether we inline local functions or not.
+If `mustInline := true`, then all local function declarations occurring in
+`code` are tagged as `.mustInline`.
+Recall that we use `.mustInline` for local function declarations occurring in type class instances.
+-/
 partial def updateFunDeclInfo (code : Code) (mustInline := false) : SimpM Unit :=
   go code
 where
@@ -217,24 +226,38 @@ def isOnceOrMustInline (fvarId : FVarId) : SimpM Bool := do
     | some .once | some .mustInline  => return true
     | _ => return false
 
+/--
+Return `true` if the given local function declaration is considered "small".
+-/
 def isSmall (decl : FunDecl) : SimpM Bool :=
   return decl.value.sizeLe (← read).config.smallThreshold
 
+/--
+Return `true` if the given local function declaration should be inlined.
+-/
 def shouldInlineLocal (decl : FunDecl) : SimpM Bool := do
   if (← isOnceOrMustInline decl.fvarId) then
     return true
   else
     isSmall decl
 
+/--
+Result of `inlineCandidate?`.
+It contains information for inlining local and global functions.
+-/
 structure InlineCandidateInfo where
   isLocal : Bool
   params  : Array Param
   /-- Value (lambda expression) of the function to be inlined. -/
   value   : Code
 
+/-- The arity (aka number of parameters) of the function to be inlined. -/
 def InlineCandidateInfo.arity : InlineCandidateInfo → Nat
   | { params, .. } => params.size
 
+/--
+Return `some info` if `e` should be inlined.
+-/
 def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
   let f := e.getAppFn
   if let .const declName us ← findExpr f then
@@ -267,6 +290,13 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
   else
     return none
 
+/--
+Return `true` if `c` has only one exit point.
+This is a quick approximation. It does not check cases
+such as: a `cases` with many but only one alternative is not reachable.
+It is only used to avoid the creation of auxiliary join points, and does not need
+to be precise.
+-/
 private partial def oneExitPointQuick (c : Code) : Bool :=
   go c
 where
@@ -279,6 +309,11 @@ where
     | .jp .. | .jmp .. => false
     | .return .. | .unreach .. => true
 
+/--
+"Beta-reduce" `(fun params => code) args`.
+If `mustInline` is true, the local function declarations in the resulting code are marked as `.mustInline`.
+See comment at `updateFunDeclInfo`.
+-/
 def betaReduce (params : Array Param) (code : Code) (args : Array Expr) (mustInline := false) : SimpM Code := do
   -- TODO: add necessary casts to `args`
   let mut subst := {}
@@ -369,9 +404,21 @@ partial def markUsedFunDecl (funDecl : FunDecl) : SimpM Unit :=
   markUsedCode funDecl.value
 end
 
+/--
+Return `true` if `fvarId` is in the `used` set.
+-/
 def isUsed (fvarId : FVarId) : SimpM Bool :=
   return (← get).used.contains fvarId
 
+/--
+Attach the given `decls` to `code`. For example, assume `decls` is `#[.let _x.1 := 10, .let _x.2 := true]`,
+then the result is
+```
+let _x.1 := 10
+let _x.2 := true
+<code>
+```
+-/
 def attachCodeDecls (decls : Array CodeDecl) (code : Code) : SimpM Code := do
   go decls.size code
 where
@@ -413,7 +460,10 @@ By eagerly expanding them, we may produce inefficient and bloated code.
 For example, we may be using `_x_3.1` to invoke a function that expects a `Functor` instance.
 By expanding `_x_3.1` we will be just expanding the code that creates this instance.
 
-TODO: explain result
+The result is representing a sequence of code containing let-declarations and local function declarations (`Array CodeDecl`)
+and the free variable containing the result (`FVarId`). The resulting `FVarId` often depends only on a small
+subset of `Array CodeDecl`. However, this method does try to filter the relevant ones.
+We rely on the `used` var set available in `SimpM` to filter them. See `attachCodeDecls`.
 -/
 partial def inlineProjInst? (e : Expr) : SimpM (Option (Array CodeDecl × FVarId)) := do
   let .proj _ i s := e | return none
@@ -521,6 +571,10 @@ where
       | _ => false
     return go funDecl.value 0
 
+/--
+Use `findExpr`, and if the result is a free variable, check whether it is in the map `discrCtorMap`.
+We use this method when simplifying projections and cases-constructor.
+-/
 def findCtor (e : Expr) : SimpM Expr := do
   let e ← findExpr e
   let .fvar fvarId := e | return e

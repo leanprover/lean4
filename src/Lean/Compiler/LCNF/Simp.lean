@@ -11,6 +11,7 @@ import Lean.Compiler.LCNF.Bind
 import Lean.Compiler.LCNF.PrettyPrinter
 import Lean.Compiler.LCNF.Stage1
 import Lean.Compiler.LCNF.PassManager
+import Lean.Compiler.LCNF.AlphaEqv
 
 namespace Lean.Compiler.LCNF
 namespace Simp
@@ -573,6 +574,62 @@ where
     return go funDecl.value 0
 
 /--
+Return the alternative in `alts` whose body appears in most arms,
+and the number of occurrences.
+We use this function to decide whether to create a `.default` case
+or not.
+-/
+private def getMaxOccs (alts : Array Alt) : Alt × Nat := Id.run do
+  let mut maxAlt := alts[0]!
+  let mut max    := getNumOccsOf alts 0
+  for i in [1:alts.size] do
+    let curr := getNumOccsOf alts i
+    if curr > max then
+       maxAlt := alts[i]!
+       max    := curr
+  return (maxAlt, max)
+where
+  /--
+  Return the number of occurrences of `alts[i]` in `alts`.
+  We use alpha equivalence.
+  Note that the number of occurrences can be greater than 1 only when
+  the alternative does not depend on field parameters
+  -/
+  getNumOccsOf (alts : Array Alt) (i : Nat) : Nat := Id.run do
+    let code := alts[i]!.getCode
+    let mut n := 1
+    for j in [i+1:alts.size] do
+      if Code.alphaEqv alts[j]!.getCode code then
+        n := n+1
+    return n
+
+/--
+Add a default case to the given `cases` alternatives if there
+are alternatives with equivalent (aka alpha equivalent) right hand sides.
+-/
+private def addDefault (alts : Array Alt) : SimpM (Array Alt) := do
+  if alts.size <= 1 || alts.any (· matches .default ..) then
+    return alts
+  else
+    let (max, noccs) := getMaxOccs alts
+    if noccs == 1 then
+      return alts
+    else
+      let mut altsNew := #[]
+      let mut first := true
+      markSimplified
+      for alt in alts do
+        if Code.alphaEqv alt.getCode max.getCode then
+          let .alt _ ps k := alt | unreachable!
+          eraseParams ps
+          unless first do
+            eraseFVarsAt k
+          first := false
+        else
+          altsNew := altsNew.push alt
+      return altsNew.push (.default max.getCode)
+
+/--
 Use `findExpr`, and if the result is a free variable, check whether it is in the map `discrCtorMap`.
 We use this method when simplifying projections and cases-constructor.
 -/
@@ -738,6 +795,7 @@ partial def simp (code : Code) : SimpM Code := do
             withDiscrCtor discr ctorName ps do
               return alt.updateCode (← simp k)
           | .default k => return alt.updateCode (← simp k)
+        let alts ← addDefault alts
         return code.updateCases! resultType discr alts
       if let some jpFVarId ← isCasesOnCases? c then
         withAddMustInline jpFVarId simpCasesDefault

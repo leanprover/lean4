@@ -8,6 +8,7 @@ import Lean.Compiler.LCNF.PullLetDecls
 import Lean.Compiler.LCNF.CSE
 import Lean.Compiler.LCNF.Simp
 import Lean.Compiler.LCNF.PullFunDecls
+import Lean.Compiler.LCNF.ReduceJpArity
 
 namespace Lean.Compiler.LCNF
 
@@ -26,5 +27,9 @@ def simpInstaller : PassInstaller :=
 @[cpass]
 def toJoinPointInstaller : PassInstaller :=
   .installAfter `simp (.mkPerDeclaration `pullFunDecls Decl.pullFunDecls)
+
+@[cpass]
+def reduceJpArityInstaller : PassInstaller :=
+  .installAfter `pullFunDecls (.mkPerDeclaration `reduceJpArity Decl.reduceJpArity)
 
 end Lean.Compiler.LCNF

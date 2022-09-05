@@ -399,4 +399,7 @@ partial def Code.collectUsed (code : Code) (s : FVarIdSet := {}) : FVarIdSet :=
   | .jmp fvarId args => collectExprs args <| s.insert fvarId
 end
 
+abbrev collectUsedAtExpr (s : FVarIdSet) (e : Expr) : FVarIdSet :=
+  collectExpr e s
+
 end Lean.Compiler.LCNF

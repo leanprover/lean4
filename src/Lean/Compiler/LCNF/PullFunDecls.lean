@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.DependsOn
+import Lean.Compiler.LCNF.PassManager
 
 namespace Lean.Compiler.LCNF
 namespace PullFunDecls
@@ -178,6 +179,9 @@ def Decl.pullFunDecls (decl : Decl) : CompilerM Decl := do
   let (value, ps) ← pull decl.value |>.run []
   let value ← attach ps value |>.run' []
   return { decl with value }
+
+def pullFunDecls : Pass :=
+  .mkPerDeclaration `pullFunDecls Decl.pullFunDecls
 
 builtin_initialize
   registerTraceClass `Compiler.pullFunDecls (inherited := true)

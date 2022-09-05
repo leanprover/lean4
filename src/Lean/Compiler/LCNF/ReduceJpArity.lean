@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.InferType
+import Lean.Compiler.LCNF.PassManager
 
 namespace Lean.Compiler.LCNF
 /-!
@@ -68,6 +69,9 @@ Try to reduce arity of join points
 def Decl.reduceJpArity (decl : Decl) : CompilerM Decl := do
   let value ← reduce decl.value |>.run {}
   return { decl with value }
+
+def reduceJpArity : Pass :=
+  .mkPerDeclaration `reduceJpArity Decl.reduceJpArity
 
 builtin_initialize
   registerTraceClass `Compiler.reduceJpArity (inherited := true)

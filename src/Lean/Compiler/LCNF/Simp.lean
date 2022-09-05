@@ -10,6 +10,7 @@ import Lean.Compiler.LCNF.ElimDead
 import Lean.Compiler.LCNF.Bind
 import Lean.Compiler.LCNF.PrettyPrinter
 import Lean.Compiler.LCNF.Stage1
+import Lean.Compiler.LCNF.PassManager
 
 namespace Lean.Compiler.LCNF
 namespace Simp
@@ -769,12 +770,13 @@ partial def Decl.simp (decl : Decl) : CompilerM Decl := do
   else
     return decl
 
+def simp : Pass :=
+  .mkPerDeclaration `simp Decl.simp
+
 builtin_initialize
-  registerTraceClass `Compiler.simp.inline
-  registerTraceClass `Compiler.simp.inline.info
+  registerTraceClass `Compiler.simp (inherited := true)
   registerTraceClass `Compiler.simp.stat
   registerTraceClass `Compiler.simp.step
   registerTraceClass `Compiler.simp.step.new
-  registerTraceClass `Compiler.simp.projInst
 
 end Lean.Compiler.LCNF

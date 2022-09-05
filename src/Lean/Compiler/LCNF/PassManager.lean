@@ -37,6 +37,9 @@ namespace PassInstaller
 def installAtEnd (p : Pass) : PassInstaller where
   install passes := return passes.push p
 
+def append (passesNew : Array Pass) : PassInstaller where
+  install passes := return passes ++ passesNew
+
 def installAfter (targetName : Name) (p : Pass) : PassInstaller where
   install passes :=
     if let some idx := passes.findIdx? (·.name == targetName) then

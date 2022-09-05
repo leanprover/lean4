@@ -13,23 +13,7 @@ import Lean.Compiler.LCNF.ReduceJpArity
 namespace Lean.Compiler.LCNF
 
 @[cpass]
-def pullInstancesInstaller : PassInstaller :=
-  .installAfter `init (.mkPerDeclaration `pullInstances Decl.pullInstances)
-
-@[cpass]
-def cseInstaller : PassInstaller :=
-  .installAfter `pullInstances (.mkPerDeclaration `cse Decl.cse)
-
-@[cpass]
-def simpInstaller : PassInstaller :=
-  .installAfter `cse (.mkPerDeclaration `simp Decl.simp)
-
-@[cpass]
-def toJoinPointInstaller : PassInstaller :=
-  .installAfter `simp (.mkPerDeclaration `pullFunDecls Decl.pullFunDecls)
-
-@[cpass]
-def reduceJpArityInstaller : PassInstaller :=
-  .installAfter `pullFunDecls (.mkPerDeclaration `reduceJpArity Decl.reduceJpArity)
+def builtin : PassInstaller :=
+  .append #[pullInstances, cse, simp, pullFunDecls, reduceJpArity, simp]
 
 end Lean.Compiler.LCNF

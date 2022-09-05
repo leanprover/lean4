@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.ToExpr
+import Lean.Compiler.LCNF.PassManager
 
 namespace Lean.Compiler.LCNF
 
@@ -97,5 +98,11 @@ Common sub-expression elimination
 def Decl.cse (decl : Decl) : CompilerM Decl := do
   let value ← decl.value.cse
   return { decl with value }
+
+def cse : Pass :=
+  .mkPerDeclaration `cse Decl.cse
+
+builtin_initialize
+  registerTraceClass `Compiler.cse (inherited := true)
 
 end Lean.Compiler.LCNF

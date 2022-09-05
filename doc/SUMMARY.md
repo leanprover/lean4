@@ -59,6 +59,15 @@
   - [Thunk](./thunk.md)
   - [Task and Thread](./task.md)
 - [Functions](./functions.md)
+- [Monads](./monads/intro.md)
+  - [Functor](./monads/functors.lean.md)
+  - [Applicative](./monads/applicatives.lean.md)
+  - [Monad](./monads/monads.lean.md)
+  - [Reader](./monads/readers.lean.md)
+  - [State](./monads/states.lean.md)
+  - [Except](./monads/except.lean.md)
+  - [Transformers](./monads/transformers.lean.md)
+  - [Laws](./monads/laws.lean.md)
 
 # Other
 

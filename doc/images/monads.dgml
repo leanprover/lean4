@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph GraphDirection="TopToBottom" Layout="Sugiyama" Offset="-1264.63833333333,-729.52" ZoomLevel="1" xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+    <Node Id="Applicative" Bounds="-839,-412,78.3066666666667,25.96" UseManualLocation="True" />
+    <Node Id="Bind" Bounds="-703,-412.990048779297,50,25.96" UseManualLocation="True" />
+    <Node Id="Except" Category="concrete" Bounds="-631,-238,54.5166666666667,25.96" UseManualLocation="True" />
+    <Node Id="Functor" Bounds="-890.021657986111,-509,60.2533333333333,25.96" UseManualLocation="True" />
+    <Node Id="List" Category="concrete" Bounds="-922,-412,50,25.96" UseManualLocation="True" />
+    <Node Id="Monad" Bounds="-765,-339,57.77,25.96" UseManualLocation="True" />
+    <Node Id="Option" Category="concrete" Bounds="-903,-238,56.8933333333333,25.96" UseManualLocation="True" />
+    <Node Id="Pure" Bounds="-799,-509,50,25.96" UseManualLocation="True" />
+    <Node Id="ReaderM" Category="concrete" Bounds="-816,-238,67.5033333333333,25.96" UseManualLocation="True" />
+    <Node Id="Seq" Bounds="-719,-509,50,25.96" UseManualLocation="True" />
+    <Node Id="SeqLeft" Bounds="-639,-509,59.4666666666667,25.96" UseManualLocation="True" />
+    <Node Id="SeqRight" Bounds="-544,-509,67.7233333333333,25.96" UseManualLocation="True" />
+    <Node Id="StateM" Category="concrete" Bounds="-718.358888888889,-238,57.28,25.96" UseManualLocation="True" />
+  </Nodes>
+  <Links>
+    <Link Source="Applicative" Target="Functor" Bounds="-847.12242702921,-475.387638592472,39.2404278471513,63.3876385924717" />
+    <Link Source="Applicative" Target="Pure" Bounds="-796.388009621993,-474.343439288465,16.6120628262117,62.3434392884653" />
+    <Link Source="Applicative" Target="Seq" Bounds="-785.682854982818,-476.959367842732,70.8838407724442,64.9593678427323" />
+    <Link Source="Applicative" Target="SeqLeft" Bounds="-774.344312027491,-478.957606209781,131.554439087217,66.9576062097807" />
+    <Link Source="Applicative" Target="SeqRight" Bounds="-762.225406557428,-481.91850535998,209.970366938847,70.3021737715571" />
+    <Link Source="Except" Target="Monad" Bounds="-711.95378637201,-307.579654923495,91.1658051838909,69.5796549234947" />
+    <Link Source="List" Target="Functor" Bounds="-892.034814302334,-474.634018472681,23.9591319497622,62.6340184726814" />
+    <Link Source="Monad" Target="Applicative" Bounds="-782.595654197137,-379.260216894652,35.1486400418858,40.2602168946518" />
+    <Link Source="Monad" Target="Bind" Bounds="-725.919943874952,-379.952252619104,32.1656790368972,40.9522526191042" />
+    <Link Source="Option" Target="Monad" Bounds="-856.761951485149,-307.735551794831,95.5848867777901,69.7355517948313" />
+    <Link Source="ReaderM" Target="Monad" Bounds="-776.319514851485,-304.853562563497,30.5364127352738,66.8535625634966" />
+    <Link Source="StateM" Target="Monad" Bounds="-726.395530552052,-304.861622913356,30.7140523342301,66.8616229133556" />
+  </Links>
+  <Categories>
+    <Category Id="concrete" />
+  </Categories>
+  <Properties>
+    <Property Id="Bounds" DataType="System.Windows.Rect" />
+    <Property Id="Expression" DataType="System.String" />
+    <Property Id="GraphDirection" DataType="Microsoft.VisualStudio.Diagrams.Layout.LayoutOrientation" />
+    <Property Id="GroupLabel" DataType="System.String" />
+    <Property Id="IsEnabled" DataType="System.Boolean" />
+    <Property Id="Layout" DataType="System.String" />
+    <Property Id="Offset" DataType="System.String" />
+    <Property Id="TargetType" DataType="System.Type" />
+    <Property Id="UseManualLocation" DataType="System.Boolean" />
+    <Property Id="Value" DataType="System.String" />
+    <Property Id="ValueLabel" DataType="System.String" />
+    <Property Id="ZoomLevel" DataType="System.String" />
+  </Properties>
+  <Styles>
+    <Style TargetType="Node" GroupLabel="concrete" ValueLabel="True">
+      <Condition Expression="HasCategory('concrete')" />
+      <Setter Property="Background" Value="#FF91E7ED" />
+    </Style>
+  </Styles>
+</DirectedGraph>

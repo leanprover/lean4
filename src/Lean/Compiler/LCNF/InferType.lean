@@ -219,4 +219,12 @@ where
       return type
 termination_by go i => params.size - i
 
+def mkCasesResultType (alts : Array Alt) : CompilerM Expr := do
+  if alts.isEmpty then
+    throwError "`Code.bind` failed, empty `cases` found"
+  let mut resultType ← alts[0]!.inferType
+  for alt in alts[1:] do
+    resultType := joinTypes resultType (← alt.inferType)
+  return resultType
+
 end Lean.Compiler.LCNF

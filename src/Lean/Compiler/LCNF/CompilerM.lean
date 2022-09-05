@@ -294,6 +294,9 @@ end
 @[inline] def normCode [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m] (code : Code) : m Code := do
   normCodeImp code (← getSubst)
 
+def replaceExprFVars (e : Expr) (s : FVarSubst) : CompilerM Expr :=
+  (normExpr e : ReaderT FVarSubst CompilerM Expr).run s
+
 def replaceFVars (code : Code) (s : FVarSubst) : CompilerM Code :=
   (normCode code : ReaderT FVarSubst CompilerM Code).run s
 

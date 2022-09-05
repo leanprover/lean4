@@ -35,9 +35,7 @@ where
         | .default k => return .default (← go k)
       if alts.isEmpty then
         throwError "`Code.bind` failed, empty `cases` found"
-      let mut resultType ← alts[0]!.inferType
-      for alt in alts[1:] do
-        resultType := joinTypes resultType (← alt.inferType)
+      let resultType ← mkCasesResultType alts
       return .cases { c with alts, resultType }
     | .return fvarId => f fvarId
     | .jmp fvarId .. =>

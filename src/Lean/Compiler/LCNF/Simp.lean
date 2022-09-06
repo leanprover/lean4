@@ -167,15 +167,19 @@ def withDiscrCtor (discr : FVarId) (ctorName : Name) (ctorFields : Array Param) 
 def markSimplified : SimpM Unit :=
   modify fun s => { s with simplified := true }
 
+/-- Increment `visited` performance counter. -/
 def incVisited : SimpM Unit :=
   modify fun s => { s with visited := s.visited + 1 }
 
+/-- Increment `inline` performance counter. It is the number of inlined global declarations. -/
 def incInline : SimpM Unit :=
   modify fun s => { s with inline := s.inline + 1 }
 
+/-- Increment `inlineLocal` performance counter. It is the number of inlined local function and join point declarations. -/
 def incInlineLocal : SimpM Unit :=
   modify fun s => { s with inlineLocal := s.inlineLocal + 1 }
 
+/-- Mark the local function declaration or join point with the given id as a "must inline". -/
 def addMustInline (fvarId : FVarId) : SimpM Unit :=
   modify fun s => { s with funDeclInfoMap := s.funDeclInfoMap.addMustInline fvarId }
 
@@ -223,6 +227,10 @@ def withAddMustInline (fvarId : FVarId) (x : SimpM α) : SimpM α := do
   finally
     modify fun s => { s with funDeclInfoMap := s.funDeclInfoMap.restore fvarId saved? }
 
+/--
+Return true if the given local function declaration or join point id is marked as
+`once` or `mustInline`. We use this information to decide whether to inline them.
+-/
 def isOnceOrMustInline (fvarId : FVarId) : SimpM Bool := do
   match (← get).funDeclInfoMap.map.find? fvarId with
     | some .once | some .mustInline  => return true
@@ -383,16 +391,31 @@ partial def inlineJp? (fvarId : FVarId) (args : Array Expr) : SimpM (Option Code
   markSimplified
   betaReduce decl.params decl.value args
 
+/--
+Mark `fvarId` as an used free variable.
+This is information is used to eliminate dead local declarations.
+-/
 def markUsedFVar (fvarId : FVarId) : SimpM Unit :=
   modify fun s => { s with used := s.used.insert fvarId }
 
+/--
+Mark all free variables occurring in `e` as used.
+This is information is used to eliminate dead local declarations.
+-/
 def markUsedExpr (e : Expr) : SimpM Unit :=
   modify fun s => { s with used := collectLocalDecls s.used e }
 
+/--
+Mark all free variables occurring on the right-hand side of the given let declaration as used.
+This is information is used to eliminate dead local declarations.
+-/
 def markUsedLetDecl (letDecl : LetDecl) : SimpM Unit :=
   markUsedExpr letDecl.value
 
 mutual
+/--
+Mark all free variables occurring in `code` as used.
+-/
 partial def markUsedCode (code : Code) : SimpM Unit := do
   match code with
   | .let decl k => markUsedLetDecl decl; markUsedCode k
@@ -402,6 +425,9 @@ partial def markUsedCode (code : Code) : SimpM Unit := do
   | .jmp fvarId args => markUsedFVar fvarId; args.forM markUsedExpr
   | .cases c => markUsedFVar c.discr; c.alts.forM fun alt => markUsedCode alt.getCode
 
+/--
+Mark all free variables occurring in `funDecl` as used.
+-/
 partial def markUsedFunDecl (funDecl : FunDecl) : SimpM Unit :=
   markUsedCode funDecl.value
 end
@@ -438,6 +464,9 @@ where
     else
       return code
 
+/--
+Erase all free variables occurring in `decls` from the local context.
+-/
 def eraseCodeDecls (decls : Array CodeDecl) : SimpM Unit := do
   decls.forM fun decl => eraseFVar decl.fvarId
 
@@ -671,6 +700,10 @@ def simpValue? (e : Expr) : SimpM (Option Expr) :=
   -- TODO: more simplifications
   simpProj? e <|> simpAppApp? e
 
+/--
+Erase the given free variable from the local context,
+and set the `simplified` flag to true.
+-/
 def eraseLocalDecl (fvarId : FVarId) : SimpM Unit := do
   eraseFVar fvarId
   markSimplified
@@ -683,13 +716,18 @@ def addSubst (fvarId : FVarId) (val : Expr) : SimpM Unit :=
   modify fun s => { s with subst := s.subst.insert fvarId val }
 
 mutual
+/--
+Simplify the given local function declaration.
+-/
 partial def simpFunDecl (decl : FunDecl) : SimpM FunDecl := do
   let type ← normExpr decl.type
   let params ← normParams decl.params
   let value ← simp decl.value
   decl.update type params value
 
-/-- Try to simplify `cases` of `constructor` -/
+/--
+Try to simplify `cases` of `constructor`
+-/
 partial def simpCasesOnCtor? (cases : Cases) : SimpM (Option Code) := do
   let discr ← normFVar cases.discr
   let discrExpr ← findCtor (.fvar discr)
@@ -707,6 +745,9 @@ partial def simpCasesOnCtor? (cases : Cases) : SimpM (Option Code) := do
     eraseParams params
     return k
 
+/--
+Simplify `code`
+-/
 partial def simp (code : Code) : SimpM Code := do
   incVisited
   match code with

@@ -796,7 +796,10 @@ partial def simp (code : Code) : SimpM Code := do
               return alt.updateCode (← simp k)
           | .default k => return alt.updateCode (← simp k)
         let alts ← addDefault alts
-        return code.updateCases! resultType discr alts
+        if alts.size == 1 && alts[0]! matches .default .. then
+          return alts[0]!.getCode
+        else
+          return code.updateCases! resultType discr alts
       if let some jpFVarId ← isCasesOnCases? c then
         withAddMustInline jpFVarId simpCasesDefault
       else

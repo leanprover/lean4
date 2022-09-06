@@ -44,6 +44,28 @@ where
       return c
     | .unreach .. => return c
 
+/--
+Create new parameters for the given arrow type.
+Example: if `type` is `Nat → Bool → Int`, the result is
+an array containing two new parameters with types `Nat` and `Bool`.
+-/
+partial def mkNewParams (type : Expr) : CompilerM (Array Param) :=
+  go type #[] #[]
+where
+  go (type : Expr) (xs : Array Expr) (ps : Array Param) : CompilerM (Array Param) := do
+    match type with
+    | .forallE _ d b _ =>
+      let d := d.instantiateRev xs
+      let p ← mkAuxParam d
+      go b (xs.push (.fvar p.fvarId)) (ps.push p)
+    | _ =>
+      let type := type.instantiateRev xs
+      let type' := type.headBeta
+      if type' != type then
+        go type' #[] ps
+      else
+        return ps
+
 def FunDeclCore.etaExpand (decl : FunDecl) : CompilerM FunDecl := do
   let typeArity := getArrowArity decl.type
   let valueArity := decl.getArity
@@ -52,20 +74,12 @@ def FunDeclCore.etaExpand (decl : FunDecl) : CompilerM FunDecl := do
     return decl
   else
     let valueType ← instantiateForall decl.type decl.params
-    let psNew ← mkNewParams valueType #[] #[]
+    let psNew ← mkNewParams valueType
     let params := decl.params ++ psNew
     let xs := psNew.map fun p => Expr.fvar p.fvarId
     let value ← decl.value.bind fun fvarId => do
       let auxDecl ← mkAuxLetDecl (mkAppN (.fvar fvarId) xs)
       return .let auxDecl (.return auxDecl.fvarId)
     decl.update decl.type params value
-where
-  mkNewParams (type : Expr) (xs : Array Expr) (ps : Array Param) : CompilerM (Array Param) := do
-    match type with
-    | .forallE _ d b _ =>
-      let d := d.instantiateRev xs
-      let p ← mkAuxParam d
-      mkNewParams b (xs.push (.fvar p.fvarId)) (ps.push p)
-    | _ => return ps
 
 end Lean.Compiler.LCNF

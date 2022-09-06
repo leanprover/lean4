@@ -102,8 +102,11 @@ mutual
         for _ in [:idx] do
           match ctorType with
           | .forallE _ _ body _ =>
-            assert! !body.hasLooseBVars
-            ctorType := body
+            if body.hasLooseBVars then
+              -- This can happen when one of the fields is a type or type former.
+              ctorType := body.instantiate1 anyTypeExpr
+            else
+              ctorType := body
           | _ =>
             if ctorType.isAnyType then return anyTypeExpr
             failed ()

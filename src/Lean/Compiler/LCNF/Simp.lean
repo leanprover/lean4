@@ -301,10 +301,7 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
     }
   else if let some decl ← findFunDecl? f then
     unless (← shouldInlineLocal decl) do return none
-    let numArgs := e.getAppNumArgs
-    let arity := decl.getArity
-    -- TODO: we should inline/specialize partial applications of local functions
-    if numArgs < arity then return none
+    -- Remark: we inline local function declarations even if they are partial applied
     incInlineLocal
     modify fun s => { s with inlineLocal := s.inlineLocal + 1 }
     return some {
@@ -314,6 +311,13 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
     }
   else
     return none
+
+/--
+Add substitution `fvarId ↦ val`. `val` is a free variable, or
+it is a type, type former, or `lcErased`.
+-/
+def addSubst (fvarId : FVarId) (val : Expr) : SimpM Unit :=
+  modify fun s => { s with subst := s.subst.insert fvarId val }
 
 /--
 Return `true` if `c` has only one exit point.
@@ -349,6 +353,24 @@ def betaReduce (params : Array Param) (code : Code) (args : Array Expr) (mustInl
   return code
 
 /--
+Create a new local function declaration when `args.size < info.params.size`.
+We use this function to inline/specialize a partial application of a local function.
+-/
+def specializePartialApp (info : InlineCandidateInfo) (args : Array Expr) : SimpM FunDecl := do
+  let mut subst := {}
+  for param in info.params, arg in args do
+    subst := subst.insert param.fvarId arg
+  let mut paramsNew := #[]
+  for param in info.params[args.size:] do
+    let type ← replaceExprFVars param.type subst
+    let paramNew ← mkAuxParam type
+    paramsNew := paramsNew.push paramNew
+    subst := subst.insert param.fvarId (.fvar paramNew.fvarId)
+  let code ← info.value.internalize subst
+  updateFunDeclInfo code
+  mkAuxFunDecl paramsNew code
+
+/--
 If `e` is an application that can be inlined, inline it.
 
 `k?` is the optional "continuation" for `e`, and it may contain loose bound variables
@@ -363,39 +385,44 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
   let args := e.getAppArgs
   let numArgs := args.size
   trace[Compiler.simp.inline] "inlining {e}"
-  let code ← betaReduce info.params info.value args[:info.arity]
   let fvarId := letDecl.fvarId
-  if k.isReturnOf fvarId && numArgs == info.arity then
-    /- Easy case, the continuation `k` is just returning the result of the application. -/
-    return code
-  else if oneExitPointQuick code then
-    /-
-    `code` has only one exit point, thus we can attach the continuation directly there,
-    and simplify the result.
-    -/
-    code.bind fun fvarId' => do
-      /- fvarId' is the result of the computation -/
-      if numArgs > info.arity then
-        let decl ← mkAuxLetDecl (mkAppN (.fvar fvarId') args[info.arity:])
-        let k ← replaceFVar k fvarId decl.fvarId
-        return .let decl k
-      else
-        replaceFVar k fvarId fvarId'
+  if numArgs < info.arity then
+    let funDecl ← specializePartialApp info args
+    addSubst letDecl.fvarId (.fvar funDecl.fvarId)
+    return some (.fun funDecl k)
   else
-    /-
-    `code` has multiple exit points, and the continuation is non-trivial
-    Thus, we create an auxiliary join point.
-    -/
-    let jpParam ← mkAuxParam (← inferType (mkAppN e.getAppFn args[:info.arity]))
-    let jpValue ← if numArgs > info.arity then
-      let decl ← mkAuxLetDecl (mkAppN (.fvar jpParam.fvarId) args[info.arity:])
-      let k ← replaceFVar k fvarId decl.fvarId
-      pure <| .let decl k
+    let code ← betaReduce info.params info.value args[:info.arity]
+    if k.isReturnOf fvarId && numArgs == info.arity then
+      /- Easy case, the continuation `k` is just returning the result of the application. -/
+      return code
+    else if oneExitPointQuick code then
+      /-
+      `code` has only one exit point, thus we can attach the continuation directly there,
+      and simplify the result.
+      -/
+      code.bind fun fvarId' => do
+        /- fvarId' is the result of the computation -/
+        if numArgs > info.arity then
+          let decl ← mkAuxLetDecl (mkAppN (.fvar fvarId') args[info.arity:])
+          let k ← replaceFVar k fvarId decl.fvarId
+          return .let decl k
+        else
+          replaceFVar k fvarId fvarId'
     else
-      replaceFVar k fvarId jpParam.fvarId
-    let jpDecl ← mkAuxJpDecl #[jpParam] jpValue
-    let code ← code.bind fun fvarId => return .jmp jpDecl.fvarId #[.fvar fvarId]
-    return Code.jp jpDecl code
+      /-
+      `code` has multiple exit points, and the continuation is non-trivial
+      Thus, we create an auxiliary join point.
+      -/
+      let jpParam ← mkAuxParam (← inferType (mkAppN e.getAppFn args[:info.arity]))
+      let jpValue ← if numArgs > info.arity then
+        let decl ← mkAuxLetDecl (mkAppN (.fvar jpParam.fvarId) args[info.arity:])
+        let k ← replaceFVar k fvarId decl.fvarId
+        pure <| .let decl k
+      else
+        replaceFVar k fvarId jpParam.fvarId
+      let jpDecl ← mkAuxJpDecl #[jpParam] jpValue
+      let code ← code.bind fun fvarId => return .jmp jpDecl.fvarId #[.fvar fvarId]
+      return Code.jp jpDecl code
 
 /--
 Try to inline a join point.
@@ -724,13 +751,6 @@ def eraseLocalDecl (fvarId : FVarId) : SimpM Unit := do
   markSimplified
 
 /--
-Add substitution `fvarId ↦ val`. `val` is a free variable, or
-it is a type, type former, or `lcErased`.
--/
-def addSubst (fvarId : FVarId) (val : Expr) : SimpM Unit :=
-  modify fun s => { s with subst := s.subst.insert fvarId val }
-
-/--
 Return `true` if the arrow type contains an instance implicit argument.
 -/
 def hasLocalInst (type : Expr) : Bool :=
@@ -937,6 +957,7 @@ def simp (config : Config := {}) : Pass :=
 
 builtin_initialize
   registerTraceClass `Compiler.simp (inherited := true)
+  registerTraceClass `Compiler.simp.inline
   registerTraceClass `Compiler.simp.stat
   registerTraceClass `Compiler.simp.step
   registerTraceClass `Compiler.simp.step.new

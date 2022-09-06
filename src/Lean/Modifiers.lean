@@ -42,9 +42,26 @@ def isPrivateName : Name → Bool
 def isPrivateNameExport (n : Name) : Bool :=
   isPrivateName n
 
-private def privateToUserNameAux : Name → Name
-  | .str p s => Name.mkStr (privateToUserNameAux p) s
-  | _        => Name.anonymous
+/--
+Return `true` if `n` is of the form `_private.<module_name>.0`
+See comment above.
+-/
+private def isPrivatePrefix (n : Name) : Bool :=
+  match n with
+  | .num p 0 => go p
+  | _ => false
+where
+  go (n : Name) : Bool :=
+    n == privateHeader ||
+    match n with
+    | .str p _ => go p
+    | _ => false
+
+private def privateToUserNameAux (n : Name) : Name :=
+  match n with
+  | .str p s => .str (privateToUserNameAux p) s
+  | .num p i => if isPrivatePrefix n then .anonymous else .num (privateToUserNameAux p) i
+  | _        => .anonymous
 
 @[export lean_private_to_user_name]
 def privateToUserName? (n : Name) : Option Name :=

@@ -40,7 +40,7 @@
           # necessary for `additional-css`...?
           cp -r --no-preserve=mode $src/doc/* .
           # overwrite stub .lean.md files
-          cp -r ${examples}/* examples/
+          cp -r ${inked}/* .
           mdbook build -d $out
         '';
       };
@@ -79,16 +79,21 @@
         doCheck = false;
       };
       renderLean = name: file: runCommandNoCC "${name}.md" { buildInputs = [ alectryon ]; } ''
-        mkdir -p $out/examples
+        mkdir -p $(basename $out/${name})
         alectryon --frontend lean4+markup ${file} --backend webpage -o $out/${name}.md
       '';
-      renderDir = name: dir: let
-        ents = builtins.readDir dir;
-        inputs = lib.filterAttrs (n: t: builtins.match ".*\.lean" n != null && t == "regular") ents;
-        outputs = lib.mapAttrs (n: _: renderLean n "${dir}/${n}") inputs;
+      listFilesRecursiveRel = root: dir: lib.flatten (lib.mapAttrsToList (name: type:
+        if type == "directory" then
+          listFilesRecursiveRel root ("${dir}/${name}")
+        else
+          dir + "/${name}"
+      ) (builtins.readDir "${root}/${dir}"));
+      renderDir = dir: let
+        inputs = builtins.filter (n: builtins.match ".*\.lean" n != null) (listFilesRecursiveRel dir ".");
+        outputs = lib.genAttrs inputs (n: renderLean n "${dir}/${n}");
       in
         outputs // symlinkJoin { inherit name; paths = lib.attrValues outputs; };
-      examples = renderDir "examples" ./examples;
+      inked = renderDir ./.;
       doc = book;
     };
     defaultPackage = self.packages.${system}.doc;

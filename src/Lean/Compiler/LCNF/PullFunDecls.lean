@@ -134,15 +134,25 @@ def attachParamsDeps (params : Array Param) (k : Code) : PullM Code := do
   let ps ← findParamsDeps params
   attach ps k
 
+def attachJps (k : Code) : PullM Code := do
+  let jps := (← get).filter fun info => !info.isFun
+  modify fun s => s.filter fun info => info.isFun
+  attach jps k
+
 mutual
 /--
 Add local function declaration (or join point if `isFun = false`) to the state.
 -/
 partial def addToPull (isFun : Bool) (decl : FunDecl) : PullM Unit := do
-  let value ← pull decl.value
-  let value ← attachParamsDeps decl.params value
+  let saved ← get
+  modify fun _ => []
+  let mut value ← pull decl.value
+  value ← attachParamsDeps decl.params value
+  if isFun then
+    /- Recall that a local function declaration cannot jump to join points defined out of its scope. -/
+    value ← attachJps value
   let decl ← decl.update' decl.type value
-  modify fun s => { isFun, decl, used := decl.collectUsed } :: s
+  modify fun s => { isFun, decl, used := decl.collectUsed } :: s ++ saved
 
 /--
 Pull local function declarations and join points in `code`.

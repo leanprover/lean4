@@ -89,7 +89,7 @@ def checkJpInScope (jp : FVarId) : CheckM Unit := do
       jp_1 _x.n -- jump to a join point that is not in the scope of `f`.
     ```
     -/
-    throwError "invalid jump to out of scope join point"
+    throwError "invalid jump to out of scope join point `{mkFVar jp}`"
 
 def checkParam (param : Param) : CheckM Unit := do
   let localDecl ← getLocalDecl param.fvarId

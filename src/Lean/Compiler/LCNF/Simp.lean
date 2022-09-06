@@ -303,6 +303,7 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
     unless (← shouldInlineLocal decl) do return none
     let numArgs := e.getAppNumArgs
     let arity := decl.getArity
+    -- TODO: we should inline/specialize partial applications of local functions
     if numArgs < arity then return none
     incInlineLocal
     modify fun s => { s with inlineLocal := s.inlineLocal + 1 }

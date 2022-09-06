@@ -63,8 +63,12 @@ where
     else
       k
 
-def run (x : M α) (offset : Nat := 0) (levelMap : LevelMap := {}) : α :=
+@[inline] def run (x : M α) (offset : Nat := 0) (levelMap : LevelMap := {}) : α :=
   x |>.run offset |>.run' levelMap
+
+@[inline] def run' (x : M α) (xs : Array FVarId) : α :=
+  let map := xs.foldl (init := {}) fun map x => map.insert x map.size
+  run x xs.size map
 
 end ToExpr
 
@@ -96,11 +100,11 @@ partial def Code.toExprM (code : Code) : M Expr := do
     return mkAppN (mkConst `cases) (#[← c.discr.toExprM] ++ alts)
 end
 
-def Code.toExpr (code : Code) : Expr :=
-  run code.toExprM
+def Code.toExpr (code : Code) (xs : Array FVarId := #[]) : Expr :=
+  run' code.toExprM xs
 
-def FunDeclCore.toExpr (decl : FunDecl) : Expr :=
-  run decl.toExprM
+def FunDeclCore.toExpr (decl : FunDecl) (xs : Array FVarId := #[]) : Expr :=
+  run' decl.toExprM xs
 
 def Decl.toExpr (decl : Decl) : Expr :=
   run do withParams decl.params do mkLambdaM decl.params (← decl.value.toExprM)

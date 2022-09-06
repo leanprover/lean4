@@ -225,6 +225,28 @@ inductive WellFormed (cmp : α → α → Ordering) : RBNode α β → Prop wher
   | insertWff {n n' : RBNode α β} {k : α} {v : β k} : WellFormed cmp n → n' = insert cmp n k v → WellFormed cmp n'
   | eraseWff {n n' : RBNode α β} {k : α} : WellFormed cmp n → n' = erase cmp k n → WellFormed cmp n'
 
+section Map
+
+@[specialize] def mapM {α : Type v} {β γ : α → Type v} {M : Type v → Type v} [Applicative M]
+  (f : (a : α) → β a → M (γ a))
+  : RBNode α β → M (RBNode α γ)
+  | leaf => pure leaf
+  | node color lchild key val rchild =>
+    pure (node color · key · ·) <*> lchild.mapM f <*> f _ val <*> rchild.mapM f
+
+@[specialize] def map {α : Type u} {β γ : α → Type v}
+  (f : (a : α) → β a → γ a)
+  : RBNode α β → RBNode α γ
+  | leaf => leaf
+  | node color lchild key val rchild => node color (lchild.map f) key (f key val) (rchild.map f)
+
+end Map
+
+def toArray (n : RBNode α β) : Array (Sigma β) :=
+  n.fold (init := ∅) fun acc k v => acc.push ⟨k,v⟩
+
+instance : EmptyCollection (RBNode α β) := ⟨leaf⟩
+
 end RBNode
 
 open Std.RBNode
@@ -276,12 +298,14 @@ instance : ForIn m (RBMap α β cmp) (α × β) where
 @[specialize] def toList : RBMap α β cmp → List (α × β)
   | ⟨t, _⟩ => t.revFold (fun ps k v => (k, v)::ps) []
 
+/-- Returns the kv pair `(a,b)` such that `a ≤ k` for all keys in the RBMap. -/
 @[inline] protected def min : RBMap α β cmp → Option (α × β)
   | ⟨t, _⟩ =>
     match t.min with
     | some ⟨k, v⟩ => some (k, v)
     | none        => none
 
+/-- Returns the kv pair `(a,b)` such that `a ≥ k` for all keys in the RBMap. -/
 @[inline] protected def max : RBMap α β cmp → Option (α × β)
   | ⟨t, _⟩ =>
     match t.max with
@@ -315,18 +339,22 @@ instance [Repr α] [Repr β] : Repr (RBMap α β cmp) where
 @[inline] def lowerBound : RBMap α β cmp → α → Option (Sigma (fun (_ : α) => β))
   | ⟨t, _⟩, x => t.lowerBound cmp x none
 
+/-- Returns true if the given key `a` is in the RBMap.-/
 @[inline] def contains (t : RBMap α β cmp) (a : α) : Bool :=
   (t.find? a).isSome
 
 @[inline] def fromList (l : List (α × β)) (cmp : α → α → Ordering) : RBMap α β cmp :=
   l.foldl (fun r p => r.insert p.1 p.2) (mkRBMap α β cmp)
 
+/-- Returns true if the given predicate is true for all items in the RBMap. -/
 @[inline] def all : RBMap α β cmp → (α → β → Bool) → Bool
   | ⟨t, _⟩, p => t.all p
 
+/-- Returns true if the given predicate is true for any item in the RBMap. -/
 @[inline] def any : RBMap α β cmp → (α → β → Bool) → Bool
   | ⟨t, _⟩, p => t.any p
 
+/-- The number of items in the RBMap. -/
 def size (m : RBMap α β cmp) : Nat :=
   m.fold (fun sz _ _ => sz+1) 0
 
@@ -343,12 +371,31 @@ def maxDepth (t : RBMap α β cmp) : Nat :=
   | some p => p
   | none   => panic! "map is empty"
 
+/-- Attempts to find the value with key `k : α` in `t` and panics if there is no such key.-/
 @[inline] def find! [Inhabited β] (t : RBMap α β cmp) (k : α) : β :=
   match t.find? k with
   | some b => b
   | none   => panic! "key is not in the map"
 
+/-- Merges the maps `t₁` and `t₂`, if a key `a : α` exists in both,
+then use `mergeFn a b₁ b₂` to produce the new merged value. -/
+def mergeBy (mergeFn : α → β → β → β) (t₁ t₂ : RBMap α β cmp) : RBMap α β cmp :=
+  t₂.fold (init := t₁) fun t₁ a b₂ =>
+    t₁.insert a <|
+      match t₁.find? a with
+      | some b₁ => mergeFn a b₁ b₂
+      | none => b₂
+
+/-- Intersects the maps `t₁` and `t₂` using `mergeFn a b₁ b₂` to produce the new value. -/
+def intersectBy {γ : Type v₁} {δ : Type v₂} (mergeFn : α → β → γ → δ) (t₁ : RBMap α β cmp) (t₂ : RBMap α γ cmp) : RBMap α δ cmp :=
+  t₁.fold (init := ∅) fun acc a b₁ =>
+      match t₂.find? a with
+      | some b₂ => acc.insert a <| mergeFn a b₁ b₂
+      | none => acc
+
 end RBMap
 
 def rbmapOf {α : Type u} {β : Type v} (l : List (α × β)) (cmp : α → α → Ordering) : RBMap α β cmp :=
   RBMap.fromList l cmp
+
+end Std

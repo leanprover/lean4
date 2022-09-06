@@ -2663,6 +2663,9 @@ instance {α : Type u} {m : Type u → Type v} [Monad m] : Inhabited (α → m �
 instance {α : Type u} {m : Type u → Type v} [Monad m] [Inhabited α] : Inhabited (m α) where
   default := pure default
 
+instance [Monad m] : [Nonempty α] → Nonempty (m α)
+  | ⟨x⟩ => ⟨pure x⟩
+
 /-- A fusion of Haskell's `sequence` and `map`. Used in syntax quotations. -/
 def Array.sequenceMap {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (f : α → m β) : m (Array β) :=
   let rec loop (i : Nat) (j : Nat) (bs : Array β) : m (Array β) :=

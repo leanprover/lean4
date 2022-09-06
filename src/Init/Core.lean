@@ -366,6 +366,9 @@ structure Task (α : Type u) : Type u where
 attribute [extern "lean_task_pure"] Task.pure
 attribute [extern "lean_task_get_own"] Task.get
 
+instance : [Nonempty α] → Nonempty (Task α)
+  | ⟨x⟩ => ⟨.pure x⟩
+
 namespace Task
 /-- Task priority. Tasks with higher priority will always be scheduled before ones with lower priority. -/
 abbrev Priority := Nat

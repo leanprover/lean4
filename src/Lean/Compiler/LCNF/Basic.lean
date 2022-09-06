@@ -319,6 +319,7 @@ structure Decl where
   through compiler passes.
   -/
   value : Code
+  deriving Inhabited, BEq
 
 def Decl.size (decl : Decl) : Nat :=
   decl.value.size
@@ -360,5 +361,45 @@ where
     | .jmp fvarId args => code.updateJmp! fvarId (args.mapMono instExpr)
     | .return .. => code
     | .unreach type => code.updateUnreach! (instExpr type)
+
+mutual
+partial def FunDeclCore.collectUsed (decl : FunDecl) (s : FVarIdSet := {}) : FVarIdSet :=
+  decl.value.collectUsed <| collectParams decl.params <| collectExpr decl.type s
+
+private partial def collectParams (ps : Array Param) (s : FVarIdSet) : FVarIdSet :=
+  ps.foldl (init := s) fun s p => collectExpr p.type s
+
+private partial def collectExprs (es : Array Expr) (s : FVarIdSet) : FVarIdSet :=
+  es.foldl (init := s) fun s e => collectExpr e s
+
+private partial def collectExpr (e : Expr) : FVarIdSet → FVarIdSet :=
+  match e with
+  | .proj _ _ e      => collectExpr e
+  | .forallE _ d b _ => collectExpr b ∘ collectExpr d
+  | .lam _ d b _     => collectExpr b ∘ collectExpr d
+  | .letE ..         => unreachable!
+  | .app f a         => collectExpr f ∘ collectExpr a
+  | .mdata _ b       => collectExpr b
+  | .fvar fvarId     => fun s => s.insert fvarId
+  | _                => id
+
+partial def Code.collectUsed (code : Code) (s : FVarIdSet := {}) : FVarIdSet :=
+  match code with
+  | .let decl k => k.collectUsed <| collectExpr decl.value <| collectExpr decl.type s
+  | .jp decl k | .fun decl k => k.collectUsed <| decl.collectUsed s
+  | .cases c =>
+    let s := s.insert c.discr
+    let s := collectExpr c.resultType s
+    c.alts.foldl (init := s) fun s alt =>
+      match alt with
+      | .default k => k.collectUsed s
+      | .alt _ ps k => k.collectUsed <| collectParams ps s
+  | .return fvarId => s.insert fvarId
+  | .unreach type => collectExpr type s
+  | .jmp fvarId args => collectExprs args <| s.insert fvarId
+end
+
+abbrev collectUsedAtExpr (s : FVarIdSet) (e : Expr) : FVarIdSet :=
+  collectExpr e s
 
 end Lean.Compiler.LCNF

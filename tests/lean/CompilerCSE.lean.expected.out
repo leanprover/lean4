@@ -1,0 +1,5 @@
+
+[Compiler.test] Starting condition test cseSizeLeq for cse
+[Compiler.test] Condition test cseSizeLeq for cse successful
+[Compiler.test] Running fixpoint test for cse
+[Compiler.test] Fixpoint test for cse successful

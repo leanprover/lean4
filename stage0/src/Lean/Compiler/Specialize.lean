@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Meta.Basic
 import Lean.Attributes
 
 namespace Lean.Compiler
@@ -14,22 +15,36 @@ inductive SpecializeAttributeKind where
 builtin_initialize nospecializeAttr : TagAttribute ←
   registerTagAttribute `nospecialize "mark definition to never be specialized"
 
+private def elabSpecArgs (declName : Name) (args : Array Syntax) : MetaM (Array Nat) := do
+  if args.isEmpty then return #[]
+  let info ← getConstInfo declName
+  Meta.forallTelescopeReducing info.type fun xs _ => do
+    let argNames ← xs.mapM fun x => x.fvarId!.getUserName
+    let mut result := #[]
+    for arg in args do
+      if let some idx := arg.isNatLit? then
+        if idx == 0 then throwErrorAt arg "invalid specialization argument index, index must be greater than 0"
+        let idx := idx - 1
+        if idx >= argNames.size then
+          throwErrorAt arg "invalid argument index, `{declName}` has #{argNames.size} arguments"
+        if result.contains idx then throwErrorAt arg "invalid specialization argument index, `{argNames[idx]!}` has already been specified as a specialization candidate"
+        result := result.push idx
+      else
+        let argName := arg.getId
+        if let some idx := argNames.getIdx? argName then
+          if result.contains idx then throwErrorAt arg "invalid specialization argument name `{argName}`, it has already been specified as a specialization candidate"
+          result := result.push idx
+        else
+          throwErrorAt arg "invalid specialization argument name `{argName}`, `{declName}` does have an argument with this name"
+    return result.qsort (·<·)
+
 builtin_initialize specializeAttr : ParametricAttribute (Array Nat) ←
   registerParametricAttribute {
     name := `specialize
     descr := "mark definition to always be specialized"
-    /- TODO: fix the following hack.
-       We need to use the following hack because the equation compiler generates auxiliary
-       definitions that are compiled before we even finish the elaboration of the current command.
-       So, if the current command is a `@[specialize] def foo ...`, we must set the attribute `[specialize]`
-       before we start elaboration, otherwise when we compile the auxiliary definitions we will not be
-       able to test whether `@[specialize]` has been set or not.
-       In the new equation compiler we should pass all attributes and allow it to apply them to auxiliary definitions.
-       In the current implementation, we workaround this issue by using functions such as `hasSpecializeAttrAux`.
-     -/
-    applicationTime := .beforeElaboration
-    getParam := fun _ _stx => return #[] -- TODO fix after update stage0
-    afterSet := fun _ _ => return () -- TODO validate positions
+    getParam := fun declName stx => do
+      let args := stx[1].getArgs
+      elabSpecArgs declName args |>.run'
   }
 
 @[export lean_has_specialize_attribute]

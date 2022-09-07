@@ -14,19 +14,16 @@ partial def Code.containsConst (constName : Name) (code : Code) : Bool :=
   | .fun decl k => containsConst constName decl.value || containsConst constName k
   | .jp decl k => containsConst constName decl.value || containsConst constName k
   | .jmp _ args => args.any goExpr
-  | .cases cs => cs.alts.any goAlt
+  | .cases cs => cs.alts.any fun alt => containsConst constName alt.getCode
   | .return .. | .unreach .. => false
 where
-  goAlt (alt : Alt) : Bool :=
-    match alt with
-    | .alt _ _ body | .default body => containsConst constName body
   goExpr (e : Expr) : Bool :=
     match e with
     | .const name .. => name == constName
     | .app fn arg .. => goExpr fn || goExpr arg
     | .lam _ _ body .. => goExpr body
-    | .letE _ _ value body .. => goExpr value || goExpr body
     | .proj _ _ struct .. => goExpr struct
+    | .letE .. => unreachable! -- not possible in LCNF
     | _ => false
 
 namespace Testing

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Util.Recognizers
 import Lean.Meta.Instances
 import Lean.Compiler.InlineAttrs
+import Lean.Compiler.Specialize
 import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.ElimDead
 import Lean.Compiler.LCNF.Bind
@@ -15,6 +16,28 @@ import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.AlphaEqv
 
 namespace Lean.Compiler.LCNF
+
+/--
+Return `true` if the arrow type contains an instance implicit argument.
+-/
+def hasLocalInst (type : Expr) : Bool :=
+  match type with
+  | .forallE _ _ b bi => bi.isInstImplicit || hasLocalInst b
+  | _ => false
+
+/--
+Return `true` if `decl` is supposed to be inlined/specialized.
+-/
+def isTemplateLike (decl : Decl) : CoreM Bool := do
+  if hasLocalInst decl.type then
+    return true -- `decl` applications will be specialized
+  else if (← Meta.isInstance decl.name) then
+    return true -- `decl` is "fuel" for code specialization
+  else if hasInlineAttribute (← getEnv) decl.name || hasSpecializeAttribute (← getEnv) decl.name then
+    return true -- `decl` is going to be inlined or specialized
+  else
+    return false
+
 namespace Simp
 
 /--
@@ -115,6 +138,12 @@ structure Config where
   for this kind of application, and we want all of them to specialized or inlined.
   -/
   etaPoly : Bool := false
+  /--
+  If `inlinePartial` is `true`, we inline partial function applications tagged
+  with `[inline]`. Note that this option is automatically disabled when processing
+  declarations tagged with `[inline]`, marked to be specialized, or instances.
+  -/
+  inlinePartial := false
   deriving Inhabited
 
 structure Context where
@@ -283,15 +312,16 @@ def InlineCandidateInfo.arity : InlineCandidateInfo → Nat
 Return `some info` if `e` should be inlined.
 -/
 def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
+  let numArgs := e.getAppNumArgs
   let f := e.getAppFn
   if let .const declName us ← findExpr f then
     unless hasInlineAttribute (← getEnv) declName do return none
     -- TODO: check whether function is recursive or not.
     -- We can skip the test and store function inline so far.
     let some decl ← getStage1Decl? declName | return none
-    let numArgs := e.getAppNumArgs
     let arity := decl.getArity
-    if numArgs < arity then return none
+    let inlinePartial := (← read).config.inlinePartial
+    if !inlinePartial && numArgs < arity then return none
     let params := decl.instantiateParamsLevelParams us
     let value := decl.instantiateValueLevelParams us
     incInline
@@ -300,6 +330,7 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
       params, value
     }
   else if let some decl ← findFunDecl? f then
+    unless numArgs > 0 do return none -- It is not worth to inline a local function that does not take any arguments
     unless (← shouldInlineLocal decl) do return none
     -- Remark: we inline local function declarations even if they are partial applied
     incInlineLocal
@@ -751,14 +782,6 @@ def eraseLocalDecl (fvarId : FVarId) : SimpM Unit := do
   markSimplified
 
 /--
-Return `true` if the arrow type contains an instance implicit argument.
--/
-def hasLocalInst (type : Expr) : Bool :=
-  match type with
-  | .forallE _ _ b bi => bi.isInstImplicit || hasLocalInst b
-  | _ => false
-
-/--
 When the configuration flag `etaPoly = true`, we eta-expand
 partial applications of functions that take local instances as arguments.
 This kind of function is inlined or specialized, and we create new
@@ -935,14 +958,14 @@ def Decl.simp? (decl : Decl) : SimpM (Option Decl) := do
 
 partial def Decl.simp (decl : Decl) (config : Config) : CompilerM Decl := do
   let mut config := config
-  if (← pure (Simp.hasLocalInst decl.type) <||> Meta.isInstance decl.name) then
+  if (← isTemplateLike decl) then
     /-
-    We do not eta-expand partial applications in instances or when the declaration type
-    has local instances. Recall we do not generate code for them.
+    We do not eta-expand or inline partial applications in template like code.
+    Recall we don't want to generate code for them.
     Remark: by eta-expanding partial applications in instaces, we also make the simplifier
     work harder when inlining instance projections.
     -/
-    config := { config with etaPoly := false }
+    config := { config with etaPoly := false, inlinePartial := false }
   go decl config
 where
   go (decl : Decl) (config : Config) : CompilerM Decl := do

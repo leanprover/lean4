@@ -1,0 +1,6 @@
+specializeAttr.lean:1:17-1:18: error: invalid specialization argument name `h`, `f1` does have an argument with this name
+specializeAttr.lean:5:15-5:16: error: invalid specialization argument index, `f` has already been specified as a specialization candidate
+specializeAttr.lean:9:15-9:16: error: invalid specialization argument name `f`, it has already been specified as a specialization candidate
+specializeAttr.lean:13:13-13:14: error: invalid specialization argument index, index must be greater than 0
+specializeAttr.lean:17:13-17:15: error: invalid argument index, `f5` has #3 arguments
+specializeAttr.lean:21:13-21:15: error: invalid specialization argument name `ff`, `f6` does have an argument with this name

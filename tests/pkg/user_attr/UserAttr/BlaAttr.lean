@@ -4,8 +4,8 @@ open Lean
 
 initialize blaAttr : TagAttribute ← registerTagAttribute `bla "simple user defined attribute"
 
-/-- My new simp attribute -/
-register_simp_attr my_simp "my own simp attribute"
+/-- My own new simp attribute. -/
+register_simp_attr my_simp
 
 syntax (name := foo) "foo" num "important"? : attr
 

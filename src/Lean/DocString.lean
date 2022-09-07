@@ -44,7 +44,7 @@ termination_by
   consumeSpaces n it r => (it, 1)
   saveLine it r => (it, 0)
 
-private def removeLeadingSpaces (s : String) : String :=
+def removeLeadingSpaces (s : String) : String :=
   let n := findLeadingSpacesSize s
   if n == 0 then s else removeNumLeadingSpaces n s
 
@@ -91,5 +91,10 @@ def getDocStringText [Monad m] [MonadError m] [MonadRef m] (stx : TSyntax `Lean.
   match stx.raw[1] with
   | Syntax.atom _ val => return val.extract 0 (val.endPos - ⟨2⟩)
   | _                 => throwErrorAt stx "unexpected doc string{indentD stx.raw[1]}"
+
+def TSyntax.getDocString (stx : TSyntax `Lean.Parser.Command.docComment) : String :=
+  match stx.raw[1] with
+  | Syntax.atom _ val => val.extract 0 (val.endPos - ⟨2⟩)
+  | _                 => panic! s!"unexpected doc string\n{stx.raw[1]}"
 
 end Lean

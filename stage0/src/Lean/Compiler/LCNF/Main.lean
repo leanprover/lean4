@@ -66,6 +66,9 @@ def run (declNames : Array Name) : CompilerM (Array Decl) := do
     decls ← pass.run decls
     checkpoint pass.name decls
   saveStage1Decls decls
+  if (← Lean.isTracingEnabledFor `Compiler.result) then
+    for decl in decls do
+      Lean.addTrace `Compiler.result m!"size: {decl.size}\n{← ppDecl decl}"
   return decls
 
 end PassManager
@@ -77,9 +80,8 @@ def compileStage1Impl (declNames : Array Name) : CoreM (Array Decl) :=
 
 builtin_initialize
   registerTraceClass `Compiler.init (inherited := true)
-  registerTraceClass `Compiler.simp (inherited := true)
-  registerTraceClass `Compiler.pullInstances (inherited := true)
-  registerTraceClass `Compiler.cse (inherited := true)
+  registerTraceClass `Compiler.test (inherited := true)
+  registerTraceClass `Compiler.result (inherited := true)
   registerTraceClass `Compiler.jp
 
 end Lean.Compiler.LCNF

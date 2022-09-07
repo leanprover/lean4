@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.DependsOn
 import Lean.Compiler.LCNF.Types
+import Lean.Compiler.LCNF.PassManager
 
 namespace Lean.Compiler.LCNF
 namespace PullLetDecls
@@ -106,5 +107,11 @@ def Decl.pullInstances (decl : Decl) : CompilerM Decl :=
       return candidates.contains fvarId
     else
       return false
+
+def pullInstances : Pass :=
+  .mkPerDeclaration `pullInstances Decl.pullInstances
+
+builtin_initialize
+  registerTraceClass `Compiler.pullInstances (inherited := true)
 
 end Lean.Compiler.LCNF

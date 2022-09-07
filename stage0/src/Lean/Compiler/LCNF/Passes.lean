@@ -7,19 +7,12 @@ import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.PullLetDecls
 import Lean.Compiler.LCNF.CSE
 import Lean.Compiler.LCNF.Simp
+import Lean.Compiler.LCNF.PullFunDecls
+import Lean.Compiler.LCNF.ReduceJpArity
 
 namespace Lean.Compiler.LCNF
 
-@[cpass]
-def pullInstancesInstaller : PassInstaller :=
-  .installAfter `init (.mkPerDeclaration `pullInstances Decl.pullInstances)
-
-@[cpass]
-def cseInstaller : PassInstaller :=
-  .installAfter `pullInstances (.mkPerDeclaration `cse Decl.cse)
-
-@[cpass]
-def simpInstaller : PassInstaller :=
-  .installAfter `cse (.mkPerDeclaration `simp Decl.simp)
+@[cpass] def builtin : PassInstaller :=
+  .append #[pullInstances, cse, simp, pullFunDecls, reduceJpArity, simp { etaPoly := true }]
 
 end Lean.Compiler.LCNF

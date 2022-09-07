@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.Passes
-// Imports: Init Lean.Compiler.LCNF.PassManager Lean.Compiler.LCNF.PullLetDecls Lean.Compiler.LCNF.CSE Lean.Compiler.LCNF.Simp
+// Imports: Init Lean.Compiler.LCNF.PassManager Lean.Compiler.LCNF.PullLetDecls Lean.Compiler.LCNF.CSE Lean.Compiler.LCNF.Simp Lean.Compiler.LCNF.PullFunDecls Lean.Compiler.LCNF.ReduceJpArity
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,215 +13,153 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_Lean_Compiler_LCNF_simpInstaller___closed__1;
-static lean_object* l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__6;
-lean_object* l_Lean_Compiler_LCNF_Decl_pullInstances(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-lean_object* l_Lean_Compiler_LCNF_PassInstaller_installAfter___elambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__4;
-static lean_object* l_Lean_Compiler_LCNF_simpInstaller___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_pullInstancesInstaller;
-static lean_object* l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_cseInstaller;
-static lean_object* l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__1;
-static lean_object* l_Lean_Compiler_LCNF_simpInstaller___closed__4;
-lean_object* l_Lean_Compiler_LCNF_Pass_mkPerDeclaration(lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_cseInstaller___closed__4;
-lean_object* l_Lean_Compiler_LCNF_Decl_cse(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Compiler_LCNF_Decl_simp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__3;
-static lean_object* l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__7;
-static lean_object* l_Lean_Compiler_LCNF_simpInstaller___closed__3;
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_simpInstaller;
-static lean_object* l_Lean_Compiler_LCNF_cseInstaller___closed__3;
-static lean_object* l_Lean_Compiler_LCNF_cseInstaller___closed__5;
-static lean_object* l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__5;
-static lean_object* l_Lean_Compiler_LCNF_cseInstaller___closed__1;
-static lean_object* l_Lean_Compiler_LCNF_simpInstaller___closed__5;
-static lean_object* l_Lean_Compiler_LCNF_cseInstaller___closed__2;
-static lean_object* _init_l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__1() {
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+lean_object* lean_array_push(lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_builtin___closed__12;
+static lean_object* l_Lean_Compiler_LCNF_builtin___closed__8;
+static lean_object* l_Lean_Compiler_LCNF_builtin___closed__6;
+static lean_object* l_Lean_Compiler_LCNF_builtin___closed__5;
+extern lean_object* l_Lean_Compiler_LCNF_reduceJpArity;
+static lean_object* l_Lean_Compiler_LCNF_builtin___closed__2;
+static lean_object* l_Lean_Compiler_LCNF_builtin___closed__1;
+static lean_object* l_Lean_Compiler_LCNF_builtin___closed__9;
+static lean_object* l_Lean_Compiler_LCNF_builtin___closed__4;
+extern lean_object* l_Lean_Compiler_LCNF_pullFunDecls;
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_builtin;
+static lean_object* l_Lean_Compiler_LCNF_builtin___closed__3;
+lean_object* l_Lean_Compiler_LCNF_PassInstaller_append___elambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Compiler_LCNF_pullInstances;
+lean_object* l_Lean_Compiler_LCNF_simp(lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_builtin___closed__7;
+extern lean_object* l_Lean_Compiler_LCNF_cse;
+static lean_object* l_Lean_Compiler_LCNF_builtin___closed__11;
+static lean_object* l_Lean_Compiler_LCNF_builtin___closed__10;
+static lean_object* _init_l_Lean_Compiler_LCNF_builtin___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("init", 4);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__1;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(1u);
+x_2 = 0;
+x_3 = lean_alloc_ctor(0, 1, 1);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__3() {
+static lean_object* _init_l_Lean_Compiler_LCNF_builtin___closed__2() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("pullInstances", 13);
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Compiler_LCNF_builtin___closed__1;
+x_2 = l_Lean_Compiler_LCNF_simp(x_1);
+return x_2;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__4() {
+static lean_object* _init_l_Lean_Compiler_LCNF_builtin___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__3;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(1u);
+x_2 = 1;
+x_3 = lean_alloc_ctor(0, 1, 1);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__5() {
+static lean_object* _init_l_Lean_Compiler_LCNF_builtin___closed__4() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_Decl_pullInstances), 5, 0);
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Compiler_LCNF_builtin___closed__3;
+x_2 = l_Lean_Compiler_LCNF_simp(x_1);
+return x_2;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__6() {
+static lean_object* _init_l_Lean_Compiler_LCNF_builtin___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__4;
-x_2 = l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__5;
-x_3 = l_Lean_Compiler_LCNF_Pass_mkPerDeclaration(x_1, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(6u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__7() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__2;
-x_2 = l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__6;
-x_3 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_PassInstaller_installAfter___elambda__1___boxed), 7, 2);
-lean_closure_set(x_3, 0, x_1);
-lean_closure_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_pullInstancesInstaller() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__7;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_cseInstaller___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("cse", 3);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_cseInstaller___closed__2() {
+static lean_object* _init_l_Lean_Compiler_LCNF_builtin___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Compiler_LCNF_cseInstaller___closed__1;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_1 = l_Lean_Compiler_LCNF_builtin___closed__5;
+x_2 = l_Lean_Compiler_LCNF_pullInstances;
+x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_cseInstaller___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_Decl_cse), 5, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_cseInstaller___closed__4() {
+static lean_object* _init_l_Lean_Compiler_LCNF_builtin___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_cseInstaller___closed__2;
-x_2 = l_Lean_Compiler_LCNF_cseInstaller___closed__3;
-x_3 = l_Lean_Compiler_LCNF_Pass_mkPerDeclaration(x_1, x_2);
+x_1 = l_Lean_Compiler_LCNF_builtin___closed__6;
+x_2 = l_Lean_Compiler_LCNF_cse;
+x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_cseInstaller___closed__5() {
+static lean_object* _init_l_Lean_Compiler_LCNF_builtin___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__4;
-x_2 = l_Lean_Compiler_LCNF_cseInstaller___closed__4;
-x_3 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_PassInstaller_installAfter___elambda__1___boxed), 7, 2);
-lean_closure_set(x_3, 0, x_1);
-lean_closure_set(x_3, 1, x_2);
+x_1 = l_Lean_Compiler_LCNF_builtin___closed__7;
+x_2 = l_Lean_Compiler_LCNF_builtin___closed__2;
+x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_cseInstaller() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Compiler_LCNF_cseInstaller___closed__5;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_simpInstaller___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("simp", 4);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_simpInstaller___closed__2() {
+static lean_object* _init_l_Lean_Compiler_LCNF_builtin___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Compiler_LCNF_simpInstaller___closed__1;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_1 = l_Lean_Compiler_LCNF_builtin___closed__8;
+x_2 = l_Lean_Compiler_LCNF_pullFunDecls;
+x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_simpInstaller___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_Decl_simp), 5, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_simpInstaller___closed__4() {
+static lean_object* _init_l_Lean_Compiler_LCNF_builtin___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_simpInstaller___closed__2;
-x_2 = l_Lean_Compiler_LCNF_simpInstaller___closed__3;
-x_3 = l_Lean_Compiler_LCNF_Pass_mkPerDeclaration(x_1, x_2);
+x_1 = l_Lean_Compiler_LCNF_builtin___closed__9;
+x_2 = l_Lean_Compiler_LCNF_reduceJpArity;
+x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_simpInstaller___closed__5() {
+static lean_object* _init_l_Lean_Compiler_LCNF_builtin___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_cseInstaller___closed__2;
-x_2 = l_Lean_Compiler_LCNF_simpInstaller___closed__4;
-x_3 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_PassInstaller_installAfter___elambda__1___boxed), 7, 2);
-lean_closure_set(x_3, 0, x_1);
-lean_closure_set(x_3, 1, x_2);
+x_1 = l_Lean_Compiler_LCNF_builtin___closed__10;
+x_2 = l_Lean_Compiler_LCNF_builtin___closed__4;
+x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_simpInstaller() {
+static lean_object* _init_l_Lean_Compiler_LCNF_builtin___closed__12() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Compiler_LCNF_builtin___closed__11;
+x_2 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_PassInstaller_append___elambda__1___boxed), 6, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_builtin() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Compiler_LCNF_simpInstaller___closed__5;
+x_1 = l_Lean_Compiler_LCNF_builtin___closed__12;
 return x_1;
 }
 }
@@ -230,6 +168,8 @@ lean_object* initialize_Lean_Compiler_LCNF_PassManager(uint8_t builtin, lean_obj
 lean_object* initialize_Lean_Compiler_LCNF_PullLetDecls(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_CSE(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_Simp(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_LCNF_PullFunDecls(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_LCNF_ReduceJpArity(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_Passes(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -250,46 +190,38 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_Simp(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__1 = _init_l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__1();
-lean_mark_persistent(l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__1);
-l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__2 = _init_l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__2();
-lean_mark_persistent(l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__2);
-l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__3 = _init_l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__3();
-lean_mark_persistent(l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__3);
-l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__4 = _init_l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__4();
-lean_mark_persistent(l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__4);
-l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__5 = _init_l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__5();
-lean_mark_persistent(l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__5);
-l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__6 = _init_l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__6();
-lean_mark_persistent(l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__6);
-l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__7 = _init_l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__7();
-lean_mark_persistent(l_Lean_Compiler_LCNF_pullInstancesInstaller___closed__7);
-l_Lean_Compiler_LCNF_pullInstancesInstaller = _init_l_Lean_Compiler_LCNF_pullInstancesInstaller();
-lean_mark_persistent(l_Lean_Compiler_LCNF_pullInstancesInstaller);
-l_Lean_Compiler_LCNF_cseInstaller___closed__1 = _init_l_Lean_Compiler_LCNF_cseInstaller___closed__1();
-lean_mark_persistent(l_Lean_Compiler_LCNF_cseInstaller___closed__1);
-l_Lean_Compiler_LCNF_cseInstaller___closed__2 = _init_l_Lean_Compiler_LCNF_cseInstaller___closed__2();
-lean_mark_persistent(l_Lean_Compiler_LCNF_cseInstaller___closed__2);
-l_Lean_Compiler_LCNF_cseInstaller___closed__3 = _init_l_Lean_Compiler_LCNF_cseInstaller___closed__3();
-lean_mark_persistent(l_Lean_Compiler_LCNF_cseInstaller___closed__3);
-l_Lean_Compiler_LCNF_cseInstaller___closed__4 = _init_l_Lean_Compiler_LCNF_cseInstaller___closed__4();
-lean_mark_persistent(l_Lean_Compiler_LCNF_cseInstaller___closed__4);
-l_Lean_Compiler_LCNF_cseInstaller___closed__5 = _init_l_Lean_Compiler_LCNF_cseInstaller___closed__5();
-lean_mark_persistent(l_Lean_Compiler_LCNF_cseInstaller___closed__5);
-l_Lean_Compiler_LCNF_cseInstaller = _init_l_Lean_Compiler_LCNF_cseInstaller();
-lean_mark_persistent(l_Lean_Compiler_LCNF_cseInstaller);
-l_Lean_Compiler_LCNF_simpInstaller___closed__1 = _init_l_Lean_Compiler_LCNF_simpInstaller___closed__1();
-lean_mark_persistent(l_Lean_Compiler_LCNF_simpInstaller___closed__1);
-l_Lean_Compiler_LCNF_simpInstaller___closed__2 = _init_l_Lean_Compiler_LCNF_simpInstaller___closed__2();
-lean_mark_persistent(l_Lean_Compiler_LCNF_simpInstaller___closed__2);
-l_Lean_Compiler_LCNF_simpInstaller___closed__3 = _init_l_Lean_Compiler_LCNF_simpInstaller___closed__3();
-lean_mark_persistent(l_Lean_Compiler_LCNF_simpInstaller___closed__3);
-l_Lean_Compiler_LCNF_simpInstaller___closed__4 = _init_l_Lean_Compiler_LCNF_simpInstaller___closed__4();
-lean_mark_persistent(l_Lean_Compiler_LCNF_simpInstaller___closed__4);
-l_Lean_Compiler_LCNF_simpInstaller___closed__5 = _init_l_Lean_Compiler_LCNF_simpInstaller___closed__5();
-lean_mark_persistent(l_Lean_Compiler_LCNF_simpInstaller___closed__5);
-l_Lean_Compiler_LCNF_simpInstaller = _init_l_Lean_Compiler_LCNF_simpInstaller();
-lean_mark_persistent(l_Lean_Compiler_LCNF_simpInstaller);
+res = initialize_Lean_Compiler_LCNF_PullFunDecls(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Compiler_LCNF_ReduceJpArity(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Lean_Compiler_LCNF_builtin___closed__1 = _init_l_Lean_Compiler_LCNF_builtin___closed__1();
+lean_mark_persistent(l_Lean_Compiler_LCNF_builtin___closed__1);
+l_Lean_Compiler_LCNF_builtin___closed__2 = _init_l_Lean_Compiler_LCNF_builtin___closed__2();
+lean_mark_persistent(l_Lean_Compiler_LCNF_builtin___closed__2);
+l_Lean_Compiler_LCNF_builtin___closed__3 = _init_l_Lean_Compiler_LCNF_builtin___closed__3();
+lean_mark_persistent(l_Lean_Compiler_LCNF_builtin___closed__3);
+l_Lean_Compiler_LCNF_builtin___closed__4 = _init_l_Lean_Compiler_LCNF_builtin___closed__4();
+lean_mark_persistent(l_Lean_Compiler_LCNF_builtin___closed__4);
+l_Lean_Compiler_LCNF_builtin___closed__5 = _init_l_Lean_Compiler_LCNF_builtin___closed__5();
+lean_mark_persistent(l_Lean_Compiler_LCNF_builtin___closed__5);
+l_Lean_Compiler_LCNF_builtin___closed__6 = _init_l_Lean_Compiler_LCNF_builtin___closed__6();
+lean_mark_persistent(l_Lean_Compiler_LCNF_builtin___closed__6);
+l_Lean_Compiler_LCNF_builtin___closed__7 = _init_l_Lean_Compiler_LCNF_builtin___closed__7();
+lean_mark_persistent(l_Lean_Compiler_LCNF_builtin___closed__7);
+l_Lean_Compiler_LCNF_builtin___closed__8 = _init_l_Lean_Compiler_LCNF_builtin___closed__8();
+lean_mark_persistent(l_Lean_Compiler_LCNF_builtin___closed__8);
+l_Lean_Compiler_LCNF_builtin___closed__9 = _init_l_Lean_Compiler_LCNF_builtin___closed__9();
+lean_mark_persistent(l_Lean_Compiler_LCNF_builtin___closed__9);
+l_Lean_Compiler_LCNF_builtin___closed__10 = _init_l_Lean_Compiler_LCNF_builtin___closed__10();
+lean_mark_persistent(l_Lean_Compiler_LCNF_builtin___closed__10);
+l_Lean_Compiler_LCNF_builtin___closed__11 = _init_l_Lean_Compiler_LCNF_builtin___closed__11();
+lean_mark_persistent(l_Lean_Compiler_LCNF_builtin___closed__11);
+l_Lean_Compiler_LCNF_builtin___closed__12 = _init_l_Lean_Compiler_LCNF_builtin___closed__12();
+lean_mark_persistent(l_Lean_Compiler_LCNF_builtin___closed__12);
+l_Lean_Compiler_LCNF_builtin = _init_l_Lean_Compiler_LCNF_builtin();
+lean_mark_persistent(l_Lean_Compiler_LCNF_builtin);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

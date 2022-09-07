@@ -130,6 +130,11 @@ def AltCore.getCode : Alt → Code
   | .default k => k
   | .alt _ _ k => k
 
+def AltCore.forCodeM [Monad m] (alt : Alt) (f : Code → m Unit) : m Unit := do
+  match alt with
+  | .default k => f k
+  | .alt _ _ k => f k
+
 private unsafe def updateAltCodeImp (alt : Alt) (k' : Code) : Alt :=
   match alt with
   | .default k => if ptrEq k k' then alt else .default k'
@@ -250,6 +255,9 @@ def CasesCore.extractAlt! (cases : Cases) (ctorName : Name) : Alt × Cases :=
     found i
   else
     unreachable!
+
+def AltCore.mapCodeM [Monad m] (alt : Alt) (f : Code → m Code) : m Alt := do
+  return alt.updateCode (← f alt.getCode)
 
 def Code.isDecl : Code → Bool
   | .let .. | .fun .. | .jp .. => true

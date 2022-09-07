@@ -9,10 +9,11 @@ import Lean.Compiler.LCNF.CSE
 import Lean.Compiler.LCNF.Simp
 import Lean.Compiler.LCNF.PullFunDecls
 import Lean.Compiler.LCNF.ReduceJpArity
+import Lean.Compiler.LCNF.JoinPoints
 
 namespace Lean.Compiler.LCNF
 
 @[cpass] def builtin : PassInstaller :=
-  .append #[pullInstances, cse, simp, pullFunDecls, reduceJpArity, simp { etaPoly := true, inlinePartial := true, implementedBy := true }]
+  .append #[pullInstances, cse, simp, pullFunDecls, findJoinPoints, reduceJpArity, simp { etaPoly := true, inlinePartial := true, implementedBy := true }]
 
 end Lean.Compiler.LCNF

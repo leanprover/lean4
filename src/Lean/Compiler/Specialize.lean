@@ -51,13 +51,15 @@ builtin_initialize specializeAttr : ParametricAttribute (Array Nat) ←
 partial def hasSpecializeAttribute (env : Environment) (n : Name) : Bool :=
   match specializeAttr.getParam? env n with
   | some _ => true
-  | none   => if n.isInternal then hasSpecializeAttribute env n.getPrefix else false
-
+  | none   => if n.isInternal then hasSpecializeAttribute env n.getPrefix else false -- TODO: remove recursion after we move to new compiler
 
 @[export lean_has_nospecialize_attribute]
 partial def hasNospecializeAttribute (env : Environment) (n : Name) : Bool :=
   nospecializeAttr.hasTag env n ||
-  (n.isInternal && hasNospecializeAttribute env n.getPrefix)
+  (n.isInternal && hasNospecializeAttribute env n.getPrefix) -- TODO: remove recursion after we move to new compiler
+
+def getSpecializationArgs? (env : Environment) (n : Name) : Option (Array Nat) :=
+  specializeAttr.getParam? env n
 
 /- TODO: the rest of the file is for the old / current code generator. We should remove it as soon as we move to the new one. -/
 

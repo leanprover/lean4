@@ -13,7 +13,7 @@ register_builtin_option testb : Nat := {
 }
 
 /-- My new simp attribute -/
-register_simp_attr mysimp "my simp attr"
+register_simp_attr mysimp
 
 /-- config elab -/
 declare_config_elab elabSimpConfig' Lean.Meta.Simp.Config

@@ -89,10 +89,12 @@ def checkJpInScope (jp : FVarId) : CheckM Unit := do
       jp_1 _x.n -- jump to a join point that is not in the scope of `f`.
     ```
     -/
-    throwError "invalid jump to out of scope join point"
+    throwError "invalid jump to out of scope join point `{mkFVar jp}`"
 
 def checkParam (param : Param) : CheckM Unit := do
   let localDecl ← getLocalDecl param.fvarId
+  unless localDecl.userName == param.binderName do
+    throwError "LCNF parameter mismatch at `{param.binderName}`, binder name in local context `{localDecl.userName}`"
   unless localDecl.type == param.type do
     throwError "LCNF parameter mismatch at `{param.binderName}`, type in local context{indentExpr localDecl.type}\nexpected{indentExpr param.type}"
 
@@ -105,6 +107,8 @@ def checkLetDecl (letDecl : LetDecl) : CheckM Unit := do
   unless compatibleTypes letDecl.type valueType do
     throwError "type mismatch at `{letDecl.binderName}`, value has type{indentExpr valueType}\nbut is expected to have type{indentExpr letDecl.type}"
   let localDecl ← getLocalDecl letDecl.fvarId
+  unless localDecl.userName == letDecl.binderName do
+    throwError "LCNF let declaration mismatch at `{letDecl.binderName}`, binder name in local context `{localDecl.userName}`"
   unless localDecl.type == letDecl.type do
     throwError "LCNF let declaration mismatch at `{letDecl.binderName}`, type in local context{indentExpr localDecl.type}\nexpected{indentExpr letDecl.type}"
   unless localDecl.value == letDecl.value do
@@ -140,6 +144,8 @@ partial def checkFunDeclCore (declName : Name) (type : Expr) (params : Array Par
 partial def checkFunDecl (funDecl : FunDecl) : CheckM Unit := do
   checkFunDeclCore funDecl.binderName funDecl.type funDecl.params funDecl.value
   let localDecl ← getLocalDecl funDecl.fvarId
+  unless localDecl.userName == funDecl.binderName do
+    throwError "LCNF local function declaration mismatch at `{funDecl.binderName}`, binder name in local context `{localDecl.userName}`"
   unless localDecl.type == funDecl.type do
     throwError "LCNF local function declaration mismatch at `{funDecl.binderName}`, type in local context{indentExpr localDecl.type}\nexpected{indentExpr funDecl.type}"
   unless (← getFunDecl funDecl.fvarId) == funDecl do

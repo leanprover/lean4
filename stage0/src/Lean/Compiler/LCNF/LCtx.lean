@@ -25,9 +25,10 @@ def LCtx.addLetDecl (lctx : LCtx) (fvarId : FVarId) (binderName : Name) (type : 
     localDecls := lctx.localDecls.insert fvarId (.ldecl 0 fvarId binderName type value true) }
 
 def LCtx.addFunDecl (lctx : LCtx) (funDecl : FunDecl) : LCtx :=
-  { lctx with
-    localDecls := lctx.localDecls.insert funDecl.fvarId (.cdecl 0 funDecl.fvarId funDecl.binderName funDecl.type .default)
-    funDecls   := lctx.funDecls.insert funDecl.fvarId funDecl }
+  match lctx with
+  | { localDecls, funDecls } => -- TODO: this is a workaround for #316
+    { localDecls := localDecls.insert funDecl.fvarId (.cdecl 0 funDecl.fvarId funDecl.binderName funDecl.type .default)
+      funDecls   := funDecls.insert funDecl.fvarId funDecl }
 
 def LCtx.eraseLocal (fvarId : FVarId) : LCtx → LCtx
   | { localDecls, funDecls } =>

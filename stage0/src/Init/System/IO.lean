@@ -172,7 +172,7 @@ def lazyPure (fn : Unit → α) : IO α :=
 If `nBytes = 0`, return immediately with an empty buffer. -/
 @[extern "lean_io_get_random_bytes"] opaque getRandomBytes (nBytes : USize) : IO ByteArray
 
-def sleep (ms : UInt32) : IO Unit :=
+def sleep (ms : UInt32) : BaseIO Unit :=
   -- TODO: add a proper primitive for IO.sleep
   fun s => dbgSleep ms fun _ => EStateM.Result.ok () s
 
@@ -205,8 +205,13 @@ def sleep (ms : UInt32) : IO Unit :=
 @[extern "lean_io_wait"] opaque wait (t : Task α) : BaseIO α :=
   return t.get
 
+local macro "nonempty_list" : tactic =>
+  `(exact Nat.zero_lt_succ _)
+
 /-- Wait until any of the tasks in the given list has finished, then return its result. -/
-@[extern "lean_io_wait_any"] opaque waitAny : @& List (Task α) → IO α
+@[extern "lean_io_wait_any"] opaque waitAny (tasks : @& List (Task α))
+    (h : tasks.length > 0 := by nonempty_list) : BaseIO α :=
+  return tasks[0].get
 
 /-- Helper method for implementing "deterministic" timeouts. It is the number of "small" memory allocations performed by the current execution thread. -/
 @[extern "lean_io_get_num_heartbeats"] opaque getNumHeartbeats : BaseIO Nat
@@ -697,7 +702,12 @@ instance [Eval α] : Eval (IO α) where
     let a ← x ()
     Eval.eval fun _ => a
 
-@[noinline, nospecialize] def runEval [Eval α] (a : Unit → α) : IO (String × Except IO.Error Unit) :=
+instance [Eval α] : Eval (BaseIO α) where
+  eval x _ := do
+    let a ← x ()
+    Eval.eval fun _ => a
+
+def runEval [Eval α] (a : Unit → α) : IO (String × Except IO.Error Unit) :=
   IO.FS.withIsolatedStreams (Eval.eval a false |>.toBaseIO)
 
 end Lean

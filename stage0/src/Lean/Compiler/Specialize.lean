@@ -11,10 +11,13 @@ inductive SpecializeAttributeKind where
   | specialize | nospecialize
   deriving Inhabited, BEq
 
-builtin_initialize specializeAttrs : EnumAttributes SpecializeAttributeKind ←
-  registerEnumAttributes `specializeAttrs
-    [(`specialize, "mark definition to always be specialized", SpecializeAttributeKind.specialize),
-     (`nospecialize, "mark definition to never be specialized", SpecializeAttributeKind.nospecialize) ]
+builtin_initialize nospecializeAttr : TagAttribute ←
+  registerTagAttribute `nospecialize "mark definition to never be specialized"
+
+builtin_initialize specializeAttr : ParametricAttribute (Array Nat) ←
+  registerParametricAttribute {
+    name := `specialize
+    descr := "mark definition to always be specialized"
     /- TODO: fix the following hack.
        We need to use the following hack because the equation compiler generates auxiliary
        definitions that are compiled before we even finish the elaboration of the current command.
@@ -24,19 +27,24 @@ builtin_initialize specializeAttrs : EnumAttributes SpecializeAttributeKind ←
        In the new equation compiler we should pass all attributes and allow it to apply them to auxiliary definitions.
        In the current implementation, we workaround this issue by using functions such as `hasSpecializeAttrAux`.
      -/
-    (applicationTime := .beforeElaboration)
-private partial def hasSpecializeAttrAux (env : Environment) (kind : SpecializeAttributeKind) (n : Name) : Bool :=
-  match specializeAttrs.getValue env n with
-  | some k => kind == k
-  | none   => if n.isInternal then hasSpecializeAttrAux env kind n.getPrefix else false
+    applicationTime := .beforeElaboration
+    getParam := fun _ _stx => return #[] -- TODO fix after update stage0
+    afterSet := fun _ _ => return () -- TODO validate positions
+  }
 
 @[export lean_has_specialize_attribute]
-def hasSpecializeAttribute (env : Environment) (n : Name) : Bool :=
-  hasSpecializeAttrAux env SpecializeAttributeKind.specialize n
+partial def hasSpecializeAttribute (env : Environment) (n : Name) : Bool :=
+  match specializeAttr.getParam? env n with
+  | some _ => true
+  | none   => if n.isInternal then hasSpecializeAttribute env n.getPrefix else false
+
 
 @[export lean_has_nospecialize_attribute]
-def hasNospecializeAttribute (env : Environment) (n : Name) : Bool :=
-  hasSpecializeAttrAux env SpecializeAttributeKind.nospecialize n
+partial def hasNospecializeAttribute (env : Environment) (n : Name) : Bool :=
+  nospecializeAttr.hasTag env n ||
+  (n.isInternal && hasNospecializeAttribute env n.getPrefix)
+
+/- TODO: the rest of the file is for the old / current code generator. We should remove it as soon as we move to the new one. -/
 
 inductive SpecArgKind where
   | fixed
@@ -75,7 +83,7 @@ end SpecState
 
 builtin_initialize specExtension : SimplePersistentEnvExtension SpecEntry SpecState ←
   registerSimplePersistentEnvExtension {
-    name          := `specialize,
+    name          := `specExt,
     addEntryFn    := SpecState.addEntry,
     addImportedFn := fun es => (mkStateFromImportedEntries SpecState.addEntry {} es).switch
   }

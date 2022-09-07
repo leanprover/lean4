@@ -27,3 +27,5 @@ import Init.Data.Format
 import Init.Data.Stream
 import Init.Data.Prod
 import Init.Data.AC
+import Init.Data.Queue
+import Init.Data.Channel

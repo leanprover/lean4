@@ -108,10 +108,12 @@ def overrideCasesOn : M Unit := do
           forallTelescope (← inferType minor) fun args _ => do
             mkLambdaFVars ((if ← isScalarField ctor then #[] else compFieldVars) ++ args)
               (← mkUnsafeCastTo constMotive (mkAppN minor args)))
+  let nameOverride := mkCasesOnName name ++ `_override
   addDecl <| .defnDecl { casesOn with
-    name := mkCasesOnName name ++ `_override
+    name := nameOverride
+    all  := [nameOverride]
     value
-    hints := .opaque
+    hints  := .opaque
     safety := .unsafe
   }
   setInlineAttribute (mkCasesOnName name ++ `_override)

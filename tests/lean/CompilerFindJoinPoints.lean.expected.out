@@ -1,0 +1,5 @@
+
+[Compiler.test] Starting condition test findJoinPointsSizeLeq for findJoinPoints
+[Compiler.test] Condition test findJoinPointsSizeLeq for findJoinPoints successful
+[Compiler.test] Running fixpoint test for findJoinPoints
+[Compiler.test] Fixpoint test for findJoinPoints successful

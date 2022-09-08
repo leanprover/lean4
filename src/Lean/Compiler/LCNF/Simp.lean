@@ -974,7 +974,7 @@ partial def Decl.simp (decl : Decl) (config : Config) : CompilerM Decl := do
     /-
     We do not eta-expand or inline partial applications in template like code.
     Recall we don't want to generate code for them.
-    Remark: by eta-expanding partial applications in instaces, we also make the simplifier
+    Remark: by eta-expanding partial applications in instances, we also make the simplifier
     work harder when inlining instance projections.
     -/
     config := { config with etaPoly := false, inlinePartial := false }

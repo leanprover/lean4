@@ -1,7 +1,7 @@
 import Lean.Compiler.Main
 import Lean.Compiler.LCNF.Testing
 import Lean.Elab.Do
-
+#exit
 open Lean
 open Lean.Compiler.LCNF
 

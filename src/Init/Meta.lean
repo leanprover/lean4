@@ -257,6 +257,7 @@ namespace Syntax
 
 deriving instance Repr for Syntax.Preresolved
 deriving instance Repr for Syntax
+deriving instance Repr for TSyntax
 
 abbrev Term := TSyntax `term
 abbrev Command := TSyntax `command

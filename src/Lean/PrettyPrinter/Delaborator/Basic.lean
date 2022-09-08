@@ -283,7 +283,7 @@ def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab := Delabor
   trace[PrettyPrinter.delab.input] "{Std.format e}"
   let mut opts ← getOptions
   -- default `pp.proofs` to `true` if `e` is a proof
-  if pp.proofs.get? opts == none then
+  if pp.proofs.get opts == false then
     try if ← Meta.isProof e then opts := pp.proofs.set opts true
     catch _ => pure ()
   let e ← if getPPInstantiateMVars opts then instantiateMVars e else pure e

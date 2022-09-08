@@ -172,7 +172,7 @@ and now bringing it all together you can use the simple function `squareFeetToMe
 
 Lean also defines custom infix operator `<$>` for `Functor.map` which allows you to write this:
 -/
-#eval (fun s => s.length) <$> ["elephant", "tiger", "giraffe"]
+#eval (fun s => s.length) <$> ["elephant", "tiger", "giraffe"] -- [8, 5, 7]
 #eval (fun x => x + 1) <$> (some 5) -- some 6
 /-!
 
@@ -213,7 +213,7 @@ class Functor (f : Type u → Type v) : Type (max (u+1) v) where
 Note that `mapConst` has a default implementation, namely:
 `mapConst : {α β : Type u} → α → f β → f α := Function.comp map (Function.const _)` in the `Functor`
 type class.  So you can use this default implementation and you only need to replace it if
-your Functors has a more specialized variant than this which is more performant.
+your functor has a more specialized variant than this (usually the custom version is more performant).
 
 In general then, a functor is a function on types `F : Type u → Type v` equipped with an operator
 called `map` such that if you have a function `f` of type `α → β` then `map f` will convert your

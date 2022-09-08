@@ -8,7 +8,7 @@ Let's see how they work!
 
 ## What is an Applicative Functor?
 
-An applicative functor is an defines a default or "base" construction for an object and allows
+An applicative functor defines a default or "base" construction for an object and allows
 function application to be chained across multiple instances of the structure. All applicative
 functors are functors, meaning they must also support the "map" operation.
 
@@ -29,24 +29,30 @@ simply from outside the structure, as was the case with `Functor.map`.
 
 Applicative in Lean is built on some helper type classes, `Functor`, `Pure` and `Seq`:
 
-```lean,ignore
+-/
+namespace hidden -- hidden
 class Applicative (f : Type u → Type v) extends Functor f, Pure f, Seq f, SeqLeft f, SeqRight f where
-```
-
+  map      := fun x y => Seq.seq (pure x) fun _ => y
+  seqLeft  := fun a b => Seq.seq (Functor.map (Function.const _) a) b
+  seqRight := fun a b => Seq.seq (Functor.map (Function.const _ id) a) b
+end hidden -- hidden
+/-!
 Notice that as with `Functor` it is also a type transformer `(f : Type u → Type v)` and notice the
-`extends Functor f` is ensuring the base Functor also performs that same type transformation.
+`extends Functor f` is ensuring the base `Functor` also performs that same type transformation.
 
 As stated above, all applicatives are then functors. This means you can assume that `map` already
 exists for all these types.
 
 The `Pure` base type class is a very simple type class that supplies the `pure` function.
 
-```lean,ignore
+-/
+namespace hidden -- hidden
 class Pure (f : Type u → Type v) where
    pure {α : Type u} : α → f α
-```
+end hidden -- hidden
+/-!
 
-You can think of it as lifing the result of a pure value to some monadic type. The simplest example
+You can think of it as lifting the result of a pure value to some monadic type. The simplest example
 of `pure` is the `Option` type:
 
 -/
@@ -65,10 +71,12 @@ instance : Monad Option where
 The `Seq` type class is also a simple type class that provides the `seq` operator which can
 also be written using the special syntax `<*>`.
 
-```lean,ignore
+-/
+namespace hidden -- hidden
 class Seq (f : Type u → Type v) : Type (max (u+1) v) where
   seq : {α β : Type u} → f (α → β) → (Unit → f α) → f β
-```
+end hidden -- hidden
+/-!
 
 
 ## Basic Applicative Examples
@@ -248,7 +256,7 @@ Applicative functor.
 
 You may remember seeing the `SeqLeft` and `SeqRight` base types on `class Applicative` earlier.
 These provide the `seqLeft` and `seqRight` operations which also have some handy notation
-shorthands `<*` and `*>` repsectively. Where: `x <* y` evaluates `x`, then `y`, and returns the
+shorthands `<*` and `*>` respectively. Where: `x <* y` evaluates `x`, then `y`, and returns the
 result of `x` and `x *> y` evaluates `x`, then `y`,  and returns the result of `y`.
 
 To make it easier to remember, notice that it returns that value that the `<*` or `*>` notation is
@@ -284,7 +292,7 @@ using `Seq.seq` you will see somthing interesting:
 #eval Seq.seq ((.*.) <$> some 4) (fun (_ : Unit) => some 5) -- some 20
 /-!
 
-This may look a bit combersome, specifically, why did we need to invent this funny looking function
+This may look a bit cumbersome, specifically, why did we need to invent this funny looking function
 `fun (_ : Unit) => (some 5)`?
 
 Well if you take a close look at the type class definition:

@@ -29,7 +29,7 @@ still be summed up in a couple simple functions.  Here you will learn how to cre
 
 ## [Monads Tutorial](monads.lean.md)
 Now that you have an intuition for how abstract structures work, you'll examine some of the problems
-that functors and applicative functors don't help you solve. Then you'll lean the specifics of how
+that functors and applicative functors don't help you solve. Then you'll learn the specifics of how
 to actually use monads with some examples using the `Option` monad and the all important `IO` monad.
 
 ## [Reader Monads](readers.lean.md)
@@ -45,19 +45,19 @@ of the things a function programming language supposedly "can't" do.
 ## [Except Monad](except.lean.md)
 
 Similar to the `Option` monad the `Except` monad allows you to change the signature of a function so
-that it can return an `ok` value or an `error` and it makes available the classic exception handling
+that it can return an `ok` value or an `error` and it provides the classic exception handling
 operations `throw/try/catch` so that your programs can do monad-based exception handling.
 
 ## [Monad Transformers](transformers.lean.md)
 
-Now that you are familiar with all the above monads it is time to answer the question of how you can
-make them work together. After all, there are definitely times when you need multiple kinds of
+Now that you are familiar with all the above monads it is time to answer the question - how you can
+make them work together? After all, there are definitely times when you need multiple kinds of
 monadic behavior. This section introduces the concept of monad transformers, which allow you to
 combine multiple monads into one.
 
 ## [Monad Laws](laws.lean.md)
-This section examines what makes a monad a monad. After all, can't you just implement these type
-classes any way you want and write a "monad" instance? Starting back with functors and applicative
-functors, you'll learn that all these structures have "laws" that they are expected to obey with
-respect to their behavior. You can make instances that don't follow these laws. But you do so at
-your peril, as other programmers will be very confused when they try to use them.
+This section examines what makes a monad a legal monad. You could just implement your monadic type
+classes any way you want and write "monad" instances, but starting back with functors and
+applicative functors, you'll learn that all these structures have "laws" that they are expected to
+obey with respect to their behavior. You can make instances that don't follow these laws. But you do
+so at your peril, as other programmers will be very confused when they try to use them.

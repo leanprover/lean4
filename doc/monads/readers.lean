@@ -3,13 +3,13 @@
 
 In the [previous section](monads.lean.md) you learned about the conceptual idea of monads. You learned
 what they are, and saw how some common types like `IO` and `Option` work as monads. Now in this
-part, you will be looking at some other useful monads. In particular, the `ReaderM` monad.
+section, you will be looking at some other useful monads. In particular, the `ReaderM` monad.
 
 ## How to do Global Variables in Lean?
 
 In Lean, your code is generally "pure", meaning functions can only interact with the arguments
 passed to them. This effectively means you cannot have global variables. You can have global
-definitions, but these are fixed at compile time. If some user behavior might change them, you have
+definitions, but these are fixed at compile time. If some user behavior might change them, you would have
 to wrap them in the `IO` monad, which means they can't be used from pure code.
 
 Consider this example. Here, you want to have an `Environment` containing different parameters as a
@@ -93,7 +93,7 @@ def main2 : IO Unit := do
 #eval main2 -- Result: 7538
 /-!
 The `ReaderM` monad provides a `run` method and it is the `ReaderM` run method that takes the initial
-`Environment` context.  So here you see `main2` loads the environment as before, and estabilishes
+`Environment` context.  So here you see `main2` loads the environment as before, and establishes
 the `ReaderM` context by passing `env` to the `run` method.
 
 > **Side note 1**: The `return` statement used above also needs some explanation.  The `return`
@@ -111,7 +111,7 @@ the monadic container type.
 
 > **Side note 2**: If the function `readerFunc3` also took some explicit arguments then you would have
 to write `(readerFunc3 args).run env` and this is a bit ugly, so Lean provides an infix operator
-`|>` that eliminiates those parens so you can write `readerFunc3 args |>.run env` and then you can
+`|>` that eliminates those parentheses so you can write `readerFunc3 args |>.run env` and then you can
 chain multiple monadic actions like this `m1 args1 |>.run args2 |>.run args3` and this is the
 recommended style.  You will see this patten used heavily in Lean code.
 
@@ -122,8 +122,7 @@ become available only when you are in the context of that monad.
 Here the `readerFunc2` function uses the `bind` operator `>>=` just to show you that there are bind
 operations happening here.  The `readerFunc3` function uses the `do` notation you learned about in
 [Monads](monads.lean.md) which hides that bind operation and can make the code look cleaner.
-
-The `do` notation with `let x ← readerFunc2` is also calling the `bind` function under the covers,
+So the expression `let x ← readerFunc2` is also calling the `bind` function under the covers,
 so that you can access the unwrapped value `x` needed for the `toString x` conversion.
 
 The important difference here to the earlier code is that `readerFunc3` and `readerFunc2` no longer
@@ -149,7 +148,7 @@ Now, remember in Lean that a function that takes an argument of type `Nat` and r
 like `def f (a : Nat) : String` is the same as this function `def f : Nat → String`.  These are
 exactly equal as types.  Well this is being used by the `ReaderM` Monad to add an input argument to
 all the functions that use the `ReaderM` monad and this is why `main` is able to start things off by
-simply passing that new input argument in `readerFunc3 env`. So now that you know the implementation
+simply passing that new input argument in `readerFunc3.run env`. So now that you know the implementation
 details of the `ReaderM` monad you can see that what it is doing looks very much like the original
 code we wrote at the beginning of this section, only it's taking a lot of the tedious work off your
 plate and it is creating a nice clean separation between what your pure functions are doing, and the
@@ -158,7 +157,7 @@ global context idea that the `ReaderM` adds.
 ## withReader
 
 One `ReaderM` function can call another with a modified version of the `ReaderM` context. You can
-use the `withReader` function from the `MonadWithReader` typeclass to do this:
+use the `withReader` function from the `MonadWithReader` type class to do this:
 
 -/
 def readerFunc3WithReader : ReaderM Environment String := do
@@ -166,8 +165,8 @@ def readerFunc3WithReader : ReaderM Environment String := do
   return "Result: " ++ toString x
 
 /-!
-Here we changed the `user` in the `Environment` context to "new user" and then we
-passed that modified context to `readerFunc2`.
+Here we changed the `user` in the `Environment` context to "new user" and then we passed that
+modified context to `readerFunc2`.
 
 So `withReader f m` executes monad `m` in the `ReaderM` context modified by `f`.
 
@@ -188,6 +187,12 @@ It might not seem like much has been accomplished with this `ReaderM Environment
 find that in larger code bases, with many different types of monads all composed together this
 greatly cleans up the code. Monads provide a beautiful functional way of managing cross-cutting
 concerns that would otherwise make your code very messy.
+
+Having this control over the inherited `ReaderM` context via `withReader` is actually very useful
+and something that is quite messy if you try and do this sort of thing with global variables, saving
+the old value, setting the new one, calling the function, then restoring the old value, making sure
+you do that in a try/finally block and so on. The `ReaderM` design pattern avoids that mess
+entirely.
 
 Now it's time to move on to [StateM Monad](states.lean.md) which is like a `ReaderM` that is
 also updatable.

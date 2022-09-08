@@ -46,7 +46,7 @@ as you will see below.
 
 Functors have two laws: the _identity_ law, and the _composition_ law. These laws express behaviors that
 your functor instances should follow. If they don't, other programmers will be very confused at the
-effect your instances have on their program. Many structures have similar laws, including monads.
+effect your instances have on their program.
 
 The identity law says that if you "map" the identity function (`id`) over your functor, the
 resulting functor should be the same. A succinct way of showing this on a `List` functor is:
@@ -65,7 +65,7 @@ def p1 : Point Nat := (Point.mk 1 2)
 #eval id <$> p1 == p1 -- false
 
 /-!
-Oh, and look while the List is behaving well, the `Point` functor fails this identity test.
+Oh, and look while the `List` is behaving well, the `Point` functor fails this identity test.
 
 The _composition_ law says that if you "map" two functions in succession over a functor, this
 should be the same as "composing" the functions and simply mapping that one super-function over the
@@ -149,9 +149,9 @@ example [Applicative m] [LawfulApplicative m] (v : m α) :
 
 `pure f <*> pure x = pure (f x)`
 
-Suppose you wrap a function and an object in pure. You can then apply the wrapped function over the
+Suppose you wrap a function and an object in `pure`. You can then apply the wrapped function over the
 wrapped object. Of course, you could also apply the normal function over the normal object, and then
-wrap it in pure. The homomorphism law states these results should be the same.
+wrap it in `pure`. The homomorphism law states these results should be the same.
 
 For example:
 
@@ -238,8 +238,12 @@ instance : Monad List  where
   pure := List.pure
   bind := List.bind
 
-#eval ["apple", "orange"] >>= pure  -- ["apple", "orange"]
-#eval [1,2,3] >>= pure              -- [1,2,3]
+def a := ["apple", "orange"]
+
+#eval a >>= pure      -- ["apple", "orange"]
+
+#eval a >>= pure = a  -- true
+
 /-!
 
 ### Right Identity
@@ -252,7 +256,7 @@ def z := 5
 #eval pure z >>= h                  -- some 6
 #eval h z                           -- some 6
 
-#eval pure z >>= h = h x            -- true
+#eval pure z >>= h = h z            -- true
 /-!
 
 So in this example, with this specific `z` and `h`, you see that the rule holds true.
@@ -312,7 +316,7 @@ There are two main ideas from all the laws:
 1. It should not matter what order you group operations in.  Another way to state this is function
    composition should hold across your structures.
 
-Following these laws will ensure other programmers are not confused by the bahavior of your
+Following these laws will ensure other programmers are not confused by the behavior of your
 new functors, applicatives and monads.
 
 -/

@@ -62,8 +62,8 @@ some kind.  Let's examine those function types:
 So `map` is a pure function, `seq` is a pure function wrapped in the structure, and `bind` takes a
 pure input but produces an output wrapped in the structure.
 
-Note: we are ignoring the `(Unit → f α)` function also used by `seq` in this comparison, since that
-was explained in [Applicatives Lazy Evaluation](applicatives.lean.md#lazy-evaluation).
+Note: we are ignoring the `(Unit → f α)` function used by `seq` here since that has a special
+purpose explained in [Applicatives Lazy Evaluation](applicatives.lean.md#lazy-evaluation).
 
 ## Basic Monad Example
 

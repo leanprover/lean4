@@ -19,7 +19,7 @@ inductive StrictOrLazy (α β : Type) : Type
 structure LazyTraceChildren where
   indent : Nat
   children : Array (WithRpcRef MessageData)
-  deriving Std.TypeName
+  deriving TypeName
 
 inductive MsgEmbed where
   | expr : CodeWithInfos → MsgEmbed

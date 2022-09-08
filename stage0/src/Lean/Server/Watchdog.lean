@@ -593,7 +593,7 @@ section MainLoop
         if let some ge ← fw.groupedEditsRef.get then
           workerTasks := workerTasks.push <| ge.signalTask.map (ServerEvent.workerEvent fw)
 
-    let ev ← IO.waitAny (workerTasks.push clientTask |>.toList)
+    let ev ← IO.waitAny (clientTask :: workerTasks.toList)
     match ev with
     | ServerEvent.clientMsg msg =>
       match msg with

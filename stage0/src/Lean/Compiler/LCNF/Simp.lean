@@ -7,6 +7,7 @@ import Lean.Util.Recognizers
 import Lean.Meta.Instances
 import Lean.Compiler.InlineAttrs
 import Lean.Compiler.Specialize
+import Lean.Compiler.ImplementedByAttr
 import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.ElimDead
 import Lean.Compiler.LCNF.Bind
@@ -144,6 +145,10 @@ structure Config where
   declarations tagged with `[inline]`, marked to be specialized, or instances.
   -/
   inlinePartial := false
+  /--
+  If `implementedBy` is `true`, we apply the `implementedBy` replacements.
+  -/
+  implementedBy := false
   deriving Inhabited
 
 structure Context where
@@ -768,10 +773,17 @@ def simpAppApp? (e : Expr) : OptionT SimpM Expr := do
   markSimplified
   return mkAppN f e.getAppArgs
 
+def applyImplementedBy? (e : Expr) : OptionT SimpM Expr := do
+  guard <| (← read).config.implementedBy
+  let .const declName us := e.getAppFn | failure
+  let some declNameNew := getImplementedBy? (← getEnv) declName | failure
+  markSimplified
+  return mkAppN (.const declNameNew us) e.getAppArgs
+
 /-- Try to apply simple simplifications. -/
 def simpValue? (e : Expr) : SimpM (Option Expr) :=
   -- TODO: more simplifications
-  simpProj? e <|> simpAppApp? e
+  simpProj? e <|> simpAppApp? e <|> applyImplementedBy? e
 
 /--
 Erase the given free variable from the local context,

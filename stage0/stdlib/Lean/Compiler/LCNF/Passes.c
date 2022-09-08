@@ -40,10 +40,11 @@ _start:
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(1u);
 x_2 = 0;
-x_3 = lean_alloc_ctor(0, 1, 2);
+x_3 = lean_alloc_ctor(0, 1, 3);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
 lean_ctor_set_uint8(x_3, sizeof(void*)*1 + 1, x_2);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1 + 2, x_2);
 return x_3;
 }
 }
@@ -62,10 +63,11 @@ _start:
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(1u);
 x_2 = 1;
-x_3 = lean_alloc_ctor(0, 1, 2);
+x_3 = lean_alloc_ctor(0, 1, 3);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
 lean_ctor_set_uint8(x_3, sizeof(void*)*1 + 1, x_2);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1 + 2, x_2);
 return x_3;
 }
 }

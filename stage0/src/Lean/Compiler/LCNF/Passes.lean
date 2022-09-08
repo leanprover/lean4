@@ -13,6 +13,6 @@ import Lean.Compiler.LCNF.ReduceJpArity
 namespace Lean.Compiler.LCNF
 
 @[cpass] def builtin : PassInstaller :=
-  .append #[pullInstances, cse, simp, pullFunDecls, reduceJpArity, simp { etaPoly := true, inlinePartial := true }]
+  .append #[pullInstances, cse, simp, pullFunDecls, reduceJpArity, simp { etaPoly := true, inlinePartial := true, implementedBy := true }]
 
 end Lean.Compiler.LCNF

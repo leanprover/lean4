@@ -147,6 +147,9 @@ structure Config where
   inlinePartial := false
   /--
   If `implementedBy` is `true`, we apply the `implementedBy` replacements.
+  Remark: we only apply `casesOn` replacements at phase 2 because `cases` constructor
+  may not have enough information for reconstructing the original `casesOn` application at
+  phase 1.
   -/
   implementedBy := false
   deriving Inhabited

@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.Transform
 import Lean.Meta.Match.MatcherInfo
+import Lean.Compiler.ImplementedByAttr
 import Lean.Compiler.LCNF.ToLCNF
 
 namespace Lean.Compiler.LCNF
@@ -61,6 +62,31 @@ partial def inlineMatchers (e : Expr) : CoreM Expr :=
       return .visit (← inlineMatcher 0 args #[])
 
 /--
+Apply `[implementedBy]` to `casesOn`.
+
+We apply them eagerly because we have a `cases` constructor in LCNF.
+We do not replace other `[implementedBy]` annotations because they disrupt
+the effectiveness of theorems provided by users (this feature has not been implemented yet).
+This is not an issue for `casesOn` since it is very unlikely an user will define
+a theorem / rewriting rule with `casesOn` on the right-hand side.
+-/
+def applyCasesOnImplementedBy (e : Expr) : CoreM Expr := do
+  let env ← getEnv
+  if !hasImplementedByCasesOn env e then
+    return e
+  else
+    Meta.MetaM.run' <| Meta.transform e fun e => do
+      let .const declName us := e | return .continue
+      unless isCasesOnRecursor env declName do return .continue
+      let some declName' := getImplementedBy? env declName | return .continue
+      return .done (.const declName' us)
+where
+  hasImplementedByCasesOn (env : Environment) (e : Expr) : Bool :=
+    Option.isSome <| e.find? fun
+      | .const declName _ => isCasesOnRecursor env declName || (getImplementedBy? env declName).isSome
+      | _ => false
+
+/--
 Replace nested occurrences of `unsafeRec` names with the safe ones.
 -/
 private def replaceUnsafeRecNames (value : Expr) : CoreM Expr :=
@@ -92,6 +118,7 @@ def toDecl (declName : Name) : CompilerM Decl := do
     let value ← replaceUnsafeRecNames value
     let value ← macroInline value
     let value ← inlineMatchers value
+    let value ← applyCasesOnImplementedBy value
     return (type, value)
   let value ← toLCNF value
   if let .fun decl (.return _) := value then

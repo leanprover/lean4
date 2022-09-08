@@ -181,7 +181,9 @@ where
     addCandidate decl.fvarId decl.getArity
     addToScope decl.fvarId
     go k
-  | .jp _ k => go k
+  | .jp decl k => do
+    go decl.value
+    go k
   | .jmp _ args => args.forM removeCandidatesContainedIn
   | .return val => eraseCandidate val
   | .cases c => do

@@ -26,8 +26,10 @@ and `[specialize]` since they can be partially applied.
 -/
 def shouldGenerateCode (declName : Name) : CoreM Bool := do
   if (← isCompIrrelevant |>.run') then return false
-  if hasMacroInlineAttribute (← getEnv) declName then return false
+  let env ← getEnv
+  if hasMacroInlineAttribute env declName then return false
   if (← Meta.isMatcher declName) then return false
+  if isCasesOnRecursor env declName then return false
   -- TODO: check if type class instance
   return true
 where

@@ -19,12 +19,14 @@ macro (name := configElab) doc?:(docComment)? "declare_config_elab" elabName:ide
      if optConfig.isNone then
        return { : $type }
      else
-       let c ← withoutModifyingState <| withLCtx {} {} <| withSaveInfoContext <| Term.withSynthesize do
+       let c ← withoutModifyingStateWithInfoAndMessages <| withLCtx {} {} <| withSaveInfoContext <| Term.withSynthesize do
          let c ← Term.elabTermEnsuringType optConfig[0][3] (Lean.mkConst ``$type)
          Term.synthesizeSyntheticMVarsNoPostponing
          instantiateMVars c
        eval c
   )
+
+#check @evalExpr'
 
 open Linter.MissingDocs in
 @[builtinMissingDocsHandler Elab.Tactic.configElab]

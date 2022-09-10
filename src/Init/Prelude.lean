@@ -2169,7 +2169,7 @@ Folds a function over a list from the left:
 `foldl f z [a, b, c] = f (f (f z a) b) c`
 -/
 @[specialize]
-def List.foldl {α β} (f : α → β → α) : (init : α) → List β → α
+def List.foldl {α : Type u} {β : Type v} (f : α → β → α) : (init : α) → List β → α
   | a, nil      => a
   | a, cons b l => foldl f (f a b) l
 

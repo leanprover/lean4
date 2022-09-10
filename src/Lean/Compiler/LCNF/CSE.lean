@@ -100,7 +100,7 @@ def Decl.cse (decl : Decl) : CompilerM Decl := do
   return { decl with value }
 
 def cse : Pass :=
-  .mkPerDeclaration `cse Decl.cse
+  .mkPerDeclaration `cse Decl.cse .base
 
 builtin_initialize
   registerTraceClass `Compiler.cse (inherited := true)

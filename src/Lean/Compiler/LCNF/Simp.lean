@@ -990,8 +990,8 @@ where
     else
       return decl
 
-def simp (config : Config := {}) : Pass :=
-  .mkPerDeclaration `simp (Decl.simp · config)
+def simp (config : Config := {}) (occurence : Nat := 0) : Pass :=
+  .mkPerDeclaration `simp (Decl.simp · config) .base (occurence := occurence)
 
 builtin_initialize
   registerTraceClass `Compiler.simp (inherited := true)

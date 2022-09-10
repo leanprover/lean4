@@ -155,11 +155,6 @@ theorem mapTRAux_eq (f : α → β) (as : List α) (bs : List β) : mapTRAux f a
   funext fun α => funext fun β => funext fun f => funext fun as => by
     simp [mapTR, mapTRAux_eq]
 
-@[specialize] def map₂ (f : α → β → γ) : List α → List β → List γ
-  | [],    _     => []
-  | _,     []    => []
-  | a::as, b::bs => f a b :: map₂ f as bs
-
 def join : List (List α) → List α
   | []      => []
   | a :: as => a ++ join as
@@ -367,7 +362,7 @@ def or  (bs : List Bool) : Bool := bs.any id
 
 def and (bs : List Bool) : Bool := bs.all id
 
-def zipWith (f : α → β → γ) : List α → List β → List γ
+@[specialize] def zipWith (f : α → β → γ) : List α → List β → List γ
   | x::xs, y::ys => f x y :: zipWith f xs ys
   | _,     _     => []
 

@@ -18,10 +18,10 @@ inductive Phase where
 | /-- Here we still carry most of the original type information, most
       of the dependent portion is already (partially) erased though. -/
   base
-| /-- Here all types have been turned into `Any`. -/
-  untyped
-| /-- The lambda RC representation use for reference counting optimizations. -/
-  rc
+| /-- In this phase polymorphism has been eliminated. -/
+  mono
+| /-- In this phase impure stuff such as RC or efficient BaseIO transformations happen. -/
+  impure
 deriving Inhabited
 
 /--
@@ -74,8 +74,8 @@ namespace Phase
 
 def toNat : Phase → Nat
 | .base => 0
-| .untyped => 1
-| .rc => 2
+| .mono => 1
+| .impure => 2
 
 instance : LT Phase where
   lt l r := l.toNat < r.toNat
@@ -89,8 +89,8 @@ instance {p1 p2 : Phase} : Decidable (p1 ≤ p2) := Nat.decLe p1.toNat p2.toNat
 instance : ToString Phase where
   toString
     | .base => "base"
-    | .untyped => "untyped"
-    | .rc => "rc"
+    | .mono => "mono"
+    | .impure => "impure"
 
 end Phase
 

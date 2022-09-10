@@ -9,11 +9,11 @@ open Lean.Compiler.LCNF
 #eval Compiler.compile #[``Lean.Meta.synthInstance, ``Lean.Elab.Term.Do.elabDo]
 
 @[cpass]
-def simpFixTest : PassInstaller := Testing.assertIsAtFixPoint `simp
+def simpFixTest : PassInstaller := Testing.assertIsAtFixPoint |>.install `simp `simpFix
 
 @[cpass]
 def simpReaderTest : PassInstaller :=
-  Testing.assertDoesNotContainConstAfter `simp `simpInlinesBinds `ReaderT.bind "simp did not inline ReaderT.bind"
+  Testing.assertDoesNotContainConstAfter `ReaderT.bind "simp did not inline ReaderT.bind" |>.install `simp `simpInlinesBinds
 
 set_option trace.Compiler.test true in
 #eval Compiler.compile #[``Lean.Meta.synthInstance, ``Lean.Elab.Term.Do.elabDo]

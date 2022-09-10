@@ -71,7 +71,7 @@ def Decl.reduceJpArity (decl : Decl) : CompilerM Decl := do
   return { decl with value }
 
 def reduceJpArity : Pass :=
-  .mkPerDeclaration `reduceJpArity Decl.reduceJpArity
+  .mkPerDeclaration `reduceJpArity Decl.reduceJpArity .base
 
 builtin_initialize
   registerTraceClass `Compiler.reduceJpArity (inherited := true)

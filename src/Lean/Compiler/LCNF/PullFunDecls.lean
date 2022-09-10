@@ -176,7 +176,7 @@ def Decl.pullFunDecls (decl : Decl) : CompilerM Decl := do
   return { decl with value }
 
 def pullFunDecls : Pass :=
-  .mkPerDeclaration `pullFunDecls Decl.pullFunDecls
+  .mkPerDeclaration `pullFunDecls Decl.pullFunDecls .base
 
 builtin_initialize
   registerTraceClass `Compiler.pullFunDecls (inherited := true)

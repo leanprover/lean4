@@ -11,26 +11,117 @@ import Lean.Compiler.LCNF.CompilerM
 
 namespace Lean.Compiler.LCNF
 
+/--
+The pipeline phase a certain `Pass` is supposed to happen in.
+-/
+inductive Phase where
+| /-- Here we still carry most of the original type information, most
+      of the dependent portion is already (partially) erased though. -/
+  base
+| /-- Here all types have been turned into `Any`. -/
+  untyped
+| /-- The lambda RC representation use for reference counting optimizations. -/
+  rc
+deriving Inhabited
+
+/--
+A single compiler `Pass`, consisting of the actual pass function operating
+on the `Decl`s as well as meta information.
+-/
 structure Pass where
+  /--
+  Which occurence of the pass in the pipeline this is.
+  Some passes, like simp, can occur multiple times in the pipeline.
+  For most passes this value does not matter.
+  -/
+  occurence : Nat := 0
+  /--
+  Which phase this `Pass` is supposed to run in
+  -/
+  phase : Phase
+  /--
+  The name of the `Pass`
+  -/
   name : Name
+  /--
+  The actual pass function, operating on the `Decl`s.
+  -/
   run : Array Decl → CompilerM (Array Decl)
   deriving Inhabited
 
+/--
+Can be used to install, remove, replace etc. passes by tagging a declaration
+of type `PassInstaller` with the `cpass` attribute.
+-/
 structure PassInstaller where
+  /--
+  When the installer is run this function will receive a list of all
+  current `Pass`es and return a new one, this can modify the list (and
+  the `Pass`es contained within) in any way it wants.
+  -/
   install : Array Pass → CompilerM (Array Pass)
   deriving Inhabited
 
+/--
+The `PassManager` used to store all `Pass`es that will be run within
+pipeline.
+-/
 structure PassManager where
   passes : Array Pass
   deriving Inhabited
 
+namespace Phase
+
+def toNat : Phase → Nat
+| .base => 0
+| .untyped => 1
+| .rc => 2
+
+instance : LT Phase where
+  lt l r := l.toNat < r.toNat
+
+instance : LE Phase where
+  le l r := l.toNat ≤ r.toNat
+
+instance {p1 p2 : Phase} : Decidable (p1 < p2) := Nat.decLt p1.toNat p2.toNat
+instance {p1 p2 : Phase} : Decidable (p1 ≤ p2) := Nat.decLe p1.toNat p2.toNat
+
+instance : ToString Phase where
+  toString
+    | .base => "base"
+    | .untyped => "untyped"
+    | .rc => "rc"
+
+end Phase
+
 namespace Pass
 
-def mkPerDeclaration (name : Name) (run : Decl → CompilerM Decl) : Pass where
+def mkPerDeclaration (name : Name) (run : Decl → CompilerM Decl) (phase : Phase) (occurence : Nat := 0) : Pass where
+  occurence := occurence
+  phase := phase
   name := name
   run := fun xs => xs.mapM run
 
 end Pass
+
+namespace PassManager
+
+def validate (manager : PassManager) : CompilerM Unit := do
+  let mut current := .base
+  for pass in manager.passes do
+    if ¬(current ≤ pass.phase) then
+      throwError s!"{pass.name} has phase {pass.phase} but should at least have {current}"
+    current := pass.phase
+
+def findHighestOccurence (targetName : Name) (passes : Array Pass) : CompilerM Nat := do
+  let mut highest := none
+  for pass in passes do
+      if pass.name == targetName then
+        highest := some pass.occurence
+  let some val := highest | throwError s!"Could not find any occurence of {targetName}"
+  return val
+
+end PassManager
 
 namespace PassInstaller
 
@@ -40,26 +131,45 @@ def installAtEnd (p : Pass) : PassInstaller where
 def append (passesNew : Array Pass) : PassInstaller where
   install passes := return passes ++ passesNew
 
-def installAfter (targetName : Name) (p : Pass) : PassInstaller where
-  install passes :=
-    if let some idx := passes.findIdx? (·.name == targetName) then
-      return passes.insertAt (idx + 1) p
-    else
-      throwError s!"Tried to insert pass {p.name} after {targetName} but {targetName} is not in the pass list"
-
-def installBefore (targetName : Name) (p : Pass) : PassInstaller where
-  install passes :=
-    if let some idx := passes.findIdx? (·.name == targetName) then
-      return passes.insertAt idx p
-    else
-      throwError s!"Tried to insert pass {p.name} after {targetName} but {targetName} is not in the pass list"
-
-def replacePass (targetName : Name) (p : Pass → CompilerM Pass) : PassInstaller where
+def withEachOccurence (targetName : Name) (f : Nat → PassInstaller) : PassInstaller where
   install passes := do
-    let some idx := passes.findIdx? (·.name == targetName) | throwError s!"Tried to replace {targetName} but {targetName} is not in the pass list"
+    let highestOccurence ← PassManager.findHighestOccurence targetName passes
+    let mut passes := passes
+    for occurence in [0:highestOccurence+1] do
+      passes ← f occurence |>.install passes
+    return passes
+
+def installAfter (targetName : Name) (p : Pass → Pass) (occurence : Nat := 0) : PassInstaller where
+  install passes :=
+    if let some idx := passes.findIdx? (fun p => p.name == targetName && p.occurence == occurence) then
+      let passUnderTest := passes[idx]!
+      return passes.insertAt (idx + 1) (p passUnderTest)
+    else
+      throwError s!"Tried to insert pass after {targetName}, occurence {occurence} but {targetName} is not in the pass list"
+
+def installAfterEach (targetName : Name) (p : Pass → Pass) : PassInstaller :=
+    withEachOccurence targetName (installAfter targetName p ·)
+
+def installBefore (targetName : Name) (p : Pass → Pass) (occurence : Nat := 0): PassInstaller where
+  install passes :=
+    if let some idx := passes.findIdx? (fun p => p.name == targetName && p.occurence == occurence) then
+      let passUnderTest := passes[idx]!
+      return passes.insertAt idx (p passUnderTest)
+    else
+      throwError s!"Tried to insert pass after {targetName}, occurence {occurence} but {targetName} is not in the pass list"
+
+def installBeforeEachOccurence (targetName : Name) (p : Pass → Pass) : PassInstaller :=
+    withEachOccurence targetName (installBefore targetName p ·)
+
+def replacePass (targetName : Name) (p : Pass → Pass) (occurence : Nat := 0) : PassInstaller where
+  install passes := do
+    let some idx := passes.findIdx? (fun p => p.name == targetName && p.occurence == occurence) | throwError s!"Tried to replace {targetName}, occurence {occurence} but {targetName} is not in the pass list"
     let target := passes[idx]!
-    let replacement ← p target
+    let replacement := p target
     return passes.set! idx replacement
+
+def replaceEachOccurence (targetName : Name) (p : Pass → Pass) : PassInstaller :=
+    withEachOccurence targetName (replacePass targetName p ·)
 
 def run (manager : PassManager) (installer : PassInstaller) : CompilerM PassManager := do
   return { manager with passes := (←installer.install manager.passes) }
@@ -98,12 +208,10 @@ private opaque getPassInstaller (declName : Name) : MetaM PassInstaller
 
 def runFromDecl (manager : PassManager) (declName : Name) : CompilerM PassManager := do
   let installer ← getPassInstaller declName |>.run'
-  installer.run manager
+  let newState ← installer.run manager
+  newState.validate
+  return newState
 
 end PassInstaller
-
-namespace PassManager
-
-end PassManager
 
 end Lean.Compiler.LCNF

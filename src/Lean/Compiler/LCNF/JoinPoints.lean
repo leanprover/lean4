@@ -247,7 +247,7 @@ def Decl.findJoinPoints (decl : Decl) : CompilerM Decl := do
   JoinPointFinder.replace decl findResult 
 
 def findJoinPoints : Pass :=
-  .mkPerDeclaration `findJoinPoints Decl.findJoinPoints
+  .mkPerDeclaration `findJoinPoints Decl.findJoinPoints .base
 
 builtin_initialize
   registerTraceClass `Compiler.findJoinPoints (inherited := true)

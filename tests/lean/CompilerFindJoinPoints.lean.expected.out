@@ -1,0 +1,5 @@
+
+[Compiler.test] Starting wrapper test findJoinPointsSizeLeq for findJoinPoints occurence 0
+[Compiler.test] Wrapper test findJoinPointsSizeLeq for findJoinPoints occurence 0 successful
+[Compiler.test] Starting post condition test findJoinPointsFix for findJoinPoints occurence 0
+[Compiler.test] Post condition test findJoinPointsFix for findJoinPoints occurence 0 successful

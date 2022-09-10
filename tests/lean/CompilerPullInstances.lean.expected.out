@@ -1,5 +1,5 @@
 
-[Compiler.test] Starting condition test pullInstancesSizeEq for pullInstances
-[Compiler.test] Condition test pullInstancesSizeEq for pullInstances successful
-[Compiler.test] Running fixpoint test for pullInstances
-[Compiler.test] Fixpoint test for pullInstances successful
+[Compiler.test] Starting wrapper test pullInstancesSizeEq for pullInstances occurence 0
+[Compiler.test] Wrapper test pullInstancesSizeEq for pullInstances occurence 0 successful
+[Compiler.test] Starting post condition test pullInstancesFix for pullInstances occurence 0
+[Compiler.test] Post condition test pullInstancesFix for pullInstances occurence 0 successful

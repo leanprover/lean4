@@ -1,5 +1,5 @@
 
-[Compiler.test] Starting condition test cseSizeLeq for cse
-[Compiler.test] Condition test cseSizeLeq for cse successful
-[Compiler.test] Running fixpoint test for cse
-[Compiler.test] Fixpoint test for cse successful
+[Compiler.test] Starting wrapper test cseSizeLeq for cse occurence 0
+[Compiler.test] Wrapper test cseSizeLeq for cse occurence 0 successful
+[Compiler.test] Starting post condition test cseFix for cse occurence 0
+[Compiler.test] Post condition test cseFix for cse occurence 0 successful

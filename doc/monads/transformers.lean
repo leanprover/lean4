@@ -117,7 +117,7 @@ lifting.  You already used lifting in the above code, because you were able to c
 `parseArguments` which has a bigger type `StateT Config (ReaderT Arguments (Except String))`.
 This "just worked" because Lean did some magic with monad lifting.
 
-To give you a simpler example of this, suppose you have the following funciton:
+To give you a simpler example of this, suppose you have the following function:
 -/
 def divide (x : Float ) (y : Float): ExceptT String Id Float :=
   if y == 0 then
@@ -193,9 +193,9 @@ If you have an instance `MonadLift m n` that means there is a way to turn a comp
 inside of `m` into one that happens inside of `n` and (this is the key part) usually *without* the
 instance itself creating any additional data that feeds into the computation. This means you can in
 principle declare lifting instances from any monad to any other monad, it does not, however, mean
-that you should do this in all cases.  You can get a report from Lean of how all this was done by
-add the line `set_option trace.Meta.synthInstance true in` before main and moving the
-cursor to the end of the first line after `do` and you will see a nice detailed report.
+that you should do this in all cases.  You can get a very nice report on how all this was done by
+adding the line `set_option trace.Meta.synthInstance true in` before `divideCounter` and moving you
+cursor to the end of the first line after `do`.
 
 This was a lot of detail, but it is very important to understand how monad lifting works because it
 is used heavily in Lean programs.
@@ -225,7 +225,7 @@ instance  : MonadLift m (ReaderT ρ m) where
 This lift operation creates a function that defines the required `ReaderT` input
 argument, but the inner monad doesn't know or care about `ReaderT` so the
 monadLift function throws it away with the `_` then calls the inner monad action `x`.
-This is a perfectly legal and trivial way to implement a `ReaderM` monad.
+This is a perfectly legal implementation of the `ReaderM` monad.
 
 ## Add your own Custom MonadLift
 
@@ -270,10 +270,10 @@ def main3 : IO Unit := do
 #eval main3 -- (2.500000, 1)
 /-!
 
-It turns out that the `IO` monad you see in your `main` function is based on a `Result` type
+It turns out that the `IO` monad you see in your `main` function is based on the `EStateM.Result` type
 which is similar to the `Except` type but it has an additional return value. The `liftIO` function
 converts any `Except String α` into `IO α` by simply mapping the ok case of the `Except` to the
-`Result.ok` and the error case to the Result.error.
+`Result.ok` and the error case to the `Result.error`.
 
 ## Lifting ExceptT
 

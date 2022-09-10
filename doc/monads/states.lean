@@ -9,7 +9,7 @@ part, you will explore the `StateM` monad, which is like a `ReaderM` only the st
 
 ## Motivating example: Tic Tac Toe
 
-For this part, let's build a simple model for a Tic Tace Toe game. The main object is the `GameState`
+For this section, let's build a simple model for a Tic Tace Toe game. The main object is the `GameState`
 data type containing several important pieces of information. First and foremost, it has the
 "board", a map from 2D tile indices to the "Tile State" (X, O or empty). Then it also knows the
 current player, and it has a random generator.
@@ -59,7 +59,7 @@ provide an initial state, in addition to the computation to run. `StateM` then p
 the result of the computation combined with the final updated state.
 
 If you wish to discard the final state and just get the computation's result, you can use
-`run'` method instead.  Yes in Lean, the apostraphe can be part of a name, you read this "run
+`run'` method instead.  Yes in Lean, the apostrophe can be part of a name, you read this "run
 prime", and the general naming convention is that the prime method discards something.
 
 So for your Tic Tac Toe game, many of your functions will have a signature like `State GameState a`.
@@ -115,12 +115,16 @@ So finally, you can combine these functions together with `do` notation, and it 
 clean! You don't need to worry about the side effects. The different monadic functions handle them.
 Here's a sample of what your function might look like to play one turn of the game. At the end, it
 returns a boolean determining if all the spaces have been filled.
+
+Notice in `isGameDone` and `nextTurn` we have stopped providing the full return type
+`StateM GameState Unit`.  This is because Lean is able to infer the correct monadic return type
+from the context and as a result the code is now looking really clean.
 -/
 
-def isGameDone : StateM GameState Bool := do
+def isGameDone := do
   return (← findOpen).isEmpty
 
-def nextTurn : StateM GameState Bool := do
+def nextTurn := do
   let i ← chooseRandomMove
   applyMove i
   isGameDone
@@ -149,7 +153,7 @@ def printBoard (board : Board) : IO Unit := do
       IO.println row
       row := []
 
-def playGame : StateM GameState Unit := do
+def playGame := do
   while true do
     let finished ← nextTurn
     if finished then return
@@ -186,10 +190,8 @@ at the reduced Type for `nextTurn`:
 So a function like `nextTurn` that might have just returned a `Bool` has been modified by the
 `StateM` monad such that the initial `GameState` is passed in as a new input argument, and the output
 value has been changed to the pair `Bool × GameState` so that it can return the pure `Bool` and the
-updated `GameState`.  This is why the call to `nextTurn` looks like this: `let (_, g) := nextTurn gs`.
-This expression `(_, g)` conveniently breaks the pair up into 2 values, it doesn't care what the first
-value is (hence the underscore `_`), but it does need the updated state `g` which you can then assign
-back to the mutable `gs` variable to use next time around this loop.
+updated `GameState`.  So `playGame` then is automatically saving that updated game state so that each
+time around the `while` loop it is acting on the new state, otherwise that would be an infinite loop!
 
 It is also interesting to see how much work the `do` and `←` notation are doing for you.  To
 implement the `nextTurn` function without these you would have to write this, manually plumbing
@@ -204,6 +206,12 @@ def nextTurnManually : StateM GameState Bool
 
 /-!
 
+This expression `let (i, gs)` conveniently breaks a returned pair up into 2 variables.
+In the expression `let (_, gs')` we didn't care what the first value was so we used underscore.
+Notice that nextTurn is capturing the updated game state from `chooseRandomMove` in the variable
+`gs`, which it is then passing to `applyMove` which returns `gs'` which is passed to `isGameDone`
+and that function returns `gs''` which we then return from `nextTurnManually`.  Phew, what a lot
+of work you don't have to do when you use `do` notation!
 
 ## StateM vs ReaderM
 
@@ -219,6 +227,11 @@ def nextTurn : StateM GameState Bool := do
 In this function `chooseRandomMove` is modifying the state that `applyMove` is getting
 and `chooseRandomMove` knows nothing about `applyMove`.  So `StateM` functions can have this
 kind of downstream effect outside their own scope, whereas, `withReader` cannot do that.
+
+So there is no equivalent to `withReader` for `StateM`, besides you can always use the `StateM`
+`set` function to modify the state before calling the next function anyway.  You could however,
+manually call a `StateM` function like you see in `nextTurnManually` and completely override
+the state at any point that way.
 
 ## State, IO and other languages
 
@@ -242,7 +255,7 @@ your code cannot communicate with the outside world, you can be far more certain
 The `StateM` monad is also a more disciplined way of managing side effects. Top level code could
 call a `StateM` function multiple times with different independent initial states, even doing that
 across multiple tasks in parallel and each of these cannot clobber the state belonging to other
-tasks. Monadic code is more reusable than code that uses global variables.
+tasks. Monadic code is more predictable and reusable than code that uses global variables.
 
 ## Summary
 

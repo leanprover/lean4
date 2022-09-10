@@ -48,6 +48,7 @@ And now you can run this test and get the expected exception:
 #eval test      -- Except.error "can't divide by zero"
 /-!
 
+
 ## Chaining
 
 Now as before you can build a chain of monadic actions that can be composed together using `bind (>>=)`:
@@ -70,7 +71,17 @@ def chainUsingDoNotation := do
 
 /-!
 Notice in the second `divide 6 0` the exception from that division was nicely propagated along
-to the final result and the square function was pretty much ignored in that case.
+to the final result and the square function was ignored in that case.  You can see why the
+`square` function was ignored if you look at the implementation of `Except.bind`:
+-/
+def bind (ma : Except ε α) (f : α → Except ε β) : Except ε β :=
+  match ma with
+  | Except.error err => Except.error err
+  | Except.ok v      => f v
+/-!
+
+Specifically notice that it only calls the next function `f v` in the `Except.ok`, and
+in the error case it simply passes the same error along.
 
 Remember also that you can chain the actions with implicit binding by using the `do` notation
 as you see in the `chainUsingDoNotation` function above.
@@ -78,7 +89,7 @@ as you see in the `chainUsingDoNotation` function above.
 ## Try/Catch
 
 Now with all good exception handling you also want to be able to catch exceptions so your program
-can try continue on or do some error recovery task, which you can do like this:
+can continue on or do some error recovery task, which you can do like this:
 -/
 def testCatch :=
   try
@@ -128,7 +139,8 @@ def testUnwrap : String := Id.run do
 
 The `Id.run` function is a helper function that executes the `do` block and returns the result where
 `Id` is the _identity monad_.  So `Id.run do` is a pattern you can use to execute monads in a
-function that is not itself monadic.
+function that is not itself monadic.  This works for all monads except `IO` which, as stated earlier,
+you cannot invent out of thin air, you must use the `IO` monad given to your `main` function.
 
 ## Monadic functions
 
@@ -161,6 +173,6 @@ def forM [Monad m] (as : List α) (f : α → m PUnit) : m PUnit :=
 Now that you know all these different monad constructs, you might be wondering how you can combine
 them. What if there was some part of your state that you wanted to be able to modify (using the
 State monad), but you also needed exception handling. How can you get multiple monadic capabilities
-in the same fuunction. To learn the answer, head to [Monad Transformers](transformers.lean.md).
+in the same function. To learn the answer, head to [Monad Transformers](transformers.lean.md).
 
 -/

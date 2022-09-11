@@ -404,11 +404,6 @@ def enumFrom : Nat → List α → List (Nat × α)
 
 def enum : List α → List (Nat × α) := enumFrom 0
 
-def init : List α → List α
-  | []   => []
-  | [_]  => []
-  | a::l => a::init l
-
 def intersperse (sep : α) : List α → List α
   | []    => []
   | [x]   => [x]

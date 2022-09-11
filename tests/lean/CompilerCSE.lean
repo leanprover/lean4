@@ -9,11 +9,11 @@ open Lean.Compiler.LCNF
 #eval Compiler.compile #[``Lean.Meta.synthInstance, ``Lean.Elab.Term.Do.elabDo]
 
 @[cpass]
-def cseFixTest : PassInstaller := Testing.assertIsAtFixPoint `cse
+def cseFixTest : PassInstaller := Testing.assertIsAtFixPoint |>.install `cse `cseFix
 
 @[cpass]
 def cseSizeTest : PassInstaller :=
-  Testing.assertReducesOrPreservesSize `cse `cseSizeLeq "CSE increased size of declaration"
+  Testing.assertReducesOrPreservesSize "CSE increased size of declaration" |>.install `cse `cseSizeLeq
 
 set_option trace.Compiler.test true in
 #eval Compiler.compile #[``Lean.Meta.synthInstance, ``Lean.Elab.Term.Do.elabDo]

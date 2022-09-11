@@ -9,11 +9,11 @@ open Lean.Compiler.LCNF
 #eval Compiler.compile #[``Lean.Meta.synthInstance, ``Lean.Elab.Term.Do.elabDo]
 
 @[cpass]
-def pullInstancesFixTest : PassInstaller := Testing.assertIsAtFixPoint `pullInstances
+def pullInstancesFixTest : PassInstaller := Testing.assertIsAtFixPoint |>.install `pullInstances `pullInstancesFix
 
 @[cpass]
 def pullInstancesSizeTest : PassInstaller :=
-  Testing.assertPreservesSize `pullInstances `pullInstancesSizeEq "Pulling instances changed size"
+  Testing.assertPreservesSize "Pulling instances changed size" |>.install `pullInstances `pullInstancesSizeEq 
 
 set_option trace.Compiler.test true in
 #eval Compiler.compile #[``Lean.Meta.synthInstance, ``Lean.Elab.Term.Do.elabDo]

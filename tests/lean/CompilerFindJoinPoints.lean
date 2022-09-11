@@ -8,11 +8,11 @@ open Lean.Compiler.LCNF
 #eval Compiler.compile #[``Lean.Meta.synthInstance, ``Lean.Elab.Term.Do.elabDo, ``Lean.MetavarContext.MkBinding.collectForwardDeps]
 
 @[cpass]
-def findJoinPointFixTest : PassInstaller := Testing.assertIsAtFixPoint `findJoinPoints
+def findJoinPointFixTest : PassInstaller := Testing.assertIsAtFixPoint |>.install `findJoinPoints `findJoinPointsFix
 
 @[cpass]
 def cseSizeTest : PassInstaller :=
-  Testing.assertReducesOrPreservesSize `findJoinPoints `findJoinPointsSizeLeq "findJoinPoints increased size of declaration"
+  Testing.assertReducesOrPreservesSize "findJoinPoints increased size of declaration" |>.install `findJoinPoints `findJoinPointsSizeLeq
 
 set_option trace.Compiler.test true in
 #eval Compiler.compile #[``Lean.Meta.synthInstance, ``Lean.Elab.Term.Do.elabDo, ``Lean.MetavarContext.MkBinding.collectForwardDeps]

@@ -287,6 +287,15 @@ def isClass? (type : Expr) : CoreM (Option Name) := do
   else
     return none
 
+/--
+`isArrowClass? type` return `some ClsName` if the LCNF `type` is an instance of the class `ClsName`, or
+if it is arrow producing an instance of the class `ClsName`.
+-/
+def isArrowClass? (type : Expr) : CoreM (Option Name) := do
+  match type with
+  | .forallE _ _ b _ => isArrowClass? b
+  | _ => isClass? type
+
 def getArrowArity (e : Expr) :=
   match e with
   | .forallE _ _ b _ => getArrowArity b + 1

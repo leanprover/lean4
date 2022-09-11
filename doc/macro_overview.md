@@ -96,6 +96,7 @@ constructors; users can create atoms and idents which comport with this
 simplified representation using the `mkAtom` and `mkIdent` methods provided in
 the `Lean` namespace.
 ```lean
+# open Lean
 inductive Syntax where
   | missing : Syntax
   | node (kind : SyntaxNodeKind) (args : Array Syntax) : Syntax
@@ -107,11 +108,13 @@ inductive Syntax where
 
 For those interested, `MacroM` is a `ReaderT`:
 ```lean
+# open Lean
 abbrev MacroM := ReaderT Macro.Context (EStateM Macro.Exception Macro.State)
 ```
 
 The other relevant components are defined as follows:
 ```lean
+# open Lean
 structure Context where
   methods        : MethodsRef
   mainModule     : Name
@@ -179,6 +182,7 @@ means of writing parsers. As an example, the parser for the `rwa` (rewrite, then
 use assumption) tactic is:
 
 ```lean
+# open Lean.Parser.Tactic
 set_option trace.Elab.definition true in
 syntax "rwa " rwRuleSeq (location)? : tactic
 
@@ -211,11 +215,13 @@ descriptors declared with the `syntax` keyword like so:
 set_option trace.Elab.definition true in
 syntax (name := introv) "introv " (colGt ident)* : tactic
 
+/-
 [Elab.definition.body] introv : Lean.ParserDescr :=
 Lean.ParserDescr.node `introv 1022
   (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.nonReservedSymbol "introv " false)
     (Lean.ParserDescr.unary `many
       (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.const `colGt) (Lean.ParserDescr.const `ident))))
+-/
 ```
 
 ## The pattern language
@@ -283,9 +289,11 @@ example (a b c : Nat) (h0 : a <= b) (h1 : b <= c) : a <= c := by
 
 /- This will fail, but is interesting in that it exposes the "most-recent first" behavior, since the
   error message complains about being unable to unify mvar1 <= mvar2, rather than mvar1 < mvar2. -/
+/-
 example (a b c : Nat) (h0 : a <= b) (h1 : b <= c) : False := by
   transitivity b <;>
   assumption
+-/
 ```
 
 To see the desugared definition of the actual expansion, we can again use
@@ -329,6 +337,7 @@ We can also create the syntax transformer declaration ourselves instead of using
 `macro_rules`. We'll need to name our parser and use the attribute `@[macro
 myExFalsoParser]` to associate our declaration with the parser:
 ```lean
+# open Lean
 syntax (name := myExfalsoParser) "myExfalso" : tactic
 
 -- remember that `Macro` is a synonym for `Syntax -> TacticM Unit`
@@ -343,7 +352,7 @@ example (p : Prop) (h : p) (f : p -> False) : 3 = 2 := by
 In the above example, we're still using the sugar Lean provides for creating
 quotations, as it feels more intuitive and saves us some work. It is possible to
 forego the sugar altogether:
-```lean
+```
 syntax (name := myExfalsoParser) "myExfalso" : tactic
 
 @[macro myExfalsoParser] def implMyExfalso : Lean.Macro :=

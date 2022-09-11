@@ -263,6 +263,18 @@ def isTypeFormerType (type : Expr) : Bool :=
   match type with
   | .sort .. => true
   | .forallE _ _ b _ => isTypeFormerType b
+  | _ => false
+
+/--
+Return `true` if `type` is a LCNF type former type or it is an "any" type.
+This function is similar to `isTypeFormerType`, but more liberal.
+For example, `isTypeFormerType` returns false for `lcAny` and `Nat → lcAny`, but
+this function returns true.
+-/
+def maybeTypeFormerType (type : Expr) : Bool :=
+  match type with
+  | .sort .. => true
+  | .forallE _ _ b _ => maybeTypeFormerType b
   | _ => type.isAnyType
 
 /--

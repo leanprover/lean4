@@ -3,7 +3,6 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Compiler.BorrowedAnnotation
 import Lean.Meta.InferType
 
 namespace Lean.Compiler.LCNF
@@ -123,10 +122,7 @@ where
     | .forallE n d b bi =>
       let d := d.instantiateRev xs
       withLocalDecl n bi d fun x => do
-        let borrowed := isMarkedBorrowed d
-        let mut d := (← toLCNFType d).abstract xs
-        if borrowed then
-          d := markBorrowed d
+        let d := (← toLCNFType d).abstract xs
         return .forallE n d (← visitForall b (xs.push x)) bi
     | _ =>
       let e ← toLCNFType (e.instantiateRev xs)

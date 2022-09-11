@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.ProjFns
+import Lean.Compiler.BorrowedAnnotation
 import Lean.Compiler.LCNF.Types
 import Lean.Compiler.LCNF.Bind
 import Lean.Compiler.LCNF.InferType
@@ -286,8 +287,9 @@ def cleanupBinderName (binderName : Name) : CompilerM Name :=
 /-- Create a new local declaration using a Lean regular type. -/
 def mkParam (binderName : Name) (type : Expr) : M Param := do
   let binderName ← cleanupBinderName binderName
+  let borrow := isMarkedBorrowed type
   let type' ← toLCNFType type
-  let param ← LCNF.mkParam binderName type'
+  let param ← LCNF.mkParam binderName type' borrow
   modify fun s => { s with lctx  := s.lctx.mkLocalDecl param.fvarId binderName type .default }
   return param
 

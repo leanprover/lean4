@@ -58,10 +58,11 @@ def ppValue (e : Expr) : M Format := do
   | _ => ppExpr e
 
 def ppParam (param : Param) : M Format := do
+  let borrow := if param.borrow then "@&" else ""
   if pp.funBinderTypes.get (← getOptions) then
-    return Format.paren f!"{param.binderName} : {← ppExpr param.type}"
+    return Format.paren f!"{param.binderName} : {borrow}{← ppExpr param.type}"
   else
-    return format param.binderName
+    return format s!"{borrow}{param.binderName}"
 
 def ppParams (params : Array Param) : M Format := do
   prefixJoin " " params ppParam

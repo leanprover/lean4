@@ -20,6 +20,7 @@ structure Param where
   fvarId     : FVarId
   binderName : Name
   type       : Expr
+  borrow     : Bool
   deriving Inhabited, BEq
 
 def Param.toExpr (p : Param) : Expr :=

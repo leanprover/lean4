@@ -206,7 +206,7 @@ def mkAuxJpDecl (params : Array Param) (code : Code) (prefixName := `_jp) : Comp
 
 def mkAuxJpDecl' (fvarId : FVarId) (code : Code) (prefixName := `_jp) : CompilerM FunDecl := do
   let localDecl ← getLocalDecl fvarId
-  let params := #[{ fvarId, binderName := localDecl.userName, type := localDecl.type }]
+  let params := #[{ fvarId, binderName := localDecl.userName, type := localDecl.type, borrow := false }]
   mkAuxFunDecl params code prefixName
 
 def instantiateForall (type : Expr) (params : Array Param) : CoreM Expr :=

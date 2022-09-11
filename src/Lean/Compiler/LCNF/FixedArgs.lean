@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Compiler.LCNF.Basic
+import Lean.Compiler.LCNF.Types
 
 namespace Lean.Compiler.LCNF
 
@@ -22,7 +23,9 @@ where
         let args := letDecl.value.getAppArgs
         let sz := Nat.min args.size decl.params.size
         for i in [:sz] do
-          unless args[i]!.isFVarOf decl.params[i]!.fvarId do
+          let arg := args[i]!
+          let param := decl.params[i]!
+          unless arg.isFVarOf param.fvarId || (arg.isErased && param.type.isErased) do
             mask := mask.set! i false
         -- If the declaration is partially applied, we assume the missing arguments are not fixed
         for i in [args.size:decl.params.size] do

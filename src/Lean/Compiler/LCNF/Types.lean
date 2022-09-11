@@ -21,7 +21,7 @@ def anyTypeExpr := mkConst  ``lcAny
 def _root_.Lean.Expr.isAnyType (e : Expr) :=
   e.isConstOf ``lcAny
 
-def _root_.Lean.Expr.erased (e : Expr) :=
+def _root_.Lean.Expr.isErased (e : Expr) :=
   e.isConstOf ``lcErased
 
 /-!
@@ -108,7 +108,7 @@ partial def toLCNFType (type : Expr) : MetaM Expr := do
     withLocalDecl n bi d fun x => do
       let d ← toLCNFType d
       let b ← toLCNFType (b.instantiate1 x)
-      if b.isAnyType || b.erased then
+      if b.isAnyType || b.isErased then
         return b
       else
         return (Expr.lam n d (b.abstract #[x]) bi).eta
@@ -227,7 +227,7 @@ partial def joinTypes? (a b : Expr) : Option Expr := do
   if a.isAnyType then return a
   else if b.isAnyType then return b
   else if a == b then return a
-  else if a.erased || b.erased then failure
+  else if a.isErased || b.isErased then failure
   else
     let a' := a.headBeta
     let b' := b.headBeta

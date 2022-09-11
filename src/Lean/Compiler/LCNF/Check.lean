@@ -54,7 +54,7 @@ def checkAppArgs (f : Expr) (args : Array Expr) : CheckM Unit := do
     let expectedType := d.instantiateRevRange j i args
     unless compatibleTypes argType expectedType do
       throwError "type mismatch at LCNF application{indentExpr (mkAppN f args)}\nargument {arg} has type{indentExpr argType}\nbut is expected to have type{indentExpr expectedType}"
-    unless isTypeFormerType expectedType || expectedType.erased do
+    unless isTypeFormerType expectedType || expectedType.isErased do
       unless arg.isFVar do
         throwError "invalid LCNF application{indentExpr (mkAppN f args)}\nargument{indentExpr arg}\nmust be a free variable"
       checkFVar arg.fvarId!

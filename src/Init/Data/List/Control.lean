@@ -40,10 +40,12 @@ Finally, we rarely use `mapM` with something that is not a `Monad`.
 Users that want to use `mapM` with `Applicative` should use `mapA` instead.
 -/
 
-@[specialize]
-def mapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m β) : List α → m (List β)
-  | []    => pure []
-  | a::as => return (← f a) :: (← mapM f as)
+@[inline]
+def mapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m β) (as : List α) : m (List β) :=
+  let rec @[specialize] loop
+    | [],      bs => pure bs.reverse
+    | a :: as, bs => do loop as ((← f a)::bs)
+  loop as []
 
 @[specialize]
 def mapA {m : Type u → Type v} [Applicative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m (List β)
@@ -95,12 +97,9 @@ protected def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w
     let s' ← f s a
     List.foldlM f s' as
 
-@[specialize]
-def foldrM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (f : α → s → m s) → (init : s) → List α → m s
-  | _, s, []      => pure s
-  | f, s, a :: as => do
-    let s' ← foldrM f s as
-    f a s'
+@[inline]
+def foldrM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} (f : α → s → m s) (init : s) (l : List α) : m s :=
+  l.reverse.foldlM (fun s a => f a s) init
 
 @[specialize]
 def firstM {m : Type u → Type v} [Monad m] [Alternative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m β

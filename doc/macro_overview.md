@@ -68,7 +68,7 @@ carries state needed for macro expansion to work nicely, including the info
 needed to implement hygiene.
 
 As an example, we again refer to Mathlib's set builder notation:
-```
+```lean
 /- Declares a parser -/
 syntax (priority := high) "{" term,+ "}" : term
 
@@ -95,7 +95,8 @@ simplified representation which omits details in the `atom` and `ident`
 constructors; users can create atoms and idents which comport with this
 simplified representation using the `mkAtom` and `mkIdent` methods provided in
 the `Lean` namespace.
-```
+```lean
+# open Lean
 inductive Syntax where
   | missing : Syntax
   | node (kind : SyntaxNodeKind) (args : Array Syntax) : Syntax
@@ -106,12 +107,14 @@ inductive Syntax where
 
 
 For those interested, `MacroM` is a `ReaderT`:
-```
+```lean
+# open Lean
 abbrev MacroM := ReaderT Macro.Context (EStateM Macro.Exception Macro.State)
 ```
 
 The other relevant components are defined as follows:
-```
+```lean
+# open Lean
 structure Context where
   methods        : MethodsRef
   mainModule     : Name
@@ -148,7 +151,7 @@ or mathlib4's `binderterm`. These are the different categories of things that
 can be referred to in a quote/antiquote. `declare_syntax_cat` results in a call
 to `registerParserCategory` and produces a new parser descriptor:
 
-```
+```lean
 set_option trace.Elab.definition true in
 declare_syntax_cat binderterm
 
@@ -178,7 +181,8 @@ macro/pattern language by way of the `syntax` keyword. This is the recommended
 means of writing parsers. As an example, the parser for the `rwa` (rewrite, then
 use assumption) tactic is:
 
-```
+```lean
+# open Lean.Parser.Tactic
 set_option trace.Elab.definition true in
 syntax "rwa " rwRuleSeq (location)? : tactic
 
@@ -207,15 +211,17 @@ mark, which is not what we want.
 The name `tacticRwa__` is automatically generated. You can name parser
 descriptors declared with the `syntax` keyword like so:
 
-```
+```lean
 set_option trace.Elab.definition true in
 syntax (name := introv) "introv " (colGt ident)* : tactic
 
+/-
 [Elab.definition.body] introv : Lean.ParserDescr :=
 Lean.ParserDescr.node `introv 1022
   (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.nonReservedSymbol "introv " false)
     (Lean.ParserDescr.unary `many
       (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.const `colGt) (Lean.ParserDescr.const `ident))))
+-/
 ```
 
 ## The pattern language
@@ -268,7 +274,7 @@ declared with `macro_rules`. This `transitivity` tactic is implemented such that
 it will work for either Nat.le or Nat.lt. The Nat.lt version was declared "most
 recently", so it will be tried first, but if it fails (for example, if the
 actual term in question is Nat.le) the next potential expansion will be tried:
-```
+```lean
 macro "transitivity" e:(colGt term) : tactic => `(tactic| apply Nat.le_trans (m := $e))
 macro_rules
   | `(tactic| transitivity $e) => `(tactic| apply Nat.lt_trans (m := $e))
@@ -283,15 +289,17 @@ example (a b c : Nat) (h0 : a <= b) (h1 : b <= c) : a <= c := by
 
 /- This will fail, but is interesting in that it exposes the "most-recent first" behavior, since the
   error message complains about being unable to unify mvar1 <= mvar2, rather than mvar1 < mvar2. -/
+/-
 example (a b c : Nat) (h0 : a <= b) (h1 : b <= c) : False := by
   transitivity b <;>
   assumption
+-/
 ```
 
 To see the desugared definition of the actual expansion, we can again use
 `set_option trace.Elab.definition true in` and observe the output of the humble
 `exfalso` tactic defined in Mathlib4:
-```
+```lean
 
 set_option trace.Elab.definition true in
 macro "exfalso" : tactic => `(apply False.elim)
@@ -328,7 +336,8 @@ fun x =>
 We can also create the syntax transformer declaration ourselves instead of using
 `macro_rules`. We'll need to name our parser and use the attribute `@[macro
 myExFalsoParser]` to associate our declaration with the parser:
-```
+```lean
+# open Lean
 syntax (name := myExfalsoParser) "myExfalso" : tactic
 
 -- remember that `Macro` is a synonym for `Syntax -> TacticM Unit`

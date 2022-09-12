@@ -494,6 +494,14 @@ static inline bool lean_is_shared(lean_object * o) {
     }
 }
 
+static inline bool lean_is_exclusive_after_dec(lean_object * o) {
+    if (LEAN_LIKELY(lean_is_st(o))) {
+        return o->m_rc <= 2;
+    } else {
+        return false;
+    }
+}
+
 LEAN_SHARED void lean_mark_mt(lean_object * o);
 LEAN_SHARED void lean_mark_persistent(lean_object * o);
 
@@ -1758,9 +1766,12 @@ static inline double lean_unbox_float(b_lean_obj_arg o) {
 LEAN_SHARED lean_object * lean_dbg_trace(lean_obj_arg s, lean_obj_arg fn);
 LEAN_SHARED lean_object * lean_dbg_sleep(uint32_t ms, lean_obj_arg fn);
 
-static inline lean_obj_res lean_with_is_shared(lean_obj_arg a, lean_obj_arg f) {
-    bool is_shared = !lean_is_scalar(a) && lean_is_shared(a);
-    return lean_apply_2(f, a, lean_box(is_shared));
+static inline uint8_t lean_is_shared_extern(lean_obj_arg a) {
+    if (lean_is_scalar(a)) return false;
+    // we count one extra because this function itself consumes a reference
+    bool shared_after_dec = !lean_is_exclusive_after_dec(a);
+    lean_dec(a);
+    return shared_after_dec;
 }
 
 /* IO Helper functions */

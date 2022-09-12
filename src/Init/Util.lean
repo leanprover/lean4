@@ -18,23 +18,26 @@ def dbgTrace {α : Type u} (s : String) (f : Unit → α) : α := f ()
 def dbgTraceVal {α : Type u} [ToString α] (a : α) : α :=
   dbgTrace (toString a) (fun _ => a)
 
-@[neverExtract, extern "lean_with_is_shared"]
-def withSquashIsShared {α : Type u} {β : Type v} (a : α) (f : α → Squash Bool → β) : β := f a (Squash.mk true)
+set_option linter.unusedVariables.funArgs false in
+@[neverExtract, extern "lean_is_shared_extern"]
+unsafe def isSharedUnsafe {α : Type u} (a : α) : Bool := true
 
-def withIsShared {α : Type u} {β : Type v} (a : α)
-    (f : (a' : α) → a' = a → Bool → β) (h : f a rfl false = f a rfl true) : β :=
-  withSquashIsShared (α := {x // x = a}) ⟨a, rfl⟩ fun ⟨a', eq⟩ b =>
-    Quot.liftOn b (f a' eq) fun x y _ => by
-      cases eq.symm
-      exact match x, y with
-      | true, true | false, false => rfl
-      | false, true => h
-      | true, false => h.symm
+@[inline] private unsafe def isSharedImpl {α : Type u} (a : α) : Squash Bool := Squash.mk (isSharedUnsafe a)
+
+@[implementedBy isSharedImpl]
+def isShared {α : Type u} (a : α) : Squash Bool := Squash.mk true
+
+@[inline] def withIsShared {α : Type u} {β : Type v} (a : α) (f : Bool → β) (h : f false = f true) : β :=
+  Quot.liftOn (isShared a) f fun x y _ =>
+    match x, y with
+    | true, true | false, false => rfl
+    | false, true => h
+    | true, false => h.symm
 
 /-- Display the given message if `a` is shared, that is, RC(a) > 1 -/
 def dbgTraceIfShared {α : Type u} (s : String) (a : α) : α :=
   withIsShared a
-    (fun a _ val => if val then dbgTrace ("shared RC " ++ s) (fun _ => a) else a)
+    (fun val => if val then dbgTrace ("shared RC " ++ s) (fun _ => a) else a)
     (by simp [dbgTrace])
 
 /-- Print stack trace to stderr before evaluating given closure. Currently supported on Linux only. -/

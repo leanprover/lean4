@@ -10,6 +10,7 @@ import Lean.Compiler.LCNF.Simp
 import Lean.Compiler.LCNF.PullFunDecls
 import Lean.Compiler.LCNF.ReduceJpArity
 import Lean.Compiler.LCNF.JoinPoints
+import Lean.Compiler.LCNF.Specialize
 
 namespace Lean.Compiler.LCNF
 
@@ -21,7 +22,8 @@ namespace Lean.Compiler.LCNF
     pullFunDecls,
     findJoinPoints,
     reduceJpArity,
-    simp { etaPoly := true, inlinePartial := true, implementedBy := true } (occurence := 1)
+    simp { etaPoly := true, inlinePartial := true, implementedBy := true } (occurence := 1),
+    specialize
   ]
 
 end Lean.Compiler.LCNF

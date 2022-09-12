@@ -842,7 +842,7 @@ Try to simplify `cases` of `constructor`
 partial def simpCasesOnCtor? (cases : Cases) : SimpM (Option Code) := do
   let discr ← normFVar cases.discr
   let discrExpr ← findCtor (.fvar discr)
-  let some (ctorVal, ctorArgs) := discrExpr.constructorApp? (← getEnv) | return none
+  let some (ctorVal, ctorArgs) := discrExpr.constructorApp? (← getEnv) (useRaw := true) | return none
   let (alt, cases) := cases.extractAlt! ctorVal.name
   eraseFVarsAt (.cases cases)
   markSimplified
@@ -850,11 +850,22 @@ partial def simpCasesOnCtor? (cases : Cases) : SimpM (Option Code) := do
   | .default k => simp k
   | .alt _ params k =>
     let fields := ctorArgs[ctorVal.numParams:]
+    let mut auxDecls := #[]
     for param in params, field in fields do
-      addSubst param.fvarId field
+      /-
+      `field` may not be a free variable. Recall that `constructorApp?` has special support for numerals,
+      and `ctorArgs` contains a numeral if `discrExpr` is a numeral. We may have other cases in the future.
+      To make the code robust, we add auxiliary declarations whenever the `field` is not a free variable.
+      -/
+      if field.isFVar then
+        addSubst param.fvarId field
+      else
+        let auxDecl ← mkAuxLetDecl field
+        auxDecls := auxDecls.push (CodeDecl.let auxDecl)
+        addSubst param.fvarId (.fvar auxDecl.fvarId)
     let k ← simp k
     eraseParams params
-    return k
+    attachCodeDecls auxDecls k
 
 /--
 Simplify `code`

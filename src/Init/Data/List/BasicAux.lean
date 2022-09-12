@@ -19,11 +19,6 @@ def get! [Inhabited α] : List α → Nat → α
   | _::as, n+1 => get! as n
   | _,     _   => panic! "invalid index"
 
-def get? : List α → Nat → Option α
-  | a::_,  0   => some a
-  | _::as, n+1 => get? as n
-  | _,     _   => none
-
 def getD (as : List α) (idx : Nat) (a₀ : α) : α :=
   (as.get? idx).getD a₀
 

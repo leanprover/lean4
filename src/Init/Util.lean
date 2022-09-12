@@ -76,8 +76,5 @@ def withPtrAddr {α : Type u} {β : Type v} (a : α) (k : USize → β) (h : ∀
 @[inline] def getElem! [GetElem cont idx elem dom] [Inhabited elem] (xs : cont) (i : idx) [Decidable (dom xs i)] : elem :=
   if h : _ then getElem xs i h else panic! "index out of bounds"
 
-@[inline] def getElem? [GetElem cont idx elem dom] (xs : cont) (i : idx) [Decidable (dom xs i)] : Option elem :=
-  if h : _ then some (getElem xs i h) else none
-
 macro:max x:term noWs "[" i:term "]" noWs "?" : term => `(getElem? $x $i)
 macro:max x:term noWs "[" i:term "]" noWs "!" : term => `(getElem! $x $i)

@@ -119,6 +119,7 @@ end Fin
 
 instance [GetElem cont Nat elem dom] : GetElem cont (Fin n) elem fun xs i => dom xs i where
   getElem xs i h := getElem xs i.1 h
+  getElem? xs i := getElem? xs i.1
 
 macro_rules
   | `(tactic| get_elem_tactic_trivial) => `(tactic| apply Fin.val_lt_of_le; get_elem_tactic_trivial; done)

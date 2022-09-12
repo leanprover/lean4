@@ -2223,6 +2223,15 @@ def List.get {α : Type u} : (as : List α) → Fin as.length → α
   | cons _ as, ⟨Nat.succ i, h⟩ => get as ⟨i, Nat.le_of_succ_le_succ h⟩
 
 /--
+`as.get? i` returns the `i`'th element of the list `as`, or `none` if the index
+is out of bounds.
+-/
+def List.get? : List α → Nat → Option α
+  | cons a _,  0          => some a
+  | cons _ as, Nat.succ n => get? as n
+  | _,         _          => none
+
+/--
 `String` is the type of (UTF-8 encoded) strings.
 
 The compiler overrides the data representation of this type to a byte sequence,
@@ -2435,8 +2444,14 @@ class GetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w)) (dom : o
   * `arr[i]'h`: uses `h` to prove the side goal
   -/
   getElem (xs : cont) (i : idx) (h : dom xs i) : elem
+  /--
+  The `getElem? arr i` function (notation `arr[i]?`) gets the nth element of `arr`,
+  or `none` if the index is out of bounds.
+  -/
+  getElem? (xs : cont) (i : idx) [Decidable (dom xs i)] : Option elem :=
+    dite _ (fun h => some (getElem xs i h)) (fun _ => none)
 
-export GetElem (getElem)
+export GetElem (getElem getElem?)
 
 /--
 `Array α` is the type of [dynamic arrays](https://en.wikipedia.org/wiki/Dynamic_array)
@@ -2477,6 +2492,10 @@ def Array.size {α : Type u} (a : @& Array α) : Nat :=
 def Array.get {α : Type u} (a : @& Array α) (i : @& Fin a.size) : α :=
   a.data.get i
 
+/-- Access an element from an array, or return none if out of bounds. -/
+@[inline] def Array.get? (a : Array α) (i : Nat) : Option α :=
+  dite (LT.lt i a.size) (fun h => some (a.get ⟨i, h⟩)) (fun _ => none)
+
 /-- Access an element from an array, or return `v₀` if the index is out of bounds. -/
 @[inline] abbrev Array.getD (a : Array α) (i : Nat) (v₀ : α) : α :=
   dite (LT.lt i a.size) (fun h => a.get ⟨i, h⟩) (fun _ => v₀)
@@ -2488,6 +2507,7 @@ def Array.get! {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α 
 
 instance : GetElem (Array α) Nat α fun xs i => LT.lt i xs.size where
   getElem xs i h := xs.get ⟨i, h⟩
+  getElem? xs i := xs.get? i
 
 /--
 Push an element onto the end of an array. This is amortized O(1) because
@@ -3570,6 +3590,7 @@ def getArg (stx : Syntax) (i : Nat) : Syntax :=
 
 instance : GetElem Syntax Nat Syntax fun _ _ => True where
   getElem stx i _ := stx.getArg i
+  getElem? stx i _ := some (stx.getArg i)
 
 /-- Gets the list of arguments of the syntax node, or `#[]` if it's not a `node`. -/
 def getArgs (stx : Syntax) : Array Syntax :=

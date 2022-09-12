@@ -150,6 +150,7 @@ def find? {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → Op
 
 instance {_ : BEq α} {_ : Hashable α} : GetElem (PersistentHashMap α β) α (Option β) fun _ _ => True where
   getElem m i _ := m.find? i
+  getElem? m i := m.find? i
 
 @[inline] def findD {_ : BEq α} {_ : Hashable α} (m : PersistentHashMap α β) (a : α) (b₀ : β) : β :=
   (m.find? a).getD b₀

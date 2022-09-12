@@ -57,6 +57,7 @@ def get? (ds : FloatArray) (i : Nat) : Option Float :=
 
 instance : GetElem FloatArray Nat Float fun xs i => i < xs.size where
   getElem xs i h := xs.get ⟨i, h⟩
+  getElem? xs i := xs.get? i
 
 instance : GetElem FloatArray USize Float fun xs i => i.val < xs.size where
   getElem xs i h := xs.uget i h

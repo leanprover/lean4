@@ -47,9 +47,6 @@ instance : GetElem (Array α) USize α fun xs i => i.toNat < xs.size where
 def back [Inhabited α] (a : Array α) : α :=
   a.get! (a.size - 1)
 
-def get? (a : Array α) (i : Nat) : Option α :=
-  if h : i < a.size then some a[i] else none
-
 def back? (a : Array α) : Option α :=
   a.get? (a.size - 1)
 

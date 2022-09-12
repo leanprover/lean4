@@ -11,7 +11,14 @@ namespace Lean.Compiler.LCNF
 namespace Specialize
 
 structure Context where
-  scope : FVarIdSet := {}
+  /--
+  Set of free variables in scope.
+  -/
+  scope  : FVarIdSet := {}
+  /--
+  Set of let-declarations in scope that do not depend on parameters.
+  -/
+  ground : FVarIdSet := {}
 
 structure State where
   decls : Array Decl := #[]
@@ -24,12 +31,22 @@ abbrev SpecializeM := ReaderT Context $ StateRefT State CompilerM
 @[inline] def withFVar (fvarId : FVarId) (x : SpecializeM α) : SpecializeM α :=
   withReader (fun ctx => { ctx with scope := ctx.scope.insert fvarId }) x
 
+def isGround (e : Expr) : SpecializeM Bool := do
+  let s := (← read).ground
+  return !e.hasAnyFVar (!s.contains ·)
+
+@[inline] def withLetDecl (decl : LetDecl) (x : SpecializeM α) : SpecializeM α := do
+  let grd ← isGround decl.value
+  let fvarId := decl.fvarId
+  withReader (fun { scope, ground } => { scope := scope.insert fvarId, ground := if grd then ground.insert fvarId else ground }) x
+
 def specializeApp? (letDecl : LetDecl) (_k : Code) : SpecializeM (Option Code) := do
   unless letDecl.value.isApp do return none
   let .const declName _us := letDecl.value.getAppFn | return none
   let some paramsInfo ← getSpecParamInfo? declName | return none
   let some _decl ← getStage1Decl? declName | return none
-  trace[Compiler.specialize.candidate] "{letDecl.value}, {paramsInfo}"
+  trace[Compiler.specialize.candidate] "{letDecl.value}, {paramsInfo}, {← letDecl.value.getAppArgs.mapM isGround}"
+
   -- TODO
   return none
 
@@ -44,7 +61,7 @@ mutual
       if let some k ← specializeApp? decl k then
         visitCode k
       else
-        let k ← withFVar decl.fvarId <| visitCode k
+        let k ← withLetDecl decl <| visitCode k
         return code.updateLet! decl k
     | .fun decl k | .jp decl k =>
       let decl ← visitFunDecl decl

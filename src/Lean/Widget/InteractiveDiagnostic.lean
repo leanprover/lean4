@@ -172,7 +172,7 @@ def msgToInteractiveDiagnostic (text : FileMap) (m : Message) (hasWidgets : Bool
   let range : Range := ⟨low, high⟩
   let fullRange : Range := ⟨low, fullHigh⟩
   let severity? := some <| match m.severity with
-    | .information => .information
+    | .information => .hint
     | .warning     => .warning
     | .error       => .error
   let source? := some "Lean 4"

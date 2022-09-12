@@ -310,6 +310,16 @@ section Updates
           validSnaps := validSnaps.dropLast
       unfoldCmdSnaps newMeta validSnaps.toArray cancelTk ctx
     modify fun st => { st with doc := ⟨newMeta, AsyncList.delayed newSnaps, cancelTk⟩ }
+
+  /-- called when document is closed so we can clear any diagnostics and cancel pending work -/
+  def exitWorker : WorkerM Unit := do
+    let ctx ← read
+    let state ← get
+    let doc := state.doc
+    let meta := doc.meta
+    publishDiagnostics meta #[] ctx.hOut
+    doc.cancelTk.set
+
 end Updates
 
 /- Notifications are handled in the main thread. They may change global worker state
@@ -451,8 +461,7 @@ section MainLoop
       handleRequest id method (toJson params)
       mainLoop
     | Message.notification "exit" none =>
-      let doc := (←get).doc
-      doc.cancelTk.set
+      exitWorker
       return ()
     | Message.notification method (some params) =>
       handleNotification method (toJson params)

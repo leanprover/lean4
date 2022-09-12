@@ -451,7 +451,6 @@ inline usize usize_mix_hash(usize a1, usize a2) { return lean_usize_mix_hash(a1,
 // debugging helper functions
 inline object * dbg_trace(obj_arg s, obj_arg fn) { return lean_dbg_trace(s, fn); }
 inline object * dbg_sleep(uint32 ms, obj_arg fn) { return lean_dbg_sleep(ms, fn); }
-inline object * dbg_trace_if_shared(obj_arg s, obj_arg a) { return lean_dbg_trace_if_shared(s, a); }
 
 // =======================================
 // IO helper functions

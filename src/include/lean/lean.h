@@ -1757,7 +1757,11 @@ static inline double lean_unbox_float(b_lean_obj_arg o) {
 
 LEAN_SHARED lean_object * lean_dbg_trace(lean_obj_arg s, lean_obj_arg fn);
 LEAN_SHARED lean_object * lean_dbg_sleep(uint32_t ms, lean_obj_arg fn);
-LEAN_SHARED lean_object * lean_dbg_trace_if_shared(lean_obj_arg s, lean_obj_arg a);
+
+static inline lean_obj_res lean_with_is_shared(lean_obj_arg a, lean_obj_arg f) {
+    bool is_shared = !lean_is_scalar(a) && lean_is_shared(a);
+    return lean_apply_2(f, a, lean_box(is_shared));
+}
 
 /* IO Helper functions */
 

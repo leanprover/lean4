@@ -711,15 +711,28 @@ partial def getHierarchyDepth (struct : Struct) : Nat :=
     | .nested struct => Nat.max max (getHierarchyDepth struct + 1)
     | _ => max
 
+def isDefaultMissing? [Monad m] [MonadMCtx m] (field : Field Struct) : m Bool := do
+  if let some expr := field.expr? then
+    if let some (.mvar mvarId) := defaultMissing? expr then
+      unless (← mvarId.isAssigned) do
+        return true
+  return false
+
 partial def findDefaultMissing? [Monad m] [MonadMCtx m] (struct : Struct) : m (Option (Field Struct)) :=
   struct.fields.findSomeM? fun field => do
    match field.val with
    | .nested struct => findDefaultMissing? struct
-   | _ => match field.expr? with
-     | none      => unreachable!
-     | some expr => match defaultMissing? expr with
-       | some (.mvar mvarId) => return if (← mvarId.isAssigned) then none else some field
-       | _                   => return none
+   | _ => return if (← isDefaultMissing? field) then field else none
+
+partial def allDefaultMissing [Monad m] [MonadMCtx m] (struct : Struct) : m (Array (Field Struct)) :=
+  go struct *> get |>.run' #[]
+where
+  go (struct : Struct) : StateT (Array (Field Struct)) m Unit :=
+    for field in struct.fields do
+      if let .nested struct := field.val then
+        go struct
+      else if (← isDefaultMissing? field) then
+        modify (·.push field)
 
 def getFieldName (field : Field Struct) : Name :=
   match field.lhs with
@@ -854,7 +867,15 @@ partial def propagateLoop (hierarchyDepth : Nat) (d : Nat) (struct : Struct) : M
   | some field =>
     trace[Elab.struct] "propagate [{d}] [field := {field}]: {struct}"
     if d > hierarchyDepth then
-      throwErrorAt field.ref "field '{getFieldName field}' is missing"
+      let missingFields := (← allDefaultMissing struct).map getFieldName
+      let missingFieldsWithoutDefault :=
+        let env := (← getEnv)
+        let structs := (← read).allStructNames
+        missingFields.filter fun fieldName => structs.all fun struct =>
+          (getDefaultFnForField? env struct fieldName).isNone
+      let fieldsToReport :=
+        if missingFieldsWithoutDefault.isEmpty then missingFields else missingFieldsWithoutDefault
+      throwErrorAt field.ref "fields missing: {fieldsToReport.toList.map (s!"'{·}'") |> ", ".intercalate}"
     else withReader (fun ctx => { ctx with maxDistance := d }) do
       modify fun _ => { progress := false }
       step struct

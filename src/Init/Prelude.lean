@@ -2610,7 +2610,7 @@ class SeqLeft (f : Type u → Type v) : Type (max (u+1) v) where
   `Unit → f β` function. -/
   seqLeft : {α β : Type u} → f α → (Unit → f β) → f α
 
-/-- The typeclass which supplies the `<*` "seqRight" function. See `Applicative`. -/
+/-- The typeclass which supplies the `*>` "seqRight" function. See `Applicative`. -/
 class SeqRight (f : Type u → Type v) : Type (max (u+1) v) where
   /-- If `x : F α` and `y : F β`, then `x *> y` evaluates `x`, then `y`,
   and returns the result of `y`.

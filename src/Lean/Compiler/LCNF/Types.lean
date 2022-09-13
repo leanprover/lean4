@@ -201,9 +201,11 @@ partial def compatibleTypes (a b : Expr) : Bool :=
   if a.isAnyType || b.isAnyType then
     true
   else
-    let a := a.headBeta
-    let b := b.headBeta
-    if a == b then
+    let a' := a.headBeta
+    let b' := b.headBeta
+    if a != a' || b != b' then
+      compatibleTypes a' b'
+    else if a == b then
       true
     else
       match a, b with

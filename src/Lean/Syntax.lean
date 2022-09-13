@@ -77,9 +77,9 @@ end SyntaxNode
 
 namespace Syntax
 
-def getAtomVal! : Syntax → String
+def getAtomVal : Syntax → String
   | atom _ val => val
-  | _          => panic! "getAtomVal!: not an atom"
+  | _          => ""
 
 def setAtomVal : Syntax → String → Syntax
   | atom info _, v => (atom info v)

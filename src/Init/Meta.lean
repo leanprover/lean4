@@ -901,22 +901,22 @@ end Syntax
 namespace TSyntax
 
 def getNat (s : NumLit) : Nat :=
-  s.raw.isNatLit?.get!
+  s.raw.isNatLit?.getD 0
 
 def getId (s : Ident) : Name :=
   s.raw.getId
 
 def getScientific (s : ScientificLit) : Nat × Bool × Nat :=
-  s.raw.isScientificLit?.get!
+  s.raw.isScientificLit?.getD (0, false, 0)
 
 def getString (s : StrLit) : String :=
-  s.raw.isStrLit?.get!
+  s.raw.isStrLit?.getD ""
 
 def getChar (s : CharLit) : Char :=
-  s.raw.isCharLit?.get!
+  s.raw.isCharLit?.getD default
 
 def getName (s : NameLit) : Name :=
-  s.raw.isNameLit?.get!
+  s.raw.isNameLit?.getD .anonymous
 
 namespace Compat
 

@@ -95,7 +95,7 @@
    "kind": 5,
    "documentation":
    {"value":
-    "`forIn x b f : m β` runs a for-loop in the monad `m` with additional state `β`.\n  This traverses over the \"contents\" of `x`, and passes the elements `a : α` to\n  `f : α → β → m (ForInStep β)`. `b : β` is the initial state, and the return value\n  of `f` is the new state as well as a directive `.done` or `.yield`\n  which indicates whether to abort early or continue iteration.\n\n  The expression\n  ```\n  let mut b := ...\n  for x in xs do\n    b ← foo x b\n  ```\n  in a `do` block is syntactic sugar for:\n  ```\n  let b := ...\n  let b ← forIn xs b (fun x b => do\n    let b ← foo x b\n    return .yield b)\n  ```\n  (Here `b` corresponds to the variables mutated in the loop.) ",
+    "`forIn x b f : m β` runs a for-loop in the monad `m` with additional state `β`.\nThis traverses over the \"contents\" of `x`, and passes the elements `a : α` to\n`f : α → β → m (ForInStep β)`. `b : β` is the initial state, and the return value\nof `f` is the new state as well as a directive `.done` or `.yield`\nwhich indicates whether to abort early or continue iteration.\n\nThe expression\n```\nlet mut b := ...\nfor x in xs do\n  b ← foo x b\n```\nin a `do` block is syntactic sugar for:\n```\nlet b := ...\nlet b ← forIn xs b (fun x b => do\n  let b ← foo x b\n  return .yield b)\n```\n(Here `b` corresponds to the variables mutated in the loop.) ",
     "kind": "markdown"},
    "detail":
    "[self : ForIn m ρ α] → {β : Type u₁} → [inst : Monad m] → ρ → β → (α → β → m (ForInStep β)) → m β"},

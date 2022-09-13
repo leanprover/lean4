@@ -39,18 +39,18 @@ structure SavedContext where
 
 /-- We use synthetic metavariables as placeholders for pending elaboration steps. -/
 inductive SyntheticMVarKind where
-  | /-- Use typeclass resolution to synthesize value for metavariable. -/
-    typeClass
-  | /--
-     Similar to `typeClass`, but error messages are different.
-     if `f?` is `some f`, we produce an application type mismatch error message.
-     Otherwise, if `header?` is `some header`, we generate the error `(header ++ "has type" ++ eType ++ "but it is expected to have type" ++ expectedType)`
-     Otherwise, we generate the error `("type mismatch" ++ e ++ "has type" ++ eType ++ "but it is expected to have type" ++ expectedType)` -/
-    coe (header? : Option String) (eNew : Expr) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr)
-  | /-- Use tactic to synthesize value for metavariable. -/
-    tactic (tacticCode : Syntax) (ctx : SavedContext)
-  | /-- Metavariable represents a hole whose elaboration has been postponed. -/
-    postponed (ctx : SavedContext)
+  /-- Use typeclass resolution to synthesize value for metavariable. -/
+  | typeClass
+  /--
+  Similar to `typeClass`, but error messages are different.
+  if `f?` is `some f`, we produce an application type mismatch error message.
+  Otherwise, if `header?` is `some header`, we generate the error `(header ++ "has type" ++ eType ++ "but it is expected to have type" ++ expectedType)`
+  Otherwise, we generate the error `("type mismatch" ++ e ++ "has type" ++ eType ++ "but it is expected to have type" ++ expectedType)` -/
+  | coe (header? : Option String) (eNew : Expr) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr)
+  /-- Use tactic to synthesize value for metavariable. -/
+  | tactic (tacticCode : Syntax) (ctx : SavedContext)
+  /-- Metavariable represents a hole whose elaboration has been postponed. -/
+  | postponed (ctx : SavedContext)
   deriving Inhabited
 
 instance : ToString SyntheticMVarKind where
@@ -70,12 +70,12 @@ structure SyntheticMVarDecl where
   We have three different kinds of error context.
 -/
 inductive MVarErrorKind where
-  | /-- Metavariable for implicit arguments. `ctx` is the parent application. -/
-    implicitArg (ctx : Expr)
-  | /-- Metavariable for explicit holes provided by the user (e.g., `_` and `?m`) -/
-    hole
-  | /-- "Custom", `msgData` stores the additional error messages. -/
-    custom (msgData : MessageData)
+  /-- Metavariable for implicit arguments. `ctx` is the parent application. -/
+  | implicitArg (ctx : Expr)
+  /-- Metavariable for explicit holes provided by the user (e.g., `_` and `?m`) -/
+  | hole
+  /-- "Custom", `msgData` stores the additional error messages. -/
+  | custom (msgData : MessageData)
   deriving Inhabited
 
 instance : ToString MVarErrorKind where
@@ -378,9 +378,9 @@ builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermEl
 -/
 inductive LVal where
   | fieldIdx  (ref : Syntax) (i : Nat)
-  | /-- Field `suffix?` is for producing better error messages because `x.y` may be a field access or a hierachical/composite name.
-       `ref` is the syntax object representing the field. `targetStx` is the target object being accessed. -/
-    fieldName (ref : Syntax) (name : String) (suffix? : Option Name) (targetStx : Syntax)
+  /-- Field `suffix?` is for producing better error messages because `x.y` may be a field access or a hierachical/composite name.
+  `ref` is the syntax object representing the field. `targetStx` is the target object being accessed. -/
+  | fieldName (ref : Syntax) (name : String) (suffix? : Option Name) (targetStx : Syntax)
 
 def LVal.getRef : LVal → Syntax
   | .fieldIdx ref _    => ref

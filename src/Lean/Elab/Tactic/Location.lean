@@ -10,11 +10,11 @@ namespace Lean.Elab.Tactic
 
 /-- Denotes a set of locations where a tactic should be applied for the main goal. See also `withLocation`. -/
 inductive Location where
-  | /-- Apply the tactic everywhere. -/
-    wildcard
-  | /-- `hypotheses` are hypothesis names in the main goal that the tactic should be applied to.
-        If `type` is true, then the tactic should also be applied to the target type. -/
-    targets (hypotheses : Array Syntax) (type : Bool)
+  /-- Apply the tactic everywhere. -/
+  | wildcard
+  /-- `hypotheses` are hypothesis names in the main goal that the tactic should be applied to.
+  If `type` is true, then the tactic should also be applied to the target type. -/
+  | targets (hypotheses : Array Syntax) (type : Bool)
 
 /-
 Recall that

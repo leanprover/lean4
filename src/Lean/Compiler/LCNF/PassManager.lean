@@ -15,13 +15,13 @@ namespace Lean.Compiler.LCNF
 The pipeline phase a certain `Pass` is supposed to happen in.
 -/
 inductive Phase where
-| /-- Here we still carry most of the original type information, most
-      of the dependent portion is already (partially) erased though. -/
-  base
-| /-- In this phase polymorphism has been eliminated. -/
-  mono
-| /-- In this phase impure stuff such as RC or efficient BaseIO transformations happen. -/
-  impure
+  /-- Here we still carry most of the original type information, most
+  of the dependent portion is already (partially) erased though. -/
+  | base
+  /-- In this phase polymorphism has been eliminated. -/
+  | mono
+  /-- In this phase impure stuff such as RC or efficient BaseIO transformations happen. -/
+  | impure
 deriving Inhabited
 
 /--

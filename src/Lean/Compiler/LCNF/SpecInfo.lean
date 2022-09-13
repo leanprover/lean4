@@ -13,31 +13,31 @@ namespace Lean.Compiler.LCNF
 Each parameter is associated with a `SpecParamInfo`. This information is used by `LCNF/Specialize.lean`.
 -/
 inductive SpecParamInfo where
-  | /--
-    A parameter that is an type class instance (or an arrow that produces a type class instance),
-    and is fixed in recursive declarations. By default, Lean always specializes this kind of argument.
-    -/
-    fixedInst
-  | /--
-    A parameter that is a function and is fixed in recursive declarations. If the user tags a declaration
-    with `@[specialize]` without specifying which arguments should be specialized, Lean will specialize
-    `.fixedHO` arguments in addition to `.fixedInst`.
-    -/
-    fixedHO
-  | /--
-    Computationally irrelevant parameters that are fixed in recursive declarations.
-    -/
-    fixedNeutral
-  | /--
-    An argument that has been specified in the `@[specialize]` attribute. Lean specializes it even if it is
-    not fixed in recursive declarations. Non-termination can happen, and Lean interrupts it with an error message
-    based on the stack depth.
-    -/
-    user
-  | /--
-    Parameter is not going to be specialized.
-    -/
-    other
+  /--
+  A parameter that is an type class instance (or an arrow that produces a type class instance),
+  and is fixed in recursive declarations. By default, Lean always specializes this kind of argument.
+  -/
+  | fixedInst
+  /--
+  A parameter that is a function and is fixed in recursive declarations. If the user tags a declaration
+  with `@[specialize]` without specifying which arguments should be specialized, Lean will specialize
+  `.fixedHO` arguments in addition to `.fixedInst`.
+  -/
+  | fixedHO
+  /--
+  Computationally irrelevant parameters that are fixed in recursive declarations.
+  -/
+  | fixedNeutral
+  /--
+  An argument that has been specified in the `@[specialize]` attribute. Lean specializes it even if it is
+  not fixed in recursive declarations. Non-termination can happen, and Lean interrupts it with an error message
+  based on the stack depth.
+  -/
+  | user
+  /--
+  Parameter is not going to be specialized.
+  -/
+  | other
   deriving Inhabited, Repr
 
 instance : ToMessageData SpecParamInfo where

@@ -50,19 +50,19 @@ a big problem in practice because we run the simplifier multiple times, and this
 is recomputed from scratch at the beginning of each simplification step.
 -/
 inductive FunDeclInfo where
-  | /--
-    Local function is applied once, and must be inlined.
-    -/
-    once
-  | /--
-    Local function is applied many times, and will only be inlined
-    if it is small.
-    -/
-    many
-  | /--
-    Function must be inlined.
-    -/
-    mustInline
+  /--
+  Local function is applied once, and must be inlined.
+  -/
+  | once
+  /--
+  Local function is applied many times, and will only be inlined
+  if it is small.
+  -/
+  | many
+  /--
+  Function must be inlined.
+  -/
+  | mustInline
   deriving Repr, Inhabited
 
 /--

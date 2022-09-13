@@ -10,28 +10,28 @@ Lake equivalent of CMake's
 [`CMAKE_BUILD_TYPE`](https://stackoverflow.com/a/59314670).
 -/
 inductive BuildType
-| /--
+  /--
   Debug optimization, asserts enabled, custom debug code enabled, and
   debug info included in executable (so you can step through the code with a
   debugger and have address to source-file:line-number translation).
   For example, passes `-Og -g` when compiling C code.
   -/
-  debug
-| /--
+  | debug
+  /--
   Optimized, *with* debug info, but no debug code or asserts
   (e.g., passes `-O3 -g -DNDEBUG` when compiling C code).
   -/
-  relWithDebInfo
-| /--
+  | relWithDebInfo
+  /--
   Same as `release` but optimizing for size rather than speed
   (e.g., passes `-Os -DNDEBUG` when compiling C code).
   -/
-  minSizeRel
-| /--
+  | minSizeRel
+  /--
   High optimization level and no debug info, code, or asserts
   (e.g., passes `-O3 -DNDEBUG` when compiling C code).
   -/
-  release
+  | release
 deriving Inhabited, Repr, DecidableEq, Ord
 
 instance : LT BuildType := ltOfOrd

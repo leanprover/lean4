@@ -36,7 +36,6 @@ structure LetDecl where
   binderName : Name
   type : Expr
   value : Expr
-  pure : Bool
   deriving Inhabited, BEq
 
 structure FunDeclCore (Code : Type) where
@@ -79,10 +78,6 @@ inductive CodeDecl where
 
 def CodeDecl.fvarId : CodeDecl → FVarId
   | .let decl | .fun decl | .jp decl => decl.fvarId
-
-def CodeDecl.isPure : CodeDecl → Bool
-  | .let decl => decl.pure
-  | .fun .. | .jp .. => true
 
 mutual
   private unsafe def eqImp (c₁ c₂ : Code) : Bool :=

@@ -41,7 +41,7 @@ def lintDoc (x : Nat) := x
 inductive Ind where
   | ind1
   | ind2 : Ind → Ind
-  | /-- A doc string -/ doc : Ind
+  /-- A doc string -/ | doc : Ind
 with
   @[computedField] field : Ind → Nat
   | _ => 1

@@ -8,15 +8,15 @@ import Lean.Meta.Basic
 namespace Lean
 
 inductive TransformStep where
-  | /-- Return expression without visiting any subexpressions. -/
-    done (e : Expr)
-  | /-- Visit expression (which should be different from current expression) instead. -/
-    visit (e : Expr)
-  | /--
-      Continue transformation with the given expression (defaults to current expression).
-      For `pre`, this means visiting the children of the expression.
-      For `post`, this is equivalent to returning `done`. -/
-    continue (e? : Option Expr := none)
+  /-- Return expression without visiting any subexpressions. -/
+  | done (e : Expr)
+  /-- Visit expression (which should be different from current expression) instead. -/
+  | visit (e : Expr)
+  /--
+  Continue transformation with the given expression (defaults to current expression).
+  For `pre`, this means visiting the children of the expression.
+  For `post`, this is equivalent to returning `done`. -/
+  | continue (e? : Option Expr := none)
 
 namespace Core
 

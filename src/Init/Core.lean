@@ -96,10 +96,10 @@ An element of `α ⊕ β` is either of the form `.inl a` where `a : α`,
 or `.inr b` where `b : β`.
 -/
 inductive Sum (α : Type u) (β : Type v) where
-  | /-- Left injection into the sum type `α ⊕ β`. If `a : α` then `.inl a : α ⊕ β`. -/
-    inl (val : α) : Sum α β
-  | /-- Right injection into the sum type `α ⊕ β`. If `b : β` then `.inr b : α ⊕ β`. -/
-    inr (val : β) : Sum α β
+  /-- Left injection into the sum type `α ⊕ β`. If `a : α` then `.inl a : α ⊕ β`. -/
+  | inl (val : α) : Sum α β
+  /-- Right injection into the sum type `α ⊕ β`. If `b : β` then `.inr b : α ⊕ β`. -/
+  | inr (val : β) : Sum α β
 
 @[inheritDoc] infixr:30 " ⊕ " => Sum
 
@@ -115,10 +115,10 @@ because the equation `max 1 u v = ?u + 1` has no solution in level arithmetic.
 `PSum` is usually only used in automation that constructs sums of arbitrary types.
 -/
 inductive PSum (α : Sort u) (β : Sort v) where
-  | /-- Left injection into the sum type `α ⊕' β`. If `a : α` then `.inl a : α ⊕' β`. -/
-    inl (val : α) : PSum α β
-  | /-- Right injection into the sum type `α ⊕' β`. If `b : β` then `.inr b : α ⊕' β`. -/
-    inr (val : β) : PSum α β
+  /-- Left injection into the sum type `α ⊕' β`. If `a : α` then `.inl a : α ⊕' β`. -/
+  | inl (val : α) : PSum α β
+  /-- Right injection into the sum type `α ⊕' β`. If `b : β` then `.inr b : α ⊕' β`. -/
+  | inr (val : β) : PSum α β
 
 @[inheritDoc] infixr:30 " ⊕' " => PSum
 
@@ -190,9 +190,9 @@ example (h : ∃ x : Nat, x = x) : True :=
 ```
 -/
 inductive Exists {α : Sort u} (p : α → Prop) : Prop where
-  | /-- Existential introduction. If `a : α` and `h : p a`,
-    then `⟨a, h⟩` is a proof that `∃ x : α, p x`. -/
-    intro (w : α) (h : p w) : Exists p
+  /-- Existential introduction. If `a : α` and `h : p a`,
+  then `⟨a, h⟩` is a proof that `∃ x : α, p x`. -/
+  | intro (w : α) (h : p w) : Exists p
 
 /--
 Auxiliary type used to compile `for x in xs` notation.
@@ -206,12 +206,12 @@ representing the body of a for loop. It can be:
   `.done` is produced by calls to `break` or `return` in the loop,
 -/
 inductive ForInStep (α : Type u) where
-  | /-- `.done a` means that we should early-exit the loop.
-    `.done` is produced by calls to `break` or `return` in the loop. -/
-    done  : α → ForInStep α
-  | /-- `.yield a` means that we should continue the loop.
-    `.yield` is produced by `continue` and reaching the bottom of the loop body. -/
-    yield : α → ForInStep α
+  /-- `.done a` means that we should early-exit the loop.
+  `.done` is produced by calls to `break` or `return` in the loop. -/
+  | done  : α → ForInStep α
+  /-- `.yield a` means that we should continue the loop.
+  `.yield` is produced by `continue` and reaching the bottom of the loop body. -/
+  | yield : α → ForInStep α
   deriving Inhabited
 
 /--
@@ -276,16 +276,16 @@ block can exit:
 All cases return a value `s : σ` which bundles all the mutable variables of the do-block.
 -/
 inductive DoResultPRBC (α β σ : Type u) where
-  | /-- `pure (a : α) s` means that the block exited normally with return value `a` -/
-    pure : α → σ → DoResultPRBC α β σ
-  | /-- `return (b : β) s` means that the block exited via a `return b` early-exit command -/
-    return : β → σ → DoResultPRBC α β σ
-  | /-- `break s` means that `break` was called, meaning that we should exit
-    from the containing loop -/
-    break : σ → DoResultPRBC α β σ
-  | /-- `continue s` means that `continue` was called, meaning that we should continue
-    to the next iteration of the containing loop -/
-    continue : σ → DoResultPRBC α β σ
+  /-- `pure (a : α) s` means that the block exited normally with return value `a` -/
+  | pure : α → σ → DoResultPRBC α β σ
+  /-- `return (b : β) s` means that the block exited via a `return b` early-exit command -/
+  | return : β → σ → DoResultPRBC α β σ
+  /-- `break s` means that `break` was called, meaning that we should exit
+  from the containing loop -/
+  | break : σ → DoResultPRBC α β σ
+  /-- `continue s` means that `continue` was called, meaning that we should continue
+  to the next iteration of the containing loop -/
+  | continue : σ → DoResultPRBC α β σ
 
 /--
 Auxiliary type used to compile `do` notation. It is the same as
@@ -293,10 +293,10 @@ Auxiliary type used to compile `do` notation. It is the same as
 because we are not in a loop context.
 -/
 inductive DoResultPR (α β σ : Type u) where
-  | /-- `pure (a : α) s` means that the block exited normally with return value `a` -/
-    pure   : α → σ → DoResultPR α β σ
-  | /-- `return (b : β) s` means that the block exited via a `return b` early-exit command -/
-    return : β → σ → DoResultPR α β σ
+  /-- `pure (a : α) s` means that the block exited normally with return value `a` -/
+  | pure   : α → σ → DoResultPR α β σ
+  /-- `return (b : β) s` means that the block exited via a `return b` early-exit command -/
+  | return : β → σ → DoResultPR α β σ
 
 /--
 Auxiliary type used to compile `do` notation. It is an optimization of
@@ -304,12 +304,12 @@ Auxiliary type used to compile `do` notation. It is an optimization of
 used when neither `pure` nor `return` are possible exit paths.
 -/
 inductive DoResultBC (σ : Type u) where
-  | /-- `break s` means that `break` was called, meaning that we should exit
-    from the containing loop -/
-    break    : σ → DoResultBC σ
-  | /-- `continue s` means that `continue` was called, meaning that we should continue
-    to the next iteration of the containing loop -/
-    continue : σ → DoResultBC σ
+  /-- `break s` means that `break` was called, meaning that we should exit
+  from the containing loop -/
+  | break    : σ → DoResultBC σ
+  /-- `continue s` means that `continue` was called, meaning that we should continue
+  to the next iteration of the containing loop -/
+  | continue : σ → DoResultBC σ
 
 /--
 Auxiliary type used to compile `do` notation. It is an optimization of
@@ -317,18 +317,18 @@ either `DoResultPRBC α PEmpty σ` or `DoResultPRBC PEmpty α σ` to remove the
 impossible case, used when either `pure` or `return` is never used.
 -/
 inductive DoResultSBC (α σ : Type u) where
-  | /-- This encodes either `pure (a : α)` or `return (a : α)`:
-    * `pure (a : α) s` means that the block exited normally with return value `a`
-    * `return (b : β) s` means that the block exited via a `return b` early-exit command
+  /-- This encodes either `pure (a : α)` or `return (a : α)`:
+  * `pure (a : α) s` means that the block exited normally with return value `a`
+  * `return (b : β) s` means that the block exited via a `return b` early-exit command
 
-    The one that is actually encoded depends on the context of use. -/
-    pureReturn : α → σ → DoResultSBC α σ
-  | /-- `break s` means that `break` was called, meaning that we should exit
-    from the containing loop -/
-    break    : σ → DoResultSBC α σ
-  | /-- `continue s` means that `continue` was called, meaning that we should continue
-    to the next iteration of the containing loop -/
-    continue   : σ → DoResultSBC α σ
+  The one that is actually encoded depends on the context of use. -/
+  | pureReturn : α → σ → DoResultSBC α σ
+  /-- `break s` means that `break` was called, meaning that we should exit
+  from the containing loop -/
+  | break    : σ → DoResultSBC α σ
+  /-- `continue s` means that `continue` was called, meaning that we should continue
+  to the next iteration of the containing loop -/
+  | continue   : σ → DoResultSBC α σ
 
 /-- `HasEquiv α` is the typeclass which supports the notation `x ≈ y` where `x y : α`.-/
 class HasEquiv (α : Sort u) where
@@ -450,8 +450,8 @@ This is the universe-polymorphic version of `PNonScalar`; it is preferred to use
 `NonScalar` instead where applicable.
 -/
 inductive PNonScalar : Type u where
-  | /-- You should not use this function -/
-    mk (v : Nat) : PNonScalar
+  /-- You should not use this function -/
+  | mk (v : Nat) : PNonScalar
 
 @[simp] theorem Nat.add_zero (n : Nat) : n + 0 = n := rfl
 
@@ -932,10 +932,10 @@ transitive and contains `r`. `r⁺ a z` if and only if there exists a sequence
 `a r b r ... r z` of length at least 1 connecting `a` to `z`.
 -/
 inductive TC {α : Sort u} (r : α → α → Prop) : α → α → Prop where
-  | /-- If `r a b` then `r⁺ a b`. This is the base case of the transitive closure. -/
-    base  : ∀ a b, r a b → TC r a b
-  | /-- The transitive closure is transitive. -/
-    trans : ∀ a b c, TC r a b → TC r b c → TC r a c
+  /-- If `r a b` then `r⁺ a b`. This is the base case of the transitive closure. -/
+  | base  : ∀ a b, r a b → TC r a b
+  /-- The transitive closure is transitive. -/
+  | trans : ∀ a b c, TC r a b → TC r b c → TC r a c
 
 /-! # Subtype -/
 

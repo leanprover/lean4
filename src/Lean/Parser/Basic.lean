@@ -1582,20 +1582,20 @@ instance : Inhabited PrattParsingTables := ⟨{}⟩
   function).
 -/
 inductive LeadingIdentBehavior where
-  | /-- `LeadingIdentBehavior.default`: if the leading token
-    is an identifier, then `prattParser` just executes the parsers
-    associated with the auxiliary token "ident". -/
-    default
-  | /-- `LeadingIdentBehavior.symbol`: if the leading token is
-    an identifier `<foo>`, and there are parsers `P` associated with
-    the toek `<foo>`, then it executes `P`. Otherwise, it executes
-    only the parsers associated with the auxiliary token "ident". -/
-    symbol
-  | /-- `LeadingIdentBehavior.both`: if the leading token
-    an identifier `<foo>`, the it executes the parsers associated
-    with token `<foo>` and parsers associated with the auxiliary
-    token "ident". -/
-    both
+  /-- `LeadingIdentBehavior.default`: if the leading token
+  is an identifier, then `prattParser` just executes the parsers
+  associated with the auxiliary token "ident". -/
+  | default
+  /-- `LeadingIdentBehavior.symbol`: if the leading token is
+  an identifier `<foo>`, and there are parsers `P` associated with
+  the toek `<foo>`, then it executes `P`. Otherwise, it executes
+  only the parsers associated with the auxiliary token "ident". -/
+  | symbol
+  /-- `LeadingIdentBehavior.both`: if the leading token
+  an identifier `<foo>`, the it executes the parsers associated
+  with token `<foo>` and parsers associated with the auxiliary
+  token "ident". -/
+  | both
   deriving Inhabited, BEq, Repr
 
 /--

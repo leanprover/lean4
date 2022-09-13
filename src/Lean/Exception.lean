@@ -12,13 +12,13 @@ namespace Lean
 
 /-- Exception type used in most Lean monads -/
 inductive Exception where
-  | /-- Error messages that are displayed to users. `ref` is used to provide position information. -/
-    error (ref : Syntax) (msg : MessageData)
-  | /--
-    Internal exceptions that are not meant to be seen by users.
-    Examples: "pospone elaboration", "stuck at universe constraint", etc
-   -/
-    internal (id : InternalExceptionId) (extra : KVMap := {})
+  /-- Error messages that are displayed to users. `ref` is used to provide position information. -/
+  | error (ref : Syntax) (msg : MessageData)
+  /--
+  Internal exceptions that are not meant to be seen by users.
+  Examples: "pospone elaboration", "stuck at universe constraint", etc
+  -/
+  | internal (id : InternalExceptionId) (extra : KVMap := {})
 
 /-- Convert exception into a structured message. -/
 def Exception.toMessageData : Exception → MessageData

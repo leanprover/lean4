@@ -128,18 +128,18 @@ there is no coercion `Matrix Real 5 4` from `Matrix Real 4 8` and vice-versa, bu
 -/
 
 private inductive Tree where
-  | /--
-    Leaf of the tree.
-    We store the `infoTrees` generated when elaborating `val`. These trees become
-    subtrees of the infotree nodes generated for `op` nodes.
-    -/
-    term (ref : Syntax) (infoTrees : Std.PersistentArray InfoTree) (val : Expr)
-  | /--
-    `ref` is the original syntax that expanded into `binop%`.
-    `macroName` is the `macro_rule` that produce the expansion. We store this information
-    here to make sure "go to definition" behaves similarly to notation defined without using `binop%` helper elaborator.
-    -/
-    op (ref : Syntax) (macroName : Name) (lazy : Bool) (f : Expr) (lhs rhs : Tree)
+  /--
+  Leaf of the tree.
+  We store the `infoTrees` generated when elaborating `val`. These trees become
+  subtrees of the infotree nodes generated for `op` nodes.
+  -/
+  | term (ref : Syntax) (infoTrees : Std.PersistentArray InfoTree) (val : Expr)
+  /--
+  `ref` is the original syntax that expanded into `binop%`.
+  `macroName` is the `macro_rule` that produce the expansion. We store this information
+  here to make sure "go to definition" behaves similarly to notation defined without using `binop%` helper elaborator.
+  -/
+  | op (ref : Syntax) (macroName : Name) (lazy : Bool) (f : Expr) (lhs rhs : Tree)
 
 private partial def toTree (s : Syntax) : TermElabM Tree := do
   /-

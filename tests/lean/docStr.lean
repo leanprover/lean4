@@ -16,8 +16,8 @@ structure Boo (α : Type) where
 
 /-- inductive datatype Tree documentation -/
 inductive Tree (α : Type) where
-  | /-- Tree.node documentation -/ node : List (Tree α) → Tree α
-  | /-- Tree.leaf stores the values -/ leaf : α → Tree α
+  /-- Tree.node documentation -/ | node : List (Tree α) → Tree α
+  /-- Tree.leaf stores the values -/ | leaf : α → Tree α
 
 namespace Bla
 

@@ -193,15 +193,11 @@ private def elabModifyOp (stx modifyOp : Syntax) (sources : Array ExplicitSource
 private def getStructName (expectedType? : Option Expr) (sourceView : Source) : TermElabM Name := do
   tryPostponeIfNoneOrMVar expectedType?
   let useSource : Unit → TermElabM Name := fun _ => do
-    match sourceView.explicit.size with
-    | 0 =>
-      match expectedType? with
-      | some expectedType => throwUnexpectedExpectedType expectedType
-      | none => throwUnknownExpectedType
-    | 1 => return sourceView.explicit[0]!.structName
-    | _ =>
-      throwErrorAt sourceView.explicit[1]!.stx
-        "invalid \{...} notation, expected type is not known, using the type of the first source, extra sources are not needed"
+    unless sourceView.explicit.isEmpty do
+      return sourceView.explicit[0]!.structName
+    match expectedType? with
+    | some expectedType => throwUnexpectedExpectedType expectedType
+    | none => throwUnknownExpectedType
   match expectedType? with
   | none => useSource ()
   | some expectedType =>

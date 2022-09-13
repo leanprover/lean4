@@ -33,4 +33,11 @@ theorem ex4 (a : A) (c : C) : (f4 c a).x = 0 :=
   rfl
 
 def f5 (c : C) (a : A) :=
-  { c, a with x := 0 } -- Error
+  { c, a with x := 0 }
+
+#check f5
+
+def f6 (c : C) (a : A) :=
+  { a, c with x := 0 }
+
+#check f6

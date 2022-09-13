@@ -145,7 +145,7 @@ The second `notFollowedBy` prevents this problem.
 /- macros for using `unless`, `for`, `try`, `return` as terms. They expand into `do unless ...`, `do for ...`, `do try ...`, and `do return ...` -/
 /-- `unless e do s` is a nicer way to write `if !e do s`. -/
 @[builtinTermParser] def termUnless := leading_parser "unless " >> withForbidden "do" termParser >> "do " >> doSeq
-@[builtinTermParser, inheritDoc doFor] def termFor := leading_parser "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
+@[builtinTermParser] def termFor := leading_parser "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
 @[builtinTermParser] def termTry    := leading_parser "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally
 /--
 `return` used outside of `do` blocks creates an implicit block around it and thus is equivalent to `pure e`, but helps with

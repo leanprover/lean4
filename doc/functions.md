@@ -1,7 +1,7 @@
 # Functions
 
 Functions are the fundamental unit of program execution in any programming language.
-As in other languages, a Lean function has a name, can have parameters and take arguments, and has a body.
+As in other languages, a Lean function has a name, can have parameters and take arguments, have a body and return a value.
 Lean also supports functional programming constructs such as treating functions as values,
 using unnamed functions in expressions, composition of functions to form new functions,
 curried functions, and the implicit definition of functions by way of
@@ -69,7 +69,8 @@ If we were able to partially define `loop?`, we could prove `False` with it.
 
 A lambda expression is an unnamed function.
 You define lambda expressions by using the `fun` keyword. A lambda expression resembles a function definition, except that instead of the `:=` token,
-the `=>` token is used to separate the argument list from the function body. As in a regular function definition,
+the `=>` token is used to separate the argument list from the function body and you cannot specify an explicit return type, it is always inferred.
+As in a regular function definition,
 the argument types can be inferred or specified explicitly, and the return type of the lambda expression is inferred from the type of the
 last expression in the body.
 
@@ -86,6 +87,8 @@ def twice (f : Nat -> Nat) (x : Nat) : Nat :=
 #eval List.map (fun (x, y) => x + y) [(1, 2), (3, 4)]
 -- [3, 7]
 ```
+
+You can also use the Unicode symbol `λ` instead of `fun` which you can type into VS Code using the abbreviation `\la `.
 
 # Syntax sugar for simple lambda expressions
 
@@ -121,9 +124,20 @@ def times2 x := x * 2
 #eval 100 |> add1 |> times2
 #eval times2 <| add1 <| 100
 ```
-The result of the previous `#eval` commands is 202.
-The forward pipeline `|>` operator takes a function and an argument and return a value.
-In contrast, the backward pipeline `<|` operator takes an argument and a function and returns a value.
+The result of all three previous `#eval` commands is 202.
+
+So `x |> f` means the same as the same as `f x`, and it chains such that `x |> f |> g` is
+interpreted as `g (f x)`.
+
+Similarly `f <| x` means the same as the same as `f x`, except that it parses x with lower precedence,
+which means that `f <| g <| x` is interpreted as `f (g x)` rather than `(f g) x`.
+
+You can also mix these operators:
+
+```lean
+#check times2 <| 100 |> add1 -- times2 (add1 100) = 202
+```
+
 These operators are useful for minimizing the number of parentheses.
 ```lean
 def add1Times3FilterEven (xs : List Nat) :=

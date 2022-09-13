@@ -43,6 +43,11 @@ On Linux/macOS, you first have to follow the instructions printed by the Lean in
 Note: Packages **have** to be opened using "File > Open Folder..." for imports to work.
 Saved changes are visible in other files after running "Lean 4: Refresh File Dependencies" (`Ctrl+Shift+X`).
 
+## Abbreviations
+
+The VS Code editor helps you type nice Unicode characters supported by Lean,
+see [Full List of Abbreviations](abbreviations.md).
+
 ## Troubleshooting
 
 **The InfoView says "Waiting for Lean server to start..." forever.**

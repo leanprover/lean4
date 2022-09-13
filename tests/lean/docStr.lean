@@ -25,7 +25,9 @@ namespace Bla
 def test (x : Nat) : Nat :=
   aux x + 1
 where
-  /-- We can document 'where' functions too -/
+  /-- We can document 'where' functions too
+
+  ... and indentation is stripped, even after an empty line. -/
   aux x := x + 2
 
 end Bla

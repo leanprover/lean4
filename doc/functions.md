@@ -135,6 +135,8 @@ which means that `f <| g <| x` is interpreted as `f (g x)` rather than `(f g) x`
 You can also mix these operators:
 
 ```lean
+# def add1 x := x + 1
+# def times2 x := x * 2
 #check times2 <| 100 |> add1 -- times2 (add1 100) = 202
 ```
 

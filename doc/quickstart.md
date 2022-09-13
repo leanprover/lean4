@@ -45,8 +45,18 @@ Saved changes are visible in other files after running "Lean 4: Refresh File Dep
 
 ## Abbreviations
 
-The VS Code editor helps you type nice Unicode characters supported by Lean,
-see [Full List of Abbreviations](abbreviations.md).
+Lean encourages the use of Unicode to help your programs communicate
+rich meaning from the world of mathematics.  The following are a few
+examples from [Mathlib](https://github.com/leanprover-community/mathlib4/blob/master/Mathlib/Logic/Function/Basic.lean)
+
+```lean
+theorem funext_iff {β : α → Sort _} {f₁ f₂ : ∀ (x : α), β x} : f₁ = f₂ ↔ (∀a, f₁ a = f₂ a) :=
+  Iff.intro (λ h _ => h ▸ rfl) funext
+```
+
+The VS Code editor helps you type these Unicode characters.
+Use the "Lean 4: Show all abbreviations" command in VS Code to list all abbreviations.
+When hovering over a Unicode symbol VS Code will show any associated abbreviation in a tooltip.
 
 ## Troubleshooting
 

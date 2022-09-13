@@ -310,7 +310,6 @@ section Updates
           validSnaps := validSnaps.dropLast
       unfoldCmdSnaps newMeta validSnaps.toArray cancelTk ctx
     modify fun st => { st with doc := ⟨newMeta, AsyncList.delayed newSnaps, cancelTk⟩ }
-
 end Updates
 
 /- Notifications are handled in the main thread. They may change global worker state

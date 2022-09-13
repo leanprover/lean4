@@ -14,12 +14,12 @@ private builtin_initialize docStringExt : MapDeclarationExtension String ← mkM
 private def findLeadingSpacesSize (s : String) : Nat :=
   let it := s.iter
   let it := it.find (· == '\n') |>.next
-  let (min, it) := it.foldUntil 0 fun num c => if c == ' ' || c == '\t' then some (num + 1) else none
-  findNextLine it min
+  consumeSpaces it 0 s.length
 where
   consumeSpaces (it : String.Iterator) (curr min : Nat) : Nat :=
     if it.atEnd then min
     else if it.curr == ' ' || it.curr == '\t' then consumeSpaces it.next (curr + 1) min
+    else if it.curr == '\n' then findNextLine it.next min
     else findNextLine it.next (Nat.min curr min)
   findNextLine (it : String.Iterator) (min : Nat) : Nat :=
     if it.atEnd then min

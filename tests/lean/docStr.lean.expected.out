@@ -10,7 +10,7 @@ doc string for 'Boo.y' is not available
 "Tree.node documentation "
 "Tree.leaf stores the values "
 "documenting definition in namespace "
-"We can document 'where' functions too "
+"We can document 'where' functions too\n\n... and indentation is stripped, even after an empty line. "
 doc string for 'f' is not available
 "let rec documentation at f "
 doc string for 'g' is not available
@@ -138,54 +138,54 @@ Tree.leaf :=
 Bla.test :=
   { range := { pos := { line := 25, column := 0 },
       charUtf16 := 0,
-      endPos := { line := 29, column := 16 },
+      endPos := { line := 31, column := 16 },
       endCharUtf16 := 16 },
     selectionRange := { pos := { line := 25, column := 4 },
       charUtf16 := 4,
       endPos := { line := 25, column := 8 },
       endCharUtf16 := 8 } }
 Bla.test.aux :=
-  { range := { pos := { line := 29, column := 2 },
+  { range := { pos := { line := 31, column := 2 },
       charUtf16 := 2,
-      endPos := { line := 29, column := 16 },
+      endPos := { line := 31, column := 16 },
       endCharUtf16 := 16 },
-    selectionRange := { pos := { line := 29, column := 2 },
+    selectionRange := { pos := { line := 31, column := 2 },
       charUtf16 := 2,
-      endPos := { line := 29, column := 5 },
+      endPos := { line := 31, column := 5 },
       endCharUtf16 := 5 } }
 f :=
-  { range := { pos := { line := 33, column := 0 },
+  { range := { pos := { line := 35, column := 0 },
       charUtf16 := 0,
-      endPos := { line := 37, column := 14 },
+      endPos := { line := 39, column := 14 },
       endCharUtf16 := 14 },
-    selectionRange := { pos := { line := 33, column := 4 },
+    selectionRange := { pos := { line := 35, column := 4 },
       charUtf16 := 4,
-      endPos := { line := 33, column := 5 },
+      endPos := { line := 35, column := 5 },
       endCharUtf16 := 5 } }
 f.foo :=
-  { range := { pos := { line := 34, column := 44 },
+  { range := { pos := { line := 36, column := 44 },
       charUtf16 := 44,
-      endPos := { line := 36, column := 22 },
+      endPos := { line := 38, column := 22 },
       endCharUtf16 := 22 },
-    selectionRange := { pos := { line := 34, column := 44 },
+    selectionRange := { pos := { line := 36, column := 44 },
       charUtf16 := 44,
-      endPos := { line := 34, column := 47 },
+      endPos := { line := 36, column := 47 },
       endCharUtf16 := 47 } }
 g :=
-  { range := { pos := { line := 39, column := 0 },
+  { range := { pos := { line := 41, column := 0 },
       charUtf16 := 0,
-      endPos := { line := 43, column := 7 },
+      endPos := { line := 45, column := 7 },
       endCharUtf16 := 7 },
-    selectionRange := { pos := { line := 39, column := 4 },
+    selectionRange := { pos := { line := 41, column := 4 },
       charUtf16 := 4,
-      endPos := { line := 39, column := 5 },
+      endPos := { line := 41, column := 5 },
       endCharUtf16 := 5 } }
 g.foo :=
-  { range := { pos := { line := 40, column := 44 },
+  { range := { pos := { line := 42, column := 44 },
       charUtf16 := 44,
-      endPos := { line := 42, column := 22 },
+      endPos := { line := 44, column := 22 },
       endCharUtf16 := 22 },
-    selectionRange := { pos := { line := 40, column := 44 },
+    selectionRange := { pos := { line := 42, column := 44 },
       charUtf16 := 44,
-      endPos := { line := 40, column := 47 },
+      endPos := { line := 42, column := 47 },
       endCharUtf16 := 47 } }

@@ -1,7 +1,7 @@
 # Functions
 
 Functions are the fundamental unit of program execution in any programming language.
-As in other languages, a Lean function has a name, can have parameters and take arguments, have a body and return a value.
+As in other languages, a Lean function has a name, can have parameters and take arguments, declare a return type and have a body.
 Lean also supports functional programming constructs such as treating functions as values,
 using unnamed functions in expressions, composition of functions to form new functions,
 curried functions, and the implicit definition of functions by way of
@@ -69,7 +69,7 @@ If we were able to partially define `loop?`, we could prove `False` with it.
 
 A lambda expression is an unnamed function.
 You define lambda expressions by using the `fun` keyword. A lambda expression resembles a function definition, except that instead of the `:=` token,
-the `=>` token is used to separate the argument list from the function body and you cannot specify an explicit return type, it is always inferred.
+the `=>` token is used to separate the argument list from the function body.
 As in a regular function definition,
 the argument types can be inferred or specified explicitly, and the return type of the lambda expression is inferred from the type of the
 last expression in the body.
@@ -88,7 +88,12 @@ def twice (f : Nat -> Nat) (x : Nat) : Nat :=
 -- [3, 7]
 ```
 
-You can also use the Unicode symbol `λ` instead of `fun` which you can type into VS Code using the abbreviation `\la `.
+Note: you can also use the Unicode symbol `λ` instead of `fun` which you can type into VS Code using the abbreviation `\la `.
+
+While you cannot specify an explicit return type in a lambda expression you can use the `(e : T)` in the body to
+declare the type of the expression `e`.  For example: `λ x => (x : Int)` would be able to convert a given value of
+type `Nat` to an `Int` using coercion.
+
 
 # Syntax sugar for simple lambda expressions
 

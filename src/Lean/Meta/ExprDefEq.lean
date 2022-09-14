@@ -3,15 +3,9 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.ProjFns
-import Lean.Structure
-import Lean.Meta.WHNF
-import Lean.Meta.InferType
-import Lean.Meta.FunInfo
-import Lean.Meta.Check
 import Lean.Meta.Offset
-import Lean.Meta.ForEachExpr
 import Lean.Meta.UnificationHint
+import Lean.Util.OccursCheck
 
 namespace Lean.Meta
 

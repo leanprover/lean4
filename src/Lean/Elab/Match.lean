@@ -3,17 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Util.CollectFVars
-import Lean.Parser.Term
-import Lean.Meta.Match.MatchPatternAttr
 import Lean.Meta.Match.Match
 import Lean.Meta.GeneralizeVars
 import Lean.Meta.ForEachExpr
-import Lean.Elab.SyntheticMVars
-import Lean.Elab.Arg
-import Lean.Elab.PatternVar
 import Lean.Elab.AuxDiscr
 import Lean.Elab.BindersUtil
+import Lean.Elab.PatternVar
+import Lean.Elab.Quotation.Precheck
+import Lean.Elab.SyntheticMVars
 
 namespace Lean.Elab.Term
 open Meta

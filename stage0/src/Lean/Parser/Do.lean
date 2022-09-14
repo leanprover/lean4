@@ -92,6 +92,12 @@ def doIfCond    := withAntiquot (mkAntiquot "doIfCond" `Lean.Parser.Term.doIfCon
   >> optional (checkColGe "'else' in 'do' must be indented" >> " else " >> doSeq)
 @[builtinDoElemParser] def doUnless := leading_parser "unless " >> withForbidden "do" termParser >> "do " >> doSeq
 def doForDecl := leading_parser optional (atomic (ident >> " : ")) >> termParser >> " in " >> withForbidden "do" termParser
+/--
+`for x in e do s`  iterates over `e` assuming `e`'s type has an instance of the `ForIn` typeclass.
+`break` and `continue` are supported inside `for` loops.
+`for x in e, x2 in e2, ... do s` iterates of the given collections in parallel, until at least one of them is exhausted.
+The types of `e2` etc. must implement the `ToStream` typeclass.
+-/
 @[builtinDoElemParser] def doFor    := leading_parser "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
 
 def doMatchAlts := ppDedent <| matchAlts (rhsParser := doSeq)
@@ -102,8 +108,17 @@ def doCatchMatch := leading_parser "catch " >> doMatchAlts
 def doFinally    := leading_parser "finally " >> doSeq
 @[builtinDoElemParser] def doTry    := leading_parser "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally
 
+/-- `break` exits the surrounding `for` loop. -/
 @[builtinDoElemParser] def doBreak     := leading_parser "break"
+/-- `continue` skips to the next iteration of the surrounding `for` loop. -/
 @[builtinDoElemParser] def doContinue  := leading_parser "continue"
+/--
+`return e` inside of a `do` block makes the surrounding block evaluate to `pure e`, skipping any further statements.
+Note that uses of the `do` keyword in other syntax like in `for _ in _ do` do not constitute a surrounding block in this sense;
+in supported editors, the corresponding `do` keyword of the surrounding block is highlighted when hovering over `return`.
+
+`return` not followed by a term starting on the same line is equivalent to `return ()`.
+-/
 @[builtinDoElemParser] def doReturn    := leading_parser:leadPrec withPosition ("return " >> optional (checkLineEq >> termParser))
 @[builtinDoElemParser] def doDbgTrace  := leading_parser:leadPrec "dbg_trace " >> ((interpolatedStr termParser) <|> termParser)
 @[builtinDoElemParser] def doAssert    := leading_parser:leadPrec "assert! " >> termParser
@@ -128,9 +143,14 @@ The second `notFollowedBy` prevents this problem.
 @[builtinTermParser] def doElem.quot : Parser := leading_parser "`(doElem|" >> incQuotDepth doElemParser >> ")"
 
 /- macros for using `unless`, `for`, `try`, `return` as terms. They expand into `do unless ...`, `do for ...`, `do try ...`, and `do return ...` -/
+/-- `unless e do s` is a nicer way to write `if !e do s`. -/
 @[builtinTermParser] def termUnless := leading_parser "unless " >> withForbidden "do" termParser >> "do " >> doSeq
-@[builtinTermParser] def termFor    := leading_parser "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
+@[builtinTermParser] def termFor := leading_parser "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
 @[builtinTermParser] def termTry    := leading_parser "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally
+/--
+`return` used outside of `do` blocks creates an implicit block around it and thus is equivalent to `pure e`, but helps with
+avoiding parentheses.
+-/
 @[builtinTermParser] def termReturn := leading_parser:leadPrec withPosition ("return " >> optional (checkLineEq >> termParser))
 
 end Term

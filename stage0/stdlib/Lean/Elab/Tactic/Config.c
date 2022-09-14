@@ -2264,7 +2264,7 @@ static lean_object* _init_l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("withoutModifyingState", 21);
+x_1 = lean_mk_string_from_bytes("withoutModifyingStateWithInfoAndMessages", 40);
 return x_1;
 }
 }
@@ -2305,7 +2305,7 @@ static lean_object* _init_l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Tactic_configElab___closed__2;
+x_1 = l_Lean_Elab_Tactic_configElab___closed__4;
 x_2 = l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Config______macroRules__Lean__Elab__Tactic__configElab__1___closed__176;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;

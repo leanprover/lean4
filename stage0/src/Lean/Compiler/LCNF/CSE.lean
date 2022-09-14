@@ -49,16 +49,13 @@ where
     match code with
     | .let decl k =>
       let decl ← normLetDecl decl
-      if decl.pure then
-        -- We only apply CSE to pure code
-        match (← get).map.find? decl.value with
-        | some fvarId' =>
-          replaceFVar decl.fvarId fvarId'
-          go k
-        | none =>
-          addEntry decl.value decl.fvarId
-          return code.updateLet! decl (← go k)
-      else
+      -- We only apply CSE to pure code
+      match (← get).map.find? decl.value with
+      | some fvarId' =>
+        replaceFVar decl.fvarId fvarId'
+        go k
+      | none =>
+        addEntry decl.value decl.fvarId
         return code.updateLet! decl (← go k)
     | .fun decl k =>
       let decl ← goFunDecl decl
@@ -100,7 +97,7 @@ def Decl.cse (decl : Decl) : CompilerM Decl := do
   return { decl with value }
 
 def cse : Pass :=
-  .mkPerDeclaration `cse Decl.cse
+  .mkPerDeclaration `cse Decl.cse .base
 
 builtin_initialize
   registerTraceClass `Compiler.cse (inherited := true)

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.ProjFns
+import Lean.Compiler.BorrowedAnnotation
 import Lean.Compiler.LCNF.Types
 import Lean.Compiler.LCNF.Bind
 import Lean.Compiler.LCNF.InferType
@@ -36,12 +37,11 @@ inductive Element where
   | unreach (fvarId : FVarId)
   deriving Inhabited
 
-/-- State for `BindCasesM` monad -/
-structure BindCasesM.State where
-  /-- New auxiliary join points. -/
-  jps : Array FunDecl := #[]
-  /-- Mapping from `_alt.<idx>` variables to new join points -/
-  map : FVarIdMap FVarId := {}
+/--
+State for `BindCasesM` monad
+Mapping from `_alt.<idx>` variables to new join points
+-/
+abbrev BindCasesM.State := FVarIdMap FunDecl
 
 /-- Auxiliary monad for implementing `bindCases` -/
 abbrev BindCasesM := StateRefT BindCasesM.State CompilerM
@@ -60,9 +60,8 @@ That is, our goal is to try to promote the pre join points `_alt.<idx>` into a p
 partial def bindCases (jpDecl : FunDecl) (cases : Cases) : CompilerM Code := do
   let (alts, s) ← visitAlts cases.alts |>.run {}
   let resultType ← mkCasesResultType alts
-  let mut result := .cases { cases with alts, resultType }
-  for decl in s.jps do
-    result := .jp decl result
+  let result := .cases { cases with alts, resultType }
+  let result := s.fold (init := result) fun result _ altJp => .jp altJp result
   return .jp jpDecl result
 where
   visitAlts (alts : Array Alt) : BindCasesM (Array Alt) :=
@@ -95,9 +94,9 @@ where
             if let some funDecl ← findFun? f then
               let args := decl.value.getAppArgs
               eraseFVar decl.fvarId
-              if let some altJp := (← get).map.find? f then
+              if let some altJp := (← get).find? f then
                 /- We already have an auxiliary join point for `f`, then, we just use it. -/
-                return .jmp altJp args
+                return .jmp altJp.fvarId args
               else
                 /-
                 We have not created a join point for `f` yet.
@@ -123,12 +122,15 @@ where
                 let letDecl ← mkAuxLetDecl (mkAppN decl.value.getAppFn jpArgs)
                 let jpValue := .let letDecl (.jmp jpDecl.fvarId #[.fvar letDecl.fvarId])
                 let altJp ← mkAuxJpDecl jpParams jpValue
-                modify fun { jps, map } => {
-                  jps := jps.push altJp
-                  map := map.insert f altJp.fvarId
-                }
+                modify fun map => map.insert f altJp
                 return .jmp altJp.fvarId args
-      return .let decl (← go k)
+      let k ← go k
+      if let some altJp := (← get).find? decl.fvarId then
+        -- The new join point depends on this variable. Thus, we must insert it here
+        modify fun s => s.erase decl.fvarId
+        return .let decl (.jp altJp k)
+      else
+        return .let decl k
     | .fun decl k => return .fun decl (← go k)
     | .jp decl k =>
       let value ← go decl.value
@@ -286,8 +288,9 @@ def cleanupBinderName (binderName : Name) : CompilerM Name :=
 /-- Create a new local declaration using a Lean regular type. -/
 def mkParam (binderName : Name) (type : Expr) : M Param := do
   let binderName ← cleanupBinderName binderName
+  let borrow := isMarkedBorrowed type
   let type' ← toLCNFType type
-  let param ← LCNF.mkParam binderName type'
+  let param ← LCNF.mkParam binderName type' borrow
   modify fun s => { s with lctx  := s.lctx.mkLocalDecl param.fvarId binderName type .default }
   return param
 

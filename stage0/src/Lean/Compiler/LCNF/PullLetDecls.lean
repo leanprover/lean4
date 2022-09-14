@@ -109,7 +109,7 @@ def Decl.pullInstances (decl : Decl) : CompilerM Decl :=
       return false
 
 def pullInstances : Pass :=
-  .mkPerDeclaration `pullInstances Decl.pullInstances
+  .mkPerDeclaration `pullInstances Decl.pullInstances .base
 
 builtin_initialize
   registerTraceClass `Compiler.pullInstances (inherited := true)

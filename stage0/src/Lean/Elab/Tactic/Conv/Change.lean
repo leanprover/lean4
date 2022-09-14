@@ -11,7 +11,7 @@ open Meta
 
 @[builtinTactic Lean.Parser.Tactic.Conv.change] def evalChange : Tactic := fun stx => do
   match stx with
-  | `(conv| change $e) => do
+  | `(conv| change $e) => withMainContext do
     let lhs ← getLhs
     let mvarCounterSaved := (← getMCtx).mvarCounter
     let r ← elabTermEnsuringType e (← inferType lhs)

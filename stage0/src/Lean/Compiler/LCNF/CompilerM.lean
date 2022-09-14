@@ -196,15 +196,15 @@ where
 Helper functions for creating LCNF local declarations.
 -/
 
-def mkParam (binderName : Name) (type : Expr) : CompilerM Param := do
+def mkParam (binderName : Name) (type : Expr) (borrow : Bool) : CompilerM Param := do
   let fvarId ← mkFreshFVarId
   modifyLCtx fun lctx => lctx.addLocalDecl fvarId binderName type
-  return { fvarId, binderName, type }
+  return { fvarId, binderName, type, borrow }
 
-def mkLetDecl (binderName : Name) (type : Expr) (value : Expr) (pure := true) : CompilerM LetDecl := do
+def mkLetDecl (binderName : Name) (type : Expr) (value : Expr) : CompilerM LetDecl := do
   let fvarId ← mkFreshFVarId
   modifyLCtx fun lctx => lctx.addLetDecl fvarId binderName type value
-  return { fvarId, binderName, type, value, pure }
+  return { fvarId, binderName, type, value }
 
 def mkFunDecl (binderName : Name) (type : Expr) (params : Array Param) (value : Code) : CompilerM FunDecl := do
   let fvarId ← mkFreshFVarId
@@ -307,8 +307,8 @@ def replaceFVar (code : Code) (fvarId fvarId' : FVarId) : CompilerM Code :=
 def mkFreshJpName : CompilerM Name := do
   mkFreshBinderName `_jp
 
-def mkAuxParam (type : Expr) : CompilerM Param := do
-  mkParam (← mkFreshBinderName `_y) type
+def mkAuxParam (type : Expr) (borrow := false) : CompilerM Param := do
+  mkParam (← mkFreshBinderName `_y) type borrow
 
 /--
 Create a fresh local context and internalize the given decls.

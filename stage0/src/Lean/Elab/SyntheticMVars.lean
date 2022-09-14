@@ -325,7 +325,7 @@ mutual
   /--
   Try to synthesize a term `val` using the tactic code `tacticCode`, and then assign `mvarId := val`.
   -/
-  partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
+  partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := withoutAutoBoundImplicit do
     /- Recall, `tacticCode` is the whole `by ...` expression. -/
     let code := tacticCode[1]
     instantiateMVarDeclMVars mvarId

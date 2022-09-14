@@ -24,6 +24,7 @@ def isLcCast? (e : Expr) : Option Expr :=
     some e.appArg!
   else
     none
+
 /--
 Store information about `casesOn` declarations.
 

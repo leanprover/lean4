@@ -356,6 +356,7 @@ static lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_Command___hyg_29
 static lean_object* l_Lean_Elab_Command_liftCoreM___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Command_expandDeclId___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_instMonadTraceCommandElabM;
+lean_object* l_Lean_removeLeadingSpaces(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_getBracketedBinderIds___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_getBracketedBinderIds___closed__9;
 LEAN_EXPORT lean_object* l_Std_PersistentArray_mapM___at_Lean_Elab_Command_liftTermElabM___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -503,7 +504,6 @@ LEAN_EXPORT lean_object* l_Std_AssocList_foldlM___at___private_Lean_Elab_Command
 LEAN_EXPORT lean_object* l_Std_PersistentArray_forIn___at___private_Lean_Elab_Command_0__Lean_Elab_Command_addTraceAsMessagesCore___spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_addMacroStack___at_Lean_Elab_Command_instAddErrorMessageContextCommandElabM___spec__1___closed__5;
 static lean_object* l_Lean_Elab_Command_mkCommandElabAttributeUnsafe___closed__4;
-lean_object* l___private_Lean_DocString_0__Lean_removeLeadingSpaces(lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Command_0__Lean_Elab_Command_addTraceAsMessagesCore___spec__20___closed__2;
 lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_Command___hyg_2658____closed__2;
@@ -23740,7 +23740,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
 x_10 = lean_ctor_get(x_7, 0);
-x_11 = l___private_Lean_DocString_0__Lean_removeLeadingSpaces(x_2);
+x_11 = l_Lean_removeLeadingSpaces(x_2);
 x_12 = l_Lean_addDocString___at_Lean_Elab_Command_expandDeclId___spec__10___closed__1;
 x_13 = l_Lean_MapDeclarationExtension_insert___rarg(x_12, x_10, x_1, x_11);
 lean_ctor_set(x_7, 0, x_13);
@@ -23790,7 +23790,7 @@ lean_inc(x_23);
 lean_inc(x_22);
 lean_inc(x_21);
 lean_dec(x_7);
-x_30 = l___private_Lean_DocString_0__Lean_removeLeadingSpaces(x_2);
+x_30 = l_Lean_removeLeadingSpaces(x_2);
 x_31 = l_Lean_addDocString___at_Lean_Elab_Command_expandDeclId___spec__10___closed__1;
 x_32 = l_Lean_MapDeclarationExtension_insert___rarg(x_31, x_21, x_1, x_30);
 x_33 = lean_alloc_ctor(0, 9, 0);

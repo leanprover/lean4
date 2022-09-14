@@ -69,8 +69,7 @@ If we were able to partially define `loop?`, we could prove `False` with it.
 
 A lambda expression is an unnamed function.
 You define lambda expressions by using the `fun` keyword. A lambda expression resembles a function definition, except that instead of the `:=` token,
-the `=>` token is used to separate the argument list from the function body.
-As in a regular function definition,
+the `=>` token is used to separate the argument list from the function body. As in a regular function definition,
 the argument types can be inferred or specified explicitly, and the return type of the lambda expression is inferred from the type of the
 last expression in the body.
 

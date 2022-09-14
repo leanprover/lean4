@@ -14,6 +14,7 @@ import Lean.Data.LBool
 import Lean.Data.LOption
 import Lean.Data.Lsp
 import Lean.Data.Name
+import Lean.Data.NameMap
 import Lean.Data.Occurrences
 import Lean.Data.OpenDecl
 import Lean.Data.Options

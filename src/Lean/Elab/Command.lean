@@ -3,17 +3,8 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Log
-import Lean.Parser.Command
-import Lean.ResolveName
-import Lean.Meta.Reduce
-import Lean.Elab.Term
-import Lean.Elab.Tactic.Cache
 import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
-import Lean.Elab.DeclModifiers
-import Lean.Elab.InfoTree
-import Lean.Elab.SetOption
 
 namespace Lean.Elab.Command
 

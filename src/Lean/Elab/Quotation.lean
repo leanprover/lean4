@@ -10,7 +10,7 @@ import Lean.ResolveName
 import Lean.Elab.Term
 import Lean.Elab.Quotation.Util
 import Lean.Elab.Quotation.Precheck
-import Lean.Parser.Term
+import Lean.Parser.Syntax
 
 namespace Lean.Elab.Term.Quotation
 open Lean.Parser.Term

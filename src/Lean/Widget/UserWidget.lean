@@ -4,11 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: E.W.Ayers
 -/
-import Lean.Widget.Basic
-import Lean.Data.Json
-import Lean.Environment
-import Lean.Server
 import Lean.Elab.Eval
+import Lean.Server.Rpc.RequestHandling
 
 open Lean
 

@@ -4,9 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 import Lean.Data.Trie
-import Lean.Data.Position
 import Lean.Syntax
-import Lean.Environment
 import Lean.Message
 
 /-!

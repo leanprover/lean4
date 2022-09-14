@@ -3,10 +3,9 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dany Fabian
 -/
-import Init.Data.AC
 import Lean.Meta.AppBuilder
 import Lean.Meta.Tactic.Refl
-import Lean.Elab.Tactic.Basic
+import Lean.Meta.Tactic.Simp.Main
 import Lean.Elab.Tactic.Rewrite
 
 namespace Lean.Meta.AC

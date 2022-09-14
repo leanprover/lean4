@@ -3,18 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
-import Lean.Util.CollectMVars
-import Lean.Parser.Command
-import Lean.Meta.PPGoal
-import Lean.Meta.Tactic.Assumption
-import Lean.Meta.Tactic.Contradiction
-import Lean.Meta.Tactic.Intro
-import Lean.Meta.Tactic.Clear
-import Lean.Meta.Tactic.Revert
-import Lean.Meta.Tactic.Subst
-import Lean.Elab.Util
 import Lean.Elab.Term
-import Lean.Elab.Binders
 
 namespace Lean.Elab
 open Meta
@@ -294,7 +283,7 @@ def adaptExpander (exp : Syntax → TacticM Syntax) : Tactic := fun stx => do
 def appendGoals (mvarIds : List MVarId) : TacticM Unit :=
   modify fun s => { s with goals := s.goals ++ mvarIds }
 
-/-- Discard the first goal and replace it by the given list of goals, 
+/-- Discard the first goal and replace it by the given list of goals,
 keeping the other goals. -/
 def replaceMainGoal (mvarIds : List MVarId) : TacticM Unit := do
   let (_ :: mvarIds') ← getGoals | throwNoGoalsToBeSolved

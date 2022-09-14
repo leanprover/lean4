@@ -11,7 +11,7 @@ import Lean.PrettyPrinter.Delaborator.Options
 import Lean.Elab.Command
 import Lean.Elab.Match
 import Lean.Elab.DefView
-import Lean.Elab.PreDefinition
+import Lean.Elab.PreDefinition.Main
 import Lean.Elab.DeclarationRange
 
 namespace Lean.Elab

@@ -3,18 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Util.CollectLevelParams
-import Lean.Util.CollectFVars
-import Lean.Util.Recognizers
-import Lean.Compiler.ExternAttr
 import Lean.Meta.Check
 import Lean.Meta.Closure
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.Contradiction
 import Lean.Meta.GeneralizeTelescope
 import Lean.Meta.Match.Basic
-import Lean.Meta.Match.MVarRenaming
-import Lean.Meta.Match.CaseValues
 
 namespace Lean.Meta.Match
 

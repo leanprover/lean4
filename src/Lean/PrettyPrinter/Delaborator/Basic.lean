@@ -3,11 +3,6 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
-import Lean.KeyedDeclsAttribute
-import Lean.ProjFns
-import Lean.Syntax
-import Lean.Meta.Transform
-import Lean.Meta.Match.Match
 import Lean.Elab.Term
 import Lean.Elab.AuxDiscr
 import Lean.PrettyPrinter.Delaborator.Options

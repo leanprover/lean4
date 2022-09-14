@@ -5,10 +5,9 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.Tactic.Rewrite
 import Lean.Meta.Tactic.Replace
-import Lean.Elab.Tactic.Basic
-import Lean.Elab.Tactic.ElabTerm
 import Lean.Elab.Tactic.Location
 import Lean.Elab.Tactic.Config
+
 namespace Lean.Elab.Tactic
 open Meta
 

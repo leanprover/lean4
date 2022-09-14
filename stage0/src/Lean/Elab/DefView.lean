@@ -137,11 +137,11 @@ def mkDefViewOfOpaque (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefV
 
 def mkDefViewOfExample (modifiers : Modifiers) (stx : Syntax) : DefView :=
   -- leading_parser "example " >> declSig >> declVal
-  let (binders, type) := expandDeclSig stx[1]
+  let (binders, type) := expandOptDeclSig stx[1]
   let id              := mkIdentFrom stx `_example
   let declId          := mkNode ``Parser.Command.declId #[id, mkNullNode]
   { ref := stx, kind := DefKind.example, modifiers := modifiers,
-    declId := declId, binders := binders, type? := some type, value := stx[2] }
+    declId := declId, binders := binders, type? := type, value := stx[2] }
 
 def isDefLike (stx : Syntax) : Bool :=
   let declKind := stx.getKind

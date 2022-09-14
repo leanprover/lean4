@@ -9,6 +9,7 @@ import Lean.Meta.DiscrTree
 import Lean.Meta.AppBuilder
 import Lean.Meta.Eqns
 import Lean.Meta.Tactic.AuxLemma
+import Lean.DocString
 namespace Lean.Meta
 
 /--
@@ -415,12 +416,13 @@ def SimpTheoremsArray.isErased (thmsArray : SimpTheoremsArray) (thmId : Name) : 
 def SimpTheoremsArray.isDeclToUnfold (thmsArray : SimpTheoremsArray) (declName : Name) : Bool :=
   thmsArray.any fun thms => thms.isDeclToUnfold declName
 
-macro (name := _root_.Lean.Parser.Command.registerSimpAttr) doc?:(docComment)?
-  "register_simp_attr" id:ident descr:str : command => do
+macro (name := _root_.Lean.Parser.Command.registerSimpAttr) doc:docComment
+  "register_simp_attr" id:ident : command => do
   let str := id.getId.toString
   let idParser := mkIdentFrom id (`Parser.Attr ++ id.getId)
-  `($[$doc?]? initialize ext : SimpExtension ← registerSimpAttr $(quote id.getId) $descr $(quote id.getId)
-    $[$doc?]? syntax (name := $idParser:ident) $(quote str):str (Parser.Tactic.simpPre <|> Parser.Tactic.simpPost)? (prio)? : attr)
+  let descr := quote (removeLeadingSpaces doc.getDocString)
+  `($doc:docComment initialize ext : SimpExtension ← registerSimpAttr $(quote id.getId) $descr $(quote id.getId)
+    $doc:docComment syntax (name := $idParser:ident) $(quote str):str (Parser.Tactic.simpPre <|> Parser.Tactic.simpPost)? (prio)? : attr)
 
 end Meta
 

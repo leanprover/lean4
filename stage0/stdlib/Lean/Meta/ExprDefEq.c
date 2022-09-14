@@ -220,7 +220,7 @@ static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_ExprDefEq_0_
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_processConstApprox_defaultCase___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addTrace___at_Lean_Meta_processPostponed_loop___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_processAssignment_process___closed__2;
-uint8_t l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_10461_(uint8_t, uint8_t);
+uint8_t l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_10498_(uint8_t, uint8_t);
 static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqEtaStruct_go___spec__1___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqArgsFirstPass(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_LocalContext_contains(lean_object*, lean_object*);
@@ -16185,7 +16185,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_CheckAssignment_check___closed__1;
 x_2 = l_Lean_Meta_CheckAssignment_check___closed__2;
-x_3 = lean_unsigned_to_nat(1441u);
+x_3 = lean_unsigned_to_nat(1452u);
 x_4 = lean_unsigned_to_nat(17u);
 x_5 = l_Lean_Meta_CheckAssignment_check___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -16214,7 +16214,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_CheckAssignment_check___closed__1;
 x_2 = l_Lean_Meta_CheckAssignment_check___closed__5;
-x_3 = lean_unsigned_to_nat(1452u);
+x_3 = lean_unsigned_to_nat(1463u);
 x_4 = lean_unsigned_to_nat(18u);
 x_5 = l_Lean_Meta_CheckAssignment_check___closed__6;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -16243,7 +16243,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_CheckAssignment_check___closed__1;
 x_2 = l_Lean_Meta_CheckAssignment_check___closed__8;
-x_3 = lean_unsigned_to_nat(1498u);
+x_3 = lean_unsigned_to_nat(1509u);
 x_4 = lean_unsigned_to_nat(20u);
 x_5 = l_Lean_Meta_CheckAssignment_check___closed__9;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -16272,7 +16272,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_CheckAssignment_check___closed__1;
 x_2 = l_Lean_Meta_CheckAssignment_check___closed__11;
-x_3 = lean_unsigned_to_nat(1478u);
+x_3 = lean_unsigned_to_nat(1489u);
 x_4 = lean_unsigned_to_nat(24u);
 x_5 = l_Lean_Meta_CheckAssignment_check___closed__12;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -16301,7 +16301,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_CheckAssignment_check___closed__1;
 x_2 = l_Lean_Meta_CheckAssignment_check___closed__14;
-x_3 = lean_unsigned_to_nat(1507u);
+x_3 = lean_unsigned_to_nat(1518u);
 x_4 = lean_unsigned_to_nat(22u);
 x_5 = l_Lean_Meta_CheckAssignment_check___closed__15;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -66212,7 +66212,7 @@ x_11 = lean_ctor_get(x_8, 1);
 x_12 = 3;
 x_13 = lean_unbox(x_10);
 lean_dec(x_10);
-x_14 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_10461_(x_13, x_12);
+x_14 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_10498_(x_13, x_12);
 if (x_14 == 0)
 {
 uint8_t x_15; lean_object* x_16; 
@@ -66247,7 +66247,7 @@ lean_dec(x_8);
 x_21 = 3;
 x_22 = lean_unbox(x_19);
 lean_dec(x_19);
-x_23 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_10461_(x_22, x_21);
+x_23 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_10498_(x_22, x_21);
 if (x_23 == 0)
 {
 uint8_t x_24; lean_object* x_25; lean_object* x_26; 

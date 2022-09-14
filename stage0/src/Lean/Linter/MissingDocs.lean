@@ -136,9 +136,9 @@ def checkDecl : SimpleHandler := fun stx => do
     lintDeclHead k rest[1][0]
   if k == ``«inductive» || k == ``classInductive then
     for stx in rest[4].getArgs do
-      let head := stx[1]
-      if declModifiersPubNoDoc head then
-        lintField rest[1][0] stx[2] "public constructor"
+      let head := stx[2]
+      if stx[0].isNone && declModifiersPubNoDoc head then
+        lintField rest[1][0] stx[3] "public constructor"
     unless rest[5].isNone do
       for stx in rest[5][0][1].getArgs do
         let head := stx[0]

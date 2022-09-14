@@ -117,7 +117,16 @@ def isConstructorApp? (env : Environment) (e : Expr) : Option ConstructorVal :=
 def isConstructorApp (env : Environment) (e : Expr) : Bool :=
   e.isConstructorApp? env |>.isSome
 
-def constructorApp? (env : Environment) (e : Expr) : Option (ConstructorVal × Array Expr) := do
+/--
+If `e` is a constructor application, return a pair containing the corresponding `ConstructorVal` and the constructor
+application arguments.
+This function treats numerals as constructors. For example, if `e` is the numeral `2`, the result pair
+is `ConstructorVal` for `Nat.succ`, and the array `#[1]`. The parameter `useRaw` controls how the resulting
+numeral is represented. If `useRaw := false`, then `mkNatLit` is used, otherwise `mkRawNatLit`.
+Recall that `mkNatLit` uses the `OfNat.ofNat` application which is the canonical way of representing numerals
+in the elaborator and tactic framework. We `useRaw := false` in the compiler (aka code generator).
+-/
+def constructorApp? (env : Environment) (e : Expr) (useRaw := false) : Option (ConstructorVal × Array Expr) := do
   match e with
   | Expr.lit (Literal.natVal n) =>
     if n == 0 then do
@@ -125,7 +134,7 @@ def constructorApp? (env : Environment) (e : Expr) : Option (ConstructorVal × A
       pure (v, #[])
     else do
       let v ← getConstructorVal? env `Nat.succ
-      pure (v, #[mkNatLit (n-1)])
+      pure (v, #[if useRaw then mkRawNatLit (n-1) else mkNatLit (n-1)])
   | _ =>
     match e.getAppFn with
     | Expr.const n _ => do

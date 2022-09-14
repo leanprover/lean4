@@ -91,30 +91,34 @@ mutual
   partial def inferProjType (structName : Name) (idx : Nat) (s : Expr) : InferTypeM Expr := do
     let failed {α} : Unit → InferTypeM α := fun _ =>
       throwError "invalid projection{indentExpr (mkProj structName idx s)}"
-    let structType ← inferType s
-    matchConstStruct structType.getAppFn failed fun structVal structLvls ctorVal =>
-      let n := structVal.numParams
-      let structParams := structType.getAppArgs
-      if n != structParams.size then
-        failed ()
-      else do
-        let mut ctorType ← inferAppType (mkAppN (mkConst ctorVal.name structLvls) structParams)
-        for _ in [:idx] do
+    let structType := (← inferType s).headBeta
+    if structType.isAnyType then
+      /- TODO: after we erase universe variables, we can just extract a better type using just `structName` and `idx`. -/
+      return anyTypeExpr
+    else
+      matchConstStruct structType.getAppFn failed fun structVal structLvls ctorVal =>
+        let n := structVal.numParams
+        let structParams := structType.getAppArgs
+        if n != structParams.size then
+          failed ()
+        else do
+          let mut ctorType ← inferAppType (mkAppN (mkConst ctorVal.name structLvls) structParams)
+          for _ in [:idx] do
+            match ctorType with
+            | .forallE _ _ body _ =>
+              if body.hasLooseBVars then
+                -- This can happen when one of the fields is a type or type former.
+                ctorType := body.instantiate1 anyTypeExpr
+              else
+                ctorType := body
+            | _ =>
+              if ctorType.isAnyType then return anyTypeExpr
+              failed ()
           match ctorType with
-          | .forallE _ _ body _ =>
-            if body.hasLooseBVars then
-              -- This can happen when one of the fields is a type or type former.
-              ctorType := body.instantiate1 anyTypeExpr
-            else
-              ctorType := body
+          | .forallE _ d _ _ => return d
           | _ =>
             if ctorType.isAnyType then return anyTypeExpr
             failed ()
-        match ctorType with
-        | .forallE _ d _ _ => return d
-        | _ =>
-          if ctorType.isAnyType then return anyTypeExpr
-          failed ()
 
   partial def getLevel? (type : Expr) : InferTypeM (Option Level) := do
     match (← inferType type) with
@@ -206,7 +210,7 @@ def mkAuxJpDecl (params : Array Param) (code : Code) (prefixName := `_jp) : Comp
 
 def mkAuxJpDecl' (fvarId : FVarId) (code : Code) (prefixName := `_jp) : CompilerM FunDecl := do
   let localDecl ← getLocalDecl fvarId
-  let params := #[{ fvarId, binderName := localDecl.userName, type := localDecl.type }]
+  let params := #[{ fvarId, binderName := localDecl.userName, type := localDecl.type, borrow := false }]
   mkAuxFunDecl params code prefixName
 
 def instantiateForall (type : Expr) (params : Array Param) : CoreM Expr :=

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF
-// Imports: Init Lean.Compiler.LCNF.Basic Lean.Compiler.LCNF.Bind Lean.Compiler.LCNF.Check Lean.Compiler.LCNF.CompilerM Lean.Compiler.LCNF.ElimDead Lean.Compiler.LCNF.InferType Lean.Compiler.LCNF.LCtx Lean.Compiler.LCNF.Main Lean.Compiler.LCNF.PrettyPrinter Lean.Compiler.LCNF.ToDecl Lean.Compiler.LCNF.ToExpr Lean.Compiler.LCNF.ToLCNF Lean.Compiler.LCNF.Types Lean.Compiler.LCNF.Util Lean.Compiler.LCNF.Main
+// Imports: Init Lean.Compiler.LCNF.Basic Lean.Compiler.LCNF.Bind Lean.Compiler.LCNF.Check Lean.Compiler.LCNF.CompilerM Lean.Compiler.LCNF.ElimDead Lean.Compiler.LCNF.InferType Lean.Compiler.LCNF.LCtx Lean.Compiler.LCNF.Main Lean.Compiler.LCNF.PrettyPrinter Lean.Compiler.LCNF.ToDecl Lean.Compiler.LCNF.ToExpr Lean.Compiler.LCNF.ToLCNF Lean.Compiler.LCNF.Types Lean.Compiler.LCNF.Util Lean.Compiler.LCNF.Main Lean.Compiler.LCNF.Testing Lean.Compiler.LCNF.FixedArgs Lean.Compiler.LCNF.SpecInfo
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -29,6 +29,9 @@ lean_object* initialize_Lean_Compiler_LCNF_ToLCNF(uint8_t builtin, lean_object*)
 lean_object* initialize_Lean_Compiler_LCNF_Types(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_Util(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_Main(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_LCNF_Testing(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_LCNF_FixedArgs(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_LCNF_SpecInfo(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -80,6 +83,15 @@ res = initialize_Lean_Compiler_LCNF_Util(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_Main(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Compiler_LCNF_Testing(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Compiler_LCNF_FixedArgs(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Compiler_LCNF_SpecInfo(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

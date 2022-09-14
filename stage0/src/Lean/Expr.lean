@@ -801,6 +801,17 @@ def isConstOf : Expr → Name → Bool
   | const n .., m => n == m
   | _,          _ => false
 
+/--
+Return `true` if the given expression is a free variable with the given id.
+Examples:
+- `isFVarOf (.fvar id) id` is `true`
+- ``isFVarOf (.fvar id) id'`` is `false`
+- ``isFVarOf (.sort levelZero) id`` is `false`
+-/
+def isFVarOf : Expr → FVarId → Bool
+  | .fvar fvarId, fvarId' => fvarId == fvarId'
+  | _, _ => false
+
 /-- Return `true` if the given expression is a forall-expression aka (dependent) arrow. -/
 def isForall : Expr → Bool
   | forallE .. => true

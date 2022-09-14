@@ -315,10 +315,17 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
          if badMotive?.isSome || !(← isTypeCorrect motive) then
            -- Before failing try tos use `subst`
            if ← (isSubstCandidate lhs rhs <||> isSubstCandidate rhs lhs) then
-             withLocalIdentFor heqStx heq fun heqStx =>
-             withLocalIdentFor hStx h fun hStx => do
-               let stxNew ← `(by subst $heqStx; exact $hStx)
-               withMacroExpansion stx stxNew (elabTerm stxNew expectedType)
+             withLocalIdentFor heqStx heq fun heqStx => do
+               let h ← instantiateMVars h
+               if h.hasMVar then
+                 -- If `h` has metavariables, we try to elaborate `hStx` again after we substitute `heqStx`
+                 -- Remark: re-elaborating `hStx` may be problematic if `hStx` contains the `lhs` of `heqStx` which will be eliminated by `subst`
+                 let stxNew ← `(by subst $heqStx; exact $hStx)
+                 withMacroExpansion stx stxNew (elabTerm stxNew expectedType)
+               else
+                 withLocalIdentFor hStx h fun hStx => do
+                   let stxNew ← `(by subst $heqStx; exact $hStx)
+                   withMacroExpansion stx stxNew (elabTerm stxNew expectedType)
            else
              throwError "invalid `▸` notation, failed to compute motive for the substitution"
          else

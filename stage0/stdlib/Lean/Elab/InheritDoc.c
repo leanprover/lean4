@@ -77,6 +77,7 @@ static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda_
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__8(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_addDocString___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__18___closed__2;
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalConst___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_removeLeadingSpaces(lean_object*);
 static lean_object* l_Lean_addDocString___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__18___closed__1;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_addConstInfo___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -107,7 +108,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_resolveGlobalConstNoOverloadWithInfo___at_L
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____closed__5;
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____closed__15;
-lean_object* l___private_Lean_DocString_0__Lean_removeLeadingSpaces(lean_object*);
 lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____closed__7;
@@ -2466,7 +2466,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean
 x_10 = lean_ctor_get(x_7, 0);
 x_11 = lean_ctor_get(x_7, 4);
 lean_dec(x_11);
-x_12 = l___private_Lean_DocString_0__Lean_removeLeadingSpaces(x_2);
+x_12 = l_Lean_removeLeadingSpaces(x_2);
 x_13 = l_Lean_addDocString___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__18___closed__1;
 x_14 = l_Lean_MapDeclarationExtension_insert___rarg(x_13, x_10, x_1, x_12);
 x_15 = l_Lean_addDocString___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__18___closed__5;
@@ -2512,7 +2512,7 @@ lean_inc(x_25);
 lean_inc(x_24);
 lean_inc(x_23);
 lean_dec(x_7);
-x_29 = l___private_Lean_DocString_0__Lean_removeLeadingSpaces(x_2);
+x_29 = l_Lean_removeLeadingSpaces(x_2);
 x_30 = l_Lean_addDocString___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__18___closed__1;
 x_31 = l_Lean_MapDeclarationExtension_insert___rarg(x_30, x_23, x_1, x_29);
 x_32 = l_Lean_addDocString___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__18___closed__5;

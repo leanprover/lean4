@@ -787,7 +787,7 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
       for view in views do
         Term.addTermInfo' view.ref[1] (← mkConstWithLevelParams view.declName) (isBinder := true)
         for ctor in view.ctors do
-          Term.addTermInfo' ctor.ref[2] (← mkConstWithLevelParams ctor.declName) (isBinder := true)
+          Term.addTermInfo' ctor.ref[3] (← mkConstWithLevelParams ctor.declName) (isBinder := true)
         -- We need to invoke `applyAttributes` because `class` is implemented as an attribute.
         Term.applyAttributesAt view.declName view.modifiers.attrs .afterTypeChecking
 

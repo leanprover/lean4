@@ -5,6 +5,7 @@ Authors: Sebastian Ullrich and Leonardo de Moura
 -/
 import Lean.ImportingFlag
 import Lean.Data.KVMap
+import Lean.Data.NameMap
 
 namespace Lean
 

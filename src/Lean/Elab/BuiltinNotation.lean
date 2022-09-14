@@ -38,6 +38,8 @@ open Meta
         (fun ival _ => do
           match ival.ctors with
           | [ctor] =>
+            if isPrivateNameFromImportedModule (← getEnv) ctor then
+              throwError "invalid ⟨...⟩ notation, constructor for `{ival.name}` is marked as private"
             let cinfo ← getConstInfoCtor ctor
             let numExplicitFields ← forallTelescopeReducing cinfo.type fun xs _ => do
               let mut n := 0

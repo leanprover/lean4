@@ -262,6 +262,7 @@ deriving instance Repr for TSyntax
 abbrev Term := TSyntax `term
 abbrev Command := TSyntax `command
 protected abbrev Level := TSyntax `level
+protected abbrev Tactic := TSyntax `tactic
 abbrev Prec := TSyntax `prec
 abbrev Prio := TSyntax `prio
 abbrev Ident := TSyntax identKind

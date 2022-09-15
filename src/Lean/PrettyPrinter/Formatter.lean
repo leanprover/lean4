@@ -482,6 +482,7 @@ def setExpected.formatter (_expected : List String) (p : Formatter) : Formatter 
   modify fun st => { st with leadWord := "" }
 @[combinatorFormatter Lean.Parser.checkLinebreakBefore] def checkLinebreakBefore.formatter : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.checkTailWs] def checkTailWs.formatter : Formatter := pure ()
+@[combinatorFormatter Lean.Parser.checkColEq] def checkColEq.formatter : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.checkColGe] def checkColGe.formatter : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.checkColGt] def checkColGt.formatter : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.checkLineEq] def checkLineEq.formatter : Formatter := pure ()

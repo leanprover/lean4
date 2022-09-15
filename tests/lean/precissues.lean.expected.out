@@ -25,6 +25,6 @@ p ∧ ¬q : Prop
 ¬p = q : Prop
 ¬p = q : Prop
 id ¬p : Prop
-∀ (a a : Nat), a = a : Prop
+Nat → ∀ (a : Nat), a = a : Prop
 id : ?m → ?m
 precissues.lean:41:10: error: expected command

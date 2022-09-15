@@ -1,0 +1,2 @@
+True → ∃ a, a = a : Prop
+True → ∃ b, b = b : Prop

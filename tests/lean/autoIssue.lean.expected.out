@@ -5,7 +5,7 @@ this : z.x = 1
 z : A
 this : z.x = 1
 ⊢ z.x = 1
-@A.rec : {motive : A → Sort u_1} → ((x : Nat) → x = 1 → motive (A.mk x)) → (t : A) → motive t
+@A.rec : {motive : A → Sort u_1} → ((x : Nat) → (a' : x = 1) → motive (A.mk x)) → (t : A) → motive t
 z : A
 x : Nat
 a' : x = 1

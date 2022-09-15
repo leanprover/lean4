@@ -703,7 +703,7 @@ def erase [BEq α] (as : Array α) (a : α) : Array α :=
   | some i => as.feraseIdx i
 
 /-- Insert element `a` at position `i`. -/
-@[inline] def insertAt' (as : Array α) (i : Fin (as.size + 1)) (a : α) : Array α :=
+@[inline] def insertAt (as : Array α) (i : Fin (as.size + 1)) (a : α) : Array α :=
   let rec loop (as : Array α) (j : Fin as.size) :=
     if i.1 < j then
       let j' := ⟨j-1, Nat.lt_of_le_of_lt (Nat.pred_le _) j.2⟩
@@ -717,9 +717,9 @@ def erase [BEq α] (as : Array α) (a : α) : Array α :=
 termination_by _ _ _ j => j.1
 
 /-- Insert element `a` at position `i`. Panics if `i` is not `i ≤ as.size`. -/
-def insertAt (as : Array α) (i : Nat) (a : α) : Array α :=
+def insertAt! (as : Array α) (i : Nat) (a : α) : Array α :=
   if h : i ≤ as.size then
-    insertAt' as ⟨i, Nat.lt_succ_of_le h⟩ a
+    insertAt as ⟨i, Nat.lt_succ_of_le h⟩ a
   else panic! "invalid index"
 termination_by _ _ _ j => j.1
 

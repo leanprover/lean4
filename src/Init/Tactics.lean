@@ -825,9 +825,5 @@ macro "get_elem_tactic" : tactic =>
 @[inheritDoc getElem]
 macro:max x:term noWs "[" i:term "]" : term => `(getElem $x $i (by get_elem_tactic))
 
-/-- Helper declaration for the unexpander -/
-abbrev getElem' [GetElem cont idx elem dom] (xs : cont) (i : idx) (h : dom xs i) : elem :=
-  getElem xs i h
-
 @[inheritDoc getElem]
-macro x:term noWs "[" i:term "]'" h:term:max : term => `(getElem' $x $i $h)
+macro x:term noWs "[" i:term "]'" h:term:max : term => `(getElem $x $i $h)

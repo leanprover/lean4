@@ -772,4 +772,15 @@ def delabNameMkStr : Delab := whenPPOption getPPNotation do
 @[builtinDelab app.Lean.Name.num]
 def delabNameMkNum : Delab := delabNameMkStr
 
+@[builtinDelab app.GetElem.getElem]
+def delabGetElem : Delab := do
+  guard $ (← getExpr).getAppNumArgs == 8
+  let x ← withAppFn $ withAppFn $ withAppArg delab
+  let i ← withAppFn $ withAppArg delab
+  if ← getPPOption getPPProofs then
+    let h ← withAppArg delab
+    `($x[$i]'$h)
+  else
+    `($x[$i])
+
 end Lean.PrettyPrinter.Delaborator

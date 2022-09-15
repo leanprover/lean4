@@ -629,21 +629,24 @@ def indexOf? [BEq α] (a : Array α) (v : α) : Option (Fin a.size) :=
   | ⟨[]⟩ => rfl
   | ⟨a::as⟩ => simp [pop, Nat.succ_sub_succ_eq_sub]
 
+theorem reverse.termination {i j : Nat} (h : i < j) : j - 1 - (i + 1) < j - i := by
+  rw [Nat.sub_sub, Nat.add_comm]
+  exact Nat.lt_of_le_of_lt (Nat.pred_le _) (Nat.sub_succ_lt_self _ _ h)
+
 def reverse (as : Array α) : Array α :=
-  let rec loop (as : Array α) (i : Nat) (j : Fin as.size) :=
-    if h : i < j then
-      have : j - 1 - (i + 1) < j - i := by
-        rw [Nat.sub_sub, Nat.add_comm]
-        exact Nat.lt_of_le_of_lt (Nat.pred_le _) (Nat.sub_succ_lt_self _ _ h)
-      let as' := as.swap ⟨i, Nat.lt_trans h j.2⟩ j
-      have : j-1 < as'.size := by rw [size_swap]; exact Nat.lt_of_le_of_lt (Nat.pred_le _) j.2
-      loop as' (i+1) ⟨j-1, this⟩
-    else
-      as
   if h : as.size ≤ 1 then
     as
   else
     loop as 0 ⟨as.size - 1, Nat.pred_lt (mt (fun h : as.size = 0 => h ▸ by decide) h)⟩
+where
+  loop (as : Array α) (i : Nat) (j : Fin as.size) :=
+    if h : i < j then
+      have := reverse.termination h
+      let as := as.swap ⟨i, Nat.lt_trans h j.2⟩ j
+      have : j-1 < as.size := by rw [size_swap]; exact Nat.lt_of_le_of_lt (Nat.pred_le _) j.2
+      loop as (i+1) ⟨j-1, this⟩
+    else
+      as
 termination_by _ => j - i
 
 def popWhile (p : α → Bool) (as : Array α) : Array α :=

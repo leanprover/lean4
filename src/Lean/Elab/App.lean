@@ -1109,7 +1109,7 @@ private def addLValArg (baseName : Name) (fullName : Name) (e : Expr) (args : Ar
              and the current explicit position "fits" at `args` (i.e., it must be ≤ arg.size) -/
           if argIdx ≤ args.size && xDecl.binderInfo.isExplicit then
             /- We insert `e` as an explicit argument -/
-            return (args.insertAt argIdx (Arg.expr e), namedArgs)
+            return (args.insertAt! argIdx (Arg.expr e), namedArgs)
           /- If we can't add `e` to `args`, we try to add it using a named argument, but this is only possible
              if there isn't an argument with the same name occurring before it. -/
           for j in [:i] do

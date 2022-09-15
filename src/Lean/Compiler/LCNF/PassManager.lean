@@ -143,7 +143,7 @@ def installAfter (targetName : Name) (p : Pass → Pass) (occurrence : Nat := 0)
   install passes :=
     if let some idx := passes.findIdx? (fun p => p.name == targetName && p.occurrence == occurrence) then
       let passUnderTest := passes[idx]!
-      return passes.insertAt (idx + 1) (p passUnderTest)
+      return passes.insertAt! (idx + 1) (p passUnderTest)
     else
       throwError s!"Tried to insert pass after {targetName}, occurrence {occurrence} but {targetName} is not in the pass list"
 
@@ -154,7 +154,7 @@ def installBefore (targetName : Name) (p : Pass → Pass) (occurrence : Nat := 0
   install passes :=
     if let some idx := passes.findIdx? (fun p => p.name == targetName && p.occurrence == occurrence) then
       let passUnderTest := passes[idx]!
-      return passes.insertAt idx (p passUnderTest)
+      return passes.insertAt! idx (p passUnderTest)
     else
       throwError s!"Tried to insert pass after {targetName}, occurrence {occurrence} but {targetName} is not in the pass list"
 

@@ -71,10 +71,10 @@ open Lean Elab Command in
 section
 open Lean Parser Elab Tactic
 
-def getTactics (s : TSyntax ``tacticSeq) : Array Syntax :=
+def getTactics (s : TSyntax ``tacticSeq) : Array (TSyntax `tactic) :=
   match s with
-  | `(tacticSeq| { $[$t:tactic $[;]?]* }) => t
-  | `(tacticSeq| $[$t:tactic $[;]?]*) => t
+  | `(tacticSeq| { $[$t]* }) => t
+  | `(tacticSeq| $[$t]*) => t
   | _ => #[]
 
 elab "seq" s:tacticSeq : tactic => do

@@ -12,68 +12,62 @@ namespace Lean.Compiler.LCNF
 LCNF local context.
 -/
 structure LCtx where
-  localDecls : Std.HashMap FVarId LocalDecl := {}
+  params   : Std.HashMap FVarId Param := {}
+  letDecls : Std.HashMap FVarId LetDecl := {}
   funDecls : Std.HashMap FVarId FunDecl := {}
   deriving Inhabited
 
-def LCtx.addLocalDecl (lctx : LCtx) (fvarId : FVarId) (binderName : Name) (type : Expr) : LCtx :=
-  { lctx with
-    localDecls := lctx.localDecls.insert fvarId (.cdecl 0 fvarId binderName type .default) }
+def LCtx.addParam (lctx : LCtx) (param : Param) : LCtx :=
+  { lctx with params := lctx.params.insert param.fvarId param }
 
-def LCtx.addLetDecl (lctx : LCtx) (fvarId : FVarId) (binderName : Name) (type : Expr) (value : Expr) : LCtx :=
-  { lctx with
-    localDecls := lctx.localDecls.insert fvarId (.ldecl 0 fvarId binderName type value true) }
+def LCtx.addLetDecl (lctx : LCtx) (letDecl : LetDecl) : LCtx :=
+  { lctx with letDecls := lctx.letDecls.insert letDecl.fvarId letDecl }
 
 def LCtx.addFunDecl (lctx : LCtx) (funDecl : FunDecl) : LCtx :=
-  match lctx with
-  | { localDecls, funDecls } => -- TODO: this is a workaround for #316
-    { localDecls := localDecls.insert funDecl.fvarId (.cdecl 0 funDecl.fvarId funDecl.binderName funDecl.type .default)
-      funDecls   := funDecls.insert funDecl.fvarId funDecl }
+  { lctx with funDecls := lctx.funDecls.insert funDecl.fvarId funDecl }
 
-def LCtx.eraseLocal (fvarId : FVarId) : LCtx → LCtx
-  | { localDecls, funDecls } =>
-    let localDecls := localDecls.erase fvarId
-    { localDecls, funDecls }
+def LCtx.eraseParam (lctx : LCtx) (param : Param) : LCtx :=
+  { lctx with params := lctx.params.erase param.fvarId }
 
-partial def LCtx.erase (fvarId : FVarId) (lctx : LCtx) (recursive := true) : LCtx :=
-  match lctx with
-  | { localDecls, funDecls } =>
-    let localDecls := localDecls.erase fvarId
-    match funDecls.find? fvarId with
-    | none => { localDecls, funDecls }
-    | some funDecl =>
-      let funDecls := funDecls.erase fvarId
-      if recursive then
-        go funDecl.value <| goParams funDecl.params { localDecls, funDecls }
-      else
-        { localDecls, funDecls }
-where
-  goParams (params : Array Param) (lctx : LCtx) : LCtx :=
-    params.foldl (init := lctx) fun lctx p => lctx.erase p.fvarId
+def LCtx.eraseParams (lctx : LCtx) (ps : Array Param) : LCtx :=
+  { lctx with params := ps.foldl (init := lctx.params) fun params p => params.erase p.fvarId }
 
-  goAlts (alts : Array Alt) (lctx : LCtx) : LCtx :=
+def LCtx.eraseLetDecl (lctx : LCtx) (decl : LetDecl) : LCtx :=
+  { lctx with letDecls := lctx.letDecls.erase decl.fvarId }
+
+mutual
+  partial def LCtx.eraseFunDecl (lctx : LCtx) (decl : FunDecl) (recursive := true) : LCtx :=
+    let lctx := { lctx with funDecls := lctx.funDecls.erase decl.fvarId }
+    if recursive then
+      eraseCode decl.value <| eraseParams lctx decl.params
+    else
+      lctx
+
+  partial def LCtx.eraseAlts (alts : Array Alt) (lctx : LCtx) : LCtx :=
     alts.foldl (init := lctx) fun lctx alt =>
       match alt with
-      | .default k => go k lctx
-      | .alt _ ps k => go k <| goParams ps lctx
+      | .default k => eraseCode k lctx
+      | .alt _ ps k => eraseCode k <| eraseParams lctx ps
 
-  go (code : Code) (lctx : LCtx) : LCtx :=
+  partial def LCtx.eraseCode (code : Code) (lctx : LCtx) : LCtx :=
     match code with
-    | .let decl k => go k <| lctx.eraseLocal decl.fvarId
-    | .jp decl k | .fun decl k => go k <| lctx.erase decl.fvarId
-    | .cases c => goAlts c.alts lctx
+    | .let decl k => eraseCode k <| lctx.eraseLetDecl decl
+    | .jp decl k | .fun decl k => eraseCode k <| eraseFunDecl lctx decl
+    | .cases c => eraseAlts c.alts lctx
     | _ => lctx
-
-def LCtx.eraseFVarsAt (c : Code) (lctx : LCtx) : LCtx :=
-  LCtx.erase.go c lctx
+end
 
 /--
 Convert a LCNF local context into a regular Lean local context.
 -/
 def LCtx.toLocalContext (lctx : LCtx) : LocalContext := Id.run do
   let mut result := {}
-  for (_, localDecl) in lctx.localDecls.toArray do
-    result := result.addDecl localDecl
+  for (_, param) in lctx.params.toArray do
+    result := result.addDecl (.cdecl 0 param.fvarId param.binderName param.type .default)
+  for (_, decl) in lctx.letDecls.toArray do
+    result := result.addDecl (.ldecl 0 decl.fvarId decl.binderName decl.type decl.value true)
+  for (_, decl) in lctx.funDecls.toArray do
+    result := result.addDecl (.cdecl 0 decl.fvarId decl.binderName decl.type .default)
   return result
 
 end Lean.Compiler.LCNF

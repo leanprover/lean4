@@ -29,9 +29,11 @@ private def prefixJoin (pre : Format) (as : Array α) (f : α → M Format) : M 
     result := f!"{result}{pre}{← f a}"
   return result
 
-def ppFVar (fvarId : FVarId) : M Format := do
-  let localDecl ← getLocalDecl fvarId
-  return format localDecl.userName
+def ppFVar (fvarId : FVarId) : M Format :=
+  try
+    return format (← getBinderName fvarId)
+  catch _ =>
+    return format fvarId.name
 
 def ppExpr (e : Expr) : M Format := do
   Meta.ppExpr e |>.run' { lctx := (← read) }

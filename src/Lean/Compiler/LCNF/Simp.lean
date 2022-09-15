@@ -78,8 +78,8 @@ structure FunDeclInfoMap where
 def FunDeclInfoMap.format (s : FunDeclInfoMap) : CompilerM Format := do
   let mut result := Format.nil
   for (fvarId, info) in s.map.toList do
-    let localDecl ← getLocalDecl fvarId
-    result := result ++ "\n" ++ f!"{localDecl.userName} ↦ {repr info}"
+    let binderName ← getBinderName fvarId
+    result := result ++ "\n" ++ f!"{binderName} ↦ {repr info}"
   return result
 
 /--
@@ -110,8 +110,8 @@ partial def findFunDecl? (e : Expr) : CompilerM (Option FunDecl) := do
   | .fvar fvarId =>
     if let some decl ← LCNF.findFunDecl? fvarId then
       return some decl
-    else if let .ldecl (value := v) .. ← getLocalDecl fvarId then
-      findFunDecl? v
+    else if let some decl ← findLetDecl? fvarId then
+      findFunDecl? decl.value
     else
       return none
   | .mdata _ e => findFunDecl? e
@@ -120,8 +120,8 @@ partial def findFunDecl? (e : Expr) : CompilerM (Option FunDecl) := do
 partial def findExpr (e : Expr) (skipMData := true) : CompilerM Expr := do
   match e with
   | .fvar fvarId =>
-    let .ldecl (value := v) .. ← getLocalDecl fvarId | return e
-    findExpr v
+    let some decl ← findLetDecl? fvarId | return e
+    findExpr decl.value
   | .mdata _ e' => if skipMData then findExpr e' else return e
   | _ => return e
 
@@ -592,7 +592,7 @@ where
         | .fun decl => markUsedFunDecl decl; go (i-1) (.fun decl code)
         | .jp decl => markUsedFunDecl decl; go (i-1) (.jp decl code)
       else
-        eraseFVar decl.fvarId
+        eraseCodeDecl decl
         go (i-1) code
     else
       return code
@@ -601,7 +601,7 @@ where
 Erase all free variables occurring in `decls` from the local context.
 -/
 def eraseCodeDecls (decls : Array CodeDecl) : SimpM Unit := do
-  decls.forM fun decl => eraseFVar decl.fvarId
+  decls.forM fun decl => eraseCodeDecl decl
 
 /--
 Auxiliary function for projecting "type class dictionary access".
@@ -785,7 +785,7 @@ private def addDefault (alts : Array Alt) : SimpM (Array Alt) := do
           let .alt _ ps k := alt | unreachable!
           eraseParams ps
           unless first do
-            eraseFVarsAt k
+            eraseCode k
           first := false
         else
           altsNew := altsNew.push alt
@@ -831,11 +831,19 @@ def simpValue? (e : Expr) : SimpM (Option Expr) :=
   simpProj? e <|> simpAppApp? e <|> applyImplementedBy? e
 
 /--
-Erase the given free variable from the local context,
+Erase the given let-declaration from the local context,
 and set the `simplified` flag to true.
 -/
-def eraseLocalDecl (fvarId : FVarId) : SimpM Unit := do
-  eraseFVar fvarId
+def eraseLetDecl (decl : LetDecl) : SimpM Unit := do
+  LCNF.eraseLetDecl decl
+  markSimplified
+
+/--
+Erase the given local function declaration from the local context,
+and set the `simplified` flag to true.
+-/
+def eraseFunDecl (decl : FunDecl) : SimpM Unit := do
+  LCNF.eraseFunDecl decl
   markSimplified
 
 /--
@@ -858,7 +866,7 @@ def etaPolyApp? (letDecl : LetDecl) : OptionT SimpM FunDecl := do
   let auxDecl ← mkAuxLetDecl value
   let funDecl ← mkAuxFunDecl params (.let auxDecl (.return auxDecl.fvarId))
   addSubst letDecl.fvarId (.fvar funDecl.fvarId)
-  eraseLocalDecl letDecl.fvarId
+  eraseLetDecl letDecl
   return funDecl
 
 mutual
@@ -879,7 +887,7 @@ partial def simpCasesOnCtor? (cases : Cases) : SimpM (Option Code) := do
   let discrExpr ← findCtor (.fvar discr)
   let some (ctorVal, ctorArgs) := discrExpr.constructorApp? (← getEnv) (useRaw := true) | return none
   let (alt, cases) := cases.extractAlt! ctorVal.name
-  eraseFVarsAt (.cases cases)
+  eraseCode (.cases cases)
   markSimplified
   match alt with
   | .default k => simp k
@@ -917,14 +925,14 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
     else if decl.value.isFVar then
       /- Eliminate `let _x_i := _x_j;` -/
       addSubst decl.fvarId decl.value
-      eraseLocalDecl decl.fvarId
+      eraseLetDecl decl
       simp k
     else if let some code ← inlineApp? decl k then
-      eraseFVar decl.fvarId
+      eraseLetDecl decl
       simp code
     else if let some (decls, fvarId) ← inlineProjInst? decl.value then
       addSubst decl.fvarId (.fvar fvarId)
-      eraseLocalDecl decl.fvarId
+      eraseLetDecl decl
       let k ← simp k
       attachCodeDecls decls k
     else
@@ -934,7 +942,7 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
         return code.updateLet! decl k
       else
         /- Dead variable elimination -/
-        eraseLocalDecl decl.fvarId
+        eraseLetDecl decl
         return k
   | .fun decl k | .jp decl k =>
     let mut decl := decl
@@ -964,7 +972,7 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
       return code.updateFun! decl k
     else
       /- Dead function elimination -/
-      eraseLocalDecl decl.fvarId
+      eraseFunDecl decl
       return k
   | .return fvarId =>
     let fvarId ← normFVar fvarId

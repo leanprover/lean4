@@ -2381,7 +2381,7 @@ When we reimplement the specializer, we may consider copying `inst` if it also
 occurs outside binders or if it is an instance.
 -/
 @[neverExtract, extern "lean_panic_fn"]
-opaque panicCore {α : Type u} [Inhabited α] (msg : String) : α
+def panicCore {α : Type u} [Inhabited α] (msg : String) : α := default
 
 /--
 `(panic "msg" : α)` has a built-in implementation which prints `msg` to

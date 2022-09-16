@@ -20,6 +20,8 @@ private def forgetPos (t : (Pos → α → m β) → (Pos → α → m β)) (vis
 /-- Visits all the immediate child subexpressions of the given expression.
 Includes a `Pos` parameter that is used to track position in the subexpression.
 
+In function applications, each argument is visited, so in `f a b`, all of `f`, `a` and `b` will be visited.
+
 Does not instantiate bound variables if the subexpression is below a binder.
 For that, use `Lean.Meta.visitChildrenWithPos`.
 -/
@@ -27,7 +29,7 @@ def Expr.visitChildrenWithPos [Applicative m]
     (visit : Pos → Expr → m Unit) (p : Pos) : Expr → m Unit
   | Expr.proj _ _ e      => visit p.pushProj e
   | Expr.mdata _ b       => Expr.visitChildrenWithPos visit p b
-  | Expr.app f a         => visit p.pushAppFn f *> visit p.pushAppArg a
+  | e@(Expr.app ..)      => Expr.visitAppWithPos visit p e
   | Expr.lam _ t b _     => visit p.pushBindingDomain t *> visit p.pushBindingBody b
   | Expr.forallE _ t b _ => visit p.pushBindingDomain t *> visit p.pushBindingBody b
   | Expr.letE _ t v b _  => visit p.pushLetVarType t *> visit p.pushLetValue v *> visit p.pushLetBody b
@@ -35,19 +37,12 @@ def Expr.visitChildrenWithPos [Applicative m]
 
 /-- Visits all the immediate child subexpressions of the given expression.
 
+In function applications, each argument is visited, so in `f a b`, all of `f`, `a` and `b` will be visited.
+
 Does not instantiate bound variables if the subexpression is below a binder.
 For that, use `Lean.Meta.visitChildren`.-/
 def Expr.visitChildren [Applicative m] (visit : Expr → m Unit) : Expr → m Unit :=
   forgetPos Expr.visitChildrenWithPos visit
-
-/-- Depth-first iterates over the subexpressions of the given expression.
-If `f` returns `false`, deeper subexpressions will not be visited.
-
-Does not instantiate bound variables if the subexpression is below a binder.
-For that, use `Lean.Meta.forEach'`.
--/
-partial def Expr.forEach' [Monad m] (f : Expr → m Bool) (e : Expr) : m Unit := do
-  if (← f e) then Expr.visitChildren (Expr.forEach' f) e else return ()
 
 namespace Meta
 

@@ -184,7 +184,7 @@ def Expr.traverseAppWithPos {M} [Monad M] (visit : Pos → Expr → M Expr) (p :
   | e => visit p e
 
 /-- Same as `Expr.traverseAppWithPos` except doesn't reconstruct an expression. -/
-def Expr.visitAppWithPos {M} [Monad M] (visit : Pos → Expr → M Unit) (p : Pos) (e : Expr) : M Unit :=
+def Expr.visitAppWithPos {M} [Applicative M] (visit : Pos → Expr → M Unit) (p : Pos) (e : Expr) : M Unit :=
   match e with
   | .app f a =>
     visitAppWithPos visit p.pushAppFn f

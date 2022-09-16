@@ -29,7 +29,10 @@ partial def visit (g : Expr → m Bool) (e : Expr) : MonadCacheT Expr Unit m Uni
 
 end ForEachExpr
 
-/-- Apply `f` to each sub-expression of `e`. If `f t` returns false, then t's children are not visited. -/
+/-- Apply `f` to each sub-expression of `e`. If `f t` returns false, then t's children are not visited.
+
+Does not instantiate bound variables if the subexpression is below a binder.
+For that, use `Lean.Meta.forEach'`. -/
 @[inline] def Expr.forEach' (e : Expr) (f : Expr → m Bool) : m Unit :=
   (ForEachExpr.visit f e).run
 

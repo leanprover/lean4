@@ -4,10 +4,13 @@
  [{"label": "insertAt",
    "kind": 3,
    "documentation":
-   {"value": "Insert element `a` at position `i`.\nPre: `i < as.size` ",
-    "kind": "markdown"},
-   "detail": "Array α → Nat → α → Array α"},
-  {"label": "insertAtAux",
+   {"value": "Insert element `a` at position `i`. ", "kind": "markdown"},
+   "detail": "(as : Array α) → Fin (Array.size as + 1) → α → Array α"},
+  {"label": "insertAt!",
    "kind": 3,
-   "detail": "Nat → Array α → Nat → Array α"}],
+   "documentation":
+   {"value":
+    "Insert element `a` at position `i`. Panics if `i` is not `i ≤ as.size`. ",
+    "kind": "markdown"},
+   "detail": "Array α → Nat → α → Array α"}],
  "isIncomplete": true}

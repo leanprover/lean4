@@ -12,10 +12,11 @@ open Lean.SubExpr
 
 namespace Lean
 
-variable {m : Type → Type}
 /-- Convert a traversal function to a form without the `Pos` argument. -/
-private def forgetPos (t : (Pos → α → m β) → (Pos → α → m β)) (visit : α → m β) (e : α) : m β :=
+private def forgetPos (t : (Pos → α → β) → (Pos → α → β)) (visit : α → β) (e : α) : β :=
   t (fun _ => visit) Pos.root e
+
+variable {m : Type → Type}
 
 /-- Visits all the immediate child subexpressions of the given expression.
 Includes a `Pos` parameter that is used to track position in the subexpression.
@@ -49,6 +50,7 @@ namespace Meta
 variable [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
 open Lean.SubExpr
 
+/-- Given an expression `e = fun (x₁ : α₁) .. (xₙ : αₙ) => b`, runs `f` on each `αᵢ` and `b`, including a Pos argument. -/
 def visitLambdaWithPos (f : Pos → Expr → m Unit) (p : Pos) (e : Expr) : m Unit := visit #[] p e
   where visit (fvars : Array Expr) (p : Pos) : Expr → m Unit
     | Expr.lam n d b c => do
@@ -59,6 +61,8 @@ def visitLambdaWithPos (f : Pos → Expr → m Unit) (p : Pos) (e : Expr) : m Un
     | e => do
       f p <| e.instantiateRev fvars
 
+
+/-- Given an expression `e =  (x₁ : α₁) → .. (xₙ : αₙ) → b`, runs `f` on each `αᵢ` and `b`, including a Pos argument. -/
 def visitForallWithPos (f : Pos → Expr → m Unit) (p : Pos) (e : Expr) : m Unit := visit #[] p e
   where visit (fvars : Array Expr) (p : Pos) : Expr → m Unit
     | Expr.forallE n d b c => do
@@ -69,6 +73,7 @@ def visitForallWithPos (f : Pos → Expr → m Unit) (p : Pos) (e : Expr) : m Un
     | e => do
       f p <| e.instantiateRev fvars
 
+/-- Given a sequence of let binders `let (x₁ : α₁ := v₁) ... in b`, runs `f` on each `αᵢ`, `vᵢ` and `b`, including a Pos argument. -/
 def visitLetWithPos (f : Pos → Expr → m Unit) (p : Pos) (e : Expr) : m Unit := visit #[] p e
   where visit (fvars : Array Expr) (p : Pos) : Expr → m Unit
     | Expr.letE n d v b _ => do
@@ -113,7 +118,8 @@ def visitChildren (visit : Expr → m Unit) (e : Expr) :=
   forgetPos visitChildrenWithPos visit e
 
 /-- Version of `forEachExpr'` with additional subexpr pos information.
-If the inner function returns `false`, deeper subexpressions will not be visited. -/
+If the inner function returns `false`, deeper subexpressions will not be visited.
+-/
 partial def forEachExprWithPos' (fn : Pos → Expr → m Bool) (p : Pos) (e : Expr) : m Unit := do
   if ← fn p e then visitChildrenWithPos (forEachExprWithPos' fn) p e
 

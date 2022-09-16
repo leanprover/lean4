@@ -61,6 +61,7 @@ unsafe def findUnsafe? (p : Expr → Bool) (e : Expr) : Option Expr :=
 
 end FindImpl
 
+/-- Depth-first explores the subexpressions returning the first subexpression such that the predicate `p` returns true.-/
 @[implementedBy FindImpl.findUnsafe?]
 partial def find? (p : Expr → Bool) (e : Expr) : Option Expr :=
   /- This is a reference implementation for the unsafe one above -/

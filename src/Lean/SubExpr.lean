@@ -172,10 +172,15 @@ abbrev PosMap (α : Type u) := Std.RBMap Pos α compare
 
 end SubExpr
 
+namespace Expr
 open SubExpr
+
+section Visit
+variable {m} [Applicative m]
+
 /-- Same as `Expr.traverseApp` but also includes a
 `SubExpr.Pos` argument for tracking subexpression position. -/
-def Expr.traverseAppWithPos {M} [Monad M] (visit : Pos → Expr → M Expr) (p : Pos) (e : Expr) : M Expr :=
+def traverseAppWithPos (visit : Pos → Expr → m Expr) (p : Pos) (e : Expr) : m Expr :=
   match e with
   | Expr.app f a =>
     e.updateApp!
@@ -184,10 +189,54 @@ def Expr.traverseAppWithPos {M} [Monad M] (visit : Pos → Expr → M Expr) (p :
   | e => visit p e
 
 /-- Same as `Expr.traverseAppWithPos` except doesn't reconstruct an expression. -/
-def Expr.visitAppWithPos {M} [Applicative M] (visit : Pos → Expr → M Unit) (p : Pos) (e : Expr) : M Unit :=
+def visitAppWithPos (visit : Pos → Expr → m Unit) (p : Pos) (e : Expr) : m Unit :=
   match e with
   | .app f a =>
     visitAppWithPos visit p.pushAppFn f
     *> visit p.pushAppArg a
   | e => visit p e
+
+end Visit
+
+section Find
+variable {m} [Alternative m]
+
+/-- Given an expression of form `f a₀ .. aₙ`, runs `visit` on `f` and each of `aᵢ`. -/
+def findAppWithPos (visit : Pos → Expr → m α) (p : Pos) : Expr → m α
+  | .app f a =>
+    findAppWithPos visit p.pushAppFn f
+    <|> visit p.pushAppArg a
+  | e => visit p e
+
+def findForallWithPos (visit : Pos → Expr → m α) (p : Pos) : Expr → m α
+  | .forallE _ d b _ => visit p.pushBindingDomain d <|> findForallWithPos visit p.pushBindingBody b
+  | e => visit p e
+
+def findLambdaWithPos (visit : Pos → Expr → m α) (p : Pos) : Expr → m α
+  | .lam _ d b _ => visit p.pushBindingDomain d <|> findLambdaWithPos visit p.pushBindingBody b
+  | e => visit p e
+
+def findLetWithPos (visit : Pos → Expr → m α) (p : Pos) : Expr → m α
+  | .letE _ t v b _ => visit p.pushLetVarType t <|> visit p.pushLetValue v <|> findLetWithPos visit p.pushLetBody b
+  | e => visit p e
+
+/-- Run the given `visit` function on each child subexpression of the given expression.
+It will fail if there are no subexpressions.
+
+Does not instantiate bound variables if the subexpression is below a binder.
+Usage with monads deriving from `MetaM` is not recommended.
+-/
+def findChildrenWithPos [Alternative m] (visit : Pos → Expr → m α) (p : Pos) (e : Expr) : m α :=
+  match e with
+  | .app ..     => findAppWithPos visit p e
+  | .forallE .. => findForallWithPos visit p e
+  | .lam ..     => findLambdaWithPos visit p e
+  | .letE ..    => findLetWithPos visit p e
+  | .mdata _ b  => findChildrenWithPos visit p b
+  | .proj _ _ b => visit p.pushProj b
+  | _           => failure
+
+end Find
+
+end Expr
 end Lean

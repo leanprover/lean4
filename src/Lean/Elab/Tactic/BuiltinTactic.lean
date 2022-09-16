@@ -35,42 +35,75 @@ open Parser.Tactic
 @[builtinTactic paren] def evalParen : Tactic := fun stx =>
   evalTactic stx[1]
 
-def isCheckpointableTactic (arg : Syntax.Tactic) : TacticM Bool := do
+def isCheckpointableTactic (arg : Syntax) : TacticM Bool := do
   -- TODO: make it parametric
-  let kind := arg.1.getKind
+  let kind := arg.getKind
   return kind == ``Lean.Parser.Tactic.save
 
-partial def addCheckpoints (args : Array Syntax.Tactic) : TacticM (Array Syntax.Tactic) := do
-  -- if (← readThe Term.Context).tacticCache? |>.isSome then
-  if (← args.anyM fun arg => isCheckpointableTactic arg) then
-    let argsNew ← go 0 #[] #[]
-    return argsNew
-  return args
-where
-  push (acc : Array Syntax.Tactic) (result : Array Syntax.Tactic) : Array Syntax.Tactic :=
-    if acc.isEmpty then
-      result
-    else
-      result.push <| Unhygienic.run do withRef acc.back do
-        `(tactic| checkpoint $[$acc]*)
+/--
+Takes a `sepByIndent tactic "; "`, and inserts `checkpoint` blocks for `save` tactics.
 
-  go (i : Nat) (acc : Array Syntax.Tactic) (result : Array Syntax.Tactic) : TacticM (Array Syntax.Tactic) := do
-    if h : i < args.size then
-      let arg := args.get ⟨i, h⟩
-      if (← isCheckpointableTactic arg) then
-        -- `argNew` is `arg` as singleton sequence. The idea is to make sure it does not satisfy `isCheckpointableTactic` anymore
-        let argNew := ⟨mkNullNode #[arg]⟩ -- HACK
-        let acc := acc.push argNew
-        go (i+1) #[] (push acc result)
-      else
-        go (i+1) (acc.push arg) result
+Input:
+```
+  a
+  b
+  save
+  c
+  d
+  save
+  e
+```
+
+Output:
+```
+  checkpoint
+    a
+    b
+    save
+  checkpoint
+    c
+    d
+    save
+  e
+```
+-/
+-- Note that we need to preserve the separators to show the right goals after semicolons.
+def addCheckpoints (stx : Syntax) : TacticM Syntax := do
+  -- if (← readThe Term.Context).tacticCache? |>.isSome then
+  if !(← stx.getSepArgs.anyM isCheckpointableTactic) then return stx
+  let mut currentCheckpointBlock := #[]
+  let mut output := #[]
+  for i in [:stx.getArgs.size / 2] do
+    let tac := stx[2*i]
+    let sep? := stx.getArgs[2*i+1]?
+    if (← isCheckpointableTactic tac) then
+      let checkpoint : Syntax :=
+        mkNode ``checkpoint #[
+          mkAtomFrom tac "checkpoint",
+          mkNode ``tacticSeq #[
+            mkNode ``tacticSeq1Indented #[
+              -- HACK: null node is not a valid tactic, but prevents infinite loop
+              mkNullNode (currentCheckpointBlock.push tac)
+            ]
+          ]
+        ]
+      currentCheckpointBlock := #[]
+      output := output.push checkpoint
+      if let some sep := sep? then output := output.push sep
     else
-      return result ++ acc
+      currentCheckpointBlock := currentCheckpointBlock.push tac
+      if let some sep := sep? then currentCheckpointBlock := currentCheckpointBlock.push sep
+  output := output ++ currentCheckpointBlock
+  return stx.setArgs output
 
 /-- Evaluate `sepByIndent tactic "; " -/
 def evalSepByIndentTactic (stx : Syntax) : TacticM Unit := do
-  for seqElem in (← addCheckpoints (stx.getSepArgs.map (⟨·⟩))) do
-    evalTactic seqElem
+  let stx ← addCheckpoints stx
+  for arg in stx.getArgs, i in [:stx.getArgs.size] do
+    if i % 2 == 0 then
+      evalTactic arg
+    else
+      saveTacticInfoForToken arg
 
 @[builtinTactic tacticSeq1Indented] def evalTacticSeq1Indented : Tactic := fun stx =>
   evalSepByIndentTactic stx[0]

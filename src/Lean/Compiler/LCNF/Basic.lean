@@ -79,6 +79,18 @@ inductive CodeDecl where
 def CodeDecl.fvarId : CodeDecl → FVarId
   | .let decl | .fun decl | .jp decl => decl.fvarId
 
+def attachCodeDecls (decls : Array CodeDecl) (code : Code) : Code :=
+  go decls.size code
+where
+  go (i : Nat) (code : Code) : Code :=
+    if i > 0 then
+      match decls[i-1]! with
+      | .let decl => go (i-1) (.let decl code)
+      | .fun decl => go (i-1) (.fun decl code)
+      | .jp decl => go (i-1) (.jp decl code)
+    else
+      code
+
 mutual
   private unsafe def eqImp (c₁ c₂ : Code) : Bool :=
     if ptrEq c₁ c₂ then

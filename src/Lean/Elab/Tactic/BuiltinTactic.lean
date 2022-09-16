@@ -69,6 +69,12 @@ where
 
 /-- Evaluate `sepByIndent tactic "; " -/
 def evalSepByIndentTactic (stx : Syntax) : TacticM Unit := do
+  -- HACK: bootstrapping hack to support (group tac ";") nodes
+  if stx[0].getKind == groupKind then
+    for seqElem in stx.getArgs do
+      evalTactic seqElem
+    return
+
   for seqElem in (← addCheckpoints (stx.getSepArgs.map (⟨·⟩))) do
     evalTactic seqElem
 
@@ -373,5 +379,11 @@ where
   match stx[1].isNatLit? with
   | none    => throwIllFormedSyntax
   | some ms => IO.sleep ms.toUInt32
+
+-- HACK: support (group tac ";") quotations from the previous stage.
+-- Unfortuntely, parseQuotWithCurrentStage is not powerful enough to make this
+-- unnecessary as it does not affect parser aliases.
+@[builtinTactic group] def evalGroup : Tactic := fun stx =>
+  evalTactic stx[0]
 
 end Lean.Elab.Tactic

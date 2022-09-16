@@ -21,6 +21,8 @@ example : 0 + n = n := by
 example : α → α := by
   intro a; apply a
        --^ $/lean/plainGoal
+        --^ $/lean/plainGoal
+         --^ $/lean/plainGoal
 
 example (h1 : n = m) (h2 : m = 0) : 0 = n := by
   rw [h1, h2]

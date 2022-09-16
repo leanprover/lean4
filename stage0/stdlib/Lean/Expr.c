@@ -478,6 +478,7 @@ lean_object* lean_expr_abstract_range(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Expr_constLevels_x21___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_getArg_x21___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_bindingDomain_x21___closed__1;
+lean_object* l_panic___at_String_toNat_x21___spec__1(lean_object*);
 static lean_object* l_Lean_mkInaccessible___closed__2;
 LEAN_EXPORT lean_object* l_Lean_isLHSGoal_x3f___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_sort___override(lean_object*);
@@ -760,7 +761,6 @@ static lean_object* l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hy
 LEAN_EXPORT lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Expr_0__Lean_reprBinderInfo____x40_Lean_Expr___hyg_391____closed__11;
 static lean_object* l_Lean_Expr_mkData___closed__4;
-lean_object* l_panic___at_Lean_TSyntax_getNat___spec__1(lean_object*);
 LEAN_EXPORT lean_object* lean_expr_mk_sort(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Literal_hash___boxed(lean_object*);
 lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
@@ -10340,7 +10340,7 @@ else
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = l_Lean_Expr_bvarIdx_x21___closed__3;
-x_4 = l_panic___at_Lean_TSyntax_getNat___spec__1(x_3);
+x_4 = l_panic___at_String_toNat_x21___spec__1(x_3);
 return x_4;
 }
 }
@@ -11095,7 +11095,7 @@ else
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = l_Lean_Expr_projIdx_x21___closed__2;
-x_4 = l_panic___at_Lean_TSyntax_getNat___spec__1(x_3);
+x_4 = l_panic___at_String_toNat_x21___spec__1(x_3);
 return x_4;
 }
 }

@@ -25,15 +25,12 @@ lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addDocString_x27___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getDocStringText___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_Format_defWidth;
 LEAN_EXPORT lean_object* l___private_Lean_DocString_0__Lean_docStringExt;
 LEAN_EXPORT lean_object* l___private_Lean_DocString_0__Lean_removeNumLeadingSpaces_consumeSpaces(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_DocString___hyg_1650____lambda__1___boxed(lean_object*);
-static lean_object* l_Lean_TSyntax_getDocString___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_DocString_0__Lean_findLeadingSpacesSize_findNextLine(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DocString_0__Lean_removeNumLeadingSpaces(lean_object*, lean_object*);
-lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addDocString___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_String_Iterator_atEnd(lean_object*);
@@ -49,19 +46,16 @@ lean_object* l_Lean_MapDeclarationExtension_insert___rarg(lean_object*, lean_obj
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* l_panic___at_Lean_TSyntax_getString___spec__1(lean_object*);
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_removeLeadingSpaces(lean_object*);
 lean_object* l_Lean_mkMapDeclarationExtension___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_DocString___hyg_1650____closed__3;
-lean_object* lean_format_pretty(lean_object*, lean_object*);
 static lean_object* l___private_Lean_DocString_0__Lean_removeNumLeadingSpaces___closed__1;
 static lean_object* l_Lean_initFn____x40_Lean_DocString___hyg_1650____closed__5;
 static lean_object* l_Lean_initFn____x40_Lean_DocString___hyg_44____closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_DocString_0__Lean_removeNumLeadingSpaces_saveLine(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DocString_0__Lean_findLeadingSpacesSize_consumeSpaces(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Iterator_find___at___private_Lean_DocString_0__Lean_findLeadingSpacesSize___spec__1(lean_object*);
 lean_object* l_String_Iterator_next(lean_object*);
@@ -95,8 +89,6 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_DocString___hyg_1650____lambda__1___closed__3;
 static lean_object* l_Lean_initFn____x40_Lean_DocString___hyg_1650____closed__2;
 static lean_object* l_Lean_initFn____x40_Lean_DocString___hyg_1650____closed__1;
-static lean_object* l_Lean_TSyntax_getDocString___closed__2;
-static lean_object* l_Lean_TSyntax_getDocString___closed__1;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_DocString___hyg_1650_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_DocString___hyg_4_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_DocString___hyg_44_(lean_object*);
@@ -110,7 +102,6 @@ LEAN_EXPORT lean_object* l_Lean_TSyntax_getDocString___boxed(lean_object*);
 lean_object* l_Nat_min(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_getModuleIdx_x3f(lean_object*, lean_object*);
 static lean_object* l_Lean_addBuiltinDocString___closed__1;
-lean_object* l_Lean_Syntax_formatStxAux(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_RBNode_find___at_Lean_findDocString_x3f___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DocString_0__Lean_builtinDocStrings;
 LEAN_EXPORT lean_object* l_Lean_getModuleDoc_x3f___boxed(lean_object*, lean_object*);
@@ -1053,82 +1044,34 @@ lean_dec(x_3);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_TSyntax_getDocString___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected doc string\n", 22);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_TSyntax_getDocString___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.DocString", 14);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_TSyntax_getDocString___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.TSyntax.getDocString", 25);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_TSyntax_getDocString(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_unsigned_to_nat(1u);
 x_3 = l_Lean_Syntax_getArg(x_1, x_2);
-switch (lean_obj_tag(x_3)) {
-case 0:
+if (lean_obj_tag(x_3) == 2)
 {
-lean_object* x_4; 
-x_4 = l___private_Lean_DocString_0__Lean_removeNumLeadingSpaces___closed__1;
-return x_4;
-}
-case 2:
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_5 = lean_ctor_get(x_3, 1);
-lean_inc(x_5);
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_4 = lean_ctor_get(x_3, 1);
+lean_inc(x_4);
 lean_dec(x_3);
-x_6 = lean_string_utf8_byte_size(x_5);
-x_7 = lean_unsigned_to_nat(2u);
-x_8 = lean_nat_sub(x_6, x_7);
-lean_dec(x_6);
-x_9 = lean_unsigned_to_nat(0u);
-x_10 = lean_string_utf8_extract(x_5, x_9, x_8);
-lean_dec(x_8);
+x_5 = lean_string_utf8_byte_size(x_4);
+x_6 = lean_unsigned_to_nat(2u);
+x_7 = lean_nat_sub(x_5, x_6);
 lean_dec(x_5);
-return x_10;
+x_8 = lean_unsigned_to_nat(0u);
+x_9 = lean_string_utf8_extract(x_4, x_8, x_7);
+lean_dec(x_7);
+lean_dec(x_4);
+return x_9;
 }
-default: 
+else
 {
-lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
-x_11 = lean_box(0);
-x_12 = 0;
-x_13 = lean_unsigned_to_nat(0u);
-x_14 = l_Lean_Syntax_formatStxAux(x_11, x_12, x_13, x_3);
-x_15 = l_Std_Format_defWidth;
-x_16 = lean_format_pretty(x_14, x_15);
-x_17 = l_Lean_TSyntax_getDocString___closed__1;
-x_18 = lean_string_append(x_17, x_16);
-lean_dec(x_16);
-x_19 = l___private_Lean_DocString_0__Lean_removeNumLeadingSpaces___closed__1;
-x_20 = lean_string_append(x_18, x_19);
-x_21 = l_Lean_TSyntax_getDocString___closed__2;
-x_22 = l_Lean_TSyntax_getDocString___closed__3;
-x_23 = lean_unsigned_to_nat(99u);
-x_24 = lean_unsigned_to_nat(25u);
-x_25 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_21, x_22, x_23, x_24, x_20);
-lean_dec(x_20);
-x_26 = l_panic___at_Lean_TSyntax_getString___spec__1(x_25);
-return x_26;
-}
+lean_object* x_10; 
+lean_dec(x_3);
+x_10 = l___private_Lean_DocString_0__Lean_removeNumLeadingSpaces___closed__1;
+return x_10;
 }
 }
 }
@@ -1213,12 +1156,6 @@ l_Lean_getDocStringText___rarg___closed__2 = _init_l_Lean_getDocStringText___rar
 lean_mark_persistent(l_Lean_getDocStringText___rarg___closed__2);
 l_Lean_getDocStringText___rarg___closed__3 = _init_l_Lean_getDocStringText___rarg___closed__3();
 lean_mark_persistent(l_Lean_getDocStringText___rarg___closed__3);
-l_Lean_TSyntax_getDocString___closed__1 = _init_l_Lean_TSyntax_getDocString___closed__1();
-lean_mark_persistent(l_Lean_TSyntax_getDocString___closed__1);
-l_Lean_TSyntax_getDocString___closed__2 = _init_l_Lean_TSyntax_getDocString___closed__2();
-lean_mark_persistent(l_Lean_TSyntax_getDocString___closed__2);
-l_Lean_TSyntax_getDocString___closed__3 = _init_l_Lean_TSyntax_getDocString___closed__3();
-lean_mark_persistent(l_Lean_TSyntax_getDocString___closed__3);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

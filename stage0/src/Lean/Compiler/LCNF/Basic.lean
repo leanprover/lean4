@@ -296,6 +296,17 @@ where
     | .jmp .. => inc
     | .return .. | unreach .. => return ()
 
+partial def Code.forM [Monad m] (c : Code) (f : Code → m Unit) : m Unit :=
+  go c
+where
+  go (c : Code) : m Unit := do
+    f c
+    match c with
+    | .let _ k => go k
+    | .fun decl k | .jp decl k => go decl.value; go k
+    | .cases c => c.alts.forM fun alt => go alt.getCode
+    | .unreach .. | .return .. | .jmp .. => return ()
+
 /--
 Declaration being processed by the Lean to Lean compiler passes.
 -/

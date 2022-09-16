@@ -233,5 +233,12 @@ Assert that the pass under test produces `Decl`s that do not contain
 def assertDoesNotContainConstAfter (constName : Name) (msg : String) : TestInstaller :=
   assertForEachDeclAfterEachOccurence (fun _ decl => !decl.value.containsConst constName) msg
 
+def assertNoFun : TestInstaller :=
+  assertAfter do
+    for decl in (← getDecls) do
+      decl.value.forM fun
+        | .fun .. => throwError "declaration `{decl.name}` contains a local function declaration"
+        | _ => return ()
+
 end Testing
 end Lean.Compiler.LCNF

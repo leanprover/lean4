@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Parser.Extension
-// Imports: Init Lean.ResolveName Lean.ScopedEnvExtension Lean.Parser.Basic Lean.Parser.StrInterpolation Lean.KeyedDeclsAttribute Lean.DocString Lean.DeclarationRange
+// Imports: Init Lean.Parser.Basic Lean.Compiler.InitAttr Lean.ScopedEnvExtension Lean.DocString
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -47,6 +47,7 @@ LEAN_EXPORT lean_object* l_Std_RBNode_find___at_Lean_Parser_getAlias___spec__1__
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_foldlMAux___at___private_Lean_Parser_Extension_0__Lean_Parser_ParserAttribute_add___spec__4(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_parserOfStack___elambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_addBuiltinParserCategory___closed__1;
+lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_mkModuleData___spec__3___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_ParserExtension_instInhabitedOLeanEntry___closed__1;
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3903____closed__8;
@@ -363,7 +364,6 @@ LEAN_EXPORT lean_object* l_Lean_Parser_parserOfStackFn___lambda__1___boxed(lean_
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_ParserExtension_mkInitial(lean_object*);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_ParserExtension_instInhabitedState___closed__1;
-lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_parserAliases2infoRef;
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_insertAux_traverse___at___private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_compileParserDescr(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3442,7 +3442,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Parser_ParserExtension_addEntryImpl___closed__1;
 x_2 = l_Lean_Parser_ParserExtension_addEntryImpl___closed__2;
-x_3 = lean_unsigned_to_nat(162u);
+x_3 = lean_unsigned_to_nat(159u);
 x_4 = lean_unsigned_to_nat(26u);
 x_5 = l_Lean_Parser_ParserExtension_addEntryImpl___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -3455,7 +3455,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Parser_ParserExtension_addEntryImpl___closed__1;
 x_2 = l_Lean_Parser_ParserExtension_addEntryImpl___closed__2;
-x_3 = lean_unsigned_to_nat(172u);
+x_3 = lean_unsigned_to_nat(169u);
 x_4 = lean_unsigned_to_nat(11u);
 x_5 = l_Lean_Parser_ParserExtension_addEntryImpl___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -9420,7 +9420,7 @@ lean_object* x_4; lean_object* x_5;
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 lean_dec(x_1);
-x_5 = l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2___rarg(x_2, x_4, x_3);
+x_5 = l_Std_PersistentHashMap_foldlMAux___at_Lean_mkModuleData___spec__3___rarg(x_2, x_4, x_3);
 return x_5;
 }
 }
@@ -14805,13 +14805,10 @@ return x_5;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_ResolveName(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_ScopedEnvExtension(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Parser_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Parser_StrInterpolation(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_KeyedDeclsAttribute(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_InitAttr(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_ScopedEnvExtension(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_DocString(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_DeclarationRange(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Parser_Extension(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -14820,25 +14817,16 @@ _G_initialized = true;
 res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_ResolveName(builtin, lean_io_mk_world());
+res = initialize_Lean_Parser_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Compiler_InitAttr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_ScopedEnvExtension(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Parser_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Parser_StrInterpolation(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_KeyedDeclsAttribute(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_DocString(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_DeclarationRange(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_6____closed__1 = _init_l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_6____closed__1();

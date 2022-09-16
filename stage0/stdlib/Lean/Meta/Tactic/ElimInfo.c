@@ -253,6 +253,7 @@ static lean_object* l_Prod_repr___at___private_Lean_Meta_Tactic_ElimInfo_0__Lean
 LEAN_EXPORT lean_object* l_Lean_Meta_withNewMCtxDepth___at_Lean_Meta_addImplicitTargets___spec__9(lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_Meta_addCustomEliminatorEntry___spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
+lean_object* l_panic___at_String_toNat_x21___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_mkCustomEliminator___spec__16___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_getElimInfo___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_sort___override(lean_object*);
@@ -412,7 +413,6 @@ static lean_object* l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_reprElimI
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_mkCustomEliminator___spec__17___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_panic___at_Lean_TSyntax_getNat___spec__1(lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_instReprCustomEliminator___closed__1;
 lean_object* l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10243,7 +10243,7 @@ if (x_66 == 0)
 {
 lean_object* x_67; lean_object* x_68; 
 x_67 = l_Std_Range_forIn_loop___at_Lean_Meta_getElimInfo___spec__6___closed__5;
-x_68 = l_panic___at_Lean_TSyntax_getNat___spec__1(x_67);
+x_68 = l_panic___at_String_toNat_x21___spec__1(x_67);
 x_30 = x_68;
 goto block_65;
 }
@@ -10568,7 +10568,7 @@ if (x_25 == 0)
 {
 lean_object* x_98; lean_object* x_99; uint8_t x_100; 
 x_98 = l_Std_Range_forIn_loop___at_Lean_Meta_getElimInfo___spec__6___closed__5;
-x_99 = l_panic___at_Lean_TSyntax_getNat___spec__1(x_98);
+x_99 = l_panic___at_String_toNat_x21___spec__1(x_98);
 x_100 = lean_nat_dec_lt(x_99, x_26);
 if (x_100 == 0)
 {

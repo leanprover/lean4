@@ -33,8 +33,8 @@ inductive Element where
   | jp  (decl : FunDecl)
   | fun (decl : FunDecl)
   | let (decl : LetDecl)
-  | cases (fvarId : FVarId) (cases : Cases)
-  | unreach (fvarId : FVarId)
+  | cases (p : Param) (cases : Cases)
+  | unreach (p : Param)
   deriving Inhabited
 
 /--
@@ -70,7 +70,7 @@ where
   findFun? (f : FVarId) : CompilerM (Option FunDecl) := do
     if let some funDecl ← findFunDecl? f then
       return funDecl
-    else if let .ldecl (value := .fvar f') .. ← getLocalDecl f then
+    else if let some { value := .fvar f', .. } ← findLetDecl? f then
       findFun? f'
     else
       return none
@@ -89,11 +89,11 @@ where
         -/
         if decl.fvarId == fvarId && decl.value.isApp && decl.value.getAppFn.isFVar then
           let f := decl.value.getAppFn.fvarId!
-          let localDecl ← getLocalDecl f
-          if localDecl.userName.getPrefix == `_alt then
+          let binderName ← getBinderName f
+          if binderName.getPrefix == `_alt then
             if let some funDecl ← findFun? f then
               let args := decl.value.getAppArgs
-              eraseFVar decl.fvarId
+              eraseLetDecl decl
               if let some altJp := (← get).find? f then
                 /- We already have an auxiliary join point for `f`, then, we just use it. -/
                 return .jmp altJp.fvarId args
@@ -164,23 +164,24 @@ where
       | .let decl => go seq (i - 1) (.let decl c)
       | .unreach _ =>
         let type ← c.inferType
-        eraseFVarsAt c
+        eraseCode c
         seq[:i].forM fun
-          | .let decl | .jp decl | .fun decl => eraseFVar decl.fvarId
-          | .cases _ cs => eraseFVarsAt (.cases cs)
-          | .unreach fvarId => eraseFVar fvarId
+          | .let decl => eraseLetDecl decl
+          | .jp decl | .fun decl => eraseFunDecl decl
+          | .cases _ cs => eraseCode (.cases cs)
+          | .unreach auxParam => eraseParam auxParam
         return .unreach type
-      | .cases fvarId cases =>
-        if let .return fvarId' := c then
-          if fvarId == fvarId' then
-            eraseFVar fvarId
+      | .cases auxParam cases =>
+        if let .return fvarId := c then
+          if auxParam.fvarId == fvarId then
+            eraseParam auxParam
             go seq (i - 1) (.cases cases)
           else
             -- `cases` is dead code
             go seq (i - 1) c
         else
           /- Create a join point for `c` and jump to it from `cases` -/
-          let jpDecl ← mkAuxJpDecl' fvarId c
+          let jpDecl ← mkAuxJpDecl' auxParam c
           go seq (i - 1) (← bindCases jpDecl cases)
     else
       return c
@@ -212,7 +213,7 @@ def pushElement (elem : Element) : M Unit := do
 
 def mkUnreachable (type : Expr) : M Expr := do
   let p ← mkAuxParam type
-  pushElement (.unreach p.fvarId)
+  pushElement (.unreach p)
   return .fvar p.fvarId
 
 def mkAuxLetDecl (e : Expr) (prefixName := `_x) : M Expr := do
@@ -470,7 +471,7 @@ where
         alts := alts.push alt
       let cases : Cases := { typeName, discr := discr.fvarId!, resultType, alts }
       let auxDecl ← mkAuxParam resultType
-      pushElement (.cases auxDecl.fvarId cases)
+      pushElement (.cases auxDecl cases)
       let result := .fvar auxDecl.fvarId
       if args.size == casesInfo.arity then
         return result

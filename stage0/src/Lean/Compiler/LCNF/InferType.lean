@@ -21,16 +21,22 @@ created during type inference.
 -/
 abbrev InferTypeM := ReaderT LocalContext CompilerM
 
-def getLocalDecl (fvarId : FVarId) : InferTypeM LocalDecl := do
+def getBinderName (fvarId : FVarId) : InferTypeM Name := do
   match (← read).find? fvarId with
-  | some localDecl => return localDecl
-  | none => LCNF.getLocalDecl fvarId
+  | some localDecl => return localDecl.userName
+  | none => LCNF.getBinderName fvarId
+
+def getType (fvarId : FVarId) : InferTypeM Expr := do
+  match (← read).find? fvarId with
+  | some localDecl => return localDecl.type
+  | none => LCNF.getType fvarId
 
 def mkForallFVars (xs : Array Expr) (type : Expr) : InferTypeM Expr :=
   let b := type.abstract xs
   xs.size.foldRevM (init := b) fun i b => do
     let x := xs[i]!
-    let .cdecl _ _ n ty _ ← getLocalDecl x.fvarId! | unreachable!
+    let n ← InferType.getBinderName x.fvarId!
+    let ty ← InferType.getType x.fvarId!
     let ty := ty.abstractRange i xs;
     return .forallE n ty b .default
 
@@ -42,9 +48,6 @@ def mkForallParams (params : Array Param) (type : Expr) : InferTypeM Expr :=
   let fvarId ← mkFreshFVarId
   withReader (fun lctx => lctx.mkLocalDecl fvarId binderName type binderInfo) do
     k (.fvar fvarId)
-
-def inferFVarType (fvarId : FVarId) : InferTypeM Expr :=
-  return (← getLocalDecl fvarId).type
 
 def inferConstType (declName : Name) (us : List Level) : CoreM Expr :=
   if declName == ``lcAny || declName == ``lcErased then
@@ -60,7 +63,7 @@ mutual
     | .proj n i s    => inferProjType n i s
     | .app ..        => inferAppType e
     | .mvar ..       => throwError "unexpected metavariable {e}"
-    | .fvar fvarId   => inferFVarType fvarId
+    | .fvar fvarId   => InferType.getType fvarId
     | .bvar ..       => throwError "unexpected bound variable {e}"
     | .mdata _ e     => inferType e
     | .lit v         => return v.type
@@ -181,7 +184,7 @@ def mkLcCast (e : Expr) (expectedType : Expr) : CompilerM Expr := do
 def Code.inferType (code : Code) : CompilerM Expr := do
   match code with
   | .let _ k | .fun _ k | .jp _ k => k.inferType
-  | .return fvarId => return (← getLocalDecl fvarId).type
+  | .return fvarId => getType fvarId
   | .jmp fvarId args => InferType.inferAppTypeCore (.fvar fvarId) args |>.run {}
   | .unreach type => return type
   | .cases c => return c.resultType
@@ -208,9 +211,8 @@ def mkAuxFunDecl (params : Array Param) (code : Code) (prefixName := `_f) : Comp
 def mkAuxJpDecl (params : Array Param) (code : Code) (prefixName := `_jp) : CompilerM FunDecl := do
   mkAuxFunDecl params code prefixName
 
-def mkAuxJpDecl' (fvarId : FVarId) (code : Code) (prefixName := `_jp) : CompilerM FunDecl := do
-  let localDecl ← getLocalDecl fvarId
-  let params := #[{ fvarId, binderName := localDecl.userName, type := localDecl.type, borrow := false }]
+def mkAuxJpDecl' (param : Param) (code : Code) (prefixName := `_jp) : CompilerM FunDecl := do
+  let params := #[param]
   mkAuxFunDecl params code prefixName
 
 def instantiateForall (type : Expr) (params : Array Param) : CoreM Expr :=

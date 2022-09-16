@@ -51,7 +51,7 @@ partial def elimDead (code : Code) : M Code := do
       collectExprM decl.value
       return code.updateCont! k
     else
-      eraseFVar decl.fvarId
+      eraseLetDecl decl
       return k
   | .fun decl k | .jp decl k =>
     let k ← elimDead k
@@ -59,7 +59,7 @@ partial def elimDead (code : Code) : M Code := do
       let decl ← visitFunDecl decl
       return code.updateFun! decl k
     else
-      eraseFVar decl.fvarId
+      eraseFunDecl decl
       return k
   | .cases c =>
     let alts ← c.alts.mapMonoM fun alt => return alt.updateCode (← elimDead alt.getCode)

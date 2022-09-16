@@ -65,6 +65,7 @@ static lean_object* l_Lean_Meta_reduce_visit___lambda__4___closed__4;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 uint64_t l_Lean_Expr_hash(lean_object*);
 static lean_object* l_Lean_Meta_reduce_visit___lambda__4___closed__9;
+lean_object* l_panic___at_String_toNat_x21___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_reduce_visit___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_sort___override(lean_object*);
 lean_object* l_Lean_Expr_natLit_x3f(lean_object*);
@@ -98,7 +99,6 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_reduce_visit___lambda__2(uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_reduce_visit___lambda__3(uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_panic___at_Lean_TSyntax_getNat___spec__1(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_reduce_visit___lambda__4___closed__10;
 LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_Meta_reduce_visit___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1765,7 +1765,7 @@ if (lean_obj_tag(x_42) == 0)
 {
 lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; 
 x_43 = l_Lean_Meta_reduce_visit___lambda__4___closed__9;
-x_44 = l_panic___at_Lean_TSyntax_getNat___spec__1(x_43);
+x_44 = l_panic___at_String_toNat_x21___spec__1(x_43);
 x_45 = lean_nat_add(x_44, x_29);
 lean_dec(x_44);
 x_46 = l_Lean_mkRawNatLit(x_45);
@@ -1808,7 +1808,7 @@ if (lean_obj_tag(x_53) == 0)
 {
 lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; 
 x_54 = l_Lean_Meta_reduce_visit___lambda__4___closed__9;
-x_55 = l_panic___at_Lean_TSyntax_getNat___spec__1(x_54);
+x_55 = l_panic___at_String_toNat_x21___spec__1(x_54);
 x_56 = lean_nat_add(x_55, x_29);
 lean_dec(x_55);
 x_57 = l_Lean_mkRawNatLit(x_56);
@@ -2007,7 +2007,7 @@ if (lean_obj_tag(x_101) == 0)
 {
 lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; 
 x_102 = l_Lean_Meta_reduce_visit___lambda__4___closed__9;
-x_103 = l_panic___at_Lean_TSyntax_getNat___spec__1(x_102);
+x_103 = l_panic___at_String_toNat_x21___spec__1(x_102);
 x_104 = lean_nat_add(x_103, x_88);
 lean_dec(x_103);
 x_105 = l_Lean_mkRawNatLit(x_104);
@@ -2050,7 +2050,7 @@ if (lean_obj_tag(x_112) == 0)
 {
 lean_object* x_113; lean_object* x_114; lean_object* x_115; lean_object* x_116; lean_object* x_117; 
 x_113 = l_Lean_Meta_reduce_visit___lambda__4___closed__9;
-x_114 = l_panic___at_Lean_TSyntax_getNat___spec__1(x_113);
+x_114 = l_panic___at_String_toNat_x21___spec__1(x_113);
 x_115 = lean_nat_add(x_114, x_88);
 lean_dec(x_114);
 x_116 = l_Lean_mkRawNatLit(x_115);

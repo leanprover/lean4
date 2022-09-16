@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.KeyedDeclsAttribute
-// Imports: Init Lean.Attributes Lean.Compiler.InitAttr Lean.ToExpr Lean.ScopedEnvExtension Lean.Compiler.IR.CompilerM
+// Imports: Init Lean.Compiler.InitAttr Lean.ScopedEnvExtension Lean.Compiler.IR.CompilerM
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -42,7 +42,6 @@ LEAN_EXPORT lean_object* l_Std_AssocList_find_x3f___at___private_Lean_KeyedDecls
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__9___closed__1;
 static lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__9___closed__8;
-lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_mkModuleData___spec__3___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_AssocList_find_x3f___at_Lean_KeyedDeclsAttribute_getEntries___spec__8(lean_object*);
 lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___closed__4;
@@ -189,6 +188,7 @@ static lean_object* l_Lean_KeyedDeclsAttribute_ExtensionState_erase___rarg___clo
 LEAN_EXPORT lean_object* l_Std_HashMapImp_find_x3f___at_Lean_KeyedDeclsAttribute_getEntries___spec__9___rarg(lean_object*, lean_object*);
 size_t lean_usize_shift_left(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_KeyedDeclsAttribute_getValues___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMapImp_moveEntries___at___private_Lean_KeyedDeclsAttribute_0__Lean_KeyedDeclsAttribute_Table_insert___spec__30___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__9___closed__10;
 static lean_object* l_Std_PersistentHashMap_insertAux___at___private_Lean_KeyedDeclsAttribute_0__Lean_KeyedDeclsAttribute_Table_insert___spec__13___rarg___closed__1;
@@ -4129,7 +4129,7 @@ lean_object* x_4; lean_object* x_5;
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 lean_dec(x_1);
-x_5 = l_Std_PersistentHashMap_foldlMAux___at_Lean_mkModuleData___spec__3___rarg(x_2, x_4, x_3);
+x_5 = l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2___rarg(x_2, x_4, x_3);
 return x_5;
 }
 }
@@ -4148,7 +4148,7 @@ lean_object* x_4; lean_object* x_5;
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 lean_dec(x_1);
-x_5 = l_Std_PersistentHashMap_foldlMAux___at_Lean_mkModuleData___spec__3___rarg(x_2, x_4, x_3);
+x_5 = l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2___rarg(x_2, x_4, x_3);
 return x_5;
 }
 }
@@ -4199,7 +4199,7 @@ lean_object* x_4; lean_object* x_5;
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 lean_dec(x_1);
-x_5 = l_Std_PersistentHashMap_foldlMAux___at_Lean_mkModuleData___spec__3___rarg(x_2, x_4, x_3);
+x_5 = l_Std_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2___rarg(x_2, x_4, x_3);
 return x_5;
 }
 }
@@ -7213,9 +7213,7 @@ return x_2;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Attributes(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_InitAttr(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_ToExpr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_ScopedEnvExtension(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_IR_CompilerM(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -7226,13 +7224,7 @@ _G_initialized = true;
 res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Attributes(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Compiler_InitAttr(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_ToExpr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_ScopedEnvExtension(builtin, lean_io_mk_world());

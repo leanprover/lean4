@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.AC.Main
-// Imports: Init Init.Data.AC Lean.Meta.AppBuilder Lean.Meta.Tactic.Refl Lean.Elab.Tactic.Basic Lean.Elab.Tactic.Rewrite
+// Imports: Init Lean.Meta.AppBuilder Lean.Meta.Tactic.Refl Lean.Meta.Tactic.Simp.Main Lean.Elab.Tactic.Rewrite
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -81,6 +81,7 @@ extern lean_object* l_Lean_levelZero;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_AC_preContext___closed__7;
 lean_object* l_Lean_Meta_mkEqRefl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_maybeSetExplicit___spec__4(lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
 static lean_object* l_Lean_Meta_AC_buildNormProof___closed__3;
@@ -204,6 +205,7 @@ static lean_object* l_Lean_Meta_AC_preContext___closed__8;
 LEAN_EXPORT lean_object* l_Array_insertionSort_swapLoop___at_Lean_Meta_AC_toACExpr___spec__5(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_AC_buildNormProof_mkContext___spec__1___closed__8;
 static lean_object* l_Lean_Meta_AC_instEvalInformationPreContextACExpr___closed__4;
+lean_object* l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitExpr___spec__3(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_AC_preContext___closed__5;
 lean_object* l_panic___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_AC_evalList___at_Lean_Meta_AC_buildNormProof___spec__4___boxed(lean_object*, lean_object*);
@@ -228,7 +230,6 @@ lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, l
 static lean_object* l_Lean_Meta_AC_buildNormProof_mkContext___closed__12;
 static lean_object* l_Lean_Meta_AC_preContext___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_AC_instEvalInformationPreContextACExpr;
-lean_object* l_Std_HashSetImp_insert___at_Lean_CollectFVars_visit___spec__3(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_AC_norm___at_Lean_Meta_AC_buildNormProof___spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Meta_AC_acRflTactic_declRange___closed__2;
@@ -247,7 +248,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_AC_toACExpr_toPreExpr(lean_object*, lean_ob
 static lean_object* l___regBuiltin_Lean_Meta_AC_acRflTactic___closed__11;
 lean_object* l_Lean_mkNatLit(lean_object*);
 static lean_object* l_Lean_Meta_AC_rewriteUnnormalized___closed__1;
-lean_object* l_panic___at_Lean_Meta_Match_mkMatcher___spec__13(lean_object*);
 static lean_object* l_Lean_Meta_AC_instInhabitedPreContext___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_AC_toACExpr___spec__16___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_AssocList_find_x3f___at_Lean_Meta_AC_toACExpr___spec__15(lean_object*, lean_object*);
@@ -347,7 +347,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = l_Lean_Meta_AC_instContextInformationProdPreContextArrayBool___lambda__1___closed__4;
-x_7 = l_panic___at_Lean_Meta_Match_mkMatcher___spec__13(x_6);
+x_7 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_maybeSetExplicit___spec__4(x_6);
 return x_7;
 }
 else
@@ -1249,7 +1249,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12;
 lean_inc(x_1);
 x_9 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_9, 0, x_1);
-x_10 = l_Std_HashSetImp_insert___at_Lean_CollectFVars_visit___spec__3(x_3, x_1);
+x_10 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitExpr___spec__3(x_3, x_1);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_9);
 lean_ctor_set(x_11, 1, x_10);
@@ -1503,7 +1503,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_1);
 lean_inc(x_2);
-x_55 = l_Std_HashSetImp_insert___at_Lean_CollectFVars_visit___spec__3(x_3, x_2);
+x_55 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitExpr___spec__3(x_3, x_2);
 x_56 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_56, 0, x_2);
 x_57 = lean_alloc_ctor(0, 2, 0);
@@ -1524,7 +1524,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_1);
 lean_inc(x_2);
-x_59 = l_Std_HashSetImp_insert___at_Lean_CollectFVars_visit___spec__3(x_3, x_2);
+x_59 = l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitExpr___spec__3(x_3, x_2);
 x_60 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_60, 0, x_2);
 x_61 = lean_alloc_ctor(0, 2, 0);
@@ -3538,7 +3538,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_10 = l_Lean_Meta_AC_instContextInformationProdPreContextArrayBool___lambda__1___closed__4;
-x_11 = l_panic___at_Lean_Meta_Match_mkMatcher___spec__13(x_10);
+x_11 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_maybeSetExplicit___spec__4(x_10);
 x_12 = lean_unbox(x_11);
 lean_dec(x_11);
 if (x_12 == 0)
@@ -3594,7 +3594,7 @@ if (x_23 == 0)
 {
 lean_object* x_24; lean_object* x_25; uint8_t x_26; 
 x_24 = l_Lean_Meta_AC_instContextInformationProdPreContextArrayBool___lambda__1___closed__4;
-x_25 = l_panic___at_Lean_Meta_Match_mkMatcher___spec__13(x_24);
+x_25 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_maybeSetExplicit___spec__4(x_24);
 x_26 = lean_unbox(x_25);
 lean_dec(x_25);
 if (x_26 == 0)
@@ -6012,7 +6012,7 @@ static lean_object* _init_l___regBuiltin_Lean_Meta_AC_acRflTactic_declRange___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(172u);
+x_1 = lean_unsigned_to_nat(171u);
 x_2 = lean_unsigned_to_nat(23u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -6024,7 +6024,7 @@ static lean_object* _init_l___regBuiltin_Lean_Meta_AC_acRflTactic_declRange___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(174u);
+x_1 = lean_unsigned_to_nat(173u);
 x_2 = lean_unsigned_to_nat(46u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -6052,7 +6052,7 @@ static lean_object* _init_l___regBuiltin_Lean_Meta_AC_acRflTactic_declRange___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(172u);
+x_1 = lean_unsigned_to_nat(171u);
 x_2 = lean_unsigned_to_nat(27u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -6064,7 +6064,7 @@ static lean_object* _init_l___regBuiltin_Lean_Meta_AC_acRflTactic_declRange___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(172u);
+x_1 = lean_unsigned_to_nat(171u);
 x_2 = lean_unsigned_to_nat(38u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -6121,10 +6121,9 @@ return x_4;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_AC(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Refl(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Tactic_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Simp_Main(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Rewrite(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_AC_Main(uint8_t builtin, lean_object* w) {
@@ -6134,16 +6133,13 @@ _G_initialized = true;
 res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_AC(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_AppBuilder(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Refl(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Basic(builtin, lean_io_mk_world());
+res = initialize_Lean_Meta_Tactic_Simp_Main(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Rewrite(builtin, lean_io_mk_world());

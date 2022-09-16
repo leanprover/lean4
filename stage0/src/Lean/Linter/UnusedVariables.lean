@@ -1,9 +1,5 @@
-import Lean.Elab.Command
 import Lean.Linter.Util
-import Lean.Elab.InfoTree
-import Lean.Server.InfoUtils
 import Lean.Server.References
-import Lean.Data.HashMap
 
 namespace Lean.Linter
 open Lean.Elab.Command Lean.Server Std

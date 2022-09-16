@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Command
-// Imports: Init Lean.Log Lean.Parser.Command Lean.ResolveName Lean.Meta.Reduce Lean.Elab.Term Lean.Elab.Tactic.Cache Lean.Elab.Binders Lean.Elab.SyntheticMVars Lean.Elab.DeclModifiers Lean.Elab.InfoTree Lean.Elab.SetOption
+// Imports: Init Lean.Elab.Binders Lean.Elab.SyntheticMVars
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -21038,7 +21038,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Command_modifyScope___closed__1;
 x_2 = l_Lean_Elab_Command_modifyScope___closed__2;
-x_3 = lean_unsigned_to_nat(465u);
+x_3 = lean_unsigned_to_nat(456u);
 x_4 = lean_unsigned_to_nat(16u);
 x_5 = l_Lean_Elab_Command_modifyScope___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -25084,17 +25084,8 @@ return x_11;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Log(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Parser_Command(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_ResolveName(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Reduce(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Term(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Tactic_Cache(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Binders(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_SyntheticMVars(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_DeclModifiers(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_InfoTree(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_SetOption(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Command(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -25103,37 +25094,10 @@ _G_initialized = true;
 res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Log(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Parser_Command(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_ResolveName(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Reduce(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_Term(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Cache(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Elab_Binders(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_SyntheticMVars(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_DeclModifiers(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_InfoTree(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_SetOption(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_Command_Scope_opts___default = _init_l_Lean_Elab_Command_Scope_opts___default();

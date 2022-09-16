@@ -248,8 +248,8 @@ def Field.isSimple {σ} : Field σ → Bool
   | _                  => false
 
 inductive Struct where
-  | /-- Remark: the field `params` is use for default value propagation. It is initially empty, and then set at `elabStruct`. -/
-    mk (ref : Syntax) (structName : Name) (params : Array (Name × Expr)) (fields : List (Field Struct)) (source : Source)
+  /-- Remark: the field `params` is use for default value propagation. It is initially empty, and then set at `elabStruct`. -/
+  | mk (ref : Syntax) (structName : Name) (params : Array (Name × Expr)) (fields : List (Field Struct)) (source : Source)
   deriving Inhabited
 
 abbrev Fields := List (Field Struct)
@@ -598,6 +598,8 @@ structure ElabStructResult where
 private partial def elabStruct (s : Struct) (expectedType? : Option Expr) : TermElabM ElabStructResult := withRef s.ref do
   let env ← getEnv
   let ctorVal := getStructureCtor env s.structName
+  if isPrivateNameFromImportedModule env ctorVal.name then
+    throwError "invalid \{...} notation, constructor for `{s.structName}` is marked as private"
   -- We store the parameters at the resulting `Struct`. We use this information during default value propagation.
   let { ctorFn, ctorFnType, params, .. } ← mkCtorHeader ctorVal expectedType?
   let (e, _, fields, instMVars) ← s.fields.foldlM (init := (ctorFn, ctorFnType, [], #[])) fun (e, type, fields, instMVars) field => do

@@ -3,12 +3,8 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.ToExpr
-import Lean.AuxRecursor
-import Lean.ProjFns
 import Lean.Structure
 import Lean.Util.Recognizers
-import Lean.Meta.Basic
 import Lean.Meta.GetConst
 import Lean.Meta.FunInfo
 import Lean.Meta.Match.MatcherInfo

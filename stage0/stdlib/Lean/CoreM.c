@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.CoreM
-// Imports: Init Lean.Util.RecDepth Lean.Util.Trace Lean.Log Lean.Data.Options Lean.Environment Lean.Exception Lean.InternalExceptionId Lean.Eval Lean.MonadEnv Lean.ResolveName Lean.Elab.InfoTree.Types
+// Imports: Init Lean.Util.RecDepth Lean.Util.Trace Lean.Log Lean.Eval Lean.ResolveName Lean.Elab.InfoTree.Types
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -8256,12 +8256,7 @@ lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_RecDepth(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_Trace(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Log(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_Options(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Environment(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Exception(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_InternalExceptionId(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Eval(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_MonadEnv(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_ResolveName(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_InfoTree_Types(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -8281,22 +8276,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Log(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Options(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Environment(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Exception(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_InternalExceptionId(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Eval(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_MonadEnv(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_ResolveName(builtin, lean_io_mk_world());

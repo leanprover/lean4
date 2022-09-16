@@ -3,11 +3,9 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Util.SCC
 import Lean.Compiler.NoncomputableAttr
+import Lean.Util.CollectLevelParams
 import Lean.Meta.AbstractNestedProofs
-import Lean.Meta.Transform
-import Lean.Elab.Term
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.DefView
 

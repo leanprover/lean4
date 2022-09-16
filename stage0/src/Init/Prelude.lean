@@ -107,8 +107,8 @@ This is the universe-polymorphic version of `Unit`; it is preferred to use
 For more information about universe levels: [Types as objects](https://leanprover.github.io/theorem_proving_in_lean4/dependent_type_theory.html#types-as-objects)
 -/
 inductive PUnit : Sort u where
-  | /-- `PUnit.unit : PUnit` is the canonical element of the unit type. -/
-    unit : PUnit
+  /-- `PUnit.unit : PUnit` is the canonical element of the unit type. -/
+  | unit : PUnit
 
 /--
 The unit type, the canonical type with one element, named `unit` or `()`.
@@ -177,9 +177,9 @@ In other words, `True` is simply true, and has a canonical proof, `True.intro`
 For more information: [Propositional Logic](https://leanprover.github.io/theorem_proving_in_lean4/propositions_and_proofs.html#propositional-logic)
 -/
 inductive True : Prop where
-  | /-- `True` is true, and `True.intro` (or more commonly, `trivial`)
-    is the proof. -/
-    intro : True
+  /-- `True` is true, and `True.intro` (or more commonly, `trivial`)
+  is the proof. -/
+  | intro : True
 
 /--
 `False` is the empty proposition. Thus, it has no introduction rules.
@@ -264,9 +264,9 @@ The triangle in the second presentation is a macro built on top of `Eq.subst` an
 For more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
 -/
 inductive Eq : α → α → Prop where
-  | /-- `Eq.refl a : a = a` is reflexivity, the unique constructor of the
-    equality type. See also `rfl`, which is usually used instead. -/
-    refl (a : α) : Eq a a
+  /-- `Eq.refl a : a = a` is reflexivity, the unique constructor of the
+  equality type. See also `rfl`, which is usually used instead. -/
+  | refl (a : α) : Eq a a
 
 /-- Non-dependent recursor for the equality type. -/
 @[simp] abbrev Eq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : motive a) {b : α} (h : Eq a b) : motive b :=
@@ -444,8 +444,8 @@ and `f x` and `g y` are well typed it does not follow that `HEq (f x) (g y)`.
 the same type then `a = b` and `HEq a b` ae equivalent.
 -/
 inductive HEq : {α : Sort u} → α → {β : Sort u} → β → Prop where
-  | /-- Reflexivity of heterogeneous equality. -/
-    refl (a : α) : HEq a a
+  /-- Reflexivity of heterogeneous equality. -/
+  | refl (a : α) : HEq a a
 
 /-- A version of `HEq.refl` with an implicit argument. -/
 @[matchPattern] protected def HEq.rfl {α : Sort u} {a : α} : HEq a a :=
@@ -516,10 +516,10 @@ and you can use `match` or `cases` to destruct an `Or` assumption into the
 two cases.
 -/
 inductive Or (a b : Prop) : Prop where
-  | /-- `Or.inl` is "left injection" into an `Or`. If `h : a` then `Or.inl h : a ∨ b`. -/
-    inl (h : a) : Or a b
-  | /-- `Or.inr` is "right injection" into an `Or`. If `h : b` then `Or.inr h : a ∨ b`. -/
-    inr (h : b) : Or a b
+  /-- `Or.inl` is "left injection" into an `Or`. If `h : a` then `Or.inl h : a ∨ b`. -/
+  | inl (h : a) : Or a b
+  /-- `Or.inr` is "right injection" into an `Or`. If `h : b` then `Or.inr h : a ∨ b`. -/
+  | inr (h : b) : Or a b
 
 /-- Alias for `Or.inl`. -/
 theorem Or.intro_left (b : Prop) (h : a) : Or a b :=
@@ -546,10 +546,10 @@ code generator, while `Bool` corresponds to the type called `bool` or `boolean`
 in most programming languages.
 -/
 inductive Bool : Type where
-  | /-- The boolean value `false`, not to be confused with the proposition `False`. -/
-    false : Bool
-  | /-- The boolean value `true`, not to be confused with the proposition `True`. -/
-    true : Bool
+  /-- The boolean value `false`, not to be confused with the proposition `False`. -/
+  | false : Bool
+  /-- The boolean value `true`, not to be confused with the proposition `True`. -/
+  | true : Bool
 
 export Bool (false true)
 
@@ -664,8 +664,8 @@ Given `Nonempty α`, you can construct an element of `α` *nonconstructively*
 using `Classical.choice`.
 -/
 class inductive Nonempty (α : Sort u) : Prop where
-  | /-- If `val : α`, then `α` is nonempty. -/
-    intro (val : α) : Nonempty α
+  /-- If `val : α`, then `α` is nonempty. -/
+  | intro (val : α) : Nonempty α
 
 /--
 **The axiom of choice**. `Nonempty α` is a proof that `α` has an element,
@@ -788,10 +788,10 @@ If a proposition `p` is `Decidable`, then `(by decide : p)` will prove it by
 evaluating the decidability instance to `isTrue h` and returning `h`.
 -/
 class inductive Decidable (p : Prop) where
-  | /-- Prove that `p` is decidable by supplying a proof of `¬p` -/
-    isFalse (h : Not p) : Decidable p
-  | /-- Prove that `p` is decidable by supplying a proof of `p` -/
-    isTrue (h : p) : Decidable p
+  /-- Prove that `p` is decidable by supplying a proof of `¬p` -/
+  | isFalse (h : Not p) : Decidable p
+  /-- Prove that `p` is decidable by supplying a proof of `p` -/
+  | isTrue (h : p) : Decidable p
 
 /--
 Convert a decidable proposition into a boolean value.
@@ -1012,12 +1012,12 @@ This type is special-cased by both the kernel and the compiler:
   library (usually [GMP](https://gmplib.org/)).
 -/
 inductive Nat where
-  | /-- `Nat.zero`, normally written `0 : Nat`, is the smallest natural number.
-    This is one of the two constructors of `Nat`. -/
-    zero : Nat
-  | /-- The successor function on natural numbers, `succ n = n + 1`.
-    This is one of the two constructors of `Nat`. -/
-    succ (n : Nat) : Nat
+  /-- `Nat.zero`, normally written `0 : Nat`, is the smallest natural number.
+  This is one of the two constructors of `Nat`. -/
+  | zero : Nat
+  /-- The successor function on natural numbers, `succ n = n + 1`.
+  This is one of the two constructors of `Nat`. -/
+  | succ (n : Nat) : Nat
 
 instance : Inhabited Nat where
   default := Nat.zero
@@ -1517,10 +1517,10 @@ An inductive definition of the less-equal relation on natural numbers,
 characterized as the least relation `≤` such that `n ≤ n` and `n ≤ m → n ≤ m + 1`.
 -/
 protected inductive Nat.le (n : Nat) : Nat → Prop
-  | /-- Less-equal is reflexive: `n ≤ n` -/
-    refl     : Nat.le n n
-  | /-- If `n ≤ m`, then `n ≤ m + 1`. -/
-    step {m} : Nat.le n m → Nat.le n (succ m)
+  /-- Less-equal is reflexive: `n ≤ n` -/
+  | refl     : Nat.le n n
+  /-- If `n ≤ m`, then `n ≤ m + 1`. -/
+  | step {m} : Nat.le n m → Nat.le n (succ m)
 
 instance : LE Nat where
   le := Nat.le
@@ -2097,10 +2097,10 @@ def map (f : α → β) (x : Option α) : Option β :=
 ```
 -/
 inductive Option (α : Type u) where
-  | /-- No value. -/
-    none : Option α
-  | /-- Some value of type `α`. -/
-    some (val : α) : Option α
+  /-- No value. -/
+  | none : Option α
+  /-- Some value of type `α`. -/
+  | some (val : α) : Option α
 
 attribute [unbox] Option
 
@@ -2140,11 +2140,11 @@ It is implemented as a linked list.
   performance because it can do destructive updates.
 -/
 inductive List (α : Type u) where
-  | /-- `[]` is the empty list. -/
-    nil : List α
-  | /-- If `a : α` and `l : List α`, then `cons a l`, or `a :: l`, is the
-    list whose first element is `a` and with `l` as the rest of the list. -/
-    cons (head : α) (tail : List α) : List α
+  /-- `[]` is the empty list. -/
+  | nil : List α
+  /-- If `a : α` and `l : List α`, then `cons a l`, or `a :: l`, is the
+  list whose first element is `a` and with `l` as the rest of the list. -/
+  | cons (head : α) (tail : List α) : List α
 
 instance {α} : Inhabited (List α) where
   default := List.nil
@@ -2610,7 +2610,7 @@ class SeqLeft (f : Type u → Type v) : Type (max (u+1) v) where
   `Unit → f β` function. -/
   seqLeft : {α β : Type u} → f α → (Unit → f β) → f α
 
-/-- The typeclass which supplies the `<*` "seqRight" function. See `Applicative`. -/
+/-- The typeclass which supplies the `*>` "seqRight" function. See `Applicative`. -/
 class SeqRight (f : Type u → Type v) : Type (max (u+1) v) where
   /-- If `x : F α` and `y : F β`, then `x *> y` evaluates `x`, then `y`,
   and returns the result of `y`.
@@ -2746,10 +2746,10 @@ value of type `α`. The error type is listed first because
 operation returns the first encountered `error`.
 -/
 inductive Except (ε : Type u) (α : Type v) where
-  | /-- A failure value of type `ε` -/
-    error : ε → Except ε α
-  | /-- A success value of type `α` -/
-    ok    : α → Except ε α
+  /-- A failure value of type `ε` -/
+  | error : ε → Except ε α
+  /-- A success value of type `α` -/
+  | ok    : α → Except ε α
 
 attribute [unbox] Except
 
@@ -3070,10 +3070,10 @@ namespace EStateM
 combined inductive yields a more efficient data representation.
 -/
 inductive Result (ε σ α : Type u) where
-  | /-- A success value of type `α`, and a new state `σ`. -/
-    ok    : α → σ → Result ε σ α
-  | /-- A failure value of type `ε`, and a new state `σ`. -/
-    error : ε → σ → Result ε σ α
+  /-- A success value of type `α`, and a new state `σ`. -/
+  | ok    : α → σ → Result ε σ α
+  /-- A failure value of type `ε`, and a new state `σ`. -/
+  | error : ε → σ → Result ε σ α
 
 variable {ε σ α : Type u}
 
@@ -3276,23 +3276,23 @@ corresponds to a Lean declaration in scope.
 If the name is not in scope, Lean will report an error.
 -/
 inductive Name where
-  | /-- The "anonymous" name. -/
-    anonymous : Name
-  | /--
-    A string name. The name `Lean.Meta.run` is represented at
-    ```lean
-    .str (.str (.str .anonymous "Lean") "Meta") "run"
-    ```
-    -/
-    str (pre : Name) (str : String)
-  | /--
-    A numerical name. This kind of name is used, for example, to create hierarchical names for
-    free variables and metavariables. The identifier `_uniq.231` is represented as
-    ```lean
-    .num (.str .anonymous "_uniq") 231
-    ```
-    -/
-    num (pre : Name) (i : Nat)
+  /-- The "anonymous" name. -/
+  | anonymous : Name
+  /--
+  A string name. The name `Lean.Meta.run` is represented at
+  ```lean
+  .str (.str (.str .anonymous "Lean") "Meta") "run"
+  ```
+  -/
+  | str (pre : Name) (str : String)
+  /--
+  A numerical name. This kind of name is used, for example, to create hierarchical names for
+  free variables and metavariables. The identifier `_uniq.231` is represented as
+  ```lean
+  .num (.str .anonymous "_uniq") 231
+  ```
+  -/
+  | num (pre : Name) (i : Nat)
 with
   /-- A hash function for names, which is stored inside the name itself as a
   computed field. -/
@@ -3361,22 +3361,20 @@ end Name
 
 /-- Source information of tokens. -/
 inductive SourceInfo where
-  | /--
-    Token from original input with whitespace and position information.
-    `leading` will be inferred after parsing by `Syntax.updateLeading`. During parsing,
-    it is not at all clear what the preceding token was, especially with backtracking.
-    -/
-   original (leading : Substring) (pos : String.Pos) (trailing : Substring) (endPos : String.Pos)
-  | /--
-    Synthesized syntax (e.g. from a quotation) annotated with a span from the original source.
-    In the delaborator, we "misuse" this constructor to store synthetic positions identifying
-    subterms.
-    -/
-    synthetic (pos : String.Pos) (endPos : String.Pos)
-  | /--
-    Synthesized token without position information.
-    -/
-    protected none
+  /--
+  Token from original input with whitespace and position information.
+  `leading` will be inferred after parsing by `Syntax.updateLeading`. During parsing,
+  it is not at all clear what the preceding token was, especially with backtracking.
+  -/
+  | original (leading : Substring) (pos : String.Pos) (trailing : Substring) (endPos : String.Pos)
+  /--
+  Synthesized syntax (e.g. from a quotation) annotated with a span from the original source.
+  In the delaborator, we "misuse" this constructor to store synthetic positions identifying
+  subterms.
+  -/
+  | synthetic (pos : String.Pos) (endPos : String.Pos)
+  /-- Synthesized token without position information. -/
+  | protected none
 
 instance : Inhabited SourceInfo := ⟨SourceInfo.none⟩
 
@@ -3411,50 +3409,50 @@ Note: We do not statically know whether a syntax expects a namespace or term nam
 so a `Syntax.ident` may contain both preresolution kinds.
 -/
 inductive Syntax.Preresolved where
-  | /-- A potential namespace reference -/
-    namespace (ns : Name)
-  | /-- A potential global constant or section variable reference, with additional field accesses -/
-    decl (n : Name) (fields : List String)
+  /-- A potential namespace reference -/
+  | namespace (ns : Name)
+  /-- A potential global constant or section variable reference, with additional field accesses -/
+  | decl (n : Name) (fields : List String)
 
 /--
 Syntax objects used by the parser, macro expander, delaborator, etc.
 -/
 inductive Syntax where
-  | /-- A `missing` syntax corresponds to a portion of the syntax tree that is
-    missing because of a parse error. The indexing operator on Syntax also
-    returns `missing` for indexing out of bounds. -/
-    missing : Syntax
-  | /-- Node in the syntax tree.
+  /-- A `missing` syntax corresponds to a portion of the syntax tree that is
+  missing because of a parse error. The indexing operator on Syntax also
+  returns `missing` for indexing out of bounds. -/
+  | missing : Syntax
+  /-- Node in the syntax tree.
 
-    The `info` field is used by the delaborator to store the position of the
-    subexpression corresponding to this node. The parser sets the `info` field
-    to `none`.
-    The parser sets the `info` field to `none`, with position retrieval continuing recursively.
-    Nodes created by quotatons use the result from `SourceInfo.fromRef` so that they are marked
-    as synthetic even when the leading/trailing token is not.
-    The delaborator uses the `info` field to store the position of the subexpression
-    corresponding to this node.
+  The `info` field is used by the delaborator to store the position of the
+  subexpression corresponding to this node. The parser sets the `info` field
+  to `none`.
+  The parser sets the `info` field to `none`, with position retrieval continuing recursively.
+  Nodes created by quotatons use the result from `SourceInfo.fromRef` so that they are marked
+  as synthetic even when the leading/trailing token is not.
+  The delaborator uses the `info` field to store the position of the subexpression
+  corresponding to this node.
 
-    (Remark: the `node` constructor did not have an `info` field in previous
-    versions. This caused a bug in the interactive widgets, where the popup for
-    `a + b` was the same as for `a`. The delaborator used to associate
-    subexpressions with pretty-printed syntax by setting the (string) position
-    of the first atom/identifier to the (expression) position of the
-    subexpression. For example, both `a` and `a + b` have the same first
-    identifier, and so their infos got mixed up.) -/
-    node   (info : SourceInfo) (kind : SyntaxNodeKind) (args : Array Syntax) : Syntax
-  | /-- An `atom` corresponds to a keyword or piece of literal unquoted syntax.
-    These correspond to quoted strings inside `syntax` declarations.
-    For example, in `(x + y)`, `"("`, `"+"` and `")"` are `atom`
-    and `x` and `y` are `ident`. -/
-    atom   (info : SourceInfo) (val : String) : Syntax
-  | /-- An `ident` corresponds to an identifier as parsed by the `ident` or
-    `rawIdent` parsers.
-    * `rawVal` is the literal substring from the input file
-    * `val` is the parsed identifier (with hygiene)
-    * `preresolved` is the list of possible declarations this could refer to
-    -/
-    ident  (info : SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List Syntax.Preresolved) : Syntax
+  (Remark: the `node` constructor did not have an `info` field in previous
+  versions. This caused a bug in the interactive widgets, where the popup for
+  `a + b` was the same as for `a`. The delaborator used to associate
+  subexpressions with pretty-printed syntax by setting the (string) position
+  of the first atom/identifier to the (expression) position of the
+  subexpression. For example, both `a` and `a + b` have the same first
+  identifier, and so their infos got mixed up.) -/
+  | node   (info : SourceInfo) (kind : SyntaxNodeKind) (args : Array Syntax) : Syntax
+  /-- An `atom` corresponds to a keyword or piece of literal unquoted syntax.
+  These correspond to quoted strings inside `syntax` declarations.
+  For example, in `(x + y)`, `"("`, `"+"` and `")"` are `atom`
+  and `x` and `y` are `ident`. -/
+  | atom   (info : SourceInfo) (val : String) : Syntax
+  /-- An `ident` corresponds to an identifier as parsed by the `ident` or
+  `rawIdent` parsers.
+  * `rawVal` is the literal substring from the input file
+  * `val` is the parsed identifier (with hygiene)
+  * `preresolved` is the list of possible declarations this could refer to
+  -/
+  | ident  (info : SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List Syntax.Preresolved) : Syntax
 
 /-- `SyntaxNodeKinds` is a set of `SyntaxNodeKind` (implemented as a list). -/
 def SyntaxNodeKinds := List SyntaxNodeKind
@@ -3739,48 +3737,48 @@ A `ParserDescr` is a grammar for parsers. This is used by the `syntax` command
 to produce parsers without having to `import Lean`.
 -/
 inductive ParserDescr where
-  | /-- A (named) nullary parser, like `ppSpace` -/
-    const  (name : Name)
-  | /-- A (named) unary parser, like `group(p)` -/
-    unary  (name : Name) (p : ParserDescr)
-  | /-- A (named) binary parser, like `orelse` or `andthen`
-    (written as `p1 <|> p2` and `p1 p2` respectively in `syntax`) -/
-    binary (name : Name) (p₁ p₂ : ParserDescr)
-  | /-- Parses using `p`, then pops the stack to create a new node with kind `kind`.
-    The precedence `prec` is used to determine whether the parser should apply given
-    the current precedence level. -/
-    node (kind : SyntaxNodeKind) (prec : Nat) (p : ParserDescr)
-  | /-- Like `node` but for trailing parsers (which start with a nonterminal).
-    Assumes the lhs is already on the stack, and parses using `p`, then pops the
-    stack including the lhs to create a new node with kind `kind`.
-    The precedence `prec` and `lhsPrec` are used to determine whether the parser
-    should apply. -/
-    trailingNode (kind : SyntaxNodeKind) (prec lhsPrec : Nat) (p : ParserDescr)
-  | /-- A literal symbol parser: parses `val` as a literal.
-    This parser does not work on identifiers, so `symbol` arguments are declared
-    as "keywords" and cannot be used as identifiers anywhere in the file. -/
-    symbol (val : String)
-  | /-- Like `symbol`, but without reserving `val` as a keyword.
-    If `includeIdent` is true then `ident` will be reinterpreted as `atom` if it matches. -/
-    nonReservedSymbol (val : String) (includeIdent : Bool)
-  | /-- Parses using the category parser `catName` with right binding power
-    (i.e. precedence) `rbp`. -/
-    cat (catName : Name) (rbp : Nat)
-  | /-- Parses using another parser `declName`, which can be either
-    a `Parser` or `ParserDescr`. -/
-    parser (declName : Name)
-  | /-- Like `node`, but also declares that the body can be matched using an antiquotation
-    with name `name`. For example, `def $id:declId := 1` uses an antiquotation with
-    name `declId` in the place where a `declId` is expected. -/
-    nodeWithAntiquot (name : String) (kind : SyntaxNodeKind) (p : ParserDescr)
-  | /-- A `sepBy(p, sep)` parses 0 or more occurrences of `p` separated by `sep`.
-    `psep` is usually the same as `symbol sep`, but it can be overridden.
-    `sep` is only used in the antiquot syntax: `$x;*` would match if `sep` is `";"`.
-    `allowTrailingSep` is true if e.g. `a, b,` is also allowed to match. -/
-    sepBy  (p : ParserDescr) (sep : String) (psep : ParserDescr) (allowTrailingSep : Bool := false)
-  | /-- `sepBy1` is just like `sepBy`, except it takes 1 or more instead of
-    0 or more occurrences of `p`. -/
-    sepBy1 (p : ParserDescr) (sep : String) (psep : ParserDescr) (allowTrailingSep : Bool := false)
+  /-- A (named) nullary parser, like `ppSpace` -/
+  | const  (name : Name)
+  /-- A (named) unary parser, like `group(p)` -/
+  | unary  (name : Name) (p : ParserDescr)
+  /-- A (named) binary parser, like `orelse` or `andthen`
+  (written as `p1 <|> p2` and `p1 p2` respectively in `syntax`) -/
+  | binary (name : Name) (p₁ p₂ : ParserDescr)
+  /-- Parses using `p`, then pops the stack to create a new node with kind `kind`.
+  The precedence `prec` is used to determine whether the parser should apply given
+  the current precedence level. -/
+  | node (kind : SyntaxNodeKind) (prec : Nat) (p : ParserDescr)
+  /-- Like `node` but for trailing parsers (which start with a nonterminal).
+  Assumes the lhs is already on the stack, and parses using `p`, then pops the
+  stack including the lhs to create a new node with kind `kind`.
+  The precedence `prec` and `lhsPrec` are used to determine whether the parser
+  should apply. -/
+  | trailingNode (kind : SyntaxNodeKind) (prec lhsPrec : Nat) (p : ParserDescr)
+  /-- A literal symbol parser: parses `val` as a literal.
+  This parser does not work on identifiers, so `symbol` arguments are declared
+  as "keywords" and cannot be used as identifiers anywhere in the file. -/
+  | symbol (val : String)
+  /-- Like `symbol`, but without reserving `val` as a keyword.
+  If `includeIdent` is true then `ident` will be reinterpreted as `atom` if it matches. -/
+  | nonReservedSymbol (val : String) (includeIdent : Bool)
+  /-- Parses using the category parser `catName` with right binding power
+  (i.e. precedence) `rbp`. -/
+  | cat (catName : Name) (rbp : Nat)
+  /-- Parses using another parser `declName`, which can be either
+  a `Parser` or `ParserDescr`. -/
+  | parser (declName : Name)
+  /-- Like `node`, but also declares that the body can be matched using an antiquotation
+  with name `name`. For example, `def $id:declId := 1` uses an antiquotation with
+  name `declId` in the place where a `declId` is expected. -/
+  | nodeWithAntiquot (name : String) (kind : SyntaxNodeKind) (p : ParserDescr)
+  /-- A `sepBy(p, sep)` parses 0 or more occurrences of `p` separated by `sep`.
+  `psep` is usually the same as `symbol sep`, but it can be overridden.
+  `sep` is only used in the antiquot syntax: `$x;*` would match if `sep` is `";"`.
+  `allowTrailingSep` is true if e.g. `a, b,` is also allowed to match. -/
+  | sepBy  (p : ParserDescr) (sep : String) (psep : ParserDescr) (allowTrailingSep : Bool := false)
+  /-- `sepBy1` is just like `sepBy`, except it takes 1 or more instead of
+  0 or more occurrences of `p`. -/
+  | sepBy1 (p : ParserDescr) (sep : String) (psep : ParserDescr) (allowTrailingSep : Bool := false)
 
 instance : Inhabited ParserDescr where
   default := ParserDescr.symbol ""
@@ -4092,12 +4090,12 @@ structure Context where
 
 /-- An exception in the `MacroM` monad. -/
 inductive Exception where
-  | /-- A general error, given a message and a span (expressed as a `Syntax`). -/
-    error             : Syntax → String → Exception
-  | /-- An unsupported syntax exception. We keep this separate because it is
-    used for control flow: if one macro does not support a syntax then we try
-    the next one. -/
-    unsupportedSyntax : Exception
+  /-- A general error, given a message and a span (expressed as a `Syntax`). -/
+  | error             : Syntax → String → Exception
+  /-- An unsupported syntax exception. We keep this separate because it is
+  used for control flow: if one macro does not support a syntax then we try
+  the next one. -/
+  | unsupportedSyntax : Exception
 
 /-- The mutable state for the `MacroM` monad. -/
 structure State where

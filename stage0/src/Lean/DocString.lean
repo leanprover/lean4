@@ -95,7 +95,6 @@ def getDocStringText [Monad m] [MonadError m] [MonadRef m] (stx : TSyntax `Lean.
 def TSyntax.getDocString (stx : TSyntax `Lean.Parser.Command.docComment) : String :=
   match stx.raw[1] with
   | Syntax.atom _ val => val.extract 0 (val.endPos - ⟨2⟩)
-  | Syntax.missing    => ""
-  | _                 => panic! s!"unexpected doc string\n{stx.raw[1]}"
+  | _                 => ""
 
 end Lean

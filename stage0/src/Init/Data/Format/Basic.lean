@@ -36,32 +36,32 @@ open Format in
 The pretty-printing algorithm is based on Wadler's paper
 [_A Prettier Printer_](https://homepages.inf.ed.ac.uk/wadler/papers/prettier/prettier.pdf). -/
 inductive Format where
-  | /-- The empty format. -/
-    nil                 : Format
-  | /-- A position where a newline may be inserted
+  /-- The empty format. -/
+  | nil                 : Format
+  /-- A position where a newline may be inserted
   if the current group does not fit within the allotted column width. -/
-    line                : Format
-  | /-- A node containing a plain string. -/
-    text                : String → Format
-  | /-- `nest n f` tells the formatter that `f` is nested inside something with length `n`
-    so that it is pretty-printed with the correct indentation on a line break.
-    For example, we can define a formatter for list `l : List Format` as:
+  | line                : Format
+  /-- A node containing a plain string. -/
+  | text                : String → Format
+  /-- `nest n f` tells the formatter that `f` is nested inside something with length `n`
+  so that it is pretty-printed with the correct indentation on a line break.
+  For example, we can define a formatter for list `l : List Format` as:
 
-    ```
-    let f := join <| l.intersperse <| ", " ++ Format.line
-    group (nest 1 <| "[" ++ f ++ "]")
-    ```
+  ```
+  let f := join <| l.intersperse <| ", " ++ Format.line
+  group (nest 1 <| "[" ++ f ++ "]")
+  ```
 
-    This will be written all on one line, but if the text is too large,
-    the formatter will put in linebreaks after the commas and indent later lines by 1.
-    -/
-    nest (indent : Int) : Format → Format
-  | /-- Concatenation of two Formats. -/
-    append              : Format → Format → Format
-  | /-- Creates a new flattening group for the given inner format.  -/
-    group               : Format → (behavior : FlattenBehavior := FlattenBehavior.allOrNone) → Format
-  | /-- Used for associating auxiliary information (e.g. `Expr`s) with `Format` objects. -/
-    tag                 : Nat → Format → Format
+  This will be written all on one line, but if the text is too large,
+  the formatter will put in linebreaks after the commas and indent later lines by 1.
+  -/
+  | nest (indent : Int) : Format → Format
+  /-- Concatenation of two Formats. -/
+  | append              : Format → Format → Format
+  /-- Creates a new flattening group for the given inner format.  -/
+  | group               : Format → (behavior : FlattenBehavior := FlattenBehavior.allOrNone) → Format
+  /-- Used for associating auxiliary information (e.g. `Expr`s) with `Format` objects. -/
+  | tag                 : Nat → Format → Format
   deriving Inhabited
 
 namespace Format

@@ -178,6 +178,7 @@ static lean_object* l_Lean_Server_registerRpcProcedure___lambda__1___closed__17;
 static lean_object* l_Lean_Server_registerRpcProcedure___lambda__3___closed__24;
 lean_object* l_Lean_Server_RequestM_bindTask___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_1348____closed__8;
+uint8_t l_Array_contains___at_Lean_findField_x3f___spec__1(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 lean_object* l_Lean_Server_RequestM_readDoc___at_Lean_Server_RequestM_withWaitFindSnapAtPos___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_350____spec__1___lambda__1(lean_object*);
@@ -230,7 +231,6 @@ static lean_object* l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_e
 static lean_object* l_Lean_Server_registerRpcProcedure___lambda__3___closed__19;
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Server_registerRpcProcedure___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Array_contains___at___private_Lean_Meta_Match_Value_0__Lean_Meta_isUIntTypeName___spec__1(lean_object*, lean_object*);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_evalRpcProcedureUnsafe___closed__7;
@@ -4192,7 +4192,7 @@ else
 {
 lean_object* x_7; uint8_t x_8; 
 x_7 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors;
-x_8 = l_Array_contains___at___private_Lean_Meta_Match_Value_0__Lean_Meta_isUIntTypeName___spec__1(x_7, x_3);
+x_8 = l_Array_contains___at_Lean_findField_x3f___spec__1(x_7, x_3);
 lean_dec(x_3);
 if (x_8 == 0)
 {
@@ -4219,7 +4219,7 @@ if (x_11 == 0)
 lean_object* x_12; uint8_t x_13; 
 lean_dec(x_1);
 x_12 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors;
-x_13 = l_Array_contains___at___private_Lean_Meta_Match_Value_0__Lean_Meta_isUIntTypeName___spec__1(x_12, x_3);
+x_13 = l_Array_contains___at_Lean_findField_x3f___spec__1(x_12, x_3);
 lean_dec(x_3);
 if (x_13 == 0)
 {
@@ -4250,7 +4250,7 @@ else
 {
 lean_object* x_18; uint8_t x_19; 
 x_18 = l___private_Lean_MonadEnv_0__Lean_supportedRecursors;
-x_19 = l_Array_contains___at___private_Lean_Meta_Match_Value_0__Lean_Meta_isUIntTypeName___spec__1(x_18, x_3);
+x_19 = l_Array_contains___at_Lean_findField_x3f___spec__1(x_18, x_3);
 lean_dec(x_3);
 if (x_19 == 0)
 {

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Linter.MissingDocs
-// Imports: Init Lean.Linter.Util
+// Imports: Init Lean.Meta.Tactic.Simp.SimpTheorems Lean.Elab.SetOption Lean.Linter.Util
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -453,8 +453,8 @@ LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_lintField(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Std_mkHashSet___at_Lean_Linter_MissingDocs_checkDecl___spec__10(lean_object*);
 static lean_object* l_Lean_Linter_MissingDocs_mkHandlerUnsafe___closed__5;
 static lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_757____closed__2;
+lean_object* l_Lean_Syntax_getAtomVal(lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
-lean_object* l_Lean_Syntax_getAtomVal_x21(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 lean_object* l_Std_instInhabitedPersistentArrayNode(lean_object*);
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
@@ -6395,7 +6395,7 @@ lean_dec(x_23);
 x_26 = l_Lean_Syntax_getArg(x_1, x_24);
 x_27 = l_Lean_Syntax_getArg(x_26, x_5);
 lean_dec(x_26);
-x_28 = l_Lean_Syntax_getAtomVal_x21(x_27);
+x_28 = l_Lean_Syntax_getAtomVal(x_27);
 lean_dec(x_27);
 x_29 = l_Lean_Linter_MissingDocs_lintNamed(x_25, x_28, x_2, x_3, x_4);
 lean_dec(x_28);
@@ -6409,7 +6409,7 @@ lean_dec(x_21);
 x_30 = lean_unsigned_to_nat(3u);
 x_31 = l_Lean_Syntax_getArg(x_1, x_30);
 x_32 = l_Lean_Syntax_getArg(x_31, x_5);
-x_33 = l_Lean_Syntax_getAtomVal_x21(x_32);
+x_33 = l_Lean_Syntax_getAtomVal(x_32);
 lean_dec(x_32);
 x_34 = l_Lean_Linter_MissingDocs_lint(x_31, x_33, x_2, x_3, x_4);
 lean_dec(x_33);
@@ -8682,6 +8682,8 @@ return x_4;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Simp_SimpTheorems(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_SetOption(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Linter_Util(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Linter_MissingDocs(uint8_t builtin, lean_object* w) {
@@ -8689,6 +8691,12 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Simp_SimpTheorems(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_SetOption(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Linter_Util(builtin, lean_io_mk_world());

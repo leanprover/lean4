@@ -146,7 +146,7 @@ def test (b : Bool) (x y : Nat) : Nat :=
     let x := Nat.mul y y
     myjp x
   cases b (f x) (g y)
-``` 
+```
 `f` and `g` can be detected as a join point right away, however
 `myjp` can only ever be detected as a join point after we have established
 this. This is because otherwise the calls to `myjp` in `f` and `g` would
@@ -172,7 +172,7 @@ where
       else
         eraseCandidate fvarId
     | _, _, _ =>
-      removeCandidatesContainedIn decl.value 
+      removeCandidatesContainedIn decl.value
       go k
   | .fun decl k => do
     withReader (fun _ => some decl.fvarId) do
@@ -207,9 +207,8 @@ where
       match k, decl.value, decl.value.getAppFn with
       | .return valId, .app .., (.fvar fvarId) =>
         if valId == decl.fvarId then
-          let localDecl := (← get).lctx.localDecls.find! fvarId
-          if (← read).contains localDecl.fvarId then
-            modifyLCtx (.eraseLocal decl.fvarId)
+          if (← read).contains fvarId then
+            eraseLetDecl decl
             return .jmp fvarId decl.value.getAppArgs
           else
             return code
@@ -244,7 +243,7 @@ their definitions and call sites with `jp`/`jmp`.
 def Decl.findJoinPoints (decl : Decl) : CompilerM Decl := do
   let findResult ← JoinPointFinder.find decl
   trace[Compiler.findJoinPoints] s!"Found: {findResult.candidates.size} jp candidates"
-  JoinPointFinder.replace decl findResult 
+  JoinPointFinder.replace decl findResult
 
 def findJoinPoints : Pass :=
   .mkPerDeclaration `findJoinPoints Decl.findJoinPoints .base

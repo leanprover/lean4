@@ -7,17 +7,10 @@ import Lean.Data.LOption
 import Lean.Environment
 import Lean.Class
 import Lean.ReducibilityAttrs
-import Lean.Util.Trace
-import Lean.Util.RecDepth
-import Lean.Util.PPExt
 import Lean.Util.ReplaceExpr
-import Lean.Util.OccursCheck
 import Lean.Util.MonadBacktrack
 import Lean.Compiler.InlineAttrs
 import Lean.Meta.TransparencyMode
-import Lean.Meta.DiscrTreeTypes
-import Lean.Eval
-import Lean.CoreM
 
 /-!
 This module provides four (mutually dependent) goodies that are needed for building the elaborator and tactic frameworks.

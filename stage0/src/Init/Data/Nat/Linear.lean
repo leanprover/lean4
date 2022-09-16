@@ -588,9 +588,9 @@ theorem PolyCnstr.denote_mul (ctx : Context) (k : Nat) (c : PolyCnstr) : (c.mul 
   cases c; rename_i eq lhs rhs
   have : k ≠ 0 → k + 1 ≠ 1 := by intro h; match k with | 0 => contradiction | k+1 => simp; apply Nat.succ_ne_zero
   have : ¬ (k == 0) → (k + 1 == 1) = false := fun h => beq_false_of_ne (this (ne_of_beq_false (Bool.of_not_eq_true h)))
-  have : ¬ ((k + 1 == 0) = true) := fun h => absurd (eq_of_beq h) (Nat.succ_ne_zero k)
-  have : (1 == 0) = false        := rfl
-  have : (1 == 1) = true         := rfl
+  have : ¬ ((k + 1 == 0) = true)  := fun h => absurd (eq_of_beq h) (Nat.succ_ne_zero k)
+  have : (1 == (0 : Nat)) = false := rfl
+  have : (1 == (1 : Nat)) = true  := rfl
   by_cases he : eq = true <;> simp [he, PolyCnstr.mul, PolyCnstr.denote, Poly.denote_le, Poly.denote_eq]
      <;> by_cases hk : k == 0 <;> (try simp [eq_of_beq hk]) <;> simp [*] <;> apply propext <;> apply Iff.intro <;> intro h
   · exact Nat.eq_of_mul_eq_mul_left (Nat.zero_lt_succ _) h

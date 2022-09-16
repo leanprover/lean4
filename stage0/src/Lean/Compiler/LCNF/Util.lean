@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.CoreM
+import Lean.MonadEnv
 import Lean.Util.Recognizers
 
 namespace Lean.Compiler.LCNF

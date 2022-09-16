@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.DefView
-// Imports: Init Lean.Parser.Command Lean.Util.CollectLevelParams Lean.Util.FoldConsts Lean.Meta.ForEachExpr Lean.Meta.CollectFVars Lean.Elab.Command Lean.Elab.SyntheticMVars Lean.Elab.Binders Lean.Elab.DeclUtil
+// Imports: Init Lean.Meta.ForEachExpr Lean.Elab.Command Lean.Elab.DeclUtil
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -6583,14 +6583,8 @@ return x_4;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Parser_Command(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Util_CollectLevelParams(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Util_FoldConsts(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_ForEachExpr(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_CollectFVars(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Command(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_SyntheticMVars(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Binders(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_DeclUtil(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_DefView(uint8_t builtin, lean_object* w) {
@@ -6600,28 +6594,10 @@ _G_initialized = true;
 res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Parser_Command(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Util_CollectLevelParams(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Util_FoldConsts(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_ForEachExpr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_CollectFVars(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Elab_Command(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_SyntheticMVars(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_Binders(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_DeclUtil(builtin, lean_io_mk_world());

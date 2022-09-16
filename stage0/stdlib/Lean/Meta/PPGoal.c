@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.PPGoal
-// Imports: Init Lean.Meta.InferType Lean.Meta.MatchUtil
+// Imports: Init Lean.Meta.InferType
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -22158,7 +22158,6 @@ return x_14;
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_InferType(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_MatchUtil(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_PPGoal(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -22168,9 +22167,6 @@ res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_InferType(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_MatchUtil(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_6____closed__1 = _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_6____closed__1();

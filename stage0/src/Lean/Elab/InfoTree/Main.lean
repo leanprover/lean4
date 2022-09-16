@@ -4,12 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Leonardo de Moura, Sebastian Ullrich
 -/
-import Lean.Data.Position
-import Lean.Message
-import Lean.Data.Json
-import Lean.Meta.Basic
 import Lean.Meta.PPGoal
-import Lean.Elab.InfoTree.Types
 
 namespace Lean.Elab
 

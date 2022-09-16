@@ -3,10 +3,8 @@ Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
-import Lean.Util.ReplaceExpr
-import Lean.Meta.Basic
 import Lean.Meta.ReduceEval
-import Lean.Meta.WHNF
+import Lean.KeyedDeclsAttribute
 import Lean.ParserCompiler.Attribute
 import Lean.Parser.Extension
 

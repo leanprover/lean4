@@ -423,8 +423,6 @@ else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_14 = lean_ctor_get(x_2, 0);
-lean_inc(x_14);
-lean_dec(x_2);
 x_15 = l_Lean_TSyntax_getNat(x_14);
 x_16 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr___lambda__2), 10, 1);
 lean_closure_set(x_16, 0, x_15);
@@ -609,6 +607,7 @@ _start:
 {
 lean_object* x_12; 
 x_12 = l_Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr___lambda__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
+lean_dec(x_2);
 lean_dec(x_1);
 return x_12;
 }

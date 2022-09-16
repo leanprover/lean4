@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Parser.Basic
-// Imports: Init Lean.Data.Trie Lean.Data.Position Lean.Syntax Lean.Environment Lean.Message
+// Imports: Init Lean.Data.Trie Lean.Syntax Lean.Message
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -29682,9 +29682,7 @@ return x_4;
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Trie(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_Position(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Syntax(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Environment(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Message(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Parser_Basic(uint8_t builtin, lean_object* w) {
@@ -29697,13 +29695,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_Trie(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Position(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Syntax(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Environment(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Message(builtin, lean_io_mk_world());

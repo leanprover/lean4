@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.DeclModifiers
-// Imports: Init Lean.Modifiers Lean.DocString Lean.Structure Lean.Elab.Attributes Lean.Elab.Exception Lean.Elab.DeclUtil
+// Imports: Init Lean.Structure Lean.Elab.Attributes
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4138,12 +4138,8 @@ return x_6;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Modifiers(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_DocString(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Structure(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Attributes(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Exception(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_DeclUtil(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_DeclModifiers(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -4152,22 +4148,10 @@ _G_initialized = true;
 res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Modifiers(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_DocString(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Structure(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Attributes(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_Exception(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_DeclUtil(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__1___closed__1 = _init_l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__1___closed__1();

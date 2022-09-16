@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Options
-// Imports: Init Lean.ImportingFlag Lean.Data.KVMap
+// Imports: Init Lean.ImportingFlag Lean.Data.KVMap Lean.Data.NameMap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -64,7 +64,6 @@ LEAN_EXPORT lean_object* l_Lean_Option_get___rarg___boxed(lean_object*, lean_obj
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at___aux__Init__Notation______macroRules__precMax__1___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withInPattern(lean_object*, lean_object*);
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__17;
-LEAN_EXPORT lean_object* l_Lean_getOptionDefaulValue(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getOptionDecls(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get_x3f(lean_object*);
 static lean_object* l_Lean_instInhabitedOptionDecl___closed__1;
@@ -91,6 +90,7 @@ LEAN_EXPORT lean_object* l_Lean_instInhabitedOptions;
 static lean_object* l_Lean_setOptionFromString___closed__10;
 static lean_object* l_Lean_Option_registerOption___closed__2;
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__15;
+LEAN_EXPORT lean_object* l_Lean_getOptionDefaultValue(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getNatOption(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getBoolOption___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get___rarg(lean_object*, lean_object*, lean_object*);
@@ -841,7 +841,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_getOptionDefaulValue(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_getOptionDefaultValue(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -1166,7 +1166,7 @@ lean_dec(x_10);
 x_16 = lean_box(0);
 x_17 = l_Lean_Name_str___override(x_16, x_14);
 lean_inc(x_17);
-x_18 = l_Lean_getOptionDefaulValue(x_17, x_3);
+x_18 = l_Lean_getOptionDefaultValue(x_17, x_3);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_object* x_19; 
@@ -3781,6 +3781,7 @@ return x_132;
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_ImportingFlag(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_KVMap(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_NameMap(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_Options(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -3793,6 +3794,9 @@ res = initialize_Lean_ImportingFlag(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_KVMap(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Data_NameMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Options_empty = _init_l_Lean_Options_empty();

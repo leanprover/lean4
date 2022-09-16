@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.PrettyPrinter.Formatter
-// Imports: Init Lean.CoreM Lean.Parser.Extension Lean.KeyedDeclsAttribute Lean.ParserCompiler.Attribute Lean.PrettyPrinter.Basic
+// Imports: Init Lean.CoreM Lean.Parser.Extension Lean.Parser.StrInterpolation Lean.KeyedDeclsAttribute Lean.ParserCompiler.Attribute Lean.PrettyPrinter.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -7574,7 +7574,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_PrettyPrinter_Formatter_symbolNoAntiquot_formatter___closed__5;
 x_2 = l_Lean_PrettyPrinter_Formatter_symbolNoAntiquot_formatter___closed__6;
-x_3 = lean_unsigned_to_nat(376u);
+x_3 = lean_unsigned_to_nat(377u);
 x_4 = lean_unsigned_to_nat(42u);
 x_5 = l_Lean_PrettyPrinter_Formatter_symbolNoAntiquot_formatter___closed__7;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -10853,6 +10853,7 @@ return x_4;
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_CoreM(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Parser_Extension(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Parser_StrInterpolation(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_KeyedDeclsAttribute(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_ParserCompiler_Attribute(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_PrettyPrinter_Basic(uint8_t builtin, lean_object*);
@@ -10868,6 +10869,9 @@ res = initialize_Lean_CoreM(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Parser_Extension(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Parser_StrInterpolation(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_KeyedDeclsAttribute(builtin, lean_io_mk_world());

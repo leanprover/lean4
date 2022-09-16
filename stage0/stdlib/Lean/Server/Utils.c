@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.Utils
-// Imports: Init Lean.Data.Position Lean.Data.Lsp Lean.Server.InfoUtils Init.System.FilePath Lean.Parser.Basic
+// Imports: Init Lean.Data.Lsp.Communication Lean.Data.Lsp.Diagnostics Lean.Data.Lsp.Extra Lean.Data.Lsp.TextSync Lean.Server.InfoUtils
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1795,11 +1795,11 @@ return x_3;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_Position(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_Lsp(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_Lsp_Communication(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_Lsp_Diagnostics(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_Lsp_Extra(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_Lsp_TextSync(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_InfoUtils(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_System_FilePath(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Parser_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Server_Utils(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1808,19 +1808,19 @@ _G_initialized = true;
 res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Position(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_Lsp_Communication(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_Lsp_Diagnostics(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Data_Lsp_Extra(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Data_Lsp_TextSync(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Server_InfoUtils(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_System_FilePath(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Parser_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Server_instInhabitedDocumentMeta___closed__1 = _init_l_Lean_Server_instInhabitedDocumentMeta___closed__1();

@@ -150,12 +150,12 @@ inductive Info where
     `hole`s which are filled in later in the same way that unassigned metavariables are.
 -/
 inductive InfoTree where
-  | /-- The context object is created by `liftTermElabM` at `Command.lean` -/
-    context (i : ContextInfo) (t : InfoTree)
-  | /-- The children contain information for nested term elaboration and tactic evaluation -/
-    node (i : Info) (children : Std.PersistentArray InfoTree)
-  | /-- The elaborator creates holes (aka metavariables) for tactics and postponed terms -/
-    hole (mvarId : MVarId)
+  /-- The context object is created by `liftTermElabM` at `Command.lean` -/
+  | context (i : ContextInfo) (t : InfoTree)
+  /-- The children contain information for nested term elaboration and tactic evaluation -/
+  | node (i : Info) (children : Std.PersistentArray InfoTree)
+  /-- The elaborator creates holes (aka metavariables) for tactics and postponed terms -/
+  | hole (mvarId : MVarId)
   deriving Inhabited
 
 /-- This structure is the state that is being used to build an InfoTree object.

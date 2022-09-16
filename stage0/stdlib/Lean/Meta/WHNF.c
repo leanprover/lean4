@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.WHNF
-// Imports: Init Lean.ToExpr Lean.AuxRecursor Lean.ProjFns Lean.Structure Lean.Util.Recognizers Lean.Meta.Basic Lean.Meta.GetConst Lean.Meta.FunInfo Lean.Meta.Match.MatcherInfo Lean.Meta.Match.MatchPatternAttr
+// Imports: Init Lean.Structure Lean.Util.Recognizers Lean.Meta.GetConst Lean.Meta.FunInfo Lean.Meta.Match.MatcherInfo Lean.Meta.Match.MatchPatternAttr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -130,7 +130,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_getStuckMVar_x3f___lambda__8___boxed(lean_o
 lean_object* l_Lean_Expr_getRevArg_x21(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallBoundedTelescope___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__8___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addTrace___at_Lean_Meta_processPostponed_loop___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_10498_(uint8_t, uint8_t);
+uint8_t l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_10509_(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_canUnfoldAtMatcher___closed__10;
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Meta_canUnfoldAtMatcher___closed__32;
@@ -13236,7 +13236,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_whnfEasyCases___closed__2;
 x_2 = l_Lean_Meta_whnfEasyCases___closed__3;
-x_3 = lean_unsigned_to_nat(309u);
+x_3 = lean_unsigned_to_nat(305u);
 x_4 = lean_unsigned_to_nat(22u);
 x_5 = l_Lean_Meta_whnfEasyCases___closed__4;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -16940,7 +16940,7 @@ lean_inc(x_9);
 lean_dec(x_7);
 x_10 = 2;
 x_11 = lean_unbox(x_8);
-x_12 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_10498_(x_11, x_10);
+x_12 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_10509_(x_11, x_10);
 if (x_12 == 0)
 {
 lean_object* x_13; uint8_t x_14; lean_object* x_15; 
@@ -24124,7 +24124,7 @@ x_10 = lean_ctor_get(x_7, 1);
 x_11 = 3;
 x_12 = lean_unbox(x_9);
 lean_dec(x_9);
-x_13 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_10498_(x_12, x_11);
+x_13 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_10509_(x_12, x_11);
 if (x_13 == 0)
 {
 lean_object* x_14; 
@@ -24155,7 +24155,7 @@ lean_dec(x_7);
 x_18 = 3;
 x_19 = lean_unbox(x_16);
 lean_dec(x_16);
-x_20 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_10498_(x_19, x_18);
+x_20 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_10509_(x_19, x_18);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; 
@@ -32260,7 +32260,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_whnfEasyCases___closed__2;
 x_2 = l___private_Lean_Meta_WHNF_0__Lean_Meta_cached_x3f___closed__1;
-x_3 = lean_unsigned_to_nat(829u);
+x_3 = lean_unsigned_to_nat(825u);
 x_4 = lean_unsigned_to_nat(34u);
 x_5 = l_Lean_Meta_whnfEasyCases___closed__4;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -32446,7 +32446,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_whnfEasyCases___closed__2;
 x_2 = l___private_Lean_Meta_WHNF_0__Lean_Meta_cache___closed__1;
-x_3 = lean_unsigned_to_nat(838u);
+x_3 = lean_unsigned_to_nat(834u);
 x_4 = lean_unsigned_to_nat(34u);
 x_5 = l_Lean_Meta_whnfEasyCases___closed__4;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -35666,12 +35666,8 @@ return x_11;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_ToExpr(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_AuxRecursor(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_ProjFns(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Structure(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_Recognizers(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_GetConst(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_FunInfo(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Match_MatcherInfo(uint8_t builtin, lean_object*);
@@ -35684,22 +35680,10 @@ _G_initialized = true;
 res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_ToExpr(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_AuxRecursor(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_ProjFns(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Structure(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Util_Recognizers(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_GetConst(builtin, lean_io_mk_world());

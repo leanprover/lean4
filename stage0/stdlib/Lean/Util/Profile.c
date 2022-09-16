@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.Profile
-// Imports: Init Lean.Data.Position
+// Imports: Init Lean.Data.Options
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -158,7 +158,7 @@ return x_6;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_Position(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_Options(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Util_Profile(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -167,7 +167,7 @@ _G_initialized = true;
 res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Position(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_Options(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

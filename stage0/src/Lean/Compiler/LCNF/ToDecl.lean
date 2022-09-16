@@ -100,10 +100,12 @@ def toDecl (declName : Name) : CompilerM Decl := do
     -- let value ← applyCasesOnImplementedBy value
     return (type, value)
   let value ← toLCNF value
-  if let .fun decl (.return _) := value then
-    eraseFVar decl.fvarId (recursive := false)
-    return { name := declName, params := decl.params, type, value := decl.value, levelParams := info.levelParams }
+  let decl ← if let .fun decl (.return _) := value then
+    eraseFunDecl decl (recursive := false)
+    pure { name := declName, params := decl.params, type, value := decl.value, levelParams := info.levelParams : Decl }
   else
-    return { name := declName, params := #[], type, value, levelParams := info.levelParams }
+    pure { name := declName, params := #[], type, value, levelParams := info.levelParams }
+  /- `toLCNF` may eta-reduce simple declarations. -/
+  decl.etaExpand
 
 end Lean.Compiler.LCNF

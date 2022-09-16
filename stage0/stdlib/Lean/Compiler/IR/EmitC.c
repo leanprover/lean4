@@ -262,7 +262,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitLhs(lean_object*, lean_object*, lea
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitCtor___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitSimpleExternalCall___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitBoxFn___closed__4;
-lean_object* l_panic___at_Lean_TSyntax_getString___spec__1(lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitJmp(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__1___closed__6;
@@ -557,6 +556,7 @@ LEAN_EXPORT lean_object* l_Std_RBNode_revFold___at_Lean_IR_EmitC_emitFnDecls___s
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitOffset(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_EmitC_emitInitFn___spec__3(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitSSet___closed__4;
+lean_object* l_panic___at_Lean_Name_getString_x21___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_forM_loop___at_Lean_IR_EmitC_emitTailCall___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitInitFn___closed__2;
 LEAN_EXPORT lean_object* l_List_forM___at_Lean_IR_EmitC_emitMainFn___spec__3(lean_object*, lean_object*, lean_object*);
@@ -1180,14 +1180,14 @@ case 9:
 {
 lean_object* x_8; lean_object* x_9; 
 x_8 = l_Lean_IR_EmitC_toCType___closed__11;
-x_9 = l_panic___at_Lean_TSyntax_getString___spec__1(x_8);
+x_9 = l_panic___at_Lean_Name_getString_x21___spec__1(x_8);
 return x_9;
 }
 case 10:
 {
 lean_object* x_10; lean_object* x_11; 
 x_10 = l_Lean_IR_EmitC_toCType___closed__12;
-x_11 = l_panic___at_Lean_TSyntax_getString___spec__1(x_10);
+x_11 = l_panic___at_Lean_Name_getString_x21___spec__1(x_10);
 return x_11;
 }
 default: 

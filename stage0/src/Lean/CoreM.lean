@@ -6,12 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Util.RecDepth
 import Lean.Util.Trace
 import Lean.Log
-import Lean.Data.Options
-import Lean.Environment
-import Lean.Exception
-import Lean.InternalExceptionId
 import Lean.Eval
-import Lean.MonadEnv
 import Lean.ResolveName
 import Lean.Elab.InfoTree.Types
 

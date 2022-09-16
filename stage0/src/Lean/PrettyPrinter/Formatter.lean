@@ -5,6 +5,7 @@ Authors: Sebastian Ullrich
 -/
 import Lean.CoreM
 import Lean.Parser.Extension
+import Lean.Parser.StrInterpolation
 import Lean.KeyedDeclsAttribute
 import Lean.ParserCompiler.Attribute
 import Lean.PrettyPrinter.Basic

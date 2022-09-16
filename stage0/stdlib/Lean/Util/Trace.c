@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.Trace
-// Imports: Init Lean.Message Lean.MonadEnv
+// Imports: Init Lean.Exception
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4883,8 +4883,7 @@ return x_2;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Message(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_MonadEnv(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Exception(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Util_Trace(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -4893,10 +4892,7 @@ _G_initialized = true;
 res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Message(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_MonadEnv(builtin, lean_io_mk_world());
+res = initialize_Lean_Exception(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_instInhabitedTraceElem___closed__1 = _init_l_Lean_instInhabitedTraceElem___closed__1();

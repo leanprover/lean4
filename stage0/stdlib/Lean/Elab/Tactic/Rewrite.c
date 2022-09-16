@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Rewrite
-// Imports: Init Lean.Meta.Tactic.Rewrite Lean.Meta.Tactic.Replace Lean.Elab.Tactic.Basic Lean.Elab.Tactic.ElabTerm Lean.Elab.Tactic.Location Lean.Elab.Tactic.Config
+// Imports: Init Lean.Meta.Tactic.Rewrite Lean.Meta.Tactic.Replace Lean.Elab.Tactic.Location Lean.Elab.Tactic.Config
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5503,7 +5503,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalRewriteSeq_declRan
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(62u);
+x_1 = lean_unsigned_to_nat(61u);
 x_2 = lean_unsigned_to_nat(47u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -5515,7 +5515,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalRewriteSeq_declRan
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(69u);
+x_1 = lean_unsigned_to_nat(68u);
 x_2 = lean_unsigned_to_nat(91u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -5543,7 +5543,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalRewriteSeq_declRan
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(62u);
+x_1 = lean_unsigned_to_nat(61u);
 x_2 = lean_unsigned_to_nat(51u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -5555,7 +5555,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalRewriteSeq_declRan
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(62u);
+x_1 = lean_unsigned_to_nat(61u);
 x_2 = lean_unsigned_to_nat(65u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -5604,8 +5604,6 @@ return x_4;
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Rewrite(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Replace(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Tactic_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Tactic_ElabTerm(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Location(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Config(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -5620,12 +5618,6 @@ res = initialize_Lean_Meta_Tactic_Rewrite(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Replace(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_ElabTerm(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Location(builtin, lean_io_mk_world());

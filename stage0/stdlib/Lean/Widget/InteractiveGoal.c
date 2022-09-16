@@ -72,6 +72,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodableInteractiveTermGoal;
 static lean_object* l_Lean_Widget_instInhabitedInteractiveTermGoal___closed__1;
+lean_object* l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isClass_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentArray_forInAux___at_Lean_Widget_goalToInteractive___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -124,7 +125,6 @@ static lean_object* l_Lean_Widget_goalToInteractive___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveTermGoal_toInteractiveGoal(lean_object*);
 static lean_object* l_Lean_Widget_instRpcEncodableInteractiveHypothesisBundle___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Widget_instToJsonRpcEncodablePacket__2;
-lean_object* l_Std_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_enc____x40_Lean_Widget_InteractiveGoal___hyg_5____spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instRpcEncodableInteractiveGoals___closed__1;
 LEAN_EXPORT lean_object* l_Std_PersistentArray_forIn___at_Lean_Widget_goalToInteractive___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -161,7 +161,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_instRpcEncodabl
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at_Lean_Widget_instRpcEncodableInteractiveGoal_dec____x40_Lean_Widget_InteractiveGoal___hyg_611____spec__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_enc____x40_Lean_Widget_InteractiveGoal___hyg_5_(lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_fvarId(lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_fromJsonCommand____x40_Lean_Data_Lsp_Basic___hyg_1293____spec__2(size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveGoal___hyg_127____closed__6;
 lean_object* l_Lean_LocalDecl_type(lean_object*);
@@ -202,6 +201,7 @@ lean_object* l_Lean_Json_mkObj(lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Widget_InteractiveGoal_pretty___spec__3___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Widget_instInhabitedInteractiveTermGoal;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_instRpcEncodableInteractiveGoal_dec____x40_Lean_Widget_InteractiveGoal___hyg_611____spec__1(size_t, size_t, lean_object*, lean_object*);
+lean_object* l_Std_RBNode_findCore___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_findDecl_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentArray_forInAux___at_Lean_Widget_goalToInteractive___spec__3___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
@@ -10722,7 +10722,7 @@ lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_15 = l_Lean_Widget_addInteractiveHypothesisBundle___closed__2;
-x_16 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_15, x_5, x_6, x_7, x_8, x_9);
+x_16 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_15, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -11265,7 +11265,7 @@ if (x_194 == 0)
 {
 lean_object* x_195; lean_object* x_196; 
 x_195 = l_Lean_LocalDecl_fvarId(x_43);
-x_196 = l_Std_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(x_3, x_195);
+x_196 = l_Std_RBNode_findCore___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__5(x_3, x_195);
 lean_dec(x_195);
 if (lean_obj_tag(x_196) == 0)
 {
@@ -11321,7 +11321,7 @@ else
 {
 lean_object* x_206; lean_object* x_207; 
 x_206 = l_Lean_LocalDecl_fvarId(x_43);
-x_207 = l_Std_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(x_3, x_206);
+x_207 = l_Std_RBNode_findCore___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__5(x_3, x_206);
 lean_dec(x_206);
 if (lean_obj_tag(x_207) == 0)
 {
@@ -11357,7 +11357,7 @@ block_193:
 lean_object* x_50; lean_object* x_51; 
 lean_dec(x_49);
 x_50 = l_Lean_LocalDecl_fvarId(x_43);
-x_51 = l_Std_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(x_4, x_50);
+x_51 = l_Std_RBNode_findCore___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__5(x_4, x_50);
 if (lean_obj_tag(x_51) == 0)
 {
 lean_dec(x_50);
@@ -12417,7 +12417,7 @@ if (x_195 == 0)
 {
 lean_object* x_196; lean_object* x_197; 
 x_196 = l_Lean_LocalDecl_fvarId(x_44);
-x_197 = l_Std_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(x_3, x_196);
+x_197 = l_Std_RBNode_findCore___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__5(x_3, x_196);
 lean_dec(x_196);
 if (lean_obj_tag(x_197) == 0)
 {
@@ -12473,7 +12473,7 @@ else
 {
 lean_object* x_207; lean_object* x_208; 
 x_207 = l_Lean_LocalDecl_fvarId(x_44);
-x_208 = l_Std_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(x_3, x_207);
+x_208 = l_Std_RBNode_findCore___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__5(x_3, x_207);
 lean_dec(x_207);
 if (lean_obj_tag(x_208) == 0)
 {
@@ -12509,7 +12509,7 @@ block_194:
 lean_object* x_51; lean_object* x_52; 
 lean_dec(x_50);
 x_51 = l_Lean_LocalDecl_fvarId(x_44);
-x_52 = l_Std_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(x_4, x_51);
+x_52 = l_Std_RBNode_findCore___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__5(x_4, x_51);
 if (lean_obj_tag(x_52) == 0)
 {
 lean_dec(x_51);

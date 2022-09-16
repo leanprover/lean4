@@ -72,7 +72,6 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalRhs_declRange(
 uint8_t l_Lean_Expr_isApp(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalSkip_declRange___closed__7;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalRhs_declRange___closed__6;
-lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_forallTelescopeCompatibleAux___spec__15___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalCongr_declRange(lean_object*);
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
@@ -107,6 +106,7 @@ lean_object* l_Lean_Meta_mkEqRefl(lean_object*, lean_object*, lean_object*, lean
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalCongr___closed__7;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalCongr_declRange___closed__1;
 static lean_object* l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_Tactic_Conv_extCore___lambda__4___closed__3;
+lean_object* l_panic___at___private_Lean_Meta_CongrTheorems_0__Lean_Meta_fixKindsForDependencies___spec__2(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalCongr___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_extLetBodyCongr_x3f___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Conv_congr___lambda__2___closed__7;
@@ -240,13 +240,13 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalRhs(lean_objec
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_extLetBodyCongr_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalLhs_declRange___closed__3;
-lean_object* l_panic___at_Lean_Meta_ACLt_lt_ltApp___spec__1(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Conv_congr___lambda__2___closed__5;
 static lean_object* l_Lean_Elab_Tactic_Conv_evalArg___lambda__2___closed__2;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_Conv_evalExt___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalLhs___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalSkip___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalRhs___closed__1;
+lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Conv_evalRhs___rarg___closed__2;
 static lean_object* l_Lean_Elab_Tactic_Conv_evalRhs___rarg___closed__1;
 lean_object* l_Lean_mkApp4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1340,7 +1340,7 @@ if (x_36 == 0)
 {
 lean_object* x_266; lean_object* x_267; 
 x_266 = l_Std_Range_forIn_loop___at_Lean_Elab_Tactic_Conv_congr___spec__3___closed__4;
-x_267 = l_panic___at_Lean_Meta_ACLt_lt_ltApp___spec__1(x_266);
+x_267 = l_panic___at___private_Lean_Meta_CongrTheorems_0__Lean_Meta_fixKindsForDependencies___spec__2(x_266);
 x_41 = x_267;
 goto block_265;
 }
@@ -5724,6 +5724,7 @@ else
 {
 lean_object* x_18; lean_object* x_19; uint8_t x_20; 
 x_18 = l_Lean_TSyntax_getNat(x_14);
+lean_dec(x_14);
 x_19 = lean_unsigned_to_nat(0u);
 x_20 = lean_nat_dec_eq(x_18, x_19);
 if (x_20 == 0)
@@ -6509,7 +6510,7 @@ lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_3);
 lean_inc(x_2);
-x_16 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_forallTelescopeCompatibleAux___spec__15___rarg(x_2, x_15, x_3, x_14, x_9, x_10, x_11, x_12, x_13);
+x_16 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_2, x_15, x_3, x_14, x_9, x_10, x_11, x_12, x_13);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
@@ -6538,7 +6539,7 @@ lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_3);
-x_24 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_forallTelescopeCompatibleAux___spec__15___rarg(x_2, x_15, x_3, x_23, x_9, x_10, x_11, x_12, x_19);
+x_24 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_2, x_15, x_3, x_23, x_9, x_10, x_11, x_12, x_19);
 if (lean_obj_tag(x_24) == 0)
 {
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
@@ -7525,7 +7526,7 @@ lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_4);
-x_15 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_forallTelescopeCompatibleAux___spec__15___rarg(x_8, x_3, x_4, x_14, x_9, x_10, x_11, x_12, x_13);
+x_15 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_8, x_3, x_4, x_14, x_9, x_10, x_11, x_12, x_13);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; uint8_t x_28; 

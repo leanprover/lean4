@@ -17,8 +17,8 @@ It is mainly used for doing targeted term transformations, for example rewriting
 only on the left side of an equality. -/
 declare_syntax_cat conv (behavior := both)
 
-syntax convSeq1Indented := withPosition((colGe conv ";"?)+)
-syntax convSeqBracketed := "{" (conv ";"?)* "}"
+syntax convSeq1Indented := sepBy1IndentSemicolon(conv)
+syntax convSeqBracketed := "{" sepByIndentSemicolon(conv) "}"
 -- Order is important: a missing `conv` proof should not be parsed as `{ <missing> }`,
 -- automatically closing goals
 syntax convSeq := convSeqBracketed <|> convSeq1Indented

@@ -14,6 +14,7 @@ It will fail if there are no subexpressions.
 Does not instantiate bound variables if the subexpression is below a binder.
 Usage with monads deriving from `MetaM` is not recommended.
 -/
+@[inline]
 def findChildren [Alternative m] (visit : Expr → m α) : Expr → m α
   | Expr.forallE _ d b _   => visit d <|> visit b
   | Expr.lam _ d b _       => visit d <|> visit b
@@ -63,11 +64,7 @@ end FindImpl
 
 /-- Depth-first explores the subexpressions returning the first subexpression such that the predicate `p` returns true.-/
 @[implementedBy FindImpl.findUnsafe?]
-partial def find? (p : Expr → Bool) (e : Expr) : Option Expr :=
-  /- This is a reference implementation for the unsafe one above -/
-  if p e then
-    some e
-  else e.findChildren (find? p)
+opaque find? (p : Expr → Bool) (e : Expr) : Option Expr
 
 /-- Return true if `e` occurs in `t` -/
 def occurs (e : Expr) (t : Expr) : Bool :=

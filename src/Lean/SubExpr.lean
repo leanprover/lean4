@@ -176,7 +176,7 @@ namespace Expr
 open SubExpr
 
 section Visit
-variable {m} [Applicative m]
+variable [Applicative m]
 
 /-- Same as `Expr.traverseApp` but also includes a
 `SubExpr.Pos` argument for tracking subexpression position. -/
@@ -199,7 +199,7 @@ def visitAppWithPos (visit : Pos → Expr → m Unit) (p : Pos) (e : Expr) : m U
 end Visit
 
 section Find
-variable {m} [Alternative m]
+variable [Alternative m]
 
 /-- Given an expression of form `f a₀ .. aₙ`, runs `visit` on `f` and each of `aᵢ`. -/
 def findAppWithPos (visit : Pos → Expr → m α) (p : Pos) : Expr → m α

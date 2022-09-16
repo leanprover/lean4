@@ -108,4 +108,8 @@ def ppDecl (decl : Decl) : CompilerM Format :=
   PP.run do
     return f!"def {decl.name}{← PP.ppParams decl.params} :={indentD (← PP.ppCode decl.value)}"
 
+def ppFunDecl (decl : FunDecl) : CompilerM Format :=
+  PP.run do
+    return f!"fun {decl.binderName}{← PP.ppParams decl.params} :={indentD (← PP.ppCode decl.value)}"
+
 end Lean.Compiler.LCNF

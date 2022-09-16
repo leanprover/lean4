@@ -226,7 +226,7 @@ lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_545____spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSetImp_insert___at_Lean_Linter_unusedVariables___spec__3(lean_object*, lean_object*);
-uint64_t l___private_Lean_Syntax_0__String_hashRange____x40_Lean_Syntax___hyg_150_(lean_object*);
+uint64_t l___private_Lean_Syntax_0__String_hashRange____x40_Lean_Syntax___hyg_164_(lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_225____lambda__1___closed__6;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_293____lambda__1___closed__2;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1475____lambda__1___closed__3;
@@ -464,7 +464,7 @@ static lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariab
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_293____lambda__1___closed__10;
 static lean_object* l_List_foldr___at_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1767____spec__1___closed__4;
 uint8_t l_Std_AssocList_contains___at_Lean_Meta_AbstractMVars_abstractExprMVars___spec__5(lean_object*, lean_object*);
-uint8_t l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_77_(lean_object*, lean_object*);
+uint8_t l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_91_(lean_object*, lean_object*);
 lean_object* l_Lean_Attribute_Builtin_ensureNoArgs(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_381____lambda__1___closed__2;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -5018,7 +5018,7 @@ else
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
-x_6 = l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_77_(x_1, x_4);
+x_6 = l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_91_(x_1, x_4);
 if (x_6 == 0)
 {
 x_2 = x_5;
@@ -5041,7 +5041,7 @@ x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
 lean_dec(x_1);
 x_4 = lean_array_get_size(x_3);
-x_5 = l___private_Lean_Syntax_0__String_hashRange____x40_Lean_Syntax___hyg_150_(x_2);
+x_5 = l___private_Lean_Syntax_0__String_hashRange____x40_Lean_Syntax___hyg_164_(x_2);
 x_6 = lean_uint64_to_usize(x_5);
 x_7 = lean_usize_modn(x_6, x_4);
 lean_dec(x_4);
@@ -5177,7 +5177,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; uint64_t x_7; size_t x_8; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
 x_6 = lean_array_get_size(x_1);
-x_7 = l___private_Lean_Syntax_0__String_hashRange____x40_Lean_Syntax___hyg_150_(x_4);
+x_7 = l___private_Lean_Syntax_0__String_hashRange____x40_Lean_Syntax___hyg_164_(x_4);
 x_8 = lean_uint64_to_usize(x_7);
 x_9 = lean_usize_modn(x_8, x_6);
 lean_dec(x_6);
@@ -5197,7 +5197,7 @@ lean_inc(x_14);
 lean_inc(x_13);
 lean_dec(x_2);
 x_15 = lean_array_get_size(x_1);
-x_16 = l___private_Lean_Syntax_0__String_hashRange____x40_Lean_Syntax___hyg_150_(x_13);
+x_16 = l___private_Lean_Syntax_0__String_hashRange____x40_Lean_Syntax___hyg_164_(x_13);
 x_17 = lean_uint64_to_usize(x_16);
 x_18 = lean_usize_modn(x_17, x_15);
 lean_dec(x_15);
@@ -5280,7 +5280,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_ctor_get(x_1, 1);
-x_8 = l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_77_(x_6, x_2);
+x_8 = l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_91_(x_6, x_2);
 if (x_8 == 0)
 {
 lean_object* x_9; 
@@ -5303,7 +5303,7 @@ x_11 = lean_ctor_get(x_1, 1);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_dec(x_1);
-x_12 = l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_77_(x_10, x_2);
+x_12 = l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_91_(x_10, x_2);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
@@ -5337,7 +5337,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; uint64_t x_7; size_t x_8; 
 x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_ctor_get(x_1, 1);
 x_6 = lean_array_get_size(x_5);
-x_7 = l___private_Lean_Syntax_0__String_hashRange____x40_Lean_Syntax___hyg_150_(x_2);
+x_7 = l___private_Lean_Syntax_0__String_hashRange____x40_Lean_Syntax___hyg_164_(x_2);
 x_8 = lean_uint64_to_usize(x_7);
 x_9 = lean_usize_modn(x_8, x_6);
 x_10 = lean_array_uget(x_5, x_9);
@@ -5389,7 +5389,7 @@ lean_inc(x_21);
 lean_inc(x_20);
 lean_dec(x_1);
 x_22 = lean_array_get_size(x_21);
-x_23 = l___private_Lean_Syntax_0__String_hashRange____x40_Lean_Syntax___hyg_150_(x_2);
+x_23 = l___private_Lean_Syntax_0__String_hashRange____x40_Lean_Syntax___hyg_164_(x_2);
 x_24 = lean_uint64_to_usize(x_23);
 x_25 = lean_usize_modn(x_24, x_22);
 x_26 = lean_array_uget(x_21, x_25);
@@ -8526,7 +8526,7 @@ lean_object* x_8; uint8_t x_9;
 x_8 = lean_ctor_get(x_6, 0);
 lean_inc(x_8);
 lean_dec(x_6);
-x_9 = l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_77_(x_8, x_1);
+x_9 = l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_91_(x_8, x_1);
 lean_dec(x_8);
 return x_9;
 }

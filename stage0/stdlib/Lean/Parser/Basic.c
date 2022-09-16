@@ -264,7 +264,6 @@ LEAN_EXPORT lean_object* l_Lean_Parser_instInhabitedParserInfo___lambda__2___box
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Basic_0__Lean_Parser_sepByFnAux_parse___lambda__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_decimalNumberFn_parseOptDot___closed__1;
 static lean_object* l_Lean_Parser_strLitFnAux___closed__1;
-uint8_t l_List_beq___at___private_Init_Meta_0__Lean_Syntax_beqPreresolved____x40_Init_Meta___hyg_2654____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_suppressInsideQuotFn(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_instInhabitedParser___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Basic_0__Lean_Parser_sepByFnAux_parse___lambda__3(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -889,6 +888,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_many1Unbox(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_sepByInfo___elambda__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_checkColGt(lean_object*);
 static lean_object* l_Lean_Parser_symbolInfo___closed__1;
+uint8_t l_List_beq___at___private_Init_Meta_0__Lean_Syntax_beqPreresolved____x40_Init_Meta___hyg_2665____spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_mkAntiquot___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Basic___hyg_9590_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Basic___hyg_9615_(lean_object*);
@@ -1930,7 +1930,7 @@ return x_8;
 else
 {
 uint8_t x_9; 
-x_9 = l_List_beq___at___private_Init_Meta_0__Lean_Syntax_beqPreresolved____x40_Init_Meta___hyg_2654____spec__1(x_4, x_6);
+x_9 = l_List_beq___at___private_Init_Meta_0__Lean_Syntax_beqPreresolved____x40_Init_Meta___hyg_2665____spec__1(x_4, x_6);
 return x_9;
 }
 }
@@ -2341,7 +2341,7 @@ lean_dec(x_1);
 x_4 = l_Lean_Parser_instInhabitedInputContext___closed__2;
 x_5 = lean_string_dec_eq(x_2, x_4);
 x_6 = lean_box(0);
-x_7 = l_List_beq___at___private_Init_Meta_0__Lean_Syntax_beqPreresolved____x40_Init_Meta___hyg_2654____spec__1(x_3, x_6);
+x_7 = l_List_beq___at___private_Init_Meta_0__Lean_Syntax_beqPreresolved____x40_Init_Meta___hyg_2665____spec__1(x_3, x_6);
 if (x_5 == 0)
 {
 lean_object* x_8; 

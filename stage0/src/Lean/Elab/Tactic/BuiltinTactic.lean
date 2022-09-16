@@ -35,33 +35,31 @@ open Parser.Tactic
 @[builtinTactic paren] def evalParen : Tactic := fun stx =>
   evalTactic stx[1]
 
-def isCheckpointableTactic (arg : Syntax) : TacticM Bool := do
+def isCheckpointableTactic (arg : Syntax.Tactic) : TacticM Bool := do
   -- TODO: make it parametric
-  let kind := arg.getKind
+  let kind := arg.1.getKind
   return kind == ``Lean.Parser.Tactic.save
 
-partial def addCheckpoints (args : Array Syntax) : TacticM (Array Syntax) := do
+partial def addCheckpoints (args : Array Syntax.Tactic) : TacticM (Array Syntax.Tactic) := do
   -- if (← readThe Term.Context).tacticCache? |>.isSome then
-  if (← args.anyM fun arg => isCheckpointableTactic arg[0]) then
+  if (← args.anyM fun arg => isCheckpointableTactic arg) then
     let argsNew ← go 0 #[] #[]
     return argsNew
   return args
 where
-  push (acc : Array Syntax) (result : Array Syntax) : Array Syntax :=
+  push (acc : Array Syntax.Tactic) (result : Array Syntax.Tactic) : Array Syntax.Tactic :=
     if acc.isEmpty then
       result
     else
-      let ref := acc.back
-      let accSeq := mkNode ``Lean.Parser.Tactic.tacticSeq1Indented #[mkNullNode acc]
-      let checkpoint := mkNode ``Lean.Parser.Tactic.checkpoint #[mkAtomFrom ref "checkpoint", accSeq]
-      result.push (mkNode groupKind #[checkpoint, mkNullNode])
+      result.push <| Unhygienic.run do withRef acc.back do
+        `(tactic| checkpoint $[$acc]*)
 
-  go (i : Nat) (acc : Array Syntax) (result : Array Syntax) : TacticM (Array Syntax) := do
+  go (i : Nat) (acc : Array Syntax.Tactic) (result : Array Syntax.Tactic) : TacticM (Array Syntax.Tactic) := do
     if h : i < args.size then
       let arg := args.get ⟨i, h⟩
-      if (← isCheckpointableTactic arg[0]) then
+      if (← isCheckpointableTactic arg) then
         -- `argNew` is `arg` as singleton sequence. The idea is to make sure it does not satisfy `isCheckpointableTactic` anymore
-        let argNew := arg.setArg 0 (mkNullNode #[arg[0]])
+        let argNew := ⟨mkNullNode #[arg]⟩ -- HACK
         let acc := acc.push argNew
         go (i+1) #[] (push acc result)
       else
@@ -69,21 +67,26 @@ where
     else
       return result ++ acc
 
-/-- Evaluate `many (group (tactic >> optional ";")) -/
-def evalManyTacticOptSemi (stx : Syntax) : TacticM Unit := do
-  for seqElem in (← addCheckpoints stx.getArgs) do
-    evalTactic seqElem[0]
-    saveTacticInfoForToken seqElem[1] -- add TacticInfo node for `;`
+/-- Evaluate `sepByIndent tactic "; " -/
+def evalSepByIndentTactic (stx : Syntax) : TacticM Unit := do
+  -- HACK: bootstrapping hack to support (group tac ";") nodes
+  if stx[0].getKind == groupKind then
+    for seqElem in stx.getArgs do
+      evalTactic seqElem
+    return
+
+  for seqElem in (← addCheckpoints (stx.getSepArgs.map (⟨·⟩))) do
+    evalTactic seqElem
 
 @[builtinTactic tacticSeq1Indented] def evalTacticSeq1Indented : Tactic := fun stx =>
-  evalManyTacticOptSemi stx[0]
+  evalSepByIndentTactic stx[0]
 
 @[builtinTactic tacticSeqBracketed] def evalTacticSeqBracketed : Tactic := fun stx => do
   let initInfo ← mkInitialTacticInfo stx[0]
   withRef stx[2] <| closeUsingOrAdmit do
     -- save state before/after entering focus on `{`
     withInfoContext (pure ()) initInfo
-    evalManyTacticOptSemi stx[1]
+    evalSepByIndentTactic stx[1]
 
 @[builtinTactic Parser.Tactic.focus] def evalFocus : Tactic := fun stx => do
   let mkInfo ← mkInitialTacticInfo stx[0]
@@ -376,5 +379,11 @@ where
   match stx[1].isNatLit? with
   | none    => throwIllFormedSyntax
   | some ms => IO.sleep ms.toUInt32
+
+-- HACK: support (group tac ";") quotations from the previous stage.
+-- Unfortuntely, parseQuotWithCurrentStage is not powerful enough to make this
+-- unnecessary as it does not affect parser aliases.
+@[builtinTactic group] def evalGroup : Tactic := fun stx =>
+  evalTactic stx[0]
 
 end Lean.Elab.Tactic

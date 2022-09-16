@@ -32,7 +32,7 @@ where
 
 abbrev ToExprM := ReaderT Nat $ StateM LevelMap
 
-private abbrev mkLambdaM (params : Array Param) (e : Expr) : ToExprM Expr :=
+abbrev mkLambdaM (params : Array Param) (e : Expr) : ToExprM Expr :=
   return go (← read) (← get) params.size e
 where
   go (offset : Nat) (m : LevelMap) (i : Nat) (e : Expr) : Expr :=
@@ -43,11 +43,14 @@ where
    else
      e
 
-@[inline] private def _root_.Lean.FVarId.toExprM (fvarId : FVarId) : ToExprM Expr :=
+private abbrev _root_.Lean.FVarId.toExprM (fvarId : FVarId) : ToExprM Expr :=
   return fvarId.toExpr (← read) (← get)
 
-@[inline] private def _root_.Lean.Expr.abstractM (e : Expr) : ToExprM Expr :=
+private abbrev _root_.Lean.Expr.abstractM (e : Expr) : ToExprM Expr :=
   return e.abstract' (← read) (← get)
+
+abbrev abstractM (e : Expr) : ToExprM Expr :=
+  e.abstractM
 
 @[inline] def withFVar (fvarId : FVarId) (k : ToExprM α) : ToExprM α := do
   let offset ← read

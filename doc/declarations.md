@@ -7,27 +7,27 @@ Declaration Names
 
 A declaration name is a hierarchical [identifier](lexical_structure.md#identifiers) that is interpreted relative to the current namespace as well as (during lookup) to the set of open namespaces.
 
-.. code-block:: lean
+```lean
+namespace A
+  opaque B.c : Nat
+  #print B.c -- opaque A.B.c : Nat
+end A
 
-   namespace a
-     constant b.c : Nat
-     #print b.c -- constant a.b.c : Nat
-   end a
-
-   #print a.b.c -- constant a.b.c : Nat
-   open a
-   #print b.c -- constant a.b.c : Nat
+#print A.B.c -- opaque A.B.c : Nat
+open A
+#print B.c -- opaque A.B.c : Nat
+```
 
 Declaration names starting with an underscore are reserved for internal use. Names starting with the special atomic name ``_root_`` are interpreted as absolute names.
 
-.. code-block:: lean
-
-   constant a : Nat
-   namespace a
-     constant a : Int
-     #print _root_.a -- constant a : Nat
-     #print a.a      -- constant a.a : Int
-   end a
+```lean
+opaque a : Nat
+namespace A
+  opaque a : Int
+  #print _root_.a -- opaque a : Nat
+  #print A.a      -- opaque A.a : Int
+end A
+```
 
 Contexts and Telescopes
 =======================
@@ -53,10 +53,10 @@ def f (a b : Nat) : Nat → Nat := fun c => a + (b + c)
 
 Here the expression ``fun c => a + (b + c)`` is elaborated in the context ``(a : Nat) (b : Nat)`` and the expression ``a + (b + c)`` is elaborated in the context ``(a : Nat) (b : Nat) (c : Nat)``. If you replace the expression ``a + (b + c)`` with an underscore, the error message from Lean will include the current *goal*:
 
-.. code-block:: text
-
-   a b c : Nat
-   ⊢ Nat
+```
+a b c : Nat
+⊢ Nat
+```
 
 Here ``a b c : Nat`` indicates the local context, and the second ``Nat`` indicates the expected type of the result.
 
@@ -155,76 +155,76 @@ Under the propositions-as-type correspondence, when ``C x`` is an element of ``P
 
 The eliminator and constructors satisfy the following identities, in which all the arguments are shown explicitly. Suppose we set ``F := foo.rec a C f₁ ... fₙ``. Then for each constructor, we have the definitional reduction:
 
-.. code-block :: text
-
-   F (constructorᵢ a b) = fᵢ b ... (fun d : δᵢⱼ => F (bⱼ d)) ...
+```
+F (constructorᵢ a b) = fᵢ b ... (fun d : δᵢⱼ => F (bⱼ d)) ...
+```
 
 where the ellipses include one entry for each recursive argument.
 
 Below are some common examples of inductive types, many of which are defined in the core library.
 
-.. code-block:: lean
+```lean
+namespace Hide
+universe u v
 
-  namespace Hide
-  universe u v
+-- BEGIN
+inductive Empty : Type
 
-  -- BEGIN
-  inductive Empty : Type
+inductive Unit : Type
+| unit : Unit
 
-  inductive Unit : Type
-  | unit : Unit
+inductive Bool : Type
+| false : Bool
+| true : Bool
 
-  inductive Bool : Type
-  | false : Bool
-  | true : Bool
+inductive Prod (α : Type u) (β : Type v) : Type (max u v)
+| mk : α → β → Prod α β
 
-  inductive Prod (α : Type u) (β : Type v) : Type (max u v)
-  | mk : α → β → Prod α β
+inductive Sum (α : Type u) (β : Type v)
+| inl : α → Sum α β
+| inr : β → Sum α β
 
-  inductive Sum (α : Type u) (β : Type v)
-  | inl : α → Sum α β
-  | inr : β → Sum α β
+inductive Sigma (α : Type u) (β : α → Type v)
+| mk : (a : α) → β a → Sigma α β
 
-  inductive Sigma (α : Type u) (β : α → Type v)
-  | mk : (a : α) → β a → Sigma α β
+inductive false : Prop
 
-  inductive false : Prop
+inductive True : Prop
+| trivial : True
 
-  inductive True : Prop
-  | trivial : True
+inductive And (p q : Prop) : Prop
+| intro : p → q → And p q
 
-  inductive And (p q : Prop) : Prop
-  | intro : p → q → And p q
+inductive Or (p q : Prop) : Prop
+| inl : p → Or p q
+| inr : q → Or p q
 
-  inductive Or (p q : Prop) : Prop
-  | inl : p → Or p q
-  | inr : q → Or p q
+inductive Exists (α : Type u) (p : α → Prop) : Prop
+| intro : ∀ x : α, p x → Exists α p
 
-  inductive Exists (α : Type u) (p : α → Prop) : Prop
-  | intro : ∀ x : α, p x → Exists α p
+inductive Subtype (α : Type u) (p : α → Prop) : Type u
+| intro : ∀ x : α, p x → Subtype α p
 
-  inductive Subtype (α : Type u) (p : α → Prop) : Type u
-  | intro : ∀ x : α, p x → Subtype α p
+inductive Nat : Type
+| zero : Nat
+| succ : Nat → Nat
 
-  inductive Nat : Type
-  | zero : Nat
-  | succ : Nat → Nat
+inductive List (α : Type u)
+| nil : List α
+| cons : α → List α → List α
 
-  inductive List (α : Type u)
-  | nil : List α
-  | cons : α → List α → List α
+-- full binary tree with nodes and leaves labeled from α
+inductive BinTree (α : Type u)
+| leaf : α → BinTree α
+| node : BinTree α → α → BinTree α → BinTree α
 
-  -- full binary tree with nodes and leaves labeled from α
-  inductive BinTree (α : Type u)
-  | leaf : α → BinTree α
-  | node : BinTree α → α → BinTree α → BinTree α
-
-  -- every internal node has subtrees indexed by Nat
-  inductive CBT (α : Type u)
-  | leaf : α → CBT α
-  | node : (Nat → CBT α) → CBT α
-  -- END
-  end hide
+-- every internal node has subtrees indexed by Nat
+inductive CBT (α : Type u)
+| leaf : α → CBT α
+| node : (Nat → CBT α) → CBT α
+-- END
+end Hide
+```
 
 Note that in the syntax of the inductive definition ``Foo``, the context ``(a : α)`` is left implicit. In other words, constructors and recursive arguments are written as though they have return type ``Foo`` rather than ``Foo a``.
 
@@ -234,33 +234,33 @@ There are restrictions on the universe ``u`` in the return type ``Sort u`` of th
 
 Lean allows some additional syntactic conveniences. You can omit the return type of the type former, ``Sort u``, in which case Lean will infer the minimal possible nonzero value for ``u``. As with function definitions, you can list arguments to the constructors before the colon. In an enumerated type (that is, one where the constructors have no arguments), you can also leave out the return type of the constructors.
 
-.. code-block:: lean
+```lean
+namespace Hide
+universe u
 
-  namespace Hide
-  universe u
+-- BEGIN
+inductive Weekday
+| sunday | monday | tuesday | wednesday
+| thursday | friday | saturday
 
-  -- BEGIN
-  inductive Weekday
-  | sunday | monday | tuesday | wednesday
-  | thursday | friday | saturday
+inductive Nat
+| zero
+| succ (n : Nat) : Nat
 
-  inductive Nat
-  | zero
-  | succ (n : Nat) : Nat
+inductive List (α : Type u)
+| nil : List α
+| cons (a : α) (l : List α) : List α
 
-  inductive List (α : Type u)
-  | nil : List α
-  | cons (a : α) (l : List α) : List α
+@[matchPattern]
+def List.nil' (α : Type u) : List α := List.nil
 
-  @[matchPattern]
-  def List.nil' (α : Type u) : List α := List.nil
+def length {α : Type u} : List α → Nat
+| (List.nil' _) => 0
+| (List.cons a l) => 1 + length l
+-- END
 
-  def length {α : Type u} : List α → Nat
-  | (List.nil' _) => 0
-  | (List.cons a l) => 1 + length l
-  -- END
-
-  end Hide
+end Hide
+```
 
 The type former, constructors, and eliminator are all part of Lean's axiomatic foundation, which is to say, they are part of the trusted kernel. In addition to these axiomatically declared constants, Lean automatically defines some additional objects in terms of these, and adds them to the environment. These include the following:
 
@@ -272,33 +272,33 @@ The type former, constructors, and eliminator are all part of Lean's axiomatic f
 
 Note that it is common to put definitions and theorems related to a datatype ``foo`` in a namespace of the same name. This makes it possible to use projection notation described in [Structures](struct.md#structures) and [Namespaces](namespaces.md#namespaces).
 
-.. code-block:: lean
+```lean
+namespace Hide
+universe u
 
-  namespace Hide
-  universe u
+-- BEGIN
+inductive Nat
+| zero
+| succ (n : Nat) : Nat
 
-  -- BEGIN
-  inductive Nat
-  | zero
-  | succ (n : Nat) : Nat
+#check Nat
+#check @Nat.rec
+#check Nat.zero
+#check Nat.succ
 
-  #check Nat
-  #check @Nat.rec
-  #check Nat.zero
-  #check Nat.succ
+#check @Nat.recOn
+#check @Nat.casesOn
+#check @Nat.noConfusionType
+#check @Nat.noConfusion
+#check @Nat.brecOn
+#check Nat.below
+#check Nat.ibelow
+#check Nat._sizeOf_1
 
-  #check @Nat.recOn
-  #check @Nat.casesOn
-  #check @Nat.noConfusionType
-  #check @Nat.noConfusion
-  #check @Nat.brecOn
-  #check Nat.below
-  #check Nat.ibelow
-  #check Nat._sizeOf_1
+-- END
 
-  -- END
-
-  end Hide
+end Hide
+```
 
 .. _inductive_families:
 
@@ -307,13 +307,13 @@ Inductive Families
 
 In fact, Lean implements a slight generalization of the inductive types described in the previous section, namely, inductive *families*. The declaration of an inductive family in Lean has the following form:
 
-.. code-block:: text
-
-   inductive Foo (a : α) : Π (c : γ), Sort u
-   | constructor₁ : Π (b : β₁), Foo t₁
-   | constructor₂ : Π (b : β₂), Foo t₂
-   ...
-   | constructorₙ : Π (b : βₙ), Foo tₙ
+```
+inductive Foo (a : α) : Π (c : γ), Sort u
+| constructor₁ : Π (b : β₁), Foo t₁
+| constructor₂ : Π (b : β₂), Foo t₂
+...
+| constructorₙ : Π (b : βₙ), Foo tₙ
+```
 
 Here ``(a : α)`` is a context, ``(c : γ)`` is a telescope in context ``(a : α)``, each ``(b : βᵢ)`` is a telescope in the context ``(a : α)`` together with ``(Foo : Π (c : γ), Sort u)`` subject to the constraints below, and each ``tᵢ`` is a tuple of terms in the context ``(a : α) (b : βᵢ)`` having the types ``γ``. Instead of defining a single inductive type ``Foo a``, we are now defining a family of types ``Foo a c`` indexed by elements ``c : γ``.  Each constructor, ``constructorᵢ``, places its result in the type ``Foo a tᵢ``, the member of the family with index ``tᵢ``.
 
@@ -343,34 +343,34 @@ The declaration of the type ``Foo`` as above results in the addition of the foll
 
 Suppose we set ``F := Foo.rec a C f₁ ... fₙ``. Then for each constructor, we have the definitional reduction, as before:
 
-.. code-block :: text
-
-   F (constructorᵢ a b) = fᵢ b ... (fun d : δᵢⱼ => F (bⱼ d)) ...
+```
+F (constructorᵢ a b) = fᵢ b ... (fun d : δᵢⱼ => F (bⱼ d)) ...
+```
 
 where the ellipses include one entry for each recursive argument.
 
 The following are examples of inductive families.
 
-.. code-block:: lean
+```lean
+namespace Hide
+universe u
 
-  namespace Hide
-  universe u
+-- BEGIN
+inductive Vector (α : Type u) : Nat → Type u
+| nil  : Vector 0
+| succ : Π n, Vector n → Vector (n + 1)
 
-  -- BEGIN
-  inductive Vector (α : Type u) : Nat → Type u
-  | nil  : Vector 0
-  | succ : Π n, Vector n → Vector (n + 1)
+-- 'IsProd s n' means n is a product of elements of s
+inductive IsProd (s : Set Nat) : Nat → Prop
+| base : ∀ n ∈ s, IsProd n
+| step : ∀ m n, IsProd m → IsProd n → IsProd (m * n)
 
-  -- 'IsProd s n' means n is a product of elements of s
-  inductive IsProd (s : Set Nat) : Nat → Prop
-  | base : ∀ n ∈ s, IsProd n
-  | step : ∀ m n, IsProd m → IsProd n → IsProd (m * n)
+inductive Eq {α : Sort u} (a : α) : α → Prop
+| refl : Eq a
+-- END
 
-  inductive Eq {α : Sort u} (a : α) : α → Prop
-  | refl : Eq a
-  -- END
-
-  end Hide
+end Hide
+```
 
 We can now describe the constraints on the return type of the type former, ``Sort u``. We can always take ``u`` to be ``0``, in which case we are defining an inductive family of propositions. If ``u`` is nonzero, however, it must satisfy the following constraint: for each type ``βᵢⱼ : Sort v`` occurring in the constructors, we must have ``u ≥ v``. In the set-theoretic interpretation, this ensures that the universe in which the resulting type resides is large enough to contain the inductively generated family, given the number of distinctly-labeled constructors. The restriction does not hold for inductively defined propositions, since these contain no data.
 
@@ -385,23 +385,23 @@ Lean supports two generalizations of the inductive families described above, nam
 
 The first generalization allows for multiple inductive types to be defined simultaneously.
 
-.. code-block:: text
+```
+mutual
 
-   mutual
+inductive Foo (a : α) : Π (c : γ₁), Sort u
+| constructor₁₁ : Π (b : β₁₁), Foo a t₁₁
+| constructor₁₂ : Π (b : β₁₂), Foo a t₁₂
+...
+| constructor₁ₙ : Π (b : β₁ₙ), Foo a t₁ₙ
 
-   inductive Foo (a : α) : Π (c : γ₁), Sort u
-   | constructor₁₁ : Π (b : β₁₁), Foo a t₁₁
-   | constructor₁₂ : Π (b : β₁₂), Foo a t₁₂
-   ...
-   | constructor₁ₙ : Π (b : β₁ₙ), Foo a t₁ₙ
+inductive Bar (a : α) : Π (c : γ₂), Sort u
+| constructor₂₁ : Π (b : β₂₁), Bar a t₂₁
+| constructor₂₂ : Π (b : β₂₂), Bar a t₂₂
+...
+| constructor₂ₘ : Π (b : β₂ₘ), Bar a t₂ₘ
 
-   inductive Bar (a : α) : Π (c : γ₂), Sort u
-   | constructor₂₁ : Π (b : β₂₁), Bar a t₂₁
-   | constructor₂₂ : Π (b : β₂₂), Bar a t₂₂
-   ...
-   | constructor₂ₘ : Π (b : β₂ₘ), Bar a t₂ₘ
-
-   end
+end
+```
 
 Here the syntax is shown for defining two inductive families, ``Foo`` and ``Bar``, but any number is allowed. The restrictions are almost the same as for ordinary inductive families. For example, each ``(b : βᵢⱼ)`` is a telescope relative to the context ``(a : α)``. The difference is that the constructors can now have recursive arguments whose return types are any of the inductive families currently being defined, in this case ``Foo`` and ``Bar``. Note that all of the inductive definitions share the same parameters ``(a : α)``, though they may have different indices.
 
@@ -411,24 +411,24 @@ The second generalization relaxes the restriction that in the recursive definiti
 
 A nested inductive definition is compiled down to an ordinary inductive definition using a mutual inductive definition to define copies of all the nested types simultaneously. Lean then constructs isomorphisms between the mutually defined nested types and their independently defined counterparts. Once again, the internal details are not meant to be manipulated by users. Rather, the type former and constructors are made available and work as expected, while an appropriate ``sizeOf`` measure is generated for use with well-founded recursion.
 
-.. code-block:: lean
+```lean
+universe u
+-- BEGIN
+mutual
+inductive Even : Nat → Prop
+| even_zero : Even 0
+| even_succ : ∀ n, Odd n → Even (n + 1)
+inductive Odd : Nat → Prop
+| odd_succ : ∀ n, Even n → Odd (n + 1)
+end
 
-    universe u
-    -- BEGIN
-    mutual
-    inductive Even : Nat → Prop
-    | even_zero : Even 0
-    | even_succ : ∀ n, Odd n → Even (n + 1)
-    inductive Odd : Nat → Prop
-    | odd_succ : ∀ n, Even n → Odd (n + 1)
-    end
+inductive Tree (α : Type u)
+| mk : α → List (Tree α) → Tree α
 
-    inductive Tree (α : Type u)
-    | mk : α → List (Tree α) → Tree α
-
-    inductive DoubleTree (α : Type u)
-    | mk : α → List (DoubleTree α) × List (DoubleTree α) → DoubleTree α
-    -- END
+inductive DoubleTree (α : Type u)
+| mk : α → List (DoubleTree α) × List (DoubleTree α) → DoubleTree α
+-- END
+```
 
 .. _the_equation_compiler:
 
@@ -437,12 +437,12 @@ The Equation Compiler
 
 The equation compiler takes an equational description of a function or proof and tries to define an object meeting that specification. It expects input with the following syntax:
 
-.. code-block:: text
-
-    def foo (a : α) : Π (b : β), γ
-    | [patterns₁] => t₁
-    ...
-    | [patternsₙ] => tₙ
+```
+def foo (a : α) : Π (b : β), γ
+| [patterns₁] => t₁
+...
+| [patternsₙ] => tₙ
+```
 
 Here ``(a : α)`` is a telescope, ``(b : β)`` is a telescope in the context ``(a : α)``, and ``γ`` is an expression in the context ``(a : α) (b : β)`` denoting a ``Type`` or a ``Prop``.
 
@@ -461,156 +461,156 @@ When identifiers are marked with the ``[matchPattern]`` attribute, the equation 
 
 For a nonrecursive definition involving case splits, the defining equations will hold definitionally. With inductive types like ``Char``, ``String``, and ``Fin n``, a case split would produce definitions with an inordinate number of cases. To avoid this, the equation compiler uses ``if ... then ... else`` instead of ``casesOn`` when defining the function. In this case, the defining equations hold definitionally as well.
 
-.. code-block:: lean
+```lean
+open Nat
 
-    open Nat
+def sub2 : Nat → Nat
+| zero          => 0
+| succ zero     => 0
+| succ (succ a) => a
 
-    def sub2 : Nat → Nat
-    | zero          => 0
-    | succ zero     => 0
-    | succ (succ a) => a
+def bar : Nat → List Nat → Bool → Nat
+| 0,   _,      false => 0
+| 0,   b :: _, _     => b
+| 0,   [],     true  => 7
+| a+1, [],     false => a
+| a+1, [],     true  => a + 1
+| a+1, b :: _, _     => a + b
 
-    def bar : Nat → List Nat → Bool → Nat
-    | 0,   _,      false => 0
-    | 0,   b :: _, _     => b
-    | 0,   [],     true  => 7
-    | a+1, [],     false => a
-    | a+1, [],     true  => a + 1
-    | a+1, b :: _, _     => a + b
-
-    def baz : Char → Nat
-    | 'A' => 1
-    | 'B' => 2
-    | _   => 3
+def baz : Char → Nat
+| 'A' => 1
+| 'B' => 2
+| _   => 3
+```
 
 If any of the terms ``tᵢ`` in the template above contain a recursive call to ``foo``, the equation compiler tries to interpret the definition as a structural recursion. In order for that to succeed, the recursive arguments must be subterms of the corresponding arguments on the left-hand side. The function is then defined using a *course of values* recursion, using automatically generated functions ``below`` and ``brec`` in the namespace corresponding to the inductive type of the recursive argument. In this case the defining equations hold definitionally, possibly with additional case splits.
 
-.. code-block:: lean
+```lean
+namespace Hide
 
-    namespace Hide
+-- BEGIN
+def fib : Nat → Nat
+| 0     => 1
+| 1     => 1
+| (n+2) => fib (n+1) + fib n
 
-    -- BEGIN
-    def fib : Nat → Nat
-    | 0     => 1
-    | 1     => 1
-    | (n+2) => fib (n+1) + fib n
+def append {α : Type} : List α → List α → List α
+| [],   l => l
+| h::t, l => h :: append t l
 
-    def append {α : Type} : List α → List α → List α
-    | [],   l => l
-    | h::t, l => h :: append t l
+example : append [(1 : Nat), 2, 3] [4, 5] = [1, 2, 3, 4, 5] => rfl
+-- END
 
-    example : append [(1 : Nat), 2, 3] [4, 5] = [1, 2, 3, 4, 5] => rfl
-    -- END
-
-    end Hide
+end Hide
+```
 
 If structural recursion fails, the equation compiler falls back on well-founded recursion. It tries to infer an instance of ``SizeOf`` for the type of each argument, and then show that each recursive call is decreasing under the lexicographic order of the arguments with respect to ``sizeOf`` measure. If it fails, the error message provides information as to the goal that Lean tried to prove. Lean uses information in the local context, so you can often provide the relevant proof manually using ``have`` in the body of the definition. In this case of well-founded recursion, the defining equations hold only propositionally, and can be accessed using ``simp`` and ``rewrite`` with the name ``foo``.
 
-.. code-block:: lean
+```lean
+namespace Hide
+open Nat
 
-    namespace Hide
-    open Nat
+-- BEGIN
+def div : Nat → Nat → Nat
+| x, y =>
+  if h : 0 < y ∧ y ≤ x then
+    have : x - y < x :=
+      sub_lt (Nat.lt_of_lt_of_le h.left h.right) h.left
+    div (x - y) y + 1
+  else
+    0
 
-    -- BEGIN
-    def div : Nat → Nat → Nat
-    | x, y =>
-      if h : 0 < y ∧ y ≤ x then
-        have : x - y < x :=
-          sub_lt (Nat.lt_of_lt_of_le h.left h.right) h.left
-        div (x - y) y + 1
-      else
-        0
+example (x y : Nat) :
+  div x y = if 0 < y ∧ y ≤ x then div (x - y) y + 1 else 0 :=
+by rw [div]; rfl
+-- END
 
-    example (x y : Nat) :
-      div x y = if 0 < y ∧ y ≤ x then div (x - y) y + 1 else 0 :=
-    by rw [div]; rfl
-    -- END
-
-    end Hide
+end Hide
+```
 
 Note that recursive definitions can in general require nested recursions, that is, recursion on different arguments of ``foo`` in the template above. The equation compiler handles this by abstracting later arguments, and recursively defining higher-order functions to meet the specification.
 
 The equation compiler also allows mutual recursive definitions, with a syntax similar to that of [Mutual and Nested Inductive Definitions](#mutual-and-nested-inductive-definitions). They are compiled using well-founded recursion, and so once again the defining equations hold only propositionally.
 
-.. code-block:: lean
+```lean
+mutual
+def even : Nat → Bool
+| 0   => true
+| a+1 => odd a
+def odd : Nat → Bool
+| 0   => false
+| a+1 => even a
+end
 
-    mutual
-    def even : Nat → Bool
-    | 0   => true
-    | a+1 => odd a
-    def odd : Nat → Bool
-    | 0   => false
-    | a+1 => even a
-    end
+example (a : Nat) : even (a + 1) = odd a :=
+by simp [even]
 
-    example (a : Nat) : even (a + 1) = odd a :=
-    by simp [even]
-
-    example (a : Nat) : odd (a + 1) = even a :=
-    by simp [odd]
+example (a : Nat) : odd (a + 1) = even a :=
+by simp [odd]
+```
 
 Well-founded recursion is especially useful with [Mutual and Nested Inductive Definitions](#mutual-and-nested-inductive-definitions), since it provides the canonical way of defining functions on these types.
 
-.. code-block:: lean
+```lean
+mutual
+inductive Even : Nat → Prop
+| even_zero : Even 0
+| even_succ : ∀ n, Odd n → Even (n + 1)
+inductive Odd : Nat → Prop
+| odd_succ : ∀ n, Even n → Odd (n + 1)
+end
 
-    mutual
-    inductive Even : Nat → Prop
-    | even_zero : Even 0
-    | even_succ : ∀ n, Odd n → Even (n + 1)
-    inductive Odd : Nat → Prop
-    | odd_succ : ∀ n, Even n → Odd (n + 1)
-    end
+open Even Odd
 
-    open Even Odd
+theorem not_odd_zero : ¬ Odd 0 := fun x => nomatch x
 
-    theorem not_odd_zero : ¬ Odd 0 := fun x => nomatch x
+mutual
+theorem even_of_odd_succ : ∀ n, Odd (n + 1) → Even n
+| _, odd_succ n h => h
+theorem odd_of_even_succ : ∀ n, Even (n + 1) → Odd n
+| _, even_succ n h => h
+end
 
-    mutual
-    theorem even_of_odd_succ : ∀ n, Odd (n + 1) → Even n
-    | _, odd_succ n h => h
-    theorem odd_of_even_succ : ∀ n, Even (n + 1) → Odd n
-    | _, even_succ n h => h
-    end
+inductive Term
+| const : String → Term
+| app   : String → List Term → Term
 
-    inductive Term
-    | const : String → Term
-    | app   : String → List Term → Term
+open Term
 
-    open Term
-
-    mutual
-    def num_consts : Term → Nat
-    | .const n  => 1
-    | .app n ts => num_consts_lst ts
-    def num_consts_lst : List Term → Nat
-    | []    => 0
-    | t::ts => num_consts t + num_consts_lst ts
-    end
+mutual
+def num_consts : Term → Nat
+| .const n  => 1
+| .app n ts => num_consts_lst ts
+def num_consts_lst : List Term → Nat
+| []    => 0
+| t::ts => num_consts t + num_consts_lst ts
+end
+```
 
 The case where patterns are matched against an argument whose type is an inductive family is known as *dependent pattern matching*. This is more complicated, because the type of the function being defined can impose constraints on the patterns that are matched. In this case, the equation compiler will detect inconsistent cases and rule them out.
 
-.. code-block:: lean
+```lean
+universe u
 
-    universe u
+inductive Vector (α : Type u) : Nat → Type u
+| nil  : Vector α 0
+| cons : α → Vector α n → Vector α (n+1)
 
-    inductive Vector (α : Type u) : Nat → Type u
-    | nil  : Vector α 0
-    | cons : α → Vector α n → Vector α (n+1)
+namespace Vector
 
-    namespace Vector
+def head {α : Type} : Vector α (n+1) → α
+| cons h t => h
 
-    def head {α : Type} : Vector α (n+1) → α
-    | cons h t => h
+def tail {α : Type} : Vector α (n+1) → Vector α n
+| cons h t => t
 
-    def tail {α : Type} : Vector α (n+1) → Vector α n
-    | cons h t => t
+def map {α β γ : Type} (f : α → β → γ) :
+  ∀ {n}, Vector α n → Vector β n → Vector γ n
+| 0,   nil,       nil       => nil
+| n+1, cons a va, cons b vb => cons (f a b) (map f va vb)
 
-    def map {α β γ : Type} (f : α → β → γ) :
-      ∀ {n}, Vector α n → Vector β n → Vector γ n
-    | 0,   nil,       nil       => nil
-    | n+1, cons a va, cons b vb => cons (f a b) (map f va vb)
-
-    end Vector
+end Vector
+```
 
 .. _match_expressions:
 
@@ -619,41 +619,41 @@ Match Expressions
 
 Lean supports a ``match ... with ...`` construct similar to ones found in most functional programming languages. The syntax is as follows:
 
-.. code-block:: text
-
-    match t₁, ..., tₙ with
-    | p₁₁, ..., p₁ₙ => s₁
-    ...
-    | pₘ₁, ..., pₘₙ => sₘ
+```
+match t₁, ..., tₙ with
+| p₁₁, ..., p₁ₙ => s₁
+...
+| pₘ₁, ..., pₘₙ => sₘ
+```
 
 Here ``t₁, ..., tₙ`` are any terms in the context in which the expression appears, the expressions ``pᵢⱼ`` are patterns, and the terms ``sᵢ`` are expressions in the local context together with variables introduced by the patterns on the left-hand side. Each ``sᵢ`` should have the expected type of the entire ``match`` expression.
 
 Any ``match`` expression is interpreted using the equation compiler, which generalizes ``t₁, ..., tₙ``, defines an internal function meeting the specification, and then applies it to ``t₁, ..., tₙ``. In contrast to the definitions in [The Equation Compiler](declarations.md#the-equation-compiler), the terms ``tᵢ`` are arbitrary terms rather than just variables, and the expression can occur anywhere within a Lean expression, not just at the top level of a definition. Note that the syntax here is somewhat different: both the terms ``tᵢ`` and the patterns ``pᵢⱼ`` are separated by commas.
 
-.. code-block:: lean
-
-    def foo (n : Nat) (b c : Bool) :=
-    5 + match n - 5, b && c with
-        | 0,   true  => 0
-        | m+1, true  => m + 7
-        | 0,   false => 5
-        | m+1, false => m + 3
+```lean
+def foo (n : Nat) (b c : Bool) :=
+5 + match n - 5, b && c with
+    | 0,   true  => 0
+    | m+1, true  => m + 7
+    | 0,   false => 5
+    | m+1, false => m + 3
+```
 
 When a ``match`` has only one line, Lean provides alternative syntax with a destructuring ``let``, as well as a destructuring lambda abstraction. Thus the following definitions all have the same net effect.
 
-.. code-block:: lean
+```lean
+def bar₁ : Nat × Nat → Nat
+| (m, n) => m + n
 
-    def bar₁ : Nat × Nat → Nat
-    | (m, n) => m + n
+def bar₂ (p : Nat × Nat) : Nat :=
+match p with | (m, n) => m + n
 
-    def bar₂ (p : Nat × Nat) : Nat :=
-    match p with | (m, n) => m + n
+def bar₃ : Nat × Nat → Nat :=
+fun ⟨m, n⟩ => m + n
 
-    def bar₃ : Nat × Nat → Nat :=
-    fun ⟨m, n⟩ => m + n
-
-    def bar₄ (p : Nat × Nat) : Nat :=
-    let ⟨m, n⟩ := p; m + n
+def bar₄ (p : Nat × Nat) : Nat :=
+let ⟨m, n⟩ := p; m + n
+```
 
 Information about the term being matched can be preserved in each branch using the syntax `match h : t with`. For example, a user may want to match a term `ns ++ ms : List Nat`, while tracking the hypothesis `ns ++ ms = []` or `ns ++ ms= h :: t` in the respective match arm:
 
@@ -676,10 +676,10 @@ Structures and Records
 
 The ``structure`` command in Lean is used to define an inductive data type with a single constructor and to define its projections at the same time. The syntax is as follows:
 
-.. code-block:: text
-
-    structure Foo (a : α) extends Bar, Baz : Sort u :=
-    constructor :: (field₁ : β₁) ... (fieldₙ : βₙ)
+```
+structure Foo (a : α) extends Bar, Baz : Sort u :=
+constructor :: (field₁ : β₁) ... (fieldₙ : βₙ)
+```
 
 Here ``(a : α)`` is a telescope, that is, the parameters to the inductive definition. The name ``constructor`` followed by the double colon is optional; if it is not present, the name ``mk`` is used by default. The keyword ``extends`` followed by a list of previously defined structures is also optional; if it is present, an instance of each of these structures is included among the fields to ``Foo``, and the types ``βᵢ`` can refer to their fields as well. The output type, ``Sort u``, can be omitted, in which case Lean infers to smallest non-``Prop`` sort possible. Finally, ``(field₁ : β₁) ... (fieldₙ : βₙ)`` is a telescope relative to ``(a : α)`` and the fields in ``bar`` and ``baz``.
 
@@ -688,10 +688,10 @@ The declaration above is syntactic sugar for an inductive type declaration, and 
 - the type former : ``Foo : Π (a : α), Sort u``
 - the single constructor :
 
-  .. code-block:: text
-
-     Foo.constructor : Π (a : α) (toBar : Bar) (toBaz : Baz)
-       (field₁ : β₁) ... (fieldₙ : βₙ), Foo a
+```
+Foo.constructor : Π (a : α) (toBar : Bar) (toBaz : Baz)
+  (field₁ : β₁) ... (fieldₙ : βₙ), Foo a
+```
 
 - the eliminator ``Foo.rec`` for the inductive type with that constructor
 
@@ -713,10 +713,10 @@ Similarly, Lean offers the following convenient syntax for constructing elements
 - *anonymous constructor*: ``⟨ b₁, b₂, f₁, ..., fₙ ⟩``
 - *record notation*:
 
-  .. code-block:: text
-
-     { toBar := b₁, toBaz := b₂, field₁ := f₁, ...,
-         fieldₙ := fₙ :  Foo a }
+```
+{ toBar := b₁, toBaz := b₂, field₁ := f₁, ...,
+    fieldₙ := fₙ :  Foo a }
+```
 
 The anonymous constructor can be used in any context where Lean can infer that the expression should have a type of the form ``Foo a``. The unicode brackets are entered as ``\<`` and ``\>`` respectively.
 
@@ -728,63 +728,63 @@ Here ``t`` is a term of type ``Foo a`` for some ``a``. The notation instructs Le
 
 Lean also allows you to specify a default value for any field in a structure by writing ``(fieldᵢ : βᵢ := t)``. Here ``t`` specifies the value to use when the field ``fieldᵢ`` is left unspecified in an instance of record notation.
 
-.. code-block:: lean
+```lean
+universe u v
 
-    universe u v
+structure Vec (α : Type u) (n : Nat) :=
+(l : List α) (h : l.length = n)
 
-    structure Vec (α : Type u) (n : Nat) :=
-    (l : List α) (h : l.length = n)
+structure Foo (α : Type u) (β : Nat → Type v) : Type (max u v) :=
+(a : α) (n : Nat) (b : β n)
 
-    structure Foo (α : Type u) (β : Nat → Type v) : Type (max u v) :=
-    (a : α) (n : Nat) (b : β n)
+structure Bar :=
+(c : Nat := 8) (d : Nat)
 
-    structure Bar :=
-    (c : Nat := 8) (d : Nat)
+structure Baz extends Foo Nat (Vec Nat), Bar :=
+(v : Vec Nat n)
 
-    structure Baz extends Foo Nat (Vec Nat), Bar :=
-    (v : Vec Nat n)
+#check Foo
+#check @Foo.mk
+#check @Foo.rec
 
-    #check Foo
-    #check @Foo.mk
-    #check @Foo.rec
+#check Foo.a
+#check Foo.n
+#check Foo.b
 
-    #check Foo.a
-    #check Foo.n
-    #check Foo.b
+#check Baz
+#check @Baz.mk
+#check @Baz.rec
 
-    #check Baz
-    #check @Baz.mk
-    #check @Baz.rec
+#check Baz.toFoo
+#check Baz.toBar
+#check Baz.v
 
-    #check Baz.toFoo
-    #check Baz.toBar
-    #check Baz.v
+def bzz := Vec.mk [1, 2, 3] rfl
 
-    def bzz := Vec.mk [1, 2, 3] rfl
+#check Vec.l bzz
+#check Vec.h bzz
+#check bzz.l
+#check bzz.h
+#check bzz.1
+#check bzz.2
 
-    #check Vec.l bzz
-    #check Vec.h bzz
-    #check bzz.l
-    #check bzz.h
-    #check bzz.1
-    #check bzz.2
+example : Vec Nat 3 := Vec.mk [1, 2, 3] rfl
+example : Vec Nat 3 := ⟨[1, 2, 3], rfl⟩
+example : Vec Nat 3 := { l := [1, 2, 3], h := rfl : Vec Nat 3 }
+example : Vec Nat 3 := { l := [1, 2, 3], h := rfl }
 
-    example : Vec Nat 3 := Vec.mk [1, 2, 3] rfl
-    example : Vec Nat 3 := ⟨[1, 2, 3], rfl⟩
-    example : Vec Nat 3 := { l := [1, 2, 3], h := rfl : Vec Nat 3 }
-    example : Vec Nat 3 := { l := [1, 2, 3], h := rfl }
+example : Foo Nat (Vec Nat) := ⟨1, 3, bzz⟩
 
-    example : Foo Nat (Vec Nat) := ⟨1, 3, bzz⟩
+example : Baz := ⟨⟨1, 3, bzz⟩, ⟨5, 7⟩, bzz⟩
+example : Baz := { a := 1, n := 3, b := bzz, c := 5, d := 7, v := bzz}
+def fzz : Foo Nat (Vec Nat) := {a := 1, n := 3, b := bzz}
 
-    example : Baz := ⟨⟨1, 3, bzz⟩, ⟨5, 7⟩, bzz⟩
-    example : Baz := { a := 1, n := 3, b := bzz, c := 5, d := 7, v := bzz}
-    def fzz : Foo Nat (Vec Nat) := {a := 1, n := 3, b := bzz}
+example : Foo Nat (Vec Nat) := { fzz with a := 7 }
+example : Baz := { fzz with c := 5, d := 7, v := bzz }
 
-    example : Foo Nat (Vec Nat) := { fzz with a := 7 }
-    example : Baz := { fzz with c := 5, d := 7, v := bzz }
-
-    example : Bar := { c := 8, d := 9 }
-    example : Bar := { d := 9 }  -- uses the default value for c
+example : Bar := { c := 8, d := 9 }
+example : Bar := { d := 9 }  -- uses the default value for c
+```
 
 .. _type_classes:
 

@@ -24,6 +24,8 @@ structure SubexprInfo where
   subexprPos : Lean.SubExpr.Pos
   -- TODO(WN): add fields for semantic highlighting
   -- kind : Lsp.SymbolKind
+  /-- Additional tags for rendering subexpresions. This is used for the goal-diff system. -/
+  tags?: Option (Array String) := none
   deriving Inhabited, RpcEncodable
 
 /-- Pretty-printed syntax (usually but not necessarily an `Expr`) with embedded `Info`s. -/
@@ -32,8 +34,15 @@ abbrev CodeWithInfos := TaggedText SubexprInfo
 def CodeWithInfos.pretty (tt : CodeWithInfos) :=
   tt.stripTags
 
+def SubexprInfo.appendTag (tag : String) (c : SubexprInfo) : SubexprInfo :=
+  {c with tags? :=
+    match c.tags? with
+    | none => #[tag]
+    | some ts => ts.push tag
+  }
+
 /-- Tags a pretty-printed `Expr` with infos from the delaborator. -/
-partial def tagExprInfos (ctx : Elab.ContextInfo) (infos : Std.RBMap Nat Elab.Info compare) (tt : TaggedText (Nat × Nat))
+partial def tagExprInfos (ctx : Elab.ContextInfo) (infos : SubExpr.PosMap Elab.Info) (tt : TaggedText (Nat × Nat))
     : CodeWithInfos :=
   go tt
 where
@@ -41,7 +50,12 @@ where
     tt.rewrite fun (n, _) subTt =>
       match infos.find? n with
       | none   => go subTt
-      | some i => TaggedText.tag ⟨WithRpcRef.mk { ctx, info := i }, n⟩ (go subTt)
+      | some i =>
+        let t : SubexprInfo := {
+          info := WithRpcRef.mk { ctx, info := i }
+          subexprPos := n
+        }
+        TaggedText.tag t (go subTt)
 
 def ppExprTagged (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := do
   let delab := open PrettyPrinter.Delaborator in

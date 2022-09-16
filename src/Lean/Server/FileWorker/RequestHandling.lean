@@ -16,6 +16,7 @@ import Lean.Server.References
 import Lean.Server.GoTo
 
 import Lean.Widget.InteractiveGoal
+import Lean.Widget.Diff
 
 namespace Lean.Server.FileWorker
 open Lsp
@@ -162,11 +163,23 @@ def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Optio
   withWaitFindSnap doc (fun s => s.endPos >= hoverPos)
     (notFoundX := return none) fun snap => do
       if let rs@(_ :: _) := snap.infoTree.goalsAt? doc.meta.text hoverPos then
-        let goals ← List.join <$> rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter, .. } =>
+        let goals : List Widget.InteractiveGoals ← rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter, .. } =>
           let ci := if useAfter then { ci with mctx := ti.mctxAfter } else { ci with mctx := ti.mctxBefore }
-          let goals := if useAfter then ti.goalsAfter else ti.goalsBefore
-          ci.runMetaM {} <| goals.mapM (fun g => Meta.withPPForTacticGoal (Widget.goalToInteractive g))
-        return some { goals := goals.toArray }
+          ci.runMetaM {} (do
+            let goals := List.toArray <| if useAfter then ti.goalsAfter else ti.goalsBefore
+            let goals ← goals.mapM (fun g => Meta.withPPForTacticGoal (Widget.goalToInteractive g))
+            let goals : Widget.InteractiveGoals := {goals}
+            if useAfter then
+              -- add a goal diff
+              try
+                Widget.diffInteractiveGoals ti.goalsBefore.toArray goals
+              catch e =>
+                let msg ← e.toMessageData.format
+                return {goals with message? := s!"internal error when diffing goals:\n{msg}"}
+            else
+              return goals
+          )
+        return some <| goals.foldl (· ++ ·) ∅
       else
         return none
 
@@ -174,7 +187,7 @@ open Elab in
 def handlePlainGoal (p : PlainGoalParams)
     : RequestM (RequestTask (Option PlainGoal)) := do
   let t ← getInteractiveGoals p
-  return t.map <| Except.map <| Option.map <| fun ⟨goals⟩ =>
+  return t.map <| Except.map <| Option.map <| fun {goals, ..} =>
     if goals.isEmpty then
       { goals := #[], rendered := "no goals" }
     else

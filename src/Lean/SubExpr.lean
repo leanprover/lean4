@@ -120,6 +120,8 @@ protected def fromString? : String → Except String Pos
 instance : Ord Pos := show Ord Nat by infer_instance
 instance : DecidableEq Pos := show DecidableEq Nat by infer_instance
 instance : ToString Pos := ⟨Pos.toString⟩
+instance : EmptyCollection Pos := ⟨root⟩
+
 
 -- Note: we can't send the bare Nat over the wire because Json will convert to float
 -- if the nat is too big and least significant bits will be lost.
@@ -149,6 +151,9 @@ def mkRoot (e : Expr) : SubExpr := ⟨e, Pos.root⟩
 
 /-- Returns true if the selected subexpression is the topmost one.-/
 def isRoot (s : SubExpr) : Bool := s.pos.isRoot
+
+/-- Map from subexpr positions to values. -/
+abbrev PosMap (α : Type u) := Std.RBMap Pos α compare
 
 end SubExpr
 

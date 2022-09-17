@@ -9,6 +9,7 @@ import Lean.Compiler.LCNF.Simp
 import Lean.Compiler.LCNF.SpecInfo
 import Lean.Compiler.LCNF.PrettyPrinter
 import Lean.Compiler.LCNF.ToExpr
+import Lean.Compiler.LCNF.Level
 
 namespace Lean.Compiler.LCNF
 namespace Specialize
@@ -259,10 +260,10 @@ Create the "key" that uniquely identifies a code specialization.
 -/
 def mkKey (params : Array Param) (decls : Array CodeDecl) (body : Expr) : CompilerM Expr := do
   let body ← expandCodeDecls decls body
-  -- TODO: normalize universe level parameters
-  return ToExpr.run do
+  let key := ToExpr.run do
     ToExpr.withParams params do
       ToExpr.mkLambdaM params (← ToExpr.abstractM body)
+  return normLevelParams key
 
 /--
 Try to specialize the function application in the given let-declaration.

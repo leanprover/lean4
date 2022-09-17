@@ -959,7 +959,15 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
       They will only be deleted in the next pass.
       -/
       if code.isFun then
-        decl ← decl.etaExpand
+        if decl.isEtaExpandCandidate then
+          /- We must apply substitution before trying to eta-expand, otherwise `inferType` may fail. -/
+          decl ← normFunDecl decl
+          /-
+          We want to eta-expand **before** trying to simplify local function declaration because
+          eta-expansion creates many optimization opportunities.
+          -/
+          decl ← decl.etaExpand
+          markSimplified
       decl ← simpFunDecl decl
     let k ← simp k
     if (← isUsed decl.fvarId) then

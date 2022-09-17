@@ -66,21 +66,29 @@ where
       else
         return ps
 
-def etaExpandCore? (type : Expr) (params : Array Param) (value : Code) : CompilerM (Option (Array Param × Code)) := do
+def isEtaExpandCandidateCore (type : Expr) (params : Array Param) : Bool :=
   let typeArity := getArrowArity type
   let valueArity := params.size
-  if typeArity <= valueArity then
-    -- It can be < because of the "any" type
-    return none
+  typeArity > valueArity
+
+abbrev FunDeclCore.isEtaExpandCandidate (decl : FunDecl) : Bool :=
+  isEtaExpandCandidateCore decl.type decl.params
+
+def etaExpandCore (type : Expr) (params : Array Param) (value : Code) : CompilerM (Array Param × Code) := do
+  let valueType ← instantiateForall type params
+  let psNew ← mkNewParams valueType
+  let params := params ++ psNew
+  let xs := psNew.map fun p => Expr.fvar p.fvarId
+  let value ← value.bind fun fvarId => do
+    let auxDecl ← mkAuxLetDecl (mkAppN (.fvar fvarId) xs)
+    return .let auxDecl (.return auxDecl.fvarId)
+  return (params, value)
+
+def etaExpandCore? (type : Expr) (params : Array Param) (value : Code) : CompilerM (Option (Array Param × Code)) := do
+  if isEtaExpandCandidateCore type params then
+    etaExpandCore type params value
   else
-    let valueType ← instantiateForall type params
-    let psNew ← mkNewParams valueType
-    let params := params ++ psNew
-    let xs := psNew.map fun p => Expr.fvar p.fvarId
-    let value ← value.bind fun fvarId => do
-      let auxDecl ← mkAuxLetDecl (mkAppN (.fvar fvarId) xs)
-      return .let auxDecl (.return auxDecl.fvarId)
-    return (params, value)
+    return none
 
 def FunDeclCore.etaExpand (decl : FunDecl) : CompilerM FunDecl := do
   let some (params, value) ← etaExpandCore? decl.type decl.params decl.value | return decl

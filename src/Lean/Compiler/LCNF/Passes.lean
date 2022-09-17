@@ -22,7 +22,7 @@ namespace Lean.Compiler.LCNF
     pullFunDecls,
     findJoinPoints,
     reduceJpArity,
-    simp { etaPoly := true, inlinePartial := true, implementedBy := true } (occurence := 1),
+    simp { etaPoly := true, inlinePartial := true, implementedBy := true } (occurrence := 1),
     specialize
   ]
 

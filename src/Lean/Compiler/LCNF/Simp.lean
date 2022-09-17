@@ -1059,8 +1059,8 @@ where
     else
       return decl
 
-def simp (config : Config := {}) (occurence : Nat := 0) : Pass :=
-  .mkPerDeclaration `simp (Decl.simp · config) .base (occurence := occurence)
+def simp (config : Config := {}) (occurrence : Nat := 0) : Pass :=
+  .mkPerDeclaration `simp (Decl.simp · config) .base (occurrence := occurrence)
 
 builtin_initialize
   registerTraceClass `Compiler.simp (inherited := true)

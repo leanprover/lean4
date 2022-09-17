@@ -92,45 +92,45 @@ private def assertAfterTest (test : SimpleTest) : TestInstallerM (Pass → Pass)
     phase := passUnderTest.phase
     name := testName
     run := fun decls => do
-      trace[Compiler.test] s!"Starting post condition test {testName} for {passUnderTest.name} occurence {passUnderTest.occurence}"
+      trace[Compiler.test] s!"Starting post condition test {testName} for {passUnderTest.name} occurrence {passUnderTest.occurrence}"
       test.run decls passUnderTest testName
-      trace[Compiler.test] s!"Post condition test {testName} for {passUnderTest.name} occurence {passUnderTest.occurence} successful"
+      trace[Compiler.test] s!"Post condition test {testName} for {passUnderTest.name} occurrence {passUnderTest.occurrence} successful"
       return decls
   }
 
 /--
-Install an assertion pass right after a specific occurence of a pass,
+Install an assertion pass right after a specific occurrence of a pass,
 default is first.
 -/
-def assertAfter (test : SimpleTest) (occurence : Nat := 0): TestInstaller := do
+def assertAfter (test : SimpleTest) (occurrence : Nat := 0): TestInstaller := do
   let passUnderTestName := (←read).passUnderTestName
   let assertion ← assertAfterTest test
-  return .installAfter passUnderTestName assertion occurence
+  return .installAfter passUnderTestName assertion occurrence
 
 /--
-Install an assertion pass right after each occurence of a pass.
+Install an assertion pass right after each occurrence of a pass.
 -/
-def assertAfterEachOccurence (test : SimpleTest) : TestInstaller := do
+def assertAfterEachOccurrence (test : SimpleTest) : TestInstaller := do
   let passUnderTestName := (←read).passUnderTestName
   let assertion ← assertAfterTest test
   return .installAfterEach passUnderTestName assertion
 
 /--
-Install an assertion pass right after a specific occurence of a pass,
+Install an assertion pass right after a specific occurrence of a pass,
 default is first. The assertion operates on a per declaration basis.
 -/
-def assertForEachDeclAfter (assertion : Pass → Decl → Bool) (msg : String) (occurence : Nat := 0) : TestInstaller :=
+def assertForEachDeclAfter (assertion : Pass → Decl → Bool) (msg : String) (occurrence : Nat := 0) : TestInstaller :=
   let assertion := do
     let pass ← getPassUnderTest
     (←getDecls).forM (fun decl => assert (assertion pass decl) msg)
-  assertAfter assertion occurence
+  assertAfter assertion occurrence
 
 /--
-Install an assertion pass right after the each occurence of a pass. The
+Install an assertion pass right after the each occurrence of a pass. The
 assertion operates on a per declaration basis.
 -/
-def assertForEachDeclAfterEachOccurence (assertion : Pass → Decl → Bool) (msg : String) : TestInstaller :=
-  assertAfterEachOccurence <| do
+def assertForEachDeclAfterEachOccurrence (assertion : Pass → Decl → Bool) (msg : String) : TestInstaller :=
+  assertAfterEachOccurrence <| do
     let pass ← getPassUnderTest
     (←getDecls).forM (fun decl => assert (assertion pass decl) msg)
 
@@ -140,32 +140,32 @@ private def assertAroundTest (test : InOutTest) : TestInstallerM (Pass → Pass)
     phase := passUnderTest.phase
     name := passUnderTest.name
     run := fun decls => do
-      trace[Compiler.test] s!"Starting wrapper test {testName} for {passUnderTest.name} occurence {passUnderTest.occurence}"
+      trace[Compiler.test] s!"Starting wrapper test {testName} for {passUnderTest.name} occurrence {passUnderTest.occurrence}"
       let newDecls ← passUnderTest.run decls
       test.run decls newDecls passUnderTest testName
-      trace[Compiler.test] s!"Wrapper test {testName} for {passUnderTest.name} occurence {passUnderTest.occurence} successful"
+      trace[Compiler.test] s!"Wrapper test {testName} for {passUnderTest.name} occurrence {passUnderTest.occurrence} successful"
       return newDecls
   }
 
 /--
-Replace a specific occurence, default is first, of a pass with a wrapper one that allows
+Replace a specific occurrence, default is first, of a pass with a wrapper one that allows
 the user to provide an assertion which takes into account both the
 declarations that were sent to and produced by the pass under test.
 -/
-def assertAround (test : InOutTest) (occurence : Nat := 0) : TestInstaller := do
+def assertAround (test : InOutTest) (occurrence : Nat := 0) : TestInstaller := do
   let passUnderTestName := (←read).passUnderTestName
   let assertion ← assertAroundTest test
-  return .replacePass passUnderTestName assertion occurence
+  return .replacePass passUnderTestName assertion occurrence
 
 /--
-Replace all occurences of a pass with a wrapper one that allows
+Replace all occurrences of a pass with a wrapper one that allows
 the user to provide an assertion which takes into account both the
 declarations that were sent to and produced by the pass under test.
 -/
-def assertAroundEachOccurence (test : InOutTest) : TestInstaller := do
+def assertAroundEachOccurrence (test : InOutTest) : TestInstaller := do
   let passUnderTestName := (←read).passUnderTestName
   let assertion ← assertAroundTest test
-  return .replaceEachOccurence passUnderTestName assertion
+  return .replaceEachOccurrence passUnderTestName assertion
 
 private def throwFixPointError (err : String) (firstResult secondResult : Array Decl) : CompilerM Unit := do
   let mut err := err
@@ -195,7 +195,7 @@ def assertIsAtFixPoint : TestInstaller :=
     else if decls != secondResult then
       let err := s!"Pass {passUnderTest.name} did not reach a fixpoint, it either changed declarations or their order:\n"
       throwFixPointError err decls secondResult
-  assertAfterEachOccurence test
+  assertAfterEachOccurrence test
 
 /--
 Compare the overall sizes of the input and output of `passUnderTest` with `assertion`.
@@ -204,7 +204,7 @@ If `assertion inputSize outputSize` is `false` throw an exception with `msg`.
 def assertSize (assertion : Nat → Nat → Bool) (msg : String) : TestInstaller :=
   let sumDeclSizes := fun decls => decls.map Decl.size |>.foldl (init := 0) (· + ·)
   let assertion := (fun inputS outputS => Testing.assert (assertion inputS outputS) s!"{msg}: input size {inputS} output size {outputS}")
-  assertAroundEachOccurence (do assertion (sumDeclSizes (←getInputDecls)) (sumDeclSizes (←getOutputDecls)))
+  assertAroundEachOccurrence (do assertion (sumDeclSizes (←getInputDecls)) (sumDeclSizes (←getOutputDecls)))
 
 /--
 Assert that the overall size of the `Decl`s in the compilation pipeline does not change
@@ -231,7 +231,7 @@ Assert that the pass under test produces `Decl`s that do not contain
 `Expr.const constName` in their `Code.let` values anymore.
 -/
 def assertDoesNotContainConstAfter (constName : Name) (msg : String) : TestInstaller :=
-  assertForEachDeclAfterEachOccurence (fun _ decl => !decl.value.containsConst constName) msg
+  assertForEachDeclAfterEachOccurrence (fun _ decl => !decl.value.containsConst constName) msg
 
 def assertNoFun : TestInstaller :=
   assertAfter do

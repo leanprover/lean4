@@ -24,6 +24,10 @@ structure Context where
   Set of let-declarations in scope that do not depend on parameters.
   -/
   ground : FVarIdSet := {}
+  /--
+  Name of the declaration being processed
+  -/
+  declName : Name
 
 structure State where
   decls : Array Decl := #[]
@@ -47,7 +51,7 @@ def isGround (e : Expr) : SpecializeM Bool := do
 @[inline] def withLetDecl (decl : LetDecl) (x : SpecializeM α) : SpecializeM α := do
   let grd ← isGround decl.value
   let fvarId := decl.fvarId
-  withReader (fun { scope, ground } => { scope := scope.insert fvarId, ground := if grd then ground.insert fvarId else ground }) x
+  withReader (fun { scope, ground, declName } => { declName, scope := scope.insert fvarId, ground := if grd then ground.insert fvarId else ground }) x
 
 namespace Collector
 /-!
@@ -265,33 +269,59 @@ def mkKey (params : Array Param) (decls : Array CodeDecl) (body : Expr) : Compil
       ToExpr.mkLambdaM params (← ToExpr.abstractM body)
   return normLevelParams key
 
-/--
-Try to specialize the function application in the given let-declaration.
-`k` is the continuation for the let-declaration.
--/
-def specializeApp? (letDecl : LetDecl) (_k : Code) : SpecializeM (Option Code) := do
-  unless letDecl.value.isApp do return none
-  let f := letDecl.value.getAppFn
-  let .const declName _us := f | return none
-  if (← Meta.isInstance declName) then return none
-  let some paramsInfo ← getSpecParamInfo? declName | return none
-  let args := letDecl.value.getAppArgs
-  unless (← shouldSpecialize paramsInfo args) do return none
-  let some _decl ← getStage1Decl? declName | return none
-  trace[Compiler.specialize.candidate] "{letDecl.value}, {paramsInfo}"
-  let (argMask, { params, decls, .. }) ← Collector.collect paramsInfo args |>.run {}
-  let keyBody := mkAppN f argMask
-  let key ← mkKey params decls keyBody
-  trace[Compiler.specialize.candidate] "key: {key}"
-  assert! !key.hasLooseBVars
-  assert! !key.hasFVar
-  trace[Compiler.specialize.candidate] "decls:  {decls.map fun | .let decl | .jp decl | .fun decl => decl.binderName}"
-  trace[Compiler.specialize.candidate] "params: {params.map fun p => p.binderName}"
-
-  -- TODO
-  return none
+open Internalize in
+def mkSpecDecl (decl : Decl) (us : List Level) (paramsInfo : Array SpecParamInfo) (params : Array Param) (decls : Array CodeDecl) (args : Array Expr) : SpecializeM Decl := do
+  let nameNew := decl.name ++ `_at_ ++ (← read).declName ++ (`spec).appendIndexAfter (← get).decls.size
+  go nameNew |>.run' {}
+where
+  go (nameNew : Name) : InternalizeM Decl := do
+    let mut params ← params.mapM internalizeParam
+    let decls ← decls.mapM internalizeCodeDecl
+    for param in decl.params, info in paramsInfo, arg in args do
+      if info matches .other then
+        -- Keep the parameter
+        let param := { param with type := param.type.instantiateLevelParams decl.levelParams us }
+        params := params.push (← internalizeParam param)
+      else
+        let arg ← normExpr arg
+        modify fun s => s.insert param.fvarId arg
+    let value := decl.instantiateValueLevelParams us
+    let value ← internalizeCode value
+    let value := attachCodeDecls decls value
+    let type ← value.inferType
+    let type ← mkForallParams params type
+    let decl := { name := nameNew, levelParams := [], params, type, value : Decl }
+    return decl.setLevelParams
 
 mutual
+  /--
+  Try to specialize the function application in the given let-declaration.
+  `k` is the continuation for the let-declaration.
+  -/
+  partial def specializeApp? (letDecl : LetDecl) (_k : Code) : SpecializeM (Option Code) := do
+    unless letDecl.value.isApp do return none
+    let f := letDecl.value.getAppFn
+    let .const declName us := f | return none
+    if (← Meta.isInstance declName) then return none
+    let some paramsInfo ← getSpecParamInfo? declName | return none
+    let args := letDecl.value.getAppArgs
+    unless (← shouldSpecialize paramsInfo args) do return none
+    let some decl ← getStage1Decl? declName | return none
+    trace[Compiler.specialize.candidate] "{letDecl.value}, {paramsInfo}"
+    let (argMask, { params, decls, .. }) ← Collector.collect paramsInfo args |>.run {}
+    let keyBody := mkAppN f argMask
+    let key ← mkKey params decls keyBody
+    trace[Compiler.specialize.candidate] "key: {key}"
+    assert! !key.hasLooseBVars
+    assert! !key.hasFVar
+    trace[Compiler.specialize.candidate] "decls:  {decls.map fun | .let decl | .jp decl | .fun decl => decl.binderName}"
+    trace[Compiler.specialize.candidate] "params: {params.map fun p => p.binderName}"
+    -- TODO: create cache and check cached results, apply `visitCode` to `specDecl`, return new application
+    let specDecl ← mkSpecDecl decl us paramsInfo params decls args
+    let specDecl ← specDecl.simp {} -- TODO: `simp` config
+    modify fun s => { s with decls := s.decls.push specDecl }
+    return none
+
   partial def visitFunDecl (funDecl : FunDecl) : SpecializeM FunDecl := do
     let value ← withParams funDecl.params <| visitCode funDecl.value
     funDecl.update' funDecl.type value
@@ -328,7 +358,7 @@ def main (decl : Decl) : SpecializeM Decl := do
 end Specialize
 
 partial def Decl.specialize (decl : Decl) : CompilerM (Array Decl) := do
-  let (decl, s) ← Specialize.main decl |>.run {} |>.run {}
+  let (decl, s) ← Specialize.main decl |>.run { declName := decl.name } |>.run {}
   return s.decls.push decl
 
 def specialize : Pass where

@@ -218,6 +218,12 @@ partial def internalizeCode (code : Code) : InternalizeM Code := do
 
 end
 
+partial def internalizeCodeDecl (decl : CodeDecl) : InternalizeM CodeDecl := do
+  match decl with
+  | .let decl => return .let (← internalizeLetDecl decl)
+  | .fun decl => return .fun (← internalizeFunDecl decl)
+  | .jp decl => return .jp (← internalizeFunDecl decl)
+
 end Internalize
 
 /--

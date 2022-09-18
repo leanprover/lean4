@@ -3372,7 +3372,7 @@ inductive SourceInfo where
   In the delaborator, we "misuse" this constructor to store synthetic positions identifying
   subterms.
   -/
-  | synthetic (pos : String.Pos) (endPos : String.Pos)
+  | synthetic (pos : String.Pos) (endPos : String.Pos) (canonical := false)
   /-- Synthesized token without position information. -/
   | protected none
 
@@ -3384,9 +3384,10 @@ namespace SourceInfo
 Gets the position information from a `SourceInfo`, if available.
 If `originalOnly` is true, then `.synthetic` syntax will also return `none`.
 -/
-def getPos? (info : SourceInfo) (originalOnly := false) : Option String.Pos :=
-  match info, originalOnly with
-  | original (pos := pos) ..,  _     => some pos
+def getPos? (info : SourceInfo) (canonicalOnly := false) : Option String.Pos :=
+  match info, canonicalOnly with
+  | original (pos := pos) ..,  _
+  | synthetic (pos := pos) (canonical := true) .., _
   | synthetic (pos := pos) .., false => some pos
   | _,                         _     => none
 
@@ -3652,30 +3653,33 @@ partial def getHeadInfo (stx : Syntax) : SourceInfo :=
 
 /--
 Get the starting position of the syntax, if possible.
-If `originalOnly` is true, `synthetic` nodes are treated as not carrying
+If `canonicalOnly` is true, non-canonical `synthetic` nodes are treated as not carrying
 position information.
 -/
-def getPos? (stx : Syntax) (originalOnly := false) : Option String.Pos :=
-  stx.getHeadInfo.getPos? originalOnly
+def getPos? (stx : Syntax) (canonicalOnly := false) : Option String.Pos :=
+  stx.getHeadInfo.getPos? canonicalOnly
 
 
 /--
 Get the ending position of the syntax, if possible.
-If `originalOnly` is true, `synthetic` nodes are treated as not carrying
+If `canonicalOnly` is true, non-canonical `synthetic` nodes are treated as not carrying
 position information.
 -/
-partial def getTailPos? (stx : Syntax) (originalOnly := false) : Option String.Pos :=
-  match stx, originalOnly with
-  | atom (SourceInfo.original (endPos := pos) ..) ..,    _    => some pos
-  | atom (SourceInfo.synthetic (endPos := pos) ..) _,  false  => some pos
-  | ident (SourceInfo.original (endPos := pos) ..) .., _      => some pos
-  | ident (SourceInfo.synthetic (endPos := pos) ..) .., false => some pos
-  | node (SourceInfo.original (endPos := pos) ..) ..,    _    => some pos
-  | node (SourceInfo.synthetic (endPos := pos) ..) .., false  => some pos
-  | node _ _ args,                                        _     =>
+partial def getTailPos? (stx : Syntax) (canonicalOnly := false) : Option String.Pos :=
+  match stx, canonicalOnly with
+  | atom (SourceInfo.original (endPos := pos) ..) .., _
+  | atom (SourceInfo.synthetic (endPos := pos) (canonical := true) ..) _, _
+  | atom (SourceInfo.synthetic (endPos := pos) ..) _,  false
+  | ident (SourceInfo.original (endPos := pos) ..) .., _
+  | ident (SourceInfo.synthetic (endPos := pos) (canonical := true) ..) .., _
+  | ident (SourceInfo.synthetic (endPos := pos) ..) .., false
+  | node (SourceInfo.original (endPos := pos) ..) .., _
+  | node (SourceInfo.synthetic (endPos := pos) (canonical := true) ..) .., _
+  | node (SourceInfo.synthetic (endPos := pos) ..) .., false => some pos
+  | node _ _ args, _ =>
     let rec loop (i : Nat) : Option String.Pos :=
       match decide (LT.lt i args.size) with
-      | true => match getTailPos? (args.get! ((args.size.sub i).sub 1)) originalOnly with
+      | true => match getTailPos? (args.get! ((args.size.sub i).sub 1)) canonicalOnly with
          | some info => some info
          | none      => loop (hAdd i 1)
       | false => none
@@ -3717,18 +3721,25 @@ unsafe def TSyntaxArray.mkImpl : Array Syntax → TSyntaxArray ks := unsafeCast
 opaque TSyntaxArray.mk (as : Array Syntax) : TSyntaxArray ks := Array.empty
 
 /-- Constructs a synthetic `SourceInfo` using a `ref : Syntax` for the span. -/
-def SourceInfo.fromRef (ref : Syntax) : SourceInfo :=
-  match ref.getPos?, ref.getTailPos? with
-  | some pos, some tailPos => SourceInfo.synthetic pos tailPos
-  | _,        _            => SourceInfo.none
+def SourceInfo.fromRef (ref : Syntax) (canonical := false) : SourceInfo :=
+  let noncanonical ref :=
+    match ref.getPos?, ref.getTailPos? with
+    | some pos, some tailPos => .synthetic pos tailPos
+    | _,        _            => .none
+  match canonical with
+  | true =>
+    match ref.getPos? true, ref.getTailPos? true with
+    | some pos, some tailPos => .synthetic pos tailPos true
+    | _,        _            => noncanonical ref
+  | false => noncanonical ref
 
 /-- Constructs a synthetic `atom` with no source info. -/
 def mkAtom (val : String) : Syntax :=
   Syntax.atom SourceInfo.none val
 
 /-- Constructs a synthetic `atom` with source info coming from `src`. -/
-def mkAtomFrom (src : Syntax) (val : String) : Syntax :=
-  Syntax.atom (SourceInfo.fromRef src) val
+def mkAtomFrom (src : Syntax) (val : String) (canonical := false) : Syntax :=
+  Syntax.atom (SourceInfo.fromRef src canonical) val
 
 /-! # Parser descriptions -/
 

@@ -503,23 +503,23 @@ partial def expandMacros (stx : Syntax) (p : SyntaxNodeKind → Bool := fun k =>
 /--
   Create an identifier copying the position from `src`.
   To refer to a specific constant, use `mkCIdentFrom` instead. -/
-def mkIdentFrom (src : Syntax) (val : Name) : Ident :=
-  ⟨Syntax.ident (SourceInfo.fromRef src) (toString val).toSubstring val []⟩
+def mkIdentFrom (src : Syntax) (val : Name) (canonical := false) : Ident :=
+  ⟨Syntax.ident (SourceInfo.fromRef src canonical) (toString val).toSubstring val []⟩
 
-def mkIdentFromRef [Monad m] [MonadRef m] (val : Name) : m Ident := do
-  return mkIdentFrom (← getRef) val
+def mkIdentFromRef [Monad m] [MonadRef m] (val : Name) (canonical := false) : m Ident := do
+  return mkIdentFrom (← getRef) val canonical
 
 /--
   Create an identifier referring to a constant `c` copying the position from `src`.
   This variant of `mkIdentFrom` makes sure that the identifier cannot accidentally
   be captured. -/
-def mkCIdentFrom (src : Syntax) (c : Name) : Ident :=
+def mkCIdentFrom (src : Syntax) (c : Name) (canonical := false) : Ident :=
   -- Remark: We use the reserved macro scope to make sure there are no accidental collision with our frontend
   let id   := addMacroScope `_internal c reservedMacroScope
-  ⟨Syntax.ident (SourceInfo.fromRef src) (toString id).toSubstring id [.decl c []]⟩
+  ⟨Syntax.ident (SourceInfo.fromRef src canonical) (toString id).toSubstring id [.decl c []]⟩
 
-def mkCIdentFromRef [Monad m] [MonadRef m] (c : Name) : m Syntax := do
-  return mkCIdentFrom (← getRef) c
+def mkCIdentFromRef [Monad m] [MonadRef m] (c : Name) (canonical := false) : m Syntax := do
+  return mkCIdentFrom (← getRef) c canonical
 
 def mkCIdent (c : Name) : Ident :=
   mkCIdentFrom Syntax.missing c
@@ -550,8 +550,8 @@ def mkOptionalNode (arg : Option Syntax) : Syntax :=
   | some arg => mkNullNode #[arg]
   | none     => mkNullNode #[]
 
-def mkHole (ref : Syntax) : Syntax :=
-  mkNode `Lean.Parser.Term.hole #[mkAtomFrom ref "_"]
+def mkHole (ref : Syntax) (canonical := false) : Syntax :=
+  mkNode `Lean.Parser.Term.hole #[mkAtomFrom ref "_" canonical]
 
 namespace Syntax
 
@@ -1289,7 +1289,7 @@ macro (name := declareSimpLikeTactic) doc?:(docComment)? "declare_simp_like_tact
         | `(config| (config := $$c)) => `(config| (config := $updateCfg $$c))
         | _ => `(config| (config := $updateCfg {}))
       let s := s.setKind $kind
-      let s := s.setArg 0 (mkAtomFrom s[0] $tkn)
+      let s := s.setArg 0 (mkAtomFrom s[0] $tkn (canonical := true))
       let r := s.setArg 1 (mkNullNode #[c])
       return r)
 

@@ -297,8 +297,8 @@ def hasMissing (stx : Syntax) : Bool := Id.run do
       return true
   return false
 
-def getRange? (stx : Syntax) (originalOnly := false) : Option String.Range :=
-  match stx.getPos? originalOnly, stx.getTailPos? originalOnly with
+def getRange? (stx : Syntax) (canonicalOnly := false) : Option String.Range :=
+  match stx.getPos? canonicalOnly, stx.getTailPos? canonicalOnly with
   | some start, some stop => some { start, stop }
   | _,          _         => none
 

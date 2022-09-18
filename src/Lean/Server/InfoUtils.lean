@@ -90,13 +90,13 @@ def Info.lctx : Info → LocalContext
   | _                  => LocalContext.empty
 
 def Info.pos? (i : Info) : Option String.Pos :=
-  i.stx.getPos? (originalOnly := true)
+  i.stx.getPos? (canonicalOnly := true)
 
 def Info.tailPos? (i : Info) : Option String.Pos :=
-  i.stx.getTailPos? (originalOnly := true)
+  i.stx.getTailPos? (canonicalOnly := true)
 
 def Info.range? (i : Info) : Option String.Range :=
-  i.stx.getRange? (originalOnly := true)
+  i.stx.getRange? (canonicalOnly := true)
 
 def Info.contains (i : Info) (pos : String.Pos) (includeStop := false) : Bool :=
   i.range?.any (·.contains pos includeStop)

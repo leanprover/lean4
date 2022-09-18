@@ -28,9 +28,11 @@ when comparing keys.
 /-- State for the universe level normalizer monad. -/
 structure State where
   /-- Counter for generating new (normalized) universe parameter names. -/
-  nextIdx : Nat := 1
+  nextIdx    : Nat := 1
   /-- Mapping from existing universe parameter names to the new ones. -/
-  map     : HashMap Name Level := {}
+  map        : HashMap Name Level := {}
+  /-- Parameters that have been normalized. -/
+  paramNames : Array Name := #[]
 
 /-- Monad for the universe leve normalizer -/
 abbrev M := StateM State
@@ -51,7 +53,8 @@ partial def normLevel (u : Level) : M Level := do
       | some u => return u
       | none   =>
         let u := Level.param <| (`u).appendIndexAfter (← get).nextIdx
-        modify fun s => { s with nextIdx := s.nextIdx + 1, map := s.map.insert n u }
+        modify fun { nextIdx, map, paramNames } =>
+          { nextIdx := nextIdx + 1, map := map.insert n u, paramNames := paramNames.push n }
         return u
 
 /--
@@ -76,9 +79,11 @@ end NormLevelParam
 
 /--
 Normalize universe level parameter names in the given expression.
+The function also returns the list of universe level parameter names that have been normalized.
 -/
-def normLevelParams (e : Expr) : Expr :=
-  NormLevelParam.normExpr e |>.run' {}
+def normLevelParams (e : Expr) : Expr × List Name :=
+  let (e, s) := NormLevelParam.normExpr e |>.run {}
+  (e, s.paramNames.toList)
 
 namespace CollectLevelParams
 /-!

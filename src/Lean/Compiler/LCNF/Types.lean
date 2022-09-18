@@ -146,6 +146,13 @@ where
     return result
 
 /--
+Save the LCNF type for the given declaration.
+-/
+def saveLCNFType (declName : Name) (type : Expr) : CoreM Unit := do
+  modifyEnv fun env =>
+    lcnfTypeExt.modifyState env fun s => { s with types := s.types.insert declName type }
+
+/--
 Return the LCNF type for the given declaration.
 -/
 def getDeclLCNFType (declName : Name) : CoreM Expr := do
@@ -154,7 +161,7 @@ def getDeclLCNFType (declName : Name) : CoreM Expr := do
   | none =>
     let info ← getConstInfo declName
     let type ← Meta.MetaM.run' <| toLCNFType info.type
-    modifyEnv fun env => lcnfTypeExt.modifyState env fun s => { s with types := s.types.insert declName type }
+    saveLCNFType declName type
     return type
 
 /--

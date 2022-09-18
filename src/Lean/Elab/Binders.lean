@@ -27,7 +27,7 @@ private def expandBinderType (ref : Syntax) (stx : Syntax) : Syntax :=
 /-- Given syntax of the form `ident <|> hole`, return `ident`. If `hole`, then we create a new anonymous name. -/
 private def expandBinderIdent (stx : Syntax) : TermElabM Syntax :=
   match stx with
-  | `(_) => mkFreshIdent stx
+  | `(_) => mkFreshIdent stx (canonical := true)
   | _    => pure stx
 
 /-- Given syntax of the form `(ident >> " : ")?`, return `ident`, or a new instance name. -/

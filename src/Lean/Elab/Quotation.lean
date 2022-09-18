@@ -133,7 +133,7 @@ private partial def quoteSyntax : Syntax → TermElabM Term
       `(@TSyntax.raw $(quote <| ks.map (·.1)) $(getAntiquotTerm (getCanonicalAntiquot stx)))
     else if isTokenAntiquot stx && !isEscapedAntiquot stx then
       match stx[0] with
-      | Syntax.atom _ val => `(Syntax.atom (SourceInfo.fromRef $(getAntiquotTerm stx)) $(quote val))
+      | Syntax.atom _ val => `(Syntax.atom (SourceInfo.fromRef $(getAntiquotTerm stx) (canonical := true)) $(quote val))
       | _                 => throwErrorAt stx "expected token"
     else if isAntiquotSuffixSplice stx && !isEscapedAntiquot (getCanonicalAntiquot (getAntiquotSuffixSpliceInner stx)) then
       -- splices must occur in a `many` node
@@ -194,8 +194,7 @@ def addNamedQuotInfo (stx : Syntax) (k : SyntaxNodeKind) : TermElabM SyntaxNodeK
     if s.length > 3 then
       if let (some l, some r) := (stx[0].getPos? true, stx[0].getTailPos? true) then
         -- HACK: The atom is the string "`(foo|", so chop off the edges.
-        -- HACK: We have to use .original here or the hover won't show up
-        let name := stx[0].setInfo <| .original default ⟨l.1 + 2⟩ default ⟨r.1 - 1⟩
+        let name := stx[0].setInfo <| .synthetic ⟨l.1 + 2⟩ ⟨r.1 - 1⟩ (canonical := true)
         tryAddSyntaxNodeKindInfo name k
   pure k
 

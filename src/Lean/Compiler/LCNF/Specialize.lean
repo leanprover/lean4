@@ -318,6 +318,7 @@ mutual
     trace[Compiler.specialize.candidate] "params: {params.map fun p => p.binderName}"
     -- TODO: create cache and check cached results, apply `visitCode` to `specDecl`, return new application
     let specDecl ← mkSpecDecl decl us paramsInfo params decls args
+    let specDecl ← specDecl.etaExpand
     let specDecl ← specDecl.simp {} -- TODO: `simp` config
     modify fun s => { s with decls := s.decls.push specDecl }
     return none

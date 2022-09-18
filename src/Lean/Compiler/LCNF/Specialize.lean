@@ -362,6 +362,10 @@ mutual
       let specDecl ← specDecl.etaExpand
       saveLCNFType specDecl.name specDecl.type
       let specDecl ← specDecl.simp {} -- TODO: `simp` config
+      let specDecl ← specDecl.simp { etaPoly := true, inlinePartial := true, implementedBy := true }
+      let value ← withReader (fun _ => { declName := specDecl.name }) do
+         withParams specDecl.params <| visitCode specDecl.value
+      let specDecl := { specDecl with value }
       modify fun s => { s with decls := s.decls.push specDecl }
       return mkAppN (.const specDecl.name usNew) argsNew
 

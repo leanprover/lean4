@@ -221,7 +221,7 @@ where
   go (type : Expr) (i : Nat) : CoreM Expr :=
     if h : i < params.size then
       let p := params[i]
-      match type with
+      match type.headBeta with
       | .forallE _ _ b _ => go (b.instantiate1 (.fvar p.fvarId)) (i+1)
       | _ => throwError "invalid instantiateForall, too many parameters"
     else

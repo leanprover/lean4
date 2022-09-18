@@ -280,8 +280,8 @@ This function is similar to `isTypeFormerType`, but more liberal.
 For example, `isTypeFormerType` returns false for `lcAny` and `Nat → lcAny`, but
 this function returns true.
 -/
-def maybeTypeFormerType (type : Expr) : Bool :=
-  match type with
+partial def maybeTypeFormerType (type : Expr) : Bool :=
+  match type.headBeta with
   | .sort .. => true
   | .forallE _ _ b _ => maybeTypeFormerType b
   | _ => type.isAnyType
@@ -300,13 +300,13 @@ def isClass? (type : Expr) : CoreM (Option Name) := do
 `isArrowClass? type` return `some ClsName` if the LCNF `type` is an instance of the class `ClsName`, or
 if it is arrow producing an instance of the class `ClsName`.
 -/
-def isArrowClass? (type : Expr) : CoreM (Option Name) := do
-  match type with
+partial def isArrowClass? (type : Expr) : CoreM (Option Name) := do
+  match type.headBeta with
   | .forallE _ _ b _ => isArrowClass? b
   | _ => isClass? type
 
-def getArrowArity (e : Expr) :=
-  match e with
+partial def getArrowArity (e : Expr) :=
+  match e.headBeta with
   | .forallE _ _ b _ => getArrowArity b + 1
   | _ => 0
 

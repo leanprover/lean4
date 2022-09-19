@@ -2790,6 +2790,7 @@ lean_dec(x_38);
 x_41 = lean_ctor_get(x_37, 2);
 lean_inc(x_41);
 lean_dec(x_37);
+lean_inc(x_41);
 x_42 = l_Lean_Compiler_LCNF_isArrowClass_x3f(x_41, x_10, x_11, x_39);
 x_43 = lean_ctor_get(x_42, 0);
 lean_inc(x_43);

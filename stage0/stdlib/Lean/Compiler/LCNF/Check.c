@@ -913,6 +913,7 @@ x_17 = lean_alloc_closure((void*)(l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF
 lean_closure_set(x_17, 0, x_1);
 lean_closure_set(x_17, 1, x_2);
 lean_closure_set(x_17, 2, x_3);
+lean_inc(x_4);
 x_18 = l_Lean_Compiler_LCNF_maybeTypeFormerType(x_4);
 if (x_18 == 0)
 {

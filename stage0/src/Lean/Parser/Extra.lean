@@ -72,7 +72,9 @@ def sepByIndent.formatter (p : Formatter) (_sep : String) (pSep : Formatter) : F
   let hasNewlineSep := stx.getArgs.mapIdx (fun ⟨i, _⟩ n => i % 2 == 1 && n.matchesNull 0) |>.any id
   visitArgs do
     for i in (List.range stx.getArgs.size).reverse do
-      if i % 2 == 0 then p else pSep <|> (pushWhitespace "\n" *> goLeft)
+      if i % 2 == 0 then p else pSep <|>
+        -- If the final separator is a newline, skip it.
+        ((if i == stx.getArgs.size - 1 then pure () else pushWhitespace "\n") *> goLeft)
   -- If there is any newline separator, then we need to force a newline at the
   -- start so that `withPosition` will pick up the right column.
   if hasNewlineSep then

@@ -146,6 +146,13 @@ where
     return result
 
 /--
+Save the LCNF type for the given declaration.
+-/
+def saveLCNFType (declName : Name) (type : Expr) : CoreM Unit := do
+  modifyEnv fun env =>
+    lcnfTypeExt.modifyState env fun s => { s with types := s.types.insert declName type }
+
+/--
 Return the LCNF type for the given declaration.
 -/
 def getDeclLCNFType (declName : Name) : CoreM Expr := do
@@ -154,7 +161,7 @@ def getDeclLCNFType (declName : Name) : CoreM Expr := do
   | none =>
     let info ← getConstInfo declName
     let type ← Meta.MetaM.run' <| toLCNFType info.type
-    modifyEnv fun env => lcnfTypeExt.modifyState env fun s => { s with types := s.types.insert declName type }
+    saveLCNFType declName type
     return type
 
 /--
@@ -273,8 +280,8 @@ This function is similar to `isTypeFormerType`, but more liberal.
 For example, `isTypeFormerType` returns false for `lcAny` and `Nat → lcAny`, but
 this function returns true.
 -/
-def maybeTypeFormerType (type : Expr) : Bool :=
-  match type with
+partial def maybeTypeFormerType (type : Expr) : Bool :=
+  match type.headBeta with
   | .sort .. => true
   | .forallE _ _ b _ => maybeTypeFormerType b
   | _ => type.isAnyType
@@ -293,13 +300,13 @@ def isClass? (type : Expr) : CoreM (Option Name) := do
 `isArrowClass? type` return `some ClsName` if the LCNF `type` is an instance of the class `ClsName`, or
 if it is arrow producing an instance of the class `ClsName`.
 -/
-def isArrowClass? (type : Expr) : CoreM (Option Name) := do
-  match type with
+partial def isArrowClass? (type : Expr) : CoreM (Option Name) := do
+  match type.headBeta with
   | .forallE _ _ b _ => isArrowClass? b
   | _ => isClass? type
 
-def getArrowArity (e : Expr) :=
-  match e with
+partial def getArrowArity (e : Expr) :=
+  match e.headBeta with
   | .forallE _ _ b _ => getArrowArity b + 1
   | _ => 0
 

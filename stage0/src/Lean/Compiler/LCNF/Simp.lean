@@ -855,7 +855,7 @@ simplification opportunities by eta-expanding them.
 def etaPolyApp? (letDecl : LetDecl) : OptionT SimpM FunDecl := do
   guard <| (← read).config.etaPoly
   let .const declName _ := letDecl.value.getAppFn | failure
-  let info ← getConstInfo declName
+  let some info := (← getEnv).find? declName | failure
   guard <| hasLocalInst info.type
   guard <| !(← Meta.isInstance declName)
   let some decl ← getStage1Decl? declName | failure
@@ -959,7 +959,15 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
       They will only be deleted in the next pass.
       -/
       if code.isFun then
-        decl ← decl.etaExpand
+        if decl.isEtaExpandCandidate then
+          /- We must apply substitution before trying to eta-expand, otherwise `inferType` may fail. -/
+          decl ← normFunDecl decl
+          /-
+          We want to eta-expand **before** trying to simplify local function declaration because
+          eta-expansion creates many optimization opportunities.
+          -/
+          decl ← decl.etaExpand
+          markSimplified
       decl ← simpFunDecl decl
     let k ← simp k
     if (← isUsed decl.fvarId) then
@@ -1051,8 +1059,8 @@ where
     else
       return decl
 
-def simp (config : Config := {}) (occurence : Nat := 0) : Pass :=
-  .mkPerDeclaration `simp (Decl.simp · config) .base (occurence := occurence)
+def simp (config : Config := {}) (occurrence : Nat := 0) : Pass :=
+  .mkPerDeclaration `simp (Decl.simp · config) .base (occurrence := occurrence)
 
 builtin_initialize
   registerTraceClass `Compiler.simp (inherited := true)

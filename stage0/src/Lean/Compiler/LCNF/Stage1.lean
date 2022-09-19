@@ -37,7 +37,7 @@ def getStage1Decl? (declName : Name) : CoreM (Option Decl) := do
   match stage1Ext.getState (← getEnv) |>.decls.find? declName with
   | some decl => return decl
   | none =>
-    let info ← getConstInfo declName
+    let some info := (← getEnv).find? declName | return none
     if info.hasValue then
       let decls ← compileStage1 info.all.toArray
       return decls.find? fun decl => declName == decl.name

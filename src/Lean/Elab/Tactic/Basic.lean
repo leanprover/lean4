@@ -150,7 +150,7 @@ partial def evalTactic (stx : Syntax) : TacticM Unit :=
     | .missing => pure ()
     | _ => throwError m!"unexpected tactic{indentD stx}"
 where
-   throwExs (failures : Array EvalTacticFailure) : TacticM Unit := do
+    throwExs (failures : Array EvalTacticFailure) : TacticM Unit := do
      if let some fail := failures[0]? then
        -- Recall that `failures[0]` is the highest priority evalFn/macro
        fail.state.restore (restoreInfo := true)

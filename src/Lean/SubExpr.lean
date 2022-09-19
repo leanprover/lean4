@@ -304,7 +304,6 @@ def visitLetWithPos (f : Pos → Expr → m Unit) (p : Pos) (e : Expr) : m Unit 
 Includes a `Pos` parameter that is used to track position in the subexpression.
 
 Instantiates bound variables if the subexpression is below a binder.
-For that, use `Lean.Meta.visitChildrenWithPos`.
 -/
 def visitChildrenWithPos (visit : Pos → Expr → m Unit) (p : Pos) (e : Expr) :=
   match e with

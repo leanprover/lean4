@@ -1465,6 +1465,18 @@ def anyOfFn : List Parser → ParserFn
   | [p],   c, s => p.fn c s
   | p::ps, c, s => orelseFn p.fn (anyOfFn ps) c s
 
+def checkColEqFn (errorMsg : String) : ParserFn := fun c s =>
+  match c.savedPos? with
+  | none => s
+  | some savedPos =>
+    let savedPos := c.fileMap.toPosition savedPos
+    let pos      := c.fileMap.toPosition s.pos
+    if pos.column = savedPos.column then s
+    else s.mkError errorMsg
+
+def checkColEq (errorMsg : String := "checkColEq") : Parser :=
+  { fn := checkColEqFn errorMsg }
+
 def checkColGeFn (errorMsg : String) : ParserFn := fun c s =>
   match c.savedPos? with
   | none => s

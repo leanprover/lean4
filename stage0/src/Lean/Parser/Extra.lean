@@ -59,11 +59,11 @@ attribute [runBuiltinParserAttributeHooks]
 
 @[inline] def sepByIndent (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTrailingSep : Bool := false) : Parser :=
   let p := withAntiquotSpliceAndSuffix `sepBy p (symbol "*")
-  withPosition $ sepBy (checkColGe "irrelevant" >> p) sep (psep <|> checkLinebreakBefore >> pushNone) allowTrailingSep
+  withPosition $ sepBy (checkColGe "irrelevant" >> p) sep (psep <|> checkColEq "irrelevant" >> checkLinebreakBefore >> pushNone) allowTrailingSep
 
 @[inline] def sepBy1Indent (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTrailingSep : Bool := false) : Parser :=
   let p := withAntiquotSpliceAndSuffix `sepBy p (symbol "*")
-  withPosition $ sepBy1 (checkColGe "irrelevant" >> p) sep (psep <|> checkLinebreakBefore >> pushNone) allowTrailingSep
+  withPosition $ sepBy1 (checkColGe "irrelevant" >> p) sep (psep <|> checkColEq "irrelevant" >> checkLinebreakBefore >> pushNone) allowTrailingSep
 
 open PrettyPrinter Syntax.MonadTraverser Formatter in
 @[combinatorFormatter Lean.Parser.sepByIndent]

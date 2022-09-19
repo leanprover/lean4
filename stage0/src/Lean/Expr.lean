@@ -292,7 +292,7 @@ instance : Inhabited (MVarIdMap α) where
 
 /--
 Lean expressions. This datastructure is used in the kernel and
-elaborator. Howewer, expressions sent to the kernel should not
+elaborator. However, expressions sent to the kernel should not
 contain metavariables.
 
 Remark: we use the `E` suffix (short for `Expr`) to avoid collision with keywords.
@@ -338,7 +338,7 @@ inductive Expr where
   /--
   A (universe polymorphic) constant. For example,
   `@Eq.{1}` is represented as ``.const `Eq [.succ .zero]``, and
-  `@Array.map.{0, 0}` is represented as ``.cons `Array.map [.zero, .zero]``.
+  `@Array.map.{0, 0}` is represented as ``.const `Array.map [.zero, .zero]``.
   -/
   | const (declName : Name) (us : List Level)
   /--

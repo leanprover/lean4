@@ -1645,6 +1645,7 @@ static lean_object* l___regBuiltin_Lean_Parser_Tactic_quot_declRange___closed__6
 static lean_object* l_Lean_Parser_Command_docComment___closed__1;
 static lean_object* l_Lean_Parser_Term_noindex___closed__4;
 static lean_object* l_Lean_Parser_Term_noindex_parenthesizer___closed__2;
+static lean_object* l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__12;
 static lean_object* l___regBuiltin_Lean_Parser_Term_local_formatter___closed__1;
 static lean_object* l_Lean_Parser_Term_match_formatter___closed__8;
 static lean_object* l___regBuiltin_Lean_Parser_Term_waitIfTypeMVar_declRange___closed__2;
@@ -2364,6 +2365,7 @@ static lean_object* l___regBuiltin_Lean_Parser_Term_nomatch_parenthesizer___clos
 static lean_object* l___regBuiltin_Lean_Parser_Term_namedPattern_formatter___closed__2;
 static lean_object* l___regBuiltin_Lean_Parser_Term_unreachable_declRange___closed__1;
 static lean_object* l_Lean_Parser_Term_funBinder_quot___closed__11;
+static lean_object* l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__13;
 static lean_object* l_Lean_Parser_Term_funStrictImplicitBinder_parenthesizer___closed__2;
 static lean_object* l_Lean_Parser_Term_optEllipsis_formatter___closed__3;
 static lean_object* l_Lean_Parser_Term_waitIfContainsMVar_parenthesizer___closed__1;
@@ -2661,6 +2663,7 @@ static lean_object* l_Lean_Parser_Term_letEqnsDecl_formatter___closed__2;
 static lean_object* l_Lean_Parser_Term_have___closed__8;
 static lean_object* l___regBuiltin_Lean_Parser_Term_anonymousCtor_declRange___closed__3;
 static lean_object* l_Lean_Parser_Term_structInstLVal_formatter___closed__2;
+lean_object* l_Lean_Parser_checkColEq(lean_object*);
 static lean_object* l_Lean_Parser_Term_prop___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_syntheticHole_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Parser_Tactic_quot_declRange___closed__1;
@@ -5635,36 +5638,55 @@ return x_2;
 static lean_object* _init_l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__8() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("line break", 10);
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__6;
+x_2 = l_Lean_Parser_checkColEq(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__9() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__8;
-x_2 = l_Lean_Parser_checkLinebreakBefore(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("line break", 10);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__10() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__9;
-x_2 = l_Lean_Parser_pushNone;
-x_3 = l_Lean_Parser_andthen(x_1, x_2);
-return x_3;
+x_2 = l_Lean_Parser_checkLinebreakBefore(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__10;
+x_2 = l_Lean_Parser_pushNone;
+x_3 = l_Lean_Parser_andthen(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__12() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__8;
+x_2 = l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__11;
+x_3 = l_Lean_Parser_andthen(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__13() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__1;
-x_2 = l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__10;
+x_2 = l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__12;
 x_3 = l_Lean_Parser_orelse(x_1, x_2);
 return x_3;
 }
@@ -5679,7 +5701,7 @@ x_4 = l_Lean_Parser_withAntiquotSpliceAndSuffix(x_2, x_1, x_3);
 x_5 = l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__7;
 x_6 = l_Lean_Parser_andthen(x_5, x_4);
 x_7 = l_Lean_Parser_Tactic_sepByIndentSemicolon_formatter___closed__1;
-x_8 = l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__11;
+x_8 = l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__13;
 x_9 = 1;
 x_10 = l_Lean_Parser_sepBy(x_6, x_7, x_8, x_9);
 x_11 = l_Lean_Parser_withPosition(x_10);
@@ -5717,7 +5739,7 @@ x_4 = l_Lean_Parser_withAntiquotSpliceAndSuffix(x_2, x_1, x_3);
 x_5 = l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__7;
 x_6 = l_Lean_Parser_andthen(x_5, x_4);
 x_7 = l_Lean_Parser_Tactic_sepByIndentSemicolon_formatter___closed__1;
-x_8 = l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__11;
+x_8 = l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__13;
 x_9 = 1;
 x_10 = l_Lean_Parser_sepBy1(x_6, x_7, x_8, x_9);
 x_11 = l_Lean_Parser_withPosition(x_10);
@@ -6530,7 +6552,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_semicolonOrLinebreak___closed__2;
-x_2 = l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__10;
+x_2 = l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__11;
 x_3 = l_Lean_Parser_orelse(x_1, x_2);
 return x_3;
 }
@@ -16331,7 +16353,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Term_tupleTail___closed__5;
-x_2 = l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__10;
+x_2 = l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__12;
 x_3 = l_Lean_Parser_orelse(x_1, x_2);
 return x_3;
 }
@@ -38415,7 +38437,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Term_whereDecls___closed__4;
 x_2 = l_Lean_Parser_Tactic_sepByIndentSemicolon_formatter___closed__1;
-x_3 = l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__11;
+x_3 = l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__13;
 x_4 = 1;
 x_5 = l_Lean_Parser_sepBy1(x_1, x_2, x_3, x_4);
 return x_5;
@@ -59290,6 +59312,10 @@ l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__10 = _init_l_Lean_Parser_Tac
 lean_mark_persistent(l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__10);
 l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__11 = _init_l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__11();
 lean_mark_persistent(l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__11);
+l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__12 = _init_l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__12();
+lean_mark_persistent(l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__12);
+l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__13 = _init_l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__13();
+lean_mark_persistent(l_Lean_Parser_Tactic_sepByIndentSemicolon___closed__13);
 l_Lean_Parser_Tactic_initFn____x40_Lean_Parser_Term___hyg_151____closed__1 = _init_l_Lean_Parser_Tactic_initFn____x40_Lean_Parser_Term___hyg_151____closed__1();
 lean_mark_persistent(l_Lean_Parser_Tactic_initFn____x40_Lean_Parser_Term___hyg_151____closed__1);
 l_Lean_Parser_Tactic_initFn____x40_Lean_Parser_Term___hyg_151____closed__2 = _init_l_Lean_Parser_Tactic_initFn____x40_Lean_Parser_Term___hyg_151____closed__2();

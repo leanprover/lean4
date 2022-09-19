@@ -22,11 +22,12 @@ abbrev Cache := ExprMap Result
 abbrev CongrCache := ExprMap (Option CongrTheorem)
 
 structure Context where
-  config         : Config      := {}
-  simpTheorems   : SimpTheoremsArray  := {}
+  config         : Config := {}
+  simpTheorems   : SimpTheoremsArray := {}
   congrTheorems  : SimpCongrTheorems := {}
+  namedStx       : NameMap Syntax := {}
   parent?        : Option Expr := none
-  dischargeDepth : Nat      := 0
+  dischargeDepth : Nat := 0
   deriving Inhabited
 
 def Context.isDeclToUnfold (ctx : Context) (declName : Name) : Bool :=

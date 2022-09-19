@@ -36,8 +36,8 @@ private def initEntries : M Unit := do
     unless simpThms.isErased localDecl.userName do
       let fvarId := localDecl.fvarId
       let proof  := localDecl.toExpr
-      let id     ← mkFreshUserName `h
-      simpThms ← simpThms.addTheorem proof (name? := id)
+      let id := fvarId.name
+      simpThms ← simpThms.addTheorem id proof
       modify fun s => { s with ctx.simpTheorems := simpThms }
       if hsNonDeps.contains h then
         -- We only simplify nondependent hypotheses
@@ -85,8 +85,8 @@ private partial def loop : M Bool := do
         -/
         trace[Meta.Tactic.simp.all] "entry.id: {entry.id}, {entry.type} => {typeNew}"
         let mut simpThmsNew := (← getSimpTheorems).eraseTheorem entry.id
-        let idNew ← mkFreshUserName `h
-        simpThmsNew ← simpThmsNew.addTheorem (← mkExpectedTypeHint proofNew typeNew) (name? := idNew)
+        let idNew ← mkFreshId
+        simpThmsNew ← simpThmsNew.addTheorem idNew (← mkExpectedTypeHint proofNew typeNew)
         modify fun s => { s with
           modified         := true
           ctx.simpTheorems := simpThmsNew

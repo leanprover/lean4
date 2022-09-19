@@ -579,7 +579,7 @@ where
       let mut updated := false
       for x in xs do
         if (← isProof x) then
-          s ← s.addTheorem x
+          s ← s.addTheorem x.fvarId!.name x
           updated := true
       if updated then
         withSimpTheorems s f
@@ -609,7 +609,7 @@ where
       trace[Debug.Meta.Tactic.simp] "ctx arrow {rp.expr} -> {q}"
       withLocalDeclD e.bindingName! rp.expr fun h => do
         let s ← getSimpTheorems
-        let s ← s.addTheorem h
+        let s ← s.addTheorem h.fvarId!.name h
         withSimpTheorems s do
           let rq ← simp q
           match rq.proof? with
@@ -955,7 +955,7 @@ def simpTargetStar (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option S
   for h in (← getPropHyps) do
     let localDecl ← h.getDecl
     let proof  := localDecl.toExpr
-    let simpTheorems ← ctx.simpTheorems.addTheorem proof
+    let simpTheorems ← ctx.simpTheorems.addTheorem localDecl.fvarId.name proof
     ctx := { ctx with simpTheorems }
   match (← simpTarget mvarId ctx discharge?) with
   | none => return TacticResultCNM.closed

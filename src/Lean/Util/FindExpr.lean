@@ -50,7 +50,14 @@ unsafe def findM? (p : Expr → Bool) (size : USize) (e : Expr) : OptionT FindM 
       failure
     else if p e then
       pure e
-    else findChildren visit e
+    else match e with
+      | Expr.forallE _ d b _   => visit d <|> visit b
+      | Expr.lam _ d b _       => visit d <|> visit b
+      | Expr.mdata _ b         => visit b
+      | Expr.letE _ t v b _    => visit t <|> visit v <|> visit b
+      | Expr.app f a           => visit f <|> visit a
+      | Expr.proj _ _ b        => visit b
+      | _                      => failure
   visit e
 
 
@@ -62,9 +69,19 @@ unsafe def findUnsafe? (p : Expr → Bool) (e : Expr) : Option Expr :=
 
 end FindImpl
 
-/-- Depth-first explores the subexpressions returning the first subexpression such that the predicate `p` returns true.-/
 @[implementedBy FindImpl.findUnsafe?]
-opaque find? (p : Expr → Bool) (e : Expr) : Option Expr
+def find? (p : Expr → Bool) (e : Expr) : Option Expr :=
+  /- This is a reference implementation for the unsafe one above -/
+  if p e then
+    some e
+  else match e with
+    | Expr.forallE _ d b _   => find? p d <|> find? p b
+    | Expr.lam _ d b _       => find? p d <|> find? p b
+    | Expr.mdata _ b         => find? p b
+    | Expr.letE _ t v b _    => find? p t <|> find? p v <|> find? p b
+    | Expr.app f a           => find? p f <|> find? p a
+    | Expr.proj _ _ b        => find? p b
+    | _                      => none
 
 /-- Return true if `e` occurs in `t` -/
 def occurs (e : Expr) (t : Expr) : Bool :=
@@ -96,8 +113,13 @@ where
       | FindStep.found => pure e
       | FindStep.visit =>
         match e with
-        | Expr.app .. => visitApp e
-        | _ => e.findChildren visit
+        | Expr.forallE _ d b _   => visit d <|> visit b
+        | Expr.lam _ d b _       => visit d <|> visit b
+        | Expr.mdata _ b         => visit b
+        | Expr.letE _ t v b _    => visit t <|> visit v <|> visit b
+        | Expr.app ..            => visitApp e
+        | Expr.proj _ _ b        => visit b
+        | _                      => failure
 
 unsafe def findUnsafe? (p : Expr → FindStep) (e : Expr) : Option Expr :=
   Id.run <| findM? p FindImpl.cacheSize e |>.run' FindImpl.initCache

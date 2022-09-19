@@ -7,7 +7,6 @@ import Lean.Environment
 import Lean.Exception
 import Lean.Declaration
 import Lean.Log
-import Lean.Util.FindExpr
 import Lean.AuxRecursor
 import Lean.Compiler.Old
 

@@ -33,7 +33,7 @@ partial def reduce (code : Code) : ReduceM Code := do
         mask := mask.push true
         paramsNew := paramsNew.push param
       else
-        eraseFVar param.fvarId
+        eraseParam param
         mask := mask.push false
     mask := mask.reverse
     paramsNew := paramsNew.reverse
@@ -71,7 +71,7 @@ def Decl.reduceJpArity (decl : Decl) : CompilerM Decl := do
   return { decl with value }
 
 def reduceJpArity : Pass :=
-  .mkPerDeclaration `reduceJpArity Decl.reduceJpArity
+  .mkPerDeclaration `reduceJpArity Decl.reduceJpArity .base
 
 builtin_initialize
   registerTraceClass `Compiler.reduceJpArity (inherited := true)

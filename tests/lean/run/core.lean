@@ -1,4 +1,5 @@
 import Lean.CoreM
+import Lean.MonadEnv
 
 open Lean
 open Lean.Core

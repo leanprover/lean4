@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Command
-// Imports: Init Lean.Log Lean.Parser.Command Lean.ResolveName Lean.Meta.Reduce Lean.Elab.Term Lean.Elab.Tactic.Cache Lean.Elab.Binders Lean.Elab.SyntheticMVars Lean.Elab.DeclModifiers Lean.Elab.InfoTree Lean.Elab.SetOption
+// Imports: Init Lean.Elab.Binders Lean.Elab.SyntheticMVars
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -356,6 +356,7 @@ static lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_Command___hyg_29
 static lean_object* l_Lean_Elab_Command_liftCoreM___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Command_expandDeclId___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_instMonadTraceCommandElabM;
+lean_object* l_Lean_removeLeadingSpaces(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_getBracketedBinderIds___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_getBracketedBinderIds___closed__9;
 LEAN_EXPORT lean_object* l_Std_PersistentArray_mapM___at_Lean_Elab_Command_liftTermElabM___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -503,7 +504,6 @@ LEAN_EXPORT lean_object* l_Std_AssocList_foldlM___at___private_Lean_Elab_Command
 LEAN_EXPORT lean_object* l_Std_PersistentArray_forIn___at___private_Lean_Elab_Command_0__Lean_Elab_Command_addTraceAsMessagesCore___spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_addMacroStack___at_Lean_Elab_Command_instAddErrorMessageContextCommandElabM___spec__1___closed__5;
 static lean_object* l_Lean_Elab_Command_mkCommandElabAttributeUnsafe___closed__4;
-lean_object* l___private_Lean_DocString_0__Lean_removeLeadingSpaces(lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Command_0__Lean_Elab_Command_addTraceAsMessagesCore___spec__20___closed__2;
 lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_Command___hyg_2658____closed__2;
@@ -21038,7 +21038,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Command_modifyScope___closed__1;
 x_2 = l_Lean_Elab_Command_modifyScope___closed__2;
-x_3 = lean_unsigned_to_nat(465u);
+x_3 = lean_unsigned_to_nat(456u);
 x_4 = lean_unsigned_to_nat(16u);
 x_5 = l_Lean_Elab_Command_modifyScope___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -23740,7 +23740,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
 x_10 = lean_ctor_get(x_7, 0);
-x_11 = l___private_Lean_DocString_0__Lean_removeLeadingSpaces(x_2);
+x_11 = l_Lean_removeLeadingSpaces(x_2);
 x_12 = l_Lean_addDocString___at_Lean_Elab_Command_expandDeclId___spec__10___closed__1;
 x_13 = l_Lean_MapDeclarationExtension_insert___rarg(x_12, x_10, x_1, x_11);
 lean_ctor_set(x_7, 0, x_13);
@@ -23790,7 +23790,7 @@ lean_inc(x_23);
 lean_inc(x_22);
 lean_inc(x_21);
 lean_dec(x_7);
-x_30 = l___private_Lean_DocString_0__Lean_removeLeadingSpaces(x_2);
+x_30 = l_Lean_removeLeadingSpaces(x_2);
 x_31 = l_Lean_addDocString___at_Lean_Elab_Command_expandDeclId___spec__10___closed__1;
 x_32 = l_Lean_MapDeclarationExtension_insert___rarg(x_31, x_21, x_1, x_30);
 x_33 = lean_alloc_ctor(0, 9, 0);
@@ -25084,17 +25084,8 @@ return x_11;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Log(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Parser_Command(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_ResolveName(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Reduce(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Term(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Tactic_Cache(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Binders(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_SyntheticMVars(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_DeclModifiers(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_InfoTree(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_SetOption(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Command(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -25103,37 +25094,10 @@ _G_initialized = true;
 res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Log(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Parser_Command(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_ResolveName(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Reduce(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_Term(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Cache(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Elab_Binders(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_SyntheticMVars(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_DeclModifiers(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_InfoTree(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_SetOption(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_Command_Scope_opts___default = _init_l_Lean_Elab_Command_Scope_opts___default();

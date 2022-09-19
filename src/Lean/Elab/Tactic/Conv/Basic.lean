@@ -85,15 +85,23 @@ def changeLhs (lhs' : Expr) : TacticM Unit := do
    withMainContext do
      changeLhs (← zetaReduce (← getLhs))
 
+/-- Evaluate `sepByIndent conv "; " -/
+def evalSepByIndentConv (stx : Syntax) : TacticM Unit := do
+  for arg in stx.getArgs, i in [:stx.getArgs.size] do
+    if i % 2 == 0 then
+      evalTactic arg
+    else
+      saveTacticInfoForToken arg
+
 @[builtinTactic Lean.Parser.Tactic.Conv.convSeq1Indented] def evalConvSeq1Indented : Tactic := fun stx => do
-  evalTacticSeq1Indented stx
+  evalSepByIndentConv stx[0]
 
 @[builtinTactic Lean.Parser.Tactic.Conv.convSeqBracketed] def evalConvSeqBracketed : Tactic := fun stx => do
   let initInfo ← mkInitialTacticInfo stx[0]
   withRef stx[2] <| closeUsingOrAdmit do
     -- save state before/after entering focus on `{`
     withInfoContext (pure ()) initInfo
-    evalManyTacticOptSemi stx[1]
+    evalSepByIndentConv stx[1]
     evalTactic (← `(tactic| all_goals (try rfl)))
 
 @[builtinTactic Lean.Parser.Tactic.Conv.nestedConv] def evalNestedConv : Tactic := fun stx => do

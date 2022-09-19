@@ -75,9 +75,9 @@ def occurs (e : Expr) (t : Expr) : Bool :=
   Return type for `findExt?` function argument.
 -/
 inductive FindStep where
-  | /-- Found desired subterm -/ found
-  | /-- Search subterms -/ visit
-  | /-- Do not search subterms -/ done
+  /-- Found desired subterm -/ | found
+  /-- Search subterms -/ | visit
+  /-- Do not search subterms -/ | done
 
 namespace FindExtImpl
 

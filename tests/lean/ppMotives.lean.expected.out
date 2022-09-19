@@ -11,7 +11,7 @@ protected def Nat.add : Nat → Nat → Nat :=
 fun x x_1 =>
   Nat.brecOn (motive := fun x => Nat → Nat) x_1
     (fun x f x_2 =>
-      (match (motive := (x x : Nat) → Nat.below (motive := fun x => Nat → Nat) x → Nat) x_2, x with
+      (match (motive := Nat → (x : Nat) → Nat.below (motive := fun x => Nat → Nat) x → Nat) x_2, x with
         | a, Nat.zero => fun x => a
         | a, Nat.succ b => fun x => Nat.succ (PProd.fst x.fst a))
         f)

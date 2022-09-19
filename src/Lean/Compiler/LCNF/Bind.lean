@@ -66,20 +66,36 @@ where
       else
         return ps
 
-def FunDeclCore.etaExpand (decl : FunDecl) : CompilerM FunDecl := do
-  let typeArity := getArrowArity decl.type
-  let valueArity := decl.getArity
-  if typeArity <= valueArity then
-    -- It can be < because of the "any" type
-    return decl
+def isEtaExpandCandidateCore (type : Expr) (params : Array Param) : Bool :=
+  let typeArity := getArrowArity type
+  let valueArity := params.size
+  typeArity > valueArity
+
+abbrev FunDeclCore.isEtaExpandCandidate (decl : FunDecl) : Bool :=
+  isEtaExpandCandidateCore decl.type decl.params
+
+def etaExpandCore (type : Expr) (params : Array Param) (value : Code) : CompilerM (Array Param × Code) := do
+  let valueType ← instantiateForall type params
+  let psNew ← mkNewParams valueType
+  let params := params ++ psNew
+  let xs := psNew.map fun p => Expr.fvar p.fvarId
+  let value ← value.bind fun fvarId => do
+    let auxDecl ← mkAuxLetDecl (mkAppN (.fvar fvarId) xs)
+    return .let auxDecl (.return auxDecl.fvarId)
+  return (params, value)
+
+def etaExpandCore? (type : Expr) (params : Array Param) (value : Code) : CompilerM (Option (Array Param × Code)) := do
+  if isEtaExpandCandidateCore type params then
+    etaExpandCore type params value
   else
-    let valueType ← instantiateForall decl.type decl.params
-    let psNew ← mkNewParams valueType
-    let params := decl.params ++ psNew
-    let xs := psNew.map fun p => Expr.fvar p.fvarId
-    let value ← decl.value.bind fun fvarId => do
-      let auxDecl ← mkAuxLetDecl (mkAppN (.fvar fvarId) xs)
-      return .let auxDecl (.return auxDecl.fvarId)
-    decl.update decl.type params value
+    return none
+
+def FunDeclCore.etaExpand (decl : FunDecl) : CompilerM FunDecl := do
+  let some (params, value) ← etaExpandCore? decl.type decl.params decl.value | return decl
+  decl.update decl.type params value
+
+def Decl.etaExpand (decl : Decl) : CompilerM Decl := do
+  let some (params, value) ← etaExpandCore? decl.type decl.params decl.value | return decl
+  return { decl with params, value }
 
 end Lean.Compiler.LCNF

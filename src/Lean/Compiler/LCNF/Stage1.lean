@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.CoreM
+import Lean.MonadEnv
 import Lean.Compiler.LCNF.Basic
 
 namespace Lean.Compiler.LCNF
@@ -36,7 +37,7 @@ def getStage1Decl? (declName : Name) : CoreM (Option Decl) := do
   match stage1Ext.getState (← getEnv) |>.decls.find? declName with
   | some decl => return decl
   | none =>
-    let info ← getConstInfo declName
+    let some info := (← getEnv).find? declName | return none
     if info.hasValue then
       let decls ← compileStage1 info.all.toArray
       return decls.find? fun decl => declName == decl.name

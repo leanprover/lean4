@@ -3,15 +3,9 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.ProjFns
-import Lean.Structure
-import Lean.Meta.WHNF
-import Lean.Meta.InferType
-import Lean.Meta.FunInfo
-import Lean.Meta.Check
 import Lean.Meta.Offset
-import Lean.Meta.ForEachExpr
 import Lean.Meta.UnificationHint
+import Lean.Util.OccursCheck
 
 namespace Lean.Meta
 
@@ -143,39 +137,39 @@ private def trySynthPending (e : Expr) : MetaM Bool := do
   Result type for `isDefEqArgsFirstPass`.
 -/
 inductive DefEqArgsFirstPassResult where
-  | /--
-      Failed to establish that explicit arguments are def-eq.
-      Remark: higher output parameters, and parameters that depend on them
-      are postponed.
-    -/
-    failed
-  | /--
-      Succeeded. The array `postponedImplicit` contains the position
-      of the implicit arguments for which def-eq has been postponed.
-      `postponedHO` contains the higher order output parameters, and parameters
-      that depend on them. They should be processed after the implict ones.
-      `postponedHO` is used to handle applications involving functions that
-      contain higher order output parameters. Example:
-      ```lean
-      getElem :
-        {cont : Type u_1} → {idx : Type u_2} → {elem : Type u_3} →
-        {dom : cont → idx → Prop} → [self : GetElem cont idx elem dom] →
-        (xs : cont) → (i : idx) → (h : dom xs i) → elem
-      ```
-      The argumengs `dom` and `h` must be processed after all implicit arguments
-      otherwise higher-order unification problems are generated. See issue #1299,
-      when trying to solve
-      ```
-      getElem ?a ?i ?h =?= getElem a i (Fin.val_lt_of_le i ...)
-      ```
-      we have to solve the constraint
-      ```
-      ?dom a i.val =?= LT.lt i.val (Array.size a)
-      ```
-      by solving after the instance has been synthesized, we reduce this constraint to
-      a simple check.
-    -/
-    ok (postponedImplicit : Array Nat) (postponedHO : Array Nat)
+  /--
+  Failed to establish that explicit arguments are def-eq.
+  Remark: higher output parameters, and parameters that depend on them
+  are postponed.
+  -/
+  | failed
+  /--
+  Succeeded. The array `postponedImplicit` contains the position
+  of the implicit arguments for which def-eq has been postponed.
+  `postponedHO` contains the higher order output parameters, and parameters
+  that depend on them. They should be processed after the implict ones.
+  `postponedHO` is used to handle applications involving functions that
+  contain higher order output parameters. Example:
+  ```lean
+  getElem :
+    {cont : Type u_1} → {idx : Type u_2} → {elem : Type u_3} →
+    {dom : cont → idx → Prop} → [self : GetElem cont idx elem dom] →
+    (xs : cont) → (i : idx) → (h : dom xs i) → elem
+  ```
+  The argumengs `dom` and `h` must be processed after all implicit arguments
+  otherwise higher-order unification problems are generated. See issue #1299,
+  when trying to solve
+  ```
+  getElem ?a ?i ?h =?= getElem a i (Fin.val_lt_of_le i ...)
+  ```
+  we have to solve the constraint
+  ```
+  ?dom a i.val =?= LT.lt i.val (Array.size a)
+  ```
+  by solving after the instance has been synthesized, we reduce this constraint to
+  a simple check.
+  -/
+  | ok (postponedImplicit : Array Nat) (postponedHO : Array Nat)
 
 /--
   First pass for `isDefEqArgs`. We unify explicit arguments, *and* easy cases

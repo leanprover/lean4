@@ -33,16 +33,15 @@ inductive Element where
   | jp  (decl : FunDecl)
   | fun (decl : FunDecl)
   | let (decl : LetDecl)
-  | cases (fvarId : FVarId) (cases : Cases)
-  | unreach (fvarId : FVarId)
+  | cases (p : Param) (cases : Cases)
+  | unreach (p : Param)
   deriving Inhabited
 
-/-- State for `BindCasesM` monad -/
-structure BindCasesM.State where
-  /-- New auxiliary join points. -/
-  jps : Array FunDecl := #[]
-  /-- Mapping from `_alt.<idx>` variables to new join points -/
-  map : FVarIdMap FVarId := {}
+/--
+State for `BindCasesM` monad
+Mapping from `_alt.<idx>` variables to new join points
+-/
+abbrev BindCasesM.State := FVarIdMap FunDecl
 
 /-- Auxiliary monad for implementing `bindCases` -/
 abbrev BindCasesM := StateRefT BindCasesM.State CompilerM
@@ -61,9 +60,8 @@ That is, our goal is to try to promote the pre join points `_alt.<idx>` into a p
 partial def bindCases (jpDecl : FunDecl) (cases : Cases) : CompilerM Code := do
   let (alts, s) ← visitAlts cases.alts |>.run {}
   let resultType ← mkCasesResultType alts
-  let mut result := .cases { cases with alts, resultType }
-  for decl in s.jps do
-    result := .jp decl result
+  let result := .cases { cases with alts, resultType }
+  let result := s.fold (init := result) fun result _ altJp => .jp altJp result
   return .jp jpDecl result
 where
   visitAlts (alts : Array Alt) : BindCasesM (Array Alt) :=
@@ -72,7 +70,7 @@ where
   findFun? (f : FVarId) : CompilerM (Option FunDecl) := do
     if let some funDecl ← findFunDecl? f then
       return funDecl
-    else if let .ldecl (value := .fvar f') .. ← getLocalDecl f then
+    else if let some { value := .fvar f', .. } ← findLetDecl? f then
       findFun? f'
     else
       return none
@@ -91,14 +89,14 @@ where
         -/
         if decl.fvarId == fvarId && decl.value.isApp && decl.value.getAppFn.isFVar then
           let f := decl.value.getAppFn.fvarId!
-          let localDecl ← getLocalDecl f
-          if localDecl.userName.getPrefix == `_alt then
+          let binderName ← getBinderName f
+          if binderName.getPrefix == `_alt then
             if let some funDecl ← findFun? f then
               let args := decl.value.getAppArgs
-              eraseFVar decl.fvarId
-              if let some altJp := (← get).map.find? f then
+              eraseLetDecl decl
+              if let some altJp := (← get).find? f then
                 /- We already have an auxiliary join point for `f`, then, we just use it. -/
-                return .jmp altJp args
+                return .jmp altJp.fvarId args
               else
                 /-
                 We have not created a join point for `f` yet.
@@ -124,12 +122,15 @@ where
                 let letDecl ← mkAuxLetDecl (mkAppN decl.value.getAppFn jpArgs)
                 let jpValue := .let letDecl (.jmp jpDecl.fvarId #[.fvar letDecl.fvarId])
                 let altJp ← mkAuxJpDecl jpParams jpValue
-                modify fun { jps, map } => {
-                  jps := jps.push altJp
-                  map := map.insert f altJp.fvarId
-                }
+                modify fun map => map.insert f altJp
                 return .jmp altJp.fvarId args
-      return .let decl (← go k)
+      let k ← go k
+      if let some altJp := (← get).find? decl.fvarId then
+        -- The new join point depends on this variable. Thus, we must insert it here
+        modify fun s => s.erase decl.fvarId
+        return .let decl (.jp altJp k)
+      else
+        return .let decl k
     | .fun decl k => return .fun decl (← go k)
     | .jp decl k =>
       let value ← go decl.value
@@ -163,23 +164,24 @@ where
       | .let decl => go seq (i - 1) (.let decl c)
       | .unreach _ =>
         let type ← c.inferType
-        eraseFVarsAt c
+        eraseCode c
         seq[:i].forM fun
-          | .let decl | .jp decl | .fun decl => eraseFVar decl.fvarId
-          | .cases _ cs => eraseFVarsAt (.cases cs)
-          | .unreach fvarId => eraseFVar fvarId
+          | .let decl => eraseLetDecl decl
+          | .jp decl | .fun decl => eraseFunDecl decl
+          | .cases _ cs => eraseCode (.cases cs)
+          | .unreach auxParam => eraseParam auxParam
         return .unreach type
-      | .cases fvarId cases =>
-        if let .return fvarId' := c then
-          if fvarId == fvarId' then
-            eraseFVar fvarId
+      | .cases auxParam cases =>
+        if let .return fvarId := c then
+          if auxParam.fvarId == fvarId then
+            eraseParam auxParam
             go seq (i - 1) (.cases cases)
           else
             -- `cases` is dead code
             go seq (i - 1) c
         else
           /- Create a join point for `c` and jump to it from `cases` -/
-          let jpDecl ← mkAuxJpDecl' fvarId c
+          let jpDecl ← mkAuxJpDecl' auxParam c
           go seq (i - 1) (← bindCases jpDecl cases)
     else
       return c
@@ -211,7 +213,7 @@ def pushElement (elem : Element) : M Unit := do
 
 def mkUnreachable (type : Expr) : M Expr := do
   let p ← mkAuxParam type
-  pushElement (.unreach p.fvarId)
+  pushElement (.unreach p)
   return .fvar p.fvarId
 
 def mkAuxLetDecl (e : Expr) (prefixName := `_x) : M Expr := do
@@ -469,7 +471,7 @@ where
         alts := alts.push alt
       let cases : Cases := { typeName, discr := discr.fvarId!, resultType, alts }
       let auxDecl ← mkAuxParam resultType
-      pushElement (.cases auxDecl.fvarId cases)
+      pushElement (.cases auxDecl cases)
       let result := .fvar auxDecl.fvarId
       if args.size == casesInfo.arity then
         return result

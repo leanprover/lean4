@@ -3,7 +3,12 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Meta.Tactic.Assumption
+import Lean.Meta.Tactic.Contradiction
 import Lean.Meta.Tactic.Refl
+import Lean.Elab.Binders
+import Lean.Elab.Open
+import Lean.Elab.SetOption
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.ElabTerm
 
@@ -35,50 +40,80 @@ def isCheckpointableTactic (arg : Syntax) : TacticM Bool := do
   let kind := arg.getKind
   return kind == ``Lean.Parser.Tactic.save
 
-partial def addCheckpoints (args : Array Syntax) : TacticM (Array Syntax) := do
+/--
+Takes a `sepByIndent tactic "; "`, and inserts `checkpoint` blocks for `save` tactics.
+
+Input:
+```
+  a
+  b
+  save
+  c
+  d
+  save
+  e
+```
+
+Output:
+```
+  checkpoint
+    a
+    b
+    save
+  checkpoint
+    c
+    d
+    save
+  e
+```
+-/
+-- Note that we need to preserve the separators to show the right goals after semicolons.
+def addCheckpoints (stx : Syntax) : TacticM Syntax := do
   -- if (← readThe Term.Context).tacticCache? |>.isSome then
-  if (← args.anyM fun arg => isCheckpointableTactic arg[0]) then
-    let argsNew ← go 0 #[] #[]
-    return argsNew
-  return args
-where
-  push (acc : Array Syntax) (result : Array Syntax) : Array Syntax :=
-    if acc.isEmpty then
-      result
+  if !(← stx.getSepArgs.anyM isCheckpointableTactic) then return stx
+  let mut currentCheckpointBlock := #[]
+  let mut output := #[]
+  for i in [:stx.getArgs.size / 2] do
+    let tac := stx[2*i]
+    let sep? := stx.getArgs[2*i+1]?
+    if (← isCheckpointableTactic tac) then
+      let checkpoint : Syntax :=
+        mkNode ``checkpoint #[
+          mkAtomFrom tac "checkpoint",
+          mkNode ``tacticSeq #[
+            mkNode ``tacticSeq1Indented #[
+              -- HACK: null node is not a valid tactic, but prevents infinite loop
+              mkNullNode (currentCheckpointBlock.push tac)
+            ]
+          ]
+        ]
+      currentCheckpointBlock := #[]
+      output := output.push checkpoint
+      if let some sep := sep? then output := output.push sep
     else
-      let ref := acc.back
-      let accSeq := mkNode ``Lean.Parser.Tactic.tacticSeq1Indented #[mkNullNode acc]
-      let checkpoint := mkNode ``Lean.Parser.Tactic.checkpoint #[mkAtomFrom ref "checkpoint", accSeq]
-      result.push (mkNode groupKind #[checkpoint, mkNullNode])
+      currentCheckpointBlock := currentCheckpointBlock.push tac
+      if let some sep := sep? then currentCheckpointBlock := currentCheckpointBlock.push sep
+  output := output ++ currentCheckpointBlock
+  return stx.setArgs output
 
-  go (i : Nat) (acc : Array Syntax) (result : Array Syntax) : TacticM (Array Syntax) := do
-    if h : i < args.size then
-      let arg := args.get ⟨i, h⟩
-      if (← isCheckpointableTactic arg[0]) then
-        -- `argNew` is `arg` as singleton sequence. The idea is to make sure it does not satisfy `isCheckpointableTactic` anymore
-        let argNew := arg.setArg 0 (mkNullNode #[arg[0]])
-        let acc := acc.push argNew
-        go (i+1) #[] (push acc result)
-      else
-        go (i+1) (acc.push arg) result
+/-- Evaluate `sepByIndent tactic "; " -/
+def evalSepByIndentTactic (stx : Syntax) : TacticM Unit := do
+  let stx ← addCheckpoints stx
+  for arg in stx.getArgs, i in [:stx.getArgs.size] do
+    if i % 2 == 0 then
+      evalTactic arg
     else
-      return result ++ acc
-
-/-- Evaluate `many (group (tactic >> optional ";")) -/
-def evalManyTacticOptSemi (stx : Syntax) : TacticM Unit := do
-  for seqElem in (← addCheckpoints stx.getArgs) do
-    evalTactic seqElem[0]
-    saveTacticInfoForToken seqElem[1] -- add TacticInfo node for `;`
+      saveTacticInfoForToken arg
 
 @[builtinTactic tacticSeq1Indented] def evalTacticSeq1Indented : Tactic := fun stx =>
-  evalManyTacticOptSemi stx[0]
+  evalSepByIndentTactic stx[0]
 
 @[builtinTactic tacticSeqBracketed] def evalTacticSeqBracketed : Tactic := fun stx => do
   let initInfo ← mkInitialTacticInfo stx[0]
   withRef stx[2] <| closeUsingOrAdmit do
     -- save state before/after entering focus on `{`
     withInfoContext (pure ()) initInfo
-    evalManyTacticOptSemi stx[1]
+    evalSepByIndentTactic stx[1]
 
 @[builtinTactic Parser.Tactic.focus] def evalFocus : Tactic := fun stx => do
   let mkInfo ← mkInitialTacticInfo stx[0]

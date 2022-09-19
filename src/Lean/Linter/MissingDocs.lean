@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Mario Carneiro
 -/
+import Lean.Meta.Tactic.Simp.SimpTheorems
+import Lean.Elab.SetOption
 import Lean.Linter.Util
 
 namespace Lean.Linter
@@ -136,9 +138,9 @@ def checkDecl : SimpleHandler := fun stx => do
     lintDeclHead k rest[1][0]
   if k == ``«inductive» || k == ``classInductive then
     for stx in rest[4].getArgs do
-      let head := stx[1]
-      if declModifiersPubNoDoc head then
-        lintField rest[1][0] stx[2] "public constructor"
+      let head := stx[2]
+      if stx[0].isNone && declModifiersPubNoDoc head then
+        lintField rest[1][0] stx[3] "public constructor"
     unless rest[5].isNone do
       for stx in rest[5][0][1].getArgs do
         let head := stx[0]
@@ -182,8 +184,8 @@ def checkNotation : SimpleHandler := fun stx => do
 @[builtinMissingDocsHandler «mixfix»]
 def checkMixfix : SimpleHandler := fun stx => do
   if stx[0].isNone && stx[2][0][0].getKind != ``«local» && !hasInheritDoc stx[1] then
-    if stx[5].isNone then lint stx[3] stx[3][0].getAtomVal!
-    else lintNamed stx[5][0][3] stx[3][0].getAtomVal!
+    if stx[5].isNone then lint stx[3] stx[3][0].getAtomVal
+    else lintNamed stx[5][0][3] stx[3][0].getAtomVal
 
 @[builtinMissingDocsHandler «syntax»]
 def checkSyntax : SimpleHandler := fun stx => do

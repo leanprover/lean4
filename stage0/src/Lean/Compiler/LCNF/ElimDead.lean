@@ -46,12 +46,12 @@ partial def elimDead (code : Code) : M Code := do
   match code with
   | .let decl k =>
     let k ← elimDead k
-    if !decl.pure || (← get).contains decl.fvarId then
+    if (← get).contains decl.fvarId then
       /- Remark: we don't need to collect `decl.type` because LCNF local declarations do not occur in types. -/
       collectExprM decl.value
       return code.updateCont! k
     else
-      eraseFVar decl.fvarId
+      eraseLetDecl decl
       return k
   | .fun decl k | .jp decl k =>
     let k ← elimDead k
@@ -59,7 +59,7 @@ partial def elimDead (code : Code) : M Code := do
       let decl ← visitFunDecl decl
       return code.updateFun! decl k
     else
-      eraseFVar decl.fvarId
+      eraseFunDecl decl
       return k
   | .cases c =>
     let alts ← c.alts.mapMonoM fun alt => return alt.updateCode (← elimDead alt.getCode)

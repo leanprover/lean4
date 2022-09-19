@@ -550,9 +550,29 @@ def delabLam : Delab :=
       | `(fun $binderGroups* => $stxBody) => `(fun $group $binderGroups* => $stxBody)
       | _                                 => `(fun $group => $stxBody)
 
+/--
+Similar to `delabBinders`, but tracking whether `forallE` is dependent or not.
+
+See issue #1571
+-/
+private partial def delabForallBinders (delabGroup : Array Syntax → Bool → Syntax → Delab) (curNames : Array Syntax := #[]) (curDep := false) : Delab := do
+  let dep := !(← getExpr).isArrow
+  if !curNames.isEmpty && dep != curDep then
+    -- don't group
+    delabGroup curNames curDep (← delab)
+  else
+    let curDep := dep
+    if ← shouldGroupWithNext then
+      -- group with nested binder => recurse immediately
+      withBindingBodyUnusedName fun stxN => delabForallBinders delabGroup (curNames.push stxN) curDep
+    else
+      -- don't group => delab body and prepend current binder group
+      let (stx, stxN) ← withBindingBodyUnusedName fun stxN => return (← delab, stxN)
+      delabGroup (curNames.push stxN) curDep stx
+
 @[builtinDelab forallE]
-def delabForall : Delab :=
-  delabBinders fun curNames stxBody => do
+def delabForall : Delab := do
+  delabForallBinders fun curNames dependent stxBody => do
     let e ← getExpr
     let prop ← try isProp e catch _ => pure false
     let stxT ← withBindingDomain delab
@@ -562,9 +582,6 @@ def delabForall : Delab :=
     -- here `curNames.size == 1`
     | BinderInfo.instImplicit   => `(bracketedBinderF|[$curNames.back : $stxT])
     | _                         =>
-      -- heuristic: use non-dependent arrows only if possible for whole group to avoid
-      -- noisy mix like `(α : Type) → Type → (γ : Type) → ...`.
-      let dependent := curNames.any fun n => hasIdent n.getId stxBody
       -- NOTE: non-dependent arrows are available only for the default binder info
       if dependent then
         if prop && !(← getPPOption getPPPiBinderTypes) then

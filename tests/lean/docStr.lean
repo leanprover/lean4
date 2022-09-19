@@ -16,8 +16,8 @@ structure Boo (α : Type) where
 
 /-- inductive datatype Tree documentation -/
 inductive Tree (α : Type) where
-  | /-- Tree.node documentation -/ node : List (Tree α) → Tree α
-  | /-- Tree.leaf stores the values -/ leaf : α → Tree α
+  /-- Tree.node documentation -/ | node : List (Tree α) → Tree α
+  /-- Tree.leaf stores the values -/ | leaf : α → Tree α
 
 namespace Bla
 
@@ -25,7 +25,9 @@ namespace Bla
 def test (x : Nat) : Nat :=
   aux x + 1
 where
-  /-- We can document 'where' functions too -/
+  /-- We can document 'where' functions too
+
+  ... and indentation is stripped, even after an empty line. -/
   aux x := x + 2
 
 end Bla

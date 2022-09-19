@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.Tactic.Apply
+import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.Rename
-import Lean.Meta.Tactic.Intro
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.WF.TerminationHint

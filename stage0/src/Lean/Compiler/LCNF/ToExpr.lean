@@ -30,9 +30,9 @@ where
     | .lam n d b bi => .lam n (go o d) (go (o+1) b) bi
     | .letE n t v b nd => .letE n (go o t) (go o v) (go (o+1) b) nd
 
-abbrev M := ReaderT Nat $ StateM LevelMap
+abbrev ToExprM := ReaderT Nat $ StateM LevelMap
 
-private abbrev mkLambdaM (params : Array Param) (e : Expr) : M Expr :=
+abbrev mkLambdaM (params : Array Param) (e : Expr) : ToExprM Expr :=
   return go (← read) (← get) params.size e
 where
   go (offset : Nat) (m : LevelMap) (i : Nat) (e : Expr) : Expr :=
@@ -43,30 +43,33 @@ where
    else
      e
 
-@[inline] private def _root_.Lean.FVarId.toExprM (fvarId : FVarId) : M Expr :=
+private abbrev _root_.Lean.FVarId.toExprM (fvarId : FVarId) : ToExprM Expr :=
   return fvarId.toExpr (← read) (← get)
 
-@[inline] private def _root_.Lean.Expr.abstractM (e : Expr) : M Expr :=
+private abbrev _root_.Lean.Expr.abstractM (e : Expr) : ToExprM Expr :=
   return e.abstract' (← read) (← get)
 
-@[inline] def withFVar (fvarId : FVarId) (k : M α) : M α := do
+abbrev abstractM (e : Expr) : ToExprM Expr :=
+  e.abstractM
+
+@[inline] def withFVar (fvarId : FVarId) (k : ToExprM α) : ToExprM α := do
   let offset ← read
   modify fun s => s.insert fvarId offset
   withReader (·+1) k
 
-@[inline] partial def withParams (params : Array Param) (k : M α) : M α :=
+@[inline] partial def withParams (params : Array Param) (k : ToExprM α) : ToExprM α :=
   go 0
 where
-  @[specialize] go (i : Nat) : M α := do
+  @[specialize] go (i : Nat) : ToExprM α := do
     if h : i < params.size then
       withFVar params[i].fvarId (go (i+1))
     else
       k
 
-@[inline] def run (x : M α) (offset : Nat := 0) (levelMap : LevelMap := {}) : α :=
+@[inline] def run (x : ToExprM α) (offset : Nat := 0) (levelMap : LevelMap := {}) : α :=
   x |>.run offset |>.run' levelMap
 
-@[inline] def run' (x : M α) (xs : Array FVarId) : α :=
+@[inline] def run' (x : ToExprM α) (xs : Array FVarId) : α :=
   let map := xs.foldl (init := {}) fun map x => map.insert x map.size
   run x xs.size map
 
@@ -75,10 +78,10 @@ end ToExpr
 open ToExpr
 
 mutual
-partial def FunDeclCore.toExprM (decl : FunDecl) : M Expr :=
+partial def FunDeclCore.toExprM (decl : FunDecl) : ToExprM Expr :=
   withParams decl.params do mkLambdaM decl.params (← decl.value.toExprM)
 
-partial def Code.toExprM (code : Code) : M Expr := do
+partial def Code.toExprM (code : Code) : ToExprM Expr := do
   match code with
   | .let decl k =>
     let type ← decl.type.abstractM

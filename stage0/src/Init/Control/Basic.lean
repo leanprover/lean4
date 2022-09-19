@@ -228,3 +228,21 @@ class ForM (m : Type u → Type v) (γ : Type w₁) (α : outParam (Type w₂)) 
   forM [Monad m] : γ → (α → m PUnit) → m PUnit
 
 export ForM (forM)
+
+/-- Left-to-right composition of Kleisli arrows. -/
+def Bind.kleisliRight [Bind m] (f₁ : α → m β) (f₂ : β → m γ) (a : α) : m γ :=
+  f₁ a >>= f₂
+
+/-- Right-to-left composition of Kleisli arrows. -/
+def Bind.kleisliLeft [Bind m] (f₂ : β → m γ) (f₁ : α → m β) (a : α) : m γ :=
+  f₁ a >>= f₂
+
+/-- Same as `Bind.bind` but with arguments swapped. -/
+def Bind.bindLeft [Bind m] (f : α → m β) (ma : m α) : m β :=
+  ma >>= f
+
+-- Precedence choice taken to be the same as in haskell:
+-- https://hackage.haskell.org/package/base-4.17.0.0/docs/Control-Monad.html#v:-61--60--60-
+@[inheritDoc] infixr:55 " >=> " => Bind.kleisliRight
+@[inheritDoc] infixr:55 " <=< " => Bind.kleisliLeft
+@[inheritDoc] infixr:55 " =<< " => Bind.bindLeft

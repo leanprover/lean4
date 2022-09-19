@@ -20,6 +20,7 @@ structure Param where
   fvarId     : FVarId
   binderName : Name
   type       : Expr
+  borrow     : Bool
   deriving Inhabited, BEq
 
 def Param.toExpr (p : Param) : Expr :=
@@ -35,7 +36,6 @@ structure LetDecl where
   binderName : Name
   type : Expr
   value : Expr
-  pure : Bool
   deriving Inhabited, BEq
 
 structure FunDeclCore (Code : Type) where
@@ -79,9 +79,17 @@ inductive CodeDecl where
 def CodeDecl.fvarId : CodeDecl → FVarId
   | .let decl | .fun decl | .jp decl => decl.fvarId
 
-def CodeDecl.isPure : CodeDecl → Bool
-  | .let decl => decl.pure
-  | .fun .. | .jp .. => true
+def attachCodeDecls (decls : Array CodeDecl) (code : Code) : Code :=
+  go decls.size code
+where
+  go (i : Nat) (code : Code) : Code :=
+    if i > 0 then
+      match decls[i-1]! with
+      | .let decl => go (i-1) (.let decl code)
+      | .fun decl => go (i-1) (.fun decl code)
+      | .jp decl => go (i-1) (.jp decl code)
+    else
+      code
 
 mutual
   private unsafe def eqImp (c₁ c₂ : Code) : Bool :=
@@ -129,6 +137,11 @@ instance : BEq FunDecl where
 def AltCore.getCode : Alt → Code
   | .default k => k
   | .alt _ _ k => k
+
+def AltCore.forCodeM [Monad m] (alt : Alt) (f : Code → m Unit) : m Unit := do
+  match alt with
+  | .default k => f k
+  | .alt _ _ k => f k
 
 private unsafe def updateAltCodeImp (alt : Alt) (k' : Code) : Alt :=
   match alt with
@@ -251,6 +264,9 @@ def CasesCore.extractAlt! (cases : Cases) (ctorName : Name) : Alt × Cases :=
   else
     unreachable!
 
+def AltCore.mapCodeM [Monad m] (alt : Alt) (f : Code → m Code) : m Alt := do
+  return alt.updateCode (← f alt.getCode)
+
 def Code.isDecl : Code → Bool
   | .let .. | .fun .. | .jp .. => true
   | _ => false
@@ -291,6 +307,17 @@ where
     | .cases c => inc; c.alts.forM fun alt => go alt.getCode
     | .jmp .. => inc
     | .return .. | unreach .. => return ()
+
+partial def Code.forM [Monad m] (c : Code) (f : Code → m Unit) : m Unit :=
+  go c
+where
+  go (c : Code) : m Unit := do
+    f c
+    match c with
+    | .let _ k => go k
+    | .fun decl k | .jp decl k => go decl.value; go k
+    | .cases c => c.alts.forM fun alt => go alt.getCode
+    | .unreach .. | .return .. | .jmp .. => return ()
 
 /--
 Declaration being processed by the Lean to Lean compiler passes.

@@ -8,28 +8,28 @@ import Lean.Meta.AppBuilder
 namespace Lean.Meta
 
 inductive CongrArgKind where
-  | /-- It is a parameter for the congruence theorem, the parameter occurs in the left and right hand sides. -/
-    fixed
-  | /--
-      It is not a parameter for the congruence theorem, the theorem was specialized for this parameter.
-      This only happens if the parameter is a subsingleton/proposition, and other parameters depend on it. -/
-    fixedNoParam
-  | /--
-      The lemma contains three parameters for this kind of argument `a_i`, `b_i` and `eq_i : a_i = b_i`.
-      `a_i` and `b_i` represent the left and right hand sides, and `eq_i` is a proof for their equality. -/
-    eq
-  | /--
-      The congr-simp theorems contains only one parameter for this kind of argument, and congr theorems contains two.
-      They correspond to arguments that are subsingletons/propositions. -/
-    cast
-  | /--
-     The lemma contains three parameters for this kind of argument `a_i`, `b_i` and `eq_i : HEq a_i b_i`.
-     `a_i` and `b_i` represent the left and right hand sides, and `eq_i` is a proof for their heterogeneous equality. -/
-    heq
-  | /--
-     For congr-simp theorems only.  Indicates a decidable instance argument.
-     The lemma contains two arguments [a_i : Decidable ...] [b_i : Decidable ...] -/
-    subsingletonInst
+  /-- It is a parameter for the congruence theorem, the parameter occurs in the left and right hand sides. -/
+  | fixed
+  /--
+  It is not a parameter for the congruence theorem, the theorem was specialized for this parameter.
+  This only happens if the parameter is a subsingleton/proposition, and other parameters depend on it. -/
+  | fixedNoParam
+  /--
+  The lemma contains three parameters for this kind of argument `a_i`, `b_i` and `eq_i : a_i = b_i`.
+  `a_i` and `b_i` represent the left and right hand sides, and `eq_i` is a proof for their equality. -/
+  | eq
+  /--
+  The congr-simp theorems contains only one parameter for this kind of argument, and congr theorems contains two.
+  They correspond to arguments that are subsingletons/propositions. -/
+  | cast
+  /--
+  The lemma contains three parameters for this kind of argument `a_i`, `b_i` and `eq_i : HEq a_i b_i`.
+  `a_i` and `b_i` represent the left and right hand sides, and `eq_i` is a proof for their heterogeneous equality. -/
+  | heq
+  /--
+  For congr-simp theorems only.  Indicates a decidable instance argument.
+  The lemma contains two arguments [a_i : Decidable ...] [b_i : Decidable ...] -/
+  | subsingletonInst
   deriving Inhabited
 
 structure CongrTheorem where

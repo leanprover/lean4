@@ -3,11 +3,9 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Init.Data.ToString
 import Lean.Compiler.BorrowedAnnotation
 import Lean.Meta.KAbstract
-import Lean.Meta.Transform
-import Lean.Elab.App
+import Lean.Meta.MatchUtil
 import Lean.Elab.SyntheticMVars
 
 namespace Lean.Elab.Term
@@ -38,6 +36,8 @@ open Meta
         (fun ival _ => do
           match ival.ctors with
           | [ctor] =>
+            if isPrivateNameFromImportedModule (← getEnv) ctor then
+              throwError "invalid ⟨...⟩ notation, constructor for `{ival.name}` is marked as private"
             let cinfo ← getConstInfoCtor ctor
             let numExplicitFields ← forallTelescopeReducing cinfo.type fun xs _ => do
               let mut n := 0
@@ -315,10 +315,17 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
          if badMotive?.isSome || !(← isTypeCorrect motive) then
            -- Before failing try tos use `subst`
            if ← (isSubstCandidate lhs rhs <||> isSubstCandidate rhs lhs) then
-             withLocalIdentFor heqStx heq fun heqStx =>
-             withLocalIdentFor hStx h fun hStx => do
-               let stxNew ← `(by subst $heqStx; exact $hStx)
-               withMacroExpansion stx stxNew (elabTerm stxNew expectedType)
+             withLocalIdentFor heqStx heq fun heqStx => do
+               let h ← instantiateMVars h
+               if h.hasMVar then
+                 -- If `h` has metavariables, we try to elaborate `hStx` again after we substitute `heqStx`
+                 -- Remark: re-elaborating `hStx` may be problematic if `hStx` contains the `lhs` of `heqStx` which will be eliminated by `subst`
+                 let stxNew ← `(by subst $heqStx; exact $hStx)
+                 withMacroExpansion stx stxNew (elabTerm stxNew expectedType)
+               else
+                 withLocalIdentFor hStx h fun hStx => do
+                   let stxNew ← `(by subst $heqStx; exact $hStx)
+                   withMacroExpansion stx stxNew (elabTerm stxNew expectedType)
            else
              throwError "invalid `▸` notation, failed to compute motive for the substitution"
          else

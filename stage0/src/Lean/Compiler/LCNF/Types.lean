@@ -3,7 +3,6 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Compiler.BorrowedAnnotation
 import Lean.Meta.InferType
 
 namespace Lean.Compiler.LCNF
@@ -22,7 +21,7 @@ def anyTypeExpr := mkConst  ``lcAny
 def _root_.Lean.Expr.isAnyType (e : Expr) :=
   e.isConstOf ``lcAny
 
-def _root_.Lean.Expr.erased (e : Expr) :=
+def _root_.Lean.Expr.isErased (e : Expr) :=
   e.isConstOf ``lcErased
 
 /-!
@@ -109,7 +108,7 @@ partial def toLCNFType (type : Expr) : MetaM Expr := do
     withLocalDecl n bi d fun x => do
       let d ← toLCNFType d
       let b ← toLCNFType (b.instantiate1 x)
-      if b.isAnyType || b.erased then
+      if b.isAnyType || b.isErased then
         return b
       else
         return (Expr.lam n d (b.abstract #[x]) bi).eta
@@ -123,10 +122,7 @@ where
     | .forallE n d b bi =>
       let d := d.instantiateRev xs
       withLocalDecl n bi d fun x => do
-        let borrowed := isMarkedBorrowed d
-        let mut d := (← toLCNFType d).abstract xs
-        if borrowed then
-          d := markBorrowed d
+        let d := (← toLCNFType d).abstract xs
         return .forallE n d (← visitForall b (xs.push x)) bi
     | _ =>
       let e ← toLCNFType (e.instantiateRev xs)
@@ -150,6 +146,13 @@ where
     return result
 
 /--
+Save the LCNF type for the given declaration.
+-/
+def saveLCNFType (declName : Name) (type : Expr) : CoreM Unit := do
+  modifyEnv fun env =>
+    lcnfTypeExt.modifyState env fun s => { s with types := s.types.insert declName type }
+
+/--
 Return the LCNF type for the given declaration.
 -/
 def getDeclLCNFType (declName : Name) : CoreM Expr := do
@@ -158,7 +161,7 @@ def getDeclLCNFType (declName : Name) : CoreM Expr := do
   | none =>
     let info ← getConstInfo declName
     let type ← Meta.MetaM.run' <| toLCNFType info.type
-    modifyEnv fun env => lcnfTypeExt.modifyState env fun s => { s with types := s.types.insert declName type }
+    saveLCNFType declName type
     return type
 
 /--
@@ -205,9 +208,11 @@ partial def compatibleTypes (a b : Expr) : Bool :=
   if a.isAnyType || b.isAnyType then
     true
   else
-    let a := a.headBeta
-    let b := b.headBeta
-    if a == b then
+    let a' := a.headBeta
+    let b' := b.headBeta
+    if a != a' || b != b' then
+      compatibleTypes a' b'
+    else if a == b then
       true
     else
       match a, b with
@@ -231,7 +236,7 @@ partial def joinTypes? (a b : Expr) : Option Expr := do
   if a.isAnyType then return a
   else if b.isAnyType then return b
   else if a == b then return a
-  else if a.erased || b.erased then failure
+  else if a.isErased || b.isErased then failure
   else
     let a' := a.headBeta
     let b' := b.headBeta
@@ -267,6 +272,18 @@ def isTypeFormerType (type : Expr) : Bool :=
   match type with
   | .sort .. => true
   | .forallE _ _ b _ => isTypeFormerType b
+  | _ => false
+
+/--
+Return `true` if `type` is a LCNF type former type or it is an "any" type.
+This function is similar to `isTypeFormerType`, but more liberal.
+For example, `isTypeFormerType` returns false for `lcAny` and `Nat → lcAny`, but
+this function returns true.
+-/
+partial def maybeTypeFormerType (type : Expr) : Bool :=
+  match type.headBeta with
+  | .sort .. => true
+  | .forallE _ _ b _ => maybeTypeFormerType b
   | _ => type.isAnyType
 
 /--
@@ -279,8 +296,17 @@ def isClass? (type : Expr) : CoreM (Option Name) := do
   else
     return none
 
-def getArrowArity (e : Expr) :=
-  match e with
+/--
+`isArrowClass? type` return `some ClsName` if the LCNF `type` is an instance of the class `ClsName`, or
+if it is arrow producing an instance of the class `ClsName`.
+-/
+partial def isArrowClass? (type : Expr) : CoreM (Option Name) := do
+  match type.headBeta with
+  | .forallE _ _ b _ => isArrowClass? b
+  | _ => isClass? type
+
+partial def getArrowArity (e : Expr) :=
+  match e.headBeta with
   | .forallE _ _ b _ => getArrowArity b + 1
   | _ => 0
 

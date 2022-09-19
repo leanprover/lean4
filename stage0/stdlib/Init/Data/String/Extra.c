@@ -22,6 +22,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_String_Extra_0__String_utf8ByteSi
 LEAN_EXPORT lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__2___closed__2;
 LEAN_EXPORT lean_object* l_String_toNat_x21___lambda__1(lean_object*, uint32_t);
+extern lean_object* l_instInhabitedNat;
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at___aux__Init__Notation______macroRules__precMax__1___spec__1(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__2___closed__1;
@@ -46,6 +47,7 @@ static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__t
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__22;
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__28;
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__14;
+LEAN_EXPORT lean_object* l_panic___at_String_toNat_x21___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_String_Iterator_foldUntil___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_String_isNat(lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__29;
@@ -71,11 +73,10 @@ static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__t
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__9;
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__8;
 static lean_object* l_String_toNat_x21___closed__4;
-lean_object* l_panic___at_Lean_TSyntax_getNat___spec__1(lean_object*);
+lean_object* lean_panic_fn(lean_object*, lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__27;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_fromUTF8Unchecked___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_String_toNat_x21___boxed(lean_object*);
 static lean_object* l_String_toNat_x21___closed__1;
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__2___closed__5;
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__17;
@@ -90,6 +91,15 @@ LEAN_EXPORT lean_object* l___private_Init_Data_String_Extra_0__String_utf8ByteSi
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__2___closed__7;
 static lean_object* l_String_toNat_x21___closed__5;
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__19;
+LEAN_EXPORT lean_object* l_panic___at_String_toNat_x21___spec__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_instInhabitedNat;
+x_3 = lean_panic_fn(x_2, x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_String_toNat_x21___lambda__1(lean_object* x_1, uint32_t x_2) {
 _start:
 {
@@ -159,8 +169,9 @@ x_2 = l_String_isNat(x_1);
 if (x_2 == 0)
 {
 lean_object* x_3; lean_object* x_4; 
+lean_dec(x_1);
 x_3 = l_String_toNat_x21___closed__4;
-x_4 = l_panic___at_Lean_TSyntax_getNat___spec__1(x_3);
+x_4 = l_panic___at_String_toNat_x21___spec__1(x_3);
 return x_4;
 }
 else
@@ -171,6 +182,7 @@ x_6 = l_String_toNat_x21___closed__5;
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = l_String_foldlAux_loop___rarg(x_6, x_1, x_5, x_7, x_7);
 lean_dec(x_5);
+lean_dec(x_1);
 return x_8;
 }
 }
@@ -184,15 +196,6 @@ lean_dec(x_2);
 x_4 = l_String_toNat_x21___lambda__1(x_1, x_3);
 lean_dec(x_1);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_String_toNat_x21___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_String_toNat_x21(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_String_fromUTF8Unchecked___boxed(lean_object* x_1) {

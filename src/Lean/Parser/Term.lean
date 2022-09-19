@@ -31,12 +31,24 @@ builtin_initialize
 
 namespace Tactic
 
+@[runBuiltinParserAttributeHooks]
+def sepByIndentSemicolon (p : Parser) : Parser :=
+  sepByIndent p "; " (allowTrailingSep := true)
+
+@[runBuiltinParserAttributeHooks]
+def sepBy1IndentSemicolon (p : Parser) : Parser :=
+  sepBy1Indent p "; " (allowTrailingSep := true)
+
+builtin_initialize
+  register_parser_alias sepByIndentSemicolon
+  register_parser_alias sepBy1IndentSemicolon
+
 def tacticSeq1Indented : Parser :=
-  leading_parser many1Indent (group (ppLine >> tacticParser >> optional ";"))
+  leading_parser sepBy1IndentSemicolon tacticParser
 /-- The syntax `{ tacs }` is an alternative syntax for `· tacs`.
 It runs the tactics in sequence, and fails if the goal is not solved. -/
 def tacticSeqBracketed : Parser :=
-  leading_parser "{" >> many (group (ppLine >> tacticParser >> optional ";")) >> ppDedent (ppLine >> "}")
+  leading_parser "{" >> sepByIndentSemicolon tacticParser >> ppDedent (ppLine >> "}")
 def tacticSeq :=
   leading_parser tacticSeqBracketed <|> tacticSeq1Indented
 

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.MonadEnv
-// Imports: Init Lean.Environment Lean.Exception Lean.Declaration Lean.Log Lean.Util.FindExpr Lean.AuxRecursor Lean.Compiler.Old
+// Imports: Init Lean.Environment Lean.Exception Lean.Declaration Lean.Log Lean.AuxRecursor Lean.Compiler.Old
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4421,7 +4421,6 @@ lean_object* initialize_Lean_Environment(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Exception(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Declaration(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Log(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Util_FindExpr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_AuxRecursor(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_Old(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -4442,9 +4441,6 @@ res = initialize_Lean_Declaration(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Log(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Util_FindExpr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_AuxRecursor(builtin, lean_io_mk_world());

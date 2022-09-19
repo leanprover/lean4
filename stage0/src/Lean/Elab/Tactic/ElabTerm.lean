@@ -3,10 +3,9 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Meta.CollectMVars
-import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Constructor
 import Lean.Meta.Tactic.Assert
+import Lean.Meta.Tactic.Clear
 import Lean.Meta.Tactic.Rename
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.SyntheticMVars

@@ -32,9 +32,13 @@ instance : MonadFVarSubst M where
   let map := (← get).map
   try x finally modify fun s => { s with map }
 
-def replaceFVar (fvarId fvarId' : FVarId) : M Unit := do
-  eraseFVar fvarId
-  modify fun s => { s with subst := s.subst.insert fvarId (.fvar fvarId') }
+def replaceLet (decl : LetDecl) (fvarId : FVarId) : M Unit := do
+  eraseLetDecl decl
+  modify fun s => { s with subst := s.subst.insert decl.fvarId (.fvar fvarId) }
+
+def replaceFun (decl : FunDecl) (fvarId : FVarId) : M Unit := do
+  eraseFunDecl decl
+  modify fun s => { s with subst := s.subst.insert decl.fvarId (.fvar fvarId) }
 
 partial def _root_.Lean.Compiler.LCNF.Code.cse (code : Code) : CompilerM Code :=
   go code |>.run' {}
@@ -49,23 +53,20 @@ where
     match code with
     | .let decl k =>
       let decl ← normLetDecl decl
-      if decl.pure then
-        -- We only apply CSE to pure code
-        match (← get).map.find? decl.value with
-        | some fvarId' =>
-          replaceFVar decl.fvarId fvarId'
-          go k
-        | none =>
-          addEntry decl.value decl.fvarId
-          return code.updateLet! decl (← go k)
-      else
+      -- We only apply CSE to pure code
+      match (← get).map.find? decl.value with
+      | some fvarId =>
+        replaceLet decl fvarId
+        go k
+      | none =>
+        addEntry decl.value decl.fvarId
         return code.updateLet! decl (← go k)
     | .fun decl k =>
       let decl ← goFunDecl decl
       let value := decl.toExpr
       match (← get).map.find? value with
       | some fvarId' =>
-        replaceFVar decl.fvarId fvarId'
+        replaceFun decl fvarId'
         go k
       | none =>
         addEntry value decl.fvarId
@@ -100,7 +101,7 @@ def Decl.cse (decl : Decl) : CompilerM Decl := do
   return { decl with value }
 
 def cse : Pass :=
-  .mkPerDeclaration `cse Decl.cse
+  .mkPerDeclaration `cse Decl.cse .base
 
 builtin_initialize
   registerTraceClass `Compiler.cse (inherited := true)

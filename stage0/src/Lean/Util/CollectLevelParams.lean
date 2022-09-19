@@ -24,11 +24,11 @@ mutual
     else collect u { s with visitedLevel := s.visitedLevel.insert u }
 
   partial def collect : Level → Visitor
-    | Level.succ v    => visitLevel v
-    | Level.max u v   => visitLevel v ∘ visitLevel u
-    | Level.imax u v  => visitLevel v ∘ visitLevel u
-    | Level.param n   => fun s => { s with params := s.params.push n }
-    | _                 => id
+    | .succ v    => visitLevel v
+    | .max u v   => visitLevel v ∘ visitLevel u
+    | .imax u v  => visitLevel v ∘ visitLevel u
+    | .param n   => fun s => { s with params := s.params.push n }
+    | _          => id
 end
 
 mutual
@@ -38,15 +38,15 @@ mutual
     else main e { s with visitedExpr := s.visitedExpr.insert e }
 
   partial def main : Expr → Visitor
-    | Expr.proj _ _ s      => visitExpr s
-    | Expr.forallE _ d b _ => visitExpr b ∘ visitExpr d
-    | Expr.lam _ d b _     => visitExpr b ∘ visitExpr d
-    | Expr.letE _ t v b _  => visitExpr b ∘ visitExpr v ∘ visitExpr t
-    | Expr.app f a         => visitExpr a ∘ visitExpr f
-    | Expr.mdata _ b       => visitExpr b
-    | Expr.const _ us      => fun s => us.foldl (fun s u => visitLevel u s) s
-    | Expr.sort u          => visitLevel u
-    | _                    => id
+    | .proj _ _ s      => visitExpr s
+    | .forallE _ d b _ => visitExpr b ∘ visitExpr d
+    | .lam _ d b _     => visitExpr b ∘ visitExpr d
+    | .letE _ t v b _  => visitExpr b ∘ visitExpr v ∘ visitExpr t
+    | .app f a         => visitExpr a ∘ visitExpr f
+    | .mdata _ b       => visitExpr b
+    | .const _ us      => fun s => us.foldl (fun s u => visitLevel u s) s
+    | .sort u          => visitLevel u
+    | _                => id
 end
 
 partial def State.getUnusedLevelParam (s : CollectLevelParams.State) (pre : Name := `v) : Level :=

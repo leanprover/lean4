@@ -31,12 +31,44 @@ instance : AddMessageContext CompilerM where
     let opts ← getOptions
     return MessageData.withContext { env, lctx, opts, mctx := {} } msgData
 
-def getLocalDecl (fvarId : FVarId) : CompilerM LocalDecl := do
-  let some decl := (← get).lctx.localDecls.find? fvarId | throwError "unknown free variable {fvarId.name}"
-  return decl
+def getType (fvarId : FVarId) : CompilerM Expr := do
+  let lctx := (← get).lctx
+  if let some decl := lctx.letDecls.find? fvarId then
+    return decl.type
+  else if let some decl := lctx.params.find? fvarId then
+    return decl.type
+  else if let some decl := lctx.funDecls.find? fvarId then
+    return decl.type
+  else
+    throwError "unknown free variable {fvarId.name}"
+
+def getBinderName (fvarId : FVarId) : CompilerM Name := do
+  let lctx := (← get).lctx
+  if let some decl := lctx.letDecls.find? fvarId then
+    return decl.binderName
+  else if let some decl := lctx.params.find? fvarId then
+    return decl.binderName
+  else if let some decl := lctx.funDecls.find? fvarId then
+    return decl.binderName
+  else
+    throwError "unknown free variable {fvarId.name}"
+
+def findParam? (fvarId : FVarId) : CompilerM (Option Param) :=
+  return (← get).lctx.params.find? fvarId
+
+def findLetDecl? (fvarId : FVarId) : CompilerM (Option LetDecl) :=
+  return (← get).lctx.letDecls.find? fvarId
 
 def findFunDecl? (fvarId : FVarId) : CompilerM (Option FunDecl) :=
   return (← get).lctx.funDecls.find? fvarId
+
+def getParam (fvarId : FVarId) : CompilerM Param := do
+  let some param ← findParam? fvarId | throwError "unknown parameter {fvarId.name}"
+  return param
+
+def getLetDecl (fvarId : FVarId) : CompilerM LetDecl := do
+  let some decl ← findLetDecl? fvarId | throwError "unknown let-declaration {fvarId.name}"
+  return decl
 
 def getFunDecl (fvarId : FVarId) : CompilerM FunDecl := do
   let some decl ← findFunDecl? fvarId | throwError "unknown local function {fvarId.name}"
@@ -45,14 +77,25 @@ def getFunDecl (fvarId : FVarId) : CompilerM FunDecl := do
 @[inline] def modifyLCtx (f : LCtx → LCtx) : CompilerM Unit := do
    modify fun s => { s with lctx := f s.lctx }
 
-def eraseFVar (fvarId : FVarId) (recursive := true) : CompilerM Unit := do
-  modifyLCtx fun lctx => lctx.erase fvarId recursive
+def eraseLetDecl (decl : LetDecl) : CompilerM Unit := do
+  modifyLCtx fun lctx => lctx.eraseLetDecl decl
 
-def eraseFVarsAt (code : Code) : CompilerM Unit := do
-  modifyLCtx fun lctx => lctx.eraseFVarsAt code
+def eraseFunDecl (decl : FunDecl) (recursive := true) : CompilerM Unit := do
+  modifyLCtx fun lctx => lctx.eraseFunDecl decl recursive
+
+def eraseCode (code : Code) : CompilerM Unit := do
+  modifyLCtx fun lctx => lctx.eraseCode code
+
+def eraseParam (param : Param) : CompilerM Unit :=
+  modifyLCtx fun lctx => lctx.eraseParam param
 
 def eraseParams (params : Array Param) : CompilerM Unit :=
-  params.forM (eraseFVar ·.fvarId)
+  modifyLCtx fun lctx => lctx.eraseParams params
+
+def eraseCodeDecl (decl : CodeDecl) : CompilerM Unit := do
+  match decl with
+  | .let decl => eraseLetDecl decl
+  | .jp decl | .fun decl => eraseFunDecl decl
 
 /--
 A free variable substitution.
@@ -119,48 +162,49 @@ private def refreshBinderName (binderName : Name) : CompilerM Name := do
 
 namespace Internalize
 
-abbrev M := StateRefT FVarSubst CompilerM
+abbrev InternalizeM := StateRefT FVarSubst CompilerM
 
-instance : MonadFVarSubst M where
+instance : MonadFVarSubst InternalizeM where
   getSubst := get
 
-private def mkNewFVarId (fvarId : FVarId) : M FVarId := do
+private def mkNewFVarId (fvarId : FVarId) : InternalizeM FVarId := do
   let fvarId' ← Lean.mkFreshFVarId
   modify fun s => s.insert fvarId (.fvar fvarId')
   return fvarId'
 
-private def addParam (p : Param) : M Param := do
+def internalizeParam (p : Param) : InternalizeM Param := do
   let type ← normExpr p.type
   let fvarId ← mkNewFVarId p.fvarId
-  modifyLCtx fun lctx => lctx.addLocalDecl fvarId p.binderName type
-  return { p with fvarId, type }
+  let p := { p with fvarId, type }
+  modifyLCtx fun lctx => lctx.addParam p
+  return p
+
+def internalizeLetDecl (decl : LetDecl) : InternalizeM LetDecl := do
+  let binderName ← refreshBinderName decl.binderName
+  let type ← normExpr decl.type
+  let value ← normExpr decl.value
+  let fvarId ← mkNewFVarId decl.fvarId
+  let decl := { decl with binderName, fvarId, type, value }
+  modifyLCtx fun lctx => lctx.addLetDecl decl
+  return decl
 
 mutual
 
-partial def internalizeFunDecl (decl : FunDecl) : M FunDecl := do
+partial def internalizeFunDecl (decl : FunDecl) : InternalizeM FunDecl := do
   let type ← normExpr decl.type
   let binderName ← refreshBinderName decl.binderName
-  let params ← decl.params.mapM addParam
+  let params ← decl.params.mapM internalizeParam
   let value ← internalizeCode decl.value
   let fvarId ← mkNewFVarId decl.fvarId
   let decl := { decl with binderName, fvarId, params, type, value }
   modifyLCtx fun lctx => lctx.addFunDecl decl
   return decl
 
-partial def internalizeCode (code : Code) : M Code := do
+partial def internalizeCode (code : Code) : InternalizeM Code := do
   match code with
-  | .let decl k =>
-    let binderName ← refreshBinderName decl.binderName
-    let type ← normExpr decl.type
-    let value ← normExpr decl.value
-    let fvarId ← mkNewFVarId decl.fvarId
-    modifyLCtx fun lctx => lctx.addLetDecl fvarId binderName type value
-    let k ← internalizeCode k
-    return .let { decl with binderName, fvarId, type, value } k
-  | .fun decl k =>
-    return .fun (← internalizeFunDecl decl) (← internalizeCode k)
-  | .jp decl k =>
-    return .jp (← internalizeFunDecl decl) (← internalizeCode k)
+  | .let decl k => return .let (← internalizeLetDecl decl) (← internalizeCode k)
+  | .fun decl k => return .fun (← internalizeFunDecl decl) (← internalizeCode k)
+  | .jp decl k => return .jp (← internalizeFunDecl decl) (← internalizeCode k)
   | .return fvarId => return .return (← normFVar fvarId)
   | .jmp fvarId args => return .jmp (← normFVar fvarId) (← args.mapM normExpr)
   | .unreach type => return .unreach (← normExpr type)
@@ -168,11 +212,17 @@ partial def internalizeCode (code : Code) : M Code := do
     let resultType ← normExpr c.resultType
     let discr ← normFVar c.discr
     let alts ← c.alts.mapM fun
-      | .alt ctorName params k => return .alt ctorName (← params.mapM addParam) (← internalizeCode k)
+      | .alt ctorName params k => return .alt ctorName (← params.mapM internalizeParam) (← internalizeCode k)
       | .default k => return .default (← internalizeCode k)
     return .cases { c with discr, alts, resultType }
 
 end
+
+partial def internalizeCodeDecl (decl : CodeDecl) : InternalizeM CodeDecl := do
+  match decl with
+  | .let decl => return .let (← internalizeLetDecl decl)
+  | .fun decl => return .fun (← internalizeFunDecl decl)
+  | .jp decl => return .jp (← internalizeFunDecl decl)
 
 end Internalize
 
@@ -186,9 +236,9 @@ open Internalize in
 def Decl.internalize (decl : Decl) (s : FVarSubst := {}): CompilerM Decl :=
   go decl |>.run' s
 where
-  go (decl : Decl) : M Decl := do
+  go (decl : Decl) : InternalizeM Decl := do
     let type ← normExpr decl.type
-    let params ← decl.params.mapM addParam
+    let params ← decl.params.mapM internalizeParam
     let value ← internalizeCode decl.value
     return { decl with type, params, value }
 
@@ -196,15 +246,17 @@ where
 Helper functions for creating LCNF local declarations.
 -/
 
-def mkParam (binderName : Name) (type : Expr) : CompilerM Param := do
+def mkParam (binderName : Name) (type : Expr) (borrow : Bool) : CompilerM Param := do
   let fvarId ← mkFreshFVarId
-  modifyLCtx fun lctx => lctx.addLocalDecl fvarId binderName type
-  return { fvarId, binderName, type }
+  let param := { fvarId, binderName, type, borrow }
+  modifyLCtx fun lctx => lctx.addParam param
+  return param
 
-def mkLetDecl (binderName : Name) (type : Expr) (value : Expr) (pure := true) : CompilerM LetDecl := do
+def mkLetDecl (binderName : Name) (type : Expr) (value : Expr) : CompilerM LetDecl := do
   let fvarId ← mkFreshFVarId
-  modifyLCtx fun lctx => lctx.addLetDecl fvarId binderName type value
-  return { fvarId, binderName, type, value, pure }
+  let decl := { fvarId, binderName, type, value }
+  modifyLCtx fun lctx => lctx.addLetDecl decl
+  return decl
 
 def mkFunDecl (binderName : Name) (type : Expr) (params : Array Param) (value : Code) : CompilerM FunDecl := do
   let fvarId ← mkFreshFVarId
@@ -217,7 +269,7 @@ private unsafe def updateParamImp (p : Param) (type : Expr) : CompilerM Param :=
     return p
   else
     let p := { p with type }
-    modifyLCtx fun lctx => lctx.addLocalDecl p.fvarId p.binderName p.type
+    modifyLCtx fun lctx => lctx.addParam p
     return p
 
 @[implementedBy updateParamImp] opaque Param.update (p : Param) (type : Expr) : CompilerM Param
@@ -227,7 +279,7 @@ private unsafe def updateLetDeclImp (decl : LetDecl) (type : Expr) (value : Expr
     return decl
   else
     let decl := { decl with type, value }
-    modifyLCtx fun lctx => lctx.addLetDecl decl.fvarId decl.binderName decl.type decl.value
+    modifyLCtx fun lctx => lctx.addLetDecl decl
     return decl
 
 @[implementedBy updateLetDeclImp] opaque LetDecl.update (decl : LetDecl) (type : Expr) (value : Expr) : CompilerM LetDecl
@@ -307,8 +359,8 @@ def replaceFVar (code : Code) (fvarId fvarId' : FVarId) : CompilerM Code :=
 def mkFreshJpName : CompilerM Name := do
   mkFreshBinderName `_jp
 
-def mkAuxParam (type : Expr) : CompilerM Param := do
-  mkParam (← mkFreshBinderName `_y) type
+def mkAuxParam (type : Expr) (borrow := false) : CompilerM Param := do
+  mkParam (← mkFreshBinderName `_y) type borrow
 
 /--
 Create a fresh local context and internalize the given decls.

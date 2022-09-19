@@ -7,7 +7,6 @@ Message Type used by the Lean frontend
 -/
 import Lean.Data.Position
 import Lean.Data.OpenDecl
-import Lean.Syntax
 import Lean.MetavarContext
 import Lean.Environment
 import Lean.Util.PPExt

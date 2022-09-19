@@ -23,12 +23,12 @@ def add (x y : Nat) :=
   x + y
 
 inductive InductiveTy
-| a
-|
+  | a
   /--
     Another doc comment. This one is not folded.
+
   -/
-  b
+  | b
 
 mutual
   def a :=

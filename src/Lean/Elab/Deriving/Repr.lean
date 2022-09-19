@@ -26,21 +26,19 @@ def mkBodyForStruct (header : Header) (indVal : InductiveVal) : TermElabM Term :
   let target     := mkIdent header.targetNames[0]!
   forallTelescopeReducing ctorVal.type fun xs _ => do
     let mut fields ← `(Format.nil)
-    let mut first := true
     if xs.size != numParams + fieldNames.size then
       throwError "'deriving Repr' failed, unexpected number of fields in structure"
     for i in [:fieldNames.size] do
       let fieldName := fieldNames[i]!
       let fieldNameLit := Syntax.mkStrLit (toString fieldName)
       let x := xs[numParams + i]!
-      if first then
-        first := false
-      else
+      if i > numParams then
         fields ← `($fields ++ "," ++ Format.line)
       if (← isType x <||> isProof x) then
         fields ← `($fields ++ $fieldNameLit ++ " := " ++ "_")
       else
-        fields ← `($fields ++ $fieldNameLit ++ " := " ++ repr ($target.$(mkIdent fieldName):ident))
+        let indent := Syntax.mkNumLit <| toString ((toString fieldName |>.length) + " := ".length)
+        fields ← `($fields ++ $fieldNameLit ++ " := " ++ (Format.group (Format.nest $indent (repr ($target.$(mkIdent fieldName):ident)))))
     `(Format.bracket "{ " $fields:term " }")
 
 def mkBodyForInduct (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Term := do

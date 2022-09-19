@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Linter.MissingDocs
-// Imports: Init Lean.Linter.Util
+// Imports: Init Lean.Meta.Tactic.Simp.SimpTheorems Lean.Elab.SetOption Lean.Linter.Util
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -172,7 +172,7 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Linter_MissingDocs_checkSimpLike(le
 static lean_object* l_Lean_Linter_MissingDocs_lintDeclHead___closed__4;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Array_anyMUnsafe_any___at_Lean_Linter_MissingDocs_hasInheritDoc___spec__1___closed__8;
-uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_192_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_187_(uint8_t, uint8_t);
 static lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_757____closed__5;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_356____spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_MissingDocs_checkNotation___closed__4;
@@ -453,8 +453,8 @@ LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_lintField(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Std_mkHashSet___at_Lean_Linter_MissingDocs_checkDecl___spec__10(lean_object*);
 static lean_object* l_Lean_Linter_MissingDocs_mkHandlerUnsafe___closed__5;
 static lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_757____closed__2;
+lean_object* l_Lean_Syntax_getAtomVal(lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
-lean_object* l_Lean_Syntax_getAtomVal_x21(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 lean_object* l_Std_instInhabitedPersistentArrayNode(lean_object*);
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
@@ -2599,7 +2599,7 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; 
 x_9 = 0;
-x_10 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_192_(x_5, x_9);
+x_10 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_187_(x_5, x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
@@ -3100,7 +3100,7 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; 
 x_9 = 0;
-x_10 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_192_(x_5, x_9);
+x_10 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_187_(x_5, x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
@@ -4285,48 +4285,68 @@ return x_10;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
+lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
 lean_dec(x_5);
 x_11 = lean_array_uget(x_2, x_4);
-x_12 = lean_unsigned_to_nat(1u);
+x_12 = lean_unsigned_to_nat(2u);
 x_13 = l_Lean_Syntax_getArg(x_11, x_12);
-x_14 = l_Lean_Linter_MissingDocs_declModifiersPubNoDoc(x_13);
-lean_dec(x_13);
-if (x_14 == 0)
+x_14 = lean_unsigned_to_nat(0u);
+x_15 = l_Lean_Syntax_getArg(x_11, x_14);
+x_16 = l_Lean_Syntax_isNone(x_15);
+lean_dec(x_15);
+if (x_16 == 0)
 {
-size_t x_15; size_t x_16; lean_object* x_17; 
+size_t x_17; size_t x_18; lean_object* x_19; 
+lean_dec(x_13);
 lean_dec(x_11);
-x_15 = 1;
-x_16 = lean_usize_add(x_4, x_15);
-x_17 = lean_box(0);
-x_4 = x_16;
-x_5 = x_17;
+x_17 = 1;
+x_18 = lean_usize_add(x_4, x_17);
+x_19 = lean_box(0);
+x_4 = x_18;
+x_5 = x_19;
 goto _start;
 }
 else
 {
-lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; size_t x_27; size_t x_28; lean_object* x_29; 
-x_19 = l_Lean_Syntax_getArg(x_1, x_12);
-x_20 = lean_unsigned_to_nat(0u);
-x_21 = l_Lean_Syntax_getArg(x_19, x_20);
-lean_dec(x_19);
-x_22 = lean_unsigned_to_nat(2u);
-x_23 = l_Lean_Syntax_getArg(x_11, x_22);
+uint8_t x_21; 
+x_21 = l_Lean_Linter_MissingDocs_declModifiersPubNoDoc(x_13);
+lean_dec(x_13);
+if (x_21 == 0)
+{
+size_t x_22; size_t x_23; lean_object* x_24; 
 lean_dec(x_11);
-x_24 = l_Array_forInUnsafe_loop___at_Lean_Linter_MissingDocs_checkDecl___spec__1___closed__1;
-x_25 = l_Lean_Linter_MissingDocs_lintField(x_21, x_23, x_24, x_6, x_7, x_8);
-lean_dec(x_23);
-lean_dec(x_21);
-x_26 = lean_ctor_get(x_25, 1);
-lean_inc(x_26);
-lean_dec(x_25);
-x_27 = 1;
-x_28 = lean_usize_add(x_4, x_27);
-x_29 = lean_box(0);
-x_4 = x_28;
-x_5 = x_29;
-x_8 = x_26;
+x_22 = 1;
+x_23 = lean_usize_add(x_4, x_22);
+x_24 = lean_box(0);
+x_4 = x_23;
+x_5 = x_24;
 goto _start;
+}
+else
+{
+lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; size_t x_34; size_t x_35; lean_object* x_36; 
+x_26 = lean_unsigned_to_nat(1u);
+x_27 = l_Lean_Syntax_getArg(x_1, x_26);
+x_28 = l_Lean_Syntax_getArg(x_27, x_14);
+lean_dec(x_27);
+x_29 = lean_unsigned_to_nat(3u);
+x_30 = l_Lean_Syntax_getArg(x_11, x_29);
+lean_dec(x_11);
+x_31 = l_Array_forInUnsafe_loop___at_Lean_Linter_MissingDocs_checkDecl___spec__1___closed__1;
+x_32 = l_Lean_Linter_MissingDocs_lintField(x_28, x_30, x_31, x_6, x_7, x_8);
+lean_dec(x_30);
+lean_dec(x_28);
+x_33 = lean_ctor_get(x_32, 1);
+lean_inc(x_33);
+lean_dec(x_32);
+x_34 = 1;
+x_35 = lean_usize_add(x_4, x_34);
+x_36 = lean_box(0);
+x_4 = x_35;
+x_5 = x_36;
+x_8 = x_33;
+goto _start;
+}
 }
 }
 }
@@ -6375,7 +6395,7 @@ lean_dec(x_23);
 x_26 = l_Lean_Syntax_getArg(x_1, x_24);
 x_27 = l_Lean_Syntax_getArg(x_26, x_5);
 lean_dec(x_26);
-x_28 = l_Lean_Syntax_getAtomVal_x21(x_27);
+x_28 = l_Lean_Syntax_getAtomVal(x_27);
 lean_dec(x_27);
 x_29 = l_Lean_Linter_MissingDocs_lintNamed(x_25, x_28, x_2, x_3, x_4);
 lean_dec(x_28);
@@ -6389,7 +6409,7 @@ lean_dec(x_21);
 x_30 = lean_unsigned_to_nat(3u);
 x_31 = l_Lean_Syntax_getArg(x_1, x_30);
 x_32 = l_Lean_Syntax_getArg(x_31, x_5);
-x_33 = l_Lean_Syntax_getAtomVal_x21(x_32);
+x_33 = l_Lean_Syntax_getAtomVal(x_32);
 lean_dec(x_32);
 x_34 = l_Lean_Linter_MissingDocs_lint(x_31, x_33, x_2, x_3, x_4);
 lean_dec(x_33);
@@ -8662,6 +8682,8 @@ return x_4;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Simp_SimpTheorems(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_SetOption(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Linter_Util(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Linter_MissingDocs(uint8_t builtin, lean_object* w) {
@@ -8669,6 +8691,12 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Simp_SimpTheorems(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_SetOption(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Linter_Util(builtin, lean_io_mk_world());

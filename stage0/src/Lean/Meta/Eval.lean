@@ -10,6 +10,9 @@ namespace Lean.Meta
 unsafe def evalExprCore (α) (value : Expr) (checkType : Expr → MetaM Unit) (safety := DefinitionSafety.safe) : MetaM α :=
   withoutModifyingEnv do
     let name ← mkFreshUserName `_tmp
+    let value ← instantiateMVars value
+    if value.hasMVar then
+      throwError "failed to evaluate expression, it contains metavariables{indentExpr value}"
     let type ← inferType value
     checkType type
     let decl := Declaration.defnDecl {

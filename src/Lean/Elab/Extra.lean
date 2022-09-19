@@ -128,18 +128,18 @@ there is no coercion `Matrix Real 5 4` from `Matrix Real 4 8` and vice-versa, bu
 -/
 
 private inductive Tree where
-  | /--
-    Leaf of the tree.
-    We store the `infoTrees` generated when elaborating `val`. These trees become
-    subtrees of the infotree nodes generated for `op` nodes.
-    -/
-    term (ref : Syntax) (infoTrees : Std.PersistentArray InfoTree) (val : Expr)
-  | /--
-    `ref` is the original syntax that expanded into `binop%`.
-    `macroName` is the `macro_rule` that produce the expansion. We store this information
-    here to make sure "go to definition" behaves similarly to notation defined without using `binop%` helper elaborator.
-    -/
-    op (ref : Syntax) (macroName : Name) (lazy : Bool) (f : Expr) (lhs rhs : Tree)
+  /--
+  Leaf of the tree.
+  We store the `infoTrees` generated when elaborating `val`. These trees become
+  subtrees of the infotree nodes generated for `op` nodes.
+  -/
+  | term (ref : Syntax) (infoTrees : Std.PersistentArray InfoTree) (val : Expr)
+  /--
+  `ref` is the original syntax that expanded into `binop%`.
+  `macroName` is the `macro_rule` that produce the expansion. We store this information
+  here to make sure "go to definition" behaves similarly to notation defined without using `binop%` helper elaborator.
+  -/
+  | op (ref : Syntax) (macroName : Name) (lazy : Bool) (f : Expr) (lhs rhs : Tree)
 
 private partial def toTree (s : Syntax) : TermElabM Tree := do
   /-
@@ -381,7 +381,37 @@ def elabBinOpLazy : TermElab := elabBinOp
 -/
 def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=  do
   match (← resolveId? stx[1]) with
-  | some f => withSynthesize (mayPostpone := true) do
+  | some f => withSynthesizeLight do
+    /-
+    We used to use `withSynthesize (mayPostpone := true)` here instead of `withSynthesizeLight` here.
+    Recall that `withSynthesizeLight` is equivalent to `withSynthesize (mayPostpone := true) (synthesizeDefault := false)`.
+    It seems too much to apply default instances at binary relations. For example, we cannot elaborate
+    ```
+    def as : List Int := [-1, 2, 0, -3, 4]
+    #eval as.map fun a => ite (a ≥ 0) [a] []
+    ```
+    The problem is that when elaborating `a ≥ 0` we don't know yet that `a` is an `Int`.
+    Then, by applying default instances, we apply the default instance to `0` that forces it to become an `Int`,
+    and Lean infers that `a` has type `Nat`.
+    Then, later we get a type error because `as` is `List Int` instead of `List Nat`.
+    This behavior is quite counterintuitive since if we avoid this elaborator by writing
+    ```
+    def as : List Int := [-1, 2, 0, -3, 4]
+    #eval as.map fun a => ite (GE.ge a 0) [a] []
+    ```
+    everything works.
+    However, there is a drawback of using `withSynthesizeLight` instead of `withSynthesize (mayPostpone := true)`.
+    The following cannot be elaborated
+    ```
+    have : (0 == 1) = false := rfl
+    ```
+    We get a type error at `rfl`. `0 == 1` only reduces to `false` after we have applied the default instances that force
+    the numeral to be `Nat`. We claim this is defensible behavior because the same happens if we do not use this elaborator.
+    ```
+    have : (BEq.beq 0 1) = false := rfl
+    ```
+    We can improve this failure in the future by applying default instances before reporting a type mismatch.
+    -/
     let lhs ← withRef stx[2] <| toTree stx[2]
     let rhs ← withRef stx[3] <| toTree stx[3]
     let tree := Tree.op (lazy := false) stx .anonymous f lhs rhs

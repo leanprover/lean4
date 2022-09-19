@@ -60,7 +60,7 @@ def optDeclSig       := leading_parser many (ppSpace >> (Term.binderIdent <|> Te
 def declValSimple    := leading_parser " :=" >> ppHardLineUnlessUngrouped >> termParser >> optional Term.whereDecls
 def declValEqns      := leading_parser Term.matchAltsWhereDecls
 def whereStructField := leading_parser Term.letDecl
-def whereStructInst  := leading_parser " where" >> sepBy1Indent (ppGroup whereStructField) "; " (allowTrailingSep := true) >> optional Term.whereDecls
+def whereStructInst  := leading_parser " where" >> sepByIndent (ppGroup whereStructField) "; " (allowTrailingSep := true) >> optional Term.whereDecls
 /-
   Remark: we should not use `Term.whereDecls` at `declVal` because `Term.whereDecls` is defined using `Term.letRecDecl` which may contain attributes.
   Issue #753 showns an example that fails to be parsed when we used `Term.whereDecls`.
@@ -76,8 +76,8 @@ def «opaque»         := leading_parser "opaque " >> declId >> ppIndent declSig
 def «instance»       := leading_parser Term.attrKind >> "instance" >> optNamedPrio >> optional (ppSpace >> declId) >> ppIndent declSig >> declVal >> terminationSuffix
 def «axiom»          := leading_parser "axiom " >> declId >> ppIndent declSig
 /- As `declSig` starts with a space, "example" does not need a trailing space. -/
-def «example»        := leading_parser "example" >> ppIndent declSig >> declVal
-def ctor             := leading_parser "\n| " >> ppIndent (declModifiers true >> rawIdent >> optDeclSig)
+def «example»        := leading_parser "example" >> ppIndent optDeclSig >> declVal
+def ctor             := leading_parser atomic (optional docComment >> "\n| ") >> ppGroup (declModifiers true >> rawIdent >> optDeclSig)
 def derivingClasses  := sepBy1 (group (ident >> optional (" with " >> Term.structInst))) ", "
 def optDeriving      := leading_parser optional (ppLine >> atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
 def computedField    := leading_parser declModifiers true >> ident >> " : " >> termParser >> Term.matchAlts

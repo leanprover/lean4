@@ -50,19 +50,19 @@ a big problem in practice because we run the simplifier multiple times, and this
 is recomputed from scratch at the beginning of each simplification step.
 -/
 inductive FunDeclInfo where
-  | /--
-    Local function is applied once, and must be inlined.
-    -/
-    once
-  | /--
-    Local function is applied many times, and will only be inlined
-    if it is small.
-    -/
-    many
-  | /--
-    Function must be inlined.
-    -/
-    mustInline
+  /--
+  Local function is applied once, and must be inlined.
+  -/
+  | once
+  /--
+  Local function is applied many times, and will only be inlined
+  if it is small.
+  -/
+  | many
+  /--
+  Function must be inlined.
+  -/
+  | mustInline
   deriving Repr, Inhabited
 
 /--
@@ -78,8 +78,8 @@ structure FunDeclInfoMap where
 def FunDeclInfoMap.format (s : FunDeclInfoMap) : CompilerM Format := do
   let mut result := Format.nil
   for (fvarId, info) in s.map.toList do
-    let localDecl ← getLocalDecl fvarId
-    result := result ++ "\n" ++ f!"{localDecl.userName} ↦ {repr info}"
+    let binderName ← getBinderName fvarId
+    result := result ++ "\n" ++ f!"{binderName} ↦ {repr info}"
   return result
 
 /--
@@ -110,8 +110,8 @@ partial def findFunDecl? (e : Expr) : CompilerM (Option FunDecl) := do
   | .fvar fvarId =>
     if let some decl ← LCNF.findFunDecl? fvarId then
       return some decl
-    else if let .ldecl (value := v) .. ← getLocalDecl fvarId then
-      findFunDecl? v
+    else if let some decl ← findLetDecl? fvarId then
+      findFunDecl? decl.value
     else
       return none
   | .mdata _ e => findFunDecl? e
@@ -120,8 +120,8 @@ partial def findFunDecl? (e : Expr) : CompilerM (Option FunDecl) := do
 partial def findExpr (e : Expr) (skipMData := true) : CompilerM Expr := do
   match e with
   | .fvar fvarId =>
-    let .ldecl (value := v) .. ← getLocalDecl fvarId | return e
-    findExpr v
+    let some decl ← findLetDecl? fvarId | return e
+    findExpr decl.value
   | .mdata _ e' => if skipMData then findExpr e' else return e
   | _ => return e
 
@@ -155,6 +155,12 @@ structure Config where
   deriving Inhabited
 
 structure Context where
+  /--
+  Name of the declaration being simplified.
+  We currently use this information because we are generating phase1 declarations  on demand,
+  and it may trigger non-termination when trying to access the phase1 declaration.
+  -/
+  declName : Name
   config : Config := {}
   discrCtorMap : FVarIdMap Expr := {}
 
@@ -195,6 +201,16 @@ abbrev SimpM := ReaderT Context $ StateRefT State CompilerM
 
 instance : MonadFVarSubst SimpM where
   getSubst := return (← get).subst
+
+/--
+Use `findExpr`, and if the result is a free variable, check whether it is in the map `discrCtorMap`.
+We use this method when simplifying projections and cases-constructor.
+-/
+def findCtor (e : Expr) : SimpM Expr := do
+  let e ← findExpr e
+  let .fvar fvarId := e | return e
+  let some ctor := (← read).discrCtorMap.find? fvarId | return e
+  return ctor
 
 /--
 Execute `x` with the information that `discr = ctorName ctorFields`.
@@ -319,6 +335,28 @@ def InlineCandidateInfo.arity : InlineCandidateInfo → Nat
   | { params, .. } => params.size
 
 /--
+Return `some i` if `decl` is of the form
+```
+def f (a_0 ... a_i ...) :=
+  ...
+  cases a_i
+  | ...
+  | ...
+```
+That is, `f` is a sequence of declarations followed by a `cases` on the parameter `i`.
+We use this function to decide whether we should inline a declaration tagged with
+`[inlineIfReduce]` or not.
+-/
+def isCasesOnParam? (decl : Decl) : Option Nat :=
+  go decl.value
+where
+  go (code : Code) : Option Nat :=
+    match code with
+    | .let _ k | .jp _ k | .fun _ k => go k
+    | .cases c => decl.params.findIdx? fun param => param.fvarId == c.discr
+    | _ => none
+
+/--
 Return `some info` if `e` should be inlined.
 -/
 def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
@@ -330,13 +368,20 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
   let numArgs := e.getAppNumArgs
   let f := e.getAppFn
   if let .const declName us ← findExpr f then
-    unless mustInline || hasInlineAttribute (← getEnv) declName do return none
+    if declName == (← read).declName then return none -- TODO: remove after we start storing phase1 code in .olean files
+    let inlineIfReduce := hasInlineIfReduceAttribute (← getEnv) declName
+    unless mustInline || hasInlineAttribute (← getEnv) declName || inlineIfReduce do return none
     -- TODO: check whether function is recursive or not.
     -- We can skip the test and store function inline so far.
     let some decl ← getStage1Decl? declName | return none
     let arity := decl.getArity
     let inlinePartial := (← read).config.inlinePartial
     if !mustInline && !inlinePartial && numArgs < arity then return none
+    if inlineIfReduce then
+      let some paramIdx := isCasesOnParam? decl | return none
+      unless paramIdx < numArgs do return none
+      let arg ← findCtor (e.getArg! paramIdx)
+      unless arg.isConstructorApp (← getEnv) do return none
     let params := decl.instantiateParamsLevelParams us
     let value := decl.instantiateValueLevelParams us
     incInline
@@ -541,13 +586,13 @@ where
   go (i : Nat) (code : Code) : SimpM Code := do
     if i > 0 then
       let decl := decls[i-1]!
-      if !decl.isPure || (← isUsed decl.fvarId) then
+      if (← isUsed decl.fvarId) then
         match decl with
         | .let decl => markUsedLetDecl decl; go (i-1) (.let decl code)
         | .fun decl => markUsedFunDecl decl; go (i-1) (.fun decl code)
         | .jp decl => markUsedFunDecl decl; go (i-1) (.jp decl code)
       else
-        eraseFVar decl.fvarId
+        eraseCodeDecl decl
         go (i-1) code
     else
       return code
@@ -556,7 +601,7 @@ where
 Erase all free variables occurring in `decls` from the local context.
 -/
 def eraseCodeDecls (decls : Array CodeDecl) : SimpM Unit := do
-  decls.forM fun decl => eraseFVar decl.fvarId
+  decls.forM fun decl => eraseCodeDecl decl
 
 /--
 Auxiliary function for projecting "type class dictionary access".
@@ -740,21 +785,11 @@ private def addDefault (alts : Array Alt) : SimpM (Array Alt) := do
           let .alt _ ps k := alt | unreachable!
           eraseParams ps
           unless first do
-            eraseFVarsAt k
+            eraseCode k
           first := false
         else
           altsNew := altsNew.push alt
       return altsNew.push (.default max.getCode)
-
-/--
-Use `findExpr`, and if the result is a free variable, check whether it is in the map `discrCtorMap`.
-We use this method when simplifying projections and cases-constructor.
--/
-def findCtor (e : Expr) : SimpM Expr := do
-  let e ← findExpr e
-  let .fvar fvarId := e | return e
-  let some ctor := (← read).discrCtorMap.find? fvarId | return e
-  return ctor
 
 /--
 Try to simplify projections `.proj _ i s` where `s` is constructor.
@@ -796,11 +831,19 @@ def simpValue? (e : Expr) : SimpM (Option Expr) :=
   simpProj? e <|> simpAppApp? e <|> applyImplementedBy? e
 
 /--
-Erase the given free variable from the local context,
+Erase the given let-declaration from the local context,
 and set the `simplified` flag to true.
 -/
-def eraseLocalDecl (fvarId : FVarId) : SimpM Unit := do
-  eraseFVar fvarId
+def eraseLetDecl (decl : LetDecl) : SimpM Unit := do
+  LCNF.eraseLetDecl decl
+  markSimplified
+
+/--
+Erase the given local function declaration from the local context,
+and set the `simplified` flag to true.
+-/
+def eraseFunDecl (decl : FunDecl) : SimpM Unit := do
+  LCNF.eraseFunDecl decl
   markSimplified
 
 /--
@@ -812,7 +855,7 @@ simplification opportunities by eta-expanding them.
 def etaPolyApp? (letDecl : LetDecl) : OptionT SimpM FunDecl := do
   guard <| (← read).config.etaPoly
   let .const declName _ := letDecl.value.getAppFn | failure
-  let info ← getConstInfo declName
+  let some info := (← getEnv).find? declName | failure
   guard <| hasLocalInst info.type
   guard <| !(← Meta.isInstance declName)
   let some decl ← getStage1Decl? declName | failure
@@ -823,7 +866,7 @@ def etaPolyApp? (letDecl : LetDecl) : OptionT SimpM FunDecl := do
   let auxDecl ← mkAuxLetDecl value
   let funDecl ← mkAuxFunDecl params (.let auxDecl (.return auxDecl.fvarId))
   addSubst letDecl.fvarId (.fvar funDecl.fvarId)
-  eraseLocalDecl letDecl.fvarId
+  eraseLetDecl letDecl
   return funDecl
 
 mutual
@@ -842,19 +885,30 @@ Try to simplify `cases` of `constructor`
 partial def simpCasesOnCtor? (cases : Cases) : SimpM (Option Code) := do
   let discr ← normFVar cases.discr
   let discrExpr ← findCtor (.fvar discr)
-  let some (ctorVal, ctorArgs) := discrExpr.constructorApp? (← getEnv) | return none
+  let some (ctorVal, ctorArgs) := discrExpr.constructorApp? (← getEnv) (useRaw := true) | return none
   let (alt, cases) := cases.extractAlt! ctorVal.name
-  eraseFVarsAt (.cases cases)
+  eraseCode (.cases cases)
   markSimplified
   match alt with
   | .default k => simp k
   | .alt _ params k =>
     let fields := ctorArgs[ctorVal.numParams:]
+    let mut auxDecls := #[]
     for param in params, field in fields do
-      addSubst param.fvarId field
+      /-
+      `field` may not be a free variable. Recall that `constructorApp?` has special support for numerals,
+      and `ctorArgs` contains a numeral if `discrExpr` is a numeral. We may have other cases in the future.
+      To make the code robust, we add auxiliary declarations whenever the `field` is not a free variable.
+      -/
+      if field.isFVar then
+        addSubst param.fvarId field
+      else
+        let auxDecl ← mkAuxLetDecl field
+        auxDecls := auxDecls.push (CodeDecl.let auxDecl)
+        addSubst param.fvarId (.fvar auxDecl.fvarId)
     let k ← simp k
     eraseParams params
-    return k
+    attachCodeDecls auxDecls k
 
 /--
 Simplify `code`
@@ -871,24 +925,24 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
     else if decl.value.isFVar then
       /- Eliminate `let _x_i := _x_j;` -/
       addSubst decl.fvarId decl.value
-      eraseLocalDecl decl.fvarId
+      eraseLetDecl decl
       simp k
     else if let some code ← inlineApp? decl k then
-      eraseFVar decl.fvarId
+      eraseLetDecl decl
       simp code
     else if let some (decls, fvarId) ← inlineProjInst? decl.value then
       addSubst decl.fvarId (.fvar fvarId)
-      eraseLocalDecl decl.fvarId
+      eraseLetDecl decl
       let k ← simp k
       attachCodeDecls decls k
     else
       let k ← simp k
-      if !decl.pure || (← isUsed decl.fvarId) then
+      if (← isUsed decl.fvarId) then
         markUsedLetDecl decl
         return code.updateLet! decl k
       else
         /- Dead variable elimination -/
-        eraseLocalDecl decl.fvarId
+        eraseLetDecl decl
         return k
   | .fun decl k | .jp decl k =>
     let mut decl := decl
@@ -905,7 +959,15 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
       They will only be deleted in the next pass.
       -/
       if code.isFun then
-        decl ← decl.etaExpand
+        if decl.isEtaExpandCandidate then
+          /- We must apply substitution before trying to eta-expand, otherwise `inferType` may fail. -/
+          decl ← normFunDecl decl
+          /-
+          We want to eta-expand **before** trying to simplify local function declaration because
+          eta-expansion creates many optimization opportunities.
+          -/
+          decl ← decl.etaExpand
+          markSimplified
       decl ← simpFunDecl decl
     let k ← simp k
     if (← isUsed decl.fvarId) then
@@ -918,7 +980,7 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
       return code.updateFun! decl k
     else
       /- Dead function elimination -/
-      eraseLocalDecl decl.fvarId
+      eraseFunDecl decl
       return k
   | .return fvarId =>
     let fvarId ← normFVar fvarId
@@ -991,14 +1053,14 @@ partial def Decl.simp (decl : Decl) (config : Config) : CompilerM Decl := do
   go decl config
 where
   go (decl : Decl) (config : Config) : CompilerM Decl := do
-    if let some decl ← decl.simp? |>.run { config } |>.run' {} then
+    if let some decl ← decl.simp? |>.run { config, declName := decl.name } |>.run' {} then
       -- TODO: bound number of steps?
       go decl config
     else
       return decl
 
-def simp (config : Config := {}) (occurence : Nat := 0) : Pass :=
-  .mkPerDeclaration `simp (Decl.simp · config) .base (occurence := occurence)
+def simp (config : Config := {}) (occurrence : Nat := 0) : Pass :=
+  .mkPerDeclaration `simp (Decl.simp · config) .base (occurrence := occurrence)
 
 builtin_initialize
   registerTraceClass `Compiler.simp (inherited := true)

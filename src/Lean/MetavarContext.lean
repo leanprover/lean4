@@ -240,9 +240,14 @@ def LocalInstances.erase (localInsts : LocalInstances) (fvarId : FVarId) : Local
   | some idx => localInsts.eraseIdx idx
   | _        => localInsts
 
+/-- A kind for the metavariable that determines its unification behaviour.
+For more information see the large comment at the beginning of this file. -/
 inductive MetavarKind where
+  /-- Normal unification behaviour -/
   | natural
+  /-- `isDefEq` avoids assignment -/
   | synthetic
+  /-- Never assigned by isDefEq -/
   | syntheticOpaque
   deriving Inhabited, Repr
 
@@ -254,9 +259,13 @@ def MetavarKind.isNatural : MetavarKind → Bool
   | MetavarKind.natural => true
   | _                   => false
 
+/-- Information about a metavariable. -/
 structure MetavarDecl where
+  /-- A user-friendly name for the metavariable. If anonymous then there is no such name. -/
   userName       : Name := Name.anonymous
+  /-- The local context containing the free variables that the mvar is permitted to depend upon. -/
   lctx           : LocalContext
+  /-- The type of the metavarible, in the given `lctx`. -/
   type           : Expr
   /--
     The nesting depth of this metavariable. We do not want
@@ -268,8 +277,10 @@ structure MetavarDecl where
   depth          : Nat
   localInstances : LocalInstances
   kind           : MetavarKind
-  numScopeArgs   : Nat := 0 -- See comment at `CheckAssignment` `Meta/ExprDefEq.lean`
-  index          : Nat      -- We use this field to track how old a metavariable is. It is set using a counter at `MetavarContext`
+  /-- See comment at `CheckAssignment` `Meta/ExprDefEq.lean` -/
+  numScopeArgs   : Nat := 0
+  /-- We use this field to track how old a metavariable is. It is set using a counter at `MetavarContext` -/
+  index          : Nat
   deriving Inhabited
 
 /--
@@ -292,16 +303,29 @@ structure DelayedMetavarAssignment where
 
 open Std (HashMap PersistentHashMap)
 
+/-- The metavariable context is a set of metavariable declarations and their assignments.
+
+For more information on specifics see the comment in the file that `MetavarContext` is defined in.
+-/
 structure MetavarContext where
+  /-- Depth is used to control whether an mvar can be assigned in unification. -/
   depth          : Nat := 0
-  mvarCounter    : Nat := 0 -- Counter for setting the field `index` at `MetavarDecl`
+  /-- Counter for setting the field `index` at `MetavarDecl` -/
+  mvarCounter    : Nat := 0
   lDepth         : PersistentHashMap LMVarId Nat := {}
+  /-- Metavariable declarations. -/
   decls          : PersistentHashMap MVarId MetavarDecl := {}
+  /-- Index mapping user-friendly names to ids. -/
   userNames      : PersistentHashMap Name MVarId := {}
+  /-- Assignment table for universe level metavariables.-/
   lAssignment    : PersistentHashMap LMVarId Level := {}
+  /-- Assignment table for expression metavariables.-/
   eAssignment    : PersistentHashMap MVarId Expr := {}
+  /-- Assignment table for delayed abstraction metavariables.
+  For more information about delayed abstraction, see the docstring for `DelayedMetavarAssignment`. -/
   dAssignment    : PersistentHashMap MVarId DelayedMetavarAssignment := {}
 
+/-- A monad with a stateful metavariable context, defining `getMCtx` and `modifyMCtx`. -/
 class MonadMCtx (m : Type → Type) where
   getMCtx    : m MetavarContext
   modifyMCtx : (MetavarContext → MetavarContext) → m Unit
@@ -451,7 +475,7 @@ def assignExprMVar [MonadMCtx m] (mvarId : MVarId) (val : Expr) : m Unit :=
 def assignDelayedMVar [MonadMCtx m] (mvarId : MVarId) (fvars : Array Expr) (mvarIdPending : MVarId) : m Unit :=
   modifyMCtx fun m => { m with dAssignment := m.dAssignment.insert mvarId { fvars, mvarIdPending } }
 
-/--
+/-!
 Notes on artificial eta-expanded terms due to metavariables.
 We try avoid synthetic terms such as `((fun x y => t) a b)` in the output produced by the elaborator.
 This kind of term may be generated when instantiating metavariable assignments.
@@ -469,6 +493,7 @@ We address this issue by create a synthetic metavariable `?n : Nat → Nat` and 
 To avoid this term eta-expanded term, we apply beta-reduction when instantiating metavariable assignments in this module.
 This operation is performed at `instantiateExprMVars`, `elimMVarDeps`, and `levelMVarToParam`.
 -/
+
 partial def instantiateLevelMVars [Monad m] [MonadMCtx m] : Level → m Level
   | lvl@(Level.succ lvl₁)      => return Level.updateSucc! lvl (← instantiateLevelMVars lvl₁)
   | lvl@(Level.max lvl₁ lvl₂)  => return Level.updateMax! lvl (← instantiateLevelMVars lvl₁) (← instantiateLevelMVars lvl₂)

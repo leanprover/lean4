@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Meta.CongrTheorems
 import Lean.Meta.Tactic.Assert
 import Lean.Meta.Tactic.Apply
+import Lean.Meta.Tactic.Clear
 import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Assumption
 

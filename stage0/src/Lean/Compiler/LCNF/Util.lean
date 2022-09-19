@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.CoreM
+import Lean.MonadEnv
 import Lean.Util.Recognizers
 
 namespace Lean.Compiler.LCNF
@@ -24,6 +25,7 @@ def isLcCast? (e : Expr) : Option Expr :=
     some e.appArg!
   else
     none
+
 /--
 Store information about `casesOn` declarations.
 

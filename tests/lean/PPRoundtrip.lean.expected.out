@@ -30,7 +30,8 @@ fun {α}
     a =>
   @toString α inst a
 (α : Type) → α
-(α β : Type) → α
+(α : Type) →
+  Type → α
 Type → Type → Type
 (α : Type) → α → α
 {α : Type} → α

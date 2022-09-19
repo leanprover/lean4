@@ -4,12 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.Transform
-import Lean.Meta.CongrTheorems
 import Lean.Meta.Tactic.Replace
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Clear
 import Lean.Meta.Tactic.UnifyEq
-import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Simp.Rewrite
 
 namespace Lean.Meta

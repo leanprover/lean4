@@ -141,7 +141,7 @@
           IsSmooth fun g => g
         Transformer
           fun redf a => redf
-  [Meta.synthInstance.resume] propagating ∀ (a : α),
+  [Meta.synthInstance.resume] propagating α →
         IsSmooth fun a => a to subgoal α → IsSmooth fun g => g of ∀ (a : α), IsSmooth fun g => g a
     [Meta.synthInstance.resume] size: 2
   [Meta.synthInstance.resume] propagating ∀ (a : α),
@@ -155,10 +155,10 @@
           IsSmooth fun g => g
         Transformer
           fun redf a => redf
-  [Meta.synthInstance.resume] propagating ∀ (a : α),
+  [Meta.synthInstance.resume] propagating α →
         IsSmooth fun b a => b a to subgoal α → IsSmooth fun g => g of ∀ (a : α), IsSmooth fun g => g a
     [Meta.synthInstance.resume] size: 8
-  [Meta.synthInstance.resume] propagating ∀ (a : α),
+  [Meta.synthInstance.resume] propagating α →
         IsSmooth fun a => a to subgoal α → IsSmooth fun g => g of ∀ (a : α), IsSmooth fun g => g a
     [Meta.synthInstance.resume] size: 5
   [Meta.synthInstance.resume] propagating ∀ (a : α),

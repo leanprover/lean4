@@ -29,9 +29,11 @@ private def prefixJoin (pre : Format) (as : Array α) (f : α → M Format) : M 
     result := f!"{result}{pre}{← f a}"
   return result
 
-def ppFVar (fvarId : FVarId) : M Format := do
-  let localDecl ← getLocalDecl fvarId
-  return format localDecl.userName
+def ppFVar (fvarId : FVarId) : M Format :=
+  try
+    return format (← getBinderName fvarId)
+  catch _ =>
+    return format fvarId.name
 
 def ppExpr (e : Expr) : M Format := do
   Meta.ppExpr e |>.run' { lctx := (← read) }
@@ -105,5 +107,9 @@ def ppCode (code : Code) : CompilerM Format :=
 def ppDecl (decl : Decl) : CompilerM Format :=
   PP.run do
     return f!"def {decl.name}{← PP.ppParams decl.params} :={indentD (← PP.ppCode decl.value)}"
+
+def ppFunDecl (decl : FunDecl) : CompilerM Format :=
+  PP.run do
+    return f!"fun {decl.binderName}{← PP.ppParams decl.params} :={indentD (← PP.ppCode decl.value)}"
 
 end Lean.Compiler.LCNF

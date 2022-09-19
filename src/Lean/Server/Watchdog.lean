@@ -598,8 +598,8 @@ section MainLoop
     | ServerEvent.clientMsg msg =>
       match msg with
       | Message.request id "shutdown" _ =>
-        shutdown
         st.hOut.writeLspResponse ⟨id, Json.null⟩
+        shutdown
       | Message.request id method (some params) =>
         handleRequest id method (toJson params)
         mainLoop (←runClientTask)

@@ -717,14 +717,13 @@ def erase [BEq α] (as : Array α) (a : α) : Array α :=
   let j := as.size
   let as := as.push a
   loop as ⟨j, size_push .. ▸ j.lt_succ_self⟩
-termination_by _ _ _ j => j.1
+termination_by loop j => j.1
 
 /-- Insert element `a` at position `i`. Panics if `i` is not `i ≤ as.size`. -/
 def insertAt! (as : Array α) (i : Nat) (a : α) : Array α :=
   if h : i ≤ as.size then
     insertAt as ⟨i, Nat.lt_succ_of_le h⟩ a
   else panic! "invalid index"
-termination_by _ _ _ j => j.1
 
 def toListLitAux (a : Array α) (n : Nat) (hsz : a.size = n) : ∀ (i : Nat), i ≤ a.size → List α → List α
   | 0,     _,  acc => acc

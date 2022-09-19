@@ -1,7 +1,7 @@
 # Documentation
 
 The Lean `doc` folder contains the [Lean Manual](https://leanprover.github.io/lean4/doc/) and is
-authored in a combination of markdown (*.md) files and literate Lean files.  The .lean files are
+authored in a combination of markdown (`*.md`) files and literate Lean files.  The .lean files are
 preprocessed using a tool called [LeanInk](https://github.com/leanprover/leanink) and
 [Alectryon](https://github.com/Kha/alectryon) which produces a generated markdown file.  We then run
 `mdbook` on the result to generate the html pages.
@@ -53,25 +53,28 @@ Then run the following:
     cargo install --git https://github.com/leanprover/mdBook mdbook
     ```
 
-1. Clone https://github.com/leanprover/LeanInk.git and run `lake build` then copy the resulting
-executable to your `$HOME/.elan/bin` folder or `%USERPROFILE%\.elan\bin` so Alectryon can find it
-there.
+1. Clone https://github.com/leanprover/LeanInk.git and run `lake build` then make the resulting
+   binary available to Alectryon using e.g.
+    ```bash
+    # make `leanInk` available in the current shell
+    export PATH=$PWD/build/bin:$PATH
+    ```
 
 1. Create a Python 3.10 environment.
 
-1. Install the following packages:
+1. Install Alectryon:
     ```
     python3 -m pip install git+https://github.com/Kha/alectryon.git@typeid
     ```
 
-1. Now you are ready to process the *.lean files using Alectryon as follows:
+1. Now you are ready to process the `*.lean` files using Alectryon as follows:
 
     ```
     cd lean4/doc
-    alectryon --frontend lean4+markup examples\palindromes.lean --backend webpage -o palindromes.lean.md
+    alectryon --frontend lean4+markup examples/palindromes.lean --backend webpage -o palindromes.lean.md
     ```
 
-And repeat this for the other .lean files you care about or write a script to process them all.
+    Repeat this for the other .lean files you care about or write a script to process them all.
 
 1. Now you can build the book using:
     ```

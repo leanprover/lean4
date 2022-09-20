@@ -8,8 +8,7 @@ example (hp : p) (hq : p → q) (hr : p → r) : (s ∨ q) ∧ (r ∨ s) := by
 
 example (hp : p) (hq : p → q) (hr : p → r) : (p ∧ q) ∧ (r ∧ p) := by
   constructor
-  case' left  => constructor
-  case' right => constructor
+  case' left | right => constructor
   case' right.left => apply hr
   case' left.right => apply hq
   all_goals assumption

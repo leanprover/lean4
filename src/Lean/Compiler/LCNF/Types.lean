@@ -268,8 +268,8 @@ Return `true` if `type` is a LCNF type former type.
 Remark: This is faster than `Lean.Meta.isTypeFormer`, as this
         assumes that the input `type` is an LCNF type.
 -/
-def isTypeFormerType (type : Expr) : Bool :=
-  match type with
+partial def isTypeFormerType (type : Expr) : Bool :=
+  match type.headBeta with
   | .sort .. => true
   | .forallE _ _ b _ => isTypeFormerType b
   | _ => false

@@ -14,9 +14,9 @@ private def getInjectionNewIds (stx : Syntax) : List Name :=
   else
     stx[1].getArgs.toList.map getNameOfIdent'
 
-private def checkUnusedIds (mvarId : MVarId) (unusedIds : List Name) : MetaM Unit :=
+private def checkUnusedIds (tacticName : Name) (mvarId : MVarId) (unusedIds : List Name) : MetaM Unit :=
   unless unusedIds.isEmpty do
-    Meta.throwTacticEx `injection mvarId m!"too many identifiers provided, unused: {unusedIds}"
+    Meta.throwTacticEx tacticName mvarId m!"too many identifiers provided, unused: {unusedIds}"
 
 @[builtinTactic «injection»] def evalInjection : Tactic := fun stx => do
   -- leading_parser nonReservedSymbol "injection " >> termParser >> withIds
@@ -24,13 +24,14 @@ private def checkUnusedIds (mvarId : MVarId) (unusedIds : List Name) : MetaM Uni
   let ids := getInjectionNewIds stx[2]
   liftMetaTactic fun mvarId => do
     match (← Meta.injection mvarId fvarId ids) with
-    | Meta.InjectionResult.solved                      => checkUnusedIds mvarId ids; return []
-    | Meta.InjectionResult.subgoal mvarId' _ unusedIds => checkUnusedIds mvarId unusedIds; return [mvarId']
+    | .solved                      => checkUnusedIds `injection mvarId ids; return []
+    | .subgoal mvarId' _ unusedIds => checkUnusedIds `injection mvarId unusedIds; return [mvarId']
 
-@[builtinTactic «injections»] def evalInjections : Tactic := fun _ => do
+@[builtinTactic «injections»] def evalInjections : Tactic := fun stx => do
+  let ids := stx[1].getArgs.toList.map getNameOfIdent'
   liftMetaTactic fun mvarId => do
-    match (← Meta.injections mvarId) with
-    | none => return []
-    | some mvarId => return [mvarId]
+    match (← Meta.injections mvarId ids) with
+    | .solved                    => checkUnusedIds `injections mvarId ids; return []
+    | .subgoal mvarId' unusedIds => checkUnusedIds `injections mvarId unusedIds; return [mvarId']
 
 end Lean.Elab.Tactic

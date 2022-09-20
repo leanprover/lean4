@@ -249,6 +249,47 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp) (ig
     let ctx := { ctx with simpTheorems }
     return { ctx, fvarIdToLemmaId, dischargeWrapper }
 
+register_builtin_option tactic.simp.trace : Bool := {
+  defValue := false
+  descr    := "When tracing is enabled, calls to `simp` or `dsimp` will print an equivalent `simp only` call."
+}
+
+def traceSimpCall (stx : Syntax) (ctx : Simp.Context) (usedSimps : NameSet) : MetaM Unit := do
+  let mut stx := stx
+  if stx[3].isNone then
+    stx := stx.setArg 3 (mkNullNode #[mkAtom "only"])
+  let mut args := #[]
+  let mut localsOrStar := some #[]
+  let lc ← getLCtx
+  let env ← getEnv
+  for thm in usedSimps do
+    -- simp theorems provided in the local invocation
+    if let some thmStx := ctx.namedStx.find? thm then
+      args := args.push thmStx
+    -- local hypotheses in the context
+    else if let some ldecl := lc.find? ⟨thm⟩ then
+      localsOrStar := localsOrStar.bind fun locals =>
+        if !ldecl.userName.isInaccessibleUserName &&
+            (lc.findFromUserName? ldecl.userName).get!.fvarId == ldecl.fvarId then
+          some (locals.push ldecl.userName)
+        else
+          none
+    -- global definitions in the environment
+    else if env.contains thm then
+      if thm != ``eq_self then -- this one is implicitly available
+        args := args.push (← `(Parser.Tactic.simpLemma| $(mkIdent (← unresolveNameGlobal thm)):ident))
+    -- Ignore everything else.
+    -- Note: this is possible for `simp (config := {contextual := true})` when
+    -- rewriting with a variable that was introduced in a scope.
+    else pure ()
+  if let some locals := localsOrStar then
+    args := args ++ (← locals.mapM fun id => `(Parser.Tactic.simpLemma| $(mkIdent id):ident))
+  else
+    args := args.push (← `(Parser.Tactic.simpStar| *))
+  let argsStx := if args.isEmpty then #[] else #[mkAtom "[", (mkAtom ",").mkSep args, mkAtom "]"]
+  stx := stx.setArg 4 (mkNullNode argsStx)
+  logInfoAt stx[0] m!"Try this: {stx}"
+
 /--
 `simpLocation ctx discharge? varIdToLemmaId loc`
 runs the simplifier at locations specified by `loc`,
@@ -288,14 +329,19 @@ where
 -/
 @[builtinTactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => do
   let { ctx, fvarIdToLemmaId, dischargeWrapper } ← withMainContext <| mkSimpContext stx (eraseLocal := false)
-  discard <| dischargeWrapper.with fun discharge? =>
+  let usedSimps ← dischargeWrapper.with fun discharge? =>
     simpLocation ctx discharge? fvarIdToLemmaId (expandOptLocation stx[5])
+  if tactic.simp.trace.get (← getOptions) then
+    traceSimpCall stx ctx usedSimps
 
 @[builtinTactic Lean.Parser.Tactic.simpAll] def evalSimpAll : Tactic := fun stx => do
   let { ctx, .. } ← mkSimpContext stx (eraseLocal := true) (kind := .simpAll) (ignoreStarArg := true)
-  match (← simpAll (← getMainGoal) ctx).1 with
+  let (result?, usedSimps) ← simpAll (← getMainGoal) ctx
+  match result? with
   | none => replaceMainGoal []
   | some mvarId => replaceMainGoal [mvarId]
+  if tactic.simp.trace.get (← getOptions) then
+    traceSimpCall stx ctx usedSimps
 
 def dsimpLocation (ctx : Simp.Context) (loc : Location) : TacticM Unit := do
   match loc with
@@ -309,10 +355,12 @@ def dsimpLocation (ctx : Simp.Context) (loc : Location) : TacticM Unit := do
 where
   go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) : TacticM Unit := do
     let mvarId ← getMainGoal
-    let (result?, _) ← dsimpGoal mvarId ctx (simplifyTarget := simplifyTarget) (fvarIdsToSimp := fvarIdsToSimp)
+    let (result?, usedSimps) ← dsimpGoal mvarId ctx (simplifyTarget := simplifyTarget) (fvarIdsToSimp := fvarIdsToSimp)
     match result? with
     | none => replaceMainGoal []
     | some mvarId => replaceMainGoal [mvarId]
+    if tactic.simp.trace.get (← getOptions) then
+      traceSimpCall (← getRef) ctx usedSimps
 
 @[builtinTactic Lean.Parser.Tactic.dsimp] def evalDSimp : Tactic := fun stx => do
   let { ctx, .. } ← withMainContext <| mkSimpContext stx (eraseLocal := false) (kind := .dsimp)

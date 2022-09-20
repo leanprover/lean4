@@ -84,8 +84,12 @@ instance : ToFormat SimpTheorem where
     let prio := f!":{s.priority}"
     name ++ prio ++ perm
 
-instance : ToMessageData SimpTheorem where
-  toMessageData s := format s
+@[specialize] def SimpTheorem.toMessageDataM [Monad m]
+    (resolve : Name → m MessageData) (s : SimpTheorem) : m MessageData := do
+  let perm := if s.perm then ":perm" else ""
+  let name ← resolve s.name
+  let prio := m!":{s.priority}"
+  return name ++ prio ++ perm
 
 instance : BEq SimpTheorem where
   beq e₁ e₂ := e₁.proof == e₂.proof

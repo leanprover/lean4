@@ -62,7 +62,7 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
       else
         let proof ← instantiateMVars (mkAppN val xs)
         if (← hasAssignableMVar proof) then
-          trace[Meta.Tactic.simp.rewrite] "{thm}, has unassigned metavariables after unification"
+          trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, has unassigned metavariables after unification"
           return none
         pure <| some proof
       let rhs := (← instantiateMVars type).appArg!
@@ -70,9 +70,9 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
         return none
       if thm.perm then
         if !(← Expr.acLt rhs e) then
-          trace[Meta.Tactic.simp.rewrite] "{thm}, perm rejected {e} ==> {rhs}"
+          trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, perm rejected {e} ==> {rhs}"
           return none
-      trace[Meta.Tactic.simp.rewrite] "{thm}, {e} ==> {rhs}"
+      trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, {e} ==> {rhs}"
       recordSimpTheorem thm.name
       return some { expr := rhs, proof? }
     else
@@ -80,7 +80,7 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
         -- We do not report unification failures when `lhs` is a metavariable
         -- Example: `x = ()`
         -- TODO: reconsider if we want thms such as `(x : Unit) → x = ()`
-        trace[Meta.Tactic.simp.unify] "{thm}, failed to unify{indentExpr lhs}\nwith{indentExpr e}"
+        trace[Meta.Tactic.simp.unify] "{← ppSimpTheorem thm}, failed to unify{indentExpr lhs}\nwith{indentExpr e}"
       return none
   /- Check whether we need something more sophisticated here.
      This simple approach was good enough for Mathlib 3 -/

@@ -102,6 +102,16 @@ def getSimpCongrTheorems : M SimpCongrTheorems :=
 def recordSimpTheorem (n : Name) : SimpM Unit :=
   modify fun s => { s with usedTheorems := s.usedTheorems.insert n }
 
+def ppSimpTheorem (s : SimpTheorem) : SimpM MessageData :=
+  s.toMessageDataM fun n => do
+    if (← getEnv).contains n then
+      return ← mkConstWithLevelParams n
+    if (← getLCtx).contains ⟨n⟩ then
+      return mkFVar ⟨n⟩
+    if let some stx := (← read).namedStx.find? n then
+      return stx
+    return n
+
 end Simp
 
 export Simp (SimpM)

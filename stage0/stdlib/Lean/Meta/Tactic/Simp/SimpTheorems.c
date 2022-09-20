@@ -226,6 +226,7 @@ static lean_object* l___auto____x40_Lean_Meta_Tactic_Simp_SimpTheorems___hyg_408
 static lean_object* l_Lean_Meta___aux__Lean__Meta__Tactic__Simp__SimpTheorems______macroRules__Lean__Meta____root____Lean__Parser__Command__registerSimpAttr__1___closed__20;
 LEAN_EXPORT lean_object* l_Std_HashMapImp_moveEntries___at_Lean_Meta_registerSimpAttr___spec__4(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SimpTheorems_addDeclToUnfold___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_insertAt_x21___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_Meta_addSimpTheoremEntry___spec__8(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SimpTheorems_add_getName_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -612,7 +613,6 @@ LEAN_EXPORT lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_Meta_addSim
 static lean_object* l_Lean_Parser_Command_registerSimpAttr___closed__1;
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_insertAux_traverse___at_Lean_Meta_addSimpTheoremEntry___spec__7(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_constName_x21(lean_object*);
-lean_object* l_Array_insertAt___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkSimpTheorems(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_SimpTheorems_0__Lean_Meta_preprocess_go___lambda__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkSimpAttr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2388,7 +2388,7 @@ lean_ctor_set(x_42, 0, x_4);
 lean_ctor_set(x_42, 1, x_41);
 x_43 = lean_nat_add(x_8, x_39);
 lean_dec(x_8);
-x_44 = l_Array_insertAt___rarg(x_6, x_43, x_42);
+x_44 = l_Array_insertAt_x21___rarg(x_6, x_43, x_42);
 lean_dec(x_43);
 return x_44;
 }
@@ -2579,7 +2579,7 @@ lean_dec(x_65);
 x_67 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_67, 0, x_4);
 lean_ctor_set(x_67, 1, x_66);
-x_68 = l_Array_insertAt___rarg(x_6, x_9, x_67);
+x_68 = l_Array_insertAt_x21___rarg(x_6, x_9, x_67);
 return x_68;
 }
 }

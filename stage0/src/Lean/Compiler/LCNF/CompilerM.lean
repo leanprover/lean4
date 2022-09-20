@@ -124,9 +124,9 @@ where
     else
       e
 
-private def normFVarImp (s : FVarSubst) (fvarId : FVarId) : FVarId :=
+private partial def normFVarImp (s : FVarSubst) (fvarId : FVarId) : FVarId :=
   match s.find? fvarId with
-  | some (.fvar fvarId') => fvarId'
+  | some (.fvar fvarId') => normFVarImp s fvarId'
   | some _ => panic! "invalid LCNF substitution of free variable with expression"
   | none => fvarId
 

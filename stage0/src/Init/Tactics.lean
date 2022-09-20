@@ -149,12 +149,21 @@ the first matching constructor, or else fails.
 syntax (name := constructor) "constructor" : tactic
 
 /--
+A case tag argument has the form `tag x₁ ... xₙ`; it refers to tag `tag` and renames
+the last `n` hypotheses to `x₁ ... xₙ`.
+-/
+syntax caseArg := binderIdent binderIdent*
+
+/--
 * `case tag => tac` focuses on the goal with case name `tag` and solves it using `tac`,
   or else fails.
 * `case tag x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses
   with inaccessible names to the given names.
+* `case tag₁ | tag₂ => tac` is equivalent to `(case tag₁ => tac); (case tag₂ => tac)`.
 -/
 syntax (name := case) "case " binderIdent binderIdent* " => " tacticSeq : tactic
+-- syntax (name := case) "case " sepBy1(caseArg, " | ") " => " tacticSeq : tactic
+
 /--
 `case'` is similar to the `case tag => tac` tactic, but does not ensure the goal
 has been solved after applying `tac`, nor admits the goal if `tac` failed.
@@ -162,6 +171,7 @@ Recall that `case` closes the goal using `sorry` when `tac` fails, and
 the tactic execution is not interrupted.
 -/
 syntax (name := case') "case' " binderIdent binderIdent* " => " tacticSeq : tactic
+-- syntax (name := case') "case' " sepBy1(caseArg, " | ") " => " tacticSeq : tactic
 
 /--
 `next => tac` focuses on the next goal and solves it using `tac`, or else fails.

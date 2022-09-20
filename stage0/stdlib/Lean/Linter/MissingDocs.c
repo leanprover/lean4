@@ -172,7 +172,7 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Linter_MissingDocs_checkSimpLike(le
 static lean_object* l_Lean_Linter_MissingDocs_lintDeclHead___closed__4;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Array_anyMUnsafe_any___at_Lean_Linter_MissingDocs_hasInheritDoc___spec__1___closed__8;
-uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_187_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_182_(uint8_t, uint8_t);
 static lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_757____closed__5;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_356____spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_MissingDocs_checkNotation___closed__4;
@@ -2599,7 +2599,7 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; 
 x_9 = 0;
-x_10 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_187_(x_5, x_9);
+x_10 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_182_(x_5, x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
@@ -3100,7 +3100,7 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; 
 x_9 = 0;
-x_10 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_187_(x_5, x_9);
+x_10 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_182_(x_5, x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 

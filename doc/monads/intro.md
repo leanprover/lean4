@@ -5,7 +5,7 @@ of [Category Theory](https://en.wikipedia.org/wiki/Monad_%28category_theory%29).
 
 Monads in Lean are so similar to Haskell that this introduction to monads is heavily based on the
 similar chapter of the [Monday Morning Haskell](https://mmhaskell.com/monads/). Many thanks to
-the authors of that material for allowing it to reused it here.
+the authors of that material for allowing us to reuse it here.
 
 Monads build on the following fundamental type classes which you will need to understand
 first before fully understanding monads. Shown in light blue are some concrete functors

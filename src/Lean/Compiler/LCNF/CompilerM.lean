@@ -104,16 +104,34 @@ During the internalization process, we ensure all free variables in the LCNF cod
 at the `CompilerM` local context.
 Remark: in LCNF, (computationally relevant) data is in A-normal form, but this is not the case for types and type formers.
 So, when inlining we often want to replace a free variable with a type or type former.
+
+The substitution contains entries `fvarId ↦ e` s.t., `e` is a valid LCNF argument. That is,
+it is a free variable, a type (or type former), or `lcErased`.
+
+`Check.lean` contains a substitution validator.
 -/
 abbrev FVarSubst := Std.HashMap FVarId Expr
 
-private partial def normExprImp (s : FVarSubst) (e : Expr) : Expr :=
+/--
+Replace the free variables in `e` using the given substitution.
+
+If `translator = true`, then we assume the free variables occurring in the range of the substitution are in another
+local context. For example, `translator = true` during internalization where we are making sure all free variables
+in a given expression are replaced with new ones that do not collide with the ones in the current local context.
+
+If `translator = false`, we assume the substitution contains free variable replacements in the same local context,
+and given entries such as `x₁ ↦ x₂`, `x₂ ↦ x₃`, ..., `xₙ₋₁ ↦ xₙ`, and the expression `f x₁ x₂`, we want the resulting
+expression to be `f xₙ xₙ`. We use this setting, for example, in the simplifier.
+-/
+private partial def normExprImp (s : FVarSubst) (e : Expr) (translator : Bool) : Expr :=
   go e
 where
   go (e : Expr) : Expr :=
     if e.hasFVar then
       match e with
-      | .fvar fvarId => s.find? fvarId |>.getD e
+      | .fvar fvarId => match s.find? fvarId with
+        | some e => if translator then e else go e
+        | none => e
       | .lit .. | .const .. | .sort .. | .mvar .. | .bvar .. => e
       | .app f a => e.updateApp! (go f) (go a)
       | .mdata _ b => e.updateMData! (go b)
@@ -124,27 +142,68 @@ where
     else
       e
 
-private partial def normFVarImp (s : FVarSubst) (fvarId : FVarId) : FVarId :=
+/--
+Normalize the given free variable.
+See `normExprImp` for documentation on the `translator` parameter.
+This function is meant to be used in contexts where the input free-variable is computationally relevant.
+This function panics if the substitution is mapping `fvarId` to an expression that is not another free variable.
+That is, it is not a type (or type former), nor `lcErased`. Recall that a valid `FVarSubst` contains only
+expressions that are free variables, `lcErased`, or type formers.
+-/
+private partial def normFVarImp (s : FVarSubst) (fvarId : FVarId) (translator : Bool) : FVarId :=
   match s.find? fvarId with
-  | some (.fvar fvarId') => normFVarImp s fvarId'
-  | some _ => panic! "invalid LCNF substitution of free variable with expression"
+  | some (.fvar fvarId') =>
+    if translator then
+      fvarId'
+    else
+      normFVarImp s fvarId' translator
+  | some e => panic! s!"invalid LCNF substitution of free variable with expression {e}"
   | none => fvarId
 
-class MonadFVarSubst (m : Type → Type) where
+/--
+Interface for monads that have a free substitutions.
+-/
+class MonadFVarSubst (m : Type → Type) (translator : outParam Bool) where
   getSubst : m FVarSubst
 
 export MonadFVarSubst (getSubst)
 
-instance (m n) [MonadLift m n] [MonadFVarSubst m] : MonadFVarSubst n where
+instance (m n) [MonadLift m n] [MonadFVarSubst m t] : MonadFVarSubst n t where
   getSubst := liftM (getSubst : m _)
 
-@[inline] def normFVar [MonadFVarSubst m] [Monad m] (fvarId : FVarId) : m FVarId :=
-  return normFVarImp (← getSubst) fvarId
+class MonadFVarSubstState (m : Type → Type) where
+  modifySubst : (FVarSubst → FVarSubst) → m Unit
 
-@[inline] def normExpr [MonadFVarSubst m] [Monad m] (e : Expr) : m Expr :=
-  return normExprImp (← getSubst) e
+export MonadFVarSubstState (modifySubst)
 
-def normExprs [MonadFVarSubst m] [Monad m] (es : Array Expr) : m (Array Expr) :=
+instance (m n) [MonadLift m n] [MonadFVarSubstState m] : MonadFVarSubstState n where
+  modifySubst f := liftM (modifySubst f : m _)
+
+/--
+Add the entry `fvarId ↦ fvarId'` to the free variable substitution.
+-/
+@[inline] def addFVarSubst [MonadFVarSubstState m] (fvarId : FVarId) (fvarId' : FVarId) : m Unit :=
+  modifySubst fun s => s.insert fvarId (.fvar fvarId')
+
+/--
+Add the substitution `fvarId ↦ e`, `e` must be a valid LCNF argument.
+That is, it must be a free variable, type (or type former), or `lcErased`.
+
+See `Check.lean` for the free variable substitution checker.
+-/
+@[inline] def addSubst [MonadFVarSubstState m] (fvarId : FVarId) (e : Expr) : m Unit :=
+  modifySubst fun s => s.insert fvarId e
+
+@[inline, inheritDoc normFVarImp] def normFVar [MonadFVarSubst m t] [Monad m] (fvarId : FVarId) : m FVarId :=
+  return normFVarImp (← getSubst) fvarId t
+
+@[inline, inheritDoc normExprImp] def normExpr [MonadFVarSubst m t] [Monad m] (e : Expr) : m Expr :=
+  return normExprImp (← getSubst) e t
+
+/--
+Normalize the given expressions using the current substitution.
+-/
+def normExprs [MonadFVarSubst m t] [Monad m] (es : Array Expr) : m (Array Expr) :=
   es.mapMonoM normExpr
 
 def mkFreshBinderName (binderName := `_x): CompilerM Name := do
@@ -164,12 +223,22 @@ namespace Internalize
 
 abbrev InternalizeM := StateRefT FVarSubst CompilerM
 
-instance : MonadFVarSubst InternalizeM where
+/--
+The `InternalizeM` monad is a translator. It "translates" the free variables
+in the input expressions and `Code`, into new fresh free variables in the
+local context.
+-/
+instance : MonadFVarSubst InternalizeM true where
   getSubst := get
+
+instance : MonadFVarSubstState InternalizeM where
+  modifySubst := modify
+
+  -- modifySubst f := modify f
 
 private def mkNewFVarId (fvarId : FVarId) : InternalizeM FVarId := do
   let fvarId' ← Lean.mkFreshFVarId
-  modify fun s => s.insert fvarId (.fvar fvarId')
+  addFVarSubst fvarId fvarId'
   return fvarId'
 
 def internalizeParam (p : Param) : InternalizeM Param := do
@@ -303,26 +372,28 @@ abbrev FunDeclCore.update' (decl : FunDecl) (type : Expr) (value : Code) : Compi
 abbrev FunDeclCore.updateValue (decl : FunDecl) (value : Code) : CompilerM FunDecl :=
   decl.update decl.type decl.params value
 
-@[inline] def normParam [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m] (p : Param) : m Param := do
+@[inline] def normParam [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m t] (p : Param) : m Param := do
   p.update (← normExpr p.type)
 
-def normParams [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m] (ps : Array Param) : m (Array Param) :=
+def normParams [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m t] (ps : Array Param) : m (Array Param) :=
   ps.mapMonoM normParam
 
-def normLetDecl [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m] (decl : LetDecl) : m LetDecl := do
+def normLetDecl [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m t] (decl : LetDecl) : m LetDecl := do
   decl.update (← normExpr decl.type) (← normExpr decl.value)
 
-instance : MonadFVarSubst (ReaderT FVarSubst CompilerM) where
+abbrev NormalizerM (_translator : Bool) := ReaderT FVarSubst CompilerM
+
+instance : MonadFVarSubst (NormalizerM t) t where
   getSubst := read
 
 mutual
-  partial def normFunDeclImp (decl : FunDecl) : ReaderT FVarSubst CompilerM FunDecl := do
+  partial def normFunDeclImp (decl : FunDecl) : NormalizerM t FunDecl  := do
     let type ← normExpr decl.type
     let params ← normParams decl.params
     let value ← normCodeImp decl.value
     decl.update type params value
 
-  partial def normCodeImp (code : Code) : ReaderT FVarSubst CompilerM Code := do
+  partial def normCodeImp (code : Code) : NormalizerM t Code := do
     match code with
     | .let decl k => return code.updateLet! (← normLetDecl decl) (← normCodeImp k)
     | .fun decl k | .jp decl k => return code.updateFun! (← normFunDeclImp decl) (← normCodeImp k)
@@ -339,22 +410,18 @@ mutual
       return code.updateCases! resultType discr alts
 end
 
-@[inline] def normFunDecl [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m] (decl : FunDecl) : m FunDecl := do
-  normFunDeclImp decl (← getSubst)
+@[inline] def normFunDecl [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m t] (decl : FunDecl) : m FunDecl := do
+  normFunDeclImp (t := t) decl (← getSubst)
 
 /-- Similar to `internalize`, but does not refresh `FVarId`s. -/
-@[inline] def normCode [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m] (code : Code) : m Code := do
-  normCodeImp code (← getSubst)
+@[inline] def normCode [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m t] (code : Code) : m Code := do
+  normCodeImp (t := t) code (← getSubst)
 
-def replaceExprFVars (e : Expr) (s : FVarSubst) : CompilerM Expr :=
-  (normExpr e : ReaderT FVarSubst CompilerM Expr).run s
+def replaceExprFVars (e : Expr) (s : FVarSubst) (translator : Bool) : CompilerM Expr :=
+  (normExpr e : NormalizerM translator Expr).run s
 
-def replaceFVars (code : Code) (s : FVarSubst) : CompilerM Code :=
-  (normCode code : ReaderT FVarSubst CompilerM Code).run s
-
-def replaceFVar (code : Code) (fvarId fvarId' : FVarId) : CompilerM Code :=
-  let s : FVarSubst := {}
-  replaceFVars code (s.insert fvarId (.fvar fvarId'))
+def replaceFVars (code : Code) (s : FVarSubst) (translator : Bool) : CompilerM Code :=
+  (normCode code : NormalizerM translator Code).run s
 
 def mkFreshJpName : CompilerM Name := do
   mkFreshBinderName `_jp

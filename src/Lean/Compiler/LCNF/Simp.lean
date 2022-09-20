@@ -199,8 +199,11 @@ structure State where
 
 abbrev SimpM := ReaderT Context $ StateRefT State CompilerM
 
-instance : MonadFVarSubst SimpM where
+instance : MonadFVarSubst SimpM false where
   getSubst := return (← get).subst
+
+instance : MonadFVarSubstState SimpM where
+  modifySubst f := modify fun s => { s with subst := f s.subst }
 
 /--
 Use `findExpr`, and if the result is a free variable, check whether it is in the map `discrCtorMap`.
@@ -457,7 +460,7 @@ def specializePartialApp (info : InlineCandidateInfo) : SimpM FunDecl := do
     subst := subst.insert param.fvarId arg
   let mut paramsNew := #[]
   for param in info.params[info.args.size:] do
-    let type ← replaceExprFVars param.type subst
+    let type ← replaceExprFVars param.type subst (translator := true)
     let paramNew ← mkAuxParam type
     paramsNew := paramsNew.push paramNew
     subst := subst.insert param.fvarId (.fvar paramNew.fvarId)

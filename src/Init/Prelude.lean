@@ -3371,6 +3371,24 @@ inductive SourceInfo where
   Synthesized syntax (e.g. from a quotation) annotated with a span from the original source.
   In the delaborator, we "misuse" this constructor to store synthetic positions identifying
   subterms.
+
+  The `canonical` flag on synthetic syntax is enabled for syntax that is not literally part
+  of the original input syntax but should be treated "as if" the user really wrote it
+  for the purpose of hovers and error messages. This is usually used on identifiers,
+  to connect the binding site to the user's original syntax even if the name of the identifier
+  changes during expansion, as well as on tokens where we will attach targeted messages.
+
+  The syntax `token%$stx` in a syntax quotation will annotate the token `token` with the span
+  from `stx` and also mark it as canonical.
+
+  As a rough guide, a macro expansion should only use a given piece of input syntax in
+  a single canonical token, although this is sometimes violated when the same identifier
+  is used to declare two binders, as in the macro expansion for dependent if:
+  ```
+  `(if $h : $cond then $t else $e) ~>
+  `(dite $cond (fun $h => $t) (fun $h => $t))
+  ```
+  In these cases if the user hovers over `h` they will see information about both binding sites.
   -/
   | synthetic (pos : String.Pos) (endPos : String.Pos) (canonical := false)
   /-- Synthesized token without position information. -/

@@ -396,7 +396,7 @@ syntax (name := injection) "injection " term (" with " (colGt (ident <|> hole))+
 (since `injection` can produce new hypotheses). Useful for destructing nested
 constructor equalities like `(a::b::c) = (d::e::f)`. -/
 -- TODO: add with
-syntax (name := injections) "injections" : tactic
+syntax (name := injections) "injections" (colGt (ident <|> hole))* : tactic
 
 /--
 The discharger clause of `simp` and related tactics.

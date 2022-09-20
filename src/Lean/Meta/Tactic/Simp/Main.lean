@@ -166,6 +166,7 @@ private partial def reduce (e : Expr) : SimpM Expr := withIncRecDepth do
     | none   => pure ()
   match (← unfold? e) with
   | some e' =>
+    trace[Meta.Tactic.simp.rewrite] "unfold {mkConst e.getAppFn.constName!}, {e} ==> {e'}"
     recordSimpTheorem e.getAppFn.constName!
     reduce e'
   | none => return e

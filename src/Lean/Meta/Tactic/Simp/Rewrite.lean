@@ -73,6 +73,7 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
           trace[Meta.Tactic.simp.rewrite] "{thm}, perm rejected {e} ==> {rhs}"
           return none
       trace[Meta.Tactic.simp.rewrite] "{thm}, {e} ==> {rhs}"
+      recordSimpTheorem thm.name
       return some { expr := rhs, proof? }
     else
       unless lhs.isMVar do

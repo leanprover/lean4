@@ -20,10 +20,11 @@ structure Entry where
   deriving Inhabited
 
 structure State where
-  modified : Bool := false
-  mvarId   : MVarId
-  entries  : Array Entry := #[]
-  ctx      : Simp.Context
+  modified  : Bool := false
+  mvarId    : MVarId
+  entries   : Array Entry := #[]
+  ctx       : Simp.Context
+  usedSimps : NameSet := {}
 
 abbrev M := StateRefT State MetaM
 
@@ -56,7 +57,9 @@ private partial def loop : M Bool := do
     -- We disable the current entry to prevent it to be simplified to `True`
     let simpThmsWithoutEntry := (← getSimpTheorems).eraseTheorem entry.id
     let ctx := { ctx with simpTheorems := simpThmsWithoutEntry }
-    match (← simpStep (← get).mvarId entry.proof entry.type ctx) with
+    let (r, usedSimps) ← simpStep (← get).mvarId entry.proof entry.type ctx (usedSimps := (← get).usedSimps)
+    modify fun s => { s with usedSimps }
+    match r with
     | none => return true -- closed the goal
     | some (proofNew, typeNew) =>
       unless typeNew == entry.type do
@@ -94,7 +97,9 @@ private partial def loop : M Bool := do
         }
   -- simplify target
   let mvarId := (← get).mvarId
-  match (← simpTarget mvarId (← get).ctx) with
+  let (r, usedSimps) ← simpTarget mvarId (← get).ctx (usedSimps := (← get).usedSimps)
+  modify fun s => { s with usedSimps }
+  match r with
   | none => return true
   | some mvarIdNew =>
     unless mvarId == mvarIdNew do
@@ -121,8 +126,9 @@ def main : M (Option MVarId) := do
 
 end SimpAll
 
-def simpAll (mvarId : MVarId) (ctx : Simp.Context) : MetaM (Option MVarId) := do
+def simpAll (mvarId : MVarId) (ctx : Simp.Context) (usedSimps : NameSet := {}) : MetaM (Option MVarId × NameSet) := do
   mvarId.withContext do
-    SimpAll.main.run' { mvarId := mvarId, ctx := ctx }
+    let (r, s) ← SimpAll.main.run { mvarId, ctx, usedSimps }
+    return (r, s.usedSimps)
 
 end Lean.Meta

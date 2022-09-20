@@ -1,5 +1,5 @@
 1079.lean:3:2-6:12: error: alternative 'isFalse' has not been provided
-[Meta.Tactic.simp.rewrite] h:1000, m ==> n
+[Meta.Tactic.simp.rewrite] _uniq.82:1000, m ==> n
 [Meta.Tactic.simp.rewrite] eq_self:1000, n = n ==> True
 [Meta.Tactic.simp.unify] ite_self:1000, failed to unify
       if ?c then ?a else ?a

@@ -115,4 +115,15 @@ def ppFunDecl (decl : FunDecl) : CompilerM Format :=
   PP.run do
     return f!"fun {decl.binderName}{← PP.ppParams decl.params} :={indentD (← PP.ppCode decl.value)}"
 
+/--
+Similar to `ppDecl`, but in `CoreM`, and it does not assume
+`decl` has already been internalized.
+-/
+def ppDecl' (decl : Decl) : CoreM Format := do
+  go |>.run {}
+where
+  go : CompilerM Format := do
+    let decl ← decl.internalize
+    ppDecl decl
+
 end Lean.Compiler.LCNF

@@ -56,7 +56,13 @@ def checkpoint (stepName : Name) (decls : Array Decl) : CompilerM Unit := do
 
 namespace PassManager
 
-def run (declNames : Array Name) : CompilerM (Array Decl) := do
+def run (declNames : Array Name) : CompilerM (Array Decl) := withAtLeastMaxRecDepth 8192 do
+  /-
+  Note: we need to increase the recursion depth because we currently do to save phase1
+  declarations in .olean files. Then, we have to recursively compile all dependencies,
+  and it often creates a very deep recursion.
+  Moreover, some declarations get very big during simplification.
+  -/
   let declNames ← declNames.filterM (shouldGenerateCode ·)
   if declNames.isEmpty then return #[]
   let mut decls ← declNames.mapM toDecl

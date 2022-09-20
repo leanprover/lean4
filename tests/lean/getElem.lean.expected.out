@@ -12,8 +12,6 @@ def f3 : {n : Nat} → (a : Array Nat) → n ≤ Array.size a → Fin n → Nat 
 fun {n} a h i => a[i]
 def f5 : (i : Nat) → i < n → Nat :=
 fun i h => a[i]
-def f5 : (i : Nat) → i < n → Nat :=
-fun i h => a[i]'(f5.proof_1 i h)
 def f6 : Nat → Nat :=
 fun i => a[i]!
 def f7 : Nat → Option Nat :=

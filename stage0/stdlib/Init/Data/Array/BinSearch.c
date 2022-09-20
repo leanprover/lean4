@@ -35,6 +35,7 @@ LEAN_EXPORT lean_object* l_Array_binSearchAux___at_Array_binSearchContains___spe
 LEAN_EXPORT uint8_t l_Array_binSearchAux___at_Array_binSearchContains___spec__1___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* l_Array_insertAt_x21___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_binSearchContains___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_binSearchAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -62,7 +63,6 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_binSearchContains___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_binSearchContains(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_BinSearch_0__Array_binInsertAux___at_Array_binInsert___spec__2(lean_object*);
-lean_object* l_Array_insertAt___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_binInsertM___rarg___lambda__3(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_binSearchAux___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
@@ -776,7 +776,7 @@ lean_inc(x_6);
 lean_dec(x_5);
 x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_nat_add(x_2, x_7);
-x_9 = l_Array_insertAt___rarg(x_3, x_8, x_4);
+x_9 = l_Array_insertAt_x21___rarg(x_3, x_8, x_4);
 lean_dec(x_8);
 x_10 = lean_apply_2(x_6, lean_box(0), x_9);
 return x_10;
@@ -957,7 +957,7 @@ x_5 = lean_ctor_get(x_4, 1);
 lean_inc(x_5);
 lean_dec(x_4);
 x_6 = lean_unsigned_to_nat(0u);
-x_7 = l_Array_insertAt___rarg(x_2, x_6, x_3);
+x_7 = l_Array_insertAt_x21___rarg(x_2, x_6, x_3);
 x_8 = lean_apply_2(x_5, lean_box(0), x_7);
 return x_8;
 }
@@ -1244,7 +1244,7 @@ lean_dec(x_1);
 x_24 = lean_unsigned_to_nat(1u);
 x_25 = lean_nat_add(x_6, x_24);
 lean_dec(x_6);
-x_26 = l_Array_insertAt___rarg(x_4, x_25, x_2);
+x_26 = l_Array_insertAt_x21___rarg(x_4, x_25, x_2);
 lean_dec(x_25);
 return x_26;
 }
@@ -1383,7 +1383,7 @@ lean_dec(x_8);
 lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_1);
-x_35 = l_Array_insertAt___rarg(x_4, x_7, x_2);
+x_35 = l_Array_insertAt_x21___rarg(x_4, x_7, x_2);
 return x_35;
 }
 }

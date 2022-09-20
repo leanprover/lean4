@@ -235,6 +235,9 @@ end Core
 
 export Core (CoreM mkFreshUserName checkMaxHeartbeats withCurrHeartbeats)
 
+@[inline] def withAtLeastMaxRecDepth [MonadFunctorT CoreM m] (max : Nat) : m α → m α :=
+  monadMap (m := CoreM) <| withReader (fun ctx => { ctx with maxRecDepth := Nat.max max ctx.maxRecDepth })
+
 @[inline] def catchInternalId [Monad m] [MonadExcept Exception m] (id : InternalExceptionId) (x : m α) (h : Exception → m α) : m α := do
   try
     x

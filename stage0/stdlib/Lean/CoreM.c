@@ -25,6 +25,7 @@ LEAN_EXPORT lean_object* l_Lean_Core_Context_maxHeartbeats___default___boxed(lea
 LEAN_EXPORT lean_object* l_Lean_Core_instMonadLogCoreM___lambda__3(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_Core_instMonadEnvCoreM___closed__2;
+LEAN_EXPORT lean_object* l_Lean_withAtLeastMaxRecDepth(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_instMonadInfoTreeCoreM___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_get_num_heartbeats(lean_object*);
 static lean_object* l_Lean_Core_instMonadNameGeneratorCoreM___closed__3;
@@ -86,6 +87,7 @@ static lean_object* l_Lean_Core_instMetaEvalCoreM___rarg___lambda__1___closed__4
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_Context_currMacroScope___default;
 LEAN_EXPORT lean_object* l_Lean_Core_instMonadRefCoreM___lambda__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_Nat_max(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_Core_instantiateTypeLevelParams___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_instInhabitedCoreM___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_shift_right(size_t, size_t);
@@ -173,6 +175,7 @@ LEAN_EXPORT lean_object* l_Lean_Core_instMonadQuotationCoreM___lambda__1___boxed
 LEAN_EXPORT lean_object* l_Lean_Core_instantiateValueLevelParams___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_instMonadCoreM___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_withAtLeastMaxRecDepth___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_instMonadRefCoreM___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_insert___at_Lean_Core_instantiateTypeLevelParams___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Core_instMetaEvalCoreM___spec__4(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -279,6 +282,7 @@ LEAN_EXPORT lean_object* l_Lean_Core_instMonadCoreM;
 static lean_object* l_Lean_Core_State_ngen___default___closed__2;
 static lean_object* l_Lean_Core_initFn____x40_Lean_CoreM___hyg_7____closed__5;
 static lean_object* l_Lean_Core_instMonadRecDepthCoreM___closed__3;
+LEAN_EXPORT lean_object* l_Lean_withAtLeastMaxRecDepth___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Core_State_infoState___default___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Core_State_infoState___default;
 static lean_object* l_Lean_Core_instMonadResolveNameCoreM___closed__2;
@@ -331,6 +335,7 @@ LEAN_EXPORT lean_object* l_Lean_Core_resetMessageLog(lean_object*, lean_object*,
 LEAN_EXPORT lean_object* l_Lean_Core_mkFreshUserName(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_setMessageLog(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_modifyInstLevelTypeCache(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_withAtLeastMaxRecDepth___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_beq___at_Lean_Core_instantiateTypeLevelParams___spec__8___boxed(lean_object*, lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l_Lean_Core_modifyCache___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7930,6 +7935,93 @@ x_5 = l_Lean_Core_instMonadLogCoreM___lambda__4(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_withAtLeastMaxRecDepth___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+uint8_t x_7; 
+x_7 = !lean_is_exclusive(x_4);
+if (x_7 == 0)
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_8 = lean_ctor_get(x_4, 4);
+x_9 = l_Nat_max(x_1, x_8);
+lean_dec(x_8);
+lean_ctor_set(x_4, 4, x_9);
+x_10 = lean_apply_3(x_3, x_4, x_5, x_6);
+return x_10;
+}
+else
+{
+lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
+x_11 = lean_ctor_get(x_4, 0);
+x_12 = lean_ctor_get(x_4, 1);
+x_13 = lean_ctor_get(x_4, 2);
+x_14 = lean_ctor_get(x_4, 3);
+x_15 = lean_ctor_get(x_4, 4);
+x_16 = lean_ctor_get(x_4, 5);
+x_17 = lean_ctor_get(x_4, 6);
+x_18 = lean_ctor_get(x_4, 7);
+x_19 = lean_ctor_get(x_4, 8);
+x_20 = lean_ctor_get(x_4, 9);
+x_21 = lean_ctor_get(x_4, 10);
+lean_inc(x_21);
+lean_inc(x_20);
+lean_inc(x_19);
+lean_inc(x_18);
+lean_inc(x_17);
+lean_inc(x_16);
+lean_inc(x_15);
+lean_inc(x_14);
+lean_inc(x_13);
+lean_inc(x_12);
+lean_inc(x_11);
+lean_dec(x_4);
+x_22 = l_Nat_max(x_1, x_15);
+lean_dec(x_15);
+x_23 = lean_alloc_ctor(0, 11, 0);
+lean_ctor_set(x_23, 0, x_11);
+lean_ctor_set(x_23, 1, x_12);
+lean_ctor_set(x_23, 2, x_13);
+lean_ctor_set(x_23, 3, x_14);
+lean_ctor_set(x_23, 4, x_22);
+lean_ctor_set(x_23, 5, x_16);
+lean_ctor_set(x_23, 6, x_17);
+lean_ctor_set(x_23, 7, x_18);
+lean_ctor_set(x_23, 8, x_19);
+lean_ctor_set(x_23, 9, x_20);
+lean_ctor_set(x_23, 10, x_21);
+x_24 = lean_apply_3(x_3, x_23, x_5, x_6);
+return x_24;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_withAtLeastMaxRecDepth___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_alloc_closure((void*)(l_Lean_withAtLeastMaxRecDepth___rarg___lambda__1___boxed), 6, 1);
+lean_closure_set(x_4, 0, x_2);
+x_5 = lean_apply_3(x_1, lean_box(0), x_4, x_3);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_withAtLeastMaxRecDepth(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Lean_withAtLeastMaxRecDepth___rarg), 3, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_withAtLeastMaxRecDepth___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Lean_withAtLeastMaxRecDepth___rarg___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_1);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_catchInternalId___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

@@ -186,7 +186,7 @@ def unusedVariables : Linter := fun cmdStx => do
 
   -- collect ignore functions
   let ignoreFns := (← getUnusedVariablesIgnoreFns)
-    |>.insertAt 0 (isTopLevelDecl constDecls)
+    |>.insertAt! 0 (isTopLevelDecl constDecls)
 
   -- determine unused variables
   for (id, ⟨decl?, uses⟩) in vars.toList do

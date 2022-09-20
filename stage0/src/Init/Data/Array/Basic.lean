@@ -452,17 +452,6 @@ def contains [BEq α] (as : Array α) (a : α) : Bool :=
 def elem [BEq α] (a : α) (as : Array α) : Bool :=
   as.contains a
 
-def reverse (as : Array α) : Array α :=
-  let n   := as.size
-  let mid := n / 2
-  let rec rev (as : Array α) (i : Nat) :=
-    if h : i < mid then
-      rev (as.swap! i (n - i - 1)) (i+1)
-    else
-      as
-  rev as 0
-termination_by _ => mid - i
-
 @[inline] def getEvenElems (as : Array α) : Array α :=
   (·.2) <| as.foldl (init := (true, Array.empty)) fun (even, r) a =>
     if even then
@@ -640,6 +629,26 @@ def indexOf? [BEq α] (a : Array α) (v : α) : Option (Fin a.size) :=
   | ⟨[]⟩ => rfl
   | ⟨a::as⟩ => simp [pop, Nat.succ_sub_succ_eq_sub]
 
+theorem reverse.termination {i j : Nat} (h : i < j) : j - 1 - (i + 1) < j - i := by
+  rw [Nat.sub_sub, Nat.add_comm]
+  exact Nat.lt_of_le_of_lt (Nat.pred_le _) (Nat.sub_succ_lt_self _ _ h)
+
+def reverse (as : Array α) : Array α :=
+  if h : as.size ≤ 1 then
+    as
+  else
+    loop as 0 ⟨as.size - 1, Nat.pred_lt (mt (fun h : as.size = 0 => h ▸ by decide) h)⟩
+where
+  loop (as : Array α) (i : Nat) (j : Fin as.size) :=
+    if h : i < j then
+      have := reverse.termination h
+      let as := as.swap ⟨i, Nat.lt_trans h j.2⟩ j
+      have : j-1 < as.size := by rw [size_swap]; exact Nat.lt_of_le_of_lt (Nat.pred_le _) j.2
+      loop as (i+1) ⟨j-1, this⟩
+    else
+      as
+termination_by _ => j - i
+
 def popWhile (p : α → Bool) (as : Array α) : Array α :=
   if h : as.size > 0 then
     if p (as.get ⟨as.size - 1, Nat.sub_lt h (by decide)⟩) then
@@ -696,21 +705,25 @@ def erase [BEq α] (as : Array α) (a : α) : Array α :=
   | none   => as
   | some i => as.feraseIdx i
 
-def insertAtAux (i : Nat) (as : Array α) (j : Nat) : Array α :=
-  if h : i < j then
-    let as := as.swap! (j-1) j;
-    insertAtAux i as (j-1)
-  else
-    as
+/-- Insert element `a` at position `i`. -/
+@[inline] def insertAt (as : Array α) (i : Fin (as.size + 1)) (a : α) : Array α :=
+  let rec loop (as : Array α) (j : Fin as.size) :=
+    if i.1 < j then
+      let j' := ⟨j-1, Nat.lt_of_le_of_lt (Nat.pred_le _) j.2⟩
+      let as := as.swap j' j
+      loop as ⟨j', by rw [size_swap]; exact j'.2⟩
+    else
+      as
+  let j := as.size
+  let as := as.push a
+  loop as ⟨j, size_push .. ▸ j.lt_succ_self⟩
+termination_by loop j => j.1
 
-/--
-  Insert element `a` at position `i`.
-  Pre: `i < as.size` -/
-def insertAt (as : Array α) (i : Nat) (a : α) : Array α :=
-  if i > as.size then panic! "invalid index"
-  else
-    let as := as.push a;
-    as.insertAtAux i as.size
+/-- Insert element `a` at position `i`. Panics if `i` is not `i ≤ as.size`. -/
+def insertAt! (as : Array α) (i : Nat) (a : α) : Array α :=
+  if h : i ≤ as.size then
+    insertAt as ⟨i, Nat.lt_succ_of_le h⟩ a
+  else panic! "invalid index"
 
 def toListLitAux (a : Array α) (n : Nat) (hsz : a.size = n) : ∀ (i : Nat), i ≤ a.size → List α → List α
   | 0,     _,  acc => acc

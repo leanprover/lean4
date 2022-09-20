@@ -2985,9 +2985,11 @@ _start:
 {
 lean_object* x_3; 
 lean_inc(x_2);
+lean_inc(x_1);
 x_3 = l_Std_HashMapImp_find_x3f___at___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normExprImp_go___spec__1(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
 {
+lean_dec(x_1);
 return x_2;
 }
 else
@@ -3003,15 +3005,17 @@ lean_object* x_5;
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 lean_dec(x_4);
-return x_5;
+x_2 = x_5;
+goto _start;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; 
+lean_object* x_7; lean_object* x_8; 
 lean_dec(x_4);
-x_6 = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normFVarImp___closed__3;
-x_7 = l_panic___at_Lean_Expr_fvarId_x21___spec__1(x_6);
-return x_7;
+lean_dec(x_1);
+x_7 = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normFVarImp___closed__3;
+x_8 = l_panic___at_Lean_Expr_fvarId_x21___spec__1(x_7);
+return x_8;
 }
 }
 }

@@ -218,7 +218,6 @@ lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Specialize_specializeApp_x3f___lambda__3___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Specialize_visitCode___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_Specialize_Collector_collectParams___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_RBNode_findCore___at_Lean_Compiler_LCNF_Code_bind_go___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_LetDecl_updateValue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Specialize_specCacheExt;
 static lean_object* l_Lean_Compiler_LCNF_Specialize_Collector_collectFVar___closed__3;
@@ -264,6 +263,7 @@ lean_object* lean_expr_abstract(lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_instBEqExpr;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ToExpr_withParams_go___at_Lean_Compiler_LCNF_Specialize_mkKey___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_saveSpecParamInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_RBNode_findCore___at_Lean_Compiler_LCNF_CompilerM_codeBind_go___spec__1(lean_object*, lean_object*);
 static lean_object* l_panic___at_Lean_Compiler_LCNF_Specialize_Collector_collectFVar___spec__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Specialize_specializeApp_x3f___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Specialize_withParams___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -827,7 +827,7 @@ case 1:
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_ctor_get(x_2, 0);
-x_6 = l_Std_RBNode_findCore___at_Lean_Compiler_LCNF_Code_bind_go___spec__1(x_1, x_5);
+x_6 = l_Std_RBNode_findCore___at_Lean_Compiler_LCNF_CompilerM_codeBind_go___spec__1(x_1, x_5);
 if (lean_obj_tag(x_6) == 0)
 {
 uint8_t x_7; 
@@ -3032,7 +3032,7 @@ x_14 = lean_ctor_get(x_11, 1);
 x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
 lean_dec(x_13);
-x_16 = l_Std_RBNode_findCore___at_Lean_Compiler_LCNF_Code_bind_go___spec__1(x_15, x_1);
+x_16 = l_Std_RBNode_findCore___at_Lean_Compiler_LCNF_CompilerM_codeBind_go___spec__1(x_15, x_1);
 lean_dec(x_15);
 if (lean_obj_tag(x_16) == 0)
 {
@@ -3049,7 +3049,7 @@ x_20 = lean_ctor_get(x_17, 0);
 lean_dec(x_20);
 x_21 = lean_ctor_get(x_3, 0);
 lean_inc(x_21);
-x_22 = l_Std_RBNode_findCore___at_Lean_Compiler_LCNF_Code_bind_go___spec__1(x_21, x_1);
+x_22 = l_Std_RBNode_findCore___at_Lean_Compiler_LCNF_CompilerM_codeBind_go___spec__1(x_21, x_1);
 lean_dec(x_21);
 if (lean_obj_tag(x_22) == 0)
 {
@@ -3679,7 +3679,7 @@ lean_inc(x_183);
 lean_dec(x_17);
 x_184 = lean_ctor_get(x_3, 0);
 lean_inc(x_184);
-x_185 = l_Std_RBNode_findCore___at_Lean_Compiler_LCNF_Code_bind_go___spec__1(x_184, x_1);
+x_185 = l_Std_RBNode_findCore___at_Lean_Compiler_LCNF_CompilerM_codeBind_go___spec__1(x_184, x_1);
 lean_dec(x_184);
 if (lean_obj_tag(x_185) == 0)
 {
@@ -4232,7 +4232,7 @@ lean_dec(x_11);
 x_310 = lean_ctor_get(x_308, 0);
 lean_inc(x_310);
 lean_dec(x_308);
-x_311 = l_Std_RBNode_findCore___at_Lean_Compiler_LCNF_Code_bind_go___spec__1(x_310, x_1);
+x_311 = l_Std_RBNode_findCore___at_Lean_Compiler_LCNF_CompilerM_codeBind_go___spec__1(x_310, x_1);
 lean_dec(x_310);
 if (lean_obj_tag(x_311) == 0)
 {
@@ -4251,7 +4251,7 @@ if (lean_is_exclusive(x_312)) {
 }
 x_315 = lean_ctor_get(x_3, 0);
 lean_inc(x_315);
-x_316 = l_Std_RBNode_findCore___at_Lean_Compiler_LCNF_Code_bind_go___spec__1(x_315, x_1);
+x_316 = l_Std_RBNode_findCore___at_Lean_Compiler_LCNF_CompilerM_codeBind_go___spec__1(x_315, x_1);
 lean_dec(x_315);
 if (lean_obj_tag(x_316) == 0)
 {

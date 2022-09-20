@@ -82,7 +82,7 @@ where
       forallTelescopeReducing t fun xs s => do
         let motiveType ← instantiateForall motive xs[:numParams]
         withLocalDecl motiveName BinderInfo.implicit motiveType fun motive => do
-          mkForallFVars (xs.insertAt numParams motive) s)
+          mkForallFVars (xs.insertAt! numParams motive) s)
 
   motiveType (indVal : InductiveVal) : MetaM Expr :=
     forallTelescopeReducing indVal.type fun xs _ => do

@@ -351,28 +351,46 @@ private def getCaseGoals (tag : TSyntax ``binderIdent) : TacticM (MVarId × List
   return (g, gs.erase g)
 
 @[builtinTactic «case»] def evalCase : Tactic
-  | stx@`(tactic| case $tag $hs* =>%$arr $tac:tacticSeq) => do
-    let (g, gs) ← getCaseGoals tag
-    let g ← renameInaccessibles g hs
-    setGoals [g]
-    g.setTag Name.anonymous
-    withCaseRef arr tac do
-      closeUsingOrAdmit (withTacticInfoContext stx (evalTactic tac))
-    setGoals gs
-  | _ => throwUnsupportedSyntax
+  -- | stx@`(tactic| case $args|* =>%$arr $tac:tacticSeq) =>
+  | stx =>
+    let (args, arr, tac) := if stx[1].isOfKind ``binderIdent then
+      (#[mkNode ``caseArg #[stx[1], stx[2]]], stx[3], stx[4])
+    else
+      (stx[1].getArgs.map (⟨·⟩), stx[2], stx[3])
+    for arg in args do
+      match arg with
+      | `(caseArg| $tag $hs*) =>
+        let (g, gs) ← getCaseGoals tag
+        let g ← renameInaccessibles g hs
+        setGoals [g]
+        g.setTag Name.anonymous
+        withCaseRef arr tac do
+          closeUsingOrAdmit (withTacticInfoContext stx (evalTactic tac))
+        setGoals gs
+      | _ => throwUnsupportedSyntax
+  -- | _ => throwUnsupportedSyntax
 
 @[builtinTactic «case'»] def evalCase' : Tactic
-  | `(tactic| case' $tag $hs* =>%$arr $tac:tacticSeq) => do
-    let (g, gs) ← getCaseGoals tag
-    let g ← renameInaccessibles g hs
-    let mvarTag ← g.getTag
-    setGoals [g]
-    withCaseRef arr tac (evalTactic tac)
-    let gs' ← getUnsolvedGoals
-    if let [g'] := gs' then
-      g'.setTag mvarTag
-    setGoals (gs' ++ gs)
-  | _ => throwUnsupportedSyntax
+  -- | `(tactic| case' $args|* =>%$arr $tac:tacticSeq) =>
+  | stx =>
+    let (args, arr, tac) := if stx[1].isOfKind ``binderIdent then
+      (#[mkNode ``caseArg #[stx[1], stx[2]]], stx[3], stx[4])
+    else
+      (stx[1].getArgs.map (⟨·⟩), stx[2], stx[3])
+    for arg in args do
+      match arg with
+      | `(caseArg| $tag $hs*) =>
+        let (g, gs) ← getCaseGoals tag
+        let g ← renameInaccessibles g hs
+        let mvarTag ← g.getTag
+        setGoals [g]
+        withCaseRef arr tac (evalTactic tac)
+        let gs' ← getUnsolvedGoals
+        if let [g'] := gs' then
+          g'.setTag mvarTag
+        setGoals (gs' ++ gs)
+      | _ => throwUnsupportedSyntax
+  -- | _ => throwUnsupportedSyntax
 
 @[builtinTactic «renameI»] def evalRenameInaccessibles : Tactic
   | `(tactic| rename_i $hs*) => do replaceMainGoal [← renameInaccessibles (← getMainGoal) hs]

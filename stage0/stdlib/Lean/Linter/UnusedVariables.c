@@ -182,7 +182,7 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_MessageData_isUnusedVariableWarning___closed__1;
 LEAN_EXPORT lean_object* l_Lean_MessageData_isUnusedVariableWarning___boxed(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_187_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_182_(uint8_t, uint8_t);
 LEAN_EXPORT uint8_t l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1620____lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___at_Lean_Linter_unusedVariables___spec__22(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_6____spec__1(lean_object*, lean_object*, lean_object*);
@@ -203,6 +203,7 @@ static lean_object* l_Array_anyMUnsafe_any___at_Lean_Linter_initFn____x40_Lean_L
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_293____lambda__1___closed__8;
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Linter_unusedVariables___spec__32___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_293____lambda__1___closed__13;
+lean_object* l_Array_insertAt_x21___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Linter_getLinterUnusedVariables(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1843____lambda__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_463____lambda__1___closed__11;
@@ -505,7 +506,6 @@ lean_object* l_Std_HashMap_insert___at_Lean_ForEachExpr_visit___spec__3(lean_obj
 LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___at_Lean_Linter_unusedVariables___spec__22___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_39____closed__2;
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Linter_unusedVariables___spec__30___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_insertAt___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_39____closed__1;
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1843____lambda__2(lean_object*);
 LEAN_EXPORT lean_object* l_Std_AssocList_foldlM___at_Lean_Linter_unusedVariables___spec__33___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4268,7 +4268,7 @@ x_9 = lean_ctor_get(x_8, 1);
 lean_inc(x_9);
 lean_dec(x_8);
 x_10 = 0;
-x_11 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_187_(x_4, x_10);
+x_11 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_182_(x_4, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; uint8_t x_14; 
@@ -10242,7 +10242,7 @@ lean_inc(x_30);
 lean_dec(x_28);
 x_31 = lean_alloc_closure((void*)(l_Lean_Linter_unusedVariables_isTopLevelDecl___boxed), 4, 1);
 lean_closure_set(x_31, 0, x_22);
-x_32 = l_Array_insertAt___rarg(x_29, x_13, x_31);
+x_32 = l_Array_insertAt_x21___rarg(x_29, x_13, x_31);
 x_33 = l_Std_HashMap_toList___at_Lean_Linter_unusedVariables___spec__18(x_23);
 x_34 = lean_box(0);
 x_35 = l_List_forIn_loop___at_Lean_Linter_unusedVariables___spec__32(x_4, x_5, x_2, x_3, x_6, x_24, x_26, x_32, x_33, x_34, x_8, x_9, x_30);

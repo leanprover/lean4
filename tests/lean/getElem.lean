@@ -27,6 +27,5 @@ def f7 (i : Nat) :=
 #print f2
 #print f3
 #print f5
-set_option pp.proofs true in #print f5
 #print f6
 #print f7

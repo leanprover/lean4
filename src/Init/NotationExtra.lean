@@ -198,6 +198,10 @@ syntax (name := calcTactic) "calc" ppLine withPosition(calcStep) ppLine withPosi
   | `($f [$k] $sep)  => `($f $k $sep)
   | _                => throw ()
 
+@[appUnexpander GetElem.getElem] def unexpandGetElem : Lean.PrettyPrinter.Unexpander
+  | `($_ $array $index $_) => `($array[$index])
+  | _ => throw ()
+
 @[appUnexpander getElem!] def unexpandGetElem! : Lean.PrettyPrinter.Unexpander
   | `($_ $array $index) => `($array[$index]!)
   | _ => throw ()

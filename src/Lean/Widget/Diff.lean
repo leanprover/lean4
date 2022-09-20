@@ -94,11 +94,9 @@ def sameHead (e₀ e₁ : Expr) : MetaM Bool := do
   return e₀.getAppNumArgs == e₁.getAppNumArgs
 
 /-- Returns true if the expressions are completely different. -/
-def ExprDiff.isRootReplacement (d : ExprDiff) : MetaM Bool := do
-  if d.isEmpty then return false else
-  match d.changes.find? Pos.root with
-  | (some .inserted) => return true
-  | _ => return false
+def ExprDiff.isRootReplacement (d : ExprDiff) : Bool :=
+  if d.isEmpty then false else
+  d.changes.find? Pos.root matches some .inserted
 
 /-- Computes a diff between `before` and `after` expressions.
 
@@ -180,13 +178,12 @@ def diffHypotheses (lctx₀ : LocalContext) (hs₁ : Array InteractiveHypothesis
   hs₁.mapM (diffHypothesesBundle lctx₀)
 
 def diffInteractiveGoal (g₀ : MVarId) (i₁ : InteractiveGoal) : MetaM InteractiveGoal := do
-  let mut i₁ := i₁
   let mctx ← getMCtx
   let some md₀ := mctx.findDecl? g₀
     | throwError "Failed to find decl for {g₀}."
   let lctx₀ := md₀.lctx |>.sanitizeNames.run' {options := (← getOptions)}
   let hs₁ ← diffHypotheses lctx₀ i₁.hyps
-  i₁ := {i₁ with hyps := hs₁}
+  let i₁ := {i₁ with hyps := hs₁}
   let some g₁ := i₁.mvarId?
     | throwError "Expected InteractiveGoal to have an mvarId"
   let some a₀  ← getExprMVarAssignment? g₀
@@ -197,7 +194,7 @@ def diffInteractiveGoal (g₀ : MVarId) (i₁ : InteractiveGoal) : MetaM Interac
   let t₁ ← instantiateMVars md₁.type
   let tδ ← exprDiff t₀ t₁
   let c₁ ← addDiffTags tδ i₁.type
-  i₁ := {i₁ with type := c₁, isInserted? := false}
+  let i₁ := {i₁ with type := c₁, isInserted? := false}
   return i₁
 
 def ppMvar (m : MVarId) : MetaM Format := Meta.ppExpr <| .mvar m

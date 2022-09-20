@@ -8,10 +8,7 @@ def main : IO Unit := do
     hIn.flush
     let initResp ← Ipc.readResponseAs 0 InitializeResult
     let regWatchReq ← Ipc.readRequestAs "client/registerCapability" Json
-    Ipc.writeNotification ⟨"initialized", InitializedParams.mk⟩ 
+    Ipc.writeNotification ⟨"initialized", InitializedParams.mk⟩
 
-    Ipc.writeRequest ⟨1, "shutdown", Json.null⟩
-    let shutdownResp ← Ipc.readResponseAs 1 Json
-    assert! shutdownResp.result.isNull
-    Ipc.writeNotification ⟨"exit", Json.null⟩
+    Ipc.shutdown 1
     discard Ipc.waitForExit

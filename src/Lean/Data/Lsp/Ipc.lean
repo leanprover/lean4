@@ -39,6 +39,9 @@ def writeRequest (r : Request α) : IpcM Unit := do
 def writeNotification (n : Notification α) : IpcM Unit := do
   (←stdin).writeLspNotification n
 
+def shutdown (n : Nat) : IpcM Unit := do
+  (←stdin).lspShutdown (←stdout) n
+
 def readMessage : IpcM JsonRpc.Message := do
   (←stdout).readLspMessage
 

@@ -1,5 +1,8 @@
 import Lean.Data.Lsp
 open IO Lean Lsp
+open Lean
+open Lean.Lsp
+open Lean.JsonRpc
 
 def main : IO Unit := do
   Ipc.runWith (←IO.appPath) #["--server", "-Dlinter.all=false"] do
@@ -25,8 +28,5 @@ def main : IO Unit := do
       else
         throw $ userError "Failed parsing test file."
 
-      Ipc.writeRequest ⟨2, "shutdown", Json.null⟩
-      let shutResp ← Ipc.readResponseAs 2 Json
-      assert! shutResp.result.isNull
-      Ipc.writeNotification ⟨"exit", Json.null⟩
+      Ipc.shutdown 2
       discard $ Ipc.waitForExit

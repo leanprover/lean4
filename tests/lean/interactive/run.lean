@@ -127,17 +127,6 @@ partial def main (args : List String) : IO Unit := do
       | _ =>
         lastActualLineNo := lineNo
       lineNo := lineNo + 1
-    Ipc.writeRequest ⟨requestNo, "shutdown", Json.null⟩
 
-    while True do
-      let shutMsg ← Ipc.readMessage
-      match shutMsg with
-      | Message.response id result =>
-        assert! result.isNull
-        if id != requestNo then
-          throw <| IO.userError s!"Expected id {requestNo}, got id {id}"
-        break
-      | _ => pure () -- ignore other messages in between.
-
-    Ipc.writeNotification ⟨"exit", Json.null⟩
+    Ipc.shutdown requestNo
     discard <| Ipc.waitForExit

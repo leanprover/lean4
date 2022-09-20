@@ -265,7 +265,7 @@ For many tactics other than the simplifier,
 one should use the `withLocation` tactic combinator
 when working with a `location`.
 -/
-def simpLocation (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (fvarIdToLemmaId : FVarIdToLemmaId := {}) (loc : Location) : TacticM Unit := do
+def simpLocation (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (fvarIdToLemmaId : FVarIdToLemmaId := {}) (loc : Location) : TacticM NameSet := do
   match loc with
   | Location.targets hyps simplifyTarget =>
     withMainContext do
@@ -275,24 +275,25 @@ def simpLocation (ctx : Simp.Context) (discharge? : Option Simp.Discharge := non
     withMainContext do
       go (← (← getMainGoal).getNondepPropHyps) (simplifyTarget := true) fvarIdToLemmaId
 where
-  go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) (fvarIdToLemmaId : Lean.Meta.FVarIdToLemmaId) : TacticM Unit := do
+  go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) (fvarIdToLemmaId : Lean.Meta.FVarIdToLemmaId) : TacticM NameSet := do
     let mvarId ← getMainGoal
-    let result? ← simpGoal mvarId ctx (simplifyTarget := simplifyTarget) (discharge? := discharge?) (fvarIdsToSimp := fvarIdsToSimp) (fvarIdToLemmaId := fvarIdToLemmaId)
+    let (result?, usedSimps) ← simpGoal mvarId ctx (simplifyTarget := simplifyTarget) (discharge? := discharge?) (fvarIdsToSimp := fvarIdsToSimp) (fvarIdToLemmaId := fvarIdToLemmaId)
     match result? with
     | none => replaceMainGoal []
     | some (_, mvarId) => replaceMainGoal [mvarId]
+    return usedSimps
 
 /-
   "simp " (config)? (discharger)? ("only ")? ("[" simpLemma,* "]")? (location)?
 -/
 @[builtinTactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => do
   let { ctx, fvarIdToLemmaId, dischargeWrapper } ← withMainContext <| mkSimpContext stx (eraseLocal := false)
-  dischargeWrapper.with fun discharge? =>
+  discard <| dischargeWrapper.with fun discharge? =>
     simpLocation ctx discharge? fvarIdToLemmaId (expandOptLocation stx[5])
 
 @[builtinTactic Lean.Parser.Tactic.simpAll] def evalSimpAll : Tactic := fun stx => do
   let { ctx, .. } ← mkSimpContext stx (eraseLocal := true) (kind := .simpAll) (ignoreStarArg := true)
-  match (← simpAll (← getMainGoal) ctx) with
+  match (← simpAll (← getMainGoal) ctx).1 with
   | none => replaceMainGoal []
   | some mvarId => replaceMainGoal [mvarId]
 
@@ -308,7 +309,7 @@ def dsimpLocation (ctx : Simp.Context) (loc : Location) : TacticM Unit := do
 where
   go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) : TacticM Unit := do
     let mvarId ← getMainGoal
-    let result? ← dsimpGoal mvarId ctx (simplifyTarget := simplifyTarget) (fvarIdsToSimp := fvarIdsToSimp)
+    let (result?, _) ← dsimpGoal mvarId ctx (simplifyTarget := simplifyTarget) (fvarIdsToSimp := fvarIdsToSimp)
     match result? with
     | none => replaceMainGoal []
     | some mvarId => replaceMainGoal [mvarId]

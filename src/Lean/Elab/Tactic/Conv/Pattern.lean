@@ -48,7 +48,7 @@ private def pre (pattern : AbstractMVarsResult) (found? : IO.Ref (Option Expr)) 
 
 private def findPattern? (pattern : AbstractMVarsResult) (e : Expr) : MetaM (Option (MVarId × Simp.Result)) := do
   let found? ← IO.mkRef none
-  let result ← Simp.main e (← getContext) (methods := { pre := pre pattern found? })
+  let (result, _) ← Simp.main e (← getContext) (methods := { pre := pre pattern found? })
   if let some newGoal ← found?.get then
     return some (newGoal.mvarId!, result)
   else

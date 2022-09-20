@@ -364,9 +364,11 @@ inductive Expr where
 
   /--
   A function application.
+
   For example, the natural number one, i.e. `Nat.succ Nat.zero` is represented as
   `Expr.app (.const `Nat.succ []) (.const .zero [])`
   Note that multiple arguments are represented using partial application.
+
   For example, the two argument application `f x y` is represented as
   `Expr.app (.app f x) y`.
   -/
@@ -375,6 +377,7 @@ inductive Expr where
   /--
   A lambda abstraction (aka anonymous functions). It introduces a new binder for
   variable `x` in scope for the lambda body.
+
   For example, the expression `fun x : Nat => x` is represented as
   ```
   Expr.lam `x (.const `Nat []) (.bvar 0) .default
@@ -386,6 +389,7 @@ inductive Expr where
   A dependent arrow `(a : α) → β)` (aka forall-expression) where `β` may dependent
   on `a`. Note that this constructor is also used to represent non-dependent arrows
   where `β` does not depend on `a`.
+
   For example:
   - `forall x : Prop, x ∧ x`:
   ```lean
@@ -401,19 +405,18 @@ inductive Expr where
   | forallE (binderName : Name) (binderType : Expr) (body : Expr) (binderInfo : BinderInfo)
 
   /--
-  Let-expressions. The field `nonDep` is not currently used, but will be used in the future
-  by the code generator (and possibly `simp`) to track whether a let-expression is non-dependent
-  or not.
+  Let-expressions.
 
-  **IMPORTANT**: This flag is for "local" use only. That is, a module should not "trust" its value for any purpose.
+  **IMPORTANT**: The `nonDep` flag is for "local" use only. That is, a module should not "trust" its value for any purpose.
   In the intended use-case, the compiler will set this flag, and be responsible for maintaining it.
   Other modules may not preserve its value while applying transformations.
 
-  Given an environment, metavariable context, and local context, we say a let-expression
-  `let x : t := v; e` is non-dependent when it is equivalent to `(fun x : t => e) v`.
-  Here is an example of a dependent let-expression
-  `let n : Nat := 2; fun (a : Array Nat n) (b : Array Nat 2) => a = b` is type correct, but
-  `(fun (n : Nat) (a : Array Nat n) (b : Array Nat 2) => a = b) 2` is not.
+  Given an environment, a metavariable context, and a local context,
+  we say a let-expression `let x : t := v; e` is non-dependent when it is equivalent
+  to `(fun x : t => e) v`. Here is an example of a dependent let-expression
+  `let n : Nat := 2; fun (a : Array Nat n) (b : Array Nat 2) => a = b` is type correct,
+  but `(fun (n : Nat) (a : Array Nat n) (b : Array Nat 2) => a = b) 2` is not.
+
   The let-expression `let x : Nat := 2; Nat.succ x` is represented as
   ```
   Expr.letE `x (.const `Nat []) (.lit (.natVal 2)) (.bvar 0) true
@@ -422,11 +425,12 @@ inductive Expr where
   | letE (declName : Name) (type : Expr) (value : Expr) (body : Expr) (nonDep : Bool)
 
   /--
-  Natural number and string literal values. They are not really needed, but provide a more
-  compact representation in memory for these two kinds of literals, and are used to implement
-  efficient reduction in the elaborator and kernel.
-  The "raw" natural number `2` can be represented as `.lit (.natVal 2)`. Note that, it is
-  definitionally equal to:
+  Natural number and string literal values.
+
+  They are not really needed, but provide a more compact representation in memory
+  for these two kinds of literals, and are used to implement efficient reduction
+  in the elaborator and kernel. The "raw" natural number `2` can be represented
+  as `Expr.lit (.natVal 2)`. Note that, it is definitionally equal to:
   ```lean
   Expr.app (.const `Nat.succ []) (.app (.const `Nat.succ []) (.const `Nat.zero []))
   ```
@@ -434,10 +438,13 @@ inductive Expr where
   | lit : Literal → Expr
 
   /--
-  Metadata (aka annotations). We use annotations to provide hints to the pretty-printer,
+  Metadata (aka annotations).
+
+  We use annotations to provide hints to the pretty-printer,
   store references to `Syntax` nodes, position information, and save information for
   elaboration procedures (e.g., we use the `inaccessible` annotation during elaboration to
   mark `Expr`s that correspond to inaccessible patterns).
+
   Note that `Expr.mdata data e` is definitionally equal to `e`.
   -/
   | mdata (data : MData) (expr : Expr)
@@ -451,6 +458,7 @@ inductive Expr where
   is valid (i.e., it is smaller than the numbef of constructor fields).
   When exporting Lean developments to other systems, `proj` can be replaced with `typeName`.`rec`
   applications.
+
   Example, given `a : Nat x Bool`, `a.1` is represented as
   ```
   .proj `Prod 0 a

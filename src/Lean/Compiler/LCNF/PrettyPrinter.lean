@@ -42,7 +42,10 @@ def ppArg (e : Expr) : M Format := do
   if e.isFVar then
     ppFVar e.fvarId!
   else if pp.explicit.get (← getOptions) then
-    ppExpr e
+    if e.isConst || e.isProp || e.isType0 then
+      ppExpr e
+    else
+      return Format.paren (←  ppExpr e)
   else
     return "_"
 

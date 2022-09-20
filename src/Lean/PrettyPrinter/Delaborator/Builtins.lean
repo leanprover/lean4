@@ -59,38 +59,12 @@ def delabSort : Delab := do
     | none    => `(Sort $(Level.quote l max_prec))
 
 
-def unresolveNameGlobal (n₀ : Name) : DelabM Name := do
-  if n₀.hasMacroScopes then return n₀
-  if (← getPPOption getPPFullNames) then
-    match (← resolveGlobalName n₀) with
-      | [(potentialMatch, _)] => if potentialMatch == n₀ then return n₀ else return rootNamespace ++ n₀
-      | _ => return n₀ -- if can't resolve, return the original
-  let mut initialNames := (getRevAliases (← getEnv) n₀).toArray
-  initialNames := initialNames.push (rootNamespace ++ n₀)
-  for initialName in initialNames do
-    match (← unresolveNameCore initialName) with
-    | none => continue
-    | some n => return n
-  return n₀ -- if can't resolve, return the original
-where
-  unresolveNameCore (n : Name) : DelabM (Option Name) := do
-    let mut revComponents := n.components'
-    let mut candidate := Name.anonymous
-    for _ in [:revComponents.length] do
-      match revComponents with
-      | [] => return none
-      | cmpt::rest => candidate := cmpt ++ candidate; revComponents := rest
-      match (← resolveGlobalName candidate) with
-      | [(potentialMatch, _)] => if potentialMatch == n₀ then return some candidate else continue
-      | _ => continue
-    return none
-
 -- NOTE: not a registered delaborator, as `const` is never called (see [delab] description)
 def delabConst : Delab := do
   let Expr.const c₀ ls ← getExpr | unreachable!
   let c₀ := if (← getPPOption getPPPrivateNames) then c₀ else (privateToUserName? c₀).getD c₀
 
-  let mut c ← unresolveNameGlobal c₀
+  let mut c ← unresolveNameGlobal c₀ (fullNames := ← getPPOption getPPFullNames)
   let stx ← if ls.isEmpty || !(← getPPOption getPPUniverses) then
     if (← getLCtx).usesUserName c then
       -- `c` is also a local declaration

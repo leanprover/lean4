@@ -1,3 +1,5 @@
+set_option tactic.simp.trace true
+
 def f (x : α) := x
 
 theorem ex1 (a : α) (b : List α) : f (a::b = []) = False :=

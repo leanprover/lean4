@@ -1,0 +1,8 @@
+Try this: simp only [f]
+Try this: simp only [length]
+Try this: simp only [fact]
+Try this: simp only [head]
+Try this: simp only [foo]
+Try this: simp only [g, Id.pure_eq]
+Try this: simp only [getThe, StateT.set, f1, StateT.modifyGet, f2, modify, StateT.bind, StateT.get]
+Try this: simp only [bla, h]

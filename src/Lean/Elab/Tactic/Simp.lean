@@ -203,6 +203,8 @@ where
       else
         return .none
 
+@[inline] def simpOnlyBuiltins : List Name := [``eq_self]
+
 structure MkSimpContextResult where
   ctx              : Simp.Context
   dischargeWrapper : Simp.DischargeWrapper
@@ -222,7 +224,7 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp) (ig
   let dischargeWrapper ← mkDischargeWrapper stx[2]
   let simpOnly := !stx[3].isNone
   let simpTheorems ← if simpOnly then
-    ({} : SimpTheorems).addConst ``eq_self (builtin := true)
+    simpOnlyBuiltins.foldlM (·.addConst ·) ({} : SimpTheorems)
   else
     getSimpTheorems
   let congrTheorems ← getSimpCongrTheorems
@@ -257,10 +259,9 @@ def traceSimpCall (stx : Syntax) (usedSimps : OriginSet) : MetaM Unit := do
   let env ← getEnv
   for thm in usedSimps do
     match thm with
-    | .decl declName builtin => -- global definitions in the environment
-      if !builtin then -- this one is implicitly available
-        if env.contains declName then
-          args := args.push (← `(Parser.Tactic.simpLemma| $(mkIdent (← unresolveNameGlobal declName)):ident))
+    | .decl declName => -- global definitions in the environment
+      if env.contains declName && !simpOnlyBuiltins.contains declName then
+        args := args.push (← `(Parser.Tactic.simpLemma| $(mkIdent (← unresolveNameGlobal declName)):ident))
     | .fvar fvarId => -- local hypotheses in the context
       if let some ldecl := lctx.find? fvarId then
         localsOrStar := localsOrStar.bind fun locals =>

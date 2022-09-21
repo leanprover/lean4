@@ -21,7 +21,8 @@ def unfoldTarget (declName : Name) : TacticM Unit := do
 -/
 @[builtinTactic Lean.Parser.Tactic.unfold] def evalUnfold : Tactic := fun stx => do
   let loc := expandOptLocation stx[2]
-  for declNameId in stx[1].getSepArgs do
+  let args := if stx[1][1].isAtom then stx[1].getSepArgs else stx[1].getArgs
+  for declNameId in args do
     go declNameId loc
 where
   go (declNameId : Syntax) (loc : Location) : TacticM Unit := do

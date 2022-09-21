@@ -12,6 +12,11 @@ import Lean.Elab.InfoTree
 
 namespace Lean.Widget
 
+register_builtin_option showTacticDiff : Bool := {
+  defValue := true
+  descr := "When true, interactive goals for tactics will be decorated with diffing information. "
+}
+
 open Server Std Lean SubExpr
 
 /-- A marker for a point in the expression where a subexpression has been inserted.
@@ -286,6 +291,7 @@ def diffInteractiveGoal (useAfter : Bool) (g₀ : MVarId) (i₁ : InteractiveGoa
 If `useAfter` is `true` then `igs₁` is the set of interactive goals _after_ the tactic has been applied.
 Otherwise `igs₁` is the set of interactive goals _before_. -/
 def diffInteractiveGoals (useAfter : Bool) (info : Elab.TacticInfo) (igs₁ : InteractiveGoals) : MetaM InteractiveGoals := do
+    if ! showTacticDiff.get (← getOptions) then return igs₁ else
     let goals₀ := if useAfter then info.goalsBefore else info.goalsAfter
     let parentMap : MVarIdMap MVarIdSet ← info.goalsBefore.foldlM (init := ∅) (fun s g => do
       let ms ← Expr.mvar g |> Lean.Meta.getMVars

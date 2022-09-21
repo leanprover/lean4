@@ -271,13 +271,14 @@ def diffHypothesesBundle (useAfter : Bool) (ctx₀  : LocalContext) (h₁ : Inte
           return {h₁ with isRemoved? := true }
   -- all fvids are present on original so we can assume no change.
   return h₁
-  where withTypeDiff (t₀ : Expr) (h₁ : InteractiveHypothesisBundle) : MetaM InteractiveHypothesisBundle := do
-      let some x₁ := h₁.fvarIds[0]?
-        | return {h₁ with message? := "internal error: empty fvar list!"}
-      let t₁ ← inferType <| Expr.fvar x₁
-      let tδ ← exprDiff t₀ t₁ useAfter
-      let c₁ ← addDiffTags useAfter tδ h₁.type
-      return {h₁ with type := c₁}
+where
+  withTypeDiff (t₀ : Expr) (h₁ : InteractiveHypothesisBundle) : MetaM InteractiveHypothesisBundle := do
+    let some x₁ := h₁.fvarIds[0]?
+      | return {h₁ with message? := "internal error: empty fvar list!"}
+    let t₁ ← inferType <| Expr.fvar x₁
+    let tδ ← exprDiff t₀ t₁ useAfter
+    let c₁ ← addDiffTags useAfter tδ h₁.type
+    return {h₁ with type := c₁}
 
 def diffHypotheses (useAfter : Bool) (lctx₀ : LocalContext) (hs₁ : Array InteractiveHypothesisBundle) : MetaM (Array InteractiveHypothesisBundle) := do
   -- [todo] also show when hypotheses (user-names present in lctx₀ but not in hs₁) are deleted

@@ -23,6 +23,18 @@ syntax convSeqBracketed := "{" sepByIndentSemicolon(conv) "}"
 -- automatically closing goals
 syntax convSeq := convSeqBracketed <|> convSeq1Indented
 
+/-- The `*` occurrence list means to apply to all occurrences of the pattern. -/
+syntax occsWildcard := "*"
+
+/--
+A list `1 2 4` of occurrences means to apply to the first, second, and fourth
+occurrence of the pattern.
+-/
+syntax occsIndexed := num+
+
+/-- An occurrence specification, either `*` or a list of numbers. The default is `[1]`. -/
+syntax occs := atomic(" (" &"occs") " := " (occsWildcard <|> occsIndexed) ")"
+
 /--
 `conv => ...` allows the user to perform targeted rewriting on a goal or hypothesis,
 by focusing on particular subexpressions.
@@ -32,9 +44,9 @@ See <https://leanprover.github.io/theorem_proving_in_lean4/conv.html> for more d
 Basic forms:
 * `conv => cs` will rewrite the goal with conv tactics `cs`.
 * `conv at h => cs` will rewrite hypothesis `h`.
-* `conv in pat => cs` will rewrite the first subexpression matching `pat`.
+* `conv in pat => cs` will rewrite the first subexpression matching `pat` (see `pattern`).
 -/
-syntax (name := conv) "conv " (" at " ident)? (" in " term)? " => " convSeq : tactic
+syntax (name := conv) "conv " (" at " ident)? (" in " (occs)? term)? " => " convSeq : tactic
 
 /-- `skip` does nothing. -/
 syntax (name := skip) "skip" : conv
@@ -92,8 +104,23 @@ to rewrite the target. For recursive definitions,
 only one layer of unfolding is performed. -/
 syntax (name := unfold) "unfold " (colGt ident)+ : conv
 
-/-- `pattern pat` traverses to the first subterm of the target that matches `pat`. -/
-syntax (name := pattern) "pattern " term : conv
+/--
+* `pattern pat` traverses to the first subterm of the target that matches `pat`.
+* `pattern (occs := *) pat` traverses to the every subterm of the target that matches `pat`
+  which is not contained in another match of `pat`. It generates one subgoal for each matching
+  subterm.
+* `pattern (occs := 1 2 4) pat` matches occurrences `1, 2, 4` of `pat` and produces three subgoals.
+  Occurrences are numbered left to right from the outside in.
+
+Note that skipping an occurrence of `pat` will traverse inside that subexpression, which means
+it may find more matches and this can affect the numbering of subsequent pattern matches.
+For example, if we are searching for `f _` in `f (f a) = f b`:
+* `occs := 1 2` (and `occs := *`) returns `| f (f a)` and `| f b`
+* `occs := 2` returns `| f a`
+* `occs := 2 3` returns `| f a` and `| f b`
+* `occs := 1 3` is an error, because after skipping `f b` there is no third match.
+-/
+syntax (name := pattern) "pattern " (occs)? term : conv
 
 /-- `rw [thm]` rewrites the target using `thm`. See the `rw` tactic for more information. -/
 syntax (name := rewrite) "rewrite" (config)? rwRuleSeq : conv

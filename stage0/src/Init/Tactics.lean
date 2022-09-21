@@ -161,8 +161,7 @@ syntax caseArg := binderIdent binderIdent*
   with inaccessible names to the given names.
 * `case tag₁ | tag₂ => tac` is equivalent to `(case tag₁ => tac); (case tag₂ => tac)`.
 -/
-syntax (name := case) "case " binderIdent binderIdent* " => " tacticSeq : tactic
--- syntax (name := case) "case " sepBy1(caseArg, " | ") " => " tacticSeq : tactic
+syntax (name := case) "case " sepBy1(caseArg, " | ") " => " tacticSeq : tactic
 
 /--
 `case'` is similar to the `case tag => tac` tactic, but does not ensure the goal
@@ -170,8 +169,7 @@ has been solved after applying `tac`, nor admits the goal if `tac` failed.
 Recall that `case` closes the goal using `sorry` when `tac` fails, and
 the tactic execution is not interrupted.
 -/
-syntax (name := case') "case' " binderIdent binderIdent* " => " tacticSeq : tactic
--- syntax (name := case') "case' " sepBy1(caseArg, " | ") " => " tacticSeq : tactic
+syntax (name := case') "case' " sepBy1(caseArg, " | ") " => " tacticSeq : tactic
 
 /--
 `next => tac` focuses on the next goal and solves it using `tac`, or else fails.

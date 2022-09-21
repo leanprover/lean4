@@ -72,7 +72,7 @@ structure ExprDiff where
   /-- Map from subexpr positions in `e₀` to diff points.-/
   changesBefore : PosMap ExprDiffTag := ∅
   /-- A map from subexpr positions in `e₁` to 'diff points' which are tags
-  describing how the expression is changed at the given position.-/
+  describing how the expression has changed relative to `before` at the given position.-/
   changesAfter : PosMap ExprDiffTag := ∅
 
 instance : EmptyCollection ExprDiff := ⟨{}⟩

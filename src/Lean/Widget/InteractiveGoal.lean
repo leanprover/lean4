@@ -22,7 +22,7 @@ structure InteractiveHypothesisBundle where
   /-- The ids for each variable. Should have the same length as `names`. -/
   fvarIds : Array FVarId
   type : CodeWithInfos
-  /-- The value, in the case that the hypothesis is assigned. -/
+  /-- The value, in the case the hypothesis is a `let`-binder. -/
   val? : Option CodeWithInfos := none
   /-- The hypothesis is a typeclass instance. -/
   isInstance : Bool
@@ -84,7 +84,7 @@ def pretty (g : InteractiveGoal) : Format := Id.run do
 
 end InteractiveGoal
 
-/-- This is everything needed to render an interactive goal in the infoview. -/
+/-- This is everything needed to render an interactive term goal in the infoview. -/
 structure InteractiveTermGoal where
   hyps      : Array InteractiveHypothesisBundle
   type      : CodeWithInfos

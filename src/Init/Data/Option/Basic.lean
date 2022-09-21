@@ -77,7 +77,7 @@ instance (r : α → α → Prop) [s : DecidableRel r] : DecidableRel (Option.lt
   | none,   none   => isFalse not_false
 
 /-- Take a pair of options and if they are both `some`, apply the given fn to produce an output.
-Otherwise pass the value through. -/
+Otherwise act like `orElse`. -/
 def merge (fn : α → α → α) : Option α → Option α → Option α
   | none  , none   => none
   | some x, none   => some x

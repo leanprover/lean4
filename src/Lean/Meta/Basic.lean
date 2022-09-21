@@ -704,6 +704,11 @@ def getLocalDeclFromUserName (userName : Name) : MetaM LocalDecl := do
   | some d => pure d
   | none   => throwError "unknown local declaration '{userName}'"
 
+/-- Given a user-facing name for a free variable, return the free variable or throw if not declared. -/
+def getFVarFromUserName (userName : Name) : MetaM Expr := do
+  let d ← getLocalDeclFromUserName userName
+  return Expr.fvar d.fvarId
+
 /--
 Lift a `MkBindingM` monadic action `x` to `MetaM`.
 -/

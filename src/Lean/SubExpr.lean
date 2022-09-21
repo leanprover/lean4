@@ -98,6 +98,14 @@ def pushNaryFn (numArgs : Nat) (p : Pos) : Pos :=
 def pushNaryArg (numArgs argIdx : Nat) (p : Pos) : Pos :=
   show Nat from p.asNat * (maxChildren ^ (numArgs - argIdx)) + 1
 
+def pushNthBindingDomain : (binderIdx : Nat) → Pos → Pos
+  | 0, p => p.pushBindingDomain
+  | (n+1), p => pushNthBindingDomain n p.pushBindingBody
+
+def pushNthBindingBody : (numBinders : Nat) → Pos → Pos
+  | 0, p => p
+  | (n+1), p => pushNthBindingBody n p.pushBindingBody
+
 protected def toString (p : Pos) : String :=
   p.toArray.toList
   |>.map toString
@@ -117,10 +125,17 @@ protected def fromString? : String → Except String Pos
     | "" :: tail => Pos.ofArray <$> tail.toArray.mapM ofStringCoord
     | ss => error s!"malformed {ss}"
 
+protected def fromString! (s : String) : Pos :=
+  match Pos.fromString? s with
+  | Except.ok a => a
+  | Except.error e => panic! e
+
 instance : Ord Pos := show Ord Nat by infer_instance
 instance : DecidableEq Pos := show DecidableEq Nat by infer_instance
 instance : ToString Pos := ⟨Pos.toString⟩
 instance : EmptyCollection Pos := ⟨root⟩
+instance : Repr Pos where
+  reprPrec p _ := f!"Pos.fromString! {repr p.toString}"
 
 
 -- Note: we can't send the bare Nat over the wire because Json will convert to float
@@ -154,6 +169,16 @@ def isRoot (s : SubExpr) : Bool := s.pos.isRoot
 
 /-- Map from subexpr positions to values. -/
 abbrev PosMap (α : Type u) := Std.RBMap Pos α compare
+
+def bindingBody! : SubExpr → SubExpr
+  | ⟨.forallE _ _ b _, p⟩ => ⟨b, p.pushBindingBody⟩
+  | ⟨.lam _ _ b _, p⟩ => ⟨b, p.pushBindingBody⟩
+  | _ => panic! "subexpr is not a binder"
+
+def bindingDomain! : SubExpr → SubExpr
+  | ⟨.forallE _ t _ _, p⟩ => ⟨t, p.pushBindingDomain⟩
+  | ⟨.lam _ t _ _, p⟩ => ⟨t, p.pushBindingDomain⟩
+  | _ => panic! "subexpr is not a binder"
 
 end SubExpr
 

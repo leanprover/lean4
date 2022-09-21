@@ -30,6 +30,8 @@ structure InteractiveHypothesisBundle where
   isType : Bool
   /-- If true, the hypothesis was not present on the previous tactic state. -/
   isInserted? : Option Bool := none
+  /-- If true, the hypothesis will be removed in the next tactic state. -/
+  isRemoved?  : Option Bool := none
   /-- An optional string to show the user after the bundle. This is useful for debugging.-/
   message? : Option String := none
   deriving Inhabited, RpcEncodable
@@ -45,6 +47,8 @@ structure InteractiveGoal where
   mvarId? : Option MVarId := none
   /-- If true, the goal was not present on the previous tactic state. -/
   isInserted?: Option Bool := none
+  /-- If true, the goal will be removed on the next tactic state. -/
+  isRemoved? : Option Bool := none
   /-- An optional message string to show the user after the goal. This is useful for debugging.-/
   message? : Option (String) := none
   deriving Inhabited, RpcEncodable

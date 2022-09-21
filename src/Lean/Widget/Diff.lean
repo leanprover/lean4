@@ -8,6 +8,7 @@ import Lean.Meta.PPGoal
 import Lean.Widget.InteractiveCode
 import Lean.Widget.InteractiveGoal
 import Lean.Data.Lsp.Extra
+import Lean.Elab.InfoTree
 
 namespace Lean.Widget
 
@@ -15,30 +16,23 @@ open Server Std Lean SubExpr
 
 open Lean.Expr in
 /-- Define `m₁` to be the parent of `m₂` in a given mvar-context when `m₁` has been
-assigned with an expression containing `m₂`.
-
-Some technicalities:
-Suppose `m₁ : (n : Nat) → P`, and the new goal `n : Nat ⊢ m₂ : P` was got with an application of `intro`.
-Now, `m₁` is assigned the expression `fun (n : Nat) => m₃ n`.
-`m₃` is an auxilliary mvar with a delayed assignment, so we have to look a step further if there is a delayed mvar.
-
--/
-partial def isParent (m₁ m₂ : MVarId): MetaM Bool := core m₁ 2
-  where core (m₁ : MVarId) (fuel : Nat) : MetaM Bool := do
-    let some assignment ← Lean.getExprMVarAssignment? m₁ | return false
+assigned with an expression containing `m₂`. -/
+partial def isParent (before after : MVarId): MetaM Bool := do
+    let some assignment ← Lean.getExprMVarAssignment? before
+      | return false
     let assignment ← instantiateMVars assignment
     let r ← assignment.findExtM? (fun e => do
       if !e.hasMVar then return FindStep.done else
       match e with
       | .mvar m =>
-        if m == m₂ then
+        if m == after then
           return FindStep.found
+        /- Suppose `m₁ : (n : Nat) → P`, and the new goal `n : Nat ⊢ m₂ : P` was got with an application of `intro`.
+           Now, `m₁` is assigned the expression `fun (n : Nat) => m₃ n`.
+           `m₃` is an auxilliary mvar with a delayed assignment, so we have to look a step further if there is a delayed mvar. -/
         let m' ← getDelayedMVarRoot m
-        if m' == m₂ then
+        if m' == after then
           return FindStep.found
-        if m' != m ∧ (← m'.isAssigned) ∧ fuel > 0 then
-          if ← core m' (fuel - 1) then -- [todo] is this wf without fuel?
-            return FindStep.found
         return FindStep.done
       | _ => return FindStep.visit
     )
@@ -46,42 +40,70 @@ partial def isParent (m₁ m₂ : MVarId): MetaM Bool := core m₁ 2
 
 /-- A marker for a point in the expression where a subexpression has been inserted.
 
-NOTE: in the future we may add other tags such as `deleted` or `end_insert`.
+NOTE: in the future we may add other tags.
   -/
-inductive ExprDiffPoint where
-  | inserted
+inductive ExprDiffTag where
+  | change
+  | delete
 
-def ExprDiffPoint.toString : ExprDiffPoint → String
-  | .inserted => "inserted"
+def ExprDiffTag.toString : ExprDiffTag → String
+  | .change => "change"
+  | .delete => "delete"
 
-def ExprDiffPoint.fromString : String → Except String ExprDiffPoint
-  | "inserted" => Except.ok ExprDiffPoint.inserted
-  | s => Except.error s!"expected an ExprDiffPoint ctor string but got {s}"
+def ExprDiffTag.fromString : String → Except String ExprDiffTag
+  | "change" => Except.ok ExprDiffTag.change
+  | "delete" => Except.ok ExprDiffTag.delete
+  | s => Except.error s!"expected an ExprDiffTag ctor string but got {s}"
 
-instance : FromJson ExprDiffPoint where
-  fromJson? j := j.getStr? >>= ExprDiffPoint.fromString
-
-instance : ToJson ExprDiffPoint where
+instance : ToString ExprDiffTag := ⟨ExprDiffTag.toString⟩
+instance : FromJson ExprDiffTag where
+  fromJson? j := j.getStr? >>= ExprDiffTag.fromString
+instance : ToJson ExprDiffTag where
   toJson x := x.toString |> Json.str
 
-/-- A description of the differences between a pair of expressions `e₀`, `e₁`.
-The information is only used to display a 'visual diff' for `e₁`. -/
+/-- A description of the differences between a pair of expressions `before`, `after : Expr`.
+The information can be used to display a 'visual diff' for
+either `before`, showing the parts of the expression that are about to change,
+or `after` showing which parts of the expression have changed. -/
 structure ExprDiff where
+  /-- Map from subexpr positions in `e₀` to diff points.-/
+  changesBefore : PosMap ExprDiffTag := ∅
   /-- A map from subexpr positions in `e₁` to 'diff points' which are tags
   describing how the expression is changed at the given position.-/
-  changes : PosMap ExprDiffPoint := ∅
+  changesAfter : PosMap ExprDiffTag := ∅
 
 instance : EmptyCollection ExprDiff := ⟨{}⟩
 instance : Append ExprDiff where
-  append a b := {changes := RBMap.mergeBy (fun _ _ b => b) a.changes b.changes}
+  append a b := {
+    changesBefore := RBMap.mergeBy (fun _ _ b => b) a.changesBefore b.changesBefore,
+    changesAfter := RBMap.mergeBy (fun _ _ b => b) a.changesAfter b.changesAfter
+  }
+instance : ToString ExprDiff where
+  toString x :=
+    let f := fun (p : PosMap ExprDiffTag) =>
+      RBMap.toList p |>.map (fun (k,v) => s!"({toString k}:{toString v})")
+    s!"before: {f x.changesBefore}\nafter: {f x.changesAfter}"
 
-/-- Creates an ExprDiff with a single diff point. -/
-def ExprDiff.singleton (p : Pos) (d : ExprDiffPoint) : ExprDiff :=
-  RBMap.empty |>.insert p d |> ExprDiff.mk
+/-- Add a tag at the given position to the `changesBefore` dict. -/
+def ExprDiff.insertBeforeChange (p : Pos) (d : ExprDiffTag := .change) (δ : ExprDiff) : ExprDiff :=
+  {δ with changesBefore := δ.changesBefore.insert p d}
+
+/-- Add a tag at the given position to the `changesAfter` dict. -/
+def ExprDiff.insertAfterChange (p : Pos) (d : ExprDiffTag := .change) (δ : ExprDiff) : ExprDiff :=
+  {δ with changesAfter := δ.changesAfter.insert p d}
+
+def ExprDiff.withChangePos (before after : Pos) (d : ExprDiffTag := .change) : ExprDiff :=
+  { changesAfter := RBMap.empty.insert after d
+    changesBefore := RBMap.empty.insert before d
+  }
+
+/-- Add a tag to the diff at the positions given by `before` and `after`. -/
+def ExprDiff.withChange (before after : SubExpr) (d : ExprDiffTag := .change) : ExprDiff :=
+  ExprDiff.withChangePos before.pos after.pos d
 
 /-- If true, the expression before and the expression after are identical. -/
 def ExprDiff.isEmpty (d : ExprDiff) : Bool :=
-  RBMap.isEmpty <| d.changes
+  d.changesAfter.isEmpty ∧ d.changesBefore.isEmpty
 
 /-- Determines whether the given expressions have the same function head and
 the same number of arguments. -/
@@ -93,10 +115,27 @@ def sameHead (e₀ e₁ : Expr) : MetaM Bool := do
     return false
   return e₀.getAppNumArgs == e₁.getAppNumArgs
 
-/-- Returns true if the expressions are completely different. -/
-def ExprDiff.isRootReplacement (d : ExprDiff) : Bool :=
-  if d.isEmpty then false else
-  d.changes.find? Pos.root matches some .inserted
+-- /-- Returns true if the expressions are completely different. -/
+-- def ExprDiff.isRootReplacement (d : ExprDiff) : Bool :=
+--   if d.isEmpty then false else
+--   d.changes.find? Pos.root matches some .inserted
+
+/-- Checks whether the `before` type would give a type `after` if intro or intros was applied to it.
+That is, do we have `before = (a₁ : α₁) → ... → (aₙ : αₙ) → after` for some set of binders.
+If we do then this will return the number of binders that have been intro'd.
+Otherwise it returns none.
+-/
+partial def isIntro (before after : Expr) : MetaM (Nat) := do
+  if before == after then
+    return 0
+  match before with
+  | .forallE n d b i =>
+    Lean.Meta.withLocalDecl n i d fun x => do
+      let b := b.instantiate1 x
+      let j ← isIntro b after
+      return j + 1
+  | _ => failure
+
 
 /-- Computes a diff between `before` and `after` expressions.
 
@@ -107,54 +146,115 @@ TODO(ed):
 - experiment with a 'greatest common subexpression' design where
   given `e₀`, `e₁`, find the greatest common subexpressions `Xs : Array Expr` and a congruence `F` such that
   `e₀ = F[A₀[..Xs]]` and `e₀ = F[A₁[..Xs]]`. Then, we can have fancy diff highlighting where common subexpressions are not highlighted.
+
+## Diffing binders
+
+Two binding domains are identified if they have the same user name and the same type.
+The most common tactic that modifies binders is after an `intros`.
+To deal with this case, if `before = (a : α) → β` and `after`, is not a matching binder (ie: not `(a : α) → _`)
+then we instantiate the `before` variable in a new context and continue diffing `β` against `after`.
+
+
  -/
-partial def exprDiff (before after : Expr) (p : Pos := Pos.root) : MetaM ExprDiff := do
-  if before == after then
+partial def exprDiffCore (before after : SubExpr) : MetaM ExprDiff := do
+  if before.expr == after.expr then
     return ∅
-  if !(← sameHead before after) then
-    return ExprDiff.singleton p ExprDiffPoint.inserted
-  let afterArgs := after.getAppArgs
-  let beforeArgs := before.getAppArgs
-  if afterArgs.size == 0 then
-    return ExprDiff.singleton p ExprDiffPoint.inserted
-  let n := afterArgs.size
-  let bas := Array.zip beforeArgs afterArgs
-  let numDifferent := bas.filter (fun (a,b) => a != b) |>.size
-  if numDifferent > 1 ∧ p != Pos.root then
-    /- heuristic: if we are not at the root expression and more than one
-     argument is different, we say that the change has occurred at the head term.
-     eg if comm `x + y ↝ y + x`, we want to highlight all of `y + x`.
-     One common case is if `⊢ A = B` and a tactic rewrites both `A` and `B`.
-     in this case it looks a little better to recurse the diff to `A` and `B` separately.
-    -/
-    return ExprDiff.singleton p ExprDiffPoint.inserted
-  let rs : Array ExprDiff ← bas.mapIdxM (fun i (x,y) => do
-    exprDiff x y <| p.pushNaryArg n i
-  )
-  return rs.foldl (init := ∅) (· ++ ·)
+  match before.expr, after.expr with
+  | .app .., .app .. =>
+    if !(← sameHead before.expr after.expr) then
+      return ExprDiff.withChange before after
+    let n := before.expr.getAppNumArgs
+    if n == 0 then
+      -- not an app, there are no arguments.
+      return ∅
+    let args := Array.zip before.expr.getAppArgs after.expr.getAppArgs
+    let args ← args.mapIdxM (fun i (beforeArg, afterArg) =>
+      exprDiffCore ⟨beforeArg, before.pos.pushNaryArg n i⟩ ⟨afterArg, after.pos.pushNaryArg n i⟩
+    )
+    return args.foldl (init := ∅) (· ++ ·)
+  | .forallE .., _ => piDiff before after
+  | .lam n₀ d₀ b₀ i₀, .lam n₁ d₁ b₁ i₁=>
+    if n₀ != n₁ || i₀ != i₁ then
+      return ExprDiff.withChange before after
+    let δd ← exprDiffCore ⟨d₀, before.pos.pushBindingDomain⟩ ⟨d₁, after.pos.pushBindingDomain⟩
+    if δd.isEmpty then
+      return ← exprDiffCore ⟨b₀, before.pos.pushBindingBody⟩ ⟨b₁, after.pos.pushBindingBody⟩
+    else
+      return δd ++ ExprDiff.withChangePos before.pos.pushBindingBody after.pos.pushBindingBody
+  | _, _ => return ExprDiff.withChange before after
+  where
+    piDiff (before after : SubExpr) : MetaM ExprDiff := do
+      let .forallE n₀ d₀ b₀ i₀ := before.expr
+        | return ∅
+      if let .forallE n₁ d₁ b₁ i₁ := after.expr then
+        if n₀ == n₁ && i₀ == i₁ then
+          -- assume that these are the same binders
+          let δd ← exprDiffCore
+            ⟨d₀, before.pos.pushBindingDomain⟩
+            ⟨d₁, after.pos.pushBindingDomain⟩
+          if δd.isEmpty then
+            -- the types have changed, so we can no longer meaningfully compare the targets
+            let δt ← Lean.Meta.withLocalDecl n₀ i₀ d₀ fun x =>
+              exprDiffCore
+                ⟨b₀.instantiate1 x, before.pos.pushBindingBody⟩
+                ⟨b₁.instantiate1 x, after.pos.pushBindingBody⟩
+            return δt
+          else
+            return δd ++ ExprDiff.withChangePos before.pos.pushBindingBody after.pos.pushBindingBody
+      -- in this case, the after expression does not match the before expression.
+      -- however, a special case is intros:
+      if let some s := List.getPrefix? after.expr.getForallBinderNames before.expr.getForallBinderNames then
+        -- s ++ namesAfter = namesBefore
+        if s.length == 0 then
+          throwError "should not happen"
+        let body₀ := before.expr.getForallBodyMaxDepth s.length
+        let mut δ : ExprDiff ← (do
+          -- this line can fail if we are using `before`'s mvar context, in which case
+          -- we can skip giving a diff.
+          let fvars ← s.mapM Lean.Meta.getFVarFromUserName
+          return ← exprDiffCore
+            ⟨body₀.instantiateRev fvars.toArray, before.pos.pushNthBindingBody s.length⟩
+            after
+        ) <|> (pure ∅)
+        for i in [0:s.length] do
+          δ := δ.insertBeforeChange (before.pos.pushNthBindingDomain i) .delete
+        -- [todo] maybe here insert a tag on the after case indicating an expression was deleted above the expression?
+        return δ
+      return ExprDiff.withChange before after
+
+/-- Computes the diff for `e₀` and `e₁`. If `useAfter` is `false`, `e₀, e₁` are interpreted as `after, before` instead of `before, after`.-/
+def exprDiff (e₀ e₁ : Expr) (useAfter := true) : MetaM ExprDiff := do
+  let s₀ := ⟨e₀, Pos.root⟩
+  let s₁ := ⟨e₁, Pos.root⟩
+  if useAfter then
+    exprDiffCore s₀ s₁
+  else
+    exprDiffCore s₁ s₀
 
 /-- Given a `diff` between `before` and `after : Expr`, and the rendered `infoAfter : CodeWithInfos` for `after`,
-this function decorates `infoAfter` with tags indicating where the expression has changed. -/
-def addDiffTags (diff : ExprDiff) (infoAfter : CodeWithInfos) : MetaM CodeWithInfos := do
-  if diff.isEmpty then
-    return infoAfter
-  let tt ← infoAfter.mapM (fun (info : SubexprInfo) => do
-    if let some d := diff.changes.find? info.subexprPos then
-      return info.appendTag <| d.toString
-    else
-      return info
-  )
-  return tt
+this function decorates `infoAfter` with tags indicating where the expression has changed.
+
+If `useAfter == false` before and after are swapped. -/
+def addDiffTags (useAfter : Bool) (diff : ExprDiff) (info₁ : CodeWithInfos) : MetaM CodeWithInfos := do
+  if useAfter then
+    info₁.mergePosMap (fun info d => pure <| info.appendTag d.toString) diff.changesAfter
+  else
+    info₁.mergePosMap (fun info d => pure <| info.appendTag d.toString) diff.changesBefore
 
 open Meta
 
-def diffHypothesesBundle (ctx₀  : LocalContext) (h₁ : InteractiveHypothesisBundle) : MetaM InteractiveHypothesisBundle := do
+/-- Diffs the given hypothesis bundle against the given local context.
+
+If `useAfter == true`, `ctx₀` is the context _before_ and `h₁` is the bundle _after_.
+If `useAfter == false`, these are swapped.
+ -/
+def diffHypothesesBundle (useAfter : Bool) (ctx₀  : LocalContext) (h₁ : InteractiveHypothesisBundle) : MetaM InteractiveHypothesisBundle := do
   /- Strategy: we say a hypothesis has mutated if the ppName is the same but the fvarid has changed.
      this indicates that something like `rewrite at` has hit it. -/
   for (ppName, fvid) in Array.zip h₁.names h₁.fvarIds do
     if !(ctx₀.contains fvid) then
       if let some decl₀ := ctx₀.findFromUserName? ppName then
-        -- on the old context there was an fvar with the same name as this one.
+        -- on ctx₀ there is an fvar with the same name as this one.
         let t₀ := decl₀.type
         try
           return ← withTypeDiff t₀ h₁
@@ -162,60 +262,62 @@ def diffHypothesesBundle (ctx₀  : LocalContext) (h₁ : InteractiveHypothesisB
           let f ← e.toMessageData.format
           return {h₁ with message? := s!"{f}"}
       else
-        return {h₁ with isInserted? := true}
+        if useAfter then
+          return {h₁ with isInserted? := true }
+        else
+          return {h₁ with isRemoved? := true }
   -- all fvids are present on original so we can assume no change.
   return h₁
   where withTypeDiff (t₀ : Expr) (h₁ : InteractiveHypothesisBundle) : MetaM InteractiveHypothesisBundle := do
       let some x₁ := h₁.fvarIds[0]?
         | return {h₁ with message? := "internal error: empty fvar list!"}
       let t₁ ← inferType <| Expr.fvar x₁
-      let tδ ← exprDiff t₀ t₁
-      let c₁ ← addDiffTags tδ h₁.type
+      let tδ ← exprDiff t₀ t₁ useAfter
+      let c₁ ← addDiffTags useAfter tδ h₁.type
       return {h₁ with type := c₁}
 
-def diffHypotheses (lctx₀ : LocalContext) (hs₁ : Array InteractiveHypothesisBundle) : MetaM (Array InteractiveHypothesisBundle) := do
+def diffHypotheses (useAfter : Bool) (lctx₀ : LocalContext) (hs₁ : Array InteractiveHypothesisBundle) : MetaM (Array InteractiveHypothesisBundle) := do
   -- [todo] also show when hypotheses (user-names present in lctx₀ but not in hs₁) are deleted
-  hs₁.mapM (diffHypothesesBundle lctx₀)
+  hs₁.mapM (diffHypothesesBundle useAfter lctx₀)
 
-def diffInteractiveGoal (g₀ : MVarId) (i₁ : InteractiveGoal) : MetaM InteractiveGoal := do
+/-- Decorates the given goal `i₁` with a diff by comparing with goal `g₀`.
+If `useAfter` is true then `i₁` is _after_ and `g₀` is _before_. Otherwise they are swapped. -/
+def diffInteractiveGoal (useAfter : Bool) (g₀ : MVarId) (i₁ : InteractiveGoal) : MetaM InteractiveGoal := do
   let mctx ← getMCtx
   let some md₀ := mctx.findDecl? g₀
     | throwError "Failed to find decl for {g₀}."
   let lctx₀ := md₀.lctx |>.sanitizeNames.run' {options := (← getOptions)}
-  let hs₁ ← diffHypotheses lctx₀ i₁.hyps
+  let hs₁ ← diffHypotheses useAfter lctx₀ i₁.hyps
   let i₁ := {i₁ with hyps := hs₁}
   let some g₁ := i₁.mvarId?
     | throwError "Expected InteractiveGoal to have an mvarId"
-  let some a₀  ← getExprMVarAssignment? g₀
-    | throwError "Expected {g₀} to be assigned."
-  let t₀ ← instantiateMVars <|← inferType a₀
+  let t₀ ← instantiateMVars <|← inferType (Expr.mvar g₀)
   let some md₁ := (← getMCtx).findDecl? g₁
     | throwError "Unknown goal {g₁}"
   let t₁ ← instantiateMVars md₁.type
-  let tδ ← exprDiff t₀ t₁
-  let c₁ ← addDiffTags tδ i₁.type
+  let tδ ← exprDiff t₀ t₁ useAfter
+  let c₁ ← addDiffTags useAfter tδ i₁.type
   let i₁ := {i₁ with type := c₁, isInserted? := false}
   return i₁
 
-def ppMvar (m : MVarId) : MetaM Format := Meta.ppExpr <| .mvar m
-
-/-- Modifies `goalsAfter` with additional information about how it is different to `goalsBefore`.  -/
-def diffInteractiveGoals (goalsBefore : Array MVarId) (goalsAfter : InteractiveGoals) : MetaM InteractiveGoals := do
-  let goals ← goalsAfter.goals.mapM (fun ig₁ => do
-    let some g₁ := ig₁.mvarId?
-      | return {ig₁ with message? := "error: goal not found"}
-    withGoalCtx (g₁ : MVarId) (fun _lctx₁ _md₁ => do
-      -- if the goal is present on the previous version then continue
-      if goalsBefore.any (fun g₀ => g₀ == g₁) then
-        return {ig₁ with isInserted? := none}
-      let some g₀ ← goalsBefore.findM? (fun g₀ => isParent g₀ g₁)
-        | return {ig₁ with
-          isInserted? := true
-        }
-      let ig₁ ← diffInteractiveGoal g₀ ig₁
-      return ig₁
+/-- Modifies `goalsAfter` with additional information about how it is different to `goalsBefore`.
+If `useAfter` is `true` then `igs₁` is the set of interactive goals _after_ the tactic has been applied.
+Otherwise `igs₁` is the set of interactive goals _before_. -/
+def diffInteractiveGoals (useAfter : Bool) (info : Elab.TacticInfo) (igs₁ : InteractiveGoals) : MetaM InteractiveGoals := do
+    let goals₀ := if useAfter then info.goalsBefore else info.goalsAfter
+    let goals ← igs₁.goals.mapM (fun ig₁ => do
+      let some g₁ := ig₁.mvarId?
+        | return {ig₁ with message? := "error: goal not found"}
+      withGoalCtx (g₁ : MVarId) (fun _lctx₁ _md₁ => do
+        -- if the goal is present on the previous version then continue
+        if goals₀.any (fun g₀ => g₀ == g₁) then
+          return {ig₁ with isInserted? := none}
+        let some g₀ ← goals₀.findM? (fun g₀ => if useAfter then isParent g₀ g₁ else isParent g₁ g₀)
+          | return if useAfter then {ig₁ with isInserted? := true } else {ig₁ with isRemoved? := true}
+        let ig₁ ← diffInteractiveGoal useAfter g₀ ig₁
+        return ig₁
+      )
     )
-  )
-  return {goalsAfter with goals := goals}
+    return {igs₁ with goals := goals}
 
 end Lean.Widget

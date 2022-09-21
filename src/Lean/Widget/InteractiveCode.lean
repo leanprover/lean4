@@ -31,6 +31,16 @@ structure SubexprInfo where
 /-- Pretty-printed syntax (usually but not necessarily an `Expr`) with embedded `Info`s. -/
 abbrev CodeWithInfos := TaggedText SubexprInfo
 
+/-- Map the given `tt : CodeWithInfos`, if its pos appears in `pm`
+then it will modify the info at that position using `merger`. -/
+def CodeWithInfos.mergePosMap [Monad m] (merger : SubexprInfo → α → m SubexprInfo) (pm : Lean.SubExpr.PosMap α) (tt : CodeWithInfos) : m CodeWithInfos :=
+  if pm.isEmpty then return tt else
+  tt.mapM (fun (info : SubexprInfo) =>
+    match pm.find? info.subexprPos with
+    | some a => merger info a
+    | none => pure info
+  )
+
 def CodeWithInfos.pretty (tt : CodeWithInfos) :=
   tt.stripTags
 

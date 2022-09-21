@@ -163,22 +163,24 @@ def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Optio
   withWaitFindSnap doc (fun s => s.endPos >= hoverPos)
     (notFoundX := return none) fun snap => do
       if let rs@(_ :: _) := snap.infoTree.goalsAt? doc.meta.text hoverPos then
-        let goals : List Widget.InteractiveGoals ← rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter, .. } =>
-          let ci := if useAfter then { ci with mctx := ti.mctxAfter } else { ci with mctx := ti.mctxBefore }
-          ci.runMetaM {} (do
+        let goals : List Widget.InteractiveGoals ← rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter, .. } => do
+          let ciAfter := { ci with mctx := ti.mctxAfter }
+          let ci := if useAfter then ciAfter else { ci with mctx := ti.mctxBefore }
+          -- compute the interactive goals
+          let goals ← ci.runMetaM {} (do
             let goals := List.toArray <| if useAfter then ti.goalsAfter else ti.goalsBefore
             let goals ← goals.mapM (fun g => Meta.withPPForTacticGoal (Widget.goalToInteractive g))
-            let goals : Widget.InteractiveGoals := {goals}
-            if useAfter then
-              -- add a goal diff
+            return {goals}
+          )
+          -- compute the goal diff
+          let goals ← ciAfter.runMetaM {} (do
               try
-                Widget.diffInteractiveGoals ti.goalsBefore.toArray goals
+                Widget.diffInteractiveGoals useAfter ti goals
               catch e =>
                 let msg ← e.toMessageData.format
                 return {goals with message? := s!"internal error when diffing goals:\n{msg}"}
-            else
-              return goals
           )
+          return goals
         return some <| goals.foldl (· ++ ·) ∅
       else
         return none

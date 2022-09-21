@@ -926,10 +926,8 @@ def simpLocalDecl (mvarId : MVarId) (fvarId : FVarId) (ctx : Simp.Context) (disc
     let (r, usedSimps) ← simpStep mvarId (mkFVar fvarId) type ctx discharge? mayCloseGoal usedSimps
     return (← applySimpResultToLocalDeclCore mvarId fvarId r, usedSimps)
 
-abbrev FVarIdToLemmaId := FVarIdMap Name
-
 def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none)
-    (simplifyTarget : Bool := true) (fvarIdsToSimp : Array FVarId := #[]) (fvarIdToLemmaId : FVarIdToLemmaId := {})
+    (simplifyTarget : Bool := true) (fvarIdsToSimp : Array FVarId := #[])
     (usedSimps : NameSet := {}) : MetaM (Option (Array FVarId × MVarId) × NameSet) := do
   mvarId.withContext do
     mvarId.checkNotAssigned `simp
@@ -940,9 +938,7 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Di
     for fvarId in fvarIdsToSimp do
       let localDecl ← fvarId.getDecl
       let type ← instantiateMVars localDecl.type
-      let ctx ← match fvarIdToLemmaId.find? localDecl.fvarId with
-        | none => pure ctx
-        | some thmId => pure { ctx with simpTheorems := ctx.simpTheorems.eraseTheorem thmId }
+      let ctx := { ctx with simpTheorems := ctx.simpTheorems.eraseTheorem localDecl.fvarId.name }
       let (r, usedSimps') ← simp type ctx discharge? usedSimps
       usedSimps := usedSimps'
       match r.proof? with

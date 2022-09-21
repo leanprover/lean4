@@ -207,7 +207,6 @@ where
 structure MkSimpContextResult where
   ctx              : Simp.Context
   dischargeWrapper : Simp.DischargeWrapper
-  fvarIdToLemmaId  : FVarIdToLemmaId
 
 /--
    Create the `Simp.Context` for the `simp`, `dsimp`, and `simp_all` tactics.
@@ -233,21 +232,19 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp) (ig
     simpTheorems := #[simpTheorems], congrTheorems
   }
   if !r.starArg || ignoreStarArg then
-    return { r with fvarIdToLemmaId := {}, dischargeWrapper }
+    return { r with dischargeWrapper }
   else
     let ctx := r.ctx
     let mut simpTheorems := ctx.simpTheorems
     let hs ← getPropHyps
-    let mut fvarIdToLemmaId := {}
     for h in hs do
       let localDecl ← h.getDecl
       unless simpTheorems.isErased localDecl.userName do
         let fvarId := localDecl.fvarId
         let proof  := localDecl.toExpr
-        fvarIdToLemmaId := fvarIdToLemmaId.insert fvarId fvarId.name
         simpTheorems ← simpTheorems.addTheorem fvarId.name proof
     let ctx := { ctx with simpTheorems }
-    return { ctx, fvarIdToLemmaId, dischargeWrapper }
+    return { ctx, dischargeWrapper }
 
 register_builtin_option tactic.simp.trace : Bool := {
   defValue := false
@@ -295,8 +292,6 @@ def traceSimpCall (stx : Syntax) (ctx : Simp.Context) (usedSimps : NameSet) : Me
 runs the simplifier at locations specified by `loc`,
 using the simp theorems collected in `ctx`
 optionally running a discharger specified in `discharge?` on generated subgoals.
-(Local hypotheses which have been added to the simp theorems must be recorded in
-`fvarIdToLemmaId`.)
 
 Its primary use is as the implementation of the
 `simp [...] at ...` and `simp only [...] at ...` syntaxes,
@@ -306,19 +301,19 @@ For many tactics other than the simplifier,
 one should use the `withLocation` tactic combinator
 when working with a `location`.
 -/
-def simpLocation (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (fvarIdToLemmaId : FVarIdToLemmaId := {}) (loc : Location) : TacticM NameSet := do
+def simpLocation (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (loc : Location) : TacticM NameSet := do
   match loc with
   | Location.targets hyps simplifyTarget =>
     withMainContext do
       let fvarIds ← getFVarIds hyps
-      go fvarIds simplifyTarget fvarIdToLemmaId
+      go fvarIds simplifyTarget
   | Location.wildcard =>
     withMainContext do
-      go (← (← getMainGoal).getNondepPropHyps) (simplifyTarget := true) fvarIdToLemmaId
+      go (← (← getMainGoal).getNondepPropHyps) (simplifyTarget := true)
 where
-  go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) (fvarIdToLemmaId : Lean.Meta.FVarIdToLemmaId) : TacticM NameSet := do
+  go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) : TacticM NameSet := do
     let mvarId ← getMainGoal
-    let (result?, usedSimps) ← simpGoal mvarId ctx (simplifyTarget := simplifyTarget) (discharge? := discharge?) (fvarIdsToSimp := fvarIdsToSimp) (fvarIdToLemmaId := fvarIdToLemmaId)
+    let (result?, usedSimps) ← simpGoal mvarId ctx (simplifyTarget := simplifyTarget) (discharge? := discharge?) (fvarIdsToSimp := fvarIdsToSimp)
     match result? with
     | none => replaceMainGoal []
     | some (_, mvarId) => replaceMainGoal [mvarId]
@@ -328,9 +323,9 @@ where
   "simp " (config)? (discharger)? ("only ")? ("[" simpLemma,* "]")? (location)?
 -/
 @[builtinTactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => do
-  let { ctx, fvarIdToLemmaId, dischargeWrapper } ← withMainContext <| mkSimpContext stx (eraseLocal := false)
+  let { ctx, dischargeWrapper } ← withMainContext <| mkSimpContext stx (eraseLocal := false)
   let usedSimps ← dischargeWrapper.with fun discharge? =>
-    simpLocation ctx discharge? fvarIdToLemmaId (expandOptLocation stx[5])
+    simpLocation ctx discharge? (expandOptLocation stx[5])
   if tactic.simp.trace.get (← getOptions) then
     traceSimpCall stx ctx usedSimps
 

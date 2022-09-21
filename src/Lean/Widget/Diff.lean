@@ -33,6 +33,9 @@ partial def isParent (before after : MVarId): MetaM Bool := do
         let m' ← getDelayedMVarRoot m
         if m' == after then
           return FindStep.found
+        if m' != m ∧ (← m'.isAssigned) then
+          if ← isParent before m' then
+            return FindStep.found
         return FindStep.done
       | _ => return FindStep.visit
     )

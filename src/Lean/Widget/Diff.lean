@@ -242,11 +242,7 @@ def diffHypothesesBundle (useAfter : Bool) (ctx₀  : LocalContext) (h₁ : Inte
       if let some decl₀ := ctx₀.findFromUserName? ppName then
         -- on ctx₀ there is an fvar with the same name as this one.
         let t₀ := decl₀.type
-        try
-          return ← withTypeDiff t₀ h₁
-        catch e =>
-          let f ← e.toMessageData.format
-          return {h₁ with message? := s!"{f}"}
+        return ← withTypeDiff t₀ h₁
       else
         if useAfter then
           return {h₁ with isInserted? := true }
@@ -257,7 +253,7 @@ def diffHypothesesBundle (useAfter : Bool) (ctx₀  : LocalContext) (h₁ : Inte
 where
   withTypeDiff (t₀ : Expr) (h₁ : InteractiveHypothesisBundle) : MetaM InteractiveHypothesisBundle := do
     let some x₁ := h₁.fvarIds[0]?
-      | return {h₁ with message? := "internal error: empty fvar list!"}
+      | throwError "internal error: empty fvar list!"
     let t₁ ← inferType <| Expr.fvar x₁
     let tδ ← exprDiff t₀ t₁ useAfter
     let c₁ ← addDiffTags useAfter tδ h₁.type
@@ -304,7 +300,7 @@ def diffInteractiveGoals (useAfter : Bool) (info : Elab.TacticInfo) (igs₁ : In
        | none => false
     let goals ← igs₁.goals.mapM (fun ig₁ => do
       let some g₁ := ig₁.mvarId?
-        | return {ig₁ with message? := "error: goal not found"}
+        | throwError "error: goal not found"
       withGoalCtx (g₁ : MVarId) (fun _lctx₁ _md₁ => do
         -- if the goal is present on the previous version then continue
         if goals₀.any (fun g₀ => g₀ == g₁) then

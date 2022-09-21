@@ -34,8 +34,6 @@ structure InteractiveHypothesisBundle where
   /-- If true, the hypothesis will be removed in the next tactic state.
       Uses `none` instead of `some false` to save space in the json encoding.  -/
   isRemoved?  : Option Bool := none
-  /-- An optional string to show the user after the bundle. This is useful for debugging.-/
-  message? : Option String := none
   deriving Inhabited, RpcEncodable
 
 structure InteractiveGoal where
@@ -53,8 +51,6 @@ structure InteractiveGoal where
   /-- If true, the goal will be removed on the next tactic state.
       Uses `none` instead of `some false` to save space in the json encoding. -/
   isRemoved? : Option Bool := none
-  /-- An optional message string to show the user after the goal. This is useful for debugging.-/
-  message? : Option (String) := none
   deriving Inhabited, RpcEncodable
 
 namespace InteractiveGoal
@@ -104,13 +100,10 @@ end InteractiveTermGoal
 
 structure InteractiveGoals where
   goals : Array InteractiveGoal
-  /-- An optional string to show the user after all of the goals. This is useful for debugging.-/
-  message? : Option (String) := none
   deriving RpcEncodable
 
 def InteractiveGoals.append (l r : InteractiveGoals) : InteractiveGoals where
   goals := l.goals ++ r.goals
-  message? := Option.merge (fun ld rd => s!"{ld}\n{rd}") l.message? r.message?
 
 instance : Append InteractiveGoals := ⟨InteractiveGoals.append⟩
 instance : EmptyCollection InteractiveGoals := ⟨{goals := #[]}⟩

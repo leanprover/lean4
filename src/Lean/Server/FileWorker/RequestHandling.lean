@@ -176,9 +176,9 @@ def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Optio
           let goals ← ciAfter.runMetaM {} (do
               try
                 Widget.diffInteractiveGoals useAfter ti goals
-              catch e =>
-                let msg ← e.toMessageData.format
-                return {goals with message? := s!"internal error when diffing goals:\n{msg}"}
+              catch _ =>
+                -- fail silently, since this is just a bonus feature
+                return goals
           )
           return goals
         return some <| goals.foldl (· ++ ·) ∅

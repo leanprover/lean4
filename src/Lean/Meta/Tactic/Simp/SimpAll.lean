@@ -9,12 +9,14 @@ import Lean.Meta.Tactic.Simp.Main
 
 namespace Lean.Meta
 
+open Simp (OriginSet)
+
 namespace SimpAll
 
 structure Entry where
   fvarId   : FVarId -- original fvarId
   userName : Name
-  id       : Name   -- id of the theorem at `SimpTheorems`
+  id       : Origin -- id of the theorem at `SimpTheorems`
   type     : Expr
   proof    : Expr
   deriving Inhabited
@@ -24,7 +26,7 @@ structure State where
   mvarId    : MVarId
   entries   : Array Entry := #[]
   ctx       : Simp.Context
-  usedSimps : NameSet := {}
+  usedSimps : OriginSet := {}
 
 abbrev M := StateRefT State MetaM
 
@@ -33,16 +35,14 @@ private def initEntries : M Unit := do
   let hsNonDeps ← (← get).mvarId.getNondepPropHyps
   let mut simpThms := (← get).ctx.simpTheorems
   for h in hs do
-    let localDecl ← h.getDecl
-    unless simpThms.isErased localDecl.userName do
-      let fvarId := localDecl.fvarId
+    unless simpThms.isErased (.fvar h) do
+      let localDecl ← h.getDecl
       let proof  := localDecl.toExpr
-      let id := fvarId.name
-      simpThms ← simpThms.addTheorem id proof
+      simpThms ← simpThms.addTheorem (.fvar h) proof
       modify fun s => { s with ctx.simpTheorems := simpThms }
       if hsNonDeps.contains h then
         -- We only simplify nondependent hypotheses
-        let entry : Entry := { fvarId := fvarId, userName := localDecl.userName, id := id, type := (← instantiateMVars localDecl.type), proof := proof }
+        let entry : Entry := { fvarId := h, userName := localDecl.userName, id := .fvar h, type := (← instantiateMVars localDecl.type), proof := proof }
         modify fun s => { s with entries := s.entries.push entry }
 
 private abbrev getSimpTheorems : M SimpTheoremsArray :=
@@ -86,14 +86,14 @@ private partial def loop : M Bool := do
            We must use `mkExpectedTypeHint` because `inferType proofNew` may not be equal to `typeNew` when
            we have theorems marked with `rfl`.
         -/
-        trace[Meta.Tactic.simp.all] "entry.id: {entry.id}, {entry.type} => {typeNew}"
-        let mut simpThmsNew := (← getSimpTheorems).eraseTheorem entry.id
+        trace[Meta.Tactic.simp.all] "entry.id: {← ppOrigin entry.id}, {entry.type} => {typeNew}"
+        let mut simpThmsNew := (← getSimpTheorems).eraseTheorem (.fvar entry.fvarId)
         let idNew ← mkFreshId
-        simpThmsNew ← simpThmsNew.addTheorem idNew (← mkExpectedTypeHint proofNew typeNew)
+        simpThmsNew ← simpThmsNew.addTheorem (.other idNew) (← mkExpectedTypeHint proofNew typeNew)
         modify fun s => { s with
           modified         := true
           ctx.simpTheorems := simpThmsNew
-          entries[i]       := { entry with type := typeNew, proof := proofNew, id := idNew }
+          entries[i]       := { entry with type := typeNew, proof := proofNew, id := .other idNew }
         }
   -- simplify target
   let mvarId := (← get).mvarId
@@ -126,7 +126,7 @@ def main : M (Option MVarId) := do
 
 end SimpAll
 
-def simpAll (mvarId : MVarId) (ctx : Simp.Context) (usedSimps : NameSet := {}) : MetaM (Option MVarId × NameSet) := do
+def simpAll (mvarId : MVarId) (ctx : Simp.Context) (usedSimps : OriginSet := {}) : MetaM (Option MVarId × OriginSet) := do
   mvarId.withContext do
     let (r, s) ← SimpAll.main.run { mvarId, ctx, usedSimps }
     return (r, s.usedSimps)

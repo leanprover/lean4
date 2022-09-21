@@ -28,9 +28,11 @@ structure InteractiveHypothesisBundle where
   isInstance : Bool
   /-- The hypothesis is a type. -/
   isType : Bool
-  /-- If true, the hypothesis was not present on the previous tactic state. -/
+  /-- If true, the hypothesis was not present on the previous tactic state.
+      Uses `none` instead of `some false` to save space in the json encoding. -/
   isInserted? : Option Bool := none
-  /-- If true, the hypothesis will be removed in the next tactic state. -/
+  /-- If true, the hypothesis will be removed in the next tactic state.
+      Uses `none` instead of `some false` to save space in the json encoding.  -/
   isRemoved?  : Option Bool := none
   /-- An optional string to show the user after the bundle. This is useful for debugging.-/
   message? : Option String := none
@@ -45,9 +47,11 @@ structure InteractiveGoal where
   name of the MVar that it is a goal for.)
   This is none when we are showing a term goal. -/
   mvarId? : Option MVarId := none
-  /-- If true, the goal was not present on the previous tactic state. -/
+  /-- If true, the goal was not present on the previous tactic state.
+      Uses `none` instead of `some false` to save space in the json encoding.  -/
   isInserted?: Option Bool := none
-  /-- If true, the goal will be removed on the next tactic state. -/
+  /-- If true, the goal will be removed on the next tactic state.
+      Uses `none` instead of `some false` to save space in the json encoding. -/
   isRemoved? : Option Bool := none
   /-- An optional message string to show the user after the goal. This is useful for debugging.-/
   message? : Option (String) := none

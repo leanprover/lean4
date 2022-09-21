@@ -89,30 +89,34 @@ def injectionIntro (mvarId : MVarId) (numEqs : Nat) (newNames : List Name) (tryT
 
 def injection (mvarId : MVarId) (fvarId : FVarId) (newNames : List Name := []) : MetaM InjectionResult := do
   match (← injectionCore mvarId fvarId) with
-  | InjectionResultCore.solved                => pure InjectionResult.solved
-  | InjectionResultCore.subgoal mvarId numEqs => injectionIntro mvarId numEqs newNames
+  | .solved                => pure .solved
+  | .subgoal mvarId numEqs => injectionIntro mvarId numEqs newNames
 
-partial def injections (mvarId : MVarId) (maxDepth : Nat := 5) : MetaM (Option MVarId) :=
+inductive InjectionsResult where
+  | solved
+  | subgoal (mvarId : MVarId) (remainingNames : List Name)
+
+partial def injections (mvarId : MVarId) (newNames : List Name := []) (maxDepth : Nat := 5) : MetaM InjectionsResult :=
   mvarId.withContext do
     let fvarIds := (← getLCtx).getFVarIds
-    go maxDepth fvarIds.toList mvarId
+    go maxDepth fvarIds.toList mvarId newNames
 where
-  go : Nat → List FVarId → MVarId → MetaM (Option MVarId)
-    | 0,   _,  _      => throwTacticEx `injections mvarId "recursion depth exceeded"
-    | _,   [], mvarId => return mvarId
-    | d+1, fvarId :: fvarIds, mvarId => do
+  go : Nat → List FVarId → MVarId → List Name → MetaM InjectionsResult
+    | 0,   _,  _,      _        => throwTacticEx `injections mvarId "recursion depth exceeded"
+    | _,   [], mvarId, newNames => return .subgoal mvarId newNames
+    | d+1, fvarId :: fvarIds, mvarId, newNames => do
       let cont := do
-        go (d+1) fvarIds mvarId
+        go (d+1) fvarIds mvarId newNames
       if let some (_, lhs, rhs) ← matchEqHEq? (← fvarId.getType) then
         let lhs ← whnf lhs
         let rhs ← whnf rhs
         if lhs.isNatLit && rhs.isNatLit then cont
         else
           try
-            match (← injection mvarId fvarId) with
-            | InjectionResult.solved  => return none
-            | InjectionResult.subgoal mvarId newEqs _ =>
-              mvarId.withContext <| go d (newEqs.toList ++ fvarIds) mvarId
+            match (← injection mvarId fvarId newNames) with
+            | .solved  => return .solved
+            | .subgoal mvarId newEqs remainingNames =>
+              mvarId.withContext <| go d (newEqs.toList ++ fvarIds) mvarId remainingNames
           catch _ => cont
       else cont
 

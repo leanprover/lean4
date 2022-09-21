@@ -2810,6 +2810,7 @@ x_64 = l___private_Lean_Compiler_LCNF_SpecInfo_0__Lean_Compiler_LCNF_isNoSpecTyp
 if (x_64 == 0)
 {
 uint8_t x_65; 
+lean_inc(x_41);
 x_65 = l_Lean_Compiler_LCNF_isTypeFormerType(x_41);
 if (x_65 == 0)
 {
@@ -2878,6 +2879,7 @@ x_78 = l___private_Lean_Compiler_LCNF_SpecInfo_0__Lean_Compiler_LCNF_isNoSpecTyp
 if (x_78 == 0)
 {
 uint8_t x_79; 
+lean_inc(x_41);
 x_79 = l_Lean_Compiler_LCNF_isTypeFormerType(x_41);
 if (x_79 == 0)
 {

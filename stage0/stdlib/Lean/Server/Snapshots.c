@@ -90,6 +90,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snaps
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_6_(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runCommandElabM(lean_object*);
+extern lean_object* l_Lean_NameSet_empty;
 lean_object* l_Lean_Widget_InteractiveDiagnostic_toDiagnostic(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_diagnostics(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_parseNextCmd(lean_object*, lean_object*, lean_object*);
@@ -310,17 +311,19 @@ return x_5;
 static lean_object* _init_l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__8() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__2;
 x_2 = l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__4;
 x_3 = l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__5;
-x_4 = l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__7;
-x_5 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set(x_5, 2, x_3);
-lean_ctor_set(x_5, 3, x_4);
-return x_5;
+x_4 = l_Lean_NameSet_empty;
+x_5 = l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__7;
+x_6 = lean_alloc_ctor(0, 5, 0);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set(x_6, 2, x_3);
+lean_ctor_set(x_6, 3, x_4);
+lean_ctor_set(x_6, 4, x_5);
+return x_6;
 }
 }
 static lean_object* _init_l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__9() {

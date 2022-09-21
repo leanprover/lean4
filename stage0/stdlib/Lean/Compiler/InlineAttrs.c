@@ -21,7 +21,6 @@ lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_InlineAttributeKind_toCtorIdx___boxed(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_216____closed__11;
-lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lambda__2___closed__5;
 LEAN_EXPORT lean_object* l_Lean_ofExcept___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_216____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lambda__2___closed__3;
@@ -127,6 +126,7 @@ static lean_object* l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isVal
 lean_object* l_Lean_Expr_constName_x21(lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_216____closed__22;
 lean_object* l_Lean_registerEnumAttributes___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_InlineAttributeKind_toCtorIdx(uint8_t x_1) {
 _start:
 {
@@ -858,7 +858,7 @@ x_6 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_6, 0, x_5);
 x_7 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
-x_8 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(x_7, x_2, x_3, x_4);
+x_8 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_7, x_2, x_3, x_4);
 return x_8;
 }
 else

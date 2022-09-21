@@ -19,7 +19,6 @@ LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_86_
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_86____closed__12;
-lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_86____closed__7;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___lambda__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppName___boxed(lean_object*);
@@ -65,6 +64,7 @@ static lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_86____cl
 lean_object* l_Lean_registerParametricAttribute___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_86____closed__11;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_86____lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Attribute_Builtin_getId(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___lambda__1(uint32_t x_1) {
 _start:
@@ -291,7 +291,7 @@ lean_object* x_11; lean_object* x_12; uint8_t x_13;
 lean_free_object(x_6);
 lean_dec(x_8);
 x_11 = l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_86____lambda__2___closed__2;
-x_12 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(x_11, x_3, x_4, x_9);
+x_12 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_11, x_3, x_4, x_9);
 lean_dec(x_4);
 lean_dec(x_3);
 x_13 = !lean_is_exclusive(x_12);
@@ -335,7 +335,7 @@ if (x_19 == 0)
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
 lean_dec(x_17);
 x_20 = l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_86____lambda__2___closed__2;
-x_21 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(x_20, x_3, x_4, x_18);
+x_21 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_20, x_3, x_4, x_18);
 lean_dec(x_4);
 lean_dec(x_3);
 x_22 = lean_ctor_get(x_21, 0);

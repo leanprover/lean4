@@ -43,7 +43,6 @@ lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__9___closed__1;
 static lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__9___closed__8;
 LEAN_EXPORT lean_object* l_Std_AssocList_find_x3f___at_Lean_KeyedDeclsAttribute_getEntries___spec__8(lean_object*);
-lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___closed__4;
 LEAN_EXPORT uint8_t l_Std_PersistentHashMap_isEmpty___at_Lean_KeyedDeclsAttribute_getEntries___spec__11(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -339,6 +338,7 @@ LEAN_EXPORT lean_object* l_Std_AssocList_contains___at___private_Lean_KeyedDecls
 LEAN_EXPORT lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_AssocList_replace___at___private_Lean_KeyedDeclsAttribute_0__Lean_KeyedDeclsAttribute_Table_insert___spec__32(lean_object*);
 lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Attribute_Builtin_getId(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_KeyedDeclsAttribute_Def_builtinName___default() {
@@ -5971,7 +5971,7 @@ x_17 = l_Lean_KeyedDeclsAttribute_init___rarg___lambda__10___closed__4;
 x_18 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_18, 0, x_16);
 lean_ctor_set(x_18, 1, x_17);
-x_19 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(x_18, x_9, x_10, x_11);
+x_19 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_18, x_9, x_10, x_11);
 lean_dec(x_10);
 lean_dec(x_9);
 x_20 = !lean_is_exclusive(x_19);

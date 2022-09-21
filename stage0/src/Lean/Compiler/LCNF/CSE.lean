@@ -19,8 +19,11 @@ structure State where
 
 abbrev M := StateRefT State CompilerM
 
-instance : MonadFVarSubst M where
+instance : MonadFVarSubst M false where
   getSubst := return (← get).subst
+
+instance : MonadFVarSubstState M where
+  modifySubst f := modify fun s => { s with subst := f s.subst }
 
 @[inline] def getSubst : M FVarSubst :=
   return (← get).subst
@@ -34,11 +37,11 @@ instance : MonadFVarSubst M where
 
 def replaceLet (decl : LetDecl) (fvarId : FVarId) : M Unit := do
   eraseLetDecl decl
-  modify fun s => { s with subst := s.subst.insert decl.fvarId (.fvar fvarId) }
+  addFVarSubst decl.fvarId fvarId
 
 def replaceFun (decl : FunDecl) (fvarId : FVarId) : M Unit := do
   eraseFunDecl decl
-  modify fun s => { s with subst := s.subst.insert decl.fvarId (.fvar fvarId) }
+  addFVarSubst decl.fvarId fvarId
 
 partial def _root_.Lean.Compiler.LCNF.Code.cse (code : Code) : CompilerM Code :=
   go code |>.run' {}

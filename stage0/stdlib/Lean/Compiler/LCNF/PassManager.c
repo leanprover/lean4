@@ -34,7 +34,6 @@ static lean_object* l_Lean_Compiler_LCNF_PassInstaller_installAfter___elambda__1
 static lean_object* l_Lean_Compiler_LCNF_PassInstaller_initFn____x40_Lean_Compiler_LCNF_PassManager___hyg_1339____lambda__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PassInstaller_withEachOccurrence___elambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Phase_instToStringPhase(uint8_t);
-lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PassInstaller_installAfter___elambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_PassInstaller_runFromDecl___closed__6;
 static lean_object* l_Lean_Compiler_LCNF_instInhabitedPass___lambda__1___closed__1;
@@ -244,6 +243,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Phase_instLEPhase;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Phase_instLTPhase;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PassInstaller_installBeforeEachOccurrence(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instInhabitedPass___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_PassInstaller_runFromDecl___closed__14;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -3085,7 +3085,7 @@ if (x_10 == 0)
 lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 lean_dec(x_1);
 x_11 = l_Lean_Compiler_LCNF_PassInstaller_initFn____x40_Lean_Compiler_LCNF_PassManager___hyg_1339____lambda__2___closed__2;
-x_12 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(x_11, x_4, x_5, x_8);
+x_12 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_11, x_4, x_5, x_8);
 lean_dec(x_5);
 lean_dec(x_4);
 x_13 = !lean_is_exclusive(x_12);

@@ -38,7 +38,6 @@ lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_MissingDocs_mkHandlerUnsafe___closed__4;
 static lean_object* l_Lean_Linter_MissingDocs_declModifiersPubNoDoc___closed__3;
 static lean_object* l_Lean_Linter_MissingDocs_lintDeclHead___closed__14;
-lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_SimpleHandler_toHandler___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_linter_missingDocs;
 static lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_757____closed__16;
@@ -284,6 +283,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Linter_MissingDocs_c
 static lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_757____closed__17;
 static lean_object* l___regBuiltin_Lean_Linter_MissingDocs_checkSimpLike___closed__6;
 static lean_object* l___regBuiltin_Lean_Linter_MissingDocs_checkClassAbbrev___closed__4;
+lean_object* l_Lean_setEnv___at_Lean_registerTagAttribute___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_MissingDocs_lintDeclHead___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Elab_elabSetOption___at_Lean_Linter_MissingDocs_handleIn___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_356____lambda__4(lean_object*, lean_object*);
@@ -325,7 +325,6 @@ static lean_object* l_Lean_Linter_MissingDocs_checkRegisterSimpAttr___closed__1;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_MissingDocs___hyg_8____closed__1;
 static lean_object* l_Array_anyMUnsafe_any___at_Lean_Linter_MissingDocs_hasInheritDoc___spec__1___closed__7;
 static lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_757____lambda__4___closed__1;
-lean_object* l_Lean_setEnv___at_Lean_registerTagAttribute___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Linter_MissingDocs_checkInit(lean_object*);
 static lean_object* l___regBuiltin_Lean_Linter_MissingDocs_checkSyntaxAbbrev___closed__3;
 static lean_object* l_Lean_Linter_getLinterMissingDocs___closed__1;
@@ -484,6 +483,7 @@ LEAN_EXPORT lean_object* l_IO_ofExcept___at_Lean_Linter_MissingDocs_mkHandlerUns
 static lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_757____closed__12;
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_addBuiltinHandler(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getBetterRef(lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_decEq___boxed(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -2360,7 +2360,7 @@ x_23 = l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_757
 x_24 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_24, 0, x_22);
 lean_ctor_set(x_24, 1, x_23);
-x_25 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(x_24, x_5, x_6, x_17);
+x_25 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_24, x_5, x_6, x_17);
 lean_dec(x_6);
 lean_dec(x_5);
 x_26 = !lean_is_exclusive(x_25);
@@ -2419,7 +2419,7 @@ x_43 = l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_757
 x_44 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_44, 0, x_42);
 lean_ctor_set(x_44, 1, x_43);
-x_45 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(x_44, x_5, x_6, x_17);
+x_45 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_44, x_5, x_6, x_17);
 lean_dec(x_6);
 lean_dec(x_5);
 x_46 = !lean_is_exclusive(x_45);
@@ -2616,7 +2616,7 @@ x_14 = l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_757
 x_15 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_15, 0, x_13);
 lean_ctor_set(x_15, 1, x_14);
-x_16 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(x_15, x_6, x_7, x_8);
+x_16 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_15, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 x_17 = !lean_is_exclusive(x_16);
@@ -2711,7 +2711,7 @@ lean_ctor_set(x_19, 0, x_1);
 lean_ctor_set(x_19, 1, x_18);
 x_20 = l_Lean_Linter_MissingDocs_addHandler___closed__1;
 x_21 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_20, x_3, x_19);
-x_22 = l_Lean_setEnv___at_Lean_registerTagAttribute___spec__2(x_21, x_5, x_6, x_17);
+x_22 = l_Lean_setEnv___at_Lean_registerTagAttribute___spec__1(x_21, x_5, x_6, x_17);
 return x_22;
 }
 else
@@ -2820,7 +2820,7 @@ x_24 = l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_757
 x_25 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_25, 0, x_23);
 lean_ctor_set(x_25, 1, x_24);
-x_26 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(x_25, x_6, x_7, x_18);
+x_26 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_25, x_6, x_7, x_18);
 lean_dec(x_7);
 lean_dec(x_6);
 x_27 = !lean_is_exclusive(x_26);
@@ -2878,7 +2878,7 @@ x_44 = l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_757
 x_45 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_45, 0, x_43);
 lean_ctor_set(x_45, 1, x_44);
-x_46 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(x_45, x_6, x_7, x_18);
+x_46 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_45, x_6, x_7, x_18);
 lean_dec(x_7);
 lean_dec(x_6);
 x_47 = !lean_is_exclusive(x_46);
@@ -3071,7 +3071,7 @@ x_19 = l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_757
 x_20 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_20, 0, x_18);
 lean_ctor_set(x_20, 1, x_19);
-x_21 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(x_20, x_6, x_7, x_11);
+x_21 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_20, x_6, x_7, x_11);
 lean_dec(x_7);
 lean_dec(x_6);
 x_22 = !lean_is_exclusive(x_21);
@@ -3117,7 +3117,7 @@ x_14 = l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_757
 x_15 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_15, 0, x_13);
 lean_ctor_set(x_15, 1, x_14);
-x_16 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(x_15, x_6, x_7, x_8);
+x_16 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_15, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 x_17 = !lean_is_exclusive(x_16);

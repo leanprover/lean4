@@ -34,7 +34,6 @@ lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_declareBuiltin___closed__6;
 static lean_object* l_Lean_getBuiltinInitFnNameFor_x3f___closed__1;
 LEAN_EXPORT lean_object* l_Lean_builtinInitAttr;
-lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_filterTRAux___at_Lean_resolveGlobalConstCore___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalConstCore___at_Lean_registerInitAttrUnsafe___spec__9___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkConstWithLevelParams___at_Lean_registerInitAttrUnsafe___spec__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -232,6 +231,7 @@ lean_object* l_Lean_Syntax_formatStxAux(lean_object*, uint8_t, lean_object*, lea
 static lean_object* l___auto____x40_Lean_Compiler_InitAttr___hyg_791____closed__12;
 static lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__4;
 static lean_object* l_Lean_setEnv___at_Lean_declareBuiltin___spec__3___closed__2;
+lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* _init_l___private_Lean_Compiler_InitAttr_0__Lean_getIOTypeArg___closed__1() {
@@ -797,7 +797,7 @@ x_10 = l_Lean_getConstInfo___at_Lean_registerInitAttrUnsafe___spec__1___closed__
 x_11 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_11, 0, x_9);
 lean_ctor_set(x_11, 1, x_10);
-x_12 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(x_11, x_2, x_3, x_4);
+x_12 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_11, x_2, x_3, x_4);
 return x_12;
 }
 }
@@ -2743,7 +2743,7 @@ x_21 = lean_array_get_size(x_2);
 x_22 = lean_unsigned_to_nat(0u);
 x_23 = l_Array_toSubarray___rarg(x_2, x_22, x_21);
 x_24 = lean_ctor_get(x_3, 0);
-x_25 = lean_ctor_get(x_24, 3);
+x_25 = lean_ctor_get(x_24, 4);
 x_26 = lean_ctor_get(x_25, 3);
 x_27 = lean_array_get_size(x_26);
 x_28 = lean_usize_of_nat(x_27);

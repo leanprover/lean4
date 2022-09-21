@@ -4264,25 +4264,31 @@ return x_81;
 LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_isTypeFormerType(lean_object* x_1) {
 _start:
 {
-switch (lean_obj_tag(x_1)) {
+lean_object* x_2; 
+x_2 = l_Lean_Expr_headBeta(x_1);
+switch (lean_obj_tag(x_2)) {
 case 3:
 {
-uint8_t x_2; 
-x_2 = 1;
-return x_2;
+uint8_t x_3; 
+lean_dec(x_2);
+x_3 = 1;
+return x_3;
 }
 case 7:
 {
-lean_object* x_3; 
-x_3 = lean_ctor_get(x_1, 2);
-x_1 = x_3;
+lean_object* x_4; 
+x_4 = lean_ctor_get(x_2, 2);
+lean_inc(x_4);
+lean_dec(x_2);
+x_1 = x_4;
 goto _start;
 }
 default: 
 {
-uint8_t x_5; 
-x_5 = 0;
-return x_5;
+uint8_t x_6; 
+lean_dec(x_2);
+x_6 = 0;
+return x_6;
 }
 }
 }
@@ -4292,7 +4298,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_Compiler_LCNF_isTypeFormerType(x_1);
-lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }

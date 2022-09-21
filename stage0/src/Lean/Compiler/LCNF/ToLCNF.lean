@@ -113,7 +113,7 @@ where
                 let mut jpArgs := #[]
                 /- Remark: `funDecl.params.size` may be greater than `args.size`. -/
                 for param in funDecl.params[:args.size] do
-                  let type ← replaceExprFVars param.type subst
+                  let type ← replaceExprFVars param.type subst (translator := true)
                   let paramNew ← mkAuxParam type
                   jpParams := jpParams.push paramNew
                   let arg := .fvar paramNew.fvarId

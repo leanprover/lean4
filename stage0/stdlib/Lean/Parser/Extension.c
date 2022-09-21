@@ -48,7 +48,6 @@ LEAN_EXPORT lean_object* l_Std_PersistentHashMap_foldlMAux___at___private_Lean_P
 LEAN_EXPORT lean_object* l_Lean_Parser_parserOfStack___elambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_addBuiltinParserCategory___closed__1;
 lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_mkModuleData___spec__3___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_ParserExtension_instInhabitedOLeanEntry___closed__1;
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3903____closed__8;
 LEAN_EXPORT lean_object* l_Lean_Parser_instCoeParserParserAliasValue(lean_object*);
@@ -661,6 +660,7 @@ static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3693
 static lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_BuiltinParserAttribute_add___lambda__2___closed__15;
 static lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_BuiltinParserAttribute_add___lambda__2___closed__18;
 lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_RBNode_find___at_Lean_Parser_getAlias___spec__1(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_evalInsideQuot(lean_object*, lean_object*);
@@ -11171,7 +11171,7 @@ x_17 = l___private_Lean_Parser_Extension_0__Lean_Parser_BuiltinParserAttribute_a
 x_18 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_18, 0, x_16);
 lean_ctor_set(x_18, 1, x_17);
-x_19 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(x_18, x_6, x_7, x_11);
+x_19 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_18, x_6, x_7, x_11);
 lean_dec(x_7);
 lean_dec(x_6);
 x_20 = !lean_is_exclusive(x_19);
@@ -11661,7 +11661,7 @@ x_23 = l_List_forM___at___private_Lean_Parser_Extension_0__Lean_Parser_ParserAtt
 x_24 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_24, 0, x_22);
 lean_ctor_set(x_24, 1, x_23);
-x_25 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(x_24, x_4, x_5, x_15);
+x_25 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_24, x_4, x_5, x_15);
 lean_dec(x_5);
 lean_dec(x_4);
 x_26 = !lean_is_exclusive(x_25);

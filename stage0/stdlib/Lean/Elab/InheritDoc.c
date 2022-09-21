@@ -20,7 +20,6 @@ LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____la
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda__2___closed__4;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_filterTRAux___at_Lean_resolveGlobalConstCore___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__17___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__17___closed__1;
@@ -158,6 +157,7 @@ static lean_object* l_Lean_resolveGlobalConstNoOverload___at_Lean_initFn____x40_
 LEAN_EXPORT lean_object* l_Lean_Elab_pushInfoTree___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__16(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda__1___closed__1;
 static lean_object* l_Lean_addDocString___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__18___closed__5;
+lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__5(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -358,7 +358,7 @@ x_10 = l_Lean_throwUnknownConstant___at_Lean_initFn____x40_Lean_Elab_InheritDoc_
 x_11 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_11, 0, x_9);
 lean_ctor_set(x_11, 1, x_10);
-x_12 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(x_11, x_2, x_3, x_4);
+x_12 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_11, x_2, x_3, x_4);
 return x_12;
 }
 }
@@ -3066,7 +3066,7 @@ lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_11 = l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda__4___closed__2;
-x_12 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__3(x_11, x_6, x_7, x_8);
+x_12 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_11, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 x_13 = !lean_is_exclusive(x_12);

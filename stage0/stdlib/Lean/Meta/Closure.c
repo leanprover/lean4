@@ -3995,7 +3995,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_Closure_collectExprAux___closed__1;
 x_2 = l_Lean_Meta_Closure_collectExprAux___closed__2;
-x_3 = lean_unsigned_to_nat(1452u);
+x_3 = lean_unsigned_to_nat(1496u);
 x_4 = lean_unsigned_to_nat(17u);
 x_5 = l_Lean_Meta_Closure_collectExprAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -4024,7 +4024,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_Closure_collectExprAux___closed__1;
 x_2 = l_Lean_Meta_Closure_collectExprAux___closed__5;
-x_3 = lean_unsigned_to_nat(1463u);
+x_3 = lean_unsigned_to_nat(1507u);
 x_4 = lean_unsigned_to_nat(18u);
 x_5 = l_Lean_Meta_Closure_collectExprAux___closed__6;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -4053,7 +4053,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_Closure_collectExprAux___closed__1;
 x_2 = l_Lean_Meta_Closure_collectExprAux___closed__8;
-x_3 = lean_unsigned_to_nat(1419u);
+x_3 = lean_unsigned_to_nat(1463u);
 x_4 = lean_unsigned_to_nat(18u);
 x_5 = l_Lean_Meta_Closure_collectExprAux___closed__9;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -4082,7 +4082,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_Closure_collectExprAux___closed__1;
 x_2 = l_Lean_Meta_Closure_collectExprAux___closed__11;
-x_3 = lean_unsigned_to_nat(1509u);
+x_3 = lean_unsigned_to_nat(1553u);
 x_4 = lean_unsigned_to_nat(20u);
 x_5 = l_Lean_Meta_Closure_collectExprAux___closed__12;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -4111,7 +4111,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_Closure_collectExprAux___closed__1;
 x_2 = l_Lean_Meta_Closure_collectExprAux___closed__14;
-x_3 = lean_unsigned_to_nat(1489u);
+x_3 = lean_unsigned_to_nat(1533u);
 x_4 = lean_unsigned_to_nat(24u);
 x_5 = l_Lean_Meta_Closure_collectExprAux___closed__15;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -4140,7 +4140,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_Closure_collectExprAux___closed__1;
 x_2 = l_Lean_Meta_Closure_collectExprAux___closed__17;
-x_3 = lean_unsigned_to_nat(1518u);
+x_3 = lean_unsigned_to_nat(1562u);
 x_4 = lean_unsigned_to_nat(22u);
 x_5 = l_Lean_Meta_Closure_collectExprAux___closed__18;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

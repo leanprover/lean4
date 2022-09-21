@@ -186,6 +186,7 @@ LEAN_EXPORT lean_object* l_Lean_ofExcept___at___private_Lean_Widget_UserWidget_0
 static lean_object* l_Lean_Elab_pushInfoLeaf___at_Lean_Widget_elabWidgetCmd___spec__3___closed__2;
 static lean_object* l_Lean_Widget_widgetCmd___closed__2;
 static lean_object* l___private_Lean_Widget_UserWidget_0__Lean_Widget_attributeImpl___closed__6;
+lean_object* l_Lean_setEnv___at_Lean_registerTagAttribute___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instFromJsonGetWidgetSourceParams___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Widget_UserWidget_0__Lean_Widget_fromJsonUserWidgetDefinition____x40_Lean_Widget_UserWidget___hyg_162_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_wrapRpcProcedure___at_Lean_Widget_getWidgets___rpc__wrapped___spec__1(lean_object*, lean_object*);
@@ -202,7 +203,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_pushInfoLeaf___at_Lean_Widget_elabWidgetCmd
 static lean_object* l_Lean_Widget_getWidgetSource___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_423____lambda__2___boxed(lean_object*);
 static lean_object* l_Lean_Widget_instFromJsonGetWidgetsResponse___closed__1;
-lean_object* l_Lean_setEnv___at_Lean_registerTagAttribute___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_423____spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_getWidgets___spec__2___closed__1;
 static lean_object* l_Lean_Widget_instFromJsonUserWidgetInstance___closed__1;
@@ -4022,7 +4022,7 @@ lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set(x_21, 1, x_1);
 x_22 = l___private_Lean_Widget_UserWidget_0__Lean_Widget_attributeImpl___elambda__2___closed__2;
 x_23 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_22, x_19, x_21);
-x_24 = l_Lean_setEnv___at_Lean_registerTagAttribute___spec__2(x_23, x_4, x_5, x_13);
+x_24 = l_Lean_setEnv___at_Lean_registerTagAttribute___spec__1(x_23, x_4, x_5, x_13);
 lean_dec(x_5);
 lean_dec(x_4);
 return x_24;

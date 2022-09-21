@@ -52,9 +52,15 @@ instance : Nonempty EnvExtensionEntry := EnvExtensionEntrySpec.property
 /-- Content of a .olean file.
    We use `compact.cpp` to generate the image of this object in disk. -/
 structure ModuleData where
-  imports    : Array Import
-  constants  : Array ConstantInfo
-  entries    : Array (Name × Array EnvExtensionEntry)
+  imports         : Array Import
+  constants       : Array ConstantInfo
+  /--
+  Extra entries for the `const2ModIdx` map in the `Environment` object.
+  The code generator creates auxiliary declarations that are not in the
+  mapping `constants`, but we want to know in which module they were generated.
+  -/
+  extraConstNames : Array Name
+  entries         : Array (Name × Array EnvExtensionEntry)
   deriving Inhabited
 
 /-- Environment fields that are not used often. -/
@@ -116,6 +122,12 @@ structure Environment where
   Environment extensions. It also includes user-defined extensions.
   -/
   extensions   : Array EnvExtensionState
+  /--
+  Constant names to be saved in the field `extraConstNames` at `ModuleData`.
+  It contains auxiliary declaration names created by the code generator which are not in `constants`.
+  When importing modules, we want to insert them at `const2ModIdx`.
+  -/
+  extraConstNames : NameSet
   /-- The header contains additional information that is not updated often. -/
   header       : EnvironmentHeader := {}
   deriving Inhabited
@@ -124,6 +136,17 @@ namespace Environment
 
 def addAux (env : Environment) (cinfo : ConstantInfo) : Environment :=
   { env with constants := env.constants.insert cinfo.name cinfo }
+
+/--
+Save an extra constant name that is used to populate `const2ModIdx` when we import
+.olean files. We use this feature to save in which module an auxiliary declaration
+created by the code generator has been created.
+-/
+def addExtraName (env : Environment) (name : Name) : Environment :=
+  if env.constants.contains name then
+    env
+  else
+    { env with extraConstNames := env.extraConstNames.insert name }
 
 @[export lean_environment_find]
 def find? (env : Environment) (n : Name) : Option ConstantInfo :=
@@ -197,12 +220,12 @@ end Environment
 
 /-- Interface for managing environment extensions. -/
 structure EnvExtensionInterface where
-  ext              : Type → Type
-  inhabitedExt {σ} : Inhabited σ → Inhabited (ext σ)
-  registerExt  {σ} (mkInitial : IO σ) : IO (ext σ)
-  setState     {σ} (e : ext σ) (env : Environment) : σ → Environment
-  modifyState  {σ} (e : ext σ) (env : Environment) : (σ → σ) → Environment
-  getState     {σ} [Inhabited σ] (e : ext σ) (env : Environment) : σ
+  ext          : Type → Type
+  inhabitedExt : Inhabited σ → Inhabited (ext σ)
+  registerExt  (mkInitial : IO σ) : IO (ext σ)
+  setState     (e : ext σ) (env : Environment) : σ → Environment
+  modifyState  (e : ext σ) (env : Environment) : (σ → σ) → Environment
+  getState     [Inhabited σ] (e : ext σ) (env : Environment) : σ
   mkInitialExtStates : IO (Array EnvExtensionState)
   ensureExtensionsSize : Environment → IO Environment
 
@@ -332,10 +355,11 @@ def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
   if initializing then throw (IO.userError "environment objects cannot be created during initialization")
   let exts ← mkInitialExtensionStates
   pure {
-    const2ModIdx := {},
-    constants    := {},
-    header       := { trustLevel := trustLevel },
-    extensions   := exts
+    const2ModIdx    := {}
+    constants       := {}
+    header          := { trustLevel := trustLevel }
+    extraConstNames := {}
+    extensions      := exts
   }
 
 structure PersistentEnvExtensionState (α : Type) (σ : Type) where
@@ -587,9 +611,10 @@ def mkModuleData (env : Environment) : IO ModuleData := do
       result.push (extName, exportEntriesFn state))
     #[]
   pure {
-    imports    := env.header.imports,
-    constants  := env.constants.foldStage2 (fun cs _ c => cs.push c) #[],
-    entries    := entries
+    imports         := env.header.imports
+    constants       := env.constants.foldStage2 (fun cs _ c => cs.push c) #[]
+    extraConstNames := env.extraConstNames.toArray
+    entries         := entries
   }
 
 @[export lean_write_module]
@@ -676,18 +701,21 @@ partial def importModules (imports : List Import) (opts : Options) (trustLevel :
         | (constantMap', replaced) =>
           constantMap := constantMap'
           if replaced then throw (IO.userError s!"import failed, environment already contains '{cinfo.name}'")
-       modIdx := modIdx + 1
+      for cname in mod.extraConstNames do
+        const2ModIdx := const2ModIdx.insert cname modIdx
+      modIdx := modIdx + 1
     let constants : ConstMap := SMap.fromHashMap constantMap false
     let exts ← mkInitialExtensionStates
     let env : Environment := {
-      const2ModIdx := const2ModIdx,
-      constants    := constants,
-      extensions   := exts,
-      header       := {
-        quotInit     := !imports.isEmpty, -- We assume `core.lean` initializes quotient module
-        trustLevel   := trustLevel,
-        imports      := imports.toArray,
-        regions      := s.regions,
+      const2ModIdx    := const2ModIdx
+      constants       := constants
+      extraConstNames := {}
+      extensions      := exts
+      header          := {
+        quotInit     := !imports.isEmpty -- We assume `core.lean` initializes quotient module
+        trustLevel   := trustLevel
+        imports      := imports.toArray
+        regions      := s.regions
         moduleNames  := s.moduleNames
         moduleData   := s.moduleData
       }
@@ -727,8 +755,8 @@ Environment extension for tracking all `namespace` declared by users.
 -/
 builtin_initialize namespacesExt : SimplePersistentEnvExtension Name NameSSet ←
   registerSimplePersistentEnvExtension {
-    name            := `namespaces,
-    addImportedFn   := fun as => mkStateFromImportedEntries NameSSet.insert NameSSet.empty as |>.switch,
+    name            := `namespaces
+    addImportedFn   := fun as => mkStateFromImportedEntries NameSSet.insert NameSSet.empty as |>.switch
     addEntryFn      := fun s n => s.insert n
   }
 

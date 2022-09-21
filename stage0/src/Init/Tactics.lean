@@ -161,8 +161,7 @@ syntax caseArg := binderIdent binderIdent*
   with inaccessible names to the given names.
 * `case tag₁ | tag₂ => tac` is equivalent to `(case tag₁ => tac); (case tag₂ => tac)`.
 -/
-syntax (name := case) "case " binderIdent binderIdent* " => " tacticSeq : tactic
--- syntax (name := case) "case " sepBy1(caseArg, " | ") " => " tacticSeq : tactic
+syntax (name := case) "case " sepBy1(caseArg, " | ") " => " tacticSeq : tactic
 
 /--
 `case'` is similar to the `case tag => tac` tactic, but does not ensure the goal
@@ -170,8 +169,7 @@ has been solved after applying `tac`, nor admits the goal if `tac` failed.
 Recall that `case` closes the goal using `sorry` when `tac` fails, and
 the tactic execution is not interrupted.
 -/
-syntax (name := case') "case' " binderIdent binderIdent* " => " tacticSeq : tactic
--- syntax (name := case') "case' " sepBy1(caseArg, " | ") " => " tacticSeq : tactic
+syntax (name := case') "case' " sepBy1(caseArg, " | ") " => " tacticSeq : tactic
 
 /--
 `next => tac` focuses on the next goal and solves it using `tac`, or else fails.
@@ -398,7 +396,7 @@ syntax (name := injection) "injection " term (" with " (colGt (ident <|> hole))+
 (since `injection` can produce new hypotheses). Useful for destructing nested
 constructor equalities like `(a::b::c) = (d::e::f)`. -/
 -- TODO: add with
-syntax (name := injections) "injections" : tactic
+syntax (name := injections) "injections" (colGt (ident <|> hole))* : tactic
 
 /--
 The discharger clause of `simp` and related tactics.
@@ -835,9 +833,5 @@ macro "get_elem_tactic" : tactic =>
 @[inheritDoc getElem]
 macro:max x:term noWs "[" i:term "]" : term => `(getElem $x $i (by get_elem_tactic))
 
-/-- Helper declaration for the unexpander -/
-@[inline] def getElem' [GetElem cont idx elem dom] (xs : cont) (i : idx) (h : dom xs i) : elem :=
-  getElem xs i h
-
 @[inheritDoc getElem]
-macro x:term noWs "[" i:term "]'" h:term:max : term => `(getElem' $x $i $h)
+macro x:term noWs "[" i:term "]'" h:term:max : term => `(getElem $x $i $h)

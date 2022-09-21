@@ -14,33 +14,6 @@ namespace Lean.Widget
 
 open Server Std Lean SubExpr
 
-open Lean.Expr in
-/-- Define `m₁` to be the parent of `m₂` in a given mvar-context when `m₁` has been
-assigned with an expression containing `m₂`. -/
-partial def isParent (before after : MVarId): MetaM Bool := do
-    let some assignment ← Lean.getExprMVarAssignment? before
-      | return false
-    let assignment ← instantiateMVars assignment
-    let r ← assignment.findExtM? (fun e => do
-      if !e.hasMVar then return FindStep.done else
-      match e with
-      | .mvar m =>
-        if m == after then
-          return FindStep.found
-        /- Suppose `m₁ : (n : Nat) → P`, and the new goal `n : Nat ⊢ m₂ : P` was got with an application of `intro`.
-           Now, `m₁` is assigned the expression `fun (n : Nat) => m₃ n`.
-           `m₃` is an auxilliary mvar with a delayed assignment, so we have to look a step further if there is a delayed mvar. -/
-        let m' ← getDelayedMVarRoot m
-        if m' == after then
-          return FindStep.found
-        if m' != m ∧ (← m'.isAssigned) then
-          if ← isParent before m' then
-            return FindStep.found
-        return FindStep.done
-      | _ => return FindStep.visit
-    )
-    return r.isSome
-
 /-- A marker for a point in the expression where a subexpression has been inserted.
 
 NOTE: in the future we may add other tags.
@@ -309,6 +282,15 @@ If `useAfter` is `true` then `igs₁` is the set of interactive goals _after_ th
 Otherwise `igs₁` is the set of interactive goals _before_. -/
 def diffInteractiveGoals (useAfter : Bool) (info : Elab.TacticInfo) (igs₁ : InteractiveGoals) : MetaM InteractiveGoals := do
     let goals₀ := if useAfter then info.goalsBefore else info.goalsAfter
+    let parentMap : MVarIdMap MVarIdSet ← info.goalsBefore.foldlM (init := ∅) (fun s g => do
+      let ms ← Expr.mvar g |> Lean.Meta.getMVars
+      let ms : MVarIdSet := RBTree.fromArray ms _
+      return s.insert g ms
+    )
+    let isParent (before after : MVarId) : Bool :=
+       match parentMap.find? before with
+       | some xs => xs.contains after
+       | none => false
     let goals ← igs₁.goals.mapM (fun ig₁ => do
       let some g₁ := ig₁.mvarId?
         | return {ig₁ with message? := "error: goal not found"}
@@ -316,7 +298,7 @@ def diffInteractiveGoals (useAfter : Bool) (info : Elab.TacticInfo) (igs₁ : In
         -- if the goal is present on the previous version then continue
         if goals₀.any (fun g₀ => g₀ == g₁) then
           return {ig₁ with isInserted? := none}
-        let some g₀ ← goals₀.findM? (fun g₀ => if useAfter then isParent g₀ g₁ else isParent g₁ g₀)
+        let some g₀ := goals₀.find? (fun g₀ => if useAfter then isParent g₀ g₁ else isParent g₁ g₀)
           | return if useAfter then {ig₁ with isInserted? := true } else {ig₁ with isRemoved? := true}
         let ig₁ ← diffInteractiveGoal useAfter g₀ ig₁
         return ig₁

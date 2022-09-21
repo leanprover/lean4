@@ -8,28 +8,6 @@ import Lean.Expr
 namespace Lean
 namespace Expr
 
-/-- Run the given `visit` function on each immediate child subexpression of the given expression.
-It will fail if there are no subexpressions.
-
-You can use this to build more complex recursive finding functions.
-
-Examples:
-- `findChildren visit (app f a) = visit f <|> visit a`
-- `findChildren visit (lam n d b i) = visit d <|> visit b`
-
-Does not instantiate bound variables if the subexpression is below a binder.
-Usage with monads deriving from `MetaM` is not recommended.
--/
-@[inline]
-def findChildren [Alternative m] (visit : Expr → m α) : Expr → m α
-  | Expr.forallE _ d b _   => visit d <|> visit b
-  | Expr.lam _ d b _       => visit d <|> visit b
-  | Expr.mdata _ b         => visit b
-  | Expr.letE _ t v b _    => visit t <|> visit v <|> visit b
-  | Expr.app f a           => visit f <|> visit a
-  | Expr.proj _ _ b        => visit b
-  | _                      => failure
-
 namespace FindImpl
 
 abbrev cacheSize : USize := 8192
@@ -137,15 +115,6 @@ end FindExtImpl
   Remark: Differently from `find?`, we do not invoke `p` for partial applications of an application. -/
 @[implementedBy FindExtImpl.findUnsafe?]
 opaque findExt? (p : Expr → FindStep) (e : Expr) : Option Expr
-
-/-- Run `p` on all subexpressions of `e` depth-first. Returning the first instance that gives `FindStep.found`.
-
-Note that no visit caching is done. Prefer `findExt?` for performant code. -/
-partial def findExtM? [Monad m] (p : Expr → m FindStep) (e : Expr) : m (Option Expr) := OptionT.run do
-  match ← p e with
-  | .found => return e
-  | .visit => e.findChildren (findExtM? p)
-  | .done => failure
 
 end Expr
 end Lean

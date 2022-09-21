@@ -346,6 +346,9 @@ instance [Repr α] [Repr β] : Repr (RBMap α β cmp) where
 @[inline] def fromList (l : List (α × β)) (cmp : α → α → Ordering) : RBMap α β cmp :=
   l.foldl (fun r p => r.insert p.1 p.2) (mkRBMap α β cmp)
 
+@[inline] def fromArray (l : Array (α × β)) (cmp : α → α → Ordering) : RBMap α β cmp :=
+  l.foldl (fun r p => r.insert p.1 p.2) (mkRBMap α β cmp)
+
 /-- Returns true if the given predicate is true for all items in the RBMap. -/
 @[inline] def all : RBMap α β cmp → (α → β → Bool) → Bool
   | ⟨t, _⟩, p => t.all p

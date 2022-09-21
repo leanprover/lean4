@@ -89,6 +89,9 @@ instance [Repr α] : Repr (RBTree α cmp) where
 def fromList (l : List α) (cmp : α → α → Ordering) : RBTree α cmp :=
   l.foldl insert (mkRBTree α cmp)
 
+def fromArray (l : Array α) (cmp : α → α → Ordering) : RBTree α cmp :=
+  l.foldl insert (mkRBTree α cmp)
+
 @[inline] def all (t : RBTree α cmp) (p : α → Bool) : Bool :=
   RBMap.all t (fun a _ => p a)
 

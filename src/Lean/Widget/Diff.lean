@@ -22,6 +22,11 @@ inductive ExprDiffTag where
   | change
   | delete
 
+def ExprDiffTag.toHighlightColor : (useAfter : Bool) → ExprDiffTag → HighlightColor
+  | true,  .change => .green
+  | false, .change => .yellow
+  | _,     .delete => .red
+
 def ExprDiffTag.toString : ExprDiffTag → String
   | .change => "change"
   | .delete => "delete"
@@ -32,8 +37,10 @@ def ExprDiffTag.fromString : String → Except String ExprDiffTag
   | s => Except.error s!"expected an ExprDiffTag ctor string but got {s}"
 
 instance : ToString ExprDiffTag := ⟨ExprDiffTag.toString⟩
+
 instance : FromJson ExprDiffTag where
   fromJson? j := j.getStr? >>= ExprDiffTag.fromString
+
 instance : ToJson ExprDiffTag where
   toJson x := x.toString |> Json.str
 
@@ -212,10 +219,8 @@ this function decorates `infoAfter` with tags indicating where the expression ha
 
 If `useAfter == false` before and after are swapped. -/
 def addDiffTags (useAfter : Bool) (diff : ExprDiff) (info₁ : CodeWithInfos) : MetaM CodeWithInfos := do
-  if useAfter then
-    info₁.mergePosMap (fun info d => pure <| info.appendTag d.toString) diff.changesAfter
-  else
-    info₁.mergePosMap (fun info d => pure <| info.appendTag d.toString) diff.changesBefore
+  let cs := if useAfter then diff.changesAfter else diff.changesBefore
+  info₁.mergePosMap (fun info d => pure <| info.highlight <| d.toHighlightColor useAfter) cs
 
 open Meta
 

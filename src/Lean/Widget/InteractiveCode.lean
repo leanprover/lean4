@@ -15,6 +15,36 @@ with environment and subexpression information. -/
 namespace Lean.Widget
 open Server
 
+inductive HighlightColor where
+  | green
+  | blue
+  | red
+  | yellow
+  | purple
+
+def HighlightColor.toString : HighlightColor → String
+  | .green  => "green"
+  | .blue   => "blue"
+  | .red    => "red"
+  | .yellow => "yellow"
+  | .purple => "purple"
+
+def HighlightColor.fromString : String → Except String HighlightColor
+  | "green"  => Except.ok HighlightColor.green
+  | "blue"   => Except.ok HighlightColor.blue
+  | "red"    => Except.ok HighlightColor.red
+  | "yellow" => Except.ok HighlightColor.yellow
+  | "purple" => Except.ok HighlightColor.purple
+  | s        => Except.error s!"expected an HighlightColor ctor string but got {s}"
+
+instance : ToString HighlightColor := ⟨HighlightColor.toString⟩
+
+instance : FromJson HighlightColor where
+  fromJson? j := j.getStr? >>= HighlightColor.fromString
+
+instance : ToJson HighlightColor where
+  toJson x := x.toString |> Json.str
+
 /-- Information about a subexpression within delaborated code. -/
 structure SubexprInfo where
   /-- The `Elab.Info` node with the semantics of this part of the output. -/
@@ -24,8 +54,8 @@ structure SubexprInfo where
   subexprPos : Lean.SubExpr.Pos
   -- TODO(WN): add fields for semantic highlighting
   -- kind : Lsp.SymbolKind
-  /-- Additional tags for rendering subexpresions. This is used for the goal-diff system. -/
-  tags?: Option (Array String) := none
+  /-- Ask the renderer to highlight this node in the given color. -/
+  highlightColor? : Option HighlightColor := none
   deriving Inhabited, RpcEncodable
 
 /-- Pretty-printed syntax (usually but not necessarily an `Expr`) with embedded `Info`s. -/
@@ -42,12 +72,8 @@ def CodeWithInfos.mergePosMap [Monad m] (merger : SubexprInfo → α → m Subex
 def CodeWithInfos.pretty (tt : CodeWithInfos) :=
   tt.stripTags
 
-def SubexprInfo.appendTag (tag : String) (c : SubexprInfo) : SubexprInfo :=
-  {c with tags? :=
-    match c.tags? with
-    | none => #[tag]
-    | some ts => ts.push tag
-  }
+def SubexprInfo.highlight (color : HighlightColor) (c : SubexprInfo) : SubexprInfo :=
+  {c with highlightColor? := some color }
 
 /-- Tags a pretty-printed `Expr` with infos from the delaborator. -/
 partial def tagExprInfos (ctx : Elab.ContextInfo) (infos : SubExpr.PosMap Elab.Info) (tt : TaggedText (Nat × Nat))

@@ -263,10 +263,10 @@ mutual
         let e := e.instantiateRev fvars
         let some u ← getLevel? e | return anyTypeExpr
         let mut u := u
-        for x in fvars do
+        for x in fvars.reverse do
           let xType ← inferType x
           let some v ← getLevel? xType | return anyTypeExpr
-          u := .imax v u
+          u := mkLevelIMax' v u
         return .sort u.normalize
 
   partial def inferLambdaType (e : Expr) : InferTypeM Expr :=

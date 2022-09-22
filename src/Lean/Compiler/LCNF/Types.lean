@@ -207,6 +207,22 @@ in fact exhaustive due to LCNF constraints:
 partial def compatibleTypes (a b : Expr) : Bool :=
   if a.isAnyType || b.isAnyType then
     true
+  else if a.isErased || b.isErased then
+    /-
+    This is an approximation. This can happen when processing universe polymorphic code.
+    After instantiating universes, we may have propositions. For example, suppose we have
+    ```
+    def f (α : Sort u) (x : α → α → Sort v) (a b : α) (h : x a b) ...
+    ```
+    The LCNF type for this universe polymorphic declaration is
+    ```
+    def f (α : Sort u) (x : α → α → Sort v) (a b : α) (h : x ◾ ◾) ...
+    ```
+    Now, if we instantiate with `v = 0`, we have that `x ◾ ◾` is also a proposition
+    and should be equivalent to `◾`. However, to perform this check we need the environment
+    and local context. We may consider doing at `Check.lean`
+    -/
+    true
   else
     let a' := a.headBeta
     let b' := b.headBeta
@@ -236,7 +252,8 @@ partial def joinTypes? (a b : Expr) : Option Expr := do
   if a.isAnyType then return a
   else if b.isAnyType then return b
   else if a == b then return a
-  else if a.isErased || b.isErased then failure
+  else if a.isErased || b.isErased then
+    return erasedExpr -- See comment at `compatibleTypes`.
   else
     let a' := a.headBeta
     let b' := b.headBeta

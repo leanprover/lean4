@@ -92,35 +92,11 @@ def sameHead (e₀ e₁ : Expr) : MetaM Bool := do
     return false
   return e₀.getAppNumArgs == e₁.getAppNumArgs
 
--- /-- Returns true if the expressions are completely different. -/
--- def ExprDiff.isRootReplacement (d : ExprDiff) : Bool :=
---   if d.isEmpty then false else
---   d.changes.find? Pos.root matches some .inserted
-
-/-- Checks whether the `before` type would give a type `after` if intro or intros was applied to it.
-That is, do we have `before = (a₁ : α₁) → ... → (aₙ : αₙ) → after` for some set of binders.
-If we do then this will return the number of binders that have been intro'd.
-Otherwise it returns none.
--/
-partial def isIntro (before after : Expr) : MetaM (Nat) := do
-  if before == after then
-    return 0
-  match before with
-  | .forallE n d b i =>
-    Lean.Meta.withLocalDecl n i d fun x => do
-      let b := b.instantiate1 x
-      let j ← isIntro b after
-      return j + 1
-  | _ => failure
-
-
 /-- Computes a diff between `before` and `after` expressions.
 
 This works by recursively comparing function arguments.
 
-TODO(ed):
-- diffs under binders, particularly if the binder count has changed as after `intro`.
-- experiment with a 'greatest common subexpression' design where
+TODO(ed): experiment with a 'greatest common subexpression' design where
   given `e₀`, `e₁`, find the greatest common subexpressions `Xs : Array Expr` and a congruence `F` such that
   `e₀ = F[A₀[..Xs]]` and `e₀ = F[A₁[..Xs]]`. Then, we can have fancy diff highlighting where common subexpressions are not highlighted.
 
@@ -131,22 +107,21 @@ The most common tactic that modifies binders is after an `intros`.
 To deal with this case, if `before = (a : α) → β` and `after`, is not a matching binder (ie: not `(a : α) → _`)
 then we instantiate the `before` variable in a new context and continue diffing `β` against `after`.
 
-
  -/
 partial def exprDiffCore (before after : SubExpr) : MetaM ExprDiff := do
   if before.expr == after.expr then
     return ∅
   match before.expr, after.expr with
   | .app .., .app .. =>
-    if !(← sameHead before.expr after.expr) then
+    let (fn₀, args₀) := after.expr.withApp Prod.mk
+    let (fn₁, args₁) := before.expr.withApp Prod.mk
+    if fn₀ != fn₁ || args₀.size != args₁.size then
       return ExprDiff.withChange before after
-    let n := before.expr.getAppNumArgs
-    if n == 0 then
-      -- not an app, there are no arguments.
-      return ∅
-    let args := Array.zip before.expr.getAppArgs after.expr.getAppArgs
+    let args := Array.zip args₀ args₁
     let args ← args.mapIdxM (fun i (beforeArg, afterArg) =>
-      exprDiffCore ⟨beforeArg, before.pos.pushNaryArg n i⟩ ⟨afterArg, after.pos.pushNaryArg n i⟩
+      exprDiffCore
+        ⟨beforeArg, before.pos.pushNaryArg args₀.size i⟩
+        ⟨afterArg,  after.pos.pushNaryArg  args₀.size i⟩
     )
     return args.foldl (init := ∅) (· ++ ·)
   | .forallE .., _ => piDiff before after

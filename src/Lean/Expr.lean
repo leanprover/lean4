@@ -857,26 +857,10 @@ def getForallBodyMaxDepth : (maxDepth : Nat) → Expr → Expr
   | 0, e => e
   | _, e => e
 
-/-- A binder is the `(a : α)` that appears in `(a : α) → β` or `fun (a : α) => B`.
-It consists of a user-friendly name, a type expression and the BinderInfo. -/
-structure Binder where
-  name : Name
-  type : Expr
-  info : BinderInfo
-
 /-- Given a sequence of nested foralls `(a₁ : α₁) → ... → (aₙ : αₙ) → _`,
-returns `[(a₁ : α₁), ..., (aₙ : αₙ)]`. -/
-def getForallBinders : Expr → List Binder
-  | forallE n t b c => ⟨n, t, c⟩ :: getForallBinders b
-  | _ => []
-
-def getForallBinderNames : Expr → List Name :=
-  List.map Binder.name ∘ getForallBinders
-
-/-- Given a sequence of nested lambdas `fun (a₁ : α₁) ... (aₙ : αₙ) => _`,
-returns `[(a₁ : α₁), ..., (aₙ : αₙ)]`. -/
-def getLambdaBinders : Expr → List Binder
-  | lam n t b c => ⟨n, t, c⟩ :: getLambdaBinders b
+returns the names `[a₁, ... aₙ]`. -/
+def getForallBinderNames : Expr → List Name
+  | forallE n _ b _ => n :: getForallBinderNames b
   | _ => []
 
 /--

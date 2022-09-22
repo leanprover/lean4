@@ -23,6 +23,7 @@ LEAN_EXPORT lean_object* l_Lean_getExternEntryForAux(lean_object*, lean_object*)
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__3;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_659____lambda__2___closed__1;
+lean_object* l_Lean_setEnv___at_Lean_registerParametricAttribute___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__15;
 lean_object* l_List_getD___rarg(lean_object*, lean_object*, lean_object*);
@@ -118,7 +119,6 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Compiler_E
 lean_object* l_String_Iterator_next(lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___spec__3___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_setEnv___at_Lean_registerTagAttribute___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 lean_object* l_instBEqProd___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -826,7 +826,7 @@ lean_inc(x_18);
 x_19 = lean_ctor_get(x_17, 1);
 lean_inc(x_19);
 lean_dec(x_17);
-x_20 = l_Lean_setEnv___at_Lean_registerTagAttribute___spec__1(x_18, x_3, x_4, x_19);
+x_20 = l_Lean_setEnv___at_Lean_registerParametricAttribute___spec__3(x_18, x_3, x_4, x_19);
 return x_20;
 }
 else
@@ -867,7 +867,7 @@ lean_inc(x_27);
 x_28 = lean_ctor_get(x_26, 1);
 lean_inc(x_28);
 lean_dec(x_26);
-x_29 = l_Lean_setEnv___at_Lean_registerTagAttribute___spec__1(x_27, x_3, x_4, x_28);
+x_29 = l_Lean_setEnv___at_Lean_registerParametricAttribute___spec__3(x_27, x_3, x_4, x_28);
 return x_29;
 }
 else
@@ -940,7 +940,7 @@ lean_inc(x_45);
 x_46 = lean_ctor_get(x_44, 1);
 lean_inc(x_46);
 lean_dec(x_44);
-x_47 = l_Lean_setEnv___at_Lean_registerTagAttribute___spec__1(x_45, x_3, x_4, x_46);
+x_47 = l_Lean_setEnv___at_Lean_registerParametricAttribute___spec__3(x_45, x_3, x_4, x_46);
 return x_47;
 }
 else
@@ -982,7 +982,7 @@ lean_inc(x_54);
 x_55 = lean_ctor_get(x_53, 1);
 lean_inc(x_55);
 lean_dec(x_53);
-x_56 = l_Lean_setEnv___at_Lean_registerTagAttribute___spec__1(x_54, x_3, x_4, x_55);
+x_56 = l_Lean_setEnv___at_Lean_registerParametricAttribute___spec__3(x_54, x_3, x_4, x_55);
 return x_56;
 }
 else

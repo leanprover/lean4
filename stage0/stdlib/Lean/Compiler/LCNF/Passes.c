@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.Passes
-// Imports: Init Lean.Compiler.LCNF.PassManager Lean.Compiler.LCNF.PullLetDecls Lean.Compiler.LCNF.CSE Lean.Compiler.LCNF.Simp Lean.Compiler.LCNF.PullFunDecls Lean.Compiler.LCNF.ReduceJpArity Lean.Compiler.LCNF.JoinPoints Lean.Compiler.LCNF.Specialize
+// Imports: Init Lean.Compiler.LCNF.PassManager Lean.Compiler.LCNF.PullLetDecls Lean.Compiler.LCNF.CSE Lean.Compiler.LCNF.Simp Lean.Compiler.LCNF.PullFunDecls Lean.Compiler.LCNF.ReduceJpArity Lean.Compiler.LCNF.JoinPoints Lean.Compiler.LCNF.Specialize Lean.Compiler.LCNF.PhaseExt
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -26,6 +26,7 @@ static lean_object* l_Lean_Compiler_LCNF_builtin___closed__2;
 static lean_object* l_Lean_Compiler_LCNF_builtin___closed__1;
 extern lean_object* l_Lean_Compiler_LCNF_specialize;
 static lean_object* l_Lean_Compiler_LCNF_builtin___closed__9;
+static lean_object* l_Lean_Compiler_LCNF_builtin___closed__17;
 static lean_object* l_Lean_Compiler_LCNF_builtin___closed__4;
 extern lean_object* l_Lean_Compiler_LCNF_pullFunDecls;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_builtin;
@@ -36,6 +37,7 @@ extern lean_object* l_Lean_Compiler_LCNF_pullInstances;
 static lean_object* l_Lean_Compiler_LCNF_builtin___closed__13;
 lean_object* l_Lean_Compiler_LCNF_simp(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_builtin___closed__7;
+extern lean_object* l_Lean_Compiler_LCNF_saveBase;
 extern lean_object* l_Lean_Compiler_LCNF_cse;
 static lean_object* l_Lean_Compiler_LCNF_builtin___closed__11;
 static lean_object* l_Lean_Compiler_LCNF_builtin___closed__10;
@@ -102,7 +104,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtin___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(9u);
+x_1 = lean_unsigned_to_nat(10u);
 x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
@@ -200,8 +202,18 @@ return x_3;
 static lean_object* _init_l_Lean_Compiler_LCNF_builtin___closed__16() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Compiler_LCNF_builtin___closed__15;
+x_2 = l_Lean_Compiler_LCNF_saveBase;
+x_3 = lean_array_push(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_builtin___closed__17() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Compiler_LCNF_builtin___closed__16;
 x_2 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_PassInstaller_append___elambda__1___boxed), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
@@ -211,7 +223,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtin() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Compiler_LCNF_builtin___closed__16;
+x_1 = l_Lean_Compiler_LCNF_builtin___closed__17;
 return x_1;
 }
 }
@@ -224,6 +236,7 @@ lean_object* initialize_Lean_Compiler_LCNF_PullFunDecls(uint8_t builtin, lean_ob
 lean_object* initialize_Lean_Compiler_LCNF_ReduceJpArity(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_JoinPoints(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_Specialize(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_LCNF_PhaseExt(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_Passes(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -254,6 +267,9 @@ res = initialize_Lean_Compiler_LCNF_JoinPoints(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_Specialize(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Compiler_LCNF_PhaseExt(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Compiler_LCNF_builtin___closed__1 = _init_l_Lean_Compiler_LCNF_builtin___closed__1();
@@ -288,6 +304,8 @@ l_Lean_Compiler_LCNF_builtin___closed__15 = _init_l_Lean_Compiler_LCNF_builtin__
 lean_mark_persistent(l_Lean_Compiler_LCNF_builtin___closed__15);
 l_Lean_Compiler_LCNF_builtin___closed__16 = _init_l_Lean_Compiler_LCNF_builtin___closed__16();
 lean_mark_persistent(l_Lean_Compiler_LCNF_builtin___closed__16);
+l_Lean_Compiler_LCNF_builtin___closed__17 = _init_l_Lean_Compiler_LCNF_builtin___closed__17();
+lean_mark_persistent(l_Lean_Compiler_LCNF_builtin___closed__17);
 l_Lean_Compiler_LCNF_builtin = _init_l_Lean_Compiler_LCNF_builtin();
 lean_mark_persistent(l_Lean_Compiler_LCNF_builtin);
 return lean_io_result_mk_ok(lean_box(0));

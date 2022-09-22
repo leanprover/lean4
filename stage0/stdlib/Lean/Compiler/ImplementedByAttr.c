@@ -66,6 +66,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Implemented
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_4____spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_4_(lean_object*);
+lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_4____spec__12(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfo___at_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_4____spec__1___closed__2;
 lean_object* lean_instantiate_type_lparams(lean_object*, lean_object*);
@@ -142,7 +143,6 @@ static lean_object* l_Lean_resolveGlobalConstNoOverload___at_Lean_Compiler_initF
 lean_object* l_Lean_Syntax_formatStxAux(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalConstCore___at_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_4____spec__8(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalName___at_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_4____spec__9(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_4____spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -473,7 +473,7 @@ x_10 = l_Lean_getConstInfo___at_Lean_Compiler_initFn____x40_Lean_Compiler_Implem
 x_11 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_11, 0, x_9);
 lean_ctor_set(x_11, 1, x_10);
-x_12 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_11, x_2, x_3, x_4);
+x_12 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__1(x_11, x_2, x_3, x_4);
 return x_12;
 }
 }
@@ -1560,7 +1560,7 @@ x_15 = l_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_4____
 x_16 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_16, 0, x_14);
 lean_ctor_set(x_16, 1, x_15);
-x_17 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_16, x_5, x_6, x_7);
+x_17 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__1(x_16, x_5, x_6, x_7);
 x_18 = !lean_is_exclusive(x_17);
 if (x_18 == 0)
 {
@@ -1701,7 +1701,7 @@ x_32 = l_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_4____
 x_33 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_33, 0, x_31);
 lean_ctor_set(x_33, 1, x_32);
-x_34 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_33, x_6, x_7, x_8);
+x_34 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__1(x_33, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 x_35 = !lean_is_exclusive(x_34);
@@ -1883,7 +1883,7 @@ x_46 = l_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_4____
 x_47 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_47, 0, x_45);
 lean_ctor_set(x_47, 1, x_46);
-x_48 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_47, x_3, x_4, x_18);
+x_48 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__1(x_47, x_3, x_4, x_18);
 lean_dec(x_4);
 lean_dec(x_3);
 x_49 = !lean_is_exclusive(x_48);

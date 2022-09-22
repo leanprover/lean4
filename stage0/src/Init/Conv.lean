@@ -78,17 +78,19 @@ syntax (name := ext) "ext " (colGt ident)* : conv
 assuming `t` and `t'` are definitionally equal. -/
 syntax (name := change) "change " term : conv
 
-/-- `delta foo` unfolds all occurrences of `foo` in the target.
+/-- `delta id1 id2 ...` unfolds all occurrences of `id1`, `id2`, ... in the target.
 Like the `delta` tactic, this ignores any definitional equations and uses
 primitive delta-reduction instead, which may result in leaking implementation details.
 Users should prefer `unfold` for unfolding definitions. -/
-syntax (name := delta) "delta " ident,+ : conv
+syntax (name := delta) "delta " (colGt ident)+ : conv
 
-/-- `unfold foo` unfolds all occurrences of `foo` in the target.
+/--
+* `unfold foo` unfolds all occurrences of `foo` in the target.
+* `unfold id1 id2 ...` is equivalent to `unfold id1; unfold id2; ...`.
 Like the `unfold` tactic, this uses equational lemmas for the chosen definition
 to rewrite the target. For recursive definitions,
 only one layer of unfolding is performed. -/
-syntax (name := unfold) "unfold " ident,+ : conv
+syntax (name := unfold) "unfold " (colGt ident)+ : conv
 
 /-- `pattern pat` traverses to the first subterm of the target that matches `pat`. -/
 syntax (name := pattern) "pattern " term : conv

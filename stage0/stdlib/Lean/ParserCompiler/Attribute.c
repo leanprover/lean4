@@ -21,6 +21,7 @@ LEAN_EXPORT lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute_
 lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg___closed__3;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+lean_object* l_Lean_setEnv___at_Lean_registerParametricAttribute___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -78,7 +79,6 @@ lean_object* l_Std_RBNode_find___at___private_Lean_Hygiene_0__Lean_sanitizeSynta
 static lean_object* l_Lean_ParserCompiler_registerCombinatorAttribute___closed__7;
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_setEnv___at_Lean_registerTagAttribute___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___closed__3;
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
@@ -597,7 +597,7 @@ x_17 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_17, 0, x_13);
 lean_ctor_set(x_17, 1, x_2);
 x_18 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_1, x_11, x_17);
-x_19 = l_Lean_setEnv___at_Lean_registerTagAttribute___spec__1(x_18, x_5, x_6, x_16);
+x_19 = l_Lean_setEnv___at_Lean_registerParametricAttribute___spec__3(x_18, x_5, x_6, x_16);
 lean_dec(x_6);
 lean_dec(x_5);
 return x_19;

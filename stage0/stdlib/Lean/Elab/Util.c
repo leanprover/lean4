@@ -2083,6 +2083,8 @@ x_80 = lean_array_push(x_79, x_78);
 x_81 = l_Lean_Elab_mkElabAttribute___rarg___lambda__3___closed__5;
 x_82 = l_Lean_mkAppN(x_81, x_80);
 x_83 = l_Lean_declareBuiltin(x_17, x_82, x_3, x_4, x_14);
+lean_dec(x_4);
+lean_dec(x_3);
 return x_83;
 }
 }
@@ -2198,8 +2200,6 @@ x_27 = lean_array_push(x_26, x_24);
 x_28 = lean_array_push(x_27, x_25);
 x_29 = l_Lean_Elab_mkElabAttribute___rarg___lambda__4___closed__5;
 x_30 = l_Lean_mkAppN(x_29, x_28);
-lean_inc(x_4);
-lean_inc(x_3);
 x_31 = l_Lean_declareBuiltin(x_23, x_30, x_3, x_4, x_20);
 if (lean_obj_tag(x_31) == 0)
 {

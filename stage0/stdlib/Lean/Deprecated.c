@@ -71,6 +71,7 @@ LEAN_EXPORT lean_object* l_Lean_getConstInfo___at_Lean_initFn____x40_Lean_Deprec
 static lean_object* l_Lean_Elab_pushInfoLeaf___at_Lean_initFn____x40_Lean_Deprecated___hyg_4____spec__16___closed__2;
 static lean_object* l_Lean_throwUnknownConstant___at_Lean_initFn____x40_Lean_Deprecated___hyg_4____spec__9___closed__3;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Deprecated___hyg_4____closed__3;
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_initFn____x40_Lean_Deprecated___hyg_4____spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_format_pretty(lean_object*, lean_object*);
@@ -133,7 +134,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_resolveGlobalConstNoOverloadWithInfo___at_L
 lean_object* l_Lean_Syntax_formatStxAux(lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Deprecated___hyg_4____lambda__2___closed__2;
 LEAN_EXPORT uint8_t l_Lean_isDeprecated(lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_initFn____x40_Lean_Deprecated___hyg_4____spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -372,7 +372,7 @@ x_10 = l_Lean_throwUnknownConstant___at_Lean_initFn____x40_Lean_Deprecated___hyg
 x_11 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_11, 0, x_9);
 lean_ctor_set(x_11, 1, x_10);
-x_12 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__2(x_11, x_2, x_3, x_4);
+x_12 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__1(x_11, x_2, x_3, x_4);
 return x_12;
 }
 }

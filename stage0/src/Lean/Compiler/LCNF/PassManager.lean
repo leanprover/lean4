@@ -73,9 +73,9 @@ structure PassManager where
 namespace Phase
 
 def toNat : Phase → Nat
-| .base => 0
-| .mono => 1
-| .impure => 2
+  | .base => 0
+  | .mono => 1
+  | .impure => 2
 
 instance : LT Phase where
   lt l r := l.toNat < r.toNat

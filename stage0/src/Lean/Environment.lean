@@ -19,6 +19,8 @@ def EnvExtensionState : Type := EnvExtensionStateSpec.fst
 instance : Inhabited EnvExtensionState := EnvExtensionStateSpec.snd
 
 def ModuleIdx := Nat
+  deriving BEq, ToString
+
 abbrev ModuleIdx.toNat (midx : ModuleIdx) : Nat := midx
 
 instance : Inhabited ModuleIdx := inferInstanceAs (Inhabited Nat)

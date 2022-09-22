@@ -2132,8 +2132,6 @@ _start:
 lean_object* x_11; 
 lean_inc(x_9);
 lean_inc(x_8);
-lean_inc(x_7);
-lean_inc(x_6);
 x_11 = l_Lean_Elab_addAsAxiom(x_1, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_11) == 0)
 {

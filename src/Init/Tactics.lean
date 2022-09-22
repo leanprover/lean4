@@ -579,10 +579,13 @@ syntax (name := induction) "induction " term,+ (" using " ident)?
 syntax generalizeArg := atomic(ident " : ")? term:51 " = " ident
 
 /--
-`generalize ([h :] e = x),+` replaces all occurrences `e`s in the main goal
-with a fresh hypothesis `x`s. If `h` is given, `h : e = x` is introduced as well.
+* `generalize ([h :] e = x),+` replaces all occurrences `e`s in the main goal
+  with a fresh hypothesis `x`s. If `h` is given, `h : e = x` is introduced as well.
+* `generalize e = x at h₁ ... hₙ` also generalizes occurrences of `e`
+  inside `h₁`, ..., `hₙ`.
+* `generalize e = x at *` will generalize occurrences of `e` everywhere.
 -/
-syntax (name := generalize) "generalize " generalizeArg,+ : tactic
+syntax (name := generalize) "generalize " generalizeArg,+ (location)? : tactic
 
 /--
 A `cases` argument, of the form `e` or `h : e` (where `h` asserts that

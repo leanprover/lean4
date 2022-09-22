@@ -21,29 +21,7 @@ inductive HighlightColor where
   | red
   | yellow
   | purple
-
-def HighlightColor.toString : HighlightColor → String
-  | .green  => "green"
-  | .blue   => "blue"
-  | .red    => "red"
-  | .yellow => "yellow"
-  | .purple => "purple"
-
-def HighlightColor.fromString : String → Except String HighlightColor
-  | "green"  => Except.ok HighlightColor.green
-  | "blue"   => Except.ok HighlightColor.blue
-  | "red"    => Except.ok HighlightColor.red
-  | "yellow" => Except.ok HighlightColor.yellow
-  | "purple" => Except.ok HighlightColor.purple
-  | s        => Except.error s!"expected an HighlightColor ctor string but got {s}"
-
-instance : ToString HighlightColor := ⟨HighlightColor.toString⟩
-
-instance : FromJson HighlightColor where
-  fromJson? j := j.getStr? >>= HighlightColor.fromString
-
-instance : ToJson HighlightColor where
-  toJson x := x.toString |> Json.str
+  deriving ToJson, FromJson
 
 /-- Information about a subexpression within delaborated code. -/
 structure SubexprInfo where

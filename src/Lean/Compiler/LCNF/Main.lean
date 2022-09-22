@@ -11,6 +11,7 @@ import Lean.Compiler.LCNF.ToDecl
 import Lean.Compiler.LCNF.Check
 import Lean.Compiler.LCNF.Stage1
 import Lean.Compiler.LCNF.PullLetDecls
+import Lean.Compiler.LCNF.PhaseExt
 import Lean.Compiler.LCNF.CSE
 
 namespace Lean.Compiler.LCNF
@@ -67,7 +68,7 @@ def run (declNames : Array Name) : CompilerM (Array Decl) := withAtLeastMaxRecDe
   if declNames.isEmpty then return #[]
   let mut decls ← declNames.mapM toDecl
   let mut manager := { passes := #[{ name := `init, run := pure, phase := .base }] }
-  let installers := PassInstaller.passInstallerExt.getState (←getEnv)
+  let installers := PassInstaller.passInstallerExt.getState (← getEnv)
   manager ← installers.foldlM (init := manager) PassInstaller.runFromDecl
   for pass in manager.passes do
     trace[Compiler] s!"Running pass: {pass.name}"
@@ -85,6 +86,10 @@ end PassManager
 def compileStage1Impl (declNames : Array Name) : CoreM (Array Decl) :=
   CompilerM.run do
     PassManager.run declNames
+
+def showDecl (phase : Phase) (declName : Name) : CoreM Format := do
+  let some decl ← getDecl? phase declName | return "<not-available>"
+  ppDecl' decl
 
 builtin_initialize
   registerTraceClass `Compiler.init (inherited := true)

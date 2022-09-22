@@ -7,6 +7,8 @@ import Lean.CoreM
 import Lean.MonadEnv
 import Lean.Compiler.LCNF.Basic
 
+-- TODO: delete this file
+
 namespace Lean.Compiler.LCNF
 
 structure Stage1ExtState where

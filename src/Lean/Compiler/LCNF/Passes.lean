@@ -11,6 +11,7 @@ import Lean.Compiler.LCNF.PullFunDecls
 import Lean.Compiler.LCNF.ReduceJpArity
 import Lean.Compiler.LCNF.JoinPoints
 import Lean.Compiler.LCNF.Specialize
+import Lean.Compiler.LCNF.PhaseExt
 
 namespace Lean.Compiler.LCNF
 
@@ -24,7 +25,8 @@ namespace Lean.Compiler.LCNF
     reduceJpArity,
     simp { etaPoly := true, inlinePartial := true, implementedBy := true } (occurrence := 1),
     specialize,
-    simp (occurrence := 2)
+    simp (occurrence := 2),
+    saveBase -- End of base phase
   ]
 
 end Lean.Compiler.LCNF

@@ -35,11 +35,12 @@ where
     | .const ..        => return type.isErased
     | .sort ..         => return false
     | .mdata _ e       => go e predVars
-    | .forallE _ t b _ => go b (predVars.push <| isPredicateType t)
+    | .forallE _ t b _
+    | .lam _ t b _     => go b (predVars.push <| isPredicateType t)
     | .app f _         => go f predVars
     | .bvar idx        => return predVars[predVars.size - idx - 1]!
     | .fvar fvarId     => return isPredicateType (← getType fvarId)
-    | .proj .. | .mvar .. | .lam .. | .letE .. | .lit .. => unreachable!
+    | .proj .. | .mvar .. | .letE .. | .lit .. => unreachable!
 
 /--
 Return true if the LCNF types `a` and `b` are compatible.

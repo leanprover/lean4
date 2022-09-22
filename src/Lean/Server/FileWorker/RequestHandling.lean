@@ -22,11 +22,18 @@ open Lsp
 open RequestM
 open Snapshots
 
+def isLoneUnderscore (s: String) (pos: String.Pos) :=
+  let e := s.extract (s.prev (s.prev pos)) (s.next pos)
+  e.trim == "_"
+
 def handleCompletion (p : CompletionParams)
     : RequestM (RequestTask CompletionList) := do
   let doc ← readDoc
   let text := doc.meta.text
   let pos := text.lspPosToUtf8Pos p.position
+  if (isLoneUnderscore text.source pos) then
+    return Task.pure (Except.ok { items := #[ ], isIncomplete := true })
+
   let caps := (← read).initParams.capabilities
   -- dbg_trace ">> handleCompletion invoked {pos}"
   -- NOTE: use `+ 1` since we sometimes want to consider invalid input technically after the command,

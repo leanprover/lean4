@@ -143,6 +143,9 @@ def remarkAsConvGoal : TacticM Unit := do
       mvarId.replaceTargetDefEq target.mdataExpr!
   focus do evalTactic seq; remarkAsConvGoal
 
+@[builtinTactic Lean.Parser.Tactic.Conv.convTactic] def evalConvTactic : Tactic := fun stx =>
+  evalTactic stx[2]
+
 private def convTarget (conv : Syntax) : TacticM Unit := withMainContext do
    let target ← getMainTarget
    let (targetNew, proof) ← convert target (withTacticInfoContext (← getRef) (evalTactic conv))

@@ -378,11 +378,11 @@ where
 
   visit (e : Expr) : M Expr := withIncRecDepth do
     if isLCProof e then
-      return mkConst ``lcErased
+      return erasedExpr
     let type ← liftMetaM <| Meta.inferType e
     if (← liftMetaM <| Meta.isProp type) then
       /- We erase proofs. -/
-      return mkConst ``lcErased
+      return erasedExpr
     if (← isTypeFormerType type) then
       /-
       We erase type formers unless they occur as application arguments.
@@ -391,25 +391,29 @@ where
 
       See `visitAppArg`
       -/
-      return mkConst ``lcErased
+      return erasedExpr
     visitCore e
 
   visitAppArg (e : Expr) : M Expr := do
     if isLCProof e then
-      return mkConst ``lcErased
+      return erasedExpr
     let type ← liftMetaM <| Meta.inferType e
     if (← liftMetaM <| Meta.isProp type) then
       /- We erase proofs. -/
-      return mkConst ``lcErased
+      return erasedExpr
     if (← isTypeFormerType type) then
-      /- Types and Type formers are not put into A-normal form -/
-      toLCNFType e
+      /- Predicates are erased (e.g., `Eq`) -/
+      if isPredicateType (← toLCNFType type) then
+        return erasedExpr
+      else
+        /- Types and Type formers are not put into A-normal form -/
+        toLCNFType e
     else
       visitCore e
 
   /-- Visit args, and return `f args` -/
   visitAppDefault (f : Expr) (args : Array Expr) : M Expr := do
-    if f.isConstOf ``lcErased then
+    if f.isErased then
       return f
     else
       let args ← args.mapM visitAppArg
@@ -466,7 +470,7 @@ where
       let .inductInfo indVal ← getConstInfo typeName | unreachable!
       for i in casesInfo.altsRange, numParams in casesInfo.altNumParams, ctorName in indVal.ctors do
         let (altType, alt) ← visitAlt ctorName numParams args[i]!
-        unless compatibleTypes altType resultType do
+        unless (← compatibleTypes altType resultType) do
           resultType := anyTypeExpr
         alts := alts.push alt
       let cases : Cases := { typeName, discr := discr.fvarId!, resultType, alts }
@@ -504,7 +508,7 @@ where
       let minor := if e.isAppOf ``Eq.rec || e.isAppOf ``Eq.ndrec then args[3]! else args[5]!
       let minor ← visit minor
       let minorType ← inferType minor
-      let cast ← if compatibleTypes minorType recType then
+      let cast ← if (← compatibleTypes minorType recType) then
         -- Recall that many types become compatible after LCNF conversion
         -- Example: `Fin 10` and `Fin n`
         pure minor

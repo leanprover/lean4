@@ -51,11 +51,11 @@ def checkAppArgs (f : Expr) (args : Array Expr) : CheckM Unit := do
           throwError "function expected at{indentExpr (mkAppN f args)}\narrow type expected{indentExpr fType}"
     let argType ← inferType arg
     let expectedType := d.instantiateRevRange j i args
-    unless compatibleTypes argType expectedType do
+    unless (← compatibleTypes argType expectedType) do
       throwError "type mismatch at LCNF application{indentExpr (mkAppN f args)}\nargument {arg} has type{indentExpr argType}\nbut is expected to have type{indentExpr expectedType}"
-    unless maybeTypeFormerType expectedType || expectedType.isErased do
+    unless (← pure (maybeTypeFormerType expectedType) <||> isErasedCompatible expectedType) do
       unless arg.isFVar do
-        throwError "invalid LCNF application{indentExpr (mkAppN f args)}\nargument{indentExpr arg}\nmust be a free variable"
+        throwError "invalid LCNF application{indentExpr (mkAppN f args)}\nargument{indentExpr arg}\nhas type{indentExpr expectedType}\nmust be a free variable"
       checkFVar arg.fvarId!
     fType := b
 
@@ -100,7 +100,7 @@ def checkParams (params : Array Param) : CheckM Unit :=
 def checkLetDecl (letDecl : LetDecl) : CheckM Unit := do
   checkExpr letDecl.value
   let valueType ← inferType letDecl.value
-  unless compatibleTypes letDecl.type valueType do
+  unless (← compatibleTypes letDecl.type valueType) do
     throwError "type mismatch at `{letDecl.binderName}`, value has type{indentExpr valueType}\nbut is expected to have type{indentExpr letDecl.type}"
   unless letDecl == (← getLetDecl letDecl.fvarId) do
     throwError "LCNF let declaration mismatch at `{letDecl.binderName}`, does not match value in local context"
@@ -129,7 +129,7 @@ partial def checkFunDeclCore (declName : Name) (type : Expr) (params : Array Par
   checkParams params
   let valueType ← withParams params do
     mkForallParams params (← check value)
-  unless compatibleTypes type valueType do
+  unless (← compatibleTypes type valueType) do
     throwError "type mismatch at `{declName}`, value has type{indentExpr valueType}\nbut is expected to have type{indentExpr type}"
 
 partial def checkFunDecl (funDecl : FunDecl) : CheckM Unit := do
@@ -167,7 +167,7 @@ partial def checkCases (c : Cases) : CheckM Expr := do
           throwError "invalid LCNF `cases`, `{ctorName}` has # {val.numFields} fields, but alternative has # {params.size} alternatives"
         -- TODO: check whether the ctor field types as parameter types match.
         withParams params do check k
-    unless compatibleTypes type c.resultType do
+    unless (← compatibleTypes type c.resultType) do
       throwError "type mismatch at LCNF `cases` alternative\nhas type{indentExpr type}\nbut is expected to have type{indentExpr c.resultType}"
   return c.resultType
 

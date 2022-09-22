@@ -7,6 +7,95 @@ import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.Types
 
 namespace Lean.Compiler.LCNF
+/--
+Return `true` if `type` is compatible with `lcErased`.
+After instantiating universe polymorphic code, we may have
+some types may propositions which are compatible with `lcErased`.
+
+For example, suppose we have
+```
+def f (α : Sort u) (x : α → α → Sort v) (a b : α) (h : x a b) ...
+```
+The LCNF type for this universe polymorphic declaration is
+```
+def f (α : Sort u) (x : α → α → Sort v) (a b : α) (h : x ◾ ◾) ...
+```
+Now, if we instantiate with `v` with `0`, we have that `x ◾ ◾` is also a proposition
+and should be equivalent to `◾`.
+
+Remark: `predVars` is a bitmask that indicates whether de-bruijn variables are predicates or not.
+That is, `#i` is a predicate if `predVars[predVars.size - i - 1] = true`
+-/
+partial def isErasedCompatible (type : Expr) (predVars : Array Bool := #[]): CompilerM Bool :=
+  go type predVars
+where
+  go (type : Expr) (predVars : Array Bool) : CompilerM Bool := do
+    let type := type.headBeta
+    match type with
+    | .const ..        => return type.isErased
+    | .sort ..         => return false
+    | .mdata _ e       => go e predVars
+    | .forallE _ t b _ => go b (predVars.push <| isPredicateType t)
+    | .app f _         => go f predVars
+    | .bvar idx        => return predVars[predVars.size - idx - 1]!
+    | .fvar fvarId     => return isPredicateType (← getType fvarId)
+    | .proj .. | .mvar .. | .lam .. | .letE .. | .lit .. => unreachable!
+
+/--
+Return true if the LCNF types `a` and `b` are compatible.
+
+Remark: `a` and `b` can be type formers (e.g., `List`, or `fun (α : Type) => Nat → Nat × α`)
+
+Remark: LCNFs types are eagerly eta reduced.
+
+Remark: see comment at `isErasedCompatible`.
+
+The below checks do not appear exhaustive, but are
+in fact exhaustive due to LCNF constraints:
+  - bvar: handled by ==.
+  - fvar: handled by ==.
+  - mvar: should be resolved by the time we get to LCNF.
+  - sort: matched.
+  - const: matched.
+  - app: handled by β reduction + match.
+  - lam: matched.
+  - forallE: matched.
+  - letE: LCNF does not contain let at the type level.
+  - lit: We don't have data in LCNF, so we don't need to handle it.
+         Erased is handled by `const`.
+  - mdata: matched.
+  - proj: Becomes Any/Erased depending on what it should become.
+          type inside structure becomes Any, value inside structure becomes Erased.
+-/
+partial def compatibleTypes (a b : Expr) : CompilerM Bool := do
+  go a b #[]
+where
+  go (a b : Expr) (predVars : Array Bool) : CompilerM Bool := do
+    if a.isAnyType || b.isAnyType then
+      return true
+    else if a.isErased then
+      isErasedCompatible b
+    else if b.isErased then
+      isErasedCompatible a
+    else
+      let a' := a.headBeta
+      let b' := b.headBeta
+      if a != a' || b != b' then
+        go a' b' predVars
+      else if a == b then
+        return true
+      else
+        match a, b with
+        | .mdata _ a, b => go a b predVars
+        | a, .mdata _ b => go a b predVars
+        -- Note that even after reducing to headβ, we can still have `.app` terms. For example,
+        -- an inductive constructor application such as `List Int`
+        | .app f a, .app g b => go f g predVars <&&> go a b predVars
+        | .forallE _ d₁ b₁ _, .forallE _ d₂ b₂ _ => go d₁ d₂ predVars <&&> go b₁ b₂ (predVars.push (isPredicateType d₁))
+        | .lam _ d₁ b₁ _, .lam _ d₂ b₂ _ => go d₁ d₂ predVars <&&> go b₁ b₂ (predVars.push (isPredicateType d₂))
+        | .sort u, .sort v => return Level.isEquiv u v
+        | .const n us, .const m vs => return n == m && List.isEqv us vs Level.isEquiv
+        | _, _ => return false
 
 namespace InferType
 

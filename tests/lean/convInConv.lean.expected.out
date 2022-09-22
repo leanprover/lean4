@@ -11,6 +11,7 @@ y : Nat
 | (fun x => x + y = 0) = fun x => False
 y : Nat
 | fun x => x + y = 0
+case h
 y x : Nat
 | y + x = 0
 y : Nat

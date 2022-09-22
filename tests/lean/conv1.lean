@@ -1,3 +1,4 @@
+import Lean
 set_option pp.analyze false
 
 def p (x y : Nat) := x = y
@@ -9,11 +10,55 @@ example (x y : Nat) : p (x + y) (y + x + 0) := by
     tactic' => trace_state
     trace_state
     congr
-    . rfl
-    . whnf; rfl
+    next => rfl
+    any_goals whnf; rfl
+  conv' =>
+    trace_state
+    apply id ?x
+  conv =>
+    fail_if_success case x => whnf
   trace_state
   rw [Nat.add_comm]
   rfl
+
+def foo (x y : Nat) : Nat := x + y
+
+example : foo (0 + a) (b + 0) = a + b := by
+  conv =>
+    apply id
+    lhs
+    trace_state
+    congr
+    trace_state
+    case x =>
+      simp
+      trace_state
+    fail_if_success case x => skip
+    case' y => skip
+    case y => skip
+    done
+
+example : foo (0 + a) (b + 0) = a + b := by
+  conv =>
+    lhs
+    conv =>
+      congr
+      trace_state
+      focus
+        trace_state
+      tactic => simp
+      trace_state
+      all_goals dsimp (config := {}) []
+    simp [foo]
+    trace_state
+
+example : foo (0 + a) (b + 0) = a + b := by
+  conv =>
+    lhs
+    congr <;> simp
+    fail_if_success lhs
+    try lhs
+    trace_state
 
 example (x y : Nat) : p (x + y) (y + x + 0) := by
   conv =>

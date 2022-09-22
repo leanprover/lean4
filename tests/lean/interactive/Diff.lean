@@ -30,3 +30,6 @@ theorem adsf : (True ∧ True) := by
   trivial
 --^ goals
 
+theorem comm (x y z : Nat) (h : y = x) : (x + z) = (z + y) := by
+  rw [Nat.add_comm, h]
+    --^ goals

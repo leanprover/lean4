@@ -219,3 +219,49 @@
                isRemoved? := some true,
                hyps := #[] }] }
 
+{ goals := #[{ type := Lean.Widget.TaggedText.tag
+                         { subexprPos := "/", highlightColor? := none }
+                         (Lean.Widget.TaggedText.append
+                           #[Lean.Widget.TaggedText.tag
+                               { subexprPos := "/0/1", highlightColor? := none }
+                               (Lean.Widget.TaggedText.append
+                                 #[Lean.Widget.TaggedText.tag
+                                     { subexprPos := "/0/1/0/1", highlightColor? := some "yellow" }
+                                     (Lean.Widget.TaggedText.text "x"),
+                                   Lean.Widget.TaggedText.text " + ",
+                                   Lean.Widget.TaggedText.tag
+                                     { subexprPos := "/0/1/1", highlightColor? := some "yellow" }
+                                     (Lean.Widget.TaggedText.text "z")]),
+                             Lean.Widget.TaggedText.text " = ",
+                             Lean.Widget.TaggedText.tag
+                               { subexprPos := "/1", highlightColor? := none }
+                               (Lean.Widget.TaggedText.append
+                                 #[Lean.Widget.TaggedText.tag
+                                     { subexprPos := "/1/0/1", highlightColor? := none }
+                                     (Lean.Widget.TaggedText.text "z"),
+                                   Lean.Widget.TaggedText.text " + ",
+                                   Lean.Widget.TaggedText.tag
+                                     { subexprPos := "/1/1", highlightColor? := none }
+                                     (Lean.Widget.TaggedText.text "y")])]),
+               isInserted? := some false,
+               isRemoved? := none,
+               hyps := #[{ type := Lean.Widget.TaggedText.tag
+                                     { subexprPos := "/", highlightColor? := none }
+                                     (Lean.Widget.TaggedText.text "Nat"),
+                           names := #["x", "y", "z"],
+                           isInserted? := none,
+                           isRemoved? := none },
+                         { type := Lean.Widget.TaggedText.tag
+                                     { subexprPos := "/", highlightColor? := none }
+                                     (Lean.Widget.TaggedText.append
+                                       #[Lean.Widget.TaggedText.tag
+                                           { subexprPos := "/0/1", highlightColor? := none }
+                                           (Lean.Widget.TaggedText.text "y"),
+                                         Lean.Widget.TaggedText.text " = ",
+                                         Lean.Widget.TaggedText.tag
+                                           { subexprPos := "/1", highlightColor? := none }
+                                           (Lean.Widget.TaggedText.text "x")]),
+                           names := #["h"],
+                           isInserted? := none,
+                           isRemoved? := none }] }] }
+

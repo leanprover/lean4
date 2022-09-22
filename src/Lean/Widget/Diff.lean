@@ -82,16 +82,6 @@ def ExprDiff.withChange (before after : SubExpr) (d : ExprDiffTag := .change) : 
 def ExprDiff.isEmpty (d : ExprDiff) : Bool :=
   d.changesAfter.isEmpty ∧ d.changesBefore.isEmpty
 
-/-- Determines whether the given expressions have the same function head and
-the same number of arguments. -/
-def sameHead (e₀ e₁ : Expr) : MetaM Bool := do
-  if e₀ == e₁ then return true
-  let f₀ := e₀.getAppFn
-  let f₁ := e₁.getAppFn
-  if f₀ != f₁ then
-    return false
-  return e₀.getAppNumArgs == e₁.getAppNumArgs
-
 /-- Computes a diff between `before` and `after` expressions.
 
 This works by recursively comparing function arguments.

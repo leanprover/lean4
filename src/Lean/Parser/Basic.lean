@@ -1358,9 +1358,9 @@ def keepNewError (s : ParserState) (oldStackSize : Nat) : ParserState :=
   match s with
   | ⟨stack, lhsPrec, pos, cache, err⟩ => ⟨keepTop stack oldStackSize, lhsPrec, pos, cache, err⟩
 
-def keepPrevError (s : ParserState) (oldStackSize : Nat) (oldStopPos : String.Pos) (oldError : Option Error) : ParserState :=
+def keepPrevError (s : ParserState) (oldStackSize : Nat) (oldStopPos : String.Pos) (oldError : Option Error) (oldLhsPrec : Nat) : ParserState :=
   match s with
-  | ⟨stack, lhsPrec, _, cache, _⟩ => ⟨stack.shrink oldStackSize, lhsPrec, oldStopPos, cache, oldError⟩
+  | ⟨stack, _, _, cache, _⟩ => ⟨stack.shrink oldStackSize, oldLhsPrec, oldStopPos, cache, oldError⟩
 
 def mergeErrors (s : ParserState) (oldStackSize : Nat) (oldError : Error) : ParserState :=
   match s with
@@ -1415,28 +1415,24 @@ def runLongestMatchParser (left? : Option Syntax) (startLhsPrec : Nat) (p : Pars
 
 def longestMatchStep (left? : Option Syntax) (startSize startLhsPrec : Nat) (startPos : String.Pos) (prevPrio : Nat) (prio : Nat) (p : ParserFn)
     : ParserContext → ParserState → ParserState × Nat := fun c s =>
+  let score (s : ParserState) (prio : Nat) :=
+    (s.pos.byteIdx, if s.errorMsg.isSome then (0 : Nat) else 1, prio)
+  let previousScore := score s prevPrio
   let prevErrorMsg  := s.errorMsg
   let prevStopPos   := s.pos
   let prevSize      := s.stackSize
   let prevLhsPrec   := s.lhsPrec
   let s             := s.restore prevSize startPos
   let s             := runLongestMatchParser left? startLhsPrec p c s
-  match prevErrorMsg, s.errorMsg with
-  | none, none   => -- both succeeded
-    if s.pos > prevStopPos || (s.pos == prevStopPos && prio > prevPrio)      then (s.replaceLongest startSize, prio)
-    else if s.pos < prevStopPos || (s.pos == prevStopPos && prio < prevPrio) then ({ s.restore prevSize prevStopPos with lhsPrec := prevLhsPrec }, prevPrio) -- keep prev
-    -- it is not clear what the precedence of a choice node should be, so we conservatively take the minimum
-    else ({s with lhsPrec := s.lhsPrec.min prevLhsPrec }, prio)
-  | none, some _ => -- prev succeeded, current failed
-    ({ s.restore prevSize prevStopPos with lhsPrec := prevLhsPrec }, prevPrio)
-  | some oldError, some _ => -- both failed
-    if s.pos > prevStopPos || (s.pos == prevStopPos && prio > prevPrio)      then (s.keepNewError startSize, prio)
-    else if s.pos < prevStopPos || (s.pos == prevStopPos && prio < prevPrio) then (s.keepPrevError prevSize prevStopPos prevErrorMsg, prevPrio)
-    else (s.mergeErrors prevSize oldError, prio)
-  | some _, none => -- prev failed, current succeeded
-    let successNode := s.stxStack.back
-    let s           := s.shrinkStack startSize -- restore stack to initial size to make sure (failure) nodes are removed from the stack
-    (s.pushSyntax successNode, prio) -- put successNode back on the stack
+  match compare previousScore (score s prio) with
+  | .lt => (s.keepNewError startSize, prio)
+  | .gt => (s.keepPrevError prevSize prevStopPos prevErrorMsg prevLhsPrec, prevPrio)
+  | .eq =>
+    match prevErrorMsg with
+    | none =>
+      -- it is not clear what the precedence of a choice node should be, so we conservatively take the minimum
+      ({s with lhsPrec := s.lhsPrec.min prevLhsPrec }, prio)
+    | some oldError => (s.mergeErrors prevSize oldError, prio)
 
 def longestMatchMkResult (startSize : Nat) (s : ParserState) : ParserState :=
   if s.stackSize > startSize + 1 then s.mkNode choiceKind startSize else s

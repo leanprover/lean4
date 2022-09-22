@@ -74,9 +74,9 @@ where
     if a.isAnyType || b.isAnyType then
       return true
     else if a.isErased then
-      isErasedCompatible b
+      isErasedCompatible b predVars
     else if b.isErased then
-      isErasedCompatible a
+      isErasedCompatible a predVars
     else
       let a' := a.headBeta
       let b' := b.headBeta

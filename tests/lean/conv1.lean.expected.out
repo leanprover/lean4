@@ -1,4 +1,10 @@
 x y : Nat
+| p (x + y) (y + x + 0)
+x y : Nat
+| x + y = y + x + 0
+x y : Nat
+| x + y = y + x + 0
+x y : Nat
 ⊢ x + y = Nat.add y x
 x y : Nat
 ⊢ x + y = Nat.add y x
@@ -77,11 +83,11 @@ x y : Nat
 h1 : y = 0
 h2 : p x
 | y
-conv1.lean:166:10-166:13: error: invalid 'lhs' conv tactic, application has only 1 (nondependent) argument(s)
-conv1.lean:169:10-169:15: error: invalid 'arg' conv tactic, application has only 1 (nondependent) argument(s)
-conv1.lean:172:10-172:13: error: invalid 'congr' conv tactic, application or implication expected
+conv1.lean:169:10-169:13: error: invalid 'lhs' conv tactic, application has only 1 (nondependent) argument(s)
+conv1.lean:172:10-172:15: error: invalid 'arg' conv tactic, application has only 1 (nondependent) argument(s)
+conv1.lean:175:10-175:13: error: invalid 'congr' conv tactic, application or implication expected
   p
-conv1.lean:175:10-175:15: error: cannot select argument
+conv1.lean:178:10-178:15: error: cannot select argument
 a✝ : Nat := 0
 b✝ : Nat := a✝
 | 0 = 0

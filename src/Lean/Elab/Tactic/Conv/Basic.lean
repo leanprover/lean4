@@ -12,12 +12,23 @@ import Lean.Elab.Tactic.BuiltinTactic
 namespace Lean.Elab.Tactic.Conv
 open Meta
 
+/--
+Annotate `e` with the LHS annotation. The delaborator displays
+expressions of the form `lhs = rhs` as `lhs` when they have this annotation.
+This is used to implement the infoview for the `conv` mode.
+-/
+def mkLHSGoal (e : Expr) : MetaM Expr :=
+  if let some _ := Expr.eq? e then
+    return mkLHSGoalRaw e
+  else
+    return mkLHSGoalRaw (← whnf e)
+
 /-- Given `lhs`, returns a pair of metavariables `(?rhs, ?newGoal)`
 where `?newGoal : lhs = ?rhs`.-/
 def mkConvGoalFor (lhs : Expr) : MetaM (Expr × Expr) := do
   let lhsType ← inferType lhs
   let rhs ← mkFreshExprMVar lhsType
-  let targetNew := mkLHSGoal (← mkEq lhs rhs)
+  let targetNew := mkLHSGoalRaw (← mkEq lhs rhs)
   let newGoal ← mkFreshExprSyntheticOpaqueMVar targetNew
   return (rhs, newGoal)
 
@@ -25,7 +36,7 @@ def markAsConvGoal (mvarId : MVarId) : MetaM MVarId := do
   let target ← mvarId.getType
   if isLHSGoal? target |>.isSome then
     return mvarId -- it is already tagged as LHS goal
-  mvarId.replaceTargetDefEq (mkLHSGoal (← mvarId.getType))
+  mvarId.replaceTargetDefEq (← mkLHSGoal (← mvarId.getType))
 
 /-- Given `lhs`, runs the `conv` tactic with the goal `⊢ lhs = ?rhs`.
 `conv` should produce no remaining goals that are not solvable with refl.
@@ -63,7 +74,7 @@ def getRhs : TacticM Expr :=
 /-- `⊢ lhs = rhs` ~~> `⊢ lhs' = rhs` using `h : lhs = lhs'`. -/
 def updateLhs (lhs' : Expr) (h : Expr) : TacticM Unit := do
   let rhs ← getRhs
-  let newGoal ← mkFreshExprSyntheticOpaqueMVar (mkLHSGoal (← mkEq lhs' rhs))
+  let newGoal ← mkFreshExprSyntheticOpaqueMVar (mkLHSGoalRaw (← mkEq lhs' rhs))
   (← getMainGoal).assign (← mkEqTrans h newGoal)
   replaceMainGoal [newGoal.mvarId!]
 
@@ -71,7 +82,7 @@ def updateLhs (lhs' : Expr) (h : Expr) : TacticM Unit := do
 def changeLhs (lhs' : Expr) : TacticM Unit := do
   let rhs ← getRhs
   liftMetaTactic1 fun mvarId => do
-    mvarId.replaceTargetDefEq (mkLHSGoal (← mkEq lhs' rhs))
+    mvarId.replaceTargetDefEq (mkLHSGoalRaw (← mkEq lhs' rhs))
 
 @[builtinTactic Lean.Parser.Tactic.Conv.whnf] def evalWhnf : Tactic := fun _ =>
    withMainContext do
@@ -124,7 +135,7 @@ def remarkAsConvGoal : TacticM Unit := do
     let target ← mvarId.getType
     if let some (_, _, rhs) ← matchEq? target then
       if rhs.getAppFn.isMVar then
-        mvarId.replaceTargetDefEq (mkLHSGoal target)
+        mvarId.replaceTargetDefEq (← mkLHSGoal target)
       else
         return mvarId
     else

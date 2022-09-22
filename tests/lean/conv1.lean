@@ -4,7 +4,10 @@ def p (x y : Nat) := x = y
 
 example (x y : Nat) : p (x + y) (y + x + 0) := by
   conv =>
+    trace_state
     whnf
+    tactic' => trace_state
+    trace_state
     congr
     . rfl
     . whnf; rfl

@@ -36,18 +36,7 @@ def ExprDiffTag.toString : ExprDiffTag → String
   | .change => "change"
   | .delete => "delete"
 
-def ExprDiffTag.fromString : String → Except String ExprDiffTag
-  | "change" => Except.ok ExprDiffTag.change
-  | "delete" => Except.ok ExprDiffTag.delete
-  | s => Except.error s!"expected an ExprDiffTag ctor string but got {s}"
-
 instance : ToString ExprDiffTag := ⟨ExprDiffTag.toString⟩
-
-instance : FromJson ExprDiffTag where
-  fromJson? j := j.getStr? >>= ExprDiffTag.fromString
-
-instance : ToJson ExprDiffTag where
-  toJson x := x.toString |> Json.str
 
 /-- A description of the differences between a pair of expressions `before`, `after : Expr`.
 The information can be used to display a 'visual diff' for

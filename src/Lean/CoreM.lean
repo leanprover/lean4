@@ -290,7 +290,12 @@ private def checkUnsupported [Monad m] [MonadEnv m] [MonadError m] (decl : Decla
     | some (Expr.const declName ..) => throwError "code generator does not support recursor '{declName}' yet, consider using 'match ... with' and/or structural recursion"
     | _ => pure ()
 
+-- Forward declaration
+@[extern "lean_lcnf_compile_decls"]
+opaque compileDeclsNew (declNames : List Name) : CoreM Unit
+
 def compileDecl (decl : Declaration) : CoreM Unit := do
+  -- compileDeclsNew (Compiler.getDeclNamesForCodeGen decl)
   match (← getEnv).compileDecl (← getOptions) decl with
   | Except.ok env   => setEnv env
   | Except.error (KernelException.other msg) =>
@@ -300,6 +305,7 @@ def compileDecl (decl : Declaration) : CoreM Unit := do
     throwKernelException ex
 
 def compileDecls (decls : List Name) : CoreM Unit := do
+  -- compileDeclsNew decls
   match (← getEnv).compileDecls (← getOptions) decls with
   | Except.ok env   => setEnv env
   | Except.error (KernelException.other msg) =>

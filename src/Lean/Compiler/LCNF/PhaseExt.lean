@@ -22,7 +22,7 @@ private abbrev findAtSorted? (decls : Array Decl) (declName : Name) : Option Dec
 
 builtin_initialize baseExt : SimplePersistentEnvExtension Decl BaseExtState ← do
   registerSimplePersistentEnvExtension {
-    name          := `baseDecls
+    name          := `compBaseDecls
     addImportedFn := fun _ => {}
     addEntryFn    := fun decls decl => decls.insert decl.name decl
     toArrayFn     := fun es => sortDecls es.toArray
@@ -31,18 +31,15 @@ builtin_initialize baseExt : SimplePersistentEnvExtension Decl BaseExtState ← 
 def getBaseDeclCore? (env : Environment) (declName : Name) : Option Decl :=
   match env.getModuleIdxFor? declName with
   | some modIdx => findAtSorted? (baseExt.getModuleEntries env modIdx) declName
-  | none        => dbg_trace "getBaseDeclCore?"; baseExt.getState env |>.find? declName
+  | none        => baseExt.getState env |>.find? declName
 
 def getBaseDecl? (declName : Name) : CoreM (Option Decl) := do
-  IO.println s!">> getBaseDecl? {declName}"
   return getBaseDeclCore? (← getEnv) declName
 
 def saveBaseDeclCore (env : Environment) (decl : Decl) : Environment :=
   baseExt.addEntry env decl
 
-def Decl.saveBase (decl : Decl) : CoreM Unit := do
-  IO.println "saving"
-  IO.println decl.name
+def Decl.saveBase (decl : Decl) : CoreM Unit :=
   modifyEnv (saveBaseDeclCore · decl)
 
 def getDecl? (phase : Phase) (declName : Name) : CoreM (Option Decl) :=

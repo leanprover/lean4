@@ -82,14 +82,17 @@ def run (declNames : Array Name) : CompilerM (Array Decl) := withAtLeastMaxRecDe
 
 end PassManager
 
-@[export lean_compile_stage1]
+@[export lean_compile_stage1] -- TODO: delete
 def compileStage1Impl (declNames : Array Name) : CoreM (Array Decl) :=
-  CompilerM.run do
-    PassManager.run declNames
+  CompilerM.run <| PassManager.run declNames
 
 def showDecl (phase : Phase) (declName : Name) : CoreM Format := do
   let some decl ← getDecl? phase declName | return "<not-available>"
   ppDecl' decl
+
+@[export lean_lcnf_compile_decls]
+def main (declNames : Array Name) : CoreM Unit :=
+ CompilerM.run <| discard <| PassManager.run declNames
 
 builtin_initialize
   registerTraceClass `Compiler.init (inherited := true)

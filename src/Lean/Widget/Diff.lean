@@ -191,7 +191,7 @@ partial def exprDiffCore (before after : SubExpr) : MetaM ExprDiff := do
             return δd ++ ExprDiff.withChangePos before.pos.pushBindingBody after.pos.pushBindingBody
       -- in this case, the after expression does not match the before expression.
       -- however, a special case is intros:
-      if let some s := List.getPrefix? after.expr.getForallBinderNames before.expr.getForallBinderNames then
+      if let some s := List.isSuffixOf? after.expr.getForallBinderNames before.expr.getForallBinderNames then
         -- s ++ namesAfter = namesBefore
         if s.length == 0 then
           throwError "should not happen"

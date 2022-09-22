@@ -92,8 +92,8 @@ def showDecl (phase : Phase) (declName : Name) : CoreM Format := do
   ppDecl' decl
 
 @[export lean_lcnf_compile_decls]
-def main (declNames : Array Name) : CoreM Unit :=
- CompilerM.run <| discard <| PassManager.run declNames
+def main (declNames : List Name) : CoreM Unit :=
+  CompilerM.run <| discard <| PassManager.run declNames.toArray
 
 builtin_initialize
   registerTraceClass `Compiler.init (inherited := true)

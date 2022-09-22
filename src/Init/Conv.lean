@@ -36,17 +36,12 @@ syntax occsIndexed := num+
 syntax occs := atomic(" (" &"occs") " := " (occsWildcard <|> occsIndexed) ")"
 
 /--
-`conv => ...` allows the user to perform targeted rewriting on a goal or hypothesis,
-by focusing on particular subexpressions.
-
-See <https://leanprover.github.io/theorem_proving_in_lean4/conv.html> for more details.
-
-Basic forms:
-* `conv => cs` will rewrite the goal with conv tactics `cs`.
-* `conv at h => cs` will rewrite hypothesis `h`.
-* `conv in pat => cs` will rewrite the first subexpression matching `pat` (see `pattern`).
+`with_annotate_state stx t` annotates the lexical range of `stx : Syntax` with
+the initial and final state of running tactic `t`.
 -/
-syntax (name := conv) "conv " (" at " ident)? (" in " (occs)? term)? " => " convSeq : tactic
+scoped syntax (name := withAnnotateState)
+  "with_annotate_state " rawStx ppSpace conv : conv
+
 
 /-- `skip` does nothing. -/
 syntax (name := skip) "skip" : conv
@@ -145,6 +140,9 @@ syntax (name := nestedTacticCore) "tactic'" " => " tacticSeq : conv
 /-- Focus, convert the `conv` goal `⊢ lhs` into a regular goal `⊢ lhs = rhs`, and then execute the given tactic block. -/
 syntax (name := nestedTactic) "tactic" " => " tacticSeq : conv
 
+/-- Execute the given conv block without converting regular goal into a `conv` goal -/
+syntax (name := convTactic) "conv'" " => " convSeq : tactic
+
 /-- `{ convs }` runs the list of `convs` on the current target, and any subgoals that
 remain are trivially closed by `skip`. -/
 syntax (name := nestedConv) convSeqBracketed : conv
@@ -153,12 +151,60 @@ syntax (name := nestedConv) convSeqBracketed : conv
 This is pure grouping with no added effects. -/
 syntax (name := paren) "(" convSeq ")" : conv
 
+/--
+* `case tag => tac` focuses on the goal with case name `tag` and solves it using `tac`,
+  or else fails.
+* `case tag x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses
+  with inaccessible names to the given names.
+* `case tag₁ | tag₂ => tac` is equivalent to `(case tag₁ => tac); (case tag₂ => tac)`.
+-/
+macro (name := case) tk:"case " args:sepBy1(caseArg, " | ") arr:" => " s:convSeq : conv =>
+  `(conv| tactic' => case%$tk $args|* =>%$arr conv' => $s)
+
+/--
+`case'` is similar to the `case tag => tac` tactic, but does not ensure the goal
+has been solved after applying `tac`, nor admits the goal if `tac` failed.
+Recall that `case` closes the goal using `sorry` when `tac` fails, and
+the tactic execution is not interrupted.
+-/
+macro (name := case') tk:"case' " args:sepBy1(caseArg, " | ") arr:" => " s:convSeq : conv =>
+  `(conv| tactic' => case'%$tk $args|* =>%$arr conv' => $s)
+
+/--
+`next => tac` focuses on the next goal and solves it using `tac`, or else fails.
+`next x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses with
+inaccessible names to the given names.
+-/
+macro "next " args:binderIdent* " => " tac:convSeq : conv => `(conv| case _ $args* => $tac)
+
+/-- `all_goals tac` runs `tac` on each goal, concatenating the resulting goals, if any. -/
+macro (name := allGoals) tk:"all_goals " s:convSeq : conv =>
+  `(conv| tactic' => all_goals%$tk conv' => $s)
+
+/--
+`any_goals tac` applies the tactic `tac` to every goal, and succeeds if at
+least one application succeeds.
+-/
+macro (name := anyGoals) tk:"any_goals " s:convSeq : conv =>
+  `(conv| tactic' => any_goals%$tk conv' => $s)
+
+/--
+`focus tac` focuses on the main goal, suppressing all other goals, and runs `tac` on it.
+Usually `· tac`, which enforces that the goal is closed by `tac`, should be preferred.
+-/
+macro (name := focus) tk:"focus " s:convSeq : conv => `(conv| tactic' => focus%$tk conv' => $s)
+
 /-- `conv => cs` runs `cs` in sequence on the target `t`,
 resulting in `t'`, which becomes the new target subgoal. -/
 syntax (name := convConvSeq) "conv" " => " convSeq : conv
 
 /-- `· conv` focuses on the main conv goal and tries to solve it using `s` -/
 macro dot:("·" <|> ".") s:convSeq : conv => `({%$dot ($s) })
+
+
+/-- `fail_if_success t` fails if the tactic `t` succeeds. -/
+macro (name := failIfSuccess) tk:"fail_if_success " s:convSeq : conv =>
+  `(conv| tactic' => fail_if_success%$tk conv' => $s)
 
 /-- `rw [rules]` applies the given list of rewrite rules to the target.
 See the `rw` tactic for more information. -/
@@ -213,9 +259,30 @@ macro "apply " e:term : conv => `(tactic => apply $e)
 /-- `first | conv | ...` runs each `conv` until one succeeds, or else fails. -/
 syntax (name := first) "first " withPosition((colGe "|" convSeq)+) : conv
 
+/-- `try tac` runs `tac` and succeeds even if `tac` failed. -/
+macro "try " t:convSeq : conv => `(first | $t | skip)
+
+macro:1 x:conv tk:" <;> " y:conv:0 : conv =>
+  `(conv| tactic' => (conv' => $x:conv) <;>%$tk (conv' => $y:conv))
+
 /-- `repeat convs` runs the sequence `convs` repeatedly until it fails to apply. -/
 syntax "repeat" convSeq : conv
 macro_rules
   | `(conv| repeat $seq) => `(conv| first | ($seq); repeat $seq | rfl)
+
+/--
+`conv => ...` allows the user to perform targeted rewriting on a goal or hypothesis,
+by focusing on particular subexpressions.
+
+See <https://leanprover.github.io/theorem_proving_in_lean4/conv.html> for more details.
+
+Basic forms:
+* `conv => cs` will rewrite the goal with conv tactics `cs`.
+* `conv at h => cs` will rewrite hypothesis `h`.
+* `conv in pat => cs` will rewrite the first subexpression matching `pat` (see `pattern`).
+-/
+-- HACK: put this at the end so that references to `conv` above
+-- refer to the syntax category instead of this syntax
+syntax (name := conv) "conv " (" at " ident)? (" in " (occs)? term)? " => " convSeq : tactic
 
 end Lean.Parser.Tactic.Conv

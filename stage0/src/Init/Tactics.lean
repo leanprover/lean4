@@ -9,12 +9,6 @@ set_option linter.missingDocs true -- keep it documented
 
 namespace Lean
 
-/--
-`binderIdent` matches an `ident` or a `_`. It is used for identifiers in binding
-position, where `_` means that the value should be left unnamed and inaccessible.
--/
-syntax binderIdent := ident <|> hole
-
 namespace Parser.Tactic
 /--
 `with_annotate_state stx t` annotates the lexical range of `stx : Syntax` with

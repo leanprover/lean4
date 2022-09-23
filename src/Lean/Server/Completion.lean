@@ -26,9 +26,10 @@ builtin_initialize completionBlackListExt : TagDeclarationExtension ← mkTagDec
 def addToBlackList (env : Environment) (declName : Name) : Environment :=
   completionBlackListExt.tag env declName
 
-private def isBlackListed (declName : Name) (isLocal : Bool) : MetaM Bool := do
+private def isBlackListed (declName : Name) : MetaM Bool := do
   let env ← getEnv
-  (pure (declName.isInternal && !isPrivateName declName && !isLocal))
+  -- todo would be nice if there was a better way to detect built in symbols.
+  (pure (declName.isInternal && !isPrivateName declName))
   <||> (pure <| isAuxRecursor env declName)
   <||> (pure <| isNoConfusion env declName)
   <||> isRec declName
@@ -244,10 +245,8 @@ private def idCompletionCore (ctx : ContextInfo) (id : Name) (hoverInfo : HoverI
         addCompletionItem localDecl.userName localDecl.type expectedType? none (kind := CompletionItemKind.variable) score
   -- search for matches in the environment
   let env ← getEnv
-  let moduleIndex := env.const2ModIdx
   env.constants.forM fun declName c => do
-    let isLocal := moduleIndex[declName].isNone
-    unless (← isBlackListed declName isLocal) do
+    unless (← isBlackListed declName) do
       let matchUsingNamespace (ns : Name): M Bool := do
         if let some (label, score) ← matchDecl? ns id danglingDot declName then
           -- dbg_trace "matched with {id}, {declName}, {label}, {isLocal}"
@@ -281,15 +280,13 @@ private def idCompletionCore (ctx : ContextInfo) (id : Name) (hoverInfo : HoverI
   -- Auxiliary function for `alias`
   let addAlias (alias : Name) (declNames : List Name) (score : Float) : M Unit := do
     declNames.forM fun declName => do
-      let isLocal := moduleIndex[declName].isNone
-      unless (← isBlackListed declName isLocal) do
+      unless (← isBlackListed declName) do
         addCompletionItemForDecl alias declName expectedType? score
   -- search explicitily open `ids`
   for openDecl in ctx.openDecls do
     match openDecl with
     | OpenDecl.explicit openedId resolvedId =>
-      let isLocal := moduleIndex[resolvedId].isNone
-      unless (← isBlackListed resolvedId isLocal) do
+      unless (← isBlackListed resolvedId) do
         if let some score := matchAtomic id openedId then
           addCompletionItemForDecl openedId resolvedId expectedType? score
     | OpenDecl.simple ns _      =>
@@ -370,12 +367,10 @@ private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (hoverInfo : Hov
         failure
     else
       let env ← getEnv
-      let moduleIndex := env.const2ModIdx
       env.constants.forM fun declName c => do
         let typeName := (← normPrivateName declName).getPrefix
         if nameSet.contains typeName then
-          let isLocal := moduleIndex[typeName].isNone
-          unless (← isBlackListed c.name isLocal) do
+          unless (← isBlackListed c.name) do
             if (← isDotCompletionMethod typeName c) then
               addCompletionItem c.name.getString! c.type expectedType? c.name (kind := (← getCompletionKindForDecl c)) 1
 

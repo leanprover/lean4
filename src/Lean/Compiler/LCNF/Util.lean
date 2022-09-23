@@ -40,6 +40,9 @@ structure CasesInfo where
   altNumParams : Array Nat
   motivePos    : Nat
 
+def CasesInfo.numAlts (c : CasesInfo) : Nat :=
+  c.altNumParams.size
+
 private def getCasesOnInductiveVal? (declName : Name) : CoreM (Option InductiveVal) := do
   unless isCasesOnRecursor (← getEnv) declName do return none
   let .inductInfo val ← getConstInfo declName.getPrefix | return none

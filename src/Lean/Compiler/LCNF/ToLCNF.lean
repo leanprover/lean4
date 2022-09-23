@@ -500,24 +500,28 @@ where
   visitCases (casesInfo : CasesInfo) (e : Expr) : M Expr :=
     etaIfUnderApplied e casesInfo.arity do
       let args := e.getAppArgs
-      let mut alts := #[]
-      let typeName := casesInfo.declName.getPrefix
       let mut resultType ← toLCNFType (← liftMetaM do Meta.inferType (mkAppN e.getAppFn args[:casesInfo.arity]))
-      let discr ← visitAppArg args[casesInfo.discrPos]!
-      let .inductInfo indVal ← getConstInfo typeName | unreachable!
-      for i in casesInfo.altsRange, numParams in casesInfo.altNumParams, ctorName in indVal.ctors do
-        let (altType, alt) ← visitAlt ctorName numParams args[i]!
-        unless compatibleTypes altType resultType do
-          resultType := anyTypeExpr
-        alts := alts.push alt
-      let cases : Cases := { typeName, discr := discr.fvarId!, resultType, alts }
-      let auxDecl ← mkAuxParam resultType
-      pushElement (.cases auxDecl cases)
-      let result := .fvar auxDecl.fvarId
-      if args.size == casesInfo.arity then
-        return result
+      if casesInfo.numAlts == 0 then
+        /- `casesOn` of an empty type. -/
+        mkUnreachable resultType
       else
-        mkOverApplication result args casesInfo.arity
+        let mut alts := #[]
+        let typeName := casesInfo.declName.getPrefix
+        let discr ← visitAppArg args[casesInfo.discrPos]!
+        let .inductInfo indVal ← getConstInfo typeName | unreachable!
+        for i in casesInfo.altsRange, numParams in casesInfo.altNumParams, ctorName in indVal.ctors do
+          let (altType, alt) ← visitAlt ctorName numParams args[i]!
+          unless compatibleTypes altType resultType do
+            resultType := anyTypeExpr
+          alts := alts.push alt
+        let cases : Cases := { typeName, discr := discr.fvarId!, resultType, alts }
+        let auxDecl ← mkAuxParam resultType
+        pushElement (.cases auxDecl cases)
+        let result := .fvar auxDecl.fvarId
+        if args.size == casesInfo.arity then
+          return result
+        else
+          mkOverApplication result args casesInfo.arity
 
   visitCtor (arity : Nat) (e : Expr) : M Expr :=
     etaIfUnderApplied e arity do

@@ -277,20 +277,23 @@ def withNewScope (x : M α) : M α := do
     }
     set saved
 
+/-
+Replace free variables in `type'` that occur in `toAny` into `lcAny`.
+Recall that we populate `toAny` with the free variable ids of fields that
+are type formers. This can happen when we have a field whose type is, for example, `Type u`.
+-/
+def applyToAny (type : Expr) : M Expr := do
+  let toAny := (← get).toAny
+  return type.replace fun
+    | .fvar fvarId => if toAny.contains fvarId then some anyTypeExpr else none
+    | _ => none
+
 def toLCNFType (type : Expr) : M Expr := do
   match (← get).typeCache.find? type with
   | some type' => return type'
   | none =>
     let type' ← liftMetaM <| LCNF.toLCNFType type
-    /-
-    Replace free variables in `type'` that occur in `toAny` into `lcAny`.
-    Recall that we populate `toAny` with the free variable ids of fields that
-    are type formers. This can happen when we have a field whose type is, for example, `Type u`.
-    -/
-    let toAny := (← get).toAny
-    let type' := type'.replace fun
-      | .fvar fvarId => if toAny.contains fvarId then some anyTypeExpr else none
-      | _ => none
+    let type' ← applyToAny type'
     modify fun s => { s with typeCache := s.typeCache.insert type type' }
     return type'
 
@@ -476,11 +479,20 @@ where
       Insert the free variable ids of fields that are type formers into `toAny`.
       Recall that we do not want to have "data" occurring in types.
       -/
-      for p in ps do
+      ps ← ps.mapM fun p => do
         let type ← inferType p.toExpr
         if (← isTypeFormerType type) then
           trace[Meta.debug] "{p.binderName} is type former"
           modify fun s => { s with toAny := s.toAny.insert p.fvarId }
+        /-
+        Recall that we may have dependent fields. Example:
+        ```
+        | ctor (α : Type u) (as : List α) => ...
+        ```
+        and we must use `applyToAny` to make sure the field `α` (which is data) does
+        not occur in the type of `as : List α`.
+        -/
+        p.update (← applyToAny p.type)
       let c ← toCode (← visit e)
       let eType ← inferType e
       return (eType, .alt ctorName ps c)

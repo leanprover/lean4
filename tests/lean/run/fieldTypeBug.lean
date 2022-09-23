@@ -12,5 +12,7 @@ def HList.set {αs : List (Type u)} (as : HList αs) (i : Fin αs.length) (v : �
   | [],     nil,       _,               _ => nil
 
 open Lean.Compiler
-set_option trace.Compiler true
+set_option pp.funBinderTypes true
+set_option pp.letVarTypes true
+set_option trace.Compiler.result true
 #eval compile #[``HList.set]

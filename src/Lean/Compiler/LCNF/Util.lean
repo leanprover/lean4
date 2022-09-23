@@ -8,7 +8,6 @@ import Lean.MonadEnv
 import Lean.Util.Recognizers
 
 namespace Lean.Compiler.LCNF
-
 /--
 Return `true` if `mdata` should be preserved.
 Right now, we don't preserve any `MData`, but this may

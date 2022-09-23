@@ -75,6 +75,15 @@ private def replaceUnsafeRecNames (value : Expr) : CoreM Expr :=
     | _ => return .continue
 
 /--
+Return the declaration `ConstantInfo` for the code generator.
+
+Remark: the unsafe recursive version is tried first.
+-/
+def getDeclInfo? (declName : Name) : CoreM (Option ConstantInfo) := do
+  let env ← getEnv
+  return env.find? (mkUnsafeRecName declName) <|> env.find? declName
+
+/--
 Convert the given declaration from the Lean environment into `Decl`.
 The steps for this are roughly:
 - partially erasing type information of the declaration
@@ -84,8 +93,7 @@ The steps for this are roughly:
 - turn the resulting term into LCNF declaration
 -/
 def toDecl (declName : Name) : CompilerM Decl := do
-  let env ← getEnv
-  let some info := env.find? (mkUnsafeRecName declName) <|> env.find? declName | throwError "declaration `{declName}` not found"
+  let some info ← getDeclInfo? declName | throwError "declaration `{declName}` not found"
   let some value := info.value? | throwError "declaration `{declName}` does not have a value"
   let (type, value) ← Meta.MetaM.run' do
     let type  ← toLCNFType info.type

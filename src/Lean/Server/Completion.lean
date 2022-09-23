@@ -28,7 +28,6 @@ def addToBlackList (env : Environment) (declName : Name) : Environment :=
 
 private def isBlackListed (declName : Name) : MetaM Bool := do
   let env ← getEnv
-  -- todo would be nice if there was a better way to detect built in symbols.
   (pure (declName.isInternal && !isPrivateName declName))
   <||> (pure <| isAuxRecursor env declName)
   <||> (pure <| isNoConfusion env declName)
@@ -249,7 +248,7 @@ private def idCompletionCore (ctx : ContextInfo) (id : Name) (hoverInfo : HoverI
     unless (← isBlackListed declName) do
       let matchUsingNamespace (ns : Name): M Bool := do
         if let some (label, score) ← matchDecl? ns id danglingDot declName then
-          -- dbg_trace "matched with {id}, {declName}, {label}, {isLocal}"
+          -- dbg_trace "matched with {id}, {declName}, {label}"
           addCompletionItem label c.type expectedType? declName (← getCompletionKindForDecl c) score
           return true
         else
@@ -366,8 +365,7 @@ private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (hoverInfo : Hov
       else
         failure
     else
-      let env ← getEnv
-      env.constants.forM fun declName c => do
+      (← getEnv).constants.forM fun declName c => do
         let typeName := (← normPrivateName declName).getPrefix
         if nameSet.contains typeName then
           unless (← isBlackListed c.name) do

@@ -55,8 +55,8 @@ inductive FunDeclInfo where
   -/
   | once
   /--
-  Local function is applied many times, and will only be inlined
-  if it is small.
+  Local function is applied many times or occur as an argument of another function,
+  and will only be inlined if it is small.
   -/
   | many
   /--
@@ -92,6 +92,16 @@ def FunDeclInfoMap.add (s : FunDeclInfoMap) (fvarId : FVarId) : FunDeclInfoMap :
     | some .once => { map := map.insert fvarId .many }
     | none       => { map := map.insert fvarId .once }
     | _          => { map }
+
+/--
+Add new occurrence for the local function occurring as an argument for another function.
+-/
+def FunDeclInfoMap.addHo (s : FunDeclInfoMap) (fvarId : FVarId) : FunDeclInfoMap :=
+  match s with
+  | { map } =>
+    match map.find? fvarId with
+    | some .once | none => { map := map.insert fvarId .many }
+    | _ => { map }
 
 /--
 Add new occurrence for the local function with binder name `key`.
@@ -257,6 +267,10 @@ def addMustInline (fvarId : FVarId) : SimpM Unit :=
 def addFunOcc (fvarId : FVarId) : SimpM Unit :=
   modify fun s => { s with funDeclInfoMap := s.funDeclInfoMap.add fvarId }
 
+/-- Add a new occurrence of local function `fvarId` in argument position . -/
+def addFunHoOcc (fvarId : FVarId) : SimpM Unit :=
+  modify fun s => { s with funDeclInfoMap := s.funDeclInfoMap.addHo fvarId }
+
 /--
 Traverse `code` and update function occurrence map.
 This map is used to decide whether we inline local functions or not.
@@ -267,12 +281,16 @@ Recall that we use `.mustInline` for local function declarations occurring in ty
 partial def updateFunDeclInfo (code : Code) (mustInline := false) : SimpM Unit :=
   go code
 where
+  addArgOcc (e : Expr) : SimpM Unit := do
+    let some funDecl ← findFunDecl? e | return ()
+    addFunHoOcc funDecl.fvarId
+
   addOccs (e : Expr) : SimpM Unit := do
     match e with
-    | .app f a => addOccs a; addOccs f
+    | .app f a => addArgOcc a; addOccs f
     | .fvar _ =>
-      if let some funDecl ← findFunDecl? e then
-        addFunOcc funDecl.fvarId
+      let some funDecl ← findFunDecl? e | return ()
+      addFunOcc funDecl.fvarId
     | _ => return ()
 
   go (code : Code) : SimpM Unit := do
@@ -289,7 +307,7 @@ where
     | .jmp fvarId args =>
       let funDecl ← getFunDecl fvarId
       addFunOcc funDecl.fvarId
-      args.forM addOccs
+      args.forM addArgOcc
     | .return .. | .unreach .. => return ()
 
 /--

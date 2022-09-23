@@ -223,6 +223,11 @@ namespace Internalize
 
 abbrev InternalizeM := StateRefT FVarSubst CompilerM
 
+/-
+TODO: during internalization we must convert eliminate data that became computationally irrelevant.
+See note on "erasure confusion" for examples on how this can happen.
+-/
+
 /--
 The `InternalizeM` monad is a translator. It "translates" the free variables
 in the input expressions and `Code`, into new fresh free variables in the
@@ -233,8 +238,6 @@ instance : MonadFVarSubst InternalizeM true where
 
 instance : MonadFVarSubstState InternalizeM where
   modifySubst := modify
-
-  -- modifySubst f := modify f
 
 private def mkNewFVarId (fvarId : FVarId) : InternalizeM FVarId := do
   let fvarId' ← Lean.mkFreshFVarId

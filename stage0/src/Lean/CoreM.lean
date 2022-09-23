@@ -317,4 +317,9 @@ def addAndCompile (decl : Declaration) : CoreM Unit := do
   addDecl decl;
   compileDecl decl
 
+def ImportM.runCoreM (x : CoreM α) : ImportM α := do
+  let ctx ← read
+  let (a, _) ← x.toIO { options := ctx.opts, fileName := "<ImportM>", fileMap := default } { env := ctx.env }
+  return a
+
 end Lean

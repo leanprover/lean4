@@ -27,6 +27,7 @@ and `[specialize]` since they can be partially applied.
 -/
 def shouldGenerateCode (declName : Name) : CoreM Bool := do
   if (← isCompIrrelevant |>.run') then return false
+  unless (← getConstInfo declName).hasValue do return false
   let env ← getEnv
   if hasMacroInlineAttribute env declName then return false
   if (← Meta.isMatcher declName) then return false
@@ -67,9 +68,7 @@ def run (declNames : Array Name) : CompilerM (Array Decl) := withAtLeastMaxRecDe
   let declNames ← declNames.filterM (shouldGenerateCode ·)
   if declNames.isEmpty then return #[]
   let mut decls ← declNames.mapM toDecl
-  let mut manager := { passes := #[{ name := `init, run := pure, phase := .base }] }
-  let installers := PassInstaller.passInstallerExt.getState (← getEnv)
-  manager ← installers.foldlM (init := manager) PassInstaller.runFromDecl
+  let manager ← getPassManager
   for pass in manager.passes do
     trace[Compiler] s!"Running pass: {pass.name}"
     decls ← pass.run decls
@@ -91,8 +90,8 @@ def showDecl (phase : Phase) (declName : Name) : CoreM Format := do
   ppDecl' decl
 
 @[export lean_lcnf_compile_decls]
-def main (declNames : Array Name) : CoreM Unit :=
- CompilerM.run <| discard <| PassManager.run declNames
+def main (declNames : List Name) : CoreM Unit :=
+  CompilerM.run <| discard <| PassManager.run declNames.toArray
 
 builtin_initialize
   registerTraceClass `Compiler.init (inherited := true)

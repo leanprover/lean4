@@ -438,22 +438,30 @@ private def tacticCompletion (ctx : ContextInfo) : IO (Option CompletionList) :=
 partial def find? (fileMap : FileMap) (hoverPos : String.Pos) (infoTree : InfoTree) (caps : ClientCapabilities) : IO (Option CompletionList) := do
   let ⟨hoverLine, _⟩ := fileMap.toPosition hoverPos
   match infoTree.foldInfo (init := none) (choose fileMap hoverLine) with
-  | some (hoverInfo, ctx, Info.ofCompletionInfo info) =>
+  | some (hoverInfo, ctx, info) =>
     match info with
-    | .dot info (expectedType? := expectedType?) .. => dotCompletion ctx info hoverInfo expectedType?
-    | .id _   id danglingDot lctx expectedType? => idCompletion ctx lctx id hoverInfo danglingDot expectedType?
-    | .dotId _  id lctx expectedType? => dotIdCompletion ctx lctx id expectedType?
-    | .fieldId _ id lctx structName => fieldIdCompletion ctx lctx id structName
-    | .option stx => optionCompletion ctx stx caps
-    | .tactic .. => tacticCompletion ctx
-    | _ => return none
+    | .ofCompletionInfo completion =>
+      match completion with
+      | .dot info (expectedType? := expectedType?) .. => dotCompletion ctx info hoverInfo expectedType?
+      | .id _   id danglingDot lctx expectedType? => idCompletion ctx lctx id hoverInfo danglingDot expectedType?
+      | .dotId _  id lctx expectedType? => dotIdCompletion ctx lctx id expectedType?
+      | .fieldId _ id lctx structName => fieldIdCompletion ctx lctx id structName
+      | .option stx => optionCompletion ctx stx caps
+      | .tactic .. => tacticCompletion ctx
+      | _ => return none
+    | .ofTermInfo _ =>
+      -- TODO: this term could can be `Lean.Elab.Term.elabHole` if user just typed an underscore placeholder.
+      -- for now we return empty list so user doesn't get annoying completion lists here.
+      return none
+    | _ =>
+      -- TODO can we provide interesting completion for any other Info types?
+      return none
   | _ =>
     -- TODO try to extract id from `fileMap` and some `ContextInfo` from `InfoTree`
     return none
 where
   choose (fileMap : FileMap) (hoverLine : Nat) (ctx : ContextInfo) (info : Info) (best? : Option (HoverInfo × ContextInfo × Info)) : Option (HoverInfo × ContextInfo × Info) :=
-    if !info.isCompletion then best?
-    else if info.occursInside? hoverPos |>.isSome then
+    if info.occursInside? hoverPos |>.isSome then
       let headPos          := info.pos?.get!
       let ⟨headPosLine, _⟩ := fileMap.toPosition headPos
       let ⟨tailPosLine, _⟩ := fileMap.toPosition info.tailPos?.get!

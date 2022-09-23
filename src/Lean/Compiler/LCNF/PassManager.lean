@@ -59,7 +59,7 @@ structure PassInstaller where
   current `Pass`es and return a new one, this can modify the list (and
   the `Pass`es contained within) in any way it wants.
   -/
-  install : Array Pass → CompilerM (Array Pass)
+  install : Array Pass → CoreM (Array Pass)
   deriving Inhabited
 
 /--
@@ -106,14 +106,14 @@ end Pass
 
 namespace PassManager
 
-def validate (manager : PassManager) : CompilerM Unit := do
+def validate (manager : PassManager) : CoreM Unit := do
   let mut current := .base
   for pass in manager.passes do
     if ¬(current ≤ pass.phase) then
       throwError s!"{pass.name} has phase {pass.phase} but should at least have {current}"
     current := pass.phase
 
-def findHighestOccurrence (targetName : Name) (passes : Array Pass) : CompilerM Nat := do
+def findHighestOccurrence (targetName : Name) (passes : Array Pass) : CoreM Nat := do
   let mut highest := none
   for pass in passes do
       if pass.name == targetName then

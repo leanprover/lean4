@@ -77,18 +77,16 @@ def singleton (k : α) (v : β k) : RBNode α β :=
   node red leaf k v leaf
 
 -- the first half of Okasaki's `balance`, concerning red-red sequences in the left child
--- precondition: the first tree is red
 @[inline] def balance1 : RBNode α β → (a : α) → β a → RBNode α β → RBNode α β
-  | node _ (node red a kx vx b) ky vy c, kz, vz, d
-  | node _ a kx vx (node red b ky vy c), kz, vz, d => node red (node black a kx vx b) ky vy (node black c kz vz d)
-  | a,                                   kx, vx, b => node black a kx vx b
+  | node red (node red a kx vx b) ky vy c, kz, vz, d
+  | node red a kx vx (node red b ky vy c), kz, vz, d => node red (node black a kx vx b) ky vy (node black c kz vz d)
+  | a,                                     kx, vx, b => node black a kx vx b
 
 -- the second half, concerning red-red sequences in the right child
--- precondition: the second tree is red
 @[inline] def balance2 : RBNode α β → (a : α) → β a → RBNode α β → RBNode α β
-  | a, kx, vx, node _ (node red b ky vy c) kz vz d
-  | a, kx, vx, node _  b ky vy (node red c kz vz d) => node red (node black a kx vx b) ky vy (node black c kz vz d)
-  | a, kx, vx, b                                    => node black a kx vx b
+  | a, kx, vx, node red (node red b ky vy c) kz vz d
+  | a, kx, vx, node red b ky vy (node red c kz vz d) => node red (node black a kx vx b) ky vy (node black c kz vz d)
+  | a, kx, vx, b                                     => node black a kx vx b
 
 def isRed : RBNode α β → Bool
   | node red .. => true
@@ -111,12 +109,8 @@ variable (cmp : α → α → Ordering)
     | Ordering.eq => node red a kx vx b
   | node black a ky vy b, kx, vx =>
     match cmp kx ky with
-    | Ordering.lt =>
-      if isRed a then balance1 (ins a kx vx) ky vy b
-      else node black (ins a kx vx) ky vy b
-    | Ordering.gt =>
-      if isRed b then balance2 a ky vy (ins b kx vx)
-      else node black a ky vy (ins b kx vx)
+    | Ordering.lt => balance1 (ins a kx vx) ky vy b
+    | Ordering.gt => balance2 a ky vy (ins b kx vx)
     | Ordering.eq => node black a kx vx b
 
 def setBlack : RBNode α β → RBNode α β

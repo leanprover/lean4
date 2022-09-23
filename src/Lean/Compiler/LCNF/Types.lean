@@ -5,7 +5,12 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.InferType
 
-namespace Lean.Compiler.LCNF
+namespace Lean.Compiler
+
+scoped notation:max "◾" => lcErased
+scoped notation:max "⊤" => lcAny
+
+namespace LCNF
 
 structure LCNFTypeExtState where
   types : Std.PHashMap Name Expr := {}

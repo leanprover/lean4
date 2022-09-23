@@ -425,11 +425,8 @@ section MainLoop
 
   /-- called when document is closed so we can clear any diagnostics and cancel pending work -/
   def exitWorker : WorkerM Unit := do
-    let ctx ← read
     let state ← get
     let doc := state.doc
-    let meta := doc.meta
-    publishDiagnostics meta #[] ctx.hOut
     doc.cancelTk.set
 
   partial def mainLoop : WorkerM Unit := do

@@ -307,6 +307,9 @@ section ServerM
   def terminateFileWorker (uri : DocumentUri) : ServerM Unit := do
     let fw ← findFileWorker! uri
     try
+      let ctx ← read
+      let meta := fw.doc.meta
+      publishDiagnostics meta #[] ctx.hOut
       fw.stdin.writeLspMessage (Message.notification "exit" none)
     catch _ =>
       /- The file worker must have crashed just when we were about to terminate it!

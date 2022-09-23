@@ -250,7 +250,7 @@ private def idCompletionCore (ctx : ContextInfo) (id : Name) (hoverInfo : HoverI
     unless (← isBlackListed declName isLocal) do
       let matchUsingNamespace (ns : Name): M Bool := do
         if let some (label, score) ← matchDecl? ns id danglingDot declName then
-          dbg_trace "matched with {id}, {declName}, {label}, {isLocal}"
+          -- dbg_trace "matched with {id}, {declName}, {label}, {isLocal}"
           addCompletionItem label c.type expectedType? declName (← getCompletionKindForDecl c) score
           return true
         else

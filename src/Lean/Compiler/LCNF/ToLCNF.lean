@@ -197,6 +197,12 @@ structure State where
   isTypeFormerTypeCache : Std.HashMap Expr Bool := {}
   /-- LCNF sequence, we chain it to create a LCNF `Code` object. -/
   seq : Array Element := #[]
+  /--
+  Fields that are type formers must be replaced with `lcAny`
+  in the resulting code. Otherwise, we have data occurring in
+  types.
+  -/
+  toAny : FVarIdSet := {}
 
 abbrev M := StateRefT State CompilerM
 
@@ -276,6 +282,15 @@ def toLCNFType (type : Expr) : M Expr := do
   | some type' => return type'
   | none =>
     let type' ← liftMetaM <| LCNF.toLCNFType type
+    /-
+    Replace free variables in `type'` that occur in `toAny` into `lcAny`.
+    Recall that we populate `toAny` with the free variable ids of fields that
+    are type formers. This can happen when we have a field whose type is, for example, `Type u`.
+    -/
+    let toAny := (← get).toAny
+    let type' := type'.replace fun
+      | .fvar fvarId => if toAny.contains fvarId then some anyTypeExpr else none
+      | _ => none
     modify fun s => { s with typeCache := s.typeCache.insert type type' }
     return type'
 
@@ -362,17 +377,18 @@ where
     if let some e := (← get).cache.find? e then
       return e
     let r ← match e with
-      | .app ..     => visitApp e
-      | .const ..   => visitApp e
-      | .proj s i e => visitProj s i e
-      | .mdata d e  => visitMData d e
-      | .lam ..     => visitLambda e
-      | .letE ..    => visitLet e #[]
-      | .lit ..     => mkAuxLetDecl e
-      | .forallE .. => unreachable!
-      | .mvar ..    => throwError "unexpected occurrence of metavariable in code generator{indentExpr e}"
-      | .bvar ..    => unreachable!
-      | _           => pure e
+      | .app ..      => visitApp e
+      | .const ..    => visitApp e
+      | .proj s i e  => visitProj s i e
+      | .mdata d e   => visitMData d e
+      | .lam ..      => visitLambda e
+      | .letE ..     => visitLet e #[]
+      | .lit ..      => mkAuxLetDecl e
+      | .forallE ..  => unreachable!
+      | .mvar ..     => throwError "unexpected occurrence of metavariable in code generator{indentExpr e}"
+      | .bvar ..     => unreachable!
+      | .fvar fvarId => if (← get).toAny.contains fvarId then pure anyTypeExpr else pure e
+      | _            => pure e
     modify fun s => { s with cache := s.cache.insert e r }
     return r
 
@@ -456,6 +472,15 @@ where
         let (ps', e') ← ToLCNF.visitLambda e
         ps := ps ++ ps'
         e := e'
+      /-
+      Insert the free variable ids of fields that are type formers into `toAny`.
+      Recall that we do not want to have "data" occurring in types.
+      -/
+      for p in ps do
+        let type ← inferType p.toExpr
+        if (← isTypeFormerType type) then
+          trace[Meta.debug] "{p.binderName} is type former"
+          modify fun s => { s with toAny := s.toAny.insert p.fvarId }
       let c ← toCode (← visit e)
       let eType ← inferType e
       return (eType, .alt ctorName ps c)

@@ -118,23 +118,6 @@ section
   def writeLspResponseErrorWithData (h : FS.Stream) (e : ResponseError α) : IO Unit :=
     h.writeLspMessage e
 
-  partial def lspShutdown (hOut : FS.Stream) (hIn : FS.Stream) (requestNo : Nat) : IO Unit := do
-    hOut.writeLspRequest ⟨requestNo, "shutdown", Json.null⟩
-    while True do
-      let shutMsg ← hIn.readLspMessage
-      match shutMsg with
-      | Message.response id result =>
-        assert! result.isNull
-        if id != requestNo then
-          throw <| IO.userError s!"Expected id {requestNo}, got id {id}"
-
-        hOut.writeLspNotification ⟨"exit", Json.null⟩
-        break
-      | _ =>  -- ignore other messages in between.
-        pure ()
-
-    return
-
 end
 
 end IO.FS.Stream

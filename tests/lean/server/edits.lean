@@ -30,5 +30,5 @@ def main : IO Unit := do
       else
         throw $ userError "Failed parsing test file."
 
-      Ipc.shutdown 2
+      Ipc.shutdown 3
       discard $ Ipc.waitForExit

@@ -66,6 +66,10 @@ def Info.isCompletion : Info → Bool
   | ofCompletionInfo .. => true
   | _ => false
 
+def Info.isMacroExpansion : Info → Bool
+  | ofMacroExpansionInfo .. => true
+  | _ => false
+
 def InfoTree.getCompletionInfos (infoTree : InfoTree) : Array (ContextInfo × CompletionInfo) :=
   infoTree.foldInfo (init := #[]) fun ctx info result =>
     match info with

@@ -437,8 +437,20 @@ private def tacticCompletion (ctx : ContextInfo) : IO (Option CompletionList) :=
 
 partial def find? (fileMap : FileMap) (hoverPos : String.Pos) (infoTree : InfoTree) (caps : ClientCapabilities) : IO (Option CompletionList) := do
   let ⟨hoverLine, _⟩ := fileMap.toPosition hoverPos
+
+  -- dbg_trace s!"Completion.find? looking for completions at {hoverLine},{hoverCol}"
+  -- let result := infoTree.foldInfo (λ (ctx : ContextInfo) (info : Info) (i : List (ContextInfo × Info)) => (ctx, info) :: i) []
+  -- for (ctx, info) in result do
+  --    let inside := info.occursInside? hoverPos |>.isSome
+  --    let s ← info.format ctx
+     -- dbg_trace s!"Info: {s} : isCompletion={info.isCompletion} and inside={inside}"
+
   match infoTree.foldInfo (init := none) (choose fileMap hoverLine) with
   | some (hoverInfo, ctx, info) =>
+    -- let s ← info.format ctx
+    -- let inside := info.occursInside? hoverPos |>.isSome
+    -- dbg_trace s!"Chosen Info: {s} : isCompletion={info.isCompletion} and inside={inside}"
+
     match info with
     | .ofCompletionInfo completion =>
       match completion with
@@ -461,6 +473,8 @@ partial def find? (fileMap : FileMap) (hoverPos : String.Pos) (infoTree : InfoTr
     return none
 where
   choose (fileMap : FileMap) (hoverLine : Nat) (ctx : ContextInfo) (info : Info) (best? : Option (HoverInfo × ContextInfo × Info)) : Option (HoverInfo × ContextInfo × Info) :=
+    --if !info.isCompletion then best? else
+    if info.isMacroExpansion then best? else
     if info.occursInside? hoverPos |>.isSome then
       let headPos          := info.pos?.get!
       let ⟨headPosLine, _⟩ := fileMap.toPosition headPos
@@ -471,7 +485,10 @@ where
         | none                         => (HoverInfo.inside (hoverPos - headPos).byteIdx, ctx, info)
         | some (HoverInfo.after, _, _) => (HoverInfo.inside (hoverPos - headPos).byteIdx, ctx, info)
         | some (_, _, best) =>
-          if info.isSmaller best then
+          -- prefer infos that have isCompletion=true
+          if best.isCompletion && !info.isCompletion then
+            best?
+          else if info.isSmaller best || (info.isCompletion && !best.isCompletion) then
             (HoverInfo.inside (hoverPos - headPos).byteIdx, ctx, info)
           else
             best?
@@ -486,7 +503,10 @@ where
         | none => (HoverInfo.after, ctx, info)
         | some (_, _, best) =>
           let dBest := best.occursBefore? hoverPos |>.get!
-          if d < dBest || (d == dBest && info.isSmaller best) then
+          -- prefer infos that have isCompletion=true
+          if best.isCompletion && !info.isCompletion then
+            best?
+          else if d < dBest || (d == dBest && info.isSmaller best) || (info.isCompletion && !best.isCompletion) then
             (HoverInfo.after, ctx, info)
           else
             best?

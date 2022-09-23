@@ -68,9 +68,7 @@ def run (declNames : Array Name) : CompilerM (Array Decl) := withAtLeastMaxRecDe
   let declNames ← declNames.filterM (shouldGenerateCode ·)
   if declNames.isEmpty then return #[]
   let mut decls ← declNames.mapM toDecl
-  let mut manager := { passes := #[{ name := `init, run := pure, phase := .base }] }
-  let installers := PassInstaller.passInstallerExt.getState (← getEnv)
-  manager ← installers.foldlM (init := manager) PassInstaller.runFromDecl
+  let manager ← getPassManager
   for pass in manager.passes do
     trace[Compiler] s!"Running pass: {pass.name}"
     decls ← pass.run decls

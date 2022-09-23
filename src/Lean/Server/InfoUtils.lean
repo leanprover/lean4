@@ -186,33 +186,39 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
 def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option Format) := do
   ci.runMetaM i.lctx do
     let mut fmts := #[]
-    try
-      if let some f ← fmtTerm? then
+    let modFmt ← try
+      let (termFmt, modFmt) ← fmtTermAndModule?
+      if let some f := termFmt then
         fmts := fmts.push f
-    catch _ => pure ()
+      pure modFmt
+    catch _ => pure none
     if let some m ← i.docString? then
       fmts := fmts.push m
+    if let some f := modFmt then
+      fmts := fmts.push f
     if fmts.isEmpty then
       return none
     else
       return f!"\n***\n".joinSep fmts.toList
 
 where
-  fmtTerm? : MetaM (Option Format) := do
+  fmtModule? (decl : Name) : MetaM (Option Format) := do
+    let some mod ← findModuleOf? decl | return none
+    return some f!"*import {mod}*"
+
+  fmtTermAndModule? : MetaM (Option Format × Option Format) := do
     match i with
     | Info.ofTermInfo ti =>
       let e ← instantiateMVars ti.expr
       if e.isSort then
         -- Types of sorts are funny to look at in widgets, but ultimately not very helpful
-        return none
+        return (none, none)
       let tp ← instantiateMVars (← Meta.inferType e)
       let tpFmt ← Meta.ppExpr tp
       if e.isConst then
         -- Recall that `ppExpr` adds a `@` if the constant has implicit arguments, and it is quite distracting
         let eFmt ← withOptions (pp.fullNames.set · true |> (pp.universes.set · true)) <| PrettyPrinter.ppConst e
-        return some f!"```lean
-{eFmt} : {tpFmt}
-```"
+        return (some f!"```lean\n{eFmt} : {tpFmt}\n```", ← fmtModule? e.constName!)
       else
         let eFmt ← Meta.ppExpr e
         -- Try not to show too scary internals
@@ -222,16 +228,12 @@ where
           else false
         else isAtomicFormat eFmt
         let fmt := if showTerm then f!"{eFmt} : {tpFmt}" else tpFmt
-        return some f!"```lean
-{fmt}
-```"
+        return (some f!"```lean\n{fmt}\n```", none)
     | Info.ofFieldInfo fi =>
       let tp ← Meta.inferType fi.val
       let tpFmt ← Meta.ppExpr tp
-      return some f!"```lean
-{fi.fieldName} : {tpFmt}
-```"
-    | _ => return none
+      return (some f!"```lean\n{fi.fieldName} : {tpFmt}\n```", none)
+    | _ => return (none, none)
 
   isAtomicFormat : Format → Bool
     | Std.Format.text _    => true

@@ -267,23 +267,30 @@ Recall that we use `.mustInline` for local function declarations occurring in ty
 partial def updateFunDeclInfo (code : Code) (mustInline := false) : SimpM Unit :=
   go code
 where
-  go (code : Code) : SimpM Unit := do
-  match code with
-  | .let decl k =>
-    if decl.value.isApp then
-      if let some funDecl ← findFunDecl? decl.value.getAppFn then
+  addOccs (e : Expr) : SimpM Unit := do
+    match e with
+    | .app f a => addOccs a; addOccs f
+    | .fvar _ =>
+      if let some funDecl ← findFunDecl? e then
         addFunOcc funDecl.fvarId
-    go k
-  | .fun decl k =>
-    if mustInline then
-      addMustInline decl.fvarId
-    go decl.value; go k
-  | .jp decl k => go decl.value; go k
-  | .cases c => c.alts.forM fun alt => go alt.getCode
-  | .jmp fvarId .. =>
-    let funDecl ← getFunDecl fvarId
-    addFunOcc funDecl.fvarId
-  | .return .. | .unreach .. => return ()
+    | _ => return ()
+
+  go (code : Code) : SimpM Unit := do
+    match code with
+    | .let decl k =>
+      addOccs decl.value
+      go k
+    | .fun decl k =>
+      if mustInline then
+        addMustInline decl.fvarId
+      go decl.value; go k
+    | .jp decl k => go decl.value; go k
+    | .cases c => c.alts.forM fun alt => go alt.getCode
+    | .jmp fvarId args =>
+      let funDecl ← getFunDecl fvarId
+      addFunOcc funDecl.fvarId
+      args.forM addOccs
+    | .return .. | .unreach .. => return ()
 
 /--
 Execute `x` with `fvarId` set as `mustInline`.

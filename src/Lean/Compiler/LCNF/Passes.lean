@@ -17,9 +17,16 @@ namespace Lean.Compiler.LCNF
 
 open PassInstaller
 
+def init : Pass where
+  name  := `init
+  run   := fun decls => do
+    decls.forM (·.saveBase)
+    return decls
+  phase := .base
+
 def builtinPassManager : PassManager := {
   passes := #[
-    { name := `init, run := pure, phase := .base },
+    init,
     pullInstances,
     cse,
     simp,

@@ -27,7 +27,6 @@ def handleCompletion (p : CompletionParams)
   let doc ← readDoc
   let text := doc.meta.text
   let pos := text.lspPosToUtf8Pos p.position
-
   let caps := (← read).initParams.capabilities
   -- dbg_trace ">> handleCompletion invoked {pos}"
   -- NOTE: use `+ 1` since we sometimes want to consider invalid input technically after the command,

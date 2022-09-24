@@ -29,6 +29,8 @@ axiom aux {α} (f : List α → List α) (xs ys : List α) : f (xs ++ ys) ++ [] 
 open Lean
 open Lean.Meta
 
+#eval 1 -- TODO: remove, this is a workaround to make sure then next eval works.
+
 def tst1 : MetaM Unit := do
   let thms  ← Meta.getSimpTheorems
   trace[Meta.debug] "{thms.pre}\n-----\n{thms.post}"

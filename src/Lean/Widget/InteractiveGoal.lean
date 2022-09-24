@@ -13,15 +13,27 @@ import Lean.Data.Lsp.Extra
 namespace Lean.Widget
 open Server
 
+/-- In the infoview, if multiple hypotheses `h₁`, `h₂` have the same type `α`, they are rendered as `h₁ h₂ : α`.
+We call this a 'hypothesis bundle'. -/
 structure InteractiveHypothesisBundle where
   /-- The user-friendly name for each hypothesis.
   If anonymous then the name is inaccessible and hidden. -/
   names : Array Name
+  /-- The ids for each variable. Should have the same length as `names`. -/
   fvarIds : Array FVarId
   type : CodeWithInfos
+  /-- The value, in the case the hypothesis is a `let`-binder. -/
   val? : Option CodeWithInfos := none
+  /-- The hypothesis is a typeclass instance. -/
   isInstance : Bool
+  /-- The hypothesis is a type. -/
   isType : Bool
+  /-- If true, the hypothesis was not present on the previous tactic state.
+      Uses `none` instead of `some false` to save space in the json encoding. -/
+  isInserted? : Option Bool := none
+  /-- If true, the hypothesis will be removed in the next tactic state.
+      Uses `none` instead of `some false` to save space in the json encoding.  -/
+  isRemoved?  : Option Bool := none
   deriving Inhabited, RpcEncodable
 
 structure InteractiveGoal where
@@ -33,6 +45,12 @@ structure InteractiveGoal where
   name of the MVar that it is a goal for.)
   This is none when we are showing a term goal. -/
   mvarId? : Option MVarId := none
+  /-- If true, the goal was not present on the previous tactic state.
+      Uses `none` instead of `some false` to save space in the json encoding.  -/
+  isInserted?: Option Bool := none
+  /-- If true, the goal will be removed on the next tactic state.
+      Uses `none` instead of `some false` to save space in the json encoding. -/
+  isRemoved? : Option Bool := none
   deriving Inhabited, RpcEncodable
 
 namespace InteractiveGoal
@@ -66,6 +84,7 @@ def pretty (g : InteractiveGoal) : Format := Id.run do
 
 end InteractiveGoal
 
+/-- This is everything needed to render an interactive term goal in the infoview. -/
 structure InteractiveTermGoal where
   hyps      : Array InteractiveHypothesisBundle
   type      : CodeWithInfos
@@ -83,6 +102,12 @@ structure InteractiveGoals where
   goals : Array InteractiveGoal
   deriving RpcEncodable
 
+def InteractiveGoals.append (l r : InteractiveGoals) : InteractiveGoals where
+  goals := l.goals ++ r.goals
+
+instance : Append InteractiveGoals := ⟨InteractiveGoals.append⟩
+instance : EmptyCollection InteractiveGoals := ⟨{goals := #[]}⟩
+
 open Meta in
 def addInteractiveHypothesisBundle (hyps : Array InteractiveHypothesisBundle) (ids : Array (Name × FVarId)) (type : Expr) (value? : Option Expr := none) : MetaM (Array InteractiveHypothesisBundle) := do
   if ids.size == 0 then
@@ -99,15 +124,21 @@ def addInteractiveHypothesisBundle (hyps : Array InteractiveHypothesisBundle) (i
   }
 
 open Meta in
+variable [MonadControlT MetaM n] [Monad n] [MonadError n] [MonadOptions n] [MonadMCtx n] in
+def withGoalCtx (goal : MVarId) (action : LocalContext → MetavarDecl → n α) : n α := do
+  let mctx ← getMCtx
+  let some mvarDecl := mctx.findDecl? goal
+    | throwError "unknown goal {goal.name}"
+  let lctx := mvarDecl.lctx |>.sanitizeNames.run' {options := (← getOptions)}
+  withLCtx lctx mvarDecl.localInstances (action lctx mvarDecl)
+
+
+open Meta in
 /-- A variant of `Meta.ppGoal` which preserves subexpression information for interactivity. -/
 def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
-  let some mvarDecl := (← getMCtx).findDecl? mvarId
-    | throwError "unknown goal {mvarId.name}"
   let ppAuxDecls := pp.auxDecls.get (← getOptions)
   let showLetValues := pp.showLetValues.get (← getOptions)
-  let lctx := mvarDecl.lctx
-  let lctx : LocalContext := lctx.sanitizeNames.run' { options := (← getOptions) }
-  withLCtx lctx mvarDecl.localInstances do
+  withGoalCtx mvarId fun lctx mvarDecl => do
     let (hidden, hiddenProp) ← ToHide.collect mvarDecl.type
     let pushPending (ids : Array (Name × FVarId)) (type? : Option Expr) (hyps : Array InteractiveHypothesisBundle)
         : MetaM (Array InteractiveHypothesisBundle) :=

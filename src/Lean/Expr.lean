@@ -896,6 +896,17 @@ def getForallBody : Expr → Expr
   | forallE _ _ b .. => getForallBody b
   | e                => e
 
+def getForallBodyMaxDepth : (maxDepth : Nat) → Expr → Expr
+  | (n+1), forallE _ _ b _ => getForallBodyMaxDepth n b
+  | 0, e => e
+  | _, e => e
+
+/-- Given a sequence of nested foralls `(a₁ : α₁) → ... → (aₙ : αₙ) → _`,
+returns the names `[a₁, ... aₙ]`. -/
+def getForallBinderNames : Expr → List Name
+  | forallE n _ b _ => n :: getForallBinderNames b
+  | _ => []
+
 /--
 If the given expression is a sequence of
 function applications `f a₁ .. aₙ`, return `f`.

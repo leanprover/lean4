@@ -8771,9 +8771,9 @@ x_59 = lean_box(0);
 x_60 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_60, 0, x_23);
 lean_ctor_set(x_60, 1, x_59);
+lean_inc(x_19);
 lean_inc(x_18);
 x_61 = l_Lean_compileDecls(x_60, x_18, x_19, x_38);
-lean_dec(x_60);
 if (lean_obj_tag(x_61) == 0)
 {
 lean_object* x_62; size_t x_63; size_t x_64; 
@@ -8979,9 +8979,9 @@ x_95 = lean_box(0);
 x_96 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_96, 0, x_23);
 lean_ctor_set(x_96, 1, x_95);
+lean_inc(x_19);
 lean_inc(x_18);
 x_97 = l_Lean_compileDecls(x_96, x_18, x_19, x_76);
-lean_dec(x_96);
 if (lean_obj_tag(x_97) == 0)
 {
 lean_object* x_98; size_t x_99; size_t x_100; 
@@ -11384,9 +11384,9 @@ lean_inc(x_1);
 x_13 = lean_array_to_list(lean_box(0), x_1);
 x_14 = lean_box(0);
 x_15 = l_List_mapTRAux___at_Lean_Elab_ComputedFields_setComputedFields___spec__5(x_13, x_14);
+lean_inc(x_5);
 lean_inc(x_4);
 x_16 = l_Lean_compileDecls(x_15, x_4, x_5, x_12);
-lean_dec(x_15);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; 
@@ -11408,8 +11408,6 @@ lean_inc(x_21);
 lean_dec(x_19);
 x_22 = lean_array_to_list(lean_box(0), x_20);
 x_23 = l_Lean_compileDecls(x_22, x_4, x_5, x_21);
-lean_dec(x_5);
-lean_dec(x_22);
 return x_23;
 }
 else

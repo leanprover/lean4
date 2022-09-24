@@ -16,6 +16,7 @@ import Lean.Server.References
 import Lean.Server.GoTo
 
 import Lean.Widget.InteractiveGoal
+import Lean.Widget.Diff
 
 namespace Lean.Server.FileWorker
 open Lsp
@@ -162,11 +163,25 @@ def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Optio
   withWaitFindSnap doc (fun s => s.endPos >= hoverPos)
     (notFoundX := return none) fun snap => do
       if let rs@(_ :: _) := snap.infoTree.goalsAt? doc.meta.text hoverPos then
-        let goals ← List.join <$> rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter, .. } =>
-          let ci := if useAfter then { ci with mctx := ti.mctxAfter } else { ci with mctx := ti.mctxBefore }
-          let goals := if useAfter then ti.goalsAfter else ti.goalsBefore
-          ci.runMetaM {} <| goals.mapM (fun g => Meta.withPPForTacticGoal (Widget.goalToInteractive g))
-        return some { goals := goals.toArray }
+        let goals : List Widget.InteractiveGoals ← rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter, .. } => do
+          let ciAfter := { ci with mctx := ti.mctxAfter }
+          let ci := if useAfter then ciAfter else { ci with mctx := ti.mctxBefore }
+          -- compute the interactive goals
+          let goals ← ci.runMetaM {} (do
+            let goals := List.toArray <| if useAfter then ti.goalsAfter else ti.goalsBefore
+            let goals ← goals.mapM (fun g => Meta.withPPForTacticGoal (Widget.goalToInteractive g))
+            return {goals}
+          )
+          -- compute the goal diff
+          let goals ← ciAfter.runMetaM {} (do
+              try
+                Widget.diffInteractiveGoals useAfter ti goals
+              catch _ =>
+                -- fail silently, since this is just a bonus feature
+                return goals
+          )
+          return goals
+        return some <| goals.foldl (· ++ ·) ∅
       else
         return none
 
@@ -174,7 +189,7 @@ open Elab in
 def handlePlainGoal (p : PlainGoalParams)
     : RequestM (RequestTask (Option PlainGoal)) := do
   let t ← getInteractiveGoals p
-  return t.map <| Except.map <| Option.map <| fun ⟨goals⟩ =>
+  return t.map <| Except.map <| Option.map <| fun {goals, ..} =>
     if goals.isEmpty then
       { goals := #[], rendered := "no goals" }
     else

@@ -10,6 +10,7 @@ import Lean.Compiler.LCNF.SpecInfo
 import Lean.Compiler.LCNF.PrettyPrinter
 import Lean.Compiler.LCNF.ToExpr
 import Lean.Compiler.LCNF.Level
+import Lean.Compiler.LCNF.PhaseExt
 
 namespace Lean.Compiler.LCNF
 namespace Specialize
@@ -360,7 +361,8 @@ mutual
       trace[Compiler.specialize.step] "new: {specDecl.name}"
       cacheSpec key specDecl.name
       let specDecl ← specDecl.etaExpand
-      saveLCNFType specDecl.name specDecl.type
+      specDecl.saveBase
+      saveLCNFType specDecl.name specDecl.type -- TODO: delete after we start compiling at decl time
       let specDecl ← specDecl.simp {} -- TODO: `simp` config
       let specDecl ← specDecl.simp { etaPoly := true, inlinePartial := true, implementedBy := true }
       let value ← withReader (fun _ => { declName := specDecl.name }) do

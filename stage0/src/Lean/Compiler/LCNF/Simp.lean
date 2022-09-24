@@ -55,8 +55,8 @@ inductive FunDeclInfo where
   -/
   | once
   /--
-  Local function is applied many times, and will only be inlined
-  if it is small.
+  Local function is applied many times or occur as an argument of another function,
+  and will only be inlined if it is small.
   -/
   | many
   /--
@@ -92,6 +92,16 @@ def FunDeclInfoMap.add (s : FunDeclInfoMap) (fvarId : FVarId) : FunDeclInfoMap :
     | some .once => { map := map.insert fvarId .many }
     | none       => { map := map.insert fvarId .once }
     | _          => { map }
+
+/--
+Add new occurrence for the local function occurring as an argument for another function.
+-/
+def FunDeclInfoMap.addHo (s : FunDeclInfoMap) (fvarId : FVarId) : FunDeclInfoMap :=
+  match s with
+  | { map } =>
+    match map.find? fvarId with
+    | some .once | none => { map := map.insert fvarId .many }
+    | _ => { map }
 
 /--
 Add new occurrence for the local function with binder name `key`.
@@ -163,6 +173,10 @@ structure Context where
   declName : Name
   config : Config := {}
   discrCtorMap : FVarIdMap Expr := {}
+  /--
+  Stack of global declarations being recursively inlined.
+  -/
+  inlineStack : List Name := []
 
 structure State where
   /--
@@ -257,6 +271,10 @@ def addMustInline (fvarId : FVarId) : SimpM Unit :=
 def addFunOcc (fvarId : FVarId) : SimpM Unit :=
   modify fun s => { s with funDeclInfoMap := s.funDeclInfoMap.add fvarId }
 
+/-- Add a new occurrence of local function `fvarId` in argument position . -/
+def addFunHoOcc (fvarId : FVarId) : SimpM Unit :=
+  modify fun s => { s with funDeclInfoMap := s.funDeclInfoMap.addHo fvarId }
+
 /--
 Traverse `code` and update function occurrence map.
 This map is used to decide whether we inline local functions or not.
@@ -267,23 +285,74 @@ Recall that we use `.mustInline` for local function declarations occurring in ty
 partial def updateFunDeclInfo (code : Code) (mustInline := false) : SimpM Unit :=
   go code
 where
+  addArgOcc (e : Expr) : SimpM Unit := do
+    let some funDecl ← findFunDecl? e | return ()
+    addFunHoOcc funDecl.fvarId
+
+  addOccs (e : Expr) : SimpM Unit := do
+    match e with
+    | .app f a => addArgOcc a; addOccs f
+    | .fvar _ =>
+      let some funDecl ← findFunDecl? e | return ()
+      addFunOcc funDecl.fvarId
+    | _ => return ()
+
   go (code : Code) : SimpM Unit := do
-  match code with
-  | .let decl k =>
-    if decl.value.isApp then
-      if let some funDecl ← findFunDecl? decl.value.getAppFn then
-        addFunOcc funDecl.fvarId
-    go k
-  | .fun decl k =>
-    if mustInline then
-      addMustInline decl.fvarId
-    go decl.value; go k
-  | .jp decl k => go decl.value; go k
-  | .cases c => c.alts.forM fun alt => go alt.getCode
-  | .jmp fvarId .. =>
-    let funDecl ← getFunDecl fvarId
-    addFunOcc funDecl.fvarId
-  | .return .. | .unreach .. => return ()
+    match code with
+    | .let decl k =>
+      addOccs decl.value
+      go k
+    | .fun decl k =>
+      if mustInline then
+        addMustInline decl.fvarId
+      go decl.value; go k
+    | .jp decl k => go decl.value; go k
+    | .cases c => c.alts.forM fun alt => go alt.getCode
+    | .jmp fvarId args =>
+      let funDecl ← getFunDecl fvarId
+      addFunOcc funDecl.fvarId
+      args.forM addArgOcc
+    | .return .. | .unreach .. => return ()
+
+/--
+Execute `x` with an updated `inlineStack`. If `value` is of the form `const ...`, add `const` to the stack.
+Otherwise, do not change the `inlineStack`.
+-/
+@[inline] def withInlining (value : Expr) (x : SimpM α) : SimpM α := do
+  trace[Compiler.simp.inline] "inlining {value}"
+  let f := value.getAppFn
+  let stack := (← read).inlineStack
+  let inlineStack := if let .const declName _ := f then declName :: stack else stack
+  withReader (fun ctx => { ctx with inlineStack }) x
+
+/--
+Similar to the default `Lean.withIncRecDepth`, but include the `inlineStack` in the error messsage.
+-/
+@[inline] def withIncRecDepth (x : SimpM α) : SimpM α := do
+  let curr ← MonadRecDepth.getRecDepth
+  let max  ← MonadRecDepth.getMaxRecDepth
+  if curr == max then
+    throwMaxRecDepth
+  else
+    MonadRecDepth.withRecDepth (curr+1) x
+where
+  throwMaxRecDepth : SimpM α := do
+    match (← read).inlineStack with
+    | [] => throwError maxRecDepthErrorMessage
+    | declName :: stack =>
+      let mut fmt  := f!"{declName}\n"
+      let mut prev := declName
+      let mut ellipsis := false
+      for declName in stack do
+        if prev == declName then
+          unless ellipsis do
+            ellipsis := true
+            fmt := fmt ++ "...\n"
+        else
+          fmt := fmt ++ f!"{declName}\n"
+          prev := declName
+          ellipsis := false
+      throwError "maximum recursion depth reached in the code generator\nfunction inline stack:\n{fmt}"
 
 /--
 Execute `x` with `fvarId` set as `mustInline`.
@@ -430,8 +499,8 @@ where
     -- Approximation, the cases may have many unreachable alternatives, and only reachable.
     | .cases c => c.alts.size == 1 && go c.alts[0]!.getCode
     -- Approximation, we assume that any code containing join points have more than one exit point
-    | .jp .. | .jmp .. => false
-    | .return .. | .unreach .. => true
+    | .jp .. | .jmp .. | .unreach .. => false
+    | .return .. => true
 
 /--
 "Beta-reduce" `(fun params => code) args`.
@@ -847,7 +916,7 @@ inlined code **before** we attach it to the continuation.
 partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := do
   let some info ← inlineCandidate? letDecl.value | return none
   let numArgs := info.args.size
-  trace[Compiler.simp.inline] "inlining {letDecl.value}"
+  withInlining letDecl.value do
   let fvarId := letDecl.fvarId
   if numArgs < info.arity then
     let funDecl ← specializePartialApp info

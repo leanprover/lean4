@@ -494,8 +494,8 @@ where
         -/
         p.update (← applyToAny p.type)
       let c ← toCode (← visit e)
-      let eType ← inferType e
-      return (eType, .alt ctorName ps c)
+      let altType ← c.inferType
+      return (altType, .alt ctorName ps c)
 
   visitCases (casesInfo : CasesInfo) (e : Expr) : M Expr :=
     etaIfUnderApplied e casesInfo.arity do

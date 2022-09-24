@@ -8,6 +8,18 @@ import Lean.Compiler.LCNF.Basic
 import Lean.Compiler.LCNF.LCtx
 
 namespace Lean.Compiler.LCNF
+/--
+The pipeline phase a certain `Pass` is supposed to happen in.
+-/
+inductive Phase where
+  /-- Here we still carry most of the original type information, most
+  of the dependent portion is already (partially) erased though. -/
+  | base
+  /-- In this phase polymorphism has been eliminated. -/
+  | mono
+  /-- In this phase impure stuff such as RC or efficient BaseIO transformations happen. -/
+  | impure
+  deriving Inhabited
 
 /--
 The state managed by the `CompilerM` `Monad`.
@@ -20,9 +32,19 @@ structure CompilerM.State where
   lctx     : LCtx := {}
   /-- Next auxiliary variable suffix -/
   nextIdx : Nat := 1
-deriving Inhabited
+  deriving Inhabited
 
-abbrev CompilerM := StateRefT CompilerM.State CoreM
+structure CompilerM.Context where
+  phase : Phase
+  deriving Inhabited
+
+abbrev CompilerM := ReaderT CompilerM.Context $ StateRefT CompilerM.State CoreM
+
+@[inline] def withPhase (phase : Phase) (x : CompilerM α) : CompilerM α :=
+  withReader (fun ctx => { ctx with phase }) x
+
+def getPhase : CompilerM Phase :=
+  return (← read).phase
 
 instance : AddMessageContext CompilerM where
   addMessageContext msgData := do
@@ -441,7 +463,7 @@ def cleanup (decl : Array Decl) : CompilerM (Array Decl) := do
     modify fun s => { s with nextIdx := 1 }
     decl.internalize
 
-def CompilerM.run (x : CompilerM α) (s : State := {}) : CoreM α :=
-  x |>.run' s
+def CompilerM.run (x : CompilerM α) (s : State := {}) (phase : Phase := .base) : CoreM α :=
+  x { phase } |>.run' s
 
 end Lean.Compiler.LCNF

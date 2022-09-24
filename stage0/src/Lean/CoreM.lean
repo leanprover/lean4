@@ -295,7 +295,7 @@ private def checkUnsupported [Monad m] [MonadEnv m] [MonadError m] (decl : Decla
 opaque compileDeclsNew (declNames : List Name) : CoreM Unit
 
 def compileDecl (decl : Declaration) : CoreM Unit := do
-  -- compileDeclsNew (Compiler.getDeclNamesForCodeGen decl)
+  compileDeclsNew (Compiler.getDeclNamesForCodeGen decl)
   match (← getEnv).compileDecl (← getOptions) decl with
   | Except.ok env   => setEnv env
   | Except.error (KernelException.other msg) =>
@@ -305,7 +305,7 @@ def compileDecl (decl : Declaration) : CoreM Unit := do
     throwKernelException ex
 
 def compileDecls (decls : List Name) : CoreM Unit := do
-  -- compileDeclsNew decls
+  compileDeclsNew decls
   match (← getEnv).compileDecls (← getOptions) decls with
   | Except.ok env   => setEnv env
   | Except.error (KernelException.other msg) =>

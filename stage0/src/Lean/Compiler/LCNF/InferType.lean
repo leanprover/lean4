@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.Types
+import Lean.Compiler.LCNF.PhaseExt
 
 namespace Lean.Compiler.LCNF
 /-! # Type inference for LCNF -/
@@ -103,9 +104,9 @@ in fact exhaustive due to LCNF constraints:
           type inside structure becomes Any, value inside structure becomes Erased.
 -/
 partial def compatibleTypes (a b : Expr) : Bool :=
-  if a.isAnyType || b.isAnyType then
+  if a.getAppFn.isAnyType || b.getAppFn.isAnyType then
     true
-  else if a.isErased || b.isErased then
+  else if a.getAppFn.isErased || b.getAppFn.isErased then
     true
   else
     let a' := a.headBeta
@@ -168,11 +169,13 @@ def mkForallParams (params : Array Param) (type : Expr) : InferTypeM Expr :=
   withReader (fun lctx => lctx.mkLocalDecl fvarId binderName type binderInfo) do
     k (.fvar fvarId)
 
-def inferConstType (declName : Name) (us : List Level) : CoreM Expr :=
+def inferConstType (declName : Name) (us : List Level) : CompilerM Expr := do
   if declName == ``lcAny || declName == ``lcErased then
     return anyTypeExpr
+  else if let some decl ← getDecl? (← getPhase) declName then
+    return decl.instantiateTypeLevelParams us
   else
-    instantiateLCNFTypeLevelParams declName us
+    instantiateLCNFTypeLevelParams declName us -- TODO: delete after we compile decls at definition time
 
 mutual
 

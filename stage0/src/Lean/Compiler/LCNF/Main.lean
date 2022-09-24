@@ -27,7 +27,8 @@ and `[specialize]` since they can be partially applied.
 -/
 def shouldGenerateCode (declName : Name) : CoreM Bool := do
   if (← isCompIrrelevant |>.run') then return false
-  unless (← getConstInfo declName).hasValue do return false
+  let some info ← getDeclInfo? declName | return false
+  unless info.hasValue do return false
   let env ← getEnv
   if hasMacroInlineAttribute env declName then return false
   if (← Meta.isMatcher declName) then return false
@@ -71,8 +72,8 @@ def run (declNames : Array Name) : CompilerM (Array Decl) := withAtLeastMaxRecDe
   let manager ← getPassManager
   for pass in manager.passes do
     trace[Compiler] s!"Running pass: {pass.name}"
-    decls ← pass.run decls
-    checkpoint pass.name decls
+    decls ← withPhase pass.phase <| pass.run decls
+    withPhase pass.phase <| checkpoint pass.name decls
   saveStage1Decls decls
   if (← Lean.isTracingEnabledFor `Compiler.result) then
     for decl in decls do

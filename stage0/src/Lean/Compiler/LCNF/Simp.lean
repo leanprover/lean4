@@ -12,7 +12,6 @@ import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.ElimDead
 import Lean.Compiler.LCNF.Bind
 import Lean.Compiler.LCNF.PrettyPrinter
-import Lean.Compiler.LCNF.Stage1
 import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.AlphaEqv
 
@@ -447,7 +446,7 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
     unless mustInline || hasInlineAttribute (← getEnv) declName || inlineIfReduce do return none
     -- TODO: check whether function is recursive or not.
     -- We can skip the test and store function inline so far.
-    let some decl ← getStage1Decl? declName | return none
+    let some decl ← getDecl? declName | return none
     let arity := decl.getArity
     let inlinePartial := (← read).config.inlinePartial
     if !mustInline && !inlinePartial && numArgs < arity then return none
@@ -675,7 +674,7 @@ where
         visit e projs
     else
       let .const declName us := e.getAppFn | failure
-      let some decl ← getStage1Decl? declName | failure
+      let some decl ← getDecl? declName | failure
       guard (decl.getArity == e.getAppNumArgs)
       let code := decl.instantiateValueLevelParams us
       let code ← betaReduce decl.params code e.getAppArgs (mustInline := true)
@@ -877,7 +876,7 @@ def etaPolyApp? (letDecl : LetDecl) : OptionT SimpM FunDecl := do
   let some info := (← getEnv).find? declName | failure
   guard <| hasLocalInst info.type
   guard <| !(← Meta.isInstance declName)
-  let some decl ← getStage1Decl? declName | failure
+  let some decl ← getDecl? declName | failure
   let numArgs := letDecl.value.getAppNumArgs
   guard <| decl.getArity > numArgs
   let params ← mkNewParams letDecl.type

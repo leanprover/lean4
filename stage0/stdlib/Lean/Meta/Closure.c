@@ -205,7 +205,7 @@ static lean_object* l_Nat_foldRev___at_Lean_Meta_Closure_mkBinding___spec__2___c
 LEAN_EXPORT lean_object* l_Lean_mkFreshId___at_Lean_Meta_Closure_collectExprAux___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_pop(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
-uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_375_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_394_(uint8_t, uint8_t);
 lean_object* lean_expr_abstract(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Closure_pickNextToProcessAux(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Closure_pickNextToProcess_x3f___boxed(lean_object*);
@@ -5905,7 +5905,7 @@ return x_475;
 else
 {
 uint8_t x_476; 
-x_476 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_375_(x_464, x_464);
+x_476 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_394_(x_464, x_464);
 if (x_476 == 0)
 {
 lean_object* x_477; lean_object* x_478; 
@@ -6359,7 +6359,7 @@ return x_593;
 else
 {
 uint8_t x_594; 
-x_594 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_375_(x_582, x_582);
+x_594 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_394_(x_582, x_582);
 if (x_594 == 0)
 {
 lean_object* x_595; lean_object* x_596; 

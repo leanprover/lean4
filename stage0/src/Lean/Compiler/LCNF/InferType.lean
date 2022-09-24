@@ -172,10 +172,15 @@ def mkForallParams (params : Array Param) (type : Expr) : InferTypeM Expr :=
 def inferConstType (declName : Name) (us : List Level) : CompilerM Expr := do
   if declName == ``lcAny || declName == ``lcErased then
     return anyTypeExpr
-  else if let some decl ← getDecl? (← getPhase) declName then
+  else if let some decl ← getDecl? declName then
     return decl.instantiateTypeLevelParams us
   else
-    instantiateLCNFTypeLevelParams declName us -- TODO: delete after we compile decls at definition time
+    /-
+    We need this case for declarations that do not have code associated with them.
+    Example: constructors.
+    TODO: phase support.
+    -/
+    instantiateLCNFTypeLevelParams declName us
 
 mutual
 

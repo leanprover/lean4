@@ -113,7 +113,6 @@ static lean_object* l_Lean_IR_EmitC_emitUnbox___closed__2;
 static lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__1___closed__8;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitVDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitDeclAux___lambda__2___closed__1;
-uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_905____at_Lean_IR_IRType_beq___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_expandExternPattern(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitDel(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_closureMaxArgs;
@@ -181,6 +180,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__3___boxed(lean_obj
 LEAN_EXPORT lean_object* l_Nat_forM_loop___at_Lean_IR_EmitC_emitTailCall___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_toCType___closed__6;
 lean_object* l_Lean_IR_Decl_resultType(lean_object*);
+uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_945____at_Lean_IR_IRType_beq___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__1___closed__13;
 static lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__3___closed__1;
 lean_object* l_Lean_IR_Decl_name(lean_object*);
@@ -3029,7 +3029,7 @@ lean_dec(x_26);
 x_28 = l_Lean_Expr_constName_x3f(x_27);
 lean_dec(x_27);
 x_29 = l_Lean_IR_EmitC_emitMainFn___lambda__1___closed__4;
-x_30 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_905____at_Lean_IR_IRType_beq___spec__1(x_28, x_29);
+x_30 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_945____at_Lean_IR_IRType_beq___spec__1(x_28, x_29);
 lean_dec(x_28);
 if (x_30 == 0)
 {

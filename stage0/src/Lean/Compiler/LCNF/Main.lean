@@ -87,7 +87,7 @@ def compileStage1Impl (declNames : Array Name) : CoreM (Array Decl) :=
   CompilerM.run <| PassManager.run declNames
 
 def showDecl (phase : Phase) (declName : Name) : CoreM Format := do
-  let some decl ← getDecl? phase declName | return "<not-available>"
+  let some decl ← getDeclAt? declName phase | return "<not-available>"
   ppDecl' decl
 
 @[export lean_lcnf_compile_decls]

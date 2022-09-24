@@ -173,6 +173,10 @@ structure Context where
   declName : Name
   config : Config := {}
   discrCtorMap : FVarIdMap Expr := {}
+  /--
+  Stack of global declarations being recursively inlined.
+  -/
+  inlineStack : List Name := []
 
 structure State where
   /--
@@ -309,6 +313,46 @@ where
       addFunOcc funDecl.fvarId
       args.forM addArgOcc
     | .return .. | .unreach .. => return ()
+
+/--
+Execute `x` with an updated `inlineStack`. If `value` is of the form `const ...`, add `const` to the stack.
+Otherwise, do not change the `inlineStack`.
+-/
+@[inline] def withInlining (value : Expr) (x : SimpM α) : SimpM α := do
+  trace[Compiler.simp.inline] "inlining {value}"
+  let f := value.getAppFn
+  let stack := (← read).inlineStack
+  let inlineStack := if let .const declName _ := f then declName :: stack else stack
+  withReader (fun ctx => { ctx with inlineStack }) x
+
+/--
+Similar to the default `Lean.withIncRecDepth`, but include the `inlineStack` in the error messsage.
+-/
+@[inline] def withIncRecDepth (x : SimpM α) : SimpM α := do
+  let curr ← MonadRecDepth.getRecDepth
+  let max  ← MonadRecDepth.getMaxRecDepth
+  if curr == max then
+    throwMaxRecDepth
+  else
+    MonadRecDepth.withRecDepth (curr+1) x
+where
+  throwMaxRecDepth : SimpM α := do
+    match (← read).inlineStack with
+    | [] => throwError maxRecDepthErrorMessage
+    | declName :: stack =>
+      let mut fmt  := f!"{declName}\n"
+      let mut prev := declName
+      let mut ellipsis := false
+      for declName in stack do
+        if prev == declName then
+          unless ellipsis do
+            ellipsis := true
+            fmt := fmt ++ "...\n"
+        else
+          fmt := fmt ++ f!"{declName}\n"
+          prev := declName
+          ellipsis := false
+      throwError "maximum recursion depth reached in the code generator\nfunction inline stack:\n{fmt}"
 
 /--
 Execute `x` with `fvarId` set as `mustInline`.
@@ -872,7 +916,7 @@ inlined code **before** we attach it to the continuation.
 partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := do
   let some info ← inlineCandidate? letDecl.value | return none
   let numArgs := info.args.size
-  trace[Compiler.simp.inline] "inlining {letDecl.value}"
+  withInlining letDecl.value do
   let fvarId := letDecl.fvarId
   if numArgs < info.arity then
     let funDecl ← specializePartialApp info

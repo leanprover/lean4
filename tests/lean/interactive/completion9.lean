@@ -1,7 +1,7 @@
-def _foo := 123
+def foo_bar := 123
 
 #eval _
      --^ textDocument/completion
 
-#eval _f
+#eval f_
       --^ textDocument/completion

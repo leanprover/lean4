@@ -12,5 +12,4 @@
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completion.lean"},
  "position": {"line": 9, "character": 29}}
-{"items": [{"label": "foo", "kind": 5, "detail": "Foo → Nat"}],
- "isIncomplete": true}
+{"items": [], "isIncomplete": true}

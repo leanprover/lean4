@@ -442,20 +442,20 @@ private def tacticCompletion (ctx : ContextInfo) : IO (Option CompletionList) :=
     return some { items := sortCompletionItems items, isIncomplete := true }
 
 partial def find? (fileMap : FileMap) (hoverPos : String.Pos) (infoTree : InfoTree) (caps : ClientCapabilities) : IO (Option CompletionList) := do
-  let ⟨hoverLine, hoverCol⟩ := fileMap.toPosition hoverPos
+  let ⟨hoverLine, _⟩ := fileMap.toPosition hoverPos
 
-  dbg_trace s!"Completion.find? looking for completions at {hoverLine},{hoverCol}"
-  let result := infoTree.foldInfo (λ (ctx : ContextInfo) (info : Info) (i : List (ContextInfo × Info)) => (ctx, info) :: i) []
-  for (ctx, info) in result do
-     let inside := info.occursInside? hoverPos |>.isSome
-     let s ← info.format ctx
-     dbg_trace s!"Info: {s} : isCompletion={info.isCompletion} and inside={inside}"
+  -- dbg_trace s!"Completion.find? looking for completions at {hoverLine},{hoverCol}"
+  -- let result := infoTree.foldInfo (λ (ctx : ContextInfo) (info : Info) (i : List (ContextInfo × Info)) => (ctx, info) :: i) []
+  -- for (ctx, info) in result do
+  --    let inside := info.occursInside? hoverPos |>.isSome
+  --    let s ← info.format ctx
+  --    dbg_trace s!"Info: {s} : isCompletion={info.isCompletion} and inside={inside}"
 
   match infoTree.foldInfo (init := none) (choose fileMap hoverLine) with
   | some (hoverInfo, ctx, info) =>
-    let s ← info.format ctx
-    let inside := info.occursInside? hoverPos |>.isSome
-    dbg_trace s!"Chosen Info: {s} : isCompletion={info.isCompletion} and inside={inside}"
+    -- let s ← info.format ctx
+    -- let inside := info.occursInside? hoverPos |>.isSome
+    -- dbg_trace s!"Chosen Info: {s} : isCompletion={info.isCompletion} and inside={inside}"
 
     match info with
     | .ofCompletionInfo completion =>

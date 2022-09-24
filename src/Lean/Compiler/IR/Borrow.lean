@@ -288,7 +288,7 @@ partial def collectDecl : Decl → M Unit
   | _ => pure ()
 
 /-- Keep executing `x` until it reaches a fixpoint -/
-@[inline] partial def whileModifing (x : M Unit) : M Unit := do
+partial def whileModifing (x : M Unit) : M Unit := do
   modify fun s => { s with modified := false }
   x
   let s ← get

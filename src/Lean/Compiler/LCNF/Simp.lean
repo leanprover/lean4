@@ -455,8 +455,8 @@ where
     -- Approximation, the cases may have many unreachable alternatives, and only reachable.
     | .cases c => c.alts.size == 1 && go c.alts[0]!.getCode
     -- Approximation, we assume that any code containing join points have more than one exit point
-    | .jp .. | .jmp .. => false
-    | .return .. | .unreach .. => true
+    | .jp .. | .jmp .. | .unreach .. => false
+    | .return .. => true
 
 /--
 "Beta-reduce" `(fun params => code) args`.

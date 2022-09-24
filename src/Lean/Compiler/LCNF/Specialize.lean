@@ -343,7 +343,7 @@ mutual
     let some paramsInfo ← getSpecParamInfo? declName | return none
     let args := e.getAppArgs
     unless (← shouldSpecialize paramsInfo args) do return none
-    let some decl ← getStage1Decl? declName | return none
+    let some decl ← getDecl? declName | return none
     trace[Compiler.specialize.candidate] "{e}, {paramsInfo}"
     let (argMask, { params, decls, .. }) ← Collector.collect paramsInfo args |>.run {}
     let keyBody := mkAppN f (argMask.filterMap id)
@@ -360,9 +360,9 @@ mutual
       let specDecl ← mkSpecDecl decl us argMask params decls levelParamsNew
       trace[Compiler.specialize.step] "new: {specDecl.name}"
       cacheSpec key specDecl.name
+      specDecl.saveBase
       let specDecl ← specDecl.etaExpand
       specDecl.saveBase
-      saveLCNFType specDecl.name specDecl.type -- TODO: delete after we start compiling at decl time
       let specDecl ← specDecl.simp {} -- TODO: `simp` config
       let specDecl ← specDecl.simp { etaPoly := true, inlinePartial := true, implementedBy := true }
       let value ← withReader (fun _ => { declName := specDecl.name }) do

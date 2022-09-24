@@ -37,15 +37,19 @@ def getBaseDecl? (declName : Name) : CoreM (Option Decl) := do
   return getBaseDeclCore? (← getEnv) declName
 
 def saveBaseDeclCore (env : Environment) (decl : Decl) : Environment :=
+  let env := env.addExtraName decl.name
   baseExt.addEntry env decl
 
 def Decl.saveBase (decl : Decl) : CoreM Unit :=
   modifyEnv (saveBaseDeclCore · decl)
 
-def getDecl? (phase : Phase) (declName : Name) : CoreM (Option Decl) :=
+def getDeclAt? (declName : Name) (phase : Phase) : CoreM (Option Decl) :=
   match phase with
   | .base => getBaseDecl? declName
   | _  => return none -- TODO
+
+def getDecl? (declName : Name) : CompilerM (Option Decl) := do
+  getDeclAt? declName (← getPhase)
 
 def saveBase : Pass :=
   .mkPerDeclaration `saveBase (fun decl => do decl.saveBase; return decl) .base

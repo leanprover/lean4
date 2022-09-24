@@ -23,10 +23,7 @@ that are not strictly necessary.
 -/
 
 namespace Lean
-
-open Lean.Meta
-open Lean.SubExpr
-open Std (RBMap)
+open Meta SubExpr
 
 register_builtin_option pp.analyze : Bool := {
   defValue := false
@@ -197,7 +194,7 @@ def isHBinOp (e : Expr) : Bool := Id.run do
 def replaceLPsWithVars (e : Expr) : MetaM Expr := do
   if !e.hasLevelParam then return e
   let lps := collectLevelParams {} e |>.params
-  let mut replaceMap : Std.HashMap Name Level := {}
+  let mut replaceMap : HashMap Name Level := {}
   for lp in lps do replaceMap := replaceMap.insert lp (← mkFreshLevelMVar)
   return e.replaceLevel fun
     | Level.param n .. => replaceMap.find! n

@@ -140,10 +140,10 @@ instance : BEq SimpTheorem where
 structure SimpTheorems where
   pre          : DiscrTree SimpTheorem := DiscrTree.empty
   post         : DiscrTree SimpTheorem := DiscrTree.empty
-  lemmaNames   : Std.PHashSet Origin := {}
-  toUnfold     : Std.PHashSet Name := {}
-  erased       : Std.PHashSet Origin := {}
-  toUnfoldThms : Std.PHashMap Name (Array Name) := {}
+  lemmaNames   : PHashSet Origin := {}
+  toUnfold     : PHashSet Name := {}
+  erased       : PHashSet Origin := {}
+  toUnfoldThms : PHashMap Name (Array Name) := {}
   deriving Inhabited
 
 def addSimpTheoremEntry (d : SimpTheorems) (e : SimpTheorem) : SimpTheorems :=
@@ -152,7 +152,7 @@ def addSimpTheoremEntry (d : SimpTheorems) (e : SimpTheorem) : SimpTheorems :=
   else
     { d with pre := d.pre.insertCore e.keys e, lemmaNames := updateLemmaNames d.lemmaNames }
 where
-  updateLemmaNames (s : Std.PHashSet Origin) : Std.PHashSet Origin :=
+  updateLemmaNames (s : PHashSet Origin) : PHashSet Origin :=
     s.insert e.origin
 
 def SimpTheorems.addDeclToUnfoldCore (d : SimpTheorems) (declName : Name) : SimpTheorems :=
@@ -367,7 +367,7 @@ def mkSimpExt (extName : Name) : IO SimpExtension :=
       | SimpEntry.toUnfoldThms n thms => d.registerDeclToUnfoldThms n thms
   }
 
-abbrev SimpExtensionMap := Std.HashMap Name SimpExtension
+abbrev SimpExtensionMap := HashMap Name SimpExtension
 
 builtin_initialize simpExtensionMapRef : IO.Ref SimpExtensionMap ← IO.mkRef {}
 

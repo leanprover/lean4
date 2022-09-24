@@ -12,11 +12,9 @@ namespace Lean
 
 instance : Coe String Name := ⟨Name.mkSimple⟩
 
-open Std (RBMap RBTree mkRBMap mkRBTree)
+def NameMap (α : Type) := RBMap Name α Name.quickCmp
 
-def NameMap (α : Type) := Std.RBMap Name α Name.quickCmp
-
-@[inline] def mkNameMap (α : Type) : NameMap α := Std.mkRBMap Name α Name.quickCmp
+@[inline] def mkNameMap (α : Type) : NameMap α := mkRBMap Name α Name.quickCmp
 
 namespace NameMap
 variable {α : Type}
@@ -26,14 +24,14 @@ instance (α : Type) : EmptyCollection (NameMap α) := ⟨mkNameMap α⟩
 instance (α : Type) : Inhabited (NameMap α) where
   default := {}
 
-def insert (m : NameMap α) (n : Name) (a : α) := Std.RBMap.insert m n a
+def insert (m : NameMap α) (n : Name) (a : α) := RBMap.insert m n a
 
-def contains (m : NameMap α) (n : Name) : Bool := Std.RBMap.contains m n
+def contains (m : NameMap α) (n : Name) : Bool := RBMap.contains m n
 
-@[inline] def find? (m : NameMap α) (n : Name) : Option α := Std.RBMap.find? m n
+@[inline] def find? (m : NameMap α) (n : Name) : Option α := RBMap.find? m n
 
 instance : ForIn m (NameMap α) (Name × α) :=
-  inferInstanceAs (ForIn _ (Std.RBMap ..) ..)
+  inferInstanceAs (ForIn _ (RBMap ..) ..)
 
 end NameMap
 
@@ -43,10 +41,10 @@ namespace NameSet
 def empty : NameSet := mkRBTree Name Name.quickCmp
 instance : EmptyCollection NameSet := ⟨empty⟩
 instance : Inhabited NameSet := ⟨empty⟩
-def insert (s : NameSet) (n : Name) : NameSet := Std.RBTree.insert s n
-def contains (s : NameSet) (n : Name) : Bool := Std.RBMap.contains s n
+def insert (s : NameSet) (n : Name) : NameSet := RBTree.insert s n
+def contains (s : NameSet) (n : Name) : Bool := RBMap.contains s n
 instance : ForIn m NameSet Name :=
-  inferInstanceAs (ForIn _ (Std.RBTree ..) ..)
+  inferInstanceAs (ForIn _ (RBTree ..) ..)
 
 end NameSet
 
@@ -60,14 +58,14 @@ abbrev insert (s : NameSSet) (n : Name) : NameSSet := SSet.insert s n
 abbrev contains (s : NameSSet) (n : Name) : Bool := SSet.contains s n
 end NameSSet
 
-def NameHashSet := Std.HashSet Name
+def NameHashSet := HashSet Name
 
 namespace NameHashSet
-@[inline] def empty : NameHashSet := Std.HashSet.empty
+@[inline] def empty : NameHashSet := HashSet.empty
 instance : EmptyCollection NameHashSet := ⟨empty⟩
 instance : Inhabited NameHashSet := ⟨{}⟩
-def insert (s : NameHashSet) (n : Name) := Std.HashSet.insert s n
-def contains (s : NameHashSet) (n : Name) : Bool := Std.HashSet.contains s n
+def insert (s : NameHashSet) (n : Name) := HashSet.insert s n
+def contains (s : NameHashSet) (n : Name) : Bool := HashSet.contains s n
 end NameHashSet
 
 def MacroScopesView.isPrefixOf (v₁ v₂ : MacroScopesView) : Bool :=

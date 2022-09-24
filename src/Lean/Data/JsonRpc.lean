@@ -15,7 +15,6 @@ for use in the LSP server. -/
 namespace Lean.JsonRpc
 
 open Json
-open Std (RBNode)
 
 /-- In JSON-RPC, each request from the client editor to the language server comes with a
 request id so that the corresponding response can be identified or cancelled. -/

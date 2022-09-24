@@ -36,7 +36,7 @@ structure Snapshot where
   /-- We cache interactive diagnostics in order not to invoke the pretty-printer again on messages
   from previous snapshots when publishing diagnostics for every new snapshot (this is quadratic),
   as well as not to invoke it once again when handling `$/lean/interactiveDiagnostics`. -/
-  interactiveDiags : Std.PersistentArray Widget.InteractiveDiagnostic
+  interactiveDiags : PersistentArray Widget.InteractiveDiagnostic
   tacticCache : IO.Ref Tactic.Cache
 
 instance : Inhabited Snapshot where
@@ -60,7 +60,7 @@ def env (s : Snapshot) : Environment :=
 def msgLog (s : Snapshot) : MessageLog :=
   s.cmdState.messages
 
-def diagnostics (s : Snapshot) : Std.PersistentArray Lsp.Diagnostic :=
+def diagnostics (s : Snapshot) : PersistentArray Lsp.Diagnostic :=
   s.interactiveDiags.map fun d => d.toDiagnostic
 
 def infoTree (s : Snapshot) : InfoTree :=
@@ -173,7 +173,7 @@ where
   /-- Compute the current interactive diagnostics log by finding a "diff" relative to the parent
   snapshot. We need to do this because unlike the `MessageLog` itself, interactive diags are not
   part of the command state. -/
-  withNewInteractiveDiags (msgLog : MessageLog) : IO (Std.PersistentArray Widget.InteractiveDiagnostic) := do
+  withNewInteractiveDiags (msgLog : MessageLog) : IO (PersistentArray Widget.InteractiveDiagnostic) := do
     let newMsgCount := msgLog.msgs.size - snap.msgLog.msgs.size
     let mut ret := snap.interactiveDiags
     for i in List.iota newMsgCount do

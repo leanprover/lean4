@@ -5,7 +5,7 @@ Author: Leonardo de Moura
 -/
 import Lean.Data.PersistentHashMap
 
-namespace Std
+namespace Lean
 universe u v
 
 structure PersistentHashSet (α : Type u) [BEq α] [Hashable α] where

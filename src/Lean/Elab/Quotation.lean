@@ -580,7 +580,7 @@ private partial def compileStxMatch (discrs : List Term) (alts : List Alt) : Ter
     `(let discr := $discr; $stx)
   | _, _ => unreachable!
 
-abbrev IdxSet := Std.HashSet Nat
+abbrev IdxSet := HashSet Nat
 
 /--
 Given `rhss` the right-hand-sides of a `match`-syntax notation,

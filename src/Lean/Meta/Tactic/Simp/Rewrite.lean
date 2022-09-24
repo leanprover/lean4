@@ -127,7 +127,7 @@ def tryTheorem? (e : Expr) (thm : SimpTheorem) (discharge? : Expr → SimpM (Opt
 /--
 Remark: the parameter tag is used for creating trace messages. It is irrelevant otherwise.
 -/
-def rewrite? (e : Expr) (s : DiscrTree SimpTheorem) (erased : Std.PHashSet Origin) (discharge? : Expr → SimpM (Option Expr)) (tag : String) (rflOnly : Bool) : SimpM (Option Result) := do
+def rewrite? (e : Expr) (s : DiscrTree SimpTheorem) (erased : PHashSet Origin) (discharge? : Expr → SimpM (Option Expr)) (tag : String) (rflOnly : Bool) : SimpM (Option Result) := do
   let candidates ← s.getMatchWithExtra e
   if candidates.isEmpty then
     trace[Debug.Meta.Tactic.simp] "no theorems found for {tag}-rewriting {e}"

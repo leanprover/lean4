@@ -13,7 +13,7 @@ scoped notation:max "⊤" => lcAny
 namespace LCNF
 
 structure LCNFTypeExtState where
-  types : Std.PHashMap Name Expr := {}
+  types : PHashMap Name Expr := {}
   instLevelType : Core.InstantiateLevelCache := {}
   deriving Inhabited
 

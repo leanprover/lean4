@@ -207,7 +207,7 @@ protected def toString (msg : Message) (includeEndPos := false) : IO String := d
 end Message
 
 structure MessageLog where
-  msgs : Std.PersistentArray Message := {}
+  msgs : PersistentArray Message := {}
   deriving Inhabited
 
 namespace MessageLog

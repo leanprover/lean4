@@ -304,7 +304,7 @@ def tryContradiction (mvarId : MVarId) : MetaM Bool := do
   mvarId.contradictionCore { genDiseq := true }
 
 structure UnfoldEqnExtState where
-  map : Std.PHashMap Name Name := {}
+  map : PHashMap Name Name := {}
   deriving Inhabited
 
 /- We generate the unfold equation on demand, and do not save them on .olean files. -/

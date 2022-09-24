@@ -168,7 +168,7 @@ def mkRoot (e : Expr) : SubExpr := ⟨e, Pos.root⟩
 def isRoot (s : SubExpr) : Bool := s.pos.isRoot
 
 /-- Map from subexpr positions to values. -/
-abbrev PosMap (α : Type u) := Std.RBMap Pos α compare
+abbrev PosMap (α : Type u) := RBMap Pos α compare
 
 def bindingBody! : SubExpr → SubExpr
   | ⟨.forallE _ _ b _, p⟩ => ⟨b, p.pushBindingBody⟩

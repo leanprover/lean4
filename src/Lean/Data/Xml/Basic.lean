@@ -9,7 +9,7 @@ import Lean.Data.RBMap
 namespace Lean
 namespace Xml
 
-def Attributes := Std.RBMap String String compare
+def Attributes := RBMap String String compare
 instance : ToString Attributes := ⟨λ as => as.fold (λ s n v => s ++ s!" {n}=\"{v}\"") ""⟩
 
 mutual

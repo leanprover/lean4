@@ -136,7 +136,7 @@ it is a free variable, a type (or type former), or `lcErased`.
 
 `Check.lean` contains a substitution validator.
 -/
-abbrev FVarSubst := Std.HashMap FVarId Expr
+abbrev FVarSubst := HashMap FVarId Expr
 
 /--
 Replace the free variables in `e` using the given substitution.

@@ -27,8 +27,6 @@ Assumptions:
   Reason: `resetreuse.lean` ignores `box` and `unbox` instructions.
 -/
 
-open Std (AssocList)
-
 def mkBoxedName (n : Name) : Name :=
   Name.mkStr n "_boxed"
 
@@ -115,7 +113,7 @@ structure BoxingState where
      processing the same IR declaration.
   -/
   auxDecls : Array Decl := #[]
-  auxDeclCache : AssocList FnBody Expr := Std.AssocList.empty
+  auxDeclCache : AssocList FnBody Expr := AssocList.empty
   nextAuxId : Nat := 1
 
 abbrev M := ReaderT BoxingContext (StateT BoxingState Id)

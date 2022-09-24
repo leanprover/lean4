@@ -104,9 +104,9 @@ in fact exhaustive due to LCNF constraints:
           type inside structure becomes Any, value inside structure becomes Erased.
 -/
 partial def compatibleTypes (a b : Expr) : Bool :=
-  if a.isAnyType || b.isAnyType then
+  if a.getAppFn.isAnyType || b.getAppFn.isAnyType then
     true
-  else if a.isErased || b.isErased then
+  else if a.getAppFn.isErased || b.getAppFn.isErased then
     true
   else
     let a' := a.headBeta

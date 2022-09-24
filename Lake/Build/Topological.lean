@@ -17,7 +17,6 @@ a build store.
 This is called a suspending scheduler in *Build systems à la carte*.
 -/
 
-open Std
 namespace Lake
 
 /-!

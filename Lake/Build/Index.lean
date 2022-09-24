@@ -15,7 +15,7 @@ Lake build functions, which is used by Lake to build any Lake build info.
 This module leverages the index to perform topologically-based recursive builds.
 -/
 
-open Std Lean
+open Lean
 namespace Lake
 
 /--

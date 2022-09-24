@@ -12,7 +12,7 @@ namespace Lake
 
 export Lean (Name NameMap)
 
-@[inline] def NameMap.empty : NameMap α := Std.RBMap.empty
+@[inline] def NameMap.empty : NameMap α := RBMap.empty
 
 instance : ForIn m (NameMap α) (Name × α) where
   forIn self init f := self.forIn init f

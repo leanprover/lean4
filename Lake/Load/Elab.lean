@@ -14,7 +14,7 @@ open Lean System
 deriving instance BEq, Hashable for Import
 
 /- Cache for the imported header environment of Lake configuration files. -/
-initialize importEnvCache : IO.Ref (Std.HashMap (List Import) Environment) ← IO.mkRef {}
+initialize importEnvCache : IO.Ref (HashMap (List Import) Environment) ← IO.mkRef {}
 
 /-- Like `Lean.Elab.processHeader`, but using `importEnvCache`. -/
 def processHeader (header : Syntax) (opts : Options) (trustLevel : UInt32)

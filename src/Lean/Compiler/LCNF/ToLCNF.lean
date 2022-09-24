@@ -190,11 +190,11 @@ structure State where
   /-- Local context containing the original Lean types (not LCNF ones). -/
   lctx : LocalContext := {}
   /-- Cache from Lean regular expression to LCNF expression. -/
-  cache : Std.PHashMap Expr Expr := {}
+  cache : PHashMap Expr Expr := {}
   /-- `toLCNFType` cache -/
-  typeCache : Std.HashMap Expr Expr := {}
+  typeCache : HashMap Expr Expr := {}
   /-- isTypeFormerType cache -/
-  isTypeFormerTypeCache : Std.HashMap Expr Bool := {}
+  isTypeFormerTypeCache : HashMap Expr Bool := {}
   /-- LCNF sequence, we chain it to create a LCNF `Code` object. -/
   seq : Array Element := #[]
   /--

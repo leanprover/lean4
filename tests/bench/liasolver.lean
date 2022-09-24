@@ -6,7 +6,7 @@ Author: Marc Huisinga
 
 import Lean.Data.HashMap
 
-open Std
+open Lean
 
 namespace Int
 
@@ -23,7 +23,7 @@ namespace Int
 
 end Int
 
-namespace Std.AssocList
+namespace Lean.AssocList
 
   def map (f : α → β → δ) : AssocList α β → AssocList α δ
     | AssocList.nil        => AssocList.nil
@@ -37,9 +37,9 @@ namespace Std.AssocList
       else
         filter p t
 
-end Std.AssocList
+end Lean.AssocList
 
-namespace Std.HashMap
+namespace Lean.HashMap
 
   variable [BEq α] [Hashable α]
 
@@ -93,7 +93,7 @@ namespace Std.HashMap
         return some (k, v)
     return none
 
-end Std.HashMap
+end Lean.HashMap
 
 structure Equation where
   id     : Nat

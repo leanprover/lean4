@@ -10,8 +10,6 @@ import Lean.Data.Format
 namespace Lean
 namespace Parser
 
-open Std (RBNode RBNode.leaf RBNode.singleton RBNode.find RBNode.insert)
-
 inductive Trie (α : Type) where
   | Node : Option α → RBNode Char (fun _ => Trie α) → Trie α
 

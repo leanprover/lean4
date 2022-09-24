@@ -55,8 +55,8 @@ abbrev Table (γ : Type) := SMap Key (List (AttributeEntry γ))
 structure ExtensionState (γ : Type) where
   newEntries : List OLeanEntry := []
   table      : Table γ := {}
-  declNames  : Std.PHashSet Name := {}
-  erased     : Std.PHashSet Name := {}
+  declNames  : PHashSet Name := {}
+  erased     : PHashSet Name := {}
   deriving Inhabited
 
 abbrev Extension (γ : Type) := ScopedEnvExtension OLeanEntry (AttributeEntry γ) (ExtensionState γ)

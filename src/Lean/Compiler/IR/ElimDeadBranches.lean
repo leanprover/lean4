@@ -139,7 +139,7 @@ def addFunctionSummary (env : Environment) (fid : FunId) (v : Value) : Environme
 def getFunctionSummary? (env : Environment) (fid : FunId) : Option Value :=
   (functionSummariesExt.getState env).find? fid
 
-abbrev Assignment := Std.HashMap VarId Value
+abbrev Assignment := HashMap VarId Value
 
 structure InterpContext where
   currFnIdx : Nat := 0
@@ -149,7 +149,7 @@ structure InterpContext where
 
 structure InterpState where
   assignments : Array Assignment
-  funVals     : Std.PArray Value -- we take snapshots during fixpoint computations
+  funVals     : PArray Value -- we take snapshots during fixpoint computations
 
 abbrev M := ReaderT InterpContext (StateM InterpState)
 
@@ -316,7 +316,7 @@ def elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
   let s ← get
   let env := s.env
   let assignments : Array Assignment := decls.map fun _ => {}
-  let funVals := Std.mkPArray decls.size Value.bot
+  let funVals := mkPArray decls.size Value.bot
   let ctx : InterpContext := { decls := decls, env := env }
   let s : InterpState := { assignments := assignments, funVals := funVals }
   let (_, s) := (inferMain ctx).run s

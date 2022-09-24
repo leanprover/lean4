@@ -232,7 +232,7 @@ unsafe def Expr.dagSizeUnsafe (e : Expr) : IO Nat := do
   let (_, s) ← visit e |>.run ({}, 0)
   return s.2
 where
-  visit (e : Expr) : StateRefT (Std.HashSet USize × Nat) IO Unit := do
+  visit (e : Expr) : StateRefT (HashSet USize × Nat) IO Unit := do
     let addr := ptrAddrUnsafe e
     unless (← get).1.contains addr do
       modify fun (s, c) => (s.insert addr, c+1)

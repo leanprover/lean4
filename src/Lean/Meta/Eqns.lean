@@ -50,7 +50,7 @@ private def shouldGenerateEqnThms (declName : Name) : MetaM Bool := do
     return false
 
 structure EqnsExtState where
-  map : Std.PHashMap Name (Array Name) := {}
+  map : PHashMap Name (Array Name) := {}
   deriving Inhabited
 
 /- We generate the equations on demand, and do not save them on .olean files. -/

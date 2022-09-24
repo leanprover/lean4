@@ -37,5 +37,5 @@ def f3 : Nat :=
 def f4 (x : Nat) : Nat :=
   .succ x
 
-example (xs : List α) : Std.RBTree α ord :=
+example (xs : List α) : Lean.RBTree α ord :=
   xs.foldl .insert ∅

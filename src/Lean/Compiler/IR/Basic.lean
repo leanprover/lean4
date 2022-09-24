@@ -442,8 +442,6 @@ end Decl
 @[export lean_ir_mk_dummy_extern_decl] def mkDummyExternDecl (f : FunId) (xs : Array Param) (ty : IRType) : Decl :=
   Decl.fdecl f xs ty FnBody.unreachable {}
 
-open Std (RBTree RBTree.empty RBMap)
-
 /-- Set of variable and join point names -/
 abbrev IndexSet := RBTree Index compare
 instance : Inhabited IndexSet := ⟨{}⟩
@@ -496,7 +494,7 @@ def LocalContext.isLocalVar (ctx : LocalContext) (idx : Index) : Bool :=
   | _     => false
 
 def LocalContext.contains (ctx : LocalContext) (idx : Index) : Bool :=
-  Std.RBMap.contains ctx idx
+  RBMap.contains ctx idx
 
 def LocalContext.eraseJoinPointDecl (ctx : LocalContext) (j : JoinPointId) : LocalContext :=
   ctx.erase j.idx

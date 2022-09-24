@@ -72,7 +72,7 @@ structure FunDeclInfoMap where
   /--
   Mapping from local function name to inlining information.
   -/
-  map : Std.HashMap FVarId FunDeclInfo := {}
+  map : HashMap FVarId FunDeclInfo := {}
   deriving Inhabited
 
 def FunDeclInfoMap.format (s : FunDeclInfoMap) : CompilerM Format := do

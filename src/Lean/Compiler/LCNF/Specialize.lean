@@ -15,7 +15,7 @@ import Lean.Compiler.LCNF.PhaseExt
 namespace Lean.Compiler.LCNF
 namespace Specialize
 
-abbrev Cache := Std.PHashMap Expr Name
+abbrev Cache := PHashMap Expr Name
 
 builtin_initialize specCacheExt : EnvExtension Cache ←
   registerEnvExtension (pure {})

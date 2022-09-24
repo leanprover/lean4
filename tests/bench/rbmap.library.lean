@@ -1,6 +1,6 @@
 import Lean.Data.RBMap
 
-open Std
+open Lean
 
 abbrev Tree : Type := RBMap Nat Bool compare
 

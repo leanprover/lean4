@@ -9,7 +9,7 @@ import Lean.Compiler.IR.FreeVars
 
 namespace Lean.IR.ExpandResetReuse
 /-- Mapping from variable to projections -/
-abbrev ProjMap  := Std.HashMap VarId Expr
+abbrev ProjMap  := HashMap VarId Expr
 namespace CollectProjMap
 abbrev Collector := ProjMap → ProjMap
 @[inline] def collectVDecl (x : VarId) (v : Expr) : Collector := fun m =>

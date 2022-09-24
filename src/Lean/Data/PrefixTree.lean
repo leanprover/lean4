@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 import Lean.Data.RBMap
 
 namespace Lean
-open Std
 
 /- Similar to trie, but for arbitrary keys -/
 inductive PrefixTreeNode (α : Type u) (β : Type v) where

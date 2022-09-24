@@ -147,8 +147,8 @@ structure CacheKey where
   Cache for the `save` tactic.
 -/
 structure Cache where
-   pre  : Std.PHashMap CacheKey Snapshot := {}
-   post : Std.PHashMap CacheKey Snapshot := {}
+   pre  : PHashMap CacheKey Snapshot := {}
+   post : PHashMap CacheKey Snapshot := {}
    deriving Inhabited
 
 end Tactic
@@ -183,7 +183,7 @@ structure Context where
      `elabTypeWithUnboldImplicit`. Both methods add implicit declarations
      for the unbound variable and try again. -/
   autoBoundImplicit  : Bool            := false
-  autoBoundImplicits : Std.PArray Expr := {}
+  autoBoundImplicits : PArray Expr := {}
   /--
     A name `n` is only eligible to be an auto implicit name if `autoBoundImplicitForbidden n = false`.
     We use this predicate to disallow `f` to be considered an auto implicit name in a definition such

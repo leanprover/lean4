@@ -153,7 +153,7 @@ inductive InfoTree where
   /-- The context object is created by `liftTermElabM` at `Command.lean` -/
   | context (i : ContextInfo) (t : InfoTree)
   /-- The children contain information for nested term elaboration and tactic evaluation -/
-  | node (i : Info) (children : Std.PersistentArray InfoTree)
+  | node (i : Info) (children : PersistentArray InfoTree)
   /-- The elaborator creates holes (aka metavariables) for tactics and postponed terms -/
   | hole (mvarId : MVarId)
   deriving Inhabited
@@ -172,9 +172,9 @@ structure InfoState where
   /-- Whether info trees should be recorded. -/
   enabled    : Bool := true
   /-- Map from holes in the infotree to child infotrees. -/
-  assignment : Std.PersistentHashMap MVarId InfoTree := {}
+  assignment : PersistentHashMap MVarId InfoTree := {}
   /-- Pending child trees of a node. -/
-  trees      : Std.PersistentArray InfoTree := {}
+  trees      : PersistentArray InfoTree := {}
   deriving Inhabited
 
 class MonadInfoTree (m : Type → Type)  where

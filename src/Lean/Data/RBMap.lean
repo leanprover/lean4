@@ -3,7 +3,7 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-namespace Std
+namespace Lean
 universe u v w w'
 
 inductive Rbcolor where
@@ -16,7 +16,7 @@ inductive RBNode (α : Type u) (β : α → Type v) where
 namespace RBNode
 variable {α : Type u} {β : α → Type v} {σ : Type w}
 
-open Std.Rbcolor Nat
+open Rbcolor Nat
 
 def depth (f : Nat → Nat → Nat) : RBNode α β → Nat
   | leaf           => 0
@@ -246,7 +246,7 @@ instance : EmptyCollection (RBNode α β) := ⟨leaf⟩
 
 end RBNode
 
-open Std.RBNode
+open Lean.RBNode
 
 /- TODO(Leo): define dRBMap -/
 
@@ -310,7 +310,7 @@ instance : ForIn m (RBMap α β cmp) (α × β) where
     | none        => none
 
 instance [Repr α] [Repr β] : Repr (RBMap α β cmp) where
-  reprPrec m prec := Repr.addAppParen ("Std.rbmapOf " ++ repr m.toList) prec
+  reprPrec m prec := Repr.addAppParen ("Lean.rbmapOf " ++ repr m.toList) prec
 
 @[inline] def insert : RBMap α β cmp → α → β → RBMap α β cmp
   | ⟨t, w⟩, k, v => ⟨t.insert cmp k v, WellFormed.insertWff w rfl⟩
@@ -397,5 +397,3 @@ end RBMap
 
 def rbmapOf {α : Type u} {β : Type v} (l : List (α × β)) (cmp : α → α → Ordering) : RBMap α β cmp :=
   RBMap.fromList l cmp
-
-end Std

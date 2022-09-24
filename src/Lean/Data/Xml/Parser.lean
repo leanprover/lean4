@@ -410,7 +410,7 @@ protected def elementPrefix : Parsec (Array Content → Element) := do
   let name ← Name
   let attributes ← many (S *> Attribute)
   optional S *> pure ()
-  return Element.Element name (Std.RBMap.fromList attributes.toList compare)
+  return Element.Element name (RBMap.fromList attributes.toList compare)
 
 /-- https://www.w3.org/TR/xml/#NT-EmptyElemTag -/
 def EmptyElemTag (elem : Array Content → Element) : Parsec Element := do

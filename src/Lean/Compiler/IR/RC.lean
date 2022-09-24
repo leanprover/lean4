@@ -19,7 +19,7 @@ structure VarInfo where
   consume    : Bool := false -- true if the variable RC must be "consumed"
   deriving Inhabited
 
-abbrev VarMap := Std.RBMap VarId VarInfo (fun x y => compare x.idx y.idx)
+abbrev VarMap := RBMap VarId VarInfo (fun x y => compare x.idx y.idx)
 
 structure Context where
   env            : Environment

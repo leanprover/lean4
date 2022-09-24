@@ -2,7 +2,7 @@ import Lean.Data.HashSet
 
 set_option linter.unusedVariables true
 
-open Std
+open Lean
 
 def boo : Id (HashSet Nat) := do
   let mut vs : HashSet Nat := HashSet.empty

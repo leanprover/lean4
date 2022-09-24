@@ -301,8 +301,6 @@ structure DelayedMetavarAssignment where
   fvars         : Array Expr
   mvarIdPending : MVarId
 
-open Std (HashMap PersistentHashMap)
-
 /-- The metavariable context is a set of metavariable declarations and their assignments.
 
 For more information on specifics see the comment in the file that `MetavarContext` is defined in.

@@ -1,11 +1,11 @@
 structure Foo where
   foo : Nat
 
-example (f : Foo) : f.
+example (g : Foo) : g.
                     --^ textDocument/completion
-example (f : Foo) : f.f
+example (g : Foo) : g.f
                      --^ textDocument/completion
-example (f : Foo) : id f |>.
+example (g : Foo) : id g |>.
                           --^ textDocument/completion
-example (f : Foo) : id f |>.f
+example (g : Foo) : id g |>.f
                            --^ textDocument/completion

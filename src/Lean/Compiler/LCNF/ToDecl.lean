@@ -93,6 +93,7 @@ The steps for this are roughly:
 - turn the resulting term into LCNF declaration
 -/
 def toDecl (declName : Name) : CompilerM Decl := do
+  let declName := if let some name := isUnsafeRecName? declName then name else declName
   let some info ← getDeclInfo? declName | throwError "declaration `{declName}` not found"
   let some value := info.value? | throwError "declaration `{declName}` does not have a value"
   let (type, value) ← Meta.MetaM.run' do

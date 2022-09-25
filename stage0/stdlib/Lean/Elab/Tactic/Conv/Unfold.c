@@ -21,7 +21,6 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalUnfold___closed__10
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Elab_Tactic_withMainContext___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalUnfold_declRange___closed__7;
-lean_object* l_Lean_Elab_resolveGlobalConstNoOverloadWithInfo___at_Lean_Elab_Tactic_elabSimpArgs___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalUnfold_declRange(lean_object*);
@@ -43,6 +42,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalUnfold___closed__13
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalUnfold_declRange___closed__5;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalUnfold___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalUnfold___closed__5;
+lean_object* l_Lean_Elab_resolveGlobalConstNoOverloadWithInfo___at_Lean_Elab_Tactic_elabSimpArgs___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalUnfold___boxed__const__1;
 lean_object* l_Lean_Meta_unfold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalUnfold___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -98,7 +98,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
-x_18 = l_Lean_Elab_resolveGlobalConstNoOverloadWithInfo___at_Lean_Elab_Tactic_elabSimpArgs___spec__2(x_16, x_17, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
+x_18 = l_Lean_Elab_resolveGlobalConstNoOverloadWithInfo___at_Lean_Elab_Tactic_elabSimpArgs___spec__3(x_16, x_17, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; 

@@ -72,7 +72,7 @@ syntax (name := arg) "arg " "@"? num : conv
 
 /-- `ext x` traverses into a binder (a `fun x => e` or `∀ x, e` expression)
 to target `e`, introducing name `x` in the process. -/
-syntax (name := ext) "ext " (colGt ident)* : conv
+syntax (name := ext) "ext" (colGt ident)* : conv
 
 /-- `change t'` replaces the target `t` with `t'`,
 assuming `t` and `t'` are definitionally equal. -/
@@ -96,11 +96,11 @@ syntax (name := unfold) "unfold " (colGt ident)+ : conv
 syntax (name := pattern) "pattern " term : conv
 
 /-- `rw [thm]` rewrites the target using `thm`. See the `rw` tactic for more information. -/
-syntax (name := rewrite) "rewrite " (config)? rwRuleSeq : conv
+syntax (name := rewrite) "rewrite" (config)? rwRuleSeq : conv
 
 /-- `simp [thm]` performs simplification using `thm` and marked `@[simp]` lemmas.
 See the `simp` tactic for more information. -/
-syntax (name := simp) "simp " (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? : conv
+syntax (name := simp) "simp" (config)? (discharger)? (&" only")? (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? : conv
 
 /-- `simp_match` simplifies match expressions. For example,
 ```
@@ -128,19 +128,19 @@ syntax (name := paren) "(" convSeq ")" : conv
 
 /-- `conv => cs` runs `cs` in sequence on the target `t`,
 resulting in `t'`, which becomes the new target subgoal. -/
-syntax (name := convConvSeq) "conv " " => " convSeq : conv
+syntax (name := convConvSeq) "conv" " => " convSeq : conv
 
 /-- `· conv` focuses on the main conv goal and tries to solve it using `s` -/
 macro dot:("·" <|> ".") s:convSeq : conv => `({%$dot ($s) })
 
 /-- `rw [rules]` applies the given list of rewrite rules to the target.
 See the `rw` tactic for more information. -/
-macro "rw " c:(config)? s:rwRuleSeq : conv => `(rewrite $[$c]? $s)
+macro "rw" c:(config)? s:rwRuleSeq : conv => `(rewrite $[$c]? $s)
 
 /-- `erw [rules]` is a shorthand for `rw (config := { transparency := .default }) [rules]`.
 This does rewriting up to unfolding of regular definitions (by comparison to regular `rw`
 which only unfolds `@[reducible]` definitions). -/
-macro "erw " s:rwRuleSeq : conv => `(rw (config := { transparency := .default }) $s)
+macro "erw" s:rwRuleSeq : conv => `(rw (config := { transparency := .default }) $s)
 
 /-- `args` traverses into all arguments. Synonym for `congr`. -/
 macro "args" : conv => `(congr)
@@ -149,7 +149,7 @@ macro "left" : conv => `(lhs)
 /-- `right` traverses into the right argument. Synonym for `rhs`. -/
 macro "right" : conv => `(rhs)
 /-- `intro` traverses into binders. Synonym for `ext`. -/
-macro "intro " xs:(colGt ident)* : conv => `(conv| ext $xs*)
+macro "intro" xs:(colGt ident)* : conv => `(conv| ext $xs*)
 
 syntax enterArg := ident <|> ("@"? num)
 
@@ -160,7 +160,7 @@ It is a shorthand for other conv tactics as follows:
 * `enter [x]` (where `x` is an identifier) is equivalent to `ext x`.
 For example, given the target `f (g a (fun x => x b))`, `enter [1, 2, x, 1]`
 will traverse to the subterm `b`. -/
-syntax "enter " "[" (colGt enterArg),+ "]": conv
+syntax "enter" " [" (colGt enterArg),+ "]": conv
 macro_rules
   | `(conv| enter [$i:num]) => `(conv| arg $i)
   | `(conv| enter [@$i]) => `(conv| arg @$i)
@@ -187,7 +187,7 @@ macro "apply " e:term : conv => `(tactic => apply $e)
 syntax (name := first) "first " withPosition((colGe "|" convSeq)+) : conv
 
 /-- `repeat convs` runs the sequence `convs` repeatedly until it fails to apply. -/
-syntax "repeat " convSeq : conv
+syntax "repeat" convSeq : conv
 macro_rules
   | `(conv| repeat $seq) => `(conv| first | ($seq); repeat $seq | rfl)
 

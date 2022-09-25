@@ -303,7 +303,7 @@ It synthesizes a value of any target type by typeclass inference.
 macro "infer_instance" : tactic => `(exact inferInstance)
 
 /-- Optional configuration option for tactics -/
-syntax config := atomic("(" &"config") " := " term ")"
+syntax config := atomic(" (" &"config") " := " term ")"
 
 /-- The `*` location refers to all hypotheses and the goal. -/
 syntax locationWildcard := "*"
@@ -347,7 +347,7 @@ If `thm` is a theorem `a = b`, then as a rewrite rule,
 -/
 syntax rwRule    := ("← " <|> "<- ")? term
 /-- A `rwRuleSeq` is a list of `rwRule` in brackets. -/
-syntax rwRuleSeq := "[" rwRule,*,? "]"
+syntax rwRuleSeq := " [" rwRule,*,? "]"
 
 /--
 `rewrite [e]` applies identity `e` as a rewrite rule to the target of the main goal.
@@ -359,12 +359,12 @@ This provides a convenient way to unfold `e`.
   list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-`
   can also be used, to signify the target of the goal.
 -/
-syntax (name := rewriteSeq) "rewrite " (config)? rwRuleSeq (location)? : tactic
+syntax (name := rewriteSeq) "rewrite" (config)? rwRuleSeq (location)? : tactic
 
 /--
 `rw` is like `rewrite`, but also tries to close the goal by "cheap" (reducible) `rfl` afterwards.
 -/
-macro (name := rwSeq) "rw " c:(config)? s:rwRuleSeq l:(location)? : tactic =>
+macro (name := rwSeq) "rw" c:(config)? s:rwRuleSeq l:(location)? : tactic =>
   match s with
   | `(rwRuleSeq| [$rs,*]%$rbrak) =>
     -- We show the `rfl` state on `]`
@@ -396,7 +396,7 @@ syntax (name := injections) "injections" (colGt (ident <|> hole))* : tactic
 The discharger clause of `simp` and related tactics.
 This is a tactic used to discharge the side conditions on conditional rewrite rules.
 -/
-syntax discharger := atomic("(" (&"discharger" <|> &"disch")) " := " tacticSeq ")"
+syntax discharger := atomic(" (" (&"discharger" <|> &"disch")) " := " tacticSeq ")"
 
 /-- Use this rewrite rule before entering the subterms -/
 syntax simpPre   := "↓"
@@ -433,23 +433,23 @@ non-dependent hypotheses. It has many variants:
 - `simp [*] at *` simplifies target and all (propositional) hypotheses using the
   other hypotheses.
 -/
-syntax (name := simp) "simp " (config)? (discharger)? (&"only ")?
-  ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
+syntax (name := simp) "simp" (config)? (discharger)? (&" only")?
+  (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
 /--
 `simp_all` is a stronger version of `simp [*] at *` where the hypotheses and target
 are simplified multiple times until no simplication is applicable.
 Only non-dependent propositional hypotheses are considered.
 -/
-syntax (name := simpAll) "simp_all " (config)? (discharger)? (&"only ")?
-  ("[" (simpErase <|> simpLemma),* "]")? : tactic
+syntax (name := simpAll) "simp_all" (config)? (discharger)? (&" only")?
+  (" [" (simpErase <|> simpLemma),* "]")? : tactic
 
 /--
 The `dsimp` tactic is the definitional simplifier. It is similar to `simp` but only
 applies theorems that hold by reflexivity. Thus, the result is guaranteed to be
 definitionally equal to the input.
 -/
-syntax (name := dsimp) "dsimp " (config)? (discharger)? (&"only ")?
-  ("[" (simpErase <|> simpLemma),* "]")? (location)? : tactic
+syntax (name := dsimp) "dsimp" (config)? (discharger)? (&" only")?
+  (" [" (simpErase <|> simpLemma),* "]")? (location)? : tactic
 
 /--
 `delta id1 id2 ...` delta-expands the definitions `id1`, `id2`, ....

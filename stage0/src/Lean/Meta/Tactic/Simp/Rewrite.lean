@@ -55,7 +55,7 @@ where
 private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo) (val : Expr) (type : Expr) (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Result) := do
   let rec go (e : Expr) : SimpM (Option Result) := do
     if (← isDefEq lhs e) then
-      unless (← synthesizeArgs thm.getName xs bis discharge?) do
+      unless (← synthesizeArgs thm.name xs bis discharge?) do
         return none
       let proof? ← if thm.rfl then
         pure none
@@ -73,6 +73,7 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
           trace[Meta.Tactic.simp.rewrite] "{thm}, perm rejected {e} ==> {rhs}"
           return none
       trace[Meta.Tactic.simp.rewrite] "{thm}, {e} ==> {rhs}"
+      recordSimpTheorem thm.name
       return some { expr := rhs, proof? }
     else
       unless lhs.isMVar do
@@ -141,9 +142,7 @@ def rewrite? (e : Expr) (s : DiscrTree SimpTheorem) (erased : Std.PHashSet Name)
     return none
 where
   inErasedSet (thm : SimpTheorem) : Bool :=
-    match thm.name? with
-    | none => false
-    | some name => erased.contains name
+    erased.contains thm.name
 
 @[inline] def andThen (s : Step) (f? : Expr → SimpM (Option Step)) : SimpM Step := do
   match s with
@@ -207,7 +206,7 @@ def simpArith? (e : Expr) : SimpM (Option Step) := do
 def simpMatchCore? (app : MatcherApp) (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Step) := do
   for matchEq in (← Match.getEquationsFor app.matcherName).eqnNames do
     -- Try lemma
-    match (← withReducible <| Simp.tryTheorem? e { proof := mkConst matchEq, name? := some matchEq, rfl := (← isRflTheorem matchEq) } discharge?) with
+    match (← withReducible <| Simp.tryTheorem? e { name := matchEq, proof := mkConst matchEq, rfl := (← isRflTheorem matchEq) } discharge?) with
     | none   => pure ()
     | some r => return some (Simp.Step.done r)
   return none

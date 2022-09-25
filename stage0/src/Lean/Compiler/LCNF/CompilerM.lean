@@ -119,6 +119,10 @@ def eraseCodeDecl (decl : CodeDecl) : CompilerM Unit := do
   | .let decl => eraseLetDecl decl
   | .jp decl | .fun decl => eraseFunDecl decl
 
+def eraseDecl (decl : Decl) : CompilerM Unit := do
+  eraseParams decl.params
+  eraseCode decl.value
+
 /--
 A free variable substitution.
 We use these substitutions when inlining definitions and "internalizing" LCNF code into `CompilerM`.
@@ -148,6 +152,11 @@ expression to be `f xₙ xₙ`. We use this setting, for example, in the simplif
 private partial def normExprImp (s : FVarSubst) (e : Expr) (translator : Bool) : Expr :=
   go e
 where
+  goApp (e : Expr) : Expr :=
+    match e with
+    | .app f a => e.updateApp! (goApp f) (go a)
+    | _ => go e
+
   go (e : Expr) : Expr :=
     if e.hasFVar then
       match e with
@@ -155,7 +164,7 @@ where
         | some e => if translator then e else go e
         | none => e
       | .lit .. | .const .. | .sort .. | .mvar .. | .bvar .. => e
-      | .app f a => e.updateApp! (go f) (go a)
+      | .app f a => e.updateApp! (goApp f) (go a) |>.headBeta
       | .mdata _ b => e.updateMData! (go b)
       | .proj _ _ b => e.updateProj! (go b)
       | .forallE _ d b _ => e.updateForallE! (go d) (go b)

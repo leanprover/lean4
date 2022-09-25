@@ -119,6 +119,10 @@ def eraseCodeDecl (decl : CodeDecl) : CompilerM Unit := do
   | .let decl => eraseLetDecl decl
   | .jp decl | .fun decl => eraseFunDecl decl
 
+def eraseDecl (decl : Decl) : CompilerM Unit := do
+  eraseParams decl.params
+  eraseCode decl.value
+
 /--
 A free variable substitution.
 We use these substitutions when inlining definitions and "internalizing" LCNF code into `CompilerM`.

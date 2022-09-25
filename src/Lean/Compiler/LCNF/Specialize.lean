@@ -295,9 +295,19 @@ Specialize `decl` using
 -/
 def mkSpecDecl (decl : Decl) (us : List Level) (argMask : Array (Option Expr)) (params : Array Param) (decls : Array CodeDecl) (levelParamsNew : List Name) : SpecializeM Decl := do
   let nameNew := decl.name ++ `_at_ ++ (← read).declName ++ (`spec).appendIndexAfter (← get).decls.size
-  go nameNew |>.run' {}
+  /-
+  Recall that we have just retrieved `decl` using `getDecl?`, and it may have free variable identifiers that overlap with the free-variables
+  in `params` and `decls` (i.e., the "closure").
+  Recall that `params` and `decls` are internalized, but `decl` is not.
+  Thus, we internalize `decl` before glueing these "pieces" together. We erase the internalized information after we are done.
+  -/
+  let decl ← decl.internalize
+  try
+    go decl nameNew |>.run' {}
+  finally
+    eraseDecl decl
 where
-  go (nameNew : Name) : InternalizeM Decl := do
+  go (decl : Decl) (nameNew : Name) : InternalizeM Decl := do
     let mut params ← params.mapM internalizeParam
     let decls ← decls.mapM internalizeCodeDecl
     for param in decl.params, arg in argMask do

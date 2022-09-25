@@ -27,7 +27,6 @@ import Lean.Compiler.LCNF.ReduceJpArity
 import Lean.Compiler.LCNF.Simp
 import Lean.Compiler.LCNF.Specialize
 import Lean.Compiler.LCNF.SpecInfo
-import Lean.Compiler.LCNF.Stage1
 import Lean.Compiler.LCNF.Testing
 import Lean.Compiler.LCNF.ToDecl
 import Lean.Compiler.LCNF.ToExpr

@@ -35,12 +35,12 @@ def Context.isDeclToUnfold (ctx : Context) (declName : Name) : Bool :=
 def Context.mkDefault : MetaM Context :=
   return { config := {}, simpTheorems := #[(← getSimpTheorems)], congrTheorems := (← getSimpCongrTheorems) }
 
-abbrev OriginSet := Std.HashSet Origin
+abbrev UsedSimps := Std.HashMap Origin Nat
 
 structure State where
   cache        : Cache := {}
   congrCache   : CongrCache := {}
-  usedTheorems : OriginSet := {}
+  usedTheorems : UsedSimps := {}
   numSteps     : Nat := 0
 
 abbrev SimpM := ReaderT Context $ StateRefT State MetaM
@@ -101,7 +101,9 @@ def getSimpCongrTheorems : M SimpCongrTheorems :=
     modify fun s => { s with cache := cacheSaved }
 
 def recordSimpTheorem (thmId : Origin) : SimpM Unit :=
-  modify fun s => { s with usedTheorems := s.usedTheorems.insert thmId }
+  modify fun s => if s.usedTheorems.contains thmId then s else
+    let n := s.usedTheorems.size
+    { s with usedTheorems := s.usedTheorems.insert thmId n }
 
 end Simp
 

@@ -25,7 +25,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_unfoldLocalDecl___lambda__2(lean_object*, l
 LEAN_EXPORT uint8_t l_Lean_Meta_unfold___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_unfold_pre___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_mkHashSetImp___rarg(lean_object*);
 static lean_object* l_Lean_Meta_unfoldTarget___lambda__2___closed__3;
 static lean_object* l_Lean_Meta_unfold___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_unfoldTarget___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -39,6 +38,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSim
 static lean_object* l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_unfold___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_unfoldTarget(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_unfoldTarget___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panic___at_Lean_Meta_subst_substEq___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_unfoldLocalDecl___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -205,7 +205,7 @@ lean_inc(x_1);
 x_10 = l_Lean_Meta_isRflTheorem(x_1, x_7, x_8, x_9);
 if (lean_obj_tag(x_10) == 0)
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; uint8_t x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; uint8_t x_28; 
+lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; uint8_t x_19; lean_object* x_20; uint8_t x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; uint8_t x_28; 
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 x_12 = lean_ctor_get(x_10, 1);
@@ -214,21 +214,20 @@ lean_dec(x_10);
 x_13 = lean_box(0);
 lean_inc(x_1);
 x_14 = l_Lean_Expr_const___override(x_1, x_13);
-x_15 = 0;
-x_16 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_16, 0, x_1);
-lean_ctor_set_uint8(x_16, sizeof(void*)*1, x_15);
-x_17 = l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___rarg___closed__1;
-x_18 = lean_unsigned_to_nat(1000u);
-x_19 = 1;
+x_15 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_15, 0, x_1);
+x_16 = l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___rarg___closed__1;
+x_17 = lean_unsigned_to_nat(1000u);
+x_18 = 1;
+x_19 = 0;
 x_20 = lean_alloc_ctor(0, 5, 3);
-lean_ctor_set(x_20, 0, x_17);
-lean_ctor_set(x_20, 1, x_17);
+lean_ctor_set(x_20, 0, x_16);
+lean_ctor_set(x_20, 1, x_16);
 lean_ctor_set(x_20, 2, x_14);
-lean_ctor_set(x_20, 3, x_18);
-lean_ctor_set(x_20, 4, x_16);
-lean_ctor_set_uint8(x_20, sizeof(void*)*5, x_19);
-lean_ctor_set_uint8(x_20, sizeof(void*)*5 + 1, x_15);
+lean_ctor_set(x_20, 3, x_17);
+lean_ctor_set(x_20, 4, x_15);
+lean_ctor_set_uint8(x_20, sizeof(void*)*5, x_18);
+lean_ctor_set_uint8(x_20, sizeof(void*)*5 + 1, x_19);
 x_21 = lean_unbox(x_11);
 lean_dec(x_11);
 lean_ctor_set_uint8(x_20, sizeof(void*)*5 + 2, x_21);
@@ -797,8 +796,8 @@ static lean_object* _init_l_Lean_Meta_unfold___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(8u);
-x_2 = l_Std_mkHashSetImp___rarg(x_1);
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }

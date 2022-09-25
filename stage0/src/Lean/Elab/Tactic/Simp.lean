@@ -14,7 +14,7 @@ import Lean.Elab.Tactic.Config
 namespace Lean.Elab.Tactic
 open Meta
 open TSyntax.Compat
-open Simp (OriginSet)
+open Simp (UsedSimps)
 
 declare_config_elab elabSimpConfigCore    Meta.Simp.Config
 declare_config_elab elabSimpConfigCtxCore Meta.Simp.ConfigCtx
@@ -203,6 +203,8 @@ where
       else
         return .none
 
+@[inline] def simpOnlyBuiltins : List Name := [``eq_self]
+
 structure MkSimpContextResult where
   ctx              : Simp.Context
   dischargeWrapper : Simp.DischargeWrapper
@@ -222,7 +224,7 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp) (ig
   let dischargeWrapper ← mkDischargeWrapper stx[2]
   let simpOnly := !stx[3].isNone
   let simpTheorems ← if simpOnly then
-    ({} : SimpTheorems).addConst ``eq_self (builtin := true)
+    simpOnlyBuiltins.foldlM (·.addConst ·) ({} : SimpTheorems)
   else
     getSimpTheorems
   let congrTheorems ← getSimpCongrTheorems
@@ -247,7 +249,7 @@ register_builtin_option tactic.simp.trace : Bool := {
   descr    := "When tracing is enabled, calls to `simp` or `dsimp` will print an equivalent `simp only` call."
 }
 
-def traceSimpCall (stx : Syntax) (usedSimps : OriginSet) : MetaM Unit := do
+def traceSimpCall (stx : Syntax) (usedSimps : UsedSimps) : MetaM Unit := do
   let mut stx := stx
   if stx[3].isNone then
     stx := stx.setArg 3 (mkNullNode #[mkAtom "only"])
@@ -255,12 +257,11 @@ def traceSimpCall (stx : Syntax) (usedSimps : OriginSet) : MetaM Unit := do
   let mut localsOrStar := some #[]
   let lctx ← getLCtx
   let env ← getEnv
-  for thm in usedSimps do
+  for (thm, _) in usedSimps.toArray.qsort (·.2 < ·.2) do
     match thm with
-    | .decl declName builtin => -- global definitions in the environment
-      if !builtin then -- this one is implicitly available
-        if env.contains declName then
-          args := args.push (← `(Parser.Tactic.simpLemma| $(mkIdent (← unresolveNameGlobal declName)):ident))
+    | .decl declName => -- global definitions in the environment
+      if env.contains declName && !simpOnlyBuiltins.contains declName then
+        args := args.push (← `(Parser.Tactic.simpLemma| $(mkIdent (← unresolveNameGlobal declName)):ident))
     | .fvar fvarId => -- local hypotheses in the context
       if let some ldecl := lctx.find? fvarId then
         localsOrStar := localsOrStar.bind fun locals =>
@@ -297,7 +298,7 @@ For many tactics other than the simplifier,
 one should use the `withLocation` tactic combinator
 when working with a `location`.
 -/
-def simpLocation (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (loc : Location) : TacticM OriginSet := do
+def simpLocation (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (loc : Location) : TacticM UsedSimps := do
   match loc with
   | Location.targets hyps simplifyTarget =>
     withMainContext do
@@ -307,7 +308,7 @@ def simpLocation (ctx : Simp.Context) (discharge? : Option Simp.Discharge := non
     withMainContext do
       go (← (← getMainGoal).getNondepPropHyps) (simplifyTarget := true)
 where
-  go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) : TacticM OriginSet := do
+  go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) : TacticM UsedSimps := do
     let mvarId ← getMainGoal
     let (result?, usedSimps) ← simpGoal mvarId ctx (simplifyTarget := simplifyTarget) (discharge? := discharge?) (fvarIdsToSimp := fvarIdsToSimp)
     match result? with

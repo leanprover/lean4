@@ -33,7 +33,6 @@ lean_object* l_Lean_Elab_Tactic_withMainContext___rarg(lean_object*, lean_object
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalSimp___closed__9;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalSimp___closed__17;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalSimpMatch___closed__4;
-lean_object* l_Std_mkHashSetImp___rarg(lean_object*);
 lean_object* l_Lean_Meta_Simp_Result_getProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalSimp___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -47,6 +46,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalSimp_declRange___cl
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalSimpMatch_declRange___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalSimpMatch___boxed(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalSimp___closed__8;
+lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalSimpMatch_declRange___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalSimp___closed__6;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalSimp___closed__2;
@@ -156,8 +156,8 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_evalSimp___lambda__1___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(8u);
-x_2 = l_Std_mkHashSetImp___rarg(x_1);
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }

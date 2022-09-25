@@ -26,6 +26,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_tacticTrivial;
 static lean_object* l_Lean_Parser_Tactic_intros___closed__7;
 static lean_object* l_Lean_Parser_Tactic_induction___closed__1;
 static lean_object* l___aux__Init__Tactics______macroRules__term_____x5b___x5d__1___closed__6;
+static lean_object* l_Lean_Parser_Tactic_generalize___closed__8;
 static lean_object* l_Lean_Parser_Tactic_cases___closed__6;
 static lean_object* l_Lean_Parser_Tactic_first___closed__17;
 static lean_object* l_Lean_Parser_Tactic_withAnnotateState___closed__12;
@@ -14700,9 +14701,23 @@ static lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__10;
+x_2 = l_Lean_Parser_Tactic_generalize___closed__6;
+x_3 = l_Lean_Parser_Tactic_change___closed__6;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_generalize___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_generalize___closed__2;
 x_2 = lean_unsigned_to_nat(1022u);
-x_3 = l_Lean_Parser_Tactic_generalize___closed__6;
+x_3 = l_Lean_Parser_Tactic_generalize___closed__7;
 x_4 = lean_alloc_ctor(3, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -14714,7 +14729,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_generalize() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Parser_Tactic_generalize___closed__7;
+x_1 = l_Lean_Parser_Tactic_generalize___closed__8;
 return x_1;
 }
 }
@@ -21992,6 +22007,8 @@ l_Lean_Parser_Tactic_generalize___closed__6 = _init_l_Lean_Parser_Tactic_general
 lean_mark_persistent(l_Lean_Parser_Tactic_generalize___closed__6);
 l_Lean_Parser_Tactic_generalize___closed__7 = _init_l_Lean_Parser_Tactic_generalize___closed__7();
 lean_mark_persistent(l_Lean_Parser_Tactic_generalize___closed__7);
+l_Lean_Parser_Tactic_generalize___closed__8 = _init_l_Lean_Parser_Tactic_generalize___closed__8();
+lean_mark_persistent(l_Lean_Parser_Tactic_generalize___closed__8);
 l_Lean_Parser_Tactic_generalize = _init_l_Lean_Parser_Tactic_generalize();
 lean_mark_persistent(l_Lean_Parser_Tactic_generalize);
 l_Lean_Parser_Tactic_casesTarget___closed__1 = _init_l_Lean_Parser_Tactic_casesTarget___closed__1();

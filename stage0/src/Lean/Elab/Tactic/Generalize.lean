@@ -7,6 +7,7 @@ import Lean.Meta.Tactic.Generalize
 import Lean.Meta.Check
 import Lean.Meta.Tactic.Intro
 import Lean.Elab.Tactic.ElabTerm
+import Lean.Elab.Tactic.Location
 
 namespace Lean.Elab.Tactic
 open Meta
@@ -17,8 +18,11 @@ open Meta
       let hName? := if arg[0].isNone then none else some arg[0][0].getId
       let expr ← elabTerm arg[1] none
       return { hName?, expr, xName? := arg[3].getId : GeneralizeArg }
+    let hyps ← match expandOptLocation stx[2] with
+    | .targets hyps _ => getFVarIds hyps
+    | .wildcard => pure (← getLCtx).getFVarIds
     liftMetaTactic fun mvarId => do
-      let (_, mvarId) ← mvarId.generalize args
+      let (_, _, mvarId) ← mvarId.generalizeHyp args hyps
       return [mvarId]
 
 end Lean.Elab.Tactic

@@ -17,12 +17,8 @@ An `Origin` is an identifier for simp theorems which indicates roughly
 what action the user took which lead to this theorem existing in the simp set.
 -/
 inductive Origin where
-  /--
-  A global declaration in the environment.
-  If `builtin` is true, then it is used by simp even in `simp only`
-  and so is suppressed in tracing.
-  -/
-  | decl (declName : Name) (builtin := false)
+  /-- A global declaration in the environment. -/
+  | decl (declName : Name)
   /--
   A local hypothesis.
   When `contextual := true` is enabled, this fvar may exist in an extension
@@ -46,7 +42,7 @@ inductive Origin where
 
 /-- A unique identifier corresponding to the origin. -/
 def Origin.key : Origin → Name
-  | .decl declName _ => declName
+  | .decl declName => declName
   | .fvar fvarId => fvarId.name
   | .stx id _ => id
   | .other name => name
@@ -127,7 +123,7 @@ instance : ToFormat SimpTheorem where
     name ++ prio ++ perm
 
 def ppOrigin [Monad m] [MonadEnv m] [MonadError m] : Origin → m MessageData
-  | .decl n _ => mkConstWithLevelParams n
+  | .decl n => mkConstWithLevelParams n
   | .fvar n => return mkFVar n
   | .stx _ ref => return ref
   | .other n => return n
@@ -392,8 +388,8 @@ def getSimpTheorems : CoreM SimpTheorems :=
   simpExtension.getTheorems
 
 /-- Auxiliary method for adding a global declaration to a `SimpTheorems` datastructure. -/
-def SimpTheorems.addConst (s : SimpTheorems) (declName : Name) (builtin := false) (post := true) (inv := false) (prio : Nat := eval_prio default) : MetaM SimpTheorems := do
-  let s := { s with erased := s.erased.erase (.decl declName builtin) }
+def SimpTheorems.addConst (s : SimpTheorems) (declName : Name) (post := true) (inv := false) (prio : Nat := eval_prio default) : MetaM SimpTheorems := do
+  let s := { s with erased := s.erased.erase (.decl declName) }
   let simpThms ← mkSimpTheoremsFromConst declName post inv prio
   return simpThms.foldl addSimpTheoremEntry s
 
@@ -420,9 +416,9 @@ def mkSimpTheorems (id : Origin) (levelParams : Array Name) (proof : Expr) (post
     (← preprocessProof proof inv).mapM fun val => mkSimpTheoremCore id val levelParams val post prio
 
 /-- Auxiliary method for adding a local simp theorem to a `SimpTheorems` datastructure. -/
-def SimpTheorems.add (s : SimpTheorems) (id : Origin) (levelParams : Array Name) (proof : Expr) (builtin := false) (inv := false) (post := true) (prio : Nat := eval_prio default) : MetaM SimpTheorems := do
+def SimpTheorems.add (s : SimpTheorems) (id : Origin) (levelParams : Array Name) (proof : Expr) (inv := false) (post := true) (prio : Nat := eval_prio default) : MetaM SimpTheorems := do
   if proof.isConst then
-    s.addConst proof.constName! builtin post inv prio
+    s.addConst proof.constName! post inv prio
   else
     let simpThms ← mkSimpTheorems id levelParams proof post inv prio
     return simpThms.foldl addSimpTheoremEntry s

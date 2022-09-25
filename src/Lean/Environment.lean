@@ -113,6 +113,10 @@ structure Environment where
   Recall that a Leah file has a header where previously compiled modules can be imported.
   Each imported module has a unique `ModuleIdx`.
   Many extensions use the `ModuleIdx` to efficiently retrieve information stored in imported modules.
+
+  Remark: this mapping also contains auxiliary constants, created by the code generator, that are **not** in
+  the field `constants`. These auxiliary constants are invisible to the Lean kernel and elaborator.
+  Only the code generator uses them.
   -/
   const2ModIdx : HashMap Name ModuleIdx
   /--

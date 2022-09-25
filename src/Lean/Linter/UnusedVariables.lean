@@ -102,12 +102,6 @@ builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack opts =>
     (stx.isOfKind ``Lean.Parser.Term.matchAlt && pos == 1) ||
     (stx.isOfKind ``Lean.Parser.Tactic.inductionAltLHS && pos == 2))
 
--- is anonymous have variable
-builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun stx stack _ =>
-    stx.getId == `this &&
-    (stack.matches [none, ``Lean.Parser.Term.haveIdDecl] ||
-    stack.matches [none, ``Lean.Parser.Term.haveEqnsDecl]))
-
 builtin_initialize unusedVariablesIgnoreFnsExt : SimplePersistentEnvExtension Name Unit ←
   registerSimplePersistentEnvExtension {
     name          := `unusedVariablesIgnoreFns

@@ -25,7 +25,6 @@ structure Context where
   config         : Config := {}
   simpTheorems   : SimpTheoremsArray := {}
   congrTheorems  : SimpCongrTheorems := {}
-  namedStx       : NameMap Syntax := {}
   parent?        : Option Expr := none
   dischargeDepth : Nat := 0
   deriving Inhabited
@@ -36,10 +35,12 @@ def Context.isDeclToUnfold (ctx : Context) (declName : Name) : Bool :=
 def Context.mkDefault : MetaM Context :=
   return { config := {}, simpTheorems := #[(← getSimpTheorems)], congrTheorems := (← getSimpCongrTheorems) }
 
+abbrev OriginSet := Std.HashSet Origin
+
 structure State where
   cache        : Cache := {}
   congrCache   : CongrCache := {}
-  usedTheorems : NameSet := {}
+  usedTheorems : OriginSet := {}
   numSteps     : Nat := 0
 
 abbrev SimpM := ReaderT Context $ StateRefT State MetaM
@@ -99,8 +100,8 @@ def getSimpCongrTheorems : M SimpCongrTheorems :=
   finally
     modify fun s => { s with cache := cacheSaved }
 
-def recordSimpTheorem (n : Name) : SimpM Unit :=
-  modify fun s => { s with usedTheorems := s.usedTheorems.insert n }
+def recordSimpTheorem (thmId : Origin) : SimpM Unit :=
+  modify fun s => { s with usedTheorems := s.usedTheorems.insert thmId }
 
 end Simp
 

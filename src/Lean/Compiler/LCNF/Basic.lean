@@ -70,6 +70,15 @@ abbrev Alt := AltCore Code
 abbrev FunDecl := FunDeclCore Code
 abbrev Cases := CasesCore Code
 
+/--
+Return the constructor names that have an explicit (non-default) alternative.
+-/
+def CasesCore.getCtorNames (c : Cases) : NameSet :=
+  c.alts.foldl (init := {}) fun ctorNames alt =>
+    match alt with
+    | .default _ => ctorNames
+    | .alt ctorName .. => ctorNames.insert ctorName
+
 inductive CodeDecl where
   | let (decl : LetDecl)
   | fun (decl : FunDecl)

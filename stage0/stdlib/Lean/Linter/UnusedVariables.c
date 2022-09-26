@@ -83,6 +83,7 @@ LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_Linter_unusedVariable
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1940____lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_293____lambda__1___closed__4;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Linter_unusedVariables___spec__20___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__8;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_556____lambda__5___closed__12;
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_259____lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_getLinterUnusedVariablesPatternVars___boxed(lean_object*);
@@ -242,6 +243,7 @@ static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hy
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_293____lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1534____lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldr___at_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1813____spec__1___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Linter_unusedVariables_skipDeclIdIfPresent(lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1755____lambda__1___closed__1;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1534____lambda__1___closed__2;
@@ -293,7 +295,6 @@ size_t lean_usize_modn(size_t, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_556____lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_linter_unusedVariables;
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_unusedVariables___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -356,6 +357,7 @@ lean_object* l___private_Lean_Data_HashMap_0__Lean_numBucketsForCapacity(lean_ob
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1940____closed__10;
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Linter_unusedVariables___spec__32___lambda__2(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_225____lambda__1___closed__15;
+static lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__7;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_386____lambda__1___closed__12;
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Linter_unusedVariables___spec__32___lambda__6(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_471____lambda__1___closed__5;
@@ -458,8 +460,10 @@ LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_386_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_7_(lean_object*);
 static lean_object* l_List_foldr___at_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1813____spec__1___closed__3;
+lean_object* l_CallerInfo_mkPanicMessage(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1940____closed__4;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_7____closed__7;
+static lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__5;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_259____lambda__1___closed__5;
 uint8_t l_Lean_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ofExcept___at_Lean_Linter_getUnusedVariablesIgnoreFnsImpl___spec__2(lean_object*);
@@ -481,6 +485,7 @@ static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hy
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1940____closed__1;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1898____closed__4;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_471____lambda__1___closed__10;
+static lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__6;
 static lean_object* l_panic___at_Lean_Linter_unusedVariables___spec__25___closed__1;
 lean_object* lean_local_ctx_find(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_39____closed__4;
@@ -7659,12 +7664,68 @@ return x_1;
 static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__2() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__3() {
+_start:
+{
 lean_object* x_1; 
 x_1 = lean_mk_string_from_bytes("Lean.Elab.InfoTree.visitM.go", 28);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__3() {
+static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__3;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__4;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(23u);
+x_2 = lean_unsigned_to_nat(21u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__2;
+x_2 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__5;
+x_3 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__6;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -7672,17 +7733,14 @@ x_1 = lean_mk_string_from_bytes("unexpected context-free info tree node", 38);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__4() {
+static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__9() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__1;
-x_2 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__2;
-x_3 = lean_unsigned_to_nat(23u);
-x_4 = lean_unsigned_to_nat(21u);
-x_5 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__7;
+x_2 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__8;
+x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -7711,7 +7769,7 @@ lean_object* x_12; lean_object* x_13;
 lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
-x_12 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__4;
+x_12 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__9;
 x_13 = l_panic___at_Lean_Linter_unusedVariables___spec__25(x_12, x_5, x_6, x_7);
 return x_13;
 }
@@ -11537,6 +11595,16 @@ l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___clo
 lean_mark_persistent(l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__3);
 l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__4 = _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__4();
 lean_mark_persistent(l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__4);
+l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__5 = _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__5();
+lean_mark_persistent(l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__5);
+l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__6 = _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__6();
+lean_mark_persistent(l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__6);
+l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__7 = _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__7();
+lean_mark_persistent(l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__7);
+l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__8 = _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__8();
+lean_mark_persistent(l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__8);
+l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__9 = _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__9();
+lean_mark_persistent(l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_unusedVariables___spec__24___closed__9);
 l_Lean_Linter_collectMacroExpansions_x3f_go___at_Lean_Linter_unusedVariables___spec__22___lambda__2___closed__1 = _init_l_Lean_Linter_collectMacroExpansions_x3f_go___at_Lean_Linter_unusedVariables___spec__22___lambda__2___closed__1();
 lean_mark_persistent(l_Lean_Linter_collectMacroExpansions_x3f_go___at_Lean_Linter_unusedVariables___spec__22___lambda__2___closed__1);
 l_Lean_Linter_collectMacroExpansions_x3f_go___at_Lean_Linter_unusedVariables___spec__22___closed__1 = _init_l_Lean_Linter_collectMacroExpansions_x3f_go___at_Lean_Linter_unusedVariables___spec__22___closed__1();

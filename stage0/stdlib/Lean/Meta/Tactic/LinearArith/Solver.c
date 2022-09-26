@@ -30,6 +30,8 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Poly_get___boxed(lean_object*, lean_
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprCnstrKind____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_3807____closed__16;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_beqCnstr____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_4249____boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_Linear_Cnstr_isUnsat___closed__7;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprJustification____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_3535____closed__2;
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -92,6 +94,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Assignment_push(lean_object*, lean_o
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprCnstrKind____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_3807____closed__18;
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprJustification____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_3535____closed__7;
+static lean_object* l_Lean_Meta_Linear_Cnstr_isUnsat___closed__5;
 static lean_object* l_Lean_Meta_Linear_instReprCnstrKind___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprAssumptionId____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_2915_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_instDecidableEqVar___boxed(lean_object*, lean_object*);
@@ -106,6 +109,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Assignment_get_x3f(lean_object*, lea
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_CnstrKind_toCtorIdx(uint8_t);
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprCnstrKind____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_3807____closed__6;
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprJustification____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_3535____closed__5;
+static lean_object* l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__7;
 lean_object* l_Int_repr(lean_object*);
 lean_object* l_Int_decEq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_Linear_State_getBestLowerBound_x3f___spec__1(lean_object*);
@@ -138,6 +142,7 @@ static lean_object* l_Lean_Meta_Linear_pickAssignment_x3f___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_instReprJustification;
 LEAN_EXPORT lean_object* l_repr___at___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprPoly____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_361____spec__1(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Linear_instDecidableEqCnstr(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__5;
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprCnstrKind____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_3807____closed__23;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprCnstrKind____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_3807____closed__13;
@@ -180,13 +185,13 @@ LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta
 static lean_object* l_Lean_Meta_Linear_Assignment_val___default___closed__1;
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprCnstrKind____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_3807____closed__9;
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_solve(lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_instInhabitedCnstr;
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Cnstr_isUnsat___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_CnstrKind_noConfusion___rarg___lambda__1___boxed(lean_object*);
 lean_object* l_instDecidableEqProd___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Linear_instDecidableEqCnstrKind(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprVar____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_160____boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__6;
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprCnstrKind____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_3807____closed__17;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_ordVar____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_23____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Poly_size(lean_object*);
@@ -216,6 +221,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Linear_instReprAssumptionId;
 lean_object* lean_int_neg(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprVar____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_160____closed__7;
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprCnstr____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_4364____closed__9;
+static lean_object* l_Lean_Meta_Linear_Cnstr_isUnsat___closed__9;
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprPoly____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_361____closed__5;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Linear_Poly_eval_x3f___spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_decEqPoly____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_398____lambda__1___closed__2;
@@ -233,6 +239,7 @@ static lean_object* l_Prod_repr___at___private_Lean_Meta_Tactic_LinearArith_Solv
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Poly_combine___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprCnstrKind____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_3807____closed__19;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_instBEqJustification;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_decEqCnstr____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_4011____boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Rat_lt(lean_object*, lean_object*);
@@ -242,6 +249,7 @@ static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta
 static lean_object* l_Prod_repr___at___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprPoly____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_361____spec__2___closed__9;
 LEAN_EXPORT uint8_t l_Lean_Meta_Linear_instDecidableEqJustification(lean_object*, lean_object*);
 uint8_t l_Lean_Rat_isInt(lean_object*);
+static lean_object* l_Lean_Meta_Linear_Cnstr_isUnsat___closed__8;
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprVar____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_160____closed__1;
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Poly_add_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -260,6 +268,7 @@ static lean_object* l_Prod_repr___at___private_Lean_Meta_Tactic_LinearArith_Solv
 static lean_object* l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__2;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_decEqVar____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_81_(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_CnstrKind_noConfusion___rarg___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_instDecidableEqPoly___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprVar____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_160____closed__12;
@@ -271,8 +280,10 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean
 static lean_object* l_Lean_Meta_Linear_Cnstr_isUnsat___closed__3;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprCnstrKind____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_3807____closed__12;
+static lean_object* l_Lean_Meta_Linear_Cnstr_isUnsat___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_State_getBestUpperBound_x3f___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Poly_add___boxed(lean_object*, lean_object*);
+lean_object* l_CallerInfo_mkPanicMessage(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at_Lean_Meta_Linear_Cnstr_getBound___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_instInhabitedAssumptionId;
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprCnstr____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_4364____closed__2;
@@ -4224,12 +4235,68 @@ return x_1;
 static lean_object* _init_l_Lean_Meta_Linear_Cnstr_isUnsat___closed__2() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_Linear_Cnstr_isUnsat___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_Linear_Cnstr_isUnsat___closed__3() {
+_start:
+{
 lean_object* x_1; 
 x_1 = lean_mk_string_from_bytes("Lean.Meta.Linear.Cnstr.isUnsat", 30);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Linear_Cnstr_isUnsat___closed__3() {
+static lean_object* _init_l_Lean_Meta_Linear_Cnstr_isUnsat___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_Linear_Cnstr_isUnsat___closed__3;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_Linear_Cnstr_isUnsat___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Meta_Linear_Cnstr_isUnsat___closed__4;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Meta_Linear_Cnstr_isUnsat___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(159u);
+x_2 = lean_unsigned_to_nat(23u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_Linear_Cnstr_isUnsat___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Meta_Linear_Cnstr_isUnsat___closed__2;
+x_2 = l_Lean_Meta_Linear_Cnstr_isUnsat___closed__5;
+x_3 = l_Lean_Meta_Linear_Cnstr_isUnsat___closed__6;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Meta_Linear_Cnstr_isUnsat___closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -4237,17 +4304,14 @@ x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Linear_Cnstr_isUnsat___closed__4() {
+static lean_object* _init_l_Lean_Meta_Linear_Cnstr_isUnsat___closed__9() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Meta_Linear_Cnstr_isUnsat___closed__1;
-x_2 = l_Lean_Meta_Linear_Cnstr_isUnsat___closed__2;
-x_3 = lean_unsigned_to_nat(159u);
-x_4 = lean_unsigned_to_nat(23u);
-x_5 = l_Lean_Meta_Linear_Cnstr_isUnsat___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Meta_Linear_Cnstr_isUnsat___closed__7;
+x_2 = l_Lean_Meta_Linear_Cnstr_isUnsat___closed__8;
+x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Cnstr_isUnsat(lean_object* x_1, lean_object* x_2) {
@@ -4307,7 +4371,7 @@ case 1:
 lean_object* x_17; lean_object* x_18; 
 lean_dec(x_4);
 lean_dec(x_1);
-x_17 = l_Lean_Meta_Linear_Cnstr_isUnsat___closed__4;
+x_17 = l_Lean_Meta_Linear_Cnstr_isUnsat___closed__9;
 x_18 = l_panic___at_Lean_Meta_Linear_Cnstr_isUnsat___spec__1(x_17);
 return x_18;
 }
@@ -4741,11 +4805,21 @@ static lean_object* _init_l_Lean_Meta_Linear_State_getBestLowerBound_x3f___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.Util", 9);
+x_1 = lean_mk_string_from_bytes("Init.PanicAux", 13);
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -4753,7 +4827,53 @@ x_1 = lean_mk_string_from_bytes("getElem!", 8);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__3() {
+static lean_object* _init_l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__3;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__4;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(41u);
+x_2 = lean_unsigned_to_nat(36u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__2;
+x_2 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__5;
+x_3 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__6;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -4761,17 +4881,14 @@ x_1 = lean_mk_string_from_bytes("index out of bounds", 19);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__4() {
+static lean_object* _init_l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__9() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__1;
-x_2 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__2;
-x_3 = lean_unsigned_to_nat(77u);
-x_4 = lean_unsigned_to_nat(36u);
-x_5 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__7;
+x_2 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__8;
+x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_State_getBestLowerBound_x3f(lean_object* x_1) {
@@ -4791,7 +4908,7 @@ lean_dec(x_8);
 if (x_6 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
-x_10 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__4;
+x_10 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__9;
 x_11 = l_panic___at_Lean_Meta_Linear_State_getBestLowerBound_x3f___spec__1(x_10);
 if (x_9 == 0)
 {
@@ -4824,7 +4941,7 @@ if (x_9 == 0)
 {
 lean_object* x_21; lean_object* x_22; uint8_t x_23; uint8_t x_24; lean_object* x_25; 
 lean_dec(x_4);
-x_21 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__4;
+x_21 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__9;
 x_22 = l_panic___at_Lean_Meta_Linear_Cnstr_isUnsat___spec__1(x_21);
 x_23 = lean_unbox(x_22);
 lean_dec(x_22);
@@ -4872,7 +4989,7 @@ lean_dec(x_8);
 if (x_6 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
-x_10 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__4;
+x_10 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__9;
 x_11 = l_panic___at_Lean_Meta_Linear_State_getBestLowerBound_x3f___spec__1(x_10);
 if (x_9 == 0)
 {
@@ -4905,7 +5022,7 @@ if (x_9 == 0)
 {
 lean_object* x_21; lean_object* x_22; uint8_t x_23; uint8_t x_24; lean_object* x_25; 
 lean_dec(x_4);
-x_21 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__4;
+x_21 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__9;
 x_22 = l_panic___at_Lean_Meta_Linear_Cnstr_isUnsat___spec__1(x_21);
 x_23 = lean_unbox(x_22);
 lean_dec(x_22);
@@ -5521,7 +5638,7 @@ lean_dec(x_17);
 if (x_14 == 0)
 {
 lean_object* x_143; lean_object* x_144; 
-x_143 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__4;
+x_143 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__9;
 x_144 = l_panic___at_Lean_Meta_Linear_State_getBestLowerBound_x3f___spec__1(x_143);
 if (x_16 == 0)
 {
@@ -5553,7 +5670,7 @@ x_153 = lean_array_fget(x_7, x_11);
 if (x_16 == 0)
 {
 lean_object* x_154; lean_object* x_155; uint8_t x_156; uint8_t x_157; lean_object* x_158; 
-x_154 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__4;
+x_154 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__9;
 x_155 = l_panic___at_Lean_Meta_Linear_Cnstr_isUnsat___spec__1(x_154);
 x_156 = lean_unbox(x_155);
 lean_dec(x_155);
@@ -5580,7 +5697,7 @@ lean_object* x_20; lean_object* x_44; lean_object* x_45;
 if (x_18 == 0)
 {
 lean_object* x_118; lean_object* x_119; 
-x_118 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__4;
+x_118 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__9;
 x_119 = l_panic___at_Lean_Meta_Linear_State_getBestLowerBound_x3f___spec__1(x_118);
 if (x_16 == 0)
 {
@@ -5643,7 +5760,7 @@ if (x_16 == 0)
 {
 lean_object* x_131; lean_object* x_132; uint8_t x_133; uint8_t x_134; lean_object* x_135; 
 lean_dec(x_11);
-x_131 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__4;
+x_131 = l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__9;
 x_132 = l_panic___at_Lean_Meta_Linear_Cnstr_isUnsat___spec__1(x_131);
 x_133 = lean_unbox(x_132);
 lean_dec(x_132);
@@ -6309,6 +6426,16 @@ l_Lean_Meta_Linear_Cnstr_isUnsat___closed__3 = _init_l_Lean_Meta_Linear_Cnstr_is
 lean_mark_persistent(l_Lean_Meta_Linear_Cnstr_isUnsat___closed__3);
 l_Lean_Meta_Linear_Cnstr_isUnsat___closed__4 = _init_l_Lean_Meta_Linear_Cnstr_isUnsat___closed__4();
 lean_mark_persistent(l_Lean_Meta_Linear_Cnstr_isUnsat___closed__4);
+l_Lean_Meta_Linear_Cnstr_isUnsat___closed__5 = _init_l_Lean_Meta_Linear_Cnstr_isUnsat___closed__5();
+lean_mark_persistent(l_Lean_Meta_Linear_Cnstr_isUnsat___closed__5);
+l_Lean_Meta_Linear_Cnstr_isUnsat___closed__6 = _init_l_Lean_Meta_Linear_Cnstr_isUnsat___closed__6();
+lean_mark_persistent(l_Lean_Meta_Linear_Cnstr_isUnsat___closed__6);
+l_Lean_Meta_Linear_Cnstr_isUnsat___closed__7 = _init_l_Lean_Meta_Linear_Cnstr_isUnsat___closed__7();
+lean_mark_persistent(l_Lean_Meta_Linear_Cnstr_isUnsat___closed__7);
+l_Lean_Meta_Linear_Cnstr_isUnsat___closed__8 = _init_l_Lean_Meta_Linear_Cnstr_isUnsat___closed__8();
+lean_mark_persistent(l_Lean_Meta_Linear_Cnstr_isUnsat___closed__8);
+l_Lean_Meta_Linear_Cnstr_isUnsat___closed__9 = _init_l_Lean_Meta_Linear_Cnstr_isUnsat___closed__9();
+lean_mark_persistent(l_Lean_Meta_Linear_Cnstr_isUnsat___closed__9);
 l_Lean_Meta_Linear_State_assignment___default = _init_l_Lean_Meta_Linear_State_assignment___default();
 lean_mark_persistent(l_Lean_Meta_Linear_State_assignment___default);
 l_Lean_Meta_Linear_instInhabitedState___closed__1 = _init_l_Lean_Meta_Linear_instInhabitedState___closed__1();
@@ -6323,6 +6450,16 @@ l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__3 = _init_l_Lean_Meta_L
 lean_mark_persistent(l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__3);
 l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__4 = _init_l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__4();
 lean_mark_persistent(l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__4);
+l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__5 = _init_l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__5();
+lean_mark_persistent(l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__5);
+l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__6 = _init_l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__6();
+lean_mark_persistent(l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__6);
+l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__7 = _init_l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__7();
+lean_mark_persistent(l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__7);
+l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__8 = _init_l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__8();
+lean_mark_persistent(l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__8);
+l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__9 = _init_l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__9();
+lean_mark_persistent(l_Lean_Meta_Linear_State_getBestLowerBound_x3f___closed__9);
 l_Lean_Meta_Linear_pickAssignment_x3f___closed__1 = _init_l_Lean_Meta_Linear_pickAssignment_x3f___closed__1();
 lean_mark_persistent(l_Lean_Meta_Linear_pickAssignment_x3f___closed__1);
 l_Lean_Meta_Linear_pickAssignment_x3f___closed__2 = _init_l_Lean_Meta_Linear_pickAssignment_x3f___closed__2();

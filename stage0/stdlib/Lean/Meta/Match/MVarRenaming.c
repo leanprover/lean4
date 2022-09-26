@@ -13,6 +13,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__7;
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Meta_MVarRenaming_find_x3f___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_apply(lean_object*, lean_object*);
@@ -28,16 +30,20 @@ LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_map___default;
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_find_x21___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__1;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_find_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lean_Meta_MVarRenaming_insert___spec__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_isEmpty___boxed(lean_object*);
 static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__3;
+static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_apply___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_find_x21(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 uint8_t l_Lean_RBNode_isRed___rarg(lean_object*);
 static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__4;
+static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__8;
+static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__6;
+lean_object* l_CallerInfo_mkPanicMessage(lean_object*, lean_object*);
 lean_object* l_panic___at_Lean_Expr_mvarId_x21___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Meta_MVarRenaming_find_x3f___spec__1(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Meta_MVarRenaming_map___default() {
@@ -154,12 +160,68 @@ return x_1;
 static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__2() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_MVarRenaming_find_x21___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__3() {
+_start:
+{
 lean_object* x_1; 
 x_1 = lean_mk_string_from_bytes("Option.get!", 11);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__3() {
+static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_MVarRenaming_find_x21___closed__3;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Meta_MVarRenaming_find_x21___closed__4;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(16u);
+x_2 = lean_unsigned_to_nat(14u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Meta_MVarRenaming_find_x21___closed__2;
+x_2 = l_Lean_Meta_MVarRenaming_find_x21___closed__5;
+x_3 = l_Lean_Meta_MVarRenaming_find_x21___closed__6;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -167,17 +229,14 @@ x_1 = lean_mk_string_from_bytes("value is none", 13);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__4() {
+static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__9() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Meta_MVarRenaming_find_x21___closed__1;
-x_2 = l_Lean_Meta_MVarRenaming_find_x21___closed__2;
-x_3 = lean_unsigned_to_nat(16u);
-x_4 = lean_unsigned_to_nat(14u);
-x_5 = l_Lean_Meta_MVarRenaming_find_x21___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Meta_MVarRenaming_find_x21___closed__7;
+x_2 = l_Lean_Meta_MVarRenaming_find_x21___closed__8;
+x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_find_x21(lean_object* x_1, lean_object* x_2) {
@@ -188,7 +247,7 @@ x_3 = l_Lean_RBNode_find___at_Lean_Meta_MVarRenaming_find_x3f___spec__1(x_1, x_2
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = l_Lean_Meta_MVarRenaming_find_x21___closed__4;
+x_4 = l_Lean_Meta_MVarRenaming_find_x21___closed__9;
 x_5 = l_panic___at_Lean_Expr_mvarId_x21___spec__1(x_4);
 return x_5;
 }
@@ -2729,6 +2788,16 @@ l_Lean_Meta_MVarRenaming_find_x21___closed__3 = _init_l_Lean_Meta_MVarRenaming_f
 lean_mark_persistent(l_Lean_Meta_MVarRenaming_find_x21___closed__3);
 l_Lean_Meta_MVarRenaming_find_x21___closed__4 = _init_l_Lean_Meta_MVarRenaming_find_x21___closed__4();
 lean_mark_persistent(l_Lean_Meta_MVarRenaming_find_x21___closed__4);
+l_Lean_Meta_MVarRenaming_find_x21___closed__5 = _init_l_Lean_Meta_MVarRenaming_find_x21___closed__5();
+lean_mark_persistent(l_Lean_Meta_MVarRenaming_find_x21___closed__5);
+l_Lean_Meta_MVarRenaming_find_x21___closed__6 = _init_l_Lean_Meta_MVarRenaming_find_x21___closed__6();
+lean_mark_persistent(l_Lean_Meta_MVarRenaming_find_x21___closed__6);
+l_Lean_Meta_MVarRenaming_find_x21___closed__7 = _init_l_Lean_Meta_MVarRenaming_find_x21___closed__7();
+lean_mark_persistent(l_Lean_Meta_MVarRenaming_find_x21___closed__7);
+l_Lean_Meta_MVarRenaming_find_x21___closed__8 = _init_l_Lean_Meta_MVarRenaming_find_x21___closed__8();
+lean_mark_persistent(l_Lean_Meta_MVarRenaming_find_x21___closed__8);
+l_Lean_Meta_MVarRenaming_find_x21___closed__9 = _init_l_Lean_Meta_MVarRenaming_find_x21___closed__9();
+lean_mark_persistent(l_Lean_Meta_MVarRenaming_find_x21___closed__9);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

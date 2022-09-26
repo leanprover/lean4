@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 static lean_object* l_List_getLast_x21___rarg___closed__1;
+static lean_object* l_List_getLast_x21___rarg___closed__4;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__7;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__71;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__16;
@@ -34,6 +35,8 @@ static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__Li
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__68;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__51;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__19;
+static lean_object* l_List_get_x21___rarg___closed__6;
+static lean_object* l_List_getLast_x21___rarg___closed__3;
 LEAN_EXPORT lean_object* l_List_tailD___rarg(lean_object*, lean_object*);
 static lean_object* l_List_get_x21___rarg___closed__1;
 static lean_object* l_List_tacticSizeOf__list__dec___closed__4;
@@ -41,6 +44,7 @@ LEAN_EXPORT lean_object* l_List_get_x21___rarg___boxed(lean_object*, lean_object
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__64;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__2;
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at___aux__Init__Notation______macroRules__precMax__1___spec__1(lean_object*, lean_object*);
+static lean_object* l_List_get_x21___rarg___closed__8;
 LEAN_EXPORT lean_object* l_List_tailD(lean_object*);
 LEAN_EXPORT lean_object* l_List_headD(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -54,6 +58,7 @@ static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__Li
 LEAN_EXPORT lean_object* l_List_get_x3f___rarg(lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__12;
 lean_object* lean_string_utf8_byte_size(lean_object*);
+static lean_object* l_List_getLast_x21___rarg___closed__5;
 LEAN_EXPORT lean_object* l_List_head_x21___rarg(lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__26;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__58;
@@ -75,7 +80,9 @@ static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__Li
 static lean_object* l_List_tacticSizeOf__list__dec___closed__2;
 LEAN_EXPORT lean_object* l_List_getLast_x3f___rarg(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+static lean_object* l_List_head_x21___rarg___closed__4;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+static lean_object* l_List_get_x21___rarg___closed__7;
 LEAN_EXPORT lean_object* l_List_tail_x21(lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__43;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__31;
@@ -88,6 +95,7 @@ static lean_object* l_List_tacticSizeOf__list__dec___closed__1;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__63;
 LEAN_EXPORT lean_object* l_List_get_x3f(lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__24;
+static lean_object* l_List_get_x21___rarg___closed__5;
 LEAN_EXPORT lean_object* l_List_headD___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_getD___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__55;
@@ -98,7 +106,6 @@ static lean_object* l_List_tacticSizeOf__list__dec___closed__3;
 LEAN_EXPORT lean_object* l_List_rotateRight___rarg___boxed(lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__57;
 LEAN_EXPORT lean_object* l_List_getLast_x21(lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_head_x21___rarg___closed__2;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__15;
 LEAN_EXPORT lean_object* l_List_get_x21(lean_object*);
@@ -118,6 +125,7 @@ static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__Li
 LEAN_EXPORT lean_object* l_panic___at_List_tail_x21___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_List_tail_x3f___rarg___boxed(lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__66;
+static lean_object* l_List_head_x21___rarg___closed__6;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__20;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__73;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__25;
@@ -137,6 +145,7 @@ static lean_object* l_List_head_x21___rarg___closed__3;
 static lean_object* l_List_tacticSizeOf__list__dec___closed__7;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__70;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__35;
+static lean_object* l_List_tail_x21___rarg___closed__3;
 LEAN_EXPORT lean_object* l_List_tailD___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_head___rarg(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
@@ -144,17 +153,24 @@ static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__Li
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__38;
 LEAN_EXPORT lean_object* l_List_head_x3f___rarg(lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
+lean_object* l_CallerInfo_mkPanicMessage(lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__65;
+static lean_object* l_List_tail_x21___rarg___closed__5;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__39;
+static lean_object* l_List_get_x21___rarg___closed__9;
 LEAN_EXPORT lean_object* l_List_head___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_getLast_x21___rarg(lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__23;
 lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
+static lean_object* l_List_tail_x21___rarg___closed__6;
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__1;
 lean_object* l_List_take___rarg(lean_object*, lean_object*);
+static lean_object* l_List_head_x21___rarg___closed__5;
+static lean_object* l_List_tail_x21___rarg___closed__4;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__54;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__62;
+static lean_object* l_List_head_x21___rarg___closed__7;
 LEAN_EXPORT lean_object* l_List_head_x21(lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__72;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__47;
@@ -163,6 +179,7 @@ static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__Li
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__13;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__74;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__22;
+static lean_object* l_List_getLast_x21___rarg___closed__6;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__4;
 LEAN_EXPORT lean_object* l_List_getD(lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__27;
@@ -190,12 +207,68 @@ return x_1;
 static lean_object* _init_l_List_get_x21___rarg___closed__2() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_List_get_x21___rarg___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_List_get_x21___rarg___closed__3() {
+_start:
+{
 lean_object* x_1; 
 x_1 = lean_mk_string_from_bytes("List.get!", 9);
 return x_1;
 }
 }
-static lean_object* _init_l_List_get_x21___rarg___closed__3() {
+static lean_object* _init_l_List_get_x21___rarg___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_List_get_x21___rarg___closed__3;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_List_get_x21___rarg___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_List_get_x21___rarg___closed__4;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_List_get_x21___rarg___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(20u);
+x_2 = lean_unsigned_to_nat(18u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_List_get_x21___rarg___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_List_get_x21___rarg___closed__2;
+x_2 = l_List_get_x21___rarg___closed__5;
+x_3 = l_List_get_x21___rarg___closed__6;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_List_get_x21___rarg___closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -203,17 +276,14 @@ x_1 = lean_mk_string_from_bytes("invalid index", 13);
 return x_1;
 }
 }
-static lean_object* _init_l_List_get_x21___rarg___closed__4() {
+static lean_object* _init_l_List_get_x21___rarg___closed__9() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_List_get_x21___rarg___closed__1;
-x_2 = l_List_get_x21___rarg___closed__2;
-x_3 = lean_unsigned_to_nat(20u);
-x_4 = lean_unsigned_to_nat(18u);
-x_5 = l_List_get_x21___rarg___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_List_get_x21___rarg___closed__7;
+x_2 = l_List_get_x21___rarg___closed__8;
+x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_List_get_x21___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -223,7 +293,7 @@ if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_4; lean_object* x_5; 
 lean_dec(x_3);
-x_4 = l_List_get_x21___rarg___closed__4;
+x_4 = l_List_get_x21___rarg___closed__9;
 x_5 = l_panic___rarg(x_1, x_4);
 return x_5;
 }
@@ -376,22 +446,65 @@ return x_1;
 static lean_object* _init_l_List_head_x21___rarg___closed__2() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("empty list", 10);
-return x_1;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_List_head_x21___rarg___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_List_head_x21___rarg___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_List_get_x21___rarg___closed__1;
-x_2 = l_List_head_x21___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(31u);
-x_4 = lean_unsigned_to_nat(12u);
-x_5 = l_List_head_x21___rarg___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_List_head_x21___rarg___closed__2;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_List_head_x21___rarg___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(31u);
+x_2 = lean_unsigned_to_nat(12u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_List_head_x21___rarg___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_List_get_x21___rarg___closed__2;
+x_2 = l_List_head_x21___rarg___closed__3;
+x_3 = l_List_head_x21___rarg___closed__4;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_List_head_x21___rarg___closed__6() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("empty list", 10);
+return x_1;
+}
+}
+static lean_object* _init_l_List_head_x21___rarg___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_List_head_x21___rarg___closed__5;
+x_2 = l_List_head_x21___rarg___closed__6;
+x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_List_head_x21___rarg(lean_object* x_1, lean_object* x_2) {
@@ -400,7 +513,7 @@ _start:
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l_List_head_x21___rarg___closed__3;
+x_3 = l_List_head_x21___rarg___closed__7;
 x_4 = l_panic___rarg(x_1, x_3);
 return x_4;
 }
@@ -557,14 +670,57 @@ return x_1;
 static lean_object* _init_l_List_tail_x21___rarg___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_List_get_x21___rarg___closed__1;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
 x_2 = l_List_tail_x21___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(46u);
-x_4 = lean_unsigned_to_nat(13u);
-x_5 = l_List_head_x21___rarg___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_List_tail_x21___rarg___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_List_tail_x21___rarg___closed__2;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_List_tail_x21___rarg___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(46u);
+x_2 = lean_unsigned_to_nat(13u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_List_tail_x21___rarg___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_List_get_x21___rarg___closed__2;
+x_2 = l_List_tail_x21___rarg___closed__3;
+x_3 = l_List_tail_x21___rarg___closed__4;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_List_tail_x21___rarg___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_List_tail_x21___rarg___closed__5;
+x_2 = l_List_head_x21___rarg___closed__6;
+x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_List_tail_x21___rarg(lean_object* x_1) {
@@ -573,7 +729,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_List_tail_x21___rarg___closed__2;
+x_2 = l_List_tail_x21___rarg___closed__6;
 x_3 = l_panic___at_List_tail_x21___spec__1___rarg(x_2);
 return x_3;
 }
@@ -729,14 +885,57 @@ return x_1;
 static lean_object* _init_l_List_getLast_x21___rarg___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_List_get_x21___rarg___closed__1;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
 x_2 = l_List_getLast_x21___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(63u);
-x_4 = lean_unsigned_to_nat(13u);
-x_5 = l_List_head_x21___rarg___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_List_getLast_x21___rarg___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_List_getLast_x21___rarg___closed__2;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_List_getLast_x21___rarg___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(63u);
+x_2 = lean_unsigned_to_nat(13u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_List_getLast_x21___rarg___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_List_get_x21___rarg___closed__2;
+x_2 = l_List_getLast_x21___rarg___closed__3;
+x_3 = l_List_getLast_x21___rarg___closed__4;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_List_getLast_x21___rarg___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_List_getLast_x21___rarg___closed__5;
+x_2 = l_List_head_x21___rarg___closed__6;
+x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_List_getLast_x21___rarg(lean_object* x_1, lean_object* x_2) {
@@ -745,7 +944,7 @@ _start:
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l_List_getLast_x21___rarg___closed__2;
+x_3 = l_List_getLast_x21___rarg___closed__6;
 x_4 = l_panic___rarg(x_1, x_3);
 return x_4;
 }
@@ -2665,20 +2864,54 @@ l_List_get_x21___rarg___closed__3 = _init_l_List_get_x21___rarg___closed__3();
 lean_mark_persistent(l_List_get_x21___rarg___closed__3);
 l_List_get_x21___rarg___closed__4 = _init_l_List_get_x21___rarg___closed__4();
 lean_mark_persistent(l_List_get_x21___rarg___closed__4);
+l_List_get_x21___rarg___closed__5 = _init_l_List_get_x21___rarg___closed__5();
+lean_mark_persistent(l_List_get_x21___rarg___closed__5);
+l_List_get_x21___rarg___closed__6 = _init_l_List_get_x21___rarg___closed__6();
+lean_mark_persistent(l_List_get_x21___rarg___closed__6);
+l_List_get_x21___rarg___closed__7 = _init_l_List_get_x21___rarg___closed__7();
+lean_mark_persistent(l_List_get_x21___rarg___closed__7);
+l_List_get_x21___rarg___closed__8 = _init_l_List_get_x21___rarg___closed__8();
+lean_mark_persistent(l_List_get_x21___rarg___closed__8);
+l_List_get_x21___rarg___closed__9 = _init_l_List_get_x21___rarg___closed__9();
+lean_mark_persistent(l_List_get_x21___rarg___closed__9);
 l_List_head_x21___rarg___closed__1 = _init_l_List_head_x21___rarg___closed__1();
 lean_mark_persistent(l_List_head_x21___rarg___closed__1);
 l_List_head_x21___rarg___closed__2 = _init_l_List_head_x21___rarg___closed__2();
 lean_mark_persistent(l_List_head_x21___rarg___closed__2);
 l_List_head_x21___rarg___closed__3 = _init_l_List_head_x21___rarg___closed__3();
 lean_mark_persistent(l_List_head_x21___rarg___closed__3);
+l_List_head_x21___rarg___closed__4 = _init_l_List_head_x21___rarg___closed__4();
+lean_mark_persistent(l_List_head_x21___rarg___closed__4);
+l_List_head_x21___rarg___closed__5 = _init_l_List_head_x21___rarg___closed__5();
+lean_mark_persistent(l_List_head_x21___rarg___closed__5);
+l_List_head_x21___rarg___closed__6 = _init_l_List_head_x21___rarg___closed__6();
+lean_mark_persistent(l_List_head_x21___rarg___closed__6);
+l_List_head_x21___rarg___closed__7 = _init_l_List_head_x21___rarg___closed__7();
+lean_mark_persistent(l_List_head_x21___rarg___closed__7);
 l_List_tail_x21___rarg___closed__1 = _init_l_List_tail_x21___rarg___closed__1();
 lean_mark_persistent(l_List_tail_x21___rarg___closed__1);
 l_List_tail_x21___rarg___closed__2 = _init_l_List_tail_x21___rarg___closed__2();
 lean_mark_persistent(l_List_tail_x21___rarg___closed__2);
+l_List_tail_x21___rarg___closed__3 = _init_l_List_tail_x21___rarg___closed__3();
+lean_mark_persistent(l_List_tail_x21___rarg___closed__3);
+l_List_tail_x21___rarg___closed__4 = _init_l_List_tail_x21___rarg___closed__4();
+lean_mark_persistent(l_List_tail_x21___rarg___closed__4);
+l_List_tail_x21___rarg___closed__5 = _init_l_List_tail_x21___rarg___closed__5();
+lean_mark_persistent(l_List_tail_x21___rarg___closed__5);
+l_List_tail_x21___rarg___closed__6 = _init_l_List_tail_x21___rarg___closed__6();
+lean_mark_persistent(l_List_tail_x21___rarg___closed__6);
 l_List_getLast_x21___rarg___closed__1 = _init_l_List_getLast_x21___rarg___closed__1();
 lean_mark_persistent(l_List_getLast_x21___rarg___closed__1);
 l_List_getLast_x21___rarg___closed__2 = _init_l_List_getLast_x21___rarg___closed__2();
 lean_mark_persistent(l_List_getLast_x21___rarg___closed__2);
+l_List_getLast_x21___rarg___closed__3 = _init_l_List_getLast_x21___rarg___closed__3();
+lean_mark_persistent(l_List_getLast_x21___rarg___closed__3);
+l_List_getLast_x21___rarg___closed__4 = _init_l_List_getLast_x21___rarg___closed__4();
+lean_mark_persistent(l_List_getLast_x21___rarg___closed__4);
+l_List_getLast_x21___rarg___closed__5 = _init_l_List_getLast_x21___rarg___closed__5();
+lean_mark_persistent(l_List_getLast_x21___rarg___closed__5);
+l_List_getLast_x21___rarg___closed__6 = _init_l_List_getLast_x21___rarg___closed__6();
+lean_mark_persistent(l_List_getLast_x21___rarg___closed__6);
 l_List_tacticSizeOf__list__dec___closed__1 = _init_l_List_tacticSizeOf__list__dec___closed__1();
 lean_mark_persistent(l_List_tacticSizeOf__list__dec___closed__1);
 l_List_tacticSizeOf__list__dec___closed__2 = _init_l_List_tacticSizeOf__list__dec___closed__2();

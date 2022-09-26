@@ -8,6 +8,7 @@ import Init.Data.Array.Basic
 import Init.Data.Array.Subarray
 import Init.Data.UInt
 import Init.Data.Option.Basic
+import Init.PanicAux
 universe u
 
 structure ByteArray where

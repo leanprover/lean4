@@ -22,7 +22,6 @@ static lean_object* l_Lean_instToExprDeclarationRange___lambda__1___closed__5;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___private_Lean_DeclarationRange_0__Lean_reprDeclarationRanges____x40_Lean_DeclarationRange___hyg_448____closed__2;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-uint8_t l___private_Lean_Data_Position_0__Lean_decEqPosition____x40_Lean_Data_Position___hyg_32_(lean_object*, lean_object*);
 static lean_object* l_Lean_instToExprDeclarationRanges___lambda__1___closed__5;
 static lean_object* l___private_Lean_DeclarationRange_0__Lean_reprDeclarationRange____x40_Lean_DeclarationRange___hyg_288____closed__2;
 static lean_object* l_Lean_instToExprDeclarationRanges___lambda__1___closed__3;
@@ -117,6 +116,7 @@ LEAN_EXPORT lean_object* l_Lean_instInhabitedDeclarationRanges;
 static lean_object* l_Lean_instToExprDeclarationRange___lambda__1___closed__11;
 static lean_object* l_Lean_instInhabitedDeclarationRange___closed__2;
 LEAN_EXPORT lean_object* l_Lean_instToExprDeclarationRanges___lambda__1(lean_object*);
+uint8_t l___private_Init_PanicAux_0__Lean_decEqPosition____x40_Init_PanicAux___hyg_32_(lean_object*, lean_object*);
 static lean_object* l___private_Lean_DeclarationRange_0__Lean_reprDeclarationRange____x40_Lean_DeclarationRange___hyg_288____closed__13;
 lean_object* l_Lean_Name_getPrefix(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
@@ -124,12 +124,12 @@ LEAN_EXPORT lean_object* l___private_Lean_DeclarationRange_0__Lean_decEqDeclarat
 static lean_object* l___private_Lean_DeclarationRange_0__Lean_reprDeclarationRange____x40_Lean_DeclarationRange___hyg_288____closed__23;
 static lean_object* l___private_Lean_DeclarationRange_0__Lean_reprDeclarationRange____x40_Lean_DeclarationRange___hyg_288____closed__21;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedDeclarationRange;
+lean_object* l___private_Init_PanicAux_0__Lean_reprPosition____x40_Init_PanicAux___hyg_162_(lean_object*, lean_object*);
 uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_DeclarationRange_0__Lean_reprDeclarationRange____x40_Lean_DeclarationRange___hyg_288____closed__22;
 lean_object* lean_string_length(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DeclarationRange_0__Lean_reprDeclarationRange____x40_Lean_DeclarationRange___hyg_288_(lean_object*, lean_object*);
 lean_object* l_Lean_mkNatLit(lean_object*);
-lean_object* l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_162_(lean_object*, lean_object*);
 static lean_object* l_Lean_instToExprDeclarationRange___closed__3;
 static lean_object* l_Lean_instToExprDeclarationRange___lambda__1___closed__10;
 lean_object* l_Lean_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -189,7 +189,7 @@ x_7 = lean_ctor_get(x_2, 0);
 x_8 = lean_ctor_get(x_2, 1);
 x_9 = lean_ctor_get(x_2, 2);
 x_10 = lean_ctor_get(x_2, 3);
-x_11 = l___private_Lean_Data_Position_0__Lean_decEqPosition____x40_Lean_Data_Position___hyg_32_(x_3, x_7);
+x_11 = l___private_Init_PanicAux_0__Lean_decEqPosition____x40_Init_PanicAux___hyg_32_(x_3, x_7);
 if (x_11 == 0)
 {
 uint8_t x_12; 
@@ -209,7 +209,7 @@ return x_14;
 else
 {
 uint8_t x_15; 
-x_15 = l___private_Lean_Data_Position_0__Lean_decEqPosition____x40_Lean_Data_Position___hyg_32_(x_5, x_9);
+x_15 = l___private_Init_PanicAux_0__Lean_decEqPosition____x40_Init_PanicAux___hyg_32_(x_5, x_9);
 if (x_15 == 0)
 {
 uint8_t x_16; 
@@ -485,7 +485,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 x_4 = lean_unsigned_to_nat(0u);
-x_5 = l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_162_(x_3, x_4);
+x_5 = l___private_Init_PanicAux_0__Lean_reprPosition____x40_Init_PanicAux___hyg_162_(x_3, x_4);
 x_6 = l___private_Lean_DeclarationRange_0__Lean_reprDeclarationRange____x40_Lean_DeclarationRange___hyg_288____closed__7;
 x_7 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_7, 0, x_6);
@@ -544,7 +544,7 @@ lean_ctor_set(x_31, 0, x_30);
 lean_ctor_set(x_31, 1, x_18);
 x_32 = lean_ctor_get(x_1, 2);
 lean_inc(x_32);
-x_33 = l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_162_(x_32, x_4);
+x_33 = l___private_Init_PanicAux_0__Lean_reprPosition____x40_Init_PanicAux___hyg_162_(x_32, x_4);
 x_34 = l___private_Lean_DeclarationRange_0__Lean_reprDeclarationRange____x40_Lean_DeclarationRange___hyg_288____closed__15;
 x_35 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_35, 0, x_34);

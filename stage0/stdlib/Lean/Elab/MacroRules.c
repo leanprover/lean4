@@ -52,6 +52,7 @@ static lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__13;
 static lean_object* l_Lean_Elab_Command_elabMacroRules___lambda__1___closed__3;
 static lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__23;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___lambda__2___closed__8;
+static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__13;
 static lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__41;
 static lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__52;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__8;
@@ -88,6 +89,7 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabMacroRules___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__29;
 uint8_t l_Lean_Elab_Command_checkRuleKind(lean_object*, lean_object*);
+static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__17;
 static lean_object* l_Lean_Elab_Command_elabMacroRules___lambda__2___closed__1;
 static lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__37;
 static lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__53;
@@ -129,7 +131,6 @@ lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*, lean
 lean_object* l_Lean_addMessageContextPartial___at_Lean_Elab_Command_instAddMessageContextCommandElabM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabMacroRules_declRange___closed__5;
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabMacroRules___closed__4;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkSepArray(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__59;
 static lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__68;
@@ -145,6 +146,7 @@ lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_elabComma
 lean_object* l_Lean_Syntax_TSepArray_getElems___rarg(lean_object*);
 lean_object* l_Lean_Syntax_getQuotContent(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabMacroRules_declRange___closed__4;
+static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__16;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___lambda__2___closed__16;
 static lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__61;
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabMacroRules___closed__2;
@@ -175,6 +177,7 @@ static lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__65;
 static lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__39;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_elabMacroRulesAux___spec__1___rarg(lean_object*);
 lean_object* l_Lean_Elab_Command_getRef(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__15;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__3;
 static lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__35;
 uint8_t l_Lean_Syntax_isNone(lean_object*);
@@ -185,11 +188,13 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabMacroRules___lambda__4(lean_obj
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Command_elabMacroRulesAux___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_CallerInfo_mkPanicMessage(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabMacroRules___lambda__2___closed__4;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___lambda__2___closed__10;
 extern lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__5;
 static lean_object* l_Lean_Elab_Command_elabMacroRules___lambda__4___closed__4;
+static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__14;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabMacroRulesAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_syntax_ident(lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -914,11 +919,21 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.Util", 9);
+x_1 = lean_mk_string_from_bytes("Init.PanicAux", 13);
 return x_1;
 }
 }
 static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__10() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__9;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__11() {
 _start:
 {
 lean_object* x_1; 
@@ -926,7 +941,53 @@ x_1 = lean_mk_string_from_bytes("getElem!", 8);
 return x_1;
 }
 }
-static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__11() {
+static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__12() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__11;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__13() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__12;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__14() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(41u);
+x_2 = lean_unsigned_to_nat(36u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__15() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__10;
+x_2 = l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__13;
+x_3 = l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__14;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__16() {
 _start:
 {
 lean_object* x_1; 
@@ -934,17 +995,14 @@ x_1 = lean_mk_string_from_bytes("index out of bounds", 19);
 return x_1;
 }
 }
-static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__12() {
+static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__17() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__9;
-x_2 = l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__10;
-x_3 = lean_unsigned_to_nat(77u);
-x_4 = lean_unsigned_to_nat(36u);
-x_5 = l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__11;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__15;
+x_2 = l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__16;
+x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -1051,7 +1109,7 @@ lean_dec(x_52);
 if (x_53 == 0)
 {
 lean_object* x_54; lean_object* x_55; 
-x_54 = l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__12;
+x_54 = l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__17;
 x_55 = l_panic___at_Lean_expandExplicitBindersAux_loop___spec__1(x_54);
 x_32 = x_55;
 goto block_51;
@@ -5382,6 +5440,16 @@ l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___clos
 lean_mark_persistent(l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__11);
 l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__12 = _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__12();
 lean_mark_persistent(l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__12);
+l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__13 = _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__13();
+lean_mark_persistent(l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__13);
+l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__14 = _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__14();
+lean_mark_persistent(l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__14);
+l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__15 = _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__15();
+lean_mark_persistent(l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__15);
+l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__16 = _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__16();
+lean_mark_persistent(l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__16);
+l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__17 = _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__17();
+lean_mark_persistent(l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacroRulesAux___spec__5___closed__17);
 l_Lean_Elab_Command_elabMacroRulesAux___closed__1 = _init_l_Lean_Elab_Command_elabMacroRulesAux___closed__1();
 lean_mark_persistent(l_Lean_Elab_Command_elabMacroRulesAux___closed__1);
 l_Lean_Elab_Command_elabMacroRulesAux___closed__2 = _init_l_Lean_Elab_Command_elabMacroRulesAux___closed__2();

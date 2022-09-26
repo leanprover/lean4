@@ -449,6 +449,9 @@ def bracketedBinderF := bracketedBinder  -- no default arg
 @[builtinTermParser] def matchDiscr.quot : Parser := leading_parser "`(matchDiscr|"  >> incQuotDepth (evalInsideQuot ``matchDiscr matchDiscr) >> ")"
 @[builtinTermParser] def attr.quot : Parser := leading_parser "`(attr|"  >> incQuotDepth attrParser >> ")"
 
+
+/-- A macro which evaluates to caller info at the current location. -/
+@[builtinTermParser] def callerInfoHere := leading_parser "caller_info_here"
 /--
 `panic! msg` formally evaluates to `@Inhabited.default α` if the expected type
 `α` implements `Inhabited`.

@@ -23,6 +23,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_InferT
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_instantiateLCNFTypeLevelParams(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__11;
 lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_isErasedCompatible___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_userName(lean_object*);
@@ -59,6 +60,7 @@ lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_mkCasesResultType___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_foldRevM_loop___at_Lean_Compiler_LCNF_InferType_mkForallFVars___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_InferType_inferForallType_go___spec__9(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__17;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_instantiateForall_go___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__8;
 LEAN_EXPORT lean_object* l_List_isEqv___at_Lean_Compiler_LCNF_compatibleTypes___spec__1___boxed(lean_object*, lean_object*);
@@ -67,6 +69,7 @@ static lean_object* l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_InferType_inferAppTypeCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_InferType_getLevel_x3f___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_InferType_mkForallParams___closed__2;
+static lean_object* l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__9;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_InferType_inferForallType_go___spec__2(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_InferType_inferAppTypeCore___spec__2___lambda__1___closed__3;
@@ -90,6 +93,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_InferT
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_InferType_inferAppTypeCore___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_instantiate_rev_range(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__10;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_getLevel___spec__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_InferType_inferProjType___spec__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -134,17 +138,19 @@ static lean_object* l_Lean_Compiler_LCNF_InferType_mkForallParams___closed__5;
 lean_object* l_Lean_Compiler_LCNF_mkLetDecl(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_InferType_inferConstType___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_InferType_getLevel_x3f(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__12;
 static lean_object* l_panic___at_Lean_Compiler_LCNF_isErasedCompatible_go___spec__2___closed__1;
 uint8_t l_Lean_Compiler_LCNF_isPredicateType(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_InferType_inferAppTypeCore(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_AltCore_inferType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Compiler_LCNF_isErasedCompatible_go___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__16;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_InferType_inferType(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_reverse___rarg(lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 static lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_InferType_inferType___spec__1___closed__4;
 static lean_object* l_Lean_Compiler_LCNF_instantiateForall_go___closed__2;
+static lean_object* l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__14;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_InferType_inferAppType(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_mkAuxFunDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_getBinderName(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -157,6 +163,8 @@ LEAN_EXPORT uint8_t l_List_isEqv___at_Lean_Compiler_LCNF_compatibleTypes___spec_
 static lean_object* l_Lean_Compiler_LCNF_mkCasesResultType___closed__1;
 LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at_Lean_Compiler_LCNF_mkCasesResultType___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_InferType_mkForallParams___closed__7;
+static lean_object* l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__15;
+static lean_object* l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__18;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_mkLcCast___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__5;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
@@ -243,8 +251,10 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_InferType_inferForallType_go___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_getDeclAt_x3f(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_abstract(lean_object*, lean_object*);
+lean_object* l_CallerInfo_mkPanicMessage(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_InferType_inferProjType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_mkAuxFunDecl(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__13;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_InferType_inferProjType___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_InferType_inferAppTypeCore___spec__2___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_mkCasesResultType___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -347,11 +357,21 @@ static lean_object* _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.Util", 9);
+x_1 = lean_mk_string_from_bytes("Init.PanicAux", 13);
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -359,7 +379,53 @@ x_1 = lean_mk_string_from_bytes("getElem!", 8);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__3() {
+static lean_object* _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__3;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__4;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(41u);
+x_2 = lean_unsigned_to_nat(36u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__2;
+x_2 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__5;
+x_3 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__6;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -367,20 +433,17 @@ x_1 = lean_mk_string_from_bytes("index out of bounds", 19);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__4() {
+static lean_object* _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__9() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__1;
-x_2 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__2;
-x_3 = lean_unsigned_to_nat(77u);
-x_4 = lean_unsigned_to_nat(36u);
-x_5 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__7;
+x_2 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__8;
+x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
+return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__5() {
+static lean_object* _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__10() {
 _start:
 {
 lean_object* x_1; 
@@ -388,7 +451,17 @@ x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.InferType", 28);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__6() {
+static lean_object* _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__11() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__10;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__12() {
 _start:
 {
 lean_object* x_1; 
@@ -396,7 +469,53 @@ x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.isErasedCompatible.go", 40);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__7() {
+static lean_object* _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__13() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__12;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__14() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__13;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__15() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(73u);
+x_2 = lean_unsigned_to_nat(50u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__16() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__11;
+x_2 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__14;
+x_3 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__15;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__17() {
 _start:
 {
 lean_object* x_1; 
@@ -404,17 +523,14 @@ x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__8() {
+static lean_object* _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__18() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__5;
-x_2 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__6;
-x_3 = lean_unsigned_to_nat(73u);
-x_4 = lean_unsigned_to_nat(50u);
-x_5 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__7;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__16;
+x_2 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__17;
+x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_isErasedCompatible_go(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -445,7 +561,7 @@ if (x_14 == 0)
 lean_object* x_15; lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; 
 lean_dec(x_13);
 lean_dec(x_2);
-x_15 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__4;
+x_15 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__9;
 x_16 = l_panic___at_Lean_Compiler_LCNF_isErasedCompatible_go___spec__1(x_15);
 x_17 = lean_unbox(x_16);
 lean_dec(x_16);
@@ -616,7 +732,7 @@ default:
 lean_object* x_61; lean_object* x_62; 
 lean_dec(x_8);
 lean_dec(x_2);
-x_61 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__8;
+x_61 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__18;
 x_62 = l_panic___at_Lean_Compiler_LCNF_isErasedCompatible_go___spec__2(x_61, x_3, x_4, x_5, x_6, x_7);
 return x_62;
 }
@@ -1220,7 +1336,7 @@ lean_dec(x_14);
 if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_16 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__4;
+x_16 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__9;
 x_17 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_16);
 x_18 = l_Lean_Expr_fvarId_x21(x_17);
 lean_inc(x_4);
@@ -12251,7 +12367,7 @@ lean_dec(x_33);
 if (x_35 == 0)
 {
 lean_object* x_36; lean_object* x_37; 
-x_36 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__4;
+x_36 = l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__9;
 x_37 = l_panic___at___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_updateAltImp___spec__1(x_36);
 x_8 = x_37;
 goto block_32;
@@ -12517,6 +12633,26 @@ l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__7 = _init_l_Lean_Compiler_L
 lean_mark_persistent(l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__7);
 l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__8 = _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__8();
 lean_mark_persistent(l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__8);
+l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__9 = _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__9();
+lean_mark_persistent(l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__9);
+l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__10 = _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__10();
+lean_mark_persistent(l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__10);
+l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__11 = _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__11();
+lean_mark_persistent(l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__11);
+l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__12 = _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__12();
+lean_mark_persistent(l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__12);
+l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__13 = _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__13();
+lean_mark_persistent(l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__13);
+l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__14 = _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__14();
+lean_mark_persistent(l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__14);
+l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__15 = _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__15();
+lean_mark_persistent(l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__15);
+l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__16 = _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__16();
+lean_mark_persistent(l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__16);
+l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__17 = _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__17();
+lean_mark_persistent(l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__17);
+l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__18 = _init_l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__18();
+lean_mark_persistent(l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__18);
 l_Lean_Compiler_LCNF_InferType_mkForallParams___closed__1 = _init_l_Lean_Compiler_LCNF_InferType_mkForallParams___closed__1();
 lean_mark_persistent(l_Lean_Compiler_LCNF_InferType_mkForallParams___closed__1);
 l_Lean_Compiler_LCNF_InferType_mkForallParams___closed__2 = _init_l_Lean_Compiler_LCNF_InferType_mkForallParams___closed__2();

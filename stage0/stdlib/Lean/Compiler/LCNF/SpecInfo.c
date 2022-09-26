@@ -13,7 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__15;
 lean_object* l_List_reverse___rarg(lean_object*);
+static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__7;
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__3;
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___lambda__1___closed__3;
 static lean_object* l___private_Lean_Compiler_LCNF_SpecInfo_0__Lean_Compiler_LCNF_reprSpecParamInfo____x40_Lean_Compiler_LCNF_SpecInfo___hyg_15____closed__18;
@@ -48,7 +50,9 @@ static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParam
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_SpecState_switch(lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__5;
+static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__18;
 LEAN_EXPORT lean_object* l_panic___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__11;
 size_t lean_usize_sub(size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_SpecInfo___hyg_354____spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_isArrowClass_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -58,6 +62,7 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_SpecInfo_0__Lean_Compiler_LCNF_reprSpecParamInfo____x40_Lean_Compiler_LCNF_SpecInfo___hyg_15____closed__4;
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_Compiler_LCNF_SpecState_addEntry___spec__10(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
+static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__10;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___lambda__1___closed__1;
 static lean_object* l___private_Lean_Compiler_LCNF_SpecInfo_0__Lean_Compiler_LCNF_reprSpecParamInfo____x40_Lean_Compiler_LCNF_SpecInfo___hyg_15____closed__27;
@@ -121,6 +126,7 @@ static size_t l_Lean_PersistentHashMap_insertAux___at_Lean_Compiler_LCNF_SpecSta
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instInhabitedSpecState;
 static lean_object* l___private_Lean_Compiler_LCNF_SpecInfo_0__Lean_Compiler_LCNF_reprSpecParamInfo____x40_Lean_Compiler_LCNF_SpecInfo___hyg_15____closed__2;
+static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__17;
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__8;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_contains___at_Lean_Compiler_LCNF_isSpecCandidate___spec__2___boxed(lean_object*, lean_object*);
@@ -154,6 +160,7 @@ lean_object* l_Lean_RBNode_find___at___private_Lean_Compiler_LCNF_FixedArgs_0__L
 LEAN_EXPORT uint8_t l_Lean_AssocList_contains___at_Lean_Compiler_LCNF_SpecState_addEntry___spec__7(lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__4;
 static lean_object* l_Lean_Compiler_LCNF_instToMessageDataSpecParamInfo___closed__8;
+static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__8;
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__9;
 size_t lean_usize_shift_left(size_t, size_t);
 static lean_object* l_panic___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__7___closed__2;
@@ -163,9 +170,10 @@ static lean_object* l_Lean_Compiler_LCNF_instToMessageDataSpecParamInfo___closed
 LEAN_EXPORT lean_object* l_panic___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__13(lean_object*);
 static lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Compiler_LCNF_SpecState_addEntry___spec__3___closed__3;
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__4;
+static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__19;
 LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_Compiler_LCNF_SpecState_specInfo___default___spec__1___boxed(lean_object*);
+static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__9;
 size_t lean_usize_modn(size_t, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_isTracingEnabledFor___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__9___closed__1;
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__9(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -248,6 +256,7 @@ extern lean_object* l_Lean_Compiler_LCNF_instInhabitedDecl;
 lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_SpecParamInfo_noConfusion___rarg___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___lambda__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_CallerInfo_mkPanicMessage(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_saveSpecParamInfo(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__2;
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_SpecInfo___hyg_354____closed__3;
@@ -271,6 +280,7 @@ lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_939____at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_instInhabitedSpecEntry___closed__1;
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__16;
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_contains___at_Lean_Compiler_LCNF_isSpecCandidate___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at_Lean_Compiler_LCNF_SpecState_addEntry___spec__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_contains___at_Lean_Compiler_LCNF_isSpecCandidate___spec__1___boxed(lean_object*, lean_object*);
@@ -2634,11 +2644,21 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.Util", 9);
+x_1 = lean_mk_string_from_bytes("Init.PanicAux", 13);
 return x_1;
 }
 }
 static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__3;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -2646,7 +2666,53 @@ x_1 = lean_mk_string_from_bytes("getElem!", 8);
 return x_1;
 }
 }
-static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__5() {
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__5;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__6;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(41u);
+x_2 = lean_unsigned_to_nat(36u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__9() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__4;
+x_2 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__7;
+x_3 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__8;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__10() {
 _start:
 {
 lean_object* x_1; 
@@ -2654,17 +2720,14 @@ x_1 = lean_mk_string_from_bytes("index out of bounds", 19);
 return x_1;
 }
 }
-static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__6() {
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__11() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__3;
-x_2 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__4;
-x_3 = lean_unsigned_to_nat(77u);
-x_4 = lean_unsigned_to_nat(36u);
-x_5 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__5;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__9;
+x_2 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__10;
+x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, uint8_t x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13) {
@@ -2688,7 +2751,7 @@ x_37 = lean_st_ref_get(x_12, x_13);
 if (x_36 == 0)
 {
 lean_object* x_102; lean_object* x_103; 
-x_102 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__6;
+x_102 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__11;
 x_103 = l_panic___at___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_goLetDecl___spec__2(x_102);
 x_38 = x_103;
 goto block_101;
@@ -4010,12 +4073,68 @@ return x_1;
 static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__2() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__3() {
+_start:
+{
 lean_object* x_1; 
 x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.saveSpecParamInfo", 36);
 return x_1;
 }
 }
-static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__3() {
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__3;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__4;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(143u);
+x_2 = lean_unsigned_to_nat(43u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__2;
+x_2 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__5;
+x_3 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__6;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -4023,20 +4142,17 @@ x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
-static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__4() {
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__9() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__1;
-x_2 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__2;
-x_3 = lean_unsigned_to_nat(143u);
-x_4 = lean_unsigned_to_nat(43u);
-x_5 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__7;
+x_2 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__8;
+x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
+return x_3;
 }
 }
-static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__5() {
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__10() {
 _start:
 {
 lean_object* x_1; 
@@ -4044,17 +4160,17 @@ x_1 = lean_mk_string_from_bytes("Compiler", 8);
 return x_1;
 }
 }
-static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__6() {
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__5;
+x_2 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__10;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__7() {
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__12() {
 _start:
 {
 lean_object* x_1; 
@@ -4062,17 +4178,17 @@ x_1 = lean_mk_string_from_bytes("specialize", 10);
 return x_1;
 }
 }
-static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__8() {
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__6;
-x_2 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__7;
+x_1 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__11;
+x_2 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__12;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__9() {
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__14() {
 _start:
 {
 lean_object* x_1; 
@@ -4080,17 +4196,17 @@ x_1 = lean_mk_string_from_bytes("info", 4);
 return x_1;
 }
 }
-static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__10() {
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__15() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__8;
-x_2 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__9;
+x_1 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__13;
+x_2 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__14;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__11() {
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__16() {
 _start:
 {
 lean_object* x_1; 
@@ -4098,16 +4214,16 @@ x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__12() {
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__17() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__11;
+x_1 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__16;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__13() {
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__18() {
 _start:
 {
 lean_object* x_1; 
@@ -4115,11 +4231,11 @@ x_1 = lean_mk_string_from_bytes(" ", 1);
 return x_1;
 }
 }
-static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__14() {
+static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__19() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__13;
+x_1 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__18;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -4146,7 +4262,7 @@ x_29 = lean_nat_dec_lt(x_8, x_5);
 if (x_28 == 0)
 {
 lean_object* x_131; lean_object* x_132; 
-x_131 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__6;
+x_131 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__11;
 x_132 = l_panic___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__13(x_131);
 x_30 = x_132;
 goto block_130;
@@ -4180,7 +4296,7 @@ lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34;
 x_31 = lean_ctor_get(x_30, 0);
 lean_inc(x_31);
 lean_dec(x_30);
-x_32 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__6;
+x_32 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__11;
 x_33 = l_panic___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__12(x_32);
 x_34 = l_Lean_RBNode_find___at___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_goLetDecl___spec__1(x_6, x_31);
 if (lean_obj_tag(x_34) == 0)
@@ -4188,7 +4304,7 @@ if (lean_obj_tag(x_34) == 0)
 lean_object* x_35; lean_object* x_36; 
 lean_dec(x_33);
 lean_dec(x_31);
-x_35 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__4;
+x_35 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__9;
 lean_inc(x_15);
 lean_inc(x_14);
 lean_inc(x_13);
@@ -4289,7 +4405,7 @@ goto block_27;
 else
 {
 lean_object* x_54; lean_object* x_55; lean_object* x_56; uint8_t x_57; 
-x_54 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__10;
+x_54 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__15;
 x_55 = l_Lean_isTracingEnabledFor___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__9(x_54, x_12, x_13, x_14, x_15, x_16);
 x_56 = lean_ctor_get(x_55, 0);
 lean_inc(x_56);
@@ -4321,11 +4437,11 @@ lean_dec(x_55);
 lean_inc(x_31);
 x_64 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_64, 0, x_31);
-x_65 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__12;
+x_65 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__17;
 x_66 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_66, 0, x_65);
 lean_ctor_set(x_66, 1, x_64);
-x_67 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__14;
+x_67 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__19;
 x_68 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_68, 0, x_66);
 lean_ctor_set(x_68, 1, x_67);
@@ -4376,7 +4492,7 @@ if (lean_obj_tag(x_83) == 0)
 lean_object* x_84; lean_object* x_85; 
 lean_dec(x_82);
 lean_dec(x_81);
-x_84 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__4;
+x_84 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__9;
 lean_inc(x_15);
 lean_inc(x_14);
 lean_inc(x_13);
@@ -4477,7 +4593,7 @@ goto block_27;
 else
 {
 lean_object* x_103; lean_object* x_104; lean_object* x_105; uint8_t x_106; 
-x_103 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__10;
+x_103 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__15;
 x_104 = l_Lean_isTracingEnabledFor___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__9(x_103, x_12, x_13, x_14, x_15, x_16);
 x_105 = lean_ctor_get(x_104, 0);
 lean_inc(x_105);
@@ -4509,11 +4625,11 @@ lean_dec(x_104);
 lean_inc(x_81);
 x_113 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_113, 0, x_81);
-x_114 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__12;
+x_114 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__17;
 x_115 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_115, 0, x_114);
 lean_ctor_set(x_115, 1, x_113);
-x_116 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__14;
+x_116 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__19;
 x_117 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_117, 0, x_115);
 lean_ctor_set(x_117, 1, x_116);
@@ -5680,7 +5796,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_S
 _start:
 {
 lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_2 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__10;
+x_2 = l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__15;
 x_3 = 0;
 x_4 = l_Lean_registerTraceClass(x_2, x_3, x_1);
 return x_4;
@@ -5863,6 +5979,16 @@ l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___clo
 lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__5);
 l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__6 = _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__6();
 lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__6);
+l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__7 = _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__7();
+lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__7);
+l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__8 = _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__8();
+lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__8);
+l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__9 = _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__9();
+lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__9);
+l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__10 = _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__10();
+lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__10);
+l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__11 = _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__11();
+lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__3___closed__11);
 l_panic___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__7___closed__1 = _init_l_panic___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__7___closed__1();
 lean_mark_persistent(l_panic___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__7___closed__1);
 l_panic___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__7___closed__2 = _init_l_panic___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__7___closed__2();
@@ -5911,6 +6037,16 @@ l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___cl
 lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__13);
 l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__14 = _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__14();
 lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__14);
+l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__15 = _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__15();
+lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__15);
+l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__16 = _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__16();
+lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__16);
+l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__17 = _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__17();
+lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__17);
+l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__18 = _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__18();
+lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__18);
+l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__19 = _init_l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__19();
+lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__14___closed__19);
 res = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_SpecInfo___hyg_1610_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

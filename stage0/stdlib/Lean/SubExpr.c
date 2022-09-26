@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* l_List_reverse___rarg(lean_object*);
 static lean_object* l_Lean_SubExpr_Pos_tail___closed__1;
+static lean_object* l_Lean_SubExpr_Pos_tail___closed__4;
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_instToStringPos;
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_push(lean_object*, lean_object*);
@@ -22,6 +23,7 @@ LEAN_EXPORT lean_object* l_Lean_Expr_traverseAppWithPos___rarg___lambda__1___box
 static lean_object* l___private_Lean_SubExpr_0__Lean_SubExpr_Pos_ofStringCoord___closed__6;
 LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_SubExpr_Pos_toString___spec__1(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_SubExpr_Pos_fromString_x3f___spec__1(size_t, size_t, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushBindingBody___boxed(lean_object*);
@@ -48,8 +50,11 @@ LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushProj(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushNaryArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushAppFn(lean_object*);
 static lean_object* l_Lean_instInhabitedSubExpr___closed__2;
+static lean_object* l_Lean_SubExpr_Pos_fromString_x21___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Expr_traverseAppWithPos___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_SubExpr_Pos_tail___closed__2;
+static lean_object* l_Lean_SubExpr_bindingDomain_x21___closed__5;
+static lean_object* l_Lean_SubExpr_Pos_fromString_x21___closed__2;
 lean_object* l_Lean_Json_getStr_x3f(lean_object*);
 static lean_object* l_Lean_SubExpr_Pos_fromString_x21___closed__1;
 lean_object* l_instOrdNat___boxed(lean_object*, lean_object*);
@@ -60,11 +65,13 @@ LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushLetValue___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushBindingBody(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushLetBody(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushBindingDomain(lean_object*);
+static lean_object* l_Lean_SubExpr_bindingBody_x21___closed__7;
 lean_object* l_String_splitOn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushAppFn___boxed(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_root;
 lean_object* lean_nat_add(lean_object*, lean_object*);
+static lean_object* l_Lean_SubExpr_Pos_head___closed__9;
 static lean_object* l_Lean_SubExpr_Pos_head___closed__4;
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_foldl(lean_object*);
 static lean_object* l_Lean_SubExpr_Pos_head___closed__2;
@@ -74,12 +81,14 @@ LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushBindingDomain___boxed(lean_objec
 lean_object* l_Array_push___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_SubExpr_Pos_head___closed__1;
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_foldrM(lean_object*, lean_object*);
+static lean_object* l_Lean_SubExpr_bindingBody_x21___closed__5;
 static lean_object* l___private_Lean_SubExpr_0__Lean_SubExpr_Pos_ofStringCoord___closed__9;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_append___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_isRoot___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_head___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushNaryArg___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_SubExpr_Pos_head___closed__8;
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushNaryFn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_SubExpr_0__Lean_SubExpr_Pos_ofStringCoord___boxed(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -87,6 +96,7 @@ LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushLetBody___boxed(lean_object*);
 static lean_object* l_Lean_SubExpr_Pos_typeCoord___closed__1;
 static lean_object* l_Lean_instInhabitedSubExpr___closed__1;
 LEAN_EXPORT lean_object* l_Lean_SubExpr_bindingBody_x21(lean_object*);
+static lean_object* l_Lean_SubExpr_Pos_head___closed__5;
 LEAN_EXPORT lean_object* l_Lean_SubExpr_isRoot___boxed(lean_object*);
 static lean_object* l_Lean_SubExpr_Pos_append___closed__1;
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_fromString_x3f(lean_object*);
@@ -112,13 +122,15 @@ LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushNaryFn___boxed(lean_object*, lea
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_all___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_SubExpr_Pos_ofArray___spec__1(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_all___boxed(lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_SubExpr_Pos_instToJsonPos___closed__2;
 LEAN_EXPORT lean_object* l_panic___at_Lean_SubExpr_bindingBody_x21___spec__1(lean_object*);
+static lean_object* l_Lean_SubExpr_Pos_push___closed__5;
 lean_object* l_Lean_Expr_bvar___override(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_traverseAppWithPos(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_foldlM___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_SubExpr_Pos_head___closed__6;
 static lean_object* l_Lean_SubExpr_Pos_instToJsonPos___closed__1;
+static lean_object* l_Lean_SubExpr_Pos_tail___closed__5;
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_head(lean_object*);
 static lean_object* l_Lean_SubExpr_Pos_fromString_x3f___closed__1;
@@ -144,6 +156,8 @@ LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushAppArg(lean_object*);
 static lean_object* l___private_Lean_SubExpr_0__Lean_SubExpr_Pos_ofStringCoord___closed__2;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_String_quote(lean_object*);
+static lean_object* l_Lean_SubExpr_bindingBody_x21___closed__4;
+static lean_object* l_Lean_SubExpr_Pos_push___closed__7;
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_asNat___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_instEmptyCollectionPos;
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_instFromJsonPos(lean_object*);
@@ -154,15 +168,20 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_SubExpr_Pos_fromString
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushAppArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_foldl___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_SubExpr_bindingDomain_x21___closed__1;
+static lean_object* l_Lean_SubExpr_Pos_push___closed__4;
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_SubExpr_0__Lean_SubExpr_Pos_ofStringCoord___closed__7;
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_foldrM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
+static lean_object* l_Lean_SubExpr_bindingDomain_x21___closed__6;
+static lean_object* l_Lean_SubExpr_Pos_head___closed__7;
 static lean_object* l_Lean_SubExpr_Pos_toArray___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_SubExpr_0__Lean_SubExpr_Pos_ofStringCoord(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_ofArray___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_instReprPos(lean_object*, lean_object*);
+lean_object* l_CallerInfo_mkPanicMessage(lean_object*, lean_object*);
 static lean_object* l_Lean_SubExpr_Pos_push___closed__2;
+static lean_object* l_Lean_SubExpr_bindingDomain_x21___closed__4;
 lean_object* l___private_Lean_Expr_0__Lean_Expr_updateApp_x21Impl___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_push___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushLetVarType(lean_object*);
@@ -173,12 +192,19 @@ LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_foldrM___at_Lean_SubExpr_Pos_all___s
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_depth___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushProj___boxed(lean_object*);
+static lean_object* l_Lean_SubExpr_Pos_fromString_x21___closed__5;
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_depth___lambda__1___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_SubExpr_Pos_tail___closed__3;
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushLetVarType___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedSubExpr;
+static lean_object* l_Lean_SubExpr_Pos_push___closed__6;
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_typeCoord;
+static lean_object* l_Lean_SubExpr_bindingDomain_x21___closed__3;
+static lean_object* l_Lean_SubExpr_bindingBody_x21___closed__6;
+static lean_object* l_Lean_SubExpr_Pos_fromString_x21___closed__3;
 static lean_object* l_Lean_SubExpr_Pos_toArray___closed__2;
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_foldlM(lean_object*);
+static lean_object* l_Lean_SubExpr_Pos_tail___closed__6;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_instToJsonPos;
@@ -271,12 +297,68 @@ return x_1;
 static lean_object* _init_l_Lean_SubExpr_Pos_head___closed__2() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_SubExpr_Pos_head___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_SubExpr_Pos_head___closed__3() {
+_start:
+{
 lean_object* x_1; 
 x_1 = lean_mk_string_from_bytes("Lean.SubExpr.Pos.head", 21);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_SubExpr_Pos_head___closed__3() {
+static lean_object* _init_l_Lean_SubExpr_Pos_head___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_SubExpr_Pos_head___closed__3;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_SubExpr_Pos_head___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_SubExpr_Pos_head___closed__4;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_SubExpr_Pos_head___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(36u);
+x_2 = lean_unsigned_to_nat(19u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_SubExpr_Pos_head___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_SubExpr_Pos_head___closed__2;
+x_2 = l_Lean_SubExpr_Pos_head___closed__5;
+x_3 = l_Lean_SubExpr_Pos_head___closed__6;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_SubExpr_Pos_head___closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -284,17 +366,14 @@ x_1 = lean_mk_string_from_bytes("already at top", 14);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_SubExpr_Pos_head___closed__4() {
+static lean_object* _init_l_Lean_SubExpr_Pos_head___closed__9() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_SubExpr_Pos_head___closed__1;
-x_2 = l_Lean_SubExpr_Pos_head___closed__2;
-x_3 = lean_unsigned_to_nat(36u);
-x_4 = lean_unsigned_to_nat(19u);
-x_5 = l_Lean_SubExpr_Pos_head___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_SubExpr_Pos_head___closed__7;
+x_2 = l_Lean_SubExpr_Pos_head___closed__8;
+x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_head(lean_object* x_1) {
@@ -312,7 +391,7 @@ return x_4;
 else
 {
 lean_object* x_5; lean_object* x_6; 
-x_5 = l_Lean_SubExpr_Pos_head___closed__4;
+x_5 = l_Lean_SubExpr_Pos_head___closed__9;
 x_6 = l_panic___at_String_toNat_x21___spec__1(x_5);
 return x_6;
 }
@@ -347,14 +426,57 @@ return x_1;
 static lean_object* _init_l_Lean_SubExpr_Pos_tail___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_SubExpr_Pos_head___closed__1;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
 x_2 = l_Lean_SubExpr_Pos_tail___closed__1;
-x_3 = lean_unsigned_to_nat(40u);
-x_4 = lean_unsigned_to_nat(19u);
-x_5 = l_Lean_SubExpr_Pos_head___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_SubExpr_Pos_tail___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_SubExpr_Pos_tail___closed__2;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_SubExpr_Pos_tail___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(40u);
+x_2 = lean_unsigned_to_nat(19u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_SubExpr_Pos_tail___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_SubExpr_Pos_head___closed__2;
+x_2 = l_Lean_SubExpr_Pos_tail___closed__3;
+x_3 = l_Lean_SubExpr_Pos_tail___closed__4;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_SubExpr_Pos_tail___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_SubExpr_Pos_tail___closed__5;
+x_2 = l_Lean_SubExpr_Pos_head___closed__8;
+x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_tail(lean_object* x_1) {
@@ -378,7 +500,7 @@ else
 {
 lean_object* x_7; lean_object* x_8; 
 lean_dec(x_1);
-x_7 = l_Lean_SubExpr_Pos_tail___closed__2;
+x_7 = l_Lean_SubExpr_Pos_tail___closed__6;
 x_8 = l_panic___at_Lean_SubExpr_Pos_tail___spec__1(x_7);
 return x_8;
 }
@@ -408,6 +530,52 @@ x_1 = lean_mk_string_from_bytes("Lean.SubExpr.Pos.push", 21);
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_SubExpr_Pos_push___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_SubExpr_Pos_push___closed__3;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_SubExpr_Pos_push___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_SubExpr_Pos_push___closed__4;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_SubExpr_Pos_push___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(44u);
+x_2 = lean_unsigned_to_nat(27u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_SubExpr_Pos_push___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_SubExpr_Pos_head___closed__2;
+x_2 = l_Lean_SubExpr_Pos_push___closed__5;
+x_3 = l_Lean_SubExpr_Pos_push___closed__6;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_push(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -425,21 +593,18 @@ return x_6;
 }
 else
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_7 = l_Nat_repr(x_2);
 x_8 = l_Lean_SubExpr_Pos_push___closed__1;
 x_9 = lean_string_append(x_8, x_7);
 lean_dec(x_7);
 x_10 = l_Lean_SubExpr_Pos_push___closed__2;
 x_11 = lean_string_append(x_9, x_10);
-x_12 = l_Lean_SubExpr_Pos_head___closed__1;
-x_13 = l_Lean_SubExpr_Pos_push___closed__3;
-x_14 = lean_unsigned_to_nat(44u);
-x_15 = lean_unsigned_to_nat(27u);
-x_16 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_12, x_13, x_14, x_15, x_11);
+x_12 = l_Lean_SubExpr_Pos_push___closed__7;
+x_13 = l_CallerInfo_mkPanicMessage(x_12, x_11);
 lean_dec(x_11);
-x_17 = l_panic___at_Lean_SubExpr_Pos_tail___spec__1(x_16);
-return x_17;
+x_14 = l_panic___at_Lean_SubExpr_Pos_tail___spec__1(x_13);
+return x_14;
 }
 }
 }
@@ -1597,6 +1762,52 @@ x_1 = lean_mk_string_from_bytes("Lean.SubExpr.Pos.fromString!", 28);
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_SubExpr_Pos_fromString_x21___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_SubExpr_Pos_fromString_x21___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_SubExpr_Pos_fromString_x21___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_SubExpr_Pos_fromString_x21___closed__2;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_SubExpr_Pos_fromString_x21___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(131u);
+x_2 = lean_unsigned_to_nat(22u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_SubExpr_Pos_fromString_x21___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_SubExpr_Pos_head___closed__2;
+x_2 = l_Lean_SubExpr_Pos_fromString_x21___closed__3;
+x_3 = l_Lean_SubExpr_Pos_fromString_x21___closed__4;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_fromString_x21(lean_object* x_1) {
 _start:
 {
@@ -1604,26 +1815,23 @@ lean_object* x_2;
 x_2 = l_Lean_SubExpr_Pos_fromString_x3f(x_1);
 if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 lean_dec(x_2);
-x_4 = l_Lean_SubExpr_Pos_head___closed__1;
-x_5 = l_Lean_SubExpr_Pos_fromString_x21___closed__1;
-x_6 = lean_unsigned_to_nat(131u);
-x_7 = lean_unsigned_to_nat(22u);
-x_8 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_4, x_5, x_6, x_7, x_3);
+x_4 = l_Lean_SubExpr_Pos_fromString_x21___closed__5;
+x_5 = l_CallerInfo_mkPanicMessage(x_4, x_3);
 lean_dec(x_3);
-x_9 = l_panic___at_Lean_SubExpr_Pos_tail___spec__1(x_8);
-return x_9;
+x_6 = l_panic___at_Lean_SubExpr_Pos_tail___spec__1(x_5);
+return x_6;
 }
 else
 {
-lean_object* x_10; 
-x_10 = lean_ctor_get(x_2, 0);
-lean_inc(x_10);
+lean_object* x_7; 
+x_7 = lean_ctor_get(x_2, 0);
+lean_inc(x_7);
 lean_dec(x_2);
-return x_10;
+return x_7;
 }
 }
 }
@@ -1904,22 +2112,65 @@ return x_1;
 static lean_object* _init_l_Lean_SubExpr_bindingBody_x21___closed__2() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("subexpr is not a binder", 23);
-return x_1;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_SubExpr_bindingBody_x21___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_SubExpr_bindingBody_x21___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_SubExpr_Pos_head___closed__1;
-x_2 = l_Lean_SubExpr_bindingBody_x21___closed__1;
-x_3 = lean_unsigned_to_nat(176u);
-x_4 = lean_unsigned_to_nat(9u);
-x_5 = l_Lean_SubExpr_bindingBody_x21___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_SubExpr_bindingBody_x21___closed__2;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_SubExpr_bindingBody_x21___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(176u);
+x_2 = lean_unsigned_to_nat(9u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_SubExpr_bindingBody_x21___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_SubExpr_Pos_head___closed__2;
+x_2 = l_Lean_SubExpr_bindingBody_x21___closed__3;
+x_3 = l_Lean_SubExpr_bindingBody_x21___closed__4;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_SubExpr_bindingBody_x21___closed__6() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("subexpr is not a binder", 23);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_SubExpr_bindingBody_x21___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_SubExpr_bindingBody_x21___closed__5;
+x_2 = l_Lean_SubExpr_bindingBody_x21___closed__6;
+x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_SubExpr_bindingBody_x21(lean_object* x_1) {
@@ -2010,7 +2261,7 @@ default:
 lean_object* x_25; lean_object* x_26; 
 lean_dec(x_2);
 lean_dec(x_1);
-x_25 = l_Lean_SubExpr_bindingBody_x21___closed__3;
+x_25 = l_Lean_SubExpr_bindingBody_x21___closed__7;
 x_26 = l_panic___at_Lean_SubExpr_bindingBody_x21___spec__1(x_25);
 return x_26;
 }
@@ -2028,14 +2279,57 @@ return x_1;
 static lean_object* _init_l_Lean_SubExpr_bindingDomain_x21___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_SubExpr_Pos_head___closed__1;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
 x_2 = l_Lean_SubExpr_bindingDomain_x21___closed__1;
-x_3 = lean_unsigned_to_nat(181u);
-x_4 = lean_unsigned_to_nat(9u);
-x_5 = l_Lean_SubExpr_bindingBody_x21___closed__2;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_SubExpr_bindingDomain_x21___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_SubExpr_bindingDomain_x21___closed__2;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_SubExpr_bindingDomain_x21___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(181u);
+x_2 = lean_unsigned_to_nat(9u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_SubExpr_bindingDomain_x21___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_SubExpr_Pos_head___closed__2;
+x_2 = l_Lean_SubExpr_bindingDomain_x21___closed__3;
+x_3 = l_Lean_SubExpr_bindingDomain_x21___closed__4;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_SubExpr_bindingDomain_x21___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_SubExpr_bindingDomain_x21___closed__5;
+x_2 = l_Lean_SubExpr_bindingBody_x21___closed__6;
+x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_SubExpr_bindingDomain_x21(lean_object* x_1) {
@@ -2126,7 +2420,7 @@ default:
 lean_object* x_25; lean_object* x_26; 
 lean_dec(x_2);
 lean_dec(x_1);
-x_25 = l_Lean_SubExpr_bindingDomain_x21___closed__2;
+x_25 = l_Lean_SubExpr_bindingDomain_x21___closed__6;
 x_26 = l_panic___at_Lean_SubExpr_bindingBody_x21___spec__1(x_25);
 return x_26;
 }
@@ -2243,16 +2537,42 @@ l_Lean_SubExpr_Pos_head___closed__3 = _init_l_Lean_SubExpr_Pos_head___closed__3(
 lean_mark_persistent(l_Lean_SubExpr_Pos_head___closed__3);
 l_Lean_SubExpr_Pos_head___closed__4 = _init_l_Lean_SubExpr_Pos_head___closed__4();
 lean_mark_persistent(l_Lean_SubExpr_Pos_head___closed__4);
+l_Lean_SubExpr_Pos_head___closed__5 = _init_l_Lean_SubExpr_Pos_head___closed__5();
+lean_mark_persistent(l_Lean_SubExpr_Pos_head___closed__5);
+l_Lean_SubExpr_Pos_head___closed__6 = _init_l_Lean_SubExpr_Pos_head___closed__6();
+lean_mark_persistent(l_Lean_SubExpr_Pos_head___closed__6);
+l_Lean_SubExpr_Pos_head___closed__7 = _init_l_Lean_SubExpr_Pos_head___closed__7();
+lean_mark_persistent(l_Lean_SubExpr_Pos_head___closed__7);
+l_Lean_SubExpr_Pos_head___closed__8 = _init_l_Lean_SubExpr_Pos_head___closed__8();
+lean_mark_persistent(l_Lean_SubExpr_Pos_head___closed__8);
+l_Lean_SubExpr_Pos_head___closed__9 = _init_l_Lean_SubExpr_Pos_head___closed__9();
+lean_mark_persistent(l_Lean_SubExpr_Pos_head___closed__9);
 l_Lean_SubExpr_Pos_tail___closed__1 = _init_l_Lean_SubExpr_Pos_tail___closed__1();
 lean_mark_persistent(l_Lean_SubExpr_Pos_tail___closed__1);
 l_Lean_SubExpr_Pos_tail___closed__2 = _init_l_Lean_SubExpr_Pos_tail___closed__2();
 lean_mark_persistent(l_Lean_SubExpr_Pos_tail___closed__2);
+l_Lean_SubExpr_Pos_tail___closed__3 = _init_l_Lean_SubExpr_Pos_tail___closed__3();
+lean_mark_persistent(l_Lean_SubExpr_Pos_tail___closed__3);
+l_Lean_SubExpr_Pos_tail___closed__4 = _init_l_Lean_SubExpr_Pos_tail___closed__4();
+lean_mark_persistent(l_Lean_SubExpr_Pos_tail___closed__4);
+l_Lean_SubExpr_Pos_tail___closed__5 = _init_l_Lean_SubExpr_Pos_tail___closed__5();
+lean_mark_persistent(l_Lean_SubExpr_Pos_tail___closed__5);
+l_Lean_SubExpr_Pos_tail___closed__6 = _init_l_Lean_SubExpr_Pos_tail___closed__6();
+lean_mark_persistent(l_Lean_SubExpr_Pos_tail___closed__6);
 l_Lean_SubExpr_Pos_push___closed__1 = _init_l_Lean_SubExpr_Pos_push___closed__1();
 lean_mark_persistent(l_Lean_SubExpr_Pos_push___closed__1);
 l_Lean_SubExpr_Pos_push___closed__2 = _init_l_Lean_SubExpr_Pos_push___closed__2();
 lean_mark_persistent(l_Lean_SubExpr_Pos_push___closed__2);
 l_Lean_SubExpr_Pos_push___closed__3 = _init_l_Lean_SubExpr_Pos_push___closed__3();
 lean_mark_persistent(l_Lean_SubExpr_Pos_push___closed__3);
+l_Lean_SubExpr_Pos_push___closed__4 = _init_l_Lean_SubExpr_Pos_push___closed__4();
+lean_mark_persistent(l_Lean_SubExpr_Pos_push___closed__4);
+l_Lean_SubExpr_Pos_push___closed__5 = _init_l_Lean_SubExpr_Pos_push___closed__5();
+lean_mark_persistent(l_Lean_SubExpr_Pos_push___closed__5);
+l_Lean_SubExpr_Pos_push___closed__6 = _init_l_Lean_SubExpr_Pos_push___closed__6();
+lean_mark_persistent(l_Lean_SubExpr_Pos_push___closed__6);
+l_Lean_SubExpr_Pos_push___closed__7 = _init_l_Lean_SubExpr_Pos_push___closed__7();
+lean_mark_persistent(l_Lean_SubExpr_Pos_push___closed__7);
 l_Lean_SubExpr_Pos_depth___closed__1 = _init_l_Lean_SubExpr_Pos_depth___closed__1();
 lean_mark_persistent(l_Lean_SubExpr_Pos_depth___closed__1);
 l_Lean_SubExpr_Pos_append___closed__1 = _init_l_Lean_SubExpr_Pos_append___closed__1();
@@ -2287,6 +2607,14 @@ l_Lean_SubExpr_Pos_fromString_x3f___closed__2 = _init_l_Lean_SubExpr_Pos_fromStr
 lean_mark_persistent(l_Lean_SubExpr_Pos_fromString_x3f___closed__2);
 l_Lean_SubExpr_Pos_fromString_x21___closed__1 = _init_l_Lean_SubExpr_Pos_fromString_x21___closed__1();
 lean_mark_persistent(l_Lean_SubExpr_Pos_fromString_x21___closed__1);
+l_Lean_SubExpr_Pos_fromString_x21___closed__2 = _init_l_Lean_SubExpr_Pos_fromString_x21___closed__2();
+lean_mark_persistent(l_Lean_SubExpr_Pos_fromString_x21___closed__2);
+l_Lean_SubExpr_Pos_fromString_x21___closed__3 = _init_l_Lean_SubExpr_Pos_fromString_x21___closed__3();
+lean_mark_persistent(l_Lean_SubExpr_Pos_fromString_x21___closed__3);
+l_Lean_SubExpr_Pos_fromString_x21___closed__4 = _init_l_Lean_SubExpr_Pos_fromString_x21___closed__4();
+lean_mark_persistent(l_Lean_SubExpr_Pos_fromString_x21___closed__4);
+l_Lean_SubExpr_Pos_fromString_x21___closed__5 = _init_l_Lean_SubExpr_Pos_fromString_x21___closed__5();
+lean_mark_persistent(l_Lean_SubExpr_Pos_fromString_x21___closed__5);
 l_Lean_SubExpr_Pos_instOrdPos___closed__1 = _init_l_Lean_SubExpr_Pos_instOrdPos___closed__1();
 lean_mark_persistent(l_Lean_SubExpr_Pos_instOrdPos___closed__1);
 l_Lean_SubExpr_Pos_instOrdPos = _init_l_Lean_SubExpr_Pos_instOrdPos();
@@ -2321,10 +2649,26 @@ l_Lean_SubExpr_bindingBody_x21___closed__2 = _init_l_Lean_SubExpr_bindingBody_x2
 lean_mark_persistent(l_Lean_SubExpr_bindingBody_x21___closed__2);
 l_Lean_SubExpr_bindingBody_x21___closed__3 = _init_l_Lean_SubExpr_bindingBody_x21___closed__3();
 lean_mark_persistent(l_Lean_SubExpr_bindingBody_x21___closed__3);
+l_Lean_SubExpr_bindingBody_x21___closed__4 = _init_l_Lean_SubExpr_bindingBody_x21___closed__4();
+lean_mark_persistent(l_Lean_SubExpr_bindingBody_x21___closed__4);
+l_Lean_SubExpr_bindingBody_x21___closed__5 = _init_l_Lean_SubExpr_bindingBody_x21___closed__5();
+lean_mark_persistent(l_Lean_SubExpr_bindingBody_x21___closed__5);
+l_Lean_SubExpr_bindingBody_x21___closed__6 = _init_l_Lean_SubExpr_bindingBody_x21___closed__6();
+lean_mark_persistent(l_Lean_SubExpr_bindingBody_x21___closed__6);
+l_Lean_SubExpr_bindingBody_x21___closed__7 = _init_l_Lean_SubExpr_bindingBody_x21___closed__7();
+lean_mark_persistent(l_Lean_SubExpr_bindingBody_x21___closed__7);
 l_Lean_SubExpr_bindingDomain_x21___closed__1 = _init_l_Lean_SubExpr_bindingDomain_x21___closed__1();
 lean_mark_persistent(l_Lean_SubExpr_bindingDomain_x21___closed__1);
 l_Lean_SubExpr_bindingDomain_x21___closed__2 = _init_l_Lean_SubExpr_bindingDomain_x21___closed__2();
 lean_mark_persistent(l_Lean_SubExpr_bindingDomain_x21___closed__2);
+l_Lean_SubExpr_bindingDomain_x21___closed__3 = _init_l_Lean_SubExpr_bindingDomain_x21___closed__3();
+lean_mark_persistent(l_Lean_SubExpr_bindingDomain_x21___closed__3);
+l_Lean_SubExpr_bindingDomain_x21___closed__4 = _init_l_Lean_SubExpr_bindingDomain_x21___closed__4();
+lean_mark_persistent(l_Lean_SubExpr_bindingDomain_x21___closed__4);
+l_Lean_SubExpr_bindingDomain_x21___closed__5 = _init_l_Lean_SubExpr_bindingDomain_x21___closed__5();
+lean_mark_persistent(l_Lean_SubExpr_bindingDomain_x21___closed__5);
+l_Lean_SubExpr_bindingDomain_x21___closed__6 = _init_l_Lean_SubExpr_bindingDomain_x21___closed__6();
+lean_mark_persistent(l_Lean_SubExpr_bindingDomain_x21___closed__6);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

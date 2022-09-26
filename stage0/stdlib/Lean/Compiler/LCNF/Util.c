@@ -37,18 +37,22 @@ static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__20;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__32;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__10;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__29;
+static lean_object* l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__9;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__25;
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
+static lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__8;
 lean_object* l_Lean_Core_instInhabitedCoreM___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__4;
 static lean_object* l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__1;
 uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+static lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__5;
 static lean_object* l_Lean_getConstInfo___at___private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LCNF_getCasesOnInductiveVal_x3f___spec__1___closed__2;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__34;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LCNF_getCasesOnInductiveVal_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__6;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__23;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__38;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__21;
@@ -56,6 +60,7 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__41;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__13;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CasesInfo_numAlts___boxed(lean_object*);
+static lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__7;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__24;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_isCompilerRelevantMData___boxed(lean_object*);
@@ -71,7 +76,7 @@ static lean_object* l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__3;
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at___private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LCNF_getCasesOnInductiveVal_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__28;
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__8;
 static lean_object* l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getCasesInfo_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -79,6 +84,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Compiler_LCNF_Uti
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__42;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__37;
+static lean_object* l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__7;
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__15;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_isCasesApp_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -94,6 +100,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_isRuntimeBultinType___boxed(lean_o
 lean_object* l_List_redLength___rarg(lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__2;
+static lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__6;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__26;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__12;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__3;
@@ -102,6 +109,7 @@ lean_object* l_Lean_Name_getPrefix(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* l_CallerInfo_mkPanicMessage(lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfo___at___private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LCNF_getCasesOnInductiveVal_x3f___spec__1___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LCNF_getCasesOnInductiveVal_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__2;
@@ -114,6 +122,7 @@ lean_object* l_Lean_Expr_getAppFn(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__40;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__9;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__33;
+static lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__9;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LCNF_getCasesOnInductiveVal_x3f___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__22;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__17;
@@ -609,12 +618,68 @@ return x_1;
 static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__2() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__3() {
+_start:
+{
 lean_object* x_1; 
 x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.getCasesInfo?", 32);
 return x_1;
 }
 }
-static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__3() {
+static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__3;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__4;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(59u);
+x_2 = lean_unsigned_to_nat(48u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__2;
+x_2 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__5;
+x_3 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__6;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -622,17 +687,14 @@ x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
-static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__4() {
+static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__9() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__1;
-x_2 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__2;
-x_3 = lean_unsigned_to_nat(59u);
-x_4 = lean_unsigned_to_nat(48u);
-x_5 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__7;
+x_2 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__8;
+x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2(size_t x_1, size_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -707,7 +769,7 @@ lean_dec(x_25);
 x_34 = lean_ctor_get(x_24, 1);
 lean_inc(x_34);
 lean_dec(x_24);
-x_35 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__4;
+x_35 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__9;
 lean_inc(x_5);
 lean_inc(x_4);
 x_36 = l_panic___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__1(x_35, x_4, x_5, x_34);
@@ -1132,14 +1194,57 @@ return x_1;
 static lean_object* _init_l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__1;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
 x_2 = l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__4;
-x_3 = lean_unsigned_to_nat(66u);
-x_4 = lean_unsigned_to_nat(4u);
-x_5 = l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__5;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(66u);
+x_2 = lean_unsigned_to_nat(4u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__2;
+x_2 = l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__6;
+x_3 = l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__7;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__9() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__8;
+x_2 = l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__3;
+x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_isCasesApp_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -1219,7 +1324,7 @@ lean_object* x_24; lean_object* x_25;
 lean_free_object(x_8);
 lean_dec(x_19);
 lean_free_object(x_7);
-x_24 = l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__5;
+x_24 = l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__9;
 x_25 = l_panic___at_Lean_Compiler_LCNF_isCasesApp_x3f___spec__1(x_24, x_2, x_3, x_16);
 return x_25;
 }
@@ -1249,7 +1354,7 @@ if (x_30 == 0)
 lean_object* x_31; lean_object* x_32; 
 lean_dec(x_26);
 lean_free_object(x_7);
-x_31 = l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__5;
+x_31 = l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__9;
 x_32 = l_panic___at_Lean_Compiler_LCNF_isCasesApp_x3f___spec__1(x_31, x_2, x_3, x_16);
 return x_32;
 }
@@ -1293,7 +1398,7 @@ if (x_40 == 0)
 lean_object* x_41; lean_object* x_42; 
 lean_dec(x_36);
 lean_dec(x_35);
-x_41 = l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__5;
+x_41 = l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__9;
 x_42 = l_panic___at_Lean_Compiler_LCNF_isCasesApp_x3f___spec__1(x_41, x_2, x_3, x_34);
 return x_42;
 }
@@ -1969,6 +2074,16 @@ l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___clos
 lean_mark_persistent(l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__3);
 l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__4 = _init_l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__4();
 lean_mark_persistent(l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__4);
+l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__5 = _init_l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__5();
+lean_mark_persistent(l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__5);
+l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__6 = _init_l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__6();
+lean_mark_persistent(l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__6);
+l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__7 = _init_l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__7();
+lean_mark_persistent(l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__7);
+l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__8 = _init_l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__8();
+lean_mark_persistent(l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__8);
+l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__9 = _init_l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__9();
+lean_mark_persistent(l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__9);
 l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__1 = _init_l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__1();
 lean_mark_persistent(l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__1);
 l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__2 = _init_l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__2();
@@ -1979,6 +2094,14 @@ l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__4 = _init_l_Lean_Compiler_LCNF_isC
 lean_mark_persistent(l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__4);
 l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__5 = _init_l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__5();
 lean_mark_persistent(l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__5);
+l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__6 = _init_l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__6();
+lean_mark_persistent(l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__6);
+l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__7 = _init_l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__7();
+lean_mark_persistent(l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__7);
+l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__8 = _init_l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__8();
+lean_mark_persistent(l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__8);
+l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__9 = _init_l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__9();
+lean_mark_persistent(l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__9);
 l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__1 = _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__1();
 lean_mark_persistent(l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__1);
 l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__2 = _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__2();

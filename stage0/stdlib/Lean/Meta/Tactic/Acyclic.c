@@ -48,6 +48,7 @@ static lean_object* l_Lean_MVarId_acyclic_go___closed__24;
 LEAN_EXPORT lean_object* l_Lean_MVarId_acyclic_go___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_acyclic_go___closed__13;
 static lean_object* l_Lean_MVarId_acyclic_go___closed__21;
+lean_object* l_Lean_mkHashMapImp___rarg(lean_object*);
 static lean_object* l_Lean_MVarId_acyclic_go___closed__33;
 static lean_object* l_Lean_MVarId_acyclic_go___closed__22;
 static lean_object* l_Lean_MVarId_acyclic_go___closed__23;
@@ -55,11 +56,9 @@ lean_object* l_Lean_MVarId_assign___at_Lean_Meta_getLevel___spec__1(lean_object*
 lean_object* l_Lean_Meta_mkEqSymm(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_simpExtension;
 static lean_object* l_Lean_MVarId_acyclic_go___closed__29;
-lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
 static lean_object* l_Lean_MVarId_acyclic_go___closed__25;
 LEAN_EXPORT lean_object* l_Lean_MVarId_initFn____x40_Lean_Meta_Tactic_Acyclic___hyg_869_(lean_object*);
 lean_object* l_Lean_isTracingEnabledFor___at_Lean_Meta_processPostponed_loop___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_acyclic_go___closed__6;
 static lean_object* l_Lean_MVarId_acyclic_go___closed__19;
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
@@ -69,6 +68,7 @@ lean_object* lean_whnf(lean_object*, lean_object*, lean_object*, lean_object*, l
 static lean_object* l_Lean_MVarId_acyclic_go___closed__2;
 static lean_object* l_Lean_MVarId_acyclic_go___closed__8;
 LEAN_EXPORT lean_object* l_Lean_MVarId_acyclic___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_acyclic_go___closed__17;
 LEAN_EXPORT lean_object* l_Lean_MVarId_acyclic_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -419,7 +419,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Std_mkHashMapImp___rarg(x_1);
+x_2 = l_Lean_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
@@ -427,7 +427,7 @@ static lean_object* _init_l_Lean_MVarId_acyclic_go___closed__20() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
+x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
 return x_1;
 }
 }

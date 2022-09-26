@@ -59,7 +59,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_toJsonGoToK
 LEAN_EXPORT lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_fromJsonGoToKind____x40_Lean_Server_GoTo___hyg_58____lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_GoToKind_toCtorIdx___boxed(lean_object*);
 lean_object* l_Lean_isRec___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_RBNode_find___at_Lean_findDeclarationRanges_x3f___spec__1(lean_object*, lean_object*);
+lean_object* l_Lean_RBNode_find___at_Lean_findDeclarationRanges_x3f___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_findDeclarationRanges_x3f___at_Lean_Server_locationLinksFromDecl___spec__1___closed__1;
 static lean_object* l_Lean_Server_locationLinksFromDecl___lambda__2___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_fromJsonGoToKind____x40_Lean_Server_GoTo___hyg_58____lambda__2(lean_object*, lean_object*, lean_object*);
@@ -859,7 +859,7 @@ if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
 x_13 = lean_ctor_get(x_11, 0);
-x_14 = l_Std_RBNode_find___at_Lean_findDeclarationRanges_x3f___spec__1(x_13, x_1);
+x_14 = l_Lean_RBNode_find___at_Lean_findDeclarationRanges_x3f___spec__1(x_13, x_1);
 lean_dec(x_13);
 lean_ctor_set(x_11, 0, x_14);
 return x_11;
@@ -872,7 +872,7 @@ x_16 = lean_ctor_get(x_11, 1);
 lean_inc(x_16);
 lean_inc(x_15);
 lean_dec(x_11);
-x_17 = l_Std_RBNode_find___at_Lean_findDeclarationRanges_x3f___spec__1(x_15, x_1);
+x_17 = l_Lean_RBNode_find___at_Lean_findDeclarationRanges_x3f___spec__1(x_15, x_1);
 lean_dec(x_15);
 x_18 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_18, 0, x_17);

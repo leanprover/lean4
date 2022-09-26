@@ -61,7 +61,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Compiler_LCNF_Tes
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Code_containsConst_goExpr___closed__2;
-uint8_t l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_beqDecl____x40_Lean_Compiler_LCNF_Basic___hyg_3583_(lean_object*, lean_object*);
+uint8_t l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_beqDecl____x40_Lean_Compiler_LCNF_Basic___hyg_3626_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_Testing_assertNoFun___spec__3(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___elambda__1___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_InOutAssertionM_run___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -118,7 +118,6 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_assertReducesSize(lean_obj
 lean_object* l_Nat_repr(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_throwFixPointError(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_format_pretty(lean_object*, lean_object*);
-lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_assertAroundEachOccurrence(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_Testing_assertForEachDeclAfterEachOccurrence___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_Compiler_LCNF_Testing_assertSize___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -148,13 +147,14 @@ lean_object* l_Lean_Compiler_LCNF_PassInstaller_replaceEachOccurrence(lean_objec
 static lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_Testing_assert___spec__1___closed__3;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_Testing_assertNoFun___spec__4(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_SimpleAssertionM_run___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_assertIsAtFixPoint(lean_object*);
+lean_object* l_Lean_PersistentArray_push___rarg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_throwFixPointError___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_throwFixPointError___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_throwFixPointError___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_assertForEachDeclAfterEachOccurrence___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___elambda__1___lambda__2___closed__3;
-lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Testing_assertPreservesSize___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_Testing_assertNoFun___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_TestM_run___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -831,7 +831,7 @@ static lean_object* _init_l_Lean_throwError___at_Lean_Compiler_LCNF_Testing_asse
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
+x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
 return x_1;
 }
 }
@@ -1152,7 +1152,7 @@ lean_inc(x_8);
 x_30 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_30, 0, x_8);
 lean_ctor_set(x_30, 1, x_29);
-x_31 = l_Std_PersistentArray_push___rarg(x_26, x_30);
+x_31 = l_Lean_PersistentArray_push___rarg(x_26, x_30);
 lean_ctor_set(x_23, 3, x_31);
 x_32 = lean_st_ref_set(x_6, x_23, x_24);
 x_33 = !lean_is_exclusive(x_32);
@@ -1207,7 +1207,7 @@ lean_inc(x_8);
 x_49 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_49, 0, x_8);
 lean_ctor_set(x_49, 1, x_48);
-x_50 = l_Std_PersistentArray_push___rarg(x_42, x_49);
+x_50 = l_Lean_PersistentArray_push___rarg(x_42, x_49);
 x_51 = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(x_51, 0, x_39);
 lean_ctor_set(x_51, 1, x_40);
@@ -2914,7 +2914,7 @@ else
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_10 = lean_array_fget(x_4, x_6);
 x_11 = lean_array_fget(x_5, x_6);
-x_12 = l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_beqDecl____x40_Lean_Compiler_LCNF_Basic___hyg_3583_(x_10, x_11);
+x_12 = l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_beqDecl____x40_Lean_Compiler_LCNF_Basic___hyg_3626_(x_10, x_11);
 lean_dec(x_11);
 if (x_12 == 0)
 {

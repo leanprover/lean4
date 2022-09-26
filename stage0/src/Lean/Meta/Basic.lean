@@ -205,8 +205,6 @@ instance : Hashable InfoCacheKey :=
   ⟨fun ⟨transparency, expr, nargs⟩ => mixHash (hash transparency) <| mixHash (hash expr) (hash nargs)⟩
 end InfoCacheKey
 
-open Std (PersistentArray PersistentHashMap)
-
 abbrev SynthInstanceCache := PersistentHashMap Expr (Option Expr)
 
 abbrev InferTypeCache := PersistentExprStructMap Expr

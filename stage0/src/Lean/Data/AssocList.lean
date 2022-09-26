@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 universe u v w w'
-namespace Std
+namespace Lean
 
 /-- List-like type to avoid extra level of indirection -/
 inductive AssocList (α : Type u) (β : Type v) where
@@ -100,8 +100,8 @@ def all (p : α → β → Bool) : AssocList α β → Bool
 instance : ForIn m (AssocList α β) (α × β) where
   forIn := AssocList.forIn
 
-end Std.AssocList
+end Lean.AssocList
 
-def List.toAssocList {α : Type u} {β : Type v} : List (α × β) → Std.AssocList α β
-  | []          => Std.AssocList.nil
-  | (a,b) :: es => Std.AssocList.cons a b (toAssocList es)
+def List.toAssocList' {α : Type u} {β : Type v} : List (α × β) → Lean.AssocList α β
+  | []          => Lean.AssocList.nil
+  | (a,b) :: es => Lean.AssocList.cons a b (toAssocList' es)

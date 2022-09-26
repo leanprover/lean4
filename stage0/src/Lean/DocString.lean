@@ -71,7 +71,7 @@ structure ModuleDoc where
   doc : String
   declarationRange : DeclarationRange
 
-private builtin_initialize moduleDocExt : SimplePersistentEnvExtension ModuleDoc (Std.PersistentArray ModuleDoc) ← registerSimplePersistentEnvExtension {
+private builtin_initialize moduleDocExt : SimplePersistentEnvExtension ModuleDoc (PersistentArray ModuleDoc) ← registerSimplePersistentEnvExtension {
   name          := `moduleDocExt
   addImportedFn := fun _ => {}
   addEntryFn    := fun s e => s.push e
@@ -81,7 +81,7 @@ private builtin_initialize moduleDocExt : SimplePersistentEnvExtension ModuleDoc
 def addMainModuleDoc (env : Environment) (doc : ModuleDoc) : Environment :=
   moduleDocExt.addEntry env doc
 
-def getMainModuleDoc (env : Environment) : Std.PersistentArray ModuleDoc :=
+def getMainModuleDoc (env : Environment) : PersistentArray ModuleDoc :=
   moduleDocExt.getState env
 
 def getModuleDoc? (env : Environment) (moduleName : Name) : Option (Array ModuleDoc) :=

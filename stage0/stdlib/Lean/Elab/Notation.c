@@ -28,7 +28,6 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__2(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_removeParentheses___spec__1(size_t, size_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-lean_object* l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__64;
 lean_object* l_Lean_Macro_getCurrNamespace(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_addInheritDocDefault___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -152,6 +151,7 @@ static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__50;
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__48;
 static lean_object* l___regBuiltin_Lean_Elab_Command_expandNotation_declRange___closed__2;
 static lean_object* l_Lean_Elab_Command_expandNotationItemIntoSyntaxItem___closed__7;
+lean_object* l_Lean_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 static lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__8;
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___lambda__1___closed__23;
@@ -2936,7 +2936,7 @@ if (x_44 == 0)
 {
 lean_object* x_45; lean_object* x_46; 
 x_45 = lean_box(0);
-x_46 = l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_39, x_43, x_45);
+x_46 = l_Lean_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_39, x_43, x_45);
 lean_inc(x_1);
 lean_ctor_set(x_4, 1, x_46);
 lean_ctor_set(x_4, 0, x_1);
@@ -2985,7 +2985,7 @@ if (x_54 == 0)
 {
 lean_object* x_55; lean_object* x_56; lean_object* x_57; 
 x_55 = lean_box(0);
-x_56 = l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_49, x_53, x_55);
+x_56 = l_Lean_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_49, x_53, x_55);
 lean_inc(x_1);
 x_57 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_57, 0, x_1);

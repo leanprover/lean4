@@ -39,7 +39,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleSemanticTokens___lambda_
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_liftExcept___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_10189____spec__33(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_handleSemanticTokens_go___closed__3;
-lean_object* l_Std_HashMapImp_find_x3f___at_Lean_Server_References_updateWorkerRefs___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_parseRequestParams___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_10189____spec__5(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Server_FileWorker_handleHover___lambda__2(lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_fromJsonTextDocumentPositionParams____x40_Lean_Data_Lsp_Basic___hyg_2107_(lean_object*);
@@ -106,6 +105,7 @@ static lean_object* l_Lean_Server_FileWorker_handleFoldingRange_isImport___close
 static lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_10189____spec__18___lambda__3___closed__1;
 static lean_object* l_Lean_Server_FileWorker_handleDocumentHighlight_highlightReturn_x3f___closed__12;
 static lean_object* l_Lean_Server_FileWorker_handleSemanticTokens_addToken___closed__1;
+lean_object* l_Lean_HashMap_ofList___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__5(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_10189____closed__24;
@@ -210,6 +210,7 @@ static lean_object* l_Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymb
 static lean_object* l_Lean_Server_FileWorker_handleFoldingRange_addCommandRange___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleDefinition___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_locationLinksOfInfo___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_liftExcept___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_10189____spec__6(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_10189____spec__7___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_InfoTree_goalsAt_x3f(lean_object*, lean_object*, lean_object*);
@@ -245,6 +246,7 @@ LEAN_EXPORT lean_object* l_liftExcept___at_Lean_Server_FileWorker_initFn____x40_
 static lean_object* l_List_mapM_loop___at_Lean_Server_FileWorker_getInteractiveGoals___spec__5___closed__7;
 LEAN_EXPORT lean_object* l_liftExcept___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_10189____spec__6___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_findStack_x3f(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_HashMap_toList___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__1(lean_object*);
 lean_object* l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_toJsonSemanticTokens____x40_Lean_Data_Lsp_LanguageFeatures___hyg_5782_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleFoldingRange_addCommandRange___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
@@ -258,7 +260,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Serve
 static lean_object* l_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_10189____closed__12;
 lean_object* l_Lean_Meta_withPPShowLetValuesImp___rarg(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_10189____spec__14___lambda__4___closed__1;
-lean_object* l_Std_PersistentHashMap_insert___at_Lean_Server_registerLspRequestHandler___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Widget_InteractiveTermGoal_toInteractiveGoal(lean_object*);
 lean_object* l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_fromJsonFoldingRangeParams____x40_Lean_Data_Lsp_LanguageFeatures___hyg_5826_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_10189____spec__14___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -294,13 +295,11 @@ LEAN_EXPORT lean_object* l_liftExcept___at_Lean_Server_FileWorker_initFn____x40_
 lean_object* lean_format_pretty(lean_object*, lean_object*);
 lean_object* l_Lean_Server_RequestM_bindTask___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lambda__3___closed__5;
-lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 lean_object* l_Lean_Server_RequestM_readDoc___at_Lean_Server_RequestM_withWaitFindSnapAtPos___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_getInteractiveGoals(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleSemanticTokens_highlightId(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_liftExcept___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_10189____spec__12___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Std_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_noHighlightKinds___closed__12;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_handlePlainGoal___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*, lean_object*);
@@ -374,6 +373,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_getInteractiveTermGoal___lambd
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_noHighlightKinds___closed__5;
 lean_object* l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_toJsonCompletionList____x40_Lean_Data_Lsp_LanguageFeatures___hyg_1709_(lean_object*);
+lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_10189____spec__10___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_10189____spec__27___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_10189____spec__10___lambda__4___closed__1;
@@ -408,7 +408,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleDefinition___lambda__1(l
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_10189____spec__7___lambda__2(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_noHighlightKinds___closed__10;
 static lean_object* l_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_10189____closed__9;
-lean_object* l_Std_HashMap_ofList___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__5(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_10189____spec__1___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withPPInaccessibleNames___at_Lean_Server_FileWorker_getInteractiveGoals___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Server_FileWorker_handleSemanticTokens_highlightId___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -435,6 +434,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleSemanticTokens___lambda_
 LEAN_EXPORT lean_object* l_Lean_Meta_withPPInaccessibleNames___at_Lean_Server_FileWorker_getInteractiveGoals___spec__2(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Widget_diffInteractiveGoals(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_10189____spec__31___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_HashMapImp_find_x3f___at_Lean_Server_References_updateWorkerRefs___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_Syntax_getRange_x3f(lean_object*, uint8_t);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
@@ -501,7 +501,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_getInteractiveGoals___lambda__
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Server_FileWorker_handleSemanticTokens_highlightId___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_10189____spec__21___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_HashMap_toList___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__1(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_handleDocumentHighlight_highlightReturn_x3f___closed__14;
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_10189____spec__4___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleFoldingRange_addRange(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -579,6 +578,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleDocumentSymbol___rarg___
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleWaitForDiagnostics_waitLoop___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_local_ctx_find(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_handleDocumentHighlight_highlightReturn_x3f___closed__4;
+lean_object* l_Lean_PersistentHashMap_insert___at_Lean_Server_registerLspRequestHandler___spec__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__8;
 static lean_object* l_Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__2;
 lean_object* l_Lean_Elab_Info_lctx(lean_object*);
@@ -5078,7 +5078,7 @@ static lean_object* _init_l_List_mapM_loop___at_Lean_Server_FileWorker_getIntera
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
+x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
 return x_1;
 }
 }
@@ -8444,7 +8444,7 @@ else
 lean_object* x_7; lean_object* x_8; 
 x_7 = lean_array_uget(x_2, x_4);
 lean_inc(x_1);
-x_8 = l_Std_HashMapImp_find_x3f___at_Lean_Server_References_updateWorkerRefs___spec__3(x_1, x_7);
+x_8 = l_Lean_HashMapImp_find_x3f___at_Lean_Server_References_updateWorkerRefs___spec__3(x_1, x_7);
 if (lean_obj_tag(x_8) == 0)
 {
 size_t x_9; size_t x_10; 
@@ -8601,10 +8601,10 @@ x_22 = 1;
 x_23 = 0;
 lean_inc(x_3);
 x_24 = l_Lean_Server_findModuleRefs(x_3, x_21, x_22, x_23);
-x_25 = l_Std_HashMap_toList___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__1(x_24);
+x_25 = l_Lean_HashMap_toList___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__1(x_24);
 x_26 = lean_box(0);
 x_27 = l_List_mapTRAux___at_Lean_Server_FileWorker_handleDocumentHighlight___spec__2(x_20, x_25, x_26);
-x_28 = l_Std_HashMap_ofList___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__5(x_27);
+x_28 = l_Lean_HashMap_ofList___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__5(x_27);
 lean_inc(x_28);
 x_29 = l_Lean_Lsp_ModuleRefs_findAt(x_28, x_5);
 x_30 = lean_array_get_size(x_29);
@@ -8665,10 +8665,10 @@ x_49 = 1;
 x_50 = 0;
 lean_inc(x_3);
 x_51 = l_Lean_Server_findModuleRefs(x_3, x_48, x_49, x_50);
-x_52 = l_Std_HashMap_toList___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__1(x_51);
+x_52 = l_Lean_HashMap_toList___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__1(x_51);
 x_53 = lean_box(0);
 x_54 = l_List_mapTRAux___at_Lean_Server_FileWorker_handleDocumentHighlight___spec__2(x_47, x_52, x_53);
-x_55 = l_Std_HashMap_ofList___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__5(x_54);
+x_55 = l_Lean_HashMap_ofList___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__5(x_54);
 lean_inc(x_55);
 x_56 = l_Lean_Lsp_ModuleRefs_findAt(x_55, x_5);
 x_57 = lean_array_get_size(x_56);
@@ -16682,7 +16682,7 @@ x_10 = l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initF
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_5);
-x_12 = l_Std_PersistentHashMap_insert___at_Lean_Server_registerLspRequestHandler___spec__2(x_8, x_2, x_11);
+x_12 = l_Lean_PersistentHashMap_insert___at_Lean_Server_registerLspRequestHandler___spec__2(x_8, x_2, x_11);
 x_13 = lean_st_ref_set(x_6, x_12, x_9);
 x_14 = !lean_is_exclusive(x_13);
 if (x_14 == 0)
@@ -16734,7 +16734,7 @@ lean_object* x_8; lean_object* x_9; uint8_t x_10;
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_ctor_get(x_6, 1);
 lean_inc(x_2);
-x_10 = l_Std_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_8, x_2);
+x_10 = l_Lean_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_8, x_2);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
@@ -16768,7 +16768,7 @@ lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_6);
 lean_inc(x_2);
-x_20 = l_Std_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_18, x_2);
+x_20 = l_Lean_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_18, x_2);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; 
@@ -17159,7 +17159,7 @@ x_10 = l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initF
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_5);
-x_12 = l_Std_PersistentHashMap_insert___at_Lean_Server_registerLspRequestHandler___spec__2(x_8, x_2, x_11);
+x_12 = l_Lean_PersistentHashMap_insert___at_Lean_Server_registerLspRequestHandler___spec__2(x_8, x_2, x_11);
 x_13 = lean_st_ref_set(x_6, x_12, x_9);
 x_14 = !lean_is_exclusive(x_13);
 if (x_14 == 0)
@@ -17195,7 +17195,7 @@ lean_object* x_8; lean_object* x_9; uint8_t x_10;
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_ctor_get(x_6, 1);
 lean_inc(x_2);
-x_10 = l_Std_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_8, x_2);
+x_10 = l_Lean_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_8, x_2);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
@@ -17229,7 +17229,7 @@ lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_6);
 lean_inc(x_2);
-x_20 = l_Std_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_18, x_2);
+x_20 = l_Lean_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_18, x_2);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; 
@@ -17632,7 +17632,7 @@ x_10 = l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initF
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_5);
-x_12 = l_Std_PersistentHashMap_insert___at_Lean_Server_registerLspRequestHandler___spec__2(x_8, x_2, x_11);
+x_12 = l_Lean_PersistentHashMap_insert___at_Lean_Server_registerLspRequestHandler___spec__2(x_8, x_2, x_11);
 x_13 = lean_st_ref_set(x_6, x_12, x_9);
 x_14 = !lean_is_exclusive(x_13);
 if (x_14 == 0)
@@ -17668,7 +17668,7 @@ lean_object* x_8; lean_object* x_9; uint8_t x_10;
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_ctor_get(x_6, 1);
 lean_inc(x_2);
-x_10 = l_Std_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_8, x_2);
+x_10 = l_Lean_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_8, x_2);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
@@ -17702,7 +17702,7 @@ lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_6);
 lean_inc(x_2);
-x_20 = l_Std_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_18, x_2);
+x_20 = l_Lean_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_18, x_2);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; 
@@ -18124,7 +18124,7 @@ x_10 = l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initF
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_5);
-x_12 = l_Std_PersistentHashMap_insert___at_Lean_Server_registerLspRequestHandler___spec__2(x_8, x_2, x_11);
+x_12 = l_Lean_PersistentHashMap_insert___at_Lean_Server_registerLspRequestHandler___spec__2(x_8, x_2, x_11);
 x_13 = lean_st_ref_set(x_6, x_12, x_9);
 x_14 = !lean_is_exclusive(x_13);
 if (x_14 == 0)
@@ -18160,7 +18160,7 @@ lean_object* x_8; lean_object* x_9; uint8_t x_10;
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_ctor_get(x_6, 1);
 lean_inc(x_2);
-x_10 = l_Std_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_8, x_2);
+x_10 = l_Lean_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_8, x_2);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
@@ -18194,7 +18194,7 @@ lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_6);
 lean_inc(x_2);
-x_20 = l_Std_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_18, x_2);
+x_20 = l_Lean_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_18, x_2);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; 
@@ -18616,7 +18616,7 @@ x_10 = l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initF
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_5);
-x_12 = l_Std_PersistentHashMap_insert___at_Lean_Server_registerLspRequestHandler___spec__2(x_8, x_2, x_11);
+x_12 = l_Lean_PersistentHashMap_insert___at_Lean_Server_registerLspRequestHandler___spec__2(x_8, x_2, x_11);
 x_13 = lean_st_ref_set(x_6, x_12, x_9);
 x_14 = !lean_is_exclusive(x_13);
 if (x_14 == 0)
@@ -18652,7 +18652,7 @@ lean_object* x_8; lean_object* x_9; uint8_t x_10;
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_ctor_get(x_6, 1);
 lean_inc(x_2);
-x_10 = l_Std_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_8, x_2);
+x_10 = l_Lean_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_8, x_2);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
@@ -18686,7 +18686,7 @@ lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_6);
 lean_inc(x_2);
-x_20 = l_Std_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_18, x_2);
+x_20 = l_Lean_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_18, x_2);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; 
@@ -19074,7 +19074,7 @@ x_10 = l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initF
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_5);
-x_12 = l_Std_PersistentHashMap_insert___at_Lean_Server_registerLspRequestHandler___spec__2(x_8, x_2, x_11);
+x_12 = l_Lean_PersistentHashMap_insert___at_Lean_Server_registerLspRequestHandler___spec__2(x_8, x_2, x_11);
 x_13 = lean_st_ref_set(x_6, x_12, x_9);
 x_14 = !lean_is_exclusive(x_13);
 if (x_14 == 0)
@@ -19110,7 +19110,7 @@ lean_object* x_8; lean_object* x_9; uint8_t x_10;
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_ctor_get(x_6, 1);
 lean_inc(x_2);
-x_10 = l_Std_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_8, x_2);
+x_10 = l_Lean_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_8, x_2);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
@@ -19144,7 +19144,7 @@ lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_6);
 lean_inc(x_2);
-x_20 = l_Std_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_18, x_2);
+x_20 = l_Lean_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_18, x_2);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; 
@@ -19518,7 +19518,7 @@ x_10 = l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initF
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_5);
-x_12 = l_Std_PersistentHashMap_insert___at_Lean_Server_registerLspRequestHandler___spec__2(x_8, x_2, x_11);
+x_12 = l_Lean_PersistentHashMap_insert___at_Lean_Server_registerLspRequestHandler___spec__2(x_8, x_2, x_11);
 x_13 = lean_st_ref_set(x_6, x_12, x_9);
 x_14 = !lean_is_exclusive(x_13);
 if (x_14 == 0)
@@ -19554,7 +19554,7 @@ lean_object* x_8; lean_object* x_9; uint8_t x_10;
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_ctor_get(x_6, 1);
 lean_inc(x_2);
-x_10 = l_Std_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_8, x_2);
+x_10 = l_Lean_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_8, x_2);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
@@ -19588,7 +19588,7 @@ lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_6);
 lean_inc(x_2);
-x_20 = l_Std_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_18, x_2);
+x_20 = l_Lean_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_18, x_2);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; 
@@ -19953,7 +19953,7 @@ x_10 = l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initF
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_5);
-x_12 = l_Std_PersistentHashMap_insert___at_Lean_Server_registerLspRequestHandler___spec__2(x_8, x_2, x_11);
+x_12 = l_Lean_PersistentHashMap_insert___at_Lean_Server_registerLspRequestHandler___spec__2(x_8, x_2, x_11);
 x_13 = lean_st_ref_set(x_6, x_12, x_9);
 x_14 = !lean_is_exclusive(x_13);
 if (x_14 == 0)
@@ -19989,7 +19989,7 @@ lean_object* x_8; lean_object* x_9; uint8_t x_10;
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_ctor_get(x_6, 1);
 lean_inc(x_2);
-x_10 = l_Std_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_8, x_2);
+x_10 = l_Lean_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_8, x_2);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
@@ -20023,7 +20023,7 @@ lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_6);
 lean_inc(x_2);
-x_20 = l_Std_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_18, x_2);
+x_20 = l_Lean_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_18, x_2);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; 
@@ -20436,7 +20436,7 @@ x_10 = l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initF
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_5);
-x_12 = l_Std_PersistentHashMap_insert___at_Lean_Server_registerLspRequestHandler___spec__2(x_8, x_2, x_11);
+x_12 = l_Lean_PersistentHashMap_insert___at_Lean_Server_registerLspRequestHandler___spec__2(x_8, x_2, x_11);
 x_13 = lean_st_ref_set(x_6, x_12, x_9);
 x_14 = !lean_is_exclusive(x_13);
 if (x_14 == 0)
@@ -20472,7 +20472,7 @@ lean_object* x_8; lean_object* x_9; uint8_t x_10;
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_ctor_get(x_6, 1);
 lean_inc(x_2);
-x_10 = l_Std_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_8, x_2);
+x_10 = l_Lean_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_8, x_2);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
@@ -20506,7 +20506,7 @@ lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_6);
 lean_inc(x_2);
-x_20 = l_Std_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_18, x_2);
+x_20 = l_Lean_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_18, x_2);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; 
@@ -20909,7 +20909,7 @@ x_10 = l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initF
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_5);
-x_12 = l_Std_PersistentHashMap_insert___at_Lean_Server_registerLspRequestHandler___spec__2(x_8, x_2, x_11);
+x_12 = l_Lean_PersistentHashMap_insert___at_Lean_Server_registerLspRequestHandler___spec__2(x_8, x_2, x_11);
 x_13 = lean_st_ref_set(x_6, x_12, x_9);
 x_14 = !lean_is_exclusive(x_13);
 if (x_14 == 0)
@@ -20945,7 +20945,7 @@ lean_object* x_8; lean_object* x_9; uint8_t x_10;
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_ctor_get(x_6, 1);
 lean_inc(x_2);
-x_10 = l_Std_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_8, x_2);
+x_10 = l_Lean_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_8, x_2);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
@@ -20979,7 +20979,7 @@ lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_6);
 lean_inc(x_2);
-x_20 = l_Std_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_18, x_2);
+x_20 = l_Lean_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_18, x_2);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; 
@@ -21382,7 +21382,7 @@ x_10 = l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initF
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_5);
-x_12 = l_Std_PersistentHashMap_insert___at_Lean_Server_registerLspRequestHandler___spec__2(x_8, x_2, x_11);
+x_12 = l_Lean_PersistentHashMap_insert___at_Lean_Server_registerLspRequestHandler___spec__2(x_8, x_2, x_11);
 x_13 = lean_st_ref_set(x_6, x_12, x_9);
 x_14 = !lean_is_exclusive(x_13);
 if (x_14 == 0)
@@ -21418,7 +21418,7 @@ lean_object* x_8; lean_object* x_9; uint8_t x_10;
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_ctor_get(x_6, 1);
 lean_inc(x_2);
-x_10 = l_Std_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_8, x_2);
+x_10 = l_Lean_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_8, x_2);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
@@ -21452,7 +21452,7 @@ lean_inc(x_19);
 lean_inc(x_18);
 lean_dec(x_6);
 lean_inc(x_2);
-x_20 = l_Std_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_18, x_2);
+x_20 = l_Lean_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(x_18, x_2);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; 

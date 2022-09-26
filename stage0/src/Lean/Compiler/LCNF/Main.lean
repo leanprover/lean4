@@ -9,7 +9,6 @@ import Lean.Compiler.LCNF.Passes
 import Lean.Compiler.LCNF.PrettyPrinter
 import Lean.Compiler.LCNF.ToDecl
 import Lean.Compiler.LCNF.Check
-import Lean.Compiler.LCNF.Stage1
 import Lean.Compiler.LCNF.PullLetDecls
 import Lean.Compiler.LCNF.PhaseExt
 import Lean.Compiler.LCNF.CSE
@@ -74,7 +73,6 @@ def run (declNames : Array Name) : CompilerM (Array Decl) := withAtLeastMaxRecDe
     trace[Compiler] s!"Running pass: {pass.name}"
     decls ← withPhase pass.phase <| pass.run decls
     withPhase pass.phase <| checkpoint pass.name decls
-  saveStage1Decls decls
   if (← Lean.isTracingEnabledFor `Compiler.result) then
     for decl in decls do
       Lean.addTrace `Compiler.result m!"size: {decl.size}\n{← ppDecl decl}"
@@ -82,8 +80,7 @@ def run (declNames : Array Name) : CompilerM (Array Decl) := withAtLeastMaxRecDe
 
 end PassManager
 
-@[export lean_compile_stage1] -- TODO: delete
-def compileStage1Impl (declNames : Array Name) : CoreM (Array Decl) :=
+def compile (declNames : Array Name) : CoreM (Array Decl) :=
   CompilerM.run <| PassManager.run declNames
 
 def showDecl (phase : Phase) (declName : Name) : CoreM Format := do

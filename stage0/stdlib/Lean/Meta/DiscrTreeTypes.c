@@ -42,7 +42,6 @@ static lean_object* l_Lean_Meta_DiscrTree_root___default___closed__1;
 static lean_object* l_Lean_Meta_DiscrTree_root___default___closed__3;
 lean_object* l_Nat_repr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_instBEqKey;
-lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_355____closed__10;
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_355____closed__32;
 uint64_t lean_uint64_of_nat(lean_object*);
@@ -51,6 +50,7 @@ uint8_t l___private_Lean_Expr_0__Lean_beqLiteral____x40_Lean_Expr___hyg_31_(lean
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_355____closed__24;
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_355____closed__16;
 static lean_object* l_Lean_Meta_DiscrTree_instHashableKey___closed__1;
+lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_355____closed__7;
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_instInhabitedKey;
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_instReprKey;
@@ -1016,7 +1016,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_root___default___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
+x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
 return x_1;
 }
 }

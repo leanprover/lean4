@@ -53,7 +53,6 @@ namespace Lean.Server.FileWorker
 open Lsp
 open IO
 open Snapshots
-open Std (RBMap RBMap.empty)
 open JsonRpc
 
 structure WorkerContext where
@@ -146,7 +145,7 @@ structure WorkerState where
   pendingRequests : PendingRequestMap
   /-- A map of RPC session IDs. We allow asynchronous elab tasks and request handlers
   to modify sessions. A single `Ref` ensures atomic transactions. -/
-  rpcSessions     : Std.RBMap UInt64 (IO.Ref RpcSession) compare
+  rpcSessions     : RBMap UInt64 (IO.Ref RpcSession) compare
 
 abbrev WorkerM := ReaderT WorkerContext <| StateRefT WorkerState IO
 
@@ -226,9 +225,9 @@ section Initialization
             Elab.InfoTree.node (Elab.Info.ofCommandInfo {
               elaborator := `import
               stx := importStx
-            }) #[].toPersistentArray
-          )).toPersistentArray
-      )].toPersistentArray
+            }) #[].toPArray'
+          )).toPArray'
+      )].toPArray'
     }}
     let headerSnap := {
       beginPos := 0
@@ -261,7 +260,7 @@ section Initialization
     return (ctx,
     { doc             := doc
       pendingRequests := RBMap.empty
-      rpcSessions     := Std.RBMap.empty
+      rpcSessions     := RBMap.empty
     })
 end Initialization
 

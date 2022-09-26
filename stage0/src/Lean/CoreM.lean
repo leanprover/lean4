@@ -22,7 +22,7 @@ register_builtin_option maxHeartbeats : Nat := {
 def getMaxHeartbeats (opts : Options) : Nat :=
   maxHeartbeats.get opts * 1000
 
-abbrev InstantiateLevelCache := Std.PersistentHashMap Name (List Level × Expr)
+abbrev InstantiateLevelCache := PersistentHashMap Name (List Level × Expr)
 
 /-- Cache for the `CoreM` monad -/
 structure Cache where

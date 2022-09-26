@@ -15,7 +15,7 @@ import Lean.Compiler.LCNF.PhaseExt
 namespace Lean.Compiler.LCNF
 namespace Specialize
 
-abbrev Cache := Std.PHashMap Expr Name
+abbrev Cache := PHashMap Expr Name
 
 builtin_initialize specCacheExt : EnvExtension Cache ←
   registerEnvExtension (pure {})
@@ -408,7 +408,7 @@ mutual
 end
 
 def main (decl : Decl) : SpecializeM Decl := do
-  if (← isTemplateLike decl) then
+  if (← decl.isTemplateLike) then
     return decl
   else
     let value ← withParams decl.params <| visitCode decl.value

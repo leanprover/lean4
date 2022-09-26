@@ -22,7 +22,7 @@ structure CandidateInfo where
   The set of candidates that rely on this candidate to be a join point.
   For a more detailed explanation see the documentation of `find`
   -/
-  associated : Std.HashSet FVarId
+  associated : HashSet FVarId
   deriving Inhabited
 
 /--
@@ -32,14 +32,14 @@ structure FindState where
   /--
   All current join point candidates accessible by their `FVarId`.
   -/
-  candidates : Std.HashMap FVarId CandidateInfo := .empty
+  candidates : HashMap FVarId CandidateInfo := .empty
   /--
   The `FVarId`s of all `fun` declarations that were declared within the
   current `fun`.
   -/
-  scope : Std.HashSet FVarId := .empty
+  scope : HashSet FVarId := .empty
 
-abbrev ReplaceCtx := Std.HashMap FVarId Name
+abbrev ReplaceCtx := HashMap FVarId Name
 
 abbrev FindM := ReaderT (Option FVarId) StateRefT FindState CompilerM
 abbrev ReplaceM := ReaderT ReplaceCtx CompilerM
@@ -62,7 +62,7 @@ private partial def eraseCandidate (fvarId : FVarId) : FindM Unit := do
 /--
 Combinator for modifying the candidates in `FindM`.
 -/
-private def modifyCandidates (f : Std.HashMap FVarId CandidateInfo → Std.HashMap FVarId CandidateInfo) : FindM Unit :=
+private def modifyCandidates (f : HashMap FVarId CandidateInfo → HashMap FVarId CandidateInfo) : FindM Unit :=
   modify (fun state => {state with candidates := f state.candidates })
 
 /--

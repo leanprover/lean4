@@ -121,7 +121,7 @@ private def mkCoreContext (ctx : Context) (s : State) (heartbeats : Nat) : Core.
 
 private def addTraceAsMessagesCore (ctx : Context) (log : MessageLog) (traceState : TraceState) : MessageLog := Id.run do
   if traceState.traces.isEmpty then return log
-  let mut traces : Std.HashMap (String.Pos × String.Pos) (Array MessageData) := ∅
+  let mut traces : HashMap (String.Pos × String.Pos) (Array MessageData) := ∅
   for traceElem in traceState.traces do
     let ref := replaceRef traceElem.ref ctx.ref
     let pos := ref.getPos?.getD 0
@@ -221,7 +221,7 @@ opaque mkCommandElabAttribute : IO (KeyedDeclsAttribute CommandElab)
 
 builtin_initialize commandElabAttribute : KeyedDeclsAttribute CommandElab ← mkCommandElabAttribute
 
-private def mkInfoTree (elaborator : Name) (stx : Syntax) (trees : Std.PersistentArray InfoTree) : CommandElabM InfoTree := do
+private def mkInfoTree (elaborator : Name) (stx : Syntax) (trees : PersistentArray InfoTree) : CommandElabM InfoTree := do
   let ctx ← read
   let s ← get
   let scope := s.scopes.head!

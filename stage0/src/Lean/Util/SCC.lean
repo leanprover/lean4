@@ -11,7 +11,6 @@ namespace Lean.SCC
   compiler mutually recursive definitions, where each function
   (and nested let-rec) in the mutual block is a vertex.
   So, the graphs are small. -/
-open Std
 
 section
 variable (α : Type) [BEq α] [Hashable α]
@@ -24,7 +23,7 @@ structure Data where
 structure State where
   stack     : List α := []
   nextIndex : Nat := 0
-  data      : Std.HashMap α Data := {}
+  data      : HashMap α Data := {}
   sccs      : List (List α) := []
 
 abbrev M := StateM (State α)

@@ -503,6 +503,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_checkLeftRec___lambda__1___boxed(lean_
 lean_object* l_Lean_Macro_expandMacro_x3f(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_pushInfoLeaf___at_Lean_Elab_Term_toParserDescr_processNullaryOrCat___spec__13___closed__3;
 lean_object* l_Lean_Parser_ensureUnaryParserAlias(lean_object*, lean_object*);
+lean_object* l_Lean_PersistentArray_push___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_Syntax___hyg_10830____closed__1;
 static lean_object* l_Lean_Elab_Term_toParserDescr_processSepBy___lambda__1___closed__8;
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__43;
@@ -533,7 +534,6 @@ lean_object* l_Lean_Name_getString_x21(lean_object*);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_filterMap___at_Lean_Elab_Term_resolveParserName___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_ensureUnaryOutput___lambda__1___closed__18;
-lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
 uint8_t l_Lean_Name_isStr(lean_object*);
 static lean_object* l_Lean_Elab_Command_elabDeclareSyntaxCat___closed__15;
 static lean_object* l_Lean_Elab_Command_elabSyntax___closed__4;
@@ -600,7 +600,7 @@ uint8_t l___private_Lean_Util_Trace_0__Lean_checkTraceOption(lean_object*, lean_
 uint8_t l_Lean_Parser_isValidSyntaxNodeKind(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_toParserDescr_processNullaryOrCat___closed__4;
 lean_object* l_Lean_quoteNameMk(lean_object*);
-uint8_t l___private_Lean_Parser_Basic_0__Lean_Parser_beqLeadingIdentBehavior____x40_Lean_Parser_Basic___hyg_9359_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Parser_Basic_0__Lean_Parser_beqLeadingIdentBehavior____x40_Lean_Parser_Basic___hyg_9358_(uint8_t, uint8_t);
 static lean_object* l_Lean_Elab_Command_elabSyntax___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_checkLeftRec(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_toParserDescr_processAlias___closed__11;
@@ -2389,7 +2389,7 @@ lean_inc(x_12);
 x_24 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_24, 0, x_12);
 lean_ctor_set(x_24, 1, x_23);
-x_25 = l_Std_PersistentArray_push___rarg(x_20, x_24);
+x_25 = l_Lean_PersistentArray_push___rarg(x_20, x_24);
 lean_ctor_set(x_17, 3, x_25);
 x_26 = lean_st_ref_set(x_10, x_17, x_18);
 x_27 = !lean_is_exclusive(x_26);
@@ -2444,7 +2444,7 @@ lean_inc(x_12);
 x_43 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_43, 0, x_12);
 lean_ctor_set(x_43, 1, x_42);
-x_44 = l_Std_PersistentArray_push___rarg(x_36, x_43);
+x_44 = l_Lean_PersistentArray_push___rarg(x_36, x_43);
 x_45 = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(x_45, 0, x_33);
 lean_ctor_set(x_45, 1, x_34);
@@ -5398,7 +5398,7 @@ _start:
 lean_object* x_12; uint8_t x_64; uint8_t x_65; uint8_t x_66; 
 x_64 = lean_ctor_get_uint8(x_3, sizeof(void*)*1 + 2);
 x_65 = 0;
-x_66 = l___private_Lean_Parser_Basic_0__Lean_Parser_beqLeadingIdentBehavior____x40_Lean_Parser_Basic___hyg_9359_(x_64, x_65);
+x_66 = l___private_Lean_Parser_Basic_0__Lean_Parser_beqLeadingIdentBehavior____x40_Lean_Parser_Basic___hyg_9358_(x_64, x_65);
 if (x_66 == 0)
 {
 uint8_t x_67; 
@@ -10749,7 +10749,7 @@ if (x_28 == 0)
 {
 lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; 
 x_29 = lean_ctor_get(x_24, 1);
-x_30 = l_Std_PersistentArray_push___rarg(x_29, x_1);
+x_30 = l_Lean_PersistentArray_push___rarg(x_29, x_1);
 lean_ctor_set(x_24, 1, x_30);
 x_31 = lean_st_ref_set(x_9, x_23, x_25);
 x_32 = !lean_is_exclusive(x_31);
@@ -10784,7 +10784,7 @@ x_40 = lean_ctor_get(x_24, 1);
 lean_inc(x_40);
 lean_inc(x_39);
 lean_dec(x_24);
-x_41 = l_Std_PersistentArray_push___rarg(x_40, x_1);
+x_41 = l_Lean_PersistentArray_push___rarg(x_40, x_1);
 x_42 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_42, 0, x_39);
 lean_ctor_set(x_42, 1, x_41);
@@ -10841,7 +10841,7 @@ if (lean_is_exclusive(x_24)) {
  lean_dec_ref(x_24);
  x_57 = lean_box(0);
 }
-x_58 = l_Std_PersistentArray_push___rarg(x_56, x_1);
+x_58 = l_Lean_PersistentArray_push___rarg(x_56, x_1);
 if (lean_is_scalar(x_57)) {
  x_59 = lean_alloc_ctor(0, 2, 1);
 } else {

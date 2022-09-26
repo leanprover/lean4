@@ -36,13 +36,12 @@ static lean_object* l_Lean_Elab_instInhabitedMacroExpansionInfo___closed__1;
 static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__9;
 static uint32_t l_Lean_Elab_instInhabitedContextInfo___closed__4;
 static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__11;
+lean_object* l_Lean_mkHashMapImp___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_setInfoState___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_ContextInfo_mctx___default;
 static lean_object* l_Lean_Elab_instInhabitedInfoTree___closed__1;
-lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
 static lean_object* l_Lean_Elab_instInhabitedTacticInfo___closed__1;
 static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__1;
-lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoState_assignment___default;
 LEAN_EXPORT lean_object* l_Lean_Elab_instMonadInfoTree___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedCommandInfo;
@@ -58,6 +57,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_ContextInfo_currNamespace___default;
 static lean_object* l_Lean_Elab_InfoState_trees___default___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedCustomInfo;
 static lean_object* l_Lean_Elab_ContextInfo_mctx___default___closed__3;
+lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_InfoState_trees___default___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedInfoTree;
 static lean_object* l_Lean_Elab_instInhabitedInfo___closed__1;
@@ -87,7 +87,7 @@ static lean_object* _init_l_Lean_Elab_ContextInfo_mctx___default___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
+x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
 return x_1;
 }
 }
@@ -194,7 +194,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Std_mkHashMapImp___rarg(x_1);
+x_2 = l_Lean_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }

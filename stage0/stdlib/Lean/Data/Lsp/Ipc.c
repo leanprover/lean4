@@ -16,7 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_collectDiagnostics_loop(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_writeLspRequest___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-uint8_t l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_beqRequestID____x40_Lean_Data_JsonRpc___hyg_34_(lean_object*, lean_object*);
+uint8_t l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_beqRequestID____x40_Lean_Data_JsonRpc___hyg_33_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeLspRequest___at_Lean_Lsp_Ipc_collectDiagnostics___spec__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_Ipc_ipcStdioConfig___closed__1;
 static lean_object* l_Lean_Lsp_Ipc_collectDiagnostics___closed__1;
@@ -734,7 +734,7 @@ lean_dec(x_120);
 x_121 = lean_ctor_get(x_5, 0);
 lean_inc(x_121);
 lean_dec(x_5);
-x_122 = l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_beqRequestID____x40_Lean_Data_JsonRpc___hyg_34_(x_121, x_1);
+x_122 = l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_beqRequestID____x40_Lean_Data_JsonRpc___hyg_33_(x_121, x_1);
 lean_dec(x_121);
 if (x_122 == 0)
 {
@@ -760,7 +760,7 @@ lean_dec(x_4);
 x_126 = lean_ctor_get(x_5, 0);
 lean_inc(x_126);
 lean_dec(x_5);
-x_127 = l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_beqRequestID____x40_Lean_Data_JsonRpc___hyg_34_(x_126, x_1);
+x_127 = l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_beqRequestID____x40_Lean_Data_JsonRpc___hyg_33_(x_126, x_1);
 lean_dec(x_126);
 if (x_127 == 0)
 {
@@ -794,7 +794,7 @@ lean_inc(x_134);
 x_135 = lean_ctor_get(x_5, 1);
 lean_inc(x_135);
 lean_dec(x_5);
-x_136 = l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_beqRequestID____x40_Lean_Data_JsonRpc___hyg_34_(x_134, x_1);
+x_136 = l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_beqRequestID____x40_Lean_Data_JsonRpc___hyg_33_(x_134, x_1);
 lean_dec(x_134);
 if (x_136 == 0)
 {
@@ -830,7 +830,7 @@ lean_inc(x_144);
 x_145 = lean_ctor_get(x_5, 1);
 lean_inc(x_145);
 lean_dec(x_5);
-x_146 = l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_beqRequestID____x40_Lean_Data_JsonRpc___hyg_34_(x_144, x_1);
+x_146 = l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_beqRequestID____x40_Lean_Data_JsonRpc___hyg_33_(x_144, x_1);
 lean_dec(x_144);
 if (x_146 == 0)
 {

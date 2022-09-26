@@ -104,7 +104,6 @@ lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_Core_getMaxHeartbeats(lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
 extern lean_object* l_Lean_Expr_instHashableExpr;
-lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__2;
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__1;
 lean_object* lean_array_to_list(lean_object*, lean_object*);
@@ -128,6 +127,7 @@ LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___private_Lean_Compiler_Extern
 uint8_t l_String_Iterator_hasNext(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_665____closed__8;
 extern lean_object* l_Lean_projectionFnInfoExt;
+lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_Lean_mkSimpleFnCall___closed__3;
 static lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_665____closed__9;
 LEAN_EXPORT lean_object* l_Lean_isExternC___boxed(lean_object*, lean_object*);
@@ -1908,7 +1908,7 @@ static lean_object* _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExtern
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
+x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
 return x_1;
 }
 }

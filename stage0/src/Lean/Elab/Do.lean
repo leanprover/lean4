@@ -213,7 +213,7 @@ def Code.getRef? : Code → Option Syntax
   | .match ref ..        => ref
   | .jmp ref ..          => ref
 
-abbrev VarSet := Std.RBMap Name Syntax Name.cmp
+abbrev VarSet := RBMap Name Syntax Name.cmp
 
 /-- A code block, and the collection of variables updated by it. -/
 structure CodeBlock where

@@ -89,7 +89,6 @@ static lean_object* l_Lean_Xml_Parser_PITarget___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_EntityRef(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_manyCore___at_Lean_Xml_Parser_choice___spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Xml_Parser_0__Lean_Xml_Parser_nameStartCharRanges___closed__14;
-LEAN_EXPORT lean_object* l_Std_RBNode_ins___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_manyCore___at_Lean_Xml_Parser_EntityValue___spec__2(uint32_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_AttlistDecl(lean_object*);
 static lean_object* l_Lean_Xml_Parser_PITarget___closed__18;
@@ -123,6 +122,7 @@ static lean_object* l_Lean_Xml_Parser_Mixed___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Xml_parse(lean_object*);
 static lean_object* l_Lean_Xml_Parser_elementDecl___closed__3;
 static lean_object* l_Lean_Xml_Parser_EmptyElemTag___closed__1;
+LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_predefinedEntityToChar___closed__8___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lean_Parsec_manyCore___at_Lean_Xml_Parser_Comment___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Xml_Parser_cp___closed__2;
@@ -135,7 +135,6 @@ static lean_object* l___private_Lean_Data_Xml_Parser_0__Lean_Xml_Parser_nameStar
 static lean_object* l_Lean_Xml_Parser_NameChar___closed__1;
 static lean_object* l_Lean_Xml_Parser_Mixed___closed__8;
 static lean_object* l___private_Lean_Data_Xml_Parser_0__Lean_Xml_Parser_nameStartCharRanges___closed__4;
-lean_object* l_Std_RBNode_setBlack___rarg(lean_object*);
 static lean_object* l_Lean_Xml_Parser_NameChar___closed__2;
 static lean_object* l___private_Lean_Data_Xml_Parser_0__Lean_Xml_Parser_nameStartCharRanges___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_DefaultDecl(lean_object*);
@@ -160,6 +159,7 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l_Lean_Xml_Parser_endl___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_endl___boxed__const__1;
 static lean_object* l_Lean_Xml_Parser_TokenizedType___closed__4;
+lean_object* l_Lean_RBNode_setBlack___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_SDDecl___lambda__1(lean_object*);
 static lean_object* l_Lean_Xml_Parser_PITarget___closed__9;
 LEAN_EXPORT lean_object* l_Array_filterMapM___at_Lean_Xml_Parser_content___spec__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -177,6 +177,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Xml_Parser_content_
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_cp(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_predefinedEntityToChar___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_EntityValue(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_CharRef(lean_object*);
 static lean_object* l_Lean_Xml_Parser_endl___closed__10;
 static lean_object* l_Lean_Xml_Parser_PITarget___closed__1;
@@ -283,7 +284,6 @@ static lean_object* l_Lean_Xml_Parser_EntityRef___closed__2;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_NDataDecl(lean_object*);
 static lean_object* l_Lean_Xml_Parser_Char___closed__2;
-uint8_t l_Std_RBNode_isRed___rarg(lean_object*);
 static lean_object* l_Lean_Xml_Parser_quote___rarg___closed__6;
 static lean_object* l_Lean_Xml_Parser_TokenizedType___closed__2;
 static lean_object* l_Lean_Xml_Parser_EntityRef___closed__6;
@@ -294,6 +294,7 @@ LEAN_EXPORT lean_object* l_Lean_Xml_Parser_ETag(lean_object*);
 uint32_t l_String_Iterator_curr(lean_object*);
 static lean_object* l_Lean_Xml_Parser_TokenizedType___closed__6;
 static lean_object* l_Lean_Xml_Parser_PITarget___closed__16;
+uint8_t l_Lean_RBNode_isRed___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_AttType(lean_object*);
 static lean_object* l_Lean_Xml_Parser_endl___closed__5;
 static lean_object* l_Lean_Xml_Parser_NameChar___closed__7;
@@ -326,7 +327,6 @@ static lean_object* l___private_Lean_Data_Xml_Parser_0__Lean_Xml_Parser_nameStar
 LEAN_EXPORT lean_object* l_Lean_Parsec_manyCore___at_Lean_Xml_Parser_AttValue___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_NotationDecl(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_TokenizedType(lean_object*);
-LEAN_EXPORT lean_object* l_Std_RBNode_insert___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Xml_Parser_predefinedEntityToChar___closed__5;
 static lean_object* l_Lean_Xml_Parser_Char___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Parsec_manyCore___at_Lean_Xml_Parser_AttlistDecl___spec__1(lean_object*, lean_object*);
@@ -30535,7 +30535,7 @@ return x_26;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_RBNode_ins___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -30574,7 +30574,7 @@ x_14 = lean_string_dec_eq(x_2, x_10);
 if (x_14 == 0)
 {
 lean_object* x_15; uint8_t x_16; 
-x_15 = l_Std_RBNode_ins___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__2(x_12, x_2, x_3);
+x_15 = l_Lean_RBNode_ins___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__2(x_12, x_2, x_3);
 x_16 = 0;
 lean_ctor_set(x_1, 3, x_15);
 lean_ctor_set_uint8(x_1, sizeof(void*)*4, x_16);
@@ -30595,7 +30595,7 @@ return x_1;
 else
 {
 lean_object* x_18; uint8_t x_19; 
-x_18 = l_Std_RBNode_ins___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__2(x_9, x_2, x_3);
+x_18 = l_Lean_RBNode_ins___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__2(x_9, x_2, x_3);
 x_19 = 0;
 lean_ctor_set(x_1, 0, x_18);
 lean_ctor_set_uint8(x_1, sizeof(void*)*4, x_19);
@@ -30622,7 +30622,7 @@ x_25 = lean_string_dec_eq(x_2, x_21);
 if (x_25 == 0)
 {
 lean_object* x_26; uint8_t x_27; lean_object* x_28; 
-x_26 = l_Std_RBNode_ins___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__2(x_23, x_2, x_3);
+x_26 = l_Lean_RBNode_ins___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__2(x_23, x_2, x_3);
 x_27 = 0;
 x_28 = lean_alloc_ctor(1, 4, 1);
 lean_ctor_set(x_28, 0, x_20);
@@ -30650,7 +30650,7 @@ return x_30;
 else
 {
 lean_object* x_31; uint8_t x_32; lean_object* x_33; 
-x_31 = l_Std_RBNode_ins___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__2(x_20, x_2, x_3);
+x_31 = l_Lean_RBNode_ins___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__2(x_20, x_2, x_3);
 x_32 = 0;
 x_33 = lean_alloc_ctor(1, 4, 1);
 lean_ctor_set(x_33, 0, x_31);
@@ -30681,7 +30681,7 @@ x_40 = lean_string_dec_eq(x_2, x_36);
 if (x_40 == 0)
 {
 lean_object* x_41; uint8_t x_42; 
-x_41 = l_Std_RBNode_ins___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__2(x_38, x_2, x_3);
+x_41 = l_Lean_RBNode_ins___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__2(x_38, x_2, x_3);
 x_42 = lean_ctor_get_uint8(x_41, sizeof(void*)*4);
 if (x_42 == 0)
 {
@@ -31372,7 +31372,7 @@ return x_1;
 else
 {
 lean_object* x_193; uint8_t x_194; 
-x_193 = l_Std_RBNode_ins___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__2(x_35, x_2, x_3);
+x_193 = l_Lean_RBNode_ins___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__2(x_35, x_2, x_3);
 x_194 = lean_ctor_get_uint8(x_193, sizeof(void*)*4);
 if (x_194 == 0)
 {
@@ -32078,7 +32078,7 @@ x_350 = lean_string_dec_eq(x_2, x_346);
 if (x_350 == 0)
 {
 lean_object* x_351; uint8_t x_352; 
-x_351 = l_Std_RBNode_ins___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__2(x_348, x_2, x_3);
+x_351 = l_Lean_RBNode_ins___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__2(x_348, x_2, x_3);
 x_352 = lean_ctor_get_uint8(x_351, sizeof(void*)*4);
 if (x_352 == 0)
 {
@@ -32508,7 +32508,7 @@ return x_427;
 else
 {
 lean_object* x_428; uint8_t x_429; 
-x_428 = l_Std_RBNode_ins___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__2(x_345, x_2, x_3);
+x_428 = l_Lean_RBNode_ins___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__2(x_345, x_2, x_3);
 x_429 = lean_ctor_get_uint8(x_428, sizeof(void*)*4);
 if (x_429 == 0)
 {
@@ -32925,22 +32925,22 @@ return x_502;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_RBNode_insert___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
-x_4 = l_Std_RBNode_isRed___rarg(x_1);
+x_4 = l_Lean_RBNode_isRed___rarg(x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; 
-x_5 = l_Std_RBNode_ins___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__2(x_1, x_2, x_3);
+x_5 = l_Lean_RBNode_ins___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__2(x_1, x_2, x_3);
 return x_5;
 }
 else
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = l_Std_RBNode_ins___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__2(x_1, x_2, x_3);
-x_7 = l_Std_RBNode_setBlack___rarg(x_6);
+x_6 = l_Lean_RBNode_ins___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__2(x_1, x_2, x_3);
+x_7 = l_Lean_RBNode_setBlack___rarg(x_6);
 return x_7;
 }
 }
@@ -32965,7 +32965,7 @@ lean_inc(x_6);
 x_7 = lean_ctor_get(x_4, 1);
 lean_inc(x_7);
 lean_dec(x_4);
-x_8 = l_Std_RBNode_insert___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__1(x_2, x_6, x_7);
+x_8 = l_Lean_RBNode_insert___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__1(x_2, x_6, x_7);
 x_2 = x_8;
 x_3 = x_5;
 goto _start;
@@ -32992,7 +32992,7 @@ lean_inc(x_5);
 x_6 = lean_ctor_get(x_3, 1);
 lean_inc(x_6);
 lean_dec(x_3);
-x_7 = l_Std_RBNode_insert___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__1(x_1, x_5, x_6);
+x_7 = l_Lean_RBNode_insert___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__1(x_1, x_5, x_6);
 x_1 = x_7;
 x_2 = x_4;
 goto _start;

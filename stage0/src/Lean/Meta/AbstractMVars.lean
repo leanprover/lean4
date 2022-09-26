@@ -15,8 +15,6 @@ structure AbstractMVarsResult where
 
 namespace AbstractMVars
 
-open Std (HashMap)
-
 structure State where
   ngen         : NameGenerator
   lctx         : LocalContext

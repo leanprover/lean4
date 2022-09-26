@@ -91,8 +91,6 @@ structure EnvironmentHeader where
   moduleData   : Array ModuleData := #[]
   deriving Inhabited
 
-open Std (HashMap)
-
 /--
 An environment stores declarations provided by the user. The kernel
 currently supports different kinds of declarations such as definitions, theorems,
@@ -113,6 +111,10 @@ structure Environment where
   Recall that a Leah file has a header where previously compiled modules can be imported.
   Each imported module has a unique `ModuleIdx`.
   Many extensions use the `ModuleIdx` to efficiently retrieve information stored in imported modules.
+
+  Remark: this mapping also contains auxiliary constants, created by the code generator, that are **not** in
+  the field `constants`. These auxiliary constants are invisible to the Lean kernel and elaborator.
+  Only the code generator uses them.
   -/
   const2ModIdx : HashMap Name ModuleIdx
   /--
@@ -694,8 +696,8 @@ partial def importModules (imports : List Import) (opts : Options) (trustLevel :
     for mod in s.moduleData do
       numConsts := numConsts + mod.constants.size
     let mut modIdx : Nat := 0
-    let mut const2ModIdx : HashMap Name ModuleIdx := Std.mkHashMap (capacity := numConsts)
-    let mut constantMap : HashMap Name ConstantInfo := Std.mkHashMap (capacity := numConsts)
+    let mut const2ModIdx : HashMap Name ModuleIdx := mkHashMap (capacity := numConsts)
+    let mut constantMap : HashMap Name ConstantInfo := mkHashMap (capacity := numConsts)
     for mod in s.moduleData do
       for cinfo in mod.constants do
         const2ModIdx := const2ModIdx.insert cinfo.name modIdx

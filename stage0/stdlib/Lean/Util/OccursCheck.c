@@ -13,23 +13,24 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_getDelayedMVarAssignment_x3f___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_occursCheck___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_occursCheck_visitMVar___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getDelayedMVarAssignment_x3f___at_Lean_occursCheck_visitMVar___spec__2(lean_object*);
+lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_getDelayedMVarAssignment_x3f___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getDelayedMVarAssignment_x3f___at_Lean_occursCheck_visitMVar___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_mkHashSetImp___rarg(lean_object*);
+lean_object* l_Lean_mkHashSetImp___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_occursCheck_visit___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_occursCheck_visit___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getExprMVarAssignment_x3f___at_Lean_occursCheck_visitMVar___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_occursCheck_visitMVar___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_getDelayedMVarAssignment_x3f___at_Lean_occursCheck_visitMVar___spec__2___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_HashSetImp_insert___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__3(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasExprMVar(lean_object*);
+uint8_t l_Lean_HashSetImp_contains___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_occursCheck_visit___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_occursCheck___rarg___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getExprMVarAssignment_x3f___at_Lean_occursCheck_visitMVar___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_HashSetImp_insert___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_occursCheck_visit___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_getExprAssignmentCore_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getExprMVarAssignment_x3f___at_Lean_occursCheck_visitMVar___spec__1___rarg___lambda__2(lean_object*, lean_object*);
@@ -40,7 +41,6 @@ static lean_object* l_Lean_occursCheck___rarg___closed__1;
 static lean_object* l_Lean_occursCheck_visitMVar___rarg___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_getExprMVarAssignment_x3f___at_Lean_occursCheck_visitMVar___spec__1___rarg___lambda__3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_occursCheck_visitMVar(lean_object*);
-uint8_t l_Std_HashSetImp_contains___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_occursCheck(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_occursCheck_visit(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_occursCheck_visit___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -406,7 +406,7 @@ x_27 = lean_ctor_get(x_4, 0);
 x_28 = lean_ctor_get(x_27, 7);
 lean_inc(x_28);
 lean_dec(x_27);
-x_29 = l_Std_PersistentHashMap_find_x3f___at_Lean_getDelayedMVarAssignment_x3f___spec__1(x_28, x_2);
+x_29 = l_Lean_PersistentHashMap_find_x3f___at_Lean_getDelayedMVarAssignment_x3f___spec__1(x_28, x_2);
 lean_ctor_set(x_4, 0, x_29);
 x_30 = lean_ctor_get(x_1, 0);
 lean_inc(x_30);
@@ -426,7 +426,7 @@ lean_dec(x_4);
 x_34 = lean_ctor_get(x_33, 7);
 lean_inc(x_34);
 lean_dec(x_33);
-x_35 = l_Std_PersistentHashMap_find_x3f___at_Lean_getDelayedMVarAssignment_x3f___spec__1(x_34, x_2);
+x_35 = l_Lean_PersistentHashMap_find_x3f___at_Lean_getDelayedMVarAssignment_x3f___spec__1(x_34, x_2);
 x_36 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_36, 0, x_35);
 x_37 = lean_ctor_get(x_1, 0);
@@ -458,7 +458,7 @@ if (lean_is_exclusive(x_4)) {
 x_43 = lean_ctor_get(x_41, 7);
 lean_inc(x_43);
 lean_dec(x_41);
-x_44 = l_Std_PersistentHashMap_find_x3f___at_Lean_getDelayedMVarAssignment_x3f___spec__1(x_43, x_2);
+x_44 = l_Lean_PersistentHashMap_find_x3f___at_Lean_getDelayedMVarAssignment_x3f___spec__1(x_43, x_2);
 if (lean_is_scalar(x_42)) {
  x_45 = lean_alloc_ctor(1, 1, 0);
 } else {
@@ -1400,7 +1400,7 @@ x_26 = lean_ctor_get(x_9, 0);
 lean_inc(x_26);
 lean_dec(x_9);
 lean_inc(x_2);
-x_27 = l_Std_HashSetImp_contains___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__1(x_26, x_2);
+x_27 = l_Lean_HashSetImp_contains___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__1(x_26, x_2);
 if (x_27 == 0)
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
@@ -1414,7 +1414,7 @@ lean_closure_set(x_28, 2, x_3);
 lean_closure_set(x_28, 3, x_4);
 lean_closure_set(x_28, 4, x_5);
 lean_closure_set(x_28, 5, x_6);
-x_29 = l_Std_HashSetImp_insert___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__3(x_24, x_2);
+x_29 = l_Lean_HashSetImp_insert___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__3(x_24, x_2);
 x_30 = lean_box(0);
 lean_ctor_set(x_8, 1, x_29);
 lean_ctor_set(x_8, 0, x_30);
@@ -1449,7 +1449,7 @@ x_37 = lean_ctor_get(x_9, 0);
 lean_inc(x_37);
 lean_dec(x_9);
 lean_inc(x_2);
-x_38 = l_Std_HashSetImp_contains___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__1(x_37, x_2);
+x_38 = l_Lean_HashSetImp_contains___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__1(x_37, x_2);
 if (x_38 == 0)
 {
 lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; 
@@ -1463,7 +1463,7 @@ lean_closure_set(x_39, 2, x_3);
 lean_closure_set(x_39, 3, x_4);
 lean_closure_set(x_39, 4, x_5);
 lean_closure_set(x_39, 5, x_6);
-x_40 = l_Std_HashSetImp_insert___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__3(x_36, x_2);
+x_40 = l_Lean_HashSetImp_insert___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__3(x_36, x_2);
 x_41 = lean_box(0);
 x_42 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_42, 0, x_41);
@@ -1602,7 +1602,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(8u);
-x_2 = l_Std_mkHashSetImp___rarg(x_1);
+x_2 = l_Lean_mkHashSetImp___rarg(x_1);
 return x_2;
 }
 }

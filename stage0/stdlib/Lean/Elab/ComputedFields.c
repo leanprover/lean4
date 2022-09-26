@@ -139,6 +139,7 @@ static lean_object* l_Lean_Elab_ComputedFields_getComputedFieldValue___lambda__1
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_ComputedFields_overrideCasesOn___spec__10(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KernelException_toMessageData(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_ComputedFields_overrideComputedFields___lambda__1___boxed(lean_object**);
+lean_object* l_Lean_RBNode_insert___at_Lean_CollectFVars_State_add___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_ComputedFields_setComputedFields(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkCasesOn___at_Lean_Elab_ComputedFields_overrideCasesOn___spec__5___closed__3;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
@@ -159,7 +160,6 @@ static lean_object* l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedF
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at_Lean_Elab_ComputedFields_overrideCasesOn___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapM_loop___at_Lean_Elab_ComputedFields_mkImplType___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_instHashableExpr;
-lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_ComputedFields_validateComputedFields___spec__3___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_ComputedFields_overrideCasesOn___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Elab_ComputedFields_setComputedFields___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -200,11 +200,13 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_ComputedFields_ov
 LEAN_EXPORT lean_object* l_Lean_setEnv___at_Lean_Elab_ComputedFields_overrideConstructors___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_ComputedFields_overrideComputedFields___spec__3___boxed(lean_object**);
+lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 lean_object* l_Lean_ParametricAttribute_setParam___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_ComputedFields_validateComputedFields___spec__1(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_ComputedFields_validateComputedFields(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_whnfEasyCases___at_Lean_Elab_ComputedFields_getComputedFieldValue___spec__2___closed__3;
 static lean_object* l_Lean_Elab_ComputedFields_mkComputedFieldOverrides___closed__1;
+lean_object* l_Lean_PersistentArray_push___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at_Lean_Elab_ComputedFields_overrideCasesOn___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_whnfHeadPred___at_Lean_Elab_ComputedFields_getComputedFieldValue___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescope___at___private_Lean_Meta_InferType_0__Lean_Meta_inferForallType___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -216,7 +218,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescope___at_Lean_Elab_ComputedFiel
 LEAN_EXPORT lean_object* l_Lean_log___at_Lean_Elab_ComputedFields_setComputedFields___spec__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_ComputedFields_setComputedFields___spec__7(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_redLength___rarg(lean_object*);
-lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_setEnv___at_Lean_Elab_ComputedFields_overrideConstructors___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_ComputedFields_overrideCasesOn___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -245,7 +246,6 @@ lean_object* l_List_mapTRAux___at_Lean_mkConstWithLevelParams___spec__1(lean_obj
 static lean_object* l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_ComputedFields_overrideCasesOn___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_ofSubarray___rarg(lean_object*);
-lean_object* l_Std_RBNode_insert___at_Lean_CollectFVars_State_add___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__6;
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescope___at_Lean_Elab_ComputedFields_mkImplType___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_List_mapM_loop___at_Lean_Elab_ComputedFields_mkImplType___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1026,7 +1026,7 @@ x_35 = lean_ctor_get(x_30, 3);
 lean_inc(x_35);
 lean_dec(x_30);
 x_36 = lean_box(0);
-x_37 = l_Std_RBNode_insert___at_Lean_CollectFVars_State_add___spec__1(x_34, x_10, x_36);
+x_37 = l_Lean_RBNode_insert___at_Lean_CollectFVars_State_add___spec__1(x_34, x_10, x_36);
 x_38 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_38, 0, x_32);
 lean_ctor_set(x_38, 1, x_33);
@@ -1123,7 +1123,7 @@ x_59 = lean_ctor_get(x_54, 3);
 lean_inc(x_59);
 lean_dec(x_54);
 x_60 = lean_box(0);
-x_61 = l_Std_RBNode_insert___at_Lean_CollectFVars_State_add___spec__1(x_58, x_10, x_60);
+x_61 = l_Lean_RBNode_insert___at_Lean_CollectFVars_State_add___spec__1(x_58, x_10, x_60);
 x_62 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_62, 0, x_56);
 lean_ctor_set(x_62, 1, x_57);
@@ -4318,7 +4318,7 @@ static lean_object* _init_l_Lean_mkCasesOn___at_Lean_Elab_ComputedFields_overrid
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
+x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
 return x_1;
 }
 }
@@ -10168,7 +10168,7 @@ if (x_33 == 0)
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; uint8_t x_37; 
 x_34 = lean_ctor_get(x_31, 5);
-x_35 = l_Std_PersistentArray_push___rarg(x_34, x_29);
+x_35 = l_Lean_PersistentArray_push___rarg(x_34, x_29);
 lean_ctor_set(x_31, 5, x_35);
 x_36 = lean_st_ref_set(x_7, x_31, x_32);
 x_37 = !lean_is_exclusive(x_36);
@@ -10212,7 +10212,7 @@ lean_inc(x_45);
 lean_inc(x_44);
 lean_inc(x_43);
 lean_dec(x_31);
-x_50 = l_Std_PersistentArray_push___rarg(x_48, x_29);
+x_50 = l_Lean_PersistentArray_push___rarg(x_48, x_29);
 x_51 = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(x_51, 0, x_43);
 lean_ctor_set(x_51, 1, x_44);
@@ -10290,7 +10290,7 @@ if (x_72 == 0)
 {
 lean_object* x_73; lean_object* x_74; lean_object* x_75; uint8_t x_76; 
 x_73 = lean_ctor_get(x_70, 5);
-x_74 = l_Std_PersistentArray_push___rarg(x_73, x_68);
+x_74 = l_Lean_PersistentArray_push___rarg(x_73, x_68);
 lean_ctor_set(x_70, 5, x_74);
 x_75 = lean_st_ref_set(x_7, x_70, x_71);
 x_76 = !lean_is_exclusive(x_75);
@@ -10334,7 +10334,7 @@ lean_inc(x_84);
 lean_inc(x_83);
 lean_inc(x_82);
 lean_dec(x_70);
-x_89 = l_Std_PersistentArray_push___rarg(x_87, x_68);
+x_89 = l_Lean_PersistentArray_push___rarg(x_87, x_68);
 x_90 = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(x_90, 0, x_82);
 lean_ctor_set(x_90, 1, x_83);
@@ -10433,7 +10433,7 @@ if (lean_is_exclusive(x_109)) {
  lean_dec_ref(x_109);
  x_118 = lean_box(0);
 }
-x_119 = l_Std_PersistentArray_push___rarg(x_116, x_107);
+x_119 = l_Lean_PersistentArray_push___rarg(x_116, x_107);
 if (lean_is_scalar(x_118)) {
  x_120 = lean_alloc_ctor(0, 7, 0);
 } else {
@@ -10517,7 +10517,7 @@ if (x_139 == 0)
 {
 lean_object* x_140; lean_object* x_141; lean_object* x_142; uint8_t x_143; 
 x_140 = lean_ctor_get(x_137, 5);
-x_141 = l_Std_PersistentArray_push___rarg(x_140, x_135);
+x_141 = l_Lean_PersistentArray_push___rarg(x_140, x_135);
 lean_ctor_set(x_137, 5, x_141);
 x_142 = lean_st_ref_set(x_7, x_137, x_138);
 x_143 = !lean_is_exclusive(x_142);
@@ -10561,7 +10561,7 @@ lean_inc(x_151);
 lean_inc(x_150);
 lean_inc(x_149);
 lean_dec(x_137);
-x_156 = l_Std_PersistentArray_push___rarg(x_154, x_135);
+x_156 = l_Lean_PersistentArray_push___rarg(x_154, x_135);
 x_157 = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(x_157, 0, x_149);
 lean_ctor_set(x_157, 1, x_150);
@@ -10659,7 +10659,7 @@ if (lean_is_exclusive(x_174)) {
  lean_dec_ref(x_174);
  x_183 = lean_box(0);
 }
-x_184 = l_Std_PersistentArray_push___rarg(x_181, x_172);
+x_184 = l_Lean_PersistentArray_push___rarg(x_181, x_172);
 if (lean_is_scalar(x_183)) {
  x_185 = lean_alloc_ctor(0, 7, 0);
 } else {
@@ -10744,7 +10744,7 @@ if (x_206 == 0)
 {
 lean_object* x_207; lean_object* x_208; lean_object* x_209; uint8_t x_210; 
 x_207 = lean_ctor_get(x_204, 5);
-x_208 = l_Std_PersistentArray_push___rarg(x_207, x_202);
+x_208 = l_Lean_PersistentArray_push___rarg(x_207, x_202);
 lean_ctor_set(x_204, 5, x_208);
 x_209 = lean_st_ref_set(x_7, x_204, x_205);
 x_210 = !lean_is_exclusive(x_209);
@@ -10788,7 +10788,7 @@ lean_inc(x_218);
 lean_inc(x_217);
 lean_inc(x_216);
 lean_dec(x_204);
-x_223 = l_Std_PersistentArray_push___rarg(x_221, x_202);
+x_223 = l_Lean_PersistentArray_push___rarg(x_221, x_202);
 x_224 = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(x_224, 0, x_216);
 lean_ctor_set(x_224, 1, x_217);
@@ -10887,7 +10887,7 @@ if (lean_is_exclusive(x_242)) {
  lean_dec_ref(x_242);
  x_251 = lean_box(0);
 }
-x_252 = l_Std_PersistentArray_push___rarg(x_249, x_240);
+x_252 = l_Lean_PersistentArray_push___rarg(x_249, x_240);
 if (lean_is_scalar(x_251)) {
  x_253 = lean_alloc_ctor(0, 7, 0);
 } else {

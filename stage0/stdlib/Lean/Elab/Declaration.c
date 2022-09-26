@@ -155,7 +155,6 @@ static lean_object* l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_isNam
 static lean_object* l_Lean_Elab_Command_expandInitialize___lambda__1___closed__27;
 static lean_object* l_Lean_Elab_Command_elabAxiom___lambda__5___closed__1;
 static lean_object* l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_isMutualPreambleCommand___closed__4;
-lean_object* l_Std_mkHashSetImp___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Command_elabDeclaration___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_getLevelNames___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_checkValidCtorModifier___at___private_Lean_Elab_Declaration_0__Lean_Elab_Command_inductiveSyntaxToView___spec__1___lambda__3___closed__2;
@@ -178,6 +177,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Command_expandMutualNamespace___lambda__1(l
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabDeclaration___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabAttr_declRange___closed__2;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_expandMutualNamespace___spec__3___closed__2;
+lean_object* l_Lean_mkHashSetImp___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabAxiom___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandInitialize___lambda__5___closed__4;
 static lean_object* l_Lean_Elab_Command_elabAxiom___lambda__5___closed__3;
@@ -2196,7 +2196,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(8u);
-x_2 = l_Std_mkHashSetImp___rarg(x_1);
+x_2 = l_Lean_mkHashSetImp___rarg(x_1);
 return x_2;
 }
 }

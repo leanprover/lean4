@@ -26,6 +26,7 @@ LEAN_EXPORT lean_object* lean_run_frontend(lean_object*, lean_object*, lean_obje
 static lean_object* l_Lean_Elab_process___closed__1;
 lean_object* lean_environment_set_main_module(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_setCommandState___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_HashMap_ofList___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__5(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_getCommandState___rarg___boxed(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkInputContext(lean_object*, lean_object*);
@@ -48,6 +49,7 @@ lean_object* l_Lean_Option_get___at_Std_Format_pretty_x27___spec__1(lean_object*
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_getInputContext___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_KVMap_getBool(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_setParserState___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_HashMap_toList___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__1(lean_object*);
 lean_object* l_IO_print___at_IO_println___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_mkState(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Elab_runFrontend___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -69,19 +71,18 @@ static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____cl
 static lean_object* l_Lean_Elab_Frontend_processCommand___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_processCommand(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____closed__4;
+lean_object* l_Lean_PersistentArray_toArray___rarg(lean_object*);
 static lean_object* l_Lean_Elab_Frontend_runCommandElabM___rarg___closed__2;
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____closed__8;
-lean_object* l___private_Lean_Server_References_0__Lean_Server_toJsonIlean____x40_Lean_Server_References___hyg_922_(lean_object*);
+lean_object* l___private_Lean_Server_References_0__Lean_Server_toJsonIlean____x40_Lean_Server_References___hyg_921_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_updateCmdPos___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profileitM___at_Lean_Elab_Frontend_processCommand___spec__1(lean_object*);
-lean_object* l_Std_HashMap_ofList___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__5(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profileitM___at_Lean_Elab_Frontend_processCommand___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_findModuleRefs(lean_object*, lean_object*, uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_elabCommandAtFrontend___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____closed__6;
 uint8_t l_Lean_Parser_isExitCommand(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_getInputContext(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_PersistentArray_toArray___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_getCommandState(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_getParserState(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_getParserState___rarg(lean_object*, lean_object*);
@@ -92,10 +93,10 @@ lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_runCommandElabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_setParserState(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_HashMap_toList___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__1(lean_object*);
 lean_object* l_Lean_Elab_Command_elabCommandTopLevel(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_profileitIOUnsafe___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_updateCmdPos___boxed(lean_object*);
+uint8_t l_Lean_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(lean_object*);
 static lean_object* l_Lean_Elab_process___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_getCommandState___rarg(lean_object*, lean_object*);
 uint8_t l_Lean_Parser_isEOI(lean_object*);
@@ -103,7 +104,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_setMessages(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_setMessages___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_runFrontend___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_runFrontend___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Std_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_getPrintMessageEndPos(lean_object*);
 static lean_object* l_Lean_Elab_process___closed__5;
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____closed__7;
@@ -2283,7 +2283,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_runFrontend___lambda__1(lean_object* x_1, l
 _start:
 {
 uint8_t x_5; 
-x_5 = l_Std_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(x_1);
+x_5 = l_Lean_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(x_1);
 if (x_5 == 0)
 {
 uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
@@ -2366,20 +2366,20 @@ lean_dec(x_4);
 x_24 = lean_ctor_get(x_16, 1);
 lean_inc(x_24);
 lean_dec(x_16);
-x_25 = l_Std_PersistentArray_toArray___rarg(x_24);
+x_25 = l_Lean_PersistentArray_toArray___rarg(x_24);
 x_26 = l_Lean_FileMap_ofString(x_5);
 x_27 = 0;
 x_28 = l_Lean_Server_findModuleRefs(x_26, x_25, x_27, x_27);
-x_29 = l_Std_HashMap_toList___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__1(x_28);
+x_29 = l_Lean_HashMap_toList___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__1(x_28);
 x_30 = lean_box(0);
 x_31 = l_List_mapTRAux___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__4(x_29, x_30);
-x_32 = l_Std_HashMap_ofList___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__5(x_31);
+x_32 = l_Lean_HashMap_ofList___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__5(x_31);
 x_33 = lean_unsigned_to_nat(1u);
 x_34 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_34, 0, x_33);
 lean_ctor_set(x_34, 1, x_6);
 lean_ctor_set(x_34, 2, x_32);
-x_35 = l___private_Lean_Server_References_0__Lean_Server_toJsonIlean____x40_Lean_Server_References___hyg_922_(x_34);
+x_35 = l___private_Lean_Server_References_0__Lean_Server_toJsonIlean____x40_Lean_Server_References___hyg_921_(x_34);
 x_36 = l_Lean_Json_compress(x_35);
 x_37 = l_IO_FS_writeFile(x_23, x_36, x_22);
 lean_dec(x_36);

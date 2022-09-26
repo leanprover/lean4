@@ -16,7 +16,6 @@ extern "C" {
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_IR_FnBody_elimDead(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
-lean_object* l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -28,6 +27,7 @@ lean_object* l_Array_back___rarg(lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_FnBody_elimDead___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
+lean_object* l_Lean_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_FnBody_elimDead___spec__1(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_reshapeWithoutDead(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Decl_elimDead(lean_object*);
@@ -54,7 +54,7 @@ case 0:
 lean_object* x_8; lean_object* x_9; 
 x_8 = lean_ctor_get(x_6, 0);
 lean_inc(x_8);
-x_9 = l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_3, x_8);
+x_9 = l_Lean_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_3, x_8);
 lean_dec(x_8);
 if (lean_obj_tag(x_9) == 0)
 {
@@ -80,7 +80,7 @@ case 1:
 lean_object* x_14; lean_object* x_15; 
 x_14 = lean_ctor_get(x_6, 0);
 lean_inc(x_14);
-x_15 = l_Std_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_3, x_14);
+x_15 = l_Lean_RBNode_findCore___at___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectIndex___spec__1(x_3, x_14);
 lean_dec(x_14);
 if (lean_obj_tag(x_15) == 0)
 {

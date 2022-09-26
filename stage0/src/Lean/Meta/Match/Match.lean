@@ -64,7 +64,7 @@ where
         loop lhss alts minors
 
 structure State where
-  used            : Std.HashSet Nat := {} -- used alternatives
+  used            : HashSet Nat := {} -- used alternatives
   counterExamples : List (List Example) := []
 
 /-- Return true if the given (sub-)problem has been solved. -/
@@ -675,7 +675,7 @@ register_builtin_option bootstrap.genMatcherCode : Bool := {
   descr := "disable code generation for auxiliary matcher function"
 }
 
-builtin_initialize matcherExt : EnvExtension (Std.PHashMap (Expr × Bool) Name) ← registerEnvExtension (pure {})
+builtin_initialize matcherExt : EnvExtension (PHashMap (Expr × Bool) Name) ← registerEnvExtension (pure {})
 
 /-- Similar to `mkAuxDefinition`, but uses the cache `matcherExt`.
    It also returns an Boolean that indicates whether a new matcher function was added to the environment or not. -/

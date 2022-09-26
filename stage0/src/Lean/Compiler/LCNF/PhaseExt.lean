@@ -7,7 +7,7 @@ import Lean.Compiler.LCNF.PassManager
 
 namespace Lean.Compiler.LCNF
 
-abbrev BaseExtState := Std.PHashMap Name Decl
+abbrev BaseExtState := PHashMap Name Decl
 
 private abbrev declLt (a b : Decl) :=
   Name.quickLt a.name b.name

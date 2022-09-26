@@ -40,7 +40,6 @@ LEAN_EXPORT lean_object* l_Lean_OptionDecl_group___default;
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__10;
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__20;
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_RBNode_find___at_Lean_getOptionDecl___spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Option_registerOption___closed__3;
 static lean_object* l_Lean_Option_registerOption___closed__5;
 LEAN_EXPORT lean_object* l_Lean_instMonadWithOptions___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -92,6 +91,7 @@ static lean_object* l_Lean_Option_registerOption___closed__2;
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__15;
 LEAN_EXPORT lean_object* l_Lean_getOptionDefaultValue(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getNatOption(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_getOptionDecl___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getBoolOption___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Option_registerOption___closed__1;
@@ -128,7 +128,6 @@ LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_121_(lean_
 static lean_object* l_Lean_setOptionFromString___closed__8;
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__6;
-lean_object* l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerOption__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__46;
@@ -162,14 +161,12 @@ lean_object* l_Lean_KVMap_getNat(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__33;
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__8;
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__22;
-LEAN_EXPORT lean_object* l_Std_RBNode_fold___at_Lean_getOptionDeclsArray___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Option_registerOption___closed__11;
 lean_object* l_Lean_KVMap_setName(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_register___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__27;
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__17;
 lean_object* l_String_intercalate(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_RBNode_find___at_Lean_getOptionDecl___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get_x3f___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instMonadWithOptions___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_registerOption___lambda__2___closed__1;
@@ -205,15 +202,16 @@ static lean_object* l_Lean_Option_registerBuiltinOption___closed__13;
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__35;
 LEAN_EXPORT lean_object* l_Lean_Option_Decl_descr___default;
 static lean_object* l_Lean_Option_registerOption___closed__10;
+LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_getOptionDecl___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getBoolOption(lean_object*);
 lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_set(lean_object*);
 lean_object* l_String_trim(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_getOptionDeclsArray___spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__22;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 static lean_object* l_Lean_instToStringOptions___closed__1;
 static lean_object* l_Lean_getOptionDecl___closed__2;
-LEAN_EXPORT lean_object* l_Std_RBNode_fold___at_Lean_getOptionDeclsArray___spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__33;
 LEAN_EXPORT lean_object* l_Lean_Option_get(lean_object*);
 static lean_object* l_Lean_setOptionFromString___closed__2;
@@ -230,6 +228,7 @@ static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Le
 LEAN_EXPORT lean_object* l_Lean_registerOption___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__25;
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__4;
+lean_object* l_Lean_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_withInPattern___rarg___lambda__1___closed__2;
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__12;
 static lean_object* l_Lean_setOptionFromString___closed__7;
@@ -240,6 +239,7 @@ LEAN_EXPORT lean_object* l_Lean_getOptionDescr(lean_object*, lean_object*);
 static lean_object* l_Lean_setOptionFromString___closed__3;
 static lean_object* l_Lean_Option_registerOption___closed__4;
 LEAN_EXPORT lean_object* l_Lean_getNatOption___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_getOptionDeclsArray___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_setOptionFromString___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedOption___rarg(lean_object*);
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__3;
@@ -394,7 +394,7 @@ LEAN_EXPORT lean_object* l_Lean_registerOption___lambda__1(lean_object* x_1, lea
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_6 = l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(x_1, x_2, x_3);
+x_6 = l_Lean_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(x_1, x_2, x_3);
 x_7 = l_Lean_registerOption___lambda__1___closed__1;
 x_8 = lean_st_ref_set(x_7, x_6, x_5);
 x_9 = !lean_is_exclusive(x_8);
@@ -615,7 +615,7 @@ return x_7;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_RBNode_fold___at_Lean_getOptionDeclsArray___spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_getOptionDeclsArray___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -629,7 +629,7 @@ x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
 x_5 = lean_ctor_get(x_2, 2);
 x_6 = lean_ctor_get(x_2, 3);
-x_7 = l_Std_RBNode_fold___at_Lean_getOptionDeclsArray___spec__1(x_1, x_3);
+x_7 = l_Lean_RBNode_fold___at_Lean_getOptionDeclsArray___spec__1(x_1, x_3);
 lean_inc(x_5);
 lean_inc(x_4);
 x_8 = lean_alloc_ctor(0, 2, 0);
@@ -662,7 +662,7 @@ if (x_3 == 0)
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = l_Lean_getOptionDeclsArray___closed__1;
-x_6 = l_Std_RBNode_fold___at_Lean_getOptionDeclsArray___spec__1(x_5, x_4);
+x_6 = l_Lean_RBNode_fold___at_Lean_getOptionDeclsArray___spec__1(x_5, x_4);
 lean_dec(x_4);
 lean_ctor_set(x_2, 0, x_6);
 return x_2;
@@ -676,7 +676,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_dec(x_2);
 x_9 = l_Lean_getOptionDeclsArray___closed__1;
-x_10 = l_Std_RBNode_fold___at_Lean_getOptionDeclsArray___spec__1(x_9, x_7);
+x_10 = l_Lean_RBNode_fold___at_Lean_getOptionDeclsArray___spec__1(x_9, x_7);
 lean_dec(x_7);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
@@ -685,16 +685,16 @@ return x_11;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_RBNode_fold___at_Lean_getOptionDeclsArray___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_getOptionDeclsArray___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_RBNode_fold___at_Lean_getOptionDeclsArray___spec__1(x_1, x_2);
+x_3 = l_Lean_RBNode_fold___at_Lean_getOptionDeclsArray___spec__1(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_RBNode_find___at_Lean_getOptionDecl___spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_getOptionDecl___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -760,7 +760,7 @@ if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_ctor_get(x_3, 0);
-x_6 = l_Std_RBNode_find___at_Lean_getOptionDecl___spec__1(x_5, x_1);
+x_6 = l_Lean_RBNode_find___at_Lean_getOptionDecl___spec__1(x_5, x_1);
 lean_dec(x_5);
 if (lean_obj_tag(x_6) == 0)
 {
@@ -797,7 +797,7 @@ x_16 = lean_ctor_get(x_3, 1);
 lean_inc(x_16);
 lean_inc(x_15);
 lean_dec(x_3);
-x_17 = l_Std_RBNode_find___at_Lean_getOptionDecl___spec__1(x_15, x_1);
+x_17 = l_Lean_RBNode_find___at_Lean_getOptionDecl___spec__1(x_15, x_1);
 lean_dec(x_15);
 if (lean_obj_tag(x_17) == 0)
 {
@@ -831,11 +831,11 @@ return x_27;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_RBNode_find___at_Lean_getOptionDecl___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_getOptionDecl___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_RBNode_find___at_Lean_getOptionDecl___spec__1(x_1, x_2);
+x_3 = l_Lean_RBNode_find___at_Lean_getOptionDecl___spec__1(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;

@@ -14,7 +14,7 @@ namespace Lean.Compiler.LCNF
 namespace CSE
 
 structure State where
-  map   : Std.PHashMap Expr FVarId := {}
+  map   : PHashMap Expr FVarId := {}
   subst : FVarSubst := {}
 
 abbrev M := StateRefT State CompilerM

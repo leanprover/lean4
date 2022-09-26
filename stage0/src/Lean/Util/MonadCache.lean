@@ -29,8 +29,6 @@ instance {α β ε : Type} {m : Type → Type} [MonadCache α β m] [Monad m] : 
   findCached? a := ExceptT.lift $ MonadCache.findCached? a
   cache a b := ExceptT.lift $ MonadCache.cache a b
 
-open Std (HashMap)
-
 /-- Adapter for implementing `MonadCache` interface using `HashMap`s.
     We just have to specify how to extract/modify the `HashMap`. -/
 class MonadHashMapCacheAdapter (α β : Type) (m : Type → Type) [BEq α] [Hashable α] where
@@ -63,7 +61,7 @@ instance  : MonadHashMapCacheAdapter α β (MonadCacheT α β m) where
   modifyCache f := (modify f : StateRefT' ..)
 
 @[inline] def run {σ} (x : MonadCacheT α β m σ) : m σ :=
-  x.run' Std.mkHashMap
+  x.run' mkHashMap
 
 instance : Monad (MonadCacheT α β m) := inferInstanceAs (Monad (StateRefT' _ _ _))
 instance : MonadLift m (MonadCacheT α β m) := inferInstanceAs (MonadLift m (StateRefT' _ _ _))
@@ -87,7 +85,7 @@ instance  : MonadHashMapCacheAdapter α β (MonadStateCacheT α β m) where
   modifyCache f := (modify f : StateT ..)
 
 @[inline] def run {σ} (x : MonadStateCacheT α β m σ) : m σ :=
-  x.run' Std.mkHashMap
+  x.run' mkHashMap
 
 instance : Monad (MonadStateCacheT α β m) := inferInstanceAs (Monad (StateT _ _))
 instance : MonadLift m (MonadStateCacheT α β m) := inferInstanceAs (MonadLift m (StateT _ _))

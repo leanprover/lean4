@@ -72,7 +72,6 @@ lean_object* l_Lean_Compiler_LCNF_Pass_mkPerDeclaration(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PullFunDecls_findFVarDepsFixpoint___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_pullFunDecls;
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_RBNode_findCore___at___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PullFunDecls_attachFVarDeps(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_PullFunDecls_instInhabitedToPull___closed__4;
 lean_object* l_Lean_Expr_bvar___override(lean_object*);
@@ -91,6 +90,7 @@ size_t lean_ptr_addr(lean_object*);
 lean_object* l_List_redLength___rarg(lean_object*);
 extern uint8_t l_instInhabitedBool;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PullFunDecls_attachJps___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_RBNode_findCore___at___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_PullFunDecls___hyg_1741____closed__3;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Decl_pullFunDecls(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -220,7 +220,7 @@ x_11 = lean_ctor_get(x_2, 0);
 x_12 = lean_ctor_get(x_2, 1);
 x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
-x_14 = l_Std_RBNode_findCore___at___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn___spec__1(x_13, x_1);
+x_14 = l_Lean_RBNode_findCore___at___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn___spec__1(x_13, x_1);
 lean_dec(x_13);
 if (lean_obj_tag(x_14) == 0)
 {
@@ -256,7 +256,7 @@ lean_inc(x_17);
 lean_dec(x_2);
 x_19 = lean_ctor_get(x_17, 1);
 lean_inc(x_19);
-x_20 = l_Std_RBNode_findCore___at___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn___spec__1(x_19, x_1);
+x_20 = l_Lean_RBNode_findCore___at___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn___spec__1(x_19, x_1);
 lean_dec(x_19);
 if (lean_obj_tag(x_20) == 0)
 {
@@ -308,7 +308,7 @@ x_4 = lean_ctor_get(x_3, 0);
 x_5 = lean_ctor_get(x_3, 1);
 x_6 = l_List_foldr___at_Lean_Compiler_LCNF_PullFunDecls_findFVarDirectDeps___spec__1(x_1, x_2, x_5);
 x_7 = lean_ctor_get(x_4, 1);
-x_8 = l_Std_RBNode_findCore___at___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn___spec__1(x_7, x_1);
+x_8 = l_Lean_RBNode_findCore___at___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn___spec__1(x_7, x_1);
 if (lean_obj_tag(x_8) == 0)
 {
 return x_6;
@@ -853,7 +853,7 @@ x_23 = l_panic___at_Lean_Compiler_LCNF_PullFunDecls_attach_visit___spec__1(x_22)
 x_24 = lean_ctor_get(x_23, 1);
 lean_inc(x_24);
 lean_dec(x_23);
-x_25 = l_Std_RBNode_findCore___at___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn___spec__1(x_24, x_21);
+x_25 = l_Lean_RBNode_findCore___at___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn___spec__1(x_24, x_21);
 lean_dec(x_24);
 if (lean_obj_tag(x_25) == 0)
 {
@@ -894,7 +894,7 @@ x_36 = lean_array_fget(x_1, x_5);
 x_37 = lean_ctor_get(x_36, 1);
 lean_inc(x_37);
 lean_dec(x_36);
-x_38 = l_Std_RBNode_findCore___at___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn___spec__1(x_37, x_35);
+x_38 = l_Lean_RBNode_findCore___at___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_fvarDepOn___spec__1(x_37, x_35);
 lean_dec(x_37);
 if (lean_obj_tag(x_38) == 0)
 {

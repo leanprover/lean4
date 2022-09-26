@@ -35,10 +35,10 @@ lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*,
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_instMonadLiftIOEIOElabTaskError(lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
-lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_RpcSession_keepAliveTimeMs;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_CancelToken_check___rarg___lambda__1(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_RpcSession_keptAlive___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_RpcSession_new___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_instCoeErrorElabTaskError(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_RpcSession_new(lean_object*);
@@ -347,7 +347,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_RpcSession_new___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
+x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
 return x_1;
 }
 }

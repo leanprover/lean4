@@ -63,9 +63,9 @@ inductive PreExpr
 def toACExpr (op l r : Expr) : MetaM (Array Expr × ACExpr) := do
   let (preExpr, vars) ←
     toPreExpr (mkApp2 op l r)
-    |>.run Std.HashSet.empty
+    |>.run HashSet.empty
   let vars := vars.toArray.insertionSort Expr.lt
-  let varMap := vars.foldl (fun xs x => xs.insert x xs.size) Std.HashMap.empty |>.find!
+  let varMap := vars.foldl (fun xs x => xs.insert x xs.size) HashMap.empty |>.find!
 
   return (vars, toACExpr varMap preExpr)
   where

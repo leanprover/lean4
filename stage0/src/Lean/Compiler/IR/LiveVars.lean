@@ -79,13 +79,13 @@ def FnBody.hasLiveVar (b : FnBody) (ctx : LocalContext) (x : VarId) : Bool :=
   (IsLive.visitFnBody x.idx b).run' ctx
 
 abbrev LiveVarSet   := VarIdSet
-abbrev JPLiveVarMap := Std.RBMap JoinPointId LiveVarSet (fun j₁ j₂ => compare j₁.idx j₂.idx)
+abbrev JPLiveVarMap := RBMap JoinPointId LiveVarSet (fun j₁ j₂ => compare j₁.idx j₂.idx)
 
 instance : Inhabited LiveVarSet where
   default := {}
 
 def mkLiveVarSet (x : VarId) : LiveVarSet :=
-  Std.RBTree.empty.insert x
+  RBTree.empty.insert x
 
 namespace LiveVars
 

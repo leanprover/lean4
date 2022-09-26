@@ -35,7 +35,7 @@ def Context.isDeclToUnfold (ctx : Context) (declName : Name) : Bool :=
 def Context.mkDefault : MetaM Context :=
   return { config := {}, simpTheorems := #[(← getSimpTheorems)], congrTheorems := (← getSimpCongrTheorems) }
 
-abbrev UsedSimps := Std.HashMap Origin Nat
+abbrev UsedSimps := HashMap Origin Nat
 
 structure State where
   cache        : Cache := {}

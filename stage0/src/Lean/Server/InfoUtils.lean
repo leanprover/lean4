@@ -10,8 +10,8 @@ namespace Lean.Elab
 
 /-- Visit nodes, passing in a surrounding context (the innermost one) and accumulating results on the way back up. -/
 partial def InfoTree.visitM [Monad m]
-    (preNode  : ContextInfo → Info → (children : Std.PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
-    (postNode : ContextInfo → Info → (children : Std.PersistentArray InfoTree) → List (Option α) → m α)
+    (preNode  : ContextInfo → Info → (children : PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
+    (postNode : ContextInfo → Info → (children : PersistentArray InfoTree) → List (Option α) → m α)
     : InfoTree → m (Option α) :=
   go none
 where go
@@ -25,20 +25,20 @@ where go
 
 /-- `InfoTree.visitM` specialized to `Unit` return type -/
 def InfoTree.visitM' [Monad m]
-    (preNode  : ContextInfo → Info → (children : Std.PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
-    (postNode : ContextInfo → Info → (children : Std.PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
+    (preNode  : ContextInfo → Info → (children : PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
+    (postNode : ContextInfo → Info → (children : PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
     (t : InfoTree) : m Unit := t.visitM preNode (fun ci i cs _ => postNode ci i cs) |> discard
 
 /--
   Visit nodes bottom-up, passing in a surrounding context (the innermost one) and the union of nested results (empty at leaves). -/
-def InfoTree.collectNodesBottomUp (p : ContextInfo → Info → Std.PersistentArray InfoTree → List α → List α) (i : InfoTree) : List α :=
+def InfoTree.collectNodesBottomUp (p : ContextInfo → Info → PersistentArray InfoTree → List α → List α) (i : InfoTree) : List α :=
   i.visitM (m := Id) (postNode := fun ci i cs as => p ci i cs (as.filterMap id).join) |>.getD []
 
 /--
   For every branch of the `InfoTree`, find the deepest node in that branch for which `p` returns
   `some _`  and return the union of all such nodes. The visitor `p` is given a node together with
   its innermost surrounding `ContextInfo`. -/
-partial def InfoTree.deepestNodes (p : ContextInfo → Info → Std.PersistentArray InfoTree → Option α) (infoTree : InfoTree) : List α :=
+partial def InfoTree.deepestNodes (p : ContextInfo → Info → PersistentArray InfoTree → Option α) (infoTree : InfoTree) : List α :=
   infoTree.collectNodesBottomUp fun ctx i cs rs =>
     if rs.isEmpty then
       match p ctx i cs with

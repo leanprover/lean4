@@ -119,6 +119,12 @@ def eraseCodeDecl (decl : CodeDecl) : CompilerM Unit := do
   | .let decl => eraseLetDecl decl
   | .jp decl | .fun decl => eraseFunDecl decl
 
+/--
+Erase all free variables occurring in `decls` from the local context.
+-/
+def eraseCodeDecls (decls : Array CodeDecl) : CompilerM Unit := do
+  decls.forM fun decl => eraseCodeDecl decl
+
 def eraseDecl (decl : Decl) : CompilerM Unit := do
   eraseParams decl.params
   eraseCode decl.value

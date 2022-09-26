@@ -363,6 +363,28 @@ def Decl.size (decl : Decl) : Nat :=
 def Decl.getArity (decl : Decl) : Nat :=
   decl.params.size
 
+/--
+Return `some i` if `decl` is of the form
+```
+def f (a_0 ... a_i ...) :=
+  ...
+  cases a_i
+  | ...
+  | ...
+```
+That is, `f` is a sequence of declarations followed by a `cases` on the parameter `i`.
+We use this function to decide whether we should inline a declaration tagged with
+`[inlineIfReduce]` or not.
+-/
+def Decl.isCasesOnParam? (decl : Decl) : Option Nat :=
+  go decl.value
+where
+  go (code : Code) : Option Nat :=
+    match code with
+    | .let _ k | .jp _ k | .fun _ k => go k
+    | .cases c => decl.params.findIdx? fun param => param.fvarId == c.discr
+    | _ => none
+
 def Decl.instantiateTypeLevelParams (decl : Decl) (us : List Level) : Expr :=
   decl.type.instantiateLevelParams decl.levelParams us
 

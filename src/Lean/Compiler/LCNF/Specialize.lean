@@ -408,7 +408,7 @@ mutual
 end
 
 def main (decl : Decl) : SpecializeM Decl := do
-  if (← isTemplateLike decl) then
+  if (← decl.isTemplateLike) then
     return decl
   else
     let value ← withParams decl.params <| visitCode decl.value

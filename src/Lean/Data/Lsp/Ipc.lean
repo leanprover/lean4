@@ -43,7 +43,7 @@ def shutdown (requestNo : Nat) : IpcM Unit := do
   let hIn ← stdout
   let hOut ← stdin
   hOut.writeLspRequest ⟨requestNo, "shutdown", Json.null⟩
-  while True do
+  repeat
     let shutMsg ← hIn.readLspMessage
     match shutMsg with
     | Message.response id result =>

@@ -1,8 +1,5 @@
 import Lean.Data.Lsp
 open IO Lean Lsp
-open Lean
-open Lean.Lsp
-open Lean.JsonRpc
 
 def main : IO Unit := do
   Ipc.runWith (←IO.appPath) #["--server", "-Dlinter.all=false"] do

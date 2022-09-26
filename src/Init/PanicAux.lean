@@ -6,17 +6,36 @@ Authors: Leonardo de Moura, Mario Carneiro
 prelude
 import Init.Meta
 
-@[noinline] private def mkPanicMessage (modName : String) (line col : Nat) (msg : String) : String :=
-  "PANIC at " ++ modName ++ ":" ++ toString line ++ ":" ++ toString col ++ ": " ++ msg
+namespace Lean
+
+structure Position where
+  line   : Nat
+  column : Nat
+  deriving Inhabited, DecidableEq, Repr
+
+end Lean
+
+open Lean
+
+structure CallerInfo where
+  module : Name -- can't use Name because it's not available yet
+  declName? : Option Name
+  position : Position
+
+@[noinline] def CallerInfo.mkPanicMessage (info : CallerInfo) (msg : String) : String :=
+  let header := match info.declName? with
+    | none => "PANIC at " ++ info.module.toString
+    | some declName => "PANIC at " ++ declName.toString ++ " " ++ info.module.toString
+  header ++ ":" ++ toString info.position.line ++ ":" ++ toString info.position.column ++ ": " ++ msg
+
+@[neverExtract, inline] protected def CallerInfo.panic {α : Type u} [Inhabited α] (info : CallerInfo) (msg : String) : α :=
+  panic (info.mkPanicMessage msg)
 
 @[neverExtract, inline] def panicWithPos {α : Type u} [Inhabited α] (modName : String) (line col : Nat) (msg : String) : α :=
-  panic (mkPanicMessage modName line col msg)
-
-@[noinline] private def mkPanicMessageWithDecl (modName : String) (declName : String) (line col : Nat) (msg : String) : String :=
-  "PANIC at " ++ declName ++ " " ++ modName ++ ":" ++ toString line ++ ":" ++ toString col ++ ": " ++ msg
+  CallerInfo.panic ⟨.mkSimple modName, none, line, col⟩ msg
 
 @[neverExtract, inline] def panicWithPosWithDecl {α : Type u} [Inhabited α] (modName : String) (declName : String) (line col : Nat) (msg : String) : α :=
-  panic (mkPanicMessageWithDecl modName declName line col msg)
+  CallerInfo.panic ⟨.mkSimple modName, some (.mkSimple declName), line, col⟩ msg
 
 @[inline] def getElem! [GetElem cont idx elem dom] [Inhabited elem] (xs : cont) (i : idx) [Decidable (dom xs i)] : elem :=
   if h : _ then getElem xs i h else panic! "index out of bounds"

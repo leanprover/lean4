@@ -8,11 +8,6 @@ import Lean.ToExpr
 
 namespace Lean
 
-structure Position where
-  line   : Nat
-  column : Nat
-  deriving Inhabited, DecidableEq, Repr
-
 namespace Position
 protected def lt : Position → Position → Bool
   | ⟨l₁, c₁⟩, ⟨l₂, c₂⟩ => (l₁, c₁) < (l₂, c₂)

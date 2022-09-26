@@ -116,6 +116,14 @@ private def elabTParserMacroAux (prec lhsPrec e : Term) : TermElabM Syntax := do
     elabTParserMacroAux (prec?.getD <| quote Parser.maxPrec) (lhsPrec?.getD <| quote 0) e
   | _ => throwUnsupportedSyntax
 
+@[builtinTermElab Lean.Parser.Term.callerInfoHere]
+def elabCallerInfoHere : TermElab := fun _ _ => do
+  let pos ← getRefPosition
+  return mkApp3 (Expr.const ``CallerInfo.mk [])
+    (toExpr (toString (← getEnv).mainModule))
+    (toExpr ((← getDeclName?).map toString))
+    (mkApp2 (Expr.const ``Position.mk []) (toExpr pos.line) (toExpr pos.column))
+
 @[builtinTermElab Lean.Parser.Term.panic] def elabPanic : TermElab := fun stx expectedType? => do
   match stx with
   | `(panic! $arg) =>
@@ -127,10 +135,10 @@ private def elabTParserMacroAux (prec lhsPrec e : Term) : TermElabM Syntax := do
     withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
   | _ => throwUnsupportedSyntax
 
-@[builtinMacro Lean.Parser.Term.unreachable]  def expandUnreachable : Macro := fun _ =>
+@[builtinMacro Lean.Parser.Term.unreachable] def expandUnreachable : Macro := fun _ =>
   `(panic! "unreachable code has been reached")
 
-@[builtinMacro Lean.Parser.Term.assert]  def expandAssert : Macro
+@[builtinMacro Lean.Parser.Term.assert] def expandAssert : Macro
   | `(assert! $cond; $body) =>
     -- TODO: support for disabling runtime assertions
     match cond.raw.reprint with
@@ -138,7 +146,7 @@ private def elabTParserMacroAux (prec lhsPrec e : Term) : TermElabM Syntax := do
     | none => `(if $cond then $body else panic! ("assertion violation"))
   | _ => Macro.throwUnsupported
 
-@[builtinMacro Lean.Parser.Term.dbgTrace]  def expandDbgTrace : Macro
+@[builtinMacro Lean.Parser.Term.dbgTrace] def expandDbgTrace : Macro
   | `(dbg_trace $arg:interpolatedStr; $body) => `(dbgTrace (s! $arg) fun _ => $body)
   | `(dbg_trace $arg:term; $body)            => `(dbgTrace (toString $arg) fun _ => $body)
   | _                                        => Macro.throwUnsupported

@@ -17,6 +17,7 @@ static lean_object* l_Lean_MVarId_replaceTargetEq___lambda__1___closed__4;
 static lean_object* l_Lean_MVarId_modifyTargetEqLHS___lambda__1___closed__1;
 static lean_object* l_Lean_MVarId_modifyTargetEqLHS___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_replaceTargetDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_HashMap_insert___at_Lean_Meta_ToHide_visitVisibleExpr_visit___spec__3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_change___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Replace_0__Lean_Meta_replaceLocalDeclCore_findMaxFVar___closed__1;
 LEAN_EXPORT lean_object* l_Lean_MVarId_change(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -28,7 +29,6 @@ static lean_object* l___private_Lean_Meta_Tactic_Replace_0__Lean_Meta_replaceLoc
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Replace_0__Lean_Meta_replaceLocalDeclCore_findMaxFVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_LocalDecl_userName(lean_object*);
-lean_object* l_Std_HashMapImp_find_x3f___at_Lean_Meta_ToHide_visitVisibleExpr_visit___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Replace_0__Lean_Meta_replaceLocalDeclCore_findMaxFVar___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_replaceTargetEq___lambda__1___closed__2;
 lean_object* l_Lean_MVarId_revert(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -38,6 +38,7 @@ static lean_object* l_Lean_MVarId_changeLocalDecl___closed__3;
 lean_object* l_Lean_MVarId_getTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_replaceTargetEq___lambda__1___closed__5;
+lean_object* l_Lean_PersistentArray_set___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_modifyTarget___closed__2;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -46,6 +47,7 @@ lean_object* l_Lean_Expr_letE___override(lean_object*, lean_object*, lean_object
 lean_object* l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEqMP(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_replaceTargetEq___closed__1;
+lean_object* l_Lean_HashMapImp_find_x3f___at_Lean_Meta_ToHide_visitVisibleExpr_visit___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_replaceTargetEq___closed__2;
 LEAN_EXPORT lean_object* l_Lean_MVarId_change___lambda__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Replace_0__Lean_Meta_replaceLocalDeclCore_findMaxFVar___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -56,6 +58,7 @@ lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_replaceTargetDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_change___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_changeLocalDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkHashMapImp___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_change___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_changeLocalDecl___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_replaceTargetEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -72,10 +75,9 @@ static lean_object* l_Lean_MVarId_change___lambda__2___closed__5;
 static lean_object* l_Lean_MVarId_replaceTargetEq___lambda__1___closed__3;
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_modifyTargetEqLHS___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ForEachExpr_visit___at___private_Lean_Meta_Tactic_Replace_0__Lean_Meta_replaceLocalDeclCore_findMaxFVar___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_changeLocalDecl(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_PersistentArray_set___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PersistentHashMap_insert___at_Lean_LocalContext_mkLocalDecl___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_checkNotAssigned(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_replaceLocalDeclDefEq___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
@@ -115,12 +117,10 @@ LEAN_EXPORT lean_object* l_Lean_Meta_modifyTarget(lean_object*, lean_object*, le
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isFVar(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_replaceTargetEq___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_HashMap_insert___at_Lean_Meta_ToHide_visitVisibleExpr_visit___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FVarId_getDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_changeLocalDecl___lambda__1___closed__4;
 static lean_object* l_Lean_MVarId_modifyTargetEqLHS___lambda__1___closed__3;
-lean_object* l_Std_PersistentHashMap_insert___at_Lean_LocalContext_mkLocalDecl___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_change(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_modifyTarget(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_setType(lean_object*, lean_object*);
@@ -963,7 +963,7 @@ lean_object* x_14; lean_object* x_15; lean_object* x_16;
 x_14 = lean_ctor_get(x_12, 0);
 x_15 = lean_ctor_get(x_12, 1);
 lean_inc(x_2);
-x_16 = l_Std_HashMapImp_find_x3f___at_Lean_Meta_ToHide_visitVisibleExpr_visit___spec__1(x_14, x_2);
+x_16 = l_Lean_HashMapImp_find_x3f___at_Lean_Meta_ToHide_visitVisibleExpr_visit___spec__1(x_14, x_2);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_31; 
@@ -1578,7 +1578,7 @@ x_23 = lean_ctor_get(x_21, 1);
 lean_inc(x_23);
 lean_dec(x_21);
 lean_inc(x_17);
-x_24 = l_Std_HashMap_insert___at_Lean_Meta_ToHide_visitVisibleExpr_visit___spec__3(x_22, x_2, x_17);
+x_24 = l_Lean_HashMap_insert___at_Lean_Meta_ToHide_visitVisibleExpr_visit___spec__3(x_22, x_2, x_17);
 x_25 = lean_st_ref_set(x_3, x_24, x_23);
 x_26 = !lean_is_exclusive(x_25);
 if (x_26 == 0)
@@ -1628,7 +1628,7 @@ lean_inc(x_133);
 lean_inc(x_132);
 lean_dec(x_12);
 lean_inc(x_2);
-x_134 = l_Std_HashMapImp_find_x3f___at_Lean_Meta_ToHide_visitVisibleExpr_visit___spec__1(x_132, x_2);
+x_134 = l_Lean_HashMapImp_find_x3f___at_Lean_Meta_ToHide_visitVisibleExpr_visit___spec__1(x_132, x_2);
 if (lean_obj_tag(x_134) == 0)
 {
 lean_object* x_135; lean_object* x_136; lean_object* x_148; 
@@ -2266,7 +2266,7 @@ x_141 = lean_ctor_get(x_139, 1);
 lean_inc(x_141);
 lean_dec(x_139);
 lean_inc(x_135);
-x_142 = l_Std_HashMap_insert___at_Lean_Meta_ToHide_visitVisibleExpr_visit___spec__3(x_140, x_2, x_135);
+x_142 = l_Lean_HashMap_insert___at_Lean_Meta_ToHide_visitVisibleExpr_visit___spec__3(x_140, x_2, x_135);
 x_143 = lean_st_ref_set(x_3, x_142, x_141);
 x_144 = lean_ctor_get(x_143, 1);
 lean_inc(x_144);
@@ -2445,7 +2445,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Std_mkHashMapImp___rarg(x_1);
+x_2 = l_Lean_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
@@ -3022,10 +3022,10 @@ lean_dec(x_16);
 x_42 = l_Lean_LocalDecl_setType(x_39, x_2);
 x_43 = l_Lean_LocalDecl_fvarId(x_42);
 lean_inc(x_42);
-x_44 = l_Std_PersistentHashMap_insert___at_Lean_LocalContext_mkLocalDecl___spec__1(x_17, x_43, x_42);
+x_44 = l_Lean_PersistentHashMap_insert___at_Lean_LocalContext_mkLocalDecl___spec__1(x_17, x_43, x_42);
 x_45 = l_Lean_LocalDecl_index(x_42);
 lean_ctor_set(x_19, 0, x_42);
-x_46 = l_Std_PersistentArray_set___rarg(x_18, x_45, x_19);
+x_46 = l_Lean_PersistentArray_set___rarg(x_18, x_45, x_19);
 lean_dec(x_45);
 lean_ctor_set(x_15, 1, x_46);
 lean_ctor_set(x_15, 0, x_44);
@@ -3080,11 +3080,11 @@ lean_dec(x_16);
 x_63 = l_Lean_LocalDecl_setType(x_60, x_2);
 x_64 = l_Lean_LocalDecl_fvarId(x_63);
 lean_inc(x_63);
-x_65 = l_Std_PersistentHashMap_insert___at_Lean_LocalContext_mkLocalDecl___spec__1(x_17, x_64, x_63);
+x_65 = l_Lean_PersistentHashMap_insert___at_Lean_LocalContext_mkLocalDecl___spec__1(x_17, x_64, x_63);
 x_66 = l_Lean_LocalDecl_index(x_63);
 x_67 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_67, 0, x_63);
-x_68 = l_Std_PersistentArray_set___rarg(x_18, x_66, x_67);
+x_68 = l_Lean_PersistentArray_set___rarg(x_18, x_66, x_67);
 lean_dec(x_66);
 lean_ctor_set(x_15, 1, x_68);
 lean_ctor_set(x_15, 0, x_65);
@@ -3144,7 +3144,7 @@ lean_dec(x_16);
 x_84 = l_Lean_LocalDecl_setType(x_80, x_2);
 x_85 = l_Lean_LocalDecl_fvarId(x_84);
 lean_inc(x_84);
-x_86 = l_Std_PersistentHashMap_insert___at_Lean_LocalContext_mkLocalDecl___spec__1(x_17, x_85, x_84);
+x_86 = l_Lean_PersistentHashMap_insert___at_Lean_LocalContext_mkLocalDecl___spec__1(x_17, x_85, x_84);
 x_87 = l_Lean_LocalDecl_index(x_84);
 if (lean_is_scalar(x_81)) {
  x_88 = lean_alloc_ctor(1, 1, 0);
@@ -3152,7 +3152,7 @@ if (lean_is_scalar(x_81)) {
  x_88 = x_81;
 }
 lean_ctor_set(x_88, 0, x_84);
-x_89 = l_Std_PersistentArray_set___rarg(x_18, x_87, x_88);
+x_89 = l_Lean_PersistentArray_set___rarg(x_18, x_87, x_88);
 lean_dec(x_87);
 x_90 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_90, 0, x_86);
@@ -3300,7 +3300,7 @@ lean_dec(x_107);
 x_129 = l_Lean_LocalDecl_setType(x_125, x_2);
 x_130 = l_Lean_LocalDecl_fvarId(x_129);
 lean_inc(x_129);
-x_131 = l_Std_PersistentHashMap_insert___at_Lean_LocalContext_mkLocalDecl___spec__1(x_108, x_130, x_129);
+x_131 = l_Lean_PersistentHashMap_insert___at_Lean_LocalContext_mkLocalDecl___spec__1(x_108, x_130, x_129);
 x_132 = l_Lean_LocalDecl_index(x_129);
 if (lean_is_scalar(x_126)) {
  x_133 = lean_alloc_ctor(1, 1, 0);
@@ -3308,7 +3308,7 @@ if (lean_is_scalar(x_126)) {
  x_133 = x_126;
 }
 lean_ctor_set(x_133, 0, x_129);
-x_134 = l_Std_PersistentArray_set___rarg(x_109, x_132, x_133);
+x_134 = l_Lean_PersistentArray_set___rarg(x_109, x_132, x_133);
 lean_dec(x_132);
 if (lean_is_scalar(x_124)) {
  x_135 = lean_alloc_ctor(0, 2, 0);

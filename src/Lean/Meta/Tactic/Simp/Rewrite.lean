@@ -19,7 +19,7 @@ def mkEqTrans (r₁ r₂ : Result) : MetaM Result := do
     | none    => return { r₂ with proof? := r₁.proof? }
     | some p₂ => return { r₂ with proof? := (← Meta.mkEqTrans p₁ p₂) }
 
-def synthesizeArgs (thmName : Name) (xs : Array Expr) (bis : Array BinderInfo) (discharge? : Expr → SimpM (Option Expr)) : SimpM Bool := do
+def synthesizeArgs (thmId : Origin) (xs : Array Expr) (bis : Array BinderInfo) (discharge? : Expr → SimpM (Option Expr)) : SimpM Bool := do
   for x in xs, bi in bis do
     let type ← inferType x
     if bi.isInstImplicit then
@@ -30,10 +30,10 @@ def synthesizeArgs (thmName : Name) (xs : Array Expr) (bis : Array BinderInfo) (
         match (← discharge? type) with
         | some proof =>
           unless (← isDefEq x proof) do
-            trace[Meta.Tactic.simp.discharge] "{thmName}, failed to assign proof{indentExpr type}"
+            trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to assign proof{indentExpr type}"
             return false
         | none =>
-          trace[Meta.Tactic.simp.discharge] "{thmName}, failed to discharge hypotheses{indentExpr type}"
+          trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to discharge hypotheses{indentExpr type}"
           return false
       else if (← isClass? type).isSome then
         unless (← synthesizeInstance x type) do
@@ -46,23 +46,23 @@ where
       if (← withReducibleAndInstances <| isDefEq x val) then
         return true
       else
-        trace[Meta.Tactic.simp.discharge] "{thmName}, failed to assign instance{indentExpr type}\nsythesized value{indentExpr val}\nis not definitionally equal to{indentExpr x}"
+        trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to assign instance{indentExpr type}\nsythesized value{indentExpr val}\nis not definitionally equal to{indentExpr x}"
         return false
     | _ =>
-      trace[Meta.Tactic.simp.discharge] "{thmName}, failed to synthesize instance{indentExpr type}"
+      trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to synthesize instance{indentExpr type}"
       return false
 
 private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo) (val : Expr) (type : Expr) (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Result) := do
   let rec go (e : Expr) : SimpM (Option Result) := do
     if (← isDefEq lhs e) then
-      unless (← synthesizeArgs thm.getName xs bis discharge?) do
+      unless (← synthesizeArgs thm.origin xs bis discharge?) do
         return none
       let proof? ← if thm.rfl then
         pure none
       else
         let proof ← instantiateMVars (mkAppN val xs)
         if (← hasAssignableMVar proof) then
-          trace[Meta.Tactic.simp.rewrite] "{thm}, has unassigned metavariables after unification"
+          trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, has unassigned metavariables after unification"
           return none
         pure <| some proof
       let rhs := (← instantiateMVars type).appArg!
@@ -70,16 +70,17 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
         return none
       if thm.perm then
         if !(← Expr.acLt rhs e) then
-          trace[Meta.Tactic.simp.rewrite] "{thm}, perm rejected {e} ==> {rhs}"
+          trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, perm rejected {e} ==> {rhs}"
           return none
-      trace[Meta.Tactic.simp.rewrite] "{thm}, {e} ==> {rhs}"
+      trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, {e} ==> {rhs}"
+      recordSimpTheorem thm.origin
       return some { expr := rhs, proof? }
     else
       unless lhs.isMVar do
         -- We do not report unification failures when `lhs` is a metavariable
         -- Example: `x = ()`
         -- TODO: reconsider if we want thms such as `(x : Unit) → x = ()`
-        trace[Meta.Tactic.simp.unify] "{thm}, failed to unify{indentExpr lhs}\nwith{indentExpr e}"
+        trace[Meta.Tactic.simp.unify] "{← ppSimpTheorem thm}, failed to unify{indentExpr lhs}\nwith{indentExpr e}"
       return none
   /- Check whether we need something more sophisticated here.
      This simple approach was good enough for Mathlib 3 -/
@@ -126,7 +127,7 @@ def tryTheorem? (e : Expr) (thm : SimpTheorem) (discharge? : Expr → SimpM (Opt
 /--
 Remark: the parameter tag is used for creating trace messages. It is irrelevant otherwise.
 -/
-def rewrite? (e : Expr) (s : DiscrTree SimpTheorem) (erased : Std.PHashSet Name) (discharge? : Expr → SimpM (Option Expr)) (tag : String) (rflOnly : Bool) : SimpM (Option Result) := do
+def rewrite? (e : Expr) (s : DiscrTree SimpTheorem) (erased : PHashSet Origin) (discharge? : Expr → SimpM (Option Expr)) (tag : String) (rflOnly : Bool) : SimpM (Option Result) := do
   let candidates ← s.getMatchWithExtra e
   if candidates.isEmpty then
     trace[Debug.Meta.Tactic.simp] "no theorems found for {tag}-rewriting {e}"
@@ -141,9 +142,7 @@ def rewrite? (e : Expr) (s : DiscrTree SimpTheorem) (erased : Std.PHashSet Name)
     return none
 where
   inErasedSet (thm : SimpTheorem) : Bool :=
-    match thm.name? with
-    | none => false
-    | some name => erased.contains name
+    erased.contains thm.origin
 
 @[inline] def andThen (s : Step) (f? : Expr → SimpM (Option Step)) : SimpM Step := do
   match s with
@@ -207,7 +206,7 @@ def simpArith? (e : Expr) : SimpM (Option Step) := do
 def simpMatchCore? (app : MatcherApp) (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Step) := do
   for matchEq in (← Match.getEquationsFor app.matcherName).eqnNames do
     -- Try lemma
-    match (← withReducible <| Simp.tryTheorem? e { proof := mkConst matchEq, name? := some matchEq, rfl := (← isRflTheorem matchEq) } discharge?) with
+    match (← withReducible <| Simp.tryTheorem? e { origin := .decl matchEq, proof := mkConst matchEq, rfl := (← isRflTheorem matchEq) } discharge?) with
     | none   => pure ()
     | some r => return some (Simp.Step.done r)
   return none

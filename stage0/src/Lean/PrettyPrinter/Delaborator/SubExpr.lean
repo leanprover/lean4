@@ -15,7 +15,7 @@ in sync with the `Nat` "position" values that refer to them.
 
 namespace Lean.PrettyPrinter.Delaborator
 
-abbrev OptionsPerPos := Std.RBMap SubExpr.Pos Options compare
+abbrev OptionsPerPos := RBMap SubExpr.Pos Options compare
 
 namespace SubExpr
 

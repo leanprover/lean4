@@ -210,10 +210,6 @@ syntax (name := calcTactic) "calc" ppLine withPosition(calcStep) ppLine withPosi
   | `($_ $array $index) => `($array[$index]?)
   | _ => throw ()
 
-@[appUnexpander getElem'] def unexpandGetElem' : Lean.PrettyPrinter.Unexpander
-  | `($_ $array $index $h) => `($array[$index]'$h)
-  | _ => throw ()
-
 /--
 Apply function extensionality and introduce new hypotheses.
 The tactic `funext` will keep applying new the `funext` lemma until the goal target is not reducible to

@@ -7,6 +7,10 @@ import Lean.Compiler.LCNF.InferType
 
 namespace Lean.Compiler.LCNF
 
+/-- Helper class for lifting `CompilerM.codeBind` -/
+class MonadCodeBind (m : Type → Type) where
+  codeBind : (c : Code) → (f : FVarId → m Code) → m Code
+
 /--
 Return code that is equivalent to `c >>= f`. That is, executes `c`, and then `f x`, where
 `x` is a variable that contains the result of `c`'s computation.
@@ -16,7 +20,10 @@ an invalid block would be generated. It would be invalid because `f` would not
 be applied to `jp_i`. Note that, we could have decided to create a copy of `jp_i` where we apply `f` to it,
 by we decided to not do it to avoid code duplication.
 -/
-partial def Code.bind (c : Code) (f : FVarId → CompilerM Code) : CompilerM Code := do
+abbrev Code.bind [MonadCodeBind m] (c : Code) (f : FVarId → m Code) : m Code :=
+  MonadCodeBind.codeBind c f
+
+partial def CompilerM.codeBind (c : Code) (f : FVarId → CompilerM Code) : CompilerM Code := do
   go c |>.run {}
 where
   go (c : Code) : ReaderT FVarIdSet CompilerM Code := do
@@ -42,7 +49,27 @@ where
       unless (← read).contains fvarId do
         throwError "`Code.bind` failed, it contains a out of scope join point"
       return c
-    | .unreach .. => return c
+    | .unreach type =>
+      /-
+      Create an auxiliary parameter `aux : type` to compute the resulting type of `f aux`.
+      This code is not very efficient, we could ask caller to provide the type of `c >>= f`,
+      but this is more convenient, and this case is seldom reached.
+      -/
+      let auxParam ← mkAuxParam type
+      let k ← f auxParam.fvarId
+      let typeNew ← k.inferType
+      eraseCode k
+      eraseParam auxParam
+      return .unreach typeNew
+
+instance : MonadCodeBind CompilerM where
+  codeBind := CompilerM.codeBind
+
+instance [MonadCodeBind m] : MonadCodeBind (ReaderT ρ m) where
+  codeBind c f ctx := c.bind fun fvarId => f fvarId ctx
+
+instance [STWorld ω m] [MonadCodeBind m] : MonadCodeBind (StateRefT' ω σ m) where
+  codeBind c f sref := c.bind fun fvarId => f fvarId sref
 
 /--
 Create new parameters for the given arrow type.

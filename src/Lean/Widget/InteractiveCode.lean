@@ -15,6 +15,14 @@ with environment and subexpression information. -/
 namespace Lean.Widget
 open Server
 
+inductive HighlightColor where
+  | green
+  | blue
+  | red
+  | yellow
+  | purple
+  deriving ToJson, FromJson
+
 /-- Information about a subexpression within delaborated code. -/
 structure SubexprInfo where
   /-- The `Elab.Info` node with the semantics of this part of the output. -/
@@ -24,16 +32,29 @@ structure SubexprInfo where
   subexprPos : Lean.SubExpr.Pos
   -- TODO(WN): add fields for semantic highlighting
   -- kind : Lsp.SymbolKind
+  /-- Ask the renderer to highlight this node in the given color. -/
+  highlightColor? : Option HighlightColor := none
   deriving Inhabited, RpcEncodable
 
 /-- Pretty-printed syntax (usually but not necessarily an `Expr`) with embedded `Info`s. -/
 abbrev CodeWithInfos := TaggedText SubexprInfo
 
+def CodeWithInfos.mergePosMap [Monad m] (merger : SubexprInfo → α → m SubexprInfo) (pm : Lean.SubExpr.PosMap α) (tt : CodeWithInfos) : m CodeWithInfos :=
+  if pm.isEmpty then return tt else
+  tt.mapM (fun (info : SubexprInfo) =>
+    match pm.find? info.subexprPos with
+    | some a => merger info a
+    | none => pure info
+  )
+
 def CodeWithInfos.pretty (tt : CodeWithInfos) :=
   tt.stripTags
 
+def SubexprInfo.highlight (color : HighlightColor) (c : SubexprInfo) : SubexprInfo :=
+  {c with highlightColor? := some color }
+
 /-- Tags a pretty-printed `Expr` with infos from the delaborator. -/
-partial def tagExprInfos (ctx : Elab.ContextInfo) (infos : Std.RBMap Nat Elab.Info compare) (tt : TaggedText (Nat × Nat))
+partial def tagExprInfos (ctx : Elab.ContextInfo) (infos : SubExpr.PosMap Elab.Info) (tt : TaggedText (Nat × Nat))
     : CodeWithInfos :=
   go tt
 where
@@ -41,7 +62,12 @@ where
     tt.rewrite fun (n, _) subTt =>
       match infos.find? n with
       | none   => go subTt
-      | some i => TaggedText.tag ⟨WithRpcRef.mk { ctx, info := i }, n⟩ (go subTt)
+      | some i =>
+        let t : SubexprInfo := {
+          info := WithRpcRef.mk { ctx, info := i }
+          subexprPos := n
+        }
+        TaggedText.tag t (go subTt)
 
 def ppExprTagged (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := do
   let delab := open PrettyPrinter.Delaborator in

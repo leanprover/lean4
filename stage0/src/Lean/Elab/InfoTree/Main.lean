@@ -6,11 +6,7 @@ Authors: Wojciech Nawrocki, Leonardo de Moura, Sebastian Ullrich
 -/
 import Lean.Meta.PPGoal
 
-namespace Lean.Elab
-
-open Std (PersistentArray PersistentArray.empty PersistentHashMap)
-
-namespace ContextInfo
+namespace Lean.Elab.ContextInfo
 
 variable [Monad m] [MonadEnv m] [MonadMCtx m] [MonadOptions m] [MonadResolveName m] [MonadNameGenerator m]
 

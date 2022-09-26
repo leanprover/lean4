@@ -13,21 +13,22 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+static lean_object* l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__3;
 size_t lean_usize_add(size_t, size_t);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
+static lean_object* l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Xml_instToStringAttributes(lean_object*);
+static lean_object* l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__1;
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Xml_instToStringContent;
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
-static lean_object* l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__1;
 static lean_object* l_Lean_Xml_instInhabitedContent___closed__1;
 uint8_t lean_usize_dec_lt(size_t, size_t);
-static lean_object* l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__3;
 static lean_object* l_Lean_Xml_instToStringElement___closed__1;
-LEAN_EXPORT lean_object* l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___closed__2;
@@ -40,14 +41,13 @@ static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString___clos
 static lean_object* l_Lean_Xml_instToStringAttributes___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___spec__2(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString___closed__2;
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___spec__1(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Xml_instToStringContent___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Xml_instToStringElement;
-static lean_object* l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__2;
-LEAN_EXPORT lean_object* l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-static lean_object* _init_l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__1() {
+static lean_object* _init_l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -55,7 +55,7 @@ x_1 = lean_mk_string_from_bytes(" ", 1);
 return x_1;
 }
 }
-static lean_object* _init_l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__2() {
+static lean_object* _init_l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -63,7 +63,7 @@ x_1 = lean_mk_string_from_bytes("=\"", 2);
 return x_1;
 }
 }
-static lean_object* _init_l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__3() {
+static lean_object* _init_l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -71,7 +71,7 @@ x_1 = lean_mk_string_from_bytes("\"", 1);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -85,13 +85,13 @@ x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
 x_5 = lean_ctor_get(x_2, 2);
 x_6 = lean_ctor_get(x_2, 3);
-x_7 = l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1(x_1, x_3);
-x_8 = l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__1;
+x_7 = l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1(x_1, x_3);
+x_8 = l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__1;
 x_9 = lean_string_append(x_8, x_4);
-x_10 = l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__2;
+x_10 = l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__2;
 x_11 = lean_string_append(x_9, x_10);
 x_12 = lean_string_append(x_11, x_5);
-x_13 = l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__3;
+x_13 = l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__3;
 x_14 = lean_string_append(x_12, x_13);
 x_15 = lean_string_append(x_7, x_14);
 lean_dec(x_14);
@@ -114,16 +114,16 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_Xml_instToStringAttributes___closed__1;
-x_3 = l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1(x_2, x_1);
+x_3 = l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1(x_2, x_1);
 lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1(x_1, x_2);
+x_3 = l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
@@ -241,7 +241,7 @@ x_12 = l_Array_mapMUnsafe_map___at___private_Lean_Data_Xml_Basic_0__Lean_Xml_eTo
 x_13 = lean_array_get_size(x_12);
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_nat_dec_lt(x_14, x_13);
-x_16 = l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1(x_7, x_3);
+x_16 = l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1(x_7, x_3);
 lean_dec(x_3);
 x_17 = lean_string_append(x_8, x_16);
 lean_dec(x_16);
@@ -419,12 +419,12 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_RBMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__1 = _init_l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__1();
-lean_mark_persistent(l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__1);
-l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__2 = _init_l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__2();
-lean_mark_persistent(l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__2);
-l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__3 = _init_l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__3();
-lean_mark_persistent(l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__3);
+l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__1 = _init_l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__1();
+lean_mark_persistent(l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__1);
+l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__2 = _init_l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__2();
+lean_mark_persistent(l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__2);
+l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__3 = _init_l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__3();
+lean_mark_persistent(l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__3);
 l_Lean_Xml_instToStringAttributes___closed__1 = _init_l_Lean_Xml_instToStringAttributes___closed__1();
 lean_mark_persistent(l_Lean_Xml_instToStringAttributes___closed__1);
 l_Lean_Xml_instInhabitedContent___closed__1 = _init_l_Lean_Xml_instInhabitedContent___closed__1();

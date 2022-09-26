@@ -67,7 +67,7 @@ inductive Value
   | lam  : Lambda → Value
   deriving Inhabited
 
-abbrev Context := Std.HashMap String Value
+abbrev Context := Lean.HashMap String Value
 
 inductive ErrorType
   | name | type | runTime

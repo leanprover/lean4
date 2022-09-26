@@ -1,6 +1,5 @@
 import Lean
 open Lean
-open Std (HashMap HashSet)
 
 inductive Entry
 | name (n : Name)

@@ -188,8 +188,8 @@ partial def trySubstVarsAndContradiction (mvarId : MVarId) : MetaM Bool :=
   commitWhen do
     let mvarId ← substVars mvarId
     match (← injections mvarId) with
-    | none => return true -- closed goal
-    | some mvarId' =>
+    | .solved => return true -- closed goal
+    | .subgoal mvarId' _ =>
       if mvarId' == mvarId then
         contradiction mvarId
       else

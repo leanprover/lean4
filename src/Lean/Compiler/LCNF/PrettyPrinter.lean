@@ -42,7 +42,10 @@ def ppArg (e : Expr) : M Format := do
   if e.isFVar then
     ppFVar e.fvarId!
   else if pp.explicit.get (← getOptions) then
-    ppExpr e
+    if e.isConst || e.isProp || e.isType0 then
+      ppExpr e
+    else
+      return Format.paren (←  ppExpr e)
   else
     return "_"
 
@@ -111,5 +114,25 @@ def ppDecl (decl : Decl) : CompilerM Format :=
 def ppFunDecl (decl : FunDecl) : CompilerM Format :=
   PP.run do
     return f!"fun {decl.binderName}{← PP.ppParams decl.params} :={indentD (← PP.ppCode decl.value)}"
+
+/--
+Similar to `ppDecl`, but in `CoreM`, and it does not assume
+`decl` has already been internalized.
+
+This function is used for debugging purposes.
+-/
+def ppDecl' (decl : Decl) : CoreM Format := do
+  /-
+  We save/restore the state to make sure we do not affect the next free variable id.
+  -/
+  let s ← get
+  try
+    go |>.run {}
+  finally
+    set s
+where
+  go : CompilerM Format := do
+    let decl ← decl.internalize
+    ppDecl decl
 
 end Lean.Compiler.LCNF

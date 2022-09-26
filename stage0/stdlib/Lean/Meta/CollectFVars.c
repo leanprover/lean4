@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -32,16 +31,17 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_collectFVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Meta_removeUnused___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_LocalInstances_erase(lean_object*, lean_object*);
 lean_object* l_Array_reverse___rarg(lean_object*);
 lean_object* l_Lean_Meta_getLocalInstances(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CollectFVars_State_addDependencies_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_removeUnused___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Meta_removeUnused___spec__2(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalDecl_collectFVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -653,7 +653,7 @@ lean_dec(x_3);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Std_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -736,7 +736,7 @@ x_25 = lean_ctor_get(x_24, 1);
 lean_inc(x_25);
 lean_inc(x_13);
 x_26 = l_Lean_Expr_fvarId_x21(x_13);
-x_27 = l_Std_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(x_25, x_26);
+x_27 = l_Lean_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(x_25, x_26);
 lean_dec(x_25);
 if (lean_obj_tag(x_27) == 0)
 {
@@ -849,7 +849,7 @@ x_54 = lean_ctor_get(x_53, 1);
 lean_inc(x_54);
 lean_inc(x_13);
 x_55 = l_Lean_Expr_fvarId_x21(x_13);
-x_56 = l_Std_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(x_54, x_55);
+x_56 = l_Lean_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(x_54, x_55);
 lean_dec(x_54);
 if (lean_obj_tag(x_56) == 0)
 {
@@ -980,7 +980,7 @@ x_87 = lean_ctor_get(x_85, 1);
 lean_inc(x_87);
 lean_inc(x_13);
 x_88 = l_Lean_Expr_fvarId_x21(x_13);
-x_89 = l_Std_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(x_87, x_88);
+x_89 = l_Lean_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(x_87, x_88);
 lean_dec(x_87);
 if (lean_obj_tag(x_89) == 0)
 {
@@ -1134,7 +1134,7 @@ x_124 = lean_ctor_get(x_122, 1);
 lean_inc(x_124);
 lean_inc(x_13);
 x_125 = l_Lean_Expr_fvarId_x21(x_13);
-x_126 = l_Std_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(x_124, x_125);
+x_126 = l_Lean_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(x_124, x_125);
 lean_dec(x_124);
 if (lean_obj_tag(x_126) == 0)
 {
@@ -1456,11 +1456,11 @@ return x_31;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(x_1, x_2);
+x_3 = l_Lean_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;

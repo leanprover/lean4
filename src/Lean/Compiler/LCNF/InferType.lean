@@ -5,8 +5,128 @@ Authors: Leonardo de Moura
 -/
 import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.Types
+import Lean.Compiler.LCNF.PhaseExt
 
 namespace Lean.Compiler.LCNF
+/-! # Type inference for LCNF -/
+
+/-
+Note about **erasure confusion**.
+
+1- After instantiating universe polymorphic code, we may have
+some types that become propositions, and all propositions are erased.
+
+For example, suppose we have
+```
+def f (α : Sort u) (x : α → α → Sort v) (a b : α) (h : x a b) ...
+```
+The LCNF type for this universe polymorphic declaration is
+```
+def f (α : Sort u) (x : α → α → Sort v) (a b : α) (h : x ◾ ◾) ...
+```
+Now, if we instantiate with `v` with the universe `0`, we have that `x ◾ ◾` is also a proposition
+and should be erased.
+
+2- We may also get "erasure confusion" when instantiating
+polymorphic code with types and type formers. For example, suppose we have
+```
+structure S (α : Type u) (β : Type v) (f : α → β) where
+  a : α
+  b : β := f a
+```
+The LCNF type for `S.mk` is
+```
+S.mk : {α : Type u} → {β : Type v} → {f : α → β} → α → β → S α β ◾
+```
+Note that `f` was erased from the resulting type `S α β ◾` because it is
+not a type former. Now, suppose we have the valid Lean declaration
+```
+def f : S Nat Type (fun _ => Nat) :=
+ S.mk 0 Nat
+```
+The LNCF type for the value `S.mk 0 Nat` is `S Nat Type ◾` (see `S.mk` type above),
+but the expected type is `S Nat Type (fun x => Nat)`. `fun x => Nat` is not erased
+here because it is a type former.
+-/
+
+/--
+Return `true` if `type` should be erased. See item 1 in the note above where `x ◾ ◾` is
+a proposition and should be erased when the universe level parameter is set to 0.
+
+Remark: `predVars` is a bitmask that indicates whether de-bruijn variables are predicates or not.
+That is, `#i` is a predicate if `predVars[predVars.size - i - 1] = true`
+-/
+partial def isErasedCompatible (type : Expr) (predVars : Array Bool := #[]): CompilerM Bool :=
+  go type predVars
+where
+  go (type : Expr) (predVars : Array Bool) : CompilerM Bool := do
+    let type := type.headBeta
+    match type with
+    | .const ..        => return type.isErased
+    | .sort ..         => return false
+    | .mdata _ e       => go e predVars
+    | .forallE _ t b _
+    | .lam _ t b _     => go b (predVars.push <| isPredicateType t)
+    | .app f _         => go f predVars
+    | .bvar idx        => return predVars[predVars.size - idx - 1]!
+    | .fvar fvarId     => return isPredicateType (← getType fvarId)
+    | .proj .. | .mvar .. | .letE .. | .lit .. => unreachable!
+
+/--
+Return true if the LCNF types `a` and `b` are compatible.
+
+Remark: `a` and `b` can be type formers (e.g., `List`, or `fun (α : Type) => Nat → Nat × α`)
+
+Remark: LCNFs types are eagerly eta reduced.
+
+Remark: see comment at `isErasedCompatible`.
+
+Remark: because of "erasure confusion" see note above, we assume `◾` (aka `lcErasure`) is compatible with everything.
+This is a simplification. We used to use `isErasedCompatible`, but this only address item 1.
+For item 2, we would have to modify the `toLCNFType` function and make sure a type former is erased if the expected
+type is not always a type former (see `S.mk` type and example in the note above).
+
+The below checks do not appear exhaustive, but are
+in fact exhaustive due to LCNF constraints:
+  - bvar: handled by ==.
+  - fvar: handled by ==.
+  - mvar: should be resolved by the time we get to LCNF.
+  - sort: matched.
+  - const: matched.
+  - app: handled by β reduction + match.
+  - lam: matched.
+  - forallE: matched.
+  - letE: LCNF does not contain let at the type level.
+  - lit: We don't have data in LCNF, so we don't need to handle it.
+         Erased is handled by `const`.
+  - mdata: matched.
+  - proj: Becomes Any/Erased depending on what it should become.
+          type inside structure becomes Any, value inside structure becomes Erased.
+-/
+partial def compatibleTypes (a b : Expr) : Bool :=
+  if a.getAppFn.isAnyType || b.getAppFn.isAnyType then
+    true
+  else if a.getAppFn.isErased || b.getAppFn.isErased then
+    true
+  else
+    let a' := a.headBeta
+    let b' := b.headBeta
+    if a != a' || b != b' then
+      compatibleTypes a' b'
+    else if a == b then
+      true
+    else
+      match a, b with
+      | .mdata _ a, b => compatibleTypes a b
+      | a, .mdata _ b => compatibleTypes a b
+      -- Note that even after reducing to head-beta, we can still have `.app` terms. For example,
+      -- an inductive constructor application such as `List Int`
+      | .app f a, .app g b => compatibleTypes f g && compatibleTypes a b
+      | .forallE _ d₁ b₁ _, .forallE _ d₂ b₂ _ => compatibleTypes d₁ d₂ && compatibleTypes b₁ b₂
+      | .lam _ d₁ b₁ _, .lam _ d₂ b₂ _ => compatibleTypes d₁ d₂ && compatibleTypes b₁ b₂
+      | .sort u, .sort v => Level.isEquiv u v
+      | .const n us, .const m vs => n == m && List.isEqv us vs Level.isEquiv
+      | _, _ => false
 
 namespace InferType
 
@@ -49,10 +169,17 @@ def mkForallParams (params : Array Param) (type : Expr) : InferTypeM Expr :=
   withReader (fun lctx => lctx.mkLocalDecl fvarId binderName type binderInfo) do
     k (.fvar fvarId)
 
-def inferConstType (declName : Name) (us : List Level) : CoreM Expr :=
+def inferConstType (declName : Name) (us : List Level) : CompilerM Expr := do
   if declName == ``lcAny || declName == ``lcErased then
     return anyTypeExpr
+  else if let some decl ← getDecl? declName then
+    return decl.instantiateTypeLevelParams us
   else
+    /-
+    We need this case for declarations that do not have code associated with them.
+    Example: constructors.
+    TODO: phase support.
+    -/
     instantiateLCNFTypeLevelParams declName us
 
 mutual
@@ -144,10 +271,10 @@ mutual
         let e := e.instantiateRev fvars
         let some u ← getLevel? e | return anyTypeExpr
         let mut u := u
-        for x in fvars do
+        for x in fvars.reverse do
           let xType ← inferType x
           let some v ← getLevel? xType | return anyTypeExpr
-          u := .imax v u
+          u := mkLevelIMax' v u
         return .sort u.normalize
 
   partial def inferLambdaType (e : Expr) : InferTypeM Expr :=

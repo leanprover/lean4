@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 universe u v w
 
-namespace Std
+namespace Lean
 
 inductive PersistentArrayNode (α : Type u) where
   | node (cs : Array (PersistentArrayNode α)) : PersistentArrayNode α
@@ -41,7 +41,7 @@ namespace PersistentArray
 /- TODO: use proofs for showing that array accesses are not out of bounds.
    We can do it after we reimplement the tactic framework. -/
 variable {α : Type u}
-open Std.PersistentArrayNode
+open PersistentArrayNode
 
 def empty : PersistentArray α := {}
 
@@ -370,19 +370,15 @@ def mkPersistentArray {α : Type u} (n : Nat) (v : α) : PArray α :=
 @[inline] def mkPArray {α : Type u} (n : Nat) (v : α) : PArray α :=
   mkPersistentArray n v
 
-end Std
+end Lean
 
-open Std (PersistentArray PersistentArray.empty)
+open Lean (PersistentArray)
 
-def List.toPersistentArrayAux {α : Type u} : List α → PersistentArray α → PersistentArray α
+def List.toPArray' {α : Type u} (xs : List α) : PersistentArray α :=
+  let rec loop : List α → PersistentArray α → PersistentArray α
   | [],    t => t
-  | x::xs, t => toPersistentArrayAux xs (t.push x)
+  | x::xs, t => loop xs (t.push x)
+  loop xs {}
 
-def List.toPersistentArray {α : Type u} (xs : List α) : PersistentArray α :=
-  xs.toPersistentArrayAux {}
-
-def Array.toPersistentArray {α : Type u} (xs : Array α) : PersistentArray α :=
-  xs.foldl (init := PersistentArray.empty) fun p x => p.push x
-
-@[inline] def Array.toPArray {α : Type u} (xs : Array α) : PersistentArray α :=
-  xs.toPersistentArray
+def Array.toPArray' {α : Type u} (xs : Array α) : PersistentArray α :=
+  xs.foldl (init := .empty) fun p x => p.push x

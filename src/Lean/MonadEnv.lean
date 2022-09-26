@@ -127,51 +127,6 @@ def getConstInfoRec [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m
         | _ => failK ()
       | _ => failK ()
 
-def addDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] [MonadLog m] [AddMessageContext m] (decl : Declaration) : m Unit := do
-  if !(← MonadLog.hasErrors) && decl.hasSorry then
-    logWarning "declaration uses 'sorry'"
-  match (← getEnv).addDecl decl with
-  | Except.ok    env => setEnv env
-  | Except.error ex  => throwKernelException ex
-
-private def supportedRecursors :=
-  #[``Empty.rec, ``False.rec, ``Eq.ndrec, ``Eq.rec, ``Eq.recOn, ``Eq.casesOn, ``False.casesOn, ``Empty.casesOn, ``And.rec, ``And.casesOn]
-
-/-- This is a temporary workaround for generating better error messages for the compiler. It can be deleted after we
-   rewrite the remaining parts of the compiler in Lean.  -/
-private def checkUnsupported [Monad m] [MonadEnv m] [MonadError m] (decl : Declaration) : m Unit := do
-  let env ← getEnv
-  decl.forExprM fun e =>
-    let unsupportedRecursor? := e.find? fun
-      | Expr.const declName .. =>
-        ((isAuxRecursor env declName && !isCasesOnRecursor env declName) || isRecCore env declName)
-        && !supportedRecursors.contains declName
-      | _ => false
-    match unsupportedRecursor? with
-    | some (Expr.const declName ..) => throwError "code generator does not support recursor '{declName}' yet, consider using 'match ... with' and/or structural recursion"
-    | _ => pure ()
-
-def compileDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (decl : Declaration) : m Unit := do
-  match (← getEnv).compileDecl (← getOptions) decl with
-  | Except.ok env   => setEnv env
-  | Except.error (KernelException.other msg) =>
-    checkUnsupported decl -- Generate nicer error message for unsupported recursors and axioms
-    throwError msg
-  | Except.error ex =>
-    throwKernelException ex
-
-def compileDecls [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (decls : List Name) : m Unit := do
-  match (← getEnv).compileDecls (← getOptions) decls with
-  | Except.ok env   => setEnv env
-  | Except.error (KernelException.other msg) =>
-    throwError msg
-  | Except.error ex =>
-    throwKernelException ex
-
-def addAndCompile [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] [MonadLog m] [AddMessageContext m] (decl : Declaration) : m Unit := do
-  addDecl decl;
-  compileDecl decl
-
 unsafe def evalConst [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (α) (constName : Name) : m α := do
   ofExcept <| (← getEnv).evalConst α (← getOptions) constName
 

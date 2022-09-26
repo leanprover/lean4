@@ -70,7 +70,7 @@ def showThmsOf (simpAttrName : Name) : MetaM Unit := do
   let some simpExt ← getSimpExtension? simpAttrName
     | throwError "`{simpAttrName}` is not a simp attribute"
   let thms ← simpExt.getTheorems
-  let thmNames := thms.lemmaNames.fold (init := #[]) fun acc lemmaName => acc.push lemmaName
+  let thmNames := thms.lemmaNames.fold (init := #[]) fun acc origin => acc.push origin.key
   for thmName in thmNames do
     IO.println thmName
 

@@ -62,8 +62,7 @@ theorem Nat.le_add_right_of_le (n m : Nat) : n ≤ m → n ≤ m + k :=
 macro_rules
 | `(tactic| decreasing_tactic) =>
  `(tactic|
-   (simp [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel, WellFoundedRelation.rel]
-    repeat (first | apply Prod.Lex.right | apply Prod.Lex.left)
+   (simp_wf
     repeat (first | apply PSigma.Lex.right | apply PSigma.Lex.left)
     simp [Nat.add_comm (n := 1), Nat.succ_add, Nat.mul_succ]
     try apply Nat.lt_succ_of_le

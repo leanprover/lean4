@@ -351,27 +351,32 @@ private def getCaseGoals (tag : TSyntax ``binderIdent) : TacticM (MVarId × List
   return (g, gs.erase g)
 
 @[builtinTactic «case»] def evalCase : Tactic
-  | stx@`(tactic| case $tag $hs* =>%$arr $tac:tacticSeq) => do
-    let (g, gs) ← getCaseGoals tag
-    let g ← renameInaccessibles g hs
-    setGoals [g]
-    g.setTag Name.anonymous
-    withCaseRef arr tac do
-      closeUsingOrAdmit (withTacticInfoContext stx (evalTactic tac))
-    setGoals gs
+  | stx@`(tactic| case $[$tag $hs*]|* =>%$arr $tac:tacticSeq) =>
+    for tag in tag, hs in hs do
+      let (g, gs) ← getCaseGoals tag
+      let g ← renameInaccessibles g hs
+      setGoals [g]
+      g.setTag Name.anonymous
+      withCaseRef arr tac do
+        closeUsingOrAdmit (withTacticInfoContext stx (evalTactic tac))
+      setGoals gs
   | _ => throwUnsupportedSyntax
 
 @[builtinTactic «case'»] def evalCase' : Tactic
-  | `(tactic| case' $tag $hs* =>%$arr $tac:tacticSeq) => do
-    let (g, gs) ← getCaseGoals tag
-    let g ← renameInaccessibles g hs
-    let mvarTag ← g.getTag
-    setGoals [g]
-    withCaseRef arr tac (evalTactic tac)
-    let gs' ← getUnsolvedGoals
-    if let [g'] := gs' then
-      g'.setTag mvarTag
-    setGoals (gs' ++ gs)
+  | `(tactic| case' $[$tag $hs*]|* =>%$arr $tac:tacticSeq) => do
+    let mut acc := #[]
+    for tag in tag, hs in hs do
+      let (g, gs) ← getCaseGoals tag
+      let g ← renameInaccessibles g hs
+      let mvarTag ← g.getTag
+      setGoals [g]
+      withCaseRef arr tac (evalTactic tac)
+      let gs' ← getUnsolvedGoals
+      if let [g'] := gs' then
+        g'.setTag mvarTag
+      acc := acc ++ gs'
+      setGoals gs
+    setGoals (acc.toList ++ (← getGoals))
   | _ => throwUnsupportedSyntax
 
 @[builtinTactic «renameI»] def evalRenameInaccessibles : Tactic

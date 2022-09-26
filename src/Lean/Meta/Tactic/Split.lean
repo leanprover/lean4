@@ -17,7 +17,7 @@ def getSimpMatchContext : MetaM Simp.Context :=
    }
 
 def simpMatch (e : Expr) : MetaM Simp.Result := do
-  Simp.main e (← getSimpMatchContext) (methods := { pre })
+  (·.1) <$> Simp.main e (← getSimpMatchContext) (methods := { pre })
 where
   pre (e : Expr) : SimpM Simp.Step := do
     let some app ← matchMatcherApp? e | return Simp.Step.visit { expr := e }
@@ -35,7 +35,7 @@ def simpMatchTarget (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   applySimpResultToTarget mvarId target r
 
 private def simpMatchCore (matchDeclName : Name) (matchEqDeclName : Name) (e : Expr) : MetaM Simp.Result := do
-  Simp.main e (← getSimpMatchContext) (methods := { pre })
+  (·.1) <$> Simp.main e (← getSimpMatchContext) (methods := { pre })
 where
   pre (e : Expr) : SimpM Simp.Step := do
     if e.isAppOf matchDeclName then
@@ -44,7 +44,12 @@ where
       | some e' => return Simp.Step.done { expr := e' }
       | none    =>
       -- Try lemma
-      match (← withReducible <| Simp.tryTheorem? e { proof := mkConst matchEqDeclName, name? := matchEqDeclName, rfl := (← isRflTheorem matchEqDeclName) } SplitIf.discharge?) with
+      let simpTheorem := {
+        origin := .decl matchEqDeclName
+        proof := mkConst matchEqDeclName
+        rfl := (← isRflTheorem matchEqDeclName)
+      }
+      match (← withReducible <| Simp.tryTheorem? e simpTheorem SplitIf.discharge?) with
       | none => return Simp.Step.visit { expr := e }
       | some r => return Simp.Step.done r
     else

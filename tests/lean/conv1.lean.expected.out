@@ -85,3 +85,34 @@ conv1.lean:175:10-175:15: error: cannot select argument
 a✝ : Nat := 0
 b✝ : Nat := a✝
 | 0 = 0
+x y z : Nat
+| x + y + z
+x y z : Nat
+| x + y + z
+
+x y z : Nat
+| x + (y + z)
+x y z : Nat
+| x + y + z
+
+x y z : Nat
+| y + z
+x y z : Nat
+| y + z
+
+x y z : Nat
+| x + y + z
+x y z : Nat
+| x + y
+
+x y z : Nat
+| x + (y + z)
+x y z : Nat
+| x + y
+
+x y z : Nat
+| y + z
+conv1.lean:193:58-193:83: error: 'pattern' conv tactic failed, pattern was found only 4 times but 5 expected
+conv1.lean:194:58-194:85: error: 'pattern' conv tactic failed, pattern was found only 4 times but 5 expected
+conv1.lean:195:58-195:85: error: 'pattern' conv tactic failed, pattern was found only 3 times but 5 expected
+conv1.lean:196:58-196:87: error: 'pattern' conv tactic failed, pattern was found only 2 times but 5 expected

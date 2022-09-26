@@ -331,14 +331,25 @@ notation:50 a:50 " ∉ " b:50 => ¬ (a ∈ b)
 macro_rules | `($x <|> $y) => `(binop_lazy% HOrElse.hOrElse $x $y)
 macro_rules | `($x >> $y)  => `(binop_lazy% HAndThen.hAndThen $x $y)
 
+namespace Lean
+/--
+`binderIdent` matches an `ident` or a `_`. It is used for identifiers in binding
+position, where `_` means that the value should be left unnamed and inaccessible.
+-/
+syntax binderIdent := ident <|> hole
+end Lean
+
 @[inheritDoc dite] syntax (name := termDepIfThenElse)
-  ppRealGroup(ppRealFill(ppIndent("if " ident " : " term " then") ppSpace term)
+  ppRealGroup(ppRealFill(ppIndent("if " Lean.binderIdent " : " term " then") ppSpace term)
     ppDedent(ppSpace) ppRealFill("else " term)) : term
 
 macro_rules
-  | `(if $h : $c then $t else $e) => do
+  | `(if $h:ident : $c then $t else $e) => do
     let mvar ← Lean.withRef c `(?m)
     `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; dite $mvar (fun $h:ident => $t) (fun $h:ident => $e))
+  | `(if _%$h : $c then $t else $e) => do
+    let mvar ← Lean.withRef c `(?m)
+    `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; dite $mvar (fun _%$h => $t) (fun _%$h => $e))
 
 @[inheritDoc ite] syntax (name := termIfThenElse)
   ppRealGroup(ppRealFill(ppIndent("if " term " then") ppSpace term)

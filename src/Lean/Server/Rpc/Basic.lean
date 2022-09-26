@@ -30,7 +30,6 @@ instance : ToString RpcRef where
 end Lean.Lsp
 
 namespace Lean.Server
-open Std
 
 structure RpcObjectStore : Type where
   /-- Objects that are being kept alive for the RPC client, together with their type names,
@@ -39,7 +38,7 @@ structure RpcObjectStore : Type where
   Note that we may currently have multiple references to the same object. It is only disposed
   of once all of those are gone. This simplifies the client a bit as it can drop every reference
   received separately. -/
-  aliveRefs : Std.PersistentHashMap Lsp.RpcRef Dynamic := {}
+  aliveRefs : PersistentHashMap Lsp.RpcRef Dynamic := {}
   /-- Value to use for the next `RpcRef`. It is monotonically increasing to avoid any possible
   bugs resulting from its reuse. -/
   nextRef   : USize := 0
@@ -71,7 +70,7 @@ The type wrapper `WithRpcRef` is used for these fields which should be sent as
 a reference.
 
 - Any type with `FromJson` and `ToJson` instance is automatically `RpcEncodable`.
-- If a type has an `Std.Dynamic` instance, then `WithRpcRef` can be used for its references.
+- If a type has an `Dynamic` instance, then `WithRpcRef` can be used for its references.
 - `deriving RpcEncodable` acts like `FromJson`/`ToJson` but marshalls any `WithRpcRef` fields
   as `Lsp.RpcRef`s.
 -/

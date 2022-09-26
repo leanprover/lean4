@@ -37,7 +37,7 @@ Note that the attribute handler (`AttributeImpl.add`) is responsible for interpr
 making sure that these kinds are respected.
 -/
 inductive AttributeKind
-  | global | «local» | «scoped»
+  | global | local | scoped
   deriving BEq, Inhabited
 
 instance : ToString AttributeKind where
@@ -51,8 +51,6 @@ structure AttributeImpl extends AttributeImplCore where
   add (decl : Name) (stx : Syntax) (kind : AttributeKind) : AttrM Unit
   erase (decl : Name) : AttrM Unit := throwError "attribute cannot be erased"
   deriving Inhabited
-
-open Std (PersistentHashMap)
 
 builtin_initialize attributeMapRef : IO.Ref (PersistentHashMap Name AttributeImpl) ← IO.mkRef {}
 
@@ -160,8 +158,7 @@ def registerTagAttribute (name : Name) (descr : String)
       unless (env.getModuleIdxFor? decl).isNone do
         throwError "invalid attribute '{name}', declaration is in an imported module"
       validate decl
-      let env ← getEnv
-      setEnv <| ext.addEntry env decl
+      modifyEnv fun env => ext.addEntry env decl
   }
   registerBuiltinAttribute attrImpl
   return { attr := attrImpl, ext := ext }
@@ -192,7 +189,7 @@ structure ParametricAttributeImpl (α : Type) extends AttributeImplCore where
   afterSet : Name → α → AttrM Unit := fun _ _ _ => pure ()
   afterImport : Array (Array (Name × α)) → ImportM Unit := fun _ => pure ()
 
-def registerParametricAttribute {α : Type} [Inhabited α] (impl : ParametricAttributeImpl α) : IO (ParametricAttribute α) := do
+def registerParametricAttribute [Inhabited α] (impl : ParametricAttributeImpl α) : IO (ParametricAttribute α) := do
   let ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α) ← registerPersistentEnvExtension {
     name            := impl.name
     mkInitial       := pure {}
@@ -213,8 +210,7 @@ def registerParametricAttribute {α : Type} [Inhabited α] (impl : ParametricAtt
       unless (env.getModuleIdxFor? decl).isNone do
         throwError "invalid attribute '{impl.name}', declaration is in an imported module"
       let val ← impl.getParam decl stx
-      let env' := ext.addEntry env (decl, val)
-      setEnv env'
+      modifyEnv fun env => ext.addEntry env (decl, val)
       try impl.afterSet decl val catch _ => setEnv env
   }
   registerBuiltinAttribute attrImpl
@@ -222,7 +218,7 @@ def registerParametricAttribute {α : Type} [Inhabited α] (impl : ParametricAtt
 
 namespace ParametricAttribute
 
-def getParam? {α : Type} [Inhabited α] (attr : ParametricAttribute α) (env : Environment) (decl : Name) : Option α :=
+def getParam? [Inhabited α] (attr : ParametricAttribute α) (env : Environment) (decl : Name) : Option α :=
   match env.getModuleIdxFor? decl with
   | some modIdx =>
     match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1) with
@@ -230,7 +226,7 @@ def getParam? {α : Type} [Inhabited α] (attr : ParametricAttribute α) (env : 
     | none          => none
   | none        => (attr.ext.getState env).find? decl
 
-def setParam {α : Type} (attr : ParametricAttribute α) (env : Environment) (decl : Name) (param : α) : Except String Environment :=
+def setParam (attr : ParametricAttribute α) (env : Environment) (decl : Name) (param : α) : Except String Environment :=
   if (env.getModuleIdxFor? decl).isSome then
     Except.error ("invalid '" ++ toString attr.attr.name ++ "'.setParam, declaration is in an imported module")
   else if ((attr.ext.getState env).find? decl).isSome then
@@ -249,7 +245,7 @@ structure EnumAttributes (α : Type) where
   ext   : PersistentEnvExtension (Name × α) (Name × α) (NameMap α)
   deriving Inhabited
 
-def registerEnumAttributes {α : Type} [Inhabited α] (extName : Name) (attrDescrs : List (Name × String × α))
+def registerEnumAttributes [Inhabited α] (extName : Name) (attrDescrs : List (Name × String × α))
     (validate : Name → α → AttrM Unit := fun _ _ => pure ())
     (applicationTime := AttributeApplicationTime.afterTypeChecking)
     (ref : Name := by exact decl_name%) : IO (EnumAttributes α) := do
@@ -274,7 +270,7 @@ def registerEnumAttributes {α : Type} [Inhabited α] (extName : Name) (attrDesc
       unless (env.getModuleIdxFor? decl).isNone do
         throwError "invalid attribute '{name}', declaration is in an imported module"
       validate decl val
-      setEnv <| ext.addEntry env (decl, val)
+      modifyEnv fun env => ext.addEntry env (decl, val)
     applicationTime := applicationTime
     : AttributeImpl
   }
@@ -283,7 +279,7 @@ def registerEnumAttributes {α : Type} [Inhabited α] (extName : Name) (attrDesc
 
 namespace EnumAttributes
 
-def getValue {α : Type} [Inhabited α] (attr : EnumAttributes α) (env : Environment) (decl : Name) : Option α :=
+def getValue [Inhabited α] (attr : EnumAttributes α) (env : Environment) (decl : Name) : Option α :=
   match env.getModuleIdxFor? decl with
   | some modIdx =>
     match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1) with
@@ -291,7 +287,7 @@ def getValue {α : Type} [Inhabited α] (attr : EnumAttributes α) (env : Enviro
     | none          => none
   | none        => (attr.ext.getState env).find? decl
 
-def setValue {α : Type} (attrs : EnumAttributes α) (env : Environment) (decl : Name) (val : α) : Except String Environment :=
+def setValue (attrs : EnumAttributes α) (env : Environment) (decl : Name) (val : α) : Except String Environment :=
   if (env.getModuleIdxFor? decl).isSome then
     Except.error ("invalid '" ++ toString attrs.ext.name ++ "'.setValue, declaration is in an imported module")
   else if ((attrs.ext.getState env).find? decl).isSome then
@@ -306,7 +302,7 @@ end EnumAttributes
 -/
 
 abbrev AttributeImplBuilder := Name → List DataValue → Except String AttributeImpl
-abbrev AttributeImplBuilderTable := Std.HashMap Name AttributeImplBuilder
+abbrev AttributeImplBuilderTable := HashMap Name AttributeImplBuilder
 
 builtin_initialize attributeImplBuilderTableRef : IO.Ref AttributeImplBuilderTable ← IO.mkRef {}
 

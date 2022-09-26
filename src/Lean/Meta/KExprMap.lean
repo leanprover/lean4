@@ -10,12 +10,12 @@ namespace Lean.Meta
 
 /--
   A mapping that indentifies definitionally equal expressions.
-  We implement it as a mapping from `HeadIndex` to `Std.AssocList Expr α`.
+  We implement it as a mapping from `HeadIndex` to `AssocList Expr α`.
 
   Remark: this map may be quite inefficient if there are many `HeadIndex` collisions.
 -/
 structure KExprMap (α : Type) where
-  map : Std.PHashMap HeadIndex (Std.AssocList Expr α) := {}
+  map : PHashMap HeadIndex (AssocList Expr α) := {}
   deriving Inhabited
 
 /-- Return `some v` if there is an entry `e ↦ v` in `m`. -/
@@ -28,20 +28,20 @@ def KExprMap.find? (m : KExprMap α) (e : Expr) : MetaM (Option α) := do
         return some a
     return none
 
-private def updateList (ps : Std.AssocList Expr α) (e : Expr) (v : α) : MetaM (Std.AssocList Expr α) := do
+private def updateList (ps : AssocList Expr α) (e : Expr) (v : α) : MetaM (AssocList Expr α) := do
   match ps with
-  | Std.AssocList.nil => return Std.AssocList.cons e v ps
-  | Std.AssocList.cons e' v' ps =>
+  | AssocList.nil => return AssocList.cons e v ps
+  | AssocList.cons e' v' ps =>
     if (← isDefEq e e') then
-      return Std.AssocList.cons e v ps
+      return AssocList.cons e v ps
     else
-      return Std.AssocList.cons e' v' (← updateList ps e v)
+      return AssocList.cons e' v' (← updateList ps e v)
 
 /-- Insert `e ↦ v` into `m` -/
 def KExprMap.insert (m : KExprMap α) (e : Expr) (v : α) : MetaM (KExprMap α) :=
   let k := e.toHeadIndex
   match m.map.find? k with
-  | none    => return { map := m.map.insert k (Std.AssocList.cons e v Std.AssocList.nil) }
+  | none    => return { map := m.map.insert k (AssocList.cons e v AssocList.nil) }
   | some ps => return { map := m.map.insert k (← updateList ps e v) }
 
 end Lean.Meta

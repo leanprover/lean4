@@ -65,7 +65,6 @@ non-standard extensions in case they're needed, for example to communicate tacti
 namespace Lean.Server.Watchdog
 
 open IO
-open Std (RBMap RBMap.empty)
 open Lsp
 open JsonRpc
 open System.Uri

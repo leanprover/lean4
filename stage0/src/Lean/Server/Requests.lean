@@ -56,7 +56,7 @@ def parseRequestParams (paramType : Type) [FromJson paramType] (params : Json)
       message := s!"Cannot parse request params: {params.compress}\n{inner}" }
 
 structure RequestContext where
-  rpcSessions   : Std.RBMap UInt64 (IO.Ref FileWorker.RpcSession) compare
+  rpcSessions   : RBMap UInt64 (IO.Ref FileWorker.RpcSession) compare
   srcSearchPath : SearchPath
   doc           : FileWorker.EditableDocument
   hLog          : IO.FS.Stream
@@ -181,7 +181,7 @@ structure RequestHandler where
   fileSource : Json → Except RequestError Lsp.DocumentUri
   handle : Json → RequestM (RequestTask Json)
 
-builtin_initialize requestHandlers : IO.Ref (Std.PersistentHashMap String RequestHandler) ←
+builtin_initialize requestHandlers : IO.Ref (PersistentHashMap String RequestHandler) ←
   IO.mkRef {}
 
 /-- NB: This method may only be called in `initialize` blocks (user or builtin).

@@ -10,7 +10,6 @@ import Lean.Data.PersistentHashSet
 
 open ShareCommon
 namespace Lean.ShareCommon
-open Std
 
 def objectFactory :=
   StateFactory.mk {

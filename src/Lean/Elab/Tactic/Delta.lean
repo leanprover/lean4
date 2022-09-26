@@ -10,28 +10,27 @@ import Lean.Elab.Tactic.Location
 namespace Lean.Elab.Tactic
 open Meta
 
-def deltaLocalDecl (declName : Name) (fvarId : FVarId) : TacticM Unit := do
+def deltaLocalDecl (declNames : Array Name) (fvarId : FVarId) : TacticM Unit := do
   let mvarId ← getMainGoal
   let localDecl ← fvarId.getDecl
-  let typeNew ← deltaExpand localDecl.type (· == declName)
+  let typeNew ← deltaExpand localDecl.type declNames.contains
   if typeNew == localDecl.type then
-    throwTacticEx `delta mvarId m!"did not delta reduce '{declName}' at '{localDecl.userName}'"
+    throwTacticEx `delta mvarId m!"did not delta reduce {declNames} at {localDecl.userName}"
   replaceMainGoal [← mvarId.replaceLocalDeclDefEq fvarId typeNew]
 
-def deltaTarget (declName : Name) : TacticM Unit := do
+def deltaTarget (declNames : Array Name) : TacticM Unit := do
   let mvarId ← getMainGoal
   let target ← getMainTarget
-  let targetNew ← deltaExpand target (· == declName)
+  let targetNew ← deltaExpand target declNames.contains
   if targetNew == target then
-    throwTacticEx `delta mvarId m!"did not delta reduce '{declName}'"
+    throwTacticEx `delta mvarId m!"did not delta reduce {declNames}"
   replaceMainGoal [← mvarId.replaceTargetDefEq targetNew]
 
-/--
-  "delta " ident (location)?
--/
+/-- "delta " ident+ (location)? -/
 @[builtinTactic Lean.Parser.Tactic.delta] def evalDelta : Tactic := fun stx => do
-  let declName ← resolveGlobalConstNoOverloadWithInfo stx[1]
+  let declNames ← stx[1].getArgs.mapM resolveGlobalConstNoOverloadWithInfo
   let loc := expandOptLocation stx[2]
-  withLocation loc (deltaLocalDecl declName) (deltaTarget declName) (throwTacticEx `delta · m!"did not delta reduce '{declName}'")
+  withLocation loc (deltaLocalDecl declNames) (deltaTarget declNames)
+    (throwTacticEx `delta · m!"did not delta reduce {declNames}")
 
 end Lean.Elab.Tactic

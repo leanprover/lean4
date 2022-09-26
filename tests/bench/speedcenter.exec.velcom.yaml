@@ -137,6 +137,14 @@
   build_config:
     cmd: ./compile.sh rbmap_checkpoint.lean
 - attributes:
+    description: rbmap_library
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: ./rbmap.library.lean.out 2000000
+  build_config:
+    cmd: ./compile.sh rbmap.library.lean
+- attributes:
     description: unionfind
     tags: [fast, suite]
   run_config:

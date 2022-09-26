@@ -8,7 +8,6 @@ import Lean.MonadEnv
 import Lean.Util.Recognizers
 
 namespace Lean.Compiler.LCNF
-
 /--
 Return `true` if `mdata` should be preserved.
 Right now, we don't preserve any `MData`, but this may
@@ -39,6 +38,9 @@ structure CasesInfo where
   altsRange    : Std.Range
   altNumParams : Array Nat
   motivePos    : Nat
+
+def CasesInfo.numAlts (c : CasesInfo) : Nat :=
+  c.altNumParams.size
 
 private def getCasesOnInductiveVal? (declName : Name) : CoreM (Option InductiveVal) := do
   unless isCasesOnRecursor (← getEnv) declName do return none

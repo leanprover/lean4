@@ -51,7 +51,7 @@ structure UserWidget where
 
 private abbrev WidgetSourceRegistry := SimplePersistentEnvExtension
     (UInt64 × Name)
-    (Std.RBMap UInt64 Name compare)
+    (RBMap UInt64 Name compare)
 
 -- Mapping widgetSourceId to hash of sourcetext
 builtin_initialize userWidgetRegistry : MapDeclarationExtension UserWidget ← mkMapDeclarationExtension `widgetRegistry

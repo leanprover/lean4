@@ -69,7 +69,7 @@ def eof : Parsec Unit := fun it =>
   else
     success it ()
 
-@[inline]
+@[specialize]
 partial def manyCore (p : Parsec α) (acc : Array α) : Parsec $ Array α :=
   (do manyCore p (acc.push $ ←p))
   <|> pure acc
@@ -80,7 +80,7 @@ def many (p : Parsec α) : Parsec $ Array α := manyCore p #[]
 @[inline]
 def many1 (p : Parsec α) : Parsec $ Array α := do manyCore p #[←p]
 
-@[inline]
+@[specialize]
 partial def manyCharsCore (p : Parsec Char) (acc : String) : Parsec String :=
   (do manyCharsCore p (acc.push $ ←p))
   <|> pure acc

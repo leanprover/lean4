@@ -19,6 +19,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_withPa
 LEAN_EXPORT lean_object* l_Lean_IR_NormalizeIds_withVar___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_IR_UniqueIds_checkParams___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_RBNode_find___at_Lean_IR_VarId_alphaEqv___spec__1(lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_normFnBody___spec__5___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_withParams___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_normFnBody___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -28,7 +29,6 @@ lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_normFnBody___spec__5(size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_MapVars_mapArgs(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_Std_RBNode_findCore___at_Lean_IR_UniqueIds_checkId___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_UniqueIds_checkFnBody(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_NormalizeIds_normVar(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -51,6 +51,8 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_withPa
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_MapVars_mapFnBody___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_withParams___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_FnBody_isTerminal(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_findCore___at_Lean_IR_UniqueIds_checkId___spec__1___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_RBNode_insert___at_Lean_IR_mkIndexSet___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_IR_UniqueIds_checkFnBody___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_NormalizeIds_withParams___spec__3(lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_NormalizeIds_normArg___boxed(lean_object*, lean_object*);
@@ -58,7 +60,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_NormalizeIds_withParams___rarg(lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_IR_FnBody_replaceVar(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_withParams___spec__4(lean_object*, size_t, size_t, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
-lean_object* l_Std_RBNode_insert___at_Lean_IR_addVarRename___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_NormalizeIds_instMonadLiftMN(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_NormalizeIds_normExpr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_FnBody_replaceVar___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -68,6 +69,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_MapVars_mapExpr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_AltCore_mmodifyBody___at_Lean_IR_NormalizeIds_normFnBody___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_UniqueIds_checkId(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+lean_object* l_Lean_RBNode_insert___at_Lean_IR_addVarRename___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_NormalizeIds_normJP(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_NormalizeIds_instMonadLiftMN___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -76,11 +78,11 @@ lean_object* l_Lean_IR_Decl_updateBody_x21(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_normFnBody___spec__1(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_NormalizeIds_withParams(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_normArgs___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_findCore___at_Lean_IR_UniqueIds_checkId___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_MapVars_mapArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Decl_uniqueIds(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Decl_normalizeIds(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_normFnBody___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_RBNode_findCore___at_Lean_IR_UniqueIds_checkId___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_FnBody_replaceVar___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_NormalizeIds_normArgs(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_MapVars_mapFnBody(lean_object*, lean_object*);
@@ -88,16 +90,14 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_normFn
 lean_object* l_Lean_IR_FnBody_body(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_UniqueIds_checkDecl(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_NormalizeIds_normIndex(lean_object*, lean_object*);
-lean_object* l_Std_RBNode_find___at_Lean_IR_VarId_alphaEqv___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_normFnBody___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_NormalizeIds_withJP___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_NormalizeIds_normIndex___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_NormalizeIds_normVar___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_NormalizeIds_withParams___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_NormalizeIds_withVar(lean_object*);
-lean_object* l_Std_RBNode_insert___at_Lean_IR_mkIndexSet___spec__1(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_RBNode_findCore___at_Lean_IR_UniqueIds_checkId___spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_findCore___at_Lean_IR_UniqueIds_checkId___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -148,12 +148,12 @@ LEAN_EXPORT lean_object* l_Lean_IR_UniqueIds_checkId(lean_object* x_1, lean_obje
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_RBNode_findCore___at_Lean_IR_UniqueIds_checkId___spec__1(x_2, x_1);
+x_3 = l_Lean_RBNode_findCore___at_Lean_IR_UniqueIds_checkId___spec__1(x_2, x_1);
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = lean_box(0);
-x_5 = l_Std_RBNode_insert___at_Lean_IR_mkIndexSet___spec__1(x_2, x_1, x_4);
+x_5 = l_Lean_RBNode_insert___at_Lean_IR_mkIndexSet___spec__1(x_2, x_1, x_4);
 x_6 = 1;
 x_7 = lean_box(x_6);
 x_8 = lean_alloc_ctor(0, 2, 0);
@@ -175,11 +175,11 @@ return x_11;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_RBNode_findCore___at_Lean_IR_UniqueIds_checkId___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_findCore___at_Lean_IR_UniqueIds_checkId___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_RBNode_findCore___at_Lean_IR_UniqueIds_checkId___spec__1(x_1, x_2);
+x_3 = l_Lean_RBNode_findCore___at_Lean_IR_UniqueIds_checkId___spec__1(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
@@ -817,7 +817,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_NormalizeIds_normIndex(lean_object* x_1, lean
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_RBNode_find___at_Lean_IR_VarId_alphaEqv___spec__1(x_2, x_1);
+x_3 = l_Lean_RBNode_find___at_Lean_IR_VarId_alphaEqv___spec__1(x_2, x_1);
 if (lean_obj_tag(x_3) == 0)
 {
 lean_inc(x_1);
@@ -1387,7 +1387,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8;
 x_5 = lean_unsigned_to_nat(1u);
 x_6 = lean_nat_add(x_4, x_5);
 lean_inc(x_4);
-x_7 = l_Std_RBNode_insert___at_Lean_IR_addVarRename___spec__1(x_3, x_1, x_4);
+x_7 = l_Lean_RBNode_insert___at_Lean_IR_addVarRename___spec__1(x_3, x_1, x_4);
 x_8 = lean_apply_3(x_2, x_4, x_7, x_6);
 return x_8;
 }
@@ -1407,7 +1407,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8;
 x_5 = lean_unsigned_to_nat(1u);
 x_6 = lean_nat_add(x_4, x_5);
 lean_inc(x_4);
-x_7 = l_Std_RBNode_insert___at_Lean_IR_addVarRename___spec__1(x_3, x_1, x_4);
+x_7 = l_Lean_RBNode_insert___at_Lean_IR_addVarRename___spec__1(x_3, x_1, x_4);
 x_8 = lean_apply_3(x_2, x_4, x_7, x_6);
 return x_8;
 }
@@ -1544,7 +1544,7 @@ x_9 = lean_nat_add(x_5, x_8);
 x_10 = lean_ctor_get(x_7, 0);
 lean_inc(x_10);
 lean_dec(x_7);
-x_11 = l_Std_RBNode_insert___at_Lean_IR_addVarRename___spec__1(x_4, x_10, x_5);
+x_11 = l_Lean_RBNode_insert___at_Lean_IR_addVarRename___spec__1(x_4, x_10, x_5);
 x_12 = 1;
 x_13 = lean_usize_add(x_2, x_12);
 x_2 = x_13;
@@ -2112,7 +2112,7 @@ x_8 = l_Lean_IR_NormalizeIds_normExpr(x_6, x_2);
 x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_add(x_3, x_9);
 lean_inc(x_3);
-x_11 = l_Std_RBNode_insert___at_Lean_IR_addVarRename___spec__1(x_2, x_5, x_3);
+x_11 = l_Lean_RBNode_insert___at_Lean_IR_addVarRename___spec__1(x_2, x_5, x_3);
 x_12 = l_Lean_IR_NormalizeIds_normFnBody(x_7, x_11, x_10);
 x_13 = !lean_is_exclusive(x_12);
 if (x_13 == 0)
@@ -2159,7 +2159,7 @@ x_22 = l_Lean_IR_NormalizeIds_normExpr(x_20, x_2);
 x_23 = lean_unsigned_to_nat(1u);
 x_24 = lean_nat_add(x_3, x_23);
 lean_inc(x_3);
-x_25 = l_Std_RBNode_insert___at_Lean_IR_addVarRename___spec__1(x_2, x_18, x_3);
+x_25 = l_Lean_RBNode_insert___at_Lean_IR_addVarRename___spec__1(x_2, x_18, x_3);
 x_26 = l_Lean_IR_NormalizeIds_normFnBody(x_21, x_25, x_24);
 x_27 = lean_ctor_get(x_26, 0);
 lean_inc(x_27);
@@ -2345,7 +2345,7 @@ lean_dec(x_37);
 x_41 = lean_unsigned_to_nat(1u);
 x_42 = lean_nat_add(x_38, x_41);
 lean_inc(x_38);
-x_43 = l_Std_RBNode_insert___at_Lean_IR_addVarRename___spec__1(x_2, x_32, x_38);
+x_43 = l_Lean_RBNode_insert___at_Lean_IR_addVarRename___spec__1(x_2, x_32, x_38);
 x_44 = l_Lean_IR_NormalizeIds_normFnBody(x_35, x_43, x_42);
 x_45 = !lean_is_exclusive(x_44);
 if (x_45 == 0)

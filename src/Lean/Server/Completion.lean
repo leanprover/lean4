@@ -404,7 +404,7 @@ private def optionCompletion (ctx : ContextInfo) (stx : Syntax) (caps : ClientCa
         else
           (ss.toString, false)
     -- HACK(WN): unfold the type so ForIn works
-    let (decls : Std.RBMap _ _ _) ← getOptionDecls
+    let (decls : RBMap _ _ _) ← getOptionDecls
     let opts ← getOptions
     let mut items := #[]
     for ⟨name, decl⟩ in decls do

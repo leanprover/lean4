@@ -6,23 +6,9 @@ Authors: Henrik Böving
 import Lean.Attributes
 import Lean.Environment
 import Lean.Meta.Basic
-
 import Lean.Compiler.LCNF.CompilerM
 
 namespace Lean.Compiler.LCNF
-
-/--
-The pipeline phase a certain `Pass` is supposed to happen in.
--/
-inductive Phase where
-  /-- Here we still carry most of the original type information, most
-  of the dependent portion is already (partially) erased though. -/
-  | base
-  /-- In this phase polymorphism has been eliminated. -/
-  | mono
-  /-- In this phase impure stuff such as RC or efficient BaseIO transformations happen. -/
-  | impure
-deriving Inhabited
 
 /--
 A single compiler `Pass`, consisting of the actual pass function operating
@@ -59,7 +45,7 @@ structure PassInstaller where
   current `Pass`es and return a new one, this can modify the list (and
   the `Pass`es contained within) in any way it wants.
   -/
-  install : Array Pass → CompilerM (Array Pass)
+  install : Array Pass → CoreM (Array Pass)
   deriving Inhabited
 
 /--
@@ -73,9 +59,9 @@ structure PassManager where
 namespace Phase
 
 def toNat : Phase → Nat
-| .base => 0
-| .mono => 1
-| .impure => 2
+  | .base => 0
+  | .mono => 1
+  | .impure => 2
 
 instance : LT Phase where
   lt l r := l.toNat < r.toNat
@@ -106,14 +92,14 @@ end Pass
 
 namespace PassManager
 
-def validate (manager : PassManager) : CompilerM Unit := do
+def validate (manager : PassManager) : CoreM Unit := do
   let mut current := .base
   for pass in manager.passes do
     if ¬(current ≤ pass.phase) then
       throwError s!"{pass.name} has phase {pass.phase} but should at least have {current}"
     current := pass.phase
 
-def findHighestOccurrence (targetName : Name) (passes : Array Pass) : CompilerM Nat := do
+def findHighestOccurrence (targetName : Name) (passes : Array Pass) : CoreM Nat := do
   let mut highest := none
   for pass in passes do
       if pass.name == targetName then
@@ -143,7 +129,7 @@ def installAfter (targetName : Name) (p : Pass → Pass) (occurrence : Nat := 0)
   install passes :=
     if let some idx := passes.findIdx? (fun p => p.name == targetName && p.occurrence == occurrence) then
       let passUnderTest := passes[idx]!
-      return passes.insertAt (idx + 1) (p passUnderTest)
+      return passes.insertAt! (idx + 1) (p passUnderTest)
     else
       throwError s!"Tried to insert pass after {targetName}, occurrence {occurrence} but {targetName} is not in the pass list"
 
@@ -154,7 +140,7 @@ def installBefore (targetName : Name) (p : Pass → Pass) (occurrence : Nat := 0
   install passes :=
     if let some idx := passes.findIdx? (fun p => p.name == targetName && p.occurrence == occurrence) then
       let passUnderTest := passes[idx]!
-      return passes.insertAt idx (p passUnderTest)
+      return passes.insertAt! idx (p passUnderTest)
     else
       throwError s!"Tried to insert pass after {targetName}, occurrence {occurrence} but {targetName} is not in the pass list"
 
@@ -171,43 +157,17 @@ def replacePass (targetName : Name) (p : Pass → Pass) (occurrence : Nat := 0) 
 def replaceEachOccurrence (targetName : Name) (p : Pass → Pass) : PassInstaller :=
     withEachOccurrence targetName (replacePass targetName p ·)
 
-def run (manager : PassManager) (installer : PassInstaller) : CompilerM PassManager := do
-  return { manager with passes := (←installer.install manager.passes) }
+def run (manager : PassManager) (installer : PassInstaller) : CoreM PassManager := do
+  return { manager with passes := (← installer.install manager.passes) }
 
-builtin_initialize passInstallerExt : SimplePersistentEnvExtension Name (Array Name) ←
-  registerSimplePersistentEnvExtension {
-    name := `cpass,
-    addImportedFn := fun imported => imported.foldl (init := #[]) fun acc a => acc.append a
-    addEntryFn := fun is i => is.push i,
-  }
-
-def addPass (declName : Name) : CoreM Unit := do
-  let info ← getConstInfo declName
-  match info.type with
-  | .const `Lean.Compiler.LCNF.PassInstaller .. =>
-    modifyEnv fun env => passInstallerExt.addEntry env declName
-  | _ =>
-    throwError "invalid 'cpass' only 'PassInstaller's can be added via the 'cpass' attribute: {info.type}"
-
-builtin_initialize
-  registerBuiltinAttribute {
-    name  := `cpass
-    descr := "compiler passes for the code generator"
-    add   := fun declName stx kind => do
-      Attribute.Builtin.ensureNoArgs stx
-      unless kind == AttributeKind.global do throwError "invalid attribute 'cpass', must be global"
-      discard <| addPass declName
-    applicationTime := .afterCompilation
-  }
-
-private unsafe def getPassInstallerUnsafe (declName : Name) : MetaM PassInstaller := do
+private unsafe def getPassInstallerUnsafe (declName : Name) : CoreM PassInstaller := do
   ofExcept <| (← getEnv).evalConstCheck PassInstaller (← getOptions) ``PassInstaller declName
 
 @[implementedBy getPassInstallerUnsafe]
-private opaque getPassInstaller (declName : Name) : MetaM PassInstaller
+private opaque getPassInstaller (declName : Name) : CoreM PassInstaller
 
-def runFromDecl (manager : PassManager) (declName : Name) : CompilerM PassManager := do
-  let installer ← getPassInstaller declName |>.run'
+def runFromDecl (manager : PassManager) (declName : Name) : CoreM PassManager := do
+  let installer ← getPassInstaller declName
   let newState ← installer.run manager
   newState.validate
   return newState

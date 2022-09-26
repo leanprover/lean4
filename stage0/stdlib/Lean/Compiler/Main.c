@@ -19,10 +19,10 @@ static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_49___
 LEAN_EXPORT lean_object* l_Lean_profileitM___at_Lean_Compiler_compile___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_49_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_compile(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_compile_stage1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_49____closed__3;
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_49____closed__1;
 static lean_object* l_Lean_Compiler_compile___closed__1;
+lean_object* l_Lean_Compiler_LCNF_compile(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profileitM___at_Lean_Compiler_compile___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_profileitIOUnsafe___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_49____closed__2;
@@ -49,7 +49,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_compile___lambda__1(lean_object* x_1, l
 _start:
 {
 lean_object* x_5; 
-x_5 = lean_compile_stage1(x_1, x_2, x_3, x_4);
+x_5 = l_Lean_Compiler_LCNF_compile(x_1, x_2, x_3, x_4);
 if (lean_obj_tag(x_5) == 0)
 {
 uint8_t x_6; 

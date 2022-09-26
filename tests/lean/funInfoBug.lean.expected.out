@@ -1,2 +1,2 @@
 [(1, 1), (2, 2)]
-Std.AssocList.cons 1 1 (Std.AssocList.cons 2 2 Std.AssocList.nil)
+Lean.AssocList.cons 1 1 (Lean.AssocList.cons 2 2 Lean.AssocList.nil)

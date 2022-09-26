@@ -17,7 +17,7 @@ def MatchEqns.size (e : MatchEqns) : Nat :=
   e.eqnNames.size
 
 structure MatchEqnsExtState where
-  map : Std.PHashMap Name MatchEqns := {}
+  map : PHashMap Name MatchEqns := {}
   deriving Inhabited
 
 /- We generate the equations and splitter on demand, and do not save them on .olean files. -/

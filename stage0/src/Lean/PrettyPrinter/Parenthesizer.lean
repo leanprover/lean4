@@ -482,6 +482,7 @@ def setExpected.parenthesizer (_expected : List String) (p : Parenthesizer) : Pa
 @[combinatorParenthesizer Lean.Parser.checkNoWsBefore] def checkNoWsBefore.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.checkLinebreakBefore] def checkLinebreakBefore.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.checkTailWs] def checkTailWs.parenthesizer : Parenthesizer := pure ()
+@[combinatorParenthesizer Lean.Parser.checkColEq] def checkColEq.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.checkColGe] def checkColGe.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.checkColGt] def checkColGt.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.checkLineEq] def checkLineEq.parenthesizer : Parenthesizer := pure ()

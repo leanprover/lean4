@@ -8,7 +8,7 @@ import Lean.Environment
 namespace Lean
 
 structure ClosedTermCache where
-  map        : Std.PHashMap Expr Name := {}
+  map        : PHashMap Expr Name := {}
   constNames : NameSet := {}
   deriving Inhabited
 

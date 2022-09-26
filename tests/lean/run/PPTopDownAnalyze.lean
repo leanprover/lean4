@@ -345,8 +345,8 @@ set_option pp.analyze.trustSubtypeMk true in
 #testDelabN Lean.Elab.InfoTree.goalsAt?.match_1
 #testDelabN Array.mk.injEq
 #testDelabN Lean.PrefixTree.empty
-#testDelabN Std.PersistentHashMap.getCollisionNodeSize.match_1
-#testDelabN Std.HashMap.size.match_1
+#testDelabN Lean.PersistentHashMap.getCollisionNodeSize.match_1
+#testDelabN Lean.HashMap.size.match_1
 #testDelabN and_false
 
 -- TODO: this one prints out a structure instance with keyword field `end`

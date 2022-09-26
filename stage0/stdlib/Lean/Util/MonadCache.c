@@ -49,13 +49,12 @@ LEAN_EXPORT lean_object* l_Lean_MonadCacheT_instMonadFinallyMonadCacheT___boxed(
 LEAN_EXPORT lean_object* l_modify___at_Lean_MonadCacheT_instMonadHashMapCacheAdapterMonadCacheT___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instMonadCacheReaderT___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instMonadCacheReaderT___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_HashMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_instMonadExceptOfStateRefT_x27___rarg(lean_object*);
 lean_object* l_StateT_monadControl___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MonadHashMapCacheAdapter_cache___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkHashMapImp___rarg(lean_object*);
 lean_object* l_StateRefT_x27_lift(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_modify___at_Lean_MonadStateCacheT_instMonadHashMapCacheAdapterMonadStateCacheT___spec__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_HashMapImp_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MonadCacheT_instAlternativeMonadCacheT___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MonadHashMapCacheAdapter_findCached_x3f(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_checkCache___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -65,7 +64,6 @@ LEAN_EXPORT lean_object* l_Lean_MonadCacheT_instAlternativeMonadCacheT___rarg(le
 LEAN_EXPORT lean_object* l_Lean_MonadStateCacheT_instMonadMonadStateCacheT___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateT_get___rarg(lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_checkCache___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MonadHashMapCacheAdapter_instMonadCache(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MonadCacheT_run___rarg___closed__1;
@@ -96,6 +94,7 @@ LEAN_EXPORT lean_object* l_Lean_instMonadCacheReaderT___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MonadHashMapCacheAdapter_findCached_x3f___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instMonadCacheReaderT___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MonadCacheT_instMonadExceptOfMonadCacheT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_HashMapImp_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MonadCacheT_instMonadExceptOfMonadCacheT___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MonadCacheT_instMonadLiftMonadCacheT___closed__1;
 LEAN_EXPORT lean_object* l_Lean_MonadHashMapCacheAdapter_cache___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -120,6 +119,7 @@ lean_object* l_StateT_tryFinally___rarg(lean_object*, lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Lean_MonadCacheT_run___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instMonadControlReaderT___lambda__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MonadCacheT_instMonadLiftMonadCacheT___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_HashMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MonadCacheT_instMonadFinallyMonadCacheT___rarg(lean_object*, lean_object*);
 lean_object* l_ReaderT_instMonadReaderT___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MonadStateCacheT_instMonadHashMapCacheAdapterMonadStateCacheT___rarg(lean_object*, lean_object*, lean_object*);
@@ -401,7 +401,7 @@ lean_dec(x_1);
 x_7 = lean_ctor_get(x_6, 1);
 lean_inc(x_7);
 lean_dec(x_6);
-x_8 = l_Std_HashMapImp_find_x3f___rarg(x_2, x_3, x_5, x_4);
+x_8 = l_Lean_HashMapImp_find_x3f___rarg(x_2, x_3, x_5, x_4);
 x_9 = lean_apply_2(x_7, lean_box(0), x_8);
 return x_9;
 }
@@ -445,7 +445,7 @@ LEAN_EXPORT lean_object* l_Lean_MonadHashMapCacheAdapter_cache___rarg___lambda__
 _start:
 {
 lean_object* x_6; 
-x_6 = l_Std_HashMap_insert___rarg(x_1, x_2, x_5, x_3, x_4);
+x_6 = l_Lean_HashMap_insert___rarg(x_1, x_2, x_5, x_3, x_4);
 return x_6;
 }
 }
@@ -669,7 +669,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Std_mkHashMapImp___rarg(x_1);
+x_2 = l_Lean_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }

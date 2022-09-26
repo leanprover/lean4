@@ -17,6 +17,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDe
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_TerminationBy_markAsUsed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_TerminationHint_0__Lean_Elab_WF_expandTerminationByNonCore___closed__2;
 static lean_object* l_Lean_Elab_WF_instInhabitedTerminationBy___closed__1;
+LEAN_EXPORT lean_object* l_Lean_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__3___closed__1;
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_WF_TerminationHint_0__Lean_Elab_WF_expandTerminationByNonCore___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -25,7 +26,7 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_TerminationHint_find_x3f___boxed(lean_object*, lean_object*);
-lean_object* l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_expandTerminationHint___closed__7;
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_WF_TerminationHint_0__Lean_Elab_WF_expandTerminationByNonCore___spec__3___closed__2;
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -36,21 +37,17 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_expandTermin
 static lean_object* l_Lean_Elab_WF_expandTerminationHint___closed__4;
 static lean_object* l_Lean_Elab_WF_expandTerminationHint___closed__8;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_expandTerminationHint___spec__5(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_RBNode_erase___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l_Lean_Elab_WF_expandTerminationHint___closed__9;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_WF_TerminationHint_0__Lean_Elab_WF_expandTerminationByNonCore___spec__9___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_TerminationByClique_getExplicitElement_x3f___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_Std_RBNode_find___at_Lean_Elab_WF_expandTerminationHint___spec__3___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Elab_PreDefinition_WF_TerminationHint_0__Lean_Elab_WF_expandTerminationByNonCore___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_expandTerminationHint___spec__8___closed__1;
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_WF_TerminationHint_0__Lean_Elab_WF_expandTerminationByNonCore___spec__3___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_expandTerminationHint___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_instInhabitedTerminationByElement;
-static lean_object* l_Std_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_TerminationHint_find_x3f___spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_Std_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -76,15 +73,18 @@ static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinit
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_TerminationBy_ensureAllUsed___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_TerminationBy_ensureAllUsed___spec__1(uint8_t, lean_object*, size_t, size_t, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_WF_TerminationHint_0__Lean_Elab_WF_expandTerminationByNonCore___spec__9___closed__2;
-lean_object* l_Std_RBNode_setBlack___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_expandTerminationHint___spec__10(size_t, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_expandTerminationHint___spec__4___closed__3;
+uint8_t l_Lean_RBNode_isBlack___rarg(lean_object*);
+lean_object* l_Lean_RBNode_appendTrees___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_WF_TerminationBy_markAsUsed___spec__3(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_TerminationByClique_getExplicitElement_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_WF_TerminationBy_markAsUsed___spec__2(lean_object*, lean_object*, size_t, size_t);
+lean_object* l_Lean_RBNode_setBlack___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_WF_TerminationBy_find_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_WF_TerminationBy_ensureAllUsed___spec__2___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_expandTerminationHint___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_expandTerminationHint___spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_expandTerminationHint___spec__6(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
@@ -92,13 +92,10 @@ LEAN_EXPORT lean_object* l_Lean_Elab_WF_expandTerminationBy(lean_object*, lean_o
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_expandTerminationHint___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_RBNode_appendTrees___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_expandTerminationHint___closed__10;
-lean_object* l_Std_RBNode_balRight___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Std_RBNode_isBlack___rarg(lean_object*);
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
-lean_object* l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_TerminationByClique_getExplicitElement_x3f___boxed(lean_object*);
+lean_object* l_Lean_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_expandTerminationHint___spec__8___closed__3;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_WF_TerminationHint_0__Lean_Elab_WF_expandTerminationByNonCore___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_TerminationBy_markAsUsed___boxed(lean_object*, lean_object*);
@@ -112,7 +109,6 @@ static lean_object* l___private_Lean_Elab_PreDefinition_WF_TerminationHint_0__Le
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Elab_PreDefinition_WF_TerminationHint_0__Lean_Elab_WF_expandTerminationByNonCore___spec__2(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_TerminationHint_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_WF_TerminationHint_0__Lean_Elab_WF_expandTerminationByNonCore___spec__5(lean_object*, size_t, size_t, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Macro_throwErrorAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_WF_TerminationHint_0__Lean_Elab_WF_expandTerminationByNonCore___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_instInhabitedTerminationHintValue___closed__1;
@@ -122,12 +118,12 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_WF_TerminationHint_
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_WF_TerminationBy_markAsUsed___spec__1(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Elab_PreDefinition_WF_TerminationHint_0__Lean_Elab_WF_expandTerminationByNonCore___spec__1(lean_object*, lean_object*, size_t, size_t);
 static lean_object* l_Lean_Elab_WF_expandTerminationBy___closed__2;
+LEAN_EXPORT lean_object* l_Lean_RBNode_erase___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_expandTerminationHint___spec__4___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_TerminationHint_markAsUsed___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_expandTerminationHint___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_RBNode_balLeft___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_expandTerminationHint___spec__2___closed__2;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_WF_TerminationHint_0__Lean_Elab_WF_expandTerminationByNonCore___spec__4(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_expandTerminationHint___spec__4___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -135,12 +131,12 @@ size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__3(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 extern lean_object* l_Lean_NameSet_empty;
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_expandTerminationHint___spec__4___closed__2;
-LEAN_EXPORT lean_object* l_Std_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_expandTerminationHint___spec__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_TerminationByClique_allImplicit___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_TerminationByClique_getExplicitElement_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_expandTerminationHint___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Macro_throwError___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_erase___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_WF_TerminationByClique_used___default;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_expandTerminationHint___spec__8(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
@@ -148,7 +144,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_WF_TerminationHint_markAsUsed___lambda__1__
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_WF_TerminationHint_0__Lean_Elab_WF_expandTerminationByNonCore___spec__3(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_WF_TerminationHint_0__Lean_Elab_WF_expandTerminationByNonCore___spec__7(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_Std_RBNode_find___at_Lean_Elab_WF_expandTerminationHint___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 uint8_t l_Lean_Name_isSuffixOf(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Elab_PreDefinition_WF_TerminationHint_0__Lean_Elab_WF_expandTerminationByNonCore___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -157,6 +152,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_WF_TerminationHint_markAsUsed___lambda__1(l
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_WF_TerminationHint_0__Lean_Elab_WF_expandTerminationByNonCore___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_TerminationBy_ensureAllUsed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_expandTerminationHint___closed__5;
+LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Elab_WF_expandTerminationHint___spec__3___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_WF_TerminationHint_0__Lean_Elab_WF_expandTerminationByNonCore___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_TerminationHint_ensureAllUsed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_WF_TerminationBy_markAsUsed___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -164,6 +160,7 @@ static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinit
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_expandTerminationHint___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_expandTerminationBy___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_expandTerminationHint(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_RBNode_balRight___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_expandTerminationHint___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_WF_TerminationHint_0__Lean_Elab_WF_expandTerminationByNonCore(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -181,18 +178,21 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_WF_TerminationBy_find_
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_instInhabitedTerminationByElement___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_TerminationBy_find_x3f(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_RBNode_erase___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_expandTerminationHint___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_WF_TerminationHint_0__Lean_Elab_WF_expandTerminationByNonCore___spec__9___closed__3;
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_expandTerminationHint___spec__4___closed__1;
+lean_object* l_Lean_RBNode_balLeft___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_expandTerminationHint___spec__8___closed__2;
 static lean_object* l_Lean_Elab_WF_expandTerminationHint___closed__1;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_WF_TerminationHint_0__Lean_Elab_WF_expandTerminationByNonCore___spec__3___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_expandTerminationHint___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Elab_WF_expandTerminationHint___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_expandTerminationHint___spec__4(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_expandTerminationHint___closed__2;
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_WF_TerminationBy_find_x3f___spec__1(lean_object*, lean_object*, size_t, size_t);
-LEAN_EXPORT lean_object* l_Std_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2(lean_object*, lean_object*);
+static lean_object* l_Lean_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1___closed__1;
 static lean_object* l_Lean_Elab_WF_expandTerminationBy___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_instInhabitedTerminationHintValue;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -476,7 +476,7 @@ return x_48;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_RBNode_find___at_Lean_Elab_WF_expandTerminationHint___spec__3(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Elab_WF_expandTerminationHint___spec__3(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -572,7 +572,7 @@ else
 {
 lean_object* x_10; lean_object* x_11; 
 x_10 = lean_array_uget(x_2, x_4);
-x_11 = l_Std_RBNode_find___at_Lean_Elab_WF_expandTerminationHint___spec__3(x_1, x_10);
+x_11 = l_Lean_RBNode_find___at_Lean_Elab_WF_expandTerminationHint___spec__3(x_1, x_10);
 if (lean_obj_tag(x_11) == 0)
 {
 size_t x_12; size_t x_13; 
@@ -740,7 +740,7 @@ else
 {
 lean_object* x_10; lean_object* x_11; 
 x_10 = lean_array_uget(x_2, x_4);
-x_11 = l_Std_RBNode_find___at_Lean_Elab_WF_expandTerminationHint___spec__3(x_1, x_10);
+x_11 = l_Lean_RBNode_find___at_Lean_Elab_WF_expandTerminationHint___spec__3(x_1, x_10);
 if (lean_obj_tag(x_11) == 0)
 {
 size_t x_12; size_t x_13; 
@@ -986,7 +986,7 @@ x_33 = l_Lean_Syntax_getArg(x_9, x_32);
 x_34 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_34, 0, x_9);
 lean_ctor_set(x_34, 1, x_33);
-x_35 = l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(x_5, x_31, x_34);
+x_35 = l_Lean_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(x_5, x_31, x_34);
 x_36 = 1;
 x_37 = lean_usize_add(x_3, x_36);
 x_3 = x_37;
@@ -1047,7 +1047,7 @@ x_56 = l_Lean_Syntax_getArg(x_9, x_55);
 x_57 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_57, 0, x_9);
 lean_ctor_set(x_57, 1, x_56);
-x_58 = l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(x_5, x_54, x_57);
+x_58 = l_Lean_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(x_5, x_54, x_57);
 x_59 = 1;
 x_60 = lean_usize_add(x_3, x_59);
 x_3 = x_60;
@@ -1085,7 +1085,7 @@ else
 {
 lean_object* x_10; lean_object* x_11; 
 x_10 = lean_array_uget(x_2, x_4);
-x_11 = l_Std_RBNode_find___at_Lean_Elab_WF_expandTerminationHint___spec__3(x_1, x_10);
+x_11 = l_Lean_RBNode_find___at_Lean_Elab_WF_expandTerminationHint___spec__3(x_1, x_10);
 if (lean_obj_tag(x_11) == 0)
 {
 size_t x_12; size_t x_13; 
@@ -1673,11 +1673,11 @@ lean_dec(x_1);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_Std_RBNode_find___at_Lean_Elab_WF_expandTerminationHint___spec__3___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Elab_WF_expandTerminationHint___spec__3___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_RBNode_find___at_Lean_Elab_WF_expandTerminationHint___spec__3(x_1, x_2);
+x_3 = l_Lean_RBNode_find___at_Lean_Elab_WF_expandTerminationHint___spec__3(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
@@ -1804,7 +1804,7 @@ lean_dec(x_1);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Std_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -1829,11 +1829,11 @@ switch (x_9) {
 case 0:
 {
 uint8_t x_10; 
-x_10 = l_Std_RBNode_isBlack___rarg(x_5);
+x_10 = l_Lean_RBNode_isBlack___rarg(x_5);
 if (x_10 == 0)
 {
 lean_object* x_11; uint8_t x_12; 
-x_11 = l_Std_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2(x_1, x_5);
+x_11 = l_Lean_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2(x_1, x_5);
 x_12 = 0;
 lean_ctor_set(x_2, 0, x_11);
 lean_ctor_set_uint8(x_2, sizeof(void*)*4, x_12);
@@ -1843,8 +1843,8 @@ else
 {
 lean_object* x_13; lean_object* x_14; 
 lean_free_object(x_2);
-x_13 = l_Std_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2(x_1, x_5);
-x_14 = l_Std_RBNode_balLeft___rarg(x_13, x_6, x_7, x_8);
+x_13 = l_Lean_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2(x_1, x_5);
+x_14 = l_Lean_RBNode_balLeft___rarg(x_13, x_6, x_7, x_8);
 return x_14;
 }
 }
@@ -1854,17 +1854,17 @@ lean_object* x_15;
 lean_free_object(x_2);
 lean_dec(x_7);
 lean_dec(x_6);
-x_15 = l_Std_RBNode_appendTrees___rarg(x_5, x_8);
+x_15 = l_Lean_RBNode_appendTrees___rarg(x_5, x_8);
 return x_15;
 }
 default: 
 {
 uint8_t x_16; 
-x_16 = l_Std_RBNode_isBlack___rarg(x_8);
+x_16 = l_Lean_RBNode_isBlack___rarg(x_8);
 if (x_16 == 0)
 {
 lean_object* x_17; uint8_t x_18; 
-x_17 = l_Std_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2(x_1, x_8);
+x_17 = l_Lean_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2(x_1, x_8);
 x_18 = 0;
 lean_ctor_set(x_2, 3, x_17);
 lean_ctor_set_uint8(x_2, sizeof(void*)*4, x_18);
@@ -1874,8 +1874,8 @@ else
 {
 lean_object* x_19; lean_object* x_20; 
 lean_free_object(x_2);
-x_19 = l_Std_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2(x_1, x_8);
-x_20 = l_Std_RBNode_balRight___rarg(x_5, x_6, x_7, x_19);
+x_19 = l_Lean_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2(x_1, x_8);
+x_20 = l_Lean_RBNode_balRight___rarg(x_5, x_6, x_7, x_19);
 return x_20;
 }
 }
@@ -1898,11 +1898,11 @@ switch (x_25) {
 case 0:
 {
 uint8_t x_26; 
-x_26 = l_Std_RBNode_isBlack___rarg(x_21);
+x_26 = l_Lean_RBNode_isBlack___rarg(x_21);
 if (x_26 == 0)
 {
 lean_object* x_27; uint8_t x_28; lean_object* x_29; 
-x_27 = l_Std_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2(x_1, x_21);
+x_27 = l_Lean_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2(x_1, x_21);
 x_28 = 0;
 x_29 = lean_alloc_ctor(1, 4, 1);
 lean_ctor_set(x_29, 0, x_27);
@@ -1915,8 +1915,8 @@ return x_29;
 else
 {
 lean_object* x_30; lean_object* x_31; 
-x_30 = l_Std_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2(x_1, x_21);
-x_31 = l_Std_RBNode_balLeft___rarg(x_30, x_22, x_23, x_24);
+x_30 = l_Lean_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2(x_1, x_21);
+x_31 = l_Lean_RBNode_balLeft___rarg(x_30, x_22, x_23, x_24);
 return x_31;
 }
 }
@@ -1925,17 +1925,17 @@ case 1:
 lean_object* x_32; 
 lean_dec(x_23);
 lean_dec(x_22);
-x_32 = l_Std_RBNode_appendTrees___rarg(x_21, x_24);
+x_32 = l_Lean_RBNode_appendTrees___rarg(x_21, x_24);
 return x_32;
 }
 default: 
 {
 uint8_t x_33; 
-x_33 = l_Std_RBNode_isBlack___rarg(x_24);
+x_33 = l_Lean_RBNode_isBlack___rarg(x_24);
 if (x_33 == 0)
 {
 lean_object* x_34; uint8_t x_35; lean_object* x_36; 
-x_34 = l_Std_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2(x_1, x_24);
+x_34 = l_Lean_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2(x_1, x_24);
 x_35 = 0;
 x_36 = lean_alloc_ctor(1, 4, 1);
 lean_ctor_set(x_36, 0, x_21);
@@ -1948,8 +1948,8 @@ return x_36;
 else
 {
 lean_object* x_37; lean_object* x_38; 
-x_37 = l_Std_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2(x_1, x_24);
-x_38 = l_Std_RBNode_balRight___rarg(x_21, x_22, x_23, x_37);
+x_37 = l_Lean_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2(x_1, x_24);
+x_38 = l_Lean_RBNode_balRight___rarg(x_21, x_22, x_23, x_37);
 return x_38;
 }
 }
@@ -1958,12 +1958,12 @@ return x_38;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_RBNode_erase___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_erase___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l_Std_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2(x_1, x_2);
-x_4 = l_Std_RBNode_setBlack___rarg(x_3);
+x_3 = l_Lean_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2(x_1, x_2);
+x_4 = l_Lean_RBNode_setBlack___rarg(x_3);
 return x_4;
 }
 }
@@ -2022,8 +2022,8 @@ goto _start;
 else
 {
 lean_object* x_13; lean_object* x_14; 
-x_13 = l_Std_RBNode_erase___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__1(x_8, x_1);
-x_14 = l_Std_RBNode_erase___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__1(x_8, x_13);
+x_13 = l_Lean_RBNode_erase___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__1(x_8, x_1);
+x_14 = l_Lean_RBNode_erase___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__1(x_8, x_13);
 lean_dec(x_8);
 if (lean_obj_tag(x_14) == 0)
 {
@@ -2095,20 +2095,20 @@ return x_11;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2(x_1, x_2);
+x_3 = l_Lean_RBNode_del___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__2(x_1, x_2);
 lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_RBNode_erase___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_erase___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_RBNode_erase___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__1(x_1, x_2);
+x_3 = l_Lean_RBNode_erase___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__1(x_1, x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -2161,7 +2161,7 @@ else
 {
 lean_object* x_8; lean_object* x_9; 
 x_8 = lean_array_uget(x_3, x_5);
-x_9 = l_Std_RBNode_find___at_Lean_Elab_WF_expandTerminationHint___spec__3(x_1, x_8);
+x_9 = l_Lean_RBNode_find___at_Lean_Elab_WF_expandTerminationHint___spec__3(x_1, x_8);
 lean_dec(x_8);
 if (lean_obj_tag(x_9) == 0)
 {
@@ -2287,7 +2287,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Std_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1___closed__1() {
+static lean_object* _init_l_Lean_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2295,7 +2295,7 @@ x_1 = lean_mk_string_from_bytes("unused termination hint element", 31);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Std_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -2313,7 +2313,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8;
 x_6 = lean_ctor_get(x_2, 0);
 x_7 = lean_ctor_get(x_2, 2);
 lean_inc(x_3);
-x_8 = l_Std_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1(x_1, x_6, x_3, x_4);
+x_8 = l_Lean_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1(x_1, x_6, x_3, x_4);
 if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
@@ -2321,7 +2321,7 @@ x_9 = lean_ctor_get(x_8, 1);
 lean_inc(x_9);
 lean_dec(x_8);
 x_10 = lean_ctor_get(x_7, 0);
-x_11 = l_Std_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1___closed__1;
+x_11 = l_Lean_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1___closed__1;
 x_12 = l_Lean_Macro_throwErrorAt___rarg(x_10, x_11, x_3, x_9);
 x_13 = !lean_is_exclusive(x_12);
 if (x_13 == 0)
@@ -2391,7 +2391,7 @@ lean_dec(x_1);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 lean_dec(x_6);
-x_8 = l_Std_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1___closed__1;
+x_8 = l_Lean_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1___closed__1;
 x_9 = l_Lean_Macro_throwErrorAt___rarg(x_7, x_8, x_2, x_3);
 lean_dec(x_7);
 return x_9;
@@ -2403,18 +2403,18 @@ x_10 = lean_ctor_get(x_1, 0);
 lean_inc(x_10);
 lean_dec(x_1);
 x_11 = lean_box(0);
-x_12 = l_Std_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1(x_11, x_10, x_2, x_3);
+x_12 = l_Lean_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1(x_11, x_10, x_2, x_3);
 lean_dec(x_10);
 return x_12;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Std_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1(x_1, x_2, x_3, x_4);
+x_5 = l_Lean_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 return x_5;
 }
@@ -2588,7 +2588,7 @@ _start:
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_40; lean_object* x_41; uint8_t x_42; 
 x_9 = lean_box(0);
 lean_inc(x_1);
-x_10 = l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_5, x_1, x_9);
+x_10 = l_Lean_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_5, x_1, x_9);
 x_40 = lean_array_get_size(x_4);
 x_41 = lean_unsigned_to_nat(0u);
 x_42 = lean_nat_dec_lt(x_41, x_40);
@@ -6364,7 +6364,7 @@ x_27 = l_panic___at___private_Lean_Elab_PreDefinition_WF_TerminationHint_0__Lean
 x_28 = lean_ctor_get(x_27, 0);
 lean_inc(x_28);
 lean_dec(x_27);
-x_29 = l_Std_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1___closed__1;
+x_29 = l_Lean_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1___closed__1;
 x_30 = l_Lean_Macro_throwErrorAt___rarg(x_28, x_29, x_6, x_7);
 lean_dec(x_28);
 x_31 = !lean_is_exclusive(x_30);
@@ -6394,7 +6394,7 @@ lean_dec(x_22);
 x_36 = lean_ctor_get(x_35, 0);
 lean_inc(x_36);
 lean_dec(x_35);
-x_37 = l_Std_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1___closed__1;
+x_37 = l_Lean_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1___closed__1;
 x_38 = l_Lean_Macro_throwErrorAt___rarg(x_36, x_37, x_6, x_7);
 lean_dec(x_36);
 x_39 = !lean_is_exclusive(x_38);
@@ -6451,7 +6451,7 @@ lean_dec(x_21);
 x_48 = lean_ctor_get(x_47, 0);
 lean_inc(x_48);
 lean_dec(x_47);
-x_49 = l_Std_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1___closed__1;
+x_49 = l_Lean_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1___closed__1;
 x_50 = l_Lean_Macro_throwErrorAt___rarg(x_48, x_49, x_6, x_7);
 lean_dec(x_48);
 x_51 = !lean_is_exclusive(x_50);
@@ -6752,8 +6752,8 @@ l_Array_forInUnsafe_loop___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__3_
 lean_mark_persistent(l_Array_forInUnsafe_loop___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__3___closed__1);
 l_Array_forInUnsafe_loop___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__3___closed__2 = _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__3___closed__2();
 lean_mark_persistent(l_Array_forInUnsafe_loop___at_Lean_Elab_WF_TerminationHint_markAsUsed___spec__3___closed__2);
-l_Std_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1___closed__1 = _init_l_Std_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1___closed__1();
-lean_mark_persistent(l_Std_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1___closed__1);
+l_Lean_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1___closed__1 = _init_l_Lean_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1___closed__1();
+lean_mark_persistent(l_Lean_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_ensureAllUsed___spec__1___closed__1);
 l_Lean_Elab_WF_instInhabitedTerminationByElement___closed__1 = _init_l_Lean_Elab_WF_instInhabitedTerminationByElement___closed__1();
 lean_mark_persistent(l_Lean_Elab_WF_instInhabitedTerminationByElement___closed__1);
 l_Lean_Elab_WF_instInhabitedTerminationByElement___closed__2 = _init_l_Lean_Elab_WF_instInhabitedTerminationByElement___closed__2();

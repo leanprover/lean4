@@ -38,7 +38,6 @@ inductive Trie (α : Type) where
 end DiscrTree
 
 open DiscrTree
-open Std (PersistentHashMap)
 
 structure DiscrTree (α : Type) where
   root : PersistentHashMap Key (Trie α) := {}

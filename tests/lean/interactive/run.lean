@@ -4,6 +4,35 @@ open Lean
 open Lean.Lsp
 open Lean.JsonRpc
 
+namespace Client
+
+/- Client-side types for showing interactive goals. -/
+
+structure SubexprInfo where
+  subexprPos : String
+  highlightColor? : Option String
+  deriving FromJson, Repr
+
+structure Hyp where
+  type : Widget.TaggedText SubexprInfo
+  names : Array String
+  isInserted?: Option Bool
+  isRemoved?: Option Bool
+  deriving FromJson, Repr
+
+structure InteractiveGoal where
+  type : Widget.TaggedText SubexprInfo
+  isInserted?: Option Bool := none
+  isRemoved?: Option Bool := none
+  hyps : Array Hyp
+  deriving FromJson, Repr
+
+structure InteractiveGoals where
+  goals : Array InteractiveGoal
+  deriving FromJson, Repr
+
+end Client
+
 def word : Parsec String :=
   Parsec.many1Chars <| Parsec.digit <|> Parsec.asciiLetter <|> Parsec.pchar '_'
 
@@ -78,6 +107,28 @@ partial def main (args : List String) : IO Unit := do
           for diag in diags do
             IO.eprintln (toJson diag.param)
           requestNo := requestNo + 1
+        | "goals" =>
+          if rpcSessionId.isNone then
+            Ipc.writeRequest ⟨requestNo, "$/lean/rpc/connect",  RpcConnectParams.mk uri⟩
+            let r ← Ipc.readResponseAs requestNo RpcConnected
+            rpcSessionId := some r.result.sessionId
+            requestNo := requestNo + 1
+          let params : Lsp.PlainGoalParams := {
+            textDocument := { uri }
+            position := pos,
+          }
+          let ps : RpcCallParams := {
+            params := toJson params
+            textDocument := { uri }
+            position := pos,
+            sessionId := rpcSessionId.get!,
+            method := `Lean.Widget.getInteractiveGoals
+          }
+          Ipc.writeRequest ⟨requestNo, "$/lean/rpc/call", ps⟩
+          let response ← Ipc.readResponseAs requestNo Client.InteractiveGoals
+          requestNo := requestNo + 1
+          IO.eprintln (repr response.result)
+          IO.eprintln ""
         | "widgets" =>
           if rpcSessionId.isNone then
             Ipc.writeRequest ⟨requestNo, "$/lean/rpc/connect",  RpcConnectParams.mk uri⟩

@@ -9,6 +9,7 @@ import Lean.Log
 import Lean.Eval
 import Lean.ResolveName
 import Lean.Elab.InfoTree.Types
+import Lean.MonadEnv
 
 namespace Lean
 namespace Core
@@ -21,7 +22,7 @@ register_builtin_option maxHeartbeats : Nat := {
 def getMaxHeartbeats (opts : Options) : Nat :=
   maxHeartbeats.get opts * 1000
 
-abbrev InstantiateLevelCache := Std.PersistentHashMap Name (List Level × Expr)
+abbrev InstantiateLevelCache := PersistentHashMap Name (List Level × Expr)
 
 /-- Cache for the `CoreM` monad -/
 structure Cache where
@@ -235,6 +236,9 @@ end Core
 
 export Core (CoreM mkFreshUserName checkMaxHeartbeats withCurrHeartbeats)
 
+@[inline] def withAtLeastMaxRecDepth [MonadFunctorT CoreM m] (max : Nat) : m α → m α :=
+  monadMap (m := CoreM) <| withReader (fun ctx => { ctx with maxRecDepth := Nat.max max ctx.maxRecDepth })
+
 @[inline] def catchInternalId [Monad m] [MonadExcept Exception m] (id : InternalExceptionId) (x : m α) (h : Exception → m α) : m α := do
   try
     x
@@ -261,5 +265,61 @@ def Exception.isMaxHeartbeat (ex : Exception) : Bool :=
 /-- Creates the expression `d → b` -/
 def mkArrow (d b : Expr) : CoreM Expr :=
   return Lean.mkForall (← mkFreshUserName `x) BinderInfo.default d b
+
+def addDecl (decl : Declaration) : CoreM Unit := do
+  if !(← MonadLog.hasErrors) && decl.hasSorry then
+    logWarning "declaration uses 'sorry'"
+  match (← getEnv).addDecl decl with
+  | Except.ok    env => setEnv env
+  | Except.error ex  => throwKernelException ex
+
+private def supportedRecursors :=
+  #[``Empty.rec, ``False.rec, ``Eq.ndrec, ``Eq.rec, ``Eq.recOn, ``Eq.casesOn, ``False.casesOn, ``Empty.casesOn, ``And.rec, ``And.casesOn]
+
+/-- This is a temporary workaround for generating better error messages for the compiler. It can be deleted after we
+   rewrite the remaining parts of the compiler in Lean.  -/
+private def checkUnsupported [Monad m] [MonadEnv m] [MonadError m] (decl : Declaration) : m Unit := do
+  let env ← getEnv
+  decl.forExprM fun e =>
+    let unsupportedRecursor? := e.find? fun
+      | Expr.const declName .. =>
+        ((isAuxRecursor env declName && !isCasesOnRecursor env declName) || isRecCore env declName)
+        && !supportedRecursors.contains declName
+      | _ => false
+    match unsupportedRecursor? with
+    | some (Expr.const declName ..) => throwError "code generator does not support recursor '{declName}' yet, consider using 'match ... with' and/or structural recursion"
+    | _ => pure ()
+
+-- Forward declaration
+@[extern "lean_lcnf_compile_decls"]
+opaque compileDeclsNew (declNames : List Name) : CoreM Unit
+
+def compileDecl (decl : Declaration) : CoreM Unit := do
+  compileDeclsNew (Compiler.getDeclNamesForCodeGen decl)
+  match (← getEnv).compileDecl (← getOptions) decl with
+  | Except.ok env   => setEnv env
+  | Except.error (KernelException.other msg) =>
+    checkUnsupported decl -- Generate nicer error message for unsupported recursors and axioms
+    throwError msg
+  | Except.error ex =>
+    throwKernelException ex
+
+def compileDecls (decls : List Name) : CoreM Unit := do
+  compileDeclsNew decls
+  match (← getEnv).compileDecls (← getOptions) decls with
+  | Except.ok env   => setEnv env
+  | Except.error (KernelException.other msg) =>
+    throwError msg
+  | Except.error ex =>
+    throwKernelException ex
+
+def addAndCompile (decl : Declaration) : CoreM Unit := do
+  addDecl decl;
+  compileDecl decl
+
+def ImportM.runCoreM (x : CoreM α) : ImportM α := do
+  let ctx ← read
+  let (a, _) ← x.toIO { options := ctx.opts, fileName := "<ImportM>", fileMap := default } { env := ctx.env }
+  return a
 
 end Lean

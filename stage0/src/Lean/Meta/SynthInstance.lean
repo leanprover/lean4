@@ -29,8 +29,6 @@ namespace SynthInstance
 def getMaxHeartbeats (opts : Options) : Nat :=
   synthInstance.maxHeartbeats.get opts * 1000
 
-open Std (HashMap)
-
 builtin_initialize inferTCGoalsRLAttr : TagAttribute ←
   registerTagAttribute `inferTCGoalsRL "instruct type class resolution procedure to solve goals from right to left for this instance"
 

@@ -11,19 +11,18 @@ namespace Lean.Meta
 
 private def getSimpUnfoldContext : MetaM Simp.Context :=
    return {
-      simpTheorems  := {}
       congrTheorems := (← getSimpCongrTheorems)
       config        := Simp.neutralConfig
    }
 
 def unfold (e : Expr) (declName : Name) : MetaM Simp.Result := do
   if let some unfoldThm ← getUnfoldEqnFor? declName  then
-    Simp.main e (← getSimpUnfoldContext) (methods := { pre := pre unfoldThm })
+    (·.1) <$> Simp.main e (← getSimpUnfoldContext) (methods := { pre := pre unfoldThm })
   else
     return { expr  := (← deltaExpand e (· == declName)) }
 where
   pre (unfoldThm : Name) (e : Expr) : SimpM Simp.Step := do
-    match (← withReducible <| Simp.tryTheorem? e { proof := mkConst unfoldThm, name? := some unfoldThm, rfl := (← isRflTheorem unfoldThm) } (fun _ => return none)) with
+    match (← withReducible <| Simp.tryTheorem? e { origin := .decl unfoldThm, proof := mkConst unfoldThm, rfl := (← isRflTheorem unfoldThm) } (fun _ => return none)) with
     | none   => pure ()
     | some r => match (← reduceMatcher? r.expr) with
       | .reduced e' => return Simp.Step.done { r with expr := e' }

@@ -7,6 +7,7 @@ Extra notation that depends on Init/Meta
 -/
 prelude
 import Init.Meta
+import Init.PanicAux
 import Init.Data.Array.Subarray
 import Init.Data.ToString
 namespace Lean

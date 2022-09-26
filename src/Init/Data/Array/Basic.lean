@@ -78,25 +78,10 @@ def swap (a : Array α) (i j : @& Fin a.size) : Array α :=
   let a'  := a.set i v₂
   a'.set (size_set a i v₂ ▸ j) v₁
 
-@[extern "lean_array_swap"]
-def swap! (a : Array α) (i j : @& Nat) : Array α :=
-  if h₁ : i < a.size then
-  if h₂ : j < a.size then swap a ⟨i, h₁⟩ ⟨j, h₂⟩
-  else panic! "index out of bounds"
-  else panic! "index out of bounds"
-
 @[inline] def swapAt (a : Array α) (i : Fin a.size) (v : α) : α × Array α :=
   let e := a.get i
   let a := a.set i v
   (e, a)
-
-@[inline]
-def swapAt! (a : Array α) (i : Nat) (v : α) : α × Array α :=
-  if h : i < a.size then
-    swapAt a ⟨i, h⟩ v
-  else
-    have : Inhabited α := ⟨v⟩
-    panic! ("index " ++ toString i ++ " out of bounds")
 
 @[extern "lean_array_pop"]
 def pop (a : Array α) : Array α := {
@@ -399,12 +384,6 @@ def find? {α : Type} (as : Array α) (p : α → Bool) : Option α :=
 @[inline]
 def findSome? {α : Type u} {β : Type v} (as : Array α) (f : α → Option β) : Option β :=
   Id.run <| as.findSomeM? f
-
-@[inline]
-def findSome! {α : Type u} {β : Type v} [Inhabited β] (a : Array α) (f : α → Option β) : β :=
-  match findSome? a f with
-  | some b => b
-  | none   => panic! "failed to find element"
 
 @[inline]
 def findSomeRev? {α : Type u} {β : Type v} (as : Array α) (f : α → Option β) : Option β :=
@@ -718,12 +697,6 @@ def erase [BEq α] (as : Array α) (a : α) : Array α :=
   let as := as.push a
   loop as ⟨j, size_push .. ▸ j.lt_succ_self⟩
 termination_by loop j => j.1
-
-/-- Insert element `a` at position `i`. Panics if `i` is not `i ≤ as.size`. -/
-def insertAt! (as : Array α) (i : Nat) (a : α) : Array α :=
-  if h : i ≤ as.size then
-    insertAt as ⟨i, Nat.lt_succ_of_le h⟩ a
-  else panic! "invalid index"
 
 def toListLitAux (a : Array α) (n : Nat) (hsz : a.size = n) : ∀ (i : Nat), i ≤ a.size → List α → List α
   | 0,     _,  acc => acc

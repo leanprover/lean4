@@ -7,7 +7,6 @@ Additional goodies for writing macros
 -/
 prelude
 import Init.Data.Array.Basic
-import Init.Data.Option.BasicAux
 
 namespace Lean
 
@@ -375,10 +374,13 @@ def getSubstring? (stx : Syntax) (withLeading := true) (withTrailing := true) : 
     none
   else
     let i := i - 1
-    let v := a[i]!
-    match f v with
-    | some v => some <| a.set! i v
-    | none   => updateLast a f i
+    if h : i < a.size then
+      let v := a[i]
+      match f v with
+      | some v => some <| a.set ⟨i, h⟩ v
+      | none   => updateLast a f i
+    else
+      none
 
 partial def setTailInfoAux (info : SourceInfo) : Syntax → Option Syntax
   | atom _ val             => some <| atom info val
@@ -852,10 +854,8 @@ def decodeNameLit (s : String) : Option Name :=
         if isIdBeginEscape comp.front then
           Name.mkStr n (comp.drop 1 |>.dropRight 1)
         else if comp.front.isDigit then
-          if let some k := decodeNatLitVal? comp then
-            Name.mkNum n k
-          else
-            unreachable!
+          let k := (decodeNatLitVal? comp).getD 0
+          Name.mkNum n k
         else
           Name.mkStr n comp
   else

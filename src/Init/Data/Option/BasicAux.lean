@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Option.Basic
-import Init.Util
+import Init.PanicAux
 
 universe u
 

@@ -120,20 +120,14 @@ private def elabTParserMacroAux (prec lhsPrec e : Term) : TermElabM Syntax := do
 def elabCallerInfoHere : TermElab := fun _ _ => do
   let pos ← getRefPosition
   return mkApp3 (Expr.const ``CallerInfo.mk [])
-    (toExpr (toString (← getEnv).mainModule))
-    (toExpr ((← getDeclName?).map toString))
-    (mkApp2 (Expr.const ``Position.mk []) (toExpr pos.line) (toExpr pos.column))
+    (toExpr (← getEnv).mainModule) (toExpr (← getDeclName?)) (toExpr pos)
 
-@[builtinTermElab Lean.Parser.Term.panic] def elabPanic : TermElab := fun stx expectedType? => do
-  match stx with
-  | `(panic! $arg) =>
-    let pos ← getRefPosition
-    let env ← getEnv
-    let stxNew ← match (← getDeclName?) with
-    | some declName => `(panicWithPosWithDecl $(quote (toString env.mainModule)) $(quote (toString declName)) $(quote pos.line) $(quote pos.column) $arg)
-    | none => `(panicWithPos $(quote (toString env.mainModule)) $(quote pos.line) $(quote pos.column) $arg)
-    withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
-  | _ => throwUnsupportedSyntax
+@[builtinMacro Lean.Parser.Term.panic] def expandPanic : Macro := fun stx =>
+  let arg := stx[1]
+  if arg.getKind == interpolatedStrKind then
+    `(panicWithInfo (s! $(⟨arg⟩)))
+  else
+    `(panicWithInfo (toString $(⟨arg⟩)))
 
 @[builtinMacro Lean.Parser.Term.unreachable] def expandUnreachable : Macro := fun _ =>
   `(panic! "unreachable code has been reached")

@@ -688,6 +688,29 @@ where
     | _ => failure
 
 /--
+Given the function declaration `decl`, return `true` if it is of the form
+```
+f y :=
+  ... /- This part is not bigger than smallThreshold. -/
+  cases y
+  | ... => ...
+  ...
+```
+-/
+def isJpCases (decl : FunDecl) (smallThreshold : Nat) : CompilerM Bool := do
+  if decl.params.size != 1 then
+    return false
+  else
+    let param := decl.params[0]!
+    let rec go (code : Code) (prefixSize : Nat) : Bool :=
+      prefixSize <= smallThreshold &&
+      match code with
+      | .let _ k => go k (prefixSize + 1) /- TODO: we should have uniform heuristics for estimating the size. -/
+      | .cases c => c.discr == param.fvarId
+      | _ => false
+    return go decl.value 0
+
+/--
 Return `some _jp.k` if the given `cases` is of the form
 ```
 cases _x.i
@@ -726,7 +749,8 @@ but returns a normalized `FVarId` in case of success.
 def isCasesOnCases? (cases : Cases) : OptionT SimpM FVarId := do
   let jpFirst ← isCtorJmp? cases.alts[0]!.getCode
   let funDecl ← getFunDecl jpFirst
-  guard <| (← isJpCases funDecl)
+  let smallThreshold := (← read).config.smallThreshold
+  guard <| (← isJpCases funDecl smallThreshold)
   for alt in cases.alts[1:] do
     let jp ← isCtorJmp? alt.getCode
     guard <| jpFirst == jp
@@ -741,17 +765,6 @@ where
       let arg ← findExpr (← normExpr arg)
       guard <| arg.isConstructorApp (← getEnv)
       normFVar jpFVarId
-
-  isJpCases (funDecl : FunDecl) : SimpM Bool := do
-    let param := funDecl.params[0]!
-    let smallThreshold := (← read).config.smallThreshold
-    let rec go (code : Code) (prefixSize : Nat) : Bool :=
-      prefixSize <= smallThreshold &&
-      match code with
-      | .let _ k => go k (prefixSize + 1)
-      | .cases c => c.discr == param.fvarId
-      | _ => false
-    return go funDecl.value 0
 
 /--
 Return the alternative in `alts` whose body appears in most arms,
@@ -1112,6 +1125,32 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
         simpCasesDefault
 
 end
+
+/--
+Return a map containing entries `jpFVarId ↦ ctorNames` where `jpFVarId` is the id of join point
+in code that satisfies `isJpCases`, and `ctorNames` is a set of constructor names such that
+there is a jump `.jmp jpFVarId #[x]` in `code` and `x` is a constructor application.
+-/
+partial def collectJpCasesInfo (code : Code) (smallThreshold : Nat): CompilerM (FVarIdMap NameSet) := do
+  let (_, s) ← go code |>.run {}
+  return s
+where
+  go (code : Code) : StateRefT (FVarIdMap NameSet) CompilerM Unit := do
+    match code with
+    | .let _ k => go k
+    | .fun decl k => go decl.value; go k
+    | .jp decl k =>
+      if (← isJpCases decl smallThreshold) then
+        modify fun s => s.insert decl.fvarId {}
+      go decl.value; go k
+    | .cases c => c.alts.forM fun alt => go alt.getCode
+    | .return .. | .unreach .. => return ()
+    | .jmp fvarId args =>
+      if args.size == 1 then
+      if let some ctorNames := (← get).find? fvarId then
+        let arg ← findExpr args[0]!
+        let some (cval, _) := arg.constructorApp? (← getEnv) | return ()
+        modify fun s => s.insert fvarId <| ctorNames.insert cval.name
 
 end Simp
 

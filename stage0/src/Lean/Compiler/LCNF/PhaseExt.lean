@@ -20,12 +20,15 @@ private abbrev findAtSorted? (decls : Array Decl) (declName : Name) : Option Dec
   let tmpDecl := { tmpDecl with name := declName }
   decls.binSearch tmpDecl declLt
 
-builtin_initialize baseExt : SimplePersistentEnvExtension Decl BaseExtState ← do
-  registerSimplePersistentEnvExtension {
-    name          := `compBaseDecls
-    addImportedFn := fun _ => {}
-    addEntryFn    := fun decls decl => decls.insert decl.name decl
-    toArrayFn     := fun es => sortDecls es.toArray
+builtin_initialize baseExt : PersistentEnvExtension Decl Decl BaseExtState ← do
+  registerPersistentEnvExtension {
+    name            := `compBaseDecls
+    mkInitial       := return {}
+    addImportedFn   := fun _ => return {}
+    addEntryFn      := fun decls decl => decls.insert decl.name decl
+    exportEntriesFn := fun s =>
+      let decls := s.foldl (init := #[]) fun decls _ decl => decls.push decl
+      sortDecls decls
   }
 
 def getBaseDeclCore? (env : Environment) (declName : Name) : Option Decl :=

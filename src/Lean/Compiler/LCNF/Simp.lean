@@ -3,6 +3,7 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Compiler.LCNF.ReduceJpArity
 import Lean.Compiler.LCNF.Simp.Basic
 import Lean.Compiler.LCNF.Simp.FunDeclInfo
 import Lean.Compiler.LCNF.Simp.JpCases
@@ -22,15 +23,14 @@ def Decl.simp? (decl : Decl) : SimpM (Option Decl) := do
   updateFunDeclInfo decl.value
   trace[Compiler.simp.inline.info] "{decl.name}:{Format.nest 2 (← (← get).funDeclInfoMap.format)}"
   traceM `Compiler.simp.step do ppDecl decl
-  let mut value ← simp decl.value
+  let value ← simp decl.value
   traceM `Compiler.simp.step.new do return m!"{decl.name} :=\n{← ppCode value}"
   let s ← get
   trace[Compiler.simp.stat] "{decl.name}, size: {value.size}, # visited: {s.visited}, # inline: {s.inline}, # inline local: {s.inlineLocal}"
-  let mut progress := (← get).simplified
-  if let some valueNew ← simpJpCases? value (← read).config.smallThreshold then
-    progress := true
-    value := valueNew
-  if progress then
+  if let some value ← simpJpCases? value (← read).config.smallThreshold then
+    let decl := { decl with value }
+    decl.reduceJpArity
+  else if (← get).simplified then
     return some { decl with value }
   else
     return none

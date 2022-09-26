@@ -101,7 +101,10 @@ def toDecl (declName : Name) : CompilerM Decl := do
     let value ← Meta.lambdaTelescope value fun xs body => do Meta.mkLambdaFVars xs (← Meta.etaExpand body)
     let value ← replaceUnsafeRecNames value
     let value ← macroInline value
+    /- Recall that some declarations tagged with `macroInline` contain matchers. -/
     let value ← inlineMatchers value
+    /- Recall that `inlineMatchers` may have exposed `ite`s and `dite`s which are tagged as `[macroInline]`. -/
+    let value ← macroInline value
     /-
     Remark: we have disabled the following transformation, we will perform it at phase 2, after code specialization.
     It prevents many optimizations (e.g., "cases-of-ctor").

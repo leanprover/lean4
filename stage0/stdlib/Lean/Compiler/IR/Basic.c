@@ -2927,7 +2927,7 @@ static lean_object* _init_l_Lean_IR_reshapeAux___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(61u);
+x_1 = lean_unsigned_to_nat(67u);
 x_2 = lean_unsigned_to_nat(4u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -12573,7 +12573,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_IR_addParamsRename___
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(41u);
+x_1 = lean_unsigned_to_nat(47u);
 x_2 = lean_unsigned_to_nat(36u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

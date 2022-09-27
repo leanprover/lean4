@@ -386,7 +386,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Rel_0__Lean_Ela
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(41u);
+x_1 = lean_unsigned_to_nat(47u);
 x_2 = lean_unsigned_to_nat(36u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

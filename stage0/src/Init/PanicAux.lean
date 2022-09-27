@@ -37,6 +37,12 @@ structure CallerInfo where
 @[neverExtract, inline] def panicWithPosWithDecl {α : Type u} [Inhabited α] (modName : String) (declName : String) (line col : Nat) (msg : String) : α :=
   CallerInfo.panic ⟨.mkSimple modName, some (.mkSimple declName), line, col⟩ msg
 
+macro "caller_info" : tactic => `(show CallerInfo; first | assumption | exact caller_info_here)
+
+@[neverExtract, inline] def panicWithInfo {α : Type u} [Inhabited α]
+    (msg : String) (info : CallerInfo := by caller_info) : α :=
+  CallerInfo.panic info msg
+
 @[inline] def getElem! [GetElem cont idx elem dom] [Inhabited elem] (xs : cont) (i : idx) [Decidable (dom xs i)] : elem :=
   if h : _ then getElem xs i h else panic! "index out of bounds"
 

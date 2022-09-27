@@ -41,7 +41,7 @@ def tail (p : Pos) : Pos :=
   else (p.asNat - p.head) / maxChildren
 
 def push (p : Pos) (c : Nat) : Pos :=
-  if c >= maxChildren then panic! s!"invalid coordinate {c}"
+  if c >= maxChildren then panic! "invalid coordinate {c}"
   else p.asNat * maxChildren + c
 
 variable {α : Type} [Inhabited α]

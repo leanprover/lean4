@@ -196,7 +196,7 @@ private partial def normFVarImp (s : FVarSubst) (fvarId : FVarId) (translator : 
       fvarId'
     else
       normFVarImp s fvarId' translator
-  | some e => panic! s!"invalid LCNF substitution of free variable with expression {e}"
+  | some e => panic! "invalid LCNF substitution of free variable with expression {e}"
   | none => fvarId
 
 /--

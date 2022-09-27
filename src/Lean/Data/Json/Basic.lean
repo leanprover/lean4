@@ -146,7 +146,7 @@ def toFloat : JsonNumber → Float
 should switch to using those. -/
 private def fromPositiveFloat! (x : Float) (info : CallerInfo := by caller_info) : JsonNumber :=
   match Lean.Syntax.decodeScientificLitVal? (toString x) with
-  | none => panic! s!"Failed to parse {toString x}"
+  | none => panic! "Failed to parse {x}"
   | some (m, sign, e) => OfScientific.ofScientific m sign e
 
 /-- Attempts to convert a float to a JsonNumber, if the number isn't finite returns
@@ -266,7 +266,7 @@ def getObjValD (j : Json) (k : String) : Json :=
 
 def setObjVal! : Json → String → Json → (info : CallerInfo := by caller_info) → Json
   | obj kvs, k, v, _ => obj <| kvs.insert compare k v
-  | _      , _, _, _ => panic! "Json.setObjVal!: not an object: {j}"
+  | _      , _, _, _ => panic! "Json.setObjVal!: not an object"
 
 inductive Structured where
   | arr (elems : Array Json)

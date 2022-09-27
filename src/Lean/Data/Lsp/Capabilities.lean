@@ -48,7 +48,7 @@ structure WorkspaceEditClientCapabilities where
   documentChanges          : Bool := false
   /--  Whether the client in general supports change annotations on text edits. -/
   changeAnnotationSupport? : Option ChangeAnnotationSupport := none
-  /-- The resource operations the client supports. Clients should at least support 'create', 'rename' and 'delete' files and folders.-/
+  /-- The resource operations the client supports. Clients should at least support 'create', 'rename' and 'delete' files and folders. -/
   resourceOperations?      : Option (Array String) := none
   deriving ToJson, FromJson
 

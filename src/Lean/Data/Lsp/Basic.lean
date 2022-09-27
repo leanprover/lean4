@@ -72,18 +72,18 @@ possible commands need to be announced as capabilities.
 structure Command where
   /-- Title of the command, like `save`. -/
   title : String
-  /-- The identifier of the actual command handler.-/
+  /-- The identifier of the actual command handler. -/
   command : String
-  /-- Arguments that the command handler should be invoked with.-/
+  /-- Arguments that the command handler should be invoked with. -/
   arguments? : Option (Array Json) := none
   deriving ToJson, FromJson
 
 /-- A textual edit applicable to a text document.
 
-[reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textEdit)-/
+[reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textEdit) -/
 structure TextEdit where
   /--  The range of the text document to be manipulated.
-    To insert text into a document create a range where `start = end`.-/
+    To insert text into a document create a range where `start = end`. -/
   range : Range
   /-- The string to be inserted. For delete operations use an empty string. -/
   newText : String
@@ -177,7 +177,7 @@ structure DeleteFile where
 
 /-- A change to a file resource.
 
-[reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#resourceChanges)-/
+[reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#resourceChanges) -/
 inductive DocumentChange where
   | create : CreateFile       → DocumentChange
   | rename : RenameFile       → DocumentChange
@@ -203,7 +203,7 @@ instance : FromJson DocumentChange where
 
 /-- A workspace edit represents changes to many resources managed in the workspace.
 
-[reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#workspaceEdit)-/
+[reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#workspaceEdit) -/
 structure WorkspaceEdit where
   /-- Changes to existing resources. -/
   changes : RBMap DocumentUri TextEditBatch compare := ∅
@@ -324,7 +324,7 @@ structure ProgressParams (α : Type) where
 
 structure WorkDoneProgressReport where
   kind := "report"
-  /-- More detailed associated progress message.-/
+  /-- More detailed associated progress message. -/
   message? : Option String := none
   /-- Controls if a cancel button should show to allow the user to cancel the operation. -/
   cancellable := false

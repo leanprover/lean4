@@ -74,7 +74,7 @@ instance : ToJson DiagnosticTag := ⟨fun
 
 /-- Represents a related message and source code location for a diagnostic.
     This should be used to point to code locations that cause or are related to
-    a diagnostics, e.g when duplicating a symbol in a scope.-/
+    a diagnostics, e.g when duplicating a symbol in a scope. -/
 structure DiagnosticRelatedInformation where
   location : Location
   message : String
@@ -104,7 +104,7 @@ structure DiagnosticWith (α : Type) where
   tags? : Option (Array DiagnosticTag) := none
   /-- An array of related diagnostic information, e.g. when symbol-names within a scope collide all definitions can be marked via this property. -/
   relatedInformation? : Option (Array DiagnosticRelatedInformation) := none
-  /-- A data entry field that is preserved between a `textDocument/publishDiagnostics` notification and `textDocument/codeAction` request.-/
+  /-- A data entry field that is preserved between a `textDocument/publishDiagnostics` notification and `textDocument/codeAction` request. -/
   data?: Option Json := none
   deriving Inhabited, BEq, ToJson, FromJson
 

@@ -36,7 +36,7 @@ instance : ToString RequestID where
 [JSON-RPC](https://www.jsonrpc.org/specification#error_object) and
 [LSP](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#errorCodes). -/
 inductive ErrorCode where
-  /-- Invalid JSON was received by the server. An error occurred on the server while parsing the JSON text.-/
+  /-- Invalid JSON was received by the server. An error occurred on the server while parsing the JSON text. -/
   | parseError
   /-- The JSON sent is not a valid Request object. -/
   | invalidRequest
@@ -176,7 +176,7 @@ structure ResponseError (α : Type u) where
   /-- A string providing a short description of the error. -/
   message : String
   /-- A primitive or structured value that contains additional
-      information about the error. Can be omitted.-/
+      information about the error. Can be omitted. -/
   data?   : Option α := none
   deriving Inhabited, BEq
 

@@ -98,16 +98,16 @@ def test : IO Unit := do
 This test executes 1000 threads and while each thread only sleeps for 1 millisecond it will take a
 lot longer than 1 millisecond for all the threads to run depending on the overhead of thread
 scheduling on your operating system where it has to wait for an available CPU core, etc.
-This test also shows that the `ST.Ref.modify` function is thread safe.
+This test also shows that the `ST.Ref.modify` function is indeed thread safe.
 
 ## So which is best? StateM or ST.Ref ?
 
-`StateM` updates are also very optimized in Lean because even though you seems to be creating a new
+`StateM` updates are also very optimized in Lean because even though you seem to be creating a new
 state every time you update it, the Lean compiler is able to reuse objects very efficiently so you
 will not see a big performance benefit from using `ST.Ref`.
 
-But in this particular multi-threading scenario it is easier to use `ST.Ref.modify` in the context
-of `IO.asTask` than it is to use a `StateT` modify function because there is good `MonadLift`
+But in this particular multi-threading scenario it is easier to use `ST.Ref` in the context
+of `IO.asTask` than it is to use a `StateM` monad because there is good `MonadLift`
 support from `ST` to `EStateM` which is the result type for the IO monad.  You will learn
 more about monad lifting in [Transformers](transformers.lean.md).
 

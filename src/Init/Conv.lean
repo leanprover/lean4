@@ -124,6 +124,22 @@ syntax (name := rewrite) "rewrite" (config)? rwRuleSeq : conv
 See the `simp` tactic for more information. -/
 syntax (name := simp) "simp" (config)? (discharger)? (&" only")? (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? : conv
 
+/--
+`dsimp` is the definitional simplifier in `conv`-mode. It differs from `simp` in that it only
+applies theorems that hold by reflexivity.
+
+Examples:
+
+```lean
+example (a : Nat): (0 + 0) = a - a := by
+  conv =>
+    lhs
+    dsimp
+    rw [← Nat.sub_self a]
+```
+-/
+syntax (name := dsimp) "dsimp " (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : conv
+
 /-- `simp_match` simplifies match expressions. For example,
 ```
 match [a, b] with

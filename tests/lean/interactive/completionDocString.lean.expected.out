@@ -12,5 +12,5 @@
    {"value":
     "Insert element `a` at position `i`. Panics if `i` is not `i ≤ as.size`. ",
     "kind": "markdown"},
-   "detail": "Array α → Nat → α → Array α"}],
+   "detail": "Array α → Nat → α → autoParam CallerInfo _auto✝ → Array α"}],
  "isIncomplete": true}

@@ -13,19 +13,19 @@ namespace Array
 
 @[inline] def qpartition {α : Type} [Inhabited α] (as : Array α) (lt : α → α → Bool) (lo hi : Nat) : Nat × Array α :=
   let mid := (lo + hi) / 2
-  let as  := if lt (as.get! mid) (as.get! lo) then as.swap! lo mid else as
-  let as  := if lt (as.get! hi)  (as.get! lo) then as.swap! lo hi  else as
-  let as  := if lt (as.get! mid) (as.get! hi) then as.swap! mid hi else as
+  let as  := if lt (as.get! mid) (as.get! lo) then as.swapD lo mid else as
+  let as  := if lt (as.get! hi)  (as.get! lo) then as.swapD lo hi  else as
+  let as  := if lt (as.get! mid) (as.get! hi) then as.swapD mid hi else as
   let pivot := as.get! hi
   let rec loop (as : Array α) (i j : Nat) :=
     if h : j < hi then
       if lt (as.get! j) pivot then
-        let as := as.swap! i j
+        let as := as.swapD i j
         loop as (i+1) (j+1)
       else
         loop as i (j+1)
     else
-      let as := as.swap! i hi
+      let as := as.swapD i hi
       (i, as)
   loop as lo lo
 termination_by _ => hi - j

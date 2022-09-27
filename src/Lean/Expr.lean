@@ -971,13 +971,13 @@ def getRevArgD : Expr → Nat → Expr → Expr
   | app f _, i+1, v => getRevArgD f i v
   | _,       _,   v => v
 
-def getRevArg! : Expr → Nat → Expr
-  | app _ a, 0   => a
-  | app f _, i+1 => getRevArg! f i
-  | _,       _   => panic! "invalid index"
+def getRevArg! : Expr → Nat → (info : CallerInfo := by caller_info) → Expr
+  | app _ a, 0,   _ => a
+  | app f _, i+1, _ => getRevArg! f i
+  | _,       _,   _ => panic! "invalid index"
 
 /-- Given `f a₀ a₁ ... aₙ`, returns the `i`th argument or panics if out of bounds. -/
-@[inline] def getArg! (e : Expr) (i : Nat) (n := e.getAppNumArgs) : Expr :=
+@[inline] def getArg! (e : Expr) (i : Nat) (n := e.getAppNumArgs) (info : CallerInfo := by caller_info) : Expr :=
   getRevArg! e (n - i - 1)
 
 /-- Given `f a₀ a₁ ... aₙ`, returns the `i`th argument or returns `v₀` if out of bounds. -/
@@ -1006,31 +1006,31 @@ def isAppOfArity' : Expr → Name → Nat → Bool
   | app f _,    n, a+1 => isAppOfArity' f n a
   | _,          _,  _   => false
 
-def appFn! : Expr → Expr
-  | app f _ => f
-  | _       => panic! "application expected"
+def appFn! : Expr → (info : CallerInfo := by caller_info) → Expr
+  | app f _, _ => f
+  | _,       _ => panic! "application expected"
 
-def appArg! : Expr → Expr
-  | app _ a => a
-  | _       => panic! "application expected"
+def appArg! : Expr → (info : CallerInfo := by caller_info) → Expr
+  | app _ a, _ => a
+  | _,       _ => panic! "application expected"
 
-def appFn!' : Expr → Expr
-  | mdata _ b => appFn!' b
-  | app f _   => f
-  | _         => panic! "application expected"
+def appFn!' : Expr → (info : CallerInfo := by caller_info) → Expr
+  | mdata _ b, _ => appFn!' b
+  | app f _,   _ => f
+  | _,         _ => panic! "application expected"
 
-def appArg!' : Expr → Expr
-  | mdata _ b => appArg!' b
-  | app _ a   => a
-  | _         => panic! "application expected"
+def appArg!' : Expr → (info : CallerInfo := by caller_info) → Expr
+  | mdata _ b, _ => appArg!' b
+  | app _ a,   _ => a
+  | _,         _ => panic! "application expected"
 
-def sortLevel! : Expr → Level
-  | sort u => u
-  | _      => panic! "sort expected"
+def sortLevel! : Expr → (info : CallerInfo := by caller_info) → Level
+  | sort u, _ => u
+  | _,      _ => panic! "sort expected"
 
-def litValue! : Expr → Literal
-  | lit v => v
-  | _     => panic! "literal expected"
+def litValue! : Expr → (info : CallerInfo := by caller_info) → Literal
+  | lit v, _ => v
+  | _,     _ => panic! "literal expected"
 
 def isNatLit : Expr → Bool
   | lit (Literal.natVal _) => true
@@ -1047,81 +1047,81 @@ def isStringLit : Expr → Bool
 def isCharLit (e : Expr) : Bool :=
   e.isAppOfArity ``Char.ofNat 1 && e.appArg!.isNatLit
 
-def constName! : Expr → Name
-  | const n _ => n
-  | _         => panic! "constant expected"
+def constName! : Expr → (info : CallerInfo := by caller_info) → Name
+  | const n _, _ => n
+  | _,         _ => panic! "constant expected"
 
 def constName? : Expr → Option Name
   | const n _ => some n
   | _         => none
 
-def constLevels! : Expr → List Level
-  | const _ ls => ls
-  | _          => panic! "constant expected"
+def constLevels! : Expr → (info : CallerInfo := by caller_info) → List Level
+  | const _ ls, _ => ls
+  | _,          _ => panic! "constant expected"
 
-def bvarIdx! : Expr → Nat
-  | bvar idx => idx
-  | _        => panic! "bvar expected"
+def bvarIdx! : Expr → (info : CallerInfo := by caller_info) → Nat
+  | bvar idx, _ => idx
+  | _,        _ => panic! "bvar expected"
 
-def fvarId! : Expr → FVarId
-  | fvar n => n
-  | _      => panic! "fvar expected"
+def fvarId! : Expr → (info : CallerInfo := by caller_info) → FVarId
+  | fvar n, _ => n
+  | _,      _ => panic! "fvar expected"
 
-def mvarId! : Expr → MVarId
-  | mvar n => n
-  | _      => panic! "mvar expected"
+def mvarId! : Expr → (info : CallerInfo := by caller_info) → MVarId
+  | mvar n, _ => n
+  | _,      _ => panic! "mvar expected"
 
-def bindingName! : Expr → Name
-  | forallE n _ _ _ => n
-  | lam n _ _ _     => n
-  | _               => panic! "binding expected"
+def bindingName! : Expr → (info : CallerInfo := by caller_info) → Name
+  | forallE n _ _ _, _ => n
+  | lam n _ _ _,     _ => n
+  | _,               _ => panic! "binding expected"
 
-def bindingDomain! : Expr → Expr
-  | forallE _ d _ _ => d
-  | lam _ d _ _     => d
-  | _               => panic! "binding expected"
+def bindingDomain! : Expr → (info : CallerInfo := by caller_info) → Expr
+  | forallE _ d _ _, _ => d
+  | lam _ d _ _,     _ => d
+  | _,               _ => panic! "binding expected"
 
-def bindingBody! : Expr → Expr
-  | forallE _ _ b _ => b
-  | lam _ _ b _     => b
-  | _               => panic! "binding expected"
+def bindingBody! : Expr → (info : CallerInfo := by caller_info) → Expr
+  | forallE _ _ b _, _ => b
+  | lam _ _ b _,     _ => b
+  | _,               _ => panic! "binding expected"
 
-def bindingInfo! : Expr → BinderInfo
-  | forallE _ _ _ bi => bi
-  | lam _ _ _ bi     => bi
-  | _                => panic! "binding expected"
+def bindingInfo! : Expr → (info : CallerInfo := by caller_info) → BinderInfo
+  | forallE _ _ _ bi, _ => bi
+  | lam _ _ _ bi,     _ => bi
+  | _,                _ => panic! "binding expected"
 
-def letName! : Expr → Name
-  | letE n .. => n
-  | _         => panic! "let expression expected"
+def letName! : Expr → (info : CallerInfo := by caller_info) → Name
+  | letE n .., _ => n
+  | _,         _ => panic! "let expression expected"
 
-def letType! : Expr → Expr
-  | letE _ t .. => t
-  | _           => panic! "let expression expected"
+def letType! : Expr → (info : CallerInfo := by caller_info) → Expr
+  | letE _ t .., _ => t
+  | _,           _ => panic! "let expression expected"
 
-def letValue! : Expr → Expr
-  | letE _ _ v .. => v
-  | _             => panic! "let expression expected"
+def letValue! : Expr → (info : CallerInfo := by caller_info) → Expr
+  | letE _ _ v .., _ => v
+  | _,             _ => panic! "let expression expected"
 
-def letBody! : Expr → Expr
-  | letE _ _ _ b .. => b
-  | _               => panic! "let expression expected"
+def letBody! : Expr → (info : CallerInfo := by caller_info) → Expr
+  | letE _ _ _ b .., _ => b
+  | _,               _ => panic! "let expression expected"
 
 def consumeMData : Expr → Expr
   | mdata _ e => consumeMData e
   | e         => e
 
-def mdataExpr! : Expr → Expr
-  | mdata _ e => e
-  | _         => panic! "mdata expression expected"
+def mdataExpr! : Expr → (info : CallerInfo := by caller_info) → Expr
+  | mdata _ e, _ => e
+  | _,         _ => panic! "mdata expression expected"
 
-def projExpr! : Expr → Expr
-  | proj _ _ e => e
-  | _          => panic! "proj expression expected"
+def projExpr! : Expr → (info : CallerInfo := by caller_info) → Expr
+  | proj _ _ e, _ => e
+  | _,          _ => panic! "proj expression expected"
 
-def projIdx! : Expr → Nat
-  | proj _ i _ => i
-  | _          => panic! "proj expression expected"
+def projIdx! : Expr → (info : CallerInfo := by caller_info) → Nat
+  | proj _ i _, _ => i
+  | _,          _ => panic! "proj expression expected"
 
 def hasLooseBVars (e : Expr) : Bool :=
   e.looseBVarRange > 0

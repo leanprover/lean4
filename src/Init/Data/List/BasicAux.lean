@@ -14,10 +14,10 @@ namespace List
 /-! The following functions can't be defined at `Init.Data.List.Basic`, because they depend on `Init.Util`,
    and `Init.Util` depends on `Init.Data.List.Basic`. -/
 
-def get! [Inhabited α] : List α → Nat → α
-  | a::_,  0   => a
-  | _::as, n+1 => get! as n
-  | _,     _   => panic! "invalid index"
+def get! [Inhabited α] : List α → Nat → (info : CallerInfo := by caller_info) → α
+  | a::_,  0,   _ => a
+  | _::as, n+1, _ => get! as n
+  | _,     _,   _ => panic! "invalid index"
 
 def get? : List α → Nat → Option α
   | a::_,  0   => some a
@@ -27,9 +27,9 @@ def get? : List α → Nat → Option α
 def getD (as : List α) (idx : Nat) (a₀ : α) : α :=
   (as.get? idx).getD a₀
 
-def head! [Inhabited α] : List α → α
-  | []   => panic! "empty list"
-  | a::_ => a
+def head! [Inhabited α] : List α → (info : CallerInfo := by caller_info) → α
+  | [],   _ => panic! "empty list"
+  | a::_, _ => a
 
 def head? : List α → Option α
   | []   => none
@@ -42,9 +42,9 @@ def headD : List α → α → α
 def head : (as : List α) → as ≠ [] → α
   | a::_, _ => a
 
-def tail! : List α → List α
-  | []    => panic! "empty list"
-  | _::as => as
+def tail! : List α → (info : CallerInfo := by caller_info) → List α
+  | [],    _ => panic! "empty list"
+  | _::as, _ => as
 
 def tail? : List α → Option (List α)
   | []    => none
@@ -59,9 +59,9 @@ def getLast : ∀ (as : List α), as ≠ [] → α
   | [a],      _ => a
   | _::b::as, _ => getLast (b::as) (fun h => List.noConfusion h)
 
-def getLast! [Inhabited α] : List α → α
-  | []    => panic! "empty list"
-  | a::as => getLast (a::as) (fun h => List.noConfusion h)
+def getLast! [Inhabited α] : List α → (info : CallerInfo := by caller_info) → α
+  | [],    _ => panic! "empty list"
+  | a::as, _ => getLast (a::as) (fun h => List.noConfusion h)
 
 def getLast? : List α → Option α
   | []    => none

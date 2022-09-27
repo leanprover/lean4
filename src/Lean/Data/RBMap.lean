@@ -361,18 +361,18 @@ def size (m : RBMap α β cmp) : Nat :=
 def maxDepth (t : RBMap α β cmp) : Nat :=
   t.val.depth Nat.max
 
-@[inline] def min! [Inhabited α] [Inhabited β] (t : RBMap α β cmp) : α × β :=
+@[inline] def min! [Inhabited α] [Inhabited β] (t : RBMap α β cmp) (info : CallerInfo := by caller_info) : α × β :=
   match t.min with
   | some p => p
   | none   => panic! "map is empty"
 
-@[inline] def max! [Inhabited α] [Inhabited β] (t : RBMap α β cmp) : α × β :=
+@[inline] def max! [Inhabited α] [Inhabited β] (t : RBMap α β cmp) (info : CallerInfo := by caller_info) : α × β :=
   match t.max with
   | some p => p
   | none   => panic! "map is empty"
 
 /-- Attempts to find the value with key `k : α` in `t` and panics if there is no such key.-/
-@[inline] def find! [Inhabited β] (t : RBMap α β cmp) (k : α) : β :=
+@[inline] def find! [Inhabited β] (t : RBMap α β cmp) (k : α) (info : CallerInfo := by caller_info) : β :=
   match t.find? k with
   | some b => b
   | none   => panic! "key is not in the map"

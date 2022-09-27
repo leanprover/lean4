@@ -144,7 +144,7 @@ def toFloat : JsonNumber → Float
 /-- Creates a json number from a positive float, panicking if it isn't.
 [todo]EdAyers: Currently goes via a string representation, when more float primitives are available
 should switch to using those. -/
-private def fromPositiveFloat! (x : Float) : JsonNumber :=
+private def fromPositiveFloat! (x : Float) (info : CallerInfo := by caller_info) : JsonNumber :=
   match Lean.Syntax.decodeScientificLitVal? (toString x) with
   | none => panic! s!"Failed to parse {toString x}"
   | some (m, sign, e) => OfScientific.ofScientific m sign e
@@ -264,9 +264,9 @@ def getArrVal? : Json → Nat → Except String Json
 def getObjValD (j : Json) (k : String) : Json :=
   (j.getObjVal? k).toOption.getD null
 
-def setObjVal! : Json → String → Json → Json
-  | obj kvs, k, v => obj <| kvs.insert compare k v
-  | _      , _, _ => panic! "Json.setObjVal!: not an object: {j}"
+def setObjVal! : Json → String → Json → (info : CallerInfo := by caller_info) → Json
+  | obj kvs, k, v, _ => obj <| kvs.insert compare k v
+  | _      , _, _, _ => panic! "Json.setObjVal!: not an object: {j}"
 
 inductive Structured where
   | arr (elems : Array Json)

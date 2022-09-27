@@ -16,7 +16,7 @@ namespace String
 /-- Interpret the string as the decimal representation of a natural number.
 
 Panics if the string is not a string of digits. -/
-def toNat! (s : String) : Nat :=
+def toNat! (s : String) (info : CallerInfo := by caller_info) : Nat :=
   if s.isNat then
     s.foldl (fun n c => n*10 + (c.toNat - '0'.toNat)) 0
   else

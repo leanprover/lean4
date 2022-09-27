@@ -17,9 +17,9 @@ def getPrefix : Name → Name
   | str p _   => p
   | num p _   => p
 
-def getString! : Name → String
-  | str _ s => s
-  | _       => unreachable!
+def getString! : Name → (info : CallerInfo := by caller_info) → String
+  | str _ s, _ => s
+  | _,       _ => unreachable!
 
 def getNumParts : Name → Nat
   | anonymous => 0

@@ -125,7 +125,7 @@ protected def fromString? : String → Except String Pos
     | "" :: tail => Pos.ofArray <$> tail.toArray.mapM ofStringCoord
     | ss => error s!"malformed {ss}"
 
-protected def fromString! (s : String) : Pos :=
+protected def fromString! (s : String) (info : CallerInfo := by caller_info) : Pos :=
   match Pos.fromString? s with
   | Except.ok a => a
   | Except.error e => panic! e
@@ -170,15 +170,15 @@ def isRoot (s : SubExpr) : Bool := s.pos.isRoot
 /-- Map from subexpr positions to values. -/
 abbrev PosMap (α : Type u) := RBMap Pos α compare
 
-def bindingBody! : SubExpr → SubExpr
-  | ⟨.forallE _ _ b _, p⟩ => ⟨b, p.pushBindingBody⟩
-  | ⟨.lam _ _ b _, p⟩ => ⟨b, p.pushBindingBody⟩
-  | _ => panic! "subexpr is not a binder"
+def bindingBody! : SubExpr → (info : CallerInfo := by caller_info) → SubExpr
+  | ⟨.forallE _ _ b _, p⟩, _ => ⟨b, p.pushBindingBody⟩
+  | ⟨.lam _ _ b _, p⟩, _ => ⟨b, p.pushBindingBody⟩
+  | _, _ => panic! "subexpr is not a binder"
 
-def bindingDomain! : SubExpr → SubExpr
-  | ⟨.forallE _ t _ _, p⟩ => ⟨t, p.pushBindingDomain⟩
-  | ⟨.lam _ t _ _, p⟩ => ⟨t, p.pushBindingDomain⟩
-  | _ => panic! "subexpr is not a binder"
+def bindingDomain! : SubExpr → (info : CallerInfo := by caller_info) → SubExpr
+  | ⟨.forallE _ t _ _, p⟩, _ => ⟨t, p.pushBindingDomain⟩
+  | ⟨.lam _ t _ _, p⟩, _ => ⟨t, p.pushBindingDomain⟩
+  | _, _ => panic! "subexpr is not a binder"
 
 end SubExpr
 

@@ -98,9 +98,7 @@ structure CodeActionOptions extends WorkDoneProgressOptions where
   resolveProvider := false
   deriving ToJson, FromJson
 
-structure CodeActionRegistrationOptions extends CodeActionOptions, TextDocumentRegistrationOptions where
-  deriving ToJson, FromJson
-
+/-- Custom, Lean-specific data object passed as the `data?` field. -/
 structure CodeActionData where
   uri : DocumentUri
   deriving FromJson, ToJson

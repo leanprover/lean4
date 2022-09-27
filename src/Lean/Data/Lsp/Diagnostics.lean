@@ -55,11 +55,12 @@ instance : ToJson DiagnosticCode := ⟨fun
   | DiagnosticCode.int i    => i
   | DiagnosticCode.string s => s⟩
 
+/-- Tags representing additional metadata about the diagnostic. -/
 inductive DiagnosticTag where
-  | /-- Unused or unnecessary code. Rendered as faded out eg for unused variables. -/
-    unnecessary
-  | /-- Deprecated or obsolete code. Rendered with a strike-through. -/
-    deprecated
+  /-- Unused or unnecessary code. Rendered as faded out eg for unused variables. -/
+  | unnecessary
+  /-- Deprecated or obsolete code. Rendered with a strike-through. -/
+  | deprecated
   deriving Inhabited, BEq
 
 instance : FromJson DiagnosticTag := ⟨fun j =>

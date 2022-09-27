@@ -59,3 +59,15 @@ def floatRoundtrip (x : Float) : CoreM Unit := do
 #eval floatRoundtrip (0.0 / 0.0)
 #eval floatRoundtrip (1.0 / 0.0)
 #eval floatRoundtrip (-1.0 / 0.0)
+
+structure Test1 where
+  hello : String
+  cheese? : Option Nat
+  deriving ToJson, FromJson, Repr
+
+structure Test2 where
+  jam: Test1
+  deriving ToJson, FromJson, Repr
+
+#eval fromJson? (α := Test2) <| Json.mkObj [("jam", Json.mkObj [("hello", "world")])]
+#eval fromJson? (α := Test2) <| Json.mkObj [("jam", Json.mkObj [("hello", 4)])]

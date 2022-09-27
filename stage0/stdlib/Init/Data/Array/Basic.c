@@ -261,6 +261,7 @@ LEAN_EXPORT lean_object* l_Array_erase___rarg(lean_object*, lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Array_foldlM_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_loop___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_toArrayLit(lean_object*);
+LEAN_EXPORT lean_object* l_Array_swapD___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at_Array_findRevM_x3f___spec__1___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_shrink___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_modifyMUnsafe___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -409,6 +410,7 @@ LEAN_EXPORT uint8_t l_Array_any___rarg(lean_object*, lean_object*, lean_object*,
 static lean_object* l_Array_instToStringArray___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_elem___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_swap(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Array_findSome_x3f___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Array_findM_x3f___spec__1___rarg___lambda__2(lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 static lean_object* l___aux__Init__Data__Array__Basic______macroRules__term_x23_x5b___x2c_x5d__1___closed__6;
@@ -822,6 +824,16 @@ _start:
 {
 lean_object* x_5; 
 x_5 = lean_array_fswap(x_2, x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Array_swapD___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = lean_array_swap(x_2, x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);
 return x_5;

@@ -13,14 +13,17 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__16;
 static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__7;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Meta_MVarRenaming_find_x3f___spec__1___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_apply(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_insert(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at_Lean_Meta_MVarRenaming_insert___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafe(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__12;
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_apply___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_MVarRenaming_isEmpty(lean_object*);
 lean_object* l_Lean_Expr_mvar___override(lean_object*);
@@ -34,16 +37,20 @@ static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_find_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lean_Meta_MVarRenaming_insert___spec__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_isEmpty___boxed(lean_object*);
+static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__13;
 static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__3;
 static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_apply___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_find_x21(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__14;
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 uint8_t l_Lean_RBNode_isRed___rarg(lean_object*);
 static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__4;
 static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__8;
 static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__6;
 lean_object* l_CallerInfo_mkPanicMessage(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__15;
+static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__10;
 lean_object* l_panic___at_Lean_Expr_mvarId_x21___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Meta_MVarRenaming_find_x3f___spec__1(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Meta_MVarRenaming_map___default() {
@@ -153,7 +160,7 @@ static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.Data.Option.BasicAux", 25);
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -171,7 +178,7 @@ static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Option.get!", 11);
+x_1 = lean_mk_string_from_bytes("Meta", 4);
 return x_1;
 }
 }
@@ -179,7 +186,7 @@ static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_Meta_MVarRenaming_find_x21___closed__2;
 x_2 = l_Lean_Meta_MVarRenaming_find_x21___closed__3;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
@@ -188,32 +195,96 @@ return x_3;
 static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_MVarRenaming_find_x21___closed__4;
-x_2 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("Match", 5);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(16u);
-x_2 = lean_unsigned_to_nat(14u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
+x_1 = l_Lean_Meta_MVarRenaming_find_x21___closed__4;
+x_2 = l_Lean_Meta_MVarRenaming_find_x21___closed__5;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
 static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__7() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("MVarRenaming", 12);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Meta_MVarRenaming_find_x21___closed__6;
+x_2 = l_Lean_Meta_MVarRenaming_find_x21___closed__7;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__9() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Meta_MVarRenaming_find_x21___closed__4;
+x_2 = l_Lean_Meta_MVarRenaming_find_x21___closed__7;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__10() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("find!", 5);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__11() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Meta_MVarRenaming_find_x21___closed__9;
+x_2 = l_Lean_Meta_MVarRenaming_find_x21___closed__10;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__12() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Meta_MVarRenaming_find_x21___closed__11;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__13() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(21u);
+x_2 = lean_unsigned_to_nat(2u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__14() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Meta_MVarRenaming_find_x21___closed__2;
-x_2 = l_Lean_Meta_MVarRenaming_find_x21___closed__5;
-x_3 = l_Lean_Meta_MVarRenaming_find_x21___closed__6;
+x_1 = l_Lean_Meta_MVarRenaming_find_x21___closed__8;
+x_2 = l_Lean_Meta_MVarRenaming_find_x21___closed__12;
+x_3 = l_Lean_Meta_MVarRenaming_find_x21___closed__13;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -221,7 +292,7 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__8() {
+static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__15() {
 _start:
 {
 lean_object* x_1; 
@@ -229,12 +300,12 @@ x_1 = lean_mk_string_from_bytes("value is none", 13);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__9() {
+static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__16() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_MVarRenaming_find_x21___closed__7;
-x_2 = l_Lean_Meta_MVarRenaming_find_x21___closed__8;
+x_1 = l_Lean_Meta_MVarRenaming_find_x21___closed__14;
+x_2 = l_Lean_Meta_MVarRenaming_find_x21___closed__15;
 x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
 return x_3;
 }
@@ -247,7 +318,7 @@ x_3 = l_Lean_RBNode_find___at_Lean_Meta_MVarRenaming_find_x3f___spec__1(x_1, x_2
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = l_Lean_Meta_MVarRenaming_find_x21___closed__9;
+x_4 = l_Lean_Meta_MVarRenaming_find_x21___closed__16;
 x_5 = l_panic___at_Lean_Expr_mvarId_x21___spec__1(x_4);
 return x_5;
 }
@@ -2798,6 +2869,20 @@ l_Lean_Meta_MVarRenaming_find_x21___closed__8 = _init_l_Lean_Meta_MVarRenaming_f
 lean_mark_persistent(l_Lean_Meta_MVarRenaming_find_x21___closed__8);
 l_Lean_Meta_MVarRenaming_find_x21___closed__9 = _init_l_Lean_Meta_MVarRenaming_find_x21___closed__9();
 lean_mark_persistent(l_Lean_Meta_MVarRenaming_find_x21___closed__9);
+l_Lean_Meta_MVarRenaming_find_x21___closed__10 = _init_l_Lean_Meta_MVarRenaming_find_x21___closed__10();
+lean_mark_persistent(l_Lean_Meta_MVarRenaming_find_x21___closed__10);
+l_Lean_Meta_MVarRenaming_find_x21___closed__11 = _init_l_Lean_Meta_MVarRenaming_find_x21___closed__11();
+lean_mark_persistent(l_Lean_Meta_MVarRenaming_find_x21___closed__11);
+l_Lean_Meta_MVarRenaming_find_x21___closed__12 = _init_l_Lean_Meta_MVarRenaming_find_x21___closed__12();
+lean_mark_persistent(l_Lean_Meta_MVarRenaming_find_x21___closed__12);
+l_Lean_Meta_MVarRenaming_find_x21___closed__13 = _init_l_Lean_Meta_MVarRenaming_find_x21___closed__13();
+lean_mark_persistent(l_Lean_Meta_MVarRenaming_find_x21___closed__13);
+l_Lean_Meta_MVarRenaming_find_x21___closed__14 = _init_l_Lean_Meta_MVarRenaming_find_x21___closed__14();
+lean_mark_persistent(l_Lean_Meta_MVarRenaming_find_x21___closed__14);
+l_Lean_Meta_MVarRenaming_find_x21___closed__15 = _init_l_Lean_Meta_MVarRenaming_find_x21___closed__15();
+lean_mark_persistent(l_Lean_Meta_MVarRenaming_find_x21___closed__15);
+l_Lean_Meta_MVarRenaming_find_x21___closed__16 = _init_l_Lean_Meta_MVarRenaming_find_x21___closed__16();
+lean_mark_persistent(l_Lean_Meta_MVarRenaming_find_x21___closed__16);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

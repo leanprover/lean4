@@ -15,30 +15,38 @@ extern "C" {
 #endif
 lean_object* l_List_reverse___rarg(lean_object*);
 static lean_object* l_panic___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___spec__2___closed__3;
+static lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__8;
+static lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__12;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Compiler_LCNF_Simp_isJpCases___spec__1(lean_object*);
 static lean_object* l_panic___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___spec__2___closed__5;
 static lean_object* l_Lean_addTrace___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___spec__8___closed__4;
+static lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__4;
 size_t lean_usize_add(size_t, size_t);
-static lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__9;
 static lean_object* l_Lean_Compiler_LCNF_Simp_isJpCases___closed__9;
 lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__5;
+static lean_object* l_Lean_Compiler_LCNF_Simp_isJpCases___closed__11;
 static lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__7;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_mkJpAlt_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_insert___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___spec__1(lean_object*);
+static lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__18;
+static lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__15;
 static lean_object* l_Lean_Compiler_LCNF_Simp_isJpCases___closed__8;
 LEAN_EXPORT uint8_t l_Lean_RBNode_any___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___spec__1(lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_Simp_isJpCases___closed__17;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__2;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Simp_JpCases___hyg_3139_(lean_object*);
+static lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__16;
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Simp_JpCases___hyg_3331_(lean_object*);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__3;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l_Lean_addTrace___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___spec__8___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visit(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -51,11 +59,15 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_constructorApp_x3f(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Compiler_LCNF_instInhabitedCasesCore(lean_object*);
+static lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__14;
+static lean_object* l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__7;
 LEAN_EXPORT lean_object* l_Lean_RBNode_any___at_Lean_Compiler_LCNF_Simp_JpCasesInfo_isCandidate___spec__1___boxed(lean_object*);
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__2;
 lean_object* lean_array_get_size(lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__11;
+static lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__3;
 static lean_object* l_panic___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___spec__2___closed__4;
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofList(lean_object*);
@@ -65,13 +77,17 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lean_Compiler_LCNF_Simp_simpJpCa
 lean_object* l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_updateAltCodeImp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_mkJpAlt_go___spec__1(size_t, size_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__6;
+static lean_object* l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__3;
 static lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__9;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_revFold___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___spec__2___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_Simp_isJpCases___closed__10;
 static lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visit___closed__1;
+static lean_object* l_Lean_Compiler_LCNF_Simp_isJpCases___closed__12;
+static lean_object* l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__2;
 LEAN_EXPORT lean_object* l_Lean_RBNode_revFold___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___spec__2(lean_object*, lean_object*);
 static lean_object* l_List_forIn_loop___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___spec__7___closed__4;
 LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___spec__2(lean_object*, lean_object*, lean_object*);
@@ -99,32 +115,39 @@ lean_object* l_Lean_Compiler_LCNF_Internalize_internalizeCodeDecl(lean_object*, 
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___spec__4(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_forIn_visit___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_Simp_isJpCases___closed__15;
 static lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_mkJpAlt_go___lambda__1___closed__2;
 static lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_mkJpAlt_go___lambda__1___closed__1;
 static lean_object* l_List_forIn_loop___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___spec__7___closed__2;
 static lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__2;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__6;
 lean_object* l_Lean_RBNode_setBlack___rarg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_mkJpAlt___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_mkJpAlt_go___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__2;
+lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 static lean_object* l_Subarray_forInUnsafe_loop___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___spec__4___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__1;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visit___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__13;
+static lean_object* l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__6;
 lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
 lean_object* l_panic___at_Lean_Expr_getRevArg_x21___spec__1(lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__9;
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases(lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_Simp_isJpCases___closed__16;
 lean_object* l_Lean_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_Simp_JpCasesInfo_isCandidate(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_findExpr(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___spec__3(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__13;
 lean_object* l_Lean_Compiler_LCNF_Internalize_internalizeCode(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___spec__2___closed__2;
@@ -135,12 +158,14 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f__
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___spec__3___boxed(lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_Internalize_internalizeFunDecl___spec__1(size_t, size_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_Simp_isJpCases___closed__14;
 static lean_object* l_Lean_Compiler_LCNF_Simp_isJpCases___closed__5;
 lean_object* l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_updateFunDeclImp(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__4;
 size_t lean_usize_of_nat(lean_object*);
 extern lean_object* l_Lean_NameSet_empty;
+static lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__17;
 static lean_object* l_panic___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___spec__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_JpCasesInfo_isCandidate___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_mkJpAlt_go___lambda__1(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -148,7 +173,9 @@ lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_obj
 lean_object* l_Lean_Compiler_LCNF_mkAuxLetDecl(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentArray_push___rarg(lean_object*, lean_object*);
 static lean_object* l_Subarray_forInUnsafe_loop___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___spec__4___closed__2;
+static lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__7;
 static lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__8;
+static lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__14;
 static lean_object* l_Lean_Compiler_LCNF_Simp_isJpCases___closed__2;
 lean_object* l_Lean_Expr_fvar___override(lean_object*);
 size_t lean_ptr_addr(lean_object*);
@@ -156,11 +183,15 @@ static lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___clo
 static lean_object* l_List_forIn_loop___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___spec__7___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_isJpCases(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_any___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___spec__1___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__15;
 lean_object* l_Lean_Compiler_LCNF_CasesCore_getCtorNames(lean_object*);
 static lean_object* l_Lean_isTracingEnabledFor___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___spec__6___closed__1;
+static lean_object* l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__1;
+static lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__11;
 static lean_object* l_Lean_Compiler_LCNF_Simp_isJpCases___closed__7;
 static lean_object* l_Lean_addTrace___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___spec__8___closed__6;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_Simp_isJpCases___closed__13;
 lean_object* l_Lean_Compiler_LCNF_AltCore_getCode(lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_BasicAux_0__mapMonoMImp_go___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visit___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -175,9 +206,13 @@ uint8_t l_Lean_RBNode_isRed___rarg(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__3;
 lean_object* l_Lean_Compiler_LCNF_Internalize_internalizeParam(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_LCtx_toLocalContext(lean_object*);
+static lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__19;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___spec__4(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__5;
+static lean_object* l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__8;
 LEAN_EXPORT lean_object* l_Lean_addTrace___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___spec__8(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__4;
 uint8_t l_Lean_Expr_isFVar(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___spec__7(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -198,6 +233,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___boxed
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_InferType_mkForallParams___spec__1(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_isJpCases___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_isJpCases___closed__1;
+static lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__12;
 lean_object* l_Lean_indentD(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -205,6 +241,8 @@ lean_object* l_ReaderT_instMonadReaderT___rarg(lean_object*);
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__3;
 static lean_object* l_Lean_addTrace___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___spec__8___closed__3;
+static lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__20;
+static lean_object* l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___spec__3(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__10;
@@ -305,7 +343,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.PanicAux", 13);
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -323,7 +361,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("getElem!", 8);
+x_1 = lean_mk_string_from_bytes("Compiler", 8);
 return x_1;
 }
 }
@@ -331,7 +369,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__2;
 x_2 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__3;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
@@ -340,32 +378,104 @@ return x_3;
 static lean_object* _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__4;
-x_2 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("LCNF", 4);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(47u);
-x_2 = lean_unsigned_to_nat(36u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
+x_1 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__4;
+x_2 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__5;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
 static lean_object* _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__7() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("Simp", 4);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__6;
+x_2 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__7;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__9() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("JpCases", 7);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__10() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__8;
+x_2 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__9;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__11() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("isJpCases", 9);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__12() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__8;
+x_2 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__11;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__13() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__12;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__14() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(27u);
+x_2 = lean_unsigned_to_nat(17u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__15() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__2;
-x_2 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__5;
-x_3 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__6;
+x_1 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__10;
+x_2 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__13;
+x_3 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__14;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -373,7 +483,7 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__8() {
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__16() {
 _start:
 {
 lean_object* x_1; 
@@ -381,12 +491,12 @@ x_1 = lean_mk_string_from_bytes("index out of bounds", 19);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__9() {
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__17() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__7;
-x_2 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__8;
+x_1 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__15;
+x_2 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__16;
 x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
 return x_3;
 }
@@ -420,7 +530,7 @@ if (x_16 == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; 
 x_17 = lean_ctor_get(x_1, 4);
-x_18 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__9;
+x_18 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__17;
 x_19 = l_panic___at_Lean_Compiler_LCNF_Simp_isJpCases___spec__1(x_18);
 x_20 = l_Lean_Compiler_LCNF_Simp_isJpCases_go(x_2, x_19, x_17, x_15);
 lean_dec(x_19);
@@ -3033,6 +3143,88 @@ x_14 = l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go(x_2, x_3, x_5, x_6, x_7, 
 return x_14;
 }
 }
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("collectJpCasesInfo", 18);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__8;
+x_2 = l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("go", 2);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__2;
+x_2 = l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__3;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__4;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(64u);
+x_2 = lean_unsigned_to_nat(27u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__10;
+x_2 = l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__5;
+x_3 = l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__6;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__7;
+x_2 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__16;
+x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -3194,7 +3386,7 @@ if (x_55 == 0)
 {
 lean_object* x_56; lean_object* x_57; uint8_t x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; uint8_t x_63; 
 lean_dec(x_39);
-x_56 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__9;
+x_56 = l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__8;
 x_57 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_56);
 x_58 = 1;
 x_59 = l_Lean_Compiler_LCNF_Simp_findExpr(x_57, x_58, x_4, x_5, x_6, x_7, x_50);
@@ -3570,7 +3762,7 @@ if (x_170 == 0)
 {
 lean_object* x_171; lean_object* x_172; uint8_t x_173; lean_object* x_174; lean_object* x_175; lean_object* x_176; lean_object* x_177; lean_object* x_178; lean_object* x_179; lean_object* x_180; lean_object* x_181; uint8_t x_182; lean_object* x_183; 
 lean_dec(x_39);
-x_171 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__9;
+x_171 = l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__8;
 x_172 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_171);
 x_173 = 1;
 x_174 = l_Lean_Compiler_LCNF_Simp_findExpr(x_172, x_173, x_4, x_5, x_6, x_7, x_164);
@@ -3997,7 +4189,7 @@ static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Co
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.Simp.JpCases", 31);
+x_1 = lean_mk_string_from_bytes("_private", 8);
 return x_1;
 }
 }
@@ -4014,17 +4206,19 @@ return x_3;
 static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__3() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Compiler.LCNF.Simp.JpCases.0.Lean.Compiler.LCNF.Simp.extractJpCases.go", 84);
-return x_1;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__2;
+x_2 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__3;
+x_1 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__3;
+x_2 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__3;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
@@ -4032,14 +4226,122 @@ return x_3;
 static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__4;
+x_2 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__5;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__5;
+x_2 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__7;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__6;
+x_2 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__9;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__7;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = l_Lean_Name_num___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__9() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__8;
+x_2 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__10() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__9;
+x_2 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__3;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__11() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__10;
+x_2 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__5;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__12() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__11;
+x_2 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__7;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__13() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("extractJpCases", 14);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__14() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__12;
+x_2 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__13;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__15() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__14;
+x_2 = l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__3;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__16() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__15;
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__6() {
+static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__17() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4051,13 +4353,13 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__7() {
+static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__18() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__2;
-x_2 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__5;
-x_3 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__6;
+x_1 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__10;
+x_2 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__16;
+x_3 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__17;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -4065,7 +4367,7 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__8() {
+static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__19() {
 _start:
 {
 lean_object* x_1; 
@@ -4073,12 +4375,12 @@ x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
-static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__9() {
+static lean_object* _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__20() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__7;
-x_2 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__8;
+x_1 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__18;
+x_2 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__19;
 x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
 return x_3;
 }
@@ -4118,7 +4420,7 @@ default:
 lean_object* x_10; lean_object* x_11; 
 lean_dec(x_2);
 lean_dec(x_1);
-x_10 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__9;
+x_10 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__20;
 x_11 = l_panic___at___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___spec__1(x_10);
 return x_11;
 }
@@ -4853,7 +5155,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.Simp.simpJpCases?.visitJmp?", 46);
+x_1 = lean_mk_string_from_bytes("simpJpCases?", 12);
 return x_1;
 }
 }
@@ -4861,7 +5163,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__8;
 x_2 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__4;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
@@ -4870,14 +5172,32 @@ return x_3;
 static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__6() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("visitJmp?", 9);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__5;
+x_2 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__6;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__7;
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__7() {
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4889,13 +5209,13 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__8() {
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__2;
-x_2 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__6;
-x_3 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__7;
+x_1 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__10;
+x_2 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__8;
+x_3 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__9;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -4903,17 +5223,53 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__9() {
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__8;
+x_1 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__10;
 x_2 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__3;
 x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__10() {
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__12() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(227u);
+x_2 = lean_unsigned_to_nat(23u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__13() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__10;
+x_2 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__8;
+x_3 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__12;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__14() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__13;
+x_2 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__16;
+x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__15() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -4972,7 +5328,7 @@ lean_object* x_22; lean_object* x_23;
 lean_dec(x_19);
 lean_dec(x_18);
 lean_dec(x_2);
-x_22 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__9;
+x_22 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__11;
 x_23 = l_panic___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___spec__2(x_22, x_3, x_4, x_5, x_6, x_7, x_8, x_15);
 return x_23;
 }
@@ -4985,7 +5341,7 @@ lean_dec(x_19);
 if (x_25 == 0)
 {
 lean_object* x_26; lean_object* x_27; uint8_t x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; uint8_t x_33; 
-x_26 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__9;
+x_26 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__14;
 x_27 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_26);
 x_28 = 1;
 x_29 = l_Lean_Compiler_LCNF_Simp_findExpr(x_27, x_28, x_5, x_6, x_7, x_8, x_15);
@@ -5080,7 +5436,7 @@ x_54 = lean_ctor_get(x_51, 1);
 lean_inc(x_54);
 x_55 = lean_usize_of_nat(x_54);
 lean_dec(x_54);
-x_56 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__10;
+x_56 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__15;
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
@@ -5254,7 +5610,7 @@ x_94 = lean_ctor_get(x_91, 1);
 lean_inc(x_94);
 x_95 = lean_usize_of_nat(x_94);
 lean_dec(x_94);
-x_96 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__10;
+x_96 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__15;
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
@@ -5505,7 +5861,7 @@ x_151 = lean_ctor_get(x_148, 1);
 lean_inc(x_151);
 x_152 = lean_usize_of_nat(x_151);
 lean_dec(x_151);
-x_153 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__10;
+x_153 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__15;
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
@@ -5771,7 +6127,7 @@ x_215 = lean_ctor_get(x_212, 1);
 lean_inc(x_215);
 x_216 = lean_usize_of_nat(x_215);
 lean_dec(x_215);
-x_217 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__10;
+x_217 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__15;
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
@@ -5945,7 +6301,7 @@ x_255 = lean_ctor_get(x_252, 1);
 lean_inc(x_255);
 x_256 = lean_usize_of_nat(x_255);
 lean_dec(x_255);
-x_257 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__10;
+x_257 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__15;
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
@@ -6196,7 +6552,7 @@ x_312 = lean_ctor_get(x_309, 1);
 lean_inc(x_312);
 x_313 = lean_usize_of_nat(x_312);
 lean_dec(x_312);
-x_314 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__10;
+x_314 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__15;
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
@@ -6409,7 +6765,7 @@ lean_object* x_358; lean_object* x_359;
 lean_dec(x_355);
 lean_dec(x_354);
 lean_dec(x_2);
-x_358 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__9;
+x_358 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__11;
 x_359 = l_panic___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___spec__2(x_358, x_3, x_4, x_5, x_6, x_7, x_8, x_350);
 return x_359;
 }
@@ -6422,7 +6778,7 @@ lean_dec(x_355);
 if (x_361 == 0)
 {
 lean_object* x_362; lean_object* x_363; uint8_t x_364; lean_object* x_365; lean_object* x_366; lean_object* x_367; lean_object* x_368; lean_object* x_369; lean_object* x_370; lean_object* x_371; lean_object* x_372; lean_object* x_373; 
-x_362 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__9;
+x_362 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__14;
 x_363 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_362);
 x_364 = 1;
 x_365 = l_Lean_Compiler_LCNF_Simp_findExpr(x_363, x_364, x_5, x_6, x_7, x_8, x_350);
@@ -6539,7 +6895,7 @@ x_392 = lean_ctor_get(x_389, 1);
 lean_inc(x_392);
 x_393 = lean_usize_of_nat(x_392);
 lean_dec(x_392);
-x_394 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__10;
+x_394 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__15;
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
@@ -6834,7 +7190,7 @@ x_458 = lean_ctor_get(x_455, 1);
 lean_inc(x_458);
 x_459 = lean_usize_of_nat(x_458);
 lean_dec(x_458);
-x_460 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__10;
+x_460 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__15;
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
@@ -11654,6 +12010,70 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("visitJp?", 8);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__5;
+x_2 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__3;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__4;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(184u);
+x_2 = lean_unsigned_to_nat(13u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__10;
+x_2 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__5;
+x_3 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__6;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__7;
+x_2 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__16;
+x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, uint8_t x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
 _start:
 {
@@ -11671,7 +12091,7 @@ if (x_113 == 0)
 {
 lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; 
 lean_dec(x_110);
-x_116 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__9;
+x_116 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__8;
 x_117 = l_panic___at_Lean_Compiler_LCNF_Simp_isJpCases___spec__1(x_116);
 x_118 = lean_ctor_get(x_115, 0);
 lean_inc(x_118);
@@ -12698,22 +13118,14 @@ return x_56;
 static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Compiler", 8);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__2() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__1;
+x_2 = l_Lean_Compiler_LCNF_Simp_isJpCases___closed__3;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__3() {
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -12721,17 +13133,17 @@ x_1 = lean_mk_string_from_bytes("simp", 4);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__4() {
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__2;
-x_2 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__3;
+x_1 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__1;
+x_2 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__2;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__5() {
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -12739,17 +13151,17 @@ x_1 = lean_mk_string_from_bytes("jpCases", 7);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__6() {
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__4;
-x_2 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__5;
+x_1 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__3;
+x_2 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__4;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__7() {
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -12757,21 +13169,21 @@ x_1 = lean_mk_string_from_bytes("candidates", 10);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__8() {
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__7;
+x_1 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__6;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__9() {
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__8;
+x_1 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__7;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -12783,7 +13195,7 @@ _start:
 lean_object* x_9; lean_object* x_10; lean_object* x_34; lean_object* x_35; lean_object* x_36; uint8_t x_37; 
 lean_inc(x_1);
 x_9 = l_Lean_RBMap_toList___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___spec__1(x_1);
-x_34 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__6;
+x_34 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__5;
 x_35 = l_Lean_isTracingEnabledFor___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___spec__6(x_34, x_4, x_5, x_6, x_7, x_8);
 x_36 = lean_ctor_get(x_35, 0);
 lean_inc(x_36);
@@ -12805,7 +13217,7 @@ lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean
 x_39 = lean_ctor_get(x_35, 1);
 lean_inc(x_39);
 lean_dec(x_35);
-x_40 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__9;
+x_40 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__8;
 x_41 = l_List_forIn_loop___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___spec__7(x_9, x_40, x_4, x_5, x_6, x_7, x_39);
 x_42 = lean_ctor_get(x_41, 0);
 lean_inc(x_42);
@@ -13051,11 +13463,11 @@ x_9 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f(x_1, x_2, x_8, x_4, x_5, x_6, x_
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Simp_JpCases___hyg_3139_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Simp_JpCases___hyg_3331_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_2 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__6;
+x_2 = l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__5;
 x_3 = 0;
 x_4 = l_Lean_registerTraceClass(x_2, x_3, x_1);
 return x_4;
@@ -13100,6 +13512,38 @@ l_Lean_Compiler_LCNF_Simp_isJpCases___closed__8 = _init_l_Lean_Compiler_LCNF_Sim
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_isJpCases___closed__8);
 l_Lean_Compiler_LCNF_Simp_isJpCases___closed__9 = _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__9();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_isJpCases___closed__9);
+l_Lean_Compiler_LCNF_Simp_isJpCases___closed__10 = _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__10();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_isJpCases___closed__10);
+l_Lean_Compiler_LCNF_Simp_isJpCases___closed__11 = _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__11();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_isJpCases___closed__11);
+l_Lean_Compiler_LCNF_Simp_isJpCases___closed__12 = _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__12();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_isJpCases___closed__12);
+l_Lean_Compiler_LCNF_Simp_isJpCases___closed__13 = _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__13();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_isJpCases___closed__13);
+l_Lean_Compiler_LCNF_Simp_isJpCases___closed__14 = _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__14();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_isJpCases___closed__14);
+l_Lean_Compiler_LCNF_Simp_isJpCases___closed__15 = _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__15();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_isJpCases___closed__15);
+l_Lean_Compiler_LCNF_Simp_isJpCases___closed__16 = _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__16();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_isJpCases___closed__16);
+l_Lean_Compiler_LCNF_Simp_isJpCases___closed__17 = _init_l_Lean_Compiler_LCNF_Simp_isJpCases___closed__17();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_isJpCases___closed__17);
+l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__1 = _init_l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__1();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__1);
+l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__2 = _init_l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__2();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__2);
+l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__3 = _init_l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__3();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__3);
+l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__4 = _init_l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__4();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__4);
+l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__5 = _init_l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__5();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__5);
+l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__6 = _init_l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__6();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__6);
+l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__7 = _init_l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__7();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__7);
+l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__8 = _init_l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__8();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___closed__8);
 l_panic___at___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___spec__1___closed__1 = _init_l_panic___at___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___spec__1___closed__1();
 lean_mark_persistent(l_panic___at___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___spec__1___closed__1);
 l_panic___at___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___spec__1___closed__2 = _init_l_panic___at___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___spec__1___closed__2();
@@ -13124,6 +13568,28 @@ l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJp
 lean_mark_persistent(l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__8);
 l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__9 = _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__9();
 lean_mark_persistent(l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__9);
+l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__10 = _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__10();
+lean_mark_persistent(l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__10);
+l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__11 = _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__11();
+lean_mark_persistent(l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__11);
+l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__12 = _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__12();
+lean_mark_persistent(l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__12);
+l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__13 = _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__13();
+lean_mark_persistent(l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__13);
+l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__14 = _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__14();
+lean_mark_persistent(l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__14);
+l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__15 = _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__15();
+lean_mark_persistent(l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__15);
+l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__16 = _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__16();
+lean_mark_persistent(l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__16);
+l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__17 = _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__17();
+lean_mark_persistent(l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__17);
+l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__18 = _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__18();
+lean_mark_persistent(l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__18);
+l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__19 = _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__19();
+lean_mark_persistent(l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__19);
+l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__20 = _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__20();
+lean_mark_persistent(l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___closed__20);
 l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_mkJpAlt_go___lambda__1___closed__1 = _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_mkJpAlt_go___lambda__1___closed__1();
 lean_mark_persistent(l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_mkJpAlt_go___lambda__1___closed__1);
 l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_mkJpAlt_go___lambda__1___closed__2 = _init_l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_mkJpAlt_go___lambda__1___closed__2();
@@ -13164,6 +13630,16 @@ l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__9 = _init_l_Lea
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__9);
 l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__10 = _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__10();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__10);
+l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__11 = _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__11();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__11);
+l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__12 = _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__12();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__12);
+l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__13 = _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__13();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__13);
+l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__14 = _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__14();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__14);
+l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__15 = _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__15();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJmp_x3f___closed__15);
 l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visit___closed__1 = _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visit___closed__1();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visit___closed__1);
 l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___spec__3___closed__1 = _init_l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___spec__3___closed__1();
@@ -13172,6 +13648,18 @@ l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__1 = 
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__1);
 l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__2 = _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__2();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__2);
+l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__3 = _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__3();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__3);
+l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__4 = _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__4();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__4);
+l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__5 = _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__5();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__5);
+l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__6 = _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__6();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__6);
+l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__7 = _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__7();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__7);
+l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__8 = _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__8();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1___closed__8);
 l_Lean_isTracingEnabledFor___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___spec__6___closed__1 = _init_l_Lean_isTracingEnabledFor___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___spec__6___closed__1();
 lean_mark_persistent(l_Lean_isTracingEnabledFor___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___spec__6___closed__1);
 l_List_forIn_loop___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___spec__7___closed__1 = _init_l_List_forIn_loop___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___spec__7___closed__1();
@@ -13210,9 +13698,7 @@ l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__7 = _init_l_Lean
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__7);
 l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__8 = _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__8();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__8);
-l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__9 = _init_l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__9();
-lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___lambda__1___closed__9);
-res = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Simp_JpCases___hyg_3139_(lean_io_mk_world());
+res = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Simp_JpCases___hyg_3331_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

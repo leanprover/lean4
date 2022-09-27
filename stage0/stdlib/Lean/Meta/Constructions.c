@@ -52,6 +52,7 @@ static lean_object* l_Lean_setReducibilityStatus___at_Lean_mkNoConfusionEnum_mkT
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Constructions_0__Lean_adaptFn___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_mkNoConfusionEnum_mkToCtorIdx___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkCasesOn___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__21;
 LEAN_EXPORT lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusion___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkAppOptM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkBelow___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -90,6 +91,7 @@ static lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusion___closed__4;
 LEAN_EXPORT lean_object* l_Lean_mkBRecOn(lean_object*);
 static lean_object* l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__5;
 static lean_object* l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__14;
+static lean_object* l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__18;
 LEAN_EXPORT lean_object* l_Lean_mkIBelow___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusion___closed__1;
 static lean_object* l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__15;
@@ -112,6 +114,7 @@ LEAN_EXPORT lean_object* l_Lean_mkBInductionOn___rarg___lambda__1(lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_mkIBelow___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at_Lean_mkNoConfusionEnum_mkToCtorIdx___spec__1___closed__1;
 static lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusion___lambda__1___closed__5;
+static lean_object* l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__22;
 LEAN_EXPORT lean_object* l_Lean_mkNoConfusionCore___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkNoConfusion(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkIBelowImp___boxed(lean_object*, lean_object*);
@@ -142,6 +145,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_setReducibilityStatus___at_Lean_mkNoConfusionEnum_mkToCtorIdx___spec__3___closed__7;
 LEAN_EXPORT lean_object* l_Lean_mkBelow___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwKernelException___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__20;
 lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_setReducibilityStatus___at_Lean_mkNoConfusionEnum_mkToCtorIdx___spec__3___closed__3;
 static lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusion___lambda__1___closed__7;
@@ -152,6 +156,7 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwKernelException___at_Lean_mkNoConfusionEnum___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__10;
+static lean_object* l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__19;
 LEAN_EXPORT lean_object* l_Lean_mkRecOn(lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 static lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusionType___closed__6;
@@ -178,6 +183,7 @@ uint8_t l_List_isEmpty___rarg(lean_object*);
 lean_object* lean_mk_rec_on(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkNoConfusionCore(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkCasesOn___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__17;
 LEAN_EXPORT lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusion(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_levelOne;
 LEAN_EXPORT lean_object* l_Lean_mkRecOn___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1398,7 +1404,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Meta.Constructions", 23);
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -1416,7 +1422,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.mkNoConfusionEnum.mkToCtorIdx", 34);
+x_1 = lean_mk_string_from_bytes("Meta", 4);
 return x_1;
 }
 }
@@ -1424,7 +1430,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__2;
 x_2 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__3;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
@@ -1433,14 +1439,68 @@ return x_3;
 static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("Constructions", 13);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__4;
+x_2 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__5;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__7() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("mkNoConfusionEnum", 17);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__2;
+x_2 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__7;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__9() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("mkToCtorIdx", 11);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__10() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__8;
+x_2 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__9;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__11() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__10;
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__6() {
+static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1452,13 +1512,13 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__7() {
+static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__2;
-x_2 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__5;
-x_3 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__6;
+x_1 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__6;
+x_2 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__11;
+x_3 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__12;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -1466,7 +1526,7 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__8() {
+static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__14() {
 _start:
 {
 lean_object* x_1; 
@@ -1474,17 +1534,17 @@ x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__9() {
+static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__15() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__7;
-x_2 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__8;
+x_1 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__13;
+x_2 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__14;
 x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__10() {
+static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__16() {
 _start:
 {
 lean_object* x_1; 
@@ -1492,7 +1552,7 @@ x_1 = lean_mk_string_from_bytes("toCtorIdx", 9);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__11() {
+static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__17() {
 _start:
 {
 lean_object* x_1; 
@@ -1500,27 +1560,27 @@ x_1 = lean_mk_string_from_bytes("Nat", 3);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__12() {
+static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__18() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__11;
+x_2 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__17;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__13() {
+static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__19() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__12;
+x_2 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__18;
 x_3 = l_Lean_Expr_const___override(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__14() {
+static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__20() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1529,7 +1589,7 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__15() {
+static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__21() {
 _start:
 {
 lean_object* x_1; 
@@ -1537,12 +1597,12 @@ x_1 = lean_mk_string_from_bytes("x", 1);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__16() {
+static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__22() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__15;
+x_2 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__21;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
@@ -1581,13 +1641,13 @@ lean_dec(x_9);
 x_16 = lean_unsigned_to_nat(0u);
 x_17 = l_List_lengthTRAux___rarg(x_15, x_16);
 lean_dec(x_15);
-x_18 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__10;
+x_18 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__16;
 lean_inc(x_1);
 x_19 = l_Lean_Name_str___override(x_1, x_18);
 lean_inc(x_14);
 lean_inc(x_1);
 x_20 = l_Lean_Expr_const___override(x_1, x_14);
-x_21 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__13;
+x_21 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__19;
 lean_inc(x_20);
 x_22 = l_Lean_mkArrow(x_20, x_21, x_4, x_5, x_11);
 x_23 = lean_ctor_get(x_22, 0);
@@ -1596,7 +1656,7 @@ x_24 = lean_ctor_get(x_22, 1);
 lean_inc(x_24);
 lean_dec(x_22);
 x_25 = lean_unsigned_to_nat(1u);
-x_26 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__14;
+x_26 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__20;
 lean_inc(x_17);
 x_27 = l_Std_Range_forIn_loop___at_Lean_mkNoConfusionEnum_mkToCtorIdx___spec__2(x_17, x_16, x_17, x_25, x_26, x_2, x_3, x_4, x_5, x_24);
 lean_dec(x_17);
@@ -1614,7 +1674,7 @@ lean_closure_set(x_30, 4, x_19);
 lean_closure_set(x_30, 5, x_12);
 lean_closure_set(x_30, 6, x_23);
 lean_closure_set(x_30, 7, x_13);
-x_31 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__16;
+x_31 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__22;
 x_32 = 0;
 x_33 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_31, x_32, x_20, x_30, x_2, x_3, x_4, x_5, x_29);
 return x_33;
@@ -1627,7 +1687,7 @@ lean_dec(x_1);
 x_34 = lean_ctor_get(x_7, 1);
 lean_inc(x_34);
 lean_dec(x_7);
-x_35 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__9;
+x_35 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__15;
 x_36 = l_panic___at_Lean_mkNoConfusionEnum_mkToCtorIdx___spec__1(x_35, x_2, x_3, x_4, x_5, x_34);
 return x_36;
 }
@@ -2017,7 +2077,7 @@ lean_closure_set(x_14, 4, x_4);
 lean_closure_set(x_14, 5, x_5);
 lean_closure_set(x_14, 6, x_6);
 lean_closure_set(x_14, 7, x_7);
-x_15 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__16;
+x_15 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__22;
 x_16 = 0;
 x_17 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_15, x_16, x_7, x_14, x_9, x_10, x_11, x_12, x_13);
 return x_17;
@@ -2027,7 +2087,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkNoConfusionType___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.mkNoConfusionEnum.mkNoConfusionType", 40);
+x_1 = lean_mk_string_from_bytes("mkNoConfusionType", 17);
 return x_1;
 }
 }
@@ -2035,7 +2095,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkNoConfusionType___closed__2
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__8;
 x_2 = l_Lean_mkNoConfusionEnum_mkNoConfusionType___closed__1;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
@@ -2067,7 +2127,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkNoConfusionType___closed__5
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__2;
+x_1 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__6;
 x_2 = l_Lean_mkNoConfusionEnum_mkNoConfusionType___closed__3;
 x_3 = l_Lean_mkNoConfusionEnum_mkNoConfusionType___closed__4;
 x_4 = lean_alloc_ctor(0, 3, 0);
@@ -2082,7 +2142,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_mkNoConfusionEnum_mkNoConfusionType___closed__5;
-x_2 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__8;
+x_2 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__14;
 x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
 return x_3;
 }
@@ -2165,7 +2225,7 @@ x_19 = l_Lean_Expr_const___override(x_1, x_14);
 lean_inc(x_17);
 x_20 = l_Lean_Level_param___override(x_17);
 x_21 = l_Lean_Expr_sort___override(x_20);
-x_22 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__10;
+x_22 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__16;
 lean_inc(x_1);
 x_23 = l_Lean_Name_str___override(x_1, x_22);
 x_24 = l_Lean_Expr_const___override(x_23, x_14);
@@ -2857,7 +2917,7 @@ lean_closure_set(x_14, 4, x_4);
 lean_closure_set(x_14, 5, x_5);
 lean_closure_set(x_14, 6, x_6);
 lean_closure_set(x_14, 7, x_7);
-x_15 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__16;
+x_15 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__22;
 x_16 = 1;
 x_17 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_15, x_16, x_7, x_14, x_9, x_10, x_11, x_12, x_13);
 return x_17;
@@ -2867,7 +2927,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkNoConfusion___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.mkNoConfusionEnum.mkNoConfusion", 36);
+x_1 = lean_mk_string_from_bytes("mkNoConfusion", 13);
 return x_1;
 }
 }
@@ -2875,7 +2935,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkNoConfusion___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__8;
 x_2 = l_Lean_mkNoConfusionEnum_mkNoConfusion___closed__1;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
@@ -2907,7 +2967,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkNoConfusion___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__2;
+x_1 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__6;
 x_2 = l_Lean_mkNoConfusionEnum_mkNoConfusion___closed__3;
 x_3 = l_Lean_mkNoConfusionEnum_mkNoConfusion___closed__4;
 x_4 = lean_alloc_ctor(0, 3, 0);
@@ -2922,7 +2982,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_mkNoConfusionEnum_mkNoConfusion___closed__5;
-x_2 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__8;
+x_2 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__14;
 x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
 return x_3;
 }
@@ -2970,7 +3030,7 @@ lean_inc(x_17);
 x_20 = l_Lean_Level_param___override(x_17);
 lean_inc(x_20);
 x_21 = l_Lean_Expr_sort___override(x_20);
-x_22 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__10;
+x_22 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__16;
 lean_inc(x_1);
 x_23 = l_Lean_Name_str___override(x_1, x_22);
 lean_inc(x_14);
@@ -4056,6 +4116,18 @@ l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__15 = _init_l_Lean_mkNoConfusionEn
 lean_mark_persistent(l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__15);
 l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__16 = _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__16();
 lean_mark_persistent(l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__16);
+l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__17 = _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__17();
+lean_mark_persistent(l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__17);
+l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__18 = _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__18();
+lean_mark_persistent(l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__18);
+l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__19 = _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__19();
+lean_mark_persistent(l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__19);
+l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__20 = _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__20();
+lean_mark_persistent(l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__20);
+l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__21 = _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__21();
+lean_mark_persistent(l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__21);
+l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__22 = _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__22();
+lean_mark_persistent(l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__22);
 l_Lean_mkNoConfusionEnum_mkNoConfusionType___lambda__1___closed__1 = _init_l_Lean_mkNoConfusionEnum_mkNoConfusionType___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_mkNoConfusionEnum_mkNoConfusionType___lambda__1___closed__1);
 l_Lean_mkNoConfusionEnum_mkNoConfusionType___lambda__1___closed__2 = _init_l_Lean_mkNoConfusionEnum_mkNoConfusionType___lambda__1___closed__2();

@@ -123,12 +123,10 @@ def elabCallerInfoHere : TermElab := fun _ _ => do
   return mkApp3 (Expr.const ``CallerInfo.mk [])
     (toExpr (← getEnv).mainModule) (toExpr (← getDeclName?)) (toExpr pos)
 
-@[builtinMacro Lean.Parser.Term.panic] def expandPanic : Macro := fun stx =>
-  let arg := stx[1]
-  if arg.getKind == interpolatedStrKind then
-    `(panicWithInfo (s! $(⟨arg⟩)))
-  else
-    `(panicWithInfo (toString $(⟨arg⟩)))
+@[builtinMacro Lean.Parser.Term.panic] def expandPanic : Macro
+  | `(panic! $arg:interpolatedStr) => `(panicWithInfo (s! $arg))
+  | `(panic! $arg:term)            => `(panicWithInfo (toString $arg))
+  | _                              => Macro.throwUnsupported
 
 @[builtinMacro Lean.Parser.Term.unreachable] def expandUnreachable : Macro := fun _ =>
   `(panic! "unreachable code has been reached")

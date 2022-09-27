@@ -162,14 +162,14 @@ def find? (lctx : LocalContext) (fvarId : FVarId) : Option LocalDecl :=
 def findFVar? (lctx : LocalContext) (e : Expr) : Option LocalDecl :=
   lctx.find? e.fvarId!
 
-def get! (lctx : LocalContext) (fvarId : FVarId) : LocalDecl :=
+def get! (lctx : LocalContext) (fvarId : FVarId) (info : CallerInfo := by caller_info) : LocalDecl :=
   match lctx.find? fvarId with
   | some d => d
   | none   => panic! "unknown free variable"
 
 /-- Gets the declaration for expression `e` in the local context.
 If `e` is not a free variable or not present then panics. -/
-def getFVar! (lctx : LocalContext) (e : Expr) : LocalDecl :=
+def getFVar! (lctx : LocalContext) (e : Expr) (info : CallerInfo := by caller_info) : LocalDecl :=
   lctx.get! e.fvarId!
 
 def contains (lctx : LocalContext) (fvarId : FVarId) : Bool :=

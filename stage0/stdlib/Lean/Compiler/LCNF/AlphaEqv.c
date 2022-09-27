@@ -29,6 +29,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_AlphaEqv_withParams_go___lambda__1
 static lean_object* l_panic___at_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___spec__1___closed__2;
 LEAN_EXPORT lean_object* l_panic___at_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_AlphaEqv_eqvAlts___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__12;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -49,9 +50,10 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_AlphaEqv_eqvAlts___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_AlphaEqv_withFVar(lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__11;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__13;
 lean_object* l_Lean_RBNode_setBlack___rarg(lean_object*);
-lean_object* lean_array_swap(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_AlphaEqv_withParams(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_AlphaEqv_withParams_go___at_Lean_Compiler_LCNF_AlphaEqv_eqvAlts___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Code_alphaEqv(lean_object*, lean_object*);
@@ -67,6 +69,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_AlphaEqv_withParams_go(lean_object
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Compiler_LCNF_AlphaEqv_eqvFVar___spec__1___boxed(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at_Lean_Compiler_LCNF_AlphaEqv_withFVar___spec__1(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__10;
 extern uint8_t l_instInhabitedBool;
 uint8_t l_Lean_Name_lt(lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
@@ -78,11 +81,13 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_AlphaE
 lean_object* l_instInhabitedReaderT___rarg___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_RBNode_isRed___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Compiler_LCNF_AlphaEqv_eqvFVar___spec__1(lean_object*, lean_object*);
+lean_object* lean_array_swap(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_qsort_sort___at_Lean_Compiler_LCNF_AlphaEqv_sortAlts___spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_AlphaEqv_eqvAlts___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_AlphaEqv_withParams_go___at_Lean_Compiler_LCNF_AlphaEqv_eqv___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__15;
 static lean_object* l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__5;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_AlphaEqv_withParams_go___at_Lean_Compiler_LCNF_AlphaEqv_eqvAlts___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -93,6 +98,7 @@ static lean_object* l_Lean_Compiler_LCNF_AlphaEqv_eqvExprs___closed__1;
 lean_object* l_CallerInfo_mkPanicMessage(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_AlphaEqv_eqvAlts___spec__2(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_AlphaEqv_eqvExprs___spec__1___closed__1;
+static lean_object* l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__14;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_AlphaEqv_eqv(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_AlphaEqv_eqvExprs___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_AlphaEqv_eqvExprs(lean_object*, lean_object*, lean_object*);
@@ -226,7 +232,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.AlphaEqv", 27);
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -244,7 +250,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.AlphaEqv.eqvExpr", 35);
+x_1 = lean_mk_string_from_bytes("Compiler", 8);
 return x_1;
 }
 }
@@ -252,7 +258,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__2;
 x_2 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__3;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
@@ -261,14 +267,68 @@ return x_3;
 static lean_object* _init_l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("LCNF", 4);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__4;
+x_2 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__5;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__7() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("AlphaEqv", 8);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__6;
+x_2 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__7;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__9() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("eqvExpr", 7);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__10() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__8;
+x_2 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__9;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__11() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__10;
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__6() {
+static lean_object* _init_l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -280,13 +340,13 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__7() {
+static lean_object* _init_l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__2;
-x_2 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__5;
-x_3 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__6;
+x_1 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__8;
+x_2 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__11;
+x_3 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__12;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -294,7 +354,7 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__8() {
+static lean_object* _init_l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__14() {
 _start:
 {
 lean_object* x_1; 
@@ -302,12 +362,12 @@ x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__9() {
+static lean_object* _init_l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__15() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__7;
-x_2 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__8;
+x_1 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__13;
+x_2 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__14;
 x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
 return x_3;
 }
@@ -340,7 +400,7 @@ case 8:
 lean_object* x_8; lean_object* x_9; 
 lean_dec(x_2);
 lean_dec(x_1);
-x_8 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__9;
+x_8 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__15;
 x_9 = l_panic___at_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___spec__1(x_8, x_3);
 return x_9;
 }
@@ -397,7 +457,7 @@ case 8:
 lean_object* x_20; lean_object* x_21; 
 lean_dec(x_2);
 lean_dec(x_1);
-x_20 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__9;
+x_20 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__15;
 x_21 = l_panic___at_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___spec__1(x_20, x_3);
 return x_21;
 }
@@ -454,7 +514,7 @@ case 8:
 lean_object* x_32; lean_object* x_33; 
 lean_dec(x_2);
 lean_dec(x_1);
-x_32 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__9;
+x_32 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__15;
 x_33 = l_panic___at_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___spec__1(x_32, x_3);
 return x_33;
 }
@@ -475,7 +535,7 @@ case 8:
 lean_object* x_36; lean_object* x_37; 
 lean_dec(x_2);
 lean_dec(x_1);
-x_36 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__9;
+x_36 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__15;
 x_37 = l_panic___at_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___spec__1(x_36, x_3);
 return x_37;
 }
@@ -487,7 +547,7 @@ case 8:
 lean_object* x_38; lean_object* x_39; 
 lean_dec(x_2);
 lean_dec(x_1);
-x_38 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__9;
+x_38 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__15;
 x_39 = l_panic___at_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___spec__1(x_38, x_3);
 return x_39;
 }
@@ -541,7 +601,7 @@ case 8:
 lean_object* x_49; lean_object* x_50; 
 lean_dec(x_2);
 lean_dec(x_1);
-x_49 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__9;
+x_49 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__15;
 x_50 = l_panic___at_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___spec__1(x_49, x_3);
 return x_50;
 }
@@ -619,7 +679,7 @@ if (lean_obj_tag(x_2) == 8)
 lean_object* x_65; lean_object* x_66; 
 lean_dec(x_2);
 lean_dec(x_1);
-x_65 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__9;
+x_65 = l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__15;
 x_66 = l_panic___at_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___spec__1(x_65, x_3);
 return x_66;
 }
@@ -5341,6 +5401,18 @@ l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__8 = _init_l_Lean_Compiler_LCNF_A
 lean_mark_persistent(l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__8);
 l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__9 = _init_l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__9();
 lean_mark_persistent(l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__9);
+l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__10 = _init_l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__10();
+lean_mark_persistent(l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__10);
+l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__11 = _init_l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__11();
+lean_mark_persistent(l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__11);
+l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__12 = _init_l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__12();
+lean_mark_persistent(l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__12);
+l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__13 = _init_l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__13();
+lean_mark_persistent(l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__13);
+l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__14 = _init_l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__14();
+lean_mark_persistent(l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__14);
+l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__15 = _init_l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__15();
+lean_mark_persistent(l_Lean_Compiler_LCNF_AlphaEqv_eqvExpr___closed__15);
 l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_AlphaEqv_eqvExprs___spec__1___closed__1 = _init_l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_AlphaEqv_eqvExprs___spec__1___closed__1();
 lean_mark_persistent(l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_AlphaEqv_eqvExprs___spec__1___closed__1);
 l_Lean_Compiler_LCNF_AlphaEqv_eqvExprs___closed__1 = _init_l_Lean_Compiler_LCNF_AlphaEqv_eqvExprs___closed__1();

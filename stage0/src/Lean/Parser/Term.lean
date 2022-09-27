@@ -460,7 +460,7 @@ function `lean_set_panic_messages(false)` has been executed before. If the C
 function `lean_set_exit_on_panic(true)` has been executed before, the process is
 then aborted.
 -/
-@[builtinTermParser] def panic       := leading_parser:leadPrec "panic! " >> termParser
+@[builtinTermParser] def panic       := leading_parser:leadPrec "panic! " >> ((interpolatedStr termParser) <|> termParser)
 /-- A shorthand for `panic! "unreachable code has been reached"`. -/
 @[builtinTermParser] def unreachable := leading_parser:leadPrec "unreachable!"
 /--

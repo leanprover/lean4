@@ -30,6 +30,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_getRevAliases
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_contains___at_Lean_addAliasEntry___spec__13___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_ResolveName_resolveGlobalName_loop___spec__3(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__10;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_AssocList_contains___at_Lean_addAliasEntry___spec__13(lean_object*, lean_object*);
 static lean_object* l_List_toStringAux___at_Lean_resolveGlobalConstNoOverloadCore___spec__3___closed__1;
@@ -127,6 +128,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_initFn____x40_Lean_
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_initFn____x40_Lean_ResolveName___hyg_68____spec__1(lean_object*);
 lean_object* l_Lean_Name_components_x27(lean_object*);
+static lean_object* l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__11;
 static lean_object* l_Lean_resolveUniqueNamespace___rarg___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_unresolveNameGlobal___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_unresolveNameGlobal_unresolveNameCore___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3330,7 +3332,7 @@ static lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.ResolveName", 16);
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -3348,7 +3350,7 @@ static lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.ResolveName.resolveNamespaceUsingScope?", 44);
+x_1 = lean_mk_string_from_bytes("ResolveName", 11);
 return x_1;
 }
 }
@@ -3356,7 +3358,7 @@ static lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__2;
 x_2 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__3;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
@@ -3365,14 +3367,32 @@ return x_3;
 static lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("resolveNamespaceUsingScope?", 27);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__4;
+x_2 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__5;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__6;
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__6() {
+static lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3384,13 +3404,13 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__7() {
+static lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__2;
-x_2 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__5;
-x_3 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__6;
+x_1 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__4;
+x_2 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__7;
+x_3 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__8;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -3398,7 +3418,7 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__8() {
+static lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__10() {
 _start:
 {
 lean_object* x_1; 
@@ -3406,12 +3426,12 @@ x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__9() {
+static lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__7;
-x_2 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__8;
+x_1 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__9;
+x_2 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__10;
 x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
 return x_3;
 }
@@ -3470,7 +3490,7 @@ default:
 lean_object* x_12; lean_object* x_13; 
 lean_dec(x_2);
 lean_dec(x_1);
-x_12 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__9;
+x_12 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__11;
 x_13 = l_panic___at_Lean_ResolveName_resolveNamespaceUsingScope_x3f___spec__1(x_12);
 return x_13;
 }
@@ -6223,6 +6243,10 @@ l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__8 = _init_l_Lean_Res
 lean_mark_persistent(l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__8);
 l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__9 = _init_l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__9();
 lean_mark_persistent(l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__9);
+l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__10 = _init_l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__10();
+lean_mark_persistent(l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__10);
+l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__11 = _init_l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__11();
+lean_mark_persistent(l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__11);
 l_Lean_resolveNamespaceCore___rarg___lambda__2___closed__1 = _init_l_Lean_resolveNamespaceCore___rarg___lambda__2___closed__1();
 lean_mark_persistent(l_Lean_resolveNamespaceCore___rarg___lambda__2___closed__1);
 l_Lean_resolveNamespaceCore___rarg___lambda__2___closed__2 = _init_l_Lean_resolveNamespaceCore___rarg___lambda__2___closed__2();

@@ -54,7 +54,7 @@ def empty : SMap α β := {}
 @[inline] def findD (m : SMap α β) (a : α) (b₀ : β) : β :=
   (m.find? a).getD b₀
 
-@[inline] def find! [Inhabited β] (m : SMap α β) (a : α) : β :=
+@[inline] def find! [Inhabited β] (m : SMap α β) (a : α) (info : CallerInfo := by caller_info) : β :=
   match m.find? a with
   | some b => b
   | none   => panic! "key is not in the map"

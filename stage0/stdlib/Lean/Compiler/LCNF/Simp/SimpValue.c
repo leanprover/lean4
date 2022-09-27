@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+static lean_object* l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__12;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_simpAppApp_x3f(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_applyImplementedBy_x3f___closed__1;
@@ -27,11 +28,14 @@ extern lean_object* l_Lean_levelZero;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__16;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_findCtor(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParametricAttribute_getParam_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__5;
+static lean_object* l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__14;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__15;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_applyImplementedBy_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panic___at_Lean_Expr_getRevArg_x21___spec__1(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__3;
@@ -41,6 +45,7 @@ lean_object* l_Lean_Expr_sort___override(lean_object*);
 uint8_t l_Lean_Expr_isConst(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_simpProj_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__1;
+static lean_object* l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__13;
 static lean_object* l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__2;
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_simpValue_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -52,10 +57,13 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_simpAppApp_x3f___boxed(lean_o
 uint8_t l_Lean_Expr_isFVar(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__4;
 extern lean_object* l_Lean_instInhabitedName;
+static lean_object* l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__17;
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_CallerInfo_mkPanicMessage(lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_simpValue_x3f(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_simpProj_x3f(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__6;
 lean_object* l_Lean_Compiler_LCNF_Simp_markSimplified___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -64,7 +72,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.PanicAux", 13);
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -82,7 +90,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("getElem!", 8);
+x_1 = lean_mk_string_from_bytes("Compiler", 8);
 return x_1;
 }
 }
@@ -90,7 +98,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__2;
 x_2 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__3;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
@@ -99,32 +107,104 @@ return x_3;
 static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__4;
-x_2 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("LCNF", 4);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(47u);
-x_2 = lean_unsigned_to_nat(36u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
+x_1 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__4;
+x_2 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__5;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
 static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__7() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("Simp", 4);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__6;
+x_2 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__7;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__9() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("SimpValue", 9);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__10() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__8;
+x_2 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__9;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__11() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("simpProj?", 9);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__12() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__8;
+x_2 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__11;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__13() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__12;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__14() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(19u);
+x_2 = lean_unsigned_to_nat(9u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__15() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__2;
-x_2 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__5;
-x_3 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__6;
+x_1 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__10;
+x_2 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__13;
+x_3 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__14;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -132,7 +212,7 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__8() {
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__16() {
 _start:
 {
 lean_object* x_1; 
@@ -140,12 +220,12 @@ x_1 = lean_mk_string_from_bytes("index out of bounds", 19);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__9() {
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__17() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__7;
-x_2 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__8;
+x_1 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__15;
+x_2 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__16;
 x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
 return x_3;
 }
@@ -222,7 +302,7 @@ if (x_32 == 0)
 lean_object* x_33; lean_object* x_34; 
 lean_dec(x_30);
 lean_dec(x_25);
-x_33 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__9;
+x_33 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__17;
 x_34 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_33);
 lean_ctor_set(x_20, 0, x_34);
 lean_ctor_set(x_26, 0, x_20);
@@ -259,7 +339,7 @@ if (x_40 == 0)
 lean_object* x_41; lean_object* x_42; lean_object* x_43; 
 lean_dec(x_38);
 lean_dec(x_25);
-x_41 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__9;
+x_41 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__17;
 x_42 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_41);
 lean_ctor_set(x_20, 0, x_42);
 x_43 = lean_alloc_ctor(0, 2, 0);
@@ -317,7 +397,7 @@ if (x_55 == 0)
 lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; 
 lean_dec(x_53);
 lean_dec(x_48);
-x_56 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__9;
+x_56 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__17;
 x_57 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_56);
 x_58 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_58, 0, x_57);
@@ -415,7 +495,7 @@ if (x_80 == 0)
 lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; 
 lean_dec(x_78);
 lean_dec(x_73);
-x_81 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__9;
+x_81 = l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__17;
 x_82 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_81);
 if (lean_is_scalar(x_71)) {
  x_83 = lean_alloc_ctor(1, 1, 0);
@@ -1390,6 +1470,22 @@ l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__8 = _init_l_Lean_Compiler_LCNF_
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__8);
 l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__9 = _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__9();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__9);
+l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__10 = _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__10();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__10);
+l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__11 = _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__11();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__11);
+l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__12 = _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__12();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__12);
+l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__13 = _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__13();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__13);
+l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__14 = _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__14();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__14);
+l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__15 = _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__15();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__15);
+l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__16 = _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__16();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__16);
+l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__17 = _init_l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__17();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpProj_x3f___closed__17);
 l_Lean_Compiler_LCNF_Simp_simpAppApp_x3f___closed__1 = _init_l_Lean_Compiler_LCNF_Simp_simpAppApp_x3f___closed__1();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_simpAppApp_x3f___closed__1);
 l_Lean_Compiler_LCNF_Simp_simpAppApp_x3f___closed__2 = _init_l_Lean_Compiler_LCNF_Simp_simpAppApp_x3f___closed__2();

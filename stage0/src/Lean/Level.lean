@@ -187,9 +187,9 @@ def isMVar : Level → Bool
   | mvar .. => true
   | _       => false
 
-def mvarId! : Level → LMVarId
-  | mvar mvarId => mvarId
-  | _           => panic! "metavariable expected"
+def mvarId! : Level → (info : CallerInfo := by caller_info) → LMVarId
+  | mvar mvarId, _ => mvarId
+  | _,           _ => panic! "metavariable expected"
 
 /-- If result is true, then forall assignments `A` which assigns all parameters and metavariables occuring
     in `l`, `l[A] != zero` -/

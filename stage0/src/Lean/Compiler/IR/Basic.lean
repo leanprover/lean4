@@ -425,7 +425,7 @@ def getInfo : Decl → DeclInfo
   | .fdecl (info := info) .. => info
   | _ => {}
 
-def updateBody! (d : Decl) (bNew : FnBody) : Decl :=
+def updateBody! (d : Decl) (bNew : FnBody) (info : CallerInfo := by caller_info) : Decl :=
   match d with
   | Decl.fdecl f xs t _ info => Decl.fdecl f xs t bNew info
   | _ => panic! "expected definition"

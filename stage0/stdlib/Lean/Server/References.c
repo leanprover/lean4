@@ -50,7 +50,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_dedupReferenc
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Server_References_referringTo___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
-uint64_t l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1727_(lean_object*);
+uint64_t l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1791_(lean_object*);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_Server_References_referringTo___spec__3___boxed(lean_object*, lean_object*);
@@ -100,6 +100,7 @@ static lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferenc
 LEAN_EXPORT uint8_t l_Lean_HashMapImp_contains___at_Lean_Server_combineFvars___spec__9(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Info_updateContext_x3f(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Server_dedupReferences(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Server_RefInfo_instCoeRefInfoRefInfo(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_findReferences___spec__6(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
@@ -111,6 +112,7 @@ LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at_Lean_Server_ModuleRefs_a
 LEAN_EXPORT lean_object* l_Lean_Server_combineFvars_applyIdMap(lean_object*, lean_object*);
 uint8_t l_instDecidableRelLeLeOfOrd___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_instInhabitedReference___closed__2;
+static lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__19;
 lean_object* l_List_join___rarg(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Server_findReferences(lean_object*, lean_object*);
@@ -157,6 +159,7 @@ LEAN_EXPORT lean_object* l_Lean_AssocList_contains___at_Lean_Server_dedupReferen
 LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_Server_dedupReferences___spec__1(lean_object*);
 static lean_object* l_Lean_Server_instInhabitedReference___closed__14;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_RefInfo_instCoeRefInfoRefInfo___spec__1___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__16;
 LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at_Lean_Server_References_updateWorkerRefs___spec__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_Server_References_updateWorkerRefs___spec__5(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_dedupReferences___spec__11(uint8_t, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -164,7 +167,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM_x27___at_Lean_Server_findRe
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_References_removeIlean___spec__3(lean_object*, size_t, size_t, lean_object*);
 extern lean_object* l_Lean_Lsp_instBEqRange;
-lean_object* lean_array_swap(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_instInhabitedReference___closed__5;
 lean_object* lean_io_realpath(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_Server_combineFvars_buildIdMap___spec__3(lean_object*);
@@ -214,6 +216,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_References_allRefs(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_combineFvars___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_moveEntries___at_Lean_Server_ModuleRefs_addRef___spec__6(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_RefInfo_contains___lambda__1___boxed(lean_object*);
+static lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__13;
 LEAN_EXPORT lean_object* l_Lean_HashMap_insert___at_Lean_Server_References_allRefs___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_qsort_sort___at_Lean_Server_dedupReferences___spec__13___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Server_dedupReferences___boxed(lean_object*, lean_object*);
@@ -236,6 +239,7 @@ LEAN_EXPORT uint8_t l_Lean_AssocList_contains___at_Lean_Server_ModuleRefs_addRef
 LEAN_EXPORT lean_object* l_Lean_AssocList_replace___at_Lean_Server_References_allRefs___spec__6(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_replace___at_Lean_Server_References_updateWorkerRefs___spec__11(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Lsp_instHashableRange;
+static lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__10;
 LEAN_EXPORT lean_object* l_Lean_HashMap_insert___at_Lean_Server_References_updateWorkerRefs___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Info_stx(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Lsp_RefInfo_contains___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -288,6 +292,7 @@ LEAN_EXPORT lean_object* l_Lean_AssocList_erase___at_Lean_Server_References_remo
 static lean_object* l_Lean_Lsp_RefInfo_contains___lambda__2___closed__3;
 lean_object* l___private_Lean_Data_HashMap_0__Lean_numBucketsForCapacity(lean_object*);
 lean_object* l_List_redLength___rarg(lean_object*);
+static lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__12;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_References_allRefs___spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instHashableOption___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_JsonNumber_fromNat(lean_object*);
@@ -320,6 +325,7 @@ static lean_object* l_Lean_Server_findModuleRefs___closed__1;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Lsp_RefInfo_contains___spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_HashMap_insert___at_Lean_Lsp_instFromJsonModuleRefs___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_instInhabitedReference___closed__20;
+lean_object* lean_array_swap(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Server_References_definitionsMatching___spec__1(lean_object*);
 uint8_t l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_beqRefIdent____x40_Lean_Data_Lsp_Internal___hyg_28_(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__3;
@@ -334,11 +340,14 @@ static lean_object* l_Lean_Server_instInhabitedReference___closed__7;
 LEAN_EXPORT lean_object* l_Lean_HashMap_insert___at_Lean_Server_References_addIlean___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__15;
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Server_References_referringTo___spec__5(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__14;
 LEAN_EXPORT lean_object* l_Lean_Server_combineFvars___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_dedupReferences___lambda__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__5;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__18;
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RefInfo_addRef(lean_object*, lean_object*);
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
@@ -378,6 +387,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_References_findAt___lambda__1___boxed(lea
 static lean_object* l_Lean_Server_instInhabitedReference___closed__11;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_References_0__Lean_Server_toJsonIlean____x40_Lean_Server_References___hyg_921____spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_References_allRefs___spec__11(lean_object*, size_t, size_t, lean_object*);
+static lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__17;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__3(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM___at_Lean_Server_findReferences___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_replace___at_Lean_Server_ModuleRefs_addRef___spec__8(lean_object*, lean_object*, lean_object*);
@@ -3282,7 +3292,7 @@ static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findRe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Server.InfoUtils", 21);
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -3300,7 +3310,7 @@ static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findRe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Elab.InfoTree.visitM.go", 28);
+x_1 = lean_mk_string_from_bytes("Server", 6);
 return x_1;
 }
 }
@@ -3308,7 +3318,7 @@ static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findRe
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__2;
 x_2 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__3;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
@@ -3317,14 +3327,104 @@ return x_3;
 static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("InfoUtils", 9);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__4;
+x_2 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__5;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__7() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("Elab", 4);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__2;
+x_2 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__7;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__9() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("InfoTree", 8);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__10() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__8;
+x_2 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__9;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__11() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("visitM", 6);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__12() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__10;
+x_2 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__11;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__13() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("go", 2);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__14() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__12;
+x_2 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__13;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__15() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__14;
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__6() {
+static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__16() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3336,13 +3436,13 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__7() {
+static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__17() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__2;
-x_2 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__5;
-x_3 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__6;
+x_1 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__6;
+x_2 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__15;
+x_3 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__16;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -3350,7 +3450,7 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__8() {
+static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__18() {
 _start:
 {
 lean_object* x_1; 
@@ -3358,12 +3458,12 @@ x_1 = lean_mk_string_from_bytes("unexpected context-free info tree node", 38);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__9() {
+static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__19() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__7;
-x_2 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__8;
+x_1 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__17;
+x_2 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__18;
 x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
 return x_3;
 }
@@ -3394,7 +3494,7 @@ lean_object* x_10; lean_object* x_11;
 lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
-x_10 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__9;
+x_10 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__19;
 x_11 = l_panic___at_Lean_Server_findReferences___spec__4(x_10, x_5);
 return x_11;
 }
@@ -3918,7 +4018,7 @@ x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
 lean_dec(x_1);
 x_4 = lean_array_get_size(x_3);
-x_5 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1727_(x_2);
+x_5 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1791_(x_2);
 x_6 = lean_uint64_to_usize(x_5);
 x_7 = lean_usize_modn(x_6, x_4);
 lean_dec(x_4);
@@ -4044,7 +4144,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; uint64_t x_7; size_t x_8; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 2);
 x_6 = lean_array_get_size(x_1);
-x_7 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1727_(x_4);
+x_7 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1791_(x_4);
 x_8 = lean_uint64_to_usize(x_7);
 x_9 = lean_usize_modn(x_8, x_6);
 lean_dec(x_6);
@@ -4066,7 +4166,7 @@ lean_inc(x_14);
 lean_inc(x_13);
 lean_dec(x_2);
 x_16 = lean_array_get_size(x_1);
-x_17 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1727_(x_13);
+x_17 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1791_(x_13);
 x_18 = lean_uint64_to_usize(x_17);
 x_19 = lean_usize_modn(x_18, x_16);
 lean_dec(x_16);
@@ -4216,7 +4316,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; uint64_t x_8; size_t x_9; 
 x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_ctor_get(x_1, 1);
 x_7 = lean_array_get_size(x_6);
-x_8 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1727_(x_2);
+x_8 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1791_(x_2);
 x_9 = lean_uint64_to_usize(x_8);
 x_10 = lean_usize_modn(x_9, x_7);
 x_11 = lean_array_uget(x_6, x_10);
@@ -4269,7 +4369,7 @@ lean_inc(x_23);
 lean_inc(x_22);
 lean_dec(x_1);
 x_24 = lean_array_get_size(x_23);
-x_25 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1727_(x_2);
+x_25 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1791_(x_2);
 x_26 = lean_uint64_to_usize(x_25);
 x_27 = lean_usize_modn(x_26, x_24);
 x_28 = lean_array_uget(x_23, x_27);
@@ -4607,7 +4707,7 @@ lean_object* x_10; lean_object* x_11;
 lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
-x_10 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__9;
+x_10 = l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__19;
 x_11 = l_panic___at_Lean_Server_combineFvars_buildIdMap___spec__8(x_10, x_5);
 return x_11;
 }
@@ -5412,7 +5512,7 @@ _start:
 lean_object* x_3; lean_object* x_4; uint64_t x_5; size_t x_6; size_t x_7; lean_object* x_8; uint8_t x_9; 
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_array_get_size(x_3);
-x_5 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1727_(x_2);
+x_5 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1791_(x_2);
 x_6 = lean_uint64_to_usize(x_5);
 x_7 = lean_usize_modn(x_6, x_4);
 lean_dec(x_4);
@@ -12900,6 +13000,26 @@ l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___close
 lean_mark_persistent(l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__8);
 l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__9 = _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__9();
 lean_mark_persistent(l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__9);
+l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__10 = _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__10();
+lean_mark_persistent(l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__10);
+l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__11 = _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__11();
+lean_mark_persistent(l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__11);
+l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__12 = _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__12();
+lean_mark_persistent(l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__12);
+l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__13 = _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__13();
+lean_mark_persistent(l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__13);
+l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__14 = _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__14();
+lean_mark_persistent(l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__14);
+l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__15 = _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__15();
+lean_mark_persistent(l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__15);
+l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__16 = _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__16();
+lean_mark_persistent(l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__16);
+l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__17 = _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__17();
+lean_mark_persistent(l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__17);
+l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__18 = _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__18();
+lean_mark_persistent(l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__18);
+l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__19 = _init_l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__19();
+lean_mark_persistent(l_Lean_Elab_InfoTree_visitM_go___at_Lean_Server_findReferences___spec__3___closed__19);
 l_Array_forInUnsafe_loop___at_Lean_Server_findReferences___spec__6___closed__1 = _init_l_Array_forInUnsafe_loop___at_Lean_Server_findReferences___spec__6___closed__1();
 lean_mark_persistent(l_Array_forInUnsafe_loop___at_Lean_Server_findReferences___spec__6___closed__1);
 l_Array_foldlMUnsafe_fold___at_Lean_Server_combineFvars_buildIdMap___spec__10___closed__1 = _init_l_Array_foldlMUnsafe_fold___at_Lean_Server_combineFvars_buildIdMap___spec__10___closed__1();

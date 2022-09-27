@@ -154,7 +154,7 @@ instance {_ : BEq α} {_ : Hashable α} : GetElem (PersistentHashMap α β) α (
 @[inline] def findD {_ : BEq α} {_ : Hashable α} (m : PersistentHashMap α β) (a : α) (b₀ : β) : β :=
   (m.find? a).getD b₀
 
-@[inline] def find! {_ : BEq α} {_ : Hashable α} [Inhabited β] (m : PersistentHashMap α β) (a : α) : β :=
+@[inline] def find! {_ : BEq α} {_ : Hashable α} [Inhabited β] (m : PersistentHashMap α β) (a : α) (info : CallerInfo := by caller_info) : β :=
   match m.find? a with
   | some b => b
   | none   => panic! "key is not in the map"

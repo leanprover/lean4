@@ -78,6 +78,13 @@ def swap (a : Array α) (i j : @& Fin a.size) : Array α :=
   let a'  := a.set i v₂
   a'.set (size_set a i v₂ ▸ j) v₁
 
+@[extern "lean_array_swap"]
+def swapD (a : Array α) (i j : @& Nat) : Array α :=
+  if h₁ : i < a.size then
+    if h₂ : j < a.size then swap a ⟨i, h₁⟩ ⟨j, h₂⟩
+    else a
+  else a
+
 @[inline] def swapAt (a : Array α) (i : Fin a.size) (v : α) : α × Array α :=
   let e := a.get i
   let a := a.set i v

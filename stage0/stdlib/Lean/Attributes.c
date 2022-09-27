@@ -188,7 +188,6 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_ParametricAttribute_getPar
 LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_registerEnumAttributes___spec__3___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedEnumAttributes(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instMonadLiftImportMAttrM(lean_object*);
-lean_object* lean_array_swap(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_registerParametricAttribute___rarg___lambda__4___closed__3;
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_registerEnumAttributes___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerAttributeImplBuilder___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -360,6 +359,7 @@ static lean_object* l_Lean_registerEnumAttributes___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedAttributeImpl___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_registerTagAttribute___closed__6;
 static lean_object* l_Lean_registerParametricAttribute___rarg___closed__3;
+lean_object* lean_array_swap(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_registerParametricAttribute___rarg___lambda__4___closed__4;
 static lean_object* l_Lean_registerTagAttribute___lambda__6___closed__1;
 static lean_object* l_Lean_instInhabitedAttributeImpl___lambda__1___closed__1;

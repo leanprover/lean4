@@ -420,10 +420,10 @@ def hasValue : ConstantInfo → Bool
   | thmInfo  _ => true
   | _                         => false
 
-def value! : ConstantInfo → Expr
-  | defnInfo {value := r, ..} => r
-  | thmInfo  {value := r, ..} => r
-  | _                         => panic! "declaration with value expected"
+def value! : ConstantInfo → (info : CallerInfo := by caller_info) → Expr
+  | defnInfo {value := r, ..}, _ => r
+  | thmInfo  {value := r, ..}, _ => r
+  | _,                         _ => panic! "declaration with value expected"
 
 def hints : ConstantInfo → ReducibilityHints
   | defnInfo {hints := r, ..} => r

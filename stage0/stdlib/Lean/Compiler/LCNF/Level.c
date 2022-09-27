@@ -19,6 +19,7 @@ size_t lean_usize_add(size_t, size_t);
 lean_object* l_Lean_Level_param___override(lean_object*);
 lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__16;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normExpr___closed__3;
@@ -39,6 +40,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CollectLevelParams_visitParams(lea
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CollectLevelParams_visitCode(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__13;
 lean_object* l_Lean_Expr_letE___override(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_NormLevelParam_State_paramNames___default;
 uint8_t l_ptrEqList___rarg(lean_object*, lean_object*);
@@ -61,6 +63,7 @@ size_t lean_uint64_to_usize(uint64_t);
 static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normExpr___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CollectLevelParams_visitParam(lean_object*, lean_object*);
 uint64_t l_Lean_Name_hash___override(lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__14;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Decl_setLevelParams(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_mkHashMapImp___rarg(lean_object*);
@@ -75,6 +78,7 @@ lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
 lean_object* lean_name_append_index_after(lean_object*, lean_object*);
 lean_object* l_Lean_mkLevelIMax_x27(lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__19;
 LEAN_EXPORT lean_object* l_Lean_AssocList_replace___at_Lean_Compiler_LCNF_NormLevelParam_normLevel___spec__8(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__5;
 lean_object* l_Lean_Expr_sort___override(lean_object*);
@@ -86,6 +90,7 @@ size_t lean_usize_modn(size_t, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__4;
 static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__8;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_CollectLevelParams_visitCode___spec__1(lean_object*, size_t, size_t, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__17;
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normExpr___closed__4;
 static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__9;
@@ -99,6 +104,7 @@ extern lean_object* l_Id_instMonadId;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_CollectLevelParams_visitParams___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_State_paramNames___default___closed__1;
+static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__12;
 static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__2;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_CollectLevelParams_visitAlts___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
@@ -118,6 +124,8 @@ lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_Compiler_LCNF_NormLevelParam_State_map___default___spec__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_normLevelParams(lean_object*);
 static lean_object* l_panic___at_Lean_Compiler_LCNF_NormLevelParam_normExpr___spec__1___closed__1;
+static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__15;
+static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__18;
 static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__3;
 static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CollectLevelParams_visitAlt(lean_object*, lean_object*);
@@ -600,7 +608,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.Level", 24);
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -618,7 +626,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.NormLevelParam.normLevel", 43);
+x_1 = lean_mk_string_from_bytes("Compiler", 8);
 return x_1;
 }
 }
@@ -626,7 +634,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__4;
 x_2 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__5;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
@@ -635,14 +643,86 @@ return x_3;
 static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__7() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("LCNF", 4);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__6;
+x_2 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__7;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__9() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("Level", 5);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__10() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__8;
+x_2 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__9;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__11() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("NormLevelParam", 14);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__12() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__8;
+x_2 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__11;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__13() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("normLevel", 9);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__14() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__12;
+x_2 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__13;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__15() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__14;
 x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__8() {
+static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__16() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -654,13 +734,13 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__9() {
+static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__17() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__4;
-x_2 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__7;
-x_3 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__8;
+x_1 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__10;
+x_2 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__15;
+x_3 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__16;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -668,7 +748,7 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__10() {
+static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__18() {
 _start:
 {
 lean_object* x_1; 
@@ -676,12 +756,12 @@ x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__11() {
+static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__19() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__9;
-x_2 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__10;
+x_1 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__17;
+x_2 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__18;
 x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
 return x_3;
 }
@@ -1086,7 +1166,7 @@ default:
 {
 lean_object* x_111; lean_object* x_112; 
 lean_dec(x_1);
-x_111 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__11;
+x_111 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__19;
 x_112 = l_panic___at_Lean_Compiler_LCNF_NormLevelParam_normLevel___spec__9(x_111, x_2);
 return x_112;
 }
@@ -1203,7 +1283,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normExpr___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.NormLevelParam.normExpr", 42);
+x_1 = lean_mk_string_from_bytes("normExpr", 8);
 return x_1;
 }
 }
@@ -1211,7 +1291,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normExpr___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__12;
 x_2 = l_Lean_Compiler_LCNF_NormLevelParam_normExpr___closed__1;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
@@ -1243,7 +1323,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_NormLevelParam_normExpr___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__4;
+x_1 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__10;
 x_2 = l_Lean_Compiler_LCNF_NormLevelParam_normExpr___closed__3;
 x_3 = l_Lean_Compiler_LCNF_NormLevelParam_normExpr___closed__4;
 x_4 = lean_alloc_ctor(0, 3, 0);
@@ -1258,7 +1338,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Compiler_LCNF_NormLevelParam_normExpr___closed__5;
-x_2 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__10;
+x_2 = l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__18;
 x_3 = l_CallerInfo_mkPanicMessage(x_1, x_2);
 return x_3;
 }
@@ -2684,6 +2764,22 @@ l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__10 = _init_l_Lean_Compil
 lean_mark_persistent(l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__10);
 l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__11 = _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__11();
 lean_mark_persistent(l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__11);
+l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__12 = _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__12();
+lean_mark_persistent(l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__12);
+l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__13 = _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__13();
+lean_mark_persistent(l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__13);
+l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__14 = _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__14();
+lean_mark_persistent(l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__14);
+l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__15 = _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__15();
+lean_mark_persistent(l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__15);
+l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__16 = _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__16();
+lean_mark_persistent(l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__16);
+l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__17 = _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__17();
+lean_mark_persistent(l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__17);
+l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__18 = _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__18();
+lean_mark_persistent(l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__18);
+l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__19 = _init_l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__19();
+lean_mark_persistent(l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__19);
 l_panic___at_Lean_Compiler_LCNF_NormLevelParam_normExpr___spec__1___closed__1 = _init_l_panic___at_Lean_Compiler_LCNF_NormLevelParam_normExpr___spec__1___closed__1();
 lean_mark_persistent(l_panic___at_Lean_Compiler_LCNF_NormLevelParam_normExpr___spec__1___closed__1);
 l_Lean_Compiler_LCNF_NormLevelParam_normExpr___closed__1 = _init_l_Lean_Compiler_LCNF_NormLevelParam_normExpr___closed__1();

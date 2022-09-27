@@ -304,7 +304,7 @@ def getLevelNames : TermElabM (List Name) :=
   Given a free variable `fvar`, return its declaration.
   This function panics if `fvar` is not a free variable.
 -/
-def getFVarLocalDecl! (fvar : Expr) : TermElabM LocalDecl := do
+def getFVarLocalDecl! (fvar : Expr) (info : CallerInfo := by caller_info) : TermElabM LocalDecl := do
   match (← getLCtx).find? fvar.fvarId! with
   | some d => pure d
   | none   => unreachable!

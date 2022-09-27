@@ -10,9 +10,9 @@ modifying the old state in place.
 This is based on the work of John Launchbury and Simon L Peyton Jones in
 [Lazy Functional State Threads](https://www.microsoft.com/en-us/research/wp-content/uploads/1994/06/lazy-functional-state-threads.pdf).
 
-A state transfomer can be used as a first-class value which means it can be passed to a funciton,
+A reference can be used as a first-class value which means it can be passed to a function,
 returned as a result and stored in a data structure, which means you can store it in a `ReaderM`
-context to make part of that context updatable.
+context to make the value being referenced updatable.
 
 ## Motivating example: A simple Job Server
 

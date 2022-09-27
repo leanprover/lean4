@@ -79,6 +79,21 @@ instance : Literal Nat where
   getLit := getNatLit
   mkLit := mkNatLit
 
+partial def getStringLit (e : Expr) : CompilerM (Option String) := do
+  match e with
+  | .lit (.strVal n) .. => return n
+  | .fvar fvarId .. =>
+    let some decl ← findLetDecl? fvarId | return none
+    getStringLit decl.value
+  | _ => return none
+
+def mkStringLit (n : String) : FolderM Expr :=
+  return .lit (.strVal n)
+
+instance : Literal String where
+  getLit := getStringLit
+  mkLit := mkStringLit
+
 private partial def getLitAux [Inhabited α] (e : Expr) (ofNat : Nat → α) (ofNatName : Name) (toNat : α → Nat) : CompilerM (Option α) := do
   match e with
   | .fvar fvarId .. =>
@@ -106,6 +121,7 @@ instance : Literal UInt8 := mkNatWrapperInstance UInt8.ofNat ``UInt8.ofNat UInt8
 instance : Literal UInt16 := mkNatWrapperInstance UInt16.ofNat ``UInt16.ofNat UInt16.toNat
 instance : Literal UInt32 := mkNatWrapperInstance UInt32.ofNat ``UInt32.ofNat UInt32.toNat
 instance : Literal UInt64 := mkNatWrapperInstance UInt64.ofNat ``UInt64.ofNat UInt64.toNat
+instance : Literal Char := mkNatWrapperInstance Char.ofNat ``Char.ofNat Char.toNat
 
 end Literals
 
@@ -316,6 +332,15 @@ def arithmeticFolders : List (Name × Folder) := [
 ]
 
 /--
+All string folders.
+-/
+def stringFolders : List (Name × Folder) := [
+  (``String.append, Folder.first #[Folder.mkBinary String.append, Folder.leftRightNeutral ""]),
+  (``String.length, Folder.mkUnary String.length),
+  (``String.push, Folder.mkBinary String.push)
+]
+
+/--
 Apply all known folders to `decl`.
 -/
 def applyFolders (decl : LetDecl) (folders : Lean.HashMap Name Folder) : CompilerM (Option (Array CodeDecl)) := do
@@ -339,7 +364,7 @@ def applyFolders (decl : LetDecl) (folders : Lean.HashMap Name Folder) : Compile
 
 -- TODO: make it extensible
 def folders : HashMap Name Folder :=
-  Lean.HashMap.ofList (arithmeticFolders ++ higherOrderLiteralFolders)
+  Lean.HashMap.ofList (arithmeticFolders ++ higherOrderLiteralFolders ++ stringFolders)
 
 /--
 Apply a list of default folders to `decl`

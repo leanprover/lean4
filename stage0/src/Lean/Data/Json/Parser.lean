@@ -7,11 +7,7 @@ Authors: Gabriel Ebner, Marc Huisinga
 import Lean.Data.Json.Basic
 import Lean.Data.Parsec
 
-namespace Lean
-
-open Std (RBNode RBNode.singleton RBNode.leaf)
-
-namespace Json.Parser
+namespace Lean.Json.Parser
 
 open Lean.Parsec
 

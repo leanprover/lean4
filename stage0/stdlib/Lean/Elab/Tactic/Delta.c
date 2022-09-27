@@ -105,6 +105,7 @@ static lean_object* l_Lean_Elab_Tactic_deltaLocalDecl___closed__8;
 static lean_object* l_Lean_Elab_pushInfoLeaf___at_Lean_Elab_Tactic_evalDelta___spec__15___closed__2;
 lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_evalTactic___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalDelta_declRange___closed__6;
+lean_object* l_Lean_PersistentArray_push___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_deltaLocalDecl___closed__6;
 lean_object* l_Lean_LocalDecl_type(lean_object*);
 static lean_object* l_Lean_Elab_pushInfoLeaf___at_Lean_Elab_Tactic_evalDelta___spec__15___closed__1;
@@ -112,7 +113,6 @@ static lean_object* l_Lean_Elab_Tactic_deltaLocalDecl___closed__1;
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_deltaLocalDecl___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalDelta_declRange(lean_object*);
-lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
 lean_object* l_Array_contains___at_Lean_findField_x3f___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalDelta_declRange___closed__5;
@@ -1857,7 +1857,7 @@ if (x_28 == 0)
 {
 lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; 
 x_29 = lean_ctor_get(x_24, 1);
-x_30 = l_Std_PersistentArray_push___rarg(x_29, x_1);
+x_30 = l_Lean_PersistentArray_push___rarg(x_29, x_1);
 lean_ctor_set(x_24, 1, x_30);
 x_31 = lean_st_ref_set(x_9, x_23, x_25);
 x_32 = !lean_is_exclusive(x_31);
@@ -1892,7 +1892,7 @@ x_40 = lean_ctor_get(x_24, 1);
 lean_inc(x_40);
 lean_inc(x_39);
 lean_dec(x_24);
-x_41 = l_Std_PersistentArray_push___rarg(x_40, x_1);
+x_41 = l_Lean_PersistentArray_push___rarg(x_40, x_1);
 x_42 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_42, 0, x_39);
 lean_ctor_set(x_42, 1, x_41);
@@ -1949,7 +1949,7 @@ if (lean_is_exclusive(x_24)) {
  lean_dec_ref(x_24);
  x_57 = lean_box(0);
 }
-x_58 = l_Std_PersistentArray_push___rarg(x_56, x_1);
+x_58 = l_Lean_PersistentArray_push___rarg(x_56, x_1);
 if (lean_is_scalar(x_57)) {
  x_59 = lean_alloc_ctor(0, 2, 1);
 } else {

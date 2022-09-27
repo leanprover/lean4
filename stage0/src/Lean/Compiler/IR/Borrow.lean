@@ -25,9 +25,9 @@ instance : Hashable Key := ⟨getHash⟩
 end OwnedSet
 
 open OwnedSet (Key) in
-abbrev OwnedSet := Std.HashMap Key Unit
-def OwnedSet.insert (s : OwnedSet) (k : OwnedSet.Key) : OwnedSet := Std.HashMap.insert s k ()
-def OwnedSet.contains (s : OwnedSet) (k : OwnedSet.Key) : Bool   := Std.HashMap.contains s k
+abbrev OwnedSet := HashMap Key Unit
+def OwnedSet.insert (s : OwnedSet) (k : OwnedSet.Key) : OwnedSet := HashMap.insert s k ()
+def OwnedSet.contains (s : OwnedSet) (k : OwnedSet.Key) : Bool   := HashMap.contains s k
 
 /-! We perform borrow inference in a block of mutually recursive functions.
    Join points are viewed as local functions, and are identified using
@@ -48,7 +48,7 @@ instance : Hashable Key := ⟨getHash⟩
 end ParamMap
 
 open ParamMap (Key)
-abbrev ParamMap := Std.HashMap Key (Array Param)
+abbrev ParamMap := HashMap Key (Array Param)
 
 def ParamMap.fmt (map : ParamMap) : Format :=
   let fmts := map.fold (fun fmt k ps =>
@@ -288,7 +288,7 @@ partial def collectDecl : Decl → M Unit
   | _ => pure ()
 
 /-- Keep executing `x` until it reaches a fixpoint -/
-@[inline] partial def whileModifing (x : M Unit) : M Unit := do
+partial def whileModifing (x : M Unit) : M Unit := do
   modify fun s => { s with modified := false }
   x
   let s ← get

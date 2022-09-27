@@ -52,8 +52,6 @@ structure AttributeImpl extends AttributeImplCore where
   erase (decl : Name) : AttrM Unit := throwError "attribute cannot be erased"
   deriving Inhabited
 
-open Std (PersistentHashMap)
-
 builtin_initialize attributeMapRef : IO.Ref (PersistentHashMap Name AttributeImpl) ← IO.mkRef {}
 
 /-- Low level attribute registration function. -/
@@ -304,7 +302,7 @@ end EnumAttributes
 -/
 
 abbrev AttributeImplBuilder := Name → List DataValue → Except String AttributeImpl
-abbrev AttributeImplBuilderTable := Std.HashMap Name AttributeImplBuilder
+abbrev AttributeImplBuilderTable := HashMap Name AttributeImplBuilder
 
 builtin_initialize attributeImplBuilderTableRef : IO.Ref AttributeImplBuilderTable ← IO.mkRef {}
 

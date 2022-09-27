@@ -16,7 +16,7 @@ namespace Lean.Meta
   to an expression. The free variables occurring in the expression must
   be defined in the new goal. -/
 structure FVarSubst where
-  map : Std.AssocList FVarId Expr := {}
+  map : AssocList FVarId Expr := {}
   deriving Inhabited
 
 namespace FVarSubst

@@ -180,3 +180,17 @@ example : let a := 0; let b := a; b = 0 := by
   conv =>
     zeta
     trace_state
+
+example : ((x + y) + z : Nat) = x + (y + z) := by
+  conv in _ + _ => trace_state
+  conv in (occs := *) _ + _ => trace_state
+  conv in (occs := 1 3) _ + _ => trace_state
+  conv in (occs := 3 1) _ + _ => trace_state
+  conv in (occs := 2 3) _ + _ => trace_state
+  conv in (occs := 2 4) _ + _ => trace_state
+  apply Nat.add_assoc
+
+example : ((x + y) + z : Nat) = x + (y + z) := by conv => pattern (occs := 5) _ + _
+example : ((x + y) + z : Nat) = x + (y + z) := by conv => pattern (occs := 2 5) _ + _
+example : ((x + y) + z : Nat) = x + (y + z) := by conv => pattern (occs := 1 5) _ + _
+example : ((x + y) + z : Nat) = x + (y + z) := by conv => pattern (occs := 1 2 5) _ + _

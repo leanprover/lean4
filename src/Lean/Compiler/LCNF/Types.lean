@@ -5,10 +5,15 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.InferType
 
-namespace Lean.Compiler.LCNF
+namespace Lean.Compiler
+
+scoped notation:max "◾" => lcErased
+scoped notation:max "⊤" => lcAny
+
+namespace LCNF
 
 structure LCNFTypeExtState where
-  types : Std.PHashMap Name Expr := {}
+  types : PHashMap Name Expr := {}
   instLevelType : Core.InstantiateLevelCache := {}
   deriving Inhabited
 
@@ -130,7 +135,7 @@ Convert a Lean type into a LCNF type used by the code generator.
 partial def toLCNFType (type : Expr) : MetaM Expr := do
   if (← isProp type) then
     return erasedExpr
-  let type ← whnf type
+  let type ← whnfEta type
   match type with
   | .sort u     => return .sort u
   | .const ..   => visitApp type #[]
@@ -141,12 +146,20 @@ partial def toLCNFType (type : Expr) : MetaM Expr := do
       if b.isAnyType || b.isErased then
         return b
       else
-        return (Expr.lam n d (b.abstract #[x]) bi).eta
+        return Expr.lam n d (b.abstract #[x]) bi
   | .forallE .. => visitForall type #[]
   | .app ..  => type.withApp visitApp
   | .fvar .. => visitApp type #[]
   | _        => return anyTypeExpr
 where
+  whnfEta (type : Expr) : MetaM Expr := do
+    let type ← whnf type
+    let type' := type.eta
+    if type' != type then
+      whnfEta type'
+    else
+      return type
+
   visitForall (e : Expr) (xs : Array Expr) : MetaM Expr := do
     match e with
     | .forallE n d b bi =>

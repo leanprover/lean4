@@ -134,7 +134,7 @@ private def unfold? (e : Expr) : SimpM (Option Expr) := do
     return none -- should be reduced by `reduceProjFn?`
   let ctx ← read
   if ctx.config.autoUnfold then
-    if ctx.simpTheorems.isErased fName then
+    if ctx.simpTheorems.isErased (.decl fName) then
       return none
     else if hasSmartUnfoldingDecl (← getEnv) fName then
       withDefault <| unfoldDefinition? e
@@ -165,7 +165,10 @@ private partial def reduce (e : Expr) : SimpM Expr := withIncRecDepth do
     | some e => return (← reduce e)
     | none   => pure ()
   match (← unfold? e) with
-  | some e => reduce e
+  | some e' =>
+    trace[Meta.Tactic.simp.rewrite] "unfold {mkConst e.getAppFn.constName!}, {e} ==> {e'}"
+    recordSimpTheorem (.decl e.getAppFn.constName!)
+    reduce e'
   | none => return e
 
 private partial def dsimp (e : Expr) : M Expr := do
@@ -538,7 +541,7 @@ where
       unless modified do
         trace[Meta.Tactic.simp.congr] "{c.theoremName} not modified"
         return none
-      unless (← synthesizeArgs c.theoremName xs bis (← read).discharge?) do
+      unless (← synthesizeArgs (.decl c.theoremName) xs bis (← read).discharge?) do
         trace[Meta.Tactic.simp.congr] "{c.theoremName} synthesizeArgs failed"
         return none
       let eNew ← instantiateMVars rhs
@@ -579,7 +582,7 @@ where
       let mut updated := false
       for x in xs do
         if (← isProof x) then
-          s ← s.addTheorem x
+          s ← s.addTheorem (.fvar x.fvarId!) x
           updated := true
       if updated then
         withSimpTheorems s f
@@ -609,7 +612,7 @@ where
       trace[Debug.Meta.Tactic.simp] "ctx arrow {rp.expr} -> {q}"
       withLocalDeclD e.bindingName! rp.expr fun h => do
         let s ← getSimpTheorems
-        let s ← s.addTheorem h
+        let s ← s.addTheorem (.fvar h.fvarId!) h
         withSimpTheorems s do
           let rq ← simp q
           match rq.proof? with
@@ -687,18 +690,20 @@ where
       modify fun s => { s with cache := s.cache.insert e { r with dischargeDepth } }
     return r
 
-def main (e : Expr) (ctx : Context) (methods : Methods := {}) : MetaM Result := do
+def main (e : Expr) (ctx : Context) (usedSimps : UsedSimps := {}) (methods : Methods := {}) : MetaM (Result × UsedSimps) := do
   let ctx := { ctx with config := (← ctx.config.updateArith) }
   withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <| withReducible do
     try
-      simp e methods ctx |>.run' {}
+      let (r, s) ← simp e methods ctx |>.run { usedTheorems := usedSimps }
+      pure (r, s.usedTheorems)
     catch ex =>
       if ex.isMaxHeartbeat then throwNestedTacticEx `simp ex else throw ex
 
-def dsimpMain (e : Expr) (ctx : Context) (methods : Methods := {}) : MetaM Expr := do
+def dsimpMain (e : Expr) (ctx : Context) (usedSimps : UsedSimps := {}) (methods : Methods := {}) : MetaM (Expr × UsedSimps) := do
   withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <| withReducible do
     try
-      dsimp e methods ctx |>.run' {}
+      let (r, s) ← dsimp e methods ctx |>.run { usedTheorems := usedSimps }
+      pure (r, s.usedTheorems)
     catch ex =>
       if ex.isMaxHeartbeat then throwNestedTacticEx `dsimp ex else throw ex
 
@@ -805,14 +810,17 @@ def methods : Methods :=
 end DefaultMethods
 
 end Simp
+open Simp (UsedSimps)
 
-def simp (e : Expr) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) : MetaM Simp.Result := do profileitM Exception "simp" (← getOptions) do
+def simp (e : Expr) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none)
+    (usedSimps : UsedSimps := {}) : MetaM (Simp.Result × UsedSimps) := do profileitM Exception "simp" (← getOptions) do
   match discharge? with
-  | none   => Simp.main e ctx (methods := Simp.DefaultMethods.methods)
-  | some d => Simp.main e ctx (methods := { pre := (Simp.preDefault · d), post := (Simp.postDefault · d), discharge? := d })
+  | none   => Simp.main e ctx usedSimps (methods := Simp.DefaultMethods.methods)
+  | some d => Simp.main e ctx usedSimps (methods := { pre := (Simp.preDefault · d), post := (Simp.postDefault · d), discharge? := d })
 
-def dsimp (e : Expr) (ctx : Simp.Context) : MetaM Expr := do profileitM Exception "dsimp" (← getOptions) do
-  Simp.dsimpMain e ctx (methods := Simp.DefaultMethods.methods)
+def dsimp (e : Expr) (ctx : Simp.Context)
+    (usedSimps : UsedSimps := {}) : MetaM (Expr × UsedSimps) := do profileitM Exception "dsimp" (← getOptions) do
+  Simp.dsimpMain e ctx usedSimps (methods := Simp.DefaultMethods.methods)
 
 /--
   Auxiliary method.
@@ -828,24 +836,26 @@ def applySimpResultToTarget (mvarId : MVarId) (target : Expr) (r : Simp.Result) 
       return mvarId
 
 /-- See `simpTarget`. This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
-def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (mayCloseGoal := true) : MetaM (Option MVarId) := do
+def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none)
+    (mayCloseGoal := true) (usedSimps : UsedSimps := {}) : MetaM (Option MVarId × UsedSimps) := do
   let target ← instantiateMVars (← mvarId.getType)
-  let r ← simp target ctx discharge?
+  let (r, usedSimps) ← simp target ctx discharge? usedSimps
   if mayCloseGoal && r.expr.isConstOf ``True then
     match r.proof? with
     | some proof => mvarId.assign (← mkOfEqTrue proof)
     | none => mvarId.assign (mkConst ``True.intro)
-    return none
+    return (none, usedSimps)
   else
-    applySimpResultToTarget mvarId target r
+    return (← applySimpResultToTarget mvarId target r, usedSimps)
 
 /--
   Simplify the given goal target (aka type). Return `none` if the goal was closed. Return `some mvarId'` otherwise,
   where `mvarId'` is the simplified new goal. -/
-def simpTarget (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (mayCloseGoal := true) : MetaM (Option MVarId) :=
+def simpTarget (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none)
+    (mayCloseGoal := true) (usedSimps : UsedSimps := {}) : MetaM (Option MVarId × UsedSimps) :=
   mvarId.withContext do
     mvarId.checkNotAssigned `simp
-    simpTargetCore mvarId ctx discharge? mayCloseGoal
+    simpTargetCore mvarId ctx discharge? mayCloseGoal usedSimps
 
 /--
   Apply the result `r` for `prop` (which is inhabited by `proof`). Return `none` if the goal was closed. Return `some (proof', prop')`
@@ -876,9 +886,10 @@ def applySimpResultToFVarId (mvarId : MVarId) (fvarId : FVarId) (r : Simp.Result
   otherwise, where `proof' : prop'` and `prop'` is the simplified `prop`.
 
   This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
-def simpStep (mvarId : MVarId) (proof : Expr) (prop : Expr) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (mayCloseGoal := true) : MetaM (Option (Expr × Expr)) := do
-  let r ← simp prop ctx discharge?
-  applySimpResultToProp mvarId proof prop r (mayCloseGoal := mayCloseGoal)
+def simpStep (mvarId : MVarId) (proof : Expr) (prop : Expr) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none)
+    (mayCloseGoal := true) (usedSimps : UsedSimps := {}) : MetaM (Option (Expr × Expr) × UsedSimps) := do
+  let (r, usedSimps) ← simp prop ctx discharge? usedSimps
+  return (← applySimpResultToProp mvarId proof prop r (mayCloseGoal := mayCloseGoal), usedSimps)
 
 def applySimpResultToLocalDeclCore (mvarId : MVarId) (fvarId : FVarId) (r : Option (Expr × Expr)) : MetaM (Option (FVarId × MVarId)) := do
   match r with
@@ -908,87 +919,95 @@ def applySimpResultToLocalDecl (mvarId : MVarId) (fvarId : FVarId) (r : Simp.Res
   else
     applySimpResultToLocalDeclCore mvarId fvarId (← applySimpResultToFVarId mvarId fvarId r mayCloseGoal)
 
-def simpLocalDecl (mvarId : MVarId) (fvarId : FVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (mayCloseGoal := true) : MetaM (Option (FVarId × MVarId)) := do
+def simpLocalDecl (mvarId : MVarId) (fvarId : FVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none)
+    (mayCloseGoal := true) (usedSimps : UsedSimps := {}) : MetaM (Option (FVarId × MVarId) × UsedSimps) := do
   mvarId.withContext do
     mvarId.checkNotAssigned `simp
     let type ← instantiateMVars (← fvarId.getType)
-    applySimpResultToLocalDeclCore mvarId fvarId (← simpStep mvarId (mkFVar fvarId) type ctx discharge? mayCloseGoal)
+    let (r, usedSimps) ← simpStep mvarId (mkFVar fvarId) type ctx discharge? mayCloseGoal usedSimps
+    return (← applySimpResultToLocalDeclCore mvarId fvarId r, usedSimps)
 
-abbrev FVarIdToLemmaId := FVarIdMap Name
-
-def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (simplifyTarget : Bool := true) (fvarIdsToSimp : Array FVarId := #[]) (fvarIdToLemmaId : FVarIdToLemmaId := {}) : MetaM (Option (Array FVarId × MVarId)) := do
+def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none)
+    (simplifyTarget : Bool := true) (fvarIdsToSimp : Array FVarId := #[])
+    (usedSimps : UsedSimps := {}) : MetaM (Option (Array FVarId × MVarId) × UsedSimps) := do
   mvarId.withContext do
     mvarId.checkNotAssigned `simp
     let mut mvarId := mvarId
     let mut toAssert := #[]
     let mut replaced := #[]
+    let mut usedSimps := usedSimps
     for fvarId in fvarIdsToSimp do
       let localDecl ← fvarId.getDecl
       let type ← instantiateMVars localDecl.type
-      let ctx ← match fvarIdToLemmaId.find? localDecl.fvarId with
-        | none => pure ctx
-        | some thmId => pure { ctx with simpTheorems := ctx.simpTheorems.eraseTheorem thmId }
-      let r ← simp type ctx discharge?
+      let ctx := { ctx with simpTheorems := ctx.simpTheorems.eraseTheorem (.fvar localDecl.fvarId) }
+      let (r, usedSimps') ← simp type ctx discharge? usedSimps
+      usedSimps := usedSimps'
       match r.proof? with
       | some _ => match (← applySimpResultToProp mvarId (mkFVar fvarId) type r) with
-        | none => return none
+        | none => return (none, usedSimps)
         | some (value, type) => toAssert := toAssert.push { userName := localDecl.userName, type := type, value := value }
       | none =>
         if r.expr.isConstOf ``False then
           mvarId.assign (← mkFalseElim (← mvarId.getType) (mkFVar fvarId))
-          return none
+          return (none, usedSimps)
         -- TODO: if there are no forwards dependencies we may consider using the same approach we used when `r.proof?` is a `some ...`
         -- Reason: it introduces a `mkExpectedTypeHint`
         mvarId ← mvarId.replaceLocalDeclDefEq fvarId r.expr
         replaced := replaced.push fvarId
     if simplifyTarget then
       match (← simpTarget mvarId ctx discharge?) with
-      | none => return none
-      | some mvarIdNew => mvarId := mvarIdNew
+      | (none, usedSimps') => return (none, usedSimps')
+      | (some mvarIdNew, usedSimps') => mvarId := mvarIdNew; usedSimps := usedSimps'
     let (fvarIdsNew, mvarIdNew) ← mvarId.assertHypotheses toAssert
     let toClear := fvarIdsToSimp.filter fun fvarId => !replaced.contains fvarId
     let mvarIdNew ← mvarIdNew.tryClearMany toClear
-    return (fvarIdsNew, mvarIdNew)
+    return (some (fvarIdsNew, mvarIdNew), usedSimps)
 
-def simpTargetStar (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) : MetaM TacticResultCNM := mvarId.withContext do
+def simpTargetStar (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none)
+    (usedSimps : UsedSimps := {}) : MetaM (TacticResultCNM × UsedSimps) := mvarId.withContext do
   let mut ctx := ctx
   for h in (← getPropHyps) do
     let localDecl ← h.getDecl
     let proof  := localDecl.toExpr
-    let simpTheorems ← ctx.simpTheorems.addTheorem proof
+    let simpTheorems ← ctx.simpTheorems.addTheorem (.fvar h) proof
     ctx := { ctx with simpTheorems }
-  match (← simpTarget mvarId ctx discharge?) with
-  | none => return TacticResultCNM.closed
-  | some mvarId' =>
+  match (← simpTarget mvarId ctx discharge? (usedSimps := usedSimps)) with
+  | (none, usedSimps) => return (TacticResultCNM.closed, usedSimps)
+  | (some mvarId', usedSimps') =>
     if (← mvarId.getType) == (← mvarId'.getType) then
-      return TacticResultCNM.noChange
+      return (TacticResultCNM.noChange, usedSimps)
     else
-      return TacticResultCNM.modified mvarId'
+      return (TacticResultCNM.modified mvarId', usedSimps')
 
-def dsimpGoal (mvarId : MVarId) (ctx : Simp.Context) (simplifyTarget : Bool := true) (fvarIdsToSimp : Array FVarId := #[]) : MetaM (Option MVarId) := do
+def dsimpGoal (mvarId : MVarId) (ctx : Simp.Context) (simplifyTarget : Bool := true) (fvarIdsToSimp : Array FVarId := #[])
+    (usedSimps : UsedSimps := {}) : MetaM (Option MVarId × UsedSimps) := do
    mvarId.withContext do
     mvarId.checkNotAssigned `simp
     let mut mvarId := mvarId
+    let mut usedSimps : UsedSimps := usedSimps
     for fvarId in fvarIdsToSimp do
       let type ← instantiateMVars (← fvarId.getType)
-      let typeNew ← dsimp type ctx
+      let (typeNew, usedSimps') ← dsimp type ctx
+      usedSimps := usedSimps'
       if typeNew.isConstOf ``False then
         mvarId.assign (← mkFalseElim (← mvarId.getType) (mkFVar fvarId))
-        return none
+        return (none, usedSimps)
       if typeNew != type then
         mvarId ← mvarId.replaceLocalDeclDefEq fvarId typeNew
     if simplifyTarget then
       let target ← mvarId.getType
-      let targetNew ← dsimp target ctx
+      let (targetNew, usedSimps') ← dsimp target ctx usedSimps
+      usedSimps := usedSimps'
       if targetNew.isConstOf ``True then
         mvarId.assign (mkConst ``True.intro)
-        return none
+        return (none, usedSimps)
       if let some (_, lhs, rhs) := targetNew.eq? then
         if (← withReducible <| isDefEq lhs rhs) then
           mvarId.assign (← mkEqRefl lhs)
-          return none
+          return (none, usedSimps)
       if target != targetNew then
         mvarId ← mvarId.replaceTargetDefEq targetNew
-    return some mvarId
+      pure () -- FIXME: bug in do notation if this is removed?
+    return (some mvarId, usedSimps)
 
 end Lean.Meta

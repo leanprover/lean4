@@ -190,13 +190,19 @@ structure State where
   /-- Local context containing the original Lean types (not LCNF ones). -/
   lctx : LocalContext := {}
   /-- Cache from Lean regular expression to LCNF expression. -/
-  cache : Std.PHashMap Expr Expr := {}
+  cache : PHashMap Expr Expr := {}
   /-- `toLCNFType` cache -/
-  typeCache : Std.HashMap Expr Expr := {}
+  typeCache : HashMap Expr Expr := {}
   /-- isTypeFormerType cache -/
-  isTypeFormerTypeCache : Std.HashMap Expr Bool := {}
+  isTypeFormerTypeCache : HashMap Expr Bool := {}
   /-- LCNF sequence, we chain it to create a LCNF `Code` object. -/
   seq : Array Element := #[]
+  /--
+  Fields that are type formers must be replaced with `lcAny`
+  in the resulting code. Otherwise, we have data occurring in
+  types.
+  -/
+  toAny : FVarIdSet := {}
 
 abbrev M := StateRefT State CompilerM
 
@@ -271,11 +277,23 @@ def withNewScope (x : M α) : M α := do
     }
     set saved
 
+/-
+Replace free variables in `type'` that occur in `toAny` into `lcAny`.
+Recall that we populate `toAny` with the free variable ids of fields that
+are type formers. This can happen when we have a field whose type is, for example, `Type u`.
+-/
+def applyToAny (type : Expr) : M Expr := do
+  let toAny := (← get).toAny
+  return type.replace fun
+    | .fvar fvarId => if toAny.contains fvarId then some anyTypeExpr else none
+    | _ => none
+
 def toLCNFType (type : Expr) : M Expr := do
   match (← get).typeCache.find? type with
   | some type' => return type'
   | none =>
     let type' ← liftMetaM <| LCNF.toLCNFType type
+    let type' ← applyToAny type'
     modify fun s => { s with typeCache := s.typeCache.insert type type' }
     return type'
 
@@ -332,7 +350,7 @@ def mustEtaExpand (env : Environment) (e : Expr) : Bool :=
   if let .const declName _ := e.getAppFn then
     match env.find? declName with
     | some (.recInfo ..) | some (.ctorInfo ..) | some (.quotInfo ..) => true
-    | _ => isCasesOnRecursor env declName || isNoConfusion env declName || env.isProjectionFn declName
+    | _ => isCasesOnRecursor env declName || isNoConfusion env declName || env.isProjectionFn declName || declName == ``Eq.ndrec
   else
     false
 
@@ -362,27 +380,28 @@ where
     if let some e := (← get).cache.find? e then
       return e
     let r ← match e with
-      | .app ..     => visitApp e
-      | .const ..   => visitApp e
-      | .proj s i e => visitProj s i e
-      | .mdata d e  => visitMData d e
-      | .lam ..     => visitLambda e
-      | .letE ..    => visitLet e #[]
-      | .lit ..     => mkAuxLetDecl e
-      | .forallE .. => unreachable!
-      | .mvar ..    => throwError "unexpected occurrence of metavariable in code generator{indentExpr e}"
-      | .bvar ..    => unreachable!
-      | _           => pure e
+      | .app ..      => visitApp e
+      | .const ..    => visitApp e
+      | .proj s i e  => visitProj s i e
+      | .mdata d e   => visitMData d e
+      | .lam ..      => visitLambda e
+      | .letE ..     => visitLet e #[]
+      | .lit ..      => mkAuxLetDecl e
+      | .forallE ..  => unreachable!
+      | .mvar ..     => throwError "unexpected occurrence of metavariable in code generator{indentExpr e}"
+      | .bvar ..     => unreachable!
+      | .fvar fvarId => if (← get).toAny.contains fvarId then pure anyTypeExpr else pure e
+      | _            => pure e
     modify fun s => { s with cache := s.cache.insert e r }
     return r
 
   visit (e : Expr) : M Expr := withIncRecDepth do
     if isLCProof e then
-      return mkConst ``lcErased
+      return erasedExpr
     let type ← liftMetaM <| Meta.inferType e
     if (← liftMetaM <| Meta.isProp type) then
       /- We erase proofs. -/
-      return mkConst ``lcErased
+      return erasedExpr
     if (← isTypeFormerType type) then
       /-
       We erase type formers unless they occur as application arguments.
@@ -391,25 +410,29 @@ where
 
       See `visitAppArg`
       -/
-      return mkConst ``lcErased
+      return erasedExpr
     visitCore e
 
   visitAppArg (e : Expr) : M Expr := do
     if isLCProof e then
-      return mkConst ``lcErased
+      return erasedExpr
     let type ← liftMetaM <| Meta.inferType e
     if (← liftMetaM <| Meta.isProp type) then
       /- We erase proofs. -/
-      return mkConst ``lcErased
+      return erasedExpr
     if (← isTypeFormerType type) then
-      /- Types and Type formers are not put into A-normal form -/
-      toLCNFType e
+      /- Predicates are erased (e.g., `Eq`) -/
+      if isPredicateType (← toLCNFType type) then
+        return erasedExpr
+      else
+        /- Types and Type formers are not put into A-normal form -/
+        toLCNFType e
     else
       visitCore e
 
   /-- Visit args, and return `f args` -/
   visitAppDefault (f : Expr) (args : Array Expr) : M Expr := do
-    if f.isConstOf ``lcErased then
+    if f.isErased then
       return f
     else
       let args ← args.mapM visitAppArg
@@ -452,31 +475,53 @@ where
         let (ps', e') ← ToLCNF.visitLambda e
         ps := ps ++ ps'
         e := e'
+      /-
+      Insert the free variable ids of fields that are type formers into `toAny`.
+      Recall that we do not want to have "data" occurring in types.
+      -/
+      ps ← ps.mapM fun p => do
+        let type ← inferType p.toExpr
+        if (← isTypeFormerType type) then
+          trace[Meta.debug] "{p.binderName} is type former"
+          modify fun s => { s with toAny := s.toAny.insert p.fvarId }
+        /-
+        Recall that we may have dependent fields. Example:
+        ```
+        | ctor (α : Type u) (as : List α) => ...
+        ```
+        and we must use `applyToAny` to make sure the field `α` (which is data) does
+        not occur in the type of `as : List α`.
+        -/
+        p.update (← applyToAny p.type)
       let c ← toCode (← visit e)
-      let eType ← inferType e
-      return (eType, .alt ctorName ps c)
+      let altType ← c.inferType
+      return (altType, .alt ctorName ps c)
 
   visitCases (casesInfo : CasesInfo) (e : Expr) : M Expr :=
     etaIfUnderApplied e casesInfo.arity do
       let args := e.getAppArgs
-      let mut alts := #[]
-      let typeName := casesInfo.declName.getPrefix
       let mut resultType ← toLCNFType (← liftMetaM do Meta.inferType (mkAppN e.getAppFn args[:casesInfo.arity]))
-      let discr ← visitAppArg args[casesInfo.discrPos]!
-      let .inductInfo indVal ← getConstInfo typeName | unreachable!
-      for i in casesInfo.altsRange, numParams in casesInfo.altNumParams, ctorName in indVal.ctors do
-        let (altType, alt) ← visitAlt ctorName numParams args[i]!
-        unless compatibleTypes altType resultType do
-          resultType := anyTypeExpr
-        alts := alts.push alt
-      let cases : Cases := { typeName, discr := discr.fvarId!, resultType, alts }
-      let auxDecl ← mkAuxParam resultType
-      pushElement (.cases auxDecl cases)
-      let result := .fvar auxDecl.fvarId
-      if args.size == casesInfo.arity then
-        return result
+      if casesInfo.numAlts == 0 then
+        /- `casesOn` of an empty type. -/
+        mkUnreachable resultType
       else
-        mkOverApplication result args casesInfo.arity
+        let mut alts := #[]
+        let typeName := casesInfo.declName.getPrefix
+        let discr ← visitAppArg args[casesInfo.discrPos]!
+        let .inductInfo indVal ← getConstInfo typeName | unreachable!
+        for i in casesInfo.altsRange, numParams in casesInfo.altNumParams, ctorName in indVal.ctors do
+          let (altType, alt) ← visitAlt ctorName numParams args[i]!
+          unless compatibleTypes altType resultType do
+            resultType := anyTypeExpr
+          alts := alts.push alt
+        let cases : Cases := { typeName, discr := discr.fvarId!, resultType, alts }
+        let auxDecl ← mkAuxParam resultType
+        pushElement (.cases auxDecl cases)
+        let result := .fvar auxDecl.fvarId
+        if args.size == casesInfo.arity then
+          return result
+        else
+          mkOverApplication result args casesInfo.arity
 
   visitCtor (arity : Nat) (e : Expr) : M Expr :=
     etaIfUnderApplied e arity do

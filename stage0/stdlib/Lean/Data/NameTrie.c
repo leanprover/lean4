@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_foldMatchingM___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_RBNode_find___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedNameTrie(lean_object*);
 lean_object* l_Lean_PrefixTreeNode_find_x3f_loop___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_NamePart_cmp(lean_object*, lean_object*);
@@ -56,6 +55,7 @@ LEAN_EXPORT lean_object* l_Lean_NameTrie_insert___rarg___boxed(lean_object*, lea
 LEAN_EXPORT lean_object* l_Lean_NameTrie_find_x3f___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameTrie_find_x3f___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameTrie_forMatchingM(lean_object*, lean_object*);
+lean_object* l_Lean_RBNode_find___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameTrie_insert___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameTrie_forMatchingM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_forMatchingM___spec__1(lean_object*, lean_object*);
@@ -413,7 +413,7 @@ x_11 = lean_ctor_get(x_6, 1);
 lean_inc(x_11);
 lean_dec(x_6);
 lean_inc(x_2);
-x_12 = l_Std_RBNode_find___rarg(x_2, lean_box(0), x_11, x_9);
+x_12 = l_Lean_RBNode_find___rarg(x_2, lean_box(0), x_11, x_9);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
@@ -494,7 +494,7 @@ x_11 = lean_ctor_get(x_6, 1);
 lean_inc(x_11);
 lean_dec(x_6);
 lean_inc(x_2);
-x_12 = l_Std_RBNode_find___rarg(x_2, lean_box(0), x_11, x_9);
+x_12 = l_Lean_RBNode_find___rarg(x_2, lean_box(0), x_11, x_9);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
@@ -583,7 +583,7 @@ x_11 = lean_ctor_get(x_6, 1);
 lean_inc(x_11);
 lean_dec(x_6);
 lean_inc(x_2);
-x_12 = l_Std_RBNode_find___rarg(x_2, lean_box(0), x_11, x_9);
+x_12 = l_Lean_RBNode_find___rarg(x_2, lean_box(0), x_11, x_9);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
@@ -683,7 +683,7 @@ x_11 = lean_ctor_get(x_6, 1);
 lean_inc(x_11);
 lean_dec(x_6);
 lean_inc(x_2);
-x_12 = l_Std_RBNode_find___rarg(x_2, lean_box(0), x_11, x_9);
+x_12 = l_Lean_RBNode_find___rarg(x_2, lean_box(0), x_11, x_9);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 

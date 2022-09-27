@@ -43,6 +43,28 @@ builtin_initialize inlineAttrs : EnumAttributes InlineAttributeKind ←
         unless (← isValidMacroInline declName) do
           throwError "invalid use of `[macro_inline]` attribute at `{declName}`, it is not supported in this kind of declaration, declaration must be a non-recursive definition"
 
+def setInlineAttribute (env : Environment) (declName : Name) (kind : InlineAttributeKind) : Except String Environment :=
+  inlineAttrs.setValue env declName kind
+
+private def hasInlineAttrCore (env : Environment) (kind : InlineAttributeKind) (declName : Name) : Bool :=
+  match inlineAttrs.getValue env declName with
+  | some k => kind == k
+  | _ => false
+
+abbrev hasInlineAttribute (env : Environment) (declName : Name) : Bool :=
+  hasInlineAttrCore env InlineAttributeKind.inline declName
+
+def hasInlineIfReduceAttribute (env : Environment) (declName : Name) : Bool :=
+  hasInlineAttrCore env InlineAttributeKind.inlineIfReduce declName
+
+def hasNoInlineAttribute (env : Environment) (declName : Name) : Bool :=
+  hasInlineAttrCore env InlineAttributeKind.noinline declName
+
+def hasMacroInlineAttribute (env : Environment) (declName : Name) : Bool :=
+  hasInlineAttrCore env InlineAttributeKind.macroInline declName
+
+-- TODO: delete rest of the file after we have old code generator
+
 private partial def hasInlineAttrAux (env : Environment) (kind : InlineAttributeKind) (n : Name) : Bool :=
   /- We never inline auxiliary declarations created by eager lambda lifting -/
   if isEagerLambdaLiftingName n then false
@@ -51,22 +73,19 @@ private partial def hasInlineAttrAux (env : Environment) (kind : InlineAttribute
     | none   => if n.isInternal then hasInlineAttrAux env kind n.getPrefix else false
 
 @[export lean_has_inline_attribute]
-def hasInlineAttribute (env : Environment) (n : Name) : Bool :=
+def hasInlineAttributeOld (env : Environment) (n : Name) : Bool :=
   hasInlineAttrAux env InlineAttributeKind.inline n
 
 @[export lean_has_inline_if_reduce_attribute]
-def hasInlineIfReduceAttribute (env : Environment) (n : Name) : Bool :=
+def hasInlineIfReduceAttributeOld (env : Environment) (n : Name) : Bool :=
   hasInlineAttrAux env InlineAttributeKind.inlineIfReduce n
 
 @[export lean_has_noinline_attribute]
-def hasNoInlineAttribute (env : Environment) (n : Name) : Bool :=
+def hasNoInlineAttributeOld (env : Environment) (n : Name) : Bool :=
   hasInlineAttrAux env InlineAttributeKind.noinline n
 
 @[export lean_has_macro_inline_attribute]
-def hasMacroInlineAttribute (env : Environment) (n : Name) : Bool :=
+def hasMacroInlineAttributeOld (env : Environment) (n : Name) : Bool :=
   hasInlineAttrAux env InlineAttributeKind.macroInline n
-
-def setInlineAttribute (env : Environment) (declName : Name) (kind : InlineAttributeKind) : Except String Environment :=
-  inlineAttrs.setValue env declName kind
 
 end Lean.Compiler

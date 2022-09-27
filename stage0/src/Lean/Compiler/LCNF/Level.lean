@@ -13,7 +13,6 @@ namespace Lean.Compiler.LCNF
 -/
 
 namespace NormLevelParam
-open Std
 
 /-!
 ## Universe level parameter normalizer

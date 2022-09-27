@@ -1,3 +1,34 @@
+Unreleased
+---------
+
+* `simp` can track information and can print an equivalent `simp only`. [PR #1626](https://github.com/leanprover/lean4/pull/1626).
+
+* Enforce uniform indentation in tactic blocks / do blocks. See issue [#1606](https://github.com/leanprover/lean4/issues/1606).
+
+* Moved `AssocList`, `HashMap`, `HashSet`, `RBMap`, `RBSet`, `PersistentArray`, `PersistentHashMap`, `PersistentHashSet` to the Lean package. The [standard library](https://github.com/leanprover/std4) contains versions that will evolve independently to simplify bootstrapping process.
+
+* Standard library moved to the [std4 GitHub repository](https://github.com/leanprover/std4).
+
+* `InteractiveGoals` now has information that a client infoview can use to show what parts of the goal have changed after applying a tactic. [PR #1610](https://github.com/leanprover/lean4/pull/1610).
+
+* Add `[inheritDoc]` attribute. [PR #1480](https://github.com/leanprover/lean4/pull/1480).
+
+* Expose that `panic = default`. [PR #1614](https://github.com/leanprover/lean4/pull/1614).
+
+* New [code generator](https://github.com/leanprover/lean4/tree/master/src/Lean/Compiler/LCNF) project has started.
+
+* Remove description argument frome `register_simp_attr`. [PR #1566](https://github.com/leanprover/lean4/pull/1566).
+
+* [Additional concurrency primitives](https://github.com/leanprover/lean4/pull/1555).
+
+* [Collapsible traces with messages](https://github.com/leanprover/lean4/pull/1448).
+
+* [Hygienic resolution of namespaces](https://github.com/leanprover/lean4/pull/1442).
+
+* [New `Float` functions](https://github.com/leanprover/lean4/pull/1460).
+
+* Many new doc strings have been added to declarations at `Init`.
+
 v4.0.0-m5 (07 August 2022)
 ---------
 

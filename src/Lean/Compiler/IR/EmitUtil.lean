@@ -50,8 +50,8 @@ end CollectUsedDecls
 def collectUsedDecls (env : Environment) (decl : Decl) (used : NameSet := {}) : NameSet :=
   (CollectUsedDecls.collectDecl decl env).run' used
 
-abbrev VarTypeMap  := Std.HashMap VarId IRType
-abbrev JPParamsMap := Std.HashMap JoinPointId (Array Param)
+abbrev VarTypeMap  := HashMap VarId IRType
+abbrev JPParamsMap := HashMap JoinPointId (Array Param)
 
 namespace CollectMaps
 abbrev Collector := (VarTypeMap × JPParamsMap) → (VarTypeMap × JPParamsMap)

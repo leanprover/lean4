@@ -1,5 +1,5 @@
 import Lean.Data.RBMap
-open Std
+open Lean
 
 def check (b : Bool) : IO Unit := do
 unless b do IO.println "ERROR"

@@ -98,10 +98,10 @@ def initCacheForInput (input : String) : ParserCache := {
 
 abbrev TokenTable := Trie Token
 
-abbrev SyntaxNodeKindSet := Std.PersistentHashMap SyntaxNodeKind Unit
+abbrev SyntaxNodeKindSet := PersistentHashMap SyntaxNodeKind Unit
 
 def SyntaxNodeKindSet.insert (s : SyntaxNodeKindSet) (k : SyntaxNodeKind) : SyntaxNodeKindSet :=
-  Std.PersistentHashMap.insert s k ()
+  PersistentHashMap.insert s k ()
 
 /--
   Input string and related data. Recall that the `FileMap` is a helper structure for mapping
@@ -1550,8 +1550,6 @@ def eoiFn : ParserFn := fun c s =>
 def eoi : Parser :=
   { fn := eoiFn }
 
-open Std (RBMap RBMap.empty)
-
 /-- A multimap indexed by tokens. Used for indexing parsers by their leading token. -/
 def TokenMap (α : Type) := RBMap Name (List α) Name.quickCmp
 
@@ -1559,8 +1557,8 @@ namespace TokenMap
 
 def insert (map : TokenMap α) (k : Name) (v : α) : TokenMap α :=
   match map.find? k with
-  | none    => Std.RBMap.insert map k [v]
-  | some vs => Std.RBMap.insert map k (v::vs)
+  | none    => RBMap.insert map k [v]
+  | some vs => RBMap.insert map k (v::vs)
 
 instance : Inhabited (TokenMap α) := ⟨RBMap.empty⟩
 
@@ -1641,7 +1639,7 @@ structure ParserCategory where
   behavior : LeadingIdentBehavior
   deriving Inhabited
 
-abbrev ParserCategories := Std.PersistentHashMap Name ParserCategory
+abbrev ParserCategories := PersistentHashMap Name ParserCategory
 
 def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState) (behavior : LeadingIdentBehavior) : ParserState × List α :=
   let (s, stx) := peekToken c s

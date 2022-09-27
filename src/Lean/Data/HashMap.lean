@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 import Lean.Data.AssocList
-namespace Std
+namespace Lean
 universe u v w
 
 def HashMapBucket (α : Type u) (β : Type v) :=
@@ -127,7 +127,7 @@ end HashMapImp
 def HashMap (α : Type u) (β : Type v) [BEq α] [Hashable α] :=
   { m : HashMapImp α β // m.WellFormed }
 
-open Std.HashMapImp
+open Lean.HashMapImp
 
 def mkHashMap {α : Type u} {β : Type v} [BEq α] [Hashable α] (capacity := 0) : HashMap α β :=
   ⟨ mkHashMapImp capacity, WellFormed.mkWff capacity ⟩

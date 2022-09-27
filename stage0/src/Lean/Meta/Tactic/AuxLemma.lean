@@ -9,7 +9,7 @@ namespace Lean.Meta
 
 structure AuxLemmas where
   idx    : Nat := 1
-  lemmas : Std.PHashMap Expr (Name × List Name) := {}
+  lemmas : PHashMap Expr (Name × List Name) := {}
   deriving Inhabited
 
 builtin_initialize auxLemmasExt : EnvExtension AuxLemmas ← registerEnvExtension (pure {})

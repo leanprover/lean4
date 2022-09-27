@@ -133,7 +133,7 @@ private inductive Tree where
   We store the `infoTrees` generated when elaborating `val`. These trees become
   subtrees of the infotree nodes generated for `op` nodes.
   -/
-  | term (ref : Syntax) (infoTrees : Std.PersistentArray InfoTree) (val : Expr)
+  | term (ref : Syntax) (infoTrees : PersistentArray InfoTree) (val : Expr)
   /--
   `ref` is the original syntax that expanded into `binop%`.
   `macroName` is the `macro_rule` that produce the expansion. We store this information

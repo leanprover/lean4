@@ -14,6 +14,7 @@ import Lean.Elab.Tactic.Config
 namespace Lean.Elab.Tactic
 open Meta
 open TSyntax.Compat
+open Simp (UsedSimps)
 
 declare_config_elab elabSimpConfigCore    Meta.Simp.Config
 declare_config_elab elabSimpConfigCtxCore Meta.Simp.ConfigCtx
@@ -87,7 +88,7 @@ def elabSimpConfig (optConfig : Syntax) (kind : SimpKind) : TermElabM Meta.Simp.
   | .simpAll => return (← elabSimpConfigCtxCore optConfig).toConfig
   | .dsimp   => return { (← elabDSimpConfigCore optConfig) with }
 
-private def addDeclToUnfoldOrTheorem (thms : Meta.SimpTheorems) (e : Expr) (post : Bool) (inv : Bool) (kind : SimpKind) : MetaM Meta.SimpTheorems := do
+private def addDeclToUnfoldOrTheorem (thms : Meta.SimpTheorems) (id : Origin) (e : Expr) (post : Bool) (inv : Bool) (kind : SimpKind) : MetaM Meta.SimpTheorems := do
   if e.isConst then
     let declName := e.constName!
     let info ← getConstInfo declName
@@ -101,9 +102,9 @@ private def addDeclToUnfoldOrTheorem (thms : Meta.SimpTheorems) (e : Expr) (post
       else
         thms.addDeclToUnfold declName
   else
-    thms.add #[] e (post := post) (inv := inv)
+    thms.add id #[] e (post := post) (inv := inv)
 
-private def addSimpTheorem (thms : Meta.SimpTheorems) (stx : Syntax) (post : Bool) (inv : Bool) : TermElabM Meta.SimpTheorems := do
+private def addSimpTheorem (thms : Meta.SimpTheorems) (id : Origin) (stx : Syntax) (post : Bool) (inv : Bool) : TermElabM Meta.SimpTheorems := do
   let (levelParams, proof) ← Term.withoutModifyingElabMetaStateWithInfo <| withRef stx <| Term.withoutErrToSorry do
     let e ← Term.elabTerm stx none
     Term.synthesizeSyntheticMVars (mayPostpone := false) (ignoreStuckTC := true)
@@ -114,7 +115,7 @@ private def addSimpTheorem (thms : Meta.SimpTheorems) (stx : Syntax) (post : Boo
       return (r.paramNames, r.expr)
     else
       return (#[], e)
-  thms.add levelParams proof (post := post) (inv := inv)
+  thms.add id levelParams proof (post := post) (inv := inv)
 
 structure ElabSimpArgsResult where
   ctx     : Simp.Context
@@ -147,15 +148,16 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Bool) (kind :
       let mut starArg   := false
       for arg in stx[1].getSepArgs do
         if arg.getKind == ``Lean.Parser.Tactic.simpErase then
-          if (eraseLocal || starArg) && (← Term.isLocalIdent? arg[1]).isSome then
+          let fvar ← if eraseLocal || starArg then Term.isLocalIdent? arg[1] else pure none
+          if let some fvar := fvar then
             -- We use `eraseCore` because the simp theorem for the hypothesis was not added yet
-            thms := thms.eraseCore arg[1].getId
+            thms := thms.eraseCore (.fvar fvar.fvarId!)
           else
             let declName ← resolveGlobalConstNoOverloadWithInfo arg[1]
             if ctx.config.autoUnfold then
-              thms := thms.eraseCore declName
+              thms := thms.eraseCore (.decl declName)
             else
-              thms ← thms.erase declName
+              thms ← thms.erase (.decl declName)
         else if arg.getKind == ``Lean.Parser.Tactic.simpLemma then
           let post :=
             if arg[0].isNone then
@@ -166,9 +168,14 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Bool) (kind :
           let term := arg[2]
 
           match (← resolveSimpIdTheorem? term) with
-          | .expr e  => thms ← addDeclToUnfoldOrTheorem thms e post inv kind
-          | .ext ext => thmsArray := thmsArray.push (← ext.getTheorems)
-          | .none    => thms ← addSimpTheorem thms term post inv
+          | .expr e  =>
+            let name ← mkFreshId
+            thms ← addDeclToUnfoldOrTheorem thms (.stx name arg) e post inv kind
+          | .ext ext =>
+            thmsArray := thmsArray.push (← ext.getTheorems)
+          | .none    =>
+            let name ← mkFreshId
+            thms ← addSimpTheorem thms (.stx name arg) term post inv
         else if arg.getKind == ``Lean.Parser.Tactic.simpStar then
           starArg := true
         else
@@ -196,10 +203,11 @@ where
       else
         return .none
 
+@[inline] def simpOnlyBuiltins : List Name := [``eq_self]
+
 structure MkSimpContextResult where
   ctx              : Simp.Context
   dischargeWrapper : Simp.DischargeWrapper
-  fvarIdToLemmaId  : FVarIdToLemmaId
 
 /--
    Create the `Simp.Context` for the `simp`, `dsimp`, and `simp_all` tactics.
@@ -216,7 +224,7 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp) (ig
   let dischargeWrapper ← mkDischargeWrapper stx[2]
   let simpOnly := !stx[3].isNone
   let simpTheorems ← if simpOnly then
-    ({} : SimpTheorems).addConst ``eq_self
+    simpOnlyBuiltins.foldlM (·.addConst ·) ({} : SimpTheorems)
   else
     getSimpTheorems
   let congrTheorems ← getSimpCongrTheorems
@@ -225,30 +233,62 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp) (ig
     simpTheorems := #[simpTheorems], congrTheorems
   }
   if !r.starArg || ignoreStarArg then
-    return { r with fvarIdToLemmaId := {}, dischargeWrapper }
+    return { r with dischargeWrapper }
   else
     let ctx := r.ctx
     let mut simpTheorems := ctx.simpTheorems
     let hs ← getPropHyps
-    let mut fvarIdToLemmaId := {}
     for h in hs do
-      let localDecl ← h.getDecl
-      unless simpTheorems.isErased localDecl.userName do
-        let fvarId := localDecl.fvarId
-        let proof  := localDecl.toExpr
-        let id     ← mkFreshUserName `h
-        fvarIdToLemmaId := fvarIdToLemmaId.insert fvarId id
-        simpTheorems ← simpTheorems.addTheorem proof (name? := id)
+      unless simpTheorems.isErased (.fvar h) do
+        simpTheorems ← simpTheorems.addTheorem (.fvar h) (← h.getDecl).toExpr
     let ctx := { ctx with simpTheorems }
-    return { ctx, fvarIdToLemmaId, dischargeWrapper }
+    return { ctx, dischargeWrapper }
+
+register_builtin_option tactic.simp.trace : Bool := {
+  defValue := false
+  descr    := "When tracing is enabled, calls to `simp` or `dsimp` will print an equivalent `simp only` call."
+}
+
+def traceSimpCall (stx : Syntax) (usedSimps : UsedSimps) : MetaM Unit := do
+  let mut stx := stx
+  if stx[3].isNone then
+    stx := stx.setArg 3 (mkNullNode #[mkAtom "only"])
+  let mut args := #[]
+  let mut localsOrStar := some #[]
+  let lctx ← getLCtx
+  let env ← getEnv
+  for (thm, _) in usedSimps.toArray.qsort (·.2 < ·.2) do
+    match thm with
+    | .decl declName => -- global definitions in the environment
+      if env.contains declName && !simpOnlyBuiltins.contains declName then
+        args := args.push (← `(Parser.Tactic.simpLemma| $(mkIdent (← unresolveNameGlobal declName)):ident))
+    | .fvar fvarId => -- local hypotheses in the context
+      if let some ldecl := lctx.find? fvarId then
+        localsOrStar := localsOrStar.bind fun locals =>
+          if !ldecl.userName.isInaccessibleUserName &&
+              (lctx.findFromUserName? ldecl.userName).get!.fvarId == ldecl.fvarId then
+            some (locals.push ldecl.userName)
+          else
+            none
+      -- Note: the `if let` can fail for `simp (config := {contextual := true})` when
+      -- rewriting with a variable that was introduced in a scope. In that case we just ignore.
+    | .stx _ thmStx => -- simp theorems provided in the local invocation
+      args := args.push thmStx
+    | .other _ => -- Ignore "special" simp lemmas such as constructed by `simp_all`.
+      pure ()     -- We can't display them anyway.
+  if let some locals := localsOrStar then
+    args := args ++ (← locals.mapM fun id => `(Parser.Tactic.simpLemma| $(mkIdent id):ident))
+  else
+    args := args.push (← `(Parser.Tactic.simpStar| *))
+  let argsStx := if args.isEmpty then #[] else #[mkAtom "[", (mkAtom ",").mkSep args, mkAtom "]"]
+  stx := stx.setArg 4 (mkNullNode argsStx)
+  logInfoAt stx[0] m!"Try this: {stx}"
 
 /--
 `simpLocation ctx discharge? varIdToLemmaId loc`
 runs the simplifier at locations specified by `loc`,
 using the simp theorems collected in `ctx`
 optionally running a discharger specified in `discharge?` on generated subgoals.
-(Local hypotheses which have been added to the simp theorems must be recorded in
-`fvarIdToLemmaId`.)
 
 Its primary use is as the implementation of the
 `simp [...] at ...` and `simp only [...] at ...` syntaxes,
@@ -258,36 +298,42 @@ For many tactics other than the simplifier,
 one should use the `withLocation` tactic combinator
 when working with a `location`.
 -/
-def simpLocation (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (fvarIdToLemmaId : FVarIdToLemmaId := {}) (loc : Location) : TacticM Unit := do
+def simpLocation (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (loc : Location) : TacticM UsedSimps := do
   match loc with
   | Location.targets hyps simplifyTarget =>
     withMainContext do
       let fvarIds ← getFVarIds hyps
-      go fvarIds simplifyTarget fvarIdToLemmaId
+      go fvarIds simplifyTarget
   | Location.wildcard =>
     withMainContext do
-      go (← (← getMainGoal).getNondepPropHyps) (simplifyTarget := true) fvarIdToLemmaId
+      go (← (← getMainGoal).getNondepPropHyps) (simplifyTarget := true)
 where
-  go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) (fvarIdToLemmaId : Lean.Meta.FVarIdToLemmaId) : TacticM Unit := do
+  go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) : TacticM UsedSimps := do
     let mvarId ← getMainGoal
-    let result? ← simpGoal mvarId ctx (simplifyTarget := simplifyTarget) (discharge? := discharge?) (fvarIdsToSimp := fvarIdsToSimp) (fvarIdToLemmaId := fvarIdToLemmaId)
+    let (result?, usedSimps) ← simpGoal mvarId ctx (simplifyTarget := simplifyTarget) (discharge? := discharge?) (fvarIdsToSimp := fvarIdsToSimp)
     match result? with
     | none => replaceMainGoal []
     | some (_, mvarId) => replaceMainGoal [mvarId]
+    return usedSimps
 
 /-
   "simp " (config)? (discharger)? ("only ")? ("[" simpLemma,* "]")? (location)?
 -/
 @[builtinTactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => do
-  let { ctx, fvarIdToLemmaId, dischargeWrapper } ← withMainContext <| mkSimpContext stx (eraseLocal := false)
-  dischargeWrapper.with fun discharge? =>
-    simpLocation ctx discharge? fvarIdToLemmaId (expandOptLocation stx[5])
+  let { ctx, dischargeWrapper } ← withMainContext <| mkSimpContext stx (eraseLocal := false)
+  let usedSimps ← dischargeWrapper.with fun discharge? =>
+    simpLocation ctx discharge? (expandOptLocation stx[5])
+  if tactic.simp.trace.get (← getOptions) then
+    traceSimpCall stx usedSimps
 
 @[builtinTactic Lean.Parser.Tactic.simpAll] def evalSimpAll : Tactic := fun stx => do
   let { ctx, .. } ← mkSimpContext stx (eraseLocal := true) (kind := .simpAll) (ignoreStarArg := true)
-  match (← simpAll (← getMainGoal) ctx) with
+  let (result?, usedSimps) ← simpAll (← getMainGoal) ctx
+  match result? with
   | none => replaceMainGoal []
   | some mvarId => replaceMainGoal [mvarId]
+  if tactic.simp.trace.get (← getOptions) then
+    traceSimpCall stx usedSimps
 
 def dsimpLocation (ctx : Simp.Context) (loc : Location) : TacticM Unit := do
   match loc with
@@ -301,10 +347,12 @@ def dsimpLocation (ctx : Simp.Context) (loc : Location) : TacticM Unit := do
 where
   go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) : TacticM Unit := do
     let mvarId ← getMainGoal
-    let result? ← dsimpGoal mvarId ctx (simplifyTarget := simplifyTarget) (fvarIdsToSimp := fvarIdsToSimp)
+    let (result?, usedSimps) ← dsimpGoal mvarId ctx (simplifyTarget := simplifyTarget) (fvarIdsToSimp := fvarIdsToSimp)
     match result? with
     | none => replaceMainGoal []
     | some mvarId => replaceMainGoal [mvarId]
+    if tactic.simp.trace.get (← getOptions) then
+      traceSimpCall (← getRef) usedSimps
 
 @[builtinTactic Lean.Parser.Tactic.dsimp] def evalDSimp : Tactic := fun stx => do
   let { ctx, .. } ← withMainContext <| mkSimpContext stx (eraseLocal := false) (kind := .dsimp)

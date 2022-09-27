@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Data.RBMap
-namespace Std
+namespace Lean
 universe u v w
 
 def RBTree (α : Type u) (cmp : α → α → Ordering) : Type u :=
@@ -66,7 +66,7 @@ instance : ForIn m (RBTree α cmp) α where
   | none        => none
 
 instance [Repr α] : Repr (RBTree α cmp) where
-  reprPrec t prec := Repr.addAppParen ("Std.rbtreeOf " ++ repr t.toList) prec
+  reprPrec t prec := Repr.addAppParen ("Lean.rbtreeOf " ++ repr t.toList) prec
 
 @[inline] def insert (t : RBTree α cmp) (a : α) : RBTree α cmp :=
   RBMap.insert t a ()
@@ -87,6 +87,9 @@ instance [Repr α] : Repr (RBTree α cmp) where
   (t.find? a).isSome
 
 def fromList (l : List α) (cmp : α → α → Ordering) : RBTree α cmp :=
+  l.foldl insert (mkRBTree α cmp)
+
+def fromArray (l : Array α) (cmp : α → α → Ordering) : RBTree α cmp :=
   l.foldl insert (mkRBTree α cmp)
 
 @[inline] def all (t : RBTree α cmp) (p : α → Bool) : Bool :=

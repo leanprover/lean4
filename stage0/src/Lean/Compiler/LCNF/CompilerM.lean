@@ -8,6 +8,18 @@ import Lean.Compiler.LCNF.Basic
 import Lean.Compiler.LCNF.LCtx
 
 namespace Lean.Compiler.LCNF
+/--
+The pipeline phase a certain `Pass` is supposed to happen in.
+-/
+inductive Phase where
+  /-- Here we still carry most of the original type information, most
+  of the dependent portion is already (partially) erased though. -/
+  | base
+  /-- In this phase polymorphism has been eliminated. -/
+  | mono
+  /-- In this phase impure stuff such as RC or efficient BaseIO transformations happen. -/
+  | impure
+  deriving Inhabited
 
 /--
 The state managed by the `CompilerM` `Monad`.
@@ -20,9 +32,19 @@ structure CompilerM.State where
   lctx     : LCtx := {}
   /-- Next auxiliary variable suffix -/
   nextIdx : Nat := 1
-deriving Inhabited
+  deriving Inhabited
 
-abbrev CompilerM := StateRefT CompilerM.State CoreM
+structure CompilerM.Context where
+  phase : Phase
+  deriving Inhabited
+
+abbrev CompilerM := ReaderT CompilerM.Context $ StateRefT CompilerM.State CoreM
+
+@[inline] def withPhase (phase : Phase) (x : CompilerM α) : CompilerM α :=
+  withReader (fun ctx => { ctx with phase }) x
+
+def getPhase : CompilerM Phase :=
+  return (← read).phase
 
 instance : AddMessageContext CompilerM where
   addMessageContext msgData := do
@@ -98,6 +120,16 @@ def eraseCodeDecl (decl : CodeDecl) : CompilerM Unit := do
   | .jp decl | .fun decl => eraseFunDecl decl
 
 /--
+Erase all free variables occurring in `decls` from the local context.
+-/
+def eraseCodeDecls (decls : Array CodeDecl) : CompilerM Unit := do
+  decls.forM fun decl => eraseCodeDecl decl
+
+def eraseDecl (decl : Decl) : CompilerM Unit := do
+  eraseParams decl.params
+  eraseCode decl.value
+
+/--
 A free variable substitution.
 We use these substitutions when inlining definitions and "internalizing" LCNF code into `CompilerM`.
 During the internalization process, we ensure all free variables in the LCNF code do not collide with existing ones
@@ -110,7 +142,7 @@ it is a free variable, a type (or type former), or `lcErased`.
 
 `Check.lean` contains a substitution validator.
 -/
-abbrev FVarSubst := Std.HashMap FVarId Expr
+abbrev FVarSubst := HashMap FVarId Expr
 
 /--
 Replace the free variables in `e` using the given substitution.
@@ -126,6 +158,11 @@ expression to be `f xₙ xₙ`. We use this setting, for example, in the simplif
 private partial def normExprImp (s : FVarSubst) (e : Expr) (translator : Bool) : Expr :=
   go e
 where
+  goApp (e : Expr) : Expr :=
+    match e with
+    | .app f a => e.updateApp! (goApp f) (go a)
+    | _ => go e
+
   go (e : Expr) : Expr :=
     if e.hasFVar then
       match e with
@@ -133,7 +170,7 @@ where
         | some e => if translator then e else go e
         | none => e
       | .lit .. | .const .. | .sort .. | .mvar .. | .bvar .. => e
-      | .app f a => e.updateApp! (go f) (go a)
+      | .app f a => e.updateApp! (goApp f) (go a) |>.headBeta
       | .mdata _ b => e.updateMData! (go b)
       | .proj _ _ b => e.updateProj! (go b)
       | .forallE _ d b _ => e.updateForallE! (go d) (go b)
@@ -223,6 +260,11 @@ namespace Internalize
 
 abbrev InternalizeM := StateRefT FVarSubst CompilerM
 
+/-
+TODO: during internalization we must convert eliminate data that became computationally irrelevant.
+See note on "erasure confusion" for examples on how this can happen.
+-/
+
 /--
 The `InternalizeM` monad is a translator. It "translates" the free variables
 in the input expressions and `Code`, into new fresh free variables in the
@@ -233,8 +275,6 @@ instance : MonadFVarSubst InternalizeM true where
 
 instance : MonadFVarSubstState InternalizeM where
   modifySubst := modify
-
-  -- modifySubst f := modify f
 
 private def mkNewFVarId (fvarId : FVarId) : InternalizeM FVarId := do
   let fvarId' ← Lean.mkFreshFVarId
@@ -438,7 +478,7 @@ def cleanup (decl : Array Decl) : CompilerM (Array Decl) := do
     modify fun s => { s with nextIdx := 1 }
     decl.internalize
 
-def CompilerM.run (x : CompilerM α) (s : State := {}) : CoreM α :=
-  x |>.run' s
+def CompilerM.run (x : CompilerM α) (s : State := {}) (phase : Phase := .base) : CoreM α :=
+  x { phase } |>.run' s
 
 end Lean.Compiler.LCNF

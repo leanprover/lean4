@@ -157,8 +157,8 @@ private def convLocalDecl (conv : Syntax) (hUserName : Name) : TacticM Unit := w
 
 @[builtinTactic Lean.Parser.Tactic.Conv.conv] def evalConv : Tactic := fun stx => do
   match stx with
-  | `(tactic| conv%$tk $[at $loc?]? in $p =>%$arr $code) =>
-    evalTactic (← `(tactic| conv%$tk $[at $loc?]? =>%$arr pattern $p; ($code:convSeq)))
+  | `(tactic| conv%$tk $[at $loc?]? in $(occs)? $p =>%$arr $code) =>
+    evalTactic (← `(tactic| conv%$tk $[at $loc?]? =>%$arr pattern $(occs)? $p; ($code:convSeq)))
   | `(tactic| conv%$tk $[at $loc?]? =>%$arr $code) =>
     -- show initial conv goal state between `conv` and `=>`
     withRef (mkNullNode #[tk, arr]) do

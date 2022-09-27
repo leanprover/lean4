@@ -18,7 +18,7 @@ private structure RpcProcedure where
 /- We store the builtin RPC handlers in a Ref and users' handlers in an extension. This ensures
 that users don't need to import core Lean modules to make builtin handlers work, but also that
 they *can* easily create custom handlers and use them in the same file. -/
-builtin_initialize builtinRpcProcedures : IO.Ref (Std.PHashMap Name RpcProcedure) ←
+builtin_initialize builtinRpcProcedures : IO.Ref (PHashMap Name RpcProcedure) ←
   IO.mkRef {}
 builtin_initialize userRpcProcedures : MapDeclarationExtension Name ←
   mkMapDeclarationExtension `userRpcProcedures

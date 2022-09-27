@@ -15,18 +15,68 @@ import Lean.Compiler.LCNF.PhaseExt
 
 namespace Lean.Compiler.LCNF
 
-@[cpass] def builtin : PassInstaller :=
-  .append #[
+open PassInstaller
+
+def init : Pass where
+  name  := `init
+  run   := fun decls => do
+    decls.forM (·.saveBase)
+    return decls
+  phase := .base
+
+def builtinPassManager : PassManager := {
+  passes := #[
+    init,
     pullInstances,
     cse,
     simp,
-    pullFunDecls,
     findJoinPoints,
+    pullFunDecls,
     reduceJpArity,
     simp { etaPoly := true, inlinePartial := true, implementedBy := true } (occurrence := 1),
     specialize,
     simp (occurrence := 2),
     saveBase -- End of base phase
   ]
+}
+
+def runImportedDecls (importedDeclNames : Array (Array Name)) : CoreM PassManager := do
+  let mut m := builtinPassManager
+  for declNames in importedDeclNames do
+    for declName in declNames do
+      m ← runFromDecl m declName
+  return m
+
+builtin_initialize passManagerExt : PersistentEnvExtension Name (Name × PassManager) (List Name × PassManager) ←
+  registerPersistentEnvExtension {
+    name := `cpass
+    mkInitial := return ([], builtinPassManager)
+    addImportedFn := fun ns => return ([], ← ImportM.runCoreM <| runImportedDecls ns)
+    addEntryFn := fun (installerDeclNames, _) (installerDeclName, managerNew) => (installerDeclName :: installerDeclNames, managerNew)
+    exportEntriesFn := fun s => s.1.reverse.toArray
+  }
+
+def getPassManager : CoreM PassManager :=
+  return passManagerExt.getState (← getEnv) |>.2
+
+def addPass (declName : Name) : CoreM Unit := do
+  let info ← getConstInfo declName
+  match info.type with
+  | .const `Lean.Compiler.LCNF.PassInstaller .. =>
+    let managerNew ← runFromDecl (← getPassManager) declName
+    modifyEnv fun env => passManagerExt.addEntry env (declName, managerNew)
+  | _ =>
+    throwError "invalid 'cpass' only 'PassInstaller's can be added via the 'cpass' attribute: {info.type}"
+
+builtin_initialize
+  registerBuiltinAttribute {
+    name  := `cpass
+    descr := "compiler passes for the code generator"
+    add   := fun declName stx kind => do
+      Attribute.Builtin.ensureNoArgs stx
+      unless kind == AttributeKind.global do throwError "invalid attribute 'cpass', must be global"
+      discard <| addPass declName
+    applicationTime := .afterCompilation
+  }
 
 end Lean.Compiler.LCNF

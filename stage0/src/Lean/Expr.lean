@@ -246,24 +246,24 @@ instance : Repr FVarId where
 /--
 A set of unique free variable identifiers.
 This is a persistent data structure implemented using red-black trees. -/
-def FVarIdSet := Std.RBTree FVarId (Name.quickCmp ·.name ·.name)
+def FVarIdSet := RBTree FVarId (Name.quickCmp ·.name ·.name)
   deriving Inhabited, EmptyCollection
 
-instance : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (Std.RBTree ..) ..)
+instance : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (RBTree ..) ..)
 
 /--
 A set of unique free variable identifiers implemented using hashtables.
 Hashtables are faster than red-black trees if they are used linearly.
 They are not persistent data-structures. -/
-def FVarIdHashSet := Std.HashSet FVarId
+def FVarIdHashSet := HashSet FVarId
   deriving Inhabited, EmptyCollection
 
 /--
 A mapping from free variable identifiers to values of type `α`.
 This is a persistent data structure implemented using red-black trees. -/
-def FVarIdMap (α : Type) := Std.RBMap FVarId α (Name.quickCmp ·.name ·.name)
+def FVarIdMap (α : Type) := RBMap FVarId α (Name.quickCmp ·.name ·.name)
 
-instance : EmptyCollection (FVarIdMap α) := inferInstanceAs (EmptyCollection (Std.RBMap ..))
+instance : EmptyCollection (FVarIdMap α) := inferInstanceAs (EmptyCollection (RBMap ..))
 
 instance : Inhabited (FVarIdMap α) where
   default := {}
@@ -276,16 +276,16 @@ structure MVarId where
 instance : Repr MVarId where
   reprPrec n p := reprPrec n.name p
 
-def MVarIdSet := Std.RBTree MVarId (Name.quickCmp ·.name ·.name)
+def MVarIdSet := RBTree MVarId (Name.quickCmp ·.name ·.name)
   deriving Inhabited, EmptyCollection
 
-instance : ForIn m MVarIdSet MVarId := inferInstanceAs (ForIn _ (Std.RBTree ..) ..)
+instance : ForIn m MVarIdSet MVarId := inferInstanceAs (ForIn _ (RBTree ..) ..)
 
-def MVarIdMap (α : Type) := Std.RBMap MVarId α (Name.quickCmp ·.name ·.name)
+def MVarIdMap (α : Type) := RBMap MVarId α (Name.quickCmp ·.name ·.name)
 
-instance : EmptyCollection (MVarIdMap α) := inferInstanceAs (EmptyCollection (Std.RBMap ..))
+instance : EmptyCollection (MVarIdMap α) := inferInstanceAs (EmptyCollection (RBMap ..))
 
-instance : ForIn m (MVarIdMap α) (MVarId × α) := inferInstanceAs (ForIn _ (Std.RBMap ..) ..)
+instance : ForIn m (MVarIdMap α) (MVarId × α) := inferInstanceAs (ForIn _ (RBMap ..) ..)
 
 instance : Inhabited (MVarIdMap α) where
   default := {}
@@ -896,6 +896,17 @@ def getForallBody : Expr → Expr
   | forallE _ _ b .. => getForallBody b
   | e                => e
 
+def getForallBodyMaxDepth : (maxDepth : Nat) → Expr → Expr
+  | (n+1), forallE _ _ b _ => getForallBodyMaxDepth n b
+  | 0, e => e
+  | _, e => e
+
+/-- Given a sequence of nested foralls `(a₁ : α₁) → ... → (aₙ : αₙ) → _`,
+returns the names `[a₁, ... aₙ]`. -/
+def getForallBinderNames : Expr → List Name
+  | forallE n _ b _ => n :: getForallBinderNames b
+  | _ => []
+
 /--
 If the given expression is a sequence of
 function applications `f a₁ .. aₙ`, return `f`.
@@ -1232,8 +1243,6 @@ def mkDecIsTrue (pred proof : Expr) :=
 
 def mkDecIsFalse (pred proof : Expr) :=
   mkAppB (mkConst `Decidable.isFalse) pred proof
-
-open Std (HashMap HashSet PHashMap PHashSet)
 
 abbrev ExprMap (α : Type)  := HashMap Expr α
 abbrev PersistentExprMap (α : Type) := PHashMap Expr α

@@ -24,5 +24,5 @@ theorem ex (x : List Nat) : f x > 0 := by
   simp [f]
   split <;> decide
 
-test% Std.RBNode.balance1.match_1
-#check @Std.RBNode.balance1.match_1.splitter
+test% Lean.RBNode.balance1.match_1
+#check @Lean.RBNode.balance1.match_1.splitter

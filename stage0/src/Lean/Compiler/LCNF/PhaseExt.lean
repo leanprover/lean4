@@ -7,7 +7,7 @@ import Lean.Compiler.LCNF.PassManager
 
 namespace Lean.Compiler.LCNF
 
-abbrev BaseExtState := Std.PHashMap Name Decl
+abbrev BaseExtState := PHashMap Name Decl
 
 private abbrev declLt (a b : Decl) :=
   Name.quickLt a.name b.name
@@ -20,12 +20,15 @@ private abbrev findAtSorted? (decls : Array Decl) (declName : Name) : Option Dec
   let tmpDecl := { tmpDecl with name := declName }
   decls.binSearch tmpDecl declLt
 
-builtin_initialize baseExt : SimplePersistentEnvExtension Decl BaseExtState ← do
-  registerSimplePersistentEnvExtension {
-    name          := `compBaseDecls
-    addImportedFn := fun _ => {}
-    addEntryFn    := fun decls decl => decls.insert decl.name decl
-    toArrayFn     := fun es => sortDecls es.toArray
+builtin_initialize baseExt : PersistentEnvExtension Decl Decl BaseExtState ← do
+  registerPersistentEnvExtension {
+    name            := `compBaseDecls
+    mkInitial       := return {}
+    addImportedFn   := fun _ => return {}
+    addEntryFn      := fun decls decl => decls.insert decl.name decl
+    exportEntriesFn := fun s =>
+      let decls := s.foldl (init := #[]) fun decls _ decl => decls.push decl
+      sortDecls decls
   }
 
 def getBaseDeclCore? (env : Environment) (declName : Name) : Option Decl :=
@@ -37,17 +40,28 @@ def getBaseDecl? (declName : Name) : CoreM (Option Decl) := do
   return getBaseDeclCore? (← getEnv) declName
 
 def saveBaseDeclCore (env : Environment) (decl : Decl) : Environment :=
+  let env := env.addExtraName decl.name
   baseExt.addEntry env decl
 
 def Decl.saveBase (decl : Decl) : CoreM Unit :=
   modifyEnv (saveBaseDeclCore · decl)
 
-def getDecl? (phase : Phase) (declName : Name) : CoreM (Option Decl) :=
+def getDeclAt? (declName : Name) (phase : Phase) : CoreM (Option Decl) :=
   match phase with
   | .base => getBaseDecl? declName
   | _  => return none -- TODO
 
+def getDecl? (declName : Name) : CompilerM (Option Decl) := do
+  getDeclAt? declName (← getPhase)
+
 def saveBase : Pass :=
   .mkPerDeclaration `saveBase (fun decl => do decl.saveBase; return decl) .base
+
+def forEachDecl (f : Decl → CoreM Unit) : CoreM Unit := do
+  let env ← getEnv
+  for modIdx in [:env.allImportedModuleNames.size] do
+    for decl in baseExt.getModuleEntries env modIdx do
+      f decl
+  baseExt.getState env |>.forM fun _ decl => f decl
 
 end Lean.Compiler.LCNF

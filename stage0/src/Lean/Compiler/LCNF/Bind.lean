@@ -49,7 +49,18 @@ where
       unless (← read).contains fvarId do
         throwError "`Code.bind` failed, it contains a out of scope join point"
       return c
-    | .unreach .. => return c
+    | .unreach type =>
+      /-
+      Create an auxiliary parameter `aux : type` to compute the resulting type of `f aux`.
+      This code is not very efficient, we could ask caller to provide the type of `c >>= f`,
+      but this is more convenient, and this case is seldom reached.
+      -/
+      let auxParam ← mkAuxParam type
+      let k ← f auxParam.fvarId
+      let typeNew ← k.inferType
+      eraseCode k
+      eraseParam auxParam
+      return .unreach typeNew
 
 instance : MonadCodeBind CompilerM where
   codeBind := CompilerM.codeBind

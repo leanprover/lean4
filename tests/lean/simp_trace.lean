@@ -1,13 +1,16 @@
+set_option tactic.simp.trace true
+set_option trace.Meta.Tactic.simp.rewrite true
+
 def f (x : α) := x
 
-theorem ex1 (a : α) (b : List α) : f (a::b = []) = False :=
+example (a : α) (b : List α) : f (a::b = []) = False :=
   by simp [f]
 
 def length : List α → Nat
   | []    => 0
   | a::as => length as + 1
 
-theorem ex2 (a b c : α) (as : List α) : length (a :: b :: as) > length as := by
+example (a b c : α) (as : List α) : length (a :: b :: as) > length as := by
   simp [length]
   apply Nat.lt.step
   apply Nat.lt_succ_self
@@ -29,12 +32,12 @@ def head [Inhabited α] : List α → α
   | []   => default
   | a::_ => a
 
-theorem ex4 [Inhabited α] (a : α) (as : List α) : head (a::as) = a :=
+example [Inhabited α] (a : α) (as : List α) : head (a::as) = a :=
   by simp [head]
 
 def foo := 10
 
-theorem ex5 (x : Nat) : foo + x = 10 + x := by
+example (x : Nat) : foo + x = 10 + x := by
   simp [foo]
   done
 
@@ -42,7 +45,7 @@ def g (x : Nat) : Nat := Id.run <| do
   let x := x
   return x
 
-theorem ex6 : g x = x := by
+example : g x = x := by
   simp [g, bind, pure]
   rfl
 
@@ -53,7 +56,7 @@ def f2 : StateM Nat Unit := do
   let s ← get
   set <| g s
 
-theorem ex7 : f1 = f2 := by
+example : f1 = f2 := by
   simp [f1, f2, bind, StateT.bind, get, getThe, MonadStateOf.get, StateT.get, pure, set, StateT.set, modify, modifyGet, MonadStateOf.modifyGet, StateT.modifyGet]
 
 def h (x : Nat) : Sum (Nat × Nat) Nat := Sum.inl (x, x)
@@ -63,5 +66,18 @@ def bla (x : Nat) :=
   | Sum.inl (y, z) => y + z
   | Sum.inr _ => 0
 
-theorem ex8 (x : Nat) : bla x = x + x := by
+example (x : Nat) : bla x = x + x := by
   simp [bla, h]
+
+example (x : Nat) (h : 1 ≤ x) : x - 1 + 1 + 2 = x + 2 := by
+  simp [h, Nat.sub_add_cancel]
+
+example (x : Nat) : (if h : 1 ≤ x then x - 1 + 1 else 0) = (if _h : 1 ≤ x then x else 0) := by
+  simp (config := {contextual := true}) [h, Nat.sub_add_cancel]
+
+theorem my_thm : a ∧ a ↔ a := ⟨fun h => h.1, fun h => ⟨h, h⟩⟩
+
+example : a ∧ (b ∧ b) ↔ a ∧ b := by simp [my_thm]
+example : (a ∧ (b ∧ b)) = (a ∧ b) := by simp only [my_thm]
+
+example : x - 1 + 1 = x := by simp (discharger := sorry) [Nat.sub_add_cancel]

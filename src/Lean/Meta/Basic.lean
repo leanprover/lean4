@@ -205,8 +205,6 @@ instance : Hashable InfoCacheKey :=
   ⟨fun ⟨transparency, expr, nargs⟩ => mixHash (hash transparency) <| mixHash (hash expr) (hash nargs)⟩
 end InfoCacheKey
 
-open Std (PersistentArray PersistentHashMap)
-
 abbrev SynthInstanceCache := PersistentHashMap Expr (Option Expr)
 
 abbrev InferTypeCache := PersistentExprStructMap Expr
@@ -703,6 +701,11 @@ def getLocalDeclFromUserName (userName : Name) : MetaM LocalDecl := do
   match (← getLCtx).findFromUserName? userName with
   | some d => pure d
   | none   => throwError "unknown local declaration '{userName}'"
+
+/-- Given a user-facing name for a free variable, return the free variable or throw if not declared. -/
+def getFVarFromUserName (userName : Name) : MetaM Expr := do
+  let d ← getLocalDeclFromUserName userName
+  return Expr.fvar d.fvarId
 
 /--
 Lift a `MkBindingM` monadic action `x` to `MetaM`.

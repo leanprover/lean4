@@ -1,7 +1,7 @@
 import Lean.Data.PersistentArray
 
 def check [BEq α] (as : List α) : Bool :=
-  as.toPersistentArray.foldr (.::.) [] == as
+  as.toPArray'.foldr (.::.) [] == as
 
 def tst1 : IO Unit := do
   assert! check [1, 2, 3]

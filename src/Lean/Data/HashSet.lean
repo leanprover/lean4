@@ -3,7 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
-namespace Std
+namespace Lean
 universe u v w
 
 def HashSetBucket (α : Type u) :=
@@ -47,7 +47,7 @@ def mkIdx {n : Nat} (h : n > 0) (u : USize) : { u : USize // u.toNat < n } :=
   foldBuckets m.buckets d f
 
 @[inline] def forBucketsM {m : Type w → Type w} [Monad m] (data : HashSetBucket α) (f : α → m PUnit) : m PUnit :=
-  data.val.forM fun as=> as.forM f
+  data.val.forM fun as => as.forM f
 
 @[inline] def forM {m : Type w → Type w} [Monad m] (f : α → m PUnit) (h : HashSetImp α) : m PUnit :=
   forBucketsM h.buckets f
@@ -161,6 +161,9 @@ variable {α : Type u} {_ : BEq α} {_ : Hashable α}
 
 instance : ForM m (HashSet α) α where
   forM := HashSet.forM
+
+instance : ForIn m (HashSet α) α where
+  forIn := ForM.forIn
 
 @[inline] def size (m : HashSet α) : Nat :=
   match m with

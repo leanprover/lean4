@@ -9,7 +9,7 @@ namespace Lean.Elab
 open Command
 open Meta
 
-private abbrev IndexSet := Std.RBTree Nat compare
+private abbrev IndexSet := RBTree Nat compare
 private abbrev LocalInst2Index := FVarIdMap Nat
 
 private def implicitBinderF := Parser.Term.implicitBinder

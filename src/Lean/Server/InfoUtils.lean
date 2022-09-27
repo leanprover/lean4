@@ -10,8 +10,8 @@ namespace Lean.Elab
 
 /-- Visit nodes, passing in a surrounding context (the innermost one) and accumulating results on the way back up. -/
 partial def InfoTree.visitM [Monad m]
-    (preNode  : ContextInfo → Info → (children : Std.PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
-    (postNode : ContextInfo → Info → (children : Std.PersistentArray InfoTree) → List (Option α) → m α)
+    (preNode  : ContextInfo → Info → (children : PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
+    (postNode : ContextInfo → Info → (children : PersistentArray InfoTree) → List (Option α) → m α)
     : InfoTree → m (Option α) :=
   go none
 where go
@@ -25,20 +25,20 @@ where go
 
 /-- `InfoTree.visitM` specialized to `Unit` return type -/
 def InfoTree.visitM' [Monad m]
-    (preNode  : ContextInfo → Info → (children : Std.PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
-    (postNode : ContextInfo → Info → (children : Std.PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
+    (preNode  : ContextInfo → Info → (children : PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
+    (postNode : ContextInfo → Info → (children : PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
     (t : InfoTree) : m Unit := t.visitM preNode (fun ci i cs _ => postNode ci i cs) |> discard
 
 /--
   Visit nodes bottom-up, passing in a surrounding context (the innermost one) and the union of nested results (empty at leaves). -/
-def InfoTree.collectNodesBottomUp (p : ContextInfo → Info → Std.PersistentArray InfoTree → List α → List α) (i : InfoTree) : List α :=
+def InfoTree.collectNodesBottomUp (p : ContextInfo → Info → PersistentArray InfoTree → List α → List α) (i : InfoTree) : List α :=
   i.visitM (m := Id) (postNode := fun ci i cs as => p ci i cs (as.filterMap id).join) |>.getD []
 
 /--
   For every branch of the `InfoTree`, find the deepest node in that branch for which `p` returns
   `some _`  and return the union of all such nodes. The visitor `p` is given a node together with
   its innermost surrounding `ContextInfo`. -/
-partial def InfoTree.deepestNodes (p : ContextInfo → Info → Std.PersistentArray InfoTree → Option α) (infoTree : InfoTree) : List α :=
+partial def InfoTree.deepestNodes (p : ContextInfo → Info → PersistentArray InfoTree → Option α) (infoTree : InfoTree) : List α :=
   infoTree.collectNodesBottomUp fun ctx i cs rs =>
     if rs.isEmpty then
       match p ctx i cs with
@@ -190,33 +190,39 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
 def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option Format) := do
   ci.runMetaM i.lctx do
     let mut fmts := #[]
-    try
-      if let some f ← fmtTerm? then
+    let modFmt ← try
+      let (termFmt, modFmt) ← fmtTermAndModule?
+      if let some f := termFmt then
         fmts := fmts.push f
-    catch _ => pure ()
+      pure modFmt
+    catch _ => pure none
     if let some m ← i.docString? then
       fmts := fmts.push m
+    if let some f := modFmt then
+      fmts := fmts.push f
     if fmts.isEmpty then
       return none
     else
       return f!"\n***\n".joinSep fmts.toList
 
 where
-  fmtTerm? : MetaM (Option Format) := do
+  fmtModule? (decl : Name) : MetaM (Option Format) := do
+    let some mod ← findModuleOf? decl | return none
+    return some f!"*import {mod}*"
+
+  fmtTermAndModule? : MetaM (Option Format × Option Format) := do
     match i with
     | Info.ofTermInfo ti =>
       let e ← instantiateMVars ti.expr
       if e.isSort then
         -- Types of sorts are funny to look at in widgets, but ultimately not very helpful
-        return none
+        return (none, none)
       let tp ← instantiateMVars (← Meta.inferType e)
       let tpFmt ← Meta.ppExpr tp
       if e.isConst then
         -- Recall that `ppExpr` adds a `@` if the constant has implicit arguments, and it is quite distracting
         let eFmt ← withOptions (pp.fullNames.set · true |> (pp.universes.set · true)) <| PrettyPrinter.ppConst e
-        return some f!"```lean
-{eFmt} : {tpFmt}
-```"
+        return (some f!"```lean\n{eFmt} : {tpFmt}\n```", ← fmtModule? e.constName!)
       else
         let eFmt ← Meta.ppExpr e
         -- Try not to show too scary internals
@@ -226,16 +232,12 @@ where
           else false
         else isAtomicFormat eFmt
         let fmt := if showTerm then f!"{eFmt} : {tpFmt}" else tpFmt
-        return some f!"```lean
-{fmt}
-```"
+        return (some f!"```lean\n{fmt}\n```", none)
     | Info.ofFieldInfo fi =>
       let tp ← Meta.inferType fi.val
       let tpFmt ← Meta.ppExpr tp
-      return some f!"```lean
-{fi.fieldName} : {tpFmt}
-```"
-    | _ => return none
+      return (some f!"```lean\n{fi.fieldName} : {tpFmt}\n```", none)
+    | _ => return (none, none)
 
   isAtomicFormat : Format → Bool
     | Std.Format.text _    => true

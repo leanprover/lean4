@@ -26,16 +26,15 @@ LEAN_EXPORT lean_object* l_Lean_Widget_instInhabitedInfoWithCtx;
 LEAN_EXPORT lean_object* l_Lean_Widget_instTypeNameMessageData;
 static lean_object* l_Lean_Widget_instInhabitedInfoWithCtx___closed__3;
 static lean_object* l_Lean_Widget_instImpl____x40_Lean_Widget_Basic___hyg_33____closed__1;
+lean_object* l_Lean_mkHashMapImp___rarg(lean_object*);
 static lean_object* l_Lean_Widget_instImpl____x40_Lean_Widget_Basic___hyg_33____closed__4;
 static lean_object* l_Lean_Widget_instInhabitedInfoWithCtx___closed__11;
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 static lean_object* l_Lean_Widget_instFromJsonFVarId___closed__3;
-lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
 static lean_object* l_Lean_Widget_instInhabitedInfoWithCtx___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Widget_instFromJsonMVarId(lean_object*);
 static lean_object* l_Lean_Widget_instInhabitedInfoWithCtx___closed__20;
 static lean_object* l_Lean_Widget_instImpl____x40_Lean_Widget_Basic___hyg_53____closed__2;
-lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instImpl____x40_Lean_Widget_Basic___hyg_33____closed__2;
 static lean_object* l_Lean_Widget_instInhabitedInfoWithCtx___closed__13;
 static lean_object* l_Lean_Widget_instFromJsonFVarId___closed__4;
@@ -44,6 +43,7 @@ static lean_object* l_Lean_Widget_instFromJsonFVarId___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Widget_instImpl____x40_Lean_Widget_Basic___hyg_33_;
 LEAN_EXPORT lean_object* l_Lean_Widget_instImpl____x40_Lean_Widget_Basic___hyg_53_;
 extern lean_object* l_Lean_NameSet_empty;
+lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instToJsonMVarId(lean_object*);
 static lean_object* l_Lean_Widget_instInhabitedInfoWithCtx___closed__16;
 static lean_object* l_Lean_Widget_instImpl____x40_Lean_Widget_Basic___hyg_33____closed__6;
@@ -72,7 +72,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Std_mkHashMapImp___rarg(x_1);
+x_2 = l_Lean_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
@@ -80,7 +80,7 @@ static lean_object* _init_l_Lean_Widget_instInhabitedInfoWithCtx___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
+x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
 return x_1;
 }
 }

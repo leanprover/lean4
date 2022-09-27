@@ -102,8 +102,6 @@ def hasExprMVar : LocalDecl → Bool
 
 end LocalDecl
 
-open Std (PersistentHashMap PersistentArray PArray)
-
 /-- A LocalContext is an ordered set of local variable declarations.
 It is used to store the free variables (also known as local constants) that
 are in scope.

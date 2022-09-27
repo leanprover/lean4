@@ -62,7 +62,6 @@ LEAN_EXPORT lean_object* l_Lean_pp_rawOnError;
 LEAN_EXPORT lean_object* l_Lean_ppFnsRef;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 static lean_object* l_Lean_PPContext_mctx___default___closed__5;
-lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_Lean_ppExpr___closed__9;
 static lean_object* l_Lean_ppTerm___closed__4;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_266____lambda__3(lean_object*, lean_object*, lean_object*);
@@ -82,6 +81,7 @@ LEAN_EXPORT lean_object* l_Lean_instInhabitedPPFns___lambda__1(lean_object*, lea
 static lean_object* l_Lean_ppExpr___closed__8;
 static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_348____closed__1;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedPPFns;
+lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_105____closed__3;
 static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_39____closed__1;
 static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_72____closed__4;
@@ -342,7 +342,7 @@ static lean_object* _init_l_Lean_PPContext_mctx___default___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
+x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
 return x_1;
 }
 }

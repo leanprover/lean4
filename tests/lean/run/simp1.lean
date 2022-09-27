@@ -46,7 +46,7 @@ def tst2 : MetaM Unit := do
       let s ← Meta.getSimpTheorems
       let m ← s.post.getMatch lhs
       trace[Meta.debug] "result: {m}"
-      assert! m.any fun s => s.name? == `ex2
+      assert! m.any fun s => s.origin == .decl `ex2
 
 
 set_option trace.Meta.debug true in

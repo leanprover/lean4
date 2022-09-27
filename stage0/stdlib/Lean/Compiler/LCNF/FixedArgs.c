@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
-LEAN_EXPORT lean_object* l_Std_RBNode_find___at___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_goLetDecl___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_goLetDecl___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -24,6 +23,7 @@ static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Compiler_LCNF_Fix
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_goLetDecl___spec__3___closed__3;
+LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_goLetDecl___spec__1___boxed(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_go___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap(lean_object*, lean_object*, lean_object*);
@@ -42,7 +42,7 @@ uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_goLetDecl___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_goLetDecl(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_goLetDecl___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_sort___override(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_goLetDecl___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_goLetDecl___spec__5___closed__1;
@@ -58,7 +58,6 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_AltCore_getCode(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_goLetDecl___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_goLetDecl___closed__1;
-LEAN_EXPORT lean_object* l_Std_RBNode_find___at___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_goLetDecl___spec__1(lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_goLetDecl___spec__3___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_goLetDecl___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_goLetDecl___lambda__1___boxed(lean_object*, lean_object*);
@@ -72,9 +71,10 @@ static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Compiler_LCNF_Fix
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 uint8_t l_Lean_Expr_isFVarOf(lean_object*, lean_object*);
 lean_object* l_Nat_min(lean_object*, lean_object*);
+lean_object* l_Lean_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_RBNode_find___at___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_goLetDecl___spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_goLetDecl___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -601,7 +601,7 @@ lean_dec(x_23);
 lean_inc(x_26);
 x_29 = l_Std_Range_forIn_loop___at___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_goLetDecl___spec__4(x_26, x_24, x_26, x_21, x_28);
 lean_dec(x_26);
-x_30 = l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(x_1, x_12, x_29);
+x_30 = l_Lean_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(x_1, x_12, x_29);
 x_31 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_31, 0, x_30);
 x_32 = lean_box(0);
@@ -646,7 +646,7 @@ lean_object* x_6; lean_object* x_7;
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = l_Std_RBNode_find___at___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_goLetDecl___spec__1(x_3, x_6);
+x_7 = l_Lean_RBNode_find___at___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_goLetDecl___spec__1(x_3, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_dec(x_6);
@@ -693,11 +693,11 @@ return x_3;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_RBNode_find___at___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_goLetDecl___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_goLetDecl___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_RBNode_find___at___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_goLetDecl___spec__1(x_1, x_2);
+x_3 = l_Lean_RBNode_find___at___private_Lean_Compiler_LCNF_FixedArgs_0__Lean_Compiler_LCNF_updateMap_goLetDecl___spec__1(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
@@ -946,7 +946,7 @@ lean_dec(x_8);
 x_10 = 1;
 x_11 = lean_box(x_10);
 x_12 = lean_mk_array(x_9, x_11);
-x_13 = l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(x_4, x_7, x_12);
+x_13 = l_Lean_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(x_4, x_7, x_12);
 x_14 = 1;
 x_15 = lean_usize_add(x_3, x_14);
 x_3 = x_15;

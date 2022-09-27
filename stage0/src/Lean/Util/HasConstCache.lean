@@ -8,7 +8,7 @@ import Lean.Expr
 namespace Lean
 
 structure HasConstCache (declName : Name) where
-  cache : Std.HashMapImp Expr Bool := Std.mkHashMapImp
+  cache : HashMapImp Expr Bool := mkHashMapImp
 
 unsafe def HasConstCache.containsUnsafe (e : Expr) : StateM (HasConstCache declName) Bool := do
   if let some r := (← get).cache.find? (beq := ⟨ptrEq⟩) e then

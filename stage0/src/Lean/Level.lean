@@ -72,16 +72,16 @@ abbrev LMVarId := LevelMVarId
 instance : Repr LMVarId where
   reprPrec n p := reprPrec n.name p
 
-def LMVarIdSet := Std.RBTree LMVarId (Name.quickCmp ·.name ·.name)
+def LMVarIdSet := RBTree LMVarId (Name.quickCmp ·.name ·.name)
   deriving Inhabited, EmptyCollection
 
-instance : ForIn m LMVarIdSet LMVarId := inferInstanceAs (ForIn _ (Std.RBTree ..) ..)
+instance : ForIn m LMVarIdSet LMVarId := inferInstanceAs (ForIn _ (RBTree ..) ..)
 
-def LMVarIdMap (α : Type) := Std.RBMap LMVarId α (Name.quickCmp ·.name ·.name)
+def LMVarIdMap (α : Type) := RBMap LMVarId α (Name.quickCmp ·.name ·.name)
 
-instance : EmptyCollection (LMVarIdMap α) := inferInstanceAs (EmptyCollection (Std.RBMap ..))
+instance : EmptyCollection (LMVarIdMap α) := inferInstanceAs (EmptyCollection (RBMap ..))
 
-instance : ForIn m (LMVarIdMap α) (LMVarId × α) := inferInstanceAs (ForIn _ (Std.RBMap ..) ..)
+instance : ForIn m (LMVarIdMap α) (LMVarId × α) := inferInstanceAs (ForIn _ (RBMap ..) ..)
 
 instance : Inhabited (LMVarIdMap α) where
   default := {}
@@ -597,8 +597,6 @@ where
 termination_by _ u v => (u, v)
 
 end Level
-
-open Std (HashMap HashSet PHashMap PHashSet)
 
 abbrev LevelMap (α : Type)  := HashMap Level α
 abbrev PersistentLevelMap (α : Type) := PHashMap Level α

@@ -8,12 +8,8 @@ open Lean Compiler LCNF Testing
   else
     x + 2
 
+-- TODO: uncomment after the new compiler is executed by default
+-- @[cpass] def cseSizeTest : PassInstaller := Testing.assertNoFun |>.install `specialize `noFun
+
 def g (c : Nat) : Nat :=
   f true false c
-
-#eval Lean.Compiler.compile #[``g]
-
-@[cpass] def cseSizeTest : PassInstaller := Testing.assertNoFun |>.install `specialize `noFun
-
-set_option trace.Compiler.result true
-#eval Lean.Compiler.compile #[``g]

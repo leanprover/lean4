@@ -306,4 +306,30 @@ def resolveGlobalConstNoOverload [Monad m] [MonadResolveName m] [MonadEnv m] [Mo
   | [c] => pure c
   | _   => throwErrorAt id s!"ambiguous identifier '{id}', possible interpretations: {cs.map mkConst}"
 
+def unresolveNameGlobal [Monad m] [MonadResolveName m] [MonadEnv m] (n₀ : Name) (fullNames := false) : m Name := do
+  if n₀.hasMacroScopes then return n₀
+  if fullNames then
+    match (← resolveGlobalName n₀) with
+      | [(potentialMatch, _)] => if potentialMatch == n₀ then return n₀ else return rootNamespace ++ n₀
+      | _ => return n₀ -- if can't resolve, return the original
+  let mut initialNames := (getRevAliases (← getEnv) n₀).toArray
+  initialNames := initialNames.push (rootNamespace ++ n₀)
+  for initialName in initialNames do
+    match (← unresolveNameCore initialName) with
+    | none => continue
+    | some n => return n
+  return n₀ -- if can't resolve, return the original
+where
+  unresolveNameCore (n : Name) : m (Option Name) := do
+    let mut revComponents := n.components'
+    let mut candidate := Name.anonymous
+    for _ in [:revComponents.length] do
+      match revComponents with
+      | [] => return none
+      | cmpt::rest => candidate := cmpt ++ candidate; revComponents := rest
+      match (← resolveGlobalName candidate) with
+      | [(potentialMatch, _)] => if potentialMatch == n₀ then return some candidate else continue
+      | _ => continue
+    return none
+
 end Lean

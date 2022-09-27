@@ -22,7 +22,7 @@ register_builtin_option maxHeartbeats : Nat := {
 def getMaxHeartbeats (opts : Options) : Nat :=
   maxHeartbeats.get opts * 1000
 
-abbrev InstantiateLevelCache := Std.PersistentHashMap Name (List Level × Expr)
+abbrev InstantiateLevelCache := PersistentHashMap Name (List Level × Expr)
 
 /-- Cache for the `CoreM` monad -/
 structure Cache where
@@ -295,7 +295,7 @@ private def checkUnsupported [Monad m] [MonadEnv m] [MonadError m] (decl : Decla
 opaque compileDeclsNew (declNames : List Name) : CoreM Unit
 
 def compileDecl (decl : Declaration) : CoreM Unit := do
-  -- compileDeclsNew (Compiler.getDeclNamesForCodeGen decl)
+  compileDeclsNew (Compiler.getDeclNamesForCodeGen decl)
   match (← getEnv).compileDecl (← getOptions) decl with
   | Except.ok env   => setEnv env
   | Except.error (KernelException.other msg) =>
@@ -305,7 +305,7 @@ def compileDecl (decl : Declaration) : CoreM Unit := do
     throwKernelException ex
 
 def compileDecls (decls : List Name) : CoreM Unit := do
-  -- compileDeclsNew decls
+  compileDeclsNew decls
   match (← getEnv).compileDecls (← getOptions) decls with
   | Except.ok env   => setEnv env
   | Except.error (KernelException.other msg) =>
@@ -316,5 +316,10 @@ def compileDecls (decls : List Name) : CoreM Unit := do
 def addAndCompile (decl : Declaration) : CoreM Unit := do
   addDecl decl;
   compileDecl decl
+
+def ImportM.runCoreM (x : CoreM α) : ImportM α := do
+  let ctx ← read
+  let (a, _) ← x.toIO { options := ctx.opts, fileName := "<ImportM>", fileMap := default } { env := ctx.env }
+  return a
 
 end Lean

@@ -456,10 +456,21 @@ def isPrefixOf [BEq α] : List α → List α → Bool
   | _,     []    => false
   | a::as, b::bs => a == b && isPrefixOf as bs
 
+/-- `isPrefixOf? l₁ l₂` returns `some t` when `l₂ == l₁ ++ t`. -/
+def isPrefixOf? [BEq α] : List α → List α → Option (List α)
+  | [], l₂ => some l₂
+  | _, [] => none
+  | (x₁ :: l₁), (x₂ :: l₂) =>
+    if x₁ == x₂ then isPrefixOf? l₁ l₂ else none
+
 /--  `isSuffixOf l₁ l₂` returns `true` Iff `l₁` is a suffix of `l₂`.
 That is, there exists a `t` such that `l₂ == t ++ l₁`. -/
 def isSuffixOf [BEq α] (l₁ l₂ : List α) : Bool :=
   isPrefixOf l₁.reverse l₂.reverse
+
+/-- `isSuffixOf? l₁ l₂` returns `some t` when `l₂ == t ++ l₁`.-/
+def isSuffixOf? [BEq α] (l₁ l₂ : List α) : Option (List α) :=
+  Option.map List.reverse <| isPrefixOf? l₁.reverse l₂.reverse
 
 @[specialize] def isEqv : List α → List α → (α → α → Bool) → Bool
   | [],    [],    _   => true

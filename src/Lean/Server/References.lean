@@ -101,7 +101,6 @@ end Lean.Lsp.ModuleRefs
 
 namespace Lean.Server
 open IO
-open Std
 open Lsp
 open Elab
 

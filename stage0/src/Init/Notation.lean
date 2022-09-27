@@ -343,14 +343,13 @@ end Lean
   ppRealGroup(ppRealFill(ppIndent("if " Lean.binderIdent " : " term " then") ppSpace term)
     ppDedent(ppSpace) ppRealFill("else " term)) : term
 
-@[macro termDepIfThenElse] private def macroRules.termDepIfThenElse : Lean.Macro := fun
+macro_rules
   | `(if $h:ident : $c then $t else $e) => do
     let mvar ← Lean.withRef c `(?m)
     `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; dite $mvar (fun $h:ident => $t) (fun $h:ident => $e))
   | `(if _%$h : $c then $t else $e) => do
     let mvar ← Lean.withRef c `(?m)
     `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; dite $mvar (fun _%$h => $t) (fun _%$h => $e))
-  | stx => `(if $(⟨stx.getArg 1⟩):ident : $(⟨stx.getArg 3⟩) then $(⟨stx.getArg 5⟩) else $(⟨stx.getArg 7⟩))
 
 @[inheritDoc ite] syntax (name := termIfThenElse)
   ppRealGroup(ppRealFill(ppIndent("if " term " then") ppSpace term)

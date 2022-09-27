@@ -22,11 +22,11 @@ abbrev Cache := ExprMap Result
 abbrev CongrCache := ExprMap (Option CongrTheorem)
 
 structure Context where
-  config         : Config      := {}
-  simpTheorems   : SimpTheoremsArray  := {}
+  config         : Config := {}
+  simpTheorems   : SimpTheoremsArray := {}
   congrTheorems  : SimpCongrTheorems := {}
   parent?        : Option Expr := none
-  dischargeDepth : Nat      := 0
+  dischargeDepth : Nat := 0
   deriving Inhabited
 
 def Context.isDeclToUnfold (ctx : Context) (declName : Name) : Bool :=
@@ -35,10 +35,13 @@ def Context.isDeclToUnfold (ctx : Context) (declName : Name) : Bool :=
 def Context.mkDefault : MetaM Context :=
   return { config := {}, simpTheorems := #[(← getSimpTheorems)], congrTheorems := (← getSimpCongrTheorems) }
 
+abbrev UsedSimps := HashMap Origin Nat
+
 structure State where
-  cache      : Cache := {}
-  congrCache : CongrCache := {}
-  numSteps   : Nat := 0
+  cache        : Cache := {}
+  congrCache   : CongrCache := {}
+  usedTheorems : UsedSimps := {}
+  numSteps     : Nat := 0
 
 abbrev SimpM := ReaderT Context $ StateRefT State MetaM
 
@@ -96,6 +99,11 @@ def getSimpCongrTheorems : M SimpCongrTheorems :=
     withTheReader Context (fun ctx => { ctx with simpTheorems := s }) x
   finally
     modify fun s => { s with cache := cacheSaved }
+
+def recordSimpTheorem (thmId : Origin) : SimpM Unit :=
+  modify fun s => if s.usedTheorems.contains thmId then s else
+    let n := s.usedTheorems.size
+    { s with usedTheorems := s.usedTheorems.insert thmId n }
 
 end Simp
 

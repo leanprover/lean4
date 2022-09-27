@@ -9,8 +9,6 @@ universe u v w w'
 
 namespace Lean
 
-open Std (HashMap PHashMap)
-
 /-- Staged map for implementing the Environment. The idea is to store
    imported entries into a hashtable and local entries into a persistent hashtable.
 

@@ -73,9 +73,10 @@ def getRhs : TacticM Expr :=
 
 /-- `⊢ lhs = rhs` ~~> `⊢ lhs' = rhs` using `h : lhs = lhs'`. -/
 def updateLhs (lhs' : Expr) (h : Expr) : TacticM Unit := do
+  let mvarId ← getMainGoal
   let rhs ← getRhs
-  let newGoal ← mkFreshExprSyntheticOpaqueMVar (mkLHSGoalRaw (← mkEq lhs' rhs))
-  (← getMainGoal).assign (← mkEqTrans h newGoal)
+  let newGoal ← mkFreshExprSyntheticOpaqueMVar (mkLHSGoalRaw (← mkEq lhs' rhs)) (← mvarId.getTag)
+  mvarId.assign (← mkEqTrans h newGoal)
   replaceMainGoal [newGoal.mvarId!]
 
 /-- Replace `lhs` with the definitionally equal `lhs'`. -/

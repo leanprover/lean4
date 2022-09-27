@@ -167,6 +167,27 @@ syntax (name := nestedConv) convSeqBracketed : conv
 This is pure grouping with no added effects. -/
 syntax (name := paren) "(" convSeq ")" : conv
 
+/-- `rfl` closes one conv goal "trivially", by using reflexivity
+(that is, no rewriting). -/
+macro "rfl" : conv => `(tactic => rfl)
+
+/-- `done` succeeds iff there are no goals remaining. -/
+macro "done" : conv => `(tactic' => done)
+
+/-- `trace_state` prints the current goal state. -/
+macro "trace_state" : conv => `(tactic' => trace_state)
+
+/-- `all_goals tac` runs `tac` on each goal, concatenating the resulting goals, if any. -/
+macro (name := allGoals) tk:"all_goals " s:convSeq : conv =>
+  `(conv| tactic' => all_goals%$tk conv' => $s)
+
+/--
+`any_goals tac` applies the tactic `tac` to every goal, and succeeds if at
+least one application succeeds.
+-/
+macro (name := anyGoals) tk:"any_goals " s:convSeq : conv =>
+  `(conv| tactic' => any_goals%$tk conv' => $s)
+
 /--
 * `case tag => tac` focuses on the goal with case name `tag` and solves it using `tac`,
   or else fails.
@@ -175,7 +196,7 @@ syntax (name := paren) "(" convSeq ")" : conv
 * `case tag₁ | tag₂ => tac` is equivalent to `(case tag₁ => tac); (case tag₂ => tac)`.
 -/
 macro (name := case) tk:"case " args:sepBy1(caseArg, " | ") arr:" => " s:convSeq : conv =>
-  `(conv| tactic' => case%$tk $args|* =>%$arr conv' => $s)
+  `(conv| tactic' => case%$tk $args|* =>%$arr conv' => ($s); all_goals rfl)
 
 /--
 `case'` is similar to the `case tag => tac` tactic, but does not ensure the goal
@@ -192,17 +213,6 @@ macro (name := case') tk:"case' " args:sepBy1(caseArg, " | ") arr:" => " s:convS
 inaccessible names to the given names.
 -/
 macro "next " args:binderIdent* " => " tac:convSeq : conv => `(conv| case _ $args* => $tac)
-
-/-- `all_goals tac` runs `tac` on each goal, concatenating the resulting goals, if any. -/
-macro (name := allGoals) tk:"all_goals " s:convSeq : conv =>
-  `(conv| tactic' => all_goals%$tk conv' => $s)
-
-/--
-`any_goals tac` applies the tactic `tac` to every goal, and succeeds if at
-least one application succeeds.
--/
-macro (name := anyGoals) tk:"any_goals " s:convSeq : conv =>
-  `(conv| tactic' => any_goals%$tk conv' => $s)
 
 /--
 `focus tac` focuses on the main goal, suppressing all other goals, and runs `tac` on it.
@@ -255,16 +265,6 @@ macro_rules
   | `(conv| enter [@$i]) => `(conv| arg @$i)
   | `(conv| enter [$id:ident]) => `(conv| ext $id)
   | `(conv| enter [$arg, $args,*]) => `(conv| (enter [$arg]; enter [$args,*]))
-
-/-- `rfl` closes one conv goal "trivially", by using reflexivity
-(that is, no rewriting). -/
-macro "rfl" : conv => `(tactic => rfl)
-
-/-- `done` succeeds iff there are no goals remaining. -/
-macro "done" : conv => `(tactic' => done)
-
-/-- `trace_state` prints the current goal state. -/
-macro "trace_state" : conv => `(tactic' => trace_state)
 
 /-- The `apply thm` conv tactic is the same as `apply thm` the tactic.
 There are no restrictions on `thm`, but strange results may occur if `thm`

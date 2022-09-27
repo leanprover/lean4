@@ -24,12 +24,12 @@ def mkLHSGoal (e : Expr) : MetaM Expr :=
     return mkLHSGoalRaw (← whnf e)
 
 /-- Given `lhs`, returns a pair of metavariables `(?rhs, ?newGoal)`
-where `?newGoal : lhs = ?rhs`.-/
-def mkConvGoalFor (lhs : Expr) : MetaM (Expr × Expr) := do
+where `?newGoal : lhs = ?rhs`. `tag` is the name of `newGoal`. -/
+def mkConvGoalFor (lhs : Expr) (tag : Name := .anonymous) : MetaM (Expr × Expr) := do
   let lhsType ← inferType lhs
   let rhs ← mkFreshExprMVar lhsType
   let targetNew := mkLHSGoalRaw (← mkEq lhs rhs)
-  let newGoal ← mkFreshExprSyntheticOpaqueMVar targetNew
+  let newGoal ← mkFreshExprSyntheticOpaqueMVar targetNew tag
   return (rhs, newGoal)
 
 def markAsConvGoal (mvarId : MVarId) : MetaM MVarId := do

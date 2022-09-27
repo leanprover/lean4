@@ -93,7 +93,7 @@ structure ApplyConfig where
   newGoals := ApplyNewGoals.nonDependentFirst
 
 /--
-Close the give goal using `apply e`.
+Close the given goal using `apply e`.
 -/
 def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := {}) : MetaM (List MVarId) :=
   mvarId.withContext do

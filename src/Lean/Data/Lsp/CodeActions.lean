@@ -95,7 +95,7 @@ structure CodeActionOptions extends WorkDoneProgressOptions where
   The list of kinds may be generic, such as `"refactor"`, or the server may list out every specific kind they provide. -/
   codeActionKinds? : Option (Array CodeActionKind) := none
   /-- The server provides support to resolve additional information for a code action. -/
-  resolveProvider := false
+  resolveProvider? : Option Bool := none
   deriving ToJson, FromJson
 
 /-- Custom, Lean-specific data object passed as the `data?` field. -/
@@ -118,7 +118,7 @@ structure CodeAction extends WorkDoneProgressParams, PartialResultParams where
   /-- The diagnostics that this code action resolves. -/
   diagnostics? : Option (Array Diagnostic) := none
   /-- Marks this as a preferred action. Preferred actions are used by the `auto fix` command and can be targeted by keybindings. -/
-  isPreferred  : Bool := false
+  isPreferred? : Option Bool := none
   /-- Marks that the code action cannot currently be applied. -/
   disabled?    : Option CodeActionDisabled := none
   /-- The workspace edit this code action performs. -/
@@ -154,19 +154,19 @@ structure CodeActionLiteralSupport where
 /-- [Reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#codeActionClientCapabilities) -/
 structure CodeActionClientCapabilities where
   /-- Whether we can [register capabilities dynamically](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#client_registerCapability). -/
-  dynamicRegistration     := false
+  dynamicRegistration?      : Option Bool := false
   /-- Whether the code action supports the `isPreferred` property. -/
-  isPreferredSupport      := false
+  isPreferredSupport?       : Option Bool := false
   /-- Whether the code action supports the `disabled` property. -/
-  disabledSupport         := false
+  disabledSupport?          : Option Bool := false
   /-- Weather code action supports the `data` property which is preserved between a `textDocument/codeAction` and a `codeAction/resolve` request. -/
-  dataSupport             := false
+  dataSupport?              : Option Bool := false
   /-- Whether the client honors the change annotations in
     text edits and resource operations returned via the
     `CodeAction#edit` property by for example presenting
     the workspace edit in the user interface and asking
     for confirmation. -/
-  honorsChangeAnnotations := false
+  honorsChangeAnnotations?  : Option Bool := false
   /-- The client supports code action literals as a valid response of the `textDocument/codeAction` request. -/
   codeActionLiteralSupport? : Option CodeActionLiteralSupport := none
   /-- Whether the client supports resolving additional code action properties via a separate `codeAction/resolve` request. -/

@@ -40,12 +40,12 @@ structure WindowClientCapabilities where
   deriving ToJson, FromJson
 
 structure ChangeAnnotationSupport where
-  groupsOnLabel := false
+  groupsOnLabel? : Option Bool := none
   deriving ToJson, FromJson
 
 structure WorkspaceEditClientCapabilities where
   /-- The client supports versioned document changes in `WorkspaceEdit`s. -/
-  documentChanges          : Bool := false
+  documentChanges?         : Option Bool := none
   /--  Whether the client in general supports change annotations on text edits. -/
   changeAnnotationSupport? : Option ChangeAnnotationSupport := none
   /-- The resource operations the client supports. Clients should at least support 'create', 'rename' and 'delete' files and folders. -/

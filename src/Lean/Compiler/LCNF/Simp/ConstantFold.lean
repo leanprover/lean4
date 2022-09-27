@@ -76,7 +76,7 @@ def mkNatLit (n : Nat) : FolderM Expr :=
   return .lit (.natVal n)
 
 instance : Literal Nat where
-  getLit := getNatLit 
+  getLit := getNatLit
   mkLit := mkNatLit
 
 private partial def getLitAux [Inhabited α] (e : Expr) (ofNat : Nat → α) (ofNatName : Name) (toNat : α → Nat) : CompilerM (Option α) := do
@@ -337,13 +337,15 @@ def applyFolders (decl : LetDecl) (folders : Lean.HashMap Name Folder) : Compile
   | .proj .. => return none
   | _ => unreachable!
 
+-- TODO: make it extensible
+def folders : HashMap Name Folder :=
+  Lean.HashMap.ofList (arithmeticFolders ++ higherOrderLiteralFolders)
+
 /--
 Apply a list of default folders to `decl`
 -/
 def foldConstants (decl : LetDecl) : CompilerM (Option (Array CodeDecl)) := do
-  let folders := Lean.HashMap.ofList (arithmeticFolders ++ higherOrderLiteralFolders)
   applyFolders decl folders
-  
 
 end ConstantFold
 end Lean.Compiler.LCNF.Simp

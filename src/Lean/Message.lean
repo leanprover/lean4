@@ -37,7 +37,7 @@ structure NamingContext where
   currNamespace : Name
   openDecls : List OpenDecl
 
-/-- Structure message data. We use it for reporting errors, trace messages, etc. -/
+/-- Structured message data. We use it for reporting errors, trace messages, etc. -/
 inductive MessageData where
   | ofFormat          : Format → MessageData
   | ofSyntax          : Syntax → MessageData

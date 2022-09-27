@@ -65,6 +65,7 @@
   - [Monad](./monads/monads.lean.md)
   - [Reader](./monads/readers.lean.md)
   - [State](./monads/states.lean.md)
+  - [ST](./monads/st.lean.md)
   - [Except](./monads/except.lean.md)
   - [Transformers](./monads/transformers.lean.md)
   - [Laws](./monads/laws.lean.md)

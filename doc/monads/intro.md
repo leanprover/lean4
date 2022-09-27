@@ -42,6 +42,12 @@ This section introduces the `StateM` monad. This monad allows you to access a pa
 both read from and write to. It opens the door to fully stateful programming, allowing you to do many
 of the things a function programming language supposedly "can't" do.
 
+## [ST Monad](st.lean.md)
+This section introduces the `ST` monad. This monad allows you to use updatable state in a
+ReaderM context. This is an alternative to `StateM` that is more convenient in some scenarios,
+specifically in multi-threading scenarios because this monad ensures single threaded access to
+the mutable state.
+
 ## [Except Monad](except.lean.md)
 
 Similar to the `Option` monad the `Except` monad allows you to change the signature of a function so

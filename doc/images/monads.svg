@@ -23,8 +23,8 @@
       <path d="M -543.720702607113,-484.775967831244 L -554.473282607084,-485.394048201604 C -552.678367392102,-483.182851583901 -551.831711845061,-480.654159136059 -551.93331596596,-477.807970858076 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Except-&gt;Monad">
-      <path d="M -620.787981188119,-238 L -711.95378637201,-307.579654923495" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M -719.108129922992,-313.04 L -713.585679344792,-303.793241670113 C -712.762726383344,-306.519752175201 -711.144846360676,-308.639557671788 -708.732039276787,-310.152658159875 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M -628.54177821476,-238 L -713.286115417717,-307.340644788866" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -720.25155511506,-313.04 L -715.045224434072,-303.611632122143 C -714.130464337885,-306.308727796667 -712.441766497549,-308.372561781065 -709.979130913064,-309.803134075337 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="List-&gt;Functor">
       <path d="M -892.034814302334,-412 L -868.075682352572,-474.634018472681" fill="none" stroke="#A0A0A0" stroke-width="1" />
@@ -39,16 +39,20 @@
       <path d="M -688.195056125048,-387.030048779297 L -697.517641877363,-381.63659025153 C -694.802827232157,-380.775839095105 -692.705702443952,-379.128666143103 -691.226267512747,-376.695071395525 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Option-&gt;Monad">
-      <path d="M -856.761951485149,-238 L -761.177064707358,-307.735551794831" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M -753.906381848185,-313.04 L -764.342450894008,-310.377583265001 C -761.962908885902,-308.81268999619 -760.391220528815,-306.658413593472 -759.627385822747,-303.914754056846 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M -864.268343561295,-238 L -762.432008248796,-307.944599064783" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -755.013323101859,-313.04 L -765.52092923633,-310.675636803953 C -763.186882461421,-309.043663530996 -761.677134036171,-306.84553459857 -760.991683960582,-304.081250006675 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="ReaderM-&gt;Monad">
-      <path d="M -776.319514851485,-238 L -745.783102116211,-304.853562563497" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M -742.043818481848,-313.04 L -749.836994714031,-305.60586224138 C -746.99590766236,-305.407530509328 -744.570296570063,-304.299594617665 -742.560161437139,-302.28205456639 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M -783.918865343473,-238 L -747.459792323795,-305.13113226586" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -743.164467986347,-313.04 L -751.452102909796,-306.161402223154 C -748.631476432557,-305.767476612148 -746.288108215034,-304.494787919571 -744.421998257227,-302.343336145423 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="StateM-&gt;Monad">
-      <path d="M -695.681478217822,-238 L -726.395530552052,-304.861622913356" fill="none" stroke="#A0A0A0" stroke-width="1" />
-      <path d="M -730.152410671067,-313.04 L -729.612933688448,-302.283189850833 C -727.607141972296,-304.305048080909 -725.183919131808,-305.418197745802 -722.343265166986,-305.622638845513 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+      <path d="M -703.400899996939,-238 L -728.155322867628,-304.603828345398" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -731.290766666215,-313.04 L -731.556349847608,-302.272945362182 C -729.405126075717,-304.139318153015 -726.905519659539,-305.068338537782 -724.057530599073,-305.060006516481 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="ST-&gt;Monad">
+      <path d="M -554.704717232462,-236.944239483112 L -701.678005389345,-309.110806992507" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -709.756664992462,-313.077576335053 L -702.543385141241,-305.079539464172 C -702.265674921573,-307.913968532786 -701.090335857116,-310.307645452228 -699.017367947867,-312.260570222499 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
     </g>
     <g id="Applicative">
       <rect x="-839" y="-412" rx="3" ry="3" width="78.3066666666667" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
@@ -59,8 +63,8 @@
       <text x="-690" y="-395.040048779297" fill="#3D3D3D">Bind</text>
     </g>
     <g id="Except">
-      <rect x="-631" y="-238" rx="3" ry="3" width="54.5166666666667" height="25.96" fill="#91E7ED" stroke="#A5A6A9" stroke-width="1" />
-      <text x="-621" y="-220.05" fill="#3D3D3D">Except</text>
+      <rect x="-639.9366666631538" y="-238" rx="3" ry="3" width="54.516666666666652" height="25.960000000000036" fill="#91E7ED" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-629.9366666631538" y="-220.05" fill="#3D3D3D">Except</text>
     </g>
     <g id="Functor">
       <rect x="-890.021657986111" y="-509" rx="3" ry="3" width="60.2533333333333" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
@@ -75,16 +79,16 @@
       <text x="-755" y="-321.05" fill="#3D3D3D">Monad</text>
     </g>
     <g id="Option">
-      <rect x="-903" y="-238" rx="3" ry="3" width="56.8933333333333" height="25.96" fill="#91E7ED" stroke="#A5A6A9" stroke-width="1" />
-      <text x="-893" y="-220.05" fill="#3D3D3D">Option</text>
+      <rect x="-911.61333332982053" y="-238" rx="3" ry="3" width="56.89333333333343" height="25.960000000000036" fill="#91E7ED" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-901.61333332982053" y="-220.05" fill="#3D3D3D">Option</text>
     </g>
     <g id="Pure">
       <rect x="-799" y="-509" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
       <text x="-786" y="-491.05" fill="#3D3D3D">Pure</text>
     </g>
     <g id="ReaderM">
-      <rect x="-816" y="-238" rx="3" ry="3" width="67.5033333333333" height="25.96" fill="#91E7ED" stroke="#A5A6A9" stroke-width="1" />
-      <text x="-806" y="-220.05" fill="#3D3D3D">ReaderM</text>
+      <rect x="-824.7199999964871" y="-238" rx="3" ry="3" width="67.50333333333333" height="25.960000000000036" fill="#91E7ED" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-814.7199999964871" y="-220.05" fill="#3D3D3D">ReaderM</text>
     </g>
     <g id="Seq">
       <rect x="-719" y="-509" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
@@ -99,8 +103,12 @@
       <text x="-534" y="-491.05" fill="#3D3D3D">SeqRight</text>
     </g>
     <g id="StateM">
-      <rect x="-718.358888888889" y="-238" rx="3" ry="3" width="57.28" height="25.96" fill="#91E7ED" stroke="#A5A6A9" stroke-width="1" />
-      <text x="-708.358888888889" y="-220.05" fill="#3D3D3D">StateM</text>
+      <rect x="-727.21666666315377" y="-238" rx="3" ry="3" width="57.279999999999973" height="25.960000000000036" fill="#91E7ED" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-717.21666666315377" y="-220.05" fill="#3D3D3D">StateM</text>
+    </g>
+    <g id="ST">
+      <rect x="-555.42" y="-238.00000000000006" rx="3" ry="3" width="50" height="25.960000000000036" fill="#91E7ED" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-537.42" y="-220.05000000000007" fill="#3D3D3D">ST</text>
     </g>
   </g>
 </svg>

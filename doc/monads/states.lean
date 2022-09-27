@@ -259,7 +259,7 @@ tasks. Monadic code is more predictable and reusable than code that uses global 
 
 ## Summary
 
-That wraps it up for the `StateM` monad! There is one more very useful monad that can be used to do
-exception handling which will be covered in the [next section](except.lean.md).
+That wraps it up for the `StateM` monad! The [next section](st.lean.md) covers a slight
+variation on the `StateM` monad.
 
 -/

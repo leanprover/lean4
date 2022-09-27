@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Moritz Doll
 -/
 import Lean.Elab.Tactic.Simp
 import Lean.Elab.Tactic.Split
@@ -24,5 +24,9 @@ def applySimpResult (result : Simp.Result) : TacticM Unit := do
 
 @[builtinTactic Lean.Parser.Tactic.Conv.simpMatch] def evalSimpMatch : Tactic := fun _ => withMainContext do
   applySimpResult (← Split.simpMatch (← getLhs))
+
+@[builtinTactic Lean.Parser.Tactic.Conv.dsimp] def evalDSimp : Tactic := fun stx => withMainContext do
+  let { ctx, .. } ← mkSimpContext stx (eraseLocal := false) (kind := .dsimp)
+  changeLhs (← Lean.Meta.dsimp (← getLhs) ctx).1
 
 end Lean.Elab.Tactic.Conv

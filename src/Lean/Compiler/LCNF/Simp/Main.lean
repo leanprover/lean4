@@ -116,7 +116,7 @@ inlined code **before** we attach it to the continuation.
 partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := do
   let some info ← inlineCandidate? letDecl.value | return none
   let numArgs := info.args.size
-  withInlining letDecl.value do
+  withInlining letDecl.value info.recursive do
   let fvarId := letDecl.fvarId
   if numArgs < info.arity then
     let funDecl ← specializePartialApp info

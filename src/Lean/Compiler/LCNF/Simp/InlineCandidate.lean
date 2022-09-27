@@ -21,6 +21,8 @@ structure InlineCandidateInfo where
   args     : Array Expr
   /-- `ifReduce = true` if the declaration being inlined was tagged with `inlineIfReduce`. -/
   ifReduce : Bool
+  /-- `recursive = true` if the declaration being inline is in a mutually recursive block. -/
+  recursive : Bool := false
 
 /-- The arity (aka number of parameters) of the function to be inlined. -/
 def InlineCandidateInfo.arity : InlineCandidateInfo → Nat
@@ -56,10 +58,11 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
     let value := decl.instantiateValueLevelParams us
     incInline
     return some {
-      isLocal  := false
-      f        := e.getAppFn
-      args     := e.getAppArgs
-      ifReduce := inlineIfReduce
+      isLocal   := false
+      f         := e.getAppFn
+      args      := e.getAppArgs
+      ifReduce  := inlineIfReduce
+      recursive := decl.recursive
       params, value
     }
   else if let some decl ← findFunDecl? f then

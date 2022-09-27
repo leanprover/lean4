@@ -29,6 +29,10 @@ structure Context where
   Stack of global declarations being recursively inlined.
   -/
   inlineStack : List Name := []
+  /--
+  Mapping from declaration names to number of occurrences at `inlineStack`
+  -/
+  inlineStackOccs : PHashMap Name Nat := {}
 
 structure State where
   /--
@@ -142,12 +146,21 @@ partial def updateFunDeclInfo (code : Code) (mustInline := false) : SimpM Unit :
 Execute `x` with an updated `inlineStack`. If `value` is of the form `const ...`, add `const` to the stack.
 Otherwise, do not change the `inlineStack`.
 -/
-@[inline] def withInlining (value : Expr) (x : SimpM α) : SimpM α := do
+def withInlining (value : Expr) (recursive : Bool) (x : SimpM α) : SimpM α := do
   trace[Compiler.simp.inline] "inlining {value}"
   let f := value.getAppFn
-  let stack := (← read).inlineStack
-  let inlineStack := if let .const declName _ := f then declName :: stack else stack
-  withReader (fun ctx => { ctx with inlineStack }) x
+  if let .const declName _ := f then
+    let numOccs := (← read).inlineStackOccs.find? declName |>.getD 0
+    let numOccs := numOccs + 1
+    if recursive then
+      if hasInlineIfReduceAttribute (← getEnv) declName then
+        if numOccs > (← getConfig).maxRecInlineIfReduce then
+          throwError "function `{declName}` has been recursively inlined more than #{(← getConfig).maxRecInlineIfReduce}, consider removing the attribute `[inlineIfReduce]` from this declaration or increasing the limit using `set_option compiler.maxRecInlineIfReduce <num>`"
+      else if numOccs > (← getConfig).maxRecInline then
+        throwError "function `{declName}` has been recursively inlined more than #{(← getConfig).maxRecInline}, consider removing the attribute `[inline]` from this declaration or increasing the limit using `set_option compiler.maxRecInline <num>`"
+    withReader (fun ctx => { ctx with inlineStack := declName :: ctx.inlineStack, inlineStackOccs := ctx.inlineStackOccs.insert declName numOccs }) x
+  else
+    x
 
 /--
 Similar to the default `Lean.withIncRecDepth`, but include the `inlineStack` in the error messsage.
@@ -203,7 +216,7 @@ def isOnceOrMustInline (fvarId : FVarId) : SimpM Bool := do
 Return `true` if the given local function declaration is considered "small".
 -/
 def isSmall (decl : FunDecl) : SimpM Bool :=
-  return decl.value.sizeLe (← read).config.smallThreshold
+  return decl.value.sizeLe (← getConfig).smallThreshold
 
 /--
 Return `true` if the given local function declaration should be inlined.

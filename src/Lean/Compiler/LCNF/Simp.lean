@@ -29,7 +29,7 @@ def Decl.simp? (decl : Decl) : SimpM (Option Decl) := do
   let value ← value.applyRenaming s.binderRenaming
   traceM `Compiler.simp.step.new do return m!"{decl.name} :=\n{← ppCode value}"
   trace[Compiler.simp.stat] "{decl.name}, size: {value.size}, # visited: {s.visited}, # inline: {s.inline}, # inline local: {s.inlineLocal}"
-  if let some value ← simpJpCases? value (← read).config.smallThreshold then
+  if let some value ← simpJpCases? value then
     let decl := { decl with value }
     decl.reduceJpArity
   else if (← get).simplified then

@@ -29,11 +29,15 @@ structure MessageDataContext where
   lctx : LocalContext
   opts : Options
 
+/-- A naming context is the information needed to shorten names in pretty printing.
+
+It gives the current namespace and the list of open declarations.
+-/
 structure NamingContext where
   currNamespace : Name
   openDecls : List OpenDecl
 
-/- Structure message data. We use it for reporting errors, trace messages, etc. -/
+/-- Structure message data. We use it for reporting errors, trace messages, etc. -/
 inductive MessageData where
   | ofFormat          : Format → MessageData
   | ofSyntax          : Syntax → MessageData
@@ -41,17 +45,17 @@ inductive MessageData where
   | ofLevel           : Level → MessageData
   | ofName            : Name  → MessageData
   | ofGoal            : MVarId → MessageData
-  /- `withContext ctx d` specifies the pretty printing context `(env, mctx, lctx, opts)` for the nested expressions in `d`. -/
-  | withContext       : MessageDataContext → MessageData → MessageData
+  /-- `withContext ctx d` specifies the pretty printing context `(env, mctx, lctx, opts)` for the nested expressions in `d`. -/
+  |  withContext       : MessageDataContext → MessageData → MessageData
   | withNamingContext : NamingContext → MessageData → MessageData
-  /- Lifted `Format.nest` -/
-  | nest              : Nat → MessageData → MessageData
-  /- Lifted `Format.group` -/
-  | group             : MessageData → MessageData
-  /- Lifted `Format.compose` -/
-  | compose           : MessageData → MessageData → MessageData
-  /- Tagged sections. `Name` should be viewed as a "kind", and is used by `MessageData` inspector functions.
-     Example: an inspector that tries to find "definitional equality failures" may look for the tag "DefEqFailure". -/
+  /-- Lifted `Format.nest` -/
+  |  nest              : Nat → MessageData → MessageData
+  /-- Lifted `Format.group` -/
+  |  group             : MessageData → MessageData
+  /-- Lifted `Format.compose` -/
+  |  compose           : MessageData → MessageData → MessageData
+  /-- Tagged sections. `Name` should be viewed as a "kind", and is used by `MessageData` inspector functions.
+    Example: an inspector that tries to find "definitional equality failures" may look for the tag "DefEqFailure". -/
   | tagged            : Name → MessageData → MessageData
   | trace (cls : Name) (msg : MessageData) (children : Array MessageData)
     (collapsed : Bool := false)
@@ -59,7 +63,8 @@ inductive MessageData where
 
 namespace MessageData
 
-partial def isEmpty : MessageData → Bool
+/-- Determines whether the message contains any content. -/
+def isEmpty : MessageData → Bool
   | ofFormat f => f.isEmpty
   | withContext _ m => m.isEmpty
   | withNamingContext _ m => m.isEmpty
@@ -69,7 +74,7 @@ partial def isEmpty : MessageData → Bool
   | tagged _ m => m.isEmpty
   | _ => false
 
-/- Instantiate metavariables occurring in nexted `ofExpr` constructors.
+/-- Instantiate metavariables occurring in nexted `ofExpr` constructors.
    It uses the surrounding `MetavarContext` at `withContext` constructors.
 -/
 partial def instantiateMVars (msg : MessageData) : MessageData :=
@@ -88,6 +93,7 @@ where
     | _                         => msg
 
 variable (p : Name → Bool) in
+/-- Returns true when the message contains a `MessageData.tagged tag ..` constructor where `p tag` is true. -/
 partial def hasTag : MessageData → Bool
   | withContext _ msg       => hasTag msg
   | withNamingContext _ msg => hasTag msg
@@ -98,13 +104,16 @@ partial def hasTag : MessageData → Bool
   | trace cls msg msgs _    => p cls || hasTag msg || msgs.any hasTag
   | _                       => false
 
+/-- An empty message. -/
 def nil : MessageData :=
   ofFormat Format.nil
 
+/-- Whether the given message equals `MessageData.nil`. See also `MessageData.isEmpty`. -/
 def isNil : MessageData → Bool
   | ofFormat Format.nil => true
   | _                   => false
 
+/-- Whether the message is a `MessageData.nest` constructor. -/
 def isNest : MessageData → Bool
   | nest _ _ => true
   | _        => false
@@ -162,16 +171,24 @@ partial def arrayExpr.toMessageData (es : Array Expr) (i : Nat) (acc : MessageDa
 
 instance : Coe (Array Expr) MessageData := ⟨fun es => arrayExpr.toMessageData es 0 "#["⟩
 
+/-- Wrap the given message in `l` and `r`. See also `Format.bracket`.  -/
 def bracket (l : String) (f : MessageData) (r : String) : MessageData := group (nest l.length <| l ++ f ++ r)
+/-- Wrap the given message in parentheses `()`. -/
 def paren (f : MessageData) : MessageData := bracket "(" f ")"
+/-- Wrap the given message in square brackets `[]`. -/
 def sbracket (f : MessageData) : MessageData := bracket "[" f "]"
+/-- Append the given list of messages with the given separarator. -/
 def joinSep : List MessageData → MessageData → MessageData
   | [],    _   => Format.nil
   | [a],   _   => a
   | a::as, sep => a ++ sep ++ joinSep as sep
+
+/-- Write the given list of messages as a list, separating each item with `,\n` and surrounding with square brackets. -/
 def ofList: List MessageData → MessageData
   | [] => "[]"
   | xs => sbracket <| joinSep xs (ofFormat "," ++ Format.line)
+
+/-- See `MessageData.ofList`. -/
 def ofArray (msgs : Array MessageData) : MessageData :=
   ofList msgs.toList
 
@@ -180,12 +197,15 @@ instance : Coe (List Expr) MessageData := ⟨fun es => ofList <| es.map ofExpr�
 
 end MessageData
 
+/-- A `Message` is a richly formatted piece of information emitted by Lean.
+They are rendered by client editors in the infoview and in diagnostic windows. -/
 structure Message where
   fileName : String
   pos      : Position
   endPos   : Option Position := none
   severity : MessageSeverity := MessageSeverity.error
   caption  : String          := ""
+  /-- The content of the message. -/
   data     : MessageData
   deriving Inhabited
 
@@ -206,6 +226,7 @@ protected def toString (msg : Message) (includeEndPos := false) : IO String := d
 
 end Message
 
+/-- A persistent array of messages. -/
 structure MessageLog where
   msgs : PersistentArray Message := {}
   deriving Inhabited

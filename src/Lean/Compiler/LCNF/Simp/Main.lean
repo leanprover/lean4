@@ -212,6 +212,7 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
     if let some value ← simpValue? decl.value then
       decl ← decl.updateValue value
     if let some decls ← ConstantFold.foldConstants decl then
+      markSimplified
       let k ← simp k
       attachCodeDecls decls k
     else if let some funDecl ← etaPolyApp? decl then

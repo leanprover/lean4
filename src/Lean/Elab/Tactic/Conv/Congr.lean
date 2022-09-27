@@ -22,7 +22,9 @@ private def isImplies (e : Expr) : MetaM Bool :=
   else
     return false
 
-def congr (mvarId : MVarId) (addImplicitArgs := false) : MetaM (List (Option MVarId)) := mvarId.withContext do
+def congr (mvarId : MVarId) (addImplicitArgs := false) (nameSubgoals := true) :
+    MetaM (List (Option MVarId)) := mvarId.withContext do
+  let origTag ← mvarId.getTag
   let (lhs, rhs) ← getLhsRhsCore mvarId
   let lhs := (← instantiateMVars lhs).cleanupAnnotations
   if (← isImplies lhs) then
@@ -47,7 +49,10 @@ def congr (mvarId : MVarId) (addImplicitArgs := false) : MetaM (List (Option MVa
           mvarIdsNew := mvarIdsNew.push none
       | .eq    =>
         if addImplicitArgs || argInfo.isExplicit then
-          let (rhs, mvarNew) ← mkConvGoalFor arg;
+          let tag ← if nameSubgoals then
+            pure (origTag ++ (← whnf (← inferType proof)).bindingName!)
+          else pure origTag
+          let (rhs, mvarNew) ← mkConvGoalFor arg tag
           proof := mkApp3 proof arg rhs mvarNew
           mvarIdsNew := mvarIdsNew.push (some mvarNew.mvarId!)
         else
@@ -89,11 +94,11 @@ private def selectIdx (tacticName : String) (mvarIds : List (Option MVarId)) (i 
 @[builtinTactic Lean.Parser.Tactic.Conv.skip] def evalSkip : Tactic := fun _ => pure ()
 
 @[builtinTactic Lean.Parser.Tactic.Conv.lhs] def evalLhs : Tactic := fun _ => do
-   let mvarIds ← congr (← getMainGoal)
+   let mvarIds ← congr (← getMainGoal) (nameSubgoals := false)
    selectIdx "lhs" mvarIds ((mvarIds.length : Int) - 2)
 
 @[builtinTactic Lean.Parser.Tactic.Conv.rhs] def evalRhs : Tactic := fun _ => do
-   let mvarIds ← congr (← getMainGoal)
+   let mvarIds ← congr (← getMainGoal) (nameSubgoals := false)
    selectIdx "rhs" mvarIds ((mvarIds.length : Int) - 1)
 
 @[builtinTactic Lean.Parser.Tactic.Conv.arg] def evalArg : Tactic := fun stx => do
@@ -103,7 +108,7 @@ private def selectIdx (tacticName : String) (mvarIds : List (Option MVarId)) (i 
       if i == 0 then
         throwError "invalid 'arg' conv tactic, index must be greater than 0"
       let i := i - 1
-      let mvarIds ← congr (← getMainGoal) (addImplicitArgs := tk?.isSome)
+      let mvarIds ← congr (← getMainGoal) (addImplicitArgs := tk?.isSome) (nameSubgoals := false)
       selectIdx "arg" mvarIds i
    | _ => throwUnsupportedSyntax
 

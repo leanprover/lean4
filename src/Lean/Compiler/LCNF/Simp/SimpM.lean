@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Compiler.ImplementedByAttr
+import Lean.Compiler.LCNF.Renaming
 import Lean.Compiler.LCNF.ElimDead
 import Lean.Compiler.LCNF.AlphaEqv
 import Lean.Compiler.LCNF.PrettyPrinter
@@ -38,6 +39,11 @@ structure State where
   Track used local declarations to be able to eliminate dead variables.
   -/
   used : UsedLocalDecls := {}
+  /--
+  Mapping containing free variables ids that need to be renamed (i.e., the `binderName`).
+  We use this map to preserve user provide names.
+  -/
+  binderRenaming : Renaming := {}
   /--
   Mapping used to decide whether a local function declaration must be inlined or not.
   -/
@@ -237,3 +243,18 @@ and set the `simplified` flag to true.
 def eraseFunDecl (decl : FunDecl) : SimpM Unit := do
   LCNF.eraseFunDecl decl
   markSimplified
+
+/--
+Similar to `LCNF.addFVarSubst`. That is, add the entry
+`fvarId ↦ fvarId'` to the free variable substitution.
+If `fvarId` has a non-internal binder name `n`, but `fvarId'` does not,
+this method also adds the entry `fvarId' ↦ n` to the `binderRenaming` map.
+The goal is to preserve user provided names.
+-/
+def addFVarSubst (fvarId : FVarId) (fvarId' : FVarId) : SimpM Unit := do
+  LCNF.addFVarSubst fvarId fvarId'
+  let binderName ← getBinderName fvarId
+  unless binderName.isInternal do
+    let binderName' ← getBinderName fvarId'
+    if binderName'.isInternal then
+      modify fun s => { s with binderRenaming := s.binderRenaming.insert fvarId' binderName }

@@ -50,8 +50,11 @@ partial def Code.applyRenaming (code : Code) (r : Renaming) : CompilerM Code := 
 end
 
 def Decl.applyRenaming (decl : Decl) (r : Renaming) : CompilerM Decl := do
-  let params ← decl.params.mapMonoM (·.applyRenaming r)
-  let value ← decl.value.applyRenaming r
-  return { decl with params, value }
+  if r.isEmpty then
+    return decl
+  else
+    let params ← decl.params.mapMonoM (·.applyRenaming r)
+    let value ← decl.value.applyRenaming r
+    return { decl with params, value }
 
 end Lean.Compiler.LCNF

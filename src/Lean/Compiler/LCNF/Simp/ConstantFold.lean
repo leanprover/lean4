@@ -343,7 +343,7 @@ def stringFolders : List (Name × Folder) := [
 /--
 Apply all known folders to `decl`.
 -/
-def applyFolders (decl : LetDecl) (folders : Lean.HashMap Name Folder) : CompilerM (Option (Array CodeDecl)) := do
+def applyFolders (decl : LetDecl) (folders : SMap Name Folder) : CompilerM (Option (Array CodeDecl)) := do
   let e := decl.value
   match e with
   | .app .. =>
@@ -362,15 +362,54 @@ def applyFolders (decl : LetDecl) (folders : Lean.HashMap Name Folder) : Compile
   | .proj .. => return none
   | _ => unreachable!
 
--- TODO: make it extensible
-def folders : HashMap Name Folder :=
-  Lean.HashMap.ofList (arithmeticFolders ++ higherOrderLiteralFolders ++ stringFolders)
+private unsafe def getFolderCoreUnsafe (env : Environment) (opts : Options) (declName : Name) : ExceptT String Id Folder :=
+  env.evalConstCheck Folder opts ``Folder declName
+
+@[implementedBy getFolderCoreUnsafe]
+private opaque getFolderCore (env : Environment) (opts : Options) (declName : Name) : ExceptT String Id Folder
+
+private def getFolder (declName : Name) : CoreM Folder := do
+  ofExcept <| getFolderCore (← getEnv) (← getOptions) declName
+
+def builtinFolders : SMap Name Folder :=
+  (arithmeticFolders ++ higherOrderLiteralFolders ++ stringFolders).foldl (init := {}) fun s (declName, folder) =>
+    s.insert declName folder
+
+structure FolderOleanEntry where
+  declName : Name
+  folderDeclName : Name
+
+structure FolderEntry extends FolderOleanEntry where
+  folder : Folder
+
+builtin_initialize folderExt : PersistentEnvExtension FolderOleanEntry FolderEntry (List FolderOleanEntry × SMap Name Folder) ←
+  registerPersistentEnvExtension {
+    name := `cfolder
+    mkInitial := return ([], builtinFolders)
+    addImportedFn := fun entriesArray => do
+      let ctx ← read
+      let mut folders := builtinFolders
+      for entries in entriesArray do
+        for { declName, folderDeclName } in entries do
+          let folder ← IO.ofExcept <| getFolderCore ctx.env ctx.opts folderDeclName
+          folders := folders.insert declName folder
+      return ([], folders.switch)
+    addEntryFn := fun (entries, map) entry => (entry.toFolderOleanEntry :: entries, map.insert entry.declName entry.folder)
+    exportEntriesFn := fun (entries, _) => entries.reverse.toArray
+  }
+
+def registerFolder (declName : Name) (folderDeclName : Name) : CoreM Unit := do
+  let folder ← getFolder folderDeclName
+  modifyEnv fun env => folderExt.addEntry env { declName, folderDeclName, folder }
+
+def getFolders : CoreM (SMap Name Folder) :=
+  return folderExt.getState (← getEnv) |>.2
 
 /--
 Apply a list of default folders to `decl`
 -/
 def foldConstants (decl : LetDecl) : CompilerM (Option (Array CodeDecl)) := do
-  applyFolders decl folders
+  applyFolders decl (← getFolders)
 
 end ConstantFold
 end Lean.Compiler.LCNF.Simp

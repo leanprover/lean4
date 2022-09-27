@@ -17,7 +17,7 @@ context to make part of that context updatable.
 ## Motivating example: A simple Job Server
 
 This simple server has a `ReaderT ServerContext` that contains a bunch of useful state needed by our
-server function, but it also has a reference to an updateable `List Nat` which is typed as `IO.Ref
+server function, but it also has a reference to an updatable `List Nat` which is typed as `IO.Ref
 (List Nat)`. `IO.Ref` is an alias for `ST.Ref` which is a mutable reference to an object.
 
 In this example the server will use multi-threading to process all the items in the `args` list in

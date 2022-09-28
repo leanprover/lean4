@@ -1424,7 +1424,7 @@ def longestMatchStep (left? : Option Syntax) (startSize startLhsPrec : Nat) (sta
   let prevLhsPrec   := s.lhsPrec
   let s             := s.restore prevSize startPos
   let s             := runLongestMatchParser left? startLhsPrec p c s
-  match compare previousScore (score s prio) with
+  match (let _ := @lexOrd; compare previousScore (score s prio)) with
   | .lt => (s.keepNewError startSize, prio)
   | .gt => (s.keepPrevError prevSize prevStopPos prevErrorMsg prevLhsPrec, prevPrio)
   | .eq =>

@@ -690,6 +690,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
     full  := true
     range := true
   }
+  codeActionProvider? := some {  }
 }
 
 def initAndRunWatchdogAux : ServerM Unit := do

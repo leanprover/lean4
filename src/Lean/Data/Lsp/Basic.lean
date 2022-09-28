@@ -244,6 +244,9 @@ instance : Append WorkspaceEdit where
 def ofTextDocumentEdit (e : TextDocumentEdit) : WorkspaceEdit :=
   { documentChanges := #[DocumentChange.edit e]}
 
+def ofTextEdit (uri : DocumentUri) (te : TextEdit) : WorkspaceEdit :=
+  { changes := RBMap.empty.insert uri #[te]}
+
 end WorkspaceEdit
 
 /-- An item to transfer a text document from the client to the server.

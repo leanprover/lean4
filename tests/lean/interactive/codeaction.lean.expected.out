@@ -1,0 +1,12 @@
+{"title": "hello world",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges": [],
+  "changes":
+  {"file://codeaction.lean":
+   [{"range":
+     {"start": {"line": 18, "character": 4},
+      "end": {"line": 18, "character": 4}},
+     "newText": "hello!!!"}]},
+  "changeAnnotations": {}},
+ "data": {"uri": "file://codeaction.lean"}}

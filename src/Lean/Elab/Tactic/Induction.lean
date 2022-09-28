@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 import Lean.Util.CollectFVars
+import Lean.AuxRecursor
 import Lean.Parser.Term
 import Lean.Meta.RecursorInfo
 import Lean.Meta.CollectMVars
@@ -31,6 +32,10 @@ private def getFirstAltLhs (alt : Syntax) : Syntax :=
 private def getAltName (alt : Syntax) : Name :=
   let lhs := getFirstAltLhs alt
   if !lhs[1].isOfKind ``Parser.Term.hole then lhs[1][1].getId.eraseMacroScopes else `_
+/-- Returns the `inductionAlt` `ident <|> hole` -/
+private def getAltNameStx (alt : Syntax) : Syntax :=
+  let lhs := getFirstAltLhs alt
+  if lhs[1].isOfKind ``Parser.Term.hole then lhs[1] else lhs[1][1]
 /-- Return `true` if the first LHS of the given alternative contains `@`. -/
 private def altHasExplicitModifier (alt : Syntax) : Bool :=
   let lhs := getFirstAltLhs alt
@@ -39,9 +44,6 @@ private def altHasExplicitModifier (alt : Syntax) : Bool :=
 private def getAltVars (alt : Syntax) : Array Syntax :=
   let lhs := getFirstAltLhs alt
   lhs[2].getArgs
-/-- Return the variable names in the first LHS of the given alternative. -/
-private def getAltVarNames (alt : Syntax) : Array Name :=
-  getAltVars  alt |>.map getNameOfIdent'
 private def getAltRHS (alt : Syntax) : Syntax :=
   alt[2]
 private def getAltDArrow (alt : Syntax) : Syntax :=
@@ -73,6 +75,18 @@ def evalAlt (mvarId : MVarId) (alt : Syntax) (remainingGoals : Array MVarId) : T
 -/
 namespace ElimApp
 
+structure Alt where
+  /-- The short name of the alternative, used in `| foo =>` cases -/
+  name      : Name
+  /-- A declaration corresponding to the inductive constructor.
+  (For custom recursors, the alternatives correspond to parameter names in the
+  recursor, so we may not have a declaration to point to.)
+  This is used for go-to-definition on the alternative name. -/
+  declName? : Option Name
+  /-- The subgoal metavariable for the alternative. -/
+  mvarId    : MVarId
+  deriving Inhabited
+
 structure Context where
   elimInfo : ElimInfo
   targets  : Array Expr -- targets provided by the user
@@ -82,7 +96,7 @@ structure State where
   targetPos : Nat := 0 -- current target at targetsStx
   f         : Expr
   fType     : Expr
-  alts      : Array (Name × MVarId) := #[]
+  alts      : Array Alt := #[]
   insts     : Array MVarId := #[]
 
 abbrev M := ReaderT Context $ StateRefT State TermElabM
@@ -102,7 +116,7 @@ private def getFType : M Expr := do
 
 structure Result where
   elimApp : Expr
-  alts    : Array (Name × MVarId) := #[]
+  alts    : Array Alt := #[]
   others  : Array MVarId := #[]
 
 /--
@@ -144,7 +158,9 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
         | _ =>
           let arg ← mkFreshExprSyntheticOpaqueMVar (← getArgExpectedType) (tag := appendTag tag binderName)
           let x   ← getBindingName
-          modify fun s => { s with alts := s.alts.push (x, arg.mvarId!) }
+          modify fun s =>
+            let declName? := elimInfo.altsInfo[s.alts.size]!.declName?
+            { s with alts := s.alts.push ⟨x, declName?, arg.mvarId!⟩ }
           addNewArg arg
       loop
     | _ =>
@@ -161,7 +177,7 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
     catch _ =>
       mvarId.setKind .syntheticOpaque
       others := others.push mvarId
-  let alts ← s.alts.filterM fun alt => return !(← alt.2.isAssigned)
+  let alts ← s.alts.filterM fun alt => return !(← alt.mvarId.isAssigned)
   return { elimApp := (← instantiateMVars s.f), alts, others := others }
 
 /-- Given a goal `... targets ... |- C[targets]` associated with `mvarId`, assign
@@ -181,14 +197,14 @@ private def getAltNumFields (elimInfo : ElimInfo) (altName : Name) : TermElabM N
       return altInfo.numFields
   throwError "unknown alternative name '{altName}'"
 
-private def checkAltNames (alts : Array (Name × MVarId)) (altsSyntax : Array Syntax) : TacticM Unit :=
+private def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : TacticM Unit :=
   for i in [:altsSyntax.size] do
     let altStx := altsSyntax[i]!
     if getAltName altStx == `_ && i != altsSyntax.size - 1 then
       withRef altStx <| throwError "invalid occurrence of wildcard alternative, it must be the last alternative"
     let altName := getAltName altStx
     if altName != `_ then
-      unless alts.any fun (n, _) => n == altName do
+      unless alts.any (·.name == altName) do
         throwErrorAt altStx "invalid alternative name '{altName}'"
 
 /-- Given the goal `altMVarId` for a given alternative that introduces `numFields` new variables,
@@ -231,7 +247,7 @@ private def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Ar
 
   2- The errors are produced in the same order the appear in the code above. This is not super important when using IDEs.
 -/
-def reorderAlts (alts : Array (Name × MVarId)) (altsSyntax : Array Syntax) : Array (Name × MVarId) := Id.run do
+def reorderAlts (alts : Array Alt) (altsSyntax : Array Syntax) : Array Alt := Id.run do
   if altsSyntax.isEmpty then
     return alts
   else
@@ -244,7 +260,7 @@ def reorderAlts (alts : Array (Name × MVarId)) (altsSyntax : Array Syntax) : Ar
       alts := alts.eraseIdx i
     return result ++ alts
 
-def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (optPreTac : Syntax) (altsSyntax : Array Syntax)
+def evalAlts (elimInfo : ElimInfo) (alts : Array Alt) (optPreTac : Syntax) (altsSyntax : Array Syntax)
     (initialInfo : Info)
     (numEqs : Nat := 0) (numGeneralized : Nat := 0) (toClear : Array FVarId := #[]) : TacticM Unit := do
   checkAltNames alts altsSyntax
@@ -260,13 +276,16 @@ where
     let mut usedWildcard := false
     let mut subgoals := #[] -- when alternatives are not provided, we accumulate subgoals here
     let mut altsSyntax := altsSyntax
-    for (altName, altMVarId) in alts do
+    for { name := altName, declName?, mvarId := altMVarId } in alts do
       let numFields ← getAltNumFields elimInfo altName
       let mut isWildcard := false
       let altStx? ←
         match altsSyntax.findIdx? (fun alt => getAltName alt == altName) with
         | some idx =>
           let altStx := altsSyntax[idx]!
+          if let some declName := declName? then
+            if (← getInfoState).enabled then
+              addConstInfo (getAltNameStx altStx) declName
           altsSyntax := altsSyntax.eraseIdx idx
           pure (some altStx)
         | none => match altsSyntax.findIdx? (fun alt => getAltName alt == `_) with
@@ -300,11 +319,11 @@ where
               pure (#[], usedWildcard)
             else
               throwError "alternative '{altName}' is not needed"
-          let altVarNames := getAltVarNames altStx
+          let altVars := getAltVars altStx
           let numFieldsToName ← if altHasExplicitModifier altStx then pure numFields else getNumExplicitFields altMVarId numFields
-          if altVarNames.size > numFieldsToName then
-            logError m!"too many variable names provided at alternative '{altName}', #{altVarNames.size} provided, but #{numFieldsToName} expected"
-          let mut (fvarIds, altMVarId) ← altMVarId.introN numFields altVarNames.toList (useNamesForExplicitOnly := !altHasExplicitModifier altStx)
+          if altVars.size > numFieldsToName then
+            logError m!"too many variable names provided at alternative '{altName}', #{altVars.size} provided, but #{numFieldsToName} expected"
+          let mut (fvarIds, altMVarId) ← altMVarId.introN numFields (altVars.toList.map getNameOfIdent') (useNamesForExplicitOnly := !altHasExplicitModifier altStx)
           saveAltVarsInfo altMVarId altStx fvarIds
           match (← Cases.unifyEqs? numEqs altMVarId {}) with
           | none => unusedAlt
@@ -450,7 +469,7 @@ private def checkAltsOfOptInductionAlts (optInductionAlts : Syntax) : TacticM Un
     for alt in getAltsOfInductionAlts optInductionAlts[0] do
       let n := getAltName alt
       if n == `_ then
-        unless (getAltVarNames alt).isEmpty do
+        unless (getAltVars alt).isEmpty do
           throwErrorAt alt "wildcard alternative must not specify variable names"
         if found then
           throwErrorAt alt "more than one wildcard alternative '| _ => ...' used"
@@ -477,11 +496,14 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
     if induction && indVal.isNested then
       throwError "'induction' tactic does not support nested inductive types, the eliminator '{mkRecName indVal.name}' has multiple motives"
     let elimName := if induction then mkRecName indVal.name else mkCasesOnName indVal.name
-    getElimInfo elimName
+    getElimInfo elimName indVal.name
   else
     let elimId := optElimId[1]
     let elimName ← withRef elimId do resolveGlobalConstNoOverloadWithInfo elimId
-    withRef elimId <| getElimInfo elimName
+    -- not a precise check, but covers the common cases of T.recOn / T.casesOn
+    -- as well as user defined T.myInductionOn to locate the constructors of T
+    let baseName? := if ← isInductive elimName.getPrefix then some elimName.getPrefix else none
+    withRef elimId <| getElimInfo elimName baseName?
 
 private def shouldGeneralizeTarget (e : Expr) : MetaM Bool := do
   if let .fvar fvarId .. := e then

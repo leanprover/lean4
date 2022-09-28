@@ -110,10 +110,8 @@ def mkFromJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
         let header ← mkHeader ``FromJson 0 ctx.typeInfos[0]!
         let fields := getStructureFieldsFlattened (← getEnv) declName (includeSubobjectFields := false)
         let getters ← fields.mapM (fun field => do
-          let jsonField := Prod.snd <| mkJsonField field
-          let quotedField : Term := quote field
-          let getter ← `(getObjValAs? j _ $jsonField)
-          let getter ← `(doElem| Except.mapError (fun s => (toString $(quote declName)) ++ "." ++ (toString $quotedField) ++ ": " ++ s) <| $getter)
+          let getter ← `(getObjValAs? j _ $(Prod.snd <| mkJsonField field))
+          let getter ← `(doElem| Except.mapError (fun s => (toString $(quote declName)) ++ "." ++ (toString $(quote field)) ++ ": " ++ s) <| $getter)
           return getter
         )
         let fields := fields.map mkIdent

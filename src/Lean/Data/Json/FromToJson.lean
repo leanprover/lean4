@@ -133,6 +133,14 @@ instance : FromJson Float where
     | (Json.num jn) => Except.ok jn.toFloat
     | _ => Except.error "Expected a number or a string 'Infinity', '-Infinity', 'NaN'."
 
+instance [ToJson α] : ToJson (RBMap String α cmp) where
+  toJson m := Json.obj <| RBNode.map (fun _ => toJson) <| m.val
+
+instance {cmp} [FromJson α] : FromJson (RBMap String α cmp) where
+  fromJson? j := do
+    let o ← j.getObj?
+    o.foldM (fun x k v => x.insert k <$> fromJson? v) ∅
+
 namespace Json
 
 instance : FromJson Structured := ⟨fun
@@ -149,6 +157,9 @@ def toStructured? [ToJson α] (v : α) : Except String Structured :=
 
 def getObjValAs? (j : Json) (α : Type u) [FromJson α] (k : String) : Except String α :=
   fromJson? <| j.getObjValD k
+
+def setObjValAs! (j : Json) {α : Type u} [ToJson α] (k : String) (v : α) : Json :=
+  j.setObjVal! k <| toJson v
 
 def opt [ToJson α] (k : String) : Option α → List (String × Json)
   | none   => []

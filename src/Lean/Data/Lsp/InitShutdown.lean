@@ -21,6 +21,10 @@ structure ClientInfo where
   version? : Option String := none
   deriving ToJson, FromJson
 
+/--
+A TraceValue represents the level of verbosity with which the server systematically reports its execution trace using `$/logTrace` notifications.
+[reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#traceValue)
+-/
 inductive Trace where
   | off
   | messages

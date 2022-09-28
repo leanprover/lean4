@@ -93,4 +93,7 @@ instance : FileSource RpcReleaseParams where
 instance : FileSource RpcKeepAliveParams where
   fileSource p := p.uri
 
+instance : FileSource CodeActionParams where
+  fileSource p := fileSource p.textDocument
+
 end Lean.Lsp

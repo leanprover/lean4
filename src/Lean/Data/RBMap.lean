@@ -336,7 +336,7 @@ instance [Repr α] [Repr β] : Repr (RBMap α β cmp) where
 @[inline] def lowerBound : RBMap α β cmp → α → Option (Sigma (fun (_ : α) => β))
   | ⟨t, _⟩, x => t.lowerBound cmp x none
 
-/-- Returns true if the given key `a` is in the RBMap.-/
+/-- Returns true if the given key `a` is in the RBMap. -/
 @[inline] def contains (t : RBMap α β cmp) (a : α) : Bool :=
   (t.find? a).isSome
 
@@ -371,7 +371,7 @@ def maxDepth (t : RBMap α β cmp) : Nat :=
   | some p => p
   | none   => panic! "map is empty"
 
-/-- Attempts to find the value with key `k : α` in `t` and panics if there is no such key.-/
+/-- Attempts to find the value with key `k : α` in `t` and panics if there is no such key. -/
 @[inline] def find! [Inhabited β] (t : RBMap α β cmp) (k : α) : β :=
   match t.find? k with
   | some b => b

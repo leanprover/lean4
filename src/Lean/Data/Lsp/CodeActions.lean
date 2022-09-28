@@ -65,7 +65,7 @@ structure CodeActionContext where
     the error state of the resource. The primary parameter
     to compute code actions is the provided range.
   -/
-  diagnostics : Array Diagnostic
+  diagnostics : Array Diagnostic := #[]
   /-- Requested kind of actions to return.
 
     Actions not of this kind are filtered out by the client before being
@@ -80,7 +80,7 @@ structure CodeActionContext where
 structure CodeActionParams extends WorkDoneProgressParams, PartialResultParams where
   textDocument : TextDocumentIdentifier
   range        : Range
-  context      : CodeActionContext
+  context      : CodeActionContext := {}
   deriving FromJson, ToJson
 
 /-- If the code action is disabled, this type gives the reson why. -/
@@ -130,7 +130,7 @@ structure CodeAction extends WorkDoneProgressParams, PartialResultParams where
   /-- A data entry field that is preserved on a code action between a `textDocument/codeAction` and a `codeAction/resolve` request.
   In particular, for Lean-created commands we expect `data` to have a `uri : DocumentUri` field so that `FileSource` can be implemented.
    -/
-  data?        : Option CodeActionData := none
+  data         : CodeActionData
   deriving ToJson, FromJson
 
 structure ResolveSupport where

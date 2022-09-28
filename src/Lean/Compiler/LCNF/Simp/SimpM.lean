@@ -228,16 +228,38 @@ def shouldInlineLocal (decl : FunDecl) : SimpM Bool := do
     isSmall decl
 
 /--
-"Beta-reduce" `(fun params => code) args`.
+LCNF "Beta-reduce". The equivalent of `(fun params => code) args`.
 If `mustInline` is true, the local function declarations in the resulting code are marked as `.mustInline`.
 See comment at `updateFunDeclInfo`.
 -/
 def betaReduce (params : Array Param) (code : Code) (args : Array Expr) (mustInline := false) : SimpM Code := do
-  -- TODO: add necessary casts to `args`
   let mut subst := {}
+  let mut castDecls := #[]
   for param in params, arg in args do
-    subst := subst.insert param.fvarId arg
+    /-
+    If `param` hast type `⊤` but `arg` does not, we must insert a cast.
+    Otherwise, the resulting code may be type incorrect.
+    For example, the following code is type correct before inlining `f`
+    because `x : ⊤`.
+    ```
+    def foo (g : A → A) (a : B) :=
+      fun f (x : ⊤) :=
+        let _x.1 := g x
+        ...
+      let _x.2 := f a
+      ...
+    ```
+    We must introduce a cast around `a` to make sure the resulting expression is type correct.
+    -/
+    if param.type.isAnyType && !(← inferType arg).isAnyType then
+      let castArg ← mkLcCast arg anyTypeExpr
+      let castDecl ← mkAuxLetDecl castArg
+      castDecls := castDecls.push (CodeDecl.let castDecl)
+      subst := subst.insert param.fvarId (.fvar castDecl.fvarId)
+    else
+      subst := subst.insert param.fvarId arg
   let code ← code.internalize subst
+  let code := LCNF.attachCodeDecls castDecls code
   updateFunDeclInfo code mustInline
   return code
 

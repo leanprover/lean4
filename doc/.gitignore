@@ -1,1 +1,7 @@
-out
+BoolExpr.lean.md
+metaprogramming-arith.lean.md
+syntax_example.lean.md
+build.ninja
+out/
+.ninja_log
+__pycache__/

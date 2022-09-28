@@ -14,7 +14,8 @@ open Lsp
 open RequestM
 open Snapshots
 
-/-- A code action provider is a function for getting LSP code actions for vscode. You can register them with the `@[codeActionProvider]` attribute.
+/-- A code action provider is a function for providing LSP code actions for an editor.
+You can register them with the `@[codeActionProvider]` attribute.
 
 This is a low-level interface for making LSP code actions.
 This interface can be used to implement the following applications:
@@ -62,7 +63,7 @@ private opaque evalCodeActionProvider [MonadEnv M] [MonadOptions M] [MonadError 
 
 /-- Handles a `textDocument/codeAction` request.
 
-This is implemented by polling all of the registered CodeActionProvider functions.
+This is implemented by calling all of the registered `CodeActionProvider` functions.
 
 [reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_codeAction). -/
 def handleCodeAction (params : CodeActionParams) : RequestM (RequestTask (Array CodeAction)) := do

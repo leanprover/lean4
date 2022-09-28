@@ -133,7 +133,7 @@ instance : FromJson Float where
     | (Json.num jn) => Except.ok jn.toFloat
     | _ => Except.error "Expected a number or a string 'Infinity', '-Infinity', 'NaN'."
 
-instance {cmp} [ToJson α]: ToJson (RBMap String α cmp) where
+instance [ToJson α] : ToJson (RBMap String α cmp) where
   toJson m := Json.obj <| RBNode.map (fun _ => toJson) <| m.val
 
 instance {cmp} [FromJson α] : FromJson (RBMap String α cmp) where

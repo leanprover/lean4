@@ -109,7 +109,7 @@ instance : ToJson TextEditBatch :=
 instance : EmptyCollection TextEditBatch := ⟨#[]⟩
 
 instance : Append TextEditBatch :=
-  show Append (Array TextEdit) by infer_instance
+  inferInstanceAs (Append (Array _))
 
 instance : Coe TextEdit TextEditBatch where
   coe te := #[te]

@@ -35,6 +35,11 @@ def InfoTree.collectNodesBottomUp (p : ContextInfo → Info → PersistentArray 
   i.visitM (m := Id) (postNode := fun ci i cs as => p ci i cs (as.filterMap id).join) |>.getD []
 
 /--
+  Visit nodes bottom-up, passing in a surrounding context (the innermost one) and the union of nested results (empty at leaves). -/
+def InfoTree.collectNodesBottomUpM [Monad m] (p : ContextInfo → Info → PersistentArray InfoTree → List α → m (List α)) (i : InfoTree) : m (List α) := do
+  let o ← i.visitM (postNode := fun ci i cs as => p ci i cs (as.filterMap id).join)
+  return o.getD []
+/--
   For every branch of the `InfoTree`, find the deepest node in that branch for which `p` returns
   `some _`  and return the union of all such nodes. The visitor `p` is given a node together with
   its innermost surrounding `ContextInfo`. -/

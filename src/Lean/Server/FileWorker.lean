@@ -23,6 +23,7 @@ import Lean.Server.References
 import Lean.Server.FileWorker.Utils
 import Lean.Server.FileWorker.RequestHandling
 import Lean.Server.FileWorker.WidgetRequests
+
 import Lean.Server.Rpc.Basic
 import Lean.Widget.InteractiveDiagnostic
 
@@ -137,7 +138,7 @@ section Elab
       return AsyncList.ofList snaps.toList ++ (← AsyncList.unfoldAsync (nextCmdSnap ctx m cancelTk) { snaps })
 end Elab
 
--- Pending requests are tracked so they can be cancelled
+/-- A map from RequestIDs to tasks. Requests are tracked so that they may be cancelled. -/
 abbrev PendingRequestMap := RBMap RequestID (Task (Except IO.Error Unit)) compare
 
 structure WorkerState where
@@ -424,7 +425,10 @@ section MainLoop
   partial def mainLoop : WorkerM Unit := do
     let ctx ← read
     let mut st ← get
+    -- block until a new message is available
     let msg ← ctx.hIn.readLspMessage
+
+    -- If the given task is done, erase it from PendingRequestMap.
     let filterFinishedTasks (acc : PendingRequestMap) (id : RequestID) (task : Task (Except IO.Error Unit))
         : IO PendingRequestMap := do
       if (← hasFinished task) then

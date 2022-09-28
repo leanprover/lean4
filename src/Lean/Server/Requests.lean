@@ -63,11 +63,12 @@ structure RequestContext where
   initParams    : Lsp.InitializeParams
 
 abbrev RequestTask α := Task (Except RequestError α)
+
+def RequestTask.pure (a : α) : RequestTask α := Task.pure <| Except.ok a
+
 abbrev RequestT m := ReaderT RequestContext <| ExceptT RequestError m
 /-- Workers execute request handlers in this monad. -/
 abbrev RequestM := ReaderT RequestContext <| EIO RequestError
-
-abbrev RequestTask.pure (a : α) : RequestTask α := .pure (.ok a)
 
 instance : MonadLift IO RequestM where
   monadLift x := do

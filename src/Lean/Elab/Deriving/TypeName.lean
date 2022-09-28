@@ -23,3 +23,6 @@ private def deriveTypeNameInstance (declNames : Array Name) : CommandElabM Bool 
 
 initialize
   registerDerivingHandler ``TypeName deriveTypeNameInstance
+
+deriving instance TypeName for String
+instance : Inhabited Dynamic := ⟨Dynamic.mk ""⟩

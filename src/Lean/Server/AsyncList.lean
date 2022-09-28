@@ -24,14 +24,19 @@ instance : Inhabited (AsyncList ε α) := ⟨nil⟩
 
 -- TODO(WN): tail-recursion without forcing sync?
 partial def append : AsyncList ε α → AsyncList ε α → AsyncList ε α
-  | cons hd tl, s => cons hd (append tl s)
-  | delayed ttl, s => delayed (ttl.map $ Except.map (append · s))
+  | cons hd tl, s => cons hd <| append tl s
+  | delayed ttl, s => delayed <| ttl.map <| Except.map (append · s)
   | nil, s => s
 
 instance : Append (AsyncList ε α) := ⟨append⟩
 
 def ofList : List α → AsyncList ε α :=
   List.foldr AsyncList.cons AsyncList.nil
+
+/-- Convert a list of tasks to an async list by waiting for each task in sequence. -/
+def ofTaskList : List (Task α) → AsyncList ε α
+  | [] => nil
+  | h :: t => delayed <| h.map fun h => .ok <| cons h <| ofTaskList t
 
 instance : Coe (List α) (AsyncList ε α) := ⟨ofList⟩
 

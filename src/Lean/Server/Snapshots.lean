@@ -60,6 +60,7 @@ def env (s : Snapshot) : Environment :=
 def msgLog (s : Snapshot) : MessageLog :=
   s.cmdState.messages
 
+/-- Get all of the LSP diagnostics for a snapshot. -/
 def diagnostics (s : Snapshot) : PersistentArray Lsp.Diagnostic :=
   s.interactiveDiags.map fun d => d.toDiagnostic
 

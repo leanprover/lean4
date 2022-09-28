@@ -29,6 +29,7 @@ instance : ToExpr Position where
 
 end Position
 
+/-- `FileMap` is a helper structure for mapping `String.Pos` in the input string to line/column information. -/
 structure FileMap where
   source    : String
   positions : Array String.Pos

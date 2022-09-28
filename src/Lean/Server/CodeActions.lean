@@ -29,10 +29,10 @@ When implementing your own `CodeActionProvider`, we assume that no long-running 
 If you need to create a code-action with a long-running computation, we suggest the following approach:
 
 Wrap the long-running computation in a tactic or macro which itself suggests a code action.
-   This means that the long-running computation will be handled in the normal document processing thread.
-   For example, suppose that you want to run some machine learning to suggest the next lemma to use.
-   Rather than run the heavy ML computation in the CodeActionProvider, you could suggest a `by try-ml` tactic. Which once elaborated by Lean will suggest a new lemma.
- -/
+This means that the long-running computation will be handled in the normal document processing thread.
+For example, suppose that you want to run some machine learning to suggest the next lemma to use.
+Rather than run the heavy ML computation in the CodeActionProvider, you could suggest a `by try_ml` tactic. Which once elaborated by Lean will suggest a new lemma.
+-/
 def CodeActionProvider := CodeActionParams → RequestM (RequestTask (Array CodeAction))
 deriving instance Inhabited for CodeActionProvider
 
@@ -72,11 +72,10 @@ def handleCodeAction (params : CodeActionParams) : RequestM (RequestTask (Array 
   bindWaitFindSnap doc (fun s => s.endPos ≥ pos)
     (notFoundX := return RequestTask.pure #[])
     fun snap => do
-      let caps ← RequestM.runCoreM snap (do
+      let caps ← RequestM.runCoreM snap do
         let env ← getEnv
         let names := codeActionProviderExt.getState env
-        names.foldM (fun b n => b.push <$> evalCodeActionProvider n ) #[]
-      )
+        names.mapM evalCodeActionProvider
       have : Monad Task := {bind := Task.bind, pure := Task.pure}
       have : Monad RequestTask := show Monad (ExceptT _ Task) by infer_instance
       let tasks : Array (RequestTask _) ← caps.mapM (· <| params)

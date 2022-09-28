@@ -7,7 +7,7 @@ import Lake.Util.DRBMap
 import Lake.Util.Family
 import Lake.Util.Store
 
-open Std Lean
+open Lean
 namespace Lake
 
 instance [Monad m] [EqOfCmpWrt κ β cmp] : MonadDStore κ β (StateT (DRBMap κ β cmp) m) where

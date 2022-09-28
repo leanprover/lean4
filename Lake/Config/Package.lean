@@ -12,7 +12,7 @@ import Lake.Config.Dependency
 import Lake.Config.Script
 import Lake.Util.DRBMap
 
-open Std System Lean
+open System Lean
 
 namespace Lake
 

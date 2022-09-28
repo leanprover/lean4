@@ -7,7 +7,7 @@ import Lake.Build.Trace
 import Lake.Config.LeanLib
 
 namespace Lake
-open Std System
+open Lean System
 
 /-- A buildable Lean module of a `LeanLib`. -/
 structure Module where

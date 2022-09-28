@@ -7,11 +7,11 @@ import Lean.Data.RBMap
 import Lake.Util.Compare
 
 namespace Lake
-open Std RBNode
+open Lean RBNode
 
 /-!
-This module includes a dependently typed adaption of the `Std.RBMap`
-defined in `Std.Data.RBMap` module of the Lean core. Most of the code is
+This module includes a dependently typed adaption of the `Lean.RBMap`
+defined in `Lean.Data.RBMap` module of the Lean core. Most of the code is
 copied directly from there with only minor edits.
 -/
 

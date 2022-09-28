@@ -7,7 +7,7 @@ import Lake.Util.Git
 import Lake.Load.Manifest
 import Lake.Config.Dependency
 
-open Std System Lean
+open System Lean
 
 namespace Lake
 

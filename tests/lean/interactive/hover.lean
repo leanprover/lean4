@@ -215,3 +215,24 @@ example : α → α := by my_intro x; assumption
                              --^ textDocument/hover
 example : α → α := by my_intro _; assumption
                              --^ textDocument/hover
+
+example : Nat → True := by
+  intro x
+      --^ textDocument/hover
+  cases x with
+  | zero => trivial
+  --^ textDocument/hover
+  --v textDocument/hover
+  | succ x => trivial
+       --^ textDocument/hover   -- TODO: broken
+
+example : Nat → True := by
+  intro x
+      --^ textDocument/hover
+  induction x with
+  | zero => trivial
+  --^ textDocument/hover
+       -- TODO: the next two are broken
+       --v textDocument/hover
+  | succ _ ih => exact ih
+         --^ textDocument/hover

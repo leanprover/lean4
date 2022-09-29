@@ -36,9 +36,6 @@ Rather than run the heavy ML computation in the CodeActionProvider, you could su
 def CodeActionProvider := CodeActionParams → RequestM (RequestTask (Array CodeAction))
 deriving instance Inhabited for CodeActionProvider
 
-def CodeActionResolver := CodeAction → RequestM (RequestTask CodeAction)
-deriving instance Inhabited for CodeActionResolver
-
 builtin_initialize codeActionProviderExt : SimplePersistentEnvExtension Name NameSet ← registerSimplePersistentEnvExtension {
   name := `codeActionProviderExt,
   addImportedFn := fun nss => nss.foldl (fun acc ns => ns.foldl NameSet.insert acc) ∅

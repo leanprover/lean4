@@ -108,6 +108,11 @@ variable {σ : Type} {m : Type → Type} [Monad m] [MonadLiftT (ST σ) m]
 @[inline] def Ref.modify {α : Type} (r : Ref σ α) (f : α → α) : m Unit := liftM <| Prim.Ref.modify r f
 @[inline] def Ref.modifyGet {α : Type} {β : Type} (r : Ref σ α) (f : α → β × α) : m β := liftM <| Prim.Ref.modifyGet r f
 
+def Ref.toMonadStateOf (r : Ref σ α) : MonadStateOf α m where
+  get := r.get
+  set := r.set
+  modifyGet := r.modifyGet
+
 end
 
 end ST

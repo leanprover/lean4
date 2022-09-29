@@ -268,6 +268,15 @@ def setObjVal! : Json → String → Json → Json
   | obj kvs, k, v => obj <| kvs.insert compare k v
   | _      , _, _ => panic! "Json.setObjVal!: not an object: {j}"
 
+open Lean.RBNode in
+/-- Assuming both inputs `o₁, o₂` are json objects, will compute `{...o₁, ...o₂}`.
+If `o₁` is not a json object, `o₂` will be returned.
+-/
+def mergeObj : Json → Json → Json
+  | obj kvs₁, obj kvs₂ =>
+    obj <| fold (insert compare) kvs₁ kvs₂
+  | _, j₂ => j₂
+
 inductive Structured where
   | arr (elems : Array Json)
   | obj (kvPairs : RBNode String (fun _ => Json))

@@ -5,8 +5,11 @@
   [{"textDocument": {"version": 0, "uri": "file://codeaction.lean"},
     "edits":
     [{"range":
-      {"start": {"line": 17, "character": 4},
-       "end": {"line": 17, "character": 4}},
+      {"start": {"line": 29, "character": 4},
+       "end": {"line": 29, "character": 4}},
       "newText": "hello!!!"}]}],
   "changes": {},
   "changeAnnotations": {}}}
+{"title": "a long-running action",
+ "kind": "refactor",
+ "data": {"uri": "file://codeaction.lean", "resolverId": "1"}}

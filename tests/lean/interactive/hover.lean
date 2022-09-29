@@ -236,3 +236,11 @@ example : Nat → True := by
        --v textDocument/hover
   | succ _ ih => exact ih
          --^ textDocument/hover
+
+example : Nat → Nat
+    --v textDocument/hover
+  | .zero => .zero
+             --^ textDocument/hover
+    --v textDocument/hover
+  | .succ x => .succ x
+               --^ textDocument/hover

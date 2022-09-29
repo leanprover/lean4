@@ -1092,8 +1092,8 @@ def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Op
     let e := removeSaveInfoAnnotation e
     return Sum.inl <| Info.ofTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), expr := e, stx, expectedType?, isBinder }
 
-def addTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none) (elaborator := Name.anonymous) (isBinder := false) : TermElabM Expr := do
-  if (← read).inPattern then
+def addTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none) (elaborator := Name.anonymous) (isBinder := false) (force := false) : TermElabM Expr := do
+  if (← read).inPattern && !force then
     return mkPatternWithRef e stx
   else
     withInfoContext' (pure ()) (fun _ => mkTermInfo elaborator stx e expectedType? lctx? isBinder) |> discard
@@ -1552,7 +1552,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
   let currNamespace ← getCurrNamespace
   let view := extractMacroScopes n
   /- Simple case. "Match" function for regular local declarations. -/
-  let matchLocaDecl? (localDecl : LocalDecl) (givenName : Name) : Option LocalDecl := do
+  let matchLocalDecl? (localDecl : LocalDecl) (givenName : Name) : Option LocalDecl := do
     guard (localDecl.userName == givenName)
     return localDecl
   /-
@@ -1648,9 +1648,9 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
         if let some fullDeclName := auxDeclToFullName.find? localDecl.fvarId then
           matchAuxRecDecl? localDecl fullDeclName givenNameView
         else
-          matchLocaDecl? localDecl givenName
+          matchLocalDecl? localDecl givenName
       else
-        matchLocaDecl? localDecl givenName
+        matchLocalDecl? localDecl givenName
     if localDecl?.isSome || skipAuxDecl then
       localDecl?
     else
@@ -1658,7 +1658,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
       lctx.decls.findSomeRev? fun localDecl? => do
         let localDecl ← localDecl?
         guard (localDecl.binderInfo == .auxDecl)
-        matchLocaDecl? localDecl givenName
+        matchLocalDecl? localDecl givenName
   let rec loop (n : Name) (projs : List String) :=
     let givenNameView := { view with name := n }
     /- We do not consider dot notation for local decls corresponding to recursive functions being defined.
@@ -1701,10 +1701,10 @@ def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM E
 
 private def mkConsts (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
   candidates.foldlM (init := []) fun result (declName, projs) => do
-   -- TODO: better suppor for `mkConst` failure. We may want to cache the failures, and report them if all candidates fail.
-   checkDeprecated declName -- TODO: check is occurring too early if there are multiple alternatives. Fix if it is not ok in practice
-   let const ← mkConst declName explicitLevels
-   return (const, projs) :: result
+    -- TODO: better support for `mkConst` failure. We may want to cache the failures, and report them if all candidates fail.
+    checkDeprecated declName -- TODO: check is occurring too early if there are multiple alternatives. Fix if it is not ok in practice
+    let const ← mkConst declName explicitLevels
+    return (const, projs) :: result
 
 def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × List String)) := do
   addCompletionInfo <| CompletionInfo.id stx stx.getId (danglingDot := false) (← getLCtx) expectedType?

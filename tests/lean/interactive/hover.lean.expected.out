@@ -475,3 +475,37 @@ null
  {"start": {"line": 236, "character": 11},
   "end": {"line": 236, "character": 13}},
  "contents": {"value": "```lean\nih : True\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 241, "character": 6}}
+{"range":
+ {"start": {"line": 241, "character": 4}, "end": {"line": 241, "character": 9}},
+ "contents":
+ {"value":
+  "```lean\nNat.zero : ℕ\n```\n***\n`Nat.zero`, normally written `0 : Nat`, is the smallest natural number.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 241, "character": 15}}
+{"range":
+ {"start": {"line": 241, "character": 13},
+  "end": {"line": 241, "character": 18}},
+ "contents":
+ {"value":
+  "```lean\nNat.zero : ℕ\n```\n***\n`Nat.zero`, normally written `0 : Nat`, is the smallest natural number.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 244, "character": 6}}
+{"range":
+ {"start": {"line": 244, "character": 4}, "end": {"line": 244, "character": 9}},
+ "contents":
+ {"value":
+  "```lean\nNat.succ : ℕ → ℕ\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 244, "character": 17}}
+{"range":
+ {"start": {"line": 244, "character": 15},
+  "end": {"line": 244, "character": 20}},
+ "contents":
+ {"value":
+  "```lean\nNat.succ : ℕ → ℕ\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
+  "kind": "markdown"}}

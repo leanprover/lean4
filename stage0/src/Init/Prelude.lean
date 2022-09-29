@@ -2341,6 +2341,10 @@ instance (p₁ p₂ : String.Pos) : Decidable (LT.lt p₁ p₂) :=
   startPos := {}
   stopPos  := s.endPos
 
+/-- `String.toSubstring` without `[inline]` annotation. -/
+def String.toSubstring' (s : String) : Substring :=
+  s.toSubstring
+
 /--
 This function will cast a value of type `α` to type `β`, and is a no-op in the
 compiler. This function is **extremely dangerous** because there is no guarantee
@@ -3363,7 +3367,39 @@ abbrev mkNum (p : Name) (v : Nat) : Name :=
 Short for `.str .anonymous s`.
 -/
 abbrev mkSimple (s : String) : Name :=
-  mkStr Name.anonymous s
+  .str .anonymous s
+
+/-- Make name `s₁` -/
+def mkStr1 (s₁ : String) : Name :=
+  .str .anonymous s₁
+
+/-- Make name `s₁.s₂` -/
+def mkStr2 (s₁ s₂ : String) : Name :=
+  .str (.str .anonymous s₁) s₂
+
+/-- Make name `s₁.s₂.s₃` -/
+def mkStr3 (s₁ s₂ s₃ : String) : Name :=
+  .str (.str (.str .anonymous s₁) s₂) s₃
+
+/-- Make name `s₁.s₂.s₃.s₄` -/
+def mkStr4 (s₁ s₂ s₃ s₄ : String) : Name :=
+  .str (.str (.str (.str .anonymous s₁) s₂) s₃) s₄
+
+/-- Make name `s₁.s₂.s₃.s₄.s₅` -/
+def mkStr5 (s₁ s₂ s₃ s₄ s₅ : String) : Name :=
+  .str (.str (.str (.str (.str .anonymous s₁) s₂) s₃) s₄) s₅
+
+/-- Make name `s₁.s₂.s₃.s₄.s₅.s₆` -/
+def mkStr6 (s₁ s₂ s₃ s₄ s₅ s₆ : String) : Name :=
+  .str (.str (.str (.str (.str (.str .anonymous s₁) s₂) s₃) s₄) s₅) s₆
+
+/-- Make name `s₁.s₂.s₃.s₄.s₅.s₆.s₇` -/
+def mkStr7 (s₁ s₂ s₃ s₄ s₅ s₆ s₇ : String) : Name :=
+  .str (.str (.str (.str (.str (.str (.str .anonymous s₁) s₂) s₃) s₄) s₅) s₆) s₇
+
+/-- Make name `s₁.s₂.s₃.s₄.s₅.s₆.s₇.s₈` -/
+def mkStr8 (s₁ s₂ s₃ s₄ s₅ s₆ s₇ s₈ : String) : Name :=
+  .str (.str (.str (.str (.str (.str (.str (.str .anonymous s₁) s₂) s₃) s₄) s₅) s₆) s₇) s₈
 
 /-- (Boolean) equality comparator for names. -/
 @[extern "lean_name_eq"]

@@ -86,6 +86,7 @@ LEAN_EXPORT lean_object* l_ReaderT_pure___at_Lean_PrettyPrinter_instMonadQuotati
 LEAN_EXPORT lean_object* l_Lean_Syntax_matchesLit___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableLePosInstLEPos___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instMonadQuotation___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Name_mkStr1(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_set___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_sequenceMap_loop___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -158,6 +159,7 @@ static lean_object* l_USize_size___closed__1;
 static lean_object* l_Lean_Macro_instInhabitedMethods___closed__3;
 LEAN_EXPORT lean_object* l_instInhabitedNat;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedMacroScopesView;
+LEAN_EXPORT lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lean_instHashableName___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Name_casesOn___override(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedParserDescr;
@@ -171,6 +173,7 @@ LEAN_EXPORT lean_object* l_Lean_instMonadQuotation(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_interpolatedStrKind;
 LEAN_EXPORT lean_object* l_Monad_seqRight___default___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedTSyntax(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_pow(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadLiftT__1___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_instGetElemSyntaxNatTrue(lean_object*, lean_object*, lean_object*);
@@ -200,6 +203,7 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT lean_object* l_cond___rarg(uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkAtom(lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_instInhabitedEStateM(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Name_mkStr5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_adapt___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_UInt8_ofNatCore___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_False_elim(lean_object*, uint8_t);
@@ -289,6 +293,7 @@ LEAN_EXPORT lean_object* l_EStateM_instMonadEStateM___lambda__1(lean_object*, le
 LEAN_EXPORT lean_object* l_modifyThe___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instDecidableNot___rarg(uint8_t);
 LEAN_EXPORT lean_object* l_EStateM_get___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Name_mkStr8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 static lean_object* l_Lean_interpolatedStrLitKind___closed__1;
 static lean_object* l_Lean_Macro_instInhabitedMethods___closed__1;
@@ -391,6 +396,7 @@ LEAN_EXPORT lean_object* l_Array_mkEmpty___boxed(lean_object*, lean_object*);
 static lean_object* l_EStateM_nonBacktrackable___closed__1;
 LEAN_EXPORT lean_object* l_Lean_choiceKind;
 LEAN_EXPORT lean_object* l_panic___at___private_Init_Prelude_0__Lean_extractImported___spec__1(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Name_mkStr7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_charLitKind;
 LEAN_EXPORT lean_object* l_EStateM_instMonadStateOfEStateM(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_hasDecEq(lean_object*);
@@ -627,6 +633,7 @@ LEAN_EXPORT lean_object* l_instDecidableEqUInt64___boxed(lean_object*, lean_obje
 LEAN_EXPORT uint8_t l_instDecidableEqUInt32(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_panic___rarg(lean_object*, lean_object*);
 uint64_t lean_usize_to_uint64(size_t);
+LEAN_EXPORT lean_object* l_String_toSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_Array_appendCore___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_instMonadExceptOfEStateM___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableEqUSize___boxed(lean_object*, lean_object*);
@@ -635,6 +642,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHMul___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_mul___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Macro_throwUnsupported___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Name_mkStr6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instInhabitedExcept___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_pure(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Macro_instMonadQuotationMacroM___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -793,6 +801,7 @@ LEAN_EXPORT lean_object* l_instDecidableNot___rarg___boxed(lean_object*);
 LEAN_EXPORT uint16_t l_instInhabitedUInt16;
 LEAN_EXPORT lean_object* l_String_Pos_byteIdx___default;
 LEAN_EXPORT lean_object* l_Option_getD___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instGetElemArrayNatLtInstLTNatSize___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_pure(lean_object*, lean_object*);
 lean_object* lean_uint16_to_nat(uint16_t);
@@ -4002,6 +4011,19 @@ return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_String_toSubstring(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = lean_string_utf8_byte_size(x_1);
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_3);
+lean_ctor_set(x_4, 2, x_2);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_String_toSubstring_x27(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -7436,6 +7458,106 @@ lean_object* x_2; lean_object* x_3;
 x_2 = lean_box(0);
 x_3 = l_Lean_Name_str___override(x_2, x_1);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Name_mkStr1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_box(0);
+x_3 = l_Lean_Name_str___override(x_2, x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Name_mkStr2(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_box(0);
+x_4 = l_Lean_Name_str___override(x_3, x_1);
+x_5 = l_Lean_Name_str___override(x_4, x_2);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Name_mkStr3(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_4 = lean_box(0);
+x_5 = l_Lean_Name_str___override(x_4, x_1);
+x_6 = l_Lean_Name_str___override(x_5, x_2);
+x_7 = l_Lean_Name_str___override(x_6, x_3);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Name_mkStr4(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_5 = lean_box(0);
+x_6 = l_Lean_Name_str___override(x_5, x_1);
+x_7 = l_Lean_Name_str___override(x_6, x_2);
+x_8 = l_Lean_Name_str___override(x_7, x_3);
+x_9 = l_Lean_Name_str___override(x_8, x_4);
+return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Name_mkStr5(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_6 = lean_box(0);
+x_7 = l_Lean_Name_str___override(x_6, x_1);
+x_8 = l_Lean_Name_str___override(x_7, x_2);
+x_9 = l_Lean_Name_str___override(x_8, x_3);
+x_10 = l_Lean_Name_str___override(x_9, x_4);
+x_11 = l_Lean_Name_str___override(x_10, x_5);
+return x_11;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Name_mkStr6(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_7 = lean_box(0);
+x_8 = l_Lean_Name_str___override(x_7, x_1);
+x_9 = l_Lean_Name_str___override(x_8, x_2);
+x_10 = l_Lean_Name_str___override(x_9, x_3);
+x_11 = l_Lean_Name_str___override(x_10, x_4);
+x_12 = l_Lean_Name_str___override(x_11, x_5);
+x_13 = l_Lean_Name_str___override(x_12, x_6);
+return x_13;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Name_mkStr7(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+x_8 = lean_box(0);
+x_9 = l_Lean_Name_str___override(x_8, x_1);
+x_10 = l_Lean_Name_str___override(x_9, x_2);
+x_11 = l_Lean_Name_str___override(x_10, x_3);
+x_12 = l_Lean_Name_str___override(x_11, x_4);
+x_13 = l_Lean_Name_str___override(x_12, x_5);
+x_14 = l_Lean_Name_str___override(x_13, x_6);
+x_15 = l_Lean_Name_str___override(x_14, x_7);
+return x_15;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Name_mkStr8(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_9 = lean_box(0);
+x_10 = l_Lean_Name_str___override(x_9, x_1);
+x_11 = l_Lean_Name_str___override(x_10, x_2);
+x_12 = l_Lean_Name_str___override(x_11, x_3);
+x_13 = l_Lean_Name_str___override(x_12, x_4);
+x_14 = l_Lean_Name_str___override(x_13, x_5);
+x_15 = l_Lean_Name_str___override(x_14, x_6);
+x_16 = l_Lean_Name_str___override(x_15, x_7);
+x_17 = l_Lean_Name_str___override(x_16, x_8);
+return x_17;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Name_beq___boxed(lean_object* x_1, lean_object* x_2) {

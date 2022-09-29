@@ -72,4 +72,13 @@ def forEachDecl (f : Decl → CoreM Unit) : CoreM Unit := do
       f decl
   baseExt.getState env |>.forM fun _ decl => f decl
 
+def forEachModuleDecl (moduleName : Name) (f : Decl → CoreM Unit) : CoreM Unit := do
+  let env ← getEnv
+  let some modIdx := env.getModuleIdx? moduleName | throwError "module `{moduleName}` not found"
+  for decl in baseExt.getModuleEntries env modIdx do
+    f decl
+
+def forEachMainModuleDecl (f : Decl → CoreM Unit) : CoreM Unit := do
+  baseExt.getState (← getEnv) |>.forM fun _ decl => f decl
+
 end Lean.Compiler.LCNF

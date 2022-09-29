@@ -11,8 +11,7 @@ def helloProvider : CodeActionProvider := fun (params : CodeActionParams) => do
     edit? := WorkspaceEdit.ofTextEdit uri {
       range := params.range,
       newText := "hello!!!",
-    },
-    data := {uri}
+    }
   }]
 
 theorem asdf : (x : Nat) → x = x := by

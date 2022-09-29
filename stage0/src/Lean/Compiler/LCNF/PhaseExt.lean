@@ -54,8 +54,16 @@ def getDeclAt? (declName : Name) (phase : Phase) : CoreM (Option Decl) :=
 def getDecl? (declName : Name) : CompilerM (Option Decl) := do
   getDeclAt? declName (← getPhase)
 
+def normalizeFVarIds (decl : Decl) : CoreM Decl := do
+  let ngenSaved ← getNGen
+  setNGen {}
+  try
+    CompilerM.run <| decl.internalize
+  finally
+    setNGen ngenSaved
+
 def saveBase : Pass :=
-  .mkPerDeclaration `saveBase (fun decl => do decl.saveBase; return decl) .base
+  .mkPerDeclaration `saveBase (fun decl => do (← normalizeFVarIds decl).saveBase; return decl) .base
 
 def forEachDecl (f : Decl → CoreM Unit) : CoreM Unit := do
   let env ← getEnv

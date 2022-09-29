@@ -531,7 +531,7 @@ where
         let .inductInfo indVal ← getConstInfo typeName | unreachable!
         for i in casesInfo.altsRange, numParams in casesInfo.altNumParams, ctorName in indVal.ctors do
           let (altType, alt) ← visitAlt ctorName numParams args[i]!
-          unless compatibleTypes altType resultType do
+          unless (← compatibleTypes altType resultType) do
             resultType := anyTypeExpr
           alts := alts.push alt
         let cases : Cases := { typeName, discr := discr.fvarId!, resultType, alts }
@@ -569,7 +569,7 @@ where
       let minor := if e.isAppOf ``Eq.rec || e.isAppOf ``Eq.ndrec then args[3]! else args[5]!
       let minor ← visit minor
       let minorType ← inferType minor
-      let cast ← if compatibleTypes minorType recType then
+      let cast ← if (← compatibleTypes minorType recType) then
         -- Recall that many types become compatible after LCNF conversion
         -- Example: `Fin 10` and `Fin n`
         pure minor

@@ -284,9 +284,10 @@ private def mkNewFVarId (fvarId : FVarId) : InternalizeM FVarId := do
   return fvarId'
 
 def internalizeParam (p : Param) : InternalizeM Param := do
+  let binderName ← refreshBinderName p.binderName
   let type ← normExpr p.type
   let fvarId ← mkNewFVarId p.fvarId
-  let p := { p with fvarId, type }
+  let p := { p with binderName, fvarId, type }
   modifyLCtx fun lctx => lctx.addParam p
   return p
 

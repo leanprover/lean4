@@ -321,6 +321,8 @@ where
           if altVars.size > numFieldsToName then
             logError m!"too many variable names provided at alternative '{altName}', #{altVars.size} provided, but #{numFieldsToName} expected"
           let mut (fvarIds, altMVarId) ← altMVarId.introN numFields (altVars.toList.map getNameOfIdent') (useNamesForExplicitOnly := !altHasExplicitModifier altStx)
+          -- Delay adding the infos for the pattern LHS because we want them to nest
+          -- inside tacticInfo for the current alternative (in `evalAlt`)
           let addInfo := do
             if (← getInfoState).enabled then
               if let some declName := declName? then

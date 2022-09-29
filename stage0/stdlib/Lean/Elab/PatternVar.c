@@ -5765,7 +5765,7 @@ lean_object* x_79; uint8_t x_80; lean_object* x_81; lean_object* x_82; lean_obje
 x_79 = lean_ctor_get(x_9, 0);
 lean_inc(x_79);
 lean_dec(x_9);
-x_80 = 0;
+x_80 = 1;
 x_81 = l_Lean_SourceInfo_fromRef(x_79, x_80);
 x_82 = l_Lean_Elab_Term_CollectPatternVars_collect_processCtorApp___closed__5;
 x_83 = lean_alloc_ctor(2, 2, 0);

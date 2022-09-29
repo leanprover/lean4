@@ -10447,18 +10447,18 @@ return x_15;
 static lean_object* _init_l_Lean_Meta_forEachExpr_x27___at_Lean_Elab_Structural_findRecArg___spec__5___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_mkHashMapImp___rarg(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_forEachExpr_x27___at_Lean_Elab_Structural_findRecArg___spec__5___lambda__1___boxed), 8, 0);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_forEachExpr_x27___at_Lean_Elab_Structural_findRecArg___spec__5___closed__2() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_forEachExpr_x27___at_Lean_Elab_Structural_findRecArg___spec__5___lambda__1___boxed), 8, 0);
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = l_Lean_mkHashMapImp___rarg(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_forEachExpr_x27___at_Lean_Elab_Structural_findRecArg___spec__5(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
@@ -10466,21 +10466,21 @@ _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_9 = lean_box(0);
-x_10 = lean_st_ref_get(x_7, x_8);
-x_11 = lean_ctor_get(x_10, 1);
-lean_inc(x_11);
-lean_dec(x_10);
-x_12 = l_Lean_Meta_forEachExpr_x27___at_Lean_Elab_Structural_findRecArg___spec__5___closed__1;
-x_13 = lean_st_mk_ref(x_12, x_11);
-x_14 = lean_ctor_get(x_13, 0);
-lean_inc(x_14);
-x_15 = lean_ctor_get(x_13, 1);
+x_10 = l_Lean_Meta_forEachExpr_x27___at_Lean_Elab_Structural_findRecArg___spec__5___closed__1;
+x_11 = lean_st_ref_get(x_7, x_8);
+x_12 = lean_ctor_get(x_11, 1);
+lean_inc(x_12);
+lean_dec(x_11);
+x_13 = l_Lean_Meta_forEachExpr_x27___at_Lean_Elab_Structural_findRecArg___spec__5___closed__2;
+x_14 = lean_st_mk_ref(x_13, x_12);
+x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
-lean_dec(x_13);
-x_16 = l_Lean_Meta_forEachExpr_x27___at_Lean_Elab_Structural_findRecArg___spec__5___closed__2;
+x_16 = lean_ctor_get(x_14, 1);
+lean_inc(x_16);
+lean_dec(x_14);
 lean_inc(x_7);
-lean_inc(x_14);
-x_17 = l_Lean_Meta_forEachExpr_x27_visit___at_Lean_Elab_Structural_findRecArg___spec__6(x_2, x_9, x_16, x_1, x_14, x_3, x_4, x_5, x_6, x_7, x_15);
+lean_inc(x_15);
+x_17 = l_Lean_Meta_forEachExpr_x27_visit___at_Lean_Elab_Structural_findRecArg___spec__6(x_2, x_9, x_10, x_1, x_15, x_3, x_4, x_5, x_6, x_7, x_16);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; 
@@ -10494,8 +10494,8 @@ lean_dec(x_7);
 x_21 = lean_ctor_get(x_20, 1);
 lean_inc(x_21);
 lean_dec(x_20);
-x_22 = lean_st_ref_get(x_14, x_21);
-lean_dec(x_14);
+x_22 = lean_st_ref_get(x_15, x_21);
+lean_dec(x_15);
 x_23 = !lean_is_exclusive(x_22);
 if (x_23 == 0)
 {
@@ -10520,7 +10520,7 @@ return x_26;
 else
 {
 uint8_t x_27; 
-lean_dec(x_14);
+lean_dec(x_15);
 lean_dec(x_7);
 x_27 = !lean_is_exclusive(x_17);
 if (x_27 == 0)

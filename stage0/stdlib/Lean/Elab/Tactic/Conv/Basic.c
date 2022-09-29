@@ -7281,7 +7281,7 @@ x_69 = lean_st_ref_get(x_14, x_68);
 x_70 = lean_ctor_get(x_69, 1);
 lean_inc(x_70);
 lean_dec(x_69);
-x_71 = 0;
+x_71 = 1;
 x_72 = l_Lean_SourceInfo_fromRef(x_2, x_71);
 x_73 = l_Lean_Elab_Tactic_Conv_evalConv___lambda__1___closed__1;
 x_74 = lean_alloc_ctor(2, 2, 0);

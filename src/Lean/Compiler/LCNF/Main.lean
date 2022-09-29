@@ -76,7 +76,9 @@ def run (declNames : Array Name) : CompilerM (Array Decl) := withAtLeastMaxRecDe
     withPhase pass.phase <| checkpoint pass.name decls
   if (← Lean.isTracingEnabledFor `Compiler.result) then
     for decl in decls do
-      Lean.addTrace `Compiler.result m!"size: {decl.size}\n{← ppDecl decl}"
+      -- We display the declaration saved in the environment because the names have been normalized
+      let some decl' ← getDeclAt? decl.name .base | unreachable!
+      Lean.addTrace `Compiler.result m!"size: {decl.size}\n{← ppDecl' decl'}"
   return decls
 
 end PassManager

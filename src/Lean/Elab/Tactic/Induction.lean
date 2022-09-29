@@ -53,10 +53,11 @@ private def getAltDArrow (alt : Syntax) : Syntax :=
 def isHoleRHS (rhs : Syntax) : Bool :=
   rhs.isOfKind ``Parser.Term.syntheticHole || rhs.isOfKind ``Parser.Term.hole
 
-def evalAlt (mvarId : MVarId) (alt : Syntax) (remainingGoals : Array MVarId) : TacticM (Array MVarId) :=
+def evalAlt (mvarId : MVarId) (alt : Syntax) (addInfo : TermElabM Unit) (remainingGoals : Array MVarId) : TacticM (Array MVarId) :=
   let rhs := getAltRHS alt
   withCaseRef (getAltDArrow alt) rhs do
     if isHoleRHS rhs then
+      addInfo
       let gs' ← mvarId.withContext <| withRef rhs do
         let mvarDecl ← mvarId.getDecl
         let val ← elabTermEnsuringType rhs mvarDecl.type
@@ -67,7 +68,7 @@ def evalAlt (mvarId : MVarId) (alt : Syntax) (remainingGoals : Array MVarId) : T
       return remainingGoals ++ gs'
     else
       setGoals [mvarId]
-      closeUsingOrAdmit (withTacticInfoContext alt (evalTactic rhs))
+      closeUsingOrAdmit (withTacticInfoContext alt (addInfo *> evalTactic rhs))
       return remainingGoals
 
 /-!
@@ -216,7 +217,7 @@ private def getNumExplicitFields (altMVarId : MVarId) (numFields : Nat) : MetaM 
     let (_, bis, _) ← forallMetaBoundedTelescope target numFields
     return bis.foldl (init := 0) fun r bi => if bi.isExplicit then r + 1 else r
 
-private def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Array FVarId) : TacticM Unit :=
+private def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Array FVarId) : TermElabM Unit :=
   withSaveInfoContext <| altMVarId.withContext do
     let useNamesForExplicitOnly := !altHasExplicitModifier altStx
     let mut i := 0
@@ -267,7 +268,11 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array Alt) (optPreTac : Syntax) (alts
   let hasAlts := altsSyntax.size > 0
   if hasAlts then
     -- default to initial state outside of alts
-    withInfoContext go (pure initialInfo)
+    -- HACK: because this node has the same span as the original tactic,
+    -- we need to take all the info trees we have produced so far and re-nest them
+    -- inside this node as well
+    let treesSaved ← getResetInfoTrees
+    withInfoContext ((modifyInfoState fun s => { s with trees := treesSaved }) *> go) (pure initialInfo)
   else go
 where
   go := do
@@ -283,9 +288,6 @@ where
         match altsSyntax.findIdx? (fun alt => getAltName alt == altName) with
         | some idx =>
           let altStx := altsSyntax[idx]!
-          if let some declName := declName? then
-            if (← getInfoState).enabled then
-              addConstInfo (getAltNameStx altStx) declName
           altsSyntax := altsSyntax.eraseIdx idx
           pure (some altStx)
         | none => match altsSyntax.findIdx? (fun alt => getAltName alt == `_) with
@@ -314,17 +316,22 @@ where
             altMVarIds.forM fun mvarId => admitGoal mvarId
       | some altStx =>
         (subgoals, usedWildcard) ← withRef altStx do
-          let unusedAlt :=
-            if isWildcard then
-              pure (#[], usedWildcard)
-            else
-              throwError "alternative '{altName}' is not needed"
           let altVars := getAltVars altStx
           let numFieldsToName ← if altHasExplicitModifier altStx then pure numFields else getNumExplicitFields altMVarId numFields
           if altVars.size > numFieldsToName then
             logError m!"too many variable names provided at alternative '{altName}', #{altVars.size} provided, but #{numFieldsToName} expected"
           let mut (fvarIds, altMVarId) ← altMVarId.introN numFields (altVars.toList.map getNameOfIdent') (useNamesForExplicitOnly := !altHasExplicitModifier altStx)
-          saveAltVarsInfo altMVarId altStx fvarIds
+          let addInfo := do
+            if (← getInfoState).enabled then
+              if let some declName := declName? then
+                addConstInfo (getAltNameStx altStx) declName
+              saveAltVarsInfo altMVarId altStx fvarIds
+          let unusedAlt := do
+            addInfo
+            if isWildcard then
+              pure (#[], usedWildcard)
+            else
+              throwError "alternative '{altName}' is not needed"
           match (← Cases.unifyEqs? numEqs altMVarId {}) with
           | none => unusedAlt
           | some (altMVarId', _) =>
@@ -337,7 +344,7 @@ where
             else
               let mut subgoals := subgoals
               for altMVarId' in altMVarIds do
-                subgoals ← evalAlt altMVarId' altStx subgoals
+                subgoals ← evalAlt altMVarId' altStx addInfo subgoals
               pure (subgoals, usedWildcard || isWildcard)
     if usedWildcard then
       altsSyntax := altsSyntax.filter fun alt => getAltName alt != `_

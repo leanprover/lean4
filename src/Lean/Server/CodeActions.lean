@@ -48,7 +48,7 @@ builtin_initialize codeActionProviderExt : SimplePersistentEnvExtension Name Nam
 
 builtin_initialize registerBuiltinAttribute {
   name := `codeActionProvider
-  descr := "Use to decorate methods for suggesting code actions."
+  descr := "Use to decorate methods for suggesting code actions. This is a low-level interface for making code actions."
   add := fun src _stx _kind => do
     -- [todo] assert src is a CodeActionProvider
     modifyEnv (codeActionProviderExt.addEntry · src)
@@ -75,7 +75,7 @@ def handleCodeAction (params : CodeActionParams) : RequestM (RequestTask (Array 
       let caps ← RequestM.runCoreM snap do
         let env ← getEnv
         let names := codeActionProviderExt.getState env
-        names.mapM evalCodeActionProvider
+        names.toArray.mapM evalCodeActionProvider
       have : Monad Task := {bind := Task.bind, pure := Task.pure}
       have : Monad RequestTask := show Monad (ExceptT _ Task) by infer_instance
       let tasks : Array (RequestTask _) ← caps.mapM (· <| params)

@@ -98,11 +98,6 @@ structure CodeActionOptions extends WorkDoneProgressOptions where
   resolveProvider? : Option Bool := none
   deriving ToJson, FromJson
 
-/-- Custom, Lean-specific data object passed as the `data?` field. -/
-structure CodeActionData where
-  uri : DocumentUri
-  deriving FromJson, ToJson
-
 /--  A code action represents a change that can be performed in code, e.g. to fix a problem or to refactor code.
 
 A CodeAction should set either `edit` and/or a `command`.
@@ -130,7 +125,7 @@ structure CodeAction extends WorkDoneProgressParams, PartialResultParams where
   /-- A data entry field that is preserved on a code action between a `textDocument/codeAction` and a `codeAction/resolve` request.
   In particular, for Lean-created commands we expect `data` to have a `uri : DocumentUri` field so that `FileSource` can be implemented.
    -/
-  data         : CodeActionData
+  data?        : Option Json := none
   deriving ToJson, FromJson
 
 structure ResolveSupport where

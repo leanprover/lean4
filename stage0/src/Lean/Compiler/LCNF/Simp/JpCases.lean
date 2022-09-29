@@ -20,13 +20,14 @@ f y :=
   ...
 ```
 -/
-def isJpCases (decl : FunDecl) (smallThreshold : Nat) : CompilerM Bool := do
+def isJpCases (decl : FunDecl) : CompilerM Bool := do
   if decl.params.size != 1 then
     return false
   else
     let param := decl.params[0]!
+    let small := (← getConfig).smallThreshold
     let rec go (code : Code) (prefixSize : Nat) : Bool :=
-      prefixSize <= smallThreshold &&
+      prefixSize <= small &&
       match code with
       | .let _ k => go k (prefixSize + 1) /- TODO: we should have uniform heuristics for estimating the size. -/
       | .cases c => c.discr == param.fvarId
@@ -44,7 +45,7 @@ Return a map containing entries `jpFVarId ↦ ctorNames` where `jpFVarId` is the
 in code that satisfies `isJpCases`, and `ctorNames` is a set of constructor names such that
 there is a jump `.jmp jpFVarId #[x]` in `code` and `x` is a constructor application.
 -/
-partial def collectJpCasesInfo (code : Code) (smallThreshold : Nat): CompilerM JpCasesInfo := do
+partial def collectJpCasesInfo (code : Code) : CompilerM JpCasesInfo := do
   let (_, s) ← go code |>.run {}
   return s
 where
@@ -53,7 +54,7 @@ where
     | .let _ k => go k
     | .fun decl k => go decl.value; go k
     | .jp decl k =>
-      if (← isJpCases decl smallThreshold) then
+      if (← isJpCases decl) then
         modify fun s => s.insert decl.fvarId {}
       go decl.value; go k
     | .cases c => c.alts.forM fun alt => go alt.getCode
@@ -144,8 +145,8 @@ cases x.4
 Note that if all jumps to the join point are with constructors,
 then the join point is eliminated as dead code.
 -/
-partial def simpJpCases? (code : Code) (smallThreshold : Nat) : CompilerM (Option Code) := do
-  let info ← collectJpCasesInfo code smallThreshold
+partial def simpJpCases? (code : Code) : CompilerM (Option Code) := do
+  let info ← collectJpCasesInfo code
   unless info.isCandidate do return none
   traceM `Compiler.simp.jpCases do
     let mut msg : MessageData := "candidates"

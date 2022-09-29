@@ -68,6 +68,7 @@ def run (declNames : Array Name) : CompilerM (Array Decl) := withAtLeastMaxRecDe
   let declNames ← declNames.filterM (shouldGenerateCode ·)
   if declNames.isEmpty then return #[]
   let mut decls ← declNames.mapM toDecl
+  decls := markRecDecls decls
   let manager ← getPassManager
   for pass in manager.passes do
     trace[Compiler] s!"Running pass: {pass.name}"

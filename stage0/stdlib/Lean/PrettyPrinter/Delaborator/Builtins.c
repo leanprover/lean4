@@ -33,7 +33,7 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_withMDataOp
 static lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabDIte___closed__4;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabDIte___closed__1;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabCond___closed__1;
-uint8_t lean_local_ctx_uses_user_name(lean_object*, lean_object*);
+uint8_t l_Lean_LocalContext_usesUserName(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabProj___closed__2;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabDoElems___lambda__3___closed__4;
 size_t lean_usize_add(size_t, size_t);
@@ -67,7 +67,7 @@ lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_PrettyPrinter_Delaborator_withMDataOptions___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppMatch___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_unexpandStructureInstance___lambda__3___closed__5;
-lean_object* lean_local_ctx_get_unused_name(lean_object*, lean_object*);
+lean_object* l_Lean_LocalContext_getUnusedName(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabLetE___closed__1;
 static lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabCond___closed__1;
 static lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabDIte___closed__1;
@@ -4271,7 +4271,7 @@ lean_dec(x_28);
 x_29 = lean_ctor_get(x_3, 1);
 lean_inc(x_29);
 lean_inc(x_21);
-x_30 = lean_local_ctx_uses_user_name(x_29, x_21);
+x_30 = l_Lean_LocalContext_usesUserName(x_29, x_21);
 if (x_30 == 0)
 {
 lean_object* x_31; lean_object* x_32; 
@@ -13907,7 +13907,7 @@ else
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_19 = lean_ctor_get(x_6, 1);
 lean_inc(x_19);
-x_20 = lean_local_ctx_get_unused_name(x_19, x_15);
+x_20 = l_Lean_LocalContext_getUnusedName(x_19, x_15);
 lean_inc(x_20);
 x_21 = lean_array_push(x_3, x_20);
 x_22 = lean_alloc_closure((void*)(l___private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_skippingBinders_loop___rarg), 10, 3);

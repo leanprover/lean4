@@ -63,6 +63,7 @@ LEAN_EXPORT lean_object* l_Lean_Expr_isAnyType___boxed(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_getDeclLCNFType___closed__16;
 static lean_object* l_Lean_Compiler___aux__Lean__Compiler__LCNF__Types______unexpand__lcErased__1___closed__5;
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at___aux__Init__Notation______macroRules__precMax__1___spec__1(lean_object*, lean_object*);
+uint8_t l_Lean_Expr_isAppOf(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_LCNFTypeExtState_types___default___closed__1;
 static lean_object* l_Lean_Compiler_term_u25fe___closed__7;
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
@@ -137,7 +138,6 @@ LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_isPredicateType(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_getDeclLCNFType___closed__11;
 static lean_object* l_Lean_Compiler_LCNF_getDeclLCNFType___closed__19;
 static lean_object* l_Lean_Compiler___aux__Lean__Compiler__LCNF__Types______unexpand__lcErased__1___closed__11;
-uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
 size_t lean_usize_mul(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instantiateLCNFTypeLevelParams___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler___aux__Lean__Compiler__LCNF__Types______macroRules__Lean__Compiler__term_u25fe__1___closed__1;
@@ -1303,7 +1303,7 @@ _start:
 {
 lean_object* x_2; uint8_t x_3; 
 x_2 = l_Lean_Compiler___aux__Lean__Compiler__LCNF__Types______macroRules__Lean__Compiler__term_u22a4__1___closed__4;
-x_3 = l_Lean_Expr_isConstOf(x_1, x_2);
+x_3 = l_Lean_Expr_isAppOf(x_1, x_2);
 return x_3;
 }
 }
@@ -1322,7 +1322,7 @@ _start:
 {
 lean_object* x_2; uint8_t x_3; 
 x_2 = l_Lean_Compiler___aux__Lean__Compiler__LCNF__Types______macroRules__Lean__Compiler__term_u25fe__1___closed__4;
-x_3 = l_Lean_Expr_isConstOf(x_1, x_2);
+x_3 = l_Lean_Expr_isAppOf(x_1, x_2);
 return x_3;
 }
 }

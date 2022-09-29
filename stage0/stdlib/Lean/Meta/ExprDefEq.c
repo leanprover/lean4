@@ -219,7 +219,7 @@ static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_ExprDefEq_0_
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_processConstApprox_defaultCase___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addTrace___at_Lean_Meta_processPostponed_loop___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_processAssignment_process___closed__2;
-uint8_t l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_10820_(uint8_t, uint8_t);
+uint8_t l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_10846_(uint8_t, uint8_t);
 static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqEtaStruct_go___spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_AssocList_contains___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_mkLambdaFVarsWithLetDeps_collectLetDeclsFrom_visit___spec__4___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqArgsFirstPass(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -351,7 +351,7 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_HashSetImp_insert___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__3(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___closed__6;
 lean_object* l_Lean_Expr_constLevels_x21(lean_object*);
-lean_object* lean_local_ctx_get(lean_object*, lean_object*);
+lean_object* l_Lean_LocalContext_getAt_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_patternAnnotation_x3f(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqLeft(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instMonadLiftImportMAttrM(lean_object*);
@@ -11266,9 +11266,8 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13;
 x_11 = lean_unsigned_to_nat(1u);
 x_12 = lean_nat_sub(x_3, x_11);
 lean_dec(x_3);
-lean_inc(x_4);
 lean_inc(x_1);
-x_13 = lean_local_ctx_get(x_1, x_4);
+x_13 = l_Lean_LocalContext_getAt_x3f(x_1, x_4);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; 
@@ -11353,9 +11352,8 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13;
 x_11 = lean_unsigned_to_nat(1u);
 x_12 = lean_nat_sub(x_3, x_11);
 lean_dec(x_3);
-lean_inc(x_4);
 lean_inc(x_1);
-x_13 = lean_local_ctx_get(x_1, x_4);
+x_13 = l_Lean_LocalContext_getAt_x3f(x_1, x_4);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; 
@@ -14247,7 +14245,8 @@ if (x_14 == 0)
 lean_object* x_15; lean_object* x_16; 
 x_15 = lean_ctor_get(x_4, 1);
 lean_inc(x_15);
-x_16 = lean_local_ctx_get(x_15, x_13);
+x_16 = l_Lean_LocalContext_getAt_x3f(x_15, x_13);
+lean_dec(x_13);
 if (lean_obj_tag(x_16) == 0)
 {
 x_1 = x_12;
@@ -14655,9 +14654,8 @@ lean_object* x_16; lean_object* x_17; lean_object* x_18;
 x_16 = lean_unsigned_to_nat(1u);
 x_17 = lean_nat_sub(x_3, x_16);
 lean_dec(x_3);
-lean_inc(x_4);
 lean_inc(x_1);
-x_18 = lean_local_ctx_get(x_1, x_4);
+x_18 = l_Lean_LocalContext_getAt_x3f(x_1, x_4);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_object* x_19; 
@@ -14742,9 +14740,8 @@ lean_object* x_16; lean_object* x_17; lean_object* x_18;
 x_16 = lean_unsigned_to_nat(1u);
 x_17 = lean_nat_sub(x_3, x_16);
 lean_dec(x_3);
-lean_inc(x_4);
 lean_inc(x_1);
-x_18 = lean_local_ctx_get(x_1, x_4);
+x_18 = l_Lean_LocalContext_getAt_x3f(x_1, x_4);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_object* x_19; 
@@ -66734,7 +66731,7 @@ x_11 = lean_ctor_get(x_8, 1);
 x_12 = 3;
 x_13 = lean_unbox(x_10);
 lean_dec(x_10);
-x_14 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_10820_(x_13, x_12);
+x_14 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_10846_(x_13, x_12);
 if (x_14 == 0)
 {
 uint8_t x_15; lean_object* x_16; 
@@ -66769,7 +66766,7 @@ lean_dec(x_8);
 x_21 = 3;
 x_22 = lean_unbox(x_19);
 lean_dec(x_19);
-x_23 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_10820_(x_22, x_21);
+x_23 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_10846_(x_22, x_21);
 if (x_23 == 0)
 {
 uint8_t x_24; lean_object* x_25; lean_object* x_26; 

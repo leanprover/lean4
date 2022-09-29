@@ -126,6 +126,7 @@ static lean_object* l_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetReq
 static lean_object* l_Lean_Server_wrapRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_1017____spec__2___closed__1;
 static lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_fromJsonGetInteractiveDiagnosticsParams____x40_Lean_Server_FileWorker_WidgetRequests___hyg_1097____spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_fromJsonGetInteractiveDiagnosticsParams____x40_Lean_Server_FileWorker_WidgetRequests___hyg_1097____spec__1___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Lsp_DiagnosticWith_fullRange___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerBuiltinRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_1639____spec__2___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_lazyTraceChildrenToInteractive___boxed__const__1;
 static lean_object* l_Lean_Widget_instRpcEncodableGetGoToLocationParams___closed__1;
@@ -3529,8 +3530,7 @@ lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean
 x_12 = lean_ctor_get(x_1, 0);
 x_13 = lean_ctor_get(x_12, 0);
 x_14 = lean_ctor_get(x_12, 1);
-x_15 = lean_ctor_get(x_7, 1);
-lean_inc(x_15);
+x_15 = l_Lean_Lsp_DiagnosticWith_fullRange___rarg(x_7);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
 x_17 = lean_ctor_get(x_16, 0);

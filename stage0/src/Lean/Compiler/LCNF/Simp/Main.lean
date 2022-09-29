@@ -14,6 +14,7 @@ import Lean.Compiler.LCNF.Simp.InlineProj
 import Lean.Compiler.LCNF.Simp.Used
 import Lean.Compiler.LCNF.Simp.DefaultAlt
 import Lean.Compiler.LCNF.Simp.SimpValue
+import Lean.Compiler.LCNF.Simp.ConstantFold
 
 namespace Lean.Compiler.LCNF
 namespace Simp
@@ -115,7 +116,7 @@ inlined code **before** we attach it to the continuation.
 partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := do
   let some info ← inlineCandidate? letDecl.value | return none
   let numArgs := info.args.size
-  withInlining letDecl.value do
+  withInlining letDecl.value info.recursive do
   let fvarId := letDecl.fvarId
   if numArgs < info.arity then
     let funDecl ← specializePartialApp info
@@ -210,7 +211,11 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
     let mut decl ← normLetDecl decl
     if let some value ← simpValue? decl.value then
       decl ← decl.updateValue value
-    if let some funDecl ← etaPolyApp? decl then
+    if let some decls ← ConstantFold.foldConstants decl then
+      markSimplified
+      let k ← simp k
+      attachCodeDecls decls k
+    else if let some funDecl ← etaPolyApp? decl then
       simp (.fun funDecl k)
     else if decl.value.isFVar then
       /- Eliminate `let _x_i := _x_j;` -/

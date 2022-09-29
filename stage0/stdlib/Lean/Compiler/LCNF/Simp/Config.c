@@ -17,16 +17,7 @@ LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_Simp_Config_etaPoly___default;
 LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_Simp_Config_implementedBy___default;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_instInhabitedConfig;
 static lean_object* l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_Config_smallThreshold___default;
 LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_Simp_Config_inlinePartial___default;
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_Config_smallThreshold___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(1u);
-return x_1;
-}
-}
 static uint8_t _init_l_Lean_Compiler_LCNF_Simp_Config_etaPoly___default() {
 _start:
 {
@@ -54,15 +45,13 @@ return x_1;
 static lean_object* _init_l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__1() {
 _start:
 {
-lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = 0;
-x_3 = lean_alloc_ctor(0, 1, 3);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1 + 1, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1 + 2, x_2);
-return x_3;
+uint8_t x_1; lean_object* x_2; 
+x_1 = 0;
+x_2 = lean_alloc_ctor(0, 0, 3);
+lean_ctor_set_uint8(x_2, 0, x_1);
+lean_ctor_set_uint8(x_2, 1, x_1);
+lean_ctor_set_uint8(x_2, 2, x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Compiler_LCNF_Simp_instInhabitedConfig() {
@@ -82,8 +71,6 @@ _G_initialized = true;
 res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Compiler_LCNF_Simp_Config_smallThreshold___default = _init_l_Lean_Compiler_LCNF_Simp_Config_smallThreshold___default();
-lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_Config_smallThreshold___default);
 l_Lean_Compiler_LCNF_Simp_Config_etaPoly___default = _init_l_Lean_Compiler_LCNF_Simp_Config_etaPoly___default();
 l_Lean_Compiler_LCNF_Simp_Config_inlinePartial___default = _init_l_Lean_Compiler_LCNF_Simp_Config_inlinePartial___default();
 l_Lean_Compiler_LCNF_Simp_Config_implementedBy___default = _init_l_Lean_Compiler_LCNF_Simp_Config_implementedBy___default();

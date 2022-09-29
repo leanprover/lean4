@@ -203,7 +203,6 @@ def erase (lctx : LocalContext) (fvarId : FVarId) : LocalContext :=
     | none      => lctx
     | some decl => { fvarIdToDecl := map.erase fvarId, decls := popTailNoneAux (decls.set decl.index none) }
 
-@[export lean_local_ctx_pop]
 def pop (lctx : LocalContext): LocalContext :=
   match lctx with
   | { fvarIdToDecl := map, decls := decls } =>
@@ -212,14 +211,12 @@ def pop (lctx : LocalContext): LocalContext :=
       | none      => lctx -- unreachable
       | some decl => { fvarIdToDecl := map.erase decl.fvarId, decls := popTailNoneAux decls.pop }
 
-@[export lean_local_ctx_find_from_user_name]
 def findFromUserName? (lctx : LocalContext) (userName : Name) : Option LocalDecl :=
   lctx.decls.findSomeRev? fun decl =>
     match decl with
     | none      => none
     | some decl => if decl.userName == userName then some decl else none
 
-@[export lean_local_ctx_uses_user_name]
 def usesUserName (lctx : LocalContext) (userName : Name) : Bool :=
   (lctx.findFromUserName? userName).isSome
 
@@ -228,13 +225,11 @@ private partial def getUnusedNameAux (lctx : LocalContext) (suggestion : Name) (
   if lctx.usesUserName curr then getUnusedNameAux lctx suggestion (i + 1)
   else (curr, i + 1)
 
-@[export lean_local_ctx_get_unused_name]
 def getUnusedName (lctx : LocalContext) (suggestion : Name) : Name :=
   let suggestion := suggestion.eraseMacroScopes
   if lctx.usesUserName suggestion then (getUnusedNameAux lctx suggestion 1).1
   else suggestion
 
-@[export lean_local_ctx_last_decl]
 def lastDecl (lctx : LocalContext) : Option LocalDecl :=
   lctx.decls.get! (lctx.decls.size - 1)
 
@@ -244,7 +239,6 @@ def setUserName (lctx : LocalContext) (fvarId : FVarId) (userName : Name) : Loca
   { fvarIdToDecl := lctx.fvarIdToDecl.insert decl.fvarId decl,
     decls        := lctx.decls.set decl.index decl }
 
-@[export lean_local_ctx_rename_user_name]
 def renameUserName (lctx : LocalContext) (fromName : Name) (toName : Name) : LocalContext :=
   match lctx with
   | { fvarIdToDecl := map, decls := decls } =>
@@ -276,7 +270,6 @@ def setBinderInfo (lctx : LocalContext) (fvarId : FVarId) (bi : BinderInfo) : Lo
 def numIndices (lctx : LocalContext) : Nat :=
   lctx.decls.size
 
-@[export lean_local_ctx_get]
 def getAt? (lctx : LocalContext) (i : Nat) : Option LocalDecl :=
   lctx.decls.get! i
 

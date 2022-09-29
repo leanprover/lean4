@@ -18,7 +18,7 @@ size_t lean_usize_add(size_t, size_t);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_intro1Core___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_getIntrosSize(lean_object*);
-lean_object* lean_local_ctx_get_unused_name(lean_object*, lean_object*);
+lean_object* l_Lean_LocalContext_getUnusedName(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop___rarg___closed__6;
@@ -1312,7 +1312,7 @@ _start:
 if (x_3 == 0)
 {
 lean_object* x_9; lean_object* x_10; 
-x_9 = lean_local_ctx_get_unused_name(x_1, x_2);
+x_9 = l_Lean_LocalContext_getUnusedName(x_1, x_2);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set(x_10, 1, x_8);

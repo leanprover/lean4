@@ -365,6 +365,26 @@ def etaExpandN (e : Expr) (n : Nat) : M Expr := do
       Meta.mkLambdaFVars xs (mkAppN e xs)
 
 /--
+Eta reduce implicits. We use this function to eliminate introduced by the implicit lambda feature,
+where it generates terms such as `fun {α} => ReaderT.pure`
+-/
+partial def etaReduceImplicit (e : Expr) : Expr :=
+  match e with
+  | .lam _ d b bi =>
+    if bi.isImplicit then
+      let b' := etaReduceImplicit b
+      match b' with
+      | .app f (.bvar 0) =>
+        if !f.hasLooseBVar 0 then
+          f.lowerLooseBVars 1 1
+        else
+          e.updateLambdaE! d b'
+      | _ => e.updateLambdaE! d b'
+    else
+      e
+  | _ => e
+
+/--
 Put the given expression in `LCNF`.
 
 - Nested proofs are replaced with `lcProof`-applications.
@@ -648,7 +668,25 @@ where
       e.withApp fun f args => do visitAppDefault (← visit f) args
 
   visitLambda (e : Expr) : M Expr := do
-    let b := e.eta
+    let b := etaReduceImplicit e
+    /-
+    Note: we don't want to eta-reduce arbitrary lambda expressions since it can
+    affect the current inline heuristics. For example, suppose that `foo` is marked
+    as `[inline]`. If we eta-reduce
+    ```
+    let f := fun b => foo a b
+    ```
+    we obtain the LCNF
+    ```
+    let f := foo a
+    ```
+    which will be inlined everywhere in the current implementation, if we don't eta-reduce,
+    we obtain
+    ```
+    fun f b := foo a
+    ```
+    which will inline foo in the body of `f`, but will only inline `f` if it is small.
+    -/
     if !b.isLambda && !mustEtaExpand (← getEnv) b then
       /-
       We use eta-reduction to make sure we avoid the overhead introduced by

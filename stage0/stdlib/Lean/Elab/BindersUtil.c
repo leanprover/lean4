@@ -62,7 +62,7 @@ LEAN_EXPORT lean_object* l_Array_sequenceMap___at_Lean_Elab_Term_expandMatchAlt_
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_getMatchAltsNumPatterns(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_Term_shouldExpandMatchAlt(lean_object*);
 lean_object* l_Lean_Syntax_getSepArgs(lean_object*);
-lean_object* l_Lean_mkHole(lean_object*);
+lean_object* l_Lean_mkHole(lean_object*, uint8_t);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_expandMatchAlt___closed__6;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
@@ -106,9 +106,10 @@ return x_7;
 }
 else
 {
-lean_object* x_8; 
-x_8 = l_Lean_mkHole(x_1);
-return x_8;
+uint8_t x_8; lean_object* x_9; 
+x_8 = 0;
+x_9 = l_Lean_mkHole(x_1, x_8);
+return x_9;
 }
 }
 }

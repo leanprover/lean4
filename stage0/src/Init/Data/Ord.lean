@@ -59,6 +59,11 @@ instance : Ord USize where
 instance : Ord Char where
   compare x y := compareOfLessAndEq x y
 
+/-- The lexicographic order on pairs. -/
+def lexOrd [Ord α] [Ord β] : Ord (α × β) where
+  compare p1 p2 := match compare p1.1 p2.1 with
+    | .eq => compare p1.2 p2.2
+    | o   => o
 
 def ltOfOrd [Ord α] : LT α where
   lt a b := compare a b == Ordering.lt

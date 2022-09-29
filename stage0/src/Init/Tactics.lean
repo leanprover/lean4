@@ -7,9 +7,7 @@ prelude
 import Init.Notation
 set_option linter.missingDocs true -- keep it documented
 
-namespace Lean
-
-namespace Parser.Tactic
+namespace Lean.Parser.Tactic
 /--
 `with_annotate_state stx t` annotates the lexical range of `stx : Syntax` with
 the initial and final state of running tactic `t`.
@@ -141,12 +139,6 @@ If the main goal's target type is an inductive type, `constructor` solves it wit
 the first matching constructor, or else fails.
 -/
 syntax (name := constructor) "constructor" : tactic
-
-/--
-A case tag argument has the form `tag x₁ ... xₙ`; it refers to tag `tag` and renames
-the last `n` hypotheses to `x₁ ... xₙ`.
--/
-syntax caseArg := binderIdent binderIdent*
 
 /--
 * `case tag => tac` focuses on the goal with case name `tag` and solves it using `tac`,

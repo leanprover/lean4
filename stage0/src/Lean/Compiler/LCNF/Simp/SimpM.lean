@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Compiler.ImplementedByAttr
+import Lean.Compiler.LCNF.Renaming
 import Lean.Compiler.LCNF.ElimDead
 import Lean.Compiler.LCNF.AlphaEqv
 import Lean.Compiler.LCNF.PrettyPrinter
@@ -28,6 +29,10 @@ structure Context where
   Stack of global declarations being recursively inlined.
   -/
   inlineStack : List Name := []
+  /--
+  Mapping from declaration names to number of occurrences at `inlineStack`
+  -/
+  inlineStackOccs : PHashMap Name Nat := {}
 
 structure State where
   /--
@@ -38,6 +43,11 @@ structure State where
   Track used local declarations to be able to eliminate dead variables.
   -/
   used : UsedLocalDecls := {}
+  /--
+  Mapping containing free variables ids that need to be renamed (i.e., the `binderName`).
+  We use this map to preserve user provide names.
+  -/
+  binderRenaming : Renaming := {}
   /--
   Mapping used to decide whether a local function declaration must be inlined or not.
   -/
@@ -136,12 +146,21 @@ partial def updateFunDeclInfo (code : Code) (mustInline := false) : SimpM Unit :
 Execute `x` with an updated `inlineStack`. If `value` is of the form `const ...`, add `const` to the stack.
 Otherwise, do not change the `inlineStack`.
 -/
-@[inline] def withInlining (value : Expr) (x : SimpM α) : SimpM α := do
+def withInlining (value : Expr) (recursive : Bool) (x : SimpM α) : SimpM α := do
   trace[Compiler.simp.inline] "inlining {value}"
   let f := value.getAppFn
-  let stack := (← read).inlineStack
-  let inlineStack := if let .const declName _ := f then declName :: stack else stack
-  withReader (fun ctx => { ctx with inlineStack }) x
+  if let .const declName _ := f then
+    let numOccs := (← read).inlineStackOccs.find? declName |>.getD 0
+    let numOccs := numOccs + 1
+    if recursive then
+      if hasInlineIfReduceAttribute (← getEnv) declName then
+        if numOccs > (← getConfig).maxRecInlineIfReduce then
+          throwError "function `{declName}` has been recursively inlined more than #{(← getConfig).maxRecInlineIfReduce}, consider removing the attribute `[inlineIfReduce]` from this declaration or increasing the limit using `set_option compiler.maxRecInlineIfReduce <num>`"
+      else if numOccs > (← getConfig).maxRecInline then
+        throwError "function `{declName}` has been recursively inlined more than #{(← getConfig).maxRecInline}, consider removing the attribute `[inline]` from this declaration or increasing the limit using `set_option compiler.maxRecInline <num>`"
+    withReader (fun ctx => { ctx with inlineStack := declName :: ctx.inlineStack, inlineStackOccs := ctx.inlineStackOccs.insert declName numOccs }) x
+  else
+    x
 
 /--
 Similar to the default `Lean.withIncRecDepth`, but include the `inlineStack` in the error messsage.
@@ -197,7 +216,7 @@ def isOnceOrMustInline (fvarId : FVarId) : SimpM Bool := do
 Return `true` if the given local function declaration is considered "small".
 -/
 def isSmall (decl : FunDecl) : SimpM Bool :=
-  return decl.value.sizeLe (← read).config.smallThreshold
+  return decl.value.sizeLe (← getConfig).smallThreshold
 
 /--
 Return `true` if the given local function declaration should be inlined.
@@ -209,16 +228,38 @@ def shouldInlineLocal (decl : FunDecl) : SimpM Bool := do
     isSmall decl
 
 /--
-"Beta-reduce" `(fun params => code) args`.
+LCNF "Beta-reduce". The equivalent of `(fun params => code) args`.
 If `mustInline` is true, the local function declarations in the resulting code are marked as `.mustInline`.
 See comment at `updateFunDeclInfo`.
 -/
 def betaReduce (params : Array Param) (code : Code) (args : Array Expr) (mustInline := false) : SimpM Code := do
-  -- TODO: add necessary casts to `args`
   let mut subst := {}
+  let mut castDecls := #[]
   for param in params, arg in args do
-    subst := subst.insert param.fvarId arg
+    /-
+    If `param` hast type `⊤` but `arg` does not, we must insert a cast.
+    Otherwise, the resulting code may be type incorrect.
+    For example, the following code is type correct before inlining `f`
+    because `x : ⊤`.
+    ```
+    def foo (g : A → A) (a : B) :=
+      fun f (x : ⊤) :=
+        let _x.1 := g x
+        ...
+      let _x.2 := f a
+      ...
+    ```
+    We must introduce a cast around `a` to make sure the resulting expression is type correct.
+    -/
+    if param.type.isAnyType && !(← inferType arg).isAnyType then
+      let castArg ← mkLcCast arg anyTypeExpr
+      let castDecl ← mkAuxLetDecl castArg
+      castDecls := castDecls.push (CodeDecl.let castDecl)
+      subst := subst.insert param.fvarId (.fvar castDecl.fvarId)
+    else
+      subst := subst.insert param.fvarId arg
   let code ← code.internalize subst
+  let code := LCNF.attachCodeDecls castDecls code
   updateFunDeclInfo code mustInline
   return code
 
@@ -237,3 +278,18 @@ and set the `simplified` flag to true.
 def eraseFunDecl (decl : FunDecl) : SimpM Unit := do
   LCNF.eraseFunDecl decl
   markSimplified
+
+/--
+Similar to `LCNF.addFVarSubst`. That is, add the entry
+`fvarId ↦ fvarId'` to the free variable substitution.
+If `fvarId` has a non-internal binder name `n`, but `fvarId'` does not,
+this method also adds the entry `fvarId' ↦ n` to the `binderRenaming` map.
+The goal is to preserve user provided names.
+-/
+def addFVarSubst (fvarId : FVarId) (fvarId' : FVarId) : SimpM Unit := do
+  LCNF.addFVarSubst fvarId fvarId'
+  let binderName ← getBinderName fvarId
+  unless binderName.isInternal do
+    let binderName' ← getBinderName fvarId'
+    if binderName'.isInternal then
+      modify fun s => { s with binderRenaming := s.binderRenaming.insert fvarId' binderName }

@@ -35,7 +35,7 @@ def replaceTargetEq (mvarId : MVarId) (targetNew : Expr) (eqProof : Expr) : Meta
   mvarId.replaceTargetEq targetNew eqProof
 
 /--
-  Convert the given goal `Ctx | target` into `Ctx |- targetNew`. It assumes the goals are definitionally equal.
+  Convert the given goal `Ctx |- target` into `Ctx |- targetNew`. It assumes the goals are definitionally equal.
   We use the proof term
   ```
   @id target mvarNew

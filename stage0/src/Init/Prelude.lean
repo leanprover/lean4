@@ -2497,6 +2497,42 @@ Push an element onto the end of an array. This is amortized O(1) because
 def Array.push {α : Type u} (a : Array α) (v : α) : Array α where
   data := List.concat a.data v
 
+/-- Create array `#[]` -/
+def Array.mkArray0 {α : Type u} : Array α :=
+  mkEmpty 0
+
+/-- Create array `#[a₁]` -/
+def Array.mkArray1 {α : Type u} (a₁ : α) : Array α :=
+  (mkEmpty 1).push a₁
+
+/-- Create array `#[a₁, a₂]` -/
+def Array.mkArray2 {α : Type u} (a₁ a₂ : α) : Array α :=
+  ((mkEmpty 1).push a₁).push a₂
+
+/-- Create array `#[a₁, a₂, a₃]` -/
+def Array.mkArray3 {α : Type u} (a₁ a₂ a₃ : α) : Array α :=
+  (((mkEmpty 1).push a₁).push a₂).push a₃
+
+/-- Create array `#[a₁, a₂, a₃, a₄]` -/
+def Array.mkArray4 {α : Type u} (a₁ a₂ a₃ a₄ : α) : Array α :=
+  ((((mkEmpty 1).push a₁).push a₂).push a₃).push a₄
+
+/-- Create array `#[a₁, a₂, a₃, a₄, a₅]` -/
+def Array.mkArray5 {α : Type u} (a₁ a₂ a₃ a₄ a₅ : α) : Array α :=
+  (((((mkEmpty 1).push a₁).push a₂).push a₃).push a₄).push a₅
+
+/-- Create array `#[a₁, a₂, a₃, a₄, a₅, a₆]` -/
+def Array.mkArray6 {α : Type u} (a₁ a₂ a₃ a₄ a₅ a₆ : α) : Array α :=
+  ((((((mkEmpty 1).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆
+
+/-- Create array `#[a₁, a₂, a₃, a₄, a₅, a₆, a₇]` -/
+def Array.mkArray7 {α : Type u} (a₁ a₂ a₃ a₄ a₅ a₆ a₇ : α) : Array α :=
+  (((((((mkEmpty 1).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆).push a₇
+
+/-- Create array `#[a₁, a₂, a₃, a₄, a₅, a₆, a₇, a₈]` -/
+def Array.mkArray8 {α : Type u} (a₁ a₂ a₃ a₄ a₅ a₆ a₇ a₈ : α) : Array α :=
+  ((((((((mkEmpty 1).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆).push a₇).push a₈
+
 /--
 Set an element in an array without bounds checks, using a `Fin` index.
 

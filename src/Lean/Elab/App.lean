@@ -1295,8 +1295,9 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     | `(.$id:ident) =>
         addCompletionInfo <| CompletionInfo.dotId f id.getId (← getLCtx) expectedType?
         let fConst ← mkConst (← resolveDotName id expectedType?)
-        let fConst ← addTermInfo f fConst
         let s ← observing do
+          -- Use (force := true) because we want to record the result of .ident resolution even in patterns
+          let fConst ← addTermInfo f fConst expectedType? (force := true)
           let e ← elabAppLVals fConst lvals namedArgs args expectedType? explicit ellipsis
           if overloaded then ensureHasType expectedType? e else return e
         return acc.push s

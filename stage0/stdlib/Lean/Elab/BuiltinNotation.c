@@ -305,7 +305,6 @@ uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___spec__12___rarg(lean_object*);
 lean_object* l_List_forM___at___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_expandShow_declRange___closed__6;
-lean_object* l_panic___at_Lean_quoteNameMk_mkStr___spec__1(lean_object*);
 lean_object* l_Lean_Elab_expandMacroImpl_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabCoe_declRange___closed__3;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
@@ -328,6 +327,7 @@ static lean_object* l_Lean_Elab_Term_elabAnonymousCtor___lambda__3___closed__3;
 static lean_object* l___regBuiltin_Lean_Elab_Term_expandShow_declRange___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Term_expandDbgTrace_declRange___closed__6;
 static lean_object* l_Lean_getConstInfoCtor___at_Lean_Elab_Term_elabAnonymousCtor___spec__2___closed__2;
+LEAN_EXPORT lean_object* l_panic___at_Lean_Elab_Term_mkPairs_loop___spec__1(lean_object*);
 static lean_object* l_Lean_Elab_Term_mkPairs_loop___closed__1;
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at_Lean_Elab_Term_elabCDotFunctionAlias_x3f___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_expandUnreachable_declRange___closed__2;
@@ -679,6 +679,7 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Term_elabLeadingParserMacro_de
 static lean_object* l___regBuiltin_Lean_Elab_Term_expandUnreachable_declRange___closed__7;
 static lean_object* l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_elabParserMacroAux___closed__40;
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabPanic_declRange___closed__6;
+lean_object* lean_panic_fn(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_elabParserMacroAux___closed__45;
 static lean_object* l_Lean_Elab_Term_elabSubst___closed__4;
 uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
@@ -12045,6 +12046,15 @@ x_4 = l_Lean_addBuiltinDeclarationRanges(x_2, x_3, x_1);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_panic___at_Lean_Elab_Term_mkPairs_loop___spec__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_box(0);
+x_3 = lean_panic_fn(x_2, x_1);
+return x_3;
+}
+}
 static lean_object* _init_l_Lean_Elab_Term_mkPairs_loop___closed__1() {
 _start:
 {
@@ -12180,7 +12190,7 @@ x_33 = lean_ctor_get(x_31, 1);
 lean_inc(x_33);
 lean_dec(x_31);
 x_34 = l_Std_Range_forIn_loop___at_Lean_Elab_Term_elabAnonymousCtor___spec__4___closed__4;
-x_35 = l_panic___at_Lean_quoteNameMk_mkStr___spec__1(x_34);
+x_35 = l_panic___at_Lean_Elab_Term_mkPairs_loop___spec__1(x_34);
 x_11 = x_35;
 x_12 = x_32;
 x_13 = x_33;

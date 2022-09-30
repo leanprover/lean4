@@ -950,28 +950,10 @@ private def getEscapedNameParts? (acc : List String) : Name → Option (List Str
     getEscapedNameParts? (s::acc) n
   | Name.num _ _ => none
 
-def quoteNameMk (n : Name) : Term :=
-  if isSimple n 0 then
-    mkStr n 0 #[]
-  else
-    go n
-where
-  isSimple (n : Name) (sz : Nat) : Bool :=
-    match n with
-    | .anonymous => 0 < sz && sz <= 8
-    | .str p _ => isSimple p (sz+1)
-    | _ => false
-
-  mkStr (n : Name) (sz : Nat) (args : Array Term) : Term :=
-    match n with
-    | .anonymous => Syntax.mkCApp (Name.mkStr3 "Lean" "Name" ("mkStr" ++ toString sz)) args.reverse
-    | .str p s => mkStr p (sz+1) (args.push (quote s))
-    | _ => unreachable!
-
-  go : Name → Term
-    | Name.anonymous => mkCIdent ``Name.anonymous
-    | Name.str n s => Syntax.mkCApp ``Name.mkStr #[go n, quote s]
-    | Name.num n i => Syntax.mkCApp ``Name.mkNum #[go n, quote i]
+def quoteNameMk : Name → Term
+  | .anonymous => mkCIdent ``Name.anonymous
+  | .str n s => Syntax.mkCApp ``Name.mkStr #[quoteNameMk n, quote s]
+  | .num n i => Syntax.mkCApp ``Name.mkNum #[quoteNameMk n, quote i]
 
 instance : Quote Name `term where
   quote n := match getEscapedNameParts? [] n with

@@ -1,6 +1,14 @@
 Unreleased
 ---------
 
+* [Hover information for `cases`/`induction` case names](https://github.com/leanprover/lean4/pull/1660).
+
+* [Prefer longer parse even if unsuccessful](https://github.com/leanprover/lean4/pull/1658).
+
+* [Show declaration module in hover](https://github.com/leanprover/lean4/pull/1638).
+
+* [New `conv` mode structuring tactics](https://github.com/leanprover/lean4/pull/1636).
+
 * `simp` can track information and can print an equivalent `simp only`. [PR #1626](https://github.com/leanprover/lean4/pull/1626).
 
 * Enforce uniform indentation in tactic blocks / do blocks. See issue [#1606](https://github.com/leanprover/lean4/issues/1606).

@@ -158,12 +158,6 @@ where
     | _ =>
       return none
 
-def mkSmallArrayFunctions := #[
-  ``Array.mkArray0, ``Array.mkArray1, ``Array.mkArray2, ``Array.mkArray3,
-  ``Array.mkArray4, ``Array.mkArray5, ``Array.mkArray6, ``Array.mkArray7,
-  ``Array.mkArray8
-]
-
 /--
 Turn an `#[a, b, c]` into:
 ```
@@ -176,15 +170,11 @@ _x.26
 ```
 -/
 def mkPseudoArrayLiteral (elements : Array FVarId) (typ : Expr) (typLevel : Level) : FolderM Expr := do
-  if h : elements.size < mkSmallArrayFunctions.size then
-    let mkFn := mkApp (mkConst mkSmallArrayFunctions[elements.size] [typLevel]) typ
-    return mkAppN mkFn (elements.map (.fvar ·))
-  else
-    let sizeLit ← mkAuxLit elements.size
-    let mut literal ← mkAuxLetDecl <| mkApp2 (mkConst ``Array.mkEmpty [typLevel]) typ (.fvar sizeLit)
-    for element in elements do
-      literal ← mkAuxLetDecl <| mkApp3 (mkConst ``Array.push [typLevel]) typ (.fvar literal) (.fvar element)
-    return .fvar literal
+  let sizeLit ← mkAuxLit elements.size
+  let mut literal ← mkAuxLetDecl <| mkApp2 (mkConst ``Array.mkEmpty [typLevel]) typ (.fvar sizeLit)
+  for element in elements do
+    literal ← mkAuxLetDecl <| mkApp3 (mkConst ``Array.push [typLevel]) typ (.fvar literal) (.fvar element)
+  return .fvar literal
 
 /--
 Evaluate array literals at compile time, that is turn:

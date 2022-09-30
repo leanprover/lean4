@@ -1,4 +1,5 @@
 @[reducible] def fooParser : Lean.ParserDescr :=
-Lean.ParserDescr.node `fooParser 1022
-  (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.symbol "foo") (Lean.ParserDescr.cat `term 0))
+Lean.ParserDescr.node (Lean.Name.mkStr1 "fooParser") 1022
+  (Lean.ParserDescr.binary (Lean.Name.mkStr1 "andthen") (Lean.ParserDescr.symbol "foo")
+    (Lean.ParserDescr.cat (Lean.Name.mkStr1 "term") 0))
 5 + 1 : Nat

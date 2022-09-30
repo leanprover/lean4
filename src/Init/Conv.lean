@@ -59,10 +59,10 @@ in "head position" until a constructor is exposed. For example, `List.map f [a, 
 weak head normalizes to `f a :: List.map f [b, c]`. -/
 syntax (name := whnf) "whnf" : conv
 
-/-- Expand let-declarations and let-variables. -/
+/-- Expands let-declarations and let-variables. -/
 syntax (name := zeta) "zeta" : conv
 
-/-- Put term in normal form, this tactic is ment for debugging purposes only -/
+/-- Puts term in normal form, this tactic is meant for debugging purposes only. -/
 syntax (name := reduce) "reduce" : conv
 
 /-- Performs one step of "congruence", which takes a term and produces
@@ -101,7 +101,7 @@ syntax (name := unfold) "unfold " (colGt ident)+ : conv
 
 /--
 * `pattern pat` traverses to the first subterm of the target that matches `pat`.
-* `pattern (occs := *) pat` traverses to the every subterm of the target that matches `pat`
+* `pattern (occs := *) pat` traverses to every subterm of the target that matches `pat`
   which is not contained in another match of `pat`. It generates one subgoal for each matching
   subterm.
 * `pattern (occs := 1 2 4) pat` matches occurrences `1, 2, 4` of `pat` and produces three subgoals.
@@ -150,13 +150,13 @@ simplifies to `a`. -/
 syntax (name := simpMatch) "simp_match" : conv
 
 
-/-- Execute the given tactic block without converting `conv` goal into a regular goal -/
+/-- Executes the given tactic block without converting `conv` goal into a regular goal. -/
 syntax (name := nestedTacticCore) "tactic'" " => " tacticSeq : conv
 
-/-- Focus, convert the `conv` goal `⊢ lhs` into a regular goal `⊢ lhs = rhs`, and then execute the given tactic block. -/
+/-- Focuses, converts the `conv` goal `⊢ lhs` into a regular goal `⊢ lhs = rhs`, and then executes the given tactic block. -/
 syntax (name := nestedTactic) "tactic" " => " tacticSeq : conv
 
-/-- Execute the given conv block without converting regular goal into a `conv` goal -/
+/-- Executes the given conv block without converting regular goal into a `conv` goal. -/
 syntax (name := convTactic) "conv'" " => " convSeq : tactic
 
 /-- `{ convs }` runs the list of `convs` on the current target, and any subgoals that
@@ -224,7 +224,7 @@ macro (name := focus) tk:"focus " s:convSeq : conv => `(conv| tactic' => focus%$
 resulting in `t'`, which becomes the new target subgoal. -/
 syntax (name := convConvSeq) "conv" " => " convSeq : conv
 
-/-- `· conv` focuses on the main conv goal and tries to solve it using `s` -/
+/-- `· conv` focuses on the main conv goal and tries to solve it using `s`. -/
 macro dot:("·" <|> ".") s:convSeq : conv => `({%$dot ($s) })
 
 

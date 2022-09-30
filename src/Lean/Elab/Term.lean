@@ -1092,7 +1092,24 @@ def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Op
     let e := removeSaveInfoAnnotation e
     return Sum.inl <| Info.ofTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), expr := e, stx, expectedType?, isBinder }
 
-def addTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none) (elaborator := Name.anonymous) (isBinder := false) (force := false) : TermElabM Expr := do
+/--
+Pushes a new leaf node to the info tree associating the expression `e` to the syntax `stx`.
+As a result, when the user hovers over `stx` they will see the type of `e`, and if `e`
+is a constant they will see the constant's doc string.
+
+* `expectedType?`: the expected type of `e` at the point of elaboration, if available
+* `lctx?`: the local context in which to interpret `e` (otherwise it will use `← getLCtx`)
+* `elaborator`: a declaration name used as an alternative target for go-to-definition
+* `isBinder`: if true, this will be treated as defining `e` (which should be a local constant)
+  for the purpose of go-to-definition on local variables
+* `force`: In patterns, the effect of `addTermInfo` is usually suppressed and replaced
+  by a `patternWithRef?` annotation which will be turned into a term info on the
+  post-match-elaboration expression. This flag overrides that behavior and adds the term
+  info immediately. (See https://github.com/leanprover/lean4/pull/1664.)
+-/
+def addTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none)
+    (lctx? : Option LocalContext := none) (elaborator := Name.anonymous)
+    (isBinder := false) (force := false) : TermElabM Expr := do
   if (← read).inPattern && !force then
     return mkPatternWithRef e stx
   else

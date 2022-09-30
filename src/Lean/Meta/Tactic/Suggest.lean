@@ -16,7 +16,7 @@ open Elab Tactic Lsp Server
 
 syntax (name := suggest) "suggest" : tactic
 
-@[builtinTactic suggest]
+@[builtin_tactic suggest]
 def suggestTactic : Tactic := fun stx => do
   let newStx ← `(tactic| intros)
   let (_, mctx, goals) ← Tactic.hypothetically <| Lean.Elab.Tactic.evalTactic newStx.raw

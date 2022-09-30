@@ -40,6 +40,7 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ApplyNewGoals_noConfusion___rarg___lambda__1(lean_object*);
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_dependsOnOthers___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_exfalso___closed__1;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -3705,9 +3706,9 @@ static lean_object* _init_l_Lean_Meta_splitAndCore_go___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_splitAndCore_go___closed__2;
+x_1 = l_Lean_Meta_splitAndCore_go___closed__1;
 x_2 = l_Lean_Meta_splitAndCore_go___closed__5;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }
@@ -4449,9 +4450,9 @@ static lean_object* _init_l_Lean_MVarId_exfalso___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_MVarId_exfalso___lambda__1___closed__2;
+x_1 = l_Lean_MVarId_exfalso___lambda__1___closed__1;
 x_2 = l_Lean_MVarId_exfalso___lambda__1___closed__4;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }

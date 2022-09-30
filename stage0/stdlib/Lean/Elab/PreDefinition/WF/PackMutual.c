@@ -48,6 +48,7 @@ static lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinitio
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_withFixedPrefix_go(lean_object*);
 lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_forallTelescopeCompatibleAux___spec__15___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Lean_Elab_WF_packValues_go___closed__3;
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
@@ -2881,9 +2882,9 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Lean_Elab_WF_mkNewDomain___spec__1___closed__2;
+x_1 = l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Lean_Elab_WF_mkNewDomain___spec__1___closed__1;
 x_2 = l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Lean_Elab_WF_post_mkNewArg___spec__1___closed__5;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }
@@ -2899,9 +2900,9 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Lean_Elab_WF_mkNewDomain___spec__1___closed__2;
+x_1 = l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Lean_Elab_WF_mkNewDomain___spec__1___closed__1;
 x_2 = l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Lean_Elab_WF_post_mkNewArg___spec__1___closed__7;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }

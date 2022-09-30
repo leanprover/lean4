@@ -45,6 +45,7 @@ static lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_solveEqOfCtorEq
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremTypeCore_x3f_mkArgs2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheorem(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremTypeCore_x3f___lambda__4(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -106,7 +107,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiv
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremTypeCore_x3f___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedExpr;
-static lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__7;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1812____closed__3;
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_reverse___rarg(lean_object*);
@@ -3025,42 +3025,32 @@ return x_1;
 static lean_object* _init_l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__1;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("propIntro", 9);
+return x_1;
 }
 }
 static lean_object* _init_l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__3() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("propIntro", 9);
-return x_1;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__1;
+x_2 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__2;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__2;
-x_2 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__3;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__4;
+x_2 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__3;
 x_3 = l_Lean_Expr_const___override(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__6() {
+static lean_object* _init_l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -3068,11 +3058,11 @@ x_1 = lean_mk_string_from_bytes("unexpected number of subgoals when proving inje
 return x_1;
 }
 }
-static lean_object* _init_l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__7() {
+static lean_object* _init_l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__6;
+x_1 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__5;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -3091,7 +3081,7 @@ lean_inc(x_12);
 lean_dec(x_10);
 lean_inc(x_11);
 x_13 = l_Lean_Expr_mvarId_x21(x_11);
-x_14 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__5;
+x_14 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__4;
 x_15 = 0;
 lean_inc(x_7);
 lean_inc(x_6);
@@ -3113,7 +3103,7 @@ lean_inc(x_18);
 lean_dec(x_16);
 x_19 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_19, 0, x_1);
-x_20 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__7;
+x_20 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__6;
 x_21 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set(x_21, 1, x_19);
@@ -3144,7 +3134,7 @@ lean_inc(x_26);
 lean_dec(x_16);
 x_27 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_27, 0, x_1);
-x_28 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__7;
+x_28 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__6;
 x_29 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_29, 0, x_28);
 lean_ctor_set(x_29, 1, x_27);
@@ -3494,7 +3484,7 @@ lean_inc(x_92);
 lean_dec(x_16);
 x_93 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_93, 0, x_1);
-x_94 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__7;
+x_94 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__6;
 x_95 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_95, 0, x_94);
 lean_ctor_set(x_95, 1, x_93);
@@ -4178,7 +4168,7 @@ if (x_13 == 0)
 lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 x_14 = lean_ctor_get(x_12, 0);
 x_15 = lean_ctor_get(x_12, 1);
-x_16 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__4;
+x_16 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__3;
 x_17 = l_Lean_Environment_contains(x_10, x_16);
 if (x_17 == 0)
 {
@@ -4369,7 +4359,7 @@ x_50 = lean_ctor_get(x_12, 1);
 lean_inc(x_50);
 lean_inc(x_49);
 lean_dec(x_12);
-x_51 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__4;
+x_51 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__3;
 x_52 = l_Lean_Environment_contains(x_10, x_51);
 if (x_52 == 0)
 {
@@ -4697,8 +4687,6 @@ l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda_
 lean_mark_persistent(l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__5);
 l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__6 = _init_l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__6();
 lean_mark_persistent(l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__6);
-l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__7 = _init_l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__7();
-lean_mark_persistent(l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__7);
 l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheorem___closed__1 = _init_l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheorem___closed__1();
 lean_mark_persistent(l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheorem___closed__1);
 l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1812____closed__1 = _init_l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1812____closed__1();

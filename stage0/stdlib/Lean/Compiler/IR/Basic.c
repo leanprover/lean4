@@ -67,6 +67,7 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_instBEqVarId___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_LocalContext_getJPParams(lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_IR_addParamsRename___spec__2___closed__2;
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_IR_CtorInfo_isScalar(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_IR_LocalContext_isParam(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_IR_FnBody_alphaEqv(lean_object*, lean_object*, lean_object*);
@@ -14032,9 +14033,9 @@ static lean_object* _init_l_Lean_IR_mkIf___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_IR_mkIf___closed__2;
+x_1 = l_Lean_IR_mkIf___closed__1;
 x_2 = l_Lean_IR_mkIf___closed__3;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }
@@ -14065,9 +14066,9 @@ static lean_object* _init_l_Lean_IR_mkIf___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_IR_mkIf___closed__2;
+x_1 = l_Lean_IR_mkIf___closed__1;
 x_2 = l_Lean_IR_mkIf___closed__6;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }

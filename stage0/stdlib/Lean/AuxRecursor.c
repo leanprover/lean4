@@ -23,6 +23,7 @@ static lean_object* l_Lean_isAuxRecursor___closed__3;
 LEAN_EXPORT uint8_t l_Lean_isCasesOnRecursor(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_isAuxRecursor___closed__5;
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_49____closed__1;
 static lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_165____closed__2;
 static lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_49____closed__2;
@@ -60,7 +61,6 @@ LEAN_EXPORT lean_object* l_Lean_isAuxRecursor___boxed(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Lean_brecOnSuffix;
 static lean_object* l_Lean_isAuxRecursor___closed__1;
 LEAN_EXPORT lean_object* l_Lean_isAuxRecursorWithSuffix___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_isAuxRecursor___closed__6;
 lean_object* l_Lean_TagDeclarationExtension_tag(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_recOnSuffix___closed__1;
 LEAN_EXPORT lean_object* l_Lean_casesOnSuffix;
@@ -246,32 +246,22 @@ return x_1;
 static lean_object* _init_l_Lean_isAuxRecursor___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_isAuxRecursor___closed__1;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_isAuxRecursor___closed__3() {
-_start:
-{
 lean_object* x_1; 
 x_1 = lean_mk_string_from_bytes("ndrec", 5);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_isAuxRecursor___closed__4() {
+static lean_object* _init_l_Lean_isAuxRecursor___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_isAuxRecursor___closed__2;
-x_2 = l_Lean_isAuxRecursor___closed__3;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_1 = l_Lean_isAuxRecursor___closed__1;
+x_2 = l_Lean_isAuxRecursor___closed__2;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_isAuxRecursor___closed__5() {
+static lean_object* _init_l_Lean_isAuxRecursor___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -279,13 +269,13 @@ x_1 = lean_mk_string_from_bytes("ndrecOn", 7);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_isAuxRecursor___closed__6() {
+static lean_object* _init_l_Lean_isAuxRecursor___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_isAuxRecursor___closed__2;
-x_2 = l_Lean_isAuxRecursor___closed__5;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_1 = l_Lean_isAuxRecursor___closed__1;
+x_2 = l_Lean_isAuxRecursor___closed__4;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }
@@ -299,12 +289,12 @@ x_4 = l_Lean_TagDeclarationExtension_isTagged(x_3, x_1, x_2);
 if (x_4 == 0)
 {
 lean_object* x_5; uint8_t x_6; 
-x_5 = l_Lean_isAuxRecursor___closed__4;
+x_5 = l_Lean_isAuxRecursor___closed__3;
 x_6 = lean_name_eq(x_2, x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; uint8_t x_8; 
-x_7 = l_Lean_isAuxRecursor___closed__6;
+x_7 = l_Lean_isAuxRecursor___closed__5;
 x_8 = lean_name_eq(x_2, x_7);
 lean_dec(x_2);
 return x_8;
@@ -582,8 +572,6 @@ l_Lean_isAuxRecursor___closed__4 = _init_l_Lean_isAuxRecursor___closed__4();
 lean_mark_persistent(l_Lean_isAuxRecursor___closed__4);
 l_Lean_isAuxRecursor___closed__5 = _init_l_Lean_isAuxRecursor___closed__5();
 lean_mark_persistent(l_Lean_isAuxRecursor___closed__5);
-l_Lean_isAuxRecursor___closed__6 = _init_l_Lean_isAuxRecursor___closed__6();
-lean_mark_persistent(l_Lean_isAuxRecursor___closed__6);
 l_Lean_isCasesOnRecursor___closed__1 = _init_l_Lean_isCasesOnRecursor___closed__1();
 lean_mark_persistent(l_Lean_isCasesOnRecursor___closed__1);
 l_Lean_isRecOnRecursor___closed__1 = _init_l_Lean_isRecOnRecursor___closed__1();

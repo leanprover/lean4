@@ -13,11 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6_(lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__4;
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__1;
-static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__6;
 LEAN_EXPORT lean_object* l_Lean_Compiler_compiler_check;
 lean_object* l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_59____spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__5;
@@ -34,32 +33,22 @@ return x_1;
 static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__1;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__3() {
-_start:
-{
 lean_object* x_1; 
 x_1 = lean_mk_string_from_bytes("check", 5);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__4() {
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__2;
-x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__3;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__1;
+x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__2;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__5() {
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -67,13 +56,13 @@ x_1 = lean_mk_string_from_bytes("type check code after each compiler step (this 
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__6() {
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__5() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = 1;
 x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__1;
-x_3 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__5;
+x_3 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__4;
 x_4 = lean_box(x_1);
 x_5 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_5, 0, x_4);
@@ -86,8 +75,8 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___h
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__4;
-x_3 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__6;
+x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__3;
+x_3 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__5;
 x_4 = l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_59____spec__1(x_2, x_3, x_1);
 return x_4;
 }
@@ -119,8 +108,6 @@ l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__4 = _init
 lean_mark_persistent(l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__4);
 l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__5 = _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__5();
 lean_mark_persistent(l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__5);
-l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__6 = _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__6();
-lean_mark_persistent(l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__6);
 if (builtin) {res = l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Compiler_compiler_check = lean_io_result_get_value(res);

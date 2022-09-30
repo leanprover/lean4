@@ -30,6 +30,7 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_MVarId_clear(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_caseArraySizes___lambda__1___closed__2;
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_CaseArraySizesSubgoal_elems___default;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -403,9 +404,9 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Met
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_getArrayArgType___closed__2;
+x_1 = l_Lean_Meta_getArrayArgType___closed__1;
 x_2 = l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_mkArrayGetLit___closed__1;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }
@@ -699,9 +700,9 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Met
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_getArrayArgType___closed__2;
+x_1 = l_Lean_Meta_getArrayArgType___closed__1;
 x_2 = l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___closed__1;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }
@@ -2171,9 +2172,9 @@ static lean_object* _init_l_Lean_Meta_caseArraySizes___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_getArrayArgType___closed__2;
+x_1 = l_Lean_Meta_getArrayArgType___closed__1;
 x_2 = l_Lean_Meta_caseArraySizes___closed__1;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }

@@ -18,10 +18,10 @@ static lean_object* l_termS_x21_____closed__7;
 static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__9;
 static lean_object* l_termS_x21_____closed__3;
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at___aux__Init__Notation______macroRules__precMax__1___spec__1(lean_object*, lean_object*);
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__13;
 static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__10;
 static lean_object* l_termS_x21_____closed__2;
-static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__15;
 static lean_object* l_termS_x21_____closed__13;
 static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__6;
 static lean_object* l_termS_x21_____closed__6;
@@ -313,9 +313,9 @@ static lean_object* _init_l___aux__Init__Data__ToString__Macro______macroRules__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__11;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_1 = l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__11;
+x_2 = l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__8;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }
@@ -323,9 +323,11 @@ static lean_object* _init_l___aux__Init__Data__ToString__Macro______macroRules__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__12;
-x_2 = l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__8;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_1 = lean_box(0);
+x_2 = l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__12;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
@@ -335,18 +337,6 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__13;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__15() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__14;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -409,7 +399,7 @@ lean_dec(x_20);
 x_23 = l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__10;
 x_24 = l_Lean_addMacroScope(x_14, x_23, x_13);
 x_25 = l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__9;
-x_26 = l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__15;
+x_26 = l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__14;
 x_27 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_27, 0, x_21);
 lean_ctor_set(x_27, 1, x_25);
@@ -535,8 +525,6 @@ l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__1
 lean_mark_persistent(l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__13);
 l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__14 = _init_l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__14();
 lean_mark_persistent(l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__14);
-l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__15 = _init_l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__15();
-lean_mark_persistent(l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__15);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

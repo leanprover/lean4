@@ -71,6 +71,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__2;
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Compiler_Specialize_0__Lean_Compiler_elabSpecArgs___spec__8___lambda__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_SMap_find_x3f___at_Lean_Compiler_getCachedSpecialization___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMap_insert___at_Lean_Compiler_SpecState_addEntry___spec__6(lean_object*, lean_object*, lean_object*);
@@ -112,7 +113,6 @@ lean_object* l_Lean_Syntax_isNatLit_x3f(lean_object*);
 lean_object* l_Lean_mkHashMapImp___rarg(lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_1063____closed__2;
 LEAN_EXPORT lean_object* l_Lean_Compiler_specExtension;
-static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__9;
 lean_object* l_Lean_ParametricAttribute_getParam_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_693____lambda__1___closed__14;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Compiler_getSpecializationInfo___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -228,7 +228,6 @@ lean_object* lean_list_to_array(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_instInhabitedSpecState___closed__3;
 LEAN_EXPORT uint8_t l_Lean_Compiler_hasNospecializeAttribute(lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Compiler_Specialize_0__Lean_Compiler_elabSpecArgs___spec__8___lambda__2___closed__8;
-static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__10;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_le(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_SMap_find_x3f___at_Lean_Compiler_getSpecializationInfo___spec__1(lean_object*, lean_object*);
@@ -482,32 +481,12 @@ return x_1;
 static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__4() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__3;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__5() {
-_start:
-{
 lean_object* x_1; 
 x_1 = lean_mk_string_from_bytes("Compiler", 8);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__4;
-x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__5;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__7() {
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -515,17 +494,18 @@ x_1 = lean_mk_string_from_bytes("nospecializeAttr", 16);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__8() {
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__6() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__6;
-x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__7;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__3;
+x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__4;
+x_3 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__5;
+x_4 = l_Lean_Name_mkStr3(x_1, x_2, x_3);
+return x_4;
 }
 }
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__9() {
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -533,7 +513,7 @@ x_1 = lean_mk_string_from_bytes("mark definition to never be specialized", 39);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__10() {
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -546,9 +526,9 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__2;
-x_3 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__9;
-x_4 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__10;
-x_5 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__8;
+x_3 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__7;
+x_4 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__8;
+x_5 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__6;
 x_6 = l_Lean_registerTagAttribute(x_2, x_3, x_4, x_5, x_1);
 return x_6;
 }
@@ -2431,11 +2411,12 @@ return x_1;
 static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_693____closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__6;
-x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_693____closed__1;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__3;
+x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__4;
+x_3 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_693____closed__1;
+x_4 = l_Lean_Name_mkStr3(x_1, x_2, x_3);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_693____closed__3() {
@@ -5943,10 +5924,6 @@ l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__7 = _
 lean_mark_persistent(l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__7);
 l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__8 = _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__8();
 lean_mark_persistent(l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__8);
-l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__9 = _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__9();
-lean_mark_persistent(l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__9);
-l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__10 = _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__10();
-lean_mark_persistent(l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32____closed__10);
 if (builtin) {res = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_32_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Compiler_nospecializeAttr = lean_io_result_get_value(res);

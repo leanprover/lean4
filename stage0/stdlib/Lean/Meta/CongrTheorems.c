@@ -61,6 +61,7 @@ lean_object* l_Lean_Meta_mkEqRec(lean_object*, lean_object*, lean_object*, lean_
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentArray_anyM___at___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___spec__5(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkHCongrWithArity___lambda__2___closed__2;
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -270,7 +271,6 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Meta_CongrTheorem
 LEAN_EXPORT lean_object* l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_hasCastLike___boxed(lean_object*);
 lean_object* l_Lean_Meta_mkEqOfHEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkHCongrWithArity___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__3___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Meta_mkHCongrWithArity_mkProof___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instInhabitedMetaM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Meta_CongrTheorems_0__Lean_Meta_hasCastLike___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -6072,28 +6072,18 @@ return x_1;
 static lean_object* _init_l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__3___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__3___closed__1;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__3___closed__3() {
-_start:
-{
 lean_object* x_1; 
 x_1 = lean_mk_string_from_bytes("elim", 4);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__3___closed__4() {
+static lean_object* _init_l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__3___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__3___closed__2;
-x_2 = l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__3___closed__3;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_1 = l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__3___closed__1;
+x_2 = l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__3___closed__2;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }
@@ -6133,7 +6123,7 @@ lean_dec(x_22);
 x_25 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__5;
 x_26 = lean_array_push(x_25, x_5);
 x_27 = lean_array_push(x_26, x_6);
-x_28 = l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__3___closed__4;
+x_28 = l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__3___closed__3;
 lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
@@ -8379,8 +8369,6 @@ l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__3___closed__2 = _init_l_Lea
 lean_mark_persistent(l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__3___closed__2);
 l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__3___closed__3 = _init_l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__3___closed__3();
 lean_mark_persistent(l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__3___closed__3);
-l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__3___closed__4 = _init_l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__3___closed__4();
-lean_mark_persistent(l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__3___closed__4);
 l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__4___closed__1 = _init_l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__4___closed__1();
 lean_mark_persistent(l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__4___closed__1);
 l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__4___closed__2 = _init_l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__4___closed__2();

@@ -17,7 +17,7 @@ static lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_hasMatchPatternAttribute___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_hasMatchPatternAttribute___closed__1;
-static lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__8;
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4_(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__5;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -71,32 +71,22 @@ return x_1;
 static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__4() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__3;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__5() {
-_start:
-{
 lean_object* x_1; 
 x_1 = lean_mk_string_from_bytes("matchPatternAttr", 16);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__6() {
+static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__4;
-x_2 = l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__5;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_1 = l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__3;
+x_2 = l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__4;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__7() {
+static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -104,7 +94,7 @@ x_1 = lean_mk_string_from_bytes("mark that a definition can be used in a pattern
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__8() {
+static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -117,9 +107,9 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_2 = l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__2;
-x_3 = l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__7;
-x_4 = l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__8;
-x_5 = l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__6;
+x_3 = l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__6;
+x_4 = l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__7;
+x_5 = l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__5;
 x_6 = l_Lean_registerTagAttribute(x_2, x_3, x_4, x_5, x_1);
 return x_6;
 }
@@ -188,8 +178,6 @@ l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__6 = _in
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__6);
 l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__7 = _init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__7();
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__7);
-l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__8 = _init_l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__8();
-lean_mark_persistent(l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__8);
 if (builtin) {res = l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_matchPatternAttr = lean_io_result_get_value(res);

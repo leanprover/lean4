@@ -36,6 +36,7 @@ def builtinPassManager : PassManager := {
     simp { etaPoly := true, inlinePartial := true, implementedBy := true } (occurrence := 1),
     specialize,
     simp (occurrence := 2),
+    cse,
     saveBase -- End of base phase
   ]
 }

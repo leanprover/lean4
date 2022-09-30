@@ -23,18 +23,23 @@ open Server Std Lean SubExpr
 
 NOTE: in the future we may add other tags.
   -/
-inductive ExprDiffTag where
+private inductive ExprDiffTag where
   | change
   | delete
+  | insert
 
-def ExprDiffTag.toHighlightColor : (useAfter : Bool) → ExprDiffTag → HighlightColor
-  | true,  .change => .green
-  | false, .change => .yellow
-  | _,     .delete => .red
+def ExprDiffTag.toDiffTag : (useAfter : Bool) → ExprDiffTag → Lean.Widget.DiffTag
+  | true,  .change => .wasChanged
+  | false, .change => .willChange
+  | true,  .delete => .wasDeleted
+  | false, .delete => .willDelete
+  | true,  .insert => .wasInserted
+  | false, .insert => .willInsert
 
 def ExprDiffTag.toString : ExprDiffTag → String
   | .change => "change"
   | .delete => "delete"
+  | .insert => "insert"
 
 instance : ToString ExprDiffTag := ⟨ExprDiffTag.toString⟩
 
@@ -179,7 +184,7 @@ this function decorates `infoAfter` with tags indicating where the expression ha
 If `useAfter == false` before and after are swapped. -/
 def addDiffTags (useAfter : Bool) (diff : ExprDiff) (info₁ : CodeWithInfos) : MetaM CodeWithInfos := do
   let cs := if useAfter then diff.changesAfter else diff.changesBefore
-  info₁.mergePosMap (fun info d => pure <| info.highlight <| d.toHighlightColor useAfter) cs
+  info₁.mergePosMap (fun info d => pure <| info.withDiffTag <| ExprDiffTag.toDiffTag useAfter d) cs
 
 open Meta
 

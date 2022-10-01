@@ -229,10 +229,10 @@ def isOnceOrMustInline (fvarId : FVarId) : SimpM Bool := do
     | _ => return false
 
 /--
-Return `true` if the given local function declaration is considered "small".
+Return `true` if the given code is considered "small".
 -/
-def isSmall (decl : FunDecl) : SimpM Bool :=
-  return decl.value.sizeLe (← getConfig).smallThreshold
+def isSmall (code : Code) : SimpM Bool :=
+  return code.sizeLe (← getConfig).smallThreshold
 
 /--
 Return `true` if the given local function declaration should be inlined.
@@ -241,7 +241,7 @@ def shouldInlineLocal (decl : FunDecl) : SimpM Bool := do
   if (← isOnceOrMustInline decl.fvarId) then
     return true
   else
-    isSmall decl
+    isSmall decl.value
 
 /--
 LCNF "Beta-reduce". The equivalent of `(fun params => code) args`.

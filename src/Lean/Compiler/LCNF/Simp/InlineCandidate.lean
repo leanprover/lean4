@@ -40,10 +40,13 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
   let numArgs := e.getAppNumArgs
   let f := e.getAppFn
   if let .const declName us ← findExpr f then
-    let inlineIfReduce := hasInlineIfReduceAttribute (← getEnv) declName
-    unless mustInline || hasInlineAttribute (← getEnv) declName || inlineIfReduce do return none
     let some decl ← getDecl? declName | return none
+    let inlineIfReduce := hasInlineIfReduceAttribute (← getEnv) declName
     if !inlineIfReduce && decl.recursive then return none
+    let small ← isSmall decl.value
+    let env ← getEnv
+    unless mustInline || hasInlineAttribute env declName || inlineIfReduce || (small && !hasNoInlineAttribute env declName) do
+      return none
     let arity := decl.getArity
     let inlinePartial := (← read).config.inlinePartial
     if !mustInline && !inlinePartial && numArgs < arity then return none

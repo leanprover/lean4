@@ -35,7 +35,7 @@ structure SubexprInfo where
   -- TODO(WN): add fields for semantic highlighting
   -- kind : Lsp.SymbolKind
   /-- Ask the renderer to highlight this node in the given color. -/
-  diffTag? : Option DiffTag := none
+  diffStatus? : Option DiffTag := none
   deriving Inhabited, RpcEncodable
 
 /-- Pretty-printed syntax (usually but not necessarily an `Expr`) with embedded `Info`s. -/
@@ -53,7 +53,7 @@ def CodeWithInfos.pretty (tt : CodeWithInfos) :=
   tt.stripTags
 
 def SubexprInfo.withDiffTag (tag : DiffTag) (c : SubexprInfo) : SubexprInfo :=
-  {c with diffTag? := some tag }
+  {c with diffStatus? := some tag }
 
 /-- Tags a pretty-printed `Expr` with infos from the delaborator. -/
 partial def tagExprInfos (ctx : Elab.ContextInfo) (infos : SubExpr.PosMap Elab.Info) (tt : TaggedText (Nat × Nat))

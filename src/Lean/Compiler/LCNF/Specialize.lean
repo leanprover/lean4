@@ -327,7 +327,8 @@ where
     let type ← value.inferType
     let type ← mkForallParams params type
     let safe := decl.safe
-    let decl := { name := nameNew, levelParams := levelParamsNew, params, type, value, safe : Decl }
+    let recursive := decl.recursive
+    let decl := { name := nameNew, levelParams := levelParamsNew, params, type, value, safe, recursive : Decl }
     return decl.setLevelParams
 
 /--

@@ -13,6 +13,7 @@ import Lake.CLI.Help
 import Lake.CLI.Build
 import Lake.CLI.Error
 import Lake.CLI.Actions
+import Lake.CLI.Serve
 
 -- # CLI
 

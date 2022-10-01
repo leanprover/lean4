@@ -326,7 +326,8 @@ where
     let value := attachCodeDecls decls value
     let type ← value.inferType
     let type ← mkForallParams params type
-    let decl := { name := nameNew, levelParams := levelParamsNew, params, type, value : Decl }
+    let safe := decl.safe
+    let decl := { name := nameNew, levelParams := levelParamsNew, params, type, value, safe : Decl }
     return decl.setLevelParams
 
 /--
@@ -373,7 +374,7 @@ mutual
       specDecl.saveBase
       let specDecl ← specDecl.etaExpand
       specDecl.saveBase
-      let specDecl ← specDecl.simp {} -- TODO: `simp` config
+      let specDecl ← specDecl.simp {}
       let specDecl ← specDecl.simp { etaPoly := true, inlinePartial := true, implementedBy := true }
       let value ← withReader (fun _ => { declName := specDecl.name }) do
          withParams specDecl.params <| visitCode specDecl.value

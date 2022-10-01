@@ -32,7 +32,7 @@ def mkBodyForStruct (header : Header) (indVal : InductiveVal) : TermElabM Term :
       let fieldName := fieldNames[i]!
       let fieldNameLit := Syntax.mkStrLit (toString fieldName)
       let x := xs[numParams + i]!
-      if i > numParams then
+      if i != 0 then
         fields ← `($fields ++ "," ++ Format.line)
       if (← isType x <||> isProof x) then
         fields ← `($fields ++ $fieldNameLit ++ " := " ++ "_")

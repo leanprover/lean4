@@ -62,6 +62,12 @@ structure LeanLibConfig extends LeanConfig where
   precompileModules : Bool := false
 
   /--
+  An `Array` of library facets to build on a bare `lake build` of the library.
+  For example, `#[LeanLib.sharedLib]` will build the shared library facet.
+  -/
+  defaultFacets : Array Name := #[LeanLib.leanFacet]
+
+  /--
   An `Array` of module facets to build and combine into the library's static
   and shared libraries. Defaults to ``#[Module.oFacet]`` (i.e., the object file
   compiled from the Lean source).

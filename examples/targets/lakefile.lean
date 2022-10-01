@@ -6,8 +6,14 @@ package targets {
 }
 
 @[default_target]
-lean_lib foo
-lean_lib bar
+lean_lib foo {
+  defaultFacets := #[LeanLib.staticFacet]
+}
+
+lean_lib bar {
+  defaultFacets := #[LeanLib.sharedFacet]
+}
+
 lean_lib baz
 
 lean_exe a

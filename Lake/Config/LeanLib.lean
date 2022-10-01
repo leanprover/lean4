@@ -69,6 +69,10 @@ Is true if either the package or the library have `precompileModules` set.
 @[inline] def precompileModules (self : LeanLib) : Bool :=
   self.pkg.precompileModules || self.config.precompileModules
 
+/-- The library's `defaultFacets` configuration. -/
+@[inline] def defaultFacets (self : LeanLib) : Array Name :=
+  self.config.defaultFacets
+
 /-- The library's `nativeFacets` configuration. -/
 @[inline] def nativeFacets (self : LeanLib) : Array (ModuleFacet (BuildJob FilePath)) :=
   self.config.nativeFacets

@@ -33,18 +33,20 @@ $LAKE build targets/
 
 ./build/bin/c
 test -f ./build/lib/Foo.olean
+test -f ./build/lib/${LIB_PREFIX}Foo.a
 cat ./build/meow.txt | grep -m1 Meow!
+
+$LAKE build foo:shared bar
+
+test -f ./build/lib/${LIB_PREFIX}Foo.$SHARED_LIB_EXT
+test -f ./build/lib/${LIB_PREFIX}Bar.$SHARED_LIB_EXT
+
+test ! -f ./build/lib/Baz.olean
 
 $LAKE build a b
 
 ./build/bin/a
 ./build/bin/b
-
-$LAKE build foo:static
-$LAKE build bar:shared
-
-test -f ./build/lib/${LIB_PREFIX}Foo.a
-test -f ./build/lib/${LIB_PREFIX}Bar.$SHARED_LIB_EXT
 
 $LAKE build bark | grep -m1 Bark!
 

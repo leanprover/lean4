@@ -56,13 +56,17 @@ def resolveModuleTarget (ws : Workspace) (mod : Module) (facet : Name) : Except 
   else
     throw <| CliError.unknownFacet "module" facet
 
-def resolveLibTarget (ws : Workspace) (lib : LeanLib) (facet : Name) : Except CliError BuildSpec :=
+def resolveLibTarget (ws : Workspace) (lib : LeanLib) (facet : Name) : Except CliError (Array BuildSpec) :=
   if facet.isAnonymous then
-    return mkBuildSpec lib.lean
-  else if let some config := ws.findLibraryFacetConfig? facet then do
-    mkConfigBuildSpec "library" (lib.facet facet) config rfl
+    lib.defaultFacets.mapM (resolveFacet ·)
   else
-    throw <| CliError.unknownFacet "library" facet
+    Array.singleton <$> resolveFacet facet
+where
+  resolveFacet facet :=
+    if let some config := ws.findLibraryFacetConfig? facet then do
+      mkConfigBuildSpec "library" (lib.facet facet) config rfl
+    else
+      throw <| CliError.unknownFacet "library" facet
 
 def resolveExeTarget (exe : LeanExe) (facet : Name) : Except CliError BuildSpec :=
   if facet.isAnonymous || facet == `exe then
@@ -88,22 +92,22 @@ def resolveCustomTarget (pkg : Package)
     return {info, getJob := fun data => discard (h ▸ config.getJob data).toJob}
 
 def resolveTargetInPackage (ws : Workspace)
-(pkg : Package) (target facet : Name) : Except CliError BuildSpec :=
+(pkg : Package) (target facet : Name) : Except CliError (Array BuildSpec) :=
   if let some config := pkg.findTargetConfig? target then
-    resolveCustomTarget pkg target facet config
+    Array.singleton <$> resolveCustomTarget pkg target facet config
   else if let some exe := pkg.findLeanExe? target then
-    resolveExeTarget exe facet
+    Array.singleton <$> resolveExeTarget exe facet
   else if let some lib := pkg.findExternLib? target then
-    resolveExternLibTarget lib facet
+    Array.singleton <$> resolveExternLibTarget lib facet
   else if let some lib := pkg.findLeanLib? target then
     resolveLibTarget ws lib facet
   else if let some mod := pkg.findModule? target then
-    resolveModuleTarget ws mod facet
+    Array.singleton <$> resolveModuleTarget ws mod facet
   else
     throw <| CliError.missingTarget pkg.name (target.toString false)
 
 def resolveDefaultPackageTarget (ws : Workspace) (pkg : Package) : Except CliError (Array BuildSpec) :=
-  pkg.defaultTargets.mapM (resolveTargetInPackage ws pkg · .anonymous)
+  pkg.defaultTargets.concatMapM (resolveTargetInPackage ws pkg · .anonymous)
 
 def resolvePackageTarget (ws : Workspace) (pkg : Package) (facet : Name) : Except CliError (Array BuildSpec) :=
   if facet.isAnonymous then
@@ -122,7 +126,7 @@ def resolveTargetInWorkspace (ws : Workspace)
   else if let some lib := ws.findExternLib? target then
     Array.singleton <$> resolveExternLibTarget lib facet
   else if let some lib := ws.findLeanLib? target then
-    Array.singleton <$> resolveLibTarget ws lib facet
+    resolveLibTarget ws lib facet
   else if let some pkg := ws.findPackage? target then
     resolvePackageTarget ws pkg facet
   else if let some mod := ws.findModule? target then
@@ -159,7 +163,7 @@ def resolveTargetBaseSpec
       else
         throw <| CliError.unknownModule mod
     else
-      Array.singleton <$> resolveTargetInPackage ws pkg targetSpec facet
+      resolveTargetInPackage ws pkg targetSpec facet
   | _ =>
     throw <| CliError.invalidTargetSpec spec '/'
 

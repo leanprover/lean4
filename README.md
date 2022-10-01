@@ -184,6 +184,7 @@ lean_lib «target-name» {
 * `roots`: An `Array` of root module `Name`(s) of the library. Submodules of these roots (e.g., `Lib.Foo` of `Lib`) are considered part of the library. Defaults to a single root of the library's upper camel case name.
 * `globs`: An `Array` of module `Glob`s to build for the library. Defaults to a `Glob.one` of each of the library's  `roots`. Submodule globs build every source file within their directory. Local imports of glob'ed files (i.e., fellow modules of the workspace) are also recursively built.
 * `libName`: The `String` name of the library. Used as a base for the file names of its static and dynamic binaries. Defaults to the upper camel case name of the target.
+* `defaultFacets`: An `Array` of library facets to build on a bare `lake build` of the library. For example, setting this to `#[LeanLib.sharedLib]` will build the shared library facet.
 * `nativeFacets`: An `Array` of [module facets](#defining-new-facets) to build and combine into the library's static and shared libraries. Defaults to ``#[Module.oFacet]`` (i.e., the object file compiled from the Lean source).
 * `precompileModules`, `buildType`, `moreLeanArgs`, `moreLinkArgs`, `moreLinkArgs`: Augments the package's corresponding configuration option. The library's arguments come after, modules are precompiled if either the library or package are precompiled, and the build type is the minimum of the two (`debug` is the lowest, and `release` is the highest)
 

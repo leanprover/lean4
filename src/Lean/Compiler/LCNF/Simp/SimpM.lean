@@ -172,12 +172,8 @@ def withInlining (value : Expr) (recursive : Bool) (x : SimpM α) : SimpM α := 
   if let .const declName _ := f then
     let numOccs := (← read).inlineStackOccs.find? declName |>.getD 0
     let numOccs := numOccs + 1
-    if recursive then
-      if hasInlineIfReduceAttribute (← getEnv) declName then
-        if numOccs > (← getConfig).maxRecInlineIfReduce then
-          throwError "function `{declName}` has been recursively inlined more than #{(← getConfig).maxRecInlineIfReduce}, consider removing the attribute `[inlineIfReduce]` from this declaration or increasing the limit using `set_option compiler.maxRecInlineIfReduce <num>`"
-      else if numOccs > (← getConfig).maxRecInline then
-        throwError "function `{declName}` has been recursively inlined more than #{(← getConfig).maxRecInline}, consider removing the attribute `[inline]` from this declaration or increasing the limit using `set_option compiler.maxRecInline <num>`"
+    if recursive && hasInlineIfReduceAttribute (← getEnv) declName && numOccs > (← getConfig).maxRecInlineIfReduce then
+      throwError "function `{declName}` has been recursively inlined more than #{(← getConfig).maxRecInlineIfReduce}, consider removing the attribute `[inlineIfReduce]` from this declaration or increasing the limit using `set_option compiler.maxRecInlineIfReduce <num>`"
     withReader (fun ctx => { ctx with inlineStack := declName :: ctx.inlineStack, inlineStackOccs := ctx.inlineStackOccs.insert declName numOccs }) x
   else
     x

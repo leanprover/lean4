@@ -167,9 +167,9 @@ Execute `x` with an updated `inlineStack`. If `value` is of the form `const ...`
 Otherwise, do not change the `inlineStack`.
 -/
 def withInlining (value : Expr) (recursive : Bool) (x : SimpM α) : SimpM α := do
-  trace[Compiler.simp.inline] "inlining {value}"
   let f := value.getAppFn
   if let .const declName _ := f then
+    trace[Compiler.simp.inline] "{declName}"
     let numOccs := (← read).inlineStackOccs.find? declName |>.getD 0
     let numOccs := numOccs + 1
     if recursive && hasInlineIfReduceAttribute (← getEnv) declName && numOccs > (← getConfig).maxRecInlineIfReduce then

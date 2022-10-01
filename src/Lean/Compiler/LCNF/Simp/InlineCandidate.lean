@@ -79,3 +79,6 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
     }
   else
     return none
+
+builtin_initialize
+  registerTraceClass `Compiler.simp.inline

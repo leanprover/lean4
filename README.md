@@ -135,8 +135,8 @@ Lake provides a large assortment of configuration options for packages.
 
 ### Layout
 
-* `packagesDir`: The directory to which Lake should download remote dependencies. Defaults to `lean_packages`.
-* `manifestFile`: The path of a package's manifest file, which stores the exact versions of its resolved dependencies. Defaults to `lean_packages/manifest.json`.
+* `packagesDir`: The directory to which Lake should download remote dependencies. Defaults to `lake-packages`.
+* `manifestFile`: The path of a package's manifest file, which stores the exact versions of its resolved dependencies. Defaults to `lake-manifest.json`.
 * `srcDir`: The directory containing the package's Lean source files. Defaults to the package's directory. (This will be passed to `lean` as the `-R` option.)
 * `buildDir`: The directory to which Lake should output the package's build results. Defaults to `build`.
 * `oleanDir`: The build subdirectory to which Lake should output the package's `.olean` files. Defaults to `lib`.
@@ -265,7 +265,7 @@ require mathlib from git
   "https://github.com/leanprover-community/mathlib4.git"
 ```
 
-The next run of `lake build` (or refreshing dependencies in an editor like VSCode) will clone the mathlib repository and build it. Information on the specific revision cloned will then be saved to `manifest.json` in the workspace's `packageDir` (by default, `lean_packages`) to enable reproducibility. To update `mathlib` after this, you will need to run `lake update` -- other commands do not update resolved dependencies.
+The next run of `lake build` (or refreshing dependencies in an editor like VSCode) will clone the mathlib repository and build it. Information on the specific revision cloned will then be saved to `lake-manifest.json` to enable reproducibility. To update `mathlib` after this, you will need to run `lake update` -- other commands do not update resolved dependencies.
 
 For a theorem proving packages which depend on `mathlib`, you can also run `lake new <package-name> math` to generate a package configuration file that already has the `mathlib` dependency (and no binary executable target).
 

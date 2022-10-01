@@ -1,3 +1,3 @@
 rm -rf test/build
-rm -rf test/lean_packages
+rm -rf test/lake-packages
 rm -f lake-manifest.json

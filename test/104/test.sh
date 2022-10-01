@@ -17,5 +17,5 @@ else
   sed -i "s,\\.\\.[^\"]*,$TEST_URL," $MANIFEST
 fi
 cat $MANIFEST
-git -C lean_packages/hello remote set-url origin $TEST_URL
+git -C lake-packages/hello remote set-url origin $TEST_URL
 $LAKE build -K url=$TEST_URL

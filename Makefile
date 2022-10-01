@@ -20,7 +20,7 @@ test-examples: test-init test-hello test-deps\
 
 test-bootstrapped: test-boostrapped-hello
 
-clean: clean-build clean-tests clean-examples
+clean: clean-tests clean-examples clean-build
 
 clean-tests: clean-44 clean-62 clean-102 clean-104 clean-manifest
 

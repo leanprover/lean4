@@ -105,7 +105,7 @@ USAGE:
   lake update
 
 This command sets up the directory with the package's dependencies
-(i.e., `packagesDir`, which is, by default, `lean_packages`).
+(i.e., `packagesDir`, which is, by default, `lake-packages`).
 
 For each (transitive) git dependency, the specified commit is checked out
 into a sub-directory of `packagesDir`. Already checked out dependencies are

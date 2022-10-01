@@ -1,2 +1,2 @@
 rm -rf build
-rm -rf lean_packages
+rm -rf lake-packages

@@ -22,6 +22,7 @@ OPTIONS:
   --verbose, -v         show verbose information (command invocations)
   --lean=cmd            specify the `lean` command used by Lake
   -K key[=value]        set the configuration file option named key
+  --old                 only rebuild modified modules (ignore transitive deps)
 
 COMMANDS:
   new <name> [<temp>]   create a Lean package in a new directory

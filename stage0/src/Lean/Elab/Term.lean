@@ -1092,8 +1092,25 @@ def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Op
     let e := removeSaveInfoAnnotation e
     return Sum.inl <| Info.ofTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), expr := e, stx, expectedType?, isBinder }
 
-def addTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none) (elaborator := Name.anonymous) (isBinder := false) : TermElabM Expr := do
-  if (← read).inPattern then
+/--
+Pushes a new leaf node to the info tree associating the expression `e` to the syntax `stx`.
+As a result, when the user hovers over `stx` they will see the type of `e`, and if `e`
+is a constant they will see the constant's doc string.
+
+* `expectedType?`: the expected type of `e` at the point of elaboration, if available
+* `lctx?`: the local context in which to interpret `e` (otherwise it will use `← getLCtx`)
+* `elaborator`: a declaration name used as an alternative target for go-to-definition
+* `isBinder`: if true, this will be treated as defining `e` (which should be a local constant)
+  for the purpose of go-to-definition on local variables
+* `force`: In patterns, the effect of `addTermInfo` is usually suppressed and replaced
+  by a `patternWithRef?` annotation which will be turned into a term info on the
+  post-match-elaboration expression. This flag overrides that behavior and adds the term
+  info immediately. (See https://github.com/leanprover/lean4/pull/1664.)
+-/
+def addTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none)
+    (lctx? : Option LocalContext := none) (elaborator := Name.anonymous)
+    (isBinder := false) (force := false) : TermElabM Expr := do
+  if (← read).inPattern && !force then
     return mkPatternWithRef e stx
   else
     withInfoContext' (pure ()) (fun _ => mkTermInfo elaborator stx e expectedType? lctx? isBinder) |> discard
@@ -1552,7 +1569,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
   let currNamespace ← getCurrNamespace
   let view := extractMacroScopes n
   /- Simple case. "Match" function for regular local declarations. -/
-  let matchLocaDecl? (localDecl : LocalDecl) (givenName : Name) : Option LocalDecl := do
+  let matchLocalDecl? (localDecl : LocalDecl) (givenName : Name) : Option LocalDecl := do
     guard (localDecl.userName == givenName)
     return localDecl
   /-
@@ -1648,9 +1665,9 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
         if let some fullDeclName := auxDeclToFullName.find? localDecl.fvarId then
           matchAuxRecDecl? localDecl fullDeclName givenNameView
         else
-          matchLocaDecl? localDecl givenName
+          matchLocalDecl? localDecl givenName
       else
-        matchLocaDecl? localDecl givenName
+        matchLocalDecl? localDecl givenName
     if localDecl?.isSome || skipAuxDecl then
       localDecl?
     else
@@ -1658,7 +1675,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
       lctx.decls.findSomeRev? fun localDecl? => do
         let localDecl ← localDecl?
         guard (localDecl.binderInfo == .auxDecl)
-        matchLocaDecl? localDecl givenName
+        matchLocalDecl? localDecl givenName
   let rec loop (n : Name) (projs : List String) :=
     let givenNameView := { view with name := n }
     /- We do not consider dot notation for local decls corresponding to recursive functions being defined.
@@ -1701,10 +1718,10 @@ def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM E
 
 private def mkConsts (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
   candidates.foldlM (init := []) fun result (declName, projs) => do
-   -- TODO: better suppor for `mkConst` failure. We may want to cache the failures, and report them if all candidates fail.
-   checkDeprecated declName -- TODO: check is occurring too early if there are multiple alternatives. Fix if it is not ok in practice
-   let const ← mkConst declName explicitLevels
-   return (const, projs) :: result
+    -- TODO: better support for `mkConst` failure. We may want to cache the failures, and report them if all candidates fail.
+    checkDeprecated declName -- TODO: check is occurring too early if there are multiple alternatives. Fix if it is not ok in practice
+    let const ← mkConst declName explicitLevels
+    return (const, projs) :: result
 
 def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × List String)) := do
   addCompletionInfo <| CompletionInfo.id stx stx.getId (danglingDot := false) (← getLCtx) expectedType?

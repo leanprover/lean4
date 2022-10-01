@@ -170,7 +170,7 @@ static lean_object* l_Lean_resolveGlobalConst___at_Lean_Elab_Tactic_withRWRulesS
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_rewriteLocalDecl___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Tactic_withRWRulesSeq___spec__10___lambda__2(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Term_addTermInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Term_addTermInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalUnsafe____x40_Lean_Elab_Tactic_Rewrite___hyg_1072____closed__3;
 lean_object* l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_withSynthesizeImp___rarg(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Tactic_withRWRulesSeq___spec__10___lambda__2___closed__5;
@@ -1859,7 +1859,7 @@ x_31 = lean_box(0);
 lean_ctor_set(x_17, 0, x_30);
 x_32 = lean_box(0);
 x_33 = 0;
-x_34 = l_Lean_Elab_Term_addTermInfo(x_4, x_28, x_31, x_17, x_32, x_33, x_8, x_9, x_10, x_11, x_12, x_13, x_29);
+x_34 = l_Lean_Elab_Term_addTermInfo(x_4, x_28, x_31, x_17, x_32, x_33, x_33, x_8, x_9, x_10, x_11, x_12, x_13, x_29);
 if (lean_obj_tag(x_34) == 0)
 {
 uint8_t x_35; 
@@ -2014,7 +2014,7 @@ x_62 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_62, 0, x_60);
 x_63 = lean_box(0);
 x_64 = 0;
-x_65 = l_Lean_Elab_Term_addTermInfo(x_4, x_58, x_61, x_62, x_63, x_64, x_8, x_9, x_10, x_11, x_12, x_13, x_59);
+x_65 = l_Lean_Elab_Term_addTermInfo(x_4, x_58, x_61, x_62, x_63, x_64, x_64, x_8, x_9, x_10, x_11, x_12, x_13, x_59);
 if (lean_obj_tag(x_65) == 0)
 {
 lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; 

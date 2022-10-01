@@ -40,12 +40,13 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
   let numArgs := e.getAppNumArgs
   let f := e.getAppFn
   if let .const declName us ← findExpr f then
-    if declName == (← read).declName then return none -- TODO: remove after we start storing phase1 code in .olean files
-    let inlineIfReduce := hasInlineIfReduceAttribute (← getEnv) declName
-    unless mustInline || hasInlineAttribute (← getEnv) declName || inlineIfReduce do return none
-    -- TODO: check whether function is recursive or not.
-    -- We can skip the test and store function inline so far.
     let some decl ← getDecl? declName | return none
+    let inlineIfReduce := hasInlineIfReduceAttribute (← getEnv) declName
+    if !inlineIfReduce && decl.recursive then return none
+    let small ← isSmall decl.value
+    let env ← getEnv
+    unless mustInline || hasInlineAttribute env declName || inlineIfReduce || (small && !hasNoInlineAttribute env declName) do
+      return none
     let arity := decl.getArity
     let inlinePartial := (← read).config.inlinePartial
     if !mustInline && !inlinePartial && numArgs < arity then return none
@@ -81,3 +82,6 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
     }
   else
     return none
+
+builtin_initialize
+  registerTraceClass `Compiler.simp.inline

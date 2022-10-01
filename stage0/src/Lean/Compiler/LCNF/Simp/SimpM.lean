@@ -167,17 +167,13 @@ Execute `x` with an updated `inlineStack`. If `value` is of the form `const ...`
 Otherwise, do not change the `inlineStack`.
 -/
 def withInlining (value : Expr) (recursive : Bool) (x : SimpM α) : SimpM α := do
-  trace[Compiler.simp.inline] "inlining {value}"
   let f := value.getAppFn
   if let .const declName _ := f then
+    trace[Compiler.simp.inline] "{declName}"
     let numOccs := (← read).inlineStackOccs.find? declName |>.getD 0
     let numOccs := numOccs + 1
-    if recursive then
-      if hasInlineIfReduceAttribute (← getEnv) declName then
-        if numOccs > (← getConfig).maxRecInlineIfReduce then
-          throwError "function `{declName}` has been recursively inlined more than #{(← getConfig).maxRecInlineIfReduce}, consider removing the attribute `[inlineIfReduce]` from this declaration or increasing the limit using `set_option compiler.maxRecInlineIfReduce <num>`"
-      else if numOccs > (← getConfig).maxRecInline then
-        throwError "function `{declName}` has been recursively inlined more than #{(← getConfig).maxRecInline}, consider removing the attribute `[inline]` from this declaration or increasing the limit using `set_option compiler.maxRecInline <num>`"
+    if recursive && hasInlineIfReduceAttribute (← getEnv) declName && numOccs > (← getConfig).maxRecInlineIfReduce then
+      throwError "function `{declName}` has been recursively inlined more than #{(← getConfig).maxRecInlineIfReduce}, consider removing the attribute `[inlineIfReduce]` from this declaration or increasing the limit using `set_option compiler.maxRecInlineIfReduce <num>`"
     withReader (fun ctx => { ctx with inlineStack := declName :: ctx.inlineStack, inlineStackOccs := ctx.inlineStackOccs.insert declName numOccs }) x
   else
     x
@@ -233,10 +229,10 @@ def isOnceOrMustInline (fvarId : FVarId) : SimpM Bool := do
     | _ => return false
 
 /--
-Return `true` if the given local function declaration is considered "small".
+Return `true` if the given code is considered "small".
 -/
-def isSmall (decl : FunDecl) : SimpM Bool :=
-  return decl.value.sizeLe (← getConfig).smallThreshold
+def isSmall (code : Code) : SimpM Bool :=
+  return code.sizeLe (← getConfig).smallThreshold
 
 /--
 Return `true` if the given local function declaration should be inlined.
@@ -245,7 +241,7 @@ def shouldInlineLocal (decl : FunDecl) : SimpM Bool := do
   if (← isOnceOrMustInline decl.fvarId) then
     return true
   else
-    isSmall decl
+    isSmall decl.value
 
 /--
 LCNF "Beta-reduce". The equivalent of `(fun params => code) args`.

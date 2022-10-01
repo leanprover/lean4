@@ -80,4 +80,7 @@ builtin_initialize
     applicationTime := .afterCompilation
   }
 
+builtin_initialize
+  registerTraceClass `Compiler.saveBase (inherited := true)
+
 end Lean.Compiler.LCNF

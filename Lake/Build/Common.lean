@@ -54,6 +54,12 @@ namespace Lake
 
 /-! # Common Builds -/
 
+def buildO (name : String)
+(oFile : FilePath) (srcJob : BuildJob FilePath)
+(args : Array String := #[]) (compiler : FilePath := "cc") : SchedulerM (BuildJob FilePath) :=
+  buildFileAfterDep oFile srcJob (extraDepTrace := computeHash args) fun srcFile => do
+     compileO name oFile srcFile args compiler
+
 def buildLeanO (name : String)
 (oFile : FilePath) (srcJob : BuildJob FilePath)
 (args : Array String := #[]) : SchedulerM (BuildJob FilePath) :=

@@ -6,7 +6,7 @@ notation "⊤" => lcAny
 open Lean Compiler LCNF Meta
 
 def test (declName : Name) : MetaM Unit := do
-  IO.println s!"{declName} : {← ppExpr (← getDeclLCNFType declName)}"
+  IO.println s!"{declName} : {← ppExpr (← LCNF.getOtherDeclBaseType declName [])}"
 
 inductive Vec (α : Type u) : Nat → Type u
   | nil : Vec α 0
@@ -110,8 +110,8 @@ def weird1 (c : Bool) : (cond c List Array) Nat :=
 #eval test ``weird1
 
 def compatible (declName₁ declName₂ : Name) : MetaM Unit := do
-  let type₁ ← getDeclLCNFType declName₁
-  let type₂ ← getDeclLCNFType declName₂
+  let type₁ ← LCNF.getOtherDeclBaseType declName₁ []
+  let type₂ ← LCNF.getOtherDeclBaseType declName₂ []
   unless LCNF.compatibleTypesQuick type₁ type₂ do
     throwError "{declName₁} : {← ppExpr type₁}\ntype is not compatible with\n{declName₂} : {← ppExpr type₂}"
 

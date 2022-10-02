@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.Types
 import Lean.Compiler.LCNF.PhaseExt
+import Lean.Compiler.LCNF.OtherDecl
 
 namespace Lean.Compiler.LCNF
 /-! # Type inference for LCNF -/
@@ -96,12 +97,8 @@ def inferConstType (declName : Name) (us : List Level) : CompilerM Expr := do
   else if let some decl ← getDecl? declName then
     return decl.instantiateTypeLevelParams us
   else
-    /-
-    We need this case for declarations that do not have code associated with them.
-    Example: constructors.
-    TODO: phase support.
-    -/
-    instantiateLCNFTypeLevelParams declName us
+    /- Declaration does not have code associated with it: constructor, inductive type, foreign function -/
+    getOtherDeclType declName us
 
 mutual
 

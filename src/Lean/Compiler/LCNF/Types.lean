@@ -12,14 +12,6 @@ scoped notation:max "⊤" => lcAny
 
 namespace LCNF
 
-structure LCNFTypeExtState where
-  types : PHashMap Name Expr := {}
-  instLevelType : Core.InstantiateLevelCache := {}
-  deriving Inhabited
-
-builtin_initialize lcnfTypeExt : EnvExtension LCNFTypeExtState ←
-  registerEnvExtension (pure {})
-
 def erasedExpr := mkConst ``lcErased
 def anyTypeExpr := mkConst  ``lcAny
 
@@ -189,41 +181,6 @@ where
       else
         result := mkApp result erasedExpr
     return result
-
-/--
-Save the LCNF type for the given declaration.
--/
-def saveLCNFType (declName : Name) (type : Expr) : CoreM Unit := do
-  modifyEnv fun env =>
-    lcnfTypeExt.modifyState env fun s => { s with types := s.types.insert declName type }
-
-/--
-Return the LCNF type for the given declaration.
--/
-def getDeclLCNFType (declName : Name) : CoreM Expr := do
-  match lcnfTypeExt.getState (← getEnv) |>.types.find? declName with
-  | some type => return type
-  | none =>
-    let info ← getConstInfo declName
-    let type ← Meta.MetaM.run' <| toLCNFType info.type
-    saveLCNFType declName type
-    return type
-
-/--
-Instantiate the LCNF type for the given declaration with the given universe levels.
--/
-def instantiateLCNFTypeLevelParams (declName : Name) (us : List Level) : CoreM Expr := do
-  if us.isEmpty then
-    getDeclLCNFType declName
-  else
-    if let some (us', r) := lcnfTypeExt.getState (← getEnv) |>.instLevelType.find? declName then
-      if us == us' then
-        return r
-    let type ← getDeclLCNFType declName
-    let info ← getConstInfo declName
-    let r := type.instantiateLevelParams info.levelParams us
-    modifyEnv fun env => lcnfTypeExt.modifyState env fun s => { s with instLevelType := s.instLevelType.insert declName (us, r) }
-    return r
 
 mutual
 

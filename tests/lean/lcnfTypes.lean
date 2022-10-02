@@ -127,3 +127,22 @@ axiom lamAny₂ (c : Bool) : Monad (cond c List.{0} Array.{0})
 #eval test ``lamAny₂
 
 #eval compatible ``lamAny₁ ``lamAny₂
+
+def testMono (declName : Name) : MetaM Unit := do
+  let base ← LCNF.getOtherDeclBaseType declName []
+  let mono ← LCNF.toMonoType base |>.run {}
+  IO.println s!"{declName} : {← ppExpr mono}"
+
+#eval testMono ``Term.constFold
+#eval testMono ``Term.denote
+#eval testMono ``HList.get
+#eval testMono ``Member.head
+#eval testMono ``Ty.denote
+#eval testMono ``MonadControl.liftWith
+#eval testMono ``MonadControl.restoreM
+#eval testMono ``Decidable.casesOn
+#eval testMono ``getConstInfo
+#eval testMono ``instMonadMetaM
+#eval testMono ``Lean.Meta.inferType
+#eval testMono ``Elab.Term.elabTerm
+#eval testMono ``Nat.add

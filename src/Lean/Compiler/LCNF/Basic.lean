@@ -147,6 +147,10 @@ def AltCore.getCode : Alt → Code
   | .default k => k
   | .alt _ _ k => k
 
+def AltCore.getParams : Alt → Array Param
+  | .default _ => #[]
+  | .alt _ ps _ => ps
+
 def AltCore.forCodeM [Monad m] (alt : Alt) (f : Code → m Unit) : m Unit := do
   match alt with
   | .default k => f k

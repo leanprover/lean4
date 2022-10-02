@@ -72,6 +72,18 @@ instance [STWorld ω m] [MonadCodeBind m] : MonadCodeBind (StateRefT' ω σ m) w
   codeBind c f sref := c.bind fun fvarId => f fvarId sref
 
 /--
+Ensure resulting code has type `⊤`.
+-/
+def Code.ensureAnyType (c : Code) : CompilerM Code := do
+  if (← c.inferType).isAnyType then
+    return c
+  else
+    c.bind fun fvarId => do
+      let cast ← mkLcCast (.fvar fvarId) anyTypeExpr
+      let decl ← LCNF.mkAuxLetDecl cast
+      return .let decl (.return decl.fvarId)
+
+/--
 Create new parameters for the given arrow type.
 Example: if `type` is `Nat → Bool → Int`, the result is
 an array containing two new parameters with types `Nat` and `Bool`.

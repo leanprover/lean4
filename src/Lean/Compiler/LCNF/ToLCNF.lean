@@ -534,6 +534,17 @@ where
           unless (← compatibleTypes altType resultType) do
             resultType := anyTypeExpr
           alts := alts.push alt
+        if resultType.isAnyType then
+          /-
+          If the result type for a `cases` is `⊤`, we put a cast to `⊤`
+          at every alternative that does not have `⊤` type.
+          The cast is useful to ensure the result is type correct when reducing `cases` in the simplifier
+          or applying `bind`. For example, suppose we are using `Code.bind` to connect a `cases` with type `⊤`
+          to a continuation that expects type `B`, and one of the alternatives has type `A`. The operation makes
+          sense, but we need a cast since we are connecting a value of type `A` to a continuation that expects `B`.
+          -/
+          alts ← alts.mapM fun alt =>
+            return alt.updateCode (← alt.getCode.ensureAnyType)
         let cases : Cases := { typeName, discr := discr.fvarId!, resultType, alts }
         let auxDecl ← mkAuxParam resultType
         pushElement (.cases auxDecl cases)

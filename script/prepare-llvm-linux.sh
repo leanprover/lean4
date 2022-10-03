@@ -22,8 +22,10 @@ cp -L llvm/bin/clang stage1/bin/
 cp -L llvm/bin/ld.lld stage1/bin/
 # a static archiver!
 cp -L llvm/bin/llvm-ar stage1/bin/
+# a LLVM configurator for PATH & LD_LIBRARY_PATH setup!
+cp -L llvm/bin/llvm-config stage1/bin/
 # dependencies of the above
-$CP llvm/lib/lib{clang-cpp,LLVM}*.so* stage1/lib/
+$CP -r llvm/lib/* stage1/lib/
 $CP $ZLIB/lib/libz.so* stage1/lib/
 find stage1 -type f -exec strip --strip-unneeded '{}' \; 2> /dev/null
 # lean.h dependencies
@@ -33,14 +35,29 @@ $CP $GLIBC/lib/crt* llvm/lib/
 $CP $GLIBC/lib/crt* stage1/lib/
 # runtime
 (cd llvm; $CP --parents lib/clang/*/lib/*/{clang_rt.*.o,libclang_rt.builtins*} ../stage1)
-$CP llvm/lib/lib{c++,c++abi,unwind}.* $GMP/lib/libgmp.a stage1/lib/
+$CP llvm/lib/x86_64-unknown-linux-gnu/lib{c++,c++abi,unwind}.* $GMP/lib/libgmp.a stage1/lib/
+# LLVM 15 appears to ship the dependencies in `llvm/lib/x86_64-unknown-linux-gnu`, 
+# but clang-15 is linked in such a way that it assumes the path is at llvm/lib/
+$CP llvm/lib/x86_64-unknown-linux-gnu/lib{c++,c++abi,unwind}.* llvm/lib/
+
+# clang needs these to run successfully, and we pickup clang from `llvm-host`/
+# I am unsure why the copying to `stage1/lib` does not suffice, I would imagine that `stage1/lib`
+# is part of `LD_LIBRARY_PATH`: https://stackoverflow.com/a/9631350/5305365
+export LD_LIBRARY_PATH=$PWD/llvm/lib/x86_64-unknown-linux-gnu/${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+# thexport LD_LIBRARY_PATH=$PWD/stage1/lib/${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+# $CP llvm/lib/x86_64-unknown-linux-gnu/lib{c++,c++abi,unwind}.* $GMP/lib/libgmp.a llvm-host/bin/
+# includes (for LLVM backend)
+cp -r llvm/include/* stage1/include/
 # glibc: use for linking (so Lean programs don't embed newer symbol versions), but not for running (because libc.so, librt.so, and ld.so must be compatible)!
 $CP $GLIBC/lib/libc_nonshared.a stage1/lib/glibc
 for f in $GLIBC/lib/lib{c,dl,m,rt,pthread}-*; do b=$(basename $f); cp $f stage1/lib/glibc/${b%-*}.so; done
 OPTIONS=()
+echo -n " -DLLVM_CONFIG=$PWD/stage1/bin/llvm-config" # manually point to `llvm-config` location
 echo -n " -DLEAN_STANDALONE=ON"
 echo -n " -DCMAKE_CXX_COMPILER=$PWD/llvm-host/bin/clang++ -DLEAN_CXX_STDLIB='-Wl,-Bstatic -lc++ -lc++abi -Wl,-Bdynamic'"
-echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -idirafter $GLIBC_DEV/include ${EXTRA_FLAGS:-}'"
+# include include/ for llvm-c/
+echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -idirafter $GLIBC_DEV/include ${EXTRA_FLAGS:-} -I$PWD/stage1/include/'" 
+# echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -idirafter $GLIBC_DEV/include ${EXTRA_FLAGS:-}'"
 # use target compiler directly when not cross-compiling
 if [[ -L llvm-host ]]; then
   echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang"

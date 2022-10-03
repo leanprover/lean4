@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Compiler.LCNF.DependsOn
 import Lean.Compiler.LCNF.InferType
+import Lean.Compiler.LCNF.Internalize
 import Lean.Compiler.LCNF.Simp.Basic
 
 namespace Lean.Compiler.LCNF

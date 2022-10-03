@@ -534,9 +534,9 @@ where
           unless (← compatibleTypes altType resultType) do
             resultType := anyTypeExpr
           alts := alts.push alt
-        if resultType.isAnyType then
+        if resultType.isAnyType || resultType.isErased then
           /-
-          If the result type for a `cases` is `⊤`, we put a cast to `⊤`
+          If the result type for a `cases` is `⊤` or `◾`, we put a cast to `⊤`
           at every alternative that does not have `⊤` type.
           The cast is useful to ensure the result is type correct when reducing `cases` in the simplifier
           or applying `bind`. For example, suppose we are using `Code.bind` to connect a `cases` with type `⊤`

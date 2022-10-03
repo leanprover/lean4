@@ -9,6 +9,7 @@ import Lean.Compiler.LCNF.ElimDead
 import Lean.Compiler.LCNF.AlphaEqv
 import Lean.Compiler.LCNF.PrettyPrinter
 import Lean.Compiler.LCNF.Bind
+import Lean.Compiler.LCNF.Internalize
 import Lean.Compiler.LCNF.Simp.JpCases
 import Lean.Compiler.LCNF.Simp.FunDeclInfo
 import Lean.Compiler.LCNF.Simp.Config

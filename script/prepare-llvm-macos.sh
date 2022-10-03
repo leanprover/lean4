@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 set -uxo pipefail
+set -e
+set -o xtrace
 
 # run from root build directory as in
 # ```
@@ -25,21 +27,28 @@ gcp -L llvm/bin/clang stage1/bin/
 gcp -L llvm/bin/ld64.lld stage1/bin/
 # a static archiver!
 gcp -L llvm/bin/llvm-ar stage1/bin/
+# a LLVM configurator for PATH & LD_LIBRARY_PATH setup!
+cp -L llvm/bin/llvm-config stage1/bin/
 # dependencies of the above
 $CP llvm/lib/lib{clang-cpp,LLVM}.dylib stage1/lib/
+$CP -r llvm/lib/* stage1/lib/
+set +e
 #find stage1 -type f -exec strip --strip-unneeded '{}' \; 2> /dev/null
 # lean.h dependencies
 $CP llvm/lib/clang/*/include/{std*,__std*,limits}.h stage1/include/clang
 # runtime
 (cd llvm; $CP --parents lib/clang/*/lib/*/libclang_rt.osx.a ../stage1)
+# includes (for LLVM backend)
+cp -r llvm/include/* stage1/include/
 # libSystem stub, includes libc
 cp $SDK/usr/lib/libSystem.tbd stage1/lib/libc
 # use for linking, use system libs for running
 gcp llvm/lib/lib{c++,c++abi,unwind}.dylib stage1/lib/libc
+echo -n " -DLLVM_CONFIG=$PWD/stage1/bin/llvm-config" # manually point to `llvm-config` location
 echo -n " -DLEAN_STANDALONE=ON"
 # do not change C++ compiler; libc++ etc. being system libraries means there's no danger of conflicts,
 # and the custom clang++ outputs a myriad of warnings when consuming the SDK
-echo -n " -DLEAN_EXTRA_CXX_FLAGS='${EXTRA_FLAGS:-}'"
+echo -n " -DLEAN_EXTRA_CXX_FLAGS='${EXTRA_FLAGS:-} -I$PWD/stage1/include/'"
 if [[ -L llvm-host ]]; then
   echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang"
   gcp $GMP/lib/libgmp.a stage1/lib/

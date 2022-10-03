@@ -35,6 +35,8 @@ option(CCACHE             "use ccache"         ON)
 option(SPLIT_STACK        "SPLIT_STACK"        OFF)
 # When OFF we disable LLVM support
 option(LLVM               "LLVM"               OFF)
+# When OFF we disable the LLVM backend
+option(LLVM_BACKEND        "LLVM_BACKEND"      ON)
 
 # When ON we include githash in the version string
 option(USE_GITHASH        "GIT_HASH"           ON)
@@ -158,9 +160,22 @@ if(AUTO_THREAD_FINALIZATION AND NOT MSVC)
 endif()
 
 if(LLVM)
-  if(NOT (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_ID STREQUAL "Clang"))
-    message(FATAL_ERROR "LLVM=ON must be used with clang. Set `CMAKE_CXX_COMPILER` and `CMAKE_C_COMPILER` accordingly.")
-  endif()
+    # if(NOT (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_ID STREQUAL "Clang"))
+    # message(FATAL_ERROR "LLVM=ON must be used with clang. Set `CMAKE_CXX_COMPILER=Clang` and `CMAKE_C_COMPILER=Clang` accordingly.")
+    # endif()
+  message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+  message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+
+  include_directories(${LLVM_INCLUDE_DIRS})
+  string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_LLVM")
+else()
+  #message(WARNING "Disabling LLVM support.  JIT compilation will not be available")
+endif()
+
+if(LLVM_BACKEND)
+    # if(NOT (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_ID STREQUAL "Clang"))
+    #     message(FATAL_ERROR "LLVM_BACKEND=ON must be used with clang. Set `CMAKE_CXX_COMPILER=clang++` and `CMAKE_C_COMPILER=clang` accordingly. Found ${CMAKE_CXX_COMPILER_ID}, ${CMAKE_C_COMPILER_ID}")
+    # endif()
   message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
   message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
@@ -263,10 +278,40 @@ find_package(PythonInterp)
 
 include_directories(${CMAKE_BINARY_DIR}/include)
 
+
+if (NOT LLVM_CONFIG)
+    message(STATUS "'-DLLVM_CONFIG=<path/to/llvm-config>' not passed as CMake flag, finding `llvm-config` via CMake...")
+    find_program(LLVM_CONFIG "llvm-config")
+else()
+    message(STATUS "Using given `llvm-config` '${LLVM_CONFIG}'...")
+    execute_process(COMMAND ${LLVM_CONFIG} --version COMMAND_ERROR_IS_FATAL ANY)
+endif()
+
+
+if(NOT LLVM_CONFIG)
+    message(FATAL_ERROR "Unable to find 'llvm-config'")
+else()
+    message(STATUS "Found 'llvm-config' as ${LLVM_CONFIG}")
+endif()
+
 # libleancpp/Lean as well as libleanrt/Init are cyclically dependent. This works by default on macOS, which also doesn't like
+
 # the linker flags necessary on other platforms.
+# Furthermore, add LLVM flags into the list of flags we need when linking.
+execute_process(COMMAND ${LLVM_CONFIG}  --ldflags OUTPUT_VARIABLE LLVM_CONFIG_LDFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND ${LLVM_CONFIG}  --libs OUTPUT_VARIABLE LLVM_CONFIG_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND ${LLVM_CONFIG}  --libdir OUTPUT_VARIABLE LLVM_CONFIG_LIBDIR OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND ${LLVM_CONFIG}  --includedir OUTPUT_VARIABLE LLVM_CONFIG_INCLUDEDIR OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND ${LLVM_CONFIG}  --cxxflags OUTPUT_VARIABLE LLVM_CONFIG_CXXFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+# if we build LLVM by source (as @bollu does)<with -DBUILD_SHARED_LIBS=ON, LLVM dynamically loads system libraries
+# such as '-lrt -ldl -lm -lz -ltinfo -lxml2'
+execute_process(COMMAND ${LLVM_CONFIG}  --system-libs OUTPUT_VARIABLE LLVM_CONFIG_SYSTEM_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+message("llvm-config: libdir '${LLVM_CONFIG_LIBDIR}' | ldflags '${LLVM_CONFIG_LDFLGAS}' | libs '${LLVM_CONFIG_LIBS}' | system libs '${LLVM_CONFIG_SYSTEM_LIBS}' | cxxflags: ${LLVM_CONFIG_CXXFLAGS} | includedir: ${LLVM_CONFIG_INCLUDEDIR}")
+
+# when using shared libraries, set the `rpath` to help the dynamic loader 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  string(APPEND LEANC_STATIC_LINKER_FLAGS " -lleancpp -lInit -lLean -lleanrt")
+  string(APPEND LEANC_STATIC_LINKER_FLAGS " -lleancpp -lInit -lLean -lleanrt ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS}")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   string(APPEND LEANC_STATIC_LINKER_FLAGS " -lleancpp -lInit -lLean -lnodefs.js -lleanrt")
 else()
@@ -281,6 +326,26 @@ endif()
 
 string(APPEND LEANC_STATIC_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 string(APPEND LEANSHARED_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
+
+# Link LLVM for code generation
+# TODO: hide this behind a flag
+# Is there a guarantee that the build environment for `leanprover/lean-llvm` will match that of
+# `leanprover/lean4`? Some of the system-libs as for hardcoded paths. For example:
+# 
+# string(APPEND LEANSHARED_LINKER_FLAGS " ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS} ${LLVM_CONFIG_SYSTEM_LIBS}")
+# string(APPEND LEANC_STATIC_LINKER_FLAGS " ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS} ${LLVM_CONFIG_SYSTEM_LIBS}")
+# for whatever reason, the system libs on macos ask for `-lm` and `-lz` which are supposedly no longer shipped
+string(APPEND LEANSHARED_LINKER_FLAGS " ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS} ${LLVM_CONFIG_SYSTEM_LIBS}")
+set(APPEND LEAN_EXTRA_CXX_FLAGS  " ${LLVM_CONFIG_CXXFLAGS}")
+# string(APPEND LEANC_STATIC_LINKER_FLAGS " ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS}")
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    # find_package(zstd)
+    find_package(ZLIB)
+    # string(APPEND LEANSHARED_LINKER_FLAGS " -L${}")
+    # string(APPEND LEANSHARED_LINKER_FLAGS " -L${ZLIB_LIBRARY_PATH} -l${ZLIB_LIBRARY}")
+endif()
+
 
 # get rid of unused parts of C++ stdlib
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -312,6 +377,13 @@ endif()
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " -ldl")
 endif()
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  find_package(ZLIB REQUIRED)
+  message("ZLIB_LIBRARY: ${ZLIB_LIBRARY}")
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${ZLIB_LIBRARY} -lz")
+endif()
+
 
 if(NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
   # export symbols for the interpreter (done via `LEAN_EXPORT` for Windows)

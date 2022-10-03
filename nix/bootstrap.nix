@@ -1,12 +1,12 @@
 { debug ? false, stage0debug ? false, extraCMakeFlags ? [],
-  stdenv, lib, cmake, gmp, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused, darwin,
+  stdenv, lib, cmake, gmp, gnumake, bash, buildLeanPackage, llvmPackages_14, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused, darwin,
   ... } @ args:
 with builtins;
 rec {
   inherit stdenv;
   buildCMake = args: stdenv.mkDerivation ({
     nativeBuildInputs = [ cmake ];
-    buildInputs = [ gmp ];
+    buildInputs = [ gmp llvmPackages_14.llvm llvmPackages_14.libllvm llvmPackages_14.libllvm.dev llvmPackages_14.bintools ];
     # https://github.com/NixOS/nixpkgs/issues/60919
     hardeningDisable = [ "all" ];
     dontStrip = (args.debug or debug);
@@ -109,11 +109,11 @@ rec {
       extlib = stdlib;  # TODO: add Lake
       Leanc = build { name = "Leanc"; src = lean-bin-tools-unwrapped.leanc_src; deps = stdlib; roots = [ "Leanc" ]; };
       stdlibLinkFlags = "-L${Init.staticLib} -L${Lean.staticLib} -L${leancpp}/lib/lean";
-      leanshared = runCommand "leanshared" { buildInputs = [ stdenv.cc ]; libName = "libleanshared${stdenv.hostPlatform.extensions.sharedLibrary}"; } ''
+      leanshared = runCommand "leanshared" { buildInputs = [ stdenv.cc llvmPackages_14.llvm]; libName = "libleanshared${stdenv.hostPlatform.extensions.sharedLibrary}"; } ''
         mkdir $out
         LEAN_CC=${stdenv.cc}/bin/cc ${lean-bin-tools-unwrapped}/bin/leanc -shared ${lib.optionalString stdenv.isLinux "-Bsymbolic"} \
           ${if stdenv.isDarwin then "-Wl,-force_load,${Init.staticLib}/libInit.a -Wl,-force_load,${Lean.staticLib}/libLean.a -Wl,-force_load,${leancpp}/lib/lean/libleancpp.a ${leancpp}/lib/libleanrt_initial-exec.a -lc++"
-            else "-Wl,--whole-archive -lInit -lLean -lleancpp ${leancpp}/lib/libleanrt_initial-exec.a -Wl,--no-whole-archive -lstdc++"} -lm ${stdlibLinkFlags} \
+            else "-Wl,--whole-archive -lInit -lLean -lleancpp ${leancpp}/lib/libleanrt_initial-exec.a -Wl,--no-whole-archive -lstdc++"} -lm $(llvm-config --libs) $(llvm-config --system-libs) $(llvm-config --ldflags) ${stdlibLinkFlags} \
           -o $out/$libName
       '';
       mods = Init.mods // Lean.mods;
@@ -139,7 +139,7 @@ rec {
       test = buildCMake {
         name = "lean-test-${desc}";
         realSrc = lib.sourceByRegex ../. [ "src.*" "tests.*" ];
-        buildInputs = [ gmp perl ];
+        buildInputs = [ gmp perl llvmPackages_14.llvm ];
         preConfigure = ''
           cd src
         '';

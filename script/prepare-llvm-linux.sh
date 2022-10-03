@@ -33,7 +33,11 @@ $CP $GLIBC/lib/crt* llvm/lib/
 $CP $GLIBC/lib/crt* stage1/lib/
 # runtime
 (cd llvm; $CP --parents lib/clang/*/lib/*/{clang_rt.*.o,libclang_rt.builtins*} ../stage1)
-$CP llvm/lib/lib{c++,c++abi,unwind}.* $GMP/lib/libgmp.a stage1/lib/
+$CP llvm/lib/x86_64-unknown-linux-gnu/lib{c++,c++abi,unwind}.* $GMP/lib/libgmp.a stage1/lib/
+# LLVM 15 appears to ship the dependencies in
+# `llvm/lib/x86_64-unknown-linux-gnu`, but clang-15 that we use to compile is
+# linked in such a way that it assumes the path is at `llvm/lib/`
+$CP llvm/lib/x86_64-unknown-linux-gnu/lib{c++,c++abi,unwind}.* llvm/lib/
 # glibc: use for linking (so Lean programs don't embed newer symbol versions), but not for running (because libc.so, librt.so, and ld.so must be compatible)!
 $CP $GLIBC/lib/libc_nonshared.a stage1/lib/glibc
 for f in $GLIBC/lib/lib{c,dl,m,rt,pthread}-*; do b=$(basename $f); cp $f stage1/lib/glibc/${b%-*}.so; done

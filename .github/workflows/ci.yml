@@ -50,7 +50,7 @@ jobs:
             os: ubuntu-latest
             release: true
             shell: nix-shell --arg pkgsDist "import (fetchTarball \"channel:nixos-19.03\") {{}}" --run "bash -euxo pipefail {0}"
-            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/14.0.0/lean-llvm-x86_64-linux-gnu.tar.zst
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst
             prepare-llvm: ../script/prepare-llvm-linux.sh lean-llvm*
             binary-check: ldd -v
             # foreign code may be linked against more recent glibc
@@ -73,7 +73,7 @@ jobs:
             release: true
             shell: bash -euxo pipefail {0}
             CMAKE_OPTIONS: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15
-            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/14.0.0/lean-llvm-x86_64-apple-darwin.tar.zst
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst
             prepare-llvm: ../script/prepare-llvm-macos.sh lean-llvm*
             binary-check: otool -L
             tar: gtar  # https://github.com/actions/runner-images/issues/2619
@@ -83,7 +83,7 @@ jobs:
             cross: true
             shell: bash -euxo pipefail {0}
             CMAKE_OPTIONS: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-darwin_aarch64
-            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/14.0.0/lean-llvm-aarch64-apple-darwin.tar.zst https://github.com/leanprover/lean-llvm/releases/download/14.0.0/lean-llvm-x86_64-apple-darwin.tar.zst
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-apple-darwin.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst
             prepare-llvm: EXTRA_FLAGS=--target=aarch64-apple-darwin ../script/prepare-llvm-macos.sh lean-llvm-aarch64-* lean-llvm-x86_64-*
             binary-check: otool -L
             tar: gtar  # https://github.com/actions/runner-images/issues/2619
@@ -94,7 +94,7 @@ jobs:
             CMAKE_OPTIONS: -G "Unix Makefiles"
             # for reasons unknown, interactivetests are flaky on Windows
             CTEST_OPTIONS: --repeat until-pass:2
-            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/14.0.0/lean-llvm-x86_64-w64-windows-gnu.tar.zst
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-w64-windows-gnu.tar.zst
             prepare-llvm: ../script/prepare-llvm-mingw.sh lean-llvm*
             binary-check: ldd
           - name: Linux aarch64
@@ -103,7 +103,7 @@ jobs:
             release: true
             cross: true
             shell: nix-shell --arg pkgsDist "import (fetchTarball \"channel:nixos-19.03\") {{ localSystem.config = \"aarch64-unknown-linux-gnu\"; }}" --run "bash -euxo pipefail {0}"
-            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/14.0.0/lean-llvm-x86_64-linux-gnu.tar.zst https://github.com/leanprover/lean-llvm/releases/download/14.0.0/lean-llvm-aarch64-linux-gnu.tar.zst
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-linux-gnu.tar.zst
             prepare-llvm: EXTRA_FLAGS=--target=aarch64-unknown-linux-gnu ../script/prepare-llvm-linux.sh lean-llvm-aarch64-* lean-llvm-x86_64-*
       # complete all jobs
       fail-fast: false

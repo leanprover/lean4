@@ -255,7 +255,6 @@ section ServerM
           -- and now we ensure that clear diagnostics is the last thing we should do
           -- so we never leave stale diagnostics around for this file.
           let meta := fw.doc.meta
-          dbg_trace "sending clear diagnostics from Watchdog!"
           publishDiagnostics meta #[] o
           return WorkerEvent.terminated
         | _ => pure

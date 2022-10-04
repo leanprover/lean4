@@ -7,6 +7,7 @@ import Lean.Compiler.LCNF.DependsOn
 import Lean.Compiler.LCNF.InferType
 import Lean.Compiler.LCNF.Internalize
 import Lean.Compiler.LCNF.Simp.Basic
+import Lean.Compiler.LCNF.Simp.DiscrM
 
 namespace Lean.Compiler.LCNF
 namespace Simp
@@ -61,10 +62,10 @@ there is a jump `.jmp jpFVarId #[..., x, ...]` in `code` and `x` is a constructo
 `paramIdx` is the index of the parameter
 -/
 partial def collectJpCasesInfo (code : Code) : CompilerM JpCasesInfoMap := do
-  let (_, s) ← go code |>.run {}
+  let (_, s) ← go code |>.run {} |>.run {}
   return s
 where
-  go (code : Code) : StateRefT JpCasesInfoMap CompilerM Unit := do
+  go (code : Code) : StateRefT JpCasesInfoMap DiscrM Unit := do
     match code with
     | .let _ k => go k
     | .fun decl k => go decl.value; go k
@@ -72,11 +73,14 @@ where
       if let some paramIdx ← isJpCases? decl then
         modify fun s => s.insert decl.fvarId { paramIdx }
       go decl.value; go k
-    | .cases c => c.alts.forM fun alt => go alt.getCode
+    | .cases c => c.alts.forM fun alt =>
+      match alt with
+      | .default k => go k
+      | .alt ctorName ps k => withDiscrCtor c.discr ctorName ps <| go k
     | .return .. | .unreach .. => return ()
     | .jmp fvarId args =>
       if let some info := (← get).find? fvarId then
-        let arg ← findExpr args[info.paramIdx]!
+        let arg ← findCtor args[info.paramIdx]!
         let some (cval, _) := arg.constructorApp? (← getEnv) | return ()
         modify fun map => map.insert fvarId <| { info with ctorNames := info.ctorNames.insert cval.name }
 
@@ -195,9 +199,9 @@ partial def simpJpCases? (code : Code) : CompilerM (Option Code) := do
     for (fvarId, info) in map.toList do
       msg := msg ++ indentD m!"{mkFVar fvarId} ↦ {info.ctorNames.toList}"
     return msg
-  visit code map |>.run' {}
+  visit code map |>.run' {} |>.run {}
 where
-  visit (code : Code) : ReaderT JpCasesInfoMap (StateRefT Ctor2JpCasesAlt CompilerM) Code := do
+  visit (code : Code) : ReaderT JpCasesInfoMap (StateRefT Ctor2JpCasesAlt DiscrM) Code := do
     match code with
     | .let decl k =>
       return code.updateLet! decl (← visit k)
@@ -213,14 +217,19 @@ where
         let decl ← decl.updateValue value
         return code.updateFun! decl (← visit k)
     | .cases c =>
-      let alts ← c.alts.mapMonoM fun alt => return alt.updateCode (← visit alt.getCode)
+      let alts ← c.alts.mapMonoM fun alt =>
+        match alt with
+        | .alt ctorName ps k =>
+          withDiscrCtor c.discr ctorName ps do
+            return alt.updateCode (← visit k)
+        | .default k => return alt.updateCode (← visit k)
       return code.updateAlts! alts
     | .return _ | .unreach _ => return code
     | .jmp fvarId args =>
       let some code ← visitJmp? fvarId args | return code
       return code
 
-  visitJp? (decl : FunDecl) (k : Code) : ReaderT JpCasesInfoMap (StateRefT Ctor2JpCasesAlt CompilerM) (Option Code) := do
+  visitJp? (decl : FunDecl) (k : Code) : ReaderT JpCasesInfoMap (StateRefT Ctor2JpCasesAlt DiscrM) (Option Code) := do
     let some info := (← read).find? decl.fvarId | return none
     if info.ctorNames.isEmpty then return none
     -- This join point satisfies `isJpCases?` and there are jumps with constructors in `info` to it.
@@ -245,7 +254,7 @@ where
         else
           altsNew := altsNew.push (alt.updateCode k)
       | .alt ctorName fields k =>
-        let k ← visit k
+        let k ← withDiscrCtor cases.discr ctorName fields <| visit k
         if info.ctorNames.contains ctorName then
           let jpAlt ← mkJpAlt decls decl.params info.paramIdx fields k (default := false)
           jpAltDecls := jpAltDecls.push (.jp jpAlt.decl)
@@ -261,10 +270,10 @@ where
     let code := .jp decl (← visit k)
     return LCNF.attachCodeDecls jpAltDecls code
 
-  visitJmp? (fvarId : FVarId) (args : Array Expr) : ReaderT JpCasesInfoMap (StateRefT Ctor2JpCasesAlt CompilerM) (Option Code) := do
+  visitJmp? (fvarId : FVarId) (args : Array Expr) : ReaderT JpCasesInfoMap (StateRefT Ctor2JpCasesAlt DiscrM) (Option Code) := do
     let some ctorJpAltMap := (← get).find? fvarId | return none
     let some info := (← read).find? fvarId | return none
-    let arg ← findExpr args[info.paramIdx]!
+    let arg ← findCtor args[info.paramIdx]!
     let some (ctorVal, ctorArgs) := arg.constructorApp? (← getEnv) (useRaw := true) | return none
     let some jpAlt := ctorJpAltMap.find? ctorVal.name | return none
     let fields := ctorArgs[ctorVal.numParams:]

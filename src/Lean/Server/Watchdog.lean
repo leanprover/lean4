@@ -124,7 +124,7 @@ section FileWorker
     doc                : OpenDocument
     proc               : Process.Child workerCfg
     commTask           : Task WorkerEvent
-    state              : WorkerState
+    state              : IO.Ref WorkerState
     -- This should not be mutated outside of namespace FileWorker, as it is used as shared mutable state
     /-- The pending requests map contains all requests
     that have been received from the LSP client, but were not answered yet.
@@ -249,11 +249,13 @@ section ServerM
                 handleIleanInfoFinal fw params
           | _ => o.writeLspMessage msg
 
-        match fw.state with
+        match (← fw.state.get) with
         | .exiting =>
           -- the above may have just sent the response to the "exit" command,
-          -- and clear diagnostics is the last thing we should do.
+          -- and now we ensure that clear diagnostics is the last thing we should do
+          -- so we never leave stale diagnostics around for this file.
           let meta := fw.doc.meta
+          dbg_trace "sending clear diagnostics from Watchdog!"
           publishDiagnostics meta #[] o
           return WorkerEvent.terminated
         | _ => pure
@@ -296,7 +298,7 @@ section ServerM
       doc                := ⟨m, headerAst⟩
       proc               := workerProc
       commTask           := Task.pure WorkerEvent.terminated
-      state              := WorkerState.running
+      state              := ← IO.mkRef WorkerState.running
       pendingRequestsRef := pendingRequestsRef
       groupedEditsRef    := ← IO.mkRef none
     }
@@ -319,7 +321,7 @@ section ServerM
   def terminateFileWorker (uri : DocumentUri) : ServerM Unit := do
     let fw ← findFileWorker! uri
     try
-      updateFileWorkers { fw with state := WorkerState.exiting }
+      fw.state.modify (λ _ => WorkerState.exiting)
       fw.stdin.writeLspMessage (Message.notification "exit" none)
     catch _ =>
       /- The file worker must have crashed just when we were about to terminate it!
@@ -332,7 +334,7 @@ section ServerM
     eraseFileWorker uri
 
   def handleCrash (uri : DocumentUri) (queuedMsgs : Array JsonRpc.Message) : ServerM Unit := do
-    updateFileWorkers { ←findFileWorker! uri with state := WorkerState.crashed queuedMsgs }
+    (←findFileWorker! uri).state.modify (λ _ => WorkerState.crashed queuedMsgs)
 
   /-- Tries to write a message, sets the state of the FileWorker to `crashed` if it does not succeed
       and restarts the file worker if the `crashed` flag was already set. Just logs an error if there
@@ -350,7 +352,7 @@ section ServerM
       | none    => (false, none)
     if pendingEdit then
       return
-    match fw.state with
+    match (← fw.state.get) with
     | WorkerState.crashed queuedMsgs =>
       let mut queuedMsgs := queuedMsgs
       if queueFailedMessage then
@@ -601,7 +603,7 @@ section MainLoop
     let workers ← st.fileWorkersRef.get
     let mut workerTasks := #[]
     for (_, fw) in workers do
-      if let WorkerState.running := fw.state then
+      if let WorkerState.running := (← fw.state.get) then
         workerTasks := workerTasks.push <| fw.commTask.map (ServerEvent.workerEvent fw)
         if let some ge ← fw.groupedEditsRef.get then
           workerTasks := workerTasks.push <| ge.signalTask.map (ServerEvent.workerEvent fw)

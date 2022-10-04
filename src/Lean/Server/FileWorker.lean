@@ -428,6 +428,7 @@ section MainLoop
     let state ← get
     let doc := state.doc
     doc.cancelTk.set
+    -- this is acting like an acknowledgement back to the Watchdog that exit was in fact received.
     publishDiagnostics doc.meta #[] ctx.hOut
 
   partial def mainLoop : WorkerM Unit := do

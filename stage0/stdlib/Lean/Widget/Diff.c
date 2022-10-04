@@ -57,7 +57,7 @@ LEAN_EXPORT lean_object* l_Lean_Widget_instAppendExprDiff(lean_object*, lean_obj
 static lean_object* l_Lean_Widget_diffHypothesesBundle___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_diffHypotheses___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_exprDiffCore___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_local_ctx_find_from_user_name(lean_object*, lean_object*);
+lean_object* l_Lean_LocalContext_findFromUserName_x3f(lean_object*, lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Widget_addDiffTags___spec__2___boxed(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -6332,7 +6332,7 @@ if (x_21 == 0)
 {
 lean_object* x_22; 
 lean_dec(x_6);
-x_22 = lean_local_ctx_find_from_user_name(x_2, x_19);
+x_22 = l_Lean_LocalContext_findFromUserName_x3f(x_2, x_19);
 if (lean_obj_tag(x_22) == 0)
 {
 lean_dec(x_14);

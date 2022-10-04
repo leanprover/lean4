@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Compiler.LCNF.ReduceJpArity
+import Lean.Compiler.LCNF.Renaming
 import Lean.Compiler.LCNF.Simp.Basic
 import Lean.Compiler.LCNF.Simp.FunDeclInfo
 import Lean.Compiler.LCNF.Simp.JpCases
@@ -24,10 +25,11 @@ def Decl.simp? (decl : Decl) : SimpM (Option Decl) := do
   trace[Compiler.simp.inline.info] "{decl.name}:{Format.nest 2 (← (← get).funDeclInfoMap.format)}"
   traceM `Compiler.simp.step do ppDecl decl
   let value ← simp decl.value
-  traceM `Compiler.simp.step.new do return m!"{decl.name} :=\n{← ppCode value}"
   let s ← get
+  let value ← value.applyRenaming s.binderRenaming
+  traceM `Compiler.simp.step.new do return m!"{decl.name} :=\n{← ppCode value}"
   trace[Compiler.simp.stat] "{decl.name}, size: {value.size}, # visited: {s.visited}, # inline: {s.inline}, # inline local: {s.inlineLocal}"
-  if let some value ← simpJpCases? value (← read).config.smallThreshold then
+  if let some value ← simpJpCases? value then
     let decl := { decl with value }
     decl.reduceJpArity
   else if (← get).simplified then
@@ -48,7 +50,7 @@ partial def Decl.simp (decl : Decl) (config : Config) : CompilerM Decl := do
   go decl config
 where
   go (decl : Decl) (config : Config) : CompilerM Decl := do
-    if let some decl ← decl.simp? |>.run { config, declName := decl.name } |>.run' {} then
+    if let some decl ← decl.simp? |>.run { config, declName := decl.name } |>.run' {} |>.run {} then
       -- TODO: bound number of steps?
       go decl config
     else

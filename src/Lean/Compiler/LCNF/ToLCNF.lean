@@ -365,6 +365,26 @@ def etaExpandN (e : Expr) (n : Nat) : M Expr := do
       Meta.mkLambdaFVars xs (mkAppN e xs)
 
 /--
+Eta reduce implicits. We use this function to eliminate introduced by the implicit lambda feature,
+where it generates terms such as `fun {α} => ReaderT.pure`
+-/
+partial def etaReduceImplicit (e : Expr) : Expr :=
+  match e with
+  | .lam _ d b bi =>
+    if bi.isImplicit then
+      let b' := etaReduceImplicit b
+      match b' with
+      | .app f (.bvar 0) =>
+        if !f.hasLooseBVar 0 then
+          f.lowerLooseBVars 1 1
+        else
+          e.updateLambdaE! d b'
+      | _ => e.updateLambdaE! d b'
+    else
+      e
+  | _ => e
+
+/--
 Put the given expression in `LCNF`.
 
 - Nested proofs are replaced with `lcProof`-applications.
@@ -509,19 +529,37 @@ where
         let typeName := casesInfo.declName.getPrefix
         let discr ← visitAppArg args[casesInfo.discrPos]!
         let .inductInfo indVal ← getConstInfo typeName | unreachable!
-        for i in casesInfo.altsRange, numParams in casesInfo.altNumParams, ctorName in indVal.ctors do
-          let (altType, alt) ← visitAlt ctorName numParams args[i]!
-          unless compatibleTypes altType resultType do
-            resultType := anyTypeExpr
-          alts := alts.push alt
-        let cases : Cases := { typeName, discr := discr.fvarId!, resultType, alts }
-        let auxDecl ← mkAuxParam resultType
-        pushElement (.cases auxDecl cases)
-        let result := .fvar auxDecl.fvarId
-        if args.size == casesInfo.arity then
-          return result
+        if !discr.isFVar then
+          /-
+          This can happen for inductive predicates that can eliminate into type (e.g., `And`, `Iff`).
+          TODO: add support for them. Right now, we have hard-coded support for the ones defined at `Init`.
+          -/
+          throwError "unsupported `{casesInfo.declName}` application during code generation"
         else
-          mkOverApplication result args casesInfo.arity
+          for i in casesInfo.altsRange, numParams in casesInfo.altNumParams, ctorName in indVal.ctors do
+            let (altType, alt) ← visitAlt ctorName numParams args[i]!
+            unless (← compatibleTypes altType resultType) do
+              resultType := anyTypeExpr
+            alts := alts.push alt
+          if resultType.isAnyType || resultType.isErased then
+            /-
+            If the result type for a `cases` is `⊤` or `◾`, we put a cast to `⊤`
+            at every alternative that does not have `⊤` type.
+            The cast is useful to ensure the result is type correct when reducing `cases` in the simplifier
+            or applying `bind`. For example, suppose we are using `Code.bind` to connect a `cases` with type `⊤`
+            to a continuation that expects type `B`, and one of the alternatives has type `A`. The operation makes
+            sense, but we need a cast since we are connecting a value of type `A` to a continuation that expects `B`.
+            -/
+            alts ← alts.mapM fun alt =>
+              return alt.updateCode (← alt.getCode.ensureAnyType)
+          let cases : Cases := { typeName, discr := discr.fvarId!, resultType, alts }
+          let auxDecl ← mkAuxParam resultType
+          pushElement (.cases auxDecl cases)
+          let result := .fvar auxDecl.fvarId
+          if args.size == casesInfo.arity then
+            return result
+          else
+            mkOverApplication result args casesInfo.arity
 
   visitCtor (arity : Nat) (e : Expr) : M Expr :=
     etaIfUnderApplied e arity do
@@ -549,7 +587,7 @@ where
       let minor := if e.isAppOf ``Eq.rec || e.isAppOf ``Eq.ndrec then args[3]! else args[5]!
       let minor ← visit minor
       let minorType ← inferType minor
-      let cast ← if compatibleTypes minorType recType then
+      let cast ← if (← compatibleTypes minorType recType) then
         -- Recall that many types become compatible after LCNF conversion
         -- Example: `Fin 10` and `Fin n`
         pure minor
@@ -563,13 +601,13 @@ where
       let type ← toLCNFType (← liftMetaM do Meta.inferType e)
       mkUnreachable type
 
-  visitAndRec (e : Expr) : M Expr :=
+  visitAndIffRecCore (e : Expr) (minorPos : Nat) : M Expr :=
     let arity := 5
     etaIfUnderApplied e arity do
       let args := e.getAppArgs
       let ha := mkLcProof args[0]! -- We should not use `lcErased` here since we use it to create a pre-LCNF Expr.
       let hb := mkLcProof args[1]!
-      let minor := if e.isAppOf ``And.rec then args[3]! else args[4]!
+      let minor := args[minorPos]!
       let minor := minor.beta #[ha, hb]
       visit (mkAppN minor args[arity:])
 
@@ -630,8 +668,10 @@ where
         visitCtor 3 e
       else if declName == ``Eq.casesOn || declName == ``Eq.rec || declName == ``Eq.ndrec then
         visitEqRec e
-      else if declName == ``And.rec || declName == ``And.casesOn then
-        visitAndRec e
+      else if declName == ``And.rec || declName == ``Iff.rec then
+        visitAndIffRecCore e (minorPos := 3)
+      else if declName == ``And.casesOn || declName == ``Iff.casesOn then
+        visitAndIffRecCore e (minorPos := 4)
       else if declName == ``False.rec || declName == ``Empty.rec || declName == ``False.casesOn || declName == ``Empty.casesOn then
         visitFalseRec e
       else if let some casesInfo ← getCasesInfo? declName then
@@ -648,7 +688,25 @@ where
       e.withApp fun f args => do visitAppDefault (← visit f) args
 
   visitLambda (e : Expr) : M Expr := do
-    let b := e.eta
+    let b := etaReduceImplicit e
+    /-
+    Note: we don't want to eta-reduce arbitrary lambda expressions since it can
+    affect the current inline heuristics. For example, suppose that `foo` is marked
+    as `[inline]`. If we eta-reduce
+    ```
+    let f := fun b => foo a b
+    ```
+    we obtain the LCNF
+    ```
+    let f := foo a
+    ```
+    which will be inlined everywhere in the current implementation, if we don't eta-reduce,
+    we obtain
+    ```
+    fun f b := foo a
+    ```
+    which will inline foo in the body of `f`, but will only inline `f` if it is small.
+    -/
     if !b.isLambda && !mustEtaExpand (← getEnv) b then
       /-
       We use eta-reduction to make sure we avoid the overhead introduced by

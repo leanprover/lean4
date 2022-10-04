@@ -29,6 +29,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_setCommandState___boxed(lean_objec
 lean_object* l_Lean_HashMap_ofList___at_Lean_Server_ModuleRefs_instCoeModuleRefsModuleRefs___spec__5(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_getCommandState___rarg___boxed(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkInputContext(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_runCommandElabM(lean_object*);
@@ -67,14 +68,13 @@ extern lean_object* l_Lean_firstFrontendMacroScope;
 lean_object* l_Lean_FileMap_ofString(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_setCommandState(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_runCommandElabM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____closed__9;
 static lean_object* l_Lean_Elab_Frontend_processCommand___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_processCommand(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____closed__4;
 lean_object* l_Lean_PersistentArray_toArray___rarg(lean_object*);
 static lean_object* l_Lean_Elab_Frontend_runCommandElabM___rarg___closed__2;
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____closed__8;
-lean_object* l___private_Lean_Server_References_0__Lean_Server_toJsonIlean____x40_Lean_Server_References___hyg_921_(lean_object*);
+lean_object* l___private_Lean_Server_References_0__Lean_Server_toJsonIlean____x40_Lean_Server_References___hyg_984_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_updateCmdPos___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profileitM___at_Lean_Elab_Frontend_processCommand___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profileitM___at_Lean_Elab_Frontend_processCommand___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2099,28 +2099,18 @@ return x_1;
 static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____closed__7() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____closed__6;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____closed__8() {
-_start:
-{
 lean_object* x_1; 
 x_1 = lean_mk_string_from_bytes("info", 4);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____closed__9() {
+static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____closed__7;
-x_2 = l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____closed__8;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_1 = l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____closed__6;
+x_2 = l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____closed__7;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }
@@ -2137,7 +2127,7 @@ lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8;
 x_5 = lean_ctor_get(x_4, 1);
 lean_inc(x_5);
 lean_dec(x_4);
-x_6 = l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____closed__9;
+x_6 = l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____closed__8;
 x_7 = 0;
 x_8 = l_Lean_registerTraceClass(x_6, x_7, x_5);
 return x_8;
@@ -2379,7 +2369,7 @@ x_34 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_34, 0, x_33);
 lean_ctor_set(x_34, 1, x_6);
 lean_ctor_set(x_34, 2, x_32);
-x_35 = l___private_Lean_Server_References_0__Lean_Server_toJsonIlean____x40_Lean_Server_References___hyg_921_(x_34);
+x_35 = l___private_Lean_Server_References_0__Lean_Server_toJsonIlean____x40_Lean_Server_References___hyg_984_(x_34);
 x_36 = l_Lean_Json_compress(x_35);
 x_37 = l_IO_FS_writeFile(x_23, x_36, x_22);
 lean_dec(x_36);
@@ -2828,8 +2818,6 @@ l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____closed__7 = _init_l_Le
 lean_mark_persistent(l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____closed__7);
 l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____closed__8 = _init_l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____closed__8();
 lean_mark_persistent(l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____closed__8);
-l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____closed__9 = _init_l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____closed__9();
-lean_mark_persistent(l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873____closed__9);
 res = l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_873_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

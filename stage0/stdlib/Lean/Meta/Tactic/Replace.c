@@ -37,9 +37,9 @@ lean_object* l_Lean_MVarId_clear(lean_object*, lean_object*, lean_object*, lean_
 static lean_object* l_Lean_MVarId_changeLocalDecl___closed__3;
 lean_object* l_Lean_MVarId_getTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-static lean_object* l_Lean_MVarId_replaceTargetEq___lambda__1___closed__5;
 lean_object* l_Lean_PersistentArray_set___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_modifyTarget___closed__2;
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lean_MVarId_modifyTarget___closed__1;
@@ -148,32 +148,22 @@ return x_1;
 static lean_object* _init_l_Lean_MVarId_replaceTargetEq___lambda__1___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_MVarId_replaceTargetEq___lambda__1___closed__1;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_MVarId_replaceTargetEq___lambda__1___closed__3() {
-_start:
-{
 lean_object* x_1; 
 x_1 = lean_mk_string_from_bytes("mpr", 3);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_MVarId_replaceTargetEq___lambda__1___closed__4() {
+static lean_object* _init_l_Lean_MVarId_replaceTargetEq___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_MVarId_replaceTargetEq___lambda__1___closed__2;
-x_2 = l_Lean_MVarId_replaceTargetEq___lambda__1___closed__3;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_1 = l_Lean_MVarId_replaceTargetEq___lambda__1___closed__1;
+x_2 = l_Lean_MVarId_replaceTargetEq___lambda__1___closed__2;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_MVarId_replaceTargetEq___lambda__1___closed__5() {
+static lean_object* _init_l_Lean_MVarId_replaceTargetEq___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -272,9 +262,9 @@ x_30 = lean_box(0);
 x_31 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_31, 0, x_22);
 lean_ctor_set(x_31, 1, x_30);
-x_32 = l_Lean_MVarId_replaceTargetEq___lambda__1___closed__4;
+x_32 = l_Lean_MVarId_replaceTargetEq___lambda__1___closed__3;
 x_33 = l_Lean_Expr_const___override(x_32, x_31);
-x_34 = l_Lean_MVarId_replaceTargetEq___lambda__1___closed__5;
+x_34 = l_Lean_MVarId_replaceTargetEq___lambda__1___closed__4;
 x_35 = lean_array_push(x_34, x_19);
 x_36 = lean_array_push(x_35, x_3);
 x_37 = lean_array_push(x_36, x_28);
@@ -4969,8 +4959,6 @@ l_Lean_MVarId_replaceTargetEq___lambda__1___closed__3 = _init_l_Lean_MVarId_repl
 lean_mark_persistent(l_Lean_MVarId_replaceTargetEq___lambda__1___closed__3);
 l_Lean_MVarId_replaceTargetEq___lambda__1___closed__4 = _init_l_Lean_MVarId_replaceTargetEq___lambda__1___closed__4();
 lean_mark_persistent(l_Lean_MVarId_replaceTargetEq___lambda__1___closed__4);
-l_Lean_MVarId_replaceTargetEq___lambda__1___closed__5 = _init_l_Lean_MVarId_replaceTargetEq___lambda__1___closed__5();
-lean_mark_persistent(l_Lean_MVarId_replaceTargetEq___lambda__1___closed__5);
 l_Lean_MVarId_replaceTargetEq___closed__1 = _init_l_Lean_MVarId_replaceTargetEq___closed__1();
 lean_mark_persistent(l_Lean_MVarId_replaceTargetEq___closed__1);
 l_Lean_MVarId_replaceTargetEq___closed__2 = _init_l_Lean_MVarId_replaceTargetEq___closed__2();

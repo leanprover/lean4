@@ -33,3 +33,5 @@ import Lean.Compiler.LCNF.ToExpr
 import Lean.Compiler.LCNF.ToLCNF
 import Lean.Compiler.LCNF.Types
 import Lean.Compiler.LCNF.Util
+import Lean.Compiler.LCNF.ConfigOptions
+import Lean.Compiler.LCNF.ForEachExpr

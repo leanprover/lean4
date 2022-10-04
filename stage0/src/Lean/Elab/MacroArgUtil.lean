@@ -20,13 +20,12 @@ partial def expandMacroArg (stx : TSyntax ``macroArg) : CommandElabM (TSyntax `s
 where
   mkSyntaxAndPat (id? : Option Ident) (id : Term) (stx : TSyntax `stx) := do
     let pat ← match stx with
-    | `(stx| $s:str)         => pure ⟨mkNode `token_antiquot #[← liftMacroM <| strLitToPattern s, mkAtom "%", mkAtom "$", id]⟩
+    | `(stx| $s:str)
     | `(stx| &$s:str)        => pure ⟨mkNode `token_antiquot #[← liftMacroM <| strLitToPattern s, mkAtom "%", mkAtom "$", id]⟩
     | `(stx| optional($stx)) => mkSplicePat `optional stx id "?"
-    | `(stx| many($stx))     => mkSplicePat `many stx id "*"
+    | `(stx| many($stx))
     | `(stx| many1($stx))    => mkSplicePat `many stx id "*"
-    | `(stx| sepBy($stx, $sep:str $[, $stxsep]? $[, allowTrailingSep]?)) =>
-      mkSplicePat `sepBy stx id ((isStrLit? sep).get! ++ "*")
+    | `(stx| sepBy($stx, $sep:str $[, $stxsep]? $[, allowTrailingSep]?))
     | `(stx| sepBy1($stx, $sep:str $[, $stxsep]? $[, allowTrailingSep]?)) =>
       mkSplicePat `sepBy stx id ((isStrLit? sep).get! ++ "*")
     -- NOTE: all `interpolatedStr(·)` reuse the same node kind

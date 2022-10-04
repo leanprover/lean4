@@ -298,6 +298,18 @@
    {"replace":
     {"start": {"line": 10, "character": 11},
      "end": {"line": 10, "character": 18}},
+    "newText": "trace.Compiler.extendJoinPointContext",
+    "insert":
+    {"start": {"line": 10, "character": 11},
+     "end": {"line": 10, "character": 18}}},
+   "label": "trace.Compiler.extendJoinPointContext",
+   "kind": 10,
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 10, "character": 11},
+     "end": {"line": 10, "character": 18}},
     "newText": "trace.Compiler.findJoinPoints",
     "insert":
     {"start": {"line": 10, "character": 11},

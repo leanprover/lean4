@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_49____closed__4;
 LEAN_EXPORT lean_object* l_Lean_profileitM___at_Lean_Compiler_compile___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_49_(lean_object*);
@@ -162,9 +163,9 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_49____closed__2;
+x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_49____closed__1;
 x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_49____closed__3;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }

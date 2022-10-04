@@ -824,7 +824,7 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
           pure (info.isSubobject && decl.binderInfo.isInstImplicit)
         withSaveInfoContext do  -- save new env
           Term.addLocalVarInfo view.ref[1] (← mkConstWithLevelParams view.declName)
-          if let some _ := view.ctor.ref[1].getPos? (originalOnly := true) then
+          if let some _ := view.ctor.ref[1].getPos? (canonicalOnly := true) then
             Term.addTermInfo' view.ctor.ref[1] (← mkConstWithLevelParams view.ctor.declName) (isBinder := true)
           for field in view.fields do
             -- may not exist if overriding inherited field

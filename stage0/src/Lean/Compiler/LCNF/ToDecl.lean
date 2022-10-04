@@ -112,11 +112,12 @@ def toDecl (declName : Name) : CompilerM Decl := do
     -- let value ← applyCasesOnImplementedBy value
     return (type, value)
   let value ← toLCNF value
+  let safe := !info.isPartial && !info.isUnsafe
   let decl ← if let .fun decl (.return _) := value then
     eraseFunDecl decl (recursive := false)
-    pure { name := declName, params := decl.params, type, value := decl.value, levelParams := info.levelParams : Decl }
+    pure { name := declName, params := decl.params, type, value := decl.value, levelParams := info.levelParams, safe : Decl }
   else
-    pure { name := declName, params := #[], type, value, levelParams := info.levelParams }
+    pure { name := declName, params := #[], type, value, levelParams := info.levelParams, safe }
   /- `toLCNF` may eta-reduce simple declarations. -/
   decl.etaExpand
 

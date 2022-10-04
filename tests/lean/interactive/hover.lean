@@ -201,3 +201,46 @@ example : Nat := Id.run do (← 1)
 
 #check (· + ·)
       --^ textDocument/hover
+
+macro "my_intro" x:(ident <|> "_") : tactic =>
+  match x with
+  | `($x:ident) => `(tactic| intro $x:ident)
+  | _ => `(tactic| intro _%$x)
+
+example : α → α := by intro x; assumption
+                          --^ textDocument/hover
+example : α → α := by intro _; assumption
+                          --^ textDocument/hover
+example : α → α := by my_intro x; assumption
+                             --^ textDocument/hover
+example : α → α := by my_intro _; assumption
+                             --^ textDocument/hover
+
+example : Nat → True := by
+  intro x
+      --^ textDocument/hover
+  cases x with
+  | zero => trivial
+  --^ textDocument/hover
+  --v textDocument/hover
+  | succ x => trivial
+       --^ textDocument/hover
+
+example : Nat → True := by
+  intro x
+      --^ textDocument/hover
+  induction x with
+          --^ textDocument/hover
+  | zero => trivial
+  --^ textDocument/hover
+       --v textDocument/hover
+  | succ _ ih => exact ih
+         --^ textDocument/hover
+
+example : Nat → Nat
+    --v textDocument/hover
+  | .zero => .zero
+             --^ textDocument/hover
+    --v textDocument/hover
+  | .succ x => .succ x
+               --^ textDocument/hover

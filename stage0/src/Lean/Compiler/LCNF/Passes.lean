@@ -36,6 +36,7 @@ def builtinPassManager : PassManager := {
     simp { etaPoly := true, inlinePartial := true, implementedBy := true } (occurrence := 1),
     specialize,
     simp (occurrence := 2),
+    cse,
     saveBase -- End of base phase
   ]
 }
@@ -78,5 +79,8 @@ builtin_initialize
       discard <| addPass declName
     applicationTime := .afterCompilation
   }
+
+builtin_initialize
+  registerTraceClass `Compiler.saveBase (inherited := true)
 
 end Lean.Compiler.LCNF

@@ -1,2 +1,2 @@
-[`Lean.Macro] : List Name
-[(`Nat.succ, [])] : List (Lean.Name × List ?m)
+[Name.mkStr2 "Lean" "Macro"] : List Name
+[(Lean.Name.mkStr2 "Nat" "succ", [])] : List (Lean.Name × List ?m)

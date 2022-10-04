@@ -35,6 +35,10 @@ def simpAppApp? (e : Expr) : OptionT SimpM Expr := do
   markSimplified
   return mkAppN f e.getAppArgs
 
+def simpCtorDiscr? (e : Expr) : OptionT SimpM Expr := do
+  let some v ← simpCtorDiscrCore? e | failure
+  return v
+
 def applyImplementedBy? (e : Expr) : OptionT SimpM Expr := do
   guard <| (← read).config.implementedBy
   let .const declName us := e.getAppFn | failure
@@ -45,4 +49,4 @@ def applyImplementedBy? (e : Expr) : OptionT SimpM Expr := do
 /-- Try to apply simple simplifications. -/
 def simpValue? (e : Expr) : SimpM (Option Expr) :=
   -- TODO: more simplifications
-  simpProj? e <|> simpAppApp? e <|> applyImplementedBy? e
+  simpProj? e <|> simpAppApp? e <|> simpCtorDiscr? e <|> applyImplementedBy? e

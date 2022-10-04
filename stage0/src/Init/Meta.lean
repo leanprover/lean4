@@ -503,23 +503,23 @@ partial def expandMacros (stx : Syntax) (p : SyntaxNodeKind → Bool := fun k =>
 /--
   Create an identifier copying the position from `src`.
   To refer to a specific constant, use `mkCIdentFrom` instead. -/
-def mkIdentFrom (src : Syntax) (val : Name) : Ident :=
-  ⟨Syntax.ident (SourceInfo.fromRef src) (toString val).toSubstring val []⟩
+def mkIdentFrom (src : Syntax) (val : Name) (canonical := false) : Ident :=
+  ⟨Syntax.ident (SourceInfo.fromRef src canonical) (toString val).toSubstring val []⟩
 
-def mkIdentFromRef [Monad m] [MonadRef m] (val : Name) : m Ident := do
-  return mkIdentFrom (← getRef) val
+def mkIdentFromRef [Monad m] [MonadRef m] (val : Name) (canonical := false) : m Ident := do
+  return mkIdentFrom (← getRef) val canonical
 
 /--
   Create an identifier referring to a constant `c` copying the position from `src`.
   This variant of `mkIdentFrom` makes sure that the identifier cannot accidentally
   be captured. -/
-def mkCIdentFrom (src : Syntax) (c : Name) : Ident :=
+def mkCIdentFrom (src : Syntax) (c : Name) (canonical := false) : Ident :=
   -- Remark: We use the reserved macro scope to make sure there are no accidental collision with our frontend
   let id   := addMacroScope `_internal c reservedMacroScope
-  ⟨Syntax.ident (SourceInfo.fromRef src) (toString id).toSubstring id [.decl c []]⟩
+  ⟨Syntax.ident (SourceInfo.fromRef src canonical) (toString id).toSubstring id [.decl c []]⟩
 
-def mkCIdentFromRef [Monad m] [MonadRef m] (c : Name) : m Syntax := do
-  return mkCIdentFrom (← getRef) c
+def mkCIdentFromRef [Monad m] [MonadRef m] (c : Name) (canonical := false) : m Syntax := do
+  return mkCIdentFrom (← getRef) c canonical
 
 def mkCIdent (c : Name) : Ident :=
   mkCIdentFrom Syntax.missing c
@@ -550,8 +550,8 @@ def mkOptionalNode (arg : Option Syntax) : Syntax :=
   | some arg => mkNullNode #[arg]
   | none     => mkNullNode #[]
 
-def mkHole (ref : Syntax) : Syntax :=
-  mkNode `Lean.Parser.Term.hole #[mkAtomFrom ref "_"]
+def mkHole (ref : Syntax) (canonical := false) : Syntax :=
+  mkNode `Lean.Parser.Term.hole #[mkAtomFrom ref "_" canonical]
 
 namespace Syntax
 
@@ -937,10 +937,10 @@ export Quote (quote)
 instance [Quote α k] [CoeHTCT (TSyntax k) (TSyntax [k'])] : Quote α k' := ⟨fun a => quote (k := k) a⟩
 
 instance : Quote Term := ⟨id⟩
-instance : Quote Bool := ⟨fun | true => mkCIdent `Bool.true | false => mkCIdent `Bool.false⟩
+instance : Quote Bool := ⟨fun | true => mkCIdent ``Bool.true | false => mkCIdent ``Bool.false⟩
 instance : Quote String strLitKind := ⟨Syntax.mkStrLit⟩
 instance : Quote Nat numLitKind := ⟨fun n => Syntax.mkNumLit <| toString n⟩
-instance : Quote Substring := ⟨fun s => Syntax.mkCApp `String.toSubstring #[quote s.toString]⟩
+instance : Quote Substring := ⟨fun s => Syntax.mkCApp ``String.toSubstring' #[quote s.toString]⟩
 
 -- in contrast to `Name.toString`, we can, and want to be, precise here
 private def getEscapedNameParts? (acc : List String) : Name → Option (List String)
@@ -951,9 +951,9 @@ private def getEscapedNameParts? (acc : List String) : Name → Option (List Str
   | Name.num _ _ => none
 
 def quoteNameMk : Name → Term
-  | Name.anonymous => mkCIdent ``Name.anonymous
-  | Name.str n s => Syntax.mkCApp ``Name.mkStr #[quoteNameMk n, quote s]
-  | Name.num n i => Syntax.mkCApp ``Name.mkNum #[quoteNameMk n, quote i]
+  | .anonymous => mkCIdent ``Name.anonymous
+  | .str n s => Syntax.mkCApp ``Name.mkStr #[quoteNameMk n, quote s]
+  | .num n i => Syntax.mkCApp ``Name.mkNum #[quoteNameMk n, quote i]
 
 instance : Quote Name `term where
   quote n := match getEscapedNameParts? [] n with
@@ -971,8 +971,21 @@ private def quoteList [Quote α `term] : List α → Term
 instance [Quote α `term] : Quote (List α) `term where
   quote := quoteList
 
+private def quoteArray [Quote α `term] (xs : Array α) : Term :=
+  if xs.size <= 8 then
+    go 0 #[]
+  else
+    Syntax.mkCApp ``List.toArray #[quote xs.toList]
+where
+  go (i : Nat) (args : Array Term) : Term :=
+    if h : i < xs.size then
+      go (i+1) (args.push (quote xs[i]))
+    else
+      Syntax.mkCApp (Name.mkStr2 "Array" ("mkArray" ++ toString xs.size)) args
+termination_by go i _ => xs.size - i
+
 instance [Quote α `term] : Quote (Array α) `term where
-  quote xs := Syntax.mkCApp ``List.toArray #[quote xs.toList]
+  quote := quoteArray
 
 instance Option.hasQuote {α : Type} [Quote α `term] : Quote (Option α) `term where
   quote
@@ -1289,7 +1302,7 @@ macro (name := declareSimpLikeTactic) doc?:(docComment)? "declare_simp_like_tact
         | `(config| (config := $$c)) => `(config| (config := $updateCfg $$c))
         | _ => `(config| (config := $updateCfg {}))
       let s := s.setKind $kind
-      let s := s.setArg 0 (mkAtomFrom s[0] $tkn)
+      let s := s.setArg 0 (mkAtomFrom s[0] $tkn (canonical := true))
       let r := s.setArg 1 (mkNullNode #[c])
       return r)
 

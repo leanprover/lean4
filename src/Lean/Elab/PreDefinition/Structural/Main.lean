@@ -35,17 +35,17 @@ private def getFixedPrefix (declName : Name) (xs : Array Expr) (value : Expr) : 
            We disable to proof irrelevance to be able to use structural recursion on inductive predicates.
            For example, consider the example
            ```
-          inductive PList (α : Type) : Prop
-          | nil
-          | cons : α → PList α → PList α
+           inductive PList (α : Type) : Prop
+           | nil
+           | cons : α → PList α → PList α
 
-          infixr:67 " ::: " => PList.cons
+           infixr:67 " ::: " => PList.cons
 
-          set_option trace.Elab.definition.structural true in
-          def pmap {α β} (f : α → β) : PList α → PList β
-          | PList.nil => PList.nil
-          | a:::as => f a ::: pmap f as
-          ```
+           set_option trace.Elab.definition.structural true in
+           def pmap {α β} (f : α → β) : PList α → PList β
+             | PList.nil => PList.nil
+             | a:::as => f a ::: pmap f as
+           ```
           The "Fixed" prefix would be 4 since all elements of type `PList α` are definitionally equal.
         -/
         if !(← withoutProofIrrelevance <| withReducible <| isDefEq arg x) then

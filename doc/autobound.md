@@ -43,3 +43,5 @@ set_option autoImplicit false
 -- def compose (g : β → γ) (f : α → β) (x : α) : γ :=
 --   g (f x)
 ```
+The Lean language server provides [semantic highlighting](./semantic_highlighting.md) information to editors, and it provides
+visual feedback whether an identifier has been interpreted as an auto bound implicit argument.

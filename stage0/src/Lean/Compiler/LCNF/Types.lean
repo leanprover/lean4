@@ -24,10 +24,10 @@ def erasedExpr := mkConst ``lcErased
 def anyTypeExpr := mkConst  ``lcAny
 
 def _root_.Lean.Expr.isAnyType (e : Expr) :=
-  e.isConstOf ``lcAny
+  e.isAppOf ``lcAny
 
 def _root_.Lean.Expr.isErased (e : Expr) :=
-  e.isConstOf ``lcErased
+  e.isAppOf ``lcErased
 
 def isPropFormerTypeQuick : Expr → Bool
   | .forallE _ _ b _ => isPropFormerTypeQuick b

@@ -50,7 +50,7 @@ def checkpoint (stepName : Name) (decls : Array Decl) : CompilerM Unit := do
     withOptions (fun opts => opts.setBool `pp.motives.pi false) do
       let clsName := `Compiler ++ stepName
       if (← Lean.isTracingEnabledFor clsName) then
-        Lean.addTrace clsName m!"size: {decl.size}\n{← ppDecl decl}"
+        Lean.addTrace clsName m!"size: {decl.size}\n{← ppDecl' decl}"
       if compiler.check.get (← getOptions) then
         decl.check
   if compiler.check.get (← getOptions) then
@@ -68,6 +68,7 @@ def run (declNames : Array Name) : CompilerM (Array Decl) := withAtLeastMaxRecDe
   let declNames ← declNames.filterM (shouldGenerateCode ·)
   if declNames.isEmpty then return #[]
   let mut decls ← declNames.mapM toDecl
+  decls := markRecDecls decls
   let manager ← getPassManager
   for pass in manager.passes do
     trace[Compiler] s!"Running pass: {pass.name}"
@@ -75,7 +76,9 @@ def run (declNames : Array Name) : CompilerM (Array Decl) := withAtLeastMaxRecDe
     withPhase pass.phase <| checkpoint pass.name decls
   if (← Lean.isTracingEnabledFor `Compiler.result) then
     for decl in decls do
-      Lean.addTrace `Compiler.result m!"size: {decl.size}\n{← ppDecl decl}"
+      -- We display the declaration saved in the environment because the names have been normalized
+      let some decl' ← getDeclAt? decl.name .base | unreachable!
+      Lean.addTrace `Compiler.result m!"size: {decl.size}\n{← ppDecl' decl'}"
   return decls
 
 end PassManager
@@ -88,8 +91,9 @@ def showDecl (phase : Phase) (declName : Name) : CoreM Format := do
   ppDecl' decl
 
 @[export lean_lcnf_compile_decls]
-def main (declNames : List Name) : CoreM Unit :=
-  CompilerM.run <| discard <| PassManager.run declNames.toArray
+def main (declNames : List Name) : CoreM Unit := do
+  profileitM Exception "compilation new" (← getOptions) do
+    CompilerM.run <| discard <| PassManager.run declNames.toArray
 
 builtin_initialize
   registerTraceClass `Compiler.init (inherited := true)

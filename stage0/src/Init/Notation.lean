@@ -332,11 +332,22 @@ macro_rules | `($x <|> $y) => `(binop_lazy% HOrElse.hOrElse $x $y)
 macro_rules | `($x >> $y)  => `(binop_lazy% HAndThen.hAndThen $x $y)
 
 namespace Lean
+
 /--
 `binderIdent` matches an `ident` or a `_`. It is used for identifiers in binding
 position, where `_` means that the value should be left unnamed and inaccessible.
 -/
 syntax binderIdent := ident <|> hole
+
+namespace Parser.Tactic
+
+/--
+A case tag argument has the form `tag x₁ ... xₙ`; it refers to tag `tag` and renames
+the last `n` hypotheses to `x₁ ... xₙ`.
+-/
+syntax caseArg := binderIdent binderIdent*
+
+end Parser.Tactic
 end Lean
 
 @[inheritDoc dite] syntax (name := termDepIfThenElse)

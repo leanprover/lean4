@@ -49,6 +49,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hy
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
+lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_450____lambda__2___closed__3;
 LEAN_EXPORT lean_object* l_Lean_IR_containsDecl(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_mkEntryArray___spec__6(lean_object*, lean_object*);
@@ -70,7 +71,6 @@ lean_object* l_Lean_IR_Decl_name(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_getDecls___boxed(lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
 lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
-static lean_object* l_Lean_IR_tracePrefixOptionName___closed__5;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_IR_findEnvDecl___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_log(lean_object*, lean_object*, lean_object*);
 uint64_t l_Lean_Name_hash___override(lean_object*);
@@ -135,7 +135,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Compiler_
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_450____spec__6(lean_object*, lean_object*);
-static lean_object* l_Lean_IR_tracePrefixOptionName___closed__6;
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_tracePrefixOptionName___closed__3;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
@@ -621,32 +620,12 @@ return x_1;
 static lean_object* _init_l_Lean_IR_tracePrefixOptionName___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_IR_tracePrefixOptionName___closed__1;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_IR_tracePrefixOptionName___closed__3() {
-_start:
-{
 lean_object* x_1; 
 x_1 = lean_mk_string_from_bytes("compiler", 8);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_IR_tracePrefixOptionName___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_IR_tracePrefixOptionName___closed__2;
-x_2 = l_Lean_IR_tracePrefixOptionName___closed__3;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_IR_tracePrefixOptionName___closed__5() {
+static lean_object* _init_l_Lean_IR_tracePrefixOptionName___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -654,21 +633,22 @@ x_1 = lean_mk_string_from_bytes("ir", 2);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_IR_tracePrefixOptionName___closed__6() {
+static lean_object* _init_l_Lean_IR_tracePrefixOptionName___closed__4() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_IR_tracePrefixOptionName___closed__4;
-x_2 = l_Lean_IR_tracePrefixOptionName___closed__5;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_IR_tracePrefixOptionName___closed__1;
+x_2 = l_Lean_IR_tracePrefixOptionName___closed__2;
+x_3 = l_Lean_IR_tracePrefixOptionName___closed__3;
+x_4 = l_Lean_Name_mkStr3(x_1, x_2, x_3);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_IR_tracePrefixOptionName() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_IR_tracePrefixOptionName___closed__6;
+x_1 = l_Lean_IR_tracePrefixOptionName___closed__4;
 return x_1;
 }
 }
@@ -3815,10 +3795,6 @@ l_Lean_IR_tracePrefixOptionName___closed__3 = _init_l_Lean_IR_tracePrefixOptionN
 lean_mark_persistent(l_Lean_IR_tracePrefixOptionName___closed__3);
 l_Lean_IR_tracePrefixOptionName___closed__4 = _init_l_Lean_IR_tracePrefixOptionName___closed__4();
 lean_mark_persistent(l_Lean_IR_tracePrefixOptionName___closed__4);
-l_Lean_IR_tracePrefixOptionName___closed__5 = _init_l_Lean_IR_tracePrefixOptionName___closed__5();
-lean_mark_persistent(l_Lean_IR_tracePrefixOptionName___closed__5);
-l_Lean_IR_tracePrefixOptionName___closed__6 = _init_l_Lean_IR_tracePrefixOptionName___closed__6();
-lean_mark_persistent(l_Lean_IR_tracePrefixOptionName___closed__6);
 l_Lean_IR_tracePrefixOptionName = _init_l_Lean_IR_tracePrefixOptionName();
 lean_mark_persistent(l_Lean_IR_tracePrefixOptionName);
 l_Lean_PersistentHashMap_insertAux___at_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_450____spec__3___closed__1 = _init_l_Lean_PersistentHashMap_insertAux___at_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_450____spec__3___closed__1();

@@ -72,4 +72,4 @@ where
     | .let decl k => modify (·.push (.let decl)); visitCode k projs
     | .fun decl k => modify (·.push (.fun decl)); visitCode k projs
     | .return fvarId => visit (.fvar fvarId) projs
-    | _ => failure
+    | _ => eraseCode code; failure

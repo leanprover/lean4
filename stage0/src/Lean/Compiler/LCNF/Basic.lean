@@ -355,6 +355,40 @@ structure Decl where
   through compiler passes.
   -/
   value : Code
+  /--
+  We set this flag to true during LCNF conversion. When we receive
+  a block of functions to be compiled, we set this flag to `true`
+  if there is an application to the function in the block containing
+  it. This is an approximation, but it should be good enough because
+  in the frontend, we invoke the compiler with blocks of strongly connected
+  components only.
+  We use this information to control inlining.
+  -/
+  recursive : Bool := false
+  /--
+  We set this flag to false during LCNF conversion if the Lean function
+  associated with this function was tagged as partial or unsafe. This
+  information affects how static analyzers treat function applications
+  of this kind. See `DefinitionSafety`.
+  `partial` and `unsafe` functions may not be terminating, but Lean
+  functions terminate, and some static analyzers exploit this
+  fact. So, we use the following semantics. Suppose whe hav a (large) natural
+  number `C`. We consider a nondeterministic model for computation of Lean expressions as
+  follows:
+  Each call to a partial/unsafe function uses up one "recursion token".
+  Prior to consuming `C` recursion tokens all partial functions must be called
+  as normal. Once the model has used up `C` recursion tokens, a subsequent call to
+  a partial function has the following nondeterministic options: it can either call
+  the function again, or return any value of the target type (even a noncomputable one).
+  Larger values of `C` yield less nondeterminism in the model, but even the intersection of
+  all choices of `C` yields nondeterminism where `def loop : A := loop` returns any value of type `A`.
+  The compiler fixes a choice for `C`. This is a fixed constant greater than 2^2^64,
+  which is allowed to be compiler and architecture dependent, and promises that it will
+  produce an execution consistent with every possible nondeterministic outcome of the `C`-model.
+  In the event that different nondeterministic executions disagree, the compiler is required to
+  exhaust resources or output a looping computation.
+  -/
+  safe : Bool := true
   deriving Inhabited, BEq
 
 def Decl.size (decl : Decl) : Nat :=
@@ -459,5 +493,35 @@ end
 
 abbrev collectUsedAtExpr (s : FVarIdSet) (e : Expr) : FVarIdSet :=
   collectExpr e s
+
+/--
+Traverse the given block of potentially mutually recursive functions
+and mark a declaration `f` as recursive if there is an application
+`f ...` in the block.
+This is an overapproximation, and relies on the fact that our frontend
+computes strongly connected components.
+See comment at `recursive` field.
+-/
+partial def markRecDecls (decls : Array Decl) : Array Decl :=
+  let (_, isRec) := go |>.run {}
+  decls.map fun decl =>
+    if isRec.contains decl.name then
+      { decl with recursive := true }
+    else
+      decl
+where
+  visit (code : Code) : StateM NameSet Unit := do
+    match code with
+    | .jp decl k | .fun decl k => visit decl.value; visit k
+    | .cases c => c.alts.forM fun alt => visit alt.getCode
+    | .unreach .. | .jmp .. | .return .. => return ()
+    | .let decl k =>
+      if let .const declName _ := decl.value.getAppFn then
+        if decls.any (·.name == declName) then
+          modify fun s => s.insert declName
+      visit k
+
+  go : StateM NameSet Unit :=
+    decls.forM fun decl => visit decl.value
 
 end Lean.Compiler.LCNF

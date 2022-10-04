@@ -54,14 +54,20 @@ def getDeclAt? (declName : Name) (phase : Phase) : CoreM (Option Decl) :=
 def getDecl? (declName : Name) : CompilerM (Option Decl) := do
   getDeclAt? declName (← getPhase)
 
-def saveBase : Pass :=
-  .mkPerDeclaration `saveBase (fun decl => do decl.saveBase; return decl) .base
-
 def forEachDecl (f : Decl → CoreM Unit) : CoreM Unit := do
   let env ← getEnv
   for modIdx in [:env.allImportedModuleNames.size] do
     for decl in baseExt.getModuleEntries env modIdx do
       f decl
   baseExt.getState env |>.forM fun _ decl => f decl
+
+def forEachModuleDecl (moduleName : Name) (f : Decl → CoreM Unit) : CoreM Unit := do
+  let env ← getEnv
+  let some modIdx := env.getModuleIdx? moduleName | throwError "module `{moduleName}` not found"
+  for decl in baseExt.getModuleEntries env modIdx do
+    f decl
+
+def forEachMainModuleDecl (f : Decl → CoreM Unit) : CoreM Unit := do
+  baseExt.getState (← getEnv) |>.forM fun _ decl => f decl
 
 end Lean.Compiler.LCNF

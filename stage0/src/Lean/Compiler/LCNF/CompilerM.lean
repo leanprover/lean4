@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.CoreM
 import Lean.Compiler.LCNF.Basic
 import Lean.Compiler.LCNF.LCtx
+import Lean.Compiler.LCNF.ConfigOptions
 
 namespace Lean.Compiler.LCNF
 /--
@@ -36,6 +37,7 @@ structure CompilerM.State where
 
 structure CompilerM.Context where
   phase : Phase
+  config : ConfigOptions
   deriving Inhabited
 
 abbrev CompilerM := ReaderT CompilerM.Context $ StateRefT CompilerM.State CoreM
@@ -282,9 +284,10 @@ private def mkNewFVarId (fvarId : FVarId) : InternalizeM FVarId := do
   return fvarId'
 
 def internalizeParam (p : Param) : InternalizeM Param := do
+  let binderName ← refreshBinderName p.binderName
   let type ← normExpr p.type
   let fvarId ← mkNewFVarId p.fvarId
-  let p := { p with fvarId, type }
+  let p := { p with binderName, fvarId, type }
   modifyLCtx fun lctx => lctx.addParam p
   return p
 
@@ -478,7 +481,10 @@ def cleanup (decl : Array Decl) : CompilerM (Array Decl) := do
     modify fun s => { s with nextIdx := 1 }
     decl.internalize
 
-def CompilerM.run (x : CompilerM α) (s : State := {}) (phase : Phase := .base) : CoreM α :=
-  x { phase } |>.run' s
+def getConfig : CompilerM ConfigOptions :=
+  return (← read).config
+
+def CompilerM.run (x : CompilerM α) (s : State := {}) (phase : Phase := .base) : CoreM α := do
+  x { phase, config := toConfigOptions (← getOptions) } |>.run' s
 
 end Lean.Compiler.LCNF

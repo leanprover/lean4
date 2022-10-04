@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.PrettyPrinter
 import Lean.Compiler.LCNF.CompilerM
+import Lean.Compiler.LCNF.Internalize
 
 namespace Lean.Compiler.LCNF
 

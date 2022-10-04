@@ -14,13 +14,12 @@
 extern "C" {
 #endif
 lean_object* l_Lean_stringToMessageData(lean_object*);
-lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__5;
 static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__3;
 static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__6;
+lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__1;
 lean_object* l_Lean_addTrace___at_Lean_Meta_processPostponed_loop___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__10;
 lean_object* l_Lean_Meta_Linear_Nat_simpExpr_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Linear_Nat_simpCnstr_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__7;
@@ -33,7 +32,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Linear_simp_x3f___lambda__1(lean_object*, l
 LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_LinearArith_Simp_0__Lean_Meta_Linear_parentIsTarget(lean_object*);
 static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__4;
 uint8_t l_Lean_Meta_Linear_isLinearTerm(lean_object*);
-static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__9;
 uint8_t l_Lean_Meta_Linear_isLinearCnstr(lean_object*);
 static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__8;
 LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_LinearArith_Simp_0__Lean_Meta_Linear_parentIsTarget(lean_object* x_1) {
@@ -96,32 +94,12 @@ return x_1;
 static lean_object* _init_l_Lean_Meta_Linear_simp_x3f___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Meta_Linear_simp_x3f___closed__1;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_Linear_simp_x3f___closed__3() {
-_start:
-{
 lean_object* x_1; 
 x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Linear_simp_x3f___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_Linear_simp_x3f___closed__2;
-x_2 = l_Lean_Meta_Linear_simp_x3f___closed__3;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_Linear_simp_x3f___closed__5() {
+static lean_object* _init_l_Lean_Meta_Linear_simp_x3f___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -129,21 +107,39 @@ x_1 = lean_mk_string_from_bytes("simp", 4);
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_Meta_Linear_simp_x3f___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Meta_Linear_simp_x3f___closed__1;
+x_2 = l_Lean_Meta_Linear_simp_x3f___closed__2;
+x_3 = l_Lean_Meta_Linear_simp_x3f___closed__3;
+x_4 = l_Lean_Name_mkStr3(x_1, x_2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Meta_Linear_simp_x3f___closed__5() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("arith expr: ", 12);
+return x_1;
+}
+}
 static lean_object* _init_l_Lean_Meta_Linear_simp_x3f___closed__6() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_Linear_simp_x3f___closed__4;
-x_2 = l_Lean_Meta_Linear_simp_x3f___closed__5;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Meta_Linear_simp_x3f___closed__5;
+x_2 = l_Lean_stringToMessageData(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Meta_Linear_simp_x3f___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("arith expr: ", 12);
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -152,23 +148,6 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Meta_Linear_simp_x3f___closed__7;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_Linear_simp_x3f___closed__9() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Linear_simp_x3f___closed__10() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_Linear_simp_x3f___closed__9;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -205,7 +184,7 @@ x_12 = l___private_Lean_Meta_Tactic_LinearArith_Simp_0__Lean_Meta_Linear_parentI
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_13 = l_Lean_Meta_Linear_simp_x3f___closed__6;
+x_13 = l_Lean_Meta_Linear_simp_x3f___closed__4;
 x_14 = l_Lean_isTracingEnabledFor___at_Lean_Meta_processPostponed_loop___spec__1(x_13, x_3, x_4, x_5, x_6, x_7);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
@@ -229,11 +208,11 @@ lean_dec(x_14);
 lean_inc(x_1);
 x_20 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_20, 0, x_1);
-x_21 = l_Lean_Meta_Linear_simp_x3f___closed__8;
+x_21 = l_Lean_Meta_Linear_simp_x3f___closed__6;
 x_22 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_22, 0, x_21);
 lean_ctor_set(x_22, 1, x_20);
-x_23 = l_Lean_Meta_Linear_simp_x3f___closed__10;
+x_23 = l_Lean_Meta_Linear_simp_x3f___closed__8;
 x_24 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_24, 0, x_22);
 lean_ctor_set(x_24, 1, x_23);
@@ -312,10 +291,6 @@ l_Lean_Meta_Linear_simp_x3f___closed__7 = _init_l_Lean_Meta_Linear_simp_x3f___cl
 lean_mark_persistent(l_Lean_Meta_Linear_simp_x3f___closed__7);
 l_Lean_Meta_Linear_simp_x3f___closed__8 = _init_l_Lean_Meta_Linear_simp_x3f___closed__8();
 lean_mark_persistent(l_Lean_Meta_Linear_simp_x3f___closed__8);
-l_Lean_Meta_Linear_simp_x3f___closed__9 = _init_l_Lean_Meta_Linear_simp_x3f___closed__9();
-lean_mark_persistent(l_Lean_Meta_Linear_simp_x3f___closed__9);
-l_Lean_Meta_Linear_simp_x3f___closed__10 = _init_l_Lean_Meta_Linear_simp_x3f___closed__10();
-lean_mark_persistent(l_Lean_Meta_Linear_simp_x3f___closed__10);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

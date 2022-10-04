@@ -190,7 +190,7 @@ opaque mkAntiquot.formatter' (name : String) (kind : SyntaxNodeKind) (anonymous 
 opaque interpretParserDescr' : ParserDescr → CoreM Formatter
 
 private def SourceInfo.getExprPos? : SourceInfo → Option String.Pos
-  | SourceInfo.synthetic pos _ => pos
+  | SourceInfo.synthetic (pos := pos) .. => pos
   | _ => none
 
 private def getExprPos? : Syntax → Option String.Pos

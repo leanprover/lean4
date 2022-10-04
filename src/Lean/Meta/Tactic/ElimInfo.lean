@@ -11,6 +11,7 @@ namespace Lean.Meta
 
 structure ElimAltInfo where
   name      : Name
+  declName? : Option Name
   numFields : Nat
   deriving Repr, Inhabited
 
@@ -21,7 +22,7 @@ structure ElimInfo where
   altsInfo   : Array ElimAltInfo := #[]
   deriving Repr, Inhabited
 
-def getElimInfo (declName : Name) : MetaM ElimInfo := do
+def getElimInfo (declName : Name) (baseDeclName? : Option Name := none) : MetaM ElimInfo := do
   let declInfo ← getConstInfo declName
   forallTelescopeReducing declInfo.type fun xs type => do
     let motive  := type.getAppFn
@@ -41,14 +42,20 @@ def getElimInfo (declName : Name) : MetaM ElimInfo := do
       | none => throwError "unexpected eliminator type{indentExpr declInfo.type}"
       | some targetPos => pure targetPos.val
     let mut altsInfo := #[]
+    let env ← getEnv
     for i in [:xs.size] do
       let x := xs[i]!
       if x != motive && !targets.contains x then
         let xDecl ← x.fvarId!.getDecl
         if xDecl.binderInfo.isExplicit then
           let numFields ← forallTelescopeReducing xDecl.type fun args _ => pure args.size
-          altsInfo := altsInfo.push { name := xDecl.userName, numFields := numFields : ElimAltInfo }
-    pure { name := declName, motivePos := motivePos, targetsPos := targetsPos, altsInfo := altsInfo }
+          let name := xDecl.userName
+          let declName? := do
+            let base ← baseDeclName?
+            let altDeclName := base ++ name
+            if env.contains altDeclName then some altDeclName else none
+          altsInfo := altsInfo.push { name, declName?, numFields }
+    pure { name := declName, motivePos, targetsPos, altsInfo }
 
 /--
   Eliminators/recursors may have implicit targets. For builtin recursors, all indices are implicit targets.

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Compiler.ImplementedByAttr
+import Lean.Compiler.LCNF.Renaming
 import Lean.Compiler.LCNF.ElimDead
 import Lean.Compiler.LCNF.AlphaEqv
 import Lean.Compiler.LCNF.PrettyPrinter
@@ -23,11 +24,22 @@ structure Context where
   -/
   declName : Name
   config : Config := {}
+  /--
+  A mapping from discriminant to constructor application it is equal to in the current context.
+  -/
   discrCtorMap : FVarIdMap Expr := {}
+  /--
+  A mapping from constructor application to discriminant it is equal to in the current context.
+  -/
+  ctorDiscrMap : PersistentExprMap FVarId := {}
   /--
   Stack of global declarations being recursively inlined.
   -/
   inlineStack : List Name := []
+  /--
+  Mapping from declaration names to number of occurrences at `inlineStack`
+  -/
+  inlineStackOccs : PHashMap Name Nat := {}
 
 structure State where
   /--
@@ -38,6 +50,11 @@ structure State where
   Track used local declarations to be able to eliminate dead variables.
   -/
   used : UsedLocalDecls := {}
+  /--
+  Mapping containing free variables ids that need to be renamed (i.e., the `binderName`).
+  We use this map to preserve user provide names.
+  -/
+  binderRenaming : Renaming := {}
   /--
   Mapping used to decide whether a local function declaration must be inlined or not.
   -/
@@ -81,6 +98,16 @@ def findCtor (e : Expr) : SimpM Expr := do
   return ctor
 
 /--
+If `type` is an inductive datatype, return its universe levels and parameters.
+-/
+def getIndInfo? (type : Expr) : CoreM (Option (List Level × Array Expr)) := do
+  let type := type.headBeta
+  let .const declName us := type.getAppFn | return none
+  let .inductInfo info ← getConstInfo declName | return none
+  unless type.getAppNumArgs >= info.numParams do return none
+  return some (us, type.getAppArgs[:info.numParams])
+
+/--
 Execute `x` with the information that `discr = ctorName ctorFields`.
 We use this information to simplify nested cases on the same discriminant.
 
@@ -90,13 +117,16 @@ We wait more type information to be erased.
 -/
 def withDiscrCtor (discr : FVarId) (ctorName : Name) (ctorFields : Array Param) (x : SimpM α) : SimpM α := do
   let ctorInfo ← getConstInfoCtor ctorName
-  let mut ctor := mkConst ctorName
-  for _ in [:ctorInfo.numParams] do
-    ctor := .app ctor erasedExpr -- the parameters are irrelevant for optimizations that use this information
-  for field in ctorFields do
-    ctor := .app ctor (.fvar field.fvarId)
-  withReader (fun ctx => { ctx with discrCtorMap := ctx.discrCtorMap.insert discr ctor }) do
-    x
+  let fieldArgs := ctorFields.map (.fvar ·.fvarId)
+  if let some (us, params) ← getIndInfo? (← getType discr) then
+    let ctor := mkAppN (mkAppN (mkConst ctorName us) params) fieldArgs
+    withReader (fun ctx => { ctx with discrCtorMap := ctx.discrCtorMap.insert discr ctor, ctorDiscrMap := ctx.ctorDiscrMap.insert ctor discr }) do
+      x
+  else
+    -- For the discrCtor map, the constructor parameters are irrelevant for optimizations that use this information
+    let ctor := mkAppN (mkAppN (mkConst ctorName) (mkArray ctorInfo.numParams erasedExpr)) fieldArgs
+    withReader (fun ctx => { ctx with discrCtorMap := ctx.discrCtorMap.insert discr ctor }) do
+     x
 
 /-- Set the `simplified` flag to `true`. -/
 def markSimplified : SimpM Unit :=
@@ -136,12 +166,17 @@ partial def updateFunDeclInfo (code : Code) (mustInline := false) : SimpM Unit :
 Execute `x` with an updated `inlineStack`. If `value` is of the form `const ...`, add `const` to the stack.
 Otherwise, do not change the `inlineStack`.
 -/
-@[inline] def withInlining (value : Expr) (x : SimpM α) : SimpM α := do
-  trace[Compiler.simp.inline] "inlining {value}"
+def withInlining (value : Expr) (recursive : Bool) (x : SimpM α) : SimpM α := do
   let f := value.getAppFn
-  let stack := (← read).inlineStack
-  let inlineStack := if let .const declName _ := f then declName :: stack else stack
-  withReader (fun ctx => { ctx with inlineStack }) x
+  if let .const declName _ := f then
+    trace[Compiler.simp.inline] "{declName}"
+    let numOccs := (← read).inlineStackOccs.find? declName |>.getD 0
+    let numOccs := numOccs + 1
+    if recursive && hasInlineIfReduceAttribute (← getEnv) declName && numOccs > (← getConfig).maxRecInlineIfReduce then
+      throwError "function `{declName}` has been recursively inlined more than #{(← getConfig).maxRecInlineIfReduce}, consider removing the attribute `[inlineIfReduce]` from this declaration or increasing the limit using `set_option compiler.maxRecInlineIfReduce <num>`"
+    withReader (fun ctx => { ctx with inlineStack := declName :: ctx.inlineStack, inlineStackOccs := ctx.inlineStackOccs.insert declName numOccs }) x
+  else
+    x
 
 /--
 Similar to the default `Lean.withIncRecDepth`, but include the `inlineStack` in the error messsage.
@@ -194,10 +229,10 @@ def isOnceOrMustInline (fvarId : FVarId) : SimpM Bool := do
     | _ => return false
 
 /--
-Return `true` if the given local function declaration is considered "small".
+Return `true` if the given code is considered "small".
 -/
-def isSmall (decl : FunDecl) : SimpM Bool :=
-  return decl.value.sizeLe (← read).config.smallThreshold
+def isSmall (code : Code) : SimpM Bool :=
+  return code.sizeLe (← getConfig).smallThreshold
 
 /--
 Return `true` if the given local function declaration should be inlined.
@@ -206,19 +241,41 @@ def shouldInlineLocal (decl : FunDecl) : SimpM Bool := do
   if (← isOnceOrMustInline decl.fvarId) then
     return true
   else
-    isSmall decl
+    isSmall decl.value
 
 /--
-"Beta-reduce" `(fun params => code) args`.
+LCNF "Beta-reduce". The equivalent of `(fun params => code) args`.
 If `mustInline` is true, the local function declarations in the resulting code are marked as `.mustInline`.
 See comment at `updateFunDeclInfo`.
 -/
 def betaReduce (params : Array Param) (code : Code) (args : Array Expr) (mustInline := false) : SimpM Code := do
-  -- TODO: add necessary casts to `args`
   let mut subst := {}
+  let mut castDecls := #[]
   for param in params, arg in args do
-    subst := subst.insert param.fvarId arg
+    /-
+    If `param` hast type `⊤` but `arg` does not, we must insert a cast.
+    Otherwise, the resulting code may be type incorrect.
+    For example, the following code is type correct before inlining `f`
+    because `x : ⊤`.
+    ```
+    def foo (g : A → A) (a : B) :=
+      fun f (x : ⊤) :=
+        let _x.1 := g x
+        ...
+      let _x.2 := f a
+      ...
+    ```
+    We must introduce a cast around `a` to make sure the resulting expression is type correct.
+    -/
+    if param.type.isAnyType && !(← inferType arg).isAnyType then
+      let castArg ← mkLcCast arg anyTypeExpr
+      let castDecl ← mkAuxLetDecl castArg
+      castDecls := castDecls.push (CodeDecl.let castDecl)
+      subst := subst.insert param.fvarId (.fvar castDecl.fvarId)
+    else
+      subst := subst.insert param.fvarId arg
   let code ← code.internalize subst
+  let code := LCNF.attachCodeDecls castDecls code
   updateFunDeclInfo code mustInline
   return code
 
@@ -237,3 +294,18 @@ and set the `simplified` flag to true.
 def eraseFunDecl (decl : FunDecl) : SimpM Unit := do
   LCNF.eraseFunDecl decl
   markSimplified
+
+/--
+Similar to `LCNF.addFVarSubst`. That is, add the entry
+`fvarId ↦ fvarId'` to the free variable substitution.
+If `fvarId` has a non-internal binder name `n`, but `fvarId'` does not,
+this method also adds the entry `fvarId' ↦ n` to the `binderRenaming` map.
+The goal is to preserve user provided names.
+-/
+def addFVarSubst (fvarId : FVarId) (fvarId' : FVarId) : SimpM Unit := do
+  LCNF.addFVarSubst fvarId fvarId'
+  let binderName ← getBinderName fvarId
+  unless binderName.isInternal do
+    let binderName' ← getBinderName fvarId'
+    if binderName'.isInternal then
+      modify fun s => { s with binderRenaming := s.binderRenaming.insert fvarId' binderName }

@@ -423,12 +423,15 @@ def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : En
     let state   := ext.addEntryFn s.state b;
     { s with state := state }
 
+/-- Get the current state of the given extension in the given environment. -/
 def getState {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment) : σ :=
   (ext.toEnvExtension.getState env).state
 
+/-- Set the current state of the given extension in the given environment. This change is *not* persisted across files. -/
 def setState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (s : σ) : Environment :=
   ext.toEnvExtension.modifyState env fun ps => { ps with  state := s }
 
+/-- Modify the state of the given extension in the given environment by applying the given function. This change is *not* persisted across files. -/
 def modifyState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (f : σ → σ) : Environment :=
   ext.toEnvExtension.modifyState env fun ps => { ps with state := f (ps.state) }
 
@@ -505,9 +508,11 @@ def getEntries {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension
 def getState {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension α σ) (env : Environment) : σ :=
   (PersistentEnvExtension.getState ext env).2
 
+/-- Set the current state of the given `SimplePersistentEnvExtension`. This change is *not* persisted across files. -/
 def setState {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : Environment) (s : σ) : Environment :=
   PersistentEnvExtension.modifyState ext env (fun ⟨entries, _⟩ => (entries, s))
 
+/-- Modify the state of the given extension in the given environment by applying the given function. This change is *not* persisted across files. -/
 def modifyState {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : Environment) (f : σ → σ) : Environment :=
   PersistentEnvExtension.modifyState ext env (fun ⟨entries, s⟩ => (entries, f s))
 

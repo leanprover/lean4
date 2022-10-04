@@ -117,7 +117,6 @@ section
 
   def writeLspResponseErrorWithData (h : FS.Stream) (e : ResponseError α) : IO Unit :=
     h.writeLspMessage e
-
 end
 
 end IO.FS.Stream

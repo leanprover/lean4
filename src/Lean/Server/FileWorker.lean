@@ -421,7 +421,6 @@ section MessageHandling
 end MessageHandling
 
 section MainLoop
-
   partial def mainLoop : WorkerM Unit := do
     let ctx ← read
     let mut st ← get

@@ -421,6 +421,15 @@ section MessageHandling
 end MessageHandling
 
 section MainLoop
+
+  /-- called when document is closed so we can clear any diagnostics and cancel pending work -/
+  def exitWorker : WorkerM Unit := do
+    let ctx ← read
+    let state ← get
+    let doc := state.doc
+    doc.cancelTk.set
+    publishDiagnostics doc.meta #[] ctx.hOut
+
   partial def mainLoop : WorkerM Unit := do
     let ctx ← read
     let mut st ← get
@@ -449,8 +458,7 @@ section MainLoop
       handleRequest id method (toJson params)
       mainLoop
     | Message.notification "exit" none =>
-      let doc := (←get).doc
-      doc.cancelTk.set
+      exitWorker
       return ()
     | Message.notification method (some params) =>
       handleNotification method (toJson params)

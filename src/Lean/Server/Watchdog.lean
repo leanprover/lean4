@@ -99,6 +99,7 @@ section Utils
     worker arrives. -/
     | crashed (queuedMsgs : Array JsonRpc.Message)
     | running
+    | exiting
 
   abbrev PendingRequestMap := RBMap RequestID JsonRpc.Message compare
 
@@ -224,7 +225,8 @@ section ServerM
   /-- Creates a Task which forwards a worker's messages into the output stream until an event
   which must be handled in the main watchdog thread (e.g. an I/O error) happens. -/
   private partial def forwardMessages (fw : FileWorker) : ServerM (Task WorkerEvent) := do
-    let o := (←read).hOut
+    let ctx ← read
+    let o := ctx.hOut
     let rec loop : ServerM WorkerEvent := do
       try
         let msg ← fw.stdout.readLspMessage
@@ -246,6 +248,16 @@ section ServerM
               if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
                 handleIleanInfoFinal fw params
           | _ => o.writeLspMessage msg
+
+        match fw.state with
+        | .exiting =>
+          -- the above may have just sent the response to the "exit" command,
+          -- and clear diagnostics is the last thing we should do.
+          let meta := fw.doc.meta
+          publishDiagnostics meta #[] o
+          return WorkerEvent.terminated
+        | _ => pure
+
       catch err =>
         -- If writeLspMessage from above errors we will block here, but the main task will
         -- quit eventually anyways if that happens
@@ -253,7 +265,7 @@ section ServerM
         if exitCode = 0 then
           -- Worker was terminated
           fw.errorPendingRequests o ErrorCode.contentModified
-            ("The file worker has been terminated. Either the header has changed,"
+            (s!"The file worker for {fw.doc.meta.uri} has been terminated. Either the header has changed,"
             ++ " or the file was closed, or the server is shutting down.")
           return WorkerEvent.terminated
         else
@@ -263,6 +275,7 @@ section ServerM
           publishProgressAtPos fw.doc.meta 0 o (kind := LeanFileProgressKind.fatalError)
           return WorkerEvent.crashed err
       loop
+
     let task ← IO.asTask (loop $ ←read) Task.Priority.dedicated
     return task.map fun
       | Except.ok ev   => ev
@@ -306,9 +319,7 @@ section ServerM
   def terminateFileWorker (uri : DocumentUri) : ServerM Unit := do
     let fw ← findFileWorker! uri
     try
-      let ctx ← read
-      let meta := fw.doc.meta
-      publishDiagnostics meta #[] ctx.hOut
+      updateFileWorkers { fw with state := WorkerState.exiting }
       fw.stdin.writeLspMessage (Message.notification "exit" none)
     catch _ =>
       /- The file worker must have crashed just when we were about to terminate it!
@@ -359,7 +370,7 @@ section ServerM
           crashedMsgs := crashedMsgs.push msg
       if ¬ crashedMsgs.isEmpty then
         handleCrash uri crashedMsgs
-    | WorkerState.running =>
+    | _ =>
       let initialQueuedMsgs :=
         if queueFailedMessage then
           #[msg]

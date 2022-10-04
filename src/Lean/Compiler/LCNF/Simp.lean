@@ -50,7 +50,7 @@ partial def Decl.simp (decl : Decl) (config : Config) : CompilerM Decl := do
   go decl config
 where
   go (decl : Decl) (config : Config) : CompilerM Decl := do
-    if let some decl ← decl.simp? |>.run { config, declName := decl.name } |>.run' {} then
+    if let some decl ← decl.simp? |>.run { config, declName := decl.name } |>.run' {} |>.run {} then
       -- TODO: bound number of steps?
       go decl config
     else

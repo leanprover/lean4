@@ -265,6 +265,8 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
       return #[]
 
 structure NamespaceEntry where
+  /-- The list of the name components introduced by this namespace command,
+  in reverse order so that `end` will peel them off from the front. -/
   name : List Name
   stx : Syntax
   selection : Syntax
@@ -304,10 +306,10 @@ where
     | [] => stack.foldl (fun syms entry => entry.finish text syms none) syms
     | stx::stxs => match stx with
       | `(namespace $id)  =>
-        let entry := { name := id.getId.components', stx, selection := id, prevSiblings := syms }
+        let entry := { name := id.getId.componentsRev, stx, selection := id, prevSiblings := syms }
         toDocumentSymbols text stxs #[] (entry :: stack)
       | `(section $(id)?) =>
-        let name := id.map (·.getId.components') |>.getD [`«»]
+        let name := id.map (·.getId.componentsRev) |>.getD [`«»]
         let entry := { name, stx, selection := id.map (·.raw) |>.getD stx, prevSiblings := syms }
         toDocumentSymbols text stxs #[] (entry :: stack)
       | `(end $(id)?) =>
@@ -469,8 +471,6 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
       if let (_, start)::rest := sections then
         addRange text FoldingRangeKind.region start text.source.endPos
         addRanges text rest []
-      else
-        return
     | stx::stxs => match stx with
       | `(namespace $id)  =>
         addRanges text ((id.getId.getNumParts, stx.getPos?)::sections) stxs

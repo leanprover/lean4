@@ -31,13 +31,13 @@ def updatePrefix : Name → Name → Name
   | str _ s,   newP => Name.mkStr newP s
   | num _ s,   newP => Name.mkNum newP s
 
-def components' : Name → List Name
+def componentsRev : Name → List Name
   | anonymous => []
-  | str n s   => Name.mkStr anonymous s :: components' n
-  | num n v   => Name.mkNum anonymous v :: components' n
+  | str n s   => Name.mkStr anonymous s :: componentsRev n
+  | num n v   => Name.mkNum anonymous v :: componentsRev n
 
 def components (n : Name) : List Name :=
-  n.components'.reverse
+  n.componentsRev.reverse
 
 def eqStr : Name → String → Bool
   | str anonymous s, s' => s == s'

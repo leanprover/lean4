@@ -311,6 +311,12 @@ message("llvm-config: libdir '${LLVM_CONFIG_LIBDIR}' | ldflags '${LLVM_CONFIG_LD
 
 # when using shared libraries, set the `rpath` to help the dynamic loader 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  find_package(m REQUIRED)
+  find_package(ZLIB REQUIRED)
+  message("ZLIB_LIBRARY: ${ZLIB_LIBRARY}")
+  message("LIBM_LIBRARY: ${M_LIBRARY}")
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " -framework ${ZLIB_LIBRARY} -lz")
+
   string(APPEND LEANC_STATIC_LINKER_FLAGS " -lleancpp -lInit -lLean -lleanrt ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS}")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   string(APPEND LEANC_STATIC_LINKER_FLAGS " -lleancpp -lInit -lLean -lnodefs.js -lleanrt")
@@ -338,14 +344,6 @@ string(APPEND LEANSHARED_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 string(APPEND LEANSHARED_LINKER_FLAGS " ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS} ${LLVM_CONFIG_SYSTEM_LIBS}")
 set(APPEND LEAN_EXTRA_CXX_FLAGS  " ${LLVM_CONFIG_CXXFLAGS}")
 # string(APPEND LEANC_STATIC_LINKER_FLAGS " ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS}")
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    # find_package(zstd)
-    find_package(ZLIB)
-    # string(APPEND LEANSHARED_LINKER_FLAGS " -L${}")
-    # string(APPEND LEANSHARED_LINKER_FLAGS " -L${ZLIB_LIBRARY_PATH} -l${ZLIB_LIBRARY}")
-endif()
-
 
 # get rid of unused parts of C++ stdlib
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -376,12 +374,6 @@ endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " -ldl")
-endif()
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  find_package(ZLIB REQUIRED)
-  message("ZLIB_LIBRARY: ${ZLIB_LIBRARY}")
-  string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${ZLIB_LIBRARY} -lz")
 endif()
 
 

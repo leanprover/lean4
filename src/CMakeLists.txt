@@ -290,6 +290,8 @@ else()
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " -Wl,--gc-sections")
 endif()
 
+string(APPEND LEAN_EXTRA_LINKER_FLAGS " -Wl,--icf=safe")
+
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   string(APPEND LEANC_STATIC_LINKER_FLAGS " -lm")
   string(APPEND LEANSHARED_LINKER_FLAGS " -lm")

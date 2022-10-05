@@ -76,11 +76,11 @@ partial def internalizeCode (code : Code) : InternalizeM Code := do
   | .unreach type => return .unreach (← normExpr type)
   | .cases c =>
     let resultType ← normExpr c.resultType
-    let ensureAny := resultType != c.resultType && (resultType.isAnyType || resultType.isErased)
+    let ensureAny := resultType != c.resultType && resultType.isErased
     /-
     Note:
-    If the new result type for the cases is `⊤` or `◾`, we must add a cast to `⊤` (the any type)
-    to every alternative if the resulting type is not `⊤`. This is similar to what we do at `ToLCNF.visitCases`.
+    If the new result type for the cases is `◾`, we must add a cast to `◾` (aka the any type)
+    to every alternative if their resulting type is not `◾`. This is similar to what we do at `ToLCNF.visitCases`.
     Here is an example to illustrate this issue.
     Suppose we have
     ```
@@ -111,14 +111,14 @@ partial def internalizeCode (code : Code) : InternalizeM Code := do
     ```
     Which can be checked by `Check.lean` because it assumes `◾` is compatible with anything and `a.1 : A`.
     However, if inline `transportconst`, we can hit type error since the continuation for transportconst is
-    expecting a `B` instead of an `A`. We avoid this problem by adding a cast to `⊤`. See `ToLCNF.visitCases` for
+    expecting a `B` instead of an `A`. We avoid this problem by adding a cast to `◾`. See `ToLCNF.visitCases` for
     another place where we use this approach.
     Thus, the resulting code for `transportconst` is
     ```
     def MWE.transportconst (A : Type u) (B : Type u) (p : Id A B) (a.1 : A) :=
       cases p
       | Id.refl =>
-        let _x.2 := @lcCast A ⊤ a.1
+        let _x.2 := @lcCast A ◾ a.1
         _x.2
     ```
     -/

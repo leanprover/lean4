@@ -206,13 +206,13 @@ def betaReduce (params : Array Param) (code : Code) (args : Array Expr) (mustInl
   let mut castDecls := #[]
   for param in params, arg in args do
     /-
-    If `param` hast type `⊤` but `arg` does not, we must insert a cast.
+    If `param` hast type `◾` but `arg` does not, we must insert a cast.
     Otherwise, the resulting code may be type incorrect.
     For example, the following code is type correct before inlining `f`
-    because `x : ⊤`.
+    because `x : ◾`.
     ```
     def foo (g : A → A) (a : B) :=
-      fun f (x : ⊤) :=
+      fun f (x : ◾) :=
         let _x.1 := g x
         ...
       let _x.2 := f a
@@ -220,8 +220,8 @@ def betaReduce (params : Array Param) (code : Code) (args : Array Expr) (mustInl
     ```
     We must introduce a cast around `a` to make sure the resulting expression is type correct.
     -/
-    if param.type.isAnyType && !(← inferType arg).isAnyType then
-      let castArg ← mkLcCast arg anyTypeExpr
+    if param.type.isErased && !(← inferType arg).isErased then
+      let castArg ← mkLcCast arg erasedExpr
       let castDecl ← mkAuxLetDecl castArg
       castDecls := castDecls.push (CodeDecl.let castDecl)
       subst := subst.insert param.fvarId (.fvar castDecl.fvarId)

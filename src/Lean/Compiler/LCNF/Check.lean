@@ -36,7 +36,7 @@ def checkAppArgs (f : Expr) (args : Array Expr) : CheckM Unit := do
   let mut j := 0
   for i in [:args.size] do
     let arg := args[i]!
-    if fType.isAnyType then
+    if fType.isErased then
       return ()
     fType := fType.headBeta
     let (d, b) ←
@@ -47,7 +47,7 @@ def checkAppArgs (f : Expr) (args : Array Expr) : CheckM Unit := do
         match fType with
         | .forallE _ d b _ => j := i; pure (d, b)
         | _ =>
-          if fType.isAnyType then return ()
+          if fType.isErased then return ()
           throwError "function expected at{indentExpr (mkAppN f args)}\narrow type expected{indentExpr fType}"
     let argType ← inferType arg
     let expectedType := d.instantiateRevRange j i args
@@ -147,7 +147,7 @@ partial def checkCases (c : Cases) : CheckM Expr := do
   let mut hasDefault := false
   checkFVar c.discr
   let discrType ← LCNF.getType c.discr
-  unless discrType.isAnyType do
+  unless discrType.isErased do
     let .const declName _ := discrType.headBeta.getAppFn | throwError "unexpected LCNF discriminant type {discrType}"
     unless c.typeName == declName do
       throwError "invalid LCNF `{c.typeName}.casesOn`, discriminant has type{indentExpr discrType}"

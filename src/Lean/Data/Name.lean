@@ -110,6 +110,17 @@ def isInternal : Name → Bool
   | num p _ => isInternal p
   | _       => false
 
+/--
+Checks whether the name is an implementation-detail hypothesis name.
+
+Implementation-detail hypothesis names start with a double underscore.
+-/
+def isImplementationDetail : Name → Bool
+  | str anonymous s => s.startsWith "__"
+  | num p _ => p.isImplementationDetail
+  | str p _ => p.isImplementationDetail
+  | anonymous => false
+
 def isAtomic : Name → Bool
   | anonymous       => true
   | str anonymous _ => true

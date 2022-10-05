@@ -169,7 +169,7 @@ def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Optio
           -- compute the interactive goals
           let goals ← ci.runMetaM {} (do
             let goals := List.toArray <| if useAfter then ti.goalsAfter else ti.goalsBefore
-            let goals ← goals.mapM (fun g => Meta.withPPForTacticGoal (Widget.goalToInteractive g))
+            let goals ← goals.mapM Widget.goalToInteractive
             return {goals}
           )
           -- compute the goal diff

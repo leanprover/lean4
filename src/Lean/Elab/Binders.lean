@@ -57,6 +57,17 @@ structure BinderView where
   type : Syntax
   bi   : BinderInfo
 
+/--
+Determines the local declaration kind depending on the variable name.
+
+The `__x` in `let __x := 42; body` gets kind `.implDetail`.
+-/
+def kindOfBinderName (binderName : Name) : LocalDeclKind :=
+  if binderName.isImplementationDetail then
+    .implDetail
+  else
+    .default
+
 partial def quoteAutoTactic : Syntax → TermElabM Syntax
   | stx@(.ident ..) => throwErrorAt stx "invalid auto tactic, identifier is not allowed"
   | stx@(.node _ k args) => do
@@ -187,7 +198,9 @@ private partial def elabBinderViews (binderViews : Array BinderView) (fvars : Ar
         unless (← isClass? type).isSome do
           throwErrorAt binderView.type "invalid binder annotation, type is not a class instance{indentExpr type}\nuse the command `set_option checkBinderAnnotations false` to disable the check"
         withRef binderView.type <| checkLocalInstanceParameters type
-      withLocalDecl binderView.id.getId binderView.bi type fun fvar => do
+      let id := binderView.id.getId
+      let kind := kindOfBinderName id
+      withLocalDecl id binderView.bi type (kind := kind) fun fvar => do
         addLocalVarInfo binderView.ref fvar
         loop (i+1) (fvars.push (binderView.id, fvar))
     else
@@ -405,22 +418,23 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) (i : Nat
       let fvarId ← mkFreshFVarId
       let fvar  := mkFVar fvarId
       let s     := { s with fvars := s.fvars.push fvar }
-      -- dbgTrace (toString binderView.id.getId ++ " : " ++ toString type)
+      let id    := binderView.id.getId
+      let kind  := kindOfBinderName id
       /-
         We do **not** want to support default and auto arguments in lambda abstractions.
         Example: `fun (x : Nat := 10) => x+1`.
         We do not believe this is an useful feature, and it would complicate the logic here.
       -/
-      let lctx  := s.lctx.mkLocalDecl fvarId binderView.id.getId type binderView.bi
+      let lctx  := s.lctx.mkLocalDecl fvarId id type binderView.bi kind
       addTermInfo' (lctx? := some lctx) (isBinder := true) binderView.ref fvar
       let s ← withRef binderView.id <| propagateExpectedType fvar type s
       let s := { s with lctx }
-      match (← isClass? type) with
-      | none           => elabFunBinderViews binderViews (i+1) s
-      | some className =>
+      match ← isClass? type, kind with
+      | some className, .default =>
         resettingSynthInstanceCache do
           let localInsts := s.localInsts.push { className, fvar := mkFVar fvarId }
           elabFunBinderViews binderViews (i+1) { s with localInsts }
+      | _, _ => elabFunBinderViews binderViews (i+1) s
   else
     pure s
 
@@ -653,15 +667,16 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
        -/
       let val  ← mkLambdaFVars fvars val (usedLetOnly := false)
       pure (type, val, binders)
+  let kind := kindOfBinderName id.getId
   trace[Elab.let.decl] "{id.getId} : {type} := {val}"
   let result ← if useLetExpr then
-    withLetDecl id.getId type val fun x => do
+    withLetDecl id.getId (kind := kind) type val fun x => do
       addLocalVarInfo id x
       let body ← elabTermEnsuringType body expectedType?
       let body ← instantiateMVars body
       mkLetFVars #[x] body (usedLetOnly := usedLetOnly)
   else
-    let f ← withLocalDecl id.getId BinderInfo.default type fun x => do
+    let f ← withLocalDecl id.getId (kind := kind) .default type fun x => do
       addLocalVarInfo id x
       let body ← elabTermEnsuringType body expectedType?
       let body ← instantiateMVars body

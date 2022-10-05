@@ -18,7 +18,7 @@ private def ensureType (e : Expr) : MetaM Unit := do
 def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
   let lctx ← getLCtx
   match lctx.find? fvarId with
-  | some (LocalDecl.ldecl _ _ _ t v _) => do
+  | some (LocalDecl.ldecl _ _ _ t v _ _) => do
     let vType ← inferType v
     throwError "invalid let declaration, term{indentExpr v}\nhas type{indentExpr vType}\nbut is expected to have type{indentExpr t}"
   | _ => unreachable!

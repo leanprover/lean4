@@ -313,7 +313,7 @@ structure HeadInfo where
   check : HeadCheck
   /-- compute compatibility of pattern with given head check -/
   onMatch (taken : HeadCheck) : MatchResult
-  /-- actually run the specified head check, with the discriminant bound to `discr` -/
+  /-- actually run the specified head check, with the discriminant bound to `__discr` -/
   doMatch (yes : (newDiscrs : List Term) → TermElabM Term) (no : TermElabM Term) : TermElabM Term
 
 /-- Adapt alternatives that do not introduce new discriminants in `doMatch`, but are covered by those that do so. -/
@@ -342,13 +342,13 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
       -- We assume that atoms are uniquely determined by the node kind and never have to be checked
       unconditionally pure
     else if quoted.isTokenAntiquot then
-      unconditionally (`(let $(quoted.getAntiquotTerm) := discr; $(·)))
+      unconditionally (`(let $(quoted.getAntiquotTerm) := __discr; $(·)))
     else if isAntiquots quoted && !isEscapedAntiquot (getCanonicalAntiquot quoted) then
       -- quotation contains a single antiquotation
       let (ks, pseudoKinds) := antiquotKinds quoted |>.unzip
       let rhsFn := match getAntiquotTerm (getCanonicalAntiquot quoted) with
         | `(_)         => pure
-        | `($id:ident) => fun stx => `(let $id := @TSyntax.mk $(quote ks) discr; $(stx))
+        | `($id:ident) => fun stx => `(let $id := @TSyntax.mk $(quote ks) __discr; $(stx))
         | anti =>         fun _   => throwErrorAt anti "unsupported antiquotation kind in pattern"
       -- Antiquotation kinds like `$id:ident` influence the parser, but also need to be considered by
       -- `match` (but not by quotation terms). For example, `($id:ident) and `($e) are not
@@ -370,7 +370,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
             else uncovered
           | _ => uncovered,
         doMatch := fun yes no => do
-          let cond ← ks.foldlM (fun cond k => `(or $cond (Syntax.isOfKind discr $(quote k)))) (← `(false))
+          let cond ← ks.foldlM (fun cond k => `(or $cond (Syntax.isOfKind __discr $(quote k)))) (← `(false))
           `(cond $cond $(← yes []) $(← no)),
       }
     else if isAntiquotSuffixSplice quoted then throwErrorAt quoted "unexpected antiquotation splice"
@@ -380,9 +380,9 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
       let anti := getAntiquotTerm (getCanonicalAntiquot inner)
       let ks := antiquotKinds inner |>.map (·.1)
       unconditionally fun rhs => match antiquotSuffixSplice? quoted[0] with
-        | `optional => `(let $anti := Option.map (@TSyntax.mk $(quote ks)) (Syntax.getOptional? discr); $rhs)
-        | `many     => `(let $anti := @TSyntaxArray.mk $(quote ks) (Syntax.getArgs discr); $rhs)
-        | `sepBy    => `(let $anti := @TSepArray.mk $(quote ks) $(quote <| getSepFromSplice quoted[0]) (Syntax.getArgs discr); $rhs)
+        | `optional => `(let $anti := Option.map (@TSyntax.mk $(quote ks)) (Syntax.getOptional? __discr); $rhs)
+        | `many     => `(let $anti := @TSyntaxArray.mk $(quote ks) (Syntax.getArgs __discr); $rhs)
+        | `sepBy    => `(let $anti := @TSepArray.mk $(quote ks) $(quote <| getSepFromSplice quoted[0]) (Syntax.getArgs __discr); $rhs)
         | k         => throwErrorAt quoted "invalid antiquotation suffix splice kind '{k}'"
     else if quoted.getArgs.size == 1 && isAntiquotSplice quoted[0] then pure {
       check   := other pat,
@@ -400,12 +400,12 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
         | `optional =>
           let nones := mkArray ids.size (← `(none))
           `(let_delayed yes _ $ids* := $yes;
-            if discr.isNone then yes () $[ $nones]*
-            else match discr with
+            if __discr.isNone then yes () $[ $nones]*
+            else match __discr with
               | `($(mkNullNode contents)) => yes () $[ (some $ids)]*
               | _                         => $no)
         | _ =>
-          let mut discrs ← `(Syntax.getArgs discr)
+          let mut discrs ← `(Syntax.getArgs __discr)
           if k == `sepBy then
             discrs ← `(Array.getSepElems $discrs)
           let tuple ← mkTuple ids
@@ -429,11 +429,11 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
     }
     else if let some idx := quoted.getArgs.findIdx? (fun arg => isAntiquotSuffixSplice arg || isAntiquotSplice arg) then do
       /-
-        patterns of the form `match discr, ... with | `(pat_0 ... pat_(idx-1) $[...]* pat_(idx+1) ...), ...`
+        patterns of the form `match __discr, ... with | `(pat_0 ... pat_(idx-1) $[...]* pat_(idx+1) ...), ...`
         transform to
         ```
-        if discr.getNumArgs >= $quoted.getNumArgs - 1 then
-          match discr[0], ..., discr[idx-1], mkNullNode (discr.getArgs.extract idx (discr.getNumArgs - $numSuffix))), ..., discr[quoted.getNumArgs - 1] with
+        if __discr.getNumArgs >= $quoted.getNumArgs - 1 then
+          match __discr[0], ..., __discr[idx-1], mkNullNode (__discr.getArgs.extract idx (__discr.getNumArgs - $numSuffix))), ..., __discr[quoted.getNumArgs - 1] with
             | `(pat_0), ... `(pat_(idx-1)), `($[...])*, `(pat_(idx+1)), ...
         ```
       -/
@@ -451,11 +451,11 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
             else uncovered
           | _ => uncovered
         doMatch := fun yes no => do
-          let prefixDiscrs ← (List.range idx).mapM (`(Syntax.getArg discr $(quote ·)))
-          let sliceDiscr ← `(mkNullNode (discr.getArgs.extract $(quote idx) (discr.getNumArgs - $(quote numSuffix))))
+          let prefixDiscrs ← (List.range idx).mapM (`(Syntax.getArg __discr $(quote ·)))
+          let sliceDiscr ← `(mkNullNode (__discr.getArgs.extract $(quote idx) (__discr.getNumArgs - $(quote numSuffix))))
           let suffixDiscrs ← (List.range numSuffix).mapM fun i =>
-            `(Syntax.getArg discr (discr.getNumArgs - $(quote (numSuffix - i))))
-          `(ite (GE.ge discr.getNumArgs $(quote (quoted.getNumArgs - 1)))
+            `(Syntax.getArg __discr (__discr.getNumArgs - $(quote (numSuffix - i))))
+          `(ite (GE.ge __discr.getNumArgs $(quote (quoted.getNumArgs - 1)))
               $(← yes (prefixDiscrs ++ sliceDiscr :: suffixDiscrs))
               $(← no))
       }
@@ -490,24 +490,24 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
           | _ => uncovered,
         doMatch := fun yes no => do
           let (cond, newDiscrs) ← if lit then
-            let cond ← `(Syntax.matchesLit discr $(quote kind) $(quote (isLit? kind quoted).get!))
+            let cond ← `(Syntax.matchesLit __discr $(quote kind) $(quote (isLit? kind quoted).get!))
             pure (cond, [])
           else
             let cond ← match kind with
-            | `null => `(Syntax.matchesNull discr $(quote argPats.size))
-            | `ident => `(Syntax.matchesIdent discr $(quote quoted.getId))
-            | _     => `(Syntax.isOfKind discr $(quote kind))
-            let newDiscrs ← (List.range argPats.size).mapM fun i => `(Syntax.getArg discr $(quote i))
+            | `null => `(Syntax.matchesNull __discr $(quote argPats.size))
+            | `ident => `(Syntax.matchesIdent __discr $(quote quoted.getId))
+            | _     => `(Syntax.isOfKind __discr $(quote kind))
+            let newDiscrs ← (List.range argPats.size).mapM fun i => `(Syntax.getArg __discr $(quote i))
             pure (cond, newDiscrs)
           `(ite (Eq $cond true) $(← yes newDiscrs) $(← no))
       }
   else match pat with
     | `(_)              => unconditionally pure
-    | `($id:ident)      => unconditionally (`(let $id := discr; $(·)))
+    | `($id:ident)      => unconditionally (`(let $id := __discr; $(·)))
     | `($id:ident@$pat) => do
       let info ← getHeadInfo (pat::alt.1.tail!, alt.2)
       return { info with onMatch := fun taken => match info.onMatch taken with
-          | covered f exh => covered (fun alt => f alt >>= adaptRhs (`(let $id := discr; $(·)))) exh
+          | covered f exh => covered (fun alt => f alt >>= adaptRhs (`(let $id := __discr; $(·)))) exh
           | r             => r }
     | _               => throwErrorAt pat "match (syntax) : unexpected pattern kind {pat}"
 
@@ -567,16 +567,16 @@ private partial def compileStxMatch (discrs : List Term) (alts : List Alt) : Ter
         let mut yesAlts := yesAlts
         if !undecidedAlts.isEmpty then
           -- group undecided alternatives in a new default case `| discr2, ... => match discr, discr2, ... with ...`
-          let vars ← discrs.mapM fun _ => withFreshMacroScope `(discr)
+          let vars ← discrs.mapM fun _ => withFreshMacroScope `(__discr)
           let pats := List.replicate newDiscrs.length (Unhygienic.run `(_)) ++ vars
           let alts ← undecidedAlts.mapM fun alt => `(matchAltExpr| | $(alt.1.toArray),* => no_error_if_unused% $(alt.2))
-          let rhs  ← `(match discr, $[$(vars.toArray):term],* with $alts:matchAlt*)
+          let rhs  ← `(match __discr, $[$(vars.toArray):term],* with $alts:matchAlt*)
           yesAlts := yesAlts.push (pats, rhs)
         withFreshMacroScope $ compileStxMatch (newDiscrs ++ discrs) yesAlts.toList)
       (no := withFreshMacroScope $ compileStxMatch (discr::discrs) nonExhaustiveAlts.toList)
     for d in floatedLetDecls do
       stx ← `(let_delayed $d:letDecl; $stx)
-    `(let discr := $discr; $stx)
+    `(let __discr := $discr; $stx)
   | _, _ => unreachable!
 
 abbrev IdxSet := HashSet Nat

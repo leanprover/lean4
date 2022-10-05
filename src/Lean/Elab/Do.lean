@@ -328,7 +328,7 @@ def mkFreshJP (ps : Array (Var × Bool)) (body : Code) : TermElabM JPDecl := do
   -- Remark: the compiler frontend implemented in C++ currently detects jointpoints created by
   -- the "do" notation by testing the name. See hack at method `visit_let` at `lcnf.cpp`
   -- We will remove this hack when we re-implement the compiler frontend in Lean.
-  let name ← mkFreshUserName `_do_jp
+  let name ← mkFreshUserName `__do_jp
   pure { name := name, params := ps, body := body }
 
 def addFreshJP (ps : Array (Var × Bool)) (body : Code) : StateRefT (Array JPDecl) TermElabM Name := do
@@ -1225,9 +1225,9 @@ private partial def expandLiftMethodAux (inQuot : Bool) (inBinder : Bool) : Synt
         throwErrorAt stx "cannot lift `(<- ...)` over a binder, this error usually happens when you are trying to lift a method nested in a `fun`, `let`, or `match`-alternative, and it can often be fixed by adding a missing `do`"
       let term := args[1]!
       let term ← expandLiftMethodAux inQuot inBinder term
-      let auxDoElem : Syntax ← `(doElem| let a ← $term:term)
+      let auxDoElem : Syntax ← `(doElem| let __do_lift ← $term:term)
       modify fun s => s ++ [auxDoElem]
-      `(a)
+      `(__do_lift)
     else do
       let inAntiquot := stx.isAntiquot && !stx.isEscapedAntiquot
       let inBinder   := inBinder || (!inQuot && liftMethodForbiddenBinder stx)
@@ -1325,9 +1325,9 @@ mutual
       let optElse := decl[3]
       if optElse.isNone then withFreshMacroScope do
         let auxDo ← if isMutableLet doLetArrow then
-          `(do let%$doLetArrow discr ← $doElem; let%$doLetArrow mut $pattern:term := discr)
+          `(do let%$doLetArrow __discr ← $doElem; let%$doLetArrow mut $pattern:term := __discr)
         else
-          `(do let%$doLetArrow discr ← $doElem; let%$doLetArrow $pattern:term := discr)
+          `(do let%$doLetArrow __discr ← $doElem; let%$doLetArrow $pattern:term := __discr)
         doSeqToCode <| getDoSeqElems (getDoSeq auxDo) ++ doElems
       else
         let contSeq ← if isMutableLet doLetArrow then
@@ -1337,7 +1337,7 @@ mutual
           pure doElems.toArray
         let contSeq := mkDoSeq contSeq
         let elseSeq := mkSingletonDoSeq optElse[1]
-        let auxDo ← `(do let%$doLetArrow discr ← $doElem; match%$doLetArrow discr with | $pattern:term => $contSeq | _ => $elseSeq)
+        let auxDo ← `(do let%$doLetArrow __discr ← $doElem; match%$doLetArrow __discr with | $pattern:term => $contSeq | _ => $elseSeq)
         doSeqToCode <| getDoSeqElems (getDoSeq auxDo)
     else
       throwError "unexpected kind of `do` declaration"
@@ -1353,7 +1353,7 @@ mutual
     else
       pure doElems.toArray
     let contSeq := mkDoSeq contSeq
-    let auxDo ← `(do let discr := $val; match discr with | $pattern:term => $contSeq | _ => $elseSeq)
+    let auxDo ← `(do let __discr := $val; match __discr with | $pattern:term => $contSeq | _ => $elseSeq)
     doSeqToCode <| getDoSeqElems (getDoSeq auxDo)
 
   /-- Generate `CodeBlock` for `doReassignArrow; doElems`
@@ -1374,7 +1374,7 @@ mutual
       let doElem  := decl[2]
       let optElse := decl[3]
       if optElse.isNone then withFreshMacroScope do
-        let auxDo ← `(do let discr ← $doElem; $pattern:term := discr)
+        let auxDo ← `(do let __discr ← $doElem; $pattern:term := __discr)
         doSeqToCode <| getDoSeqElems (getDoSeq auxDo) ++ doElems
       else
         throwError "reassignment with `|` (i.e., \"else clause\") is not currently supported"

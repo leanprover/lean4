@@ -210,6 +210,70 @@ syntax (name := calcTactic) "calc" ppLine withPosition(calcStep) ppLine withPosi
   | `($_ $array $index) => `($array[$index]?)
   | _ => throw ()
 
+@[appUnexpander Name.mkStr1] def unexpandMkStr1 : Lean.PrettyPrinter.Unexpander
+  | `($(_) $a:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a.getString}"]
+  | _  => throw ()
+
+@[appUnexpander Name.mkStr2] def unexpandMkStr2 : Lean.PrettyPrinter.Unexpander
+  | `($(_) $a1:str $a2:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}"]
+  | _  => throw ()
+
+@[appUnexpander Name.mkStr3] def unexpandMkStr3 : Lean.PrettyPrinter.Unexpander
+  | `($(_) $a1:str $a2:str $a3:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}.{a3.getString}"]
+  | _  => throw ()
+
+@[appUnexpander Name.mkStr4] def unexpandMkStr4 : Lean.PrettyPrinter.Unexpander
+  | `($(_) $a1:str $a2:str $a3:str $a4:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}.{a3.getString}.{a4.getString}"]
+  | _  => throw ()
+
+@[appUnexpander Name.mkStr5] def unexpandMkStr5 : Lean.PrettyPrinter.Unexpander
+  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}.{a3.getString}.{a4.getString}.{a5.getString}"]
+  | _  => throw ()
+
+@[appUnexpander Name.mkStr6] def unexpandMkStr6 : Lean.PrettyPrinter.Unexpander
+  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str $a6:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}.{a3.getString}.{a4.getString}.{a5.getString}.{a6.getString}"]
+  | _  => throw ()
+
+@[appUnexpander Name.mkStr7] def unexpandMkStr7 : Lean.PrettyPrinter.Unexpander
+  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str $a6:str $a7:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}.{a3.getString}.{a4.getString}.{a5.getString}.{a6.getString}.{a7.getString}"]
+  | _  => throw ()
+
+@[appUnexpander Name.mkStr8] def unexpandMkStr8 : Lean.PrettyPrinter.Unexpander
+  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str $a6:str $a7:str $a8:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}.{a3.getString}.{a4.getString}.{a5.getString}.{a6.getString}.{a7.getString}.{a8.getString}"]
+  | _  => throw ()
+
+@[appUnexpander Array.mkArray1] def unexpandMkArray1 : Lean.PrettyPrinter.Unexpander
+  | `($(_) $a1) => `(#[$a1])
+  | _ => throw ()
+
+@[appUnexpander Array.mkArray2] def unexpandMkArray2 : Lean.PrettyPrinter.Unexpander
+  | `($(_) $a1 $a2) => `(#[$a1, $a2])
+  | _ => throw ()
+
+@[appUnexpander Array.mkArray3] def unexpandMkArray3 : Lean.PrettyPrinter.Unexpander
+  | `($(_) $a1 $a2 $a3) => `(#[$a1, $a2, $a3])
+  | _ => throw ()
+
+@[appUnexpander Array.mkArray4] def unexpandMkArray4 : Lean.PrettyPrinter.Unexpander
+  | `($(_) $a1 $a2 $a3 $a4) => `(#[$a1, $a2, $a3, $a4])
+  | _ => throw ()
+
+@[appUnexpander Array.mkArray5] def unexpandMkArray5 : Lean.PrettyPrinter.Unexpander
+  | `($(_) $a1 $a2 $a3 $a4 $a5) => `(#[$a1, $a2, $a3, $a4, $a5])
+  | _ => throw ()
+
+@[appUnexpander Array.mkArray6] def unexpandMkArray6 : Lean.PrettyPrinter.Unexpander
+  | `($(_) $a1 $a2 $a3 $a4 $a5 $a6) => `(#[$a1, $a2, $a3, $a4, $a5, $a6])
+  | _ => throw ()
+
+@[appUnexpander Array.mkArray7] def unexpandMkArray7 : Lean.PrettyPrinter.Unexpander
+  | `($(_) $a1 $a2 $a3 $a4 $a5 $a6 $a7) => `(#[$a1, $a2, $a3, $a4, $a5, $a6, $a7])
+  | _ => throw ()
+
+@[appUnexpander Array.mkArray8] def unexpandMkArray8 : Lean.PrettyPrinter.Unexpander
+  | `($(_) $a1 $a2 $a3 $a4 $a5 $a6 $a7 $a8) => `(#[$a1, $a2, $a3, $a4, $a5, $a6, $a7, $a8])
+  | _ => throw ()
+
 /--
 Apply function extensionality and introduce new hypotheses.
 The tactic `funext` will keep applying new the `funext` lemma until the goal target is not reducible to

@@ -406,7 +406,6 @@ static lean_object* l_Lean_PrettyPrinter_Delaborator_delabMData___closed__1;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabDoElems___lambda__3___closed__5;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppImplicit___lambda__2___closed__1;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Name_components_x27(lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabSort___closed__5;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabDo___closed__1;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppExplicit___lambda__4___closed__9;
@@ -985,6 +984,7 @@ LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_PrettyPrinter_Delaborator_dela
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabProj(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabForall___lambda__2___closed__2;
 uint8_t l_Lean_getPPPiBinderTypes(lean_object*);
+lean_object* l_Lean_Name_componentsRev(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___at_Lean_PrettyPrinter_Delaborator_delabProj___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bindingBody_x21(lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppExplicit___closed__1;
@@ -3038,7 +3038,7 @@ LEAN_EXPORT lean_object* l_Lean_unresolveNameGlobal_unresolveNameCore___at_Lean_
 _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_10 = l_Lean_Name_components_x27(x_2);
+x_10 = l_Lean_Name_componentsRev(x_2);
 x_11 = lean_unsigned_to_nat(0u);
 x_12 = l_List_lengthTRAux___rarg(x_10, x_11);
 x_13 = lean_box(0);

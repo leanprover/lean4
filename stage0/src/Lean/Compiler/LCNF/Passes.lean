@@ -24,6 +24,17 @@ def init : Pass where
     return decls
   phase := .base
 
+def normalizeFVarIds (decl : Decl) : CoreM Decl := do
+  let ngenSaved ← getNGen
+  setNGen {}
+  try
+    CompilerM.run <| decl.internalize
+  finally
+    setNGen ngenSaved
+
+def saveBase : Pass :=
+  .mkPerDeclaration `saveBase (fun decl => do (← normalizeFVarIds decl).saveBase; return decl) .base
+
 def builtinPassManager : PassManager := {
   passes := #[
     init,
@@ -33,6 +44,7 @@ def builtinPassManager : PassManager := {
     findJoinPoints,
     pullFunDecls,
     reduceJpArity,
+    -- extendJoinPointContext,
     simp { etaPoly := true, inlinePartial := true, implementedBy := true } (occurrence := 1),
     specialize,
     simp (occurrence := 2),

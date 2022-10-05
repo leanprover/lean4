@@ -17,35 +17,15 @@ lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_49____closed__4;
-LEAN_EXPORT lean_object* l_Lean_profileitM___at_Lean_Compiler_compile___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_49_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_compile(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_profileitM___at_Lean_Compiler_LCNF_main___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_49____closed__3;
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_49____closed__1;
 static lean_object* l_Lean_Compiler_compile___closed__1;
 lean_object* l_Lean_Compiler_LCNF_compile(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_profileitM___at_Lean_Compiler_compile___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_profileitIOUnsafe___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_49____closed__2;
-LEAN_EXPORT lean_object* l_Lean_profileitM___at_Lean_Compiler_compile___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_compile___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_profileitM___at_Lean_Compiler_compile___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; lean_object* x_8; 
-x_7 = lean_apply_2(x_3, x_4, x_5);
-x_8 = l_Lean_profileitIOUnsafe___rarg(x_1, x_2, x_7, x_6);
-return x_8;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_profileitM___at_Lean_Compiler_compile___spec__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_profileitM___at_Lean_Compiler_compile___spec__1___rarg___boxed), 6, 0);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Compiler_compile___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -118,19 +98,9 @@ lean_inc(x_5);
 x_6 = lean_alloc_closure((void*)(l_Lean_Compiler_compile___lambda__1), 4, 1);
 lean_closure_set(x_6, 0, x_1);
 x_7 = l_Lean_Compiler_compile___closed__1;
-x_8 = l_Lean_profileitM___at_Lean_Compiler_compile___spec__1___rarg(x_7, x_5, x_6, x_2, x_3, x_4);
+x_8 = l_Lean_profileitM___at_Lean_Compiler_LCNF_main___spec__1___rarg(x_7, x_5, x_6, x_2, x_3, x_4);
 lean_dec(x_5);
 return x_8;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_profileitM___at_Lean_Compiler_compile___spec__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l_Lean_profileitM___at_Lean_Compiler_compile___spec__1___rarg(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_7;
 }
 }
 static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_49____closed__1() {

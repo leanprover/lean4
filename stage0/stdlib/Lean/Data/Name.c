@@ -42,7 +42,6 @@ LEAN_EXPORT uint8_t l_Lean_Name_eqStr(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_instDecidableRelNameLtHasLtQuick___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_toName(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Name_components_x27(lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_hashEx___boxed(lean_object*);
 LEAN_EXPORT uint64_t lean_name_hash_exported(lean_object*);
@@ -80,6 +79,7 @@ LEAN_EXPORT lean_object* l_Lean_Name_isNum___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_isPrefixOf___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Name_getString_x21___closed__4;
 LEAN_EXPORT lean_object* l_panic___at_Lean_Name_getString_x21___spec__1(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Name_componentsRev(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_components(lean_object*);
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
@@ -275,7 +275,7 @@ return x_7;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Name_components_x27(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Name_componentsRev(lean_object* x_1) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
@@ -295,7 +295,7 @@ lean_inc(x_4);
 lean_dec(x_1);
 x_5 = lean_box(0);
 x_6 = l_Lean_Name_str___override(x_5, x_4);
-x_7 = l_Lean_Name_components_x27(x_3);
+x_7 = l_Lean_Name_componentsRev(x_3);
 x_8 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_8, 0, x_6);
 lean_ctor_set(x_8, 1, x_7);
@@ -311,7 +311,7 @@ lean_inc(x_10);
 lean_dec(x_1);
 x_11 = lean_box(0);
 x_12 = l_Lean_Name_num___override(x_11, x_10);
-x_13 = l_Lean_Name_components_x27(x_9);
+x_13 = l_Lean_Name_componentsRev(x_9);
 x_14 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_14, 0, x_12);
 lean_ctor_set(x_14, 1, x_13);
@@ -324,7 +324,7 @@ LEAN_EXPORT lean_object* l_Lean_Name_components(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Name_components_x27(x_1);
+x_2 = l_Lean_Name_componentsRev(x_1);
 x_3 = l_List_reverse___rarg(x_2);
 return x_3;
 }

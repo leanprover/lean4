@@ -123,7 +123,6 @@ static lean_object* l_Std_Range_forIn_loop___at_Lean_unresolveNameGlobal_unresol
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_initFn____x40_Lean_ResolveName___hyg_68____spec__3(lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_initFn____x40_Lean_ResolveName___hyg_68____spec__1(lean_object*);
-lean_object* l_Lean_Name_components_x27(lean_object*);
 static lean_object* l_Lean_resolveUniqueNamespace___rarg___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_unresolveNameGlobal___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_unresolveNameGlobal_unresolveNameCore___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -268,6 +267,7 @@ lean_object* lean_usize_to_nat(size_t);
 static lean_object* l_Lean_resolveNamespace___rarg___closed__3;
 LEAN_EXPORT lean_object* l_List_toString___at_Lean_resolveGlobalConstNoOverloadCore___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalConstNoOverload___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_componentsRev(lean_object*);
 static size_t l_Lean_PersistentHashMap_findAux___at_Lean_addAliasEntry___spec__3___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_ResolveName_0__Lean_ResolveName_resolveExact(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveNamespaceCore___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
@@ -5567,7 +5567,7 @@ LEAN_EXPORT lean_object* l_Lean_unresolveNameGlobal_unresolveNameCore___rarg(lea
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_6 = l_Lean_Name_components_x27(x_5);
+x_6 = l_Lean_Name_componentsRev(x_5);
 x_7 = lean_ctor_get(x_1, 1);
 lean_inc(x_7);
 x_8 = lean_unsigned_to_nat(0u);

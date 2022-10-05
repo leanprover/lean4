@@ -31,6 +31,14 @@ private partial def depOn (c : Code) : M Bool :=
 abbrev LetDecl.dependsOn (decl : LetDecl) (s : FVarIdSet) :  Bool :=
   decl.depOn s
 
+abbrev FunDecl.dependsOn (decl : FunDecl) (s : FVarIdSet) :  Bool :=
+  exprDepOn decl.type s || depOn decl.value s
+
+def CodeDecl.dependsOn (decl : CodeDecl) (s : FVarIdSet) : Bool :=
+  match decl with
+  | .let decl => decl.dependsOn s
+  | .jp decl | .fun decl => decl.dependsOn s
+
 /--
 Return `true` is `c` depends on a free variable in `s`.
 -/

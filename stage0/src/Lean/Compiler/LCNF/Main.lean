@@ -50,7 +50,7 @@ def checkpoint (stepName : Name) (decls : Array Decl) : CompilerM Unit := do
     withOptions (fun opts => opts.setBool `pp.motives.pi false) do
       let clsName := `Compiler ++ stepName
       if (← Lean.isTracingEnabledFor clsName) then
-        Lean.addTrace clsName m!"size: {decl.size}\n{← ppDecl decl}"
+        Lean.addTrace clsName m!"size: {decl.size}\n{← ppDecl' decl}"
       if compiler.check.get (← getOptions) then
         decl.check
   if compiler.check.get (← getOptions) then
@@ -91,8 +91,9 @@ def showDecl (phase : Phase) (declName : Name) : CoreM Format := do
   ppDecl' decl
 
 @[export lean_lcnf_compile_decls]
-def main (declNames : List Name) : CoreM Unit :=
-  CompilerM.run <| discard <| PassManager.run declNames.toArray
+def main (declNames : List Name) : CoreM Unit := do
+  profileitM Exception "compilation new" (← getOptions) do
+    CompilerM.run <| discard <| PassManager.run declNames.toArray
 
 builtin_initialize
   registerTraceClass `Compiler.init (inherited := true)

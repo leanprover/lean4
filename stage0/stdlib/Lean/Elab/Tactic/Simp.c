@@ -224,7 +224,6 @@ lean_object* l_Lean_Elab_Tactic_expandOptLocation(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Simp_0__Lean_Elab_Tactic_addSimpTheorem___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Meta_SimpTheorems_isLemma(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_elabSimpConfigCore___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Name_components_x27(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_dsimpLocation___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_simpExtension;
 static lean_object* l_Lean_Elab_Tactic_mkSimpContext___lambda__3___closed__1;
@@ -526,6 +525,7 @@ static lean_object* l_Lean_Elab_Tactic_tacticToDischarge___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_instBEqSimpKind;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalDSimp___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_mkSimpContext(lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_componentsRev(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSimp_declRange___closed__2;
 static lean_object* l_Lean_Elab_Tactic_SimpKind_noConfusion___rarg___closed__1;
 static lean_object* l_Lean_resolveGlobalConst___at_Lean_Elab_Tactic_elabSimpArgs___spec__5___closed__2;
@@ -11106,7 +11106,7 @@ LEAN_EXPORT lean_object* l_Lean_unresolveNameGlobal_unresolveNameCore___at_Lean_
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_8 = l_Lean_Name_components_x27(x_2);
+x_8 = l_Lean_Name_componentsRev(x_2);
 x_9 = lean_unsigned_to_nat(0u);
 x_10 = l_List_lengthTRAux___rarg(x_8, x_9);
 x_11 = lean_box(0);

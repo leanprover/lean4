@@ -82,7 +82,7 @@ elab "seq" s:tacticSeq : tactic => do
   let tacs := getTactics s
   for tac in tacs do
     let gs ← getUnsolvedGoals
-    withRef tac <| Meta.withPPForTacticGoal <| addRawTrace (goalsToMessageData gs)
+    withRef tac <| addRawTrace (goalsToMessageData gs)
     evalTactic tac
 
 example (h : x = y) : 0 + x = y := by

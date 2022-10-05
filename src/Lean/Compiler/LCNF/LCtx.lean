@@ -63,11 +63,11 @@ Convert a LCNF local context into a regular Lean local context.
 def LCtx.toLocalContext (lctx : LCtx) : LocalContext := Id.run do
   let mut result := {}
   for (_, param) in lctx.params.toArray do
-    result := result.addDecl (.cdecl 0 param.fvarId param.binderName param.type .default)
+    result := result.addDecl (.cdecl 0 param.fvarId param.binderName param.type .default .default)
   for (_, decl) in lctx.letDecls.toArray do
-    result := result.addDecl (.ldecl 0 decl.fvarId decl.binderName decl.type decl.value true)
+    result := result.addDecl (.ldecl 0 decl.fvarId decl.binderName decl.type decl.value true .default)
   for (_, decl) in lctx.funDecls.toArray do
-    result := result.addDecl (.cdecl 0 decl.fvarId decl.binderName decl.type .default)
+    result := result.addDecl (.cdecl 0 decl.fvarId decl.binderName decl.type .default .default)
   return result
 
 end Lean.Compiler.LCNF

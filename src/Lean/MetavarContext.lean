@@ -598,13 +598,13 @@ def instantiateMVars [Monad m] [MonadMCtx m] (e : Expr) : m Expr := do
 def instantiateLCtxMVars [Monad m] [MonadMCtx m] (lctx : LocalContext) : m LocalContext :=
   lctx.foldlM (init := {}) fun lctx ldecl => do
      match ldecl with
-     | .cdecl _ fvarId userName type bi =>
+     | .cdecl _ fvarId userName type bi k =>
        let type ← instantiateMVars type
-       return lctx.mkLocalDecl fvarId userName type bi
-     | .ldecl _ fvarId userName type value nonDep =>
+       return lctx.mkLocalDecl fvarId userName type bi k
+     | .ldecl _ fvarId userName type value nonDep k =>
        let type ← instantiateMVars type
        let value ← instantiateMVars value
-       return lctx.mkLetDecl fvarId userName type value nonDep
+       return lctx.mkLetDecl fvarId userName type value nonDep k
 
 def instantiateMVarDeclMVars [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Unit := do
   let mvarDecl     := (← getMCtx).getDecl mvarId
@@ -614,10 +614,10 @@ def instantiateMVarDeclMVars [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Unit 
 
 def instantiateLocalDeclMVars [Monad m] [MonadMCtx m] (localDecl : LocalDecl) : m LocalDecl := do
   match localDecl with
-  | .cdecl idx id n type bi  =>
-    return .cdecl idx id n (← instantiateMVars type) bi
-  | .ldecl idx id n type val nonDep =>
-    return .ldecl idx id n (← instantiateMVars type) (← instantiateMVars val) nonDep
+  | .cdecl idx id n type bi k =>
+    return .cdecl idx id n (← instantiateMVars type) bi k
+  | .ldecl idx id n type val nonDep k =>
+    return .ldecl idx id n (← instantiateMVars type) (← instantiateMVars val) nonDep k
 
 namespace DependsOn
 
@@ -1021,11 +1021,11 @@ mutual
       let x := xs[i]!
       if x.isFVar then
         match lctx.getFVar! x with
-        | LocalDecl.cdecl _ _ n type bi =>
+        | LocalDecl.cdecl _ _ n type bi _ =>
           let type := type.headBeta
           let type ← abstractRangeAux xs i type
           return Lean.mkForall n bi type e
-        | LocalDecl.ldecl _ _ n type value nonDep =>
+        | LocalDecl.ldecl _ _ n type value nonDep _ =>
           let type := type.headBeta
           let type  ← abstractRangeAux xs i type
           let value ← abstractRangeAux xs i value
@@ -1150,7 +1150,7 @@ partial def revert (xs : Array Expr) (mvarId : MVarId) : M (Expr × Array Expr) 
       let x := xs[i]!
       if x.isFVar then
         match lctx.getFVar! x with
-        | LocalDecl.cdecl _ _ n type bi =>
+        | LocalDecl.cdecl _ _ n type bi _ =>
           if !usedOnly || e.hasLooseBVar 0 then
             let type := type.headBeta;
             let type ← abstractRange xs i type
@@ -1160,7 +1160,7 @@ partial def revert (xs : Array Expr) (mvarId : MVarId) : M (Expr × Array Expr) 
               return (Lean.mkForall n bi type e, num + 1)
           else
             return (e.lowerLooseBVars 1 1, num)
-        | LocalDecl.ldecl _ _ n type value nonDep =>
+        | LocalDecl.ldecl _ _ n type value nonDep _ =>
           if !usedLetOnly || e.hasLooseBVar 0 then
             let type  ← abstractRange xs i type
             let value ← abstractRange xs i value

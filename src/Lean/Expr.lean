@@ -71,19 +71,6 @@ inductive BinderInfo where
   | strictImplicit
   /-- Local instance binder annotataion, e.g., `[Decidable α]` -/
   | instImplicit
-  /--
-  Auxiliary declarations used by Lean when elaborating recursive declarations.
-  When defining a function such as
-  ```
-       def f : Nat → Nat
-         | 0 => 1
-         | x+1 => (x+1)*f x
-  ```
-  Lean adds a local declaration `f : Nat → Nat` to the local context (`LocalContext`)
-  with `BinderInfo` set to `auxDecl`.
-  This local declaration is later removed by the termination checker.
-  -/
-  | auxDecl
   deriving Inhabited, BEq, Repr
 
 def BinderInfo.hash : BinderInfo → UInt64
@@ -91,7 +78,6 @@ def BinderInfo.hash : BinderInfo → UInt64
   | .implicit       => 1019
   | .strictImplicit => 1087
   | .instImplicit   => 1153
-  | .auxDecl        => 1229
 
 /--
 Return `true` if the given `BinderInfo` does not correspond to an implicit binder annotation
@@ -119,10 +105,6 @@ def BinderInfo.isImplicit : BinderInfo → Bool
 def BinderInfo.isStrictImplicit : BinderInfo → Bool
   | BinderInfo.strictImplicit => true
   | _                         => false
-
-def BinderInfo.isAuxDecl : BinderInfo → Bool
-  | BinderInfo.auxDecl => true
-  | _                  => false
 
 /-- Expression metadata. Used with the `Expr.mdata` constructor. -/
 abbrev MData := KVMap
@@ -176,7 +158,6 @@ def BinderInfo.toUInt64 : BinderInfo → UInt64
   | .implicit       => 1
   | .strictImplicit => 2
   | .instImplicit   => 3
-  | .auxDecl        => 4
 
 def Expr.mkData
     (h : UInt64) (looseBVarRange : Nat := 0) (approxDepth : UInt32 := 0)

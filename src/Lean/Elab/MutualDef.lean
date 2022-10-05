@@ -496,11 +496,11 @@ private def pushNewVars (toProcess : Array FVarId) (s : CollectFVars.State) : Ar
   s.fvarSet.fold (init := toProcess) fun toProcess fvarId =>
     if toProcess.contains fvarId then toProcess else toProcess.push fvarId
 
-private def pushLocalDecl (toProcess : Array FVarId) (fvarId : FVarId) (userName : Name) (type : Expr) (bi := BinderInfo.default)
+private def pushLocalDecl (toProcess : Array FVarId) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo) (kind : LocalDeclKind)
     : StateRefT ClosureState TermElabM (Array FVarId) := do
   let type ← preprocess type
   modify fun s => { s with
-    newLocalDecls := s.newLocalDecls.push <| LocalDecl.cdecl default fvarId userName type bi
+    newLocalDecls := s.newLocalDecls.push <| LocalDecl.cdecl default fvarId userName type bi kind
     exprArgs      := s.exprArgs.push (mkFVar fvarId)
   }
   return pushNewVars toProcess (collectFVars {} type)
@@ -514,21 +514,21 @@ private partial def mkClosureForAux (toProcess : Array FVarId) : StateRefT Closu
     let toProcess := toProcess.erase fvarId
     let localDecl ← fvarId.getDecl
     match localDecl with
-    | .cdecl _ _ userName type bi =>
-      let toProcess ← pushLocalDecl toProcess fvarId userName type bi
+    | .cdecl _ _ userName type bi k =>
+      let toProcess ← pushLocalDecl toProcess fvarId userName type bi k
       mkClosureForAux toProcess
-    | .ldecl _ _ userName type val _ =>
+    | .ldecl _ _ userName type val _ k =>
       let zetaFVarIds ← getZetaFVarIds
       if !zetaFVarIds.contains fvarId then
         /- Non-dependent let-decl. See comment at src/Lean/Meta/Closure.lean -/
-        let toProcess ← pushLocalDecl toProcess fvarId userName type
+        let toProcess ← pushLocalDecl toProcess fvarId userName type .default k
         mkClosureForAux toProcess
       else
         /- Dependent let-decl. -/
         let type ← preprocess type
         let val  ← preprocess val
         modify fun s => { s with
-          newLetDecls   := s.newLetDecls.push <| LocalDecl.ldecl default fvarId userName type val false,
+          newLetDecls   := s.newLetDecls.push <| .ldecl default fvarId userName type val false k,
           /- We don't want to interleave let and lambda declarations in our closure. So, we expand any occurrences of fvarId
              at `newLocalDecls` and `localDecls` -/
           newLocalDecls := s.newLocalDecls.map (·.replaceFVarId fvarId val)

@@ -233,7 +233,7 @@ Try to solve the problem by using the first alternative whose pending constraint
 -/
 private def processLeaf (p : Problem) : StateRefT State MetaM Unit :=
   p.mvarId.withContext do
-    withPPForTacticGoal do trace[Meta.Match.match] "local context at processLeaf:\n{(← mkFreshTypeMVar).mvarId!}"
+    trace[Meta.Match.match] "local context at processLeaf:\n{(← mkFreshTypeMVar).mvarId!}"
     go p.alts
 where
   go (alts : List Alt) : StateRefT State MetaM Unit := do

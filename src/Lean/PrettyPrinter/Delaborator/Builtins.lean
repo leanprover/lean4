@@ -512,7 +512,6 @@ def delabLam : Delab :=
           pure curNames.back  -- here `curNames.size == 1`
       let group ← match e.binderInfo, ppTypes with
         | BinderInfo.default,        _      => defaultCase ()
-        | BinderInfo.auxDecl,        _      => defaultCase ()
         | BinderInfo.implicit,       true   => `(funBinder| {$curNames* : $stxT})
         | BinderInfo.implicit,       false  => `(funBinder| {$curNames*})
         | BinderInfo.strictImplicit, true   => `(funBinder| ⦃$curNames* : $stxT⦄)

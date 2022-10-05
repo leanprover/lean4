@@ -202,7 +202,7 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
     let newFVarId ← mkFreshFVarId
     let userName ← mkNextUserName
     modify fun s => { s with
-      newLocalDeclsForMVars := s.newLocalDeclsForMVars.push $ LocalDecl.cdecl default newFVarId userName type BinderInfo.default,
+      newLocalDeclsForMVars := s.newLocalDeclsForMVars.push $ .cdecl default newFVarId userName type .default .default,
       exprMVarArgs          := s.exprMVarArgs.push e
     }
     return mkFVar newFVarId
@@ -247,18 +247,18 @@ def pushFVarArg (e : Expr) : ClosureM Unit :=
 
 def pushLocalDecl (newFVarId : FVarId) (userName : Name) (type : Expr) (bi := BinderInfo.default) : ClosureM Unit := do
   let type ← collectExpr type
-  modify fun s => { s with newLocalDecls := s.newLocalDecls.push <| LocalDecl.cdecl default newFVarId userName type bi }
+  modify fun s => { s with newLocalDecls := s.newLocalDecls.push <| .cdecl default newFVarId userName type bi .default }
 
 partial def process : ClosureM Unit := do
   match (← pickNextToProcess?) with
   | none => pure ()
   | some ⟨fvarId, newFVarId⟩ =>
     match (← fvarId.getDecl) with
-    | .cdecl _ _ userName type bi =>
+    | .cdecl _ _ userName type bi _ =>
       pushLocalDecl newFVarId userName type bi
       pushFVarArg (mkFVar fvarId)
       process
-    | .ldecl _ _ userName type val _ =>
+    | .ldecl _ _ userName type val _ _ =>
       let zetaFVarIds ← getZetaFVarIds
       if !zetaFVarIds.contains fvarId then
         /- Non-dependent let-decl
@@ -275,7 +275,7 @@ partial def process : ClosureM Unit := do
         /- Dependent let-decl -/
         let type ← collectExpr type
         let val  ← collectExpr val
-        modify fun s => { s with newLetDecls := s.newLetDecls.push <| LocalDecl.ldecl default newFVarId userName type val false }
+        modify fun s => { s with newLetDecls := s.newLetDecls.push <| .ldecl default newFVarId userName type val false .default }
         /- We don't want to interleave let and lambda declarations in our closure. So, we expand any occurrences of newFVarId
            at `newLocalDecls` -/
         modify fun s => { s with newLocalDecls := s.newLocalDecls.map (·.replaceFVarId newFVarId val) }
@@ -287,13 +287,13 @@ partial def process : ClosureM Unit := do
   decls.size.foldRev (init := b) fun i b =>
     let decl := decls[i]!
     match decl with
-    | LocalDecl.cdecl _ _ n ty bi  =>
+    | .cdecl _ _ n ty bi _ =>
       let ty := ty.abstractRange i xs
       if isLambda then
         Lean.mkLambda n bi ty b
       else
         Lean.mkForall n bi ty b
-    | LocalDecl.ldecl _ _ n ty val nonDep =>
+    | .ldecl _ _ n ty val nonDep _ =>
       if b.hasLooseBVar 0 then
         let ty  := ty.abstractRange i xs
         let val := val.abstractRange i xs

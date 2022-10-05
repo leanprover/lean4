@@ -5,10 +5,10 @@ in { pkgs ? flakePkgs.nixpkgs, pkgsDist ? pkgs }:
 # use `shell` as default
 (attribs: attribs.shell // attribs) rec {
   shell = pkgs.mkShell.override {
-    stdenv = pkgs.overrideCC pkgs.stdenv flakePkgs.llvmPackages.clang;
+    inherit (flakePkgs) stdenv;
   } (rec {
     buildInputs = with pkgs; [
-      cmake gmp ccache
+      cmake gmp
       llvmPackages.llvm  # llvm-symbolizer for asan/lsan
     ];
     # https://github.com/NixOS/nixpkgs/issues/60919

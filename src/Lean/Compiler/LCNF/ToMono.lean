@@ -62,6 +62,16 @@ def Decl.toMono (decl : Decl) : CompilerM Decl := do
   let type ← toMonoType decl.type
   let params ← decl.params.mapM (·.toMono)
   let value ← decl.value.toMono
-  return { decl with type, params, value, levelParams := [] }
+  let decl := { decl with type, params, value, levelParams := [] }
+  decl.saveMono
+  return decl
+
+def toMono : Pass where
+  name  := `toMono
+  run   := fun decls => decls.mapM (·.toMono)
+  phase := .base
+
+builtin_initialize
+  registerTraceClass `Compiler.toMono (inherited := true)
 
 end Lean.Compiler.LCNF

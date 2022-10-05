@@ -108,7 +108,7 @@ builtin_initialize specExtension : SimplePersistentEnvExtension SpecEntry SpecSt
   registerSimplePersistentEnvExtension {
     name          := `specExt,
     addEntryFn    := SpecState.addEntry,
-    addImportedFn := fun es => (mkStateFromImportedEntries (fun | s, SpecEntry.cache .. => s | s, i => SpecState.addEntry s i) {} es).switch
+    addImportedFn := fun es => (mkStateFromImportedEntries SpecState.addEntry {} es).switch
   }
 
 @[export lean_add_specialization_info]

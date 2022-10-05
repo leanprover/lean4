@@ -260,19 +260,6 @@ def mkAuxJpDecl' (param : Param) (code : Code) (prefixName := `_jp) : CompilerM 
   let params := #[param]
   mkAuxFunDecl params code prefixName
 
-def instantiateForall (type : Expr) (params : Array Param) : CoreM Expr :=
-  go type 0
-where
-  go (type : Expr) (i : Nat) : CoreM Expr :=
-    if h : i < params.size then
-      let p := params[i]
-      match type.headBeta with
-      | .forallE _ _ b _ => go (b.instantiate1 (.fvar p.fvarId)) (i+1)
-      | _ => throwError "invalid instantiateForall, too many parameters"
-    else
-      return type
-termination_by go i => params.size - i
-
 def mkCasesResultType (alts : Array Alt) : CompilerM Expr := do
   if alts.isEmpty then
     throwError "`Code.bind` failed, empty `cases` found"

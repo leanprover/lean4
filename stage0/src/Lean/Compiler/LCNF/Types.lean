@@ -218,6 +218,25 @@ partial def isTypeFormerType (type : Expr) : Bool :=
   | _ => false
 
 /--
+Given a LCNF `type` of the form `forall (a_1 : A_1) ... (a_n : A_n), B[a_1, ..., a_n]` and `p_1 : A_1, ... p_n : A_n`,
+return `B[p_1, ..., p_n]`.
+
+Remark: similar to `Meta.instantiateForall`, buf for LCNF types.
+-/
+def instantiateForall (type : Expr) (ps : Array Expr) : CoreM Expr :=
+  go 0 type
+where
+  go (i : Nat) (type : Expr) : CoreM Expr :=
+    if h : i < ps.size then
+      if let .forallE _ _ b _ := type.headBeta then
+        go (i+1) (b.instantiate1 ps[i])
+      else
+        throwError "invalid instantiateForall, too many parameters"
+    else
+      return type
+termination_by go i _ => ps.size - i
+
+/--
 Return `true` if `type` is a predicate.
 Examples: `Nat → Prop`, `Prop`, `Int → Bool → Prop`.
 -/

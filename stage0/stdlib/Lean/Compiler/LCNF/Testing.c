@@ -95,7 +95,6 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_assertAfter(lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Code_containsConst_goExpr(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Testing_assertNoFun___closed__1;
 static lean_object* l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___elambda__1___closed__4;
-lean_object* l_panic___at_Lean_Compiler_LCNF_isErasedCompatible_go___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_assertReducesOrPreservesSize(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Testing_assertIsAtFixPoint___closed__1;
 LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_Code_containsConst(lean_object*, lean_object*);
@@ -157,6 +156,7 @@ static lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_Testing_assert___s
 uint8_t l___private_Lean_Util_Trace_0__Lean_checkTraceOption(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_LCtx_toLocalContext(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_Testing_assertForEachDeclAfter___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_panic___at_Lean_Compiler_LCNF_hasTrivialStructure_x3f___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_getDecls___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_TestM_run(lean_object*);
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_Lean_Compiler_LCNF_Testing_assertIsAtFixPoint___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -282,7 +282,7 @@ case 8:
 {
 lean_object* x_15; lean_object* x_16; 
 x_15 = l_Lean_Compiler_LCNF_Code_containsConst_goExpr___closed__4;
-x_16 = l_panic___at_Lean_Compiler_LCNF_isErasedCompatible_go___spec__1(x_15);
+x_16 = l_panic___at_Lean_Compiler_LCNF_hasTrivialStructure_x3f___spec__1(x_15);
 return x_16;
 }
 case 11:

@@ -311,10 +311,8 @@ message("llvm-config: libdir '${LLVM_CONFIG_LIBDIR}' | ldflags '${LLVM_CONFIG_LD
 
 # when using shared libraries, set the `rpath` to help the dynamic loader 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  find_package(m REQUIRED)
   find_package(ZLIB REQUIRED)
   message("ZLIB_LIBRARY: ${ZLIB_LIBRARY}")
-  message("LIBM_LIBRARY: ${M_LIBRARY}")
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " -framework ${ZLIB_LIBRARY} -lz")
 
   string(APPEND LEANC_STATIC_LINKER_FLAGS " -lleancpp -lInit -lLean -lleanrt ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS}")

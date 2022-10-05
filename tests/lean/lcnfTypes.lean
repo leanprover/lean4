@@ -1,7 +1,6 @@
 import Lean
 
 notation "◾" => lcErased
-notation "⊤" => lcAny
 
 open Lean Compiler LCNF Meta
 

@@ -137,9 +137,6 @@ It can also be written as `()`.
 /-- Marker for information that has been erased by the code generator. -/
 unsafe axiom lcErased : Type
 
-/-- "Any" type in the simpler type system used by the code generator. -/
-unsafe axiom lcAny : Type
-
 /--
 Auxiliary unsafe constant used by the Compiler when erasing proofs from code.
 

@@ -44,7 +44,7 @@ def builtinPassManager : PassManager := {
     findJoinPoints,
     pullFunDecls,
     reduceJpArity,
-    extendJoinPointContext,
+    -- extendJoinPointContext,
     simp { etaPoly := true, inlinePartial := true, implementedBy := true } (occurrence := 1),
     specialize,
     simp (occurrence := 2),

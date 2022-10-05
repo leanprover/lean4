@@ -1,7 +1,5 @@
 import Lean
 
-notation "◾" => lcErased
-
 open Lean Compiler LCNF Meta
 
 def test (declName : Name) : MetaM Unit := do
@@ -117,7 +115,7 @@ def compatible (declName₁ declName₂ : Name) : MetaM Unit := do
 axiom monadList₁.{u} : Monad List.{u}
 axiom monadList₂.{u} : Monad (fun α : Type u => List α)
 
-set_option pp.all true
+-- set_option pp.all true
 #eval compatible ``monadList₁ ``monadList₂
 
 axiom lamAny₁ (c : Bool) : Monad (fun α : Type => cond c (List α) (Array α))
@@ -129,9 +127,10 @@ axiom lamAny₂ (c : Bool) : Monad (cond c List.{0} Array.{0})
 
 def testMono (declName : Name) : MetaM Unit := do
   let base ← LCNF.getOtherDeclBaseType declName []
-  let mono ← LCNF.toMonoType base |>.run {}
+  let mono ← LCNF.toMonoType base
   IO.println s!"{declName} : {← ppExpr mono}"
 
+set_option pp.explicit true
 #eval testMono ``Term.constFold
 #eval testMono ``Term.denote
 #eval testMono ``HList.get
@@ -145,3 +144,5 @@ def testMono (declName : Name) : MetaM Unit := do
 #eval testMono ``Lean.Meta.inferType
 #eval testMono ``Elab.Term.elabTerm
 #eval testMono ``Nat.add
+#eval testMono ``Fin.add
+#eval testMono ``HashSetBucket.update

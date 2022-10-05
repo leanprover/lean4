@@ -114,7 +114,7 @@ abbrev FunDeclCore.isEtaExpandCandidate (decl : FunDecl) : Bool :=
   isEtaExpandCandidateCore decl.type decl.params
 
 def etaExpandCore (type : Expr) (params : Array Param) (value : Code) : CompilerM (Array Param × Code) := do
-  let valueType ← instantiateForall type params
+  let valueType ← instantiateForall type (params.map (mkFVar ·.fvarId))
   let psNew ← mkNewParams valueType
   let params := params ++ psNew
   let xs := psNew.map fun p => Expr.fvar p.fvarId

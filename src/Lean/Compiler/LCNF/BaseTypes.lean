@@ -9,7 +9,7 @@ import Lean.Compiler.LCNF.Types
 namespace Lean.Compiler.LCNF
 
 /--
-State for the environment extension used to save the type of declarations
+State for the environment extension used to save the LCNF base phase type for declarations
 that do not have code associated with them.
 Example: constructors, inductive types, foreign functions.
 -/
@@ -29,6 +29,9 @@ def getOtherDeclBaseType (declName : Name) (us : List Level) : CoreM Expr := do
       let type ← Meta.MetaM.run' <| toLCNFType info.type
       modifyEnv fun env => baseTypeExt.modifyState env fun s => { s with base := s.base.insert declName type }
       pure type
-  return type.instantiateLevelParams info.levelParams us
+  if us.isEmpty then
+    return type
+  else
+    return type.instantiateLevelParams info.levelParams us
 
 end Lean.Compiler.LCNF

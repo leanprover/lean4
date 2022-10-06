@@ -42,7 +42,7 @@ Return `some fieldIdx` if `declName` is the name of an inductive datatype s.t.
 def hasTrivialStructure? (declName : Name) : CoreM (Option TrivialStructureInfo) := do
   if isRuntimeBultinType declName then return none
   let .inductInfo info ← getConstInfo declName | return none
-  if info.isUnsafe then return none
+  if info.isUnsafe || info.isRec then return none
   let [ctorName] := info.ctors | return none
   let mask ← getRelevantCtorFields ctorName
   let mut result := none

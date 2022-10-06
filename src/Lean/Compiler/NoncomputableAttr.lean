@@ -7,7 +7,7 @@ import Lean.Environment
 
 namespace Lean
 
-builtin_initialize noncomputableExt : TagDeclarationExtension ← mkTagDeclarationExtension `noncomputable
+builtin_initialize noncomputableExt : TagDeclarationExtension ← mkTagDeclarationExtension
 
 /-- Mark in the environment extension that the given declaration has been declared by the user as `noncomputable`. -/
 def addNoncomputable (env : Environment) (declName : Name) : Environment :=

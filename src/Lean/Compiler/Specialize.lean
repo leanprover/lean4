@@ -106,7 +106,6 @@ end SpecState
 
 builtin_initialize specExtension : SimplePersistentEnvExtension SpecEntry SpecState ←
   registerSimplePersistentEnvExtension {
-    name          := `specExt,
     addEntryFn    := SpecState.addEntry,
     addImportedFn := fun es => (mkStateFromImportedEntries SpecState.addEntry {} es).switch
   }

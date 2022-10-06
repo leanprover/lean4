@@ -4,7 +4,6 @@ open Lean
 
 initialize blaExtension : SimplePersistentEnvExtension Name NameSet ←
   registerSimplePersistentEnvExtension {
-    name          := `blaExt
     addEntryFn    := NameSet.insert
     addImportedFn := fun es => mkStateFromImportedEntries NameSet.insert {} es
   }

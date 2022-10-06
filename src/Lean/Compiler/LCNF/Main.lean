@@ -77,7 +77,7 @@ def run (declNames : Array Name) : CompilerM (Array Decl) := withAtLeastMaxRecDe
   if (← Lean.isTracingEnabledFor `Compiler.result) then
     for decl in decls do
       -- We display the declaration saved in the environment because the names have been normalized
-      let some decl' ← getDeclAt? decl.name .base | unreachable!
+      let some decl' ← getDeclAt? decl.name .mono | unreachable!
       Lean.addTrace `Compiler.result m!"size: {decl.size}\n{← ppDecl' decl'}"
   return decls
 

@@ -11,18 +11,64 @@ namespace Lean.Compiler.LCNF
 def Param.toMono (param : Param) : CompilerM Param := do
   param.update (← toMonoType param.type)
 
-def _root_.Lean.Expr.toMono (e : Expr) : CompilerM Expr := do
+def isTrivialConstructorApp? (e : Expr) : CompilerM (Option Expr) := do
+  let some ctorInfo := e.isConstructorApp? (← getEnv) | return none
+  let some info ← hasTrivialStructure? ctorInfo.induct | return none
+  assert! ctorInfo.numParams + info.fieldIdx < e.getAppNumArgs
+  return e.getArg! (ctorInfo.numParams + info.fieldIdx)
+
+def fvarToMono (e : Expr) : CompilerM Expr := do
+  if isTypeFormerType (← inferType e) then
+    return erasedExpr
+  else
+    return e
+
+def argToMono (arg : Expr) : CompilerM Expr := do
+  if arg.isFVar then
+    fvarToMono arg
+  else
+    return erasedExpr
+
+def ctorAppToMono (ctorInfo : ConstructorVal) (args : Array Expr) : CompilerM Expr := do
+  let argsNew ← args[:ctorInfo.numParams].toArray.mapM fun param => do
+    -- We only preserve constructor parameters that are types
+    if isTypeFormerType (← inferType param) then
+      toMonoType param
+    else
+      return erasedExpr
+  let argsNew := argsNew ++ (← args[ctorInfo.numParams:].toArray.mapM argToMono)
+  return mkAppN (mkConst ctorInfo.name) argsNew
+
+partial def _root_.Lean.Expr.toMono (e : Expr) : CompilerM Expr := do
   match e with
-  | .fvar .. => if isTypeFormerType (← inferType e) then return erasedExpr else return e
+  | .fvar .. => fvarToMono e
   | .lit .. | .const .. => return e
   | .sort .. => return erasedExpr
   | .mvar .. | .bvar .. | .letE .. => unreachable!
   | .mdata _ b => return e.updateMData! (← b.toMono)
-  | .proj _ _ b => return e.updateProj! (← b.toMono)
+  | .proj structName fieldIdx b =>
+    if let some info ← hasTrivialStructure? structName then
+      if info.fieldIdx == fieldIdx then
+        b.toMono
+      else
+        return erasedExpr
+    else
+      return e.updateProj! (← b.toMono)
   | .forallE .. | .lam .. => return erasedExpr
-  | .app f a =>
-    let a ← if a.isFVar then a.toMono else pure erasedExpr
-    return e.updateApp! (← f.toMono) a
+  | .app .. =>
+    if e.isAppOf ``Decidable.isTrue then
+      return mkConst ``Bool.true
+    else if e.isAppOf ``Decidable.isFalse then
+      return mkConst ``Bool.false
+    else if let some arg ← isTrivialConstructorApp? e then
+      arg.toMono
+    else if let some ctorInfo := e.isConstructorApp? (← getEnv) then
+      ctorAppToMono ctorInfo e.getAppArgs
+    else
+      let f := e.getAppFn
+      let args := e.getAppArgs
+      let args ← args.mapM argToMono
+      return mkAppN (← f.toMono) args
 
 def LetDecl.toMono (decl : LetDecl) : CompilerM LetDecl := do
   let type ← toMonoType decl.type
@@ -32,18 +78,36 @@ def LetDecl.toMono (decl : LetDecl) : CompilerM LetDecl := do
 mutual
 
 partial def FunDeclCore.toMono (decl : FunDecl) : CompilerM FunDecl := do
-  -- TODO: constructor Decidable to Bool, Trivial Structure
-  -- TODO: eliminate projection for trivial structure
   let type ← toMonoType decl.type
   let params ← decl.params.mapM (·.toMono)
   let value ← decl.value.toMono
   decl.update type params value
 
-partial def AltCore.toMono (alt : Alt) : CompilerM Alt := do
-  -- TODO: Decidable to Bool, Trivial Structure
-  match alt with
-  | .default k => return alt.updateCode (← k.toMono)
-  | .alt _ ps k => return alt.updateAlt! (← ps.mapM (·.toMono)) (← k.toMono)
+/-- Convert `cases` `Decidable` => `Bool` -/
+partial def decToMono (c : Cases) (_ : c.typeName == ``Decidable) : CompilerM Code := do
+  let resultType ← toMonoType c.resultType
+  let alts ← c.alts.mapM fun alt => do
+    match alt with
+    | .default k => return alt.updateCode (← k.toMono)
+    | .alt ctorName ps k =>
+      eraseParams ps
+      let ctorName := if ctorName == ``Decidable.isTrue then ``Bool.true else ``Bool.false
+      return .alt ctorName #[] (← k.toMono)
+  return .cases { c with resultType, alts, typeName := ``Bool }
+
+/-- Eliminate `cases` for trivial structure. See `hasTrivialStructure?` -/
+partial def trivialStructToMono (info : TrivialStructureInfo) (c : Cases) : CompilerM Code := do
+  assert! c.alts.size == 1
+  let .alt ctorName ps k := c.alts[0]! | unreachable!
+  assert! ctorName == info.ctorName
+  assert! info.fieldIdx < ps.size
+  let p := ps[info.fieldIdx]!
+  let k ← k.toMono
+  eraseParams ps
+  /- We reuse `p`s `fvarId` to avoid substitution -/
+  let decl := { fvarId := p.fvarId, binderName := p.binderName, type := (← p.type.toMono), value := .fvar c.discr }
+  modifyLCtx fun lctx => lctx.addLetDecl decl
+  return .let decl k
 
 partial def Code.toMono (code : Code) : CompilerM Code := do
   match code with
@@ -52,9 +116,18 @@ partial def Code.toMono (code : Code) : CompilerM Code := do
   | .unreach type => return .unreach (← toMonoType type)
   | .return .. | .jmp .. => return code
   | .cases c =>
-    let type ← toMonoType c.resultType
-    let alts ← c.alts.mapM (·.toMono)
-    return code.updateCases! type c.discr alts
+    if h : c.typeName == ``Decidable then
+      decToMono c h
+    else if let some info ← hasTrivialStructure? c.typeName then
+      trivialStructToMono info c
+    else
+      -- TODO: `casesOn` `[implementedBy]` support
+      let type ← toMonoType c.resultType
+      let alts ← c.alts.mapM fun alt =>
+        match alt with
+        | .default k => return alt.updateCode (← k.toMono)
+        | .alt _ ps k => return alt.updateAlt! (← ps.mapM (·.toMono)) (← k.toMono)
+      return code.updateCases! type c.discr alts
 
 end
 

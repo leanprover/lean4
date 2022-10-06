@@ -141,9 +141,9 @@
     tags: [fast, suite]
   run_config:
     <<: *time
-    cmd: ./rbmap.library.lean.out 2000000
+    cmd: ./rbmap_library.lean.out 2000000
   build_config:
-    cmd: ./compile.sh rbmap.library.lean
+    cmd: ./compile.sh rbmap_library.lean
 - attributes:
     description: rbmap_fbip
     tags: [fast, suite]

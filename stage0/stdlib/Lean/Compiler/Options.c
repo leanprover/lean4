@@ -15,10 +15,10 @@ extern "C" {
 #endif
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6_(lean_object*);
+lean_object* l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_87____spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__4;
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_compiler_check;
-lean_object* l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_59____spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__5;
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__3;
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__2;
@@ -77,7 +77,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__3;
 x_3 = l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__5;
-x_4 = l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_59____spec__1(x_2, x_3, x_1);
+x_4 = l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_87____spec__1(x_2, x_3, x_1);
 return x_4;
 }
 }

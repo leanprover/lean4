@@ -12,6 +12,7 @@ import Lean.Compiler.LCNF.ReduceJpArity
 import Lean.Compiler.LCNF.JoinPoints
 import Lean.Compiler.LCNF.Specialize
 import Lean.Compiler.LCNF.PhaseExt
+import Lean.Compiler.LCNF.ToMono
 
 namespace Lean.Compiler.LCNF
 
@@ -35,6 +36,9 @@ def normalizeFVarIds (decl : Decl) : CoreM Decl := do
 def saveBase : Pass :=
   .mkPerDeclaration `saveBase (fun decl => do (← normalizeFVarIds decl).saveBase; return decl) .base
 
+def saveMono : Pass :=
+  .mkPerDeclaration `saveMono (fun decl => do (← normalizeFVarIds decl).saveMono; return decl) .mono
+
 def builtinPassManager : PassManager := {
   passes := #[
     init,
@@ -49,7 +53,10 @@ def builtinPassManager : PassManager := {
     specialize,
     simp (occurrence := 2),
     cse,
-    saveBase -- End of base phase
+    saveBase, -- End of base phase
+    toMono,
+    -- TODO: lambda lifting, reduce function arity
+    saveMono  -- End of mono phase
   ]
 }
 

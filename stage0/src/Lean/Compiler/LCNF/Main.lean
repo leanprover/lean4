@@ -73,7 +73,7 @@ def run (declNames : Array Name) : CompilerM (Array Decl) := withAtLeastMaxRecDe
   for pass in manager.passes do
     trace[Compiler] s!"Running pass: {pass.name}"
     decls ← withPhase pass.phase <| pass.run decls
-    withPhase pass.phase <| checkpoint pass.name decls
+    withPhase pass.phaseOut <| checkpoint pass.name decls
   if (← Lean.isTracingEnabledFor `Compiler.result) then
     for decl in decls do
       -- We display the declaration saved in the environment because the names have been normalized

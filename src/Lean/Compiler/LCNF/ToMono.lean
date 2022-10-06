@@ -42,7 +42,8 @@ def ctorAppToMono (ctorInfo : ConstructorVal) (args : Array Expr) : CompilerM Ex
 partial def _root_.Lean.Expr.toMono (e : Expr) : CompilerM Expr := do
   match e with
   | .fvar .. => fvarToMono e
-  | .lit .. | .const .. => return e
+  | .lit .. => return e
+  | .const declName _ => return mkConst declName
   | .sort .. => return erasedExpr
   | .mvar .. | .bvar .. | .letE .. => unreachable!
   | .mdata _ b => return e.updateMData! (← b.toMono)

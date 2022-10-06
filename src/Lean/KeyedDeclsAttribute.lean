@@ -100,10 +100,10 @@ def ExtensionState.erase (s : ExtensionState γ) (attrName : Name) (declName : N
     throwError "'{declName}' does not have [{attrName}] attribute"
   return { s with erased := s.erased.insert declName, declNames := s.declNames.erase declName }
 
-protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name) : IO (KeyedDeclsAttribute γ) := do
+protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name := by exact decl_name%) : IO (KeyedDeclsAttribute γ) := do
   let tableRef ← IO.mkRef ({} : Table γ)
   let ext : Extension γ ← registerScopedEnvExtension {
-    name         := df.name
+    name         := attrDeclName
     mkInitial    := return mkStateOfTable (← tableRef.get)
     ofOLeanEntry := fun _ entry => do
       let ctx ← read

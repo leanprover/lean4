@@ -27,7 +27,6 @@ def UnificationHints.add (hints : UnificationHints) (e : UnificationHintEntry) :
 
 builtin_initialize unificationHintExtension : SimpleScopedEnvExtension UnificationHintEntry UnificationHints ←
   registerSimpleScopedEnvExtension {
-    name     := `unifHints
     addEntry := UnificationHints.add
     initial  := {}
   }

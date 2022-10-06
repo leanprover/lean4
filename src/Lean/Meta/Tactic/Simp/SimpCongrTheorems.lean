@@ -44,7 +44,6 @@ where
 
 builtin_initialize congrExtension : SimpleScopedEnvExtension SimpCongrTheorem SimpCongrTheorems ←
   registerSimpleScopedEnvExtension {
-    name           := `congrExt
     initial        := {}
     addEntry       := addSimpCongrTheoremEntry
     finalizeImport := fun s => { s with lemmas := s.lemmas.switch }

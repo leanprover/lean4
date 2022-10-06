@@ -54,7 +54,6 @@ Type class environment extension
 -- TODO: add support for scoped instances
 builtin_initialize classExtension : SimplePersistentEnvExtension ClassEntry ClassState ←
   registerSimplePersistentEnvExtension {
-    name          := `classExt
     addEntryFn    := ClassState.addEntry
     addImportedFn := fun es => (mkStateFromImportedEntries ClassState.addEntry {} es).switch
   }

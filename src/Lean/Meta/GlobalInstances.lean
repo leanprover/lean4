@@ -10,7 +10,6 @@ namespace Lean.Meta
 
 builtin_initialize globalInstanceExtension : SimpleScopedEnvExtension Name (PersistentHashMap Name Unit)  ←
   registerSimpleScopedEnvExtension {
-    name     := `ginstanceExt
     initial  := {}
     addEntry := fun s n => s.insert n ()
   }

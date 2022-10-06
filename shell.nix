@@ -8,7 +8,7 @@ in { pkgs ? flakePkgs.nixpkgs, pkgsDist ? pkgs }:
     inherit (flakePkgs) stdenv;
   } (rec {
     buildInputs = with pkgs; [
-      cmake gmp
+      cmake gmp ccache
       llvmPackages.llvm  # llvm-symbolizer for asan/lsan
     ];
     # https://github.com/NixOS/nixpkgs/issues/60919

@@ -384,7 +384,6 @@ structure FolderEntry extends FolderOleanEntry where
 
 builtin_initialize folderExt : PersistentEnvExtension FolderOleanEntry FolderEntry (List FolderOleanEntry × SMap Name Folder) ←
   registerPersistentEnvExtension {
-    name := `cfolder
     mkInitial := return ([], builtinFolders)
     addImportedFn := fun entriesArray => do
       let ctx ← read

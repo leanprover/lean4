@@ -350,13 +350,13 @@ private def withoutModifyingStateWithInfoAndMessagesImpl (x : TermElabM α) : Te
 def withoutSavingRecAppSyntax (x : TermElabM α) : TermElabM α :=
   withReader (fun ctx => { ctx with saveRecAppSyntax := false }) x
 
-unsafe def mkTermElabAttributeUnsafe : IO (KeyedDeclsAttribute TermElab) :=
-  mkElabAttribute TermElab `Lean.Elab.Term.termElabAttribute `builtinTermElab `termElab `Lean.Parser.Term `Lean.Elab.Term.TermElab "term"
+unsafe def mkTermElabAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute TermElab) :=
+  mkElabAttribute TermElab `builtinTermElab `termElab `Lean.Parser.Term `Lean.Elab.Term.TermElab "term" ref
 
 @[implementedBy mkTermElabAttributeUnsafe]
-opaque mkTermElabAttribute : IO (KeyedDeclsAttribute TermElab)
+opaque mkTermElabAttribute (ref : Name) : IO (KeyedDeclsAttribute TermElab)
 
-builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermElabAttribute
+builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermElabAttribute decl_name%
 
 /--
   Auxiliary datatatype for presenting a Lean lvalue modifier.

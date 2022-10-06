@@ -138,7 +138,7 @@ structure TagAttribute where
 def registerTagAttribute (name : Name) (descr : String)
     (validate : Name → AttrM Unit := fun _ => pure ()) (ref : Name := by exact decl_name%) : IO TagAttribute := do
   let ext : PersistentEnvExtension Name Name NameSet ← registerPersistentEnvExtension {
-    name            := name
+    name            := ref
     mkInitial       := pure {}
     addImportedFn   := fun _ _ => pure {}
     addEntryFn      := fun (s : NameSet) n => s.insert n
@@ -191,7 +191,7 @@ structure ParametricAttributeImpl (α : Type) extends AttributeImplCore where
 
 def registerParametricAttribute [Inhabited α] (impl : ParametricAttributeImpl α) : IO (ParametricAttribute α) := do
   let ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α) ← registerPersistentEnvExtension {
-    name            := impl.name
+    name            := impl.ref
     mkInitial       := pure {}
     addImportedFn   := fun s => impl.afterImport s *> pure {}
     addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2
@@ -245,12 +245,12 @@ structure EnumAttributes (α : Type) where
   ext   : PersistentEnvExtension (Name × α) (Name × α) (NameMap α)
   deriving Inhabited
 
-def registerEnumAttributes [Inhabited α] (extName : Name) (attrDescrs : List (Name × String × α))
+def registerEnumAttributes [Inhabited α] (attrDescrs : List (Name × String × α))
     (validate : Name → α → AttrM Unit := fun _ _ => pure ())
     (applicationTime := AttributeApplicationTime.afterTypeChecking)
     (ref : Name := by exact decl_name%) : IO (EnumAttributes α) := do
   let ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α) ← registerPersistentEnvExtension {
-    name            := extName
+    name            := ref
     mkInitial       := pure {}
     addImportedFn   := fun _ _ => pure {}
     addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2
@@ -366,7 +366,6 @@ private def addAttrEntry (s : AttributeExtensionState) (e : AttributeExtensionOL
 
 builtin_initialize attributeExtension : AttributeExtension ←
   registerPersistentEnvExtension {
-    name            := `attrExt
     mkInitial       := AttributeExtension.mkInitial
     addImportedFn   := AttributeExtension.addImported
     addEntryFn      := addAttrEntry

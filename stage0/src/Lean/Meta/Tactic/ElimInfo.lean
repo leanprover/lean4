@@ -107,7 +107,6 @@ def addCustomEliminatorEntry (es : CustomEliminators) (e : CustomEliminator) : C
 
 builtin_initialize customEliminatorExt : SimpleScopedEnvExtension CustomEliminator CustomEliminators ←
   registerSimpleScopedEnvExtension {
-    name           := `elimExt
     initial        := {}
     addEntry       := addCustomEliminatorEntry
     finalizeImport := fun { map := map } => { map := map.switch }

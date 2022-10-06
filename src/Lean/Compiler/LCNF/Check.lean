@@ -31,6 +31,12 @@ def checkFVar (fvarId : FVarId) : CheckM Unit :=
   unless (← read).vars.contains fvarId do
     throwError "invalid out of scope free variable {← getBinderName fvarId}"
 
+/-- Return true `f` is a constructor and `i` is less than its number of parameters. -/
+def isCtorParam (f : Expr) (i : Nat) : CoreM Bool := do
+  let .const declName _ := f | return false
+  let .ctorInfo info ← getConstInfo declName | return false
+  return i < info.numParams
+
 def checkAppArgs (f : Expr) (args : Array Expr) : CheckM Unit := do
   let mut fType ← inferType f
   let mut j := 0
@@ -54,9 +60,12 @@ def checkAppArgs (f : Expr) (args : Array Expr) : CheckM Unit := do
     unless (← InferType.compatibleTypes argType expectedType) do
       throwError "type mismatch at LCNF application{indentExpr (mkAppN f args)}\nargument {arg} has type{indentExpr argType}\nbut is expected to have type{indentExpr expectedType}"
     unless (← pure (maybeTypeFormerType expectedType) <||> isErasedCompatible expectedType) do
-      unless arg.isFVar do
-        throwError "invalid LCNF application{indentExpr (mkAppN f args)}\nargument{indentExpr arg}\nhas type{indentExpr expectedType}\nmust be a free variable"
-      checkFVar arg.fvarId!
+      if arg.isFVar then
+        checkFVar arg.fvarId!
+      else
+        -- Constructor parameters that are not type formers are erased at phase .mono
+        unless arg.isErased && (← getPhase) ≥ .mono && (← isCtorParam f i) do
+          throwError "invalid LCNF application{indentExpr (mkAppN f args)}\nargument{indentExpr arg}\nhas type{indentExpr expectedType}\nmust be a free variable"
     fType := b
 
 def checkApp (f : Expr) (args : Array Expr) : CheckM Unit := do

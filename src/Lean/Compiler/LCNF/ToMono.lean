@@ -67,9 +67,10 @@ def Decl.toMono (decl : Decl) : CompilerM Decl := do
   return decl
 
 def toMono : Pass where
-  name  := `toMono
-  run   := fun decls => decls.mapM (·.toMono)
-  phase := .base
+  name     := `toMono
+  run      := fun decls => decls.mapM (·.toMono)
+  phase    := .base
+  phaseOut := .mono
 
 builtin_initialize
   registerTraceClass `Compiler.toMono (inherited := true)

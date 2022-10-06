@@ -8,28 +8,35 @@ import Lean.Compiler.LCNF.InferType
 
 namespace Lean.Compiler.LCNF
 
-def Param.toMono (param : Param) : CompilerM Param := do
+structure ToMonoM.State where
+  typeParams : FVarIdSet := {}
+
+abbrev ToMonoM := StateRefT ToMonoM.State CompilerM
+
+def Param.toMono (param : Param) : ToMonoM Param := do
+  if isTypeFormerType param.type then
+    modify fun { typeParams, .. } => { typeParams := typeParams.insert param.fvarId }
   param.update (← toMonoType param.type)
 
-def isTrivialConstructorApp? (e : Expr) : CompilerM (Option Expr) := do
+def isTrivialConstructorApp? (e : Expr) : ToMonoM (Option Expr) := do
   let some ctorInfo := e.isConstructorApp? (← getEnv) | return none
   let some info ← hasTrivialStructure? ctorInfo.induct | return none
   assert! ctorInfo.numParams + info.fieldIdx < e.getAppNumArgs
   return e.getArg! (ctorInfo.numParams + info.fieldIdx)
 
-def fvarToMono (e : Expr) : CompilerM Expr := do
-  if isTypeFormerType (← inferType e) then
+def fvarToMono (e : Expr) : ToMonoM Expr := do
+  if (← get).typeParams.contains e.fvarId! then
     return erasedExpr
   else
     return e
 
-def argToMono (arg : Expr) : CompilerM Expr := do
+def argToMono (arg : Expr) : ToMonoM Expr := do
   if arg.isFVar then
     fvarToMono arg
   else
     return erasedExpr
 
-def ctorAppToMono (ctorInfo : ConstructorVal) (args : Array Expr) : CompilerM Expr := do
+def ctorAppToMono (ctorInfo : ConstructorVal) (args : Array Expr) : ToMonoM Expr := do
   let argsNew ← args[:ctorInfo.numParams].toArray.mapM fun param => do
     -- We only preserve constructor parameters that are types
     if isTypeFormerType (← inferType param) then
@@ -39,7 +46,7 @@ def ctorAppToMono (ctorInfo : ConstructorVal) (args : Array Expr) : CompilerM Ex
   let argsNew := argsNew ++ (← args[ctorInfo.numParams:].toArray.mapM argToMono)
   return mkAppN (mkConst ctorInfo.name) argsNew
 
-partial def _root_.Lean.Expr.toMono (e : Expr) : CompilerM Expr := do
+partial def _root_.Lean.Expr.toMono (e : Expr) : ToMonoM Expr := do
   match e with
   | .fvar .. => fvarToMono e
   | .lit .. => return e
@@ -71,21 +78,21 @@ partial def _root_.Lean.Expr.toMono (e : Expr) : CompilerM Expr := do
       let args ← args.mapM argToMono
       return mkAppN (← f.toMono) args
 
-def LetDecl.toMono (decl : LetDecl) : CompilerM LetDecl := do
+def LetDecl.toMono (decl : LetDecl) : ToMonoM LetDecl := do
   let type ← toMonoType decl.type
   let value ← decl.value.toMono
   decl.update type value
 
 mutual
 
-partial def FunDeclCore.toMono (decl : FunDecl) : CompilerM FunDecl := do
+partial def FunDeclCore.toMono (decl : FunDecl) : ToMonoM FunDecl := do
   let type ← toMonoType decl.type
   let params ← decl.params.mapM (·.toMono)
   let value ← decl.value.toMono
   decl.update type params value
 
 /-- Convert `cases` `Decidable` => `Bool` -/
-partial def decToMono (c : Cases) (_ : c.typeName == ``Decidable) : CompilerM Code := do
+partial def decToMono (c : Cases) (_ : c.typeName == ``Decidable) : ToMonoM Code := do
   let resultType ← toMonoType c.resultType
   let alts ← c.alts.mapM fun alt => do
     match alt with
@@ -97,7 +104,7 @@ partial def decToMono (c : Cases) (_ : c.typeName == ``Decidable) : CompilerM Co
   return .cases { c with resultType, alts, typeName := ``Bool }
 
 /-- Eliminate `cases` for trivial structure. See `hasTrivialStructure?` -/
-partial def trivialStructToMono (info : TrivialStructureInfo) (c : Cases) : CompilerM Code := do
+partial def trivialStructToMono (info : TrivialStructureInfo) (c : Cases) : ToMonoM Code := do
   assert! c.alts.size == 1
   let .alt ctorName ps k := c.alts[0]! | unreachable!
   assert! ctorName == info.ctorName
@@ -110,7 +117,7 @@ partial def trivialStructToMono (info : TrivialStructureInfo) (c : Cases) : Comp
   let k ← k.toMono
   return .let decl k
 
-partial def Code.toMono (code : Code) : CompilerM Code := do
+partial def Code.toMono (code : Code) : ToMonoM Code := do
   match code with
   | .let decl k => return code.updateLet! (← decl.toMono) (← k.toMono)
   | .fun decl k | .jp decl k => return code.updateFun! (← decl.toMono) (← k.toMono)
@@ -133,12 +140,15 @@ partial def Code.toMono (code : Code) : CompilerM Code := do
 end
 
 def Decl.toMono (decl : Decl) : CompilerM Decl := do
-  let type ← toMonoType decl.type
-  let params ← decl.params.mapM (·.toMono)
-  let value ← decl.value.toMono
-  let decl := { decl with type, params, value, levelParams := [] }
-  decl.saveMono
-  return decl
+  go |>.run' {}
+where
+  go : ToMonoM Decl := do
+    let type ← toMonoType decl.type
+    let params ← decl.params.mapM (·.toMono)
+    let value ← decl.value.toMono
+    let decl := { decl with type, params, value, levelParams := [] }
+    decl.saveMono
+    return decl
 
 def toMono : Pass where
   name     := `toMono

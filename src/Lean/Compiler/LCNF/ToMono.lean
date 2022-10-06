@@ -102,11 +102,11 @@ partial def trivialStructToMono (info : TrivialStructureInfo) (c : Cases) : Comp
   assert! ctorName == info.ctorName
   assert! info.fieldIdx < ps.size
   let p := ps[info.fieldIdx]!
-  let k ← k.toMono
   eraseParams ps
   /- We reuse `p`s `fvarId` to avoid substitution -/
-  let decl := { fvarId := p.fvarId, binderName := p.binderName, type := (← p.type.toMono), value := .fvar c.discr }
+  let decl := { fvarId := p.fvarId, binderName := p.binderName, type := (← toMonoType p.type), value := .fvar c.discr }
   modifyLCtx fun lctx => lctx.addLetDecl decl
+  let k ← k.toMono
   return .let decl k
 
 partial def Code.toMono (code : Code) : CompilerM Code := do

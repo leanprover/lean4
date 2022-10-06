@@ -30,6 +30,7 @@ it has only one constructor, and this constructor has only one relevant field.
 -/
 structure TrivialStructureInfo where
   ctorName  : Name
+  numParams : Nat
   fieldIdx  : Nat
   deriving Inhabited, Repr
 
@@ -49,7 +50,7 @@ def hasTrivialStructure? (declName : Name) : CoreM (Option TrivialStructureInfo)
   for i in [:mask.size] do
     if mask[i]! then
       if result.isSome then return none
-      result := some { ctorName, fieldIdx := i}
+      result := some { ctorName, fieldIdx := i, numParams := info.numParams }
   return result
 
 def getParamTypes (type : Expr) : Array Expr :=
@@ -89,7 +90,7 @@ where
         return mkConst ``Bool
       if let some info ← hasTrivialStructure? declName then
         let ctorType ← getOtherDeclBaseType info.ctorName []
-        toMonoType (getParamTypes (← instantiateForall ctorType args))[info.fieldIdx]!
+        toMonoType (getParamTypes (← instantiateForall ctorType args[:info.numParams]))[info.fieldIdx]!
       else
         let mut result := mkConst declName
         let mut type ← getOtherDeclBaseType declName us
